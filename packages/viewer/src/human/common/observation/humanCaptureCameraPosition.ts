@@ -17,8 +17,8 @@ import type { IHumanCaptureCamera } from "./IHumanCaptureCamera.js";
 export function humanCaptureCameraPosition(
   camera: IHumanCaptureCamera,
 ): [number, number, number] {
-  const yaw: number = camera.yaw * Math.PI / 180;
-  const pitch: number = camera.pitch * Math.PI / 180;
+  const yaw: number = (camera.yaw * Math.PI) / 180;
+  const pitch: number = (camera.pitch * Math.PI) / 180;
   return [
     camera.target[0] + camera.distance * Math.cos(pitch) * Math.sin(yaw),
     camera.target[1] + camera.distance * Math.sin(pitch),

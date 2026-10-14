@@ -6,4 +6,7 @@ import { HUMAN_HAIR_SHADOW_KERATIN_INDEX } from "./HUMAN_HAIR_SHADOW_KERATIN_IND
  * and wavelength variation; CPU and generated shader share it at module scope
  * without retaining a material or GPU resource.
  */
-export const HUMAN_HAIR_SHADOW_SURFACE_REFLECTANCE: number = ((HUMAN_HAIR_SHADOW_KERATIN_INDEX - 1) / (HUMAN_HAIR_SHADOW_KERATIN_INDEX + 1)) ** 2;
+export const HUMAN_HAIR_SHADOW_SURFACE_REFLECTANCE: number =
+  ((HUMAN_HAIR_SHADOW_KERATIN_INDEX - 1) /
+    (HUMAN_HAIR_SHADOW_KERATIN_INDEX + 1)) **
+  2;

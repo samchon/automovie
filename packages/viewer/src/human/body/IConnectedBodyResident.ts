@@ -1,7 +1,7 @@
-import type { AutoMovieTextureCache } from "../../AutoMovieTextureCache.js";
+import type { ConnectedBodyPart } from "@automovie/human/body/runtime/ConnectedBodyPart";
 import type * as THREE from "three";
 
-import type { ConnectedBodyPart } from "@automovie/human/body/runtime/ConnectedBodyPart";
+import type { AutoMovieTextureCache } from "../../AutoMovieTextureCache.js";
 
 /**
  * One Three.js group the body preview renderer owns, with what it was built from.

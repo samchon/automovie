@@ -18,9 +18,18 @@ export function admitHumanViewerCatalogue(
 ): HumanViewerCatalogue {
   if (refreshed.revision === current.revision) return refreshed;
   if (
-    !current.documents.some((entry: HumanViewerCatalogue["documents"][number]): boolean => entry.id === doc) &&
-    (refreshed.documents.some((entry: HumanViewerCatalogue["documents"][number]): boolean => entry.id === doc) ||
-      refreshed.rejected.some((entry: HumanViewerCatalogue["rejected"][number]): boolean => entry.id === doc || entry.candidate?.id === doc))
+    !current.documents.some(
+      (entry: HumanViewerCatalogue["documents"][number]): boolean =>
+        entry.id === doc,
+    ) &&
+    (refreshed.documents.some(
+      (entry: HumanViewerCatalogue["documents"][number]): boolean =>
+        entry.id === doc,
+    ) ||
+      refreshed.rejected.some(
+        (entry: HumanViewerCatalogue["rejected"][number]): boolean =>
+          entry.id === doc || entry.candidate?.id === doc,
+      ))
   )
     throw new Error(
       "The document inventory belongs to a newer source generation",

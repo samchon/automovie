@@ -20,5 +20,4 @@ export interface IHumanViewerWatchState {
 
   /** The watcher's own server child is still running. */
   ownedRunning: boolean;
-
 }

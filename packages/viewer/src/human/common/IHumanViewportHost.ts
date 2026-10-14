@@ -49,7 +49,10 @@ export interface IHumanViewportHost {
     toneMappingExposure: number;
 
     /** Static shadow selection and explicit invalidation controls. */
-    shadowMap: Pick<THREE.WebGLShadowMap, "enabled" | "type" | "autoUpdate" | "needsUpdate">;
+    shadowMap: Pick<
+      THREE.WebGLShadowMap,
+      "enabled" | "type" | "autoUpdate" | "needsUpdate"
+    >;
 
     /** Resize drawing storage; false leaves the canvas CSS layout with its host. */
     setSize: (width: number, height: number, updateStyle: boolean) => void;
@@ -66,7 +69,9 @@ export interface IHumanViewportHost {
       finish: () => void;
 
       /** Optional native device identification extension. */
-      getExtension: (name: string) => { UNMASKED_RENDERER_WEBGL: number } | null;
+      getExtension: (
+        name: string,
+      ) => { UNMASKED_RENDERER_WEBGL: number } | null;
 
       /** Read a native context parameter without substituting a requested value. */
       getParameter: (parameter: number) => unknown;
@@ -121,5 +126,5 @@ export interface IHumanViewportHost {
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work Registrations have distinct effects and are not shared solely because their callbacks produce equal dimensions.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The returned closer is the stage's subscription lifetime boundary; the host remains responsible for the observer implementation.
    */
-  observeResize: (callback: () => void) => (() => void);
+  observeResize: (callback: () => void) => () => void;
 }

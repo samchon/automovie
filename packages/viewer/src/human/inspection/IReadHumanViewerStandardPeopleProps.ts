@@ -1,7 +1,7 @@
+import type { HumanViewerBodyExamples } from "./HumanViewerBodyExamples.js";
 import type { IHumanViewerPublishedGeneration } from "./IHumanViewerPublishedGeneration.js";
 import type { IHumanViewerReferenceFaceDocument } from "./IHumanViewerReferenceFaceDocument.js";
 import type { IHumanViewerRevisions } from "./IHumanViewerRevisions.js";
-import type { HumanViewerBodyExamples } from "./HumanViewerBodyExamples.js";
 
 /**
  * What the standard people are built from.

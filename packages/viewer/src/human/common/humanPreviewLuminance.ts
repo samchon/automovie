@@ -10,5 +10,6 @@
  * @evidence contracts/performance.md#reuse-equivalent-work Consumers reuse this canonical channel conversion; the function retains no color-keyed cache and recomputes mutable values on each call.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Borrows the input array and returns a scalar with no retained record, native handle or task.
  */
-export const humanPreviewLuminance: (rgb: readonly number[]) => number = (rgb: readonly number[]): number =>
-  0.2126 * rgb[0]! + 0.7152 * rgb[1]! + 0.0722 * rgb[2]!;
+export const humanPreviewLuminance: (rgb: readonly number[]) => number = (
+  rgb: readonly number[],
+): number => 0.2126 * rgb[0]! + 0.7152 * rgb[1]! + 0.0722 * rgb[2]!;

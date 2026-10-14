@@ -1,6 +1,6 @@
 import type { IHumanViewerBasisIdentity } from "./IHumanViewerBasisIdentity.js";
-import type { IHumanViewerRevisions } from "./IHumanViewerRevisions.js";
 import type { IHumanViewerReferenceFaceDocument } from "./IHumanViewerReferenceFaceDocument.js";
+import type { IHumanViewerRevisions } from "./IHumanViewerRevisions.js";
 
 /**
  * What the face documents are read from.

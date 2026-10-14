@@ -1,14 +1,9 @@
-import { formatHumanHairShadowGlsl } from "./formatHumanHairShadowGlsl.js";
-
-import { HUMAN_HAIR_SHADOW_DARKEST } from "./HUMAN_HAIR_SHADOW_DARKEST.js";
-
 import { HUMAN_HAIR_SHADOW_ABSORPTION_SCALE } from "./HUMAN_HAIR_SHADOW_ABSORPTION_SCALE.js";
-
-import { HUMAN_HAIR_SHADOW_OFFSETS } from "./HUMAN_HAIR_SHADOW_OFFSETS.js";
-
-import { HUMAN_HAIR_SHADOW_SURFACE_REFLECTANCE } from "./HUMAN_HAIR_SHADOW_SURFACE_REFLECTANCE.js";
-
+import { HUMAN_HAIR_SHADOW_DARKEST } from "./HUMAN_HAIR_SHADOW_DARKEST.js";
 import { HUMAN_HAIR_SHADOW_LUMINANCE } from "./HUMAN_HAIR_SHADOW_LUMINANCE.js";
+import { HUMAN_HAIR_SHADOW_OFFSETS } from "./HUMAN_HAIR_SHADOW_OFFSETS.js";
+import { HUMAN_HAIR_SHADOW_SURFACE_REFLECTANCE } from "./HUMAN_HAIR_SHADOW_SURFACE_REFLECTANCE.js";
+import { formatHumanHairShadowGlsl } from "./formatHumanHairShadowGlsl.js";
 
 /**
  * Generated opacity shader source using the same model constants and quadrature

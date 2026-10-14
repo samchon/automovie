@@ -26,7 +26,9 @@ export function admitHumanViewerCachePayload(body: Buffer): void {
   const payload: unknown = JSON.parse(body.toString("utf8"));
   if (payload === null || typeof payload !== "object" || Array.isArray(payload))
     throw new Error("the payload is not a JSON object");
-  const extra: string[] = Object.keys(payload).filter((name: string): boolean => !CACHE_FIELDS.has(name));
+  const extra: string[] = Object.keys(payload).filter(
+    (name: string): boolean => !CACHE_FIELDS.has(name),
+  );
   if (extra.length !== 0)
     throw new Error(
       "members outside the numerical projection: " + extra.join(", "),

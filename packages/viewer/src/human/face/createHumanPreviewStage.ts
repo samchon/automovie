@@ -1,13 +1,13 @@
 import * as THREE from "three";
 
-import { createHumanObservation } from "../common/observation/createHumanObservation.js";
-import { addHumanPreviewRig } from "../common/addHumanPreviewRig.js";
-import { createHumanPreviewCamera } from "../common/createHumanPreviewCamera.js";
-import { createHumanViewportTransfer } from "../common/createHumanViewportTransfer.js";
+import { constructAutoMovieOwnedResources } from "../../constructAutoMovieOwnedResources.js";
 import { createAutoMovieResourceRetirement } from "../../createAutoMovieResourceRetirement.js";
 import { publishViewerCompletedFrame } from "../../publishViewerCompletedFrame.js";
 import type { IHumanViewportHost } from "../common/IHumanViewportHost.js";
-import { constructAutoMovieOwnedResources } from "../../constructAutoMovieOwnedResources.js";
+import { addHumanPreviewRig } from "../common/addHumanPreviewRig.js";
+import { createHumanPreviewCamera } from "../common/createHumanPreviewCamera.js";
+import { createHumanViewportTransfer } from "../common/createHumanViewportTransfer.js";
+import { createHumanObservation } from "../common/observation/createHumanObservation.js";
 
 /**
  * Own display state independently of numerical evaluation and file encoding.
@@ -43,157 +43,235 @@ export function createHumanPreviewStage(props: IHumanViewportHost): {
   finish: () => void;
   renderer: () => unknown;
 } {
-  return constructAutoMovieOwnedResources((own: <Resource extends { dispose(): void; }>(resource: Resource) => Resource): ReturnType<typeof createHumanPreviewStage> => {
-  const { renderer, canvas }: IHumanViewportHost = props;
-  renderer.setPixelRatio(Math.min(props.pixelRatio, 2));
-  renderer.outputColorSpace = THREE.SRGBColorSpace;
-  renderer.toneMapping = THREE.LinearToneMapping;
-  renderer.shadowMap.enabled = true;
-  // Three r186 maps the removed soft mode to PCF on its first shadow draw.
-  // Select that canonical mode before a direct renderer can draw the preview.
-  renderer.shadowMap.type = THREE.PCFShadowMap;
-  renderer.shadowMap.autoUpdate = false;
-  renderer.shadowMap.needsUpdate = true;
-  const scene: THREE.Scene<THREE.Object3DEventMap> = new THREE.Scene();
-  scene.background = new THREE.Color(0x1c252e);
-  const shadowLights: THREE.DirectionalLight[] = addHumanPreviewRig({
-    scene,
-    renderer,
-    scale: 1,
-  });
-  const camera: THREE.PerspectiveCamera = new THREE.PerspectiveCamera(30, 1, 0.01, 10);
-  const orbit: ReturnType<IHumanViewportHost["orbit"]> = props.orbit(camera);
-  let displayDirty: boolean = true;
-  const invalidateDisplay: () => void = (): void => { displayDirty = true; };
-  own({ dispose: (): void => orbit.removeEventListener?.("change", invalidateDisplay) });
-  orbit.addEventListener?.("change", invalidateDisplay);
-  orbit.target.set(0, -0.015, 0);
-  orbit.enableDamping = true;
-  orbit.minDistance = 0.12;
-  orbit.maxDistance = 2;
-  const clay: THREE.MeshStandardMaterial = own(new THREE.MeshStandardMaterial({
-    color: 0x999999,
-    roughness: 0.75,
-    side: THREE.DoubleSide,
-  }));
-  let active: THREE.Group | undefined;
-  let clayEnabled: boolean = false;
-  const observation: ReturnType<typeof createHumanObservation> = createHumanObservation({
-    scene,
-    camera,
-    orbit,
-    roots: (): THREE.Group<THREE.Object3DEventMap>[] => (active === undefined ? [] : [active]),
-    clay,
-    height: (): number => canvas.getBoundingClientRect().height,
-    invalidateShadows: (): void => {
+  return constructAutoMovieOwnedResources(
+    (
+      own: <Resource extends { dispose(): void }>(
+        resource: Resource,
+      ) => Resource,
+    ): ReturnType<typeof createHumanPreviewStage> => {
+      const { renderer, canvas }: IHumanViewportHost = props;
+      renderer.setPixelRatio(Math.min(props.pixelRatio, 2));
+      renderer.outputColorSpace = THREE.SRGBColorSpace;
+      renderer.toneMapping = THREE.LinearToneMapping;
+      renderer.shadowMap.enabled = true;
+      // Three r186 maps the removed soft mode to PCF on its first shadow draw.
+      // Select that canonical mode before a direct renderer can draw the preview.
+      renderer.shadowMap.type = THREE.PCFShadowMap;
+      renderer.shadowMap.autoUpdate = false;
       renderer.shadowMap.needsUpdate = true;
-    },
-    invalidateDisplay,
-  });
-  const {
-    cameraView,
-    fitView,
-    resize: resizeCamera,
-  }: { cameraView: (degrees: number) => void; fitView: () => void; resize: (width: number, height: number) => void; } = createHumanPreviewCamera({
-    camera,
-    orbit,
-    model: (): THREE.Group<THREE.Object3DEventMap> | undefined => active,
-    setSize: (width: number, height: number): void => renderer.setSize(width, height, false),
-  });
-  cameraView(0);
-  const publish: (group: THREE.Group) => void = (group: THREE.Group): void => {
-    invalidateDisplay();
-    renderer.shadowMap.needsUpdate = true;
-    if (active === group) return;
-    if (active !== undefined) scene.remove(active);
-    active = group;
-    scene.add(group);
-  };
-  const resize: () => void = (): void => {
-    invalidateDisplay();
-    const rect: Pick<DOMRect, "width" | "height"> = canvas.getBoundingClientRect();
-    resizeCamera(rect.width, rect.height);
-  };
-  const stopResize: () => void = props.observeResize(resize);
-  own({ dispose: stopResize });
-  resize();
-  let freezes: number = 0;
-  const render: () => void = (): void => {
-    if (freezes === 0) orbit.update();
-    observation.apply();
-    scene.overrideMaterial = observation.override(clayEnabled);
-    const changed: boolean | undefined = orbit.addEventListener === undefined ? undefined : displayDirty;
-    displayDirty = false;
-    renderer.render(scene, camera);
-    publishViewerCompletedFrame(canvas, { camera, scene,
-      pass: observation.hooks.state().pass === "beauty" && clayEnabled ? "clay" : observation.hooks.state().pass,
-      control: transfer, requiresApplication: true, changed });
-  };
-  const finish: () => void = (): void => { invalidateDisplay(); render(); renderer.getContext().finish(); };
-  const transfer: ReturnType<typeof createHumanViewportTransfer> = createHumanViewportTransfer({
-    camera,
-    observe: observation.hooks, clay: (): boolean => clayEnabled,
-    shadows: (): boolean => shadowLights.some((light: THREE.DirectionalLight): boolean => light.castShadow),
-    setClay: (value: boolean): void => { invalidateDisplay(); clayEnabled = value; renderer.shadowMap.needsUpdate = true; },
-    setShadows: (value: boolean): void => { invalidateDisplay(); for (const light of shadowLights) light.castShadow = value; renderer.shadowMap.needsUpdate = true; },
-    finish,
-    freeze: (): () => void => {
-      ++freezes;
-      let released: boolean = false;
-      return (): void => { if (!released) { released = true; --freezes; } };
-    },
-  });
-  own({ dispose: (): void => renderer.setAnimationLoop(null) });
-  renderer.setAnimationLoop(render);
-  const close: () => Promise<void> = createAutoMovieResourceRetirement([
-    (): void => renderer.setAnimationLoop(null),
-    (): void => orbit.removeEventListener?.("change", invalidateDisplay),
-    stopResize,
-    (): Promise<void> => observation.close(),
-    (): void => {
-      if (active !== undefined) scene.remove(active);
-    },
-    (): void => {
-      active = undefined;
-    },
-    (): void => clay.dispose(),
-    ...shadowLights.flatMap((light: THREE.DirectionalLight): (() => void)[] => [
-      (): void => light.shadow.map?.dispose(),
-      (): void => light.shadow.mapPass?.dispose(),
-    ]),
-  ]);
+      const scene: THREE.Scene<THREE.Object3DEventMap> = new THREE.Scene();
+      scene.background = new THREE.Color(0x1c252e);
+      const shadowLights: THREE.DirectionalLight[] = addHumanPreviewRig({
+        scene,
+        renderer,
+        scale: 1,
+      });
+      const camera: THREE.PerspectiveCamera = new THREE.PerspectiveCamera(
+        30,
+        1,
+        0.01,
+        10,
+      );
+      const orbit: ReturnType<IHumanViewportHost["orbit"]> =
+        props.orbit(camera);
+      let displayDirty: boolean = true;
+      const invalidateDisplay: () => void = (): void => {
+        displayDirty = true;
+      };
+      own({
+        dispose: (): void =>
+          orbit.removeEventListener?.("change", invalidateDisplay),
+      });
+      orbit.addEventListener?.("change", invalidateDisplay);
+      orbit.target.set(0, -0.015, 0);
+      orbit.enableDamping = true;
+      orbit.minDistance = 0.12;
+      orbit.maxDistance = 2;
+      const clay: THREE.MeshStandardMaterial = own(
+        new THREE.MeshStandardMaterial({
+          color: 0x999999,
+          roughness: 0.75,
+          side: THREE.DoubleSide,
+        }),
+      );
+      let active: THREE.Group | undefined;
+      let clayEnabled: boolean = false;
+      const observation: ReturnType<typeof createHumanObservation> =
+        createHumanObservation({
+          scene,
+          camera,
+          orbit,
+          roots: (): THREE.Group<THREE.Object3DEventMap>[] =>
+            active === undefined ? [] : [active],
+          clay,
+          height: (): number => canvas.getBoundingClientRect().height,
+          invalidateShadows: (): void => {
+            renderer.shadowMap.needsUpdate = true;
+          },
+          invalidateDisplay,
+        });
+      const {
+        cameraView,
+        fitView,
+        resize: resizeCamera,
+      }: {
+        cameraView: (degrees: number) => void;
+        fitView: () => void;
+        resize: (width: number, height: number) => void;
+      } = createHumanPreviewCamera({
+        camera,
+        orbit,
+        model: (): THREE.Group<THREE.Object3DEventMap> | undefined => active,
+        setSize: (width: number, height: number): void =>
+          renderer.setSize(width, height, false),
+      });
+      cameraView(0);
+      const publish: (group: THREE.Group) => void = (
+        group: THREE.Group,
+      ): void => {
+        invalidateDisplay();
+        renderer.shadowMap.needsUpdate = true;
+        if (active === group) return;
+        if (active !== undefined) scene.remove(active);
+        active = group;
+        scene.add(group);
+      };
+      const resize: () => void = (): void => {
+        invalidateDisplay();
+        const rect: Pick<DOMRect, "width" | "height"> =
+          canvas.getBoundingClientRect();
+        resizeCamera(rect.width, rect.height);
+      };
+      const stopResize: () => void = props.observeResize(resize);
+      own({ dispose: stopResize });
+      resize();
+      let freezes: number = 0;
+      const render: () => void = (): void => {
+        if (freezes === 0) orbit.update();
+        observation.apply();
+        scene.overrideMaterial = observation.override(clayEnabled);
+        const changed: boolean | undefined =
+          orbit.addEventListener === undefined ? undefined : displayDirty;
+        displayDirty = false;
+        renderer.render(scene, camera);
+        publishViewerCompletedFrame(canvas, {
+          camera,
+          scene,
+          pass:
+            observation.hooks.state().pass === "beauty" && clayEnabled
+              ? "clay"
+              : observation.hooks.state().pass,
+          control: transfer,
+          requiresApplication: true,
+          changed,
+        });
+      };
+      const finish: () => void = (): void => {
+        invalidateDisplay();
+        render();
+        renderer.getContext().finish();
+      };
+      const transfer: ReturnType<typeof createHumanViewportTransfer> =
+        createHumanViewportTransfer({
+          camera,
+          observe: observation.hooks,
+          clay: (): boolean => clayEnabled,
+          shadows: (): boolean =>
+            shadowLights.some(
+              (light: THREE.DirectionalLight): boolean => light.castShadow,
+            ),
+          setClay: (value: boolean): void => {
+            invalidateDisplay();
+            clayEnabled = value;
+            renderer.shadowMap.needsUpdate = true;
+          },
+          setShadows: (value: boolean): void => {
+            invalidateDisplay();
+            for (const light of shadowLights) light.castShadow = value;
+            renderer.shadowMap.needsUpdate = true;
+          },
+          finish,
+          freeze: (): (() => void) => {
+            ++freezes;
+            let released: boolean = false;
+            return (): void => {
+              if (!released) {
+                released = true;
+                --freezes;
+              }
+            };
+          },
+        });
+      own({ dispose: (): void => renderer.setAnimationLoop(null) });
+      renderer.setAnimationLoop(render);
+      const close: () => Promise<void> = createAutoMovieResourceRetirement([
+        (): void => renderer.setAnimationLoop(null),
+        (): void => orbit.removeEventListener?.("change", invalidateDisplay),
+        stopResize,
+        (): Promise<void> => observation.close(),
+        (): void => {
+          if (active !== undefined) scene.remove(active);
+        },
+        (): void => {
+          active = undefined;
+        },
+        (): void => clay.dispose(),
+        ...shadowLights.flatMap(
+          (light: THREE.DirectionalLight): (() => void)[] => [
+            (): void => light.shadow.map?.dispose(),
+            (): void => light.shadow.mapPass?.dispose(),
+          ],
+        ),
+      ]);
 
-  return {
-    /** Await the observation owner's temporary-material retirement outcomes. */
-    settleRetirements: (): Promise<void> => observation.settleRetirements(),
-    /** Retire this stage's loop, scene references and materials without closing its borrowed renderer. */
-    close,
-    /** Restore display-owned materials before the numerical owner releases a resident. */
-    restoreObservation: observation.restore,
-    publish,
-    fitView: (): void => { invalidateDisplay(); fitView(); },
-    cameraView: (degrees: number): void => { invalidateDisplay(); cameraView(degrees); },
-    observe: observation.hooks,
-    setClay: (enabled: boolean): void => {
-      invalidateDisplay();
-      clayEnabled = enabled;
-      renderer.shadowMap.needsUpdate = true;
+      return {
+        /** Await the observation owner's temporary-material retirement outcomes. */
+        settleRetirements: (): Promise<void> => observation.settleRetirements(),
+        /** Retire this stage's loop, scene references and materials without closing its borrowed renderer. */
+        close,
+        /** Restore display-owned materials before the numerical owner releases a resident. */
+        restoreObservation: observation.restore,
+        publish,
+        fitView: (): void => {
+          invalidateDisplay();
+          fitView();
+        },
+        cameraView: (degrees: number): void => {
+          invalidateDisplay();
+          cameraView(degrees);
+        },
+        observe: observation.hooks,
+        setClay: (enabled: boolean): void => {
+          invalidateDisplay();
+          clayEnabled = enabled;
+          renderer.shadowMap.needsUpdate = true;
+        },
+        // A cast-shadow boundary can resemble a crease in the anatomical surface.
+        // Toggle only the shadow casters: direct light, materials, geometry and the
+        // saved document stay fixed, so the two views isolate that ambiguity.
+        // Changing the light's shadow count also refreshes Three's shader variant.
+        setShadows: (enabled: boolean): void => {
+          invalidateDisplay();
+          for (const light of shadowLights) light.castShadow = enabled;
+          renderer.shadowMap.needsUpdate = true;
+        },
+        finish,
+        renderer: (): unknown => {
+          const gl: {
+              finish: () => void;
+              getExtension: (
+                name: string,
+              ) => { UNMASKED_RENDERER_WEBGL: number } | null;
+              getParameter: (parameter: number) => unknown;
+              RENDERER: number;
+            } = renderer.getContext(),
+            extension: { UNMASKED_RENDERER_WEBGL: number } | null =
+              gl.getExtension("WEBGL_debug_renderer_info");
+          return gl.getParameter(
+            extension?.UNMASKED_RENDERER_WEBGL ?? gl.RENDERER,
+          );
+        },
+      };
     },
-    // A cast-shadow boundary can resemble a crease in the anatomical surface.
-    // Toggle only the shadow casters: direct light, materials, geometry and the
-    // saved document stay fixed, so the two views isolate that ambiguity.
-    // Changing the light's shadow count also refreshes Three's shader variant.
-    setShadows: (enabled: boolean): void => {
-      invalidateDisplay();
-      for (const light of shadowLights) light.castShadow = enabled;
-      renderer.shadowMap.needsUpdate = true;
-    },
-    finish,
-    renderer: (): unknown => {
-      const gl: { finish: () => void; getExtension: (name: string) => { UNMASKED_RENDERER_WEBGL: number; } | null; getParameter: (parameter: number) => unknown; RENDERER: number; } = renderer.getContext(),
-        extension: { UNMASKED_RENDERER_WEBGL: number; } | null = gl.getExtension("WEBGL_debug_renderer_info");
-      return gl.getParameter(extension?.UNMASKED_RENDERER_WEBGL ?? gl.RENDERER);
-    },
-  };
-  });
+  );
 }

@@ -1,7 +1,7 @@
+import type { IHumanViewerNodeInputScope } from "./IHumanViewerNodeInputScope.js";
 import type { IHumanViewerResolveIo } from "./IHumanViewerResolveIo.js";
 import type { IHumanViewerRevisionReadIo } from "./IHumanViewerRevisionReadIo.js";
 import type { IHumanViewerRevisionsEntries } from "./IHumanViewerRevisionsEntries.js";
-import type { IHumanViewerNodeInputScope } from "./IHumanViewerNodeInputScope.js";
 
 /**
  * What the revision digests are computed from.

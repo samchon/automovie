@@ -1,7 +1,6 @@
 import type { ViteDevServer } from "vite";
 
 import type { HumanViewerMiddleware } from "./HumanViewerMiddleware.js";
-
 import type { IHumanViewerCatalogue } from "./IHumanViewerCatalogue.js";
 import type { IHumanViewerInstance } from "./IHumanViewerInstance.js";
 import type { ISubscribeHumanViewerSourcesProps } from "./ISubscribeHumanViewerSourcesProps.js";
@@ -62,7 +61,10 @@ export interface IStartHumanViewerServerProps {
   /**
    * Existing source-change publication, excluding the actual watcher binding.
    */
-  watching: Omit<ISubscribeHumanViewerSourcesProps, "source" | "add" | "watch" | "browser">;
+  watching: Omit<
+    ISubscribeHumanViewerSourcesProps,
+    "source" | "add" | "watch" | "browser"
+  >;
 
   /**
    * Return the current complete catalogue for source notifications.

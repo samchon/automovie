@@ -1,8 +1,9 @@
-import type { createHumanObservation } from "./observation/createHumanObservation.js";
 import type * as THREE from "three";
-import { createViewerCameraState } from "../../createViewerCameraState.js";
+
 import type { IViewerCameraStateSnapshot } from "../../IViewerCameraStateSnapshot.js";
+import { createViewerCameraState } from "../../createViewerCameraState.js";
 import type { HumanObservationPass } from "./observation/HumanObservationPass.js";
+import type { createHumanObservation } from "./observation/createHumanObservation.js";
 
 /**
  * Transfer only the actual viewport-owned camera and display state. Numerical
@@ -30,22 +31,84 @@ export function createHumanViewportTransfer(props: {
   finish: () => void;
   /** Suspend the viewport's own orbit updates until the returned release runs. */
   freeze: () => () => void;
-}): { redraw: () => void; freeze: () => () => void; capture: () => { camera: { position: THREE.Vector3Tuple; target: THREE.Vector3Tuple; fov: number; near: number; far: number; aspect: number; }; view: { pass: HumanObservationPass; isolated: string[] | null; hidden: string[]; }; nativeCamera: IViewerCameraStateSnapshot; clay: boolean; shadows: boolean; }; restore: (state: unknown) => void; } {
-  const nativeCamera: { capture: () => IViewerCameraStateSnapshot; restore: (state: unknown) => void; } = createViewerCameraState(props.camera);
+}): {
+  redraw: () => void;
+  freeze: () => () => void;
+  capture: () => {
+    camera: {
+      position: THREE.Vector3Tuple;
+      target: THREE.Vector3Tuple;
+      fov: number;
+      near: number;
+      far: number;
+      aspect: number;
+    };
+    view: {
+      pass: HumanObservationPass;
+      isolated: string[] | null;
+      hidden: string[];
+    };
+    nativeCamera: IViewerCameraStateSnapshot;
+    clay: boolean;
+    shadows: boolean;
+  };
+  restore: (state: unknown) => void;
+} {
+  const nativeCamera: {
+    capture: () => IViewerCameraStateSnapshot;
+    restore: (state: unknown) => void;
+  } = createViewerCameraState(props.camera);
   return {
     redraw: props.finish,
     freeze: props.freeze,
-    capture: (): { camera: { position: THREE.Vector3Tuple; target: THREE.Vector3Tuple; fov: number; near: number; far: number; aspect: number; }; view: { pass: HumanObservationPass; isolated: string[] | null; hidden: string[]; }; nativeCamera: IViewerCameraStateSnapshot; clay: boolean; shadows: boolean; } => ({ camera: props.observe.camera(), view: props.observe.state(),
-      nativeCamera: nativeCamera.capture(), clay: props.clay(), shadows: props.shadows() }),
+    capture: (): {
+      camera: {
+        position: THREE.Vector3Tuple;
+        target: THREE.Vector3Tuple;
+        fov: number;
+        near: number;
+        far: number;
+        aspect: number;
+      };
+      view: {
+        pass: HumanObservationPass;
+        isolated: string[] | null;
+        hidden: string[];
+      };
+      nativeCamera: IViewerCameraStateSnapshot;
+      clay: boolean;
+      shadows: boolean;
+    } => ({
+      camera: props.observe.camera(),
+      view: props.observe.state(),
+      nativeCamera: nativeCamera.capture(),
+      clay: props.clay(),
+      shadows: props.shadows(),
+    }),
     restore: (state: unknown): void => {
-      if (state === null || typeof state !== "object") throw new Error("Viewport transfer is not an object.");
+      if (state === null || typeof state !== "object")
+        throw new Error("Viewport transfer is not an object.");
       const camera: unknown = Reflect.get(state, "camera");
       const view: unknown = Reflect.get(state, "view");
-      if (camera === null || typeof camera !== "object" || view === null || typeof view !== "object")
+      if (
+        camera === null ||
+        typeof camera !== "object" ||
+        view === null ||
+        typeof view !== "object"
+      )
         throw new Error("Viewport transfer has no observed camera/view.");
-      const vector: (name: string) => [number, number, number] = (name: string): [number, number, number] => {
+      const vector: (name: string) => [number, number, number] = (
+        name: string,
+      ): [number, number, number] => {
         const value: unknown = Reflect.get(camera, name);
-        if (!Array.isArray(value) || value.length !== 3 || !value.every((part: unknown): boolean => typeof part === "number" && Number.isFinite(part)))
+        if (
+          !Array.isArray(value) ||
+          value.length !== 3 ||
+          !value.every(
+            (part: unknown): boolean =>
+              typeof part === "number" && Number.isFinite(part),
+          )
+        )
           throw new Error("Viewport transfer has no finite " + name + ".");
         return [value[0], value[1], value[2]];
       };
@@ -57,18 +120,45 @@ export function createHumanViewportTransfer(props: {
       const hidden: unknown = Reflect.get(view, "hidden");
       const clay: unknown = Reflect.get(state, "clay");
       const shadows: unknown = Reflect.get(state, "shadows");
-      const names: (value: unknown) => value is string[] = (value: unknown): value is string[] => Array.isArray(value) && value.every((part: unknown): boolean => typeof part === "string");
-      if (typeof fov !== "number" || !Number.isFinite(fov) || fov <= 0 || fov >= 180 ||
-          typeof clay !== "boolean" || typeof shadows !== "boolean" || !names(hidden) ||
-          !(isolated === null || names(isolated)) ||
-          (pass !== "beauty" && pass !== "clay" && pass !== "normal" && pass !== "depth" &&
-           pass !== "flat" && pass !== "albedo" && pass !== "wire" && pass !== "outline"))
+      const names: (value: unknown) => value is string[] = (
+        value: unknown,
+      ): value is string[] =>
+        Array.isArray(value) &&
+        value.every((part: unknown): boolean => typeof part === "string");
+      if (
+        typeof fov !== "number" ||
+        !Number.isFinite(fov) ||
+        fov <= 0 ||
+        fov >= 180 ||
+        typeof clay !== "boolean" ||
+        typeof shadows !== "boolean" ||
+        !names(hidden) ||
+        !(isolated === null || names(isolated)) ||
+        (pass !== "beauty" &&
+          pass !== "clay" &&
+          pass !== "normal" &&
+          pass !== "depth" &&
+          pass !== "flat" &&
+          pass !== "albedo" &&
+          pass !== "wire" &&
+          pass !== "outline")
+      )
         throw new Error("Viewport transfer has invalid display state.");
-      if (position.every((value: number, index: number): boolean => value === target[index]))
+      if (
+        position.every(
+          (value: number, index: number): boolean => value === target[index],
+        )
+      )
         throw new Error("Viewport transfer has no eye-to-target direction.");
       const parts: Set<string> = new Set(props.observe.parts());
-      if ([...hidden, ...(isolated ?? [])].some((name: string): boolean => !parts.has(name)))
-        throw new Error("Viewport transfer names a part unavailable in the candidate.");
+      if (
+        [...hidden, ...(isolated ?? [])].some(
+          (name: string): boolean => !parts.has(name),
+        )
+      )
+        throw new Error(
+          "Viewport transfer names a part unavailable in the candidate.",
+        );
       nativeCamera.restore(Reflect.get(state, "nativeCamera"));
       props.observe.look({ position, target, fov });
       // Synchronize OrbitControls first, then preserve the captured native pose

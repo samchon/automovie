@@ -13,7 +13,11 @@
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each supplied direction is normalized independently; this helper coordinates no cross-frame request or result sharing.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Allocates only the returned XYZ tuple and retains no caller vector, light or renderer state.
  */
-export const humanPreviewUnitVector: (v: readonly number[]) => [number, number, number] = (v: readonly number[]): [number, number, number] => {
+export const humanPreviewUnitVector: (
+  v: readonly number[],
+) => [number, number, number] = (
+  v: readonly number[],
+): [number, number, number] => {
   const length: number = Math.hypot(v[0]!, v[1]!, v[2]!);
   if (!(length > 0)) throw new Error("A light direction needs a length.");
   return [v[0]! / length, v[1]! / length, v[2]! / length];

@@ -1,14 +1,9 @@
-import { HumanPreviewLight } from "./HumanPreviewLight.js";
-
-import { humanPreviewGreyCard } from "./humanPreviewGreyCard.js";
-
-import { humanPreviewLuminance } from "./humanPreviewLuminance.js";
-
-import { humanPreviewLinearExposure } from "./humanPreviewLinearExposure.js";
-
 import { HUMAN_PREVIEW_GREY_CARD } from "./HUMAN_PREVIEW_GREY_CARD.js";
-
 import { HUMAN_PREVIEW_MIDDLE_GREY } from "./HUMAN_PREVIEW_MIDDLE_GREY.js";
+import { HumanPreviewLight } from "./HumanPreviewLight.js";
+import { humanPreviewGreyCard } from "./humanPreviewGreyCard.js";
+import { humanPreviewLinearExposure } from "./humanPreviewLinearExposure.js";
+import { humanPreviewLuminance } from "./humanPreviewLuminance.js";
 
 /**
  * The rig white balanced and exposed on a grey card turned to `key`, the
@@ -35,14 +30,39 @@ export function balanceHumanPreviewRig(
   if (card.some((value: number): boolean => !(value > 0)))
     throw new Error("The key-lit grey card needs light in every channel.");
   const Y: number = humanPreviewLuminance(card);
-  const gain: [number, number, number] = card.map((value: number): number => Y / value) as [number, number, number];
-  const scale: (rgb: readonly [number, number, number]) => [number, number, number] = (rgb: readonly [number, number, number]): [number, number, number] =>
-    rgb.map((value: number, c: number): number => value * gain[c]!) as [number, number, number];
+  const gain: [number, number, number] = card.map(
+    (value: number): number => Y / value,
+  ) as [number, number, number];
+  const scale: (
+    rgb: readonly [number, number, number],
+  ) => [number, number, number] = (
+    rgb: readonly [number, number, number],
+  ): [number, number, number] =>
+    rgb.map((value: number, c: number): number => value * gain[c]!) as [
+      number,
+      number,
+      number,
+    ];
   return {
-    lights: lights.map((light: HumanPreviewLight): { color: [number, number, number]; kind: "directional"; direction: readonly [number, number, number]; intensity: number; } | { sky: [number, number, number]; ground: [number, number, number]; kind: "hemisphere"; intensity: number; } =>
-      light.kind === "directional"
-        ? { ...light, color: scale(light.color) }
-        : { ...light, sky: scale(light.sky), ground: scale(light.ground) },
+    lights: lights.map(
+      (
+        light: HumanPreviewLight,
+      ):
+        | {
+            color: [number, number, number];
+            kind: "directional";
+            direction: readonly [number, number, number];
+            intensity: number;
+          }
+        | {
+            sky: [number, number, number];
+            ground: [number, number, number];
+            kind: "hemisphere";
+            intensity: number;
+          } =>
+        light.kind === "directional"
+          ? { ...light, color: scale(light.color) }
+          : { ...light, sky: scale(light.sky), ground: scale(light.ground) },
     ),
     gain,
     exposure: humanPreviewLinearExposure(

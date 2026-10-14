@@ -3,10 +3,10 @@ import type {
   IAutoMovieHumanPersonDocument,
 } from "@automovie/human";
 import type { IAutoMovieHumanBodyAnatomicalAssembly } from "@automovie/human/body/anatomy/assembly/IAutoMovieHumanBodyAnatomicalAssembly";
-
-import type { HumanResidentPort } from "../common/HumanResidentPort.js";
 import type { ConnectedBodyRequest } from "@automovie/human/body/runtime/ConnectedBodyRequest";
 import type { ConnectedBodyResult } from "@automovie/human/body/runtime/ConnectedBodyResult";
+
+import type { HumanResidentPort } from "../common/HumanResidentPort.js";
 import type { createConnectedBodyRenderer } from "./createConnectedBodyRenderer.js";
 
 /**

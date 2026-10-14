@@ -14,8 +14,10 @@ import type { IHumanViewerConstructionPartsResponse } from "./IHumanViewerConstr
  *
  * @author Samchon
  */
-export interface IHumanViewerConstructionReadout
-  extends Omit<IHumanViewerConstructionPartsResponse, "admission"> {
+export interface IHumanViewerConstructionReadout extends Omit<
+  IHumanViewerConstructionPartsResponse,
+  "admission"
+> {
   /** The actual handle verdict, null when no construction is displayed. */
   admission: ReturnType<HumanViewerHandle["admission"]>;
 }

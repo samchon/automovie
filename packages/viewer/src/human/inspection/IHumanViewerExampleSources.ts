@@ -46,7 +46,9 @@ export interface IHumanViewerExampleSources {
    * @evidence contracts/performance.md#reuse-equivalent-work Fresh maps keep independently editable examples separate; catalogue face memo equality also includes serialized reference parameters.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Returned parameter objects live with the catalogue and retain no worker/frame; factory inputs are borrowed and no native resource is acquired.
    */
-  reference: (face: IHumanViewerBasisIdentity) => IHumanViewerReferenceFaceDocument;
+  reference: (
+    face: IHumanViewerBasisIdentity,
+  ) => IHumanViewerReferenceFaceDocument;
 
   /**
    * Create the application's standard person examples with the supplied published generation.
@@ -59,7 +61,9 @@ export interface IHumanViewerExampleSources {
    * @evidence contracts/performance.md#reuse-equivalent-work Downstream keys include full composed parameters, both view digests and face/body/person sources; this factory retains no result cache.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Catalogue entries own ordinary parameter wrappers/references until publication replacement, with no numerical or GPU task started here.
    */
-  standardPeople: (props: IReadHumanViewerStandardPeopleProps) => IHumanViewerCatalogueEntry[];
+  standardPeople: (
+    props: IReadHumanViewerStandardPeopleProps,
+  ) => IHumanViewerCatalogueEntry[];
 
   /**
    * Create the application's subject examples with the supplied legacy paired bases.
@@ -72,5 +76,7 @@ export interface IHumanViewerExampleSources {
    * @evidence contracts/performance.md#reuse-equivalent-work Document, both basis digests and all three source digests decide downstream reuse; this callback owns no local cache.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Returned wrappers retain supplied face references until catalogue replacement and acquire neither worker, numerical geometry nor native renderer.
    */
-  subjectPeople: (props: IReadHumanViewerSubjectPeopleProps) => IHumanViewerCatalogueEntry[];
+  subjectPeople: (
+    props: IReadHumanViewerSubjectPeopleProps,
+  ) => IHumanViewerCatalogueEntry[];
 }

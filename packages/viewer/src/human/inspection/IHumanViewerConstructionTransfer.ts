@@ -1,5 +1,5 @@
-import type { HumanViewerHandle } from "./HumanViewerHandle.js";
 import type { HumanViewerAddress } from "./HumanViewerAddress.js";
+import type { HumanViewerHandle } from "./HumanViewerHandle.js";
 
 /**
  * Binary construction export carried through the browser bridge with its original admission and displayed address/revision readings before export and after byte transfer. The server requires both readings to match its selected request; these observations do not lock the page against an intervening selection that returns to the same address.

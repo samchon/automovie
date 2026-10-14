@@ -1,26 +1,26 @@
+import type { IAutoMovieModelCrossing } from "@automovie/engine";
 import type {
   IAutoMovieHumanBodyBasisDocument,
   IAutoMovieHumanPersonDocument,
 } from "@automovie/human";
+import type { IAutoMovieHumanBodyAnatomicalInspection } from "@automovie/human/body/anatomy/generated/IAutoMovieHumanBodyAnatomicalInspection";
 import { serializeHumanBodyBasisDocument } from "@automovie/human/body/document/serializeHumanBodyBasisDocument";
-import type { IAutoMovieModelCrossing } from "@automovie/engine";
-import type { IAutoMovieJointPose } from "@automovie/interface";
+import type { ConnectedBodyRequest } from "@automovie/human/body/runtime/ConnectedBodyRequest";
+import type { ConnectedBodyResult } from "@automovie/human/body/runtime/ConnectedBodyResult";
+import type { IConnectedBodyFemoralHeads } from "@automovie/human/body/runtime/IConnectedBodyFemoralHeads";
+import type { IConnectedBodyMeasuredAnatomy } from "@automovie/human/body/runtime/IConnectedBodyMeasuredAnatomy";
+import type { IConnectedBodyPreviewResult } from "@automovie/human/body/runtime/IConnectedBodyPreviewResult";
+import type { IConnectedBodyRigReading } from "@automovie/human/body/runtime/IConnectedBodyRigReading";
+import type { IConnectedBodyUnavailableAnatomy } from "@automovie/human/body/runtime/IConnectedBodyUnavailableAnatomy";
 import type { IAutoMovieHumanBodyFootSupport } from "@automovie/human/body/structures/IAutoMovieHumanBodyFootSupport";
 import type { IAutoMovieHumanBodyShoulderPose } from "@automovie/human/body/structures/IAutoMovieHumanBodyShoulderPose";
 import type { IAutoMovieHumanConstructionAdmission } from "@automovie/human/common/structures/IAutoMovieHumanConstructionAdmission";
-import type { IAutoMovieHumanBodyAnatomicalInspection } from "@automovie/human/body/anatomy/generated/IAutoMovieHumanBodyAnatomicalInspection";
-import type { IConnectedBodyPreviewResult } from "@automovie/human/body/runtime/IConnectedBodyPreviewResult";
-import type { IConnectedBodyMeasuredAnatomy } from "@automovie/human/body/runtime/IConnectedBodyMeasuredAnatomy";
-import type { IConnectedBodyUnavailableAnatomy } from "@automovie/human/body/runtime/IConnectedBodyUnavailableAnatomy";
-import type { IConnectedBodyFemoralHeads } from "@automovie/human/body/runtime/IConnectedBodyFemoralHeads";
-import type { IConnectedBodyRigReading } from "@automovie/human/body/runtime/IConnectedBodyRigReading";
-import type { ConnectedBodyRequest } from "@automovie/human/body/runtime/ConnectedBodyRequest";
-import type { ConnectedBodyResult } from "@automovie/human/body/runtime/ConnectedBodyResult";
+import type { IAutoMovieJointPose } from "@automovie/interface";
 
-import { createHumanResidentWorker } from "../common/createHumanResidentWorker.js";
 import { createAutoMovieResourceRetirement } from "../../createAutoMovieResourceRetirement.js";
-import type { IConnectedBodyPreviewProps } from "./IConnectedBodyPreviewProps.js";
+import { createHumanResidentWorker } from "../common/createHumanResidentWorker.js";
 import type { IConnectedBodyFrame } from "./IConnectedBodyFrame.js";
+import type { IConnectedBodyPreviewProps } from "./IConnectedBodyPreviewProps.js";
 
 /**
  * Keep one worker alive across edits and separate exported bytes from frames.
@@ -39,14 +39,76 @@ export function createConnectedBodyPreview<
   Document extends
     | IAutoMovieHumanBodyBasisDocument
     | IAutoMovieHumanPersonDocument = IAutoMovieHumanBodyBasisDocument,
->(props: IConnectedBodyPreviewProps<Document>): { cancel: () => void; build: (document: Document, measure?: boolean, anatomy?: boolean) => Promise<{ frame: IConnectedBodyFrame; parts: number; crossings: IAutoMovieModelCrossing[] | null; anatomy: IConnectedBodyMeasuredAnatomy | IConnectedBodyUnavailableAnatomy | null; femoralHeads: IConnectedBodyFemoralHeads | null | undefined; groundSupport: IAutoMovieHumanBodyFootSupport[] | null | undefined; extras: Record<string, unknown>; anatomicalRequest: IAutoMovieHumanBodyAnatomicalInspection | undefined; exteriorCandidate: IConnectedBodyPreviewResult["exteriorCandidate"]; }>; construct: (document: Document) => Promise<{ model: { frame: IConnectedBodyFrame; parts: number; crossings: IAutoMovieModelCrossing[] | null; anatomy: IConnectedBodyMeasuredAnatomy | IConnectedBodyUnavailableAnatomy | null; extras: Record<string, unknown>; rigReading: IConnectedBodyRigReading | undefined; groundSupport: IAutoMovieHumanBodyFootSupport[] | null | undefined; femoralHeads: IConnectedBodyFemoralHeads | null | undefined; anatomicalRequest: IAutoMovieHumanBodyAnatomicalInspection | undefined; exteriorCandidate: IConnectedBodyPreviewResult["exteriorCandidate"]; }; admission: IAutoMovieHumanConstructionAdmission; }>; exportConstruction: (document: Document) => Promise<{ glb: Uint8Array<ArrayBuffer>; admission: IAutoMovieHumanConstructionAdmission; }>; export: (document: Document) => Promise<Uint8Array<ArrayBuffer>>; armsDown: (document: IAutoMovieHumanBodyBasisDocument) => Promise<{ pose: IAutoMovieJointPose[]; shoulders: IAutoMovieHumanBodyShoulderPose[]; }>; disposeWorker: () => void; } {
+>(
+  props: IConnectedBodyPreviewProps<Document>,
+): {
+  cancel: () => void;
+  build: (
+    document: Document,
+    measure?: boolean,
+    anatomy?: boolean,
+  ) => Promise<{
+    frame: IConnectedBodyFrame;
+    parts: number;
+    crossings: IAutoMovieModelCrossing[] | null;
+    anatomy:
+      | IConnectedBodyMeasuredAnatomy
+      | IConnectedBodyUnavailableAnatomy
+      | null;
+    femoralHeads: IConnectedBodyFemoralHeads | null | undefined;
+    groundSupport: IAutoMovieHumanBodyFootSupport[] | null | undefined;
+    extras: Record<string, unknown>;
+    anatomicalRequest: IAutoMovieHumanBodyAnatomicalInspection | undefined;
+    exteriorCandidate: IConnectedBodyPreviewResult["exteriorCandidate"];
+  }>;
+  construct: (
+    document: Document,
+  ) => Promise<{
+    model: {
+      frame: IConnectedBodyFrame;
+      parts: number;
+      crossings: IAutoMovieModelCrossing[] | null;
+      anatomy:
+        | IConnectedBodyMeasuredAnatomy
+        | IConnectedBodyUnavailableAnatomy
+        | null;
+      extras: Record<string, unknown>;
+      rigReading: IConnectedBodyRigReading | undefined;
+      groundSupport: IAutoMovieHumanBodyFootSupport[] | null | undefined;
+      femoralHeads: IConnectedBodyFemoralHeads | null | undefined;
+      anatomicalRequest: IAutoMovieHumanBodyAnatomicalInspection | undefined;
+      exteriorCandidate: IConnectedBodyPreviewResult["exteriorCandidate"];
+    };
+    admission: IAutoMovieHumanConstructionAdmission;
+  }>;
+  exportConstruction: (
+    document: Document,
+  ) => Promise<{
+    glb: Uint8Array<ArrayBuffer>;
+    admission: IAutoMovieHumanConstructionAdmission;
+  }>;
+  export: (document: Document) => Promise<Uint8Array<ArrayBuffer>>;
+  armsDown: (
+    document: IAutoMovieHumanBodyBasisDocument,
+  ) => Promise<{
+    pose: IAutoMovieJointPose[];
+    shoulders: IAutoMovieHumanBodyShoulderPose[];
+  }>;
+  disposeWorker: () => void;
+} {
   const serialize: (document: Document) => string =
     props.serialize ??
     ((document: Document): string =>
       serializeHumanBodyBasisDocument(
         document as IAutoMovieHumanBodyBasisDocument,
       ));
-  const worker: { request: (input: ConnectedBodyRequest) => { result: Promise<ConnectedBodyResult>; cancel: () => void; }; dispose: () => void; } = createHumanResidentWorker(props.worker);
+  const worker: {
+    request: (input: ConnectedBodyRequest) => {
+      result: Promise<ConnectedBodyResult>;
+      cancel: () => void;
+    };
+    dispose: () => void;
+  } = createHumanResidentWorker(props.worker);
   let generation: number = 0;
   let withdraw: (() => void) | undefined;
   const cancel: () => void = (): void => {
@@ -56,10 +118,30 @@ export function createConnectedBodyPreview<
   };
   return {
     cancel,
-    build: async (document: Document, measure: boolean = false, anatomy: boolean = false): Promise<{ frame: IConnectedBodyFrame; parts: number; crossings: IAutoMovieModelCrossing[] | null; anatomy: IConnectedBodyMeasuredAnatomy | IConnectedBodyUnavailableAnatomy | null; femoralHeads: IConnectedBodyFemoralHeads | null | undefined; groundSupport: IAutoMovieHumanBodyFootSupport[] | null | undefined; extras: Record<string, unknown>; anatomicalRequest: IAutoMovieHumanBodyAnatomicalInspection | undefined; exteriorCandidate: IConnectedBodyPreviewResult["exteriorCandidate"]; }> => {
+    build: async (
+      document: Document,
+      measure: boolean = false,
+      anatomy: boolean = false,
+    ): Promise<{
+      frame: IConnectedBodyFrame;
+      parts: number;
+      crossings: IAutoMovieModelCrossing[] | null;
+      anatomy:
+        | IConnectedBodyMeasuredAnatomy
+        | IConnectedBodyUnavailableAnatomy
+        | null;
+      femoralHeads: IConnectedBodyFemoralHeads | null | undefined;
+      groundSupport: IAutoMovieHumanBodyFootSupport[] | null | undefined;
+      extras: Record<string, unknown>;
+      anatomicalRequest: IAutoMovieHumanBodyAnatomicalInspection | undefined;
+      exteriorCandidate: IConnectedBodyPreviewResult["exteriorCandidate"];
+    }> => {
       cancel();
       const ticket: number = generation;
-      const request: { result: Promise<ConnectedBodyResult>; cancel: () => void; } = worker.request({
+      const request: {
+        result: Promise<ConnectedBodyResult>;
+        cancel: () => void;
+      } = worker.request({
         operation: "preview",
         document: serialize(document),
         measure,
@@ -69,7 +151,9 @@ export function createConnectedBodyPreview<
       const result: ConnectedBodyResult = await request.result;
       if (result.operation !== "preview")
         throw new Error("Expected a numerical body preview.");
-      const frame: IConnectedBodyFrame = await props.renderer.prepare(result.model);
+      const frame: IConnectedBodyFrame = await props.renderer.prepare(
+        result.model,
+      );
       if (ticket !== generation) {
         props.renderer.dispose(frame);
         return createAutoMovieResourceRetirement(
@@ -90,10 +174,32 @@ export function createConnectedBodyPreview<
         exteriorCandidate: result.exteriorCandidate,
       };
     },
-    construct: async (document: Document): Promise<{ model: { frame: IConnectedBodyFrame; parts: number; crossings: IAutoMovieModelCrossing[] | null; anatomy: IConnectedBodyMeasuredAnatomy | IConnectedBodyUnavailableAnatomy | null; extras: Record<string, unknown>; rigReading: IConnectedBodyRigReading | undefined; groundSupport: IAutoMovieHumanBodyFootSupport[] | null | undefined; femoralHeads: IConnectedBodyFemoralHeads | null | undefined; anatomicalRequest: IAutoMovieHumanBodyAnatomicalInspection | undefined; exteriorCandidate: IConnectedBodyPreviewResult["exteriorCandidate"]; }; admission: IAutoMovieHumanConstructionAdmission; }> => {
+    construct: async (
+      document: Document,
+    ): Promise<{
+      model: {
+        frame: IConnectedBodyFrame;
+        parts: number;
+        crossings: IAutoMovieModelCrossing[] | null;
+        anatomy:
+          | IConnectedBodyMeasuredAnatomy
+          | IConnectedBodyUnavailableAnatomy
+          | null;
+        extras: Record<string, unknown>;
+        rigReading: IConnectedBodyRigReading | undefined;
+        groundSupport: IAutoMovieHumanBodyFootSupport[] | null | undefined;
+        femoralHeads: IConnectedBodyFemoralHeads | null | undefined;
+        anatomicalRequest: IAutoMovieHumanBodyAnatomicalInspection | undefined;
+        exteriorCandidate: IConnectedBodyPreviewResult["exteriorCandidate"];
+      };
+      admission: IAutoMovieHumanConstructionAdmission;
+    }> => {
       cancel();
       const ticket: number = generation;
-      const request: { result: Promise<ConnectedBodyResult>; cancel: () => void; } = worker.request({
+      const request: {
+        result: Promise<ConnectedBodyResult>;
+        cancel: () => void;
+      } = worker.request({
         operation: "construct",
         document: serialize(document),
       });
@@ -101,12 +207,18 @@ export function createConnectedBodyPreview<
       const result: ConnectedBodyResult = await request.result;
       if (result.operation !== "construct")
         throw new Error("Expected a full construction draft.");
-      const frame: IConnectedBodyFrame = await props.renderer.prepare(result.model);
+      const frame: IConnectedBodyFrame = await props.renderer.prepare(
+        result.model,
+      );
       if (ticket !== generation) {
         props.renderer.dispose(frame);
         return createAutoMovieResourceRetirement(
           [(): Promise<void> => props.renderer.settleRetirements()],
-          { error: new Error("Superseded while preparing construction geometry.") },
+          {
+            error: new Error(
+              "Superseded while preparing construction geometry.",
+            ),
+          },
         )();
       }
       withdraw = undefined;
@@ -126,7 +238,12 @@ export function createConnectedBodyPreview<
         admission: result.admission,
       };
     },
-    exportConstruction: async (document: Document): Promise<{ glb: Uint8Array<ArrayBuffer>; admission: IAutoMovieHumanConstructionAdmission; }> => {
+    exportConstruction: async (
+      document: Document,
+    ): Promise<{
+      glb: Uint8Array<ArrayBuffer>;
+      admission: IAutoMovieHumanConstructionAdmission;
+    }> => {
       const result: ConnectedBodyResult = await worker.request({
         operation: "exportConstruction",
         document: serialize(document),
@@ -144,7 +261,12 @@ export function createConnectedBodyPreview<
         throw new Error("Expected an exported body file.");
       return result.glb;
     },
-    armsDown: async (document: IAutoMovieHumanBodyBasisDocument): Promise<{ pose: IAutoMovieJointPose[]; shoulders: IAutoMovieHumanBodyShoulderPose[]; }> => {
+    armsDown: async (
+      document: IAutoMovieHumanBodyBasisDocument,
+    ): Promise<{
+      pose: IAutoMovieJointPose[];
+      shoulders: IAutoMovieHumanBodyShoulderPose[];
+    }> => {
       const result: ConnectedBodyResult = await worker.request({
         operation: "armsDown",
         document: serializeHumanBodyBasisDocument(document, props.source),

@@ -31,7 +31,9 @@ export function admitHumanCaptureCameraPose(
       (!Number.isFinite(pose.distance) || pose.distance <= 0)) ||
     (pose.target !== undefined &&
       (pose.target.length !== 3 ||
-        pose.target.some((value: number): boolean => !Number.isFinite(value)))) ||
+        pose.target.some(
+          (value: number): boolean => !Number.isFinite(value),
+        ))) ||
     (pose.fov !== undefined &&
       (!Number.isFinite(pose.fov) || pose.fov <= 0 || pose.fov >= 180))
   )

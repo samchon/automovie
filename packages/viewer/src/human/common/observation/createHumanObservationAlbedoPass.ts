@@ -27,7 +27,13 @@ import { createHumanObservationAlbedoMaterial } from "./createHumanObservationAl
  * @evidence contracts/performance.md#reuse-equivalent-work Existing mesh entries reuse replacements until departure/clear; membership, rather than changed material contents, drives reuse, so the observation caller restores before publishing a changed source. Repeated failed retirement reuses its stored cause without native retries, and close shares one completion.
  * @evidence contracts/performance.md#bound-retention-and-release-resources entries retain borrowed source/display pairs and owned retains replacements from acquisition. clear/restoration withdraw assignments before source retirement, successes remove owned materials and failures retain them until owner release. Population follows selected meshes and failed material history without a separate numeric cap; textures stay source-owned.
  */
-export function createHumanObservationAlbedoPass(): { clear: () => void; restoreBorrowed: () => void; settleRetirements: () => Promise<void>; close: () => Promise<void>; apply: (meshes: readonly THREE.Mesh[]) => void; } {
+export function createHumanObservationAlbedoPass(): {
+  clear: () => void;
+  restoreBorrowed: () => void;
+  settleRetirements: () => Promise<void>;
+  close: () => Promise<void>;
+  apply: (meshes: readonly THREE.Mesh[]) => void;
+} {
   /**
    * One mesh's borrowed source and shape-matching owned albedo replacement.
    *
@@ -40,16 +46,34 @@ export function createHumanObservationAlbedoPass(): { clear: () => void; restore
     /** Matching scalar/array base-colour replacements owned by this pass. */
     display: THREE.MeshBasicMaterial | THREE.MeshBasicMaterial[];
   }
-  const entries: Map<THREE.Mesh<THREE.BufferGeometry<THREE.NormalBufferAttributes, THREE.BufferGeometryEventMap>, THREE.Material<THREE.MaterialEventMap> | THREE.Material<THREE.MaterialEventMap>[], THREE.Object3DEventMap>, Entry> = new Map<THREE.Mesh, Entry>();
-  const owned: Set<THREE.Material<THREE.MaterialEventMap>> = new Set<THREE.Material>();
-  const failed: Map<THREE.Material<THREE.MaterialEventMap>, unknown> = new Map<THREE.Material, unknown>();
+  const entries: Map<
+    THREE.Mesh<
+      THREE.BufferGeometry<
+        THREE.NormalBufferAttributes,
+        THREE.BufferGeometryEventMap
+      >,
+      | THREE.Material<THREE.MaterialEventMap>
+      | THREE.Material<THREE.MaterialEventMap>[],
+      THREE.Object3DEventMap
+    >,
+    Entry
+  > = new Map<THREE.Mesh, Entry>();
+  const owned: Set<THREE.Material<THREE.MaterialEventMap>> =
+    new Set<THREE.Material>();
+  const failed: Map<THREE.Material<THREE.MaterialEventMap>, unknown> = new Map<
+    THREE.Material,
+    unknown
+  >();
   let retiring: number = 0;
   let closed: boolean = false;
   const withdrawalFailures: unknown[] = [];
   const requireOpen: () => void = (): void => {
-    if (closed) throw new Error("This albedo observation owner has been closed.");
+    if (closed)
+      throw new Error("This albedo observation owner has been closed.");
   };
-  const retire: (material: THREE.Material) => void = (material: THREE.Material): void => {
+  const retire: (material: THREE.Material) => void = (
+    material: THREE.Material,
+  ): void => {
     if (failed.has(material)) throw failed.get(material);
     if (!owned.delete(material)) return;
     ++retiring;
@@ -59,21 +83,52 @@ export function createHumanObservationAlbedoPass(): { clear: () => void; restore
       owned.add(material);
       failed.set(material, error);
       throw error;
-    } finally { --retiring; }
+    } finally {
+      --retiring;
+    }
   };
-  const restoreEntries: (selected: readonly (readonly [THREE.Mesh, Entry])[]) => void = (selected: readonly (readonly [THREE.Mesh, Entry])[]): void => {
-    reportAutoMovieResourceRetirement(selected.map(([mesh, entry]: readonly [THREE.Mesh<THREE.BufferGeometry<THREE.NormalBufferAttributes, THREE.BufferGeometryEventMap>, THREE.Material<THREE.MaterialEventMap> | THREE.Material<THREE.MaterialEventMap>[], THREE.Object3DEventMap>, Entry]): () => void => (): void => {
-      mesh.material = entry.source;
-      entries.delete(mesh);
-    }));
+  const restoreEntries: (
+    selected: readonly (readonly [THREE.Mesh, Entry])[],
+  ) => void = (selected: readonly (readonly [THREE.Mesh, Entry])[]): void => {
+    reportAutoMovieResourceRetirement(
+      selected.map(
+        ([mesh, entry]: readonly [
+          THREE.Mesh<
+            THREE.BufferGeometry<
+              THREE.NormalBufferAttributes,
+              THREE.BufferGeometryEventMap
+            >,
+            | THREE.Material<THREE.MaterialEventMap>
+            | THREE.Material<THREE.MaterialEventMap>[],
+            THREE.Object3DEventMap
+          >,
+          Entry,
+        ]): (() => void) =>
+          (): void => {
+            mesh.material = entry.source;
+            entries.delete(mesh);
+          },
+      ),
+    );
   };
-  const retireAll: () => void = (): void => reportAutoMovieResourceRetirement(
-    [...owned].map((material: THREE.Material<THREE.MaterialEventMap>): () => void => (): void => retire(material)),
-  );
+  const retireAll: () => void = (): void =>
+    reportAutoMovieResourceRetirement(
+      [...owned].map(
+        (material: THREE.Material<THREE.MaterialEventMap>): (() => void) =>
+          (): void =>
+            retire(material),
+      ),
+    );
   const restoreBorrowed: () => void = (): void => restoreEntries([...entries]);
-  const clear: () => void = (): void => reportAutoMovieResourceRetirement([restoreBorrowed, retireAll]);
+  const clear: () => void = (): void =>
+    reportAutoMovieResourceRetirement([restoreBorrowed, retireAll]);
   const completion: () => Promise<void> = createAutoMovieResourceRetirement([
-    (): void => reportAutoMovieResourceRetirement(withdrawalFailures.map((error: unknown): () => never => (): never => { throw error; })),
+    (): void =>
+      reportAutoMovieResourceRetirement(
+        withdrawalFailures.map((error: unknown): (() => never) => (): never => {
+          throw error;
+        }),
+      ),
     retireAll,
   ]);
   return {
@@ -82,47 +137,118 @@ export function createHumanObservationAlbedoPass(): { clear: () => void; restore
     /** Withdraw borrowed assignments before another owner disposes its subtree. */
     restoreBorrowed,
     /** Observe sticky public retirement failures without closing active replacements. */
-    settleRetirements: (): Promise<void> => createAutoMovieResourceRetirement([
-      (): void => reportAutoMovieResourceRetirement([...failed.values()].map((error: unknown): () => never => (): never => { throw error; })),
-    ])(),
+    settleRetirements: (): Promise<void> =>
+      createAutoMovieResourceRetirement([
+        (): void =>
+          reportAutoMovieResourceRetirement(
+            [...failed.values()].map(
+              (error: unknown): (() => never) =>
+                (): never => {
+                  throw error;
+                },
+            ),
+          ),
+      ])(),
     /** End this pass once; failed ownership and original causes remain retained. */
     close: (): Promise<void> => {
       const result: Promise<void> = completion();
       if (!closed) {
         closed = true;
-        try { restoreBorrowed(); } catch (error) { withdrawalFailures.push(error); }
+        try {
+          restoreBorrowed();
+        } catch (error) {
+          withdrawalFailures.push(error);
+        }
       }
       return result;
     },
     /** Admit all new replacements before assignment and forget departed meshes. */
     apply: (meshes: readonly THREE.Mesh[]): void => {
       requireOpen();
-      if (retiring !== 0) throw new Error("Albedo material retirement is still running.");
-      reportAutoMovieResourceRetirement([...failed.values()].map((error: unknown): () => never => (): never => { throw error; }));
-      const pending: Map<THREE.Mesh<THREE.BufferGeometry<THREE.NormalBufferAttributes, THREE.BufferGeometryEventMap>, THREE.Material<THREE.MaterialEventMap> | THREE.Material<THREE.MaterialEventMap>[], THREE.Object3DEventMap>, Entry> = new Map<THREE.Mesh, Entry>();
+      if (retiring !== 0)
+        throw new Error("Albedo material retirement is still running.");
+      reportAutoMovieResourceRetirement(
+        [...failed.values()].map(
+          (error: unknown): (() => never) =>
+            (): never => {
+              throw error;
+            },
+        ),
+      );
+      const pending: Map<
+        THREE.Mesh<
+          THREE.BufferGeometry<
+            THREE.NormalBufferAttributes,
+            THREE.BufferGeometryEventMap
+          >,
+          | THREE.Material<THREE.MaterialEventMap>
+          | THREE.Material<THREE.MaterialEventMap>[],
+          THREE.Object3DEventMap
+        >,
+        Entry
+      > = new Map<THREE.Mesh, Entry>();
       try {
         for (const mesh of meshes) {
           if (entries.has(mesh) || pending.has(mesh)) continue;
-          const source: THREE.Material<THREE.MaterialEventMap> | THREE.Material<THREE.MaterialEventMap>[] = mesh.material;
-          const materials: THREE.Material<THREE.MaterialEventMap>[] = Array.isArray(source) ? source : [source];
-          const display: THREE.MeshBasicMaterial[] = materials.map((one: THREE.Material<THREE.MaterialEventMap>): THREE.MeshBasicMaterial => {
-            const made: THREE.MeshBasicMaterial = createHumanObservationAlbedoMaterial(one);
-            owned.add(made);
-            return made;
-          });
+          const source:
+            | THREE.Material<THREE.MaterialEventMap>
+            | THREE.Material<THREE.MaterialEventMap>[] = mesh.material;
+          const materials: THREE.Material<THREE.MaterialEventMap>[] =
+            Array.isArray(source) ? source : [source];
+          const display: THREE.MeshBasicMaterial[] = materials.map(
+            (
+              one: THREE.Material<THREE.MaterialEventMap>,
+            ): THREE.MeshBasicMaterial => {
+              const made: THREE.MeshBasicMaterial =
+                createHumanObservationAlbedoMaterial(one);
+              owned.add(made);
+              return made;
+            },
+          );
           pending.set(mesh, {
             source,
             display: Array.isArray(source) ? display : display[0],
           });
         }
-        const departed: [THREE.Mesh<THREE.BufferGeometry<THREE.NormalBufferAttributes, THREE.BufferGeometryEventMap>, THREE.Material<THREE.MaterialEventMap> | THREE.Material<THREE.MaterialEventMap>[], THREE.Object3DEventMap>, Entry][] = [...entries].filter(([mesh]: [THREE.Mesh<THREE.BufferGeometry<THREE.NormalBufferAttributes, THREE.BufferGeometryEventMap>, THREE.Material<THREE.MaterialEventMap> | THREE.Material<THREE.MaterialEventMap>[], THREE.Object3DEventMap>, Entry]): boolean => !meshes.includes(mesh));
-        const materials: Set<THREE.Material<THREE.MaterialEventMap>> = new Set<THREE.Material>();
+        const departed: [
+          THREE.Mesh<
+            THREE.BufferGeometry<
+              THREE.NormalBufferAttributes,
+              THREE.BufferGeometryEventMap
+            >,
+            | THREE.Material<THREE.MaterialEventMap>
+            | THREE.Material<THREE.MaterialEventMap>[],
+            THREE.Object3DEventMap
+          >,
+          Entry,
+        ][] = [...entries].filter(
+          ([mesh]: [
+            THREE.Mesh<
+              THREE.BufferGeometry<
+                THREE.NormalBufferAttributes,
+                THREE.BufferGeometryEventMap
+              >,
+              | THREE.Material<THREE.MaterialEventMap>
+              | THREE.Material<THREE.MaterialEventMap>[],
+              THREE.Object3DEventMap
+            >,
+            Entry,
+          ]): boolean => !meshes.includes(mesh),
+        );
+        const materials: Set<THREE.Material<THREE.MaterialEventMap>> =
+          new Set<THREE.Material>();
         for (const [, entry] of departed)
-          for (const material of Array.isArray(entry.display) ? entry.display : [entry.display])
+          for (const material of Array.isArray(entry.display)
+            ? entry.display
+            : [entry.display])
             materials.add(material);
         reportAutoMovieResourceRetirement([
           (): void => restoreEntries(departed),
-          ...[...materials].map((material: THREE.Material<THREE.MaterialEventMap>): () => void => (): void => retire(material)),
+          ...[...materials].map(
+            (material: THREE.Material<THREE.MaterialEventMap>): (() => void) =>
+              (): void =>
+                retire(material),
+          ),
         ]);
         requireOpen();
         for (const [mesh, entry] of pending) {
@@ -130,9 +256,10 @@ export function createHumanObservationAlbedoPass(): { clear: () => void; restore
           entries.set(mesh, entry);
         }
       } catch (error) {
-        return restoreAutoMovieRenderModeState([
-          (): void => restoreEntries([...pending]), clear,
-        ], { error });
+        return restoreAutoMovieRenderModeState(
+          [(): void => restoreEntries([...pending]), clear],
+          { error },
+        );
       }
     },
   };

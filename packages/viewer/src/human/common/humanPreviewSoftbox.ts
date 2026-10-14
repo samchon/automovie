@@ -29,18 +29,19 @@ export function humanPreviewSoftbox(
     throw new Error("A source's half angle lies between 0 and a right angle.");
   if (!(Number.isInteger(count) && count >= 1))
     throw new Error("A source needs one sample or more.");
-  const w: [number, number, number] = direction.map((value: number): number => value / length) as [
-    number,
-    number,
-    number,
-  ];
+  const w: [number, number, number] = direction.map(
+    (value: number): number => value / length,
+  ) as [number, number, number];
   // The axis least aligned with the direction spans the cap's plane.
   const least: number = [0, 1, 2].reduce((best: number, k: number): number =>
     Math.abs(w[k]!) < Math.abs(w[best]!) ? k : best,
   );
   const axis: [number, number, number] = [0, 0, 0];
   axis[least] = 1;
-  const cross: (a: readonly number[], b: readonly number[]) => [number, number, number] = (
+  const cross: (
+    a: readonly number[],
+    b: readonly number[],
+  ) => [number, number, number] = (
     a: readonly number[],
     b: readonly number[],
   ): [number, number, number] => [
@@ -54,15 +55,18 @@ export function humanPreviewSoftbox(
   const v: [number, number, number] = cross(w, u);
   const golden: number = Math.PI * (3 - Math.sqrt(5));
   const cap: number = 1 - Math.cos(halfAngle);
-  return Array.from({ length: count }, (_: unknown, k: number): [number, number, number] => {
-    const polar: number = Math.acos(1 - ((k + 0.5) / count) * cap);
-    const turn: number = k * golden;
-    const [s, c]: [number, number] = [Math.sin(polar), Math.cos(polar)];
-    return [0, 1, 2].map(
-      (axis: number): number =>
-        length *
-        (c * w[axis]! +
-          s * (Math.cos(turn) * u[axis]! + Math.sin(turn) * v[axis]!)),
-    ) as [number, number, number];
-  });
+  return Array.from(
+    { length: count },
+    (_: unknown, k: number): [number, number, number] => {
+      const polar: number = Math.acos(1 - ((k + 0.5) / count) * cap);
+      const turn: number = k * golden;
+      const [s, c]: [number, number] = [Math.sin(polar), Math.cos(polar)];
+      return [0, 1, 2].map(
+        (axis: number): number =>
+          length *
+          (c * w[axis]! +
+            s * (Math.cos(turn) * u[axis]! + Math.sin(turn) * v[axis]!)),
+      ) as [number, number, number];
+    },
+  );
 }

@@ -1,4 +1,4 @@
-import type { IAutoMovieModel, IAutoMovieMaterial } from "@automovie/interface";
+import type { IAutoMovieMaterial, IAutoMovieModel } from "@automovie/interface";
 
 /**
  * Whether a face part must be a closed surface: its material has a positive

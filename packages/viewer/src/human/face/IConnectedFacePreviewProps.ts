@@ -1,5 +1,6 @@
 import type { ConnectedFaceRequest } from "@automovie/human/face/runtime/ConnectedFaceRequest";
 import type { ConnectedFaceResult } from "@automovie/human/face/runtime/ConnectedFaceResult";
+
 import type { HumanResidentPort } from "../common/HumanResidentPort.js";
 import type { createConnectedFaceRenderer } from "./createConnectedFaceRenderer.js";
 

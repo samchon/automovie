@@ -39,33 +39,50 @@ export function createConnectedFaceBrowserViewport(
   let orbit: OrbitControls | undefined;
   let observer: ResizeObserver | undefined;
   const releaseBrowser: (() => void)[] = [
-    (): void => { renderer.setAnimationLoop(null); },
-    (): void => { observer?.disconnect(); },
-    (): void => { orbit?.dispose(); },
-    (): void => { releaseViewerRenderer(renderer); },
+    (): void => {
+      renderer.setAnimationLoop(null);
+    },
+    (): void => {
+      observer?.disconnect();
+    },
+    (): void => {
+      orbit?.dispose();
+    },
+    (): void => {
+      releaseViewerRenderer(renderer);
+    },
   ];
   try {
-    const stage: ReturnType<typeof createConnectedFaceViewport> = createConnectedFaceViewport({
-      ...props,
-      pixelRatio: props.pixelRatio ?? devicePixelRatio,
-      renderer,
-      orbit: (camera: THREE.PerspectiveCamera): OrbitControls => {
-        orbit = new OrbitControls(camera, props.canvas);
-        return orbit;
-      },
-      loadTexture: (asset: string): Promise<THREE.Texture> => loader.loadAsync(asset),
-      observeResize: (resize: () => void): (() => void) => {
-        const subscription: ResizeObserver = new ResizeObserver(resize);
-        observer = subscription;
-        subscription.observe(props.canvas);
-        return (): void => { subscription.disconnect(); };
-      },
-    });
+    const stage: ReturnType<typeof createConnectedFaceViewport> =
+      createConnectedFaceViewport({
+        ...props,
+        pixelRatio: props.pixelRatio ?? devicePixelRatio,
+        renderer,
+        orbit: (camera: THREE.PerspectiveCamera): OrbitControls => {
+          orbit = new OrbitControls(camera, props.canvas);
+          return orbit;
+        },
+        loadTexture: (asset: string): Promise<THREE.Texture> =>
+          loader.loadAsync(asset),
+        observeResize: (resize: () => void): (() => void) => {
+          const subscription: ResizeObserver = new ResizeObserver(resize);
+          observer = subscription;
+          subscription.observe(props.canvas);
+          return (): void => {
+            subscription.disconnect();
+          };
+        },
+      });
     const close: () => Promise<void> = createAutoMovieResourceRetirement([
       async (): Promise<void> => {
         let primary: { error: unknown } | undefined;
-        try { await stage.close(); } catch (error) { primary = { error }; }
-        if (primary === undefined) restoreAutoMovieRenderModeState(releaseBrowser);
+        try {
+          await stage.close();
+        } catch (error) {
+          primary = { error };
+        }
+        if (primary === undefined)
+          restoreAutoMovieRenderModeState(releaseBrowser);
         else restoreAutoMovieRenderModeState(releaseBrowser, primary);
       },
     ]);

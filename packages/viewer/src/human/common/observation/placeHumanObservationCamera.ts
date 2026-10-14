@@ -51,7 +51,7 @@ export function placeHumanObservationCamera(
     throw new Error(`Unknown observation view "${String(view)}".`);
   if (!Number.isFinite(pitch) || Math.abs(pitch) > 89)
     throw new Error("Observation pitch must be finite, within [-89, 89].");
-  const { azimuth }: { azimuth: number; elevation: number; } = DIRECTIONS[view];
+  const { azimuth }: { azimuth: number; elevation: number } = DIRECTIONS[view];
   const elevation: number = Math.max(
     -89.9,
     Math.min(89.9, DIRECTIONS[view].elevation + pitch),

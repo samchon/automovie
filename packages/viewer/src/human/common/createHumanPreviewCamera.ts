@@ -25,8 +25,24 @@ export function createHumanPreviewCamera(props: {
   };
   model: () => THREE.Group | undefined;
   setSize: (width: number, height: number) => void;
-}): { cameraView: (degrees: number) => void; fitView: () => void; resize: (width: number, height: number) => void; } {
-  const { camera, orbit }: { camera: THREE.PerspectiveCamera; orbit: { target: THREE.Vector3; maxDistance?: number; update: () => unknown; }; model: () => THREE.Group | undefined; setSize: (width: number, height: number) => void; } = props;
+}): {
+  cameraView: (degrees: number) => void;
+  fitView: () => void;
+  resize: (width: number, height: number) => void;
+} {
+  const {
+    camera,
+    orbit,
+  }: {
+    camera: THREE.PerspectiveCamera;
+    orbit: {
+      target: THREE.Vector3;
+      maxDistance?: number;
+      update: () => unknown;
+    };
+    model: () => THREE.Group | undefined;
+    setSize: (width: number, height: number) => void;
+  } = props;
   let distance: number = 0.65;
   const cameraView: (degrees: number) => void = (degrees: number): void => {
     const radians: number = (degrees * Math.PI) / 180;
@@ -38,12 +54,15 @@ export function createHumanPreviewCamera(props: {
     orbit.update();
   };
   const fitView: () => void = (): void => {
-    const model: THREE.Group<THREE.Object3DEventMap> | undefined = props.model();
+    const model: THREE.Group<THREE.Object3DEventMap> | undefined =
+      props.model();
     if (model === undefined) return;
     const bounds: THREE.Box3 = new THREE.Box3().setFromObject(model);
     bounds.getCenter(orbit.target);
     const radius: number = bounds.getBoundingSphere(new THREE.Sphere()).radius;
-    const vertical: number = THREE.MathUtils.degToRad(camera.getEffectiveFOV() / 2);
+    const vertical: number = THREE.MathUtils.degToRad(
+      camera.getEffectiveFOV() / 2,
+    );
     const horizontal: number = Math.atan(Math.tan(vertical) * camera.aspect);
     distance = (1.1 * radius) / Math.sin(Math.min(vertical, horizontal));
     // OrbitControls clamps even an explicitly positioned camera during update.
@@ -57,7 +76,10 @@ export function createHumanPreviewCamera(props: {
     camera.updateProjectionMatrix();
     cameraView(0);
   };
-  const resize: (width: number, height: number) => void = (width: number, height: number): void => {
+  const resize: (width: number, height: number) => void = (
+    width: number,
+    height: number,
+  ): void => {
     props.setSize(width, height);
     camera.aspect = Math.max(1, width) / Math.max(1, height);
     camera.updateProjectionMatrix();

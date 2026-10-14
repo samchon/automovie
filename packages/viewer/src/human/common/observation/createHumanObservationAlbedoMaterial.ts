@@ -1,3 +1,5 @@
+import * as THREE from "three";
+
 import {
   type IMaterialOverlayShading,
   type IMaterialOverlayShape,
@@ -6,8 +8,6 @@ import {
   materialOverlayFragment,
   materialOverlayVertex,
 } from "../../../index.js";
-import * as THREE from "three";
-
 import { restoreAutoMovieRenderModeState } from "../../../restoreAutoMovieRenderModeState.js";
 import { getHumanObservationPassDefinition } from "./getHumanObservationPassDefinition.js";
 
@@ -114,9 +114,8 @@ export function createHumanObservationAlbedoMaterial(
     result.toneMapped =
       getHumanObservationPassDefinition("albedo").parameters.toneMapped!;
     if (overlaid) {
-      const overlays: readonly IMaterialOverlayShading[] | undefined = source.userData.overlays as
-        | readonly IMaterialOverlayShading[]
-        | undefined;
+      const overlays: readonly IMaterialOverlayShading[] | undefined = source
+        .userData.overlays as readonly IMaterialOverlayShading[] | undefined;
       if (overlays === undefined || overlays.length === 0)
         throw new Error(
           `Albedo observation refuses an overlay patch without its overlays on "${label}".`,
@@ -125,10 +124,15 @@ export function createHumanObservationAlbedoMaterial(
     }
     return result;
   } catch (error) {
-    return restoreAutoMovieRenderModeState([
-      (): void => { source.userData = records; },
-      (): void => result.dispose(),
-    ], { error });
+    return restoreAutoMovieRenderModeState(
+      [
+        (): void => {
+          source.userData = records;
+        },
+        (): void => result.dispose(),
+      ],
+      { error },
+    );
   }
 }
 
@@ -153,11 +157,15 @@ function applyOverlayColours(
       ),
     };
   });
-  const shapes: IMaterialOverlayShape[] = overlays.map((overlay: IMaterialOverlayShading): { blend: "multiply" | "replace"; roughness: false; normal: false; } => ({
-    blend: overlay.blend,
-    roughness: false,
-    normal: false,
-  }));
+  const shapes: IMaterialOverlayShape[] = overlays.map(
+    (
+      overlay: IMaterialOverlayShading,
+    ): { blend: "multiply" | "replace"; roughness: false; normal: false } => ({
+      blend: overlay.blend,
+      roughness: false,
+      normal: false,
+    }),
+  );
   addMaterialShaderPatch(material, {
     key: `automovie-albedo-overlays-${shapes.map((shape: IMaterialOverlayShape): string => shape.blend[0]).join(".")}`,
     apply: (shader: THREE.WebGLProgramParametersWithUniforms): void => {

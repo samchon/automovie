@@ -1,15 +1,15 @@
+import type { HumanViewerBodyExamples } from "./HumanViewerBodyExamples.js";
 import type { IHumanViewerAdmission } from "./IHumanViewerAdmission.js";
 import type { IHumanViewerBasisFiles } from "./IHumanViewerBasisFiles.js";
 import type { IHumanViewerBasisIdentity } from "./IHumanViewerBasisIdentity.js";
 import type { IHumanViewerCatalogueEntry } from "./IHumanViewerCatalogueEntry.js";
+import type { IHumanViewerExampleSources } from "./IHumanViewerExampleSources.js";
 import type { IHumanViewerFaceDocumentsMemo } from "./IHumanViewerFaceDocumentsMemo.js";
 import type { IHumanViewerInputFileRead } from "./IHumanViewerInputFileRead.js";
 import type { IHumanViewerPublishedGeneration } from "./IHumanViewerPublishedGeneration.js";
 import type { IHumanViewerRejectedInput } from "./IHumanViewerRejectedInput.js";
 import type { IHumanViewerRevisions } from "./IHumanViewerRevisions.js";
 import type { IHumanViewerSidecarFacts } from "./IHumanViewerSidecarFacts.js";
-import type { HumanViewerBodyExamples } from "./HumanViewerBodyExamples.js";
-import type { IHumanViewerExampleSources } from "./IHumanViewerExampleSources.js";
 
 /**
  * The inputs and digests a catalogue is read from.

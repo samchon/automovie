@@ -51,10 +51,18 @@ export function createConnectedBodyBrowserViewport<
   let orbit: OrbitControls | undefined;
   let observer: ResizeObserver | undefined;
   const releaseBrowser: (() => void)[] = [
-    (): void => { renderer.setAnimationLoop(null); },
-    (): void => { observer?.disconnect(); },
-    (): void => { orbit?.dispose(); },
-    (): void => { releaseViewerRenderer(renderer); },
+    (): void => {
+      renderer.setAnimationLoop(null);
+    },
+    (): void => {
+      observer?.disconnect();
+    },
+    (): void => {
+      orbit?.dispose();
+    },
+    (): void => {
+      releaseViewerRenderer(renderer);
+    },
   ];
   try {
     const stage: ReturnType<typeof createConnectedBodyViewport<Document>> =
@@ -72,7 +80,9 @@ export function createConnectedBodyBrowserViewport<
           const subscription: ResizeObserver = new ResizeObserver(resize);
           observer = subscription;
           subscription.observe(props.canvas);
-          return (): void => { subscription.disconnect(); };
+          return (): void => {
+            subscription.disconnect();
+          };
         },
       });
     const close: () => Promise<void> = createAutoMovieResourceRetirement([

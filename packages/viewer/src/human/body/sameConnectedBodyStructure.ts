@@ -1,6 +1,7 @@
+import type { ConnectedBodyMesh } from "@automovie/human/body/runtime/ConnectedBodyMesh";
 import type { ConnectedBodyModel } from "@automovie/human/body/runtime/ConnectedBodyModel";
 import type { ConnectedBodyPart } from "@automovie/human/body/runtime/ConnectedBodyPart";
-import type { ConnectedBodyMesh } from "@automovie/human/body/runtime/ConnectedBodyMesh";
+
 import type { IConnectedBodyResident } from "./IConnectedBodyResident.js";
 
 /**
@@ -24,23 +25,25 @@ export function sameConnectedBodyStructure(
 ): boolean {
   if (resident.materials !== JSON.stringify(model.materials)) return false;
   if (resident.parts.length !== model.parts.length) return false;
-  return model.parts.every((part: ConnectedBodyPart, index: number): boolean => {
-    const previous: ConnectedBodyPart = resident.parts[index];
-    if (
-      JSON.stringify({ ...part, geometry: undefined }) !==
-      JSON.stringify({ ...previous, geometry: undefined })
-    )
-      return false;
-    const mesh: ConnectedBodyMesh = part.geometry.mesh;
-    const old: ConnectedBodyMesh = previous.geometry.mesh;
-    return (
-      mesh.positions.length === old.positions.length &&
-      (mesh.normals?.length ?? null) === (old.normals?.length ?? null) &&
-      sameArray(mesh.uvs, old.uvs) &&
-      sameArray(mesh.colors ?? null, old.colors ?? null) &&
-      sameArray(mesh.indices, old.indices)
-    );
-  });
+  return model.parts.every(
+    (part: ConnectedBodyPart, index: number): boolean => {
+      const previous: ConnectedBodyPart = resident.parts[index];
+      if (
+        JSON.stringify({ ...part, geometry: undefined }) !==
+        JSON.stringify({ ...previous, geometry: undefined })
+      )
+        return false;
+      const mesh: ConnectedBodyMesh = part.geometry.mesh;
+      const old: ConnectedBodyMesh = previous.geometry.mesh;
+      return (
+        mesh.positions.length === old.positions.length &&
+        (mesh.normals?.length ?? null) === (old.normals?.length ?? null) &&
+        sameArray(mesh.uvs, old.uvs) &&
+        sameArray(mesh.colors ?? null, old.colors ?? null) &&
+        sameArray(mesh.indices, old.indices)
+      );
+    },
+  );
 }
 
 /** Element-wise strict equality of two numeric arrays; null equals only null. */

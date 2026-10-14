@@ -2,10 +2,10 @@ import * as THREE from "three";
 
 import { createAutoMovieResourceRetirement } from "../../../createAutoMovieResourceRetirement.js";
 import { reportAutoMovieResourceRetirement } from "../../../reportAutoMovieResourceRetirement.js";
+import { HumanObservationOutlineMesh } from "./HumanObservationOutlineMesh.js";
 import type { HumanObservationPass } from "./HumanObservationPass.js";
 import type { HumanObservationView } from "./HumanObservationView.js";
 import type { IHumanObservationHooks } from "./IHumanObservationHooks.js";
-import { HumanObservationOutlineMesh } from "./HumanObservationOutlineMesh.js";
 import { createHumanObservationAlbedoPass } from "./createHumanObservationAlbedoPass.js";
 import { getHumanObservationBounds } from "./getHumanObservationBounds.js";
 import { getHumanObservationPassDefinition } from "./getHumanObservationPassDefinition.js";
@@ -143,8 +143,12 @@ void main() {
   const white: THREE.MeshBasicMaterial = new THREE.MeshBasicMaterial(
     getHumanObservationPassDefinition("outline").parameters,
   );
-  const albedo: ReturnType<typeof createHumanObservationAlbedoPass> = createHumanObservationAlbedoPass();
-  const swapped: Map<THREE.Mesh, THREE.Material | THREE.Material[]> = new Map<THREE.Mesh, THREE.Material | THREE.Material[]>();
+  const albedo: ReturnType<typeof createHumanObservationAlbedoPass> =
+    createHumanObservationAlbedoPass();
+  const swapped: Map<THREE.Mesh, THREE.Material | THREE.Material[]> = new Map<
+    THREE.Mesh,
+    THREE.Material | THREE.Material[]
+  >();
   // the silhouette rim is the back faces pushed out along their normals
   const rim: THREE.ShaderMaterial = new THREE.ShaderMaterial({
     side: THREE.BackSide,
@@ -157,12 +161,16 @@ void main() {
     fragmentShader: "void main() { gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0); }",
   });
   const hulls: Map<THREE.Mesh, THREE.Mesh> = new Map<THREE.Mesh, THREE.Mesh>();
-  const ownedMaterials: Set<THREE.Material> = new Set([...Object.values(materials), white, rim]);
+  const ownedMaterials: Set<THREE.Material> = new Set([
+    ...Object.values(materials),
+    white,
+    rim,
+  ]);
 
   const meshes: () => THREE.Mesh[] = (): THREE.Mesh[] => {
     const found: Set<THREE.Mesh> = new Set<THREE.Mesh>();
     for (const root of host.roots())
-      root.traverse((object: THREE.Object3D) : void => {
+      root.traverse((object: THREE.Object3D): void => {
         const mesh: THREE.Mesh = object as THREE.Mesh;
         if (
           mesh.isMesh === true &&
@@ -173,14 +181,21 @@ void main() {
       });
     return [...found];
   };
-  const isHull: (mesh: THREE.Mesh) => boolean = (mesh: THREE.Mesh): boolean => mesh.material === rim;
-  const subject: () => { center: THREE.Vector3; radius: number } | null = (): { center: THREE.Vector3; radius: number } | null => {
+  const isHull: (mesh: THREE.Mesh) => boolean = (mesh: THREE.Mesh): boolean =>
+    mesh.material === rim;
+  const subject: () => { center: THREE.Vector3; radius: number } | null = (): {
+    center: THREE.Vector3;
+    radius: number;
+  } | null => {
     const box: THREE.Box3 = getHumanObservationBounds(meshes());
     if (box.isEmpty()) return null;
     const sphere: THREE.Sphere = box.getBoundingSphere(new THREE.Sphere());
     return { center: sphere.center, radius: sphere.radius };
   };
-  const fitDistance: (radius: number, fov?: number) => number = (radius: number, fov: number = camera.fov): number => {
+  const fitDistance: (radius: number, fov?: number) => number = (
+    radius: number,
+    fov: number = camera.fov,
+  ): number => {
     const vertical: number = THREE.MathUtils.degToRad(fov / 2);
     const horizontal: number = Math.atan(Math.tan(vertical) * camera.aspect);
     return (1.1 * radius) / Math.sin(Math.min(vertical, horizontal));
@@ -208,36 +223,77 @@ void main() {
     host.invalidateDisplay?.();
   };
 
-  const unmatched: (ids: readonly string[] | null) => string[] = (ids: readonly string[] | null): string[] => {
-    const names: Set<string> = new Set(meshes().map((mesh: THREE.Mesh) : string => mesh.name));
-    return (ids ?? []).filter((id: string) : boolean => !names.has(id));
+  const unmatched: (ids: readonly string[] | null) => string[] = (
+    ids: readonly string[] | null,
+  ): string[] => {
+    const names: Set<string> = new Set(
+      meshes().map((mesh: THREE.Mesh): string => mesh.name),
+    );
+    return (ids ?? []).filter((id: string): boolean => !names.has(id));
   };
   const restoreOutline: (selected?: readonly THREE.Mesh[]) => void = (
-    selected: readonly THREE.Mesh[] = [...new Set([...swapped.keys(), ...hulls.keys()])],
+    selected: readonly THREE.Mesh[] = [
+      ...new Set([...swapped.keys(), ...hulls.keys()]),
+    ],
   ): void => {
     const selectedMeshes: Set<THREE.Mesh> = new Set(selected);
     reportAutoMovieResourceRetirement([
-    ...[...swapped].filter(([mesh]: [THREE.Mesh, THREE.Material | THREE.Material[]]) : boolean => selectedMeshes.has(mesh)).map(([mesh, own]: [THREE.Mesh, THREE.Material | THREE.Material[]]) : () => void => () : void => {
-      mesh.material = own;
-      swapped.delete(mesh);
-    }),
-    ...[...hulls].filter(([mesh]: [THREE.Mesh, THREE.Mesh]) : boolean => selectedMeshes.has(mesh)).map(([mesh, hull]: [THREE.Mesh, THREE.Mesh]) : () => void => () : void => {
-      hull.removeFromParent();
-      hulls.delete(mesh);
-    }),
+      ...[...swapped]
+        .filter(
+          ([mesh]: [THREE.Mesh, THREE.Material | THREE.Material[]]): boolean =>
+            selectedMeshes.has(mesh),
+        )
+        .map(
+          ([mesh, own]: [
+            THREE.Mesh,
+            THREE.Material | THREE.Material[],
+          ]): (() => void) =>
+            (): void => {
+              mesh.material = own;
+              swapped.delete(mesh);
+            },
+        ),
+      ...[...hulls]
+        .filter(([mesh]: [THREE.Mesh, THREE.Mesh]): boolean =>
+          selectedMeshes.has(mesh),
+        )
+        .map(
+          ([mesh, hull]: [THREE.Mesh, THREE.Mesh]): (() => void) =>
+            (): void => {
+              hull.removeFromParent();
+              hulls.delete(mesh);
+            },
+        ),
     ]);
   };
-  const restoreMaterials: () => void = (): void => reportAutoMovieResourceRetirement([
-    () : void => albedo.clear(), restoreOutline,
-  ]);
-  const restoreHidden: (selected?: readonly THREE.Mesh[]) => void = (selected: readonly THREE.Mesh[] = [...hiddenByUs]): void => reportAutoMovieResourceRetirement(
-    selected.map((mesh: THREE.Mesh) : () => void => () : void => { mesh.visible = true; hiddenByUs.delete(mesh); }),
-  );
+  const restoreMaterials: () => void = (): void =>
+    reportAutoMovieResourceRetirement([
+      (): void => albedo.clear(),
+      restoreOutline,
+    ]);
+  const restoreHidden: (selected?: readonly THREE.Mesh[]) => void = (
+    selected: readonly THREE.Mesh[] = [...hiddenByUs],
+  ): void =>
+    reportAutoMovieResourceRetirement(
+      selected.map((mesh: THREE.Mesh): (() => void) => (): void => {
+        mesh.visible = true;
+        hiddenByUs.delete(mesh);
+      }),
+    );
   const withdrawalFailures: unknown[] = [];
   const retirement: () => Promise<void> = createAutoMovieResourceRetirement([
-    () : void => reportAutoMovieResourceRetirement(withdrawalFailures.map((error: unknown) : () => void => () : void => { throw error; })),
+    (): void =>
+      reportAutoMovieResourceRetirement(
+        withdrawalFailures.map((error: unknown): (() => void) => (): void => {
+          throw error;
+        }),
+      ),
     (): Promise<void> => albedo.close(),
-    ...[...ownedMaterials].map((material: THREE.Material) : () => void => () : void => material.dispose()),
+    ...[...ownedMaterials].map(
+      (material: THREE.Material): (() => void) =>
+        (): void =>
+          material.dispose(),
+    ),
   ]);
   const close: () => Promise<void> = (): Promise<void> => {
     const completion: Promise<void> = retirement();
@@ -245,19 +301,26 @@ void main() {
       closed = true;
       try {
         reportAutoMovieResourceRetirement([
-          () : void => albedo.restoreBorrowed(), restoreOutline, restoreHidden,
-          () : void => {
-            if (host.scene.overrideMaterial !== null && ownedMaterials.has(host.scene.overrideMaterial))
+          (): void => albedo.restoreBorrowed(),
+          restoreOutline,
+          restoreHidden,
+          (): void => {
+            if (
+              host.scene.overrideMaterial !== null &&
+              ownedMaterials.has(host.scene.overrideMaterial)
+            )
               host.scene.overrideMaterial = originalOverride;
           },
         ]);
-      } catch (error) { withdrawalFailures.push(error); }
+      } catch (error) {
+        withdrawalFailures.push(error);
+      }
     }
     return completion;
   };
   const hooks: IHumanObservationHooks = {
     /** Actual display camera and orbit target in metres, with vertical field of view in degrees. */
-    camera: () : ReturnType<IHumanObservationHooks["camera"]> => ({
+    camera: (): ReturnType<IHumanObservationHooks["camera"]> => ({
       position: camera.position.toArray(),
       target: orbit.target.toArray(),
       fov: camera.fov,
@@ -361,7 +424,8 @@ void main() {
     },
 
     /** The names of the displayed parts, in scene order. */
-    parts: (): string[] => meshes().map((mesh: THREE.Mesh) : string => mesh.name),
+    parts: (): string[] =>
+      meshes().map((mesh: THREE.Mesh): string => mesh.name),
 
     /** The current display state of the hooks. */
     state: (): {
@@ -380,7 +444,8 @@ void main() {
     /** End owned pass materials once, restoring borrowed state before returning the completion. */
     close,
     /** Await actual failed retirements; closing callers share the complete owner result. */
-    settleRetirements: (): Promise<void> => closed ? retirement() : albedo.settleRetirements(),
+    settleRetirements: (): Promise<void> =>
+      closed ? retirement() : albedo.settleRetirements(),
     /** Restore borrowed display state before numerical publication/disposal; keep requested hooks. */
     restore: (): void => {
       reportAutoMovieResourceRetirement([restoreMaterials, restoreHidden]);
@@ -403,13 +468,21 @@ void main() {
       if (!engaged) return;
       const shown: THREE.Mesh[] = meshes();
       const shownMeshes: Set<THREE.Mesh> = new Set(shown);
-      const outlineRestore: THREE.Mesh[] = [...new Set([...swapped.keys(), ...hulls.keys()])]
-        .filter((mesh: THREE.Mesh) : boolean => pass !== "outline" || !shownMeshes.has(mesh));
-      const hiddenRestore: THREE.Mesh[] = [...hiddenByUs].filter((mesh: THREE.Mesh) : boolean => !shownMeshes.has(mesh));
+      const outlineRestore: THREE.Mesh[] = [
+        ...new Set([...swapped.keys(), ...hulls.keys()]),
+      ].filter(
+        (mesh: THREE.Mesh): boolean =>
+          pass !== "outline" || !shownMeshes.has(mesh),
+      );
+      const hiddenRestore: THREE.Mesh[] = [...hiddenByUs].filter(
+        (mesh: THREE.Mesh): boolean => !shownMeshes.has(mesh),
+      );
       reportAutoMovieResourceRetirement([
-        () : void => { if (pass !== "albedo") albedo.clear(); },
-        () : void => restoreOutline(outlineRestore),
-        () : void => restoreHidden(hiddenRestore),
+        (): void => {
+          if (pass !== "albedo") albedo.clear();
+        },
+        (): void => restoreOutline(outlineRestore),
+        (): void => restoreHidden(hiddenRestore),
       ]);
       requireOpen();
       // Admission precedes visibility mutation so a refused new group remains intact.
@@ -429,10 +502,13 @@ void main() {
           host.invalidateShadows?.();
         }
       }
-      const seen: { center: THREE.Vector3; radius: number } | null = pass === "depth" || pass === "outline" ? subject() : null;
+      const seen: { center: THREE.Vector3; radius: number } | null =
+        pass === "depth" || pass === "outline" ? subject() : null;
       if (pass === "depth" && seen !== null) {
         const distance: number = camera.position.distanceTo(seen.center);
-        const uniforms: THREE.ShaderMaterial["uniforms"] = (materials.depth as THREE.ShaderMaterial).uniforms;
+        const uniforms: THREE.ShaderMaterial["uniforms"] = (
+          materials.depth as THREE.ShaderMaterial
+        ).uniforms;
         uniforms.near.value = Math.max(0, distance - seen.radius);
         uniforms.far.value = distance + seen.radius;
       }

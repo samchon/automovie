@@ -1,5 +1,6 @@
 import type { ConnectedBodyModel } from "@automovie/human/body/runtime/ConnectedBodyModel";
 import type { ConnectedBodyPart } from "@automovie/human/body/runtime/ConnectedBodyPart";
+
 import type { IConnectedBodyResident } from "./IConnectedBodyResident.js";
 
 /**

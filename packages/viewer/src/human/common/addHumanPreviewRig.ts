@@ -1,8 +1,8 @@
 import * as THREE from "three";
 
+import type { HumanPreviewLight } from "./HumanPreviewLight.js";
 import { balanceHumanPreviewRig } from "./balanceHumanPreviewRig.js";
 import { humanPreviewSoftbox } from "./humanPreviewSoftbox.js";
-import type { HumanPreviewLight } from "./HumanPreviewLight.js";
 
 /**
  * The key softbox's authored point-sample count. Each sample casts one shadow;
@@ -30,14 +30,31 @@ export function addHumanPreviewRig(props: {
   renderer: { toneMappingExposure: number };
   scale: number;
 }): THREE.DirectionalLight[] {
-  const { scene, scale }: { scene: THREE.Scene; renderer: { toneMappingExposure: number; }; scale: number; } = props;
-  const linear: (hex: number) => [number, number, number] = (hex: number): [number, number, number] => {
+  const {
+    scene,
+    scale,
+  }: {
+    scene: THREE.Scene;
+    renderer: { toneMappingExposure: number };
+    scale: number;
+  } = props;
+  const linear: (hex: number) => [number, number, number] = (
+    hex: number,
+  ): [number, number, number] => {
     const color: THREE.Color = new THREE.Color(hex);
     return [color.r, color.g, color.b];
   };
   const key: [number, number, number] = [-0.3, 0.35, 0.45];
-  const softbox: [number, number, number][] = humanPreviewSoftbox(key, Math.atan(0.5 / 1.5), KEY_SAMPLES);
-  const rig: { lights: HumanPreviewLight[]; gain: [number, number, number]; exposure: number; } = balanceHumanPreviewRig(
+  const softbox: [number, number, number][] = humanPreviewSoftbox(
+    key,
+    Math.atan(0.5 / 1.5),
+    KEY_SAMPLES,
+  );
+  const rig: {
+    lights: HumanPreviewLight[];
+    gain: [number, number, number];
+    exposure: number;
+  } = balanceHumanPreviewRig(
     [
       {
         kind: "hemisphere",
@@ -48,17 +65,33 @@ export function addHumanPreviewRig(props: {
       ...(
         [
           ...softbox.map(
-            (direction: [number, number, number]): readonly [[number, number, number], number, 16771544] => [direction, 2.3 / KEY_SAMPLES, 0xffe9d8] as const,
+            (
+              direction: [number, number, number],
+            ): readonly [[number, number, number], number, 16771544] =>
+              [direction, 2.3 / KEY_SAMPLES, 0xffe9d8] as const,
           ),
           [[0.35, 0.1, 0.3], 0.85, 0xffe9d8],
           [[0.1, 0.3, -0.25], 1.6, 0xffffff],
         ] as const
-      ).map(([direction, intensity, hex]: readonly [[number, number, number], number, 16771544] | readonly [readonly [0.35, 0.1, 0.3], 0.85, 16771544] | readonly [readonly [0.1, 0.3, -0.25], 1.6, 16777215]): { kind: "directional"; direction: [number, number, number] | readonly [0.35, 0.1, 0.3] | readonly [0.1, 0.3, -0.25]; color: [number, number, number]; intensity: number; } => ({
-        kind: "directional" as const,
-        direction,
-        color: linear(hex),
-        intensity,
-      })),
+      ).map(
+        ([direction, intensity, hex]:
+          | readonly [[number, number, number], number, 16771544]
+          | readonly [readonly [0.35, 0.1, 0.3], 0.85, 16771544]
+          | readonly [readonly [0.1, 0.3, -0.25], 1.6, 16777215]): {
+          kind: "directional";
+          direction:
+            | [number, number, number]
+            | readonly [0.35, 0.1, 0.3]
+            | readonly [0.1, 0.3, -0.25];
+          color: [number, number, number];
+          intensity: number;
+        } => ({
+          kind: "directional" as const,
+          direction,
+          color: linear(hex),
+          intensity,
+        }),
+      ),
     ],
     key,
   );

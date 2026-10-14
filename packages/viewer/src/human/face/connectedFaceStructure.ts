@@ -1,4 +1,8 @@
-import type { IAutoMovieMesh, IAutoMovieModel, IAutoMovieModelPart } from "@automovie/interface";
+import type {
+  IAutoMovieMesh,
+  IAutoMovieModel,
+  IAutoMovieModelPart,
+} from "@automovie/interface";
 
 import type { IConnectedFaceMeshWitness } from "./IConnectedFaceMeshWitness.js";
 
@@ -28,7 +32,10 @@ export function connectedFaceStructure(
   type PartStructure = Omit<IAutoMovieModelPart, "geometry"> & {
     geometry: {
       type: IAutoMovieModelPart["geometry"]["type"];
-      mesh: Omit<IAutoMovieMesh, "positions" | "normals" | "indices" | "uvs"> & {
+      mesh: Omit<
+        IAutoMovieMesh,
+        "positions" | "normals" | "indices" | "uvs"
+      > & {
         positions: number;
         normals: number | undefined;
         indices: readonly number[] | null;
@@ -37,26 +44,29 @@ export function connectedFaceStructure(
     };
   };
 
-  const parts: PartStructure[] = model.parts.map((part: IAutoMovieModelPart, index: number): PartStructure => {
-    const mesh: IAutoMovieMesh = meshes[index];
-    const { positions, normals, indices, uvs, ...rest }: IAutoMovieMesh = mesh;
-    const witness: IConnectedFaceMeshWitness | undefined = witnesses?.[index];
-    return {
-      ...(witnesses === null
-        ? part
-        : structuredClone({ ...part, geometry: undefined })),
-      geometry: {
-        type: part.geometry.type,
-        mesh: {
-          ...(witnesses === null ? rest : structuredClone(rest)),
-          positions: positions.length,
-          normals: normals?.length,
-          indices: witness === undefined ? indices : witness.indices,
-          uvs: witness === undefined ? uvs : witness.uvs,
+  const parts: PartStructure[] = model.parts.map(
+    (part: IAutoMovieModelPart, index: number): PartStructure => {
+      const mesh: IAutoMovieMesh = meshes[index];
+      const { positions, normals, indices, uvs, ...rest }: IAutoMovieMesh =
+        mesh;
+      const witness: IConnectedFaceMeshWitness | undefined = witnesses?.[index];
+      return {
+        ...(witnesses === null
+          ? part
+          : structuredClone({ ...part, geometry: undefined })),
+        geometry: {
+          type: part.geometry.type,
+          mesh: {
+            ...(witnesses === null ? rest : structuredClone(rest)),
+            positions: positions.length,
+            normals: normals?.length,
+            indices: witness === undefined ? indices : witness.indices,
+            uvs: witness === undefined ? uvs : witness.uvs,
+          },
         },
-      },
-    };
-  });
+      };
+    },
+  );
   return {
     materials:
       witnesses === null ? model.materials : structuredClone(model.materials),

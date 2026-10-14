@@ -1,6 +1,6 @@
 import type { HumanResidentPort } from "./HumanResidentPort.js";
-import type { IHumanPendingResult } from "./IHumanPendingResult.js";
 import type { HumanResidentReply } from "./HumanResidentReply.js";
+import type { IHumanPendingResult } from "./IHumanPendingResult.js";
 import type { IHumanWorkerError } from "./IHumanWorkerError.js";
 import type { IHumanWorkerMessage } from "./IHumanWorkerMessage.js";
 import { humanWorkerErrorMessage } from "./humanWorkerErrorMessage.js";
@@ -20,15 +20,23 @@ import { humanWorkerErrorMessage } from "./humanWorkerErrorMessage.js";
  */
 export function createHumanResidentWorker<Input, Output>(
   factory: () => HumanResidentPort<Input, Output>,
-): { request: (input: Input) => { result: Promise<Output>; cancel: () => void; }; dispose: () => void; } {
+): {
+  request: (input: Input) => { result: Promise<Output>; cancel: () => void };
+  dispose: () => void;
+} {
   let sequence: number = 0;
   let worker: HumanResidentPort<Input, Output> | undefined;
   let disposed: boolean = false;
   /** Failure keeps the withdrawn connection reachable without retrying its native release. */
-  let retirementFailure: { port: HumanResidentPort<Input, Output>; error: Error } | undefined;
+  let retirementFailure:
+    | { port: HumanResidentPort<Input, Output>; error: Error }
+    | undefined;
   /** Reentrant requests cannot acquire a replacement before termination has settled. */
   let retiring: Error | undefined;
-  const pending: Map<number, IHumanPendingResult<Output>> = new Map<number, IHumanPendingResult<Output>>();
+  const pending: Map<number, IHumanPendingResult<Output>> = new Map<
+    number,
+    IHumanPendingResult<Output>
+  >();
   const close: (error: Error) => void = (error: Error): void => {
     if (retirementFailure !== undefined) throw retirementFailure.error;
     if (retiring !== undefined) throw retiring;
@@ -41,7 +49,10 @@ export function createHumanResidentWorker<Input, Output>(
         try {
           previous.terminate();
         } catch (cause) {
-          refusal = new AggregateError([error, cause], "Resident connection retirement failed.");
+          refusal = new AggregateError(
+            [error, cause],
+            "Resident connection retirement failed.",
+          );
           retirementFailure = { port: previous, error: refusal };
         }
       }
@@ -52,15 +63,22 @@ export function createHumanResidentWorker<Input, Output>(
     }
     if (retirementFailure !== undefined) throw retirementFailure.error;
   };
-  const connect: () => HumanResidentPort<Input, Output> = (): HumanResidentPort<Input, Output> => {
+  const connect: () => HumanResidentPort<Input, Output> = (): HumanResidentPort<
+    Input,
+    Output
+  > => {
     if (retirementFailure !== undefined) throw retirementFailure.error;
     if (retiring !== undefined) throw retiring;
     if (worker !== undefined) return worker;
     const current: HumanResidentPort<Input, Output> = factory();
     worker = current;
-    current.onmessage = ({ data }: IHumanWorkerMessage<HumanResidentReply<Output>>): void => {
+    current.onmessage = ({
+      data,
+    }: IHumanWorkerMessage<HumanResidentReply<Output>>): void => {
       if (worker !== current) return;
-      const request: IHumanPendingResult<Output> | undefined = pending.get(data.id);
+      const request: IHumanPendingResult<Output> | undefined = pending.get(
+        data.id,
+      );
       if (request === undefined) return;
       pending.delete(data.id);
       if (data.success) request.resolve(data.value);
@@ -75,28 +93,43 @@ export function createHumanResidentWorker<Input, Output>(
     return current;
   };
   return {
-    request: (input: Input): { result: Promise<Output>; cancel: () => void; } => {
+    request: (
+      input: Input,
+    ): { result: Promise<Output>; cancel: () => void } => {
       const id: number = ++sequence;
-      const result: Promise<Output> = new Promise<Output>((resolve: (value: Output | PromiseLike<Output>) => void, reject: (reason?: unknown) => void): void => {
-        const refusal: Error | undefined = retirementFailure?.error ?? retiring ??
-          (disposed ? new Error("The face worker has been disposed.") : undefined);
-        if (refusal !== undefined) {
-          reject(refusal);
-          return;
-        }
-        pending.set(id, { resolve, reject });
-        try {
-          connect().postMessage({ id, input });
-        } catch (error) {
-          close(
-            new Error(error instanceof Error ? error.message : String(error), { cause: error }),
-          );
-        }
-      });
+      const result: Promise<Output> = new Promise<Output>(
+        (
+          resolve: (value: Output | PromiseLike<Output>) => void,
+          reject: (reason?: unknown) => void,
+        ): void => {
+          const refusal: Error | undefined =
+            retirementFailure?.error ??
+            retiring ??
+            (disposed
+              ? new Error("The face worker has been disposed.")
+              : undefined);
+          if (refusal !== undefined) {
+            reject(refusal);
+            return;
+          }
+          pending.set(id, { resolve, reject });
+          try {
+            connect().postMessage({ id, input });
+          } catch (error) {
+            close(
+              new Error(
+                error instanceof Error ? error.message : String(error),
+                { cause: error },
+              ),
+            );
+          }
+        },
+      );
       return {
         result,
         cancel: (): void => {
-          const request: IHumanPendingResult<Output> | undefined = pending.get(id);
+          const request: IHumanPendingResult<Output> | undefined =
+            pending.get(id);
           pending.delete(id);
           request?.reject(new Error("Superseded by a newer face request."));
         },

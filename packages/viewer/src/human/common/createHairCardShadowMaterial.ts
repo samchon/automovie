@@ -29,8 +29,10 @@ export function createHairCardShadowMaterial(
   const material: THREE.MeshDepthMaterial = new THREE.MeshDepthMaterial({
     depthPacking: THREE.RGBADepthPacking,
   });
-  const pigment: { value: THREE.Color; } = { value: color.clone() };
-  material.onBeforeCompile = (shader: THREE.WebGLProgramParametersWithUniforms): void => {
+  const pigment: { value: THREE.Color } = { value: color.clone() };
+  material.onBeforeCompile = (
+    shader: THREE.WebGLProgramParametersWithUniforms,
+  ): void => {
     shader.uniforms.hairPigment = pigment;
     shader.fragmentShader = shader.fragmentShader
       .replace(

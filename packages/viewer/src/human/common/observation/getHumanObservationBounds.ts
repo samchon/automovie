@@ -27,7 +27,10 @@ export function getHumanObservationBounds(
       bounds.union(mesh.boundingBox!.clone().applyMatrix4(mesh.matrixWorld));
       continue;
     }
-    const position: THREE.BufferAttribute<THREE.BufferAttributeEventMap> | THREE.InterleavedBufferAttribute = mesh.geometry.getAttribute("position");
+    const position:
+      | THREE.BufferAttribute<THREE.BufferAttributeEventMap>
+      | THREE.InterleavedBufferAttribute =
+      mesh.geometry.getAttribute("position");
     if (position === undefined) continue;
     for (let index: number = 0; index < position.count; ++index)
       bounds.expandByPoint(

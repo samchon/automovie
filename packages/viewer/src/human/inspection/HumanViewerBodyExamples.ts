@@ -12,6 +12,10 @@ import type { IAutoMovieHumanBodyBasisDocument } from "@automovie/human";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Sharing these field types avoids competing channel definitions; runtime cache equivalence still requires each resulting document, paired basis and builder digest.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Example state objects are supplied by the application and borrowed by catalogue producers; this type introduces no worker, renderer, lifetime manager or population cap.
  */
-export type HumanViewerBodyExamples = Record<string,
-  Pick<IAutoMovieHumanBodyBasisDocument, "shape" | "pose" | "shoulders" | "underwear">
+export type HumanViewerBodyExamples = Record<
+  string,
+  Pick<
+    IAutoMovieHumanBodyBasisDocument,
+    "shape" | "pose" | "shoulders" | "underwear"
+  >
 >;

@@ -4,4 +4,6 @@
  * Both numerical and shader evaluators share this fixed tuple; monochrome
  * depth shadows cannot retain the input transmission color and no handle is owned.
  */
-export const HUMAN_HAIR_SHADOW_LUMINANCE: readonly [number, number, number] = [0.2126, 0.7152, 0.0722] as const;
+export const HUMAN_HAIR_SHADOW_LUMINANCE: readonly [number, number, number] = [
+  0.2126, 0.7152, 0.0722,
+] as const;

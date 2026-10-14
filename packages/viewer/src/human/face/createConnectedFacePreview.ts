@@ -3,10 +3,10 @@ import { serializeHumanFaceBasisDocument } from "@automovie/human/face/document/
 import type { ConnectedFaceRequest } from "@automovie/human/face/runtime/ConnectedFaceRequest";
 import type { ConnectedFaceResult } from "@automovie/human/face/runtime/ConnectedFaceResult";
 
-import { createHumanResidentWorker } from "../common/createHumanResidentWorker.js";
 import { createAutoMovieResourceRetirement } from "../../createAutoMovieResourceRetirement.js";
-import type { IConnectedFacePreviewProps } from "./IConnectedFacePreviewProps.js";
+import { createHumanResidentWorker } from "../common/createHumanResidentWorker.js";
 import type { IConnectedFaceFrame } from "./IConnectedFaceFrame.js";
+import type { IConnectedFacePreviewProps } from "./IConnectedFacePreviewProps.js";
 
 /**
  * Build connected preview candidates through a resident numerical worker.
@@ -23,8 +23,64 @@ import type { IConnectedFaceFrame } from "./IConnectedFaceFrame.js";
  * @evidence contracts/performance.md#reuse-equivalent-work Successful requests share one resident connection and admitted numerical basis, and renderer compatibility controls native buffer reuse. Matching documents do not merge effectful export requests or stale preview generations.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Retains one withdrawal closure, a lazy connection and pending coordinator entries. cancel removes only preview request authority; stale prepared frames are retired, accepted frames transfer to viewport ownership, and disposeWorker rejects pending work and ends the connection. The borrowed GPU renderer is closed by the viewport.
  */
-export function createConnectedFacePreview(props: IConnectedFacePreviewProps): { cancel: () => void; build: (document: IAutoMovieHumanFaceBasisDocument, measure?: boolean, occlusion?: boolean) => Promise<{ frame: IConnectedFaceFrame; parts: number; articulation: Extract<ConnectedFaceResult, { operation: "preview" }>["articulation"]; contact: Extract<ConnectedFaceResult, { operation: "preview" }>["contact"]; crossings: Extract<ConnectedFaceResult, { operation: "preview" }>["crossings"]; }>; construct: (document: IAutoMovieHumanFaceBasisDocument, occlusion?: boolean) => Promise<{ model: { frame: IConnectedFaceFrame; parts: number; articulation: Extract<ConnectedFaceResult, { operation: "preview" }>["articulation"]; contact: null; crossings: Extract<ConnectedFaceResult, { operation: "preview" }>["crossings"]; }; admission: Extract<ConnectedFaceResult, { operation: "construct" }>["admission"]; periocularMappings: Extract<ConnectedFaceResult, { operation: "construct" }>["periocularMappings"]; }>; disposeWorker: () => void; export: (document: IAutoMovieHumanFaceBasisDocument, occlusion?: boolean) => Promise<Uint8Array<ArrayBuffer>>; } {
-  const worker: { request: (input: ConnectedFaceRequest) => { result: Promise<ConnectedFaceResult>; cancel: () => void; }; dispose: () => void; } = createHumanResidentWorker(props.worker);
+export function createConnectedFacePreview(props: IConnectedFacePreviewProps): {
+  cancel: () => void;
+  build: (
+    document: IAutoMovieHumanFaceBasisDocument,
+    measure?: boolean,
+    occlusion?: boolean,
+  ) => Promise<{
+    frame: IConnectedFaceFrame;
+    parts: number;
+    articulation: Extract<
+      ConnectedFaceResult,
+      { operation: "preview" }
+    >["articulation"];
+    contact: Extract<ConnectedFaceResult, { operation: "preview" }>["contact"];
+    crossings: Extract<
+      ConnectedFaceResult,
+      { operation: "preview" }
+    >["crossings"];
+  }>;
+  construct: (
+    document: IAutoMovieHumanFaceBasisDocument,
+    occlusion?: boolean,
+  ) => Promise<{
+    model: {
+      frame: IConnectedFaceFrame;
+      parts: number;
+      articulation: Extract<
+        ConnectedFaceResult,
+        { operation: "preview" }
+      >["articulation"];
+      contact: null;
+      crossings: Extract<
+        ConnectedFaceResult,
+        { operation: "preview" }
+      >["crossings"];
+    };
+    admission: Extract<
+      ConnectedFaceResult,
+      { operation: "construct" }
+    >["admission"];
+    periocularMappings: Extract<
+      ConnectedFaceResult,
+      { operation: "construct" }
+    >["periocularMappings"];
+  }>;
+  disposeWorker: () => void;
+  export: (
+    document: IAutoMovieHumanFaceBasisDocument,
+    occlusion?: boolean,
+  ) => Promise<Uint8Array<ArrayBuffer>>;
+} {
+  const worker: {
+    request: (input: ConnectedFaceRequest) => {
+      result: Promise<ConnectedFaceResult>;
+      cancel: () => void;
+    };
+    dispose: () => void;
+  } = createHumanResidentWorker(props.worker);
   let generation: number = 0;
   let withdraw: (() => void) | undefined;
   const cancel: () => void = (): void => {
@@ -38,10 +94,28 @@ export function createConnectedFacePreview(props: IConnectedFacePreviewProps): {
       document: IAutoMovieHumanFaceBasisDocument,
       measure: boolean = false,
       occlusion: boolean = false,
-    ): Promise<{ frame: IConnectedFaceFrame; parts: number; articulation: Extract<ConnectedFaceResult, { operation: "preview" }>["articulation"]; contact: Extract<ConnectedFaceResult, { operation: "preview" }>["contact"]; crossings: Extract<ConnectedFaceResult, { operation: "preview" }>["crossings"]; }> => {
+    ): Promise<{
+      frame: IConnectedFaceFrame;
+      parts: number;
+      articulation: Extract<
+        ConnectedFaceResult,
+        { operation: "preview" }
+      >["articulation"];
+      contact: Extract<
+        ConnectedFaceResult,
+        { operation: "preview" }
+      >["contact"];
+      crossings: Extract<
+        ConnectedFaceResult,
+        { operation: "preview" }
+      >["crossings"];
+    }> => {
       cancel();
       const ticket: number = generation;
-      const request: { result: Promise<ConnectedFaceResult>; cancel: () => void; } = worker.request({
+      const request: {
+        result: Promise<ConnectedFaceResult>;
+        cancel: () => void;
+      } = worker.request({
         operation: "preview",
         document: serializeHumanFaceBasisDocument(document),
         measure,
@@ -51,7 +125,9 @@ export function createConnectedFacePreview(props: IConnectedFacePreviewProps): {
       const result: ConnectedFaceResult = await request.result;
       if (result.operation !== "preview")
         throw new Error("Expected a numerical face preview.");
-      const frame: IConnectedFaceFrame = await props.renderer.prepare(result.model);
+      const frame: IConnectedFaceFrame = await props.renderer.prepare(
+        result.model,
+      );
       if (ticket !== generation) {
         props.renderer.dispose(frame);
         return createAutoMovieResourceRetirement(
@@ -72,10 +148,35 @@ export function createConnectedFacePreview(props: IConnectedFacePreviewProps): {
     construct: async (
       document: IAutoMovieHumanFaceBasisDocument,
       occlusion: boolean = false,
-    ): Promise<{ model: { frame: IConnectedFaceFrame; parts: number; articulation: Extract<ConnectedFaceResult, { operation: "preview" }>["articulation"]; contact: null; crossings: Extract<ConnectedFaceResult, { operation: "preview" }>["crossings"]; }; admission: Extract<ConnectedFaceResult, { operation: "construct" }>["admission"]; periocularMappings: Extract<ConnectedFaceResult, { operation: "construct" }>["periocularMappings"]; }> => {
+    ): Promise<{
+      model: {
+        frame: IConnectedFaceFrame;
+        parts: number;
+        articulation: Extract<
+          ConnectedFaceResult,
+          { operation: "preview" }
+        >["articulation"];
+        contact: null;
+        crossings: Extract<
+          ConnectedFaceResult,
+          { operation: "preview" }
+        >["crossings"];
+      };
+      admission: Extract<
+        ConnectedFaceResult,
+        { operation: "construct" }
+      >["admission"];
+      periocularMappings: Extract<
+        ConnectedFaceResult,
+        { operation: "construct" }
+      >["periocularMappings"];
+    }> => {
       cancel();
       const ticket: number = generation;
-      const request: { result: Promise<ConnectedFaceResult>; cancel: () => void; } = worker.request({
+      const request: {
+        result: Promise<ConnectedFaceResult>;
+        cancel: () => void;
+      } = worker.request({
         operation: "construct",
         document: serializeHumanFaceBasisDocument(document),
         occlusion,
@@ -84,12 +185,18 @@ export function createConnectedFacePreview(props: IConnectedFacePreviewProps): {
       const result: ConnectedFaceResult = await request.result;
       if (result.operation !== "construct")
         throw new Error("Expected a whole numerical face construction.");
-      const frame: IConnectedFaceFrame = await props.renderer.prepare(result.model);
+      const frame: IConnectedFaceFrame = await props.renderer.prepare(
+        result.model,
+      );
       if (ticket !== generation) {
         props.renderer.dispose(frame);
         return createAutoMovieResourceRetirement(
           [(): Promise<void> => props.renderer.settleRetirements()],
-          { error: new Error("Superseded while preparing face construction geometry.") },
+          {
+            error: new Error(
+              "Superseded while preparing face construction geometry.",
+            ),
+          },
         )();
       }
       withdraw = undefined;

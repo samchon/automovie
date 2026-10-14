@@ -14,8 +14,10 @@ import type { IHumanCaptureCamera } from "./IHumanCaptureCamera.js";
  * @evidence contracts/performance.md#reuse-equivalent-work Shared base-field meanings prevent duplicate conventions, but matching partial records do not establish equivalent captures when defaults or source/model differ.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The record retains only scalars and an optional tuple, no native camera or renderer. Admission's copied target transfers to the caller with ordinary data lifetime.
  */
-export interface IHumanCaptureCameraPose
-  extends Pick<IHumanCaptureCamera, "yaw" | "pitch" | "fov"> {
+export interface IHumanCaptureCameraPose extends Pick<
+  IHumanCaptureCamera,
+  "yaw" | "pitch" | "fov"
+> {
   /** Positive eye-to-target distance in displayed metres, when recorded. */
   distance?: number;
 

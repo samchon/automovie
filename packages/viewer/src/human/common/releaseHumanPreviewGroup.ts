@@ -1,4 +1,5 @@
 import type * as THREE from "three";
+
 import { collectAutoMovieOwnedResources } from "../../collectAutoMovieOwnedResources.js";
 import { restoreAutoMovieRenderModeState } from "../../restoreAutoMovieRenderModeState.js";
 
@@ -27,6 +28,10 @@ import { restoreAutoMovieRenderModeState } from "../../restoreAutoMovieRenderMod
  */
 export function releaseHumanPreviewGroup(group: THREE.Group): void {
   restoreAutoMovieRenderModeState(
-    collectAutoMovieOwnedResources(group).map((resource: { dispose(): void; }): () => void => (): void => resource.dispose()),
+    collectAutoMovieOwnedResources(group).map(
+      (resource: { dispose(): void }): (() => void) =>
+        (): void =>
+          resource.dispose(),
+    ),
   );
 }

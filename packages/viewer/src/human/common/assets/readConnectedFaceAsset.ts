@@ -2,10 +2,10 @@
  * Byte and stream decoding for caller-selected Human basis assets. Transport
  * content determines gzip decoding; builders retain schema admission.
  */
-import { ConnectedAssetEncoding } from "./ConnectedAssetEncoding.js";
 import type { IAutoMovieHumanFaceBasis } from "@automovie/human";
-import { decodeConnectedAssetText } from "./decodeConnectedAssetText.js";
 
+import { ConnectedAssetEncoding } from "./ConnectedAssetEncoding.js";
+import { decodeConnectedAssetText } from "./decodeConnectedAssetText.js";
 
 /**
  * Decode the caller-selected gzip JSON asset through explicit IO ports.
@@ -36,8 +36,13 @@ export async function readConnectedFaceAsset<
   /** Bytes to text; by content when omitted. */
   decode?: (bytes: ArrayBuffer) => Promise<string>;
 }): Promise<Payload> {
-  const response: { ok: boolean; status: number; arrayBuffer: () => Promise<ArrayBuffer>; } = await props.read();
+  const response: {
+    ok: boolean;
+    status: number;
+    arrayBuffer: () => Promise<ArrayBuffer>;
+  } = await props.read();
   ConnectedAssetEncoding.admit(response);
-  const decode: (bytes: ArrayBuffer) => Promise<string> = props.decode ?? decodeConnectedAssetText;
+  const decode: (bytes: ArrayBuffer) => Promise<string> =
+    props.decode ?? decodeConnectedAssetText;
   return JSON.parse(await decode(await response.arrayBuffer()));
 }

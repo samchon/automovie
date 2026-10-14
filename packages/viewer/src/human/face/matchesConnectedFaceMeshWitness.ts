@@ -23,14 +23,19 @@ export function matchesConnectedFaceMeshWitness(
   witness: IConnectedFaceMeshWitness | undefined,
 ): boolean {
   if (witness === undefined || closed !== witness.closed) return false;
-  const same: (values: readonly number[] | null, previous: readonly number[] | null) => boolean = (
+  const same: (
+    values: readonly number[] | null,
+    previous: readonly number[] | null,
+  ) => boolean = (
     values: readonly number[] | null,
     previous: readonly number[] | null,
   ): boolean =>
     values === null || previous === null
       ? values === previous
       : values.length === previous.length &&
-        values.every((value: number, index: number): boolean => value === previous[index]);
+        values.every(
+          (value: number, index: number): boolean => value === previous[index],
+        );
   return (
     same(mesh.positions, witness.positions) &&
     same(mesh.normals, witness.normals) &&

@@ -12,4 +12,6 @@
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Shader source is generated once by its module owner; this scalar formatting helper coordinates no repeated request cache.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Returns a short string and retains no coefficient, shader program or GPU resource.
  */
-export const formatHumanHairShadowGlsl: (value: number) => string = (value: number): string => value.toPrecision(10);
+export const formatHumanHairShadowGlsl: (value: number) => string = (
+  value: number,
+): string => value.toPrecision(10);

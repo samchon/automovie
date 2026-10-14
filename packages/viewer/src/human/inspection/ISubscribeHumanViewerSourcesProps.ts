@@ -41,7 +41,7 @@ export interface ISubscribeHumanViewerSourcesProps {
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each listener owns distinct publication effects; matching source paths do not make independent subscriptions interchangeable.
    * @evidence contracts/performance.md#bound-retention-and-release-resources The subscription owns the returned remover and invokes it at close, while the host retains the underlying watcher handle.
    */
-  watch: (changed: (event: string, input: string) => void) => (() => void);
+  watch: (changed: (event: string, input: string) => void) => () => void;
 
   /**
    * Reread the catalogue after an input, generation-view or example change.

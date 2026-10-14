@@ -1,6 +1,6 @@
-import type { AutoMovieTextureCache } from "../../AutoMovieTextureCache.js";
 import type * as THREE from "three";
 
+import type { AutoMovieTextureCache } from "../../AutoMovieTextureCache.js";
 import type { IConnectedFaceMeshWitness } from "./IConnectedFaceMeshWitness.js";
 
 /**

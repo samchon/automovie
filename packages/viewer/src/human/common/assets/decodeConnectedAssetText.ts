@@ -4,7 +4,6 @@
  */
 import { ConnectedAssetEncoding } from "./ConnectedAssetEncoding.js";
 
-
 /**
  * Decode one fetched asset's bytes into its text by content: gzip bytes are
  * inflated, anything else is read as UTF-8. The transport may or may not have
@@ -28,9 +27,14 @@ export async function decodeConnectedAssetText(
   const plain: Uint8Array<ArrayBuffer> = ConnectedAssetEncoding.isGzip(stored)
     ? new Uint8Array(
         await ConnectedAssetEncoding.inflated(
-          new Response(ConnectedAssetEncoding.inflate(new Blob([bytes]).stream())).arrayBuffer(),
+          new Response(
+            ConnectedAssetEncoding.inflate(new Blob([bytes]).stream()),
+          ).arrayBuffer(),
         ),
       )
     : stored;
-  return ConnectedAssetEncoding.utf8(new TextDecoder("utf-8", { fatal: true }), plain);
+  return ConnectedAssetEncoding.utf8(
+    new TextDecoder("utf-8", { fatal: true }),
+    plain,
+  );
 }

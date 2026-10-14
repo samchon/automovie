@@ -14,7 +14,9 @@ import type { humanViewerProtocol } from "./humanViewerProtocol.js";
  *
  * @author Samchon
  */
-export type IHumanViewerHealth = ReturnType<IHumanViewerHealthSources["capture"]["status"]> & {
+export type IHumanViewerHealth = ReturnType<
+  IHumanViewerHealthSources["capture"]["status"]
+> & {
   /** Protocol service discriminator recognized by viewer clients. */
   service: "automovie-human-viewer";
 

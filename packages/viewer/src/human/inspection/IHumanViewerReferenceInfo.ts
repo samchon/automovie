@@ -1,4 +1,5 @@
 import type { IHumanCaptureCamera } from "@automovie/viewer/human/common/observation/IHumanCaptureCamera";
+
 import type { IHumanViewerLandmark } from "./IHumanViewerLandmark.js";
 
 /**

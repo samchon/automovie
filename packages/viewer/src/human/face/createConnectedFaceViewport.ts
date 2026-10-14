@@ -1,10 +1,10 @@
 import type * as THREE from "three";
 
+import { createAutoMovieResourceRetirement } from "../../createAutoMovieResourceRetirement.js";
+import { restoreAutoMovieRenderModeState } from "../../restoreAutoMovieRenderModeState.js";
 import { createConnectedFacePreview } from "./createConnectedFacePreview.js";
 import { createConnectedFaceRenderer } from "./createConnectedFaceRenderer.js";
 import { createHumanPreviewStage } from "./createHumanPreviewStage.js";
-import { createAutoMovieResourceRetirement } from "../../createAutoMovieResourceRetirement.js";
-import { restoreAutoMovieRenderModeState } from "../../restoreAutoMovieRenderModeState.js";
 
 /**
  * Compose resident numerical editing with the shared facial display stage.
@@ -24,19 +24,31 @@ export function createConnectedFaceViewport(
     worker: Parameters<typeof createConnectedFacePreview>[0]["worker"];
     loadTexture: (asset: string) => Promise<THREE.Texture>;
   },
-): Omit<ReturnType<typeof createHumanPreviewStage>, "publish"> & ReturnType<typeof createConnectedFacePreview> & {
-  publish: (model: Awaited<ReturnType<ReturnType<typeof createConnectedFacePreview>["build"]>>) => void;
-  dispose: (model: Awaited<ReturnType<ReturnType<typeof createConnectedFacePreview>["build"]>>) => void;
-} {
-  const renderer: ReturnType<typeof createConnectedFaceRenderer> = createConnectedFaceRenderer({
-    loadTexture: props.loadTexture,
-    maxAnisotropy: props.renderer.capabilities.getMaxAnisotropy(),
-  });
-  const preview: ReturnType<typeof createConnectedFacePreview> = createConnectedFacePreview({
-    worker: props.worker,
-    renderer,
-  });
-  const stage: ReturnType<typeof createHumanPreviewStage> = createHumanPreviewStage(props);
+): Omit<ReturnType<typeof createHumanPreviewStage>, "publish"> &
+  ReturnType<typeof createConnectedFacePreview> & {
+    publish: (
+      model: Awaited<
+        ReturnType<ReturnType<typeof createConnectedFacePreview>["build"]>
+      >,
+    ) => void;
+    dispose: (
+      model: Awaited<
+        ReturnType<ReturnType<typeof createConnectedFacePreview>["build"]>
+      >,
+    ) => void;
+  } {
+  const renderer: ReturnType<typeof createConnectedFaceRenderer> =
+    createConnectedFaceRenderer({
+      loadTexture: props.loadTexture,
+      maxAnisotropy: props.renderer.capabilities.getMaxAnisotropy(),
+    });
+  const preview: ReturnType<typeof createConnectedFacePreview> =
+    createConnectedFacePreview({
+      worker: props.worker,
+      renderer,
+    });
+  const stage: ReturnType<typeof createHumanPreviewStage> =
+    createHumanPreviewStage(props);
   type Model = Awaited<ReturnType<typeof preview.build>>;
   const close: () => Promise<void> = createAutoMovieResourceRetirement([
     (): void => preview.cancel(),
@@ -48,10 +60,11 @@ export function createConnectedFaceViewport(
     ...stage,
     ...preview,
     /** Await requested frame retirements; failures remain owned by the numerical renderer. */
-    settleRetirements: (): Promise<void> => createAutoMovieResourceRetirement([
-      (): Promise<void> => stage.settleRetirements(),
-      (): Promise<void> => renderer.settleRetirements(),
-    ])(),
+    settleRetirements: (): Promise<void> =>
+      createAutoMovieResourceRetirement([
+        (): Promise<void> => stage.settleRetirements(),
+        (): Promise<void> => renderer.settleRetirements(),
+      ])(),
     /** Retire owned display resources and numerical connection while preserving the borrowed host renderer. */
     close,
     publish: (model: Model): void => {

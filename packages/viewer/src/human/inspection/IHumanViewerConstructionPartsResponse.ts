@@ -1,6 +1,7 @@
 import type { IAutoMovieHumanConstructionAdmission } from "@automovie/human";
-import type { IAutoMovieHumanFacePeriocularMappingReport } from "@automovie/human/face/structures/IAutoMovieHumanFacePeriocularMappingReport";
 import type { IConnectedBodyRigReading } from "@automovie/human/body/runtime/IConnectedBodyRigReading";
+import type { IAutoMovieHumanFacePeriocularMappingReport } from "@automovie/human/face/structures/IAutoMovieHumanFacePeriocularMappingReport";
+
 import type { HumanViewerAddress } from "./HumanViewerAddress.js";
 
 /**

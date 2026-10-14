@@ -22,8 +22,14 @@ import type { createConnectedBodyViewport } from "./createConnectedBodyViewport.
  */
 export function createConnectedBodyBrowserCompanion(props: {
   /** Resolve the body's companion seam only when publication or hide needs it. */
-  viewport: () => Pick<ReturnType<typeof createConnectedBodyViewport>, "companion">;
-}): Omit<ReturnType<typeof createConnectedBodyRenderer>, "publish" | "close"> & {
+  viewport: () => Pick<
+    ReturnType<typeof createConnectedBodyViewport>,
+    "companion"
+  >;
+}): Omit<
+  ReturnType<typeof createConnectedBodyRenderer>,
+  "publish" | "close"
+> & {
   /** Publish prepared body-local geometry into the companion display. */
   publish: (frame: IConnectedBodyFrame) => void;
 
@@ -36,7 +42,8 @@ export function createConnectedBodyBrowserCompanion(props: {
   const loader: THREE.TextureLoader = new THREE.TextureLoader();
   const renderer: ReturnType<typeof createConnectedBodyRenderer> =
     createConnectedBodyRenderer({
-      loadTexture: (asset: string): Promise<THREE.Texture> => loader.loadAsync(asset),
+      loadTexture: (asset: string): Promise<THREE.Texture> =>
+        loader.loadAsync(asset),
       maxAnisotropy: 8,
     });
   let displayed: ReturnType<typeof props.viewport>["companion"] | undefined;
@@ -51,9 +58,11 @@ export function createConnectedBodyBrowserCompanion(props: {
   return {
     ...renderer,
     publish: (frame: IConnectedBodyFrame): void => {
-      const next: ReturnType<typeof props.viewport>["companion"] = props.viewport().companion;
+      const next: ReturnType<typeof props.viewport>["companion"] =
+        props.viewport().companion;
       const group: THREE.Group = renderer.publish(frame);
-      if (displayed !== undefined && displayed !== next) displayed.show(undefined);
+      if (displayed !== undefined && displayed !== next)
+        displayed.show(undefined);
       next.show(group);
       next.place(new THREE.Matrix4());
       displayed = next;

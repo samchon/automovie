@@ -28,12 +28,23 @@ export function prepareHumanPreview(
   if (!Number.isFinite(maxAnisotropy) || maxAnisotropy < 0)
     throw new Error("Preview anisotropy limit must be finite and nonnegative.");
   const anisotropy: number = Math.max(1, Math.min(16, maxAnisotropy));
-  const textures: Set<THREE.Texture<unknown, THREE.TextureEventMap>> = new Set<THREE.Texture>();
+  const textures: Set<THREE.Texture<unknown, THREE.TextureEventMap>> =
+    new Set<THREE.Texture>();
   group.traverse((object: THREE.Object3D<THREE.Object3DEventMap>): void => {
     // Loader and consumer may resolve different Three.js module instances.
-    const mesh: THREE.Mesh<THREE.BufferGeometry<THREE.NormalBufferAttributes, THREE.BufferGeometryEventMap>, THREE.Material<THREE.MaterialEventMap> | THREE.Material<THREE.MaterialEventMap>[], THREE.Object3DEventMap> = object as THREE.Mesh;
+    const mesh: THREE.Mesh<
+      THREE.BufferGeometry<
+        THREE.NormalBufferAttributes,
+        THREE.BufferGeometryEventMap
+      >,
+      | THREE.Material<THREE.MaterialEventMap>
+      | THREE.Material<THREE.MaterialEventMap>[],
+      THREE.Object3DEventMap
+    > = object as THREE.Mesh;
     if (mesh.isMesh !== true) return;
-    const materials: THREE.Material<THREE.MaterialEventMap>[] = Array.isArray(mesh.material)
+    const materials: THREE.Material<THREE.MaterialEventMap>[] = Array.isArray(
+      mesh.material,
+    )
       ? mesh.material
       : [mesh.material];
     for (const material of materials) {

@@ -1,5 +1,5 @@
-import type { IHumanViewerRevisionsEntries } from "./IHumanViewerRevisionsEntries.js";
 import type { IHumanViewerNodeInputScope } from "./IHumanViewerNodeInputScope.js";
+import type { IHumanViewerRevisionsEntries } from "./IHumanViewerRevisionsEntries.js";
 
 /**
  * What the revision worker is started with: its graph configuration and initial basis digests. File access stays in the worker, and later changes carry refreshed basis digests.
@@ -30,4 +30,3 @@ export interface IHumanViewerRevisionsWorkerInit {
   /** The published basis digests at start. */
   bases: string;
 }
-

@@ -1,17 +1,21 @@
 import { validateMeshTopology } from "@automovie/engine";
-import { float32MeshBuffers } from "@automovie/human/common/mesh/float32MeshBuffers";
 import type { IHumanFloat32MeshBuffers } from "@automovie/human/common/mesh/IHumanFloat32MeshBuffers";
-import type { IAutoMovieModel, IAutoMovieMesh, IAutoMovieModelPart } from "@automovie/interface";
+import { float32MeshBuffers } from "@automovie/human/common/mesh/float32MeshBuffers";
+import type {
+  IAutoMovieMesh,
+  IAutoMovieModel,
+  IAutoMovieModelPart,
+} from "@automovie/interface";
+import * as THREE from "three";
+
+import { AutoMovieResourceRetirementScope } from "../../AutoMovieResourceRetirementScope.js";
 import type { IAutoMovieModelObject } from "../../IAutoMovieModelObject.js";
+import { createAutoMovieResourceRetirement } from "../../createAutoMovieResourceRetirement.js";
 import {
   AutoMovieTextureCache,
   buildModel,
   materialTextureBindings,
 } from "../../index.js";
-import * as THREE from "three";
-import { AutoMovieResourceRetirementScope } from "../../AutoMovieResourceRetirementScope.js";
-import { createAutoMovieResourceRetirement } from "../../createAutoMovieResourceRetirement.js";
-
 import { prepareHumanPreview } from "../common/prepareHumanPreview.js";
 import { releaseHumanPreviewGroup } from "../common/releaseHumanPreviewGroup.js";
 import { sameHumanPreviewValue } from "../common/sameHumanPreviewValue.js";
@@ -55,15 +59,26 @@ import { needsConnectedFaceClosedSurface } from "./needsConnectedFaceClosedSurfa
  */
 export function createConnectedFaceRenderer(
   props: IConnectedFaceRendererProps,
-): { prepare: (model: IAutoMovieModel) => Promise<IConnectedFaceFrame>; publish: (frame: IConnectedFaceFrame) => THREE.Group; dispose: (frame: IConnectedFaceFrame) => void; settleRetirements: () => Promise<void>; close: () => Promise<void>; } {
+): {
+  prepare: (model: IAutoMovieModel) => Promise<IConnectedFaceFrame>;
+  publish: (frame: IConnectedFaceFrame) => THREE.Group;
+  dispose: (frame: IConnectedFaceFrame) => void;
+  settleRetirements: () => Promise<void>;
+  close: () => Promise<void>;
+} {
   let active: IConnectedFaceResident | undefined;
-  const retirement: AutoMovieResourceRetirementScope = new AutoMovieResourceRetirementScope();
-  const release: (resident: IConnectedFaceResident) => void = (resident: IConnectedFaceResident): void => {
+  const retirement: AutoMovieResourceRetirementScope =
+    new AutoMovieResourceRetirementScope();
+  const release: (resident: IConnectedFaceResident) => void = (
+    resident: IConnectedFaceResident,
+  ): void => {
     if (resident.released) return;
     resident.released = true;
     retirement.release(resident.textures);
   };
-  const dispose: (frame: IConnectedFaceFrame) => void = (frame: IConnectedFaceFrame): void => {
+  const dispose: (frame: IConnectedFaceFrame) => void = (
+    frame: IConnectedFaceFrame,
+  ): void => {
     if (frame.resident !== active) release(frame.resident);
   };
   return {
@@ -74,34 +89,39 @@ export function createConnectedFaceRenderer(
       if (model.skeleton !== null)
         throw new Error("Connected previews require static resident meshes.");
       const witnesses: IConnectedFaceMeshWitness[] = [];
-      const meshes: IAutoMovieMesh[] = model.parts.map((part: IAutoMovieModelPart, index: number): IAutoMovieMesh => {
-        if (
-          part.geometry.type !== "mesh" ||
-          part.attachedBone !== null ||
-          part.geometry.mesh.skin !== null
-        )
-          throw new Error("Connected previews require static resident meshes.");
-        const mesh: IAutoMovieMesh = part.geometry.mesh;
-        const closed: boolean = needsConnectedFaceClosedSurface(model, part);
-        const previous: IConnectedFaceMeshWitness | undefined = active?.witnesses[index];
-        if (matchesConnectedFaceMeshWitness(mesh, closed, previous)) {
-          witnesses.push(previous!);
+      const meshes: IAutoMovieMesh[] = model.parts.map(
+        (part: IAutoMovieModelPart, index: number): IAutoMovieMesh => {
+          if (
+            part.geometry.type !== "mesh" ||
+            part.attachedBone !== null ||
+            part.geometry.mesh.skin !== null
+          )
+            throw new Error(
+              "Connected previews require static resident meshes.",
+            );
+          const mesh: IAutoMovieMesh = part.geometry.mesh;
+          const closed: boolean = needsConnectedFaceClosedSurface(model, part);
+          const previous: IConnectedFaceMeshWitness | undefined =
+            active?.witnesses[index];
+          if (matchesConnectedFaceMeshWitness(mesh, closed, previous)) {
+            witnesses.push(previous!);
+            return mesh;
+          }
+          const packed: IHumanFloat32MeshBuffers = float32MeshBuffers(mesh);
+          if (
+            !validateMeshTopology({
+              mesh: { ...mesh, positions: Array.from(packed.positions) },
+              expectClosed: closed,
+            }).success
+          )
+            throw new Error(
+              "Connected Float32 geometry must preserve its required topology: " +
+                part.id,
+            );
+          witnesses.push(createConnectedFaceMeshWitness(mesh, closed));
           return mesh;
-        }
-        const packed: IHumanFloat32MeshBuffers = float32MeshBuffers(mesh);
-        if (
-          !validateMeshTopology({
-            mesh: { ...mesh, positions: Array.from(packed.positions) },
-            expectClosed: closed,
-          }).success
-        )
-          throw new Error(
-            "Connected Float32 geometry must preserve its required topology: " +
-              part.id,
-          );
-        witnesses.push(createConnectedFaceMeshWitness(mesh, closed));
-        return mesh;
-      });
+        },
+      );
       if (
         active !== undefined &&
         sameHumanPreviewValue(
@@ -110,22 +130,35 @@ export function createConnectedFaceRenderer(
         )
       )
         return { resident: active, model, meshes, witnesses };
-      const textures: AutoMovieTextureCache = new AutoMovieTextureCache(async (asset: string): Promise<THREE.Texture<unknown, THREE.TextureEventMap>> => {
-        const texture: THREE.Texture<unknown, THREE.TextureEventMap> = await props.loadTexture(asset);
-        // Connected assets retain the glTF UV convention used by the exporter.
-        // TextureLoader's default vertical flip would invert every atlas.
-        texture.flipY = false;
-        return texture;
-      });
+      const textures: AutoMovieTextureCache = new AutoMovieTextureCache(
+        async (
+          asset: string,
+        ): Promise<THREE.Texture<unknown, THREE.TextureEventMap>> => {
+          const texture: THREE.Texture<unknown, THREE.TextureEventMap> =
+            await props.loadTexture(asset);
+          // Connected assets retain the glTF UV convention used by the exporter.
+          // TextureLoader's default vertical flip would invert every atlas.
+          texture.flipY = false;
+          return texture;
+        },
+      );
       let group: THREE.Group | undefined;
-      retirement.own(textures, createAutoMovieResourceRetirement([
-        (): void => { if (group !== undefined) releaseHumanPreviewGroup(group); },
-        (): Promise<void> => textures.dispose(),
-      ]));
+      retirement.own(
+        textures,
+        createAutoMovieResourceRetirement([
+          (): void => {
+            if (group !== undefined) releaseHumanPreviewGroup(group);
+          },
+          (): Promise<void> => textures.dispose(),
+        ]),
+      );
       try {
         await textures.prime(model.materials.flatMap(materialTextureBindings));
         retirement.requireOpen();
-        const built: IAutoMovieModelObject = buildModel(model, textures.resolve);
+        const built: IAutoMovieModelObject = buildModel(
+          model,
+          textures.resolve,
+        );
         group = built.object;
         prepareHumanPreview(group, props.maxAnisotropy);
         return {
@@ -136,7 +169,17 @@ export function createConnectedFaceRenderer(
             released: false,
             witnesses,
             meshes: model.parts.map(
-              (part: IAutoMovieModelPart): THREE.Mesh<THREE.BufferGeometry<THREE.NormalBufferAttributes, THREE.BufferGeometryEventMap>, THREE.Material<THREE.MaterialEventMap> | THREE.Material<THREE.MaterialEventMap>[], THREE.Object3DEventMap> => built.parts.get(part.id) as THREE.Mesh,
+              (
+                part: IAutoMovieModelPart,
+              ): THREE.Mesh<
+                THREE.BufferGeometry<
+                  THREE.NormalBufferAttributes,
+                  THREE.BufferGeometryEventMap
+                >,
+                | THREE.Material<THREE.MaterialEventMap>
+                | THREE.Material<THREE.MaterialEventMap>[],
+                THREE.Object3DEventMap
+              > => built.parts.get(part.id) as THREE.Mesh,
             ),
           },
           model,
@@ -146,7 +189,8 @@ export function createConnectedFaceRenderer(
       } catch (error) {
         retirement.release(textures);
         return createAutoMovieResourceRetirement(
-          [(): Promise<void> => retirement.settle()], { error },
+          [(): Promise<void> => retirement.settle()],
+          { error },
         )();
       }
     },
@@ -182,16 +226,17 @@ export function createConnectedFaceRenderer(
       // Every buffer has matching shape because the reuse structure holds its
       // lengths and static topology. No asynchronous work occurs during commit.
       for (const [index, mesh] of frame.meshes.entries()) {
-        const geometry: THREE.BufferGeometry<THREE.NormalBufferAttributes, THREE.BufferGeometryEventMap> = frame.resident.meshes[index].geometry;
-        const positions: THREE.BufferAttribute<THREE.BufferAttributeEventMap> = geometry.getAttribute(
-          "position",
-        ) as THREE.BufferAttribute;
+        const geometry: THREE.BufferGeometry<
+          THREE.NormalBufferAttributes,
+          THREE.BufferGeometryEventMap
+        > = frame.resident.meshes[index].geometry;
+        const positions: THREE.BufferAttribute<THREE.BufferAttributeEventMap> =
+          geometry.getAttribute("position") as THREE.BufferAttribute;
         positions.set(mesh.positions);
         positions.needsUpdate = true;
         if (mesh.normals !== null) {
-          const normals: THREE.BufferAttribute<THREE.BufferAttributeEventMap> = geometry.getAttribute(
-            "normal",
-          ) as THREE.BufferAttribute;
+          const normals: THREE.BufferAttribute<THREE.BufferAttributeEventMap> =
+            geometry.getAttribute("normal") as THREE.BufferAttribute;
           normals.set(mesh.normals);
           normals.needsUpdate = true;
         } else geometry.computeVertexNormals();

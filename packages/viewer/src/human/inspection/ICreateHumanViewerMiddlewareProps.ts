@@ -4,8 +4,8 @@ import type { IServeHumanViewerGenerationProps } from "./IServeHumanViewerGenera
 import type { IServeHumanViewerHeapProps } from "./IServeHumanViewerHeapProps.js";
 import type { assembleHumanViewerHealth } from "./assembleHumanViewerHealth.js";
 import type { createHumanViewerNodeService } from "./createHumanViewerNodeService.js";
-import type { serveHumanViewerDisplay } from "./serveHumanViewerDisplay.js";
 import type { createHumanViewerSourceEvents } from "./createHumanViewerSourceEvents.js";
+import type { serveHumanViewerDisplay } from "./serveHumanViewerDisplay.js";
 import type { serveHumanViewerPages } from "./serveHumanViewerPages.js";
 
 /**
@@ -45,7 +45,10 @@ export interface ICreateHumanViewerMiddlewareProps {
   health: () => ReturnType<typeof assembleHumanViewerHealth>;
 
   /** Source-window authority. */
-  generation: Omit<IServeHumanViewerGenerationProps, "url" | "response" | "json">;
+  generation: Omit<
+    IServeHumanViewerGenerationProps,
+    "url" | "response" | "json"
+  >;
 
   /** Independent heap readings. */
   heap: Omit<IServeHumanViewerHeapProps, "response" | "json">;
@@ -61,10 +64,16 @@ export interface ICreateHumanViewerMiddlewareProps {
    * @evidence contracts/performance.md#reuse-equivalent-work Source/controller state is reused by the host, while this callback refreshes the request binding rather than caching equal URLs as responses.
    * @evidence contracts/performance.md#bound-retention-and-release-resources The handler borrows returned state for its request; the server owns source/watchers and the callback creates no independently retained document store.
    */
-  data: () => Omit<IServeHumanViewerDataProps, "url" | "request" | "response" | "json">;
+  data: () => Omit<
+    IServeHumanViewerDataProps,
+    "url" | "request" | "response" | "json"
+  >;
 
   /** Existing serialized GPU capture authority. */
-  capture: Omit<IServeHumanViewerCaptureProps, "url" | "request" | "response" | "json">;
+  capture: Omit<
+    IServeHumanViewerCaptureProps,
+    "url" | "request" | "response" | "json"
+  >;
 
   /** Checked Node numerical sessions, separate from GPU rendering. */
   numerical: ReturnType<typeof createHumanViewerNodeService>;

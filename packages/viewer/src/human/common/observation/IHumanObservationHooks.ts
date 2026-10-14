@@ -26,7 +26,14 @@ export interface IHumanObservationHooks {
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work Current mutable camera state is reread for each snapshot without a result cache.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Only copied values escape; camera/orbit handles remain borrowed.
    */
-  camera: () => { position: [number, number, number]; target: [number, number, number]; fov: number; near: number; far: number; aspect: number };
+  camera: () => {
+    position: [number, number, number];
+    target: [number, number, number];
+    fov: number;
+    near: number;
+    far: number;
+    aspect: number;
+  };
 
   /**
    * Place the borrowed camera exactly, lifting orbit damping/distance limits; the viewport finishes the requested frame separately.
@@ -39,7 +46,11 @@ export interface IHumanObservationHooks {
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each requested placement is an effect and is not skipped by matching a prior view name.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Camera/orbit remain borrowed and display invalidation creates no owned image or worker.
    */
-  look: (view: { position: readonly [number, number, number]; target: readonly [number, number, number]; fov: number }) => void;
+  look: (view: {
+    position: readonly [number, number, number];
+    target: readonly [number, number, number];
+    fov: number;
+  }) => void;
 
   /**
    * Frame current roots from a canonical direction; optional distance is metres and fov/pitch are degrees.
@@ -52,7 +63,10 @@ export interface IHumanObservationHooks {
    * @evidence contracts/performance.md#reuse-equivalent-work Shares canonical view/fit logic but refreshes current subject bounds because geometry/transforms can change.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Temporary bounds/tuples survive only placement and acquire no geometry or GPU handles.
    */
-  view: (name: HumanObservationView, options?: { distance?: number; fov?: number; pitch?: number }) => void;
+  view: (
+    name: HumanObservationView,
+    options?: { distance?: number; fov?: number; pitch?: number },
+  ) => void;
 
   /**
    * Frame a caller-supplied displayed-world sphere in metres; front is the default direction and fov/pitch use degrees.
@@ -65,7 +79,13 @@ export interface IHumanObservationHooks {
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each region request uses its current caller values and camera aspect rather than a previous named-view result.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Borrows region input and retains only mutated camera state, acquiring no native resource.
    */
-  frame: (region: { center: readonly [number, number, number]; radius: number; view?: HumanObservationView; fov?: number; pitch?: number }) => void;
+  frame: (region: {
+    center: readonly [number, number, number];
+    radius: number;
+    view?: HumanObservationView;
+    fov?: number;
+    pitch?: number;
+  }) => void;
 
   /**
    * Select root mesh names to show, or null to remove isolation; unknown names leave the prior selection unchanged and are returned.
@@ -130,5 +150,9 @@ export interface IHumanObservationHooks {
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work Every snapshot copies current mutable selections; an earlier returned array is not current state.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Caller owns copied arrays while observation retains its Sets until replacement/close.
    */
-  state: () => { pass: HumanObservationPass; isolated: string[] | null; hidden: string[] };
+  state: () => {
+    pass: HumanObservationPass;
+    isolated: string[] | null;
+    hidden: string[];
+  };
 }

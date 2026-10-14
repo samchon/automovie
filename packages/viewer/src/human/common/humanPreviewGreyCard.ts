@@ -1,5 +1,4 @@
 import { HumanPreviewLight } from "./HumanPreviewLight.js";
-
 import { humanPreviewUnitVector } from "./humanPreviewUnitVector.js";
 
 /**
@@ -25,8 +24,13 @@ export function humanPreviewGreyCard(
   for (const light of lights) {
     for (let c: number = 0; c < 3; c++) {
       if (light.kind === "directional") {
-        const d: [number, number, number] = humanPreviewUnitVector(light.direction);
-        const cosine: number = Math.max(0, n[0] * d[0] + n[1] * d[1] + n[2] * d[2]);
+        const d: [number, number, number] = humanPreviewUnitVector(
+          light.direction,
+        );
+        const cosine: number = Math.max(
+          0,
+          n[0] * d[0] + n[1] * d[1] + n[2] * d[2],
+        );
         out[c] += light.color[c]! * light.intensity * cosine;
       } else {
         const weight: number = 0.5 * n[1] + 0.5;

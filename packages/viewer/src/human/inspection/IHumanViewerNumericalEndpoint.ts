@@ -19,7 +19,9 @@ export interface IHumanViewerNumericalEndpoint {
   /**
    * Current message subscriber, or null while none is installed; receives original numerical transport envelopes.
    */
-  onmessage: ((event: MessageEvent<HumanViewerNumericalMessage>) => void) | null;
+  onmessage:
+    | ((event: MessageEvent<HumanViewerNumericalMessage>) => void)
+    | null;
 
   /**
    * Current execution-failure subscriber, or null while none is installed; explicit disposal does not report a new failure.
@@ -37,7 +39,9 @@ export interface IHumanViewerNumericalEndpoint {
    * @evidence contracts/performance.md#reuse-equivalent-work Readiness is shared for one session while messages remain separate effects; terminal/source failure never reuses old work on a new realm.
    * @evidence contracts/performance.md#bound-retention-and-release-resources AbortController owns pending fetches until settlement and session DELETE is best effort; post returns no native process ownership.
    */
-  postMessage: (message: IHumanViewerNumericalRequest | IHumanViewerPersistenceCommand) => void;
+  postMessage: (
+    message: IHumanViewerNumericalRequest | IHumanViewerPersistenceCommand,
+  ) => void;
 
   /**
    * Mark this endpoint terminal, abort its transport and request best-effort session DELETE. Repeated calls have no additional effect; the void return does not prove native child exit.

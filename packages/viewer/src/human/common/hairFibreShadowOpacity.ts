@@ -1,12 +1,8 @@
-import { HUMAN_HAIR_SHADOW_DARKEST } from "./HUMAN_HAIR_SHADOW_DARKEST.js";
-
 import { HUMAN_HAIR_SHADOW_ABSORPTION_SCALE } from "./HUMAN_HAIR_SHADOW_ABSORPTION_SCALE.js";
-
-import { HUMAN_HAIR_SHADOW_OFFSETS } from "./HUMAN_HAIR_SHADOW_OFFSETS.js";
-
-import { HUMAN_HAIR_SHADOW_SURFACE_REFLECTANCE } from "./HUMAN_HAIR_SHADOW_SURFACE_REFLECTANCE.js";
-
+import { HUMAN_HAIR_SHADOW_DARKEST } from "./HUMAN_HAIR_SHADOW_DARKEST.js";
 import { HUMAN_HAIR_SHADOW_LUMINANCE } from "./HUMAN_HAIR_SHADOW_LUMINANCE.js";
+import { HUMAN_HAIR_SHADOW_OFFSETS } from "./HUMAN_HAIR_SHADOW_OFFSETS.js";
+import { HUMAN_HAIR_SHADOW_SURFACE_REFLECTANCE } from "./HUMAN_HAIR_SHADOW_SURFACE_REFLECTANCE.js";
 
 /**
  * The share of the light falling on a hair fibre that the fibre stops: one
@@ -37,11 +33,17 @@ import { HUMAN_HAIR_SHADOW_LUMINANCE } from "./HUMAN_HAIR_SHADOW_LUMINANCE.js";
 export function hairFibreShadowOpacity(
   albedo: readonly [number, number, number],
 ): number {
-  if (!albedo.every((value: number): boolean => Number.isFinite(value) && value >= 0))
+  if (
+    !albedo.every(
+      (value: number): boolean => Number.isFinite(value) && value >= 0,
+    )
+  )
     throw new Error("A hair albedo is finite and nonnegative.");
   const passed: number[] = albedo.map((value: number): number => {
     const sigma: number =
-      (Math.log(Math.min(1, Math.max(HUMAN_HAIR_SHADOW_DARKEST, value))) / HUMAN_HAIR_SHADOW_ABSORPTION_SCALE) ** 2;
+      (Math.log(Math.min(1, Math.max(HUMAN_HAIR_SHADOW_DARKEST, value))) /
+        HUMAN_HAIR_SHADOW_ABSORPTION_SCALE) **
+      2;
     return HUMAN_HAIR_SHADOW_OFFSETS.reduce(
       (sum: number, [h, weight]: readonly [number, number]): number =>
         sum + weight * Math.exp(-2 * sigma * Math.sqrt(1 - h * h)),
@@ -51,6 +53,10 @@ export function hairFibreShadowOpacity(
   return (
     1 -
     (1 - HUMAN_HAIR_SHADOW_SURFACE_REFLECTANCE) ** 2 *
-      passed.reduce((sum: number, value: number, c: number): number => sum + HUMAN_HAIR_SHADOW_LUMINANCE[c]! * value, 0)
+      passed.reduce(
+        (sum: number, value: number, c: number): number =>
+          sum + HUMAN_HAIR_SHADOW_LUMINANCE[c]! * value,
+        0,
+      )
   );
 }
