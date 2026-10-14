@@ -1,1 +1,0 @@
-export { autoMovieLibraryArtifactSourceTargets } from "./autoMovieLibraryArtifactSourceTargets";

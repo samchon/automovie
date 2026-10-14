@@ -1,1 +1,0 @@
-export { residentPngJs } from "./residentPngJs";
