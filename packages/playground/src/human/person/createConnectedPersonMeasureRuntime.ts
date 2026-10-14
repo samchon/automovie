@@ -56,11 +56,15 @@ export function createConnectedPersonMeasureRuntime(
 ): (request: IConnectedPersonMeasureMessage) => Promise<IBodySimpleReply> {
   // The solver and the person panel share the paired endpoint owner's reach.
   let reach: Promise<IAutoMovieHumanBodyBasis> | undefined;
-  const bodyReach: () => Promise<IAutoMovieHumanBodyBasis> = (): Promise<IAutoMovieHumanBodyBasis> =>
-    (reach ??= Promise.all([props.head, props.body]).then(
-      ([head, body]: [Awaited<IConnectedPersonMeasureRuntimeProps["head"]>, Awaited<IConnectedPersonMeasureRuntimeProps["body"]>]): IAutoMovieHumanBodyBasis =>
-        humanPersonBodyReach(joinHumanPersonGeneration(head, body)).basis,
-    ));
+  const bodyReach: () => Promise<IAutoMovieHumanBodyBasis> =
+    (): Promise<IAutoMovieHumanBodyBasis> =>
+      (reach ??= Promise.all([props.head, props.body]).then(
+        ([head, body]: [
+          Awaited<IConnectedPersonMeasureRuntimeProps["head"]>,
+          Awaited<IConnectedPersonMeasureRuntimeProps["body"]>,
+        ]): IAutoMovieHumanBodyBasis =>
+          humanPersonBodyReach(joinHumanPersonGeneration(head, body)).basis,
+      ));
   let person: Promise<IConnectedPersonEvaluator> | undefined;
   let faceReadings: AutoMovieHumanFaceMeasurementReading[] = [];
   // Face readings come from the same whole-person generation and final skin.
@@ -71,33 +75,58 @@ export function createConnectedPersonMeasureRuntime(
         ) => AutoMovieHumanFaceMeasurementReading[]
       >
     | undefined;
-  const faceReader: () => Promise<(document: IAutoMovieHumanPersonDocument) => AutoMovieHumanFaceMeasurementReading[]> = (): Promise<(document: IAutoMovieHumanPersonDocument) => AutoMovieHumanFaceMeasurementReading[]> =>
-    (face ??= evaluator().then(({ build }: IConnectedPersonEvaluator): (document: IAutoMovieHumanPersonDocument) => AutoMovieHumanFaceMeasurementReading[] => {
-      return (document: IAutoMovieHumanPersonDocument): AutoMovieHumanFaceMeasurementReading[] => {
-        build(document);
-        return faceReadings;
-      };
-    }));
-  // compiled the first time a person kind arrives
-  const evaluator: () => Promise<IConnectedPersonEvaluator> = (): Promise<IConnectedPersonEvaluator> =>
-    (person ??= prepareConnectedPersonEvaluator(
-      props.head,
-      props.body,
-      (values: readonly AutoMovieHumanFaceMeasurementReading[]): void => {
-        faceReadings = values.slice();
+  const faceReader: () => Promise<
+    (
+      document: IAutoMovieHumanPersonDocument,
+    ) => AutoMovieHumanFaceMeasurementReading[]
+  > = (): Promise<
+    (
+      document: IAutoMovieHumanPersonDocument,
+    ) => AutoMovieHumanFaceMeasurementReading[]
+  > =>
+    (face ??= evaluator().then(
+      ({
+        build,
+      }: IConnectedPersonEvaluator): ((
+        document: IAutoMovieHumanPersonDocument,
+      ) => AutoMovieHumanFaceMeasurementReading[]) => {
+        return (
+          document: IAutoMovieHumanPersonDocument,
+        ): AutoMovieHumanFaceMeasurementReading[] => {
+          build(document);
+          return faceReadings;
+        };
       },
-      props.signal,
-    ).then(({ compiled, build }: IConnectedPersonEvaluator): IConnectedPersonEvaluator => {
-      props.signal("generation-compiled");
-      return {
-        compiled,
-        build: (document: IAutoMovieHumanPersonDocument): ReturnType<IConnectedPersonEvaluator["build"]> => {
-          const built: ReturnType<IConnectedPersonEvaluator["build"]> = build(document);
-          props.signal("person-evaluated");
-          return built;
+    ));
+  // compiled the first time a person kind arrives
+  const evaluator: () => Promise<IConnectedPersonEvaluator> =
+    (): Promise<IConnectedPersonEvaluator> =>
+      (person ??= prepareConnectedPersonEvaluator(
+        props.head,
+        props.body,
+        (values: readonly AutoMovieHumanFaceMeasurementReading[]): void => {
+          faceReadings = values.slice();
         },
-      };
-    }));
+        props.signal,
+      ).then(
+        ({
+          compiled,
+          build,
+        }: IConnectedPersonEvaluator): IConnectedPersonEvaluator => {
+          props.signal("generation-compiled");
+          return {
+            compiled,
+            build: (
+              document: IAutoMovieHumanPersonDocument,
+            ): ReturnType<IConnectedPersonEvaluator["build"]> => {
+              const built: ReturnType<IConnectedPersonEvaluator["build"]> =
+                build(document);
+              props.signal("person-evaluated");
+              return built;
+            },
+          };
+        },
+      ));
   return async (
     request: IConnectedPersonMeasureMessage,
   ): Promise<IBodySimpleReply> => {
@@ -113,22 +142,30 @@ export function createConnectedPersonMeasureRuntime(
             ? await bodyReach()
             : (await props.body).body;
         const { compiled }: IConnectedPersonEvaluator = await evaluator();
-        const document: IAutoMovieHumanPersonDocument = parseHumanPersonDocument(
-          request.document,
-          (await props.body).body.anatomicalAssembly,
-        );
-        const reader: ReturnType<typeof createHumanPersonSimpleWhole> = createHumanPersonSimpleWhole(compiled, document);
+        const document: IAutoMovieHumanPersonDocument =
+          parseHumanPersonDocument(
+            request.document,
+            (await props.body).body.anatomicalAssembly,
+          );
+        const reader: ReturnType<typeof createHumanPersonSimpleWhole> =
+          createHumanPersonSimpleWhole(compiled, document);
         const whole: IAutoMovieHumanBodySimpleWhole = {
           get bodyReach(): IAutoMovieHumanBodySimpleWhole["bodyReach"] {
             return reader.bodyReach;
           },
-          stature: (shape: Parameters<IAutoMovieHumanBodySimpleWhole["stature"]>[0]): ReturnType<IAutoMovieHumanBodySimpleWhole["stature"]> => {
-            const value: ReturnType<IAutoMovieHumanBodySimpleWhole["stature"]> = reader.stature(shape);
+          stature: (
+            shape: Parameters<IAutoMovieHumanBodySimpleWhole["stature"]>[0],
+          ): ReturnType<IAutoMovieHumanBodySimpleWhole["stature"]> => {
+            const value: ReturnType<IAutoMovieHumanBodySimpleWhole["stature"]> =
+              reader.stature(shape);
             props.signal("person-rest-stature-read");
             return value;
           },
-          volume: (shape: Parameters<IAutoMovieHumanBodySimpleWhole["volume"]>[0]): ReturnType<IAutoMovieHumanBodySimpleWhole["volume"]> => {
-            const value: ReturnType<IAutoMovieHumanBodySimpleWhole["volume"]> = reader.volume(shape);
+          volume: (
+            shape: Parameters<IAutoMovieHumanBodySimpleWhole["volume"]>[0],
+          ): ReturnType<IAutoMovieHumanBodySimpleWhole["volume"]> => {
+            const value: ReturnType<IAutoMovieHumanBodySimpleWhole["volume"]> =
+              reader.volume(shape);
             props.signal("person-rest-volume-read");
             return value;
           },
@@ -138,7 +175,9 @@ export function createConnectedPersonMeasureRuntime(
           document.body.shape,
           document.body.anatomy,
         );
-        const result: ReturnType<typeof expandHumanBodySimpleShape> | ReturnType<typeof projectHumanBodySimpleShape> =
+        const result:
+          | ReturnType<typeof expandHumanBodySimpleShape>
+          | ReturnType<typeof projectHumanBodySimpleShape> =
           request.kind === "expandPersonSimple"
             ? expandHumanBodySimpleShape(
                 basis,
@@ -151,39 +190,44 @@ export function createConnectedPersonMeasureRuntime(
         return { id: request.id, result };
       }
       if (request.kind === "solveMeasurement") {
-        const result: ReturnType<typeof solveHumanBodyMeasuredChannel> = solveHumanBodyMeasuredChannel({
-          basis: await bodyReach(),
-          shape: request.shape,
-          channel: request.channel,
-          targetMetres: request.targetMetres,
-        });
+        const result: ReturnType<typeof solveHumanBodyMeasuredChannel> =
+          solveHumanBodyMeasuredChannel({
+            basis: await bodyReach(),
+            shape: request.shape,
+            channel: request.channel,
+            targetMetres: request.targetMetres,
+          });
         return { id: request.id, result };
       }
       if (request.kind === "readPersonMeasurement") {
-        const { compiled, build }: IConnectedPersonEvaluator = await evaluator();
-        const reading: ReturnType<typeof measureHumanPersonDocument> = measureHumanPersonDocument({
-          compiled,
-          build,
-          document: parseHumanPersonDocument(
-            request.document,
-            (await props.body).body.anatomicalAssembly,
-          ),
-          channel: request.channel,
-        });
+        const { compiled, build }: IConnectedPersonEvaluator =
+          await evaluator();
+        const reading: ReturnType<typeof measureHumanPersonDocument> =
+          measureHumanPersonDocument({
+            compiled,
+            build,
+            document: parseHumanPersonDocument(
+              request.document,
+              (await props.body).body.anatomicalAssembly,
+            ),
+            channel: request.channel,
+          });
         return { id: request.id, result: reading.metres };
       }
       if (request.kind === "solvePersonMeasurement") {
-        const { compiled, build }: IConnectedPersonEvaluator = await evaluator();
-        const solved: ReturnType<typeof solveHumanPersonMeasuredChannel> = solveHumanPersonMeasuredChannel({
-          compiled,
-          build,
-          document: parseHumanPersonDocument(
-            request.document,
-            (await props.body).body.anatomicalAssembly,
-          ),
-          channel: request.channel,
-          targetMetres: request.targetMetres,
-        });
+        const { compiled, build }: IConnectedPersonEvaluator =
+          await evaluator();
+        const solved: ReturnType<typeof solveHumanPersonMeasuredChannel> =
+          solveHumanPersonMeasuredChannel({
+            compiled,
+            build,
+            document: parseHumanPersonDocument(
+              request.document,
+              (await props.body).body.anatomicalAssembly,
+            ),
+            channel: request.channel,
+            targetMetres: request.targetMetres,
+          });
         const result: IConnectedPersonMeasuredSolution = {
           document: solved.document,
           actualMetres: solved.reading.metres,
@@ -193,13 +237,14 @@ export function createConnectedPersonMeasureRuntime(
       }
       if (request.kind === "readPersonHead") {
         const { compiled }: IConnectedPersonEvaluator = await evaluator();
-        const readings: ReturnType<typeof measureHumanPersonHead> = measureHumanPersonHead(
-          compiled,
-          parseHumanPersonDocument(
-            request.document,
-            (await props.body).body.anatomicalAssembly,
-          ),
-        );
+        const readings: ReturnType<typeof measureHumanPersonHead> =
+          measureHumanPersonHead(
+            compiled,
+            parseHumanPersonDocument(
+              request.document,
+              (await props.body).body.anatomicalAssembly,
+            ),
+          );
         const result: Record<string, number> = {};
         for (const [name, reading] of Object.entries(readings))
           result[name] = reading.metres;
@@ -207,14 +252,15 @@ export function createConnectedPersonMeasureRuntime(
       }
       if (request.kind === "solvePersonHead") {
         const { compiled }: IConnectedPersonEvaluator = await evaluator();
-        const solved: ReturnType<typeof solveHumanPersonHead> = solveHumanPersonHead({
-          compiled,
-          document: parseHumanPersonDocument(
-            request.document,
-            (await props.body).body.anatomicalAssembly,
-          ),
-          targets: request.targets,
-        });
+        const solved: ReturnType<typeof solveHumanPersonHead> =
+          solveHumanPersonHead({
+            compiled,
+            document: parseHumanPersonDocument(
+              request.document,
+              (await props.body).body.anatomicalAssembly,
+            ),
+            targets: request.targets,
+          });
         const readings: Record<string, number> = {};
         for (const [name, reading] of Object.entries(solved.readings))
           readings[name] = reading.metres;
@@ -243,52 +289,76 @@ export function createConnectedPersonMeasureRuntime(
           request.document,
           (await props.body).body.anatomicalAssembly,
         );
-        const measurement: (typeof HUMAN_FACE_MEASUREMENTS)[number] | undefined = HUMAN_FACE_MEASUREMENTS.find(
-          (entry: (typeof HUMAN_FACE_MEASUREMENTS)[number]): boolean => entry.id === request.measurement,
+        const measurement:
+          | (typeof HUMAN_FACE_MEASUREMENTS)[number]
+          | undefined = HUMAN_FACE_MEASUREMENTS.find(
+          (entry: (typeof HUMAN_FACE_MEASUREMENTS)[number]): boolean =>
+            entry.id === request.measurement,
         );
         if (measurement === undefined)
           throw new Error(
             "No face measurement is registered as " + request.measurement + ".",
           );
-        const view: Awaited<IConnectedPersonMeasureRuntimeProps["head"]> = await props.head;
-        const bucket: (document: IAutoMovieHumanFaceBasisDocument, channel: string) => Record<string, number> = (
+        const view: Awaited<IConnectedPersonMeasureRuntimeProps["head"]> =
+          await props.head;
+        const bucket: (
+          document: IAutoMovieHumanFaceBasisDocument,
+          channel: string,
+        ) => Record<string, number> = (
           document: IAutoMovieHumanFaceBasisDocument,
           channel: string,
         ): Record<string, number> =>
-          view.face.channels.find((entry: (typeof view.face.channels)[number]): boolean => entry.id === channel)?.kind ===
-          "expression"
+          view.face.channels.find(
+            (entry: (typeof view.face.channels)[number]): boolean =>
+              entry.id === channel,
+          )?.kind === "expression"
             ? document.expression
             : document.shape;
-        const solved: ReturnType<typeof solveHumanFaceMeasurementTarget> = solveHumanFaceMeasurementTarget({
-          measurement,
-          target: request.target,
-          channels: view.face.channels,
-          weights: Object.fromEntries(
-            measurement.channels.map((channel: string): [string, number] => [
-              channel,
-              bucket(person.face, channel)[channel] ?? 0,
-            ]),
-          ),
-          read: (channel: string, weight: number): ReturnType<Parameters<typeof solveHumanFaceMeasurementTarget>[0]["read"]> => {
-            const shaped: IAutoMovieHumanPersonDocument = structuredClone(person);
-            bucket(shaped.face, channel)[channel] = weight;
-            const reading: AutoMovieHumanFaceMeasurementReading | undefined = read(shaped).find(
-              (entry: AutoMovieHumanFaceMeasurementReading): boolean => entry.measurement === measurement.id,
-            );
-            return reading === undefined
-              ? { reason: "no reading" }
-              : reading.status === "measured"
-                ? reading.measured
-                : { reason: reading.reason };
-          },
-        });
+        const solved: ReturnType<typeof solveHumanFaceMeasurementTarget> =
+          solveHumanFaceMeasurementTarget({
+            measurement,
+            target: request.target,
+            channels: view.face.channels,
+            weights: Object.fromEntries(
+              measurement.channels.map((channel: string): [string, number] => [
+                channel,
+                bucket(person.face, channel)[channel] ?? 0,
+              ]),
+            ),
+            read: (
+              channel: string,
+              weight: number,
+            ): ReturnType<
+              Parameters<typeof solveHumanFaceMeasurementTarget>[0]["read"]
+            > => {
+              const shaped: IAutoMovieHumanPersonDocument =
+                structuredClone(person);
+              bucket(shaped.face, channel)[channel] = weight;
+              const reading: AutoMovieHumanFaceMeasurementReading | undefined =
+                read(shaped).find(
+                  (entry: AutoMovieHumanFaceMeasurementReading): boolean =>
+                    entry.measurement === measurement.id,
+                );
+              return reading === undefined
+                ? { reason: "no reading" }
+                : reading.status === "measured"
+                  ? reading.measured
+                  : { reason: reading.reason };
+            },
+          });
         const next: IAutoMovieHumanPersonDocument = structuredClone(person);
         bucket(next.face, solved.channel)[solved.channel] = solved.weight;
         next.face.anatomical = {
           ...next.face.anatomical,
           targets: [
             ...(next.face.anatomical?.targets ?? []).filter(
-              (target: NonNullable<NonNullable<IAutoMovieHumanFaceBasisDocument["anatomical"]>["targets"]>[number]): boolean => target.measurement !== measurement.id,
+              (
+                target: NonNullable<
+                  NonNullable<
+                    IAutoMovieHumanFaceBasisDocument["anatomical"]
+                  >["targets"]
+                >[number],
+              ): boolean => target.measurement !== measurement.id,
             ),
             { measurement: measurement.id, value: request.target },
           ],

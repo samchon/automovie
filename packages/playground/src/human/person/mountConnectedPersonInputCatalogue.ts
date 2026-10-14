@@ -26,8 +26,9 @@ export function mountConnectedPersonInputCatalogue(
   props: IConnectedPersonInputCatalogueControlsProps,
 ): { refresh: () => void } {
   const dom: Document = props.dom;
-  const inputs: () => IConnectedPersonInputDescriptor[] = (): IConnectedPersonInputDescriptor[] =>
-    typeof props.inputs === "function" ? props.inputs() : props.inputs;
+  const inputs: () => IConnectedPersonInputDescriptor[] =
+    (): IConnectedPersonInputDescriptor[] =>
+      typeof props.inputs === "function" ? props.inputs() : props.inputs;
   const search: HTMLInputElement = dom.createElement("input");
   search.type = "search";
   search.placeholder = "Find an input: helix, lobule, lash, eye, nose…";
@@ -47,7 +48,11 @@ export function mountConnectedPersonInputCatalogue(
     absent.append(line);
   }
   props.container.append(search, select, rows, absent);
-  const update: (current: IAutoMovieHumanPersonDocument, input: IConnectedPersonInputDescriptor, value: number | string | null | undefined) => IAutoMovieHumanPersonDocument = (
+  const update: (
+    current: IAutoMovieHumanPersonDocument,
+    input: IConnectedPersonInputDescriptor,
+    value: number | string | null | undefined,
+  ) => IAutoMovieHumanPersonDocument = (
     current: IAutoMovieHumanPersonDocument,
     input: IConnectedPersonInputDescriptor,
     value: number | string | null | undefined,
@@ -82,7 +87,10 @@ export function mountConnectedPersonInputCatalogue(
       input.seedPath,
     );
   };
-  const commit: (input: IConnectedPersonInputDescriptor, value: number | string | null | undefined) => Promise<void> = async (
+  const commit: (
+    input: IConnectedPersonInputDescriptor,
+    value: number | string | null | undefined,
+  ) => Promise<void> = async (
     input: IConnectedPersonInputDescriptor,
     value: number | string | null | undefined,
   ): Promise<void> => {
@@ -114,21 +122,21 @@ export function mountConnectedPersonInputCatalogue(
     const catalogue: IConnectedPersonInputDescriptor[] = inputs();
     const selected: string = select.value;
     const groups: Map<string, number> = new Map();
-    for (const input of catalogue) groups.set(input.group, (groups.get(input.group) ?? 0) + 1);
+    for (const input of catalogue)
+      groups.set(input.group, (groups.get(input.group) ?? 0) + 1);
     select.replaceChildren();
     for (const [group, count] of groups) {
       const option: HTMLOptionElement = dom.createElement("option");
       option.value = group;
-      option.textContent =
-        group +
-        " (" +
-        count +
-        ")";
+      option.textContent = group + " (" + count + ")";
       select.append(option);
     }
     if (groups.has(selected)) select.value = selected;
     rows.replaceChildren();
-    const controls: Map<IConnectedPersonInputDescriptor, HTMLInputElement | HTMLSelectElement> = new Map<
+    const controls: Map<
+      IConnectedPersonInputDescriptor,
+      HTMLInputElement | HTMLSelectElement
+    > = new Map<
       IConnectedPersonInputDescriptor,
       HTMLInputElement | HTMLSelectElement
     >();
@@ -138,7 +146,8 @@ export function mountConnectedPersonInputCatalogue(
         .replace(/\s/gu, "");
       if (query === "" ? input.group !== select.value : !name.includes(query))
         continue;
-      const value: ReturnType<typeof readConnectedPersonInput> = readConnectedPersonInput(person, input.path);
+      const value: ReturnType<typeof readConnectedPersonInput> =
+        readConnectedPersonInput(person, input.path);
       const row: HTMLDivElement = dom.createElement("div");
       row.className = "row";
       row.dataset.path = input.path.join("/");

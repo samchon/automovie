@@ -21,8 +21,11 @@ import type { IConnectedPersonMeasuredControlsProps } from "./IConnectedPersonMe
  */
 export function mountConnectedPersonMeasuredControls(
   props: IConnectedPersonMeasuredControlsProps,
-): { /** Schedule current readings without awaiting their numerical completion. */ refresh: () => void } {
-  const mm: (metres: number) => string = (metres: number): string => (metres * 1000).toFixed(1) + " mm";
+): {
+  /** Schedule current readings without awaiting their numerical completion. */ refresh: () => void;
+} {
+  const mm: (metres: number) => string = (metres: number): string =>
+    (metres * 1000).toFixed(1) + " mm";
   const readings: Map<string, HTMLElement> = new Map();
   let generation: number = 0;
   for (const [channel, rule] of Object.entries(HUMAN_PERSON_MEASUREMENTS)) {
@@ -61,7 +64,9 @@ export function mountConnectedPersonMeasuredControls(
       const targetMetres: number = Number(requested) / 1000;
       props.busy("Solving " + channel + " on the whole person…");
       try {
-        const solved: Awaited<ReturnType<IConnectedPersonMeasuredControlsProps["solve"]>> = await props.solve(
+        const solved: Awaited<
+          ReturnType<IConnectedPersonMeasuredControlsProps["solve"]>
+        > = await props.solve(
           structuredClone(props.current()),
           channel,
           targetMetres,
@@ -85,7 +90,9 @@ export function mountConnectedPersonMeasuredControls(
   return {
     refresh: (): void => {
       const current: number = ++generation;
-      const document: ReturnType<IConnectedPersonMeasuredControlsProps["current"]> = structuredClone(props.current());
+      const document: ReturnType<
+        IConnectedPersonMeasuredControlsProps["current"]
+      > = structuredClone(props.current());
       for (const [channel, reading] of readings)
         void (async (): Promise<void> => {
           let text: string;

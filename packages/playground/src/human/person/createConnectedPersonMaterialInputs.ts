@@ -26,47 +26,54 @@ export function createConnectedPersonMaterialInputs(
   materials: readonly IAutoMovieMaterial[],
   partition: "face" | "body",
 ): IConnectedPersonInputDescriptor[] {
-  return materials.flatMap((material: IAutoMovieMaterial): IConnectedPersonInputDescriptor[] => {
-    const path: string[] = [partition, "materials", material.id];
-    const common: Omit<IConnectedPersonInputDescriptor, "path" | "label" | "unit" | "ownerDefault" | "seed"> = {
-      group:
-        (partition === "face" ? "Face" : "Body") +
-        " material · " +
-        material.name,
-      minimum: 0,
-      maximum: 1,
-      step: null,
-      omission: "the source material's corresponding finish",
-      removable: true,
-      qualification:
-        "Source material renderer domain [0,1], with linear RGB reflectance and independent roughness. This is an authored finish, not a measured physiological range.",
-    };
-    const colour: IConnectedPersonInputDescriptor[] =
-      partition === "body" && material.id === HUMAN_PERSON_SEAM.skinMaterial
-        ? []
-        : (["r", "g", "b"] as const).map((channel: "r" | "g" | "b"): IConnectedPersonInputDescriptor => ({
-            ...common,
-            path: [...path, "color", channel],
-            label: "linear " + channel.toUpperCase() + " reflectance",
-            unit: "linear reflectance",
-            ownerDefault: material.baseColor[channel],
-            seed: {
-              r: material.baseColor.r,
-              g: material.baseColor.g,
-              b: material.baseColor.b,
-            },
-            removePath: [...path, "color"],
-          }));
-    return [
-      ...colour,
-      {
-        ...common,
-        path: [...path, "roughness"],
-        label: "roughness",
-        unit: "dimensionless",
-        ownerDefault: material.roughness,
-        seed: null,
-      },
-    ];
-  });
+  return materials.flatMap(
+    (material: IAutoMovieMaterial): IConnectedPersonInputDescriptor[] => {
+      const path: string[] = [partition, "materials", material.id];
+      const common: Omit<
+        IConnectedPersonInputDescriptor,
+        "path" | "label" | "unit" | "ownerDefault" | "seed"
+      > = {
+        group:
+          (partition === "face" ? "Face" : "Body") +
+          " material · " +
+          material.name,
+        minimum: 0,
+        maximum: 1,
+        step: null,
+        omission: "the source material's corresponding finish",
+        removable: true,
+        qualification:
+          "Source material renderer domain [0,1], with linear RGB reflectance and independent roughness. This is an authored finish, not a measured physiological range.",
+      };
+      const colour: IConnectedPersonInputDescriptor[] =
+        partition === "body" && material.id === HUMAN_PERSON_SEAM.skinMaterial
+          ? []
+          : (["r", "g", "b"] as const).map(
+              (channel: "r" | "g" | "b"): IConnectedPersonInputDescriptor => ({
+                ...common,
+                path: [...path, "color", channel],
+                label: "linear " + channel.toUpperCase() + " reflectance",
+                unit: "linear reflectance",
+                ownerDefault: material.baseColor[channel],
+                seed: {
+                  r: material.baseColor.r,
+                  g: material.baseColor.g,
+                  b: material.baseColor.b,
+                },
+                removePath: [...path, "color"],
+              }),
+            );
+      return [
+        ...colour,
+        {
+          ...common,
+          path: [...path, "roughness"],
+          label: "roughness",
+          unit: "dimensionless",
+          ownerDefault: material.roughness,
+          seed: null,
+        },
+      ];
+    },
+  );
 }

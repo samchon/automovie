@@ -5,29 +5,31 @@ import type {
 } from "@automovie/human";
 import type { IAutoMovieHumanConstructionAdmission } from "@automovie/human/common/structures/IAutoMovieHumanConstructionAdmission";
 import { createHumanFaceEditor } from "@automovie/human/face/editor/createHumanFaceEditor";
-import { createAutoMovieResourceRetirement } from "@automovie/viewer";
 import { parseHumanPersonDocument } from "@automovie/human/human/document/parseHumanPersonDocument";
 import { serializeHumanPersonDocument } from "@automovie/human/human/document/serializeHumanPersonDocument";
+import { createAutoMovieResourceRetirement } from "@automovie/viewer";
 
 import { bodyAnatomyReading } from "../body/bodyAnatomyReading";
 import { bodyGroundReading } from "../body/bodyGroundReading";
-import { renderBodyPosePresets } from "../body/renderBodyPosePresets";
 import { createBodyIntentGate } from "../body/createBodyIntentGate";
+import { renderBodyPosePresets } from "../body/renderBodyPosePresets";
 import type { IConnectedPersonModel } from "./IConnectedPersonModel";
 import type { IConnectedPersonPanelProps } from "./IConnectedPersonPanelProps";
 import { connectedPersonPanelMarkup } from "./connectedPersonPanelMarkup";
-import { createConnectedPersonSession } from "./createConnectedPersonSession";
 import { createConnectedPersonHistoryBuild } from "./createConnectedPersonHistoryBuild";
+import { createConnectedPersonSession } from "./createConnectedPersonSession";
 import { describeConnectedPersonAdmission } from "./describeConnectedPersonAdmission";
 import { describeConnectedPersonStatus } from "./describeConnectedPersonStatus";
 import { exportConnectedPersonAsset } from "./exportConnectedPersonAsset";
 import { mountConnectedPersonAdmissionReport } from "./mountConnectedPersonAdmissionReport";
-import { mountConnectedPersonSections } from "./mountConnectedPersonSections";
 import { mountConnectedPersonHistoryControls } from "./mountConnectedPersonHistoryControls";
+import { mountConnectedPersonSections } from "./mountConnectedPersonSections";
 import { renderConnectedPersonExpressionPresets } from "./renderConnectedPersonExpressionPresets";
 
 /** The accepted-history editor used by this panel's complete person transactions. */
-type PersonEditor<Model extends IConnectedPersonModel> = ReturnType<typeof createHumanFaceEditor<Model, IAutoMovieHumanPersonDocument>>;
+type PersonEditor<Model extends IConnectedPersonModel> = ReturnType<
+  typeof createHumanFaceEditor<Model, IAutoMovieHumanPersonDocument>
+>;
 
 /**
  * Mount the connected person editor: one working person document, one viewport and one accepted history, with the body editor's measured, joint and pose controls editing the body subtree and the face editor's shape and expression controls editing the face subtree.
@@ -58,27 +60,44 @@ export function mountConnectedPersonPanel<Model extends IConnectedPersonModel>(
 
   /** Withdraw owned work and await viewport/reference/DOM retirement. */ close: () => Promise<void>;
 
-  /** Accepted history snapshot, absent before acceptance and after close. */ snapshot: () => ReturnType<PersonEditor<Model>["snapshot"]> | undefined;
+  /** Accepted history snapshot, absent before acceptance and after close. */ snapshot: () =>
+    | ReturnType<PersonEditor<Model>["snapshot"]>
+    | undefined;
 
-  /** Session state identifying pending work and displayed construction draft. */ session: () => ReturnType<ReturnType<typeof createConnectedPersonSession<Model>>["snapshot"]>;
+  /** Session state identifying pending work and displayed construction draft. */ session: () => ReturnType<
+    ReturnType<typeof createConnectedPersonSession<Model>>["snapshot"]
+  >;
 
-  /** Parse and submit document text under a new intent; admission state remains panel-owned. */ load: (text: string) => Promise<void>;
+  /** Parse and submit document text under a new intent; admission state remains panel-owned. */ load: (
+    text: string,
+  ) => Promise<void>;
 
-  /** Publish the current accepted or labelled draft transaction; true is not alone accepted history. */ change: (document: IAutoMovieHumanPersonDocument) => Promise<boolean>;
+  /** Publish the current accepted or labelled draft transaction; true is not alone accepted history. */ change: (
+    document: IAutoMovieHumanPersonDocument,
+  ) => Promise<boolean>;
 } {
   const dom: Document = app.ownerDocument;
   app.innerHTML = connectedPersonPanelMarkup();
-  const element: <T extends HTMLElement>(id: string) => T = <T extends HTMLElement>(id: string): T =>
-    app.querySelector<T>("#" + id)!;
-  const viewport: ReturnType<IConnectedPersonPanelProps<Model>["viewport"]> = props.viewport(element<HTMLCanvasElement>("person-canvas"));
-  const source: IConnectedPersonPanelProps<Model>["body"]["anatomicalAssembly"] = props.body.anatomicalAssembly;
-  const session: ReturnType<typeof createConnectedPersonSession<Model>> = createConnectedPersonSession<Model>();
-  const intents: ReturnType<typeof createBodyIntentGate> = createBodyIntentGate();
-  const admissions: WeakMap<Model, IAutoMovieHumanConstructionAdmission> = new WeakMap();
-  const report: ReturnType<typeof mountConnectedPersonAdmissionReport> = mountConnectedPersonAdmissionReport({
-    container: element("admission-report"),
-    download: props.download,
-  });
+  const element: <T extends HTMLElement>(id: string) => T = <
+    T extends HTMLElement,
+  >(
+    id: string,
+  ): T => app.querySelector<T>("#" + id)!;
+  const viewport: ReturnType<IConnectedPersonPanelProps<Model>["viewport"]> =
+    props.viewport(element<HTMLCanvasElement>("person-canvas"));
+  const source: IConnectedPersonPanelProps<Model>["body"]["anatomicalAssembly"] =
+    props.body.anatomicalAssembly;
+  const session: ReturnType<typeof createConnectedPersonSession<Model>> =
+    createConnectedPersonSession<Model>();
+  const intents: ReturnType<typeof createBodyIntentGate> =
+    createBodyIntentGate();
+  const admissions: WeakMap<Model, IAutoMovieHumanConstructionAdmission> =
+    new WeakMap();
+  const report: ReturnType<typeof mountConnectedPersonAdmissionReport> =
+    mountConnectedPersonAdmissionReport({
+      container: element("admission-report"),
+      download: props.download,
+    });
   let editor:
     | ReturnType<
         typeof createHumanFaceEditor<Model, IAutoMovieHumanPersonDocument>
@@ -93,32 +112,40 @@ export function mountConnectedPersonPanel<Model extends IConnectedPersonModel>(
     error instanceof Error ? error.message : String(error);
   // the history's builder: a model just constructed for this edit, or a fresh
   // construction that must still be accepted when a history entry is restored
-  const historyBuild: ReturnType<typeof createConnectedPersonHistoryBuild<Model>> = createConnectedPersonHistoryBuild({
-    viewport, admissions,
+  const historyBuild: ReturnType<
+    typeof createConnectedPersonHistoryBuild<Model>
+  > = createConnectedPersonHistoryBuild({
+    viewport,
+    admissions,
   });
   const settle: () => Promise<void> = async (): Promise<void> => {
     try {
       await viewport.settleRetirements();
     } catch (cause) {
       throw new Error(
-        "Resource cleanup failed; the displayed person is retained: " + reason(cause),
+        "Resource cleanup failed; the displayed person is retained: " +
+          reason(cause),
         { cause },
       );
     }
   };
   const show: () => void = (): void => {
     const state: ReturnType<typeof session.snapshot> = session.snapshot();
-    const committed: ReturnType<PersonEditor<Model>["snapshot"]> | undefined = editor?.snapshot();
-    const view: ReturnType<typeof describeConnectedPersonStatus> = describeConnectedPersonStatus(
-      state,
-      committed === undefined
-        ? null
-        : { name: committed.document.name, parts: committed.model.parts },
-    );
+    const committed: ReturnType<PersonEditor<Model>["snapshot"]> | undefined =
+      editor?.snapshot();
+    const view: ReturnType<typeof describeConnectedPersonStatus> =
+      describeConnectedPersonStatus(
+        state,
+        committed === undefined
+          ? null
+          : { name: committed.document.name, parts: committed.model.parts },
+      );
     element("person-status").textContent = view.text;
     element("person-status").dataset.state = view.state;
     const idle: boolean = state.pending === null;
-    const displayed: { document: IAutoMovieHumanPersonDocument; model: Model } | undefined = state.draft ?? committed;
+    const displayed:
+      | { document: IAutoMovieHumanPersonDocument; model: Model }
+      | undefined = state.draft ?? committed;
     element<HTMLButtonElement>("person-undo").disabled =
       committed === undefined || !committed.canUndo;
     element<HTMLButtonElement>("person-redo").disabled =
@@ -186,7 +213,10 @@ export function mountConnectedPersonPanel<Model extends IConnectedPersonModel>(
     session.note(text);
     show();
   };
-  const change: (next: IAutoMovieHumanPersonDocument, ticket?: number) => Promise<boolean> = async (
+  const change: (
+    next: IAutoMovieHumanPersonDocument,
+    ticket?: number,
+  ) => Promise<boolean> = async (
     next: IAutoMovieHumanPersonDocument,
     ticket: number = withdraw(),
   ): Promise<boolean> => {
@@ -195,7 +225,8 @@ export function mountConnectedPersonPanel<Model extends IConnectedPersonModel>(
     working = structuredClone(next);
     busy("Building the latest person…");
     try {
-      const result: Awaited<ReturnType<typeof viewport.construct>> = await viewport.construct(next);
+      const result: Awaited<ReturnType<typeof viewport.construct>> =
+        await viewport.construct(next);
       if (!intents.isCurrent(ticket)) {
         await createAutoMovieResourceRetirement([
           (): void => viewport.dispose(result.model),
@@ -253,13 +284,17 @@ export function mountConnectedPersonPanel<Model extends IConnectedPersonModel>(
       return false;
     }
   };
-  const withBody: (body: IAutoMovieHumanBodyBasisDocument) => IAutoMovieHumanPersonDocument = (
+  const withBody: (
+    body: IAutoMovieHumanBodyBasisDocument,
+  ) => IAutoMovieHumanPersonDocument = (
     body: IAutoMovieHumanBodyBasisDocument,
   ): IAutoMovieHumanPersonDocument => ({
     ...structuredClone(working),
     body: structuredClone(body),
   });
-  const withFace: (face: IAutoMovieHumanFaceBasisDocument) => IAutoMovieHumanPersonDocument = (
+  const withFace: (
+    face: IAutoMovieHumanFaceBasisDocument,
+  ) => IAutoMovieHumanPersonDocument = (
     face: IAutoMovieHumanFaceBasisDocument,
   ): IAutoMovieHumanPersonDocument => ({
     ...structuredClone(working),
@@ -277,38 +312,48 @@ export function mountConnectedPersonPanel<Model extends IConnectedPersonModel>(
       if (intents.isCurrent(ticket)) refuse(error);
     }
   };
-  const sections: ReturnType<typeof mountConnectedPersonSections<Model>> = mountConnectedPersonSections({
-    app,
-    panel: props,
-    controls: {
-      dom,
-      current: (): IAutoMovieHumanPersonDocument => working,
-      reserve: withdraw,
-      isCurrent: intents.isCurrent,
-      change: (next: IAutoMovieHumanPersonDocument, ticket?: number): Promise<boolean> =>
-        change(next, ticket),
-      busy,
-      report: note,
-      refuse,
-    },
-    isDraft: (): boolean => session.snapshot().draft !== null,
-    currentIntent: intents.currentTicket,
-    draftChanged: (): void => {
-      session.rest();
-      session.note("Simple measurement draft changed; apply again.");
-      show();
-    },
-  });
+  const sections: ReturnType<typeof mountConnectedPersonSections<Model>> =
+    mountConnectedPersonSections({
+      app,
+      panel: props,
+      controls: {
+        dom,
+        current: (): IAutoMovieHumanPersonDocument => working,
+        reserve: withdraw,
+        isCurrent: intents.isCurrent,
+        change: (
+          next: IAutoMovieHumanPersonDocument,
+          ticket?: number,
+        ): Promise<boolean> => change(next, ticket),
+        busy,
+        report: note,
+        refuse,
+      },
+      isDraft: (): boolean => session.snapshot().draft !== null,
+      currentIntent: intents.currentTicket,
+      draftChanged: (): void => {
+        session.rest();
+        session.note("Simple measurement draft changed; apply again.");
+        show();
+      },
+    });
   for (const button of app.querySelectorAll<HTMLButtonElement>("[data-view]"))
-    button.onclick = (): void => viewport.cameraView(Number(button.dataset.view));
+    button.onclick = (): void =>
+      viewport.cameraView(Number(button.dataset.view));
   element("fit-view").onclick = (): void => viewport.fitView();
   element<HTMLInputElement>("clay").onchange = (): void =>
     viewport.setClay(element<HTMLInputElement>("clay").checked);
   element<HTMLInputElement>("shadows").onchange = (): void =>
     viewport.setShadows(element<HTMLInputElement>("shadows").checked);
   mountConnectedPersonHistoryControls({
-    app, history: (): PersonEditor<Model> | undefined => editor, session, withdraw,
-    isCurrent: intents.isCurrent, busy, refresh, refuse,
+    app,
+    history: (): PersonEditor<Model> | undefined => editor,
+    session,
+    withdraw,
+    isCurrent: intents.isCurrent,
+    busy,
+    refresh,
+    refuse,
     settleRetirements: settle,
   });
   renderBodyPosePresets({
@@ -318,7 +363,8 @@ export function mountConnectedPersonPanel<Model extends IConnectedPersonModel>(
     current: (): IAutoMovieHumanBodyBasisDocument => working.body,
     reserve: withdraw,
     isCurrent: intents.isCurrent,
-    apply: (body: IAutoMovieHumanBodyBasisDocument, ticket: number): void => void change(withBody(body), ticket),
+    apply: (body: IAutoMovieHumanBodyBasisDocument, ticket: number): void =>
+      void change(withBody(body), ticket),
     refuse,
     busy,
   });
@@ -338,8 +384,10 @@ export function mountConnectedPersonPanel<Model extends IConnectedPersonModel>(
     void applyText(element<HTMLTextAreaElement>("document-json").value, ticket);
   };
   element("person-save").onclick = (): void => {
-    const draft: ReturnType<typeof session.snapshot>["draft"] = session.snapshot().draft;
-    const document: IAutoMovieHumanPersonDocument | undefined = draft?.document ?? editor?.snapshot().document;
+    const draft: ReturnType<typeof session.snapshot>["draft"] =
+      session.snapshot().draft;
+    const document: IAutoMovieHumanPersonDocument | undefined =
+      draft?.document ?? editor?.snapshot().document;
     if (document === undefined) return;
     props.download(
       document.id + (draft === null ? ".json" : ".construction.json"),
@@ -348,8 +396,10 @@ export function mountConnectedPersonPanel<Model extends IConnectedPersonModel>(
     );
   };
   element("person-glb").onclick = async (): Promise<void> => {
-    const draft: ReturnType<typeof session.snapshot>["draft"] = session.snapshot().draft;
-    const committed: ReturnType<PersonEditor<Model>["snapshot"]> | undefined = editor?.snapshot();
+    const draft: ReturnType<typeof session.snapshot>["draft"] =
+      session.snapshot().draft;
+    const committed: ReturnType<PersonEditor<Model>["snapshot"]> | undefined =
+      editor?.snapshot();
     const ticket: number = intents.currentTicket();
     try {
       const line: string | null = await exportConnectedPersonAsset({
@@ -371,13 +421,15 @@ export function mountConnectedPersonPanel<Model extends IConnectedPersonModel>(
   // the same contact and humeral-head reading the body editor runs, on the
   // person's body build (`createConnectedPersonRuntime`)
   element("person-anatomy").onclick = async (): Promise<void> => {
-    const committed: ReturnType<PersonEditor<Model>["snapshot"]> | undefined = editor?.snapshot();
+    const committed: ReturnType<PersonEditor<Model>["snapshot"]> | undefined =
+      editor?.snapshot();
     if (committed === undefined) return;
     const ticket: number = withdraw();
     busy("Measuring skin contacts and humeral heads…");
     try {
       const posed: Model = await viewport.build(committed.document, true, true);
-      const crossings: NonNullable<IConnectedPersonModel["crossings"]> | null = posed.crossings ?? null;
+      const crossings: NonNullable<IConnectedPersonModel["crossings"]> | null =
+        posed.crossings ?? null;
       const anatomy: string | null = bodyAnatomyReading(posed.anatomy ?? null);
       const ground: string | null = bodyGroundReading(posed.groundSupport);
       await createAutoMovieResourceRetirement([
@@ -404,27 +456,33 @@ export function mountConnectedPersonPanel<Model extends IConnectedPersonModel>(
   };
   element("person-load").onclick = (): void =>
     element<HTMLInputElement>("person-file").click();
-  element<HTMLInputElement>("person-file").onchange = async (): Promise<void> => {
-    const input: HTMLInputElement = element<HTMLInputElement>("person-file");
-    const file: File | undefined = input.files?.[0];
-    if (file === undefined) return;
-    input.value = "";
-    const ticket: number = withdraw();
-    try {
-      const text: string = await file.text();
-      if (intents.isCurrent(ticket)) await applyText(text, ticket);
-    } catch (error) {
-      if (intents.isCurrent(ticket)) refuse(error);
-    }
-  };
+  element<HTMLInputElement>("person-file").onchange =
+    async (): Promise<void> => {
+      const input: HTMLInputElement = element<HTMLInputElement>("person-file");
+      const file: File | undefined = input.files?.[0];
+      if (file === undefined) return;
+      input.value = "";
+      const ticket: number = withdraw();
+      try {
+        const text: string = await file.text();
+        if (intents.isCurrent(ticket)) await applyText(text, ticket);
+      } catch (error) {
+        if (intents.isCurrent(ticket)) refuse(error);
+      }
+    };
   // The controls edit the working document from the start. The first build
   // is an ordinary intent: a newer one supersedes it and founds the history
   // itself, so nothing waits on this one having finished.
   element<HTMLFieldSetElement>("editing").disabled = false;
   sections.render();
-  const ready: Promise<void> = change(props.initial, intents.reserve()).then((): void => undefined);
+  const ready: Promise<void> = change(props.initial, intents.reserve()).then(
+    (): void => undefined,
+  );
   const close: () => Promise<void> = createAutoMovieResourceRetirement([
-    (): void => { closed = true; withdraw(); },
+    (): void => {
+      closed = true;
+      withdraw();
+    },
     (): Promise<void> => viewport.close(),
     async (): Promise<void> => {
       await ready;
@@ -438,9 +496,11 @@ export function mountConnectedPersonPanel<Model extends IConnectedPersonModel>(
   return {
     ready,
     close,
-    snapshot: (): ReturnType<PersonEditor<Model>["snapshot"]> | undefined => editor?.snapshot(),
+    snapshot: (): ReturnType<PersonEditor<Model>["snapshot"]> | undefined =>
+      editor?.snapshot(),
     session: (): ReturnType<typeof session.snapshot> => session.snapshot(),
     load: (text: string): Promise<void> => applyText(text),
-    change: (document: IAutoMovieHumanPersonDocument): Promise<boolean> => change(document),
+    change: (document: IAutoMovieHumanPersonDocument): Promise<boolean> =>
+      change(document),
   };
 }

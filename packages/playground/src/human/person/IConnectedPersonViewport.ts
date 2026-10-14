@@ -1,6 +1,6 @@
 import type { IAutoMovieHumanPersonDocument } from "@automovie/human";
-
 import type { IConnectedBodyConstructionExportResult } from "@automovie/human/body/runtime/IConnectedBodyConstructionExportResult";
+
 import type { IConnectedPersonConstructionPreview } from "./IConnectedPersonConstructionPreview";
 import type { IConnectedPersonModel } from "./IConnectedPersonModel";
 

@@ -33,39 +33,48 @@ export function createConnectedPersonSkinAppearanceInputs(
   );
   return Object.entries(basis.skinRegions ?? {})
     .filter(
-      ([, area]: [string, NonNullable<IAutoMovieHumanFaceBasis["skinRegions"]>[string]]): boolean =>
+      ([, area]: [
+        string,
+        NonNullable<IAutoMovieHumanFaceBasis["skinRegions"]>[string],
+      ]): boolean =>
         area.vertices.length > 0 && hosts.has(basis.surfaces[area.surface]?.id),
     )
-    .flatMap(([name]: [string, NonNullable<IAutoMovieHumanFaceBasis["skinRegions"]>[string]]): IConnectedPersonInputDescriptor[] =>
-      HUMAN_FACE_SKIN_APPEARANCE.map(
-        (trait: (typeof HUMAN_FACE_SKIN_APPEARANCE)[number]): IConnectedPersonInputDescriptor => {
-          const root: string[] = ["face", "skinAppearance", name];
-          const value: unknown = trait.path.reduce<unknown>(
-            (node: unknown, key: string): unknown =>
-              typeof node === "object" && node !== null
-                ? (node as Record<string, unknown>)[key]
-                : undefined,
-            HUMAN_FACE_SKIN_REGION_APPEARANCE,
-          );
-          return {
-            path: [...root, ...trait.path],
-            group: "Skin reflectance · " + name,
-            label: trait.label,
-            unit: trait.unit,
-            minimum: trait.minimum,
-            maximum: trait.maximum,
-            minimumExclusive: trait.minimumExclusive,
-            maximumExclusive: trait.maximumExclusive,
-            step: null,
-            ownerDefault: typeof value === "number" ? value : null,
-            seed: HUMAN_FACE_SKIN_REGION_APPEARANCE,
-            seedPath: root,
-            removePath: root,
-            omission: "the source area's unmodified reflectance",
-            removable: true,
-            qualification: trait.qualification,
-          };
-        },
-      ),
+    .flatMap(
+      ([name]: [
+        string,
+        NonNullable<IAutoMovieHumanFaceBasis["skinRegions"]>[string],
+      ]): IConnectedPersonInputDescriptor[] =>
+        HUMAN_FACE_SKIN_APPEARANCE.map(
+          (
+            trait: (typeof HUMAN_FACE_SKIN_APPEARANCE)[number],
+          ): IConnectedPersonInputDescriptor => {
+            const root: string[] = ["face", "skinAppearance", name];
+            const value: unknown = trait.path.reduce<unknown>(
+              (node: unknown, key: string): unknown =>
+                typeof node === "object" && node !== null
+                  ? (node as Record<string, unknown>)[key]
+                  : undefined,
+              HUMAN_FACE_SKIN_REGION_APPEARANCE,
+            );
+            return {
+              path: [...root, ...trait.path],
+              group: "Skin reflectance · " + name,
+              label: trait.label,
+              unit: trait.unit,
+              minimum: trait.minimum,
+              maximum: trait.maximum,
+              minimumExclusive: trait.minimumExclusive,
+              maximumExclusive: trait.maximumExclusive,
+              step: null,
+              ownerDefault: typeof value === "number" ? value : null,
+              seed: HUMAN_FACE_SKIN_REGION_APPEARANCE,
+              seedPath: root,
+              removePath: root,
+              omission: "the source area's unmodified reflectance",
+              removable: true,
+              qualification: trait.qualification,
+            };
+          },
+        ),
     );
 }

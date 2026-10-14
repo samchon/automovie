@@ -36,7 +36,11 @@ export function describeConnectedPersonStatus<
             " material regions · construction draft, not accepted",
           draft.admission.failures.length + " admission failures:",
           ...draft.admission.failures.map(
-            (failure: NonNullable<typeof draft>["admission"]["failures"][number]): string => "- " + failure.owner + ": " + failure.cause,
+            (
+              failure: NonNullable<
+                typeof draft
+              >["admission"]["failures"][number],
+            ): string => "- " + failure.owner + ": " + failure.cause,
           ),
         ]
       : accepted !== null

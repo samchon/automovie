@@ -2,9 +2,9 @@ import { assembleHumanBodyGeneratedAnatomy } from "@automovie/human/body/anatomy
 import { measureHumanBodyBasisChannels } from "@automovie/human/body/measure/measureHumanBodyBasisChannels";
 import type { AutoMovieHumanoidBone } from "@automovie/interface";
 
-import { renderBodyMeasuredControls } from "../body/renderBodyMeasuredControls";
 import { bodyMeasuredGroups } from "../body/bodyMeasuredGroups";
 import { mountBodyJointControls } from "../body/mountBodyJointControls";
+import { renderBodyMeasuredControls } from "../body/renderBodyMeasuredControls";
 import { annotateConnectedBodyReach } from "../common/annotateConnectedBodyReach";
 import { renderConnectedBodyExteriorGaps } from "../common/renderConnectedBodyExteriorGaps";
 import { renderConnectedBodyExteriorTargets } from "../common/renderConnectedBodyExteriorTargets";
@@ -48,24 +48,36 @@ import type { IConnectedPersonBodyControlsProps } from "./IConnectedPersonBodyCo
  */
 export function mountConnectedPersonBodyControls(
   props: IConnectedPersonBodyControlsProps,
-): { /** Repaint selected controls from current body draft while preserving text drafts. */ render: () => void } {
+): {
+  /** Repaint selected controls from current body draft while preserving text drafts. */ render: () => void;
+} {
   const { dom }: Pick<IConnectedPersonBodyControlsProps, "dom"> = props;
   const reach: IConnectedPersonBodyControlsProps["reach"] = props.reach;
   const unavailable: Set<string> = new Set(props.body.unavailableTargets ?? []);
-  const scales: Map<string, ReturnType<typeof measureHumanBodyBasisChannels>[number]> = new Map(
+  const scales: Map<
+    string,
+    ReturnType<typeof measureHumanBodyBasisChannels>[number]
+  > = new Map(
     measureHumanBodyBasisChannels(reach.basis, { measuredOnly: true }).map(
-      (scale: ReturnType<typeof measureHumanBodyBasisChannels>[number]): [string, ReturnType<typeof measureHumanBodyBasisChannels>[number]] => [scale.id, scale],
+      (
+        scale: ReturnType<typeof measureHumanBodyBasisChannels>[number],
+      ): [string, ReturnType<typeof measureHumanBodyBasisChannels>[number]] => [
+        scale.id,
+        scale,
+      ],
     ),
   );
-  const kind: HTMLSelectElement = props.section.querySelector<HTMLSelectElement>(
-    '[data-role="control-kind"]',
-  )!;
+  const kind: HTMLSelectElement =
+    props.section.querySelector<HTMLSelectElement>(
+      '[data-role="control-kind"]',
+    )!;
   const container: HTMLElement = props.section.querySelector<HTMLElement>(
     '[data-role="basis-controls"]',
   )!;
   const groups: string[] = bodyMeasuredGroups(reach.basis.channels, scales);
   // no request is stated, so every part answers with its source reason
-  const anatomy: ReturnType<typeof assembleHumanBodyGeneratedAnatomy> = assembleHumanBodyGeneratedAnatomy({ basis: props.body });
+  const anatomy: ReturnType<typeof assembleHumanBodyGeneratedAnatomy> =
+    assembleHumanBodyGeneratedAnatomy({ basis: props.body });
   const targetDrafts: Map<string, string> = new Map();
   for (const group of ["anatomy", ...groups, "pose"]) {
     const option: HTMLOptionElement = dom.createElement("option");
@@ -101,7 +113,9 @@ export function mountConnectedPersonBodyControls(
           bone = selected;
         },
         redraw: render,
-        change: (next: ReturnType<IConnectedPersonBodyControlsProps["current"]>): void => {
+        change: (
+          next: ReturnType<IConnectedPersonBodyControlsProps["current"]>,
+        ): void => {
           void props.change(next);
         },
         refuse: props.refuse,
@@ -119,7 +133,10 @@ export function mountConnectedPersonBodyControls(
         current: props.current,
         reserve: props.reserve,
         isCurrent: props.isCurrent,
-        change: (next: ReturnType<IConnectedPersonBodyControlsProps["current"]>, ticket: number): Promise<boolean> => props.change(next, ticket),
+        change: (
+          next: ReturnType<IConnectedPersonBodyControlsProps["current"]>,
+          ticket: number,
+        ): Promise<boolean> => props.change(next, ticket),
         busy: props.busy,
         report: props.report,
         refuse: props.refuse,
@@ -141,7 +158,10 @@ export function mountConnectedPersonBodyControls(
       reserve: props.reserve,
       isCurrent: props.isCurrent,
       solve: props.solve,
-      change: (next: ReturnType<IConnectedPersonBodyControlsProps["current"]>, ticket: number): Promise<boolean> => props.change(next, ticket),
+      change: (
+        next: ReturnType<IConnectedPersonBodyControlsProps["current"]>,
+        ticket: number,
+      ): Promise<boolean> => props.change(next, ticket),
       busy: props.busy,
       report: props.report,
       refuse: props.refuse,

@@ -43,7 +43,9 @@ export function mountConnectedPersonAdmissionReport(
     );
   };
   props.container.append(title, save, text);
-  const show: (view: IConnectedPersonAdmissionView | null) => void = (view: IConnectedPersonAdmissionView | null): void => {
+  const show: (view: IConnectedPersonAdmissionView | null) => void = (
+    view: IConnectedPersonAdmissionView | null,
+  ): void => {
     shown = view;
     save.disabled = view === null;
     text.textContent =

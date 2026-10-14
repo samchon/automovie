@@ -20,8 +20,19 @@ export function mountConnectedPersonOralControls(
 ): { refresh: () => void } {
   const inputs: Map<string, HTMLInputElement> = new Map();
   const presence: Map<string, HTMLSelectElement> = new Map();
-  const toothFields: readonly ["widthMm", "depthMm", "heightMm"] = ["widthMm", "depthMm", "heightMm"];
-  const archFields: readonly ["widthMm", "depthMm", "elevationMm", "projectionMm", "gingivalHeightMm", "gingivalThicknessMm"] = [
+  const toothFields: readonly ["widthMm", "depthMm", "heightMm"] = [
+    "widthMm",
+    "depthMm",
+    "heightMm",
+  ];
+  const archFields: readonly [
+    "widthMm",
+    "depthMm",
+    "elevationMm",
+    "projectionMm",
+    "gingivalHeightMm",
+    "gingivalThicknessMm",
+  ] = [
     "widthMm",
     "depthMm",
     "elevationMm",
@@ -29,33 +40,50 @@ export function mountConnectedPersonOralControls(
     "gingivalHeightMm",
     "gingivalThicknessMm",
   ] as const;
-  const spaceFields: readonly ["palateHeightMm", "floorDepthMm", "wallClearanceMm", "posteriorReachMm"] = [
+  const spaceFields: readonly [
+    "palateHeightMm",
+    "floorDepthMm",
+    "wallClearanceMm",
+    "posteriorReachMm",
+  ] = [
     "palateHeightMm",
     "floorDepthMm",
     "wallClearanceMm",
     "posteriorReachMm",
   ] as const;
-  const tongueFields: readonly ["widthMm", "lengthMm", "heightMm", "dorsumRiseMm"] = [
+  const tongueFields: readonly [
     "widthMm",
     "lengthMm",
     "heightMm",
     "dorsumRiseMm",
-  ] as const;
-  const performanceFields: readonly ["tongueTipLiftMm", "tongueTipAdvanceMm", "tongueTipLateralMm"] = [
+  ] = ["widthMm", "lengthMm", "heightMm", "dorsumRiseMm"] as const;
+  const performanceFields: readonly [
     "tongueTipLiftMm",
     "tongueTipAdvanceMm",
     "tongueTipLateralMm",
-  ] as const;
-  const ids: `${1 | 2 | 3 | 4}${1 | 2 | 3 | 4 | 5 | 6 | 7 | 8}`[] = ([1, 2, 3, 4] as const).flatMap((quadrant: 1 | 2 | 3 | 4): `${1 | 2 | 3 | 4}${1 | 2 | 3 | 4 | 5 | 6 | 7 | 8}`[] =>
-    ([1, 2, 3, 4, 5, 6, 7, 8] as const).map(
-      (position: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8): `${1 | 2 | 3 | 4}${1 | 2 | 3 | 4 | 5 | 6 | 7 | 8}` => `${quadrant}${position}` as const,
-    ),
+  ] = ["tongueTipLiftMm", "tongueTipAdvanceMm", "tongueTipLateralMm"] as const;
+  const ids: `${1 | 2 | 3 | 4}${1 | 2 | 3 | 4 | 5 | 6 | 7 | 8}`[] = (
+    [1, 2, 3, 4] as const
+  ).flatMap(
+    (
+      quadrant: 1 | 2 | 3 | 4,
+    ): `${1 | 2 | 3 | 4}${1 | 2 | 3 | 4 | 5 | 6 | 7 | 8}`[] =>
+      ([1, 2, 3, 4, 5, 6, 7, 8] as const).map(
+        (
+          position: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8,
+        ): `${1 | 2 | 3 | 4}${1 | 2 | 3 | 4 | 5 | 6 | 7 | 8}` =>
+          `${quadrant}${position}` as const,
+      ),
   );
   const help: HTMLParagraphElement = props.dom.createElement("p");
   help.textContent =
     "Coarse source oral assembly. Dimensions are authored millimetres; blank values retain source shape. Crown dimensions use the source head axes. Clinical crown axes, tissue thickness and hidden roots remain unmeasured.";
   props.container.append(help);
-  const group: (prefix: string, label: string, fields: readonly string[]) => HTMLDetailsElement = (
+  const group: (
+    prefix: string,
+    label: string,
+    fields: readonly string[],
+  ) => HTMLDetailsElement = (
     prefix: string,
     label: string,
     fields: readonly string[],
@@ -82,7 +110,11 @@ export function mountConnectedPersonOralControls(
     return details;
   };
   for (const id of ids) {
-    const details: HTMLDetailsElement = group("tooth-" + id, "Tooth " + id, toothFields);
+    const details: HTMLDetailsElement = group(
+      "tooth-" + id,
+      "Tooth " + id,
+      toothFields,
+    );
     const select: HTMLSelectElement = props.dom.createElement("select");
     select.id = "oral-tooth-" + id + "-present";
     select.setAttribute("aria-label", "Tooth " + id + " presence");
@@ -104,7 +136,10 @@ export function mountConnectedPersonOralControls(
   group("space", "Palate, floor and walls", spaceFields);
   group("tongue", "Tongue identity", tongueFields);
   group("performance", "Tongue performance", performanceFields);
-  const read: <K extends string>(prefix: string, fields: readonly K[]) => Partial<Record<K, number>> = <K extends string>(
+  const read: <K extends string>(
+    prefix: string,
+    fields: readonly K[],
+  ) => Partial<Record<K, number>> = <K extends string>(
     prefix: string,
     fields: readonly K[],
   ): Partial<Record<K, number>> => {
@@ -121,13 +156,17 @@ export function mountConnectedPersonOralControls(
     }
     return values;
   };
-  const commit: (oral: IAutoMovieHumanFaceOral | undefined) => Promise<void> = async (
+  const commit: (
+    oral: IAutoMovieHumanFaceOral | undefined,
+  ) => Promise<void> = async (
     oral: IAutoMovieHumanFaceOral | undefined,
   ): Promise<void> => {
     const ticket: number = props.reserve();
     props.busy("Applying oral assembly...");
     try {
-      const person: ReturnType<typeof props.current> = structuredClone(props.current());
+      const person: ReturnType<typeof props.current> = structuredClone(
+        props.current(),
+      );
       if (oral === undefined) delete person.face.oral;
       else person.face.oral = oral;
       if ((await props.change(person, ticket)) && props.isCurrent(ticket))
@@ -153,7 +192,8 @@ export function mountConnectedPersonOralControls(
       const oral: IAutoMovieHumanFaceOral = {};
       const teeth: NonNullable<IAutoMovieHumanFaceOral["teeth"]> = {};
       for (const id of ids) {
-        const tooth: Partial<Record<(typeof toothFields)[number], number>> = read("tooth-" + id, toothFields);
+        const tooth: Partial<Record<(typeof toothFields)[number], number>> =
+          read("tooth-" + id, toothFields);
         const selected: string = presence.get(id)!.value;
         if (Object.keys(tooth).length !== 0 || selected !== "")
           teeth[id] = {
@@ -162,11 +202,23 @@ export function mountConnectedPersonOralControls(
           };
       }
       if (Object.keys(teeth).length !== 0) oral.teeth = teeth;
-      const maxillary: Partial<Record<(typeof archFields)[number], number>> = read("maxillary", archFields),
-        mandibular: Partial<Record<(typeof archFields)[number], number>> = read("mandibular", archFields);
-      const space: Partial<Record<(typeof spaceFields)[number], number>> = read("space", spaceFields),
-        tongue: Partial<Record<(typeof tongueFields)[number], number>> = read("tongue", tongueFields),
-        performance: Partial<Record<(typeof performanceFields)[number], number>> = read("performance", performanceFields);
+      const maxillary: Partial<Record<(typeof archFields)[number], number>> =
+          read("maxillary", archFields),
+        mandibular: Partial<Record<(typeof archFields)[number], number>> = read(
+          "mandibular",
+          archFields,
+        );
+      const space: Partial<Record<(typeof spaceFields)[number], number>> = read(
+          "space",
+          spaceFields,
+        ),
+        tongue: Partial<Record<(typeof tongueFields)[number], number>> = read(
+          "tongue",
+          tongueFields,
+        ),
+        performance: Partial<
+          Record<(typeof performanceFields)[number], number>
+        > = read("performance", performanceFields);
       if (Object.keys(maxillary).length !== 0) oral.maxillary = maxillary;
       if (Object.keys(mandibular).length !== 0) oral.mandibular = mandibular;
       if (Object.keys(space).length !== 0) oral.space = space;
@@ -179,7 +231,11 @@ export function mountConnectedPersonOralControls(
   };
   remove.onclick = (): void => void commit(undefined);
   props.container.append(apply, remove);
-  const fill: <K extends string>(prefix: string, fields: readonly K[], values: Partial<Record<K, number>> | undefined) => void = <K extends string>(
+  const fill: <K extends string>(
+    prefix: string,
+    fields: readonly K[],
+    values: Partial<Record<K, number>> | undefined,
+  ) => void = <K extends string>(
     prefix: string,
     fields: readonly K[],
     values: Partial<Record<K, number>> | undefined,
@@ -192,7 +248,8 @@ export function mountConnectedPersonOralControls(
   };
   return {
     refresh: (): void => {
-      const oral: IAutoMovieHumanFaceOral | undefined = props.current().face.oral;
+      const oral: IAutoMovieHumanFaceOral | undefined =
+        props.current().face.oral;
       for (const id of ids) {
         fill("tooth-" + id, toothFields, oral?.teeth?.[id]);
         const select: HTMLSelectElement = presence.get(id)!;

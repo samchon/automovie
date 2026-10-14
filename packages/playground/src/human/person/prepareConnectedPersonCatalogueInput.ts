@@ -25,7 +25,8 @@ export function prepareConnectedPersonCatalogueInput(
 ): IAutoMovieHumanPersonDocument {
   if (path[0] !== "face") return document;
   if (path[1] === "brows" && document.face.brows === undefined) {
-    const brows: ReturnType<typeof resolveHumanFaceBrows> = resolveHumanFaceBrows(basis, document.face.brows);
+    const brows: ReturnType<typeof resolveHumanFaceBrows> =
+      resolveHumanFaceBrows(basis, document.face.brows);
     return {
       ...document,
       face: { ...document.face, brows: structuredClone(brows) },
@@ -35,7 +36,8 @@ export function prepareConnectedPersonCatalogueInput(
     path[1] === "periocularTissues" &&
     document.face.periocularTissues === undefined
   ) {
-    const tissues: ReturnType<typeof createHumanFacePeriocularDefaults> = createHumanFacePeriocularDefaults(basis, document.face);
+    const tissues: ReturnType<typeof createHumanFacePeriocularDefaults> =
+      createHumanFacePeriocularDefaults(basis, document.face);
     return tissues === undefined
       ? document
       : {

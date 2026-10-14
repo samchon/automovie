@@ -39,15 +39,19 @@ import type { IConnectedPersonFaceAnatomyProps } from "./IConnectedPersonFaceAna
  */
 export function mountConnectedPersonFaceAnatomy(
   props: IConnectedPersonFaceAnatomyProps,
-): { /** Repaint observation text and schedule registered face readings without awaiting them. */ refresh: () => void } {
-  const groups: Map<string, (typeof HUMAN_FACE_MEASUREMENTS)[number][]> = new Map();
+): {
+  /** Repaint observation text and schedule registered face readings without awaiting them. */ refresh: () => void;
+} {
+  const groups: Map<string, (typeof HUMAN_FACE_MEASUREMENTS)[number][]> =
+    new Map();
   for (const measurement of HUMAN_FACE_MEASUREMENTS) {
     const group: string = measurement.id.split(".")[0];
     if (!groups.has(group)) groups.set(group, []);
     groups.get(group)!.push(measurement);
   }
   const readings: Map<string, HTMLElement> = new Map();
-  const controls: Map<string, (HTMLInputElement | HTMLButtonElement)[]> = new Map();
+  const controls: Map<string, (HTMLInputElement | HTMLButtonElement)[]> =
+    new Map();
   const units: Record<IAutoMovieHumanFaceMeasurementMeasured["unit"], string> =
     {
       millimetres: "mm",
@@ -56,9 +60,17 @@ export function mountConnectedPersonFaceAnatomy(
       "cubic-centimetres": "cm³",
       count: "count",
     };
-  const unit: (name: IAutoMovieHumanFaceMeasurementMeasured["unit"]) => string = (name: IAutoMovieHumanFaceMeasurementMeasured["unit"]): string =>
-    units[name];
-  const commit: (text: string, next: () => Promise<Parameters<IConnectedPersonFaceAnatomyProps["change"]>[0]>) => Promise<void> = async (
+  const unit: (
+    name: IAutoMovieHumanFaceMeasurementMeasured["unit"],
+  ) => string = (
+    name: IAutoMovieHumanFaceMeasurementMeasured["unit"],
+  ): string => units[name];
+  const commit: (
+    text: string,
+    next: () => Promise<
+      Parameters<IConnectedPersonFaceAnatomyProps["change"]>[0]
+    >,
+  ) => Promise<void> = async (
     text: string,
     next: () => Promise<
       Parameters<IConnectedPersonFaceAnatomyProps["change"]>[0]
@@ -67,7 +79,9 @@ export function mountConnectedPersonFaceAnatomy(
     const ticket: number = props.reserve();
     props.busy(text);
     try {
-      const document: Parameters<IConnectedPersonFaceAnatomyProps["change"]>[0] = await next();
+      const document: Parameters<
+        IConnectedPersonFaceAnatomyProps["change"]
+      >[0] = await next();
       if (!props.isCurrent(ticket)) return;
       const success: boolean = await props.change(document, ticket);
       if (success && props.isCurrent(ticket))
@@ -109,7 +123,9 @@ export function mountConnectedPersonFaceAnatomy(
           }
           void commit(
             `Solving ${measurement.id}…`,
-            async (): Promise<Parameters<IConnectedPersonFaceAnatomyProps["change"]>[0]> =>
+            async (): Promise<
+              Parameters<IConnectedPersonFaceAnatomyProps["change"]>[0]
+            > =>
               (await props.solve(props.current(), measurement.id, target))
                 .document,
           );
@@ -126,7 +142,8 @@ export function mountConnectedPersonFaceAnatomy(
     props.container.append(details);
   }
   const observations: HTMLTextAreaElement = props.dom.createElement("textarea");
-  const applyObservations: HTMLButtonElement = props.dom.createElement("button");
+  const applyObservations: HTMLButtonElement =
+    props.dom.createElement("button");
   observations.id = "face-anatomy-observations";
   observations.rows = 6;
   observations.placeholder =
@@ -135,22 +152,31 @@ export function mountConnectedPersonFaceAnatomy(
   applyObservations.textContent = "Apply observations";
   applyObservations.onclick = (): void => {
     const text: string = observations.value.trim();
-    void commit("Applying face observations…", async (): Promise<Parameters<IConnectedPersonFaceAnatomyProps["change"]>[0]> => {
-      const document: Parameters<IConnectedPersonFaceAnatomyProps["change"]>[0] = structuredClone(props.current());
-      const anatomical: IAutoMovieHumanFaceAnatomicalRequest = {
-        ...document.face.anatomical,
-      };
-      if (text === "") delete anatomical.observations;
-      else anatomical.observations = JSON.parse(text);
-      const face: Parameters<IConnectedPersonFaceAnatomyProps["change"]>[0]["face"] = { ...document.face };
-      if (
-        anatomical.targets === undefined &&
-        anatomical.observations === undefined
-      )
-        delete face.anatomical;
-      else face.anatomical = anatomical;
-      return { ...document, face };
-    });
+    void commit(
+      "Applying face observations…",
+      async (): Promise<
+        Parameters<IConnectedPersonFaceAnatomyProps["change"]>[0]
+      > => {
+        const document: Parameters<
+          IConnectedPersonFaceAnatomyProps["change"]
+        >[0] = structuredClone(props.current());
+        const anatomical: IAutoMovieHumanFaceAnatomicalRequest = {
+          ...document.face.anatomical,
+        };
+        if (text === "") delete anatomical.observations;
+        else anatomical.observations = JSON.parse(text);
+        const face: Parameters<
+          IConnectedPersonFaceAnatomyProps["change"]
+        >[0]["face"] = { ...document.face };
+        if (
+          anatomical.targets === undefined &&
+          anatomical.observations === undefined
+        )
+          delete face.anatomical;
+        else face.anatomical = anatomical;
+        return { ...document, face };
+      },
+    );
   };
   const observationMeaning: HTMLElement = props.dom.createElement("small");
   observationMeaning.textContent =
@@ -160,8 +186,10 @@ export function mountConnectedPersonFaceAnatomy(
   return {
     refresh: (): void => {
       const current: number = ++generation;
-      const person: ReturnType<IConnectedPersonFaceAnatomyProps["current"]> = props.current();
-      const recorded: IAutoMovieHumanFaceAnatomicalRequest["observations"] = person.face.anatomical?.observations;
+      const person: ReturnType<IConnectedPersonFaceAnatomyProps["current"]> =
+        props.current();
+      const recorded: IAutoMovieHumanFaceAnatomicalRequest["observations"] =
+        person.face.anatomical?.observations;
       if (props.dom.activeElement !== observations)
         observations.value =
           recorded === undefined ? "" : JSON.stringify(recorded);
@@ -175,17 +203,25 @@ export function mountConnectedPersonFaceAnatomy(
         }
         if (current !== generation) return;
         const targets: Map<string, number> = new Map(
-          (person.face.anatomical?.targets ?? []).map((target: NonNullable<IAutoMovieHumanFaceAnatomicalRequest["targets"]>[number]): [string, number] => [
-            target.measurement,
-            target.value,
-          ]),
+          (person.face.anatomical?.targets ?? []).map(
+            (
+              target: NonNullable<
+                IAutoMovieHumanFaceAnatomicalRequest["targets"]
+              >[number],
+            ): [string, number] => [target.measurement, target.value],
+          ),
         );
-        const measured: Map<string, AutoMovieHumanFaceMeasurementReading> = new Map();
+        const measured: Map<string, AutoMovieHumanFaceMeasurementReading> =
+          new Map();
         for (const value of values ?? [])
-          if (!measured.has(value.measurement)) measured.set(value.measurement, value);
+          if (!measured.has(value.measurement))
+            measured.set(value.measurement, value);
         for (const [id, element] of readings) {
-          const value: AutoMovieHumanFaceMeasurementReading | undefined = measured.get(id);
-          const target: string = targets.has(id) ? `; target ${targets.get(id)}` : "";
+          const value: AutoMovieHumanFaceMeasurementReading | undefined =
+            measured.get(id);
+          const target: string = targets.has(id)
+            ? `; target ${targets.get(id)}`
+            : "";
           // a target is offered only while the face can read the measurement
           for (const control of controls.get(id) ?? [])
             control.disabled =

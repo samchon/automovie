@@ -24,8 +24,11 @@ import type { IConnectedPersonHeadControlsProps } from "./IConnectedPersonHeadCo
  */
 export function mountConnectedPersonHeadControls(
   props: IConnectedPersonHeadControlsProps,
-): { /** Schedule current head readback without awaiting numerical completion. */ refresh: () => void } {
-  const mm: (metres: number) => string = (metres: number): string => (metres * 1000).toFixed(1) + " mm";
+): {
+  /** Schedule current head readback without awaiting numerical completion. */ refresh: () => void;
+} {
+  const mm: (metres: number) => string = (metres: number): string =>
+    (metres * 1000).toFixed(1) + " mm";
   const label: (name: string) => string = (name: string): string =>
     name.replace(/([a-z])([A-Z])/gu, "$1 $2").toLowerCase();
   const names: string[] = [
@@ -36,7 +39,8 @@ export function mountConnectedPersonHeadControls(
   const readings: Map<string, HTMLElement> = new Map();
   let generation: number = 0;
   for (const name of names) {
-    const rule: (typeof HUMAN_HEAD_MEASUREMENTS)[string] = HUMAN_HEAD_MEASUREMENTS[name];
+    const rule: (typeof HUMAN_HEAD_MEASUREMENTS)[string] =
+      HUMAN_HEAD_MEASUREMENTS[name];
     const row: HTMLDivElement = props.dom.createElement("div");
     const caption: HTMLLabelElement = props.dom.createElement("label");
     const number: HTMLInputElement = props.dom.createElement("input");
@@ -80,10 +84,9 @@ export function mountConnectedPersonHeadControls(
     }
     props.busy("Solving the head…");
     try {
-      const solved: Awaited<ReturnType<IConnectedPersonHeadControlsProps["solve"]>> = await props.solve(
-        structuredClone(props.current()),
-        targets,
-      );
+      const solved: Awaited<
+        ReturnType<IConnectedPersonHeadControlsProps["solve"]>
+      > = await props.solve(structuredClone(props.current()), targets);
       if (!props.isCurrent(ticket)) return;
       const success: boolean = await props.change(solved.document, ticket);
       if (!success || !props.isCurrent(ticket)) return;
@@ -95,7 +98,8 @@ export function mountConnectedPersonHeadControls(
         );
       const channels: string = HUMAN_PERSON_HEAD_SOLVE.channels
         .map(
-          (id: string): string => `${id} ${(solved.document.face.shape[id] ?? 0).toFixed(3)}`,
+          (id: string): string =>
+            `${id} ${(solved.document.face.shape[id] ?? 0).toFixed(3)}`,
         )
         .join(", ");
       props.report(

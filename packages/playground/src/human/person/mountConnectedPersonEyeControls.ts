@@ -39,7 +39,9 @@ import { mountConnectedPersonPeriocularControls } from "./mountConnectedPersonPe
  */
 export function mountConnectedPersonEyeControls(
   props: IConnectedPersonEyeControlsProps,
-): { /** Reflect current authored eye values and refresh delegated periocular controls. */ refresh: () => void } {
+): {
+  /** Reflect current authored eye values and refresh delegated periocular controls. */ refresh: () => void;
+} {
   const sides: readonly ["left", "right"] = ["left", "right"];
   const opticalFields: (keyof IAutoMovieHumanFaceOpticalDimensions)[] = [
     "globeRadiusMm",
@@ -52,14 +54,25 @@ export function mountConnectedPersonEyeControls(
   ];
   const upperFields: readonly string[] = [
     "strandCount",
-    ...portraitEyelashParameters.map((parameter: (typeof portraitEyelashParameters)[number]): string => parameter.id),
+    ...portraitEyelashParameters.map(
+      (parameter: (typeof portraitEyelashParameters)[number]): string =>
+        parameter.id,
+    ),
   ];
   const lowerFields: readonly string[] = [
     "strandCount",
-    ...humanFaceLowerLashParameters.map((parameter: (typeof humanFaceLowerLashParameters)[number]): string => parameter.id),
+    ...humanFaceLowerLashParameters.map(
+      (parameter: (typeof humanFaceLowerLashParameters)[number]): string =>
+        parameter.id,
+    ),
   ];
   const inputs: Map<string, HTMLInputElement> = new Map();
-  const group: (title: string, prefix: string, fields: readonly string[], unit: (field: string) => string) => { apply: HTMLButtonElement; remove: HTMLButtonElement } = (
+  const group: (
+    title: string,
+    prefix: string,
+    fields: readonly string[],
+    unit: (field: string) => string,
+  ) => { apply: HTMLButtonElement; remove: HTMLButtonElement } = (
     title: string,
     prefix: string,
     fields: readonly string[],
@@ -98,7 +111,10 @@ export function mountConnectedPersonEyeControls(
     props.container.append(box);
     return { apply, remove };
   };
-  const read: (prefix: string, fields: readonly string[]) => Record<"left" | "right", Record<string, number>> | string = (
+  const read: (
+    prefix: string,
+    fields: readonly string[],
+  ) => Record<"left" | "right", Record<string, number>> | string = (
     prefix: string,
     fields: readonly string[],
   ): Record<"left" | "right", Record<string, number>> | string => {
@@ -117,7 +133,12 @@ export function mountConnectedPersonEyeControls(
       }
     return result;
   };
-  const commit: (next: (face: IAutoMovieHumanFaceBasisDocument) => IAutoMovieHumanFaceBasisDocument, text: string) => Promise<void> = async (
+  const commit: (
+    next: (
+      face: IAutoMovieHumanFaceBasisDocument,
+    ) => IAutoMovieHumanFaceBasisDocument,
+    text: string,
+  ) => Promise<void> = async (
     next: (
       face: IAutoMovieHumanFaceBasisDocument,
     ) => IAutoMovieHumanFaceBasisDocument,
@@ -126,7 +147,8 @@ export function mountConnectedPersonEyeControls(
     const ticket: number = props.reserve();
     props.busy(text);
     try {
-      const document: ReturnType<IConnectedPersonEyeControlsProps["current"]> = structuredClone(props.current());
+      const document: ReturnType<IConnectedPersonEyeControlsProps["current"]> =
+        structuredClone(props.current());
       const success: boolean = await props.change(
         { ...document, face: next(document.face) },
         ticket,
@@ -137,7 +159,9 @@ export function mountConnectedPersonEyeControls(
       if (props.isCurrent(ticket)) props.refuse(error);
     }
   };
-  const upperLash: (values: Record<string, number>) => IAutoMovieHumanFaceUpperLashPopulation = (
+  const upperLash: (
+    values: Record<string, number>,
+  ) => IAutoMovieHumanFaceUpperLashPopulation = (
     values: Record<string, number>,
   ): IAutoMovieHumanFaceUpperLashPopulation => ({
     strandCount: values.strandCount,
@@ -149,7 +173,9 @@ export function mountConnectedPersonEyeControls(
     taper: values.taper,
     variation: values.variation,
   });
-  const lowerLash: (values: Record<string, number>) => IAutoMovieHumanFaceLowerLashPopulation = (
+  const lowerLash: (
+    values: Record<string, number>,
+  ) => IAutoMovieHumanFaceLowerLashPopulation = (
     values: Record<string, number>,
   ): IAutoMovieHumanFaceLowerLashPopulation => ({
     strandCount: values.strandCount,
@@ -161,7 +187,9 @@ export function mountConnectedPersonEyeControls(
     taper: values.taper,
     variation: values.variation,
   });
-  const optical: (values: Record<string, number>) => IAutoMovieHumanFaceOpticalDimensions = (
+  const optical: (
+    values: Record<string, number>,
+  ) => IAutoMovieHumanFaceOpticalDimensions = (
     values: Record<string, number>,
   ): IAutoMovieHumanFaceOpticalDimensions => ({
     globeRadiusMm: values.globeRadiusMm,
@@ -179,14 +207,18 @@ export function mountConnectedPersonEyeControls(
     (field: string): string =>
       field === "strandCount"
         ? "shafts (authored count)"
-        : portraitEyelashParameters.find((parameter: (typeof portraitEyelashParameters)[number]): boolean => parameter.id === field)!
-            .unit,
+        : portraitEyelashParameters.find(
+            (parameter: (typeof portraitEyelashParameters)[number]): boolean =>
+              parameter.id === field,
+          )!.unit,
   );
   upper.apply.onclick = (): void => {
     const values: ReturnType<typeof read> = read("lash-upper", upperFields);
     if (typeof values === "string") return props.refuse(values);
     void commit(
-      (face: IAutoMovieHumanFaceBasisDocument): IAutoMovieHumanFaceBasisDocument => ({
+      (
+        face: IAutoMovieHumanFaceBasisDocument,
+      ): IAutoMovieHumanFaceBasisDocument => ({
         ...face,
         lashes: {
           ...face.lashes,
@@ -207,14 +239,18 @@ export function mountConnectedPersonEyeControls(
       field === "strandCount"
         ? "shafts (authored count)"
         : humanFaceLowerLashParameters.find(
-            (parameter: (typeof humanFaceLowerLashParameters)[number]): boolean => parameter.id === field,
+            (
+              parameter: (typeof humanFaceLowerLashParameters)[number],
+            ): boolean => parameter.id === field,
           )!.unit,
   );
   lower.apply.onclick = (): void => {
     const values: ReturnType<typeof read> = read("lash-lower", lowerFields);
     if (typeof values === "string") return props.refuse(values);
     void commit(
-      (face: IAutoMovieHumanFaceBasisDocument): IAutoMovieHumanFaceBasisDocument => ({
+      (
+        face: IAutoMovieHumanFaceBasisDocument,
+      ): IAutoMovieHumanFaceBasisDocument => ({
         ...face,
         lashes: {
           ...face.lashes,
@@ -232,33 +268,46 @@ export function mountConnectedPersonEyeControls(
     ["lower", lower.remove],
   ] as const) {
     remove.onclick = (): void => {
-      void commit((face: IAutoMovieHumanFaceBasisDocument): IAutoMovieHumanFaceBasisDocument => {
-        const { lashes, ...rest }: IAutoMovieHumanFaceBasisDocument = face;
-        const kept: Pick<NonNullable<IAutoMovieHumanFaceBasisDocument["lashes"]>, "upper" | "lower"> = {
-          upper: row === "upper" ? undefined : lashes?.upper,
-          lower: row === "lower" ? undefined : lashes?.lower,
-        };
-        if (kept.upper === undefined && kept.lower === undefined) return rest;
-        return {
-          ...rest,
-          lashes:
-            kept.upper === undefined
-              ? { lower: kept.lower }
-              : kept.lower === undefined
-                ? { upper: kept.upper }
-                : { upper: kept.upper, lower: kept.lower },
-        };
-      }, `Removing the ${row} lash profile…`);
+      void commit(
+        (
+          face: IAutoMovieHumanFaceBasisDocument,
+        ): IAutoMovieHumanFaceBasisDocument => {
+          const { lashes, ...rest }: IAutoMovieHumanFaceBasisDocument = face;
+          const kept: Pick<
+            NonNullable<IAutoMovieHumanFaceBasisDocument["lashes"]>,
+            "upper" | "lower"
+          > = {
+            upper: row === "upper" ? undefined : lashes?.upper,
+            lower: row === "lower" ? undefined : lashes?.lower,
+          };
+          if (kept.upper === undefined && kept.lower === undefined) return rest;
+          return {
+            ...rest,
+            lashes:
+              kept.upper === undefined
+                ? { lower: kept.lower }
+                : kept.lower === undefined
+                  ? { upper: kept.upper }
+                  : { upper: kept.upper, lower: kept.lower },
+          };
+        },
+        `Removing the ${row} lash profile…`,
+      );
     };
   }
-  const optics: ReturnType<typeof group> = group("Eye optics", "optics", opticalFields, (field: string): string =>
-    field.endsWith("Micrometres") ? "µm" : "mm",
+  const optics: ReturnType<typeof group> = group(
+    "Eye optics",
+    "optics",
+    opticalFields,
+    (field: string): string => (field.endsWith("Micrometres") ? "µm" : "mm"),
   );
   optics.apply.onclick = (): void => {
     const values: ReturnType<typeof read> = read("optics", opticalFields);
     if (typeof values === "string") return props.refuse(values);
     void commit(
-      (face: IAutoMovieHumanFaceBasisDocument): IAutoMovieHumanFaceBasisDocument => ({
+      (
+        face: IAutoMovieHumanFaceBasisDocument,
+      ): IAutoMovieHumanFaceBasisDocument => ({
         ...face,
         eyes: { left: optical(values.left), right: optical(values.right) },
       }),
@@ -266,17 +315,28 @@ export function mountConnectedPersonEyeControls(
     );
   };
   optics.remove.onclick = (): void => {
-    void commit((face: IAutoMovieHumanFaceBasisDocument): IAutoMovieHumanFaceBasisDocument => {
-      const { eyes: _removed, ...rest }: IAutoMovieHumanFaceBasisDocument = face;
-      return rest;
-    }, "Removing the eye optics…");
+    void commit(
+      (
+        face: IAutoMovieHumanFaceBasisDocument,
+      ): IAutoMovieHumanFaceBasisDocument => {
+        const { eyes: _removed, ...rest }: IAutoMovieHumanFaceBasisDocument =
+          face;
+        return rest;
+      },
+      "Removing the eye optics…",
+    );
   };
-  const periocular: ReturnType<typeof mountConnectedPersonPeriocularControls> = mountConnectedPersonPeriocularControls(props);
+  const periocular: ReturnType<typeof mountConnectedPersonPeriocularControls> =
+    mountConnectedPersonPeriocularControls(props);
   return {
     /** Show the displayed document's values in the inputs. */
     refresh: (): void => {
       const face: IAutoMovieHumanFaceBasisDocument = props.current().face;
-      const fill: (prefix: string, fields: readonly string[], record: Record<"left" | "right", unknown> | undefined) => void = (
+      const fill: (
+        prefix: string,
+        fields: readonly string[],
+        record: Record<"left" | "right", unknown> | undefined,
+      ) => void = (
         prefix: string,
         fields: readonly string[],
         record: Record<"left" | "right", unknown> | undefined,

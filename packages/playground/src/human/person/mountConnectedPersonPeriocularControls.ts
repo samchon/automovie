@@ -161,7 +161,8 @@ export function mountConnectedPersonPeriocularControls(
                   "face",
                   "brows",
                 ]);
-          const person: ReturnType<typeof props.current> = structuredClone(prepared);
+          const person: ReturnType<typeof props.current> =
+            structuredClone(prepared);
           person.face.brows = {
             ...person.face.brows,
             [selectedSide()]: structuredClone(HUMAN_FACE_BROW_POPULATION),
@@ -175,24 +176,35 @@ export function mountConnectedPersonPeriocularControls(
       box.append(seed);
     }
     const refresh: () => void = (): void => {
-      const face: ReturnType<typeof props.current>["face"] = props.current().face,
+      const face: ReturnType<typeof props.current>["face"] =
+          props.current().face,
         selected: "left" | "right" = selectedSide();
-      const group: NonNullable<ReturnType<typeof props.current>["face"][typeof form.field]>["left"] | undefined = face[form.field]?.[selected];
+      const group:
+        | NonNullable<
+            ReturnType<typeof props.current>["face"][typeof form.field]
+          >["left"]
+        | undefined = face[form.field]?.[selected];
       const profile: unknown =
         form.choices.length === 0
           ? group
           : group === undefined
             ? undefined
-            : Object.entries(group).find(([key]: [string, unknown]): boolean => key === member.value)?.[1];
+            : Object.entries(group).find(
+                ([key]: [string, unknown]): boolean => key === member.value,
+              )?.[1];
       for (const [field, input] of inputs) {
         const value: unknown =
           profile === undefined
             ? undefined
-            : Object.entries(profile as object).find(([key]: [string, unknown]): boolean => key === field)?.[1];
+            : Object.entries(profile as object).find(
+                ([key]: [string, unknown]): boolean => key === field,
+              )?.[1];
         input.value = typeof value === "number" ? String(value) : "";
       }
     };
-    const commit: (erase: boolean) => Promise<void> = async (erase: boolean): Promise<void> => {
+    const commit: (erase: boolean) => Promise<void> = async (
+      erase: boolean,
+    ): Promise<void> => {
       const ticket: number = props.reserve();
       props.busy("Updating " + form.title.toLowerCase());
       try {
@@ -218,12 +230,14 @@ export function mountConnectedPersonPeriocularControls(
                 form.field,
               ])
             : current;
-        const person: ReturnType<typeof props.current> = structuredClone(prepared),
+        const person: ReturnType<typeof props.current> =
+            structuredClone(prepared),
           face: ReturnType<typeof props.current>["face"] = person.face;
         if (form.field === "eyelids") {
           face.eyelids ??= {};
           face.eyelids[selected] ??= {};
-          const name: keyof IAutoMovieHumanFaceLidSections = member.value as keyof IAutoMovieHumanFaceLidSections;
+          const name: keyof IAutoMovieHumanFaceLidSections =
+            member.value as keyof IAutoMovieHumanFaceLidSections;
           if (erase) delete face.eyelids[selected]![name];
           else
             face.eyelids[selected]![name] = {
@@ -236,7 +250,8 @@ export function mountConnectedPersonPeriocularControls(
         } else if (form.field === "periocularTissues") {
           face.periocularTissues ??= {};
           face.periocularTissues[selected] ??= {};
-          const name: AutoMovieHumanFacePeriocularTissue = member.value as AutoMovieHumanFacePeriocularTissue;
+          const name: AutoMovieHumanFacePeriocularTissue =
+            member.value as AutoMovieHumanFacePeriocularTissue;
           if (erase) delete face.periocularTissues[selected]![name];
           else
             face.periocularTissues[selected]![name] = {

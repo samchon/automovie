@@ -50,7 +50,8 @@ export function mountConnectedPersonSourceSelection(
       if (value.trim() === "") url.searchParams.delete(key);
       else url.searchParams.set(key, value);
     }
-    if (window.__playgroundViewerPage !== undefined) window.__playgroundViewerPage.navigate(url.href);
+    if (window.__playgroundViewerPage !== undefined)
+      window.__playgroundViewerPage.navigate(url.href);
     else location.assign(url.href);
   };
   document.body.insertBefore(form, document.querySelector("#app"));

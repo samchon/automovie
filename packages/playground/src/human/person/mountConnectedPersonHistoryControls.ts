@@ -24,9 +24,11 @@ export function mountConnectedPersonHistoryControls<
   app: HTMLElement;
 
   /** Current accepted history, absent until an accepted construction arrives. */
-  history: () => ReturnType<
-    typeof createHumanFaceEditor<Model, IAutoMovieHumanPersonDocument>
-  > | undefined;
+  history: () =>
+    | ReturnType<
+        typeof createHumanFaceEditor<Model, IAutoMovieHumanPersonDocument>
+      >
+    | undefined;
 
   /** Displayed draft and status owner shared with the ordinary editing transaction. */
   session: IConnectedPersonSession<Model>;
@@ -49,18 +51,24 @@ export function mountConnectedPersonHistoryControls<
   /** Complete requested retirement after synchronous history publication. */
   settleRetirements: () => Promise<void>;
 }): void {
-  const button: (id: string) => HTMLButtonElement = (id: string): HTMLButtonElement =>
-    props.app.querySelector<HTMLButtonElement>("#" + id)!;
+  const button: (id: string) => HTMLButtonElement = (
+    id: string,
+  ): HTMLButtonElement => props.app.querySelector<HTMLButtonElement>("#" + id)!;
   for (const action of ["undo", "redo", "reset"] as const)
     button("person-" + action).onclick = async (): Promise<void> => {
-      const history: ReturnType<typeof createHumanFaceEditor<Model, IAutoMovieHumanPersonDocument>> | undefined = props.history();
+      const history:
+        | ReturnType<
+            typeof createHumanFaceEditor<Model, IAutoMovieHumanPersonDocument>
+          >
+        | undefined = props.history();
       if (history === undefined) return;
       const ticket: number = props.withdraw();
       props.busy("Restoring the selected person…");
       try {
         const success: boolean = await history[action]();
         if (props.isCurrent(ticket)) {
-          const restored: ReturnType<typeof history.snapshot> = history.snapshot();
+          const restored: ReturnType<typeof history.snapshot> =
+            history.snapshot();
           if (!success) {
             if (restored.error !== null) props.session.refuse(restored.error);
             else props.session.rest();
@@ -73,14 +81,20 @@ export function mountConnectedPersonHistoryControls<
       }
     };
   button("person-discard").onclick = async (): Promise<void> => {
-    const history: ReturnType<typeof createHumanFaceEditor<Model, IAutoMovieHumanPersonDocument>> | undefined = props.history();
-    if (history === undefined || props.session.snapshot().draft === null) return;
+    const history:
+      | ReturnType<
+          typeof createHumanFaceEditor<Model, IAutoMovieHumanPersonDocument>
+        >
+      | undefined = props.history();
+    if (history === undefined || props.session.snapshot().draft === null)
+      return;
     const ticket: number = props.withdraw();
     props.busy("Returning to the accepted person…");
     try {
       const success: boolean = await history.restore();
       if (props.isCurrent(ticket)) {
-        const restored: ReturnType<typeof history.snapshot> = history.snapshot();
+        const restored: ReturnType<typeof history.snapshot> =
+          history.snapshot();
         if (!success) {
           if (restored.error !== null) props.session.refuse(restored.error);
           else props.session.rest();

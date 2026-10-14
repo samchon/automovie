@@ -1,6 +1,7 @@
+import { reportAutoMovieResourceRetirement } from "@automovie/viewer";
+
 import type { ConnectedPersonWorkerEnd } from "./ConnectedPersonWorkerEnd";
 import type { IConnectedPersonWorkerShare } from "./IConnectedPersonWorkerShare";
-import { reportAutoMovieResourceRetirement } from "@automovie/viewer";
 
 /**
  * Share one resident person worker between the preview transport and the
@@ -39,20 +40,32 @@ export function createConnectedPersonWorkerShare(
     new ErrorEvent("error", {
       message: "The shared person worker was retired.",
     });
-  function retire(worker: Worker, notifications: readonly (() => void)[]): void {
+  function retire(
+    worker: Worker,
+    notifications: readonly (() => void)[],
+  ): void {
     if (live !== worker) return;
     live = undefined;
     preview = undefined;
     measure = undefined;
     reportAutoMovieResourceRetirement([
-      (): void => { worker.onmessage = null; },
-      (): void => { worker.onerror = null; },
-      (): void => { worker.onmessageerror = null; },
+      (): void => {
+        worker.onmessage = null;
+      },
+      (): void => {
+        worker.onerror = null;
+      },
+      (): void => {
+        worker.onmessageerror = null;
+      },
       (): void => worker.terminate(),
       ...notifications,
     ]);
   }
-  const end: (worker: Worker, peer: () => ConnectedPersonWorkerEnd | undefined) => ConnectedPersonWorkerEnd = (
+  const end: (
+    worker: Worker,
+    peer: () => ConnectedPersonWorkerEnd | undefined,
+  ) => ConnectedPersonWorkerEnd = (
     worker: Worker,
     peer: () => ConnectedPersonWorkerEnd | undefined,
   ): ConnectedPersonWorkerEnd => ({
@@ -60,20 +73,31 @@ export function createConnectedPersonWorkerShare(
     onerror: null,
     onmessageerror: null,
     postMessage: (message: unknown): void => {
-      if (live !== worker) throw new Error("The shared person worker was retired.");
+      if (live !== worker)
+        throw new Error("The shared person worker was retired.");
       worker.postMessage(message);
     },
     terminate: (): void => {
       if (live !== worker) return;
       const other: ConnectedPersonWorkerEnd | undefined = peer();
-      retire(worker, [(): void => { other?.onerror?.call(worker, retired()); }]);
+      retire(worker, [
+        (): void => {
+          other?.onerror?.call(worker, retired());
+        },
+      ]);
     },
   });
   const open: () => void = (): void => {
     if (live !== undefined) return;
     const worker: Worker = factory();
-    const previewEnd: ConnectedPersonWorkerEnd = end(worker, (): ConnectedPersonWorkerEnd => measureEnd);
-    const measureEnd: ConnectedPersonWorkerEnd = end(worker, (): ConnectedPersonWorkerEnd => previewEnd);
+    const previewEnd: ConnectedPersonWorkerEnd = end(
+      worker,
+      (): ConnectedPersonWorkerEnd => measureEnd,
+    );
+    const measureEnd: ConnectedPersonWorkerEnd = end(
+      worker,
+      (): ConnectedPersonWorkerEnd => previewEnd,
+    );
     live = worker;
     preview = previewEnd;
     measure = measureEnd;
@@ -81,22 +105,36 @@ export function createConnectedPersonWorkerShare(
       if (live !== worker) return;
       const data: object = event.data;
       reportAutoMovieResourceRetirement([
-        (): void => { if ("progress" in data || "success" in data) previewEnd.onmessage?.call(worker, event); },
-        (): void => { if ("progress" in data || !("success" in data)) measureEnd.onmessage?.call(worker, event); },
+        (): void => {
+          if ("progress" in data || "success" in data)
+            previewEnd.onmessage?.call(worker, event);
+        },
+        (): void => {
+          if ("progress" in data || !("success" in data))
+            measureEnd.onmessage?.call(worker, event);
+        },
       ]);
     };
     worker.onerror = (event: ErrorEvent): void => {
       if (live !== worker) return;
       retire(worker, [
-        (): void => { previewEnd.onerror?.call(worker, event); },
-        (): void => { measureEnd.onerror?.call(worker, event); },
+        (): void => {
+          previewEnd.onerror?.call(worker, event);
+        },
+        (): void => {
+          measureEnd.onerror?.call(worker, event);
+        },
       ]);
     };
     worker.onmessageerror = (event: MessageEvent<unknown>): void => {
       if (live !== worker) return;
       reportAutoMovieResourceRetirement([
-        (): void => { previewEnd.onmessageerror?.call(worker, event); },
-        (): void => { measureEnd.onmessageerror?.call(worker, event); },
+        (): void => {
+          previewEnd.onmessageerror?.call(worker, event);
+        },
+        (): void => {
+          measureEnd.onmessageerror?.call(worker, event);
+        },
       ]);
     };
   };

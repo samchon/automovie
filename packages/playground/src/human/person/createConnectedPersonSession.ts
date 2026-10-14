@@ -26,7 +26,10 @@ export function createConnectedPersonSession<
     draft: null,
   };
   return {
-    snapshot: (): IConnectedPersonSessionState<Model> => ({ ...state, notes: [...state.notes] }),
+    snapshot: (): IConnectedPersonSessionState<Model> => ({
+      ...state,
+      notes: [...state.notes],
+    }),
     begin: (waiting: string): void => {
       state.pending = waiting;
       state.refusal = null;

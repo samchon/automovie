@@ -53,13 +53,17 @@ export function mountConnectedPersonSkinReliefControls(
   apply.textContent = "Apply skin relief";
   remove.textContent = "Remove nasolabial relief";
   props.container.append(apply, remove);
-  const commit: (relief: IAutoMovieHumanFaceSkinRelief | undefined) => Promise<void> = async (
+  const commit: (
+    relief: IAutoMovieHumanFaceSkinRelief | undefined,
+  ) => Promise<void> = async (
     relief: IAutoMovieHumanFaceSkinRelief | undefined,
   ): Promise<void> => {
     const ticket: number = props.reserve();
     props.busy("Applying skin relief…");
     try {
-      const person: ReturnType<typeof props.current> = structuredClone(props.current());
+      const person: ReturnType<typeof props.current> = structuredClone(
+        props.current(),
+      );
       if (relief === undefined) {
         if (person.face.skinRelief !== undefined) {
           delete person.face.skinRelief.nasolabial;
@@ -88,7 +92,9 @@ export function mountConnectedPersonSkinReliefControls(
       for (const side of ["left", "right"] as const) {
         const values: Partial<IAutoMovieHumanFaceNasolabialRelief> = {};
         for (const field of fields) {
-          const text: string = inputs.get(`skin-relief-${side}-${field}`)!.value.trim();
+          const text: string = inputs
+            .get(`skin-relief-${side}-${field}`)!
+            .value.trim();
           if (text === "") continue;
           const value: number = Number(text);
           if (!Number.isFinite(value))
@@ -112,10 +118,13 @@ export function mountConnectedPersonSkinReliefControls(
   remove.onclick = (): void => void commit(undefined);
   return {
     refresh: (): void => {
-      const relief: IAutoMovieHumanFaceSkinRelief.Nasolabial | undefined = props.current().face.skinRelief?.nasolabial;
+      const relief: IAutoMovieHumanFaceSkinRelief.Nasolabial | undefined =
+        props.current().face.skinRelief?.nasolabial;
       for (const side of ["left", "right"] as const)
         for (const field of fields) {
-          const input: HTMLInputElement = inputs.get(`skin-relief-${side}-${field}`)!;
+          const input: HTMLInputElement = inputs.get(
+            `skin-relief-${side}-${field}`,
+          )!;
           if (props.dom.activeElement !== input)
             input.value = relief?.[side]?.[field]?.toString() ?? "";
         }

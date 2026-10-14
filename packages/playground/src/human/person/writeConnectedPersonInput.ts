@@ -39,11 +39,16 @@ export function writeConnectedPersonInput(
       const created: Record<string, unknown> =
         seed !== null &&
         chain.length === seedPath.length &&
-        seedPath.every((member: string, index: number): boolean => path[index] === member)
+        seedPath.every(
+          (member: string, index: number): boolean => path[index] === member,
+        )
           ? (structuredClone(seed) as Record<string, unknown>)
           : {};
       Object.defineProperty(parent, key, {
-        value: created, enumerable: true, configurable: true, writable: true,
+        value: created,
+        enumerable: true,
+        configurable: true,
+        writable: true,
       });
       chain.push(created);
     }
@@ -51,7 +56,10 @@ export function writeConnectedPersonInput(
   const leaf: string = path[path.length - 1];
   if (value !== undefined) {
     Object.defineProperty(chain[chain.length - 1], leaf, {
-      value, enumerable: true, configurable: true, writable: true,
+      value,
+      enumerable: true,
+      configurable: true,
+      writable: true,
     });
     return next;
   }

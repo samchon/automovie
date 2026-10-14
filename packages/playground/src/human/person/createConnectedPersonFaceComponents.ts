@@ -33,16 +33,21 @@ export function createConnectedPersonFaceComponents(
   props: ICreateConnectedPersonFaceComponentsProps,
 ): IAutoMovieHumanFaceComponentTree {
   const excluded: Set<string> = new Set(props.excluded);
-  const prune: (node: IAutoMovieHumanFaceComponentTree.Node) => IAutoMovieHumanFaceComponentTree.Node | null = (
+  const prune: (
+    node: IAutoMovieHumanFaceComponentTree.Node,
+  ) => IAutoMovieHumanFaceComponentTree.Node | null = (
     node: IAutoMovieHumanFaceComponentTree.Node,
   ): IAutoMovieHumanFaceComponentTree.Node | null => {
     const children: IAutoMovieHumanFaceComponentTree.Node[] = node.children
       .map(prune)
       .filter(
-        (child: IAutoMovieHumanFaceComponentTree.Node | null): child is IAutoMovieHumanFaceComponentTree.Node =>
-          child !== null,
+        (
+          child: IAutoMovieHumanFaceComponentTree.Node | null,
+        ): child is IAutoMovieHumanFaceComponentTree.Node => child !== null,
       );
-    const channels: string[] = node.channels.filter((id: string): boolean => !excluded.has(id));
+    const channels: string[] = node.channels.filter(
+      (id: string): boolean => !excluded.has(id),
+    );
     if (
       channels.length === 0 &&
       node.surfaces.length === 0 &&
@@ -52,7 +57,9 @@ export function createConnectedPersonFaceComponents(
       return null;
     return { ...node, channels, children };
   };
-  const root: IAutoMovieHumanFaceComponentTree.Node | null = prune(props.tree.root);
+  const root: IAutoMovieHumanFaceComponentTree.Node | null = prune(
+    props.tree.root,
+  );
   if (root === null)
     throw new Error(
       `The face component tree has no member left for ${props.basis}.`,

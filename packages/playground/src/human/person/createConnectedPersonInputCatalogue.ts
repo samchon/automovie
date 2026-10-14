@@ -48,10 +48,14 @@ export function createConnectedPersonInputCatalogue(
     name.replace(/([a-z])([A-Z])/gu, "$1 $2").toLowerCase();
   const shape: IConnectedPersonInputDescriptor[] = props.face.channels
     .filter(
-      (channel: IConnectedPersonInputCatalogueProps["face"]["channels"][number]): boolean => channel.kind === "shape" && !props.excluded.has(channel.id),
+      (
+        channel: IConnectedPersonInputCatalogueProps["face"]["channels"][number],
+      ): boolean => channel.kind === "shape" && !props.excluded.has(channel.id),
     )
     .map(
-      (channel: IConnectedPersonInputCatalogueProps["face"]["channels"][number]): IConnectedPersonInputDescriptor => ({
+      (
+        channel: IConnectedPersonInputCatalogueProps["face"]["channels"][number],
+      ): IConnectedPersonInputDescriptor => ({
         path: ["face", "shape", channel.id],
         group: "Face shape channels",
         label: spaced(channel.id),
@@ -68,8 +72,14 @@ export function createConnectedPersonInputCatalogue(
           "Weight on the basis's authored endpoints; the envelope bounds interpolation of those endpoints, not population anatomy.",
       }),
     );
-  const head: IConnectedPersonInputDescriptor[] = (props.headShape?.fields ?? []).map(
-    (field: NonNullable<IConnectedPersonInputCatalogueProps["headShape"]>["fields"][number]): IConnectedPersonInputDescriptor => {
+  const head: IConnectedPersonInputDescriptor[] = (
+    props.headShape?.fields ?? []
+  ).map(
+    (
+      field: NonNullable<
+        IConnectedPersonInputCatalogueProps["headShape"]
+      >["fields"][number],
+    ): IConnectedPersonInputDescriptor => {
       const parts: string[] = field.id.split(".");
       return {
         path: ["headShape", field.id],
@@ -87,7 +97,10 @@ export function createConnectedPersonInputCatalogue(
       };
     },
   );
-  const lashRow: (row: "upper" | "lower", parameters: readonly IConnectedPersonParameterSource[]) => IConnectedPersonInputDescriptor[] = (
+  const lashRow: (
+    row: "upper" | "lower",
+    parameters: readonly IConnectedPersonParameterSource[],
+  ) => IConnectedPersonInputDescriptor[] = (
     row: "upper" | "lower",
     parameters: readonly IConnectedPersonParameterSource[],
   ): IConnectedPersonInputDescriptor[] =>
@@ -113,7 +126,9 @@ export function createConnectedPersonInputCatalogue(
               "Explicit shaft count; the lash owner publishes no descriptor for it and admits it by its own check.",
           },
           ...parameters.map(
-            (parameter: IConnectedPersonParameterSource): IConnectedPersonInputDescriptor => ({
+            (
+              parameter: IConnectedPersonParameterSource,
+            ): IConnectedPersonInputDescriptor => ({
               path: ["face", "lashes", row, side, parameter.id],
               group,
               label: spaced(parameter.id),

@@ -24,12 +24,18 @@ export async function exportConnectedPersonAsset<Model>(
   const draft: IConnectedPersonAssetExportProps<Model>["draft"] = props.draft;
   if (draft === null) {
     if (props.committed === undefined) return null;
-    const bytes: Uint8Array<ArrayBuffer> = await props.viewport.export(props.committed);
+    const bytes: Uint8Array<ArrayBuffer> = await props.viewport.export(
+      props.committed,
+    );
     if (props.unchanged())
       props.download(props.committed.id + ".glb", bytes, "model/gltf-binary");
     return null;
   }
-  const result: Awaited<ReturnType<IConnectedPersonAssetExportProps<Model>["viewport"]["exportConstruction"]>> = await props.viewport.exportConstruction(draft.document);
+  const result: Awaited<
+    ReturnType<
+      IConnectedPersonAssetExportProps<Model>["viewport"]["exportConstruction"]
+    >
+  > = await props.viewport.exportConstruction(draft.document);
   if (!props.unchanged()) return null;
   props.download(
     draft.document.id + ".construction.glb",

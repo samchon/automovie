@@ -20,20 +20,24 @@ import type { IConnectedPersonInputDescriptor } from "./IConnectedPersonInputDes
  * @author Samchon
  */
 export function createConnectedPersonBodyAppearanceInputs(): IConnectedPersonInputDescriptor[] {
-  return (["skinDetail", "skinTone", "skinVeins"] as const).map((layer: "skinDetail" | "skinTone" | "skinVeins"): IConnectedPersonInputDescriptor => ({
-    path: ["body", layer, "strength"],
-    group: "Body skin appearance",
-    label:
-      layer.replace(/([a-z])([A-Z])/gu, "$1 $2").toLowerCase() + " intensity",
-    unit: "dimensionless intensity",
-    minimum: 0,
-    maximum: 1,
-    step: null,
-    ownerDefault: null,
-    seed: null,
-    omission: "the body owner's unmodified appearance for this layer",
-    removable: true,
-    qualification:
-      "IAutoMovieHumanBodySkinLayerStrength defines [0,1] as renderer intensity. Source material, UV and layer availability are admitted by the body builder; this is not a physiological measurement.",
-  }));
+  return (["skinDetail", "skinTone", "skinVeins"] as const).map(
+    (
+      layer: "skinDetail" | "skinTone" | "skinVeins",
+    ): IConnectedPersonInputDescriptor => ({
+      path: ["body", layer, "strength"],
+      group: "Body skin appearance",
+      label:
+        layer.replace(/([a-z])([A-Z])/gu, "$1 $2").toLowerCase() + " intensity",
+      unit: "dimensionless intensity",
+      minimum: 0,
+      maximum: 1,
+      step: null,
+      ownerDefault: null,
+      seed: null,
+      omission: "the body owner's unmodified appearance for this layer",
+      removable: true,
+      qualification:
+        "IAutoMovieHumanBodySkinLayerStrength defines [0,1] as renderer intensity. Source material, UV and layer availability are admitted by the body builder; this is not a physiological measurement.",
+    }),
+  );
 }

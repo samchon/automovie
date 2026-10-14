@@ -19,7 +19,16 @@ import type { IConnectedPersonSkinReliefControlsProps } from "./IConnectedPerson
 export function mountConnectedPersonRegionalSkinControls(
   props: IConnectedPersonSkinReliefControlsProps,
 ): { refresh: () => void } {
-  const regions: readonly ["forehead", "glabellar", "marionetteLeft", "marionetteRight", "philtralLeft", "philtralRight", "perioralUpper", "perioralLower"] = [
+  const regions: readonly [
+    "forehead",
+    "glabellar",
+    "marionetteLeft",
+    "marionetteRight",
+    "philtralLeft",
+    "philtralRight",
+    "perioralUpper",
+    "perioralLower",
+  ] = [
     "forehead",
     "glabellar",
     "marionetteLeft",
@@ -29,14 +38,16 @@ export function mountConnectedPersonRegionalSkinControls(
     "perioralUpper",
     "perioralLower",
   ] as const;
-  const common: readonly ["restOffsetMm", "foldDepthMm", "performance", "widthMm"] = [
+  const common: readonly [
     "restOffsetMm",
     "foldDepthMm",
     "performance",
     "widthMm",
-  ] as const;
+  ] = ["restOffsetMm", "foldDepthMm", "performance", "widthMm"] as const;
   const inputs: Map<string, HTMLInputElement> = new Map();
-  const fields: (region: (typeof regions)[number]) => readonly (keyof IAutoMovieHumanFaceRegionalRelief)[] = (
+  const fields: (
+    region: (typeof regions)[number],
+  ) => readonly (keyof IAutoMovieHumanFaceRegionalRelief)[] = (
     region: (typeof regions)[number],
   ): readonly (keyof IAutoMovieHumanFaceRegionalRelief)[] =>
     region === "forehead"
@@ -70,13 +81,17 @@ export function mountConnectedPersonRegionalSkinControls(
     }
     props.container.append(details);
   }
-  const commit: (regions: IAutoMovieHumanFaceSkinRelief.Regions | undefined) => Promise<void> = async (
+  const commit: (
+    regions: IAutoMovieHumanFaceSkinRelief.Regions | undefined,
+  ) => Promise<void> = async (
     regions: IAutoMovieHumanFaceSkinRelief.Regions | undefined,
   ): Promise<void> => {
     const ticket: number = props.reserve();
     props.busy("Applying regional skin...");
     try {
-      const person: ReturnType<typeof props.current> = structuredClone(props.current());
+      const person: ReturnType<typeof props.current> = structuredClone(
+        props.current(),
+      );
       if (regions === undefined) {
         if (person.face.skinRelief !== undefined) {
           delete person.face.skinRelief.regions;
@@ -137,7 +152,8 @@ export function mountConnectedPersonRegionalSkinControls(
   props.container.append(apply, remove);
   return {
     refresh: (): void => {
-      const record: IAutoMovieHumanFaceSkinRelief.Regions | undefined = props.current().face.skinRelief?.regions;
+      const record: IAutoMovieHumanFaceSkinRelief.Regions | undefined =
+        props.current().face.skinRelief?.regions;
       for (const region of regions)
         for (const field of fields(region)) {
           const input: HTMLInputElement = inputs.get(region + ":" + field)!;

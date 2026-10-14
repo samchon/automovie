@@ -3,13 +3,13 @@ import type {
   IAutoMovieHumanPersonGenerationBuilderProps,
   IAutoMovieHumanPersonHeadView,
 } from "@automovie/human";
+import { describeConnectedBodyConstructionProgress } from "@automovie/human/body/runtime/describeConnectedBodyConstructionProgress";
 import { compileHumanPersonGeneration } from "@automovie/human/human/build/compileHumanPersonGeneration";
 import { createHumanPersonGenerationBuilder } from "@automovie/human/human/build/createHumanPersonGenerationBuilder";
 import { joinHumanPersonGeneration } from "@automovie/human/human/build/joinHumanPersonGeneration";
-
-import { describeConnectedBodyConstructionProgress } from "@automovie/human/body/runtime/describeConnectedBodyConstructionProgress";
-import type { IConnectedPersonEvaluator } from "./IConnectedPersonEvaluator";
 import { describeConnectedPersonFaceProgress } from "@automovie/human/human/runtime/describeConnectedPersonFaceProgress";
+
+import type { IConnectedPersonEvaluator } from "./IConnectedPersonEvaluator";
 
 /**
  * Join a person's head and body views, compile the generation and create its one-skin evaluator once both views have arrived. An optional face observer reads this evaluator's final model rather than compiling a second whole-person evaluator for face measurements. Supplied view promises already own their loading; this function neither starts nor cancels them.
@@ -30,7 +30,8 @@ export async function prepareConnectedPersonEvaluator(
   observeFaceMeasurements?: IAutoMovieHumanPersonGenerationBuilderProps["observeFaceMeasurements"],
   progress?: (stage: string) => void,
 ): Promise<IConnectedPersonEvaluator> {
-  const generation: ReturnType<typeof joinHumanPersonGeneration> = joinHumanPersonGeneration(await head, await body);
+  const generation: ReturnType<typeof joinHumanPersonGeneration> =
+    joinHumanPersonGeneration(await head, await body);
   return {
     compiled: compileHumanPersonGeneration(generation),
     build: createHumanPersonGenerationBuilder({
@@ -40,11 +41,23 @@ export async function prepareConnectedPersonEvaluator(
       observeFaceConstructionProgress:
         progress === undefined
           ? undefined
-          : (value: Parameters<NonNullable<IAutoMovieHumanPersonGenerationBuilderProps["observeFaceConstructionProgress"]>>[0]): void => progress(describeConnectedPersonFaceProgress(value)),
+          : (
+              value: Parameters<
+                NonNullable<
+                  IAutoMovieHumanPersonGenerationBuilderProps["observeFaceConstructionProgress"]
+                >
+              >[0],
+            ): void => progress(describeConnectedPersonFaceProgress(value)),
       observeBodyConstructionProgress:
         progress === undefined
           ? undefined
-          : (value: Parameters<NonNullable<IAutoMovieHumanPersonGenerationBuilderProps["observeBodyConstructionProgress"]>>[0]): void =>
+          : (
+              value: Parameters<
+                NonNullable<
+                  IAutoMovieHumanPersonGenerationBuilderProps["observeBodyConstructionProgress"]
+                >
+              >[0],
+            ): void =>
               progress(describeConnectedBodyConstructionProgress(value)),
     }),
   };

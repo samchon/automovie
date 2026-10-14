@@ -27,11 +27,20 @@ export function createConnectedPersonFacialHairInputs(
   person: IAutoMovieHumanPersonDocument,
 ): IConnectedPersonInputDescriptor[] {
   return Object.entries(person.face.facialHair?.sites ?? {}).flatMap(
-    ([site, profile]: [string, NonNullable<IAutoMovieHumanPersonDocument["face"]["facialHair"]>["sites"][keyof NonNullable<IAutoMovieHumanPersonDocument["face"]["facialHair"]>["sites"]]]): IConnectedPersonInputDescriptor[] => {
+    ([site, profile]: [
+      string,
+      NonNullable<
+        IAutoMovieHumanPersonDocument["face"]["facialHair"]
+      >["sites"][keyof NonNullable<
+        IAutoMovieHumanPersonDocument["face"]["facialHair"]
+      >["sites"]],
+    ]): IConnectedPersonInputDescriptor[] => {
       if (profile === undefined) return [];
       const root: string[] = ["face", "facialHair", "sites", site];
       return HUMAN_FACE_FACIAL_HAIR_TRAITS.map(
-        (trait: (typeof HUMAN_FACE_FACIAL_HAIR_TRAITS)[number]): IConnectedPersonInputDescriptor => ({
+        (
+          trait: (typeof HUMAN_FACE_FACIAL_HAIR_TRAITS)[number],
+        ): IConnectedPersonInputDescriptor => ({
           path: [...root, ...trait.path],
           group: "Facial hair · " + site,
           label: trait.label,
@@ -44,7 +53,8 @@ export function createConnectedPersonFacialHairInputs(
           ownerDefault: null,
           seed: null,
           removePath: root,
-          omission: "no visible terminal layer at this site; biological follicles remain unmeasured",
+          omission:
+            "no visible terminal layer at this site; biological follicles remain unmeasured",
           removable: true,
           qualification: trait.qualification,
         }),

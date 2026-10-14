@@ -19,7 +19,9 @@ import type { IConnectedPersonHeadShapeControlsProps } from "./IConnectedPersonH
  */
 export function mountConnectedPersonHeadShapeControls(
   props: IConnectedPersonHeadShapeControlsProps,
-): { /** Repaint source-relative trait fields from current authored person state. */ refresh: () => void } {
+): {
+  /** Repaint source-relative trait fields from current authored person state. */ refresh: () => void;
+} {
   const title: HTMLHeadingElement = props.dom.createElement("h3");
   title.textContent = "Head, face, neck and ears";
   props.container.append(title);
@@ -30,11 +32,14 @@ export function mountConnectedPersonHeadShapeControls(
     props.container.append(unavailable);
     return { refresh: (): void => {} };
   }
-  const groups: Map<string, IAutoMovieHumanPersonHeadShapeFieldSource[]> = new Map();
+  const groups: Map<string, IAutoMovieHumanPersonHeadShapeFieldSource[]> =
+    new Map();
   for (const field of props.source.fields) {
     const path: string[] = field.id.split(".");
-    const group: string = path[0] === "ears" ? path.slice(0, 2).join(".") : path[0];
-    const fields: IAutoMovieHumanPersonHeadShapeFieldSource[] = groups.get(group) ?? [];
+    const group: string =
+      path[0] === "ears" ? path.slice(0, 2).join(".") : path[0];
+    const fields: IAutoMovieHumanPersonHeadShapeFieldSource[] =
+      groups.get(group) ?? [];
     fields.push(field);
     groups.set(group, fields);
   }
@@ -76,15 +81,22 @@ export function mountConnectedPersonHeadShapeControls(
     remove.textContent = "Remove difference";
     box.append(legend, member, number, state, support, apply, remove);
     props.container.append(box);
-    const selected: () => IAutoMovieHumanPersonHeadShapeFieldSource = (): IAutoMovieHumanPersonHeadShapeFieldSource => {
-      const field: IAutoMovieHumanPersonHeadShapeFieldSource | undefined = fields.find((candidate: IAutoMovieHumanPersonHeadShapeFieldSource): boolean => candidate.id === member.value);
-      if (field === undefined)
-        throw new Error("A registered head trait must be selected.");
-      return field;
-    };
+    const selected: () => IAutoMovieHumanPersonHeadShapeFieldSource =
+      (): IAutoMovieHumanPersonHeadShapeFieldSource => {
+        const field: IAutoMovieHumanPersonHeadShapeFieldSource | undefined =
+          fields.find(
+            (candidate: IAutoMovieHumanPersonHeadShapeFieldSource): boolean =>
+              candidate.id === member.value,
+          );
+        if (field === undefined)
+          throw new Error("A registered head trait must be selected.");
+        return field;
+      };
     const refresh: () => void = (): void => {
       const field: IAutoMovieHumanPersonHeadShapeFieldSource = selected();
-      const person: ReturnType<IConnectedPersonHeadShapeControlsProps["current"]> = props.current();
+      const person: ReturnType<
+        IConnectedPersonHeadShapeControlsProps["current"]
+      > = props.current();
       const value: number | undefined = person.headShape?.[field.id];
       const unit: string = field.unit === "degree" ? "degrees" : "mm";
       number.value = value === undefined ? "" : String(value);
@@ -95,7 +107,8 @@ export function mountConnectedPersonHeadShapeControls(
         value === undefined
           ? "Omitted: source neutral"
           : `Current input: ${value} ${unit}`;
-      const duplicate: boolean = person.body.shape[field.bodyChannel] !== undefined;
+      const duplicate: boolean =
+        person.body.shape[field.bodyChannel] !== undefined;
       support.textContent =
         `Source support: ${field.minimum} to ${field.maximum} ${unit}. ${field.qualification}` +
         (duplicate
@@ -105,11 +118,15 @@ export function mountConnectedPersonHeadShapeControls(
           : "");
       remove.disabled = value === undefined;
     };
-    const commit: (erase: boolean) => Promise<void> = async (erase: boolean): Promise<void> => {
+    const commit: (erase: boolean) => Promise<void> = async (
+      erase: boolean,
+    ): Promise<void> => {
       const ticket: number = props.reserve();
       try {
         const field: IAutoMovieHumanPersonHeadShapeFieldSource = selected();
-        const person: ReturnType<IConnectedPersonHeadShapeControlsProps["current"]> = structuredClone(props.current());
+        const person: ReturnType<
+          IConnectedPersonHeadShapeControlsProps["current"]
+        > = structuredClone(props.current());
         if (erase) {
           if (person.headShape !== undefined) {
             delete person.headShape[field.id];

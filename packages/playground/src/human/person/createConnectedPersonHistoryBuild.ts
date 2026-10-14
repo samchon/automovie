@@ -45,7 +45,9 @@ export function createConnectedPersonHistoryBuild<
       const prepared: Model | undefined = handoff;
       handoff = undefined;
       if (prepared !== undefined) return prepared;
-      const result: Awaited<ReturnType<IConnectedPersonViewport<Model>["construct"]>> = await props.viewport.construct(document);
+      const result: Awaited<
+        ReturnType<IConnectedPersonViewport<Model>["construct"]>
+      > = await props.viewport.construct(document);
       if (!result.admission.accepted) {
         return createAutoMovieResourceRetirement(
           [
@@ -56,7 +58,11 @@ export function createConnectedPersonHistoryBuild<
             error: new Error(
               "This history entry is no longer accepted: " +
                 result.admission.failures
-                  .map((failure: IAutoMovieHumanConstructionAdmission["failures"][number]): string => failure.owner + ": " + failure.cause)
+                  .map(
+                    (
+                      failure: IAutoMovieHumanConstructionAdmission["failures"][number],
+                    ): string => failure.owner + ": " + failure.cause,
+                  )
                   .join("; "),
             ),
           },

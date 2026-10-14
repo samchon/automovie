@@ -30,7 +30,10 @@ export function createConnectedPersonHairInputs(
   basis: IAutoMovieHumanFaceBasis,
   person: IAutoMovieHumanPersonDocument,
 ): IConnectedPersonInputDescriptor[] {
-  const at: (value: unknown, path: readonly string[]) => unknown = (value: unknown, path: readonly string[]): unknown =>
+  const at: (value: unknown, path: readonly string[]) => unknown = (
+    value: unknown,
+    path: readonly string[],
+  ): unknown =>
     path.reduce<unknown>(
       (node: unknown, key: string): unknown =>
         typeof node === "object" && node !== null
@@ -42,48 +45,59 @@ export function createConnectedPersonHairInputs(
     person.face.scalpHair === undefined
       ? person.face.hair
       : expandHumanFaceScalpHair(basis, person.face.scalpHair);
-  return (hair?.layers ?? []).flatMap((layer: NonNullable<IAutoMovieHumanPersonDocument["face"]["hair"]>["layers"][number]): IConnectedPersonInputDescriptor[] => {
-    const original: ReturnType<typeof readHumanFaceHairTraits> = readHumanFaceHairTraits(basis, layer);
-    const root: string[] = ["face", "hairTraits", layer.id];
-    return HUMAN_FACE_HAIR_TRAITS.map(
-      (trait: (typeof HUMAN_FACE_HAIR_TRAITS)[number]): IConnectedPersonInputDescriptor => {
-        const current: unknown = at(original, trait.path);
-        const record: unknown = at(original, trait.path.slice(0, 1));
-        const seed: object | null =
-          typeof record === "object" && record !== null ? record : null;
-        const operation: string[] | undefined = ["part", "gather"].includes(trait.path[0])
-          ? [...root, trait.path[0]]
-          : trait.path[0] === "fallHoldMm"
-            ? [...root, "fallHoldMm"]
-            : undefined;
-        return {
-          path: [...root, ...trait.path],
-          group: "Hair · " + layer.id + " · " + trait.path[0],
-          label: trait.label,
-          unit: trait.unit,
-          minimum: trait.minimum,
-          maximum: trait.maximum,
-          minimumExclusive: trait.minimumExclusive,
-          maximumExclusive: trait.maximumExclusive,
-          choices: trait.choices,
-          ownerChoice: typeof current === "string" ? current : undefined,
-          step: null,
-          ownerDefault: typeof current === "number" ? current : null,
-          seed,
-          seedPath: [...root, trait.path[0]],
-          removePath:
-            trait.path.length > 1 ? [...root, trait.path[0]] : undefined,
-          disablePath: operation,
-          omission:
-            "the underlying population's exact original trait; no new hairstyle is selected",
-          removable: true,
-          qualification:
-            trait.qualification +
-            (trait.dependentRule === undefined
-              ? ""
-              : " " + trait.dependentRule),
-        };
-      },
-    );
-  });
+  return (hair?.layers ?? []).flatMap(
+    (
+      layer: NonNullable<
+        IAutoMovieHumanPersonDocument["face"]["hair"]
+      >["layers"][number],
+    ): IConnectedPersonInputDescriptor[] => {
+      const original: ReturnType<typeof readHumanFaceHairTraits> =
+        readHumanFaceHairTraits(basis, layer);
+      const root: string[] = ["face", "hairTraits", layer.id];
+      return HUMAN_FACE_HAIR_TRAITS.map(
+        (
+          trait: (typeof HUMAN_FACE_HAIR_TRAITS)[number],
+        ): IConnectedPersonInputDescriptor => {
+          const current: unknown = at(original, trait.path);
+          const record: unknown = at(original, trait.path.slice(0, 1));
+          const seed: object | null =
+            typeof record === "object" && record !== null ? record : null;
+          const operation: string[] | undefined = ["part", "gather"].includes(
+            trait.path[0],
+          )
+            ? [...root, trait.path[0]]
+            : trait.path[0] === "fallHoldMm"
+              ? [...root, "fallHoldMm"]
+              : undefined;
+          return {
+            path: [...root, ...trait.path],
+            group: "Hair · " + layer.id + " · " + trait.path[0],
+            label: trait.label,
+            unit: trait.unit,
+            minimum: trait.minimum,
+            maximum: trait.maximum,
+            minimumExclusive: trait.minimumExclusive,
+            maximumExclusive: trait.maximumExclusive,
+            choices: trait.choices,
+            ownerChoice: typeof current === "string" ? current : undefined,
+            step: null,
+            ownerDefault: typeof current === "number" ? current : null,
+            seed,
+            seedPath: [...root, trait.path[0]],
+            removePath:
+              trait.path.length > 1 ? [...root, trait.path[0]] : undefined,
+            disablePath: operation,
+            omission:
+              "the underlying population's exact original trait; no new hairstyle is selected",
+            removable: true,
+            qualification:
+              trait.qualification +
+              (trait.dependentRule === undefined
+                ? ""
+                : " " + trait.dependentRule),
+          };
+        },
+      );
+    },
+  );
 }
