@@ -10,10 +10,10 @@ import { type IAutoMovieRenderTextureSource } from "../../../../packages/engine/
 import { autoMovieRenderTextureDigest } from "../../../../packages/engine/src/render/autoMovieRenderTextureDigest";
 import { measureAutoMovieRenderTextureClosure } from "../../../../packages/engine/src/render/measureAutoMovieRenderTextureClosure";
 import { sumAutoMovieRenderTextureAllocations } from "../../../../packages/engine/src/render/sumAutoMovieRenderTextureAllocations";
-import { IAutoMovieRenderBudgetAssessment } from "../../../../packages/render/src/renderBudgetPreflight/IAutoMovieRenderBudgetAssessment";
-import { assessAutoMovieRenderBudget } from "../../../../packages/render/src/renderBudgetPreflight/assessAutoMovieRenderBudget";
-import { autoMovieRenderBudgetEvidence } from "../../../../packages/render/src/renderBudgetPreflight/autoMovieRenderBudgetEvidence";
-import { autoMovieRenderBudgetRefusal } from "../../../../packages/render/src/renderBudgetPreflight/autoMovieRenderBudgetRefusal";
+import { IAutoMovieRenderBudgetAssessment } from "@automovie/render";
+import { assessAutoMovieRenderBudget } from "@automovie/render";
+import { autoMovieRenderBudgetEvidence } from "@automovie/render";
+import { autoMovieRenderBudgetRefusal } from "@automovie/render";
 import { compiledShotFixture } from "../internal/renderBudgetFixtures";
 import { material, sceneFixture } from "../internal/renderFixtures";
 

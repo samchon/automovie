@@ -1,12 +1,12 @@
 import { TestValidator } from "@nestia/e2e";
 import { type Context, createContext } from "node:vm";
 
-import { AutoMovieHeadlessCaptureError } from "../../../../packages/render/src/headlessCapture/AutoMovieHeadlessCaptureError";
-import { IAutoMovieHeadlessCaptureOptions } from "../../../../packages/render/src/headlessCapture/IAutoMovieHeadlessCaptureOptions";
-import { IAutoMovieHeadlessCaptureSession } from "../../../../packages/render/src/headlessCapture/IAutoMovieHeadlessCaptureSession";
-import { IAutoMovieHeadlessLocator } from "../../../../packages/render/src/headlessCapture/IAutoMovieHeadlessLocator";
-import { IAutoMovieHeadlessPage } from "../../../../packages/render/src/headlessCapture/IAutoMovieHeadlessPage";
-import { createHeadlessCaptureAdapter } from "../../../../packages/render/src/headlessCapture/createHeadlessCaptureAdapter";
+import { AutoMovieHeadlessCaptureError } from "@automovie/render";
+import { IAutoMovieHeadlessCaptureOptions } from "@automovie/render";
+import { IAutoMovieHeadlessCaptureSession } from "@automovie/render";
+import { IAutoMovieHeadlessLocator } from "@automovie/render";
+import { IAutoMovieHeadlessPage } from "@automovie/render";
+import { createHeadlessCaptureAdapter } from "@automovie/render";
 import { filmEffectValuesClose } from "../internal/filmEffectValuesClose";
 import { runHeadlessPageCallback } from "../internal/runHeadlessPageCallback";
 

@@ -5,10 +5,10 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { IAutoMovieSequenceRenderAdapters } from "../../../../packages/render/src/IAutoMovieSequenceRenderAdapters";
-import { IAutoMovieSequenceRenderAndSeeResult } from "../../../../packages/render/src/IAutoMovieSequenceRenderAndSeeResult";
-import { IAutoMovieSequenceRenderFrame } from "../../../../packages/render/src/IAutoMovieSequenceRenderFrame";
-import { renderSequenceAndSee } from "../../../../packages/render/src/renderSequenceAndSee";
+import { IAutoMovieSequenceRenderAdapters } from "@automovie/render";
+import { IAutoMovieSequenceRenderAndSeeResult } from "@automovie/render";
+import { IAutoMovieSequenceRenderFrame } from "@automovie/render";
+import { renderSequenceAndSee } from "@automovie/render";
 import { filmEffectValuesClose } from "../internal/filmEffectValuesClose";
 import { namedFacts, nclose } from "../internal/predicates";
 

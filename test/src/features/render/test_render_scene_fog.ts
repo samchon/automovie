@@ -11,11 +11,11 @@ import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
 import { sceneFogTransmittance } from "../../../../packages/engine/src/scene/sceneFogTransmittance";
-import { IAutoMoviePoseKeypointActor } from "../../../../packages/render/src/IAutoMoviePoseKeypointActor";
-import { IAutoMoviePoseKeypointFrame } from "../../../../packages/render/src/IAutoMoviePoseKeypointFrame";
-import { IAutoMoviePoseKeypointSidecar } from "../../../../packages/render/src/IAutoMoviePoseKeypointSidecar";
-import { planPoseKeypointSidecar } from "../../../../packages/render/src/planPoseKeypointSidecar";
-import { renderPoseKeypointSidecar } from "../../../../packages/render/src/renderPoseKeypointSidecar";
+import { IAutoMoviePoseKeypointActor } from "@automovie/render";
+import { IAutoMoviePoseKeypointFrame } from "@automovie/render";
+import { IAutoMoviePoseKeypointSidecar } from "@automovie/render";
+import { planPoseKeypointSidecar } from "@automovie/render";
+import { renderPoseKeypointSidecar } from "@automovie/render";
 import { IAutoMovieModelObject } from "../../../../packages/viewer/src/IAutoMovieModelObject";
 import { buildModel } from "../../../../packages/viewer/src/buildModel";
 import { buildScene } from "../../../../packages/viewer/src/buildScene";

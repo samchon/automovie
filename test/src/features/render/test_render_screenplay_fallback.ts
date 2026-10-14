@@ -1,7 +1,7 @@
 import { IAutoMovieScript } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { renderScreenplay } from "../../../../packages/render/src/screenplay/renderScreenplay";
+import { renderScreenplay } from "@automovie/render";
 import { TREE_SCRIPT } from "../internal/TREE_SCRIPT";
 import { namedFacts, throwsError } from "../internal/predicates";
 import { screenplayNode } from "../internal/screenplayNode";

@@ -4,8 +4,8 @@ import {
 } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
-import { planCaptionSidecar } from "../../../../packages/render/src/planCaptionSidecar";
-import { sliceCaptionSidecar } from "../../../../packages/render/src/sliceCaptionSidecar";
+import { planCaptionSidecar } from "@automovie/render";
+import { sliceCaptionSidecar } from "@automovie/render";
 import { CAPTION_SEQUENCE } from "../internal/CAPTION_SEQUENCE";
 import { CAPTION_SHOTS } from "../internal/CAPTION_SHOTS";
 import { TREE_SCRIPT } from "../internal/TREE_SCRIPT";

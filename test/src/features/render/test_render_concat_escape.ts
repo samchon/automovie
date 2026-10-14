@@ -5,9 +5,9 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { IAutoMovieRenderChunkPlan } from "../../../../packages/render/src/IAutoMovieRenderChunkPlan";
-import { planChunkedSequenceRender } from "../../../../packages/render/src/planChunkedSequenceRender";
-import { planSequenceRender } from "../../../../packages/render/src/planSequenceRender";
+import { IAutoMovieRenderChunkPlan } from "@automovie/render";
+import { planChunkedSequenceRender } from "@automovie/render";
+import { planSequenceRender } from "@automovie/render";
 
 const shot: IAutoMovieShot = {
   id: "shot:a",

@@ -6,7 +6,7 @@ import {
 } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
-import { renderAndSee } from "../../../../packages/render/src/renderAndSee";
+import { renderAndSee } from "@automovie/render";
 import { filmEffectValuesClose } from "../internal/filmEffectValuesClose";
 import { nclose } from "../internal/nclose";
 

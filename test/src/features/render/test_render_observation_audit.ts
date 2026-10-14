@@ -5,7 +5,7 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { auditAutoMovieRenderObservation } from "../../../../packages/render/src/auditAutoMovieRenderObservation";
+import { auditAutoMovieRenderObservation } from "@automovie/render";
 
 const METRICS: readonly AutoMovieRenderMetric[] = [
   "triangles",

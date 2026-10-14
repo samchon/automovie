@@ -1,12 +1,12 @@
 import { TestValidator } from "@nestia/e2e";
 
-import type { IAutoMovieRenderBudgetAssessment } from "../../../../packages/render/src/renderBudgetPreflight/IAutoMovieRenderBudgetAssessment";
-import { assessAutoMovieRenderBudget } from "../../../../packages/render/src/renderBudgetPreflight/assessAutoMovieRenderBudget";
-import { autoMovieRenderBudgetEvidence } from "../../../../packages/render/src/renderBudgetPreflight/autoMovieRenderBudgetEvidence";
-import { autoMovieRenderBudgetRefusal } from "../../../../packages/render/src/renderBudgetPreflight/autoMovieRenderBudgetRefusal";
-import { autoMovieRenderTargetRendererOfGraphics } from "../../../../packages/render/src/renderBudgetPreflight/autoMovieRenderTargetRendererOfGraphics";
-import { autoMovieRenderTargetSettingsOfShot } from "../../../../packages/render/src/renderBudgetPreflight/autoMovieRenderTargetSettingsOfShot";
-import { selectAutoMovieRenderBudget } from "../../../../packages/render/src/renderBudgetPreflight/selectAutoMovieRenderBudget";
+import type { IAutoMovieRenderBudgetAssessment } from "@automovie/render";
+import { assessAutoMovieRenderBudget } from "@automovie/render";
+import { autoMovieRenderBudgetEvidence } from "@automovie/render";
+import { autoMovieRenderBudgetRefusal } from "@automovie/render";
+import { autoMovieRenderTargetRendererOfGraphics } from "@automovie/render";
+import { autoMovieRenderTargetSettingsOfShot } from "@automovie/render";
+import { selectAutoMovieRenderBudget } from "@automovie/render";
 import {
   GRAPHICS_FIXTURE,
   RENDER_BUDGET_ASSETS,

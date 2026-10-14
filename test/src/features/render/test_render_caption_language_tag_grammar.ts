@@ -3,7 +3,7 @@ import { TestValidator } from "@nestia/e2e";
 import {
   autoMovieCaptionLanguageComparisonKey,
   parseAutoMovieCaptionLanguage,
-} from "../../../../packages/render/src/caption";
+} from "@automovie/render";
 
 /**
  * Caption language tags follow RFC 5646's grammar, not a registry lookup.
