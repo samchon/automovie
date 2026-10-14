@@ -8,13 +8,13 @@ import { validateSpaceShape } from "../validateSpaceShape";
 import { remapSpaceViolations } from "./remapSpaceViolations";
 
 /**
- * Validate a portable scene and its model registry before publication. Node, camera and light shape errors are collected together with spatial, fog and environment refusals. Environment shadow checks retain the original light row indices; authored inputs are read without mutation.
+ * Validate a portable scene and its model registry before publication. Node, camera and light shape errors are collected together with spatial, fog and environment refusals. Environment shadow checks retain the original light row indices; authored inputs are read without mutation. Ordinary parsed JSON supplies dense arrays; direct host arrays receive no density admission and their missing slots can be skipped. Unguarded diagnostic conversion of malformed field values can throw before a complete report returns.
  *
- * @evidence contracts/common.md#principled-implementation Raw object and array admission establishes each nested shape before dereference; registry maps resolve model references, the engine owns color, transform, space and environment semantics, and camera/shadow near-far intervals prevent inverted clipping volumes.
+ * @evidence contracts/common.md#principled-implementation Raw object and array admission establishes visited row shapes before dereference; one model-id set resolves references, the engine owns color, transform, space and environment semantics, and camera/shadow near-far intervals prevent inverted clipping volumes. Parsed JSON arrays are dense; host-array density is not established by the shallow array guard.
  * @evidence contracts/common.md#clear-and-simple-design Scene admission coordinates its fields and foreign model registry; shared engine gates own numerical semantics and path adapters place their findings under the owning scene field.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No scene value is normalized or inferred from another field. Area-shadow refusal follows the renderer's supported source contract, and original light indices survive malformed rows.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No scene value is normalized or inferred from another field. Area-shadow refusal follows the renderer's supported source contract, and original light indices survive malformed rows. Sparse host-array slots can escape row checks, and direct diagnostic interpolation can throw on malformed JSON objects with unusable conversion members; both limitations remain.
  * @evidence contracts/common.md#meaningful-documentation States collective refusal, model-registry scope, original-index shadow diagnostics and unmodified authored input.
- * @evidence contracts/performance.md#efficient-algorithms Registry, node, camera and light scans are linear in their row counts with a reusable model-id set. Space validation additionally checks footprint edge pairs and hole relations, quadratic in each surface's total ring vertices, plus linear heightfield samples; findings and temporary indices scale with those inputs.
+ * @evidence contracts/performance.md#efficient-algorithms Registry, node, camera and light scans use expected linear row-index work with a reusable model-id set, plus inspected ids and diagnostic text/conversion. Space validation additionally checks footprint edge pairs and hole relations, quadratic in each surface's total ring vertices, plus linear heightfield samples; findings and temporary indices scale with those inputs. Arbitrary host conversion hooks have no bounded execution cost.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work One model-id index serves every node in this scene call; fresh mutable scene input is validated independently rather than cached across publications.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Indexes and helper collectors are call-local; returned findings retain original offending values under caller ownership without acquiring handles or tasks.
  */
@@ -154,9 +154,7 @@ export function validateSceneArtifact(scene: IAutoMovieScene, models: IAutoMovie
         violations,
         false,
       );
-    // The one kind with extent. Both axes are gated, and gated exclusively, so
-    // an artifact cannot describe a panel with only a width nor a punctual
-    // light that quietly carries one.
+    // Area sources require both positive extents; other kinds ignore these fields here.
     if (validLightType && lightType === "area")
       for (const axis of ["width", "height"] as const)
         validateRange(
@@ -176,9 +174,7 @@ export function validateSceneArtifact(scene: IAutoMovieScene, models: IAutoMovie
         "castShadow must be boolean",
         light.castShadow,
       );
-    // `three.js` renders no shadow map for a rectangular area source, so the
-    // artifact may not claim one; the whole point of the gate is that a
-    // declared capability is a rendered capability.
+    // The supported rectangular area source has no shadow-map capability.
     else if (light.castShadow === true && lightType === "area") {
       pushViolation(
         violations,
@@ -251,10 +247,7 @@ export function validateSceneArtifact(scene: IAutoMovieScene, models: IAutoMovie
     }
   });
 
-  // The ground the feet obey (#1173). Absent or null is the pre-space scalar
-  // plane, so only a declared space is checked, and it needs NO model: a
-  // surface is semantics plus, in the viewer, generated geometry, never a
-  // registry entry, so the model-resolution gate above deliberately ignores it.
+  // Declared space owns ground metadata outside the model registry; null or absence skips its gate.
   const space: IAutoMovieScene["space"] = scene.space ?? null;
   if (space !== null && validateSpaceShape(space, "$input.space", violations))
     appendValidation(
@@ -262,15 +255,7 @@ export function validateSceneArtifact(scene: IAutoMovieScene, models: IAutoMovie
       remapSpaceViolations(validateSpace({ space: space as IAutoMovieSpace })),
     );
 
-  // The atmosphere the frame is read through. Absent or null is a scene with
-  // none, so only a declared fog is checked, and like a space it needs no
-  // model: fog is a property of the scene, not an object in it.
-  //
-  // Both facts are gated because both can silently ruin a render rather than
-  // fail it: a negative or non-finite `density` feeds `exp(-(density*d)^2)` a
-  // value the shader will happily paint as a uniformly dead frame, and an
-  // out-of-range color leaves the horizon a color no light in the scene can
-  // produce. Density is unbounded above on purpose; a wall of cloud is a look.
+  // Fog is scene metadata outside the model registry. Density is finite and nonnegative with no finite upper bound; color uses the shared linear-channel rule.
   const fog: IAutoMovieScene["fog"] = scene.fog ?? null;
   if (
     fog !== null &&

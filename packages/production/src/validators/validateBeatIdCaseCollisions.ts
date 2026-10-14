@@ -2,30 +2,16 @@ import { asArray, isRecord, pushViolation } from "@automovie/engine";
 import type { IAutoMovieConstraintViolation } from "@automovie/interface";
 
 /**
- * Beat ids whose per-beat slice filenames would clobber each other on a
- * case-insensitive filesystem (`shots/<beat>.json`, `beatEnds/<beat>.json`).
+ * Append located findings for differently spelled beat ids sharing one ECMAScript lowercase spelling. The current resident script reader invokes this policy before keyed slice storage; required array, row and id admission remain with that reader's other gates.
  *
- * Both gates over a script apply it: the commit gate, and the resident store's
- * `script.json` read gate. The read gate's whole population is files this
- * server did not write, or wrote under an older version, so a hand-edited or
- * legacy script carrying the collision used to load clean and resurface as the
- * store's raw mid-save throw at the SECOND colliding beat's `commitShot`, after
- * the non-keyed slices were rewritten. That is the exact symptom #1096 removed
- * for submitted scripts, reached from disk instead (#1327).
+ * Exact duplicates remain with the separate uniqueness gate, so this pass reports only a spelling different from the first occurrence retained for that lowercase key.
  *
- * Exact duplicates keep their own `validateUniqueBy` violation, so one bad pair
- * yields one violation rather than two.
- *
- * The fold is over the raw id, not over `sliceFilename`'s encoding of it. That
- * refuses a marginal pair the store would in fact tolerate (`con` and `Con`
- * escape to distinct filenames), which is the safe direction: relaxing a
- * refusal that has stood since #1096 needs a product reason, not a symmetry
- * argument.
+ * The historical policy folds raw ids rather than encoded filenames. It therefore refuses con/Con even though the store's device-stem escaping distinguishes their filenames; this helper preserves that stronger admission policy without changing authored ids.
  *
  * @evidence contracts/common.md#principled-implementation A map keyed by ECMAScript lowercase id detects differently spelled identities that collide under the project's portable case policy; equal duplicates stay with the separate uniqueness gate.
- * @evidence contracts/common.md#clear-and-simple-design One scan retains the first spelling and index for diagnostics and is shared by disk-read and commit admission.
+ * @evidence contracts/common.md#clear-and-simple-design One scan retains the first spelling and index for diagnostics; the current resident script reader owns its invocation and other shape/id gates.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No reserved name is excepted; the documented raw-id policy conservatively refuses con/Con even when filename escaping would distinguish them.
- * @evidence contracts/common.md#meaningful-documentation States both callers, duplicate separation, first-occurrence addressing and the conservative raw-id limitation.
+ * @evidence contracts/common.md#meaningful-documentation States the current reader, duplicate separation, first-occurrence addressing and the stronger raw-id policy.
  * @evidence contracts/performance.md#efficient-algorithms For B beat rows and total id length L, scanning and lowercasing take O(B+L) time and O(B+L) map storage; each row is read once.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The scan answers one supplied beat population and keeps no cross-read case index.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The case map is call-local; the caller owns appended findings, whose count is bounded by malformed collision rows.

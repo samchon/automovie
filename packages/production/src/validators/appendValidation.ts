@@ -3,8 +3,7 @@ import type { IAutoMovieConstraintViolation, IAutoMovieValidation } from "@autom
 /**
  * Append all findings from either validation outcome without changing severity.
  *
- * Successful validation can still carry warnings. A parent gate must retain
- * that advice alongside refusals instead of treating success as no findings.
+ * Successful validation can still carry warnings. A parent gate must retain that advice alongside refusals instead of treating success as no findings.
  *
  * @evidence contracts/common.md#principled-implementation The validation discriminant selects failure violations or success warnings, and append-only transfer preserves their order, values and severity.
  * @evidence contracts/common.md#clear-and-simple-design Artifact and commit gates share one outcome-to-findings adapter rather than each forgetting the successful warning branch.

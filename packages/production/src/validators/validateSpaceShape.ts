@@ -7,28 +7,15 @@ import {
 } from "@automovie/engine";
 
 /**
- * Structural floor for an externally supplied space, the
- * JSON shape the engine's `validateSpace` dereferences without checking,
- * because inside the engine the value is already typed.
+ * Admit the nested ordinary JSON containers and strings that the typed engine space validator dereferences. Scene artifact admission calls this first; true means this pass appended no structural findings, without admitting geometric or numeric semantics.
  *
- * Scene artifact admission uses this before calling the typed space validator.
- * A space has a
- * nested array of objects each holding a further array of vectors ??and, since
- * a footprint may be holed, a further array of those ??so a malformed one would
- * otherwise reach `surface.polygon.forEach`, `surface.holes.map` or
- * `surface.height.samples.forEach` as a throw instead of a field-located
- * violation.
+ * Surface and walkable lists, polygon point objects, optional hole-ring lists and heightfield sample arrays receive their owning shape checks. Parsed JSON arrays are dense; arbitrary sparse host arrays are not density-checked and skipped hole slots can still reach unsafe typed-engine access.
  *
- * Types only. Emptiness, uniqueness, whether a ring encloses area or crosses
- * itself, whether a hole lies inside its own plate, which ground statement a
- * surface is allowed, ramp axes, height-rule ranges, and walkable resolution
- * stay with the engine's `validateSpace`, so every space rule has exactly one
- * owner and staging cannot disagree with a committed scene. Returns whether the
- * shape is safe to hand to that validator.
+ * Emptiness, uniqueness, ring area/crossing, hole containment, ground variants, ramp degeneracy, height-rule ranges and walkable references remain with validateSpace. Values and numeric precision policies are unchanged by this structural pass; true does not guarantee that delegated diagnostic conversion of malformed scalar objects cannot throw.
  *
- * @evidence contracts/common.md#principled-implementation Object, array and string guards establish every nested shape validateSpace dereferences; scalar, footprint and height semantics stay with that engine validator. Any appended structural finding makes the boolean false.
+ * @evidence contracts/common.md#principled-implementation Object, array and string guards establish visited nested shapes for ordinary dense JSON before validateSpace dereferences them; scalar, footprint and height semantics remain with that engine validator. Any appended structural finding makes the boolean false, but host-array density is not admitted.
  * @evidence contracts/common.md#clear-and-simple-design One raw-payload ingress protects the typed engine validator without restating its geometric or numeric decisions.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing and malformed lists are refused rather than defaulted or coerced, and no frame or authored surface changes the guards.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Required malformed lists refuse without coercion, while an omitted optional holes list remains omitted. Sparse host arrays can skip structural visits and still provoke typed-engine dereferences; that admission gap remains unresolved.
  * @evidence contracts/common.md#meaningful-documentation States which structural premises are established, the delegated semantic rules and when the boolean permits typed validation.
  * @evidence contracts/performance.md#efficient-algorithms Time is linear in surface, walkable-id and footprint/hole-point populations. Heightfield samples are checked only as an array because engine semantics checks their scalar values; findings grow with malformed fields.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each admitted shape is visited once per scene validation; no cross-read shape verdict is cached.

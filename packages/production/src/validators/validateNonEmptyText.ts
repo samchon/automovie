@@ -2,8 +2,7 @@ import { pushViolation } from "@automovie/engine";
 import type { IAutoMovieConstraintViolation } from "@automovie/interface";
 
 /**
- * Append one path-located finding when a value is not non-empty text.
- * Non-strings and whitespace-only strings are refused without changing input.
+ * Append one path-located finding for a non-string or whitespace-only string without changing input. This is field-shape admission using ECMAScript trim, with no prose-quality grading.
  *
  * @evidence contracts/common.md#principled-implementation A typeof guard admits text, and ECMAScript trim determines whether it contains any non-whitespace character while preserving the original diagnostic value.
  * @evidence contracts/common.md#clear-and-simple-design One append-only primitive supplies the same raw-payload text rule to resident commit preconditions.
