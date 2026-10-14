@@ -62,9 +62,7 @@ import { seatHumanFaceHairRoots } from "./seatHumanFaceHairRoots";
  * @evidence contracts/performance.md#reuse-equivalent-work Domain samplers persist in the builder and each current surface shares one collider across its evaluated layers.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Compilation owns cloned required source fields; current queries and lock state are evaluation-local, while returned parts/materials/layouts are caller-owned.
  */
-export function createHumanFaceHairBuilder(
-  input: IAutoMovieHumanFaceBasis,
-): (
+export function createHumanFaceHairBuilder(input: IAutoMovieHumanFaceBasis): (
   hair: IAutoMovieHumanFaceHair,
   positions: ReadonlyMap<string, readonly number[]>,
   progress?: (owner: string) => void,

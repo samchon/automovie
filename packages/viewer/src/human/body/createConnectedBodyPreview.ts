@@ -61,9 +61,7 @@ export function createConnectedBodyPreview<
     anatomicalRequest: IAutoMovieHumanBodyAnatomicalInspection | undefined;
     exteriorCandidate: IConnectedBodyPreviewResult["exteriorCandidate"];
   }>;
-  construct: (
-    document: Document,
-  ) => Promise<{
+  construct: (document: Document) => Promise<{
     model: {
       frame: IConnectedBodyFrame;
       parts: number;
@@ -81,16 +79,12 @@ export function createConnectedBodyPreview<
     };
     admission: IAutoMovieHumanConstructionAdmission;
   }>;
-  exportConstruction: (
-    document: Document,
-  ) => Promise<{
+  exportConstruction: (document: Document) => Promise<{
     glb: Uint8Array<ArrayBuffer>;
     admission: IAutoMovieHumanConstructionAdmission;
   }>;
   export: (document: Document) => Promise<Uint8Array<ArrayBuffer>>;
-  armsDown: (
-    document: IAutoMovieHumanBodyBasisDocument,
-  ) => Promise<{
+  armsDown: (document: IAutoMovieHumanBodyBasisDocument) => Promise<{
     pose: IAutoMovieJointPose[];
     shoulders: IAutoMovieHumanBodyShoulderPose[];
   }>;
