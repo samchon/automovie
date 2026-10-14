@@ -1,18 +1,15 @@
-import type { IPortraitComponentPlan } from "../../surface/structures/IPortraitComponentPlan";
-import type { IControlMesh } from "../../mesh/structures/IControlMesh";
-
-
-import type { IPortraitInterior } from "../../surface/structures/IPortraitInterior";
-
-import type { IAutoMovieModelPart, IAutoMovieMesh } from "@automovie/interface";
+import type { IAutoMovieMesh, IAutoMovieModelPart } from "@automovie/interface";
 
 import { areaWeightedNormals } from "../../../common/mesh/areaWeightedNormals";
 import { createMetricMeshPart } from "../../mesh/createMetricMeshPart";
 import { extractTriangleRegion } from "../../mesh/extractTriangleRegion";
+import type { IControlMesh } from "../../mesh/structures/IControlMesh";
 import { assertPortraitInteriorBindings } from "../../surface/assertPortraitInteriorBindings";
 import { sealPortraitContactSeams } from "../../surface/sealPortraitContactSeams";
 import type { IPortraitComponent } from "../../surface/structures/IPortraitComponent";
 import type { IPortraitComponentHost } from "../../surface/structures/IPortraitComponentHost";
+import type { IPortraitComponentPlan } from "../../surface/structures/IPortraitComponentPlan";
+import type { IPortraitInterior } from "../../surface/structures/IPortraitInterior";
 import type { IPortraitSurfaceLayer } from "../../surface/structures/IPortraitSurfaceLayer";
 import { preparePortraitHead } from "./preparePortraitHead";
 import { type IPortraitHeadFormation } from "./structures/IPortraitHeadFormation";
@@ -32,7 +29,7 @@ import { type IPortraitHeadFormation } from "./structures/IPortraitHeadFormation
  * sealing even when its index equivalence removes coincident seam faces.
  * Linear skin colours use per-corner values when contact welding preserved
  * distinct material samples. Independent interiors receive no stale normals.
- * The caller's host is retained and each call constructs new output arrays.
+ * The caller keeps ownership of the host and each call constructs new output arrays.
  *
  * @evidence contracts/common.md#principled-implementation Declared coincident contacts are sealed before native interior admission, one shared area-normal field and per-material region packing consume the final skin.
  * @evidence contracts/common.md#clear-and-simple-design PreparePortraitHead owns fitting/refinement/layers; this consumer owns seam sealing, interior choice and model-metre packing through the canonical producers.
@@ -48,27 +45,46 @@ export function buildPortraitHead(
   rounds: number,
   surfaceLayers: readonly IPortraitSurfaceLayer[] = [],
   anatomy: IPortraitHeadFormation = {},
-): { parts: IAutoMovieModelPart[]; refined: IControlMesh & { cornerColors?: number[][]; }; source: number[][]; }  {
-  const { surface, regions, finishers, source }: ReturnType<typeof preparePortraitHead> = preparePortraitHead(
+): {
+  parts: IAutoMovieModelPart[];
+  refined: IControlMesh & { cornerColors?: number[][] };
+  source: number[][];
+} {
+  const {
+    surface,
+    regions,
+    finishers,
+    source,
+  }: ReturnType<typeof preparePortraitHead> = preparePortraitHead(
     host,
     components,
     rounds,
     surfaceLayers,
     anatomy,
   );
-  const refined: IControlMesh & { cornerColors?: number[][]; } = sealPortraitContactSeams(
-    surface,
-    finishers.flatMap((attached: ReturnType<IPortraitComponentPlan["attach"]>): readonly number[]  => attached.closures ?? []),
-  );
+  const refined: IControlMesh & { cornerColors?: number[][] } =
+    sealPortraitContactSeams(
+      surface,
+      finishers.flatMap(
+        (
+          attached: ReturnType<IPortraitComponentPlan["attach"]>,
+        ): readonly number[] => attached.closures ?? [],
+      ),
+    );
   // Preserve each producer's native units and indices until every selected
   // interior is available. This is a preparation boundary, not a joint solve;
   // providers read the sealed skin and must not modify it or one another.
-  const interiors: (IPortraitInterior[] | undefined)[] = finishers.map((attached: ReturnType<IPortraitComponentPlan["attach"]>): IPortraitInterior[] | undefined  =>
-    attached.prepareInteriors?.(refined),
+  const interiors: (IPortraitInterior[] | undefined)[] = finishers.map(
+    (
+      attached: ReturnType<IPortraitComponentPlan["attach"]>,
+    ): IPortraitInterior[] | undefined => attached.prepareInteriors?.(refined),
   );
   assertPortraitInteriorBindings(
     refined,
-    interiors.flatMap((parts: IPortraitInterior[] | undefined): IPortraitInterior[]  => parts ?? []),
+    interiors.flatMap(
+      (parts: IPortraitInterior[] | undefined): IPortraitInterior[] =>
+        parts ?? [],
+    ),
   );
   const packed: number[] = refined.positions.flat(),
     normals: number[] = areaWeightedNormals(packed, refined.indices);
@@ -87,7 +103,7 @@ export function buildPortraitHead(
             ...(refined.cornerColors === undefined
               ? refined.indices
                   .slice(i * 3, i * 3 + 3)
-                  .map((id: number): number[]  => refined.colors![id])
+                  .map((id: number): number[] => refined.colors![id])
               : refined.cornerColors.slice(i * 3, i * 3 + 3)),
           );
       }
@@ -105,8 +121,14 @@ export function buildPortraitHead(
     parts.push(
       ...(native === undefined
         ? finishers[i].finish(refined)
-        : native.map(({ id, mesh, material }: IPortraitInterior): IAutoMovieModelPart & { geometry: { type: "mesh"; mesh: IAutoMovieMesh; }; }  =>
-            createMetricMeshPart(id, mesh, material),
+        : native.map(
+            ({
+              id,
+              mesh,
+              material,
+            }: IPortraitInterior): IAutoMovieModelPart & {
+              geometry: { type: "mesh"; mesh: IAutoMovieMesh };
+            } => createMetricMeshPart(id, mesh, material),
           )),
     );
   }
