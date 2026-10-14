@@ -1,7 +1,9 @@
 import type { IAutoMovieServiceSystem } from "@automovie/interface";
 
 /** Return a fresh cold-water supply record, with caller overrides applied last. */
-export function system(overrides: Partial<IAutoMovieServiceSystem> = {}): IAutoMovieServiceSystem {
+export function system(
+  overrides: Partial<IAutoMovieServiceSystem> = {},
+): IAutoMovieServiceSystem {
   return {
     id: "cold",
     discipline: "plumbing",

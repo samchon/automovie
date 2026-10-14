@@ -1,5 +1,4 @@
 import type { IAutoMovieProductionRenderLayer } from "../../../../packages/engine/src/film/IAutoMovieProductionRenderLayer";
-
 import { nclose } from "./nclose";
 
 /**
@@ -9,10 +8,13 @@ export function sameFilmProductionRenderLayers(
   actual: readonly IAutoMovieProductionRenderLayer[],
   expected: readonly IAutoMovieProductionRenderLayer[],
 ): boolean {
-  return actual.length === expected.length && actual.every(
-    (layer: IAutoMovieProductionRenderLayer, index: number): boolean =>
-      layer.shot === expected[index]!.shot &&
-      layer.sourceFrame === expected[index]!.sourceFrame &&
-      nclose(layer.weight, expected[index]!.weight),
+  return (
+    actual.length === expected.length &&
+    actual.every(
+      (layer: IAutoMovieProductionRenderLayer, index: number): boolean =>
+        layer.shot === expected[index]!.shot &&
+        layer.sourceFrame === expected[index]!.sourceFrame &&
+        nclose(layer.weight, expected[index]!.weight),
+    )
   );
 }

@@ -9,9 +9,9 @@ import type { IAutoMovieQuaternion } from "@automovie/interface";
  * counts and assertions. This helper does not validate an arbitrary generator,
  * prove unbiased finite sampling of every rotation or observe rendered poses.
  */
-export const randomUnitQuaternion: (rng: () => number) => IAutoMovieQuaternion = (
+export const randomUnitQuaternion: (
   rng: () => number,
-): IAutoMovieQuaternion => {
+) => IAutoMovieQuaternion = (rng: () => number): IAutoMovieQuaternion => {
   const u1: number = rng();
   const u2: number = rng();
   const u3: number = rng();

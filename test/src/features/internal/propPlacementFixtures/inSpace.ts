@@ -1,8 +1,5 @@
 import type { IAutoMoviePropRelation } from "@automovie/interface";
 
-
-
-
 /**
  * An `in-space` relation naming one logical space.
  *
@@ -14,7 +11,9 @@ import type { IAutoMoviePropRelation } from "@automovie/interface";
 export function inSpace(
   space: string,
   environment: string = "house",
-): IAutoMoviePropRelation { return ({
-  kind: "in-space",
-  target: { kind: "space", environment, space },
-}); }
+): IAutoMoviePropRelation {
+  return {
+    kind: "in-space",
+    target: { kind: "space", environment, space },
+  };
+}

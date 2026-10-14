@@ -1,6 +1,17 @@
-import { FLUID_MAX_FLOWS, FLUID_MAX_SPRAYS, FLUID_MAX_SPRAY_PARTICLES, validateFluidDomain } from "@automovie/engine";
-import type { IAutoMovieFluidDomain, IAutoMovieFluidDrain, IAutoMovieFluidSource, IAutoMovieFluidSpray } from "@automovie/interface";
+import {
+  FLUID_MAX_FLOWS,
+  FLUID_MAX_SPRAYS,
+  FLUID_MAX_SPRAY_PARTICLES,
+  validateFluidDomain,
+} from "@automovie/engine";
+import type {
+  IAutoMovieFluidDomain,
+  IAutoMovieFluidDrain,
+  IAutoMovieFluidSource,
+  IAutoMovieFluidSpray,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
+
 import { hasViolation, namedFacts } from "./predicates";
 
 /**
@@ -44,11 +55,26 @@ export function runFluidDomainPopulationCases(props: {
     "the state arrays must be one finite, non-negative value per cell",
     namedFacts([
       ["bedLength", (): boolean => hasViolation(arrays, "type", "$input.bed")],
-      ["bedFinite", (): boolean => hasViolation(arrays, "range", "$input.bed[0]")],
-      ["depthLength", (): boolean => hasViolation(arrays, "type", "$input.depth")],
-      ["depthNegative", (): boolean => hasViolation(arrays, "range", "$input.depth[0]")],
-      ["depthTooDeep", (): boolean => hasViolation(arrays, "range", "$input.depth[1]")],
-      ["wetPier", (): boolean => hasViolation(wetPier, "type", "$input.depth[5]")],
+      [
+        "bedFinite",
+        (): boolean => hasViolation(arrays, "range", "$input.bed[0]"),
+      ],
+      [
+        "depthLength",
+        (): boolean => hasViolation(arrays, "type", "$input.depth"),
+      ],
+      [
+        "depthNegative",
+        (): boolean => hasViolation(arrays, "range", "$input.depth[0]"),
+      ],
+      [
+        "depthTooDeep",
+        (): boolean => hasViolation(arrays, "range", "$input.depth[1]"),
+      ],
+      [
+        "wetPier",
+        (): boolean => hasViolation(wetPier, "type", "$input.depth[5]"),
+      ],
       [
         "solidLength",
         (): boolean =>
@@ -58,10 +84,14 @@ export function runFluidDomainPopulationCases(props: {
             "$input.solid",
           ),
       ],
-      ["solidFlag", (): boolean => hasViolation(flagged, "type", "$input.solid[7]")],
+      [
+        "solidFlag",
+        (): boolean => hasViolation(flagged, "type", "$input.solid[7]"),
+      ],
       [
         "solidFlagTwin",
-        (): boolean => hasViolation(flagged, "type", "$input.solid[6]") === false,
+        (): boolean =>
+          hasViolation(flagged, "type", "$input.solid[6]") === false,
       ],
     ]),
     {
@@ -90,10 +120,22 @@ export function runFluidDomainPopulationCases(props: {
   TestValidator.equals(
     "an unknown edge kind is refused on every edge",
     namedFacts([
-      ["xMin", (): boolean => hasViolation(edges, "type", "$input.boundaries.xMin")],
-      ["xMax", (): boolean => hasViolation(edges, "type", "$input.boundaries.xMax")],
-      ["zMin", (): boolean => hasViolation(edges, "type", "$input.boundaries.zMin")],
-      ["zMax", (): boolean => hasViolation(edges, "type", "$input.boundaries.zMax")],
+      [
+        "xMin",
+        (): boolean => hasViolation(edges, "type", "$input.boundaries.xMin"),
+      ],
+      [
+        "xMax",
+        (): boolean => hasViolation(edges, "type", "$input.boundaries.xMax"),
+      ],
+      [
+        "zMin",
+        (): boolean => hasViolation(edges, "type", "$input.boundaries.zMin"),
+      ],
+      [
+        "zMax",
+        (): boolean => hasViolation(edges, "type", "$input.boundaries.zMax"),
+      ],
     ]),
     { xMin: true, xMax: true, zMin: true, zMax: true },
   );
@@ -123,21 +165,30 @@ export function runFluidDomainPopulationCases(props: {
   });
   const tooMany: ReturnType<typeof validateFluidDomain> = validateFluidDomain({
     domain: basin({
-      sources: Array.from({ length: FLUID_MAX_FLOWS + 1 }, (_: unknown, at: number): ReturnType<typeof source> =>
-        source({ id: `jet-${at}` }),
+      sources: Array.from(
+        { length: FLUID_MAX_FLOWS + 1 },
+        (_: unknown, at: number): ReturnType<typeof source> =>
+          source({ id: `jet-${at}` }),
       ),
-      drains: Array.from({ length: FLUID_MAX_FLOWS + 1 }, (_: unknown, at: number): ReturnType<typeof drain> =>
-        drain({ id: `drain-${at}` }),
+      drains: Array.from(
+        { length: FLUID_MAX_FLOWS + 1 },
+        (_: unknown, at: number): ReturnType<typeof drain> =>
+          drain({ id: `drain-${at}` }),
       ),
-      sprays: Array.from({ length: FLUID_MAX_SPRAYS + 1 }, (_: unknown, at: number): ReturnType<typeof spray> =>
-        spray({ id: `mist-${at}` }),
+      sprays: Array.from(
+        { length: FLUID_MAX_SPRAYS + 1 },
+        (_: unknown, at: number): ReturnType<typeof spray> =>
+          spray({ id: `mist-${at}` }),
       ),
     }),
   });
   TestValidator.equals(
     "a declared flow must name itself, land on water, and open sanely",
     namedFacts([
-      ["emptyId", (): boolean => hasViolation(flows, "type", "$input.sources[0].id")],
+      [
+        "emptyId",
+        (): boolean => hasViolation(flows, "type", "$input.sources[0].id"),
+      ],
       [
         "duplicateId",
         (): boolean => hasViolation(flows, "type", "$input.sources[2].id"),
@@ -158,18 +209,24 @@ export function runFluidDomainPopulationCases(props: {
         "rowPastEdge",
         (): boolean => hasViolation(flows, "type", "$input.sources[6].row"),
       ],
-      ["onPier", (): boolean => hasViolation(flows, "type", "$input.sources[7]")],
+      [
+        "onPier",
+        (): boolean => hasViolation(flows, "type", "$input.sources[7]"),
+      ],
       [
         "negativeRate",
-        (): boolean => hasViolation(flows, "range", "$input.sources[8].flowRate"),
+        (): boolean =>
+          hasViolation(flows, "range", "$input.sources[8].flowRate"),
       ],
       [
         "sill",
-        (): boolean => hasViolation(flows, "range", "$input.drains[0].sillLevel"),
+        (): boolean =>
+          hasViolation(flows, "range", "$input.drains[0].sillLevel"),
       ],
       [
         "drainRate",
-        (): boolean => hasViolation(flows, "range", "$input.drains[1].flowRate"),
+        (): boolean =>
+          hasViolation(flows, "range", "$input.drains[1].flowRate"),
       ],
       [
         "backwardsWindow",
@@ -183,9 +240,18 @@ export function runFluidDomainPopulationCases(props: {
         "nonFiniteEnd",
         (): boolean => hasViolation(flows, "range", "$input.drains[4].end"),
       ],
-      ["sourceBudget", (): boolean => hasViolation(tooMany, "range", "$input.sources")],
-      ["drainBudget", (): boolean => hasViolation(tooMany, "range", "$input.drains")],
-      ["sprayBudget", (): boolean => hasViolation(tooMany, "range", "$input.sprays")],
+      [
+        "sourceBudget",
+        (): boolean => hasViolation(tooMany, "range", "$input.sources"),
+      ],
+      [
+        "drainBudget",
+        (): boolean => hasViolation(tooMany, "range", "$input.drains"),
+      ],
+      [
+        "sprayBudget",
+        (): boolean => hasViolation(tooMany, "range", "$input.sprays"),
+      ],
     ]),
     {
       emptyId: true,
@@ -232,29 +298,45 @@ export function runFluidDomainPopulationCases(props: {
   TestValidator.equals(
     "a spray emitter must describe a bounded, launchable jet",
     namedFacts([
-      ["rate", (): boolean => hasViolation(mists, "range", "$input.sprays[0].rate")],
+      [
+        "rate",
+        (): boolean => hasViolation(mists, "range", "$input.sprays[0].rate"),
+      ],
       [
         "lifetime",
-        (): boolean => hasViolation(mists, "range", "$input.sprays[0].lifetime"),
+        (): boolean =>
+          hasViolation(mists, "range", "$input.sprays[0].lifetime"),
       ],
-      ["speed", (): boolean => hasViolation(mists, "range", "$input.sprays[0].speed")],
+      [
+        "speed",
+        (): boolean => hasViolation(mists, "range", "$input.sprays[0].speed"),
+      ],
       [
         "spreadOver",
         (): boolean => hasViolation(mists, "range", "$input.sprays[0].spread"),
       ],
-      ["size", (): boolean => hasViolation(mists, "range", "$input.sprays[0].size")],
+      [
+        "size",
+        (): boolean => hasViolation(mists, "range", "$input.sprays[0].size"),
+      ],
       [
         "lod",
-        (): boolean => hasViolation(mists, "range", "$input.sprays[0].lodDistance"),
+        (): boolean =>
+          hasViolation(mists, "range", "$input.sprays[0].lodDistance"),
       ],
       [
         "capOver",
-        (): boolean => hasViolation(mists, "type", "$input.sprays[0].maxParticles"),
+        (): boolean =>
+          hasViolation(mists, "type", "$input.sprays[0].maxParticles"),
       ],
-      ["seed", (): boolean => hasViolation(mists, "type", "$input.sprays[0].seed")],
+      [
+        "seed",
+        (): boolean => hasViolation(mists, "type", "$input.sprays[0].seed"),
+      ],
       [
         "zeroAxis",
-        (): boolean => hasViolation(mists, "type", "$input.sprays[0].direction"),
+        (): boolean =>
+          hasViolation(mists, "type", "$input.sprays[0].direction"),
       ],
       [
         "spreadUnder",
@@ -262,11 +344,24 @@ export function runFluidDomainPopulationCases(props: {
       ],
       [
         "capUnder",
-        (): boolean => hasViolation(mists, "type", "$input.sprays[1].maxParticles"),
+        (): boolean =>
+          hasViolation(mists, "type", "$input.sprays[1].maxParticles"),
       ],
-      ["nanX", (): boolean => hasViolation(mists, "type", "$input.sprays[2].direction")],
-      ["nanY", (): boolean => hasViolation(mists, "type", "$input.sprays[3].direction")],
-      ["nanZ", (): boolean => hasViolation(mists, "type", "$input.sprays[4].direction")],
+      [
+        "nanX",
+        (): boolean =>
+          hasViolation(mists, "type", "$input.sprays[2].direction"),
+      ],
+      [
+        "nanY",
+        (): boolean =>
+          hasViolation(mists, "type", "$input.sprays[3].direction"),
+      ],
+      [
+        "nanZ",
+        (): boolean =>
+          hasViolation(mists, "type", "$input.sprays[4].direction"),
+      ],
     ]),
     {
       rate: true,

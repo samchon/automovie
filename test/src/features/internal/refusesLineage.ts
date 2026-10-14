@@ -1,7 +1,11 @@
+import type {
+  AutoMovieViolationKind,
+  IAutoMovieDesignLineage,
+} from "@automovie/interface";
+
 import { validateDesignLineage } from "../../../../packages/engine/src/architecture/validateDesignLineage";
-import type { AutoMovieViolationKind, IAutoMovieDesignLineage } from "@automovie/interface";
-import { hasViolation } from "./predicates";
 import { brokenLineage } from "./brokenLineage";
+import { hasViolation } from "./predicates";
 
 /**
  * Test whether an edited fresh lineage has the caller's expected finding.
@@ -15,7 +19,11 @@ import { brokenLineage } from "./brokenLineage";
  *
  * Structure and derivation tests supply their expected kind and path fragment and own the Boolean assertions. This helper registers no test and acquires no external resource.
  */
-export const refusesLineage: (edit: (draft: IAutoMovieDesignLineage) => void, path: string, kind?: AutoMovieViolationKind) => boolean = (
+export const refusesLineage: (
+  edit: (draft: IAutoMovieDesignLineage) => void,
+  path: string,
+  kind?: AutoMovieViolationKind,
+) => boolean = (
   edit: (draft: IAutoMovieDesignLineage) => void,
   path: string,
   kind: AutoMovieViolationKind = "type",

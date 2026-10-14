@@ -1,18 +1,32 @@
-import type { AutoMovieHumanoidBone, IAutoMovieBone, IAutoMovieSkeleton, IAutoMovieTransform } from "@automovie/interface";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieBone,
+  IAutoMovieSkeleton,
+  IAutoMovieTransform,
+} from "@automovie/interface";
+
 import { ARM_BONES } from "./ARM_BONES";
-import { LEG_BONES } from "./LEG_BONES";
 import type { IProportions } from "./IProportions";
+import { LEG_BONES } from "./LEG_BONES";
 import { retargetRestAt as restAt } from "./retargetRestAt";
 
 /** Build the existing synthetic rig with independently scaled limb-group offsets; at unit proportions its authored hips height is 1, ankle is (+/-0.1, 0.1, 0.1) and head height is 1.75 metres. These are test conventions, not anatomical measurements. */
-export const proportionedRig: (id: string, proportions?: IProportions) => IAutoMovieSkeleton = (
+export const proportionedRig: (
+  id: string,
+  proportions?: IProportions,
+) => IAutoMovieSkeleton = (
   id: string,
   proportions: IProportions = {},
 ): IAutoMovieSkeleton => {
   const leg: number = proportions.leg ?? 1;
   const torso: number = proportions.torso ?? 1;
   const arm: number = proportions.arm ?? 1;
-  const at: (slot: AutoMovieHumanoidBone, x: number, y: number, z: number) => IAutoMovieTransform = (
+  const at: (
+    slot: AutoMovieHumanoidBone,
+    x: number,
+    y: number,
+    z: number,
+  ) => IAutoMovieTransform = (
     slot: AutoMovieHumanoidBone,
     x: number,
     y: number,
@@ -50,7 +64,11 @@ export const proportionedRig: (id: string, proportions?: IProportions) => IAutoM
 };
 
 /** Retain the original bone identity, parent and rest transform with no ROM override. */
-const bone: (name: AutoMovieHumanoidBone, parent: AutoMovieHumanoidBone | null, rest: IAutoMovieTransform) => IAutoMovieBone = (
+const bone: (
+  name: AutoMovieHumanoidBone,
+  parent: AutoMovieHumanoidBone | null,
+  rest: IAutoMovieTransform,
+) => IAutoMovieBone = (
   name: AutoMovieHumanoidBone,
   parent: AutoMovieHumanoidBone | null,
   rest: IAutoMovieTransform,

@@ -29,10 +29,7 @@ function pose(): IAutoMovieTransform {
 
 /** A three-part hall beside the one-part models the shared fixture declares. */
 function models(): IAutoMovieModel[] {
-  return [
-    ...modelsFixture(),
-    boxModel({ id: "hall-model", parts: 3 }),
-  ];
+  return [...modelsFixture(), boxModel({ id: "hall-model", parts: 3 })];
 }
 
 /** One staged node whose id selects the existing hall or prop model. */
@@ -64,7 +61,10 @@ function staging(props: {
 }
 
 /** A budget generous everywhere but the one metric a case is testing. */
-function budget(metric: AutoMovieRenderMetric, limit: number): IAutoMovieRenderBudget {
+function budget(
+  metric: AutoMovieRenderMetric,
+  limit: number,
+): IAutoMovieRenderBudget {
   return {
     version: 1,
     tier: "review",
@@ -128,11 +128,16 @@ function report(props: {
       digest: `sha256:${"0".repeat(64)}`,
     },
     target: target(),
-  }).findings.find((finding: IAutoMovieRenderReport["findings"][number]): boolean => finding.metric === props.metric)!;
+  }).findings.find(
+    (finding: IAutoMovieRenderReport["findings"][number]): boolean =>
+      finding.metric === props.metric,
+  )!;
 }
 
 /** Verdict, accounting and authored owner/pass recovery projections. */
-function shape(finding: IAutoMovieRenderReport["findings"][number]): Record<string, unknown> {
+function shape(
+  finding: IAutoMovieRenderReport["findings"][number],
+): Record<string, unknown> {
   return {
     status: finding.status,
     measured: finding.measured,
@@ -143,14 +148,23 @@ function shape(finding: IAutoMovieRenderReport["findings"][number]): Record<stri
     omittedContributors: finding.omittedContributors,
     omittedCost: finding.omittedCost,
     accounted:
-      finding.contributors.reduce((sum: number, entry: IAutoMovieRenderReport["findings"][number]["contributors"][number]): number => sum + entry.cost, 0) +
-      finding.omittedCost,
+      finding.contributors.reduce(
+        (
+          sum: number,
+          entry: IAutoMovieRenderReport["findings"][number]["contributors"][number],
+        ): number => sum + entry.cost,
+        0,
+      ) + finding.omittedCost,
     namesTheOwner: (finding.recovery ?? "").includes(
       `the largest owner is "${finding.contributors[0]?.owner ?? "!"}"`,
     ),
-    namesThePass: (finding.recovery ?? "").includes("is frame passes redrawing"),
+    namesThePass: (finding.recovery ?? "").includes(
+      "is frame passes redrawing",
+    ),
     sendsNobodyToAPass: finding.contributors.every(
-      (entry: IAutoMovieRenderReport["findings"][number]["contributors"][number]): boolean => !entry.owner.startsWith("render-pass:"),
+      (
+        entry: IAutoMovieRenderReport["findings"][number]["contributors"][number],
+      ): boolean => !entry.owner.startsWith("render-pass:"),
     ),
   };
 }

@@ -1,7 +1,18 @@
-import type { IAutoMovieVector3, IAutoMovieSoftBodyDomain } from "@automovie/interface";
+import type {
+  IAutoMovieSoftBodyDomain,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /** Build the original row-major cloth panel from supplied metre origin, axis vectors and lattice spacing, using the original 1/64-second gravity-eight solver defaults. Fresh rest/mass arrays retain expression order, final overrides are shallow, and supplied axes or dimensions are not admitted or normalized here. */
-export const softPanel: (props: { columns: number; rows: number; spacing?: { u: number; v: number }; origin?: IAutoMovieVector3; axisU?: IAutoMovieVector3; axisV?: IAutoMovieVector3; overrides?: Partial<IAutoMovieSoftBodyDomain> }) => IAutoMovieSoftBodyDomain = (props: {
+export const softPanel: (props: {
+  columns: number;
+  rows: number;
+  spacing?: { u: number; v: number };
+  origin?: IAutoMovieVector3;
+  axisU?: IAutoMovieVector3;
+  axisV?: IAutoMovieVector3;
+  overrides?: Partial<IAutoMovieSoftBodyDomain>;
+}) => IAutoMovieSoftBodyDomain = (props: {
   columns: number;
   rows: number;
   /** Lattice spacing along the panel's two axes. */
@@ -14,7 +25,10 @@ export const softPanel: (props: { columns: number; rows: number; spacing?: { u: 
   axisV?: IAutoMovieVector3;
   overrides?: Partial<IAutoMovieSoftBodyDomain>;
 }): IAutoMovieSoftBodyDomain => {
-  const spacing: { u: number; v: number; } = props.spacing ?? { u: 0.25, v: 0.25 };
+  const spacing: { u: number; v: number } = props.spacing ?? {
+    u: 0.25,
+    v: 0.25,
+  };
   const origin: IAutoMovieVector3 = props.origin ?? { x: 0, y: 0, z: 0 };
   const axisU: IAutoMovieVector3 = props.axisU ?? { x: 1, y: 0, z: 0 };
   const axisV: IAutoMovieVector3 = props.axisV ?? { x: 0, y: -1, z: 0 };

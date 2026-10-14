@@ -1,6 +1,7 @@
 import type { IAutoMovieScene } from "@automovie/interface";
-import { renderFixtureNode } from "./renderFixtureNode";
+
 import { renderFixtureIdentity } from "./renderFixtureIdentity";
+import { renderFixtureNode } from "./renderFixtureNode";
 
 /**
  * Five model-referencing nodes and two authored lights, optionally reversed or extended by one unrelated prop.
@@ -10,7 +11,10 @@ import { renderFixtureIdentity } from "./renderFixtureIdentity";
  * @evidence contracts/testing.md#distinguishing-cases Default order, reversed order, an extra crate and their combination are caller choices. Each call creates its arrays/nodes/lights while their transforms retain the original shared identity object.
  * @evidence contracts/testing.md#execution-ownership Pure in-memory scene records reached by existing unit entries, with no Three renderer, GPU, native artifact or scenario discovery changes.
  */
-export const sceneFixture: (props?: { reversed?: boolean; extra?: boolean; }) => IAutoMovieScene = (props?: {
+export const sceneFixture: (props?: {
+  reversed?: boolean;
+  extra?: boolean;
+}) => IAutoMovieScene = (props?: {
   /** Stage the nodes in reverse order, to prove order independence. */
   reversed?: boolean;
   /** Add one unrelated prop, to prove an irrelevant edit changes no colour. */
@@ -23,7 +27,8 @@ export const sceneFixture: (props?: { reversed?: boolean; extra?: boolean; }) =>
     renderFixtureNode("tower/loft-slab", "slab-model"),
     renderFixtureNode("lantern", "prop-model"),
   ];
-  if (props?.extra === true) nodes.push(renderFixtureNode("crate", "prop-model"));
+  if (props?.extra === true)
+    nodes.push(renderFixtureNode("crate", "prop-model"));
   return {
     id: "tower-scene",
     name: null,

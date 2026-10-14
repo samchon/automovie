@@ -1,7 +1,9 @@
 import type { IAutoMovieServiceNode } from "@automovie/interface";
 
 /** Return a fresh bare bath junction, borrowing any caller override values. */
-export function node(overrides: Partial<IAutoMovieServiceNode> = {}): IAutoMovieServiceNode {
+export function node(
+  overrides: Partial<IAutoMovieServiceNode> = {},
+): IAutoMovieServiceNode {
   return {
     id: "junction",
     kind: "junction",

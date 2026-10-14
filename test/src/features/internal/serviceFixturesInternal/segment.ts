@@ -1,7 +1,9 @@
 import type { IAutoMovieServiceSegment } from "@automovie/interface";
 
 /** Return a fresh two-point cold-water run citing no sleeve; overrides stay borrowed. */
-export function segment(overrides: Partial<IAutoMovieServiceSegment> = {}): IAutoMovieServiceSegment {
+export function segment(
+  overrides: Partial<IAutoMovieServiceSegment> = {},
+): IAutoMovieServiceSegment {
   return {
     id: "run",
     system: "cold",

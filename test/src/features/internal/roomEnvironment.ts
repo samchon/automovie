@@ -1,7 +1,14 @@
 import type { IAutoMovieBuiltEnvironment } from "@automovie/interface";
 
 /** Build the original room, track, stand-pipe, floor and convex-cell fixture. Root/track/stand-pipe deliberately share one fresh identity transform within each call; semantic=true omits convex cells. Defaults, metre extents and shallow reference sharing are preserved without geometric admission. */
-export const roomEnvironment: (props?: { id?: string; space?: string; half?: number; floor?: number; ceiling?: number; semantic?: boolean }) => IAutoMovieBuiltEnvironment = (
+export const roomEnvironment: (props?: {
+  id?: string;
+  space?: string;
+  half?: number;
+  floor?: number;
+  ceiling?: number;
+  semantic?: boolean;
+}) => IAutoMovieBuiltEnvironment = (
   props: {
     id?: string;
     space?: string;
@@ -20,7 +27,11 @@ export const roomEnvironment: (props?: { id?: string; space?: string; half?: num
   const half: number = props.half ?? 8;
   const floor: number = props.floor ?? -4;
   const ceiling: number = props.ceiling ?? 4;
-  const identity: { translation: { x: number; y: number; z: number; }; rotation: { x: number; y: number; z: number; w: number; }; scale: { x: number; y: number; z: number; }; } = {
+  const identity: {
+    translation: { x: number; y: number; z: number };
+    rotation: { x: number; y: number; z: number; w: number };
+    scale: { x: number; y: number; z: number };
+  } = {
     translation: { x: 0, y: 0, z: 0 },
     rotation: { x: 0, y: 0, z: 0, w: 1 },
     scale: { x: 1, y: 1, z: 1 },

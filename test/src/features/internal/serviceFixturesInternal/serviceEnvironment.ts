@@ -1,4 +1,7 @@
-import type { IAutoMovieBuiltEnvironment, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /**
  * Return the existing three-room numerical bathhouse in metres.
@@ -34,13 +37,17 @@ export function serviceEnvironment(): IAutoMovieBuiltEnvironment {
         id: "bath",
         kind: "room",
         parent: "works",
-        cells: [boxCell("bath-cell", { x: 0, y: 0, z: 0 }, { x: 4, y: 3, z: 5 })],
+        cells: [
+          boxCell("bath-cell", { x: 0, y: 0, z: 0 }, { x: 4, y: 3, z: 5 }),
+        ],
       },
       {
         id: "hall",
         kind: "room",
         parent: "works",
-        cells: [boxCell("hall-cell", { x: 4, y: 0, z: 0 }, { x: 7, y: 3, z: 5 })],
+        cells: [
+          boxCell("hall-cell", { x: 4, y: 0, z: 0 }, { x: 7, y: 3, z: 5 }),
+        ],
       },
       {
         id: "plant",
@@ -93,7 +100,9 @@ export function serviceEnvironment(): IAutoMovieBuiltEnvironment {
 }
 
 /** A +Y quarter turn maps local X to world -Z, so partition points read as (-z,y,0). */
-function partitionFace(x: number): NonNullable<IAutoMovieBuiltEnvironment["boundaries"][number]["face"]> {
+function partitionFace(
+  x: number,
+): NonNullable<IAutoMovieBuiltEnvironment["boundaries"][number]["face"]> {
   return {
     origin: { x, y: 0, z: 0 },
     rotation: {
@@ -113,7 +122,11 @@ function partitionFace(x: number): NonNullable<IAutoMovieBuiltEnvironment["bound
 }
 
 /** Intersect six axis half-spaces to preserve the fixture's authored room bounds. */
-function boxCell(id: string, min: IAutoMovieVector3, max: IAutoMovieVector3): IAutoMovieBuiltEnvironment["spaces"][number]["cells"][number] {
+function boxCell(
+  id: string,
+  min: IAutoMovieVector3,
+  max: IAutoMovieVector3,
+): IAutoMovieBuiltEnvironment["spaces"][number]["cells"][number] {
   return {
     id,
     planes: [

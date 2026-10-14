@@ -1,6 +1,7 @@
+import { IAutoMovieMesh } from "@automovie/interface";
+
 import { extrudeAutoMovieProfile } from "../../../../packages/engine/src/geometry/extrudeAutoMovieProfile";
 import { transformAutoMovieMesh } from "../../../../packages/engine/src/geometry/transformAutoMovieMesh";
-import { IAutoMovieMesh } from "@automovie/interface";
 import { rectangle } from "./rectangle";
 
 /**
@@ -8,7 +9,15 @@ import { rectangle } from "./rectangle";
  *
  * Fixed four-corner topology uses constant fixture work/output and returns a new transformed mesh. It shares product geometry construction, so parent assertions use literal box dimensions rather than treating this helper as an independent kernel oracle; no mesh cache or host resource is retained.
  */
-export const slab: (width: number, height: number, depth: number) => IAutoMovieMesh = (width: number, height: number, depth: number): IAutoMovieMesh =>
+export const slab: (
+  width: number,
+  height: number,
+  depth: number,
+) => IAutoMovieMesh = (
+  width: number,
+  height: number,
+  depth: number,
+): IAutoMovieMesh =>
   transformAutoMovieMesh(
     extrudeAutoMovieProfile({
       profile: rectangle(-width / 2, -depth / 2, width, depth),

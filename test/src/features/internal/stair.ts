@@ -1,9 +1,10 @@
+import { type IAutoMovieMesh } from "@automovie/interface";
+
 import { IAutoMovieMeshAssembly } from "../../../../packages/engine/src/geometry/IAutoMovieMeshAssembly";
 import { IAutoMovieMeshPart } from "../../../../packages/engine/src/geometry/IAutoMovieMeshPart";
 import { mergeAutoMovieMeshParts } from "../../../../packages/engine/src/geometry/mergeAutoMovieMeshParts";
 import { slab } from "./slab";
 import { yaw } from "./yaw";
-import { type IAutoMovieMesh } from "@automovie/interface";
 
 /**
  * Compose two box members per step, with tread thickness 0.2*rise and riser depth 0.15*run, preserving the architecture case's authored stock proportions. Zero turn places a straight flight; nonzero turn places centres at radius innerRadius+width/2 and rotates members about +Y. Distances are metres and turnDeg is degrees.
@@ -12,7 +13,14 @@ import { type IAutoMovieMesh } from "@automovie/interface";
  *
  * The two slab meshes are reused for every step, then merged into caller-owned buffers/groups. Work/output grow with step count; temporary placements and parts release after the merge and no host or persistent fixture cache exists.
  */
-export const stair: (props: { steps: number; rise: number; run: number; width: number; turnDeg: number; innerRadius: number; }) => IAutoMovieMeshAssembly = (props: {
+export const stair: (props: {
+  steps: number;
+  rise: number;
+  run: number;
+  width: number;
+  turnDeg: number;
+  innerRadius: number;
+}) => IAutoMovieMeshAssembly = (props: {
   steps: number;
   rise: number;
   run: number;
@@ -27,9 +35,10 @@ export const stair: (props: { steps: number; rise: number; run: number; width: n
   const riser: IAutoMovieMesh = slab(props.width, riserHeight, riserDepth);
   const parts: IAutoMovieMeshPart[] = [];
   for (let step: number = 0; step < props.steps; ++step) {
-    const angle: number = ((props.turnDeg * step) / props.steps) * (Math.PI / 180);
+    const angle: number =
+      ((props.turnDeg * step) / props.steps) * (Math.PI / 180);
     const radius: number = props.innerRadius + props.width / 2;
-    const centre: { x: number; z: number; } =
+    const centre: { x: number; z: number } =
       props.turnDeg === 0
         ? { x: 0, z: (step + 0.5) * props.run }
         : {

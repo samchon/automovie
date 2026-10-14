@@ -1,4 +1,8 @@
-import { type IAutoMovieNode, type IAutoMovieChannel, type IAutoMovieDriver } from "@automovie/interface";
+import {
+  type IAutoMovieChannel,
+  type IAutoMovieDriver,
+  type IAutoMovieNode,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { type IAutoMovieSampledChannel } from "../../../../packages/engine/src/resolve/IAutoMovieSampledChannel";
@@ -58,8 +62,16 @@ export function runResolveDriversCopyScenario(): void {
   );
 
   const sampled2: Map<string, IAutoMovieSampledChannel> = seed([
-    ["node:o2:translation", { kind: "node", node: "o2", path: "translation" }, [10, 0, 0]],
-    ["node:s2:translation", { kind: "node", node: "s2", path: "translation" }, [20, 0, 0]],
+    [
+      "node:o2:translation",
+      { kind: "node", node: "o2", path: "translation" },
+      [10, 0, 0],
+    ],
+    [
+      "node:s2:translation",
+      { kind: "node", node: "s2", path: "translation" },
+      [20, 0, 0],
+    ],
   ]);
   resolveDrivers(
     [copy({ owner: "o2", source: "s2", translation: true, influence: 0.5 })],
@@ -80,44 +92,48 @@ export function runResolveDriversCopyScenario(): void {
   TestValidator.predicate(
     "copy driver rejects NaN influence",
     throwsError(
-      (): IAutoMovieDriver[] => resolveDrivers(
-        [copy({ translation: true, influence: Number.NaN })],
-        seed([]),
-        validNodes,
-      ),
+      (): IAutoMovieDriver[] =>
+        resolveDrivers(
+          [copy({ translation: true, influence: Number.NaN })],
+          seed([]),
+          validNodes,
+        ),
       ["copy driver influence", "finite", "NaN"],
     ),
   );
   TestValidator.predicate(
     "copy driver rejects negative influence",
     throwsError(
-      (): IAutoMovieDriver[] => resolveDrivers(
-        [copy({ translation: true, influence: -0.1 })],
-        seed([]),
-        validNodes,
-      ),
+      (): IAutoMovieDriver[] =>
+        resolveDrivers(
+          [copy({ translation: true, influence: -0.1 })],
+          seed([]),
+          validNodes,
+        ),
       ["copy driver influence", "between 0 and 1", "-0.1"],
     ),
   );
   TestValidator.predicate(
     "copy driver rejects influence above one",
     throwsError(
-      (): IAutoMovieDriver[] => resolveDrivers(
-        [copy({ translation: true, influence: 1.1 })],
-        seed([]),
-        validNodes,
-      ),
+      (): IAutoMovieDriver[] =>
+        resolveDrivers(
+          [copy({ translation: true, influence: 1.1 })],
+          seed([]),
+          validNodes,
+        ),
       ["copy driver influence", "between 0 and 1", "1.1"],
     ),
   );
   TestValidator.predicate(
     "copy driver rejects non-boolean component flag",
     throwsError(
-      (): IAutoMovieDriver[] => resolveDrivers(
-        [copy({ translation: "yes" as unknown as boolean })],
-        seed([]),
-        validNodes,
-      ),
+      (): IAutoMovieDriver[] =>
+        resolveDrivers(
+          [copy({ translation: "yes" as unknown as boolean })],
+          seed([]),
+          validNodes,
+        ),
       ["copy driver translation", "boolean", "yes"],
     ),
   );
@@ -129,59 +145,78 @@ export function runResolveDriversCopyScenario(): void {
   TestValidator.predicate(
     "copy driver rejects missing sampled owner node",
     throwsError(
-      (): IAutoMovieDriver[] => resolveDrivers(
-        [copy({ owner: "ghost", source: "s", translation: true })],
-        seed([ghostTranslation]),
-        byId(node("s")),
-      ),
+      (): IAutoMovieDriver[] =>
+        resolveDrivers(
+          [copy({ owner: "ghost", source: "s", translation: true })],
+          seed([ghostTranslation]),
+          byId(node("s")),
+        ),
       'copy driver owner node "ghost" was not provided',
     ),
   );
   TestValidator.predicate(
     "copy driver rejects missing sampled source node",
     throwsError(
-      (): IAutoMovieDriver[] => resolveDrivers(
-        [copy({ owner: "o", source: "ghost", translation: true })],
-        seed([ghostTranslation]),
-        byId(node("o")),
-      ),
+      (): IAutoMovieDriver[] =>
+        resolveDrivers(
+          [copy({ owner: "o", source: "ghost", translation: true })],
+          seed([ghostTranslation]),
+          byId(node("o")),
+        ),
       'copy driver source node "ghost" was not provided',
     ),
   );
   TestValidator.predicate(
     "copy driver rejects short sampled source translation",
     throwsError(
-      (): IAutoMovieDriver[] => resolveDrivers(
-        [copy({ translation: true })],
-        seed([["node:s:translation", { kind: "node", node: "s", path: "translation" }, [5, 0]]]),
-        validNodes,
-      ),
+      (): IAutoMovieDriver[] =>
+        resolveDrivers(
+          [copy({ translation: true })],
+          seed([
+            [
+              "node:s:translation",
+              { kind: "node", node: "s", path: "translation" },
+              [5, 0],
+            ],
+          ]),
+          validNodes,
+        ),
       ["copy driver source translation value", "exactly 3", "2"],
     ),
   );
   TestValidator.predicate(
     "copy driver rejects array-like sampled owner rotation",
     throwsError(
-      (): IAutoMovieDriver[] => resolveDrivers(
-        [copy({ rotation: true })],
-        seed([[
-          "node:o:rotation",
-          { kind: "node", node: "o", path: "rotation" },
-          { 0: 0, 1: 0, 2: 0, 3: 1, length: 4 } as unknown as number[],
-        ]]),
-        validNodes,
-      ),
+      (): IAutoMovieDriver[] =>
+        resolveDrivers(
+          [copy({ rotation: true })],
+          seed([
+            [
+              "node:o:rotation",
+              { kind: "node", node: "o", path: "rotation" },
+              { 0: 0, 1: 0, 2: 0, 3: 1, length: 4 } as unknown as number[],
+            ],
+          ]),
+          validNodes,
+        ),
       ["copy driver owner rotation value", "array"],
     ),
   );
   TestValidator.predicate(
     "copy driver rejects extra sampled source rotation component",
     throwsError(
-      (): IAutoMovieDriver[] => resolveDrivers(
-        [copy({ rotation: true })],
-        seed([["node:s:rotation", { kind: "node", node: "s", path: "rotation" }, [0, 0, 0, 1, 99]]]),
-        validNodes,
-      ),
+      (): IAutoMovieDriver[] =>
+        resolveDrivers(
+          [copy({ rotation: true })],
+          seed([
+            [
+              "node:s:rotation",
+              { kind: "node", node: "s", path: "rotation" },
+              [0, 0, 0, 1, 99],
+            ],
+          ]),
+          validNodes,
+        ),
       ["copy driver source rotation value", "exactly 4", "5"],
     ),
   );
@@ -189,5 +224,10 @@ export function runResolveDriversCopyScenario(): void {
 
 /** Compare copied scalar arrays with the original exact-value requirement and explicit finite numeric predicates. */
 function sameValues(actual: number[], expected: number[]): boolean {
-  return actual.length === expected.length && actual.every((value: number, index: number): boolean => nclose(value, expected[index]!, 0));
+  return (
+    actual.length === expected.length &&
+    actual.every((value: number, index: number): boolean =>
+      nclose(value, expected[index]!, 0),
+    )
+  );
 }

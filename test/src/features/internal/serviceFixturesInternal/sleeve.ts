@@ -1,7 +1,9 @@
 import type { IAutoMovieServicePenetration } from "@automovie/interface";
 
 /** Return a fresh sealed cored-hole record, with caller overrides applied last. */
-export function sleeve(overrides: Partial<IAutoMovieServicePenetration> = {}): IAutoMovieServicePenetration {
+export function sleeve(
+  overrides: Partial<IAutoMovieServicePenetration> = {},
+): IAutoMovieServicePenetration {
   return {
     id: "sleeve",
     boundary: "bath-hall",

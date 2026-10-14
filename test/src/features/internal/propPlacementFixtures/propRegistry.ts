@@ -1,14 +1,15 @@
 import type { IAutoMoviePropSpec } from "@automovie/interface";
-import { table } from "./table";
-import { lamp } from "./lamp";
-import { sconce } from "./sconce";
-import { charger } from "./charger";
-import { pendant } from "./pendant";
-import { chime } from "./chime";
+
 import { cabinet } from "./cabinet";
-import { door } from "./door";
+import { charger } from "./charger";
+import { chime } from "./chime";
 import { crate } from "./crate";
+import { door } from "./door";
+import { lamp } from "./lamp";
+import { pendant } from "./pendant";
+import { sconce } from "./sconce";
 import { sculpture } from "./sculpture";
+import { table } from "./table";
 
 /**
  * The whole furnished room, in a stable declaration order.
@@ -18,15 +19,17 @@ import { sculpture } from "./sculpture";
  * Cases: Preserves table, lamp, sconce, charger, pendant, chime, cabinet, door, crate and sculpture order; duplicate/reversed/empty mutations remain in owning entries.
  * Execution: The existing owning entries call propRegistry during their portable in-memory cases and retain responsibility for assertion expectations and dynamically invoked predicates; this helper acquires no asset, process, renderer or GPU and keeps no completed-result cache.
  */
-export function propRegistry(): IAutoMoviePropSpec[] { return [
-  table(),
-  lamp(),
-  sconce(),
-  charger(),
-  pendant(),
-  chime(),
-  cabinet(),
-  door(),
-  crate(),
-  sculpture(),
-]; }
+export function propRegistry(): IAutoMoviePropSpec[] {
+  return [
+    table(),
+    lamp(),
+    sconce(),
+    charger(),
+    pendant(),
+    chime(),
+    cabinet(),
+    door(),
+    crate(),
+    sculpture(),
+  ];
+}

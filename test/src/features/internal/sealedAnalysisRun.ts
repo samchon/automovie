@@ -1,5 +1,6 @@
-import { autoMovieAnalysisRunDigest } from "../../../../packages/engine/src/analysis/autoMovieAnalysisRunDigest";
 import type { IAutoMovieAnalysisRun } from "@automovie/interface";
+
+import { autoMovieAnalysisRunDigest } from "../../../../packages/engine/src/analysis/autoMovieAnalysisRunDigest";
 
 /**
  * Seal a hand-authored run without asking the engine builder to approve it.
@@ -8,7 +9,9 @@ import type { IAutoMovieAnalysisRun } from "@automovie/interface";
  *
  * Spreading the caller's draft preserves malformed metric, status and provenance records for validator assertions. The product digest isolates structural admission; it is not an independent hash oracle.
  */
-export const sealedAnalysisRun: (draft: Omit<IAutoMovieAnalysisRun, "digest">) => IAutoMovieAnalysisRun = (
+export const sealedAnalysisRun: (
+  draft: Omit<IAutoMovieAnalysisRun, "digest">,
+) => IAutoMovieAnalysisRun = (
   draft: Omit<IAutoMovieAnalysisRun, "digest">,
 ): IAutoMovieAnalysisRun => ({
   ...draft,

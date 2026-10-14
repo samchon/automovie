@@ -31,7 +31,10 @@ export function sameProductData(actual: unknown, expected: unknown): boolean {
   const keys: string[] = Object.keys(observed);
   if (keys.length !== Object.keys(wanted).length) return false;
   for (const key of keys)
-    if (!Object.hasOwn(wanted, key) || !sameProductData(observed[key], wanted[key]))
+    if (
+      !Object.hasOwn(wanted, key) ||
+      !sameProductData(observed[key], wanted[key])
+    )
       return false;
   return true;
 }

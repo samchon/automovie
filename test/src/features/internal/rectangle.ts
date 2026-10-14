@@ -5,7 +5,12 @@ import { IAutoMovieProfilePoint } from "../../../../packages/engine/src/geometry
  *
  * Constant arithmetic allocates a fresh four-point list for arch piers and slabs, with no shared mutable corners or persistent resource. This constructs test input rather than deriving expected product output.
  */
-export const rectangle: (x: number, y: number, width: number, height: number) => IAutoMovieProfilePoint[] = (
+export const rectangle: (
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+) => IAutoMovieProfilePoint[] = (
   x: number,
   y: number,
   width: number,

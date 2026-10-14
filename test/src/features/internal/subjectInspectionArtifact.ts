@@ -1,19 +1,25 @@
-import { IAutoMovieBuiltEnvironment, IAutoMovieCompiledInstanceSet, IAutoMovieCompiledShotSource, IAutoMovieModel, IAutoMovieSubjectArtifact } from "@automovie/interface";
-import { subjectInspectionModel } from "./subjectInspectionModel";
-import { subjectInspectionIdentityTransform } from "./subjectInspectionIdentityTransform";
+import {
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieCompiledInstanceSet,
+  IAutoMovieCompiledShotSource,
+  IAutoMovieModel,
+  IAutoMovieSubjectArtifact,
+} from "@automovie/interface";
 
+import { subjectInspectionIdentityTransform } from "./subjectInspectionIdentityTransform";
+import { subjectInspectionModel } from "./subjectInspectionModel";
 
 /**
  * Compiled artifact with the three #1902 coordinate oracles and one declared
  * room whose occupied content is intentionally smaller than its volume.
  */
 export const subjectInspectionArtifact: (props?: {
-    revision?: string;
-    models?: IAutoMovieModel[];
-    nodes?: IAutoMovieCompiledShotSource["scene"]["nodes"];
-    instanceSets?: IAutoMovieCompiledInstanceSet[];
-    environment?: IAutoMovieBuiltEnvironment | null;
-  }) => IAutoMovieSubjectArtifact = (
+  revision?: string;
+  models?: IAutoMovieModel[];
+  nodes?: IAutoMovieCompiledShotSource["scene"]["nodes"];
+  instanceSets?: IAutoMovieCompiledInstanceSet[];
+  environment?: IAutoMovieBuiltEnvironment | null;
+}) => IAutoMovieSubjectArtifact = (
   props: {
     revision?: string;
     models?: IAutoMovieModel[];
@@ -41,13 +47,17 @@ export const subjectInspectionArtifact: (props?: {
   ];
   const nodes: IAutoMovieCompiledShotSource["scene"]["nodes"] =
     props.nodes ??
-    models.map((model: IAutoMovieModel): IAutoMovieCompiledShotSource["scene"]["nodes"][number] => ({
-      id: `castle/${model.id.replace(/-model$/, "")}`,
-      model: model.id,
-      transform: subjectInspectionIdentityTransform(),
-      motion: null,
-      pose: null,
-    }));
+    models.map(
+      (
+        model: IAutoMovieModel,
+      ): IAutoMovieCompiledShotSource["scene"]["nodes"][number] => ({
+        id: `castle/${model.id.replace(/-model$/, "")}`,
+        model: model.id,
+        transform: subjectInspectionIdentityTransform(),
+        motion: null,
+        pose: null,
+      }),
+    );
   const environment: IAutoMovieBuiltEnvironment | null =
     props.environment === undefined
       ? subjectInspectionEnvironment(models)
@@ -76,7 +86,9 @@ export const subjectInspectionArtifact: (props?: {
   };
 };
 
-const subjectInspectionEnvironment: (models: IAutoMovieModel[]) => IAutoMovieBuiltEnvironment = (
+const subjectInspectionEnvironment: (
+  models: IAutoMovieModel[],
+) => IAutoMovieBuiltEnvironment = (
   models: IAutoMovieModel[],
 ): IAutoMovieBuiltEnvironment =>
   ({
@@ -88,18 +100,22 @@ const subjectInspectionEnvironment: (models: IAutoMovieModel[]) => IAutoMovieBui
     ],
     models,
     modelReferences: [],
-    elements: models.map((model: IAutoMovieModel): IAutoMovieBuiltEnvironment["elements"][number] => ({
-      id: model.id.replace(/-model$/, ""),
-      kind: model.id.includes("oriel")
-        ? "window"
-        : model.id.includes("brace")
-          ? "brace"
-          : "pole",
-      parent: null,
-      transform: subjectInspectionIdentityTransform(),
-      model: model.id,
-      space: "hall",
-    })),
+    elements: models.map(
+      (
+        model: IAutoMovieModel,
+      ): IAutoMovieBuiltEnvironment["elements"][number] => ({
+        id: model.id.replace(/-model$/, ""),
+        kind: model.id.includes("oriel")
+          ? "window"
+          : model.id.includes("brace")
+            ? "brace"
+            : "pole",
+        parent: null,
+        transform: subjectInspectionIdentityTransform(),
+        model: model.id,
+        space: "hall",
+      }),
+    ),
     spaces: [
       {
         id: "hall",

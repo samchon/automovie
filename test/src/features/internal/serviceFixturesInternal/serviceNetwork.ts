@@ -13,7 +13,9 @@ import { wetZone } from "./wetZone";
  * inputs, not a simulated installation. Overrides replace final top-level
  * values without cloning them; all default records are fresh per call.
  */
-export function serviceNetwork(overrides: Partial<IAutoMovieServiceNetwork> = {}): IAutoMovieServiceNetwork {
+export function serviceNetwork(
+  overrides: Partial<IAutoMovieServiceNetwork> = {},
+): IAutoMovieServiceNetwork {
   return {
     version: 1,
     id: "bathhouse-services",

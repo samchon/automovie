@@ -1,7 +1,9 @@
 import type { IAutoMovieServicePort } from "@automovie/interface";
 
 /** Return a fresh demand-free cold-water inlet, with overrides applied last. */
-export function port(overrides: Partial<IAutoMovieServicePort> = {}): IAutoMovieServicePort {
+export function port(
+  overrides: Partial<IAutoMovieServicePort> = {},
+): IAutoMovieServicePort {
   return {
     id: "port",
     system: "cold",

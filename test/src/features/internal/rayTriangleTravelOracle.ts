@@ -1,5 +1,3 @@
-
-
 /**
  * Intersect a ray with one triangle by scalar triple products and barycentric admission, using the caller's unit direction and predecoded corner/edge vectors. The original 1e-18 parallel threshold and closed [0,maximum] travel interval are preserved without reading production hierarchy or cached triangle records.
  *
@@ -7,10 +5,23 @@
  *
  * Constant work/storage borrows the arrays read-only and returns a scalar/null, with no retained measurement, host or persistent resource.
  */
-export const rayTriangleTravelOracle: (origin: readonly number[], direction: readonly number[], triangle: { a: readonly number[]; ab: readonly number[]; ac: readonly number[]; }, maximum: number) => number | null = (
+export const rayTriangleTravelOracle: (
   origin: readonly number[],
   direction: readonly number[],
-  triangle: { a: readonly number[]; ab: readonly number[]; ac: readonly number[] },
+  triangle: {
+    a: readonly number[];
+    ab: readonly number[];
+    ac: readonly number[];
+  },
+  maximum: number,
+) => number | null = (
+  origin: readonly number[],
+  direction: readonly number[],
+  triangle: {
+    a: readonly number[];
+    ab: readonly number[];
+    ac: readonly number[];
+  },
   maximum: number,
 ): number | null => {
   const [nx, ny, nz]: readonly number[] = direction;

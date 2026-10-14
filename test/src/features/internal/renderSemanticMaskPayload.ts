@@ -1,6 +1,9 @@
 import { IAutoMovieSemanticMask } from "@automovie/interface";
+
 /** Project the declared mask fields while borrowing entries and gaps and omitting its self digest; no validation, canonicalization or copy of nested records occurs. */
-export const renderSemanticMaskPayload: (mask: IAutoMovieSemanticMask) => Omit<IAutoMovieSemanticMask, "digest"> = (
+export const renderSemanticMaskPayload: (
+  mask: IAutoMovieSemanticMask,
+) => Omit<IAutoMovieSemanticMask, "digest"> = (
   mask: IAutoMovieSemanticMask,
 ): Omit<IAutoMovieSemanticMask, "digest"> => ({
   version: mask.version,

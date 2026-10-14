@@ -11,7 +11,9 @@ export async function rejectsError(
   } catch (error) {
     return (
       error instanceof Error &&
-      fragments.every((fragment: string): boolean => error.message.includes(fragment))
+      fragments.every((fragment: string): boolean =>
+        error.message.includes(fragment),
+      )
     );
   }
 }

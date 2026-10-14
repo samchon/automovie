@@ -1,4 +1,7 @@
-import { type IAutoMovieNode, type IAutoMovieDriver } from "@automovie/interface";
+import {
+  type IAutoMovieDriver,
+  type IAutoMovieNode,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { resolveDrivers } from "../../../../packages/engine/src/resolve/resolveDrivers";

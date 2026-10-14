@@ -1,4 +1,7 @@
-import { instanceSlot, type IAutoMovieInstanceSetPlacement } from "@automovie/engine";
+import {
+  type IAutoMovieInstanceSetPlacement,
+  instanceSlot,
+} from "@automovie/engine";
 import type { IAutoMovieInstanceSlot } from "@automovie/interface";
 
 /**
@@ -12,5 +15,13 @@ import type { IAutoMovieInstanceSlot } from "@automovie/interface";
  *
  * A portable caller owns the fresh result array and placement. The helper executes no host, mutates no placement and replaces no global or foreign method.
  */
-export const sampleInstanceVariationSlots: (placement: IAutoMovieInstanceSetPlacement) => IAutoMovieInstanceSlot[] = (placement: IAutoMovieInstanceSetPlacement): IAutoMovieInstanceSlot[] =>
-  Array.from({ length: placement.count }, (_: unknown, slot: number): IAutoMovieInstanceSlot => instanceSlot(placement, slot));
+export const sampleInstanceVariationSlots: (
+  placement: IAutoMovieInstanceSetPlacement,
+) => IAutoMovieInstanceSlot[] = (
+  placement: IAutoMovieInstanceSetPlacement,
+): IAutoMovieInstanceSlot[] =>
+  Array.from(
+    { length: placement.count },
+    (_: unknown, slot: number): IAutoMovieInstanceSlot =>
+      instanceSlot(placement, slot),
+  );

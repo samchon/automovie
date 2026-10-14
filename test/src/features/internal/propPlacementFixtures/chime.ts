@@ -1,6 +1,7 @@
 import type { IAutoMoviePropSpec } from "@automovie/interface";
-import { inSpace } from "./inSpace";
+
 import { boxProp } from "./boxProp";
+import { inSpace } from "./inSpace";
 
 /**
  * Hung from the table's `hook`.
@@ -10,17 +11,19 @@ import { boxProp } from "./boxProp";
  * Cases: Preserves room and prop-affordance suspension with null footprint/empty clearances; wrong hook kind and undeclared contact mutations remain unchanged.
  * Execution: The existing owning entries call chime during their portable in-memory cases and retain responsibility for assertion expectations and dynamically invoked predicates; this helper acquires no asset, process, renderer or GPU and keeps no completed-result cache.
  */
-export function chime(): IAutoMoviePropSpec { return ({
-  ...boxProp("chime"),
-  placement: {
-    relations: [
-      inSpace("room"),
-      {
-        kind: "suspended",
-        target: { kind: "prop-affordance", prop: "table", affordance: "peg" },
-      },
-    ],
-    footprint: null,
-    clearance: [],
-  },
-}); }
+export function chime(): IAutoMoviePropSpec {
+  return {
+    ...boxProp("chime"),
+    placement: {
+      relations: [
+        inSpace("room"),
+        {
+          kind: "suspended",
+          target: { kind: "prop-affordance", prop: "table", affordance: "peg" },
+        },
+      ],
+      footprint: null,
+      clearance: [],
+    },
+  };
+}
