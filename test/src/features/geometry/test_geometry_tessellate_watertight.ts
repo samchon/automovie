@@ -75,7 +75,7 @@ const signedVolume: (t: {
 };
 
 /**
- * Solid tessellations satisfy independent edge-incidence, closed-volume and surface expectations; the capsule retains its rounded-solid contract while the current bounding-cylinder producer remains a known failure.
+ * Solid tessellations satisfy independent edge-incidence, closed-volume and surface expectations, including the capsule's rounded ends and cylindrical body.
  *
  * Scenarios:
  * 1. Every welded nondegenerate edge of box, sphere, cylinder, cone and capsule has exactly two incident triangles.
@@ -83,7 +83,7 @@ const signedVolume: (t: {
  * 3. Normals have unit length and cone side normals carry the analytic slant component.
  * 4. The plane remains a zero-volume negative twin; volume alone is not proof of a closed surface.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls all solid tessellations and checks welded edge incidence, signed volumes, unit normals and cone slant; the capsule checks retain the rounded-solid contract despite the current bounding-cylinder implementation gap.
+ * @evidence contracts/testing.md#behavioral-verification Calls all solid tessellations and checks welded edge incidence, signed volumes, unit normals and cone slant; capsule volume and swept-sphere surface checks reject substituting a bounding cylinder for its rounded ends.
  * @evidence contracts/testing.md#independent-expectations Edge incidence follows closed triangle surfaces; n-gon prism/pyramid geometry and latitude-frustum integration give independent volumes, while distance to the finite capsule axis gives its swept-sphere surface. Position welding is limited to this fixed scale and 1e-9 grid.
  * @evidence contracts/testing.md#distinguishing-cases Box, sphere, cylinder, cone and capsule are contrasted with the zero-volume plane; volume and edge checks work together because either alone can miss malformed surfaces. Visual inspection and arbitrary-scale welding are outside this numerical unit.
  * @evidence contracts/testing.md#execution-ownership The discoverable test_geometry_tessellate_watertight entry owns these synchronous portable numerical cases and any local iteration; it starts no process, browser or GPU and makes no visual-success claim.
@@ -115,6 +115,14 @@ export function test_geometry_tessellate_watertight(): void {
     nclose(
       signedVolume(tessellate({ type: "cone", radius: 0.3, height: 1 })),
       (ngonArea(0.3) * 1) / 3,
+      1e-12,
+    ),
+  );
+  TestValidator.predicate(
+    "sphere volume equals the independent latitude-frustum integration",
+    nclose(
+      signedVolume(tessellate({ type: "sphere", radius: 0.2 })),
+      sphereLatticeVolume(0.2),
       1e-12,
     ),
   );
