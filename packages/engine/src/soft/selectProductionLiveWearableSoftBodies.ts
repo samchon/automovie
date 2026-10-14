@@ -1,6 +1,8 @@
 import { IAutoMovieSoftBodyDomain } from "@automovie/interface";
+
 import { productionSoftBodyUsesMovingBoundary } from "./productionSoftBodyUsesMovingBoundary";
 import { readProductionLiveWearableSoftBodies } from "./readProductionLiveWearableSoftBodies";
+
 /** Resolve a shot's share of the authored production-wide live-soft order. Absent selected domains contribute nothing; present static selections and unselected moving domains throw. No production/viewer caller currently installs this live-selection API.
  *
  * @evidence contracts/common.md#principled-implementation The canonical unknown-list admission feeds id-keyed shot-domain matching, preserving authored subjectIndex and total maxSubjects. Typed domain fields remain a premise and empty selections are valid only for static shot domains.
@@ -13,7 +15,12 @@ import { readProductionLiveWearableSoftBodies } from "./readProductionLiveWearab
  *
  * @author Samchon
  */
-export const selectProductionLiveWearableSoftBodies: <Domain extends Pick<IAutoMovieSoftBodyDomain, "id" | "anchors" | "colliders">>(domains: readonly Domain[], selected: unknown) => { domain: Domain; subjectIndex: number; maxSubjects: number; }[] = <
+export const selectProductionLiveWearableSoftBodies: <
+  Domain extends Pick<IAutoMovieSoftBodyDomain, "id" | "anchors" | "colliders">,
+>(
+  domains: readonly Domain[],
+  selected: unknown,
+) => { domain: Domain; subjectIndex: number; maxSubjects: number }[] = <
   Domain extends Pick<IAutoMovieSoftBodyDomain, "id" | "anchors" | "colliders">,
 >(
   domains: readonly Domain[],
@@ -40,13 +47,18 @@ export const selectProductionLiveWearableSoftBodies: <Domain extends Pick<IAutoM
         `Live wearable soft body "${domain.id}" declares a moving boundary but simulation.liveWearableSoftBodies does not select it.`,
       );
   }
-  return ordered.flatMap((id: string, subjectIndex: number): { domain: Domain; subjectIndex: number; maxSubjects: number; }[] => {
-    const domain: Domain | undefined = available.get(id);
-    if (domain === undefined) return [];
-    if (productionSoftBodyUsesMovingBoundary(domain) === false)
-      throw new Error(
-        `Live wearable soft body "${id}" is selected for a live solve but declares no moving boundary.`,
-      );
-    return [{ domain, subjectIndex, maxSubjects: ordered.length }];
-  });
+  return ordered.flatMap(
+    (
+      id: string,
+      subjectIndex: number,
+    ): { domain: Domain; subjectIndex: number; maxSubjects: number }[] => {
+      const domain: Domain | undefined = available.get(id);
+      if (domain === undefined) return [];
+      if (productionSoftBodyUsesMovingBoundary(domain) === false)
+        throw new Error(
+          `Live wearable soft body "${id}" is selected for a live solve but declares no moving boundary.`,
+        );
+      return [{ domain, subjectIndex, maxSubjects: ordered.length }];
+    },
+  );
 };

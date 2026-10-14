@@ -1,4 +1,5 @@
 import { IAutoMoviePlantingState } from "@automovie/interface";
+
 /** Produce a deterministic 32-bit FNV-1a diagnostic of selected branch and leaf geometry encoded as little-endian float64 bytes. Equal digests can collide and omit ids, domain metadata and authored relationships.
  *
  * @evidence contracts/common.md#principled-implementation Stage/counts, branch level/endpoints/radii/pruned flag and leaf TRS form a fixed ordered numeric stream; identical selected bytes hash identically, but digest equality does not prove geometric or semantic identity.
@@ -11,7 +12,9 @@ import { IAutoMoviePlantingState } from "@automovie/interface";
  *
  * @author Samchon
  */
-export const plantingStateDigest: (state: IAutoMoviePlantingState) => string = (state: IAutoMoviePlantingState): string => {
+export const plantingStateDigest: (state: IAutoMoviePlantingState) => string = (
+  state: IAutoMoviePlantingState,
+): string => {
   const values: number[] = [
     state.stage,
     state.branches.length,

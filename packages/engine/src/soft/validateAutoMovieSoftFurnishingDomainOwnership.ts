@@ -1,6 +1,11 @@
+import {
+  IAutoMovieSoftFurnishing,
+  IAutoMovieValidation,
+} from "@automovie/interface";
+
 import { compareCodeUnits } from "../text/compareCodeUnits";
-import { IAutoMovieSoftFurnishing, IAutoMovieValidation } from "@automovie/interface";
 import { ViolationCollector } from "../validation/ViolationCollector";
+
 /** Refuse duplicate typed furnishing bindings to the same world-space cloth domain, independently of building grouping. Domain and furnishing ids use code-unit order; source indices still identify the original conflicting rows.
  *
  * @evidence contracts/common.md#principled-implementation Domain grouping followed by sorted furnishing ids chooses one deterministic owner, with source index only breaking duplicate-id ties. Separate validators admit string ids and reference existence.
@@ -13,28 +18,45 @@ import { ViolationCollector } from "../validation/ViolationCollector";
  *
  * @author Samchon
  */
-export const validateAutoMovieSoftFurnishingDomainOwnership: (furnishings: readonly IAutoMovieSoftFurnishing[]) => IAutoMovieValidation = (
+export const validateAutoMovieSoftFurnishingDomainOwnership: (
+  furnishings: readonly IAutoMovieSoftFurnishing[],
+) => IAutoMovieValidation = (
   furnishings: readonly IAutoMovieSoftFurnishing[],
 ): IAutoMovieValidation => {
-  const byDomain: Map<string, { furnishing: IAutoMovieSoftFurnishing; index: number; }[]> = new Map<
+  const byDomain: Map<
+    string,
+    { furnishing: IAutoMovieSoftFurnishing; index: number }[]
+  > = new Map<
     string,
     { furnishing: IAutoMovieSoftFurnishing; index: number }[]
   >();
-  furnishings.forEach((furnishing: IAutoMovieSoftFurnishing, index: number): void => {
-    const owners: { furnishing: IAutoMovieSoftFurnishing; index: number; }[] = byDomain.get(furnishing.domain) ?? [];
-    owners.push({ furnishing, index });
-    byDomain.set(furnishing.domain, owners);
-  });
+  furnishings.forEach(
+    (furnishing: IAutoMovieSoftFurnishing, index: number): void => {
+      const owners: { furnishing: IAutoMovieSoftFurnishing; index: number }[] =
+        byDomain.get(furnishing.domain) ?? [];
+      owners.push({ furnishing, index });
+      byDomain.set(furnishing.domain, owners);
+    },
+  );
   const out: ViolationCollector = new ViolationCollector();
   for (const domain of [...byDomain.keys()].sort(compareCodeUnits)) {
-    const owners: { furnishing: IAutoMovieSoftFurnishing; index: number; }[] = byDomain.get(domain)!.sort((left: { furnishing: IAutoMovieSoftFurnishing; index: number; }, right: { furnishing: IAutoMovieSoftFurnishing; index: number; }): number => {
-      const compared: number = compareCodeUnits(
-        left.furnishing.id,
-        right.furnishing.id,
-      );
-      return compared !== 0 ? compared : left.index - right.index;
-    });
-    const owner: { furnishing: IAutoMovieSoftFurnishing; index: number; } = owners[0]!;
+    const owners: { furnishing: IAutoMovieSoftFurnishing; index: number }[] =
+      byDomain
+        .get(domain)!
+        .sort(
+          (
+            left: { furnishing: IAutoMovieSoftFurnishing; index: number },
+            right: { furnishing: IAutoMovieSoftFurnishing; index: number },
+          ): number => {
+            const compared: number = compareCodeUnits(
+              left.furnishing.id,
+              right.furnishing.id,
+            );
+            return compared !== 0 ? compared : left.index - right.index;
+          },
+        );
+    const owner: { furnishing: IAutoMovieSoftFurnishing; index: number } =
+      owners[0]!;
     for (const duplicate of owners.slice(1))
       out.push(
         "type",

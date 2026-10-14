@@ -1,4 +1,5 @@
 import { IAutoMovieResolvedBone } from "../kinematics/IAutoMovieResolvedBone";
+
 /**
  * One evaluated actor's resolved bone frames at an absolute soft step.
  *

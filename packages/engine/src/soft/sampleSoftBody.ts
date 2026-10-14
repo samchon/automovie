@@ -1,6 +1,11 @@
-import { IAutoMovieSoftBodyDomain, IAutoMovieSoftBodyState } from "@automovie/interface";
+import {
+  IAutoMovieSoftBodyDomain,
+  IAutoMovieSoftBodyState,
+} from "@automovie/interface";
+
 import { simulateSoftBody } from "./simulateSoftBody";
 import { softBodyStepAt } from "./softBodyStepAt";
+
 /** Sample the static cloth trajectory at a shot second by snapping to its fixed-clock step. Nonfinite time throws; negative finite time samples rest. This public sampling API currently has no production/viewer caller.
  *
  * @evidence contracts/common.md#principled-implementation The canonical time-to-step rule feeds the static absolute replay, including its budget refusal and named-state semantics; valid positive clock spacing is a domain-admission premise.
@@ -13,7 +18,11 @@ import { softBodyStepAt } from "./softBodyStepAt";
  *
  * @author Samchon
  */
-export const sampleSoftBody: (domain: IAutoMovieSoftBodyDomain, time: number, state?: string | null) => IAutoMovieSoftBodyState = (
+export const sampleSoftBody: (
+  domain: IAutoMovieSoftBodyDomain,
+  time: number,
+  state?: string | null,
+) => IAutoMovieSoftBodyState = (
   domain: IAutoMovieSoftBodyDomain,
   time: number,
   state: string | null = null,

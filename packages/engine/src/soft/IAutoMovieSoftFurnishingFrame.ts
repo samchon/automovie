@@ -1,4 +1,9 @@
-import { IAutoMovieSoftAnalysis, IAutoMovieSoftBodyState, IAutoMovieSoftBodySurface } from "@automovie/interface";
+import {
+  IAutoMovieSoftAnalysis,
+  IAutoMovieSoftBodyState,
+  IAutoMovieSoftBodySurface,
+} from "@automovie/interface";
+
 /**
  * One lowerSoftFurnishing result with its computation status and derived surface.
  *

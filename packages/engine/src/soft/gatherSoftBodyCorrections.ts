@@ -1,5 +1,6 @@
 import { SOFT_BODY_NEIGHBOURS } from "./SOFT_BODY_NEIGHBOURS";
 import { softBodyNeighbourOf } from "./softBodyNeighbourOf";
+
 /** Write one simultaneous Jacobi distance-constraint correction for every particle.
  *
  * @evidence contracts/common.md#principled-implementation Every correction reads the same predicted buffer, then groups the canonical twelve offsets into six mirror-pair sums and a fixed family fold. Prepared rest lengths, inverse masses, valences and stiffness are premises; finite rounding and collapsed current edges retain their original handling.
@@ -10,7 +11,16 @@ import { softBodyNeighbourOf } from "./softBodyNeighbourOf";
  * @evidence contracts/performance.md#reuse-equivalent-work The eighteen-slot fold buffer is reused for every particle, while prepared topology/rest lengths are supplied once by the solve; no prior sweep's corrections are reused after positions change.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Predicted and preparation arrays are read only, correction is overwritten, and the fold buffer is released when the sweep returns.
  */
-export const gatherSoftBodyCorrections: (props: { columns: number; rows: number; predicted: Float64Array<ArrayBufferLike>; correction: Float64Array<ArrayBufferLike>; inverseMass: Float64Array<ArrayBufferLike>; valence: Int32Array<ArrayBufferLike>; restLength: Float64Array<ArrayBufferLike>; stiffness: number[]; }) => void = (props: {
+export const gatherSoftBodyCorrections: (props: {
+  columns: number;
+  rows: number;
+  predicted: Float64Array<ArrayBufferLike>;
+  correction: Float64Array<ArrayBufferLike>;
+  inverseMass: Float64Array<ArrayBufferLike>;
+  valence: Int32Array<ArrayBufferLike>;
+  restLength: Float64Array<ArrayBufferLike>;
+  stiffness: number[];
+}) => void = (props: {
   columns: number;
   rows: number;
   predicted: Float64Array;
@@ -20,7 +30,8 @@ export const gatherSoftBodyCorrections: (props: { columns: number; rows: number;
   restLength: Float64Array;
   stiffness: number[];
 }): void => {
-  const { columns, rows, predicted, correction, inverseMass }: typeof props = props;
+  const { columns, rows, predicted, correction, inverseMass }: typeof props =
+    props;
   // Six mirror-partner slots of three components each, in the order the family
   // fold below adds them: structural along the lattice's two axes, the lower
   // and upper diagonal pairs, and bending along the two axes.
@@ -37,9 +48,16 @@ export const gatherSoftBodyCorrections: (props: { columns: number; rows: number;
       }
       fold.fill(0);
       for (let at: number = 0; at < SOFT_BODY_NEIGHBOURS.length; ++at) {
-        const rest: number = props.restLength[particle * SOFT_BODY_NEIGHBOURS.length + at];
+        const rest: number =
+          props.restLength[particle * SOFT_BODY_NEIGHBOURS.length + at];
         if (rest < 0) continue;
-        const other: number = softBodyNeighbourOf(columns, rows, column, row, at);
+        const other: number = softBodyNeighbourOf(
+          columns,
+          rows,
+          column,
+          row,
+          at,
+        );
         const dx: number = predicted[other * 3] - predicted[base];
         const dy: number = predicted[other * 3 + 1] - predicted[base + 1];
         const dz: number = predicted[other * 3 + 2] - predicted[base + 2];
@@ -48,7 +66,9 @@ export const gatherSoftBodyCorrections: (props: { columns: number; rows: number;
         const share: number =
           inverseMass[particle] / (inverseMass[particle] + inverseMass[other]);
         const factor: number =
-          (props.stiffness[SOFT_BODY_NEIGHBOURS[at][2]] * share * (length - rest)) /
+          (props.stiffness[SOFT_BODY_NEIGHBOURS[at][2]] *
+            share *
+            (length - rest)) /
           length;
         const slot: number = 3 * foldSlot(SOFT_BODY_NEIGHBOURS[at]);
         fold[slot] += factor * dx;
@@ -67,7 +87,9 @@ export const gatherSoftBodyCorrections: (props: { columns: number; rows: number;
 };
 
 /** Choose the fixed mirror-pair accumulator slot for one canonical offset. */
-const foldSlot: (neighbour: readonly [column: number, row: number, family: 0 | 2 | 1]) => number = (
+const foldSlot: (
+  neighbour: readonly [column: number, row: number, family: 0 | 2 | 1],
+) => number = (
   neighbour: readonly [column: number, row: number, family: 0 | 1 | 2],
 ): number => {
   if (neighbour[2] === 1) return neighbour[1] < 0 ? 2 : 3;

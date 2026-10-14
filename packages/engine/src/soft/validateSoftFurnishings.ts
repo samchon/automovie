@@ -1,10 +1,20 @@
-import { IAutoMovieBuiltEnvironment, IAutoMovieSoftBodyDomain, IAutoMovieSoftFurnishing, IAutoMovieValidation, IAutoMovieBuiltSpace, IAutoMovieBuiltElement, IAutoMovieSoftNamedState } from "@automovie/interface";
+import {
+  IAutoMovieBuiltElement,
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieBuiltSpace,
+  IAutoMovieSoftBodyDomain,
+  IAutoMovieSoftFurnishing,
+  IAutoMovieSoftNamedState,
+  IAutoMovieValidation,
+} from "@automovie/interface";
+
 import { builtEnvironmentContainsPoint } from "../architecture/builtEnvironmentContainsPoint";
 import { builtSpaceStatesVolume } from "../architecture/builtSpaceStatesVolume";
 import { ViolationCollector } from "../validation/ViolationCollector";
 import { softBodyRestConfiguration } from "./softBodyRestConfiguration";
 import { validateAutoMovieSoftFurnishingDomainOwnership } from "./validateAutoMovieSoftFurnishingDomainOwnership";
 import { validateSoftBodyDomain } from "./validateSoftBodyDomain";
+
 /** Fixed schema kind membership shared across validation calls without per-call rebuilding. */
 const FURNISHING_KINDS: Set<string> = new Set([
   "curtain",
@@ -31,7 +41,12 @@ const FURNISHING_MODES: Set<string> = new Set(["rest", "simulated"]);
  * @evidence contracts/performance.md#bound-retention-and-release-resources Fresh maps, reference sets and held buffers leave scope when the pass ends; the returned violation list alone retains offending inputs/points, without simulation history or viewer handles.
  * @author Samchon
  */
-export const validateSoftFurnishings: (props: { environment: IAutoMovieBuiltEnvironment; furnishings: IAutoMovieSoftFurnishing[]; domains: IAutoMovieSoftBodyDomain[]; domainOwnership?: "validate" | "prevalidated" | undefined; }) => IAutoMovieValidation = (props: {
+export const validateSoftFurnishings: (props: {
+  environment: IAutoMovieBuiltEnvironment;
+  furnishings: IAutoMovieSoftFurnishing[];
+  domains: IAutoMovieSoftBodyDomain[];
+  domainOwnership?: "validate" | "prevalidated" | undefined;
+}) => IAutoMovieValidation = (props: {
   environment: IAutoMovieBuiltEnvironment;
   furnishings: IAutoMovieSoftFurnishing[];
   domains: IAutoMovieSoftBodyDomain[];
@@ -48,9 +63,26 @@ export const validateSoftFurnishings: (props: { environment: IAutoMovieBuiltEnvi
     if (ownership.success === false) out.items.push(...ownership.violations);
   }
 
-  const spaces: Map<string, IAutoMovieBuiltSpace> = new Map(environment.spaces.map((space: IAutoMovieBuiltSpace): [string, IAutoMovieBuiltSpace] => [space.id, space]));
-  const elements: Set<string> = new Set(environment.elements.map((element: IAutoMovieBuiltElement): string => element.id));
-  const byDomain: Map<string, IAutoMovieSoftBodyDomain> = new Map(domains.map((domain: IAutoMovieSoftBodyDomain): [string, IAutoMovieSoftBodyDomain] => [domain.id, domain]));
+  const spaces: Map<string, IAutoMovieBuiltSpace> = new Map(
+    environment.spaces.map(
+      (space: IAutoMovieBuiltSpace): [string, IAutoMovieBuiltSpace] => [
+        space.id,
+        space,
+      ],
+    ),
+  );
+  const elements: Set<string> = new Set(
+    environment.elements.map(
+      (element: IAutoMovieBuiltElement): string => element.id,
+    ),
+  );
+  const byDomain: Map<string, IAutoMovieSoftBodyDomain> = new Map(
+    domains.map(
+      (
+        domain: IAutoMovieSoftBodyDomain,
+      ): [string, IAutoMovieSoftBodyDomain] => [domain.id, domain],
+    ),
+  );
 
   const seenDomains: Set<string> = new Set<string>();
   domains.forEach((domain: IAutoMovieSoftBodyDomain, index: number): void => {
@@ -76,126 +108,139 @@ export const validateSoftFurnishings: (props: { environment: IAutoMovieBuiltEnvi
   });
 
   const seenFurnishings: Set<string> = new Set<string>();
-  furnishings.forEach((furnishing: IAutoMovieSoftFurnishing, index: number): void => {
-    const path: string = `${root}.furnishings[${index}]`;
-    if (furnishing.id.trim().length === 0)
-      out.push(
-        "type",
-        `${path}.id`,
-        "soft furnishing id must be non-empty",
-        furnishing.id,
-      );
-    else if (seenFurnishings.has(furnishing.id))
-      out.push(
-        "type",
-        `${path}.id`,
-        `soft furnishing id "${furnishing.id}" is duplicated`,
-        furnishing.id,
-      );
-    seenFurnishings.add(furnishing.id);
+  furnishings.forEach(
+    (furnishing: IAutoMovieSoftFurnishing, index: number): void => {
+      const path: string = `${root}.furnishings[${index}]`;
+      if (furnishing.id.trim().length === 0)
+        out.push(
+          "type",
+          `${path}.id`,
+          "soft furnishing id must be non-empty",
+          furnishing.id,
+        );
+      else if (seenFurnishings.has(furnishing.id))
+        out.push(
+          "type",
+          `${path}.id`,
+          `soft furnishing id "${furnishing.id}" is duplicated`,
+          furnishing.id,
+        );
+      seenFurnishings.add(furnishing.id);
 
-    if (!FURNISHING_KINDS.has(furnishing.kind))
-      out.push(
-        "type",
-        `${path}.kind`,
-        `soft furnishing kind must be one of ${[...FURNISHING_KINDS].join(", ")}`,
-        furnishing.kind,
-      );
-    if (!FURNISHING_MODES.has(furnishing.mode))
-      out.push(
-        "type",
-        `${path}.mode`,
-        `soft furnishing mode must be one of ${[...FURNISHING_MODES].join(", ")}`,
-        furnishing.mode,
-      );
-    if (furnishing.environment !== environment.id)
-      out.push(
-        "type",
-        `${path}.environment`,
-        `soft furnishing must cite its owning built environment "${environment.id}"`,
-        furnishing.environment,
-      );
+      if (!FURNISHING_KINDS.has(furnishing.kind))
+        out.push(
+          "type",
+          `${path}.kind`,
+          `soft furnishing kind must be one of ${[...FURNISHING_KINDS].join(", ")}`,
+          furnishing.kind,
+        );
+      if (!FURNISHING_MODES.has(furnishing.mode))
+        out.push(
+          "type",
+          `${path}.mode`,
+          `soft furnishing mode must be one of ${[...FURNISHING_MODES].join(", ")}`,
+          furnishing.mode,
+        );
+      if (furnishing.environment !== environment.id)
+        out.push(
+          "type",
+          `${path}.environment`,
+          `soft furnishing must cite its owning built environment "${environment.id}"`,
+          furnishing.environment,
+        );
 
-    const space: IAutoMovieBuiltSpace | undefined = spaces.get(furnishing.space);
-    if (space === undefined)
-      out.push(
-        "type",
-        `${path}.space`,
-        `logical space "${furnishing.space}" does not resolve in built environment "${environment.id}"`,
+      const space: IAutoMovieBuiltSpace | undefined = spaces.get(
         furnishing.space,
       );
-
-    const seenSupports: Set<string> = new Set<string>();
-    furnishing.supports.forEach((id: string, at: number): void => {
-      if (!elements.has(id))
+      if (space === undefined)
         out.push(
           "type",
-          `${path}.supports[${at}]`,
-          `support element "${id}" does not resolve in built environment "${environment.id}"`,
-          id,
+          `${path}.space`,
+          `logical space "${furnishing.space}" does not resolve in built environment "${environment.id}"`,
+          furnishing.space,
         );
-      else if (seenSupports.has(id))
-        out.push(
-          "type",
-          `${path}.supports[${at}]`,
-          `support element "${id}" is duplicated`,
-          id,
-        );
-      seenSupports.add(id);
-    });
 
-    const domain: IAutoMovieSoftBodyDomain | undefined = byDomain.get(furnishing.domain);
-    if (domain === undefined) {
-      out.push(
-        "type",
-        `${path}.domain`,
-        `soft body domain "${furnishing.domain}" was not supplied with this binding`,
+      const seenSupports: Set<string> = new Set<string>();
+      furnishing.supports.forEach((id: string, at: number): void => {
+        if (!elements.has(id))
+          out.push(
+            "type",
+            `${path}.supports[${at}]`,
+            `support element "${id}" does not resolve in built environment "${environment.id}"`,
+            id,
+          );
+        else if (seenSupports.has(id))
+          out.push(
+            "type",
+            `${path}.supports[${at}]`,
+            `support element "${id}" is duplicated`,
+            id,
+          );
+        seenSupports.add(id);
+      });
+
+      const domain: IAutoMovieSoftBodyDomain | undefined = byDomain.get(
         furnishing.domain,
       );
-      return;
-    }
-    const holds: boolean =
-      furnishing.state !== null &&
-      domain.states.some((state: IAutoMovieSoftNamedState): boolean => state.id === furnishing.state);
-    if (furnishing.state !== null && holds === false)
-      out.push(
-        "type",
-        `${path}.state`,
-        `soft body domain "${domain.id}" does not declare a named state "${furnishing.state}"`,
-        furnishing.state,
-      );
-    if (space === undefined || builtSpaceStatesVolume(space) === false) return;
-    const particles: number = domain.lattice.columns * domain.lattice.rows;
-    if (domain.rest.length !== particles * 3) return;
-    // The configuration is checked, not the rest array. An anchor holds its
-    // particle at its own target and the held named state moves it again, both
-    // before the first step is integrated, so a curtain whose every ring is on
-    // the far side of the wall would read as hanging inside the room if only
-    // the authored mesh were walked.
-    const configuration: number[] = softBodyRestConfiguration(
-      domain,
-      holds ? furnishing.state : null,
-    );
-    for (let particle: number = 0; particle < particles; ++particle) {
-      const point: { x: number; y: number; z: number; } = {
-        x: configuration[particle * 3],
-        y: configuration[particle * 3 + 1],
-        z: configuration[particle * 3 + 2],
-      };
-      if (
-        builtEnvironmentContainsPoint(environment, furnishing.space, point) ===
-        false
-      ) {
+      if (domain === undefined) {
         out.push(
           "type",
           `${path}.domain`,
-          `particle ${particle} of "${domain.id}" is held outside space "${furnishing.space}"`,
-          point,
+          `soft body domain "${furnishing.domain}" was not supplied with this binding`,
+          furnishing.domain,
         );
         return;
       }
-    }
-  });
+      const holds: boolean =
+        furnishing.state !== null &&
+        domain.states.some(
+          (state: IAutoMovieSoftNamedState): boolean =>
+            state.id === furnishing.state,
+        );
+      if (furnishing.state !== null && holds === false)
+        out.push(
+          "type",
+          `${path}.state`,
+          `soft body domain "${domain.id}" does not declare a named state "${furnishing.state}"`,
+          furnishing.state,
+        );
+      if (space === undefined || builtSpaceStatesVolume(space) === false)
+        return;
+      const particles: number = domain.lattice.columns * domain.lattice.rows;
+      if (domain.rest.length !== particles * 3) return;
+      // The configuration is checked, not the rest array. An anchor holds its
+      // particle at its own target and the held named state moves it again, both
+      // before the first step is integrated, so a curtain whose every ring is on
+      // the far side of the wall would read as hanging inside the room if only
+      // the authored mesh were walked.
+      const configuration: number[] = softBodyRestConfiguration(
+        domain,
+        holds ? furnishing.state : null,
+      );
+      for (let particle: number = 0; particle < particles; ++particle) {
+        const point: { x: number; y: number; z: number } = {
+          x: configuration[particle * 3],
+          y: configuration[particle * 3 + 1],
+          z: configuration[particle * 3 + 2],
+        };
+        if (
+          builtEnvironmentContainsPoint(
+            environment,
+            furnishing.space,
+            point,
+          ) === false
+        ) {
+          out.push(
+            "type",
+            `${path}.domain`,
+            `particle ${particle} of "${domain.id}" is held outside space "${furnishing.space}"`,
+            point,
+          );
+          return;
+        }
+      }
+    },
+  );
 
   return out.toValidation();
 };

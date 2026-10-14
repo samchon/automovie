@@ -1,4 +1,5 @@
 import { IAutoMovieVector3 } from "@automovie/interface";
+
 /**
  * One resolved capsule using the validation proxy's segment-and-radius meaning.
  * Endpoints are world metres from one absolute soft step; their geometry is

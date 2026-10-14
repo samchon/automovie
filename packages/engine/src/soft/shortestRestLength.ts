@@ -1,5 +1,7 @@
-import { softBodyParticleDistance } from "./softBodyParticleDistance";
 import { IAutoMovieSoftBodyDomain } from "@automovie/interface";
+
+import { softBodyParticleDistance } from "./softBodyParticleDistance";
+
 /** Find the shortest horizontal or vertical lattice rest edge; return Infinity for no structural edge or a mismatched coordinate-array length.
  *
  * @evidence contracts/common.md#principled-implementation A row-major horizontal/vertical walk uses the same scalar distance arithmetic as the solver, after checking one triple per declared particle. Typed admitted dimensions and dense finite rest entries are premises; extreme square overflow/underflow is not normalized away.
@@ -12,9 +14,9 @@ import { IAutoMovieSoftBodyDomain } from "@automovie/interface";
  *
  * @author Samchon
  */
-export const shortestRestLength: (domain: IAutoMovieSoftBodyDomain) => number = (
+export const shortestRestLength: (
   domain: IAutoMovieSoftBodyDomain,
-): number => {
+) => number = (domain: IAutoMovieSoftBodyDomain): number => {
   const columns: number = domain.lattice.columns;
   const rows: number = domain.lattice.rows;
   if (domain.rest.length !== columns * rows * 3) return Infinity;
@@ -23,11 +25,19 @@ export const shortestRestLength: (domain: IAutoMovieSoftBodyDomain) => number = 
     for (let column: number = 0; column < columns; ++column) {
       const particle: number = row * columns + column;
       if (column + 1 < columns) {
-        const length: number = softBodyParticleDistance(domain.rest, particle, particle + 1);
+        const length: number = softBodyParticleDistance(
+          domain.rest,
+          particle,
+          particle + 1,
+        );
         if (length < shortest) shortest = length;
       }
       if (row + 1 < rows) {
-        const length: number = softBodyParticleDistance(domain.rest, particle, particle + columns);
+        const length: number = softBodyParticleDistance(
+          domain.rest,
+          particle,
+          particle + columns,
+        );
         if (length < shortest) shortest = length;
       }
     }

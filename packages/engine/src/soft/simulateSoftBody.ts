@@ -1,5 +1,11 @@
-import { IAutoMovieSoftBodyDomain, IAutoMovieSoftBodyState, IAutoMovieSoftCollider } from "@automovie/interface";
+import {
+  IAutoMovieSoftBodyDomain,
+  IAutoMovieSoftBodyState,
+  IAutoMovieSoftCollider,
+} from "@automovie/interface";
+
 import { simulateSoftBodyCore } from "./simulateSoftBodyCore";
+
 /** Replay one admitted cloth domain without resolved moving samples to an absolute fixed-clock step. Body capsules are refused; moving anchor binding metadata is currently ignored in favor of static/rest targets. Domain admission is the caller's responsibility. No production/viewer consumer currently invokes this public solver, while portable unit cases exercise its numerical output.
  *
  * @evidence contracts/common.md#principled-implementation The shared position-based core starts from rest, predicts damped velocities, applies ordered Jacobi distance corrections and discrete contacts, then refuses nonfinite integrated arrays. Its finite-arithmetic and admitted-domain premises do not prove unconditional stability or continuous collision freedom.
@@ -12,12 +18,21 @@ import { simulateSoftBodyCore } from "./simulateSoftBodyCore";
  *
  * @author Samchon
  */
-export const simulateSoftBody: (domain: IAutoMovieSoftBodyDomain, step: number, state?: string | null) => IAutoMovieSoftBodyState = (
+export const simulateSoftBody: (
+  domain: IAutoMovieSoftBodyDomain,
+  step: number,
+  state?: string | null,
+) => IAutoMovieSoftBodyState = (
   domain: IAutoMovieSoftBodyDomain,
   step: number,
   state: string | null = null,
 ): IAutoMovieSoftBodyState => {
-  if (domain.colliders.some((collider: IAutoMovieSoftCollider): boolean => collider.kind === "body-capsule"))
+  if (
+    domain.colliders.some(
+      (collider: IAutoMovieSoftCollider): boolean =>
+        collider.kind === "body-capsule",
+    )
+  )
     throw new Error(
       `soft body "${domain.id}" needs resolved moving boundaries for body capsules`,
     );

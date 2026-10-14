@@ -1,6 +1,14 @@
-import { IAutoMovieSoftBodyDomain, IAutoMovieSoftBodyState, IAutoMovieSoftCollider, IAutoMovieVector3, IAutoMovieSoftAnchor } from "@automovie/interface";
+import {
+  IAutoMovieSoftAnchor,
+  IAutoMovieSoftBodyDomain,
+  IAutoMovieSoftBodyState,
+  IAutoMovieSoftCollider,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { IAutoMovieSoftBodyBoundarySample } from "./IAutoMovieSoftBodyBoundarySample";
 import { simulateSoftBodyCore } from "./simulateSoftBodyCore";
+
 /** Replay cloth against a complete resolved moving boundary for every absolute step from zero through the target. Static colliders remain active. This public API currently reaches portable tests through the wearable resolver; no production/viewer host wires that live solver.
  *
  * @evidence contracts/common.md#principled-implementation Every boundary step, moving-anchor particle and body-capsule id must cover its authored counterpart exactly, with finite target vectors and positive finite radii, before the shared fixed-clock core runs. Core domain validity remains a separate caller premise.
@@ -13,7 +21,12 @@ import { simulateSoftBodyCore } from "./simulateSoftBodyCore";
  *
  * @author Samchon
  */
-export const simulateSoftBodyWithBoundaries: (domain: IAutoMovieSoftBodyDomain, step: number, boundaries: readonly IAutoMovieSoftBodyBoundarySample[], state?: string | null) => IAutoMovieSoftBodyState = (
+export const simulateSoftBodyWithBoundaries: (
+  domain: IAutoMovieSoftBodyDomain,
+  step: number,
+  boundaries: readonly IAutoMovieSoftBodyBoundarySample[],
+  state?: string | null,
+) => IAutoMovieSoftBodyState = (
   domain: IAutoMovieSoftBodyDomain,
   step: number,
   boundaries: readonly IAutoMovieSoftBodyBoundarySample[],
@@ -25,13 +38,22 @@ export const simulateSoftBodyWithBoundaries: (domain: IAutoMovieSoftBodyDomain, 
     );
   const movingAnchorParticles: Set<number> = new Set(
     domain.anchors
-      .filter((anchor: IAutoMovieSoftAnchor): boolean => anchor.binding !== undefined)
+      .filter(
+        (anchor: IAutoMovieSoftAnchor): boolean => anchor.binding !== undefined,
+      )
       .map((anchor: IAutoMovieSoftAnchor): number => anchor.particle),
   );
   const bodyCapsuleIds: Set<string> = new Set(
     domain.colliders
-      .filter((collider: IAutoMovieSoftCollider): collider is IAutoMovieSoftCollider.IBodyCapsule => collider.kind === "body-capsule")
-      .map((collider: IAutoMovieSoftCollider.IBodyCapsule): string => collider.id),
+      .filter(
+        (
+          collider: IAutoMovieSoftCollider,
+        ): collider is IAutoMovieSoftCollider.IBodyCapsule =>
+          collider.kind === "body-capsule",
+      )
+      .map(
+        (collider: IAutoMovieSoftCollider.IBodyCapsule): string => collider.id,
+      ),
   );
   for (let index: number = 0; index < boundaries.length; ++index) {
     const boundary: IAutoMovieSoftBodyBoundarySample = boundaries[index]!;
@@ -97,7 +119,10 @@ export const simulateSoftBodyWithBoundaries: (domain: IAutoMovieSoftBodyDomain, 
 };
 
 /** Refuse a nonfinite resolved moving-boundary vector. */
-const assertVector: (value: IAutoMovieVector3, label: string) => void = (value: IAutoMovieVector3, label: string): void => {
+const assertVector: (value: IAutoMovieVector3, label: string) => void = (
+  value: IAutoMovieVector3,
+  label: string,
+): void => {
   if (
     !Number.isFinite(value.x) ||
     !Number.isFinite(value.y) ||

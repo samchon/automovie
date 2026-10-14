@@ -1,5 +1,7 @@
 import { IAutoMovieSoftBodyDomain } from "@automovie/interface";
+
 import { shortestRestLength } from "./shortestRestLength";
+
 /** Report dt*declared reference speed divided by the shortest structural rest edge; no-edge Infinity yields zero. This authored travel ratio is an admission heuristic, not a guarantee against collider tunnelling.
  *
  * @evidence contracts/common.md#principled-implementation The shortest-edge owner supplies a shared direct-square distance estimate; the ratio uses declared reference speed rather than measured peak velocity or collider thickness, and malformed domains are refused separately.
@@ -12,9 +14,9 @@ import { shortestRestLength } from "./shortestRestLength";
  *
  * @author Samchon
  */
-export const softBodyTravelNumber: (domain: IAutoMovieSoftBodyDomain) => number = (
+export const softBodyTravelNumber: (
   domain: IAutoMovieSoftBodyDomain,
-): number => {
+) => number = (domain: IAutoMovieSoftBodyDomain): number => {
   const shortest: number = shortestRestLength(domain);
   if (shortest === Infinity) return 0;
   return (

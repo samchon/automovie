@@ -1,9 +1,19 @@
-import { IAutoMovieSoftAnalysis, IAutoMovieSoftBodyDomain, IAutoMovieSoftBodyState, IAutoMovieSoftFurnishing, AutoMovieSoftAnalysisStatus, IAutoMovieValidation, IAutoMovieSoftNamedState } from "@automovie/interface";
+import {
+  AutoMovieSoftAnalysisStatus,
+  IAutoMovieSoftAnalysis,
+  IAutoMovieSoftBodyDomain,
+  IAutoMovieSoftBodyState,
+  IAutoMovieSoftFurnishing,
+  IAutoMovieSoftNamedState,
+  IAutoMovieValidation,
+} from "@automovie/interface";
+
 import { IAutoMovieSoftFurnishingFrame } from "./IAutoMovieSoftFurnishingFrame";
 import { simulateSoftBody } from "./simulateSoftBody";
 import { softBodyStepAt } from "./softBodyStepAt";
 import { softBodySurfaceGeometry } from "./softBodySurfaceGeometry";
 import { validateSoftBodyDomain } from "./validateSoftBodyDomain";
+
 /** Lower one typed furnishing into a cloth surface and explicit rest/solved/not-run/unsupported status. Domain/reference/state/budget failures are reported before solve; unexpected numeric integration failures can still throw. No production/viewer currently calls this public lowering API.
  *
  * @evidence contracts/common.md#principled-implementation Domain admission, state membership and time/budget checks precede canonical rest or fixed-step replay, then the same solved particle field supplies surface geometry. Self-collision returns unsupported rest geometry rather than being presented as solved.
@@ -16,14 +26,22 @@ import { validateSoftBodyDomain } from "./validateSoftBodyDomain";
  *
  * @author Samchon
  */
-export const lowerSoftFurnishing: (props: { furnishing: IAutoMovieSoftFurnishing; domain: IAutoMovieSoftBodyDomain; time: number; }) => IAutoMovieSoftFurnishingFrame = (props: {
+export const lowerSoftFurnishing: (props: {
+  furnishing: IAutoMovieSoftFurnishing;
+  domain: IAutoMovieSoftBodyDomain;
+  time: number;
+}) => IAutoMovieSoftFurnishingFrame = (props: {
   furnishing: IAutoMovieSoftFurnishing;
   domain: IAutoMovieSoftBodyDomain;
   time: number;
 }): IAutoMovieSoftFurnishingFrame => {
   const { furnishing, domain }: typeof props = props;
   /** Create the explicit computation status and unsupported-case report for this furnishing domain. */
-  const analysis: (status: AutoMovieSoftAnalysisStatus, reason: string | null, unsupported?: string[]) => IAutoMovieSoftAnalysis = (
+  const analysis: (
+    status: AutoMovieSoftAnalysisStatus,
+    reason: string | null,
+    unsupported?: string[],
+  ) => IAutoMovieSoftAnalysis = (
     status: IAutoMovieSoftAnalysis["status"],
     reason: string | null,
     unsupported: string[] = [],
@@ -34,7 +52,10 @@ export const lowerSoftFurnishing: (props: { furnishing: IAutoMovieSoftFurnishing
     reason,
     unsupported,
   });
-  const frame: (report: IAutoMovieSoftAnalysis, state: IAutoMovieSoftBodyState | null) => IAutoMovieSoftFurnishingFrame = (
+  const frame: (
+    report: IAutoMovieSoftAnalysis,
+    state: IAutoMovieSoftBodyState | null,
+  ) => IAutoMovieSoftFurnishingFrame = (
     report: IAutoMovieSoftAnalysis,
     state: IAutoMovieSoftBodyState | null,
   ): IAutoMovieSoftFurnishingFrame => ({
@@ -66,7 +87,10 @@ export const lowerSoftFurnishing: (props: { furnishing: IAutoMovieSoftFurnishing
     );
   if (
     furnishing.state !== null &&
-    domain.states.every((state: IAutoMovieSoftNamedState): boolean => state.id !== furnishing.state)
+    domain.states.every(
+      (state: IAutoMovieSoftNamedState): boolean =>
+        state.id !== furnishing.state,
+    )
   )
     return frame(
       analysis(

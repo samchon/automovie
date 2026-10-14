@@ -31,10 +31,10 @@ export function plantingCanopyBounds(
   const max: IAutoMovieVector3 = { x: -Infinity, y: -Infinity, z: -Infinity };
 
   /** Fold one point and its axis-aligned radial support into this fresh envelope. */
-  const include: (point: IAutoMovieVector3, support: IAutoMovieVector3) => void = (
+  const include: (
     point: IAutoMovieVector3,
     support: IAutoMovieVector3,
-  ): void => {
+  ) => void = (point: IAutoMovieVector3, support: IAutoMovieVector3): void => {
     min.x = Math.min(min.x, point.x - support.x);
     min.y = Math.min(min.y, point.y - support.y);
     min.z = Math.min(min.z, point.z - support.z);
@@ -63,11 +63,14 @@ export function plantingCanopyBounds(
   for (const leaf of leaves)
     for (let x: number = -1; x <= 1; x += 2)
       for (let y: number = -1; y <= 1; y += 2) {
-        const offset: IAutoMovieVector3 = Quaternion.rotateVector(leaf.rotation, {
-          x: (x * leaf.scale.x) / 2,
-          y: (y * leaf.scale.y) / 2,
-          z: 0,
-        });
+        const offset: IAutoMovieVector3 = Quaternion.rotateVector(
+          leaf.rotation,
+          {
+            x: (x * leaf.scale.x) / 2,
+            y: (y * leaf.scale.y) / 2,
+            z: 0,
+          },
+        );
         const corner: IAutoMovieVector3 = {
           x: leaf.translation.x + offset.x,
           y: leaf.translation.y + offset.y,

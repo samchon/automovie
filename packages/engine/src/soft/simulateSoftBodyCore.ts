@@ -1,12 +1,19 @@
-import { IAutoMovieSoftBodyDomain, IAutoMovieSoftBodyState, IAutoMovieVector3, IAutoMovieSoftWind } from "@automovie/interface";
+import {
+  IAutoMovieSoftBodyDomain,
+  IAutoMovieSoftBodyState,
+  IAutoMovieSoftWind,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { IAutoMovieSoftBodyBoundarySample } from "./IAutoMovieSoftBodyBoundarySample";
 import { IAutoMovieSoftBodyResolvedAnchor } from "./IAutoMovieSoftBodyResolvedAnchor";
 import { SOFT_BODY_NEIGHBOURS } from "./SOFT_BODY_NEIGHBOURS";
+import { gatherSoftBodyCorrections } from "./gatherSoftBodyCorrections";
+import { projectSoftBodyContacts } from "./projectSoftBodyContacts";
 import { softBodyNeighbourOf } from "./softBodyNeighbourOf";
 import { softBodyParticleDistance } from "./softBodyParticleDistance";
 import { softBodyRestBuffer } from "./softBodyRestBuffer";
-import { gatherSoftBodyCorrections } from "./gatherSoftBodyCorrections";
-import { projectSoftBodyContacts } from "./projectSoftBodyContacts";
+
 /** Integrate an admitted cloth lattice from its authored rest boundary to one absolute fixed step.
  *
  * @evidence contracts/common.md#principled-implementation Damped prediction, ordered simultaneous Jacobi constraint gathers and discrete collider escape form the existing position-based scheme. Anchors have zero inverse mass and prescribed targets; domain admission and complete moving samples are caller premises. Nonfinite integrated arrays throw, without proving universal stability or collision freedom.
@@ -17,7 +24,12 @@ import { projectSoftBodyContacts } from "./projectSoftBodyContacts";
  * @evidence contracts/performance.md#reuse-equivalent-work Rest lengths, valences, inverse masses and static targets are built once and reused across all steps/sweeps in this solve; changing domains, states or complete boundary sequences starts a new replay, without cross-call cache equivalence.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Working typed arrays and maps are call-local; only fresh plain position/velocity arrays and scalar measurements transfer in the result, and thrown failure retains no integration task or cursor.
  */
-export const simulateSoftBodyCore: (domain: IAutoMovieSoftBodyDomain, step: number, state: string | null, boundaries: readonly IAutoMovieSoftBodyBoundarySample[] | null) => IAutoMovieSoftBodyState = (
+export const simulateSoftBodyCore: (
+  domain: IAutoMovieSoftBodyDomain,
+  step: number,
+  state: string | null,
+  boundaries: readonly IAutoMovieSoftBodyBoundarySample[] | null,
+) => IAutoMovieSoftBodyState = (
   domain: IAutoMovieSoftBodyDomain,
   step: number,
   state: string | null,
@@ -45,7 +57,10 @@ export const simulateSoftBodyCore: (domain: IAutoMovieSoftBodyDomain, step: numb
 
   // Anchors are resolved once: a named state is a boundary condition held for
   // the whole solve, not a keyframe that moves while it is being integrated.
-  const position: Float64Array<ArrayBufferLike> = softBodyRestBuffer(domain, state);
+  const position: Float64Array<ArrayBufferLike> = softBodyRestBuffer(
+    domain,
+    state,
+  );
   if (boundaries !== null)
     applyResolvedAnchors(position, boundaries[0]!.anchors);
   const velocity: Float64Array<ArrayBuffer> = new Float64Array(count * 3);
@@ -53,7 +68,9 @@ export const simulateSoftBodyCore: (domain: IAutoMovieSoftBodyDomain, step: numb
   const correction: Float64Array<ArrayBuffer> = new Float64Array(count * 3);
   const inverseMass: Float64Array<ArrayBuffer> = new Float64Array(count);
   const valence: Int32Array<ArrayBuffer> = new Int32Array(count);
-  const restLength: Float64Array<ArrayBuffer> = new Float64Array(count * SOFT_BODY_NEIGHBOURS.length);
+  const restLength: Float64Array<ArrayBuffer> = new Float64Array(
+    count * SOFT_BODY_NEIGHBOURS.length,
+  );
 
   for (let particle: number = 0; particle < count; ++particle)
     inverseMass[particle] = 1 / domain.mass[particle];
@@ -63,16 +80,19 @@ export const simulateSoftBodyCore: (domain: IAutoMovieSoftBodyDomain, step: numb
     for (let column: number = 0; column < columns; ++column) {
       const particle: number = row * columns + column;
       for (let at: number = 0; at < SOFT_BODY_NEIGHBOURS.length; ++at) {
-        const other: number = softBodyNeighbourOf(columns, rows, column, row, at);
+        const other: number = softBodyNeighbourOf(
+          columns,
+          rows,
+          column,
+          row,
+          at,
+        );
         if (other < 0) {
           restLength[particle * SOFT_BODY_NEIGHBOURS.length + at] = -1;
           continue;
         }
-        restLength[particle * SOFT_BODY_NEIGHBOURS.length + at] = softBodyParticleDistance(
-          domain.rest,
-          particle,
-          other,
-        );
+        restLength[particle * SOFT_BODY_NEIGHBOURS.length + at] =
+          softBodyParticleDistance(domain.rest, particle, other);
         ++valence[particle];
       }
     }
@@ -82,7 +102,8 @@ export const simulateSoftBodyCore: (domain: IAutoMovieSoftBodyDomain, step: numb
   let contacts: number = 0;
 
   for (let index: number = 0; index < step; ++index) {
-    const boundary: IAutoMovieSoftBodyBoundarySample | null = boundaries?.[index + 1] ?? null;
+    const boundary: IAutoMovieSoftBodyBoundarySample | null =
+      boundaries?.[index + 1] ?? null;
     if (boundary !== null) applyResolvedAnchors(position, boundary.anchors);
     const gust: number = windAcceleration(domain, index * dt);
     contacts = 0;
@@ -90,9 +111,11 @@ export const simulateSoftBodyCore: (domain: IAutoMovieSoftBodyDomain, step: numb
     for (let particle: number = 0; particle < count; ++particle) {
       const base: number = particle * 3;
       if (inverseMass[particle] === 0) {
-        const moving: IAutoMovieSoftBodyResolvedAnchor | undefined = boundary?.anchors.find(
-          (anchor: IAutoMovieSoftBodyResolvedAnchor): boolean => anchor.particle === particle,
-        );
+        const moving: IAutoMovieSoftBodyResolvedAnchor | undefined =
+          boundary?.anchors.find(
+            (anchor: IAutoMovieSoftBodyResolvedAnchor): boolean =>
+              anchor.particle === particle,
+          );
         predicted[base] = moving?.position.x ?? position[base];
         predicted[base + 1] = moving?.position.y ?? position[base + 1];
         predicted[base + 2] = moving?.position.z ?? position[base + 2];
@@ -126,7 +149,13 @@ export const simulateSoftBodyCore: (domain: IAutoMovieSoftBodyDomain, step: numb
 
     for (let particle: number = 0; particle < count; ++particle) {
       if (inverseMass[particle] === 0) continue;
-      contacts = projectSoftBodyContacts(domain.colliders, boundary?.capsules ?? null, predicted, particle, contacts);
+      contacts = projectSoftBodyContacts(
+        domain.colliders,
+        boundary?.capsules ?? null,
+        predicted,
+        particle,
+        contacts,
+      );
     }
 
     for (let particle: number = 0; particle < count; ++particle) {
@@ -173,11 +202,19 @@ export const simulateSoftBodyCore: (domain: IAutoMovieSoftBodyDomain, step: numb
       // statement about stretch, and a diagonal or a second neighbour bending
       // is not stretch.
       for (let at: number = 0; at < 4; ++at) {
-        const rest: number = restLength[particle * SOFT_BODY_NEIGHBOURS.length + at];
+        const rest: number =
+          restLength[particle * SOFT_BODY_NEIGHBOURS.length + at];
         if (rest < 0) continue;
-        const other: number = softBodyNeighbourOf(columns, rows, column, row, at);
+        const other: number = softBodyNeighbourOf(
+          columns,
+          rows,
+          column,
+          row,
+          at,
+        );
         const strain: number =
-          Math.abs(softBodyParticleDistance(position, particle, other) - rest) / rest;
+          Math.abs(softBodyParticleDistance(position, particle, other) - rest) /
+          rest;
         if (strain > maxStrain) maxStrain = strain;
       }
     }
@@ -196,7 +233,10 @@ export const simulateSoftBodyCore: (domain: IAutoMovieSoftBodyDomain, step: numb
 };
 
 /** Overwrite each resolved hard target in the working position buffer, leaving unrelated particles untouched. */
-const applyResolvedAnchors: (position: Float64Array<ArrayBufferLike>, anchors: readonly IAutoMovieSoftBodyResolvedAnchor[]) => void = (
+const applyResolvedAnchors: (
+  position: Float64Array<ArrayBufferLike>,
+  anchors: readonly IAutoMovieSoftBodyResolvedAnchor[],
+) => void = (
   position: Float64Array,
   anchors: readonly IAutoMovieSoftBodyResolvedAnchor[],
 ): void => {
@@ -209,7 +249,9 @@ const applyResolvedAnchors: (position: Float64Array<ArrayBufferLike>, anchors: r
 };
 
 /** Normalize the admitted draught direction with the existing square-root expression, or return zero for no wind. */
-const windAxis: (domain: IAutoMovieSoftBodyDomain) => IAutoMovieVector3 = (domain: IAutoMovieSoftBodyDomain): IAutoMovieVector3 => {
+const windAxis: (domain: IAutoMovieSoftBodyDomain) => IAutoMovieVector3 = (
+  domain: IAutoMovieSoftBodyDomain,
+): IAutoMovieVector3 => {
   const wind: IAutoMovieSoftWind | null = domain.wind;
   if (wind === null) return { x: 0, y: 0, z: 0 };
   const length: number = Math.sqrt(
@@ -225,10 +267,10 @@ const windAxis: (domain: IAutoMovieSoftBodyDomain) => IAutoMovieVector3 = (domai
 };
 
 /** Evaluate the declared triangle gust at a fixed-clock time with the existing binary64 phase arithmetic. */
-const windAcceleration: (domain: IAutoMovieSoftBodyDomain, time: number) => number = (
+const windAcceleration: (
   domain: IAutoMovieSoftBodyDomain,
   time: number,
-): number => {
+) => number = (domain: IAutoMovieSoftBodyDomain, time: number): number => {
   const wind: IAutoMovieSoftWind | null = domain.wind;
   if (wind === null) return 0;
   const cycles: number = wind.gustHz * time;
@@ -239,7 +281,9 @@ const windAcceleration: (domain: IAutoMovieSoftBodyDomain, time: number) => numb
 };
 
 /** Reject nonfinite integrated coordinates by scanning the completed working buffer. */
-const allFinite: (values: Float64Array<ArrayBufferLike>) => boolean = (values: Float64Array): boolean => {
+const allFinite: (values: Float64Array<ArrayBufferLike>) => boolean = (
+  values: Float64Array,
+): boolean => {
   for (let index: number = 0; index < values.length; ++index)
     if (Number.isFinite(values[index]) === false) return false;
   return true;

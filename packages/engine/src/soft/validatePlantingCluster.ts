@@ -1,10 +1,15 @@
-import { validateSoftNumeric as numeric } from "./validateSoftNumeric";
-import { validateSoftInteger as integer } from "./validateSoftInteger";
-import { validateSoftVector as vector } from "./validateSoftVector";
-import { IAutoMoviePlantingCluster, IAutoMovieValidation } from "@automovie/interface";
+import {
+  IAutoMoviePlantingCluster,
+  IAutoMovieValidation,
+} from "@automovie/interface";
+
 import { ViolationCollector } from "../validation/ViolationCollector";
 import { PLANTING_MAX_ATTEMPTS } from "./constants/PLANTING_MAX_ATTEMPTS";
 import { PLANTING_MAX_MEMBERS } from "./constants/PLANTING_MAX_MEMBERS";
+import { validateSoftInteger as integer } from "./validateSoftInteger";
+import { validateSoftNumeric as numeric } from "./validateSoftNumeric";
+import { validateSoftVector as vector } from "./validateSoftVector";
+
 /** Admit a typed cluster's finite region, positive scale intervals, safe seed and bounded member/attempt counts. It does not prove all requested placements fit; arrangement returns explicit rejected slots when sampling cannot satisfy spacing.
  *
  * @evidence contracts/common.md#principled-implementation Finite/range and safe-integer predicates accumulate authored-value findings in field order, using the canonical member/attempt caps; arbitrary huge finite coordinates remain admitted even where downstream arithmetic loses precision.
@@ -17,7 +22,9 @@ import { PLANTING_MAX_MEMBERS } from "./constants/PLANTING_MAX_MEMBERS";
  *
  * @author Samchon
  */
-export const validatePlantingCluster: (props: { cluster: IAutoMoviePlantingCluster; }) => IAutoMovieValidation = (props: {
+export const validatePlantingCluster: (props: {
+  cluster: IAutoMoviePlantingCluster;
+}) => IAutoMovieValidation = (props: {
   cluster: IAutoMoviePlantingCluster;
 }): IAutoMovieValidation => {
   const { cluster }: typeof props = props;

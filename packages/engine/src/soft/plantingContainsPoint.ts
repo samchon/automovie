@@ -1,4 +1,8 @@
-import { IAutoMoviePruningEnvelope, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  IAutoMoviePruningEnvelope,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 /** Test a recipe-local point against the authored none, closed box or closed sphere pruning envelope.
  *
  * @evidence contracts/common.md#principled-implementation Box membership uses inclusive component comparisons; sphere membership uses direct squared offset and radius. Typed admitted envelopes/points are premises, while extreme square overflow/underflow can make the sphere comparison unreliable.
@@ -9,7 +13,10 @@ import { IAutoMoviePruningEnvelope, IAutoMovieVector3 } from "@automovie/interfa
  * @evidence contracts/performance.md#reuse-equivalent-work One predicate serves every emitted branch base; varying points cannot reuse a prior membership result behind envelope identity alone.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only a boolean transfers; point and envelope are read without mutation or retained references.
  */
-export const plantingContainsPoint: (envelope: IAutoMoviePruningEnvelope, point: IAutoMovieVector3) => boolean = (
+export const plantingContainsPoint: (
+  envelope: IAutoMoviePruningEnvelope,
+  point: IAutoMovieVector3,
+) => boolean = (
   envelope: IAutoMoviePruningEnvelope,
   point: IAutoMovieVector3,
 ): boolean => {

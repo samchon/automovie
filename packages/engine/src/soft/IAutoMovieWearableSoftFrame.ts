@@ -1,5 +1,6 @@
 import { IAutoMovieSoftNodeTransform } from "./IAutoMovieSoftNodeTransform";
 import { IAutoMovieWearableSoftActorPose } from "./IAutoMovieWearableSoftActorPose";
+
 /**
  * Complete node/actor primary-motion snapshot supplied at one absolute soft step.
  *

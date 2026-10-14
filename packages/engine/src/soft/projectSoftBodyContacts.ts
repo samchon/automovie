@@ -1,5 +1,10 @@
-import { IAutoMovieSoftCollider, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  IAutoMovieSoftCollider,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { IAutoMovieSoftBodyResolvedCapsule } from "./IAutoMovieSoftBodyResolvedCapsule";
+
 /** Project one unanchored particle through authored static colliders, then resolved moving capsules, preserving the running contact count.
  *
  * @evidence contracts/common.md#principled-implementation Half-spaces, spheres, axis-aligned boxes and capsules use their existing analytic escape predicates in declaration order. This is discrete endpoint projection, not continuous collision detection or simultaneous nonpenetration proof; later projection may reenter an earlier collider.
@@ -10,15 +15,32 @@ import { IAutoMovieSoftBodyResolvedCapsule } from "./IAutoMovieSoftBodyResolvedC
  * @evidence contracts/performance.md#reuse-equivalent-work Static and moving solves reuse identical projection code but reevaluate each particle's current coordinates; contact results cannot be cached across moved positions or boundaries.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller-owned predicted triple is updated in place, collider rows are read only, and only the updated count survives the call.
  */
-export const projectSoftBodyContacts: (colliders: IAutoMovieSoftCollider[], capsules: readonly IAutoMovieSoftBodyResolvedCapsule[] | null, predicted: Float64Array<ArrayBufferLike>, particle: number, contacts: number) => number = (colliders: IAutoMovieSoftCollider[], capsules: readonly IAutoMovieSoftBodyResolvedCapsule[] | null, predicted: Float64Array, particle: number, contacts: number): number => {
+export const projectSoftBodyContacts: (
+  colliders: IAutoMovieSoftCollider[],
+  capsules: readonly IAutoMovieSoftBodyResolvedCapsule[] | null,
+  predicted: Float64Array<ArrayBufferLike>,
+  particle: number,
+  contacts: number,
+) => number = (
+  colliders: IAutoMovieSoftCollider[],
+  capsules: readonly IAutoMovieSoftBodyResolvedCapsule[] | null,
+  predicted: Float64Array,
+  particle: number,
+  contacts: number,
+): number => {
   let total: number = contacts;
   total += resolveContacts(colliders, predicted, particle);
-  if (capsules !== null) total += resolveCapsuleContacts(capsules, predicted, particle);
+  if (capsules !== null)
+    total += resolveCapsuleContacts(capsules, predicted, particle);
   return total;
 };
 
 /** Visit static collider rows in order, counting a projection when any coordinate changes. */
-const resolveContacts: (colliders: IAutoMovieSoftCollider[], predicted: Float64Array<ArrayBufferLike>, particle: number) => number = (
+const resolveContacts: (
+  colliders: IAutoMovieSoftCollider[],
+  predicted: Float64Array<ArrayBufferLike>,
+  particle: number,
+) => number = (
   colliders: IAutoMovieSoftCollider[],
   predicted: Float64Array,
   particle: number,
@@ -44,7 +66,11 @@ const resolveContacts: (colliders: IAutoMovieSoftCollider[], predicted: Float64A
 };
 
 /** Visit resolved moving capsules in order after static projection, using the same coordinate-change count. */
-const resolveCapsuleContacts: (capsules: readonly IAutoMovieSoftBodyResolvedCapsule[], predicted: Float64Array<ArrayBufferLike>, particle: number) => number = (
+const resolveCapsuleContacts: (
+  capsules: readonly IAutoMovieSoftBodyResolvedCapsule[],
+  predicted: Float64Array<ArrayBufferLike>,
+  particle: number,
+) => number = (
   capsules: readonly IAutoMovieSoftBodyResolvedCapsule[],
   predicted: Float64Array,
   particle: number,
@@ -67,7 +93,11 @@ const resolveCapsuleContacts: (capsules: readonly IAutoMovieSoftBodyResolvedCaps
 };
 
 /** Escape a capsule's nearest segment point; zero axial distance uses the original deterministic fallback axis. */
-const escapeCapsule: (capsule: IAutoMovieSoftBodyResolvedCapsule, predicted: Float64Array<ArrayBufferLike>, base: number) => void = (
+const escapeCapsule: (
+  capsule: IAutoMovieSoftBodyResolvedCapsule,
+  predicted: Float64Array<ArrayBufferLike>,
+  base: number,
+) => void = (
   capsule: IAutoMovieSoftBodyResolvedCapsule,
   predicted: Float64Array,
   base: number,
@@ -124,7 +154,8 @@ const escapeCapsule: (capsule: IAutoMovieSoftBodyResolvedCapsule, predicted: Flo
       }
       softBodyParticleDistance = Math.sqrt(dx * dx + dy * dy + dz * dz);
     }
-    softBodyParticleDistance = softBodyParticleDistance === 0 ? 1 : softBodyParticleDistance;
+    softBodyParticleDistance =
+      softBodyParticleDistance === 0 ? 1 : softBodyParticleDistance;
   }
   const factor: number = capsule.radius / softBodyParticleDistance;
   predicted[base] = closestX + dx * factor;
@@ -133,7 +164,11 @@ const escapeCapsule: (capsule: IAutoMovieSoftBodyResolvedCapsule, predicted: Flo
 };
 
 /** Move a penetrating point along the admitted plane normal; normal scale remains the domain validator's responsibility. */
-const escapePlane: (collider: IAutoMovieSoftCollider.IPlane, predicted: Float64Array<ArrayBufferLike>, base: number) => void = (
+const escapePlane: (
+  collider: IAutoMovieSoftCollider.IPlane,
+  predicted: Float64Array<ArrayBufferLike>,
+  base: number,
+) => void = (
   collider: IAutoMovieSoftCollider.IPlane,
   predicted: Float64Array,
   base: number,
@@ -155,7 +190,11 @@ const escapePlane: (collider: IAutoMovieSoftCollider.IPlane, predicted: Float64A
 };
 
 /** Escape a sphere radially, with the original centre fallback when no radial direction exists. */
-const escapeSphere: (collider: IAutoMovieSoftCollider.ISphere, predicted: Float64Array<ArrayBufferLike>, base: number) => void = (
+const escapeSphere: (
+  collider: IAutoMovieSoftCollider.ISphere,
+  predicted: Float64Array<ArrayBufferLike>,
+  base: number,
+) => void = (
   collider: IAutoMovieSoftCollider.ISphere,
   predicted: Float64Array,
   base: number,
@@ -179,7 +218,11 @@ const escapeSphere: (collider: IAutoMovieSoftCollider.ISphere, predicted: Float6
 };
 
 /** Choose the strictly least-penetrated box face; first-axis and maximum-side ties preserve the original deterministic policy. */
-const escapeBox: (collider: IAutoMovieSoftCollider.IBox, predicted: Float64Array<ArrayBufferLike>, base: number) => void = (
+const escapeBox: (
+  collider: IAutoMovieSoftCollider.IBox,
+  predicted: Float64Array<ArrayBufferLike>,
+  base: number,
+) => void = (
   collider: IAutoMovieSoftCollider.IBox,
   predicted: Float64Array,
   base: number,

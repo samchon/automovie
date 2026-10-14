@@ -1,11 +1,23 @@
-import { plantingCanopyBounds } from "./plantingCanopyBounds";
+import {
+  IAutoMoviePlantingBranch,
+  IAutoMoviePlantingChild,
+  IAutoMoviePlantingDomain,
+  IAutoMoviePlantingFoliage,
+  IAutoMoviePlantingLeaf,
+  IAutoMoviePlantingState,
+  IAutoMoviePlantingStructure,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { Quaternion } from "../math/Quaternion";
-import { plantingYaw } from "./plantingYaw";
-import { plantingContainsPoint } from "./plantingContainsPoint";
-import { plantingPruningDistance } from "./plantingPruningDistance";
-import { IAutoMoviePlantingBranch, IAutoMoviePlantingDomain, IAutoMoviePlantingLeaf, IAutoMoviePlantingState, IAutoMovieQuaternion, IAutoMovieVector3, IAutoMoviePlantingStructure, IAutoMoviePlantingChild, IAutoMoviePlantingFoliage } from "@automovie/interface";
 import { mixSeed } from "../math/mixSeed";
 import { seededValue } from "../math/seededValue";
+import { plantingCanopyBounds } from "./plantingCanopyBounds";
+import { plantingContainsPoint } from "./plantingContainsPoint";
+import { plantingPruningDistance } from "./plantingPruningDistance";
+import { plantingYaw } from "./plantingYaw";
+
 const SALT_TRUNK: number = 0x74726e6b;
 
 const SALT_LENGTH: number = 0x6c656e67;
@@ -28,7 +40,9 @@ const SALT_LEAF_ROLL: number = 0x726f6c6c;
  *
  * @author Samchon
  */
-export const growPlanting: (domain: IAutoMoviePlantingDomain) => IAutoMoviePlantingState = (
+export const growPlanting: (
+  domain: IAutoMoviePlantingDomain,
+) => IAutoMoviePlantingState = (
   domain: IAutoMoviePlantingDomain,
 ): IAutoMoviePlantingState => {
   const structure: IAutoMoviePlantingStructure = domain.structure;
@@ -37,14 +51,24 @@ export const growPlanting: (domain: IAutoMoviePlantingDomain) => IAutoMoviePlant
   const span: number = 1 - domain.growth.onset * (structure.levels - 1);
   /** Clamp this admitted level growth law to the normalized extension interval using the recipe-wide positive span. */
   const extension: (level: number) => number = (level: number): number => {
-    const raw: number = (domain.growth.stage - domain.growth.onset * level) / span;
+    const raw: number =
+      (domain.growth.stage - domain.growth.onset * level) / span;
     if (raw <= 0) return 0;
     return raw >= 1 ? 1 : raw;
   };
 
   /** Emit one recipe-local branch, its leaf occurrences and surviving children in authored depth-first order, refusing declared cap overflow before publication. */
 
-  const emit: (props: { id: string; parent: string | null; level: number; key: number; base: IAutoMovieVector3; axis: IAutoMovieVector3; fullLength: number; radiusStart: number; }) => void = (props: {
+  const emit: (props: {
+    id: string;
+    parent: string | null;
+    level: number;
+    key: number;
+    base: IAutoMovieVector3;
+    axis: IAutoMovieVector3;
+    fullLength: number;
+    radiusStart: number;
+  }) => void = (props: {
     id: string;
     parent: string | null;
     level: number;
@@ -58,13 +82,18 @@ export const growPlanting: (domain: IAutoMoviePlantingDomain) => IAutoMoviePlant
     if (reach === 0) return;
     if (plantingContainsPoint(domain.pruning, props.base) === false) return;
     const length: number = props.fullLength * reach;
-    const tip: { x: number; y: number; z: number; } = {
+    const tip: { x: number; y: number; z: number } = {
       x: props.base.x + props.axis.x * length,
       y: props.base.y + props.axis.y * length,
       z: props.base.z + props.axis.z * length,
     };
-    const cut: number | null = plantingPruningDistance(domain.pruning, props.base, props.axis, length);
-    const end: { x: number; y: number; z: number; } =
+    const cut: number | null = plantingPruningDistance(
+      domain.pruning,
+      props.base,
+      props.axis,
+      length,
+    );
+    const end: { x: number; y: number; z: number } =
       cut === null
         ? tip
         : {
@@ -100,28 +129,30 @@ export const growPlanting: (domain: IAutoMoviePlantingDomain) => IAutoMoviePlant
     });
 
     if (props.level + 1 >= structure.levels) return;
-    structure.children.forEach((child: IAutoMoviePlantingChild, index: number): void => {
-      const emergence: number = child.offset * length;
-      if (emergence > grown) return;
-      const key: number = mixSeed(index + 1, props.key);
-      emit({
-        id: `${props.id}/${child.id}`,
-        parent: props.id,
-        level: props.level + 1,
-        key,
-        base: {
-          x: props.base.x + props.axis.x * emergence,
-          y: props.base.y + props.axis.y * emergence,
-          z: props.base.z + props.axis.z * emergence,
-        },
-        axis: childAxis(domain, props.axis, child.direction, key),
-        fullLength:
-          props.fullLength *
-          structure.lengthRatio *
-          jitter(domain.seed, key, SALT_LENGTH, structure.lengthJitter),
-        radiusStart: radiusEnd,
-      });
-    });
+    structure.children.forEach(
+      (child: IAutoMoviePlantingChild, index: number): void => {
+        const emergence: number = child.offset * length;
+        if (emergence > grown) return;
+        const key: number = mixSeed(index + 1, props.key);
+        emit({
+          id: `${props.id}/${child.id}`,
+          parent: props.id,
+          level: props.level + 1,
+          key,
+          base: {
+            x: props.base.x + props.axis.x * emergence,
+            y: props.base.y + props.axis.y * emergence,
+            z: props.base.z + props.axis.z * emergence,
+          },
+          axis: childAxis(domain, props.axis, child.direction, key),
+          fullLength:
+            props.fullLength *
+            structure.lengthRatio *
+            jitter(domain.seed, key, SALT_LENGTH, structure.lengthJitter),
+          radiusStart: radiusEnd,
+        });
+      },
+    );
   };
 
   const trunkKey: number = mixSeed(domain.seed, SALT_TRUNK);
@@ -156,7 +187,16 @@ export const growPlanting: (domain: IAutoMoviePlantingDomain) => IAutoMoviePlant
  * for more blades than the recipe allows, and a cap only checked afterwards
  * would be a cap the machine has to exhaust itself reaching.
  */
-const bearLeaves: (props: { domain: IAutoMoviePlantingDomain; branch: string; level: number; key: number; base: IAutoMovieVector3; axis: IAutoMovieVector3; length: number; leaves: IAutoMoviePlantingLeaf[]; }) => void = (props: {
+const bearLeaves: (props: {
+  domain: IAutoMoviePlantingDomain;
+  branch: string;
+  level: number;
+  key: number;
+  base: IAutoMovieVector3;
+  axis: IAutoMovieVector3;
+  length: number;
+  leaves: IAutoMoviePlantingLeaf[];
+}) => void = (props: {
   domain: IAutoMoviePlantingDomain;
   branch: string;
   level: number;
@@ -209,13 +249,19 @@ const bearLeaves: (props: { domain: IAutoMoviePlantingDomain; branch: string; le
 };
 
 /** The world axis one child grows along. */
-const childAxis: (domain: IAutoMoviePlantingDomain, parent: IAutoMovieVector3, local: IAutoMovieVector3, key: number) => IAutoMovieVector3 = (
+const childAxis: (
+  domain: IAutoMoviePlantingDomain,
+  parent: IAutoMovieVector3,
+  local: IAutoMovieVector3,
+  key: number,
+) => IAutoMovieVector3 = (
   domain: IAutoMoviePlantingDomain,
   parent: IAutoMovieVector3,
   local: IAutoMovieVector3,
   key: number,
 ): IAutoMovieVector3 => {
-  const frame: { u: IAutoMovieVector3; v: IAutoMovieVector3; } = perpendicularFrame(parent);
+  const frame: { u: IAutoMovieVector3; v: IAutoMovieVector3 } =
+    perpendicularFrame(parent);
   const directed: IAutoMovieVector3 = unitOr(
     {
       x: frame.u.x * local.x + parent.x * local.y + frame.v.x * local.z,
@@ -259,7 +305,10 @@ const childAxis: (domain: IAutoMoviePlantingDomain, parent: IAutoMovieVector3, l
  * trick is what keeps `sign + axis.z` away from zero for every unit axis, so
  * the signed frame remains deterministic across all unit directions; its sign branch is not globally continuous.
  */
-const perpendicularFrame: (axis: IAutoMovieVector3) => { u: IAutoMovieVector3; v: IAutoMovieVector3; } = (
+const perpendicularFrame: (axis: IAutoMovieVector3) => {
+  u: IAutoMovieVector3;
+  v: IAutoMovieVector3;
+} = (
   axis: IAutoMovieVector3,
 ): { u: IAutoMovieVector3; v: IAutoMovieVector3 } => {
   const sign: number = axis.z >= 0 ? 1 : -1;
@@ -276,7 +325,9 @@ const perpendicularFrame: (axis: IAutoMovieVector3) => { u: IAutoMovieVector3; v
 };
 
 /** The shortest-arc rotation carrying `+y` onto one unit direction. */
-const shortestArcFromUp: (direction: IAutoMovieVector3) => IAutoMovieQuaternion = (
+const shortestArcFromUp: (
+  direction: IAutoMovieVector3,
+) => IAutoMovieQuaternion = (
   direction: IAutoMovieVector3,
 ): IAutoMovieQuaternion => {
   const x: number = direction.z;
@@ -291,7 +342,13 @@ const shortestArcFromUp: (direction: IAutoMovieVector3) => IAutoMovieQuaternion 
 };
 
 /** One symmetric multiplicative jitter in `[1 − amount, 1 + amount)`. */
-const jitter: (seed: number, key: number, salt: number, amount: number, index?: number) => number = (
+const jitter: (
+  seed: number,
+  key: number,
+  salt: number,
+  amount: number,
+  index?: number,
+) => number = (
   seed: number,
   key: number,
   salt: number,
@@ -300,7 +357,10 @@ const jitter: (seed: number, key: number, salt: number, amount: number, index?: 
 ): number => 1 + amount * (2 * seededValue(seed, key, salt, index) - 1);
 
 /** A unit vector, or the stated fallback when the input has no length. */
-const unitOr: (value: IAutoMovieVector3, fallback: IAutoMovieVector3) => IAutoMovieVector3 = (
+const unitOr: (
+  value: IAutoMovieVector3,
+  fallback: IAutoMovieVector3,
+) => IAutoMovieVector3 = (
   value: IAutoMovieVector3,
   fallback: IAutoMovieVector3,
 ): IAutoMovieVector3 => {

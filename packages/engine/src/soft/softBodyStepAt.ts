@@ -1,4 +1,5 @@
 import { IAutoMovieSoftBodyDomain } from "@automovie/interface";
+
 /** Convert finite shot seconds to a nonnegative absolute step, or null for nonfinite time. A fixed 1e-9 step-space allowance handles near-boundary floating rounding; the caller admits positive finite clock spacing and checks the step budget.
  *
  * @evidence contracts/common.md#principled-implementation Finite seconds are floored after negative time is clamped to zero and the declared allowance is added. Very large finite time/very small spacing can yield an unrepresentable step; null distinguishes nonfinite time only.
@@ -11,7 +12,10 @@ import { IAutoMovieSoftBodyDomain } from "@automovie/interface";
  *
  * @author Samchon
  */
-export const softBodyStepAt: (domain: IAutoMovieSoftBodyDomain, time: number) => number | null = (
+export const softBodyStepAt: (
+  domain: IAutoMovieSoftBodyDomain,
+  time: number,
+) => number | null = (
   domain: IAutoMovieSoftBodyDomain,
   time: number,
 ): number | null => {

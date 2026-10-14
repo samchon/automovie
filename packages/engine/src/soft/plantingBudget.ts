@@ -1,4 +1,11 @@
-import { IAutoMoviePlantingBudget, IAutoMoviePlantingCluster, IAutoMoviePlantingDomain, IAutoMoviePlantingStructure, IAutoMoviePlantingFoliage } from "@automovie/interface";
+import {
+  IAutoMoviePlantingBudget,
+  IAutoMoviePlantingCluster,
+  IAutoMoviePlantingDomain,
+  IAutoMoviePlantingFoliage,
+  IAutoMoviePlantingStructure,
+} from "@automovie/interface";
+
 /** Measure a planting recipe's complete-tree branch/leaf upper counts and optional requested member products without deriving geometry. Callers admit bounded depth first; numeric products can overflow for unsupported huge ungated values.
  *
  * @evidence contracts/common.md#principled-implementation Walking the declared child branching factor and accumulated maximum length jitter bounds unpruned branch and density-derived leaf populations across growth stages; pruning can only remove them. Separate declared caps are returned without replacing these derived counts.
@@ -11,7 +18,10 @@ import { IAutoMoviePlantingBudget, IAutoMoviePlantingCluster, IAutoMoviePlanting
  *
  * @author Samchon
  */
-export const plantingBudget: (props: { domain: IAutoMoviePlantingDomain; cluster?: IAutoMoviePlantingCluster | undefined; }) => IAutoMoviePlantingBudget = (props: {
+export const plantingBudget: (props: {
+  domain: IAutoMoviePlantingDomain;
+  cluster?: IAutoMoviePlantingCluster | undefined;
+}) => IAutoMoviePlantingBudget = (props: {
   domain: IAutoMoviePlantingDomain;
   cluster?: IAutoMoviePlantingCluster;
 }): IAutoMoviePlantingBudget => {

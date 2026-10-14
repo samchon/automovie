@@ -1,4 +1,8 @@
-import { IAutoMoviePruningEnvelope, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  IAutoMoviePruningEnvelope,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 /** Find the forward distance where an inside-base unit-axis segment leaves an authored box or sphere, or null when the exit is not before the segment end.
  *
  * @evidence contracts/common.md#principled-implementation A box uses the nearest positive-facing slab boundary and a sphere its quadratic outward root; inside base, unit axis and admitted envelope are caller premises. Direct-square and root cancellation limitations remain for extreme binary64 inputs.
@@ -9,7 +13,12 @@ import { IAutoMoviePruningEnvelope, IAutoMovieVector3 } from "@automovie/interfa
  * @evidence contracts/performance.md#reuse-equivalent-work The authored envelope is shared across branch calls but each base/axis/length requires a fresh exit calculation; no clipping cache assumes equivalence of those inputs.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only a scalar/null result survives; short per-axis arrays are temporary and no branch, envelope or render handle is retained.
  */
-export const plantingPruningDistance: (envelope: IAutoMoviePruningEnvelope, base: IAutoMovieVector3, axis: IAutoMovieVector3, length: number) => number | null = (
+export const plantingPruningDistance: (
+  envelope: IAutoMoviePruningEnvelope,
+  base: IAutoMovieVector3,
+  axis: IAutoMovieVector3,
+  length: number,
+) => number | null = (
   envelope: IAutoMoviePruningEnvelope,
   base: IAutoMovieVector3,
   axis: IAutoMovieVector3,
@@ -34,7 +43,8 @@ export const plantingPruningDistance: (envelope: IAutoMoviePruningEnvelope, base
   const oy: number = base.y - envelope.center.y;
   const oz: number = base.z - envelope.center.z;
   const b: number = ox * axis.x + oy * axis.y + oz * axis.z;
-  const c: number = ox * ox + oy * oy + oz * oz - envelope.radius * envelope.radius;
+  const c: number =
+    ox * ox + oy * oy + oz * oz - envelope.radius * envelope.radius;
   const exit: number = -b + Math.sqrt(b * b - c);
   return exit < length ? exit : null;
 };

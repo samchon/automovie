@@ -1,6 +1,8 @@
-import { ViolationCollector } from "../validation/ViolationCollector";
 import { IAutoMovieVector3 } from "@automovie/interface";
+
+import { ViolationCollector } from "../validation/ViolationCollector";
 import { validateSoftNumeric as numeric } from "./validateSoftNumeric";
+
 /**
  * Validate three authored vector components through the shared finite-scalar policy.
  *
@@ -12,7 +14,11 @@ import { validateSoftNumeric as numeric } from "./validateSoftNumeric";
  * @evidence contracts/performance.md#reuse-equivalent-work The scalar owner supplies consistent finite-value diagnostics to both vector and direct scalar callers; vector values are not cached.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The input vector is read without mutation; only appended scalar findings survive in the caller's collector.
  */
-export const validateSoftVector: (out: ViolationCollector, path: string, value: IAutoMovieVector3) => void = (
+export const validateSoftVector: (
+  out: ViolationCollector,
+  path: string,
+  value: IAutoMovieVector3,
+) => void = (
   out: ViolationCollector,
   path: string,
   value: IAutoMovieVector3,

@@ -1,4 +1,5 @@
 import { ViolationCollector } from "../validation/ViolationCollector";
+
 /**
  * Append a type violation for a value outside a safe-integer interval.
  *
@@ -10,7 +11,14 @@ import { ViolationCollector } from "../validation/ViolationCollector";
  * @evidence contracts/performance.md#reuse-equivalent-work Planting and soft-domain validators share the same admission expression instead of maintaining duplicate integer helpers.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Any finding remains in the caller-owned collector; this operation retains neither input records nor a task.
  */
-export const validateSoftInteger: (out: ViolationCollector, path: string, label: string, value: number, min: number, max: number) => void = (
+export const validateSoftInteger: (
+  out: ViolationCollector,
+  path: string,
+  label: string,
+  value: number,
+  min: number,
+  max: number,
+) => void = (
   out: ViolationCollector,
   path: string,
   label: string,

@@ -1,5 +1,7 @@
-import { ViolationCollector } from "../validation/ViolationCollector";
 import { IAutoMovieSoftBodyDomain } from "@automovie/interface";
+
+import { ViolationCollector } from "../validation/ViolationCollector";
+
 /**
  * Report a structural rest edge whose squared displacement vanishes.
  *
@@ -11,7 +13,13 @@ import { IAutoMovieSoftBodyDomain } from "@automovie/interface";
  * @evidence contracts/performance.md#reuse-equivalent-work The domain traversal owns which edges to inspect; this helper stores no repeated displacement or rest-geometry cache.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The domain array is read and unretained; only the caller collector owns any finding and its particle-index pair.
  */
-export const validateSoftRestCoincidence: (out: ViolationCollector, root: string, domain: IAutoMovieSoftBodyDomain, a: number, b: number) => void = (
+export const validateSoftRestCoincidence: (
+  out: ViolationCollector,
+  root: string,
+  domain: IAutoMovieSoftBodyDomain,
+  a: number,
+  b: number,
+) => void = (
   out: ViolationCollector,
   root: string,
   domain: IAutoMovieSoftBodyDomain,

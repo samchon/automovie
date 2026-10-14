@@ -1,4 +1,5 @@
 import { ViolationCollector } from "../validation/ViolationCollector";
+
 /**
  * Report blank or duplicate sibling identities, then record the identity as seen.
  *
@@ -10,7 +11,13 @@ import { ViolationCollector } from "../validation/ViolationCollector";
  * @evidence contracts/performance.md#reuse-equivalent-work Planting and soft-domain validation share identical identity logic but keep distinct caller-owned sets and labels.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Seen ids live only as long as the validation owner's set; this helper retains no set or registry itself.
  */
-export const validateSoftIdentity: (out: ViolationCollector, path: string, label: string, id: string, seen: Set<string>) => void = (
+export const validateSoftIdentity: (
+  out: ViolationCollector,
+  path: string,
+  label: string,
+  id: string,
+  seen: Set<string>,
+) => void = (
   out: ViolationCollector,
   path: string,
   label: string,

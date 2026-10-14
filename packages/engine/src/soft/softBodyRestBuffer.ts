@@ -1,4 +1,9 @@
-import { IAutoMovieSoftBodyDomain, IAutoMovieVector3, IAutoMovieSoftNamedState } from "@automovie/interface";
+import {
+  IAutoMovieSoftBodyDomain,
+  IAutoMovieSoftNamedState,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 /** Allocate the authored rest coordinates with static anchors and one named state's targets applied.
  *
  * @evidence contracts/common.md#principled-implementation Named anchor poses override explicit anchor positions, which override the particle's authored rest triple. A missing named state throws; validated domains provide in-range particle indices and dense coordinates.
@@ -9,7 +14,10 @@ import { IAutoMovieSoftBodyDomain, IAutoMovieVector3, IAutoMovieSoftNamedState }
  * @evidence contracts/performance.md#reuse-equivalent-work Named targets are indexed once per call and reused across anchors; mutable domains and selected states are not treated as cross-call equivalents.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The pose map is local, target references are read only, and the fresh Float64Array transfers to its consumer without retaining the domain.
  */
-export const softBodyRestBuffer: (domain: IAutoMovieSoftBodyDomain, state: string | null) => Float64Array<ArrayBufferLike> = (
+export const softBodyRestBuffer: (
+  domain: IAutoMovieSoftBodyDomain,
+  state: string | null,
+) => Float64Array<ArrayBufferLike> = (
   domain: IAutoMovieSoftBodyDomain,
   state: string | null,
 ): Float64Array => {
@@ -31,13 +39,21 @@ export const softBodyRestBuffer: (domain: IAutoMovieSoftBodyDomain, state: strin
 };
 
 /** Index one declared state's target references; the caller owns and discards the map. */
-const resolveState: (domain: IAutoMovieSoftBodyDomain, state: string | null) => Map<string, IAutoMovieVector3> = (
+const resolveState: (
+  domain: IAutoMovieSoftBodyDomain,
+  state: string | null,
+) => Map<string, IAutoMovieVector3> = (
   domain: IAutoMovieSoftBodyDomain,
   state: string | null,
 ): Map<string, IAutoMovieVector3> => {
-  const poses: Map<string, IAutoMovieVector3> = new Map<string, IAutoMovieVector3>();
+  const poses: Map<string, IAutoMovieVector3> = new Map<
+    string,
+    IAutoMovieVector3
+  >();
   if (state === null) return poses;
-  const named: IAutoMovieSoftNamedState | undefined = domain.states.find((candidate: IAutoMovieSoftNamedState): boolean => candidate.id === state);
+  const named: IAutoMovieSoftNamedState | undefined = domain.states.find(
+    (candidate: IAutoMovieSoftNamedState): boolean => candidate.id === state,
+  );
   if (named === undefined)
     throw new Error(
       `soft body "${domain.id}" does not declare a named state "${state}"`,

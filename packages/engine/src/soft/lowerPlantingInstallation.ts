@@ -1,9 +1,17 @@
-import { IAutoMoviePlantingCluster, IAutoMoviePlantingDomain, IAutoMoviePlantingInstallation, IAutoMovieSoftAnalysis, AutoMovieSoftAnalysisStatus } from "@automovie/interface";
+import {
+  AutoMovieSoftAnalysisStatus,
+  IAutoMoviePlantingCluster,
+  IAutoMoviePlantingDomain,
+  IAutoMoviePlantingInstallation,
+  IAutoMovieSoftAnalysis,
+} from "@automovie/interface";
+
 import { IAutoMoviePlantingFrame } from "./IAutoMoviePlantingFrame";
 import { arrangePlantingCluster } from "./arrangePlantingCluster";
 import { growPlanting } from "./growPlanting";
 import { validatePlantingCluster } from "./validatePlantingCluster";
 import { validatePlantingDomain } from "./validatePlantingDomain";
+
 /** Join one typed installation, cluster and recipe into a derived plant, arrangement and explicit analysis. Invalid records or mismatched ids return not-run with null geometry; derivation cap/numeric failures may propagate. This public lowering API currently has test-only runtime reach.
  *
  * @evidence contracts/common.md#principled-implementation Canonical recipe/cluster admission precedes id pairing, then one grow operation and seeded spacing arrangement produce the supplied recipe-local tree and cluster placements. Installation visibility or exact final rendered clearance is not computed here.
@@ -16,14 +24,21 @@ import { validatePlantingDomain } from "./validatePlantingDomain";
  *
  * @author Samchon
  */
-export const lowerPlantingInstallation: (props: { installation: IAutoMoviePlantingInstallation; cluster: IAutoMoviePlantingCluster; domain: IAutoMoviePlantingDomain; }) => IAutoMoviePlantingFrame = (props: {
+export const lowerPlantingInstallation: (props: {
+  installation: IAutoMoviePlantingInstallation;
+  cluster: IAutoMoviePlantingCluster;
+  domain: IAutoMoviePlantingDomain;
+}) => IAutoMoviePlantingFrame = (props: {
   installation: IAutoMoviePlantingInstallation;
   cluster: IAutoMoviePlantingCluster;
   domain: IAutoMoviePlantingDomain;
 }): IAutoMoviePlantingFrame => {
   const { installation, cluster, domain }: typeof props = props;
   /** Create one recipe-attributed planting derivation status without retaining a partial tree. */
-  const analysis: (status: AutoMovieSoftAnalysisStatus, reason: string | null) => IAutoMovieSoftAnalysis = (
+  const analysis: (
+    status: AutoMovieSoftAnalysisStatus,
+    reason: string | null,
+  ) => IAutoMovieSoftAnalysis = (
     status: IAutoMovieSoftAnalysis["status"],
     reason: string | null,
   ): IAutoMovieSoftAnalysis => ({

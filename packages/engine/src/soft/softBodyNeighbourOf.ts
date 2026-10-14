@@ -1,4 +1,5 @@
 import { SOFT_BODY_NEIGHBOURS } from "./SOFT_BODY_NEIGHBOURS";
+
 /** Find one row-major particle's ordered lattice neighbour, or -1 beyond the rectangular lattice.
  *
  * @evidence contracts/common.md#principled-implementation Column/row offsets are taken from the canonical twelve-entry table and checked against rectangular dimensions before constructing the row-major index; callers supply admitted integer dimensions and a table index.
@@ -9,7 +10,13 @@ import { SOFT_BODY_NEIGHBOURS } from "./SOFT_BODY_NEIGHBOURS";
  * @evidence contracts/performance.md#reuse-equivalent-work All solver phases share the same table and calculation; there is no per-particle cache whose validity could diverge from dimensions.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only an integer is returned; the immutable offset table belongs to the module and no caller records are retained.
  */
-export const softBodyNeighbourOf: (columns: number, rows: number, column: number, row: number, at: number) => number = (
+export const softBodyNeighbourOf: (
+  columns: number,
+  rows: number,
+  column: number,
+  row: number,
+  at: number,
+) => number = (
   columns: number,
   rows: number,
   column: number,

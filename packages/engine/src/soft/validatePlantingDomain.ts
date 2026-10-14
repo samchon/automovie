@@ -1,14 +1,23 @@
-import { validateSoftVector as vector } from "./validateSoftVector";
-import { validateSoftNumeric as numeric } from "./validateSoftNumeric";
-import { validateSoftInteger as integer } from "./validateSoftInteger";
-import { validateSoftIdentity as identity } from "./validateSoftIdentity";
-import { IAutoMoviePlantingDomain, IAutoMovieValidation, IAutoMovieVector3, IAutoMoviePlantingStructure, IAutoMoviePlantingChild, IAutoMoviePlantingBudget } from "@automovie/interface";
+import {
+  IAutoMoviePlantingBudget,
+  IAutoMoviePlantingChild,
+  IAutoMoviePlantingDomain,
+  IAutoMoviePlantingStructure,
+  IAutoMovieValidation,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { ViolationCollector } from "../validation/ViolationCollector";
 import { PLANTING_MAX_BRANCHES } from "./constants/PLANTING_MAX_BRANCHES";
 import { PLANTING_MAX_CHILDREN } from "./constants/PLANTING_MAX_CHILDREN";
 import { PLANTING_MAX_LEAVES } from "./constants/PLANTING_MAX_LEAVES";
 import { PLANTING_MAX_LEVELS } from "./constants/PLANTING_MAX_LEVELS";
 import { plantingBudget } from "./plantingBudget";
+import { validateSoftIdentity as identity } from "./validateSoftIdentity";
+import { validateSoftInteger as integer } from "./validateSoftInteger";
+import { validateSoftNumeric as numeric } from "./validateSoftNumeric";
+import { validateSoftVector as vector } from "./validateSoftVector";
+
 /**
  * Validate a typed planting recipe's scalar law, child identities, pruning and emission budgets.
  *
@@ -21,7 +30,9 @@ import { plantingBudget } from "./plantingBudget";
  * @evidence contracts/performance.md#bound-retention-and-release-resources The fresh collector and child-id set are local; returned findings retain offending values, and no emitted plant, viewer handle or task is acquired.
  * @author Samchon
  */
-export const validatePlantingDomain: (props: { domain: IAutoMoviePlantingDomain; }) => IAutoMovieValidation = (props: {
+export const validatePlantingDomain: (props: {
+  domain: IAutoMoviePlantingDomain;
+}) => IAutoMovieValidation = (props: {
   domain: IAutoMoviePlantingDomain;
 }): IAutoMovieValidation => {
   const { domain }: typeof props = props;
@@ -141,12 +152,14 @@ export const validatePlantingDomain: (props: { domain: IAutoMoviePlantingDomain;
       structure.children.length - PLANTING_MAX_CHILDREN,
     );
   const childIds: Set<string> = new Set<string>();
-  structure.children.forEach((child: IAutoMoviePlantingChild, index: number): void => {
-    const path: string = `${root}.structure.children[${index}]`;
-    identity(out, path, "child", child.id, childIds);
-    direction(out, `${path}.direction`, "child direction", child.direction);
-    numeric(out, `${path}.offset`, "child offset", child.offset, 0, false, 1);
-  });
+  structure.children.forEach(
+    (child: IAutoMoviePlantingChild, index: number): void => {
+      const path: string = `${root}.structure.children[${index}]`;
+      identity(out, path, "child", child.id, childIds);
+      direction(out, `${path}.direction`, "child direction", child.direction);
+      numeric(out, `${path}.offset`, "child offset", child.offset, 0, false, 1);
+    },
+  );
 
   numeric(
     out,
@@ -305,7 +318,12 @@ export const validatePlantingDomain: (props: { domain: IAutoMoviePlantingDomain;
 };
 
 /** A non-zero finite direction vector. */
-const direction: (out: ViolationCollector, path: string, label: string, value: IAutoMovieVector3) => void = (
+const direction: (
+  out: ViolationCollector,
+  path: string,
+  label: string,
+  value: IAutoMovieVector3,
+) => void = (
   out: ViolationCollector,
   path: string,
   label: string,

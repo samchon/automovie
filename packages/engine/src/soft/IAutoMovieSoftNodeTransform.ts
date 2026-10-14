@@ -1,4 +1,5 @@
 import { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+
 /**
  * One evaluated node's rigid world frame supplied in a wearable soft snapshot.
  *

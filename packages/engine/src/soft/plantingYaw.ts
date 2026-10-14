@@ -1,4 +1,5 @@
 import { IAutoMovieQuaternion } from "@automovie/interface";
+
 /** Map a seeded sample to a rational-circle +Y turn, then normalized quaternion interpolation toward identity by the admitted jitter fraction.
  *
  * @evidence contracts/common.md#principled-implementation The two rational first-quadrant arcs and signed second-quadrant lift avoid trigonometric angle sampling; normalization operates on the admitted sample in [0,1) and amount in [0,1]. Distribution is uniform in the half tangent, not in yaw angle.
@@ -9,7 +10,13 @@ import { IAutoMovieQuaternion } from "@automovie/interface";
  * @evidence contracts/performance.md#reuse-equivalent-work One implementation is shared across arrangement and foliage; each distinct seeded input is evaluated without caching a cheap fixed-size quaternion.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The fresh quaternion belongs to the caller; no sample stream, placement or leaf record is retained.
  */
-export const plantingYaw: (sample: number, amount: number) => IAutoMovieQuaternion = (sample: number, amount: number): IAutoMovieQuaternion => {
+export const plantingYaw: (
+  sample: number,
+  amount: number,
+) => IAutoMovieQuaternion = (
+  sample: number,
+  amount: number,
+): IAutoMovieQuaternion => {
   const doubled: number = 2 * sample;
   const half: number = Math.floor(doubled);
   const t: number = doubled - half;
@@ -21,12 +28,14 @@ export const plantingYaw: (sample: number, amount: number) => IAutoMovieQuaterni
   // turn of the branch corresponds to.
   const w: number = half === 0 ? cosine : -sine;
   const y: number = half === 0 ? sine : cosine;
-  const blended: { x: number; y: number; z: number; w: number; } = {
+  const blended: { x: number; y: number; z: number; w: number } = {
     x: 0,
     y: amount * (w < 0 ? -y : y),
     z: 0,
     w: 1 - amount + amount * (w < 0 ? -w : w),
   };
-  const length: number = Math.sqrt(blended.y * blended.y + blended.w * blended.w);
+  const length: number = Math.sqrt(
+    blended.y * blended.y + blended.w * blended.w,
+  );
   return { x: 0, y: blended.y / length, z: 0, w: blended.w / length };
 };

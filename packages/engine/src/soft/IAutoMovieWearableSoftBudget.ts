@@ -1,4 +1,3 @@
-
 /**
  * Admission and moving-boundary population facts returned by the wearable resolver.
  * These counts do not measure elapsed time, allocated bytes or solver iterations.

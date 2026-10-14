@@ -1,5 +1,10 @@
-import { IAutoMovieSoftBodyBudget, IAutoMovieSoftBodyDomain } from "@automovie/interface";
+import {
+  IAutoMovieSoftBodyBudget,
+  IAutoMovieSoftBodyDomain,
+} from "@automovie/interface";
+
 import { softBodyTravelNumber } from "./softBodyTravelNumber";
+
 /** Measure declared cloth topology, final state bytes and worst-case neighbour gathers without integrating a frame. The report counts two output xyz arrays, not every solver working buffer or supplied moving-boundary record.
  *
  * @evidence contracts/common.md#principled-implementation Rectangular lattice formulas count structural, shear and bend edges, while twice their total times sweeps and maxSteps bounds gathers; travel delegates to the shortest-edge owner. Admitted dimension and solver budgets are caller premises.
@@ -12,15 +17,19 @@ import { softBodyTravelNumber } from "./softBodyTravelNumber";
  *
  * @author Samchon
  */
-export const softBodyBudget: (domain: IAutoMovieSoftBodyDomain) => IAutoMovieSoftBodyBudget = (
+export const softBodyBudget: (
+  domain: IAutoMovieSoftBodyDomain,
+) => IAutoMovieSoftBodyBudget = (
   domain: IAutoMovieSoftBodyDomain,
 ): IAutoMovieSoftBodyBudget => {
   const columns: number = domain.lattice.columns;
   const rows: number = domain.lattice.rows;
   const particles: number = columns * rows;
   /** Count axis starts that admit a neighbour at the given lattice reach; a too-short axis contributes zero edges. */
-  const span: (length: number, reach: number) => number = (length: number, reach: number): number =>
-    length > reach ? length - reach : 0;
+  const span: (length: number, reach: number) => number = (
+    length: number,
+    reach: number,
+  ): number => (length > reach ? length - reach : 0);
   const quads: number = span(columns, 1) * span(rows, 1);
   const structural: number = span(columns, 1) * rows + columns * span(rows, 1);
   const shear: number = 2 * quads;

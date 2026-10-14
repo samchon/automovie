@@ -1,4 +1,5 @@
 import { ViolationCollector } from "../validation/ViolationCollector";
+
 /**
  * Append a range violation for a non-finite scalar or an open/closed interval failure.
  *
@@ -10,7 +11,15 @@ import { ViolationCollector } from "../validation/ViolationCollector";
  * @evidence contracts/performance.md#reuse-equivalent-work One predicate/message owner replaces byte-identical private copies without changing call order or caller limits.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only the supplied collector retains an appended violation; no value cache or host handle is acquired.
  */
-export const validateSoftNumeric: (out: ViolationCollector, path: string, label: string, value: number, min: number, exclusive: boolean, max: number) => void = (
+export const validateSoftNumeric: (
+  out: ViolationCollector,
+  path: string,
+  label: string,
+  value: number,
+  min: number,
+  exclusive: boolean,
+  max: number,
+) => void = (
   out: ViolationCollector,
   path: string,
   label: string,

@@ -1,5 +1,6 @@
 import { IAutoMovieSoftBodyResolvedAnchor } from "./IAutoMovieSoftBodyResolvedAnchor";
 import { IAutoMovieSoftBodyResolvedCapsule } from "./IAutoMovieSoftBodyResolvedCapsule";
+
 /**
  * Complete resolved boundary supplied to simulateSoftBodyWithBoundaries at one absolute step.
  *

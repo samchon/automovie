@@ -1,4 +1,9 @@
-import { IAutoMovieSoftBodyDomain, IAutoMovieSoftAnchor, IAutoMovieSoftCollider } from "@automovie/interface";
+import {
+  IAutoMovieSoftAnchor,
+  IAutoMovieSoftBodyDomain,
+  IAutoMovieSoftCollider,
+} from "@automovie/interface";
+
 /** Identify whether a typed domain declares any moving anchor binding or body-capsule collider. The declaration test does not resolve a pose, certify samples or start a live solver.
  *
  * @evidence contracts/common.md#principled-implementation Short-circuit some scans distinguish the authored moving-boundary encodings; valid anchors/colliders arrays are the typed input premise, and empty arrays return false.
@@ -11,8 +16,15 @@ import { IAutoMovieSoftBodyDomain, IAutoMovieSoftAnchor, IAutoMovieSoftCollider 
  *
  * @author Samchon
  */
-export const productionSoftBodyUsesMovingBoundary: (domain: Pick<IAutoMovieSoftBodyDomain, "anchors" | "colliders">) => boolean = (
+export const productionSoftBodyUsesMovingBoundary: (
+  domain: Pick<IAutoMovieSoftBodyDomain, "anchors" | "colliders">,
+) => boolean = (
   domain: Pick<IAutoMovieSoftBodyDomain, "anchors" | "colliders">,
 ): boolean =>
-  domain.anchors.some((anchor: IAutoMovieSoftAnchor): boolean => anchor.binding !== undefined) ||
-  domain.colliders.some((collider: IAutoMovieSoftCollider): boolean => collider.kind === "body-capsule");
+  domain.anchors.some(
+    (anchor: IAutoMovieSoftAnchor): boolean => anchor.binding !== undefined,
+  ) ||
+  domain.colliders.some(
+    (collider: IAutoMovieSoftCollider): boolean =>
+      collider.kind === "body-capsule",
+  );

@@ -1,4 +1,9 @@
-import { IAutoMovieSoftBodyDomain, IAutoMovieSoftBodyState, IAutoMovieSoftBodySurface } from "@automovie/interface";
+import {
+  IAutoMovieSoftBodyDomain,
+  IAutoMovieSoftBodyState,
+  IAutoMovieSoftBodySurface,
+} from "@automovie/interface";
+
 /** Derive fresh panel mesh arrays from a solved row-major particle field. Two fixed triangles cover each lattice quad, UVs follow lattice coordinates and zero accumulated normals use +Y. Bounds include indexed triangle vertices; a cord or point with no quads returns null bounds.
  *
  * @evidence contracts/common.md#principled-implementation Cross-product accumulation gives area-weighted vertex normals and the lattice's fixed winding; compatible domain/state dimensions and finite positions are caller premises. Direct-square normalization can overflow/underflow for extreme ungated geometry.
@@ -11,7 +16,10 @@ import { IAutoMovieSoftBodyDomain, IAutoMovieSoftBodyState, IAutoMovieSoftBodySu
  *
  * @author Samchon
  */
-export const softBodySurfaceGeometry: (props: { domain: IAutoMovieSoftBodyDomain; state: IAutoMovieSoftBodyState; }) => IAutoMovieSoftBodySurface = (props: {
+export const softBodySurfaceGeometry: (props: {
+  domain: IAutoMovieSoftBodyDomain;
+  state: IAutoMovieSoftBodyState;
+}) => IAutoMovieSoftBodySurface = (props: {
   domain: IAutoMovieSoftBodyDomain;
   state: IAutoMovieSoftBodyState;
 }): IAutoMovieSoftBodySurface => {
@@ -67,8 +75,16 @@ export const softBodySurfaceGeometry: (props: { domain: IAutoMovieSoftBodyDomain
     else normals.push(nx / length, ny / length, nz / length);
   }
 
-  const low: { x: number; y: number; z: number; } = { x: Infinity, y: Infinity, z: Infinity };
-  const high: { x: number; y: number; z: number; } = { x: -Infinity, y: -Infinity, z: -Infinity };
+  const low: { x: number; y: number; z: number } = {
+    x: Infinity,
+    y: Infinity,
+    z: Infinity,
+  };
+  const high: { x: number; y: number; z: number } = {
+    x: -Infinity,
+    y: -Infinity,
+    z: -Infinity,
+  };
   for (const index of indices) {
     const x: number = positions[index * 3];
     const y: number = positions[index * 3 + 1];

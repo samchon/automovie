@@ -1,4 +1,3 @@
-
 /** Admit and copy the authored ordered production live-soft id list. Nonarrays, blank/untrimmed strings and duplicates throw; id existence and moving-boundary compatibility belong to shot selection.
  *
  * @evidence contracts/common.md#principled-implementation Indexed slot admission and a code-unit string Set preserve the author's exact budget order without coercion; holes are refused at their index instead of becoming phantom slots. This reader reaches the selection API and tests, not an installed production/viewer live host.
@@ -11,9 +10,9 @@
  *
  * @author Samchon
  */
-export const readProductionLiveWearableSoftBodies: (selected: unknown) => string[] = (
+export const readProductionLiveWearableSoftBodies: (
   selected: unknown,
-): string[] => {
+) => string[] = (selected: unknown): string[] => {
   if (Array.isArray(selected) === false)
     throw new Error(
       "simulation.liveWearableSoftBodies must be an array of domain ids.",

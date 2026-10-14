@@ -1,4 +1,9 @@
-import { IAutoMoviePlantingArrangement, IAutoMoviePlantingState, IAutoMovieSoftAnalysis } from "@automovie/interface";
+import {
+  IAutoMoviePlantingArrangement,
+  IAutoMoviePlantingState,
+  IAutoMovieSoftAnalysis,
+} from "@automovie/interface";
+
 /**
  * One lowerPlantingInstallation result and its explicit analysis status.
  *

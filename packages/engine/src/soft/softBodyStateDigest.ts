@@ -1,4 +1,5 @@
 import { IAutoMovieSoftBodyState } from "@automovie/interface";
+
 /** Produce a deterministic 32-bit FNV-1a diagnostic of selected numeric cloth fields encoded as little-endian float64 bytes. Equal digests are not proof of equal states: collisions exist and domain/time metadata is omitted.
  *
  * @evidence contracts/common.md#principled-implementation Step, positions, velocities, maxSpeed, maxStrain and contacts form the ordered byte stream; identical selected bytes hash identically, while a 32-bit result cannot uniquely identify the field or certify cross-host replay.
@@ -11,7 +12,9 @@ import { IAutoMovieSoftBodyState } from "@automovie/interface";
  *
  * @author Samchon
  */
-export const softBodyStateDigest: (state: IAutoMovieSoftBodyState) => string = (state: IAutoMovieSoftBodyState): string => {
+export const softBodyStateDigest: (state: IAutoMovieSoftBodyState) => string = (
+  state: IAutoMovieSoftBodyState,
+): string => {
   const values: number[] = [
     state.step,
     ...state.positions,
