@@ -1,12 +1,24 @@
+import type {
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieModel,
+  IAutoMovieSubjectBox,
+  IAutoMovieTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
 import { builtEnvironmentElementBounds } from "../../../../packages/engine/src/architecture/builtEnvironmentElementBounds";
 import { builtEnvironmentSpaceContentBounds } from "../../../../packages/engine/src/architecture/builtEnvironmentSpaceContentBounds";
 import { validateBuiltEnvironment } from "../../../../packages/engine/src/architecture/validateBuiltEnvironment";
-import type { IAutoMovieSubjectBox, IAutoMovieBuiltEnvironment, IAutoMovieModel, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
-import { TestValidator } from "@nestia/e2e";
 import { makeProp, primitivePart } from "../internal/fixtures";
 import { namedFacts, vclose } from "../internal/predicates";
 
-const place: (x: number, y: number, z: number, scale?: IAutoMovieVector3) => IAutoMovieTransform = (
+const place: (
+  x: number,
+  y: number,
+  z: number,
+  scale?: IAutoMovieVector3,
+) => IAutoMovieTransform = (
   x: number,
   y: number,
   z: number,
@@ -17,7 +29,9 @@ const place: (x: number, y: number, z: number, scale?: IAutoMovieVector3) => IAu
   scale,
 });
 
-const unitBox: (id: string) => IAutoMovieModel = (id: string): IAutoMovieModel => ({
+const unitBox: (id: string) => IAutoMovieModel = (
+  id: string,
+): IAutoMovieModel => ({
   ...makeProp([
     primitivePart("block", { type: "box", width: 1, height: 1, depth: 1 }),
   ]),
@@ -29,7 +43,9 @@ const unitBox: (id: string) => IAutoMovieModel = (id: string): IAutoMovieModel =
  *
  * Every expected bound is the unit box's own half-metre reach, scaled by the element's declared scale and carried down the parent chain by hand.
  */
-const work: (doorState?: string) => IAutoMovieBuiltEnvironment = (doorState: string = "closed"): IAutoMovieBuiltEnvironment => ({
+const work: (doorState?: string) => IAutoMovieBuiltEnvironment = (
+  doorState: string = "closed",
+): IAutoMovieBuiltEnvironment => ({
   version: 1,
   id: "work",
   units: "meter",
@@ -144,13 +160,24 @@ export function test_architecture_built_environment_element_bounds(): void {
     true,
   );
 
-  const chest: IAutoMovieSubjectBox | null = builtEnvironmentElementBounds(closed, "chest");
+  const chest: IAutoMovieSubjectBox | null = builtEnvironmentElementBounds(
+    closed,
+    "chest",
+  );
   TestValidator.equals(
     "a placed element carries its parent chain and its own scale",
     namedFacts([
       ["measured", (): boolean => chest !== null],
-      ["min", (): boolean => chest !== null && vclose(chest.min, { x: 11, y: 0, z: 1 })],
-      ["max", (): boolean => chest !== null && vclose(chest.max, { x: 13, y: 1, z: 5 })],
+      [
+        "min",
+        (): boolean =>
+          chest !== null && vclose(chest.min, { x: 11, y: 0, z: 1 }),
+      ],
+      [
+        "max",
+        (): boolean =>
+          chest !== null && vclose(chest.max, { x: 13, y: 1, z: 5 }),
+      ],
     ]),
     { measured: true, min: true, max: true },
   );
@@ -164,26 +191,44 @@ export function test_architecture_built_environment_element_bounds(): void {
     { groupingNode: null, undeclared: null },
   );
 
-  const vault: IAutoMovieSubjectBox | null = builtEnvironmentElementBounds(closed, "vault");
+  const vault: IAutoMovieSubjectBox | null = builtEnvironmentElementBounds(
+    closed,
+    "vault",
+  );
   TestValidator.equals(
     "a referenced model the record does not own stands at its own origin",
     namedFacts([
       ["measured", (): boolean => vault !== null],
-      ["min", (): boolean => vault !== null && vclose(vault.min, { x: 4, y: 6, z: 7 })],
-      ["max", (): boolean => vault !== null && vclose(vault.max, { x: 4, y: 6, z: 7 })],
+      [
+        "min",
+        (): boolean =>
+          vault !== null && vclose(vault.min, { x: 4, y: 6, z: 7 }),
+      ],
+      [
+        "max",
+        (): boolean =>
+          vault !== null && vclose(vault.max, { x: 4, y: 6, z: 7 }),
+      ],
     ]),
     { measured: true, min: true, max: true },
   );
 
-  const shut: IAutoMovieSubjectBox | null = builtEnvironmentElementBounds(closed, "leaf");
-  const opened: IAutoMovieSubjectBox | null = builtEnvironmentElementBounds(work("open"), "leaf");
+  const shut: IAutoMovieSubjectBox | null = builtEnvironmentElementBounds(
+    closed,
+    "leaf",
+  );
+  const opened: IAutoMovieSubjectBox | null = builtEnvironmentElementBounds(
+    work("open"),
+    "leaf",
+  );
   TestValidator.equals(
     "a leaf is measured where it rests, not where it was authored",
     namedFacts([
       ["bothMeasured", (): boolean => shut !== null && opened !== null],
       [
         "closed",
-        (): boolean => shut !== null && vclose(shut.min, { x: -0.5, y: 0.5, z: -0.5 }),
+        (): boolean =>
+          shut !== null && vclose(shut.min, { x: -0.5, y: 0.5, z: -0.5 }),
       ],
       [
         "opened",
@@ -206,16 +251,27 @@ export function test_architecture_built_environment_element_bounds(): void {
     },
   );
 
-  const space: IAutoMovieSubjectBox | null = builtEnvironmentSpaceContentBounds(closed, "place");
+  const space: IAutoMovieSubjectBox | null = builtEnvironmentSpaceContentBounds(
+    closed,
+    "place",
+  );
   TestValidator.equals(
     "the space fold is the union of the same element answers",
     namedFacts([
-      ["measured", (): boolean => space !== null && chest !== null && vault !== null],
+      [
+        "measured",
+        (): boolean => space !== null && chest !== null && vault !== null,
+      ],
       [
         "min",
-        (): boolean => space !== null && vclose(space.min, { x: -0.5, y: 0, z: -0.5 }),
+        (): boolean =>
+          space !== null && vclose(space.min, { x: -0.5, y: 0, z: -0.5 }),
       ],
-      ["max", (): boolean => space !== null && vclose(space.max, { x: 13, y: 6, z: 7 })],
+      [
+        "max",
+        (): boolean =>
+          space !== null && vclose(space.max, { x: 13, y: 6, z: 7 }),
+      ],
     ]),
     { measured: true, min: true, max: true },
   );

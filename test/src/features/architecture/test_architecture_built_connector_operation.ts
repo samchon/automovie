@@ -1,3 +1,11 @@
+import type {
+  IAutoMovieBuiltConnector,
+  IAutoMovieBuiltElement,
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieStageSetPiece,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
 import type { IAutoMovieConnectorCarriagePlacement } from "../../../../packages/engine/src/architecture/IAutoMovieConnectorCarriagePlacement";
 import type { IAutoMovieConnectorGeometry } from "../../../../packages/engine/src/architecture/IAutoMovieConnectorGeometry";
 import { builtConnectorCarriagePlacements } from "../../../../packages/engine/src/architecture/builtConnectorCarriagePlacements";
@@ -6,8 +14,6 @@ import { builtEnvironmentAdjacentSpaces } from "../../../../packages/engine/src/
 import { builtEnvironmentSpaceConnectors } from "../../../../packages/engine/src/architecture/builtEnvironmentSpaceConnectors";
 import { lowerBuiltEnvironment } from "../../../../packages/engine/src/architecture/lowerBuiltEnvironment";
 import { validateBuiltEnvironment } from "../../../../packages/engine/src/architecture/validateBuiltEnvironment";
-import type { IAutoMovieStageSetPiece, IAutoMovieBuiltConnector, IAutoMovieBuiltElement, IAutoMovieBuiltEnvironment } from "@automovie/interface";
-import { TestValidator } from "@nestia/e2e";
 import { BUILT_CONNECTOR_OPERATION_TEST_CAR_REST as CAR_REST } from "../internal/BUILT_CONNECTOR_OPERATION_TEST_CAR_REST";
 import { BUILT_CONNECTOR_OPERATION_TEST_NO_ROTATION as NO_ROTATION } from "../internal/BUILT_CONNECTOR_OPERATION_TEST_NO_ROTATION";
 import { BUILT_CONNECTOR_OPERATION_TEST_STOREY as STOREY } from "../internal/BUILT_CONNECTOR_OPERATION_TEST_STOREY";
@@ -17,7 +23,13 @@ import { builtConnectorOperationTestCarAt as carAt } from "../internal/builtConn
 import { builtConnectorOperationTestRefusalPaths as refusalPaths } from "../internal/builtConnectorOperationTestRefusalPaths";
 import { builtConnectorOperationTestRuns as runs } from "../internal/builtConnectorOperationTestRuns";
 import { builtConnectorOperationTestYaw as yaw } from "../internal/builtConnectorOperationTestYaw";
-import { namedFacts, nclose, qclose, throwsError, vclose } from "../internal/predicates";
+import {
+  namedFacts,
+  nclose,
+  qclose,
+  throwsError,
+  vclose,
+} from "../internal/predicates";
 
 /**
  * Place moving connector carriages at named states and query directional adjacency across endpoints and landings.
@@ -45,7 +57,10 @@ export function test_architecture_built_connector_operation(): void {
     true,
   );
 
-  const lift: IAutoMovieConnectorGeometry = builtConnectorGeometry(source, "lift");
+  const lift: IAutoMovieConnectorGeometry = builtConnectorGeometry(
+    source,
+    "lift",
+  );
   TestValidator.equals(
     "a landing sits on the run's own route by arc length",
     namedFacts([
@@ -54,7 +69,8 @@ export function test_architecture_built_connector_operation(): void {
       ["at", (): boolean => nclose(lift.landings[0]!.at, 0.5)],
       [
         "position",
-        (): boolean => vclose(lift.landings[0]!.position, { x: 0, y: STOREY, z: 0 }),
+        (): boolean =>
+          vclose(lift.landings[0]!.position, { x: 0, y: STOREY, z: 0 }),
       ],
     ]),
     { count: true, space: true, at: true, position: true },
@@ -62,7 +78,10 @@ export function test_architecture_built_connector_operation(): void {
   TestValidator.predicate(
     "an uneven route places its landing by length, not by station index",
     ((): boolean => {
-      const chute: IAutoMovieConnectorGeometry = builtConnectorGeometry(source, "chute");
+      const chute: IAutoMovieConnectorGeometry = builtConnectorGeometry(
+        source,
+        "chute",
+      );
       // Segments of 2 m and 4 m: half the length falls a quarter of the way
       // along the second one, which an index-based reading would miss by a
       // metre.
@@ -87,7 +106,10 @@ export function test_architecture_built_connector_operation(): void {
         { x: 0, y: 2 * STOREY, z: 0 },
       ];
       value.connectors[0]!.landings![0]!.at = 0;
-      const stalled: IAutoMovieConnectorGeometry = builtConnectorGeometry(value, "lift");
+      const stalled: IAutoMovieConnectorGeometry = builtConnectorGeometry(
+        value,
+        "lift",
+      );
       return vclose(stalled.landings[0]!.position, { x: 0, y: 0, z: 0 });
     })(),
   );
@@ -98,19 +120,23 @@ export function test_architecture_built_connector_operation(): void {
       ["carRest", (): boolean => nclose(carAt(source, "car"), CAR_REST)],
       [
         "carLevel1",
-        (): boolean => nclose(carAt(source, "car", "at-level-1"), CAR_REST + STOREY),
+        (): boolean =>
+          nclose(carAt(source, "car", "at-level-1"), CAR_REST + STOREY),
       ],
       [
         "carLevel2",
-        (): boolean => nclose(carAt(source, "car", "at-level-2"), CAR_REST + 2 * STOREY),
+        (): boolean =>
+          nclose(carAt(source, "car", "at-level-2"), CAR_REST + 2 * STOREY),
       ],
       [
         "counterweightRest",
-        (): boolean => nclose(carAt(source, "counterweight"), CAR_REST + 2 * STOREY),
+        (): boolean =>
+          nclose(carAt(source, "counterweight"), CAR_REST + 2 * STOREY),
       ],
       [
         "counterweightLevel2",
-        (): boolean => nclose(carAt(source, "counterweight", "at-level-2"), CAR_REST),
+        (): boolean =>
+          nclose(carAt(source, "counterweight", "at-level-2"), CAR_REST),
       ],
     ]),
     {
@@ -121,19 +147,30 @@ export function test_architecture_built_connector_operation(): void {
       counterweightLevel2: true,
     },
   );
-  TestValidator.equals("the state hands back the floor it serves, and nothing for what serves none", builtConnectorCarriagePlacements(source, "lift", "at-level-1").map(
-      (placement: IAutoMovieConnectorCarriagePlacement): (string | null)[] => [placement.carriage, placement.node, placement.serves],
-    ), [
+  TestValidator.equals(
+    "the state hands back the floor it serves, and nothing for what serves none",
+    builtConnectorCarriagePlacements(source, "lift", "at-level-1").map(
+      (placement: IAutoMovieConnectorCarriagePlacement): (string | null)[] => [
+        placement.carriage,
+        placement.node,
+        placement.serves,
+      ],
+    ),
+    [
       ["car", "runs/car", "level-1"],
       ["counterweight", "runs/counterweight", null],
-    ]);
+    ],
+  );
 
   TestValidator.predicate(
     "lowering stages the car at the state the record stands in",
     ((): boolean => {
-      const node: (environment: IAutoMovieBuiltEnvironment) => number = (environment: IAutoMovieBuiltEnvironment): number =>
+      const node: (environment: IAutoMovieBuiltEnvironment) => number = (
+        environment: IAutoMovieBuiltEnvironment,
+      ): number =>
         lowerBuiltEnvironment(environment).set!.find(
-          (piece: IAutoMovieStageSetPiece): boolean => piece.node === "runs/car",
+          (piece: IAutoMovieStageSetPiece): boolean =>
+            piece.node === "runs/car",
         )!.position.y;
       const raised: IAutoMovieBuiltEnvironment = runs();
       raised.connectors[0]!.operation!.state = "at-level-2";
@@ -153,12 +190,10 @@ export function test_architecture_built_connector_operation(): void {
   TestValidator.predicate(
     "a carriage may turn as well as slide, which is what a revolving gate is",
     ((): boolean => {
-      const shut: IAutoMovieConnectorCarriagePlacement = builtConnectorCarriagePlacements(source, "gate")[0]!;
-      const turned: IAutoMovieConnectorCarriagePlacement = builtConnectorCarriagePlacements(
-        source,
-        "gate",
-        "half-turned",
-      )[0]!;
+      const shut: IAutoMovieConnectorCarriagePlacement =
+        builtConnectorCarriagePlacements(source, "gate")[0]!;
+      const turned: IAutoMovieConnectorCarriagePlacement =
+        builtConnectorCarriagePlacements(source, "gate", "half-turned")[0]!;
       return (
         shut.serves === "lobby" &&
         turned.serves === null &&
@@ -172,18 +207,38 @@ export function test_architecture_built_connector_operation(): void {
     })(),
   );
 
-  TestValidator.equals("a two-way run reaches every stop it declares", builtEnvironmentAdjacentSpaces(source, "level-0").sort(alphabetical), ["level-1", "level-2", "lobby", "plant"]);
-  TestValidator.equals("a landing reaches the stops on both sides of a two-way run", builtEnvironmentAdjacentSpaces(source, "level-1").sort(alphabetical), ["level-0", "level-2"]);
-  TestValidator.equals("a one-way run reaches only the stops ahead of it", builtEnvironmentAdjacentSpaces(source, "level-2").sort(alphabetical), ["level-0", "level-1"]);
-  TestValidator.equals("a landing on a one-way run reaches forward and never back", builtEnvironmentAdjacentSpaces(source, "plant"), ["level-1"]);
+  TestValidator.equals(
+    "a two-way run reaches every stop it declares",
+    builtEnvironmentAdjacentSpaces(source, "level-0").sort(alphabetical),
+    ["level-1", "level-2", "lobby", "plant"],
+  );
+  TestValidator.equals(
+    "a landing reaches the stops on both sides of a two-way run",
+    builtEnvironmentAdjacentSpaces(source, "level-1").sort(alphabetical),
+    ["level-0", "level-2"],
+  );
+  TestValidator.equals(
+    "a one-way run reaches only the stops ahead of it",
+    builtEnvironmentAdjacentSpaces(source, "level-2").sort(alphabetical),
+    ["level-0", "level-1"],
+  );
+  TestValidator.equals(
+    "a landing on a one-way run reaches forward and never back",
+    builtEnvironmentAdjacentSpaces(source, "plant"),
+    ["level-1"],
+  );
   TestValidator.equals(
     "a space no run touches is adjacent to nothing",
     builtEnvironmentAdjacentSpaces(source, "whole"),
     [],
   );
-  TestValidator.equals("a landing is a place the run lands on, so the connector query answers with it", builtEnvironmentSpaceConnectors(source, "level-1").map(
+  TestValidator.equals(
+    "a landing is a place the run lands on, so the connector query answers with it",
+    builtEnvironmentSpaceConnectors(source, "level-1").map(
       (connector: IAutoMovieBuiltConnector): string => connector.id,
-    ), ["lift", "escalator", "chute", "stair"]);
+    ),
+    ["lift", "escalator", "chute", "stair"],
+  );
 
   TestValidator.equals(
     "a run that never moves has no carriage to place",
@@ -192,7 +247,9 @@ export function test_architecture_built_connector_operation(): void {
   );
   TestValidator.predicate(
     "an unknown connector has no carriage",
-    throwsError((): IAutoMovieConnectorCarriagePlacement[] => builtConnectorCarriagePlacements(source, "missing")),
+    throwsError((): IAutoMovieConnectorCarriagePlacement[] =>
+      builtConnectorCarriagePlacements(source, "missing"),
+    ),
   );
   TestValidator.predicate(
     "an unknown operating state is refused",
@@ -204,7 +261,9 @@ export function test_architecture_built_connector_operation(): void {
     "a carriage whose element is gone is refused",
     throwsError((): void => {
       const value: IAutoMovieBuiltEnvironment = runs();
-      value.elements = value.elements.filter((element: IAutoMovieBuiltElement): boolean => element.id !== "car");
+      value.elements = value.elements.filter(
+        (element: IAutoMovieBuiltElement): boolean => element.id !== "car",
+      );
       builtConnectorCarriagePlacements(value, "lift");
     }),
   );
@@ -215,8 +274,12 @@ export function test_architecture_built_connector_operation(): void {
       value.connectors[0]!.operation!.states[0]!.carriages = [
         { carriage: "counterweight", value: 0, serves: null },
       ];
-      const placements: IAutoMovieConnectorCarriagePlacement[] = builtConnectorCarriagePlacements(value, "lift");
-      const car: IAutoMovieConnectorCarriagePlacement = placements.find((entry: IAutoMovieConnectorCarriagePlacement): boolean => entry.carriage === "car")!;
+      const placements: IAutoMovieConnectorCarriagePlacement[] =
+        builtConnectorCarriagePlacements(value, "lift");
+      const car: IAutoMovieConnectorCarriagePlacement = placements.find(
+        (entry: IAutoMovieConnectorCarriagePlacement): boolean =>
+          entry.carriage === "car",
+      )!;
       return nclose(car.position.y, CAR_REST) && car.serves === null;
     })(),
   );
@@ -225,10 +288,13 @@ export function test_architecture_built_connector_operation(): void {
     ((): boolean => {
       const value: IAutoMovieBuiltEnvironment = runs();
       value.connectors[0]!.operation!.state = "at-level-9";
-      const placements: IAutoMovieConnectorCarriagePlacement[] = builtConnectorCarriagePlacements(value, "lift");
+      const placements: IAutoMovieConnectorCarriagePlacement[] =
+        builtConnectorCarriagePlacements(value, "lift");
       return (
-        placements.every((entry: IAutoMovieConnectorCarriagePlacement): boolean => entry.serves === null) &&
-        nclose(placements[0]!.position.y, CAR_REST)
+        placements.every(
+          (entry: IAutoMovieConnectorCarriagePlacement): boolean =>
+            entry.serves === null,
+        ) && nclose(placements[0]!.position.y, CAR_REST)
       );
     })(),
   );

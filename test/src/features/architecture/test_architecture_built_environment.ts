@@ -1,7 +1,16 @@
-import { sameProductData } from "../internal/sameProductData";
-import { nclose } from "../internal/nclose";
+import type {
+  IAutoMovieBuiltConnector,
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieBuiltSurface,
+  IAutoMovieModel,
+  IAutoMovieSpace,
+  IAutoMovieStageSetPiece,
+  IAutoMovieSurface,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
 import type { IAutoMovieSubjectContribution } from "../../../../packages/engine/src/IAutoMovieSubjectContribution";
-import type { IAutoMovieBuiltEnvironment, IAutoMovieModel, IAutoMovieSpace, IAutoMovieStageSetPiece, IAutoMovieSurface, IAutoMovieBuiltSurface, IAutoMovieVector3, IAutoMovieBuiltConnector } from "@automovie/interface";
 import { builtEnvironmentAdjacentSpaces } from "../../../../packages/engine/src/architecture/builtEnvironmentAdjacentSpaces";
 import { builtEnvironmentBuildingOfSpace } from "../../../../packages/engine/src/architecture/builtEnvironmentBuildingOfSpace";
 import { builtEnvironmentContainsPoint } from "../../../../packages/engine/src/architecture/builtEnvironmentContainsPoint";
@@ -11,12 +20,13 @@ import { builtEnvironmentSpaceSurfaces } from "../../../../packages/engine/src/a
 import { lowerBuiltEnvironment } from "../../../../packages/engine/src/architecture/lowerBuiltEnvironment";
 import { mergeAutoMovieSpaces } from "../../../../packages/engine/src/architecture/mergeAutoMovieSpaces";
 import { validateBuiltEnvironment } from "../../../../packages/engine/src/architecture/validateBuiltEnvironment";
-import { TestValidator } from "@nestia/e2e";
 import { assertBuiltEnvironmentTestRefusals } from "../internal/assertBuiltEnvironmentTestRefusals";
 import { builtEnvironmentTestBuilding as building } from "../internal/builtEnvironmentTestBuilding";
 import { builtEnvironmentTestCampus as campus } from "../internal/builtEnvironmentTestCampus";
 import { builtEnvironmentTestRefusalPaths as refusalPaths } from "../internal/builtEnvironmentTestRefusalPaths";
+import { nclose } from "../internal/nclose";
 import { namedFacts, qclose, throwsError } from "../internal/predicates";
+import { sameProductData } from "../internal/sameProductData";
 
 /**
  * Lower linked visible, logical and traversal graphs and query their stable identities and descendant membership.
@@ -49,64 +59,108 @@ export function test_architecture_built_environment(): void {
     validateBuiltEnvironment({ environment: source }).success,
     true,
   );
-  const contribution: IAutoMovieSubjectContribution = lowerBuiltEnvironment(source);
-  TestValidator.equals("lowering preserves owned models and the structured building", {
-      models: contribution.models?.map((model: IAutoMovieModel): string => model.id),
-      buildings: contribution.builtEnvironments?.map((value: IAutoMovieBuiltEnvironment): string => value.id),
-      spaces: contribution.spaces?.map((space: IAutoMovieSpace): string => space.id),
-    }, {
+  const contribution: IAutoMovieSubjectContribution =
+    lowerBuiltEnvironment(source);
+  TestValidator.equals(
+    "lowering preserves owned models and the structured building",
+    {
+      models: contribution.models?.map(
+        (model: IAutoMovieModel): string => model.id,
+      ),
+      buildings: contribution.builtEnvironments?.map(
+        (value: IAutoMovieBuiltEnvironment): string => value.id,
+      ),
+      spaces: contribution.spaces?.map(
+        (space: IAutoMovieSpace): string => space.id,
+      ),
+    },
+    {
       models: ["slab"],
       buildings: ["tower"],
       spaces: ["tower/whole", "tower/ground", "tower/upper", "tower/roof"],
-    });
+    },
+  );
   const pieces: readonly IAutoMovieStageSetPiece[] = contribution.set ?? [];
   TestValidator.predicate(
     "parent-local placement is flattened to world-space full TRS",
-    (() : boolean => {
-      const observed: { slab: IAutoMovieStageSetPiece | undefined; externalModel: string | undefined; } = {
-      slab: pieces.find((piece: IAutoMovieStageSetPiece): boolean => piece.node === "tower/ground-slab"),
-      externalModel: pieces.find((piece: IAutoMovieStageSetPiece): boolean => piece.node === "tower/bridge")
-        ?.model,
-    };
+    ((): boolean => {
+      const observed: {
+        slab: IAutoMovieStageSetPiece | undefined;
+        externalModel: string | undefined;
+      } = {
+        slab: pieces.find(
+          (piece: IAutoMovieStageSetPiece): boolean =>
+            piece.node === "tower/ground-slab",
+        ),
+        externalModel: pieces.find(
+          (piece: IAutoMovieStageSetPiece): boolean =>
+            piece.node === "tower/bridge",
+        )?.model,
+      };
       return (
-        typeof observed === "object" && typeof observed === "object" && observed !== null && observed !== undefined &&
+        typeof observed === "object" &&
+        typeof observed === "object" &&
+        observed !== null &&
+        observed !== undefined &&
         Object.keys(observed).length === 2 &&
         Object.hasOwn(observed, "slab") &&
-        typeof observed["slab"] === "object" && typeof observed["slab"] === "object" && observed["slab"] !== null && observed["slab"] !== undefined &&
+        typeof observed["slab"] === "object" &&
+        typeof observed["slab"] === "object" &&
+        observed["slab"] !== null &&
+        observed["slab"] !== undefined &&
         Object.keys(observed["slab"]).length === 5 &&
         Object.hasOwn(observed["slab"], "node") &&
         observed["slab"]["node"] === "tower/ground-slab" &&
         Object.hasOwn(observed["slab"], "model") &&
         observed["slab"]["model"] === "slab" &&
         Object.hasOwn(observed["slab"], "position") &&
-        typeof observed["slab"]["position"] === "object" && typeof observed["slab"]["position"] === "object" && observed["slab"]["position"] !== null && observed["slab"]["position"] !== undefined &&
+        typeof observed["slab"]["position"] === "object" &&
+        typeof observed["slab"]["position"] === "object" &&
+        observed["slab"]["position"] !== null &&
+        observed["slab"]["position"] !== undefined &&
         Object.keys(observed["slab"]["position"]).length === 3 &&
         Object.hasOwn(observed["slab"]["position"], "x") &&
-        typeof observed["slab"]["position"]["x"] === "number" && nclose(observed["slab"]["position"]["x"], 12) &&
+        typeof observed["slab"]["position"]["x"] === "number" &&
+        nclose(observed["slab"]["position"]["x"], 12) &&
         Object.hasOwn(observed["slab"]["position"], "y") &&
-        typeof observed["slab"]["position"]["y"] === "number" && nclose(observed["slab"]["position"]["y"], 0) &&
+        typeof observed["slab"]["position"]["y"] === "number" &&
+        nclose(observed["slab"]["position"]["y"], 0) &&
         Object.hasOwn(observed["slab"]["position"], "z") &&
-        typeof observed["slab"]["position"]["z"] === "number" && nclose(observed["slab"]["position"]["z"], 0) &&
+        typeof observed["slab"]["position"]["z"] === "number" &&
+        nclose(observed["slab"]["position"]["z"], 0) &&
         Object.hasOwn(observed["slab"], "rotation") &&
-        typeof observed["slab"]["rotation"] === "object" && typeof observed["slab"]["rotation"] === "object" && observed["slab"]["rotation"] !== null && observed["slab"]["rotation"] !== undefined &&
+        typeof observed["slab"]["rotation"] === "object" &&
+        typeof observed["slab"]["rotation"] === "object" &&
+        observed["slab"]["rotation"] !== null &&
+        observed["slab"]["rotation"] !== undefined &&
         Object.keys(observed["slab"]["rotation"]).length === 4 &&
         Object.hasOwn(observed["slab"]["rotation"], "x") &&
-        typeof observed["slab"]["rotation"]["x"] === "number" && nclose(observed["slab"]["rotation"]["x"], 0) &&
+        typeof observed["slab"]["rotation"]["x"] === "number" &&
+        nclose(observed["slab"]["rotation"]["x"], 0) &&
         Object.hasOwn(observed["slab"]["rotation"], "y") &&
-        typeof observed["slab"]["rotation"]["y"] === "number" && nclose(observed["slab"]["rotation"]["y"], 0) &&
+        typeof observed["slab"]["rotation"]["y"] === "number" &&
+        nclose(observed["slab"]["rotation"]["y"], 0) &&
         Object.hasOwn(observed["slab"]["rotation"], "z") &&
-        typeof observed["slab"]["rotation"]["z"] === "number" && nclose(observed["slab"]["rotation"]["z"], 0) &&
+        typeof observed["slab"]["rotation"]["z"] === "number" &&
+        nclose(observed["slab"]["rotation"]["z"], 0) &&
         Object.hasOwn(observed["slab"]["rotation"], "w") &&
-        typeof observed["slab"]["rotation"]["w"] === "number" && nclose(observed["slab"]["rotation"]["w"], 1) &&
+        typeof observed["slab"]["rotation"]["w"] === "number" &&
+        nclose(observed["slab"]["rotation"]["w"], 1) &&
         Object.hasOwn(observed["slab"], "scale") &&
-        typeof observed["slab"]["scale"] === "object" && typeof observed["slab"]["scale"] === "object" && observed["slab"]["scale"] !== null && observed["slab"]["scale"] !== undefined &&
+        typeof observed["slab"]["scale"] === "object" &&
+        typeof observed["slab"]["scale"] === "object" &&
+        observed["slab"]["scale"] !== null &&
+        observed["slab"]["scale"] !== undefined &&
         Object.keys(observed["slab"]["scale"]).length === 3 &&
         Object.hasOwn(observed["slab"]["scale"], "x") &&
-        typeof observed["slab"]["scale"]["x"] === "number" && nclose(observed["slab"]["scale"]["x"], 4) &&
+        typeof observed["slab"]["scale"]["x"] === "number" &&
+        nclose(observed["slab"]["scale"]["x"], 4) &&
         Object.hasOwn(observed["slab"]["scale"], "y") &&
-        typeof observed["slab"]["scale"]["y"] === "number" && nclose(observed["slab"]["scale"]["y"], 0.2) &&
+        typeof observed["slab"]["scale"]["y"] === "number" &&
+        nclose(observed["slab"]["scale"]["y"], 0.2) &&
         Object.hasOwn(observed["slab"]["scale"], "z") &&
-        typeof observed["slab"]["scale"]["z"] === "number" && nclose(observed["slab"]["scale"]["z"], 3) &&
+        typeof observed["slab"]["scale"]["z"] === "number" &&
+        nclose(observed["slab"]["scale"]["z"], 3) &&
         Object.hasOwn(observed, "externalModel") &&
         observed["externalModel"] === "external-stone"
       );
@@ -114,18 +168,32 @@ export function test_architecture_built_environment(): void {
   );
   TestValidator.predicate(
     "full arbitrary rotation survives hierarchy lowering",
-    qclose(pieces.find((piece: IAutoMovieStageSetPiece): boolean => piece.node === "tower/bridge")!.rotation!, {
-      x: 0,
-      y: 0,
-      z: Math.SQRT1_2,
-      w: Math.SQRT1_2,
-    }),
+    qclose(
+      pieces.find(
+        (piece: IAutoMovieStageSetPiece): boolean =>
+          piece.node === "tower/bridge",
+      )!.rotation!,
+      {
+        x: 0,
+        y: 0,
+        z: Math.SQRT1_2,
+        w: Math.SQRT1_2,
+      },
+    ),
   );
-  TestValidator.predicate("logical support spaces merge without restating surfaces", sameProductData(mergeAutoMovieSpaces("tower-stage", contribution.spaces ?? []), {
-      id: "tower-stage",
-      surfaces: source.surfaces.map((entry: IAutoMovieBuiltSurface): IAutoMovieSurface => entry.surface),
-      walkable: ["ground-floor", "upper-floor"],
-    }));
+  TestValidator.predicate(
+    "logical support spaces merge without restating surfaces",
+    sameProductData(
+      mergeAutoMovieSpaces("tower-stage", contribution.spaces ?? []),
+      {
+        id: "tower-stage",
+        surfaces: source.surfaces.map(
+          (entry: IAutoMovieBuiltSurface): IAutoMovieSurface => entry.surface,
+        ),
+        walkable: ["ground-floor", "upper-floor"],
+      },
+    ),
+  );
   TestValidator.equals(
     "containment includes descendants and excludes outside points",
     namedFacts([
@@ -159,27 +227,49 @@ export function test_architecture_built_environment(): void {
     ]),
     { ground: true, whole: true, outside: true },
   );
-  TestValidator.equals("boundaries and directional connectors answer adjacency", {
+  TestValidator.equals(
+    "boundaries and directional connectors answer adjacency",
+    {
       ground: builtEnvironmentAdjacentSpaces(source, "ground"),
       roof: builtEnvironmentAdjacentSpaces(source, "roof"),
       upper: builtEnvironmentAdjacentSpaces(source, "upper"),
-    }, {
+    },
+    {
       ground: ["upper", "roof"],
       roof: ["ground", "upper"],
       upper: ["ground"],
-    });
+    },
+  );
   TestValidator.predicate(
     "connector endpoints and authored 3D routes survive the query",
-    (() : boolean => {
-      const observed: { id: string; from: string; to: string; route: IAutoMovieVector3[]; }[] = builtEnvironmentSpaceConnectors(source, "upper").map((connector: IAutoMovieBuiltConnector): { id: string; from: string; to: string; route: IAutoMovieVector3[]; } => ({
-      id: connector.id,
-      from: connector.from,
-      to: connector.to,
-      route: connector.route,
-    }));
+    ((): boolean => {
+      const observed: {
+        id: string;
+        from: string;
+        to: string;
+        route: IAutoMovieVector3[];
+      }[] = builtEnvironmentSpaceConnectors(source, "upper").map(
+        (
+          connector: IAutoMovieBuiltConnector,
+        ): {
+          id: string;
+          from: string;
+          to: string;
+          route: IAutoMovieVector3[];
+        } => ({
+          id: connector.id,
+          from: connector.from,
+          to: connector.to,
+          route: connector.route,
+        }),
+      );
       return (
-        Array.isArray(observed) && observed.length === 2 &&
-        typeof observed[0]! === "object" && typeof observed[0]! === "object" && observed[0] !== null && observed[0] !== undefined &&
+        Array.isArray(observed) &&
+        observed.length === 2 &&
+        typeof observed[0]! === "object" &&
+        typeof observed[0]! === "object" &&
+        observed[0] !== null &&
+        observed[0] !== undefined &&
         Object.keys(observed[0]!).length === 4 &&
         Object.hasOwn(observed[0]!, "id") &&
         observed[0]!["id"] === "grand-stair" &&
@@ -188,24 +278,40 @@ export function test_architecture_built_environment(): void {
         Object.hasOwn(observed[0]!, "to") &&
         observed[0]!["to"] === "upper" &&
         Object.hasOwn(observed[0]!, "route") &&
-        Array.isArray(observed[0]!["route"]) && observed[0]!["route"].length === 2 &&
-        typeof observed[0]!["route"][0]! === "object" && typeof observed[0]!["route"][0]! === "object" && observed[0]!["route"][0] !== null && observed[0]!["route"][0] !== undefined &&
+        Array.isArray(observed[0]!["route"]) &&
+        observed[0]!["route"].length === 2 &&
+        typeof observed[0]!["route"][0]! === "object" &&
+        typeof observed[0]!["route"][0]! === "object" &&
+        observed[0]!["route"][0] !== null &&
+        observed[0]!["route"][0] !== undefined &&
         Object.keys(observed[0]!["route"][0]!).length === 3 &&
         Object.hasOwn(observed[0]!["route"][0]!, "x") &&
-        typeof observed[0]!["route"][0]!["x"] === "number" && nclose(observed[0]!["route"][0]!["x"], 8) &&
+        typeof observed[0]!["route"][0]!["x"] === "number" &&
+        nclose(observed[0]!["route"][0]!["x"], 8) &&
         Object.hasOwn(observed[0]!["route"][0]!, "y") &&
-        typeof observed[0]!["route"][0]!["y"] === "number" && nclose(observed[0]!["route"][0]!["y"], 0) &&
+        typeof observed[0]!["route"][0]!["y"] === "number" &&
+        nclose(observed[0]!["route"][0]!["y"], 0) &&
         Object.hasOwn(observed[0]!["route"][0]!, "z") &&
-        typeof observed[0]!["route"][0]!["z"] === "number" && nclose(observed[0]!["route"][0]!["z"], 0) &&
-        typeof observed[0]!["route"][1]! === "object" && typeof observed[0]!["route"][1]! === "object" && observed[0]!["route"][1] !== null && observed[0]!["route"][1] !== undefined &&
+        typeof observed[0]!["route"][0]!["z"] === "number" &&
+        nclose(observed[0]!["route"][0]!["z"], 0) &&
+        typeof observed[0]!["route"][1]! === "object" &&
+        typeof observed[0]!["route"][1]! === "object" &&
+        observed[0]!["route"][1] !== null &&
+        observed[0]!["route"][1] !== undefined &&
         Object.keys(observed[0]!["route"][1]!).length === 3 &&
         Object.hasOwn(observed[0]!["route"][1]!, "x") &&
-        typeof observed[0]!["route"][1]!["x"] === "number" && nclose(observed[0]!["route"][1]!["x"], 10) &&
+        typeof observed[0]!["route"][1]!["x"] === "number" &&
+        nclose(observed[0]!["route"][1]!["x"], 10) &&
         Object.hasOwn(observed[0]!["route"][1]!, "y") &&
-        typeof observed[0]!["route"][1]!["y"] === "number" && nclose(observed[0]!["route"][1]!["y"], 4) &&
+        typeof observed[0]!["route"][1]!["y"] === "number" &&
+        nclose(observed[0]!["route"][1]!["y"], 4) &&
         Object.hasOwn(observed[0]!["route"][1]!, "z") &&
-        typeof observed[0]!["route"][1]!["z"] === "number" && nclose(observed[0]!["route"][1]!["z"], 0) &&
-        typeof observed[1]! === "object" && typeof observed[1]! === "object" && observed[1] !== null && observed[1] !== undefined &&
+        typeof observed[0]!["route"][1]!["z"] === "number" &&
+        nclose(observed[0]!["route"][1]!["z"], 0) &&
+        typeof observed[1]! === "object" &&
+        typeof observed[1]! === "object" &&
+        observed[1] !== null &&
+        observed[1] !== undefined &&
         Object.keys(observed[1]!).length === 4 &&
         Object.hasOwn(observed[1]!, "id") &&
         observed[1]!["id"] === "facade-ladder" &&
@@ -214,23 +320,36 @@ export function test_architecture_built_environment(): void {
         Object.hasOwn(observed[1]!, "to") &&
         observed[1]!["to"] === "upper" &&
         Object.hasOwn(observed[1]!, "route") &&
-        Array.isArray(observed[1]!["route"]) && observed[1]!["route"].length === 2 &&
-        typeof observed[1]!["route"][0]! === "object" && typeof observed[1]!["route"][0]! === "object" && observed[1]!["route"][0] !== null && observed[1]!["route"][0] !== undefined &&
+        Array.isArray(observed[1]!["route"]) &&
+        observed[1]!["route"].length === 2 &&
+        typeof observed[1]!["route"][0]! === "object" &&
+        typeof observed[1]!["route"][0]! === "object" &&
+        observed[1]!["route"][0] !== null &&
+        observed[1]!["route"][0] !== undefined &&
         Object.keys(observed[1]!["route"][0]!).length === 3 &&
         Object.hasOwn(observed[1]!["route"][0]!, "x") &&
-        typeof observed[1]!["route"][0]!["x"] === "number" && nclose(observed[1]!["route"][0]!["x"], 15) &&
+        typeof observed[1]!["route"][0]!["x"] === "number" &&
+        nclose(observed[1]!["route"][0]!["x"], 15) &&
         Object.hasOwn(observed[1]!["route"][0]!, "y") &&
-        typeof observed[1]!["route"][0]!["y"] === "number" && nclose(observed[1]!["route"][0]!["y"], 7) &&
+        typeof observed[1]!["route"][0]!["y"] === "number" &&
+        nclose(observed[1]!["route"][0]!["y"], 7) &&
         Object.hasOwn(observed[1]!["route"][0]!, "z") &&
-        typeof observed[1]!["route"][0]!["z"] === "number" && nclose(observed[1]!["route"][0]!["z"], 0) &&
-        typeof observed[1]!["route"][1]! === "object" && typeof observed[1]!["route"][1]! === "object" && observed[1]!["route"][1] !== null && observed[1]!["route"][1] !== undefined &&
+        typeof observed[1]!["route"][0]!["z"] === "number" &&
+        nclose(observed[1]!["route"][0]!["z"], 0) &&
+        typeof observed[1]!["route"][1]! === "object" &&
+        typeof observed[1]!["route"][1]! === "object" &&
+        observed[1]!["route"][1] !== null &&
+        observed[1]!["route"][1] !== undefined &&
         Object.keys(observed[1]!["route"][1]!).length === 3 &&
         Object.hasOwn(observed[1]!["route"][1]!, "x") &&
-        typeof observed[1]!["route"][1]!["x"] === "number" && nclose(observed[1]!["route"][1]!["x"], 15) &&
+        typeof observed[1]!["route"][1]!["x"] === "number" &&
+        nclose(observed[1]!["route"][1]!["x"], 15) &&
         Object.hasOwn(observed[1]!["route"][1]!, "y") &&
-        typeof observed[1]!["route"][1]!["y"] === "number" && nclose(observed[1]!["route"][1]!["y"], 4) &&
+        typeof observed[1]!["route"][1]!["y"] === "number" &&
+        nclose(observed[1]!["route"][1]!["y"], 4) &&
         Object.hasOwn(observed[1]!["route"][1]!, "z") &&
-        typeof observed[1]!["route"][1]!["z"] === "number" && nclose(observed[1]!["route"][1]!["z"], 0)
+        typeof observed[1]!["route"][1]!["z"] === "number" &&
+        nclose(observed[1]!["route"][1]!["z"], 0)
       );
     })(),
   );
@@ -239,36 +358,49 @@ export function test_architecture_built_environment(): void {
     builtEnvironmentSpaceConnectors(source, "whole"),
     [],
   );
-  TestValidator.equals("support and walkability are answered separately by stable surface id", {
+  TestValidator.equals(
+    "support and walkability are answered separately by stable surface id",
+    {
       whole: builtEnvironmentSpaceSurfaces(source, "whole"),
       roof: builtEnvironmentSpaceSurfaces(source, "roof"),
-    }, {
+    },
+    {
       whole: [
         { space: "ground", surface: "ground-floor", walkable: true },
         { space: "upper", surface: "upper-floor", walkable: true },
         { space: "roof", surface: "helipad-deck", walkable: false },
       ],
       roof: [{ space: "roof", surface: "helipad-deck", walkable: false }],
-    });
-  TestValidator.equals("staged nodes and logical spaces answer over the same stable ids", {
+    },
+  );
+  TestValidator.equals(
+    "staged nodes and logical spaces answer over the same stable ids",
+    {
       whole: builtEnvironmentSpaceNodes(source, "whole"),
       ground: builtEnvironmentSpaceNodes(source, "ground"),
       unplaced: pieces
         .map((piece: IAutoMovieStageSetPiece): string => piece.node)
         .filter(
-          (node: string): boolean => !builtEnvironmentSpaceNodes(source, "whole").includes(node),
+          (node: string): boolean =>
+            !builtEnvironmentSpaceNodes(source, "whole").includes(node),
         ),
-    }, {
+    },
+    {
       whole: ["tower/ground-slab", "tower/bridge", "tower/helipad"],
       ground: ["tower/ground-slab"],
       unplaced: ["tower/curtain-wall"],
-    });
+    },
+  );
   const twoUnits: IAutoMovieBuiltEnvironment = campus();
-  TestValidator.equals("each logical space names the building unit that owns it", {
+  TestValidator.equals(
+    "each logical space names the building unit that owns it",
+    {
       room: builtEnvironmentBuildingOfSpace(twoUnits, "ground"),
       root: builtEnvironmentBuildingOfSpace(twoUnits, "whole"),
       annex: builtEnvironmentBuildingOfSpace(twoUnits, "annex-space"),
-    }, { room: "tower-a", root: "tower-a", annex: "annex" });
+    },
+    { room: "tower-a", root: "tower-a", annex: "annex" },
+  );
   TestValidator.predicate(
     "unknown containment space throws",
     throwsError((): boolean =>
@@ -277,15 +409,21 @@ export function test_architecture_built_environment(): void {
   );
   TestValidator.predicate(
     "unknown adjacency space throws",
-    throwsError((): string[] => builtEnvironmentAdjacentSpaces(source, "missing")),
+    throwsError((): string[] =>
+      builtEnvironmentAdjacentSpaces(source, "missing"),
+    ),
   );
   TestValidator.predicate(
     "unknown connector space throws",
-    throwsError((): IAutoMovieBuiltConnector[] => builtEnvironmentSpaceConnectors(source, "missing")),
+    throwsError((): IAutoMovieBuiltConnector[] =>
+      builtEnvironmentSpaceConnectors(source, "missing"),
+    ),
   );
   TestValidator.predicate(
     "unknown surface space throws",
-    throwsError((): { space: string; surface: string; walkable: boolean; }[] => builtEnvironmentSpaceSurfaces(source, "missing")),
+    throwsError((): { space: string; surface: string; walkable: boolean }[] =>
+      builtEnvironmentSpaceSurfaces(source, "missing"),
+    ),
   );
   TestValidator.predicate(
     "unknown staged-node space throws",
@@ -293,7 +431,9 @@ export function test_architecture_built_environment(): void {
   );
   TestValidator.predicate(
     "unknown owner space throws",
-    throwsError((): string => builtEnvironmentBuildingOfSpace(source, "missing")),
+    throwsError((): string =>
+      builtEnvironmentBuildingOfSpace(source, "missing"),
+    ),
   );
   TestValidator.predicate(
     "a space owned by no building unit throws",
@@ -313,11 +453,10 @@ export function test_architecture_built_environment(): void {
   reversed.elements.reverse();
   TestValidator.predicate(
     "lowering composes parents independently of declaration order",
-    (() : boolean => {
-      const observed: number | undefined = lowerBuiltEnvironment(reversed).set?.length;
-      return (
-        typeof observed === "number" && nclose(observed, 4)
-      );
+    ((): boolean => {
+      const observed: number | undefined =
+        lowerBuiltEnvironment(reversed).set?.length;
+      return typeof observed === "number" && nclose(observed, 4);
     })(),
   );
 

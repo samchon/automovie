@@ -1,13 +1,27 @@
+import type {
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieConvexSpaceCell,
+  IAutoMovieModel,
+  IAutoMovieModelPart,
+  IAutoMovieSubjectBox,
+  IAutoMovieTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
 import { builtEnvironmentContainsPoint } from "../../../../packages/engine/src/architecture/builtEnvironmentContainsPoint";
 import { builtEnvironmentSpaceContentBounds } from "../../../../packages/engine/src/architecture/builtEnvironmentSpaceContentBounds";
 import { builtEnvironmentSpaceNodes } from "../../../../packages/engine/src/architecture/builtEnvironmentSpaceNodes";
 import { validateBuiltEnvironment } from "../../../../packages/engine/src/architecture/validateBuiltEnvironment";
-import type { IAutoMovieSubjectBox, IAutoMovieBuiltEnvironment, IAutoMovieConvexSpaceCell, IAutoMovieModel, IAutoMovieModelPart, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
-import { TestValidator } from "@nestia/e2e";
 import { makeProp, primitivePart } from "../internal/fixtures";
 import { namedFacts, throwsError, vclose } from "../internal/predicates";
 
-const place: (x: number, y: number, z: number, scale?: IAutoMovieVector3) => IAutoMovieTransform = (
+const place: (
+  x: number,
+  y: number,
+  z: number,
+  scale?: IAutoMovieVector3,
+) => IAutoMovieTransform = (
   x: number,
   y: number,
   z: number,
@@ -18,7 +32,11 @@ const place: (x: number, y: number, z: number, scale?: IAutoMovieVector3) => IAu
   scale,
 });
 
-const box: (id: string, min: IAutoMovieVector3, max: IAutoMovieVector3) => IAutoMovieConvexSpaceCell = (
+const box: (
+  id: string,
+  min: IAutoMovieVector3,
+  max: IAutoMovieVector3,
+) => IAutoMovieConvexSpaceCell = (
   id: string,
   min: IAutoMovieVector3,
   max: IAutoMovieVector3,
@@ -35,7 +53,9 @@ const box: (id: string, min: IAutoMovieVector3, max: IAutoMovieVector3) => IAuto
 });
 
 /** The eight corners of a unit cube, as a mesh the record states itself. */
-const cubeMeshPart: (transform: IAutoMovieTransform) => IAutoMovieModelPart = (transform: IAutoMovieTransform): IAutoMovieModelPart => ({
+const cubeMeshPart: (transform: IAutoMovieTransform) => IAutoMovieModelPart = (
+  transform: IAutoMovieTransform,
+): IAutoMovieModelPart => ({
   id: "slab-mesh",
   name: null,
   geometry: {
@@ -56,7 +76,10 @@ const cubeMeshPart: (transform: IAutoMovieTransform) => IAutoMovieModelPart = (t
   transform,
 });
 
-const model: (id: string, parts: IAutoMovieModelPart[]) => IAutoMovieModel = (id: string, parts: IAutoMovieModelPart[]): IAutoMovieModel => ({
+const model: (id: string, parts: IAutoMovieModelPart[]) => IAutoMovieModel = (
+  id: string,
+  parts: IAutoMovieModelPart[],
+): IAutoMovieModel => ({
   ...makeProp(parts),
   id,
 });
@@ -66,7 +89,9 @@ const model: (id: string, parts: IAutoMovieModelPart[]) => IAutoMovieModel = (id
  *
  * The cell is the one observed in the `#1902` residence experiment (x 3.5..14.5, y 0..4.2, z 5.5..11.5); the tower inside it is written from unit boxes at whole-metre placements so every expected bound is hand arithmetic rather than a snapshot of what the kernel happened to print.
  */
-const residence: (doorState?: string) => IAutoMovieBuiltEnvironment = (doorState: string = "closed"): IAutoMovieBuiltEnvironment => ({
+const residence: (doorState?: string) => IAutoMovieBuiltEnvironment = (
+  doorState: string = "closed",
+): IAutoMovieBuiltEnvironment => ({
   version: 1,
   id: "residence",
   units: "meter",
@@ -266,18 +291,21 @@ export function test_architecture_built_environment_content_bounds(): void {
     true,
   );
 
-  const ground: IAutoMovieSubjectBox | null = builtEnvironmentSpaceContentBounds(closed, "stair-ground");
+  const ground: IAutoMovieSubjectBox | null =
+    builtEnvironmentSpaceContentBounds(closed, "stair-ground");
   TestValidator.equals(
     "the box is the staged contents, not the declared cell",
     namedFacts([
       ["measured", (): boolean => ground !== null],
       [
         "min",
-        (): boolean => ground !== null && vclose(ground.min, { x: 8.95, y: 0, z: 5.8 }),
+        (): boolean =>
+          ground !== null && vclose(ground.min, { x: 8.95, y: 0, z: 5.8 }),
       ],
       [
         "max",
-        (): boolean => ground !== null && vclose(ground.max, { x: 14, y: 4, z: 11 }),
+        (): boolean =>
+          ground !== null && vclose(ground.max, { x: 14, y: 4, z: 11 }),
       ],
       [
         "sameElementsAsTheNodeQuery",
@@ -334,7 +362,8 @@ export function test_architecture_built_environment_content_bounds(): void {
     },
   );
 
-  const landing: IAutoMovieSubjectBox | null = builtEnvironmentSpaceContentBounds(closed, "stair-landing");
+  const landing: IAutoMovieSubjectBox | null =
+    builtEnvironmentSpaceContentBounds(closed, "stair-landing");
   TestValidator.equals(
     "a descendant space is measured on its own, referenced models included",
     namedFacts([
@@ -353,21 +382,21 @@ export function test_architecture_built_environment_content_bounds(): void {
     { measured: true, min: true, max: true },
   );
 
-  const opened: IAutoMovieSubjectBox | null = builtEnvironmentSpaceContentBounds(
-    residence("open"),
-    "stair-ground",
-  );
+  const opened: IAutoMovieSubjectBox | null =
+    builtEnvironmentSpaceContentBounds(residence("open"), "stair-ground");
   TestValidator.equals(
     "an opened leaf is measured where it rests, not where it was authored",
     namedFacts([
       ["measured", (): boolean => opened !== null],
       [
         "min",
-        (): boolean => opened !== null && vclose(opened.min, { x: 8.05, y: 0, z: 5.8 }),
+        (): boolean =>
+          opened !== null && vclose(opened.min, { x: 8.05, y: 0, z: 5.8 }),
       ],
       [
         "max",
-        (): boolean => opened !== null && vclose(opened.max, { x: 14, y: 4, z: 11 }),
+        (): boolean =>
+          opened !== null && vclose(opened.max, { x: 14, y: 4, z: 11 }),
       ],
     ]),
     { measured: true, min: true, max: true },
@@ -385,7 +414,8 @@ export function test_architecture_built_environment_content_bounds(): void {
   TestValidator.equals(
     "an undeclared logical space is refused by name",
     throwsError(
-      (): IAutoMovieSubjectBox | null => builtEnvironmentSpaceContentBounds(closed, "cellar"),
+      (): IAutoMovieSubjectBox | null =>
+        builtEnvironmentSpaceContentBounds(closed, "cellar"),
       ['has no logical space "cellar"'],
     ),
     true,

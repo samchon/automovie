@@ -1,7 +1,11 @@
-import type { IAutoMovieBuiltEnvironment, IAutoMovieBuiltBoundary } from "@automovie/interface";
+import type {
+  IAutoMovieBuiltBoundary,
+  IAutoMovieBuiltEnvironment,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
 import { builtEnvironmentAdjacentSpaces } from "../../../../packages/engine/src/architecture/builtEnvironmentAdjacentSpaces";
 import { builtEnvironmentSpaceBoundaries } from "../../../../packages/engine/src/architecture/builtEnvironmentSpaceBoundaries";
-import { TestValidator } from "@nestia/e2e";
 import { drawingEnvironment } from "../internal/drawingFixtures";
 import { namedFacts, throwsError } from "../internal/predicates";
 
@@ -22,7 +26,9 @@ import { namedFacts, throwsError } from "../internal/predicates";
  */
 export function test_architecture_built_environment_enclosure(): void {
   const environment: IAutoMovieBuiltEnvironment = drawingEnvironment();
-  const enclosureOf: (space: string) => IAutoMovieBuiltBoundary[] = (space: string): IAutoMovieBuiltBoundary[] =>
+  const enclosureOf: (space: string) => IAutoMovieBuiltBoundary[] = (
+    space: string,
+  ): IAutoMovieBuiltBoundary[] =>
     builtEnvironmentSpaceBoundaries(environment, space);
 
   const hall: IAutoMovieBuiltBoundary[] = enclosureOf("hall");
@@ -76,7 +82,11 @@ export function test_architecture_built_environment_enclosure(): void {
       // wrong.
       [
         "and the room can now say so itself",
-        (): boolean => hall.some((boundary: IAutoMovieBuiltBoundary): boolean => boundary.kind === "ceiling") === false,
+        (): boolean =>
+          hall.some(
+            (boundary: IAutoMovieBuiltBoundary): boolean =>
+              boundary.kind === "ceiling",
+          ) === false,
       ],
       // The control. Adjacency is the only derivation that ever read a
       // boundary, and it reports the space on the far side; the boundary that
@@ -111,7 +121,8 @@ export function test_architecture_built_environment_enclosure(): void {
   TestValidator.predicate(
     "an unknown space is refused by name",
     throwsError(
-      (): IAutoMovieBuiltBoundary[] => builtEnvironmentSpaceBoundaries(environment, "cellar"),
+      (): IAutoMovieBuiltBoundary[] =>
+        builtEnvironmentSpaceBoundaries(environment, "cellar"),
       ["cellar", "no logical space"],
     ),
   );

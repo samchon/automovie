@@ -1,10 +1,16 @@
-import type { IAutoMovieBuiltEnvelopeCorner } from "../../../../packages/engine/src/architecture/IAutoMovieBuiltEnvelopeCorner";
-import type { IAutoMovieBuiltEnvelopeFace } from "../../../../packages/engine/src/architecture/IAutoMovieBuiltEnvelopeFace";
-import type { IAutoMovieBuildingObservationCensus } from "../../../../packages/engine/src/architecture/IAutoMovieBuildingObservationCensus";
-import { builtEnvironmentBuildingCensus } from "../../../../packages/engine/src/architecture/builtEnvironmentBuildingCensus";
 import type { IAutoMovieBuiltEnvironment } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-import { FACE_ROTATION, boxCell, originTransform, rectangularBuilding } from "../internal/envelopeFixtures";
+
+import type { IAutoMovieBuildingObservationCensus } from "../../../../packages/engine/src/architecture/IAutoMovieBuildingObservationCensus";
+import type { IAutoMovieBuiltEnvelopeCorner } from "../../../../packages/engine/src/architecture/IAutoMovieBuiltEnvelopeCorner";
+import type { IAutoMovieBuiltEnvelopeFace } from "../../../../packages/engine/src/architecture/IAutoMovieBuiltEnvelopeFace";
+import { builtEnvironmentBuildingCensus } from "../../../../packages/engine/src/architecture/builtEnvironmentBuildingCensus";
+import {
+  FACE_ROTATION,
+  boxCell,
+  originTransform,
+  rectangularBuilding,
+} from "../internal/envelopeFixtures";
 
 /**
  * Census one building's facades, roof, underside, corners, entrances, volumetric spaces and connector identities.
@@ -21,18 +27,43 @@ import { FACE_ROTATION, boxCell, originTransform, rectangularBuilding } from "..
  * @evidence contracts/testing.md#execution-ownership Portable CPU unit test_architecture_building_census imports the actual engine/archetype operations and owns its locally enumerated cases; no dynamic registration, consumer installation, native artifact build, process, browser or GPU host is required.
  */
 export function test_architecture_building_census(): void {
-  const census: IAutoMovieBuildingObservationCensus[] = builtEnvironmentBuildingCensus(furnished());
+  const census: IAutoMovieBuildingObservationCensus[] =
+    builtEnvironmentBuildingCensus(furnished());
 
-  TestValidator.equals("one unit answers for its own envelope, corners, entrances and rooms", census.map((unit: IAutoMovieBuildingObservationCensus): { building: string; facades: string[]; roofs: string[]; undersides: string[]; corners: string[]; entrances: string[]; spaces: string[]; connectors: string[]; } => ({
-      building: unit.building,
-      facades: unit.facades.map((face: IAutoMovieBuiltEnvelopeFace): string => face.boundary),
-      roofs: unit.roofs.map((face: IAutoMovieBuiltEnvelopeFace): string => face.boundary),
-      undersides: unit.undersides.map((face: IAutoMovieBuiltEnvelopeFace): string => face.boundary),
-      corners: unit.corners.map((corner: IAutoMovieBuiltEnvelopeCorner): string => corner.id),
-      entrances: unit.entrances,
-      spaces: unit.spaces,
-      connectors: unit.connectors,
-    })), [
+  TestValidator.equals(
+    "one unit answers for its own envelope, corners, entrances and rooms",
+    census.map(
+      (
+        unit: IAutoMovieBuildingObservationCensus,
+      ): {
+        building: string;
+        facades: string[];
+        roofs: string[];
+        undersides: string[];
+        corners: string[];
+        entrances: string[];
+        spaces: string[];
+        connectors: string[];
+      } => ({
+        building: unit.building,
+        facades: unit.facades.map(
+          (face: IAutoMovieBuiltEnvelopeFace): string => face.boundary,
+        ),
+        roofs: unit.roofs.map(
+          (face: IAutoMovieBuiltEnvelopeFace): string => face.boundary,
+        ),
+        undersides: unit.undersides.map(
+          (face: IAutoMovieBuiltEnvelopeFace): string => face.boundary,
+        ),
+        corners: unit.corners.map(
+          (corner: IAutoMovieBuiltEnvelopeCorner): string => corner.id,
+        ),
+        entrances: unit.entrances,
+        spaces: unit.spaces,
+        connectors: unit.connectors,
+      }),
+    ),
+    [
       {
         building: "house",
         facades: ["wall-east", "wall-north", "wall-south", "wall-west"],
@@ -48,16 +79,25 @@ export function test_architecture_building_census(): void {
         spaces: ["hall", "loft"],
         connectors: ["stair-1"],
       },
-    ]);
+    ],
+  );
 
-  TestValidator.equals("two units answer separately, in building-id order", builtEnvironmentBuildingCensus(twoUnits()).map((unit: IAutoMovieBuildingObservationCensus): (string | string[])[] => [
-      unit.building,
-      unit.facades.map((face: IAutoMovieBuiltEnvelopeFace): string => face.boundary),
-      unit.spaces,
-    ]), [
+  TestValidator.equals(
+    "two units answer separately, in building-id order",
+    builtEnvironmentBuildingCensus(twoUnits()).map(
+      (unit: IAutoMovieBuildingObservationCensus): (string | string[])[] => [
+        unit.building,
+        unit.facades.map(
+          (face: IAutoMovieBuiltEnvelopeFace): string => face.boundary,
+        ),
+        unit.spaces,
+      ],
+    ),
+    [
       ["east", ["east-wall"], ["east-hall"]],
       ["west", ["west-wall"], ["west-hall"]],
-    ]);
+    ],
+  );
 }
 
 /**
@@ -65,124 +105,128 @@ export function test_architecture_building_census(): void {
  *
  * `loft` states a volume and enters the room population; `west-wing` states none and does not. The stair lands in both real spaces and is named once.
  */
-const furnished: () => IAutoMovieBuiltEnvironment = (): IAutoMovieBuiltEnvironment => {
-  const record: IAutoMovieBuiltEnvironment = rectangularBuilding();
-  return {
-    ...record,
-    spaces: [
-      ...record.spaces,
-      {
-        id: "loft",
-        kind: "room",
-        parent: "hall",
-        cells: [
-          boxCell("loft-cell", { x: 0, y: 3, z: 0 }, { x: 4, y: 5, z: 6 }),
-        ],
-      },
-      { id: "west-wing", kind: "zone", parent: "hall", cells: [] },
-    ],
-    connectors: [
-      {
-        id: "stair-1",
-        kind: "stair",
-        from: "hall",
-        to: "loft",
-        bidirectional: true,
-        route: [
-          { x: 3.5, y: 0, z: 5.5 },
-          { x: 3.5, y: 3, z: 5.5 },
-        ],
-        width: 1,
-        clearHeight: 2,
-        elements: [],
-      },
-    ],
+const furnished: () => IAutoMovieBuiltEnvironment =
+  (): IAutoMovieBuiltEnvironment => {
+    const record: IAutoMovieBuiltEnvironment = rectangularBuilding();
+    return {
+      ...record,
+      spaces: [
+        ...record.spaces,
+        {
+          id: "loft",
+          kind: "room",
+          parent: "hall",
+          cells: [
+            boxCell("loft-cell", { x: 0, y: 3, z: 0 }, { x: 4, y: 5, z: 6 }),
+          ],
+        },
+        { id: "west-wing", kind: "zone", parent: "hall", cells: [] },
+      ],
+      connectors: [
+        {
+          id: "stair-1",
+          kind: "stair",
+          from: "hall",
+          to: "loft",
+          bidirectional: true,
+          route: [
+            { x: 3.5, y: 0, z: 5.5 },
+            { x: 3.5, y: 3, z: 5.5 },
+          ],
+          width: 1,
+          clearHeight: 2,
+          elements: [],
+        },
+      ],
+    };
   };
-};
 
 /** Two independent units, each with exactly one exposed separation. */
-const twoUnits: () => IAutoMovieBuiltEnvironment = (): IAutoMovieBuiltEnvironment => ({
-  version: 1,
-  id: "pair",
-  units: "meter",
-  buildings: [
-    { id: "west", element: "west-root", space: "west-hall" },
-    { id: "east", element: "east-root", space: "east-hall" },
-  ],
-  models: [],
-  modelReferences: [],
-  elements: [
-    {
-      id: "west-root",
-      kind: "building",
-      parent: null,
-      transform: originTransform(),
-      model: null,
-      space: "west-hall",
-    },
-    {
-      id: "east-root",
-      kind: "building",
-      parent: null,
-      transform: originTransform(),
-      model: null,
-      space: "east-hall",
-    },
-  ],
-  spaces: [
-    {
-      id: "west-hall",
-      kind: "room",
-      parent: null,
-      cells: [boxCell("west-cell", { x: 0, y: 0, z: 0 }, { x: 4, y: 3, z: 6 })],
-    },
-    {
-      id: "east-hall",
-      kind: "room",
-      parent: null,
-      cells: [
-        boxCell("east-cell", { x: 10, y: 0, z: 0 }, { x: 14, y: 3, z: 6 }),
-      ],
-    },
-  ],
-  boundaries: [
-    {
-      id: "west-wall",
-      kind: "wall",
-      spaces: ["west-hall"],
-      elements: [],
-      face: {
-        origin: { x: 0, y: 0, z: 6 },
-        rotation: FACE_ROTATION.keepZ,
-        outline: [
-          { x: 0, y: 0 },
-          { x: 4, y: 0 },
-          { x: 4, y: 3 },
-          { x: 0, y: 3 },
-        ],
-        thickness: 0.2,
+const twoUnits: () => IAutoMovieBuiltEnvironment =
+  (): IAutoMovieBuiltEnvironment => ({
+    version: 1,
+    id: "pair",
+    units: "meter",
+    buildings: [
+      { id: "west", element: "west-root", space: "west-hall" },
+      { id: "east", element: "east-root", space: "east-hall" },
+    ],
+    models: [],
+    modelReferences: [],
+    elements: [
+      {
+        id: "west-root",
+        kind: "building",
+        parent: null,
+        transform: originTransform(),
+        model: null,
+        space: "west-hall",
       },
-    },
-    {
-      id: "east-wall",
-      kind: "wall",
-      spaces: ["east-hall"],
-      elements: [],
-      face: {
-        origin: { x: 10, y: 0, z: 6 },
-        rotation: FACE_ROTATION.keepZ,
-        outline: [
-          { x: 0, y: 0 },
-          { x: 4, y: 0 },
-          { x: 4, y: 3 },
-          { x: 0, y: 3 },
-        ],
-        thickness: 0.2,
+      {
+        id: "east-root",
+        kind: "building",
+        parent: null,
+        transform: originTransform(),
+        model: null,
+        space: "east-hall",
       },
-    },
-  ],
-  openings: [],
-  connectors: [],
-  surfaces: [],
-  walkable: [],
-});
+    ],
+    spaces: [
+      {
+        id: "west-hall",
+        kind: "room",
+        parent: null,
+        cells: [
+          boxCell("west-cell", { x: 0, y: 0, z: 0 }, { x: 4, y: 3, z: 6 }),
+        ],
+      },
+      {
+        id: "east-hall",
+        kind: "room",
+        parent: null,
+        cells: [
+          boxCell("east-cell", { x: 10, y: 0, z: 0 }, { x: 14, y: 3, z: 6 }),
+        ],
+      },
+    ],
+    boundaries: [
+      {
+        id: "west-wall",
+        kind: "wall",
+        spaces: ["west-hall"],
+        elements: [],
+        face: {
+          origin: { x: 0, y: 0, z: 6 },
+          rotation: FACE_ROTATION.keepZ,
+          outline: [
+            { x: 0, y: 0 },
+            { x: 4, y: 0 },
+            { x: 4, y: 3 },
+            { x: 0, y: 3 },
+          ],
+          thickness: 0.2,
+        },
+      },
+      {
+        id: "east-wall",
+        kind: "wall",
+        spaces: ["east-hall"],
+        elements: [],
+        face: {
+          origin: { x: 10, y: 0, z: 6 },
+          rotation: FACE_ROTATION.keepZ,
+          outline: [
+            { x: 0, y: 0 },
+            { x: 4, y: 0 },
+            { x: 4, y: 3 },
+            { x: 0, y: 3 },
+          ],
+          thickness: 0.2,
+        },
+      },
+    ],
+    openings: [],
+    connectors: [],
+    surfaces: [],
+    walkable: [],
+  });

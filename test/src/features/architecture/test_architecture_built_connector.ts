@@ -1,12 +1,17 @@
+import type {
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieQuaternion,
+  IAutoMovieStageSetPiece,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
+import type { IAutoMovieConnectorGeometry } from "../../../../packages/engine/src/architecture/IAutoMovieConnectorGeometry";
 import type { IAutoMovieConnectorSectionAt } from "../../../../packages/engine/src/architecture/IAutoMovieConnectorSectionAt";
 import type { IAutoMovieConnectorStation } from "../../../../packages/engine/src/architecture/IAutoMovieConnectorStation";
-import type { IAutoMovieConnectorGeometry } from "../../../../packages/engine/src/architecture/IAutoMovieConnectorGeometry";
-import type { IAutoMovieBuiltEnvironment, IAutoMovieQuaternion, IAutoMovieStageSetPiece } from "@automovie/interface";
 import { builtConnectorGeometry } from "../../../../packages/engine/src/architecture/builtConnectorGeometry";
 import { builtConnectorSectionAt } from "../../../../packages/engine/src/architecture/builtConnectorSectionAt";
 import { lowerBuiltEnvironment } from "../../../../packages/engine/src/architecture/lowerBuiltEnvironment";
 import { validateBuiltEnvironment } from "../../../../packages/engine/src/architecture/validateBuiltEnvironment";
-import { TestValidator } from "@nestia/e2e";
 import { BUILT_CONNECTOR_TEST_HELIX_RADIUS as HELIX_RADIUS } from "../internal/BUILT_CONNECTOR_TEST_HELIX_RADIUS";
 import { BUILT_CONNECTOR_TEST_HELIX_RISE as HELIX_RISE } from "../internal/BUILT_CONNECTOR_TEST_HELIX_RISE";
 import { BUILT_CONNECTOR_TEST_HELIX_TURNS as HELIX_TURNS } from "../internal/BUILT_CONNECTOR_TEST_HELIX_TURNS";
@@ -15,7 +20,14 @@ import { assertBuiltConnectorTestRefusals } from "../internal/assertBuiltConnect
 import { builtConnectorTestLevels as levels } from "../internal/builtConnectorTestLevels";
 import { builtConnectorTestRefusalPaths as refusalPaths } from "../internal/builtConnectorTestRefusalPaths";
 import { builtConnectorTestYaw as yaw } from "../internal/builtConnectorTestYaw";
-import { namedFacts, nclose, qclose, qunit, throwsError, vclose } from "../internal/predicates";
+import {
+  namedFacts,
+  nclose,
+  qclose,
+  qunit,
+  throwsError,
+  vclose,
+} from "../internal/predicates";
 
 /**
  * Validate connector geometry, measure routes and interpolate declared sections while preserving scalar-record lowering.
@@ -43,7 +55,10 @@ export function test_architecture_built_connector(): void {
     true,
   );
 
-  const spiral: IAutoMovieConnectorGeometry = builtConnectorGeometry(source, "spiral");
+  const spiral: IAutoMovieConnectorGeometry = builtConnectorGeometry(
+    source,
+    "spiral",
+  );
   TestValidator.predicate(
     "a spiral stair's treads are told apart by facing alone",
     ((): boolean => {
@@ -56,7 +71,9 @@ export function test_architecture_built_connector(): void {
         nclose(first.position.z, full.position.z) &&
         nclose(full.position.y, HELIX_TURNS * HELIX_RISE) &&
         // Consecutive facings differ and remain unit rotations.
-        spiral.stations.every((station: IAutoMovieConnectorStation): boolean => qunit(station.rotation!)) &&
+        spiral.stations.every((station: IAutoMovieConnectorStation): boolean =>
+          qunit(station.rotation!),
+        ) &&
         spiral.stations
           .slice(1)
           .every(
@@ -71,7 +88,10 @@ export function test_architecture_built_connector(): void {
     })(),
   );
 
-  const flight: IAutoMovieConnectorGeometry = builtConnectorGeometry(source, "flight");
+  const flight: IAutoMovieConnectorGeometry = builtConnectorGeometry(
+    source,
+    "flight",
+  );
   TestValidator.equals(
     "route metrics are the route's own arithmetic",
     namedFacts([
@@ -94,7 +114,10 @@ export function test_architecture_built_connector(): void {
   TestValidator.predicate(
     "station parameters are arc length, not index",
     ((): boolean => {
-      const corridor: IAutoMovieConnectorGeometry = builtConnectorGeometry(source, "corridor");
+      const corridor: IAutoMovieConnectorGeometry = builtConnectorGeometry(
+        source,
+        "corridor",
+      );
       return (
         nclose(corridor.stations[1]!.at, 0.5) &&
         nclose(corridor.length, 16) &&
@@ -106,7 +129,8 @@ export function test_architecture_built_connector(): void {
   TestValidator.equals(
     "a connector that declared no facing answers with none",
     builtConnectorGeometry(source, "corridor").stations.map(
-      (station: IAutoMovieConnectorStation): IAutoMovieQuaternion | null => station.rotation,
+      (station: IAutoMovieConnectorStation): IAutoMovieQuaternion | null =>
+        station.rotation,
     ),
     [null, null, null],
   );
@@ -122,9 +146,21 @@ export function test_architecture_built_connector(): void {
   TestValidator.predicate(
     "a constant section answers the same pair everywhere",
     ((): boolean => {
-      const start: IAutoMovieConnectorSectionAt = builtConnectorSectionAt(source, "flight", 0);
-      const middle: IAutoMovieConnectorSectionAt = builtConnectorSectionAt(source, "flight", 0.5);
-      const end: IAutoMovieConnectorSectionAt = builtConnectorSectionAt(source, "flight", 1);
+      const start: IAutoMovieConnectorSectionAt = builtConnectorSectionAt(
+        source,
+        "flight",
+        0,
+      );
+      const middle: IAutoMovieConnectorSectionAt = builtConnectorSectionAt(
+        source,
+        "flight",
+        0.5,
+      );
+      const end: IAutoMovieConnectorSectionAt = builtConnectorSectionAt(
+        source,
+        "flight",
+        1,
+      );
       return (
         nclose(start.width, 1.4) &&
         nclose(middle.width, 1.4) &&
@@ -136,10 +172,26 @@ export function test_architecture_built_connector(): void {
   TestValidator.predicate(
     "a varying section interpolates between its own stations",
     ((): boolean => {
-      const start: IAutoMovieConnectorSectionAt = builtConnectorSectionAt(source, "corridor", 0);
-      const quarter: IAutoMovieConnectorSectionAt = builtConnectorSectionAt(source, "corridor", 0.25);
-      const waist: IAutoMovieConnectorSectionAt = builtConnectorSectionAt(source, "corridor", 0.5);
-      const end: IAutoMovieConnectorSectionAt = builtConnectorSectionAt(source, "corridor", 1);
+      const start: IAutoMovieConnectorSectionAt = builtConnectorSectionAt(
+        source,
+        "corridor",
+        0,
+      );
+      const quarter: IAutoMovieConnectorSectionAt = builtConnectorSectionAt(
+        source,
+        "corridor",
+        0.25,
+      );
+      const waist: IAutoMovieConnectorSectionAt = builtConnectorSectionAt(
+        source,
+        "corridor",
+        0.5,
+      );
+      const end: IAutoMovieConnectorSectionAt = builtConnectorSectionAt(
+        source,
+        "corridor",
+        1,
+      );
       return (
         nclose(start.width, 3) &&
         nclose(quarter.width, 2.25) &&
@@ -153,19 +205,31 @@ export function test_architecture_built_connector(): void {
 
   TestValidator.predicate(
     "an unknown connector refuses geometry",
-    throwsError((): IAutoMovieConnectorGeometry => builtConnectorGeometry(source, "missing")),
+    throwsError(
+      (): IAutoMovieConnectorGeometry =>
+        builtConnectorGeometry(source, "missing"),
+    ),
   );
   TestValidator.predicate(
     "an unknown connector refuses a section",
-    throwsError((): IAutoMovieConnectorSectionAt => builtConnectorSectionAt(source, "missing", 0)),
+    throwsError(
+      (): IAutoMovieConnectorSectionAt =>
+        builtConnectorSectionAt(source, "missing", 0),
+    ),
   );
   TestValidator.predicate(
     "a parameter outside the route is refused",
-    throwsError((): IAutoMovieConnectorSectionAt => builtConnectorSectionAt(source, "flight", 1.5)),
+    throwsError(
+      (): IAutoMovieConnectorSectionAt =>
+        builtConnectorSectionAt(source, "flight", 1.5),
+    ),
   );
   TestValidator.predicate(
     "a non-finite parameter is refused",
-    throwsError((): IAutoMovieConnectorSectionAt => builtConnectorSectionAt(source, "flight", Number.NaN)),
+    throwsError(
+      (): IAutoMovieConnectorSectionAt =>
+        builtConnectorSectionAt(source, "flight", Number.NaN),
+    ),
   );
   TestValidator.predicate(
     "an empty route has nothing to measure",
@@ -202,5 +266,11 @@ export function test_architecture_built_connector(): void {
     [],
   );
 
-  TestValidator.equals("the scalar-section record lowers to the same staged set as before", lowerBuiltEnvironment(source).set?.map((piece: IAutoMovieStageSetPiece): string => piece.node), ["levels/stair-flight"]);
+  TestValidator.equals(
+    "the scalar-section record lowers to the same staged set as before",
+    lowerBuiltEnvironment(source).set?.map(
+      (piece: IAutoMovieStageSetPiece): string => piece.node,
+    ),
+    ["levels/stair-flight"],
+  );
 }
