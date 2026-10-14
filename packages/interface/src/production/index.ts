@@ -1,4 +1,3 @@
-export * from "./constants";
 export * from "./IAutoMovieAssetManifest";
 export * from "./IAutoMovieLegacyImportApplyOutput";
 export * from "./IAutoMovieLegacyImportInventoryEntry";
@@ -223,8 +222,6 @@ export * from "./IAutoMovieSubjectMaterial";
 export * from "./IAutoMovieSubjectMemberSummary";
 export * from "./IAutoMovieTreatmentBeat";
 export * from "./IAutoMovieTreatmentSequence";
-export * from "./IAutoMovieVisualRevisionSnapshot";
-export * from "./IAutoMovieVisualRevisionView";
 export * from "./IAutoMovieWorldBounds";
 export * from "./IAutoMovieWorldDesign";
 export * from "./IAutoMovieWorldEffectZone";
