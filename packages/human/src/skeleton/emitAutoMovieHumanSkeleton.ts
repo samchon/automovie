@@ -12,7 +12,7 @@ const METRES_PER_MILLIMETRE: number = 0.001;
 /**
  * Emit a resolved skeleton as the `IAutoMovieSkeleton` films and the viewer read.
  *
- * Each bone's rest translation is its joint centre minus its parent's, converted from millimetres to metres in this one step; rest rotations are the identity and scales are one, so the emitted rig is the T-pose the joint centres describe. Human's constraints become the bones' range-of-motion overrides. Human's declared axes are not emitted yet, because `IAutoMovieBone` has no field for them; until it does, films pose every bone on the engine's default axes.
+ * Each bone's rest translation is its joint centre minus its parent's, converted from millimetres to metres in this one step; rest rotations are the identity and scales are one, so the emitted rig is the T-pose the joint centres describe. Human's constraints become the bones' range-of-motion overrides. Human's declared axes are not emitted yet, because `IAutoMovieBone` has no field for them (core issue #2807 adds one); until it does, films pose every bone on the engine's default axes, which differ from Human's for the legs, toes, fingers, thumbs, eyes and jaw. Constraints for bones Human declares none for stay null, so the engine's default humanoid range applies.
  *
  * @param skeleton Resolved skeleton, parents before children
  * @param id Rig id that poses and motions cite

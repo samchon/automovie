@@ -1,124 +1,105 @@
-import { AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
-
+import { IAutoMovieHumanLandmarks } from "../measure/IAutoMovieHumanLandmarks";
 import { IAutoMovieHumanMeasurements } from "../measure/IAutoMovieHumanMeasurements";
 import { IAutoMovieHumanIdentity } from "../structures/IAutoMovieHumanIdentity";
+import { AutoMovieHumanVector } from "./AutoMovieHumanVector";
 import { IAutoMovieHumanSkeleton } from "./IAutoMovieHumanSkeleton";
+import { abductAutoMovieHumanArms } from "./abductAutoMovieHumanArms";
+import { constrainAutoMovieHumanJoint } from "./constrainAutoMovieHumanJoint";
+import { placeAutoMovieHumanArm } from "./placeAutoMovieHumanArm";
+import { placeAutoMovieHumanHead } from "./placeAutoMovieHumanHead";
+import { placeAutoMovieHumanLeg } from "./placeAutoMovieHumanLeg";
+import { placeAutoMovieHumanTrunk } from "./placeAutoMovieHumanTrunk";
+
+/** Clinical abduction of the upper arms in the canonical T-pose, degrees (`HUMANOID_REST_FRAME`). */
+const T_POSE_ABDUCTION: number = 90;
 
 /**
- * Vertical distance from the acromion down to the shoulder joint centre, millimetres: de Leva's landmark-to-centre offsets give 33.7 for women and 34.5 for men (de Leva 1996, J Biomech 29(9):1223-1230); the identity carries no sex, so their mean is used. Grade: measured offset, rounded.
- */
-const ACROMION_TO_SHOULDER_CENTRE: number = 34;
-
-/**
- * Hip joint centre lateral to the midpoint of the anterior superior iliac spines as a function of leg length LL: Y = 8 + 0.086 LL millimetres, from CT in both sexes aged 5 to 40 (Hara et al. 2016, Sci Rep 6:37707). Hara's LL runs from the anterior superior iliac spine to the medial malleolus; the placeholder substitutes trochanterion height, which the identity carries. Grade: measured regression, approximated input.
- */
-const HIP_LATERAL_INTERCEPT: number = 8;
-
-/** Slope of the hip centre's lateral offset on leg length; see {@link HIP_LATERAL_INTERCEPT}. */
-const HIP_LATERAL_SLOPE: number = 0.086;
-
-/**
- * Height of the head joint below the vertex, as a fraction of head height. Grade: conventional placeholder.
- */
-const HEAD_JOINT_DEPTH: number = 0.7;
-
-/**
- * Distance of the clavicle's sternal end from the midline, as a fraction of biacromial breadth. Grade: conventional placeholder.
- */
-const STERNOCLAVICULAR_OFFSET: number = 0.05;
-
-/**
- * Generate the skeleton of one person from resolved measurements: a placeholder layout of the 20 torso, head and limb bones until the measured joint-centre formulas replace it.
+ * Generate the skeleton of one person from resolved measurements: all 55 `AutoMovieHumanoidBone`s with joint centres, declared axes, ranges of motion and landmarks.
  *
- * Measured where the identity measures it: hip, knee and ankle centres at the stacked leg lengths of each side, hip centres spread by Hara's regression, shoulder centres below the acromion by de Leva's offset and the biacromial half-breadth from the midline, elbow and wrist out along the T-pose arm by each side's segment lengths, the neck at cervicale height. Conventional where it does not: the spine bones divide the hip-to-cervicale span in quarters on a straight vertical line with no curvature, the head joint lies 0.7 head heights below the vertex, and the clavicles start just beside the midline at shoulder height. Fingers, toes, eyes and jaw are absent, and every joint keeps the engine's default axes and range of motion.
+ * Generation runs in the anthropometric posture the measurements were taken in, then converts once:
+ *
+ * 1. Legs: ankle, knee and hip centres from the stacked leg lengths and de Leva's landmark offsets, the hip centres spread by Hara's CT regression on leg length, the foot and toes from foot length and breadth.
+ * 2. Head: the head joint at the hard-palate level, eyes, jaw at its measured centre of rotation, and the craniofacial landmarks from the head measurements.
+ * 3. Trunk: the root midway between the hip centres, the spine bones at ANSUR II trunk levels as fractions of the hip-to-cervicale span, the neck from cervicale to the head joint.
+ * 4. Arms: clavicles from the jugular notch, the arm hanging below the acromion so its landmarks reproduce acromion-radiale, radiale-stylion and hand length, joint centres at de Leva's offsets, fingers and thumb from hand length and breadth.
+ * 5. Constraints for every joint from the person's mobility and girths.
+ * 6. The arms turned up 90 degrees about the shoulder centres into the canonical T-pose ({@link abductAutoMovieHumanArms}).
+ *
+ * A child's skeleton comes from the child's own measurements, which the converter takes from growth data, never from a scaled adult; nothing here depends on age or sex except through the identity. Measuring the result in the anthropometric posture returns the identity's lengths (see `measureAutoMovieHumanSkeleton`).
  *
  * @param measurements Resolved measurements of an admitted identity
- * @returns Skeleton with parents before children
+ * @returns Skeleton with parents before children, in the T-pose
  */
 export function generateAutoMovieHumanSkeleton(
   measurements: IAutoMovieHumanMeasurements,
 ): IAutoMovieHumanSkeleton {
-  const { body, head }: IAutoMovieHumanIdentity = measurements.identity;
-  const joints: IAutoMovieHumanSkeleton.IJoint[] = [];
-  const add: (
-    bone: AutoMovieHumanoidBone,
-    parent: AutoMovieHumanoidBone | null,
-    position: IAutoMovieVector3,
-  ) => void = (
-    bone: AutoMovieHumanoidBone,
-    parent: AutoMovieHumanoidBone | null,
-    position: IAutoMovieVector3,
-  ): void => {
-    joints.push({ bone, parent, position, axes: null, constraint: null });
+  const identity: IAutoMovieHumanIdentity = measurements.identity;
+  const body: IAutoMovieHumanIdentity.IBody = identity.body;
+  const leftLeg: placeAutoMovieHumanLeg.IOutput = placeAutoMovieHumanLeg(
+    body.leftLeg,
+    "left",
+    body,
+  );
+  const rightLeg: placeAutoMovieHumanLeg.IOutput = placeAutoMovieHumanLeg(
+    body.rightLeg,
+    "right",
+    body,
+  );
+  const head: placeAutoMovieHumanHead.IOutput = placeAutoMovieHumanHead(
+    body,
+    identity.head,
+  );
+  const trunk: placeAutoMovieHumanTrunk.IOutput = placeAutoMovieHumanTrunk(
+    body,
+    leftLeg.hip,
+    rightLeg.hip,
+    head.joint,
+  );
+  const leftArm: placeAutoMovieHumanArm.IOutput = placeAutoMovieHumanArm(
+    body,
+    "left",
+    trunk.suprasternale,
+  );
+  const rightArm: placeAutoMovieHumanArm.IOutput = placeAutoMovieHumanArm(
+    body,
+    "right",
+    trunk.suprasternale,
+  );
+
+  const landmarks: IAutoMovieHumanLandmarks = {
+    ...head.landmarks,
+    ...trunk.landmarks,
+    left: {
+      ...head.left,
+      ...leftArm.landmarks,
+      ...leftLeg.landmarks,
+      iliocristale: trunk.leftCrest,
+    },
+    right: {
+      ...head.right,
+      ...rightArm.landmarks,
+      ...rightLeg.landmarks,
+      iliocristale: trunk.rightCrest,
+    },
   };
-
-  const hipHeight: number =
-    (measurements.leftTrochanterionHeight +
-      measurements.rightTrochanterionHeight) /
-    2;
-  const span: number = body.cervicaleHeight - hipHeight;
-  const shoulderHeight: number = body.acromialHeight - ACROMION_TO_SHOULDER_CENTRE;
-
-  add("hips", null, { x: 0, y: hipHeight, z: 0 });
-  add("spine", "hips", { x: 0, y: hipHeight + span / 4, z: 0 });
-  add("chest", "spine", { x: 0, y: hipHeight + span / 2, z: 0 });
-  add("upperChest", "chest", { x: 0, y: hipHeight + (3 * span) / 4, z: 0 });
-  add("neck", "upperChest", { x: 0, y: body.cervicaleHeight, z: 0 });
-  add("head", "neck", {
-    x: 0,
-    y: body.stature - HEAD_JOINT_DEPTH * head.headHeight,
-    z: 0,
-  });
-
-  for (const side of ["left", "right"] as const) {
-    // +X is the person's left
-    const sign: number = side === "left" ? 1 : -1;
-    const arm: IAutoMovieHumanIdentity.IArm =
-      side === "left" ? body.leftArm : body.rightArm;
-    const leg: IAutoMovieHumanIdentity.ILeg =
-      side === "left" ? body.leftLeg : body.rightLeg;
-    const trochanterion: number =
-      side === "left"
-        ? measurements.leftTrochanterionHeight
-        : measurements.rightTrochanterionHeight;
-
-    const shoulderX: number = body.biacromialBreadth / 2;
-    const elbowX: number = shoulderX + arm.upperArmLength;
-    const wristX: number = elbowX + arm.forearmLength;
-    add(`${side}Shoulder`, "upperChest", {
-      x: sign * STERNOCLAVICULAR_OFFSET * body.biacromialBreadth,
-      y: shoulderHeight,
-      z: 0,
-    });
-    add(`${side}UpperArm`, `${side}Shoulder`, {
-      x: sign * shoulderX,
-      y: shoulderHeight,
-      z: 0,
-    });
-    add(`${side}LowerArm`, `${side}UpperArm`, {
-      x: sign * elbowX,
-      y: shoulderHeight,
-      z: 0,
-    });
-    add(`${side}Hand`, `${side}LowerArm`, {
-      x: sign * wristX,
-      y: shoulderHeight,
-      z: 0,
-    });
-
-    const hipX: number =
-      HIP_LATERAL_INTERCEPT + HIP_LATERAL_SLOPE * trochanterion;
-    add(`${side}UpperLeg`, "hips", { x: sign * hipX, y: trochanterion, z: 0 });
-    add(`${side}LowerLeg`, `${side}UpperLeg`, {
-      x: sign * hipX,
-      y: leg.ankleHeight + leg.shankLength,
-      z: 0,
-    });
-    add(`${side}Foot`, `${side}LowerLeg`, {
-      x: sign * hipX,
-      y: leg.ankleHeight,
-      z: 0,
-    });
-  }
-  return { joints };
+  const incisorRadius: number = AutoMovieHumanVector.distance(
+    landmarks.stomion.position,
+    head.joints.find(
+      (joint: IAutoMovieHumanSkeleton.IJoint): boolean => joint.bone === "jaw",
+    )!.position,
+  );
+  const joints: IAutoMovieHumanSkeleton.IJoint[] = [
+    ...trunk.joints,
+    ...head.joints,
+    ...leftArm.joints,
+    ...rightArm.joints,
+    ...leftLeg.joints,
+    ...rightLeg.joints,
+  ].map(
+    (joint: IAutoMovieHumanSkeleton.IJoint): IAutoMovieHumanSkeleton.IJoint => ({
+      ...joint,
+      constraint: constrainAutoMovieHumanJoint(joint.bone, identity, incisorRadius),
+    }),
+  );
+  return abductAutoMovieHumanArms({ joints, landmarks }, T_POSE_ABDUCTION);
 }
