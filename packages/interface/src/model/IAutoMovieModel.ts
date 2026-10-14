@@ -1,4 +1,5 @@
 import { IAutoMovieProfile } from "../core/IAutoMovieProfile";
+import { IAutoMovieImage } from "../material/IAutoMovieImage";
 import { IAutoMovieMaterial } from "../material/IAutoMovieMaterial";
 import { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
 import { IAutoMovieSkeleton } from "../skeleton/IAutoMovieSkeleton";
@@ -20,7 +21,7 @@ import { IAutoMovieModelPart } from "./IAutoMovieModelPart";
  * @evidence contracts/common.md#principled-implementation Stable model identity joins parts, materials and an optional skeleton; validateModel checks their references and numeric domains, while imported appearances carry a compiler-sealed digest closure and authoritative bone indices rather than runtime name inference.
  * @evidence contracts/common.md#clear-and-simple-design One model groups reusable geometry and capabilities separately from scene placement; each part owns a geometry representation, origin owns provenance, and optional body, contacts and profiles add their respective semantic inputs.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Generated meshes must come from reviewed generators, and imported visual bytes do not invent physics or inherit traits; the deterministic proxy and sealed asset ledger remain the owners of those distinct facts.
- * @evidence contracts/common.md#meaningful-documentation Explains rigged-versus-rigid subjects, part and material ownership, provenance, null physics and skeleton meanings, optional affordances and profiles, and compiler-owned asset digests and bone mapping.
+ * @evidence contracts/common.md#meaningful-documentation Explains rigged-versus-rigid subjects, part, material and carried-image ownership, provenance, null physics and skeleton meanings, optional affordances and profiles, and compiler-owned asset digests and bone mapping.
  * @author Samchon
  */
 export interface IAutoMovieModel {
@@ -55,6 +56,11 @@ export interface IAutoMovieModel {
 
   /** Materials referenced by the parts. */
   materials: IAutoMovieMaterial[];
+
+  /**
+   * Images the model carries for its own texture bindings, such as maps generated with its geometry. A binding's `asset` resolves against these ids before the project's assets, so these need no ledger record and no host loader. Omitted or empty, every binding names a project asset.
+   */
+  images?: IAutoMovieImage[];
 
   /**
    * Id of an engine-resolved binary payload (the imported glTF/VRM file backing an `imported` model), or `null` when the geometry is fully described by `parts` (a generated model).
