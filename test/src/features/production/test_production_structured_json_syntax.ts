@@ -3,8 +3,10 @@ import {
   parseAutoMovieStructuredJson,
 } from "@automovie/production";
 import { TestValidator } from "@nestia/e2e";
+import { legacyImporterParseJson } from "../../../../packages/production/src/production/legacyImporterParseJson";
+import { legacyImporterInvalidLegacyImportJsonError } from "../../../../packages/production/src/production/legacyImporterInvalidLegacyImportJsonError";
 
-const outcome = (text: string): unknown => {
+const outcome: (text: string) => unknown = (text: string): unknown => {
   try {
     return parseAutoMovieStructuredJson({
       record: "automovie/record.json",
@@ -30,8 +32,15 @@ const outcome = (text: string): unknown => {
  *    character, an unterminated string, an invalid number, a leading octal
  *    digit, a bare word, a non-string member name, and a truncated keyword are
  *    each refused at their exact position with the enclosing pointer.
+ * 3. The import wrapper admits an existing valid scalar and retains the
+ *    structured parser's typed cause and record/offset/pointer on refusal.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Runs the public structured parser over admitted and malformed bytes, then the actual legacy import wrapper over existing valid/invalid inputs; exact values and typed cause facts catch grammar or cause loss without inspecting source text.
+ * @evidence contracts/testing.md#independent-expectations Admitted values follow JSON grammar and refusals use manually counted ASCII offsets with enclosing JSON Pointers; the wrapper must preserve the canonical error class and those same diagnostics. These examples do not prove every possible grammar sequence.
+ * @evidence contracts/testing.md#distinguishing-cases Covers scalars, empty containers, escapes, delimiters, malformed/truncated strings and numbers, trailing content and wrapper success/refusal. Sibling tests own duplicate members and UTF-8 ingress; filesystem verification and rollback are outside this unit.
+ * @evidence contracts/testing.md#execution-ownership The named test entry runs portable parser and wrapper semantics synchronously through direct source imports; it creates no process, filesystem fixture, browser or GPU and does not claim public importer filesystem execution.
  */
-export const test_production_structured_json_syntax = (): void => {
+export function test_production_structured_json_syntax(): void {
   TestValidator.equals(
     "admitted syntax parses to the host value",
     [
@@ -76,4 +85,25 @@ export const test_production_structured_json_syntax = (): void => {
       "syntax@1/0: expected true",
     ],
   );
-};
+  TestValidator.equals(
+    "the import wrapper preserves admitted scalar semantics",
+    legacyImporterParseJson(Buffer.from("0", "utf8"), "automovie/record.json"),
+    0,
+  );
+  let wrapped: unknown = undefined;
+  try {
+    legacyImporterParseJson(Buffer.from("{} x", "utf8"), "automovie/record.json");
+  } catch (error) {
+    wrapped = error;
+  }
+  TestValidator.predicate(
+    "the import refusal retains the structured parser cause and context",
+    (): boolean =>
+      wrapped instanceof legacyImporterInvalidLegacyImportJsonError &&
+      wrapped.cause instanceof AutoMovieStructuredJsonError &&
+      wrapped.cause.record === "automovie/record.json" &&
+      wrapped.cause.stage === "syntax" &&
+      wrapped.cause.offset === 3 &&
+      wrapped.cause.pointer === "",
+  );
+}
