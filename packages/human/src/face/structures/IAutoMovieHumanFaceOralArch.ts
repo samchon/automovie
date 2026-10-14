@@ -19,10 +19,10 @@
  * @author Samchon
  */
 export interface IAutoMovieHumanFaceOralArch {
-  /** Whole source crown-centre transverse span, positive finite mm. */
+  /** Whole source cervical-centre transverse span, positive finite mm. */
   widthMm?: number;
 
-  /** Whole source crown-centre anterior-posterior span, positive finite mm. */
+  /** Whole source cervical-centre anterior-posterior span, positive finite mm. */
   depthMm?: number;
 
   /** Superior whole-arch offset from its source placement, finite mm. */
