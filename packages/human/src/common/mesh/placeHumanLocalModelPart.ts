@@ -6,13 +6,13 @@ import { placeMeshPreservingFaces } from "./placeMeshPreservingFaces";
 /**
  * Carry an existing local part through an owner's source-frame placement.
  * Original TRS is consumed before the placement, then a previously local
- * publication receives one new compensating frame. Identity parts retain
- * their original representation. A pure translation leaves normals intact.
+ * publication receives one new compensating frame. Parts without a transform
+ * remain unframed after placement. Consuming a pure translation leaves normals intact.
  *
  * @evidence contracts/common.md#principled-implementation Original TRS is consumed before the source-frame place callback; pure translation retains normals, other TRS uses canonical face preservation, and prior local publications receive one new compensating frame.
  * @evidence contracts/common.md#clear-and-simple-design Existing transform/frame owners keep math/admission while this coordinator preserves representation through placement order.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Identity-linear translation is a real TRS distinction, without specimen branches, foreign method replacement or extra rendered surface.
- * @evidence contracts/common.md#meaningful-documentation The prose states original TRS consumption, placement order, identity preservation and unchanged translation normals.
+ * @evidence contracts/common.md#meaningful-documentation The prose states original TRS consumption, placement order, absent-transform behavior and unchanged normals when consuming a translation.
  * @evidence contracts/performance.md#efficient-algorithms For V/T populations, coordinate mapping or canonical placement plus the callback owns its scans; re-publication adds frame checks/cloning rather than constant cost.
  * @evidence contracts/performance.md#reuse-equivalent-work Original TRS is consumed once and canonical owners are reused; callback effects forbid sharing merely equal-looking placements.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Fresh placed/publication results transfer to callers; unchanged attributes remain borrowed and callback resources retain their own owner, without a new cache/task.

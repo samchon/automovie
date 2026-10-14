@@ -7,14 +7,14 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
  * before and after a transformation. Both are normalized here and their dot
  * product must be above zero: a mirror, a collapse through zero or a rounding
  * that flips the winding fails it, and the error names the `stage` and the
- * triangle's corner offset `face`. Both vectors must be nonzero, which the
- * callers establish by classifying redundant (zero-area) triangles first.
+ * zero-based triangle ordinal `face`. Source redundancy is classified by the
+ * caller; a zero or nonfinite vector produces no positive agreement and refuses.
  * Shared by `placeMeshPreservingFaces` after a linear placement and by
  * `float32MeshBuffers` after Float32 rounding.
  *
  * @author Samchon
  *
- * @evidence contracts/common.md#principled-implementation Nonzero before/after area vectors are normalized and their dot must be positive; callers classify redundant faces first and supply finite areas. Opposed/collapsed nonredundant faces refuse.
+ * @evidence contracts/common.md#principled-implementation Normalized before/after area vectors must have a positive dot product; zero, nonfinite or opposed vectors fail that comparison. Callers decide which source faces are redundant before invoking this guard.
  * @evidence contracts/common.md#clear-and-simple-design One orientation predicate serves placement, local-frame translation and Float32 conversion while their owners decide reference classification.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No absolute area epsilon, subject identity or renderer result exempts a face; stage/ordinal identifies the real refusal.
  * @evidence contracts/common.md#meaningful-documentation The comment states vector roles/units, nonredundancy premise and failure naming.
