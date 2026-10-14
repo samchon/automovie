@@ -22,25 +22,38 @@ import type { IPortraitSkinConstraint } from "./structures/IPortraitSkinConstrai
  * skin outside the declared reach, with an independently checked residual.
  * Failure to converge is refused. This interpolates the seam; it does not infer
  * the anatomical correctness of the component's requested shape.
+ * Graph distances are edge-path distances, not exact continuous geodesics.
+ * The inverse-distance weight uses a conventional 1e-6 mm floor for coincident
+ * or very short edges. The function assumes finite XYZ and resident triangular
+ * connectivity from its assembler; it validates attachment requests rather
+ * than independently admitting the whole host mesh.
+ *
+ * @evidence contracts/common.md#principled-implementation Multi-source remaining-reach propagation over original mesh edges selects the free region; a positive inverse-edge-weight Dirichlet Laplacian solves three displacement axes against exact attachment pins and unchanged outside skin. CG checks equation residual, not anatomical correctness or general forward error.
+ * @evidence contracts/common.md#clear-and-simple-design Connectivity, joint pin admission, reach and one sparse free-vertex operator remain in this seam owner; solvePortraitSkinSystem owns the shared bounded numerical solve rather than separate per-component corrections.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Conflicting exact targets refuse and callers' arrays remain unchanged. Edge-path reach and the 1e-6 mm weight floor are authored interpolation conventions; source validity and clinical shape are not inferred from convergence.
+ * @evidence contracts/common.md#meaningful-documentation The prose gives millimetre frame, shared-input/owned-output semantics, joint solving, disconnected-skin boundary, solver refusal and graph/geometric/anatomical limits.
+ * @evidence contracts/performance.md#efficient-algorithms Building connectivity costs O(V+T), reach selects only the active frontier but its linear selection can cost O(V squared), and each of three CG solves performs sparse-row work for at most 4F iterations. Localized frontier reduces unnecessary whole-mesh selection scans but supplies no measured speedup or heap-equivalent bound.
+ * @evidence contracts/performance.md#reuse-equivalent-work All attachment requests share one original connectivity/reach field and one free-vertex matrix; its rows and diagonal are reused for XYZ while independent right-hand sides are solved separately. Changed geometry or constraints rebuild the invocation state.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Maps, reach, sparse rows and solver arrays scale with current V/T/constraints/free vertices and live only for the call; fixed targets and final positions are copied, so numerical refusal cannot commit a partial caller mesh and no global resource survives.
  */
 export function blendPortraitSkin(
   positions: number[][],
   indices: number[],
   constraints: IPortraitSkinConstraint[],
 ): number[][] {
-  const neighbours = positions.map(() => new Map<number, number>());
-  for (let i = 0; i < indices.length; i += 3)
-    for (let corner = 0; corner < 3; corner++) {
-      const a = indices[i + corner],
-        b = indices[i + ((corner + 1) % 3)];
-      const distance = Math.hypot(
-        ...positions[a].map((value, axis) => value - positions[b][axis]),
+  const neighbours: Map<number, number>[] = positions.map((): Map<number, number>  => new Map<number, number>());
+  for (let i: number = 0; i < indices.length; i += 3)
+    for (let corner: number = 0; corner < 3; corner++) {
+      const a: number = indices[i + corner],
+        b: number = indices[i + ((corner + 1) % 3)];
+      const distance: number = Math.hypot(
+        ...positions[a].map((value: number, axis: number): number  => value - positions[b][axis]),
       );
       neighbours[a].set(b, distance);
       neighbours[b].set(a, distance);
     }
-  const fixed = new Map<number, number[]>();
-  const reach = new Array<number>(positions.length).fill(0);
+  const fixed: Map<number, number[]> = new Map<number, number[]>();
+  const reach: number[] = new Array<number>(positions.length).fill(0);
   for (const constraint of constraints) {
     if (
       !Number.isInteger(constraint.vertex) ||
@@ -54,10 +67,10 @@ export function blendPortraitSkin(
       throw new Error(
         "A skin attachment needs a resident vertex, finite XYZ and nonnegative reach.",
       );
-    const previous = fixed.get(constraint.vertex);
+    const previous: number[] | undefined = fixed.get(constraint.vertex);
     if (
       previous !== undefined &&
-      previous.some((value, axis) => value !== constraint.target[axis])
+      previous.some((value: number, axis: number): boolean  => value !== constraint.target[axis])
     )
       throw new Error(
         "Two components request different positions for one skin attachment.",
@@ -71,13 +84,13 @@ export function blendPortraitSkin(
   // Max-remaining-distance propagation is multi-source Dijkstra. Scan only
   // the active frontier rather than every resident vertex at each step. Ties
   // still select the lowest vertex ID, independent of constraint insertion.
-  const visited = new Set<number>();
-  const frontier = new Set(
-    reach.flatMap((remaining, id) => (remaining > 0 ? [id] : [])),
+  const visited: Set<number> = new Set<number>();
+  const frontier: Set<number> = new Set(
+    reach.flatMap((remaining: number, id: number): number[]  => (remaining > 0 ? [id] : [])),
   );
   for (;;) {
-    let next = -1,
-      remaining = 0;
+    let next: number = -1,
+      remaining: number = 0;
     for (const i of frontier)
       if (reach[i] > remaining || (reach[i] === remaining && i < next)) {
         next = i;
@@ -87,52 +100,52 @@ export function blendPortraitSkin(
     frontier.delete(next);
     visited.add(next);
     for (const [near, distance] of neighbours[next]) {
-      const proposed = remaining - distance;
+      const proposed: number = remaining - distance;
       if (!visited.has(near) && proposed > reach[near]) {
         reach[near] = proposed;
         frontier.add(near);
       }
     }
   }
-  const delta = positions.map((point, id) => {
-    const target = fixed.get(id);
+  const delta: number[][] = positions.map((point: number[], id: number): number[]  => {
+    const target: number[] | undefined = fixed.get(id);
     return target === undefined
       ? [0, 0, 0]
-      : target.map((value, axis) => value - point[axis]);
+      : target.map((value: number, axis: number): number  => value - point[axis]);
   });
-  const free = [...visited]
-    .filter((id) => !fixed.has(id))
-    .sort((a, b) => a - b);
+  const free: number[] = [...visited]
+    .filter((id: number): boolean  => !fixed.has(id))
+    .sort((a: number, b: number): number  => a - b);
   // Eliminate the boundary unknowns. Each reachable free component has a path
   // to a fixed pin, making its positive-weight Dirichlet matrix positive
   // definite. A self edge contributes w*(u-u)=0, including at a repeated corner.
-  const columns = new Map(free.map((id, column) => [id, column]));
-  const rows = free.map((id) =>
+  const columns: Map<number, number> = new Map(free.map((id: number, column: number): [number, number]  => [id, column]));
+  const rows: { near: number; column: number | undefined; weight: number; }[][] = free.map((id: number): { near: number; column: number | undefined; weight: number; }[]  =>
     [...neighbours[id]]
-      .filter(([near]) => near !== id)
-      .map(([near, distance]) => ({
+      .filter(([near]: [number, number]): boolean  => near !== id)
+      .map(([near, distance]: [number, number]): { near: number; column: number | undefined; weight: number; }  => ({
         near,
         column: columns.get(near),
         weight: 1 / Math.max(distance, 1e-6),
       })),
   );
-  const diagonal = rows.map((row) =>
-    row.reduce((sum, edge) => sum + edge.weight, 0),
+  const diagonal: number[] = rows.map((row: { near: number; column: number | undefined; weight: number; }[]): number  =>
+    row.reduce((sum: number, edge: { near: number; column: number | undefined; weight: number; }): number  => sum + edge.weight, 0),
   );
-  const multiply = (values: number[]): number[] =>
-    rows.map((row, i) =>
+  const multiply: (values: number[]) => number[] = (values: number[]): number[] =>
+    rows.map((row: { near: number; column: number | undefined; weight: number; }[], i: number): number  =>
       row.reduce(
-        (sum, edge) =>
+        (sum: number, edge: { near: number; column: number | undefined; weight: number; }): number  =>
           sum +
           edge.weight *
             (values[i] - (edge.column === undefined ? 0 : values[edge.column])),
         0,
       ),
     );
-  for (let axis = 0; axis < 3; axis++) {
-    const rhs = rows.map((row) =>
+  for (let axis: number = 0; axis < 3; axis++) {
+    const rhs: number[] = rows.map((row: { near: number; column: number | undefined; weight: number; }[]): number  =>
       row.reduce(
-        (sum, edge) =>
+        (sum: number, edge: { near: number; column: number | undefined; weight: number; }): number  =>
           sum +
           (edge.column === undefined
             ? edge.weight * delta[edge.near][axis]
@@ -140,16 +153,16 @@ export function blendPortraitSkin(
         0,
       ),
     );
-    const scale = delta.reduce(
-      (maximum, displacement) =>
+    const scale: number = delta.reduce(
+      (maximum: number, displacement: number[]): number  =>
         Math.max(maximum, Math.abs(displacement[axis])),
       1,
     );
-    const values = solvePortraitSkinSystem(multiply, diagonal, rhs, scale);
-    free.forEach((id, column) => (delta[id][axis] = values[column]));
+    const values: number[] = solvePortraitSkinSystem(multiply, diagonal, rhs, scale);
+    free.forEach((id: number, column: number): number  => (delta[id][axis] = values[column]));
   }
   return positions.map(
-    (point, id) =>
-      fixed.get(id) ?? point.map((value, axis) => value + delta[id][axis]),
+    (point: number[], id: number): number[]  =>
+      fixed.get(id) ?? point.map((value: number, axis: number): number  => value + delta[id][axis]),
   );
 }

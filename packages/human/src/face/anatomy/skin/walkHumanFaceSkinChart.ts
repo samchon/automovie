@@ -2,6 +2,11 @@ import { HumanExactFraction as F } from "../../../common/measure/HumanExactFract
 import type { IHumanExactFraction } from "../../../common/measure/IHumanExactFraction";
 import type { IHumanFaceSkinChartWalkInput } from "./IHumanFaceSkinChartWalkInput";
 import { readHumanFaceSkinChartWeights } from "./readHumanFaceSkinChartWeights";
+import type { IHumanFaceSkinChartSpan as IHumanFaceSkinChartSpanImported } from "./IHumanFaceSkinChartSpan";
+import type { IHumanFaceSkinFrame as IHumanFaceSkinFrameImported } from "./IHumanFaceSkinFrame";
+import type { IHumanFaceExactSkinSeat as IHumanFaceExactSkinSeatImported } from "./IHumanFaceExactSkinSeat";
+import type { IHumanFaceSkinChartTriangle as IHumanFaceSkinChartTriangleImported } from "./IHumanFaceSkinChartTriangle";
+
 
 /**
  * Lift one chart chord through its actual native triangle adjacency.
@@ -21,6 +26,14 @@ import { readHumanFaceSkinChartWeights } from "./readHumanFaceSkinChartWeights";
  * Native cell and frame callbacks must read their immutable chart host;
  * callback closure state is not cloned by this geometric walker.
  *
+ * @evidence contracts/common.md#principled-implementation Exact affine barycentric signs trace a chord through native adjacency and edge/vertex fans; positive interval advance plus each convex cell's single consumption terminates supported walks, while ambiguous supports, folds, boundaries and nonmanifold edges refuse.
+ * @evidence contracts/common.md#clear-and-simple-design One chord walker owns equations, continuation and span emission; chart cells supply fixed inverse/adjacency and the host supplies exact physical frames.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Equal edge support retains the current facet or minimum native ordinal; distance, relief width, sampling quotas and a guessed iteration limit do not choose a sheet or conceal failed advance.
+ * @evidence contracts/common.md#meaningful-documentation The prose states native convexity, exact tie/advance rules, refusal causes and callback/receiver ownership; the function appends completed spans incrementally, so refusal can leave earlier pieces in the caller's span array.
+ * @evidence contracts/performance.md#efficient-algorithms Per-chord equations are cached by reached cell; each advance scans its incident zero-edge fan and emits one native interval with rational bit cost. Receiver construction also copies P prior accumulated spans, so repeated chord calls can add quadratic copying/retention; no linear-total-cost claim is made.
+ * @evidence contracts/performance.md#reuse-equivalent-work Repeated endpoint/parameter reads reuse the chord's cell equations; retained frame closures reuse exact interval endpoints and their immutable chart host, while different chords require distinct affine rates.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Visited/equation/consumed sets are bounded by native cells; returned span callbacks retain the owned receiver snapshot and host frame until courses are released, including copied prior spans. No external task or global cache is acquired, and partial append failure is not transactional.
+ *
  * @author Samchon
  */
 export function walkHumanFaceSkinChart(
@@ -32,68 +45,68 @@ export function walkHumanFaceSkinChart(
     to: structuredClone(input.to),
     cell: input.cell,
     frame: input.frame,
-    spans: input.spans.map((span) => ({
+    spans: input.spans.map((span: IHumanFaceSkinChartSpanImported): { triangle: number; start: number[]; end: number[]; frameAt: (fraction: number) => IHumanFaceSkinFrameImported; }  => ({
       triangle: span.triangle,
       start: [...span.start],
       end: [...span.end],
       frameAt: span.frameAt,
     })),
   };
-  const frame = receiver.frame.bind(receiver);
-  const zero = F.create(0n),
-    one = F.create(1n);
-  const equations = new Map<
+  const frame: (seat: IHumanFaceExactSkinSeatImported) => IHumanFaceSkinFrameImported = receiver.frame.bind(receiver);
+  const zero: IHumanExactFraction = F.create(0n),
+    one: IHumanExactFraction = F.create(1n);
+  const equations: Map<number, readonly [readonly IHumanExactFraction[], readonly IHumanExactFraction[]]> = new Map<
     number,
     readonly [readonly IHumanExactFraction[], readonly IHumanExactFraction[]]
   >();
-  const equation = (ordinal: number) => {
-    let result = equations.get(ordinal);
+  const equation: (ordinal: number) => readonly [readonly IHumanExactFraction[], readonly IHumanExactFraction[]] = (ordinal: number): readonly [readonly IHumanExactFraction[], readonly IHumanExactFraction[]]  => {
+    let result: readonly [readonly IHumanExactFraction[], readonly IHumanExactFraction[]] | undefined = equations.get(ordinal);
     if (result === undefined) {
-      const cell = input.cell(ordinal);
-      const start = readHumanFaceSkinChartWeights(cell, input.from),
-        end = readHumanFaceSkinChartWeights(cell, input.to);
+      const cell: IHumanFaceSkinChartTriangleImported = input.cell(ordinal);
+      const start: [IHumanExactFraction, IHumanExactFraction, IHumanExactFraction] = readHumanFaceSkinChartWeights(cell, input.from),
+        end: [IHumanExactFraction, IHumanExactFraction, IHumanExactFraction] = readHumanFaceSkinChartWeights(cell, input.to);
       result = [
         start,
-        end.map((value, axis) => F.subtract(value, start[axis])),
+        end.map((value: IHumanExactFraction, axis: number): IHumanExactFraction  => F.subtract(value, start[axis])),
       ];
       equations.set(ordinal, result);
     }
     return result;
   };
-  const weights = (
+  const weights: (ordinal: number, parameter: IHumanExactFraction) => [IHumanExactFraction, IHumanExactFraction, IHumanExactFraction] = (
     ordinal: number,
     parameter: IHumanExactFraction,
   ): [IHumanExactFraction, IHumanExactFraction, IHumanExactFraction] => {
-    const [start, rate] = equation(ordinal);
-    const at = (axis: number) =>
+    const [start, rate]: readonly [readonly IHumanExactFraction[], readonly IHumanExactFraction[]] = equation(ordinal);
+    const at: (axis: number) => IHumanExactFraction = (axis: number): IHumanExactFraction  =>
       F.add(start[axis], F.multiply(parameter, rate[axis]));
     return [at(0), at(1), at(2)];
   };
-  let current = input.startTriangle,
-    position = zero;
-  const consumed = new Set<number>();
+  let current: number = input.startTriangle,
+    position: IHumanExactFraction = zero;
+  const consumed: Set<number> = new Set<number>();
   while (F.compare(position, one) < 0) {
-    const pending = [current],
-      visited = new Set<number>(),
+    const pending: number[] = [current],
+      visited: Set<number> = new Set<number>(),
       candidates: number[] = [];
     let support: string | undefined;
     while (pending.length !== 0) {
-      const ordinal = pending.pop()!;
+      const ordinal: number = pending.pop()!;
       if (visited.has(ordinal)) continue;
       visited.add(ordinal);
-      const cell = input.cell(ordinal),
-        at = weights(ordinal, position),
-        [, rate] = equation(ordinal);
-      if (at.some((value) => value.numerator < 0n)) continue;
-      const advances = at.every(
-        (value, axis) => value.numerator > 0n || rate[axis].numerator >= 0n,
+      const cell: IHumanFaceSkinChartTriangleImported = input.cell(ordinal),
+        at: [IHumanExactFraction, IHumanExactFraction, IHumanExactFraction] = weights(ordinal, position),
+        [, rate]: readonly [readonly IHumanExactFraction[], readonly IHumanExactFraction[]] = equation(ordinal);
+      if (at.some((value: IHumanExactFraction): boolean  => value.numerator < 0n)) continue;
+      const advances: boolean = at.every(
+        (value: IHumanExactFraction, axis: number): boolean  => value.numerator > 0n || rate[axis].numerator >= 0n,
       );
       if (advances) {
-        const active = cell.vertices
+        const active: string = cell.vertices
           .filter(
-            (_, axis) => at[axis].numerator > 0n || rate[axis].numerator > 0n,
+            (_: number, axis: number): boolean  => at[axis].numerator > 0n || rate[axis].numerator > 0n,
           )
-          .sort((a, b) => a - b)
+          .sort((a: number, b: number): number  => a - b)
           .join(",");
         if (support !== undefined && active !== support)
           throw new Error(
@@ -102,9 +115,9 @@ export function walkHumanFaceSkinChart(
         support = active;
         candidates.push(ordinal);
       }
-      for (let axis = 0; axis < 3; axis++)
+      for (let axis: number = 0; axis < 3; axis++)
         if (at[axis].numerator === 0n) {
-          const neighbors = cell.neighbors[axis];
+          const neighbors: readonly number[] = cell.neighbors[axis];
           if (neighbors.length > 1)
             throw new Error(
               "Skin source chart reaches a nonmanifold native edge.",
@@ -116,31 +129,31 @@ export function walkHumanFaceSkinChart(
       throw new Error(
         "Skin source chart leaves its connected native support or reaches an open boundary.",
       );
-    const chosen = candidates.includes(current)
+    const chosen: number = candidates.includes(current)
       ? current
       : Math.min(...candidates);
     if (consumed.has(chosen))
       throw new Error(
         "Skin source chart revisits one convex native interval without valid ordering.",
       );
-    const [origin, rate] = equation(chosen);
-    let upper = one;
-    for (let axis = 0; axis < 3; axis++)
+    const [origin, rate]: readonly [readonly IHumanExactFraction[], readonly IHumanExactFraction[]] = equation(chosen);
+    let upper: IHumanExactFraction = one;
+    for (let axis: number = 0; axis < 3; axis++)
       if (rate[axis].numerator < 0n) {
-        const boundary = F.divide(F.negate(origin[axis]), rate[axis]);
+        const boundary: IHumanExactFraction = F.divide(F.negate(origin[axis]), rate[axis]);
         if (F.compare(boundary, upper) < 0) upper = boundary;
       }
     if (F.compare(upper, position) <= 0)
       throw new Error(
         "Skin source chart has no strict native parameter advance.",
       );
-    const startWeights = weights(chosen, position),
-      endWeights = weights(chosen, upper);
-    const frameAt = (fraction: number) => {
+    const startWeights: [IHumanExactFraction, IHumanExactFraction, IHumanExactFraction] = weights(chosen, position),
+      endWeights: [IHumanExactFraction, IHumanExactFraction, IHumanExactFraction] = weights(chosen, upper);
+    const frameAt: (fraction: number) => IHumanFaceSkinFrameImported = (fraction: number): IHumanFaceSkinFrameImported  => {
       if (!Number.isFinite(fraction) || fraction < 0 || fraction > 1)
         throw new Error("A native skin interval fraction must lie in [0,1].");
-      const t = F.from(fraction);
-      const weightAt = (axis: number) =>
+      const t: IHumanExactFraction = F.from(fraction);
+      const weightAt: (axis: number) => IHumanExactFraction = (axis: number): IHumanExactFraction  =>
         F.add(
           startWeights[axis],
           F.multiply(t, F.subtract(endWeights[axis], startWeights[axis])),

@@ -8,6 +8,12 @@ import type { IHumanFaceReferencePreparationInput } from "./IHumanFaceReferenceP
 import { assertHumanFacePeriocularCage } from "./assertHumanFacePeriocularCage";
 import { createHumanFaceNativePose } from "./createHumanFaceNativePose";
 import { replayHumanFaceSourceRefinements } from "./replayHumanFaceSourceRefinements";
+import type { IHumanFaceNativePose as IHumanFaceNativePoseImported } from "./IHumanFaceNativePose";
+import type { IAutoMovieVector3 as IAutoMovieVector3Imported } from "@automovie/interface";
+import type { IHumanFaceOpticalAssembly as IHumanFaceOpticalAssemblyImported } from "../anatomy/eye/structures/IHumanFaceOpticalAssembly";
+import type { IAutoMovieHumanFacePeriocularCage as IAutoMovieHumanFacePeriocularCageImported } from "../structures/IAutoMovieHumanFacePeriocularCage";
+import type { IAutoMovieHumanFaceBasisSurface as IAutoMovieHumanFaceBasisSurfaceImported, IAutoMovieHumanFaceBasisChannel as IAutoMovieHumanFaceBasisChannelImported } from "../../index";
+
 
 /**
  * Prepare the one shape-only skin reference shared by normal assembly and
@@ -25,24 +31,32 @@ import { replayHumanFaceSourceRefinements } from "./replayHumanFaceSourceRefinem
  * An optional observer reports only completed owners. Its exceptions propagate;
  * completion callbacks run before the retained reference is committed, so a
  * failed completion never retains a partially observed reference.
+ *
+ * @evidence contracts/common.md#principled-implementation The current native identity pose supplies shaped surfaces and actual optics; registered lid cages seat that rest before a copied material reference is captured. Completion applies persistent relief to candidates, replays source refinements, then commits only after every replay and progress callback succeeds. Initial lid seating can already mutate the caller-owned shaped state before a later failure.
+ * @evidence contracts/common.md#clear-and-simple-design Immediate optical/cage preparation and lazy complete isolate the pre-relief material reference from the final geometric reference; the pose evaluator requests completion only when that geometry is needed.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing cage registration or relief reference refuses, and observer exceptions propagate. Successful completion alone is memoized; a failed completion may retry without applying a committed relief twice, but preparation is not an atomic rollback of earlier lid seating.
+ * @evidence contracts/common.md#meaningful-documentation Returned shaped state is stage-owned and mutable, materialReference is a copied pre-relief snapshot, complete returns the committed replay reference or undefined for absent shaped geometry, and neither is a visual certificate.
+ * @evidence contracts/performance.md#efficient-algorithms Preparation pays native pose and optical/cage work plus copied surface coordinates. First completion adds actual relief and per-surface refinement replay; replay includes native parent scans, so its cost is not merely the count of appended samples.
+ * @evidence contracts/performance.md#reuse-equivalent-work One successful complete caches its result within this fixed identity stage; material reference is captured once before relief. New geometry/identity inputs create a new owner, and effectful failed work is not reported as completed.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The stage retains shaped buffers, optics, material snapshots and at most one completed reference, each proportional to the actual source population. Candidate/replay maps are local until commit; no worker or GPU resource is acquired.
  */
 export function prepareHumanFaceReference(
   input: IHumanFaceReferencePreparationInput,
 ): IHumanFaceReferencePreparation {
-  const { basis, state, geometry } = input;
-  const native =
+  const { basis, state, geometry }: IHumanFaceReferencePreparationInput = input;
+  const native: IHumanFaceNativePoseImported =
     input.native ?? createHumanFaceNativePose(basis)(state, geometry, input.progress);
-  const shaped = native.shaped;
-  const optics =
+  const shaped: { surfaces: number[][]; landmarks: Record<string, IAutoMovieVector3Imported>; } | undefined = native.shaped;
+  const optics: IHumanFaceOpticalAssemblyImported[] | undefined =
     geometry?.eyes === undefined
       ? undefined
       : buildHumanFaceOpticalAssembly(basis, state, geometry.eyes, input.progress);
   for (const eye of optics ?? []) {
-    const cage = basis.periocular?.[eye.side].cage;
+    const cage: IAutoMovieHumanFacePeriocularCageImported | undefined = basis.periocular?.[eye.side].cage;
     if (cage === undefined || shaped === undefined) continue;
     assertHumanFacePeriocularCage(basis, cage);
-    const host = basis.surfaces.findIndex(
-      (surface) => surface.id === cage.surface,
+    const host: number = basis.surfaces.findIndex(
+      (surface: IAutoMovieHumanFaceBasisSurfaceImported): boolean  => surface.id === cage.surface,
     );
     shaped.surfaces[host] = seatHumanFaceLidCage(
       cage,
@@ -53,39 +67,39 @@ export function prepareHumanFaceReference(
     );
     input.progress?.("reference:lid-seat:" + eye.side + ":" + cage.surface);
   }
-  let completed = false;
+  let completed: boolean = false;
   let reference: Map<string, number[]> | undefined;
-  const materialReference = shaped === undefined ? undefined : new Map(
-    basis.surfaces.map((surface, at) => [surface.id, [...shaped.surfaces[at]]]),
+  const materialReference: Map<string, number[]> | undefined = shaped === undefined ? undefined : new Map(
+    basis.surfaces.map((surface: IAutoMovieHumanFaceBasisSurfaceImported, at: number): [string, number[]]  => [surface.id, [...shaped.surfaces[at]]]),
   );
   return {
     optics,
     shaped,
     materialReference,
-    complete: () => {
+    complete: (): Map<string, number[]> | undefined  => {
       if (completed) return reference;
       if (shaped !== undefined) {
-        let candidate = shaped.surfaces;
+        let candidate: number[][] = shaped.surfaces;
         if (geometry?.skinRelief !== undefined) {
           if (materialReference === undefined)
             throw new Error("Skin relief needs its same shape-only material reference.");
-          const shapeChannels = new Set(
+          const shapeChannels: Set<string> = new Set(
             basis.channels
-              .filter((channel) => channel.kind === "shape")
-              .map((channel) => channel.id),
+              .filter((channel: IAutoMovieHumanFaceBasisChannelImported): boolean  => channel.kind === "shape")
+              .map((channel: IAutoMovieHumanFaceBasisChannelImported): string  => channel.id),
           );
-          const relieved = applyHumanFaceRegionalRelief(
+          const relieved: ReadonlyMap<string, readonly number[]> = applyHumanFaceRegionalRelief(
             basis,
             applyHumanFaceNasolabialRelief(
               basis,
               new Map(
-                basis.surfaces.map((surface, at) => [
+                basis.surfaces.map((surface: IAutoMovieHumanFaceBasisSurfaceImported, at: number): [string, number[]]  => [
                   surface.id,
                   shaped.surfaces[at],
                 ]),
               ),
               new Map(
-                [...state.weights].filter(([id]) => shapeChannels.has(id)),
+                [...state.weights].filter(([id]: [string, number]): boolean  => shapeChannels.has(id)),
               ),
               geometry.skinRelief,
               materialReference,
@@ -93,14 +107,14 @@ export function prepareHumanFaceReference(
             humanFaceSkinReliefIdentity(geometry.skinRelief),
             materialReference,
           );
-          candidate = basis.surfaces.map((surface) => [
+          candidate = basis.surfaces.map((surface: IAutoMovieHumanFaceBasisSurfaceImported): number[]  => [
             ...relieved.get(surface.id)!,
           ]);
           input.progress?.("reference:identity-relief");
         }
-        const replayed = new Map(
-          basis.surfaces.map((surface, at) => {
-            const positions = replayHumanFaceSourceRefinements(
+        const replayed: Map<string, number[]> = new Map(
+          basis.surfaces.map((surface: IAutoMovieHumanFaceBasisSurfaceImported, at: number): readonly [string, number[]]  => {
+            const positions: number[] = replayHumanFaceSourceRefinements(
               surface.sourcePosePlan,
               candidate[at],
             );
@@ -111,7 +125,7 @@ export function prepareHumanFaceReference(
         input.progress?.("reference:computed");
         // A failed replay leaves the exposed native shape unchanged, so a
         // later completion cannot apply persistent relief to it a second time.
-        candidate.forEach((positions, at) => {
+        candidate.forEach((positions: number[], at: number): void  => {
           shaped.surfaces[at] = positions;
         });
         reference = replayed;

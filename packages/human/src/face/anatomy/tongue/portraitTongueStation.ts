@@ -16,8 +16,16 @@ import { portraitTongueRows } from "./portraitTongueRows";
  * that builder and does not validate it.
  *
  * @author Samchon
+ *
+ * @evidence contracts/common.md#principled-implementation Pole identities and integer division recover the builder's ring ordinal and shared cosine station from its native vertex ordering.
+ * @evidence contracts/common.md#clear-and-simple-design One layout reader supplies jaw weighting without duplicating tongue spacing in the component.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Only vertices of buildPortraitTongue's actual mesh satisfy this unvalidated ordinal premise; it maps no arbitrary mesh or anatomical registration.
+ * @evidence contracts/common.md#meaningful-documentation Prose gives pole/ring ordering, endpoint meaning and the caller's valid-index obligation.
+ * @evidence contracts/performance.md#efficient-algorithms Endpoint comparisons, division and one shared station call take constant work.
+ * @evidence contracts/performance.md#reuse-equivalent-work Row/column constants and ring-station implementation match the builder; no mesh scan or result cache is needed.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources One scalar is returned without retaining mesh buffers, callbacks or handles.
  */
-export const portraitTongueStation = (vertex: number): number =>
+export const portraitTongueStation: (vertex: number) => number = (vertex: number): number =>
   vertex === 0
     ? 0
     : vertex === 1 + (portraitTongueRows - 1) * portraitTongueColumns

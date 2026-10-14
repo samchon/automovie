@@ -2,6 +2,8 @@ import { solveAutoMovieQuadraticProgram, type IAutoMovieQuadraticRow } from "@au
 import { refineAutoMovieQuadraticProgram } from "@automovie/engine/math/refineAutoMovieQuadraticProgram";
 import type { IHumanFaceNativeClosureStep } from "./IHumanFaceNativeClosureStep";
 import type { IHumanFaceNativeClosureStepInput } from "./IHumanFaceNativeClosureStepInput";
+import type { IAutoMovieQuadraticRefinementResult as IAutoMovieQuadraticRefinementResultImported } from "@automovie/engine/math/IAutoMovieQuadraticRefinementResult";
+
 
 /**
  * Restore a nonlinear aperture linearization inside the original hard domain.
@@ -25,17 +27,25 @@ import type { IHumanFaceNativeClosureStepInput } from "./IHumanFaceNativeClosure
  * alone admits the actual geometry at its unchanged original tolerance.
  *
  * @author Samchon
+ *
+ * @evidence contracts/common.md#principled-implementation A nonnegative elastic column restores minimax affine contact excess within unchanged hard-domain rows, then a second QP minimizes gain departure at the attained excess. Graph-only input retains spacing strategy; native residual refinement does not replace the caller's nonlinear physical admission.
+ * @evidence contracts/common.md#clear-and-simple-design One two-phase step owns affine restoration/departure; engine owners solve/refine, and the closure owner rebuilds and judges actual geometry.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Physical bounds are not widened. Existing 1e-10 normalized residual/eight-refinement and graph-only half-spacing policies remain explicit; non-success/nonfinite/residual failure refuses with receipts instead of retrying an altered domain.
+ * @evidence contracts/common.md#meaningful-documentation Prose distinguishes this minimax objective from SNOPT, candidate slacks from geometry, graph-only behavior and earlier-phase receipts from final acceptance.
+ * @evidence contracts/performance.md#efficient-algorithms Construction/evaluation follow row nonzeros; two native QPs and bounded residual refinements dominate by dimension, sparsity and native iterations. Total solve cost is not claimed linear.
+ * @evidence contracts/performance.md#reuse-equivalent-work Original rows and restoration primal feed departure and failure receipts; different nonlinear linearizations require a new step rather than cached acceptance.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Rows/objectives/two receipts are local; only field/slacks transfer. Failure JSON can scale with full input/receipts, and this owner retains no native handle or history.
  */
 export function solveHumanFaceNativeClosureStep(input: IHumanFaceNativeClosureStepInput): IHumanFaceNativeClosureStep {
-  const { rows, variables, contactStart, contactEnd } = input;
+  const { rows, variables, contactStart, contactEnd }: IHumanFaceNativeClosureStepInput = input;
   if (!Number.isInteger(variables) || variables < 1 || !Number.isInteger(contactStart) ||
       !Number.isInteger(contactEnd) || contactStart < 0 || contactEnd < contactStart || contactEnd > rows.length)
     throw new Error("Native closure step needs its original variable and nonlinear-row partition.");
-  const hasContact = contactEnd > contactStart;
-  const elasticColumn = variables + 1;
-  const dimension = variables + (hasContact ? 2 : 1);
+  const hasContact: boolean = contactEnd > contactStart;
+  const elasticColumn: number = variables + 1;
+  const dimension: number = variables + (hasContact ? 2 : 1);
   const problem: IAutoMovieQuadraticRow[] = [];
-  rows.forEach((row, at) => {
+  rows.forEach((row: IAutoMovieQuadraticRow, at: number): void  => {
     if (!hasContact || at < contactStart || at >= contactEnd) { problem.push(row); return; }
     if (row.lower !== null) problem.push({ indices: [...row.indices, elasticColumn],
       weights: [...row.weights, 1], lower: row.lower, upper: null });
@@ -43,11 +53,11 @@ export function solveHumanFaceNativeClosureStep(input: IHumanFaceNativeClosureSt
       weights: [...row.weights, -1], lower: null, upper: row.upper });
   });
   if (hasContact) problem.push({ indices: [elasticColumn], weights: [1], lower: 0, upper: null });
-  const objective = new Array<number>(dimension).fill(0);
+  const objective: number[] = new Array<number>(dimension).fill(0);
   objective[hasContact ? elasticColumn : variables] = hasContact ? 1 : -1;
-  const precision = 1e-10;
-  const restorationProblem = { diagonal: new Array<number>(dimension).fill(0), linear: objective, rows: problem };
-  const restoration = refineAutoMovieQuadraticProgram(restorationProblem,
+  const precision: number = 1e-10;
+  const restorationProblem: { diagonal: number[]; linear: number[]; rows: IAutoMovieQuadraticRow[]; } = { diagonal: new Array<number>(dimension).fill(0), linear: objective, rows: problem };
+  const restoration: IAutoMovieQuadraticRefinementResultImported = refineAutoMovieQuadraticProgram(restorationProblem,
     solveAutoMovieQuadraticProgram(restorationProblem), { tolerance: precision, maximumRefinements: 8 });
   if (restoration.status !== 1 || !restoration.primal.every(Number.isFinite) ||
       !(restoration.maximumViolation <= precision && restoration.stationarityResidual <= precision &&
@@ -59,17 +69,17 @@ export function solveHumanFaceNativeClosureStep(input: IHumanFaceNativeClosureSt
   // attained excess is a realizable epigraph upper for that field, even if
   // the native elastic variable is slightly negative or understates a row.
   // No physical tolerance is added: the original endpoints define the excess.
-  const optimum = hasContact ? rows.slice(contactStart, contactEnd).reduce((maximum, row) => {
-    const value = row.indices.reduce((sum, column, at) => sum + row.weights[at] * restoration.primal[column], 0);
+  const optimum: number = hasContact ? rows.slice(contactStart, contactEnd).reduce((maximum: number, row: IAutoMovieQuadraticRow): number  => {
+    const value: number = row.indices.reduce((sum: number, column: number, at: number): number  => sum + row.weights[at] * restoration.primal[column], 0);
     return Math.max(maximum, row.lower === null ? 0 : row.lower - value,
       row.upper === null ? 0 : value - row.upper);
   }, 0) : restoration.primal[variables];
   problem.push(hasContact
     ? { indices: [elasticColumn], weights: [1], lower: 0, upper: optimum }
     : { indices: [variables], weights: [1], lower: optimum > 0 ? optimum / 2 : 0, upper: null });
-  const departureProblem = { diagonal: Array.from({ length: dimension }, (_, at) => at < variables ? 1 : 0),
+  const departureProblem: { diagonal: (0 | 1)[]; linear: number[]; rows: IAutoMovieQuadraticRow[]; } = { diagonal: Array.from({ length: dimension }, (_: unknown, at: number): 0 | 1  => at < variables ? 1 : 0),
     linear: new Array<number>(dimension).fill(0), rows: problem };
-  const result = refineAutoMovieQuadraticProgram(departureProblem,
+  const result: IAutoMovieQuadraticRefinementResultImported = refineAutoMovieQuadraticProgram(departureProblem,
     solveAutoMovieQuadraticProgram(departureProblem), { tolerance: precision, maximumRefinements: 8 });
   if (result.status !== 1 || !result.primal.every(Number.isFinite) ||
       !(result.maximumViolation <= precision && result.stationarityResidual <= precision &&

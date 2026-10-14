@@ -8,6 +8,9 @@ import type { IHumanFaceSkinProjectionInterval } from "./IHumanFaceSkinProjectio
 import { createHumanFaceSkinProjectionEnvelope } from "./createHumanFaceSkinProjectionEnvelope";
 import { createHumanFaceSkinProjectionFeatures } from "./createHumanFaceSkinProjectionFeatures";
 import { readHumanFaceProjectedSkinCourse } from "./readHumanFaceProjectedSkinCourse";
+import type { IHumanExactFraction as IHumanExactFractionImported } from "../../../common/measure/IHumanExactFraction";
+import type { IHumanFaceProjectedSkinCourseReading as IHumanFaceProjectedSkinCourseReadingImported } from "./IHumanFaceProjectedSkinCourseReading";
+
 
 /**
  * Compile a free guide's continuous nearest projection onto the immutable
@@ -31,44 +34,52 @@ import { readHumanFaceProjectedSkinCourse } from "./readHumanFaceProjectedSkinCo
  * it require regeneration and observation; bitwise equivalence is not claimed.
  * No source vertex, topology, numerical trait or anatomical range is changed.
  *
+ * @evidence contracts/common.md#principled-implementation Per-guide-chord exact affine native candidates and their quadratic lower envelope determine nearest spans; actual shared corner identity plus a 128-epsilon arithmetic bound admits continuity, while unrelated or discontinuous sheets refuse.
+ * @evidence contracts/common.md#clear-and-simple-design Candidate construction and envelope merging have their own owners; this compiler owns finite input admission, native continuity, metre lengths and the returned distance reader.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Width and anatomical tolerances do not enter nearest selection. Coordinate-identical native aliases and a scale-relative roundoff check support represented continuity, not clinical reach or a repaired chord through air.
+ * @evidence contracts/common.md#meaningful-documentation The prose states rational versus displayed precision, native ordering, continuity/refusal, unchanged source topology and derivative regeneration; the detailed refusal preserves physical units and feature inputs.
+ * @evidence contracts/performance.md#efficient-algorithms For G guide chords, each feature producer scans V vertices/T triangles, then the envelope merges retained features with exact pair comparisons; emitted S spans are measured once and later reads scan S. Work depends on native feature/interval populations and rational bit sizes, not relief width.
+ * @evidence contracts/performance.md#reuse-equivalent-work Each chord shares its normalized context and guide-local pair cache; spans retain compiled endpoints/lengths for repeated reads. Different geometry or guides require rebuilding rather than reusing by equal width or total length.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Candidate and pair populations are chord-local and discarded after merge/refusal; the returned course retains O(S) endpoint/metric records for its caller, without source mutation, external handles or global cache.
+ *
  * @author Samchon
  */
 export function compileHumanFaceProjectedSkinCourse(
   input: IHumanFaceProjectedSkinCourseInput,
 ): IHumanFaceProjectedSkinCourse {
-  const count = input.positions.length / 3;
+  const count: number = input.positions.length / 3;
   if (
     !Number.isInteger(count) ||
     input.indices.length % 3 !== 0 ||
     input.indices.length === 0 ||
-    input.positions.some((value) => !Number.isFinite(value)) ||
+    input.positions.some((value: number): boolean  => !Number.isFinite(value)) ||
     input.indices.some(
-      (id) => !Number.isInteger(id) || id < 0 || id >= count,
+      (id: number): boolean  => !Number.isInteger(id) || id < 0 || id >= count,
     ) ||
     input.guide.length < 2 ||
     input.guide.some(
-      (point) =>
-        point.length !== 3 || point.some((value) => !Number.isFinite(value)),
+      (point: readonly number[]): boolean  =>
+        point.length !== 3 || point.some((value: number): boolean  => !Number.isFinite(value)),
     )
   )
     throw new Error(
       "Skin course needs finite native triangles and an ordered finite guide.",
     );
-  const aliases = (id: number): string =>
+  const aliases: (id: number) => string = (id: number): string =>
     input.positions.slice(3 * id, 3 * id + 3).join(",");
   const spans: IHumanFaceProjectedSkinSpan[] = [];
-  let totalLengthMetres = 0,
+  let totalLengthMetres: number = 0,
     previousFeature: IHumanFaceSkinProjectionFeature | undefined;
   let previousInterval: IHumanFaceSkinProjectionInterval | undefined;
   let previousContext: IHumanFaceSkinProjectionFeatures | undefined;
   let previousSegment: number | undefined;
-  for (let segment = 0; segment + 1 < input.guide.length; segment++) {
-    const features = createHumanFaceSkinProjectionFeatures(input, segment);
-    const envelope = createHumanFaceSkinProjectionEnvelope(features);
+  for (let segment: number = 0; segment + 1 < input.guide.length; segment++) {
+    const features: IHumanFaceSkinProjectionFeatures = createHumanFaceSkinProjectionFeatures(input, segment);
+    const envelope: IHumanFaceSkinProjectionInterval[] = createHumanFaceSkinProjectionEnvelope(features);
     for (const interval of envelope) {
-      const feature = interval.feature;
-      const at = (parameter: number): number[] =>
-        feature.origin.map((value, axis) =>
+      const feature: IHumanFaceSkinProjectionFeature = interval.feature;
+      const at: (parameter: number) => number[] = (parameter: number): number[] =>
+        feature.origin.map((value: IHumanExactFractionImported, axis: number): number  =>
           Fraction.number(
             Fraction.add(
               Fraction.from(features.origin[axis]),
@@ -85,26 +96,26 @@ export function compileHumanFaceProjectedSkinCourse(
             ),
           ),
         );
-      const start = at(interval.lower),
-        end = at(interval.upper);
+      const start: number[] = at(interval.lower),
+        end: number[] = at(interval.upper);
       if (![...start, ...end].every(Number.isFinite))
         throw new Error("Skin course projection is unrepresentable.");
-      const previous = spans.at(-1);
+      const previous: IHumanFaceProjectedSkinSpan | undefined = spans.at(-1);
       if (previous !== undefined && previousFeature !== undefined) {
-        const common = new Set(previousFeature.vertices.map(aliases));
-        if (!feature.vertices.some((id) => common.has(aliases(id))))
+        const common: Set<string> = new Set(previousFeature.vertices.map(aliases));
+        if (!feature.vertices.some((id: number): boolean  => common.has(aliases(id))))
           throw new Error(
             "Skin guide nearest projection jumps between native sheets.",
           );
-        const separation = Math.hypot(
-          ...start.map((value, axis) => value - previous.end[axis]),
+        const separation: number = Math.hypot(
+          ...start.map((value: number, axis: number): number  => value - previous.end[axis]),
         );
-        const arithmeticScale = Math.max(
+        const arithmeticScale: number = Math.max(
           features.scale,
           ...start.map(Math.abs),
           ...previous.end.map(Math.abs),
         );
-        const threshold = 128 * Number.EPSILON * arithmeticScale;
+        const threshold: number = 128 * Number.EPSILON * arithmeticScale;
         if (separation > threshold)
           throw new Error(
             "Skin guide nearest projection has no continuous native-feature transition. " +
@@ -121,7 +132,7 @@ export function compileHumanFaceProjectedSkinCourse(
                       feature.vertices.length - 1
                     ],
                     vertices: feature.vertices,
-                    nativePositions: feature.vertices.map((id) =>
+                    nativePositions: feature.vertices.map((id: number): number[]  =>
                       input.positions.slice(3 * id, 3 * id + 3),
                     ),
                     validity: [feature.lower, feature.upper],
@@ -141,7 +152,7 @@ export function compileHumanFaceProjectedSkinCourse(
                       previousFeature.vertices.length - 1
                     ],
                     vertices: previousFeature.vertices,
-                    nativePositions: previousFeature.vertices.map((id) =>
+                    nativePositions: previousFeature.vertices.map((id: number): number[]  =>
                       input.positions.slice(3 * id, 3 * id + 3),
                     ),
                     validity: [previousFeature.lower, previousFeature.upper],
@@ -170,13 +181,13 @@ export function compileHumanFaceProjectedSkinCourse(
                   multiplier: 128,
                   binary64Epsilon: Number.EPSILON,
                 },
-                (_key, value: unknown) =>
+                (_key: string, value: unknown): unknown =>
                   typeof value === "bigint" ? value.toString() : value,
               ),
           );
       }
-      const lengthMetres = Math.hypot(
-        ...end.map((value, axis) => value - start[axis]),
+      const lengthMetres: number = Math.hypot(
+        ...end.map((value: number, axis: number): number  => value - start[axis]),
       );
       if (
         !Number.isFinite(lengthMetres) ||
@@ -199,7 +210,7 @@ export function compileHumanFaceProjectedSkinCourse(
   return {
     spans,
     totalLengthMetres,
-    read: (point) =>
+    read: (point: readonly number[]): IHumanFaceProjectedSkinCourseReadingImported  =>
       readHumanFaceProjectedSkinCourse(spans, totalLengthMetres, point),
   };
 }

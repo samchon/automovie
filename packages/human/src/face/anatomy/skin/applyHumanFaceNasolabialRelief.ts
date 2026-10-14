@@ -5,6 +5,13 @@ import type { IAutoMovieHumanFaceSkinRelief } from "../../structures/IAutoMovieH
 import { applyHumanFaceSkinCourseRelief } from "./applyHumanFaceSkinCourseRelief";
 import { createHumanFaceSkinHost } from "./createHumanFaceSkinHost";
 import { createHumanFaceSkinMaterialCourse } from "./createHumanFaceSkinMaterialCourse";
+import type { IAutoMovieHumanSkinLandmark as IAutoMovieHumanSkinLandmarkImported } from "../../../common/basis/IAutoMovieHumanSkinLandmark";
+import type { IAutoMovieHumanFaceNasolabialRelief as IAutoMovieHumanFaceNasolabialReliefImported } from "../../structures/IAutoMovieHumanFaceNasolabialRelief";
+import type { IAutoMovieHumanFaceBasisSurface as IAutoMovieHumanFaceBasisSurfaceImported } from "../../structures/IAutoMovieHumanFaceBasisSurface";
+import type { IHumanFaceLipMarginPoints as IHumanFaceLipMarginPointsImported } from "../../basis/IHumanFaceLipMarginPoints";
+import type { IHumanFaceLipMarginPoint as IHumanFaceLipMarginPointImported } from "../../basis/IHumanFaceLipMarginPoint";
+import type { IHumanFaceSkinHost as IHumanFaceSkinHostImported } from "./IHumanFaceSkinHost";
+
 
 /**
  * Add independently authored resting and smile-dependent nasolabial valleys
@@ -41,6 +48,14 @@ import { createHumanFaceSkinMaterialCourse } from "./createHumanFaceSkinMaterial
  * contact floor and budget as the remaining tissue performance. Common normal
  * construction and whole-person source-cell admission remain downstream.
  *
+ * @evidence contracts/common.md#principled-implementation Each side's authored rest plus smile-weighted depth converts from mm to metres, follows registered alar/cheilion material support and displaces along the current host normal while holding native lip support and guide anchors; the kernel is an authored interpolation, not measured fold mechanics.
+ * @evidence contracts/common.md#clear-and-simple-design Side admission precedes grouping by resident skin surface; one host and output copy serve both sides while chart compilation and displacement remain with their existing owners.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Left/right smile channels and chart domains are supported anatomical roles; invalid depths, widths, landmarks or ineffective support refuse without clamping or changing the caller's input maps.
+ * @evidence contracts/common.md#meaningful-documentation The prose states units, normal-direction meaning, endpoint/lip preservation, reference/performance sequencing, numerical and source-coverage refusals, regeneration and unproven clinical/visual behavior.
+ * @evidence contracts/performance.md#efficient-algorithms At most two admitted courses scan resident skin vertices and their native metric spans; host construction scans vertices/triangles and chart compilation carries rational/topology cost. Each active surface is copied once and bounded two-row filters do not grow with mesh size.
+ * @evidence contracts/performance.md#reuse-equivalent-work Both sides on one surface share unchanged positions, welded normals and held lip support; performed and shape-only references are separate calls because their geometry/weights differ and cannot share a changed host.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Local hosts, courses and copied positions scale with the admitted skin and are abandoned on refusal; only completed changed arrays enter the returned map, with no global cache or external handle.
+ *
  * @author Samchon
  */
 export function applyHumanFaceNasolabialRelief(
@@ -51,11 +66,11 @@ export function applyHumanFaceNasolabialRelief(
   reference: ReadonlyMap<string, readonly number[]>,
 ): ReadonlyMap<string, readonly number[]> {
   if (relief?.nasolabial === undefined) return positions;
-  const rows = (["left", "right"] as const).flatMap((side) => {
-    const input = relief.nasolabial![side];
+  const rows: { side: "left" | "right"; depth: number; width: number; ala: IAutoMovieHumanSkinLandmarkImported; corner: IAutoMovieHumanSkinLandmarkImported; }[] = (["left", "right"] as const).flatMap((side: "left" | "right"): { side: "left" | "right"; depth: number; width: number; ala: IAutoMovieHumanSkinLandmarkImported; corner: IAutoMovieHumanSkinLandmarkImported; }[]  => {
+    const input: IAutoMovieHumanFaceNasolabialReliefImported | undefined = relief.nasolabial![side];
     if (input === undefined) return [];
-    const rest = input.restDepthMm ?? 0;
-    const performed = input.smileDepthMm ?? 0;
+    const rest: number = input.restDepthMm ?? 0;
+    const performed: number = input.smileDepthMm ?? 0;
     if (
       ![rest, performed, input.widthMm].every(Number.isFinite) ||
       rest < 0 ||
@@ -65,22 +80,22 @@ export function applyHumanFaceNasolabialRelief(
       throw new Error(
         `Nasolabial ${side} relief needs nonnegative finite depths and a positive finite width.`,
       );
-    const smile =
+    const smile: number =
       weights.get(side === "left" ? "mouthSmileLeft" : "mouthSmileRight") ?? 0;
     if (!Number.isFinite(smile) || smile < 0 || smile > 1)
       throw new Error(
         `Nasolabial ${side} relief needs its source smile weight in [0,1].`,
       );
-    const activeMm = rest + performed * smile;
-    const depth = activeMm / 1000;
-    const width = input.widthMm / 1000;
+    const activeMm: number = rest + performed * smile;
+    const depth: number = activeMm / 1000;
+    const width: number = input.widthMm / 1000;
     if (!Number.isFinite(activeMm) || !Number.isFinite(depth) || !(width > 0))
       throw new Error(
         `Nasolabial ${side} depth and width must be representable in metres.`,
       );
     if (depth === 0) return [];
-    const ala = findHumanSkinLandmark(basis, `alar-curvature-${side}`);
-    const corner = findHumanSkinLandmark(basis, `cheilion-${side}`);
+    const ala: IAutoMovieHumanSkinLandmarkImported | undefined = findHumanSkinLandmark(basis, `alar-curvature-${side}`);
+    const corner: IAutoMovieHumanSkinLandmarkImported | undefined = findHumanSkinLandmark(basis, `cheilion-${side}`);
     if (
       ala === undefined ||
       corner === undefined ||
@@ -92,10 +107,10 @@ export function applyHumanFaceNasolabialRelief(
     return [{ side, depth, width, ala, corner }];
   });
   if (rows.length === 0) return positions;
-  const output = new Map(positions);
-  for (const index of new Set(rows.map((row) => row.ala.surface))) {
-    const surface = basis.surfaces[index];
-    const source =
+  const output: Map<string, readonly number[]> = new Map(positions);
+  for (const index of new Set(rows.map((row: { side: "left" | "right"; depth: number; width: number; ala: IAutoMovieHumanSkinLandmarkImported; corner: IAutoMovieHumanSkinLandmarkImported; }): number  => row.ala.surface))) {
+    const surface: IAutoMovieHumanFaceBasisSurfaceImported = basis.surfaces[index];
+    const source: readonly number[] | undefined =
       surface === undefined ? undefined : positions.get(surface.id);
     if (source === undefined)
       throw new Error(
@@ -108,20 +123,20 @@ export function applyHumanFaceNasolabialRelief(
       throw new Error(
         "Nasolabial relief needs the same skin's registered complete lip margin.",
       );
-    const margin = readHumanFaceLipMarginPoints(surface, basis.contact.margin, source);
+    const margin: IHumanFaceLipMarginPointsImported = readHumanFaceLipMarginPoints(surface, basis.contact.margin, source);
     // Holding actual nonzero native support keeps the material contact course
     // invariant under this separately authored persistent relief field.
-    const held = new Set([...margin.upper, ...margin.lower].flatMap((point) =>
-      point.vertices.filter((_, axis) => point.weights[axis] !== 0)));
-    for (const row of rows.filter((item) => item.ala.surface === index)) {
+    const held: Set<number> = new Set([...margin.upper, ...margin.lower].flatMap((point: IHumanFaceLipMarginPointImported): number[]  =>
+      point.vertices.filter((_: number, axis: number): boolean  => point.weights[axis] !== 0)));
+    for (const row of rows.filter((item: { side: "left" | "right"; depth: number; width: number; ala: IAutoMovieHumanSkinLandmarkImported; corner: IAutoMovieHumanSkinLandmarkImported; }): boolean  => item.ala.surface === index)) {
       held.add(row.ala.vertex);
       held.add(row.corner.vertex);
     }
-    const host = createHumanFaceSkinHost(surface.indices, source);
-    const changed = source.slice();
-    for (const row of rows.filter((item) => item.ala.surface === index)) {
-      const a = source.slice(3 * row.ala.vertex, 3 * row.ala.vertex + 3);
-      const b = source.slice(3 * row.corner.vertex, 3 * row.corner.vertex + 3);
+    const host: IHumanFaceSkinHostImported = createHumanFaceSkinHost(surface.indices, source);
+    const changed: number[] = source.slice();
+    for (const row of rows.filter((item: { side: "left" | "right"; depth: number; width: number; ala: IAutoMovieHumanSkinLandmarkImported; corner: IAutoMovieHumanSkinLandmarkImported; }): boolean  => item.ala.surface === index)) {
+      const a: number[] = source.slice(3 * row.ala.vertex, 3 * row.ala.vertex + 3);
+      const b: number[] = source.slice(3 * row.corner.vertex, 3 * row.corner.vertex + 3);
       if (
         a.length !== 3 ||
         b.length !== 3 ||
@@ -131,18 +146,18 @@ export function applyHumanFaceNasolabialRelief(
           `Nasolabial ${row.side} relief endpoints are not finite resident points.`,
         );
       const sign: -1 | 1 = row.side === "left" ? 1 : -1;
-      const sideReach = Math.min(sign * a[0], sign * b[0]);
+      const sideReach: number = Math.min(sign * a[0], sign * b[0]);
       if (!(sideReach > 0) || row.width > sideReach)
         throw new Error(
           `Nasolabial ${row.side} width exceeds its current guide's ${sideReach * 1000} mm reach to the midsagittal boundary.`,
         );
       // The admission of a guide keeps its original frontal-projection measure.
-      const projectedLength = Math.hypot(b[0] - a[0], b[1] - a[1]);
+      const projectedLength: number = Math.hypot(b[0] - a[0], b[1] - a[1]);
       if (!(projectedLength > 0) || !Number.isFinite(projectedLength))
         throw new Error(
           `Nasolabial ${row.side} relief guide has no finite projected length.`,
         );
-      const supported = applyHumanFaceSkinCourseRelief({
+      const supported: boolean = applyHumanFaceSkinCourseRelief({
         host,
         source,
         changed,

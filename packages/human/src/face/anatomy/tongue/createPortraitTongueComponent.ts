@@ -1,4 +1,4 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type { IAutoMovieVector3, IAutoMovieMesh as IAutoMovieMeshImported, IAutoMovieModelPart as IAutoMovieModelPartImported } from "@automovie/interface";
 
 import { areaWeightedNormals } from "../../../common/mesh/areaWeightedNormals";
 import { resolveHumanFaceExpression } from "../../document/resolveHumanFaceExpression";
@@ -13,6 +13,11 @@ import { buildPortraitTongue } from "./buildPortraitTongue";
 import { frontWeight } from "./frontWeight";
 import { portraitTongueStation } from "./portraitTongueStation";
 
+import type { IPortraitComponentHost as IPortraitComponentHostImported } from "../../surface/structures/IPortraitComponentHost";
+import type { IControlMesh as IControlMeshImported } from "../../mesh/structures/IControlMesh";
+import type { IPortraitInterior as IPortraitInteriorImported } from "../../surface/structures/IPortraitInterior";
+
+
 /**
  * Attach a non-cutting tongue to the observed lower oral frame. The anterior
  * body follows the bound jaw, fading to a fixed posterior endpoint. Normals
@@ -21,6 +26,14 @@ import { portraitTongueStation } from "./portraitTongueStation";
  * Fit captures the performed mesh in head millimetres. Native preparation gives
  * each consumer a fresh copy with matching normals; compatibility finish packs
  * this same producer's result without repeating attachment or jaw motion.
+ *
+ * @evidence contracts/common.md#principled-implementation Copied shape and observed/current expression differences generate one local tongue, attach it rigidly to resident oral anchors, then weight jaw rotation toward the anterior and recompute normals.
+ * @evidence contracts/common.md#clear-and-simple-design Empty constraints/cuts describe a non-cutting component; native preparation and compatibility finish share one fitted interior producer selected by the head.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Weighted jaw motion is authored kinematics, not muscular or collision proof; invalid sockets, hinge and performance refuse without guessed anchors or host mutation.
+ * @evidence contracts/common.md#meaningful-documentation The comment distinguishes observed/current motion, head millimetres, fresh copies, matching normals and unproven collision/anatomy.
+ * @evidence contracts/performance.md#efficient-algorithms Local V/T geometry is built once; each fit clones/transforms V vertices and recomputes O(T) normals, and each interior call clones its mesh before optional linear metric packing.
+ * @evidence contracts/performance.md#reuse-equivalent-work Fixed copied shape/expression permits shared local geometry across fits; distinct anchors need fresh attachment, and both finish APIs share the fitted producer rather than performing jaw motion twice.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The component retains copied inputs/local mesh; each attachment retains its placed mesh and returns fresh consumer buffers until released, with no global task or host mutation.
  */
 export function createPortraitTongueComponent(
   inputSocket: {
@@ -33,29 +46,29 @@ export function createPortraitTongueComponent(
   observation: IAutoMovieHumanFaceExpression,
   expression: IAutoMovieHumanFaceExpression,
 ): IPortraitComponent {
-  const socket = structuredClone(inputSocket),
-    shape = structuredClone(inputShape),
-    hinge = structuredClone(inputHinge);
-  const observed = resolveHumanFaceExpression(observation),
-    current = resolveHumanFaceExpression(expression);
+  const socket: { rightCorner: number; leftCorner: number; lowerLipMiddle: number; } = structuredClone(inputSocket),
+    shape: IPortraitTongueShape = structuredClone(inputShape),
+    hinge: IAutoMovieVector3 = structuredClone(inputHinge);
+  const observed: Required<{ blink?: { right: number; left: number; } | undefined; browRaise?: { right: number; left: number; } | undefined; smile?: { right: number; left: number; } | undefined; jawOpen?: number | undefined; lipPart?: number | undefined; pucker?: number | undefined; tongueRaise?: number | undefined; tongueAdvance?: number | undefined; gazePitch?: { right: number; left: number; } | undefined; gazeYaw?: { right: number; left: number; } | undefined; }> = resolveHumanFaceExpression(observation),
+    current: Required<{ blink?: { right: number; left: number; } | undefined; browRaise?: { right: number; left: number; } | undefined; smile?: { right: number; left: number; } | undefined; jawOpen?: number | undefined; lipPart?: number | undefined; pucker?: number | undefined; tongueRaise?: number | undefined; tongueAdvance?: number | undefined; gazePitch?: { right: number; left: number; } | undefined; gazeYaw?: { right: number; left: number; } | undefined; }> = resolveHumanFaceExpression(expression);
   posePortraitJawPoint(hinge, hinge, 0, 1);
-  const local = buildPortraitTongue(shape, {
+  const local: IAutoMovieMeshImported = buildPortraitTongue(shape, {
     raise: current.tongueRaise - observed.tongueRaise,
     advance: current.tongueAdvance - observed.tongueAdvance,
   });
   return {
     id: "tongue",
-    fit: (host) => {
+    fit: (host: IPortraitComponentHostImported): { constraints: never[]; cutFaces: never[]; attach: () => { prepareInteriors: (refined: IControlMeshImported) => IPortraitInteriorImported[]; finish: (refined: IControlMeshImported) => IAutoMovieModelPartImported[]; openings: never[]; }; }  => {
       if (
         Object.values(socket).some(
-          (id) =>
+          (id: number): boolean  =>
             !Number.isInteger(id) || id < 0 || id >= host.positions.length,
         )
       )
         throw new Error("Tongue sockets must name resident host vertices.");
-      const point = (id: number) =>
+      const point: (id: number) => IAutoMovieVector3 = (id: number): IAutoMovieVector3  =>
         millimetrePoint(...(host.positions[id] as [number, number, number]));
-      const placed = attachPortraitOralMesh(local, {
+      const placed: IAutoMovieMeshImported = attachPortraitOralMesh(local, {
         rightCorner: point(socket.rightCorner),
         leftCorner: point(socket.leftCorner),
         origin: point(socket.lowerLipMiddle),
@@ -63,8 +76,8 @@ export function createPortraitTongueComponent(
         lift: -shape.drop,
         recess: shape.recess,
       });
-      for (let i = 0; i < placed.positions.length; i += 3) {
-        const p = posePortraitJawPoint(
+      for (let i: number = 0; i < placed.positions.length; i += 3) {
+        const p: IAutoMovieVector3 = posePortraitJawPoint(
           {
             x: placed.positions[i],
             y: placed.positions[i + 1],
@@ -80,9 +93,9 @@ export function createPortraitTongueComponent(
       return {
         constraints: [],
         cutFaces: [],
-        attach: () => ({
+        attach: (): { prepareInteriors: (refined: IControlMeshImported) => IPortraitInteriorImported[]; finish: (refined: IControlMeshImported) => IAutoMovieModelPartImported[]; openings: never[]; }  => ({
           openings: [],
-          ...createPortraitInteriorFinisher(() => [
+          ...createPortraitInteriorFinisher((): { id: string; mesh: IAutoMovieMeshImported; material: string; }[]  => [
             {
               id: "tongue",
               mesh: structuredClone(placed),

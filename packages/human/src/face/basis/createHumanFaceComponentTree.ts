@@ -1,7 +1,9 @@
 import type { IAutoMovieHumanFaceBasis } from "../structures/IAutoMovieHumanFaceBasis";
 import type { IAutoMovieHumanFaceComponentTree } from "../structures/IAutoMovieHumanFaceComponentTree";
+import type { IAutoMovieHumanFaceBasisChannel as IAutoMovieHumanFaceBasisChannelImported, IAutoMovieHumanFaceBasisSurface as IAutoMovieHumanFaceBasisSurfaceImported } from "../../index";
 
-const DOCUMENT_FIELDS = [
+
+const DOCUMENT_FIELDS: readonly ["hair", "iris", "skin", "materials", "eyes", "lashes", "anatomical"] = [
   "hair",
   "iris",
   "skin",
@@ -20,6 +22,14 @@ const DOCUMENT_FIELDS = [
  * The manifest must cover every channel, basis surface and appearance field
  * once. Validation refuses cycles, aliases and stale basis revisions instead
  * of silently leaving a fine control unreachable after a source revision.
+ *
+ * @evidence contracts/common.md#principled-implementation Recursive traversal admits one unaliased tree, distinct node identities and exactly one owner for every resident channel/surface and declared DocumentField. Paths expose the authored hierarchy to editor consumers without changing flat basis evaluation or confusing influence with physical ownership.
+ * @evidence contracts/common.md#clear-and-simple-design One traversal builds the owned tree and three address maps, followed by completeness checks against the fixed basis and current seven-field component schema.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing, duplicate, aliased graph nodes and unsupported owners refuse rather than being assigned to a fallback group. The seven document fields are this component contract's vocabulary, not a claim that every newer basis-document section is represented here.
+ * @evidence contracts/common.md#meaningful-documentation Prose identifies exact revision, unaliased ownership, copied result, channel versus physical-surface meaning and the hierarchy's editor role.
+ * @evidence contracts/performance.md#efficient-algorithms Membership and duplicate checks use sets/maps; traversal costs the node/member population plus the sum of node path depths because each node copies its label path. Deep trees can have quadratic total path storage and exhaust the recursive stack; no independent depth cap is implemented.
+ * @evidence contracts/performance.md#reuse-equivalent-work Each node's one path serves all its assigned members, and known basis sets serve the entire walk. The returned maps/tree form the completed compile result; there is no cache across changed manifests or revisions.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Temporary sets are released after compilation; the caller owns the copied tree and its member path maps. Their size follows the submitted hierarchy, with no history, external handle or independently enforced hierarchy-size bound.
  */
 export function createHumanFaceComponentTree(
   basis: Pick<IAutoMovieHumanFaceBasis, "id" | "channels" | "surfaces">,
@@ -35,24 +45,24 @@ export function createHumanFaceComponentTree(
 } {
   if (manifest.basis !== basis.id)
     throw new Error("A facial component tree needs its exact basis revision.");
-  const channelIds = basis.channels.map((channel) => channel.id);
-  const surfaceIds = basis.surfaces.map((surface) => surface.id);
+  const channelIds: string[] = basis.channels.map((channel: IAutoMovieHumanFaceBasisChannelImported): string  => channel.id);
+  const surfaceIds: string[] = basis.surfaces.map((surface: IAutoMovieHumanFaceBasisSurfaceImported): string  => surface.id);
   if (
     new Set(channelIds).size !== channelIds.length ||
     new Set(surfaceIds).size !== surfaceIds.length
   )
     throw new Error("A facial component tree needs distinct basis identities.");
-  const knownChannels = new Set(channelIds),
-    knownSurfaces = new Set(surfaceIds);
-  const channelPaths = new Map<string, readonly string[]>(),
-    surfacePaths = new Map<string, readonly string[]>(),
-    documentPaths = new Map<
+  const knownChannels: Set<string> = new Set(channelIds),
+    knownSurfaces: Set<string> = new Set(surfaceIds);
+  const channelPaths: Map<string, readonly string[]> = new Map<string, readonly string[]>(),
+    surfacePaths: Map<string, readonly string[]> = new Map<string, readonly string[]>(),
+    documentPaths: Map<IAutoMovieHumanFaceComponentTree.DocumentField, readonly string[]> = new Map<
       IAutoMovieHumanFaceComponentTree.DocumentField,
       readonly string[]
     >();
-  const nodes = new WeakSet<IAutoMovieHumanFaceComponentTree.Node>(),
-    identities = new Set<string>();
-  const walk = (
+  const nodes: WeakSet<IAutoMovieHumanFaceComponentTree.Node> = new WeakSet<IAutoMovieHumanFaceComponentTree.Node>(),
+    identities: Set<string> = new Set<string>();
+  const walk: (node: IAutoMovieHumanFaceComponentTree.Node, parents: readonly string[]) => IAutoMovieHumanFaceComponentTree.Node = (
     node: IAutoMovieHumanFaceComponentTree.Node,
     parents: readonly string[],
   ): IAutoMovieHumanFaceComponentTree.Node => {
@@ -73,10 +83,10 @@ export function createHumanFaceComponentTree(
       !Array.isArray(node.surfaces) ||
       !Array.isArray(node.documentFields) ||
       !Array.isArray(node.children) ||
-      node.channels.some((id) => typeof id !== "string" || id.trim() === "") ||
-      node.surfaces.some((id) => typeof id !== "string" || id.trim() === "") ||
+      node.channels.some((id: string): boolean  => typeof id !== "string" || id.trim() === "") ||
+      node.surfaces.some((id: string): boolean  => typeof id !== "string" || id.trim() === "") ||
       node.documentFields.some(
-        (field) => typeof field !== "string" || field.trim() === "",
+        (field: IAutoMovieHumanFaceComponentTree.DocumentField): boolean  => typeof field !== "string" || field.trim() === "",
       ) ||
       (node.channels.length === 0 &&
         node.surfaces.length === 0 &&
@@ -87,7 +97,7 @@ export function createHumanFaceComponentTree(
         "Facial component groups need distinct names, descriptions and members.",
       );
     identities.add(node.id);
-    const path = [...parents, node.label];
+    const path: string[] = [...parents, node.label];
     for (const id of node.channels) {
       if (!knownChannels.has(id) || channelPaths.has(id))
         throw new Error(
@@ -116,10 +126,10 @@ export function createHumanFaceComponentTree(
       channels: [...node.channels],
       surfaces: [...node.surfaces],
       documentFields: [...node.documentFields],
-      children: node.children.map((child) => walk(child, path)),
+      children: node.children.map((child: IAutoMovieHumanFaceComponentTree.Node): IAutoMovieHumanFaceComponentTree.Node  => walk(child, path)),
     };
   };
-  const root = walk(manifest.root, []);
+  const root: IAutoMovieHumanFaceComponentTree.Node = walk(manifest.root, []);
   for (const id of channelIds)
     if (!channelPaths.has(id))
       throw new Error("The facial component tree omits channel " + id);

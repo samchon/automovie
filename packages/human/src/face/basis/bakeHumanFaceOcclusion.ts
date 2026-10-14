@@ -1,37 +1,41 @@
-import { createAutoMovieMeshRayCaster } from "@automovie/engine";
-import type { IAutoMovieModel } from "@automovie/interface";
+import { createAutoMovieMeshRayCaster, type IAutoMovieMeshRayCaster as IAutoMovieMeshRayCasterImported } from "@automovie/engine";
+import type { IAutoMovieModel, IAutoMovieMesh as IAutoMovieMeshImported, IAutoMovieModelPart as IAutoMovieModelPartImported } from "@automovie/interface";
 
 import { encodePng } from "../../common/mesh/encodePng";
+import { readHumanLocalMeshWorld } from "../../common/mesh/readHumanLocalMeshWorld";
 import type { IHumanFaceOcclusionBakeOptions } from "./IHumanFaceOcclusionBakeOptions";
 import { humanFaceOcclusionOpaqueMaterials } from "./humanFaceOcclusionOpaqueMaterials";
 
+
+
+
 /** How far a ray starts off its surface along the normal, metres. */
-const LIFT = 0.00005;
+const LIFT: number = 0.00005;
 
 /**
  * Bake an evaluated model's ambient occlusion into one texture per material.
  *
- * The occluders are every mesh triangle of an opaque material (alpha mode
- * neither mask nor blend); the receivers are those of the opaque materials
- * all of whose meshes carry UVs (a texture binds every mesh of its material). From each receiving vertex, `rays` cosine-weighted
- * directions about its normal (a golden-angle spiral: the i-th at radius
- * sqrt((i + 1/2) / rays) and azimuth 2.39996 i) are cast from 0.05 mm off
- * the surface to the model's bounding diagonal; the share that meets no
- * occluder is the vertex's visibility, the share of a distant uniform
- * ambient light reaching it. Each material's triangles are rasterized over
- * its UVs into a `size` square texture, a texel's centre taking the
- * barycentric mix of its triangle's vertex visibilities; texels no triangle
- * covers take the mean of their filled neighbours for four rings, so the
- * values do not bleed at UV seams, and the rest stay at one. Values are
- * written as equal 8-bit R, G and B. A vertex without a normal is taken as
- * fully visible. The model is not changed. It refuses a ray count or size
- * that is not a positive integer.
+ * Opaque-material mesh triangles occlude; a material receives a texture only when all its opaque meshes have UVs. Each vertex casts cosine-weighted directions with radius sqrt((i+1/2)/rays) and azimuth 2.39996i from 0.05mm along its normal to the model's bounding diagonal. Unblocked fraction estimates distant uniform ambient visibility; missing or zero normals receive one. The native ray owner's stated grazing cutoff still applies.
+ *
+ * UV triangles interpolate vertex visibility at texel centres; overlapping triangles overwrite earlier values in mesh/triangle order. Four rings extend filled neighbours' mean into empty texels without island labels, so nearby islands can mix. Remaining texels stay at one. PNG channels are equal 8-bit grayscale and the model remains unchanged.
+ *
+ * Every participating mesh is read through readHumanLocalMeshWorld: local positions/normals round to their Float32 publication and ordinary part TRS restores the owning model's metre frame. The engine maps normals by inverse transpose, normalizes them and reverses reflected triangle winding while UVs retain vertex correspondence. Caster triangles, receiver points, normal lifts and the bounding diagonal use this same view; the model is unchanged.
+ *
+ * Alpha-mode-only classification treats a transmission-one cornea as an opaque occluder. Lift, spiral sampling and padding are authored numerical conventions; ray count and texture edge must be positive integers. Coordinate agreement supplies no GPU, matched before/after image or physical transparent-visibility verification.
+ *
+ * @evidence contracts/common.md#principled-implementation Local-Float32 publication plus ordinary TRS puts caster triangles and receiver positions/inverse-transpose normals in one model-metre frame before cosine-weighted hemisphere visibility and UV interpolation. Current static builder parts satisfy the shared transform's skin/placement/physical-correspondence admission; finite ray/texel sampling remains an approximation.
+ * @evidence contracts/common.md#clear-and-simple-design One native ray caster and spiral serve all receivers; material eligibility matches the cache classification, while PNG packing owns encoding and final material binding stays with the builder.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The 0.05mm lift, spiral, missing-normal visibility and four-ring padding remain conventions; islands can mix and finite sampling is approximate. Shared TRS admission refuses invalid placement rather than discarding it, alpha-mode classification still ignores corneal transmission, and no GPU or physical optical accuracy is certified.
+ * @evidence contracts/common.md#meaningful-documentation Prose gives alpha-mode eligibility, local Float32/TRS and normal/winding restoration, model-metre ray range/lift, unchanged UV correspondence, padding leakage, no-normal behavior, resolution admission and outstanding visual verification.
+ * @evidence contracts/performance.md#efficient-algorithms Publication/TRS reconstruction copies actual mesh attributes and reads physical correspondence; for T triangles/V receivers, R rays and M size-S textures, hierarchy construction costs O(T log squared T) and VR queries cost O(VRT) worst case. Raster work follows summed triangle pixel boxes, with M mesh filters and O(S squared) field/padding/byte work per texture plus PNG compression.
+ * @evidence contracts/performance.md#reuse-equivalent-work Each part's publication/TRS view is computed once and shared by caster assembly and receiver sampling. One caster, spiral and local ray buffers serve all vertices; per-mesh visibility is computed once, and the outer cache reuses images for equivalent geometry/alpha-mode population/resolution, not physical transmission or opacity.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Invocation-local mesh copies/hierarchy and per-texture arrays scale with T,V,R,S squared; returned M encoded strings belong to the caller. Options impose no separate byte budget, allocation can fail, and no external task/handle or model mutation exists.
  */
 export function bakeHumanFaceOcclusion(
   model: IAutoMovieModel,
   options: IHumanFaceOcclusionBakeOptions,
 ): Map<string, string> {
-  const { rays, size } = options;
+  const { rays, size }: IHumanFaceOcclusionBakeOptions = options;
   if (
     !Number.isInteger(rays) ||
     rays <= 0 ||
@@ -39,82 +43,82 @@ export function bakeHumanFaceOcclusion(
     size <= 0
   )
     throw new Error("Occlusion needs positive integer ray counts and sizes.");
-  const opaque = humanFaceOcclusionOpaqueMaterials(model);
-  const meshes = model.parts.flatMap((part) =>
+  const opaque: Set<string> = humanFaceOcclusionOpaqueMaterials(model);
+  const meshes: { material: string; mesh: IAutoMovieMeshImported; }[] = model.parts.flatMap((part: IAutoMovieModelPartImported): { material: string; mesh: IAutoMovieMeshImported; }[]  =>
     part.geometry.type === "mesh" &&
     part.material !== null &&
     opaque.has(part.material)
-      ? [{ material: part.material, mesh: part.geometry.mesh }]
+      ? [{ material: part.material, mesh: readHumanLocalMeshWorld(part.geometry.mesh, part.transform) }]
       : [],
   );
   const positions: number[] = [];
   const indices: number[] = [];
   for (const { mesh } of meshes) {
-    const offset = positions.length / 3;
+    const offset: number = positions.length / 3;
     // Pushed one by one: spreading a large mesh exceeds a browser's
     // argument limit.
     for (const value of mesh.positions) positions.push(value);
-    const own =
+    const own: number[] =
       mesh.indices ??
-      Array.from({ length: mesh.positions.length / 3 }, (_v, i) => i);
+      Array.from({ length: mesh.positions.length / 3 }, (_v: unknown, i: number): number  => i);
     for (const index of own) indices.push(offset + index);
   }
-  const caster = createAutoMovieMeshRayCaster({
+  const caster: IAutoMovieMeshRayCasterImported = createAutoMovieMeshRayCaster({
     positions,
     indices,
     normals: null,
     uvs: null,
     skin: null,
   });
-  const low = [Infinity, Infinity, Infinity];
-  const high = [-Infinity, -Infinity, -Infinity];
-  for (let i = 0; i < positions.length; i += 3)
-    for (let axis = 0; axis < 3; ++axis) {
+  const low: number[] = [Infinity, Infinity, Infinity];
+  const high: number[] = [-Infinity, -Infinity, -Infinity];
+  for (let i: number = 0; i < positions.length; i += 3)
+    for (let axis: number = 0; axis < 3; ++axis) {
       low[axis] = Math.min(low[axis], positions[i + axis]);
       high[axis] = Math.max(high[axis], positions[i + axis]);
     }
-  const reach = Math.hypot(...[0, 1, 2].map((axis) => high[axis] - low[axis]));
-  const spiral = Array.from({ length: rays }, (_v, i) => {
-    const radius = Math.sqrt((i + 0.5) / rays);
-    const azimuth = 2.39996 * i;
+  const reach: number = Math.hypot(...[0, 1, 2].map((axis: number): number  => high[axis] - low[axis]));
+  const spiral: number[][] = Array.from({ length: rays }, (_v: unknown, i: number): number[]  => {
+    const radius: number = Math.sqrt((i + 0.5) / rays);
+    const azimuth: number = 2.39996 * i;
     return [
       radius * Math.cos(azimuth),
       radius * Math.sin(azimuth),
       Math.sqrt(1 - radius * radius),
     ];
   });
-  const origin = [0, 0, 0];
-  const direction = [0, 0, 0];
-  const visibility = (
+  const origin: number[] = [0, 0, 0];
+  const direction: number[] = [0, 0, 0];
+  const visibility: (positions: readonly number[], normals: readonly number[] | null, vertex: number) => number = (
     positions: readonly number[],
     normals: readonly number[] | null,
     vertex: number,
   ): number => {
     if (normals === null) return 1;
-    let nx = normals[3 * vertex];
-    let ny = normals[3 * vertex + 1];
-    let nz = normals[3 * vertex + 2];
-    const length = Math.hypot(nx, ny, nz);
+    let nx: number = normals[3 * vertex];
+    let ny: number = normals[3 * vertex + 1];
+    let nz: number = normals[3 * vertex + 2];
+    const length: number = Math.hypot(nx, ny, nz);
     if (!(length > 0)) return 1;
     nx /= length;
     ny /= length;
     nz /= length;
     // A tangent frame: u across the normal from the less aligned axis.
-    const [sx, sy, sz] = Math.abs(nx) < 0.9 ? [1, 0, 0] : [0, 1, 0];
-    let ux = sy * nz - sz * ny;
-    let uy = sz * nx - sx * nz;
-    let uz = sx * ny - sy * nx;
-    const ul = Math.hypot(ux, uy, uz);
+    const [sx, sy, sz]: [number, number, number] = Math.abs(nx) < 0.9 ? [1, 0, 0] : [0, 1, 0];
+    let ux: number = sy * nz - sz * ny;
+    let uy: number = sz * nx - sx * nz;
+    let uz: number = sx * ny - sy * nx;
+    const ul: number = Math.hypot(ux, uy, uz);
     ux /= ul;
     uy /= ul;
     uz /= ul;
-    const vx = ny * uz - nz * uy;
-    const vy = nz * ux - nx * uz;
-    const vz = nx * uy - ny * ux;
+    const vx: number = ny * uz - nz * uy;
+    const vy: number = nz * ux - nx * uz;
+    const vz: number = nx * uy - ny * ux;
     origin[0] = positions[3 * vertex] + nx * LIFT;
     origin[1] = positions[3 * vertex + 1] + ny * LIFT;
     origin[2] = positions[3 * vertex + 2] + nz * LIFT;
-    let open = 0;
+    let open: number = 0;
     for (const [a, b, c] of spiral) {
       direction[0] = a * ux + b * vx + c * nx;
       direction[1] = a * uy + b * vy + c * ny;
@@ -123,61 +127,61 @@ export function bakeHumanFaceOcclusion(
     }
     return open / rays;
   };
-  const baked = new Map<string, string>();
-  const receivers = [...new Set(meshes.map((one) => one.material))];
+  const baked: Map<string, string> = new Map<string, string>();
+  const receivers: string[] = [...new Set(meshes.map((one: { material: string; mesh: IAutoMovieMeshImported; }): string  => one.material))];
   for (const material of receivers) {
     // A texture binds every mesh of its material, so a material any of whose
     // meshes lacks UVs receives none.
-    const own = meshes.filter((one) => one.material === material);
-    if (own.some((one) => one.mesh.uvs === null)) continue;
-    const field = new Float64Array(size * size).fill(-1);
+    const own: { material: string; mesh: IAutoMovieMeshImported; }[] = meshes.filter((one: { material: string; mesh: IAutoMovieMeshImported; }): boolean  => one.material === material);
+    if (own.some((one: { material: string; mesh: IAutoMovieMeshImported; }): boolean  => one.mesh.uvs === null)) continue;
+    const field: Float64Array<ArrayBuffer> = new Float64Array(size * size).fill(-1);
     for (const { mesh } of own) {
-      const count = mesh.positions.length / 3;
-      const seen = Array.from({ length: count }, (_v, vertex) =>
+      const count: number = mesh.positions.length / 3;
+      const seen: number[] = Array.from({ length: count }, (_v: unknown, vertex: number): number  =>
         visibility(mesh.positions, mesh.normals, vertex),
       );
-      const triangles =
-        mesh.indices ?? Array.from({ length: count }, (_v, i) => i);
-      const uvs = mesh.uvs!;
-      for (let i = 0; i < triangles.length; i += 3) {
-        const ids = [triangles[i], triangles[i + 1], triangles[i + 2]];
-        const corner = ids.map((vertex) => [
+      const triangles: number[] =
+        mesh.indices ?? Array.from({ length: count }, (_v: unknown, i: number): number  => i);
+      const uvs: number[] = mesh.uvs!;
+      for (let i: number = 0; i < triangles.length; i += 3) {
+        const ids: number[] = [triangles[i], triangles[i + 1], triangles[i + 2]];
+        const corner: number[][] = ids.map((vertex: number): number[]  => [
           uvs[2 * vertex] * size,
           (1 - uvs[2 * vertex + 1]) * size,
         ]);
-        const area =
+        const area: number =
           (corner[1][0] - corner[0][0]) * (corner[2][1] - corner[0][1]) -
           (corner[1][1] - corner[0][1]) * (corner[2][0] - corner[0][0]);
         if (area === 0) continue;
-        const x0 = Math.max(
+        const x0: number = Math.max(
           0,
-          Math.floor(Math.min(...corner.map((p) => p[0]))),
+          Math.floor(Math.min(...corner.map((p: number[]): number  => p[0]))),
         );
-        const x1 = Math.min(
+        const x1: number = Math.min(
           size - 1,
-          Math.ceil(Math.max(...corner.map((p) => p[0]))),
+          Math.ceil(Math.max(...corner.map((p: number[]): number  => p[0]))),
         );
-        const y0 = Math.max(
+        const y0: number = Math.max(
           0,
-          Math.floor(Math.min(...corner.map((p) => p[1]))),
+          Math.floor(Math.min(...corner.map((p: number[]): number  => p[1]))),
         );
-        const y1 = Math.min(
+        const y1: number = Math.min(
           size - 1,
-          Math.ceil(Math.max(...corner.map((p) => p[1]))),
+          Math.ceil(Math.max(...corner.map((p: number[]): number  => p[1]))),
         );
-        for (let y = y0; y <= y1; ++y)
-          for (let x = x0; x <= x1; ++x) {
-            const px = x + 0.5;
-            const py = y + 0.5;
-            const w0 =
+        for (let y: number = y0; y <= y1; ++y)
+          for (let x: number = x0; x <= x1; ++x) {
+            const px: number = x + 0.5;
+            const py: number = y + 0.5;
+            const w0: number =
               ((corner[1][0] - px) * (corner[2][1] - py) -
                 (corner[1][1] - py) * (corner[2][0] - px)) /
               area;
-            const w1 =
+            const w1: number =
               ((corner[2][0] - px) * (corner[0][1] - py) -
                 (corner[2][1] - py) * (corner[0][0] - px)) /
               area;
-            const w2 = 1 - w0 - w1;
+            const w2: number = 1 - w0 - w1;
             if (w0 < 0 || w1 < 0 || w2 < 0) continue;
             field[y * size + x] =
               w0 * seen[ids[0]] + w1 * seen[ids[1]] + w2 * seen[ids[2]];
@@ -187,9 +191,9 @@ export function bakeHumanFaceOcclusion(
     // Four rings of seam filling: each ring fills the empty texels beside a
     // filled one with their filled neighbours' mean.
     let frontier: number[] = [];
-    const empty = (texel: number) => field[texel] < 0;
-    const neighbours = (texel: number): number[] => {
-      const x = texel % size;
+    const empty: (texel: number) => boolean = (texel: number): boolean  => field[texel] < 0;
+    const neighbours: (texel: number) => number[] = (texel: number): number[] => {
+      const x: number = texel % size;
       const out: number[] = [];
       if (x > 0) out.push(texel - 1);
       if (x < size - 1) out.push(texel + 1);
@@ -197,9 +201,9 @@ export function bakeHumanFaceOcclusion(
       if (texel < size * (size - 1)) out.push(texel + size);
       return out;
     };
-    for (let texel = 0; texel < size * size; ++texel) {
+    for (let texel: number = 0; texel < size * size; ++texel) {
       if (!empty(texel)) continue;
-      const x = texel % size;
+      const x: number = texel % size;
       if (
         (x > 0 && !empty(texel - 1)) ||
         (x < size - 1 && !empty(texel + 1)) ||
@@ -208,10 +212,10 @@ export function bakeHumanFaceOcclusion(
       )
         frontier.push(texel);
     }
-    for (let ring = 0; ring < 4 && frontier.length > 0; ++ring) {
-      const values = frontier.map((texel) => {
-        let sum = 0;
-        let filled = 0;
+    for (let ring: number = 0; ring < 4 && frontier.length > 0; ++ring) {
+      const values: number[] = frontier.map((texel: number): number  => {
+        let sum: number = 0;
+        let filled: number = 0;
         for (const one of neighbours(texel))
           if (!empty(one)) {
             sum += field[one];
@@ -219,15 +223,15 @@ export function bakeHumanFaceOcclusion(
           }
         return sum / filled;
       });
-      frontier.forEach((texel, k) => (field[texel] = values[k]));
-      const next = new Set<number>();
+      frontier.forEach((texel: number, k: number): number  => (field[texel] = values[k]));
+      const next: Set<number> = new Set<number>();
       for (const texel of frontier)
         for (const one of neighbours(texel)) if (empty(one)) next.add(one);
       frontier = [...next];
     }
-    const rgba = new Uint8Array(4 * size * size);
-    for (let texel = 0; texel < size * size; ++texel) {
-      const value = Math.round(
+    const rgba: Uint8Array<ArrayBuffer> = new Uint8Array(4 * size * size);
+    for (let texel: number = 0; texel < size * size; ++texel) {
+      const value: number = Math.round(
         255 * (field[texel] < 0 ? 1 : Math.min(1, Math.max(0, field[texel]))),
       );
       rgba.set([value, value, value, 255], 4 * texel);

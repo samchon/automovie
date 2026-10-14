@@ -15,6 +15,14 @@ import { humanFaceRegions } from "./humanFaceRegions";
  * including free relief, section and hair-card guides. Source cards in the
  * separately named legacy hair-layer scalar transaction are the exception.
  * Geometry and complete schema admission still precede editor publication.
+ *
+ * @evidence contracts/common.md#principled-implementation Exact current basis id and region/side ownership select one cloned override; undefined removes that selection so existing inheritance resolves it. Immutable-detail admission prevents new source geometry arrays while later editor build owns complete schema/geometry acceptance.
+ * @evidence contracts/common.md#clear-and-simple-design One transaction updates either the common detail or admitted side profile; shared region and editable-population owners provide the rules instead of a second merge/resolution system.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Wrong basis revision or prohibited nonempty arrays refuse, and unrelated profiles remain untouched. No stale region is fitted to another basis or silently redirected to an opposite side; typed scalar/enum completeness is not checked here.
+ * @evidence contracts/common.md#meaningful-documentation Prose gives exact revision, one-profile ownership, undefined inheritance, immutable population restriction and later schema/geometry admission; returned document/value are cloned.
+ * @evidence contracts/performance.md#efficient-algorithms Whole document and incoming profile clone costs follow their actual populations, then editable admission traverses override/source guide data; changing one region is not constant overall.
+ * @evidence contracts/performance.md#reuse-equivalent-work The shared admission rules and source revision prevent divergent editor interpretation; each mutable transaction owns its copies rather than cached replacement success.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The new document retains owned arrays/objects; failed local clones become collectible and no model/history/resource is acquired here.
  */
 export function replaceHumanFaceRegion<
   K extends (typeof humanFaceRegions)[number],
@@ -36,17 +44,17 @@ export function replaceHumanFaceRegion<
     throw new Error(
       "Region replacement belongs to a different face basis revision.",
     );
-  const document = structuredClone(props.document);
-  const value = structuredClone(props.value);
+  const document: IAutoMovieHumanFaceDocument = structuredClone(props.document);
+  const value: typeof props.value = structuredClone(props.value);
   if (props.side !== undefined) {
-    const asymmetry = (document.asymmetry ??= {});
-    const selected = (asymmetry[props.side] ??= {});
+    const asymmetry: NonNullable<IAutoMovieHumanFaceDocument["asymmetry"]> = (document.asymmetry ??= {});
+    const selected: NonNullable<NonNullable<IAutoMovieHumanFaceDocument["asymmetry"]>["left"]> = (asymmetry[props.side] ??= {});
     // assertRegion restricts this owner to the three independently paired profiles.
     Object.assign(selected, { [props.region]: value });
     if (value === undefined)
       delete selected[props.region as "eye" | "ear" | "cheek"];
   } else {
-    const detail = (document.detail ??= {});
+    const detail: NonNullable<IAutoMovieHumanFaceDocument["detail"]> = (document.detail ??= {});
     Object.assign(detail, { [props.region]: value });
     if (value === undefined) delete detail[props.region];
   }

@@ -14,6 +14,14 @@ import { portraitTongueRows } from "./portraitTongueRows";
  * reads them back, so the two share one spacing.
  *
  * @author Samchon
+ *
+ * @evidence contracts/common.md#principled-implementation Cosine angle spacing maps ring ordinal to an anterior-zero/posterior-one station and concentrates samples near authored rounded poles.
+ * @evidence contracts/common.md#clear-and-simple-design The builder, vertex reader and arch gate share this spacing and portraitTongueRows.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Spacing is tessellation rather than measurement; the caller supplies admitted ring ordinals without subject-specific substitution.
+ * @evidence contracts/common.md#meaningful-documentation Prose gives equation, bounds, endpoint direction and builder/reader agreement.
+ * @evidence contracts/performance.md#efficient-algorithms One cosine and fixed arithmetic cost constant work without scanning rings.
+ * @evidence contracts/performance.md#reuse-equivalent-work Shared row count and spacing avoid separate layouts; a persistent scalar cache is unnecessary.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The returned number retains no mesh, task or external resource.
  */
-export const portraitTongueRingStation = (ring: number): number =>
+export const portraitTongueRingStation: (ring: number) => number = (ring: number): number =>
   (1 - Math.cos((Math.PI * ring) / portraitTongueRows)) / 2;

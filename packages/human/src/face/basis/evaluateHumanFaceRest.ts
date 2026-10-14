@@ -1,6 +1,8 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { IAutoMovieHumanFaceBasis } from "../structures/IAutoMovieHumanFaceBasis";
+import type { IAutoMovieHumanFaceBasisSurface as IAutoMovieHumanFaceBasisSurfaceImported } from "../../index";
+
 
 /**
  * Evaluate the rest layer of a facial basis: every endpoint row, on surfaces
@@ -21,6 +23,14 @@ import type { IAutoMovieHumanFaceBasis } from "../structures/IAutoMovieHumanFace
  * sparse payload coexist. Channels named in `except` are skipped, which is
  * how a contact basis holds its closure channel back for the aperture-scaled
  * pass; their correctives still activate on the raw weights.
+ *
+ * @evidence contracts/common.md#principled-implementation Basis-order signed endpoint selection accumulates absolute-weight sparse XYZ deltas, followed by positive corrective activations, into fresh surface and landmark copies. The builder supplies admitted connectivity and weights; identity-only landmark targets are an admission requirement, and except omits channels without suppressing their already computed correctives.
+ * @evidence contracts/common.md#clear-and-simple-design Shared accumulate/shape operations apply the same sparse-row representation to each surface and the landmark table; articulation and contact remain downstream rather than being mixed into this rest sum.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts An absent per-surface row contributes zero as the sparse contract permits, not a substituted endpoint. This affine rest layer adds authored residuals and is neither muscle mechanics nor a correction of unsupported combined poses.
+ * @evidence contracts/common.md#meaningful-documentation Prose gives accumulation order, signed side selection, landmark identity premise, except/corrective distinction and fresh-buffer ownership without changing basis arrays.
+ * @evidence contracts/performance.md#efficient-algorithms Copying costs the full V coordinate and L landmark populations; each surface visits C channels and A activations and reads their resident sparse rows. Cost is O(V+L+S(C+A)+R) for S surfaces and R visited row scalars, with no dense target expansion.
+ * @evidence contracts/performance.md#reuse-equivalent-work One shared sparse accumulator serves surfaces and landmarks, and already computed activation values are consumed rather than recomputed. Each changed state needs new sums; the outer pose cache owns reuse of completed evaluations.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The caller receives fresh coordinate arrays and a named landmark object; local closures retain nothing after return. Allocation follows the admitted source population, with no rest history or external task.
  */
 export function evaluateHumanFaceRest(
   basis: IAutoMovieHumanFaceBasis,
@@ -30,24 +40,24 @@ export function evaluateHumanFaceRest(
   },
   except: ReadonlySet<string> = new Set(),
 ): { surfaces: number[][]; landmarks: Record<string, IAutoMovieVector3> } {
-  const accumulate = (
+  const accumulate: (positions: number[], targets: Record<string, number[]>, name: string, gain: number) => void = (
     positions: number[],
     targets: Record<string, number[]>,
     name: string,
     gain: number,
   ): void => {
-    const rows = targets[name];
+    const rows: number[] = targets[name];
     if (rows === undefined) return;
-    for (let i = 0; i < rows.length; i += 4)
-      for (let axis = 0; axis < 3; axis++)
+    for (let i: number = 0; i < rows.length; i += 4)
+      for (let axis: number = 0; axis < 3; axis++)
         positions[rows[i] * 3 + axis] += gain * rows[i + axis + 1];
   };
-  const shape = (
+  const shape: (positions: number[], targets: Record<string, number[]>) => void = (
     positions: number[],
     targets: Record<string, number[]>,
   ): void => {
     for (const channel of basis.channels) {
-      const weight = state.weights.get(channel.id) ?? 0;
+      const weight: number = state.weights.get(channel.id) ?? 0;
       if (weight === 0 || except.has(channel.id)) continue;
       accumulate(
         positions,
@@ -65,16 +75,16 @@ export function evaluateHumanFaceRest(
           corrective.activation,
         );
   };
-  const surfaces = basis.surfaces.map((surface) => {
-    const positions = surface.positions.slice();
+  const surfaces: number[][] = basis.surfaces.map((surface: IAutoMovieHumanFaceBasisSurfaceImported): number[]  => {
+    const positions: number[] = surface.positions.slice();
     shape(positions, surface.targets);
     return positions;
   });
   const landmarks: Record<string, IAutoMovieVector3> = {};
   if (basis.landmarks !== undefined) {
-    const marks = basis.landmarks.positions.slice();
+    const marks: number[] = basis.landmarks.positions.slice();
     shape(marks, basis.landmarks.targets);
-    basis.landmarks.ids.forEach((id, i) => {
+    basis.landmarks.ids.forEach((id: string, i: number): void  => {
       landmarks[id] = {
         x: marks[i * 3],
         y: marks[i * 3 + 1],

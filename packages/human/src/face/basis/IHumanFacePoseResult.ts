@@ -10,6 +10,14 @@ import type { IAutoMovieHumanFaceRigidMotion } from "../structures/IAutoMovieHum
  * Generated optics are retained beside their posed skin so drawing never
  * rebuilds the collider or its placement from a later appearance edit.
  *
+ * @evidence contracts/common.md#principled-implementation The pose evaluator emits same-state final native positions/normals, original check closures and generated optical/oral/tissue correspondence together with contact observations.
+ * @evidence contracts/common.md#clear-and-simple-design One immutable-consumer result keeps exact geometry beside the source/jaw/reference state used by generated finish composition and final admission.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Retained checks still execute after complete model construction; pose completion or report-only summary alone certifies no final anatomy, crossings or real GPU rendering.
+ * @evidence contracts/common.md#meaningful-documentation Members distinguish final performed buffers, optional contact/reference/assemblies and exact source jaw ownership.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms This result evaluates nothing; the pose and assembly owners carry their costs.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work The type schedules no work; immutable consumers/cache reuse the exact completed geometry without rebuilding colliders from appearance edits.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The type acquires no handle; retained arrays, assemblies and original check closures live with the pose/cache owner.
+ *
  * @author Samchon
  */
 export interface IHumanFacePoseResult {
