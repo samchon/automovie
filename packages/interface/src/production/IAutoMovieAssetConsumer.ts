@@ -2,9 +2,9 @@ import { IAutoMovieMotionAdoptionConsumer } from "./IAutoMovieMotionAdoptionCons
 import { IAutoMovieMotionResourceConsumer } from "./IAutoMovieMotionResourceConsumer";
 
 /**
- * Addressable production consumer that justifies one asset-ledger use. Inventory validation resolves the kind and id against current production records.
+ * Typed production consumer address for one asset-ledger use. Graph-owned and compiled-only kinds resolve at different stages.
  *
- * @evidence contracts/common.md#principled-implementation A kind and stable address identify the record that consumes exact asset bytes; inventory validation resolves each typed consumer instead of accepting a free-form reason as proof of live usage.
+ * @evidence contracts/common.md#principled-implementation Graph/ledger checks resolve recipe, resource, proxy, motion-adoption and rendition shot addresses; audio, design-reference, material-texture and scene-environment kinds defer to later reverse gates. Active use uniqueness keys kind plus id: texture/model-resource/model-proxy/motion-resource may span multiple assets, while other kinds are exclusive within this inventory.
  * @evidence contracts/common.md#clear-and-simple-design The union reuses motion resource and adoption consumer records and otherwise pairs one kind with its natural identity; texture and design-reference comments explain why ownership belongs to a model or observation document.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts One shared texture need not invent per-slot uses, and a reference image's ledger use never turns it into built geometry; absent consumers are refused rather than retained as imaginary byte ownership.
  * @evidence contracts/common.md#meaningful-documentation Names every supported consumer and the exact identity it addresses, including hero-resource ownership, model-scoped texture use and observation-document design-reference use.
