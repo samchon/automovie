@@ -3,7 +3,10 @@ import type { IAutoMovieDiagnosticCatalogEntry } from "./IAutoMovieDiagnosticCat
 
 /**
  * Resolve one diagnostic code without changing project or catalog state.
+ *
  * The exact indexed entry is returned for a known code, or null for any other string.
+ *
+ * Its README.md#canonical-command-routes locator does not resolve in the current repository README; lookup returns the guidance text without opening or validating that legacy address.
  *
  * Aliases the owner's exact lookup function over its initialized Map; the cast for Map access changes no string and unknown keys return null rather than synthesizing an entry.
  *

@@ -17,7 +17,7 @@ const CATALOG_REVISION: number = 3;
  * @author Samchon
  */
 interface IDiagnosticFamilyContract {
-  /** Documentation address returned without opening the document. */
+  /** Declared legacy documentation address; construction does not resolve the file or anchor. */
   path: IAutoMovieDiagnosticReference["path"];
 
   /** Required behavior described to the caller; lookup performs no validation. */
@@ -378,6 +378,8 @@ const DIAGNOSTIC_CATALOG_BY_CODE: Map<AutoMovieDiagnosticCode, Readonly<IAutoMov
  * The revision and overrides are catalog contracts, not fixture exceptions. Lookup changes no source, replaces no foreign method and executes no returned recovery guidance.
  *
  * Callers receive frozen entries and references, the same ordered list, or null for an unknown code. The typed registry remains mutable at runtime and is observed only during initialization.
+ *
+ * The guidance records retain README.md#canonical-command-routes, but the current repository README has no such heading. Use the returned invariant, correction and recheck text; this locator does not prove that a shipped explanation can be opened.
  *
  * For C codes with total text length L, initialization traverses C twice and retains O(C + L) catalog/index data. List is constant work; find uses Map lookup with string-key processing, without a worst-case constant-time claim.
  *

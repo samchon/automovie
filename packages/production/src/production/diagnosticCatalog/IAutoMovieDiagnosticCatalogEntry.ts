@@ -19,7 +19,7 @@ export interface IAutoMovieDiagnosticCatalogEntry {
   readonly code: AutoMovieDiagnosticCode;
 
   /**
-   * Stable, versioned behavioral-reference identity and document anchor.
+   * Versioned reference identity and declared locator; the producer's legacy README anchor currently does not resolve, so this field is not proof of an available document.
    */
   readonly reference: Readonly<IAutoMovieDiagnosticReference>;
 

@@ -6,6 +6,8 @@ import type { IAutoMovieDiagnosticCatalogEntry } from "./IAutoMovieDiagnosticCat
  *
  * The returned array, entries and references are frozen; guidance describes caller-owned corrections without performing them.
  *
+ * The reference locator retains README.md#canonical-command-routes, whose heading is absent from the current repository README; the returned guidance text is available without resolving that legacy address.
+ *
  * Aliases the owner's exact list function, returning entries constructed once in maintained code order from code overrides or exhaustive typed family guidance. Runtime registry mutation after construction is not observed.
  *
  * This public binding exposes the canonical owner without a second constructor, cache or invocation wrapper.

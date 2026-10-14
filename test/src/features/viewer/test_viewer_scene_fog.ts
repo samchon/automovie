@@ -1,6 +1,7 @@
 import { sceneFogTransmittance } from "@automovie/engine";
 import { IAutoMovieFog, IAutoMovieScene } from "@automovie/interface";
 import {
+  type IAutoMovieModelObject,
   applyRenderMode,
   applySceneFog,
   buildModel,
@@ -17,7 +18,7 @@ const FOG: IAutoMovieFog = {
   color: { r: 0.25, g: 0.5, b: 0.75, a: null, hex: null },
 };
 
-const sceneOf = (fog: IAutoMovieScene["fog"]) =>
+const sceneOf: (fog: IAutoMovieScene["fog"]) => THREE.Scene<THREE.Object3DEventMap> = (fog: IAutoMovieScene["fog"]): THREE.Scene<THREE.Object3DEventMap> =>
   buildScene(
     {
       id: "scene-1",
@@ -35,74 +36,52 @@ const sceneOf = (fog: IAutoMovieScene["fog"]) =>
       lights: [],
       fog,
     },
-    () => buildModel({ ...createModel(), id: "model-a" }),
+    (): IAutoMovieModelObject => buildModel({ ...createModel(), id: "model-a" }),
   ).scene;
 
-/** The exact expression `three.js` evaluates per fragment under `FOG_EXP2`. */
-const shaderTransmittance = (fog: THREE.FogExp2, depth: number): number =>
+/** JavaScript transcription of the squared-depth fog expression; this computes binary64 values rather than shader fragments. */
+const shaderTransmittance: (fog: THREE.FogExp2, depth: number) => number = (fog: THREE.FogExp2, depth: number): number =>
   1 - (1 - Math.exp(-fog.density * fog.density * depth * depth));
 
 /**
- * Scene fog (`IAutoMovieScene.fog`): the depth cue an exterior needs, declared
- * once and read the same way by everything that reads it.
+ * Scene fog constructs and clears the expected Three object, shares the engine's squared-depth prediction and restores atmosphere across guide modes.
  *
- * Before this the only way to suggest distance was to spend the particle budget
- * on alpha billboards standing in for haze, capped at 4,096 per recipe: on open
- * ground every surface read at the same remove, because nothing in the scene
- * said how far anything was. Fog costs no particles, applies to every drawn
- * surface, and is one declaration for the whole scene.
+ * These are CPU object and numerical observations. The test starts no GPU renderer and cannot establish native fragment values, frame bytes or cross-platform pixel identity.
  *
- * The law is exactly the renderer's own, `T(d) = exp(-(density*d)^2)`, so the
- * number an offline consumer computes IS the number the GPU painted rather than
- * an approximation of it. This test holds the two together from both ends: the
- * viewer's built `FogExp2` and the engine's `sceneFogTransmittance` must agree
- * at every depth, and the shader's own expression, written out here from
- * `fog_fragment.glsl`, must agree with both.
+ * The sampled law is T(d)=exp(-(density*d)^2). A JavaScript transcription using the constructed density is compared with engine predictions at the selected depths within 1e-12; matching that shared law is distinct from observing shader arithmetic or pixels.
  *
  * Scenarios:
  *
- * 1. Absent is absent, and absent clears: a scene that says nothing about fog, and
- *    one that says `null`, both leave `scene.fog` unset, which is `three.js`'s
- *    own no-fog and therefore byte-identical to every frame rendered before the
- *    field existed — and a scene ALREADY carrying an atmosphere loses it, which
- *    is the half a fresh scene cannot show, since it constructs with no fog
- *    whether the call runs or not. The engine agrees, returning a transmittance
- *    of exactly one.
- * 2. A declared fog reaches the renderer verbatim: the density is the authored
- *    number and the color is the authored linear triple, unconverted.
- * 3. Viewer and engine derive the same value from the same declaration, at every
- *    depth and to the shader's own formula; the half-visibility distance is
- *    where `IAutoMovieFog` says it is, and twice that distance is where the
- *    SQUARED exponent puts it rather than where a plain Beer-Lambert falloff
- *    would.
- * 4. Distance is what fog reads: a subject twice as far keeps less of itself,
- *    monotonically, and is all but gone across the far plane.
- * 5. Structural guide passes suspend it and put it back: a mask must not tint its
- *    palette with distance, and the beauty pass, which IS the film, keeps it.
+ * 1. Absence and null leave a fresh scene without fog and clear an existing fog object. The engine returns unit transmittance; no historical rendered bytes are compared.
+ * 2. Native fog state preserves the authored density and linear color triple.
+ * 3. Engine prediction and the JavaScript expression agree at the selected depths; half-transmittance and twice that depth distinguish the squared law from a linear Beer-Lambert exponent.
+ * 4. Predicted transmittance decreases across the selected increasing depths, including the far sample.
+ * 5. Structural modes suspend and restore fog, while beauty retains the same native fog object; palette pixels are not measured.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Builds/clears real FogExp2 scene values, evaluates Engine transmittance and applies/restores guide modes; catches retained absent fog, altered density/color and atmosphere left suspended after a structural pass.
+ * @evidence contracts/testing.md#independent-expectations The squared-depth law gives unit transmission at zero, half at sqrt(ln2)/density and one sixteenth at twice that depth; a JavaScript transcription is explicitly a shared-law comparison, not shader arithmetic or pixel proof.
+ * @evidence contracts/testing.md#distinguishing-cases Covers omission/null clearing an existing object, selected depths, monotonic distant decay and mask-versus-beauty state identity; malformed fog admission and actual GPU appearance belong elsewhere.
+ * @evidence contracts/testing.md#execution-ownership This named portable unit calls maintained Engine/Viewer source and existing generic scene fixtures with CPU-side fog objects, restores pass state and starts no browser, renderer, worker or process.
  */
-export const test_viewer_scene_fog = (): void => {
-  // 1. absent is absent, and absent CLEARS.
+export function test_viewer_scene_fog(): void {
+  // 1. Absence clears an existing fog object.
   //
-  // A fresh `THREE.Scene` already constructs with `fog` of null, so building
-  // one and reading null back says nothing about the call that put it there.
-  // What the field's absence has to mean is that a scene ALREADY carrying an
-  // atmosphere loses it, which is the case a host hits when it re-applies a
-  // film's declaration to a page it is reusing.
-  const clearedByNull = sceneOf(FOG);
-  const carriedFogFirst = clearedByNull.fog !== null;
+  // Clearing a previously fogged scene distinguishes active removal from reading a fresh Scene's default null field.
+  const clearedByNull: THREE.Scene<THREE.Object3DEventMap> = sceneOf(FOG);
+  const carriedFogFirst: boolean = clearedByNull.fog !== null;
   applySceneFog(clearedByNull, null);
-  const clearedByAbsence = sceneOf(FOG);
+  const clearedByAbsence: THREE.Scene<THREE.Object3DEventMap> = sceneOf(FOG);
   applySceneFog(clearedByAbsence, undefined);
   TestValidator.equals(
     "a scene declaring no fog builds no fog, clears one already standing, and reads as fully transmissive",
     namedFacts([
-      ["undeclared", () => sceneOf(undefined).fog === null],
-      ["explicitNull", () => sceneOf(null).fog === null],
-      ["aBuiltFogWasReallyThere", () => carriedFogFirst],
-      ["nullClearsAStandingFog", () => clearedByNull.fog === null],
-      ["absenceClearsItToo", () => clearedByAbsence.fog === null],
-      ["engineUndefined", () => sceneFogTransmittance(undefined, 250) === 1],
-      ["engineNull", () => sceneFogTransmittance(null, 250) === 1],
+      ["undeclared", (): boolean => sceneOf(undefined).fog === null],
+      ["explicitNull", (): boolean => sceneOf(null).fog === null],
+      ["aBuiltFogWasReallyThere", (): boolean => carriedFogFirst],
+      ["nullClearsAStandingFog", (): boolean => clearedByNull.fog === null],
+      ["absenceClearsItToo", (): boolean => clearedByAbsence.fog === null],
+      ["engineUndefined", (): boolean => nclose(sceneFogTransmittance(undefined, 250), 1, 0)],
+      ["engineNull", (): boolean => nclose(sceneFogTransmittance(null, 250), 1, 0)],
     ]),
     {
       undeclared: true,
@@ -115,30 +94,30 @@ export const test_viewer_scene_fog = (): void => {
     },
   );
 
-  // 2. a declared fog reaches the renderer verbatim.
-  const built = sceneOf(FOG).fog;
+  // 2. Declared fog values reach the native scene object.
+  const built: THREE.Fog | THREE.FogExp2 | null = sceneOf(FOG).fog;
   if (!(built instanceof THREE.FogExp2))
     throw new Error("a declared fog must build an exponential fog");
   TestValidator.equals(
     "the built fog carries the authored density and linear color unconverted",
     namedFacts([
-      ["density", () => built.density === FOG.density],
-      ["red", () => nclose(built.color.r, FOG.color.r, 1e-6)],
-      ["green", () => nclose(built.color.g, FOG.color.g, 1e-6)],
-      ["blue", () => nclose(built.color.b, FOG.color.b, 1e-6)],
+      ["density", (): boolean => nclose(built.density, FOG.density, 0)],
+      ["red", (): boolean => nclose(built.color.r, FOG.color.r, 1e-6)],
+      ["green", (): boolean => nclose(built.color.g, FOG.color.g, 1e-6)],
+      ["blue", (): boolean => nclose(built.color.b, FOG.color.b, 1e-6)],
     ]),
     { density: true, red: true, green: true, blue: true },
   );
 
-  // 3. one law, three readers.
-  const depths = [0, 1, 5, 20, 83.26, 250];
+  // 3. The Engine result agrees with the shared-law JavaScript reference and authored geometric values.
+  const depths: number[] = [0, 1, 5, 20, 83.26, 250];
   TestValidator.equals(
-    "viewer, engine and shader agree at every depth",
+    "Engine and the JavaScript squared-depth reference agree at selected depths",
     namedFacts([
       [
         "engineMatchesShader",
-        () =>
-          depths.every((depth) =>
+        (): boolean =>
+          depths.every((depth: number): boolean =>
             nclose(
               sceneFogTransmittance(FOG, depth),
               shaderTransmittance(built, depth),
@@ -146,24 +125,20 @@ export const test_viewer_scene_fog = (): void => {
             ),
           ),
       ],
-      ["atTheLens", () => sceneFogTransmittance(FOG, 0) === 1],
+      ["atTheLens", (): boolean => nclose(sceneFogTransmittance(FOG, 0), 1, 0)],
       [
         "halfVisibility",
-        () =>
+        (): boolean =>
           nclose(
             sceneFogTransmittance(FOG, Math.sqrt(Math.LN2) / FOG.density),
             0.5,
             1e-12,
           ),
       ],
-      // The exponent is SQUARED, so doubling the half-visibility distance
-      // quarters the exponent's own depth and leaves a sixteenth. Plain
-      // Beer-Lambert would leave `exp(-2*sqrt(ln2))`, about 0.189: a second
-      // distance is what separates the two laws, since either one can be made
-      // to agree at a single one.
+      // Doubling sqrt(ln2)/density quadruples the squared exponent and leaves one sixteenth, distinguishing the law from an unsquared exponent.
       [
         "squaredRatherThanLinear",
-        () =>
+        (): boolean =>
           nclose(
             sceneFogTransmittance(FOG, (2 * Math.sqrt(Math.LN2)) / FOG.density),
             1 / 16,
@@ -185,34 +160,34 @@ export const test_viewer_scene_fog = (): void => {
     namedFacts([
       [
         "monotone",
-        () =>
+        (): boolean =>
           depths.every(
-            (depth, index) =>
+            (depth: number, index: number): boolean =>
               index === 0 ||
               sceneFogTransmittance(FOG, depth) <
                 sceneFogTransmittance(FOG, depths[index - 1]!),
           ),
       ],
-      ["nearlyGoneFarOff", () => sceneFogTransmittance(FOG, 250) < 0.01],
+      ["nearlyGoneFarOff", (): boolean => sceneFogTransmittance(FOG, 250) < 0.01],
     ]),
     { monotone: true, nearlyGoneFarOff: true },
   );
 
   // 5. structural passes suspend it; the beauty pass keeps it.
-  const scene = sceneOf(FOG);
-  const declared = scene.fog;
-  const mask = applyRenderMode(scene, "mask");
-  const suspended = scene.fog;
+  const scene: THREE.Scene<THREE.Object3DEventMap> = sceneOf(FOG);
+  const declared: THREE.Fog | THREE.FogExp2 | null = scene.fog;
+  const mask: ReturnType<typeof applyRenderMode> = applyRenderMode(scene, "mask");
+  const suspended: THREE.Fog | THREE.FogExp2 | null = scene.fog;
   mask.restore();
-  const beauty = applyRenderMode(scene, "beauty");
-  const duringBeauty = scene.fog;
+  const beauty: ReturnType<typeof applyRenderMode> = applyRenderMode(scene, "beauty");
+  const duringBeauty: THREE.Fog | THREE.FogExp2 | null = scene.fog;
   beauty.restore();
   TestValidator.equals(
     "a structural pass drops the atmosphere and restores the same object",
     namedFacts([
-      ["suspendedDuringMask", () => suspended === null],
-      ["restoredAfterMask", () => scene.fog === declared],
-      ["keptDuringBeauty", () => duringBeauty === declared],
+      ["suspendedDuringMask", (): boolean => suspended === null],
+      ["restoredAfterMask", (): boolean => scene.fog === declared],
+      ["keptDuringBeauty", (): boolean => duringBeauty === declared],
     ]),
     {
       suspendedDuringMask: true,
@@ -220,4 +195,4 @@ export const test_viewer_scene_fog = (): void => {
       keptDuringBeauty: true,
     },
   );
-};
+}
