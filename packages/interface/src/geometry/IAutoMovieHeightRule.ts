@@ -1,24 +1,14 @@
 /**
  * How high the ground is, as a rule rather than a mesh.
  *
- * One declaration serves the two records that ask the question: the production
- * world's terrain (`IAutoMovieWorldSurface.height`), which a crowd is placed
- * on, and the scene's standable patch (`IAutoMovieSurface.height`), which a
- * performer stands and foot-plants on. Both are read by the engine's
- * `surfaceHeightAt`, so a crowd member and the figure beside it cannot stand on
- * two different grounds.
+ * Production terrain (IAutoMovieWorldSurface.height) and scene patches (IAutoMovieSurface.height) share this rule and the engine's surfaceHeightAt evaluator. Their authored records and footprint membership still determine which surface a crowd member or performer queries.
  *
- * Every kind is pure arithmetic over its own stored numbers, so the same rule
- * answers the same height on every machine and run. The rule ignores the
- * footprint; the record that carries it says where the surface exists.
- * `validateSpace` checks a scene patch's rule and `validateProductionDesign` a
- * world surface's, each requiring finite numbers, positive lattice pitch, at
- * least two lattice lines per axis, and exactly `columns * rows` samples.
+ * Every kind uses stored numbers through surfaceHeightAt. It ignores footprint membership, which the containing surface owns. Scene and production validation check finite fields, positive lattice pitch, at least two lines per axis and exact sample count; finite inputs alone do not prevent overflow in coordinate conversion, differences or interpolation.
  *
- * @evidence contracts/common.md#principled-implementation `surfaceHeightAt` returns `value` for `constant`, evaluates `originHeight + slopeX * x + slopeZ * z` for `plane`, and interpolates bilinearly within the clamped lattice cell for `heightfield`, which is continuous across cells and reproduces each sample at its own lattice point.
+ * @evidence contracts/common.md#principled-implementation surfaceHeightAt returns a constant, evaluates the authored plane or uses edge-clamped bilinear lattice interpolation. Continuity and sample reproduction describe the admitted mathematical rule; binary64 overflow, rounding and malformed-grid fallback remain numerical limits rather than universally exact output guarantees.
  * @evidence contracts/common.md#clear-and-simple-design Three kinds in one discriminated union, from one number to a sampled lattice, cover level, tilted and relief ground without a mesh, and both the world terrain and the scene patch cite this one type instead of spelling their own.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A query off the lattice clamps to the edge samples rather than extrapolating relief nobody authored; the remaining gap is that the engine and production packages each keep their own copy of the validity checks, so the two refusals can drift.
- * @evidence contracts/common.md#meaningful-documentation States which records carry the rule, the one evaluating function, determinism, that the footprint is ignored, which validators refuse what, and per kind the formula, units, lattice layout, clamping and interpolation.
+ * @evidence contracts/common.md#meaningful-documentation Defines containing surfaces, the shared evaluator, separate footprint membership, validator domains, formulas, metre units, row-major lattice layout, clamping and derived-arithmetic limits.
  * @author Samchon
  */
 export type IAutoMovieHeightRule =
@@ -46,21 +36,11 @@ export type IAutoMovieHeightRule =
       /**
        * Sampled relief: a regular XZ grid of heights over the surface.
        *
-       * `constant` is one number and `plane` is a single tilt, so neither can
-       * express a hill, a terraced square, a riverbank, or a stepped approach.
-       * This is the smallest rule that can, costing `columns * rows` numbers
-       * rather than a mesh.
+       * Constant and plane rules cannot represent varying relief, while this spelling stores columns * rows height values without a mesh.
        *
-       * The grid is a sampling lattice, not an extent: the footprint still says
-       * where the surface exists. A query outside the lattice clamps to the
-       * nearest edge sample rather than extrapolating, so a lattice that covers
-       * its footprint never reaches the clamp.
+       * The grid is a sampling lattice whose containing surface separately declares its footprint. Queries outside the lattice clamp to its edge rather than extrapolating; the authored lattice must cover the footprint to avoid edge clamping within that surface.
        *
-       * Between samples the height is bilinear over the four surrounding
-       * samples, continuous across cell boundaries and exact at each lattice
-       * point. Nothing is sampled from an image, a noise function, or a seed
-       * here; a generator that wants relief bakes its samples into this array,
-       * as `worldHeightfield` does.
+       * Between samples the mathematical rule is bilinear over four surrounding values, continuous across cell boundaries and reproducing lattice samples. The implementation uses binary64 arithmetic without finite-result admission, so extreme finite differences can overflow even at a lattice point. Generators bake their values into this array rather than the rule sampling an image, noise function or seed.
        */
       kind: "heightfield";
 
@@ -83,8 +63,7 @@ export type IAutoMovieHeightRule =
       rows: number;
 
       /**
-       * Finite sample heights in meters, row-major: index
-       * `row * columns + column`. Exactly `columns * rows` entries.
+       * Finite sample heights in metres, row-major at row * columns + column, with exactly columns * rows entries.
        */
       samples: number[];
     };

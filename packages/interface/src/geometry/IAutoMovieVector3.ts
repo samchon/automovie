@@ -1,12 +1,7 @@
 /**
- * A 3D vector in automovie space: right-handed and y-up, as in glTF 2.0 and VRM
- * 1.0.
+ * A 3D vector in automovie's right-handed, y-up frame, as in glTF 2.0 and VRM 1.0.
  *
- * The same shape carries positions and translations in meters, unitless
- * directions such as axes and normals, and per-axis factors such as a scale.
- * The field that holds it states which, along with any range; the type itself
- * imposes none, so finiteness and length are checked by the validator of the
- * owning record.
+ * The same shape carries metre positions/translations, unitless directions and per-axis factors such as scale. The containing field states its meaning and required range; this type enforces neither finiteness nor length, which remain the owning record's admission responsibility.
  *
  * @evidence contracts/common.md#principled-implementation Three Cartesian components in the right-handed y-up frame glTF and `three.js` use, so engine values pass to the viewer and to imported clips without an axis swap or handedness flip.
  * @evidence contracts/common.md#clear-and-simple-design One plain three-number record serves points, directions and scale factors, with meaning stated at each field rather than split into nominal point and direction types that interface's no-wrapper rule forbids.

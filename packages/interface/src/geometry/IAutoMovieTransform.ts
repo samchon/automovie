@@ -2,27 +2,16 @@ import { IAutoMovieQuaternion } from "./IAutoMovieQuaternion";
 import { IAutoMovieVector3 } from "./IAutoMovieVector3";
 
 /**
- * A TRS (translate, rotate, scale) transform placing something in its parent's
- * space.
+ * A translation, rotation and scale transform placing something in its parent's space.
  *
- * A local point is scaled, then rotated, then translated: `Matrix4.compose`
- * builds `T · R · S` with the same arithmetic as `three.js`, and glTF node
- * transforms use the same order, so the engine and viewer agree bit for bit.
- * Scene nodes, cameras, lights, bones, model parts, attachments, and a pose's
- * root all carry one. Joint articulation does not; it uses semantic angles
- * ({@link IAutoMovieJointPose}), because a TRS per joint would ask the model for
- * quaternions.
+ * A local point is scaled, then rotated, then translated. Matrix4.compose builds T · R · S in the glTF/three.js convention; nodes, cameras, lights, bones, model parts, attachments and a pose's root carry this record. Joint articulation instead uses semantic angles through {@link IAutoMovieJointPose}.
  *
- * `validateTransformScalars`, which the model, pose, affordance, and building
- * validators call, refuses a non-finite component, a rotation whose length is
- * more than `1e-6` from 1, and a scale component at or below zero; the
- * production scene artifact check applies the same rules to scene nodes,
- * cameras, and lights.
+ * validateTransformScalars, used by model, pose, affordance, building and scene-artifact admission, refuses nonfinite components, a quaternion norm more than 1e-6 from one and nonpositive scale components without repairing the record. These scalar checks do not guarantee finite derived products, a representable inverse or an exactly decomposable hierarchy: rotating a child under nonuniform parent scale can introduce shear.
  *
- * @evidence contracts/common.md#principled-implementation The affine composition `T · R · S` with a unit quaternion and per-axis positive scale, matching glTF node semantics; positive scale keeps the matrix invertible and orientation-preserving, which `Matrix4.decompose` relies on to recover the three parts.
+ * @evidence contracts/common.md#principled-implementation T · R · S with a unit quaternion and positive axis scales is mathematically invertible and orientation-preserving. Runtime validation admits near-unit rotations within 1e-6 rather than proving exact orthogonality, and binary64 underflow/overflow and sheared hierarchy products remain consumers' numerical and representation limits.
  * @evidence contracts/common.md#clear-and-simple-design Three named parts instead of a 4x4 matrix keep each part checkable on its own and decomposable without numerical fitting, and one shape serves every placed record so a single validator covers them all.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No shear, mirror or zero scale is representable through validation, so no consumer needs a fallback for a singular or reflected frame; the type carries no parent id, leaving the hierarchy to the record that owns it.
- * @evidence contracts/common.md#meaningful-documentation States the application order and the matrix it builds, which records carry a transform and why joints do not, and which validators refuse which values; members give units, the rotation's representation, and the identity scale.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The admitted local record has no explicit shear, reflection or collapsed-scale field; this does not certify an arbitrary composed matrix as unsheared or numerically nonsingular. The owning record supplies parent identity and consumers retain their documented matrix/decomposition limits.
+ * @evidence contracts/common.md#meaningful-documentation States application order, record owners, semantic joint distinction, unchanged scalar admission and derived-product/hierarchy limitations; members give metre translation, quaternion rotation and dimensionless scale.
  * @author Samchon
  */
 export interface IAutoMovieTransform {
@@ -30,14 +19,12 @@ export interface IAutoMovieTransform {
   translation: IAutoMovieVector3;
 
   /**
-   * Rotation as a unit quaternion. For character joints the engine derives it
-   * from semantic angles rather than asking the model for it.
+   * Rotation as a unit quaternion; transform validation admits a 1e-6 norm tolerance without normalization. Character joint rotation is derived from semantic angles.
    */
   rotation: IAutoMovieQuaternion;
 
   /**
-   * Per-axis scale factor, dimensionless with `1` as identity; uniform scale is
-   * `{ x: s, y: s, z: s }`. Every component must be greater than zero.
+   * Per-axis scale factor, dimensionless with 1 as identity; uniform scale is { x: s, y: s, z: s }. Admitted components are finite and strictly positive, without a bound on derived-product magnitude.
    */
   scale: IAutoMovieVector3;
 }
