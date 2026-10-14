@@ -1,4 +1,4 @@
-import { IAutoMoviePose, IAutoMovieSkeleton } from "@automovie/interface";
+import { AutoMovieHumanoidBone, IAutoMovieBone, IAutoMovieJointPose, IAutoMovieJointConstraint, IAutoMoviePose, IAutoMovieSkeleton } from "@automovie/interface";
 
 import { getConstraint } from "../rom/getConstraint";
 import { validateJointRom } from "../rom/validateJointRom";
@@ -6,29 +6,34 @@ import { ViolationCollector } from "./ViolationCollector";
 import { validateTransformScalars } from "./validateTransformScalars";
 
 /**
- * Validate a {@link IAutoMoviePose} against its skeleton.
- *
- * Runs Tier-2 anatomical ROM checks (the differentiator) plus structural
- * sanity: each articulated bone must exist in the skeleton and appear at most
- * once. The effective ROM per bone is the skeleton's per-bone override if
- * present, otherwise the engine's default humanoid table.
- *
- * Pushes into a shared {@link ViolationCollector} when given one (so a motion
- * can aggregate per-keyframe violations under a clip-level path); otherwise
- * collects locally. Returns the collector so callers can chain.
+ * Admit skeleton identity, optional root transform, duplicate/undeclared joint bones and effective rig/default ROM.
  *
  * @author Samchon
+ * @evidence contracts/common.md#principled-implementation Admit skeleton identity, optional root transform, duplicate/undeclared joint bones and effective rig/default ROM.
+ * @evidence contracts/common.md#clear-and-simple-design One by-bone map shares membership lookup; getConstraint/validateJointRom own angular policy.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Null joint angles mean rest and absent effective constraints skip ROM; typed record/list shape is a premise.
+ * @evidence contracts/common.md#meaningful-documentation Optional path/collector composition, reported faults and non-clamping behavior are stated.
+ * @evidence contracts/performance.md#efficient-algorithms B rig bones and J joints require expected O(B+J) indexing/checks plus fixed axis work.
+ * @evidence contracts/performance.md#reuse-equivalent-work The by-bone map is request-local and default constraint/ROM owners are shared.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns diagnostics; temporary map/set storage releases without an FK pose or host resource.
  */
-export const validatePose = (props: {
+export const validatePose: (props: { pose: IAutoMoviePose; skeleton: IAutoMovieSkeleton; path?: string; collector?: ViolationCollector; }) => ViolationCollector = (props: {
+  /** Borrowed pose; null joint angles mean rest and invalid angles are reported without clamping. */
   pose: IAutoMoviePose;
+
+  /** Current rig for bone identity and per-bone/default degree constraints. */
   skeleton: IAutoMovieSkeleton;
+
+  /** Base diagnostic address, defaulting to $input. */
   path?: string;
+
+  /** Optional caller-owned sink; omitted, a fresh collector is returned. */
   collector?: ViolationCollector;
 }): ViolationCollector => {
-  const path = props.path ?? "$input";
-  const collector = props.collector ?? new ViolationCollector();
-  const byBone = new Map(props.skeleton.bones.map((b) => [b.bone, b]));
-  const seen = new Set<string>();
+  const path: string = props.path ?? "$input";
+  const collector: ViolationCollector = props.collector ?? new ViolationCollector();
+  const byBone: Map<AutoMovieHumanoidBone, IAutoMovieBone> = new Map(props.skeleton.bones.map((b: IAutoMovieBone): [AutoMovieHumanoidBone, IAutoMovieBone] => [b.bone, b]));
+  const seen: Set<string> = new Set<string>();
 
   if (props.pose.skeleton !== props.skeleton.id)
     collector.push(
@@ -45,9 +50,9 @@ export const validatePose = (props: {
       collector,
     });
 
-  props.pose.joints.forEach((joint, i) => {
-    const jointPath = `${path}.joints[${i}]`;
-    const bone = byBone.get(joint.bone);
+  props.pose.joints.forEach((joint: IAutoMovieJointPose, i: number): void => {
+    const jointPath: string = `${path}.joints[${i}]`;
+    const bone: IAutoMovieBone | undefined = byBone.get(joint.bone);
     if (bone === undefined) {
       collector.push(
         "type",
@@ -66,7 +71,7 @@ export const validatePose = (props: {
       );
     seen.add(joint.bone);
 
-    const constraint = getConstraint(joint.bone, bone.constraint);
+    const constraint: IAutoMovieJointConstraint | null = getConstraint(joint.bone, bone.constraint);
     if (constraint !== null)
       validateJointRom({ joint, constraint, path: jointPath, collector });
   });

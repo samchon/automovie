@@ -1,4 +1,4 @@
-import {
+import { AutoMovieTextureCoordinateSource,
   IAutoMovieMaterial,
   IAutoMovieModel,
   IAutoMovieModelPart,
@@ -9,71 +9,35 @@ import {
 import { ViolationCollector } from "./ViolationCollector";
 import { materialTextureSlots } from "./materialTextureSlots";
 
-/**
- * Relative slack allowed before a measured UV span is called wrong.
- *
- * The two comparisons this validator makes are exact statements about a ratio,
- * not tolerances a production tunes: a normalized set covers its surface once,
- * and a tile either fits on the surface it is bound to or it does not. What
- * needs slack is only the floating-point sum that produced the span, which a
- * generated mesh accumulates one vertex at a time, so the bound is relative to
- * the compared magnitude rather than an absolute metre figure.
- */
-const SCALE_EPSILON = 1e-9;
+/** Absolute slack for normalized UV spans and relative multiplier slack for surface-metre tile comparisons. */
+const SCALE_EPSILON: number = 1e-9;
 
 /**
- * Measure whether a surface and the material bound to it agree about scale.
- *
- * A material record alone cannot answer this and never could. `transform.scale`
- * is turns of an image per unit of a coordinate source, so the physical size it
- * implies is a fact about the SURFACE, and until a binding declared its
- * {@link IAutoMovieTextureReference.coordinateSource} the unit that scale was
- * expressed in was not stated anywhere either. Both halves now exist at one
- * place — a part carries the mesh, the part names the material — which is the
- * only place in the pipeline where the question is answerable at all.
- *
- * Two things become decidable there, and this validator deliberately treats
- * them as different kinds of finding.
- *
- * A binding that declares `"normalized"` against a set whose measured span
- * EXCEEDS one is refused. That is not an aesthetic judgement: "normalized"
- * means the set covers the whole surface exactly once, so a span of nine is the
- * declaration contradicting the geometry it was bound to, and every downstream
- * repeat count computed from it is arithmetic on a unit that does not exist. A
- * span under one is left alone, because a set may legitimately occupy part of
- * its range.
- *
- * A `"surface-metres"` binding whose implied tile (`1 / scale`) is LARGER than
- * the surface's own span is warned about instead. The surface cannot show one
- * whole turn of the image, so a nail-sized crop of a wood grain stretches
- * across a bed post and reads as flat paint — which is exactly how it failed
- * once nothing measured it. It stays a warning because that same geometry is
- * how a single image is legitimately fitted to one face, and the engine cannot
- * read the intent from the numbers. A binding whose sampler clamps that axis
- * HAS stated the intent, so it is not warned about.
- *
- * Out of scope on purpose: `"source-uv"` sets, whose unit has no general
- * formula; bindings that omit `coordinateSource`, which make no claim to check;
- * primitive geometry, whose texture coordinates are produced downstream rather
- * than carried; a degenerate span, which is mesh topology's finding, not this
- * one; and a part naming a material the model does not define, which model
- * validation already reports.
+ * Measure mesh UV bounding spans, reject normalized spans over1+1e-9 and warn when repeating surface-metre tile size exceeds the span.
  *
  * @author Samchon
+ * @evidence contracts/common.md#principled-implementation Measure mesh UV bounding spans, reject normalized spans over1+1e-9 and warn when repeating surface-metre tile size exceeds the span.
+ * @evidence contracts/common.md#clear-and-simple-design materialTextureSlots enumerates bindings and surfaceSpan reads UVs; each model indexes material ids once.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Primitives, absent/degenerate UVs, legacy ids, omitted/source-uv coordinates and clamped axes are intentionally exempt.
+ * @evidence contracts/common.md#meaningful-documentation Relative tile slack and normalized absolute1e-9 slack, error/warning distinction and slot paths are explicit.
+ * @evidence contracts/performance.md#efficient-algorithms V UV values plus material/part/slot populations drive linear scans and map lookup, with per-part span computation.
+ * @evidence contracts/performance.md#reuse-equivalent-work Each part's UV span serves all bindings and each model's id map serves all parts.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Only diagnostics escape; UVs/materials are borrowed and no world-space fit, UV rewrite or texture resource is acquired.
  */
-export const validateTextureScale = (props: {
+export const validateTextureScale: (props: { models: readonly IAutoMovieModel[]; }) => IAutoMovieValidation = (props: {
+  /** Borrowed current models whose resident mesh UVs and named material bindings supply scale meaning. */
   models: readonly IAutoMovieModel[];
 }): IAutoMovieValidation => {
-  const out = new ViolationCollector();
-  props.models.forEach((model, modelIndex) => {
-    const materials = new Map(
-      model.materials.map((material) => [material.id, material]),
+  const out: ViolationCollector = new ViolationCollector();
+  props.models.forEach((model: IAutoMovieModel, modelIndex: number): void => {
+    const materials: Map<string, IAutoMovieMaterial> = new Map(
+      model.materials.map((material: IAutoMovieMaterial): [string, IAutoMovieMaterial] => [material.id, material]),
     );
-    model.parts.forEach((part, partIndex) => {
-      const span = surfaceSpan(part);
+    model.parts.forEach((part: IAutoMovieModelPart, partIndex: number): void => {
+      const span: { u: number; v: number; } | null = surfaceSpan(part);
       if (span === null) return;
       if (part.material === null) return;
-      const material = materials.get(part.material);
+      const material: IAutoMovieMaterial | undefined = materials.get(part.material);
       if (material === undefined) return;
       for (const { path: slot, binding } of materialTextureSlots(material)) {
         if (typeof binding === "string") continue;
@@ -93,41 +57,62 @@ export const validateTextureScale = (props: {
 };
 
 /**
- * The extent a part's own texture coordinates cover, or `null` when the part
- * carries none to measure.
+ * Fold finite resident mesh UV pairs into positive U/V bounding spans.
  *
- * A primitive's coordinates are produced downstream rather than stored, an
- * imported mesh may have none at all, and a span of zero on either axis is a
- * degenerate layout whose owner is mesh topology. Each of those is a reason to
- * say nothing here rather than to invent a measurement.
+ * UV coordinates are measured directly rather than inferred from world dimensions.
+ *
+ * Primitive/missing/degenerate/nonfinite UVs return null, and trailing unmatched scalars are left to mesh admission.
+ *
+ * Output spans are coordinate units, not geometric metres by themselves.
+ *
+ * V UV scalars cost O(V) arithmetic and constant min/max state.
+ *
+ * The coordinator computes one span per part for all its bindings.
+ *
+ * Only two scalars return; UV buffers remain borrowed.
  */
-const surfaceSpan = (
+const surfaceSpan: (part: IAutoMovieModelPart) => { u: number; v: number; } | null = (
   part: IAutoMovieModelPart,
 ): { u: number; v: number } | null => {
   if (part.geometry.type !== "mesh") return null;
-  const uvs = part.geometry.mesh.uvs;
+  const uvs: number[] | null = part.geometry.mesh.uvs;
   if (uvs === null || uvs.length < 2) return null;
-  let minU = Infinity;
-  let maxU = -Infinity;
-  let minV = Infinity;
-  let maxV = -Infinity;
-  for (let i = 0; i + 1 < uvs.length; i += 2) {
-    const u = uvs[i]!;
-    const v = uvs[i + 1]!;
+  let minU: number = Infinity;
+  let maxU: number = -Infinity;
+  let minV: number = Infinity;
+  let maxV: number = -Infinity;
+  for (let i: number = 0; i + 1 < uvs.length; i += 2) {
+    const u: number = uvs[i]!;
+    const v: number = uvs[i + 1]!;
     if (!Number.isFinite(u) || !Number.isFinite(v)) return null;
     minU = Math.min(minU, u);
     maxU = Math.max(maxU, u);
     minV = Math.min(minV, v);
     maxV = Math.max(maxV, v);
   }
-  const u = maxU - minU;
-  const v = maxV - minV;
+  const u: number = maxU - minU;
+  const v: number = maxV - minV;
   return u > 0 && v > 0 ? { u, v } : null;
 };
 
-/** Both axes of one structured binding against one measured surface. */
-const checkBinding = (props: {
+/**
+ * Reject excessive normalized spans or warn when1/abs(scale) exceeds a surface-metre span unless clamped.
+ *
+ * Two fixed axes carry their own scale/wrap and exact slot path.
+ *
+ * Omitted/source-uv coordinates are exempt; invalid scale admission belongs to validateTextureBinding.
+ *
+ * Normalized1e-9 slack, relative tile slack and warning/error distinction are stated.
+ *
+ * Two axes use constant arithmetic and diagnostic text work.
+ *
+ * Both axes share the measured part span and existing material/slot identity.
+ *
+ * Only caller-owned diagnostics remain; no UV rewrite or texture resource is acquired.
+ */
+const checkBinding: (props: { binding: IAutoMovieTextureReference; slot: string; span: { u: number; v: number; }; part: IAutoMovieModelPart; material: IAutoMovieMaterial; path: string; out: ViolationCollector; }) => void = (props: {
   binding: IAutoMovieTextureReference;
+
   /** The slot's path under the material, such as `overlays[0].baseColorTexture`. */
   slot: string;
   span: { u: number; v: number };
@@ -136,9 +121,9 @@ const checkBinding = (props: {
   path: string;
   out: ViolationCollector;
 }): void => {
-  const source = props.binding.coordinateSource;
+  const source: AutoMovieTextureCoordinateSource | undefined = props.binding.coordinateSource;
   if (source === undefined || source === "source-uv") return;
-  const axes = [
+  const axes: ({ name: "u"; span: number; scale: number | undefined; wrap: "clamp" | "repeat" | "mirror" | undefined; } | { name: "v"; span: number; scale: number | undefined; wrap: "clamp" | "repeat" | "mirror" | undefined; })[] = [
     {
       name: "u" as const,
       span: props.span.u,
@@ -153,7 +138,7 @@ const checkBinding = (props: {
     },
   ];
   for (const axis of axes) {
-    const path = `${props.path}.material.${props.slot}.${axis.name}`;
+    const path: string = `${props.path}.material.${props.slot}.${axis.name}`;
     if (source === "normalized") {
       // A declared normalized set covers its surface exactly once, so a span
       // past one is the declaration disagreeing with the geometry rather than a
@@ -174,7 +159,7 @@ const checkBinding = (props: {
     if (axis.scale === undefined) continue;
     if (!Number.isFinite(axis.scale) || axis.scale === 0) continue;
     if (axis.wrap === "clamp") continue;
-    const tile = 1 / Math.abs(axis.scale);
+    const tile: number = 1 / Math.abs(axis.scale);
     if (tile <= axis.span * (1 + SCALE_EPSILON)) continue;
     props.out.warn(
       "range",

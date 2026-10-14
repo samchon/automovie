@@ -1,4 +1,6 @@
-import {
+import type { IAutoMovieResolvedBone } from "./../kinematics/IAutoMovieResolvedBone";
+import type { IAutoMovieSkeletonTopology } from "./../kinematics/IAutoMovieSkeletonTopology";
+import { IAutoMovieBone,
   AutoMovieHumanoidBone,
   IAutoMovieMotion,
   IAutoMovieSkeleton,
@@ -20,19 +22,11 @@ import { IAutoMovieBalanceSupportWindow } from "./IAutoMovieBalanceSupportWindow
 import { ViolationCollector } from "./ViolationCollector";
 import { fkReachableBones } from "./fkReachableBones";
 
-const DEFAULT_MARGIN = 0.02;
+const DEFAULT_MARGIN: number = 0.02;
 
-const DEFAULT_SAMPLE_RATE = 24;
+const DEFAULT_SAMPLE_RATE: number = 24;
 
-/**
- * Segment mass as a fraction of total body mass, per load-bearing bone (Winter,
- * "Biomechanics and Motor Control of Human Movement"). Only the ratios matter:
- * the whole-body COM is a weighted mean, so any consistent scaling yields the
- * same point. Bones absent from this table (clavicles, toes, eyes, jaw,
- * fingers) carry {@link DEFAULT_SEGMENT_MASS_FRACTION}, and the mean
- * renormalizes over whichever bones a rig actually resolves, so an omitted
- * `upperChest`/`neck` never biases the result.
- */
+/** Fixed relative weights for the proximal-joint mass approximation, normalized over resolved bones; minor bones use the 0.2 fallback. */
 const SEGMENT_MASS_FRACTION: Partial<Record<AutoMovieHumanoidBone, number>> = {
   hips: 14.2,
   spine: 13.9,
@@ -55,40 +49,36 @@ const SEGMENT_MASS_FRACTION: Partial<Record<AutoMovieHumanoidBone, number>> = {
 };
 
 /** Mass fraction for a minor bone the table omits (clavicle, toe, eye, finger). */
-const DEFAULT_SEGMENT_MASS_FRACTION = 0.2;
+const DEFAULT_SEGMENT_MASS_FRACTION: number = 0.2;
 
-const CENTER_BONE_EXPECTED = "center bone must exist in the target skeleton";
+const CENTER_BONE_EXPECTED: string = "center bone must exist in the target skeleton";
 
-const CENTER_BONE_REACHABLE =
+const CENTER_BONE_REACHABLE: string =
   "center bone is declared but not reachable from a root bone via forward kinematics";
 
-const MARGIN_EXPECTED = "margin must be a finite number >= 0";
+const MARGIN_EXPECTED: string = "margin must be a finite number >= 0";
 
-const SUPPORT_BONES_EXPECTED =
+const SUPPORT_BONES_EXPECTED: string =
   "supportBones must contain at least one contact bone";
 
-const SUPPORT_BONE_EXPECTED = "support bone must exist in the target skeleton";
+const SUPPORT_BONE_EXPECTED: string = "support bone must exist in the target skeleton";
 
-const SUPPORT_BONE_REACHABLE =
+const SUPPORT_BONE_REACHABLE: string =
   "support bone is declared but not reachable from a root bone via forward kinematics";
 
 /**
- * Tier-3 balance check over declared support windows. It samples a motion,
- * resolves FK, computes the segment-mass-weighted whole-body center of mass (or
- * a single-bone proxy when `centerBone` is set), projects it and the support
- * contacts to the XZ plane, and rejects frames where the COM falls outside the
- * support hull plus margin.
- *
- * Balance is a physical-plausibility **warning**, not a gate: overstated
- * action, martial arts, dance, and stunts are built on momentary imbalance (a
- * launch, a landing, a spin, a tiptoe, an airborne pose), so the run still
- * succeeds and the warning surfaces for the orchestrator to restage or
- * acknowledge with `physicsIntent`. Only malformed windows (bad/detached bone,
- * empty support, bad window/margin) are errors.
+ * Sample FK within valid support windows, project a single-bone or weighted joint-position center onto XZ, and warn beyond the support hull plus margin.
  *
  * @author Samchon
+ * @evidence contracts/common.md#principled-implementation Sample FK within valid support windows, project a single-bone or weighted joint-position center onto XZ, and warn beyond the support hull plus margin.
+ * @evidence contracts/common.md#clear-and-simple-design Shared clock/FK/hull owners keep contact and balance samples consistent; malformed annotations are errors before sampling.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The mass table is a proximal-joint approximation, not measured whole-body anatomy; physicsIntent suppresses imbalance warnings but not malformed-window errors.
+ * @evidence contracts/common.md#meaningful-documentation Default24Hz and20mm margin, optional center bone, reachable support requirement and advisory effects are explicit.
+ * @evidence contracts/performance.md#efficient-algorithms For W windows and T samples, motion/FK and contact hull costs dominate; each sample rebuilds the resolved map and weighted center.
+ * @evidence contracts/performance.md#reuse-equivalent-work Skeleton topology/reachability are computed once per invocation, then reused across windows.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Caller inputs are borrowed; per-sample maps/hulls release, while returned diagnostics grow with sampled failures and acquire no host handle.
  */
-export const validateBalanceSupport = (props: {
+export const validateBalanceSupport: (props: { motion: IAutoMovieMotion; skeleton: IAutoMovieSkeleton; supports: readonly IAutoMovieBalanceSupportWindow[]; sampleRate?: number; path?: string; jointAxes?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>; restFrames?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>; physicsIntent?: string; }) => IAutoMovieValidation = (props: {
   /** Motion clip to sample. */
   motion: IAutoMovieMotion;
 
@@ -117,15 +107,15 @@ export const validateBalanceSupport = (props: {
    */
   physicsIntent?: string;
 }): IAutoMovieValidation => {
-  const collector = new ViolationCollector();
-  const suppressed = props.physicsIntent !== undefined;
-  const sampleRate =
+  const collector: ViolationCollector = new ViolationCollector();
+  const suppressed: boolean = props.physicsIntent !== undefined;
+  const sampleRate: number =
     props.sampleRate === undefined ? DEFAULT_SAMPLE_RATE : props.sampleRate;
-  const sampleRateValid = isPositiveFinite(sampleRate);
-  const path = props.path ?? "$input";
-  const skeletonBones = new Set(props.skeleton.bones.map((bone) => bone.bone));
-  const topology = indexSkeletonTopology(props.skeleton);
-  const reachableBones = fkReachableBones(props.skeleton, topology);
+  const sampleRateValid: boolean = isPositiveFinite(sampleRate);
+  const path: string = props.path ?? "$input";
+  const skeletonBones: Set<AutoMovieHumanoidBone> = new Set(props.skeleton.bones.map((bone: IAutoMovieBone): AutoMovieHumanoidBone => bone.bone));
+  const topology: IAutoMovieSkeletonTopology = indexSkeletonTopology(props.skeleton);
+  const reachableBones: Set<AutoMovieHumanoidBone> = fkReachableBones(props.skeleton, topology);
 
   if (!sampleRateValid)
     collector.push(
@@ -136,29 +126,29 @@ export const validateBalanceSupport = (props: {
     );
 
   for (const [supportIndex, support] of props.supports.entries()) {
-    const sp = `${path}.supports[${supportIndex}]`;
-    const centerBone = support.centerBone;
-    const margin = support.margin ?? DEFAULT_MARGIN;
+    const sp: string = `${path}.supports[${supportIndex}]`;
+    const centerBone: AutoMovieHumanoidBone | undefined = support.centerBone;
+    const margin: number = support.margin ?? DEFAULT_MARGIN;
     // A single-bone override is validated for membership/reachability; the
     // default whole-body COM reads every resolved bone and needs no such gate.
-    const centerMissing =
+    const centerMissing: boolean =
       centerBone !== undefined && !skeletonBones.has(centerBone);
     // A declared-but-detached bone (its parent chain never reaches a root) is
     // never returned by FK, so reading its resolved position would crash rather
     // than report the malformed rig. Gate on FK-reachability, not just
     // declaration.
-    const centerUnreachable =
+    const centerUnreachable: boolean =
       centerBone !== undefined &&
       skeletonBones.has(centerBone) &&
       !reachableBones.has(centerBone);
-    const emptySupport = support.supportBones.length === 0;
-    let missingSupport = false;
-    let unreachableSupport = false;
-    const temporalInvalid =
+    const emptySupport: boolean = support.supportBones.length === 0;
+    let missingSupport: boolean = false;
+    let unreachableSupport: boolean = false;
+    const temporalInvalid: boolean =
       !Number.isFinite(support.start) ||
       !Number.isFinite(support.end) ||
       support.end <= support.start;
-    const marginInvalid = !Number.isFinite(margin) || margin < 0;
+    const marginInvalid: boolean = !Number.isFinite(margin) || margin < 0;
 
     if (centerMissing)
       collector.push(
@@ -224,11 +214,11 @@ export const validateBalanceSupport = (props: {
     // The engine's shared sampling grid (endpoint-inclusive, end-clamped):
     // the same clock footskate/ground/self-intersection step, so the physics
     // validators can never drift onto different frame boundaries.
-    const times = windowSampleTimes(support.start, support.end, sampleRate);
-    for (let sampleIndex = 0; sampleIndex < times.length; sampleIndex++) {
-      const time = times[sampleIndex]!;
-      const resolved = new Map<AutoMovieHumanoidBone, IAutoMovieVector3>();
-      const pose = resolvePose(
+    const times: number[] = windowSampleTimes(support.start, support.end, sampleRate);
+    for (let sampleIndex: number = 0; sampleIndex < times.length; sampleIndex++) {
+      const time: number = times[sampleIndex]!;
+      const resolved: Map<AutoMovieHumanoidBone, IAutoMovieVector3> = new Map<AutoMovieHumanoidBone, IAutoMovieVector3>();
+      const pose: IAutoMovieResolvedBone[] = resolvePose(
         sampleMotion(props.motion, time).pose,
         props.skeleton,
         props.jointAxes,
@@ -236,7 +226,7 @@ export const validateBalanceSupport = (props: {
         topology,
       );
       for (const bone of pose) resolved.set(bone.bone, bone.worldPosition);
-      const centerPosition =
+      const centerPosition: IAutoMovieVector3 =
         centerBone === undefined
           ? weightedCenterOfMass(resolved)
           : (resolved.get(centerBone) as IAutoMovieVector3);
@@ -244,43 +234,49 @@ export const validateBalanceSupport = (props: {
       // non-convex support list can no longer be misclassified. Handles the
       // 1-/2-/many-point cases uniformly (a lone contact or a collinear pair
       // collapses to a point/segment inside the hull query).
-      const hull = convexHull2D(
-        support.supportBones.map((bone) => resolved.get(bone)!),
+      const hull: IAutoMovieVector3[] = convexHull2D(
+        support.supportBones.map((bone: AutoMovieHumanoidBone): IAutoMovieVector3 => resolved.get(bone)!),
       );
-      const distance = pointHullDistance(centerPosition, hull);
+      const distance: number = pointHullDistance(centerPosition, hull);
       if (distance > margin && !suppressed) {
-        const roundedMargin = round(margin);
-        const roundedTime = round(time);
-        const overshoot = distance - margin;
-        const expected = `center-of-mass projection must stay within support hull margin ${roundedMargin}m at t=${roundedTime}s (a pose may be deliberately off-balance; mark physicsIntent if it is intended)`;
-        const violationPath = `${sp}.samples[${sampleIndex}].centerOfMass.supportDistance`;
+        const roundedMargin: number = round(margin);
+        const roundedTime: number = round(time);
+        const overshoot: number = distance - margin;
+        const expected: string = `center-of-mass projection must stay within support hull margin ${roundedMargin}m at t=${roundedTime}s (a pose may be deliberately off-balance; mark physicsIntent if it is intended)`;
+        const violationPath: string = `${sp}.samples[${sampleIndex}].centerOfMass.supportDistance`;
         collector.warn("physics", violationPath, expected, distance, overshoot);
       }
     }
   }
 
-  const validation = collector.toValidation();
+  const validation: IAutoMovieValidation = collector.toValidation();
   return validation;
 };
 
 /**
- * The whole-body center of mass: each resolved bone's world position weighted
- * by its segment mass fraction. This is a proximal-joint mass model (each
- * segment's mass sits at the bone's own joint), a v1 that is already far more
- * trustworthy than a single hips bone for a lean, reach, or crouch, where the
- * real COM shifts away from the pelvis. Sampling runs only past the
- * reachability gate, so `resolved` always holds at least the root and the total
- * weight is positive.
+ * Compute a weighted mean of resolved joint world positions using the fixed segment table and0.2 fallback.
+ *
+ * One pass accumulates mass and XYZ without an intermediate segment array.
+ *
+ * This proximal-joint approximation is not a measured anatomical mass distribution; positive resolved mass is a sampling premise.
+ *
+ * Output is a model/world-unit point and omitted table bones use the fixed fallback.
+ *
+ * R resolved bones cost O(R) arithmetic and constant accumulators.
+ *
+ * Table weights are shared, but positions/mass sums are recomputed for each sampled pose.
+ *
+ * Only a fresh point returns; resolved maps and source rig are not retained.
  */
-const weightedCenterOfMass = (
+const weightedCenterOfMass: (resolved: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieVector3>) => IAutoMovieVector3 = (
   resolved: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieVector3>,
 ): IAutoMovieVector3 => {
-  let mass = 0;
-  let x = 0;
-  let y = 0;
-  let z = 0;
+  let mass: number = 0;
+  let x: number = 0;
+  let y: number = 0;
+  let z: number = 0;
   for (const [bone, position] of resolved) {
-    const weight = SEGMENT_MASS_FRACTION[bone] ?? DEFAULT_SEGMENT_MASS_FRACTION;
+    const weight: number = SEGMENT_MASS_FRACTION[bone] ?? DEFAULT_SEGMENT_MASS_FRACTION;
     mass += weight;
     x += weight * position.x;
     y += weight * position.y;
@@ -289,7 +285,37 @@ const weightedCenterOfMass = (
   return { x: x / mass, y: y / mass, z: z / mass };
 };
 
-const isPositiveFinite = (value: number): boolean =>
+/**
+ * Require a finite scalar strictly greater than zero.
+ *
+ * The predicate gates sampling before invoking the shared clock.
+ *
+ * Zero/negative/nonfinite rates are refused, not defaulted after explicit input.
+ *
+ * Boolean success identifies a usable positive sample rate.
+ *
+ * One finite test and comparison take constant work.
+ *
+ * Window admission uses this same rate decision across all support windows.
+ *
+ * Only a boolean returns and no rate history is retained.
+ */
+const isPositiveFinite: (value: number) => boolean = (value: number): boolean =>
   Number.isFinite(value) && value > 0;
 
-const round = (value: number): number => Math.round(value * 1_000) / 1_000;
+/**
+ * Round a diagnostic quantity to three decimals with Math.round(value*1000)/1000.
+ *
+ * The validateBalanceSupport owner applies presentation rounding after its actual predicate.
+ *
+ * Binary64 rounding is not an exact decimal serialization or decision tolerance.
+ *
+ * Only displayed metre/second quantities are rounded, leaving comparison arithmetic unchanged.
+ *
+ * Fixed scalar arithmetic takes constant work.
+ *
+ * Diagnostics reuse the same presentation rule within validateBalanceSupport, not cached measurements.
+ *
+ * Only a number returns and no sampled state is retained.
+ */
+const round: (value: number) => number = (value: number): number => Math.round(value * 1_000) / 1_000;

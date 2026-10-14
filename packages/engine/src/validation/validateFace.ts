@@ -5,26 +5,29 @@ import { ViolationCollector } from "./ViolationCollector";
 import { FACE_PARAMETER_LIMIT } from "./constants/FACE_PARAMETER_LIMIT";
 
 /**
- * Validate an {@link IAutoMovieFace}: Tier-1 range checks the rough types
- * intentionally do not encode.
- *
- * The document is a nested object of optional trait fields, so the field
- * _names_ are already constrained by the type itself (and duplicates are
- * impossible by construction); what remains at runtime is the magnitudes: every
- * present leaf weight must sit in `[-2, 2]`, signed, unlike expression's `[0,
- * 1]`, because face edits go both ways. Violations are reported at the leaf's
- * document path (`….jaw.chin.length`), through the same {@link flattenFace}
- * mapping `morphFace` applies.
+ * Flatten present nested face traits with the morphing owner's mapping and require signed weights in[-2,2].
  *
  * @author Samchon
+ * @evidence contracts/common.md#principled-implementation Flatten present nested face traits with the morphing owner's mapping and require signed weights in[-2,2].
+ * @evidence contracts/common.md#clear-and-simple-design flattenFace owns trait paths, while the collector owns finite/inclusive range faults.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Typed field names are assumed; the check does not prove rendered anatomy or geometric quality.
+ * @evidence contracts/common.md#meaningful-documentation Optional path/collector composition and the signed weight limit are documented.
+ * @evidence contracts/performance.md#efficient-algorithms Present trait population drives flattening and range traversal, with proportional temporary rows.
+ * @evidence contracts/performance.md#reuse-equivalent-work The same flattenFace mapping is shared with morphFace instead of a parallel trait traversal.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources A supplied/fresh collector owns diagnostics; temporary trait rows release and no mesh/image is retained.
  */
-export const validateFace = (props: {
+export const validateFace: (props: { face: IAutoMovieFace; path?: string; collector?: ViolationCollector; }) => ViolationCollector = (props: {
+  /** Borrowed optional nested traits with signed weights admitted within -2..2. */
   face: IAutoMovieFace;
+
+  /** Base diagnostic address, defaulting to $input. */
   path?: string;
+
+  /** Optional caller-owned sink; omitted, validation returns a fresh collector. */
   collector?: ViolationCollector;
 }): ViolationCollector => {
-  const path = props.path ?? "$input";
-  const collector = props.collector ?? new ViolationCollector();
+  const path: string = props.path ?? "$input";
+  const collector: ViolationCollector = props.collector ?? new ViolationCollector();
 
   for (const trait of flattenFace(props.face))
     collector.range(

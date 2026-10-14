@@ -2,9 +2,17 @@ import { ViolationCollector } from "./ViolationCollector";
 import { collectNonEmptyId } from "./collectNonEmptyId";
 
 /**
- * Admits a material slot's UV0, colour-space, coordinate-source, transform and sampler relations without fetching resources.
+ * Admit legacy nonblank asset ids or structured texCoord/color-space/transform/sampler bindings against the slot's expected decoding.
+ *
+ * @evidence contracts/common.md#principled-implementation Admit legacy nonblank asset ids or structured texCoord/color-space/transform/sampler bindings against the slot's expected decoding.
+ * @evidence contracts/common.md#clear-and-simple-design One binding owner supplies consistent rules to every enumerated material slot.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts OnlyUV0 is supported; finite nonzero scale and closed sampler menus are explicit policies rather than loader guesses.
+ * @evidence contracts/common.md#meaningful-documentation Unknown/null record shapes and precise transform/sampler fault paths are documented.
+ * @evidence contracts/performance.md#efficient-algorithms Fixed structured fields and two vector axes take bounded work apart from asset/string diagnostics.
+ * @evidence contracts/performance.md#reuse-equivalent-work finiteVector2 and enumValue share field admission, without caching mutable binding objects.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Only caller-owned faults remain, with no image load, sampler handle or GPU texture acquired.
  */
-export const validateTextureBinding = (
+export const validateTextureBinding: (binding: unknown, path: string, expectedColorSpace: "srgb" | "linear", collector: ViolationCollector) => void = (
   binding: unknown,
   path: string,
   expectedColorSpace: "srgb" | "linear",
@@ -24,7 +32,7 @@ export const validateTextureBinding = (
     );
     return;
   }
-  const texture = binding as Record<string, unknown>;
+  const texture: Record<string, unknown> = binding as Record<string, unknown>;
   collectNonEmptyId(
     texture.asset,
     `${path}.asset`,
@@ -55,7 +63,7 @@ export const validateTextureBinding = (
       "coordinateSource",
       collector,
     );
-  const transform = texture.transform;
+  const transform: unknown = texture.transform;
   if (transform !== undefined) {
     if (
       typeof transform !== "object" ||
@@ -69,7 +77,7 @@ export const validateTextureBinding = (
         transform,
       );
     else {
-      const record = transform as Record<string, unknown>;
+      const record: Record<string, unknown> = transform as Record<string, unknown>;
       finiteVector2(
         record.offset,
         `${path}.transform.offset`,
@@ -96,7 +104,7 @@ export const validateTextureBinding = (
         );
     }
   }
-  const sampler = texture.sampler;
+  const sampler: unknown = texture.sampler;
   if (sampler !== undefined) {
     if (
       typeof sampler !== "object" ||
@@ -110,7 +118,7 @@ export const validateTextureBinding = (
         sampler,
       );
     else {
-      const record = sampler as Record<string, unknown>;
+      const record: Record<string, unknown> = sampler as Record<string, unknown>;
       enumValue(
         record.wrapS,
         ["clamp", "repeat", "mirror"],
@@ -143,7 +151,22 @@ export const validateTextureBinding = (
   }
 };
 
-const finiteVector2 = (
+/**
+ * Admit non-array object shape and finite x/y, optionally excluding zero scale components.
+ *
+ * One two-axis owner serves UV offset and scale.
+ *
+ * nonZero is the scale policy; finite signed offsets/scales otherwise remain authored.
+ *
+ * Object/axis paths and exact nonzero semantics are stated.
+ *
+ * Two numeric tests require bounded work plus diagnostics.
+ *
+ * Offset and scale reuse the same shape/finite logic.
+ *
+ * Only collector rows remain and no transform or sampler handle is retained.
+ */
+const finiteVector2: (value: unknown, path: string, label: string, collector: ViolationCollector, nonZero: boolean) => void = (
   value: unknown,
   path: string,
   label: string,
@@ -154,7 +177,7 @@ const finiteVector2 = (
     collector.push("type", path, `${label} must be an object`, value);
     return;
   }
-  const record = value as Record<string, unknown>;
+  const record: Record<string, unknown> = value as Record<string, unknown>;
   for (const axis of ["x", "y"] as const)
     if (
       typeof record[axis] !== "number" ||
@@ -169,7 +192,22 @@ const finiteVector2 = (
       );
 };
 
-const enumValue = (
+/**
+ * Require a string in the caller's fixed allowed coordinate/sampler menu.
+ *
+ * Field-specific vocabulary stays with the binding owner.
+ *
+ * Unknown values are reported rather than mapped to a default sampler.
+ *
+ * The diagnostic lists accepted names and preserves the actual value.
+ *
+ * A menu scan costs O(A) string comparisons; current menus have at most four choices.
+ *
+ * All closed sampler/coordinate fields reuse this predicate.
+ *
+ * Only collector faults remain; no loader/sampler resource is acquired.
+ */
+const enumValue: (value: unknown, allowed: readonly string[], path: string, label: string, collector: ViolationCollector) => void = (
   value: unknown,
   allowed: readonly string[],
   path: string,

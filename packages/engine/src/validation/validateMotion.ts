@@ -1,4 +1,4 @@
-import {
+import { AutoMovieHumanoidBone, IAutoMovieJointPose,
   AutoMovieEasing,
   IAutoMovieKeyframe,
   IAutoMovieMotion,
@@ -10,39 +10,31 @@ import { ViolationCollector } from "./ViolationCollector";
 import { validateExpression } from "./validateExpression";
 import { validatePose } from "./validatePose";
 
-/**
- * Maximum per-axis angular speed (degrees per second) the temporal verifier
- * allows between adjacent keyframes before flagging it. Human limb motion
- * rarely exceeds this; a larger jump usually means a teleport / bad keyframe.
- */
-const MAX_ANGULAR_SPEED_DEG_PER_S = 900;
+/** Declared per-axis adjacent-keyframe speed policy in degrees per second, rather than a measured anatomical maximum. */
+const MAX_ANGULAR_SPEED_DEG_PER_S: number = 900;
 
 /**
- * Validate an {@link IAutoMovieMotion} clip: Tier-4 temporal coherence plus the
- * per-keyframe Tier-1/Tier-2 checks (every keyframe pose is validated against
- * the skeleton, every keyframe expression range-checked).
- *
- * Temporal invariants enforced here:
- *
- * - Clip `duration` is finite and positive,
- * - Clip `loop` is boolean so sampler wrapping semantics are explicit,
- * - Keyframe `time` is strictly increasing,
- * - Every keyframe `time` is finite and within `[0, duration]`,
- * - Every keyframe easing name is one of the supported interpolation curves,
- * - Cubic-bezier keyframes carry finite control points and other keyframes do not
- *   carry stray control-point data,
- * - Per-axis angular speed between adjacent keyframes stays under a sane bound
- *   (catches teleporting limbs that per-frame validation alone would miss).
+ * Admit motion identity/skeleton, positive duration, loop, ordered in-range times/easing, frame pose/expression and adjacent-axis speed.
  *
  * @author Samchon
+ * @evidence contracts/common.md#principled-implementation Admit motion identity/skeleton, positive duration, loop, ordered in-range times/easing, frame pose/expression and adjacent-axis speed.
+ * @evidence contracts/common.md#clear-and-simple-design Pose/expression owners retain their semantics, and motion owns temporal rules and bezier controls.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts 900deg/s is a policy threshold, not measured anatomy; sparse bezier tuple admission must inspect all four actual elements.
+ * @evidence contracts/common.md#meaningful-documentation Seconds, degrees, strict time increase, easing menu and inclusive bezier X bounds are documented.
+ * @evidence contracts/performance.md#efficient-algorithms K frames pay pose/expression traversal; adjacent-axis lookup cost also depends on joint counts, not only K.
+ * @evidence contracts/performance.md#reuse-equivalent-work Closed easing vocabularies are shared, while each frame's current values are validated anew.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The collector owns output rows; no sampled pose sequence, animation clip or host task is retained.
  */
-export const validateMotion = (props: {
+export const validateMotion: (props: { motion: IAutoMovieMotion; skeleton: IAutoMovieSkeleton; }) => IAutoMovieValidation = (props: {
+  /** Borrowed clip with second-valued timestamps and degree-valued joints. */
   motion: IAutoMovieMotion;
+
+  /** Current target rig supplying joint membership and effective ROM overrides. */
   skeleton: IAutoMovieSkeleton;
 }): IAutoMovieValidation => {
-  const path = "$input";
-  const collector = new ViolationCollector();
-  const { motion, skeleton } = props;
+  const path: string = "$input";
+  const collector: ViolationCollector = new ViolationCollector();
+  const { motion, skeleton }: { motion: IAutoMovieMotion; skeleton: IAutoMovieSkeleton; } = props;
 
   if (motion.id.trim().length === 0)
     collector.push(
@@ -80,10 +72,10 @@ export const validateMotion = (props: {
       motion.keyframes.length,
     );
 
-  let previousTime = -Infinity;
-  motion.keyframes.forEach((kf, i) => {
-    const kp = `${path}.keyframes[${i}]`;
-    const finiteTime = Number.isFinite(kf.time);
+  let previousTime: number = -Infinity;
+  motion.keyframes.forEach((kf: IAutoMovieKeyframe, i: number): void => {
+    const kp: string = `${path}.keyframes[${i}]`;
+    const finiteTime: boolean = Number.isFinite(kf.time);
 
     if (!finiteTime || kf.time < 0 || kf.time > motion.duration)
       collector.push(
@@ -123,26 +115,40 @@ export const validateMotion = (props: {
   return collector.toValidation();
 };
 
-/** Flag adjacent keyframes whose shared joints swing too fast. */
-const checkAngularSpeed = (
+/**
+ * Index prior joints by bone and flag shared axes whose degree delta divided by positive dt exceeds900deg/s.
+ *
+ * Temporal ordering admission owns bad dt; this helper owns adjacent-frame speed policy.
+ *
+ * Absent prior joints are skipped and null axis angles contribute zero.
+ *
+ * Warnings are temporal errors at the incoming pose path with reported speed.
+ *
+ * Prior/current joint populations cost expected O(P+C), with O(P) map storage.
+ *
+ * One prior-bone map serves all three axes of each current joint.
+ *
+ * The map releases after one pair and only collector rows remain.
+ */
+const checkAngularSpeed: (motion: IAutoMovieMotion, i: number, kp: string, collector: ViolationCollector) => void = (
   motion: IAutoMovieMotion,
   i: number,
   kp: string,
   collector: ViolationCollector,
 ): void => {
-  const prev = motion.keyframes[i - 1]!;
-  const cur = motion.keyframes[i]!;
-  const dt = cur.time - prev.time;
+  const prev: IAutoMovieKeyframe = motion.keyframes[i - 1]!;
+  const cur: IAutoMovieKeyframe = motion.keyframes[i]!;
+  const dt: number = cur.time - prev.time;
   if (!Number.isFinite(dt) || dt <= 0) return; // ordering/range already reported above
 
-  const prevByBone = new Map(prev.pose.joints.map((j) => [j.bone, j]));
+  const prevByBone: Map<AutoMovieHumanoidBone, IAutoMovieJointPose> = new Map(prev.pose.joints.map((j: IAutoMovieJointPose): [AutoMovieHumanoidBone, IAutoMovieJointPose] => [j.bone, j]));
   for (const j of cur.pose.joints) {
-    const p = prevByBone.get(j.bone);
+    const p: IAutoMovieJointPose | undefined = prevByBone.get(j.bone);
     if (p === undefined) continue;
-    const axes = ["flexion", "abduction", "twist"] as const;
+    const axes: readonly ["flexion", "abduction", "twist"] = ["flexion", "abduction", "twist"] as const;
     for (const axis of axes) {
-      const delta = Math.abs((j[axis] ?? 0) - (p[axis] ?? 0));
-      const speed = delta / dt;
+      const delta: number = Math.abs((j[axis] ?? 0) - (p[axis] ?? 0));
+      const speed: number = delta / dt;
       if (speed > MAX_ANGULAR_SPEED_DEG_PER_S)
         collector.push(
           "temporal",
@@ -154,8 +160,22 @@ const checkAngularSpeed = (
   }
 };
 
-/** Enforce the easing/control-point pairing documented on IAutoMovieKeyframe. */
-const validateKeyframeBezier = (
+/**
+ * Require four finite controls only for cubicBezier and restrict X controls to inclusive[0,1].
+ *
+ * isFiniteBezierTuple owns shape/finite admission before destructuring.
+ *
+ * Y controls may overshoot; non-cubic easing must carry null controls.
+ *
+ * The control tuple and exact bezier path preserve authored values without clamping.
+ *
+ * Four control reads and fixed comparisons take constant work.
+ *
+ * Motion easing and the cubicBezier solver share the legal X-domain premise.
+ *
+ * Only diagnostic rows escape; no easing curve cache or sampler task is retained.
+ */
+const validateKeyframeBezier: (kf: IAutoMovieKeyframe, kp: string, collector: ViolationCollector) => void = (
   kf: IAutoMovieKeyframe,
   kp: string,
   collector: ViolationCollector,
@@ -187,7 +207,7 @@ const validateKeyframeBezier = (
   // outside [0, 1] makes x(s) non-monotone: the solver returns whichever root
   // basin it lands in, a finite but wrong eased value the finiteness check
   // alone never catches (#1159). (y is unconstrained.)
-  const [x1, , x2] = kf.bezier;
+  const [x1, , x2]: [number, number, number, number] = kf.bezier;
   if (x1 < 0 || x1 > 1 || x2 < 0 || x2 > 1)
     collector.push(
       "range",
@@ -197,14 +217,32 @@ const validateKeyframeBezier = (
     );
 };
 
-const isFiniteBezierTuple = (
+/**
+ * Admit exactly four actual finite array elements as a bezier tuple.
+ *
+ * The type predicate makes destructuring safe after shape/finite admission.
+ *
+ * Array density is required; a length-four array of holes is not four finite controls.
+ *
+ * Boolean narrowing certifies only this tuple shape and scalar finiteness.
+ *
+ * Four indexed finite checks take constant work with no array copy.
+ *
+ * Keyframe admission reuses this guard before X-coordinate comparisons.
+ *
+ * The array stays borrowed and only boolean narrowing escapes.
+ */
+const isFiniteBezierTuple: (value: unknown) => value is [number, number, number, number] = (
   value: unknown,
 ): value is [number, number, number, number] =>
   Array.isArray(value) &&
   value.length === 4 &&
-  value.every((item) => Number.isFinite(item));
+  Number.isFinite(value[0]) &&
+  Number.isFinite(value[1]) &&
+  Number.isFinite(value[2]) &&
+  Number.isFinite(value[3]);
 
-const KEYFRAME_EASINGS = new Set<AutoMovieEasing>([
+const KEYFRAME_EASINGS: Set<AutoMovieEasing> = new Set<AutoMovieEasing>([
   "linear",
   "easeIn",
   "easeOut",

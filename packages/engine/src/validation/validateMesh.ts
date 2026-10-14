@@ -1,12 +1,21 @@
-import { IAutoMovieMesh, IAutoMovieMeshSkin } from "@automovie/interface";
+import { AutoMovieHumanoidBone, IAutoMovieMesh, IAutoMovieMeshSkin } from "@automovie/interface";
 
 import { ViolationCollector } from "./ViolationCollector";
 import { appendMeshTopology } from "./appendMeshTopology";
 
 /**
- * Checks resident attribute cardinality, numeric ranges, joint bindings and shared topology before model use.
+ * Admit tuple/cardinality buffers, dense finite numeric elements, vertex references, skin bindings and shared welded topology.
+ *
+ * @evidence contracts/common.md#principled-implementation Walk IAutoMovieMesh's typed buffer containers for tuple/cardinality, dense finite numeric elements, vertex references, skin bindings and shared welded topology; the array/null and skin-record container structure is a precondition rather than an unknown-payload schema check.
+ * @evidence contracts/common.md#clear-and-simple-design Attribute and skin checks stay with the mesh, while appendMeshTopology owns topology admission and analysis.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Indexed walks inspect resident holes as undefined and malformed numeric coordinates cannot escape through weld analysis. Malformed containers such as positions:null can still throw at length access; skin normalization uses a 1e-6 tolerance.
+ * @evidence contracts/common.md#meaningful-documentation States the typed-container premise, one/two/three/four component arities, located numeric/cardinality errors and the separate welded-topology responsibility.
+ * @evidence contracts/performance.md#efficient-algorithms Total buffer size drives linear admission; welded topology adds its edge/triangle costs and per-vertex four-weight checks.
+ * @evidence contracts/performance.md#reuse-equivalent-work Common tuple/length helpers serve attributes, and the canonical topology owner prevents independent welded rules.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Only collector rows remain; local joint sets/weight slices release and no mesh renderer or byte decoder is created.
  */
-export const validateMesh = (
+export const validateMesh: (mesh: IAutoMovieMesh, path: string, boneNames: ReadonlySet<string>, collector: ViolationCollector) => void = (
+  /** Typed array/null and skin-record structure; this owner admits entries and cardinality without a total unknown-object schema gate. */
   mesh: IAutoMovieMesh,
   path: string,
   boneNames: ReadonlySet<string>,
@@ -24,7 +33,7 @@ export const validateMesh = (
       "a mesh must contain at least one vertex",
       mesh.positions.length,
     );
-  const vertexCount = mesh.positions.length / 3;
+  const vertexCount: number = mesh.positions.length / 3;
 
   if (mesh.normals !== null) {
     validateTupleBuffer(mesh.normals, 3, `${path}.normals`, collector);
@@ -57,7 +66,7 @@ export const validateMesh = (
       "colors must contain one linear RGB triple per position vertex",
       collector,
     );
-    mesh.colors.forEach((value, index) => {
+    mesh.colors.forEach((value: number, index: number): void => {
       if (value < 0 || value > 1)
         collector.push(
           "range",
@@ -76,7 +85,8 @@ export const validateMesh = (
       "reliefWeights must contain one factor per position vertex",
       collector,
     );
-    mesh.reliefWeights.forEach((value, index) => {
+    for (let index: number = 0; index < mesh.reliefWeights.length; ++index) {
+      const value: number = mesh.reliefWeights[index]!;
       if (!Number.isFinite(value) || value < 0)
         collector.push(
           "range",
@@ -84,13 +94,14 @@ export const validateMesh = (
           "relief weights must be finite and nonnegative",
           value,
         );
-    });
+    }
   }
 
   if (mesh.indices !== null) {
     validateTupleBuffer(mesh.indices, 3, `${path}.indices`, collector);
-    mesh.indices.forEach((index, i) => {
-      const valid =
+    for (let i: number = 0; i < mesh.indices.length; ++i) {
+      const index: number = mesh.indices[i]!;
+      const valid: boolean =
         Number.isInteger(index) && index >= 0 && index < vertexCount;
       if (!valid)
         collector.push(
@@ -99,7 +110,7 @@ export const validateMesh = (
           `index must be an integer vertex reference in [0, ${vertexCount - 1}], but was ${index}`,
           index,
         );
-    });
+    }
   }
 
   if (mesh.skin !== null)
@@ -118,7 +129,22 @@ export const validateMesh = (
   appendMeshTopology(mesh, path, collector, false);
 };
 
-const validateTupleBuffer = (
+/**
+ * Require length divisible by tuple arity and inspect every indexed scalar for finiteness.
+ *
+ * One owner serves position/normal/UV/color/index tuple layout checks.
+ *
+ * Sparse holes are inspected as undefined and diagnosed rather than skipped by forEach.
+ *
+ * Arity faults use the buffer path; finite faults use the precise element index.
+ *
+ * B scalars take O(B) work with constant loop storage.
+ *
+ * All mesh tuple attributes reuse the same finite/layout predicate.
+ *
+ * Only collector rows remain; numeric buffers stay borrowed and no copy is retained.
+ */
+const validateTupleBuffer: (buffer: number[], tupleSize: number, path: string, collector: ViolationCollector) => void = (
   buffer: number[],
   tupleSize: number,
   path: string,
@@ -132,7 +158,8 @@ const validateTupleBuffer = (
       buffer.length,
     );
 
-  buffer.forEach((value, i) => {
+  for (let i: number = 0; i < buffer.length; ++i) {
+    const value: number = buffer[i]!;
     if (!Number.isFinite(value))
       collector.push(
         "range",
@@ -140,10 +167,25 @@ const validateTupleBuffer = (
         `value must be finite, but was ${value}`,
         value,
       );
-  });
+  }
 };
 
-const validateBufferLength = (
+/**
+ * Require exact scalar count against the supplied per-vertex cardinality.
+ *
+ * The attribute/skin owner supplies the semantic expected length/message.
+ *
+ * No truncation or padding makes a mismatched resident buffer valid.
+ *
+ * Mismatch diagnostics include actual and expected lengths at the buffer path.
+ *
+ * One length comparison plus failure text costs bounded work.
+ *
+ * Normal/UV/color/relief/skin fields share this cardinality check.
+ *
+ * Buffers remain borrowed and only caller-owned diagnostics escape.
+ */
+const validateBufferLength: (buffer: number[], expected: number, path: string, message: string, collector: ViolationCollector) => void = (
   buffer: number[],
   expected: number,
   path: string,
@@ -159,14 +201,29 @@ const validateBufferLength = (
     );
 };
 
-const validateMeshSkin = (
+/**
+ * Require four references/weights per vertex, declared unique joints, dense bounded weights/references and finite weight sums within1e-6 of one.
+ *
+ * Shared length/range owners supply scalar diagnostics while this helper owns skin packing.
+ *
+ * Zero-valued influences still require valid joint references; sparse holes are diagnosed and excluded from sum evaluation.
+ *
+ * Four-influence layout and exact joint/reference/weight paths are stated.
+ *
+ * J joints and I influences are scanned linearly; each vertex checks four values with bounded temporary slices.
+ *
+ * One joint seen set shares duplicate lookup for this skin; current buffers are not cached.
+ *
+ * Seen/slice storage releases and the collector owns faults; no skeletal renderer or buffer handle remains.
+ */
+const validateMeshSkin: (skin: IAutoMovieMeshSkin, vertexCount: number, path: string, boneNames: ReadonlySet<string>, collector: ViolationCollector) => void = (
   skin: IAutoMovieMeshSkin,
   vertexCount: number,
   path: string,
   boneNames: ReadonlySet<string>,
   collector: ViolationCollector,
 ): void => {
-  const expectedInfluences = vertexCount * 4;
+  const expectedInfluences: number = vertexCount * 4;
   validateBufferLength(
     skin.boneIndices,
     expectedInfluences,
@@ -182,8 +239,9 @@ const validateMeshSkin = (
     collector,
   );
 
-  const seen = new Set<string>();
-  skin.joints.forEach((joint, i) => {
+  const seen: Set<string> = new Set<string>();
+  for (let i: number = 0; i < skin.joints.length; ++i) {
+    const joint: AutoMovieHumanoidBone = skin.joints[i]!;
     if (!boneNames.has(joint))
       collector.push(
         "type",
@@ -199,10 +257,11 @@ const validateMeshSkin = (
         joint,
       );
     seen.add(joint);
-  });
+  }
 
-  skin.boneIndices.forEach((index, i) => {
-    const valid =
+  for (let i: number = 0; i < skin.boneIndices.length; ++i) {
+    const index: number = skin.boneIndices[i]!;
+    const valid: boolean =
       Number.isInteger(index) && index >= 0 && index < skin.joints.length;
     if (!valid)
       collector.push(
@@ -211,17 +270,22 @@ const validateMeshSkin = (
         `bone index must be an integer skin joint reference in [0, ${skin.joints.length - 1}], but was ${index}`,
         index,
       );
-  });
+  }
 
-  skin.weights.forEach((weight, i) =>
-    collector.range(`${path}.weights[${i}]`, weight, 0, 1, "weight"),
-  );
+  for (let i: number = 0; i < skin.weights.length; ++i)
+    collector.range(`${path}.weights[${i}]`, skin.weights[i]!, 0, 1, "weight");
 
-  for (let vertex = 0; vertex < vertexCount; ++vertex) {
-    const offset = vertex * 4;
-    const weights = skin.weights.slice(offset, offset + 4);
-    if (weights.length === 4 && weights.every(Number.isFinite)) {
-      const sum = weights.reduce((a, b) => a + b, 0);
+  for (let vertex: number = 0; vertex < vertexCount; ++vertex) {
+    const offset: number = vertex * 4;
+    const weights: number[] = skin.weights.slice(offset, offset + 4);
+    if (
+      weights.length === 4 &&
+      Number.isFinite(weights[0]) &&
+      Number.isFinite(weights[1]) &&
+      Number.isFinite(weights[2]) &&
+      Number.isFinite(weights[3])
+    ) {
+      const sum: number = weights.reduce((a: number, b: number): number => a + b, 0);
       if (Math.abs(sum - 1) > 1e-6)
         collector.push(
           "range",

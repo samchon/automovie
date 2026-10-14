@@ -1,5 +1,5 @@
 import { validateModel } from "@automovie/engine";
-import { IAutoMovieJointConstraint } from "@automovie/interface";
+import { IAutoMovieBone, IAutoMovieModel, IAutoMovieValidation, IAutoMovieJointConstraint } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { createModel } from "../internal/fixtures";
@@ -12,8 +12,8 @@ const VALID_CONSTRAINT: IAutoMovieJointConstraint = {
   swingDeg: 30,
 };
 
-const modelWithConstraint = (constraint: IAutoMovieJointConstraint) => {
-  const base = createModel();
+const modelWithConstraint: (constraint: IAutoMovieJointConstraint) => IAutoMovieModel = (constraint: IAutoMovieJointConstraint): IAutoMovieModel => {
+  const base: IAutoMovieModel = createModel();
   return {
     ...base,
     skeleton:
@@ -21,7 +21,7 @@ const modelWithConstraint = (constraint: IAutoMovieJointConstraint) => {
         ? null
         : {
             ...base.skeleton,
-            bones: base.skeleton.bones.map((bone, i) =>
+            bones: base.skeleton.bones.map((bone: IAutoMovieBone, i: number): IAutoMovieBone =>
               i === 0 ? { ...bone, constraint } : bone,
             ),
           },
@@ -29,25 +29,21 @@ const modelWithConstraint = (constraint: IAutoMovieJointConstraint) => {
 };
 
 /**
- * Skeleton ROM overrides are model AST constraints. Their scalar ranges must be
- * finite and ordered before pose validation consumes them.
+ * Exercise model-level finite interval and swing-cone admission, including periodic multi-turn boxes rather than assuming distance from zero is monotone.
  *
  * Scenarios:
+ * 1. Valid/null cones and neutral-excluding positive/negative boxes remain admitted.
+ * 2. Nonfinite, inverted and nonpositive bounds report their exact range paths; bad axis bounds do not invent a cone verdict.
+ * 3. An ordinary box outside a narrow cone is refused.
+ * 4. The supported [400,700] interval admits its 700-degree endpoint in a 30-degree cone, and paired [340,380] intervals admit the interior 360/360 zero-swing point.
+ * 5. [400,500] with an immobile other axis still has no pose in a 30-degree cone and remains refused.
  *
- * 1. A valid explicit constraint still validates.
- * 2. Non-finite axis range bounds are range violations.
- * 3. Inverted axis ranges are range violations.
- * 4. Non-positive swing cones are range violations.
- * 5. A swing-coned constraint whose box and cone do NOT intersect is a range
- *    violation on `swingDeg`: the most-retracted articulation the ranges allow
- *    already swings past the cone, so no pose satisfies both (#1245). Reported
- *    against the cone, since the ranges alone are unobjectionable.
- * 6. The non-firing twins: a box that excludes neutral but sits INSIDE a wide cone
- *    is sound and must validate, in both the `min > 0` and `max < 0`
- *    directions. Rejecting these refused rigs the per-bone override exists to
- *    express (a limb that cannot fully extend), on a false premise (#1245).
+ * @evidence contracts/testing.md#behavioral-verification Call validateModel on actual rig overrides and assert success or precise fault paths, catching false refusal of admitted periodic poses while preserving malformed/empty-cone errors.
+ * @evidence contracts/testing.md#independent-expectations Half-angle cosine's 720-degree period makes 700 equivalent to -20, and two 360-degree axis half-angle cosines multiply to+1; expected admission follows those identities rather than a snapshot or nearest-zero implementation.
+ * @evidence contracts/testing.md#distinguishing-cases Existing valid/null/nonfinite/inverted/positive-negative boxes remain, with periodic endpoint/interior positives and a neighboring periodic no-intersection refusal; pose-time ROM is owned separately.
+ * @evidence contracts/testing.md#execution-ownership The discoverable exported unit calls portable model validation with the existing canonical fixture and asserts its report, without installing a host or building a native artifact.
  */
-export const test_validation_model_bone_constraint = (): void => {
+export function test_validation_model_bone_constraint(): void {
   TestValidator.equals(
     "valid constraint succeeds",
     validateModel({ model: modelWithConstraint(VALID_CONSTRAINT) }).success,
@@ -61,7 +57,7 @@ export const test_validation_model_bone_constraint = (): void => {
     true,
   );
 
-  const nonFinite = validateModel({
+  const nonFinite: IAutoMovieValidation = validateModel({
     model: modelWithConstraint({
       ...VALID_CONSTRAINT,
       flexion: { min: Number.NaN, max: 10 },
@@ -81,7 +77,7 @@ export const test_validation_model_bone_constraint = (): void => {
     ),
   );
 
-  const inverted = validateModel({
+  const inverted: IAutoMovieValidation = validateModel({
     model: modelWithConstraint({
       ...VALID_CONSTRAINT,
       twist: { min: 15, max: -15 },
@@ -97,7 +93,7 @@ export const test_validation_model_bone_constraint = (): void => {
     ),
   );
 
-  const badSwing = validateModel({
+  const badSwing: IAutoMovieValidation = validateModel({
     model: modelWithConstraint({
       ...VALID_CONSTRAINT,
       swingDeg: 0,
@@ -120,7 +116,7 @@ export const test_validation_model_bone_constraint = (): void => {
   // 5. box ∩ cone empty: the most-retracted articulation the ranges allow is
   // (10, 10), which already swings 14.1°, past this 5° cone. No pose satisfies
   // both, so the constraint is genuinely unsatisfiable.
-  const emptyIntersection = validateModel({
+  const emptyIntersection: IAutoMovieValidation = validateModel({
     model: modelWithConstraint({
       flexion: { min: 10, max: 90 },
       abduction: { min: 10, max: 90 },
@@ -145,7 +141,7 @@ export const test_validation_model_bone_constraint = (): void => {
   // 5b. a malformed bound on a swung axis is reported as itself and does not
   // also manufacture a bogus cone verdict out of NaN. Both directions of the
   // guard: a non-finite min (above) and a non-finite max (here).
-  const nonFiniteMax = validateModel({
+  const nonFiniteMax: IAutoMovieValidation = validateModel({
     model: modelWithConstraint({
       ...VALID_CONSTRAINT,
       flexion: { min: -10, max: Number.NaN },
@@ -195,4 +191,44 @@ export const test_validation_model_bone_constraint = (): void => {
     }).success,
     true,
   );
-};
+
+  // A 700-degree flexion has the same quaternion representative as -20 degrees,
+  // so the finite interval [400, 700] intersects a 30-degree cone at its far end.
+  TestValidator.equals(
+    "a periodic interval can admit swing at the endpoint farthest from zero",
+    validateModel({
+      model: modelWithConstraint({
+        flexion: { min: 400, max: 700 },
+        abduction: null,
+        twist: null,
+        swingDeg: 30,
+      }),
+    }).success,
+    true,
+  );
+  // Two 360-degree half-angle cosines are -1, whose product is +1: zero swing.
+  TestValidator.equals(
+    "an interior periodic extremum on each axis can satisfy a narrow cone",
+    validateModel({
+      model: modelWithConstraint({
+        flexion: { min: 340, max: 380 },
+        abduction: { min: 340, max: 380 },
+        twist: null,
+        swingDeg: 5,
+      }),
+    }).success,
+    true,
+  );
+  TestValidator.equals(
+    "a periodic interval with no admitted small-swing pose remains refused",
+    validateModel({
+      model: modelWithConstraint({
+        flexion: { min: 400, max: 500 },
+        abduction: null,
+        twist: null,
+        swingDeg: 30,
+      }),
+    }).success,
+    false,
+  );
+}

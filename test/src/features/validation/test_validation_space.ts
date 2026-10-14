@@ -1,73 +1,13 @@
 import { validateSpace } from "@automovie/engine";
-import {
-  IAutoMovieHeightRule,
-  IAutoMovieSpace,
-  IAutoMovieSurface,
-} from "@automovie/interface";
+import { IAutoMovieValidation, IAutoMovieSurface } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
 import { hasViolation, namedFacts } from "../internal/predicates";
+import { validationSpaceFixtures } from "../internal/validationSpaceFixtures";
+import { assertValidationSpaceHeights } from "../internal/assertValidationSpaceHeights";
 
-const v = (x: number, z: number, y = 0) => ({ x, y, z });
-
-const floor: IAutoMovieSurface = {
-  id: "floor",
-  kind: "floor",
-  polygon: [v(0, 0), v(4, 0), v(4, 4), v(0, 4)],
-  anchor: { x: 0, y: 0, z: 0 },
-  rampTo: null,
-};
-const ramp: IAutoMovieSurface = {
-  id: "ramp",
-  kind: "ramp",
-  polygon: [v(4, 0), v(8, 0), v(8, 4), v(4, 4)],
-  anchor: { x: 4, y: 0, z: 0 },
-  rampTo: { x: 8, y: 2, z: 0 },
-};
-const valid: IAutoMovieSpace = {
-  id: "set",
-  surfaces: [floor, ramp],
-  walkable: ["floor", "ramp"],
-};
-
-const withSurface = (surface: Partial<IAutoMovieSurface>): IAutoMovieSpace => ({
-  ...valid,
-  surfaces: [floor, { ...ramp, ...surface }],
-});
 
 /**
- * The same footprint, stating its ground through a rule instead of anchors.
- *
- * Built fresh rather than spread over {@link ramp}, because a surface carrying
- * both spellings is itself one of the things refused below.
- */
-const withHeight = (height: IAutoMovieHeightRule): IAutoMovieSpace => ({
-  ...valid,
-  surfaces: [
-    floor,
-    { id: ramp.id, kind: ramp.kind, polygon: ramp.polygon, height },
-  ],
-});
-
-/** A well-formed two-by-two lattice, before a scenario spoils one field. */
-const lattice = (
-  partial: Partial<Extract<IAutoMovieHeightRule, { kind: "heightfield" }>> = {},
-): IAutoMovieHeightRule => ({
-  kind: "heightfield",
-  originX: 4,
-  originZ: 0,
-  spacingX: 2,
-  spacingZ: 2,
-  columns: 2,
-  rows: 2,
-  samples: [0, 1, 0, 1],
-  ...partial,
-});
-
-/**
- * A malformed space is broken input, not an artistic choice, so `validateSpace`
- * rejects it with error-severity violations the correction round can act on,
- * before any height query computes over garbage.
+ * Pins malformed space admission before ground queries consume its data.
  *
  * Scenarios:
  *
@@ -110,8 +50,18 @@ const lattice = (
  *     exactly the lattice, and a non-finite sample.
  * 15. A height rule whose `kind` is runtime junk past the closed union is refused
  *     rather than read as a lattice whose fields do not exist.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Asserts acceptance of valid flat, ramp, concave and holed spaces and located rejection of malformed rings, anchors and references.
+ *
+ * @evidence contracts/testing.md#independent-expectations Located errors follow the authored field paths and finite complete lattice contract, independently of the validator's implementation; this does not measure rendered ground.
+ *
+ * @evidence contracts/testing.md#distinguishing-cases Retains every previous positive, malformed, touching-hole, crossing-ring and bad-anchor case; the shared height helper keeps the rule cases and adds a missing sample.
+ *
+ * @evidence contracts/testing.md#execution-ownership Portable engine admission runs through test_validation_space; the discoverable test_validation_space entry owns every synchronous case without a browser or native renderer.
  */
-export const test_validation_space = (): void => {
+export function test_validation_space(): void {
+  const { v, valid, withSurface }: ReturnType<typeof validationSpaceFixtures> = validationSpaceFixtures();
+
   TestValidator.equals(
     "valid space passes",
     validateSpace({ space: valid }).success,
@@ -387,7 +337,7 @@ export const test_validation_space = (): void => {
       ".rampTo",
     ),
   );
-  const junkRamp = validateSpace({
+  const junkRamp: IAutoMovieValidation = validateSpace({
     space: withSurface({ rampTo: { x: Number.NaN, y: 2, z: 0 } }),
   });
   TestValidator.predicate(
@@ -397,15 +347,15 @@ export const test_validation_space = (): void => {
   TestValidator.equals(
     "non-finite rampTo skips the degeneracy math",
     namedFacts([
-      ["refused", () => junkRamp.success === false],
+      ["refused", (): boolean => junkRamp.success === false],
       [
         "violated",
-        () => junkRamp.success === false && junkRamp.violations.length === 1,
+        (): boolean => junkRamp.success === false && junkRamp.violations.length === 1,
       ],
     ]),
     { refused: true, violated: true },
   );
-  const junkRampZ = validateSpace({
+  const junkRampZ: IAutoMovieValidation = validateSpace({
     space: withSurface({ rampTo: { x: 8, y: 2, z: Number.NaN } }),
   });
   TestValidator.equals(
@@ -413,12 +363,12 @@ export const test_validation_space = (): void => {
     namedFacts([
       [
         "hasViolationJunkRampZRange",
-        () => hasViolation(junkRampZ, "range", ".rampTo.z"),
+        (): boolean => hasViolation(junkRampZ, "range", ".rampTo.z"),
       ],
-      ["junkRampZSuccess", () => junkRampZ.success === false],
+      ["junkRampZSuccess", (): boolean => junkRampZ.success === false],
       [
         "junkRampZViolations",
-        () => junkRampZ.success === false && junkRampZ.violations.length === 1,
+        (): boolean => junkRampZ.success === false && junkRampZ.violations.length === 1,
       ],
     ]),
     {
@@ -443,255 +393,5 @@ export const test_validation_space = (): void => {
       "walkable[1]",
     ),
   );
-
-  TestValidator.equals(
-    "a surface states its ground exactly once",
-    namedFacts([
-      [
-        "bothSpellings",
-        () =>
-          hasViolation(
-            validateSpace({
-              space: withSurface({ height: { kind: "constant", value: 1 } }),
-            }),
-            "type",
-            "surfaces[1].height",
-          ),
-      ],
-      // A flat patch spells itself with an anchor and no ramp, so the anchor
-      // alone is what makes the pair present: dropping it leaves nothing.
-      [
-        "neitherSpelling",
-        () =>
-          hasViolation(
-            validateSpace({
-              space: withSurface({ anchor: undefined, rampTo: null }),
-            }),
-            "type",
-            "surfaces[1].height",
-          ),
-      ],
-      // A lone rampTo is still the anchored spelling, so it collides with a
-      // rule rather than reading as no ground at all.
-      [
-        "loneRampTo",
-        () =>
-          hasViolation(
-            validateSpace({
-              space: withSurface({
-                anchor: undefined,
-                height: { kind: "constant", value: 1 },
-              }),
-            }),
-            "type",
-            "surfaces[1].height",
-          ),
-      ],
-    ]),
-    { bothSpellings: true, neitherSpelling: true, loneRampTo: true },
-  );
-
-  TestValidator.equals(
-    "a well-formed height rule of every kind validates",
-    namedFacts([
-      [
-        "constant",
-        () =>
-          validateSpace({
-            space: withHeight({ kind: "constant", value: 2 }),
-          }).success === true,
-      ],
-      [
-        "plane",
-        () =>
-          validateSpace({
-            space: withHeight({
-              kind: "plane",
-              originHeight: 0,
-              slopeX: 0.5,
-              slopeZ: 0,
-            }),
-          }).success === true,
-      ],
-      [
-        "heightfield",
-        () => validateSpace({ space: withHeight(lattice()) }).success === true,
-      ],
-    ]),
-    { constant: true, plane: true, heightfield: true },
-  );
-
-  TestValidator.equals(
-    "every height-rule parameter is range-checked",
-    namedFacts([
-      [
-        "constantValue",
-        () =>
-          hasViolation(
-            validateSpace({
-              space: withHeight({ kind: "constant", value: Number.NaN }),
-            }),
-            "range",
-            ".height.value",
-          ),
-      ],
-      [
-        "planeOrigin",
-        () =>
-          hasViolation(
-            validateSpace({
-              space: withHeight({
-                kind: "plane",
-                originHeight: Number.POSITIVE_INFINITY,
-                slopeX: 0,
-                slopeZ: 0,
-              }),
-            }),
-            "range",
-            ".height.originHeight",
-          ),
-      ],
-      [
-        "planeSlopeX",
-        () =>
-          hasViolation(
-            validateSpace({
-              space: withHeight({
-                kind: "plane",
-                originHeight: 0,
-                slopeX: Number.NaN,
-                slopeZ: 0,
-              }),
-            }),
-            "range",
-            ".height.slopeX",
-          ),
-      ],
-      [
-        "planeSlopeZ",
-        () =>
-          hasViolation(
-            validateSpace({
-              space: withHeight({
-                kind: "plane",
-                originHeight: 0,
-                slopeX: 0,
-                slopeZ: Number.NaN,
-              }),
-            }),
-            "range",
-            ".height.slopeZ",
-          ),
-      ],
-      [
-        "latticeOriginX",
-        () =>
-          hasViolation(
-            validateSpace({
-              space: withHeight(lattice({ originX: Number.NaN })),
-            }),
-            "range",
-            ".height.originX",
-          ),
-      ],
-      [
-        "latticeOriginZ",
-        () =>
-          hasViolation(
-            validateSpace({
-              space: withHeight(lattice({ originZ: Number.NaN })),
-            }),
-            "range",
-            ".height.originZ",
-          ),
-      ],
-      [
-        "latticeSpacingX",
-        () =>
-          hasViolation(
-            validateSpace({ space: withHeight(lattice({ spacingX: 0 })) }),
-            "range",
-            ".height.spacingX",
-          ),
-      ],
-      [
-        "latticeSpacingZ",
-        () =>
-          hasViolation(
-            validateSpace({ space: withHeight(lattice({ spacingZ: -2 })) }),
-            "range",
-            ".height.spacingZ",
-          ),
-      ],
-      [
-        "latticeColumns",
-        () =>
-          hasViolation(
-            validateSpace({
-              space: withHeight(lattice({ columns: 1, samples: [0, 1] })),
-            }),
-            "range",
-            ".height.columns",
-          ),
-      ],
-      [
-        "latticeRows",
-        () =>
-          hasViolation(
-            validateSpace({
-              space: withHeight(lattice({ rows: 1.5, samples: [0, 1, 0] })),
-            }),
-            "range",
-            ".height.columns",
-          ),
-      ],
-      [
-        "latticeSamples",
-        () =>
-          hasViolation(
-            validateSpace({ space: withHeight(lattice({ samples: [0, 1] })) }),
-            "range",
-            ".height.samples",
-          ),
-      ],
-      [
-        "latticeSample",
-        () =>
-          hasViolation(
-            validateSpace({
-              space: withHeight(lattice({ samples: [0, 1, 0, Number.NaN] })),
-            }),
-            "range",
-            ".height.samples[3]",
-          ),
-      ],
-    ]),
-    {
-      constantValue: true,
-      planeOrigin: true,
-      planeSlopeX: true,
-      planeSlopeZ: true,
-      latticeOriginX: true,
-      latticeOriginZ: true,
-      latticeSpacingX: true,
-      latticeSpacingZ: true,
-      latticeColumns: true,
-      latticeRows: true,
-      latticeSamples: true,
-      latticeSample: true,
-    },
-  );
-
-  TestValidator.predicate(
-    "unknown height rule kind",
-    hasViolation(
-      validateSpace({
-        space: withHeight({
-          kind: "erosion",
-        } as unknown as IAutoMovieHeightRule),
-      }),
-      "type",
-      ".height.kind",
-    ),
-  );
-};
+  assertValidationSpaceHeights();
+}

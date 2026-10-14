@@ -1,45 +1,24 @@
+import type { IAutoMovieConstraintViolation } from "@automovie/interface";
 import { IAutoMovieClipChannelGate } from "./IAutoMovieClipChannelGate";
 import { IAutoMovieNodeChannel } from "./IAutoMovieNodeChannel";
 import { NODE_CHANNEL_PATHS } from "./constants/NODE_CHANNEL_PATHS";
 import { pushViolation } from "./pushViolation";
 
 /**
- * A TRANSFORM clip's track must address a channel the pipeline can HONOR
- * (#1339).
+ * Require node channels with translation/rotation/scale/weights paths, matching transform-clip appliers.
  *
- * `IAutoMovieChannel` has two arms, and only one of them is applied when a shot
- * plays a transform clip. `resolveFrame` and the viewer's `applyObjectMotion`
- * each write node channels onto the node they name and `continue` past
- * everything else, so a pointer track (`/materials/2/baseColor`,
- * `/cameras/0/fovY`, a rig DOF) validated clean, persisted to
- * `shots/<beat>.json`, was read back unchanged by `getShot`, and then silently
- * did nothing: the committed artifact said the candle dims and the film never
- * dimmed it.
- *
- * A validator that passes an instruction no consumer executes is a false green,
- * and the guide corpus tells an agent to trust exactly this verdict. So the
- * artifact contract refuses what the pipeline cannot perform, naming the
- * supported set, rather than accepting and discarding it.
- *
- * The set widens where an applier lands, and only there: `lightMotions` carries
- * light pointers because {@link resolveShotLighting} writes them (#1348), and
- * this gate is unchanged because `applyObjectMotion` still does not. Widening
- * it here without an applier would restore the exact false green #1339 closed.
- *
- * The gate is scoped to CLIP TRACKS on purpose. The other user of
- * `IAutoMovieChannel` is the driver graph (a prop profile's `source`/`output`,
- * `IAutoMovieChannelLimit.channel`), where `resolve/drivers` does read pointer
- * keys out of the sampled map. Those stay untouched.
- *
- * Exported so a caller with a NARROWER rule can add to it rather than replace
- * it. Passing a gate of one's own opts out of this one entirely, and a shot
- * field that only meant to say "and it must be a node this shot staged" would
- * silently stop refusing pointer tracks and unknown node paths on the way.
+ * @evidence contracts/common.md#principled-implementation Require node channels with translation/rotation/scale/weights paths, matching transform-clip appliers.
+ * @evidence contracts/common.md#clear-and-simple-design NODE_CHANNEL_PATHS owns the accepted node property menu; light pointer tracks use a separate shot field gate.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts All pointer tracks are refused on transform clips, while driver graph pointer semantics remain separate.
+ * @evidence contracts/common.md#meaningful-documentation A custom channelGate replaces this policy rather than automatically extending it; exact kind/path faults are documented.
+ * @evidence contracts/performance.md#efficient-algorithms Fixed kind/set checks take expected constant work apart from diagnostic serialization.
+ * @evidence contracts/performance.md#reuse-equivalent-work The shared node path vocabulary aligns sampling and application without caching graph existence.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Only caller-owned fault rows escape; no scene node or host registry is captured.
  */
 export const validateHonorableChannel: IAutoMovieClipChannelGate = (
-  channel,
-  path,
-  violations,
+  channel: Record<string, unknown>,
+  path: string,
+  violations: IAutoMovieConstraintViolation[],
 ): void => {
   if (channel.kind !== "node") {
     pushViolation(

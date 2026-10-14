@@ -1,4 +1,4 @@
-import {
+import { IAutoMovieBlendshapeChannel,
   AutoMovieArkitChannel,
   AutoMovieExpressionPreset,
   IAutoMovieExpression,
@@ -7,23 +7,30 @@ import {
 import { ViolationCollector } from "./ViolationCollector";
 
 /**
- * Validate an {@link IAutoMovieExpression}: Tier-1 range checks the rough types
- * intentionally do not encode.
- *
- * Preset and ARKit channel names are runtime-checked against their closed
- * menus, and magnitudes still sit in `[0, 1]`: preset intensity and every
- * blendshape weight. ARKit channels also must not be set twice.
+ * Admit preset/channel membership, intensity/weight ranges and duplicate ARKit channels.
  *
  * @author Samchon
+ * @evidence contracts/common.md#principled-implementation Admit preset/channel membership, intensity/weight ranges and duplicate ARKit channels.
+ * @evidence contracts/common.md#clear-and-simple-design Module-fixed vocabularies and a request-local seen set separate closed menus from per-expression uniqueness.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts This validates weights rather than generating facial geometry or certifying the resulting face's appearance.
+ * @evidence contracts/common.md#meaningful-documentation Optional caller path/collector compose errors with parent validators; weights use inclusive[0,1].
+ * @evidence contracts/performance.md#efficient-algorithms B blendshape rows cost expected O(B) membership work and O(B) seen storage.
+ * @evidence contracts/performance.md#reuse-equivalent-work Closed vocabularies remain shared; the seen set is rebuilt for changed expression contents.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources A supplied or fresh collector owns diagnostics; no face, morph buffer or animation handle is retained.
  */
-export const validateExpression = (props: {
+export const validateExpression: (props: { expression: IAutoMovieExpression; path?: string; collector?: ViolationCollector; }) => ViolationCollector = (props: {
+  /** Borrowed preset and optional blendshape weights with inclusive 0..1 magnitudes. */
   expression: IAutoMovieExpression;
+
+  /** Base diagnostic address, defaulting to $input. */
   path?: string;
+
+  /** Optional caller-owned sink advanced by this validation. */
   collector?: ViolationCollector;
 }): ViolationCollector => {
-  const path = props.path ?? "$input";
-  const collector = props.collector ?? new ViolationCollector();
-  const { expression } = props;
+  const path: string = props.path ?? "$input";
+  const collector: ViolationCollector = props.collector ?? new ViolationCollector();
+  const { expression }: { expression: IAutoMovieExpression; path?: string; collector?: ViolationCollector; } = props;
 
   if (!EXPRESSION_PRESETS.has(expression.preset))
     collector.push(
@@ -34,9 +41,9 @@ export const validateExpression = (props: {
     );
   collector.range(`${path}.intensity`, expression.intensity, 0, 1, "intensity");
 
-  const seen = new Set<string>();
-  (expression.blendshapes ?? []).forEach((c, i) => {
-    const cp = `${path}.blendshapes[${i}]`;
+  const seen: Set<string> = new Set<string>();
+  (expression.blendshapes ?? []).forEach((c: IAutoMovieBlendshapeChannel, i: number): void => {
+    const cp: string = `${path}.blendshapes[${i}]`;
     if (!ARKIT_CHANNELS.has(c.channel))
       collector.push(
         "type",
@@ -58,7 +65,7 @@ export const validateExpression = (props: {
   return collector;
 };
 
-const EXPRESSION_PRESETS = new Set<AutoMovieExpressionPreset>([
+const EXPRESSION_PRESETS: Set<AutoMovieExpressionPreset> = new Set<AutoMovieExpressionPreset>([
   "neutral",
   "happy",
   "angry",
@@ -79,7 +86,7 @@ const EXPRESSION_PRESETS = new Set<AutoMovieExpressionPreset>([
   "lookRight",
 ]);
 
-const ARKIT_CHANNELS = new Set<AutoMovieArkitChannel>([
+const ARKIT_CHANNELS: Set<AutoMovieArkitChannel> = new Set<AutoMovieArkitChannel>([
   "eyeBlinkLeft",
   "eyeLookDownLeft",
   "eyeLookInLeft",

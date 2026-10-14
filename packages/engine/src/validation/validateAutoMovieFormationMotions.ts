@@ -1,4 +1,4 @@
-import {
+import { IAutoMovieShotParticipant, IAutoMovieFormationMotion, IAutoMovieModel, IAutoMovieCompiledFormation, IAutoMovieCompiledFormationLod, IAutoMovieGait, IAutoMovieFormationLayout,
   IAutoMovieCompiledShotSource,
   IAutoMovieDiagnostic,
   IAutoMovieShotContract,
@@ -9,16 +9,23 @@ import { compareCodeUnits } from "../text/compareCodeUnits";
 import { engineDiagnostic } from "./engineDiagnostic";
 
 /**
- * Validate bounded source-authored formation cues against one compiled shot.
+ * Check bounded formation cues against participating compiled formations, runtime gait repertoire, finite state, layout and nonoverlapping intervals.
  *
  * @author Samchon
+ * @evidence contracts/common.md#principled-implementation Check bounded formation cues against participating compiled formations, runtime gait repertoire, finite state, layout and nonoverlapping intervals.
+ * @evidence contracts/common.md#clear-and-simple-design Request-local runtime/repertoire maps share model gait reads across cues and deterministic ordering groups each unit.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The 256-cue cap is a diagnostic, not truncation; unknown runtime models contribute no repertoire rather than an invented gait.
+ * @evidence contracts/common.md#meaningful-documentation Paths identify cue fields; optional layout means no new reform target and supported easing names remain closed.
+ * @evidence contracts/performance.md#efficient-algorithms C sorting plus formation/model repertoire scans dominate; formation find remains O(CF), with O(F+M+C) local indexes.
+ * @evidence contracts/performance.md#reuse-equivalent-work The existing gait owner supplies repertoire and maps live only for this shot's current inputs.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Only diagnostics escape; local sets/maps borrow compiled records without retaining a host bake or animation task.
  */
-export const validateAutoMovieFormationMotions = (
+export const validateAutoMovieFormationMotions: (contract: IAutoMovieShotContract, value: IAutoMovieCompiledShotSource) => IAutoMovieDiagnostic[] = (
   contract: IAutoMovieShotContract,
   value: IAutoMovieCompiledShotSource,
 ): IAutoMovieDiagnostic[] => {
   const diagnostics: IAutoMovieDiagnostic[] = [];
-  const fail = (field: string, expectation: string): void => {
+  const fail: (field: string, expectation: string) => void = (field: string, expectation: string): void => {
     diagnostics.push(engineDiagnostic(contract.id, field, expectation));
   };
   if (value.formationMotions.length > 256)
@@ -26,13 +33,13 @@ export const validateAutoMovieFormationMotions = (
       "formationMotions",
       "must contain at most 256 compact cues rather than per-member curves",
     );
-  const ids = new Set<string>();
-  const participating = new Set(
-    contract.participants.flatMap((participant) =>
+  const ids: Set<string> = new Set<string>();
+  const participating: Set<string> = new Set(
+    contract.participants.flatMap((participant: IAutoMovieShotParticipant): string[] =>
       participant.kind === "formation" ? [participant.id] : [],
     ),
   );
-  const priorByFormation = new Map<
+  const priorByFormation: Map<string, IAutoMovieFormationMotion> = new Map<
     string,
     IAutoMovieCompiledShotSource["formationMotions"][number]
   >();
@@ -41,22 +48,22 @@ export const validateAutoMovieFormationMotions = (
   // viewer's bake accepts too. A unit whose figures declare nothing is a crowd
   // of props and has no repertoire to disagree with, exactly as the bake reads
   // it.
-  const runtimeById = new Map(value.models.map((model) => [model.id, model]));
-  const repertoire = new Map(
-    value.formations.map((formation) => [
+  const runtimeById: Map<string, IAutoMovieModel> = new Map(value.models.map((model: IAutoMovieModel): [string, IAutoMovieModel] => [model.id, model]));
+  const repertoire: Map<string, Set<string>> = new Map(
+    value.formations.map((formation: IAutoMovieCompiledFormation): [string, Set<string>] => [
       formation.id,
       new Set(
-        formation.lod.flatMap((tier) => {
-          const model = runtimeById.get(tier.model);
+        formation.lod.flatMap((tier: IAutoMovieCompiledFormationLod): string[] => {
+          const model: IAutoMovieModel | undefined = runtimeById.get(tier.model);
           return model === undefined
             ? []
-            : autoMovieModelGaits(model).map((gait) => gait.name);
+            : autoMovieModelGaits(model).map((gait: IAutoMovieGait): string => gait.name);
         }),
       ),
     ]),
   );
   for (const cue of [...value.formationMotions].sort(
-    (left, right) =>
+    (left: IAutoMovieFormationMotion, right: IAutoMovieFormationMotion): number =>
       compareCodeUnits(left.formation, right.formation) ||
       left.start - right.start ||
       compareCodeUnits(left.id, right.id),
@@ -69,7 +76,7 @@ export const validateAutoMovieFormationMotions = (
     ids.add(cue.id);
     if (
       participating.has(cue.formation) === false ||
-      value.formations.some((formation) => formation.id === cue.formation) ===
+      value.formations.some((formation: IAutoMovieCompiledFormation): boolean => formation.id === cue.formation) ===
         false
     )
       fail(
@@ -81,12 +88,12 @@ export const validateAutoMovieFormationMotions = (
     // lattice of zero files is a division by zero inside the placement itself
     // -- neither is a picture, and both are the author's to correct here
     // rather than the renderer's to discover.
-    const target = cue.layout;
-    const unit = value.formations.find(
-      (formation) => formation.id === cue.formation,
+    const target: IAutoMovieFormationLayout | undefined = cue.layout;
+    const unit: IAutoMovieCompiledFormation | undefined = value.formations.find(
+      (formation: IAutoMovieCompiledFormation): boolean => formation.id === cue.formation,
     );
     if (target !== undefined && unit !== undefined) {
-      const lattice =
+      const lattice: { ranks: number; files: number; } | null =
         target.kind === "line" || target.kind === "column"
           ? { ranks: target.ranks, files: target.files }
           : null;
@@ -103,7 +110,7 @@ export const validateAutoMovieFormationMotions = (
           `must seat all ${unit.count} members in whole ranks and files rather than ${lattice.ranks} x ${lattice.files}`,
         );
     }
-    const declared = repertoire.get(cue.formation);
+    const declared: Set<string> | undefined = repertoire.get(cue.formation);
     if (
       cue.gait !== undefined &&
       declared !== undefined &&
@@ -133,7 +140,7 @@ export const validateAutoMovieFormationMotions = (
     ] as const) {
       if (
         [state.translation.x, state.translation.y, state.translation.z].some(
-          (number) =>
+          (number: number): boolean =>
             Number.isFinite(number) === false ||
             Math.abs(number) > 1_000_000_000,
         ) ||
@@ -146,7 +153,7 @@ export const validateAutoMovieFormationMotions = (
         );
       if (
         [state.spacingScale.lateral, state.spacingScale.depth].some(
-          (number) =>
+          (number: number): boolean =>
             Number.isFinite(number) === false || number < 0.25 || number > 4,
         )
       )
@@ -155,7 +162,7 @@ export const validateAutoMovieFormationMotions = (
           "must stay inside the bounded 0.25..4 envelope",
         );
     }
-    const prior = priorByFormation.get(cue.formation);
+    const prior: IAutoMovieFormationMotion | undefined = priorByFormation.get(cue.formation);
     if (prior !== undefined && cue.start < prior.end)
       fail(
         `formationMotion:${cue.id}.start`,

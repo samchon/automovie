@@ -1,4 +1,5 @@
-import {
+import type { IAutoMovieResolvedBone } from "./../kinematics/IAutoMovieResolvedBone";
+import { IAutoMovieBone,
   AutoMovieHumanoidBone,
   IAutoMovieMotion,
   IAutoMovieSkeleton,
@@ -19,27 +20,23 @@ import { IAutoMovieFootContactWindow } from "./IAutoMovieFootContactWindow";
 import { ViolationCollector } from "./ViolationCollector";
 import { fkReachableBones } from "./fkReachableBones";
 
-const DEFAULT_SAMPLE_RATE = 24;
+const DEFAULT_SAMPLE_RATE: number = 24;
 
-const DEFAULT_MAX_HORIZONTAL_SPEED = 0.02;
+const DEFAULT_MAX_HORIZONTAL_SPEED: number = 0.02;
 
 /**
- * Tier-3 planted-foot skate check. It samples declared contact windows,
- * resolves the foot through FK, and reports any adjacent samples whose
- * horizontal world-space speed exceeds the contact tolerance.
- *
- * This validator is opt-in and contact-window driven: locomotion, jumps, and
- * stylized gestures can all move feet legally unless the caller marks a foot as
- * planted for a particular time span.
- *
- * Foot skate is a physical-plausibility **warning**, not a gate: the run still
- * succeeds and the warning surfaces so the orchestrator can plant the foot
- * (IK), restage, or acknowledge a deliberate slide with `physicsIntent`. Only
- * malformed annotations (bad bone, window, or rate) are errors.
+ * Sample admitted contact windows, resolve FK and warn when adjacent foot XZ displacement divided by elapsed seconds exceeds the declared speed.
  *
  * @author Samchon
+ * @evidence contracts/common.md#principled-implementation Sample admitted contact windows, resolve FK and warn when adjacent foot XZ displacement divided by elapsed seconds exceeds the declared speed.
+ * @evidence contracts/common.md#clear-and-simple-design Shared window clock and reachability prevent missing FK lookups and mismatched physics sample times.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts physicsIntent suppresses skate warnings only; finite positive rate and valid reachable bone/window/speed remain mandatory errors.
+ * @evidence contracts/common.md#meaningful-documentation Defaults24Hz and0.02m/s, contact-local sample paths and advisory behavior are stated.
+ * @evidence contracts/performance.md#efficient-algorithms T samples pay motion/FK plus one bone find each; stored samples use O(T) space per contact.
+ * @evidence contracts/performance.md#reuse-equivalent-work Topology/reachability are computed once for the invocation, not again for every window.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Sample arrays release per contact; returned warnings grow with violations and retain no playback or solver handle.
  */
-export const validateFootSkate = (props: {
+export const validateFootSkate: (props: { motion: IAutoMovieMotion; skeleton: IAutoMovieSkeleton; contacts: readonly IAutoMovieFootContactWindow[]; sampleRate?: number; path?: string; jointAxes?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>; restFrames?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>; physicsIntent?: string; }) => IAutoMovieValidation = (props: {
   /** Motion clip to sample. */
   motion: IAutoMovieMotion;
 
@@ -69,13 +66,13 @@ export const validateFootSkate = (props: {
    */
   physicsIntent?: string;
 }): IAutoMovieValidation => {
-  const collector = new ViolationCollector();
-  const suppressed = props.physicsIntent !== undefined;
-  const sampleRate = props.sampleRate ?? DEFAULT_SAMPLE_RATE;
-  const path = props.path ?? "$input";
-  const skeletonBones = new Set(props.skeleton.bones.map((bone) => bone.bone));
-  const topology = indexSkeletonTopology(props.skeleton);
-  const reachableBones = fkReachableBones(props.skeleton, topology);
+  const collector: ViolationCollector = new ViolationCollector();
+  const suppressed: boolean = props.physicsIntent !== undefined;
+  const sampleRate: number = props.sampleRate ?? DEFAULT_SAMPLE_RATE;
+  const path: string = props.path ?? "$input";
+  const skeletonBones: Set<AutoMovieHumanoidBone> = new Set(props.skeleton.bones.map((bone: IAutoMovieBone): AutoMovieHumanoidBone => bone.bone));
+  const topology: IAutoMovieSkeletonTopology = indexSkeletonTopology(props.skeleton);
+  const reachableBones: Set<AutoMovieHumanoidBone> = fkReachableBones(props.skeleton, topology);
 
   if (!Number.isFinite(sampleRate) || sampleRate <= 0)
     collector.push(
@@ -85,9 +82,9 @@ export const validateFootSkate = (props: {
       sampleRate,
     );
 
-  props.contacts.forEach((contact, contactIndex) => {
-    const cp = `${path}.contacts[${contactIndex}]`;
-    const maxHorizontalSpeed =
+  props.contacts.forEach((contact: IAutoMovieFootContactWindow, contactIndex: number): void => {
+    const cp: string = `${path}.contacts[${contactIndex}]`;
+    const maxHorizontalSpeed: number =
       contact.maxHorizontalSpeed ?? DEFAULT_MAX_HORIZONTAL_SPEED;
 
     if (!skeletonBones.has(contact.bone))
@@ -101,7 +98,7 @@ export const validateFootSkate = (props: {
     // never returned by FK, so reading its resolved position would crash rather
     // than report the malformed rig. Gate on FK-reachability, not just
     // declaration, and skip sampling when it is unreachable.
-    const boneUnreachable =
+    const boneUnreachable: boolean =
       skeletonBones.has(contact.bone) && !reachableBones.has(contact.bone);
     if (boneUnreachable)
       collector.push(
@@ -141,7 +138,7 @@ export const validateFootSkate = (props: {
     )
       return;
 
-    const samples = sampleWindow(
+    const samples: { time: number; position: IAutoMovieVector3; }[] = sampleWindow(
       props.motion,
       props.skeleton,
       contact,
@@ -150,10 +147,10 @@ export const validateFootSkate = (props: {
       props.restFrames,
       topology,
     );
-    for (let index = 1; index < samples.length; index++) {
-      const previous = samples[index - 1]!;
-      const current = samples[index]!;
-      const speed = horizontalSpeed(previous, current);
+    for (let index: number = 1; index < samples.length; index++) {
+      const previous: { time: number; position: IAutoMovieVector3; } = samples[index - 1]!;
+      const current: { time: number; position: IAutoMovieVector3; } = samples[index]!;
+      const speed: number = horizontalSpeed(previous, current);
       if (speed > maxHorizontalSpeed && !suppressed)
         collector.warn(
           "physics",
@@ -168,7 +165,22 @@ export const validateFootSkate = (props: {
   return collector.toValidation();
 };
 
-const sampleWindow = (
+/**
+ * Use windowSampleTimes to sample motion/FK and select the admitted contact bone's world position.
+ *
+ * Clock and rig resolution stay with their canonical owners.
+ *
+ * Caller reachability/rate/window admission is required before the non-null resolved lookup.
+ *
+ * Output pairs second timestamps with borrowed resolved world-position records.
+ *
+ * T times pay motion/FK and one resolved-bone find, returning O(T) sample rows.
+ *
+ * One supplied topology is reused through all window samples.
+ *
+ * The caller owns sample wrappers/points; no sampling task or native rig remains.
+ */
+const sampleWindow: (motion: IAutoMovieMotion, skeleton: IAutoMovieSkeleton, contact: IAutoMovieFootContactWindow, sampleRate: number, jointAxes: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>> | undefined, restFrames: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>> | undefined, topology: IAutoMovieSkeletonTopology) => Array<{ time: number; position: IAutoMovieVector3; }> = (
   motion: IAutoMovieMotion,
   skeleton: IAutoMovieSkeleton,
   contact: IAutoMovieFootContactWindow,
@@ -181,24 +193,54 @@ const sampleWindow = (
     | undefined,
   topology: IAutoMovieSkeletonTopology,
 ): Array<{ time: number; position: IAutoMovieVector3 }> =>
-  windowSampleTimes(contact.start, contact.end, sampleRate).map((time) => {
-    const resolved = resolvePose(
+  windowSampleTimes(contact.start, contact.end, sampleRate).map((time: number): { time: number; position: IAutoMovieVector3; } => {
+    const resolved: IAutoMovieResolvedBone | undefined = resolvePose(
       sampleMotion(motion, time).pose,
       skeleton,
       jointAxes,
       restFrames,
       topology,
-    ).find((bone) => bone.bone === contact.bone);
+    ).find((bone: IAutoMovieResolvedBone): boolean => bone.bone === contact.bone);
     return { time, position: resolved!.worldPosition };
   });
 
-const horizontalSpeed = (
+/**
+ * Divide XZ displacement magnitude by the two samples' elapsed seconds.
+ *
+ * This measures horizontal skating without treating vertical motion as a slide.
+ *
+ * Strictly increasing sample times are required; this helper does not guard zero dt.
+ *
+ * Output is model/world units per second.
+ *
+ * One hypot and fixed subtraction/division take constant work.
+ *
+ * Adjacent contact samples share stored FK points rather than resolving again.
+ *
+ * Only a speed scalar returns; sample rows are not retained.
+ */
+const horizontalSpeed: (previous: { time: number; position: IAutoMovieVector3; }, current: { time: number; position: IAutoMovieVector3; }) => number = (
   previous: { time: number; position: IAutoMovieVector3 },
   current: { time: number; position: IAutoMovieVector3 },
 ): number => {
-  const dx = current.position.x - previous.position.x;
-  const dz = current.position.z - previous.position.z;
+  const dx: number = current.position.x - previous.position.x;
+  const dz: number = current.position.z - previous.position.z;
   return Math.hypot(dx, dz) / (current.time - previous.time);
 };
 
-const round = (value: number): number => Math.round(value * 1_000) / 1_000;
+/**
+ * Round a diagnostic quantity to three decimals with Math.round(value*1000)/1000.
+ *
+ * The validateFootSkate owner applies presentation rounding after its actual predicate.
+ *
+ * Binary64 rounding is not an exact decimal serialization or decision tolerance.
+ *
+ * Only displayed metre/second quantities are rounded, leaving comparison arithmetic unchanged.
+ *
+ * Fixed scalar arithmetic takes constant work.
+ *
+ * Diagnostics reuse the same presentation rule within validateFootSkate, not cached measurements.
+ *
+ * Only a number returns and no sampled state is retained.
+ */
+const round: (value: number) => number = (value: number): number => Math.round(value * 1_000) / 1_000;
