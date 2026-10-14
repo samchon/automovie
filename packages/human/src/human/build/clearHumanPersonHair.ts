@@ -27,22 +27,41 @@ import { meshOfHumanPart } from "./meshOfHumanPart";
 export function clearHumanPersonHair(
   props: IAutoMovieHumanPersonHairClearanceProps,
 ): void {
-  const generated: IAutoMovieModelPart[] = props.parts.filter((part: IAutoMovieModelPart): boolean => props.isGenerated(part.id));
+  const generated: IAutoMovieModelPart[] = props.parts.filter(
+    (part: IAutoMovieModelPart): boolean => props.isGenerated(part.id),
+  );
   if (generated.length === 0) return;
   const meshes: IAutoMovieMesh[] = generated.map(meshOfHumanPart);
-  if (props.contactLayouts !== undefined && generated.some((part: IAutoMovieModelPart): boolean => !props.contactLayouts!.has(part.id)))
-    throw new Error("Generated hair lacks its geometry-owned body-contact layout.");
+  if (
+    props.contactLayouts !== undefined &&
+    generated.some(
+      (part: IAutoMovieModelPart): boolean =>
+        !props.contactLayouts!.has(part.id),
+    )
+  )
+    throw new Error(
+      "Generated hair lacks its geometry-owned body-contact layout.",
+    );
   const input: IHumanPersonHairContactProps = {
     positions: props.positions,
     indices: props.indices,
-    hair: meshes.map((mesh: IAutoMovieMesh, index: number): IHumanPersonHairContactProps["hair"][number] => ({
-      positions: mesh.positions,
-      indices: mesh.indices!,
-      layout: props.contactLayouts?.get(generated[index].id),
-    })),
+    hair: meshes.map(
+      (
+        mesh: IAutoMovieMesh,
+        index: number,
+      ): IHumanPersonHairContactProps["hair"][number] => ({
+        positions: mesh.positions,
+        indices: mesh.indices!,
+        layout: props.contactLayouts?.get(generated[index].id),
+      }),
+    ),
     clearance: Math.max(
       0,
-      ...props.layers.map((layer: IAutoMovieHumanPersonHairClearanceProps["layers"][number]): number => layer.clearance + layer.samplingStep / 2),
+      ...props.layers.map(
+        (
+          layer: IAutoMovieHumanPersonHairClearanceProps["layers"][number],
+        ): number => layer.clearance + layer.samplingStep / 2,
+      ),
     ),
   };
   if (props.observe !== undefined)
@@ -51,12 +70,18 @@ export function clearHumanPersonHair(
         positions: Object.freeze([...input.positions]),
         indices: Object.freeze([...input.indices]),
         hair: Object.freeze(
-          input.hair.map((mesh: IHumanPersonHairContactProps["hair"][number]): IHumanPersonHairContactProps["hair"][number] =>
-            Object.freeze({
-              positions: Object.freeze([...mesh.positions]),
-              indices: Object.freeze([...mesh.indices]),
-              layout: mesh.layout === undefined ? undefined : freezeHairContactLayout(mesh.layout),
-            }),
+          input.hair.map(
+            (
+              mesh: IHumanPersonHairContactProps["hair"][number],
+            ): IHumanPersonHairContactProps["hair"][number] =>
+              Object.freeze({
+                positions: Object.freeze([...mesh.positions]),
+                indices: Object.freeze([...mesh.indices]),
+                layout:
+                  mesh.layout === undefined
+                    ? undefined
+                    : freezeHairContactLayout(mesh.layout),
+              }),
           ),
         ),
         clearance: input.clearance,
@@ -69,7 +94,10 @@ export function clearHumanPersonHair(
     );
     mesh.positions = cleared[at];
     if (changed && mesh.normals !== null) {
-      const normals: number[] = areaWeightedNormals(mesh.positions, mesh.indices!);
+      const normals: number[] = areaWeightedNormals(
+        mesh.positions,
+        mesh.indices!,
+      );
       for (let vertex: number = 0; vertex < normals.length; vertex += 3)
         if (
           Math.hypot(
@@ -91,7 +119,9 @@ export function clearHumanPersonHair(
  *
  * Clone and freeze cost follows actual curve/station/vertex/support populations with one traversal of each nested array. Each observation captures the current pre-contact layout; effectful observer delivery and changed geometry are not memoized here. Only the cloned layout escapes to its caller, which controls retention; no original contact state or task is held by this helper.
  */
-function freezeHairContactLayout(layout: IHumanFaceHairContactLayout): IHumanFaceHairContactLayout {
+function freezeHairContactLayout(
+  layout: IHumanFaceHairContactLayout,
+): IHumanFaceHairContactLayout {
   const copy: IHumanFaceHairContactLayout = structuredClone(layout);
   for (const curve of copy.curves) {
     Object.freeze(curve.attachment.weights);

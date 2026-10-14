@@ -19,36 +19,59 @@ import type { IAutoMovieHumanPersonSourceCellEvaluationProps } from "../structur
 export function evaluateHumanPersonSourceCells(
   props: IAutoMovieHumanPersonSourceCellEvaluationProps,
 ): IAutoMovieHumanPersonSourceCellEvaluation {
-  const { plan, faceIndices, bodyIndices, input }: IAutoMovieHumanPersonSourceCellEvaluationProps = props;
-  const used: Set<number>[] = [faceIndices, bodyIndices].map((indices: readonly number[]): Set<number> => new Set(indices));
+  const {
+    plan,
+    faceIndices,
+    bodyIndices,
+    input,
+  }: IAutoMovieHumanPersonSourceCellEvaluationProps = props;
+  const used: Set<number>[] = [faceIndices, bodyIndices].map(
+    (indices: readonly number[]): Set<number> => new Set(indices),
+  );
   if (
     input.face.length !== plan.face.samples.length * 3 ||
     input.body.length !== plan.body.samples.length * 3 ||
     input.bodyIndices.length !== bodyIndices.length ||
-    [...input.bodyIndices].some((id: number, at: number): boolean => id !== bodyIndices[at])
+    [...input.bodyIndices].some(
+      (id: number, at: number): boolean => id !== bodyIndices[at],
+    )
   )
     throw new Error(
       "Performed person source cells changed population without source lineage.",
     );
-  const parentAreas: number[] = new Array<number>(plan.face.parentTriangles.length).fill(
-    0,
-  );
+  const parentAreas: number[] = new Array<number>(
+    plan.face.parentTriangles.length,
+  ).fill(0);
   const samples: Map<number, number[]> = new Map<number, number[]>();
-  const sourcePositions: Map<number, readonly number[]> = new Map<number, readonly number[]>();
+  const sourcePositions: Map<number, readonly number[]> = new Map<
+    number,
+    readonly number[]
+  >();
   const cells: IAutoMovieHumanPersonSourceCellArea[] = [];
-  const domains: { positions: readonly number[]; indices: readonly number[]; record: typeof plan.face }[] = [
+  const domains: {
+    positions: readonly number[];
+    indices: readonly number[];
+    record: typeof plan.face;
+  }[] = [
     { positions: input.face, indices: faceIndices, record: plan.face },
     { positions: input.body, indices: bodyIndices, record: plan.body },
   ];
   for (const [side, domain] of domains.entries()) {
-    if ([...domain.positions].some((value: number): boolean => !Number.isFinite(value)))
+    if (
+      [...domain.positions].some(
+        (value: number): boolean => !Number.isFinite(value),
+      )
+    )
       throw new Error(
         "Person source normals need finite performed coordinates.",
       );
     const emittedPositions: number[] = domain.positions.map(Math.fround);
     for (const vertex of used[side]) {
       const id: number = domain.record.samples[vertex];
-      const point: number[] = emittedPositions.slice(vertex * 3, vertex * 3 + 3);
+      const point: number[] = emittedPositions.slice(
+        vertex * 3,
+        vertex * 3 + 3,
+      );
       if (point.some((value: number): boolean => !Number.isFinite(value)))
         throw new Error(
           "Person source samples must survive the renderer's Float32 frame.",
@@ -56,7 +79,9 @@ export function evaluateHumanPersonSourceCells(
       const existing: number[] | undefined = samples.get(id);
       if (
         existing !== undefined &&
-        point.some((value: number, axis: number): boolean => value !== existing[axis])
+        point.some(
+          (value: number, axis: number): boolean => value !== existing[axis],
+        )
       )
         throw new Error(
           "Performed person source samples disagree at a shared identity.",
@@ -69,7 +94,11 @@ export function evaluateHumanPersonSourceCells(
         );
     }
     for (let at: number = 0; at < domain.indices.length; at += 3) {
-      const area: ReturnType<typeof triangleAreaVector> = triangleAreaVector(domain.positions, domain.indices, at);
+      const area: ReturnType<typeof triangleAreaVector> = triangleAreaVector(
+        domain.positions,
+        domain.indices,
+        at,
+      );
       const vector: number[] = [area.x, area.y, area.z];
       // Float32-representable used coordinates bound area vectors and their
       // finite-array sums within Float64. A zero cell has no normal.
@@ -77,7 +106,11 @@ export function evaluateHumanPersonSourceCells(
         throw new Error(
           "Person source shading cannot admit a zero performed cell.",
         );
-      const emitted: ReturnType<typeof triangleAreaVector> = triangleAreaVector(emittedPositions, domain.indices, at);
+      const emitted: ReturnType<typeof triangleAreaVector> = triangleAreaVector(
+        emittedPositions,
+        domain.indices,
+        at,
+      );
       if (
         !(
           vector[0] * emitted.x +
@@ -99,7 +132,8 @@ export function evaluateHumanPersonSourceCells(
     if (
       !(
         vector.reduce(
-          (sum: number, value: number, axis: number): number => sum + value * parentAreas[parent + axis],
+          (sum: number, value: number, axis: number): number =>
+            sum + value * parentAreas[parent + axis],
           0,
         ) > 0
       )

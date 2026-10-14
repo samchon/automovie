@@ -1,4 +1,4 @@
-import type { IAutoMovieModel, IAutoMovieMesh } from "@automovie/interface";
+import type { IAutoMovieMesh, IAutoMovieModel } from "@automovie/interface";
 
 import type { IHumanBodyUnderwearRegion } from "../../body/structures/IHumanBodyUnderwearRegion";
 import { clipHumanPersonMesh } from "../seam/clipHumanPersonMesh";
@@ -27,41 +27,81 @@ export function createHumanPersonBodyRegionParts(
   input: IHumanPersonBodyRegionPartsInput,
 ): IHumanPersonBodyRegionParts {
   const parts: IAutoMovieModel["parts"] = [];
-  const garmentFields: Map<string, Pick<IHumanBodyUnderwearRegion, "field" | "sources">> = new Map<string, Pick<IHumanBodyUnderwearRegion, "field" | "sources">>();
-  const coverage: number[] | undefined = input.garment === undefined ? undefined : evaluateHumanPersonCut(
-    input.garment.sourceFields[input.surface].flatMap((value: number): number[] => [value, value, value]), input.cut,
-  ).filter((_: number, at: number): boolean => at % 3 === 0);
+  const garmentFields: Map<
+    string,
+    Pick<IHumanBodyUnderwearRegion, "field" | "sources">
+  > = new Map<string, Pick<IHumanBodyUnderwearRegion, "field" | "sources">>();
+  const coverage: number[] | undefined =
+    input.garment === undefined
+      ? undefined
+      : evaluateHumanPersonCut(
+          input.garment.sourceFields[input.surface].flatMap(
+            (value: number): number[] => [value, value, value],
+          ),
+          input.cut,
+        ).filter((_: number, at: number): boolean => at % 3 === 0);
   for (const part of input.parts) {
     const mesh: IAutoMovieMesh = meshOfHumanPart(part);
     const sources: readonly number[] | undefined = input.regions.get(part.id);
-    const garmentRegion: IHumanBodyUnderwearRegion | undefined = input.garment?.regions.get(part.id);
+    const garmentRegion: IHumanBodyUnderwearRegion | undefined =
+      input.garment?.regions.get(part.id);
     const id: string = "body:" + part.id;
     if (sources === undefined) {
       parts.push(prefixHumanPersonPart("body", part, mesh));
       if (garmentRegion !== undefined) garmentFields.set(id, garmentRegion);
       continue;
     }
-    const clipped: ReturnType<typeof clipHumanPersonMesh> = clipHumanPersonMesh(mesh, sources, input.cut);
-    const scalar: number[] | undefined = garmentRegion === undefined ? undefined
-      : clipped.sources.map((source: number): number => coverage![source]);
+    const clipped: ReturnType<typeof clipHumanPersonMesh> = clipHumanPersonMesh(
+      mesh,
+      sources,
+      input.cut,
+    );
+    const scalar: number[] | undefined =
+      garmentRegion === undefined
+        ? undefined
+        : clipped.sources.map((source: number): number => coverage![source]);
     const lineage: number[] = clipped.sources.slice();
     let fieldSources: readonly number[] = lineage;
     let field: readonly number[] | undefined = scalar;
     const stitched: IAutoMovieMesh = stitchHumanPersonBoundary({
-      ...input.stitch, mesh: input.place(clipped.mesh, clipped.sources),
-      sources: clipped.sources, side: "body",
-      appendSourceScalar: scalar === undefined ? undefined : (vertex: number, parents: readonly number[], weights: readonly number[]): void => {
-        scalar[vertex] = parents.reduce((sum: number, parent: number, at: number): number => sum + scalar[parent] * weights[at], 0);
-        lineage[vertex] = input.cut.margins.length + input.cut.intersections.length + vertex;
-      },
+      ...input.stitch,
+      mesh: input.place(clipped.mesh, clipped.sources),
+      sources: clipped.sources,
+      side: "body",
+      appendSourceScalar:
+        scalar === undefined
+          ? undefined
+          : (
+              vertex: number,
+              parents: readonly number[],
+              weights: readonly number[],
+            ): void => {
+              scalar[vertex] = parents.reduce(
+                (sum: number, parent: number, at: number): number =>
+                  sum + scalar[parent] * weights[at],
+                0,
+              );
+              lineage[vertex] =
+                input.cut.margins.length +
+                input.cut.intersections.length +
+                vertex;
+            },
     });
-    const compacted: IAutoMovieMesh = dropHumanMeshTriangles(stitched, (): boolean => false, scalar === undefined ? undefined
-      : (survivors: readonly number[]): void => {
-          fieldSources = survivors.map((vertex: number): number => lineage[vertex]);
-          field = survivors.map((vertex: number): number => scalar[vertex]);
-        });
+    const compacted: IAutoMovieMesh = dropHumanMeshTriangles(
+      stitched,
+      (): boolean => false,
+      scalar === undefined
+        ? undefined
+        : (survivors: readonly number[]): void => {
+            fieldSources = survivors.map(
+              (vertex: number): number => lineage[vertex],
+            );
+            field = survivors.map((vertex: number): number => scalar[vertex]);
+          },
+    );
     parts.push(prefixHumanPersonPart("body", part, compacted));
-    if (field !== undefined) garmentFields.set(id, { sources: fieldSources, field });
+    if (field !== undefined)
+      garmentFields.set(id, { sources: fieldSources, field });
   }
   return { parts, garmentFields };
 }

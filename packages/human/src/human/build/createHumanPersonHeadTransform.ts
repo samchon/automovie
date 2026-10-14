@@ -1,5 +1,8 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3, IAutoMovieQuaternion } from "@automovie/interface";
+import type {
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import type { IAutoMovieHumanPersonHeadTransform } from "../structures/IAutoMovieHumanPersonHeadTransform";
 import type { IAutoMovieHumanPersonHeadTransformProps } from "../structures/IAutoMovieHumanPersonHeadTransformProps";
@@ -24,7 +27,8 @@ import type { IAutoMovieHumanPersonHeadTransformProps } from "../structures/IAut
 export function createHumanPersonHeadTransform(
   props: IAutoMovieHumanPersonHeadTransformProps,
 ): IAutoMovieHumanPersonHeadTransform {
-  const { anchor, rest, posed }: IAutoMovieHumanPersonHeadTransformProps = props;
+  const { anchor, rest, posed }: IAutoMovieHumanPersonHeadTransformProps =
+    props;
   const rotation: IAutoMovieQuaternion = Quaternion.multiply(
     posed.rotation,
     Quaternion.inverse(rest.rotation),
@@ -33,11 +37,28 @@ export function createHumanPersonHeadTransform(
     posed.position,
     Quaternion.rotateVector(rotation, rest.position),
   );
-  const shift: IAutoMovieVector3 = Vector3.subtract(anchor.shaped, anchor.neutral);
-  const x: IAutoMovieVector3 = Quaternion.rotateVector(rotation, { x: 1, y: 0, z: 0 });
-  const y: IAutoMovieVector3 = Quaternion.rotateVector(rotation, { x: 0, y: 1, z: 0 });
-  const z: IAutoMovieVector3 = Quaternion.rotateVector(rotation, { x: 0, y: 0, z: 1 });
-  const direction: (n: IAutoMovieVector3) => IAutoMovieVector3 = (n: IAutoMovieVector3): IAutoMovieVector3 => ({
+  const shift: IAutoMovieVector3 = Vector3.subtract(
+    anchor.shaped,
+    anchor.neutral,
+  );
+  const x: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
+    x: 1,
+    y: 0,
+    z: 0,
+  });
+  const y: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
+    x: 0,
+    y: 1,
+    z: 0,
+  });
+  const z: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
+    x: 0,
+    y: 0,
+    z: 1,
+  });
+  const direction: (n: IAutoMovieVector3) => IAutoMovieVector3 = (
+    n: IAutoMovieVector3,
+  ): IAutoMovieVector3 => ({
     x: x.x * n.x + y.x * n.y + z.x * n.z,
     y: x.y * n.x + y.y * n.y + z.y * n.z,
     z: x.z * n.x + y.z * n.y + z.z * n.z,

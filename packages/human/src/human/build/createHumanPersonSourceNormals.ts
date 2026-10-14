@@ -30,35 +30,54 @@ import { validateHumanPersonSourcePartitions } from "./validateHumanPersonSource
 export function createHumanPersonSourceNormals(
   props: IAutoMovieHumanPersonSourcePartitionsProps,
 ): ((input: IAutoMovieHumanPersonSourceNormalInput) => number[]) | undefined {
-  const plan: ReturnType<typeof validateHumanPersonSourcePartitions> = validateHumanPersonSourcePartitions(props);
+  const plan: ReturnType<typeof validateHumanPersonSourcePartitions> =
+    validateHumanPersonSourcePartitions(props);
   if (plan === undefined) return undefined;
   const faceIndices: number[] = [...props.face.indices];
   const bodyIndices: number[] = [...props.body.indices];
-  const transport: ReturnType<typeof validateHumanPersonNormalTransport> = validateHumanPersonNormalTransport({
-    plan,
-    face: {
-      indices: faceIndices,
-      transport: props.face.sourcePartition?.normalTransport,
-    },
-    body: {
-      indices: bodyIndices,
-      transport: props.body.sourcePartition?.normalTransport,
-    },
-  });
-  const used: Set<number>[] = [faceIndices, bodyIndices].map((indices: number[]): Set<number> => new Set(indices));
-  const bindingAt: (sample: number, parent: number) => IAutoMovieHumanPersonSourceStarBinding = (
+  const transport: ReturnType<typeof validateHumanPersonNormalTransport> =
+    validateHumanPersonNormalTransport({
+      plan,
+      face: {
+        indices: faceIndices,
+        transport: props.face.sourcePartition?.normalTransport,
+      },
+      body: {
+        indices: bodyIndices,
+        transport: props.body.sourcePartition?.normalTransport,
+      },
+    });
+  const used: Set<number>[] = [faceIndices, bodyIndices].map(
+    (indices: number[]): Set<number> => new Set(indices),
+  );
+  const bindingAt: (
+    sample: number,
+    parent: number,
+  ) => IAutoMovieHumanPersonSourceStarBinding = (
     sample: number,
     parent: number,
   ): IAutoMovieHumanPersonSourceStarBinding => {
     const record: typeof plan.face = plan.face;
-    const corners: number[] = record.parentTriangles.slice(parent * 3, parent * 3 + 3);
+    const corners: number[] = record.parentTriangles.slice(
+      parent * 3,
+      parent * 3 + 3,
+    );
     const weights: IAutoMovieHumanPersonSourceStarBinding["weights"] = plan
       .preimage(sample)
-      .map((point: ReturnType<typeof plan.preimage>[number]): IAutoMovieHumanPersonSourceStarBinding["weights"][number] => ({
-        key: `${point.id}:${record.parentNormalDomains?.[parent * 3 + corners.indexOf(point.id)] ?? 0}`,
-        weight: point.weight,
-      }))
-      .sort((a: IAutoMovieHumanPersonSourceStarBinding["weights"][number], b: IAutoMovieHumanPersonSourceStarBinding["weights"][number]): number => a.key.localeCompare(b.key));
+      .map(
+        (
+          point: ReturnType<typeof plan.preimage>[number],
+        ): IAutoMovieHumanPersonSourceStarBinding["weights"][number] => ({
+          key: `${point.id}:${record.parentNormalDomains?.[parent * 3 + corners.indexOf(point.id)] ?? 0}`,
+          weight: point.weight,
+        }),
+      )
+      .sort(
+        (
+          a: IAutoMovieHumanPersonSourceStarBinding["weights"][number],
+          b: IAutoMovieHumanPersonSourceStarBinding["weights"][number],
+        ): number => a.key.localeCompare(b.key),
+      );
     const chart: ReturnType<typeof plan.chart> = plan.chart(sample);
     return {
       weights,
@@ -70,43 +89,68 @@ export function createHumanPersonSourceNormals(
       ),
     };
   };
-  const bindings: (IAutoMovieHumanPersonSourceStarBinding | undefined)[][] = [props.face, props.body].map((surface: IAutoMovieHumanPersonSourcePartitionsProps["face"], side: number): (IAutoMovieHumanPersonSourceStarBinding | undefined)[] => {
-    const record: typeof plan.face = side === 0 ? plan.face : plan.body;
-    const incidence: Set<number>[] = Array.from(
-      { length: record.samples.length },
-      (): Set<number> => new Set<number>(),
-    );
-    surface.indices.forEach((vertex: number, at: number): Set<number> =>
-      incidence[vertex].add(record.parents[Math.floor(at / 3)]),
-    );
-    return record.samples.map((sample: number, vertex: number): IAutoMovieHumanPersonSourceStarBinding | undefined => {
-      if (!used[side].has(vertex)) return undefined;
-      const parents: number[] = [...incidence[vertex]];
-      const selected: number | undefined =
-        record.normalParents?.[vertex] ??
-        transport?.bindings[side][vertex]?.parent;
-      const result: IAutoMovieHumanPersonSourceStarBinding = bindingAt(sample, selected ?? parents[0]);
-      if (
-        selected === undefined &&
-        parents.some(
-          (parent: number): boolean => bindingAt(sample, parent).identity !== result.identity,
-        )
-      )
-        throw new Error(
-          "Person source normal incidence is ambiguous without a selected parent.",
-        );
-      return result;
-    });
-  });
-  const referenceField: (parentAreas: readonly number[]) => ReturnType<typeof createHumanPersonReferenceField> = (parentAreas: readonly number[]): ReturnType<typeof createHumanPersonReferenceField> =>
+  const bindings: (IAutoMovieHumanPersonSourceStarBinding | undefined)[][] = [
+    props.face,
+    props.body,
+  ].map(
+    (
+      surface: IAutoMovieHumanPersonSourcePartitionsProps["face"],
+      side: number,
+    ): (IAutoMovieHumanPersonSourceStarBinding | undefined)[] => {
+      const record: typeof plan.face = side === 0 ? plan.face : plan.body;
+      const incidence: Set<number>[] = Array.from(
+        { length: record.samples.length },
+        (): Set<number> => new Set<number>(),
+      );
+      surface.indices.forEach(
+        (vertex: number, at: number): Set<number> =>
+          incidence[vertex].add(record.parents[Math.floor(at / 3)]),
+      );
+      return record.samples.map(
+        (
+          sample: number,
+          vertex: number,
+        ): IAutoMovieHumanPersonSourceStarBinding | undefined => {
+          if (!used[side].has(vertex)) return undefined;
+          const parents: number[] = [...incidence[vertex]];
+          const selected: number | undefined =
+            record.normalParents?.[vertex] ??
+            transport?.bindings[side][vertex]?.parent;
+          const result: IAutoMovieHumanPersonSourceStarBinding = bindingAt(
+            sample,
+            selected ?? parents[0],
+          );
+          if (
+            selected === undefined &&
+            parents.some(
+              (parent: number): boolean =>
+                bindingAt(sample, parent).identity !== result.identity,
+            )
+          )
+            throw new Error(
+              "Person source normal incidence is ambiguous without a selected parent.",
+            );
+          return result;
+        },
+      );
+    },
+  );
+  const referenceField: (
+    parentAreas: readonly number[],
+  ) => ReturnType<typeof createHumanPersonReferenceField> = (
+    parentAreas: readonly number[],
+  ): ReturnType<typeof createHumanPersonReferenceField> =>
     createHumanPersonReferenceField({ plan, bindings, bindingAt, parentAreas });
-  const legacy: (input: IAutoMovieHumanPersonPerformedSkin) => number[] = (input: IAutoMovieHumanPersonPerformedSkin): number[] => {
-    const { parentAreas }: ReturnType<typeof evaluateHumanPersonSourceCells> = evaluateHumanPersonSourceCells({
-      plan,
-      faceIndices,
-      bodyIndices,
-      input,
-    });
+  const legacy: (input: IAutoMovieHumanPersonPerformedSkin) => number[] = (
+    input: IAutoMovieHumanPersonPerformedSkin,
+  ): number[] => {
+    const { parentAreas }: ReturnType<typeof evaluateHumanPersonSourceCells> =
+      evaluateHumanPersonSourceCells({
+        plan,
+        faceIndices,
+        bodyIndices,
+        input,
+      });
     return referenceField(parentAreas).normals;
   };
   return transport === undefined
@@ -115,6 +159,7 @@ export function createHumanPersonSourceNormals(
         evaluation: { plan, faceIndices, bodyIndices },
         transport,
         referenceField,
-        identity: (sample: number, parent: number): string => bindingAt(sample, parent).identity,
+        identity: (sample: number, parent: number): string =>
+          bindingAt(sample, parent).identity,
       });
 }

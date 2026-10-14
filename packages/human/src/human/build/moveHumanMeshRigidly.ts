@@ -22,7 +22,10 @@ export function moveHumanMeshRigidly(
 ): IAutoMovieMesh {
   if (mesh.physicalVertices !== undefined)
     resolveAutoMovieMeshPhysicalVertices(mesh);
-  const apply: (values: readonly number[], move: (v: IAutoMovieVector3) => IAutoMovieVector3) => number[] = (
+  const apply: (
+    values: readonly number[],
+    move: (v: IAutoMovieVector3) => IAutoMovieVector3,
+  ) => number[] = (
     values: readonly number[],
     move: (v: IAutoMovieVector3) => IAutoMovieVector3,
   ): number[] => {
@@ -48,9 +51,17 @@ export function moveHumanMeshRigidly(
       ? {}
       : {
           physicalVertices: {
-            sources: mesh.physicalVertices.sources.map((source: NonNullable<IAutoMovieMesh["physicalVertices"]>["sources"][number]): NonNullable<IAutoMovieMesh["physicalVertices"]>["sources"][number] => ({
-              ...source,
-            })),
+            sources: mesh.physicalVertices.sources.map(
+              (
+                source: NonNullable<
+                  IAutoMovieMesh["physicalVertices"]
+                >["sources"][number],
+              ): NonNullable<
+                IAutoMovieMesh["physicalVertices"]
+              >["sources"][number] => ({
+                ...source,
+              }),
+            ),
             vertices: mesh.physicalVertices.vertices.slice(),
           },
         }),

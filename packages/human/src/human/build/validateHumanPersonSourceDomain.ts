@@ -42,7 +42,9 @@ export function validateHumanPersonSourceDomain(
       record.parentTriangles[at + 2],
     ];
     if (
-      ids.some((id: number): boolean => !integer(id, record.originalVertices)) ||
+      ids.some(
+        (id: number): boolean => !integer(id, record.originalVertices),
+      ) ||
       new Set(ids).size !== 3
     )
       throw new Error(
@@ -89,7 +91,8 @@ export function validateHumanPersonSourceDomain(
     record.normalParents !== undefined &&
     (record.normalParents.length !== record.samples.length ||
       [...record.normalParents].some(
-        (id: number): boolean => !integer(id, record.parentTriangles.length / 3),
+        (id: number): boolean =>
+          !integer(id, record.parentTriangles.length / 3),
       ))
   )
     throw new Error(
@@ -100,11 +103,15 @@ export function validateHumanPersonSourceDomain(
     surface.indices.length % 3 !== 0 ||
     record.samples.length !== surface.positions.length / 3 ||
     record.parents.length !== surface.indices.length / 3 ||
-    [...record.samples].some((id: number): boolean => !integer(id, sampleCount)) ||
+    [...record.samples].some(
+      (id: number): boolean => !integer(id, sampleCount),
+    ) ||
     [...record.parents].some(
       (id: number): boolean => !integer(id, record.parentTriangles.length / 3),
     ) ||
-    [...surface.indices].some((id: number): boolean => !integer(id, record.samples.length))
+    [...surface.indices].some(
+      (id: number): boolean => !integer(id, record.samples.length),
+    )
   )
     throw new Error(
       "Person source cell maps must match surface vertex and triangle domains.",

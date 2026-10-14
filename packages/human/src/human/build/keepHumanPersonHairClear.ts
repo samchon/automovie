@@ -24,8 +24,16 @@ export function keepHumanPersonHairClear(
   const { positions, hair, clearance }: IHumanPersonHairContactProps = props;
   if (!(clearance >= 0) || !Number.isFinite(clearance))
     throw new Error("Hair clearance must be a nonnegative finite length.");
-  if (hair.every((part: IHumanPersonHairContactProps["hair"][number]): boolean => part.positions.length === 0))
-    return hair.map((part: IHumanPersonHairContactProps["hair"][number]): number[] => part.positions.slice());
+  if (
+    hair.every(
+      (part: IHumanPersonHairContactProps["hair"][number]): boolean =>
+        part.positions.length === 0,
+    )
+  )
+    return hair.map(
+      (part: IHumanPersonHairContactProps["hair"][number]): number[] =>
+        part.positions.slice(),
+    );
   const mesh: IAutoMovieMesh = {
     positions: positions.slice(),
     normals: null,
@@ -33,70 +41,112 @@ export function keepHumanPersonHairClear(
     indices: [...props.indices],
     skin: null,
   };
-  const query: ReturnType<typeof createAutoMovieSignedMeshQuery> = createAutoMovieSignedMeshQuery(mesh, { boundary: "open" });
-  return hair.map(({ positions: part, indices: triangles, layout }: IHumanPersonHairContactProps["hair"][number]): number[] => {
-    const output: number[] = part.slice();
-    const gap: number = layout?.clearance ?? clearance;
-    if (!Number.isFinite(gap) || gap < 0)
-      throw new Error("Hair part clearance must be a nonnegative finite length.");
-    const strands: number[][][] = layout === undefined ? humanRibbonStations(triangles) :
-      layout.curves.map((curve: NonNullable<typeof layout>["curves"][number]): number[][] => curve.stations.map((station: typeof curve.stations[number]): number[] => Array.from(station.vertices)));
-    if (layout !== undefined) {
-      const referenced: Set<number> = new Set(triangles);
-      const seen: Set<number> = new Set<number>();
-      for (const [curveIndex, curve] of layout.curves.entries()) {
-        if (curve.stations.length === 0 || curve.stations[0].radius !== 0 ||
-            curve.stations[0].arcLength !== 0 || curve.stations[0].vertices.length !== 1)
-          throw new Error("Hair layout lacks its canonical attached root station: " + curveIndex);
-        for (const station of curve.stations) {
-          if (station.vertices.length === 0 || !Number.isFinite(station.radius) || station.radius < 0 ||
-              !Number.isFinite(station.arcLength) || station.arcLength < 0)
-            throw new Error("Hair layout station lacks finite geometry-owned radius and arc length.");
-          for (const vertex of station.vertices) {
-            if (!Number.isSafeInteger(vertex) || vertex < 0 || vertex * 3 + 2 >= part.length ||
-                !referenced.has(vertex) || seen.has(vertex))
-              throw new Error("Hair layout must partition actual referenced station vertices exactly.");
-            seen.add(vertex);
-          }
-        }
-      }
-      if (seen.size !== referenced.size)
-        throw new Error("Hair layout omits actual referenced geometry.");
-    }
-    // Produced layouts define complete rings or ribbon pairs. The legacy
-    // fallback retains only the original ribbon numbering contract.
-    for (const strand of strands)
-      for (let pass: number = 0; pass < 2; pass++)
-        for (const [stationIndex, station] of strand.entries()) {
-          let push: number[] | null = null;
-          let most: number = 0;
-          for (const vertex of station) {
-            const p: number[] = [
-              output[vertex * 3],
-              output[vertex * 3 + 1],
-              output[vertex * 3 + 2],
-            ];
-            const found: ReturnType<typeof query> = query(p);
-            if (found.boundary || found.signedDistance >= gap) continue;
-            const need: number[] = [0, 1, 2].map(
-              (axis: number): number =>
-                found.point[axis] + found.normal[axis] * gap - p[axis],
+  const query: ReturnType<typeof createAutoMovieSignedMeshQuery> =
+    createAutoMovieSignedMeshQuery(mesh, { boundary: "open" });
+  return hair.map(
+    ({
+      positions: part,
+      indices: triangles,
+      layout,
+    }: IHumanPersonHairContactProps["hair"][number]): number[] => {
+      const output: number[] = part.slice();
+      const gap: number = layout?.clearance ?? clearance;
+      if (!Number.isFinite(gap) || gap < 0)
+        throw new Error(
+          "Hair part clearance must be a nonnegative finite length.",
+        );
+      const strands: number[][][] =
+        layout === undefined
+          ? humanRibbonStations(triangles)
+          : layout.curves.map(
+              (
+                curve: NonNullable<typeof layout>["curves"][number],
+              ): number[][] =>
+                curve.stations.map(
+                  (station: (typeof curve.stations)[number]): number[] =>
+                    Array.from(station.vertices),
+                ),
             );
-            const size: number = Math.hypot(need[0], need[1], need[2]);
-            if (size > most) {
-              most = size;
-              push = need;
+      if (layout !== undefined) {
+        const referenced: Set<number> = new Set(triangles);
+        const seen: Set<number> = new Set<number>();
+        for (const [curveIndex, curve] of layout.curves.entries()) {
+          if (
+            curve.stations.length === 0 ||
+            curve.stations[0].radius !== 0 ||
+            curve.stations[0].arcLength !== 0 ||
+            curve.stations[0].vertices.length !== 1
+          )
+            throw new Error(
+              "Hair layout lacks its canonical attached root station: " +
+                curveIndex,
+            );
+          for (const station of curve.stations) {
+            if (
+              station.vertices.length === 0 ||
+              !Number.isFinite(station.radius) ||
+              station.radius < 0 ||
+              !Number.isFinite(station.arcLength) ||
+              station.arcLength < 0
+            )
+              throw new Error(
+                "Hair layout station lacks finite geometry-owned radius and arc length.",
+              );
+            for (const vertex of station.vertices) {
+              if (
+                !Number.isSafeInteger(vertex) ||
+                vertex < 0 ||
+                vertex * 3 + 2 >= part.length ||
+                !referenced.has(vertex) ||
+                seen.has(vertex)
+              )
+                throw new Error(
+                  "Hair layout must partition actual referenced station vertices exactly.",
+                );
+              seen.add(vertex);
             }
           }
-          if (push !== null && layout !== undefined && stationIndex === 0)
-            throw new Error("Attached native hair root conflicts with the body's requested clearance.");
-          if (push !== null)
-            for (const vertex of station)
-              for (let axis: number = 0; axis < 3; axis++)
-                output[vertex * 3 + axis] += push[axis];
         }
-    return output;
-  });
+        if (seen.size !== referenced.size)
+          throw new Error("Hair layout omits actual referenced geometry.");
+      }
+      // Produced layouts define complete rings or ribbon pairs. The legacy
+      // fallback retains only the original ribbon numbering contract.
+      for (const strand of strands)
+        for (let pass: number = 0; pass < 2; pass++)
+          for (const [stationIndex, station] of strand.entries()) {
+            let push: number[] | null = null;
+            let most: number = 0;
+            for (const vertex of station) {
+              const p: number[] = [
+                output[vertex * 3],
+                output[vertex * 3 + 1],
+                output[vertex * 3 + 2],
+              ];
+              const found: ReturnType<typeof query> = query(p);
+              if (found.boundary || found.signedDistance >= gap) continue;
+              const need: number[] = [0, 1, 2].map(
+                (axis: number): number =>
+                  found.point[axis] + found.normal[axis] * gap - p[axis],
+              );
+              const size: number = Math.hypot(need[0], need[1], need[2]);
+              if (size > most) {
+                most = size;
+                push = need;
+              }
+            }
+            if (push !== null && layout !== undefined && stationIndex === 0)
+              throw new Error(
+                "Attached native hair root conflicts with the body's requested clearance.",
+              );
+            if (push !== null)
+              for (const vertex of station)
+                for (let axis: number = 0; axis < 3; axis++)
+                  output[vertex * 3 + axis] += push[axis];
+          }
+      return output;
+    },
+  );
 }
 
 /**
@@ -126,7 +176,9 @@ function humanRibbonStations(triangles: readonly number[]): number[][][] {
     list.push(vertex);
   }
   return [...strands.values()].map((vertices: number[]): number[][] => {
-    const ordered: number[] = vertices.sort((a: number, b: number): number => a - b);
+    const ordered: number[] = vertices.sort(
+      (a: number, b: number): number => a - b,
+    );
     const stations: number[][] = [[ordered[0]]];
     for (let k: number = 1; k + 1 < ordered.length; k += 2)
       stations.push([ordered[k], ordered[k + 1]]);

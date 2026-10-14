@@ -24,8 +24,10 @@ import { validateHumanPersonSourceDomain } from "./validateHumanPersonSourceDoma
 export function validateHumanPersonSourcePartitions(
   props: IAutoMovieHumanPersonSourcePartitionsProps,
 ): IAutoMovieHumanPersonSourcePartitionPlan | undefined {
-  const face: IAutoMovieHumanBasisSourcePartition | undefined = props.face.sourcePartition;
-  const body: IAutoMovieHumanBasisSourcePartition | undefined = props.body.sourcePartition;
+  const face: IAutoMovieHumanBasisSourcePartition | undefined =
+    props.face.sourcePartition;
+  const body: IAutoMovieHumanBasisSourcePartition | undefined =
+    props.body.sourcePartition;
   if (face === undefined && body === undefined) return undefined;
   if (face === undefined || body === undefined)
     throw new Error("Person source partitions need both compiled halves.");
@@ -35,10 +37,17 @@ export function validateHumanPersonSourcePartitions(
     face.generation !== body.generation ||
     face.originalVertices !== body.originalVertices ||
     face.parentTriangles.length !== body.parentTriangles.length ||
-    face.parentTriangles.some((id: number, at: number): boolean => id !== body.parentTriangles[at]) ||
+    face.parentTriangles.some(
+      (id: number, at: number): boolean => id !== body.parentTriangles[at],
+    ) ||
     (face.refinements?.length ?? 0) !== (body.refinements?.length ?? 0) ||
     (face.refinements ?? []).some(
-      (point: NonNullable<IAutoMovieHumanBasisSourcePartition["refinements"]>[number], at: number): boolean =>
+      (
+        point: NonNullable<
+          IAutoMovieHumanBasisSourcePartition["refinements"]
+        >[number],
+        at: number,
+      ): boolean =>
         point.parent !== body.refinements![at].parent ||
         point.coordinates.some(
           (coordinate: number, k: number): boolean =>
@@ -52,7 +61,10 @@ export function validateHumanPersonSourcePartitions(
     ) ||
     face.intersections.length !== body.intersections.length ||
     face.intersections.some(
-      (point: IAutoMovieHumanBasisSourcePartition["intersections"][number], at: number): boolean =>
+      (
+        point: IAutoMovieHumanBasisSourcePartition["intersections"][number],
+        at: number,
+      ): boolean =>
         point.a !== body.intersections[at].a ||
         point.b !== body.intersections[at].b ||
         point.t !== body.intersections[at].t,
@@ -61,17 +73,33 @@ export function validateHumanPersonSourcePartitions(
     throw new Error(
       "Person source partitions name incompatible parent trees or ordered cut tables.",
     );
-  const copy: (record: IAutoMovieHumanBasisSourcePartition) => IAutoMovieHumanBasisSourcePartition = (
+  const copy: (
+    record: IAutoMovieHumanBasisSourcePartition,
+  ) => IAutoMovieHumanBasisSourcePartition = (
     record: IAutoMovieHumanBasisSourcePartition,
   ): IAutoMovieHumanBasisSourcePartition => ({
     generation: record.generation,
     originalVertices: record.originalVertices,
     parentTriangles: [...record.parentTriangles],
-    intersections: record.intersections.map((point: IAutoMovieHumanBasisSourcePartition["intersections"][number]): IAutoMovieHumanBasisSourcePartition["intersections"][number] => ({ ...point })),
-    refinements: record.refinements?.map((point: NonNullable<IAutoMovieHumanBasisSourcePartition["refinements"]>[number]): NonNullable<IAutoMovieHumanBasisSourcePartition["refinements"]>[number] => ({
-      parent: point.parent,
-      coordinates: [...point.coordinates] as [number, number],
-    })),
+    intersections: record.intersections.map(
+      (
+        point: IAutoMovieHumanBasisSourcePartition["intersections"][number],
+      ): IAutoMovieHumanBasisSourcePartition["intersections"][number] => ({
+        ...point,
+      }),
+    ),
+    refinements: record.refinements?.map(
+      (
+        point: NonNullable<
+          IAutoMovieHumanBasisSourcePartition["refinements"]
+        >[number],
+      ): NonNullable<
+        IAutoMovieHumanBasisSourcePartition["refinements"]
+      >[number] => ({
+        parent: point.parent,
+        coordinates: [...point.coordinates] as [number, number],
+      }),
+    ),
     parentNormalDomains:
       record.parentNormalDomains === undefined
         ? undefined
@@ -83,14 +111,19 @@ export function validateHumanPersonSourcePartitions(
     samples: [...record.samples],
     parents: [...record.parents],
   });
-  const captured: IAutoMovieHumanBasisSourcePartition[] = [copy(face), copy(body)];
+  const captured: IAutoMovieHumanBasisSourcePartition[] = [
+    copy(face),
+    copy(body),
+  ];
   const source: IAutoMovieHumanBasisSourcePartition = captured[0];
   const sampleCount: number =
     source.originalVertices +
     source.intersections.length +
     (source.refinements?.length ?? 0);
-  const chart: ReturnType<typeof createHumanPersonSourceChart> = createHumanPersonSourceChart(source);
-  const preimage: ReturnType<typeof createHumanPersonSourcePreimage> = createHumanPersonSourcePreimage(chart);
+  const chart: ReturnType<typeof createHumanPersonSourceChart> =
+    createHumanPersonSourceChart(source);
+  const preimage: ReturnType<typeof createHumanPersonSourcePreimage> =
+    createHumanPersonSourcePreimage(chart);
   validateHumanPersonSourceCoverage({
     parentTriangles: face.parentTriangles,
     cells: (
@@ -98,15 +131,29 @@ export function validateHumanPersonSourcePartitions(
         [props.face, face],
         [props.body, body],
       ] as const
-    ).flatMap(([surface, record]: readonly [IAutoMovieHumanPersonSourcePartitionsProps["face"], IAutoMovieHumanBasisSourcePartition]): Parameters<typeof validateHumanPersonSourceCoverage>[0]["cells"][number][] =>
-      record.parents.map((parent: number, cell: number): Parameters<typeof validateHumanPersonSourceCoverage>[0]["cells"][number] => ({
-        parent,
-        samples: surface.indices
-          .slice(cell * 3, cell * 3 + 3)
-          .map((vertex: number): number => record.samples[vertex]),
-      })),
+    ).flatMap(
+      ([surface, record]: readonly [
+        IAutoMovieHumanPersonSourcePartitionsProps["face"],
+        IAutoMovieHumanBasisSourcePartition,
+      ]): Parameters<
+        typeof validateHumanPersonSourceCoverage
+      >[0]["cells"][number][] =>
+        record.parents.map(
+          (
+            parent: number,
+            cell: number,
+          ): Parameters<
+            typeof validateHumanPersonSourceCoverage
+          >[0]["cells"][number] => ({
+            parent,
+            samples: surface.indices
+              .slice(cell * 3, cell * 3 + 3)
+              .map((vertex: number): number => record.samples[vertex]),
+          }),
+        ),
     ),
-    preimage: (_: number, sample: number): ReturnType<typeof preimage> => preimage(sample),
+    preimage: (_: number, sample: number): ReturnType<typeof preimage> =>
+      preimage(sample),
   });
   for (const [surface, record] of [
     [props.face, face],
@@ -117,8 +164,9 @@ export function validateHumanPersonSourcePartitions(
       { length: record.samples.length },
       (): Set<number> => new Set<number>(),
     );
-    surface.indices.forEach((vertex: number, at: number): Set<number> =>
-      incidence[vertex].add(record.parents[Math.floor(at / 3)]),
+    surface.indices.forEach(
+      (vertex: number, at: number): Set<number> =>
+        incidence[vertex].add(record.parents[Math.floor(at / 3)]),
     );
     record.normalParents.forEach((parent: number, vertex: number): void => {
       if (incidence[vertex].size !== 0 && !incidence[vertex].has(parent))

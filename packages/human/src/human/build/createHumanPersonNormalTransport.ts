@@ -27,12 +27,16 @@ import { evaluateHumanPersonSourceCells } from "./evaluateHumanPersonSourceCells
 export function createHumanPersonNormalTransport(
   props: IAutoMovieHumanPersonNormalTransportProps,
 ): (input: IAutoMovieHumanPersonSourceNormalInput) => number[] {
-  const { evaluation, transport }: IAutoMovieHumanPersonNormalTransportProps = props;
-  const { plan }: IAutoMovieHumanPersonNormalTransportProps["evaluation"] = evaluation;
+  const { evaluation, transport }: IAutoMovieHumanPersonNormalTransportProps =
+    props;
+  const { plan }: IAutoMovieHumanPersonNormalTransportProps["evaluation"] =
+    evaluation;
   const used: number[][] = [evaluation.faceIndices, evaluation.bodyIndices].map(
     (indices: readonly number[]): number[] => [...new Set(indices)],
   );
-  const unit: (values: readonly number[]) => number[] = (values: readonly number[]): number[] => {
+  const unit: (values: readonly number[]) => number[] = (
+    values: readonly number[],
+  ): number[] => {
     const length: number = Math.hypot(...values);
     if (!(length > 0) || !Number.isFinite(length))
       throw new Error(
@@ -40,59 +44,109 @@ export function createHumanPersonNormalTransport(
       );
     return values.map((value: number): number => value / length);
   };
-  const interpolate: (values: readonly (readonly number[])[], uv: readonly [number, number]) => number[] = (
+  const interpolate: (
+    values: readonly (readonly number[])[],
+    uv: readonly [number, number],
+  ) => number[] = (
     values: readonly (readonly number[])[],
     uv: readonly [number, number],
   ): number[] =>
     unit(
       [0, 1, 2].map((axis: number): number =>
         interpolateHumanBasisSourceTriangle(
-          values.map((value: readonly number[]): number => value[axis]) as [number, number, number],
+          values.map((value: readonly number[]): number => value[axis]) as [
+            number,
+            number,
+            number,
+          ],
           uv,
         ),
       ),
     );
-  const key: (sample: number, parent: number, domain: number) => string = (sample: number, parent: number, domain: number): string =>
-    `${sample}:${props.identity(sample, parent)}:${domain}`;
-  const queries: ({ parent: number; coordinates: readonly [number, number]; points: { sample: number; domain: number; active: boolean }[] } | undefined)[][] = transport.bindings.map((side: IAutoMovieHumanPersonNormalTransportProps["transport"]["bindings"][number], which: number): typeof queries[number] =>
-    side.map((binding: IAutoMovieHumanPersonNormalTransportProps["transport"]["bindings"][number][number], vertex: number): typeof queries[number][number] => {
-      if (binding === undefined) return undefined;
-      const record: typeof plan.face = which === 0 ? plan.face : plan.body;
-      const cell: typeof transport.cells[number] | undefined =
-        binding.cell === undefined ? undefined : transport.cells[binding.cell];
-      const chart: ReturnType<typeof plan.chart> = plan.chart(record.samples[vertex]);
-      const coordinates: readonly [number, number] = binding.coordinates ?? chart.coordinates;
-      return {
-        parent: binding.parent,
-        coordinates,
-        points: (cell?.samples ?? chart.originals).map((sample: number, corner: number): { sample: number; domain: number; active: boolean } => ({
-          sample,
-          domain: cell?.domains[corner] ?? 0,
-          active:
-            interpolateHumanBasisSourceTriangle(
-              [
-                corner === 0 ? 1 : 0,
-                corner === 1 ? 1 : 0,
-                corner === 2 ? 1 : 0,
-              ],
-              coordinates,
-            ) > 0,
-        })),
-      };
-    }),
+  const key: (sample: number, parent: number, domain: number) => string = (
+    sample: number,
+    parent: number,
+    domain: number,
+  ): string => `${sample}:${props.identity(sample, parent)}:${domain}`;
+  const queries: (
+    | {
+        parent: number;
+        coordinates: readonly [number, number];
+        points: { sample: number; domain: number; active: boolean }[];
+      }
+    | undefined
+  )[][] = transport.bindings.map(
+    (
+      side: IAutoMovieHumanPersonNormalTransportProps["transport"]["bindings"][number],
+      which: number,
+    ): (typeof queries)[number] =>
+      side.map(
+        (
+          binding: IAutoMovieHumanPersonNormalTransportProps["transport"]["bindings"][number][number],
+          vertex: number,
+        ): (typeof queries)[number][number] => {
+          if (binding === undefined) return undefined;
+          const record: typeof plan.face = which === 0 ? plan.face : plan.body;
+          const cell: (typeof transport.cells)[number] | undefined =
+            binding.cell === undefined
+              ? undefined
+              : transport.cells[binding.cell];
+          const chart: ReturnType<typeof plan.chart> = plan.chart(
+            record.samples[vertex],
+          );
+          const coordinates: readonly [number, number] =
+            binding.coordinates ?? chart.coordinates;
+          return {
+            parent: binding.parent,
+            coordinates,
+            points: (cell?.samples ?? chart.originals).map(
+              (
+                sample: number,
+                corner: number,
+              ): { sample: number; domain: number; active: boolean } => ({
+                sample,
+                domain: cell?.domains[corner] ?? 0,
+                active:
+                  interpolateHumanBasisSourceTriangle(
+                    [
+                      corner === 0 ? 1 : 0,
+                      corner === 1 ? 1 : 0,
+                      corner === 2 ? 1 : 0,
+                    ],
+                    coordinates,
+                  ) > 0,
+              }),
+            ),
+          };
+        },
+      ),
   );
   const required: Set<string> = new Set(
-    queries.flatMap((side: typeof queries[number]): string[] =>
+    queries.flatMap((side: (typeof queries)[number]): string[] =>
       side.flatMap(
-        (query: typeof queries[number][number]): string[] =>
+        (query: (typeof queries)[number][number]): string[] =>
           query?.points
-            .filter((point: NonNullable<typeof queries[number][number]>["points"][number]): boolean => point.active)
-            .map((point: NonNullable<typeof queries[number][number]>["points"][number]): string => key(point.sample, query.parent, point.domain)) ??
-          [],
+            .filter(
+              (
+                point: NonNullable<
+                  (typeof queries)[number][number]
+                >["points"][number],
+              ): boolean => point.active,
+            )
+            .map(
+              (
+                point: NonNullable<
+                  (typeof queries)[number][number]
+                >["points"][number],
+              ): string => key(point.sample, query.parent, point.domain),
+            ) ?? [],
       ),
     ),
   );
-  const point: (positions: ReadonlyMap<number, readonly number[]>, sample: number) => number[] = (
+  const point: (
+    positions: ReadonlyMap<number, readonly number[]>,
+    sample: number,
+  ) => number[] = (
     positions: ReadonlyMap<number, readonly number[]>,
     sample: number,
   ): number[] => {
@@ -103,13 +157,24 @@ export function createHumanPersonNormalTransport(
       );
     return [...value];
   };
-  const frame: (points: number[][], scale: number) => IAutoMovieHumanPersonCellFrame = (
+  const frame: (
+    points: number[][],
+    scale: number,
+  ) => IAutoMovieHumanPersonCellFrame = (
     points: number[][],
     scale: number,
   ): IAutoMovieHumanPersonCellFrame => {
-    const vector: (one: number[]) => IAutoMovieVector3 = (one: number[]): IAutoMovieVector3 => Vector3.create(one[0], one[1], one[2]);
-    const a: IAutoMovieVector3 = Vector3.subtract(vector(points[1]), vector(points[0]));
-    const b: IAutoMovieVector3 = Vector3.subtract(vector(points[2]), vector(points[0]));
+    const vector: (one: number[]) => IAutoMovieVector3 = (
+      one: number[],
+    ): IAutoMovieVector3 => Vector3.create(one[0], one[1], one[2]);
+    const a: IAutoMovieVector3 = Vector3.subtract(
+      vector(points[1]),
+      vector(points[0]),
+    );
+    const b: IAutoMovieVector3 = Vector3.subtract(
+      vector(points[2]),
+      vector(points[0]),
+    );
     const cross: IAutoMovieVector3 = Vector3.cross(a, b);
     const normal: number[] = unit([cross.x, cross.y, cross.z]);
     return {
@@ -122,7 +187,8 @@ export function createHumanPersonNormalTransport(
     };
   };
   return (input: IAutoMovieHumanPersonSourceNormalInput): number[] => {
-    const reference: IAutoMovieHumanPersonSourceNormalInput["reference"] = input.reference;
+    const reference: IAutoMovieHumanPersonSourceNormalInput["reference"] =
+      input.reference;
     if (
       reference === undefined ||
       reference.generation !== plan.face.generation
@@ -130,22 +196,27 @@ export function createHumanPersonNormalTransport(
       throw new Error(
         "Person normal transport needs its actual matching reference generation.",
       );
-    const current: ReturnType<typeof evaluateHumanPersonSourceCells> = evaluateHumanPersonSourceCells({ ...evaluation, input });
-    const before: ReturnType<typeof evaluateHumanPersonSourceCells> = evaluateHumanPersonSourceCells({
-      ...evaluation,
-      input: reference,
-    });
-    const referenceField: ReturnType<IAutoMovieHumanPersonNormalTransportProps["referenceField"]> = props.referenceField(before.parentAreas);
+    const current: ReturnType<typeof evaluateHumanPersonSourceCells> =
+      evaluateHumanPersonSourceCells({ ...evaluation, input });
+    const before: ReturnType<typeof evaluateHumanPersonSourceCells> =
+      evaluateHumanPersonSourceCells({
+        ...evaluation,
+        input: reference,
+      });
+    const referenceField: ReturnType<
+      IAutoMovieHumanPersonNormalTransportProps["referenceField"]
+    > = props.referenceField(before.parentAreas);
     const referenceNormals: number[] = referenceField.normals;
     if (
-      [input.face, input.body].every((positions: readonly number[], side: number): boolean =>
-        used[side].every((vertex: number): boolean =>
-          [0, 1, 2].every(
-            (axis: number): boolean =>
-              positions[vertex * 3 + axis] ===
-              [reference.face, reference.body][side][vertex * 3 + axis],
+      [input.face, input.body].every(
+        (positions: readonly number[], side: number): boolean =>
+          used[side].every((vertex: number): boolean =>
+            [0, 1, 2].every(
+              (axis: number): boolean =>
+                positions[vertex * 3 + axis] ===
+                [reference.face, reference.body][side][vertex * 3 + axis],
+            ),
           ),
-        ),
       )
     ) {
       // Identity changes no density, but still needs an observed nonsingular
@@ -153,13 +224,18 @@ export function createHumanPersonNormalTransport(
       for (const cell of transport.cells)
         cofactorAutoMovieJacobian(
           frame(
-            cell.samples.map((sample: number): number[] => point(before.sourcePositions, sample)),
+            cell.samples.map((sample: number): number[] =>
+              point(before.sourcePositions, sample),
+            ),
             1,
           ).matrix,
         );
       return referenceNormals;
     }
-    const stars: Map<string, IAutoMovieHumanPersonNormalStar> = new Map<string, IAutoMovieHumanPersonNormalStar>();
+    const stars: Map<string, IAutoMovieHumanPersonNormalStar> = new Map<
+      string,
+      IAutoMovieHumanPersonNormalStar
+    >();
     for (const cell of transport.cells) {
       const prior: number[][] = cell.samples.map((sample: number): number[] =>
         point(before.sourcePositions, sample),
@@ -167,35 +243,46 @@ export function createHumanPersonNormalTransport(
       const actual: number[][] = cell.samples.map((sample: number): number[] =>
         point(current.sourcePositions, sample),
       );
-      const changed: boolean = actual.some((one: number[], corner: number): boolean =>
-        one.some((value: number, axis: number): boolean => value !== prior[corner][axis]),
+      const changed: boolean = actual.some(
+        (one: number[], corner: number): boolean =>
+          one.some(
+            (value: number, axis: number): boolean =>
+              value !== prior[corner][axis],
+          ),
       );
       const sourceFrame: IAutoMovieHumanPersonCellFrame = frame(prior, 1);
       const currentFrame: IAutoMovieHumanPersonCellFrame = frame(actual, 1);
-      const inverse: ReturnType<typeof cofactorAutoMovieJacobian> = cofactorAutoMovieJacobian(sourceFrame.matrix);
+      const inverse: ReturnType<typeof cofactorAutoMovieJacobian> =
+        cofactorAutoMovieJacobian(sourceFrame.matrix);
       const target: number[] = frame(
         actual,
         Math.sqrt(currentFrame.area / sourceFrame.area),
       ).matrix;
-      const jacobian: number[] = Array.from({ length: 9 }, (_: unknown, at: number): number =>
-        [0, 1, 2].reduce(
-          (sum: number, k: number): number =>
-            sum +
-            (target[Math.floor(at / 3) * 3 + k] *
-              inverse.matrix[(at % 3) * 3 + k]) /
-              inverse.determinant,
-          0,
-        ),
+      const jacobian: number[] = Array.from(
+        { length: 9 },
+        (_: unknown, at: number): number =>
+          [0, 1, 2].reduce(
+            (sum: number, k: number): number =>
+              sum +
+              (target[Math.floor(at / 3) * 3 + k] *
+                inverse.matrix[(at % 3) * 3 + k]) /
+                inverse.determinant,
+            0,
+          ),
       );
       const cofactor: number[] = cofactorAutoMovieJacobian(jacobian).matrix;
       cell.samples.forEach((sample: number, corner: number): void => {
         const id: string = key(sample, cell.parent, cell.domains[corner]);
         if (!required.has(id)) return;
-        const normal: readonly number[] = referenceField.at(sample, cell.parent);
+        const normal: readonly number[] = referenceField.at(
+          sample,
+          cell.parent,
+        );
         const density: readonly number[] = changed
           ? [0, 1, 2].map((axis: number): number =>
               [0, 1, 2].reduce(
-                (sum: number, k: number): number => sum + cofactor[axis * 3 + k] * normal[k],
+                (sum: number, k: number): number =>
+                  sum + cofactor[axis * 3 + k] * normal[k],
                 0,
               ),
             )
@@ -212,41 +299,69 @@ export function createHumanPersonNormalTransport(
         stars.set(id, star);
       });
     }
-    const read: (sample: number, parent: number, domain: number) => IAutoMovieHumanPersonNormalStar = (sample: number, parent: number, domain: number): IAutoMovieHumanPersonNormalStar => {
-      const star: IAutoMovieHumanPersonNormalStar | undefined = stars.get(key(sample, parent, domain));
+    const read: (
+      sample: number,
+      parent: number,
+      domain: number,
+    ) => IAutoMovieHumanPersonNormalStar = (
+      sample: number,
+      parent: number,
+      domain: number,
+    ): IAutoMovieHumanPersonNormalStar => {
+      const star: IAutoMovieHumanPersonNormalStar | undefined = stars.get(
+        key(sample, parent, domain),
+      );
       if (star === undefined)
         throw new Error(
           "Person normal transport needs an unambiguous used source star.",
         );
       return star;
     };
-    return queries.flatMap((side: typeof queries[number], which: number): number[] =>
-      side.flatMap((query: typeof queries[number][number], vertex: number): number[] => {
-        if (query === undefined) return [0, 0, 0];
-        const active: (IAutoMovieHumanPersonNormalStar | undefined)[] = query.points.map((point: typeof query.points[number]): IAutoMovieHumanPersonNormalStar | undefined =>
-          point.active
-            ? read(point.sample, query.parent, point.domain)
-            : undefined,
-        );
-        // An unchanged source family retains its ancestral chart exactly.
-        // Interpolating already-normalized finer fields would change q0 merely
-        // because another disconnected cell or unused coordinate moved.
-        if (active.every((star: IAutoMovieHumanPersonNormalStar | undefined): boolean => star?.changed !== true)) {
-          const at: number =
-            (which === 0 ? 0 : plan.face.samples.length * 3) + vertex * 3;
-          return referenceNormals.slice(at, at + 3);
-        }
-        return interpolate(
-          active.map((star: IAutoMovieHumanPersonNormalStar | undefined): readonly number[] =>
-            star === undefined
-              ? [0, 0, 0]
-              : star.changed
-                ? unit(star.sum)
-                : star.reference,
-          ),
-          query.coordinates,
-        );
-      }),
+    return queries.flatMap(
+      (side: (typeof queries)[number], which: number): number[] =>
+        side.flatMap(
+          (
+            query: (typeof queries)[number][number],
+            vertex: number,
+          ): number[] => {
+            if (query === undefined) return [0, 0, 0];
+            const active: (IAutoMovieHumanPersonNormalStar | undefined)[] =
+              query.points.map(
+                (
+                  point: (typeof query.points)[number],
+                ): IAutoMovieHumanPersonNormalStar | undefined =>
+                  point.active
+                    ? read(point.sample, query.parent, point.domain)
+                    : undefined,
+              );
+            // An unchanged source family retains its ancestral chart exactly.
+            // Interpolating already-normalized finer fields would change q0 merely
+            // because another disconnected cell or unused coordinate moved.
+            if (
+              active.every(
+                (star: IAutoMovieHumanPersonNormalStar | undefined): boolean =>
+                  star?.changed !== true,
+              )
+            ) {
+              const at: number =
+                (which === 0 ? 0 : plan.face.samples.length * 3) + vertex * 3;
+              return referenceNormals.slice(at, at + 3);
+            }
+            return interpolate(
+              active.map(
+                (
+                  star: IAutoMovieHumanPersonNormalStar | undefined,
+                ): readonly number[] =>
+                  star === undefined
+                    ? [0, 0, 0]
+                    : star.changed
+                      ? unit(star.sum)
+                      : star.reference,
+              ),
+              query.coordinates,
+            );
+          },
+        ),
     );
   };
 }

@@ -32,22 +32,42 @@ export function resolveHumanPersonFaceBones(
 ): IAutoMovieHumanPersonBone[] {
   const { basis, document, head }: IAutoMovieHumanPersonFaceBonesProps = props;
   if (basis.articulation === undefined) return [];
-  const state: ReturnType<typeof humanFaceBasisWeights> = humanFaceBasisWeights(basis, document);
-  const shaped: ReturnType<typeof evaluateHumanFaceRest> = evaluateHumanFaceRest(basis, {
-    weights: new Map(
-      [...state.weights].filter(
-        ([id]: [string, number]): boolean => basis.channels.find((c: IAutoMovieHumanPersonFaceBonesProps["basis"]["channels"][number]): boolean => c.id === id)?.kind === "shape",
-      ),
-    ),
-    activations: state.activations.filter((one: typeof state.activations[number]): boolean => one.shapeOnly),
-  });
-  const { jaw, eyes, motions }: ReturnType<typeof resolveHumanFaceArticulation> = resolveHumanFaceArticulation(
-    basis.articulation,
-    state.weights,
-    shaped.landmarks,
+  const state: ReturnType<typeof humanFaceBasisWeights> = humanFaceBasisWeights(
+    basis,
+    document,
   );
+  const shaped: ReturnType<typeof evaluateHumanFaceRest> =
+    evaluateHumanFaceRest(basis, {
+      weights: new Map(
+        [...state.weights].filter(
+          ([id]: [string, number]): boolean =>
+            basis.channels.find(
+              (
+                c: IAutoMovieHumanPersonFaceBonesProps["basis"]["channels"][number],
+              ): boolean => c.id === id,
+            )?.kind === "shape",
+        ),
+      ),
+      activations: state.activations.filter(
+        (one: (typeof state.activations)[number]): boolean => one.shapeOnly,
+      ),
+    });
+  const {
+    jaw,
+    eyes,
+    motions,
+  }: ReturnType<typeof resolveHumanFaceArticulation> =
+    resolveHumanFaceArticulation(
+      basis.articulation,
+      state.weights,
+      shaped.landmarks,
+    );
   const identity: IAutoMovieQuaternion = Quaternion.identity();
-  const frame: (centre: IAutoMovieVector3, translation: IAutoMovieVector3, rotation: IAutoMovieQuaternion) => IAutoMovieHumanPersonBoneFrames = (
+  const frame: (
+    centre: IAutoMovieVector3,
+    translation: IAutoMovieVector3,
+    rotation: IAutoMovieQuaternion,
+  ) => IAutoMovieHumanPersonBoneFrames = (
     centre: IAutoMovieVector3,
     translation: IAutoMovieVector3,
     rotation: IAutoMovieQuaternion,
@@ -78,7 +98,7 @@ export function resolveHumanPersonFaceBones(
       bone: "jaw",
       ...frame(jaw.pivot, jaw.translation, motions.get("jaw")!.rotation),
     },
-    ...eyes.map((eye: typeof eyes[number]): IAutoMovieHumanPersonBone => {
+    ...eyes.map((eye: (typeof eyes)[number]): IAutoMovieHumanPersonBone => {
       const bone: AutoMovieHumanoidBone | undefined = named[eye.id];
       if (bone === undefined)
         throw new Error(

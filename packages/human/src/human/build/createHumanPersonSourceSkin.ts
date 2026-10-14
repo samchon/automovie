@@ -37,36 +37,52 @@ export function createHumanPersonSourceSkin(
     jawVertices,
     neutralAnchor,
   }: IAutoMovieHumanPersonSourceSkinProps = props;
-  const cut: NonNullable<IAutoMovieHumanPersonSourceSkinProps["seam"]["cut"]> = seam.cut!;
-  return ({ face, body }: IAutoMovieHumanPersonSourceSkinInput): IAutoMovieHumanPersonSourceSkin => {
-    const bones: Map<IAutoMovieHumanPersonSourceSkinInput["body"]["bones"][number]["bone"], IAutoMovieHumanPersonSourceSkinInput["body"]["bones"][number]> = new Map(body.bones.map((one: IAutoMovieHumanPersonSourceSkinInput["body"]["bones"][number]): [typeof one.bone, typeof one] => [one.bone, one]));
-    const head: ReturnType<typeof createHumanPersonHeadTransform> = createHumanPersonHeadTransform({
-      anchor: {
-        neutral: neutralAnchor,
-        shaped: humanPersonEyeCentre(body.landmarks),
-      },
-      rest: bones.get("head")!.rest,
-      posed: bones.get("head")!.posed,
-    });
+  const cut: NonNullable<IAutoMovieHumanPersonSourceSkinProps["seam"]["cut"]> =
+    seam.cut!;
+  return ({
+    face,
+    body,
+  }: IAutoMovieHumanPersonSourceSkinInput): IAutoMovieHumanPersonSourceSkin => {
+    const bones: Map<
+      IAutoMovieHumanPersonSourceSkinInput["body"]["bones"][number]["bone"],
+      IAutoMovieHumanPersonSourceSkinInput["body"]["bones"][number]
+    > = new Map(
+      body.bones.map(
+        (
+          one: IAutoMovieHumanPersonSourceSkinInput["body"]["bones"][number],
+        ): [typeof one.bone, typeof one] => [one.bone, one],
+      ),
+    );
+    const head: ReturnType<typeof createHumanPersonHeadTransform> =
+      createHumanPersonHeadTransform({
+        anchor: {
+          neutral: neutralAnchor,
+          shaped: humanPersonEyeCentre(body.landmarks),
+        },
+        rest: bones.get("head")!.rest,
+        posed: bones.get("head")!.posed,
+      });
 
     // the face skin's shared vertices, read back from its render parts
     const raw: number[] = new Array<number>(faceCount * 3).fill(0);
     for (const part of face.parts) {
       const sources: readonly number[] | undefined = faceRegions.get(part.id);
       if (sources === undefined) continue;
-      const { positions }: ReturnType<typeof meshOfHumanPart> = meshOfHumanPart(part);
+      const { positions }: ReturnType<typeof meshOfHumanPart> =
+        meshOfHumanPart(part);
       sources.forEach((source: number, vertex: number): void => {
         for (let axis: number = 0; axis < 3; axis++)
           raw[source * 3 + axis] = positions[vertex * 3 + axis];
       });
     }
-    const faceWeights: ReturnType<typeof createHumanPersonFaceSkin> = createHumanPersonFaceSkin({
-      seam,
-      face: raw,
-      body: neutralBody,
-      bodySkin: bodySkin.surface.skin,
-      jawVertices,
-    });
+    const faceWeights: ReturnType<typeof createHumanPersonFaceSkin> =
+      createHumanPersonFaceSkin({
+        seam,
+        face: raw,
+        body: neutralBody,
+        bodySkin: bodySkin.surface.skin,
+        jawVertices,
+      });
     const facePosed: number[] = skinHumanBodySurface(
       raw.map(
         (value: number, at: number): number =>

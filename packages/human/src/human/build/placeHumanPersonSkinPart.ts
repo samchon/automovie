@@ -21,8 +21,16 @@ import type { IAutoMovieHumanPersonSkinPartProps } from "../structures/IAutoMovi
 export function placeHumanPersonSkinPart(
   props: IAutoMovieHumanPersonSkinPartProps,
 ): IAutoMovieMesh {
-  const { mesh, sources, positions, normals, offset, samples, origin, domain }: IAutoMovieHumanPersonSkinPartProps =
-    props;
+  const {
+    mesh,
+    sources,
+    positions,
+    normals,
+    offset,
+    samples,
+    origin,
+    domain,
+  }: IAutoMovieHumanPersonSkinPartProps = props;
   if (mesh.physicalVertices === undefined)
     throw new Error(
       "Person physical registration needs both actual registered skin halves.",
@@ -30,7 +38,9 @@ export function placeHumanPersonSkinPart(
   resolveAutoMovieMeshPhysicalVertices(mesh);
   sources.forEach((source: number, vertex: number): void => {
     const reference: number | null = mesh.physicalVertices!.vertices[vertex];
-    const actual: NonNullable<IAutoMovieMesh["physicalVertices"]>["sources"][number] | undefined =
+    const actual:
+      | NonNullable<IAutoMovieMesh["physicalVertices"]>["sources"][number]
+      | undefined =
       reference === null
         ? undefined
         : mesh.physicalVertices!.sources[reference];
@@ -49,10 +59,18 @@ export function placeHumanPersonSkinPart(
     positions: mesh.positions.slice(),
     normals: [],
     physicalVertices: {
-      sources: mesh.physicalVertices.sources.map((source: NonNullable<IAutoMovieMesh["physicalVertices"]>["sources"][number]): NonNullable<IAutoMovieMesh["physicalVertices"]>["sources"][number] => ({
-        ...source,
-        domain: source.domain === origin ? domain : source.domain,
-      })),
+      sources: mesh.physicalVertices.sources.map(
+        (
+          source: NonNullable<
+            IAutoMovieMesh["physicalVertices"]
+          >["sources"][number],
+        ): NonNullable<
+          IAutoMovieMesh["physicalVertices"]
+        >["sources"][number] => ({
+          ...source,
+          domain: source.domain === origin ? domain : source.domain,
+        }),
+      ),
       vertices: mesh.physicalVertices.vertices.slice(),
     },
   };

@@ -21,11 +21,18 @@ import type { IAutoMovieHumanPersonSourceStarBinding } from "../structures/IAuto
 export function createHumanPersonReferenceField(
   props: IAutoMovieHumanPersonReferenceFieldProps,
 ): IAutoMovieHumanPersonReferenceNormalField {
-  const { plan, bindings, bindingAt, parentAreas }: IAutoMovieHumanPersonReferenceFieldProps = props;
+  const {
+    plan,
+    bindings,
+    bindingAt,
+    parentAreas,
+  }: IAutoMovieHumanPersonReferenceFieldProps = props;
   const unit: (vector: number[]) => number[] = (vector: number[]): number[] => {
     const length: number = Math.hypot(...vector);
     if (!(length > 0) || !Number.isFinite(length))
-      throw new Error("Person source shading needs a finite nonzero used normal.");
+      throw new Error(
+        "Person source shading needs a finite nonzero used normal.",
+      );
     return vector.map((value: number): number => value / length);
   };
   const original: Map<string, number[]> = new Map<string, number[]>();
@@ -46,10 +53,18 @@ export function createHumanPersonReferenceField(
     }
     return vector;
   };
-  const normalAt: (binding: IAutoMovieHumanPersonSourceStarBinding) => number[] = (
+  const normalAt: (
+    binding: IAutoMovieHumanPersonSourceStarBinding,
+  ) => number[] = (
     binding: IAutoMovieHumanPersonSourceStarBinding,
   ): number[] => {
-    const required: Set<string> = new Set(binding.weights.map((weight: IAutoMovieHumanPersonSourceStarBinding["weights"][number]): string => weight.key));
+    const required: Set<string> = new Set(
+      binding.weights.map(
+        (
+          weight: IAutoMovieHumanPersonSourceStarBinding["weights"][number],
+        ): string => weight.key,
+      ),
+    );
     return unit(
       [0, 1, 2].map((axis: number): number =>
         interpolateHumanBasisSourceTriangle(
@@ -63,13 +78,22 @@ export function createHumanPersonReferenceField(
   };
   const points: Map<string, number[]> = new Map<string, number[]>();
   return {
-    normals: bindings.flatMap((side: IAutoMovieHumanPersonReferenceFieldProps["bindings"][number]): number[] =>
-      side.flatMap((binding: IAutoMovieHumanPersonSourceStarBinding | undefined): number[] =>
-        binding === undefined ? [0, 0, 0] : normalAt(binding),
-      ),
+    normals: bindings.flatMap(
+      (
+        side: IAutoMovieHumanPersonReferenceFieldProps["bindings"][number],
+      ): number[] =>
+        side.flatMap(
+          (
+            binding: IAutoMovieHumanPersonSourceStarBinding | undefined,
+          ): number[] =>
+            binding === undefined ? [0, 0, 0] : normalAt(binding),
+        ),
     ),
     at: (sample: number, parent: number): number[] => {
-      const binding: IAutoMovieHumanPersonSourceStarBinding = bindingAt(sample, parent);
+      const binding: IAutoMovieHumanPersonSourceStarBinding = bindingAt(
+        sample,
+        parent,
+      );
       const key: string = `${sample}:${binding.identity}`;
       let normal: number[] | undefined = points.get(key);
       if (normal === undefined) {

@@ -24,38 +24,81 @@ import { meshOfHumanPart } from "./meshOfHumanPart";
 export function completeHumanPersonBodyLayers(
   props: ICompleteHumanPersonBodyLayersProps,
 ): IAutoMovieHumanBodyBuild {
-  const surface: ICompleteHumanPersonBodyLayersProps["basis"]["surfaces"][number] = props.basis.surfaces[props.surface];
-  if (!Number.isSafeInteger(props.surface) || surface?.sourcePartition === undefined ||
-      !Number.isSafeInteger(props.faceVertices) || props.faceVertices < 0 ||
-      props.normals.length !== (props.faceVertices + surface.positions.length / 3) * 3)
-    throw new Error("Person layer completion needs its actual native surface and complete shared normal field.");
-  const exterior: ReturnType<typeof readHumanBodyLayerExterior> = readHumanBodyLayerExterior({
-    domain: props.domain,
-    samples: surface.sourcePartition!.samples,
-    meshes: props.parts.filter((part: IAutoMovieModelPart): boolean => part.id.startsWith("face:")
-      ? props.faceRegions.has(part.id.slice(5))
-      : part.id.startsWith("body:") && props.bodyRegions.has(part.id.slice(5)),
-    ).map(meshOfHumanPart),
-  });
-  const bodyMeshes: Map<string, IAutoMovieMesh> = new Map(props.parts.filter((part: IAutoMovieModelPart): boolean =>
-    part.id.startsWith("body:") && props.bodyRegions.has(part.id.slice(5)),
-  ).map((part: IAutoMovieModelPart): [string, IAutoMovieMesh] => [part.id.slice(5), meshOfHumanPart(part)]));
-  const positions: number[] = exterior.originVertices.flatMap((vertex: number): number[] =>
-    exterior.mesh.positions.slice(vertex * 3, vertex * 3 + 3),
+  const surface: ICompleteHumanPersonBodyLayersProps["basis"]["surfaces"][number] =
+    props.basis.surfaces[props.surface];
+  if (
+    !Number.isSafeInteger(props.surface) ||
+    surface?.sourcePartition === undefined ||
+    !Number.isSafeInteger(props.faceVertices) ||
+    props.faceVertices < 0 ||
+    props.normals.length !==
+      (props.faceVertices + surface.positions.length / 3) * 3
+  )
+    throw new Error(
+      "Person layer completion needs its actual native surface and complete shared normal field.",
+    );
+  const exterior: ReturnType<typeof readHumanBodyLayerExterior> =
+    readHumanBodyLayerExterior({
+      domain: props.domain,
+      samples: surface.sourcePartition!.samples,
+      meshes: props.parts
+        .filter((part: IAutoMovieModelPart): boolean =>
+          part.id.startsWith("face:")
+            ? props.faceRegions.has(part.id.slice(5))
+            : part.id.startsWith("body:") &&
+              props.bodyRegions.has(part.id.slice(5)),
+        )
+        .map(meshOfHumanPart),
+    });
+  const bodyMeshes: Map<string, IAutoMovieMesh> = new Map(
+    props.parts
+      .filter(
+        (part: IAutoMovieModelPart): boolean =>
+          part.id.startsWith("body:") &&
+          props.bodyRegions.has(part.id.slice(5)),
+      )
+      .map((part: IAutoMovieModelPart): [string, IAutoMovieMesh] => [
+        part.id.slice(5),
+        meshOfHumanPart(part),
+      ]),
+  );
+  const positions: number[] = exterior.originVertices.flatMap(
+    (vertex: number): number[] =>
+      exterior.mesh.positions.slice(vertex * 3, vertex * 3 + 3),
   );
   const body: IAutoMovieHumanBodyBuild = {
     ...props.body,
     model: {
       ...props.body.model,
-      parts: props.body.model.parts.map((part: IAutoMovieModelPart): IAutoMovieModelPart => {
-        const mesh: IAutoMovieMesh | undefined = bodyMeshes.get(part.id);
-        return mesh === undefined ? part : { ...part, geometry: { type: "mesh", mesh } };
-      }),
+      parts: props.body.model.parts.map(
+        (part: IAutoMovieModelPart): IAutoMovieModelPart => {
+          const mesh: IAutoMovieMesh | undefined = bodyMeshes.get(part.id);
+          return mesh === undefined
+            ? part
+            : { ...part, geometry: { type: "mesh", mesh } };
+        },
+      ),
     },
-    posedSurfaces: props.body.posedSurfaces.map((own: IAutoMovieHumanBodyBuild["posedSurfaces"][number], index: number): IAutoMovieHumanBodyBuild["posedSurfaces"][number] => index !== props.surface ? own : {
-      positions,
-      normals: props.normals.slice(props.faceVertices * 3, props.faceVertices * 3 + positions.length),
-    }),
+    posedSurfaces: props.body.posedSurfaces.map(
+      (
+        own: IAutoMovieHumanBodyBuild["posedSurfaces"][number],
+        index: number,
+      ): IAutoMovieHumanBodyBuild["posedSurfaces"][number] =>
+        index !== props.surface
+          ? own
+          : {
+              positions,
+              normals: props.normals.slice(
+                props.faceVertices * 3,
+                props.faceVertices * 3 + positions.length,
+              ),
+            },
+    ),
   };
-  return appendHumanBodyLayers(props.basis, body, new Map([[surface.id, exterior]]), props.instance);
+  return appendHumanBodyLayers(
+    props.basis,
+    body,
+    new Map([[surface.id, exterior]]),
+    props.instance,
+  );
 }

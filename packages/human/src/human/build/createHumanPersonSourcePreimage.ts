@@ -16,18 +16,22 @@ import type { IAutoMovieHumanPersonSourceWeight } from "../structures/IAutoMovie
 export function createHumanPersonSourcePreimage(
   chart: (sample: number) => IAutoMovieHumanPersonSourceChart,
 ): (sample: number) => readonly IAutoMovieHumanPersonSourceWeight[] {
-  const cache: Map<number, readonly IAutoMovieHumanPersonSourceWeight[]> = new Map<number, readonly IAutoMovieHumanPersonSourceWeight[]>();
+  const cache: Map<number, readonly IAutoMovieHumanPersonSourceWeight[]> =
+    new Map<number, readonly IAutoMovieHumanPersonSourceWeight[]>();
   return (sample: number): readonly IAutoMovieHumanPersonSourceWeight[] => {
-    const cached: readonly IAutoMovieHumanPersonSourceWeight[] | undefined = cache.get(sample);
+    const cached: readonly IAutoMovieHumanPersonSourceWeight[] | undefined =
+      cache.get(sample);
     if (cached !== undefined) return cached;
     const one: IAutoMovieHumanPersonSourceChart = chart(sample);
-    const weights: IAutoMovieHumanPersonSourceWeight[] = [0, 1, 2].flatMap((corner: number): IAutoMovieHumanPersonSourceWeight[] => {
-      const weight: number = interpolateHumanBasisSourceTriangle(
-        [corner === 0 ? 1 : 0, corner === 1 ? 1 : 0, corner === 2 ? 1 : 0],
-        one.coordinates,
-      );
-      return weight > 0 ? [{ id: one.originals[corner], weight }] : [];
-    });
+    const weights: IAutoMovieHumanPersonSourceWeight[] = [0, 1, 2].flatMap(
+      (corner: number): IAutoMovieHumanPersonSourceWeight[] => {
+        const weight: number = interpolateHumanBasisSourceTriangle(
+          [corner === 0 ? 1 : 0, corner === 1 ? 1 : 0, corner === 2 ? 1 : 0],
+          one.coordinates,
+        );
+        return weight > 0 ? [{ id: one.originals[corner], weight }] : [];
+      },
+    );
     cache.set(sample, weights);
     return weights;
   };

@@ -1,4 +1,4 @@
-import type { IAutoMovieModel, IAutoMovieMaterial } from "@automovie/interface";
+import type { IAutoMovieMaterial, IAutoMovieModel } from "@automovie/interface";
 
 import { applyHumanBodyUnderwearMaterial } from "../../body/basis/applyHumanBodyUnderwearMaterial";
 import type { IHumanPersonUnderwearPartsInput } from "../structures/IHumanPersonUnderwearPartsInput";
@@ -21,12 +21,24 @@ export function composeHumanPersonUnderwearParts(
 ): IAutoMovieModel["parts"] {
   const garment: IHumanPersonUnderwearPartsInput["garment"] = input.garment;
   if (garment === undefined) return input.parts;
-  const material: IAutoMovieMaterial = { ...garment.material, id: "body:" + garment.material.id };
-  return input.parts.flatMap((part: IAutoMovieModel["parts"][number]): IAutoMovieModel["parts"] => {
-    const region: ReturnType<IHumanPersonUnderwearPartsInput["regions"]["get"]> = input.regions.get(part.id);
-    return region === undefined ? [part] : applyHumanBodyUnderwearMaterial({
-      part, field: region.field, sources: region.sources, material,
-      offsetMetres: garment.offsetMetres,
-    });
-  });
+  const material: IAutoMovieMaterial = {
+    ...garment.material,
+    id: "body:" + garment.material.id,
+  };
+  return input.parts.flatMap(
+    (part: IAutoMovieModel["parts"][number]): IAutoMovieModel["parts"] => {
+      const region: ReturnType<
+        IHumanPersonUnderwearPartsInput["regions"]["get"]
+      > = input.regions.get(part.id);
+      return region === undefined
+        ? [part]
+        : applyHumanBodyUnderwearMaterial({
+            part,
+            field: region.field,
+            sources: region.sources,
+            material,
+            offsetMetres: garment.offsetMetres,
+          });
+    },
+  );
 }

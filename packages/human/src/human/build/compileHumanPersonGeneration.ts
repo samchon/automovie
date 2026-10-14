@@ -1,5 +1,5 @@
-import typia from "typia";
 import type { IAutoMovieVector3 } from "@automovie/interface";
+import typia from "typia";
 
 import { humanBodyGpuRegion } from "../../body/basis/humanBodyGpuRegion";
 import { assertHumanSkinBinding } from "../../common/basis/assertHumanSkinBinding";
@@ -37,9 +37,8 @@ export function compileHumanPersonGeneration(
 ): IAutoMovieHumanPersonCompiledGeneration {
   // the generation-level records the face and body builders do not admit;
   // each partition view is admitted by its own builder below
-  const headSkin: IAutoMovieHumanPersonHeadSkin = typia.assertEquals<IAutoMovieHumanPersonHeadSkin>(
-    generation.headSkin,
-  );
+  const headSkin: IAutoMovieHumanPersonHeadSkin =
+    typia.assertEquals<IAutoMovieHumanPersonHeadSkin>(generation.headSkin);
   if (generation.band !== undefined)
     typia.assertEquals<IAutoMovieHumanPersonGenerationBand>(generation.band);
   if (generation.aliases !== undefined)
@@ -48,13 +47,25 @@ export function compileHumanPersonGeneration(
     typia.assertEquals<IAutoMovieHumanPersonEndpointDriver[]>(
       generation.drivers,
     );
-  const { face: faceBasis, body: bodyBasis }: IAutoMovieHumanPersonGeneration = generation;
-  const { surface: faceSkin }: IAutoMovieHumanPersonSkinSurface<IAutoMovieHumanPersonGeneration["face"]["surfaces"][number]> = findHumanPersonSkinSurface(faceBasis.surfaces);
-  const { index: bodyIndex, surface: bodySkin }: IAutoMovieHumanPersonSkinSurface<IAutoMovieHumanPersonGeneration["body"]["surfaces"][number]> = findHumanPersonSkinSurface(
-    bodyBasis.surfaces,
-  );
-  const faceSource: IAutoMovieHumanPersonCompiledGeneration["faceSource"] | undefined = faceSkin.sourcePartition;
-  const bodySource: IAutoMovieHumanPersonCompiledGeneration["bodySource"] | undefined = bodySkin.sourcePartition;
+  const { face: faceBasis, body: bodyBasis }: IAutoMovieHumanPersonGeneration =
+    generation;
+  const {
+    surface: faceSkin,
+  }: IAutoMovieHumanPersonSkinSurface<
+    IAutoMovieHumanPersonGeneration["face"]["surfaces"][number]
+  > = findHumanPersonSkinSurface(faceBasis.surfaces);
+  const {
+    index: bodyIndex,
+    surface: bodySkin,
+  }: IAutoMovieHumanPersonSkinSurface<
+    IAutoMovieHumanPersonGeneration["body"]["surfaces"][number]
+  > = findHumanPersonSkinSurface(bodyBasis.surfaces);
+  const faceSource:
+    | IAutoMovieHumanPersonCompiledGeneration["faceSource"]
+    | undefined = faceSkin.sourcePartition;
+  const bodySource:
+    | IAutoMovieHumanPersonCompiledGeneration["bodySource"]
+    | undefined = bodySkin.sourcePartition;
   if (
     faceSource === undefined ||
     bodySource === undefined ||
@@ -70,16 +81,23 @@ export function compileHumanPersonGeneration(
   assertHumanSkinBinding({
     binding: headSkin,
     vertices: faceCount,
-    declared: new Set(bodyBasis.joints.map((joint: IAutoMovieHumanPersonGeneration["body"]["joints"][number]): typeof joint.bone => joint.bone)),
+    declared: new Set(
+      bodyBasis.joints.map(
+        (
+          joint: IAutoMovieHumanPersonGeneration["body"]["joints"][number],
+        ): typeof joint.bone => joint.bone,
+      ),
+    ),
     surface: faceSkin.id,
     description: "Head skin",
   });
   // Admits complementary coverage of the one source tree; a partial or
   // incompatible pair refuses here.
-  const sourceNormals: ReturnType<typeof createHumanPersonSourceNormals> = createHumanPersonSourceNormals({
-    face: faceSkin,
-    body: bodySkin,
-  });
+  const sourceNormals: ReturnType<typeof createHumanPersonSourceNormals> =
+    createHumanPersonSourceNormals({
+      face: faceSkin,
+      body: bodySkin,
+    });
   if (sourceNormals === undefined)
     throw new Error("A one-skin generation needs source-partitioned views.");
 
@@ -99,7 +117,8 @@ export function compileHumanPersonGeneration(
   const firstSharedBody: Map<number, number> = new Map<number, number>();
   sharedFace.forEach((face: number, at: number): void => {
     const sample: number = faceSource.samples[face];
-    if (!firstSharedBody.has(sample)) firstSharedBody.set(sample, sharedBody[at]);
+    if (!firstSharedBody.has(sample))
+      firstSharedBody.set(sample, sharedBody[at]);
   });
   const bodyOfFace: Map<number, number> = new Map<number, number>();
   faceSource.samples.forEach((sample: number, vertex: number): void => {
@@ -121,31 +140,43 @@ export function compileHumanPersonGeneration(
       ? undefined
       : humanBasisRegionCorners(
           bandView.basis.surfaces.find(
-            (surface: IAutoMovieHumanPersonGeneration["face"]["surfaces"][number]): boolean => surface.id === bandView.surface,
+            (
+              surface: IAutoMovieHumanPersonGeneration["face"]["surfaces"][number],
+            ): boolean => surface.id === bandView.surface,
           )!.regions[0],
         ).sources;
   const faceRegions: Map<string, readonly number[]> = new Map(
-    faceSkin.regions.map((region: IAutoMovieHumanPersonGeneration["face"]["surfaces"][number]["regions"][number]): [string, readonly number[]] => [
-      region.id,
-      humanBasisRegionCorners(region).sources,
-    ]),
+    faceSkin.regions.map(
+      (
+        region: IAutoMovieHumanPersonGeneration["face"]["surfaces"][number]["regions"][number],
+      ): [string, readonly number[]] => [
+        region.id,
+        humanBasisRegionCorners(region).sources,
+      ],
+    ),
   );
   const bodyRegions: Map<string, readonly number[]> = new Map(
-    bodySkin.regions.map((region: IAutoMovieHumanPersonGeneration["body"]["surfaces"][number]["regions"][number]): [string, readonly number[]] => [
-      region.id,
-      humanBasisRegionCorners(humanBodyGpuRegion(region)).sources,
-    ]),
+    bodySkin.regions.map(
+      (
+        region: IAutoMovieHumanPersonGeneration["body"]["surfaces"][number]["regions"][number],
+      ): [string, readonly number[]] => [
+        region.id,
+        humanBasisRegionCorners(humanBodyGpuRegion(region)).sources,
+      ],
+    ),
   );
   const neutralAnchor: IAutoMovieVector3 = humanPersonEyeCentre(
     Object.fromEntries(
-      bodyBasis.landmarks.ids.map((id: string, at: number): [string, IAutoMovieVector3] => [
-        id,
-        {
-          x: bodyBasis.landmarks.positions[at * 3],
-          y: bodyBasis.landmarks.positions[at * 3 + 1],
-          z: bodyBasis.landmarks.positions[at * 3 + 2],
-        },
-      ]),
+      bodyBasis.landmarks.ids.map(
+        (id: string, at: number): [string, IAutoMovieVector3] => [
+          id,
+          {
+            x: bodyBasis.landmarks.positions[at * 3],
+            y: bodyBasis.landmarks.positions[at * 3 + 1],
+            z: bodyBasis.landmarks.positions[at * 3 + 2],
+          },
+        ],
+      ),
     ),
   );
   const neutralBody: number[] = bodySkin.positions;
@@ -154,11 +185,14 @@ export function compileHumanPersonGeneration(
   // nothing. Endpoint drivers carry the body's own gain of each body endpoint
   // whose rows the face view holds (head skin, parts, landmarks).
   const aliases: IAutoMovieHumanPersonChannelAlias[] = generation.aliases ?? [];
-  const drivers: IAutoMovieHumanPersonEndpointDriver[] = generation.drivers ?? [];
+  const drivers: IAutoMovieHumanPersonEndpointDriver[] =
+    generation.drivers ?? [];
   for (const driver of drivers)
     if (
       !faceBasis.channels.some(
-        (channel: IAutoMovieHumanPersonGeneration["face"]["channels"][number]): boolean =>
+        (
+          channel: IAutoMovieHumanPersonGeneration["face"]["channels"][number],
+        ): boolean =>
           channel.id === driver.channel && channel.positive === driver.endpoint,
       )
     )
@@ -177,7 +211,12 @@ export function compileHumanPersonGeneration(
   // the body vertices whose rest the evaluator reads: shared samples, then
   // the band's body side, in one compact table of the body's own rows
   const restVertices: number[] = [...sharedBody, ...bandBody];
-  const restRows: Map<number, number> = new Map(restVertices.map((vertex: number, at: number): [number, number] => [vertex, at]));
+  const restRows: Map<number, number> = new Map(
+    restVertices.map((vertex: number, at: number): [number, number] => [
+      vertex,
+      at,
+    ]),
+  );
   const restTargets: Record<string, number[]> = {};
   for (const [name, rows] of Object.entries(bodySkin.targets)) {
     const kept: number[] = [];
@@ -188,8 +227,9 @@ export function compileHumanPersonGeneration(
     }
     if (kept.length > 0) restTargets[name] = kept;
   }
-  const restNeutral: number[] = restVertices.flatMap((vertex: number): number[] =>
-    [0, 1, 2].map((axis: number): number => neutralBody[vertex * 3 + axis]),
+  const restNeutral: number[] = restVertices.flatMap(
+    (vertex: number): number[] =>
+      [0, 1, 2].map((axis: number): number => neutralBody[vertex * 3 + axis]),
   );
   const plan: IAutoMovieHumanPersonSkinPlan = {
     faceCount,
@@ -210,7 +250,12 @@ export function compileHumanPersonGeneration(
             sources: bandSources,
             viewBodyVertices: bandView.bodyVertices,
             bodyVertices: bandBody,
-            slots: new Map(bandBody.map((vertex: number, at: number): [number, number] => [vertex, at])),
+            slots: new Map(
+              bandBody.map((vertex: number, at: number): [number, number] => [
+                vertex,
+                at,
+              ]),
+            ),
             skin: {
               joints: bodySkin.skin.joints,
               boneIndices: bandBody.flatMap((vertex: number): number[] =>
@@ -223,18 +268,23 @@ export function compileHumanPersonGeneration(
           },
   };
 
-  const faceProducer: IAutoMovieHumanPersonGeneration["face"] = bandView?.basis ?? faceBasis;
+  const faceProducer: IAutoMovieHumanPersonGeneration["face"] =
+    bandView?.basis ?? faceBasis;
   return {
     generation,
     faceProducer,
     faceProducerSkin: faceProducer.surfaces.findIndex(
-      (surface: IAutoMovieHumanPersonGeneration["face"]["surfaces"][number]): boolean => surface.id === faceSkin.id,
+      (
+        surface: IAutoMovieHumanPersonGeneration["face"]["surfaces"][number],
+      ): boolean => surface.id === faceSkin.id,
     ),
     faceProducerBand:
       bandView === undefined
         ? undefined
         : faceProducer.surfaces.findIndex(
-            (surface: IAutoMovieHumanPersonGeneration["face"]["surfaces"][number]): boolean => surface.id === bandView.surface,
+            (
+              surface: IAutoMovieHumanPersonGeneration["face"]["surfaces"][number],
+            ): boolean => surface.id === bandView.surface,
           ),
     bodyIndex,
     faceSource,

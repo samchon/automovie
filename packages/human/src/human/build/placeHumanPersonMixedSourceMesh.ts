@@ -1,5 +1,5 @@
-import { resolveAutoMovieMeshPhysicalVertices } from "@automovie/engine/math/resolveAutoMovieMeshPhysicalVertices";
 import { interpolateAutoMovieTrianglePoint } from "@automovie/engine/math/interpolateAutoMovieTrianglePoint";
+import { resolveAutoMovieMeshPhysicalVertices } from "@automovie/engine/math/resolveAutoMovieMeshPhysicalVertices";
 import type { IAutoMovieMesh } from "@automovie/interface";
 
 import { areaWeightedNormals } from "../../common/mesh/areaWeightedNormals";
@@ -24,32 +24,72 @@ import { moveHumanMeshRigidly } from "./moveHumanMeshRigidly";
 export function placeHumanPersonMixedSourceMesh(
   props: IAutoMovieHumanPersonMixedSourceMeshProps,
 ): IAutoMovieMesh {
-  const { mesh, head, samples, positions, origin, domain }: IAutoMovieHumanPersonMixedSourceMeshProps = props;
+  const {
+    mesh,
+    head,
+    samples,
+    positions,
+    origin,
+    domain,
+  }: IAutoMovieHumanPersonMixedSourceMeshProps = props;
   const output: IAutoMovieMesh = moveHumanMeshRigidly(mesh, head);
   const physical: IAutoMovieMesh["physicalVertices"] = output.physicalVertices;
   const materialDomain: string = origin + ":material-skin";
-  const attachments: ReturnType<NonNullable<IAutoMovieHumanPersonMixedSourceMeshProps["materialAttachments"]>["get"]> = props.materialAttachments?.get(materialDomain);
+  const attachments: ReturnType<
+    NonNullable<
+      IAutoMovieHumanPersonMixedSourceMeshProps["materialAttachments"]
+    >["get"]
+  > = props.materialAttachments?.get(materialDomain);
   if (
     physical === undefined ||
-    !physical.sources.some((source: NonNullable<IAutoMovieMesh["physicalVertices"]>["sources"][number]): boolean => source.domain === origin || source.domain === materialDomain)
+    !physical.sources.some(
+      (
+        source: NonNullable<
+          IAutoMovieMesh["physicalVertices"]
+        >["sources"][number],
+      ): boolean =>
+        source.domain === origin || source.domain === materialDomain,
+    )
   )
     return output;
   for (let vertex: number = 0; vertex < physical.vertices.length; vertex++) {
     const reference: number | null = physical.vertices[vertex];
-    const source: typeof physical.sources[number] | undefined = reference === null ? undefined : physical.sources[reference];
+    const source: (typeof physical.sources)[number] | undefined =
+      reference === null ? undefined : physical.sources[reference];
     if (source === undefined) continue;
     if (source.domain === materialDomain) {
-      const attachment: ReturnType<NonNullable<typeof attachments>["get"]> = attachments?.get(source.id);
-      if (attachment === undefined || attachment.surface !== props.surface ||
-          attachment.identity.trim() === "")
-        throw new Error("Generated person material attachment needs its exact registered skin parents: " + source.id);
-      const parents: Parameters<typeof interpolateAutoMovieTrianglePoint>[0][number][] = attachment.parents.map((parent: number): Parameters<typeof interpolateAutoMovieTrianglePoint>[0][number] => {
-        const sample: number | undefined = samples.get(parent);
-        if (sample === undefined || sample * 3 + 2 >= positions.length)
-          throw new Error("Generated person material attachment lacks a canonical skin parent: " + parent);
-        return { x: positions[sample * 3], y: positions[sample * 3 + 1], z: positions[sample * 3 + 2] };
-      });
-      const point: ReturnType<typeof interpolateAutoMovieTrianglePoint> = interpolateAutoMovieTrianglePoint(parents, attachment.weights);
+      const attachment: ReturnType<NonNullable<typeof attachments>["get"]> =
+        attachments?.get(source.id);
+      if (
+        attachment === undefined ||
+        attachment.surface !== props.surface ||
+        attachment.identity.trim() === ""
+      )
+        throw new Error(
+          "Generated person material attachment needs its exact registered skin parents: " +
+            source.id,
+        );
+      const parents: Parameters<
+        typeof interpolateAutoMovieTrianglePoint
+      >[0][number][] = attachment.parents.map(
+        (
+          parent: number,
+        ): Parameters<typeof interpolateAutoMovieTrianglePoint>[0][number] => {
+          const sample: number | undefined = samples.get(parent);
+          if (sample === undefined || sample * 3 + 2 >= positions.length)
+            throw new Error(
+              "Generated person material attachment lacks a canonical skin parent: " +
+                parent,
+            );
+          return {
+            x: positions[sample * 3],
+            y: positions[sample * 3 + 1],
+            z: positions[sample * 3 + 2],
+          };
+        },
+      );
+      const point: ReturnType<typeof interpolateAutoMovieTrianglePoint> =
+        interpolateAutoMovieTrianglePoint(parents, attachment.weights);
       output.positions.splice(vertex * 3, 3, point.x, point.y, point.z);
       continue;
     }
@@ -72,14 +112,25 @@ export function placeHumanPersonMixedSourceMesh(
       output.positions[vertex * 3 + axis] = value;
     }
   }
-  physical.sources = physical.sources.map((source: typeof physical.sources[number]): typeof physical.sources[number] => ({
-    ...source,
-    domain: source.domain === origin ? domain :
-      source.domain === materialDomain ? domain + ":material-skin" : source.domain,
-  }));
+  physical.sources = physical.sources.map(
+    (
+      source: (typeof physical.sources)[number],
+    ): (typeof physical.sources)[number] => ({
+      ...source,
+      domain:
+        source.domain === origin
+          ? domain
+          : source.domain === materialDomain
+            ? domain + ":material-skin"
+            : source.domain,
+    }),
+  );
   const indices: number[] =
     output.indices ??
-    Array.from({ length: output.positions.length / 3 }, (_: unknown, vertex: number): number => vertex);
+    Array.from(
+      { length: output.positions.length / 3 },
+      (_: unknown, vertex: number): number => vertex,
+    );
   output.normals = areaWeightedNormals(output.positions, indices);
   resolveAutoMovieMeshPhysicalVertices(output);
   return output;

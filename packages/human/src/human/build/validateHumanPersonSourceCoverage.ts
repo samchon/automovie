@@ -18,24 +18,39 @@ import type { IAutoMovieHumanPersonSourceInterval } from "../structures/IAutoMov
 export function validateHumanPersonSourceCoverage(
   props: IAutoMovieHumanPersonSourceCoverageProps,
 ): void {
-  const preimage: IAutoMovieHumanPersonSourceCoverageProps["preimage"] = props.preimage;
+  const preimage: IAutoMovieHumanPersonSourceCoverageProps["preimage"] =
+    props.preimage;
   const edges: Map<string, IAutoMovieHumanPersonSourceEdge>[] = Array.from(
     { length: props.parentTriangles.length / 3 },
     (): Map<string, IAutoMovieHumanPersonSourceEdge> => new Map(),
   );
   for (const cell of props.cells) {
     const parent: number = cell.parent;
-    const original: number[] = props.parentTriangles.slice(parent * 3, parent * 3 + 3);
+    const original: number[] = props.parentTriangles.slice(
+      parent * 3,
+      parent * 3 + 3,
+    );
     const samples: number[] = [...cell.samples];
     const chart: number[][] = samples.map((sample: number): number[] => {
       const weights: ReturnType<typeof preimage> = preimage(parent, sample);
-      if (weights.some((one: ReturnType<typeof preimage>[number]): boolean => !original.includes(one.id)))
+      if (
+        weights.some(
+          (one: ReturnType<typeof preimage>[number]): boolean =>
+            !original.includes(one.id),
+        )
+      )
         throw new Error(
           "Person source cell leaves its declared parent triangle.",
         );
       return original
         .slice(1)
-        .map((id: number): number => weights.find((one: ReturnType<typeof preimage>[number]): boolean => one.id === id)?.weight ?? 0);
+        .map(
+          (id: number): number =>
+            weights.find(
+              (one: ReturnType<typeof preimage>[number]): boolean =>
+                one.id === id,
+            )?.weight ?? 0,
+        );
     });
     const determinant: number =
       (chart[1][0] - chart[0][0]) * (chart[2][1] - chart[0][1]) -
@@ -47,8 +62,11 @@ export function validateHumanPersonSourceCoverage(
     for (let k: number = 0; k < 3; k++) {
       const from: number = samples[k];
       const to: number = samples[(k + 1) % 3];
-      const key: string = [from, to].sort((a: number, b: number): number => a - b).join(":");
-      const found: IAutoMovieHumanPersonSourceEdge | undefined = edges[parent].get(key);
+      const key: string = [from, to]
+        .sort((a: number, b: number): number => a - b)
+        .join(":");
+      const found: IAutoMovieHumanPersonSourceEdge | undefined =
+        edges[parent].get(key);
       if (found === undefined) edges[parent].set(key, { from, to, count: 1 });
       else {
         if (found.count !== 1 || found.from !== to || found.to !== from)
@@ -60,7 +78,10 @@ export function validateHumanPersonSourceCoverage(
     }
   }
   for (let parent: number = 0; parent < edges.length; parent++) {
-    const original: number[] = props.parentTriangles.slice(parent * 3, parent * 3 + 3);
+    const original: number[] = props.parentTriangles.slice(
+      parent * 3,
+      parent * 3 + 3,
+    );
     const intervals: IAutoMovieHumanPersonSourceInterval[][] = [[], [], []];
     for (const edge of edges[parent].values()) {
       if (edge.count === 2) continue;
@@ -68,7 +89,8 @@ export function validateHumanPersonSourceCoverage(
       const to: ReturnType<typeof preimage> = preimage(parent, edge.to);
       const side: number = original.findIndex((a: number, k: number): boolean =>
         [...from, ...to].every(
-          (point: ReturnType<typeof preimage>[number]): boolean => point.id === a || point.id === original[(k + 1) % 3],
+          (point: ReturnType<typeof preimage>[number]): boolean =>
+            point.id === a || point.id === original[(k + 1) % 3],
         ),
       );
       if (side < 0)
@@ -76,8 +98,13 @@ export function validateHumanPersonSourceCoverage(
           "Person source partition leaves an uncovered interior edge.",
         );
       const end: number = original[(side + 1) % 3];
-      const coordinate: (points: typeof from) => number = (points: typeof from): number =>
-        points.find((point: ReturnType<typeof preimage>[number]): boolean => point.id === end)?.weight ?? 0;
+      const coordinate: (points: typeof from) => number = (
+        points: typeof from,
+      ): number =>
+        points.find(
+          (point: ReturnType<typeof preimage>[number]): boolean =>
+            point.id === end,
+        )?.weight ?? 0;
       const start: number = coordinate(from);
       const finish: number = coordinate(to);
       if (!(finish > start))
@@ -87,7 +114,12 @@ export function validateHumanPersonSourceCoverage(
       intervals[side].push({ start, end: finish });
     }
     for (const side of intervals) {
-      side.sort((a: IAutoMovieHumanPersonSourceInterval, b: IAutoMovieHumanPersonSourceInterval): number => a.start - b.start);
+      side.sort(
+        (
+          a: IAutoMovieHumanPersonSourceInterval,
+          b: IAutoMovieHumanPersonSourceInterval,
+        ): number => a.start - b.start,
+      );
       let end: number = 0;
       for (const interval of side) {
         if (interval.start !== end)

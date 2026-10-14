@@ -38,14 +38,17 @@ export function evaluateHumanPersonRestSkin(
   compiled: IAutoMovieHumanPersonCompiledGeneration,
   document: IAutoMovieHumanPersonDocument,
 ): IAutoMovieHumanPersonFormedSkin {
-  const { generation, plan }: IAutoMovieHumanPersonCompiledGeneration = compiled;
+  const { generation, plan }: IAutoMovieHumanPersonCompiledGeneration =
+    compiled;
   const effectiveDocument: IAutoMovieHumanPersonDocument =
     createHumanPersonHeadShapeResolver(generation)(document);
-  const body: IAutoMovieHumanPersonCompiledGeneration["generation"]["body"] = generation.body;
-  const bodyDocument: ReturnType<typeof deriveHumanPersonBody> = deriveHumanPersonBody({
-    document: effectiveDocument,
-    faceMaterials: generation.face.materials,
-  });
+  const body: IAutoMovieHumanPersonCompiledGeneration["generation"]["body"] =
+    generation.body;
+  const bodyDocument: ReturnType<typeof deriveHumanPersonBody> =
+    deriveHumanPersonBody({
+      document: effectiveDocument,
+      faceMaterials: generation.face.materials,
+    });
   if (bodyDocument.anatomy !== undefined)
     bodyDocument.shape = resolveHumanBodyAnatomy(
       body,
@@ -62,40 +65,50 @@ export function evaluateHumanPersonRestSkin(
     bodyDocument,
     resolveHumanBodyShapeShoulderRest(body, bodyDocument.shape),
   );
-  const shaped: ReturnType<typeof evaluateHumanBodyShape> = evaluateHumanBodyShape(body, state);
+  const shaped: ReturnType<typeof evaluateHumanBodyShape> =
+    evaluateHumanBodyShape(body, state);
   const bodyRest: number[] = compiled.restNeutral.slice();
   applyHumanBodyShapeRows(body, state, bodyRest, compiled.restTargets);
-  const faceDocument: ReturnType<typeof deriveHumanPersonGenerationFace> = deriveHumanPersonGenerationFace({
-    document: {
-      ...effectiveDocument,
-      face: { ...effectiveDocument.face, expression: {} },
-    },
-    gains: humanPersonBodyEndpointGains(body, state),
-    aliases: compiled.aliases,
-    drivers: compiled.drivers,
-  });
+  const faceDocument: ReturnType<typeof deriveHumanPersonGenerationFace> =
+    deriveHumanPersonGenerationFace({
+      document: {
+        ...effectiveDocument,
+        face: { ...effectiveDocument.face, expression: {} },
+      },
+      gains: humanPersonBodyEndpointGains(body, state),
+      aliases: compiled.aliases,
+      drivers: compiled.drivers,
+    });
   const face: ReturnType<typeof evaluateHumanFaceRest> = evaluateHumanFaceRest(
     compiled.faceProducer,
     humanFaceBasisWeights(compiled.faceProducer, faceDocument),
   );
-  const anchor: ReturnType<typeof humanPersonEyeCentre> = humanPersonEyeCentre(shaped.landmarks);
+  const anchor: ReturnType<typeof humanPersonEyeCentre> = humanPersonEyeCentre(
+    shaped.landmarks,
+  );
   // the body's rest pose is not the identity everywhere: the shape's own
   // shoulder rest poses the shoulders, so the transforms are the body
   // builder's own rest-document pose
-  const { transforms }: ReturnType<typeof resolveHumanBodyBuildPose> = resolveHumanBodyBuildPose({
-    basis: body,
-    document: bodyDocument,
-    poseRows: state.pose,
-    landmarks: shaped.landmarks,
-  });
-  const bones: Map<AutoMovieHumanoidBone, IAutoMovieHumanBodyBuild["bones"][number]> = new Map<
+  const { transforms }: ReturnType<typeof resolveHumanBodyBuildPose> =
+    resolveHumanBodyBuildPose({
+      basis: body,
+      document: bodyDocument,
+      poseRows: state.pose,
+      landmarks: shaped.landmarks,
+    });
+  const bones: Map<
     AutoMovieHumanoidBone,
     IAutoMovieHumanBodyBuild["bones"][number]
-  >(
-    [...transforms].map(([bone, frame]: [AutoMovieHumanoidBone, IAutoMovieHumanBodyBoneTransform]): [AutoMovieHumanoidBone, IAutoMovieHumanBodyBuild["bones"][number]] => [
-      bone,
-      { bone, rest: frame.rest, posed: frame.posed },
-    ]),
+  > = new Map<AutoMovieHumanoidBone, IAutoMovieHumanBodyBuild["bones"][number]>(
+    [...transforms].map(
+      ([bone, frame]: [
+        AutoMovieHumanoidBone,
+        IAutoMovieHumanBodyBoneTransform,
+      ]): [
+        AutoMovieHumanoidBone,
+        IAutoMovieHumanBodyBuild["bones"][number],
+      ] => [bone, { bone, rest: frame.rest, posed: frame.posed }],
+    ),
   );
   return formHumanPersonSkin(plan, {
     faceRest: {

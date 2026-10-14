@@ -21,9 +21,12 @@ export function readHumanPersonFaceRest(
 ): IAutoMovieHumanPersonFaceRest {
   const head: number[] = new Array<number>(plan.faceCount * 3).fill(0);
   for (const part of face.parts) {
-    const sources: readonly number[] | undefined = plan.faceRegions.get(part.id);
+    const sources: readonly number[] | undefined = plan.faceRegions.get(
+      part.id,
+    );
     if (sources === undefined) continue;
-    const { positions }: ReturnType<typeof meshOfHumanPart> = meshOfHumanPart(part);
+    const { positions }: ReturnType<typeof meshOfHumanPart> =
+      meshOfHumanPart(part);
     sources.forEach((source: number, vertex: number): void => {
       for (let axis: number = 0; axis < 3; axis++)
         head[source * 3 + axis] = positions[vertex * 3 + axis];
@@ -31,9 +34,14 @@ export function readHumanPersonFaceRest(
   }
   const band: IAutoMovieHumanPersonSkinPlan["band"] = plan.band;
   if (band === undefined) return { head };
-  const banded: number[] = new Array<number>(band.viewBodyVertices.length * 3).fill(0);
+  const banded: number[] = new Array<number>(
+    band.viewBodyVertices.length * 3,
+  ).fill(0);
   const { positions }: ReturnType<typeof meshOfHumanPart> = meshOfHumanPart(
-    face.parts.find((one: IAutoMovieModel["parts"][number]): boolean => one.id === band.surface)!,
+    face.parts.find(
+      (one: IAutoMovieModel["parts"][number]): boolean =>
+        one.id === band.surface,
+    )!,
   );
   band.sources.forEach((source: number, vertex: number): void => {
     for (let axis: number = 0; axis < 3; axis++)

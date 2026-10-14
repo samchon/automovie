@@ -20,13 +20,17 @@ export function createHumanPersonSourceChart(
     source.originalVertices +
     source.intersections.length +
     (source.refinements?.length ?? 0);
-  const cache: Map<number, IAutoMovieHumanPersonSourceChart> = new Map<number, IAutoMovieHumanPersonSourceChart>();
+  const cache: Map<number, IAutoMovieHumanPersonSourceChart> = new Map<
+    number,
+    IAutoMovieHumanPersonSourceChart
+  >();
   return (sample: number): IAutoMovieHumanPersonSourceChart => {
     if (!isHumanPersonSourceIndex(sample, sampleCount))
       throw new Error(
         "Person source sample leaves its captured canonical domain.",
       );
-    const cached: IAutoMovieHumanPersonSourceChart | undefined = cache.get(sample);
+    const cached: IAutoMovieHumanPersonSourceChart | undefined =
+      cache.get(sample);
     if (cached !== undefined) return cached;
     let result: IAutoMovieHumanPersonSourceChart;
     if (sample < source.originalVertices)
@@ -34,14 +38,16 @@ export function createHumanPersonSourceChart(
     else {
       const virtual: number = sample - source.originalVertices;
       if (virtual < source.intersections.length) {
-        const point: IAutoMovieHumanBasisSourcePartition["intersections"][number] = source.intersections[virtual];
+        const point: IAutoMovieHumanBasisSourcePartition["intersections"][number] =
+          source.intersections[virtual];
         result = {
           originals: [point.a, point.b, point.a],
           coordinates: [point.t, 0],
         };
       } else {
-        const point: NonNullable<IAutoMovieHumanBasisSourcePartition["refinements"]>[number] =
-          source.refinements![virtual - source.intersections.length];
+        const point: NonNullable<
+          IAutoMovieHumanBasisSourcePartition["refinements"]
+        >[number] = source.refinements![virtual - source.intersections.length];
         result = {
           originals: source.parentTriangles.slice(
             point.parent * 3,

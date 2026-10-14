@@ -26,19 +26,27 @@ export function formHumanPersonSkin(
   const raw: readonly number[] = frame.faceRest.head;
   let faceField: number = 0;
   let bodyField: number = 0;
-  const rest: number[] = raw.map((value: number, at: number): number => value + shift[at % 3]);
+  const rest: number[] = raw.map(
+    (value: number, at: number): number => value + shift[at % 3],
+  );
   for (const [vertex, own] of plan.bodyOfFace) {
     const at: number = plan.restRows.get(own)!;
     const faceStep: number[] = [0, 1, 2].map(
-      (axis: number): number => raw[vertex * 3 + axis] - plan.faceNeutral[vertex * 3 + axis],
+      (axis: number): number =>
+        raw[vertex * 3 + axis] - plan.faceNeutral[vertex * 3 + axis],
     );
     const bodyStep: number[] = [0, 1, 2].map(
-      (axis: number): number => bodyRest[at * 3 + axis] - plan.bodyNeutral[own * 3 + axis],
+      (axis: number): number =>
+        bodyRest[at * 3 + axis] - plan.bodyNeutral[own * 3 + axis],
     );
     faceField = Math.max(faceField, Math.hypot(...faceStep));
     bodyField = Math.max(
       bodyField,
-      Math.hypot(...bodyStep.map((step: number, axis: number): number => step - shift[axis])),
+      Math.hypot(
+        ...bodyStep.map(
+          (step: number, axis: number): number => step - shift[axis],
+        ),
+      ),
     );
     for (let axis: number = 0; axis < 3; axis++)
       rest[vertex * 3 + axis] = raw[vertex * 3 + axis] + bodyStep[axis];
@@ -55,22 +63,27 @@ export function formHumanPersonSkin(
       bodyPosed[vertex * 3 + axis] = facePosed[plan.sharedFace[at] * 3 + axis];
   });
   const band: IAutoMovieHumanPersonSkinPlan["band"] = plan.band;
-  const bandRest: IAutoMovieHumanPersonSkinFrame["faceRest"]["band"] = frame.faceRest.band;
+  const bandRest: IAutoMovieHumanPersonSkinFrame["faceRest"]["band"] =
+    frame.faceRest.band;
   if (
     band !== undefined &&
     bandRest !== undefined &&
     band.bodyVertices.length > 0
   ) {
     // Add the face-view delta in rest coordinates, then subtract the actual body skinning results with and without it.
-    const banded: number[] = new Array<number>(band.bodyVertices.length * 3).fill(0);
+    const banded: number[] = new Array<number>(
+      band.bodyVertices.length * 3,
+    ).fill(0);
     // only the view vertices the band part draws carry the producer's value
     const drawn: Set<number> = new Set(band.sources);
-    band.viewBodyVertices.forEach((bodyVertex: number, viewVertex: number): void => {
-      const slot: number | undefined = band.slots.get(bodyVertex);
-      if (slot === undefined || !drawn.has(viewVertex)) return;
-      for (let axis: number = 0; axis < 3; axis++)
-        banded[slot * 3 + axis] = bandRest[viewVertex * 3 + axis];
-    });
+    band.viewBodyVertices.forEach(
+      (bodyVertex: number, viewVertex: number): void => {
+        const slot: number | undefined = band.slots.get(bodyVertex);
+        if (slot === undefined || !drawn.has(viewVertex)) return;
+        for (let axis: number = 0; axis < 3; axis++)
+          banded[slot * 3 + axis] = bandRest[viewVertex * 3 + axis];
+      },
+    );
     const before: number[] = bodyRest.slice(plan.sharedBody.length * 3);
     const after: number[] = before.map(
       (value: number, at: number): number =>
@@ -78,8 +91,18 @@ export function formHumanPersonSkin(
         banded[at] -
         plan.bodyNeutral[band.bodyVertices[Math.floor(at / 3)] * 3 + (at % 3)],
     );
-    const from: number[] = skinHumanBodySurface(before, band.skin, plan.joints, bones);
-    const to: number[] = skinHumanBodySurface(after, band.skin, plan.joints, bones);
+    const from: number[] = skinHumanBodySurface(
+      before,
+      band.skin,
+      plan.joints,
+      bones,
+    );
+    const to: number[] = skinHumanBodySurface(
+      after,
+      band.skin,
+      plan.joints,
+      bones,
+    );
     band.bodyVertices.forEach((vertex: number, at: number): void => {
       for (let axis: number = 0; axis < 3; axis++)
         bodyPosed[vertex * 3 + axis] += to[at * 3 + axis] - from[at * 3 + axis];

@@ -15,12 +15,17 @@ import type { IHumanPersonDressedBody } from "../structures/IHumanPersonDressedB
 export function dressHumanPersonBody(
   input: IHumanPersonBodyDressInput,
 ): IHumanPersonDressedBody {
-  const garment: ReturnType<IHumanPersonBodyDressInput["prepared"]["dress"]> = input.prepared.dress();
+  const garment: ReturnType<IHumanPersonBodyDressInput["prepared"]["dress"]> =
+    input.prepared.dress();
   if (garment === undefined) return { body: input.body };
   return {
     garment,
-    body: { ...input.body, model: { ...input.body.model,
-      materials: [...input.body.model.materials, garment.material],
-    } },
+    body: {
+      ...input.body,
+      model: {
+        ...input.body.model,
+        materials: [...input.body.model.materials, garment.material],
+      },
+    },
   };
 }

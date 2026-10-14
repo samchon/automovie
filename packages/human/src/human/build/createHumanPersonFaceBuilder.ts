@@ -1,12 +1,12 @@
-import type { IHumanFaceOralMeasurementRegistration } from "../../face/anatomy/oral/IHumanFaceOralMeasurementRegistration";
 import type { IHumanFaceHairContactLayout } from "../../face/anatomy/hair/IHumanFaceHairContactLayout";
-import type { IHumanFaceMaterialAttachment } from "../../face/structures/IHumanFaceMaterialAttachment";
+import type { IHumanFaceOralMeasurementRegistration } from "../../face/anatomy/oral/IHumanFaceOralMeasurementRegistration";
 import { createHumanFaceBasisBuilder } from "../../face/basis/createHumanFaceBasisBuilder";
 import type { IAutoMovieHumanFaceBasis } from "../../face/structures/IAutoMovieHumanFaceBasis";
 import type { IAutoMovieHumanFaceBasisDocument } from "../../face/structures/IAutoMovieHumanFaceBasisDocument";
 import type { IAutoMovieHumanFaceConstruction } from "../../face/structures/IAutoMovieHumanFaceConstruction";
 import type { IAutoMovieHumanFaceConstructionProgress } from "../../face/structures/IAutoMovieHumanFaceConstructionProgress";
 import type { IAutoMovieHumanFaceOcclusionOptions } from "../../face/structures/IAutoMovieHumanFaceOcclusionOptions";
+import type { IHumanFaceMaterialAttachment } from "../../face/structures/IHumanFaceMaterialAttachment";
 import type { IAutoMovieHumanPersonFaceBuild } from "../structures/IAutoMovieHumanPersonFaceBuild";
 
 /**
@@ -34,52 +34,79 @@ export function createHumanPersonFaceBuilder(
   observeConstructionProgress?: (
     progress: IAutoMovieHumanFaceConstructionProgress,
   ) => void,
-): ((document: IAutoMovieHumanFaceBasisDocument) => IAutoMovieHumanPersonFaceBuild) & { construct: (document: IAutoMovieHumanFaceBasisDocument) => IAutoMovieHumanFaceConstruction } {
+): ((
+  document: IAutoMovieHumanFaceBasisDocument,
+) => IAutoMovieHumanPersonFaceBuild) & {
+  construct: (
+    document: IAutoMovieHumanFaceBasisDocument,
+  ) => IAutoMovieHumanFaceConstruction;
+} {
   let emitted: readonly string[] = [];
-  let hairContactLayouts: ReadonlyMap<string, IHumanFaceHairContactLayout> = new Map();
-  let materialAttachments: ReadonlyMap<string, ReadonlyMap<number, IHumanFaceMaterialAttachment>> = new Map();
+  let hairContactLayouts: ReadonlyMap<string, IHumanFaceHairContactLayout> =
+    new Map();
+  let materialAttachments: ReadonlyMap<
+    string,
+    ReadonlyMap<number, IHumanFaceMaterialAttachment>
+  > = new Map();
   let reference: ReadonlyMap<string, readonly number[]> | undefined;
   let oral: IHumanFaceOralMeasurementRegistration | undefined;
-  const build: ReturnType<typeof createHumanFaceBasisBuilder> = createHumanFaceBasisBuilder(basis, {
-    occlusion,
-    observeConstructionProgress,
-    ...(census ? { census: true } : {}),
-    observeHairParts: (ids: readonly string[]): void => {
-      emitted = ids;
-    },
-    observeHairContactLayouts: (layouts: ReadonlyMap<string, IHumanFaceHairContactLayout>): void => {
-      hairContactLayouts = layouts;
-    },
-    observeMaterialAttachments: (attachments: ReadonlyMap<string, ReadonlyMap<number, IHumanFaceMaterialAttachment>>): void => {
-      materialAttachments = attachments;
-    },
-    ...(readMeasurementStates
-      ? {
-          observeReference: (
-            value: ReadonlyMap<string, readonly number[]> | undefined,
-          ): void => {
-            reference = value;
-          },
-        }
-      : {}),
-    ...(readMeasurementStates
-      ? {
-          observeOralMeasurements: (
-            value: IHumanFaceOralMeasurementRegistration | undefined,
-          ): void => {
-            oral = value;
-          },
-        }
-      : {}),
-  });
-  const evaluate: (document: IAutoMovieHumanFaceBasisDocument) => IAutoMovieHumanPersonFaceBuild = (
+  const build: ReturnType<typeof createHumanFaceBasisBuilder> =
+    createHumanFaceBasisBuilder(basis, {
+      occlusion,
+      observeConstructionProgress,
+      ...(census ? { census: true } : {}),
+      observeHairParts: (ids: readonly string[]): void => {
+        emitted = ids;
+      },
+      observeHairContactLayouts: (
+        layouts: ReadonlyMap<string, IHumanFaceHairContactLayout>,
+      ): void => {
+        hairContactLayouts = layouts;
+      },
+      observeMaterialAttachments: (
+        attachments: ReadonlyMap<
+          string,
+          ReadonlyMap<number, IHumanFaceMaterialAttachment>
+        >,
+      ): void => {
+        materialAttachments = attachments;
+      },
+      ...(readMeasurementStates
+        ? {
+            observeReference: (
+              value: ReadonlyMap<string, readonly number[]> | undefined,
+            ): void => {
+              reference = value;
+            },
+          }
+        : {}),
+      ...(readMeasurementStates
+        ? {
+            observeOralMeasurements: (
+              value: IHumanFaceOralMeasurementRegistration | undefined,
+            ): void => {
+              oral = value;
+            },
+          }
+        : {}),
+    });
+  const evaluate: (
+    document: IAutoMovieHumanFaceBasisDocument,
+  ) => IAutoMovieHumanPersonFaceBuild = (
     document: IAutoMovieHumanFaceBasisDocument,
   ): IAutoMovieHumanPersonFaceBuild => {
     reference = undefined;
     oral = undefined;
     materialAttachments = new Map();
     const model: IAutoMovieHumanPersonFaceBuild["model"] = build(document);
-    return { model, hairPartIds: new Set(emitted), hairContactLayouts, materialAttachments, reference, oral };
+    return {
+      model,
+      hairPartIds: new Set(emitted),
+      hairContactLayouts,
+      materialAttachments,
+      reference,
+      oral,
+    };
   };
   return Object.assign(evaluate, {
     construct: (

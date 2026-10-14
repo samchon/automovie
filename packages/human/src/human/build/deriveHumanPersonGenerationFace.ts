@@ -18,10 +18,17 @@ import type { IAutoMovieHumanPersonGenerationFaceProps } from "../structures/IAu
 export function deriveHumanPersonGenerationFace(
   props: IAutoMovieHumanPersonGenerationFaceProps,
 ): IAutoMovieHumanFaceBasisDocument {
-  const { document, gains, aliases, drivers }: IAutoMovieHumanPersonGenerationFaceProps = props;
+  const {
+    document,
+    gains,
+    aliases,
+    drivers,
+  }: IAutoMovieHumanPersonGenerationFaceProps = props;
   if (aliases.length === 0 && drivers.length === 0)
     return deriveHumanPersonFace(document);
-  const shape: IAutoMovieHumanFaceBasisDocument["shape"] = { ...document.face.shape };
+  const shape: IAutoMovieHumanFaceBasisDocument["shape"] = {
+    ...document.face.shape,
+  };
   for (const alias of aliases)
     if (
       Object.hasOwn(document.face.shape, alias.face) ||

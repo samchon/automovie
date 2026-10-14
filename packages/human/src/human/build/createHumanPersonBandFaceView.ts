@@ -27,7 +27,8 @@ export function createHumanPersonBandFaceView(
   const band: IAutoMovieHumanPersonGeneration["band"] = generation.band;
   if (band === undefined)
     throw new Error("The generation carries no neck band rows.");
-  const body: IAutoMovieHumanPersonGeneration["body"]["surfaces"][number] = generation.body.surfaces[bodyIndex];
+  const body: IAutoMovieHumanPersonGeneration["body"]["surfaces"][number] =
+    generation.body.surfaces[bodyIndex];
 
   const support: Set<number> = new Set<number>();
   for (const rows of Object.values(band.bodyFaceTargets))
@@ -61,7 +62,8 @@ export function createHumanPersonBandFaceView(
   let textured: boolean = true;
   for (let t: number = 0; t < body.indices.length; t += 3) {
     const triangle: number[] = body.indices.slice(t, t + 3);
-    if (!triangle.some((vertex: number): boolean => support.has(vertex))) continue;
+    if (!triangle.some((vertex: number): boolean => support.has(vertex)))
+      continue;
     indices.push(...triangle.map(idOf));
     const uv: number[] | undefined = uvOf.get(triangle.join(","));
     if (uv === undefined) textured = false;
@@ -69,10 +71,16 @@ export function createHumanPersonBandFaceView(
   }
 
   // rows re-addressed to surface vertices, ascending as the face basis requires
-  const move: (rows: readonly number[], stride: number) => number[] = (rows: readonly number[], stride: number): number[] => {
+  const move: (rows: readonly number[], stride: number) => number[] = (
+    rows: readonly number[],
+    stride: number,
+  ): number[] => {
     const order: number[] = [];
     for (let i: number = 0; i < rows.length; i += stride) order.push(i);
-    order.sort((a: number, b: number): number => local.get(rows[a])! - local.get(rows[b])!);
+    order.sort(
+      (a: number, b: number): number =>
+        local.get(rows[a])! - local.get(rows[b])!,
+    );
     return order.flatMap((i: number): number[] => [
       local.get(rows[i])!,
       ...rows.slice(i + 1, i + stride),
@@ -84,14 +92,24 @@ export function createHumanPersonBandFaceView(
   const surface: IAutoMovieHumanPersonGeneration["face"]["surfaces"][number] = {
     id: BAND_SURFACE,
     positions: bodyVertices.flatMap((vertex: number): number[] =>
-      [0, 1, 2].map((axis: number): number => body.positions[vertex * 3 + axis]),
+      [0, 1, 2].map(
+        (axis: number): number => body.positions[vertex * 3 + axis],
+      ),
     ),
     indices,
     targets,
-    attachments: band.bodyAttachments.map((attachment: NonNullable<IAutoMovieHumanPersonGeneration["band"]>["bodyAttachments"][number]): NonNullable<IAutoMovieHumanPersonGeneration["face"]["surfaces"][number]["attachments"]>[number] => ({
-      owner: attachment.owner,
-      rows: move(attachment.rows, 2),
-    })),
+    attachments: band.bodyAttachments.map(
+      (
+        attachment: NonNullable<
+          IAutoMovieHumanPersonGeneration["band"]
+        >["bodyAttachments"][number],
+      ): NonNullable<
+        IAutoMovieHumanPersonGeneration["face"]["surfaces"][number]["attachments"]
+      >[number] => ({
+        owner: attachment.owner,
+        rows: move(attachment.rows, 2),
+      }),
+    ),
     regions: [
       {
         id: BAND_SURFACE,

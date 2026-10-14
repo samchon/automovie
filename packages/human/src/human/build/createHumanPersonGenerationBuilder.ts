@@ -1,10 +1,14 @@
 import { validateModel } from "@automovie/engine";
-import type { IAutoMovieModel, IAutoMovieMaterial, IAutoMovieMesh, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMaterial,
+  IAutoMovieMesh,
+  IAutoMovieModel,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { applyHumanBodyShapeRows } from "../../body/basis/applyHumanBodyShapeRows";
 import { createHumanBodyBasisBuilder } from "../../body/basis/createHumanBodyBasisBuilder";
 import { humanBodyBasisWeights } from "../../body/basis/humanBodyBasisWeights";
-import { composeHumanPersonUnderwearParts } from "./composeHumanPersonUnderwearParts";
 import { resolveHumanBodyShapeShoulderRest } from "../../body/basis/resolveHumanBodyShapeShoulderRest";
 import { humanPhysicalSourceDomain } from "../../common/basis/humanPhysicalSourceDomain";
 import { placeHumanLocalModelPart } from "../../common/mesh/placeHumanLocalModelPart";
@@ -13,7 +17,6 @@ import { resolveHumanFaceHairLayers } from "../../face/basis/resolveHumanFaceHai
 import { admitHumanPersonDocument } from "../document/admitHumanPersonDocument";
 import { createHumanPersonHeadShapeResolver } from "../document/createHumanPersonHeadShapeResolver";
 import { deriveHumanPersonBody } from "../document/deriveHumanPersonBody";
-import { dressHumanPersonBody } from "./dressHumanPersonBody";
 import { createHumanPersonFaceMeasurementReader } from "../measure/createHumanPersonFaceMeasurementReader";
 import type { IAutoMovieHumanPersonConstruction } from "../structures/IAutoMovieHumanPersonConstruction";
 import type { IAutoMovieHumanPersonDocument } from "../structures/IAutoMovieHumanPersonDocument";
@@ -24,10 +27,12 @@ import type { IAutoMovieHumanPersonGenerationBuilderProps } from "../structures/
 import { clearHumanPersonHair } from "./clearHumanPersonHair";
 import { compileHumanPersonGeneration } from "./compileHumanPersonGeneration";
 import { completeHumanPersonBodyLayers } from "./completeHumanPersonBodyLayers";
+import { composeHumanPersonUnderwearParts } from "./composeHumanPersonUnderwearParts";
 import { createHumanPersonBodyEndpointSource } from "./createHumanPersonBodyEndpointSource";
 import { createHumanPersonFaceBuilder } from "./createHumanPersonFaceBuilder";
 import { createHumanPersonHeadTransform } from "./createHumanPersonHeadTransform";
 import { deriveHumanPersonGenerationFace } from "./deriveHumanPersonGenerationFace";
+import { dressHumanPersonBody } from "./dressHumanPersonBody";
 import { formHumanPersonSkin } from "./formHumanPersonSkin";
 import { humanPersonBodyEndpointGains } from "./humanPersonBodyEndpointGains";
 import { humanPersonEyeCentre } from "./humanPersonEyeCentre";
@@ -66,9 +71,14 @@ import { resolveHumanPersonFaceBones } from "./resolveHumanPersonFaceBones";
 export function createHumanPersonGenerationBuilder(
   props: IAutoMovieHumanPersonGenerationBuilderProps,
 ): IAutoMovieHumanPersonGenerationBuilder {
-  const compiled: ReturnType<typeof compileHumanPersonGeneration> = compileHumanPersonGeneration(props.generation);
-  const resolveHeadShape: ReturnType<typeof createHumanPersonHeadShapeResolver> = createHumanPersonHeadShapeResolver(props.generation);
-  const readFaceMeasurements: ReturnType<typeof createHumanPersonFaceMeasurementReader> | undefined =
+  const compiled: ReturnType<typeof compileHumanPersonGeneration> =
+    compileHumanPersonGeneration(props.generation);
+  const resolveHeadShape: ReturnType<
+    typeof createHumanPersonHeadShapeResolver
+  > = createHumanPersonHeadShapeResolver(props.generation);
+  const readFaceMeasurements:
+    | ReturnType<typeof createHumanPersonFaceMeasurementReader>
+    | undefined =
     props.observeFaceMeasurements === undefined
       ? undefined
       : createHumanPersonFaceMeasurementReader(compiled);
@@ -89,29 +99,36 @@ export function createHumanPersonGenerationBuilder(
   }: typeof compiled = compiled;
   const { face: faceBasis, body: bodyBasis }: typeof generation = generation;
   const { faceCount, faceRegions }: typeof plan = plan;
-  const bodySkin: typeof bodyBasis.surfaces[number] = bodyBasis.surfaces[bodyIndex];
+  const bodySkin: (typeof bodyBasis.surfaces)[number] =
+    bodyBasis.surfaces[bodyIndex];
   const anatomicalExteriorNeutral: number[] = [
     ...plan.faceNeutral,
     ...bodySkin.positions,
   ];
   const bandSurface: string | undefined = plan.band?.surface;
-  const buildFace: ReturnType<typeof createHumanPersonFaceBuilder> = createHumanPersonFaceBuilder(
-    faceProducer,
-    props.occlusion,
-    readFaceMeasurements !== undefined,
-    props.census === true,
-    props.observeFaceConstructionProgress,
-  );
+  const buildFace: ReturnType<typeof createHumanPersonFaceBuilder> =
+    createHumanPersonFaceBuilder(
+      faceProducer,
+      props.occlusion,
+      readFaceMeasurements !== undefined,
+      props.census === true,
+      props.observeFaceConstructionProgress,
+    );
   const faceSampleVertices: Map<number, number> = new Map(
-    faceSource.samples.map((sample: number, vertex: number): [number, number] => [sample, vertex]),
+    faceSource.samples.map(
+      (sample: number, vertex: number): [number, number] => [sample, vertex],
+    ),
   );
-  const buildBody: ReturnType<typeof createHumanBodyBasisBuilder> = createHumanBodyBasisBuilder(bodyBasis, {
-    physicalSource: "source-partition",
-    endpointSource: createHumanPersonBodyEndpointSource(generation),
-    observeProgress: props.observeBodyConstructionProgress,
-  });
+  const buildBody: ReturnType<typeof createHumanBodyBasisBuilder> =
+    createHumanBodyBasisBuilder(bodyBasis, {
+      physicalSource: "source-partition",
+      endpointSource: createHumanPersonBodyEndpointSource(generation),
+      observeProgress: props.observeBodyConstructionProgress,
+    });
 
-  const construct: (document: IAutoMovieHumanPersonDocument) => IAutoMovieHumanPersonConstruction = (
+  const construct: (
+    document: IAutoMovieHumanPersonDocument,
+  ) => IAutoMovieHumanPersonConstruction = (
     document: IAutoMovieHumanPersonDocument,
   ): IAutoMovieHumanPersonConstruction => {
     const effectiveDocument: IAutoMovieHumanPersonDocument = resolveHeadShape(
@@ -119,40 +136,53 @@ export function createHumanPersonGenerationBuilder(
         ? admitHumanPersonDocument(document, bodyBasis.anatomicalAssembly)
         : document,
     );
-    const preparedBody: ReturnType<typeof buildBody.prepare> = buildBody.prepare(
-      deriveHumanPersonBody({
-        document: effectiveDocument,
-        faceMaterials: faceBasis.materials,
-      }),
-    );
+    const preparedBody: ReturnType<typeof buildBody.prepare> =
+      buildBody.prepare(
+        deriveHumanPersonBody({
+          document: effectiveDocument,
+          faceMaterials: faceBasis.materials,
+        }),
+      );
     const bodySkinState: typeof preparedBody.skin = preparedBody.skin;
     props.observeStage?.("body-evaluated");
-    const bodyDocument: typeof bodySkinState.evaluatedDocument = bodySkinState.evaluatedDocument;
+    const bodyDocument: typeof bodySkinState.evaluatedDocument =
+      bodySkinState.evaluatedDocument;
     // the body's own endpoint state, the one its builder skinned the shaped
     // surface with (pose correctives included)
-    const state: ReturnType<typeof humanBodyBasisWeights> = humanBodyBasisWeights(
-      bodyBasis,
-      bodyDocument,
-      resolveHumanBodyShapeShoulderRest(bodyBasis, bodyDocument.shape),
-    );
+    const state: ReturnType<typeof humanBodyBasisWeights> =
+      humanBodyBasisWeights(
+        bodyBasis,
+        bodyDocument,
+        resolveHumanBodyShapeShoulderRest(bodyBasis, bodyDocument.shape),
+      );
     const bodyRest: number[] = restNeutral.slice();
     applyHumanBodyShapeRows(bodyBasis, state, bodyRest, restTargets);
-    const faceDocument: ReturnType<typeof deriveHumanPersonGenerationFace> = deriveHumanPersonGenerationFace({
-      document: effectiveDocument,
-      gains: humanPersonBodyEndpointGains(bodyBasis, state),
-      aliases,
-      drivers,
-    });
-    const bones: Parameters<typeof formHumanPersonSkin>[1]["bones"] = new Map(bodySkinState.bones.map((one: typeof bodySkinState.bones[number]): [typeof one.bone, typeof one] => [one.bone, one]));
-    const head: ReturnType<typeof createHumanPersonHeadTransform> = createHumanPersonHeadTransform({
-      anchor: {
-        neutral: neutralAnchor,
-        shaped: humanPersonEyeCentre(bodySkinState.landmarks),
-      },
-      rest: bones.get("head")!.rest,
-      posed: bones.get("head")!.posed,
-    });
-    const frameOf: (face: IAutoMovieModel | IAutoMovieHumanPersonFaceRest) => Parameters<typeof formHumanPersonSkin>[1] = (
+    const faceDocument: ReturnType<typeof deriveHumanPersonGenerationFace> =
+      deriveHumanPersonGenerationFace({
+        document: effectiveDocument,
+        gains: humanPersonBodyEndpointGains(bodyBasis, state),
+        aliases,
+        drivers,
+      });
+    const bones: Parameters<typeof formHumanPersonSkin>[1]["bones"] = new Map(
+      bodySkinState.bones.map(
+        (
+          one: (typeof bodySkinState.bones)[number],
+        ): [typeof one.bone, typeof one] => [one.bone, one],
+      ),
+    );
+    const head: ReturnType<typeof createHumanPersonHeadTransform> =
+      createHumanPersonHeadTransform({
+        anchor: {
+          neutral: neutralAnchor,
+          shaped: humanPersonEyeCentre(bodySkinState.landmarks),
+        },
+        rest: bones.get("head")!.rest,
+        posed: bones.get("head")!.posed,
+      });
+    const frameOf: (
+      face: IAutoMovieModel | IAutoMovieHumanPersonFaceRest,
+    ) => Parameters<typeof formHumanPersonSkin>[1] = (
       face: IAutoMovieModel | IAutoMovieHumanPersonFaceRest,
     ): Parameters<typeof formHumanPersonSkin>[1] => ({
       faceRest: "parts" in face ? readHumanPersonFaceRest(plan, face) : face,
@@ -162,11 +192,16 @@ export function createHumanPersonGenerationBuilder(
       bodyPosed: bodySkinState.posedSurfaces[bodyIndex].positions,
     });
 
-    const currentFace: ReturnType<typeof buildFace.construct> = buildFace.construct(faceDocument);
+    const currentFace: ReturnType<typeof buildFace.construct> =
+      buildFace.construct(faceDocument);
     props.observeStage?.("face-evaluated");
     const face: IAutoMovieModel = currentFace.model;
-    const skin: ReturnType<typeof formHumanPersonSkin> = formHumanPersonSkin(plan, frameOf(face));
-    const { facePosed, bodyPosed }: ReturnType<typeof formHumanPersonSkin> = skin;
+    const skin: ReturnType<typeof formHumanPersonSkin> = formHumanPersonSkin(
+      plan,
+      frameOf(face),
+    );
+    const { facePosed, bodyPosed }: ReturnType<typeof formHumanPersonSkin> =
+      skin;
     // The complete consumer exterior exists before any internal target solve.
     // All anatomical parts and quantities are constructed once by the same
     // prepared body's completion, with no preliminary body-only source solve.
@@ -189,7 +224,9 @@ export function createHumanPersonGenerationBuilder(
         : (faceDocument.expression.mouthClose ?? 0) === 0
           ? skin
           : ((): ReturnType<typeof formHumanPersonSkin> => {
-              const referenceExpression: typeof faceDocument.expression = { ...faceDocument.expression };
+              const referenceExpression: typeof faceDocument.expression = {
+                ...faceDocument.expression,
+              };
               delete referenceExpression.mouthClose;
               return formHumanPersonSkin(
                 plan,
@@ -217,15 +254,33 @@ export function createHumanPersonGenerationBuilder(
             },
     });
 
-    const { body: dressedBody, garment }: ReturnType<typeof dressHumanPersonBody> = dressHumanPersonBody({
-      prepared: preparedBody, body,
+    const {
+      body: dressedBody,
+      garment,
+    }: ReturnType<typeof dressHumanPersonBody> = dressHumanPersonBody({
+      prepared: preparedBody,
+      body,
     });
-    const domain: string = humanPhysicalSourceDomain(document.id, generation.id);
+    const domain: string = humanPhysicalSourceDomain(
+      document.id,
+      generation.id,
+    );
     const placed: IAutoMovieModel["parts"] = face.parts
-      .filter((part: IAutoMovieModel["parts"][number]): boolean => part.id !== bandSurface)
-      .map((part: IAutoMovieModel["parts"][number]): IAutoMovieModel["parts"][number] => placeHumanLocalModelPart(part, (mesh: IAutoMovieMesh): IAutoMovieMesh => {
-        const sources: readonly number[] | undefined = faceRegions.get(part.id);
-        return sources === undefined
+      .filter(
+        (part: IAutoMovieModel["parts"][number]): boolean =>
+          part.id !== bandSurface,
+      )
+      .map(
+        (
+          part: IAutoMovieModel["parts"][number],
+        ): IAutoMovieModel["parts"][number] =>
+          placeHumanLocalModelPart(
+            part,
+            (mesh: IAutoMovieMesh): IAutoMovieMesh => {
+              const sources: readonly number[] | undefined = faceRegions.get(
+                part.id,
+              );
+              return sources === undefined
                 ? placeHumanPersonMixedSourceMesh({
                     mesh,
                     head,
@@ -236,7 +291,8 @@ export function createHumanPersonGenerationBuilder(
                       generation.id,
                     ),
                     domain,
-                    surface: faceProducer.surfaces[compiled.faceProducerSkin].id,
+                    surface:
+                      faceProducer.surfaces[compiled.faceProducerSkin].id,
                     materialAttachments: currentFace.materialAttachments,
                   })
                 : placeHumanPersonSkinPart({
@@ -252,27 +308,43 @@ export function createHumanPersonGenerationBuilder(
                     ),
                     domain,
                   });
-      }));
+            },
+          ),
+      );
     clearHumanPersonHair({
       parts: placed,
-      isGenerated: (id: string): boolean => currentFace.hairPartIds.includes(id),
+      isGenerated: (id: string): boolean =>
+        currentFace.hairPartIds.includes(id),
       contactLayouts: currentFace.hairContactLayouts,
-      layers:
-        resolveHumanFaceHairLayers(faceProducer,
-          resolveHumanFaceAppearanceDocument(faceProducer, faceDocument)),
+      layers: resolveHumanFaceHairLayers(
+        faceProducer,
+        resolveHumanFaceAppearanceDocument(faceProducer, faceDocument),
+      ),
       positions: bodyPosed,
       indices: bodySkin.indices,
       observe: props.observeHairContact,
     });
-    const parts: IAutoMovieModel["parts"] = placed.map((part: IAutoMovieModel["parts"][number]): IAutoMovieModel["parts"][number] =>
-      prefixHumanPersonPart("face", part, meshOfHumanPart(part)),
+    const parts: IAutoMovieModel["parts"] = placed.map(
+      (
+        part: IAutoMovieModel["parts"][number],
+      ): IAutoMovieModel["parts"][number] =>
+        prefixHumanPersonPart("face", part, meshOfHumanPart(part)),
     );
-    const garmentFields: Map<string, { field: readonly number[]; sources: readonly number[] }> = new Map<string, { field: readonly number[]; sources: readonly number[] }>();
+    const garmentFields: Map<
+      string,
+      { field: readonly number[]; sources: readonly number[] }
+    > = new Map<
+      string,
+      { field: readonly number[]; sources: readonly number[] }
+    >();
     for (const part of dressedBody.model.parts) {
       const mesh: IAutoMovieMesh = meshOfHumanPart(part);
       const sources: readonly number[] | undefined = bodyRegions.get(part.id);
-      const garmentRegion: ReturnType<NonNullable<typeof garment>["regions"]["get"]> = garment?.regions.get(part.id);
-      if (garmentRegion !== undefined) garmentFields.set("body:" + part.id, garmentRegion);
+      const garmentRegion: ReturnType<
+        NonNullable<typeof garment>["regions"]["get"]
+      > = garment?.regions.get(part.id);
+      if (garmentRegion !== undefined)
+        garmentFields.set("body:" + part.id, garmentRegion);
       parts.push(
         prefixHumanPersonPart(
           "body",
@@ -295,39 +367,72 @@ export function createHumanPersonGenerationBuilder(
         ),
       );
     }
-    const hasLayers: boolean = bodyBasis.surfaces.some((surface: typeof bodyBasis.surfaces[number]): boolean => surface.layerThickness !== undefined);
+    const hasLayers: boolean = bodyBasis.surfaces.some(
+      (surface: (typeof bodyBasis.surfaces)[number]): boolean =>
+        surface.layerThickness !== undefined,
+    );
     const completedBody: typeof dressedBody = hasLayers
       ? completeHumanPersonBodyLayers({
-          basis: bodyBasis, body: dressedBody, parts, domain, instance: document.id,
-          surface: bodyIndex, faceRegions, bodyRegions, normals, faceVertices: faceCount,
+          basis: bodyBasis,
+          body: dressedBody,
+          parts,
+          domain,
+          instance: document.id,
+          surface: bodyIndex,
+          faceRegions,
+          bodyRegions,
+          normals,
+          faceVertices: faceCount,
         })
       : dressedBody;
-    parts.push(...completedBody.model.parts.slice(dressedBody.model.parts.length).map((part: IAutoMovieModel["parts"][number]): IAutoMovieModel["parts"][number] =>
-      prefixHumanPersonPart("body", part, meshOfHumanPart(part)),
-    ));
-    const failures: IAutoMovieHumanPersonConstruction["admission"]["failures"] = [...currentFace.admission.failures, ...(completedBody.layerAdmission?.failures ?? [])];
+    parts.push(
+      ...completedBody.model.parts
+        .slice(dressedBody.model.parts.length)
+        .map(
+          (
+            part: IAutoMovieModel["parts"][number],
+          ): IAutoMovieModel["parts"][number] =>
+            prefixHumanPersonPart("body", part, meshOfHumanPart(part)),
+        ),
+    );
+    const failures: IAutoMovieHumanPersonConstruction["admission"]["failures"] =
+      [
+        ...currentFace.admission.failures,
+        ...(completedBody.layerAdmission?.failures ?? []),
+      ];
     // Layer/source readings use the original joined skin before its material split.
-    const renderedParts: IAutoMovieModel["parts"] = composeHumanPersonUnderwearParts({ parts, garment, regions: garmentFields });
+    const renderedParts: IAutoMovieModel["parts"] =
+      composeHumanPersonUnderwearParts({
+        parts,
+        garment,
+        regions: garmentFields,
+      });
     const model: IAutoMovieModel = {
       id: document.id,
       name: document.name,
       origin: "imported",
       parts: renderedParts,
       materials: [
-        ...face.materials.map((material: IAutoMovieMaterial): IAutoMovieMaterial => ({
-          ...material,
-          id: "face:" + material.id,
-        })),
-        ...completedBody.model.materials.map((material: IAutoMovieMaterial): IAutoMovieMaterial => ({
-          ...material,
-          id: "body:" + material.id,
-        })),
+        ...face.materials.map(
+          (material: IAutoMovieMaterial): IAutoMovieMaterial => ({
+            ...material,
+            id: "face:" + material.id,
+          }),
+        ),
+        ...completedBody.model.materials.map(
+          (material: IAutoMovieMaterial): IAutoMovieMaterial => ({
+            ...material,
+            id: "body:" + material.id,
+          }),
+        ),
       ],
       skeleton: null,
       body: null,
       asset: null,
     };
-    const validation: ReturnType<typeof validateModel> = validateModel({ model });
+    const validation: ReturnType<typeof validateModel> = validateModel({
+      model,
+    });
     if (!validation.success)
       throw new Error(
         "The evaluated person is not a valid resident model: " +
@@ -338,9 +443,13 @@ export function createHumanPersonGenerationBuilder(
       let measuredReference: Map<string, readonly number[]> | undefined;
       if (currentFace.reference !== undefined) {
         measuredReference = new Map();
-        const headSurface: string = faceProducer.surfaces[compiled.faceProducerSkin].id;
-        const sourceHead: readonly number[] | undefined = currentFace.reference.get(headSurface);
-        const referenceSkin: ReturnType<typeof formHumanPersonSkin> | undefined =
+        const headSurface: string =
+          faceProducer.surfaces[compiled.faceProducerSkin].id;
+        const sourceHead: readonly number[] | undefined =
+          currentFace.reference.get(headSurface);
+        const referenceSkin:
+          | ReturnType<typeof formHumanPersonSkin>
+          | undefined =
           sourceHead === undefined
             ? undefined
             : formHumanPersonSkin(
@@ -358,7 +467,8 @@ export function createHumanPersonGenerationBuilder(
                 }),
               );
         for (const surface of faceBasis.surfaces) {
-          const values: readonly number[] | undefined = currentFace.reference.get(surface.id);
+          const values: readonly number[] | undefined =
+            currentFace.reference.get(surface.id);
           if (values === undefined) continue;
           if (surface.id === headSurface) {
             if (referenceSkin !== undefined)
@@ -383,7 +493,8 @@ export function createHumanPersonGenerationBuilder(
           document,
           head,
           sourceRegions: currentFace.sourceRegions.filter(
-            (region: typeof currentFace.sourceRegions[number]): boolean => region.surface !== bandSurface,
+            (region: (typeof currentFace.sourceRegions)[number]): boolean =>
+              region.surface !== bandSurface,
           ),
           browReplacements: currentFace.browReplacements,
           reference: measuredReference,
@@ -392,7 +503,11 @@ export function createHumanPersonGenerationBuilder(
       );
     }
     return {
-      admission: { ...currentFace.admission, accepted: failures.length === 0, failures },
+      admission: {
+        ...currentFace.admission,
+        accepted: failures.length === 0,
+        failures,
+      },
       faceAdmission: currentFace.admission,
       model,
       sourceSkinModel: { ...model, parts },
@@ -411,7 +526,9 @@ export function createHumanPersonGenerationBuilder(
       },
     };
   };
-  const build: (document: IAutoMovieHumanPersonDocument) => IAutoMovieHumanPersonGenerationBuild = (
+  const build: (
+    document: IAutoMovieHumanPersonDocument,
+  ) => IAutoMovieHumanPersonGenerationBuild = (
     document: IAutoMovieHumanPersonDocument,
   ): IAutoMovieHumanPersonGenerationBuild => {
     const result: IAutoMovieHumanPersonConstruction = construct(document);

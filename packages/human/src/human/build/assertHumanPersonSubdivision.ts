@@ -38,9 +38,18 @@ export function assertHumanPersonSubdivision(
       "person boundary subdivision",
     );
   } catch (error) {
-    const { mesh, sources, side, seam, face, bodyBeforeCollar }: IAutoMovieHumanPersonSubdivisionCheck["stitch"] = stitch;
+    const {
+      mesh,
+      sources,
+      side,
+      seam,
+      face,
+      bodyBeforeCollar,
+    }: IAutoMovieHumanPersonSubdivisionCheck["stitch"] = stitch;
     const count: number = seam.faceLoop.length;
-    const pointAt: (parameter: number) => number[] = (parameter: number): number[] => {
+    const pointAt: (parameter: number) => number[] = (
+      parameter: number,
+    ): number[] => {
       const edge: number = Math.floor(parameter);
       const fraction: number = parameter - edge;
       const a: number = seam.faceLoop[edge];
@@ -50,13 +59,23 @@ export function assertHumanPersonSubdivision(
           face[a * 3 + axis] * (1 - fraction) + face[b * 3 + axis] * fraction,
       );
     };
-    const points: (vertices: number[]) => number[][] = (vertices: number[]): number[][] =>
-      vertices.map((vertex: number): number[] => emitted.slice(vertex * 3, vertex * 3 + 3));
+    const points: (vertices: number[]) => number[][] = (
+      vertices: number[],
+    ): number[][] =>
+      vertices.map((vertex: number): number[] =>
+        emitted.slice(vertex * 3, vertex * 3 + 3),
+      );
     const input: number[][] = original.map((vertex: number): number[] =>
       mesh.positions.slice(vertex * 3, vertex * 3 + 3),
     );
-    const sourceIds: number[] = original.map((vertex: number): number => sources[vertex]);
-    const attributes: (values: readonly number[] | null | undefined, width: number, vertices: number[]) => number[][] | null = (
+    const sourceIds: number[] = original.map(
+      (vertex: number): number => sources[vertex],
+    );
+    const attributes: (
+      values: readonly number[] | null | undefined,
+      width: number,
+      vertices: number[],
+    ) => number[][] | null = (
       values: readonly number[] | null | undefined,
       width: number,
       vertices: number[],
@@ -66,13 +85,23 @@ export function assertHumanPersonSubdivision(
         : vertices.map((vertex: number): number[] =>
             values.slice(vertex * width, vertex * width + width),
           );
-    const neighbours: { triangle: number; corners: number[]; sources: number[]; positions: number[][] | null; normals: number[][] | null; uvs: number[][] | null; colors: number[][] | null; reliefWeights: number[][] | null }[] = [];
+    const neighbours: {
+      triangle: number;
+      corners: number[];
+      sources: number[];
+      positions: number[][] | null;
+      normals: number[][] | null;
+      uvs: number[][] | null;
+      colors: number[][] | null;
+      reliefWeights: number[][] | null;
+    }[] = [];
     for (let start: number = 0; start < indices.length; start += 3) {
       if (start / 3 === triangle) continue;
       const vertices: number[] = indices.slice(start, start + 3);
       if (
-        vertices.filter((vertex: number): boolean => sourceIds.includes(sources[vertex]))
-          .length < 2
+        vertices.filter((vertex: number): boolean =>
+          sourceIds.includes(sources[vertex]),
+        ).length < 2
       )
         continue;
       neighbours.push({
@@ -87,21 +116,49 @@ export function assertHumanPersonSubdivision(
       });
     }
     const target: (loop: number) => number[] = (loop: number): number[] => {
-      const follow: typeof seam.collar.follow[number] = seam.collar.follow[loop];
+      const follow: (typeof seam.collar.follow)[number] =
+        seam.collar.follow[loop];
       return pointAt((follow.edge + follow.fraction) % count);
     };
-    const lineage: { source: number; nativePosed: number[]; collarInput: number[]; loop: { index: number; follow: typeof seam.collar.follow[number]; target: number[] } | null; band: (typeof seam.collar.band[number] & { lowSource: number; highSource: number; lowNative: number[]; highNative: number[]; lowTarget: number[]; highTarget: number[] }) | null }[] | null =
+    const lineage:
+      | {
+          source: number;
+          nativePosed: number[];
+          collarInput: number[];
+          loop: {
+            index: number;
+            follow: (typeof seam.collar.follow)[number];
+            target: number[];
+          } | null;
+          band:
+            | ((typeof seam.collar.band)[number] & {
+                lowSource: number;
+                highSource: number;
+                lowNative: number[];
+                highNative: number[];
+                lowTarget: number[];
+                highTarget: number[];
+              })
+            | null;
+        }[]
+      | null =
       bodyBeforeCollar === undefined
         ? null
         : [
             ...new Set([
               ...original,
-              ...neighbours.flatMap((one: typeof neighbours[number]): number[] => one.corners),
+              ...neighbours.flatMap(
+                (one: (typeof neighbours)[number]): number[] => one.corners,
+              ),
             ]),
           ].map((vertex: number): NonNullable<typeof lineage>[number] => {
             const source: number = sources[vertex];
             const loop: number = seam.bodyLoop.indexOf(source);
-            const band: typeof seam.collar.band[number] | undefined = seam.collar.band.find((one: typeof seam.collar.band[number]): boolean => one.vertex === source);
+            const band: (typeof seam.collar.band)[number] | undefined =
+              seam.collar.band.find(
+                (one: (typeof seam.collar.band)[number]): boolean =>
+                  one.vertex === source,
+              );
             const nativeOf: (id: number) => number[] = (id: number): number[] =>
               bodyBeforeCollar.slice(id * 3, id * 3 + 3);
             return {

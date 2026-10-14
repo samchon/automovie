@@ -18,7 +18,8 @@ export function findHumanPersonSkinSurface<
 >(surfaces: T[]): IAutoMovieHumanPersonSkinSurface<T> {
   const index: number = surfaces.findIndex((surface: T): boolean =>
     surface.regions.some(
-      (region: T["regions"][number]): boolean => region.material === HUMAN_PERSON_SEAM.skinMaterial,
+      (region: T["regions"][number]): boolean =>
+        region.material === HUMAN_PERSON_SEAM.skinMaterial,
     ),
   );
   if (index < 0)

@@ -28,10 +28,15 @@ export function joinHumanPersonGeneration(
         body.id +
         ") are different generations.",
     );
-  const registered: (surfaces: readonly IAutoMovieHumanPersonSourceSurface[]) => boolean = (
+  const registered: (
+    surfaces: readonly IAutoMovieHumanPersonSourceSurface[],
+  ) => boolean = (
     surfaces: readonly IAutoMovieHumanPersonSourceSurface[],
   ): boolean =>
-    surfaces.some((surface: IAutoMovieHumanPersonSourceSurface): boolean => surface.sourcePartition?.generation === head.id);
+    surfaces.some(
+      (surface: IAutoMovieHumanPersonSourceSurface): boolean =>
+        surface.sourcePartition?.generation === head.id,
+    );
   if (!registered(head.face.surfaces))
     throw new Error(
       "The person head file's face view is not registered on generation " +
