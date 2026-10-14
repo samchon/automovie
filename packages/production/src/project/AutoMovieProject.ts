@@ -1,1744 +1,400 @@
-import {
-  appendLightMotionsArtifact,
-  appendShotMetadataArtifact,
-  compareCodeUnits,
-  forgeProp,
-  validateClipArtifact,
-  validateModel as validateEngineModel,
-  validateScriptTree,
-} from "@automovie/engine";
-import {
-  IAutoMovieBeat,
-  IAutoMovieBeatEndState,
-  IAutoMovieConstraintViolation,
-  IAutoMovieModel,
-  IAutoMovieReviewNote,
-  IAutoMovieScene,
-  IAutoMovieScript,
-  IAutoMovieScriptNode,
-  IAutoMovieSequence,
-  IAutoMovieShot,
-} from "@automovie/interface";
-import { renderPathStem } from "@automovie/render";
-import { randomUUID } from "node:crypto";
+import { IAutoMovieScene } from "@automovie/interface";
 import path from "node:path";
-
-import { parseAutoMovieStructuredJson } from "../production/duplicateAwareJson";
-import { readAutoMovieProductionOwnedFile } from "../production/productionRenderJob";
-import {
-  acquireOrCreateProductionRootNamespace,
-  acquireProductionRootNamespace,
-  assertProductionRootNamespaceLease,
-  releaseProductionRootNamespace,
-} from "../production/rootNamespaceLock";
-import {
-  validateSceneArtifact,
-  validateSequenceArtifact,
-} from "../validators/artifacts";
-import {
-  appendValidation,
-  isRecord,
-  pushViolation,
-  validateArrayArtifact,
-  validateBeatIdCaseCollisions,
-  validateNonEmptyId,
-  validateNonEmptyText,
-  validateObjectArtifact,
-  validateRange,
-  validateTransformArtifact,
-  validateUniqueBy,
-  validateUniqueIds,
-  validateVectorArtifact,
-} from "../validators/primitives";
-import { acquireCommitLock, releaseCommitLock } from "./commitLock";
-import { autoMovieFileSystem as fileSystem } from "./fileSystem";
-import {
-  IAutoMovieLegacyActorSpec,
-  IAutoMovieLegacyProjectSummary,
-  IAutoMovieLegacyPropSpec,
-  IAutoMovieLegacyWritableSlate,
-  toEnginePropSpec,
-} from "./legacyRecords";
-import {
-  advanceAutoMovieProjectRevision,
-  decodeAutoMovieProjectRevision,
-} from "./projectRevision";
-import { beatOf, shotIdOf } from "./shotKey";
+import { acquireOrCreateProductionRootNamespace, assertProductionRootNamespaceLease, releaseProductionRootNamespace } from "../production/rootNamespaceLock";
+import { productionFileSystem as fileSystem } from "./productionFileSystem";
+import { IAutoMovieLegacyActorSpec, IAutoMovieLegacyProjectSummary, IAutoMovieLegacyPropSpec, IAutoMovieLegacyWritableSlate } from "./legacyRecords";
+import type { IAutoMovieProjectManifest } from "./IAutoMovieProjectManifest";
+import { AUTOMOVIE_PROJECT_RESERVED_DIRS } from "./AUTOMOVIE_PROJECT_RESERVED_DIRS";
+import { AutoMovieProjectRootError } from "./AutoMovieProjectRootError";
+import { autoMovieProjectValidateManifest } from "./autoMovieProjectValidateManifest";
+import { autoMovieProjectReadJson } from "./autoMovieProjectReadJson";
+import { autoMovieProjectWriteJsonAtomic } from "./autoMovieProjectWriteJsonAtomic";
+import { autoMovieProjectStoredSlate } from "./autoMovieProjectStoredSlate";
+import { autoMovieProjectWritableSlate } from "./autoMovieProjectWritableSlate";
+import { autoMovieProjectOrderResidentSlate } from "./autoMovieProjectOrderResidentSlate";
+import { autoMovieProjectSaveSlate } from "./autoMovieProjectSaveSlate";
+import { autoMovieProjectStageSlice } from "./autoMovieProjectStageSlice";
+import { autoMovieProjectFlushBeatSlices } from "./autoMovieProjectFlushBeatSlices";
+import { autoMovieProjectCommitCycle } from "./autoMovieProjectCommitCycle";
+import { autoMovieProjectWithRootNamespace } from "./autoMovieProjectWithRootNamespace";
+import { autoMovieProjectReadRevision } from "./autoMovieProjectReadRevision";
+import { autoMovieProjectReadManifest } from "./autoMovieProjectReadManifest";
+import { autoMovieProjectSynchronizeResidentState } from "./autoMovieProjectSynchronizeResidentState";
+import { autoMovieProjectRevisionPath } from "./autoMovieProjectRevisionPath";
+import { autoMovieProjectLockPath } from "./autoMovieProjectLockPath";
+import { autoMovieProjectStoredProps } from "./autoMovieProjectStoredProps";
+import { autoMovieProjectSaveProp } from "./autoMovieProjectSaveProp";
+import { autoMovieProjectPropCaseCollision } from "./autoMovieProjectPropCaseCollision";
+import { autoMovieProjectStoredActors } from "./autoMovieProjectStoredActors";
+import { autoMovieProjectSaveActors } from "./autoMovieProjectSaveActors";
+import { autoMovieProjectActorCaseCollision } from "./autoMovieProjectActorCaseCollision";
+import { autoMovieProjectRemoveActor } from "./autoMovieProjectRemoveActor";
+import { autoMovieProjectSliceCaseCollision } from "./autoMovieProjectSliceCaseCollision";
+import { autoMovieProjectRemoveProp } from "./autoMovieProjectRemoveProp";
+import { autoMovieProjectRegisterAsset } from "./autoMovieProjectRegisterAsset";
+import { autoMovieProjectAssets } from "./autoMovieProjectAssets";
+import { autoMovieProjectSummary } from "./autoMovieProjectSummary";
+import { autoMovieProjectStaleRenders } from "./autoMovieProjectStaleRenders";
+import { autoMovieProjectManifestPath } from "./autoMovieProjectManifestPath";
+import { autoMovieProjectSlicePath } from "./autoMovieProjectSlicePath";
+import { autoMovieProjectReadStagedScenes } from "./autoMovieProjectReadStagedScenes";
+import { autoMovieProjectReadKeyedSlices } from "./autoMovieProjectReadKeyedSlices";
+import type { IAutoMovieProjectState } from "./IAutoMovieProjectState";
+import type { IAutoMovieProductionRootNamespaceLease } from "../production/IAutoMovieProductionRootNamespaceLease";
 
 /**
- * The resident AutoMovie project, **the project folder itself is the memory**
- * (#614, D012). Unlike AutoBe's hidden `.autobe` JSON mirror, every slice here
- * is a user-visible, human-readable file, and 3D/binary assets are first-class
- * managed artifacts referenced by path, never regenerable throwaways.
  *
- * Layout under the project root:
- *
- * - `automovie.json`, the manifest: format version and the asset index.
- * - `script.json` / `scene.json` / `notes.json` / `film.json`, slate slices.
- * - `shots/<beat>.json`, `beatEnds/<beat>.json`, per-beat slices, filenames
- *   URI-encoded from the beat id (Windows-safe, deterministic).
- * - `props/<node>.json`, forged prop specs (#671), filenames URI-encoded from the
- *   prop node; a resident `forgeProp` success upserts exactly its own file.
- * - `models/`, `assets/`, reserved for 3D binaries (GLB, textures); the store
- *   tracks and guards these paths, the host's adapters write the bytes (the
- *   render package's adapter discipline).
- * - `renders/`, where a resident `planRender`/`seeFrame` defaults its frame and
- *   encoded-video paths (#678); the host adapter writes the bytes and may track
- *   them with `registerAsset`.
- *
- * A **cleared slice's file is removed** (null script → no `script.json`, an
- * empty notes list → no `notes.json`), so presence in the tree always means
- * content, the invalidation cascade a `commitScript` performs on the slate is
- * mirrored by files disappearing. Writes are atomic (temp file + rename) and
- * pretty-printed; the whole store is synchronous, matching the tool layer.
- *
- * **Mutations are transactional cycles (#1133).** Every save stages its
- * serialized contents in memory first (a cycle that throws persists nothing),
- * then flushes under a short-lived commit lock (`revision.lock`) against a
- * monotonic revision counter (`revision.json`): a cycle whose base revision is
- * stale, another session committed since this instance last read, is refused
- * with a re-read prompt instead of silently overwriting the other session's
- * work.
- *
- * The prerequisite graph (#615) reads {@link summary}; guides (#616) and
- * per-artifact erase (#617) land beside this.
+ * @evidence contracts/common.md#principled-implementation The original project instance retains its root witnesses, manifest and clock; method adapters call source-preserved operations on that same instance.
+ * @evidence contracts/common.md#clear-and-simple-design Keeps existing public names and state access timing; the internal forwarding view exposes real private accesses to TypeScript while oversized bodies remain in their owner files.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Only existing APIs remain; staging is not a multi-file transaction, namespace checks are finite and historical actor deep admission remains absent.
+ * @evidence contracts/common.md#meaningful-documentation Documents optional slices, optimistic revision refusal and physical-root scopes; the actual maintained reach is legacy import's temporary clone, whose outer importer currently has no constructor consumer.
+ * @evidence contracts/performance.md#efficient-algorithms Each adapter allocates one fixed-size forwarding view and calls its operation; nested adapters add their own views, while all byte reads, sorts, validators and mutation costs remain included.
+ * @evidence contracts/performance.md#reuse-equivalent-work Each instance keeps its resident mirror, but reads and cycles renew current authority; there is no global project/result cache.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Opening and operations attempt namespace retirement in finally; native cleanup can retain fences, callers retain the facade/mirror and failed mutations can leave published leaves or temporaries.
  */
 export class AutoMovieProject {
-  private manifest: IManifest;
+/** Last admitted resident manifest mirror, replaced only at the original successful assignment points. */
+private manifest: IAutoMovieProjectManifest;
 
-  /**
-   * The on-disk revision this instance last synchronized with (#1133). Every
-   * read refreshes it; every mutation compare-and-commits against it, so a
-   * concurrent session's commit is REFUSED with a re-read prompt instead of
-   * silently overwritten.
-   */
-  private lastReadRevision_: number;
+/** Last successfully synchronized or published safe-integer clock used by optimistic mutation refusal. */
+private lastReadRevision_: number;
 
-  private constructor(
-    /**
-     * Canonical root that owns this resident project state.
-     */
-    public readonly root: string,
-    private readonly rootDevice: string,
-    private readonly rootInode: string,
-    assertNamespace: () => void,
-  ) {
-    for (const dir of RESERVED_DIRS) {
-      assertNamespace();
-      fileSystem.mkdirSync(path.join(root, dir), { recursive: true });
-      assertNamespace();
+/** Initialize reserved directories and the resident clock before creating or admitting the manifest under the factory's assertion scope; created paths can survive later failure. */
+private constructor(/** Canonical root owning this resident legacy store. */ public readonly root: string, private readonly rootDevice: string, private readonly rootInode: string, assertNamespace: () => void) {
+    for (const dir of AUTOMOVIE_PROJECT_RESERVED_DIRS) {
+        assertNamespace();
+        fileSystem.mkdirSync(path.join(root, dir), { recursive: true });
+        assertNamespace();
     }
     this.lastReadRevision_ = this.readRevision();
-    const existing = readJson<unknown>(this.root, this.manifestPath);
+    const existing: unknown = autoMovieProjectReadJson<unknown>(this.root, this.manifestPath);
     if (existing === null) {
-      // A fresh project: create the manifest once.
-      this.manifest = { version: 1, assets: [] };
-      writeJsonAtomic(this.manifestPath, this.manifest, assertNamespace);
-    } else {
-      // Opening an existing project is a pure read, keep the parsed manifest
-      // (unknown host/future fields and all) in memory without rewriting it, so
-      // an activation never churns the file's mtime or drops a field. It is
-      // re-emitted only when an actual mutation (registerAsset) rewrites it,
-      // where the spread preserves those unknown fields.
-      this.manifest = validateManifest(this.manifestPath, existing);
+        this.manifest = { version: 1, assets: [] };
+        autoMovieProjectWriteJsonAtomic(this.manifestPath, this.manifest, assertNamespace);
     }
-  }
+    else {
+        this.manifest = autoMovieProjectValidateManifest(this.manifestPath, existing);
+    }
+}
 
-  /**
-   * Open (or initialize) the project at `rootDir`: the directory tree and
-   * manifest are created when missing, and missing slice files simply mean an
-   * empty slate, a fresh directory is a valid empty project.
-   */
-  public static open(rootDir: string): AutoMovieProject {
-    const root = path.resolve(rootDir);
-    const lease = (() => {
-      try {
-        return acquireOrCreateProductionRootNamespace(root);
-      } catch (error) {
-        const message = (error as Error).message;
-        throw new AutoMovieProjectRootError(
-          root,
-          message ===
-            `Production project root "${root}" is not a physical directory.`
-            ? "project root must be a directory, not a symbolic link, junction, or file"
-            : message,
-        );
-      }
+/**
+ *
+ * @evidence contracts/common.md#principled-implementation Resolved root creation/acquisition supplies physical witnesses to the original private constructor; a closing assertion precedes return.
+ * @evidence contracts/common.md#clear-and-simple-design Owns opening lease lifetime while constructor initialization preserves reserved-directory/revision/manifest order.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Initialization can create paths before a later failure; existing manifests are admitted without rewriting their bytes.
+ * @evidence contracts/common.md#meaningful-documentation States new-root initialization, absent slices and existing-manifest nonrewrite.
+ * @evidence contracts/performance.md#efficient-algorithms Includes parent/root creation, reserved mkdir calls, revision/manifest reads and final identity/token checks.
+ * @evidence contracts/performance.md#reuse-equivalent-work One acquired lease surrounds construction; independent opens are not cached or shared effectful initialization.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Finally attempts opening-lease retirement on return/throw; native cleanup can retain fences and created files/directories are not rolled back.
+ */
+public static open(rootDir: string): AutoMovieProject {
+    const root: string = path.resolve(rootDir);
+    const lease: IAutoMovieProductionRootNamespaceLease = ((): IAutoMovieProductionRootNamespaceLease => {
+        try {
+            return acquireOrCreateProductionRootNamespace(root);
+        }
+        catch (error) {
+            const message: string = (error as Error).message;
+            throw new AutoMovieProjectRootError(root, message ===
+                `Production project root "${root}" is not a physical directory.`
+                ? "project root must be a directory, not a symbolic link, junction, or file"
+                : message);
+        }
     })();
     try {
-      const project = new AutoMovieProject(
-        lease.root,
-        lease.device,
-        lease.inode,
-        () => assertProductionRootNamespaceLease(lease),
-      );
-      assertProductionRootNamespaceLease(lease);
-      return project;
-    } finally {
-      releaseProductionRootNamespace(lease);
-    }
-  }
-
-  /**
-   * The stored slate assembled from the slice files (film excluded).
-   */
-  public storedSlate(): Omit<IAutoMovieLegacyWritableSlate, "film"> {
-    return this.withRootNamespace(() => {
-      this.synchronizeResidentState();
-      const script = readValidatedJson<IAutoMovieScript>(
-        this.root,
-        this.slicePath("script.json"),
-        validateScriptSlice,
-      );
-      const scenes = this.readStagedScenes();
-      const shots = this.readKeyedSlices<IAutoMovieShot>(
-        "shots",
-        {
-          label: "shot id",
-          expected: shotIdOf,
-          actual: (shot) => shot.id,
-        },
-        (file, shot) => validateProjectValue(file, shot, validateShotSlice),
-      );
-      return {
-        script,
-        scenes,
-        shots,
-        beatEnds: this.readKeyedSlices<IAutoMovieBeatEndState>(
-          "beatEnds",
-          {
-            label: "beat end",
-            expected: (beat) => beat,
-            actual: (end) => end.beat,
-          },
-          (file, beatEnd) =>
-            validateProjectValue(file, beatEnd, validateBeatEndSlice),
-        ),
-        notes:
-          readValidatedJson<IAutoMovieReviewNote[]>(
-            this.root,
-            this.slicePath("notes.json"),
-            validateNotesSlice,
-          ) ?? [],
-      };
-    });
-  }
-
-  /**
-   * The full writable slate, including the film slice.
-   */
-  public writableSlate(): IAutoMovieLegacyWritableSlate {
-    return this.withRootNamespace(() => {
-      const stored = this.storedSlate();
-      return {
-        ...stored,
-        film: readValidatedJson<IAutoMovieSequence>(
-          this.root,
-          this.slicePath("film.json"),
-          (value, violations) =>
-            appendValidation(
-              violations,
-              validateSequenceArtifact(
-                value as IAutoMovieSequence,
-                stored.shots,
-              ),
-            ),
-        ),
-      };
-    });
-  }
-
-  /**
-   * Reorder a slate's per-beat arrays into the canonical stored order, the
-   * filename-lexicographic order {@link readKeyedSlices} reads them back in, so
-   * a resident commit returns the arrays exactly as the next resident read
-   * would (#716). A `commitShot`/`commitBeatEnd` upsert appends a new beat at
-   * the array end, diverging from the filename order a later read produces;
-   * sorting by the same `${encodeURIComponent(beat)}.json` filename the store
-   * writes closes that cross-mode gap without a second disk read. Non-keyed
-   * slices (script/scene/notes/film) are untouched.
-   */
-  public orderResidentSlate(
-    slate: IAutoMovieLegacyWritableSlate,
-  ): IAutoMovieLegacyWritableSlate {
-    return {
-      ...slate,
-      shots: orderByFilename(slate.shots, (shot) => beatOf(shot.id) ?? shot.id),
-      beatEnds: orderByFilename(slate.beatEnds, (end) => end.beat),
-    };
-  }
-
-  /**
-   * Persist a whole slate into the tree, reconciling every slice: null slices
-   * and empty lists remove their files, per-beat slices add/replace/remove by
-   * presence, exactly the invalidation cascade the commit tools perform on the
-   * slate, made visible as files.
-   *
-   * The save is a TRANSACTION (#1096, #1133): every guard (the #1011
-   * case-collision asserts) and every serialization runs while the cycle is
-   * still staged in memory, so a cycle that throws persists nothing; only then
-   * does {@link commitCycle} flush the staged writes under the revision guard.
-   * The flush itself is a sequence of atomic per-file renames, not one atomic
-   * batch, a hard crash mid-flush remains a documented microsecond window,
-   * surfaced by the per-slice load validation on the next open.
-   */
-  public saveSlate(slate: IAutoMovieLegacyWritableSlate): void {
-    const shots = new Map(
-      slate.shots.map((shot) => [beatOf(shot.id) ?? shot.id, shot]),
-    );
-    const beatEnds = new Map(slate.beatEnds.map((end) => [end.beat, end]));
-    const scenes = new Map(slate.scenes.map((scene) => [scene.id, scene]));
-    assertNoCaseCollisions("scenes", scenes.keys());
-    assertNoCaseCollisions("shots", shots.keys());
-    assertNoCaseCollisions("beatEnds", beatEnds.keys());
-    // Stage EVERYTHING before the first byte touches disk: JSON.stringify is
-    // the throw-prone step (a host handing a cyclic or bigint-bearing slate),
-    // and staging it here is what makes the cycle all-or-nothing.
-    const staged: Array<{ file: string; content: string | null }> = [
-      this.stageSlice("script.json", slate.script),
-      // The legacy single-scene slice is removed on every write, so a project
-      // written before #1171 migrates the first time it is committed to.
-      this.stageSlice("scene.json", null),
-      this.stageSlice("film.json", slate.film),
-      this.stageSlice(
-        "notes.json",
-        slate.notes.length === 0 ? null : slate.notes,
-      ),
-    ];
-    const stagedScenes = stageBeatSlices(scenes);
-    const stagedShots = stageBeatSlices(shots);
-    const stagedBeatEnds = stageBeatSlices(beatEnds);
-    this.commitCycle((assertNamespace) => {
-      for (const { file, content } of staged)
-        if (content === null) {
-          removeAtomic(file, assertNamespace);
-        } else writeAtomic(file, content, assertNamespace);
-      this.flushBeatSlices("scenes", stagedScenes, assertNamespace);
-      this.flushBeatSlices("shots", stagedShots, assertNamespace);
-      this.flushBeatSlices("beatEnds", stagedBeatEnds, assertNamespace);
-    });
-  }
-
-  /** One staged non-keyed slice: its absolute path and rendered content. */
-  private stageSlice(
-    name: string,
-    value: unknown,
-  ): { file: string; content: string | null } {
-    return {
-      file: this.slicePath(name),
-      content: value === null ? null : serializeJson(value),
-    };
-  }
-
-  /**
-   * Flush one keyed slice directory from its staged contents: remove files the
-   * staged set no longer wants, then write every staged file atomically.
-   */
-  private flushBeatSlices(
-    dir: string,
-    staged: ReadonlyMap<string, string>,
-    assertNamespace: () => void,
-  ): void {
-    const base = path.join(this.root, dir);
-    assertNamespace();
-    for (const name of fileSystem.readdirSync(base))
-      if (name.endsWith(".json") && !staged.has(name))
-        removeAtomic(path.join(base, name), assertNamespace);
-    for (const [name, content] of staged)
-      writeAtomic(path.join(base, name), content, assertNamespace);
-    assertNamespace();
-  }
-
-  /**
-   * Run one mutation cycle under the project's optimistic-concurrency guard
-   * (#1133): take the short-lived commit lock, refuse when another session
-   * committed past this instance's last read (refreshing the mirror so a
-   * re-issued call computes from current truth), flush the staged writes, then
-   * bump the monotonic revision. Every refusal happens BEFORE the first staged
-   * byte lands.
-   */
-  private commitCycle(flush: (assertNamespace: () => void) => void): void {
-    this.withRootNamespace((assertNamespace) => {
-      const token = acquireCommitLock(this.lockPath);
-      try {
-        assertNamespace();
-        const current = this.readRevision();
-        if (current !== this.lastReadRevision_) {
-          const base = this.lastReadRevision_;
-          const manifest = this.readManifest();
-          this.lastReadRevision_ = current;
-          this.manifest = manifest;
-          throw new Error(
-            `another session committed to this project (on-disk revision ${current}; this session last synchronized at ${base}); nothing was written, re-read the current state (getSlate / nextSteps) and re-issue the call from that truth`,
-          );
-        }
-        const advance = advanceAutoMovieProjectRevision(current);
-        if (advance.state !== "next")
-          throw new Error(
-            "the project revision is exhausted; no project bytes were written because this store cannot publish another safe-integer revision",
-          );
-        const nextRevision = advance.revision;
-        assertNamespace();
-        flush(assertNamespace);
-        assertNamespace();
-        writeJsonAtomic(
-          this.revisionPath,
-          {
-            revision: nextRevision,
-          },
-          assertNamespace,
-        );
-        assertNamespace();
-        this.lastReadRevision_ = nextRevision;
-      } finally {
-        try {
-          assertNamespace();
-          releaseCommitLock(this.lockPath, token);
-        } catch {
-          releaseCommitLock(this.lockPath, token, { unlink: false });
-        }
-      }
-    });
-  }
-
-  private withRootNamespace<T>(task: (assertNamespace: () => void) => T): T {
-    const lease = acquireProductionRootNamespace(this.root);
-    try {
-      const assertNamespace = (): void => {
-        if (lease.device !== this.rootDevice || lease.inode !== this.rootInode)
-          throw new Error(
-            `AutoMovie project root "${this.root}" changed physical identity. Discard this project handle and open the physical project again.`,
-          );
+        const project: AutoMovieProject = new AutoMovieProject(lease.root, lease.device, lease.inode, (): void => assertProductionRootNamespaceLease(lease));
         assertProductionRootNamespaceLease(lease);
-      };
-      assertNamespace();
-      const result = task(assertNamespace);
-      assertNamespace();
-      return result;
-    } finally {
-      releaseProductionRootNamespace(lease);
+        return project;
     }
-  }
-
-  /** The committed revision on disk; a legacy project without one is 0. */
-  private readRevision(): number {
-    let value: unknown;
-    try {
-      const bytes = readAutoMovieProductionOwnedFile({
-        root: this.root,
-        directory: this.root,
-        relative: path.basename(this.revisionPath),
-        optional: true,
-      });
-      value =
-        bytes === null
-          ? undefined
-          : parseAutoMovieStructuredJson({
-              record: path.basename(this.revisionPath),
-              bytes,
-            });
-    } catch (error) {
-      throw new AutoMovieProjectJsonError(
-        this.revisionPath,
-        (error as Error).message,
-      );
+    finally {
+        releaseProductionRootNamespace(lease);
     }
-    const decision = decodeAutoMovieProjectRevision(value);
-    if (decision.state === "invalid")
-      throw new AutoMovieProjectJsonError(
-        this.revisionPath,
-        "the record must contain one non-negative safe-integer revision",
-      );
-    return decision.revision;
-  }
-
-  private readManifest(): IManifest {
-    const value = readJson<unknown>(this.root, this.manifestPath);
-    if (value === null)
-      throw new Error(
-        `AutoMovie project manifest "${this.manifestPath}" disappeared from the resident project.`,
-      );
-    return validateManifest(this.manifestPath, value);
-  }
-
-  private synchronizeResidentState(): void {
-    const revision = this.readRevision();
-    const manifest = this.readManifest();
-    this.lastReadRevision_ = revision;
-    this.manifest = manifest;
-  }
-
-  private get revisionPath(): string {
-    return path.join(this.root, "revision.json");
-  }
-
-  private get lockPath(): string {
-    return path.join(this.root, "revision.lock");
-  }
-
-  /**
-   * The stored prop specs, one per `props/<node>.json`, in filename order.
-   */
-  public storedProps(): IAutoMovieLegacyPropSpec[] {
-    return this.withRootNamespace(() => {
-      this.synchronizeResidentState();
-      return this.readKeyedSlices<IAutoMovieLegacyPropSpec>(
-        "props",
-        {
-          label: "prop node",
-          expected: (node) => node,
-          actual: (spec) => spec.node,
-        },
-        (file, spec) => validateProjectValue(file, spec, validatePropSlice),
-      );
-    });
-  }
-
-  /**
-   * Upsert ONE forged prop spec as `props/<node>.json` (#671, the #617 upsert
-   * rule below the slate): re-forging a prop replaces exactly its own file,
-   * leaving sibling props byte-identical.
-   */
-  public saveProp(spec: IAutoMovieLegacyPropSpec): void {
-    const file = path.join(this.root, "props", sliceFilename(spec.node));
-    const content = serializeJson(spec);
-    this.commitCycle((assertNamespace) =>
-      writeAtomic(file, content, assertNamespace),
-    );
-  }
-
-  /**
-   * The stored prop id whose slice filename collides case-insensitively with
-   * `node`'s while the id itself differs, the sibling a case-insensitive
-   * filesystem's upsert rename would silently destroy (#1093, the prop twin of
-   * the #1011 beat-slice guard). `null` when no such sibling exists: an exact
-   * id match is the ordinary upsert, not a collision.
-   */
-  public propCaseCollision(node: string): string | null {
-    return this.withRootNamespace(() => this.sliceCaseCollision("props", node));
-  }
-
-  /**
-   * The stored actor context nodes, one per `actors/<node>.json`, in filename
-   * order (#1176). Deep shape validation is deliberately NOT re-run here: a
-   * loaded context flows through `perform`'s actor-registry gate, the same gate
-   * explicit input passes, which reports tampered fields against
-   * `$slate.actors` with full precision.
-   */
-  public storedActors(): IAutoMovieLegacyActorSpec[] {
-    return this.withRootNamespace(() => {
-      this.synchronizeResidentState();
-      return this.readKeyedSlices<IAutoMovieLegacyActorSpec>("actors", {
-        label: "actor node",
-        expected: (node) => node,
-        actual: (spec) => spec.node,
-      });
-    });
-  }
-
-  /**
-   * Upsert a whole actor registry as ONE transaction (#1176 upsert rule, #1257
-   * atomicity): stage every `actors/<node>.json`, then flush them under a
-   * single {@link commitCycle} with one revision bump. Re-performing with
-   * explicit actors replaces exactly the named contexts, leaving sibling actors
-   * byte-identical.
-   *
-   * A per-actor loop (one cycle each) was not a transaction: a failure on the
-   * k-th actor left 1..k−1 written with the NEW contexts and the rest with the
-   * old, while the call threw, a torn registry every later resident perform
-   * reads back silently, and each cycle bumped the revision, so a perform that
-   * reported failure looked like N commits to a second session. Staging first
-   * (serializeJson is the throw-prone step) makes it all-or-nothing, exactly as
-   * {@link saveSlate} does.
-   */
-  public saveActors(specs: readonly IAutoMovieLegacyActorSpec[]): void {
-    const staged = specs.map((spec) => ({
-      file: path.join(this.root, "actors", sliceFilename(spec.node)),
-      content: serializeJson(spec),
-    }));
-    this.commitCycle((assertNamespace) => {
-      for (const { file, content } of staged)
-        writeAtomic(file, content, assertNamespace);
-    });
-  }
-
-  /**
-   * The actor twin of {@link propCaseCollision} (#1093).
-   */
-  public actorCaseCollision(node: string): string | null {
-    return this.withRootNamespace(() =>
-      this.sliceCaseCollision("actors", node),
-    );
-  }
-
-  /**
-   * Remove ONE stored actor context's file; the caller checks existence.
-   */
-  public removeActor(node: string): void {
-    const file = path.join(this.root, "actors", sliceFilename(node));
-    this.commitCycle((assertNamespace) => removeAtomic(file, assertNamespace));
-  }
-
-  private sliceCaseCollision(dir: string, node: string): string | null {
-    const target = sliceFilename(node);
-    const lower = target.toLowerCase();
-    const base = path.join(this.root, dir);
-    for (const name of fileSystem.readdirSync(base))
-      if (
-        name.endsWith(".json") &&
-        name.toLowerCase() === lower &&
-        name !== target
-      )
-        return sliceKeyFromFilename(path.join(base, name), name);
-    return null;
-  }
-
-  /**
-   * Remove ONE stored prop spec's file; the caller checks existence first.
-   */
-  public removeProp(node: string): void {
-    const file = path.join(this.root, "props", sliceFilename(node));
-    this.commitCycle((assertNamespace) => removeAtomic(file, assertNamespace));
-  }
-
-  /**
-   * Register a path-referenced binary asset (a GLB under `models/`, a texture
-   * under `assets/`, a rendered frame under `renders/`). The store validates
-   * and tracks the path and keeps the manifest's asset index consistent; when
-   * `bytes` are given it also writes them atomically, but it **never silently
-   * overwrites**: an already-registered path, or bytes aimed at an existing
-   * file, throw. Registering without bytes tracks a file the host's adapter
-   * writes (or wrote) itself.
-   */
-  public registerAsset(relativePath: string, bytes?: Uint8Array): string {
-    const normalized = normalizeAssetPath(relativePath);
-    const absolute = path.join(this.root, ...normalized.split("/"));
-    this.commitCycle((assertNamespace) => {
-      const resident = this.readManifest();
-      if (resident.assets.includes(normalized))
-        throw new Error(
-          `asset "${normalized}" is already registered; assets are never silently replaced`,
-        );
-      const next = {
-        ...resident,
-        assets: [...resident.assets, normalized],
-      };
-      const manifestContent = serializeJson(next);
-      if (bytes !== undefined) {
-        assertNamespace();
-        if (fileSystem.existsSync(absolute))
-          throw new Error(
-            `asset file "${normalized}" already exists; refusing to overwrite it`,
-          );
-        writeAtomic(absolute, bytes, assertNamespace);
-      }
-      writeAtomic(this.manifestPath, manifestContent, assertNamespace);
-      assertNamespace();
-      this.manifest = next;
-    });
-    return normalized;
-  }
-
-  /** Tracked asset paths, project-relative, in registration order. */
-  public get assets(): string[] {
-    return this.withRootNamespace(() => {
-      this.synchronizeResidentState();
-      return [...this.manifest.assets];
-    });
-  }
-
-  /**
-   * What the project holds: which slices exist, and the tracked assets.
-   */
-  public summary(): IAutoMovieLegacyProjectSummary {
-    return this.withRootNamespace(() => {
-      const slate = this.writableSlate();
-      return {
-        root: this.root,
-        script: slate.script !== null,
-        scene: slate.scenes.length !== 0,
-        shots: slate.shots.map((shot) => shot.id),
-        beatEnds: slate.beatEnds.map((end) => end.beat),
-        notes: slate.notes.length,
-        film: slate.film !== null,
-        props: this.storedProps().map((spec) => spec.node),
-        actors: this.storedActors().map((spec) => spec.node),
-        staleRenders: this.staleRenders(slate),
-        assets: this.assets,
-      };
-    });
-  }
-
-  /**
-   * Top-level `renders/` entries the committed truth no longer owns (#1130). An
-   * entry is OWNED when its name belongs to the committed film's or a committed
-   * shot's stem family (`<stem>` itself, the default frame dir, or
-   * `<stem>.<anything>`, the encoded video, concat list, chunk outputs), or
-   * when a registered asset lives at or under it. Everything else is a stray
-   * from a superseded render. The store never deletes: the ledger surfaces the
-   * strays and the corrective action stays the agent's. Always empty while no
-   * film is committed, mid-rework, ownership is undefined, and a noisy ledger
-   * would prescribe deleting work about to be re-owned.
-   */
-  private staleRenders(slate: IAutoMovieLegacyWritableSlate): string[] {
-    if (slate.film === null) return [];
-    const stems = new Set<string>([
-      renderPathStem(slate.film.id),
-      ...slate.shots.map((shot) => renderPathStem(shot.id)),
-    ]);
-    const owned = (name: string): boolean =>
-      [...stems].some((stem) => name === stem || name.startsWith(`${stem}.`)) ||
-      this.manifest.assets.some(
-        (asset) =>
-          asset === `renders/${name}` || asset.startsWith(`renders/${name}/`),
-      );
-    // Sort by UTF-16 code units, a locale-independent total order, so the
-    // stale-render listing is identical on every host (unlike localeCompare,
-    // whose result varies with the host locale/ICU build and can even return 0
-    // for distinct Unicode-equivalent names). Distinct filenames are never
-    // equal, so both comparator arms are reachable and none needs a c8-ignore.
-    return fileSystem
-      .readdirSync(path.join(this.root, "renders"))
-      .sort(compareCodeUnits)
-      .filter((name) => !owned(name))
-      .map((name) => `renders/${name}`);
-  }
-
-  private get manifestPath(): string {
-    return path.join(this.root, "automovie.json");
-  }
-
-  private slicePath(name: string): string {
-    return path.join(this.root, name);
-  }
-
-  /**
-   * Every staged scene, read from `scenes/<id>.json`.
-   *
-   * A project written before #1171 has one `scene.json` and no directory, so
-   * that slice is read as a one-element collection rather than refused: the
-   * film it holds is still a film, and the next `saveSlate` writes it into the
-   * keyed layout and removes the legacy file.
-   */
-  private readStagedScenes(): IAutoMovieScene[] {
-    const keyed = this.readKeyedSlices<IAutoMovieScene>(
-      "scenes",
-      {
-        label: "scene id",
-        expected: (fileKey) => fileKey,
-        actual: (scene) => scene.id,
-      },
-      (file, scene) => validateProjectValue(file, scene, validateSceneSlice),
-    );
-    if (keyed.length !== 0) return keyed;
-    const legacy = readValidatedJson<IAutoMovieScene>(
-      this.root,
-      this.slicePath("scene.json"),
-      validateSceneSlice,
-    );
-    return legacy === null ? [] : [legacy];
-  }
-
-  private readKeyedSlices<T>(
-    dir: string,
-    key: {
-      label: string;
-      expected: (fileKey: string) => string;
-      actual: (value: T) => string | null | undefined;
-    },
-    validate?: (file: string, value: T) => void,
-  ): T[] {
-    const base = path.join(this.root, dir);
-    const out: T[] = [];
-    for (const name of fileSystem
-      .readdirSync(base)
-      .filter((name) => name.endsWith(".json"))
-      .sort(compareCodeUnits)) {
-      const file = path.join(base, name);
-      const value = readJson<T>(this.root, file);
-      if (value === null) continue;
-      const fileKey = sliceKeyFromFilename(file, name);
-      const expected = key.expected(fileKey);
-      const actual = key.actual(value);
-      if (actual !== expected)
-        throw new AutoMovieProjectKeyError(file, key.label, expected, actual);
-      validate?.(file, value);
-      out.push(value);
-    }
-    return out;
-  }
 }
 
 /**
- * Serialize one keyed slice set into its staged file map (`filename` → rendered
- * JSON), the throw-prone half of a beat-slice flush, run while the cycle is
- * still staged in memory (#1133). The case-collision guard runs separately,
- * before staging, in {@link AutoMovieProject.saveSlate}.
+ *
+ * @evidence contracts/common.md#principled-implementation Root fencing and resident revision/manifest refresh precede keyed identity and semantic slice admission; optional absence stays null or empty.
+ * @evidence contracts/common.md#clear-and-simple-design One resident read assembles script, scenes, shots, beat ends and notes; film admission is separately owned.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Sequential observations are not an atomic snapshot; malformed present data refuses rather than becoming invented content.
+ * @evidence contracts/common.md#meaningful-documentation States optional-state meaning, validated keyed identities and caller-owned collections.
+ * @evidence contracts/performance.md#efficient-algorithms Reads B bytes across F files, sorts filenames and includes nested validators; output storage follows admitted content.
+ * @evidence contracts/performance.md#reuse-equivalent-work Each file is parsed once in this assembly; current refreshes do not reuse pathname-only read verdicts.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Finally attempts namespace retirement; failed native release can retain fences, while returned trees have no local byte/population cap.
  */
-const stageBeatSlices = (
-  byBeat: ReadonlyMap<string, unknown>,
-): Map<string, string> => {
-  const staged = new Map<string, string>();
-  for (const [beat, value] of byBeat)
-    staged.set(sliceFilename(beat), serializeJson(value));
-  return staged;
-};
-
-/** Manifest shape persisted as `automovie.json`. */
-interface IManifest {
-  /** Project format version. */
-  version: number;
-
-  /** Tracked binary asset paths, project-relative, in registration order. */
-  assets: string[];
-}
-
-const RESERVED_DIRS = [
-  "scenes",
-  "shots",
-  "beatEnds",
-  "props",
-  "actors",
-  "models",
-  "assets",
-  "renders",
-] as const;
+public storedSlate(): Omit<IAutoMovieLegacyWritableSlate, "film"> { return autoMovieProjectStoredSlate(AutoMovieProject.forwardingView(this)); }
 
 /**
- * Check a project-relative asset path: forward slashes, no absolute paths, no
- * `..` escapes, no empty segments. Returns the normalized path, or the fault
- * describing the escape, the non-throwing core shared by the store (which
- * throws on fault) and the builder surface (which reports it as a violation).
+ *
+ * @evidence contracts/common.md#principled-implementation Fenced stored-slate acquisition supplies the shot registry used to admit an optional film sequence.
+ * @evidence contracts/common.md#clear-and-simple-design Film extends the acquired stored result rather than rebuilding the slate.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Nested checks preserve read order; film admission uses sequential shot observations rather than a frozen snapshot.
+ * @evidence contracts/common.md#meaningful-documentation States nullable film and registry-dependent sequence refusal.
+ * @evidence contracts/performance.md#efficient-algorithms Includes stored-slate I/O/validation, film bytes and sequence registry/entry scans.
+ * @evidence contracts/performance.md#reuse-equivalent-work The acquired shots are reused for film validation; each invocation still reobserves resident files.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Nested namespace retirement is attempted before result transfer; native cleanup failure can retain fences under the existing void contract.
  */
-export const checkAssetPath = (
-  relativePath: string,
-): { path: string } | { fault: string } => {
-  const forward = relativePath.replace(/\\/g, "/");
-  if (forward.trim().length === 0)
-    return {
-      fault: `asset path must be non-empty text, but was "${relativePath}"`,
-    };
-  if (
-    path.isAbsolute(relativePath) ||
-    /^[A-Za-z]:/.test(relativePath) ||
-    forward.startsWith("/")
-  )
-    return {
-      fault: `asset path must be project-relative, but was "${relativePath}"`,
-    };
-  const segments = forward.split("/");
-  // "." segments would alias one file under two manifest keys
-  // ("assets/./x.png" beside "assets/x.png"), bypassing the never-silently-
-  // replaced duplicate refusal (#1097), refuse them like "..".
-  if (
-    segments.some(
-      (segment) => segment === "" || segment === ".." || segment === ".",
-    )
-  )
-    return {
-      fault: `asset path must not contain empty, "." or ".." segments, but was "${relativePath}"`,
-    };
-  return { path: segments.join("/") };
-};
-
-/** The throwing wrapper the store's own contract keeps. */
-const normalizeAssetPath = (relativePath: string): string => {
-  const checked = checkAssetPath(relativePath);
-  if ("fault" in checked) throw new Error(checked.fault);
-  return checked.path;
-};
-
-/** DOS device basenames Windows refuses regardless of extension. */
-const WINDOWS_DEVICE_NAMES = /^(con|prn|aux|nul|com[1-9]|lpt[1-9])$/i;
+public writableSlate(): IAutoMovieLegacyWritableSlate { return autoMovieProjectWritableSlate(AutoMovieProject.forwardingView(this)); }
 
 /**
- * The per-beat slice filename for a key, the single source of the
- * `${encodeURIComponent(key)}.json` convention the store reads, writes, and
- * orders by. Ordering a slate array by this exact string (not the bare encoded
- * key) reproduces {@link readKeyedSlices}' readdir+sort order precisely: the
- * `.json` suffix injects a `.` separator that shifts prefix-boundary
- * comparisons (`"a"` vs `"a-"` sorts opposite to `"a.json"` vs `"a-.json"`).
+ *
+ * @evidence contracts/common.md#principled-implementation Copied shot and beat-end arrays sort by exact persisted filenames under code-unit order.
+ * @evidence contracts/common.md#clear-and-simple-design Aligns commit results with directory-read order without another disk read.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Other fields and record references stay unchanged; filename encoding can throw on lone surrogates.
+ * @evidence contracts/common.md#meaningful-documentation States fresh arrays, borrowed records and unchanged non-keyed slices.
+ * @evidence contracts/performance.md#efficient-algorithms Encoding and O(N log N) filename comparisons require N temporary references per population.
+ * @evidence contracts/performance.md#reuse-equivalent-work Computed filenames serve this sort; no resident reads or cross-call cache occur.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Fresh ordered arrays transfer to the caller; no handle or task is acquired.
  */
-const sliceFilename = (key: string): string => {
-  // encodeURIComponent leaves `*` (invalid on Windows, EINVAL at write) and
-  // DOS device basenames (`con`, `nul`, ...) intact (#1011). Escape both with
-  // ordinary percent-encoding so `decodeURIComponent` still round-trips the
-  // key; existing stores are unaffected (such files could never be written).
-  // Windows reserves the segment BEFORE THE FIRST DOT (`con.notes.json` is
-  // refused on Windows 10 and earlier just like `con.json`), and dots survive
-  // encoding, so the device test runs on the stem, not the whole key (#1064).
-  let encoded = encodeURIComponent(key).replace(/\*/g, "%2A");
-  const stem = encoded.split(".", 1)[0]!;
-  if (WINDOWS_DEVICE_NAMES.test(stem))
-    encoded = `%${encoded
-      .charCodeAt(0)
-      .toString(16)
-      .toUpperCase()
-      .padStart(2, "0")}${encoded.slice(1)}`;
-  return `${encoded}.json`;
-};
+public orderResidentSlate(slate: IAutoMovieLegacyWritableSlate): IAutoMovieLegacyWritableSlate { return autoMovieProjectOrderResidentSlate(AutoMovieProject.forwardingView(this), slate); }
 
 /**
- * Keys whose slice filenames differ only by case would silently clobber each
- * other on a case-insensitive filesystem and then wedge the next read with a
- * filename/internal-key mismatch (#1011), refuse instead. Runs before any file
- * is touched (#1096) so a refused slate persists nothing.
+ *
+ * @evidence contracts/common.md#principled-implementation Maps and case-folded filename guards precede serialization of every proposed slice; one guarded cycle then flushes them.
+ * @evidence contracts/common.md#clear-and-simple-design Staging separates serialization from ordered mutations and historical scene-file removal.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Staging failure writes nothing, but later flush failures can retain partial publication across leaves.
+ * @evidence contracts/common.md#meaningful-documentation States reconciliation, stale-revision refusal, legacy scene migration and partial-flush limits.
+ * @evidence contracts/performance.md#efficient-algorithms Scans keyed records, stages B bytes, lists resident directories and writes/removes their complete populations.
+ * @evidence contracts/performance.md#reuse-equivalent-work Staged maps/text feed this cycle; equal output never bypasses current revision and namespace checks.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Staging expires on completion and lock retirement is attempted; failed cleanup can retain fences, and completed file mutations are not rolled back.
  */
-const assertNoCaseCollisions = (dir: string, keys: Iterable<string>): void => {
-  const byLowerName = new Map<string, string>();
-  for (const key of keys) {
-    const lower = sliceFilename(key).toLowerCase();
-    const prior = byLowerName.get(lower);
-    if (prior !== undefined)
-      throw new Error(
-        `${dir} ids "${prior}" and "${key}" collide case-insensitively as "${sliceFilename(key)}"; case-insensitive filesystems would silently clobber one, rename one id`,
-      );
-    byLowerName.set(lower, key);
-  }
-};
+public saveSlate(slate: IAutoMovieLegacyWritableSlate): void { return autoMovieProjectSaveSlate(AutoMovieProject.forwardingView(this), slate); }
 
-/** Order per-beat slices by their stored filename (readKeyedSlices' order). */
-const orderByFilename = <T>(items: T[], keyOf: (item: T) => string): T[] => {
-  const named = items.map((item) => ({
-    item,
-    name: sliceFilename(keyOf(item)),
-  }));
-  // Same order readKeyedSlices/staleRenders read filenames back in, keep all
-  // three on the code-unit comparator so the resident read and the ordered
-  // slate agree, identically on every host.
-  named.sort((a, b) => compareCodeUnits(a.name, b.name));
-  return named.map((entry) => entry.item);
-};
+/** Delegate on this unchanged instance to autoMovieProjectStageSlice; that owner documents the original effects, refusal order, costs and cleanup. */
+private stageSlice(name: string, value: unknown): {
+    file: string;
+    content: string | null;
+} { return autoMovieProjectStageSlice(AutoMovieProject.forwardingView(this), name, value); }
 
-class AutoMovieProjectJsonError extends Error {
-  public constructor(file: string, reason: string) {
-    super(
-      `AutoMovie project file "${file}" contains malformed JSON. ` +
-        `Fix or remove this file, then call openProject again. ` +
-        `Parser detail: ${reason}`,
-    );
-    this.name = "AutoMovieProjectJsonError";
-  }
+/** Delegate on this unchanged instance to autoMovieProjectFlushBeatSlices; that owner documents the original effects, refusal order, costs and cleanup. */
+private flushBeatSlices(dir: string, staged: ReadonlyMap<string, string>, assertNamespace: () => void): void { return autoMovieProjectFlushBeatSlices(AutoMovieProject.forwardingView(this), dir, staged, assertNamespace); }
+
+/** Delegate on this unchanged instance to autoMovieProjectCommitCycle; that owner documents the original effects, refusal order, costs and cleanup. */
+private commitCycle(flush: (assertNamespace: () => void) => void): void { return autoMovieProjectCommitCycle(AutoMovieProject.forwardingView(this), flush); }
+
+/** Delegate on this unchanged instance to autoMovieProjectWithRootNamespace; that owner documents the original effects, refusal order, costs and cleanup. */
+private withRootNamespace<T>(task: (assertNamespace: () => void) => T): T { return autoMovieProjectWithRootNamespace(AutoMovieProject.forwardingView(this), task); }
+
+/** Delegate on this unchanged instance to autoMovieProjectReadRevision; that owner documents the original effects, refusal order, costs and cleanup. */
+private readRevision(): number { return autoMovieProjectReadRevision(AutoMovieProject.forwardingView(this)); }
+
+/** Delegate on this unchanged instance to autoMovieProjectReadManifest; that owner documents the original effects, refusal order, costs and cleanup. */
+private readManifest(): IAutoMovieProjectManifest { return autoMovieProjectReadManifest(AutoMovieProject.forwardingView(this)); }
+
+/** Delegate on this unchanged instance to autoMovieProjectSynchronizeResidentState; that owner documents the original effects, refusal order, costs and cleanup. */
+private synchronizeResidentState(): void { return autoMovieProjectSynchronizeResidentState(AutoMovieProject.forwardingView(this)); }
+
+/** Delegate on this unchanged instance to autoMovieProjectRevisionPath; that owner documents the original effects, refusal order, costs and cleanup. */
+private get revisionPath(): string { return autoMovieProjectRevisionPath(AutoMovieProject.forwardingView(this)); }
+
+/** Delegate on this unchanged instance to autoMovieProjectLockPath; that owner documents the original effects, refusal order, costs and cleanup. */
+private get lockPath(): string { return autoMovieProjectLockPath(AutoMovieProject.forwardingView(this)); }
+
+/**
+ *
+ * @evidence contracts/common.md#principled-implementation Fenced refresh precedes keyed correspondence and engine-backed validation of every stored prop.
+ * @evidence contracts/common.md#clear-and-simple-design The directory reader owns identity while conversion/forge admission own nested semantics.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Bad keys or model/articulation semantics refuse instead of dropping or repairing props.
+ * @evidence contracts/common.md#meaningful-documentation States filename order, fresh collection and validation refusal.
+ * @evidence contracts/performance.md#efficient-algorithms Includes B bytes, F-name sorting and each prop gate's preliminary model check; admitted preliminary shapes add a second model check, driver/profile/part/mapping work and potentially O(J^2) joint parent walks, with no forge imported-appearance branch because lowering omits modelRef.
+ * @evidence contracts/performance.md#reuse-equivalent-work Each parsed record serves all checks; prior prop verdicts are not cached.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Namespace retirement is attempted; native cleanup can retain fences and returned records have no local population cap.
+ */
+public storedProps(): IAutoMovieLegacyPropSpec[] { return autoMovieProjectStoredProps(AutoMovieProject.forwardingView(this)); }
+
+/**
+ *
+ * @evidence contracts/common.md#principled-implementation An encoded node destination and serialized prop feed one revision-guarded leaf replacement.
+ * @evidence contracts/common.md#clear-and-simple-design Upserts this prop while siblings remain untouched.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts This low-level save performs no semantic or sibling case-collision admission.
+ * @evidence contracts/common.md#meaningful-documentation States serialization-before-mutation, upsert scope and stale-clock refusal.
+ * @evidence contracts/performance.md#efficient-algorithms Encodes node text and writes B serialized bytes plus concurrency checks.
+ * @evidence contracts/performance.md#reuse-equivalent-work Staged text feeds publication; matching keys do not share effectful writes.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Lock/temporary retirement is attempted only through their owners; native cleanup can retain fences/temporaries and renamed files can survive later refusal.
+ */
+public saveProp(spec: IAutoMovieLegacyPropSpec): void { return autoMovieProjectSaveProp(AutoMovieProject.forwardingView(this), spec); }
+
+/**
+ *
+ * @evidence contracts/common.md#principled-implementation A fenced scan finds equal folded encoded filenames with different exact spelling and decodes the sibling.
+ * @evidence contracts/common.md#clear-and-simple-design Uses the common keyed-directory collision owner.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Exact identity is an upsert; a query is no future write lease.
+ * @evidence contracts/common.md#meaningful-documentation States nullable sibling and malformed escape refusal.
+ * @evidence contracts/performance.md#efficient-algorithms Scans up to F filenames with encoding/folding/decoding text cost.
+ * @evidence contracts/performance.md#reuse-equivalent-work Fresh names replace prior no-collision verdicts.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Namespace retirement is attempted; failed cleanup can retain fences, while the query returns only a nullable key.
+ */
+public propCaseCollision(node: string): string | null { return autoMovieProjectPropCaseCollision(AutoMovieProject.forwardingView(this), node); }
+
+/**
+ *
+ * @evidence contracts/common.md#principled-implementation Fenced refresh and filename/internal-node agreement return ordered actor records without deep context admission.
+ * @evidence contracts/common.md#clear-and-simple-design Preserves historical actor storage while later semantic validation remains outside this reader.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Parsed contexts are not validity certificates; null records are skipped and key mismatch refuses.
+ * @evidence contracts/common.md#meaningful-documentation States identity-only admission and remaining deep-validation gap.
+ * @evidence contracts/performance.md#efficient-algorithms Reads B bytes across F files and sorts names, retaining the full parsed population.
+ * @evidence contracts/performance.md#reuse-equivalent-work One current parse serves identity checks without an actor verdict cache.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Namespace retirement is attempted, with possible retained fences after native failure; returned records have no local byte cap.
+ */
+public storedActors(): IAutoMovieLegacyActorSpec[] { return autoMovieProjectStoredActors(AutoMovieProject.forwardingView(this)); }
+
+/**
+ *
+ * @evidence contracts/common.md#principled-implementation All actor filenames/text are staged before one guarded cycle writes selected members in input order.
+ * @evidence contracts/common.md#clear-and-simple-design One revision increment surrounds upserts while unnamed siblings remain untouched.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Serialization failure writes nothing; later leaf failure can retain earlier writes, with no added duplicate/case guard.
+ * @evidence contracts/common.md#meaningful-documentation States selected-member upsert and partial-flush limits.
+ * @evidence contracts/performance.md#efficient-algorithms Stages N records/B bytes then performs N writes and one concurrency scope.
+ * @evidence contracts/performance.md#reuse-equivalent-work Staged text is reused; equal ids never authorize shared effects.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Staging expires and safe lock/temporary retirement is attempted; cleanup can retain fences/temporaries and published actor files remain.
+ */
+public saveActors(specs: readonly IAutoMovieLegacyActorSpec[]): void { return autoMovieProjectSaveActors(AutoMovieProject.forwardingView(this), specs); }
+
+/**
+ *
+ * @evidence contracts/common.md#principled-implementation The actors query shares fenced folded-filename comparison with props.
+ * @evidence contracts/common.md#clear-and-simple-design Only the selected directory differs from the common owner.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Exact names remain ordinary matches; success is no later write lease.
+ * @evidence contracts/common.md#meaningful-documentation States nullable sibling node and decoding failure.
+ * @evidence contracts/performance.md#efficient-algorithms Includes namespace acquisition and up to F filename/text comparisons.
+ * @evidence contracts/performance.md#reuse-equivalent-work Each call scans current actor names.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Namespace retirement is attempted; failed cleanup can retain fences, while a key/null transfers.
+ */
+public actorCaseCollision(node: string): string | null { return autoMovieProjectActorCaseCollision(AutoMovieProject.forwardingView(this), node); }
+
+/**
+ *
+ * @evidence contracts/common.md#principled-implementation One encoded actor path is quarantined/removed inside a revision-guarded cycle.
+ * @evidence contracts/common.md#clear-and-simple-design Removes one actor while siblings remain unchanged.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Existence checks belong to callers; absence keeps the established cycle/revision behavior.
+ * @evidence contracts/common.md#meaningful-documentation States selected-file scope and post-mutation refusal limits.
+ * @evidence contracts/performance.md#efficient-algorithms Includes path text, concurrency checks and quarantine metadata without actor-byte reads.
+ * @evidence contracts/performance.md#reuse-equivalent-work Current witnesses are renewed rather than reusing a prior deletion result.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Lock retirement and safe rollback are attempted; failed native cleanup can retain fences or quarantine.
+ */
+public removeActor(node: string): void { return autoMovieProjectRemoveActor(AutoMovieProject.forwardingView(this), node); }
+
+/** Delegate on this unchanged instance to autoMovieProjectSliceCaseCollision; that owner documents the original effects, refusal order, costs and cleanup. */
+private sliceCaseCollision(dir: string, node: string): string | null { return autoMovieProjectSliceCaseCollision(AutoMovieProject.forwardingView(this), dir, node); }
+
+/**
+ *
+ * @evidence contracts/common.md#principled-implementation An encoded prop filename uses the guarded quarantine remover.
+ * @evidence contracts/common.md#clear-and-simple-design Deletes one prop without rewriting siblings.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No semantic admission or missing-file substitute is added.
+ * @evidence contracts/common.md#meaningful-documentation States removal scope and cycle effects.
+ * @evidence contracts/performance.md#efficient-algorithms Includes encoding, concurrency checks and quarantine operations without prop-byte reads.
+ * @evidence contracts/performance.md#reuse-equivalent-work The current revision/namespace are reacquired.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Cycle token retirement is attempted and can retain fences after failure; quarantine cleanup/restoration belongs to the remover.
+ */
+public removeProp(node: string): void { return autoMovieProjectRemoveProp(AutoMovieProject.forwardingView(this), node); }
+
+/**
+ *
+ * @evidence contracts/common.md#principled-implementation Normalized path/current manifest admission precede optional no-existing-file publication, then manifest replacement and mirror assignment.
+ * @evidence contracts/common.md#clear-and-simple-design One cycle coordinates asset registration and optional supplied bytes.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No-byte registration verifies no existence; two writes are not a pair transaction and published bytes can survive manifest failure.
+ * @evidence contracts/common.md#meaningful-documentation States duplicate refusal, host-written bytes, preserved extra fields and partial effects.
+ * @evidence contracts/performance.md#efficient-algorithms Scans A keys, copies/serializes their manifest and optionally writes B bytes plus concurrency work.
+ * @evidence contracts/performance.md#reuse-equivalent-work Fresh resident manifest supplies duplicate admission and update; stale mirrors are not authority.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The instance retains the successful manifest; safe token/temporary cleanup is attempted but can retain fences/temporaries, while published bytes remain.
+ */
+public registerAsset(relativePath: string, bytes?: Uint8Array): string { return autoMovieProjectRegisterAsset(AutoMovieProject.forwardingView(this), relativePath, bytes); }
+
+/**
+ * Fenced refresh returns a copied asset-path array in registration order. Callers cannot edit the retained index through this getter.
+ *
+ * Registration proves neither binary existence nor unchanged bytes.
+ *
+ * Includes revision/manifest reads and A-reference copying. Current admitted mirror supplies the copy; old getter results are not current evidence.
+ *
+ * Namespace retirement is attempted and may retain fences on native failure; callers own the copy and the instance retains its mirror.
+ */
+public get assets(): string[] { return autoMovieProjectAssets(AutoMovieProject.forwardingView(this)); }
+
+/**
+ *
+ * @evidence contracts/common.md#principled-implementation Fenced slate, prop/actor reads, stray discovery and asset acquisition assemble observations in the original order.
+ * @evidence contracts/common.md#clear-and-simple-design Reports resident presence/keys without deleting strays or selecting production kind.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Sequential nested reads are not one atomic filesystem snapshot.
+ * @evidence contracts/common.md#meaningful-documentation States presence/count meaning and advisory stray paths.
+ * @evidence contracts/performance.md#efficient-algorithms Includes repeated nested refreshes, all slice/prop validation and render-name scans.
+ * @evidence contracts/performance.md#reuse-equivalent-work The writable slate supplies presence and stem data; other original reads renew their own authority.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Every acquired level has a retirement attempt, which can retain fences on native failure; summary arrays transfer and the instance retains its latest mirror.
+ */
+public summary(): IAutoMovieLegacyProjectSummary { return autoMovieProjectSummary(AutoMovieProject.forwardingView(this)); }
+
+/** Delegate on this unchanged instance to autoMovieProjectStaleRenders; that owner documents the original effects, refusal order, costs and cleanup. */
+private staleRenders(slate: IAutoMovieLegacyWritableSlate): string[] { return autoMovieProjectStaleRenders(AutoMovieProject.forwardingView(this), slate); }
+
+/** Delegate on this unchanged instance to autoMovieProjectManifestPath; that owner documents the original effects, refusal order, costs and cleanup. */
+private get manifestPath(): string { return autoMovieProjectManifestPath(AutoMovieProject.forwardingView(this)); }
+
+/** Delegate on this unchanged instance to autoMovieProjectSlicePath; that owner documents the original effects, refusal order, costs and cleanup. */
+private slicePath(name: string): string { return autoMovieProjectSlicePath(AutoMovieProject.forwardingView(this), name); }
+
+/** Delegate on this unchanged instance to autoMovieProjectReadStagedScenes; that owner documents the original effects, refusal order, costs and cleanup. */
+private readStagedScenes(): IAutoMovieScene[] { return autoMovieProjectReadStagedScenes(AutoMovieProject.forwardingView(this)); }
+
+/** Delegate on this unchanged instance to autoMovieProjectReadKeyedSlices; that owner documents the original effects, refusal order, costs and cleanup. */
+private readKeyedSlices<T>(dir: string, key: {
+    /** Key role named by a filename/internal-identity mismatch. */
+    label: string;
+
+    /** Project the expected stored identity from this decoded filename key. */
+    expected: (fileKey: string) => string;
+
+    /** Read the actual internal identity from the parsed record; null/undefined remain mismatch values. */
+    actual: (value: T) => string | null | undefined;
+}, validate?: (file: string, value: T) => void): T[] { return autoMovieProjectReadKeyedSlices(AutoMovieProject.forwardingView(this), dir, key, validate); }
+
+/**
+ * Create the operation's typed access view without copying resident values. Getters/setters access the supplied instance lazily; method getters select and bind its current function before argument evaluation, preserving dynamic dispatch and receiver identity.
+ *
+ * The fixed member table makes the private accesses visible to TypeScript without dummy reads, public promotion or lint suppression. Construction reads no instance field or performs I/O, so detached this-free methods and pre-instance argument refusals retain their original behavior.
+ *
+ * Each adapter allocates one fixed accessor table; used method getters add bound functions and nested adapters allocate their own views. The indexed signature assertions preserve existing generic call relations erased by native bind's TypeScript inference.
+ *
+ * The view is call-local and has no retained cache or independent lease lifetime; forwarded operations remain responsible for bytes, locks and failure effects.
+ */
+private static forwardingView(project: AutoMovieProject): IAutoMovieProjectState {
+return {
+get root(): string { return project.root; },
+get rootDevice(): string { return project.rootDevice; },
+get rootInode(): string { return project.rootInode; },
+get manifest(): IAutoMovieProjectManifest { return project.manifest; },
+set manifest(value: IAutoMovieProjectManifest) { project.manifest = value; },
+get lastReadRevision_(): number { return project.lastReadRevision_; },
+set lastReadRevision_(value: number) { project.lastReadRevision_ = value; },
+get storedSlate(): IAutoMovieProjectState["storedSlate"] { return project.storedSlate.bind(project) as IAutoMovieProjectState["storedSlate"]; },
+get writableSlate(): IAutoMovieProjectState["writableSlate"] { return project.writableSlate.bind(project) as IAutoMovieProjectState["writableSlate"]; },
+get orderResidentSlate(): IAutoMovieProjectState["orderResidentSlate"] { return project.orderResidentSlate.bind(project) as IAutoMovieProjectState["orderResidentSlate"]; },
+get saveSlate(): IAutoMovieProjectState["saveSlate"] { return project.saveSlate.bind(project) as IAutoMovieProjectState["saveSlate"]; },
+get stageSlice(): IAutoMovieProjectState["stageSlice"] { return project.stageSlice.bind(project) as IAutoMovieProjectState["stageSlice"]; },
+get flushBeatSlices(): IAutoMovieProjectState["flushBeatSlices"] { return project.flushBeatSlices.bind(project) as IAutoMovieProjectState["flushBeatSlices"]; },
+get commitCycle(): IAutoMovieProjectState["commitCycle"] { return project.commitCycle.bind(project) as IAutoMovieProjectState["commitCycle"]; },
+get withRootNamespace(): IAutoMovieProjectState["withRootNamespace"] { return project.withRootNamespace.bind(project) as IAutoMovieProjectState["withRootNamespace"]; },
+get readRevision(): IAutoMovieProjectState["readRevision"] { return project.readRevision.bind(project) as IAutoMovieProjectState["readRevision"]; },
+get readManifest(): IAutoMovieProjectState["readManifest"] { return project.readManifest.bind(project) as IAutoMovieProjectState["readManifest"]; },
+get synchronizeResidentState(): IAutoMovieProjectState["synchronizeResidentState"] { return project.synchronizeResidentState.bind(project) as IAutoMovieProjectState["synchronizeResidentState"]; },
+get revisionPath(): string { return project.revisionPath; },
+get lockPath(): string { return project.lockPath; },
+get storedProps(): IAutoMovieProjectState["storedProps"] { return project.storedProps.bind(project) as IAutoMovieProjectState["storedProps"]; },
+get saveProp(): IAutoMovieProjectState["saveProp"] { return project.saveProp.bind(project) as IAutoMovieProjectState["saveProp"]; },
+get propCaseCollision(): IAutoMovieProjectState["propCaseCollision"] { return project.propCaseCollision.bind(project) as IAutoMovieProjectState["propCaseCollision"]; },
+get storedActors(): IAutoMovieProjectState["storedActors"] { return project.storedActors.bind(project) as IAutoMovieProjectState["storedActors"]; },
+get saveActors(): IAutoMovieProjectState["saveActors"] { return project.saveActors.bind(project) as IAutoMovieProjectState["saveActors"]; },
+get actorCaseCollision(): IAutoMovieProjectState["actorCaseCollision"] { return project.actorCaseCollision.bind(project) as IAutoMovieProjectState["actorCaseCollision"]; },
+get removeActor(): IAutoMovieProjectState["removeActor"] { return project.removeActor.bind(project) as IAutoMovieProjectState["removeActor"]; },
+get sliceCaseCollision(): IAutoMovieProjectState["sliceCaseCollision"] { return project.sliceCaseCollision.bind(project) as IAutoMovieProjectState["sliceCaseCollision"]; },
+get removeProp(): IAutoMovieProjectState["removeProp"] { return project.removeProp.bind(project) as IAutoMovieProjectState["removeProp"]; },
+get registerAsset(): IAutoMovieProjectState["registerAsset"] { return project.registerAsset.bind(project) as IAutoMovieProjectState["registerAsset"]; },
+get assets(): string[] { return project.assets; },
+get summary(): IAutoMovieProjectState["summary"] { return project.summary.bind(project) as IAutoMovieProjectState["summary"]; },
+get staleRenders(): IAutoMovieProjectState["staleRenders"] { return project.staleRenders.bind(project) as IAutoMovieProjectState["staleRenders"]; },
+get manifestPath(): string { return project.manifestPath; },
+get slicePath(): IAutoMovieProjectState["slicePath"] { return project.slicePath.bind(project) as IAutoMovieProjectState["slicePath"]; },
+get readStagedScenes(): IAutoMovieProjectState["readStagedScenes"] { return project.readStagedScenes.bind(project) as IAutoMovieProjectState["readStagedScenes"]; },
+get readKeyedSlices(): IAutoMovieProjectState["readKeyedSlices"] { return project.readKeyedSlices.bind(project) as IAutoMovieProjectState["readKeyedSlices"]; },
+};
 }
-
-class AutoMovieProjectKeyError extends Error {
-  public constructor(
-    file: string,
-    label: string,
-    expected: string,
-    actual: string | null | undefined,
-  ) {
-    super(
-      `AutoMovie project file "${file}" has a keyed-slice mismatch. ` +
-        `Fix or remove this file, then call openProject again. ` +
-        `The filename expected ${label} "${expected}", but found ${formatKey(actual)}.`,
-    );
-    this.name = "AutoMovieProjectKeyError";
-  }
 }
-
-class AutoMovieProjectShapeError extends Error {
-  public constructor(file: string, detail: string) {
-    super(
-      `AutoMovie project file "${file}" is semantically invalid. ` +
-        `Fix or remove this file, then call openProject again. ` +
-        `Validation detail: ${detail}`,
-    );
-    this.name = "AutoMovieProjectShapeError";
-  }
-}
-
-class AutoMovieProjectRootError extends Error {
-  public constructor(root: string, detail: string) {
-    super(
-      `AutoMovie project root "${root}" is not a usable directory. ` +
-        `Fix or remove this path, then call openProject again. ` +
-        `Detail: ${detail}`,
-    );
-    this.name = "AutoMovieProjectRootError";
-  }
-}
-
-const validateManifest = (file: string, value: unknown): IManifest => {
-  if (!isRecord(value))
-    throw new AutoMovieProjectShapeError(
-      file,
-      "manifest must be a JSON object",
-    );
-  if (value.version !== 1)
-    throw new AutoMovieProjectShapeError(
-      file,
-      `manifest version must be 1, but was ${String(value.version)}`,
-    );
-  if (
-    !Array.isArray(value.assets) ||
-    value.assets.some((asset) => typeof asset !== "string")
-  )
-    throw new AutoMovieProjectShapeError(
-      file,
-      "manifest assets must be an array of strings",
-    );
-  const seenAssets = new Set<string>();
-  const assets = value.assets.map((asset, index) => {
-    const checked = checkAssetPath(asset);
-    if ("fault" in checked)
-      throw new AutoMovieProjectShapeError(
-        file,
-        `manifest assets[${index}] invalid: ${checked.fault}`,
-      );
-    if (seenAssets.has(checked.path))
-      throw new AutoMovieProjectShapeError(
-        file,
-        `manifest assets[${index}] duplicates "${checked.path}"`,
-      );
-    seenAssets.add(checked.path);
-    return checked.path;
-  });
-  return { ...value, assets } as unknown as IManifest;
-};
-
-const validateScriptSlice = (
-  value: unknown,
-  violations: IAutoMovieConstraintViolation[],
-): void => {
-  if (!validateObjectArtifact(value, "$input", "script", violations)) return;
-  validateNonEmptyText(value.logline, "$input.logline", "logline", violations);
-  validateNonEmptyText(value.theme, "$input.theme", "theme", violations);
-  validateArrayArtifact(value.cast, "$input.cast", "script cast", violations);
-  validateUniqueBy(
-    asArray(value.cast).map((member, index) => ({
-      id: isRecord(member) ? member.node : undefined,
-      path: `$input.cast[${index}].node`,
-    })),
-    "cast node",
-    violations,
-  );
-  asArray(value.cast).forEach((member, index) => {
-    const path = `$input.cast[${index}]`;
-    if (!validateObjectArtifact(member, path, "cast member", violations))
-      return;
-    validateNonEmptyId(member.node, `${path}.node`, "cast node", violations);
-    validateNonEmptyText(
-      member.character,
-      `${path}.character`,
-      "cast character",
-      violations,
-    );
-    if (member.modelRef !== null && member.modelRef !== undefined)
-      validateNonEmptyText(
-        member.modelRef,
-        `${path}.modelRef`,
-        "cast modelRef",
-        violations,
-      );
-  });
-
-  validateArrayArtifact(
-    value.beats,
-    "$input.beats",
-    "script beats",
-    violations,
-  );
-  validateUniqueBy(
-    asArray(value.beats).map((beat, index) => ({
-      id: isRecord(beat) ? beat.id : undefined,
-      path: `$input.beats[${index}].id`,
-    })),
-    "beat id",
-    violations,
-  );
-  // The same rule the commit gate applies. A stored script is a file this
-  // server may not have written, and the beat ids in it become this store's own
-  // slice filenames, so a collision that loads clean here wedges the second
-  // beat's commitShot with a raw mid-save throw instead of a located violation
-  // (#1327).
-  validateBeatIdCaseCollisions(value.beats, "$input.beats", violations);
-  if (Array.isArray(value.beats) && value.beats.length === 0)
-    pushViolation(
-      violations,
-      "type",
-      "$input.beats",
-      "script must contain at least one beat",
-      value.beats,
-    );
-  asArray(value.beats).forEach((beat, index) => {
-    const path = `$input.beats[${index}]`;
-    if (!validateObjectArtifact(beat, path, "script beat", violations)) return;
-    validateNonEmptyId(beat.id, `${path}.id`, "beat id", violations);
-    validateNonEmptyText(beat.name, `${path}.name`, "beat name", violations);
-    validateNonEmptyText(
-      beat.summary,
-      `${path}.summary`,
-      "beat summary",
-      violations,
-    );
-    validateRange(
-      beat.durationHint,
-      `${path}.durationHint`,
-      0,
-      Infinity,
-      "beat durationHint",
-      violations,
-      false,
-    );
-  });
-  validateScriptTreeSlice(value.tree, value.beats, violations);
-};
-
-const validateScriptTreeSlice = (
-  tree: unknown,
-  beats: unknown,
-  violations: IAutoMovieConstraintViolation[],
-): void => {
-  if (tree === undefined || tree === null) return;
-  const before = violations.length;
-  if (!validateArrayArtifact(tree, "$input.tree", "script tree", violations))
-    return;
-  tree.forEach((node, index) => {
-    const path = `$input.tree[${index}]`;
-    if (!validateObjectArtifact(node, path, "script tree node", violations))
-      return;
-    validateNonEmptyId(
-      node.id,
-      `${path}.id`,
-      "script tree node id",
-      violations,
-    );
-    if (
-      node.kind !== "intent" &&
-      node.kind !== "act" &&
-      node.kind !== "scene" &&
-      node.kind !== "group" &&
-      node.kind !== "beat"
-    )
-      pushViolation(
-        violations,
-        "type",
-        `${path}.kind`,
-        'script tree node kind must be one of "intent", "act", "scene", "group", or "beat"',
-        node.kind,
-      );
-    validateNullableId(
-      node.parent,
-      `${path}.parent`,
-      "script tree node parent",
-      violations,
-    );
-    validateNullableId(
-      node.temporal,
-      `${path}.temporal`,
-      "script tree node temporal predecessor",
-      violations,
-    );
-    if (
-      validateArrayArtifact(
-        node.interactsWith,
-        `${path}.interactsWith`,
-        "script tree interactions",
-        violations,
-      )
-    )
-      node.interactsWith.forEach((other, otherIndex) =>
-        validateNonEmptyId(
-          other,
-          `${path}.interactsWith[${otherIndex}]`,
-          "script tree interaction target",
-          violations,
-        ),
-      );
-    if (
-      !validateObjectArtifact(
-        node.payload,
-        `${path}.payload`,
-        "script tree payload",
-        violations,
-      )
-    )
-      return;
-    validateScriptTreePayload(node.kind, node.payload, path, violations);
-  });
-  if (violations.length !== before || !Array.isArray(beats)) return;
-  appendValidation(
-    violations,
-    validateScriptTree({
-      tree: tree as IAutoMovieScriptNode[],
-      beats: beats as IAutoMovieBeat[],
-    }),
-  );
-};
-
-const validateNullableId = (
-  value: unknown,
-  path: string,
-  label: string,
-  violations: IAutoMovieConstraintViolation[],
-): void => {
-  if (value === null) return;
-  validateNonEmptyId(value, path, label, violations);
-};
-
-const validateScriptTreePayload = (
-  kind: unknown,
-  payload: Record<string, unknown>,
-  path: string,
-  violations: IAutoMovieConstraintViolation[],
-): void => {
-  switch (kind) {
-    case "intent":
-      validateNonEmptyText(
-        payload.logline,
-        `${path}.payload.logline`,
-        "intent logline",
-        violations,
-      );
-      validateNonEmptyText(
-        payload.theme,
-        `${path}.payload.theme`,
-        "intent theme",
-        violations,
-      );
-      break;
-    case "act":
-      validateNonEmptyText(
-        payload.purpose,
-        `${path}.payload.purpose`,
-        "act purpose",
-        violations,
-      );
-      break;
-    case "scene":
-      if (
-        payload.interiorExterior !== "INT" &&
-        payload.interiorExterior !== "EXT"
-      )
-        pushViolation(
-          violations,
-          "type",
-          `${path}.payload.interiorExterior`,
-          'scene interiorExterior must be "INT" or "EXT"',
-          payload.interiorExterior,
-        );
-      validateNonEmptyText(
-        payload.location,
-        `${path}.payload.location`,
-        "scene location",
-        violations,
-      );
-      validateNonEmptyText(
-        payload.timeOfDay,
-        `${path}.payload.timeOfDay`,
-        "scene timeOfDay",
-        violations,
-      );
-      if (payload.description !== null)
-        validateNonEmptyText(
-          payload.description,
-          `${path}.payload.description`,
-          "scene description",
-          violations,
-        );
-      break;
-    case "group":
-      validateNonEmptyText(
-        payload.rationale,
-        `${path}.payload.rationale`,
-        "group rationale",
-        violations,
-      );
-      break;
-    case "beat":
-      validateNonEmptyId(
-        payload.beat,
-        `${path}.payload.beat`,
-        "tree beat id",
-        violations,
-      );
-      validateNonEmptyText(
-        payload.direction,
-        `${path}.payload.direction`,
-        "beat direction",
-        violations,
-      );
-      if (
-        validateArrayArtifact(
-          payload.dialogue,
-          `${path}.payload.dialogue`,
-          "beat dialogue",
-          violations,
-        )
-      )
-        payload.dialogue.forEach((line, index) => {
-          const linePath = `${path}.payload.dialogue[${index}]`;
-          if (
-            !validateObjectArtifact(
-              line,
-              linePath,
-              "beat dialogue line",
-              violations,
-            )
-          )
-            return;
-          validateNonEmptyText(
-            line.speaker,
-            `${linePath}.speaker`,
-            "dialogue speaker",
-            violations,
-          );
-          validateNonEmptyText(
-            line.text,
-            `${linePath}.text`,
-            "dialogue text",
-            violations,
-          );
-          if (line.anchor !== null)
-            validateRange(
-              line.anchor,
-              `${linePath}.anchor`,
-              0,
-              Infinity,
-              "dialogue anchor",
-              violations,
-            );
-        });
-      if (payload.caption !== null)
-        validateNonEmptyText(
-          payload.caption,
-          `${path}.payload.caption`,
-          "beat caption",
-          violations,
-        );
-      break;
-  }
-};
-
-const validateSceneSlice = (
-  value: unknown,
-  violations: IAutoMovieConstraintViolation[],
-): void => {
-  appendValidation(
-    violations,
-    validateSceneArtifact(
-      value as IAutoMovieScene,
-      residentSceneModels(value).map((id) => ({ id, skeleton: null })),
-    ),
-  );
-};
-
-const validateNotesSlice = (
-  value: unknown,
-  violations: IAutoMovieConstraintViolation[],
-): void => {
-  if (!validateArrayArtifact(value, "$input", "review notes", violations))
-    return;
-  value.forEach((note, index) => {
-    const path = `$input[${index}]`;
-    if (!validateObjectArtifact(note, path, "review note", violations)) return;
-    validateNonEmptyId(note.beat, `${path}.beat`, "note beat", violations);
-    if (
-      note.tier !== "structural" &&
-      note.tier !== "physical" &&
-      note.tier !== "visual"
-    )
-      pushViolation(
-        violations,
-        "type",
-        `${path}.tier`,
-        'note tier must be one of "structural", "physical", or "visual"',
-        note.tier,
-      );
-    validateNonEmptyText(note.issue, `${path}.issue`, "note issue", violations);
-    validateNonEmptyText(
-      note.suggestion,
-      `${path}.suggestion`,
-      "note suggestion",
-      violations,
-    );
-  });
-};
-
-const validateShotSlice = (
-  value: IAutoMovieShot,
-  violations: IAutoMovieConstraintViolation[],
-): void => {
-  validateNonEmptyId(value.id, "$input.id", "shot id", violations);
-  validateNonEmptyId(value.scene, "$input.scene", "shot scene", violations);
-  validateNonEmptyId(value.camera, "$input.camera", "shot camera", violations);
-  validateRange(
-    value.duration,
-    "$input.duration",
-    0,
-    Infinity,
-    "shot duration",
-    violations,
-    false,
-  );
-  if (value.cameraMotion !== null && value.cameraMotion !== undefined)
-    // To the depth a consumer dereferences it, not merely "is an object": a
-    // stored clip goes straight to `sampleClip`, whose search assumes the
-    // strictly increasing times this pins. The coverage takes beside it were
-    // already checked this deeply, so the hero clip was the shallow one in its
-    // own function (#1324).
-    validateClipArtifact(value.cameraMotion, "$input.cameraMotion", violations);
-  else if (value.cameraMotion === undefined)
-    pushViolation(
-      violations,
-      "type",
-      "$input.cameraMotion",
-      "shot cameraMotion must be null or a clip",
-      value.cameraMotion,
-    );
-  validateArrayArtifact(
-    value.performances,
-    "$input.performances",
-    "shot performances",
-    violations,
-  );
-  validateUniqueBy(
-    asArray(value.performances).map((performance, index) => ({
-      id: isRecord(performance) ? performance.node : undefined,
-      path: `$input.performances[${index}].node`,
-    })),
-    "shot performance node",
-    violations,
-  );
-  asArray(value.performances).forEach((performance, index) => {
-    const path = `$input.performances[${index}]`;
-    if (
-      !validateObjectArtifact(performance, path, "shot performance", violations)
-    )
-      return;
-    validateNonEmptyId(
-      performance.node,
-      `${path}.node`,
-      "performance node",
-      violations,
-    );
-    validateRange(
-      performance.startOffset,
-      `${path}.startOffset`,
-      0,
-      typeof value.duration === "number" ? value.duration : Infinity,
-      "performance startOffset",
-      violations,
-    );
-    if (performance.motion !== null && performance.motion !== undefined)
-      validateNonEmptyId(
-        performance.motion,
-        `${path}.motion`,
-        "performance motion",
-        violations,
-      );
-  });
-  if (
-    validateArrayArtifact(
-      value.objectMotions,
-      "$input.objectMotions",
-      "shot objectMotions",
-      violations,
-    )
-  ) {
-    // Clip ids must be unique, the same rule the submit gate applies. The
-    // engine works to satisfy it: `performShot` suffixes a repeated projectile
-    // flight's `trajectory:<node>` clip "so the shot stays committable"
-    // (#989). A stored shot that breaks it addresses two clips by one id, and
-    // was refused on submit but not on read (#1326).
-    validateUniqueIds(
-      value.objectMotions,
-      "$input.objectMotions",
-      "object motion clip id",
-      violations,
-    );
-    value.objectMotions.forEach((clip, index) =>
-      validateClipArtifact(clip, `$input.objectMotions[${index}]`, violations),
-    );
-  }
-  // The #1187 guide metadata and the event stream, gated on READ as well as on
-  // submit: a slice validated looser than the submitted artifact is exactly the
-  // validator drift #1097 called out. No scene travels with a shot slice, so the
-  // coverage cameras cannot be cross-referenced here; every other rule applies.
-  appendShotMetadataArtifact(value, "$input", null, violations);
-  // Same discipline for the light-time axis (#1348): the stored slice carries no
-  // scene, so which lights are staged defers, but the pointer grammar, the value
-  // type, the clip shape, and single-valued lighting are all checked on READ.
-  appendLightMotionsArtifact(
-    value.lightMotions,
-    "$input.lightMotions",
-    null,
-    violations,
-  );
-};
-
-const validateBeatEndSlice = (
-  value: IAutoMovieBeatEndState,
-  violations: IAutoMovieConstraintViolation[],
-): void => {
-  validateNonEmptyId(value.beat, "$input.beat", "beat id", violations);
-  validateNonEmptyId(value.shot, "$input.shot", "shot id", violations);
-  if (
-    typeof value.beat === "string" &&
-    typeof value.shot === "string" &&
-    value.shot !== shotIdOf(value.beat)
-  )
-    pushViolation(
-      violations,
-      "type",
-      "$input.shot",
-      `beat-end shot must equal "${shotIdOf(value.beat)}"`,
-      value.shot,
-    );
-  validateArrayArtifact(
-    value.actors,
-    "$input.actors",
-    "beat-end actors",
-    violations,
-  );
-  validateUniqueBy(
-    asArray(value.actors).map((actor, index) => ({
-      id: isRecord(actor) ? actor.node : undefined,
-      path: `$input.actors[${index}].node`,
-    })),
-    "beat-end actor",
-    violations,
-  );
-  asArray(value.actors).forEach((actor, index) => {
-    const path = `$input.actors[${index}]`;
-    if (!validateObjectArtifact(actor, path, "beat-end actor", violations))
-      return;
-    validateNonEmptyId(actor.node, `${path}.node`, "actor node", violations);
-    validateTransformArtifact(
-      actor.transform,
-      `${path}.transform`,
-      "beat-end actor transform",
-      violations,
-    );
-    validateVectorArtifact(
-      actor.facing,
-      `${path}.facing`,
-      "beat-end actor facing",
-      violations,
-    );
-    validateRange(
-      actor.localTime,
-      `${path}.localTime`,
-      0,
-      Infinity,
-      "beat-end actor localTime",
-      violations,
-    );
-    if (actor.motion !== null && actor.motion !== undefined)
-      validateNonEmptyId(
-        actor.motion,
-        `${path}.motion`,
-        "beat-end actor motion",
-        violations,
-      );
-  });
-};
-
-const validatePropSlice = (
-  value: IAutoMovieLegacyPropSpec,
-  violations: IAutoMovieConstraintViolation[],
-): void => {
-  const before = violations.length;
-  validateNonEmptyId(value.node, "$input.node", "prop node", violations);
-  if (
-    validateObjectArtifact(
-      value.model,
-      "$input.model",
-      "prop model",
-      violations,
-    )
-  )
-    appendValidation(
-      violations,
-      validateEngineModel({ model: value.model as unknown as IAutoMovieModel }),
-    );
-  if (value.articulation !== null && value.articulation !== undefined)
-    validateObjectArtifact(
-      value.articulation,
-      "$input.articulation",
-      "prop articulation",
-      violations,
-    );
-  else if (value.articulation === undefined)
-    pushViolation(
-      violations,
-      "type",
-      "$input.articulation",
-      "prop articulation must be null or a JSON object",
-      value.articulation,
-    );
-  if (violations.length !== before) return;
-  try {
-    const forged = forgeProp(
-      toEnginePropSpec(value as unknown as IAutoMovieLegacyPropSpec),
-    );
-    if (forged.success === false) violations.push(...forged.violations);
-  } catch {
-    pushViolation(
-      violations,
-      "type",
-      "$input.articulation",
-      "prop articulation must match the forgeProp schema",
-      value.articulation,
-    );
-  }
-};
-
-const readJson = <T>(root: string, file: string): T | null => {
-  try {
-    const bytes = readAutoMovieProductionOwnedFile({
-      root,
-      directory: path.dirname(file),
-      relative: path.basename(file),
-      optional: true,
-    });
-    if (bytes === null) return null;
-    return parseAutoMovieStructuredJson({
-      record: path.basename(file),
-      bytes,
-    }) as T;
-  } catch (error) {
-    // The structured parser and Node's synchronous filesystem APIs throw Error objects.
-    const reason = (error as Error).message;
-    throw new AutoMovieProjectJsonError(file, reason);
-  }
-};
-
-const validateProjectValue = <T>(
-  file: string,
-  value: T,
-  validate: (value: T, violations: IAutoMovieConstraintViolation[]) => void,
-): void => {
-  const violations: IAutoMovieConstraintViolation[] = [];
-  validate(value, violations);
-  if (violations.length > 0)
-    throw new AutoMovieProjectShapeError(file, describeViolations(violations));
-};
-
-const readValidatedJson = <T>(
-  root: string,
-  file: string,
-  validate: (
-    value: unknown,
-    violations: IAutoMovieConstraintViolation[],
-  ) => void,
-): T | null => {
-  const value = readJson<unknown>(root, file);
-  if (value === null) return null;
-  validateProjectValue(file, value, validate);
-  return value as T;
-};
-
-const sliceKeyFromFilename = (file: string, name: string): string => {
-  try {
-    return decodeURIComponent(name.slice(0, -".json".length));
-  } catch (error) {
-    // decodeURIComponent throws URIError for malformed escapes.
-    const reason = (error as URIError).message;
-    throw new AutoMovieProjectKeyError(
-      file,
-      "filename key",
-      "a URI-encoded key",
-      `${name} (${reason})`,
-    );
-  }
-};
-
-const formatKey = (key: string | null | undefined): string =>
-  key === null || key === undefined ? "none" : `"${key}"`;
-
-const asArray = (value: unknown): unknown[] =>
-  Array.isArray(value) ? value : [];
-
-const residentSceneModels = (value: unknown): string[] => {
-  if (!isRecord(value)) return [];
-  return [
-    ...new Set(
-      asArray(value.nodes)
-        .filter(isRecord)
-        .map((node) => node.model)
-        .filter((model): model is string => typeof model === "string"),
-    ),
-  ];
-};
-
-const describeViolations = (
-  violations: readonly IAutoMovieConstraintViolation[],
-): string =>
-  violations
-    .slice(0, 5)
-    .map((violation) => `${violation.path}: ${violation.expected}`)
-    .join("; ");
-
-/** Atomic write fenced before and after every resident namespace mutation. */
-const writeAtomic = (
-  file: string,
-  data: Uint8Array | string,
-  assertNamespace: () => void,
-): void => {
-  const temp = `${file}.tmp.${process.pid}.${randomUUID()}`;
-  let published = false;
-  try {
-    assertNamespace();
-    fileSystem.mkdirSync(path.dirname(file), { recursive: true });
-    assertNamespace();
-    fileSystem.writeFileSync(temp, data);
-    assertNamespace();
-    fileSystem.renameSync(temp, file);
-    published = true;
-    assertNamespace();
-  } finally {
-    if (published === false)
-      try {
-        assertNamespace();
-        fileSystem.rmSync(temp, { force: true });
-      } catch {
-        // A stale pathname must not clean a temporary file in a replacement
-        // namespace. The original physical root retains it for diagnosis.
-      }
-  }
-};
-
-/** Remove through a fenced quarantine so a stale path is never unlinked. */
-const removeAtomic = (file: string, assertNamespace: () => void): void => {
-  const quarantine = `${file}.delete.${process.pid}.${randomUUID()}`;
-  assertNamespace();
-  try {
-    fileSystem.renameSync(file, quarantine);
-  } catch (error) {
-    if ((error as NodeJS.ErrnoException).code === "ENOENT") {
-      assertNamespace();
-      return;
-    }
-    throw error;
-  }
-  try {
-    assertNamespace();
-    fileSystem.rmSync(quarantine, { force: true });
-    assertNamespace();
-  } catch (error) {
-    try {
-      assertNamespace();
-      if (
-        fileSystem.existsSync(quarantine) &&
-        fileSystem.existsSync(file) === false
-      )
-        fileSystem.renameSync(quarantine, file);
-      assertNamespace();
-    } catch {
-      // Never follow the quarantined name after the physical root changed.
-    }
-    throw error;
-  }
-};
-
-const writeJsonAtomic = (
-  file: string,
-  value: unknown,
-  assertNamespace: () => void,
-): void => writeAtomic(file, serializeJson(value), assertNamespace);
-
-/** The store's one JSON rendering (pretty, trailing newline). */
-const serializeJson = (value: unknown): string =>
-  `${JSON.stringify(value, null, 2)}\n`;
