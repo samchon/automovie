@@ -1,5 +1,9 @@
-import type { IAutoMovieInstanceSetDesign, IAutoMovieCompiledInstanceSet, IAutoMovieModelRecipe, IAutoMovieWorldDesign } from "@automovie/interface";
-
+import type {
+  IAutoMovieCompiledInstanceSet,
+  IAutoMovieInstanceSetDesign,
+  IAutoMovieModelRecipe,
+  IAutoMovieWorldDesign,
+} from "@automovie/interface";
 
 import { compareCodeUnits } from "../text/compareCodeUnits";
 import { materializeCompiledInstanceSet } from "./materializeCompiledInstanceSet";
@@ -19,24 +23,46 @@ import { materializeCompiledInstanceSet } from "./materializeCompiledInstanceSet
  * @evidence contracts/performance.md#reuse-equivalent-work Recipe and radius maps are borrowed once for all entries; mutable world routes and set laws mean prior compiled results are not reusable merely by id.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller receives the inventory and compact snapshots; local sorted entries and failed partial results are collectable, with no open resource or worker.
  */
-export const materializeCompiledInstanceSetInventory: (props: { /** World whose instance sets and routes are compiled. */ world : Pick < IAutoMovieWorldDesign , "instanceSets" | "routes" > ; /** Model recipes keyed by id; empty when none are declared. */ recipes ? : ReadonlyMap < string , IAutoMovieModelRecipe > ; /** Conservative member radius in metres keyed by recipe id. */ projectionRadii ? : ReadonlyMap < string , number > ; }) => Readonly < Record < string , IAutoMovieCompiledInstanceSet > > = (props: {
+export const materializeCompiledInstanceSetInventory: (props: {
+  /** World whose instance sets and routes are compiled. */ world: Pick<
+    IAutoMovieWorldDesign,
+    "instanceSets" | "routes"
+  >;
+  /** Model recipes keyed by id; empty when none are declared. */ recipes?: ReadonlyMap<
+    string,
+    IAutoMovieModelRecipe
+  >;
+  /** Supplied root-centered radius estimate in metres keyed by recipe id. */ projectionRadii?: ReadonlyMap<
+    string,
+    number
+  >;
+}) => Readonly<Record<string, IAutoMovieCompiledInstanceSet>> = (props: {
   /** World whose instance sets and routes are compiled. */
   world: Pick<IAutoMovieWorldDesign, "instanceSets" | "routes">;
   /** Model recipes keyed by id; empty when none are declared. */
   recipes?: ReadonlyMap<string, IAutoMovieModelRecipe>;
-  /** Conservative member radius in metres keyed by recipe id. */
+  /** Supplied root-centered radius estimate in metres keyed by recipe id. */
   projectionRadii?: ReadonlyMap<string, number>;
 }): Readonly<Record<string, IAutoMovieCompiledInstanceSet>> =>
   Object.fromEntries(
     [...(props.world.instanceSets ?? [])]
-      .sort((left: IAutoMovieInstanceSetDesign, right: IAutoMovieInstanceSetDesign) : number => compareCodeUnits(left.id, right.id))
-      .map((instanceSet: IAutoMovieInstanceSetDesign) : [string, IAutoMovieCompiledInstanceSet] => [
-        instanceSet.id,
-        materializeCompiledInstanceSet({
-          instanceSet,
-          world: props.world,
-          recipes: props.recipes,
-          projectionRadii: props.projectionRadii,
-        }),
-      ]),
+      .sort(
+        (
+          left: IAutoMovieInstanceSetDesign,
+          right: IAutoMovieInstanceSetDesign,
+        ): number => compareCodeUnits(left.id, right.id),
+      )
+      .map(
+        (
+          instanceSet: IAutoMovieInstanceSetDesign,
+        ): [string, IAutoMovieCompiledInstanceSet] => [
+          instanceSet.id,
+          materializeCompiledInstanceSet({
+            instanceSet,
+            world: props.world,
+            recipes: props.recipes,
+            projectionRadii: props.projectionRadii,
+          }),
+        ],
+      ),
   );

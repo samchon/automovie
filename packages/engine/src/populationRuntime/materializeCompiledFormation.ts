@@ -1,5 +1,16 @@
-import type { IAutoMovieVector3, IAutoMovieFormationBounds, IAutoMovieCompiledFormationLod, IAutoMovieModelLodRecipe, IAutoMovieQuaternion, IAutoMovieFormationLayout, AutoMovieFormationCapability, IAutoMovieCompiledFormation, IAutoMovieFormationDesign, IAutoMovieModelRecipe, IAutoMovieWorldSurface } from "@automovie/interface";
-
+import type {
+  AutoMovieFormationCapability,
+  IAutoMovieCompiledFormation,
+  IAutoMovieCompiledFormationLod,
+  IAutoMovieFormationBounds,
+  IAutoMovieFormationDesign,
+  IAutoMovieFormationLayout,
+  IAutoMovieModelLodRecipe,
+  IAutoMovieModelRecipe,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+  IAutoMovieWorldSurface,
+} from "@automovie/interface";
 
 import { IAutoMovieFormationGrounding } from "../IAutoMovieFormationGrounding";
 import { formationSlotPosition } from "../formationSlotPosition";
@@ -9,8 +20,8 @@ import { autoMovieRenderDigest } from "../render/autoMovieRenderDigest";
 import { canonicalizeAutoMovieJson } from "../text/canonicalizeAutoMovieJson";
 import { compiledPopulationRepresentation } from "./compiledPopulationRepresentation";
 import { AUTOMOVIE_FORMATION_CHUNK_SIZE } from "./constants/AUTOMOVIE_FORMATION_CHUNK_SIZE";
-import { summarizeCompiledSlotRange } from "./summarizeCompiledSlotRange";
 import { summarizeCompiledSlotChunks } from "./summarizeCompiledSlotChunks";
+import { summarizeCompiledSlotRange } from "./summarizeCompiledSlotRange";
 
 /**
  * Compile one formation design into its compact, regenerable runtime record.
@@ -28,10 +39,7 @@ import { summarizeCompiledSlotChunks } from "./summarizeCompiledSlotChunks";
  * so that footprint holds on any terrain, and a unit with nothing under it
  * reuses the level pass as its finished summary.
  *
- * Measured member radii come from the host as a table, because what measures a recipe,
- * a registered archetype or an adopted external proxy, is the host's
- * composition rather than this kernel's. Missing tier measurements borrow the
- * base measurement, then 0.5m; that fallback is not proof of geometric enclosure.
+ * Supplied member radius estimates come from the host as a table. The host owns recipe geometry and any enclosure proof; this kernel does not verify estimates against geometry. Missing tier estimates borrow the base estimate, then 0.5m.
  * The digest is SHA-256 over canonical
  * JSON v2 computed without a Node built-in, equal to the Node builder's digest
  * of the same canonical bytes.
@@ -44,32 +52,69 @@ import { summarizeCompiledSlotChunks } from "./summarizeCompiledSlotChunks";
  * @evidence contracts/performance.md#reuse-equivalent-work The flat summary is reused when no terrain changes Y; the grounded pass shares each generated point between chunk and global folds while preserving ascending running-mean order. No cache crosses mutable designs or terrain.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Cloned placement laws and selected terrain plus C chunks/H heroes transfer to the caller; transient folds and digest bytes are call-local and no resource handle is opened.
  */
-export const materializeCompiledFormation: (props: { /** Formation design to compile. */ formation : IAutoMovieFormationDesign ; /** Model recipes keyed by id; empty when none are declared. */ recipes ? : ReadonlyMap < string , IAutoMovieModelRecipe > ; /** Conservative member radius in metres keyed by recipe id; an id without one borrows the base recipe's radius and then half a metre. */ projectionRadii ? : ReadonlyMap < string , number > ; /** World terrain in declared order; empty when the world has none. */ surfaces ? : readonly IAutoMovieWorldSurface [ ] ; }) => IAutoMovieCompiledFormation = (props: {
+export const materializeCompiledFormation: (props: {
+  /** Formation design to compile. */ formation: IAutoMovieFormationDesign;
+  /** Model recipes keyed by id; empty when none are declared. */ recipes?: ReadonlyMap<
+    string,
+    IAutoMovieModelRecipe
+  >;
+  /** Supplied root-centered radius estimate in metres keyed by recipe id; an id without one borrows the base recipe's radius and then half a metre. */ projectionRadii?: ReadonlyMap<
+    string,
+    number
+  >;
+  /** World terrain in declared order; empty when the world has none. */ surfaces?: readonly IAutoMovieWorldSurface[];
+}) => IAutoMovieCompiledFormation = (props: {
   /** Formation design to compile. */
   formation: IAutoMovieFormationDesign;
   /** Model recipes keyed by id; empty when none are declared. */
   recipes?: ReadonlyMap<string, IAutoMovieModelRecipe>;
   /**
-   * Conservative member radius in metres keyed by recipe id; an id without one
-   * borrows the base recipe's radius and then half a metre.
+   * Supplied root-centered radius estimate in metres keyed by recipe id; an id without one borrows the base recipe's radius and then half a metre.
    */
   projectionRadii?: ReadonlyMap<string, number>;
   /** World terrain in declared order; empty when the world has none. */
   surfaces?: readonly IAutoMovieWorldSurface[];
 }): IAutoMovieCompiledFormation => {
   const formation: IAutoMovieFormationDesign = props.formation;
-  const recipes: ReadonlyMap<string, IAutoMovieModelRecipe> = props.recipes ?? new Map<string, IAutoMovieModelRecipe>();
-  const grounded: { formation: IAutoMovieFormationDesign & IAutoMovieFormationGrounding; ground: IAutoMovieWorldSurface[]; footprint: ReturnType<typeof summarizeCompiledSlotRange> | null; } = groundFormation(formation, props.surfaces ?? []);
-  const position: (slot: number) => IAutoMovieVector3 = (slot: number) : IAutoMovieVector3 =>
-    formationSlotPosition(grounded.formation, slot);
-  const heroes: Set<number> = new Set(formation.heroOverrides.map((hero: { slot: number; actor: string; }) : number => hero.slot));
-  const measured: ReturnType<typeof summarizeCompiledSlotChunks> = summarizeCompiledSlotChunks(
-    formation.count,
-    AUTOMOVIE_FORMATION_CHUNK_SIZE,
-    position,
+  const recipes: ReadonlyMap<string, IAutoMovieModelRecipe> =
+    props.recipes ?? new Map<string, IAutoMovieModelRecipe>();
+  const grounded: {
+    formation: IAutoMovieFormationDesign & IAutoMovieFormationGrounding;
+    ground: IAutoMovieWorldSurface[];
+    footprint: ReturnType<typeof summarizeCompiledSlotRange> | null;
+  } = groundFormation(formation, props.surfaces ?? []);
+  const position: (slot: number) => IAutoMovieVector3 = (
+    slot: number,
+  ): IAutoMovieVector3 => formationSlotPosition(grounded.formation, slot);
+  const heroes: Set<number> = new Set(
+    formation.heroOverrides.map(
+      (hero: { slot: number; actor: string }): number => hero.slot,
+    ),
   );
-  const chunks: { bounds: IAutoMovieFormationBounds; centroid: IAutoMovieVector3; index: number; start: number; count: number; anonymousCount: number; }[] = measured.chunks.map(
-    (chunk: typeof measured.chunks[number]): { bounds: IAutoMovieFormationBounds; centroid: IAutoMovieVector3; index: number; start: number; count: number; anonymousCount: number; } => {
+  const measured: ReturnType<typeof summarizeCompiledSlotChunks> =
+    summarizeCompiledSlotChunks(
+      formation.count,
+      AUTOMOVIE_FORMATION_CHUNK_SIZE,
+      position,
+    );
+  const chunks: {
+    bounds: IAutoMovieFormationBounds;
+    centroid: IAutoMovieVector3;
+    index: number;
+    start: number;
+    count: number;
+    anonymousCount: number;
+  }[] = measured.chunks.map(
+    (
+      chunk: (typeof measured.chunks)[number],
+    ): {
+      bounds: IAutoMovieFormationBounds;
+      centroid: IAutoMovieVector3;
+      index: number;
+      start: number;
+      count: number;
+      anonymousCount: number;
+    } => {
       const { start, count }: { start: number; count: number } = chunk;
       let anonymousCount: number = count;
       for (const slot of heroes)
@@ -77,19 +122,58 @@ export const materializeCompiledFormation: (props: { /** Formation design to com
       return { ...chunk, anonymousCount };
     },
   );
-  const summary: { bounds: IAutoMovieFormationBounds; centroid: IAutoMovieVector3; } =
-    grounded.footprint ??
-    measured.summary;
-  const representation: { lod: IAutoMovieCompiledFormationLod[]; projectionRadius: number; } = compiledPopulationRepresentation({
+  const summary: {
+    bounds: IAutoMovieFormationBounds;
+    centroid: IAutoMovieVector3;
+  } = grounded.footprint ?? measured.summary;
+  const representation: {
+    lod: IAutoMovieCompiledFormationLod[];
+    projectionRadius: number;
+  } = compiledPopulationRepresentation({
     modelRecipe: formation.modelRecipe,
     tiers:
       recipes
         .get(formation.modelRecipe)
-        ?.lod.filter((item: IAutoMovieModelLodRecipe) : boolean => item.tier !== "hero") ?? [],
+        ?.lod.filter(
+          (item: IAutoMovieModelLodRecipe): boolean => item.tier !== "hero",
+        ) ?? [],
     recipes,
     projectionRadii: props.projectionRadii ?? new Map<string, number>(),
   });
-  const core: { projectionRadius: number; chunks: { bounds: IAutoMovieFormationBounds; centroid: IAutoMovieVector3; index: number; start: number; count: number; anonymousCount: number; }[]; heroes: { slot: number; actor: string; transform: { translation: IAutoMovieVector3; rotation: IAutoMovieQuaternion; scale: { x: number; y: number; z: number; }; }; }[]; lod: IAutoMovieCompiledFormationLod[]; phase: { seed: number; }; bounds: IAutoMovieFormationBounds; centroid: IAutoMovieVector3; version: 1; id: string; count: number; anonymousCount: number; modelRecipe: string; layout: IAutoMovieFormationLayout; anchor: IAutoMovieVector3; ground: IAutoMovieWorldSurface[]; facingDeg: number; seed: number; } = {
+  const core: {
+    projectionRadius: number;
+    chunks: {
+      bounds: IAutoMovieFormationBounds;
+      centroid: IAutoMovieVector3;
+      index: number;
+      start: number;
+      count: number;
+      anonymousCount: number;
+    }[];
+    heroes: {
+      slot: number;
+      actor: string;
+      transform: {
+        translation: IAutoMovieVector3;
+        rotation: IAutoMovieQuaternion;
+        scale: { x: number; y: number; z: number };
+      };
+    }[];
+    lod: IAutoMovieCompiledFormationLod[];
+    phase: { seed: number };
+    bounds: IAutoMovieFormationBounds;
+    centroid: IAutoMovieVector3;
+    version: 1;
+    id: string;
+    count: number;
+    anonymousCount: number;
+    modelRecipe: string;
+    layout: IAutoMovieFormationLayout;
+    anchor: IAutoMovieVector3;
+    ground: IAutoMovieWorldSurface[];
+    facingDeg: number;
+    seed: number;
+  } = {
     version: 1 as const,
     id: formation.id,
     count: formation.count,
@@ -104,19 +188,37 @@ export const materializeCompiledFormation: (props: { /** Formation design to com
     projectionRadius: representation.projectionRadius,
     chunks,
     heroes: [...formation.heroOverrides]
-      .sort((left: { slot: number; actor: string; }, right: { slot: number; actor: string; }) : number => left.slot - right.slot)
-      .map((hero: { slot: number; actor: string; }) : { slot: number; actor: string; transform: { translation: IAutoMovieVector3; rotation: IAutoMovieQuaternion; scale: { x: number; y: number; z: number; }; }; } => ({
-        slot: hero.slot,
-        actor: hero.actor,
-        transform: {
-          translation: position(hero.slot),
-          rotation: Quaternion.fromAxisAngle(
-            { x: 0, y: 1, z: 0 },
-            formation.facingDeg,
-          ),
-          scale: { x: 1, y: 1, z: 1 },
-        },
-      })),
+      .sort(
+        (
+          left: { slot: number; actor: string },
+          right: { slot: number; actor: string },
+        ): number => left.slot - right.slot,
+      )
+      .map(
+        (hero: {
+          slot: number;
+          actor: string;
+        }): {
+          slot: number;
+          actor: string;
+          transform: {
+            translation: IAutoMovieVector3;
+            rotation: IAutoMovieQuaternion;
+            scale: { x: number; y: number; z: number };
+          };
+        } => ({
+          slot: hero.slot,
+          actor: hero.actor,
+          transform: {
+            translation: position(hero.slot),
+            rotation: Quaternion.fromAxisAngle(
+              { x: 0, y: 1, z: 0 },
+              formation.facingDeg,
+            ),
+            scale: { x: 1, y: 1, z: 1 },
+          },
+        }),
+      ),
     lod: representation.lod,
     // Phase only. A cycle length compiled here would be a number nothing in the
     // unit produced: cadence is the ground a unit's cues cover, and a seeded
@@ -145,7 +247,16 @@ export const materializeCompiledFormation: (props: { /** Formation design to com
  * before and after. That flat pass is also the finished summary whenever
  * nothing relieves it, so a production on level ground pays for no extra work.
  */
-const groundFormation: (formation: IAutoMovieFormationDesign, surfaces: readonly IAutoMovieWorldSurface [ ]) => { formation : IAutoMovieFormationDesign & IAutoMovieFormationGrounding ; ground : IAutoMovieWorldSurface [ ] ; /** The finished summary, or null when terrain still has to relieve it. */ footprint : ReturnType < typeof summarizeCompiledSlotRange > | null ; } = (
+const groundFormation: (
+  formation: IAutoMovieFormationDesign,
+  surfaces: readonly IAutoMovieWorldSurface[],
+) => {
+  formation: IAutoMovieFormationDesign & IAutoMovieFormationGrounding;
+  ground: IAutoMovieWorldSurface[];
+  /** The finished summary, or null when terrain still has to relieve it. */ footprint: ReturnType<
+    typeof summarizeCompiledSlotRange
+  > | null;
+} = (
   formation: IAutoMovieFormationDesign,
   surfaces: readonly IAutoMovieWorldSurface[],
 ): {
@@ -154,12 +265,29 @@ const groundFormation: (formation: IAutoMovieFormationDesign, surfaces: readonly
   /** The finished summary, or null when terrain still has to relieve it. */
   footprint: ReturnType<typeof summarizeCompiledSlotRange> | null;
 } => {
-  const flat: { ground: never[]; id: string; modelRecipe: string; count: number; layout: IAutoMovieFormationLayout; anchor: IAutoMovieVector3; facingDeg: number; seed: number; capabilities: AutoMovieFormationCapability[]; heroOverrides: Array<{ slot: number; actor: string; }>; } = { ...formation, ground: [] };
-  const footprint: { bounds: IAutoMovieFormationBounds; centroid: IAutoMovieVector3; } = summarizeCompiledSlotRange(0, formation.count, (slot: number) : IAutoMovieVector3 =>
-    formationSlotPosition(flat, slot),
+  const flat: {
+    ground: never[];
+    id: string;
+    modelRecipe: string;
+    count: number;
+    layout: IAutoMovieFormationLayout;
+    anchor: IAutoMovieVector3;
+    facingDeg: number;
+    seed: number;
+    capabilities: AutoMovieFormationCapability[];
+    heroOverrides: Array<{ slot: number; actor: string }>;
+  } = { ...formation, ground: [] };
+  const footprint: {
+    bounds: IAutoMovieFormationBounds;
+    centroid: IAutoMovieVector3;
+  } = summarizeCompiledSlotRange(
+    0,
+    formation.count,
+    (slot: number): IAutoMovieVector3 => formationSlotPosition(flat, slot),
   );
-  const ground: IAutoMovieWorldSurface[] = surfaces.filter((surface: IAutoMovieWorldSurface) : boolean =>
-    reachesFootprint(surface.polygon, footprint.bounds),
+  const ground: IAutoMovieWorldSurface[] = surfaces.filter(
+    (surface: IAutoMovieWorldSurface): boolean =>
+      reachesFootprint(surface.polygon, footprint.bounds),
   );
   return ground.length === 0
     ? { formation: flat, ground: [], footprint }
@@ -167,7 +295,10 @@ const groundFormation: (formation: IAutoMovieFormationDesign, surfaces: readonly
 };
 
 /** Does a surface footprint's XZ extent reach a formation's XZ extent? */
-const reachesFootprint: (polygon: IAutoMovieWorldSurface [ "polygon" ], bounds: IAutoMovieCompiledFormation [ "bounds" ]) => boolean = (
+const reachesFootprint: (
+  polygon: IAutoMovieWorldSurface["polygon"],
+  bounds: IAutoMovieCompiledFormation["bounds"],
+) => boolean = (
   polygon: IAutoMovieWorldSurface["polygon"],
   bounds: IAutoMovieCompiledFormation["bounds"],
 ): boolean => {
