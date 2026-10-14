@@ -9,14 +9,14 @@ import type { IHumanBodyUnderwearSurfaceEvaluation } from "./IHumanBodyUnderwear
 /**
  * Differentiate the same area-normal, shortest-arc and unit-normal operations used by the actual garment evaluator, with respect to candidate base XYZ.
  *
- * Triangle area derivatives assemble each vertex's actual one-ring dependence. Area-normal projection removes its radial derivative. The engine's explicit sin < 1e-12 branches are constant in the fitted direction, including its deterministic antiparallel turn; their derivative is zero in the branch interior. The exact switching boundary has no shared derivative.
+ * Triangle area derivatives assemble each vertex's actual one-ring dependence. Area-normal projection removes its radial derivative. Every represented nonzero cross product follows the engine's regular shortest arc, including arbitrarily small turns. Exact parallel directions use the shortest-arc derivative's continuous limit; antiparallel directions remain unavailable because the deterministic half-turn does not define that limit.
  *
  * The regular branch differentiates its quaternion and rotateVector expression, including the final returned-normal normalization. This is an analytic local real-arithmetic model of that forward branch, not the derivative of binary64 rounding. Nonzero finite normal and representable derivative requirements are reported explicitly. The evaluator alone accepts an actual candidate.
  *
  * @evidence contracts/common.md#principled-implementation Indexed face area derivatives assemble actual one-ring dependence, then analytic normalization, shortest-arc quaternion transport and returned-normal normalization follow the same forward branch.
  * @evidence contracts/common.md#clear-and-simple-design A compiled original normal array serves a candidate reader with per-vertex sparse derivatives and located unavailability; vector operations remain local to this analytic transport model.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Nonzero finite frames, represented derivatives and exact forward-normal agreement are required; switching boundaries remain unavailable and branch-interior derivatives are not derivatives of binary64 rounding or proof of accepted geometry.
- * @evidence contracts/common.md#meaningful-documentation The comment identifies candidate XYZ coordinates, one-ring support, the engine's 1e-12 branch policy, analytic real-arithmetic scope and separate forward acceptance.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Nonzero finite frames, represented derivatives and exact forward-normal agreement are required; antiparallel and nonfinite states remain unavailable, and analytic derivatives are not derivatives of binary64 rounding or proof of accepted geometry.
+ * @evidence contracts/common.md#meaningful-documentation The comment identifies candidate XYZ coordinates, one-ring support, the parallel limit and antiparallel unavailability, analytic real-arithmetic scope and separate forward acceptance.
  * @evidence contracts/performance.md#efficient-algorithms Face assembly costs linear face work; per-vertex normalization and transport walk actual sparse one-ring entries, retaining O(V plus sparse dependency entries) candidate storage rather than a dense all-vertex Jacobian.
  * @evidence contracts/performance.md#reuse-equivalent-work Original area normals compile once, and accumulated candidate area derivatives are reused through each vertex's normal/rotation chain before the owning lift reader reuses the result.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The closure retains input and original normals; candidate maps and unavailable records escape only in the returned result, scratch vectors expire, and no external handle or asynchronous work is acquired.
@@ -67,8 +67,8 @@ export function createHumanBodyUnderwearNormalLinearizer(
       }
       const axis: number[] = cross(a, b);
       const sin: number = Vector3.length(vector(axis)), cos: number = dot(a, b);
-      if (!Number.isFinite(sin) || !Number.isFinite(cos) || sin === 1e-12) {
-        fail("Actual shortest-arc branch is nonfinite or exactly at its derivative switching boundary.");
+      if (!Number.isFinite(sin) || !Number.isFinite(cos) || (sin === 0 && cos < 0)) {
+        fail("Actual shortest-arc branch is nonfinite or antiparallel, outside this derivative's domain.");
         continue;
       }
       const quaternion: ReturnType<typeof rotationBetween> = rotationBetween(vector(a), vector(b));
@@ -82,13 +82,12 @@ export function createHumanBodyUnderwearNormalLinearizer(
         fail("Actual returned normal is nonfinite, zero, or belongs to a different forward evaluation.");
         continue;
       }
-      if (sin < 1e-12) continue;
-      const axisLength: number = Math.sqrt(dot(axis, axis));
+      const axisLength: number = sin;
       const theta: number = Math.atan2(sin, cos);
       const angleDegrees: number = (theta * 180) / Math.PI;
       const half: number = (angleDegrees * (Math.PI / 180)) / 2;
-      const factor: number = Math.sin(half) / axisLength;
-      const axisUnit: number[] = axis.map((value: number): number => value / axisLength);
+      const factor: number = sin === 0 ? 0.5 : Math.sin(half) / axisLength;
+      const axisUnit: number[] = axis.map((value: number): number => sin === 0 ? 0 : value / axisLength);
       const qxyz: number[] = [quaternion.x, quaternion.y, quaternion.z];
       const turn: number[] = cross(qxyz, source).map((value: number): number => 2 * value);
       let unavailable: boolean = false;
@@ -97,18 +96,19 @@ export function createHumanBodyUnderwearNormalLinearizer(
         const db: number[] = reduced.map((value: number, coordinate: number): number =>
           (value - b[coordinate] * dot(b, reduced)) / areaLength);
         const daxis: number[] = cross(a, db);
-        const dsin: number = dot(axis, daxis) / sin;
+        const dsin: number = dot(axisUnit, daxis);
         const dcos: number = dot(a, db);
         const dtheta: number = (cos * dsin - sin * dcos) / (sin * sin + cos * cos);
         const dhalf: number = ((dtheta * 180) / Math.PI * (Math.PI / 180)) / 2;
-        const dAxisLength: number = dot(axis, daxis) / axisLength;
+        const dAxisLength: number = dsin;
         // Differentiate axis * sin(half)/length in projected form. This is the
         // same chain, avoiding subtraction of two large radial scalar terms
         // near the existing parallel branch boundary.
         const dqxyz: number[] = daxis.map((value: number, coordinate: number): number =>
-          (value - axisUnit[coordinate] * dAxisLength) * factor
-          + axisUnit[coordinate] * Math.cos(half) * dhalf);
-        const dqw: number = -Math.sin(half) * dhalf;
+          sin === 0 ? value * 0.5 :
+            (value - axisUnit[coordinate] * dAxisLength) * factor
+            + axisUnit[coordinate] * Math.cos(half) * dhalf);
+        const dqw: number = sin === 0 ? 0 : -Math.sin(half) * dhalf;
         const dturn: number[] = cross(dqxyz, source).map((value: number): number => 2 * value);
         const firstCross: number[] = cross(dqxyz, turn), secondCross: number[] = cross(qxyz, dturn);
         const dr: number[] = dturn.map((value: number, coordinate: number): number =>
