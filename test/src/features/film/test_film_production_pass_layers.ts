@@ -1,11 +1,13 @@
-import {
-  type IAutoMovieProductionRenderFrame,
-  productionRenderLayersForPass,
-} from "@automovie/engine";
+import type { IAutoMovieProductionRenderFrame } from "../../../../packages/engine/src/film/IAutoMovieProductionRenderFrame";
+import type { IAutoMovieProductionRenderLayer } from "../../../../packages/engine/src/film/IAutoMovieProductionRenderLayer";
+import { productionRenderLayersForPass } from "../../../../packages/engine/src/film/productionRenderLayersForPass";
 import type { AutoMovieGuidePass } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-const frame = (
+import { nclose } from "../internal/predicates";
+import { sameFilmProductionRenderLayers } from "../internal/sameFilmProductionRenderLayers";
+
+const frame: (layers: IAutoMovieProductionRenderFrame["layers"]) => IAutoMovieProductionRenderFrame = (
   layers: IAutoMovieProductionRenderFrame["layers"],
 ): IAutoMovieProductionRenderFrame => ({
   globalFrame: 4,
@@ -15,41 +17,33 @@ const frame = (
 });
 
 /**
- * Beauty keeps a transition's blend; structural passes never blend shots.
- *
- * A structural pass encodes a classification or a geometric field, so mixing
- * two shots' values would invent a value neither shot drew. The expectation is
- * the requirement's rule itself: beauty receives the sampled layers unchanged,
- * and every structural pass receives the single heaviest layer at full weight,
- * with the incoming layer winning an exact tie.
+ * Selects render layers for beauty and all five structural passes, checking copy isolation, heavier-layer selection, incoming tie precedence and fade preservation/full structural weight.
  *
  * Scenarios:
+ * 1. Preserve beauty blend weights after mutating the earlier returned copy.
+ * 2. Select outgoing/incoming heavier neighbours for all five structural passes.
+ * 3. Select the incoming layer at an exact mask-pass tie.
+ * 4. Keep singleton fade weight for beauty and full weight for depth.
  *
- * 1. Beauty returns the dissolve's two layers unchanged, and mutating the result
- *    leaves the sampled frame intact.
- * 2. Every structural pass selects the outgoing layer when it is heavier and
- *    the incoming layer when it is heavier, at weight 1.
- * 3. An exact half-and-half dissolve selects the incoming layer.
- * 4. A single fading layer keeps its source frame and is raised to full weight
- *    for a structural pass while beauty keeps the fade weight.
+ * @evidence contracts/testing.md#behavioral-verification Selects render layers for beauty and all five structural passes, checking copy isolation, heavier-layer selection, incoming tie precedence and fade preservation/full structural weight.
+ * @evidence contracts/testing.md#independent-expectations The guide contract selects the maximum weight with later-entry tie precedence; beauty preserves authored weights. Expected identities and integer source frames are authored independently, while no rendered compositing is observed.
+ * @evidence contracts/testing.md#distinguishing-cases All five structural passes see both heavier-layer neighbours. Exact tie is exercised on mask, singleton fade on depth/beauty and copy mutation on beauty; empty-layer failure is not exercised here.
+ * @evidence contracts/testing.md#execution-ownership The discoverable synchronous test_film_production_pass_layers unit entry owns its assertions and delegated helpers through portable source functions; it opens no process, browser, GPU or installed consumer.
  */
-export const test_film_production_pass_layers = (): void => {
-  const outgoingHeavy = frame([
+export function test_film_production_pass_layers(): void {
+  const outgoingHeavy: IAutoMovieProductionRenderFrame = frame([
     { shot: "a", sourceFrame: 20, weight: 0.75 },
     { shot: "b", sourceFrame: 3, weight: 0.25 },
   ]);
-  const beauty = productionRenderLayersForPass(outgoingHeavy, "beauty");
+  const beauty: IAutoMovieProductionRenderLayer[] = productionRenderLayersForPass(outgoingHeavy, "beauty");
   beauty[0]!.weight = 0;
-  TestValidator.equals(
+  TestValidator.predicate(
     "beauty keeps the sampled blend and returns a copy",
-    [productionRenderLayersForPass(outgoingHeavy, "beauty"), beauty[0]!.weight],
-    [
+    sameFilmProductionRenderLayers(productionRenderLayersForPass(outgoingHeavy, "beauty"),
       [
         { shot: "a", sourceFrame: 20, weight: 0.75 },
         { shot: "b", sourceFrame: 3, weight: 0.25 },
-      ],
-      0,
-    ],
+      ]) && nclose(beauty[0]!.weight, 0),
   );
 
   const structural: AutoMovieGuidePass[] = [
@@ -59,42 +53,30 @@ export const test_film_production_pass_layers = (): void => {
     "outline",
     "pose",
   ];
-  const incomingHeavy = frame([
+  const incomingHeavy: IAutoMovieProductionRenderFrame = frame([
     { shot: "a", sourceFrame: 21, weight: 0.25 },
     { shot: "b", sourceFrame: 4, weight: 0.75 },
   ]);
-  TestValidator.equals(
+  TestValidator.predicate(
     "structural passes select the heavier layer at full weight",
-    structural.map((pass) => [
-      productionRenderLayersForPass(outgoingHeavy, pass),
-      productionRenderLayersForPass(incomingHeavy, pass),
-    ]),
-    structural.map(() => [
-      [{ shot: "a", sourceFrame: 20, weight: 1 }],
-      [{ shot: "b", sourceFrame: 4, weight: 1 }],
-    ]),
+    structural.every((pass: AutoMovieGuidePass): boolean =>
+      sameFilmProductionRenderLayers(productionRenderLayersForPass(outgoingHeavy, pass), [{ shot: "a", sourceFrame: 20, weight: 1 }]) &&
+      sameFilmProductionRenderLayers(productionRenderLayersForPass(incomingHeavy, pass), [{ shot: "b", sourceFrame: 4, weight: 1 }])),
   );
-  TestValidator.equals(
+  TestValidator.predicate(
     "an exact tie selects the incoming layer",
-    productionRenderLayersForPass(
+    sameFilmProductionRenderLayers(productionRenderLayersForPass(
       frame([
         { shot: "a", sourceFrame: 20, weight: 0.5 },
         { shot: "b", sourceFrame: 3, weight: 0.5 },
       ]),
       "mask",
-    ),
-    [{ shot: "b", sourceFrame: 3, weight: 1 }],
+    ), [{ shot: "b", sourceFrame: 3, weight: 1 }]),
   );
-  const fading = frame([{ shot: "f", sourceFrame: 9, weight: 0.25 }]);
-  TestValidator.equals(
+  const fading: IAutoMovieProductionRenderFrame = frame([{ shot: "f", sourceFrame: 9, weight: 0.25 }]);
+  TestValidator.predicate(
     "a fading layer is full weight for structure and faded for beauty",
-    [
-      productionRenderLayersForPass(fading, "depth"),
-      productionRenderLayersForPass(fading, "beauty"),
-    ],
-    [
-      [{ shot: "f", sourceFrame: 9, weight: 1 }],
-      [{ shot: "f", sourceFrame: 9, weight: 0.25 }],
-    ],
+    sameFilmProductionRenderLayers(productionRenderLayersForPass(fading, "depth"), [{ shot: "f", sourceFrame: 9, weight: 1 }]) &&
+    sameFilmProductionRenderLayers(productionRenderLayersForPass(fading, "beauty"), [{ shot: "f", sourceFrame: 9, weight: 0.25 }]),
   );
-};
+}

@@ -1,4 +1,4 @@
-import { resolvePoseKeypoints } from "@automovie/engine";
+import { resolvePoseKeypoints } from "../../../../packages/engine/src/film/resolvePoseKeypoints";
 import {
   AutoMovieHumanoidBone,
   IAutoMovieCamera,
@@ -6,22 +6,25 @@ import {
   IAutoMovieDeliveryCrop,
   IAutoMoviePose,
   IAutoMoviePoseKeypoint,
+  IAutoMovieQuaternion,
   IAutoMovieSkeleton,
   IAutoMovieTransform,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { namedFacts, nclose } from "../internal/predicates";
+import { nclose } from "../internal/predicates";
 
-const IDENTITY_Q = { x: 0, y: 0, z: 0, w: 1 };
-const t3 = (x: number, y: number, z: number): IAutoMovieTransform => ({
+const IDENTITY_Q: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
+const t3: (x: number, y: number, z: number) => IAutoMovieTransform = (x: number, y: number, z: number): IAutoMovieTransform => ({
   translation: { x, y, z },
   rotation: IDENTITY_Q,
   scale: { x: 1, y: 1, z: 1 },
 });
 
-/** Hips at the rig origin, head at `headRest` above it. */
-const skeleton = (headRest: IAutoMovieTransform): IAutoMovieSkeleton => ({
+/**
+ * Hips at the rig origin, head at `headRest` above it.
+ */
+const skeleton: (headRest: IAutoMovieTransform) => IAutoMovieSkeleton = (headRest: IAutoMovieTransform): IAutoMovieSkeleton => ({
   id: "sk",
   bones: [
     { bone: "hips", parent: null, rest: t3(0, 0, 0), constraint: null },
@@ -29,14 +32,16 @@ const skeleton = (headRest: IAutoMovieTransform): IAutoMovieSkeleton => ({
   ],
 });
 
-/** An articulation-free pose whose rig root sits at (x, y, z). */
-const poseAt = (x: number, y: number, z: number): IAutoMoviePose => ({
+/**
+ * An articulation-free pose whose rig root sits at (x, y, z).
+ */
+const poseAt: (x: number, y: number, z: number) => IAutoMoviePose = (x: number, y: number, z: number): IAutoMoviePose => ({
   skeleton: "sk",
   root: t3(x, y, z),
   joints: [],
 });
 
-const camera = (over: Partial<IAutoMovieCamera> = {}): IAutoMovieCamera => ({
+const camera: (over?: Partial<IAutoMovieCamera>) => IAutoMovieCamera = (over: Partial<IAutoMovieCamera> = {}): IAutoMovieCamera => ({
   id: "cam",
   transform: t3(0, 0, 0),
   fovY: 60,
@@ -49,7 +54,7 @@ const camera = (over: Partial<IAutoMovieCamera> = {}): IAutoMovieCamera => ({
   },
 });
 
-const keypoints = (props: {
+const keypoints: (props: { pose: IAutoMoviePose; headRest?: IAutoMovieTransform; node?: IAutoMovieTransform; camera?: IAutoMovieCamera; joints?: readonly AutoMovieHumanoidBone[]; aspect?: number; crop?: IAutoMovieDeliveryCrop; cameraMotion?: IAutoMovieClip | null; time?: number }) => IAutoMoviePoseKeypoint[] = (props: {
   pose: IAutoMoviePose;
   headRest?: IAutoMovieTransform;
   node?: IAutoMovieTransform;
@@ -72,80 +77,58 @@ const keypoints = (props: {
     time: props.time,
   });
 
-const of = (ks: IAutoMoviePoseKeypoint[], bone: string) =>
-  ks.find((k) => k.bone === bone)!;
+const of: (ks: IAutoMoviePoseKeypoint[], bone: string) => IAutoMoviePoseKeypoint = (ks: IAutoMoviePoseKeypoint[], bone: string): IAutoMoviePoseKeypoint =>
+  ks.find((k: IAutoMoviePoseKeypoint): boolean => k.bone === bone)!;
 
 /**
- * `resolvePoseKeypoints` (#1168) projects a posed actor's named joints to 2D
- * screen keypoints: the exact OpenPose-style ControlNet conditioning automovie
- * can emit from its known 3D joint positions. Coordinates are normalized to the
- * frame ([0,1], top-left origin); out-of-frame joints project honestly (never
- * clamped) with `inFrame: false`.
+ * Projects authored hip/head rig positions and checks normalized coordinates, crop-boundary admission, unclamped outside points, missing joints, node placement, aspect and sampled static camera.
  *
- * Scenarios (camera at origin looking down −Z, fovY 60):
+ * Scenarios:
+ * 1. Project centered hips and a one-metre head, including a crop boundary.
+ * 2. Preserve unclamped high/side coordinates and mark behind/far joints outside.
+ * 3. Omit a missing joint and intersect the default set with the actual two-bone rig.
+ * 4. Apply raised node placement, square aspect and a sampled static camera clip.
  *
- * 1. A rig 5 m down −Z projects hips to frame center (0.5, 0.5) and the head 1 m
- *    above it to y ≈ 0.327: both in frame.
- * 2. A joint high above, behind the camera, past the far plane, or beside the
- *    frame each projects out of [0,1] with inFrame false and is NOT clamped.
- * 3. A bone the rig lacks yields no keypoint; the default joint set emits only the
- *    bones the rig has.
- * 4. The staged node transform and an explicit aspect change the projection; the
- *    camera can be sampled from a move at a given time.
+ * @evidence contracts/testing.md#behavioral-verification Projects authored hip/head rig positions and checks normalized coordinates, crop-boundary admission, unclamped outside points, missing joints, node placement, aspect and sampled static camera.
+ * @evidence contracts/testing.md#independent-expectations A 60-degree vertical pinhole lens maps the one-metre head at five-metre depth to y=(1-1/(5*tan(pi/6)))/2; centered hips and authored clip/crop bounds give the other expectations. This arithmetic tests portable projection, not ControlNet quality or rendered pixels.
+ * @evidence contracts/testing.md#distinguishing-cases Preserves two joints, high/behind/far/beside positions, missing/default joint sets, crop boundary, raised node, square aspect and static camera sample; no nonstatic camera path is asserted here.
+ * @evidence contracts/testing.md#execution-ownership The discoverable synchronous test_film_pose_keypoints unit entry owns its assertions and delegated helpers through portable source functions; it opens no process, browser, GPU or installed consumer.
  */
-export const test_film_pose_keypoints = (): void => {
+export function test_film_pose_keypoints(): void {
   // 1. basic projection.
-  const centered = keypoints({ pose: poseAt(0, 0, -5) });
+  const centered: IAutoMoviePoseKeypoint[] = keypoints({ pose: poseAt(0, 0, -5) });
   TestValidator.equals("hips + head keypoints", centered.length, 2);
-  const hips = of(centered, "hips");
-  const head = of(centered, "head");
-  TestValidator.equals(
+  const hips: IAutoMoviePoseKeypoint = of(centered, "hips");
+  const head: IAutoMoviePoseKeypoint = of(centered, "head");
+  TestValidator.predicate(
     "hips project to frame center, in frame",
-    namedFacts([
-      ["ncloseHipsX", () => nclose(hips.x, 0.5)],
-      ["ncloseHipsY", () => nclose(hips.y, 0.5)],
-      ["hipsInFrame", () => hips.inFrame],
-    ]),
-    { ncloseHipsX: true, ncloseHipsY: true, hipsInFrame: true },
+    nclose(hips.x, 0.5) && nclose(hips.y, 0.5) && hips.inFrame,
   );
-  TestValidator.equals(
+  TestValidator.predicate(
     "the head 1 m up projects above center, in frame",
-    namedFacts([
-      ["ncloseHeadX", () => nclose(head.x, 0.5)],
-      ["ncloseHeadY", () => nclose(head.y, 0.3267949, 1e-6)],
-      ["headInFrame", () => head.inFrame],
-    ]),
-    { ncloseHeadX: true, ncloseHeadY: true, headInFrame: true },
+    nclose(head.x, 0.5) &&
+      nclose(head.y, (1 - 1 / (5 * Math.tan(Math.PI / 6))) / 2, 1e-6) && head.inFrame,
   );
-  const croppedHips = of(
+  const croppedHips: IAutoMoviePoseKeypoint = of(
     keypoints({
       pose: poseAt(0, 0, -5),
       crop: { left: 0.5, top: 0, right: 1, bottom: 1 },
     }),
     "hips",
   );
-  TestValidator.equals(
+  TestValidator.predicate(
     "a keypoint on the crop boundary maps to the output edge and stays in frame",
-    namedFacts([
-      ["leftEdge", () => nclose(croppedHips.x, 0)],
-      ["verticalCenter", () => nclose(croppedHips.y, 0.5)],
-      ["inFrame", () => croppedHips.inFrame],
-    ]),
-    { leftEdge: true, verticalCenter: true, inFrame: true },
+    nclose(croppedHips.x, 0) && nclose(croppedHips.y, 0.5) && croppedHips.inFrame,
   );
 
   // 2. out-of-frame joints project honestly (unclamped) with inFrame false.
-  const high = of(
+  const high: IAutoMoviePoseKeypoint = of(
     keypoints({ pose: poseAt(0, 0, -5), headRest: t3(0, 20, 0) }),
     "head",
   );
-  TestValidator.equals(
+  TestValidator.predicate(
     "a joint high above the frame is out, not clamped",
-    namedFacts([
-      ["outOfFrame", () => high.inFrame === false],
-      ["aboveUnclamped", () => high.y < 0],
-    ]),
-    { outOfFrame: true, aboveUnclamped: true },
+    high.inFrame === false && high.y < 0,
   );
   TestValidator.equals(
     "a joint behind the camera is out",
@@ -157,14 +140,10 @@ export const test_film_pose_keypoints = (): void => {
     of(keypoints({ pose: poseAt(0, 0, -200) }), "hips").inFrame,
     false,
   );
-  const beside = of(keypoints({ pose: poseAt(20, 0, -5) }), "hips");
-  TestValidator.equals(
+  const beside: IAutoMoviePoseKeypoint = of(keypoints({ pose: poseAt(20, 0, -5) }), "hips");
+  TestValidator.predicate(
     "a joint beside the frame is out, not clamped",
-    namedFacts([
-      ["outOfFrame", () => beside.inFrame === false],
-      ["besideUnclamped", () => beside.x > 1],
-    ]),
-    { outOfFrame: true, besideUnclamped: true },
+    beside.inFrame === false && beside.x > 1,
   );
 
   // 3. missing bone + default joint set.
@@ -185,7 +164,7 @@ export const test_film_pose_keypoints = (): void => {
   );
 
   // 4. node placement, aspect, and a sampled camera move.
-  const raised = of(
+  const raised: IAutoMoviePoseKeypoint = of(
     keypoints({ pose: poseAt(0, 0, -5), node: t3(0, 3, 0) }),
     "hips",
   );
@@ -199,7 +178,7 @@ export const test_film_pose_keypoints = (): void => {
     of(keypoints({ pose: poseAt(4, 0, -5), aspect: 1 }), "hips").inFrame,
     false,
   );
-  const still = of(
+  const still: IAutoMoviePoseKeypoint = of(
     keypoints({
       pose: poseAt(0, 0, -5),
       cameraMotion: {
@@ -220,12 +199,8 @@ export const test_film_pose_keypoints = (): void => {
     }),
     "hips",
   );
-  TestValidator.equals(
+  TestValidator.predicate(
     "a sampled static camera move keeps the subject centered",
-    namedFacts([
-      ["centered", () => nclose(still.x, 0.5)],
-      ["inFrame", () => still.inFrame],
-    ]),
-    { centered: true, inFrame: true },
+    nclose(still.x, 0.5) && still.inFrame,
   );
-};
+}

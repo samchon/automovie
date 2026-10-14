@@ -1,7 +1,12 @@
-import { performShot, stageScene } from "@automovie/engine";
+import { IAutoMoviePerformedShot } from "../../../../packages/engine/src/film/IAutoMoviePerformedShot";
+import { IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
+import { performShot } from "../../../../packages/engine/src/film/performShot";
+import { stageScene } from "../../../../packages/engine/src/film/stageScene";
 import {
   IAutoMovieActionCall,
   IAutoMovieCameraAction,
+  IAutoMovieConstraintViolation,
+  IAutoMovieSkeleton,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -14,7 +19,7 @@ import {
 import { createSkeleton } from "../internal/fixtures";
 import { hasViolation, namedFacts } from "../internal/predicates";
 
-const locomote = (gait: string): IAutoMovieActionCall => ({
+const locomote: (gait: string) => IAutoMovieActionCall = (gait: string): IAutoMovieActionCall => ({
   verb: "locomote",
   actor: "knightA",
   start: 0,
@@ -33,14 +38,14 @@ const frame: IAutoMovieCameraAction = {
   on: { kind: "node", node: "knightA" },
 };
 
-const run = (
+const run: (gait: string, gaits: ((node: string) => readonly string[] | undefined) | undefined) => IAutoMoviePerformedShot = (
   gait: string,
   gaits: ((node: string) => readonly string[] | undefined) | undefined,
-) =>
+): IAutoMoviePerformedShot =>
   performShot({
     script: makeScriptWrite(),
-    staged: (() => {
-      const s = stageScene(makeScriptWrite(), makeStagingWrite());
+    staged: ((): IAutoMovieStagedSet.ISuccess => {
+      const s: IAutoMovieStagedSet = stageScene(makeScriptWrite(), makeStagingWrite());
       if (s.success !== true) throw new Error("staging must succeed");
       return s;
     })(),
@@ -49,30 +54,32 @@ const run = (
       revise: { review: "unchanged.", final: null },
     }),
     synthesize: validSynthesizer,
-    skeleton: () => createSkeleton(),
+    skeleton: (): IAutoMovieSkeleton => createSkeleton(),
     ...(gaits === undefined ? {} : { gaits }),
   });
 
 /**
- * The `locomote` gait gate. `gait` is a free string resolved by name against
- * the gaits the actor's context supplies; the reference synthesiser would
- * otherwise return no motion for an unknown one, silently freezing the actor.
- * With the `gaits` lookup wired, an unresolved gait is a `type` violation on
- * `$input.draft[i].gait`; without it the check is skipped (byte-identical to
- * before the gate existed).
+ * Performs locomote with a supplied gait vocabulary and checks admitted names, located unknown-name messages, empty vocabulary and omitted or undefined lookup behavior.
  *
- * Cases: (a) a supplied gait passes; (b) an unsupplied gait is reported with
- * the actor's available names; (c) an actor with no gaits reads "none
- * supplied"; (d) omitting the lookup skips the gate entirely even for an
- * unknown gait.
+ * Scenarios:
+ * 1. Accept a gait in the supplied vocabulary.
+ * 2. Refuse an absent gait and name the available choices.
+ * 3. Report an empty vocabulary as none supplied.
+ * 4. Skip vocabulary admission when its lookup is omitted.
+ * 5. Skip vocabulary admission when the actor lookup returns undefined.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Performs locomote with a supplied gait vocabulary and checks admitted names, located unknown-name messages, empty vocabulary and omitted or undefined lookup behavior.
+ * @evidence contracts/testing.md#independent-expectations The callback's authored walk/run names define membership; the contract skips admission when the lookup or actor's set is undefined. Successful admission with the fixture synthesizer does not prove a real gait animates.
+ * @evidence contracts/testing.md#distinguishing-cases Preserves present, absent, empty, omitted lookup and undefined actor-set cases; shipped gait synthesis has its own entry.
+ * @evidence contracts/testing.md#execution-ownership The discoverable synchronous test_film_perform_shot_gait_gate unit entry owns its assertions and delegated helpers through portable source functions; it opens no process, browser, GPU or installed consumer.
  */
-export const test_film_perform_shot_gait_gate = (): void => {
+export function test_film_perform_shot_gait_gate(): void {
   // (a) gait present in the supplied set → no gait violation
-  const present = run("walk", () => ["walk", "run"]);
+  const present: IAutoMoviePerformedShot = run("walk", (): string[] => ["walk", "run"]);
   TestValidator.equals("supplied gait passes the gate", present.success, true);
 
   // (b) gait absent, actor supplies some gaits → violation names them
-  const absent = run("march", () => ["walk", "run"]);
+  const absent: IAutoMoviePerformedShot = run("march", (): string[] => ["walk", "run"]);
   TestValidator.equals("unsupplied gait fails the gate", absent.success, false);
   TestValidator.predicate(
     "unsupplied gait is reported on $input.draft[0].gait",
@@ -81,13 +88,13 @@ export const test_film_perform_shot_gait_gate = (): void => {
   TestValidator.equals(
     "the violation lists the actor's available gaits",
     namedFacts([
-      ["refused", () => absent.success === false],
+      ["refused", (): boolean => absent.success === false],
       [
         "violated",
-        () =>
+        (): boolean =>
           absent.success === false &&
           absent.violations.some(
-            (v) =>
+            (v: IAutoMovieConstraintViolation): boolean =>
               v.path.includes("[0].gait") &&
               v.expected.includes("walk, run") &&
               v.expected.includes('"march"'),
@@ -98,17 +105,17 @@ export const test_film_perform_shot_gait_gate = (): void => {
   );
 
   // (c) actor supplies no gaits → "none supplied"
-  const none = run("march", () => []);
+  const none: IAutoMoviePerformedShot = run("march", (): string[] => []);
   TestValidator.equals(
     "an actor with no gaits reads 'none supplied'",
     namedFacts([
-      ["refused", () => none.success === false],
+      ["refused", (): boolean => none.success === false],
       [
         "violated",
-        () =>
+        (): boolean =>
           none.success === false &&
           none.violations.some(
-            (v) =>
+            (v: IAutoMovieConstraintViolation): boolean =>
               v.path.includes("[0].gait") &&
               v.expected.includes("none supplied"),
           ),
@@ -117,8 +124,8 @@ export const test_film_perform_shot_gait_gate = (): void => {
     { refused: true, violated: true },
   );
 
-  // (d) lookup omitted → gate skipped even for an unknown gait (byte-identical)
-  const skipped = run("march", undefined);
+  // (d) lookup omitted → gate skipped even for an unknown gait.
+  const skipped: IAutoMoviePerformedShot = run("march", undefined);
   TestValidator.equals(
     "omitting the gaits lookup skips the gate",
     skipped.success,
@@ -126,10 +133,10 @@ export const test_film_perform_shot_gait_gate = (): void => {
   );
 
   // (d') lookup present but returns undefined for the actor → also skipped
-  const unknownActor = run("march", () => undefined);
+  const unknownActor: IAutoMoviePerformedShot = run("march", (): undefined => undefined);
   TestValidator.equals(
     "an undefined gait set for the actor skips the gate",
     unknownActor.success,
     true,
   );
-};
+}

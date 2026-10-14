@@ -1,4 +1,8 @@
-import { performShot, stageScene } from "@automovie/engine";
+import { performShot } from "../../../../packages/engine/src/film/performShot";
+import { IAutoMoviePerformedShot } from "../../../../packages/engine/src/film/IAutoMoviePerformedShot";
+import { IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
+import { IAutoMovieScript, IAutoMovieSkeleton } from "@automovie/interface";
+import { stageScene } from "../../../../packages/engine/src/film/stageScene";
 import { TestValidator } from "@nestia/e2e";
 
 import {
@@ -11,22 +15,25 @@ import { createSkeleton } from "../internal/fixtures";
 import { hasViolation, namedFacts } from "../internal/predicates";
 
 /**
- * Performance consumes script and staged objects directly. Matching blank ids
- * can satisfy existence checks while still producing unusable shot, actor,
- * camera, and target references for downstream assembly/rendering.
+ * Performs an explicitly staged world with matching blank beat, actor, camera and frame-target ids; checks refusal at every original owning field.
  *
- * Scenario: blank beat, gesture actor, frame camera, and frame node target
- * references fail at their own fields.
+ * Scenarios:
+ * 1. Retains simultaneous blank beat/actor/camera/node subjects, including space and tab spellings; nonblank positive admission belongs to perform_shot_valid.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Performs an explicitly staged world with matching blank beat, actor, camera and frame-target ids; checks refusal at every original owning field.
+ * @evidence contracts/testing.md#independent-expectations Whitespace-only references violate the nonblank identity contract even when matching staged ids exist; independent authored field paths identify each failure.
+ * @evidence contracts/testing.md#distinguishing-cases Retains simultaneous blank beat/actor/camera/node subjects, including space and tab spellings; nonblank positive admission belongs to perform_shot_valid.
+ * @evidence contracts/testing.md#execution-ownership The discoverable synchronous test_film_perform_shot_nonempty_refs unit entry owns its assertions and delegated helpers through portable source functions; it opens no process, browser, GPU or installed consumer.
  */
-export const test_film_perform_shot_nonempty_refs = (): void => {
-  const baseScript = makeScriptWrite();
-  const baseStaged = stageScene(baseScript, makeStagingWrite());
+export function test_film_perform_shot_nonempty_refs(): void {
+  const baseScript: IAutoMovieScript = makeScriptWrite();
+  const baseStaged: IAutoMovieStagedSet = stageScene(baseScript, makeStagingWrite());
   if (baseStaged.success !== true) throw new Error("staging must succeed");
 
-  const script = makeScriptWrite({
+  const script: IAutoMovieScript = makeScriptWrite({
     beats: [{ ...baseScript.beats[0]!, id: " " }],
   });
-  const staged = {
+  const staged: IAutoMovieStagedSet.ISuccess = {
     ...baseStaged,
     scene: {
       ...baseStaged.scene,
@@ -35,7 +42,7 @@ export const test_film_perform_shot_nonempty_refs = (): void => {
     },
   };
 
-  const performed = performShot({
+  const performed: IAutoMoviePerformedShot = performShot({
     script,
     staged,
     performance: makePerformanceWrite({
@@ -61,17 +68,17 @@ export const test_film_perform_shot_nonempty_refs = (): void => {
       revise: { review: "unchanged.", final: null },
     }),
     synthesize: validSynthesizer,
-    skeleton: () => createSkeleton(),
+    skeleton: (): IAutoMovieSkeleton => createSkeleton(),
   });
 
   TestValidator.equals("blank performance refs fail", performed.success, false);
   TestValidator.equals(
     "beat id violation",
     namedFacts([
-      ["refused", () => performed.success === false],
+      ["refused", (): boolean => performed.success === false],
       [
         "violated",
-        () =>
+        (): boolean =>
           performed.success === false &&
           hasViolation(performed, "type", "$input.beat"),
       ],
@@ -81,10 +88,10 @@ export const test_film_perform_shot_nonempty_refs = (): void => {
   TestValidator.equals(
     "action actor violation",
     namedFacts([
-      ["refused", () => performed.success === false],
+      ["refused", (): boolean => performed.success === false],
       [
         "violated",
-        () =>
+        (): boolean =>
           performed.success === false &&
           hasViolation(performed, "type", "$input.draft[0].actor"),
       ],
@@ -94,10 +101,10 @@ export const test_film_perform_shot_nonempty_refs = (): void => {
   TestValidator.equals(
     "frame camera actor violation",
     namedFacts([
-      ["refused", () => performed.success === false],
+      ["refused", (): boolean => performed.success === false],
       [
         "violated",
-        () =>
+        (): boolean =>
           performed.success === false &&
           hasViolation(performed, "type", "$input.draft[1].actor"),
       ],
@@ -107,14 +114,14 @@ export const test_film_perform_shot_nonempty_refs = (): void => {
   TestValidator.equals(
     "frame node target violation",
     namedFacts([
-      ["refused", () => performed.success === false],
+      ["refused", (): boolean => performed.success === false],
       [
         "violated",
-        () =>
+        (): boolean =>
           performed.success === false &&
           hasViolation(performed, "type", "$input.draft[1].on.node"),
       ],
     ]),
     { refused: true, violated: true },
   );
-};
+}

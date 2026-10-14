@@ -8,8 +8,11 @@ import { sequenceTimeline } from "../../../../packages/engine/src/film/sequenceT
 import { IAutoMovieSequence, IAutoMovieShot } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { namedFacts, nclose, throwsError } from "../internal/predicates";
+import { nclose, throwsError } from "../internal/predicates";
 
+/**
+ * Builds an authored empty-motion shot with a supplied id and span; its playback entry owns assertions derived from the stated trims, overlap clocks and boundaries.
+ */
 function shot (id: string, duration: number): IAutoMovieShot { return ({
   id,
   name: null,
@@ -22,6 +25,9 @@ function shot (id: string, duration: number): IAutoMovieShot { return ({
 }); }
 const SHOTS: IAutoMovieShot[] = [shot("shot:beat-1", 3), shot("shot:beat-2", 4)];
 type Event = NonNullable<IAutoMovieShot["events"]>[number];
+/**
+ * Builds the authored event identity, kind, source and shot clock with absent optional subjects; the owning resolver entry independently determines trim-seam and replay placement.
+ */
 function event (
   id: string,
   kind: Event["kind"],
@@ -60,37 +66,18 @@ const SEQUENCE: IAutoMovieSequence = {
 };
 
 /**
- * Pins the playback resolver against the same cut the ASSEMBLE tests use, so
- * the two arithmetics (gate-side runtime, playback-side timeline) can never
- * drift apart silently. Hand-laid timeline: entry 0 spans [0, 3), entry 1 (trim
- * [0.5, 2.5]) spans [3, 5), entry 2 dissolves in 0.5 s early, spanning [4.5,
- * 7.5): runtime 7.5.
+ * Calls source timeline, random-access playback and event placement, asserting independent entry clocks, trim offsets, blend weights, structural refusals and emitted event identities/times; a missing seam event or suppressed replay fails the owning scenario.
  *
  * Scenarios:
- *
- * 1. `sequenceTimeline` lays entries at starts 0 / 3 / 4.5 with runtime 7.5.
- * 2. T = 1 → entry 0 at local 1, hard cut (no blend).
- * 3. T = 3.2 → entry 1 at local 0.5 + 0.2 = 0.7 (the trim offsets local time), no
- *    blend.
- * 4. T = 4.7 → inside the dissolve: live entry 2 at local 0.2, blending from the
- *    outgoing entry 1 tail at local 0.5 + 1.7 = 2.2, incoming weight 0.2 / 0.5
- *    = 0.4.
- * 5. T = 4.99…+0.5 = 5.1 (past the dissolve) → entry 2 alone, no blend.
- * 6. T = −1, T = 7.5 (the exclusive end) and T = NaN → null; T = 0 → entry 0
- *    at 0.
- * 7. Event windows are half-open at a trim seam: one shot split into contiguous
- *    trims [0,1] + [1,2] emits an event at shot-time 1.0 exactly once (from the
- *    entry that starts there), while a shot-final event at 2.0 is still emitted
- *    because the last trim ends at the shot's own end.
- * 8. Cutting away exactly on a hit keeps the hit (#1061): when NO other entry of
- *    the shot starts at the trim-end instant, the trimmed entry owns the event
- *    instead of it vanishing from every entry.
- * 9. Ownership requires GLOBAL contiguity (#1099): the same shot played as
- *    aftermath [2,4] then flashback [0,2]: the flashback's cut lands exactly on
- *    the hit at shot-time 2, and a shot-LOCAL coincidence with the aftermath's
- *    start must not suppress it (they play at different global times). Both
- *    plays emit the hit at their own global instants (per-play semantics,
- *    #1080), while a genuinely contiguous seam (scenario 7) still emits once.
+ * 1. Derive timeline starts and runtime from authored trims and overlap.
+ * 2. Resolve a hard-cut shot and a trimmed local clock.
+ * 3. Resolve live/outgoing clocks and blend alpha inside the dissolve, then end the blend.
+ * 4. Distinguish the opening from negative, exclusive-end and NaN queries.
+ * 5. Refuse duplicate/missing shots, an empty sequence and a first-entry transition.
+ * 6. Place trimmed events, order tied ids and return no events without metadata.
+ * 7. Emit a contiguous seam once and retain the shot-final event.
+ * 8. Retain a hit exactly at a mid-shot cut-away.
+ * 9. Emit a replayed hit at each noncontiguous flashback play.
  *
  * @evidence contracts/testing.md#behavioral-verification Calls source timeline, random-access playback and event placement, asserting independent entry clocks, trim offsets, blend weights, structural refusals and emitted event identities/times; a missing seam event or suppressed replay fails the owning scenario.
  * @evidence contracts/testing.md#independent-expectations The authored spans give starts 0, 3 and 4.5 and runtime 7.5 by addition minus overlap; local clocks add trim offset and blend alpha divides elapsed overlap by 0.5. Event expectations follow half-open contiguous ranges, retained cut-away boundaries and distinct global plays, independently of the layout/index helper.
@@ -120,29 +107,10 @@ export function test_film_playback_resolver (): void {
   const t47: IAutoMoviePlaybackSample = at(4.7)!;
   TestValidator.equals("T=4.7 live shot", t47.shot, "shot:beat-1");
   TestValidator.predicate("T=4.7 live local", nclose(t47.time, 0.2));
-  TestValidator.equals(
+  TestValidator.predicate(
     "T=4.7 outgoing tail",
-    namedFacts([
-      ["t47Blend", () : boolean => t47.blend !== null],
-      [
-        "t47BlendShot",
-        () : boolean => t47.blend !== null && t47.blend.shot === "shot:beat-2",
-      ],
-      [
-        "ncloseT47Blend",
-        () : boolean => t47.blend !== null && nclose(t47.blend.time, 2.2),
-      ],
-      [
-        "ncloseT47Blend2",
-        () : boolean => t47.blend !== null && nclose(t47.blend.alpha, 0.4),
-      ],
-    ]),
-    {
-      t47Blend: true,
-      t47BlendShot: true,
-      ncloseT47Blend: true,
-      ncloseT47Blend2: true,
-    },
+    t47.blend !== null && t47.blend.shot === "shot:beat-2" &&
+      nclose(t47.blend.time, 2.2) && nclose(t47.blend.alpha, 0.4),
   );
 
   TestValidator.equals("T=5.1 past the dissolve", at(5.1)!.blend, null);
@@ -151,13 +119,9 @@ export function test_film_playback_resolver (): void {
   TestValidator.equals("at the exclusive end", at(7.5), null);
   TestValidator.equals("at a non-finite instant", at(Number.NaN), null);
   const t0: IAutoMoviePlaybackSample = at(0)!;
-  TestValidator.equals(
+  TestValidator.predicate(
     "first frame",
-    namedFacts([
-      ["opensOnTheFirstShot", () : boolean => t0.shot === "shot:beat-1"],
-      ["atLocalZero", () : boolean => nclose(t0.time, 0)],
-    ]),
-    { opensOnTheFirstShot: true, atLocalZero: true },
+    t0.shot === "shot:beat-1" && nclose(t0.time, 0),
   );
   TestValidator.predicate(
     "duplicate playback shots reject ambiguous lookup",
@@ -260,36 +224,14 @@ export function test_film_playback_resolver (): void {
     events.map((e: IAutoMoviePlaybackEvent) : string => e.id),
     ["a-in", "a-z", "b-in"],
   );
-  TestValidator.equals(
+  TestValidator.predicate(
     "shot-local events are placed on the global clock",
-    namedFacts([
-      ["ncloseEventsShotTime", () : boolean => nclose(events[0]!.shotTime, 1.25)],
-      ["ncloseEventsGlobalTime", () : boolean => nclose(events[0]!.globalTime, 0.25)],
-      ["eventsEntry", () : boolean => events[0]!.entry === 0],
-      ["eventsShotShot", () : boolean => events[0]!.shot === "shot:beat-1"],
-      ["ncloseEventsShotTime2", () : boolean => nclose(events[1]!.shotTime, 1.25)],
-      ["ncloseEventsGlobalTime2", () : boolean => nclose(events[1]!.globalTime, 0.25)],
-      ["eventsEntry2", () : boolean => events[1]!.entry === 0],
-      ["eventsShotShot2", () : boolean => events[1]!.shot === "shot:beat-1"],
-      ["ncloseEventsShotTime3", () : boolean => nclose(events[2]!.shotTime, 1)],
-      ["ncloseEventsGlobalTime3", () : boolean => nclose(events[2]!.globalTime, 1.75)],
-      ["eventsEntry3", () : boolean => events[2]!.entry === 1],
-      ["eventsShotShot3", () : boolean => events[2]!.shot === "shot:beat-2"],
-    ]),
-    {
-      ncloseEventsShotTime: true,
-      ncloseEventsGlobalTime: true,
-      eventsEntry: true,
-      eventsShotShot: true,
-      ncloseEventsShotTime2: true,
-      ncloseEventsGlobalTime2: true,
-      eventsEntry2: true,
-      eventsShotShot2: true,
-      ncloseEventsShotTime3: true,
-      ncloseEventsGlobalTime3: true,
-      eventsEntry3: true,
-      eventsShotShot3: true,
-    },
+    nclose(events[0]!.shotTime, 1.25) && nclose(events[0]!.globalTime, 0.25) &&
+      events[0]!.entry === 0 && events[0]!.shot === "shot:beat-1" &&
+      nclose(events[1]!.shotTime, 1.25) && nclose(events[1]!.globalTime, 0.25) &&
+      events[1]!.entry === 0 && events[1]!.shot === "shot:beat-1" &&
+      nclose(events[2]!.shotTime, 1) && nclose(events[2]!.globalTime, 1.75) &&
+      events[2]!.entry === 1 && events[2]!.shot === "shot:beat-2",
   );
   TestValidator.equals(
     "shots without interaction metadata produce no sequence events",

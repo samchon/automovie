@@ -10,7 +10,9 @@ import { compileDoorShot } from "../internal/compileDoorShot";
 import { swingClip } from "../internal/swingClip";
 import { yQuat } from "../internal/yQuat";
 
-/** Every diagnostic fact of a compile, or `"compiled"` when it succeeded. */
+/**
+ * Compiles the existing door fixture and projects all diagnostic path/fact text, or the compiled sentinel; authored profiles and addresses supply the owning gate expectations.
+ */
 function refusal (props: IDoorShotProps): string {
   const compiled: IAutoMovieCompiledDefinedShot = compileDoorShot(props);
   return compiled.success === true
@@ -20,7 +22,9 @@ function refusal (props: IDoorShotProps): string {
         .join(" | ");
 }
 
-/** True when the compile was refused with a fact naming each fragment. */
+/**
+ * Rejects the compiled sentinel and checks all authored diagnosis fragments from refusal; it distinguishes located admission explanations without an independent numerical profile solver.
+ */
 function refusedWith (
   clips: readonly IAutoMovieClip[],
   ...fragments: readonly string[]
@@ -33,59 +37,29 @@ function refusedWith (
 }
 
 /**
- * What a shot may NOT turn, and why each refusal is a defect caught rather than
- * a preference enforced.
- *
- * The channel exists so a door can swing. Every one of these would produce a
- * compiled shot that reads as if something moves and either moves nothing,
- * moves two things against each other, or moves one thing past a limit its own
- * record declares — the class of false green this pipeline refuses everywhere
- * else.
+ * Compiles authored object clips and asserts the admission reason for missing addresses, competing authority, artifact defects and profile breaches, including rotation violations absent from both endpoint keys; valid neighbouring angles and interpolation modes prove legal motion remains admitted.
  *
  * Scenarios:
- *
- * 1. A node no shot staged, and a joint no staged prop declares, are both refused:
- *    a clip addressing nothing renders as silence.
- * 2. A node this shot's performance drives is refused; a performer moves off its
- *    rig, and a transform clip over it would fight the pose every frame.
- * 3. A swing past the travel the prop's own profile declares is refused, naming
- *    the profile and the channel rather than an anonymous bound; the adjacent
- *    swing one degree inside the same bound compiles.
- * 4. A key outside the shot's own clock is refused: a turn no frame reads.
- * 5. `cubicspline` is refused, because a spline's tangents can leave a declared
- *    travel between two keys the gate proved, and nothing clamps an object clip
- *    downstream.
- * 6. Two authored clips sharing one id are refused; `validateUniqueIds` would
- *    otherwise refuse the whole shot artifact with no authoring path to name.
- * 7. A pointer track is still refused on this field, because the transform-clip
- *    rule stands under the narrower one this field adds.
- * 8. A channel a baked clip already drives is refused, and it is refused per
- *    CHANNEL: the torch's baked follow owns its rotation, so a second rotation
- *    is two authorities the sampler would resolve by producer order.
- * 9. An id a baked clip already carries is refused here, where an authoring path
- *    can be named, rather than by the artifact gate that would throw.
- * 10. A prop joint whose lowered id collides with a staged scene node is named as
- *     the collision it is; composing that graph throws instead of reporting, so
- *     a shot carrying one may not be resolved at all.
- * 11. A shot that registers no prop still drives its staged set pieces, and a joint
- *     of the prop it no longer carries is refused: the registry is what lowers
- *     a joint, so dropping it drops the address.
- * 12. A prop the forge refuses lowers no joint either, and a node id declared twice
- *     keeps the first registration; both are the placement gate's faults to
- *     report, not this one's to report twice.
- * 13. A node path the pipeline never writes is refused by the transform-clip rule
- *     and compared against nothing, since an address with no canonical key
- *     cannot collide with one.
- * 14. A quaternion component that exceeds its bound only between keys is
- *     refused in both spherical and near-parallel normalized-linear branches;
- *     an adjacent legal bound, step interpolation and a hidden violating track still compile.
+ * 1. Admit reserved dictionary spellings as prop identities.
+ * 2. Refuse interior quaternion peaks for spherical and near-angle interpolation, including short loops; admit step, exact bound and later-authority neighbours.
+ * 3. Refuse unstaged nodes, absent joints, performing actors and excessive hinge travel; admit the adjacent in-range hinge.
+ * 4. Refuse out-of-shot keys, spline/pointer tracks and duplicate clip ids.
+ * 5. Refuse baked channel/id conflicts while admitting the same node's untouched scale channel.
+ * 6. Refuse lowered identity collisions and absent/refused prop joints, while preserving staged set pieces and equivalent duplicate registrations.
+ * 7. Ignore an unrelated rest breach, report one driven channel's repeated breach once and refuse an unsupported opacity path.
  *
  * @evidence contracts/testing.md#behavioral-verification Compiles authored object clips and asserts the admission reason for missing addresses, competing authority, artifact defects and profile breaches, including rotation violations absent from both endpoint keys; valid neighbouring angles and interpolation modes prove legal motion remains admitted.
  * @evidence contracts/testing.md#independent-expectations Scene identities and profile component bounds are authored by the fixture. Symmetric Y rotations have w=cos(half-angle) at both keys and w=1 at their identity midpoint, so a maximum strictly between those values must refuse linear rotation; step holds the endpoint value and a maximum of one is legal without deriving expected values from the extrema helper.
- * @evidence contracts/testing.md#distinguishing-cases Covers every gate's positive/negative neighbour, duplicate ids and addresses, empty registry, refused prop, wrong key clocks and track kind, bound crossings and exactly-once reporting. Wide-angle SLERP and one-degree near-angle normalized lerp pin the two internal-extrema branches, including short repeated curves, while later equal-start authority hides a violating curve instead of admitting its raw keys as an extra authority.
+ * @evidence contracts/testing.md#distinguishing-cases Covers the listed identity, authority, clock, track and travel refusals with in-range swing, untouched-channel, legal set-piece and interpolation neighbours. The two symmetric-angle families distinguish spherical and near-angle normalized interpolation, including short loops and later equal-start authority. Exactly-once counting concerns one driven channel; nonlinear drivers and arbitrary quaternion paths are outside these authored cases.
  * @evidence contracts/testing.md#execution-ownership The discoverable synchronous unit entry owns its mutation cases and numerical compilation assertions; portable shared door fixtures call engine source without a renderer, process or dynamic scenario registration.
  */
 export function test_film_perform_shot_object_motion_gates (): void {
+  for (const id of ["constructor", "__proto__", "toString"]) {
+    const prop: IAutoMoviePropSpec = doorSpec();
+    prop.node = id;
+    prop.model.id = id;
+    TestValidator.equals(`reserved dictionary spelling ${id} still lowers its joint`, refusal({ props: [prop], extraSet: [{ node: "indexedDoor", model: id, position: { x: 2, y: 0, z: 0 } }], objectMotions: [swingClip("indexed-swing", "indexedDoor/hinge", 20)] }), "compiled");
+  }
   for (const [degrees, bound] of [[90, 0.8], [1, 0.99999]] as const) {
     const spec: IAutoMoviePropSpec = doorSpec();
     if (spec.articulation === null) throw new Error("Door fixture must articulate");
@@ -269,14 +243,13 @@ export function test_film_perform_shot_object_motion_gates (): void {
     ),
   );
   TestValidator.equals(
-    "a node registered twice keeps its first registration",
+    "equivalent duplicate registrations preserve the legal swing",
     refusal({
       objectMotions: [swingClip("swing", HINGE, 109)],
       props: [
         doorSpec(),
-        // Second registration of the same node, with a travel wide enough to
-        // admit the swing the first one refuses. The first wins, so this
-        // compiles exactly as the single registration does.
+        // The second registration has the same profile and admits the same
+        // swing; this case observes equivalent duplication only.
         doorSpec(),
       ],
     }),

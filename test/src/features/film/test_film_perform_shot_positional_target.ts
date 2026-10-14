@@ -1,3 +1,6 @@
+import { filmPositionalTargetSays as says } from "../internal/filmPositionalTargetSays";
+import { filmPositionalTargetSilentAt as silentAt } from "../internal/filmPositionalTargetSilentAt";
+import { createFilmPositionalLocomote as locomote } from "../internal/createFilmPositionalLocomote";
 import type { IAutoMovieActionCall, IAutoMovieActionTarget, IAutoMovieConstraintViolation } from "@automovie/interface";
 
 import { IAutoMoviePerformedShot } from "../../../../packages/engine/src/film/IAutoMoviePerformedShot";
@@ -8,26 +11,14 @@ import { assertFilmPositionalTargetKinds } from "../internal/assertFilmPositiona
 import { createFilmPositionalTargetPerformer } from "../internal/createFilmPositionalTargetPerformer";
 import { namedFacts, nclose } from "../internal/predicates";
 
-/** True when the refusal at `path` states every fragment. */
-function says (
-  result: IAutoMoviePerformedShot,
-  path: string,
-  ...fragments: string[]
-): boolean { return result.success === false &&
-  result.violations.some(
-    (item: IAutoMovieConstraintViolation) : boolean =>
-      item.path === path &&
-      fragments.every((fragment: string) : boolean => item.expected.includes(fragment)),
-  ); }
-
-/** True when nothing was refused at `path` (the over-rejection counter-case). */
-function silentAt (result: IAutoMoviePerformedShot, path: string): boolean { return result.success === true ||
-  result.violations.every((item: IAutoMovieConstraintViolation) : boolean => item.path !== path); }
-
-/** Shared staged actor and one-second span; each case changes its target or verb. */
+/**
+ * Shared staged actor and one-second span; each case changes its target or verb.
+ */
 const TIMING: { actor: string; start: number; duration: number } = { actor: "knightA", start: 0, duration: 1 };
 
-/** One unresolved-target probe per verb that routes through the helper. */
+/**
+ * One unresolved-target probe per verb that routes through the helper.
+ */
 const UNRESOLVED_BY_VERB: ReadonlyArray<
   readonly [string, IAutoMovieActionCall, string]
 > = [
@@ -120,7 +111,9 @@ const UNRESOLVED_BY_VERB: ReadonlyArray<
   ],
 ];
 
-/** The same probes, aimed at a staged camera instead of an unknown id. */
+/**
+ * The same probes, aimed at a staged camera instead of an unknown id.
+ */
 const CAMERA_BY_VERB: ReadonlyArray<readonly [string, IAutoMovieActionCall]> = [
   [
     "locomote",
@@ -204,19 +197,22 @@ const CAMERA_BY_VERB: ReadonlyArray<readonly [string, IAutoMovieActionCall]> = [
 ];
 
 /**
- * Performance targets resolve against staged placements without silently dropping members.
+ * Calls performShot through the shared positional-target performer for each applicable verb and asserts accepted placements, located target faults, actor-camera separation and locomote displacement checks; the delegated kind cases also detect a silently omitted group member.
  *
  * Scenarios:
- * 1. Positional verbs accept staged cameras, actors and set pieces.
- * 2. Missing ids are refused by their identity at each verb's owning target path.
- * 3. Empty/missing/mixed groups and malformed/relative targets receive located faults.
- * 4. A camera may be a target but cannot perform a gesture.
- * 5. Locomote distinguishes vertical-only, in-place, horizontal and relative goals.
- * 6. Resumed origins and live bone targets use the authored world frame and action clock.
- * 7. Every group member is admitted, and invalid targets never reach a live resolver.
+ * 1. Admit staged camera targets for the eight listed verb/field roles.
+ * 2. Locate unknown node targets and name the missing id rather than the kind.
+ * 3. Delegate actor/set target neighbours.
+ * 4. Delegate empty, all-missing and mixed group refusals.
+ * 5. Delegate missing-point, relative, unknown and malformed target kinds.
+ * 6. Delegate the absent point-gesture aim refusal.
+ * 7. Delegate camera-as-actor refusal without inventing an aim error.
+ * 8. Distinguish locomote vertical-only, epsilon-band and in-place destinations.
+ * 9. Diagnose from explicitly restaged carried-origin coordinates and admit legal target kinds.
+ * 10. Observe live-bone action-start timing and keep malformed targets away from the callback.
  *
  * @evidence contracts/testing.md#behavioral-verification Calls performShot through the shared positional-target performer for each applicable verb and asserts accepted placements, located target faults, actor-camera separation and locomote displacement checks; the delegated kind cases also detect a silently omitted group member.
- * @evidence contracts/testing.md#independent-expectations Authored fixture positions and target ids determine placement and displacement outcomes; the live resolver records the supplied action clock independently, and refusal messages must name the actual missing data instead of merely echoing a legal discriminator.
+ * @evidence contracts/testing.md#independent-expectations Authored positions and ids determine displacement and refusal paths. The .8e-6 X/Y case has full distance above 1e-6 but horizontal distance below it. The carried-origin case explicitly restages (1,1,0) as well as supplying previous state, so it does not isolate automatic continuity restoration. The live callback records action start independently and compares .5 seconds with canonical nclose; no expected diagnosis is read from the gate's own report.
  * @evidence contracts/testing.md#distinguishing-cases Covers camera/actor/set subjects, missing nodes, malformed and relative targets, empty/all-missing/mixed groups, unstaged bones, non-finite points, vertical-only and in-place travel, epsilon-boundary displacement and resumed/live targets; launch-specific recoil admission has a separate test.
  * @evidence contracts/testing.md#execution-ownership This portable unit entry owns the table-driven verb cases and invokes assertFilmPositionalTargetKinds for the delegated kind cases; both reach engine source without a browser, process or native build.
  */
@@ -271,21 +267,6 @@ export function test_film_perform_shot_positional_target (): void {
   }
 
   assertFilmPositionalTargetKinds({ perform, says, silentAt });
-
-  // 8. Locomote's in-place fallback belongs only to intentionally relative
-  // targets. Broken absolute destinations are authored mistakes, not steps in
-  // place that may be reported as a successful trip.
-  function locomote (
-    to: IAutoMovieActionTarget,
-    start: number = 0,
-  ): IAutoMovieActionCall { return ({
-    verb: "locomote",
-    actor: "knightA",
-    start,
-    duration: 1,
-    gait: "walk",
-    to,
-  }); }
   TestValidator.predicate(
     "locomote refuses a group with no placed member",
     says(

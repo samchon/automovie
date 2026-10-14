@@ -1,13 +1,21 @@
-import { HUMANOID_GAITS } from "@automovie/archetypes";
-import {
-  makeActorSynthesizer,
-  performShot,
-  stageScene,
-} from "@automovie/engine";
+import { HUMANOID_GAITS } from "../../../../packages/archetypes/src/HUMANOID_GAITS";
+import { makeActorSynthesizer } from "../../../../packages/engine/src/perform/makeActorSynthesizer";
+import type { IAutoMoviePerformedShot } from "../../../../packages/engine/src/film/IAutoMoviePerformedShot";
+import { performShot } from "../../../../packages/engine/src/film/performShot";
+import { stageScene } from "../../../../packages/engine/src/film/stageScene";
+import type { IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
+import type { IAutoMovieActorContext } from "../../../../packages/engine/src/perform/IAutoMovieActorContext";
 import {
   IAutoMovieActionCall,
+  IAutoMovieLocomoteAction,
   IAutoMovieCameraAction,
   IAutoMovieGait,
+  IAutoMovieSkeleton,
+  IAutoMovieSceneNode,
+  IAutoMovieVector3,
+  IAutoMovieKeyframe,
+  IAutoMovieJointPose,
+  IAutoMovieConstraintViolation,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -29,9 +37,9 @@ const frame: IAutoMovieCameraAction = {
   on: { kind: "node", node: "knightA" },
 };
 
-const walk = (
+const walk: (region?: IAutoMovieActionCall["region"]) => IAutoMovieLocomoteAction = (
   region?: IAutoMovieActionCall["region"],
-): IAutoMovieActionCall => ({
+): IAutoMovieLocomoteAction => ({
   verb: "locomote",
   actor: "knightA",
   start: 0,
@@ -41,45 +49,43 @@ const walk = (
   ...(region === undefined ? {} : { region }),
 });
 
-/** The bones a gait spec drives, as its limb rows name them. */
-const gaitBones = (gait: IAutoMovieGait): string[] =>
-  gait.limbs.map((limb) => limb.bone);
+/**
+ * The bones a gait spec drives, as its limb rows name them.
+ */
+const gaitBones: (gait: IAutoMovieGait) => string[] = (gait: IAutoMovieGait): string[] =>
+  gait.limbs.map((limb: IAutoMovieGait["limbs"][number]): string => limb.bone);
 
-/** A custom gait that genuinely authors legs only. */
+/**
+ * A custom gait that genuinely authors legs only.
+ */
 const LEG_ONLY_GAIT: IAutoMovieGait = {
   ...HUMANOID_GAITS.walk,
   limbs: HUMANOID_GAITS.walk.limbs.filter(
-    (limb) => !limb.bone.endsWith("UpperArm"),
+    (limb: IAutoMovieGait["limbs"][number]): boolean => !limb.bone.endsWith("UpperArm"),
   ),
 };
 
 /**
- * The plainest film performs: one actor, one shipped gait, no `region` (#1359).
- *
- * `locomote` carries the shipped counter-swing through its `fullBody` default.
- * Overlap safety follows the synthesized root/bones/expression rather than the
- * broad region label, so this gait layers with a head-only look but not an arm
- * gesture.
- *
- * It runs the real synthesizer rather than a stub, so the gait content under
- * test is the shipped content.
+ * Performs real shipped gait synthesis and checks compiled authored bone rows, all five gait successes, head layering, shared-arm refusal and custom legs-only or narrowed-region behavior.
  *
  * Scenarios:
+ * 1. Admit the shipped walk under its default region.
+ * 2. Preserve every authored walk limb row in the compiled clip.
+ * 3. Produce a nonempty actor clip for walk, run, sprint, sneak and march.
+ * 4. Layer head-only lookAt and refuse a wave sharing the authored right upper arm.
+ * 5. Admit that wave after removing the gait's authored arm rows.
+ * 6. Report both discarded arm rows under an explicit lowerBody override.
  *
- * 1. A region-less shipped walk performs with no violations.
- * 2. The compiled clip carries every leg and arm gait row.
- * 3. Every shipped gait behaves the same way: `walk`, `run`, `sprint`, `sneak` and
- *    `march` all perform under the default region.
- * 4. Locomote + lookAt layers, while locomote + wave is refused on the shared
- *    upper arm.
- * 5. A custom legs-only gait layers with the same wave.
- * 6. An explicit `lowerBody` override still reports the arm rows it would mask.
+ * @evidence contracts/testing.md#behavioral-verification Performs real shipped gait synthesis and checks compiled authored bone rows, all five gait successes, head layering, shared-arm refusal and custom legs-only or narrowed-region behavior.
+ * @evidence contracts/testing.md#independent-expectations Shipped limb rows are the input content contract, so each named row must survive; the leg-only fixture removes the authored arm rows independently. These membership assertions cannot detect incorrect per-key joint angles.
+ * @evidence contracts/testing.md#distinguishing-cases Preserves default walk, walk/run/sprint/sneak/march admission, lookAt/wave overlap neighbors, custom legs-only gait and explicit lowerBody drop; the absent ROM rig keeps this focused on masking/overlap.
+ * @evidence contracts/testing.md#execution-ownership The discoverable synchronous test_film_perform_shot_shipped_gait unit entry owns its assertions and delegated helpers through portable source functions; it opens no process, browser, GPU or installed consumer.
  */
-export const test_film_perform_shot_shipped_gait = (): void => {
-  const staged = stageScene(makeScriptWrite(), makeStagingWrite());
+export function test_film_perform_shot_shipped_gait(): void {
+  const staged: IAutoMovieStagedSet = stageScene(makeScriptWrite(), makeStagingWrite());
   if (staged.success !== true) throw new Error("staging must succeed");
-  const skeleton = createSkeleton();
-  const perform = (draft: IAutoMovieActionCall[], gait: IAutoMovieGait) =>
+  const skeleton: IAutoMovieSkeleton = createSkeleton();
+  const perform: (draft: IAutoMovieActionCall[], gait: IAutoMovieGait) => IAutoMoviePerformedShot = (draft: IAutoMovieActionCall[], gait: IAutoMovieGait): IAutoMoviePerformedShot =>
     performShot({
       script: makeScriptWrite(),
       staged,
@@ -88,7 +94,7 @@ export const test_film_perform_shot_shipped_gait = (): void => {
         revise: { review: "unchanged.", final: null },
       }),
       synthesize: makeActorSynthesizer(
-        new Map([
+        new Map<string, IAutoMovieActorContext>([
           [
             "knightA",
             {
@@ -103,8 +109,8 @@ export const test_film_perform_shot_shipped_gait = (): void => {
             },
           ],
         ]),
-        new Map(
-          staged.scene.nodes.map((node) => [
+        new Map<string, IAutoMovieVector3>(
+          staged.scene.nodes.map((node: IAutoMovieSceneNode): [string, IAutoMovieVector3] => [
             node.id,
             node.transform.translation,
           ]),
@@ -112,11 +118,11 @@ export const test_film_perform_shot_shipped_gait = (): void => {
       ),
       // No rig on the gate: this scenario is about the region mask meeting the
       // shipped content, not about ROM, which has its own scenarios.
-      skeleton: () => null,
+      skeleton: (): null => null,
     });
 
   // 1. the plain walk performs, with nothing to report
-  const plain = perform([walk(), frame], HUMANOID_GAITS.walk);
+  const plain: IAutoMoviePerformedShot = perform([walk(), frame], HUMANOID_GAITS.walk);
   TestValidator.equals(
     "a shipped walk with no region performs",
     plain.success,
@@ -124,22 +130,22 @@ export const test_film_perform_shot_shipped_gait = (): void => {
   );
 
   // 2. the walk carries every authored gait row, including both arms.
-  const gaitRows = gaitBones(HUMANOID_GAITS.walk);
-  const compiled = new Set(
+  const gaitRows: string[] = gaitBones(HUMANOID_GAITS.walk);
+  const compiled: Set<string> = new Set<string>(
     plain.success === true
-      ? plain.motions.knightA!.keyframes.flatMap((k) =>
-          k.pose.joints.map((j) => j.bone as string),
+      ? plain.motions.knightA!.keyframes.flatMap((k: IAutoMovieKeyframe): string[] =>
+          k.pose.joints.map((j: IAutoMovieJointPose): string => j.bone),
         )
       : [],
   );
   TestValidator.equals(
     "the compiled clip carries every gait row",
     namedFacts([
-      ["refused", () => gaitRows.length > 0],
+      ["refused", (): boolean => gaitRows.length > 0],
       [
         "violated",
-        () =>
-          gaitRows.length > 0 && gaitRows.every((bone) => compiled.has(bone)),
+        (): boolean =>
+          gaitRows.length > 0 && gaitRows.every((bone: string): boolean => compiled.has(bone)),
       ],
     ]),
     { refused: true, violated: true },
@@ -149,7 +155,11 @@ export const test_film_perform_shot_shipped_gait = (): void => {
   TestValidator.equals(
     "every shipped gait performs",
     (["walk", "run", "sprint", "sneak", "march"] as const).filter(
-      (name) => perform([walk(), frame], HUMANOID_GAITS[name]).success !== true,
+      (name: "walk" | "run" | "sprint" | "sneak" | "march"): boolean => {
+        const gait: IAutoMovieGait = HUMANOID_GAITS[name];
+        const performed: IAutoMoviePerformedShot = perform([{ ...walk(), gait: gait.name }, frame], gait);
+        return performed.success !== true || performed.motions.knightA === undefined || performed.motions.knightA.keyframes.length === 0;
+      },
     ),
     [],
   );
@@ -174,17 +184,17 @@ export const test_film_perform_shot_shipped_gait = (): void => {
     duration: 1,
     kind: "wave",
   };
-  const walkAndWave = perform([walk(), wave, frame], HUMANOID_GAITS.walk);
+  const walkAndWave: IAutoMoviePerformedShot = perform([walk(), wave, frame], HUMANOID_GAITS.walk);
   TestValidator.equals(
     "a shipped walk conflicts with a wave on their shared arm",
     namedFacts([
-      ["refused", () => walkAndWave.success === false],
+      ["refused", (): boolean => walkAndWave.success === false],
       [
         "violated",
-        () =>
+        (): boolean =>
           walkAndWave.success === false &&
           walkAndWave.violations.some(
-            (v) =>
+            (v: IAutoMovieConstraintViolation): boolean =>
               v.path === "$input.draft[1].start" &&
               v.expected.includes("rightUpperArm"),
           ),
@@ -201,17 +211,17 @@ export const test_film_perform_shot_shipped_gait = (): void => {
   );
 
   // 6. An authored narrow override still cannot silently discard the arms.
-  const narrowed = perform([walk("lowerBody"), frame], HUMANOID_GAITS.walk);
+  const narrowed: IAutoMoviePerformedShot = perform([walk("lowerBody"), frame], HUMANOID_GAITS.walk);
   TestValidator.equals(
     "an explicit lowerBody override reports the masked arm rows",
     namedFacts([
-      ["refused", () => narrowed.success === false],
+      ["refused", (): boolean => narrowed.success === false],
       [
         "violated",
-        () =>
+        (): boolean =>
           narrowed.success === false &&
           narrowed.violations.some(
-            (violation) =>
+            (violation: IAutoMovieConstraintViolation): boolean =>
               violation.path === "$input.draft[0].region" &&
               violation.expected.includes("leftUpperArm") &&
               violation.expected.includes("rightUpperArm"),
@@ -220,4 +230,4 @@ export const test_film_perform_shot_shipped_gait = (): void => {
     ]),
     { refused: true, violated: true },
   );
-};
+}

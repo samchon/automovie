@@ -1,4 +1,8 @@
-import { performShot, stageScene } from "@automovie/engine";
+import { performShot } from "../../../../packages/engine/src/film/performShot";
+import { IAutoMoviePerformedShot } from "../../../../packages/engine/src/film/IAutoMoviePerformedShot";
+import { IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
+import { IAutoMovieShotPerformance } from "@automovie/interface";
+import { stageScene } from "../../../../packages/engine/src/film/stageScene";
 import { TestValidator } from "@nestia/e2e";
 
 import {
@@ -9,25 +13,21 @@ import {
 } from "../internal/filmFixtures";
 
 /**
- * Pins the revise rule and its tolerances: `revise.final` replaces the draft
- * wholesale when present, a camera may re-`frame` as long as it is the same
- * camera, and a node without a skeleton skips ROM validation instead of failing
- * it.
+ * Performs an invalid draft replaced by revise.final and checks success, the sole performing knight and one camera reused by two frame actions.
  *
  * Scenarios:
+ * 1. Preserves the unknown draft actor, valid replacement and same-camera reframing with null rig; null-final and rig-checked neighbors are separate entries.
  *
- * 1. The draft is a single action by a stranger (`ghost`), unusable, but
- *    `revise.final` replaces it with `knightA` waving plus two `frame` calls on
- *    the same `cam-main` → success, proving the final list performed (a
- *    draft-path run would have failed on `ghost`).
- * 2. Only `knightA` performs, and the skeleton lookup returns null for it → the
- *    clip is accepted without ROM validation (the skeleton-less branch).
+ * @evidence contracts/testing.md#behavioral-verification Performs an invalid draft replaced by revise.final and checks success, the sole performing knight and one camera reused by two frame actions.
+ * @evidence contracts/testing.md#independent-expectations The replacement actor exists while ghost does not, so success distinguishes final from draft evaluation; the null rig callback skips ROM without proving it would fail here. Camera identity and success admit two same-camera requests but do not independently inspect both compiled moves.
+ * @evidence contracts/testing.md#distinguishing-cases Preserves the unknown draft actor, valid replacement and same-camera reframing with null rig; null-final and rig-checked neighbors are separate entries.
+ * @evidence contracts/testing.md#execution-ownership The discoverable synchronous test_film_perform_shot_revised unit entry owns its assertions and delegated helpers through portable source functions; it opens no process, browser, GPU or installed consumer.
  */
-export const test_film_perform_shot_revised = (): void => {
-  const staged = stageScene(makeScriptWrite(), makeStagingWrite());
+export function test_film_perform_shot_revised(): void {
+  const staged: IAutoMovieStagedSet = stageScene(makeScriptWrite(), makeStagingWrite());
   if (staged.success !== true) throw new Error("staging must succeed");
 
-  const performed = performShot({
+  const performed: IAutoMoviePerformedShot = performShot({
     script: makeScriptWrite(),
     staged,
     performance: makePerformanceWrite({
@@ -72,14 +72,14 @@ export const test_film_perform_shot_revised = (): void => {
       },
     }),
     synthesize: validSynthesizer,
-    skeleton: () => null,
+    skeleton: (): null => null,
   });
   TestValidator.equals("success", performed.success, true);
   if (performed.success !== true) return;
   TestValidator.equals(
     "final list performed",
-    performed.shot.performances.map((p) => p.node),
+    performed.shot.performances.map((p: IAutoMovieShotPerformance): string => p.node),
     ["knightA"],
   );
   TestValidator.equals("live camera", performed.shot.camera, "cam-main");
-};
+}

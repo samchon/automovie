@@ -10,32 +10,16 @@ import { swingClip } from "../internal/swingClip";
 import { compileDoorShot } from "../internal/compileDoorShot";
 
 /**
- * A source can turn a door, and the compiled shot carries the turn.
- *
- * Every entry on a compiled shot's `objectMotions` used to be baked by the
- * engine from a `launch` or an `attachTo`, so the two contracts that promise a
- * door swings on screen — a building opening's panel placements, a prop's
- * declared articulation — were both true of the record and unreachable from a
- * shot. This case is the reachability: the authored clip survives compilation,
- * addresses the joint the scene actually lowers, and the joint id is derivable
- * from the artifact rather than guessed.
+ * Compiles the same staged duel with no authored motion, a prop-hinge rotation and a set-panel rotation; returned clip identities, channel addresses and sceneToNodes membership prove accepted authored motion survives beside the baked torch follow.
  *
  * Scenarios:
- *
- * 1. A shot that authors nothing compiles with exactly the clips the engine baked
- *    for it, here the torch's follow: the field costs a shot that says nothing
- *    about its objects exactly what it cost before.
- * 2. A 90° swing over the prop's lowered hinge compiles, and the compiled shot
- *    carries that clip on `objectMotions` BESIDE the baked follow rather than
- *    instead of it, addressing the same node id `sceneToNodes` lowers the
- *    prop's hinge under.
- * 3. A staged set piece no prop registry mentions is drivable too: this is the
- *    building panel's own path (`<environment>/<element>`), so a swinging leaf
- *    and a swinging panel need one mechanism rather than two.
+ * 1. Keep only the baked torch follow when no object clip is authored.
+ * 2. Preserve the authored hinge rotation beside that follow and observe its lowered scene address.
+ * 3. Preserve the authored set-panel rotation beside the same follow.
  *
  * @evidence contracts/testing.md#behavioral-verification Compiles the same staged duel with no authored motion, a prop-hinge rotation and a set-panel rotation; returned clip identities, channel addresses and sceneToNodes membership prove accepted authored motion survives beside the baked torch follow.
  * @evidence contracts/testing.md#independent-expectations Expected clip lists come from the authored registrations and the attachTo action's documented baked identity. Hinge identity follows placementChildNode's placement/joint contract; sceneToNodes is an integration observation of lowering rather than an independent geometry oracle, and this case proves no rendered appearance.
- * @evidence contracts/testing.md#distinguishing-cases Covers empty authored clips, one articulated joint and a scene set piece with no prop registry entry. The paired object_motion_gates test owns invalid addresses, authority conflicts, travel violations and interpolated quaternion limits; no rejection assertions are removed here.
+ * @evidence contracts/testing.md#distinguishing-cases Covers empty authored clips, one articulated joint and a set piece whose model is absent from the prop registry, while the door remains registered. The paired object_motion_gates test owns invalid addresses, authority conflicts, travel violations and interpolated quaternion limits; no rejection assertions are removed here.
  * @evidence contracts/testing.md#execution-ownership The runner discovers test_film_perform_shot_object_motions; its helper compiles portable in-memory TypeScript data through defineShot and compileDefinedShot, and this function owns three cases without a browser, native renderer or external consumer.
  */
 export function test_film_perform_shot_object_motions (): void {

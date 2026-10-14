@@ -1,11 +1,11 @@
-import {
-  IAutoMovieCompiledDefinedShot,
-  compileDefinedShot,
-  defineShot,
-  inheritProductionLighting,
-} from "@automovie/engine";
+import { IAutoMovieCompiledDefinedShot } from "../../../../packages/engine/src/film/IAutoMovieCompiledDefinedShot";
+import { compileDefinedShot } from "../../../../packages/engine/src/film/compileDefinedShot";
+import { defineShot } from "../../../../packages/engine/src/film/defineShot";
+import { inheritProductionLighting } from "../../../../packages/engine/src/film/inheritProductionLighting";
 import {
   IAutoMovieClip,
+  IAutoMovieBlocking,
+  IAutoMoviePerformance,
   IAutoMovieLight,
   IAutoMovieProductionDesign,
   IAutoMovieProductionLighting,
@@ -13,6 +13,7 @@ import {
   IAutoMovieShotBuildContext,
   IAutoMovieShotContract,
   IAutoMovieShotStoryTime,
+  IAutoMovieSkeleton,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -26,10 +27,14 @@ import {
 import { IDENTITY_TRANSFORM, createSkeleton } from "../internal/fixtures";
 import { namedFacts, nclose } from "../internal/predicates";
 
-/** The story span the production's source travels across, in story seconds. */
-const SPAN = 600;
+/**
+ * The story span the production's source travels across, in story seconds.
+ */
+const SPAN: number = 600;
 
-/** The production's one declared source, carried at story time zero. */
+/**
+ * The production's one declared source, carried at story time zero.
+ */
 const key: IAutoMovieLight = {
   id: "key",
   type: "directional",
@@ -38,7 +43,9 @@ const key: IAutoMovieLight = {
   intensity: 3,
 };
 
-/** A light the scene stages for itself, which the production never addresses. */
+/**
+ * A light the scene stages for itself, which the production never addresses.
+ */
 const practical: IAutoMovieLight = {
   id: "practical",
   type: "point",
@@ -48,7 +55,7 @@ const practical: IAutoMovieLight = {
   range: 4,
 };
 
-const productionLighting = (): IAutoMovieProductionLighting => ({
+const productionLighting: () => IAutoMovieProductionLighting = (): IAutoMovieProductionLighting => ({
   id: "span-light",
   name: null,
   lights: [key],
@@ -74,7 +81,7 @@ const productionLighting = (): IAutoMovieProductionLighting => ({
   ],
 });
 
-const productionDesign = (
+const productionDesign: (lighting?: IAutoMovieProductionLighting) => IAutoMovieProductionDesign = (
   lighting?: IAutoMovieProductionLighting,
 ): IAutoMovieProductionDesign => ({
   id: "span",
@@ -97,7 +104,7 @@ const productionDesign = (
   deliverables: [{ id: "preview", kind: "preview", required: true }],
 });
 
-const pinnedContract = (
+const pinnedContract: (id: string, storyTime: IAutoMovieShotStoryTime) => IAutoMovieShotContract = (
   id: string,
   storyTime: IAutoMovieShotStoryTime,
 ): IAutoMovieShotContract => ({
@@ -119,11 +126,10 @@ const pinnedContract = (
 });
 
 /**
- * The two fields a source builder reads to light itself, assembled exactly as
- * the production builder assembles them: the shot's own contract, and the
- * production's lighting when it declares any.
+ * Assemble the contract and optional lighting fields explicitly for this unit;
+ * this constructor does not execute the production builder's context assembly.
  */
-const buildContext = (
+const buildContext: (design: IAutoMovieProductionDesign, contract: IAutoMovieShotContract) => Pick<IAutoMovieShotBuildContext, "contract" | "lighting"> = (
   design: IAutoMovieProductionDesign,
   contract: IAutoMovieShotContract,
 ): Pick<IAutoMovieShotBuildContext, "contract" | "lighting"> => ({
@@ -131,8 +137,10 @@ const buildContext = (
   lighting: design.lighting,
 });
 
-/** What one shot is lit by at its own opening moment. */
-const openingLights = (
+/**
+ * What one shot is lit by at its own opening moment.
+ */
+const openingLights: (context: Pick<IAutoMovieShotBuildContext, "contract" | "lighting">, staged: readonly IAutoMovieLight[]) => IAutoMovieLight[] = (
   context: Pick<IAutoMovieShotBuildContext, "contract" | "lighting">,
   staged: readonly IAutoMovieLight[],
 ): IAutoMovieLight[] =>
@@ -143,15 +151,17 @@ const openingLights = (
     seconds: 0,
   });
 
-const intensityOf = (lights: readonly IAutoMovieLight[], id: string): number =>
-  lights.find((light) => light.id === id)!.intensity;
+const intensityOf: (lights: readonly IAutoMovieLight[], id: string) => number = (lights: readonly IAutoMovieLight[], id: string): number =>
+  lights.find((light: IAutoMovieLight): boolean => light.id === id)!.intensity;
 
-/** The shot program the engine ladder compiles, with room for a light clip. */
-const shotProgram = (
+/**
+ * The shot program the engine ladder compiles, with room for a light clip.
+ */
+const shotProgram: (lightMotions?: IAutoMovieClip[]) => IAutoMovieProductionShotProgram = (
   lightMotions?: IAutoMovieClip[],
 ): IAutoMovieProductionShotProgram => {
-  const blocking = makeBlockingWrite();
-  const performance = makePerformanceWrite();
+  const blocking: IAutoMovieBlocking = makeBlockingWrite();
+  const performance: IAutoMoviePerformance = makePerformanceWrite();
   blocking.camera.framing = "full";
   blocking.rationale =
     "full static keeps both required actor roots readable throughout.";
@@ -171,8 +181,10 @@ const shotProgram = (
   };
 };
 
-/** A clip dimming the staged source over this shot's own two seconds. */
-const dim = (): IAutoMovieClip => ({
+/**
+ * A clip dimming the staged source over this shot's own two seconds.
+ */
+const dim: () => IAutoMovieClip = (): IAutoMovieClip => ({
   id: "sunDims",
   name: null,
   duration: 2,
@@ -191,10 +203,10 @@ const dim = (): IAutoMovieClip => ({
   ],
 });
 
-const compileWith = (
+const compileWith: (lightMotions?: IAutoMovieClip[]) => IAutoMovieCompiledDefinedShot = (
   lightMotions?: IAutoMovieClip[],
 ): IAutoMovieCompiledDefinedShot => {
-  const program = shotProgram(lightMotions);
+  const program: IAutoMovieProductionShotProgram = shotProgram(lightMotions);
   return compileDefinedShot({
     shot: defineShot("SB-LIGHT", {
       scene: "scene-duel",
@@ -215,100 +227,71 @@ const compileWith = (
         events: [],
         reviewFrames: [{ id: "middle", time: 1, passes: ["beauty"] }],
       },
-      build: () => program,
+      build: (): IAutoMovieProductionShotProgram => program,
     }),
     context: undefined,
     runtime: {
       synthesize: validSynthesizer,
-      skeleton: () => createSkeleton(),
+      skeleton: (): IAutoMovieSkeleton => createSkeleton(),
       frameFormat: { width: 1920, height: 1080 },
-      // Exactly the handoff the production builder makes: the program's own
-      // statement about light, or nothing at all.
+      // Pass the authored optional field through the real engine runtime seam.
       lightMotions: program.lightMotions,
     },
   });
 };
 
 /**
- * A production can state its light, and a shot can carry its own.
- *
- * `inheritProductionLighting` worked and light placement was an animatable
- * channel, but no design record, build context or compiled shot carried either
- * one: a film of any length was lit by one unchanging rig with the machinery to
- * change it sitting unreachable. These cases pin the three joins that make it
- * reachable, and pin that a production saying nothing about light is
- * untouched.
+ * Resolves story lighting from explicitly assembled context fields and compiles shot programs with or without lightMotions, checking resulting intensities, identities and clip admission.
  *
  * Scenarios:
+ * 1. Resolve two explicitly assembled story contexts and preserve practical intensity.
+ * 2. Preserve staged light identity/order/count when production lighting is absent.
+ * 3. Compile authored and omitted shot lightMotions, checking clip identity and pointer kind.
  *
- * 1. One production source lights two shots differently, because each shot reads
- *    it at the story moment its own pin fixes: the source ramps from 3 to 1
- *    across the span, so a shot pinned at its opening reads 3 and one pinned
- *    halfway reads 2.
- * 2. A production stating no lighting leaves the shot's staged lights exactly as
- *    staged, element for element.
- * 3. A shot program's own `lightMotions` reach the compiled shot, and a program
- *    stating none compiles a shot carrying no such field at all.
+ * @evidence contracts/testing.md#behavioral-verification Resolves story lighting from explicitly assembled context fields and compiles shot programs with or without lightMotions, checking resulting intensities, identities and clip admission.
+ * @evidence contracts/testing.md#independent-expectations A source intensity ramp 3 to 1 gives 2 at half span within canonical nclose; authored pins and light ids determine expectations. The test constructs buildContext itself and does not prove production-builder context assembly. Compilation checks clip id/count and pointer kind, without independently checking its pointer text, values or rendered light animation.
+ * @evidence contracts/testing.md#distinguishing-cases Retains two story moments, unchanged practical light, omitted production lighting and authored/absent shot light clips; full production context construction belongs to its actual builder tests.
+ * @evidence contracts/testing.md#execution-ownership The discoverable synchronous test_film_production_lighting_wiring unit entry owns its assertions and delegated helpers through portable source functions; it opens no process, browser, GPU or installed consumer.
  */
-export const test_film_production_lighting_wiring = (): void => {
-  const design = productionDesign(productionLighting());
-  const opening = buildContext(
+export function test_film_production_lighting_wiring(): void {
+  const design: IAutoMovieProductionDesign = productionDesign(productionLighting());
+  const opening: Pick<IAutoMovieShotBuildContext, "contract" | "lighting"> = buildContext(
     design,
     pinnedContract("opening", {
       originSeconds: 0,
     }),
   );
-  const later = buildContext(
+  const later: Pick<IAutoMovieShotBuildContext, "contract" | "lighting"> = buildContext(
     design,
     pinnedContract("later", {
       originSeconds: SPAN / 2,
     }),
   );
-  const staged = [key, practical];
-  TestValidator.equals(
+  const staged: IAutoMovieLight[] = [key, practical];
+  TestValidator.predicate(
     "one declared source lights two shots differently at different story times",
-    namedFacts([
-      ["reaches the opening context", () => opening.lighting !== undefined],
-      ["reaches the later context", () => later.lighting !== undefined],
-      [
-        "opening reads the source at the span's start",
-        () => nclose(intensityOf(openingLights(opening, staged), "key"), 3),
-      ],
-      [
-        "later reads the same source halfway along",
-        () => nclose(intensityOf(openingLights(later, staged), "key"), 2),
-      ],
-      [
-        "the shot's own light is untouched by the production",
-        () =>
-          nclose(intensityOf(openingLights(later, staged), "practical"), 1.4),
-      ],
-    ]),
-    {
-      "reaches the opening context": true,
-      "reaches the later context": true,
-      "opening reads the source at the span's start": true,
-      "later reads the same source halfway along": true,
-      "the shot's own light is untouched by the production": true,
-    },
+    opening.lighting !== undefined && later.lighting !== undefined &&
+      nclose(intensityOf(openingLights(opening, staged), "key"), 3) &&
+      nclose(intensityOf(openingLights(later, staged), "key"), 2) &&
+      nclose(intensityOf(openingLights(later, staged), "practical"), 1.4),
   );
 
-  const unlit = buildContext(
+  const unlit: Pick<IAutoMovieShotBuildContext, "contract" | "lighting"> = buildContext(
     productionDesign(),
     pinnedContract("unlit", { originSeconds: 0 }),
   );
   TestValidator.equals(
     "a production stating no lighting leaves the staged lights unchanged",
     namedFacts([
-      ["declares nothing", () => unlit.lighting === undefined],
+      ["declares nothing", (): boolean => unlit.lighting === undefined],
       [
         "same lights, in order",
-        () =>
+        (): boolean =>
           openingLights(unlit, staged).every(
-            (light, index) => light === staged[index],
+            (light: IAutoMovieLight, index: number): boolean => light === staged[index],
           ),
       ],
-      ["same count", () => openingLights(unlit, staged).length === 2],
+      ["same count", (): boolean => openingLights(unlit, staged).length === 2],
     ]),
     {
       "declares nothing": true,
@@ -317,41 +300,41 @@ export const test_film_production_lighting_wiring = (): void => {
     },
   );
 
-  const lit = compileWith([dim()]);
-  const dark = compileWith();
+  const lit: IAutoMovieCompiledDefinedShot = compileWith([dim()]);
+  const dark: IAutoMovieCompiledDefinedShot = compileWith();
   TestValidator.equals(
     "a shot's own light clips reach the compiled shot",
     namedFacts([
-      ["compiles", () => lit.success],
+      ["compiles", (): boolean => lit.success],
       [
         "carries one clip",
-        () => lit.success && lit.source.shot.lightMotions?.length === 1,
+        (): boolean => lit.success && lit.source.shot.lightMotions?.length === 1,
       ],
       [
         "carries the authored clip",
-        () =>
+        (): boolean =>
           lit.success && lit.source.shot.lightMotions?.[0]?.id === "sunDims",
       ],
       [
-        "addresses the staged source",
-        () =>
+        "preserves pointer channel kind",
+        (): boolean =>
           lit.success &&
           lit.source.shot.lightMotions?.[0]?.tracks[0]?.channel.kind ===
             "pointer",
       ],
-      ["a program stating none compiles", () => dark.success],
+      ["a program stating none compiles", (): boolean => dark.success],
       [
         "and carries no light field",
-        () => dark.success && "lightMotions" in dark.source.shot === false,
+        (): boolean => dark.success && "lightMotions" in dark.source.shot === false,
       ],
     ]),
     {
       compiles: true,
       "carries one clip": true,
       "carries the authored clip": true,
-      "addresses the staged source": true,
+      "preserves pointer channel kind": true,
       "a program stating none compiles": true,
       "and carries no light field": true,
     },
   );
-};
+}
