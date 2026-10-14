@@ -55,13 +55,15 @@ export function test_film_locate_on_beat(): void {
   const treeless: IAutoMovieConstraintViolation[] = locateOnBeat(sample(), null, "beat-1");
   TestValidator.equals(
     "treeless call passes through unstamped",
-    treeless.every((violation: IAutoMovieConstraintViolation): boolean => violation.node === undefined),
+    treeless.length === violations.length &&
+      treeless.every((violation: IAutoMovieConstraintViolation): boolean => violation.node === undefined),
     true,
   );
   const unclaimed: IAutoMovieConstraintViolation[] = locateOnBeat(sample(), tree, "beat-99");
   TestValidator.equals(
     "unclaimed beat passes through unstamped",
-    unclaimed.every((violation: IAutoMovieConstraintViolation): boolean => violation.node === undefined),
+    unclaimed.length === violations.length &&
+      unclaimed.every((violation: IAutoMovieConstraintViolation): boolean => violation.node === undefined),
     true,
   );
 }

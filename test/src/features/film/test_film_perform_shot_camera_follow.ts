@@ -6,7 +6,7 @@ import { stageScene } from "../../../../packages/engine/src/film/stageScene";
 import { TestValidator } from "@nestia/e2e";
 import { makePerformanceWrite, makeScriptWrite, makeStagingWrite, validSynthesizer } from "../internal/filmFixtures";
 import { joint, keyframe, makeMotion, makePose } from "../internal/fixtures";
-import { namedFacts, nclose } from "../internal/predicates";
+import { nclose } from "../internal/predicates";
 const followFrame: IAutoMovieCameraAction = {
   verb: "frame",
   actor: "cam-main",
@@ -48,12 +48,12 @@ const marchSynth: () => IAutoMovieMotion = (): IAutoMovieMotion =>
  * Camera follow uses world displacement and keeps stationary/point subjects total.
  *
  * Scenarios:
- * 1. Follow a one-metre model-X root march and hold a rootless neighbour.
+ * 1. Follow a one-metre model-X root march and keep the rootless neighbour's endpoint X coordinate unchanged.
  * 2. Produce one static key for a point subject.
  * 3. Rotate the same march by staged +90-degree facing and check zero X drift and minus-one Z travel.
  *
- * @evidence contracts/testing.md#behavioral-verification Runs performShot and reads camera translation keys, catching ignored root travel, a node-local/world-frame mix or unnecessary movement of rootless and static-point subjects.
- * @evidence contracts/testing.md#independent-expectations The authored one-metre X translation fixes key displacement; a +90-degree Y placement maps it to world minus-Z, and equal stationary roots require equal endpoint positions. nclose compares hand-derived displacement rather than the framing solver's output snapshot.
+ * @evidence contracts/testing.md#behavioral-verification Runs performShot and reads camera translation keys, catching ignored root X travel, a node-local/world-frame mix, rootless endpoint X drift or a static-point path with more than one key. It does not compare every rootless coordinate or interior key.
+ * @evidence contracts/testing.md#independent-expectations The authored one-metre X translation fixes X displacement; a +90-degree Y placement maps it to world minus-Z, and the rootless fixture requires equal endpoint X coordinates. nclose compares hand-derived displacement rather than the framing solver's output snapshot.
  * @evidence contracts/testing.md#distinguishing-cases Distinguishes translated root, rootless clip, static point and turned placement with the same numerical path; camera-subject and bone/projectile follow cases are owned by camera_subject.
  * @evidence contracts/testing.md#execution-ownership This portable discoverable unit owns its camera compilation cases and reads arrays only, starting no browser, viewer or GPU. Numerical camera keys prove no final framing appearance.
  */
@@ -89,7 +89,7 @@ export function test_film_perform_shot_camera_follow(): void {
   if (rootless.success === true) {
     const t: IAutoMovieTrack = rootless.shot.cameraMotion!.tracks[0]!;
     TestValidator.predicate(
-      "rootless follow holds position",
+      "rootless follow keeps its endpoint X coordinate",
       nclose(t.values[0]!, t.values[t.values.length - 3]!, 1e-9),
     );
   }
@@ -137,16 +137,10 @@ export function test_film_perform_shot_camera_follow(): void {
   if (turned.success === true) {
     const tr: IAutoMovieTrack = turned.shot.cameraMotion!.tracks[0]!;
     const n: number = tr.values.length;
-    TestValidator.equals(
+    TestValidator.predicate(
       "a +X model march under +90° facing renders as a world −Z follow",
-      namedFacts([
-        ["noXDrift", (): boolean => nclose(tr.values[n - 3]! - tr.values[0]!, 0, 1e-6)],
-        [
-          "travelsOneDownZ",
-          (): boolean => nclose(tr.values[n - 1]! - tr.values[2]!, -1, 1e-6),
-        ],
-      ]),
-      { noXDrift: true, travelsOneDownZ: true },
+      nclose(tr.values[n - 3]! - tr.values[0]!, 0, 1e-6) &&
+        nclose(tr.values[n - 1]! - tr.values[2]!, -1, 1e-6),
     );
   }
 }

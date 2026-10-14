@@ -14,7 +14,7 @@ import { stageScene } from "../../../../packages/engine/src/film/stageScene";
 import { TestValidator } from "@nestia/e2e";
 import { forgeEntry, makeBlockingWrite, makePerformanceWrite, makeScriptWrite, makeStagingWrite, validSynthesizer } from "../internal/filmFixtures";
 import { createSkeleton } from "../internal/fixtures";
-import { namedFacts, nclose } from "../internal/predicates";
+import { nclose } from "../internal/predicates";
 /**
  * A source-authored take flows through forging, staging, blocking, performance,
  * cutting and playback without losing its cast, camera or timing.
@@ -32,7 +32,7 @@ import { namedFacts, nclose } from "../internal/predicates";
  * @evidence contracts/testing.md#behavioral-verification Executes the live numerical film stages and verifies each admission, the forged model join, compiled camera clip and final frame samples; a dropped or mismatched intermediate artifact fails its consuming stage or observable assertion.
  * @evidence contracts/testing.md#independent-expectations The fixture authors one two-second shot at 24 fps, so the contract requires 48 samples beginning at local zero with no blend; authored node and shot identities independently determine the staged join and playback selection.
  * @evidence contracts/testing.md#distinguishing-cases Owns one complete successful composition across film stages; rejection domains, repeated shots, trim seams and transitions belong to the focused stage and playback tests, without pretending this path covers those decisions.
- * @evidence contracts/testing.md#execution-ownership Despite its historical e2e filename, this discoverable synchronous entry is a portable engine unit composition with hand-authored data and the real numerical synthesizer fixture; it installs or starts no consumer, process, browser or GPU.
+ * @evidence contracts/testing.md#execution-ownership Despite its historical e2e filename, this discoverable synchronous entry is a portable engine unit composition with hand-authored data and the existing one-second fixture synthesizer, not the actor-context synthesizer. It installs or starts no consumer, process, browser or GPU.
  */
 export function test_film_full_ladder_e2e (): void {
   const script: IAutoMovieScript = makeScriptWrite();
@@ -87,13 +87,9 @@ export function test_film_full_ladder_e2e (): void {
 
   const samples: IAutoMoviePlaybackSample[] = playbackFrameSamples(cut.sequence, [performed.shot]);
   TestValidator.equals("frame count", samples.length, 48);
-  TestValidator.equals(
+  TestValidator.predicate(
     "first frame opens the shot",
-    namedFacts([
-      ["onTheOneShot", () : boolean => samples[0]!.shot === "shot:beat-1"],
-      ["atTheFirstInstant", () : boolean => nclose(samples[0]!.time, 0)],
-    ]),
-    { onTheOneShot: true, atTheFirstInstant: true },
+    (): boolean => samples[0]!.shot === "shot:beat-1" && nclose(samples[0]!.time, 0),
   );
   TestValidator.predicate(
     "every frame plays the one shot, hard-cut free",

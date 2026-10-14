@@ -1,21 +1,22 @@
-import type { IAutoMovieForgedProp } from "../../../../packages/engine/src/film/IAutoMovieForgedProp";
-import type { IAutoMovieConstraintViolation, IAutoMovieModelPart, IAutoMovieNode, IAutoMoviePropSpec } from "@automovie/interface";
+import { IAutoMovieForgedProp } from "../../../../packages/engine/src/film/IAutoMovieForgedProp";
+import { IAutoMovieConstraintViolation, IAutoMovieModelPart, IAutoMovieNode, IAutoMoviePropSpec } from "@automovie/interface";
 import { forgeProp } from "../../../../packages/engine/src/film/forgeProp";
-
 import { TestValidator } from "@nestia/e2e";
-
 import { createSkeleton } from "../internal/fixtures";
 import { hasViolation } from "../internal/predicates";
 import { createDoorPropSpec } from "../internal/createDoorPropSpec";
-
+/**
+ * Forge a fresh door after the caller applies its authored mutation.
+ *
+ * The owning test supplies authored bad identities, graph edges, mappings and
+ * extents and asserts located refusals; this adapter derives no expected findings.
+ */
 function broken (
   mutate: (spec: IAutoMoviePropSpec) => IAutoMoviePropSpec,
 ): ReturnType<typeof forgeProp> { return forgeProp(mutate(createDoorPropSpec())); }
 
 /**
- * ForgeProp's gates report every contract breach with a field-located path for
- * the correction round, and, unlike bindProfile's first-throw, the missing
- * boneMap mappings are reported all at once.
+ * ForgeProp's gates report every contract breach with a field-located path for the correction round, and, unlike bindProfile's first-throw, the missing boneMap mappings are reported all at once.
  *
  * Scenarios:
  *
@@ -23,24 +24,34 @@ function broken (
  * 2. A model id differing from the node breaks the staging join.
  * 3. An imported origin violates the generated-prop contract.
  * 4. A model with a skeleton is an actor, not a prop: rejected toward forgeCast.
- * 5. An invalid model (zero-extent part) surfaces validateModel's violation
- *    remapped under `$input.model`.
+ * 5. An invalid model (zero-extent part) surfaces validateModel's violation remapped under `$input.model`.
  * 6. Empty articulation nodes violate.
  * 7. A duplicated joint node id violates at the duplicate's path.
  * 8. An empty joint node id violates.
  * 9. A parent naming an undeclared node violates.
  * 10. A cyclic parent chain violates.
  * 11. A binding targeting a different profile id violates.
- * 12. A boneMap value naming an undeclared node violates; an empty value violates
- *     separately.
+ * 12. A boneMap value naming an undeclared node violates; an empty value violates separately.
  * 13. Both unmapped profile keys are listed in one round (pivot and mirror).
+ * 14. Inherited constructor/toString/__proto__ properties do not supply a semantic mapping; an explicit own mapping of the same spelling passes.
  *
  * @evidence contracts/testing.md#behavioral-verification Forges fresh single-defect door mutations and asserts located type/range violations for staging identity, model proxy, articulation hierarchy, binding and missing profile keys; exact two-key reporting catches fail-fast loss.
  * @evidence contracts/testing.md#independent-expectations Paths follow the authored field positions, node/model equality joins staging, primitive widths must be positive, parents and bindings must name declared nodes, and both pivot/mirror profile keys require mappings. These authored contracts determine expected refusals without reading a generated error list.
- * @evidence contracts/testing.md#distinguishing-cases Covers blank identities, wrong origin and rig kind, zero geometry extent, empty/duplicate/cyclic joint graphs, wrong profile, absent/blank mapped nodes and multiple unmapped keys. The unchanged valid articulated and rigid neighbour cases belong to test_film_forge_prop.
- * @evidence contracts/testing.md#execution-ownership The discoverable synchronous entry owns thirteen mutation cases over in-memory data and directly calls portable forgeProp; shared fixtures and violation predicates install no consumer or process.
+ * @evidence contracts/testing.md#distinguishing-cases Covers blank identities, wrong origin and rig kind, zero geometry extent, empty/duplicate/cyclic joint graphs, wrong profile, absent/blank mapped nodes and multiple unmapped keys. Reserved semantic spellings distinguish inherited properties from explicit own mappings, while unchanged articulated and rigid neighbours belong to test_film_forge_prop.
+ * @evidence contracts/testing.md#execution-ownership The discoverable synchronous entry owns its mutation cases over in-memory data and directly calls portable forgeProp; shared fixtures and violation predicates install no consumer or process.
  */
 export function test_film_forge_prop_gates (): void {
+  for (const key of ["constructor", "toString", "__proto__"]) {
+    const spec: IAutoMoviePropSpec = createDoorPropSpec();
+    if (spec.articulation === null) throw new Error("Door fixture must articulate");
+    spec.articulation.profile.drivers = [];
+    spec.articulation.profile.limits = [{ channel: { kind: "node", node: key, path: "rotation" }, min: null, max: null }];
+    spec.articulation.binding.boneMap = {};
+    const inherited: IAutoMovieForgedProp = forgeProp(spec);
+    TestValidator.predicate(`inherited semantic key ${key} is not a binding`, inherited.success === false && inherited.violations.some((item: IAutoMovieConstraintViolation): boolean => item.path === "$input.articulation.binding.boneMap" && item.expected.includes(`references "${key}"`) && item.expected.includes("does not map it")));
+    spec.articulation.binding.boneMap = { [key]: "hinge" };
+    TestValidator.equals(`own semantic key ${key} maps the declared hinge`, forgeProp(spec).success, true);
+  }
   const emptyNode: IAutoMovieForgedProp = broken((s: IAutoMoviePropSpec) : IAutoMoviePropSpec => ({ ...s, node: "  " }));
   TestValidator.predicate(
     "empty node id violates",

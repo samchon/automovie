@@ -301,7 +301,7 @@ export function test_film_grammar(): void {
   });
   TestValidator.predicate(
     "review socket preserves diagnostic identity and recovery",
-    notes.every(
+    notes.length === diagnostics.length && notes.every(
       (note: IAutoMovieReviewNote, index: number) : boolean =>
         note.tier === "visual" &&
         note.beat === "beat-grammar" &&

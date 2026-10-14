@@ -23,7 +23,8 @@ const bone: (name: AutoMovieHumanoidBone, parent: AutoMovieHumanoidBone | null, 
 
 /**
  * A rig whose arms rest hanging (`down`) or in the canonical T-pose (`out`).
- * One property apart, so the pair isolates the rest direction.
+ * One direction parameter changes both lower-arm and hand rest offsets, keeping
+ * lengths, hierarchy and the remaining rig fields fixed.
  */
 const armRig: (direction: "down" | "out") => IAutoMovieSkeleton = (direction: "down" | "out"): IAutoMovieSkeleton => {
   const step: (length: number, sign: number) => IAutoMovieVector3 = (length: number, sign: number): IAutoMovieVector3 =>

@@ -34,7 +34,7 @@ import { namedFacts, nclose, vclose } from "../internal/predicates";
  * @evidence contracts/testing.md#behavioral-verification Runs stageScene/performShot and samples baked clips and beat-end state, catching lost attachment fields, wrong authority or a zero-duration bake; custom-axis output must differ from the humanoid fallback.
  * @evidence contracts/testing.md#independent-expectations Authored parent/bone identities and action spans determine joins, event membership and zero-span refusal. The custom-axis and latest-handoff position references reuse resolveAttachment/sampleClip, so they check pipeline consistency rather than independently proving FK arithmetic; moving/staged neighbours distinguish the wrong path.
  * @evidence contracts/testing.md#distinguishing-cases Keeps both attached props, custom/fallback axes, all original parent/rig/bone/self refusals, disjoint handoffs, renamed latest clip, mount-null/end-velocity properties and auto-at-end refusal. Coupling cycles/depth belong to coupling_chain.
- * @evidence contracts/testing.md#execution-ownership The discoverable synchronous unit owns its portable forge/compile/sample cases; the existing synthesizer is a numerical seam and no viewer or render process executes. Finite velocity is asserted, not an independent trailing derivative value.
+ * @evidence contracts/testing.md#execution-ownership The discoverable synchronous unit owns its portable stage/compile/sample cases; the existing synthesizer is a numerical seam and no viewer or render process executes. Finite velocity is asserted, not an independent trailing derivative value.
  */
 export function test_film_perform_shot_attach(): void {
   const staged: IAutoMovieStagedSet = stageScene(scriptOf(), stagingOf());
@@ -135,35 +135,33 @@ export function test_film_perform_shot_attach(): void {
         "swordAttachSourceScriptedCue",
         (): boolean => swordAttach.source === "scriptedCue",
       ],
-      ["swordAttachTime", (): boolean => nclose(swordAttach.time, 0)],
       ["swordAttachActorSword", (): boolean => swordAttach.actor === "sword"],
       ["swordAttachTargetKnight", (): boolean => swordAttach.target === "knight"],
       ["swordAttachActionIndex", (): boolean => swordAttach.actionIndex === 1],
     ]),
     {
       swordAttachSourceScriptedCue: true,
-      swordAttachTime: true,
       swordAttachActorSword: true,
       swordAttachTargetKnight: true,
       swordAttachActionIndex: true,
     },
   );
+  TestValidator.predicate("the sword attaches at the authored start", nclose(swordAttach.time, 0));
   const shieldRelease: IAutoMovieInteractionEvent = attachEvents.find(
     (event: IAutoMovieInteractionEvent): boolean => event.kind === "release" && event.object === "shield",
   )!;
   TestValidator.equals(
     "the shield release event marks the auto-duration handoff end",
     namedFacts([
-      ["shieldReleaseTime", (): boolean => nclose(shieldRelease.time, 2)],
       ["shieldReleaseTargetKnight", (): boolean => shieldRelease.target === "knight"],
       ["shieldReleaseActionIndex", (): boolean => shieldRelease.actionIndex === 2],
     ]),
     {
-      shieldReleaseTime: true,
       shieldReleaseTargetKnight: true,
       shieldReleaseActionIndex: true,
     },
   );
+  TestValidator.predicate("the shield releases at the auto-duration end", nclose(shieldRelease.time, 2));
 
   // 2. custom jointAxes and restFrames reach the baked objectMotion FK.
   const raisedMotion: IAutoMovieMotion = createFilmAttachRaisedMotion();

@@ -16,7 +16,7 @@ import { filmEffectCue, filmEffectIdentity, filmEffectRecipe, filmEffectRefusal,
  * 3. Distinguish same-zone overlap from touching intervals or different zones, and preserve only declared runtime fields.
  *
  * @evidence contracts/testing.md#behavioral-verification Runs materializeProductionFilmEffects and the population verifier, checking observable fields and named refusal classes; overlapping cues must name their common frames and invalid input must not become a partial runtime set.
- * @evidence contracts/testing.md#independent-expectations Authored half-open frame intervals and rational rates independently determine seconds and ownership; protocol records and Node SHA-256 determine seeds/digests. The shared canonicalizer limits independence to hashing, and reader acceptance is a producer/consumer consistency check.
+ * @evidence contracts/testing.md#independent-expectations Authored half-open frame intervals and rational rates independently determine seconds and ownership; filmEffectValuesClose checks numerical leaves within 1e-12 with exact key sets/order. Protocol records and Node SHA-256 determine seeds/digests. The shared canonicalizer limits independence to hashing, and reader acceptance is a producer/consumer consistency check.
  * @evidence contracts/testing.md#distinguishing-cases Preserves all original identity/rate/world-id/shot-interval/cue admission cases, zero/one intensities, code-unit ties, missing references, film-film and film-shot overlaps with touching/different-zone twins, rational clock and extra-field exclusion.
  * @evidence contracts/testing.md#execution-ownership The synchronous discoverable function owns its in-memory writer/reader cases and Node reference hashing. It starts no generated production, native renderer, browser or GPU, and does not prove cross-machine replay.
  */
@@ -145,7 +145,7 @@ export function test_film_effect_materialization(): void {
     effects: [filmEffectCue({ startFrame: 3, durationFrames: 2 })],
   })[0]!;
   TestValidator.predicate(
-    "a rational clock yields exact rational bounds",
+    "a rational clock yields the authored rational bounds within 1e-12",
     filmEffectValuesClose(
       [
       rationalRuntime.frameRate,

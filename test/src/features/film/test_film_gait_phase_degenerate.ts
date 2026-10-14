@@ -2,7 +2,7 @@ import { IAutoMovieBeatEndActorState, IAutoMovieGaitCycle, IAutoMovieMotion, IAu
 import { resolveBeatEnd } from "../../../../packages/engine/src/film/resolveBeatEnd";
 import { TestValidator } from "@nestia/e2e";
 import { IDENTITY_TRANSFORM, joint, keyframe, makeMotion, makePose } from "../internal/fixtures";
-import { namedFacts, nclose } from "../internal/predicates";
+import { nclose } from "../internal/predicates";
 const withCycle: (gaitCycle: IAutoMovieGaitCycle) => IAutoMovieMotion = (gaitCycle: IAutoMovieGaitCycle): IAutoMovieMotion => ({
   ...makeMotion(
     [
@@ -76,15 +76,9 @@ export function test_film_gait_phase_degenerate(): void {
     nclose(phaseOf({ period: 1, phaseAt: 0.4 }, 1) ?? Number.NaN, 0.4),
   );
   const phase: number | null = phaseOf({ period: 0.8, phaseAt: 0.7 });
-  TestValidator.equals(
+  TestValidator.predicate(
     "valid cycle: (0.7 + 0.5) mod 0.8 = 0.4",
-    namedFacts([
-      ["phaseResolved", (): boolean => phase !== null],
-      // the null check is restated because the earlier fact's narrowing of the
-      // nullable `phase` does not reach inside this closure.
-      ["phaseWraps", (): boolean => phase !== null && nclose(phase, 0.4)],
-    ]),
-    { phaseResolved: true, phaseWraps: true },
+    (): boolean => phase !== null && nclose(phase, 0.4),
   );
 
   TestValidator.equals(

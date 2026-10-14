@@ -177,7 +177,7 @@ export function test_film_perform_shot_coupling_chain(): void {
     ["attach:horse", "attach:rider", "attach:sword"],
   );
 
-  // 1. the exact chain oracle: dragon staged ∘ dragon pose FK(hips) → horse,
+  // 1. the shared-FK chain reference: dragon staged ∘ dragon pose FK(hips) → horse,
   //    ∘ rest FK(spine) → rider, ∘ rest FK(leftHand) → sword.
   const rest: IAutoMoviePose = {
     skeleton: skeleton.id,
@@ -228,7 +228,7 @@ export function test_film_perform_shot_coupling_chain(): void {
 
   // 2. the chain carries the dragon's stride, link-invariant.
   TestValidator.predicate(
-    "the sword's net displacement is exactly the dragon's +2 m travel",
+    "the sword's net displacement is the dragon's +2 m travel within 1e-9",
     vclose(
       Vector3.subtract(
         posAt(swordClip, "sword", 2),
@@ -250,7 +250,7 @@ export function test_film_perform_shot_coupling_chain(): void {
     ),
   ).translation;
   TestValidator.predicate(
-    "the sword never sits at the stale staged-parent composition",
+    "the sword's end differs from the stale staged-parent composition",
     !vclose(posAt(swordClip, "sword", 2), staleSword, 1e-3),
   );
 

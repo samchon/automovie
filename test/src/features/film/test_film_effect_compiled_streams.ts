@@ -12,8 +12,8 @@ import { filmEffectRecipe, filmEffectWorld, filmEffectZone, nodeCanonicalDigest 
  * 3. Mutate emitted bounds, recipe and intensity without changing authored inputs.
  *
  * @evidence contracts/testing.md#behavioral-verification Runs materializeCompiledEffects and observes ordered records, event fields, seeds, digests and source isolation, catching owner mixing, omitted cue fields or shallow-copy mutation leaks.
- * @evidence contracts/testing.md#independent-expectations The documented protocol tags and authored ids/seeds define the SHA-256 seed record; Node crypto independently checks hashing. nodeCanonicalDigest shares the product canonicalizer, so it independently checks the digest primitive rather than every canonical ordering rule.
- * @evidence contracts/testing.md#distinguishing-cases Covers shot and film owners, altered owner identity, unresolved zone/recipe, optional event and mutable nested output fields; full film cue/clock admission belongs to effect_materialization.
+ * @evidence contracts/testing.md#independent-expectations The documented protocol tags and authored ids/seeds define the SHA-256 seed record; Node crypto independently checks hashing. nodeCanonicalDigest shares the product canonicalizer, so it independently checks the digest primitive rather than every canonical ordering rule. filmEffectValuesClose checks numerical leaves within 1e-12 with exact key sets and array order.
+ * @evidence contracts/testing.md#distinguishing-cases Contrasts shot and film owner protocols, unresolved zone/recipe, optional event and mutable nested output fields; changing an owner within one protocol is not independently exercised here. Full film cue/clock admission belongs to effect_materialization.
  * @evidence contracts/testing.md#execution-ownership The discoverable synchronous unit owns these in-memory stream cases and calls source directly; Node crypto is a portable reference within this process, without browser/GPU or cross-machine execution proof.
  */
 export function test_film_effect_compiled_streams(): void {

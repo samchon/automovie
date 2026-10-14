@@ -6,7 +6,12 @@ import { sceneToNodes } from "../../../../packages/engine/src/resolve/sceneToNod
 import { TestValidator } from "@nestia/e2e";
 import { hasViolation, namedFacts } from "../internal/predicates";
 import { createDoorPropSpec } from "../internal/createDoorPropSpec";
-/** The door spec with `mutate` applied to its articulation node list. */
+/**
+ * Apply an authored mutation to a fresh door's articulation node list.
+ *
+ * The owning test chooses node indexes and panel/sash identities independently
+ * of forge output. The copied list retains the fixture's original order.
+ */
 function withNodes (
   mutate: (nodes: IAutoMovieNode[]) => IAutoMovieNode[],
 ): IAutoMoviePropSpec {
@@ -20,7 +25,12 @@ function withNodes (
   };
 }
 
-/** Give the joint at `index` the mesh `part`. */
+/**
+ * Give one authored joint index the requested mesh reference.
+ *
+ * Index one is the fixture hinge; panel is declared and sash is absent. The
+ * owning test asserts admission and lowering of the resulting authored inputs.
+ */
 function drives (index: number, part: string): IAutoMoviePropSpec { return withNodes((nodes: IAutoMovieNode[]) : IAutoMovieNode[] =>
     nodes.map((node: IAutoMovieNode, i: number) : IAutoMovieNode => (i === index ? { ...node, mesh: part } : node)),
   ); }

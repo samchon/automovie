@@ -276,22 +276,19 @@ export function test_film_perform_shot_camera_subject(): void {
           boneFrame.success === true &&
           keysOf(boneFrame.shot.cameraMotion!.tracks[0]!.values).length > 1,
       ],
-      [
-        "vcloseBoneFrameShot",
-        (): boolean =>
-          boneFrame.success === true &&
-          vclose(boneFrame.shot.cameraIntent![0]!.focus!, {
-            x: 6,
-            y: 1.2,
-            z: 0,
-          }),
-      ],
     ]),
     {
       boneFrameSuccess: true,
       keysOfBoneFrameShot: true,
-      vcloseBoneFrameShot: true,
     },
+  );
+  TestValidator.predicate(
+    "the live bone supplies the authored initial focus",
+    boneFrame.success === true && vclose(boneFrame.shot.cameraIntent![0]!.focus!, {
+      x: 6,
+      y: 1.2,
+      z: 0,
+    }),
   );
   const fallbackBoneFrame: IAutoMoviePerformedShot = perform(
     [
@@ -339,10 +336,9 @@ export function test_film_perform_shot_camera_subject(): void {
     keys.length > 1,
     true,
   );
-  TestValidator.equals(
+  TestValidator.predicate(
     "and the framing actually travels with it",
-    vclose(keys[0]!, keys[keys.length - 1]!),
-    false,
+    !vclose(keys[0]!, keys[keys.length - 1]!),
   );
 
   const projectile: IAutoMoviePerformedShot = perform([looseAtCamera, frame("cam-alt", "arrow")]);
@@ -355,19 +351,11 @@ export function test_film_perform_shot_camera_subject(): void {
   const projectileKeys: { x: number; y: number; z: number; }[] = keysOf(
     projectile.shot.cameraMotion!.tracks[0]!.values,
   );
-  TestValidator.equals(
+  TestValidator.predicate(
     "the launch trajectory moves the prop-follow camera",
-    namedFacts([
-      ["keysTheWholeFlight", (): boolean => projectileKeys.length > 1],
-      [
-        "cameraTravels",
-        (): boolean =>
-          !vclose(
-            projectileKeys[0]!,
-            projectileKeys[projectileKeys.length - 1]!,
-          ),
-      ],
-    ]),
-    { keysTheWholeFlight: true, cameraTravels: true },
+    projectileKeys.length > 1 && !vclose(
+      projectileKeys[0]!,
+      projectileKeys[projectileKeys.length - 1]!,
+    ),
   );
 }

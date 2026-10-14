@@ -7,7 +7,7 @@ import { resolveBeatEnd } from "../../../../packages/engine/src/film/resolveBeat
 import { sampleMotion } from "../../../../packages/engine/src/motion/sampleMotion";
 import { TestValidator } from "@nestia/e2e";
 import { IDENTITY_TRANSFORM, joint, makePose } from "../internal/fixtures";
-import { namedFacts, nclose } from "../internal/predicates";
+import { nclose } from "../internal/predicates";
 const WALK: IAutoMovieGait = {
   name: "walk",
   period: 1,
@@ -112,18 +112,9 @@ export function test_film_gait_phase_pipeline(): void {
     motions: [hero],
   });
   const heroEnd: IAutoMovieBeatEndActorState = end.actors.find((a: IAutoMovieBeatEndActorState): boolean => a.node === "hero")!;
-  TestValidator.equals(
+  TestValidator.predicate(
     "resolveBeatEnd reads a live stride phase off the real ladder",
-    namedFacts([
-      ["phaseIsLive", (): boolean => heroEnd.gaitPhase !== null],
-      // the null check is restated because the earlier fact's narrowing of the
-      // nullable `gaitPhase` property does not reach inside this closure.
-      [
-        "phaseIsHalfStride",
-        (): boolean => heroEnd.gaitPhase !== null && nclose(heroEnd.gaitPhase, 0.5),
-      ],
-    ]),
-    { phaseIsLive: true, phaseIsHalfStride: true },
+    (): boolean => heroEnd.gaitPhase !== null && nclose(heroEnd.gaitPhase, 0.5),
   );
 
   const atEnd: IAutoMoviePose = sampleMotion(hero, 3.5).pose;
