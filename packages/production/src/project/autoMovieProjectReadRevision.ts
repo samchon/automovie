@@ -7,6 +7,7 @@ import { AutoMovieProjectJsonError } from "./AutoMovieProjectJsonError";
 import type { IAutoMovieProjectState } from "./IAutoMovieProjectState";
 
 /**
+ * Read and decode the resident non-negative safe-integer mutation clock. Only absent file bytes select the legacy zero revision; parsed null or a malformed present record throws a file-attributed JSON error rather than resetting the clock. Physical acquisition and duplicate-aware JSON parsing precede numeric admission.
  *
  * @evidence contracts/common.md#principled-implementation Optional owned bytes and strict JSON parsing feed the safe-integer decoder; only absence becomes zero.
  * @evidence contracts/common.md#clear-and-simple-design Separates physical/parser attribution from pure clock admission.

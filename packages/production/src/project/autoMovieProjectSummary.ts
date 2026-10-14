@@ -3,6 +3,7 @@ import { IAutoMovieLegacyActorSpec, IAutoMovieLegacyProjectSummary, IAutoMovieLe
 import type { IAutoMovieProjectState } from "./IAutoMovieProjectState";
 
 /**
+ * Return slice-presence flags, ids/counts, registered assets and advisory render strays through the existing sequence of resident reads. Scene presence includes keyed scenes, flags use admitted non-null content and notes count all returned rows. This operation performs no deletion or media certification and does not create an atomic cross-file snapshot.
  *
  * @evidence contracts/common.md#principled-implementation Fenced slate, prop/actor reads, stray discovery and asset acquisition assemble observations in the original order.
  * @evidence contracts/common.md#clear-and-simple-design Reports resident presence/keys without deleting strays or selecting production kind.

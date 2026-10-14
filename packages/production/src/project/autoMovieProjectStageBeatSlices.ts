@@ -2,6 +2,7 @@ import { autoMovieProjectSliceFilename } from "./autoMovieProjectSliceFilename";
 import { autoMovieProjectSerializeJson } from "./autoMovieProjectSerializeJson";
 
 /**
+ * Render each keyed record into a caller-owned filename-to-JSON-text map before any resident mutation. Filename encoding and native serialization may throw; repeated encoded filenames overwrite the earlier staged entry, so owning callers supply the required identity admission separately.
  *
  * @evidence contracts/common.md#principled-implementation Encoded keys and the common JSON renderer materialize a filename-to-text map before resident mutation.
  * @evidence contracts/common.md#clear-and-simple-design Owns the throw-prone keyed staging half; case-collision admission is separate in saveSlate.

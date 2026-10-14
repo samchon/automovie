@@ -7,6 +7,7 @@ import { autoMovieProjectSliceKeyFromFilename } from "./autoMovieProjectSliceKey
 import type { IAutoMovieProjectState } from "./IAutoMovieProjectState";
 
 /**
+ * Read sorted .json members of a project directory, skip absent or parsed-null values, and require each record's projected identity to equal its decoded filename key before optional validation. Returned records retain parsed identity under caller ownership. Generic T and key matching alone do not admit the complete field schema, and file observations are sequential.
  *
  * @evidence contracts/common.md#principled-implementation Sorted .json names are parsed, URI-decoded and checked against supplied keys before optional validation.
  * @evidence contracts/common.md#clear-and-simple-design One directory reader serves scene, shot, beat-end, prop and actor storage.

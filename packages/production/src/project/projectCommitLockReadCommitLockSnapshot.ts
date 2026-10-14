@@ -6,12 +6,12 @@ import { projectCommitLockCloseCommitLockDescriptor } from "./projectCommitLockC
 import { projectCommitLockLockIdentity } from "./projectCommitLockLockIdentity";
 
 /**
- * Read a token only when linked path, opened descriptor and a second resident descriptor agree on one regular file. Identity drift returns null; read/close errors propagate with their original causes.
+ * Read a regular-file token after comparing the two pathname observations and, separately, the two opened-descriptor identities. Detected drift returns null and read/close failures propagate; the current checks do not compare the pathname identity directly with the opened identity.
  *
- * @evidence contracts/common.md#principled-implementation Device/inode checks across lstat and fstat detect path replacement, and a second opened resident descriptor witnesses the original opened file before its token is accepted.
+ * @evidence contracts/common.md#principled-implementation Initial and later lstat device/inode identities must agree, while the second descriptor's fstat must agree with the first opened descriptor. Regular-file checks guard both domains, but no direct comparison connects the linked identity to the first opened identity.
  * @evidence contracts/common.md#clear-and-simple-design The reader owns both descriptor scopes and delegates error-preserving close to one helper; callers consume token and identity together rather than separate uncoordinated reads.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Symlinks and nonregular files return null, and a read error never becomes proof of absence or permission to reclaim a foreign lock.
- * @evidence contracts/common.md#meaningful-documentation States the identity witnesses, null refusal and combined cleanup failures; two reads are still finite observations rather than an atomic filesystem transaction.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Symlinks and nonregular files return null, and a read error never becomes proof of absence or permission to reclaim a foreign lock. Separate matching pathname and descriptor pairs can miss an ABA replacement because their identities are not directly joined; that admission gap remains unresolved here.
+ * @evidence contracts/common.md#meaningful-documentation States the actual two identity comparisons, missing cross-domain join, null refusal and combined cleanup failures; the observations provide neither one proven resident identity nor an atomic filesystem transaction.
  * @evidence contracts/performance.md#efficient-algorithms Per observation uses a fixed number of stats and two opens plus reading T token bytes, with O(T) storage; the current implementation imposes no token-byte limit.
  * @evidence contracts/performance.md#reuse-equivalent-work Snapshots are read afresh because resident-path identity may change between calls; no age or quiet-path cache is considered ownership evidence.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Every successfully opened descriptor has a finally close attempt, including null/refusal paths; a failed native close is reported and cannot be claimed physically completed.

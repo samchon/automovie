@@ -43,12 +43,8 @@ export const releaseCommitLock: (lockPath: string, token: string, options?: { un
     try {
       fileSystem.renameSync(lockPath, quarantine);
     } catch {
-      // The ownership entry is already gone and the resident lock still holds
-      // this session's token, so returning here leaves the file with no owner
-      // anywhere: every later acquisition of this coordinate, including one
-      // from this very process, waits out its deadline and reports itself as a
-      // foreign holder. One transient EPERM would fence the namespace until
-      // somebody deleted the file by hand.
+      // A failed rename may leave this token resident after local withdrawal.
+      // Recover local depth only when a fresh read still finds our exact token.
       if (owned) projectCommitLockReclaimCommitLock(lockPath, token);
       return;
     }

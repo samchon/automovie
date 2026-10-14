@@ -3,6 +3,7 @@ import type { IAutoMovieProjectState } from "./IAutoMovieProjectState";
 import type { IAutoMovieProductionRootNamespaceLease } from "../production/IAutoMovieProductionRootNamespaceLease";
 
 /**
+ * Run a synchronous callback between root-lease assertions matching this handle's opening device/inode witnesses. A final assertion can refuse after callback effects have occurred; the scope provides no rollback or continuing pathname lease after return. Retirement of the acquired level is attempted in finally, and callback-owned resources remain with the callback.
  *
  * @evidence contracts/common.md#principled-implementation An existing root lease must match instance device/inode and remain valid before and after the synchronous callback.
  * @evidence contracts/common.md#clear-and-simple-design Supplies the repeated assertion closure shared by resident reads and mutations.

@@ -4,6 +4,7 @@ import { appendValidation } from "../validators/primitives";
 import { autoMovieProjectResidentSceneModels } from "./autoMovieProjectResidentSceneModels";
 
 /**
+ * Append portable scene findings using model-id placeholders derived from this scene's own nodes. This checks scene structure and delegated spatial/light/environment rules; it does not authenticate model existence in an external catalogue or admit skeleton contents.
  *
  * @evidence contracts/common.md#principled-implementation Observed model ids form skeleton-null registry placeholders for portable scene validation.
  * @evidence contracts/common.md#clear-and-simple-design Admits stored scene shape while actual model/skeleton context remains external.

@@ -1,6 +1,7 @@
 
 
 /**
+ * Render an optional mismatch key as none for null/undefined or an unchanged quoted string otherwise. This is diagnostic spelling without JSON escaping, key admission or file access.
  *
  * @evidence contracts/common.md#principled-implementation Null/undefined render as none; other keys use the established quoted diagnostic spelling.
  * @evidence contracts/common.md#clear-and-simple-design Owns mismatch explanation rather than key admission.

@@ -1,6 +1,7 @@
 
 
 /**
+ * File-attributed resident JSON, acquisition or revision-shape refusal. The stable Error retains supplied reason text but not the original cause or stack; constructing it changes no project data.
  *
  * @evidence contracts/common.md#principled-implementation Native Error identifies the malformed file and includes the parser/filesystem message under the established JSON refusal name.
  * @evidence contracts/common.md#clear-and-simple-design Revision and optional JSON readers share file-context attribution; invalid clock shape uses this same refusal identity.

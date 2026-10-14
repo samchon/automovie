@@ -1,6 +1,3 @@
-/**
- * Legacy project record boundary preserving historical identities and units.
- */
 import type { IAutoMovieNode } from "@automovie/interface";
 import type { IAutoMovieLegacyPropBinding } from "./IAutoMovieLegacyPropBinding";
 import type { IAutoMovieLegacyPropProfile } from "./IAutoMovieLegacyPropProfile";

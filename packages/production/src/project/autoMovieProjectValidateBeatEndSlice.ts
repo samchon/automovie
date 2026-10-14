@@ -4,6 +4,7 @@ import { shotIdOf } from "./shotKey";
 import { autoMovieProjectAsArray } from "./autoMovieProjectAsArray";
 
 /**
+ * Append continuity-end identity and actor-state findings for a record admitted by the keyed reader. Shot identity must match the beat-derived id; actor transforms and facing vectors use shared numeric rules, and localTime is finite non-negative seconds. Actor membership and motion residency remain external checks, and this typed entry dereferences the outer record without a new shape guard.
  *
  * @evidence contracts/common.md#principled-implementation Beat/shot identity correspondence precedes actor id, transform, facing and local-time admission.
  * @evidence contracts/common.md#clear-and-simple-design Owns stored continuity-end shape without inventing starting actor context.

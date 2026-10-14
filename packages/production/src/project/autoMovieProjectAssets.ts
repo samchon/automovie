@@ -1,6 +1,7 @@
 import type { IAutoMovieProjectState } from "./IAutoMovieProjectState";
 
 /**
+ * Refresh resident authority and return a copied registration-ordered asset path list. Caller edits cannot mutate the retained array through this result, while registration alone proves neither binary existence nor current bytes.
  *
  * @evidence contracts/common.md#principled-implementation Fenced refresh returns a copied asset-path array in registration order.
  * @evidence contracts/common.md#clear-and-simple-design Callers cannot edit the retained index through this getter.

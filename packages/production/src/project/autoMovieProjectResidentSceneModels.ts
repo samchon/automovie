@@ -2,6 +2,7 @@ import { isRecord } from "../validators/primitives";
 import { autoMovieProjectAsArray } from "./autoMovieProjectAsArray";
 
 /**
+ * Return distinct string model ids from record-shaped scene nodes in first-observed order. A non-record scene contributes none. These self-derived ids support stored-scene placeholder validation and prove neither external model residency nor skeleton validity.
  *
  * @evidence contracts/common.md#principled-implementation Record nodes with string model fields are deduplicated in observed order.
  * @evidence contracts/common.md#clear-and-simple-design Supplies only the model-id placeholders needed by stored scene admission.

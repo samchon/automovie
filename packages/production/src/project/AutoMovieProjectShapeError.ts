@@ -1,6 +1,7 @@
 
 
 /**
+ * File-attributed refusal for an invalid manifest or slice after its owning gate runs. Supplied detail may list only the first five findings; the stable Error stores that text without the complete sink or automatic repair.
  *
  * @evidence contracts/common.md#principled-implementation Native Error names the semantically invalid file and the supplied validation detail.
  * @evidence contracts/common.md#clear-and-simple-design Manifest admission and slice validation share this file-context boundary after their own shape/semantic checks.

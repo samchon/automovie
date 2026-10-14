@@ -5,6 +5,7 @@ import { autoMovieProjectReadValidatedJson } from "./autoMovieProjectReadValidat
 import type { IAutoMovieProjectState } from "./IAutoMovieProjectState";
 
 /**
+ * Return validated keyed scenes when any are resident; otherwise read the historical optional scene.json as a zero-or-one scene list. Malformed keyed data throws before fallback, while parsed-null keyed members are skipped by the directory reader. Returned scenes are newly read records owned by the caller.
  *
  * @evidence contracts/common.md#principled-implementation Keyed scenes are admitted first; empty keyed output alone enables validated scene.json fallback.
  * @evidence contracts/common.md#clear-and-simple-design Keeps the actual historical layout readable until saveSlate migration.

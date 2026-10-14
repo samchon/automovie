@@ -2,6 +2,7 @@ import { autoMovieProjectWriteAtomic } from "./autoMovieProjectWriteAtomic";
 import { autoMovieProjectSerializeJson } from "./autoMovieProjectSerializeJson";
 
 /**
+ * Render native pretty JSON with a trailing LF, then pass its text to the guarded same-directory leaf writer. Serialization failure precedes mutation; the writer's partial-publication and temporary-cleanup limitations remain, and this adapter adds no schema admission or group transaction.
  *
  * @evidence contracts/common.md#principled-implementation One common JSON rendering feeds the fenced atomic writer.
  * @evidence contracts/common.md#clear-and-simple-design Keeps textual representation identical for manifest and revision publication.

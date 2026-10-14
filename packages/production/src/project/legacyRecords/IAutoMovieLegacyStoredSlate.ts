@@ -1,11 +1,7 @@
 import type { IAutoMovieBeatEndState, IAutoMovieReviewNote, IAutoMovieScene, IAutoMovieScript, IAutoMovieSequence, IAutoMovieShot } from "@automovie/interface";
 
 /**
- * Committed resident-store slices with an optional assembled film.
- *
- * The historical read boundary omitted film; the writable form requires the
- * slot. AutoMovieProject reads these slices and the legacy importer inventories
- * them. The retired read/commit protocol is not an active consumer.
+ * Legacy resident-store slices with an optional assembled-film slot. AutoMovieProject reads script, scenes, shots, beat ends and notes, while its writable form requires a nullable film field. These records preserve the historical layout without an active read/commit tool or an atomic cross-file snapshot.
  *
  * @evidence contracts/common.md#principled-implementation The resident store assembles committed script, scenes, shots, beat ends and notes; optional film preserves the historical read/writable distinction without certifying slice consistency.
  * @evidence contracts/common.md#clear-and-simple-design LegacyWritableSlate makes film required for AutoMovieProject writableSlate and saveSlate; individual store methods own disk observation and admission.
@@ -18,18 +14,12 @@ import type { IAutoMovieBeatEndState, IAutoMovieReviewNote, IAutoMovieScene, IAu
  */
 export interface IAutoMovieLegacyStoredSlate {
   /**
-   * Committed script, or null before SCRIPT exists.
+   * Admitted script, or null for absent bytes or parsed JSON null.
    */
   script: IAutoMovieScript | null;
 
   /**
-   * Committed staged scenes, keyed by their own `id`, empty before STAGING.
-   *
-   * Plural because a film is not one location. The script tree already authors
-   * several `scene` nodes with their own INT/EXT and location, and every shot
-   * already names the scene it renders through {@link IAutoMovieShot.scene},
-   * which `validateShotArtifact` enforces. The slate held one scene, so the
-   * production layer collapsed a screenplay to a single set (#1171).
+   * Admitted keyed scenes in filename order, or the historical scene.json fallback when no keyed scene contributes; empty means neither yields a scene.
    */
   scenes: IAutoMovieScene[];
 
@@ -44,13 +34,12 @@ export interface IAutoMovieLegacyStoredSlate {
   beatEnds: IAutoMovieBeatEndState[];
 
   /**
-   * Open review notes.
+   * All admitted stored review notes; the resident reader does not filter an open/closed status.
    */
   notes: IAutoMovieReviewNote[];
 
   /**
-   * Optional assembled film; the writable form requires this slot and uses
-   * null before assembly.
+   * Optional assembled film; the writable form requires this slot and uses null before assembly.
    */
   film?: IAutoMovieSequence | null;
 }

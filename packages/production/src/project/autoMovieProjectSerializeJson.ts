@@ -1,6 +1,7 @@
 
 
 /**
+ * Render native JSON.stringify output with two-space indentation and one trailing LF. Native omission, coercion, toJSON effects and cyclic/bigint failures remain; a top-level value with undefined stringify output becomes the literal undefined spelling plus LF, so this renderer is no JSON-schema admission. The caller owns the returned text.
  *
  * @evidence contracts/common.md#principled-implementation Native JSON.stringify with two-space indentation and a trailing LF produces the established stored text.
  * @evidence contracts/common.md#clear-and-simple-design One renderer serves all staged slices, manifests and clocks.

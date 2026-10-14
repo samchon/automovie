@@ -1,6 +1,7 @@
 import { checkAssetPath } from "./checkAssetPath";
 
 /**
+ * Return the shared legacy path rule's normalized relative identity or throw its exact fault text. This wrapper adds no native-filename or physical-containment admission and opens no file.
  *
  * @evidence contracts/common.md#principled-implementation The shared path result returns normalized text or throws its exact fault.
  * @evidence contracts/common.md#clear-and-simple-design Keeps the store's throwing API over import's shared nonthrowing policy.

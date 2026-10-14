@@ -4,6 +4,7 @@ import { readAutoMovieProductionOwnedFile } from "../production/productionRender
 import { AutoMovieProjectJsonError } from "./AutoMovieProjectJsonError";
 
 /**
+ * Read an optional project-owned file and parse strict duplicate-aware UTF-8 JSON. Missing bytes and a JSON null value both return null; acquisition and parser failures are wrapped as a file-attributed AutoMovieProjectJsonError. The generic T is an unchecked return cast, with field admission left to callers.
  *
  * @evidence contracts/common.md#principled-implementation Optional physical owned-file bytes undergo strict duplicate-aware JSON materialization.
  * @evidence contracts/common.md#clear-and-simple-design Separates exact acquisition from per-slice semantic admission.

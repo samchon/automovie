@@ -6,6 +6,7 @@ import { autoMovieProjectWriteJsonAtomic } from "./autoMovieProjectWriteJsonAtom
 import type { IAutoMovieProjectState } from "./IAutoMovieProjectState";
 
 /**
+ * Run one synchronous mutation under the root namespace and commit lock when the resident revision matches this handle's last read revision. A stale clock refreshes the handle's manifest/clock before refusal; invalid or exhausted clocks refuse before flush. Successful flush precedes revision publication, so later failures can leave changed leaves without a new handle clock, and token retirement is attempted in finally.
  *
  * @evidence contracts/common.md#principled-implementation Root/revision locks compare the last read clock, refresh stale state on refusal, then flush before safe-successor publication.
  * @evidence contracts/common.md#clear-and-simple-design Owns optimistic concurrency around the supplied synchronous mutation.

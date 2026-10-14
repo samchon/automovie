@@ -3,8 +3,7 @@ import type { AutoMovieProjectRevisionAdvance } from "./AutoMovieProjectRevision
 /**
  * Select the exact next revision before a guarded mutation writes any bytes.
  *
- * The caller publishes the successor only after its mutation succeeds.
- * Invalid input and an exhausted safe-integer clock are distinct refusals.
+ * The caller publishes the successor only after its mutation succeeds. Invalid input and an exhausted safe-integer clock are distinct refusals.
  *
  * @evidence contracts/common.md#principled-implementation Addition by one is exact below Number.MAX_SAFE_INTEGER; domain admission and exhaustion prevent rounding from repeating a generation identity.
  * @evidence contracts/common.md#clear-and-simple-design One pure decision leaves guarded mutation and publication with the project transaction owner.

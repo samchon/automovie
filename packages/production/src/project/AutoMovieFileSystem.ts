@@ -3,8 +3,7 @@ import type fs from "node:fs";
 /**
  * Node-compatible storage capability selected per production invocation.
  *
- * Operations preserve Node's path, result and error contracts and own any
- * acquired handles. The scoped runner supplies this dependency explicitly.
+ * Operations preserve Node's path, result and error contracts and own any acquired handles. The scoped runner supplies this dependency explicitly.
  *
  * @evidence contracts/common.md#principled-implementation Node's namespace type preserves the actual method signatures without another path or handle model.
  * @evidence contracts/common.md#clear-and-simple-design The scope, reader and dispatcher share one filesystem capability type.

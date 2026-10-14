@@ -1,6 +1,7 @@
 import { autoMovieProjectFormatKey } from "./autoMovieProjectFormatKey";
 
 /**
+ * File-attributed refusal for a decoded filename key differing from a record's projected identity, also used for malformed filename escapes. The message retains supplied expected/actual text under a stable Error name; it repairs no file and applies no recovery action.
  *
  * @evidence contracts/common.md#principled-implementation Native Error records the file, key role, expected filename identity and formatted actual optional key.
  * @evidence contracts/common.md#clear-and-simple-design Directory reads and malformed percent decoding share this keyed-slice refusal identity.

@@ -1,8 +1,7 @@
 
 
 /**
- * What a resident project holds, which slate slices exist as files and which
- * binary assets the manifest tracks (#614: the project folder is the memory).
+ * Resident legacy-project inventory derived from sequential slate, prop, actor and manifest reads. Flags describe admitted non-null content, ids/counts describe returned records, and registered asset paths prove no binary existence or media acceptance.
  *
  * @evidence contracts/common.md#principled-implementation AutoMovieProject.summary derives slice presence, keys, asset registration and stale render names from the admitted resident store; this type describes that observation rather than committed content.
  * @evidence contracts/common.md#clear-and-simple-design One summary is the legacy importer inventory input, keeping disk observation with the resident-store owner.
@@ -20,12 +19,12 @@ export interface IAutoMovieLegacyProjectSummary {
   root: string;
 
   /**
-   * Whether `script.json` exists.
+   * Whether the admitted optional script value is non-null; absent bytes and parsed JSON null both produce false.
    */
   script: boolean;
 
   /**
-   * Whether `scene.json` exists.
+   * Whether admitted keyed scenes or the historical scene.json fallback contribute any scene.
    */
   scene: boolean;
 
@@ -40,12 +39,12 @@ export interface IAutoMovieLegacyProjectSummary {
   beatEnds: string[];
 
   /**
-   * Open review note count.
+   * Number of admitted stored review notes, with no open/closed status filtering.
    */
   notes: number;
 
   /**
-   * Whether `film.json` exists.
+   * Whether the admitted optional film value is non-null; file existence alone does not determine this flag.
    */
   film: boolean;
 
@@ -60,20 +59,12 @@ export interface IAutoMovieLegacyProjectSummary {
   actors: string[];
 
   /**
-   * Render outputs the committed truth no longer owns (#1130): top-level
-   * `renders/` entries whose name matches neither the committed film's stem
-   * family, nor any committed shot's, nor a registered asset. Re-committing
-   * upstream clears the film while its rendered frames and videos linger; the
-   * server NEVER deletes user-visible files, so detection is the server's and
-   * the corrective action (delete the strays, or register them deliberately) is
-   * the agent's. Empty when the directory matches the committed truth, and
-   * always empty while no film is committed (a film mid-rework owns nothing
-   * yet).
+   * Advisory top-level renders/ paths outside the film/shot filename-stem families and registered asset descendants. No film yields an empty list; this filename policy performs no byte verification or deletion.
    */
   staleRenders: string[];
 
   /**
-   * Tracked binary asset paths, project-relative, in registration order.
+   * Registered project-relative asset paths in manifest order; registration alone establishes no resident bytes.
    */
   assets: string[];
 }

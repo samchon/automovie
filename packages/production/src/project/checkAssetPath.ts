@@ -1,6 +1,7 @@
 import path from "node:path";
 
 /**
+ * Return a slash-normalized relative asset identity or an explanatory fault for blank, absolute, drive-prefixed or empty/dot/parent segments. This typed string guard performs no filesystem access and retains the historical policy, which does not reject every native filename hazard or establish physical containment.
  *
  * @evidence contracts/common.md#principled-implementation Backslashes normalize to slashes; empty text, absolute/drive spellings and empty/dot/parent segments return faults.
  * @evidence contracts/common.md#clear-and-simple-design Shares nonthrowing legacy path admission between asset registration and import capture.

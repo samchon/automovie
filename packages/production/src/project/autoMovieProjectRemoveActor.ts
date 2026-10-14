@@ -4,6 +4,7 @@ import { autoMovieProjectRemoveAtomic } from "./autoMovieProjectRemoveAtomic";
 import type { IAutoMovieProjectState } from "./IAutoMovieProjectState";
 
 /**
+ * Remove one encoded actor leaf through the revision-guarded quarantine remover without reading its contents. Siblings remain untouched and missing leaves keep the ordinary commit-cycle behavior; completed deletion or failed cleanup's quarantine can survive a later refusal.
  *
  * @evidence contracts/common.md#principled-implementation One encoded actor path is quarantined/removed inside a revision-guarded cycle.
  * @evidence contracts/common.md#clear-and-simple-design Removes one actor while siblings remain unchanged.

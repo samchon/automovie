@@ -2,9 +2,7 @@ import type { IAutoMovieDrivenDriver } from "@automovie/interface";
 import type { IAutoMovieLegacyRange } from "./IAutoMovieLegacyRange";
 
 /**
- * A driven driver whose tuple-valued `inRange`/`outRange` cross the v1
- * boundary as named {@link IAutoMovieLegacyRange} objects, converted to engine
- * pairs by `toEnginePropSpec`.
+ * A driven driver whose tuple-valued inRange/outRange cross the v1 boundary as named {@link IAutoMovieLegacyRange} objects, converted to engine pairs by toEnginePropSpec.
  *
  * @evidence contracts/common.md#principled-implementation The stored driven variant keeps named from/to ranges while inheriting active driver fields; toEnginePropSpec lowers each present range in order to a two-element engine pair.
  * @evidence contracts/common.md#clear-and-simple-design Only the tuple representation differs; the legacy prop-driver union and converter own this historical boundary.

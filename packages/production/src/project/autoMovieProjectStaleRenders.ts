@@ -7,6 +7,7 @@ import { IAutoMovieLegacyWritableSlate } from "./legacyRecords";
 import type { IAutoMovieProjectState } from "./IAutoMovieProjectState";
 
 /**
+ * Return sorted advisory top-level renders/ paths outside film/shot filename-stem families and registered asset descendants. Null film returns none. The filename policy admits no bytes and starts no deletion; filesystem and stem-encoding errors propagate.
  *
  * @evidence contracts/common.md#principled-implementation A committed film enables sorted-name filtering against film/shot stem families and registered descendant assets.
  * @evidence contracts/common.md#clear-and-simple-design Produces advisory paths without deleting rendered work.

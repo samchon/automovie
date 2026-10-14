@@ -2,6 +2,7 @@ import path from "node:path";
 import type { IAutoMovieProjectState } from "./IAutoMovieProjectState";
 
 /**
+ * Return revision.lock joined to the handle's current root; token acquisition, identity and retirement remain with the mutation owner rather than this path-only projection.
  *
  * @evidence contracts/common.md#principled-implementation Native joining selects revision.lock below the current root.
  * @evidence contracts/common.md#clear-and-simple-design Mutation admission and release share one coordinate.

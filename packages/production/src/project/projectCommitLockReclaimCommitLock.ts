@@ -18,6 +18,6 @@ export const projectCommitLockReclaimCommitLock: (lockPath: string, token: strin
     if (resident !== null && resident.token === token)
       projectCommitLockHeld.set(lockPath, { token, depth: 0 });
   } catch {
-    // nothing resident to reclaim
+    // Unreadable evidence permits no local ownership recovery.
   }
 };

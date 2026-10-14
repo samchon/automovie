@@ -3,8 +3,7 @@ import type { AutoMovieProjectRevisionDecision } from "./AutoMovieProjectRevisio
 /**
  * Decode an optional persisted revision; only an absent record defaults to zero.
  *
- * Present records must carry a non-negative safe integer. Malformed data stays
- * invalid so reading it cannot reopen a project's mutation clock at zero.
+ * Present records must carry a non-negative safe integer. Malformed data stays invalid so reading it cannot reopen a project's mutation clock at zero.
  *
  * @evidence contracts/common.md#principled-implementation Number.isSafeInteger admits exact JSON integer clocks and the non-negative comparison defines their lower bound; undefined alone represents a legacy missing file.
  * @evidence contracts/common.md#clear-and-simple-design Persistence admission stays separate from successor selection and physical writes.

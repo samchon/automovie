@@ -4,6 +4,7 @@ import { checkAssetPath } from "./checkAssetPath";
 import { AutoMovieProjectShapeError } from "./AutoMovieProjectShapeError";
 
 /**
+ * Admit a version-one record with string asset paths, normalize each path through the historical asset rule, and refuse repeated normalized paths. The returned outer record and asset array are new while extra fields remain shared. Registration claims no binary existence, and this path rule proves neither full native filename validity nor physical confinement; direct host arrays also receive no density check.
  *
  * @evidence contracts/common.md#principled-implementation Record/version admission and string/path/duplicate checks return copied normalized assets while preserving extra fields.
  * @evidence contracts/common.md#clear-and-simple-design One runtime gate protects resident manifest reads.

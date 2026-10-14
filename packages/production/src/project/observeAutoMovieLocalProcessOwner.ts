@@ -19,8 +19,10 @@ import { isAutoMovieLocalProcessOwner } from "./isAutoMovieLocalProcessOwner";
 export function observeAutoMovieLocalProcessOwner(props: {
   /** Persisted owner-shaped value to validate and observe. */
   owner: unknown;
+
   /** Stable identity of the process performing the observation. */
   current: IAutoMovieLocalProcessOwner;
+
   /** Signal-zero process-table adapter. */
   query: AutoMovieLocalProcessQuery;
 }): AutoMovieLocalProcessOwnerObservation {

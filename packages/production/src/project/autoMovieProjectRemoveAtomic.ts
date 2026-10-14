@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import { productionFileSystem as fileSystem } from "./productionFileSystem";
 
 /**
+ * Rename one selected leaf into quarantine before removal under namespace assertions. ENOENT returns without a leaf removal; a later failure attempts restoration only when quarantine still exists and the original destination is absent. Unsafe or failed restoration can retain quarantine, and the original failure propagates.
  *
  * @evidence contracts/common.md#principled-implementation A fenced rename quarantines the leaf before unlink; failure attempts safe restoration if the original destination is absent.
  * @evidence contracts/common.md#clear-and-simple-design One selected-file removal keeps stale namespace cleanup behind current assertions.

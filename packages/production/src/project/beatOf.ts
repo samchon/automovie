@@ -1,8 +1,7 @@
 /**
  * Read the complete non-empty beat suffix of shot:<beat>, or return null.
  *
- * Commit preconditions refuse null; legacy resident keying may explicitly keep
- * the original id when the convention does not apply.
+ * Commit preconditions refuse null; legacy resident keying may explicitly keep the original id when the convention does not apply.
  *
  * @evidence contracts/common.md#principled-implementation Exact prefix admission and a non-empty suffix parse the resident grammar without altering the suffix's colon characters or other beat data.
  * @evidence contracts/common.md#clear-and-simple-design The parser owns the grammar and each caller owns refusal or its documented legacy keying policy.

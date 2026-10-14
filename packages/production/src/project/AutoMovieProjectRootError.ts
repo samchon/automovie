@@ -1,6 +1,7 @@
 
 
 /**
+ * Opening refusal naming an unusable requested root and supplied acquisition detail. The stable Error carries text only, without preserving the native cause or reversing initialization effects elsewhere.
  *
  * @evidence contracts/common.md#principled-implementation Native Error names the unusable requested root and the acquisition failure detail.
  * @evidence contracts/common.md#clear-and-simple-design The opening factory maps physical-root acquisition failure before constructing resident state.

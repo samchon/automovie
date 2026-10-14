@@ -2,6 +2,7 @@ import { IAutoMovieConstraintViolation } from "@automovie/interface";
 import { pushViolation, validateArrayArtifact, validateNonEmptyId, validateNonEmptyText, validateObjectArtifact } from "../validators/primitives";
 
 /**
+ * Append raw review-note findings for beat ids, nonblank issue/suggestion text and the structural, physical or visual tier. This gate does not join beat ids to a script or certify that a review happened; notes remain borrowed and unchanged.
  *
  * @evidence contracts/common.md#principled-implementation Array/object shape precedes beat id, closed tier, issue and suggestion admission.
  * @evidence contracts/common.md#clear-and-simple-design Owns persisted review-note structural semantics.

@@ -5,6 +5,7 @@ import { autoMovieProjectRemoveAtomic } from "./autoMovieProjectRemoveAtomic";
 import type { IAutoMovieProjectState } from "./IAutoMovieProjectState";
 
 /**
+ * Reconcile one keyed directory by removing resident .json names absent from the supplied staging map, then writing each staged member in map order. Non-.json entries remain untouched. Namespace assertions bracket the sequence, but a later error does not roll back previously completed leaf operations.
  *
  * @evidence contracts/common.md#principled-implementation A fenced directory scan removes .json names absent from staging before writing every staged member and reasserting ownership.
  * @evidence contracts/common.md#clear-and-simple-design One reconciler serves scenes, shots and beat ends in prescribed order.

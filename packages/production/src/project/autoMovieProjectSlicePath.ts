@@ -2,6 +2,7 @@ import path from "node:path";
 import type { IAutoMovieProjectState } from "./IAutoMovieProjectState";
 
 /**
+ * Join this handle's current root with an internal slice name and return the pathname without opening it. Actual callers supply fixed slice names; arbitrary name input receives no traversal, native-filename or physical-identity admission here.
  *
  * @evidence contracts/common.md#principled-implementation Native joining combines current root with the internal fixed slice name.
  * @evidence contracts/common.md#clear-and-simple-design Staging and optional reads share construction.

@@ -17,32 +17,38 @@ export type AutoMovieLocalProcessOwnerObservation =
   | {
       /** The descriptor is exactly this observing process generation. */
       state: "same-owner";
+
       /** The validated persisted owner. */
       owner: IAutoMovieLocalProcessOwner;
     }
   | {
       /** No process currently occupies the recorded local PID. */
       state: "absent";
+
       /** The validated persisted owner. */
       owner: IAutoMovieLocalProcessOwner;
     }
   | {
       /** The PID is occupied without proof that its process generation matches. */
       state: "occupied-or-reused";
+
       /** The validated persisted owner. */
       owner: IAutoMovieLocalProcessOwner;
     }
   | {
       /** The descriptor belongs to a host this process table cannot inspect. */
       state: "elsewhere";
+
       /** The validated persisted owner. */
       owner: IAutoMovieLocalProcessOwner;
     }
   | {
       /** No recovery-authorizing owner conclusion could be proved. */
       state: "unknown";
+
       /** A validated owner when the observation, rather than parsing, failed. */
       owner: IAutoMovieLocalProcessOwner | null;
+
       /** Sanitized reason that does not expose the raw descriptor or platform error. */
       reason: "invalid-owner" | "process-query-unavailable";
     };

@@ -1,6 +1,7 @@
 import type { IAutoMovieProjectState } from "./IAutoMovieProjectState";
 
 /**
+ * Under the current root namespace, return the first differently spelled prop key with the same lowercase encoded filename, or null. Exact spelling is excluded; directory/escape failures propagate and this observation grants no future write authority.
  *
  * @evidence contracts/common.md#principled-implementation A fenced scan finds equal folded encoded filenames with different exact spelling and decodes the sibling.
  * @evidence contracts/common.md#clear-and-simple-design Uses the common keyed-directory collision owner.

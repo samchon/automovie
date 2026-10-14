@@ -1,6 +1,7 @@
 import { AUTOMOVIE_PROJECT_WINDOWS_DEVICE_NAMES } from "./AUTOMOVIE_PROJECT_WINDOWS_DEVICE_NAMES";
 
 /**
+ * Encode a storage key as its historical .json filename, escaping asterisks and the first character of a listed Windows device stem after URI encoding. The spelling is shared by read/write/order owners; lone surrogates throw URIError, and native filename length/platform rules remain external.
  *
  * @evidence contracts/common.md#principled-implementation URI encoding plus asterisk/device-stem escapes produces the historical key.json spelling.
  * @evidence contracts/common.md#clear-and-simple-design Read, write and ordering use the same persisted filename owner.

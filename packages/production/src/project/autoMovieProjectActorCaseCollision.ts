@@ -1,6 +1,7 @@
 import type { IAutoMovieProjectState } from "./IAutoMovieProjectState";
 
 /**
+ * Under the current root namespace, return the first differently spelled actor key with the same lowercase encoded filename, or null. The common scan is unsorted and may throw on malformed escapes; the result is no future write lease.
  *
  * @evidence contracts/common.md#principled-implementation The actors query shares fenced folded-filename comparison with props.
  * @evidence contracts/common.md#clear-and-simple-design Only the selected directory differs from the common owner.

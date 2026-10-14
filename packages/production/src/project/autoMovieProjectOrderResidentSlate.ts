@@ -5,6 +5,7 @@ import { autoMovieProjectOrderByFilename } from "./autoMovieProjectOrderByFilena
 import type { IAutoMovieProjectState } from "./IAutoMovieProjectState";
 
 /**
+ * Return a shallow slate copy with new shot and beat-end arrays ordered by their encoded persisted filenames. Other collections and all record objects remain borrowed; ordering performs no resident read or semantic admission and filename encoding can throw.
  *
  * @evidence contracts/common.md#principled-implementation Copied shot and beat-end arrays sort by exact persisted filenames under code-unit order.
  * @evidence contracts/common.md#clear-and-simple-design Aligns commit results with directory-read order without another disk read.

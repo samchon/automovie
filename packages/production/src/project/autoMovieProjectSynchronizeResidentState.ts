@@ -2,6 +2,7 @@ import type { IAutoMovieProjectManifest } from "./IAutoMovieProjectManifest";
 import type { IAutoMovieProjectState } from "./IAutoMovieProjectState";
 
 /**
+ * Read the resident revision and manifest in that order, then replace both retained handle fields after both reads succeed. A read failure leaves the previous fields intact; the sequential observations are not one atomic filesystem snapshot and an unchanged revision does not suppress manifest admission.
  *
  * @evidence contracts/common.md#principled-implementation Revision is read before manifest; both fields update only after both reads succeed.
  * @evidence contracts/common.md#clear-and-simple-design Refreshes resident clock and asset mirror in one ordered operation.

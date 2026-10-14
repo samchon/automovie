@@ -1,6 +1,3 @@
-/**
- * Legacy project prop conversion boundary preserving active semantics.
- */
 import type { IAutoMovieDriver, IAutoMovieProfile, IAutoMoviePropSpec } from "@automovie/interface";
 import type { IAutoMovieLegacyPropSpec } from "./IAutoMovieLegacyPropSpec";
 import type { IAutoMovieLegacyPropDriver } from "./IAutoMovieLegacyPropDriver";
@@ -9,12 +6,9 @@ import type { IAutoMovieLegacyPropProfile } from "./IAutoMovieLegacyPropProfile"
 /**
  * Convert one stored legacy prop spec into the engine's own shape.
  *
- * The stored form keeps ranges as objects because the payload it came from
- * could not express tuples, so the engine pair is rebuilt here rather than
- * stored twice.
- * Historical controls, binding root and instance labels are omitted: no
- * runtime used them. Model, nodes, limits and boneMap retain caller ownership;
- * lowered profiles and driven-range tuples are fresh objects.
+ * The stored form keeps ranges as objects because the payload it came from could not express tuples, so the engine pair is rebuilt here rather than stored twice.
+ *
+ * Historical controls, binding root and instance labels are omitted: no runtime used them. Model, nodes, limits and boneMap retain caller ownership; lowered profiles and driven-range tuples are fresh objects.
  *
  * @evidence contracts/common.md#principled-implementation Named v1 endpoints lower to ordered two-element engine ranges without changing values or units; omitted ranges stay absent so curve-driven records gain no invented linear interval.
  * @evidence contracts/common.md#clear-and-simple-design One boundary converts legacy persistence to active prop semantics, with private helpers for nested profile and driver representations.

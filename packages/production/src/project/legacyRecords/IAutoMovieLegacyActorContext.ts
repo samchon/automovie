@@ -3,13 +3,7 @@ import type { AutoMovieHumanoidBone, IAutoMoviePose, IAutoMovieSkeleton, IAutoMo
 import type { IAutoMovieLegacyGait } from "./IAutoMovieLegacyGait";
 
 /**
- * Actor context the v1 store performed against.
- *
- * This is the JSON-safe subset of the engine's actor context. Gait cubic-bezier
- * tuple fields are intentionally omitted; use named easing curves for
- * Gait limbs as the v1 record carried them.
- * The current resident store preserves this historical metadata; the retired
- * perform protocol does not execute it.
+ * Historical actor-context metadata preserved by the v1 resident store, with gait cubic-bezier tuple fields omitted from its compatibility representation. Position, facing and gait phase describe optional beat openings; the current store neither fills them from continuity nor executes the retired perform protocol.
  *
  * @evidence contracts/common.md#principled-implementation Persisted actor data separates optional per-beat openings from beat-invariant rig, gait and rest data; this historical shape does not itself synthesize or validate a performance.
  * @evidence contracts/common.md#clear-and-simple-design LegacyActorSpec removes the three opening fields for actor-file storage; AutoMovieProject and the legacy importer retain this boundary without exposing the retired perform protocol.
@@ -32,10 +26,7 @@ export interface IAutoMovieLegacyActorContext {
   gaits: IAutoMovieLegacyGait[];
 
   /**
-   * Where the actor stands at the start of the shot (world meters). A RESIDENT
-   * `perform` may omit it (#1176): the previous beat's committed end-state
-   * seeds it, so a walking character resumes exactly where it stopped. An
-   * explicit call (or a beat with no committed predecessor) must pass it.
+   * Optional historical shot-opening world position in metres; the current store does not seed an omitted value from a previous beat.
    */
   position?: IAutoMovieVector3;
 
@@ -45,18 +36,12 @@ export interface IAutoMovieLegacyActorContext {
   speed: number;
 
   /**
-   * Heading the actor faces, degrees about +Y (0 = +Z). Omittable in a RESIDENT
-   * `perform` exactly like `position` (#1176), seeded from the previous beat's
-   * committed end-state facing.
+   * Optional historical opening heading in degrees about +Y, with zero along +Z; persistence alone supplies no missing heading.
    */
   facingDeg?: number;
 
   /**
-   * Seconds into the looping gait cycle at the shot's start, a beat that opens
-   * mid-stride resumes the walk at this phase instead of restarting it.
-   * Omittable in a RESIDENT `perform` exactly like `position` (#1176): seeded
-   * from the previous beat's committed end-state `gaitPhase` when it recorded
-   * one. `null` (or omission with nothing recorded) starts the cycle at zero.
+   * Optional nullable historical gait-opening phase in seconds; null and omission are preserved metadata, with no current playback or continuity default applied by the store.
    */
   gaitPhase?: number | null;
 
@@ -71,22 +56,12 @@ export interface IAutoMovieLegacyActorContext {
   restPose: IAutoMoviePose;
 
   /**
-   * The actor's resolved skeleton geometry: the rig bones and their ROM
-   * constraints. Required by the physics/IK verbs that measure or clamp against
-   * the body (`react` folds a flinch bounded by each joint's ROM) and by
-   * `enact`; one of those without a `rig` synthesises nothing. `lookAt` reads
-   * it too, spreading a steep aim across the `neck` and `head` ranges you
-   * declare instead of putting the whole angle on the head.
+   * Optional historical rig geometry and joint range-of-motion data; storage neither resolves the skeleton nor admits or executes an IK action.
    */
   rig?: IAutoMovieSkeleton;
 
   /**
-   * Per-bone rest frames that let the IK/arm verbs (`reach`/`point`/`strike`)
-   * emit their arm angles in **clinical** space, lifted by `sign·r + neutral`
-   * so a downstream renderer reads them up through the same frames (abduction
-   * `180` raises either arm overhead regardless of side). Omission uses the
-   * canonical humanoid clinical frame; supply `{}` only for raw rig-space
-   * angles. A custom table must be paired with the same frames on the player.
+   * Optional historical per-bone rest-frame table, whose angle basis must agree with any external consumer; the resident store preserves the table without selecting clinical defaults or interpreting an empty table.
    */
   restFrames?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>;
 }

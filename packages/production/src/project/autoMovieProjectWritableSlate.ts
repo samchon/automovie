@@ -6,6 +6,7 @@ import { autoMovieProjectReadValidatedJson } from "./autoMovieProjectReadValidat
 import type { IAutoMovieProjectState } from "./IAutoMovieProjectState";
 
 /**
+ * Read the current stored slate and admit an optional film sequence against its acquired shots. Missing or parsed-null film returns null; present malformed or inconsistent film throws through the resident reader. The returned collections belong to the caller, and these sequential reads do not establish one atomic filesystem snapshot.
  *
  * @evidence contracts/common.md#principled-implementation Fenced stored-slate acquisition supplies the shot registry used to admit an optional film sequence.
  * @evidence contracts/common.md#clear-and-simple-design Film extends the acquired stored result rather than rebuilding the slate.

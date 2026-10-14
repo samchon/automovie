@@ -7,6 +7,7 @@ import { autoMovieProjectSerializeJson } from "./autoMovieProjectSerializeJson";
 import type { IAutoMovieProjectState } from "./IAutoMovieProjectState";
 
 /**
+ * Register one normalized relative path and optionally publish supplied bytes when the destination is absent. Duplicate registration refuses; without supplied bytes no file-existence check occurs. Asset and manifest writes are separate guarded leaves, so bytes may survive later failure; success returns the normalized registered path.
  *
  * @evidence contracts/common.md#principled-implementation Normalized path/current manifest admission precede optional no-existing-file publication, then manifest replacement and mirror assignment.
  * @evidence contracts/common.md#clear-and-simple-design One cycle coordinates asset registration and optional supplied bytes.

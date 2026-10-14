@@ -2,6 +2,7 @@ import { IAutoMovieConstraintViolation } from "@automovie/interface";
 import { validateNonEmptyId } from "../validators/primitives";
 
 /**
+ * Accept null or append the shared nonempty-id findings at the supplied path. Undefined remains an invalid id rather than becoming the absent relation; the borrowed value is never changed.
  *
  * @evidence contracts/common.md#principled-implementation Null is accepted; every other value uses nonempty-id admission at the supplied path.
  * @evidence contracts/common.md#clear-and-simple-design Shares optional predecessor/parent checking in tree shape admission.

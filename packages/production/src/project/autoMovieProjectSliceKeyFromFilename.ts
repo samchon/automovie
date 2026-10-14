@@ -1,6 +1,7 @@
 import { AutoMovieProjectKeyError } from "./AutoMovieProjectKeyError";
 
 /**
+ * Remove the caller-admitted .json suffix and URI-decode the remaining filename key. Invalid escapes become a file-attributed AutoMovieProjectKeyError; this helper neither checks the suffix nor opens or admits file contents.
  *
  * @evidence contracts/common.md#principled-implementation Removing the known .json suffix then native percent-decoding recovers the stored key.
  * @evidence contracts/common.md#clear-and-simple-design Shares keyed correspondence and sibling collision decoding.

@@ -8,6 +8,7 @@ import { autoMovieProjectRemoveAtomic } from "./autoMovieProjectRemoveAtomic";
 import type { IAutoMovieProjectState } from "./IAutoMovieProjectState";
 
 /**
+ * Stage the complete slate before a revision-guarded reconciliation of script, film, notes and keyed scene/shot/beat-end files. The historical scene.json is removed as scenes move to keyed storage, and empty notes stage removal. Raw duplicate keys are already coalesced by Maps before case checks; this low-level write does not validate the slate and completed leaf mutations can survive a later refusal.
  *
  * @evidence contracts/common.md#principled-implementation Maps and case-folded filename guards precede serialization of every proposed slice; one guarded cycle then flushes them.
  * @evidence contracts/common.md#clear-and-simple-design Staging separates serialization from ordered mutations and historical scene-file removal.

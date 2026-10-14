@@ -2,6 +2,7 @@ import { compareCodeUnits } from "@automovie/engine";
 import { autoMovieProjectSliceFilename } from "./autoMovieProjectSliceFilename";
 
 /**
+ * Return original item references in code-unit order of their encoded .json filenames, leaving the input array unchanged. Keys and filenames are evaluated once per item before sorting; encoding or caller key projection failures propagate without disk access.
  *
  * @evidence contracts/common.md#principled-implementation Named wrappers sort by encoded filename then project the original item references.
  * @evidence contracts/common.md#clear-and-simple-design Reproduces persisted directory order without disk access.

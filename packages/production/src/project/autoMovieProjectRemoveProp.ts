@@ -4,6 +4,7 @@ import { autoMovieProjectRemoveAtomic } from "./autoMovieProjectRemoveAtomic";
 import type { IAutoMovieProjectState } from "./IAutoMovieProjectState";
 
 /**
+ * Remove one encoded prop leaf through the revision-guarded quarantine remover. This does not admit prop semantics; absence retains ordinary commit-cycle behavior, while deletion effects or failed cleanup's quarantine can survive later refusal.
  *
  * @evidence contracts/common.md#principled-implementation An encoded prop filename uses the guarded quarantine remover.
  * @evidence contracts/common.md#clear-and-simple-design Deletes one prop without rewriting siblings.

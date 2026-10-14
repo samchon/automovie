@@ -12,12 +12,16 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms A type executes no process-table lookup or identity comparison.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The current-owner function owns generation stability rather than this data declaration.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Descriptors are scalar data owned by their enclosing lock or observation; the type acquires no handle.
+ *
+ * @author Samchon
  */
 export interface IAutoMovieLocalProcessOwner {
   /** Host whose process table assigned {@link pid}. */
   host: string;
+
   /** Positive safe-integer process identifier on {@link host}. */
   pid: number;
+
   /** Opaque UUID identifying this process generation. */
   generation: string;
 }

@@ -3,8 +3,7 @@ import type { IAutoMovieChannel } from "@automovie/interface";
 /**
  * Historical prop control metadata retained when reading a v1 project record.
  *
- * Conversion preserves this stored format but omits controls from the engine
- * profile: no runtime ever applied their defaults or bound their channels.
+ * Conversion preserves this stored format but omits controls from the engine profile: no runtime ever applied their defaults or bound their channels.
  *
  * @evidence contracts/common.md#principled-implementation The stored record keeps its historical channel and default-vector representation; current engine profiles contain only fields with runtime semantics.
  * @evidence contracts/common.md#clear-and-simple-design Historical metadata belongs to the legacy project boundary instead of remaining an unread active interface capability.

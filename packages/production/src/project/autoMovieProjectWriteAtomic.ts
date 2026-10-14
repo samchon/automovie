@@ -3,6 +3,7 @@ import path from "node:path";
 import { productionFileSystem as fileSystem } from "./productionFileSystem";
 
 /**
+ * Write supplied staged text/bytes to a same-directory temporary file and rename it over the selected leaf between namespace assertions. No fsync or group transaction is provided; a renamed leaf remains after a closing refusal. Before publication, finally attempts temporary removal only while namespace assertion permits touching it.
  *
  * @evidence contracts/common.md#principled-implementation Fenced directory creation and temporary write precede same-directory rename and a closing namespace assertion.
  * @evidence contracts/common.md#clear-and-simple-design Owns one leaf replacement while cycle ordering belongs to the caller.

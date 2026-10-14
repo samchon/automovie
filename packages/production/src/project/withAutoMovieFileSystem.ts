@@ -4,9 +4,7 @@ import { fileSystemStorage } from "./fileSystemStorage";
 /**
  * Execute an operation with an explicit invocation-local filesystem capability.
  *
- * Current callers are storage fault tests; ordinary production dispatch uses
- * native storage. Descendants inherit the dependency and the operation owns
- * their completion and handles. The original result or exception is preserved.
+ * Current callers are storage fault tests; ordinary production dispatch uses native storage. Descendants inherit the dependency and the operation owns their completion and handles. The original result or exception is preserved.
  *
  * @evidence contracts/common.md#principled-implementation AsyncLocalStorage.run binds a dependency to the operation and its descendants and restores the parent on synchronous return or throw, preserving the result including promises.
  * @evidence contracts/common.md#clear-and-simple-design One scoped entry supplies the ordinary storage dispatcher; current invocation owners are the explicit storage-fault test harness.

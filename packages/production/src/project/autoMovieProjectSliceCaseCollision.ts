@@ -5,6 +5,7 @@ import { autoMovieProjectSliceKeyFromFilename } from "./autoMovieProjectSliceKey
 import type { IAutoMovieProjectState } from "./IAutoMovieProjectState";
 
 /**
+ * Scan current directory names for the first differently spelled .json member sharing the target's lowercase encoded filename, then decode its key or return null. This performs no content validation, preserves native directory order and propagates scan/encoding/decoding errors.
  *
  * @evidence contracts/common.md#principled-implementation Encoded target names fold to lowercase while exact spelling is excluded; the first matching sibling is decoded.
  * @evidence contracts/common.md#clear-and-simple-design Prop and actor queries share directory-name discovery.

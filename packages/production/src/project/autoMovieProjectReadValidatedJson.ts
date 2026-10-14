@@ -3,6 +3,7 @@ import { autoMovieProjectReadJson } from "./autoMovieProjectReadJson";
 import { autoMovieProjectValidateProjectValue } from "./autoMovieProjectValidateProjectValue";
 
 /**
+ * Read optional owned JSON and run the supplied semantic gate before returning its generic typed value. File absence and parsed JSON null both return null without invoking the gate; other values can throw parser, filesystem or semantic refusals. The caller selects a gate strong enough for T and owns the returned parsed tree.
  *
  * @evidence contracts/common.md#principled-implementation Unknown optional JSON is admitted by its supplied gate before the generic typed return.
  * @evidence contracts/common.md#clear-and-simple-design Composes byte acquisition and slice semantics without another materialization.

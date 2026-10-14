@@ -1,6 +1,7 @@
 import { IAutoMovieConstraintViolation } from "@automovie/interface";
 
 /**
+ * Format the first five already collected findings as path/expectation pairs joined by semicolons. The complete sink still controls refusal in the caller; this display projection omits later rows without bounding the included strings' lengths or mutating any finding.
  *
  * @evidence contracts/common.md#principled-implementation The first five findings project path/expected strings into one explanation.
  * @evidence contracts/common.md#clear-and-simple-design Bounds diagnostic row count independently of full validation collection.

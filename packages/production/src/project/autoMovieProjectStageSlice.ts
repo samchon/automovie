@@ -2,6 +2,7 @@ import { autoMovieProjectSerializeJson } from "./autoMovieProjectSerializeJson";
 import type { IAutoMovieProjectState } from "./IAutoMovieProjectState";
 
 /**
+ * Build one absolute slice destination and its rendered content before mutation. Null content means remove the destination; any other value uses the native JSON renderer and can throw during staging. The returned record and text belong to the caller, and no file is opened here.
  *
  * @evidence contracts/common.md#principled-implementation Current root and fixed slice name identify the destination; null stages removal and other values use the shared JSON renderer.
  * @evidence contracts/common.md#clear-and-simple-design Keeps serialization before the guarded mutation phase.

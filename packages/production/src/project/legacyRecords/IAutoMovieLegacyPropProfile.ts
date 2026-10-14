@@ -6,13 +6,7 @@ import type { IAutoMovieLegacyPropControl } from "./IAutoMovieLegacyPropControl"
 import type { IAutoMovieLegacyPropDriver } from "./IAutoMovieLegacyPropDriver";
 
 /**
- * A prop's profile as the v1 record wrote it: the declared controls,
- * limits, and (tuple-free) drivers. Gaits are omitted, a prop does not locomote
- * (`IAutoMovieProfile.gaits` is for bodies); the humanoid gait path rides the
- * `perform` tool's actor contexts instead.
- *
- * Controls remain stored metadata; conversion omits them because no runtime
- * ever applied their default values or bound their channels.
+ * Historical prop profile containing controls, limits and tuple-free drivers, with no gait field. toEnginePropSpec retains id/name/limits and lowers drivers, omitting control metadata rather than applying defaults or bindings. This representation supplies no active perform-tool consumer.
  *
  * @evidence contracts/common.md#principled-implementation The v1 profile keeps named driver ranges and historical controls in its persisted shape; conversion lowers active drivers and limits into the engine contract and omits unread controls.
  * @evidence contracts/common.md#clear-and-simple-design Legacy storage owns compatibility data while the active profile owns supported runtime semantics.

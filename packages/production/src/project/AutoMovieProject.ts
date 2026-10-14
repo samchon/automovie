@@ -44,6 +44,8 @@ import type { IAutoMovieProductionRootNamespaceLease } from "../production/IAuto
 
 /**
  *
+ * Open and operate the legacy resident project store, retaining its manifest mirror, mutation clock and physical root witnesses. Optional reads and revision-guarded writes remain separate operations; publication can leave completed leaves after failure, actor reads admit identity without deep context validation, and sequential reads are not an atomic snapshot.
+ *
  * @evidence contracts/common.md#principled-implementation The original project instance retains its root witnesses, manifest and clock; method adapters call source-preserved operations on that same instance.
  * @evidence contracts/common.md#clear-and-simple-design Keeps existing public names and state access timing; the internal forwarding view exposes real private accesses to TypeScript while oversized bodies remain in their owner files.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Only existing APIs remain; staging is not a multi-file transaction, namespace checks are finite and historical actor deep admission remains absent.
@@ -79,10 +81,12 @@ private constructor(/** Canonical root owning this resident legacy store. */ pub
 
 /**
  *
+ * Create or open the resolved physical root and initialize reserved directories, the resident clock and manifest under an opening lease. A non-null existing manifest is admitted without rewriting; absent bytes or parsed JSON null select a newly written default manifest. Created directories/files can survive a later initialization or closing assertion failure, and opening lease retirement is attempted in finally.
+ *
  * @evidence contracts/common.md#principled-implementation Resolved root creation/acquisition supplies physical witnesses to the original private constructor; a closing assertion precedes return.
  * @evidence contracts/common.md#clear-and-simple-design Owns opening lease lifetime while constructor initialization preserves reserved-directory/revision/manifest order.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Initialization can create paths before a later failure; existing manifests are admitted without rewriting their bytes.
- * @evidence contracts/common.md#meaningful-documentation States new-root initialization, absent slices and existing-manifest nonrewrite.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Initialization can create paths before a later failure; non-null existing manifests are admitted without rewriting, while parsed JSON null follows the absent-manifest default branch.
+ * @evidence contracts/common.md#meaningful-documentation States root initialization, absent slices, the JSON-null default branch and non-null existing-manifest nonrewrite.
  * @evidence contracts/performance.md#efficient-algorithms Includes parent/root creation, reserved mkdir calls, revision/manifest reads and final identity/token checks.
  * @evidence contracts/performance.md#reuse-equivalent-work One acquired lease surrounds construction; independent opens are not cached or shared effectful initialization.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Finally attempts opening-lease retirement on return/throw; native cleanup can retain fences and created files/directories are not rolled back.
@@ -113,6 +117,8 @@ public static open(rootDir: string): AutoMovieProject {
 
 /**
  *
+ * Read current script, scenes, shots, beat ends and notes after refreshing resident authority. Optional script absence returns null and missing notes become an empty list; keyed identities and supplied field gates must admit present data. Returned collections belong to the caller and reads remain sequential.
+ *
  * @evidence contracts/common.md#principled-implementation Root fencing and resident revision/manifest refresh precede keyed identity and semantic slice admission; optional absence stays null or empty.
  * @evidence contracts/common.md#clear-and-simple-design One resident read assembles script, scenes, shots, beat ends and notes; film admission is separately owned.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Sequential observations are not an atomic snapshot; malformed present data refuses rather than becoming invented content.
@@ -124,6 +130,8 @@ public static open(rootDir: string): AutoMovieProject {
 public storedSlate(): Omit<IAutoMovieLegacyWritableSlate, "film"> { return autoMovieProjectStoredSlate(AutoMovieProject.forwardingView(this)); }
 
 /**
+ *
+ * Read the stored slate and validate optional film against the acquired shot registry. Missing or parsed-null film stays null, inconsistent present film refuses, and the returned records do not establish an atomic cross-file snapshot.
  *
  * @evidence contracts/common.md#principled-implementation Fenced stored-slate acquisition supplies the shot registry used to admit an optional film sequence.
  * @evidence contracts/common.md#clear-and-simple-design Film extends the acquired stored result rather than rebuilding the slate.
@@ -137,6 +145,8 @@ public writableSlate(): IAutoMovieLegacyWritableSlate { return autoMovieProjectW
 
 /**
  *
+ * Return a shallow slate copy whose shot and beat-end arrays follow persisted filename order. Record objects and other collections stay shared; filename encoding can throw and no resident file is read or changed.
+ *
  * @evidence contracts/common.md#principled-implementation Copied shot and beat-end arrays sort by exact persisted filenames under code-unit order.
  * @evidence contracts/common.md#clear-and-simple-design Aligns commit results with directory-read order without another disk read.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Other fields and record references stay unchanged; filename encoding can throw on lone surrogates.
@@ -148,6 +158,8 @@ public writableSlate(): IAutoMovieLegacyWritableSlate { return autoMovieProjectW
 public orderResidentSlate(slate: IAutoMovieLegacyWritableSlate): IAutoMovieLegacyWritableSlate { return autoMovieProjectOrderResidentSlate(AutoMovieProject.forwardingView(this), slate); }
 
 /**
+ *
+ * Stage and reconcile the supplied slate in one revision-guarded cycle, moving the historical single scene file to keyed scenes. This low-level write performs no semantic slate validation; raw duplicate keys coalesce before case checks and later failures can leave earlier published leaves.
  *
  * @evidence contracts/common.md#principled-implementation Maps and case-folded filename guards precede serialization of every proposed slice; one guarded cycle then flushes them.
  * @evidence contracts/common.md#clear-and-simple-design Staging separates serialization from ordered mutations and historical scene-file removal.
@@ -191,6 +203,8 @@ private get lockPath(): string { return autoMovieProjectLockPath(AutoMovieProjec
 
 /**
  *
+ * Read filename-ordered props after resident refresh, requiring decoded node identity and legacy-to-engine prop validation. Malformed keys or semantics throw, and the caller owns the newly parsed records; native namespace retirement can fail under its existing contract.
+ *
  * @evidence contracts/common.md#principled-implementation Fenced refresh precedes keyed correspondence and engine-backed validation of every stored prop.
  * @evidence contracts/common.md#clear-and-simple-design The directory reader owns identity while conversion/forge admission own nested semantics.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Bad keys or model/articulation semantics refuse instead of dropping or repairing props.
@@ -202,6 +216,8 @@ private get lockPath(): string { return autoMovieProjectLockPath(AutoMovieProjec
 public storedProps(): IAutoMovieLegacyPropSpec[] { return autoMovieProjectStoredProps(AutoMovieProject.forwardingView(this)); }
 
 /**
+ *
+ * Serialize and upsert one prop through a revision-guarded leaf replacement. Siblings remain untouched, but this low-level method performs no semantic or case-collision admission; a published leaf can remain if later revision publication refuses.
  *
  * @evidence contracts/common.md#principled-implementation An encoded node destination and serialized prop feed one revision-guarded leaf replacement.
  * @evidence contracts/common.md#clear-and-simple-design Upserts this prop while siblings remain untouched.
@@ -215,6 +231,8 @@ public saveProp(spec: IAutoMovieLegacyPropSpec): void { return autoMovieProjectS
 
 /**
  *
+ * Return the first differently spelled prop key whose encoded filename collides under lowercase comparison, or null. Exact spelling is excluded, malformed percent escapes can throw, and this current-directory observation grants no later write lease.
+ *
  * @evidence contracts/common.md#principled-implementation A fenced scan finds equal folded encoded filenames with different exact spelling and decodes the sibling.
  * @evidence contracts/common.md#clear-and-simple-design Uses the common keyed-directory collision owner.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Exact identity is an upsert; a query is no future write lease.
@@ -226,6 +244,8 @@ public saveProp(spec: IAutoMovieLegacyPropSpec): void { return autoMovieProjectS
 public propCaseCollision(node: string): string | null { return autoMovieProjectPropCaseCollision(AutoMovieProject.forwardingView(this), node); }
 
 /**
+ *
+ * Read filename-ordered actor records after resident refresh and filename/node identity checks. Parsed-null members are skipped and returned contexts receive no deep semantic validation here; the caller owns their parsed records.
  *
  * @evidence contracts/common.md#principled-implementation Fenced refresh and filename/internal-node agreement return ordered actor records without deep context admission.
  * @evidence contracts/common.md#clear-and-simple-design Preserves historical actor storage while later semantic validation remains outside this reader.
@@ -239,6 +259,8 @@ public storedActors(): IAutoMovieLegacyActorSpec[] { return autoMovieProjectStor
 
 /**
  *
+ * Stage all supplied actors before one revision-guarded cycle upserts them in input order, leaving unnamed siblings untouched. No semantic, duplicate or case-collision gate is added; a later leaf failure can leave earlier writes published.
+ *
  * @evidence contracts/common.md#principled-implementation All actor filenames/text are staged before one guarded cycle writes selected members in input order.
  * @evidence contracts/common.md#clear-and-simple-design One revision increment surrounds upserts while unnamed siblings remain untouched.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Serialization failure writes nothing; later leaf failure can retain earlier writes, with no added duplicate/case guard.
@@ -251,6 +273,8 @@ public saveActors(specs: readonly IAutoMovieLegacyActorSpec[]): void { return au
 
 /**
  *
+ * Return the first differently spelled actor key with the same lowercase encoded filename, or null. The shared unsorted-directory scan can throw for malformed percent escapes and grants no continuing write authority.
+ *
  * @evidence contracts/common.md#principled-implementation The actors query shares fenced folded-filename comparison with props.
  * @evidence contracts/common.md#clear-and-simple-design Only the selected directory differs from the common owner.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Exact names remain ordinary matches; success is no later write lease.
@@ -262,6 +286,8 @@ public saveActors(specs: readonly IAutoMovieLegacyActorSpec[]): void { return au
 public actorCaseCollision(node: string): string | null { return autoMovieProjectActorCaseCollision(AutoMovieProject.forwardingView(this), node); }
 
 /**
+ *
+ * Remove one encoded actor leaf through the guarded quarantine remover. Siblings remain untouched; missing leaves keep the existing commit-cycle behavior, and later failures can retain deletion effects or failed cleanup's quarantine.
  *
  * @evidence contracts/common.md#principled-implementation One encoded actor path is quarantined/removed inside a revision-guarded cycle.
  * @evidence contracts/common.md#clear-and-simple-design Removes one actor while siblings remain unchanged.
@@ -278,6 +304,8 @@ private sliceCaseCollision(dir: string, node: string): string | null { return au
 
 /**
  *
+ * Remove one encoded prop leaf through the revision-guarded quarantine remover without validating its contents. Missing leaves keep the existing commit-cycle behavior; completed deletion and failed-cleanup quarantine can survive a later refusal.
+ *
  * @evidence contracts/common.md#principled-implementation An encoded prop filename uses the guarded quarantine remover.
  * @evidence contracts/common.md#clear-and-simple-design Deletes one prop without rewriting siblings.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No semantic admission or missing-file substitute is added.
@@ -289,6 +317,8 @@ private sliceCaseCollision(dir: string, node: string): string | null { return au
 public removeProp(node: string): void { return autoMovieProjectRemoveProp(AutoMovieProject.forwardingView(this), node); }
 
 /**
+ *
+ * Register a normalized relative asset path and optionally write supplied bytes when that destination is absent. Duplicate registration refuses; omitting bytes proves no file existence. Asset and manifest writes are separate leaf publications, so bytes may remain after later failure, and the returned string is the registered normalized path.
  *
  * @evidence contracts/common.md#principled-implementation Normalized path/current manifest admission precede optional no-existing-file publication, then manifest replacement and mirror assignment.
  * @evidence contracts/common.md#clear-and-simple-design One cycle coordinates asset registration and optional supplied bytes.
@@ -312,6 +342,8 @@ public registerAsset(relativePath: string, bytes?: Uint8Array): string { return 
 public get assets(): string[] { return autoMovieProjectAssets(AutoMovieProject.forwardingView(this)); }
 
 /**
+ *
+ * Return current slice-presence flags, ids, note count, registered assets and advisory stray-render paths. Nested readers keep their validation and failure rules; this summary neither deletes files nor proves media validity, and its sequential observations are not an atomic snapshot.
  *
  * @evidence contracts/common.md#principled-implementation Fenced slate, prop/actor reads, stray discovery and asset acquisition assemble observations in the original order.
  * @evidence contracts/common.md#clear-and-simple-design Reports resident presence/keys without deleting strays or selecting production kind.

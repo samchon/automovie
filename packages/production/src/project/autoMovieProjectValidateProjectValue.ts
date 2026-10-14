@@ -3,6 +3,7 @@ import { AutoMovieProjectShapeError } from "./AutoMovieProjectShapeError";
 import { autoMovieProjectDescribeViolations } from "./autoMovieProjectDescribeViolations";
 
 /**
+ * Run a supplied slice gate with a fresh finding sink and throw AutoMovieProjectShapeError when it appends anything, including warnings. The explanation includes at most five findings but every appended finding participates in refusal; callback exceptions propagate and the value is not cloned or repaired.
  *
  * @evidence contracts/common.md#principled-implementation A fresh violation array collects the supplied gate's findings and throws a shape error when nonempty.
  * @evidence contracts/common.md#clear-and-simple-design Gives keyed and optional slice readers one semantic refusal boundary.

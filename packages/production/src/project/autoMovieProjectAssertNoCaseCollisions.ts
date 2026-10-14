@@ -1,6 +1,7 @@
 import { autoMovieProjectSliceFilename } from "./autoMovieProjectSliceFilename";
 
 /**
+ * Throw when any supplied keys produce the same lowercase encoded .json filename. Exact duplicate iterable keys also refuse, although Map callers may have coalesced raw duplicates already. This is prewrite identity admission only and changes no resident files.
  *
  * @evidence contracts/common.md#principled-implementation A map of lowercased encoded filenames rejects repeated portable names before slate staging.
  * @evidence contracts/common.md#clear-and-simple-design Owns selected-directory identity admission independently of serialization.

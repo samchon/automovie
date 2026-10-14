@@ -2,6 +2,7 @@ import { IAutoMovieLegacyActorSpec } from "./legacyRecords";
 import type { IAutoMovieProjectState } from "./IAutoMovieProjectState";
 
 /**
+ * Read fresh filename-ordered actor records after resident refresh and decoded filename/node correspondence. Parsed-null members are skipped and no deep actor-context validator is supplied here; callers own the returned records without a semantic performance certificate.
  *
  * @evidence contracts/common.md#principled-implementation Fenced refresh and filename/internal-node agreement return ordered actor records without deep context admission.
  * @evidence contracts/common.md#clear-and-simple-design Preserves historical actor storage while later semantic validation remains outside this reader.

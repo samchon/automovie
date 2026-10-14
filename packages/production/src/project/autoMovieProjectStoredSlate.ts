@@ -10,6 +10,7 @@ import { autoMovieProjectReadValidatedJson } from "./autoMovieProjectReadValidat
 import type { IAutoMovieProjectState } from "./IAutoMovieProjectState";
 
 /**
+ * Refresh resident project authority and read script, scenes, shots, beat ends and notes in their existing order. Optional script absence returns null and absent note bytes yield an empty list; keyed records must match decoded filenames and their supplied validators. Returned records belong to the caller, while separately guarded reads remain sequential observations rather than an atomic snapshot.
  *
  * @evidence contracts/common.md#principled-implementation Root fencing and resident revision/manifest refresh precede keyed identity and semantic slice admission; optional absence stays null or empty.
  * @evidence contracts/common.md#clear-and-simple-design One resident read assembles script, scenes, shots, beat ends and notes; film admission is separately owned.

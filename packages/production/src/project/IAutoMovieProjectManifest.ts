@@ -1,6 +1,7 @@
 
 
 /**
+ * Historical automovie.json record containing a runtime-admitted version-one marker and registration-ordered relative asset paths. Extra parsed fields remain with the resident mirror, while this erased shape proves no asset bytes, filesystem confinement or current manifest authority.
  *
  * @evidence contracts/common.md#principled-implementation Version and registration-ordered assets retain the legacy automovie.json shape.
  * @evidence contracts/common.md#clear-and-simple-design The resident store owns runtime version/path admission and preserves unknown parsed fields.

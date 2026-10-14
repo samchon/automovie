@@ -2,6 +2,7 @@ import path from "node:path";
 import type { IAutoMovieProjectState } from "./IAutoMovieProjectState";
 
 /**
+ * Return revision.json joined to the handle's current root; this pathname alone admits neither the resident clock nor physical ownership.
  *
  * @evidence contracts/common.md#principled-implementation Native joining selects revision.json below the current root.
  * @evidence contracts/common.md#clear-and-simple-design Acquisition and publication share one clock coordinate.

@@ -4,6 +4,7 @@ import { autoMovieProjectValidateProjectValue } from "./autoMovieProjectValidate
 import type { IAutoMovieProjectState } from "./IAutoMovieProjectState";
 
 /**
+ * Read fresh filename-ordered props after resident refresh, enforcing decoded node identity and legacy-to-engine prop admission. Malformed present records throw and parsed-null members are skipped; returned records belong to the caller and this read does not prove later file stability.
  *
  * @evidence contracts/common.md#principled-implementation Fenced refresh precedes keyed correspondence and engine-backed validation of every stored prop.
  * @evidence contracts/common.md#clear-and-simple-design The directory reader owns identity while conversion/forge admission own nested semantics.

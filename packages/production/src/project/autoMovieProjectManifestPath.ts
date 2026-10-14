@@ -2,6 +2,7 @@ import path from "node:path";
 import type { IAutoMovieProjectState } from "./IAutoMovieProjectState";
 
 /**
+ * Return automovie.json joined to the handle's current root; path construction performs no file access or byte/ancestry admission.
  *
  * @evidence contracts/common.md#principled-implementation Native joining selects automovie.json below current root.
  * @evidence contracts/common.md#clear-and-simple-design Opening, refresh and registration share one coordinate.

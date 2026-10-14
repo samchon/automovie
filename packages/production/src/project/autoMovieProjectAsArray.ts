@@ -1,6 +1,7 @@
 
 
 /**
+ * Borrow an actual array unchanged, or return a fresh empty array for any other value. Raw validators pair this projection with their explicit shape gates; an empty projection alone does not admit a malformed container.
  *
  * @evidence contracts/common.md#principled-implementation Array containers are borrowed; every other value yields an empty array.
  * @evidence contracts/common.md#clear-and-simple-design Supports raw validators while their explicit shape gates report malformed containers.

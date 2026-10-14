@@ -31,9 +31,8 @@ export const acquireCommitLock: (lockPath: string) => string = (lockPath: string
   let nextReclaim: number = Date.now();
   for (;;) {
     try {
-      // Exclusive create admits only one owner. The token is fully written
-      // before this acquire returns, and contenders never read it to decide
-      // whether they may proceed -- only to say who is in the way.
+      // Exclusive create admits one owner and writes its token before return.
+      // Contenders require the separate dead-owner survey and transfer checks.
       fileSystem.writeFileSync(lockPath, token, { flag: "wx" });
       projectCommitLockHeld.set(lockPath, { token, depth: 1 });
       return token;

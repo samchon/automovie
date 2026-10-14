@@ -2,9 +2,7 @@ import type { IAutoMovieGaitRootBob } from "@automovie/interface";
 import type { IAutoMovieLegacyGaitLimb } from "./IAutoMovieLegacyGaitLimb";
 
 /**
- * JSON-safe gait definition the v1 store performed against, mirroring
- * {@link IAutoMovieGait} minus the tuple-valued bezier controls its limbs cannot
- * express here.
+ * Historical gait metadata preserving period, optional root bob and limb channels without tuple-valued bezier controls. Current resident storage preserves these values without sampling or performing the gait.
  *
  * @evidence contracts/common.md#principled-implementation Historical gait records retain named period, optional root bob and tuple-free limb channels as actor metadata; active runtime gait admission belongs to the engine.
  * @evidence contracts/common.md#clear-and-simple-design LegacyActorContext contains gait records and LegacyGaitLimb owns each channel; current storage preserves these records rather than reimplementing gait synthesis.
@@ -27,18 +25,12 @@ export interface IAutoMovieLegacyGait {
   period: number;
 
   /**
-   * Optional vertical root bob for the body mass during the cycle. When
-   * present, the synthesiser emits a root transform whose `translation.y`
-   * follows `center + amplitude * sin(2 * PI * (t / period + phase))`. Omit it
-   * to leave root placement entirely to travel/staging.
+   * Optional historical vertical root-bob parameters for center + amplitude * sin(2 * PI * (t / period + phase)). The resident store preserves them without emitting root transforms or filling omitted placement.
    */
   rootBob?: IAutoMovieGaitRootBob;
 
   /**
-   * Each limb's contribution to the cycle. The limbs differ only in **when**
-   * they swing (`phase`) and **how**: a horse walk is its four legs at phase
-   * offsets `0, 0.5, 0.25, 0.75` (lateral sequence), a trot at `0, 0.5, 0.5, 0`
-   * (diagonal pairs).
+   * Historical limb channels describing phase, duty and degree-valued swing. The resident store preserves their order without resolving footfall sequences or generating motion.
    */
   limbs: IAutoMovieLegacyGaitLimb[];
 }

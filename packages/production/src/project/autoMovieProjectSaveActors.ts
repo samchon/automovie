@@ -6,6 +6,7 @@ import { autoMovieProjectSerializeJson } from "./autoMovieProjectSerializeJson";
 import type { IAutoMovieProjectState } from "./IAutoMovieProjectState";
 
 /**
+ * Stage all selected actor filenames and text before one revision-guarded cycle writes them in input order. Unnamed siblings remain; semantic, duplicate and case admission are external, and later failures can leave earlier selected members published.
  *
  * @evidence contracts/common.md#principled-implementation All actor filenames/text are staged before one guarded cycle writes selected members in input order.
  * @evidence contracts/common.md#clear-and-simple-design One revision increment surrounds upserts while unnamed siblings remain untouched.

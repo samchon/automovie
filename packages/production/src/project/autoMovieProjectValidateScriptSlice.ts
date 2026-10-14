@@ -4,6 +4,7 @@ import { autoMovieProjectValidateScriptTreeSlice } from "./autoMovieProjectValid
 import { autoMovieProjectAsArray } from "./autoMovieProjectAsArray";
 
 /**
+ * Append structural and contextual script findings to the caller's sink. Cast and beat text must be nonblank, beat durations are positive seconds, ids are unique under the existing portable filename policy, and an optional tree is checked against the supplied beats, logline and theme. This gate reads authored text without grading its quality or rewriting it.
  *
  * @evidence contracts/common.md#principled-implementation Raw cast/beat fields, unique ids and filename collisions precede tree shape and engine coherence admission.
  * @evidence contracts/common.md#clear-and-simple-design Owns stored script compatibility fields and delegates graph semantics with logline/theme unchanged.

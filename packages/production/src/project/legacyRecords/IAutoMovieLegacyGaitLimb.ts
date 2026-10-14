@@ -19,22 +19,17 @@ export interface IAutoMovieLegacyGaitLimb {
   bone: AutoMovieHumanoidBone;
 
   /**
-   * Joint axis this gait channel writes. Omitted means `"flexion"` (the
-   * sagittal swing); set `"abduction"` for side-to-side sway/spread or
-   * `"twist"` for axial gait details.
+   * Historical joint-axis choice: flexion for sagittal swing, abduction for lateral swing, or twist for axial motion. Omission carries the historical flexion interpretation without applying a storage default.
    */
   axis?: "flexion" | "abduction" | "twist";
 
   /**
-   * Where in the stride this limb's cycle starts, in `[0, 1)`: the phase offset
-   * that distinguishes one gait's footfall sequence from another's.
+   * Historical stride phase in [0, 1), describing this limb's cycle offset without sampling it here.
    */
   phase: number;
 
   /**
-   * Fraction of the stride the limb spends in **stance** (planted, pushing the
-   * body back) versus **swing** (lifted, recovering forward), in `(0, 1)`. A
-   * walk has a high duty (long ground contact); a gallop a low one.
+   * Historical stance fraction in (0, 1), with the remainder describing swing. Storage supplies no contact or footfall proof.
    */
   duty: number;
 
@@ -44,25 +39,17 @@ export interface IAutoMovieLegacyGaitLimb {
   amplitude: number;
 
   /**
-   * Easing used while the limb is in stance (planted, pushing back). Omitted
-   * means `"linear"`.
+   * Historical stance easing; omission carries the linear interpretation without inserting or evaluating an easing here.
    */
   stanceEasing?: AutoMovieEasing;
 
   /**
-   * Easing used while the limb is in swing (recovering forward). Omitted means
-   * `"linear"`.
+   * Historical swing easing; omission carries the linear interpretation without inserting or evaluating an easing here.
    */
   swingEasing?: AutoMovieEasing;
 
   /**
-   * Center the swing oscillates around (degrees), default `0`. A symmetric limb
-   * (a hip, a shoulder) leaves this unset and swings `±amplitude` about zero; a
-   * limb that only bends one way needs a nonzero center to keep the whole swing
-   * on the anatomical side. A knee, whose flexion ROM is `[0, 150]°` and cannot
-   * hyperextend, walks with e.g. `{ neutral: 25, amplitude: 18 }` so its swing
-   * stays in `[7, 43]°` instead of crossing zero: the offset the ROM validator
-   * forces once you try to bend a knee at all.
+   * Historical swing center in degrees, with zero as the omitted interpretation. Storage preserves the supplied offset without resolving a rig's anatomical range or certifying the amplitude against it.
    */
   neutral?: number;
 }

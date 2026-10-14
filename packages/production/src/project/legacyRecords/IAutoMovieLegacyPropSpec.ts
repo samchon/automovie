@@ -2,8 +2,7 @@ import type { IAutoMovieModel } from "@automovie/interface";
 import type { IAutoMovieLegacyPropArticulation } from "./IAutoMovieLegacyPropArticulation";
 
 /**
- * A prop spec as the `forgeProp` tool accepts it, a crude primitive proxy with
- * rich meaning: body, affordances, self-declared articulation.
+ * Historical stored prop record joining a scene node, generated skeleton-less model and nullable articulation. The resident reader lowers legacy ranges through toEnginePropSpec before engine forgeProp admission; assigning the type or saving the record alone performs no semantic validation.
  *
  * @evidence contracts/common.md#principled-implementation The resident prop record joins a scene node, model and nullable articulation; toEnginePropSpec lowers its historical articulation before forgeProp admission.
  * @evidence contracts/common.md#clear-and-simple-design AutoMovieProject owns keyed stored prop read/write and engine validation while the record owns compatibility shape.
@@ -21,7 +20,7 @@ export interface IAutoMovieLegacyPropSpec {
   node: string;
 
   /**
-   * The prop model: generated, skeleton-less, primitive parts.
+   * Borrowed model data; resident forge admission requires generated origin and no skeleton, while assigning this field proves neither condition.
    */
   model: IAutoMovieModel;
 

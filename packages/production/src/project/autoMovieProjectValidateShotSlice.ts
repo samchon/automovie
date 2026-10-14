@@ -4,6 +4,7 @@ import { isRecord, pushViolation, validateArrayArtifact, validateNonEmptyId, val
 import { autoMovieProjectAsArray } from "./autoMovieProjectAsArray";
 
 /**
+ * Append stored-shot timing, clip, performance, metadata and light-motion findings for a record admitted by the keyed reader. Duration is finite positive seconds and performance offsets must fit it; delegated metadata/light checks receive no scene, so scene-dependent references remain deferred. This typed entry dereferences the outer record without a new shape guard and leaves authored values unchanged.
  *
  * @evidence contracts/common.md#principled-implementation Shot identity/duration, hero/object clips, performances, metadata and light motions are admitted with their real field paths.
  * @evidence contracts/common.md#clear-and-simple-design Joins resident shot gates while scene-dependent camera/light references stay separately owned.

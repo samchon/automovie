@@ -4,6 +4,7 @@ import { autoMovieProjectReadJson } from "./autoMovieProjectReadJson";
 import type { IAutoMovieProjectState } from "./IAutoMovieProjectState";
 
 /**
+ * Read and admit the existing resident version-one asset manifest. Missing bytes or parsed JSON null refuse as a disappeared manifest rather than constructing a new store; present records pass the shared path/duplicate gate and retain extra fields in the returned record.
  *
  * @evidence contracts/common.md#principled-implementation Owned JSON acquisition precedes disappeared-manifest refusal and version/assets admission.
  * @evidence contracts/common.md#clear-and-simple-design Resident refresh and asset registration share this authority.

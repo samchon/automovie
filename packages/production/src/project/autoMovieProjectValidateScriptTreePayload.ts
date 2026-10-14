@@ -2,6 +2,7 @@ import { IAutoMovieConstraintViolation } from "@automovie/interface";
 import { pushViolation, validateArrayArtifact, validateNonEmptyId, validateNonEmptyText, validateObjectArtifact, validateRange } from "../validators/primitives";
 
 /**
+ * Append kind-specific findings for an already record-shaped historical script-tree payload. Intent, act, scene and group variants validate their authored text fields; beat payloads additionally admit dialogue and nullable caption/anchor fields, with anchors measured in non-negative seconds. Unknown kinds contribute no payload finding here because the outer tree-node gate owns that refusal.
  *
  * @evidence contracts/common.md#principled-implementation Closed node-kind dispatch validates its exact historical payload fields and dialogue entries.
  * @evidence contracts/common.md#clear-and-simple-design Keeps kind-dependent payload admission with tree shape validation.

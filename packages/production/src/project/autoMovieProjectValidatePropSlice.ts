@@ -4,6 +4,7 @@ import { appendValidation, pushViolation, validateNonEmptyId, validateObjectArti
 import { IAutoMovieLegacyPropSpec, toEnginePropSpec } from "./legacyRecords";
 
 /**
+ * Append preliminary stored-prop findings, then lower and forge only when this pass added none, including no warnings. The typed outer record is borrowed; lowering omits modelRef and selects generated-model admission. Any lowering/forge exception becomes the existing articulation-shape finding rather than preserving its original cause.
  *
  * @evidence contracts/common.md#principled-implementation Node/model/articulation shape and engine model admission precede legacy lowering and forgeProp validation.
  * @evidence contracts/common.md#clear-and-simple-design Keeps historical range lowering with the compatibility owner and active prop semantics with the engine; that lowering omits modelRef and therefore selects generated-model forging.

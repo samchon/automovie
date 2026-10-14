@@ -6,6 +6,7 @@ import { autoMovieProjectSerializeJson } from "./autoMovieProjectSerializeJson";
 import type { IAutoMovieProjectState } from "./IAutoMovieProjectState";
 
 /**
+ * Serialize and upsert one prop through a revision-guarded leaf replacement, leaving siblings untouched. This low-level save admits neither prop semantics nor sibling case identity; encoding/serialization precede mutation, while a published leaf may survive later revision refusal.
  *
  * @evidence contracts/common.md#principled-implementation An encoded node destination and serialized prop feed one revision-guarded leaf replacement.
  * @evidence contracts/common.md#clear-and-simple-design Upserts this prop while siblings remain untouched.

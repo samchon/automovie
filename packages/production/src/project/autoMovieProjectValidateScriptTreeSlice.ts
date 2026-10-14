@@ -5,6 +5,7 @@ import { autoMovieProjectValidateNullableId } from "./autoMovieProjectValidateNu
 import { autoMovieProjectValidateScriptTreePayload } from "./autoMovieProjectValidateScriptTreePayload";
 
 /**
+ * Append raw tree-node findings before invoking the engine's contextual script-tree validator. Undefined or null means no tree; a present tree reaches graph validation only when this pass adds no shape findings and beats, logline and theme have the required container/scalar types. Nodes and text are borrowed without rewriting or prose-quality grading.
  *
  * @evidence contracts/common.md#principled-implementation Optional trees pass raw node/payload shape before engine validation with the actual beats/logline/theme.
  * @evidence contracts/common.md#clear-and-simple-design Separates raw persisted admission from graph coherence.
