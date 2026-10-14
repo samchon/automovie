@@ -4,7 +4,9 @@ import { TestValidator } from "@nestia/e2e";
 import type { IFilmPositionalTargetAssertionsInput } from "./IFilmPositionalTargetAssertionsInput";
 import { namedFacts } from "./predicates";
 
-/** Run the existing placed, grouped, malformed and camera target admission assertions. */
+/**
+ * Run the positional-target unit's existing actor/set, all-missing/mixed/empty group, malformed/relative target, absent point-gesture aim and camera-as-actor comparisons. Authored ids and field paths define the expected refusals independently; the injected performers/diagnostic observers preserve those comparisons without adding admission logic. The discoverable positional unit owns these portable cases and its positive neighbors, while launch-specific recoil admission belongs to launch_camera.
+ */
 export function assertFilmPositionalTargetKinds(
   input: IFilmPositionalTargetAssertionsInput,
 ): void {
