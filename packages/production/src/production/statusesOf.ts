@@ -12,7 +12,7 @@ import { digestAutoMovieBytes } from "./contentIdentity";
  * @evidence contracts/common.md#clear-and-simple-design This comparison owns intended status only; project reads own path safety and publication owns eventual physical writes.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Arbitrary Error messages and non-Error thrown values cannot masquerade as absence, and a pre-publication comparison is not reported as write success.
  * @evidence contracts/common.md#meaningful-documentation States intended-publication meaning, byte comparison and narrow absence/error policy.
- * @evidence contracts/performance.md#efficient-algorithms For F files and B total readable bytes, one ordered scan reads/hashes O(B) bytes and allocates O(F) result records; each read buffer is local to its hash and files are not reread here.
+ * @evidence contracts/performance.md#efficient-algorithms For F supplied file records, adds O(F) result allocation and SHA-256 work over B returned bytes to the complete readGeneratedFile callback cost. The actual project callback performs namespace/registry/ancestry admission and guarded byte I/O for each path; this comparator calls it once per supplied record and does not deduplicate repeated paths.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Every comparison needs current stored bytes and no earlier storage answer is cached.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Results retain generated metadata and source-target references but no file bytes; project readers own handle cleanup and any failure aborts the local map without publishing.
  */

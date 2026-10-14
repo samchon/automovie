@@ -1,10 +1,7 @@
 /**
  * A guarded project operation no longer observes its admitted input generation.
  *
- * Project transactions throw this boundary error before accepting a changed
- * revision, root, namespace or input closure. Compilation converts it to a
- * source-attributed refusal only while it can still observe the current
- * revision; an observation failure must retain both causes instead.
+ * Project transactions use this boundary identity when revision, root, namespace or input checks refuse. Compilation converts it to a source-attributed result only if the current revision can still be observed; otherwise the formatter preserves both causes, while transaction owners determine whether changes were applied or restored.
  *
  * @evidence contracts/common.md#principled-implementation A distinct Error subtype marks guarded-input replacement so compilation can classify that boundary failure without confusing arbitrary reader failures with a safe race refusal.
  * @evidence contracts/common.md#clear-and-simple-design The subtype carries the ordinary error message and separates race handling through instanceof; the transaction and compiler owners retain recovery and aggregate-cause decisions.

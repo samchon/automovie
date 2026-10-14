@@ -1,9 +1,7 @@
 /**
  * Identify an absent builder-owned file without interpreting arbitrary error text.
  *
- * readGeneratedFile throws this only after a missing physical path observation.
- * Status comparison treats this absence as intended creation; every other
- * storage failure, including non-Error thrown values, propagates unchanged.
+ * readGeneratedFile throws this after its initial missing-path observation. Status comparison treats that narrow identity as intended creation; other storage failures, including non-Error thrown values, propagate unchanged rather than becoming safe absence.
  *
  * @evidence contracts/common.md#principled-implementation A dedicated Error identity separates proved path absence from permission, namespace, symlink and arbitrary storage failures while preserving the existing missing-file message.
  * @evidence contracts/common.md#clear-and-simple-design The production project owns the absence observation and statusesOf consumes this narrow identity rather than parsing foreign error messages.

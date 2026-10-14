@@ -13,7 +13,7 @@ import { errorMessage } from "./designDerivation/errorMessage";
  * @evidence contracts/common.md#meaningful-documentation States exact special-case identity, broad residual classification, source address and conversion failure behavior.
  * @evidence contracts/performance.md#efficient-algorithms Fixed record construction adds id/path/message text cost and potentially arbitrary String conversion work; no filesystem traversal or validation algorithm runs here.
  * @evidence contracts/performance.md#reuse-equivalent-work Each caught source-read cause is formatted for its selected shot; effectful conversion and mutable source observations are not memoized.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The diagnostic retains text and addresses, not the original thrown object or a file buffer. The read owner releases handles; this formatter starts no task.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The diagnostic retains text and addresses rather than the original thrown object or file bytes. Reader owners attempt handle cleanup and report refusal; this formatter acquires no handle or task.
  */
 export function sourcePathDiagnostic(
   id: string,
