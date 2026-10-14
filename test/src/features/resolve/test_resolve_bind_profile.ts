@@ -1,4 +1,4 @@
-import { bindProfile } from "@automovie/engine";
+import { bindProfile, type IAutoMovieBoundProfile } from "@automovie/engine";
 import {
   IAutoMovieAimDriver,
   IAutoMovieChannel,
@@ -14,7 +14,7 @@ import {
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../internal/predicates";
-import type { IAutoMovieBoundProfile } from "@automovie/engine";
+
 
 const nodeChannel: (id: string) => IAutoMovieChannel = (
   id: string,

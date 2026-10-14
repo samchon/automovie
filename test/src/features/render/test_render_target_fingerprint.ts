@@ -1,11 +1,4 @@
-import {
-  autoMovieRenderDigest,
-  autoMovieRenderTargetAssets,
-  autoMovieRenderTargetSummary,
-  compareAutoMovieRenderIds,
-  compareAutoMovieRenderTarget,
-  sealAutoMovieRenderTarget,
-} from "@automovie/engine";
+import { autoMovieRenderDigest, autoMovieRenderTargetAssets, autoMovieRenderTargetSummary, compareAutoMovieRenderIds, compareAutoMovieRenderTarget, sealAutoMovieRenderTarget, type IAutoMovieRenderTargetDrift } from "@automovie/engine";
 import {
   IAutoMovieRenderReport,
   IAutoMovieRenderTarget,
@@ -16,7 +9,7 @@ import { TestValidator } from "@nestia/e2e";
 import { createHash } from "node:crypto";
 
 import { namedFacts, throwsError } from "../internal/predicates";
-import type { IAutoMovieRenderTargetDrift } from "@automovie/engine";
+
 
 /**
  * A report is evidence only while the target it measured is still the target in

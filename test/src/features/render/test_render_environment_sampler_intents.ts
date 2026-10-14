@@ -10,10 +10,10 @@ import { type IAutoMovieRenderTextureSource, autoMovieRenderTextureDigest, measu
 
 
 
-import { IAutoMovieRenderBudgetAssessment } from "@automovie/render";
-import { assessAutoMovieRenderBudget } from "@automovie/render";
-import { autoMovieRenderBudgetEvidence } from "@automovie/render";
-import { autoMovieRenderBudgetRefusal } from "@automovie/render";
+import { IAutoMovieRenderBudgetAssessment, assessAutoMovieRenderBudget, autoMovieRenderBudgetEvidence, autoMovieRenderBudgetRefusal } from "@automovie/render";
+
+
+
 import { compiledShotFixture } from "../internal/renderBudgetFixtures";
 import { material, sceneFixture } from "../internal/renderFixtures";
 

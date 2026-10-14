@@ -9,8 +9,8 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import type { IAutoMovieArchetypeGeometry } from "@automovie/archetypes";
-import { STICKMAN_ARCHETYPE } from "@automovie/archetypes";
+import { type IAutoMovieArchetypeGeometry, STICKMAN_ARCHETYPE } from "@automovie/archetypes";
+
 import { type IAutoMovieResolvedBone, resolvePose, Quaternion, Vector3 } from "@automovie/engine";
 
 

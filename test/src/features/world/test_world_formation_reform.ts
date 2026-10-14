@@ -1,8 +1,4 @@
-import {
-  IAutoMovieFormationPlacement,
-  formationSlotPosition,
-  sampleFormationMotion,
-} from "@automovie/engine";
+import { IAutoMovieFormationPlacement, formationSlotPosition, sampleFormationMotion, type IAutoMovieSampledFormationMotion } from "@automovie/engine";
 import {
   IAutoMovieFormationDesign,
   IAutoMovieFormationMotion,
@@ -11,7 +7,7 @@ import {
 import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts, nclose, vclose } from "../internal/predicates";
-import type { IAutoMovieSampledFormationMotion } from "@automovie/engine";
+
 
 const FILES: number = 4;
 const RANKS: number = 3;
