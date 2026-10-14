@@ -11,13 +11,23 @@ const FOG: IAutoMovieFog = {
   color: { r: 0.7, g: 0.74, b: 0.8, a: null, hex: null },
 };
 
-/** Stage the standard set with `fog` replaced by whatever a case submits. */
+/**
+ * Stage the standard set with fog replaced by the caller's record.
+ *
+ * The owning test supplies authored fog records and asserts preserved identity,
+ * density boundaries and color admission; omitted fog is staged directly there.
+ */
 function stagedWith (fog: unknown): IAutoMovieStagedSet { return stageScene(
     makeScriptWrite(),
     makeStagingWrite({ fog: fog as IAutoMovieFog }),
   ); }
 
-/** True when submitting `fog` is refused with a violation at `path`. */
+/**
+ * Return whether submitted fog has the requested located refusal.
+ *
+ * The owning test supplies schema-based kind/path expectations and asserts the
+ * returned boolean. hasViolation checks path inclusion rather than the full report.
+ */
 function refusedAt (
   fog: unknown,
   kind: AutoMovieViolationKind,
@@ -28,29 +38,29 @@ function refusedAt (
 }
 
 /**
- * Staging may author the set's atmosphere, and the gate that accepts it is the
- * one the scene artifact applies downstream.
+ * Stage authored fog through the staging ingress and observe its scene record.
+ * This entry does not run the production scene-artifact validator.
  *
  * Fog is a scene property, so `stage`, the rung that composes scenes, has to be
  * able to state one; otherwise the field is declarable in the schema and
  * unreachable from the only authoring path that builds a scene. Two facts carry
  * it and both are checked, because both fail silently rather than loudly: a
- * negative or non-finite `density` feeds `exp(-(density*d)^2)` a number the
- * shader paints as a dead frame, and an out-of-range color puts a horizon on
- * screen that no light in the scene could make.
+ * negative density contradicts the nonnegative authored atmosphere contract,
+ * nonfinite density cannot supply meaningful transmittance arithmetic, and
+ * color components must satisfy the shared normalized color contract. These
+ * scalar assertions do not establish rendered pixels.
  *
  * Scenarios:
  *
  * 1. A declared fog is lowered verbatim onto the composed scene.
- * 2. An omitted fog composes a scene with NO `fog` key, not `fog: null`: an
- *    atmosphere is something most sets do not have, and writing null onto every
- *    staged scene ever composed would change the bytes, and the content digest,
- *    of every production that never mentioned it.
+ * 2. An omitted fog composes a scene without a `fog` key or `fog: null`;
+ *    the assertion observes record shape, without computing serialized
+ *    bytes or a production content digest.
  * 3. Each gate fires at the submitted field: a fog that is not an object, a
  *    negative density, a non-finite density, a density that is not a number, a
  *    color that is not an object, and a color component outside `[0, 1]`.
- * 4. The negative twin: a zero density is a vacuum and an enormous one is a wall
- *    of cloud. Both are looks, and neither is refused.
+ * 4. Zero and density 5 are both admitted; their rendered appearance is not
+ *    observed by these scalar staging cases.
  * 5. Fog applies the canonical color gate: malformed alpha and contradictory
  *    labels fail, while a matching uppercase endpoint label stages.
  *
@@ -132,9 +142,9 @@ export function test_film_stage_scene_fog (): void {
     },
   );
 
-  // 4. the negative twin: extremes that are looks, not mistakes.
+  // 4. Both selected nonnegative density boundaries are admitted.
   TestValidator.equals(
-    "a vacuum and a wall of cloud both stage clean",
+    "zero and density five both stage clean",
     namedFacts([
       ["vacuum", () : boolean => stagedWith({ ...FOG, density: 0 }).success === true],
       ["cloud", () : boolean => stagedWith({ ...FOG, density: 5 }).success === true],

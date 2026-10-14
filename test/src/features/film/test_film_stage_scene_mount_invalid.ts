@@ -1,3 +1,4 @@
+import type { IAutoMovieConstraintViolation } from "@automovie/interface";
 import { stageScene } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
@@ -15,9 +16,14 @@ import { hasViolation, namedFacts } from "../internal/predicates";
  *    `$input.actors[0].attach.parent` (a node cannot ride itself).
  * 2. `knightB` declares `attach.parent = "horse"` which nobody placed → a `type`
  *    violation on `$input.actors[1].attach.parent` carrying "horse".
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls stageScene with a self-mounted actor and an actor naming an unplaced horse, requiring both parent type findings and the unresolved horse value.
+ * @evidence contracts/testing.md#independent-expectations A mount parent must be a different placed actor; authored parent ids and literal violation paths are independent of staging output, with path-inclusion witnesses rather than exact report equality.
+ * @evidence contracts/testing.md#distinguishing-cases Preserves both refused mount branches together; the valid staging entry owns a placed distinct parent, while this entry does not prove bone compatibility or downstream motion.
+ * @evidence contracts/testing.md#execution-ownership The portable named test owns its two mount-refusal inputs, calls actual staging and uses no foreign patch, process, browser or GPU.
  */
-export const test_film_stage_scene_mount_invalid = (): void => {
-  const staged = stageScene(
+export function test_film_stage_scene_mount_invalid(): void {
+  const staged: ReturnType<typeof stageScene> = stageScene(
     makeScriptWrite(),
     makeStagingWrite({
       actors: [
@@ -40,10 +46,10 @@ export const test_film_stage_scene_mount_invalid = (): void => {
   TestValidator.equals(
     "self-mount rejected",
     namedFacts([
-      ["refused", () => staged.success === false],
+      ["refused", (): boolean => staged.success === false],
       [
         "violated",
-        () =>
+        (): boolean =>
           staged.success === false &&
           hasViolation(staged, "type", "$input.actors[0].attach.parent"),
       ],
@@ -53,18 +59,18 @@ export const test_film_stage_scene_mount_invalid = (): void => {
   TestValidator.equals(
     "dangling parent rejected",
     namedFacts([
-      ["stagedSuccess", () => staged.success === false],
+      ["stagedSuccess", (): boolean => staged.success === false],
       [
         "hasViolationStagedType",
-        () =>
+        (): boolean =>
           staged.success === false &&
           hasViolation(staged, "type", "$input.actors[1].attach.parent"),
       ],
       [
         "stagedViolationsV",
-        () =>
+        (): boolean =>
           staged.success === false &&
-          staged.violations.some((v) => v.value === "horse"),
+          staged.violations.some((v: IAutoMovieConstraintViolation): boolean => v.value === "horse"),
       ],
     ]),
     {
@@ -73,4 +79,4 @@ export const test_film_stage_scene_mount_invalid = (): void => {
       stagedViolationsV: true,
     },
   );
-};
+}

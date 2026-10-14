@@ -2,17 +2,13 @@ import { simulateFluidDomain } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { exactArray, fluidDomain } from "../internal/fluidFixtures";
-import { namedFacts } from "../internal/predicates";
+import { nclose } from "../internal/predicates";
 
 /**
- * The shallow-water step reproduces hand-computed arithmetic exactly, which is
- * simultaneously the oracle for the governing equations and the cross-platform
- * determinism proof.
+ * Compare the first two shallow-water steps with independently hand-computed
+ * dyadic momentum and flux values in this CPU runtime.
  *
- * Every authored number is a dyadic rational, so each intermediate value is
- * exactly representable in IEEE-754 doubles and the expectations below are what
- * _any_ conforming machine must produce, Windows and POSIX alike. They are
- * taken from the equations by hand, never from what the code emitted.
+ * The two displayed updates use small dyadic values representable exactly in binary64; this does not extend to arbitrary dyadic inputs or unbounded integration. Expectations come from the equations by hand rather than recorded product output. Running this entry on one platform does not observe another platform or a GPU implementation.
  *
  * Two cells, `dx = dz = 1 m`, `g = 8 m/s²`, `dt = 1/8 s`, no drag, walls all
  * round, `h = [1.5, 0.5]` over a flat bed.
@@ -33,70 +29,37 @@ import { namedFacts } from "../internal/predicates";
  *    with both walls pinned to zero.
  * 3. Step 2 equals the hand-computed depths and velocity, proving the momentum
  *    term accumulates across steps rather than restarting.
- * 4. A closed basin neither gains nor loses water: volume is exactly 2 m³ at every
- *    one of those steps and the ledger is exactly zero.
+ * 4. A closed basin holds exactly 2 m³ at all three observed steps; source, drain and outflow ledger entries are exactly zero at step 2, whose domain and absolute step identity are also retained.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls the shallow-water solver at steps zero, one and two and compares hand-derived depth, face velocity, volume, time and ledger values, catching wrong momentum accumulation, donor flux or closed-wall booking.
+ * @evidence contracts/testing.md#independent-expectations The documented two-cell dyadic equations independently yield velocities 1 and 1.625 and depths 1.3125/0.6875 then 1.0458984375/0.9541015625; no product snapshot is the oracle, and one CPU run does not prove another platform.
+ * @evidence contracts/testing.md#distinguishing-cases Keeps authored rest, first and second updates, reflecting X/Z faces and empty source/drain/outflow ledgers; drag, dry cells, source/drain windows and open rims have separate entries.
+ * @evidence contracts/testing.md#execution-ownership This named synchronous unit owns the three portable CPU solves and strict numerical observations through engine calls, without building native artifacts or starting a process, browser or GPU.
  */
-export const test_fluid_shallow_water_hand_math = (): void => {
-  const domain = fluidDomain();
+export function test_fluid_shallow_water_hand_math(): void {
+  const domain: ReturnType<typeof fluidDomain> = fluidDomain();
 
-  const initial = simulateFluidDomain(domain, 0);
-  TestValidator.equals(
-    "step 0 is the authored state at rest",
-    namedFacts([
-      ["depth", () => exactArray(initial.depth, [1.5, 0.5])],
-      ["velocityX", () => exactArray(initial.velocityX, [0, 0, 0])],
-      ["velocityZ", () => exactArray(initial.velocityZ, [0, 0, 0, 0])],
-      ["volume", () => Object.is(initial.volume, 2)],
-      ["time", () => Object.is(initial.time, 0)],
-    ]),
-    {
-      depth: true,
-      velocityX: true,
-      velocityZ: true,
-      volume: true,
-      time: true,
-    },
-  );
+  const initial: ReturnType<typeof simulateFluidDomain> = simulateFluidDomain(domain, 0);
+  TestValidator.predicate("step 0 authored depth", exactArray(initial.depth, [1.5, 0.5]) && initial.depth.every((value: number, index: number): boolean => nclose(value, [1.5, 0.5][index]!, 0)));
+  TestValidator.predicate("step 0 X faces at rest", exactArray(initial.velocityX, [0, 0, 0]) && initial.velocityX.every((value: number): boolean => nclose(value, 0, 0)));
+  TestValidator.predicate("step 0 Z faces at rest", exactArray(initial.velocityZ, [0, 0, 0, 0]) && initial.velocityZ.every((value: number): boolean => nclose(value, 0, 0)));
+  TestValidator.predicate("step 0 volume", Object.is(initial.volume, 2) && nclose(initial.volume, 2, 0));
+  TestValidator.predicate("step 0 time", Object.is(initial.time, 0) && nclose(initial.time, 0, 0));
 
-  const first = simulateFluidDomain(domain, 1);
-  TestValidator.equals(
-    "step 1 matches the hand-computed momentum and flux",
-    namedFacts([
-      ["depth", () => exactArray(first.depth, [1.3125, 0.6875])],
-      ["velocityX", () => exactArray(first.velocityX, [0, 1, 0])],
-      ["velocityZ", () => exactArray(first.velocityZ, [0, 0, 0, 0])],
-      ["volume", () => Object.is(first.volume, 2)],
-      ["time", () => Object.is(first.time, 0.125)],
-    ]),
-    {
-      depth: true,
-      velocityX: true,
-      velocityZ: true,
-      volume: true,
-      time: true,
-    },
-  );
+  const first: ReturnType<typeof simulateFluidDomain> = simulateFluidDomain(domain, 1);
+  TestValidator.predicate("step 1 hand-computed depth", exactArray(first.depth, [1.3125, 0.6875]) && first.depth.every((value: number, index: number): boolean => nclose(value, [1.3125, 0.6875][index]!, 0)));
+  TestValidator.predicate("step 1 hand-computed X velocity", exactArray(first.velocityX, [0, 1, 0]) && first.velocityX.every((value: number, index: number): boolean => nclose(value, [0, 1, 0][index]!, 0)));
+  TestValidator.predicate("step 1 closed Z faces", exactArray(first.velocityZ, [0, 0, 0, 0]) && first.velocityZ.every((value: number): boolean => nclose(value, 0, 0)));
+  TestValidator.predicate("step 1 volume", Object.is(first.volume, 2) && nclose(first.volume, 2, 0));
+  TestValidator.predicate("step 1 time", Object.is(first.time, 0.125) && nclose(first.time, 0.125, 0));
 
-  const second = simulateFluidDomain(domain, 2);
-  TestValidator.equals(
-    "step 2 accumulates momentum exactly as the equations say",
-    namedFacts([
-      ["depth", () => exactArray(second.depth, [1.0458984375, 0.9541015625])],
-      ["velocityX", () => exactArray(second.velocityX, [0, 1.625, 0])],
-      ["volume", () => Object.is(second.volume, 2)],
-    ]),
-    { depth: true, velocityX: true, volume: true },
-  );
+  const second: ReturnType<typeof simulateFluidDomain> = simulateFluidDomain(domain, 2);
+  TestValidator.predicate("step 2 accumulated depth", exactArray(second.depth, [1.0458984375, 0.9541015625]) && second.depth.every((value: number, index: number): boolean => nclose(value, [1.0458984375, 0.9541015625][index]!, 0)));
+  TestValidator.predicate("step 2 accumulated X momentum", exactArray(second.velocityX, [0, 1.625, 0]) && second.velocityX.every((value: number, index: number): boolean => nclose(value, [0, 1.625, 0][index]!, 0)));
+  TestValidator.predicate("step 2 volume", Object.is(second.volume, 2) && nclose(second.volume, 2, 0));
 
-  TestValidator.equals(
-    "a closed basin keeps an exactly empty ledger",
-    namedFacts([
-      ["source", () => Object.is(second.sourceVolume, 0)],
-      ["drain", () => Object.is(second.drainVolume, 0)],
-      ["outflow", () => Object.is(second.outflowVolume, 0)],
-      ["domain", () => second.domain === "pond"],
-      ["step", () => second.step === 2],
-    ]),
-    { source: true, drain: true, outflow: true, domain: true, step: true },
-  );
-};
+  TestValidator.predicate("closed source ledger", Object.is(second.sourceVolume, 0) && nclose(second.sourceVolume, 0, 0));
+  TestValidator.predicate("closed drain ledger", Object.is(second.drainVolume, 0) && nclose(second.drainVolume, 0, 0));
+  TestValidator.predicate("closed outflow ledger", Object.is(second.outflowVolume, 0) && nclose(second.outflowVolume, 0, 0));
+  TestValidator.equals("absolute state identity", { domain: second.domain, step: second.step }, { domain: "pond", step: 2 });
+}

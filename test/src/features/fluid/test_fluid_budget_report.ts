@@ -1,3 +1,4 @@
+import type { IAutoMovieFluidSpray, IAutoMovieFluidState } from "@automovie/interface";
 import {
   fluidCourantNumber,
   fluidDomainBudget,
@@ -14,7 +15,8 @@ import {
 } from "../internal/fluidFixtures";
 import { namedFacts, nclose } from "../internal/predicates";
 
-const emitter = (id: string, maxParticles: number) => ({
+/** Construct the original valid emitter with the requested identity and cap; the owning budget entry sums the two authored caps independently. */
+const emitter: (id: string, maxParticles: number) => IAutoMovieFluidSpray = (id: string, maxParticles: number): IAutoMovieFluidSpray => ({
   id,
   column: 0,
   row: 0,
@@ -31,11 +33,12 @@ const emitter = (id: string, maxParticles: number) => ({
 
 /**
  * A fluid domain states its own bounded cost before a single step is
- * integrated, and a state's digest is the compact evidence a run reproduced.
+ * integrated, and a state's digest is a compact hash of selected state fields.
  *
  * Both exist so a production can be judged rather than trusted: a builder
- * report can refuse an unaffordable water feature up front, and two machines
- * can compare eight characters instead of shipping arrays to each other.
+ * report exposes the declared operation/storage counts, and these cases
+ * compare hashes inside one runtime. They do not establish cross-machine
+ * identity or collision freedom of the 32-bit digest.
  *
  * Scenarios:
  *
@@ -44,16 +47,18 @@ const emitter = (id: string, maxParticles: number) => ({
  *    cap is the sum of the emitters' own caps.
  * 2. The Courant number equals the hand-computed `dt·√(g·H)·√(1/dx² + 1/dz²)` and
  *    is the same number the budget reports.
- * 3. A domain with no emitter reports a spray cap of exactly zero, so water
- *    without mist costs nothing extra.
+ * 3. A domain with no emitter reports a spray particle cap of exactly zero; no runtime or heap measurement is made.
  * 4. The digest is eight hex characters, identical for identical states, and
- *    different when a single depth moves by one ulp — the sensitivity that
- *    makes it evidence rather than decoration.
- * 5. A production with no water at all is inert: validating an empty set of
- *    features against an empty set of domains succeeds and reports nothing.
+ *    different for the selected one-ulp depth change and adjacent step.
+ * 5. Validating empty feature and domain lists against the basin fixture succeeds; this does not execute or observe a complete production.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls fluid budget/Courant readers, simulates selected states and hashes them, and validates an empty water binding; detects wrong lattice/cap counts, wrong Courant reporting and the selected digest regressions.
+ * @evidence contracts/testing.md#independent-expectations A 6-by-4 grid gives 24 cells, 58 faces and 656 bytes by independent count, while the documented Courant equation supplies the scalar oracle. Hash comparisons test only selected sensitivity, not collision freedom or cross-machine identity.
+ * @evidence contracts/testing.md#distinguishing-cases Retains two emitters with total cap 192, no-emitter budget, identical state repeats, the selected one-ulp depth change, adjacent step and empty features/domains; admission caps and solver physics are separate tests.
+ * @evidence contracts/testing.md#execution-ownership This named portable unit owns its budget/hash/binding assertions through engine calls and existing records, without building a renderer or installing a consumer.
  */
-export const test_fluid_budget_report = (): void => {
-  const domain = flatBasin({
+export function test_fluid_budget_report(): void {
+  const domain: ReturnType<typeof flatBasin> = flatBasin({
     columns: 6,
     rows: 4,
     depth: 0.25,
@@ -62,20 +67,20 @@ export const test_fluid_budget_report = (): void => {
       sprays: [emitter("mist", 128), emitter("veil", 64)],
     },
   });
-  const budget = fluidDomainBudget(domain);
+  const budget: ReturnType<typeof fluidDomainBudget> = fluidDomainBudget(domain);
   TestValidator.equals(
     "the lattice states its own bounded cost",
     namedFacts([
-      ["domain", () => budget.domain === "budgeted"],
-      ["cells", () => budget.cells === 24],
-      ["faces", () => budget.faces === 7 * 4 + 6 * 5],
-      ["stateBytes", () => budget.stateBytes === 8 * (24 + 58)],
-      ["maxSteps", () => budget.maxSteps === domain.solver.maxSteps],
+      ["domain", (): boolean => budget.domain === "budgeted"],
+      ["cells", (): boolean => budget.cells === 24],
+      ["faces", (): boolean => budget.faces === 7 * 4 + 6 * 5],
+      ["stateBytes", (): boolean => budget.stateBytes === 8 * (24 + 58)],
+      ["maxSteps", (): boolean => budget.maxSteps === domain.solver.maxSteps],
       [
         "worstCase",
-        () => budget.worstCaseCellUpdates === 24 * domain.solver.maxSteps,
+        (): boolean => budget.worstCaseCellUpdates === 24 * domain.solver.maxSteps,
       ],
-      ["sprayCap", () => budget.sprayParticleCap === 192],
+      ["sprayCap", (): boolean => budget.sprayParticleCap === 192],
     ]),
     {
       domain: true,
@@ -88,57 +93,41 @@ export const test_fluid_budget_report = (): void => {
     },
   );
 
-  const expectedCourant =
+  const expectedCourant: number =
     domain.solver.fixedStepSeconds *
     Math.sqrt(domain.solver.gravity * domain.solver.referenceDepth) *
     Math.sqrt(
       1 / (domain.grid.cellX * domain.grid.cellX) +
         1 / (domain.grid.cellZ * domain.grid.cellZ),
     );
-  const bare = fluidDomainBudget(fluidDomain());
-  TestValidator.equals(
-    "the stability number is reported, not implied",
-    namedFacts([
-      ["courant", () => nclose(budget.courant, expectedCourant, 0)],
-      [
-        "sameAsFunction",
-        () => nclose(fluidCourantNumber(domain), expectedCourant, 0),
-      ],
-      ["belowLimit", () => budget.courant <= 1],
-      ["noSpray", () => bare.sprayParticleCap === 0],
-      ["twoCells", () => bare.cells === 2],
-    ]),
-    {
-      courant: true,
-      sameAsFunction: true,
-      belowLimit: true,
-      noSpray: true,
-      twoCells: true,
-    },
-  );
+  const bare: ReturnType<typeof fluidDomainBudget> = fluidDomainBudget(fluidDomain());
+  TestValidator.predicate("budget reports the derived Courant number", nclose(budget.courant, expectedCourant, 0));
+  TestValidator.predicate("Courant function evaluates the same contract", nclose(fluidCourantNumber(domain), expectedCourant, 0));
+  TestValidator.predicate("authored clock remains within the Courant bound", budget.courant <= 1);
+  TestValidator.equals("bare domain has no spray and two cells", { sprayParticleCap: bare.sprayParticleCap, cells: bare.cells }, { sprayParticleCap: 0, cells: 2 });
 
-  const state = simulateFluidDomain(domain, 12);
-  const nudged = {
+  const state: ReturnType<typeof simulateFluidDomain> = simulateFluidDomain(domain, 12);
+  const nudged: IAutoMovieFluidState = {
     ...state,
-    depth: state.depth.map((value, index) =>
+    depth: state.depth.map((value: number, index: number): number =>
       index === 5 ? value + Number.EPSILON * value : value,
     ),
   };
   TestValidator.equals(
     "the digest is sensitive evidence, not decoration",
     namedFacts([
-      ["length", () => fluidStateDigest(state).length === 8],
-      ["hex", () => /^[0-9a-f]{8}$/.test(fluidStateDigest(state))],
+      ["length", (): boolean => fluidStateDigest(state).length === 8],
+      ["hex", (): boolean => /^[0-9a-f]{8}$/.test(fluidStateDigest(state))],
       [
         "stable",
-        () =>
+        (): boolean =>
           fluidStateDigest(state) ===
           fluidStateDigest(simulateFluidDomain(domain, 12)),
       ],
-      ["sensitive", () => fluidStateDigest(state) !== fluidStateDigest(nudged)],
+      ["sensitive", (): boolean => fluidStateDigest(state) !== fluidStateDigest(nudged)],
       [
         "stepSensitive",
-        () =>
+        (): boolean =>
           fluidStateDigest(state) !==
           fluidStateDigest(simulateFluidDomain(domain, 13)),
       ],
@@ -152,14 +141,14 @@ export const test_fluid_budget_report = (): void => {
     },
   );
 
-  const dry = validateWaterFeatures({
+  const dry: ReturnType<typeof validateWaterFeatures> = validateWaterFeatures({
     environment: basinEnvironment(),
     features: [],
     domains: [],
   });
   TestValidator.equals(
-    "a production with no water is untouched by the fluid contract",
+    "empty water features and domains are admitted",
     dry.success,
     true,
   );
-};
+}

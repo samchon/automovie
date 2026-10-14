@@ -1,19 +1,21 @@
+import type { IAutoMovieFluidDomain, IAutoMovieFluidState } from "@automovie/interface";
 import { simulateFluidDomain } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { flatBasin } from "../internal/fluidFixtures";
-import { namedFacts, nclose } from "../internal/predicates";
+import { nclose } from "../internal/predicates";
 
-const COLUMNS = 6;
-const ROWS = 6;
-const PILLAR_COLUMN = 3;
-const PILLAR_ROW = 3;
-const PILLAR = PILLAR_ROW * COLUMNS + PILLAR_COLUMN;
+const COLUMNS: number = 6;
+const ROWS: number = 6;
+const PILLAR_COLUMN: number = 3;
+const PILLAR_ROW: number = 3;
+const PILLAR: number = PILLAR_ROW * COLUMNS + PILLAR_COLUMN;
 
-const withPillar = () => {
-  const solid = new Array(COLUMNS * ROWS).fill(false);
+/** Build the original 6x6 fed basin with one dry solid interior cell and fresh depth/solid arrays; the owning entry observes all four reflecting pillar faces. */
+const withPillar: () => IAutoMovieFluidDomain = (): IAutoMovieFluidDomain => {
+  const solid: boolean[] = new Array<boolean>(COLUMNS * ROWS).fill(false);
   solid[PILLAR] = true;
-  const depth = new Array(COLUMNS * ROWS).fill(0.25);
+  const depth: number[] = new Array<number>(COLUMNS * ROWS).fill(0.25);
   depth[PILLAR] = 0;
   return flatBasin({
     columns: COLUMNS,
@@ -41,11 +43,7 @@ const withPillar = () => {
  * A solid cell is a pier standing in the pond: it holds no water, every face
  * touching it reflects, and the flow routes around it instead of through it.
  *
- * A pillar is the smallest interesting obstacle because it is surrounded on all
- * four sides, so a scheme that leaked through solid matter in any single
- * direction — or that let the obstacle quietly accumulate depth from its
- * neighbours — would fail here rather than in a shape where one wrong face
- * happens to face a wall.
+ * The interior pillar exposes all four adjacent faces rather than sharing a grid boundary. Nonzero pillar depth or an adjacent velocity at steps 1, 60 or 400 fails an independent zero witness; temporary departures between those observations are not tested.
  *
  * Scenarios:
  *
@@ -56,85 +54,25 @@ const withPillar = () => {
  * 3. Water still reaches the cell directly behind the pillar, so the obstacle
  *    diverts the flow rather than damming the pond.
  * 4. Mass balance closes around the obstacle: nothing is lost inside it.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Simulates a fed basin with a central solid pillar at steps 1, 60 and 400, requiring zero pillar depth and all four adjacent velocities while flow reaches behind it and volume closes.
+ * @evidence contracts/testing.md#independent-expectations A solid cell holds no water and every adjacent face reflects; authored depth times cell area plus booked source determines volume, with no implementation output used to manufacture the expected dry faces.
+ * @evidence contracts/testing.md#distinguishing-cases Keeps the interior obstacle exposed on all four sides, the downstream wet cell and sampled mass balance; boundary walls, raised dry bed and larger channel circulation are separate entries.
+ * @evidence contracts/testing.md#execution-ownership The named synchronous unit owns the three portable CPU simulations and field assertions through actual engine calls, without mesh generation, renderer or real host.
  */
-export const test_fluid_obstacle_pillar = (): void => {
-  const domain = withPillar();
-  const authored = domain.depth.reduce((sum, value) => sum + value * 0.25, 0);
-  const states = [1, 60, 400].map((step) => simulateFluidDomain(domain, step));
-  const last = states[states.length - 1];
-  const behind = PILLAR_ROW * COLUMNS + PILLAR_COLUMN + 1;
+export function test_fluid_obstacle_pillar(): void {
+  const domain: ReturnType<typeof withPillar> = withPillar();
+  const authored: number = domain.depth.reduce((sum: number, value: number): number => sum + value * 0.25, 0);
+  const states: IAutoMovieFluidState[] = [1, 60, 400].map((step: number): ReturnType<typeof simulateFluidDomain> => simulateFluidDomain(domain, step));
+  const last: IAutoMovieFluidState = states[states.length - 1];
+  const behind: number = PILLAR_ROW * COLUMNS + PILLAR_COLUMN + 1;
 
-  TestValidator.equals(
-    "a pier holds no water and reflects on every side",
-    namedFacts([
-      [
-        "pillarDry",
-        () => states.every((state) => Object.is(state.depth[PILLAR], 0)),
-      ],
-      [
-        "westFace",
-        () =>
-          states.every((state) =>
-            Object.is(
-              state.velocityX[PILLAR_ROW * (COLUMNS + 1) + PILLAR_COLUMN],
-              0,
-            ),
-          ),
-      ],
-      [
-        "eastFace",
-        () =>
-          states.every((state) =>
-            Object.is(
-              state.velocityX[PILLAR_ROW * (COLUMNS + 1) + PILLAR_COLUMN + 1],
-              0,
-            ),
-          ),
-      ],
-      [
-        "southFace",
-        () =>
-          states.every((state) =>
-            Object.is(state.velocityZ[PILLAR_ROW * COLUMNS + PILLAR_COLUMN], 0),
-          ),
-      ],
-      [
-        "northFace",
-        () =>
-          states.every((state) =>
-            Object.is(
-              state.velocityZ[(PILLAR_ROW + 1) * COLUMNS + PILLAR_COLUMN],
-              0,
-            ),
-          ),
-      ],
-    ]),
-    {
-      pillarDry: true,
-      westFace: true,
-      eastFace: true,
-      southFace: true,
-      northFace: true,
-    },
-  );
-
-  TestValidator.equals(
-    "the flow routes around the pier and the books still close",
-    namedFacts([
-      ["reachedBehind", () => last.depth[behind] > 0.25],
-      [
-        "massBalance",
-        () =>
-          states.every((state) =>
-            nclose(
-              state.volume,
-              authored + state.sourceVolume - state.drainVolume,
-              1e-9,
-            ),
-          ),
-      ],
-      ["outflowZero", () => Object.is(last.outflowVolume, 0)],
-    ]),
-    { reachedBehind: true, massBalance: true, outflowZero: true },
-  );
-};
+  TestValidator.predicate("pillar stays exactly dry", states.every((state: IAutoMovieFluidState): boolean => Object.is(state.depth[PILLAR], 0) && nclose(state.depth[PILLAR], 0, 0)));
+  TestValidator.predicate("pillar west face stays still", states.every((state: IAutoMovieFluidState): boolean => Object.is(state.velocityX[PILLAR_ROW * (COLUMNS + 1) + PILLAR_COLUMN], 0) && nclose(state.velocityX[PILLAR_ROW * (COLUMNS + 1) + PILLAR_COLUMN], 0, 0)));
+  TestValidator.predicate("pillar east face stays still", states.every((state: IAutoMovieFluidState): boolean => Object.is(state.velocityX[PILLAR_ROW * (COLUMNS + 1) + PILLAR_COLUMN + 1], 0) && nclose(state.velocityX[PILLAR_ROW * (COLUMNS + 1) + PILLAR_COLUMN + 1], 0, 0)));
+  TestValidator.predicate("pillar south face stays still", states.every((state: IAutoMovieFluidState): boolean => Object.is(state.velocityZ[PILLAR_ROW * COLUMNS + PILLAR_COLUMN], 0) && nclose(state.velocityZ[PILLAR_ROW * COLUMNS + PILLAR_COLUMN], 0, 0)));
+  TestValidator.predicate("pillar north face stays still", states.every((state: IAutoMovieFluidState): boolean => Object.is(state.velocityZ[(PILLAR_ROW + 1) * COLUMNS + PILLAR_COLUMN], 0) && nclose(state.velocityZ[(PILLAR_ROW + 1) * COLUMNS + PILLAR_COLUMN], 0, 0)));
+  TestValidator.predicate("water raises the downstream cell", last.depth[behind] > 0.25);
+  TestValidator.predicate("sampled pillar-basin mass balance", states.every((state: IAutoMovieFluidState): boolean => nclose(state.volume, authored + state.sourceVolume - state.drainVolume, 1e-9)));
+  TestValidator.predicate("walled pillar basin books zero outflow", Object.is(last.outflowVolume, 0) && nclose(last.outflowVolume, 0, 0));
+}

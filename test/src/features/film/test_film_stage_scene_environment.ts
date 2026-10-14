@@ -19,6 +19,12 @@ const ENVIRONMENT: IAutoMovieSceneEnvironment = {
   shadows: { enabled: true, type: "pcfSoft" },
 };
 
+/**
+ * Submit one unknown environment and require a located kind/path refusal.
+ *
+ * The owning test supplies schema-based kind/path expectations and asserts the
+ * returned boolean. hasViolation checks path inclusion rather than the full report.
+ */
 function refusedAt (
   environment: unknown,
   kind: AutoMovieViolationKind,
@@ -30,6 +36,12 @@ function refusedAt (
   return result.success === false && hasViolation(result, kind, path);
 }
 
+/**
+ * Replace only the standard stage's environment for its owning entry.
+ *
+ * The owning test requires success and preservation of its authored ENVIRONMENT
+ * record; this adapter supplies no assertion or independent oracle itself.
+ */
 function stagedWith (environment: unknown): IAutoMovieStagedSet { return stageScene(
     makeScriptWrite(),
     makeStagingWrite({
@@ -42,20 +54,21 @@ function stagedWith (environment: unknown): IAutoMovieStagedSet { return stageSc
  *
  * Scenarios:
  *
- * 1. A complete image environment and shadowed light lower without losing any
- *    renderer-independent setting, while omitted environment data preserves the
- *    legacy scene shape.
+ * 1. A complete image environment is retained by identity, and a shadowed light
+ *    keeps its casting flag and map size, while omitted environment data preserves the
+ *    omitted-key scene shape; no serialized bytes or digest are computed here.
  * 2. Every environment scalar, color, enum, exclusivity, and nested-object
  *    boundary fails at its authored path, with valid zero and extreme values
  *    retained.
  * 3. Shadow casting and deterministic shadow settings are declared together;
  *    malformed, missing, or inactive settings are refused before lowering.
+ *    Area lights accept omission but refuse either boolean castShadow flag.
  * 4. Backgrounds and staged lights reject an RGB/hex contradiction through
- *    the same color gate and retain matching endpoint swatches.
+ *    the same color gate, while a matching white light swatch stages.
  *
  * @evidence contracts/testing.md#behavioral-verification Exercises validateSceneEnvironment and stageScene and asserts authored environment preservation, renderer-policy and shadow-field refusals plus shared background/light color consistency; catches a stage accepting a swatch inconsistent with the numeric color it renders.
  * @evidence contracts/testing.md#independent-expectations Environment and shadow domains come from their interface contracts, and exact white/black sRGB endpoints define the independent color oracle; tests require located authored fields rather than reading runtime enum tables.
- * @evidence contracts/testing.md#distinguishing-cases Covers omitted and complete environments, malformed nested records, scalar/enum/renderer boundaries, shadow declaration/settings consistency and matching/mismatched background/light labels; model and fog entries exercise the other color consumers separately.
+ * @evidence contracts/testing.md#distinguishing-cases Covers omitted and complete environments, malformed nested records, scalar/enum/renderer boundaries, shadow declaration/settings consistency, contradictory background/light labels and an admitted white light label; model and fog entries exercise the other color consumers separately.
  * @evidence contracts/testing.md#execution-ownership The synchronous unit entry owns the fixed cases and the shadow case table, calls portable source validators and stageScene, and starts no real renderer or host.
  */
 export function test_film_stage_scene_environment (): void {
@@ -68,7 +81,7 @@ export function test_film_stage_scene_environment (): void {
     );
   const bare: IAutoMovieStagedSet = stageScene(makeScriptWrite(), makeStagingWrite());
   TestValidator.equals(
-    "omitted environment preserves legacy scene bytes",
+    "omitted environment preserves the omitted-key scene shape",
     namedFacts([
       ["staged", () : boolean => bare.success === true],
       [
@@ -310,6 +323,8 @@ export function test_film_stage_scene_environment (): void {
   );
 
   const invalidShadowCases: Array<[unknown, string]> = [
+    [{ node: "key", type: "area", direction: { x: 0, y: -1, z: 0 }, position: { x: 0, y: 1, z: 0 }, width: 1, height: 1, intensity: 1, castShadow: false }, "$input.lights[0].castShadow"],
+    [{ node: "key", type: "area", direction: { x: 0, y: -1, z: 0 }, position: { x: 0, y: 1, z: 0 }, width: 1, height: 1, intensity: 1, castShadow: true }, "$input.lights[0].castShadow"],
     [{ ...light, castShadow: "yes" }, "$input.lights[0].castShadow"],
     [{ ...light, castShadow: true }, "$input.lights[0].shadow"],
     [{ ...light, shadow: null }, "$input.lights[0].shadow"],
@@ -377,6 +392,7 @@ export function test_film_stage_scene_environment (): void {
     }),
   );
   const mismatchBackground: IAutoMovieValidation = validateSceneEnvironment({ environment: { ...ENVIRONMENT, image: null, background: { r: 0, g: 0, b: 0, a: null, hex: "#FFFFFF" } } });
+  TestValidator.equals("area light without an inapplicable shadow flag stages", stageScene(makeScriptWrite(), { ...standard, lights: [{ node: "key", type: "area", direction: { x: 0, y: -1, z: 0 }, position: { x: 0, y: 1, z: 0 }, width: 1, height: 1, intensity: 1 }] }).success, true);
   TestValidator.predicate("background cannot label black as white", mismatchBackground.success === false && mismatchBackground.violations.some((item: IAutoMovieConstraintViolation): boolean => item.path === "$input.background.hex" && item.expected.includes("encoded as #000000")));
   const mismatchLight: IAutoMovieStagedSet = stageScene(makeScriptWrite(), { ...standard, lights: [{ ...light, color: { r: 0, g: 0, b: 0, a: null, hex: "#FFFFFF" } }] });
   TestValidator.predicate("a staged light cannot label black as white", mismatchLight.success === false && mismatchLight.violations.some((item: IAutoMovieConstraintViolation): boolean => item.path === "$input.lights[0].color.hex" && item.expected.includes("encoded as #000000")));

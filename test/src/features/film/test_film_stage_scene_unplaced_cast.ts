@@ -1,3 +1,4 @@
+import type { IAutoMovieConstraintViolation } from "@automovie/interface";
 import { stageScene } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
@@ -14,9 +15,14 @@ import { hasViolation, namedFacts } from "../internal/predicates";
  * 1. Staging places only `knightA` while the script casts two knights → a `type`
  *    violation on `$input.actors` naming the unplaced `knightB`, and no scene
  *    is composed.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Stages only knightA from a two-actor script and requires refusal naming knightB under the actors path, catching silently dropped planned cast.
+ * @evidence contracts/testing.md#independent-expectations The literal two-member cast and one-member placement establish the missing knightB expectation; no composed scene is used to derive expected membership.
+ * @evidence contracts/testing.md#distinguishing-cases Owns one absent cast member while retaining a valid placed actor; the inverse unknown-placement refusal and fully placed success belong to their respective entries.
+ * @evidence contracts/testing.md#execution-ownership The synchronous named entry owns this in-memory script/stage join case through actual staging without loading assets or starting a native or browser host.
  */
-export const test_film_stage_scene_unplaced_cast = (): void => {
-  const staged = stageScene(
+export function test_film_stage_scene_unplaced_cast(): void {
+  const staged: ReturnType<typeof stageScene> = stageScene(
     makeScriptWrite(),
     makeStagingWrite({
       actors: [
@@ -28,18 +34,18 @@ export const test_film_stage_scene_unplaced_cast = (): void => {
   TestValidator.equals(
     "names the unplaced cast node",
     namedFacts([
-      ["stagedSuccess", () => staged.success === false],
+      ["stagedSuccess", (): boolean => staged.success === false],
       [
         "hasViolationStagedType",
-        () =>
+        (): boolean =>
           staged.success === false &&
           hasViolation(staged, "type", "$input.actors"),
       ],
       [
         "stagedViolationsV",
-        () =>
+        (): boolean =>
           staged.success === false &&
-          staged.violations.some((v) => v.value === "knightB"),
+          staged.violations.some((v: IAutoMovieConstraintViolation): boolean => v.value === "knightB"),
       ],
     ]),
     {
@@ -48,4 +54,4 @@ export const test_film_stage_scene_unplaced_cast = (): void => {
       stagedViolationsV: true,
     },
   );
-};
+}

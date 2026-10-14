@@ -1,3 +1,4 @@
+import type { IAutoMovieScene, IAutoMovieSceneNode, IAutoMovieVector3 } from "@automovie/interface";
 import { Quaternion, Vector3, stageScene } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
@@ -23,9 +24,14 @@ import { vclose } from "../internal/predicates";
  * 4. The sun light is directional with its −Z rotated onto the declared direction,
  *    and `knightB`'s `attach` becomes `mounts[0]` (parent `knightA`, bone
  *    `chest`).
+ *
+ * @evidence contracts/testing.md#behavioral-verification Stages both actors, two camera target spellings, a directional light and a valid mount; observes node/model identities, rotated facing/aim axes and the mount record.
+ * @evidence contracts/testing.md#independent-expectations Literal cast/model fallback keys, plus/minus Z facing and authored camera displacement vectors define the expectations; normalized directions and vclose compare physical aim rather than recorded quaternions. Product normalization/rotation helpers participate in these comparisons, so shared math faults are not independently excluded.
+ * @evidence contracts/testing.md#distinguishing-cases Owns successful modelRef and null fallback, zero/180-degree facing, node/point camera targets and a distinct placed mount parent; malformed identities, references, mounts and lights are separate entries.
+ * @evidence contracts/testing.md#execution-ownership This named synchronous unit directly owns its scene-record and math assertions through portable engine staging; it does not run a performed shot, render pixels or establish visual quality.
  */
-export const test_film_stage_scene_valid = (): void => {
-  const staged = stageScene(
+export function test_film_stage_scene_valid(): void {
+  const staged: ReturnType<typeof stageScene> = stageScene(
     makeScriptWrite(),
     makeStagingWrite({
       actors: [
@@ -65,7 +71,7 @@ export const test_film_stage_scene_valid = (): void => {
   TestValidator.equals("scene id", staged.scene.id, "scene-duel");
   TestValidator.equals(
     "node ids",
-    staged.scene.nodes.map((n) => n.id),
+    staged.scene.nodes.map((n: IAutoMovieSceneNode): string => n.id),
     ["knightA", "knightB"],
   );
   TestValidator.equals(
@@ -79,12 +85,18 @@ export const test_film_stage_scene_valid = (): void => {
     "knightB",
   );
 
-  const forwardOf = (rotation: {
+  /** Observe local +Z under an accepted node rotation; the literal facing vectors remain the independent oracle. */
+  const forwardOf: (rotation: {
     x: number;
     y: number;
     z: number;
     w: number;
-  }) => Quaternion.rotateVector(rotation, { x: 0, y: 0, z: 1 });
+  }) => IAutoMovieVector3 = (rotation: {
+    x: number;
+    y: number;
+    z: number;
+    w: number;
+  }): IAutoMovieVector3 => Quaternion.rotateVector(rotation, { x: 0, y: 0, z: 1 });
   TestValidator.predicate(
     "facing 0° keeps +Z",
     vclose(forwardOf(staged.scene.nodes[0]!.transform.rotation), {
@@ -102,7 +114,8 @@ export const test_film_stage_scene_valid = (): void => {
     }),
   );
 
-  const aimOf = (camera: (typeof staged.scene.cameras)[number]) =>
+  /** Observe a lowered camera's local -Z; authored target displacements independently determine its expected aim. */
+  const aimOf: (camera: IAutoMovieScene["cameras"][number]) => IAutoMovieVector3 = (camera: IAutoMovieScene["cameras"][number]): IAutoMovieVector3 =>
     Quaternion.rotateVector(camera.transform.rotation, {
       x: 0,
       y: 0,
@@ -143,4 +156,4 @@ export const test_film_stage_scene_valid = (): void => {
   TestValidator.equals("mounts", staged.mounts, [
     { node: "knightB", binding: { parent: "knightA", bone: "chest" } },
   ]);
-};
+}

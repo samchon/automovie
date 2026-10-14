@@ -1,5 +1,7 @@
+import type { IAutoMovieFluidDomain, IAutoMovieVector3 } from "@automovie/interface";
+
 import { fluidSurfaceGeometry, simulateFluidDomain } from "@automovie/engine";
-import { IAutoMovieFluidDomain } from "@automovie/interface";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { fluidDomain } from "../internal/fluidFixtures";
@@ -10,7 +12,14 @@ import {
   vclose,
 } from "../internal/predicates";
 
-const pool = (props: {
+/** Construct the original offset pool from borrowed bed/depth/solid fields, allocating a dry-obstacle mask only when omitted; the owning entry derives expected mesh data from this authored grid. */
+const pool: (props: {
+  columns: number;
+  rows: number;
+  bed: number[];
+  depth: number[];
+  solid?: boolean[];
+}) => IAutoMovieFluidDomain = (props: {
   columns: number;
   rows: number;
   bed: number[];
@@ -36,36 +45,37 @@ const pool = (props: {
     },
     bed: props.bed,
     depth: props.depth,
-    solid: props.solid ?? new Array(props.columns * props.rows).fill(false),
+    solid: props.solid ?? new Array<boolean>(props.columns * props.rows).fill(false),
   });
 
-const at = (values: number[], index: number, stride: number, offset: number) =>
+/** Read one component of a dense output attribute; the owning test supplies the independently expected stride and component offset. */
+const at: (values: number[], index: number, stride: number, offset: number) => number = (values: number[], index: number, stride: number, offset: number): number =>
   values[index * stride + offset];
 
 /**
- * The drawable free surface is derived from the solved depth field alone, and
- * agrees with it: vertex heights, bounds, normals, wet/dry triangulation, and
- * the per-vertex flow all restate the state rather than reinterpreting it.
+ * Derive CPU surface records from authored grid, bed and solid cells together
+ * with solved depth and face velocities. Check heights, bounds, normals,
+ * wet/dry triangulation and cell-centred flow against those inputs.
  *
- * The renderer never builds water of its own, which is the only way the water a
- * camera sees and the depth field the mass balance was proven against can be
- * guaranteed to be the same statement.
+ * These assertions observe CPU mesh data. They do not execute renderer
+ * adoption, camera visibility, native upload or GPU projection.
  *
  * Scenarios:
  *
  * 1. A still flat pool: one vertex per cell at `origin.y + bed + depth`, every
- *    normal exactly `(0, 1, 0)`, UVs spanning `[0, 1]`, `6·(C−1)·(R−1)`
+ *    normal within `1e-6` of `(0, 1, 0)`, selected UV endpoints at 0 and 1,
+ *    `6·(C−1)·(R−1)`
  *    indices, and bounds equal to the hand-computed corner cell centres.
  * 2. A surface tilted 0.5 vertically per metre horizontally has normals equal to
  *    the hand-computed `normalize(−0.5, 1, 0)`, at an interior vertex and at
  *    the lattice edge where the central difference degenerates to a one-sided
  *    one.
- * 3. A drained basin draws nothing: no indices, and `null` bounds — not a flat
- *    sheet lying on its own floor.
+ * 3. A drained basin has no triangle indices and `null` bounds while retaining
+ *    its cell vertices.
  * 4. A one-cell domain has no quad to draw and no slope to measure, so its single
- *    normal is exactly up and its UV is the degenerate `(0, 0)`.
- * 5. A pier in the pool removes exactly the four quads that touch it, in all four
- *    corner positions, and every remaining triangle is wet.
+ *    normal is up within `1e-6` and its UV is `(0, 0)` within `1e-6`.
+ * 5. One interior pier removes its four neighboring quads, in which it occupies
+ *    each local corner position; no remaining index names the solid cell.
  * 6. The per-vertex flow equals the average of the four face velocities around the
  *    cell, taken from a genuinely moving state.
  * 7. A state solved from a different domain is refused rather than drawn. Two
@@ -73,32 +83,29 @@ const at = (values: number[], index: number, stride: number, offset: number) =>
  *    the ordinary mistake, and the mistake reads depths that were never indexed
  *    for this grid — an empty pond nobody was told about. Its twin is the same
  *    lattice paired with its own state, which draws.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Lowers selected CPU fluid states into mesh data and observes cell-centre positions, normals, indices, velocity attributes, wet/solid quad decisions, bounds and domain-id refusal.
+ * @evidence contracts/testing.md#independent-expectations Authored origin, bed, depth and grid spacing determine literal positions, bounds and index counts; geometric equations derive slope normals and face-averaged velocity without a recorded mesh oracle. Triangle winding is not independently asserted.
+ * @evidence contracts/testing.md#distinguishing-cases Keeps flat and sloped fields, wet/dry/solid quad decisions, empty and singleton populations, a nonzero authored origin and foreign state id; renderer adoption, camera consistency and full state-source provenance are not established here.
+ * @evidence contracts/testing.md#execution-ownership The named synchronous unit owns CPU mesh-record assertions through fluidSurfaceGeometry and existing state fixtures; no native geometry upload, image or GPU execution is observed.
  */
-export const test_fluid_surface_geometry = (): void => {
-  const flat = pool({
+export function test_fluid_surface_geometry(): void {
+  const flat: ReturnType<typeof pool> = pool({
     columns: 4,
     rows: 4,
-    bed: new Array(16).fill(0),
-    depth: new Array(16).fill(0.5),
+    bed: new Array<number>(16).fill(0),
+    depth: new Array<number>(16).fill(0.5),
   });
-  const still = fluidSurfaceGeometry({
+  const still: ReturnType<typeof fluidSurfaceGeometry> = fluidSurfaceGeometry({
     domain: flat,
     state: simulateFluidDomain(flat, 0),
   });
-  TestValidator.equals(
-    "a still flat pool restates the depth field exactly",
-    namedFacts([
-      ["vertexCount", () => still.mesh.positions.length === 16 * 3],
-      [
-        "vertexHeights",
-        () =>
-          Array.from({ length: 16 }, (_, k) =>
+  TestValidator.predicate(
+    "a still flat pool restates the authored grid and depth",
+    (): boolean => still.mesh.positions.length === 16 * 3 &&
+          Array.from({ length: 16 }, (_: unknown, k: number): boolean =>
             nclose(at(still.mesh.positions, k, 3, 1), 1.5),
-          ).every(Boolean),
-      ],
-      [
-        "firstVertex",
-        () =>
+          ).every(Boolean) &&
           vclose(
             {
               x: still.mesh.positions[0],
@@ -106,12 +113,8 @@ export const test_fluid_surface_geometry = (): void => {
               z: still.mesh.positions[2],
             },
             { x: 2.25, y: 1.5, z: -2.75 },
-          ),
-      ],
-      [
-        "normalsUp",
-        () =>
-          Array.from({ length: 16 }, (_, k) =>
+          ) &&
+          Array.from({ length: 16 }, (_: unknown, k: number): boolean =>
             vclose(
               {
                 x: at(still.mesh.normals ?? [], k, 3, 0),
@@ -120,61 +123,37 @@ export const test_fluid_surface_geometry = (): void => {
               },
               { x: 0, y: 1, z: 0 },
             ),
-          ).every(Boolean),
-      ],
-      [
-        "uvSpan",
-        () =>
+          ).every(Boolean) &&
           nclose((still.mesh.uvs ?? [])[0], 0) &&
           nclose((still.mesh.uvs ?? [])[1], 0) &&
-          nclose((still.mesh.uvs ?? [])[31], 1),
-      ],
-      ["indexCount", () => (still.mesh.indices ?? []).length === 6 * 3 * 3],
-      [
-        "bounds",
-        () =>
+          nclose((still.mesh.uvs ?? [])[31], 1) &&
+          (still.mesh.indices ?? []).length === 6 * 3 * 3 &&
           still.bounds !== null &&
           vclose(still.bounds.min, { x: 2.25, y: 1.5, z: -2.75 }) &&
-          vclose(still.bounds.max, { x: 3.75, y: 1.5, z: -1.25 }),
-      ],
-      ["flowStill", () => still.flow.every((value) => value === 0)],
-      ["step", () => still.step === 0 && still.domain === "reflecting-pool"],
-    ]),
-    {
-      vertexCount: true,
-      vertexHeights: true,
-      firstVertex: true,
-      normalsUp: true,
-      uvSpan: true,
-      indexCount: true,
-      bounds: true,
-      flowStill: true,
-      step: true,
-    },
+          vclose(still.bounds.max, { x: 3.75, y: 1.5, z: -1.25 }) &&
+          still.flow.every((value: number): boolean => value === 0 && nclose(value, 0, 0)) &&
+          still.step === 0 && still.domain === "reflecting-pool",
   );
 
-  const tiltedBed = Array.from({ length: 9 }, (_, k) => (k % 3) * 0.25);
-  const tilted = pool({
+  const tiltedBed: number[] = Array.from({ length: 9 }, (_: unknown, k: number): number => (k % 3) * 0.25);
+  const tilted: ReturnType<typeof pool> = pool({
     columns: 3,
     rows: 3,
     bed: tiltedBed,
-    depth: new Array(9).fill(0.5),
+    depth: new Array<number>(9).fill(0.5),
   });
-  const slope = fluidSurfaceGeometry({
+  const slope: ReturnType<typeof fluidSurfaceGeometry> = fluidSurfaceGeometry({
     domain: tilted,
     state: simulateFluidDomain(tilted, 0),
   });
-  const expected = {
+  const expected: IAutoMovieVector3 = {
     x: -0.5 / Math.sqrt(1.25),
     y: 1 / Math.sqrt(1.25),
     z: 0,
   };
-  TestValidator.equals(
+  TestValidator.predicate(
     "a tilted surface carries the hand-computed normal",
-    namedFacts([
-      [
-        "interior",
-        () =>
+    (): boolean =>
           vclose(
             {
               x: at(slope.mesh.normals ?? [], 4, 3, 0),
@@ -182,11 +161,7 @@ export const test_fluid_surface_geometry = (): void => {
               z: at(slope.mesh.normals ?? [], 4, 3, 2),
             },
             expected,
-          ),
-      ],
-      [
-        "edge",
-        () =>
+          ) &&
           vclose(
             {
               x: at(slope.mesh.normals ?? [], 3, 3, 0),
@@ -195,37 +170,28 @@ export const test_fluid_surface_geometry = (): void => {
             },
             expected,
           ),
-      ],
-    ]),
-    { interior: true, edge: true },
   );
 
-  const drained = pool({
+  const drained: ReturnType<typeof pool> = pool({
     columns: 4,
     rows: 4,
-    bed: new Array(16).fill(0),
-    depth: new Array(16).fill(0),
+    bed: new Array<number>(16).fill(0),
+    depth: new Array<number>(16).fill(0),
   });
-  const nothing = fluidSurfaceGeometry({
+  const nothing: ReturnType<typeof fluidSurfaceGeometry> = fluidSurfaceGeometry({
     domain: drained,
     state: simulateFluidDomain(drained, 0),
   });
-  const single = pool({ columns: 1, rows: 1, bed: [0], depth: [0.5] });
-  const alone = fluidSurfaceGeometry({
+  const single: ReturnType<typeof pool> = pool({ columns: 1, rows: 1, bed: [0], depth: [0.5] });
+  const alone: ReturnType<typeof fluidSurfaceGeometry> = fluidSurfaceGeometry({
     domain: single,
     state: simulateFluidDomain(single, 0),
   });
-  TestValidator.equals(
+  TestValidator.predicate(
     "a drained basin and a one-cell domain draw nothing",
-    namedFacts([
-      ["drainedEmpty", () => (nothing.mesh.indices ?? []).length === 0],
-      ["drainedBounds", () => nothing.bounds === null],
-      ["drainedVertices", () => nothing.mesh.positions.length === 48],
-      ["singleEmpty", () => (alone.mesh.indices ?? []).length === 0],
-      ["singleVertex", () => alone.mesh.positions.length === 3],
-      [
-        "singleNormal",
-        () =>
+    (): boolean => (nothing.mesh.indices ?? []).length === 0 &&
+      nothing.bounds === null && nothing.mesh.positions.length === 48 &&
+      (alone.mesh.indices ?? []).length === 0 && alone.mesh.positions.length === 3 &&
           vclose(
             {
               x: (alone.mesh.normals ?? [])[0],
@@ -233,75 +199,57 @@ export const test_fluid_surface_geometry = (): void => {
               z: (alone.mesh.normals ?? [])[2],
             },
             { x: 0, y: 1, z: 0 },
-          ),
-      ],
-      [
-        "singleUv",
-        () =>
+          ) &&
           nclose((alone.mesh.uvs ?? [])[0], 0) &&
           nclose((alone.mesh.uvs ?? [])[1], 0),
-      ],
-    ]),
-    {
-      drainedEmpty: true,
-      drainedBounds: true,
-      drainedVertices: true,
-      singleEmpty: true,
-      singleVertex: true,
-      singleNormal: true,
-      singleUv: true,
-    },
   );
 
-  const solid = new Array(16).fill(false);
+  const solid: boolean[] = new Array<boolean>(16).fill(false);
   solid[5] = true;
-  const depth = new Array(16).fill(0.5);
+  const depth: number[] = new Array<number>(16).fill(0.5);
   depth[5] = 0;
-  const pier = pool({
+  const pier: ReturnType<typeof pool> = pool({
     columns: 4,
     rows: 4,
-    bed: new Array(16).fill(0),
+    bed: new Array<number>(16).fill(0),
     depth,
     solid,
   });
-  const around = fluidSurfaceGeometry({
+  const around: ReturnType<typeof fluidSurfaceGeometry> = fluidSurfaceGeometry({
     domain: pier,
     state: simulateFluidDomain(pier, 0),
   });
   TestValidator.equals(
     "a pier removes exactly the quads that touch it",
     namedFacts([
-      ["quadCount", () => (around.mesh.indices ?? []).length === 6 * 5],
+      ["quadCount", (): boolean => (around.mesh.indices ?? []).length === 6 * 5],
       [
         "noPierVertex",
-        () => (around.mesh.indices ?? []).every((index) => index !== 5),
+        (): boolean => (around.mesh.indices ?? []).every((index: number): boolean => index !== 5),
       ],
     ]),
     { quadCount: true, noPierVertex: true },
   );
 
-  const moving = pool({
+  const moving: ReturnType<typeof pool> = pool({
     columns: 4,
     rows: 4,
-    bed: new Array(16).fill(0),
+    bed: new Array<number>(16).fill(0),
     depth: [
       0.5, 0.5, 0.25, 0.25, 0.5, 0.5, 0.25, 0.25, 0.5, 0.5, 0.25, 0.25, 0.5,
       0.5, 0.25, 0.25,
     ],
   });
-  const state = simulateFluidDomain(moving, 20);
-  const flowing = fluidSurfaceGeometry({ domain: moving, state });
-  TestValidator.equals(
+  const state: ReturnType<typeof simulateFluidDomain> = simulateFluidDomain(moving, 20);
+  const flowing: ReturnType<typeof fluidSurfaceGeometry> = fluidSurfaceGeometry({ domain: moving, state });
+  TestValidator.predicate(
     "the per-vertex flow is the cell-centred face average",
-    namedFacts([
-      [
-        "matchesFaces",
-        () =>
-          Array.from({ length: 16 }, (_, cell) => {
-            const row = Math.floor(cell / 4);
-            const column = cell % 4;
-            const west = row * 5 + column;
-            const south = row * 4 + column;
+    (): boolean =>
+          Array.from({ length: 16 }, (_: unknown, cell: number): boolean => {
+            const row: number = Math.floor(cell / 4);
+            const column: number = cell % 4;
+            const west: number = row * 5 + column;
+            const south: number = row * 4 + column;
             return (
               nclose(
                 flowing.flow[cell * 2],
@@ -314,23 +262,19 @@ export const test_fluid_surface_geometry = (): void => {
                 0,
               )
             );
-          }).every(Boolean),
-      ],
-      ["actuallyFlowing", () => flowing.flow.some((value) => value !== 0)],
-      ["step", () => flowing.step === 20],
-    ]),
-    { matchesFaces: true, actuallyFlowing: true, step: true },
+          }).every(Boolean) &&
+      flowing.flow.some((value: number): boolean => value !== 0) && flowing.step === 20,
   );
 
-  const other = fluidDomain({ id: "other-pool" });
+  const other: ReturnType<typeof fluidDomain> = fluidDomain({ id: "other-pool" });
   TestValidator.equals(
     "a surface is derived from its own domain's state or from none",
     namedFacts([
       [
         "foreignState",
-        () =>
+        (): boolean =>
           throwsError(
-            () =>
+            (): ReturnType<typeof fluidSurfaceGeometry> =>
               fluidSurfaceGeometry({
                 domain: moving,
                 state: simulateFluidDomain(other, 0),
@@ -340,8 +284,8 @@ export const test_fluid_surface_geometry = (): void => {
       ],
       [
         "ownState",
-        () =>
-          throwsError(() =>
+        (): boolean =>
+          throwsError((): ReturnType<typeof fluidSurfaceGeometry> =>
             fluidSurfaceGeometry({
               domain: moving,
               state: simulateFluidDomain(moving, 0),
@@ -351,4 +295,4 @@ export const test_fluid_surface_geometry = (): void => {
     ]),
     { foreignState: true, ownState: true },
   );
-};
+}
