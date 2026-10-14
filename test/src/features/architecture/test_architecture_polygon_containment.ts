@@ -4,11 +4,11 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { appendBuiltRegionDefects } from "../../../../packages/engine/src/architecture/appendBuiltRegionDefects";
-import { builtOutlineIsClosed } from "../../../../packages/engine/src/architecture/builtOutlineIsClosed";
-import { outlineHull } from "../../../../packages/engine/src/architecture/outlineHull";
-import { pointInPolygon } from "../../../../packages/engine/src/architecture/pointInPolygon";
-import { polygonInside } from "../../../../packages/engine/src/architecture/polygonInside";
+import { appendBuiltRegionDefects } from "@automovie/engine/architecture/appendBuiltRegionDefects";
+import { builtOutlineIsClosed } from "@automovie/engine/architecture/builtOutlineIsClosed";
+import { outlineHull } from "@automovie/engine/architecture/outlineHull";
+import { pointInPolygon } from "@automovie/engine/architecture/pointInPolygon";
+import { polygonInside } from "@automovie/engine/architecture/polygonInside";
 import { ViolationCollector } from "@automovie/engine";
 
 /**

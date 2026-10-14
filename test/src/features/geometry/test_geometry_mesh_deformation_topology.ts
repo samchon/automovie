@@ -7,7 +7,7 @@ import {
 import { TestValidator } from "@nestia/e2e";
 
 import { type IAutoMovieMeshDeformationInfluence, createAutoMovieMeshDeformer } from "@automovie/engine";
-import { assertAutoMovieDeformedTriangles } from "../../../../packages/engine/src/geometry/assertAutoMovieDeformedTriangles";
+import { assertAutoMovieDeformedTriangles } from "@automovie/engine/geometry/assertAutoMovieDeformedTriangles";
 
 import { equalGeometryTestValues } from "../internal/equalGeometryTestValues";
 import { nclose } from "../internal/nclose";

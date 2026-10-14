@@ -14,7 +14,7 @@ import {
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../internal/predicates";
-import type { IAutoMovieBoundProfile } from "./../../../../packages/engine/src/resolve/IAutoMovieBoundProfile";
+import type { IAutoMovieBoundProfile } from "@automovie/engine";
 
 const nodeChannel: (id: string) => IAutoMovieChannel = (
   id: string,

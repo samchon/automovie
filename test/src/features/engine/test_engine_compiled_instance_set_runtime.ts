@@ -15,7 +15,7 @@ import {
 import { TestValidator } from "@nestia/e2e";
 import { createHash } from "node:crypto";
 
-import { summarizeCompiledSlotChunks } from "../../../../packages/engine/src/populationRuntime/summarizeCompiledSlotChunks";
+import { summarizeCompiledSlotChunks } from "@automovie/engine/populationRuntime/summarizeCompiledSlotChunks";
 import {
   namedFacts,
   nclose,

@@ -6,7 +6,7 @@ import { TestValidator } from "@nestia/e2e";
 
 import { IAutoMovieSampledChannel, sampleClip, validateClipArtifact } from "@automovie/engine";
 
-import { channelValueWidth } from "../../../../packages/engine/src/validation/channelValueWidth";
+import { channelValueWidth } from "@automovie/engine/validation/channelValueWidth";
 
 import { namedFacts, throwsError } from "../internal/predicates";
 import { withoutArraySlot } from "../internal/withoutArraySlot";
