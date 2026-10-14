@@ -37,7 +37,8 @@ export function weldLatticeSeamNormals(
     const a: number = 3 * row * width,
       b: number = a + 3 * columns;
     const sum: number[] = [0, 1, 2].map(
-      (axis: number): number => mesh.normals![a + axis] + mesh.normals![b + axis],
+      (axis: number): number =>
+        mesh.normals![a + axis] + mesh.normals![b + axis],
     );
     const length: number = Math.hypot(...sum);
     if (length === 0) continue;

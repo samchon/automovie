@@ -20,7 +20,11 @@ import { Point } from "./structures/Point";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work This producer answers one surface callback and resolution; it owns no request cache or equivalence rule for callback effects.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Position/index/normal arrays transfer in the returned mesh and temporaries expire on return/refusal; allocation grows with the caller's resolution, without a local global cap or retained handle/task.
  */
-export const triangulateSurfaceLattice: (surface: (u: number, v: number) => Point, columns: number, rows: number) => IAutoMovieMesh = (
+export const triangulateSurfaceLattice: (
+  surface: (u: number, v: number) => Point,
+  columns: number,
+  rows: number,
+) => IAutoMovieMesh = (
   surface: (u: number, v: number) => Point,
   columns: number,
   rows: number,

@@ -30,9 +30,13 @@ export function subdivideControlMesh(
   rounds: number,
   inputCurves: readonly (readonly number[])[] = [],
 ): IControlMesh {
-  const key: (a: number, b: number) => string = (a: number, b: number): string =>
-    a < b ? `${a}/${b}` : `${b}/${a}`;
-  let curves: number[][] = inputCurves.map((curve: readonly number[]): number[] => [...curve]);
+  const key: (a: number, b: number) => string = (
+    a: number,
+    b: number,
+  ): string => (a < b ? `${a}/${b}` : `${b}/${a}`);
+  let curves: number[][] = inputCurves.map(
+    (curve: readonly number[]): number[] => [...curve],
+  );
   const occupied: Set<number> = new Set<number>();
   const resident: Set<string> = new Set<string>();
   if (curves.length !== 0)
@@ -67,8 +71,12 @@ export function subdivideControlMesh(
   }
   let mesh: IControlMesh = input;
   for (let round: number = 0; round < rounds; round++) {
-    const neighbours: Set<number>[] = mesh.positions.map((): Set<number> => new Set<number>());
-    const boundary: Set<number>[] = mesh.positions.map((): Set<number> => new Set<number>());
+    const neighbours: Set<number>[] = mesh.positions.map(
+      (): Set<number> => new Set<number>(),
+    );
+    const boundary: Set<number>[] = mesh.positions.map(
+      (): Set<number> => new Set<number>(),
+    );
     const edges: Map<
       string,
       { a: number; b: number; opposite: number[]; index: number }
@@ -85,7 +93,9 @@ export function subdivideControlMesh(
         neighbours[a].add(b);
         neighbours[b].add(a);
         const id: string = key(a, b);
-        let edge: { a: number; b: number; opposite: number[]; index: number } | undefined = edges.get(id);
+        let edge:
+          | { a: number; b: number; opposite: number[]; index: number }
+          | undefined = edges.get(id);
         if (edge === undefined) {
           edge = {
             a,
@@ -116,31 +126,37 @@ export function subdivideControlMesh(
         ]);
         curveEdges.add(key(a, b));
       }
-    const refine: (values: number[][]) => number[][] = (values: number[][]): number[][] => {
-      const positions: number[][] = values.map((point: number[], i: number): number[] => {
-        if (boundary[i].size !== 0)
+    const refine: (values: number[][]) => number[][] = (
+      values: number[][],
+    ): number[][] => {
+      const positions: number[][] = values.map(
+        (point: number[], i: number): number[] => {
+          if (boundary[i].size !== 0)
+            return point.map(
+              (value: number, axis: number): number =>
+                0.75 * value +
+                0.125 *
+                  [...boundary[i]].reduce(
+                    (sum: number, next: number): number =>
+                      sum + values[next][axis],
+                    0,
+                  ),
+            );
+          const count: number = neighbours[i].size;
+          if (count === 0) return [...point];
+          const beta: number = count === 3 ? 3 / 16 : 3 / (8 * count);
           return point.map(
             (value: number, axis: number): number =>
-              0.75 * value +
-              0.125 *
-                [...boundary[i]].reduce(
-                  (sum: number, next: number): number => sum + values[next][axis],
+              (1 - count * beta) * value +
+              beta *
+                [...neighbours[i]].reduce(
+                  (sum: number, next: number): number =>
+                    sum + values[next][axis],
                   0,
                 ),
           );
-        const count: number = neighbours[i].size;
-        if (count === 0) return [...point];
-        const beta: number = count === 3 ? 3 / 16 : 3 / (8 * count);
-        return point.map(
-          (value: number, axis: number): number =>
-            (1 - count * beta) * value +
-            beta *
-              [...neighbours[i]].reduce(
-                (sum: number, next: number): number => sum + values[next][axis],
-                0,
-              ),
-        );
-      });
+        },
+      );
       for (const edge of edges.values())
         positions.push(
           values[edge.a].map((a: number, axis: number): number =>
@@ -148,7 +164,8 @@ export function subdivideControlMesh(
               ? (a + values[edge.b][axis]) / 2
               : (a + values[edge.b][axis]) * 0.375 +
                 edge.opposite.reduce(
-                  (sum: number, next: number): number => sum + values[next][axis],
+                  (sum: number, next: number): number =>
+                    sum + values[next][axis],
                   0,
                 ) *
                   0.125,

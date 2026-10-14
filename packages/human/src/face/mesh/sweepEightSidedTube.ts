@@ -22,37 +22,51 @@ import { triangulateSurfaceLattice as patch } from "./triangulateSurfaceLattice"
  * @evidence contracts/performance.md#reuse-equivalent-work Each invocation reuses its row frames across the nine angular samples including the duplicate seam endpoint; purity permits that local reuse, with no cross-request identity cache for callbacks.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Row frames live only through synchronous lattice construction and are released on return or refusal; only the resulting mesh arrays transfer, with storage growing by caller rows and no retained tasks or handles.
  */
-export const sweepEightSidedTube: (curve: (t: number) => Point, width: (t: number) => number, rows: number) => IAutoMovieMesh = (
+export const sweepEightSidedTube: (
+  curve: (t: number) => Point,
+  width: (t: number) => number,
+  rows: number,
+) => IAutoMovieMesh = (
   curve: (t: number) => Point,
   width: (t: number) => number,
   rows: number,
 ): IAutoMovieMesh => {
   // Each ring shares one centre and tangent frame. These curves are pure;
   // recomputing that frame for every side only repeats identical work.
-  const frames: { at: Point; right: Point; up: Point; radius: number }[] = Array.from({ length: rows + 1 }, (_: unknown, row: number): { at: Point; right: Point; up: Point; radius: number } => {
-    const v: number = row / rows;
-    const at: Point = curve(v);
-    const tangent: Point = Vector3.normalize(
-      Vector3.subtract(
-        curve(Math.min(1, v + 0.0001)),
-        curve(Math.max(0, v - 0.0001)),
-      ),
+  const frames: { at: Point; right: Point; up: Point; radius: number }[] =
+    Array.from(
+      { length: rows + 1 },
+      (
+        _: unknown,
+        row: number,
+      ): { at: Point; right: Point; up: Point; radius: number } => {
+        const v: number = row / rows;
+        const at: Point = curve(v);
+        const tangent: Point = Vector3.normalize(
+          Vector3.subtract(
+            curve(Math.min(1, v + 0.0001)),
+            curve(Math.max(0, v - 0.0001)),
+          ),
+        );
+        if (
+          ![tangent.x, tangent.y, tangent.z].every(Number.isFinite) ||
+          (tangent.x === 0 && tangent.y === 0)
+        )
+          throw new Error(
+            "Portrait strand tangents must be finite, nonzero and transverse to Z.",
+          );
+        const right: Point = Vector3.normalize(
+            Vector3.cross(p(0, 0, 1), tangent),
+          ),
+          up: Point = Vector3.cross(tangent, right),
+          radius: number = width(v);
+        return { at, right, up, radius };
+      },
     );
-    if (
-      ![tangent.x, tangent.y, tangent.z].every(Number.isFinite) ||
-      (tangent.x === 0 && tangent.y === 0)
-    )
-      throw new Error(
-        "Portrait strand tangents must be finite, nonzero and transverse to Z.",
-      );
-    const right: Point = Vector3.normalize(Vector3.cross(p(0, 0, 1), tangent)),
-      up: Point = Vector3.cross(tangent, right),
-      radius: number = width(v);
-    return { at, right, up, radius };
-  });
   return patch(
     (u: number, v: number): Point => {
-      const { at, right, up, radius }: (typeof frames)[number] = frames[Math.round(v * rows)];
+      const { at, right, up, radius }: (typeof frames)[number] =
+        frames[Math.round(v * rows)];
       return p(
         at.x +
           radius * (right.x * Math.cos(tau * u) + up.x * Math.sin(tau * u)),
