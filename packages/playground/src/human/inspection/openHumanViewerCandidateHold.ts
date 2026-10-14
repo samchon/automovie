@@ -30,9 +30,12 @@ export async function openHumanViewerCandidateHold(): Promise<IHumanViewerCandid
       released ??= (async (): Promise<string | null> => {
         controller.abort();
         try {
-          const response: Response = await fetch("/generation/label?" + new URLSearchParams({ token }));
+          const response: Response = await fetch(
+            "/generation/label?" + new URLSearchParams({ token }),
+          );
           if (!response.ok) return null;
-          const answer: IHumanViewerCandidateHoldLabel = await response.json() as IHumanViewerCandidateHoldLabel;
+          const answer: IHumanViewerCandidateHoldLabel =
+            (await response.json()) as IHumanViewerCandidateHoldLabel;
           return typeof answer.label === "string" ? answer.label : null;
         } catch {
           return null;

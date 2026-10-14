@@ -1,6 +1,5 @@
-import { type ViteDevServer, createServer } from "vite";
-
 import type { HumanViewerMiddleware } from "@automovie/viewer/human/inspection/HumanViewerMiddleware";
+import { type ViteDevServer, createServer } from "vite";
 
 import viewerConfig from "./vite.config.js";
 

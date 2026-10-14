@@ -1,6 +1,15 @@
-import type { IHumanViewerInstance } from "@automovie/viewer/human/inspection/IHumanViewerInstance";
 import type { HumanViewerControlPlan } from "@automovie/viewer/human/inspection/HumanViewerControlPlan";
+import type { IHumanShotHealth } from "@automovie/viewer/human/inspection/IHumanShotHealth";
+import type { IHumanViewerInstance } from "@automovie/viewer/human/inspection/IHumanViewerInstance";
+import type { IHumanViewerRecord } from "@automovie/viewer/human/inspection/IHumanViewerRecord";
 import type { IHumanViewerSilence } from "@automovie/viewer/human/inspection/IHumanViewerSilence";
+import { describeHumanViewerSilence } from "@automovie/viewer/human/inspection/describeHumanViewerSilence";
+import { humanViewerErrorCode } from "@automovie/viewer/human/inspection/humanViewerErrorCode";
+import { humanViewerInstance } from "@automovie/viewer/human/inspection/humanViewerInstance";
+import { humanViewerProtocol } from "@automovie/viewer/human/inspection/humanViewerProtocol";
+import { humanViewerStorage } from "@automovie/viewer/human/inspection/humanViewerStorage";
+import { planHumanViewerControl } from "@automovie/viewer/human/inspection/planHumanViewerControl";
+import { ProcessOwnership } from "@automovie/viewer/process/ProcessOwnership";
 /**
  * `node src/human/inspection/human-viewer-control.ts <status|stop>` from `packages/playground/`.
  * Reads the resident viewer's health and this checkout's process record, asks
@@ -18,20 +27,12 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import type { IHumanShotHealth } from "@automovie/viewer/human/inspection/IHumanShotHealth";
-import type { IHumanViewerRecord } from "@automovie/viewer/human/inspection/IHumanViewerRecord";
-import { describeHumanViewerSilence } from "@automovie/viewer/human/inspection/describeHumanViewerSilence";
-import { humanViewerErrorCode } from "@automovie/viewer/human/inspection/humanViewerErrorCode";
-import { humanViewerInstance } from "@automovie/viewer/human/inspection/humanViewerInstance";
-import { humanViewerProtocol } from "@automovie/viewer/human/inspection/humanViewerProtocol";
-import { humanViewerStorage } from "@automovie/viewer/human/inspection/humanViewerStorage";
-import { planHumanViewerControl } from "@automovie/viewer/human/inspection/planHumanViewerControl";
-import { ProcessOwnership } from "@automovie/viewer/process/ProcessOwnership";
-
 const command: string = process.argv[2];
 if (command !== "status" && command !== "stop")
   throw new Error("usage: human-viewer-control.ts <status|stop>");
-const instance: IHumanViewerInstance = humanViewerInstance(process.env.HUMAN_VIEWER_PORT);
+const instance: IHumanViewerInstance = humanViewerInstance(
+  process.env.HUMAN_VIEWER_PORT,
+);
 const root: string = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
   "../../../../..",
@@ -64,7 +65,11 @@ if (
 const saved: IHumanViewerRecord | null = fs.existsSync(record)
   ? (JSON.parse(fs.readFileSync(record, "utf8")) as IHumanViewerRecord)
   : null;
-const plan: HumanViewerControlPlan = planHumanViewerControl(command, health, saved);
+const plan: HumanViewerControlPlan = planHumanViewerControl(
+  command,
+  health,
+  saved,
+);
 if (plan.action === "report" && (health === null || health === undefined)) {
   let alive: boolean = false;
   if (saved !== null)
@@ -95,7 +100,9 @@ else if (plan.action === "refuse") {
   if (saved?.port !== instance.port)
     throw new Error("The process record belongs to another port; stop refused");
   if (!saved?.processStartedAt)
-    throw new Error("The process record lacks a creation identity; stop refused");
+    throw new Error(
+      "The process record lacks a creation identity; stop refused",
+    );
   ProcessOwnership.stop(plan.pid, saved.processStartedAt);
   // A replacement may own the port now; it alone replaces the stale record.
   console.log("stopped " + plan.pid);

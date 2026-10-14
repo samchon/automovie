@@ -15,9 +15,11 @@ export async function loadHumanViewerReferenceInfo(
   doc: string,
 ): Promise<IHumanViewerReferenceInfo> {
   try {
-    const response: Response = await fetch("/reference-info?" + new URLSearchParams({ doc }));
+    const response: Response = await fetch(
+      "/reference-info?" + new URLSearchParams({ doc }),
+    );
     if (!response.ok) return { available: false, camera: null, landmarks: [] };
-    return await response.json() as IHumanViewerReferenceInfo;
+    return (await response.json()) as IHumanViewerReferenceInfo;
   } catch {
     return { available: false, camera: null, landmarks: [] };
   }

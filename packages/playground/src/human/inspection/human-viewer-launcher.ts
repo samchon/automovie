@@ -1,4 +1,10 @@
 import type { IHumanViewerInstance } from "@automovie/viewer/human/inspection/IHumanViewerInstance";
+import type { IHumanViewerRecord } from "@automovie/viewer/human/inspection/IHumanViewerRecord";
+import { humanViewerInstance } from "@automovie/viewer/human/inspection/humanViewerInstance";
+import { humanViewerLaunch } from "@automovie/viewer/human/inspection/humanViewerLaunch";
+import { humanViewerProtocol } from "@automovie/viewer/human/inspection/humanViewerProtocol";
+import { humanViewerStorage } from "@automovie/viewer/human/inspection/humanViewerStorage";
+import { ProcessOwnership } from "@automovie/viewer/process/ProcessOwnership";
 /**
  * `node src/human/inspection/human-viewer-launcher.ts` from `packages/playground/`: the
  * starting owner of one resident viewer. It runs under plain Node, so it
@@ -29,17 +35,15 @@ import net from "node:net";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import type { IHumanViewerRecord } from "@automovie/viewer/human/inspection/IHumanViewerRecord";
-import { humanViewerInstance } from "@automovie/viewer/human/inspection/humanViewerInstance";
-import { humanViewerLaunch } from "@automovie/viewer/human/inspection/humanViewerLaunch";
-import { humanViewerProtocol } from "@automovie/viewer/human/inspection/humanViewerProtocol";
-import { humanViewerStorage } from "@automovie/viewer/human/inspection/humanViewerStorage";
-import { ProcessOwnership } from "@automovie/viewer/process/ProcessOwnership";
-
 const directory: string = path.dirname(fileURLToPath(import.meta.url));
 const root: string = path.resolve(directory, "../../../../..");
-const storage: string = humanViewerStorage(root, process.env.HUMAN_VIEWER_STORAGE_ROOT);
-const instance: IHumanViewerInstance = humanViewerInstance(process.env.HUMAN_VIEWER_PORT);
+const storage: string = humanViewerStorage(
+  root,
+  process.env.HUMAN_VIEWER_STORAGE_ROOT,
+);
+const instance: IHumanViewerInstance = humanViewerInstance(
+  process.env.HUMAN_VIEWER_PORT,
+);
 const record: string = path.join(storage, instance.record);
 /** Output lines kept for the starting `/health`, enough for a type error report. */
 const KEPT_LINES: number = 60;
@@ -56,36 +60,46 @@ const enter: (name: string) => void = (name: string): void => {
 };
 
 /** The starting answers: `/health` reports the phase, everything else is refused for now. */
-const starting: http.Server<typeof http.IncomingMessage, typeof http.ServerResponse> = http.createServer((request: http.IncomingMessage, response: http.ServerResponse<http.IncomingMessage> & { req: http.IncomingMessage; }): void => {
-  const route: string = new URL(request.url ?? "/", instance.origin).pathname;
-  response.setHeader("Content-Type", "application/json");
-  if (route === "/health") {
+const starting: http.Server<
+  typeof http.IncomingMessage,
+  typeof http.ServerResponse
+> = http.createServer(
+  (
+    request: http.IncomingMessage,
+    response: http.ServerResponse<http.IncomingMessage> & {
+      req: http.IncomingMessage;
+    },
+  ): void => {
+    const route: string = new URL(request.url ?? "/", instance.origin).pathname;
+    response.setHeader("Content-Type", "application/json");
+    if (route === "/health") {
+      response.end(
+        JSON.stringify({
+          service: "automovie-human-viewer",
+          protocol: humanViewerProtocol,
+          pid: process.pid,
+          port: instance.port,
+          storage,
+          revision: "",
+          renderer: "",
+          ready: false,
+          errors: failure === null ? [] : [failure],
+          sourceError: failure,
+          startup: { phase, since },
+          launcher: { phase, since, output: output.slice(-KEPT_LINES) },
+        }),
+      );
+      return;
+    }
+    response.statusCode = 503;
+    response.setHeader("Retry-After", "3");
     response.end(
       JSON.stringify({
-        service: "automovie-human-viewer",
-        protocol: humanViewerProtocol,
-        pid: process.pid,
-        port: instance.port,
-        storage,
-        revision: "",
-        renderer: "",
-        ready: false,
-        errors: failure === null ? [] : [failure],
-        sourceError: failure,
-        startup: { phase, since },
-        launcher: { phase, since, output: output.slice(-KEPT_LINES) },
+        error: `The viewer is starting (${phase} since ${since}), retry`,
       }),
     );
-    return;
-  }
-  response.statusCode = 503;
-  response.setHeader("Retry-After", "3");
-  response.end(
-    JSON.stringify({
-      error: `The viewer is starting (${phase} since ${since}), retry`,
-    }),
-  );
-});
+  },
+);
 /** Connections the launcher answers itself, closed when the server takes over. */
 const answered: Set<net.Socket> = new Set<net.Socket>();
 const front: net.Server = net.createServer((socket: net.Socket): void => {
@@ -125,7 +139,9 @@ front.listen(
   (): undefined =>
     void (async (): Promise<void> => {
       fs.mkdirSync(storage, { recursive: true });
-      const processStartedAt: string | null = ProcessOwnership.read(process.pid);
+      const processStartedAt: string | null = ProcessOwnership.read(
+        process.pid,
+      );
       if (processStartedAt === null)
         throw new Error("Could not establish this launcher's process identity");
       const owned: IHumanViewerRecord = {
@@ -139,16 +155,26 @@ front.listen(
       // A free internal port for the server: the operating system picks one, and
       // the server listens on it strictly, so a port taken meanwhile fails loudly.
       const probe: net.Server = net.createServer();
-      await new Promise<undefined>((resolve: (value: PromiseLike<undefined> | undefined) => void): void => {
-        probe.listen(0, "127.0.0.1", (): void => resolve(undefined));
-      });
+      await new Promise<undefined>(
+        (
+          resolve: (value: PromiseLike<undefined> | undefined) => void,
+        ): void => {
+          probe.listen(0, "127.0.0.1", (): void => resolve(undefined));
+        },
+      );
       const address: string | net.AddressInfo | null = probe.address();
       const internal: number =
         address !== null && typeof address === "object" ? address.port : 0;
-      await new Promise<undefined>((resolve: (value: PromiseLike<undefined> | undefined) => void): void => {
-        probe.close((): void => resolve(undefined));
-      });
-      const require: NodeJS.Require = createRequire(path.join(directory, "server.ts"));
+      await new Promise<undefined>(
+        (
+          resolve: (value: PromiseLike<undefined> | undefined) => void,
+        ): void => {
+          probe.close((): void => resolve(undefined));
+        },
+      );
+      const require: NodeJS.Require = createRequire(
+        path.join(directory, "server.ts"),
+      );
       const ttsx: string = path.join(
         path.dirname(require.resolve("ttsc/package.json")),
         "lib/launcher/ttsx.js",
@@ -175,7 +201,7 @@ front.listen(
       ProcessOwnership.own(child);
       let pending: string = "";
       const read: (target: NodeJS.WriteStream) => (bytes: Buffer) => void =
-        (target: NodeJS.WriteStream): (bytes: Buffer) => void =>
+        (target: NodeJS.WriteStream): ((bytes: Buffer) => void) =>
         (bytes: Buffer): void => {
           target.write(bytes);
           pending += bytes.toString("utf8");
@@ -200,20 +226,23 @@ front.listen(
         };
       child.stdout!.on("data", read(process.stdout));
       child.stderr!.on("data", read(process.stderr));
-      child.once("exit", (code: number | null, signal: NodeJS.Signals | null): void => {
-        const exitCode: number = code ?? 1;
-        if (upstream === null) {
-          failure =
-            `the server did not start: its build or startup exited with code ${code ?? "none"}` +
-            (signal === null ? "" : ` (signal ${signal})`) +
-            "; see the output in /health and the log";
-          console.error(`LAUNCHER ${new Date().toISOString()} ${failure}`);
-        } else
-          console.error(
-            `LAUNCHER ${new Date().toISOString()} the server exited with code ${code ?? "none"}`,
-          );
-        child = null;
-        stop(exitCode === 0 && upstream === null ? 1 : exitCode);
-      });
+      child.once(
+        "exit",
+        (code: number | null, signal: NodeJS.Signals | null): void => {
+          const exitCode: number = code ?? 1;
+          if (upstream === null) {
+            failure =
+              `the server did not start: its build or startup exited with code ${code ?? "none"}` +
+              (signal === null ? "" : ` (signal ${signal})`) +
+              "; see the output in /health and the log";
+            console.error(`LAUNCHER ${new Date().toISOString()} ${failure}`);
+          } else
+            console.error(
+              `LAUNCHER ${new Date().toISOString()} the server exited with code ${code ?? "none"}`,
+            );
+          child = null;
+          stop(exitCode === 0 && upstream === null ? 1 : exitCode);
+        },
+      );
     })(),
 );

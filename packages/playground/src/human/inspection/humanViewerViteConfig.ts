@@ -3,11 +3,6 @@
  *
  * One module instance retains compilation, source-resolution and watched-path state. The existing server factory passes this configuration as a value with configFile false; moving this declaration preserves its directory, options and evaluation order and does not update an already running server's loaded configuration.
  */
-import fs from "node:fs";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
-import { type ModuleNode, type ViteDevServer, type UserConfig, defineConfig } from "vite";
-
 import { createHumanViewerCompilation } from "@automovie/viewer/human/inspection/createHumanViewerCompilation";
 import { createHumanViewerCompileInputs } from "@automovie/viewer/human/inspection/createHumanViewerCompileInputs";
 import { createHumanViewerSourceResolver } from "@automovie/viewer/human/inspection/createHumanViewerSourceResolver";
@@ -19,14 +14,29 @@ import { invalidateHumanViewerGeneration } from "@automovie/viewer/human/inspect
 import { runHumanViewerCompile } from "@automovie/viewer/human/inspection/runHumanViewerCompile";
 import { stampHumanViewerCompile } from "@automovie/viewer/human/inspection/stampHumanViewerCompile";
 import { ProcessOwnership } from "@automovie/viewer/process/ProcessOwnership";
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import {
+  type ModuleNode,
+  type UserConfig,
+  type ViteDevServer,
+  defineConfig,
+} from "vite";
+
 import { humanViewerCompileGate } from "./humanViewerCompileGate.js";
 
 const directory: string = path.dirname(fileURLToPath(import.meta.url));
 // This configuration serves live checkout source. Packed runtime exports own
 // a separate compiled-module contract and cannot stand in for source workers.
-const runtimeEntry: string = fileURLToPath(import.meta.resolve("@automovie/viewer/human/inspection/createHumanViewerSource"));
+const runtimeEntry: string = fileURLToPath(
+  import.meta
+    .resolve("@automovie/viewer/human/inspection/createHumanViewerSource"),
+);
 if (!runtimeEntry.endsWith(".ts"))
-  throw new Error("Live Human inspection requires the declared workspace source entry.");
+  throw new Error(
+    "Live Human inspection requires the declared workspace source entry.",
+  );
 const runtimeDirectory: string = path.dirname(runtimeEntry);
 const human: string = path.resolve(directory, "../../../../../packages/human");
 const outputDirectory: string = humanViewerStorage(
@@ -34,56 +44,85 @@ const outputDirectory: string = humanViewerStorage(
   process.env.HUMAN_VIEWER_STORAGE_ROOT,
 );
 let server: ViteDevServer;
-const served: ReturnType<typeof humanViewerInstance> = humanViewerInstance(process.env.HUMAN_VIEWER_PORT);
+const served: ReturnType<typeof humanViewerInstance> = humanViewerInstance(
+  process.env.HUMAN_VIEWER_PORT,
+);
 /** Whether a launcher owns the public port. */
-const launched: boolean = process.env[humanViewerLaunch.ownerVariable] !== undefined;
+const launched: boolean =
+  process.env[humanViewerLaunch.ownerVariable] !== undefined;
 // The transform runs in a child process: it is a synchronous call that takes
 // tens of seconds, and inside this process it froze every request. Each
 // viewer reports its own compilation, so a second viewer never overwrites it.
 const status: string = path.join(outputDirectory, served.sourceStatus);
 /** Each report belongs to this actual server creation, even when a PID is reused. */
-const compilationProcessStartedAt: string | null = ProcessOwnership.read(process.pid);
+const compilationProcessStartedAt: string | null = ProcessOwnership.read(
+  process.pid,
+);
 if (compilationProcessStartedAt === null)
-  throw new Error("The compilation publisher has no process creation identity.");
+  throw new Error(
+    "The compilation publisher has no process creation identity.",
+  );
 /** Workspace source imports resolved from cached listings instead of a realpath per import. */
-const sourceResolver: ReturnType<typeof createHumanViewerSourceResolver> = createHumanViewerSourceResolver([
-  path.resolve(directory, "../../../../../packages"),
-  path.resolve(directory, "../../../../.."),
-]);
+const sourceResolver: ReturnType<typeof createHumanViewerSourceResolver> =
+  createHumanViewerSourceResolver([
+    path.resolve(directory, "../../../../../packages"),
+    path.resolve(directory, "../../../../.."),
+  ]);
 /** Paths the compile inputs already added to the watcher. */
 const watching: Set<string> = new Set<string>();
-const inputs: ReturnType<typeof createHumanViewerCompileInputs> = createHumanViewerCompileInputs(human, [
-  path.join(human, "tsconfig.json"),
-  path.join(human, "package.json"),
-  path.resolve(human, "../../pnpm-lock.yaml"),
-]);
-const compilation: ReturnType<typeof createHumanViewerCompilation> = createHumanViewerCompilation(
-  async (): Promise<Awaited<ReturnType<typeof runHumanViewerCompile>>["files"]> => {
-    const {
-      files,
-      watch,
-      inputs: keys,
-    }: Awaited<ReturnType<typeof runHumanViewerCompile>> = await runHumanViewerCompile({ directory: runtimeDirectory, human, outputDirectory });
-    const began: number = performance.now();
-    inputs.compiled(keys);
-    // Only paths not yet watched are added: re-adding a thousand watched
-    // files after every compile held the event loop for most of a second.
-    const fresh: string[] = watch.filter((file: string): boolean => !watching.has(file));
-    for (const file of fresh) watching.add(file);
-    if (fresh.length !== 0) server.watcher.add(fresh);
-    console.log(
-      `COMPILE applied in ${Math.round(performance.now() - began)} ms, ${fresh.length} newly watched`,
-    );
-    return files;
-  },
-  (report: Parameters<NonNullable<Parameters<typeof createHumanViewerCompilation>[1]>>[0]): void => {
-    // The server reads this file for /health, since it cannot import this module's state.
-    fs.mkdirSync(path.dirname(status), { recursive: true });
-    fs.writeFileSync(status, JSON.stringify({
-      ...report, pid: process.pid, processStartedAt: compilationProcessStartedAt,
-    }));
-  },
-);
+const inputs: ReturnType<typeof createHumanViewerCompileInputs> =
+  createHumanViewerCompileInputs(human, [
+    path.join(human, "tsconfig.json"),
+    path.join(human, "package.json"),
+    path.resolve(human, "../../pnpm-lock.yaml"),
+  ]);
+const compilation: ReturnType<typeof createHumanViewerCompilation> =
+  createHumanViewerCompilation(
+    async (): Promise<
+      Awaited<ReturnType<typeof runHumanViewerCompile>>["files"]
+    > => {
+      const {
+        files,
+        watch,
+        inputs: keys,
+      }: Awaited<
+        ReturnType<typeof runHumanViewerCompile>
+      > = await runHumanViewerCompile({
+        directory: runtimeDirectory,
+        human,
+        outputDirectory,
+      });
+      const began: number = performance.now();
+      inputs.compiled(keys);
+      // Only paths not yet watched are added: re-adding a thousand watched
+      // files after every compile held the event loop for most of a second.
+      const fresh: string[] = watch.filter(
+        (file: string): boolean => !watching.has(file),
+      );
+      for (const file of fresh) watching.add(file);
+      if (fresh.length !== 0) server.watcher.add(fresh);
+      console.log(
+        `COMPILE applied in ${Math.round(performance.now() - began)} ms, ${fresh.length} newly watched`,
+      );
+      return files;
+    },
+    (
+      report: Parameters<
+        NonNullable<Parameters<typeof createHumanViewerCompilation>[1]>
+      >[0],
+    ): void => {
+      // The server reads this file for /health, since it cannot import this module's state.
+      fs.mkdirSync(path.dirname(status), { recursive: true });
+      fs.writeFileSync(
+        status,
+        JSON.stringify({
+          ...report,
+          pid: process.pid,
+          processStartedAt: compilationProcessStartedAt,
+        }),
+      );
+    },
+  );
 /**
  * Existing loopback Human inspection configuration: checkout-source aliases, canonical Human runtime transformation, candidate-controlled updates, disabled HMR/websocket and the caller's per-port ownership settings. The original vite.config.ts entry forwards this same object; createHumanViewerViteServer passes it as values with configFile false rather than asking Vite to reload its configuration.
  *
@@ -107,7 +146,8 @@ export const humanViewerViteConfig: UserConfig = defineConfig({
       ...createHumanViewerTransform(
         path.join(human, "src"),
         async (id: string): Promise<{ code: string } | undefined> => {
-          const compiled: Awaited<ReturnType<typeof compilation.source>> = await compilation.source(id);
+          const compiled: Awaited<ReturnType<typeof compilation.source>> =
+            await compilation.source(id);
           return compiled === undefined
             ? undefined
             : {
@@ -121,7 +161,8 @@ export const humanViewerViteConfig: UserConfig = defineConfig({
               path.join(human, "src"),
               server.moduleGraph.idToModuleMap.values(),
               compilation.invalidate,
-              (module: ModuleNode): void => server.moduleGraph.invalidateModule(module, seen),
+              (module: ModuleNode): void =>
+                server.moduleGraph.invalidateModule(module, seen),
             );
           }),
         inputs.affects,

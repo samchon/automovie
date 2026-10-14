@@ -1,4 +1,5 @@
 import type { HumanViewerCatalogue } from "@automovie/viewer/human/inspection/HumanViewerCatalogue";
+
 import type { IHumanViewerIndexEntry } from "./IHumanViewerIndexEntry";
 
 /**
@@ -15,43 +16,58 @@ import type { IHumanViewerIndexEntry } from "./IHumanViewerIndexEntry";
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Returned index records contain ordinary navigation strings without retaining numerical document data or acquiring live handles.
  */
 export function describeHumanViewerDocuments(
-  catalogue: Pick<HumanViewerCatalogue, "documents"> & Partial<Pick<HumanViewerCatalogue, "rejected">>,
+  catalogue: Pick<HumanViewerCatalogue, "documents"> &
+    Partial<Pick<HumanViewerCatalogue, "rejected">>,
 ): IHumanViewerIndexEntry[] {
-  const candidates: NonNullable<HumanViewerCatalogue["rejected"][number]["candidate"]>[] = (catalogue.rejected ?? []).flatMap((entry: HumanViewerCatalogue["rejected"][number]): NonNullable<HumanViewerCatalogue["rejected"][number]["candidate"]>[] =>
-    entry.pending && entry.candidate !== undefined ? [entry.candidate] : [],
+  const candidates: NonNullable<
+    HumanViewerCatalogue["rejected"][number]["candidate"]
+  >[] = (catalogue.rejected ?? []).flatMap(
+    (
+      entry: HumanViewerCatalogue["rejected"][number],
+    ): NonNullable<HumanViewerCatalogue["rejected"][number]["candidate"]>[] =>
+      entry.pending && entry.candidate !== undefined ? [entry.candidate] : [],
   );
-  return [...catalogue.documents, ...candidates].map((entry: HumanViewerCatalogue["documents"][number] | NonNullable<HumanViewerCatalogue["rejected"][number]["candidate"]>): IHumanViewerIndexEntry => {
-    const document: HumanViewerDocumentIndexContent = entry.document as HumanViewerDocumentIndexContent;
-    const label: string =
-      typeof document.name === "string" && document.name !== ""
-        ? document.name
-        : entry.id;
-    if (entry.id.startsWith("file:"))
-      return {
-        id: entry.id,
-        label: entry.id.slice(5),
-        domain: entry.domain,
-        section: "Local input",
-      };
-    if (entry.domain === "face")
-      return { id: entry.id, label, domain: "face", section: "Face" };
-    if (entry.domain === "person")
-      return { id: entry.id, label, domain: "person", section: "Person" };
-    const channels: string[] = Object.keys(document.shape ?? {});
-    const posed: boolean =
-      (document.pose?.length ?? 0) !== 0 ||
-      (document.shoulders?.length ?? 0) !== 0;
-    const section: string = posed
-      ? "Body pose"
-      : channels.length === 0
-        ? "Body neutral"
-        : channels.every((channel: string): boolean => channel === "macroAge")
-          ? "Body age"
-          : channels.every((channel: string): boolean => channel === "macroGender")
-            ? "Body sex"
-            : "Body build";
-    return { id: entry.id, label, domain: "body", section };
-  });
+  return [...catalogue.documents, ...candidates].map(
+    (
+      entry:
+        | HumanViewerCatalogue["documents"][number]
+        | NonNullable<HumanViewerCatalogue["rejected"][number]["candidate"]>,
+    ): IHumanViewerIndexEntry => {
+      const document: HumanViewerDocumentIndexContent =
+        entry.document as HumanViewerDocumentIndexContent;
+      const label: string =
+        typeof document.name === "string" && document.name !== ""
+          ? document.name
+          : entry.id;
+      if (entry.id.startsWith("file:"))
+        return {
+          id: entry.id,
+          label: entry.id.slice(5),
+          domain: entry.domain,
+          section: "Local input",
+        };
+      if (entry.domain === "face")
+        return { id: entry.id, label, domain: "face", section: "Face" };
+      if (entry.domain === "person")
+        return { id: entry.id, label, domain: "person", section: "Person" };
+      const channels: string[] = Object.keys(document.shape ?? {});
+      const posed: boolean =
+        (document.pose?.length ?? 0) !== 0 ||
+        (document.shoulders?.length ?? 0) !== 0;
+      const section: string = posed
+        ? "Body pose"
+        : channels.length === 0
+          ? "Body neutral"
+          : channels.every((channel: string): boolean => channel === "macroAge")
+            ? "Body age"
+            : channels.every(
+                  (channel: string): boolean => channel === "macroGender",
+                )
+              ? "Body sex"
+              : "Body build";
+      return { id: entry.id, label, domain: "body", section };
+    },
+  );
 }
 
 /**

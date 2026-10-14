@@ -22,42 +22,67 @@ export function createHumanViewerGeneration(viewer: HumanViewerHandle): {
   const pending: Set<() => void> = new Set();
   const failure: () => Error = (): Error =>
     new Error("The source generation was replaced during display");
-  const run: <Result>(operation: () => Promise<Result>) => Promise<Result> = <Result>(operation: () => Promise<Result>): Promise<Result> => {
+  const run: <Result>(operation: () => Promise<Result>) => Promise<Result> = <
+    Result,
+  >(
+    operation: () => Promise<Result>,
+  ): Promise<Result> => {
     if (retired) return Promise.reject(failure());
-    return new Promise<Result>((resolve: (value: Result | PromiseLike<Result>) => void, reject: (reason?: unknown) => void): void => {
-      const cancel: () => void = (): void => reject(failure());
-      pending.add(cancel);
-      try {
-        void operation()
-          .then((result: Result): void => {
-            pending.delete(cancel);
-            resolve(result);
-          })
-          .catch((error: unknown): void => {
-            pending.delete(cancel);
-            reject(error);
-          });
-      } catch (error) {
-        pending.delete(cancel);
-        reject(error);
-      }
-    });
+    return new Promise<Result>(
+      (
+        resolve: (value: Result | PromiseLike<Result>) => void,
+        reject: (reason?: unknown) => void,
+      ): void => {
+        const cancel: () => void = (): void => reject(failure());
+        pending.add(cancel);
+        try {
+          void operation()
+            .then((result: Result): void => {
+              pending.delete(cancel);
+              resolve(result);
+            })
+            .catch((error: unknown): void => {
+              pending.delete(cancel);
+              reject(error);
+            });
+        } catch (error) {
+          pending.delete(cancel);
+          reject(error);
+        }
+      },
+    );
   };
   const handle: HumanViewerHandle = {
     parts: (): ReturnType<HumanViewerHandle["parts"]> => viewer.parts(),
-    renderer: (): ReturnType<HumanViewerHandle["renderer"]> => viewer.renderer(),
-    revision: (): ReturnType<HumanViewerHandle["revision"]> => viewer.revision(),
+    renderer: (): ReturnType<HumanViewerHandle["renderer"]> =>
+      viewer.renderer(),
+    revision: (): ReturnType<HumanViewerHandle["revision"]> =>
+      viewer.revision(),
     builds: (): ReturnType<HumanViewerHandle["builds"]> => viewer.builds(),
     buildMs: (): ReturnType<HumanViewerHandle["buildMs"]> => viewer.buildMs(),
     spans: (): ReturnType<HumanViewerHandle["spans"]> => viewer.spans(),
     address: (): ReturnType<HumanViewerHandle["address"]> => viewer.address(),
-    admission: (): ReturnType<HumanViewerHandle["admission"]> => viewer.admission(),
-    rigReading: (): ReturnType<NonNullable<HumanViewerHandle["rigReading"]>> => viewer.rigReading?.(),
-    exportConstruction: (): ReturnType<HumanViewerHandle["exportConstruction"]> => run((): ReturnType<HumanViewerHandle["exportConstruction"]> => viewer.exportConstruction()),
-    periocularMappings: (): ReturnType<NonNullable<HumanViewerHandle["periocularMappings"]>> => viewer.periocularMappings?.(),
+    admission: (): ReturnType<HumanViewerHandle["admission"]> =>
+      viewer.admission(),
+    rigReading: (): ReturnType<NonNullable<HumanViewerHandle["rigReading"]>> =>
+      viewer.rigReading?.(),
+    exportConstruction: (): ReturnType<
+      HumanViewerHandle["exportConstruction"]
+    > =>
+      run(
+        (): ReturnType<HumanViewerHandle["exportConstruction"]> =>
+          viewer.exportConstruction(),
+      ),
+    periocularMappings: (): ReturnType<
+      NonNullable<HumanViewerHandle["periocularMappings"]>
+    > => viewer.periocularMappings?.(),
     png: (): ReturnType<HumanViewerHandle["png"]> => viewer.png(),
-    evict: (): ReturnType<HumanViewerHandle["evict"]> => run((): ReturnType<HumanViewerHandle["evict"]> => viewer.evict()),
-    show: (address: Parameters<HumanViewerHandle["show"]>[0]): ReturnType<HumanViewerHandle["show"]> => run((): ReturnType<HumanViewerHandle["show"]> => viewer.show(address)),
+    evict: (): ReturnType<HumanViewerHandle["evict"]> =>
+      run((): ReturnType<HumanViewerHandle["evict"]> => viewer.evict()),
+    show: (
+      address: Parameters<HumanViewerHandle["show"]>[0],
+    ): ReturnType<HumanViewerHandle["show"]> =>
+      run((): ReturnType<HumanViewerHandle["show"]> => viewer.show(address)),
   };
   return {
     handle,

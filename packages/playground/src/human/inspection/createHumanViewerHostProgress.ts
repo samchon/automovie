@@ -56,7 +56,9 @@ export function createHumanViewerHostProgress(
         progress.textContent = `building ${what}... ${seconds} s${busy}`;
     };
     void draw();
-    waiting = setInterval((): void => { void draw(); }, 1000);
+    waiting = setInterval((): void => {
+      void draw();
+    }, 1000);
   };
   return { begin, settle };
 }

@@ -1,16 +1,18 @@
-import type { IHumanViewerIndexEntry } from "./IHumanViewerIndexEntry";
-import type { IHumanViewerRejectedInput } from "@automovie/viewer/human/inspection/IHumanViewerRejectedInput";
 /**
  * The viewer's entry page for a person: every published face, every standard body state and every hand-written input as a card that opens the navigable viewer with one click. Thumbnails are the resident server's own small clay front renders, requested in at most two browser fetch slots and only for cards that scroll into view. The shared lazy loader caches response bytes by their actual revision; server queue scheduling remains server-owned.
  */
 import type { HumanViewerCatalogue } from "@automovie/viewer/human/inspection/HumanViewerCatalogue";
+import type { IHumanViewerRejectedInput } from "@automovie/viewer/human/inspection/IHumanViewerRejectedInput";
+import { openHumanViewerHref } from "@automovie/viewer/human/inspection/openHumanViewerHref";
+
+import type { IHumanViewerIndexEntry } from "./IHumanViewerIndexEntry";
 import { createHumanViewerThumbnails } from "./createHumanViewerThumbnails";
 import { describeHumanViewerDocuments } from "./describeHumanViewerDocuments";
 import { filterHumanViewerIndex } from "./filterHumanViewerIndex";
-import { openHumanViewerHref } from "@automovie/viewer/human/inspection/openHumanViewerHref";
 
 const list: HTMLElement = document.querySelector<HTMLElement>("#list")!;
-const search: HTMLInputElement = document.querySelector<HTMLInputElement>("#search")!;
+const search: HTMLInputElement =
+  document.querySelector<HTMLInputElement>("#search")!;
 const status: HTMLElement = document.querySelector<HTMLElement>("#status")!;
 const empty: HTMLElement = document.querySelector<HTMLElement>("#empty")!;
 const rejected: HTMLElement = document.querySelector<HTMLElement>("#rejected")!;
@@ -23,7 +25,8 @@ let closed: boolean = false;
 /** Documents with a local reference photograph, empty when there are none. */
 let photographed: Set<string> = new Set<string>();
 
-const thumbnails: { watch: (card: HTMLElement) => void; clear: () => void; } = createHumanViewerThumbnails({ revision: (): string => revision });
+const thumbnails: { watch: (card: HTMLElement) => void; clear: () => void } =
+  createHumanViewerThumbnails({ revision: (): string => revision });
 
 let entries: ReturnType<typeof describeHumanViewerDocuments> = [];
 function draw(): void {
@@ -34,7 +37,10 @@ function draw(): void {
     domain,
   });
   list.replaceChildren();
-  const sections: Map<string, IHumanViewerIndexEntry[]> = new Map<string, typeof shown>();
+  const sections: Map<string, IHumanViewerIndexEntry[]> = new Map<
+    string,
+    typeof shown
+  >();
   for (const entry of shown)
     sections.set(entry.section, [
       ...(sections.get(entry.section) ?? []),
@@ -47,7 +53,12 @@ function draw(): void {
     const grid: HTMLDivElement = document.createElement("div");
     grid.className = "grid";
     for (const entry of members) {
-      const href: { view: string; render: string; thumbnail: string; sheet: string; } = openHumanViewerHref(entry.id);
+      const href: {
+        view: string;
+        render: string;
+        thumbnail: string;
+        sheet: string;
+      } = openHumanViewerHref(entry.id);
       const card: HTMLDivElement = document.createElement("div");
       card.className = "card";
       card.dataset.key = entry.id;
@@ -89,7 +100,10 @@ async function load(): Promise<void> {
   entries = describeHumanViewerDocuments(catalogue);
   rejected.style.display = catalogue.rejected.length === 0 ? "none" : "block";
   rejected.textContent = catalogue.rejected
-    .map((item: IHumanViewerRejectedInput): string => `${item.file}: ${item.reason}`)
+    .map(
+      (item: IHumanViewerRejectedInput): string =>
+        `${item.file}: ${item.reason}`,
+    )
     .join("\n");
   try {
     photographed = new Set(

@@ -1,7 +1,20 @@
+import type { IHumanShotContext } from "@automovie/viewer/human/inspection/IHumanShotContext";
+import type { IHumanShotHealth } from "@automovie/viewer/human/inspection/IHumanShotHealth";
 import type { IHumanViewerInstance } from "@automovie/viewer/human/inspection/IHumanViewerInstance";
 import type { IHumanViewerProbe } from "@automovie/viewer/human/inspection/IHumanViewerProbe";
-import type { IHumanShotHealth } from "@automovie/viewer/human/inspection/IHumanShotHealth";
 import type { IHumanViewerSilence } from "@automovie/viewer/human/inspection/IHumanViewerSilence";
+import { awaitHumanViewerReady } from "@automovie/viewer/human/inspection/awaitHumanViewerReady";
+import { captureHumanViewerShot } from "@automovie/viewer/human/inspection/captureHumanViewerShot";
+import { describeHumanShotSilence } from "@automovie/viewer/human/inspection/describeHumanShotSilence";
+import { describeHumanViewerError } from "@automovie/viewer/human/inspection/describeHumanViewerError";
+import { humanViewerInstance } from "@automovie/viewer/human/inspection/humanViewerInstance";
+import { humanViewerStorage } from "@automovie/viewer/human/inspection/humanViewerStorage";
+import { launchHumanViewerServer } from "@automovie/viewer/human/inspection/launchHumanViewerServer";
+import { parseHumanShotRequest } from "@automovie/viewer/human/inspection/parseHumanShotRequest";
+import { probeHumanViewer } from "@automovie/viewer/human/inspection/probeHumanViewer";
+import { stopHumanViewerServer } from "@automovie/viewer/human/inspection/stopHumanViewerServer";
+import { watchHumanViewer } from "@automovie/viewer/human/inspection/watchHumanViewer";
+import { ProcessOwnership } from "@automovie/viewer/process/ProcessOwnership";
 /**
  * Thin session-owned client for the resident viewer. Start `ensure` as a
  * background session job; it alone starts a server, owns it as its child and
@@ -24,25 +37,28 @@ import type { ChildProcess } from "node:child_process";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import type { IHumanShotContext } from "@automovie/viewer/human/inspection/IHumanShotContext";
-import { awaitHumanViewerReady } from "@automovie/viewer/human/inspection/awaitHumanViewerReady";
-import { captureHumanViewerShot } from "@automovie/viewer/human/inspection/captureHumanViewerShot";
-import { describeHumanShotSilence } from "@automovie/viewer/human/inspection/describeHumanShotSilence";
-import { describeHumanViewerError } from "@automovie/viewer/human/inspection/describeHumanViewerError";
-import { humanViewerInstance } from "@automovie/viewer/human/inspection/humanViewerInstance";
-import { humanViewerStorage } from "@automovie/viewer/human/inspection/humanViewerStorage";
-import { ProcessOwnership } from "@automovie/viewer/process/ProcessOwnership";
-import { parseHumanShotRequest } from "@automovie/viewer/human/inspection/parseHumanShotRequest";
-import { probeHumanViewer } from "@automovie/viewer/human/inspection/probeHumanViewer";
-import { launchHumanViewerServer } from "@automovie/viewer/human/inspection/launchHumanViewerServer";
-import { stopHumanViewerServer } from "@automovie/viewer/human/inspection/stopHumanViewerServer";
-import { watchHumanViewer } from "@automovie/viewer/human/inspection/watchHumanViewer";
-
 const directory: string = path.dirname(fileURLToPath(import.meta.url));
 const root: string = path.resolve(directory, "../../../../..");
-const storage: string = humanViewerStorage(root, process.env.HUMAN_VIEWER_STORAGE_ROOT);
-const instance: IHumanViewerInstance = humanViewerInstance(process.env.HUMAN_VIEWER_PORT);
-const request: { command: "ensure" | "status" | "stop" | "watch" | "render" | "sheet" | "compare" | "warm"; query: string; output: string | null; } = parseHumanShotRequest(process.argv.slice(2));
+const storage: string = humanViewerStorage(
+  root,
+  process.env.HUMAN_VIEWER_STORAGE_ROOT,
+);
+const instance: IHumanViewerInstance = humanViewerInstance(
+  process.env.HUMAN_VIEWER_PORT,
+);
+const request: {
+  command:
+    | "ensure"
+    | "status"
+    | "stop"
+    | "watch"
+    | "render"
+    | "sheet"
+    | "compare"
+    | "warm";
+  query: string;
+  output: string | null;
+} = parseHumanShotRequest(process.argv.slice(2));
 const context: IHumanShotContext = {
   directory,
   root,
@@ -64,7 +80,10 @@ async function main(): Promise<void> {
   const health: IHumanShotHealth | null | undefined = probe.health;
   if (request.command === "status") {
     if (health === null || health === undefined) {
-      const silence: IHumanViewerSilence = describeHumanShotSilence(context, health === null);
+      const silence: IHumanViewerSilence = describeHumanShotSilence(
+        context,
+        health === null,
+      );
       console.log(JSON.stringify(silence));
       process.exitCode = silence.answer === "absent" ? 3 : 4;
       return;
@@ -86,7 +105,10 @@ async function main(): Promise<void> {
   // A capture never waits for a server to become ready: it asks a ready one
   // or ends at once with the reason, so it cannot outlive its answer.
   if (health === null || health === undefined) {
-    const silence: IHumanViewerSilence = describeHumanShotSilence(context, health === null);
+    const silence: IHumanViewerSilence = describeHumanShotSilence(
+      context,
+      health === null,
+    );
     console.error(
       silence.answer === "absent"
         ? `No human viewer listens on port ${instance.port}; start one with ` +
@@ -122,6 +144,7 @@ void main().catch((error: unknown): void => {
         ? `; ${stopped ? "stopped" : "preserved"} the server this client started (pid ${owner}), output in ${context.logFile}`
         : ""),
   );
-  if (stopError !== undefined) console.error(describeHumanViewerError(stopError));
+  if (stopError !== undefined)
+    console.error(describeHumanViewerError(stopError));
   process.exitCode = 1;
 });

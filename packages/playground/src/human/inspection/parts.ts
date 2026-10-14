@@ -7,16 +7,18 @@
  * the model shows up here.
  */
 import type { HumanViewerCatalogue } from "@automovie/viewer/human/inspection/HumanViewerCatalogue";
+import { openHumanViewerHref } from "@automovie/viewer/human/inspection/openHumanViewerHref";
+
 import type { IHumanViewerPartBookmark } from "./IHumanViewerPartBookmark";
 import { createHumanViewerThumbnails } from "./createHumanViewerThumbnails";
 import { humanViewerPartBookmarks } from "./humanViewerPartBookmarks";
-import { openHumanViewerHref } from "@automovie/viewer/human/inspection/openHumanViewerHref";
 
 const list: HTMLElement = document.querySelector<HTMLElement>("#list")!;
 const status: HTMLElement = document.querySelector<HTMLElement>("#status")!;
 let revision: string = "";
 let closed: boolean = false;
-const thumbnails: { watch: (card: HTMLElement) => void; clear: () => void; } = createHumanViewerThumbnails({ revision: (): string => revision });
+const thumbnails: { watch: (card: HTMLElement) => void; clear: () => void } =
+  createHumanViewerThumbnails({ revision: (): string => revision });
 
 async function reported(doc: string): Promise<string[] | null> {
   if (closed) return null;
@@ -26,7 +28,7 @@ async function reported(doc: string): Promise<string[] | null> {
     );
     if (!response.ok) return null;
     return ((await response.json()) as { name: string }[]).map(
-      (part: { name: string; }): string => part.name,
+      (part: { name: string }): string => part.name,
     );
   } catch {
     return null;
@@ -37,7 +39,12 @@ function card(
   bookmark: IHumanViewerPartBookmark,
   missing: string[],
 ): HTMLAnchorElement {
-  const href: { view: string; render: string; thumbnail: string; sheet: string; } = openHumanViewerHref(bookmark.doc, { parts: bookmark.meshes });
+  const href: {
+    view: string;
+    render: string;
+    thumbnail: string;
+    sheet: string;
+  } = openHumanViewerHref(bookmark.doc, { parts: bookmark.meshes });
   const anchor: HTMLAnchorElement = document.createElement("a");
   anchor.className = "card" + (missing.length === 0 ? "" : " missing");
   anchor.href = href.view;
@@ -60,14 +67,24 @@ function card(
 async function load(): Promise<void> {
   revision = ((await (await fetch("/docs")).json()) as HumanViewerCatalogue)
     .revision;
-  const names: Map<string, string[] | null> = new Map<string, string[] | null>();
-  for (const doc of new Set(humanViewerPartBookmarks.map((item: IHumanViewerPartBookmark): string => item.doc))) {
+  const names: Map<string, string[] | null> = new Map<
+    string,
+    string[] | null
+  >();
+  for (const doc of new Set(
+    humanViewerPartBookmarks.map(
+      (item: IHumanViewerPartBookmark): string => item.doc,
+    ),
+  )) {
     if (closed) return;
     status.textContent = "Reading the meshes of " + doc;
     names.set(doc, await reported(doc));
   }
   if (closed) return;
-  const regions: Map<string, IHumanViewerPartBookmark[]> = new Map<string, IHumanViewerPartBookmark[]>();
+  const regions: Map<string, IHumanViewerPartBookmark[]> = new Map<
+    string,
+    IHumanViewerPartBookmark[]
+  >();
   for (const item of humanViewerPartBookmarks)
     regions.set(item.region, [...(regions.get(item.region) ?? []), item]);
   list.replaceChildren();
@@ -82,7 +99,9 @@ async function load(): Promise<void> {
       const missing: string[] =
         known === null
           ? []
-          : item.meshes.filter((mesh: string): boolean => !known.includes(mesh));
+          : item.meshes.filter(
+              (mesh: string): boolean => !known.includes(mesh),
+            );
       const anchor: HTMLAnchorElement = card(item, missing);
       grid.append(anchor);
       if (missing.length === 0) thumbnails.watch(anchor);

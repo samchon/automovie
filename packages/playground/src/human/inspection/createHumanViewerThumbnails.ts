@@ -25,62 +25,105 @@ export function createHumanViewerThumbnails(props: {
   /** Withdraw and release current cards before replacement or final page teardown; subsequent watch remains supported. */
   clear: () => void;
 } {
-  const cache: () => Promise<Cache | null> = async (): Promise<Cache | null> => {
-    try { return await caches.open("human-viewer-thumbnails-v2"); }
-    catch { return null; }
-  };
+  const cache: () => Promise<Cache | null> =
+    async (): Promise<Cache | null> => {
+      try {
+        return await caches.open("human-viewer-thumbnails-v2");
+      } catch {
+        return null;
+      }
+    };
   const LIMIT: number = 2;
   let running: number = 0;
   let generation: number = 0;
-  const cancelled: Error = new Error("The thumbnail card generation was withdrawn.");
-  const scrolled: Error = new Error("The thumbnail card left view before rendering.");
+  const cancelled: Error = new Error(
+    "The thumbnail card generation was withdrawn.",
+  );
+  const scrolled: Error = new Error(
+    "The thumbnail card left view before rendering.",
+  );
   const waiting: ThumbnailWaiter[] = [];
   const controllers: Set<AbortController> = new Set();
   const urls: Map<HTMLImageElement, string> = new Map();
   const visible: Set<Element> = new Set();
   const started: Set<Element> = new Set();
-  const acquire: (ticket: number) => Promise<void> = (ticket: number): Promise<void> => {
+  const acquire: (ticket: number) => Promise<void> = (
+    ticket: number,
+  ): Promise<void> => {
     if (ticket !== generation) return Promise.reject(cancelled);
     if (running < LIMIT) {
       ++running;
       return Promise.resolve();
     }
-    return new Promise<undefined>((resolve: (value: undefined | PromiseLike<undefined>) => void, reject: (reason?: unknown) => void): void => {
-      waiting.push({ ticket, resolve: (): void => resolve(undefined), reject });
-    });
+    return new Promise<undefined>(
+      (
+        resolve: (value: undefined | PromiseLike<undefined>) => void,
+        reject: (reason?: unknown) => void,
+      ): void => {
+        waiting.push({
+          ticket,
+          resolve: (): void => resolve(undefined),
+          reject,
+        });
+      },
+    );
   };
   const release: () => void = (): void => {
     --running;
     while (waiting.length !== 0) {
       const next: ThumbnailWaiter = waiting.shift()!;
-      if (next.ticket !== generation) { next.reject(cancelled); continue; }
+      if (next.ticket !== generation) {
+        next.reject(cancelled);
+        continue;
+      }
       ++running;
       next.resolve();
       break;
     }
   };
-  const once: <Result>(ticket: number, task: () => Promise<Result>) => Promise<Result> = async <Result>(ticket: number, task: () => Promise<Result>): Promise<Result> => {
+  const once: <Result>(
+    ticket: number,
+    task: () => Promise<Result>,
+  ) => Promise<Result> = async <Result>(
+    ticket: number,
+    task: () => Promise<Result>,
+  ): Promise<Result> => {
     await acquire(ticket);
     try {
       if (ticket !== generation) throw cancelled;
       return await task();
-    } finally { release(); }
+    } finally {
+      release();
+    }
   };
-  const display: (image: HTMLImageElement, bytes: Blob) => void = (image: HTMLImageElement, bytes: Blob): void => {
+  const display: (image: HTMLImageElement, bytes: Blob) => void = (
+    image: HTMLImageElement,
+    bytes: Blob,
+  ): void => {
     const next: string = URL.createObjectURL(bytes);
     const previous: string | undefined = urls.get(image);
     urls.set(image, next);
     image.src = next;
     if (previous !== undefined) URL.revokeObjectURL(previous);
   };
-  async function paint(card: HTMLElement, image: HTMLImageElement, frame: HTMLElement, key: string, url: string, ticket: number): Promise<void> {
+  async function paint(
+    card: HTMLElement,
+    image: HTMLImageElement,
+    frame: HTMLElement,
+    key: string,
+    url: string,
+    ticket: number,
+  ): Promise<void> {
     let kept: Response | undefined;
     try {
       let store: Cache | null = await cache();
       if (ticket !== generation) return;
       const name: string = "/thumbnail/" + encodeURIComponent(key);
-      try { kept = await store?.match(name); }
-      catch { store = null; }
+      try {
+        kept = await store?.match(name);
+      } catch {
+        store = null;
+      }
       if (ticket !== generation) return;
       if (kept !== undefined) {
         const bytes: Blob = await kept.clone().blob();
@@ -89,27 +132,51 @@ export function createHumanViewerThumbnails(props: {
         if (kept.headers.get("X-Revision") === props.revision()) return;
         image.classList.add("stale");
       }
-      const result: ThumbnailReply = await once(ticket, async (): Promise<ThumbnailReply> => {
-        if (!visible.has(card)) throw scrolled;
-        const controller: AbortController = new AbortController();
-        controllers.add(controller);
-        try {
-          const response: Response = await fetch(url + "&lane=bulk", { signal: controller.signal });
-          if (!response.ok) {
-            const failure: { error?: string } = await response.json() as { error?: string };
-            throw new Error(failure.error ?? response.statusText);
+      const result: ThumbnailReply = await once(
+        ticket,
+        async (): Promise<ThumbnailReply> => {
+          if (!visible.has(card)) throw scrolled;
+          const controller: AbortController = new AbortController();
+          controllers.add(controller);
+          try {
+            const response: Response = await fetch(url + "&lane=bulk", {
+              signal: controller.signal,
+            });
+            if (!response.ok) {
+              const failure: { error?: string } = (await response.json()) as {
+                error?: string;
+              };
+              throw new Error(failure.error ?? response.statusText);
+            }
+            const bytes: Blob = await response.blob();
+            return {
+              bytes,
+              authority: planHumanViewerThumbnailRevision(
+                props.revision(),
+                response.headers.get("X-Human-Revision"),
+                response.headers.get("X-Human-Stale") === "true",
+              ),
+            };
+          } finally {
+            controllers.delete(controller);
           }
-          const bytes: Blob = await response.blob();
-          return {
-            bytes,
-            authority: planHumanViewerThumbnailRevision(props.revision(), response.headers.get("X-Human-Revision"), response.headers.get("X-Human-Stale") === "true"),
-          };
-        } finally { controllers.delete(controller); }
-      });
+        },
+      );
       if (ticket !== generation) return;
       if (result.authority.cache) {
-        try { await store?.put(name, new Response(result.bytes, { headers: { "Content-Type": "image/png", "X-Revision": result.authority.revision! } })); }
-        catch { store = null; }
+        try {
+          await store?.put(
+            name,
+            new Response(result.bytes, {
+              headers: {
+                "Content-Type": "image/png",
+                "X-Revision": result.authority.revision!,
+              },
+            }),
+          );
+        } catch {
+          store = null;
+        }
       }
       if (ticket !== generation) return;
       display(image, result.bytes);
@@ -120,23 +187,37 @@ export function createHumanViewerThumbnails(props: {
         started.delete(card);
         if (kept === undefined) frame.textContent = "Not drawn yet";
       } else if (kept === undefined)
-        frame.textContent = failure instanceof Error ? failure.message : String(failure);
+        frame.textContent =
+          failure instanceof Error ? failure.message : String(failure);
     }
   }
-  const seen: IntersectionObserver = new IntersectionObserver((observed: IntersectionObserverEntry[]): void => {
-    for (const item of observed) {
-      if (!item.isIntersecting) { visible.delete(item.target); continue; }
-      visible.add(item.target);
-      const card: HTMLElement = item.target as HTMLElement;
-      if (started.has(card)) continue;
-      started.add(card);
-      const frame: HTMLElement = card.querySelector<HTMLElement>(".frame")!;
-      const image: HTMLImageElement = document.createElement("img");
-      image.alt = "";
-      frame.replaceChildren(image);
-      void paint(card, image, frame, card.dataset.key!, card.dataset.thumbnail!, generation);
-    }
-  }, { rootMargin: "0px" });
+  const seen: IntersectionObserver = new IntersectionObserver(
+    (observed: IntersectionObserverEntry[]): void => {
+      for (const item of observed) {
+        if (!item.isIntersecting) {
+          visible.delete(item.target);
+          continue;
+        }
+        visible.add(item.target);
+        const card: HTMLElement = item.target as HTMLElement;
+        if (started.has(card)) continue;
+        started.add(card);
+        const frame: HTMLElement = card.querySelector<HTMLElement>(".frame")!;
+        const image: HTMLImageElement = document.createElement("img");
+        image.alt = "";
+        frame.replaceChildren(image);
+        void paint(
+          card,
+          image,
+          frame,
+          card.dataset.key!,
+          card.dataset.thumbnail!,
+          generation,
+        );
+      }
+    },
+    { rootMargin: "0px" },
+  );
   return {
     watch: (card: HTMLElement): void => seen.observe(card),
     clear: (): void => {
@@ -153,5 +234,12 @@ export function createHumanViewerThumbnails(props: {
   };
 }
 
-type ThumbnailWaiter = { ticket: number; resolve: () => void; reject: (reason?: unknown) => void };
-type ThumbnailReply = { bytes: Blob; authority: ReturnType<typeof planHumanViewerThumbnailRevision> };
+type ThumbnailWaiter = {
+  ticket: number;
+  resolve: () => void;
+  reject: (reason?: unknown) => void;
+};
+type ThumbnailReply = {
+  bytes: Blob;
+  authority: ReturnType<typeof planHumanViewerThumbnailRevision>;
+};

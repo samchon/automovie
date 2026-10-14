@@ -19,13 +19,18 @@ export function createHumanViewerHostAdmission(
 ): IHumanViewerAdmissionBridge {
   return {
     protocol: humanViewerProtocol,
-    admit: async (domain: Parameters<IHumanViewerAdmissionBridge["admit"]>[0], text: string, basis: string): ReturnType<IHumanViewerAdmissionBridge["admit"]> => {
+    admit: async (
+      domain: Parameters<IHumanViewerAdmissionBridge["admit"]>[0],
+      text: string,
+      basis: string,
+    ): ReturnType<IHumanViewerAdmissionBridge["admit"]> => {
       for (const frame of frames()) {
         if (frame === undefined) continue;
-        const child: (Window & IHumanViewerAdmissionWindow) | null | undefined = frame?.contentWindow as
-          | (Window & IHumanViewerAdmissionWindow)
-          | null
-          | undefined;
+        const child: (Window & IHumanViewerAdmissionWindow) | null | undefined =
+          frame?.contentWindow as
+            | (Window & IHumanViewerAdmissionWindow)
+            | null
+            | undefined;
         if (child?.__humanViewerProtocol !== humanViewerProtocol)
           return { available: false, reason: null, token: null };
         const admit: IHumanViewerAdmissionWindow["__humanViewerAdmit"] = (
@@ -38,7 +43,11 @@ export function createHumanViewerHostAdmission(
           const token: string | null = readHumanViewerFrameToken(
             frame!.contentWindow!.location.search,
           );
-          const reason: Awaited<ReturnType<NonNullable<IHumanViewerAdmissionWindow["__humanViewerAdmit"]>>> = await admit(domain, text, basis);
+          const reason: Awaited<
+            ReturnType<
+              NonNullable<IHumanViewerAdmissionWindow["__humanViewerAdmit"]>
+            >
+          > = await admit(domain, text, basis);
           if (reason !== null && typeof reason !== "string")
             throw new Error(
               "The frame returned an incompatible admission envelope",

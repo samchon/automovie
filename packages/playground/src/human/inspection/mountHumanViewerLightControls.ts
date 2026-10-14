@@ -40,38 +40,49 @@ export function mountHumanViewerLightControls(props: {
 } {
   const listeners: AbortController = new AbortController();
   for (const name of humanViewerChoices.lights) {
-    const option: HTMLOptionElement = props.form.ownerDocument.createElement("option");
+    const option: HTMLOptionElement =
+      props.form.ownerDocument.createElement("option");
     option.value = name;
     option.textContent = name;
     props.name.append(option);
   }
-  props.form.addEventListener("submit", (event: SubmitEvent): void => {
-    event.preventDefault();
-    const source: string = [
-      props.name.value,
-      ...props.components.map((input: HTMLInputElement): string => input.value),
-    ].join(",");
-    let light: HumanViewerAddress["light"];
-    try {
-      light = parseHumanViewerLight(source);
-    } catch {
-      props.error.textContent =
-        "Choose a light and enter a finite nonzero X/Y/Z direction.";
-      return;
-    }
-    props.error.textContent = "";
-    props.navigate(light);
-  }, { signal: listeners.signal });
-  props.reset.addEventListener("click", (): void => props.navigate(null), { signal: listeners.signal });
+  props.form.addEventListener(
+    "submit",
+    (event: SubmitEvent): void => {
+      event.preventDefault();
+      const source: string = [
+        props.name.value,
+        ...props.components.map(
+          (input: HTMLInputElement): string => input.value,
+        ),
+      ].join(",");
+      let light: HumanViewerAddress["light"];
+      try {
+        light = parseHumanViewerLight(source);
+      } catch {
+        props.error.textContent =
+          "Choose a light and enter a finite nonzero X/Y/Z direction.";
+        return;
+      }
+      props.error.textContent = "";
+      props.navigate(light);
+    },
+    { signal: listeners.signal },
+  );
+  props.reset.addEventListener("click", (): void => props.navigate(null), {
+    signal: listeners.signal,
+  });
   return {
     close: (): void => listeners.abort(),
     /** Restore the displayed bookmark and domain support without navigating. */
     show: (light: HumanViewerAddress["light"], supported: boolean): void => {
       props.form.hidden = !supported;
       props.name.value = light?.name ?? "key";
-      props.components.forEach((input: HTMLInputElement, index: number): void => {
-        input.value = light === null ? "" : String(light.direction[index]);
-      });
+      props.components.forEach(
+        (input: HTMLInputElement, index: number): void => {
+          input.value = light === null ? "" : String(light.direction[index]);
+        },
+      );
       props.error.textContent = "";
     },
   };

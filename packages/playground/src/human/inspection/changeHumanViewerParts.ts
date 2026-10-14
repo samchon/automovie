@@ -17,6 +17,8 @@ export function changeHumanViewerParts(
   set: "parts" | "hide",
   on: boolean,
 ): HumanViewerAddress {
-  const others: string[] = address[set].filter((part: string): boolean => part !== name);
+  const others: string[] = address[set].filter(
+    (part: string): boolean => part !== name,
+  );
   return { ...address, [set]: on ? [...others, name] : others };
 }

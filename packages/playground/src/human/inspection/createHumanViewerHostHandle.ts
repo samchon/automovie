@@ -16,7 +16,9 @@ export function createHumanViewerHostHandle(
   viewer: HumanViewerHandle,
 ): HumanViewerHandle {
   return {
-    show: async (address: Parameters<HumanViewerHandle["show"]>[0]): Promise<void> => {
+    show: async (
+      address: Parameters<HumanViewerHandle["show"]>[0],
+    ): Promise<void> => {
       await viewer.show(address);
       history.replaceState(
         null,
@@ -25,16 +27,24 @@ export function createHumanViewerHostHandle(
       );
     },
     parts: (): ReturnType<HumanViewerHandle["parts"]> => viewer.parts(),
-    renderer: (): ReturnType<HumanViewerHandle["renderer"]> => viewer.renderer(),
-    revision: (): ReturnType<HumanViewerHandle["revision"]> => viewer.revision(),
+    renderer: (): ReturnType<HumanViewerHandle["renderer"]> =>
+      viewer.renderer(),
+    revision: (): ReturnType<HumanViewerHandle["revision"]> =>
+      viewer.revision(),
     builds: (): ReturnType<HumanViewerHandle["builds"]> => viewer.builds(),
     buildMs: (): ReturnType<HumanViewerHandle["buildMs"]> => viewer.buildMs(),
     spans: (): ReturnType<HumanViewerHandle["spans"]> => viewer.spans(),
     address: (): ReturnType<HumanViewerHandle["address"]> => viewer.address(),
-    admission: (): ReturnType<HumanViewerHandle["admission"]> => viewer.admission(),
-    rigReading: (): ReturnType<NonNullable<HumanViewerHandle["rigReading"]>> => viewer.rigReading?.(),
-    exportConstruction: (): ReturnType<HumanViewerHandle["exportConstruction"]> => viewer.exportConstruction(),
-    periocularMappings: (): ReturnType<NonNullable<HumanViewerHandle["periocularMappings"]>> => viewer.periocularMappings?.(),
+    admission: (): ReturnType<HumanViewerHandle["admission"]> =>
+      viewer.admission(),
+    rigReading: (): ReturnType<NonNullable<HumanViewerHandle["rigReading"]>> =>
+      viewer.rigReading?.(),
+    exportConstruction: (): ReturnType<
+      HumanViewerHandle["exportConstruction"]
+    > => viewer.exportConstruction(),
+    periocularMappings: (): ReturnType<
+      NonNullable<HumanViewerHandle["periocularMappings"]>
+    > => viewer.periocularMappings?.(),
     png: (): ReturnType<HumanViewerHandle["png"]> => viewer.png(),
     evict: (): ReturnType<HumanViewerHandle["evict"]> => viewer.evict(),
   };
