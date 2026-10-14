@@ -72,7 +72,10 @@ export function test_motion_sample_clock(): void {
   const viaWindow: number[] = windowSampleTimes(0, 1.01, 24);
   TestValidator.predicate(
     "sampleTimes(d, r) === windowSampleTimes(0, d, r)",
-    fractional.length === viaWindow.length && fractional.every((time: number, index: number): boolean => nclose(time, viaWindow[index]!, 0)),
+    fractional.length === viaWindow.length &&
+      fractional.every((time: number, index: number): boolean =>
+        nclose(time, viaWindow[index]!, 0),
+      ),
   );
 
   const window: number[] = windowSampleTimes(0.5, 1.25, 24);
@@ -105,7 +108,12 @@ export function test_motion_sample_clock(): void {
       ],
       [
         "fpWindowFpWindowFpWindow",
-        (): boolean => !nclose(fpWindow[fpWindow.length - 1]!, fpWindow[fpWindow.length - 2]!, 0),
+        (): boolean =>
+          !nclose(
+            fpWindow[fpWindow.length - 1]!,
+            fpWindow[fpWindow.length - 2]!,
+            0,
+          ),
       ],
     ]),
     {

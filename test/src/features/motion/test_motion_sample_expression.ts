@@ -1,5 +1,9 @@
 import { sampleMotion } from "@automovie/engine";
-import type { IAutoMovieExpression, IAutoMovieMotion, IAutoMoviePose } from "@automovie/interface";
+import type {
+  IAutoMovieExpression,
+  IAutoMovieMotion,
+  IAutoMoviePose,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import {

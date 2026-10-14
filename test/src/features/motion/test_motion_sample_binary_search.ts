@@ -1,5 +1,9 @@
 import { sampleMotion } from "@automovie/engine";
-import { IAutoMovieJointPose, IAutoMovieKeyframe, IAutoMovieMotion } from "@automovie/interface";
+import {
+  IAutoMovieJointPose,
+  IAutoMovieKeyframe,
+  IAutoMovieMotion,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { joint, keyframe, makeMotion, makePose } from "../internal/fixtures";
@@ -26,7 +30,10 @@ const rampClip: () => IAutoMovieMotion = (): IAutoMovieMotion => {
 };
 
 const flexionAt: (t: number) => number = (t: number): number => {
-  const j: IAutoMovieJointPose | undefined = sampleMotion(rampClip(), t).pose.joints.find(
+  const j: IAutoMovieJointPose | undefined = sampleMotion(
+    rampClip(),
+    t,
+  ).pose.joints.find(
     (x: IAutoMovieJointPose): boolean => x.bone === "leftLowerArm",
   );
   if (j === undefined) throw new Error("leftLowerArm missing");
@@ -71,11 +78,20 @@ export function test_motion_sample_binary_search(): void {
   }
 
   // Endpoint tie: an exact interior key returns that key's value verbatim.
-  TestValidator.predicate("exact key 137 returns 137", nclose(flexionAt(137 * DT), 137, 0));
-  TestValidator.predicate("exact key 200 returns 200", nclose(flexionAt(200 * DT), 200, 0));
+  TestValidator.predicate(
+    "exact key 137 returns 137",
+    nclose(flexionAt(137 * DT), 137, 0),
+  );
+  TestValidator.predicate(
+    "exact key 200 returns 200",
+    nclose(flexionAt(200 * DT), 200, 0),
+  );
 
   // Clamped ends hold the first / last key.
-  TestValidator.predicate("clamp before start holds key 0", nclose(flexionAt(-1), 0, 0));
+  TestValidator.predicate(
+    "clamp before start holds key 0",
+    nclose(flexionAt(-1), 0, 0),
+  );
   TestValidator.predicate(
     "clamp past end holds last key",
     nclose(flexionAt(last + 5), N - 1, 0),

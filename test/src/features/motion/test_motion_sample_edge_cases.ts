@@ -1,5 +1,12 @@
 import { sampleMotion } from "@automovie/engine";
-import { AutoMovieArkitChannel, AutoMovieHumanoidBone, IAutoMovieBlendshapeChannel, IAutoMovieJointPose, IAutoMovieMotion, IAutoMoviePose } from "@automovie/interface";
+import {
+  AutoMovieArkitChannel,
+  AutoMovieHumanoidBone,
+  IAutoMovieBlendshapeChannel,
+  IAutoMovieJointPose,
+  IAutoMovieMotion,
+  IAutoMoviePose,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import {
@@ -11,12 +18,19 @@ import {
 } from "../internal/fixtures";
 import { nclose, throwsError } from "../internal/predicates";
 
-const flex: (m: IAutoMovieMotion, t: number, bone?: AutoMovieHumanoidBone) => number = (
+const flex: (
+  m: IAutoMovieMotion,
+  t: number,
+  bone?: AutoMovieHumanoidBone,
+) => number = (
   m: IAutoMovieMotion,
   t: number,
   bone: AutoMovieHumanoidBone = "leftLowerArm",
 ): number => {
-  const j: IAutoMovieJointPose | undefined = sampleMotion(m, t).pose.joints.find((x: IAutoMovieJointPose): boolean => x.bone === bone);
+  const j: IAutoMovieJointPose | undefined = sampleMotion(
+    m,
+    t,
+  ).pose.joints.find((x: IAutoMovieJointPose): boolean => x.bone === bone);
   if (j === undefined) throw new Error(`${bone} missing from sampled pose`);
   return j.flexion ?? 0;
 };
@@ -132,7 +146,9 @@ export function test_motion_sample_edge_cases(): void {
   );
 
   // 5. same-preset expression, blendshapes on only one side (both directions)
-  const rest: IAutoMoviePose = makePose([joint("leftLowerArm", { flexion: 0 })]);
+  const rest: IAutoMoviePose = makePose([
+    joint("leftLowerArm", { flexion: 0 }),
+  ]);
   const endBlend: IAutoMovieMotion = makeMotion(
     [
       keyframe(0, rest, "linear", makeExpression("happy", 1)),
@@ -146,10 +162,12 @@ export function test_motion_sample_edge_cases(): void {
     1,
   );
   const endChannels: Map<AutoMovieArkitChannel, number> = new Map(
-    (sampleMotion(endBlend, 0.5).expression?.blendshapes ?? []).map((c: IAutoMovieBlendshapeChannel): [AutoMovieArkitChannel, number] => [
-      c.channel,
-      c.weight,
-    ]),
+    (sampleMotion(endBlend, 0.5).expression?.blendshapes ?? []).map(
+      (c: IAutoMovieBlendshapeChannel): [AutoMovieArkitChannel, number] => [
+        c.channel,
+        c.weight,
+      ],
+    ),
   );
   TestValidator.predicate(
     "blendshapes only at end → jawOpen 0.5",
@@ -169,10 +187,12 @@ export function test_motion_sample_edge_cases(): void {
     1,
   );
   const startChannels: Map<AutoMovieArkitChannel, number> = new Map(
-    (sampleMotion(startBlend, 0.5).expression?.blendshapes ?? []).map((c: IAutoMovieBlendshapeChannel): [AutoMovieArkitChannel, number] => [
-      c.channel,
-      c.weight,
-    ]),
+    (sampleMotion(startBlend, 0.5).expression?.blendshapes ?? []).map(
+      (c: IAutoMovieBlendshapeChannel): [AutoMovieArkitChannel, number] => [
+        c.channel,
+        c.weight,
+      ],
+    ),
   );
   TestValidator.predicate(
     "blendshapes only at start → jawOpen 0.5",

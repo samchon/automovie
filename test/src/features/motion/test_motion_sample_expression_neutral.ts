@@ -1,5 +1,9 @@
 import { sampleMotion } from "@automovie/engine";
-import type { IAutoMovieExpression, IAutoMovieMotion, IAutoMoviePose } from "@automovie/interface";
+import type {
+  IAutoMovieExpression,
+  IAutoMovieMotion,
+  IAutoMoviePose,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import {
@@ -36,14 +40,20 @@ export function test_motion_sample_expression_neutral(): void {
     ],
     1,
   );
-  const early: IAutoMovieExpression | null = sampleMotion(rampIn, 0.1).expression;
+  const early: IAutoMovieExpression | null = sampleMotion(
+    rampIn,
+    0.1,
+  ).expression;
   const mid: IAutoMovieExpression | null = sampleMotion(rampIn, 0.5).expression;
   TestValidator.equals("ramp keeps the authored preset", mid!.preset, "happy");
   TestValidator.equals(
     "the intensity ramps from neutral, not a pop to full",
     namedFacts([
       ["early", (): boolean => early !== null],
-      ["earlyIntensity", (): boolean => early !== null && early.intensity < 0.2],
+      [
+        "earlyIntensity",
+        (): boolean => early !== null && early.intensity < 0.2,
+      ],
       ["ncloseMidIntensity", (): boolean => nclose(mid!.intensity, 0.5)],
     ]),
     { early: true, earlyIntensity: true, ncloseMidIntensity: true },
@@ -62,7 +72,8 @@ export function test_motion_sample_expression_neutral(): void {
     namedFacts([
       [
         "ncloseSampleMotionFadeOut",
-        (): boolean => nclose(sampleMotion(fadeOut, 0.5).expression!.intensity, 0.5),
+        (): boolean =>
+          nclose(sampleMotion(fadeOut, 0.5).expression!.intensity, 0.5),
       ],
       [
         "sampleMotionFadeOutExpression",

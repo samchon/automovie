@@ -1,5 +1,9 @@
 import { sampleMotion } from "@automovie/engine";
-import { IAutoMovieJointPose, IAutoMovieMotion, IAutoMovieTransform } from "@automovie/interface";
+import {
+  IAutoMovieJointPose,
+  IAutoMovieMotion,
+  IAutoMovieTransform,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import {
@@ -11,7 +15,9 @@ import {
 } from "../internal/fixtures";
 import { namedFacts, nclose } from "../internal/predicates";
 
-const shift: (x: number) => IAutoMovieTransform = (x: number): IAutoMovieTransform => ({
+const shift: (x: number) => IAutoMovieTransform = (
+  x: number,
+): IAutoMovieTransform => ({
   translation: { x, y: 0, z: 0 },
   rotation: { x: 0, y: 0, z: 0, w: 1 },
   scale: { x: 1, y: 1, z: 1 },
@@ -57,7 +63,9 @@ export function test_motion_sample_asymmetric(): void {
     1,
   );
   const f: ReturnType<typeof sampleMotion> = sampleMotion(forward, 0.5);
-  const fj: IAutoMovieJointPose = f.pose.joints.find((j: IAutoMovieJointPose): boolean => j.bone === "leftLowerArm")!;
+  const fj: IAutoMovieJointPose = f.pose.joints.find(
+    (j: IAutoMovieJointPose): boolean => j.bone === "leftLowerArm",
+  )!;
   TestValidator.predicate(
     "flexion both-present → 60",
     nclose(fj.flexion ?? NaN, 60),
@@ -73,7 +81,8 @@ export function test_motion_sample_asymmetric(): void {
       ["fPoseRoot", (): boolean => f.pose.root !== null],
       [
         "ncloseFPose",
-        (): boolean => f.pose.root !== null && nclose(f.pose.root.translation.x, 0.5),
+        (): boolean =>
+          f.pose.root !== null && nclose(f.pose.root.translation.x, 0.5),
       ],
     ]),
     { fPoseRoot: true, ncloseFPose: true },
@@ -108,7 +117,8 @@ export function test_motion_sample_asymmetric(): void {
       ["rPoseRoot", (): boolean => r.pose.root !== null],
       [
         "ncloseRPose",
-        (): boolean => r.pose.root !== null && nclose(r.pose.root.translation.x, 1),
+        (): boolean =>
+          r.pose.root !== null && nclose(r.pose.root.translation.x, 1),
       ],
     ]),
     { rPoseRoot: true, ncloseRPose: true },
@@ -143,7 +153,8 @@ export function test_motion_sample_asymmetric(): void {
       ["bPoseRoot", (): boolean => b.pose.root !== null],
       [
         "ncloseBPose",
-        (): boolean => b.pose.root !== null && nclose(b.pose.root.translation.x, 1),
+        (): boolean =>
+          b.pose.root !== null && nclose(b.pose.root.translation.x, 1),
       ],
     ]),
     { bPoseRoot: true, ncloseBPose: true },
@@ -159,7 +170,9 @@ export function test_motion_sample_asymmetric(): void {
     1,
   );
   const a: ReturnType<typeof sampleMotion> = sampleMotion(axisSwap, 0.5);
-  const aj: IAutoMovieJointPose = a.pose.joints.find((j: IAutoMovieJointPose): boolean => j.bone === "leftLowerArm")!;
+  const aj: IAutoMovieJointPose = a.pose.joints.find(
+    (j: IAutoMovieJointPose): boolean => j.bone === "leftLowerArm",
+  )!;
   TestValidator.predicate(
     "start-only abduction 8→absent → 4",
     nclose(aj.abduction ?? NaN, 4),

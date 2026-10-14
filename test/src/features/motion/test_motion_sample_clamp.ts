@@ -5,8 +5,14 @@ import { TestValidator } from "@nestia/e2e";
 import { createValidMotion } from "../internal/fixtures";
 import { nclose } from "../internal/predicates";
 
-const elbow: (m: IAutoMovieMotion, t: number) => number = (m: IAutoMovieMotion, t: number): number => {
-  const j: IAutoMovieJointPose | undefined = sampleMotion(m, t).pose.joints.find(
+const elbow: (m: IAutoMovieMotion, t: number) => number = (
+  m: IAutoMovieMotion,
+  t: number,
+): number => {
+  const j: IAutoMovieJointPose | undefined = sampleMotion(
+    m,
+    t,
+  ).pose.joints.find(
     (x: IAutoMovieJointPose): boolean => x.bone === "leftLowerArm",
   );
   if (j === undefined)

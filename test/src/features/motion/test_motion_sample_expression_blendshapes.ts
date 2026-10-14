@@ -1,5 +1,11 @@
 import { sampleMotion } from "@automovie/engine";
-import type { AutoMovieArkitChannel, IAutoMovieBlendshapeChannel, IAutoMovieExpression, IAutoMovieMotion, IAutoMoviePose } from "@automovie/interface";
+import type {
+  AutoMovieArkitChannel,
+  IAutoMovieBlendshapeChannel,
+  IAutoMovieExpression,
+  IAutoMovieMotion,
+  IAutoMoviePose,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import {
@@ -46,7 +52,10 @@ export function test_motion_sample_expression_blendshapes(): void {
     ],
     1,
   );
-  const blended: IAutoMovieExpression | null = sampleMotion(clip, 0.5).expression;
+  const blended: IAutoMovieExpression | null = sampleMotion(
+    clip,
+    0.5,
+  ).expression;
   TestValidator.equals(
     "blendshapes present",
     namedFacts([
@@ -60,7 +69,12 @@ export function test_motion_sample_expression_blendshapes(): void {
   );
 
   const channels: Map<AutoMovieArkitChannel, number> = new Map(
-    (blended!.blendshapes ?? []).map((c: IAutoMovieBlendshapeChannel): [AutoMovieArkitChannel, number] => [c.channel, c.weight]),
+    (blended!.blendshapes ?? []).map(
+      (c: IAutoMovieBlendshapeChannel): [AutoMovieArkitChannel, number] => [
+        c.channel,
+        c.weight,
+      ],
+    ),
   );
   TestValidator.predicate(
     "jawOpen blends to 0.5",
