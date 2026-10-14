@@ -1,586 +1,135 @@
-import {
-  AUTOMOVIE_AUTHORED_DOCUMENT_LAYERS,
-  type AutoMovieAuthoredDocumentLayer as EvidenceAuthoredDocumentLayer,
-} from "@automovie/evidence";
-import { randomUUID } from "node:crypto";
-import type { Dirent, Stats } from "node:fs";
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
-
-const AUTHORED_DOCUMENT_LAYERS = AUTOMOVIE_AUTHORED_DOCUMENT_LAYERS;
-
-/** Narrative layers that carry the release partition a reader receives. */
-const GROUPED_DOCUMENT_LAYERS: ReadonlySet<AutoMovieAuthoredDocumentLayer> =
-  new Set(["screenplays", "scripts"]);
-
-/**
- * Authored Markdown layers that may be bound for a human reader.
- *
- * The set spans all production shapes. Film narrative, direct brief, model,
- * motion, and built-environment work are different authored branches, but the
- * reader-facing transformation is the same for each one.
- */
-export type AutoMovieAuthoredDocumentLayer = EvidenceAuthoredDocumentLayer;
-
-/** Physical authored pass selected for a reader edition. */
-export type AutoMovieProductionDocumentPass = "construction" | "final";
-
-/** Input to one authored-layer reader edition. */
-export interface IAutoMovieProductionBindRequest {
-  /** Generated-project root the binder reads. */
-  root: string;
-
-  /** Human-facing title written as the edition's sole H1. */
-  title: string;
-
-  /** Authored Markdown layer to bind. */
-  layer: AutoMovieAuthoredDocumentLayer;
-
-  /** Construction tree or the expression-only final screenplay tree. */
-  pass?: AutoMovieProductionDocumentPass;
-
-  /**
-   * Directory the edition is written beneath.
-   *
-   * @default `<root>/artifacts`
-   */
-  output?: string;
-}
-
-interface IAuthoredDocument {
-  body: string;
-  title: string;
-}
-
-interface IAuthoredDocumentGroup {
-  documents: IAuthoredDocument[];
-  title: string;
-}
-
-const LAYERS: ReadonlySet<string> = new Set(AUTHORED_DOCUMENT_LAYERS);
+import { productionBinderGroupedDocumentLayers } from "./binder/productionBinderGroupedDocumentLayers";
+import { AutoMovieAuthoredDocumentLayer } from "./binder/AutoMovieAuthoredDocumentLayer";
+import { AutoMovieProductionDocumentPass } from "./binder/AutoMovieProductionDocumentPass";
+import { IAutoMovieProductionBindRequest } from "./binder/IAutoMovieProductionBindRequest";
+import { IAutoMovieProductionBinderAuthoredDocument } from "./binder/IAutoMovieProductionBinderAuthoredDocument";
+import { IAutoMovieProductionBinderAuthoredDocumentGroup } from "./binder/IAutoMovieProductionBinderAuthoredDocumentGroup";
+import { productionBinderLayers } from "./binder/productionBinderLayers";
+import { validateAutoMovieProductionDocumentAncestors } from "./binder/validateAutoMovieProductionDocumentAncestors";
+import { productionBinderPublishEdition } from "./binder/productionBinderPublishEdition";
+import { productionBinderProspectiveRealpath } from "./binder/productionBinderProspectiveRealpath";
+import { productionBinderReadFlatLayer } from "./binder/productionBinderReadFlatLayer";
+import { productionBinderReadGroupedLayer } from "./binder/productionBinderReadGroupedLayer";
+import { productionBinderRebaseHeadings } from "./binder/productionBinderRebaseHeadings";
+import { productionBinderStem } from "./binder/productionBinderStem";
+import { productionBinderAssertOutputSeparatedFromDocs } from "./binder/productionBinderAssertOutputSeparatedFromDocs";
 
 /**
- * Binds one authored production layer into one reader-facing Markdown file.
+ * Bind one authored production layer into a deterministic reader-facing Markdown edition.
  *
- * The binder reads the selected `docs/<layer>` tree and never writes into
- * `docs`: only one file below the explicit output directory is produced,
- * defaulting to the scaffold's ignored `artifacts` directory. It removes HTML
- * authoring comments and trailing citation anchors, rebases every document
- * beneath one edition title, and preserves reader-facing Markdown. Scripts and
- * screenplays retain their numbered group partition as H2 and inline each unit
- * as H3; every other authored layer remains a flat ordered document collection.
- * Repeating a run over the same source therefore writes byte-identical output.
- *
- * Markdown is the complete deliverable here. PDF, Fountain, Final Draft, font
- * shaping, and typography belong to converters that already own those formats.
+ * @evidence contracts/common.md#principled-implementation Constructor admission chooses the authored layer/pass and separated output, then markdown assembles deterministically ordered reader text and bind publishes it through an exclusive temporary and no-clobber link. Ordinary Node filesystem observations are not an atomic source snapshot.
+ * @evidence contracts/common.md#clear-and-simple-design The public constructor, readonly fields and markdown/bind methods remain the same; file-named internal helpers own path, document, marker and publication behavior. The repository currently has no application invocation of this reader API beyond tests and its exported surface.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Supported layer/pass and output separation checks are uniform; existing different output bytes refuse instead of overwriting. The supported heading/fence/comment transformations are not a complete CommonMark parser or a hostile-writer filesystem sandbox.
+ * @evidence contracts/common.md#meaningful-documentation Documents selected docs tree, grouped versus flat reader topology, exact output naming, optional construction default, transformation limits and propagated native/refusal failures. No PDF or other converter is owned here.
+ * @evidence contracts/performance.md#efficient-algorithms Includes full selected directory enumeration/sorting and total Markdown-byte reads/transforms, edition concatenation, output-path observations and final write/sync/link or existing-byte comparison; total population and text length drive work and memory.
+ * @evidence contracts/performance.md#reuse-equivalent-work One instance retains its validated routing fields and shares module patterns/layer sets; every markdown or bind call rereads current source and no source snapshot or in-flight publication cache is retained.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The instance owns only routing strings; parsed document populations and complete edition strings are per invocation. Publication attempts close their temporary/reader handles and remove temporaries in finally; cleanup failures can mask earlier failures or leave already linked output, so host release and rollback are not certified.
  */
 export class AutoMovieProductionBinder {
-  /** Absolute generated-project root this binder reads. */
-  public readonly root: string;
+    /** Absolute generated-project root this binder reads. */
+    public readonly root: string;
 
-  /** Reader-facing title written as the edition's sole H1. */
-  public readonly title: string;
+    /** Reader-facing title written as the edition's sole H1. */
+    public readonly title: string;
 
-  /** Authored layer this binder reads. */
-  public readonly layer: AutoMovieAuthoredDocumentLayer;
+    /** Authored layer this binder reads. */
+    public readonly layer: AutoMovieAuthoredDocumentLayer;
 
-  /** Physical authored pass this binder reads. */
-  public readonly pass: AutoMovieProductionDocumentPass;
+    /** Physical authored pass this binder reads. */
+    public readonly pass: AutoMovieProductionDocumentPass;
 
-  /** Absolute physical authored tree selected by {@link pass}. */
-  public readonly source: string;
+    /** Absolute physical authored tree selected by {@link pass}. */
+    public readonly source: string;
 
-  /** Stable filename used when the derived edition is published. */
-  public readonly filename: string;
+    /** Stable filename used when the derived edition is published. */
+    public readonly filename: string;
 
-  /** Absolute directory the derived Markdown file is written beneath. */
-  public readonly output: string;
+    /** Absolute directory the derived Markdown file is written beneath. */
+    public readonly output: string;
 
-  /** Creates a binder for one project-owned authored layer. */
-  public constructor(request: IAutoMovieProductionBindRequest) {
-    this.root = path.resolve(request.root);
-    this.title = request.title.trim();
-    this.layer = request.layer;
-    this.pass = request.pass ?? "construction";
-    this.output = path.resolve(
-      request.output ?? path.join(this.root, "artifacts"),
-    );
-
-    if (this.title.length === 0)
-      throw new Error("A reader-facing production title is required.");
-    if (/\r|\n/u.test(this.title))
-      throw new Error("A reader-facing production title must be one line.");
-    if (!LAYERS.has(this.layer))
-      throw new Error(`Unknown authored document layer: ${String(this.layer)}`);
-    if (this.pass !== "construction" && this.pass !== "final")
-      throw new Error(`Unknown authored document pass: ${String(this.pass)}`);
-    if (this.pass === "final" && this.layer !== "screenplays")
-      throw new Error(
-        "Only screenplays have an expression-only final authored pass.",
-      );
-
-    this.source =
-      this.pass === "final"
-        ? path.join(this.root, "docs", "final", this.layer)
-        : path.join(this.root, "docs", this.layer);
-    this.filename = `${stem(this.title)}-${this.pass === "final" ? "final-" : ""}${this.layer}.md`;
-
-    assertOutputSeparatedFromDocs(this.output, path.join(this.root, "docs"));
-  }
-
-  /** Renders the integrated reader edition without writing it. */
-  public async markdown(): Promise<string> {
-    await validateAutoMovieProductionDocumentAncestors(
-      this.root,
-      this.pass,
-      fs.lstat,
-    );
-    const parts: string[] = [`# ${this.title}`];
-    if (GROUPED_DOCUMENT_LAYERS.has(this.layer)) {
-      const groups: IAuthoredDocumentGroup[] = await readGroupedLayer(
-        this.source,
-      );
-      for (const group of groups) {
-        parts.push(`## ${group.title}`);
-        for (const document of group.documents) {
-          parts.push(`### ${document.title}`);
-          const body: string = rebaseHeadings(document.body, 2).trim();
-          if (body !== "") parts.push(body);
+    /** Creates a binder for one project-owned authored layer. */
+    public constructor(request: IAutoMovieProductionBindRequest) {
+        this.root = path.resolve(request.root);
+        this.title = request.title.trim();
+        this.layer = request.layer;
+        this.pass = request.pass ?? "construction";
+        this.output = path.resolve(request.output ?? path.join(this.root, "artifacts"));
+        if (this.title.length === 0)
+            throw new Error("A reader-facing production title is required.");
+        if (/\r|\n/u.test(this.title))
+            throw new Error("A reader-facing production title must be one line.");
+        if (!productionBinderLayers.has(this.layer))
+            throw new Error(`Unknown authored document layer: ${String(this.layer)}`);
+        if (this.pass !== "construction" && this.pass !== "final")
+            throw new Error(`Unknown authored document pass: ${String(this.pass)}`);
+        if (this.pass === "final" && this.layer !== "screenplays")
+            throw new Error("Only screenplays have an expression-only final authored pass.");
+        this.source =
+            this.pass === "final"
+                ? path.join(this.root, "docs", "final", this.layer)
+                : path.join(this.root, "docs", this.layer);
+        this.filename = `${productionBinderStem(this.title)}-${this.pass === "final" ? "final-" : ""}${this.layer}.md`;
+        productionBinderAssertOutputSeparatedFromDocs(this.output, path.join(this.root, "docs"));
+    }
+    /**
+     * Assemble the selected authored layer into reader Markdown without publishing it.
+     *
+     * @evidence contracts/common.md#principled-implementation Pass-aware ancestor admission precedes grouped or flat current document reads; root title, group and document headings retain deterministic order and the shared rebaser refuses depth beyond H6.
+     * @evidence contracts/common.md#clear-and-simple-design Owns reader assembly while file-named readers, marker removal and heading presentation keep their existing responsibilities.
+     * @evidence contracts/common.md#prohibited-implementation-shortcuts No missing document/title receives substitute prose, and sequential source reads are not claimed to be one atomic snapshot or complete CommonMark parsing.
+     * @evidence contracts/common.md#meaningful-documentation Returns complete Markdown with one edition H1 and terminal newline; scripts/screenplays preserve H2 groups and H3 units, while other layers use H2 documents. Native/read/heading refusals propagate and no file is written.
+     * @evidence contracts/performance.md#efficient-algorithms Includes all directory enumeration/sorting and B source-byte reads/transforms; the complete parsed population, heading/body copies, parts array and joined edition can coexist, so grouping does not avoid full text residency.
+     * @evidence contracts/performance.md#reuse-equivalent-work One admitted document population supplies title and body assembly for this invocation; later calls reread current files rather than sharing a stale edition.
+     * @evidence contracts/performance.md#bound-retention-and-release-resources Local document/group strings and part arrays release after return/refusal, with the complete edition transferring to the caller; promise readers own temporary handles and no watcher or running renderer is retained.
+     */
+    public async markdown(): Promise<string> {
+        await validateAutoMovieProductionDocumentAncestors(this.root, this.pass, fs.lstat);
+        const parts: string[] = [`# ${this.title}`];
+        if (productionBinderGroupedDocumentLayers.has(this.layer)) {
+            const groups: IAutoMovieProductionBinderAuthoredDocumentGroup[] = await productionBinderReadGroupedLayer(this.source);
+            for (const group of groups) {
+                parts.push(`## ${group.title}`);
+                for (const document of group.documents) {
+                    parts.push(`### ${document.title}`);
+                    const body: string = productionBinderRebaseHeadings(document.body, 2).trim();
+                    if (body !== "")
+                        parts.push(body);
+                }
+            }
         }
-      }
-    } else {
-      const documents: IAuthoredDocument[] = await readFlatLayer(this.source);
-      for (const document of documents) {
-        parts.push(`## ${document.title}`);
-        const body: string = rebaseHeadings(document.body, 1).trim();
-        if (body !== "") parts.push(body);
-      }
-    }
-    return `${parts.join("\n\n")}\n`;
-  }
-
-  /** Writes the integrated edition and returns its absolute stable path. */
-  public async bind(): Promise<string> {
-    const markdown: string = await this.markdown();
-    const target: string = path.join(this.output, this.filename);
-    const physicalDocs = await fs.realpath(path.join(this.root, "docs"));
-    assertOutputSeparatedFromDocs(
-      await prospectiveRealpath(this.output),
-      physicalDocs,
-    );
-    await fs.mkdir(this.output, { recursive: true });
-    const physicalOutput = await fs.realpath(this.output);
-    assertOutputSeparatedFromDocs(physicalOutput, physicalDocs);
-    await publishEdition(
-      physicalOutput,
-      path.join(physicalOutput, path.basename(target)),
-      markdown,
-    );
-    return target;
-  }
-}
-
-/**
- * Refuses linked or absent ancestors before reading an authored document pass.
- *
- * Final adds a directory between docs and its layer. Checking only the layer's
- * immediate parent would admit a linked docs root. The injected observation
- * keeps the same boundary applicable to grouped and flat reader editions.
- */
-export async function validateAutoMovieProductionDocumentAncestors(
-  root: string,
-  pass: AutoMovieProductionDocumentPass,
-  lstat: (
-    directory: string,
-  ) => Promise<Pick<Stats, "isSymbolicLink" | "isDirectory">>,
-): Promise<void> {
-  const docs = path.join(root, "docs");
-  const ancestors =
-    pass === "final" ? [docs, path.join(docs, "final")] : [docs];
-  for (const directory of ancestors) {
-    const status = await lstat(directory).catch(() => undefined);
-    if (
-      status === undefined ||
-      status.isSymbolicLink() ||
-      !status.isDirectory()
-    )
-      throw new Error(
-        `${directory}: authored docs must be one physical directory.`,
-      );
-  }
-}
-
-/**
- * Publishes complete bytes into an unused final slot without following a
- * resident symlink or hardlink. An existing ordinary one-link file converges
- * only when it already contains the exact deterministic edition.
- */
-async function publishEdition(
-  output: string,
-  target: string,
-  markdown: string,
-): Promise<void> {
-  const temporary: string = path.join(
-    output,
-    `.automovie-book-${process.pid}-${randomUUID()}.tmp`,
-  );
-  try {
-    const handle = await fs.open(temporary, "wx");
-    try {
-      await handle.writeFile(markdown, "utf8");
-      await handle.sync();
-    } finally {
-      await handle.close();
-    }
-    await fs.link(temporary, target).catch(async (error: unknown) => {
-      if (!hasErrorCode(error, "EEXIST")) throw error;
-      await assertExistingEdition(target, markdown);
-    });
-  } finally {
-    await fs.rm(temporary, { force: true });
-  }
-}
-
-/** Accepts a prior deterministic publication without trusting its path alone. */
-async function assertExistingEdition(
-  target: string,
-  markdown: string,
-): Promise<void> {
-  const linked = await fs.lstat(target, { bigint: true });
-  if (linked.isSymbolicLink() || !linked.isFile() || linked.nlink !== 1n)
-    throw new Error(
-      `${target}: an existing reader edition must be one unlinked regular file.`,
-    );
-  const handle = await fs.open(target, "r");
-  try {
-    if ((await handle.readFile("utf8")) !== markdown)
-      throw new Error(
-        `${target}: an existing reader edition has different bytes.`,
-      );
-  } finally {
-    await handle.close();
-  }
-}
-
-/** Resolve where a not-yet-created path will live through its nearest ancestor. */
-async function prospectiveRealpath(target: string): Promise<string> {
-  const suffix: string[] = [];
-  let existing = target;
-  while (true) {
-    try {
-      return path.join(await fs.realpath(existing), ...suffix);
-    } catch (error) {
-      if (
-        !(
-          error instanceof Error &&
-          "code" in error &&
-          String(error.code) === "ENOENT"
-        )
-      )
-        throw error;
-      suffix.unshift(path.basename(existing));
-      existing = path.dirname(existing);
-    }
-  }
-}
-
-/** Reads one flat layer's Markdown documents in relative-path order. */
-async function readFlatLayer(layerRoot: string): Promise<IAuthoredDocument[]> {
-  const files: string[] = await listMarkdownFiles(layerRoot).catch(
-    (error: unknown) => {
-      if (error instanceof Error && error.message.startsWith(layerRoot))
-        throw error;
-      throw new Error(
-        `${layerRoot}: the production has no authored documents.`,
-      );
-    },
-  );
-  if (files.length === 0)
-    throw new Error(`${layerRoot}: the production has no authored documents.`);
-
-  const documents: IAuthoredDocument[] = [];
-  for (const file of files) {
-    const target: string = path.join(layerRoot, ...file.split("/"));
-    const markdown: string = stripAuthoringMarkers(
-      await fs.readFile(target, "utf8"),
-    );
-    const heading: RegExpExecArray | null = /^#[ \t]+(\S.*)(?:\n|$)/u.exec(
-      markdown,
-    );
-    if (heading === null)
-      throw new Error(
-        `${target}: an authored document must open with one H1 title.`,
-      );
-    documents.push({
-      title: stripHeadingAnchor(heading[1]),
-      body: markdown.slice(heading[0].length).trim(),
-    });
-  }
-  return documents;
-}
-
-/** Accepted narrative group directory, such as `001-opening`. */
-const GROUP_PATTERN: RegExp = /^([0-9]{3})-[a-z0-9]+(?:-[a-z0-9]+)*$/u;
-
-/** Accepted narrative unit filename, such as `001-first-beat.md`. */
-const UNIT_PATTERN: RegExp = /^([0-9]{3})-[a-z0-9]+(?:-[a-z0-9]+)*\.md$/u;
-
-/** Reads scripts or screenplays through their shared grouped delivery topology. */
-async function readGroupedLayer(
-  layerRoot: string,
-): Promise<IAuthoredDocumentGroup[]> {
-  const entries = await physicalEntries(layerRoot).catch((error: unknown) => {
-    if (error instanceof Error && error.message.startsWith(layerRoot))
-      throw error;
-    throw new Error(`${layerRoot}: the production has no authored groups.`);
-  });
-  const names: string[] = entries
-    .filter((entry) => entry.isDirectory() && GROUP_PATTERN.test(entry.name))
-    .map((entry) => entry.name)
-    .sort(numberedOrder(GROUP_PATTERN));
-  if (names.length === 0)
-    throw new Error(`${layerRoot}: the production has no authored groups.`);
-
-  const groups: IAuthoredDocumentGroup[] = [];
-  for (const name of names)
-    groups.push(await readAuthoredGroup(layerRoot, name));
-  return groups;
-}
-
-/** Reads one group index title and its ordered authored units. */
-async function readAuthoredGroup(
-  layerRoot: string,
-  name: string,
-): Promise<IAuthoredDocumentGroup> {
-  const groupRoot: string = path.join(layerRoot, name);
-  const indexPath: string = path.join(groupRoot, "index.md");
-  const index: string = await readPhysicalMarkdown(indexPath).catch(() => {
-    throw new Error(`${indexPath}: a group must carry its index.md title.`);
-  });
-  const heading: RegExpExecArray | null = /^#[ \t]+(\S.*)(?:\n|$)/u.exec(index);
-  if (heading === null)
-    throw new Error(`${indexPath}: a group index must open with one H1 title.`);
-
-  const entries = await physicalEntries(groupRoot);
-  const names: string[] = entries
-    .filter((entry) => entry.isFile() && UNIT_PATTERN.test(entry.name))
-    .map((entry) => entry.name)
-    .sort(numberedOrder(UNIT_PATTERN));
-  if (names.length === 0)
-    throw new Error(
-      `${groupRoot}: a group must contain at least one unit file.`,
-    );
-
-  const documents: IAuthoredDocument[] = [];
-  for (const unit of names)
-    documents.push(await readAuthoredDocument(path.join(groupRoot, unit)));
-  return {
-    title: stripHeadingAnchor(heading[1]),
-    documents,
-  };
-}
-
-/** Reads one authored H1 document and removes its authoring markers. */
-async function readAuthoredDocument(
-  target: string,
-): Promise<IAuthoredDocument> {
-  const markdown: string = await readPhysicalMarkdown(target);
-  const heading: RegExpExecArray | null = /^#[ \t]+(\S.*)(?:\n|$)/u.exec(
-    markdown,
-  );
-  if (heading === null)
-    throw new Error(
-      `${target}: an authored document must open with one H1 title.`,
-    );
-  return {
-    title: stripHeadingAnchor(heading[1]),
-    body: markdown.slice(heading[0].length).trim(),
-  };
-}
-
-/** Lists one physical authored directory and refuses links at its boundary. */
-async function physicalEntries(directory: string): Promise<Dirent[]> {
-  const linked = await fs.lstat(directory);
-  if (linked.isSymbolicLink() || !linked.isDirectory())
-    throw new Error(`${directory}: authored layers may not be links.`);
-  const entries = await fs.readdir(directory, { withFileTypes: true });
-  const symbolic = entries.find((entry) => entry.isSymbolicLink());
-  if (symbolic !== undefined)
-    throw new Error(
-      `${path.join(directory, symbolic.name)}: authored layers may not contain links.`,
-    );
-  return entries;
-}
-
-/** Reads one physical regular Markdown file without following a leaf link. */
-async function readPhysicalMarkdown(target: string): Promise<string> {
-  const linked = await fs.lstat(target);
-  if (linked.isSymbolicLink() || !linked.isFile())
-    throw new Error(`${target}: authored documents must be regular files.`);
-  return stripAuthoringMarkers(await fs.readFile(target, "utf8"));
-}
-
-/** Orders zero-padded authored identities, then resolves duplicate numbers. */
-function numberedOrder(
-  pattern: RegExp,
-): (left: string, right: string) => number {
-  return (left, right) =>
-    Number(pattern.exec(left)![1]) - Number(pattern.exec(right)![1]) ||
-    compareCodeUnits(left, right);
-}
-
-/** Walks regular Markdown files without following a symbolic directory entry. */
-async function listMarkdownFiles(root: string): Promise<string[]> {
-  if ((await fs.lstat(root)).isSymbolicLink())
-    throw new Error(`${root}: authored layers may not be links.`);
-  const result: string[] = [];
-  const walk = async (directory: string): Promise<void> => {
-    const entries = (await fs.readdir(directory, { withFileTypes: true })).sort(
-      (left, right) => compareCodeUnits(left.name, right.name),
-    );
-    for (const entry of entries) {
-      const target: string = path.join(directory, entry.name);
-      if (entry.isSymbolicLink())
-        throw new Error(`${target}: authored layers may not contain links.`);
-      if (entry.isDirectory()) await walk(target);
-      else if (entry.isFile() && entry.name.endsWith(".md"))
-        result.push(toPosix(path.relative(root, target)));
-    }
-  };
-  await walk(root);
-  return result.sort(compareCodeUnits);
-}
-
-/** Removes evidence comments while preserving reader-facing Markdown. */
-function stripAuthoringMarkers(markdown: string): string {
-  const output: string[] = [];
-  let fence: { character: string; length: number } | undefined;
-  let htmlComment = false;
-  for (const sourceLine of markdown.replaceAll("\r\n", "\n").split("\n")) {
-    if (fence !== undefined) {
-      output.push(sourceLine);
-      if (
-        new RegExp(
-          `^ {0,3}${fence.character}{${fence.length},}[ \\t]*$`,
-          "u",
-        ).test(sourceLine)
-      )
-        fence = undefined;
-      continue;
-    }
-    const opening: string | undefined =
-      htmlComment === false
-        ? /^ {0,3}(`{3,}|~{3,})/u.exec(sourceLine)?.[1]
-        : undefined;
-    if (opening !== undefined) {
-      fence = { character: opening[0], length: opening.length };
-      output.push(sourceLine);
-      continue;
-    }
-    let line = "";
-    for (let cursor = 0; cursor < sourceLine.length; ) {
-      if (htmlComment) {
-        const close = sourceLine.indexOf("-->", cursor);
-        if (close === -1) break;
-        cursor = close + 3;
-        htmlComment = false;
-      } else {
-        const open = sourceLine.indexOf("<!--", cursor);
-        if (open === -1) {
-          line += sourceLine.slice(cursor);
-          break;
+        else {
+            const documents: IAutoMovieProductionBinderAuthoredDocument[] = await productionBinderReadFlatLayer(this.source);
+            for (const document of documents) {
+                parts.push(`## ${document.title}`);
+                const body: string = productionBinderRebaseHeadings(document.body, 1).trim();
+                if (body !== "")
+                    parts.push(body);
+            }
         }
-        line += sourceLine.slice(cursor, open);
-        cursor = open + 4;
-        htmlComment = true;
-      }
+        return `${parts.join("\n\n")}\n`;
     }
-    if (line !== "" || output.at(-1) !== "") output.push(line);
-  }
-  return output.join("\n").trim();
-}
-
-/** Rebases ATX headings outside fenced code and hides citation anchors. */
-function rebaseHeadings(body: string, shift: number): string {
-  let fence: { character: string; length: number } | undefined;
-  return body
-    .split("\n")
-    .map((line) => {
-      if (fence !== undefined) {
-        if (
-          new RegExp(
-            `^ {0,3}${fence.character}{${fence.length},}[ \t]*$`,
-            "u",
-          ).test(line)
-        )
-          fence = undefined;
-        return line;
-      }
-      const opening: RegExpExecArray | null = /^ {0,3}(`{3,}|~{3,})/u.exec(
-        line,
-      );
-      if (opening !== null) {
-        fence = { character: opening[1][0], length: opening[1].length };
-        return line;
-      }
-      const heading: RegExpExecArray | null = /^(#{1,6})[ \t]+(\S.*)$/u.exec(
-        line,
-      );
-      if (heading === null) return line;
-      if (heading[1].length + shift > 6)
-        throw new Error(`A bound heading may not exceed H6: ${line.trim()}`);
-      return `${"#".repeat(shift)}${heading[1]} ${stripHeadingAnchor(heading[2])}`;
-    })
-    .join("\n");
-}
-
-/** Removes one trailing evidence-graph anchor from a heading title. */
-function stripHeadingAnchor(title: string): string {
-  return title.replace(/\s*\{#[^{}\s]+\}\s*$/u, "").trim();
-}
-
-/** Creates one portable filename stem from the reader-facing title. */
-function stem(title: string): string {
-  return (
-    title
-      .toLowerCase()
-      .match(/\p{L}+|\p{N}+/gu)
-      ?.join("-") ?? "automovie"
-  );
-}
-
-/** True when `candidate` is `parent` or lies below it. */
-function contains(parent: string, candidate: string): boolean {
-  const relative: string = path.relative(parent, candidate);
-  return (
-    relative === "" ||
-    (relative !== ".." &&
-      !relative.startsWith(`..${path.sep}`) &&
-      !path.isAbsolute(relative))
-  );
-}
-
-/** Refuses both lexical and resolved overlap with the authored docs tree. */
-function assertOutputSeparatedFromDocs(output: string, docs: string): void {
-  if (contains(output, docs) || contains(docs, output))
-    throw new Error(
-      `${output}: the output directory must remain separate from the authored docs tree.`,
-    );
-}
-
-/** Stable code-unit ordering independent of host locale and ICU data. */
-function compareCodeUnits(left: string, right: string): number {
-  return Number(left > right) - Number(left < right);
-}
-
-/** POSIX-slashes one relative path for host-independent ordering. */
-function toPosix(value: string): string {
-  return value.replaceAll("\\", "/");
-}
-
-/** True when an unknown thrown value carries one filesystem error code. */
-function hasErrorCode(error: unknown, code: string): boolean {
-  return (
-    error instanceof Error && "code" in error && String(error.code) === code
-  );
+    /**
+     * Publish complete reader Markdown and return its lexical stable output path.
+     *
+     * @evidence contracts/common.md#principled-implementation Renders current Markdown first, resolves docs/prospective output, checks separation, creates output, rechecks its physical path and delegates exclusive temporary/no-clobber publication using the same filename basename.
+     * @evidence contracts/common.md#clear-and-simple-design Coordinates source assembly and output separation while the publisher owns temporary/sync/link and existing-edition convergence.
+     * @evidence contracts/common.md#prohibited-implementation-shortcuts Physical endpoint overlap refuses and different resident edition bytes are not overwritten; observations do not prove every intervening namespace remained unchanged.
+     * @evidence contracts/common.md#meaningful-documentation May create output directories and a final edition before later cleanup failure; returns the lexical configured target on success, which can differ from the physical path used for publication through existing aliases.
+     * @evidence contracts/performance.md#efficient-algorithms Includes full markdown assembly, missing-ancestor resolution, directory creation/realpath work and B-byte write/sync/link or existing-byte comparison; source and complete rendered edition remain part of total cost.
+     * @evidence contracts/performance.md#reuse-equivalent-work One rendered edition serves publication and resident byte comparison within this invocation; independent bind calls repeat source acquisition and do not share effectful publication attempts.
+     * @evidence contracts/performance.md#bound-retention-and-release-resources Publisher finally blocks attempt handle close and temporary removal, with failure masking and already-linked output limits retained; this method owns no persistent handle, source cache or running task.
+     */
+    public async bind(): Promise<string> {
+        const markdown: string = await this.markdown();
+        const target: string = path.join(this.output, this.filename);
+        const physicalDocs: string = await fs.realpath(path.join(this.root, "docs"));
+        productionBinderAssertOutputSeparatedFromDocs(await productionBinderProspectiveRealpath(this.output), physicalDocs);
+        await fs.mkdir(this.output, { recursive: true });
+        const physicalOutput: string = await fs.realpath(this.output);
+        productionBinderAssertOutputSeparatedFromDocs(physicalOutput, physicalDocs);
+        await productionBinderPublishEdition(physicalOutput, path.join(physicalOutput, path.basename(target)), markdown);
+        return target;
+    }
 }

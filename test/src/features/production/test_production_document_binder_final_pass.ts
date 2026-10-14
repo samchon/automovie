@@ -1,7 +1,5 @@
-import {
-  AutoMovieProductionBinder,
-  type AutoMovieProductionDocumentPass,
-} from "@automovie/production";
+import { AutoMovieProductionBinder } from "../../../../packages/production/src/production/AutoMovieProductionBinder";
+import type { AutoMovieProductionDocumentPass } from "../../../../packages/production/src/production/binder/AutoMovieProductionDocumentPass";
 import { TestValidator } from "@nestia/e2e";
 import path from "node:path";
 
@@ -13,10 +11,15 @@ import { throwsError } from "../internal/predicates";
  * Scenarios:
  * 1. Final exposes a distinct source and filename; construction remains the API default.
  * 2. A non-screenplay final pass and an unknown runtime pass are refused.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Constructs the public binder and observes pass, source and filename; unsupported pass/layer combinations must throw while valid final and default construction routes remain usable.
+ * @evidence contracts/testing.md#independent-expectations Expected paths come from the authored docs/final/screenplays and docs/screenplays contract, and literal filename spellings independently pin the title/pass/layer projection. This does not prove filesystem publication.
+ * @evidence contracts/testing.md#distinguishing-cases Explicit final and omitted construction pass are positive neighbors; final scripts and an unknown runtime pass are negative boundaries. Physical ancestor and Markdown/publication behavior belong to their owning tests.
+ * @evidence contracts/testing.md#execution-ownership This portable unit is discovered through its named export and calls the maintained constructor directly; it installs no application consumer, filesystem host or dynamic registry.
  */
-export const test_production_document_binder_final_pass = (): void => {
-  const root = path.resolve("production");
-  const binder = new AutoMovieProductionBinder({
+export function test_production_document_binder_final_pass(): void {
+  const root: string = path.resolve("production");
+  const binder: AutoMovieProductionBinder = new AutoMovieProductionBinder({
     root,
     title: "Reader Edition",
     layer: "screenplays",
@@ -35,7 +38,7 @@ export const test_production_document_binder_final_pass = (): void => {
       filename: "reader-edition-final-screenplays.md",
     },
   );
-  const construction = new AutoMovieProductionBinder({
+  const construction: AutoMovieProductionBinder = new AutoMovieProductionBinder({
     root,
     title: "Working Edition",
     layer: "screenplays",
@@ -56,7 +59,7 @@ export const test_production_document_binder_final_pass = (): void => {
   TestValidator.predicate(
     "non-screenplay final passes are refused",
     throwsError(
-      () =>
+      (): AutoMovieProductionBinder =>
         new AutoMovieProductionBinder({
           root,
           title: "Invalid",
@@ -68,7 +71,7 @@ export const test_production_document_binder_final_pass = (): void => {
   TestValidator.predicate(
     "unknown runtime passes are refused",
     throwsError(
-      () =>
+      (): AutoMovieProductionBinder =>
         new AutoMovieProductionBinder({
           root,
           title: "Invalid",
@@ -77,4 +80,4 @@ export const test_production_document_binder_final_pass = (): void => {
         }),
     ),
   );
-};
+}
