@@ -2,10 +2,7 @@
 /**
  * A catalogue of primitive model archetypes, behind one registration seam.
  *
- * The production core keeps the shape of a model recipe and never the
- * catalogue: it resolves `archetype` through a registry rather than through a
- * list it knows. This package supplies definitions to register, each one a
- * parameter schema with its bounds and a pure geometry builder.
+ * A host selects definitions through a registry. This package supplies each definition's parameter schema with its bounds and a pure geometry builder.
  *
  * The gait tables live here for the same reason. The engine owns the gait
  * machinery, the phase/duty/amplitude/contact math that walks any jointed body;

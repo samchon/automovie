@@ -2,9 +2,7 @@ import { IAutoMovieModelArchetype } from "./IAutoMovieModelArchetype";
 /**
  * Every archetype one host may build, keyed by the id a recipe names.
  *
- * A read-only map is the whole seam: the production core looks an archetype up
- * and reports the recipe when nothing answers, while a host decides what it
- * registered.
+ * A host chooses its registered definitions and resolves their exact ids through this read-only map.
  *
  * Keys are exact, case-sensitive ids. A Map with arbitrary string keys and archetype values satisfies this type, so blank-id and duplicate refusals and key-equals-definition-id hold only at registration through `createAutoMovieArchetypeRegistry`.
  *
@@ -15,7 +13,7 @@ import { IAutoMovieModelArchetype } from "./IAutoMovieModelArchetype";
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The alias admits any map, and the comment states that the blank-id, duplicate and key-equals-id guarantees therefore come from the factory instead of claiming the type enforces them.
  * @evidence contracts/common.md#meaningful-documentation Gives exact keys, factory-time integrity checks, borrowed mutable definitions and the stable-definition obligation required after registration.
  * @evidenceExclude contracts/performance.md#efficient-algorithms The alias executes no lookup or construction; the factory supplies a native Map, while a host-supplied ReadonlyMap implementation owns its lookup costs.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work The type only names the lookup; the production default registry is created once at module load and shared by reference, a decision owned by that constant.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work The type only names the lookup; each host decides when to construct and share its registry.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Whoever builds the map owns it and its references to definitions; the type owns no state of its own.
  * @author Samchon
  */

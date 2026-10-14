@@ -7,10 +7,7 @@ import { IAutoMovieArchetypeParameterPlan } from "./IAutoMovieArchetypeParameter
 /**
  * One registered model archetype: its parameter contract and its builder.
  *
- * The production core keeps the shape of a model recipe and never the
- * catalogue. It resolves `archetype` through a registry of these definitions,
- * so which figures, props, or shells a production can build is a decision that
- * belongs to the catalogue it registers, not to the builder.
+ * A host selects figures, props, or shells through a registry of these definitions, then builds geometry through the selected definition.
  *
  * Keep the definition and its schema unchanged while a registry uses it. The registry borrows these mutable objects without freezing or cloning them. Every function must be pure: the same parameters and compiler-owned ids must always plan the same keys, measure the same radius, and build the same geometry, on every host and in every process.
  *
