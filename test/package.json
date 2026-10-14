@@ -14,13 +14,10 @@
   "dependencies": {
     "@automovie/archetypes": "workspace:^",
     "@automovie/engine": "workspace:^",
-    "@automovie/evidence": "workspace:^",
     "@automovie/human": "workspace:^",
     "@automovie/ingest": "workspace:^",
     "@automovie/interface": "workspace:^",
-    "@automovie/mcp": "workspace:^",
     "@automovie/playground": "workspace:^",
-    "@automovie/production": "workspace:^",
     "@automovie/render": "workspace:^",
     "@automovie/template": "workspace:^",
     "@automovie/viewer": "workspace:^",
