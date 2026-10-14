@@ -1,9 +1,14 @@
-import type { IAutoMovieDesignLineage, IAutoMovieDesignPhaseState, IAutoMovieDesignPhaseSnapshot } from "@automovie/interface";
+import type {
+  IAutoMovieDesignLineage,
+  IAutoMovieDesignPhaseSnapshot,
+  IAutoMovieDesignPhaseState,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
 import { designLineagePhaseOrder } from "../../../../packages/engine/src/architecture/designLineagePhaseOrder";
 import { designLineagePhaseSnapshot } from "../../../../packages/engine/src/architecture/designLineagePhaseSnapshot";
 import { designLineageProject } from "../../../../packages/engine/src/architecture/designLineageProject";
 import { validateDesignLineage } from "../../../../packages/engine/src/architecture/validateDesignLineage";
-import { TestValidator } from "@nestia/e2e";
 import { emptyLineage, renovationLineage } from "../internal/lineageFixtures";
 import { throwsError } from "../internal/predicates";
 
@@ -33,9 +38,16 @@ export function test_architecture_design_lineage_phase_states(): void {
     true,
   );
 
-  TestValidator.equals("the construction plan orders by prerequisite then by ascending id", designLineagePhaseOrder(lineage), ["survey", "shore", "strip", "structure", "services", "finishes"]);
+  TestValidator.equals(
+    "the construction plan orders by prerequisite then by ascending id",
+    designLineagePhaseOrder(lineage),
+    ["survey", "shore", "strip", "structure", "services", "finishes"],
+  );
 
-  TestValidator.equals("the demolition phase reports every subject's role and presence", designLineagePhaseSnapshot(lineage, "strip"), {
+  TestValidator.equals(
+    "the demolition phase reports every subject's role and presence",
+    designLineagePhaseSnapshot(lineage, "strip"),
+    {
       phase: "strip",
       states: [
         {
@@ -105,33 +117,60 @@ export function test_architecture_design_lineage_phase_states(): void {
           presence: "pending",
         },
       ],
-    });
+    },
+  );
 
-  const shoring: IAutoMovieDesignPhaseState[] = designLineagePhaseSnapshot(lineage, "shore").states;
-  TestValidator.equals("a wall marked for demolition is still standing before its phase", shoring.find((state: IAutoMovieDesignPhaseState): boolean => state.subject === "wall-south"), {
+  const shoring: IAutoMovieDesignPhaseState[] = designLineagePhaseSnapshot(
+    lineage,
+    "shore",
+  ).states;
+  TestValidator.equals(
+    "a wall marked for demolition is still standing before its phase",
+    shoring.find(
+      (state: IAutoMovieDesignPhaseState): boolean =>
+        state.subject === "wall-south",
+    ),
+    {
       subject: "wall-south",
       graph: "element",
       role: "demolished",
       presence: "present",
-    });
-  TestValidator.equals("the temporary shoring is up in its own phase", shoring.find((state: IAutoMovieDesignPhaseState): boolean => state.subject === "shoring-frame"), {
+    },
+  );
+  TestValidator.equals(
+    "the temporary shoring is up in its own phase",
+    shoring.find(
+      (state: IAutoMovieDesignPhaseState): boolean =>
+        state.subject === "shoring-frame",
+    ),
+    {
       subject: "shoring-frame",
       graph: "element",
       role: "temporary",
       presence: "present",
-    });
-  TestValidator.equals("the shoring is taken out again once the structure phase completes", designLineagePhaseSnapshot(lineage, "structure").states.find(
-      (state: IAutoMovieDesignPhaseState): boolean => state.subject === "shoring-frame",
-    ), {
+    },
+  );
+  TestValidator.equals(
+    "the shoring is taken out again once the structure phase completes",
+    designLineagePhaseSnapshot(lineage, "structure").states.find(
+      (state: IAutoMovieDesignPhaseState): boolean =>
+        state.subject === "shoring-frame",
+    ),
+    {
       subject: "shoring-frame",
       graph: "element",
       role: "temporary",
       presence: "removed",
-    });
+    },
+  );
 
-  TestValidator.equals("the completed work keeps everything the plan never removes", designLineagePhaseSnapshot(lineage, null).states.map(
-      (state: IAutoMovieDesignPhaseState): string => `${state.subject}:${state.role}:${state.presence}`,
-    ), [
+  TestValidator.equals(
+    "the completed work keeps everything the plan never removes",
+    designLineagePhaseSnapshot(lineage, null).states.map(
+      (state: IAutoMovieDesignPhaseState): string =>
+        `${state.subject}:${state.role}:${state.presence}`,
+    ),
+    [
       "door-leaf:new:present",
       "floor-oak:new:present",
       "oak-texture:retained:present",
@@ -143,45 +182,91 @@ export function test_architecture_design_lineage_phase_states(): void {
       "wall-south:demolished:removed",
       "wall-west:retained:present",
       "window-north:new:present",
-    ]);
+    ],
+  );
 
   // Four consumers of four different shapes, carrying the same identities plus
   // one the lineage never declared.
-  const ids: string[] = ["wall-north", "wall-south", "shoring-frame", "stage-camera"];
-  const sceneNodes: { id: string; model: string; }[] = ids.map((id: string): { id: string; model: string; } => ({ id, model: `${id}-model` }));
-  const drawingRows: { id: string; sheet: string; }[] = ids.map((id: string): { id: string; sheet: string; } => ({ id, sheet: "A-101" }));
-  const quantityLines: { id: string; unit: string; amount: number; }[] = ids.map((id: string): { id: string; unit: string; amount: number; } => ({ id, unit: "m2", amount: 1 }));
-  const renderDraws: { id: string; pass: string; }[] = ids.map((id: string): { id: string; pass: string; } => ({ id, pass: "beauty" }));
-  const projected: (phase: string | null) => string[][] = (phase: string | null): string[][] => [
-    designLineageProject(lineage, phase, sceneNodes).map((row: { id: string; model: string; }): string => row.id),
-    designLineageProject(lineage, phase, drawingRows).map((row: { id: string; sheet: string; }): string => row.id),
-    designLineageProject(lineage, phase, quantityLines).map((row: { id: string; unit: string; amount: number; }): string => row.id),
-    designLineageProject(lineage, phase, renderDraws).map((row: { id: string; pass: string; }): string => row.id),
+  const ids: string[] = [
+    "wall-north",
+    "wall-south",
+    "shoring-frame",
+    "stage-camera",
   ];
-  TestValidator.equals("scene, drawing, quantity, and render agree on what stands at demolition", projected("strip"), [
+  const sceneNodes: { id: string; model: string }[] = ids.map(
+    (id: string): { id: string; model: string } => ({
+      id,
+      model: `${id}-model`,
+    }),
+  );
+  const drawingRows: { id: string; sheet: string }[] = ids.map(
+    (id: string): { id: string; sheet: string } => ({ id, sheet: "A-101" }),
+  );
+  const quantityLines: { id: string; unit: string; amount: number }[] = ids.map(
+    (id: string): { id: string; unit: string; amount: number } => ({
+      id,
+      unit: "m2",
+      amount: 1,
+    }),
+  );
+  const renderDraws: { id: string; pass: string }[] = ids.map(
+    (id: string): { id: string; pass: string } => ({ id, pass: "beauty" }),
+  );
+  const projected: (phase: string | null) => string[][] = (
+    phase: string | null,
+  ): string[][] => [
+    designLineageProject(lineage, phase, sceneNodes).map(
+      (row: { id: string; model: string }): string => row.id,
+    ),
+    designLineageProject(lineage, phase, drawingRows).map(
+      (row: { id: string; sheet: string }): string => row.id,
+    ),
+    designLineageProject(lineage, phase, quantityLines).map(
+      (row: { id: string; unit: string; amount: number }): string => row.id,
+    ),
+    designLineageProject(lineage, phase, renderDraws).map(
+      (row: { id: string; pass: string }): string => row.id,
+    ),
+  ];
+  TestValidator.equals(
+    "scene, drawing, quantity, and render agree on what stands at demolition",
+    projected("strip"),
+    [
       ["wall-north", "stage-camera"],
       ["wall-north", "stage-camera"],
       ["wall-north", "stage-camera"],
       ["wall-north", "stage-camera"],
-    ]);
-  TestValidator.equals("the same four consumers agree on the different set standing at shoring", projected("shore"), [
+    ],
+  );
+  TestValidator.equals(
+    "the same four consumers agree on the different set standing at shoring",
+    projected("shore"),
+    [
       ["wall-north", "wall-south", "shoring-frame", "stage-camera"],
       ["wall-north", "wall-south", "shoring-frame", "stage-camera"],
       ["wall-north", "wall-south", "shoring-frame", "stage-camera"],
       ["wall-north", "wall-south", "shoring-frame", "stage-camera"],
-    ]);
+    ],
+  );
 
   const bare: IAutoMovieDesignLineage = emptyLineage();
-  TestValidator.equals("a lineage with no construction sequence still orders and still answers", [
+  TestValidator.equals(
+    "a lineage with no construction sequence still orders and still answers",
+    [
       designLineagePhaseOrder(bare),
       designLineagePhaseSnapshot(bare, null).states,
-      designLineageProject(bare, null, sceneNodes).map((row: { id: string; model: string; }): string => row.id),
-    ], [[], [], ids]);
+      designLineageProject(bare, null, sceneNodes).map(
+        (row: { id: string; model: string }): string => row.id,
+      ),
+    ],
+    [[], [], ids],
+  );
 
   TestValidator.predicate(
     "a phase the plan does not contain is refused, not answered",
     throwsError(
-      (): IAutoMovieDesignPhaseSnapshot => designLineagePhaseSnapshot(lineage, "topping-out"),
+      (): IAutoMovieDesignPhaseSnapshot =>
+        designLineagePhaseSnapshot(lineage, "topping-out"),
       'has no construction phase "topping-out"',
     ),
   );

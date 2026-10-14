@@ -1,237 +1,251 @@
-import { assertArchitectureDesignObservationPromotionPart1 } from "../internal/assertArchitectureDesignObservationPromotionPart1";
+import type {
+  IAutoMovieDesignPromotedReading,
+  IAutoMovieDesignPromotion,
+  IAutoMovieDesignReference,
+  IAutoMovieDesignSkippedAnalysis,
+  IAutoMovieDesignSourceFrame,
+  IAutoMovieDesignWithholding,
+} from "@automovie/interface";
+
 import { promoteDesignObservations } from "../../../../packages/engine/src/architecture/promoteDesignObservations";
-import type { IAutoMovieDesignPromotion, IAutoMovieDesignReference, IAutoMovieDesignSourceFrame, IAutoMovieDesignPromotedReading, IAutoMovieDesignWithholding, IAutoMovieDesignSkippedAnalysis } from "@automovie/interface";
+import { assertArchitectureDesignObservationPromotionPart1 } from "../internal/assertArchitectureDesignObservationPromotionPart1";
 
 const PLAN_DIGEST: string =
   "sha256:1111111111111111111111111111111111111111111111111111111111111111" as string;
 
 /** The authored raster frame maps one source coordinate unit to 0.01 world metres. */
-const planFrame: () => IAutoMovieDesignSourceFrame = (): IAutoMovieDesignSourceFrame => ({
-  id: "plan-1",
-  page: 1,
-  view: "plan",
-  level: "ground",
-  bounds: { width: 1000, height: 800 },
-  anchor: { x: 0, y: 0 },
-  scaleCandidates: [
-    {
-      id: "plan-bar",
-      metersPerUnit: 0.01,
-      confidence: 0.95,
-      basis: "scale-bar",
-    },
-  ],
-  scale: "plan-bar",
-  axisX: { x: 1, y: 0, z: 0 },
-  axisY: { x: 0, y: 0, z: 1 },
-  origin: { x: 0, y: 0, z: 0 },
-  up: { x: 0, y: 1, z: 0 },
-  north: { x: 0, y: 0, z: -1 },
-  transform: null,
-});
+const planFrame: () => IAutoMovieDesignSourceFrame =
+  (): IAutoMovieDesignSourceFrame => ({
+    id: "plan-1",
+    page: 1,
+    view: "plan",
+    level: "ground",
+    bounds: { width: 1000, height: 800 },
+    anchor: { x: 0, y: 0 },
+    scaleCandidates: [
+      {
+        id: "plan-bar",
+        metersPerUnit: 0.01,
+        confidence: 0.95,
+        basis: "scale-bar",
+      },
+    ],
+    scale: "plan-bar",
+    axisX: { x: 1, y: 0, z: 0 },
+    axisY: { x: 0, y: 0, z: 1 },
+    origin: { x: 0, y: 0, z: 0 },
+    up: { x: 0, y: 1, z: 0 },
+    north: { x: 0, y: 0, z: -1 },
+    transform: null,
+  });
 
 /** The unsettled section: two plausible scales and no chosen one. */
-const sectionFrame: () => IAutoMovieDesignSourceFrame = (): IAutoMovieDesignSourceFrame => ({
-  ...planFrame(),
-  id: "section-1",
-  view: "section",
-  level: null,
-  scaleCandidates: [
-    {
-      id: "fifty",
-      metersPerUnit: 0.02,
-      confidence: 0.4,
-      basis: "assumed 1:50",
-    },
-    {
-      id: "hundred",
-      metersPerUnit: 0.04,
-      confidence: 0.4,
-      basis: "assumed 1:100",
-    },
-  ],
-  scale: null,
-  axisY: { x: 0, y: -1, z: 0 },
-  north: null,
-});
+const sectionFrame: () => IAutoMovieDesignSourceFrame =
+  (): IAutoMovieDesignSourceFrame => ({
+    ...planFrame(),
+    id: "section-1",
+    view: "section",
+    level: null,
+    scaleCandidates: [
+      {
+        id: "fifty",
+        metersPerUnit: 0.02,
+        confidence: 0.4,
+        basis: "assumed 1:50",
+      },
+      {
+        id: "hundred",
+        metersPerUnit: 0.04,
+        confidence: 0.4,
+        basis: "assumed 1:100",
+      },
+    ],
+    scale: null,
+    axisY: { x: 0, y: -1, z: 0 },
+    north: null,
+  });
 
 /**
  * The same pavilion sheet, arranged so every promotion verdict is reachable: one clean west run, two competing north centrelines, one occluded door, a label that is text rather than geometry, a section line whose scale nobody settled, a reading no analysis ever claimed, and two analyses that produced nothing at all.
  */
-const observation: () => IAutoMovieDesignReference = (): IAutoMovieDesignReference => ({
-  version: 1,
-  id: "pavilion-plan",
-  asset: "public/design-references/pavilion-plan.png",
-  digest: PLAN_DIGEST,
-  media: "image/png",
-  frames: [planFrame(), sectionFrame()],
-  primitives: [
-    {
-      id: "west-run",
-      frame: "plan-1",
-      kind: "polyline",
-      points: [
-        { x: 100, y: 100 },
-        { x: 100, y: 500 },
-        { x: 300, y: 500 },
-      ],
-      text: null,
-    },
-    {
-      id: "north-outer",
-      frame: "plan-1",
-      kind: "line",
-      points: [
-        { x: 100, y: 100 },
-        { x: 700, y: 100 },
-      ],
-      text: null,
-    },
-    {
-      id: "north-inner",
-      frame: "plan-1",
-      kind: "line",
-      points: [
-        { x: 100, y: 120 },
-        { x: 700, y: 120 },
-      ],
-      text: null,
-    },
-    {
-      id: "room-label",
-      frame: "plan-1",
-      kind: "text",
-      points: [{ x: 400, y: 300 }],
-      text: "PAVILION",
-    },
-    {
-      id: "section-wall",
-      frame: "section-1",
-      kind: "line",
-      points: [
-        { x: 200, y: 600 },
-        { x: 200, y: 200 },
-      ],
-      text: null,
-    },
-    {
-      id: "stray-run",
-      frame: "plan-1",
-      kind: "line",
-      points: [
-        { x: 20, y: 20 },
-        { x: 40, y: 20 },
-      ],
-      text: null,
-    },
-  ],
-  analyses: [
-    {
-      id: "wall-centerline",
-      frame: "plan-1",
-      subject: "wall-centerline",
-      outcome: {
-        status: "observed",
-        candidates: ["wall-west", "wall-north-outer", "wall-north-inner"],
+const observation: () => IAutoMovieDesignReference =
+  (): IAutoMovieDesignReference => ({
+    version: 1,
+    id: "pavilion-plan",
+    asset: "public/design-references/pavilion-plan.png",
+    digest: PLAN_DIGEST,
+    media: "image/png",
+    frames: [planFrame(), sectionFrame()],
+    primitives: [
+      {
+        id: "west-run",
+        frame: "plan-1",
+        kind: "polyline",
+        points: [
+          { x: 100, y: 100 },
+          { x: 100, y: 500 },
+          { x: 300, y: 500 },
+        ],
+        text: null,
       },
-    },
-    {
-      id: "label-read",
-      frame: "plan-1",
-      subject: "room-label",
-      outcome: { status: "observed", candidates: ["room-name"] },
-    },
-    {
-      id: "section-wall-read",
-      frame: "section-1",
-      subject: "wall-centerline",
-      outcome: { status: "observed", candidates: ["section-wall-line"] },
-    },
-    {
-      id: "opening-detection",
-      frame: "plan-1",
-      subject: "opening",
-      outcome: {
-        status: "unsupported",
-        reason:
-          "This host reads no door symbol library, so the swing arc is not resolved into an opening.",
+      {
+        id: "north-outer",
+        frame: "plan-1",
+        kind: "line",
+        points: [
+          { x: 100, y: 100 },
+          { x: 700, y: 100 },
+        ],
+        text: null,
       },
-    },
-    {
-      id: "storey-datum",
-      frame: "section-1",
-      subject: "storey-datum",
-      outcome: {
-        status: "not-run",
-        reason:
-          "The section scale is unsettled, so no datum extraction was attempted.",
+      {
+        id: "north-inner",
+        frame: "plan-1",
+        kind: "line",
+        points: [
+          { x: 100, y: 120 },
+          { x: 700, y: 120 },
+        ],
+        text: null,
       },
-    },
-  ],
-  candidates: [
-    {
-      id: "wall-west",
-      semantic: "wall-centerline",
-      primitives: ["west-run"],
-      confidence: 1,
-      alternatives: [],
-      issues: [],
-    },
-    {
-      id: "wall-north-outer",
-      semantic: "wall-centerline",
-      primitives: ["north-outer"],
-      confidence: 0.6,
-      alternatives: ["wall-north-inner"],
-      issues: [],
-    },
-    {
-      id: "wall-north-inner",
-      semantic: "wall-centerline",
-      primitives: ["north-inner"],
-      confidence: 0.6,
-      alternatives: ["wall-north-outer"],
-      issues: ["door-occluded"],
-    },
-    {
-      id: "room-name",
-      semantic: "room-label",
-      primitives: ["room-label"],
-      confidence: 1,
-      alternatives: [],
-      issues: [],
-    },
-    {
-      id: "section-wall-line",
-      semantic: "wall-centerline",
-      primitives: ["section-wall"],
-      confidence: 1,
-      alternatives: [],
-      issues: [],
-    },
-    {
-      id: "stray-reading",
-      semantic: "wall-centerline",
-      primitives: ["stray-run"],
-      confidence: 1,
-      alternatives: [],
-      issues: [],
-    },
-  ],
-  issues: [
-    {
-      id: "door-occluded",
-      kind: "occluded",
-      subjects: ["wall-north-inner"],
-      detail:
-        "The planter hatch covers the door jamb, so the opening width cannot be read from this sheet.",
-      open: true,
-    },
-  ],
-});
+      {
+        id: "room-label",
+        frame: "plan-1",
+        kind: "text",
+        points: [{ x: 400, y: 300 }],
+        text: "PAVILION",
+      },
+      {
+        id: "section-wall",
+        frame: "section-1",
+        kind: "line",
+        points: [
+          { x: 200, y: 600 },
+          { x: 200, y: 200 },
+        ],
+        text: null,
+      },
+      {
+        id: "stray-run",
+        frame: "plan-1",
+        kind: "line",
+        points: [
+          { x: 20, y: 20 },
+          { x: 40, y: 20 },
+        ],
+        text: null,
+      },
+    ],
+    analyses: [
+      {
+        id: "wall-centerline",
+        frame: "plan-1",
+        subject: "wall-centerline",
+        outcome: {
+          status: "observed",
+          candidates: ["wall-west", "wall-north-outer", "wall-north-inner"],
+        },
+      },
+      {
+        id: "label-read",
+        frame: "plan-1",
+        subject: "room-label",
+        outcome: { status: "observed", candidates: ["room-name"] },
+      },
+      {
+        id: "section-wall-read",
+        frame: "section-1",
+        subject: "wall-centerline",
+        outcome: { status: "observed", candidates: ["section-wall-line"] },
+      },
+      {
+        id: "opening-detection",
+        frame: "plan-1",
+        subject: "opening",
+        outcome: {
+          status: "unsupported",
+          reason:
+            "This host reads no door symbol library, so the swing arc is not resolved into an opening.",
+        },
+      },
+      {
+        id: "storey-datum",
+        frame: "section-1",
+        subject: "storey-datum",
+        outcome: {
+          status: "not-run",
+          reason:
+            "The section scale is unsettled, so no datum extraction was attempted.",
+        },
+      },
+    ],
+    candidates: [
+      {
+        id: "wall-west",
+        semantic: "wall-centerline",
+        primitives: ["west-run"],
+        confidence: 1,
+        alternatives: [],
+        issues: [],
+      },
+      {
+        id: "wall-north-outer",
+        semantic: "wall-centerline",
+        primitives: ["north-outer"],
+        confidence: 0.6,
+        alternatives: ["wall-north-inner"],
+        issues: [],
+      },
+      {
+        id: "wall-north-inner",
+        semantic: "wall-centerline",
+        primitives: ["north-inner"],
+        confidence: 0.6,
+        alternatives: ["wall-north-outer"],
+        issues: ["door-occluded"],
+      },
+      {
+        id: "room-name",
+        semantic: "room-label",
+        primitives: ["room-label"],
+        confidence: 1,
+        alternatives: [],
+        issues: [],
+      },
+      {
+        id: "section-wall-line",
+        semantic: "wall-centerline",
+        primitives: ["section-wall"],
+        confidence: 1,
+        alternatives: [],
+        issues: [],
+      },
+      {
+        id: "stray-reading",
+        semantic: "wall-centerline",
+        primitives: ["stray-run"],
+        confidence: 1,
+        alternatives: [],
+        issues: [],
+      },
+    ],
+    issues: [
+      {
+        id: "door-occluded",
+        kind: "occluded",
+        subjects: ["wall-north-inner"],
+        detail:
+          "The planter hatch covers the door jamb, so the opening width cannot be read from this sheet.",
+        open: true,
+      },
+    ],
+  });
 
 /** Every withholding as `candidate:reason`, so a verdict is pinned per reading. */
-const verdicts: (mutate: (value: IAutoMovieDesignReference) => void, minimumConfidence?: number) => { promoted: string[]; withheld: string[]; skipped: string[]; } = (
+const verdicts: (
+  mutate: (value: IAutoMovieDesignReference) => void,
+  minimumConfidence?: number,
+) => { promoted: string[]; withheld: string[]; skipped: string[] } = (
   mutate: (value: IAutoMovieDesignReference) => void,
   minimumConfidence?: number,
 ): { promoted: string[]; withheld: string[]; skipped: string[] } => {
@@ -243,12 +257,16 @@ const verdicts: (mutate: (value: IAutoMovieDesignReference) => void, minimumConf
       : { reference: value, minimumConfidence },
   );
   return {
-    promoted: promotion.promoted.map((entry: IAutoMovieDesignPromotedReading): string => entry.candidate),
+    promoted: promotion.promoted.map(
+      (entry: IAutoMovieDesignPromotedReading): string => entry.candidate,
+    ),
     withheld: promotion.withheld.map(
-      (entry: IAutoMovieDesignWithholding): string => `${entry.candidate}:${entry.reason}`,
+      (entry: IAutoMovieDesignWithholding): string =>
+        `${entry.candidate}:${entry.reason}`,
     ),
     skipped: promotion.skipped.map(
-      (entry: IAutoMovieDesignSkippedAnalysis): string => `${entry.analysis}:${entry.status}`,
+      (entry: IAutoMovieDesignSkippedAnalysis): string =>
+        `${entry.analysis}:${entry.status}`,
     ),
   };
 };
@@ -274,5 +292,10 @@ const verdicts: (mutate: (value: IAutoMovieDesignReference) => void, minimumConf
  * @evidence contracts/testing.md#execution-ownership Portable CPU unit test_architecture_design_observation_promotion is the discoverable entry and owns the ordered cases delegated to assertArchitectureDesignObservationPromotionPart1; those helpers are called explicitly, with no dynamic registration, native artifact build, process, browser or GPU host.
  */
 export function test_architecture_design_observation_promotion(): void {
-  assertArchitectureDesignObservationPromotionPart1(planFrame, sectionFrame, observation, verdicts);
+  assertArchitectureDesignObservationPromotionPart1(
+    planFrame,
+    sectionFrame,
+    observation,
+    verdicts,
+  );
 }

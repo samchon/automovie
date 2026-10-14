@@ -1,9 +1,17 @@
-import { nclose } from "../internal/nclose";
+import type {
+  IAutoMovieDesignLineage,
+  IAutoMovieDesignSubject,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
 import { designLineageDigest } from "../../../../packages/engine/src/architecture/designLineageDigest";
 import { designLineageViewDigest } from "../../../../packages/engine/src/architecture/designLineageViewDigest";
-import type { IAutoMovieDesignSubject, IAutoMovieDesignLineage } from "@automovie/interface";
-import { TestValidator } from "@nestia/e2e";
-import { brokenLineage, lineageDigest, renovationLineage } from "../internal/lineageFixtures";
+import {
+  brokenLineage,
+  lineageDigest,
+  renovationLineage,
+} from "../internal/lineageFixtures";
+import { nclose } from "../internal/nclose";
 import { throwsError } from "../internal/predicates";
 
 /**
@@ -26,21 +34,31 @@ import { throwsError } from "../internal/predicates";
  */
 export function test_architecture_design_lineage_digest(): void {
   const lineage: IAutoMovieDesignLineage = renovationLineage();
-  TestValidator.equals("the same authored lineage digests to the same value twice", designLineageDigest(lineage), designLineageDigest(renovationLineage()));
+  TestValidator.equals(
+    "the same authored lineage digests to the same value twice",
+    designLineageDigest(lineage),
+    designLineageDigest(renovationLineage()),
+  );
 
-  const shuffled: IAutoMovieDesignLineage = brokenLineage((draft: IAutoMovieDesignLineage): void => {
-    draft.subjects.reverse();
-    draft.revisions.reverse();
-    draft.phases.reverse();
-    draft.lifecycles.reverse();
-    draft.variants.reverse();
-    draft.decisions.reverse();
-    draft.derived.reverse();
-    for (const variant of draft.variants) variant.changes.reverse();
-    for (const phase of draft.phases) phase.requires.reverse();
-    for (const artifact of draft.derived) artifact.inputs.reverse();
-  });
-  TestValidator.equals("reshuffling every authored array leaves the digest unchanged", designLineageDigest(shuffled), designLineageDigest(lineage));
+  const shuffled: IAutoMovieDesignLineage = brokenLineage(
+    (draft: IAutoMovieDesignLineage): void => {
+      draft.subjects.reverse();
+      draft.revisions.reverse();
+      draft.phases.reverse();
+      draft.lifecycles.reverse();
+      draft.variants.reverse();
+      draft.decisions.reverse();
+      draft.derived.reverse();
+      for (const variant of draft.variants) variant.changes.reverse();
+      for (const phase of draft.phases) phase.requires.reverse();
+      for (const artifact of draft.derived) artifact.inputs.reverse();
+    },
+  );
+  TestValidator.equals(
+    "reshuffling every authored array leaves the digest unchanged",
+    designLineageDigest(shuffled),
+    designLineageDigest(lineage),
+  );
   TestValidator.predicate(
     "editing one authored value moves the digest",
     designLineageDigest(
@@ -54,10 +72,14 @@ export function test_architecture_design_lineage_digest(): void {
     variant: "warm-oak",
     phase: "finishes",
   });
-  TestValidator.equals("replaying one alternative at one phase yields the same view digest", designLineageViewDigest(renovationLineage(), {
+  TestValidator.equals(
+    "replaying one alternative at one phase yields the same view digest",
+    designLineageViewDigest(renovationLineage(), {
       variant: "warm-oak",
       phase: "finishes",
-    }), warm);
+    }),
+    warm,
+  );
   const cool: string = designLineageViewDigest(lineage, {
     variant: "cool-stone",
     phase: "finishes",
@@ -68,11 +90,9 @@ export function test_architecture_design_lineage_digest(): void {
   });
   TestValidator.predicate(
     "the two alternatives and the base design are three distinct views",
-    (() : boolean => {
+    ((): boolean => {
       const observed: number = new Set([warm, cool, base]).size;
-      return (
-        typeof observed === "number" && nclose(observed, 3)
-      );
+      return typeof observed === "number" && nclose(observed, 3);
     })(),
   );
   TestValidator.predicate(
@@ -91,8 +111,10 @@ export function test_architecture_design_lineage_digest(): void {
         // together. This test does not replace a file or rebake an output;
         // changing only the subject would leave its old quotes inconsistent.
         const replaced: string = lineageDigest("5d");
-        draft.subjects.find((subject: IAutoMovieDesignSubject): boolean => subject.id === "oak-texture")!.digest =
-          replaced;
+        draft.subjects.find(
+          (subject: IAutoMovieDesignSubject): boolean =>
+            subject.id === "oak-texture",
+        )!.digest = replaced;
         for (const artifact of draft.derived)
           for (const citation of artifact.assets)
             if (citation.subject === "oak-texture") citation.digest = replaced;
@@ -103,7 +125,10 @@ export function test_architecture_design_lineage_digest(): void {
 
   // Concatenation without field boundaries would read these subject/aspect
   // pairs identically: `ab` + `c` against `a` + `bc`.
-  const collidable: (subject: string, aspect: string) => IAutoMovieDesignLineage = (
+  const collidable: (
+    subject: string,
+    aspect: string,
+  ) => IAutoMovieDesignLineage = (
     subject: string,
     aspect: string,
   ): IAutoMovieDesignLineage => ({

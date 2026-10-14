@@ -1,9 +1,14 @@
-import type { IAutoMovieDesignLineage, IAutoMovieDesignComparison, IAutoMovieDesignDifference } from "@automovie/interface";
+import type {
+  IAutoMovieDesignComparison,
+  IAutoMovieDesignDifference,
+  IAutoMovieDesignLineage,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
 import { designLineageCompare } from "../../../../packages/engine/src/architecture/designLineageCompare";
 import { designLineageDecisionComparisons } from "../../../../packages/engine/src/architecture/designLineageDecisionComparisons";
 import { designLineageDigest } from "../../../../packages/engine/src/architecture/designLineageDigest";
 import { validateDesignLineage } from "../../../../packages/engine/src/architecture/validateDesignLineage";
-import { TestValidator } from "@nestia/e2e";
 import { brokenLineage, renovationLineage } from "../internal/lineageFixtures";
 import { throwsError } from "../internal/predicates";
 
@@ -26,10 +31,21 @@ import { throwsError } from "../internal/predicates";
  */
 export function test_architecture_design_lineage_alternatives(): void {
   const lineage: IAutoMovieDesignLineage = renovationLineage();
-  const comparison: IAutoMovieDesignComparison = designLineageCompare(lineage, "warm-oak", "cool-stone");
+  const comparison: IAutoMovieDesignComparison = designLineageCompare(
+    lineage,
+    "warm-oak",
+    "cool-stone",
+  );
 
-  TestValidator.equals("two interior schemes are compared on the revision they share", [comparison.revision, comparison.left, comparison.right], ["r2", "warm-oak", "cool-stone"]);
-  TestValidator.equals("material, lighting, and layout differences all name a shared identity", comparison.differences, [
+  TestValidator.equals(
+    "two interior schemes are compared on the revision they share",
+    [comparison.revision, comparison.left, comparison.right],
+    ["r2", "warm-oak", "cool-stone"],
+  );
+  TestValidator.equals(
+    "material, lighting, and layout differences all name a shared identity",
+    comparison.differences,
+    [
       {
         subject: "floor-oak",
         aspect: "material",
@@ -55,26 +71,45 @@ export function test_architecture_design_lineage_alternatives(): void {
         left: null,
         right: "bronze-frame",
       },
-    ]);
+    ],
+  );
   TestValidator.equals(
     "the aspect both schemes settle identically is not reported as a difference",
     comparison.differences.some(
-      (difference: IAutoMovieDesignDifference): boolean => difference.subject === "wall-north",
+      (difference: IAutoMovieDesignDifference): boolean =>
+        difference.subject === "wall-north",
     ),
     false,
   );
-  TestValidator.equals("the common basis is exactly the subjects neither scheme edits", comparison.common, [
+  TestValidator.equals(
+    "the common basis is exactly the subjects neither scheme edits",
+    comparison.common,
+    [
       "door-leaf",
       "oak-texture",
       "opening-door",
       "shoring-frame",
       "wall-south",
       "wall-west",
-    ]);
+    ],
+  );
 
-  const pairs: IAutoMovieDesignComparison[] = designLineageDecisionComparisons(lineage, "d-interior");
-  TestValidator.equals("the open decision compares its two options in ascending option order", pairs.map((pair: IAutoMovieDesignComparison): string[] => [pair.left, pair.right]), [["cool-stone", "warm-oak"]]);
-  TestValidator.equals("the pairwise comparison is the mirror of the direct one", pairs[0]!.differences, [
+  const pairs: IAutoMovieDesignComparison[] = designLineageDecisionComparisons(
+    lineage,
+    "d-interior",
+  );
+  TestValidator.equals(
+    "the open decision compares its two options in ascending option order",
+    pairs.map((pair: IAutoMovieDesignComparison): string[] => [
+      pair.left,
+      pair.right,
+    ]),
+    [["cool-stone", "warm-oak"]],
+  );
+  TestValidator.equals(
+    "the pairwise comparison is the mirror of the direct one",
+    pairs[0]!.differences,
+    [
       {
         subject: "floor-oak",
         aspect: "material",
@@ -100,17 +135,24 @@ export function test_architecture_design_lineage_alternatives(): void {
         left: "bronze-frame",
         right: null,
       },
-    ]);
+    ],
+  );
 
-  const settled: IAutoMovieDesignLineage = brokenLineage((draft: IAutoMovieDesignLineage): void => {
-    draft.decisions[0]!.selected = "warm-oak";
-  });
+  const settled: IAutoMovieDesignLineage = brokenLineage(
+    (draft: IAutoMovieDesignLineage): void => {
+      draft.decisions[0]!.selected = "warm-oak";
+    },
+  );
   TestValidator.equals(
     "a settled decision still validates",
     validateDesignLineage({ lineage: settled }).success,
     true,
   );
-  TestValidator.equals("the rejected scheme is still comparable after the choice is made", designLineageCompare(settled, "warm-oak", "cool-stone").differences, comparison.differences);
+  TestValidator.equals(
+    "the rejected scheme is still comparable after the choice is made",
+    designLineageCompare(settled, "warm-oak", "cool-stone").differences,
+    comparison.differences,
+  );
   TestValidator.predicate(
     "recording the selection moves the lineage digest",
     designLineageDigest(settled) !== designLineageDigest(lineage),
@@ -119,7 +161,8 @@ export function test_architecture_design_lineage_alternatives(): void {
   TestValidator.predicate(
     "alternatives on different base revisions are refused, not mixed",
     throwsError(
-      (): IAutoMovieDesignComparison => designLineageCompare(lineage, "warm-oak", "legacy-scheme"),
+      (): IAutoMovieDesignComparison =>
+        designLineageCompare(lineage, "warm-oak", "legacy-scheme"),
       [
         'cannot compare variant "warm-oak" of revision "r2"',
         'variant "legacy-scheme" of revision "r1"',
@@ -129,14 +172,16 @@ export function test_architecture_design_lineage_alternatives(): void {
   TestValidator.predicate(
     "an unknown alternative is refused rather than compared as empty",
     throwsError(
-      (): IAutoMovieDesignComparison => designLineageCompare(lineage, "warm-oak", "brutalist"),
+      (): IAutoMovieDesignComparison =>
+        designLineageCompare(lineage, "warm-oak", "brutalist"),
       'has no design variant "brutalist"',
     ),
   );
   TestValidator.predicate(
     "an unknown decision is refused rather than answered with no pairs",
     throwsError(
-      (): IAutoMovieDesignComparison[] => designLineageDecisionComparisons(lineage, "d-roof"),
+      (): IAutoMovieDesignComparison[] =>
+        designLineageDecisionComparisons(lineage, "d-roof"),
       'has no decision "d-roof"',
     ),
   );

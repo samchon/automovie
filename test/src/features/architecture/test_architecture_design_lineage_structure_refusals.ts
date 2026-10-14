@@ -1,8 +1,17 @@
-import type { IAutoMovieDesignSubject, IAutoMovieDesignLineage, IAutoMovieDesignLifecycle } from "@automovie/interface";
+import type {
+  IAutoMovieDesignLifecycle,
+  IAutoMovieDesignLineage,
+  IAutoMovieDesignSubject,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
 import { validateDesignLineage } from "../../../../packages/engine/src/architecture/validateDesignLineage";
 import { validateDesignLineageBinding } from "../../../../packages/engine/src/architecture/validateDesignLineageBinding";
-import { TestValidator } from "@nestia/e2e";
-import { lineageDigest, refusesLineage as refuses, renovationLineage } from "../internal/lineageFixtures";
+import {
+  lineageDigest,
+  refusesLineage as refuses,
+  renovationLineage,
+} from "../internal/lineageFixtures";
 import { hasViolation, namedFacts } from "../internal/predicates";
 
 /**
@@ -25,7 +34,9 @@ import { hasViolation, namedFacts } from "../internal/predicates";
  */
 export function test_architecture_design_lineage_structure_refusals(): void {
   const published: string[] = [
-    ...renovationLineage().subjects.map((subject: IAutoMovieDesignSubject): string => subject.id),
+    ...renovationLineage().subjects.map(
+      (subject: IAutoMovieDesignSubject): string => subject.id,
+    ),
     "wall-east",
   ];
 
@@ -34,7 +45,8 @@ export function test_architecture_design_lineage_structure_refusals(): void {
     namedFacts([
       [
         "the coherent renovation lineage validates",
-        (): boolean => validateDesignLineage({ lineage: renovationLineage() }).success,
+        (): boolean =>
+          validateDesignLineage({ lineage: renovationLineage() }).success,
       ],
       [
         "a blank lineage id is refused",
@@ -201,7 +213,8 @@ export function test_architecture_design_lineage_structure_refusals(): void {
         (): boolean =>
           refuses((draft: IAutoMovieDesignLineage): void => {
             draft.lifecycles = draft.lifecycles.filter(
-              (lifecycle: IAutoMovieDesignLifecycle): boolean => lifecycle.subject !== "wall-west",
+              (lifecycle: IAutoMovieDesignLifecycle): boolean =>
+                lifecycle.subject !== "wall-west",
             );
           }, "$input.subjects[2].id"),
       ],
@@ -276,7 +289,9 @@ export function test_architecture_design_lineage_structure_refusals(): void {
           hasViolation(
             validateDesignLineageBinding({
               lineage: renovationLineage(),
-              known: published.filter((id: string): boolean => id !== "opening-door"),
+              known: published.filter(
+                (id: string): boolean => id !== "opening-door",
+              ),
             }),
             "type",
             "$input.subjects[5].id",

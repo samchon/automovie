@@ -1,6 +1,10 @@
-import type { IAutoMovieDesignLineage, IAutoMovieDesignImpact } from "@automovie/interface";
-import { designLineageImpact } from "../../../../packages/engine/src/architecture/designLineageImpact";
+import type {
+  IAutoMovieDesignImpact,
+  IAutoMovieDesignLineage,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
+
+import { designLineageImpact } from "../../../../packages/engine/src/architecture/designLineageImpact";
 import { brokenLineage, renovationLineage } from "../internal/lineageFixtures";
 import { throwsError } from "../internal/predicates";
 
@@ -24,7 +28,10 @@ import { throwsError } from "../internal/predicates";
 export function test_architecture_design_lineage_change_impact(): void {
   const lineage: IAutoMovieDesignLineage = renovationLineage();
 
-  TestValidator.equals("one opening change invalidates its wall, cut, door, quantity, and render", designLineageImpact(lineage, ["opening-door"]), {
+  TestValidator.equals(
+    "one opening change invalidates its wall, cut, door, quantity, and render",
+    designLineageImpact(lineage, ["opening-door"]),
+    {
       changed: ["opening-door"],
       invalidated: [
         "cut-floor-oak",
@@ -41,11 +48,19 @@ export function test_architecture_design_lineage_change_impact(): void {
         "render-warm",
         "render-west",
       ],
-    });
+    },
+  );
 
-  TestValidator.equals("asking twice about one identity deduplicates instead of doubling", designLineageImpact(lineage, ["opening-door", "opening-door"]), designLineageImpact(lineage, ["opening-door"]));
+  TestValidator.equals(
+    "asking twice about one identity deduplicates instead of doubling",
+    designLineageImpact(lineage, ["opening-door", "opening-door"]),
+    designLineageImpact(lineage, ["opening-door"]),
+  );
 
-  TestValidator.equals("changing an imported asset's bytes invalidates the outputs reading it", designLineageImpact(lineage, ["oak-texture"]), {
+  TestValidator.equals(
+    "changing an imported asset's bytes invalidates the outputs reading it",
+    designLineageImpact(lineage, ["oak-texture"]),
+    {
       changed: ["oak-texture"],
       invalidated: [
         "cut-floor-oak",
@@ -62,9 +77,13 @@ export function test_architecture_design_lineage_change_impact(): void {
         "render-strip-phase",
         "render-west",
       ],
-    });
+    },
+  );
 
-  TestValidator.equals("a derived artifact named as changed invalidates itself and its dependents", designLineageImpact(lineage, ["mesh-wall-north"]), {
+  TestValidator.equals(
+    "a derived artifact named as changed invalidates itself and its dependents",
+    designLineageImpact(lineage, ["mesh-wall-north"]),
+    {
       changed: ["mesh-wall-north"],
       invalidated: [
         "cut-floor-oak",
@@ -81,9 +100,13 @@ export function test_architecture_design_lineage_change_impact(): void {
         "render-warm",
         "render-west",
       ],
-    });
+    },
+  );
 
-  TestValidator.equals("two unrelated changes union their impact", designLineageImpact(lineage, ["opening-door", "wall-west"]), {
+  TestValidator.equals(
+    "two unrelated changes union their impact",
+    designLineageImpact(lineage, ["opening-door", "wall-west"]),
+    {
       changed: ["opening-door", "wall-west"],
       invalidated: [
         "cut-floor-oak",
@@ -96,9 +119,13 @@ export function test_architecture_design_lineage_change_impact(): void {
         "render-west",
       ],
       unaffected: ["render-cool", "render-strip-phase", "render-warm"],
-    });
+    },
+  );
 
-  TestValidator.equals("changing nothing invalidates nothing and accounts for every artifact", designLineageImpact(lineage, []), {
+  TestValidator.equals(
+    "changing nothing invalidates nothing and accounts for every artifact",
+    designLineageImpact(lineage, []),
+    {
       changed: [],
       invalidated: [],
       unaffected: [
@@ -114,7 +141,8 @@ export function test_architecture_design_lineage_change_impact(): void {
         "render-warm",
         "render-west",
       ],
-    });
+    },
+  );
 
   TestValidator.predicate(
     "an identity no graph declared is refused rather than traced as empty",
