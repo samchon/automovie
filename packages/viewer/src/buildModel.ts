@@ -37,7 +37,8 @@ import { applyReliefWeights } from "./reliefWeightShading/index.js";
  * {@link applyExpression} drives them, and its driven targets are recorded on
  * the mesh for {@link applyPose}.
  *
- * The returned `bones` map is what {@link applyPose} drives.
+ * The returned `bones` map is what {@link applyPose} drives, and the model's
+ * `lookAt` rides along so {@link AutoMoviePlayer} can turn its eye bones.
  *
  * `resolveTexture` is how a declared PBR finish gets its pixels, and it is the
  * host's to supply because this package performs no I/O: the caller decodes the
@@ -245,7 +246,12 @@ export const buildModel: (
         }
       }
 
-      return { object: group, bones, parts };
+      return {
+        object: group,
+        bones,
+        parts,
+        ...(model.lookAt === undefined ? {} : { lookAt: model.lookAt }),
+      };
     },
   );
 };
