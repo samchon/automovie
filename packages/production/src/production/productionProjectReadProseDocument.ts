@@ -19,7 +19,7 @@ import { productionProjectAssertIncarnation } from "./productionProjectAssertInc
  * @evidence contracts/common.md#meaningful-documentation Gives author ownership, exact null/error distinctions, physical read boundary and UTF-8 decoding behavior; text return does not certify screenplay or source semantics.
  * @evidence contracts/performance.md#efficient-algorithms Cost includes incarnation records/ancestries, native target checks and the B-byte read/copy/UTF-8 conversion; both returned text and temporary bytes scale with B.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Every call reads current author bytes and physical facts; an earlier document path or text result does not prove an unchanged builder input.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The owned reader releases descriptors and temporary buffers become unreachable after conversion/refusal; only text transfers to the caller, with no retained document store or task.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The owned reader attempts primary/recheck descriptor cleanup and reports close failure rather than guaranteeing host release. Full read bytes, the Buffer copy and decoded text can coexist without a byte cap; only text transfers on success, with no retained document store or task.
  */
 export function productionProjectReadProseDocument(state: AutoMovieProductionProjectState, relativePath: string): string | null {
     productionProjectAssertIncarnation(state);

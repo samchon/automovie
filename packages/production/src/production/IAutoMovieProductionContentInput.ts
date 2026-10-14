@@ -1,11 +1,7 @@
 /**
  * One declared authoring input observed by the project-owned reader.
  *
- * The builder, asset inventory and currentness projection consume the same
- * exact bytes. Source and render membership are independent because one
- * declared path can serve both roles. The source fingerprint normalizes BOM
- * and line endings; adopted asset and renderer bytes retain their exact byte
- * identity. A missing optional input remains distinct from an empty file.
+ * The builder, asset inventory and currentness projection consume the same exact bytes. Source and render flags describe independent roles, although the project inventory currently replaces earlier flags when declared roots overlap. Source fingerprinting normalizes BOM and line endings for marked TypeScript paths; adopted asset and renderer bytes retain exact identity, and missing optional inputs remain distinct from empty files.
  *
  * @evidence contracts/common.md#principled-implementation One observed pathname and exact optional bytes feed both compiler identity and asset admission; independent source and render flags preserve their distinct normalization and membership contracts.
  * @evidence contracts/common.md#clear-and-simple-design The project reader owns path admission and byte observation, while fingerprinting and asset inventory consume this same carrier without rereading a different revision.

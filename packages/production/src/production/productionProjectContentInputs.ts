@@ -22,7 +22,7 @@ import { productionProjectAssertProjectRootIdentity } from "./productionProjectA
  * @evidence contracts/common.md#meaningful-documentation Returns caller-owned bytes and source/render flags; absent content directories still refuse even though constructor layout admission can permit them, and the asset manifest has neither flag.
  * @evidence contracts/performance.md#efficient-algorithms Visits all selected entries, sorts each directory and final paths, performs ancestry/realpath checks and reads total B bytes; overlapping roots can repeat reads and Map replacement does not remove that cost.
  * @evidence contracts/performance.md#reuse-equivalent-work Each call is a fresh snapshot; paths deduplicate the returned population but repeated traversal/read work is not cached across roots or attempts.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns all retained B bytes and records without a fixed byte cap; local traversal data release and owned readers close descriptors on success/failure, while recursive stack grows with depth.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns all retained B bytes and records without a fixed byte cap; replaced Map buffers become unreachable while recursive traversal retains pending directory populations and a depth-sized stack. Owned readers attempt descriptor cleanup on success/failure and report refusal rather than guaranteeing host release; no traversal cache or task survives.
  */
 export function productionProjectContentInputs(state: AutoMovieProductionProjectState): IAutoMovieProductionContentInput[] {
     productionProjectAssertProjectRootIdentity(state);
