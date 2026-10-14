@@ -17,6 +17,7 @@ import type { IHumanViewerExampleSources } from "./IHumanViewerExampleSources.js
 export async function readHumanViewerApplication(): Promise<{
   directory: string;
   examples: IHumanViewerExampleSources;
+  sourceDirectories: readonly string[];
 }> {
   const selected: string | undefined = process.env.HUMAN_VIEWER_APPLICATION;
   if (selected === undefined || selected.trim() === "")
@@ -47,5 +48,11 @@ export async function readHumanViewerApplication(): Promise<{
       .every((factory: unknown): boolean => typeof factory === "function")
   )
     throw new Error("The inspection application has incomplete example bindings.");
-  return { directory: application.directory, examples };
+  const sourceDirectories: unknown = "sourceDirectories" in application
+    ? application.sourceDirectories : [application.directory];
+  if (!Array.isArray(sourceDirectories) || !sourceDirectories.every(
+    (directory: unknown): directory is string => typeof directory === "string" && path.isAbsolute(directory),
+  ))
+    throw new Error("Application source directories must be absolute paths.");
+  return { directory: application.directory, examples, sourceDirectories };
 }

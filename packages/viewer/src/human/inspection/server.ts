@@ -77,6 +77,7 @@ const source: ReturnType<typeof createHumanViewerSource> =
     applicationDirectory,
     application.examples,
     path.resolve(process.env.HUMAN_VIEWER_ROOT ?? process.cwd()),
+    application.sourceDirectories,
   );
 const {
   root,

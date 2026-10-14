@@ -40,6 +40,7 @@ export function createHumanViewerSource(
   applicationDirectory: string,
   exampleSources: IHumanViewerExampleSources,
   root: string = path.resolve(directory, "../../../../.."),
+  applicationSources: readonly string[] = [applicationDirectory],
 ): {
   root: string;
   storage: string;
@@ -128,7 +129,7 @@ export function createHumanViewerSource(
       .join("");
   let bases: string = basisDigest();
   const runtimeRoots: string[] = sourceMode ? [] : [
-    applicationDirectory,
+    ...applicationSources,
     ...["human", "engine", "interface", "viewer"].map(
       (name: string): string => fs.realpathSync.native(path.dirname(
         fileURLToPath(import.meta.resolve(`@automovie/${name}`)),
@@ -140,7 +141,7 @@ export function createHumanViewerSource(
         (name: string): string => path.join(root, "packages", name, "src"),
       )
     : [...runtimeRoots];
-  watched.push(directory, applicationDirectory);
+  watched.push(directory, ...applicationSources);
   const numericalRequire: ReturnType<typeof createRequire> = createRequire(
     path.join(directory, sourceMode ? "numerical-worker.ts" : "numerical-worker.js"),
   );
@@ -177,6 +178,9 @@ export function createHumanViewerSource(
       runtimeRoots,
       entries: {
         browser: [
+          ...(process.env.HUMAN_VIEWER_APPLICATION === undefined ? [] : [
+            slash(path.resolve(process.env.HUMAN_VIEWER_APPLICATION)),
+          ]),
           ...["page", "numerical-worker"].map(
             (name: string): string => `${slash(directory)}/${name}${sourceMode ? ".ts" : ".js"}`,
           ),

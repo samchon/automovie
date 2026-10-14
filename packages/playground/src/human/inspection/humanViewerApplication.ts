@@ -22,9 +22,11 @@ const directory: string = path.dirname(fileURLToPath(import.meta.url));
 export function humanViewerApplication(): {
   directory: string;
   examples: IHumanViewerExampleSources;
+  sourceDirectories: readonly string[];
 } {
   return {
     directory,
+    sourceDirectories: [path.resolve(directory, "../..")],
     examples: {
       documentsFile: path.resolve(directory, "../examples/faces.json"),
       bodyExamplesFile: path.resolve(directory, "../examples/bodies.json"),
