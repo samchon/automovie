@@ -1,4 +1,3 @@
-
 /**
  * One canonical asset path and exact byte identity in a render target dependency closure.
  *

@@ -24,7 +24,13 @@ export interface IAutoMovieRenderTextureCost {
   /**
    * Renderer-owned representation, when this row has no project asset. The physically based material lookup is shared by all PBR draws in one context.
    */
-  runtime?: "dfg-lut" | "pmrem-blur" | "display-compositor" | "data-texture" | "render-target" | "transmission-target";
+  runtime?:
+    | "dfg-lut"
+    | "pmrem-blur"
+    | "display-compositor"
+    | "data-texture"
+    | "render-target"
+    | "transmission-target";
 
   /**
    * Texture allocations represented by an aggregate target row, including an actual custom depth Texture. Null leaves native cardinality unknown; omission is one legacy allocation. Depth renderbuffers contribute bytes without increasing the Texture population.
