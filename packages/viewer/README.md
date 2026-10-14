@@ -10,6 +10,25 @@ Use it in a browser host, a headless capture host, or the playground. It owns no
 npm install @automovie/viewer three
 ```
 
+Node hosts require Node 22.23.2 or later. The published JavaScript is ESM, with no separate CommonJS build. In an ESM project, the public entry and Three addons can load concurrently:
+
+```typescript
+const [viewer, three, lights] = await Promise.all([
+  import("@automovie/viewer"),
+  import("three"),
+  import("three/examples/jsm/lights/RectAreaLightUniformsLib.js"),
+]);
+console.log(
+  typeof viewer.buildLight,
+  three.REVISION,
+  typeof lights.RectAreaLightUniformsLib.init,
+);
+```
+
+Keep the host, viewer and addons on one Three installation so their constructors and shared uniforms retain the same identity.
+
+A source-linked `ttsx -P tsconfig.json` consumer should use an ESM compiler configuration (`module: "ESNext"` or `"NodeNext"`). The repository's CommonJS test configuration was observed to convert the consumer's Three import into `require("three")`, emitting `THREE_CJS_DEPRECATED`; the packed native ESM and source-linked ESM configurations did not emit that warning.
+
 | Entry | Purpose |
 | --- | --- |
 | `@automovie/viewer` | Scene, model, material and light construction (`buildScene`, `buildModel`, `buildMaterial`), playback (`AutoMoviePlayer`, `applyPose`, `applyExpression`), render passes (`applyRenderMode`, `applyAutoMovieSemanticMask`), transitions (`renderAutoMovieFilmFrame`), instanced formations, effects and fluids, texture-budget facts for `@automovie/render`, subject framing and capture (`mountViewer`, `captureViewerSnapshot`) |
