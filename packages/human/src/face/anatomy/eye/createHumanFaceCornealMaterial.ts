@@ -15,7 +15,7 @@ import type { IAutoMovieMaterial } from "@automovie/interface";
  * @evidence contracts/common.md#clear-and-simple-design CreatePortraitEyeComponent supplies each eye's distinct material identity and thickness to this rendering owner; source-registered optical finishes remain owned by createHumanFaceOpticalFinish.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Fixed roughness and IOR are renderer conventions rather than inferred individual reflectance or clinical pupil prediction.
  * @evidence contracts/common.md#meaningful-documentation The prose gives metre thickness, copied colour ownership, material identity admission and optical interpretation limits.
- * @evidence contracts/performance.md#efficient-algorithms A fixed scalar admission and one material record require constant work.
+ * @evidence contracts/performance.md#efficient-algorithms Identity admission trims the caller's ID, so validation scales with its length; thickness checks and material/colour record construction use fixed work. The supplied name is retained without traversal or validation.
  * @evidence contracts/performance.md#reuse-equivalent-work Both portrait eyes reuse this rendering owner with their own supplied shell dimensions and fresh colour records; it retains no material cache.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the new material/colour; no geometry, cache, handle or task is retained.
  */

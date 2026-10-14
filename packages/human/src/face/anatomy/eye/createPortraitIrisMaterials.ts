@@ -24,7 +24,7 @@ import { IPortraitIrisPigment } from "./structures/IPortraitIrisPigment";
  * @evidence contracts/common.md#clear-and-simple-design One pigment palette owner is shared by portrait and connected/generated optical consumers; geometry owns band membership.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Roughness and opaque double-sided finishes are authored conventions, not acquired optical properties.
  * @evidence contracts/common.md#meaningful-documentation The prose states linear colour, stable trimmed prefix, endpoint admission and fresh colour ownership.
- * @evidence contracts/performance.md#efficient-algorithms Fixed eight-band/three-channel work requires constant time and allocation.
+ * @evidence contracts/performance.md#efficient-algorithms Prefix admission and eight generated IDs scale with prefix length. Valid pigments then require fixed eight-band/three-channel interpolation and allocation; malformed channel arrays are rejected by length before scanning their values.
  * @evidence contracts/performance.md#reuse-equivalent-work Both eye families reuse the same interpolation and admission law while each result owns mutable colours.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only eight owned material records escape; no pigment array, texture, cache or resource is retained.
  */
