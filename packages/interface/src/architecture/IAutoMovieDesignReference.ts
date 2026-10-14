@@ -10,12 +10,12 @@ import { IAutoMovieObservedPrimitive } from "./IAutoMovieObservedPrimitive";
  *
  * This record is evidence and only evidence. The design source of truth stays the TypeScript building source; a reference is cited by it through {@link IAutoMovieDesignEvidence} and never merged into it. A plan image therefore cannot quietly become a wall, because nothing here is a wall.
  *
- * The production gate refuses a document whose asset is missing, whose bytes no longer hash to {@link digest}, whose bytes are a different container than {@link media}, or whose asset carries no `design-reference` use naming it.
+ * Current asset bytes, their digest, container family and provenance use require explicit host verification; the production byte/ledger gate is retired.
  *
- * @evidence contracts/common.md#principled-implementation Engine validation checks authored identity/link/count/coordinate/scale consistency. Production `designReferenceDiagnostics` checks typed use membership, hashes the supplied asset bytes, parses the selected container profile and compares frame width/height with measured extent; single-page families require page one. Those maps must describe the same captured attempt, and the gate does not establish observation accuracy, actual raster/text recognition or full container-standard semantics.
+ * @evidence contracts/common.md#principled-implementation Explicit Engine validateDesignReference checks authored identity/link/count/coordinate/scale consistency and is called by observation promotion. Production byte hashing, typed-use membership, container parsing and measured-sheet comparisons are retired; metadata admission proves no current byte identity, observation accuracy or raster/text recognition.
  * @evidence contracts/common.md#clear-and-simple-design Frames, primitives, analyses, candidates, and issues are five separate lists so seeing, reading, proposing, and doubting stay distinct layers, and only `promoteDesignObservations` turns any of them into metres.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No reading or scale is invented by admission. The compilation merge shares canonically equal documents across shots and diagnoses unequal content under one id; the direct reference gate still diagnoses duplicate ids in its own input. Engine domain gates assume typed nested containers and do not read asset bytes themselves; unsupported extent stays unmeasured rather than acquiring a guessed sheet size.
- * @evidence contracts/common.md#meaningful-documentation States evidence-only use, building citations, byte and media refusals, nonempty frames, retained empty analyses and canonical-equality sharing with conflicting-id refusal.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No reading or scale is invented by Engine admission, which assumes typed nested containers and does not read asset bytes. Cross-shot canonical merging/conflicting-id refusal no longer has a production host; callers must preserve consistent document identities without treating a declared digest as verified content.
+ * @evidence contracts/common.md#meaningful-documentation States evidence-only use, building citations, explicit byte-verification ownership, nonempty frames, retained empty analyses and host-owned cross-shot identity consistency.
  * @author Samchon
  */
 export interface IAutoMovieDesignReference {
@@ -25,7 +25,7 @@ export interface IAutoMovieDesignReference {
   /**
    * Stable, non-blank document identity within the production.
    *
-   * Shots may share canonically equal documents under one id. Different documents under the same id refuse compilation rather than replace one another.
+   * Shared documents should be canonically equal under one id. The retired production merger no longer enforces that cross-shot requirement automatically.
    */
   id: string;
 

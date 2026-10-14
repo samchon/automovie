@@ -20,7 +20,7 @@ import { IAutoMovieDesignScaleCandidate } from "./IAutoMovieDesignScaleCandidate
  *
  * @evidence contracts/common.md#principled-implementation `designReferenceWorldPoint` spans normalized axes by settled-scale offsets around the anchor, adds origin, then applies optional scale/normalized rotation/translation. Frame admission requires finite axis X/Y computed lengths above 1e-12 and absolute normalized dot at most 1 - 1e-12, a finite in-sheet anchor and resolving chosen scale. These numeric predicates and finite source values do not prove finite world products/sums; promotion currently forwards mapped points without a separate finite-result gate.
  * @evidence contracts/common.md#clear-and-simple-design The frame owns every placement fact for its sheet and primitives own none, so correcting a scale, axis, or north is one edit here and never a rewrite of observed points.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Axes retain authored skew instead of being orthogonalized and an unknown scale stays null. Up/north/level/view are informational to mapping/promotion. Single-page and measured-sheet width/height checks belong to production byte admission, not the engine frame gate; SVG viewBox origin and PDF/DXF page geometry are not reconstructed by those extent comparisons.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Axes retain authored skew and an unknown scale stays null. Up/north/level/view are informational to mapping/promotion. The production byte gate is retired, so single-page family restrictions and measured-sheet bounds require explicit host checks; the Engine frame gate does not reconstruct container page geometry.
  * @evidence contracts/common.md#meaningful-documentation States the exact mapping formula and its order, that axes may be skewed, which members the mapping ignores, the units and ranges of the extent and anchor, the page rule for single-page containers, and the measured-sheet limit.
  * @author Samchon
  */
@@ -29,8 +29,7 @@ export interface IAutoMovieDesignSourceFrame {
   id: string;
 
   /**
-   * One-based whole page or image index inside the asset; a PNG, JPEG, or SVG
-   * reference carries exactly one page, so only `1` is accepted there.
+   * One-based whole page or image index inside the asset. PNG, JPEG and SVG are intended to use page one; the Engine frame check alone does not enforce container-specific page population.
    */
   page: number;
 
@@ -43,8 +42,7 @@ export interface IAutoMovieDesignSourceFrame {
   /**
    * Source-space extent: pixels for raster, user units for vector.
    *
-   * When the production gate can measure the sheet, neither side may exceed
-   * the measured one; a PDF page or a DXF drawing is left unmeasured.
+   * The host must compare these dimensions with the actual sheet where measurement is available; this record and the Engine frame check do not inspect its bytes.
    */
   bounds: {
     /** Finite, strictly positive width in source units. */
