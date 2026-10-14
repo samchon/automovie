@@ -20,11 +20,16 @@ import { createInteriorAcousticTestInputs } from "../internal/audio/createInteri
  * Scenarios:
  * 1. Fractional or zero clocks, incomplete/empty frames and non-finite PCM are refused.
  * 2. Transmission outside[0,1], absent or nonpositive T60 and absent or nonpositive direct/diffuse ratio are refused against supported room bases.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Derives actual available same/different-room bases, then invokes the real PCM applicator with independently invalid clock, frame-shape, nonfinite-sample and path-specific response facts, observing named refusals.
+ * @evidence contracts/testing.md#independent-expectations Literal malformed values and positive base status assertions determine refusal expectations independently; existing narrow fixture views are used only after those real derivations. This admission unit does not independently measure room acoustics or prove every finite amplitude yields finite accumulated output.
+ * @evidence contracts/testing.md#distinguishing-cases Preserves fractional/zero channels/rates, incomplete/empty PCM, NaN/both infinities, null/negative/excess transmission and null/zero T60 or direct/diffuse ratio. Separate path/material tests own accepted PCM values and bounded tail behavior.
+ * @evidence contracts/testing.md#execution-ownership This named synchronous unit owns fresh requests, buffers and refusal callbacks through the existing canonical fixture; it opens no file, codec/audio device, native solver, renderer, browser or GPU and replaces no foreign method.
  */
-export const test_engine_interior_acoustic_pcm_admission = (): void => {
-  const { digest, profile, request } = createInteriorAcousticTestInputs();
+export function test_engine_interior_acoustic_pcm_admission(): void {
+  const { digest, profile, request }: ReturnType<typeof createInteriorAcousticTestInputs> = createInteriorAcousticTestInputs();
 
-  const same = deriveAutoMovieInteriorAcousticResponse({
+  const same: ReturnType<typeof deriveAutoMovieInteriorAcousticResponse> = deriveAutoMovieInteriorAcousticResponse({
       sourceSpace: "room-a",
       listenerSpace: "room-a",
       inputRevision: digest,
@@ -32,7 +37,7 @@ export const test_engine_interior_acoustic_pcm_admission = (): void => {
       profile,
     });
 
-  const across = deriveAutoMovieInteriorAcousticResponse({
+  const across: ReturnType<typeof deriveAutoMovieInteriorAcousticResponse> = deriveAutoMovieInteriorAcousticResponse({
       sourceSpace: "room-a",
       listenerSpace: "room-b",
       inputRevision: digest,
@@ -40,7 +45,7 @@ export const test_engine_interior_acoustic_pcm_admission = (): void => {
       profile,
     });
 
-  const dry = Float32Array.from([1, 0]);
+  const dry: Float32Array = Float32Array.from([1, 0]);
 
   TestValidator.equals(
     "both arranged room-response bases are available before invalidating facts",
@@ -48,12 +53,12 @@ export const test_engine_interior_acoustic_pcm_admission = (): void => {
     ["available", "available"],
   );
 
-  const availableSame = same as Extract<
+  const availableSame: Extract<IAutoMovieProductionAcousticResponse, { status: "available" }> = same as Extract<
       IAutoMovieProductionAcousticResponse,
       { status: "available" }
     >;
 
-  const availableAcross = across as Extract<
+  const availableAcross: Extract<IAutoMovieProductionAcousticResponse, { status: "available" }> = across as Extract<
       IAutoMovieProductionAcousticResponse,
       { status: "available" }
     >;
@@ -62,7 +67,7 @@ export const test_engine_interior_acoustic_pcm_admission = (): void => {
       "PCM application refuses invalid clocks, shapes, and path-specific facts",
       {
         fractionalChannels: throwsError(
-          () =>
+          (): Float32Array =>
             applyAutoMovieInteriorAcousticResponse({
               samples: dry,
               channels: 1.5,
@@ -72,7 +77,7 @@ export const test_engine_interior_acoustic_pcm_admission = (): void => {
           "positive integer",
         ),
         zeroChannels: throwsError(
-          () =>
+          (): Float32Array =>
             applyAutoMovieInteriorAcousticResponse({
               samples: dry,
               channels: 0,
@@ -82,7 +87,7 @@ export const test_engine_interior_acoustic_pcm_admission = (): void => {
           "positive integer",
         ),
         fractionalRate: throwsError(
-          () =>
+          (): Float32Array =>
             applyAutoMovieInteriorAcousticResponse({
               samples: dry,
               channels: 1,
@@ -92,7 +97,7 @@ export const test_engine_interior_acoustic_pcm_admission = (): void => {
           "sample rate",
         ),
         zeroRate: throwsError(
-          () =>
+          (): Float32Array =>
             applyAutoMovieInteriorAcousticResponse({
               samples: dry,
               channels: 1,
@@ -102,7 +107,7 @@ export const test_engine_interior_acoustic_pcm_admission = (): void => {
           "sample rate",
         ),
         incompleteFrame: throwsError(
-          () =>
+          (): Float32Array =>
             applyAutoMovieInteriorAcousticResponse({
               samples: Float32Array.from([1]),
               channels: 2,
@@ -112,7 +117,7 @@ export const test_engine_interior_acoustic_pcm_admission = (): void => {
           "complete frames",
         ),
         emptyPcm: throwsError(
-          () =>
+          (): Float32Array =>
             applyAutoMovieInteriorAcousticResponse({
               samples: new Float32Array(),
               channels: 1,
@@ -122,7 +127,7 @@ export const test_engine_interior_acoustic_pcm_admission = (): void => {
           "must not be empty",
         ),
         nanSample: throwsError(
-          () =>
+          (): Float32Array =>
             applyAutoMovieInteriorAcousticResponse({
               samples: Float32Array.from([Number.NaN]),
               channels: 1,
@@ -132,7 +137,7 @@ export const test_engine_interior_acoustic_pcm_admission = (): void => {
           "samples must be finite",
         ),
         positiveInfinitySample: throwsError(
-          () =>
+          (): Float32Array =>
             applyAutoMovieInteriorAcousticResponse({
               samples: Float32Array.from([Number.POSITIVE_INFINITY]),
               channels: 1,
@@ -142,7 +147,7 @@ export const test_engine_interior_acoustic_pcm_admission = (): void => {
           "samples must be finite",
         ),
         negativeInfinitySample: throwsError(
-          () =>
+          (): Float32Array =>
             applyAutoMovieInteriorAcousticResponse({
               samples: Float32Array.from([Number.NEGATIVE_INFINITY]),
               channels: 1,
@@ -152,7 +157,7 @@ export const test_engine_interior_acoustic_pcm_admission = (): void => {
           "samples must be finite",
         ),
         nullTransmission: throwsError(
-          () =>
+          (): Float32Array =>
             applyAutoMovieInteriorAcousticResponse({
               samples: dry,
               channels: 1,
@@ -162,7 +167,7 @@ export const test_engine_interior_acoustic_pcm_admission = (): void => {
           "transmission gain",
         ),
         negativeTransmission: throwsError(
-          () =>
+          (): Float32Array =>
             applyAutoMovieInteriorAcousticResponse({
               samples: dry,
               channels: 1,
@@ -172,7 +177,7 @@ export const test_engine_interior_acoustic_pcm_admission = (): void => {
           "transmission gain",
         ),
         excessTransmission: throwsError(
-          () =>
+          (): Float32Array =>
             applyAutoMovieInteriorAcousticResponse({
               samples: dry,
               channels: 1,
@@ -182,7 +187,7 @@ export const test_engine_interior_acoustic_pcm_admission = (): void => {
           "transmission gain",
         ),
         nullReverberation: throwsError(
-          () =>
+          (): Float32Array =>
             applyAutoMovieInteriorAcousticResponse({
               samples: dry,
               channels: 1,
@@ -195,7 +200,7 @@ export const test_engine_interior_acoustic_pcm_admission = (): void => {
           "reverberation time",
         ),
         zeroReverberation: throwsError(
-          () =>
+          (): Float32Array =>
             applyAutoMovieInteriorAcousticResponse({
               samples: dry,
               channels: 1,
@@ -205,7 +210,7 @@ export const test_engine_interior_acoustic_pcm_admission = (): void => {
           "reverberation time",
         ),
         nullRatio: throwsError(
-          () =>
+          (): Float32Array =>
             applyAutoMovieInteriorAcousticResponse({
               samples: dry,
               channels: 1,
@@ -215,7 +220,7 @@ export const test_engine_interior_acoustic_pcm_admission = (): void => {
           "direct-to-diffuse ratio",
         ),
         zeroRatio: throwsError(
-          () =>
+          (): Float32Array =>
             applyAutoMovieInteriorAcousticResponse({
               samples: dry,
               channels: 1,
@@ -244,4 +249,4 @@ export const test_engine_interior_acoustic_pcm_admission = (): void => {
         zeroRatio: true,
       },
     );
-};
+}

@@ -65,8 +65,8 @@ const motion: (flexion: number, times?: number [ ]) => IAutoMovieMotion = (flexi
  *
  * Scenarios:
  *
- * 1. A source-valid clip reaches target conversion unchanged apart from target
- *    identity.
+ * 1. A source-valid clip reaches target conversion with successful validation
+ *    and the requested target identity.
  * 2. A pose accepted by the target's wider ROM is still refused when it exceeds
  *    the source rig's authored ROM.
  * 3. A clip with a reversed source clock is refused at its source-motion path

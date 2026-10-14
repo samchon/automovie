@@ -10,6 +10,7 @@ import {
 } from "../internal/predicates";
 
 import { createSoundPropagationTestInputs } from "../internal/audio/createSoundPropagationTestInputs";
+import { test12ValuesClose } from "../internal/test12ValuesClose";
 
 /**
  * Direct-path receipts and the actual native mix preserve emission, cross-cut arrival, exact legacy bytes and trim silence.
@@ -17,11 +18,16 @@ import { createSoundPropagationTestInputs } from "../internal/audio/createSoundP
  * Scenarios:
  * 1. Distance20 m at 100 m/s delays emission frame 2 to arrival frame 4 at 10 fps, with distance gain 0.2 and spectral gain 0.1.
  * 2. Zero distance preserves exact legacy PCM bytes; trim stays silent and carry starts at sample 19200 with alignment at 0.4 s.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Derives actual direct-path receipts and mixes carried, trimmed, zero-distance and legacy event plans, observing arrival/boundary/gains, byte-identical zero-distance PCM and native onset/alignment outcomes.
+ * @evidence contracts/testing.md#independent-expectations Distance20/speed100 at fps10 independently gives a two-frame delay, coefficient .01 gives gain .2 and 20 dB loss gives .1 high-frequency gain. Arrival .4 seconds maps to sample frame19200 at 48000 Hz; the seven-frame film maps to33600. Existing gain tolerances and exact numeric record strength remain unchanged.
+ * @evidence contracts/testing.md#distinguishing-cases Preserves zero distance versus delayed travel, no-spectral versus declared spectral loss and carry versus trim across the exclusive cut. Raw byte equality remains the legacy oracle; onset is the first nonzero stereo frame and alignment observes mixed-master windows rather than isolated perceptual causality.
+ * @evidence contracts/testing.md#execution-ownership This named synchronous unit owns fresh profiles/plans and returned native PCM through the existing fixture, with no file/codec/audio-device operation, native solver, renderer, browser or GPU and no foreign-method replacement.
  */
-export const test_engine_sound_propagation = (): void => {
-  const { profile, eventPlan, firstAudibleFrame } = createSoundPropagationTestInputs();
+export function test_engine_sound_propagation(): void {
+  const { profile, eventPlan, firstAudibleFrame }: ReturnType<typeof createSoundPropagationTestInputs> = createSoundPropagationTestInputs();
 
-  const carried = deriveAutoMovieSoundPropagation({
+  const carried: ReturnType<typeof deriveAutoMovieSoundPropagation> = deriveAutoMovieSoundPropagation({
       distanceMeters: 20,
       emissionFrame: 2,
       segmentEndFrame: 3,
@@ -41,7 +47,7 @@ export const test_engine_sound_propagation = (): void => {
       { arrival: 4, boundary: "carried-across-cut", gain: true, high: true },
     );
 
-  const zero = deriveAutoMovieSoundPropagation({
+  const zero: ReturnType<typeof deriveAutoMovieSoundPropagation> = deriveAutoMovieSoundPropagation({
       distanceMeters: 0,
       emissionFrame: 2,
       segmentEndFrame: 7,
@@ -50,8 +56,9 @@ export const test_engine_sound_propagation = (): void => {
       profile: { ...profile(), spectral: { kind: "none" } },
     });
 
-  TestValidator.equals(
+  TestValidator.predicate(
       "zero distance is exact and an explicit no-spectral choice stays null",
+      test12ValuesClose(
       {
         arrival: zero.arrivalFrame,
         gain: zero.distanceGain,
@@ -70,9 +77,10 @@ export const test_engine_sound_propagation = (): void => {
         boundary: "inside-segment",
         legacyBytes: true,
       },
+      ),
     );
 
-  const trimmed = deriveAutoMovieSoundPropagation({
+  const trimmed: ReturnType<typeof deriveAutoMovieSoundPropagation> = deriveAutoMovieSoundPropagation({
       distanceMeters: 20,
       emissionFrame: 2,
       segmentEndFrame: 3,
@@ -81,18 +89,19 @@ export const test_engine_sound_propagation = (): void => {
       profile: { ...profile(), segmentBoundary: "trim-at-segment" },
     });
 
-  TestValidator.equals(
+  TestValidator.predicate(
       "the authored trim decision yields silence while carry starts at arrival",
+      test12ValuesClose(
       {
-        trim: (() => {
-          const rendered = renderProductionSound({ plan: eventPlan(trimmed) });
+        trim: ((): { audibleFrame: number; aligned: boolean } => {
+          const rendered: ReturnType<typeof renderProductionSound> = renderProductionSound({ plan: eventPlan(trimmed) });
           return {
             audibleFrame: firstAudibleFrame(rendered.pcm),
             aligned: rendered.analysis.eventAlignment[0]!.passed,
           };
         })(),
-        carry: (() => {
-          const rendered = renderProductionSound({ plan: eventPlan(carried) });
+        carry: ((): { startsAtArrival: boolean; sampleFrames: number; expectedSeconds: number; aligned: boolean } => {
+          const rendered: ReturnType<typeof renderProductionSound> = renderProductionSound({ plan: eventPlan(carried) });
           return {
             startsAtArrival:
               firstAudibleFrame(rendered.pcm) === 19_200,
@@ -111,5 +120,6 @@ export const test_engine_sound_propagation = (): void => {
           aligned: true,
         },
       },
+      ),
     );
-};
+}

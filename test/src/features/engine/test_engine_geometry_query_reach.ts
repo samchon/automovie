@@ -3,7 +3,7 @@ import {
   reachPose,
   validatePose,
 } from "@automovie/engine";
-import {
+import type {
   AutoMovieGeometryQuery,
   IAutoMovieBone,
   IAutoMovieCamera,
@@ -17,7 +17,8 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { createModel, createSkeleton } from "../internal/fixtures";
+import { createModel } from "../internal/createModel";
+import { createSkeleton } from "../internal/createSkeleton";
 import { namedFacts, nclose, throwsError } from "../internal/predicates";
 
 const place: (translation: { x : number ; y : number ; z : number }, rotation?: IAutoMovieQuaternion, scale?: IAutoMovieVector3) => IAutoMovieTransform = (
@@ -252,7 +253,7 @@ export function test_engine_geometry_query_reach(): void {
     namedFacts([
       [
         "reachable",
-        () : boolean => reachable.reachable === true && reachable.sampledTime === 0,
+        () : boolean => reachable.reachable === true && nclose(reachable.sampledTime as number, 0, 0),
       ],
       [
         "leftChain",
@@ -268,7 +269,7 @@ export function test_engine_geometry_query_reach(): void {
         "rightHandless",
         () : boolean =>
           reachable.rightMeasurable === false &&
-          reachable.rightGap === 0 &&
+          nclose(reachable.rightGap as number, 0, 0) &&
           reachable.rightPoseWithinRom === false,
       ],
       [
@@ -276,7 +277,7 @@ export function test_engine_geometry_query_reach(): void {
         () : boolean =>
           nclose(far.leftGap as number, 1.45, 1e-12) && far.reachable === false,
       ],
-      ["askedTime", () : boolean => far.sampledTime === 2],
+      ["askedTime", () : boolean => nclose(far.sampledTime as number, 2, 0)],
       [
         "modelSpace",
         () : boolean =>
@@ -287,7 +288,7 @@ export function test_engine_geometry_query_reach(): void {
         "collapsedLeft",
         () : boolean =>
           collapsed.leftMeasurable === false &&
-          collapsed.leftGap === 0 &&
+          nclose(collapsed.leftGap as number, 0, 0) &&
           collapsed.leftPoseWithinRom === false,
       ],
       [

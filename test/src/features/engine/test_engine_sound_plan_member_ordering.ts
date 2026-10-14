@@ -16,11 +16,16 @@ import { createSoundPropagationTestInputs } from "../internal/audio/createSoundP
  * Scenarios:
  * 1. Two event samples with identical sort keys remain present.
  * 2. A static two-member formation remains a resolved aggregate when no formation-motion list exists.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Executes the actual planner after duplicating one event sample and after replacing the individual subject with a static two-member formation whose motion list is absent, observing retained event count and resolved aggregate member count.
+ * @evidence contracts/testing.md#independent-expectations Two authored samples and the literal formation count of two determine independent integer expectations. Equal-key retention alone does not prove ordering among distinct keys or stable identity ordering of identical events, and aggregate resolution does not inspect actual slots or acoustic pressure.
+ * @evidence contracts/testing.md#distinguishing-cases Preserves the equal-key duplicate and absent-formation-motion arrangements, exact counts and partial canonical carriers. It distinguishes dropping a duplicate or rejecting a valid static aggregate; moving groups and empty/unknown subjects have other units.
+ * @evidence contracts/testing.md#execution-ownership This named synchronous unit owns fresh mutable carriers and deletes only its own optional motion field; it opens no file, audio device, decoder, renderer, browser or GPU and replaces no foreign method.
  */
-export const test_engine_sound_plan_member_ordering = (): void => {
-  const { minimalTimeline, minimalContract, minimalCompiled } = createSoundPropagationTestInputs();
+export function test_engine_sound_plan_member_ordering(): void {
+  const { minimalTimeline, minimalContract, minimalCompiled }: ReturnType<typeof createSoundPropagationTestInputs> = createSoundPropagationTestInputs();
 
-  const duplicatedSampleCompiled = minimalCompiled();
+  const duplicatedSampleCompiled: ReturnType<typeof minimalCompiled> = minimalCompiled();
 
   duplicatedSampleCompiled.eventSamples = [
       duplicatedSampleCompiled.eventSamples[0]!,
@@ -41,7 +46,7 @@ export const test_engine_sound_plan_member_ordering = (): void => {
   }
   );
 
-  const crowdCompiled = minimalCompiled();
+  const crowdCompiled: ReturnType<typeof minimalCompiled> = minimalCompiled();
 
   crowdCompiled.scene.nodes = [];
 
@@ -61,7 +66,7 @@ export const test_engine_sound_plan_member_ordering = (): void => {
 
   delete (crowdCompiled as { formationMotions?: unknown }).formationMotions;
 
-  const crowdContract = minimalContract();
+  const crowdContract: ReturnType<typeof minimalContract> = minimalContract();
 
   crowdContract.events[0]!.subjects = ["crowd"];
 
@@ -74,4 +79,4 @@ export const test_engine_sound_plan_member_ordering = (): void => {
       }).events[0]!.memberCount,
       2,
     );
-};
+}

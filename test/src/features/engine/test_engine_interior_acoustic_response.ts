@@ -16,11 +16,16 @@ import { createInteriorAcousticTestInputs } from "../internal/audio/createInteri
  * Scenarios:
  * 1. Same and different rooms consume the Sabine basis: T60 is0.322 s and20 dB transmission has gain 0.1.
  * 2. Outdoor, unresolved and adopted paths retain distinct outcomes; zero absorption remains unsupported.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls real room-response derivation for same/different/outdoor/unresolved/adopted and zero-absorption inputs, observing path/status distinctions, expected Sabine T60/transmission gain and a positive direct/diffuse ratio.
+ * @evidence contracts/testing.md#independent-expectations V=100, area=100 and alpha=.5 independently imply T60=.322 seconds; 20 dB partition loss implies amplitude .1. The fixture declares revision metadata without proving a physical geometry digest, and positive ratio is only a sign witness rather than its exact acoustic value.
+ * @evidence contracts/testing.md#distinguishing-cases Preserves all original room-binding/adopted/outdoor/gap twins and default nclose tolerances; absent adopted bytes remain not-run and a perfect reflector remains unsupported. PCM application, finite-domain admission and playback have separate owners.
+ * @evidence contracts/testing.md#execution-ownership This named synchronous unit owns fresh requests and response records through the existing canonical fixture; it opens no file, adopted-response decoder, native solver/audio device, renderer, browser or GPU and replaces no foreign method.
  */
-export const test_engine_interior_acoustic_response = (): void => {
-  const { digest, profile, request } = createInteriorAcousticTestInputs();
+export function test_engine_interior_acoustic_response(): void {
+  const { digest, profile, request }: ReturnType<typeof createInteriorAcousticTestInputs> = createInteriorAcousticTestInputs();
 
-  const same = deriveAutoMovieInteriorAcousticResponse({
+  const same: ReturnType<typeof deriveAutoMovieInteriorAcousticResponse> = deriveAutoMovieInteriorAcousticResponse({
       sourceSpace: "room-a",
       listenerSpace: "room-a",
       inputRevision: digest,
@@ -28,7 +33,7 @@ export const test_engine_interior_acoustic_response = (): void => {
       profile,
     });
 
-  const across = deriveAutoMovieInteriorAcousticResponse({
+  const across: ReturnType<typeof deriveAutoMovieInteriorAcousticResponse> = deriveAutoMovieInteriorAcousticResponse({
       sourceSpace: "room-a",
       listenerSpace: "room-b",
       inputRevision: digest,
@@ -64,7 +69,7 @@ export const test_engine_interior_acoustic_response = (): void => {
       },
     );
 
-  const outdoor = deriveAutoMovieInteriorAcousticResponse({
+  const outdoor: ReturnType<typeof deriveAutoMovieInteriorAcousticResponse> = deriveAutoMovieInteriorAcousticResponse({
       sourceSpace: null,
       listenerSpace: null,
       inputRevision: digest,
@@ -72,7 +77,7 @@ export const test_engine_interior_acoustic_response = (): void => {
       profile,
     });
 
-  const unresolved = deriveAutoMovieInteriorAcousticResponse({
+  const unresolved: ReturnType<typeof deriveAutoMovieInteriorAcousticResponse> = deriveAutoMovieInteriorAcousticResponse({
       sourceSpace: "room-a",
       listenerSpace: null,
       inputRevision: digest,
@@ -80,7 +85,7 @@ export const test_engine_interior_acoustic_response = (): void => {
       profile,
     });
 
-  const adopted = deriveAutoMovieInteriorAcousticResponse({
+  const adopted: ReturnType<typeof deriveAutoMovieInteriorAcousticResponse> = deriveAutoMovieInteriorAcousticResponse({
       sourceSpace: "room-a",
       listenerSpace: "room-b",
       inputRevision: digest,
@@ -108,7 +113,7 @@ export const test_engine_interior_acoustic_response = (): void => {
       { outdoor: "outdoor", unresolved: null, adopted: "not-run" },
     );
 
-  const gap = deriveAutoMovieInteriorAcousticResponse({
+  const gap: ReturnType<typeof deriveAutoMovieInteriorAcousticResponse> = deriveAutoMovieInteriorAcousticResponse({
       sourceSpace: "room-a",
       listenerSpace: "room-a",
       inputRevision: digest,
@@ -121,4 +126,4 @@ export const test_engine_interior_acoustic_response = (): void => {
       gap.status,
       "unsupported",
     );
-};
+}

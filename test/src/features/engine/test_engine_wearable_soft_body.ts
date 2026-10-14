@@ -1,5 +1,5 @@
 import {
-  type IAutoMovieResolvedBone,
+  type IAutoMovieWearableSoftFrame,
   simulateAutoMovieWearableSoftBody,
   simulateSoftBody,
   simulateSoftBodyWithBoundaries,
@@ -7,79 +7,20 @@ import {
 } from "@automovie/engine";
 import type {
   IAutoMovieSoftBodyDomain,
+  IAutoMovieSoftAnchor,
   IAutoMovieValidation,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { hasViolation, nclose, throwsError } from "../internal/predicates";
+import { test12ValuesClose } from "../internal/test12ValuesClose";
 
-const domain = (): IAutoMovieSoftBodyDomain => ({
-  version: 1,
-  id: "cape",
-  units: "meter",
-  lattice: { columns: 1, rows: 2 },
-  solver: {
-    fixedStepSeconds: 0.125,
-    gravity: { x: 0, y: 0, z: 0 },
-    drag: 0,
-    iterations: 1,
-    stiffness: { structural: 0, shear: 0, bend: 0 },
-    referenceSpeed: 1,
-    maxSteps: 4,
-  },
-  rest: [0, 1, 0, 0, 0.5, 0],
-  mass: [1, 1],
-  anchors: [
-    {
-      id: "shoulder",
-      particle: 0,
-      position: null,
-      binding: {
-        kind: "actor-bone",
-        actor: "actor",
-        bone: "leftShoulder",
-        offset: { x: 0, y: 0, z: 0 },
-      },
-    },
-  ],
-  states: [],
-  colliders: [
-    {
-      kind: "body-capsule",
-      id: "torso",
-      actor: "actor",
-      capsule: { from: "hips", to: "head", radius: 0.25 },
-    },
-  ],
-  wind: null,
-  selfCollision: false,
-});
-
-const bone = (
-  name: IAutoMovieResolvedBone["bone"],
-  x: number,
-  y: number,
-): IAutoMovieResolvedBone => ({
-  bone: name,
-  localRotation: { x: 0, y: 0, z: 0, w: 1 },
-  worldPosition: { x, y, z: 0 },
-  worldRotation: { x: 0, y: 0, z: 0, w: 1 },
-});
-
-const actorFrame = (step: number, shoulderX: number) => ({
-  step,
-  nodes: [],
-  actors: [
-    {
-      actor: "actor",
-      bones: [
-        bone("leftShoulder", shoulderX, 1),
-        bone("hips", 0, 0),
-        bone("head", 0, 1),
-      ],
-    },
-  ],
-});
+import { wearableSoftBodyTestDomain as domain } from "../internal/wearableSoftBodyTestDomain";
+import { wearableSoftBodyTestBone as bone } from "../internal/wearableSoftBodyTestBone";
+import { wearableSoftBodyTestActorFrame as actorFrame } from "../internal/wearableSoftBodyTestActorFrame";
+import { wearableSoftBodyTestAdmission } from "../internal/wearableSoftBodyTestAdmission";
+import { wearableSoftBodyTestBoundaries } from "../internal/wearableSoftBodyTestBoundaries";
+import { wearableSoftBodyTestCapsuleEscape } from "../internal/wearableSoftBodyTestCapsuleEscape";
 
 /**
  * Moving attachments and shared capsules follow one fixed-step pose snapshot.
@@ -90,8 +31,8 @@ const actorFrame = (step: number, shoulderX: number) => ({
  *    torso capsule at its radius with one contact, the budget counts one anchor
  *    and one capsule per step over four boundary records, and a repeat run is
  *    identical.
- * 2. Full structural stiffness pulls the free particle toward the moved anchor
- *    until the link regains its rest length.
+ * 2. Full structural stiffness moves the free particle toward the moved anchor
+ *    and its x coordinate matches the full-projection expectation.
  * 3. A static curtain keeps its exact rest state.
  * 4. Validation refuses a bound anchor that also states a position, a blank
  *    capsule actor, a zero radius and coincident capsule ends, and leaves an
@@ -106,33 +47,39 @@ const actorFrame = (step: number, shoulderX: number) => ({
  *    and bones, non-finite coordinates, and invalid subject bounds.
  * 8. The boundary solver refuses missing, misnumbered, invalid, static,
  *    repeated, non-finite, blank, foreign and zero-radius records.
- * 9. A particle coincident with a point, horizontal or diagonal capsule escapes
- *    to finite positions.
+ * 9. A particle coincident with a point, horizontal or diagonal capsule returns
+ *    finite positions.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls actual domain admission, wearable boundary resolution and static/moving solvers, observing anchor/capsule geometry, structural projection, exact replay/rest records, budget counts and the original refusals; directly invokes extracted original Scenarios 7, 8 and 9 in order.
+ * @evidence contracts/testing.md#independent-expectations Literal bone/node targets, .25 capsule radius and two-step boundary counts determine expectations; the .5 rest link from moved anchor(1,1) independently implies free x=1-1/sqrt(5). Existing tolerances stay unchanged and formerly exact numeric/JSON records use the existing shape-preserving zero-tolerance comparator.
+ * @evidence contracts/testing.md#distinguishing-cases Preserves all nine numbered scenarios, every input/error/expected value, borrowed domain/frame identity and later capsule-only rest mutations. Finite orientation results do not prove escape distance or repeatability, and portable CPU fixtures do not establish physical cloth fidelity, continuous collision freedom or viewer rendering.
+ * @evidence contracts/testing.md#execution-ownership This named synchronous unit owns fresh domains, primary-motion snapshots and solver arrays; extracted assertion owners receive the same existing records in original order. It opens no file/native simulator, renderer, browser/GPU or production host and replaces no foreign method.
  */
-export const test_engine_wearable_soft_body = (): void => {
-  const solved = simulateAutoMovieWearableSoftBody({
+export function test_engine_wearable_soft_body(): void {
+  const solved: ReturnType<typeof simulateAutoMovieWearableSoftBody> = simulateAutoMovieWearableSoftBody({
     domain: domain(),
     step: 1,
     frames: [actorFrame(0, 0), actorFrame(1, 1)],
     subjectIndex: 0,
     maxSubjects: 1,
   });
-  const again = simulateAutoMovieWearableSoftBody({
+  const again: ReturnType<typeof simulateAutoMovieWearableSoftBody> = simulateAutoMovieWearableSoftBody({
     domain: domain(),
     step: 1,
     frames: [actorFrame(0, 0), actorFrame(1, 1)],
     subjectIndex: 0,
     maxSubjects: 1,
   });
-  TestValidator.equals(
+  TestValidator.predicate(
     "wearable cloth follows its current bone, leaves the current capsule, and reports cost",
+    test12ValuesClose(
     {
       anchorX: solved.state.positions[0],
       capsuleDistance: nclose(Math.abs(solved.state.positions[5]!), 0.25),
       contacts: solved.state.contacts,
       budget: solved.budget,
       deterministic:
-        JSON.stringify(solved.state) === JSON.stringify(again.state),
+        test12ValuesClose(solved.state, again.state),
     },
     {
       anchorX: 1,
@@ -147,6 +94,7 @@ export const test_engine_wearable_soft_body = (): void => {
       },
       deterministic: true,
     },
+    ),
   );
 
   const coupledDomain: IAutoMovieSoftBodyDomain = {
@@ -157,15 +105,16 @@ export const test_engine_wearable_soft_body = (): void => {
     },
     colliders: [],
   };
-  const coupled = simulateAutoMovieWearableSoftBody({
+  const coupled: ReturnType<typeof simulateAutoMovieWearableSoftBody> = simulateAutoMovieWearableSoftBody({
     domain: coupledDomain,
     step: 1,
     frames: [actorFrame(0, 0), actorFrame(1, 1)],
     subjectIndex: 0,
     maxSubjects: 1,
   });
-  TestValidator.equals(
+  TestValidator.predicate(
     "nonzero structural stiffness transfers a moving anchor to the free particle",
+    test12ValuesClose(
     {
       anchorX: coupled.state.positions[0],
       freeParticleMoved: coupled.state.positions[3]! > 0.5,
@@ -173,6 +122,7 @@ export const test_engine_wearable_soft_body = (): void => {
       freeParticleX: nclose(coupled.state.positions[3]!, 1 - 1 / Math.sqrt(5)),
     },
     { anchorX: 1, freeParticleMoved: true, freeParticleX: true },
+    ),
   );
 
   const staticDomain: IAutoMovieSoftBodyDomain = {
@@ -181,15 +131,17 @@ export const test_engine_wearable_soft_body = (): void => {
     anchors: [{ id: "rail", particle: 0, position: { x: 0, y: 1, z: 0 } }],
     colliders: [],
   };
-  TestValidator.equals(
+  TestValidator.predicate(
     "the legacy static path retains its exact rest state",
+    test12ValuesClose(
     simulateSoftBody(staticDomain, 1).positions,
     staticDomain.rest,
+    ),
   );
 
   const invalidAnchor: IAutoMovieSoftBodyDomain = {
     ...domain(),
-    anchors: domain().anchors.map((anchor) => ({
+    anchors: domain().anchors.map((anchor: IAutoMovieSoftAnchor): IAutoMovieSoftAnchor => ({
       ...anchor,
       position: { x: 0, y: 1, z: 0 },
     })),
@@ -205,7 +157,7 @@ export const test_engine_wearable_soft_body = (): void => {
       },
     ],
   };
-  const embeddedMovingCapsule = validateSoftBodyDomain({ domain: domain() });
+  const embeddedMovingCapsule: ReturnType<typeof validateSoftBodyDomain> = validateSoftBodyDomain({ domain: domain() });
   TestValidator.equals(
     "validation refuses contradictory bindings but never invents an origin capsule",
     {
@@ -256,7 +208,7 @@ export const test_engine_wearable_soft_body = (): void => {
     "missing moving facts and admission overflow are explicit failures",
     {
       budget: throwsError(
-        () =>
+        (): ReturnType<typeof simulateAutoMovieWearableSoftBody> =>
           simulateAutoMovieWearableSoftBody({
             domain: domain(),
             step: 1,
@@ -267,7 +219,7 @@ export const test_engine_wearable_soft_body = (): void => {
         "budget",
       ),
       actor: throwsError(
-        () =>
+        (): ReturnType<typeof simulateAutoMovieWearableSoftBody> =>
           simulateAutoMovieWearableSoftBody({
             domain: domain(),
             step: 0,
@@ -278,7 +230,7 @@ export const test_engine_wearable_soft_body = (): void => {
         'missing actor "actor"',
       ),
       rotation: throwsError(
-        () =>
+        (): ReturnType<typeof simulateAutoMovieWearableSoftBody> =>
           simulateAutoMovieWearableSoftBody({
             domain: domain(),
             step: 0,
@@ -306,11 +258,11 @@ export const test_engine_wearable_soft_body = (): void => {
         "unit length",
       ),
       unresolvedStatic: throwsError(
-        () => simulateSoftBody(domain(), 1),
+        (): ReturnType<typeof simulateSoftBody> => simulateSoftBody(domain(), 1),
         "resolved moving boundaries",
       ),
       missingAnchorBoundary: throwsError(
-        () =>
+        (): ReturnType<typeof simulateSoftBodyWithBoundaries> =>
           simulateSoftBodyWithBoundaries(domain(), 0, [
             {
               step: 0,
@@ -328,7 +280,7 @@ export const test_engine_wearable_soft_body = (): void => {
         "missing authored moving anchor",
       ),
       missingCapsuleBoundary: throwsError(
-        () =>
+        (): ReturnType<typeof simulateSoftBodyWithBoundaries> =>
           simulateSoftBodyWithBoundaries(domain(), 0, [
             {
               step: 0,
@@ -366,7 +318,7 @@ export const test_engine_wearable_soft_body = (): void => {
     ],
     colliders: [],
   };
-  const nodeFrame = {
+  const nodeFrame: IAutoMovieWearableSoftFrame = {
     step: 0,
     nodes: [
       {
@@ -381,21 +333,22 @@ export const test_engine_wearable_soft_body = (): void => {
     ...domain(),
     anchors: [],
   };
-  const farCapsuleFrame = actorFrame(0, 0);
+  const farCapsuleFrame: ReturnType<typeof actorFrame> = actorFrame(0, 0);
   farCapsuleFrame.actors[0]!.bones = [
     bone("leftShoulder", 0, 1),
     bone("hips", 10, 0),
     bone("head", 10, 1),
   ];
-  const farCapsule = simulateAutoMovieWearableSoftBody({
+  const farCapsule: ReturnType<typeof simulateAutoMovieWearableSoftBody> = simulateAutoMovieWearableSoftBody({
     domain: capsuleOnly,
     step: 0,
     frames: [farCapsuleFrame],
     subjectIndex: 0,
     maxSubjects: 1,
   });
-  TestValidator.equals(
+  TestValidator.predicate(
     "node anchors, capsule-only boundaries, and named state inputs remain explicit",
+    test12ValuesClose(
     {
       nodeAnchor: simulateAutoMovieWearableSoftBody({
         domain: nodeDomain,
@@ -424,8 +377,7 @@ export const test_engine_wearable_soft_body = (): void => {
       }).state.step,
       farCapsuleContacts: farCapsule.state.contacts,
       farCapsulePositionsUnchanged:
-        JSON.stringify(farCapsule.state.positions) ===
-        JSON.stringify(capsuleOnly.rest),
+        test12ValuesClose(farCapsule.state.positions, capsuleOnly.rest),
     },
     {
       nodeAnchor: 1.25,
@@ -440,433 +392,14 @@ export const test_engine_wearable_soft_body = (): void => {
       farCapsuleContacts: 0,
       farCapsulePositionsUnchanged: true,
     },
+    ),
   );
 
-  TestValidator.equals(
-    "wearable admission, frame identity, lookup, and transform failures are closed",
-    {
-      fractionalStep: throwsError(
-        () =>
-          simulateAutoMovieWearableSoftBody({
-            domain: domain(),
-            step: 0.5,
-            frames: [],
-            subjectIndex: 0,
-            maxSubjects: 1,
-          }),
-        "non-negative integer",
-      ),
-      missingFrame: throwsError(
-        () =>
-          simulateAutoMovieWearableSoftBody({
-            domain: domain(),
-            step: 1,
-            frames: [actorFrame(0, 0)],
-            subjectIndex: 0,
-            maxSubjects: 1,
-          }),
-        "frames 0 through 1",
-      ),
-      noMovingBoundary: throwsError(
-        () =>
-          simulateAutoMovieWearableSoftBody({
-            domain: staticDomain,
-            step: 0,
-            frames: [{ step: 0, nodes: [], actors: [] }],
-            subjectIndex: 0,
-            maxSubjects: 1,
-          }),
-        "declares no moving boundary",
-      ),
-      wrongFrameStep: throwsError(
-        () =>
-          simulateAutoMovieWearableSoftBody({
-            domain: domain(),
-            step: 0,
-            frames: [actorFrame(1, 0)],
-            subjectIndex: 0,
-            maxSubjects: 1,
-          }),
-        "must name absolute step 0",
-      ),
-      missingNode: throwsError(
-        () =>
-          simulateAutoMovieWearableSoftBody({
-            domain: nodeDomain,
-            step: 0,
-            frames: [{ step: 0, nodes: [], actors: [] }],
-            subjectIndex: 0,
-            maxSubjects: 1,
-          }),
-        'missing node "pole"',
-      ),
-      missingCapsuleActor: throwsError(
-        () =>
-          simulateAutoMovieWearableSoftBody({
-            domain: capsuleOnly,
-            step: 0,
-            frames: [{ step: 0, nodes: [], actors: [] }],
-            subjectIndex: 0,
-            maxSubjects: 1,
-          }),
-        "missing capsule actor",
-      ),
-      duplicateActor: throwsError(() => {
-        const frame = actorFrame(0, 0);
-        simulateAutoMovieWearableSoftBody({
-          domain: domain(),
-          step: 0,
-          frames: [{ ...frame, actors: [...frame.actors, frame.actors[0]!] }],
-          subjectIndex: 0,
-          maxSubjects: 1,
-        });
-      }, "ids must be non-blank and unique"),
-      blankNodeIdentity: throwsError(
-        () =>
-          simulateAutoMovieWearableSoftBody({
-            domain: nodeDomain,
-            step: 0,
-            frames: [
-              {
-                ...nodeFrame,
-                nodes: [{ ...nodeFrame.nodes[0]!, node: " " }],
-              },
-            ],
-            subjectIndex: 0,
-            maxSubjects: 1,
-          }),
-        "ids must be non-blank and unique",
-      ),
-      missingBone: throwsError(() => {
-        const frame = actorFrame(0, 0);
-        simulateAutoMovieWearableSoftBody({
-          domain: domain(),
-          step: 0,
-          frames: [
-            {
-              ...frame,
-              actors: [
-                {
-                  actor: "actor",
-                  bones: frame.actors[0]!.bones.filter(
-                    (entry) => entry.bone !== "leftShoulder",
-                  ),
-                },
-              ],
-            },
-          ],
-          subjectIndex: 0,
-          maxSubjects: 1,
-        });
-      }, "missing bone"),
-      duplicateBone: throwsError(() => {
-        const frame = actorFrame(0, 0);
-        simulateAutoMovieWearableSoftBody({
-          domain: domain(),
-          step: 0,
-          frames: [
-            {
-              ...frame,
-              actors: [
-                {
-                  actor: "actor",
-                  bones: [
-                    ...frame.actors[0]!.bones,
-                    frame.actors[0]!.bones[0]!,
-                  ],
-                },
-              ],
-            },
-          ],
-          subjectIndex: 0,
-          maxSubjects: 1,
-        });
-      }, "repeats bone"),
-      nonfinitePosition: throwsError(() => {
-        const frame = actorFrame(0, 0);
-        frame.actors[0]!.bones[0]!.worldPosition.x = NaN;
-        simulateAutoMovieWearableSoftBody({
-          domain: domain(),
-          step: 0,
-          frames: [frame],
-          subjectIndex: 0,
-          maxSubjects: 1,
-        });
-      }, "finite coordinates"),
-      nonfiniteOffset: throwsError(() => {
-        const invalid = domain();
-        invalid.anchors[0]!.binding!.offset.x = NaN;
-        simulateAutoMovieWearableSoftBody({
-          domain: invalid,
-          step: 0,
-          frames: [actorFrame(0, 0)],
-          subjectIndex: 0,
-          maxSubjects: 1,
-        });
-      }, "finite coordinates"),
-      nonfiniteRotation: throwsError(() => {
-        const frame = actorFrame(0, 0);
-        frame.actors[0]!.bones[0]!.worldRotation.x = NaN;
-        simulateAutoMovieWearableSoftBody({
-          domain: domain(),
-          step: 0,
-          frames: [frame],
-          subjectIndex: 0,
-          maxSubjects: 1,
-        });
-      }, "finite coordinates"),
-      invalidMaxSubjects: throwsError(
-        () =>
-          simulateAutoMovieWearableSoftBody({
-            domain: domain(),
-            step: 0,
-            frames: [actorFrame(0, 0)],
-            subjectIndex: 0,
-            maxSubjects: -1,
-          }),
-        "max subjects",
-      ),
-      invalidSubjectIndex: throwsError(
-        () =>
-          simulateAutoMovieWearableSoftBody({
-            domain: domain(),
-            step: 0,
-            frames: [actorFrame(0, 0)],
-            subjectIndex: -1,
-            maxSubjects: 1,
-          }),
-        "subject index must",
-      ),
-    },
-    {
-      fractionalStep: true,
-      missingFrame: true,
-      noMovingBoundary: true,
-      wrongFrameStep: true,
-      missingNode: true,
-      missingCapsuleActor: true,
-      duplicateActor: true,
-      blankNodeIdentity: true,
-      missingBone: true,
-      duplicateBone: true,
-      nonfinitePosition: true,
-      nonfiniteOffset: true,
-      nonfiniteRotation: true,
-      invalidMaxSubjects: true,
-      invalidSubjectIndex: true,
-    },
-  );
+  wearableSoftBodyTestAdmission(staticDomain, nodeDomain, capsuleOnly, nodeFrame);
+  wearableSoftBodyTestBoundaries(staticDomain);
+  wearableSoftBodyTestCapsuleEscape(capsuleOnly);
+}
 
-  const validBoundary = () => ({
-    step: 0,
-    anchors: [{ particle: 0, position: { x: 0, y: 1, z: 0 } }],
-    capsules: [
-      {
-        id: "torso",
-        from: { x: 0, y: 0, z: 0 },
-        to: { x: 0, y: 1, z: 0 },
-        radius: 0.25,
-      },
-    ],
-  });
-  TestValidator.equals(
-    "the lower moving-boundary solver refuses incomplete and foreign records",
-    {
-      missingSequence: throwsError(
-        () => simulateSoftBodyWithBoundaries(domain(), 0, []),
-        "one moving boundary",
-      ),
-      wrongBoundaryStep: throwsError(
-        () =>
-          simulateSoftBodyWithBoundaries(domain(), 0, [
-            { ...validBoundary(), step: 1 },
-          ]),
-        "must name absolute step 0",
-      ),
-      fractionalParticle: throwsError(
-        () =>
-          simulateSoftBodyWithBoundaries(domain(), 0, [
-            {
-              ...validBoundary(),
-              anchors: [{ particle: 0.5, position: { x: 0, y: 1, z: 0 } }],
-            },
-          ]),
-        "invalid anchor particle",
-      ),
-      negativeParticle: throwsError(
-        () =>
-          simulateSoftBodyWithBoundaries(domain(), 0, [
-            {
-              ...validBoundary(),
-              anchors: [{ particle: -1, position: { x: 0, y: 1, z: 0 } }],
-            },
-          ]),
-        "invalid anchor particle",
-      ),
-      outOfRangeParticle: throwsError(
-        () =>
-          simulateSoftBodyWithBoundaries(domain(), 0, [
-            {
-              ...validBoundary(),
-              anchors: [{ particle: 2, position: { x: 0, y: 1, z: 0 } }],
-            },
-          ]),
-        "invalid anchor particle",
-      ),
-      staticAnchorOverride: throwsError(
-        () =>
-          simulateSoftBodyWithBoundaries(
-            { ...domain(), anchors: staticDomain.anchors },
-            0,
-            [validBoundary()],
-          ),
-        "not an authored moving anchor",
-      ),
-      duplicateAnchor: throwsError(() => {
-        const boundary = validBoundary();
-        simulateSoftBodyWithBoundaries(domain(), 0, [
-          {
-            ...boundary,
-            anchors: [...boundary.anchors, boundary.anchors[0]!],
-          },
-        ]);
-      }, "repeats anchor particle"),
-      nonfiniteAnchor: throwsError(
-        () =>
-          simulateSoftBodyWithBoundaries(domain(), 0, [
-            {
-              ...validBoundary(),
-              anchors: [{ particle: 0, position: { x: NaN, y: 1, z: 0 } }],
-            },
-          ]),
-        "finite coordinates",
-      ),
-      blankCapsule: throwsError(() => {
-        const boundary = validBoundary();
-        simulateSoftBodyWithBoundaries(domain(), 0, [
-          {
-            ...boundary,
-            capsules: [{ ...boundary.capsules[0]!, id: " " }],
-          },
-        ]);
-      }, "id must not be blank"),
-      duplicateCapsule: throwsError(() => {
-        const boundary = validBoundary();
-        simulateSoftBodyWithBoundaries(domain(), 0, [
-          {
-            ...boundary,
-            capsules: [...boundary.capsules, boundary.capsules[0]!],
-          },
-        ]);
-      }, "repeats capsule"),
-      foreignCapsule: throwsError(() => {
-        const boundary = validBoundary();
-        simulateSoftBodyWithBoundaries(domain(), 0, [
-          {
-            ...boundary,
-            capsules: [{ ...boundary.capsules[0]!, id: "foreign" }],
-          },
-        ]);
-      }, "not an authored body capsule"),
-      nonfiniteCapsuleFrom: throwsError(() => {
-        const boundary = validBoundary();
-        simulateSoftBodyWithBoundaries(domain(), 0, [
-          {
-            ...boundary,
-            capsules: [
-              {
-                ...boundary.capsules[0]!,
-                from: { x: NaN, y: 0, z: 0 },
-              },
-            ],
-          },
-        ]);
-      }, "finite coordinates"),
-      nonfiniteCapsuleTo: throwsError(() => {
-        const boundary = validBoundary();
-        simulateSoftBodyWithBoundaries(domain(), 0, [
-          {
-            ...boundary,
-            capsules: [
-              {
-                ...boundary.capsules[0]!,
-                to: { x: 0, y: NaN, z: 0 },
-              },
-            ],
-          },
-        ]);
-      }, "finite coordinates"),
-      nonfiniteRadius: throwsError(() => {
-        const boundary = validBoundary();
-        simulateSoftBodyWithBoundaries(domain(), 0, [
-          {
-            ...boundary,
-            capsules: [{ ...boundary.capsules[0]!, radius: NaN }],
-          },
-        ]);
-      }, "radius must be finite"),
-      zeroRadius: throwsError(() => {
-        const boundary = validBoundary();
-        simulateSoftBodyWithBoundaries(domain(), 0, [
-          {
-            ...boundary,
-            capsules: [{ ...boundary.capsules[0]!, radius: 0 }],
-          },
-        ]);
-      }, "radius must be finite"),
-    },
-    {
-      missingSequence: true,
-      wrongBoundaryStep: true,
-      fractionalParticle: true,
-      negativeParticle: true,
-      outOfRangeParticle: true,
-      staticAnchorOverride: true,
-      duplicateAnchor: true,
-      nonfiniteAnchor: true,
-      blankCapsule: true,
-      duplicateCapsule: true,
-      foreignCapsule: true,
-      nonfiniteCapsuleFrom: true,
-      nonfiniteCapsuleTo: true,
-      nonfiniteRadius: true,
-      zeroRadius: true,
-    },
-  );
-
-  const capsuleEscape = (
-    from: { x: number; y: number; z: number },
-    to: { x: number; y: number; z: number },
-  ): number[] => {
-    const moving = capsuleOnly;
-    moving.rest = [0, 0, 0, 5, 5, 5];
-    const boundary = {
-      step: 0,
-      anchors: [],
-      capsules: [{ id: "torso", from, to, radius: 0.25 }],
-    };
-    return simulateSoftBodyWithBoundaries(moving, 1, [
-      boundary,
-      { ...boundary, step: 1 },
-    ]).positions;
-  };
-  TestValidator.equals(
-    "coincident particles leave degenerate and differently oriented capsules deterministically",
-    {
-      point: capsuleEscape({ x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 0 }).every(
-        Number.isFinite,
-      ),
-      xAxis: capsuleEscape({ x: -1, y: 0, z: 0 }, { x: 1, y: 0, z: 0 }).every(
-        Number.isFinite,
-      ),
-      diagonal: capsuleEscape(
-        { x: -1, y: -1, z: 0 },
-        { x: 1, y: 1, z: 0 },
-      ).every(Number.isFinite),
-    },
-    { point: true, xAxis: true, diagonal: true },
-  );
-};
-
-const clean = (validation: IAutoMovieValidation): boolean =>
+/** Observe only successful admission; this does not synthesize missing capsule geometry. */
+const clean: (validation: IAutoMovieValidation) => boolean = (validation: IAutoMovieValidation): boolean =>
   validation.success === true;

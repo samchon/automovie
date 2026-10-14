@@ -1,30 +1,35 @@
 import { TestValidator } from "@nestia/e2e";
-import { namedFacts, qclose } from "../internal/predicates";
+import { namedFacts, qclose, vclose } from "../internal/predicates";
 import { sampleInstanceVariationSlots as slots } from "../internal/sampleInstanceVariationSlots";
 import { createInstanceVariationPlacement as crowd } from "../internal/createInstanceVariationPlacement";
 
-const COUNT = 2_000;
+const COUNT: number = 2_000;
 
 /**
- * Instance rotations compose the authored heading before fixed offsets, while per-axis scales are independent draws and uniform scale remains the same value on all axes.
+ * Instance rotations compose the authored heading before fixed offsets, while seeded per-axis draws differ and uniform scale remains the same value on all axes.
  *
  * Scenarios:
  * 1. Sixteen fixed quaternion twins follow the hand-derived quarter-turn and 30-degree offset.
- * 2. All 2,000 axis draws stay in range, are independent, and the uniform twin repeats exactly.
+ * 2. All 2,000 axis draws stay in range, most axis pairs differ, and the uniform twin repeats exactly.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Regenerates actual member rotations and scales, observing heading-then-offset quaternion composition, per-axis interval bounds, differing axis draws and exact uniform-scale replication.
+ * @evidence contracts/testing.md#independent-expectations Hand-derived quarter-turn and 30-degree offset quaternion components determine the transform oracle. Literal axis ranges and the original >90-percent differing-axis threshold witness this fixed seeded population without proving statistical independence for every input.
+ * @evidence contracts/testing.md#distinguishing-cases Preserves sixteen fixed heading/offset twins, all 2000 ranged-axis draws and the enhanced uniform twin; original qclose 1e-12 and exact uniform comparisons remain equally strong through vclose zero tolerance. Other units own layout, palette, visibility and malformed admission.
+ * @evidence contracts/testing.md#execution-ownership This named synchronous entry owns placements/member arrays through existing canonical fixtures, opens no filesystem/renderer/browser/GPU and replaces no foreign method or installed consumer.
  */
-export const test_engine_instance_transform_axes = (): void => {
+export function test_engine_instance_transform_axes(): void {
   // 7. Rotation composes the heading, then the seeded offset.
-  const half = Math.SQRT1_2;
-  const sin15 = Math.sin(Math.PI / 12);
-  const cos15 = Math.cos(Math.PI / 12);
-  const quarter = slots(
+  const half: number = Math.SQRT1_2;
+  const sin15: number = Math.sin(Math.PI / 12);
+  const cos15: number = Math.cos(Math.PI / 12);
+  const quarter: ReturnType<typeof slots> = slots(
     crowd({
       count: 16,
       facingDeg: 90,
       prototypes: [{ id: "default", modelRecipe: "body", weight: 1 }],
     }),
   );
-  const offset = slots(
+  const offset: ReturnType<typeof slots> = slots(
     crowd({
       count: 16,
       facingDeg: 90,
@@ -43,15 +48,15 @@ export const test_engine_instance_transform_axes = (): void => {
     namedFacts([
       [
         "heading",
-        () =>
-          quarter.every((member) =>
+        (): boolean =>
+          quarter.every((member: (typeof quarter)[number]): boolean =>
             qclose(member.rotation!, { x: 0, y: half, z: 0, w: half }, 1e-12),
           ),
       ],
       [
         "headingThenOffset",
-        () =>
-          offset.every((member) =>
+        (): boolean =>
+          offset.every((member: (typeof offset)[number]): boolean =>
             qclose(
               member.rotation!,
               {
@@ -70,7 +75,7 @@ export const test_engine_instance_transform_axes = (): void => {
 
 
   // 8. Per-axis scale.
-  const perAxis = slots(
+  const perAxis: ReturnType<typeof slots> = slots(
     crowd({
       variation: {
         ...crowd().variation,
@@ -78,7 +83,7 @@ export const test_engine_instance_transform_axes = (): void => {
       },
     }),
   );
-  const uniform = slots(
+  const uniform: ReturnType<typeof slots> = slots(
     crowd({ prototypes: [{ id: "default", modelRecipe: "body", weight: 1 }] }),
   );
   TestValidator.equals(
@@ -86,9 +91,9 @@ export const test_engine_instance_transform_axes = (): void => {
     namedFacts([
       [
         "ranges",
-        () =>
+        (): boolean =>
           perAxis.every(
-            (member) =>
+            (member: (typeof perAxis)[number]): boolean =>
               member.scale3!.x >= 1 &&
               member.scale3!.x <= 1.5 &&
               member.scale3!.y >= 2 &&
@@ -99,23 +104,21 @@ export const test_engine_instance_transform_axes = (): void => {
       ],
       [
         "independentAxes",
-        () =>
+        (): boolean =>
           perAxis.filter(
-            (member) => member.scale3!.x - 1 !== member.scale3!.y - 2,
+            (member: (typeof perAxis)[number]): boolean => member.scale3!.x - 1 !== member.scale3!.y - 2,
           ).length >
           COUNT * 0.9,
       ],
       [
         "uniformRepeats",
-        () =>
+        (): boolean =>
           uniform.every(
-            (member) =>
-              member.scale3!.x === member.scale &&
-              member.scale3!.y === member.scale &&
-              member.scale3!.z === member.scale,
+            (member: (typeof uniform)[number]): boolean =>
+              vclose(member.scale3!, { x: member.scale, y: member.scale, z: member.scale }, 0),
           ),
       ],
     ]),
     { ranges: true, independentAxes: true, uniformRepeats: true },
   );
-};
+}

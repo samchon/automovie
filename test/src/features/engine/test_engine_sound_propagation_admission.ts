@@ -19,15 +19,20 @@ import { createSoundPropagationTestInputs } from "../internal/audio/createSoundP
  * Scenarios:
  * 1. Empty assumptions, unsupported laws and invalid physical profile values retain exact refusals.
  * 2. Distance, emission, segment, frame rate, total span and out-of-film arrival refuse their negative or non-finite boundaries.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Invokes actual propagation derivation for individually malformed clocks, distance and physical profile fields, observing each original diagnostic substring instead of accepting a fallback receipt.
+ * @evidence contracts/testing.md#independent-expectations Literal invalid values, unsupported discriminants and exclusive film/segment bounds determine the expected refusals independently. The fixed valid base arranges one changed premise at a time; diagnostic agreement does not prove numeric conditioning or every possible malformed input.
+ * @evidence contracts/testing.md#distinguishing-cases Preserves empty/blank assumptions, out-of-film arrival, negative/NaN coefficient and absorption, fractional/negative/outside frames, NaN/zero fps or speed, blank identity and unsupported gain/spectral/boundary choices. Separate accepted-path units own zero distance and carry/trim PCM behavior.
+ * @evidence contracts/testing.md#execution-ownership This named synchronous unit owns fresh selected profiles and refusal closures through the existing fixture; deliberate invalid discriminant casts remain negative inputs, with no file, device, decoder, renderer, browser or GPU and no foreign-method replacement.
  */
-export const test_engine_sound_propagation_admission = (): void => {
-  const { profile } = createSoundPropagationTestInputs();
+export function test_engine_sound_propagation_admission(): void {
+  const { profile }: ReturnType<typeof createSoundPropagationTestInputs> = createSoundPropagationTestInputs();
 
   TestValidator.equals(
       "invalid or out-of-film propagation is refused without fallback",
       {
         assumptions: throwsError(
-          () =>
+          (): ReturnType<typeof deriveAutoMovieSoundPropagation> =>
             deriveAutoMovieSoundPropagation({
               distanceMeters: 1,
               emissionFrame: 0,
@@ -39,7 +44,7 @@ export const test_engine_sound_propagation_admission = (): void => {
           "assumptions",
         ),
         outside: throwsError(
-          () =>
+          (): ReturnType<typeof deriveAutoMovieSoundPropagation> =>
             deriveAutoMovieSoundPropagation({
               distanceMeters: 100,
               emissionFrame: 1,
@@ -51,7 +56,7 @@ export const test_engine_sound_propagation_admission = (): void => {
           "outside",
         ),
         coefficient: throwsError(
-          () =>
+          (): ReturnType<typeof deriveAutoMovieSoundPropagation> =>
             deriveAutoMovieSoundPropagation({
               distanceMeters: 1,
               emissionFrame: 0,
@@ -72,7 +77,7 @@ export const test_engine_sound_propagation_admission = (): void => {
       { assumptions: true, outside: true, coefficient: true },
     );
 
-  const propagate = (
+  const propagate: (values?: Partial<Pick<Parameters<typeof deriveAutoMovieSoundPropagation>[0], "distanceMeters" | "emissionFrame" | "segmentEndFrame" | "fps" | "totalFrames">>, selected?: IAutoMovieSoundPropagationProfile) => ReturnType<typeof deriveAutoMovieSoundPropagation> = (
       values: Partial<{
         distanceMeters: number;
         emissionFrame: number;
@@ -81,7 +86,7 @@ export const test_engine_sound_propagation_admission = (): void => {
         totalFrames: number;
       }> = {},
       selected: IAutoMovieSoundPropagationProfile = profile(),
-    ) =>
+    ): ReturnType<typeof deriveAutoMovieSoundPropagation> =>
       deriveAutoMovieSoundPropagation({
         distanceMeters: 1,
         emissionFrame: 0,
@@ -96,57 +101,57 @@ export const test_engine_sound_propagation_admission = (): void => {
       "every numeric and profile precondition refuses its negative boundary",
       {
         distanceNaN: throwsError(
-          () => propagate({ distanceMeters: NaN }),
+          (): ReturnType<typeof propagate> => propagate({ distanceMeters: NaN }),
           "non-negative",
         ),
         distanceNegative: throwsError(
-          () => propagate({ distanceMeters: -1 }),
+          (): ReturnType<typeof propagate> => propagate({ distanceMeters: -1 }),
           "non-negative",
         ),
         emissionFractional: throwsError(
-          () => propagate({ emissionFrame: 0.5 }),
+          (): ReturnType<typeof propagate> => propagate({ emissionFrame: 0.5 }),
           "integer at least 0",
         ),
         emissionNegative: throwsError(
-          () => propagate({ emissionFrame: -1 }),
+          (): ReturnType<typeof propagate> => propagate({ emissionFrame: -1 }),
           "integer at least 0",
         ),
         segmentBeforeEmission: throwsError(
-          () => propagate({ segmentEndFrame: 0 }),
+          (): ReturnType<typeof propagate> => propagate({ segmentEndFrame: 0 }),
           "integer at least 1",
         ),
-        fpsNaN: throwsError(() => propagate({ fps: NaN }), "positive"),
-        fpsZero: throwsError(() => propagate({ fps: 0 }), "positive"),
+        fpsNaN: throwsError((): ReturnType<typeof propagate> => propagate({ fps: NaN }), "positive"),
+        fpsZero: throwsError((): ReturnType<typeof propagate> => propagate({ fps: 0 }), "positive"),
         totalFractional: throwsError(
-          () => propagate({ totalFrames: 2.5 }),
+          (): ReturnType<typeof propagate> => propagate({ totalFrames: 2.5 }),
           "integer at least 1",
         ),
         totalZero: throwsError(
-          () => propagate({ totalFrames: 0 }),
+          (): ReturnType<typeof propagate> => propagate({ totalFrames: 0 }),
           "integer at least 1",
         ),
         emissionOutside: throwsError(
-          () => propagate({ emissionFrame: 3, segmentEndFrame: 4 }),
+          (): ReturnType<typeof propagate> => propagate({ emissionFrame: 3, segmentEndFrame: 4 }),
           "emission frame lies outside",
         ),
         segmentOutside: throwsError(
-          () => propagate({ segmentEndFrame: 4 }),
+          (): ReturnType<typeof propagate> => propagate({ segmentEndFrame: 4 }),
           "segment end lies outside",
         ),
         blankProfile: throwsError(
-          () => propagate({}, { ...profile(), id: " " }),
+          (): ReturnType<typeof propagate> => propagate({}, { ...profile(), id: " " }),
           "id must not be blank",
         ),
         speedNaN: throwsError(
-          () => propagate({}, { ...profile(), speedOfSoundMetersPerSecond: NaN }),
+          (): ReturnType<typeof propagate> => propagate({}, { ...profile(), speedOfSoundMetersPerSecond: NaN }),
           "speed must be finite and positive",
         ),
         speedZero: throwsError(
-          () => propagate({}, { ...profile(), speedOfSoundMetersPerSecond: 0 }),
+          (): ReturnType<typeof propagate> => propagate({}, { ...profile(), speedOfSoundMetersPerSecond: 0 }),
           "speed must be finite and positive",
         ),
         gainLaw: throwsError(
-          () =>
+          (): ReturnType<typeof propagate> =>
             propagate({}, {
               ...profile(),
               distanceGain: { kind: "other", coefficient: 1 },
@@ -154,7 +159,7 @@ export const test_engine_sound_propagation_admission = (): void => {
           "gain law is unsupported",
         ),
         coefficientNaN: throwsError(
-          () =>
+          (): ReturnType<typeof propagate> =>
             propagate(
               {},
               {
@@ -168,11 +173,11 @@ export const test_engine_sound_propagation_admission = (): void => {
           "coefficient must be finite",
         ),
         blankAssumption: throwsError(
-          () => propagate({}, { ...profile(), assumptions: [" "] }),
+          (): ReturnType<typeof propagate> => propagate({}, { ...profile(), assumptions: [" "] }),
           "assumptions",
         ),
         absorptionNaN: throwsError(
-          () =>
+          (): ReturnType<typeof propagate> =>
             propagate(
               {},
               {
@@ -186,7 +191,7 @@ export const test_engine_sound_propagation_admission = (): void => {
           "absorption must be finite",
         ),
         absorptionNegative: throwsError(
-          () =>
+          (): ReturnType<typeof propagate> =>
             propagate(
               {},
               {
@@ -200,7 +205,7 @@ export const test_engine_sound_propagation_admission = (): void => {
           "absorption must be finite",
         ),
         spectralLaw: throwsError(
-          () =>
+          (): ReturnType<typeof propagate> =>
             propagate({}, {
               ...profile(),
               spectral: { kind: "other" },
@@ -208,7 +213,7 @@ export const test_engine_sound_propagation_admission = (): void => {
           "spectral law is unsupported",
         ),
         segmentBoundary: throwsError(
-          () =>
+          (): ReturnType<typeof propagate> =>
             propagate({}, {
               ...profile(),
               segmentBoundary: "other",
@@ -240,4 +245,4 @@ export const test_engine_sound_propagation_admission = (): void => {
         segmentBoundary: true,
       },
     );
-};
+}
