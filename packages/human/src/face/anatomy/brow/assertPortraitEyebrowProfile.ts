@@ -1,5 +1,4 @@
 import type { IPortraitEyebrowPlacement } from "./IPortraitEyebrowPlacement";
-
 import { IPortraitEyebrowProfile } from "./IPortraitEyebrowProfile";
 import { resolvePortraitEyebrowPlacement } from "./resolvePortraitEyebrowPlacement";
 
@@ -32,7 +31,8 @@ export function assertPortraitEyebrowProfile(
     throw new Error(
       "Eyebrow representation must be ribbon or omitted for tubes.",
     );
-  const placement: IPortraitEyebrowPlacement = resolvePortraitEyebrowPlacement(shape);
+  const placement: IPortraitEyebrowPlacement =
+    resolvePortraitEyebrowPlacement(shape);
   if (
     shape.densitySeed !== undefined &&
     (!Number.isInteger(shape.densitySeed) ||
@@ -52,7 +52,10 @@ export function assertPortraitEyebrowProfile(
   const ends: readonly [number, number] = placement.endFade;
   if (
     ends.length !== 2 ||
-    ends.some((value: number): boolean  => !Number.isFinite(value) || value < 0 || value > 0.5)
+    ends.some(
+      (value: number): boolean =>
+        !Number.isFinite(value) || value < 0 || value > 0.5,
+    )
   )
     throw new Error("Eyebrow endpoint fades must be two fractions in [0,0.5].");
   if (

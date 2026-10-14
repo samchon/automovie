@@ -1,19 +1,22 @@
-import type { IAutoMovieHumanFaceBrowPopulation } from "../../structures/IAutoMovieHumanFaceBrowPopulation";
-import type { IAutoMovieHumanFacePeriocularBrowBand } from "../../structures/IAutoMovieHumanFacePeriocularBrowBand";
-import type { IAutoMovieHumanFaceBasisSurface } from "../../structures/IAutoMovieHumanFaceBasisSurface";
-import type { IHumanFaceSkinHost } from "../skin/IHumanFaceSkinHost";
-import type { IHumanFaceSkinChart } from "../skin/IHumanFaceSkinChart";
-import type { IAutoMovieHumanConstructionClearanceReading } from "../../../common/structures/IAutoMovieHumanConstructionClearanceReading";
-
-import type { IAutoMovieMaterial, IAutoMovieMesh, IAutoMovieModelPart } from "@automovie/interface";
+import type {
+  IAutoMovieMaterial,
+  IAutoMovieMesh,
+  IAutoMovieModelPart,
+} from "@automovie/interface";
 
 import type { IHumanConstructionCheck } from "../../../common/basis/IHumanConstructionCheck";
 import { float32MeshBuffers } from "../../../common/mesh/float32MeshBuffers";
 import { HUMAN_SKIN_FINISH } from "../../../common/skin/HUMAN_SKIN_FINISH";
+import type { IAutoMovieHumanConstructionClearanceReading } from "../../../common/structures/IAutoMovieHumanConstructionClearanceReading";
 import { createHumanFaceClearanceCheck } from "../../basis/createHumanFaceClearanceCheck";
 import { readHumanFaceFibrePigment } from "../../basis/readHumanFaceFibrePigment";
 import type { IAutoMovieHumanFaceBasis } from "../../structures/IAutoMovieHumanFaceBasis";
 import type { IAutoMovieHumanFaceBasisDocument } from "../../structures/IAutoMovieHumanFaceBasisDocument";
+import type { IAutoMovieHumanFaceBasisSurface } from "../../structures/IAutoMovieHumanFaceBasisSurface";
+import type { IAutoMovieHumanFaceBrowPopulation } from "../../structures/IAutoMovieHumanFaceBrowPopulation";
+import type { IAutoMovieHumanFacePeriocularBrowBand } from "../../structures/IAutoMovieHumanFacePeriocularBrowBand";
+import type { IHumanFaceSkinChart } from "../skin/IHumanFaceSkinChart";
+import type { IHumanFaceSkinHost } from "../skin/IHumanFaceSkinHost";
 import { createHumanFaceSkinChart } from "../skin/createHumanFaceSkinChart";
 import { createHumanFaceSkinHost } from "../skin/createHumanFaceSkinHost";
 import type { IHumanFaceBrowAssembly } from "./IHumanFaceBrowAssembly";
@@ -66,14 +69,18 @@ export function buildHumanFaceBrowAssembly(
     tints,
   };
   for (const side of ["left", "right"] as const) {
-    const input: IAutoMovieHumanFaceBrowPopulation | undefined = document.brows?.[side];
+    const input: IAutoMovieHumanFaceBrowPopulation | undefined =
+      document.brows?.[side];
     if (input === undefined) continue;
-    const band: IAutoMovieHumanFacePeriocularBrowBand | undefined = basis.periocular?.[side].browBand;
+    const band: IAutoMovieHumanFacePeriocularBrowBand | undefined =
+      basis.periocular?.[side].browBand;
     if (band === undefined)
       throw new Error("Brow implantation band unavailable: " + side);
-    const surface: IAutoMovieHumanFaceBasisSurface | undefined = basis.surfaces.find(
-      (surface: IAutoMovieHumanFaceBasisSurface): boolean  => surface.id === band.surface,
-    );
+    const surface: IAutoMovieHumanFaceBasisSurface | undefined =
+      basis.surfaces.find(
+        (surface: IAutoMovieHumanFaceBasisSurface): boolean =>
+          surface.id === band.surface,
+      );
     const points: readonly number[] | undefined = positions.get(band.surface);
     if (
       surface === undefined ||
@@ -85,15 +92,23 @@ export function buildHumanFaceBrowAssembly(
       throw new Error(
         "Brow implantation needs the actual same-generation skin host: " + side,
       );
-    const source: IAutoMovieMaterial | undefined = materials.find((material: IAutoMovieMaterial): boolean  => material.id === band.material);
+    const source: IAutoMovieMaterial | undefined = materials.find(
+      (material: IAutoMovieMaterial): boolean => material.id === band.material,
+    );
     if (source === undefined)
       throw new Error(
         "Brow population needs its registered source finish: " + side,
       );
-    const owned: Set<number> = replacements.get(band.replaceSurface) ?? new Set<number>();
-    band.replaceVertices.forEach((vertex: number): Set<number>  => owned.add(vertex));
+    const owned: Set<number> =
+      replacements.get(band.replaceSurface) ?? new Set<number>();
+    band.replaceVertices.forEach(
+      (vertex: number): Set<number> => owned.add(vertex),
+    );
     replacements.set(band.replaceSurface, owned);
-    const host: IHumanFaceSkinHost = createHumanFaceSkinHost(surface.indices, points);
+    const host: IHumanFaceSkinHost = createHumanFaceSkinHost(
+      surface.indices,
+      points,
+    );
     const chart: IHumanFaceSkinChart = createHumanFaceSkinChart({
       surface,
       referencePositions: reference.get(surface.id) ?? [],
@@ -128,7 +143,7 @@ export function buildHumanFaceBrowAssembly(
       createHumanFaceClearanceCheck(
         "brow-" + side,
         "Brow shaft penetrates or crosses its host skin",
-        (): IAutoMovieHumanConstructionClearanceReading[]  =>
+        (): IAutoMovieHumanConstructionClearanceReading[] =>
           readHumanFaceBrowClearance({
             side,
             state,
@@ -149,7 +164,8 @@ export function buildHumanFaceBrowAssembly(
       source.opacity *
       Math.min(1, document.materials?.[band.material]?.density ?? 1);
     const skinFinish: IAutoMovieMaterial | undefined = materials.find(
-      (material: IAutoMovieMaterial): boolean  => material.id === HUMAN_SKIN_FINISH.material,
+      (material: IAutoMovieMaterial): boolean =>
+        material.id === HUMAN_SKIN_FINISH.material,
     );
     if (skinFinish !== undefined) {
       let gains: number[] | undefined = tints.get(band.surface);

@@ -1,4 +1,8 @@
-import type { IAutoMovieHumanFacePeriocularLashes as ImportedIAutoMovieHumanFacePeriocularLashes, IAutoMovieHumanFaceBasisRegion as ImportedIAutoMovieHumanFaceBasisRegion, IAutoMovieHumanFaceBasisSurface as ImportedIAutoMovieHumanFaceBasisSurface } from "@automovie/human";
+import type {
+  IAutoMovieHumanFaceBasisRegion as ImportedIAutoMovieHumanFaceBasisRegion,
+  IAutoMovieHumanFaceBasisSurface as ImportedIAutoMovieHumanFaceBasisSurface,
+  IAutoMovieHumanFacePeriocularLashes as ImportedIAutoMovieHumanFacePeriocularLashes,
+} from "@automovie/human";
 import type { IAutoMovieMaterial, IAutoMovieModel } from "@automovie/interface";
 
 import { float32MeshBuffers } from "../../../common/mesh/float32MeshBuffers";
@@ -21,18 +25,34 @@ import type { IHumanFaceLashRow } from "./structures/IHumanFaceLashRow";
  * @evidence contracts/performance.md#reuse-equivalent-work Neutral source pigment is compiled once per material and reused across compatible document evaluations.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The closure retains derived pigment arrays; returned materials/meshes are owned. Float32 admission leaves the generated row mesh unchanged and its temporary typed buffers expire because this caller uses only the admission result.
  */
-export function createHumanFaceLashFinish(basis: IAutoMovieHumanFaceBasis): (document: IAutoMovieHumanFaceBasisDocument, rows: readonly IHumanFaceLashRow[], materials: readonly IAutoMovieMaterial[]) => Pick<IAutoMovieModel, "parts" | "materials"> {
+export function createHumanFaceLashFinish(
+  basis: IAutoMovieHumanFaceBasis,
+): (
+  document: IAutoMovieHumanFaceBasisDocument,
+  rows: readonly IHumanFaceLashRow[],
+  materials: readonly IAutoMovieMaterial[],
+) => Pick<IAutoMovieModel, "parts" | "materials"> {
   const colors: Map<string, number[]> = new Map<string, number[]>();
   for (const side of ["left", "right"] as const)
     for (const row of ["upper", "lower"] as const) {
-      const registration: ImportedIAutoMovieHumanFacePeriocularLashes | undefined = basis.periocular?.[side].lashes;
+      const registration:
+        | ImportedIAutoMovieHumanFacePeriocularLashes
+        | undefined = basis.periocular?.[side].lashes;
       if (registration === undefined) continue;
       const id: string =
         row === "upper" ? registration.upperRegion : registration.lowerRegion;
-      const region: ImportedIAutoMovieHumanFaceBasisRegion | undefined = basis.surfaces
-        .find((s: ImportedIAutoMovieHumanFaceBasisSurface): boolean => s.id === registration.surface)
-        ?.regions.find((r: ImportedIAutoMovieHumanFaceBasisRegion): boolean => r.id === id);
-      const material: IAutoMovieMaterial | undefined = basis.materials.find((m: IAutoMovieMaterial): boolean => m.id === region?.material);
+      const region: ImportedIAutoMovieHumanFaceBasisRegion | undefined =
+        basis.surfaces
+          .find(
+            (s: ImportedIAutoMovieHumanFaceBasisSurface): boolean =>
+              s.id === registration.surface,
+          )
+          ?.regions.find(
+            (r: ImportedIAutoMovieHumanFaceBasisRegion): boolean => r.id === id,
+          );
+      const material: IAutoMovieMaterial | undefined = basis.materials.find(
+        (m: IAutoMovieMaterial): boolean => m.id === region?.material,
+      );
       if (material === undefined || colors.has(material.id)) continue;
       colors.set(material.id, readHumanFaceFibrePigment(material));
     }
@@ -48,7 +68,9 @@ export function createHumanFaceLashFinish(basis: IAutoMovieHumanFaceBasis): (doc
     for (const row of rows) {
       if (row.mesh === null) continue;
       float32MeshBuffers(row.mesh, humanFaceLashPartId(row.side, row.row));
-      const source: IAutoMovieMaterial | undefined = materials.find((material: IAutoMovieMaterial): boolean => material.id === row.material);
+      const source: IAutoMovieMaterial | undefined = materials.find(
+        (material: IAutoMovieMaterial): boolean => material.id === row.material,
+      );
       const pigment: number[] | undefined =
         document.materials?.[row.material]?.pigment ?? colors.get(row.material);
       if (source === undefined || pigment === undefined)
@@ -60,7 +82,11 @@ export function createHumanFaceLashFinish(basis: IAutoMovieHumanFaceBasis): (doc
         source.opacity *
         Math.min(1, document.materials?.[row.material]?.density ?? 1);
       const id: string = humanFaceLashPartId(row.side, row.row);
-      const gain: number[] = [source.baseColor.r, source.baseColor.g, source.baseColor.b];
+      const gain: number[] = [
+        source.baseColor.r,
+        source.baseColor.g,
+        source.baseColor.b,
+      ];
       result.materials.push({
         id,
         name: id,

@@ -1,5 +1,4 @@
 import type { IPortraitEyebrowFlowProfile } from "./IPortraitEyebrowFlowProfile";
-
 import type { IPortraitEyebrowPlacement } from "./IPortraitEyebrowPlacement";
 import type { IPortraitEyebrowProfile } from "./IPortraitEyebrowProfile";
 import { createPortraitEyebrowFlow } from "./createPortraitEyebrowFlow";

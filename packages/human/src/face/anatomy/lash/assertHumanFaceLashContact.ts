@@ -1,5 +1,15 @@
-import { Vector3, buildAutoMovieMeshQueryHierarchy, collectAutoMovieSpatialQueryCandidates, segmentSegmentDistance, type IAutoMovieMeshQueryHierarchy as ImportedIAutoMovieMeshQueryHierarchy } from "@automovie/engine";
-import type { IAutoMovieVector3, IAutoMovieMeshPhysicalVertices as ImportedIAutoMovieMeshPhysicalVertices, IAutoMovieMeshSkin as ImportedIAutoMovieMeshSkin } from "@automovie/interface";
+import {
+  type IAutoMovieMeshQueryHierarchy as ImportedIAutoMovieMeshQueryHierarchy,
+  Vector3,
+  buildAutoMovieMeshQueryHierarchy,
+  collectAutoMovieSpatialQueryCandidates,
+  segmentSegmentDistance,
+} from "@automovie/engine";
+import type {
+  IAutoMovieVector3,
+  IAutoMovieMeshPhysicalVertices as ImportedIAutoMovieMeshPhysicalVertices,
+  IAutoMovieMeshSkin as ImportedIAutoMovieMeshSkin,
+} from "@automovie/interface";
 
 import type { IHumanFaceLashCapsuleEntry } from "./structures/IHumanFaceLashCapsuleEntry";
 import type { IHumanFaceLashRow } from "./structures/IHumanFaceLashRow";
@@ -23,7 +33,10 @@ import type { IHumanFaceLashSegment } from "./structures/IHumanFaceLashSegment";
 export function assertHumanFaceLashContact(
   rows: readonly IHumanFaceLashRow[],
 ): void {
-  const point: (values: readonly number[], vertex: number) => IAutoMovieVector3 = (
+  const point: (
+    values: readonly number[],
+    vertex: number,
+  ) => IAutoMovieVector3 = (
     values: readonly number[],
     vertex: number,
   ): IAutoMovieVector3 =>
@@ -36,32 +49,52 @@ export function assertHumanFaceLashContact(
   let shaftId: number = 0;
   for (const row of rows) {
     if (row.mesh === null) continue;
-    const mesh: { positions: number[]; physicalVertices?: ImportedIAutoMovieMeshPhysicalVertices; normals: number[] | null; uvs: number[] | null; colors?: number[]; reliefWeights?: number[]; indices: number[] | null; skin: ImportedIAutoMovieMeshSkin | null; } = {
+    const mesh: {
+      positions: number[];
+      physicalVertices?: ImportedIAutoMovieMeshPhysicalVertices;
+      normals: number[] | null;
+      uvs: number[] | null;
+      colors?: number[];
+      reliefWeights?: number[];
+      indices: number[] | null;
+      skin: ImportedIAutoMovieMeshSkin | null;
+    } = {
       ...row.mesh,
       positions: row.mesh.positions.map(Math.fround),
     };
-    for (let shaft: number = 0; shaft < row.centrelines.length; shaft++, shaftId++) {
-      const centers: IAutoMovieVector3[] = Array.from({ length: 13 }, (_: unknown, sample: number): IAutoMovieVector3 => {
-        const sum: IAutoMovieVector3 = Vector3.create();
-        for (let radial: number = 0; radial < 8; radial++) {
-          const p: IAutoMovieVector3 = point(mesh.positions, shaft * 117 + sample * 9 + radial);
-          sum.x += p.x / 8;
-          sum.y += p.y / 8;
-          sum.z += p.z / 8;
-        }
-        return sum;
-      });
-      const radii: number[] = centers.map((center: IAutoMovieVector3, sample: number): number =>
-        Math.max(
-          ...Array.from({ length: 8 }, (_: unknown, radial: number): number =>
-            Vector3.length(
-              Vector3.subtract(
-                point(mesh.positions, shaft * 117 + sample * 9 + radial),
-                center,
+    for (
+      let shaft: number = 0;
+      shaft < row.centrelines.length;
+      shaft++, shaftId++
+    ) {
+      const centers: IAutoMovieVector3[] = Array.from(
+        { length: 13 },
+        (_: unknown, sample: number): IAutoMovieVector3 => {
+          const sum: IAutoMovieVector3 = Vector3.create();
+          for (let radial: number = 0; radial < 8; radial++) {
+            const p: IAutoMovieVector3 = point(
+              mesh.positions,
+              shaft * 117 + sample * 9 + radial,
+            );
+            sum.x += p.x / 8;
+            sum.y += p.y / 8;
+            sum.z += p.z / 8;
+          }
+          return sum;
+        },
+      );
+      const radii: number[] = centers.map(
+        (center: IAutoMovieVector3, sample: number): number =>
+          Math.max(
+            ...Array.from({ length: 8 }, (_: unknown, radial: number): number =>
+              Vector3.length(
+                Vector3.subtract(
+                  point(mesh.positions, shaft * 117 + sample * 9 + radial),
+                  center,
+                ),
               ),
             ),
           ),
-        ),
       );
       const root: IAutoMovieVector3 = centers[0];
       if (Vector3.length(Vector3.subtract(centers[12], root)) <= radii[0])
@@ -90,7 +123,16 @@ export function assertHumanFaceLashContact(
   if (!(cell > 0) || !Number.isFinite(cell))
     throw new Error("Generated shaft proximity has no finite spatial cell.");
   const capsules: IHumanFaceLashCapsuleEntry[] = segments.map(
-    (segment: IHumanFaceLashSegment, ordinal: number): { segment: IHumanFaceLashSegment; ordinal: number; low: number[]; high: number[]; centre: number[]; } => {
+    (
+      segment: IHumanFaceLashSegment,
+      ordinal: number,
+    ): {
+      segment: IHumanFaceLashSegment;
+      ordinal: number;
+      low: number[];
+      high: number[];
+      centre: number[];
+    } => {
       const axes: readonly ["x", "y", "z"] = ["x", "y", "z"] as const;
       const low: number[] = axes.map(
         (axis: "x" | "y" | "z"): number =>
@@ -105,11 +147,16 @@ export function assertHumanFaceLashContact(
         ordinal,
         low,
         high,
-        centre: low.map((value: number, axis: number): number => value / 2 + high[axis] / 2),
+        centre: low.map(
+          (value: number, axis: number): number => value / 2 + high[axis] / 2,
+        ),
       };
     },
   );
-  const hierarchy: ImportedIAutoMovieMeshQueryHierarchy.ILeaf<IHumanFaceLashCapsuleEntry> | ImportedIAutoMovieMeshQueryHierarchy.IBranch<IHumanFaceLashCapsuleEntry> = buildAutoMovieMeshQueryHierarchy([...capsules]);
+  const hierarchy:
+    | ImportedIAutoMovieMeshQueryHierarchy.ILeaf<IHumanFaceLashCapsuleEntry>
+    | ImportedIAutoMovieMeshQueryHierarchy.IBranch<IHumanFaceLashCapsuleEntry> =
+    buildAutoMovieMeshQueryHierarchy([...capsules]);
   for (const capsule of capsules) {
     const segment: IHumanFaceLashSegment = capsule.segment;
     for (const entry of collectAutoMovieSpatialQueryCandidates(

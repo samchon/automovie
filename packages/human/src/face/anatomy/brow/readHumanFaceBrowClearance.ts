@@ -50,14 +50,22 @@ export function readHumanFaceBrowClearance(
       count: number = shaft.positions.length / 3;
     combined.positions.push(...shaft.positions);
     combined.indices!.push(
-      ...(shaft.indices ?? []).map((vertex: number): number  => vertex + offset),
+      ...(shaft.indices ?? []).map((vertex: number): number => vertex + offset),
     );
     for (let at: number = 0; at < props.rowVertices; at++) {
       roots.push(offset + at);
       tips.push(offset + count - props.rowVertices + at);
     }
   }
-  const request: { owner: string; state: "rest" | "performed"; against: string; mesh: IAutoMovieMesh; exterior: IAutoMovieMesh; boundary: "open"; toleranceMetres: number; } = {
+  const request: {
+    owner: string;
+    state: "rest" | "performed";
+    against: string;
+    mesh: IAutoMovieMesh;
+    exterior: IAutoMovieMesh;
+    boundary: "open";
+    toleranceMetres: number;
+  } = {
     owner: "brow-" + props.side,
     state: props.state,
     against: props.against,

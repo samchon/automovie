@@ -1,17 +1,16 @@
-import type { IPortraitEyebrowProfile } from "./IPortraitEyebrowProfile";
-import type { IHumanFaceBrowReferenceGuide } from "./IHumanFaceBrowReferenceGuide";
-import type { IHumanFaceBrowCourse } from "./IHumanFaceBrowCourse";
-import type { IHumanFaceSkinChartCoordinate } from "../skin/IHumanFaceSkinChartCoordinate";
-import type { IHumanFaceSkinFrame } from "../skin/IHumanFaceSkinFrame";
-
-import type { IAutoMovieMesh, IAutoMovieModelPart, IAutoMovieVector3 } from "@automovie/interface";
-
-
-
+import type {
+  IAutoMovieMesh,
+  IAutoMovieModelPart,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { triangulateSurfaceLattice } from "../../mesh/triangulateSurfaceLattice";
+import type { IHumanFaceSkinChartCoordinate } from "../skin/IHumanFaceSkinChartCoordinate";
+import type { IHumanFaceSkinFrame } from "../skin/IHumanFaceSkinFrame";
+import type { IHumanFaceBrowCourse } from "./IHumanFaceBrowCourse";
+import type { IHumanFaceBrowReferenceGuide } from "./IHumanFaceBrowReferenceGuide";
 import type { IHumanFaceBrowShaftsProps } from "./IHumanFaceBrowShaftsProps";
-
+import type { IPortraitEyebrowProfile } from "./IPortraitEyebrowProfile";
 import { createHumanFaceBrowCourse } from "./createHumanFaceBrowCourse";
 import { createHumanFaceBrowReferenceGuides } from "./createHumanFaceBrowReferenceGuides";
 
@@ -86,24 +85,32 @@ export function buildHumanFaceBrowShafts(
 ): IAutoMovieModelPart[] {
   const { chart, binding, count }: IHumanFaceBrowShaftsProps = props;
   const shape: IPortraitEyebrowProfile = structuredClone(props.profile);
-  const guides: IHumanFaceBrowReferenceGuide[] = createHumanFaceBrowReferenceGuides({
-    positions: props.referencePositions,
-    binding,
-    count,
-    profile: shape,
-  });
+  const guides: IHumanFaceBrowReferenceGuide[] =
+    createHumanFaceBrowReferenceGuides({
+      positions: props.referencePositions,
+      binding,
+      count,
+      profile: shape,
+    });
   const millimetre: number = 0.001 as const;
   const emergence: number = ((shape.emergenceDegrees ?? 0) * Math.PI) / 180;
-  const rise: number = Math.sin(emergence), advance: number = Math.cos(emergence);
+  const rise: number = Math.sin(emergence),
+    advance: number = Math.cos(emergence);
   const rings: number = shape.segments + 1;
   const parts: IAutoMovieModelPart[] = [];
   for (const guide of guides) {
     const i: number = guide.index;
     const metric: IHumanFaceBrowCourse = createHumanFaceBrowCourse(
-      chart.compile(guide.points.map((point: readonly number[]): IHumanFaceSkinChartCoordinate  => chart.register(point))),
+      chart.compile(
+        guide.points.map(
+          (point: readonly number[]): IHumanFaceSkinChartCoordinate =>
+            chart.register(point),
+        ),
+      ),
     );
     const length: number = metric.lengthMetres;
-    const progress: (t: number) => number = (t: number): number => t * t * (3 - 2 * t);
+    const progress: (t: number) => number = (t: number): number =>
+      t * t * (3 - 2 * t);
     const radius: (t: number) => number = (t: number): number =>
       (shape.radius + (i % 3) * shape.radiusStep) *
       (1 - shape.taper * progress(t)) *
@@ -116,7 +123,7 @@ export function buildHumanFaceBrowShafts(
       const weight: number = progress(t);
       const normal: number[] = unit(
         foot.normal.map(
-          (value: number, axis: number): number  =>
+          (value: number, axis: number): number =>
             metric.rootNormal[axis] * (1 - weight) + value * weight,
         ),
       );
@@ -126,31 +133,50 @@ export function buildHumanFaceBrowShafts(
           millimetre +
         length * t * rise;
       centres.push(
-        foot.point.map((value: number, axis: number): number  => value + normal[axis] * height),
+        foot.point.map(
+          (value: number, axis: number): number =>
+            value + normal[axis] * height,
+        ),
       );
       normals.push(normal);
     }
-    const frames: { at: number[]; right: number[]; up: number[]; }[] = centres.map((at: number[], ring: number): { at: number[]; right: number[]; up: number[]; }  => {
-      const next: number[] = centres[Math.min(rings - 1, ring + 1)],
-        previous: number[] = centres[Math.max(0, ring - 1)];
-      const tangent: number[] =
-        ring === 0
-          ? unit(
-              metric.rootTangent.map(
-                (value: number, axis: number): number  =>
-                  value * advance + metric.rootNormal[axis] * rise,
-              ),
-            )
-          : unit(next.map((value: number, axis: number): number  => value - previous[axis]));
-      const right: number[] = unit(cross(normals[ring], tangent));
-      return { at, right, up: cross(tangent, right) };
-    });
+    const frames: { at: number[]; right: number[]; up: number[] }[] =
+      centres.map(
+        (
+          at: number[],
+          ring: number,
+        ): { at: number[]; right: number[]; up: number[] } => {
+          const next: number[] = centres[Math.min(rings - 1, ring + 1)],
+            previous: number[] = centres[Math.max(0, ring - 1)];
+          const tangent: number[] =
+            ring === 0
+              ? unit(
+                  metric.rootTangent.map(
+                    (value: number, axis: number): number =>
+                      value * advance + metric.rootNormal[axis] * rise,
+                  ),
+                )
+              : unit(
+                  next.map(
+                    (value: number, axis: number): number =>
+                      value - previous[axis],
+                  ),
+                );
+          const right: number[] = unit(cross(normals[ring], tangent));
+          return { at, right, up: cross(tangent, right) };
+        },
+      );
     const mesh: IAutoMovieMesh =
       shape.representation === undefined
         ? triangulateSurfaceLattice(
             (around: number, v: number): IAutoMovieVector3 => {
               const ring: number = Math.round(v * shape.segments);
-              const { at, right, up }: { at: number[]; right: number[]; up: number[]; } = frames[ring],
+              const {
+                  at,
+                  right,
+                  up,
+                }: { at: number[]; right: number[]; up: number[] } =
+                  frames[ring],
                 r: number = radius(ring / shape.segments),
                 c: number = Math.cos(2 * Math.PI * around),
                 s: number = Math.sin(2 * Math.PI * around);
@@ -166,7 +192,11 @@ export function buildHumanFaceBrowShafts(
         : triangulateSurfaceLattice(
             (across: number, v: number): IAutoMovieVector3 => {
               const ring: number = Math.round(v * shape.segments);
-              const { at, right }: { at: number[]; right: number[]; up: number[]; } = frames[ring],
+              const {
+                  at,
+                  right,
+                }: { at: number[]; right: number[]; up: number[] } =
+                  frames[ring],
                 r: number = radius(ring / shape.segments) * (2 * across - 1);
               return {
                 x: at[0] + r * right[0],
@@ -190,15 +220,20 @@ export function buildHumanFaceBrowShafts(
   return parts;
 }
 
-const cross: (a: readonly number[], b: readonly number[]) => number[] = (a: readonly number[], b: readonly number[]): number[] => [
+const cross: (a: readonly number[], b: readonly number[]) => number[] = (
+  a: readonly number[],
+  b: readonly number[],
+): number[] => [
   a[1] * b[2] - a[2] * b[1],
   a[2] * b[0] - a[0] * b[2],
   a[0] * b[1] - a[1] * b[0],
 ];
 
-const unit: (vector: readonly number[]) => number[] = (vector: readonly number[]): number[] => {
+const unit: (vector: readonly number[]) => number[] = (
+  vector: readonly number[],
+): number[] => {
   const length: number = Math.hypot(...vector);
   if (!(length > 0) || !Number.isFinite(length))
     throw new Error("An eyebrow shaft needs a finite nonzero direction.");
-  return vector.map((value: number): number  => value / length);
+  return vector.map((value: number): number => value / length);
 };

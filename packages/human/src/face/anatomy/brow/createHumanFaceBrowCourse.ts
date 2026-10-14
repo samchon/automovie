@@ -1,9 +1,8 @@
-import type { IHumanFaceSkinChartCourse } from "../skin/IHumanFaceSkinChartCourse";
-import type { IHumanFaceSkinChartMetricSpan } from "../skin/IHumanFaceSkinChartMetricSpan";
+import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import { Vector3 } from "@automovie/engine";
-
+import type { IHumanFaceSkinChartCourse } from "../skin/IHumanFaceSkinChartCourse";
+import type { IHumanFaceSkinChartMetricSpan } from "../skin/IHumanFaceSkinChartMetricSpan";
 import type { IHumanFaceSkinChartSpan } from "../skin/IHumanFaceSkinChartSpan";
 import { createHumanFaceSkinChartCourse } from "../skin/createHumanFaceSkinChartCourse";
 import type { IHumanFaceBrowCourse } from "./IHumanFaceBrowCourse";
@@ -32,7 +31,8 @@ import type { IHumanFaceBrowCourse } from "./IHumanFaceBrowCourse";
 export function createHumanFaceBrowCourse(
   nativeSpans: readonly IHumanFaceSkinChartSpan[],
 ): IHumanFaceBrowCourse {
-  const course: IHumanFaceSkinChartCourse = createHumanFaceSkinChartCourse(nativeSpans),
+  const course: IHumanFaceSkinChartCourse =
+      createHumanFaceSkinChartCourse(nativeSpans),
     spans: readonly IHumanFaceSkinChartMetricSpan[] = course.spans,
     lengthMetres: number = course.totalLengthMetres;
   if (spans.length === 0)
@@ -40,7 +40,9 @@ export function createHumanFaceBrowCourse(
   const first: IHumanFaceSkinChartMetricSpan = spans[0];
   const tangent: IAutoMovieVector3 = Vector3.normalize(
     Vector3.create(
-      ...first.end.map((value: number, axis: number): number  => value - first.start[axis]),
+      ...first.end.map(
+        (value: number, axis: number): number => value - first.start[axis],
+      ),
     ),
   );
   const support: IAutoMovieVector3 = Vector3.create(...first.frameAt(0).face);

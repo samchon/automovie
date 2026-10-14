@@ -1,7 +1,7 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
-import type { IHumanFaceSkinSeat } from "../skin/IHumanFaceSkinSeat";
 
 import { catmullRomPoint } from "../../mesh/catmullRomPoint";
+import type { IHumanFaceSkinSeat } from "../skin/IHumanFaceSkinSeat";
 import type { IHumanFaceBrowTintProps } from "./IHumanFaceBrowTintProps";
 
 /**
@@ -27,7 +27,8 @@ import type { IHumanFaceBrowTintProps } from "./IHumanFaceBrowTintProps";
  * @evidence contracts/performance.md#bound-retention-and-release-resources The temporary lattice and touched-vertex weight map expire on return; only caller-owned gains are mutated and no host or shaft cache is retained.
  */
 export function applyHumanFaceBrowTint(props: IHumanFaceBrowTintProps): void {
-  const { host, positions, binding, shafts, gains }: IHumanFaceBrowTintProps = props;
+  const { host, positions, binding, shafts, gains }: IHumanFaceBrowTintProps =
+    props;
   if (shafts.length === 0) return;
   let silhouette: number = 0;
   for (const shaft of shafts) {
@@ -42,7 +43,9 @@ export function applyHumanFaceBrowTint(props: IHumanFaceBrowTintProps): void {
       );
     silhouette += props.ribbon ? area : area / Math.PI;
   }
-  const landmark: (id: number) => IAutoMovieVector3 = (id: number): IAutoMovieVector3 => ({
+  const landmark: (id: number) => IAutoMovieVector3 = (
+    id: number,
+  ): IAutoMovieVector3 => ({
     x: positions[3 * id],
     y: positions[3 * id + 1],
     z: positions[3 * id + 2],
@@ -99,7 +102,12 @@ export function applyHumanFaceBrowTint(props: IHumanFaceBrowTintProps): void {
     }
 }
 
-const triangleArea: (points: readonly number[], a: number, b: number, c: number) => number = (
+const triangleArea: (
+  points: readonly number[],
+  a: number,
+  b: number,
+  c: number,
+) => number = (
   points: readonly number[],
   a: number,
   b: number,

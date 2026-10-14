@@ -1,8 +1,9 @@
-import type { IPortraitEyebrowPlacement } from "./IPortraitEyebrowPlacement";
-import type { IPortraitEyebrowFlowDirection } from "./IPortraitEyebrowFlowDirection";
-
 import { Vector3, createAutoMovieMeshDepthSampler } from "@automovie/engine";
-import type { IAutoMovieModelPart, IAutoMovieMesh, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMesh,
+  IAutoMovieModelPart,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { catmullRomPoint } from "../../mesh/catmullRomPoint";
 import { createMetricMeshPart } from "../../mesh/createMetricMeshPart";
@@ -12,6 +13,8 @@ import type { IControlMesh } from "../../mesh/structures/IControlMesh";
 import { sweepEightSidedTube } from "../../mesh/sweepEightSidedTube";
 import { triangulateSurfaceLattice } from "../../mesh/triangulateSurfaceLattice";
 import type { IPortraitEyebrowBinding } from "./IPortraitEyebrowBinding";
+import type { IPortraitEyebrowFlowDirection } from "./IPortraitEyebrowFlowDirection";
+import type { IPortraitEyebrowPlacement } from "./IPortraitEyebrowPlacement";
 import { IPortraitEyebrowProfile } from "./IPortraitEyebrowProfile";
 import { assertPortraitEyebrowProfile } from "./assertPortraitEyebrowProfile";
 import { portraitEyebrowProfile } from "./portraitEyebrowProfile";
@@ -80,7 +83,8 @@ export function buildPortraitEyebrow(
     binding.upper.length < 2 ||
     binding.lower.length < 2 ||
     [...binding.upper, ...binding.lower].some(
-      (id: number): boolean  => !Number.isInteger(id) || id < 0 || id >= skin.positions.length,
+      (id: number): boolean =>
+        !Number.isInteger(id) || id < 0 || id >= skin.positions.length,
     )
   )
     throw new Error(
@@ -97,9 +101,19 @@ export function buildPortraitEyebrow(
     },
     "skin",
   ).geometry.mesh;
-  const sample: (u: number, v: number) => { minimum: number; maximum: number; } | null = createAutoMovieMeshDepthSampler(mesh, "z");
-  const depth: (x: number, y: number) => number = (x: number, y: number): number => {
-    const hit: { minimum: number; maximum: number; } | null = sample(x / 1000, y / 1000);
+  const sample: (
+    u: number,
+    v: number,
+  ) => { minimum: number; maximum: number } | null =
+    createAutoMovieMeshDepthSampler(mesh, "z");
+  const depth: (x: number, y: number) => number = (
+    x: number,
+    y: number,
+  ): number => {
+    const hit: { minimum: number; maximum: number } | null = sample(
+      x / 1000,
+      y / 1000,
+    );
     if (hit === null)
       throw new Error(
         "Eyebrow fibres must remain over their supporting skin surface.",
@@ -107,18 +121,28 @@ export function buildPortraitEyebrow(
     return hit.maximum * 1000;
   };
   const epsilon: number = Math.max(0.001, shape.radius);
-  const contact: (x: number, y: number, offset: number) => IAutoMovieVector3 = (x: number, y: number, offset: number): IAutoMovieVector3  => {
+  const contact: (x: number, y: number, offset: number) => IAutoMovieVector3 = (
+    x: number,
+    y: number,
+    offset: number,
+  ): IAutoMovieVector3 => {
     const z: number = depth(x, y);
-    const dx: number = (depth(x + epsilon, y) - depth(x - epsilon, y)) / (2 * epsilon);
-    const dy: number = (depth(x, y + epsilon) - depth(x, y - epsilon)) / (2 * epsilon);
-    const normal: IAutoMovieVector3 = Vector3.normalize(millimetrePoint(-dx, -dy, 1));
+    const dx: number =
+      (depth(x + epsilon, y) - depth(x - epsilon, y)) / (2 * epsilon);
+    const dy: number =
+      (depth(x, y + epsilon) - depth(x, y - epsilon)) / (2 * epsilon);
+    const normal: IAutoMovieVector3 = Vector3.normalize(
+      millimetrePoint(-dx, -dy, 1),
+    );
     return millimetrePoint(
       x + normal.x * offset,
       y + normal.y * offset,
       z + normal.z * offset,
     );
   };
-  const landmark: (id: number) => IAutoMovieVector3 = (id: number): IAutoMovieVector3  =>
+  const landmark: (id: number) => IAutoMovieVector3 = (
+    id: number,
+  ): IAutoMovieVector3 =>
     millimetrePoint(...(skin.positions[id] as [number, number, number]));
   const top: IAutoMovieVector3[] = binding.upper.map(landmark),
     bottom: IAutoMovieVector3[] = binding.lower.map(landmark);
@@ -139,18 +163,23 @@ export function buildPortraitEyebrow(
     // Distribute roots within the authored band, then use its complete flow or
     // the basic upward/outward sweep. Density is independent of fibre radius.
     const anatomical: number = binding.side === "left" ? u : 1 - u;
-    const fade: (distance: number, reach: number) => number = (distance: number, reach: number): number => {
+    const fade: (distance: number, reach: number) => number = (
+      distance: number,
+      reach: number,
+    ): number => {
       if (reach === 0) return 1;
       const t: number = Math.min(1, distance / reach);
       return t * t * (3 - 2 * t);
     };
-    const envelope: number = fade(anatomical, ends[0]) * fade(1 - anatomical, ends[1]);
+    const envelope: number =
+      fade(anatomical, ends[0]) * fade(1 - anatomical, ends[1]);
     // Thin the population, not the radius: sub-resolution tube rings collapse
     // under the model's geometric weld tolerance. Each retained hair keeps its
     // independently authored physical radius and longitudinal taper.
     if (((i + 0.5) * densityStep + densityPhase) % 1 >= envelope) continue;
     const rootFraction: number = (i * 0.61803398875) % 1;
-    const start: number = rootBand[0] + (rootBand[1] - rootBand[0]) * rootFraction;
+    const start: number =
+      rootBand[0] + (rootBand[1] - rootBand[0]) * rootFraction;
     const direction: IPortraitEyebrowFlowDirection | undefined = flow?.(
       anatomical,
       rootBand[0] === rootBand[1] ? 0.5 : rootFraction,
@@ -166,9 +195,11 @@ export function buildPortraitEyebrow(
       ) === 0
     )
       throw new Error("An eyebrow fibre needs a nonzero path along the skin.");
-    const radius: (t: number) => number = (t: number): number  =>
+    const radius: (t: number) => number = (t: number): number =>
       (shape.radius + (i % 3) * shape.radiusStep) * (1 - shape.taper * t);
-    const projected: (t: number) => IAutoMovieVector3 = (t: number): IAutoMovieVector3  => {
+    const projected: (t: number) => IAutoMovieVector3 = (
+      t: number,
+    ): IAutoMovieVector3 => {
       const v: number = linearInterpolate(start, end, t);
       return millimetrePoint(
         linearInterpolate(a.x, b.x, v) + outward * outwardBend * t * t,
@@ -176,7 +207,9 @@ export function buildPortraitEyebrow(
         0,
       );
     };
-    const curve: (t: number) => IAutoMovieVector3 = (t: number): IAutoMovieVector3  => {
+    const curve: (t: number) => IAutoMovieVector3 = (
+      t: number,
+    ): IAutoMovieVector3 => {
       const point: IAutoMovieVector3 = projected(t);
       return contact(
         point.x,
@@ -188,9 +221,11 @@ export function buildPortraitEyebrow(
       shape.representation === undefined
         ? sweepEightSidedTube(curve, radius, shape.segments)
         : triangulateSurfaceLattice(
-            (u: number, t: number): IAutoMovieVector3  => {
+            (u: number, t: number): IAutoMovieVector3 => {
               const center: IAutoMovieVector3 = projected(t);
-              const before: IAutoMovieVector3 = projected(Math.max(0, t - 0.001)),
+              const before: IAutoMovieVector3 = projected(
+                  Math.max(0, t - 0.001),
+                ),
                 after: IAutoMovieVector3 = projected(Math.min(1, t + 0.001));
               const across: IAutoMovieVector3 = Vector3.normalize(
                 millimetrePoint(before.y - after.y, after.x - before.x, 0),

@@ -1,4 +1,7 @@
-import type { IAutoMovieHumanFaceBasisSurface as ImportedIAutoMovieHumanFaceBasisSurface, IAutoMovieHumanConstructionCrossingWitness as ImportedIAutoMovieHumanConstructionCrossingWitness } from "@automovie/human";
+import type {
+  IAutoMovieHumanConstructionCrossingWitness as ImportedIAutoMovieHumanConstructionCrossingWitness,
+  IAutoMovieHumanFaceBasisSurface as ImportedIAutoMovieHumanFaceBasisSurface,
+} from "@automovie/human";
 import type { IAutoMovieMesh } from "@automovie/interface";
 
 import type { IAutoMovieHumanConstructionClearanceReading } from "../../../common/structures/IAutoMovieHumanConstructionClearanceReading";
@@ -37,7 +40,10 @@ export function readHumanFaceLashClearance(
   const owner: string = "lash-clearance";
   const exteriors: [string, IAutoMovieMesh][] = [];
   for (const side of ["left", "right"] as const) {
-    if (!rows.some((row: IHumanFaceLashRow): boolean => row.side === side) && optics === undefined)
+    if (
+      !rows.some((row: IHumanFaceLashRow): boolean => row.side === side) &&
+      optics === undefined
+    )
       continue;
     const exterior: IAutoMovieMesh | undefined = readHumanFaceOpticalExterior(
       basis,
@@ -58,7 +64,10 @@ export function readHumanFaceLashClearance(
     if (row.mesh === null) continue;
     const subject: string = "lashes:" + row.side + ":" + row.row;
     const id: string = basis.periocular![row.side].margins.surface;
-    const source: ImportedIAutoMovieHumanFaceBasisSurface = basis.surfaces.find((surface: ImportedIAutoMovieHumanFaceBasisSurface): boolean => surface.id === id)!;
+    const source: ImportedIAutoMovieHumanFaceBasisSurface = basis.surfaces.find(
+      (surface: ImportedIAutoMovieHumanFaceBasisSurface): boolean =>
+        surface.id === id,
+    )!;
     const skin: IAutoMovieMesh = {
       positions: [...positions.get(id)!],
       indices: source.indices,
@@ -70,7 +79,9 @@ export function readHumanFaceLashClearance(
     const freeVertices: number[] = [];
     const insertions: IHumanFaceLashInsertionBall[] = [];
     for (let shaft: number = 0; shaft < row.centrelines.length; shaft++) {
-      const centre: (sample: number) => number[] = (sample: number): number[] => {
+      const centre: (sample: number) => number[] = (
+        sample: number,
+      ): number[] => {
         const sum: number[] = [0, 0, 0];
         for (let radial: number = 0; radial < 8; radial++)
           for (let axis: number = 0; axis < 3; axis++)
@@ -78,7 +89,10 @@ export function readHumanFaceLashClearance(
               points[3 * (shaft * 117 + sample * 9 + radial) + axis] / 8;
         return sum;
       };
-      const distance: (vertex: number, to: readonly number[]) => number = (vertex: number, to: readonly number[]): number =>
+      const distance: (vertex: number, to: readonly number[]) => number = (
+        vertex: number,
+        to: readonly number[],
+      ): number =>
         Math.hypot(
           points[3 * vertex] - to[0],
           points[3 * vertex + 1] - to[1],
@@ -113,43 +127,51 @@ export function readHumanFaceLashClearance(
           ),
         }),
       );
-    const classified: Map<string, IAutoMovieHumanConstructionRootInsertionWitness> = new Map<
+    const classified: Map<
       string,
       IAutoMovieHumanConstructionRootInsertionWitness
-    >();
-    const freeSkin: IAutoMovieHumanConstructionClearanceReading = measureHumanFaceClearance({
-      owner,
-      state: "performed",
-      subject,
-      against: id + ":free-skin",
-      judged: true,
-      mesh: row.mesh,
-      exterior: skin,
-      boundary: "open",
-      toleranceMetres: tolerance,
-      vertices: freeVertices,
-      acceptTransversePoint: (point: readonly number[], triangle: number, other: number): boolean => {
-        const shaft: number = Math.floor(triangle / (576 / 3));
-        const insertion: IHumanFaceLashInsertionBall = insertions[shaft];
-        const distance: number = Math.hypot(
-          point[0] - insertion.centre[0],
-          point[1] - insertion.centre[1],
-          point[2] - insertion.centre[2],
-        );
-        const free: boolean = distance > insertion.radius;
-        const key: string = triangle + ":" + other;
-        if (free)
-          classified.set(key, {
-            point: [...point],
-            shaft,
-            centre: [...insertion.centre],
-            radiusMetres: insertion.radius,
-            distanceMetres: distance,
-          });
-        return free;
-      },
-    });
-    const witness: ImportedIAutoMovieHumanConstructionCrossingWitness | null | undefined = freeSkin.crossingWitness;
+    > = new Map<string, IAutoMovieHumanConstructionRootInsertionWitness>();
+    const freeSkin: IAutoMovieHumanConstructionClearanceReading =
+      measureHumanFaceClearance({
+        owner,
+        state: "performed",
+        subject,
+        against: id + ":free-skin",
+        judged: true,
+        mesh: row.mesh,
+        exterior: skin,
+        boundary: "open",
+        toleranceMetres: tolerance,
+        vertices: freeVertices,
+        acceptTransversePoint: (
+          point: readonly number[],
+          triangle: number,
+          other: number,
+        ): boolean => {
+          const shaft: number = Math.floor(triangle / (576 / 3));
+          const insertion: IHumanFaceLashInsertionBall = insertions[shaft];
+          const distance: number = Math.hypot(
+            point[0] - insertion.centre[0],
+            point[1] - insertion.centre[1],
+            point[2] - insertion.centre[2],
+          );
+          const free: boolean = distance > insertion.radius;
+          const key: string = triangle + ":" + other;
+          if (free)
+            classified.set(key, {
+              point: [...point],
+              shaft,
+              centre: [...insertion.centre],
+              radiusMetres: insertion.radius,
+              distanceMetres: distance,
+            });
+          return free;
+        },
+      });
+    const witness:
+      | ImportedIAutoMovieHumanConstructionCrossingWitness
+      | null
+      | undefined = freeSkin.crossingWitness;
     if (witness !== undefined && witness !== null)
       witness.rootInsertion = classified.get(
         witness.subjectTriangle + ":" + witness.referenceTriangle,

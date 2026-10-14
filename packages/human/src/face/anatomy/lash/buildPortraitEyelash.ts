@@ -53,12 +53,16 @@ export function buildPortraitEyelash(
     throw new Error(
       "A lash radius must stay below its centreline curvature radius.",
     );
-  const fan: number = (side === "left" ? 1 : -1) * (at - 0.45) * profile.fan * radians;
+  const fan: number =
+    (side === "left" ? 1 : -1) * (at - 0.45) * profile.fan * radians;
   const sinFan: number = Math.sin(fan),
     cosFan: number = Math.cos(fan);
   let rotation: IAutoMovieQuaternion | undefined;
   if (motion !== undefined) {
-    const directions: { x: number; y: number; z: number; }[] = [motion.from, motion.to].map((value: IAutoMovieVector3): { x: number; y: number; z: number; } => {
+    const directions: { x: number; y: number; z: number }[] = [
+      motion.from,
+      motion.to,
+    ].map((value: IAutoMovieVector3): { x: number; y: number; z: number } => {
       const size: number = Math.hypot(value.x, value.y, value.z);
       if (!Number.isFinite(size) || size === 0)
         throw new Error(
@@ -66,7 +70,10 @@ export function buildPortraitEyelash(
         );
       return { x: value.x / size, y: value.y / size, z: value.z / size };
     });
-    const cross: IAutoMovieVector3 = Vector3.cross(directions[0], directions[1]);
+    const cross: IAutoMovieVector3 = Vector3.cross(
+      directions[0],
+      directions[1],
+    );
     const sine: number = Vector3.length(cross),
       cosine: number = Vector3.dot(directions[0], directions[1]);
     if (sine === 0 && cosine < 0)
@@ -80,14 +87,15 @@ export function buildPortraitEyelash(
   return triangulateSurfaceLattice(
     (u: number, t: number): IAutoMovieVector3 => {
       const half: number = (curl * t) / 2;
-      const distance: number = length * t * (half === 0 ? 1 : Math.sin(half) / half);
+      const distance: number =
+        length * t * (half === 0 ? 1 : Math.sin(half) / half);
       const forward: number = distance * Math.cos(initial + half);
       const upward: number = distance * Math.sin(initial + half);
       const angle: number = initial + curl * t;
       const radius: number = profile.radius * (1 - profile.taper * t);
       const a: number = radius * Math.cos(2 * Math.PI * u);
       const b: number = radius * Math.sin(2 * Math.PI * u);
-      const offset: { x: number; y: number; z: number; } = {
+      const offset: { x: number; y: number; z: number } = {
         x: sinFan * forward + cosFan * a - sinFan * Math.sin(angle) * b,
         y: upward + Math.cos(angle) * b,
         z: cosFan * forward - sinFan * a - cosFan * Math.sin(angle) * b,

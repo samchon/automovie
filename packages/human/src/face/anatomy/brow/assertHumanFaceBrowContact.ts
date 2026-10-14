@@ -1,4 +1,9 @@
-import { createAutoMovieSignedMeshQuery, measureAutoMovieMeshCrossings, type IAutoMovieSignedMeshQueryHit, type IAutoMovieMeshCrossing } from "@automovie/engine";
+import {
+  type IAutoMovieMeshCrossing,
+  type IAutoMovieSignedMeshQueryHit,
+  createAutoMovieSignedMeshQuery,
+  measureAutoMovieMeshCrossings,
+} from "@automovie/engine";
 import type { IAutoMovieMesh } from "@automovie/interface";
 
 /**
@@ -26,8 +31,12 @@ export function assertHumanFaceBrowContact(
   if (!Number.isFinite(toleranceMetres) || toleranceMetres < 0)
     throw new Error("Brow attachment needs its source contact tolerance.");
   if (shafts.length === 0) return;
-  const host: IAutoMovieMesh = { ...skin, positions: skin.positions.map(Math.fround) };
-  const query: (point: readonly number[]) => IAutoMovieSignedMeshQueryHit = createAutoMovieSignedMeshQuery(host, { boundary: "open" });
+  const host: IAutoMovieMesh = {
+    ...skin,
+    positions: skin.positions.map(Math.fround),
+  };
+  const query: (point: readonly number[]) => IAutoMovieSignedMeshQueryHit =
+    createAutoMovieSignedMeshQuery(host, { boundary: "open" });
   const combined: IAutoMovieMesh = {
     positions: [],
     indices: [],
@@ -42,7 +51,9 @@ export function assertHumanFaceBrowContact(
       positions: shafts[shaft].positions.map(Math.fround),
     };
     for (const vertex of new Set(mesh.indices ?? [])) {
-      const hit: IAutoMovieSignedMeshQueryHit = query(mesh.positions.slice(3 * vertex, 3 * vertex + 3));
+      const hit: IAutoMovieSignedMeshQueryHit = query(
+        mesh.positions.slice(3 * vertex, 3 * vertex + 3),
+      );
       if (hit.boundary || hit.signedDistance < -toleranceMetres)
         throw new Error(
           "Brow shaft skin clearance unavailable at shaft " +
@@ -53,14 +64,21 @@ export function assertHumanFaceBrowContact(
     }
     const offset: number = combined.positions.length / 3;
     combined.positions.push(...mesh.positions);
-    combined.indices!.push(...mesh.indices!.map((vertex: number): number  => vertex + offset));
-    for (let triangle: number = 0; triangle < mesh.indices!.length / 3; triangle++)
+    combined.indices!.push(
+      ...mesh.indices!.map((vertex: number): number => vertex + offset),
+    );
+    for (
+      let triangle: number = 0;
+      triangle < mesh.indices!.length / 3;
+      triangle++
+    )
       owners.push(shaft);
   }
   // One census indexes the host once for the complete requested population.
-  const crossing: IAutoMovieMeshCrossing | undefined = measureAutoMovieMeshCrossings(combined, host).find(
-    (crossing: IAutoMovieMeshCrossing): boolean  => !crossing.coplanar,
-  );
+  const crossing: IAutoMovieMeshCrossing | undefined =
+    measureAutoMovieMeshCrossings(combined, host).find(
+      (crossing: IAutoMovieMeshCrossing): boolean => !crossing.coplanar,
+    );
   if (crossing !== undefined)
     throw new Error(
       "Brow shaft crosses its actual host skin: " + owners[crossing.triangle],

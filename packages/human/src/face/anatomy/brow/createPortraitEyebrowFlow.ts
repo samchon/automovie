@@ -1,7 +1,6 @@
-import type { IPortraitEyebrowFlowSection } from "./IPortraitEyebrowFlowSection";
-
 import { IPortraitEyebrowFlowDirection } from "./IPortraitEyebrowFlowDirection";
 import { IPortraitEyebrowFlowProfile } from "./IPortraitEyebrowFlowProfile";
+import type { IPortraitEyebrowFlowSection } from "./IPortraitEyebrowFlowSection";
 
 /**
  * Own and interpolate one brow flow profile. Longitudinal cubic smoothstep and
@@ -25,19 +24,23 @@ import { IPortraitEyebrowFlowProfile } from "./IPortraitEyebrowFlowProfile";
  * @evidence contracts/performance.md#reuse-equivalent-work The admitted owned witness copy serves all subsequent queries, so later caller profile changes cannot invalidate it implicitly.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The returned closure retains exactly its copied K sections for the caller's sampler lifetime and starts no task or handle.
  */
-export function createPortraitEyebrowFlow(input: IPortraitEyebrowFlowProfile): (at: number, root: number) => IPortraitEyebrowFlowDirection  {
-  const sections: readonly IPortraitEyebrowFlowSection[] = structuredClone(input.sections);
+export function createPortraitEyebrowFlow(
+  input: IPortraitEyebrowFlowProfile,
+): (at: number, root: number) => IPortraitEyebrowFlowDirection {
+  const sections: readonly IPortraitEyebrowFlowSection[] = structuredClone(
+    input.sections,
+  );
   if (
     sections.length < 2 ||
     sections.length > 32 ||
     sections[0].at !== 0 ||
     sections[sections.length - 1].at !== 1 ||
     sections.some(
-      (section: IPortraitEyebrowFlowSection, index: number): boolean  =>
+      (section: IPortraitEyebrowFlowSection, index: number): boolean =>
         !Number.isFinite(section.at) ||
         (index > 0 && section.at <= sections[index - 1].at) ||
         [section.lower, section.upper].some(
-          (direction: IPortraitEyebrowFlowDirection): boolean  =>
+          (direction: IPortraitEyebrowFlowDirection): boolean =>
             !Number.isFinite(direction.tip) ||
             direction.tip < 0 ||
             direction.tip > 1 ||
@@ -51,7 +54,8 @@ export function createPortraitEyebrowFlow(input: IPortraitEyebrowFlowProfile): (
   return (at: number, root: number): IPortraitEyebrowFlowDirection => {
     if (
       ![at, root].every(
-        (value: number): boolean  => Number.isFinite(value) && value >= 0 && value <= 1,
+        (value: number): boolean =>
+          Number.isFinite(value) && value >= 0 && value <= 1,
       )
     )
       throw new Error(
@@ -63,7 +67,9 @@ export function createPortraitEyebrowFlow(input: IPortraitEyebrowFlowProfile): (
       b: IPortraitEyebrowFlowSection = sections[index + 1];
     const t: number = (at - a.at) / (b.at - a.at),
       weight: number = t * t * (3 - 2 * t);
-    const value: (key: keyof IPortraitEyebrowFlowDirection) => number = (key: keyof IPortraitEyebrowFlowDirection): number => {
+    const value: (key: keyof IPortraitEyebrowFlowDirection) => number = (
+      key: keyof IPortraitEyebrowFlowDirection,
+    ): number => {
       const lower: number = a.lower[key] * (1 - weight) + b.lower[key] * weight;
       const upper: number = a.upper[key] * (1 - weight) + b.upper[key] * weight;
       return lower * (1 - root) + upper * root;

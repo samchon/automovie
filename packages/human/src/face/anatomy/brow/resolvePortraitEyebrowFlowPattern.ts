@@ -22,14 +22,18 @@ export function resolvePortraitEyebrowFlowPattern(
 ): IPortraitEyebrowFlowProfile {
   if (
     ![pattern.headTip, pattern.convergence].every(
-      (value: number): boolean  => Number.isFinite(value) && value >= 0 && value <= 1,
+      (value: number): boolean =>
+        Number.isFinite(value) && value >= 0 && value <= 1,
     ) ||
     ![pattern.headSweepMm, pattern.sweepMm].every(Number.isFinite)
   )
     throw new Error(
       "Eyebrow grain needs tip fractions in [0,1] and finite sweeps.",
     );
-  const body: { lower: { tip: number; outwardBend: number; }; upper: { tip: number; outwardBend: number; }; } = {
+  const body: {
+    lower: { tip: number; outwardBend: number };
+    upper: { tip: number; outwardBend: number };
+  } = {
     lower: { tip: pattern.convergence, outwardBend: pattern.sweepMm },
     upper: { tip: pattern.convergence, outwardBend: pattern.sweepMm },
   };
