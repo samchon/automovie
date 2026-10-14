@@ -4,7 +4,7 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 import type { IHumanFaceHairEmergenceRequest } from "./IHumanFaceHairEmergenceRequest";
 
 /**
- * The direction one hair leaves the skin in: the surface normal tilted toward the growth field by the admitted authored exit elevation or the legacy scalp range (`humanFaceHairEmergenceRange`). The scalp convention is that range's lower end; a root rises toward the range top only when its stem provably cannot clear the skin from the lower end. The azimuth is always the field's, preserving the authored comb direction in either representation.
+ * Compute the initial direction from the current surface normal and styling field at an admitted elevation above the tangent plane. The integrator supplies either the authored elevation or a trial from `humanFaceHairEmergenceRange`; this helper selects no trial. Legacy trials can rise after a typed numerical stem refusal, which does not prove that every geometric path at the lower elevation is infeasible. A nonzero field tangent supplies azimuth.
  *
  * The tilt is toward the field's tangential part, which is where that hair is combed; a field with no tangential part leaves the hair on its normal, since there is no direction to lie down in. The caller owns what happens after emergence, including the surface contact this direction is projected by. The tangential direction is normalized before the bounded cosine weight is applied. A finite positive subnormal length therefore cannot overflow an intermediate reciprocal; the same shared vector owner supplies both norms.
  *
