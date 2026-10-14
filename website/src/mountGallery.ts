@@ -1,20 +1,32 @@
 /**
  * Enhance the collection's secondary capture links with a native modal gallery. collection.ts supplies its document; this module reads each article once, then owns the selected building/view and all dialog mutations. Captures, copy and destination links remain authored in index.html, the single data owner. Showing a building resets its view to the exterior. View navigation wraps within that building; building navigation wraps within the collection.
  *
- * Rendering replaces the image before binding its failure handler, so an old image's late error cannot replace a newer view. Native dialog owns Escape, focus containment and background inertness. Closing restores the original opener's focus. Close/teardown synchronously release the document lock; delayed native close events cannot affect a newly opened gallery. The disposer also removes dynamic image/view listeners. Browsers without showModal keep the original image-link behavior.
+ * Rendering replaces the image before binding its failure handler, so an old image's late error cannot replace a newer view. Native dialog owns Escape, focus containment and background inertness. Closing attempts to restore the original opener's focus and release the document lock; a current-open observation protects a newer opening from delayed close events. The disposer attempts dynamic image/view listener removal. Browsers without showModal keep the original image-link behavior.
  */
 import { GalleryController } from "./gallery/GalleryController";
 import { GalleryImageLifecycle } from "./gallery/GalleryImageLifecycle";
 import { deriveGallerySelection } from "./gallery/deriveGallerySelection";
 import { requireGalleryValue } from "./gallery/requireGalleryValue";
 import { readGalleryBuildings } from "./gallery/readGalleryBuildings";
+import type { IGalleryContent } from "./gallery/IGalleryContent";
+import { runWebsiteCleanup } from "./internal/runWebsiteCleanup";
 
 /** Required authored markup is a precondition; fail before attaching events. */
 const required: <T extends Element>(root: ParentNode, selector: string) => T = <T extends Element>(root: ParentNode, selector: string): T => {
   return requireGalleryValue(root.querySelector<T>(selector), selector);
 };
 
-/** Read content first, then attach the enhancement as one disposable unit. */
+/**
+ * Read content first, then attach the enhancement as one disposable unit. Modal support and required authored markup are premises; returned cleanup retires controller callbacks before attempting native close, unlock, focus restoration and listener removal. Attachment itself is not transactional if a native operation throws before the disposer is returned.
+ *
+ * @evidence contracts/common.md#principled-implementation Native article/template reads supply copy, opener and image order, while GalleryController owns selection and current-open reconciliation; cloned active images use generation-bound error handlers so stale errors cannot replace a later selection.
+ * @evidence contracts/common.md#clear-and-simple-design The DOM adapter owns native mutation and event bindings; pure selection, controller policy and image callback lifetime each have one existing owner rather than a duplicated collection schema.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing showModal preserves original links and missing required markup throws; no foreign browser method is replaced, and queued callbacks lose authority before cleanup attempts.
+ * @evidence contracts/common.md#meaningful-documentation The entry comment describes native focus/Escape ownership, exterior resets, failure display, delayed close handling, disposal and the remaining nontransactional attachment boundary.
+ * @evidence contracts/performance.md#efficient-algorithms Mount reads O(A + I) article/image references; building changes rebuild O(Ib) view buttons and pressed states, and cleanup attempts O(L) mounted/image/view listeners, in addition to native DOM and image work.
+ * @evidence contracts/performance.md#reuse-equivalent-work Authored content and node references are observed once per mount; current image callbacks use generation identity and old view listeners are removed before rebuilding, without sharing effectful image attachment across selections.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The returned controller disposer owns modal effects, one current image listener, current view listeners and mount listeners; replacement retires old view authority, disposal attempts every cleanup once and retains any failure, while native removal success and pre-return attachment failure remain unverified host effects.
+ */
 export const mountGallery: (document: Document) => (() => void) = (document: Document): (() => void) => {
   const dialog: HTMLDialogElement = required<HTMLDialogElement>(document, "#gallery");
   if (typeof dialog.showModal !== "function") return () : void => {};
@@ -31,14 +43,15 @@ export const mountGallery: (document: Document) => (() => void) = (document: Doc
   const close: HTMLButtonElement = required<HTMLButtonElement>(dialog, "#gallery-close");
   const previous: HTMLButtonElement = required<HTMLButtonElement>(dialog, "#gallery-previous");
   const next: HTMLButtonElement = required<HTMLButtonElement>(dialog, "#gallery-next");
-  const buildings: { opener: HTMLAnchorElement; title: string; era: string; description: string; source: string; tour: HTMLAnchorElement | null; images: HTMLImageElement[]; }[] = readGalleryBuildings(document);
+  const buildings: ReturnType<typeof readGalleryBuildings> = readGalleryBuildings(document);
   const imageLifecycle: GalleryImageLifecycle = new GalleryImageLifecycle();
-  const content: { title: string; era: string; description: string; source: string; tour: string | null; images: { src: string; alt: string; label: string | undefined; }[]; }[] = buildings.map((building: { opener: HTMLAnchorElement; title: string; era: string; description: string; source: string; tour: HTMLAnchorElement | null; images: HTMLImageElement[]; }) : { title: string; era: string; description: string; source: string; tour: string | null; images: { src: string; alt: string; label: string | undefined; }[]; } => ({
+  const content: IGalleryContent[] = buildings.map((building: ReturnType<typeof readGalleryBuildings>[number]): IGalleryContent => ({
     title: building.title, era: building.era, description: building.description,
     source: building.source, tour: building.tour?.href ?? null,
     images: building.images.map((image: HTMLImageElement) : { src: string; alt: string; label: string | undefined; } => ({ src: image.src, alt: image.alt, label: image.dataset.label })),
   }));
   let unbindViews: (() => void)[] = [];
+  let viewGeneration: number = 0;
   const removeListeners: (() => void)[] = [];
   const listen: (node: EventTarget, type: string, callback: (event: Event) => void) => void = (
     node: EventTarget,
@@ -76,9 +89,11 @@ export const mountGallery: (document: Document) => (() => void) = (document: Doc
   };
 
   const showBuilding: (index: number) => void = (index: number): void => {
-    unbindViews.forEach((remove: () => void) : void => remove());
+    const generation: number = ++viewGeneration;
+    const previousViews: (() => void)[] = unbindViews;
     unbindViews = [];
-    const building: { opener: HTMLAnchorElement; title: string; era: string; description: string; source: string; tour: HTMLAnchorElement | null; images: HTMLImageElement[]; } = buildings[index];
+    runWebsiteCleanup(previousViews);
+    const building: ReturnType<typeof readGalleryBuildings>[number] = buildings[index];
     const selection: { title: string | null; era: string | null; description: string | null; source: string; tour: string | null; count: string; image: { src: string; alt: string; label: string | undefined; }; caption: string | undefined; pressed: boolean[]; } = deriveGallerySelection(content, index, 0);
     title.textContent = selection.title;
     era.textContent = selection.era;
@@ -93,7 +108,9 @@ export const mountGallery: (document: Document) => (() => void) = (document: Doc
         const button: HTMLButtonElement = document.createElement("button");
         button.type = "button";
         button.textContent = position === 0 ? "Exterior" : image.dataset.label!;
-        const select: () => void = (): void => controller.selectView(position);
+        const select: () => void = (): void => {
+          if (generation === viewGeneration) controller.selectView(position);
+        };
         button.addEventListener("click", select);
         unbindViews.push(() : void => button.removeEventListener("click", select));
         return button;
@@ -111,13 +128,19 @@ export const mountGallery: (document: Document) => (() => void) = (document: Doc
     setLocked: (locked: boolean) : boolean => document.documentElement.classList.toggle("gallery-open", locked),
     focus: (element: HTMLAnchorElement) : void => element.focus(),
     disposeContents: () : void => {
-      imageLifecycle.dispose();
-      unbindViews.forEach((remove: () => void) : void => remove());
-      removeListeners.forEach((remove: () => void) : void => remove());
+      viewGeneration++;
+      const previousViews: (() => void)[] = unbindViews;
+      unbindViews = [];
+      const previousListeners: (() => void)[] = removeListeners.splice(0);
+      runWebsiteCleanup([
+        (): void => imageLifecycle.dispose(),
+        ...previousViews,
+        ...previousListeners,
+      ]);
     },
-  }, buildings.map((building: { opener: HTMLAnchorElement; title: string; era: string; description: string; source: string; tour: HTMLAnchorElement | null; images: HTMLImageElement[]; }) : number => building.images.length));
+  }, buildings.map((building: ReturnType<typeof readGalleryBuildings>[number]): number => building.images.length));
 
-  buildings.forEach((building: { opener: HTMLAnchorElement; title: string; era: string; description: string; source: string; tour: HTMLAnchorElement | null; images: HTMLImageElement[]; }, index: number) : void =>
+  buildings.forEach((building: ReturnType<typeof readGalleryBuildings>[number], index: number): void =>
     listen(building.opener, "click", (event: Event) : void => {
       const click: MouseEvent = event as MouseEvent;
       controller.open(index, building.opener, click, () : void => event.preventDefault());

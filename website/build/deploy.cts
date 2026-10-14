@@ -6,10 +6,10 @@
 import ghpages from "gh-pages";
 import path from "node:path";
 
-const root = path.resolve(__dirname, "..");
+const root: string = path.resolve(__dirname, "..");
 
 console.log("[deploy] publishing ./dist to gh-pages...");
-const publication = ghpages.publish(
+const publication: ReturnType<typeof ghpages.publish> = ghpages.publish(
   path.join(root, "dist"),
   {
     branch: "gh-pages",
@@ -19,7 +19,7 @@ const publication = ghpages.publish(
     history: false,
     message: "Update automovie website",
   },
-  (error: Error | null | undefined) => {
+  (error: Error | null | undefined): void => {
     if (error) {
       console.error("[deploy] FAILED:", error);
       process.exit(1);
@@ -31,7 +31,7 @@ const publication = ghpages.publish(
 // The callback remains the publisher's completion owner. The dependency also
 // returns a promise on normal publication paths; handle its rejection rather
 // than leaving a second asynchronous failure channel unobserved.
-publication?.catch((error: unknown) => {
+publication?.catch((error: unknown): void => {
   console.error("[deploy] FAILED:", error);
   process.exitCode = 1;
 });

@@ -6,23 +6,50 @@ import { Reflector } from "three/addons/objects/Reflector.js";
 import { type ModernPayload, modernScene } from "./modernScene";
 import type { TourData } from "./tourData";
 import { textureUrl } from "./textureUrl";
+import { runWebsiteCleanup } from "./internal/runWebsiteCleanup";
 
+/**
+ * The native temple material fields needed to decode its authored albedo binding.
+ *
+ * @author Samchon
+ */
 interface TempleMaterial {
+  /** Native material identity used by uploadTemple's texture lookup. */
   id: string;
+
+  /** No albedo, a direct image path, or an image with authored UV sampling. */
   baseColorTexture:
     | null
     | string
     | {
+        /** First-party texture path under the production's textures directory. */
         asset: string;
+
+        /** Optional UV affine settings, with angle in degrees. */
         transform?: {
+          /** UV translation applied before native material sampling. */
           offset: { x: number; y: number };
+
+          /** UV repetition factors on each image axis. */
           scale: { x: number; y: number };
+
+          /** UV rotation in degrees, converted once to radians. */
           rotationDeg: number;
         };
       };
 }
 
-/** Loads the selected production's required textures and native scene; its disposer walks the current scene and invokes geometry, material, texture and supplemental-light cleanup. Loading failure invokes the same cleanup and rethrows the original failure if cleanup succeeds. */
+/**
+ * Load the selected production's textures and native scene. Disposal retires its callback authority, discovers owned resources before invoking cleanup, and attempts each discovered geometry, material, texture and supplemental cleanup once. A saved failure is reported without retrying; rollback preserves the loading cause alongside cleanup failures. Discovery covers mesh geometry/materials, material.map, custom depth materials, reflector targets, lights and explicitly acquired textures, not every possible custom shader resource. A native uploader that throws before returning its constructed root owns any resources unreachable from this adapter. Native GPU release remains unverified by callback return.
+ *
+ * @evidence contracts/common.md#principled-implementation The building discriminator selects its actual native uploader and lighting, while decoded albedo bindings keep authored sampler transforms; scene traversal and identity sets collect the known Three resources before independent disposal attempts.
+ * @evidence contracts/common.md#clear-and-simple-design This owner adapts first-party transport and texture URLs without rebuilding geometry; native source uploaders own mesh construction, and runWebsiteCleanup owns ordered failure-preserving cleanup coordination.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Supported production-specific adapters and lighting are explicit route differences, not fixture substitutions; missing modern physical lighting refuses loading, and cleanup errors remain observable rather than retried or represented as GPU proof.
+ * @evidence contracts/common.md#meaningful-documentation The comment explains native payload ownership, texture readiness, known resource discovery, sticky cleanup failure and unreachable partial-uploader resource limits.
+ * @evidence contracts/performance.md#efficient-algorithms Loading scans source materials/items and serially awaits each required decode; modern image paths are deduplicated by exact string while temple textures retain material-specific sampling, and teardown scans O(N + M + T) known scene objects, materials and textures with identity sets.
+ * @evidence contracts/performance.md#reuse-equivalent-work One modern texture is shared per exact native path within a scene; temple material bindings remain separate because transforms may differ, and resources discovered under multiple objects are deduplicated by object identity before release.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources A load retains decoded textures and native scene resources until disposal or rollback; population/bytes and pending decode duration have no imposed cap, no cancellation is exposed, and the adapter can release only acquired or returned resources reachable through its known fields.
+ */
 export const loadTourScene: (data: TourData, renderer: { shadowMap: { type: THREE.ShadowMapType; }; toneMappingExposure: number; capabilities: { getMaxAnisotropy(): number; }; }, base: string, dependencies: { load(url: string): Promise<THREE.Texture>; createTempleDaylight(): { sky: THREE.DataTexture; hemisphere: THREE.HemisphereLight; sun: THREE.DirectionalLight; }; uploadTemple(payload: unknown, textures: Map<string, THREE.Texture>): { root: THREE.Group; }; daylight(): { sky: THREE.DataTexture; environment: THREE.WebGLRenderTarget; dispose(): void; }; uploadHouse(payload: unknown): THREE.Group; }) => Promise<{ scene: THREE.Scene; dispose(): void; }> = async (
   data: TourData,
   renderer: {
@@ -55,12 +82,24 @@ export const loadTourScene: (data: TourData, renderer: { shadowMap: { type: THRE
   const textures: Map<string, THREE.Texture<unknown, THREE.TextureEventMap>> = new Map<string, THREE.Texture>();
   const additional: (() => void)[] = [];
   let scene: THREE.Scene<THREE.Object3DEventMap> = new THREE.Scene();
+  let disposed: boolean = false;
+  const disposalFailure: unknown[] = [];
   const dispose: () => void = (): void => {
+    if (disposed) {
+      if (disposalFailure.length !== 0) throw disposalFailure[0];
+      return;
+    }
+    disposed = true;
+    try {
     const geometries: Set<THREE.BufferGeometry<THREE.NormalBufferAttributes, THREE.BufferGeometryEventMap>> = new Set<THREE.BufferGeometry>();
     const materials: Set<THREE.Material<THREE.MaterialEventMap>> = new Set<THREE.Material>();
+    const objectCleanup: (() => void)[] = [];
     scene.traverse((object: THREE.Object3D<THREE.Object3DEventMap>) : void => {
       if (object instanceof THREE.Mesh) {
-        if (object instanceof Reflector) object.getRenderTarget().dispose();
+        if (object instanceof Reflector) {
+          const target: THREE.WebGLRenderTarget = object.getRenderTarget();
+          objectCleanup.push((): void => target.dispose());
+        }
         geometries.add(object.geometry);
         for (const material of Array.isArray(object.material)
           ? object.material
@@ -69,16 +108,26 @@ export const loadTourScene: (data: TourData, renderer: { shadowMap: { type: THRE
         if (object.customDepthMaterial)
           materials.add(object.customDepthMaterial);
       }
-      if (object instanceof THREE.Light) object.dispose();
+      if (object instanceof THREE.Light)
+        objectCleanup.push((): void => object.dispose());
     });
-    for (const geometry of geometries) geometry.dispose();
     for (const material of materials) {
       const map: THREE.Texture<unknown, THREE.TextureEventMap> | null = (material as THREE.MeshStandardMaterial).map;
       if (map) textures.set(map.uuid, map);
-      material.dispose();
     }
-    for (const texture of new Set(textures.values())) texture.dispose();
-    for (const release of additional) release();
+    const ownedTextures: Set<THREE.Texture> = new Set(textures.values());
+    textures.clear();
+    runWebsiteCleanup([
+      ...objectCleanup,
+      ...Array.from(geometries, (geometry: THREE.BufferGeometry): () => void => (): void => geometry.dispose()),
+      ...Array.from(materials, (material: THREE.Material): () => void => (): void => material.dispose()),
+      ...Array.from(ownedTextures, (texture: THREE.Texture): () => void => (): void => texture.dispose()),
+      ...additional.splice(0),
+    ]);
+    } catch (error) {
+      disposalFailure.push(error);
+      throw error;
+    }
   };
   try {
     if (data.building === "ancient") {
@@ -179,7 +228,7 @@ export const loadTourScene: (data: TourData, renderer: { shadowMap: { type: THRE
     }
     return { scene, dispose };
   } catch (error) {
-    dispose();
+    runWebsiteCleanup([dispose], [error]);
     throw error;
   }
 };

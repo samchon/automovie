@@ -3,7 +3,17 @@
  */
 import * as THREE from "three";
 
-/** Applies pointer deltas to the current camera orientation without roll, clamps pitch to 89 degrees, and keeps its world look target at the existing eye-to-target distance. */
+/**
+ * Apply finite pointer deltas at 0.0025 radians per pixel to the current camera orientation without roll, clamp pitch to 89 degrees, and retain the eye-to-target distance with a 0.001 meter minimum. Camera orientation and coordinates must be finite; numeric admission remains with the host.
+ *
+ * @evidence contracts/common.md#principled-implementation YXZ Euler decomposition supports world-up yaw and clamped pitch; rebuilding the target along the resulting forward direction preserves the prior aim distance apart from the explicit coincident-target minimum and floating-point precision.
+ * @evidence contracts/common.md#clear-and-simple-design Pointer look changes the existing camera and target only, independent of event capture, scene geometry and authored view selection.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Sensitivity, pitch cap and coincident-target distance are uniform spectator policy rather than source-model offsets or expected-answer adjustments.
+ * @evidence contracts/common.md#meaningful-documentation The comment states pointer sensitivity, pitch and distance limits, roll removal and finite-input premises.
+ * @evidence contracts/performance.md#efficient-algorithms Fixed-size quaternion/Euler/vector calculations cost constant time and temporary storage per input.
+ * @evidence contracts/performance.md#reuse-equivalent-work Every input reads the camera's current quaternion so a newly selected authored view is adopted immediately without stale orientation state.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Temporary Euler/vector objects are call-local; the host retains camera and target and no native capture handle is acquired here.
+ */
 export const lookSpectatorCamera: (camera: THREE.PerspectiveCamera, target: THREE.Vector3, movementX: number, movementY: number) => void = (
   camera: THREE.PerspectiveCamera,
   target: THREE.Vector3,

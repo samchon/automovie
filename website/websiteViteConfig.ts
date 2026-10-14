@@ -5,7 +5,11 @@ import { defineConfig, type UserConfig } from "vite";
 // case-sensitive (currently `/automovie/`). A relative
 // base keeps every asset URL correct wherever the build is mounted, so a
 // repository rename or a local preview needs no rebuild.
-/** Relative asset base and the existing gallery, manor and tour build routes. */
+/**
+ * Relative asset base and the existing gallery, manor and tour build routes. Native uploader aliases point to authored source modules; Three is deduplicated so scene capability identity stays shared across the workspace bundle. This declaration configures the tool and does not establish a successful build or browser observation.
+ *
+ * One named configuration owns dev/preview ports, source resolution and site build entries; vite.config.ts reexports it as the tool-required default. Workspace filesystem access supports the manor's authored texture URLs. Vite owns build algorithms, dependency caching, watchers and server lifetime; this declaration acquires none of those runtime resources.
+ */
 export const websiteViteConfig: UserConfig = defineConfig({
   base: "./",
   server: {

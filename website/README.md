@@ -1,6 +1,6 @@
 # @automovie/website
 
-The public site at [samchon.github.io/AutoMovie](https://samchon.github.io/AutoMovie/). It shows four productions from [`experimental`](../experimental), an ancient temple, a medieval manor, a modern suburban house and a future citizen house, each as a live 3D tour rendered from the production's own source.
+The public site at [samchon.github.io/automovie](https://samchon.github.io/automovie/). It presents four productions from [`experimental`](../experimental), an ancient temple, a medieval manor, a modern suburban house and a future citizen house, as 3D tours built from each production's source.
 
 ## Commands
 
@@ -8,6 +8,7 @@ The public site at [samchon.github.io/AutoMovie](https://samchon.github.io/AutoM
 pnpm --filter @automovie/website dev      # generate scenes, then Vite at http://127.0.0.1:5174/
 pnpm --filter @automovie/website build    # generate scenes, type-check, then Vite into dist/
 pnpm --filter @automovie/website preview  # serve dist/ at http://127.0.0.1:4174/
+pnpm --filter @automovie/website evidence # check source implementation acknowledgments
 pnpm --filter @automovie/website deploy   # build, then publish dist/ to gh-pages
 ```
 
@@ -15,4 +16,4 @@ Every build first runs the productions' scene producers and writes gzip transpor
 
 ## Tours
 
-`tour/?building=ancient|modern|future` and `manor/` share one spectator controller: click for mouse look, WASD or arrows to fly, Space and C to rise and descend, Shift to slow down, R to return to the exterior, and touch pads on mobile. `?view=<id>` opens one of the production's authored cameras. The manor merges its entries into one mesh per material in `src/bakeManor.ts` so it draws in a few hundred calls.
+`tour/?building=ancient|modern|future` and `manor/` share one spectator controller: click for mouse look, WASD or arrows to fly, Space and C to rise and descend, Shift to slow down, R to return to the exterior, and touch pads on mobile. `?view=<id>` opens one of the production's authored cameras. The manor's `src/bakeManor.ts` groups supported entry meshes by the current material/sampler key while retaining separate entry controls.

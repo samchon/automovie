@@ -1,12 +1,8 @@
 /**
- * Rebuild the website's derived transports directly from the three native
- * production producers before dev or build. Output lives in an ignored public
- * directory and is regenerated every time, never used as authored model input.
- * Gzip keeps the original mesh precision while reducing the download. Image
- * files keep their production-relative names beneath each building directory.
- * SHA-256 of the native payload and external textures embeds the source basis.
+ * Rebuild the website's derived transports directly from the three native production producers before dev or build. Output lives in an ignored public directory and is regenerated every time, never used as authored model input. Gzip retains serialized mesh precision while reducing the download; textures retain production-relative names. SHA-256 covers the current native JSON and sorted immediate texture filenames/bytes for ancient/modern, with future texture bytes already inside the native payload. This digest is transport provenance rather than a source-tree or visual-equivalence proof. Copying does not remove obsolete output textures from a prior run.
  */
 import { createHash } from "node:crypto";
+import type { Hash } from "node:crypto";
 import {
   cpSync,
   mkdirSync,
@@ -23,46 +19,47 @@ import {
   type ModernSource,
   exportTourData,
 } from "../src/tourExport";
+import type { Building, TourData } from "../src/tourData";
 
-const root = resolve(__dirname, "../..");
-const definitions = [
+const root: string = resolve(__dirname, "../..");
+const definitions: readonly (readonly [Building, string])[] = [
   ["ancient", "ancient-civic-temple"],
   ["modern", "modern-suburban-house"],
   ["future", "future-citizen-house"],
 ] as const;
 
 for (const [building, directory] of definitions) {
-  const production = resolve(root, "experimental", directory);
-  let data;
+  const production: string = resolve(root, "experimental", directory);
+  let data: TourData;
   if (building === "ancient") {
-    const producer = require(resolve(production, "src/viewer/payload.ts")) as {
+    const producer: { createViewerPayload(): AncientSource } = require(resolve(production, "src/viewer/payload.ts")) as {
       createViewerPayload(): AncientSource;
     };
     data = exportTourData({ building, native: producer.createViewerPayload() });
   } else if (building === "modern") {
-    const producer = require(
-      resolve(production, "src/viewer/houseScene.cts"),
+    const producer: { buildHouseScene(basis: string): ModernSource } = require(
+      resolve(production, "src/viewer/buildHouseScene.cts"),
     ) as { buildHouseScene(basis: string): ModernSource };
     data = exportTourData({
       building,
       native: producer.buildHouseScene("website"),
     });
   } else {
-    const producer = require(resolve(production, "src/viewer/payload.ts")) as {
+    const producer: { createViewerPayload(): FutureSource } = require(resolve(production, "src/viewer/payload.ts")) as {
       createViewerPayload(): FutureSource;
     };
     data = exportTourData({ building, native: producer.createViewerPayload() });
   }
-  const hash = createHash("sha256").update(JSON.stringify(data.native));
+  const hash: Hash = createHash("sha256").update(JSON.stringify(data.native));
   if (building !== "future")
     for (const file of readdirSync(
       resolve(production, "public/textures"),
-    ).sort((a, b) => a < b ? -1 : a > b ? 1 : 0))
+    ).sort((a: string, b: string): number => a < b ? -1 : a > b ? 1 : 0))
       hash
         .update(file)
         .update(readFileSync(resolve(production, "public/textures", file)));
-  const basis = hash.digest("hex");
-  const output = resolve(root, "website/public/buildings", building);
+  const basis: string = hash.digest("hex");
+  const output: string = resolve(root, "website/public/buildings", building);
   mkdirSync(output, { recursive: true });
   writeFileSync(
     resolve(output, "scene.bin"),

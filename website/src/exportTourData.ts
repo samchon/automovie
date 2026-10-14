@@ -32,9 +32,20 @@ const metadata: Record<
   },
 };
 
+/** Copy named source XYZ coordinates into the camera tuple without changing units. */
 const point: (p: Vector) => [number, number, number] = (p: Vector): [number, number, number] => [p.x, p.y, p.z];
 
-/** Copies usable authored perspective poses from the selected production into the public navigator, retaining its native payload and refusing an incomplete initial-view envelope. */
+/**
+ * Copy usable authored perspective poses into the public navigator, retain the native payload identity, then place the authored initial view first. Temple/future diagnostic views stay with their native inspector; future clip distances use this public tour's fixed 0.02 to 300 meter lens range.
+ *
+ * @evidence contracts/common.md#principled-implementation Discriminator narrowing projects each production's actual camera representation into TourView; for the producer's unique source ids, source order is retained after moving the known initial id first, and readTourData refuses its absence.
+ * @evidence contracts/common.md#clear-and-simple-design Native geometry remains opaque and unchanged while this one exporter owns camera labels, supported route metadata and navigation ordering.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Production directory/default-view metadata and future clipping distances are supported website presentation contracts; absent poses and specialized cameras are omitted instead of synthesized, and duplicate source ids are not admitted independently here.
+ * @evidence contracts/common.md#meaningful-documentation The comments state producer ownership, coordinate and lens units, filtered camera categories, initial ordering and the future clip policy.
+ * @evidence contracts/performance.md#efficient-algorithms Projection, label processing and initial-view reordering cost O(V + L) time and O(V + L) output storage for source views and label characters; the final scans preserve authored order without sorting.
+ * @evidence contracts/performance.md#reuse-equivalent-work The native object is shared by identity and modern coordinate tuples are borrowed; labels and navigation arrays are rebuilt for each source handoff without a retained cross-production cache.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the returned envelope, native payload and view arrays; this pure exporter acquires no image tasks, renderer or listeners, and imposes no transport-byte cap.
+ */
 export const exportTourData: (input: ExportInput) => TourData = (input: ExportInput): TourData => {
   const { building, native }: ExportInput = input;
   let views: TourView[];

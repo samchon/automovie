@@ -3,16 +3,47 @@
  */
 import type * as THREE from "three";
 import { lookSpectatorCamera, moveSpectatorCamera, zoomSpectatorCamera } from "./spectatorCamera";
+import { runWebsiteCleanup } from "./internal/runWebsiteCleanup";
 
-/** Attaches keyboard, pointer and touch flight controls to the supplied camera and canvas; the mount applies authored reset views and returns cleanup for its listeners and pointer state. */
+/**
+ * Attach keyboard, pointer and touch flight controls to the supplied camera and canvas. Disposal retires input authority and attempts state clearing, pointer-lock exit and every listener removal independently; repeated disposal reports a saved failure without retrying effects. A late successful lock request attempts exit after disposal, but explicit pointer-capture release and transactional rollback for every pre-return attachment failure are not implemented. Native release requires browser observation.
+ *
+ * @evidence contracts/common.md#principled-implementation Native focus, form targets, pointer-lock state and held input facts determine admission; generation-free terminal disposal gates listeners, while the existing camera helpers own finite motion calculations and elapsed-time clamping.
+ * @evidence contracts/common.md#clear-and-simple-design One mount owns native input lifetime and calls the shared movement/look/lens owners; reset and redraw remain host callbacks, and no second animation loop is created.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Capture refusal retains drag and focused-keyboard input rather than replacing native methods; failed disposal remains reportable, while pointer-capture and partial-attachment cleanup gaps are stated instead of hidden.
+ * @evidence contracts/common.md#meaningful-documentation The comments state clock units, focus/reset clearing, capture fallback, terminal callback authority, failure receipts and unresolved native release boundaries.
+ * @evidence contracts/performance.md#efficient-algorithms Event coordination is fixed plus current held/pad scans; frame axes create temporary pad arrays and scan active pointers, so per-frame work is O(P + K) in active pointer/key counts rather than scene complexity.
+ * @evidence contracts/performance.md#reuse-equivalent-work The mount reuses one held-key set, pointer map, listeners and camera objects; every frame reads current input, and pending pointer-lock requests are suppressed until completion or native lock/error observation.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Listener count grows with mounted flight buttons, held/pad state with native input identities, and pending lock duration has no timeout; disposal clears local input and attempts lock exit/listener cleanup once, retaining at most one arbitrary failure, but does not explicitly release pointer captures or guarantee native release.
+ */
 export const mountSpectatorControls: (options: { canvas: HTMLCanvasElement; camera: THREE.PerspectiveCamera; target: THREE.Vector3; reset(): void; changed(): void; notice(message: string): void; }) => { frame(elapsed: number): boolean; clear(): void; dispose(): void; } = (options: {
+  /** Focus and pointer input surface, with its native owning document/window. */
   canvas: HTMLCanvasElement;
+
+  /** Borrowed perspective camera mutated by flight, look and zoom. */
   camera: THREE.PerspectiveCamera;
+
+  /** Borrowed world aim point translated with the eye. */
   target: THREE.Vector3;
+
+  /** Host callback that applies its authored starting view after input clearing. */
   reset(): void;
+
+  /** Host redraw/lighting invalidation after look or lens mutation. */
   changed(): void;
+
+  /** Host status display for current flight/capture state. */
   notice(message: string): void;
-}): { frame(elapsed: number): boolean; clear(): void; dispose(): void } => {
+}): {
+  /** Consume monotone viewer elapsed seconds and report whether translation occurred. */
+  frame(elapsed: number): boolean;
+
+  /** Clear held keys, pads, drag and prior frame time; update status. */
+  clear(): void;
+
+  /** Retire input authority and attempt owned cleanup once. */
+  dispose(): void;
+} => {
   const { canvas, camera, target }: { canvas: HTMLCanvasElement; camera: THREE.PerspectiveCamera; target: THREE.Vector3; reset(): void; changed(): void; notice(message: string): void; } = options;
   const document: Document = canvas.ownerDocument;
   const window: Window & typeof globalThis = document.defaultView!;
@@ -25,7 +56,9 @@ export const mountSpectatorControls: (options: { canvas: HTMLCanvasElement; came
     handler: (event: E) => void,
     settings?: AddEventListenerOptions,
   ): void => {
-    const callback: EventListener = handler as EventListener;
+    const callback: EventListener = (event: Event): void => {
+      if (!disposed) handler(event as E);
+    };
     node.addEventListener(type, callback, settings);
     listeners.push(() : void => node.removeEventListener(type, callback, settings));
   };
@@ -43,6 +76,7 @@ export const mountSpectatorControls: (options: { canvas: HTMLCanvasElement; came
   let skipClick: boolean = false;
   let requesting: boolean = false;
   let disposed: boolean = false;
+  const disposalFailure: unknown[] = [];
   let previous: number | null = null;
   const clear: () => void = (): void => {
     held.clear();
@@ -53,8 +87,10 @@ export const mountSpectatorControls: (options: { canvas: HTMLCanvasElement; came
     announce();
   };
   const release: () => void = (): void => {
-    clear();
-    if (locked()) document.exitPointerLock();
+    runWebsiteCleanup([
+      clear,
+      (): void => { if (locked()) document.exitPointerLock(); },
+    ]);
   };
   const isForm: (node: EventTarget | null) => boolean = (node: EventTarget | null): boolean =>
     node instanceof window.HTMLElement &&
@@ -133,12 +169,26 @@ export const mountSpectatorControls: (options: { canvas: HTMLCanvasElement; came
     canvas.focus();
     requesting = true;
     try {
+      let requestCompleted: boolean = false;
       void Promise.resolve(canvas.requestPointerLock())
         .then(() : void => {
+          requestCompleted = true;
           requesting = false;
           if (disposed && locked()) document.exitPointerLock();
         })
-        .catch(refused);
+        .catch((error: unknown): void => {
+          if (!requestCompleted) {
+            refused();
+            return;
+          }
+          if (disposed) {
+            const failure: unknown = disposalFailure.length === 0
+              ? error
+              : new AggregateError([disposalFailure[0], error], "Spectator cleanup failed.");
+            disposalFailure.splice(0, disposalFailure.length, failure);
+          }
+          console.error("Spectator pointer-lock callback failed.", error);
+        });
     } catch {
       refused();
     }
@@ -220,7 +270,12 @@ export const mountSpectatorControls: (options: { canvas: HTMLCanvasElement; came
       )
     );
   };
-  announce();
+  try { announce(); }
+  catch (error) {
+    disposed = true;
+    runWebsiteCleanup(listeners.splice(0), [error]);
+    throw error;
+  }
   return {
     clear,
     frame: (elapsed: number) : boolean => {
@@ -250,9 +305,17 @@ export const mountSpectatorControls: (options: { canvas: HTMLCanvasElement; came
       );
     },
     dispose: () : void => {
+      if (disposed) {
+        if (disposalFailure.length !== 0) throw disposalFailure[0];
+        return;
+      }
       disposed = true;
-      release();
-      for (const remove of listeners) remove();
+      try {
+        runWebsiteCleanup([release, ...listeners.splice(0)]);
+      } catch (error) {
+        disposalFailure.push(error);
+        throw error;
+      }
     },
   };
 };

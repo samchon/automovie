@@ -22,6 +22,7 @@
     "dev": "pnpm scenes && vite",
     "build": "pnpm scenes && ttsc --noEmit && vite build",
     "preview": "vite preview",
+    "evidence": "evidence",
     "deploy": "pnpm run build && ttsx -P tsconfig.json build/deploy.cts"
   },
   "author": "Samchon",
