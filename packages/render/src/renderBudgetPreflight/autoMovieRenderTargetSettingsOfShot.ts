@@ -17,9 +17,21 @@ import { IAutoMovieCompiledShotSource, IAutoMovieRenderTargetSettings } from "@a
  * renders states what it WOULD use, and recording that as the drawn setting
  * would be a claim about a map that does not exist.
  *
- * @author Samchon
+ * @evidence contracts/common.md#principled-implementation Scene environment values override delivery tone mapping and default exposure; disabled shadows always map to shadowType none, matching the render-target invariant.
+ * @evidence contracts/common.md#clear-and-simple-design This boundary projects compiled scene policy into target settings while the engine target sealer owns runtime admission of dimensions and setting values.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts An absent environment uses delivery tone mapping and exposure one, which are the viewer defaults; disabled shadow filters are not recorded as actual shadow-map work.
+ * @evidence contracts/common.md#meaningful-documentation The comment names environment precedence and shadow invariants, and input members specify drawing-buffer pixels, device pixel ratio and delivery tone mapping.
+ * @evidence contracts/performance.md#efficient-algorithms The projection reads one environment and allocates one settings record, performing constant work irrespective of shot geometry or frame count.
+ * @evidence contracts/performance.md#reuse-equivalent-work Compiled environment policy is read directly without rebuilding scene state or resealing assets; each invocation reflects its supplied dimensions and pixel ratio.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The settings record contains only scalar values, so no compiled geometry, GPU allocation or host session is retained.
  */
-export const autoMovieRenderTargetSettingsOfShot = (props: {
+export const autoMovieRenderTargetSettingsOfShot: (props: {
+    compiled: IAutoMovieCompiledShotSource;
+    width: number;
+    height: number;
+    pixelRatio: number;
+    delivery: IAutoMovieRenderTargetSettings["toneMapping"];
+}) => IAutoMovieRenderTargetSettings = (props: {
   /** Fully builder-owned shot artifact. */
   compiled: IAutoMovieCompiledShotSource;
   /** Drawing-buffer width in pixels. */
@@ -31,8 +43,8 @@ export const autoMovieRenderTargetSettingsOfShot = (props: {
   /** The delivery's own tone mapping, for a scene that declares none. */
   delivery: IAutoMovieRenderTargetSettings["toneMapping"];
 }): IAutoMovieRenderTargetSettings => {
-  const environment = props.compiled.scene.environment ?? null;
-  const shadows =
+  const environment: IAutoMovieCompiledShotSource["scene"]["environment"] | null = props.compiled.scene.environment ?? null;
+  const shadows: NonNullable<IAutoMovieCompiledShotSource["scene"]["environment"]>["shadows"] | null =
     environment !== null && environment.shadows.enabled
       ? environment.shadows
       : null;

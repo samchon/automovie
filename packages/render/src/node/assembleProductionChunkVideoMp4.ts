@@ -20,37 +20,23 @@ import { sameSampleDescription } from "./sameSampleDescription";
 import { sampleDescription } from "./sampleDescription";
 
 /**
- * Assemble one whole-film video from the per-chunk H.264 encodes of a chunked
- * render without decoding or re-encoding any frame.
+ * Assemble one whole-film video from the per-chunk H.264 encodes of a chunked render without decoding or re-encoding any frame.
  *
- * Every chunk must parse as a complete splice clip (`parseProductionRenditionClip`),
- * match `frameFormat`'s raster and rational clock, share the first chunk's
- * media timescale, sample duration and decoder configuration, and pass the
- * delivery video profile. The samples are copied in play order onto one track,
- * so the assembly decodes to exactly the frames the chunks decode to. A single
- * chunk is returned as the same array, unchanged, when it covers `totalFrames`.
- * A multi-chunk result is re-probed and must cover `totalFrames` at the
- * declared raster and clock.
+ * Every chunk must parse as a complete splice clip (`parseProductionRenditionClip`), match `frameFormat`'s raster and rational clock, share the first chunk's media timescale, sample duration and decoder configuration, and pass the delivery video profile. The samples are copied in play order onto one track under the independent-decoding premise described below. A single chunk is returned as the same array, unchanged, when it covers `totalFrames`; a multi-chunk result is re-probed and must cover `totalFrames` at the declared raster and clock.
  *
- * Throws `Render chunk <i> ...` naming the first chunk that breaks the shared
- * presentation, an `unsupported-video-profile.<field>` error from the profile
- * check, a refusal for an empty chunk list or a frame total the chunks do not
- * cover, and `Assembled chunk video duration exceeds the exact MP4 clock
- * range.` when `totalFrames` ticks cannot be written exactly. An exception
- * thrown by the `chunks` iterator propagates unchanged.
+ * Throws `Render chunk <i> ...` naming the first chunk that breaks the shared presentation, an `unsupported-video-profile.<field>` error from the profile check, a refusal for an empty chunk list or a frame total the chunks do not cover, and `Assembled chunk video duration exceeds the exact MP4 clock range.` when the total-frame duration fails the output opener's safe-integer check. An exception thrown by the `chunks` iterator propagates unchanged.
  *
- * No production module calls this function at present; only tests reach it
- * since the production film assembly stopped using it.
+ * No production module calls this function at present; only tests reach it since the production film assembly stopped using it.
  *
- * @evidence contracts/common.md#principled-implementation Lossless splicing is valid because every chunk begins at a sync sample and shares one sample entry, verified byte for byte by `sameSampleDescription`, so the concatenated elementary stream is decodable and each frame decodes as it did in its chunk; clock equality is decided on rational frame rates and integer ticks, never on float fps.
+ * @evidence contracts/common.md#principled-implementation Every chunk declares a sync sample at its start and shares one sample entry, verified byte for byte by `sameSampleDescription`; copied payloads preserve the elementary stream under the premise that those sync declarations actually permit independent decoding. Container admission does not decode H.264 pictures or prove that premise. Clock equality uses rational frame rates and integer ticks rather than float fps.
  * @evidence contracts/common.md#clear-and-simple-design Parsing and per-clip validation are `parseProductionRenditionClip`, the container is `openLosslessVideoTrack`, and re-timing is `appendLosslessVideoClip`; this function owns only the chunk-sequence rules, the single-chunk shortcut and the final coverage proof. The gap is that no production consumer remains.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A chunk that breaks the shared raster, clock or configuration is refused, never re-encoded or rescaled, and the single-chunk shortcut returns input that already passed every check the multi-chunk path applies to each chunk.
  * @evidence contracts/common.md#meaningful-documentation The doc states what every chunk must share, how the samples are joined, the identity of the single-chunk result, the final verification, every refusal with its message prefix, and that the iterator's own exceptions propagate.
- * @evidence contracts/performance.md#efficient-algorithms For C chunks and S total samples, each chunk is parsed once by the clip parser, which shares that parse between the strict probe and the sample table, every sample is appended once, and a multi-chunk result is parsed once more, so cost is linear in the total bytes; the expected profile is resolved once outside the loop and the final re-parse is the proof that the written container is what was intended.
+ * @evidence contracts/performance.md#efficient-algorithms Each of C chunks is parsed once and shares that parse with its probe and sample table. For chunk sample count S_i and media-box count M_i, residency adds O(M_i + S_i log(M_i + 1)), with description comparisons and box inspection on top. Appending copies the total coded bytes and subsample entries once; a multi-chunk result is serialized and independently parsed/probed again, including its output residency cost. The full assembly is not strictly linear in encoded bytes, and the expected profile is resolved once outside the loop.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A call reads its chunk iterator once and shares no result across calls; a caller that assembles the same chunks twice receives byte-identical output but must cache it itself.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The output file holds a copy of every sample and, through views, every chunk's bytes until the function returns, so peak memory is about twice the film's encoded size plus the final output buffer; the first chunk is also held while waiting for a second, and the returned array is the caller's.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The first clip remains referenced for comparison and singleton return, and each appended sample keeps an output payload copy plus a view of its source chunk. Parsed boxes and tables, serialized output and the output probe's copied bytes can coexist during verification. Bytes, samples, descriptions and boxes are uncapped here, and no exact peak ratio is established; invocation-local objects become collectable after completion or refusal, while the returned array belongs to the caller. No native handle or background task is opened.
  */
-export const assembleProductionChunkVideoMp4 = (props: {
+export const assembleProductionChunkVideoMp4: (props: { chunks: Iterable<Uint8Array>; frameFormat: { fps: number; frameRate?: IAutoMovieProductionFrameRate; height: number; width: number; }; totalFrames: number; }) => Uint8Array = (props: {
   /** Encoded chunk MP4s in play order, read once. */
   chunks: Iterable<Uint8Array>;
 

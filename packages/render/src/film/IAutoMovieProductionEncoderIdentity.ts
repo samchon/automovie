@@ -1,4 +1,3 @@
-import type { AutoMovieContentDigest } from "@automovie/interface";
 
 /**
  * Identity of the installed H.264 encoder and every setting that can change
@@ -29,7 +28,7 @@ export interface IAutoMovieProductionEncoderIdentity {
   version: string;
 
   /** SHA-256 content digest over every installed file the encoder executes. */
-  closureDigest: AutoMovieContentDigest;
+  closureDigest: string;
 
   /** Coded video format the encoder emits; H.264 is the only one. */
   codec: "h264";

@@ -1,5 +1,4 @@
 import type {
-  AutoMovieContentDigest,
   IAutoMovieCaptureRuntimeIdentity,
 } from "@automovie/interface";
 
@@ -28,13 +27,13 @@ export interface IAutoMovieProductionRenderRuntimeIdentity {
   protocolVersion: "automovie.production-render-runtime.v3";
 
   /** SHA-256 digest of the declared viewer, capture, asset and package bytes. */
-  sourceDigest: AutoMovieContentDigest;
+  sourceDigest: string;
 
   /**
    * SHA-256 digest of the dialogue and viseme runtime installed for every
    * capture, or null when the production synthesizes no dialogue.
    */
-  dialogueRuntimeIdentity: AutoMovieContentDigest | null;
+  dialogueRuntimeIdentity: string | null;
 
   /** Browser, graphics and installed-package identity of the capture host. */
   capture: IAutoMovieCaptureRuntimeIdentity;

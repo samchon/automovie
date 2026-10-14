@@ -12,7 +12,6 @@ import {
   verifyProductionFilmEffectPopulation,
 } from "@automovie/engine";
 import type {
-  AutoMovieContentDigest,
   AutoMovieGuidePass,
   IAutoMovieCompiledFilmEffect,
   IAutoMovieFilmTimeline,
@@ -43,7 +42,7 @@ interface IRange {
   frameStart: number;
   frameEndExclusive: number;
   frames: IAutoMovieProductionRenderFrame[];
-  sources: Array<{ shot: string; digest: AutoMovieContentDigest }>;
+  sources: Array<{ shot: string; digest: string }>;
 }
 
 /**
@@ -90,7 +89,7 @@ export const planProductionRenderJob = (props: {
   runtimeIdentity: IAutoMovieProductionRenderRuntimeIdentity;
 
   /** SHA-256 source digest of every shot the edit shows, by shot id. */
-  sourceFingerprints: Readonly<Record<string, AutoMovieContentDigest>>;
+  sourceFingerprints: Readonly<Record<string, string>>;
 
   /** Identity of every audio asset the edit's cues reference. */
   audioAssets: readonly IAutoMovieProductionAudioAssetIdentity[];
@@ -190,7 +189,7 @@ export const planProductionRenderJob = (props: {
   }
   const legacyGuidePass: Exclude<AutoMovieGuidePass, "beauty"> =
     assertSingleGuidePass(props.guidePasses ?? ["pose"]);
-  const editFingerprint: AutoMovieContentDigest =
+  const editFingerprint: string =
     productionFilmEffectEditFingerprint(props.timeline);
   verifyProductionFilmEffectPopulation({
     timeline: props.timeline,
@@ -202,8 +201,8 @@ export const planProductionRenderJob = (props: {
         "film-effect-runtime-stale",
         `Film effect runtime "${effect.effect.id}" belongs to production "${effect.production}", not "${props.production.id}".`,
       );
-  const effectDigests: AutoMovieContentDigest[] = props.effects.map(
-    (effect: IAutoMovieCompiledFilmEffect): AutoMovieContentDigest =>
+  const effectDigests: string[] = props.effects.map(
+    (effect: IAutoMovieCompiledFilmEffect): string =>
       effect.digest,
   );
   const frames: IAutoMovieProductionRenderFrame[] = Array.from(
@@ -295,7 +294,7 @@ const partition = (
   frames: IAutoMovieProductionRenderFrame[],
   props: {
     chunkFrames: number;
-    sourceFingerprints: Readonly<Record<string, AutoMovieContentDigest>>;
+    sourceFingerprints: Readonly<Record<string, string>>;
   },
 ): IRange[] => {
   const ranges: IRange[] = [];
@@ -321,8 +320,8 @@ const partition = (
       frames: range,
       sources: [...shots]
         .sort(compareCodeUnits)
-        .map((shot: string): { shot: string; digest: AutoMovieContentDigest } => {
-          const digest: AutoMovieContentDigest | undefined =
+        .map((shot: string): { shot: string; digest: string } => {
+          const digest: string | undefined =
             props.sourceFingerprints[shot];
           if (digest === undefined || validDigest(digest) === false)
             throw new Error(

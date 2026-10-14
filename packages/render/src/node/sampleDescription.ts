@@ -20,7 +20,10 @@ import type { IsoFileOptions, Sample } from "mp4box";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The projection is cheaper than any cache lookup, and callers that compare many samples already short-circuit on shared box identity in `sameSampleDescription`.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The returned object references the parser's box array, so it keeps the parsed sample entry alive for as long as the caller holds it; nothing else is retained or opened.
  */
-export const sampleDescription = (
+export const sampleDescription: (sample: Sample) => {
+    type: IsoFileOptions["type"];
+    boxes: NonNullable<IsoFileOptions["description_boxes"]>;
+} = (
   sample: Sample,
 ): {
   type: IsoFileOptions["type"];

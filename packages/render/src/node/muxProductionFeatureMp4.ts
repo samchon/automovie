@@ -5,6 +5,7 @@ import type {
 import type { IsoFileOptions, Movie, Sample, Track, createFile } from "mp4box";
 
 import { exactProductionClockProduct } from "./exactProductionClockProduct";
+import { addProductionMp4Sample } from "./addProductionMp4Sample";
 import { parseMp4 } from "./parseMp4";
 import { parseProductionMp4Output } from "./parseProductionMp4Output";
 import { probeParsedProductionVideoMp4 } from "./probeParsedProductionVideoMp4";
@@ -16,23 +17,11 @@ import { sampleOptions } from "./sampleOptions";
 import { trimProductionAudioPresentation } from "./trimProductionAudioPresentation";
 
 /**
- * Mux one single-track H.264 video MP4 and one Opus audio-mix MP4 of exactly
- * the same runtime into a two-track feature MP4, copying every coded sample
- * unchanged.
+ * Mux one single-track H.264 video MP4 and one Opus audio-mix MP4 of exactly the same runtime into a two-track feature MP4, copying every coded sample unchanged.
  *
- * The video must pass the production video probe and the audio the audio-mix
- * probe, including its Opus delivery profile. Their movie runtimes must be
- * exactly equal, decided by cross-multiplying durations and timescales. The
- * output keeps both tracks' media clocks, uses the video timescale as the
- * movie clock, and gives the audio track one edit that skips the Opus priming
- * samples and presents exactly the audio's runtime. The result is re-probed as
- * a delivered feature before it is returned.
+ * The video must pass the production video probe and the audio the audio-mix probe, including its Opus delivery profile. Their movie runtimes must be exactly equal, decided by cross-multiplying durations and timescales. The output keeps both tracks' media clocks, uses the video timescale as the movie clock, and gives the audio track one edit that skips the Opus priming samples and presents exactly the audio's runtime. The result is re-probed as a delivered feature before it is returned.
  *
- * Throws the probes' refusals for an invalid input,
- * `MP4 presentation clocks must be positive safe integers.` for a zero or
- * unsafe runtime term, `Feature mux requires byte sources with exactly equal
- * track runtimes.` for unequal runtimes, and the feature probe's refusal if
- * the written file does not verify.
+ * Throws the probes' refusals for an invalid input, `MP4 presentation clocks must be positive safe integers.` for a zero or unsafe runtime term, `Feature mux requires byte sources with exactly equal track runtimes.` for unequal runtimes, and the feature probe's refusal if the written file does not verify.
  *
  * No production module calls this function at present; only tests reach it.
  *
@@ -40,11 +29,14 @@ import { trimProductionAudioPresentation } from "./trimProductionAudioPresentati
  * @evidence contracts/common.md#clear-and-simple-design Input admission is the existing video and audio-mix probes, the audio edit is `trimProductionAudioPresentation`, and the output check is the feature probe; this function owns only the runtime proof and the two-track copy. The gap is that no production consumer remains.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Unequal or unsafe runtimes are refused rather than padded or trimmed to fit, the audio probe's kind is checked rather than cast, and no input is special-cased.
  * @evidence contracts/common.md#meaningful-documentation The doc states what each input must pass, the runtime rule, how the output clocks and the audio edit are formed, the final verification, and every refusal.
- * @evidence contracts/performance.md#efficient-algorithms For V video and A audio samples, the video is parsed once and its parse shared by the probe and the copy, the audio is parsed twice because the audio-mix probe exposes no parsed form, each sample is appended once with mp4box copying its payload, and the output is parsed once to verify it, so time is linear in the input bytes.
+ * @evidence contracts/performance.md#efficient-algorithms The video parse is shared by its admission and copy, the audio is parsed twice because its probe exposes no parsed form, each video and audio sample is appended once, and the output is parsed once. Byte copying and serialization scale with the encoded bytes, but each admitted track's residency proof additionally costs O(M + S log(M + 1)) for its S samples and the parsed file's M media boxes, with box and returned-list inspection on top; the whole mux is not strictly linear in the input bytes.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call muxes one caller-held pair of byte arrays and retains no result; equal inputs give byte-identical output that a caller may store.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Until return the output file holds a copy of every sample plus views of both inputs, and the parsed inputs stay referenced, so peak memory is about twice the inputs plus the output buffer; nothing outlives the call except the returned array.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The copied input parses, source sample views, output sample payloads and boxes, serialized output, and output probe's copied buffer and tables can coexist during verification. The audio admission parse is temporary to its probe; the copy parse stays referenced by this call. Input bytes, samples and boxes are uncapped, and no exact peak ratio is established; after return only the returned array is retained by the caller, with no handle or background task.
  */
-export const muxProductionFeatureMp4 = (props: {
+export const muxProductionFeatureMp4: (props: {
+    video: Uint8Array;
+    audio: Uint8Array;
+}) => Uint8Array = (props: {
   /** Single-track H.264 video MP4. */
   video: Uint8Array;
 
@@ -127,7 +119,13 @@ export const muxProductionFeatureMp4 = (props: {
 };
 
 /** Add one track mirroring `track` to `output` and copy every sample into it. */
-const copyTrack = (props: {
+const copyTrack: (props: {
+    output: ReturnType<typeof createFile>;
+    source: ReturnType<typeof createFile>;
+    bytes: Uint8Array;
+    track: Track;
+    name: string;
+}) => number = (props: {
   output: ReturnType<typeof createFile>;
   source: ReturnType<typeof createFile>;
   bytes: Uint8Array;
@@ -161,7 +159,8 @@ const copyTrack = (props: {
   // mp4box's addSample copies the payload into the output's media box, so a
   // view of the source bytes is passed instead of a second copy.
   for (const sample of samples)
-    props.output.addSample(
+    addProductionMp4Sample(
+      props.output,
       id,
       sampleBytes(props.bytes, sample),
       sampleOptions(sample),

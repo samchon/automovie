@@ -20,7 +20,7 @@ import { residentMp4Box } from "./residentMp4Box";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call serializes the box as it is now, and the only caller skips the call when both sides share one box object, which is the case worth reusing.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The stream is local and the returned array, the caller's, views the stream's trimmed buffer of exactly the box's size; no handle or task is opened.
  */
-export const serializeDescriptionBox = (box: Box): Uint8Array => {
+export const serializeDescriptionBox: (box: Box) => Uint8Array = (box: Box): Uint8Array => {
   const stream: DataStream = new (residentMp4Box().DataStream)();
   box.write(stream);
   return new Uint8Array(stream.buffer);

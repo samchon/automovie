@@ -14,5 +14,5 @@
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The pattern string goes to the caller's argument list and nothing is kept or opened.
  * @author Samchon
  */
-export const framePattern = (ext: string = "png", pad: number = 5): string =>
+export const framePattern: (ext?: string, pad?: number) => string = (ext: string = "png", pad: number = 5): string =>
   `frame_%0${pad}d.${ext}`;

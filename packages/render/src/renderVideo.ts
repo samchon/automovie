@@ -1,160 +1,50 @@
 import { IAutoMovieRenderSpec } from "@automovie/interface";
-
 import { ffmpegArgs } from "./ffmpegArgs";
-import { frameName } from "./frameName";
 import { framePattern } from "./framePattern";
 import { frameTimes } from "./frameTimes";
+import type { IAutoMovieRenderAdapters } from "./IAutoMovieRenderAdapters";
+import type { IAutoMovieRenderResult } from "./IAutoMovieRenderResult";
+
+
+
 
 /**
- * The host-supplied I/O a render needs. Kept as injected dependencies so the
- * orchestration ({@link renderVideo}) stays a pure, deterministic, testable
- * function while the environment-specific halves (a headless browser screenshot
- * and an ffmpeg spawn) live in the caller (the engine is renderer-agnostic;
- * this keeps the render pipeline the same way).
+ * Render a clip of `durationSeconds` into a video, deterministically: compute the frame schedule, capture each frame through the host adapter at its exact `t = i / fps`, then encode the sequence with the pinned ffmpeg args.
  *
- * @author Samchon
+ * The schedule and effect order are deterministic; pixel and encoder output depend on the supplied host. The host also owns file and task cleanup when capture or encoding fails.
+ *
+ * @evidence contracts/common.md#principled-implementation Frame times are the half-open schedule i/fps from frameTimes; awaiting each capture before encoding preserves capture order and propagates the first host failure. The encoder owns pixel and container correctness, which this orchestration cannot prove.
+ * @evidence contracts/common.md#clear-and-simple-design The clip loop coordinates the capture and encode seams only; naming, scheduling and ffmpeg arguments remain their existing shared functions.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts An empty schedule refuses before host I/O, and capture or encoding failures escape unchanged; no frame, path or adapter is replaced to satisfy a consumer.
+ * @evidence contracts/common.md#meaningful-documentation The comment names seconds, capture order and host ownership; result members specify paths, sample times and the argument vector. Frame files belong to the host even after failure.
+ * @evidence contracts/performance.md#efficient-algorithms For F frames, scheduling, sequential capture and metadata assembly each traverse F records; retaining paths and timestamps costs O(F), in addition to host capture and encoder work.
+ * @evidence contracts/performance.md#reuse-equivalent-work Captures are effectful operations and cannot be shared solely because two timestamps match; this call captures its requested sequence once and returns metadata for caller reuse.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The host owns frame files, encoder tasks and their cleanup on success or failure; this function retains O(F) paths and times until the result is discarded and acquires no native handle itself.
  */
-export interface IAutoMovieRenderAdapters {
-  /**
-   * Render the scene at clip-local `timeSeconds` and write frame `index` into
-   * `dir` under its {@link frameName}. Returns the written path.
-   *
-   * @author Samchon
-   */
-  captureFrame: (
-    timeSeconds: number,
-    index: number,
-    dir: string,
-  ) => Promise<string>;
-
-  /**
-   * Run ffmpeg with `args` (from {@link ffmpegArgs}); resolve with `outputPath`.
-   *
-   * @author Samchon
-   */
-  encode: (args: string[], outputPath: string) => Promise<string>;
-}
-
-/**
- * One captured frame artifact.
- *
- * @author Samchon
- */
-export interface IAutoMovieCapturedFrame {
-  /**
-   * Zero-based frame index.
-   *
-   * @author Samchon
-   */
-  index: number;
-
-  /**
-   * Clip-local sample time in seconds.
-   *
-   * @author Samchon
-   */
-  timeSeconds: number;
-
-  /**
-   * Host path returned by `captureFrame`.
-   *
-   * @author Samchon
-   */
-  path: string;
-}
-
-/**
- * The outcome of a render: encoded video plus frame metadata an agent can
- * inspect without inferring paths from the ffmpeg pattern.
- *
- * @author Samchon
- */
-export interface IAutoMovieRenderResult {
-  /**
-   * Path to the encoded video (the adapter's `encode` output).
-   *
-   * @author Samchon
-   */
-  output: string;
-
-  /**
-   * Number of frames captured and encoded.
-   *
-   * @author Samchon
-   */
-  frameCount: number;
-
-  /**
-   * The clip-local sample instants, one per frame (`t = i / fps`).
-   *
-   * @author Samchon
-   */
-  times: number[];
-
-  /**
-   * Captured frame artifacts in encode order.
-   *
-   * @author Samchon
-   */
-  frames: IAutoMovieCapturedFrame[];
-
-  /**
-   * Directory passed to each `captureFrame` call.
-   *
-   * @author Samchon
-   */
-  frameDir: string;
-
-  /**
-   * Ffmpeg input pattern used to encode the frame sequence.
-   *
-   * @author Samchon
-   */
-  inputPattern: string;
-
-  /**
-   * Exact ffmpeg argument vector handed to the encode adapter.
-   *
-   * @author Samchon
-   */
-  ffmpegArgs: string[];
-}
-
-/**
- * Render a clip of `durationSeconds` into a video, deterministically: compute
- * the frame schedule, capture each frame through the host adapter at its exact
- * `t = i / fps`, then encode the sequence with the pinned ffmpeg args.
- *
- * This is the spine of automovie's "frames → video" path and its
- * reproducibility guarantee: pure control flow over injected I/O, so the same
- * spec drives the same frames in the same order every time.
- *
- * @author Samchon
- */
-export const renderVideo = async (
+export const renderVideo: (spec: IAutoMovieRenderSpec, durationSeconds: number, dir: string, outputPath: string, adapters: IAutoMovieRenderAdapters) => Promise<IAutoMovieRenderResult> = async (
   spec: IAutoMovieRenderSpec,
   durationSeconds: number,
   dir: string,
   outputPath: string,
   adapters: IAutoMovieRenderAdapters,
 ): Promise<IAutoMovieRenderResult> => {
-  const times = frameTimes(spec.frameFormat.fps, durationSeconds);
+  const times: number[] = frameTimes(spec.frameFormat.fps, durationSeconds);
   if (times.length === 0)
     throw new Error(
       `renderVideo requires at least one frame; fps ${spec.frameFormat.fps} and duration ${durationSeconds} produced zero frames`,
     );
 
   const frames: string[] = [];
-  for (let i = 0; i < times.length; ++i)
+  for (let i: number = 0; i < times.length; ++i)
     frames.push(await adapters.captureFrame(times[i]!, i, dir));
-  const inputPattern = `${dir}/${framePattern()}`;
-  const args = ffmpegArgs(spec, inputPattern, outputPath);
-  const output = await adapters.encode(args, outputPath);
+  const inputPattern: string = `${dir}/${framePattern()}`;
+  const args: string[] = ffmpegArgs(spec, inputPattern, outputPath);
+  const output: string = await adapters.encode(args, outputPath);
   return {
     output,
     frameCount: frames.length,
     times,
-    frames: frames.map((path, index) => ({
+    frames: frames.map((path: string, index: number): IAutoMovieRenderResult["frames"][number] => ({
       index,
       timeSeconds: times[index]!,
       path,

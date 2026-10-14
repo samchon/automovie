@@ -1,4 +1,4 @@
-import type { IAutoMovieRenderAdapters } from "../renderVideo";
+import type { IAutoMovieRenderAdapters } from "../IAutoMovieRenderAdapters";
 
 /**
  * An open capture session returned by `createHeadlessCaptureAdapter`.

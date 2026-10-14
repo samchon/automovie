@@ -17,7 +17,7 @@
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Each name is returned to the capture or encoder plan that uses it, and the function keeps no reference.
  * @author Samchon
  */
-export const frameName = (
+export const frameName: (index: number, ext?: string, pad?: number) => string = (
   index: number,
   ext: string = "png",
   pad: number = 5,

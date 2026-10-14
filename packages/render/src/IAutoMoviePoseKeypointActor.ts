@@ -11,12 +11,12 @@ import type { IAutoMoviePoseKeypoint } from "@automovie/interface";
  * the scene's fog.
  *
  * @evidence contracts/common.md#principled-implementation The record keeps the projected keypoints exactly as `resolvePoseKeypoints` returns them, joint order and off-frame flags included, and the transmittance is the engine's `sceneFogTransmittance` at the actor's camera depth, the law the viewer's fog shader applies, so the sidecar and the captured frame describe the same film.
- * @evidence contracts/common.md#clear-and-simple-design One record per actor holds the node id, the joints and the one optional atmosphere value, with no per-joint fog because a body's own depth range changes transmittance less than the difference a consumer can act on.
+ * @evidence contracts/common.md#clear-and-simple-design One record holds node identity, projected joints and an optional root-sampled atmosphere fraction. Per-joint fog is absent, so depth variation across an actor is an approximation rather than a proven negligible visual difference.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts `atmosphere` is omitted rather than written as 1 or null for a scene without fog, so a sidecar of a fogless scene is byte-identical to one written before the field existed, and no consumer is special-cased.
  * @evidence contracts/common.md#meaningful-documentation The doc states who writes the record, which performances produce one and in what order, how a consumer reads each member, and each member states its meaning, range and absence.
  * @evidenceExclude contracts/performance.md#efficient-algorithms An interface describes data and runs no algorithm; the projection cost is answered on `planPoseKeypointSidecar`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work One actor's keypoint record is plain data written once by the planner and shared by no phase.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The actor record holds only its node id, keypoint array and optional number inside its frame, and owns no handle.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This erased actor schema acquires no pose or frame; planPoseKeypointSidecar creates the actor and joint records whose enclosing sidecar caller owns their lifetime.
  * @author Samchon
  */
 export interface IAutoMoviePoseKeypointActor {

@@ -21,36 +21,29 @@ import { sampleDescription } from "./sampleDescription";
 import { verifySampleStorage } from "./verifySampleStorage";
 
 /**
- * Parse one renderer-encoded deliverable's bytes by its declared kind and
- * media type and report what they contain, instead of trusting manifest
- * claims.
+ * Parse one renderer-encoded deliverable's bytes by its declared kind and media type and report what they contain, instead of trusting manifest claims.
  *
- * A preview, and a guide pass or audio mix declared `image/png`, must be a PNG
- * and reports `png` with the picture facts. Captions must be `text/vtt`, valid
- * UTF-8 with a WebVTT header, and report `webvtt` with every timed cue in
- * file order, skipping NOTE, STYLE and REGION blocks; `text` is the decoded
- * text as delivered. A feature or another guide pass must be `video/mp4`: a
- * guide pass reports `video` from a file whose only track is H.264, and a
- * feature reports `feature` from exactly one H.264 track and one Opus track of
- * exactly equal runtime whose audio passes the Opus delivery profile. Any
- * other audio mix must be `audio/mp4` with exactly one track, an Opus track
- * that passes the profile, and reports `audio`. The semantic-mask and
- * sound-evidence sidecars are JSON and are probed by the production package.
+ * A preview, and a guide pass or audio mix declared `image/png`, must be a PNG and reports `png` with the picture facts. Captions must be `text/vtt`, valid UTF-8 with a WebVTT header, and report `webvtt` with every timed cue in file order, skipping NOTE, STYLE and REGION blocks; `text` is the decoded text as delivered.
  *
- * Every refusal is an `Error` naming the kind, the media type, the track
- * counts, the WebVTT defect with its cue number, or the probe or profile
- * field that failed; an audio profile refusal is prefixed with `Feature MP4`
- * or `Audio-mix MP4`.
+ * A feature or another guide pass must be `video/mp4`: a guide pass reports `video` from a file whose only track is H.264, and a feature reports `feature` from exactly one H.264 track and one Opus track of exactly equal runtime whose audio passes the Opus delivery profile. Any other audio mix must be `audio/mp4` with exactly one track, an Opus track that passes the profile, and reports `audio`. The semantic-mask and sound-evidence sidecars are JSON and are probed by the production package.
+ *
+ * Every refusal is an `Error` naming the kind, the media type, the track counts, the WebVTT defect with its cue number, or the probe or profile field that failed; an audio profile refusal is prefixed with `Feature MP4` or `Audio-mix MP4`.
  *
  * @evidence contracts/common.md#principled-implementation Each format is read by its own grammar: PNG through the chunk walk and decoder, WebVTT through a strict UTF-8 decode, the header line, blank-line-separated blocks and the `HH:MM:SS.mmm --> HH:MM:SS.mmm` cue timing, and MP4 through the strict ISO gate and the parser's track tables; equal feature runtimes are proven by exact cross products of duration and timescale, and an audio runtime is the movie duration over the movie timescale, which the Opus profile also requires.
  * @evidence contracts/common.md#clear-and-simple-design This function owns the dispatch from deliverable kind to format and the WebVTT reading, while PNG facts, the video track reading, the strict parse, sample residency and the Opus profile are the shared helpers every other media path uses.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No kind is admitted under another media type, a cue is never reordered or repaired, the audio profile's message is only prefixed, and no file is special-cased.
  * @evidence contracts/common.md#meaningful-documentation The doc states what each kind and media type must contain and reports, how WebVTT blocks are read, what `text` holds, where the JSON sidecars are probed, and the form of every refusal.
- * @evidence contracts/performance.md#efficient-algorithms A PNG costs its decode, captions cost O(L) over the text plus one O(C) ordering pass over C cues, and an MP4 is parsed once and that parse shared by the video, audio and runtime checks, so every arm is linear in its input apart from the PNG decode buffer.
+ * @evidence contracts/performance.md#efficient-algorithms A PNG costs the chunk inspection and decode answered on `probeProductionPngPicture`; captions require O(L + C) work over L text characters and C cues. An MP4 is parsed once and shared by its track readings, which add O(M + S log(M + 1)) residency work per admitted track with S samples and M file-wide media boxes, plus box inspection and copying the returned lists. The MP4 arm therefore does not have a strict linear-time bound in its input bytes.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each deliverable is probed once from the bytes the caller read, and the result is the caller's to keep.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The parse, the decoded text and any decoded pixels are released on return; the returned record holds the caption text and cue strings for a caption probe and only numbers and short strings otherwise, and no handle or task is opened.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Parsed MP4 bytes and tables, decoded PNG pixels or decoded caption text coexist with their format-specific work until invocation-local references become collectable. Caption results retain their text and cue strings; media records copy track and description facts whose input-dependent lists are uncapped here. No file handle or task is opened, and return does not assert immediate garbage collection.
  */
-export const probeProductionRenderedMedia = (props: {
+export const probeProductionRenderedMedia: (props: {
+    kind: IAutoMovieProductionDeliverable["kind"];
+    mediaType: string;
+    bytes: Uint8Array;
+}) => Exclude<IAutoMovieProductionMediaProbe, {
+    kind: "semantic-mask" | "sound-evidence";
+}> = (props: {
   /** Deliverable kind the bytes were published as. */
   kind: IAutoMovieProductionDeliverable["kind"];
 
@@ -163,7 +156,9 @@ export const probeProductionRenderedMedia = (props: {
 };
 
 /** Read caption bytes as WebVTT, refusing every defect with the cue it names. */
-const probeWebVtt = (
+const probeWebVtt: (bytes: Uint8Array) => Extract<IAutoMovieProductionMediaProbe, {
+    kind: "webvtt";
+}> = (
   bytes: Uint8Array,
 ): Extract<IAutoMovieProductionMediaProbe, { kind: "webvtt" }> => {
   let text: string;
@@ -242,7 +237,7 @@ const probeWebVtt = (
 };
 
 /** Read one parsed Opus track into the audio probe record. */
-const probeAudioTrack = (
+const probeAudioTrack: (bytes: Uint8Array, file: ReturnType<typeof createFile>, track: Track) => IAutoMovieProductionAudioProbe = (
   bytes: Uint8Array,
   file: ReturnType<typeof createFile>,
   track: Track,
@@ -281,7 +276,7 @@ const probeAudioTrack = (
       mediaTimescale: track.timescale,
       movieDuration: track.movie_duration,
       mediaDuration: track.duration,
-      edits: (track.edits ?? []).map((edit: Entry) => ({
+      edits: (track.edits ?? []).map((edit: Entry): IAutoMovieProductionAudioProbe["timebase"]["edits"][number] => ({
         segmentDuration: edit.segment_duration,
         mediaTime: edit.media_time,
         mediaRateInteger: edit.media_rate_integer,
@@ -293,7 +288,7 @@ const probeAudioTrack = (
 };
 
 /** Run the Opus profile, prefixing its refusal with the container's label. */
-const assertProductionAudioProfile = (
+const assertProductionAudioProfile: (audio: IAutoMovieProductionAudioProbe, label: string) => void = (
   audio: IAutoMovieProductionAudioProbe,
   label: string,
 ): void => {
@@ -307,7 +302,10 @@ const assertProductionAudioProfile = (
 };
 
 /** The start and end, in milliseconds, of one `start --> end [settings]` cue timing line. */
-const parseWebVttCue = (line: string): { start: number; end: number } => {
+const parseWebVttCue: (line: string) => {
+    start: number;
+    end: number;
+} = (line: string): { start: number; end: number } => {
   const delimiterCount: number = line.split("-->").length - 1;
   const match: RegExpExecArray | null =
     delimiterCount === 1
@@ -326,7 +324,7 @@ const parseWebVttCue = (line: string): { start: number; end: number } => {
 };
 
 /** Milliseconds of a WebVTT timestamp the cue-timing pattern already admitted. */
-const webVttTimestampMilliseconds = (value: string): number => {
+const webVttTimestampMilliseconds: (value: string) => number = (value: string): number => {
   const match: RegExpExecArray = /^(?:(\d{2,}):)?([0-5]\d):([0-5]\d)\.(\d{3})$/u.exec(
     value,
   )!;

@@ -19,36 +19,21 @@ type ColourBox = InstanceType<typeof BoxParser.box.colr>;
 type PixelAspectBox = InstanceType<typeof BoxParser.box.pasp>;
 
 /**
- * Read one parsed H.264 track of `file`, whose bytes are `bytes`, into the
- * video probe record.
+ * Read one parsed H.264 track of `file`, whose bytes are `bytes`, into the video probe record.
  *
- * The record carries codec identity, the track raster mp4box reports and the
- * sample entry's coded raster, the
- * rational frame rate from media timescale over the one sample duration,
- * file-type brands, the track header's 16.16 display size and matrix, pixel
- * aspect, the movie and media clocks with every edit, the first and last
- * decode and composition times, and the container colour description with
- * whether it spells sRGB. `runtimeSeconds` is the media duration over the
- * media timescale. The record states what the file declares; whether those
- * facts meet a delivery profile is `assertProductionVideoProfile`'s question.
+ * The record carries codec identity, the track raster mp4box reports and the sample entry's coded raster, the rational frame rate from media timescale over the one sample duration, file-type brands, the track header's 16.16 display size and matrix, pixel aspect, the movie and media clocks with every edit, the first and last decode and composition times, and the container colour description with whether it spells sRGB. `runtimeSeconds` is the media duration over the media timescale. The record states what the file declares; whether those facts meet a delivery profile is `assertProductionVideoProfile`'s question.
  *
- * Throws, in this order, for a codec that is not `avc1` or `avc3`, a missing
- * or non-positive raster, duration, timescale or sample count, the refusals of
- * `verifySampleStorage`, samples without one positive constant duration, no
- * sync sample, other than one file-type box with nonblank brands, a sample
- * entry that is not a visual one, more than one colour or pixel-aspect box, a
- * pixel-aspect term that is not a positive safe integer, and other than one
- * track header for the track.
+ * Throws, in this order, for a codec that is not `avc1` or `avc3`, a missing or non-positive raster, duration, timescale or sample count, the refusals of `verifySampleStorage`, samples without one positive constant duration, no sync sample, other than one file-type box with nonblank brands, a sample entry that is not a visual one, more than one colour or pixel-aspect box, a pixel-aspect term that is not a positive safe integer, and other than one track header for the track.
  *
  * @evidence contracts/common.md#principled-implementation Every value is read from the ISO boxes mp4box parsed, `instanceof` against the resident module's box classes narrows each child box before its fields are read, and the frame rate is the exact rational `timescale / sampleDuration` reduced by `canonicalProductionFrameRate`; the premise that the parser's raster and clock fields are integers holds because it reads them from fixed-width table entries.
  * @evidence contracts/common.md#clear-and-simple-design The rendered-media probe's feature arm and the single-video probe both call this one reading, so the record is assembled field for field in one place and each caller adds only its own track-count rules.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The sRGB verdict compares the four H.273 code points with `AUTOMOVIE_MP4_SRGB_COLOUR`, an ICC or absent colour box reports `absent`, and no file or caller is special-cased.
  * @evidence contracts/common.md#meaningful-documentation The doc lists the record's facts, the unit of the runtime, that it reports rather than judges, and every refusal in the order it is checked.
- * @evidence contracts/performance.md#efficient-algorithms For S samples and B boxes the cost is the O(S log M) residency proof, two O(S) passes for duration and sync, and two O(B) sweeps of the box tree for the file-type and track-header boxes; the sample-entry children are a handful of boxes.
+ * @evidence contracts/performance.md#efficient-algorithms For S samples, M media boxes and B boxes in the parsed tree, residency costs O(M + S log(M + 1)), duration and sync each require one O(S) pass, and file-type and track-header lookup each sweep the box tree in O(B). Colour and pixel-aspect selection each scan the sample-entry children; the returned brand and edit lists require work proportional to their contents. These input-dependent lists have no cap here.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call reads one parsed file its caller owns and returns a fresh record, and no caller reads the same track twice.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The returned record holds copies of the brand list, matrix and edit list, not parser objects; the parsed file stays owned by the caller and nothing is opened.
  */
-export const probeVideoTrack = (
+export const probeVideoTrack: (bytes: Uint8Array, file: ReturnType<typeof createFile>, track: Track) => IAutoMovieProductionVideoProbe = (
   bytes: Uint8Array,
   file: ReturnType<typeof createFile>,
   track: Track,
@@ -185,7 +170,7 @@ export const probeVideoTrack = (
       mediaTimescale: track.timescale,
       movieDuration: track.movie_duration,
       mediaDuration: track.duration,
-      edits: (track.edits ?? []).map((edit: Entry) => ({
+      edits: (track.edits ?? []).map((edit: Entry): IAutoMovieProductionVideoProbe["presentation"]["edits"][number] => ({
         segmentDuration: edit.segment_duration,
         mediaTime: edit.media_time,
         mediaRateInteger: edit.media_rate_integer,

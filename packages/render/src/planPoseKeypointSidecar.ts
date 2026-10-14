@@ -32,34 +32,29 @@ import { shotBeat } from "./shotBeat";
 /**
  * Plan the pose-keypoint sidecar of one sequence render.
  *
- * The cut is laid on the output clock by `sequenceTimeline`, the output frames
- * are the `frameTimes` schedule the render captures at `fps`, and a forward
- * `playbackCursor` finds the live shot and its shot-local time on each frame.
- * Every performance of that shot whose motion, skeleton and scene node resolve
- * is sampled at `max(0, time - startOffset)`, and its joints are projected
- * through the shot's camera by `resolvePoseKeypoints` with the given aspect
- * and crop. A frame whose scene or camera does not resolve, and a performance
- * without a motion or with an unresolved reference, contribute no keypoints
- * rather than throwing, so the sidecar still covers every output frame.
+ * The cut is laid on the output clock by `sequenceTimeline`, the output frames are the `frameTimes` schedule the render captures at `fps`, and a forward `playbackCursor` finds the live shot and its shot-local time on each frame. Every performance of that shot whose motion, skeleton and scene node resolve is sampled at `max(0, time - startOffset)`, and its joints are projected through the shot's camera by `resolvePoseKeypoints` with the given aspect and crop. A frame whose scene or camera does not resolve, and a performance without a motion or with an unresolved reference, contribute no keypoints rather than throwing, so the sidecar still covers every output frame; an unresolved cut shot is refused by the timeline builder.
  *
- * When the scene declares fog, each actor also carries the fog transmittance
- * at the camera depth of its world root, its staged placement with the sampled
- * pose root folded in, through the engine's `sceneFogTransmittance`, the law
- * the viewer hands its shader. Throws for an `fps` that is not a finite
- * positive number, for a cut `sequenceTimeline` cannot lay out, and for a
- * runtime that rounds to zero frames. The host writes the result through
- * `renderPoseKeypointSidecar`.
+ * When the scene declares fog, each actor also carries the fog transmittance at the camera depth of its world root, its staged placement with the sampled pose root folded in, through the engine's `sceneFogTransmittance`, the law the viewer hands its shader. Throws for an `fps` that is not a finite positive number, for a cut `sequenceTimeline` cannot lay out, and for a runtime that rounds to zero frames. The host writes the result through `renderPoseKeypointSidecar`.
  *
  * @evidence contracts/common.md#principled-implementation Frames come from `frameTimes`, the `i / fps` schedule the render uses, and the forward cursor's premise of a non-decreasing clock holds because that schedule increases strictly; motion sampling, projection and fog are the engine's own functions, and camera depth is `projectToNdc`'s pre-divide depth, which the frustum terms do not affect, so passing 1 for them is exact.
  * @evidence contracts/common.md#clear-and-simple-design The planner owns only the frame walk and the per-actor record, the clock, shot resolution, sampling, projection and fog are the engine's, and the beat label is `shotBeat`, shared with the caption plan.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Unresolvable references contribute nothing rather than a placeholder, `atmosphere` is omitted for a fogless scene rather than written as a default, and no shot, actor or fixture is special-cased.
  * @evidence contracts/common.md#meaningful-documentation The doc states the clock, how each frame's shot and each actor's pose are resolved, what is skipped rather than refused, when and how `atmosphere` is derived, every refusal, and who writes the file, and each property states its role and unit.
- * @evidence contracts/performance.md#efficient-algorithms For F frames, E cut entries, S shots and P performances per live shot, the cost is O(E + F) for the clock and cursor plus O(P) motion samples and projections per frame; lookups are maps built once, and each shot's scene, camera and node map are resolved the first time the shot is live and reused on every later frame.
+ * @evidence contracts/performance.md#efficient-algorithms Initial maps index all supplied shots, scenes, motions and skeletons, including unused extras, while timeline and cursor work costs O(E + F) for E cut entries and F output samples. Each first-live shot scans its scene's cameras and indexes that scene's nodes; different shots sharing a scene rebuild that node index. Every frame scans its live shot's performances, and each resolved actor pays sampleMotion's key/joint/expression work plus resolvePoseKeypoints' forward kinematics, joint projection and camera-clip sampling. Fog requests sample the camera again per actor. These delegated populations drive cost beyond a constant per-performance bound, and none of the input arrays or output populations is capped here.
  * @evidence contracts/performance.md#reuse-equivalent-work A shot's staging, its scene, camera and node index, is resolved once per call and shared by all its frames, which is equivalent because the inputs are immutable for the call and the staging depends only on the shot's `scene` and `camera` ids; the cache is dropped on return.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The lookup maps, the staging cache of at most S entries and the frame schedule are local and released on return; the returned sidecar, the caller's, holds F frames with their actors and keypoints, and nothing is opened.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Call-local maps reference every supplied shot, scene, motion and skeleton; at most one staging entry per supplied shot also holds a camera and node map, which can repeat one scene's node population across shots. The F-time schedule, motion samples and projection intermediates become collectable when their calls finish. The caller retains every returned frame, actor and keypoint, with no frame or population cap here; no native handle or background task is acquired.
  * @author Samchon
  */
-export const planPoseKeypointSidecar = (props: {
+export const planPoseKeypointSidecar: (props: {
+    sequence: IAutoMovieSequence;
+    shots: IAutoMovieShot[];
+    scenes: readonly IAutoMovieScene[];
+    motions: readonly IAutoMovieMotion[];
+    skeletons: readonly IAutoMovieSkeleton[];
+    fps: number;
+    aspect?: number;
+    crop?: IAutoMovieDeliveryCrop;
+}) => IAutoMoviePoseKeypointSidecar = (props: {
   /** The cut being rendered. */
   sequence: IAutoMovieSequence;
 
@@ -179,7 +174,7 @@ interface IShotStaging {
 }
 
 /** Resolve a shot's scene and camera, or null when either is missing. */
-const stageShot = (
+const stageShot: (shot: IAutoMovieShot, sceneById: ReadonlyMap<string, IAutoMovieScene>) => IShotStaging | null = (
   shot: IAutoMovieShot,
   sceneById: ReadonlyMap<string, IAutoMovieScene>,
 ): IShotStaging | null => {
@@ -203,7 +198,7 @@ const stageShot = (
 };
 
 /** Project every resolvable performing actor of one shot at a shot-local instant. */
-const actorsAt = (
+const actorsAt: (shot: IAutoMovieShot, staging: IShotStaging, time: number, lookups: IPoseLookups) => IAutoMoviePoseKeypointActor[] = (
   shot: IAutoMovieShot,
   staging: IShotStaging,
   time: number,
@@ -272,7 +267,7 @@ const actorsAt = (
  * divide, so the frustum half-height and aspect, which only scale the
  * discarded `ndcX` and `ndcY`, are passed as 1.
  */
-const cameraDepth = (
+const cameraDepth: (camera: IAutoMovieCamera, cameraMotion: IAutoMovieShot["cameraMotion"], time: number, point: IAutoMovieVector3) => number = (
   camera: IAutoMovieCamera,
   cameraMotion: IAutoMovieShot["cameraMotion"],
   time: number,

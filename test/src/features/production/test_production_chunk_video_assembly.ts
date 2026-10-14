@@ -1,31 +1,29 @@
 import {
-  AutoMovieContentDigest,
   IAutoMovieFilmTimeline,
 } from "@automovie/interface";
-import { productionVisualDeliveryOccurrence } from "@automovie/render";
-import {
-  assembleProductionChunkVideoMp4,
-  assertProductionFeatureUsesRenditionVideo,
-  conformProductionRenditionVideoMp4,
-  conformProductionVisualDeliveryVideoMp4,
-  probeProductionVideoMp4,
-} from "@automovie/render/node";
+import { productionVisualDeliveryOccurrence } from "../../../../packages/render/src/film/productionVisualDeliveryOccurrence";
+import { assembleProductionChunkVideoMp4 } from "../../../../packages/render/src/node/assembleProductionChunkVideoMp4";
+import { assertProductionFeatureUsesRenditionVideo } from "../../../../packages/render/src/node/assertProductionFeatureUsesRenditionVideo";
+import { conformProductionRenditionVideoMp4 } from "../../../../packages/render/src/node/conformProductionRenditionVideoMp4";
+import { conformProductionVisualDeliveryVideoMp4 } from "../../../../packages/render/src/node/conformProductionVisualDeliveryVideoMp4";
+import { probeProductionVideoMp4 } from "../../../../packages/render/src/node/probeProductionVideoMp4";
 import { TestValidator } from "@nestia/e2e";
+import type { Sample } from "mp4box";
 
 import { namedFacts, nclose, throwsError } from "../internal/predicates";
 import { productionSampleMp4 } from "../internal/productionMedia/productionSampleMp4";
 import { productionMpeg4Part2Mp4 } from "../internal/productionMedia/productionMpeg4Part2Mp4";
 import { parseProductionMp4 } from "../internal/productionMedia/parseProductionMp4";
 
-const WIDTH = 16;
-const HEIGHT = 16;
-const FPS = 2;
+const WIDTH: number = 16;
+const HEIGHT: number = 16;
+const FPS: number = 2;
 
 /** The chunk sizes one render job hands the final assembly, in play order. */
-const CHUNK_FRAMES = [3, 2, 1];
-const TOTAL_FRAMES = CHUNK_FRAMES.reduce((sum, count) => sum + count, 0);
+const CHUNK_FRAMES: readonly number[] = [3, 2, 1];
+const TOTAL_FRAMES: number = CHUNK_FRAMES.reduce((sum: number, count: number): number => sum + count, 0);
 
-const digest = (digit: string): AutoMovieContentDigest =>
+const digest: (digit: string) => string = (digit: string): string =>
   `sha256:${digit.repeat(64)}`;
 
 /**
@@ -33,8 +31,8 @@ const digest = (digit: string): AutoMovieContentDigest =>
  * The expected payload order and clocks are independently stated by the test;
  * two writers sharing an append helper are not an independent numerical oracle.
  */
-const rangeTimeline = (): IAutoMovieFilmTimeline => {
-  let startFrame = 0;
+const rangeTimeline: () => IAutoMovieFilmTimeline = (): IAutoMovieFilmTimeline => {
+  let startFrame: number = 0;
   return {
     version: 1,
     builder: "automovie.production.builder.v5",
@@ -43,8 +41,8 @@ const rangeTimeline = (): IAutoMovieFilmTimeline => {
     id: "assembly",
     fps: FPS,
     totalFrames: TOTAL_FRAMES,
-    segments: CHUNK_FRAMES.map((count, index) => {
-      const segment = {
+    segments: CHUNK_FRAMES.map((count: number, index: number): IAutoMovieFilmTimeline["segments"][number] => {
+      const segment: IAutoMovieFilmTimeline["segments"][number] = {
         shot: `range-${index}`,
         sourceInFrame: 0,
         sourceOutFrame: count,
@@ -64,21 +62,11 @@ const rangeTimeline = (): IAutoMovieFilmTimeline => {
 };
 
 /**
- * A long film's final video is assembled from the chunk encodes it already
- * committed, never re-encoded from the frames a second time.
+ * A long film's final video is assembled from its existing chunk encodes without re-encoding its frames.
  *
- * Re-encoding every frame of the film through one encoder is what bounded a
- * production: the cost grows with the frame count and the whole output has to
- * be resident inside a single encoder before anything can be published, so no
- * amount of patience finishes a long film. Each chunk was already encoded once,
- * probed, and published under a receipt, so the whole film is exactly those
- * samples in order. Copying them costs the bytes and nothing else, and it
- * cannot alter a reviewed pixel.
+ * The splice transports coded payloads and clocks; it does not prove an encoder's memory behavior, receipt publication or decoded-picture equality.
  *
- * This unit reads independently authored resident sample tables through the
- * actual parser and splice writers. It proves byte and clock transport; the
- * real encoder's decoded-picture interoperability is a separate generated
- * consumer observation.
+ * This unit reads independently authored resident sample tables through the actual parser and splice writers. Real encoder interoperability requires a separate generated-consumer observation.
  *
  * Scenarios:
  *
@@ -94,9 +82,16 @@ const rangeTimeline = (): IAutoMovieFilmTimeline => {
  * 4. No chunks, a chunk that changes raster mid-film, a chunk that is not H.264, a
  *    frame total the chunks do not cover, and a runtime past the exact MP4
  *    clock are each refused rather than silently re-encoded.
+ * 5. ISO-authored dependency, leading, redundancy and degradation flags survive
+ *    normalization and a multi-chunk lossless assembly, including unknown zero.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Lossless chunk assembly is exercised through parsed output samples, exact payloads and clock terms, independently authored dependency flags, singleton byte identity and indexed refusal messages; a sample-order change, clock drift or dropped flags fails the assertions.
+ * @evidence contracts/testing.md#independent-expectations The authored chunk lengths three, two and one determine six frames and ordinal order 0,1,2,0,1,0; two ticks at four ticks per second determine three seconds. ISO sample-flags bit positions determine the literal metadata expectations. Comparison with the rendition writer is supplementary parity and does not serve as the independent oracle; decoder-valid pictures are outside this sample-table unit.
+ * @evidence contracts/testing.md#distinguishing-cases Singleton and multiple chunks, different integral media clocks, interrupted iteration and deterministic retry cover successful transport; empty input, changed raster, wrong codec, incorrect totals and unsafe clock products distinguish refusal boundaries. Explicit nonzero and unknown-zero dependency values distinguish byte preservation from the writer's former sync-only defaults.
+ * @evidence contracts/testing.md#execution-ownership The discoverable unit function constructs resident in-memory MP4 sample tables and calls product splice and probe functions; no native encoder, browser, process or GPU is started, and the function owns every asserted case directly.
  */
-export const test_production_chunk_video_assembly = (): void => {
-  const frameFormat = { fps: FPS, height: HEIGHT, width: WIDTH };
+export function test_production_chunk_video_assembly(): void {
+  const frameFormat: Parameters<typeof assembleProductionChunkVideoMp4>[0]["frameFormat"] = { fps: FPS, height: HEIGHT, width: WIDTH };
   const chunks: Uint8Array[] = [];
   for (const frameCount of CHUNK_FRAMES)
     chunks.push(
@@ -107,19 +102,43 @@ export const test_production_chunk_video_assembly = (): void => {
         frameCount,
       }),
     );
-  const narrowChunk = productionSampleMp4({
+  const flagged: Uint8Array = Uint8Array.from(chunks[0]!);
+  const flagSource: ReturnType<typeof parseProductionMp4> = parseProductionMp4(flagged);
+  const flagBits: readonly number[] = [0x06503456, 0x0991ffff, 0];
+  const flagBytes: DataView = new DataView(flagged.buffer);
+  for (let index: number = 0; index < flagBits.length; ++index) {
+    const run: (typeof flagSource.file.moofs)[number]["trafs"][number]["truns"][number] = flagSource.file.moofs[index]!.trafs[0]!.truns[0]!;
+    // ISO trun full header, sample count, data offset, duration and size precede
+    // the first sample-flags word in these one-sample fragment inputs.
+    flagBytes.setUint32(run.start! + 28, flagBits[index]!);
+  }
+  const transported: Uint8Array = assembleProductionChunkVideoMp4({
+    chunks: [flagged, chunks[1]!],
+    frameFormat,
+    totalFrames: 5,
+  });
+  const flagResult: ReturnType<typeof parseProductionMp4> = parseProductionMp4(transported);
+  TestValidator.equals(
+    "lossless transport retains every independently authored ISO sample flag",
+    flagResult.file.getTrackSamplesInfo(flagResult.movie.videoTracks[0]!.id).slice(0, 3).map((sample: Sample): number[] => [
+      Number(sample.is_sync), sample.is_leading, sample.depends_on,
+      sample.is_depended_on, sample.has_redundancy, sample.degradation_priority,
+    ]),
+    [[1, 1, 2, 1, 1, 0x3456], [0, 2, 1, 2, 1, 0xffff], [1, 0, 0, 0, 0, 0]],
+  );
+  const narrowChunk: Uint8Array = productionSampleMp4({
     width: WIDTH - 8,
     height: HEIGHT - 8,
     fps: FPS,
     frameCount: 2,
   });
-  const whole = productionSampleMp4({
+  const whole: Uint8Array = productionSampleMp4({
     width: WIDTH,
     height: HEIGHT,
     fps: FPS,
     frameCount: TOTAL_FRAMES,
   });
-  const twoTickChunks = CHUNK_FRAMES.map((frameCount) =>
+  const twoTickChunks: Uint8Array[] = CHUNK_FRAMES.map((frameCount: number): Uint8Array =>
     productionSampleMp4({
       width: WIDTH,
       height: HEIGHT,
@@ -128,7 +147,7 @@ export const test_production_chunk_video_assembly = (): void => {
       ticksPerFrame: 2,
     }),
   );
-  const scaledClock = probeProductionVideoMp4(
+  const scaledClock: ReturnType<typeof probeProductionVideoMp4> = probeProductionVideoMp4(
     assembleProductionChunkVideoMp4({
       chunks: twoTickChunks,
       frameFormat,
@@ -157,7 +176,7 @@ export const test_production_chunk_video_assembly = (): void => {
     nclose(scaledClock.runtimeSeconds, 3, 0),
   );
 
-  const single = assembleProductionChunkVideoMp4({
+  const single: Uint8Array = assembleProductionChunkVideoMp4({
     chunks: [whole],
     frameFormat,
     totalFrames: TOTAL_FRAMES,
@@ -167,11 +186,11 @@ export const test_production_chunk_video_assembly = (): void => {
     namedFacts([
       [
         "theSingleChunkAssemblyIsByteIdentical",
-        () => Buffer.from(single).equals(Buffer.from(whole)),
+        (): boolean => Buffer.from(single).equals(Buffer.from(whole)),
       ],
       [
         "theSingleChunkAssemblyCarriesTheWholeFilm",
-        () => probeProductionVideoMp4(single).frameCount === TOTAL_FRAMES,
+        (): boolean => probeProductionVideoMp4(single).frameCount === TOTAL_FRAMES,
       ],
     ]),
     {
@@ -180,31 +199,31 @@ export const test_production_chunk_video_assembly = (): void => {
     },
   );
 
-  const assembled = assembleProductionChunkVideoMp4({
+  const assembled: Uint8Array = assembleProductionChunkVideoMp4({
     chunks,
     frameFormat,
     totalFrames: TOTAL_FRAMES,
   });
-  const conformed = conformProductionRenditionVideoMp4({
+  const conformed: Uint8Array = conformProductionRenditionVideoMp4({
     timeline: rangeTimeline(),
     clips: new Map(
-      CHUNK_FRAMES.map((_count, index): [string, Uint8Array] => [
+      CHUNK_FRAMES.map((_count: number, index: number): [string, Uint8Array] => [
         `range-${index}`,
         chunks[index]!,
       ]),
     ),
   });
-  const probe = probeProductionVideoMp4(assembled);
-  const parsedAssembly = parseProductionMp4(assembled);
-  const assembledSamples = parsedAssembly.file.getTrackSamplesInfo(
+  const probe: ReturnType<typeof probeProductionVideoMp4> = probeProductionVideoMp4(assembled);
+  const parsedAssembly: ReturnType<typeof parseProductionMp4> = parseProductionMp4(assembled);
+  const assembledSamples: Sample[] = parsedAssembly.file.getTrackSamplesInfo(
     parsedAssembly.movie.videoTracks[0]!.id,
   );
   // Each chunk's authored sample ordinal restarts at zero. This oracle comes
   // from the input construction, not another conform implementation.
-  const inputOrdinals = [0, 1, 2, 0, 1, 0];
+  const inputOrdinals: readonly number[] = [0, 1, 2, 0, 1, 0];
   TestValidator.equals(
     "assembly preserves input sample bytes and rebases every clock tick",
-    assembledSamples.map((sample) => ({
+    assembledSamples.map((sample: Sample): { payload: number[]; duration: number; dts: number; cts: number } => ({
       payload: Array.from(
         assembled.subarray(sample.offset, sample.offset + sample.size),
       ),
@@ -212,31 +231,31 @@ export const test_production_chunk_video_assembly = (): void => {
       dts: sample.dts,
       cts: sample.cts,
     })),
-    inputOrdinals.map((ordinal, index) => ({
+    inputOrdinals.map((ordinal: number, index: number): { payload: number[]; duration: number; dts: number; cts: number } => ({
       payload: [0, 0, 0, 2, 0x65, ordinal],
       duration: 1,
       dts: index,
       cts: index,
     })),
   );
-  const timeline = rangeTimeline();
-  const mixed = conformProductionVisualDeliveryVideoMp4({
+  const timeline: IAutoMovieFilmTimeline = rangeTimeline();
+  const mixed: Uint8Array = conformProductionVisualDeliveryVideoMp4({
     timeline,
-    sources: timeline.segments.map((segment, index) => ({
+    sources: timeline.segments.map((segment: IAutoMovieFilmTimeline["segments"][number], index: number): Parameters<typeof conformProductionVisualDeliveryVideoMp4>[0]["sources"][number] => ({
       occurrence: productionVisualDeliveryOccurrence(segment, index),
       lane: index === 1 ? ("repainted" as const) : ("deterministic" as const),
       bytes: index === 1 ? chunks[index]! : assembled,
     })),
   });
-  const mixedClockRefusal = throwsError(() => {
-    const changedTimeline = {
+  const mixedClockRefusal: boolean = throwsError((): void => {
+    const changedTimeline: IAutoMovieFilmTimeline = {
       ...rangeTimeline(),
       fps: 2.000001,
       frameRate: { numerator: 2_000_001, denominator: 1_000_000 },
     };
     conformProductionVisualDeliveryVideoMp4({
       timeline: changedTimeline,
-      sources: changedTimeline.segments.map((segment, index) => ({
+      sources: changedTimeline.segments.map((segment: IAutoMovieFilmTimeline["segments"][number], index: number): Parameters<typeof conformProductionVisualDeliveryVideoMp4>[0]["sources"][number] => ({
         occurrence: productionVisualDeliveryOccurrence(segment, index),
         lane: index === 1 ? ("repainted" as const) : ("deterministic" as const),
         bytes: index === 1 ? chunks[index]! : assembled,
@@ -246,17 +265,17 @@ export const test_production_chunk_video_assembly = (): void => {
   TestValidator.equals(
     "a many-chunk assembly carries every source sample onto one continuous clock",
     namedFacts([
-      ["theAssemblyCoversEveryFrame", () => probe.frameCount === TOTAL_FRAMES],
-      ["theAssemblyKeepsTheRaster", () => probe.width === WIDTH],
-      ["theAssemblyKeepsTheRasterHeight", () => probe.height === HEIGHT],
-      ["theAssemblyKeepsTheFrameClock", () => Math.abs(probe.fps - FPS) < 1e-9],
+      ["theAssemblyCoversEveryFrame", (): boolean => probe.frameCount === TOTAL_FRAMES],
+      ["theAssemblyKeepsTheRaster", (): boolean => probe.width === WIDTH],
+      ["theAssemblyKeepsTheRasterHeight", (): boolean => probe.height === HEIGHT],
+      ["theAssemblyKeepsTheFrameClock", (): boolean => Math.abs(probe.fps - FPS) < 1e-9],
       [
         "theAssemblyRunsTheWholeFilm",
-        () => Math.abs(probe.runtimeSeconds - TOTAL_FRAMES / FPS) < 1e-9,
+        (): boolean => Math.abs(probe.runtimeSeconds - TOTAL_FRAMES / FPS) < 1e-9,
       ],
       [
         "theAssemblyIsSampleIdenticalToTheSameRangesConformed",
-        () => {
+        (): boolean => {
           assertProductionFeatureUsesRenditionVideo({
             feature: assembled,
             renditionVideo: conformed,
@@ -266,11 +285,11 @@ export const test_production_chunk_video_assembly = (): void => {
       ],
       [
         "theAssemblyIsNotOneChunkVerbatim",
-        () => Buffer.from(assembled).equals(Buffer.from(chunks[0]!)) === false,
+        (): boolean => Buffer.from(assembled).equals(Buffer.from(chunks[0]!)) === false,
       ],
       [
         "explicitMixedLanesPreserveTheSameSamples",
-        () => {
+        (): boolean => {
           assertProductionFeatureUsesRenditionVideo({
             feature: mixed,
             renditionVideo: assembled,
@@ -278,7 +297,7 @@ export const test_production_chunk_video_assembly = (): void => {
           return true;
         },
       ],
-      ["mixedLanesRequireTheExactRationalClock", () => mixedClockRefusal],
+      ["mixedLanesRequireTheExactRationalClock", (): boolean => mixedClockRefusal],
     ]),
     {
       theAssemblyCoversEveryFrame: true,
@@ -293,10 +312,10 @@ export const test_production_chunk_video_assembly = (): void => {
     },
   );
 
-  const interrupted = throwsError(
-    () =>
+  const interrupted: boolean = throwsError(
+    (): Uint8Array =>
       assembleProductionChunkVideoMp4({
-        chunks: (function* () {
+        chunks: (function* (): Generator<Uint8Array, never, unknown> {
           yield chunks[0]!;
           throw new Error("the render worker was interrupted");
         })(),
@@ -305,7 +324,7 @@ export const test_production_chunk_video_assembly = (): void => {
       }),
     "the render worker was interrupted",
   );
-  const resumed = assembleProductionChunkVideoMp4({
+  const resumed: Uint8Array = assembleProductionChunkVideoMp4({
     chunks,
     frameFormat,
     totalFrames: TOTAL_FRAMES,
@@ -313,10 +332,10 @@ export const test_production_chunk_video_assembly = (): void => {
   TestValidator.equals(
     "a resumed assembly publishes exactly what an uninterrupted one would have",
     namedFacts([
-      ["theInterruptedAttemptFailed", () => interrupted],
+      ["theInterruptedAttemptFailed", (): boolean => interrupted],
       [
         "theResumedAssemblyIsByteIdentical",
-        () => Buffer.from(resumed).equals(Buffer.from(assembled)),
+        (): boolean => Buffer.from(resumed).equals(Buffer.from(assembled)),
       ],
     ]),
     {
@@ -325,17 +344,17 @@ export const test_production_chunk_video_assembly = (): void => {
     },
   );
 
-  const refuses = (
+  const refuses: (props: Parameters<typeof assembleProductionChunkVideoMp4>[0], message: string) => boolean = (
     props: Parameters<typeof assembleProductionChunkVideoMp4>[0],
     message: string,
   ): boolean =>
-    throwsError(() => assembleProductionChunkVideoMp4(props), message);
+    throwsError((): Uint8Array => assembleProductionChunkVideoMp4(props), message);
   TestValidator.equals(
     "an assembly refuses chunks it cannot splice without re-encoding them",
     namedFacts([
       [
         "noChunksIsRefused",
-        () =>
+        (): boolean =>
           refuses(
             { chunks: [], frameFormat, totalFrames: TOTAL_FRAMES },
             "at least one encoded render chunk",
@@ -343,7 +362,7 @@ export const test_production_chunk_video_assembly = (): void => {
       ],
       [
         "aChangedRasterIsRefusedByIndex",
-        () =>
+        (): boolean =>
           refuses(
             {
               chunks: [chunks[0]!, narrowChunk],
@@ -355,7 +374,7 @@ export const test_production_chunk_video_assembly = (): void => {
       ],
       [
         "aNonH264ChunkIsRefused",
-        () =>
+        (): boolean =>
           refuses(
             {
               chunks: [productionMpeg4Part2Mp4()],
@@ -367,7 +386,7 @@ export const test_production_chunk_video_assembly = (): void => {
       ],
       [
         "aSingleChunkShortOfTheFilmIsRefused",
-        () =>
+        (): boolean =>
           refuses(
             { chunks: [whole], frameFormat, totalFrames: TOTAL_FRAMES + 1 },
             `Chunked video assembly covers ${TOTAL_FRAMES} frames; expected ${TOTAL_FRAMES + 1}.`,
@@ -375,7 +394,7 @@ export const test_production_chunk_video_assembly = (): void => {
       ],
       [
         "manyChunksShortOfTheFilmAreRefused",
-        () =>
+        (): boolean =>
           refuses(
             { chunks, frameFormat, totalFrames: TOTAL_FRAMES - 1 },
             "Assembled chunk video parses as",
@@ -383,7 +402,7 @@ export const test_production_chunk_video_assembly = (): void => {
       ],
       [
         "aRuntimePastTheExactClockIsRefused",
-        () =>
+        (): boolean =>
           refuses(
             {
               // The frame count is safe; two ticks per frame make the media
@@ -405,4 +424,4 @@ export const test_production_chunk_video_assembly = (): void => {
       aRuntimePastTheExactClockIsRefused: true,
     },
   );
-};
+}

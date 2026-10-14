@@ -1,4 +1,3 @@
-import type { AutoMovieContentDigest } from "@automovie/interface";
 
 /**
  * Byte, clock and channel facts every planned audio asset carries, whatever
@@ -24,7 +23,7 @@ export interface IAutoMovieProductionAudioAssetIdentityBase {
   path: string;
 
   /** SHA-256 content digest of the asset's current bytes. */
-  digest: AutoMovieContentDigest;
+  digest: string;
 
   /** Complete source runtime in seconds, exactly `sourceFrames / sampleRate`. */
   durationSeconds: number;

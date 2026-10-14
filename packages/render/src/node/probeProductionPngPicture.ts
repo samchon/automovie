@@ -2,38 +2,26 @@ import type {
   AutoMovieProductionPngColor,
   IAutoMovieProductionPngPicture,
 } from "@automovie/interface";
+import { crc32 } from "node:zlib";
 
 import { residentPngJs } from "./residentPngJs";
 
 /**
- * Decode one PNG datastream and report its IHDR, colour, alpha, colour-space,
- * pixel-aspect and orientation facts.
+ * Decode one PNG datastream and report its IHDR, colour, alpha, colour-space, pixel-aspect and orientation facts.
  *
- * The datastream must start with the PNG signature, consist of whole chunks
- * with four-letter ASCII types, and end exactly at one IEND chunk; `pngjs`
- * must then decode it, which proves the IHDR, CRCs and image data. The
- * colour space is `srgb` for an `sRGB` chunk, `icc` for an `iCCP` chunk,
- * `srgb` for a `gAMA` of 45455 whose `cHRM`, if present, carries the sRGB
- * chromaticities, `gamma` for any other `gAMA`, and `unidentified` otherwise.
- * The `cICP` and `mDCV` chunks of the third PNG edition are not read. An
- * `eXIf` chunk reports `metadata-present` orientation without being parsed.
+ * The datastream must start with the PNG signature, consist of whole chunks with four-letter ASCII types and valid CRCs over each type and payload, and end exactly at one IEND chunk. The resident `pngjs` decoder must then accept the IHDR and image data. The colour space is `srgb` for an `sRGB` chunk, `icc` for an `iCCP` chunk, `srgb` for a `gAMA` of 45455 whose `cHRM`, if present, carries the sRGB chromaticities, `gamma` for any other `gAMA`, and `unidentified` otherwise. The `cICP` and `mDCV` chunks of the third PNG edition are not read. An `eXIf` chunk reports `metadata-present` orientation without being parsed; ICC admission checks the profile-name and compression-method header, without decompressing or validating the profile body.
  *
- * Each refusal is an `Error` naming the defect: a missing signature, a
- * truncated chunk header or payload, a non-letter chunk type, a missing or
- * non-terminal IEND, the decoder's own refusal, a repeated `sRGB`, `gAMA`,
- * `cHRM`, `iCCP`, `pHYs` or `eXIf` chunk, a malformed `sRGB`, `gAMA`, `cHRM`,
- * `iCCP` or `pHYs` payload, an `sRGB` with a `gAMA` other than 45455, and an
- * `sRGB` together with an `iCCP`.
+ * Each refusal is an `Error` naming the defect: a missing signature, a truncated chunk header or payload, a non-letter chunk type, a CRC mismatch, a missing or non-terminal IEND, the decoder's own refusal, a repeated `sRGB`, `gAMA`, `cHRM`, `iCCP`, `pHYs` or `eXIf` chunk, a malformed `sRGB`, `gAMA`, `cHRM`, `iCCP` or `pHYs` payload, an `sRGB` with a `gAMA` other than 45455, and an `sRGB` together with an `iCCP`.
  *
- * @evidence contracts/common.md#principled-implementation The chunk walk follows the PNG framing of a 4-byte length, 4-byte type, payload and CRC, so every framing refusal is named before the decoder can answer a foreign stream with its own unnamed error; the decoder then owns the IHDR, CRC and zlib checks, and the colour rules follow the PNG specification, where 45455 is the `gAMA` an sRGB encoder writes and `cHRM` would otherwise name different primaries.
+ * @evidence contracts/common.md#principled-implementation The PNG specification defines CRC over the four-byte type and payload, excluding length and stored CRC; the bounded chunk walk checks that range with Node's public crc32 before any metadata is trusted, including ancillary types the resident decoder skips. The decoder owns IHDR and image-data admission, while 45455 is the gAMA value associated with sRGB.
  * @evidence contracts/common.md#clear-and-simple-design The function reports observed facts and leaves acceptance to `assertProductionPngPicture`, while chunk framing, the colour-space rule, the pixel aspect and the ICC profile name are small private steps of this one reading.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No file, size or chunk order is special-cased; a contradictory or repeated colour declaration is refused rather than resolved by precedence, and the unread third-edition chunks are the stated limitation.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No fixture, file size or chunk order bypasses CRC admission. Repeated selected metadata, conflicting sRGB/gAMA and sRGB/iCCP declarations refuse; sRGB takes precedence over cHRM without checking their consistency, and unread third-edition chunks remain a stated limitation.
  * @evidence contracts/common.md#meaningful-documentation The doc states the framing and decoding conditions, how each colour-space value is chosen, which chunks are not read, what orientation means, and every refusal.
- * @evidence contracts/performance.md#efficient-algorithms For C chunks and P pixels the chunk walk is O(C) over views of the input, each unique-chunk lookup is O(C), and the decode is O(P) with an RGBA buffer of 4P bytes, which is the cost of proving the image data decodes.
+ * @evidence contracts/performance.md#efficient-algorithms For B encoded bytes, C chunks and P output pixels, framing and CRC touch O(B+C) bytes and records, six selected-metadata scans add O(C), and decoding inflates and processes scanline data before producing an RGBA buffer of 4P bytes. Decoder work and residency include compressed input, inflated scanlines and pixel buffers; this function imposes no byte, chunk or pixel cap and claims no measured peak ratio.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call probes the bytes it was handed and caches nothing; a picture is probed once per deliverable.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The decoded pixels and the chunk list are released on return, and the returned record holds only numbers and strings; no handle or task is opened.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The chunk list retains views of caller-owned bytes during the call, and decoder pixel and scanline buffers coexist transiently. They become eligible for collection after return; the result holds only scalar metadata and no file handle or task is opened.
  */
-export const probeProductionPngPicture = (
+export const probeProductionPngPicture: (bytes: Uint8Array) => IAutoMovieProductionPngPicture = (
   bytes: Uint8Array,
 ): IAutoMovieProductionPngPicture => {
   const chunks: IPngChunk[] = parsePngChunks(bytes);
@@ -123,7 +111,7 @@ const PNG_COLOR_MODELS: Readonly<Record<number, AutoMovieProductionPngColor>> =
   };
 
 /** Split a PNG datastream into chunks whose payloads view `bytes`, refusing every framing defect by name. */
-const parsePngChunks = (bytes: Uint8Array): IPngChunk[] => {
+const parsePngChunks: (bytes: Uint8Array) => IPngChunk[] = (bytes: Uint8Array): IPngChunk[] => {
   const signature: readonly number[] = [
     0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a,
   ];
@@ -148,6 +136,8 @@ const parsePngChunks = (bytes: Uint8Array): IPngChunk[] => {
     );
     if (/^[A-Za-z]{4}$/.test(type) === false)
       throw new Error(`PNG chunk type "${type}" is not four ASCII letters.`);
+    if (crc32(bytes.subarray(cursor + 4, cursor + 8 + length)) !== readUint32(bytes, cursor + 8 + length))
+      throw new Error(`PNG ${type} chunk CRC does not match its type and payload.`);
     chunks.push({
       type,
       data: bytes.subarray(cursor + 8, cursor + 8 + length),
@@ -161,7 +151,7 @@ const parsePngChunks = (bytes: Uint8Array): IPngChunk[] => {
 };
 
 /** The one chunk of `type`, or undefined; a repeated chunk is refused. */
-const uniquePngChunk = (
+const uniquePngChunk: (chunks: readonly IPngChunk[], type: string) => IPngChunk | undefined = (
   chunks: readonly IPngChunk[],
   type: string,
 ): IPngChunk | undefined => {
@@ -176,7 +166,7 @@ const uniquePngChunk = (
 };
 
 /** The `pHYs` pixel aspect, or square when the chunk is absent. */
-const pngPixelAspect = (
+const pngPixelAspect: (data: Uint8Array | undefined) => IAutoMovieProductionPngPicture["pixelAspect"] = (
   data: Uint8Array | undefined,
 ): IAutoMovieProductionPngPicture["pixelAspect"] => {
   if (data === undefined) return { kind: "square" };
@@ -193,7 +183,7 @@ const pngPixelAspect = (
 };
 
 /** Refuse an `iCCP` payload without a 1-79 byte profile name and compression method 0. */
-const assertPngProfileName = (data: Uint8Array): void => {
+const assertPngProfileName: (data: Uint8Array) => void = (data: Uint8Array): void => {
   const separator: number = data.indexOf(0);
   if (
     separator <= 0 ||
@@ -207,7 +197,7 @@ const assertPngProfileName = (data: Uint8Array): void => {
 };
 
 /** The big-endian unsigned 32-bit integer at `offset` of `bytes`. */
-const readUint32 = (bytes: Uint8Array, offset: number): number =>
+const readUint32: (bytes: Uint8Array, offset: number) => number = (bytes: Uint8Array, offset: number): number =>
   new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength).getUint32(
     offset,
     false,

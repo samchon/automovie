@@ -9,30 +9,19 @@ import { sameSampleDescription } from "./sameSampleDescription";
 import { sampleDescription } from "./sampleDescription";
 
 /**
- * Parse one H.264 MP4 clip that is to be spliced without decoding it: a
- * repaint shot, one range of a chunked render, or a visual-lane source.
+ * Parse one H.264 MP4 clip that is to be spliced without decoding it: a repaint shot, one range of a chunked render, or a visual-lane source.
  *
- * The bytes must pass the strict output gate and the single-video probe,
- * whose refusals propagate unlabelled. The clip must then start with a sync
- * sample, declare a track header raster equal to the probed raster, keep every
- * clock term a safe integer, give every sample one positive duration with
- * decode times `0, d, 2d, ...` and a media duration of exactly `count * d`,
- * code every sample under one sample entry, present the samples as a
- * permutation of whole frames from its earliest composition time, and present
- * that media untransformed (`neutralTrackPresentation`). Any of these failing
- * throws `<label> must start independently, use one decoder configuration,
- * and expose one complete untransformed rational-clock presentation.`, where
- * `label` names the clip so a multi-clip splice says which one failed.
+ * The bytes must pass the strict output gate and the single-video probe, whose refusals propagate unlabelled. The clip must then start with a sync sample, declare a track header raster equal to the probed raster, keep every clock term a safe integer, give every sample one positive duration with decode times `0, d, 2d, ...` and a media duration of exactly `count * d`, code every sample under one sample entry, present the samples as a permutation of whole frames from its earliest composition time, and present that media untransformed (`neutralTrackPresentation`). Any of these failing throws `<label> must start independently, use one decoder configuration, and expose one complete untransformed rational-clock presentation.`, where `label` names the clip so a multi-clip splice says which one failed.
  *
- * @evidence contracts/common.md#principled-implementation A lossless splice re-times samples by whole frames and copies their payloads, which is valid only when every sample is one frame on one clock, the first sample decodes alone, one decoder configuration covers the clip, and the presentation shows the media unedited; each condition is checked on the parser's own sample table, and the composition times must cover exactly the frame indices `0` to `count - 1` once each.
+ * @evidence contracts/common.md#principled-implementation A lossless splice re-times samples by whole frames and copies their payloads; sample tables require one duration, a sync declaration on the first sample, one decoder configuration and unedited presentation, with composition times covering exactly frame indices `0` to `count - 1` once each. Independent decoding remains a premise of truthful sync metadata: this container admission does not decode H.264 pictures or verify an IDR payload.
  * @evidence contracts/common.md#clear-and-simple-design Chunk assembly, rendition conform, visual-lane conform, the rendition plan and the clip delivery assertion all splice through this one admission, and the record it returns carries every fact they read.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No clip, timescale or frame rate is special-cased and no failing clip is repaired; the conditions are the ones lossless re-timing needs.
  * @evidence contracts/common.md#meaningful-documentation The doc names the clip kinds, the delegated refusals, every admission condition, the one labelled refusal and what `label` is for.
- * @evidence contracts/performance.md#efficient-algorithms For S samples the bytes are parsed once and that parse is shared with the probe, and one O(S) pass checks every per-sample condition, marking each presented frame index in a boolean array instead of sorting the composition times; comparing each sample's entry with the first one costs a pointer check because samples of one entry share its boxes.
+ * @evidence contracts/performance.md#efficient-algorithms The bytes are parsed once and shared with the video probe, whose residency proof costs O(M + S log(M + 1)) for S samples and M media boxes in addition to box inspection. This function finds the earliest composition time in O(S), allocates an O(S) frame-index array, and checks the samples in O(S) without sorting composition times; sample-entry comparison costs a pointer check per child box when samples share the same entry, and serialization proportional to differing boxes otherwise.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call admits one clip handed to it, and the returned record is itself what the splice paths share.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The returned record keeps the caller's bytes, the probe, the parser's track and sample table, and through them the parse with its copy of the bytes, until the caller drops it; the frame-index array is released on return.
  */
-export const parseProductionRenditionClip = (
+export const parseProductionRenditionClip: (bytes: Uint8Array, label: string) => IProductionRenditionClip = (
   bytes: Uint8Array,
   label: string,
 ): IProductionRenditionClip => {

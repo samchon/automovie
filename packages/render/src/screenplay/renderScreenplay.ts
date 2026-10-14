@@ -7,47 +7,38 @@ import {
 import { screenplaySceneSlug } from "./screenplaySceneSlug";
 
 /**
- * Serialize an {@link IAutoMovieScript} into the deterministic, human-readable
- * plain-text screenplay: the artifact a person reviews and edits, exported
- * alongside the guide video (D009: dialogue TEXT is authoring data; audio is
- * diffusion's).
+ * Serialize a validated script into plain screenplay text with one terminal
+ * newline. A script with no beats throws before serialization.
  *
- * **Convention** (plain text, fixed indents, no trailing whitespace):
+ * A tree supplies the intent header and is walked depth-first in declared
+ * child order. Script commit must already have validated its single intent,
+ * acyclicity and one-to-one beat join. A treeless script uses the flat logline,
+ * theme and ordered beat summaries.
  *
- * - Header: `LOGLINE: …` and `THEME: …`, from the intent root when a tree is
- *   present (the tree is the authored truth), else from the flat script.
- * - Act: a blank-line-separated `ACT, <purpose>` rule.
- * - Scene: the screenplay slug `INT. LOCATION - TIMEOFDAY` (location and time
- *   upper-cased), followed by the optional description line.
- * - Group: the rationale bracketed as `[<rationale>]`.
- * - Beat: the beat's flat name as `BEAT, <name>`, the stage direction prose, each
- *   dialogue line as a 16-space-indented `SPEAKER` line over an
- *   8-space-indented text line (prefixed `[t=…s]` when anchored), and the shot
- *   caption bracketed as `[Shot: …]`.
+ * Tree output uses `ACT, <purpose>`, uppercase scene slugs, bracketed group
+ * rationale, `BEAT, <name>` and stage direction. Dialogue speakers use sixteen
+ * spaces of indentation and text uses eight, with `[t=<seconds>s]` for an
+ * anchored line. A shot caption writes `[Shot: <caption>]`. Supplied text is
+ * preserved; the serializer does not strip whitespace inside authored fields.
  *
- * **Tree vs flat.** With `script.tree` the document walks the refinement tree
- * depth-first, children in declaration order (the tree already validated on
- * commit: one intent root, acyclic, beats joined 1:1). Without a tree the
- * fallback renders the header plus each flat beat as `BEAT, <name>` over its
- * summary. Treeless scripts stay exportable. A script with no beats at all
- * throws: there is no screenplay to render, and serializing an empty shell
- * would hide the authoring gap.
- *
- * Same script → same bytes: iteration follows declaration order everywhere and
- * no timestamps or randomness enter the text.
- *
- * @author Samchon
+ * @evidence contracts/common.md#principled-implementation A validated script tree is walked depth-first in declared child order; treeless scripts use flat beat order, and the tree intent supplies the header. Tree admission and cycle checks belong to script commit, not this serializer.
+ * @evidence contracts/common.md#clear-and-simple-design Tree and flat serialization remain private branches of one screenplay renderer, while scene slug spelling is shared with caption labels.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Empty beat populations refuse instead of emitting an empty screenplay; no authored node id or dialogue text selects a special serialization path.
+ * @evidence contracts/common.md#meaningful-documentation The comment specifies tree ownership, fallback behavior, indentation, anchored seconds and terminal newline; author-supplied text is emitted without semantic rewriting.
+ * @evidence contracts/performance.md#efficient-algorithms For N tree nodes, B beats and L output characters, beat and child maps plus traversal cost O(N+B+L) with O(N+B+L) retained construction data; recursion uses the tree depth.
+ * @evidence contracts/performance.md#reuse-equivalent-work One child index and one beat-name index serve the complete document walk; no header, beat or scene is re-indexed for each descendant.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Maps, line arrays and recursion state are local to the serialization, and only the resulting screenplay string escapes with no file or renderer handle.
  */
-export const renderScreenplay = (script: IAutoMovieScript): string => {
+export const renderScreenplay: (script: IAutoMovieScript) => string = (script: IAutoMovieScript): string => {
   if (script.beats.length === 0)
     throw new Error("script has no beats: there is no screenplay to render");
 
-  const tree = script.tree ?? null;
+  const tree: IAutoMovieScriptNode[] | null = script.tree ?? null;
   if (tree === null) return renderFlat(script);
   return renderTree(script, tree);
 };
 
-const renderFlat = (script: IAutoMovieScript): string => {
+const renderFlat: (script: IAutoMovieScript) => string = (script: IAutoMovieScript): string => {
   const lines: string[] = [
     `LOGLINE: ${script.logline}`,
     `THEME: ${script.theme}`,
@@ -58,20 +49,20 @@ const renderFlat = (script: IAutoMovieScript): string => {
   return `${lines.join("\n")}\n`;
 };
 
-const renderTree = (
+const renderTree: (script: IAutoMovieScript, tree: IAutoMovieScriptNode[]) => string = (
   script: IAutoMovieScript,
   tree: IAutoMovieScriptNode[],
 ): string => {
-  const beatNames = new Map(script.beats.map((beat) => [beat.id, beat.name]));
-  const children = new Map<string | null, IAutoMovieScriptNode[]>();
+  const beatNames: Map<string, string> = new Map(script.beats.map((beat: IAutoMovieScript["beats"][number]): [string, string] => [beat.id, beat.name]));
+  const children: Map<string | null, IAutoMovieScriptNode[]> = new Map();
   for (const node of tree) {
-    const list = children.get(node.parent) ?? [];
+    const list: IAutoMovieScriptNode[] = children.get(node.parent) ?? [];
     list.push(node);
     children.set(node.parent, list);
   }
 
   const lines: string[] = [];
-  const walk = (node: IAutoMovieScriptNode): void => {
+  const walk: (node: IAutoMovieScriptNode) => void = (node: IAutoMovieScriptNode): void => {
     switch (node.kind) {
       case "intent":
         lines.push(
@@ -83,7 +74,7 @@ const renderTree = (
         lines.push("", `ACT, ${node.payload.purpose}`);
         break;
       case "scene": {
-        const slug = screenplaySceneSlug(node.payload);
+        const slug: string = screenplaySceneSlug(node.payload);
         lines.push("", slug);
         if (node.payload.description !== null)
           lines.push(node.payload.description);
@@ -93,7 +84,7 @@ const renderTree = (
         lines.push("", `[${node.payload.rationale}]`);
         break;
       case "beat": {
-        const name = beatNames.get(node.payload.beat) ?? node.payload.beat;
+        const name: string = beatNames.get(node.payload.beat) ?? node.payload.beat;
         lines.push("", `BEAT, ${name}`, node.payload.direction);
         for (const line of node.payload.dialogue)
           lines.push(...dialogueLines(line));
@@ -109,8 +100,8 @@ const renderTree = (
   return `${lines.join("\n")}\n`;
 };
 
-const dialogueLines = (line: IAutoMovieDialogueLine): string[] => {
-  const anchor = line.anchor === null ? "" : `[t=${line.anchor}s] `;
+const dialogueLines: (line: IAutoMovieDialogueLine) => string[] = (line: IAutoMovieDialogueLine): string[] => {
+  const anchor: string = line.anchor === null ? "" : `[t=${line.anchor}s] `;
   return [
     `${" ".repeat(16)}${line.speaker.toUpperCase()}`,
     `${" ".repeat(8)}${anchor}${line.text}`,

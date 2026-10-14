@@ -32,7 +32,14 @@ import { residentMp4Box } from "./residentMp4Box";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The call mutates the caller's file once, and a second call is refused, so there is nothing to share.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The two new boxes and their one edit entry become part of the caller's file and live as long as it; nothing else is retained or opened.
  */
-export const trimProductionAudioPresentation = (props: {
+export const trimProductionAudioPresentation: (props: {
+    file: ReturnType<typeof createFile>;
+    track: number;
+    mediaTimescale: number;
+    movieTimescale: number;
+    primingSamples: number;
+    presentationSamples: number;
+}) => void = (props: {
   /** In-memory MP4 under construction; it is changed in place. */
   file: ReturnType<typeof createFile>;
 

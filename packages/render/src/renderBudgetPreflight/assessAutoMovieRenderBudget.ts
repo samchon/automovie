@@ -17,9 +17,24 @@ import { IAutoMovieRenderBudgetAssessment } from "./IAutoMovieRenderBudgetAssess
  * specific renderer drawing specific bytes, so a report measured against an
  * invented target would be a stale report nothing could detect.
  *
- * @author Samchon
+ * @evidence contracts/common.md#principled-implementation A compiled-shot subject supplies both inventory and semantic ownership; settings and renderer are sealed into the target, and only required texture assets contribute to its upload identity. Missing graphics identity produces not-run rather than an invented renderer.
+ * @evidence contracts/common.md#clear-and-simple-design The preflight composes engine subject, mask, inventory, target and budget operations without duplicating their validators; the shot-specific wrapper adds context while preserving the original cause.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No renderer is fabricated and contradictory engine inputs are rethrown with their cause; the same compiled artifact feeds both owner attribution and cost measurement.
+ * @evidence contracts/common.md#meaningful-documentation The comment explains attributable target identity, and input members name compiled ownership, limits, decoded texture facts and context residency; nullable assessment fields distinguish no report from incomplete analysis.
+ * @evidence contracts/performance.md#efficient-algorithms Cost is the delegated inventory and mask traversal plus a linear filter over texture sources; the target is sealed twice because measured required assets are needed to compute its final texture digest.
+ * @evidence contracts/performance.md#reuse-equivalent-work One subject and mask serve both inventory measurement and budget attribution; all sharing is confined to this artifact and the supplied renderer, settings, assets and residency facts.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The assessment retains the inventory, mask, report and sealed target until its caller discards them; it neither acquires the renderer nor owns texture allocation or host tasks.
  */
-export const assessAutoMovieRenderBudget = (props: {
+export const assessAutoMovieRenderBudget: (props: {
+    compiled: IAutoMovieCompiledShotSource;
+    shot: string;
+    budget: IAutoMovieRenderBudget | null;
+    renderer: IAutoMovieRenderTargetRenderer | null;
+    settings: IAutoMovieRenderTargetSettings;
+    assets: readonly IAutoMovieRenderTargetAsset[];
+    textures?: readonly IAutoMovieRenderTextureSource[];
+    textureResidency?: IAutoMovieRenderTextureResidency;
+}) => IAutoMovieRenderBudgetAssessment = (props: {
   /** Fully builder-owned shot artifact. */
   compiled: IAutoMovieCompiledShotSource;
   /** Shot id the artifact belongs to. */
@@ -49,25 +64,25 @@ export const assessAutoMovieRenderBudget = (props: {
       target: null,
     };
   try {
-    const subject = autoMovieRenderSubjectOfCompiledShot({
+    const subject: ReturnType<typeof autoMovieRenderSubjectOfCompiledShot> = autoMovieRenderSubjectOfCompiledShot({
       compiled: props.compiled,
       textures: props.textures,
       textureResidency: props.textureResidency,
     });
-    const mask = deriveAutoMovieSemanticMask(subject);
-    const targetBase = sealAutoMovieRenderTarget({
+    const mask: ReturnType<typeof deriveAutoMovieSemanticMask> = deriveAutoMovieSemanticMask(subject);
+    const targetBase: ReturnType<typeof sealAutoMovieRenderTarget> = sealAutoMovieRenderTarget({
       renderer: props.renderer,
       settings: props.settings,
       assets: props.assets,
     });
-    const inventory = measureAutoMovieRenderInventory({ subject, mask, settings: targetBase.settings });
-    const required = new Set(inventory.textures.flatMap((row) => row.assets ?? (row.asset === null ? [] : [row.asset])));
-    const target = sealAutoMovieRenderTarget({ renderer: props.renderer, settings: targetBase.settings,
+    const inventory: ReturnType<typeof measureAutoMovieRenderInventory> = measureAutoMovieRenderInventory({ subject, mask, settings: targetBase.settings });
+    const required: Set<string> = new Set(inventory.textures.flatMap((row: (typeof inventory.textures)[number]): string[] => row.assets ?? (row.asset === null ? [] : [row.asset])));
+    const target: ReturnType<typeof sealAutoMovieRenderTarget> = sealAutoMovieRenderTarget({ renderer: props.renderer, settings: targetBase.settings,
       assets: props.assets, textureDigest: autoMovieRenderTextureDigest(
-        (props.textures ?? []).filter((source) => required.has(source.asset)), props.textureResidency,
+        (props.textures ?? []).filter((source: IAutoMovieRenderTextureSource): boolean => required.has(source.asset)), props.textureResidency,
       ),
     });
-    const report = evaluateAutoMovieRenderBudget({
+    const report: ReturnType<typeof evaluateAutoMovieRenderBudget> = evaluateAutoMovieRenderBudget({
       inventory,
       budget: props.budget,
       mask,
