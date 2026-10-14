@@ -9,7 +9,10 @@ import { nclose } from "../internal/predicates";
 
 const environment: IAutoMovieSceneEnvironment = { image: null, background: null, intensity: 1, rotationDeg: 0, exposure: 1.25, toneMapping: "acesFilmic", shadows: { enabled: true, type: "pcf" } };
 
-/** Four mutable policy values observed through the renderer's supplied property port. */
+/**
+ * Four mutable policy values observed through the renderer's supplied property port.
+ * @author Samchon
+ */
 interface IEnvironmentState {
   /** Native tone curve enumeration. */
   tone: THREE.ToneMapping;
@@ -21,7 +24,10 @@ interface IEnvironmentState {
   type: THREE.ShadowMapType;
 }
 
-/** Existing local policy seam; failures and attempts expose independent setter behavior. */
+/**
+ * Existing local policy seam; failures and attempts expose independent setter behavior.
+ * @author Samchon
+ */
 interface IEnvironmentHost {
   /** Structural port supplied to the actual viewer coordinator. */
   renderer: THREE.WebGLRenderer;
@@ -79,6 +85,11 @@ const sameState: (actual: IEnvironmentState, expected: IEnvironmentState) => boo
 
 /**
  * Source-local view policy restores independently of drawing and failed setters.
+ *
+ * Scenarios:
+ * 1. Declared beauty, omitted policy and delivery-only tone changes apply their independent expected state and restore it.
+ * 2. Each failed restore setter, multiple failures and partial setup preserve causes, attempt other owners and permit a later supported restore.
+ * 3. Scene drawing, structural setup refusal and mode-disposal failure restore environment policy independently of their own failures.
  *
  * @evidence contracts/testing.md#behavioral-verification Calls actual environment application and scene-pass coordination through an owned property/draw port. It observes reversible policy, retry after failed restoration, all independent setter attempts and primary/rollback/draw/mode error identities rather than silently replacing one failure with another.
  * @evidence contracts/testing.md#independent-expectations Authored initial linear curve, exposure 3, disabled basic shadows and declared ACES exposure 1.25/PCF shadows supply the state oracle. Explicit Error objects and operation order supply failure expectations; native disposal events expose restoration errors but establish no GPU or kernel release.

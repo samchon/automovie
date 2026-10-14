@@ -22,6 +22,11 @@ const projected: (camera: THREE.PerspectiveCamera, point: THREE.Vector3) => THRE
 /**
  * Three's CPU camera projection and engine coordinates share one normalized crop.
  *
+ * Scenarios:
+ * 1. Omitted, explicit whole and active whole native views preserve the original projection.
+ * 2. A central off-axis crop gives independently derived NDC coordinates, and closed crop edges reach the complete output edges.
+ * 3. Inverted viewer regions and a nonfinite portable region refuse through the shared crop resolver.
+ *
  * @evidence contracts/testing.md#behavioral-verification Applies and reads actual viewer camera crops, then projects authored points through the native camera and portable engine projection. Whole/omitted windows must retain the native matrix, off-axis coordinates must agree with the authored affine crop, and malformed regions must refuse.
  * @evidence contracts/testing.md#independent-expectations The 90-degree vertical field and aspect two give uncropped NDC (0.125,0.125) for (0.5,0.25,-2); the central 0.5 by 0.8 crop gives (0.25,0.15625). These authored geometric values prevent two product paths from merely agreeing on the same error; the initial Three matrix is an independent native no-op reference.
  * @evidence contracts/testing.md#distinguishing-cases Contrasts omission, explicit whole window, active whole native view, central off-axis crop and closed left/right output edges, plus inverted and nonfinite regions. Raster sizing, pixel delivery and culling population belong to consumer tests; this unit owns projection/crop values.

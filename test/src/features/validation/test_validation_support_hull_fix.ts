@@ -7,11 +7,7 @@ import { validationHasWarningCount } from "../internal/predicates";
 const v: (x: number, z: number) => IAutoMovieVector3 = (x: number, z: number): IAutoMovieVector3 => ({ x, y: 0, z });
 
 /**
- * The support footprint is built into a real convex hull, so the classification
- * no longer depends on the order the contact points are given. The old check
- * assumed the points were already a convex, correctly-wound polygon; a
- * mis-ordered (self-crossing) list could then misclassify an interior COM as
- * outside. This pins order-independence.
+ * Convex-hull support classification is independent of contact-point order. The old polygon interpretation could misclassify a centred COM when the same corners arrived in a crossed order.
  *
  * Scenarios:
  *

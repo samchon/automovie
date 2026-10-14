@@ -2,9 +2,7 @@ import { TestValidator } from "@nestia/e2e";
 import { createViewerDisplayPublication } from "../../../../packages/viewer/src/createViewerDisplayPublication";
 
 /**
- * A staged candidate cannot start a newer-generation save before activation.
- * The real publication lifecycle is exercised through its owned bitmap ports,
- * without a browser, renderer, artificial pixels or filesystem publication.
+ * A staged candidate cannot start a newer-generation save before activation. The publication lifecycle is exercised through supplied bitmap ports without producing pixels or publishing files.
  * Scenarios:
  * 1. Refused copies and uncommitted changes start no upload.
  * 2. Repeated staging copies only the latest bitmap; activation reuses it.

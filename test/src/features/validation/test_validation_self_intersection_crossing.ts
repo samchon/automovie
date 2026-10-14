@@ -23,15 +23,9 @@ const restAt: (x: number, y: number, z: number) => IAutoMovieTransform = (x: num
 });
 
 /**
- * Two capsules whose centerlines pierce each other as an X: `armA` runs along
- * the world x-axis from (-1,0,0) to (1,0,0), `armB` along the z-axis from
- * (0,0,-1) to (0,0,1). They cross at the origin, interior to both: the two
- * centerlines share a point, so the true distance is 0.
+ * The X-axis centreline from (-1,0,0) to (1,0,0) and Z-axis centreline from (0,0,-1) to (0,0,1) cross at their shared interior origin, so their separation is zero.
  *
- * Every capsule endpoint sits a full unit from the other centerline, so the
- * retired four-endpoint approximation measured this pair 1 m apart and the
- * forced self-intersection check passed it; the exact clamped solver reads the
- * real 0 and produces advisory feedback.
+ * Every endpoint sits one metre from the other centreline. The retired endpoint approximation missed the intersection; the clamped segment solver reports zero separation and produces advisory feedback.
  */
 const crossSkeleton: () => IAutoMovieSkeleton = (): IAutoMovieSkeleton => ({
   id: "cross",
@@ -79,12 +73,11 @@ const key: (target: IAutoMovieSkeleton, time: number) => IAutoMovieKeyframe = (t
 });
 
 /**
- * The interior X-crossing the endpoint approximation missed is now caught: two
- * capsule centerlines passing through each other's middle report distance 0
- * (overshoot = the full radius sum), where the old four-candidate minimum saw a
- * unit gap and passed. A second pair whose capsules cross far outside each
- * other's spans still passes, so the metric gate remains the crossing itself,
- * not mere axis alignment.
+ * The interior crossing reports zero separation and full-radius overshoot. Moving the second capsule outside the bounded spans removes the warning while preserving the axis directions.
+ *
+ * Scenarios:
+ * 1. Interior X/Z centreline crossing emits a warning with overshoot equal to the full 0.2-metre radius sum.
+ * 2. Shifting the second segment to Z in [2,3] preserves the axis directions and produces no warnings outside the bounded spans.
  *
  * @evidence contracts/testing.md#behavioral-verification Runs sampled proxy intersection on two interior-crossing centrelines and observes a physics warning with full-radius overshoot. Moving one segment outside the other's span must produce no warnings, so unconditional advisory output cannot satisfy the positive twin.
  * @evidence contracts/testing.md#independent-expectations Authored X/Z segments share the origin, giving zero separation and overshoot 0.1+0.1=0.2; the shifted segment begins at Z=2, beyond the same radius sum. Coordinates independently distinguish bounded intersection from infinite-line crossing; no rendered surface penetration is inferred.
@@ -133,9 +126,7 @@ export function test_validation_self_intersection_crossing(): void {
     { firedKindPhysics: true, ncloseFiredOvershoot: true },
   );
 
-  // Shift armB entirely off to +z (spanning z in [2,3]) so the centerlines no
-  // longer cross within their spans: the nearest approach is armA's midpoint
-  // (0,0,0) to armB's near end (0,0,2), distance 2 > 0.2, so it passes.
+  // Moving armB to Z in [2,3] gives bounded separation 2 > 0.2 from armA's midpoint, so the proxy pair has no warning.
   const clearSkeleton: IAutoMovieSkeleton = {
     id: "cross-clear",
     bones: [

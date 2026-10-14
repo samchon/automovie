@@ -74,9 +74,7 @@ export function test_viewer_area_light(): void {
           ),
       ],
       ["aim", (): boolean => vclose(emitted(built), { x: -1, y: 0, z: 0 })],
-      // A RectAreaLight has no target object, so it must gain no child; the
-      // segmentation mask palette is keyed by top-level child index and an
-      // invented target would also be a second, drifting statement of aim.
+      // RectAreaLight owns no target child; an invented target would alter the top-level mask palette index and duplicate its aim.
       ["noTarget", (): boolean => built.children.length === 0],
       ["noShadow", (): boolean => built.castShadow === false],
     ]),
@@ -115,8 +113,7 @@ export function test_viewer_area_light(): void {
     nclose(rewritten.width, 5) && nclose(rewritten.height, 0.25),
   );
 
-  // A panel written onto a light that is not a RectAreaLight must change no
-  // extent it does not have: the arm is instance-guarded, not type-guarded.
+  // A panel value applied to a punctual instance changes shared fields without inventing panel extent.
   const mismatched: THREE.PointLight = new THREE.PointLight();
   applyLightState(mismatched, WINDOW);
   TestValidator.predicate(

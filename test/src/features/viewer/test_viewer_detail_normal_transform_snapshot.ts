@@ -5,8 +5,7 @@ import * as THREE from "three";
 import { nclose } from "../internal/predicates";
 
 /**
- * Detail-normal registration snapshots the UV transform while borrowing the
- * texture itself. Later caller transforms cannot retarget the captured shader.
+ * Detail-normal registration snapshots the UV transform while borrowing the texture, so later caller transforms cannot retarget the captured uniform.
  *
  * Scenarios:
  * 1. Translation (0.25, 0.5) and repeat (2, 3), with zero rotation and centre,

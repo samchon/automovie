@@ -8,7 +8,7 @@ import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
 import { createModel } from "../internal/fixtures";
-import { hasViolation } from "../internal/predicates";
+import { hasViolation, nclose } from "../internal/predicates";
 
 const reference: (asset: string, repeat: number) => IAutoMovieTextureReference = (
   asset: string,
@@ -31,8 +31,7 @@ const reference: (asset: string, repeat: number) => IAutoMovieTextureReference =
 });
 
 /**
- * A material's detail normal map is blended over its normal map with its own
- * UV transform, or stands in for a missing one.
+ * Material construction registers a detail normal map with its own UV transform or uses it as the normal-map fallback; these cases observe registration metadata.
  *
  * Scenarios:
  * 1. With a normal map and a detail map, the built material keeps the
@@ -73,8 +72,8 @@ export function test_viewer_detail_normal(): void {
     "the material retains the base map and registers the detail binding",
     both.normalMap?.name === "coarse" &&
       both.userData.detailNormal.texture.name === "fine" &&
-      both.userData.detailNormal.scale === 0.5 &&
-      both.userData.detailNormal.texture.repeat.x === 180 &&
+      nclose(both.userData.detailNormal.scale, 0.5, 0) &&
+      nclose(both.userData.detailNormal.texture.repeat.x, 180, 0) &&
       both.customProgramCacheKey() === "automovie-detail-normal",
   );
   const translucent: THREE.MeshPhysicalMaterial = buildMaterial(
@@ -103,7 +102,7 @@ export function test_viewer_detail_normal(): void {
   TestValidator.predicate(
     "a detail map alone stands in as the normal map",
     alone.normalMap?.name === "fine" &&
-      Math.abs(alone.normalScale.x - 0.7) < 1e-12 &&
+      nclose(alone.normalScale.x, 0.7) &&
       alone.userData.detailNormal === undefined,
   );
 
@@ -129,10 +128,6 @@ export function test_viewer_detail_normal(): void {
         "range",
         ".detailNormalScale",
       ) &&
-      !hasViolation(
-        validate({ detailNormalScale: 0.5 }),
-        "range",
-        ".detailNormalScale",
-      ),
+      validate({ detailNormalScale: 0.5 }).success,
   );
 }

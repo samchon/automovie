@@ -82,13 +82,11 @@ const pair: Parameters<typeof validateSelfIntersection>[0]["pairs"][number] = {
 } as const;
 
 /**
- * `validateSelfIntersection` pins the first proxy-based self-intersection
- * check: callers declare non-adjacent capsule pairs, and the validator warns on
- * sampled frames where their centerlines are closer than the sum of radii.
+ * `validateSelfIntersection` warns on sampled frames where declared non-adjacent capsule centrelines are closer than the sum of their radii.
  *
  * Scenarios:
  *
- * 1. A forearm capsule crossing near the torso capsule produces a physics WARNING
+ * 1. A forearm capsule crossing near the torso capsule produces a physics warning
  *    (D015: a plausibility signal, not a gate) with a stable
  *    `$input.pairs[i].samples[j].distance` path; the run still succeeds. The
  *    same crossing acknowledged with `physicsIntent` suppresses it entirely.

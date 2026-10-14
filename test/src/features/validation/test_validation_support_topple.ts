@@ -14,11 +14,7 @@ const v: (x: number, z: number) => IAutoMovieVector3 = (x: number, z: number): I
 const square: IAutoMovieVector3[] = [v(0, 0), v(2, 0), v(2, 2), v(0, 2)];
 
 /**
- * `detectSupportToppling` judges whether an object's center of mass stays over
- * its support footprint. Overhang is advisory (a film may be unphysical, D010):
- * it warns (never errors on the physics), suggests the tip edge and fall
- * direction, and emits a fall event. A `physicsIntent` marker suppresses the
- * warning and suggestion but keeps the event.
+ * `detectSupportToppling` compares the COM with its support footprint. Overhang produces advisory feedback, a tip edge, a fall direction and a fall event; `physicsIntent` suppresses the advice and suggestion while retaining the event.
  *
  * Scenarios:
  *

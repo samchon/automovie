@@ -6,9 +6,7 @@ import * as THREE from "three";
 import { namedFacts, nclose } from "../internal/predicates";
 
 const node: (path: "translation" | "rotation" | "scale" | "weights", values: number[]) => IAutoMovieTrack = (
-  // The FULL node-channel union on purpose: a helper that cannot express
-  // `weights` is how the fourth path stayed unapplied while a scenario claimed
-  // to prove the mapping complete (#1357), the same shape that hid `scale`.
+  // The complete node-channel union preserves the scale and weights cases.
   path: "translation" | "rotation" | "scale" | "weights",
   values: number[],
 ): IAutoMovieTrack => ({
@@ -29,20 +27,13 @@ const morphMesh: (count: number) => THREE.Mesh = (count: number): THREE.Mesh => 
 };
 
 /**
- * `applyObjectMotion` is the render side of the engine's clip bakers: every
- * node channel the engine composes must land on the `THREE.Object3D` the same
- * way. Scale used to fall through silently (#1049): a clip growing a prop 1→2
- * rendered rigid while every engine-side consumer (`sampleClip` width
- * validation, `resolveFrame` matrix composition) saw it at 1.5 mid-clip.
+ * `applyObjectMotion` applies sampled node channels to native transform and morph state. The former missing scale path left a 1-to-2 scale clip rigid despite engine consumers observing 1.5 at its midpoint.
  *
- * `weights` was the last path still falling through (#1357): the gate accepted
- * such a track, `resolveFrame` interpolated it, and the render left the mesh
- * where it was, so a clip that morphs a prop validated clean and changed
- * nothing on screen.
+ * The former missing weights path similarly admitted and sampled a morph track without updating the native influence array.
  *
  * Scenarios:
  *
- * 1. Translation, rotation, AND scale tracks all write onto the resolved object at
+ * 1. Translation, rotation and scale tracks all write onto the resolved object at
  *    the sampled instant (t=0.5 of a 1s clip: position (1,2,3), the 45° slerped
  *    quaternion, scale 1.5).
  * 2. An unresolved node and a non-node (pointer) channel are skipped without
@@ -50,12 +41,12 @@ const morphMesh: (count: number) => THREE.Mesh = (count: number): THREE.Mesh => 
  * 3. The documented carry-over contract: a channel absent from the clip keeps the
  *    object's existing value (the helper owns no rest poses: hosts that swap
  *    clips restore staged bases themselves).
- * 4. A `weights` track writes the sampled vector, by INDEX, onto every morphable
+ * 4. A `weights` track writes the sampled vector, by index, onto every morphable
  *    mesh beneath the resolved object, including a nested one; the value is the
  *    interpolated midpoint, not either endpoint.
  * 5. Boundaries of that write: an object with no morphable mesh is skipped without
- *    throwing, a mesh with FEWER influences than the track is filled as far as
- *    it goes (a clip authored against another model), and a mesh with MORE
+ *    throwing, a mesh with fewer influences than the track is filled as far as
+ *    it goes (a clip authored against another model), and a mesh with more
  *    keeps its untouched tail.
  * 6. A two-clip handoff uses the earlier translation before the later track's
  *    first key and the later translation after it; a future-only clip writes
@@ -129,8 +120,7 @@ export function test_viewer_apply_object_motion(): void {
     },
   );
 
-  // 2. unresolved node + pointer channel skipped (nothing throws, prop keeps
-  //    its sampled state)
+  // 2. Unresolved nodes and pointer channels preserve the sampled prop state without throwing.
   TestValidator.predicate(
     "unresolved and non-node channels are skipped",
     nclose(prop.position.x, 1),
@@ -192,7 +182,7 @@ export function test_viewer_apply_object_motion(): void {
     },
   );
 
-  // 5. BOUNDARIES: no morphable mesh, a shorter influence array, a longer one
+  // 5. Boundaries: no morphable mesh, a shorter influence array, a longer one.
   const bare: THREE.Object3D = new THREE.Object3D();
   applyObjectMotion(morphs, 0.5, (n: string): THREE.Object3D | undefined => (n === "prop" ? bare : undefined));
   TestValidator.equals(

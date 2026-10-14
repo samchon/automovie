@@ -16,8 +16,7 @@ import { analysisContext, boxSolid } from "../internal/analysisFixtures";
 import { namedFacts, nclose, throwsError } from "../internal/predicates";
 
 /**
- * The viewer draws a field only from the artifact a report reads, and refuses
- * to draw anything else.
+ * The viewer draws the numerical field carried by the reported artifact and refuses inputs without that field.
  *
  * Overlay admission requires a solved numerical run with a present metric value and spatial field. Unsupported, not-run, unknown, gapped and fieldless inputs refuse with their own reason; a numerical artifact is not a physical measurement or evidence of a completed rendered picture.
  *
@@ -83,7 +82,7 @@ export function test_viewer_analysis_overlay(): void {
   const identity: Record<string, unknown> = overlay.object.userData.autoMovieAnalysis as Record<string, unknown>;
   const range: ReturnType<typeof overlay.range> = overlay.range();
   TestValidator.equals(
-    "a solved study becomes one coloured point per measured cell",
+    "a solved study becomes one coloured point per numerical cell",
     {
       type: overlay.object.type,
       name: overlay.object.name,

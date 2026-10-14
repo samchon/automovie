@@ -7,11 +7,7 @@ import { createModel, primitivePart } from "../internal/fixtures";
 import { throwsError } from "../internal/predicates";
 
 /**
- * A rigid part whose `attachedBone` the skeleton does not carry throws instead
- * of silently parenting to the model root (#1106): the fallback rendered a
- * hand-held prop frozen at the origin while everything else looked right: the
- * silent-skip class #1051 removed from the viewer, and the same defect class
- * the skin path already throws on.
+ * A rigid part naming an absent attachment bone must throw instead of silently parenting to the model root, which formerly left a held prop at the origin.
  *
  * Scenarios:
  *
@@ -54,7 +50,7 @@ export function test_viewer_build_model_attached_bone(): void {
   const model: ReturnType<typeof createModel> = createModel();
   const knownBone: AutoMovieHumanoidBone = model.skeleton!.bones[0]!.bone;
   const built: ReturnType<typeof buildModel> = buildModel({ ...model, parts: [sword(knownBone)] });
-  const bone: THREE.Bone = built.bones.get(knownBone)!;
+  const bone: THREE.Object3D = built.bones.get(knownBone)!;
   TestValidator.equals(
     "a known attachedBone parents the part under that bone",
     bone.children.some((child: THREE.Object3D): boolean => child.name === "sword"),

@@ -2,13 +2,10 @@ import { ViolationCollector, toValidation, violation } from "@automovie/engine";
 import type { IAutoMovieConstraintViolation, IAutoMovieValidation } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { validationHasWarningCount } from "../internal/predicates";
+import { nclose, validationHasWarningCount } from "../internal/predicates";
 
 /**
- * Severity splits feedback into blocking `"error"` and advisory `"warning"`.
- * `warn` records a warning; `toValidation` fails only when an error is present,
- * and a warning-only run still succeeds, surfacing the warnings so the harness
- * can offer them without blocking the correction loop.
+ * `warn` records advisory feedback; `toValidation` fails only when an error is present and preserves warning-only feedback on a successful envelope.
  *
  * Scenarios:
  *
@@ -66,7 +63,7 @@ export function test_validation_severity_envelope(): void {
   );
   const warned: IAutoMovieConstraintViolation = violation("physics", "$input.f", "x", 1, 3, "warning");
   TestValidator.equals("builder stamps warning", warned.severity, "warning");
-  TestValidator.equals("builder preserves overshoot", warned.overshoot, 3);
+  TestValidator.predicate("builder preserves overshoot", warned.overshoot !== null && warned.overshoot !== undefined && nclose(warned.overshoot, 3, 0));
 
   TestValidator.equals("empty list succeeds", toValidation([]).success, true);
 }

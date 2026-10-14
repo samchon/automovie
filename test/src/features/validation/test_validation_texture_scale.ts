@@ -93,16 +93,14 @@ const run: (parts: IAutoMovieModelPart[], materials: IAutoMovieMaterial[]) => IA
 /**
  * A surface and the material bound to it are measured against each other.
  *
- * The pairing is the only place the question is answerable: `transform.scale`
- * is turns per coordinate unit, so what it means physically is a fact about the
- * surface, and `coordinateSource` is what finally states which unit that is.
+ * `transform.scale` states turns per coordinate unit, while `coordinateSource` and the bound surface define that unit's physical meaning.
  *
  * Scenarios:
  *
  * 1. A `"normalized"` binding on a set that spans more than once is refused on
  *    each offending axis; a span of exactly one, and a span under one, are not.
  * 2. A `"surface-metres"` binding whose implied tile is larger than the
- *    surface's own span warns without failing — the bed-post case from the
+ *    surface's own span warns without failing: the bed-post case from the
  *    `#1902` production, where a 1 m image was bound to a 0.1 m post. A tile
  *    exactly equal to the span passes, and a smaller one passes.
  * 3. Everything that makes no measurable claim is left silent: a legacy bare-id
@@ -118,7 +116,7 @@ const run: (parts: IAutoMovieModelPart[], materials: IAutoMovieMaterial[]) => IA
  */
 export function test_validation_texture_scale(): void {
   //----
-  // NORMALIZED: THE DECLARATION MUST MATCH THE SET
+  // Normalized coordinates must match the declared domain.
   //----
   const metreUvs: IAutoMovieValidation = run(
     [meshPart("floor", "oak", rect(9, 4))],
@@ -160,7 +158,7 @@ export function test_validation_texture_scale(): void {
   );
 
   //----
-  // SURFACE-METRES: THE TILE MUST FIT ON THE SURFACE
+  // Metre coordinates expose whether the tile fits its bound surface.
   //----
   const bedPost: IAutoMovieValidation = run(
     [meshPart("bed-post", "oak", rect(0.1, 0.1))],
@@ -292,7 +290,7 @@ export function test_validation_texture_scale(): void {
   );
 
   //----
-  // SILENCE WHERE NOTHING MEASURABLE WAS CLAIMED
+  // Bindings without a measurable claim produce no scale advice.
   //----
   const post: (base: IAutoMovieMaterial["baseColorTexture"]) => IAutoMovieValidation = (base: IAutoMovieMaterial["baseColorTexture"]): IAutoMovieValidation =>
     run([meshPart("post", "oak", rect(0.1, 0.1))], [material("oak", base)]);
@@ -341,7 +339,7 @@ export function test_validation_texture_scale(): void {
   );
 
   //----
-  // SURFACES THIS VALIDATOR CANNOT MEASURE
+  // Unmeasurable surfaces remain the responsibility of their admission owners.
   //----
   const bound: IAutoMovieMaterial = material(
     "oak",

@@ -81,6 +81,11 @@ const evaluate: (props: EvaluateProps) => ReturnType<typeof evaluateAutoMovieVie
 /**
  * Three camera clips and supplied capability operands retain addressed admission.
  *
+ * Scenarios:
+ * 1. Exact source/native clips and supplied 24-bit depth satisfy the declared capability; changed far clip and 23 bits refuse distinctly.
+ * 2. Logarithmic/reversed modes and invalid source or capability operands retain their own addressed status.
+ * 3. Nonfinite observations serialize as null, while the assertion wrapper returns the supported report and throws for insufficient bits.
+ *
  * @evidence contracts/testing.md#behavioral-verification Calls the actual depth-capability evaluator/wrapper with native cameras and a supplied query port, checking satisfied, mismatched, insufficient, invalid-source/capability and nonstandard-mode reports. Nonfinite observations must become null and the throwing wrapper must distinguish the passing and refused operands.
  * @evidence contracts/testing.md#independent-expectations Authored clips 0.25/250 and required 24 bits define the expected source/native fields; supplied observations 24 versus 23 distinguish the capability threshold. These are explicit operands, not actual GPU measurements, and this unit does not independently certify a metric maximum-step bound or custom projection matrix.
  * @evidence contracts/testing.md#distinguishing-cases Contrasts exact clips with far=251, standard with logarithmic/reversed modes, integer capability with string/fractional/negative operands, and finite positive source fields with invalid identity/clip/bit/budget boundaries. Native framebuffer integration and engine depth-error derivation belong to their owners.

@@ -7,9 +7,7 @@ import { validateTransition } from "@automovie/production/validation/validateTra
 import { nclose } from "../internal/predicates";
 
 /**
- * Played spans remain finite positive seconds before overlap arithmetic.
- * A trim fits its source shot inclusively; absent shot identity cannot invent
- * an adjacent duration, while untrimmed entries use the registry duration.
+ * Played spans remain finite positive seconds before overlap arithmetic. A trim fits its source shot inclusively; absent shot identity cannot invent an adjacent duration, while untrimmed entries use the registry duration.
  *
  * Scenarios:
  *

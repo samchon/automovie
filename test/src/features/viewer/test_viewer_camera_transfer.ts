@@ -7,9 +7,12 @@ import * as THREE from "three";
 import { nclose } from "../internal/predicates";
 
 /**
- * Native camera transfer retains film/view-offset lenses and transformations.
- * Invalid or unsupported state must fail before mutating the resident camera.
- * These are CPU-only native camera cases, with no renderer or Human fixture.
+ * Native camera transfer preserves film/view-offset lenses and transforms, refusing invalid or unsupported state before resident mutation. These cases observe CPU camera state without a renderer or Human fixture.
+ *
+ * Scenarios:
+ * 1. Perspective and orthographic lenses, cropped views, TRS and layers match authored values before and after transfer.
+ * 2. Malformed restore fields refuse without changing the resident state; disabled and absent views remain supported.
+ * 3. Manual matrix ownership, parenting, custom projection and an unsupported camera class refuse capture or restore.
  *
  * @evidence contracts/testing.md#behavioral-verification Captures and restores actual detached native perspective/orthographic cameras, checking lens, view, TRS, layers and projection fields against independently authored/native reference values. Invalid state must throw while leaving the resident state intact; unsupported parent/manual/custom-projection cameras refuse.
  * @evidence contracts/testing.md#independent-expectations Authored scalar/vector/lens/view values supply the oracle, with Three's own quaternion and projection APIs as the independent native reference. Every initial capture is checked against that reference before a round trip; exact finite scalar comparisons detect transfer drift without claiming a second projection derivation or GPU correctness.

@@ -4,8 +4,7 @@ import { TestValidator } from "@nestia/e2e";
 import { validateSequenceArtifact } from "@automovie/production/validation/validateSequenceArtifact";
 
 /**
- * Portable cut-list admission collects structural errors and preserves the
- * two-layer editorial boundary in played seconds, including trimmed spans.
+ * Portable cut-list admission collects structural errors and preserves the two-layer editorial boundary in played seconds, including trimmed spans.
  *
  * Scenarios:
  *

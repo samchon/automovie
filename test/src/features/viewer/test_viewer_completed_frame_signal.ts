@@ -3,9 +3,7 @@ import { publishViewerCompletedFrame, type IAutoMovieViewerCompletedFrame } from
 import * as THREE from "three";
 
 /**
- * Explicit completed redraws require a fresh snapshot even with unchanged
- * scene/camera/clock facts. Ordinary idle producers keep their classification.
- * This tests the public native-event output port, without a renderer or Human.
+ * Explicit completed redraws emit a fresh meaningful event even when scene, camera and clock facts are unchanged; ordinary producers retain their classification. The public native-event port is observed without a renderer or Human fixture.
  * Scenarios:
  * 1. Repeated explicit completion of the same frame emits meaningful signals.
  * 2. Ordinary idle, eager and changed completions preserve producer authority.

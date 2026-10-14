@@ -57,29 +57,20 @@ const clip: (id: string, pointer: string, valueType: "scalar" | "vec3", times: n
 });
 
 /**
- * The render side of the light-time axis (#1348): a shot's `lightMotions`
- * reaches the `three.js` lights that play them.
+ * A shot's `lightMotions` reaches the native lights indexed by `buildScene` through `applyLightMotion`.
  *
- * This is the acceptance's "consumer, not just contract" half. #1339 was a
- * validated artifact with no applier, so the axis is only real if something
- * downstream of `getShot` writes the sampled value; here that is
- * `applyLightMotion` over the id index `buildScene` publishes.
+ * The earlier validated artifact lacked an applier. These cases observe the downstream property writes on the published light identities.
  *
- * Expected values are the artifact's own, converted by the documented units:
- * `range` is `three.js`'s `distance` in metres, and `coneAngle` is a HALF-angle
- * in degrees against `three.js`'s radians, so 40° is `40π/180`. The intensity
- * at the cue comes from the glTF STEP rule (`v_k` for `t_k <= t`) and the
- * midpoint values from linear interpolation at the exact centre of a `[1.2,
- * 2.0]` segment, the same oracles the engine pass is held to.
+ * Authored `range` maps to native distance in metres, and the half-angle `coneAngle` maps from degrees to radians, so 40° gives `40π/180`. The glTF STEP rule selects the cue value, while midpoint linear interpolation over [1.2,2.0] defines colour and cone expectations.
  *
  * Scenarios:
  *
  * 1. `buildScene` publishes its lights by ID and still adds them as top-level
- *    children in staging order — the mask palette is keyed by that index, so
+ *    children in staging order; the mask palette is keyed by that index, so
  *    the id map has to be an addition rather than a reordering.
  * 2. A staged light lands with its authored values (the point light's colour,
  *    intensity, and `distance`; the spot's cone in radians), which is what
- *    makes the "before" of the next scenario a measured value and not an
+ *    makes the "before" of the next scenario an observed metadata value and not an
  *    assumption.
  * 3. At `t = 1.6` the candle reads 0.04 and the segment midpoint colour `(0.5,
  *    0.4, 0.25)`, and the lamp's cone has opened to 70°: the clips drove the
@@ -87,7 +78,7 @@ const clip: (id: string, pointer: string, valueType: "scalar" | "vec3", times: n
  * 4. Two halves of one call. A light the host does not resolve is skipped, not
  *    thrown at (the engine already refused a clip naming an unstaged light, so
  *    an unresolved one here is a host that built part of the scene). A light no
- *    clip addresses is written back to its STAGED value, which is where this
+ *    clip addresses is written back to its staged value, which is where this
  *    helper deliberately differs from `applyObjectMotion`: a light carries its
  *    own rest on the scene, so the viewer's lighting can be a pure function of
  *    scene, clips and time instead of depending on what the previous frame left
