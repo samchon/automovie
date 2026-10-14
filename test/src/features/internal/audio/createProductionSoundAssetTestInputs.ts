@@ -26,7 +26,7 @@ export function createProductionSoundAssetTestInputs(clock: {
 } = {}): { FPS: number; SAMPLE_RATE: number; SAMPLES_PER_FRAME: number; START_FRAME: number; DURATION_FRAMES: number; TOTAL_FRAMES: number; plan: (props: { sourceDurationFrames?: number; sourceOffsetFrame?: number; startFrame?: number; durationFrames?: number; gain?: number; }) => IAutoMovieProductionSoundPlan; ntscPlan: (props: { sourceDurationFrames: number; sourceOffsetFrame: number; startFrame: number; }) => IAutoMovieProductionSoundPlan; ramp: (length: number) => Float32Array; at: (pcm: Float32Array, offset: number) => number; sample: (pcm: Float32Array, index: number) => number; } {
   const FPS: number = clock.fps ?? 24;
 
-  const SAMPLE_RATE: number = 48_000;
+  const SAMPLE_RATE: IAutoMovieProductionSoundPlan["sampleRate"] = 48_000;
 
   const SAMPLES_PER_FRAME: number = SAMPLE_RATE / FPS;
 

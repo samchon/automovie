@@ -1,22 +1,62 @@
 import type {
-  AutoMovieContentDigest,
   IAutoMovieCompiledShotSource,
   IAutoMovieFilmTimeline,
   IAutoMovieProductionSoundPlan,
   IAutoMovieShotContract,
   IAutoMovieSoundPropagationProfile,
+  IAutoMovieTransform,
 } from "@automovie/interface";
 
 /**
- * Construct independent typed audio inputs for the propagation and sound planning unit consumers.
- * Each call returns fresh mutable plans and caller-owned PCM builders; it does
- * not execute a mix, cache a result, or supply an expected production output.
+ * Existing propagation inputs and partial planning carriers borrowed by portable sound units.
+ *
+ * @author Samchon
  */
-export const createSoundPropagationTestInputs = () => {
-  const digest =
-    "sha256:0000000000000000000000000000000000000000000000000000000000000000" as AutoMovieContentDigest;
+interface ISoundPropagationTestInputs {
+  /** Declared identity string; this helper computes no content provenance. */
+  digest: string;
 
-  const profile = (): IAutoMovieSoundPropagationProfile => ({
+  /** Fresh direct-path profile with authored speed, gain and segment choices. */
+  profile: () => IAutoMovieSoundPropagationProfile;
+
+  /** Existing 10 fps plan with one contact event at frame two. */
+  eventPlan: (propagation?: IAutoMovieProductionSoundPlan["events"][number]["propagation"]) => IAutoMovieProductionSoundPlan;
+
+  /** First stereo sample frame with a nonzero sample, or -1; no perceptual hearing threshold is modeled. */
+  firstAudibleFrame: (pcm: Float32Array) => number;
+
+  /** Sum of adjacent left-channel sample differences, a comparison proxy rather than a spectral analysis. */
+  adjacentEnergy: (pcm: Float32Array) => number;
+
+  /** Fresh identity rotation/unit scale translated along the x axis in metres. */
+  transform: (x: number) => IAutoMovieTransform;
+
+  /** Partial film carrier supplying only the fields the tested planner reads. */
+  minimalTimeline: () => IAutoMovieFilmTimeline;
+
+  /** Partial shot carrier exposing the existing contact event. */
+  minimalContract: () => IAutoMovieShotContract;
+
+  /** Partial compiled carrier; returning it does not prove full compiled-source admission. */
+  minimalCompiled: () => IAutoMovieCompiledShotSource;
+}
+
+/**
+ * Supply the existing propagation and sound-planning inputs without rendering a predicted answer.
+ *
+ * Consumers run actual propagation, planning and PCM mixing; the returned functions only construct their existing mutable arrangements or observe resulting PCM.
+ *
+ * Authored speed=100 m/s, gain coefficient=0.01, loss=1 dB/m and the frame/sample clocks support independent arithmetic in the units. The nonzero-frame search and adjacent-sample sum are observation carriers with no perceptual or full spectral guarantee.
+ *
+ * Optional propagation and caller edits preserve zero-distance, carried/trimmed arrival, spectral twins, profile snapshots, moving endpoints, short dialogue and malformed-input cases. The asserted minimal timeline/contract/compiled shapes exercise planner fields rather than certify complete production records.
+ *
+ * Each call returns fresh mutable inputs and closures for portable units, with no retained cache, filesystem access, audio device, decoder or new host.
+ */
+export const createSoundPropagationTestInputs: () => ISoundPropagationTestInputs = (): ISoundPropagationTestInputs => {
+  const digest: string =
+    "sha256:0000000000000000000000000000000000000000000000000000000000000000" as string;
+
+  const profile: () => IAutoMovieSoundPropagationProfile = (): IAutoMovieSoundPropagationProfile => ({
     id: "declared-air",
     speedOfSoundMetersPerSecond: 100,
     distanceGain: { kind: "softened-inverse-square-v1", coefficient: 0.01 },
@@ -28,7 +68,7 @@ export const createSoundPropagationTestInputs = () => {
     assumptions: ["caller supplied the effective path length"],
   });
 
-  const eventPlan = (
+  const eventPlan: (propagation?: IAutoMovieProductionSoundPlan["events"][number]["propagation"]) => IAutoMovieProductionSoundPlan = (
     propagation?: IAutoMovieProductionSoundPlan["events"][number]["propagation"],
   ): IAutoMovieProductionSoundPlan => ({
     version: 1,
@@ -61,25 +101,25 @@ export const createSoundPropagationTestInputs = () => {
     dialogue: [],
   });
 
-  const firstAudibleFrame = (pcm: Float32Array): number => {
-    const sample = pcm.findIndex((value) => value !== 0);
+  const firstAudibleFrame: (pcm: Float32Array) => number = (pcm: Float32Array): number => {
+    const sample: number = pcm.findIndex((value: number): boolean => value !== 0);
     return sample < 0 ? -1 : Math.floor(sample / 2);
   };
 
-  const adjacentEnergy = (pcm: Float32Array): number => {
-    let total = 0;
-    for (let index = 2; index < pcm.length; index += 2)
+  const adjacentEnergy: (pcm: Float32Array) => number = (pcm: Float32Array): number => {
+    let total: number = 0;
+    for (let index: number = 2; index < pcm.length; index += 2)
       total += Math.abs(pcm[index]! - pcm[index - 2]!);
     return total;
   };
 
-  const transform = (x: number) => ({
+  const transform: (x: number) => IAutoMovieTransform = (x: number): IAutoMovieTransform => ({
     translation: { x, y: 0, z: 0 },
     rotation: { x: 0, y: 0, z: 0, w: 1 },
     scale: { x: 1, y: 1, z: 1 },
   });
 
-  const minimalTimeline = (): IAutoMovieFilmTimeline =>
+  const minimalTimeline: () => IAutoMovieFilmTimeline = (): IAutoMovieFilmTimeline =>
     ({
       inputFingerprint: digest,
       fps: 10,
@@ -96,7 +136,7 @@ export const createSoundPropagationTestInputs = () => {
       tracks: { audio: [], captions: [] },
     }) as unknown as IAutoMovieFilmTimeline;
 
-  const minimalContract = (): IAutoMovieShotContract =>
+  const minimalContract: () => IAutoMovieShotContract = (): IAutoMovieShotContract =>
     ({
       events: [
         {
@@ -109,7 +149,7 @@ export const createSoundPropagationTestInputs = () => {
       ],
     }) as IAutoMovieShotContract;
 
-  const minimalCompiled = (): IAutoMovieCompiledShotSource =>
+  const minimalCompiled: () => IAutoMovieCompiledShotSource = (): IAutoMovieCompiledShotSource =>
     ({
       eventSamples: [{ id: "hit", time: 0.2 }],
       scene: {
