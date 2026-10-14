@@ -5,6 +5,7 @@ import { createSourceStatusWorld } from "./createSourceStatusWorld";
 type SourceStatusCallObservations = {
   /** Per-call evaluation-count increments. */
   runs: number[];
+
   /** Actual answers returned by successive status invocations. */
   answers: IAutoMovieBuildProjectOutput[];
 };

@@ -17,6 +17,7 @@ export const { retainAutoMovieProductionSourceStatus }: {
   retainAutoMovieProductionSourceStatus(props: {
     /** Current snapshot acquisition callback over the requested document population. */
     acquire: (documents: readonly string[]) => ISourceStatusSnapshot | null;
+
     /** Current gate evaluation callback over this logical world. */
     evaluate: () => ISourceStatusEvaluation;
   }): () => IAutoMovieBuildProjectOutput;
@@ -25,6 +26,7 @@ export const { retainAutoMovieProductionSourceStatus }: {
   retainAutoMovieProductionSourceStatus(props: {
     /** Current snapshot acquisition callback over the requested document population. */
     acquire: (documents: readonly string[]) => ISourceStatusSnapshot | null;
+
     /** Current gate evaluation callback over this logical world. */
     evaluate: () => ISourceStatusEvaluation;
   }): () => IAutoMovieBuildProjectOutput;
