@@ -6,7 +6,7 @@ import type { IAutoMovieHumanHeadSkin } from "./IAutoMovieHumanHeadSkin";
  * The points where a head view's triangle edges cross an axis-aligned plane
  * (`axis` 0, 1 or 2 for X, Y or Z at `value`). A vertex on the plane counts as the positive side, so it is
  * reached as the crossing at its own end. Only the triangles `keep` accepts
- * are cut; omitted, every triangle is.
+ * are cut; omitted, every triangle is. The returned metre-valued points are fresh records; shared-edge crossings and coincident endpoint samples remain duplicated.
  *
  * @evidence contracts/common.md#principled-implementation Each accepted triangle edge with opposite signed axis distances contributes its linear plane crossing; zero distance counts positive. Valid finite indexed skin is the caller premise, and duplicate edge/end coordinates are intentionally retained.
  * @evidence contracts/common.md#clear-and-simple-design One axis-aligned intersection reader supplies profile instruments; optional keep owns triangle population selection while interpolation remains here.

@@ -12,12 +12,12 @@
  * @evidence contracts/performance.md#bound-retention-and-release-resources The class holds no instances or persistent state; each method's temporary bit buffer or BigInts is call-local and bounded by represented width or supplied rational magnitude.
  */
 export class HumanBinary64Arithmetic {
-  /** Adjacent represented value towards positive infinity.
+  /** Adjacent represented value towards positive infinity; NaN and positive infinity return unchanged, and either zero returns the minimum positive subnormal.
    *
    * @evidence contracts/common.md#principled-implementation Incrementing the ordered binary64 encoding moves a positive value upward and decrements a negative encoding; zero maps to the minimum positive subnormal, while NaN and positive infinity retain their specified outcomes.
    * @evidence contracts/common.md#clear-and-simple-design The method owns one adjacent-value primitive through DataView; callers such as square-root bracketing and ocular error bounds retain their geometric decisions.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Zero/infinity branches are representation boundary cases, and the eight-byte buffer is the binary64 width rather than a measurement tolerance.
-   * @evidence contracts/common.md#meaningful-documentation The method comment identifies direction toward positive infinity, while the implementation explicitly preserves NaN/infinity and crosses signed zero via the minimum subnormal.
+   * @evidence contracts/common.md#meaningful-documentation The method comment gives upward direction, unchanged NaN/positive infinity and the minimum-positive-subnormal result for either signed zero.
    * @evidence contracts/performance.md#efficient-algorithms One eight-byte encoding read/write and fixed-width BigInt step use O(1) work and storage for a represented Number.
    * @evidence contracts/performance.md#reuse-equivalent-work No repeated work is coordinated: a fresh local view avoids sharing mutable bit storage between independent adjacency calls.
    * @evidence contracts/performance.md#bound-retention-and-release-resources The eight-byte ArrayBuffer and DataView are invocation-owned and become unreachable after the scalar return or failure; no state, handle or task survives.
@@ -32,7 +32,7 @@ export class HumanBinary64Arithmetic {
     return view.getFloat64(0);
   }
 
-  /** Adjacent represented value towards negative infinity.
+  /** Adjacent represented value towards negative infinity; NaN and negative infinity return unchanged, and either zero returns the minimum negative subnormal.
    *
    * @evidence contracts/common.md#principled-implementation Negating nextUp of the negated Number gives the adjacent value toward negative infinity, retaining the same represented boundary and NaN behavior.
    * @evidence contracts/common.md#clear-and-simple-design The downward operation delegates its bit manipulation to nextUp rather than adding a second encoding implementation.
@@ -46,7 +46,7 @@ export class HumanBinary64Arithmetic {
     return -this.nextUp(-value);
   }
   /**
-   * Decompose a finite binary64 value as an exact signed integer times a power of two; nonfinite inputs refuse.
+   * Decompose a finite binary64 value as an exact signed integer times a power of two; nonfinite inputs refuse and both signed zeros become the same BigInt zero.
    *
    * @evidence contracts/common.md#principled-implementation The sign, exponent field and 52-bit fraction reconstruct a finite Number exactly as signed integer times 2^power; subnormals use exponent -1074 and normals restore the implicit leading bit. Nonfinite values refuse.
    * @evidence contracts/common.md#clear-and-simple-design One DataView decomposition exposes the canonical integer/power pair reused by exact fractions, material predicates and exceptional solver arithmetic.
