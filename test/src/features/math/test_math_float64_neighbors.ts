@@ -3,12 +3,12 @@ import {
   interpolateAutoMovieTrianglePoint,
 } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
+import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { throwsError, vclose } from "../internal/predicates";
 
 /**
- * Binary64 neighbouring scalars and unchanged barycentric seating share explicit
- * arithmetic boundaries instead of a spatial tolerance or seat correction.
+ * Binary64 neighbors and barycentric seats retain their representation boundaries without a spatial tolerance or coefficient correction.
  * Scenarios:
  * 1. Unit exponent boundaries carry/borrow on positive and negative encodings.
  * 2. Signed zero/subnormal neighbours and largest finite boundaries are exact.
@@ -16,8 +16,13 @@ import { throwsError, vclose } from "../internal/predicates";
  * 4. Malformed/negative/nonunit weights refuse beside their supported boundary.
  * 5. The largest finite unit seat remains supported; an admitted rounded
  *    coefficient just above one must refuse when its weighted product overflows.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Steps neighboring binary64 scalars and interpolates actual weighted seats, checking exact encoding including signed zero, finite inward limits, analytic coordinates and named refusal of malformed or overflowing arithmetic. Treating adjacent encodings as a spatial epsilon or silently renormalizing unsupported weights fails these cases.
+ * @evidence contracts/testing.md#independent-expectations Binary64 unit spacings around one are 2^-52 upward and 2^-53 downward; signed subnormal steps follow their encodings. The authored triangle gives (.5,.5,1) at weights (.5,.25,.25), while a maximum finite coordinate times a coefficient above one overflows. Object.is intentionally owns zero-sign representation; vclose owns coordinate quantities.
+ * @evidence contracts/testing.md#distinguishing-cases Preserves both signs and step directions, carry/borrow exponent boundaries, zero/subnormal limits, maximum inward/outward steps, supported seats, absent/sparse/nonfinite/negative/nonunit weights, incomplete/sparse points and weighted overflow. Broader interval-enclosure and attachment geometry are owned by their operation tests.
+ * @evidence contracts/testing.md#execution-ownership The discoverable named math entry directly calls portable arithmetic source on its original resident values. It installs no consumer, builds no native artifact, starts no process/browser/GPU and dynamically registers no cases.
  */
-export const test_math_float64_neighbors = (): void => {
+export function test_math_float64_neighbors(): void {
   for (const [value, upper, expected] of [
     [1, true, 1 + 2 ** -52],
     [1, false, 1 - 2 ** -53],
@@ -37,7 +42,7 @@ export const test_math_float64_neighbors = (): void => {
   for (const value of [NaN, Infinity, -Infinity])
     TestValidator.predicate(
       "nonfinite admission",
-      throwsError(() => adjacentAutoMovieFloat64(value, true), "representable"),
+      throwsError((): number => adjacentAutoMovieFloat64(value, true), "representable"),
     );
   for (const [value, upper] of [
     [Number.MAX_VALUE, true],
@@ -45,14 +50,14 @@ export const test_math_float64_neighbors = (): void => {
   ] as const)
     TestValidator.predicate(
       "finite neighbour exhaustion",
-      throwsError(() => adjacentAutoMovieFloat64(value, upper), "overflowing"),
+      throwsError((): number => adjacentAutoMovieFloat64(value, upper), "overflowing"),
     );
   TestValidator.predicate(
     "largest finite inward neighbour remains finite",
     Number.isFinite(adjacentAutoMovieFloat64(Number.MAX_VALUE, false)) &&
       Number.isFinite(adjacentAutoMovieFloat64(-Number.MAX_VALUE, true)),
   );
-  const points = [
+  const points: IAutoMovieVector3[] = [
     { x: 0, y: 0, z: 1 },
     { x: 2, y: 0, z: 1 },
     { x: 0, y: 2, z: 1 },
@@ -76,14 +81,14 @@ export const test_math_float64_neighbors = (): void => {
     TestValidator.predicate(
       "invalid barycentric weights",
       throwsError(
-        () => interpolateAutoMovieTrianglePoint(points, weights),
+        (): IAutoMovieVector3 => interpolateAutoMovieTrianglePoint(points, weights),
         "seating",
       ),
     );
   TestValidator.predicate(
     "invalid coordinate input",
     throwsError(
-      () =>
+      (): IAutoMovieVector3 =>
         interpolateAutoMovieTrianglePoint(
           [{ ...points[0], x: NaN }, ...points.slice(1)],
           [1, 0, 0],
@@ -94,27 +99,27 @@ export const test_math_float64_neighbors = (): void => {
   TestValidator.predicate(
     "invalid point count",
     throwsError(
-      () => interpolateAutoMovieTrianglePoint(points.slice(1), [1, 0, 0]),
+      (): IAutoMovieVector3 => interpolateAutoMovieTrianglePoint(points.slice(1), [1, 0, 0]),
       "seating",
     ),
   );
   TestValidator.predicate(
     "sparse point run cannot become an origin seat",
     throwsError(
-      () => interpolateAutoMovieTrianglePoint(new Array(3), [1, 0, 0]),
+      (): IAutoMovieVector3 => interpolateAutoMovieTrianglePoint(new Array(3), [1, 0, 0]),
       "seating",
     ),
   );
-  const sparseWeights = new Array<number>(3);
+  const sparseWeights: number[] = new Array<number>(3);
   sparseWeights[0] = 1;
   TestValidator.predicate(
     "sparse coefficients refuse beside dense unit coefficients",
     throwsError(
-      () => interpolateAutoMovieTrianglePoint(points, sparseWeights),
+      (): IAutoMovieVector3 => interpolateAutoMovieTrianglePoint(points, sparseWeights),
       "seating",
     ),
   );
-  const largest = Array.from({ length: 3 }, () => ({
+  const largest: IAutoMovieVector3[] = Array.from({ length: 3 }, (): IAutoMovieVector3 => ({
     x: Number.MAX_VALUE,
     y: 0,
     z: 0,
@@ -126,8 +131,8 @@ export const test_math_float64_neighbors = (): void => {
   TestValidator.predicate(
     "rounded admitted coefficient cannot accept an overflowing seat",
     throwsError(
-      () => interpolateAutoMovieTrianglePoint(largest, [1 + 2 ** -52, 0, 0]),
+      (): IAutoMovieVector3 => interpolateAutoMovieTrianglePoint(largest, [1 + 2 ** -52, 0, 0]),
       "representable weighted coordinates",
     ),
   );
-};
+}

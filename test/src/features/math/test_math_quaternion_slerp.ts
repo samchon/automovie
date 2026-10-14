@@ -1,17 +1,14 @@
 import { Quaternion } from "@automovie/engine";
+import type { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { qclose, qunit } from "../internal/predicates";
 
-const Y = { x: 0, y: 1, z: 0 };
-const yaw = (deg: number) => Quaternion.fromAxisAngle(Y, deg);
+const Y: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
+const yaw: (deg: number) => IAutoMovieQuaternion = (deg: number): IAutoMovieQuaternion => Quaternion.fromAxisAngle(Y, deg);
 
 /**
- * `Quaternion.slerp` interpolates rotations along the shortest arc, and must
- * handle all three numerical regimes its implementation branches on: the
- * ordinary acos path, the opposite-hemisphere sign flip, and the near-parallel
- * lerp fallback. Underpins keyframe rotation interpolation, where any of these
- * can occur depending on how far apart two keyframe poses are.
+ * Rotation interpolation retains the short arc through the ordinary, opposite-hemisphere and near-parallel regimes.
  *
  * Scenarios:
  *
@@ -25,9 +22,14 @@ const yaw = (deg: number) => Quaternion.fromAxisAngle(Y, deg);
  * 3. Near-parallel (identity → Y0.4, dot ≈ 0.99999 > 0.9995): slerp falls back to
  *    a normalized lerp to avoid dividing by sin θ ≈ 0; the midpoint is still ≈
  *    Y0.2 to a looser tolerance.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Executes slerp on identity-to-Y90, Y200 and Y0.4, checking supported endpoints, half-angle rotations and unit norms. Long-arc selection or a broken near-parallel result fails without requiring a particular quaternion sign.
+ * @evidence contracts/testing.md#independent-expectations Equal-speed rotation gives Y45 halfway to Y90 and Y-80 halfway along the short arc to Y200; the near-parallel midpoint is Y0.2 within the retained 1e-3 tolerance. Expected rotations use fromAxisAngle, so a shared constructor convention error may escape; these tests measure no rendered motion.
+ * @evidence contracts/testing.md#distinguishing-cases Keeps ordinary endpoints/midpoint, opposite-hemisphere endpoint/midpoint/unit norm and near-parallel midpoint/unit norm. The seeded sweep owns broader algebraic parity; extrapolation, malformed/nonunit input and exact threshold adjacency are not tested here.
+ * @evidence contracts/testing.md#execution-ownership The discoverable named entry owns its synchronous portable Quaternion calls with no process, browser, GPU, native build, consumer installation or dynamically registered cases.
  */
-export const test_math_quaternion_slerp = (): void => {
-  const id = Quaternion.identity();
+export function test_math_quaternion_slerp(): void {
+  const id: IAutoMovieQuaternion = Quaternion.identity();
 
   // 1. ordinary arc
   TestValidator.predicate(
@@ -44,7 +46,7 @@ export const test_math_quaternion_slerp = (): void => {
   );
 
   // 2. opposite hemisphere: shorter arc means the midpoint is Y(−80°)
-  const far = yaw(200);
+  const far: IAutoMovieQuaternion = yaw(200);
   TestValidator.predicate(
     "opposite: t=1 → b (up to sign)",
     qclose(Quaternion.slerp(id, far, 1), far),
@@ -59,7 +61,7 @@ export const test_math_quaternion_slerp = (): void => {
   );
 
   // 3. near-parallel: lerp fallback
-  const near = yaw(0.4);
+  const near: IAutoMovieQuaternion = yaw(0.4);
   TestValidator.predicate(
     "near-parallel: midpoint ≈ Y0.2",
     qclose(Quaternion.slerp(id, near, 0.5), yaw(0.2), 1e-3),
@@ -68,4 +70,4 @@ export const test_math_quaternion_slerp = (): void => {
     "near-parallel: midpoint is unit",
     qunit(Quaternion.slerp(id, near, 0.5)),
   );
-};
+}

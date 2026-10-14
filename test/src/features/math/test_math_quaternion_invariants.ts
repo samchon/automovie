@@ -1,14 +1,12 @@
 import { Quaternion } from "@automovie/engine";
+import type { IAutoMovieQuaternion } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { qclose, qunit } from "../internal/predicates";
 import { makeRng, randomUnitQuaternion } from "../internal/random";
 
 /**
- * Property-based invariants for quaternion algebra, probed over 256 seeded
- * random rotations. Hand fixtures pin specific known cases; these assert the
- * algebraic laws hold for the whole rotation sphere, catching the corner a
- * fixture never enumerates. Seeded, so any counterexample replays exactly.
+ * Quaternion algebraic invariants retain their meaning across the original 256 seeded samples; the finite sweep is replayable and does not prove the whole rotation sphere.
  *
  * Scenarios (each over 256 samples from a fixed seed):
  *
@@ -18,14 +16,19 @@ import { makeRng, randomUnitQuaternion } from "../internal/random";
  *    sign: a quaternion and its negation are the same rotation).
  * 3. Normalize idempotence: normalizing an already-unit quaternion is a no-op.
  * 4. Multiply associativity: `(a·b)·c` equals `a·(b·c)` up to sign.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Samples three rotations and one progress value in the original draw order, then checks multiplication/slerp unit norms, slerp endpoints, normalization idempotence and multiplication associativity. Algebraic drift on a sampled rotation fails while equivalent quaternion signs remain legal.
+ * @evidence contracts/testing.md#independent-expectations Unit closure, endpoint identity, idempotence and associativity follow quaternion algebra rather than recorded outputs. The sampler's squared radii sum to one, but both sides of each law use the production operators and can share a coherent defect; qclose also assumes unit operands and compares rotations up to sign.
+ * @evidence contracts/testing.md#distinguishing-cases Preserves the seed, all 256 iterations and every draw/assertion. Hand cardinal rotations and zero/extreme magnitudes are owned by companion tests; finite random sampling neither covers every branch nor validates arbitrary malformed quaternions.
+ * @evidence contracts/testing.md#execution-ownership This named portable math entry owns every iteration and uses caller-local deterministic random state. It starts no process, browser or GPU, builds no native artifact and dynamically registers no cases.
  */
-export const test_math_quaternion_invariants = (): void => {
-  const rng = makeRng(0x51ed7a17);
-  for (let i = 0; i < 256; ++i) {
-    const a = randomUnitQuaternion(rng);
-    const b = randomUnitQuaternion(rng);
-    const c = randomUnitQuaternion(rng);
-    const t = rng();
+export function test_math_quaternion_invariants(): void {
+  const rng: () => number = makeRng(0x51ed7a17);
+  for (let i: number = 0; i < 256; ++i) {
+    const a: IAutoMovieQuaternion = randomUnitQuaternion(rng);
+    const b: IAutoMovieQuaternion = randomUnitQuaternion(rng);
+    const c: IAutoMovieQuaternion = randomUnitQuaternion(rng);
+    const t: number = rng();
 
     TestValidator.predicate(
       `multiply stays unit #${i}`,
@@ -45,7 +48,7 @@ export const test_math_quaternion_invariants = (): void => {
       qclose(Quaternion.slerp(a, b, 1), b),
     );
 
-    const n = Quaternion.normalize(a);
+    const n: IAutoMovieQuaternion = Quaternion.normalize(a);
     TestValidator.predicate(
       `normalize is idempotent #${i}`,
       qclose(Quaternion.normalize(n), n),
@@ -59,4 +62,4 @@ export const test_math_quaternion_invariants = (): void => {
       ),
     );
   }
-};
+}
