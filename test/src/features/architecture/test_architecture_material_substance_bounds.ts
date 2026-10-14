@@ -8,7 +8,9 @@ import {
   violationCount,
 } from "../internal/predicates";
 
-const judge: (overrides: Parameters<typeof substance>[1]) => ReturnType<typeof validateAutoMovieMaterialSubstance> = (
+const judge: (
+  overrides: Parameters<typeof substance>[1],
+) => ReturnType<typeof validateAutoMovieMaterialSubstance> = (
   overrides: Parameters<typeof substance>[1],
 ): ReturnType<typeof validateAutoMovieMaterialSubstance> =>
   validateAutoMovieMaterialSubstance({
@@ -67,7 +69,7 @@ export function test_architecture_material_substance_bounds(): void {
     namedFacts([
       [
         "blankId",
-        () : boolean =>
+        (): boolean =>
           hasViolation(
             validateAutoMovieMaterialSubstance({
               substance: substance("   "),
@@ -78,7 +80,7 @@ export function test_architecture_material_substance_bounds(): void {
       ],
       [
         "blankClassification",
-        () : boolean =>
+        (): boolean =>
           hasViolation(
             judge({ classification: "" }),
             "type",
@@ -87,14 +89,16 @@ export function test_architecture_material_substance_bounds(): void {
       ],
       [
         "blankName",
-        () : boolean => hasViolation(judge({ name: " " }), "type", "$input.name"),
+        (): boolean =>
+          hasViolation(judge({ name: " " }), "type", "$input.name"),
       ],
       [
         "blankSurface",
-        () : boolean => hasViolation(judge({ surface: "" }), "type", "$input.surface"),
+        (): boolean =>
+          hasViolation(judge({ surface: "" }), "type", "$input.surface"),
       ],
-      ["nullName", () : boolean => judge({ name: null }).success === true],
-      ["nullSurface", () : boolean => judge({ surface: null }).success === true],
+      ["nullName", (): boolean => judge({ name: null }).success === true],
+      ["nullSurface", (): boolean => judge({ surface: null }).success === true],
     ]),
     {
       blankId: true,
@@ -111,12 +115,16 @@ export function test_architecture_material_substance_bounds(): void {
     namedFacts([
       [
         "densityZero",
-        () : boolean => hasViolation(judge({ density: 0 }), "range", "$input.density"),
+        (): boolean =>
+          hasViolation(judge({ density: 0 }), "range", "$input.density"),
       ],
-      ["densityJustAbove", () : boolean => judge({ density: 1e-9 }).success === true],
+      [
+        "densityJustAbove",
+        (): boolean => judge({ density: 1e-9 }).success === true,
+      ],
       [
         "conductivityNegative",
-        () : boolean =>
+        (): boolean =>
           hasViolation(
             judge({ thermalConductivity: -1e-9 }),
             "range",
@@ -125,11 +133,11 @@ export function test_architecture_material_substance_bounds(): void {
       ],
       [
         "conductivityZero",
-        () : boolean => judge({ thermalConductivity: 0 }).success === true,
+        (): boolean => judge({ thermalConductivity: 0 }).success === true,
       ],
       [
         "specificHeatZero",
-        () : boolean =>
+        (): boolean =>
           hasViolation(
             judge({ specificHeat: 0 }),
             "range",
@@ -138,7 +146,7 @@ export function test_architecture_material_substance_bounds(): void {
       ],
       [
         "absorptionBelow",
-        () : boolean =>
+        (): boolean =>
           hasViolation(
             judge({ soundAbsorption: -1e-9 }),
             "range",
@@ -147,7 +155,7 @@ export function test_architecture_material_substance_bounds(): void {
       ],
       [
         "absorptionAbove",
-        () : boolean =>
+        (): boolean =>
           hasViolation(
             judge({ soundAbsorption: 1 + 1e-9 }),
             "range",
@@ -156,23 +164,26 @@ export function test_architecture_material_substance_bounds(): void {
       ],
       [
         "absorptionEnds",
-        () : boolean =>
+        (): boolean =>
           judge({ soundAbsorption: 0 }).success === true &&
           judge({ soundAbsorption: 1 }).success === true,
       ],
       [
         "vapourBelowStillAir",
-        () : boolean =>
+        (): boolean =>
           hasViolation(
             judge({ vapourResistance: 1 - 1e-9 }),
             "range",
             "$input.vapourResistance",
           ),
       ],
-      ["vapourStillAir", () : boolean => judge({ vapourResistance: 1 }).success === true],
+      [
+        "vapourStillAir",
+        (): boolean => judge({ vapourResistance: 1 }).success === true,
+      ],
       [
         "serviceLifeZero",
-        () : boolean =>
+        (): boolean =>
           hasViolation(
             judge({ serviceLife: 0 }),
             "range",
@@ -200,7 +211,7 @@ export function test_architecture_material_substance_bounds(): void {
     namedFacts([
       [
         "density",
-        () : boolean =>
+        (): boolean =>
           hasViolation(
             judge({ density: Number.POSITIVE_INFINITY }),
             "range",
@@ -209,7 +220,7 @@ export function test_architecture_material_substance_bounds(): void {
       ],
       [
         "conductivity",
-        () : boolean =>
+        (): boolean =>
           hasViolation(
             judge({ thermalConductivity: Number.NaN }),
             "range",
@@ -218,7 +229,7 @@ export function test_architecture_material_substance_bounds(): void {
       ],
       [
         "absorption",
-        () : boolean =>
+        (): boolean =>
           hasViolation(
             judge({ soundAbsorption: Number.NaN }),
             "range",
@@ -227,7 +238,13 @@ export function test_architecture_material_substance_bounds(): void {
       ],
       [
         "onlyOneFires",
-        () : boolean => violationCount(judge({ specificHeat: Number.NaN })) === 1 && hasViolation(judge({ specificHeat: Number.NaN }), "range", "$input.specificHeat"),
+        (): boolean =>
+          violationCount(judge({ specificHeat: Number.NaN })) === 1 &&
+          hasViolation(
+            judge({ specificHeat: Number.NaN }),
+            "range",
+            "$input.specificHeat",
+          ),
       ],
     ]),
     {

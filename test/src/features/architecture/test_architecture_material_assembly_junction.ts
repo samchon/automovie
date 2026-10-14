@@ -1,5 +1,9 @@
 import {
-  type IAutoMovieAssemblyBreak, type IAutoMovieAssemblyContinuity, type IAutoMovieAssemblyJunction, type IAutoMovieAssemblyReveal, type IAutoMovieResolvedAssembly,
+  type IAutoMovieAssemblyBreak,
+  type IAutoMovieAssemblyContinuity,
+  type IAutoMovieAssemblyJunction,
+  type IAutoMovieAssemblyReveal,
+  type IAutoMovieResolvedAssembly,
   autoMovieAssemblyOpeningReveal,
   matchAutoMovieAssemblyJunction,
   resolveAutoMovieMaterialAssembly,
@@ -10,10 +14,16 @@ import { TestValidator } from "@nestia/e2e";
 import { assembly, layer } from "../internal/materialFixtures";
 import { namedFacts, nclose, throwsError } from "../internal/predicates";
 
-const resolve: (one: IAutoMovieMaterialAssembly) => IAutoMovieResolvedAssembly = (one: IAutoMovieMaterialAssembly) : IAutoMovieResolvedAssembly =>
+const resolve: (
+  one: IAutoMovieMaterialAssembly,
+) => IAutoMovieResolvedAssembly = (
+  one: IAutoMovieMaterialAssembly,
+): IAutoMovieResolvedAssembly =>
   resolveAutoMovieMaterialAssembly({ assembly: one });
 
-const wet: (overrides?: Partial<IAutoMovieMaterialAssembly>) => IAutoMovieMaterialAssembly = (
+const wet: (
+  overrides?: Partial<IAutoMovieMaterialAssembly>,
+) => IAutoMovieMaterialAssembly = (
   overrides: Partial<IAutoMovieMaterialAssembly> = {},
 ): IAutoMovieMaterialAssembly =>
   assembly(
@@ -78,12 +88,12 @@ export function test_architecture_material_assembly_junction(): void {
   TestValidator.equals(
     "the wrapping layers line both jambs and shrink the finished opening",
     namedFacts([
-      ["width", () : boolean => nclose(reveal.width, 1.135, 1e-12)],
-      ["height", () : boolean => nclose(reveal.height, 2.035, 1e-12)],
-      ["inset", () : boolean => nclose(reveal.inset, 0.0325, 1e-12)],
-      ["first", () : boolean => nclose(reveal.first, 0.02, 1e-12)],
-      ["last", () : boolean => nclose(reveal.last, 0.0125, 1e-12)],
-      ["bare", () : boolean => nclose(reveal.bare, 0.15, 1e-12)],
+      ["width", (): boolean => nclose(reveal.width, 1.135, 1e-12)],
+      ["height", (): boolean => nclose(reveal.height, 2.035, 1e-12)],
+      ["inset", (): boolean => nclose(reveal.inset, 0.0325, 1e-12)],
+      ["first", (): boolean => nclose(reveal.first, 0.02, 1e-12)],
+      ["last", (): boolean => nclose(reveal.last, 0.0125, 1e-12)],
+      ["bare", (): boolean => nclose(reveal.bare, 0.15, 1e-12)],
     ]),
     {
       width: true,
@@ -117,13 +127,13 @@ export function test_architecture_material_assembly_junction(): void {
   TestValidator.equals(
     "a build-up that stops at the jamb finishes the opening at its structural size",
     namedFacts([
-      ["width", () : boolean => nclose(bare.width, 1.2, 1e-12)],
-      ["height", () : boolean => nclose(bare.height, 2.1, 1e-12)],
-      ["inset", () : boolean => nclose(bare.inset, 0, 0)],
-      ["first", () : boolean => nclose(bare.first, 0, 0)],
-      ["last", () : boolean => nclose(bare.last, 0, 0)],
-      ["bare", () : boolean => nclose(bare.bare, 0.1325, 1e-12)],
-      ["layers", () : boolean => bare.layers.length === 0],
+      ["width", (): boolean => nclose(bare.width, 1.2, 1e-12)],
+      ["height", (): boolean => nclose(bare.height, 2.1, 1e-12)],
+      ["inset", (): boolean => nclose(bare.inset, 0, 0)],
+      ["first", (): boolean => nclose(bare.first, 0, 0)],
+      ["last", (): boolean => nclose(bare.last, 0, 0)],
+      ["bare", (): boolean => nclose(bare.bare, 0.1325, 1e-12)],
+      ["layers", (): boolean => bare.layers.length === 0],
     ]),
     {
       width: true,
@@ -149,11 +159,11 @@ export function test_architecture_material_assembly_junction(): void {
   TestValidator.equals(
     "one wrapping layer is counted from the first face only",
     namedFacts([
-      ["width", () : boolean => nclose(solo.width, 0.6, 1e-12)],
-      ["inset", () : boolean => nclose(solo.inset, 0.2, 1e-12)],
-      ["first", () : boolean => nclose(solo.first, 0.2, 1e-12)],
-      ["last", () : boolean => nclose(solo.last, 0, 0)],
-      ["bare", () : boolean => nclose(solo.bare, 0, 0)],
+      ["width", (): boolean => nclose(solo.width, 0.6, 1e-12)],
+      ["inset", (): boolean => nclose(solo.inset, 0.2, 1e-12)],
+      ["first", (): boolean => nclose(solo.first, 0.2, 1e-12)],
+      ["last", (): boolean => nclose(solo.last, 0, 0)],
+      ["bare", (): boolean => nclose(solo.bare, 0, 0)],
     ]),
     {
       width: true,
@@ -184,11 +194,11 @@ export function test_architecture_material_assembly_junction(): void {
   TestValidator.equals(
     "a wrap no face can reach lines nothing, so it narrows nothing",
     namedFacts([
-      ["width", () : boolean => nclose(buriedWrap.width, 1.2, 1e-12)],
-      ["height", () : boolean => nclose(buriedWrap.height, 2.1, 1e-12)],
-      ["inset", () : boolean => nclose(buriedWrap.inset, 0, 0)],
-      ["layers", () : boolean => buriedWrap.layers.length === 0],
-      ["bare", () : boolean => nclose(buriedWrap.bare, 0.17, 1e-12)],
+      ["width", (): boolean => nclose(buriedWrap.width, 1.2, 1e-12)],
+      ["height", (): boolean => nclose(buriedWrap.height, 2.1, 1e-12)],
+      ["inset", (): boolean => nclose(buriedWrap.inset, 0, 0)],
+      ["layers", (): boolean => buriedWrap.layers.length === 0],
+      ["bare", (): boolean => nclose(buriedWrap.bare, 0.17, 1e-12)],
     ]),
     { width: true, height: true, inset: true, layers: true, bare: true },
   );
@@ -198,9 +208,9 @@ export function test_architecture_material_assembly_junction(): void {
     namedFacts([
       [
         "zeroWidth",
-        () : boolean =>
+        (): boolean =>
           throwsError(
-            () : IAutoMovieAssemblyReveal =>
+            (): IAutoMovieAssemblyReveal =>
               autoMovieAssemblyOpeningReveal({
                 resolved,
                 width: 0,
@@ -211,9 +221,9 @@ export function test_architecture_material_assembly_junction(): void {
       ],
       [
         "nonFiniteHeight",
-        () : boolean =>
+        (): boolean =>
           throwsError(
-            () : IAutoMovieAssemblyReveal =>
+            (): IAutoMovieAssemblyReveal =>
               autoMovieAssemblyOpeningReveal({
                 resolved,
                 width: 1.2,
@@ -224,9 +234,9 @@ export function test_architecture_material_assembly_junction(): void {
       ],
       [
         "consumedWidth",
-        () : boolean =>
+        (): boolean =>
           throwsError(
-            () : IAutoMovieAssemblyReveal =>
+            (): IAutoMovieAssemblyReveal =>
               autoMovieAssemblyOpeningReveal({
                 resolved,
                 width: 0.06,
@@ -237,9 +247,9 @@ export function test_architecture_material_assembly_junction(): void {
       ],
       [
         "consumedHeight",
-        () : boolean =>
+        (): boolean =>
           throwsError(
-            () : IAutoMovieAssemblyReveal =>
+            (): IAutoMovieAssemblyReveal =>
               autoMovieAssemblyOpeningReveal({
                 resolved,
                 width: 1.2,
@@ -280,10 +290,14 @@ export function test_architecture_material_assembly_junction(): void {
   });
   TestValidator.equals(
     "every shared role is reported with both spans and its own alignment",
-    junction.continuous.map((one: IAutoMovieAssemblyContinuity) : { role: string; aligned: boolean; } => ({
-      role: one.role,
-      aligned: one.aligned,
-    })),
+    junction.continuous.map(
+      (
+        one: IAutoMovieAssemblyContinuity,
+      ): { role: string; aligned: boolean } => ({
+        role: one.role,
+        aligned: one.aligned,
+      }),
+    ),
     [
       { role: "render", aligned: false },
       { role: "block", aligned: true },
@@ -296,20 +310,21 @@ export function test_architecture_material_assembly_junction(): void {
     namedFacts([
       [
         "overlaps",
-        () : boolean =>
-          [-0.06, 0.02, -0.08, -0.0675].every((expected: number, index: number) : boolean =>
-            nclose(junction.continuous[index]!.overlap, expected, 1e-12),
+        (): boolean =>
+          [-0.06, 0.02, -0.08, -0.0675].every(
+            (expected: number, index: number): boolean =>
+              nclose(junction.continuous[index]!.overlap, expected, 1e-12),
           ),
       ],
       [
         "leftSpans",
-        () : boolean =>
+        (): boolean =>
           nclose(junction.continuous[1]!.left.min, 0.02, 1e-12) &&
           nclose(junction.continuous[1]!.left.max, 0.12, 1e-12),
       ],
       [
         "rightSpans",
-        () : boolean =>
+        (): boolean =>
           nclose(junction.continuous[1]!.right.min, 0.1, 1e-12) &&
           nclose(junction.continuous[1]!.right.max, 0.2, 1e-12),
       ],
@@ -322,7 +337,14 @@ export function test_architecture_material_assembly_junction(): void {
   );
   TestValidator.equals(
     "a role only one side carries is reported as a break on that side",
-    junction.broken.map((one: IAutoMovieAssemblyBreak) : { role: string; side: "left" | "right"; } => ({ role: one.role, side: one.side })),
+    junction.broken.map(
+      (
+        one: IAutoMovieAssemblyBreak,
+      ): { role: string; side: "left" | "right" } => ({
+        role: one.role,
+        side: one.side,
+      }),
+    ),
     [
       { role: "cavity", side: "left" },
       { role: "furring", side: "right" },
@@ -331,8 +353,14 @@ export function test_architecture_material_assembly_junction(): void {
   TestValidator.equals(
     "a break carries the thickness the side that has it gives the role",
     namedFacts([
-      ["left", () : boolean => nclose(junction.broken[0]!.thickness, 0.05, 1e-12)],
-      ["right", () : boolean => nclose(junction.broken[1]!.thickness, 0.05, 1e-12)],
+      [
+        "left",
+        (): boolean => nclose(junction.broken[0]!.thickness, 0.05, 1e-12),
+      ],
+      [
+        "right",
+        (): boolean => nclose(junction.broken[1]!.thickness, 0.05, 1e-12),
+      ],
     ]),
     {
       left: true,
@@ -365,20 +393,41 @@ export function test_architecture_material_assembly_junction(): void {
     namedFacts([
       [
         "roles",
-        () : boolean => spanned.continuous.map((one: IAutoMovieAssemblyContinuity) : string => one.role).join() === "insulation",
+        (): boolean =>
+          spanned.continuous
+            .map((one: IAutoMovieAssemblyContinuity): string => one.role)
+            .join() === "insulation",
       ],
       [
         "leftSpan",
-        () : boolean =>
+        (): boolean =>
           nclose(spanned.continuous[0]!.left.min, 0, 1e-12) &&
           nclose(spanned.continuous[0]!.left.max, 0.12, 1e-12),
       ],
-      ["overlap", () : boolean => nclose(spanned.continuous[0]!.overlap, 0.1, 1e-12)],
-      ["aligned", () : boolean => spanned.continuous[0]!.aligned === true],
-      ["summedRole", (): boolean => nclose(matchAutoMovieAssemblyJunction({ left: split, right: resolved, tolerance: 0 }).broken.find((one: IAutoMovieAssemblyBreak): boolean => one.role === "insulation")!.thickness, 0.1, 1e-12)],
+      [
+        "overlap",
+        (): boolean => nclose(spanned.continuous[0]!.overlap, 0.1, 1e-12),
+      ],
+      ["aligned", (): boolean => spanned.continuous[0]!.aligned === true],
+      [
+        "summedRole",
+        (): boolean =>
+          nclose(
+            matchAutoMovieAssemblyJunction({
+              left: split,
+              right: resolved,
+              tolerance: 0,
+            }).broken.find(
+              (one: IAutoMovieAssemblyBreak): boolean =>
+                one.role === "insulation",
+            )!.thickness,
+            0.1,
+            1e-12,
+          ),
+      ],
       [
         "brokenBatten",
-        () : boolean =>
+        (): boolean =>
           spanned.broken.length === 1 &&
           spanned.broken[0]!.role === "batten" &&
           spanned.broken[0]!.side === "left" &&
@@ -400,9 +449,9 @@ export function test_architecture_material_assembly_junction(): void {
     namedFacts([
       [
         "negative",
-        () : boolean =>
+        (): boolean =>
           throwsError(
-            () : IAutoMovieAssemblyJunction =>
+            (): IAutoMovieAssemblyJunction =>
               matchAutoMovieAssemblyJunction({
                 left: split,
                 right: single,
@@ -413,9 +462,9 @@ export function test_architecture_material_assembly_junction(): void {
       ],
       [
         "nonFinite",
-        () : boolean =>
+        (): boolean =>
           throwsError(
-            () : IAutoMovieAssemblyJunction =>
+            (): IAutoMovieAssemblyJunction =>
               matchAutoMovieAssemblyJunction({
                 left: split,
                 right: single,

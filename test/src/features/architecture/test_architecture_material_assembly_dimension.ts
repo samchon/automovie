@@ -1,5 +1,13 @@
-import type { IAutoMovieMaterialAssembly, IAutoMovieMaterialLayer, IAutoMovieMaterialSubstance } from "@automovie/interface";
-import { type IAutoMovieResolvedAssembly, type IAutoMovieResolvedLayer, resolveAutoMovieMaterialAssembly } from "@automovie/engine";
+import {
+  type IAutoMovieResolvedAssembly,
+  type IAutoMovieResolvedLayer,
+  resolveAutoMovieMaterialAssembly,
+} from "@automovie/engine";
+import type {
+  IAutoMovieMaterialAssembly,
+  IAutoMovieMaterialLayer,
+  IAutoMovieMaterialSubstance,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { assembly, layer, substance } from "../internal/materialFixtures";
@@ -30,27 +38,37 @@ import { namedFacts, nclose, throwsError } from "../internal/predicates";
  * @evidence contracts/testing.md#execution-ownership The synchronous discoverable test_architecture_material_assembly_dimension entry owns every local case and invokes portable engine resolution through shared fixtures, without a native build, process, browser, GPU or dynamic registration.
  */
 export function test_architecture_material_assembly_dimension(): void {
-  const layers: () => IAutoMovieMaterialLayer[] = () : IAutoMovieMaterialLayer[] => [
-    layer("render", 0.02, { finish: true, wrapsOpening: true }),
-    layer("block", 0.1),
-    layer("cavity", 0.05, { substance: "cavity", material: null }),
-    layer("barrier", 0, { substance: "membrane" }),
-    layer("board", 0.0125, { finish: true, wrapsOpening: true }),
-  ];
+  const layers: () => IAutoMovieMaterialLayer[] =
+    (): IAutoMovieMaterialLayer[] => [
+      layer("render", 0.02, { finish: true, wrapsOpening: true }),
+      layer("block", 0.1),
+      layer("cavity", 0.05, { substance: "cavity", material: null }),
+      layer("barrier", 0, { substance: "membrane" }),
+      layer("board", 0.0125, { finish: true, wrapsOpening: true }),
+    ];
   const wet: IAutoMovieMaterialAssembly = assembly(layers(), {
     id: "wet-wall",
     faces: { first: "exposed", last: "exposed" },
   });
-  const resolved: IAutoMovieResolvedAssembly = resolveAutoMovieMaterialAssembly({ assembly: wet });
+  const resolved: IAutoMovieResolvedAssembly = resolveAutoMovieMaterialAssembly(
+    { assembly: wet },
+  );
 
   TestValidator.equals(
     "the build-up keeps its authored layers, roles, and identity",
     {
       id: resolved.id,
       axis: resolved.axis,
-      layers: resolved.layers.map((one: IAutoMovieResolvedLayer) : string => one.id),
-      substances: resolved.layers.map((one: IAutoMovieResolvedLayer) : "solid" | "cavity" | "membrane" => one.substance),
-      materials: resolved.layers.map((one: IAutoMovieResolvedLayer) : string | null => one.material),
+      layers: resolved.layers.map(
+        (one: IAutoMovieResolvedLayer): string => one.id,
+      ),
+      substances: resolved.layers.map(
+        (one: IAutoMovieResolvedLayer): "solid" | "cavity" | "membrane" =>
+          one.substance,
+      ),
+      materials: resolved.layers.map(
+        (one: IAutoMovieResolvedLayer): string | null => one.material,
+      ),
     },
     {
       id: "wet-wall",
@@ -70,30 +88,33 @@ export function test_architecture_material_assembly_dimension(): void {
   TestValidator.equals(
     "every layer sits at the running sum of the layers before it",
     namedFacts([
-      ["total", () : boolean => nclose(resolved.total, 0.1825, 1e-12)],
-      ["start", () : boolean => nclose(resolved.start, 0, 1e-12)],
-      ["end", () : boolean => nclose(resolved.end, 0.1825, 1e-12)],
-      ["extentMin", () : boolean => nclose(resolved.extent.min, 0, 1e-12)],
-      ["extentMax", () : boolean => nclose(resolved.extent.max, 0.1825, 1e-12)],
+      ["total", (): boolean => nclose(resolved.total, 0.1825, 1e-12)],
+      ["start", (): boolean => nclose(resolved.start, 0, 1e-12)],
+      ["end", (): boolean => nclose(resolved.end, 0.1825, 1e-12)],
+      ["extentMin", (): boolean => nclose(resolved.extent.min, 0, 1e-12)],
+      ["extentMax", (): boolean => nclose(resolved.extent.max, 0.1825, 1e-12)],
       [
         "starts",
-        () : boolean =>
-          [0, 0.02, 0.12, 0.17, 0.17].every((expected: number, index: number) : boolean =>
-            nclose(resolved.layers[index]!.start, expected, 1e-12),
+        (): boolean =>
+          [0, 0.02, 0.12, 0.17, 0.17].every(
+            (expected: number, index: number): boolean =>
+              nclose(resolved.layers[index]!.start, expected, 1e-12),
           ),
       ],
       [
         "ends",
-        () : boolean =>
-          [0.02, 0.12, 0.17, 0.17, 0.1825].every((expected: number, index: number) : boolean =>
-            nclose(resolved.layers[index]!.end, expected, 1e-12),
+        (): boolean =>
+          [0.02, 0.12, 0.17, 0.17, 0.1825].every(
+            (expected: number, index: number): boolean =>
+              nclose(resolved.layers[index]!.end, expected, 1e-12),
           ),
       ],
       [
         "centers",
-        () : boolean =>
-          [0.01, 0.07, 0.145, 0.17, 0.17625].every((expected: number, index: number) : boolean =>
-            nclose(resolved.layers[index]!.center, expected, 1e-12),
+        (): boolean =>
+          [0.01, 0.07, 0.145, 0.17, 0.17625].every(
+            (expected: number, index: number): boolean =>
+              nclose(resolved.layers[index]!.center, expected, 1e-12),
           ),
       ],
     ]),
@@ -113,44 +134,51 @@ export function test_architecture_material_assembly_dimension(): void {
   TestValidator.equals(
     "a zero-thickness membrane occupies a plane and advances nothing",
     namedFacts([
-      ["thickness", () : boolean => nclose(membrane.thickness, 0, 0)],
-      ["collapsed", () : boolean => nclose(membrane.start, membrane.end, 0)],
-      ["center", () : boolean => nclose(membrane.center, membrane.start, 0)],
-      ["cursor", () : boolean => nclose(resolved.layers[4]!.start, membrane.end, 0)],
+      ["thickness", (): boolean => nclose(membrane.thickness, 0, 0)],
+      ["collapsed", (): boolean => nclose(membrane.start, membrane.end, 0)],
+      ["center", (): boolean => nclose(membrane.center, membrane.start, 0)],
+      [
+        "cursor",
+        (): boolean => nclose(resolved.layers[4]!.start, membrane.end, 0),
+      ],
     ]),
     { thickness: true, collapsed: true, center: true, cursor: true },
   );
 
-  const mirrored: IAutoMovieResolvedAssembly = resolveAutoMovieMaterialAssembly({
-    assembly: assembly(layers(), {
-      id: "wet-wall-mirrored",
-      axis: "x",
-      sense: "negative",
-      offset: 0.25,
-      faces: { first: "exposed", last: "exposed" },
-    }),
-  });
+  const mirrored: IAutoMovieResolvedAssembly = resolveAutoMovieMaterialAssembly(
+    {
+      assembly: assembly(layers(), {
+        id: "wet-wall-mirrored",
+        axis: "x",
+        sense: "negative",
+        offset: 0.25,
+        faces: { first: "exposed", last: "exposed" },
+      }),
+    },
+  );
   TestValidator.equals(
     "the negative sense mirrors every span without changing the total",
     namedFacts([
-      ["axis", () : boolean => mirrored.axis === "x"],
-      ["total", () : boolean => nclose(mirrored.total, 0.1825, 1e-12)],
-      ["start", () : boolean => nclose(mirrored.start, 0.25, 1e-12)],
-      ["end", () : boolean => nclose(mirrored.end, 0.0675, 1e-12)],
-      ["extentMin", () : boolean => nclose(mirrored.extent.min, 0.0675, 1e-12)],
-      ["extentMax", () : boolean => nclose(mirrored.extent.max, 0.25, 1e-12)],
+      ["axis", (): boolean => mirrored.axis === "x"],
+      ["total", (): boolean => nclose(mirrored.total, 0.1825, 1e-12)],
+      ["start", (): boolean => nclose(mirrored.start, 0.25, 1e-12)],
+      ["end", (): boolean => nclose(mirrored.end, 0.0675, 1e-12)],
+      ["extentMin", (): boolean => nclose(mirrored.extent.min, 0.0675, 1e-12)],
+      ["extentMax", (): boolean => nclose(mirrored.extent.max, 0.25, 1e-12)],
       [
         "starts",
-        () : boolean =>
-          [0.25, 0.23, 0.13, 0.08, 0.08].every((expected: number, index: number) : boolean =>
-            nclose(mirrored.layers[index]!.start, expected, 1e-12),
+        (): boolean =>
+          [0.25, 0.23, 0.13, 0.08, 0.08].every(
+            (expected: number, index: number): boolean =>
+              nclose(mirrored.layers[index]!.start, expected, 1e-12),
           ),
       ],
       [
         "ends",
-        () : boolean =>
-          [0.23, 0.13, 0.08, 0.08, 0.0675].every((expected: number, index: number) : boolean =>
-            nclose(mirrored.layers[index]!.end, expected, 1e-12),
+        (): boolean =>
+          [0.23, 0.13, 0.08, 0.08, 0.0675].every(
+            (expected: number, index: number): boolean =>
+              nclose(mirrored.layers[index]!.end, expected, 1e-12),
           ),
       ],
     ]),
@@ -171,7 +199,7 @@ export function test_architecture_material_assembly_dimension(): void {
     namedFacts([
       [
         "matches",
-        () : boolean =>
+        (): boolean =>
           nclose(
             resolveAutoMovieMaterialAssembly({
               assembly: wet,
@@ -183,9 +211,9 @@ export function test_architecture_material_assembly_dimension(): void {
       ],
       [
         "refuses",
-        () : boolean =>
+        (): boolean =>
           throwsError(
-            () : IAutoMovieResolvedAssembly =>
+            (): IAutoMovieResolvedAssembly =>
               resolveAutoMovieMaterialAssembly({
                 assembly: wet,
                 host: { thickness: 0.1835 },
@@ -208,7 +236,7 @@ export function test_architecture_material_assembly_dimension(): void {
     namedFacts([
       [
         "resolves",
-        () : boolean =>
+        (): boolean =>
           resolveAutoMovieMaterialAssembly({
             assembly: wet,
             substances: table,
@@ -216,9 +244,9 @@ export function test_architecture_material_assembly_dimension(): void {
       ],
       [
         "refusesUnknown",
-        () : boolean =>
+        (): boolean =>
           throwsError(
-            () : IAutoMovieResolvedAssembly =>
+            (): IAutoMovieResolvedAssembly =>
               resolveAutoMovieMaterialAssembly({
                 assembly: wet,
                 substances: table.slice(1),
