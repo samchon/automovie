@@ -1,4 +1,3 @@
-
 /**
  * The exact view one derived artifact was produced under.
  *

@@ -1,4 +1,3 @@
-
 /**
  * Authored acquisition identity of bytes returned by a generator.
  *

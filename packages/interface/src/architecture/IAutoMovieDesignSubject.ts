@@ -1,4 +1,3 @@
-
 /**
  * One stable identity this lineage is allowed to speak about.
  *

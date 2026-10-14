@@ -1,4 +1,3 @@
-
 /**
  * One authored identity for a recorded design-source state.
  *

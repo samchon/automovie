@@ -1,4 +1,3 @@
-
 /**
  * The bytes of one imported input, as they stood when an artifact read them.
  *
