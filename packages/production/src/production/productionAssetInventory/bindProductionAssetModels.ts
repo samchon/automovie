@@ -9,7 +9,7 @@ import { type IProductionAssetInventoryContext } from "./IProductionAssetInvento
 /**
  * Join current recipe asset uses to compatible inspected model LOD and weighted-rig facts.
  *
- * @evidence contracts/common.md#principled-implementation Requires explicit model-recipe use, all declared LODs under one hero profile, static/articulated agreement and every registered recipe bone weighted in each articulated LOD before creating a binding.
+ * @evidence contracts/common.md#principled-implementation Reports missing model-recipe use, then creates a binding when inspected provenance, all declared LODs under one hero profile, static/articulated agreement and every registered recipe bone weighted in each articulated LOD match. Earlier use errors can coexist with that partial binding; final publication owns the error verdict.
  * @evidence contracts/common.md#clear-and-simple-design This phase connects inspected asset facts to recipe ids; materializeProductionModels consumes that map and productionProjectionRadii separately consumes its measurement envelope.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Registry bone lists are the recipe premise; an unknown archetype yields the existing empty-list policy and later design/materialization gates own refusal. No bone mapping, missing LOD or external measurement is inferred.
  * @evidence contracts/common.md#meaningful-documentation Documents recipe/profile/weighted-bone admission, merged byte closure and the separate role of declared measurement envelopes.

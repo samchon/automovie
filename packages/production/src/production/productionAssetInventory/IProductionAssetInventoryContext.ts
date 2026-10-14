@@ -10,7 +10,7 @@ import { IAutoMovieProductionDesignGraph } from "../validateProductionDesign";
  *
  * @evidence contracts/common.md#principled-implementation One context joins the filtered records/current content, path/consumer accounting, successful inspection closures and ordered diagnostic sinks built by productionAssetInventory.
  * @evidence contracts/common.md#clear-and-simple-design It exists solely to preserve the same state across extracted phases; no public root API, service, cache or independent lifecycle is introduced.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Context metadata and generated proxies do not authenticate bytes or prove mesh enclosure. Its maps can contain partial results alongside errors, and later compilation must respect those errors.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Context metadata and generated proxies do not authenticate bytes or prove mesh enclosure. Its maps can contain partial results alongside errors; existing build stages can still evaluate sources, and final successful publication requires no error diagnostics.
  * @evidence contracts/common.md#meaningful-documentation Field comments identify borrowed graph/registry/bytes, each mutable phase result and error versus warning sinks.
  * @evidenceExclude contracts/performance.md#efficient-algorithms The interface erases; full parsing, searching, ingest, joining and copying costs remain with inventory and its actual phases.
  * @evidence contracts/performance.md#reuse-equivalent-work Inspection/closure maps share successful same-invocation facts; later observations require a new context over current inputs.
