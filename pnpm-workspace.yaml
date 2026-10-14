@@ -9,7 +9,7 @@ catalogs:
   samchon:
     typia: &typia ^15.1.0
     "@nestia/e2e": ^12.1.0
-    "@wrtnlabs/evidence": ^0.5.0
+    "@wrtnlabs/evidence": ^0.5.1
     ttsc: &ttsc ^0.30.4
     "@ttsc/evidence": *ttsc
     "@ttsc/lint": *ttsc
@@ -45,12 +45,6 @@ catalogs:
     c8: ^10.1.3
     chalk: 4.1.2
     rimraf: ^6.0.1
-  reference:
-    "@modelcontextprotocol/sdk": ^1.30.0
-    "@types/mdast": ^4.0.4
-    htmlparser2: ^12.0.0
-    mdast-util-from-markdown: ^2.0.3
-    zod: ^4.5.4
 useNodeVersion: 22.23.2
 
 onlyBuiltDependencies:
