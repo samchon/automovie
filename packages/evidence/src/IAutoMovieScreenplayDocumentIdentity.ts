@@ -19,7 +19,7 @@ export interface IAutoMovieScreenplayDocumentIdentity {
   /** The sole parsed H1 title, without its Markdown heading marker. */
   title: string;
 
-  /** Authored bytes inspected for premature evidence annotations. */
+  /** Complete source text inspected for premature evidence annotations. */
   source: string;
 
   /**

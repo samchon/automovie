@@ -17,7 +17,7 @@ export interface IAutoMoviePopulationAccountClaimsProps {
   /** Authored branch whose H2 population collectively fulfills obligations. */
   layer: string;
 
-  /** Project-relative authored files selected for that branch. */
+  /** Docs-relative authored glob selectors confined to that branch. */
   populationFiles: readonly string[];
 
   /** Shared obligation documents answered by relevant H2 owners. */

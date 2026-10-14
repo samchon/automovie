@@ -4,6 +4,8 @@ import path from "node:path";
 import { projectAutoMovieMarkdownSyntax } from "./projectAutoMovieMarkdownSyntax";
 import type { IAutoMovieContractRule } from "./IAutoMovieContractRule";
 import type { IAutoMovieContractRuleMetadata } from "./IAutoMovieContractRuleMetadata";
+import { compareCodeUnits } from "./compareCodeUnits";
+import { posix } from "./posix";
 
 
 /**
@@ -26,13 +28,13 @@ export function readAutoMovieContractRules(
 ): readonly IAutoMovieContractRule[] {
   if (!fs.existsSync(root)) return [];
   const required: Set<string> = new Set(
-    (options.requireEveryH2In ?? []).map((file: string) : string => normalizePath(file)),
+    (options.requireEveryH2In ?? []).map((file: string) : string => posix(file)),
   );
   const rules: IAutoMovieContractRule[] = markdownFiles(root).flatMap((file: string) : IAutoMovieContractRule[] =>
     rulesOfFile(
       root,
       file,
-      required.has(normalizePath(path.relative(root, file))),
+      required.has(posix(path.relative(root, file))),
     ),
   );
   const identities: Map<string, string> = new Map<string, string>();
@@ -71,7 +73,7 @@ function rulesOfFile(
         heading !== null,
     );
   const rawLines: string[] = source.split(/\r\n|\r|\n/u);
-  const relative: string = normalizePath(path.relative(root, file));
+  const relative: string = posix(path.relative(root, file));
   return headings.flatMap((heading: { anchor: string; heading: string; line: number; }, index: number) : { address: string; anchor: string; heading: string; file: string; metadata: IAutoMovieContractRuleMetadata; }[] => {
     const end: number = headings[index + 1]?.line ?? rawLines.length + 1;
     const body: string = rawLines.slice(heading.line, end - 1).join("\n");
@@ -129,16 +131,4 @@ function markdownFiles(root: string): string[] {
   };
   visit(root);
   return output.sort(compareCodeUnits);
-}
-
-
-/** Normalize one public path identity to POSIX separators. */
-function normalizePath(value: string): string {
-  return value.replaceAll("\\", "/");
-}
-
-
-/** Sort independent of host locale and ICU data. */
-function compareCodeUnits(left: string, right: string): number {
-  return Number(left > right) - Number(left < right);
 }

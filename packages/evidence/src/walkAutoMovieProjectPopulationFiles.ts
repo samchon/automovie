@@ -1,6 +1,8 @@
 import fs from "node:fs";
 import path from "node:path";
 import { isAutoMovieEvidencePhysicalFile } from "./isAutoMovieEvidencePhysicalFile";
+import { compareCodeUnits } from "./compareCodeUnits";
+import { posix } from "./posix";
 
 
 const projectPopulationBoundaryDiagnostic: string =
@@ -77,10 +79,3 @@ const outside: (relative: string) => boolean = (relative: string): boolean =>
   relative === ".." ||
   relative.startsWith(`..${path.sep}`) ||
   path.isAbsolute(relative);
-
-
-const compareCodeUnits: (left: string, right: string) => number = (left: string, right: string): number =>
-  Number(left > right) - Number(left < right);
-
-
-const posix: (value: string) => string = (value: string): string => value.replaceAll("\\", "/");

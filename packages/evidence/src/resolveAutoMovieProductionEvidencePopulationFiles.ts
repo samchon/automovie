@@ -1,8 +1,8 @@
 import fs from "node:fs";
 import path from "node:path";
 import { walkAutoMovieProjectPopulationFiles } from "./walkAutoMovieProjectPopulationFiles";
-import { posix } from "./readAutoMovieProductionEvidenceInternal/posix";
-import { compareCodeUnits } from "./readAutoMovieProductionEvidenceInternal/compareCodeUnits";
+import { posix } from "./posix";
+import { compareCodeUnits } from "./compareCodeUnits";
 
 /**
  * Resolve manifest globs within the production's controlled source or document tree.

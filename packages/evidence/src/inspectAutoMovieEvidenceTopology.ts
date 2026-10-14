@@ -2,6 +2,7 @@ import type { IAutoMovieEvidenceTopologyBranch } from "./IAutoMovieEvidenceTopol
 import type { IAutoMovieEvidenceTopologyEdge } from "./IAutoMovieEvidenceTopologyEdge";
 import type { IAutoMovieEvidenceTopologyDeclaration } from "./IAutoMovieEvidenceTopologyDeclaration";
 import type { IAutoMovieEvidenceTopologyDiagnostic } from "./IAutoMovieEvidenceTopologyDiagnostic";
+import { compareCodeUnits } from "./compareCodeUnits";
 
 
 /**
@@ -132,7 +133,7 @@ export function inspectAutoMovieEvidenceTopology(props: {
       );
   }
   return diagnostics.sort((left: IAutoMovieEvidenceTopologyDiagnostic, right: IAutoMovieEvidenceTopologyDiagnostic) : number =>
-    compare(
+    compareCodeUnits(
       `${left.consumer}\0${left.provider}\0${left.code}`,
       `${right.consumer}\0${right.provider}\0${right.code}`,
     ),
@@ -153,6 +154,3 @@ const diagnostic: (code: IAutoMovieEvidenceTopologyDiagnostic["code"], edge: Pic
   provider: edge.provider,
   message,
 });
-
-const compare: (left: string, right: string) => number = (left: string, right: string): number =>
-  Number(left > right) - Number(left < right);
