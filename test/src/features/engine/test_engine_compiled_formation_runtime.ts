@@ -12,7 +12,7 @@ import {
   IAutoMovieFormationChunk,
   IAutoMovieFormationDesign,
   IAutoMovieModel,
-  IAutoMovieModelLodRecipe,
+  IAutoMovieModelLod,
   IAutoMovieWorldSurface,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -39,7 +39,7 @@ const column: (
   overrides: Partial<IAutoMovieFormationDesign> = {},
 ): IAutoMovieFormationDesign => ({
   id: "column",
-  modelRecipe: "member",
+  model: "member",
   count: AUTOMOVIE_FORMATION_CHUNK_SIZE + 1,
   layout: {
     kind: "line",
@@ -68,10 +68,10 @@ const model: (id: string) => IAutoMovieModel = (
 });
 
 /** A declared hero tier, a near tier of the base group, and a far tier of a group nobody supplied. */
-const TIERS: IAutoMovieModelLodRecipe[] = [
-  { tier: "hero", maxDistance: 2, recipe: "member-hero" },
-  { tier: "near", maxDistance: 20, recipe: "member" },
-  { tier: "far", maxDistance: null, recipe: "member-far" },
+const TIERS: IAutoMovieModelLod[] = [
+  { tier: "hero", maxDistance: 2, model: "member-hero" },
+  { tier: "near", maxDistance: 20, model: "member" },
+  { tier: "far", maxDistance: null, model: "member-far" },
 ];
 
 /** The supplied model groups: the base and its hero group, but no far group. */
@@ -313,17 +313,17 @@ export function test_engine_compiled_formation_runtime(): void {
       [
         "nearDigest",
         (): boolean =>
-          withTiers.lod[0]!.recipeDigest === nodeDigest(models.get("member")),
+          withTiers.lod[0]!.modelDigest === nodeDigest(models.get("member")),
       ],
       [
         "models",
         (): boolean =>
           withTiers.lod
-            .map((item: IAutoMovieCompiledFormationLod): string => item.model)
+            .map((item: IAutoMovieCompiledFormationLod): string => item.runtimeModel)
             .join() === "automovie:model:member,automovie:model:member-far" &&
           withTiers.lod.every(
             (item: IAutoMovieCompiledFormationLod): boolean =>
-              item.model === productionRuntimeModelId(item.recipe),
+              item.runtimeModel === productionRuntimeModelId(item.model),
           ),
       ],
       [
@@ -332,13 +332,13 @@ export function test_engine_compiled_formation_runtime(): void {
           compiled.lod.length === 1 &&
           compiled.lod[0]!.tier === "near" &&
           compiled.lod[0]!.maxDistance === null &&
-          compiled.lod[0]!.recipe === "member",
+          compiled.lod[0]!.model === "member",
       ],
       [
         "unencodable",
         (): boolean =>
           unencodable.lod.length === 1 &&
-          unencodable.lod[0]!.recipe === "member",
+          unencodable.lod[0]!.model === "member",
       ],
     ]),
     {
@@ -353,10 +353,10 @@ export function test_engine_compiled_formation_runtime(): void {
   // 4. Radius.
   const radius: (
     radii: ReadonlyArray<readonly [string, number]>,
-    lod?: IAutoMovieModelLodRecipe[],
+    lod?: IAutoMovieModelLod[],
   ) => number = (
     radii: ReadonlyArray<readonly [string, number]>,
-    lod: IAutoMovieModelLodRecipe[] = TIERS,
+    lod: IAutoMovieModelLod[] = TIERS,
   ): number =>
     materializeCompiledFormation({
       formation: column({ lod }),

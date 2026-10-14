@@ -28,8 +28,8 @@ export interface IAutoMovieCompiledFormation {
   /** Count remaining in instance batches after hero exclusion. */
   anonymousCount: number;
 
-  /** Base design recipe. */
-  modelRecipe: string;
+  /** Model group id the formation design names for every member. */
+  model: string;
 
   /** Exact compact layout algorithm and parameters. */
   layout: IAutoMovieFormationDesign["layout"];

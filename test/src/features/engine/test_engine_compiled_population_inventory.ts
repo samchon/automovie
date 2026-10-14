@@ -21,7 +21,7 @@ const unit: (id: string) => IAutoMovieFormationDesign = (
   id: string,
 ): IAutoMovieFormationDesign => ({
   id,
-  modelRecipe: "member",
+  model: "member",
   count: 4,
   layout: {
     kind: "line",
@@ -40,7 +40,7 @@ const grove: (id: string) => IAutoMovieInstanceSetDesign = (
   id: string,
 ): IAutoMovieInstanceSetDesign => ({
   id,
-  modelRecipe: "tree",
+  model: "tree",
   count: 3,
   layout: { kind: "grid", rows: 1, columns: 3, spacing: { x: 2, z: 2 } },
   anchor: { x: 0, y: 0, z: 0 },
@@ -77,7 +77,7 @@ const field: IAutoMovieWorldSurface = worldRamp({
  *    compile to empty inventories.
  *
  * @evidence contracts/testing.md#behavioral-verification Calls both population inventory compilers with deliberately unsorted ids, checks complete own-key order and selected radius/terrain forwarding, compares full B/X records with direct compiler calls, and checks absent/empty inventory inputs.
- * @evidence contracts/testing.md#independent-expectations Literal B,a,b and X,x,y key sequences independently distinguish code-unit ordering from declaration order; one retained formation surface and authored radii 0.75/two anchor forwarding. Direct-record parity intentionally shares the underlying compiler and does not independently verify its geometry, canonical digest, seed law or omitted recipe behavior.
+ * @evidence contracts/testing.md#independent-expectations Literal B,a,b and X,x,y key sequences independently distinguish code-unit ordering from declaration order; one retained formation surface and authored radii 0.75/two anchor forwarding. Direct-record parity intentionally shares the underlying compiler and does not independently verify its geometry, canonical digest, seed law or omitted model behavior.
  * @evidence contracts/testing.md#distinguishing-cases Mixed upper/lower-case ids distinguish order, populated versus absent/empty inputs distinguish no-population behavior, and separately supplied formation terrain and prototype radii distinguish forwarding from default inputs. Only representative B/X full records are compared, while every authored id appears in the key oracle.
  * @evidence contracts/testing.md#execution-ownership Uses synchronous local design/maps/world records and existing numerical comparators, with no renderer, filesystem publication, task, clock or global replacement. Produced dictionaries are caller-owned test values; this case does not exercise prototype-sensitive/integer-like ids, duplicates or production inventory consumers.
  */

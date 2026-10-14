@@ -19,12 +19,12 @@ import { subjectInspectionArtifact } from "../internal/subjectInspectionArtifact
 import { subjectInspectionModel } from "../internal/subjectInspectionModel";
 import { throwsError } from "../internal/throwsError";
 
-const PROTOTYPES: { id: string; modelRecipe: string; weight: number }[] = [
-  { id: "tall", modelRecipe: "tall-tree", weight: 2 },
-  { id: "short", modelRecipe: "shrub", weight: 1 },
+const PROTOTYPES: { id: string; model: string; weight: number }[] = [
+  { id: "tall", model: "tall-tree", weight: 2 },
+  { id: "short", model: "shrub", weight: 1 },
 ];
 
-/** The runtime model each prototype draws, the base recipe's default included. */
+/** The runtime model each prototype draws, the base model's default included. */
 const MODEL: { default: string; tall: string; short: string } = {
   default: productionRuntimeModelId("tree"),
   tall: productionRuntimeModelId("tall-tree"),
@@ -56,7 +56,7 @@ const orchard: (
   materializeCompiledInstanceSet({
     instanceSet: {
       id: "orchard",
-      modelRecipe: "tree",
+      model: "tree",
       prototypes: PROTOTYPES,
       count,
       layout: {
@@ -85,7 +85,7 @@ const statue: (
     materializeCompiledInstanceSet({
       instanceSet: {
         id: "statue",
-        modelRecipe: "tree",
+        model: "tree",
         prototypes: PROTOTYPES,
         count: 1,
         layout: {

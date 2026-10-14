@@ -12,10 +12,10 @@ const SIDECAR_BYTES: string = FILM_IMPORTED_PROP_BYTES.sidecar;
 export function createImportedPropSpec(): IAutoMoviePropSpec {
   return {
     node: "chair",
-    modelRef: "chair-recipe",
+    modelRef: "chair-model",
     model: {
       id: "chair",
-      name: "imported recipe chair-recipe",
+      name: "imported chair-model",
       origin: "imported",
       skeleton: null,
       body: { mass: 6, centerOfMass: null, friction: 0.5, restitution: 0.05 },

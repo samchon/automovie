@@ -312,7 +312,7 @@ const environment: () => IAutoMovieBuiltEnvironment =
         },
         set: {
           id: "hedge",
-          modelRecipe: "unit-model",
+          model: "unit-model",
           anchor: { x: 10, y: 0, z: 10 },
           facingDeg: 0,
           seed: 11,

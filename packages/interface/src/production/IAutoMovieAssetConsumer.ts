@@ -19,10 +19,10 @@ export type IAutoMovieAssetConsumer =
       id: string;
     }
   | {
-      /** Model recipe whose registered appearance consumes this model asset. */
-      kind: "model-recipe";
+      /** Model whose registered appearance consumes this model asset. */
+      kind: "model";
 
-      /** Exact model recipe id. */
+      /** Exact model id. */
       id: string;
     }
   | {

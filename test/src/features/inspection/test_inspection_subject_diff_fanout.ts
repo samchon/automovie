@@ -329,15 +329,15 @@ const prototype: (
   weight: number,
 ): IAutoMovieCompiledInstancePrototype => ({
   id,
-  modelRecipe: model,
+  model: model,
   weight,
   lod: [
     {
       tier: "near" as const,
       maxDistance: null,
-      recipe: model,
-      recipeDigest: `sha256:${"6".repeat(64)}` as const,
       model,
+      modelDigest: `sha256:${"6".repeat(64)}` as const,
+      runtimeModel: model,
     },
   ],
   projectionRadius: 1,

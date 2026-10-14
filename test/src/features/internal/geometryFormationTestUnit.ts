@@ -10,7 +10,7 @@ export const geometryFormationTestUnit = (
   overrides: Partial<IAutoMovieFormationDesign> = {},
 ): IAutoMovieFormationDesign => ({
   id: "unit",
-  modelRecipe: "member",
+  model: "member",
   count: 6,
   layout: {
     kind: "line",

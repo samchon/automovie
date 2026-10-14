@@ -38,7 +38,7 @@ const base: (
 ) => IAutoMovieInstanceSetDesign = (
   props: Pick<IAutoMovieInstanceSetDesign, "id" | "count" | "layout">,
 ): IAutoMovieInstanceSetDesign => ({
-  modelRecipe: "post",
+  model: "post",
   anchor: { x: 2, y: 0.25, z: -3 },
   facingDeg: 30,
   seed: 4_242,
@@ -70,8 +70,8 @@ const designs: () => IAutoMovieInstanceSetDesign[] =
         layout: { kind: "scatter", radius: 9 },
       }),
       prototypes: [
-        { id: "tall", modelRecipe: "tall", weight: 2 },
-        { id: "short", modelRecipe: "short", weight: 1 },
+        { id: "tall", model: "tall", weight: 2 },
+        { id: "short", model: "short", weight: 1 },
       ],
       variation: {
         scale: { min: 0.8, max: 1.2 },
@@ -137,7 +137,7 @@ const designs: () => IAutoMovieInstanceSetDesign[] =
           ],
         },
       }),
-      prototypes: [{ id: "tall", modelRecipe: "tall", weight: 1 }],
+      prototypes: [{ id: "tall", model: "tall", weight: 1 }],
     },
     base({
       id: "lamps",
@@ -326,7 +326,7 @@ function sameSlot(
     ) &&
     actual.slot === expected.slot &&
     actual.node === expected.node &&
-    actual.modelRecipe === expected.modelRecipe &&
+    actual.model === expected.model &&
     actual.prototype === expected.prototype &&
     actual.visible === expected.visible &&
     actual.palette === expected.palette &&

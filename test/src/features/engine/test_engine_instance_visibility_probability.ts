@@ -30,7 +30,7 @@ export function test_engine_instance_visibility_probability(): void {
           ...(visibleProbability === undefined ? {} : { visibleProbability }),
         },
         ...(visibleProbability === undefined
-          ? { prototypes: [{ id: "default", modelRecipe: "body", weight: 1 }] }
+          ? { prototypes: [{ id: "default", model: "body", weight: 1 }] }
           : {}),
       }),
     );

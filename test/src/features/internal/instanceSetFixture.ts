@@ -28,7 +28,7 @@ export const instanceSetFixture: (props: {
     version: 1,
     id: props.id,
     count: props.count,
-    modelRecipe: "window",
+    model: "window",
     layout: {
       kind: "grid",
       rows: 1,
@@ -60,9 +60,9 @@ export const instanceSetFixture: (props: {
       {
         tier: "near",
         maxDistance: null,
-        recipe: "window",
-        recipeDigest: `sha256:${"0".repeat(64)}`,
-        model: props.model ?? "window-model",
+        model: "window",
+        modelDigest: `sha256:${"0".repeat(64)}`,
+        runtimeModel: props.model ?? "window-model",
       },
     ],
     digest: `sha256:${"1".repeat(64)}`,

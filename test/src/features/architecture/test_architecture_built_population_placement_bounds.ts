@@ -16,7 +16,7 @@ const set: (
     Pick<IAutoMovieInstanceSetDesign, "layout" | "count">,
 ): IAutoMovieInstanceSetDesign => ({
   id: "field",
-  modelRecipe: "field-recipe",
+  model: "field-model",
   anchor: { x: 0, y: 0, z: 0 },
   facingDeg: 0,
   seed: 11,

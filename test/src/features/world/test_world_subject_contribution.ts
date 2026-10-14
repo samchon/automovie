@@ -221,7 +221,7 @@ export function test_world_subject_contribution(): void {
     instanceSets: [
       {
         id: "forest",
-        modelRecipe: "tree",
+        model: "tree",
         count: 10_000,
         layout: { kind: "scatter", radius: 40, jitter: 1 },
         anchor: { x: 0, y: 0, z: 0 },

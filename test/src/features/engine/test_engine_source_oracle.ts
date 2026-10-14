@@ -28,7 +28,7 @@ const formation: ReturnType<typeof materializeCompiledFormation> =
   materializeCompiledFormation({
     formation: {
       id: "unit",
-      modelRecipe: "member",
+      model: "member",
       count: 12,
       layout: {
         kind: "line",
@@ -50,10 +50,10 @@ const crowd: ReturnType<typeof materializeCompiledInstanceSet> =
   materializeCompiledInstanceSet({
     instanceSet: {
       id: "crowd",
-      modelRecipe: "body",
+      model: "body",
       prototypes: [
-        { id: "tall", modelRecipe: "tall-body", weight: 2 },
-        { id: "short", modelRecipe: "short-body", weight: 1 },
+        { id: "tall", model: "tall-body", weight: 2 },
+        { id: "short", model: "short-body", weight: 1 },
       ],
       count: COUNT,
       layout: { kind: "grid", rows: 50, columns: 40, spacing: { x: 1, z: 1 } },
