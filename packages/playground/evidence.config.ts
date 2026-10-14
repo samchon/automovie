@@ -10,6 +10,9 @@ export default {
       files: [
         "src/**/*.ts",
         "src/**/*.mts",
+        "scripts/**/*.ts",
+        "scripts/**/*.mts",
+        "scripts/**/*.cts",
         "!src/**/index.ts",
         // A global augmentation the TypeScript adapter cannot address.
         "!src/viewer/page.ts",

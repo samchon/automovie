@@ -5,8 +5,7 @@ import { resolve } from "node:path";
 import { buildKnight } from "../src/buildKnight";
 
 /**
- * Generate `knight.glb` from the knight rider AST. Same `exportModelToGLB`
- * round-trip as the other builders (`pnpm build:knight`).
+ * Serialize the knight rider AST to `.shots/knight/knight.glb` through the existing Node exporter. The returned bytes and their file describe static rest geometry; this operation performs no readback or appearance check. The CLI reports a rejected build/export/write and sets exitCode 1.
  *
  * @author Samchon
  */

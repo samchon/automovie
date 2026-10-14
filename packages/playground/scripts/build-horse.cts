@@ -6,8 +6,7 @@ import { DEFAULT_HORSE } from "../src/DEFAULT_HORSE";
 import { buildHorse } from "../src/buildHorse";
 
 /**
- * Generate `horse.glb` from the stick-horse AST (the mount). Same
- * `exportModelToGLB` round-trip as the other builders (`pnpm build:horse`).
+ * Serialize the default stick-horse AST to `.shots/knight/horse.glb` with the existing Node exporter. The caller owns this static rest artifact; no file readback or appearance check occurs here. Failed building, encoding or writing rejects the invocation and the CLI sets exitCode 1.
  *
  * @author Samchon
  */

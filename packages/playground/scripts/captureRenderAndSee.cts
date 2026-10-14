@@ -21,12 +21,12 @@ import type { IAutoMoviePlaygroundRenderAndSeeArtifact } from "./IAutoMoviePlayg
 /**
  * Capture the existing route through the canonical headless adapter and renderAndSee schedule, save PNG frames, encode the current H.264 preview and write the augmented JSON artifact. The requested interval/rate and captured guide files are observations of this route rather than a clinical, geometry-health or photographic-fidelity certificate.
  *
- * @evidence contracts/common.md#principled-implementation Canonical planning/capture/render operations preserve the fixed timeline and guide protocol; route construction sets cap/w/h and the existing encoder reads captured frame indices in order.
+ * @evidence contracts/common.md#principled-implementation Canonical planning/capture/render operations preserve the fixed timeline and guide protocol; route construction sets cap/w/h and the encoder reads each adapter-returned primary frame path in index order. Beauty is primary when requested, otherwise the canonical adapter selects the first guide.
  * @evidence contracts/common.md#clear-and-simple-design This is the original CLI's capture implementation, mechanically separated from argument parsing; no new renderer, route, encoder service or delivery protocol is introduced.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Page readiness and nonempty screenshots do not establish visual health; encoder parameters remain the existing none/h264/yuv420p/crf20 recipe rather than an inferred fidelity target.
- * @evidence contracts/common.md#meaningful-documentation The comment names the actual consumer, units, ownership, cost and interpretation limits.
- * @evidence contracts/performance.md#efficient-algorithms Work scales with planned frames, pass count, PNG pixel decode, browser drawing and encoding; sequence verification additionally scans transition/frame populations and decodes three full images per sampled transition. No frame/file byte quota is imposed here.
- * @evidence contracts/performance.md#reuse-equivalent-work Captured index→path records are reused during encoding instead of recapturing those frames; isolated sequence probes still draw separately and each capture call owns fresh browser/session state.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Page readiness and nonempty screenshots do not establish visual health. The spec/ffmpeg argument vector records the existing none/h264/yuv420p/crf20 plan, while this HME adapter actually sets width, height, frame rate and quantization parameter 20; the page owns pixel tone/exposure, and this function does not independently inspect encoded chroma or equate QP with ffmpeg CRF.
+ * @evidence contracts/common.md#meaningful-documentation States the CLI route, interval/rate and pixel output, primary-path selection for encoding, preserved encoder recipe, artifact ownership and the absence of visual-quality proof.
+ * @evidence contracts/performance.md#efficient-algorithms Work includes planned frames times guide passes for browser drawing/screenshots and PNG writes, then primary-frame PNG pixel decode and encoding. The primary path map retains one entry per completed frame, and no frame/file byte quota is imposed here.
+ * @evidence contracts/performance.md#reuse-equivalent-work Each frame's single seek serves its requested guide captures; adapter-returned primary paths are reused during encoding without recapturing images. Each invocation owns a fresh browser/session and shares no capture effects across calls.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Nested try/finally releases the acquired session or raw page, encoder and browser on success/failure. Existing preserveCleanupFailure retains operation and cleanup causes. Frame paths and encoder/output bytes grow with the full schedule; files remain intentional caller-owned artifacts.
  *
  * @author Samchon
@@ -59,10 +59,9 @@ export const captureRenderAndSee: (options: IAutoMoviePlaygroundRenderAndSeeOpti
         page,
         url: route,
         passes: options.passes,
-        writeFrame: async (file: string, bytes: Uint8Array<ArrayBufferLike>, metadata: { timeSeconds: number; index: number; }): Promise<void> => {
+        writeFrame: async (file: string, bytes: Uint8Array<ArrayBufferLike>, _metadata: { timeSeconds: number; index: number; }): Promise<void> => {
           await fs.mkdir(path.dirname(file), { recursive: true });
           await fs.writeFile(file, Buffer.from(bytes));
-          captured.set(metadata.index, file);
         },
       });
       closePage = false;
@@ -86,7 +85,11 @@ export const captureRenderAndSee: (options: IAutoMoviePlaygroundRenderAndSeeOpti
           frameDir: options.frameDir,
           outputPath: options.outputPath,
           adapters: {
-            captureFrame: session.captureFrame,
+            captureFrame: async (timeSeconds: number, index: number, dir: string): Promise<string> => {
+              const primary: string = await session.captureFrame(timeSeconds, index, dir);
+              captured.set(index, primary);
+              return primary;
+            },
             encode: createH264Encoder({
               captured,
               durationSeconds: options.durationSeconds,

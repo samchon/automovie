@@ -4,7 +4,7 @@
  * @evidence contracts/common.md#principled-implementation One wrapper distinguishes an absent failure from any JavaScript throw value.
  * @evidence contracts/common.md#clear-and-simple-design The original cleanup helper consumes only this error field and does not need a second error classification protocol.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The unknown cause remains unchanged; the type imposes no false Error-instance premise.
- * @evidence contracts/common.md#meaningful-documentation The comment names the actual consumer, units, ownership, cost and interpretation limits.
+ * @evidence contracts/common.md#meaningful-documentation Identifies preserveCleanupFailure as the consumer, preserves any original thrown value and explains why a wrapper distinguishes thrown undefined from no earlier failure.
  * @evidenceExclude contracts/performance.md#efficient-algorithms Erased type performs no algorithm.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Erased type owns no cache.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Erased type acquires no resource.

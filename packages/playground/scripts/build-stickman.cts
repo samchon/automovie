@@ -6,13 +6,7 @@ import { DEFAULT_STICKMAN } from "../src/DEFAULT_STICKMAN";
 import { buildStickman } from "../src/buildStickman";
 
 /**
- * Generate `stickman.glb` from the stick-figure AST.
- *
- * The canonical demonstration of `@automovie/render/node`'s `exportModelToGLB`
- * round-trip: the same `IAutoMovieModel` the viewer renders is serialized to a
- * standalone binary glTF (rest / T-pose) any glTF tool, or automovie's own
- * ingest, can load. Re-run (`pnpm build:stickman`) after changing the figure's
- * proportions.
+ * Serialize the default stick-figure AST to `.shots/human/stickman.glb` through `@automovie/render/node`. The exporter writes static rest geometry, with its documented skin/texture omissions; this script performs no import round trip or visual verification. Build/export/write failures reject and the CLI reports the exact cause while setting exitCode 1.
  *
  * @author Samchon
  */

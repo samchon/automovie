@@ -6,17 +6,14 @@ import { DEFAULT_CAT } from "../src/DEFAULT_CAT";
 import { buildCat } from "../src/buildCat";
 
 /**
- * Generate `cat.glb` from the stick-cat AST: the quadruped counterpart to
- * {@link build-stickman}. Same `exportModelToGLB` round-trip: the very model the
- * viewer renders, serialized to a standalone binary glTF at rest. Re-run (`pnpm
- * build:cat`) after changing the cat's proportions.
+ * Serialize the default stick-cat AST to `.shots/cat/cat.glb` with the existing Node exporter. This writes a static rest model and does not read the file back or inspect its appearance. Builder/export/filesystem failures reject the invocation; the CLI reports them and sets exitCode 1.
  *
  * @author Samchon
  */
 const main: () => Promise<void> = async (): Promise<void> => {
   const { model }: ReturnType<typeof buildCat> = buildCat(DEFAULT_CAT);
   const glb: Uint8Array<ArrayBufferLike> = await exportModelToGLB(model);
-  // Derived artifact (the viewer renders from the AST), regenerable scratch.
+  // This output is a derivative of the viewer's authored model.
   const dir: string = resolve(__dirname, "../../../.shots/cat");
   mkdirSync(dir, { recursive: true });
   const out: string = resolve(dir, "cat.glb");

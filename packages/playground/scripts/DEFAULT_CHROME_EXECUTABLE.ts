@@ -4,7 +4,7 @@ const PLATFORM_CHROME_EXECUTABLE: Partial<Record<NodeJS.Platform, string>> = {
   linux: "google-chrome",
 };
 
-/** Chrome executable selected for a production capture script. */
+/** Capture-script executable preference; CHROME overrides the platform literal, whose installation and launch compatibility are not checked here. */
 export const DEFAULT_CHROME_EXECUTABLE: string =
   process.env.CHROME ??
   PLATFORM_CHROME_EXECUTABLE[process.platform] ??

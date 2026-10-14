@@ -5,20 +5,18 @@ import path from "node:path";
 import { type Download, type Page, chromium } from "playwright-core";
 
 import { DEFAULT_CHROME_EXECUTABLE } from "./DEFAULT_CHROME_EXECUTABLE";
+import type { IAutoMoviePlaygroundOperationFailure } from "./IAutoMoviePlaygroundOperationFailure";
+import { preserveCleanupFailure } from "./preserveCleanupFailure";
 
 /**
- * Drive the real connected person editor through a list of user actions and
- * record what the page shows after each one. It is an observation tool of the
- * product path: it asserts nothing and holds no expected value. The record is
- * read by a person or compared with another record of the same steps.
+ * Drive the real connected person editor through a list of user actions and record what the page shows after each one. It is an observation tool of the product path: it asserts nothing and holds no expected value. The record is read by a person or compared with another record of the same steps.
  *
  * Usage, from `packages/playground` with the page already served:
  *
  *   pnpm observe:person -- <record.json> [base=URL] [head=URL body=URL]
  *     [wait=SECONDS] [note=TEXT] <step>...
  *
- * `head` and `body` select a caller-owned typed source pair, as the page's own
- * source form does. Each step is one action, run in order:
+ * `head` and `body` select a caller-owned typed source pair, as the page's own source form does. Each step is one action, run in order:
  *
  * - `load=FILE` opens a person document through Load document;
  * - `text=FILE` puts the file's text in Complete document and applies it;
@@ -27,32 +25,38 @@ import { DEFAULT_CHROME_EXECUTABLE } from "./DEFAULT_CHROME_EXECUTABLE";
  * - `click=undo|redo|reset|discard|save|glb` presses that toolbar button.;
  * - `wait` does nothing and records the page once it has settled.
  *
- * After each step the tool waits until the status line no longer says an
- * intent is pending, at most `wait` seconds, and records the status line and
- * its state, which buttons are disabled, the working document text, the
- * admission report as displayed, the files the page downloaded (saved beside
- * the record with their SHA-256) and the time the step took. The first entry
- * is the page as it stands once its controls are mounted, before the first
- * build settles; pass a step right away to act during that build.
+ * After each step the tool polls until the status line no longer says an intent is pending or the `wait` patience interval expires. It records status/state, disabled buttons, document textarea text (which may be unapplied), the unapplied-text indicator, displayed admission JSON, saved downloads with SHA-256 and step elapsed time. The first entry is the page state once controls are available without awaiting the first build; that build may already have settled.
  *
- * Set `CHROME` to the browser to launch; a GPU-backed Chromium is needed for
- * the page to draw. The record states the renderer the page reported.
+ * Set `CHROME` to the browser to launch; a GPU-backed Chromium is needed for the page to draw. Renderer text comes from a separate WebGL2 context created in that browser page; it does not establish the application's renderer or current displayed model provenance. Polling and browser operations can outlast the patience interval, which does not cancel a pending numerical build.
+ *
+ * @author Samchon
  */
 interface IPersonPageState {
   status: string | null;
   state: string | null;
   disabled: Record<string, boolean>;
+  /** Current textarea text, including unapplied edits; not a displayed-model document witness. */
   document: string | null;
   admission: string | null;
   unapplied: string | null;
 }
 
+/**
+ * One saved browser download, identified by its supplied filename and exact bytes.
+ *
+ * @author Samchon
+ */
 interface IPersonDownload {
   name: string;
   bytes: number;
   sha256: string;
 }
 
+/**
+ * One sampled state with step identity, UTC timestamp, elapsed milliseconds, polling outcome and downloaded-file facts. The elapsed time includes action, polling and download collection rather than only numerical settlement.
+ *
+ * @author Samchon
+ */
 interface IPersonObservation extends IPersonPageState {
   step: string;
   at: string;
@@ -61,6 +65,11 @@ interface IPersonObservation extends IPersonPageState {
   downloads: IPersonDownload[];
 }
 
+/**
+ * The current observation record; browser-context renderer text and raw document textarea state do not establish current application-model provenance. Captured page errors and a caught operation failure remain reports, with no assertion or expected value.
+ *
+ * @author Samchon
+ */
 interface IPersonRecord {
   url: string;
   note: string | null;
@@ -199,6 +208,23 @@ const main: () => Promise<void> = async (): Promise<void> => {
     headless: true,
     args: ["--use-angle=d3d11", "--enable-gpu", "--ignore-gpu-blocklist"],
   });
+  /** Save the final record and attempt owned browser closure even when that write fails. */
+  const finishRecord: () => Promise<void> = async (): Promise<void> => {
+    record.finished = new Date().toISOString();
+    let writeFailure: IAutoMoviePlaygroundOperationFailure | undefined;
+    try {
+      save();
+    } catch (error) {
+      writeFailure = { error };
+      throw error;
+    } finally {
+      await preserveCleanupFailure(
+        writeFailure,
+        "person observation browser",
+        (): Promise<void> => browser.close(),
+      );
+    }
+  };
   try {
     const context: Awaited<ReturnType<typeof browser.newContext>> = await browser.newContext({
       viewport: { width: 1500, height: 950 },
@@ -285,9 +311,7 @@ const main: () => Promise<void> = async (): Promise<void> => {
       error instanceof Error ? (error.stack ?? error.message) : error,
     ).slice(0, 1500);
   } finally {
-    record.finished = new Date().toISOString();
-    save();
-    await browser.close();
+    await finishRecord();
   }
   console.log(out);
 };

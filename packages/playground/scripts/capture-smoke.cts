@@ -56,11 +56,7 @@ const requireCapturedFrame: (runs: ReadonlyArray<ReadonlyMap<string, Uint8Array>
 };
 
 /**
- * The one REAL (non-faked) headless-capture smoke (#1170). Everything the unit
- * suite fakes, this drives for real: Chrome renders the live playground page,
- * the multi-pass adapter captures beauty/mask/pose, and the frames are judged
- * STRUCTURALLY, not byte-hashed against a golden file (GPU rasterization
- * differs across hosts) but against invariants any correct capture satisfies:
+ * Capture the served stickman page through Chromium and the existing headless adapter in two independent sessions. Byte equality compares those sessions on this host; color-population checks use the existing mask/pose thresholds and do not establish anatomy, visual quality or cross-host GPU equivalence.
  *
  * - Determinism: two independent capture sessions produce byte-identical frames
  *   per pass (same machine, same bytes: the reproducibility headline).
@@ -85,7 +81,7 @@ const main: (argv?: string[]) => Promise<void> = async (
   // and the render-and-see harnesses use).
   const route: string = `${base.replace(/\/+$/, "")}/stickman.html?char=human&clip=walk&az=80&cap=1&w=${WIDTH}&h=${HEIGHT}`;
 
-  const server: { spawned: boolean; close: () => void; } = await ensureDevServer(base);
+  const server: { spawned: boolean; close: () => Promise<void>; } = await ensureDevServer(base);
   let serverFailure: { error: unknown } | undefined;
   try {
     const runs: Array<Map<string, Uint8Array>> = [];
@@ -211,17 +207,17 @@ const main: (argv?: string[]) => Promise<void> = async (
     await preserveCleanupFailure(
       serverFailure,
       "capture smoke dev server",
-      (): void => server.close(),
+      (): Promise<void> => server.close(),
     );
   }
 };
 
-/** Reuse a listening dev server, else spawn Vite and wait for it to answer. */
-const ensureDevServer: (base: string) => Promise<{ spawned: boolean; close: () => void; }> = async (
+/** Reuse a responding server without ownership, or acquire Vite. Owned close requests termination and awaits its native close event; a refused kill rejects without claiming release, and no shutdown timeout is imposed. */
+const ensureDevServer: (base: string) => Promise<{ spawned: boolean; close: () => Promise<void>; }> = async (
   base: string,
-): Promise<{ spawned: boolean; close: () => void }> => {
+): Promise<{ spawned: boolean; close: () => Promise<void> }> => {
   if (await answers(base, DEV_SERVER_PROBE_TIMEOUT_MS))
-    return { spawned: false, close: (): void => {} };
+    return { spawned: false, close: async (): Promise<void> => {} };
   const port: string = new URL(base).port || "5173";
   const playground: string = path.resolve(__dirname, "..");
   // vite's `exports` map hides bin/vite.js from require.resolve; the
@@ -274,6 +270,19 @@ const ensureDevServer: (base: string) => Promise<{ spawned: boolean; close: () =
       stdout,
     });
   };
+  const close: () => Promise<void> = async (): Promise<void> => {
+    if (currentExit() === null) {
+      const requested: boolean = child.kill();
+      if (!requested && currentExit() === null)
+        throw error ?? new Error("The owned dev server shutdown request was not accepted.");
+    }
+    await closed;
+  };
+  const refuse: (message: string) => Promise<never> = async (message: string): Promise<never> => {
+    const cause: Error = new Error(message);
+    await preserveCleanupFailure({ error: cause }, "capture smoke startup server", close);
+    throw cause;
+  };
   const deadline: number = Date.now() + DEV_SERVER_READY_TIMEOUT_MS;
   while (true) {
     const remaining: number = deadline - Date.now();
@@ -284,10 +293,9 @@ const ensureDevServer: (base: string) => Promise<{ spawned: boolean; close: () =
     );
     const failure: string | null = await failureAfterClose();
     if (failure !== null) {
-      child.kill();
-      throw new Error(failure);
+      return refuse(failure);
     }
-    if (answered) return { spawned: true, close: (): boolean => child.kill() };
+    if (answered) return { spawned: true, close };
     const delay: number = Math.min(DEV_SERVER_POLL_INTERVAL_MS, deadline - Date.now());
     if (delay > 0)
       await new Promise((resolve: (value: unknown) => void): void => {
@@ -296,11 +304,9 @@ const ensureDevServer: (base: string) => Promise<{ spawned: boolean; close: () =
   }
   const failure: string | null = await failureAfterClose();
   if (failure !== null) {
-    child.kill();
-    throw new Error(failure);
+    return refuse(failure);
   }
-  child.kill();
-  throw new Error(
+  return refuse(
     `dev server remained alive but did not answer at ${base} within 30s; stdout=${JSON.stringify(stdout)}; stderr=${JSON.stringify(stderr)}`,
   );
 };

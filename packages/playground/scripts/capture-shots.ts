@@ -1,8 +1,5 @@
-// Regenerate the .shots/*.mp4 demo clips. Drives the playground viewer pages in
-// ONE persistent headless-Chromium session (Playwright): the page is loaded
-// once per clip, then `window.__afSeek(t)` steps it to each frame deterministi-
-// cally and the canvas is screenshotted. No per-frame browser relaunch. Frames
-// are encoded straight to H.264 MP4 in-process (wasm), so no ffmpeg needed.
+// Capture each declared viewer clip with one Chromium process and one page per clip.
+// The page's existing seek hook draws each sample before PNG decoding and H.264 encoding.
 //
 // Prerequisites:
 //   1. Dev server running:  pnpm --filter @automovie/playground dev   (:5173)
@@ -23,18 +20,21 @@ import { DEFAULT_CHROME_EXECUTABLE } from "./DEFAULT_CHROME_EXECUTABLE";
 import type { IAutoMoviePlaygroundOperationFailure } from "./IAutoMoviePlaygroundOperationFailure";
 import { preserveCleanupFailure } from "./preserveCleanupFailure";
 
-declare global {
-  interface Window {
-    __afSeek(time: number): void;
-  }
-}
+/**
+ * Browser window reached by this CLI's existing capture callbacks. Viewer pages publish the seek hook; its presence is checked before frames are captured. This local assertion adds no runtime hook or global Window declaration.
+ */
+type CaptureShotsWindow = Window & {
+  /** Step and draw the published viewer at seconds supplied by the capture loop. */
+  __afSeek(time: number): void;
+};
 
 const here: string = path.dirname(fileURLToPath(import.meta.url));
 const shotsDir: string = path.resolve(here, "../../../.shots");
 const BASE: string = process.env.BASE ?? "http://localhost:5173";
 const CHROME: string = DEFAULT_CHROME_EXECUTABLE;
 
-// [page, query (no t/cap), durationSeconds, frames, width, height, out, fps]
+// Rows request an inclusive sampling interval in seconds and an independent encoded frame rate.
+// The page hook owns endpoint playback; encoded duration is frames/fps and can retime the motion.
 type Shot = readonly [
   page: string,
   query: string,
@@ -197,7 +197,7 @@ const SHOTS: readonly Shot[] = [
   ],
 ];
 
-const only: string = process.argv[2];
+const only: string | undefined = process.argv[2];
 const shots: readonly Shot[] = only ? SHOTS.filter((s: Shot): boolean => s[6].includes(only)) : SHOTS;
 if (shots.length === 0) {
   console.error(`no shots match "${only}"`);
@@ -240,7 +240,10 @@ const capture: ([page, q, dur, n, w, h, out, fps,]: Shot) => Promise<void> = asy
     await pg.goto(`${BASE}/${page}?${q}${sep}cap=1&w=${W}&h=${H}`, {
       waitUntil: "load",
     });
-    await pg.waitForFunction((): boolean => typeof window.__afSeek === "function");
+    await pg.waitForFunction((): boolean => {
+      const host: CaptureShotsWindow = window as unknown as CaptureShotsWindow;
+      return typeof host.__afSeek === "function";
+    });
     // frame only the 3D: hide any UI overlay (clip-selector bar) that would
     // otherwise overlap the canvas in the element screenshot
     await pg.addStyleTag({ content: "#clips{display:none!important}" });
@@ -258,7 +261,10 @@ const capture: ([page, q, dur, n, w, h, out, fps,]: Shot) => Promise<void> = asy
       const t0: number = Date.now();
       for (let i: number = 0; i < n; i++) {
         const t: number = (dur * i) / (n - 1);
-        await pg.evaluate((tt: number): void => window.__afSeek(tt), t);
+        await pg.evaluate((tt: number): void => {
+          const host: CaptureShotsWindow = window as unknown as CaptureShotsWindow;
+          host.__afSeek(tt);
+        }, t);
         const buf: Buffer<ArrayBufferLike> = await view.screenshot({ type: "png" });
         const png: ReturnType<typeof PNG.sync.read> = PNG.sync.read(buf);
         enc.addFrameRgba(new Uint8Array(png.data));
