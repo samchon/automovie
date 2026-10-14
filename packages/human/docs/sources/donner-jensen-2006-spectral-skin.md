@@ -24,3 +24,24 @@ Copyright the authors and the Eurographics Association. Human takes the paramete
 ## What Human takes
 
 The pigmentation parameters of the identity and their ranges, converted to viewer material values by a documented formula (`../techniques/skin-material.md`).
+
+## Absorption and scattering formulas (added; read from sections 3.3 to 3.5 of the same PDF)
+
+λ in nanometres, coefficients in mm⁻¹. Grade: fits to published measurements (population-fitted), the rest conventional modelling choices.
+
+| Quantity | Formula or value | Basis stated |
+| --- | --- | --- |
+| Eumelanin absorption | σa,em(λ) = 6.6 × 10¹⁰ λ^-3.33 | fit to Jacques and McAuliffe 1991 |
+| Pheomelanin absorption | σa,pm(λ) = 2.9 × 10¹⁴ λ^-4.75 | authors' fit |
+| Baseline absorption | σa,baseline(λ) = 0.0244 + 8.53 e^-(λ-154)/66.2 | Jacques 1998 |
+| Epidermis | σa,epi = Cm (βm σa,em + (1-βm) σa,pm) + (1-Cm) σa,baseline | equation 6 |
+| Dermis | σa,derm = Ch (γ σa,oxy + (1-γ) σa,deoxy) + (1-Ch) σa,baseline | equation 7 |
+| Blood oxygenation γ | 0.75 fixed; varies 0.6 to 0.8 over sites and skin types | |
+| Dermal hemoglobin fraction Ch | "usually about 0.1% - 20%" by location and skin type | |
+| Reduced scattering | σ's(λ) = 14.74 λ^-0.22 + 2.2 × 10¹¹ λ^-4 (Mie plus Rayleigh) | |
+| Dermis scattering | 50 percent of the epidermal value | |
+| Epidermis thickness | 0.25 mm fixed | |
+| Index of refraction | 1.4 throughout | |
+| Dermis | semi-infinite | |
+
+Figure captions: Cm swept 0.1 to 50 percent at βm 0.7 and Ch 0.5 percent goes from pale to dark brown; Ch swept 0.1 to 20 percent goes pale and translucent to pink to purple; lower βm (more pheomelanin) reads yellowish, higher βm tan and brown. The paper places Asian skin near the middle of its parameter chart.
