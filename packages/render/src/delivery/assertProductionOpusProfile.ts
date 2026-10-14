@@ -26,9 +26,9 @@ import { AUTOMOVIE_PRODUCTION_OPUS_PROFILE } from "./AUTOMOVIE_PRODUCTION_OPUS_P
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call judges one probe once; the probe and delivery validators call it for different files, so no result is equivalent across calls.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The function holds only its comparison list until it returns or throws, and opens no file, buffer or task.
  */
-export const assertProductionOpusProfile: (actual: IAutoMovieProductionAudioProbe) => void = (
+export const assertProductionOpusProfile: (
   actual: IAutoMovieProductionAudioProbe,
-): void => {
+) => void = (actual: IAutoMovieProductionAudioProbe): void => {
   const description: IAutoMovieProductionOpusDescription = actual.sampleEntry;
   const edit:
     | IAutoMovieProductionAudioProbe["timebase"]["edits"][number]
@@ -174,5 +174,6 @@ export const assertProductionOpusProfile: (actual: IAutoMovieProductionAudioProb
     );
 };
 
-const positiveSafeInteger: (value: number) => boolean = (value: number): boolean =>
-  Number.isSafeInteger(value) && value > 0;
+const positiveSafeInteger: (value: number) => boolean = (
+  value: number,
+): boolean => Number.isSafeInteger(value) && value > 0;

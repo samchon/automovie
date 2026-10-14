@@ -1,7 +1,5 @@
 import type { IAutoMovieProductionRenderFrame } from "@automovie/engine";
-import type {
-  AutoMovieGuidePass,
-} from "@automovie/interface";
+import type { AutoMovieGuidePass } from "@automovie/interface";
 
 /**
  * One content-addressed planned range of tier output frames for a moving-image deliverable.

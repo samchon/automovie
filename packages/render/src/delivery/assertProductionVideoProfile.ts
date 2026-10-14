@@ -30,7 +30,10 @@ import type { IAutoMovieProductionVideoProfile } from "./IAutoMovieProductionVid
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call judges one probe of one file, and the several callers check different files or the same file after it changed, so no earlier verdict is equivalent.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The comparison list is the only allocation and dies with the call; the function opens no file, process or task.
  */
-export const assertProductionVideoProfile: (props: { expected: IAutoMovieProductionVideoProfile; actual: IAutoMovieProductionVideoProbe }) => void = (props: {
+export const assertProductionVideoProfile: (props: {
+  expected: IAutoMovieProductionVideoProfile;
+  actual: IAutoMovieProductionVideoProbe;
+}) => void = (props: {
   /** Profile resolved from the deliverable's authored raster and rate. */
   expected: IAutoMovieProductionVideoProfile;
 
@@ -82,17 +85,9 @@ export const assertProductionVideoProfile: (props: { expected: IAutoMovieProduct
         equalProductionFrameRates(actual.frameRate, actualRate),
     ],
     ["samples.firstDts", 0, actual.samples.firstDts],
-    [
-      "samples.lastDts",
-      lastSampleTime,
-      actual.samples.lastDts,
-    ],
+    ["samples.lastDts", lastSampleTime, actual.samples.lastDts],
     ["samples.firstCts", 0, actual.samples.firstCts],
-    [
-      "samples.lastCts",
-      lastSampleTime,
-      actual.samples.lastCts,
-    ],
+    ["samples.lastCts", lastSampleTime, actual.samples.lastCts],
     [
       "presentation.movieTimescale",
       true,

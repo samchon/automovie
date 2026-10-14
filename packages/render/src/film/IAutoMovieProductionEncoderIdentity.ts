@@ -1,4 +1,3 @@
-
 /**
  * Identity of the installed H.264 encoder and every setting that can change
  * its output bytes.

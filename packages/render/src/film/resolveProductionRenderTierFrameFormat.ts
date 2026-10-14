@@ -28,7 +28,10 @@ import { normalizeRenderTier } from "./normalizeRenderTier";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The planner and publication's identity check each call it once per plan or identity on a few-field record, so there is no costly equivalent work to share.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The function retains nothing after returning a new format its caller owns and opens no handle or task.
  */
-export const resolveProductionRenderTierFrameFormat: (source: IAutoMovieProductionDesign["frameFormat"], tier: IAutoMovieProductionRenderTier) => IAutoMovieProductionDesign["frameFormat"] = (
+export const resolveProductionRenderTierFrameFormat: (
+  source: IAutoMovieProductionDesign["frameFormat"],
+  tier: IAutoMovieProductionRenderTier,
+) => IAutoMovieProductionDesign["frameFormat"] = (
   source: IAutoMovieProductionDesign["frameFormat"],
   tier: IAutoMovieProductionRenderTier,
 ): IAutoMovieProductionDesign["frameFormat"] => {

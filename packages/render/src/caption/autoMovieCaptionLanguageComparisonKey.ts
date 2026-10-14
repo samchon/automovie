@@ -17,6 +17,7 @@ import { parseAutoMovieCaptionLanguage } from "./parseAutoMovieCaptionLanguage";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure per-tag projection coordinates no phases; the inspector calls it once per profile and once per cue, and a cache would cost more than reparsing a short tag.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The function retains nothing after returning a string, and it opens no handle or task.
  */
-export const autoMovieCaptionLanguageComparisonKey: (value: string) => string | null = (
+export const autoMovieCaptionLanguageComparisonKey: (
   value: string,
-): string | null => parseAutoMovieCaptionLanguage(value)?.comparisonKey ?? null;
+) => string | null = (value: string): string | null =>
+  parseAutoMovieCaptionLanguage(value)?.comparisonKey ?? null;

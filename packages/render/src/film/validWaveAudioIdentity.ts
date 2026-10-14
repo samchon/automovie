@@ -37,7 +37,9 @@ const FLOAT_SUBFORMAT: string = "00000003-0000-0010-8000-00aa00389b71";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work `normalizeAudioAssets` calls it once per WAVE asset on that asset's own record, so there is no equivalent work to share.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The predicate retains nothing after returning a boolean and opens no handle or task.
  */
-export const validWaveAudioIdentity: (asset: Extract<IAutoMovieProductionAudioAssetIdentity, { kind: "wave" }>) => boolean = (
+export const validWaveAudioIdentity: (
+  asset: Extract<IAutoMovieProductionAudioAssetIdentity, { kind: "wave" }>,
+) => boolean = (
   asset: Extract<IAutoMovieProductionAudioAssetIdentity, { kind: "wave" }>,
 ): boolean => {
   const source: IAutoMovieProductionWaveSourceFormat = asset.sourceFormat;
@@ -75,7 +77,9 @@ export const validWaveAudioIdentity: (asset: Extract<IAutoMovieProductionAudioAs
         source.header === "wave-format-extensible" &&
         source.layout.mask === (mono ? 0x4 : 0x3) &&
         source.subFormatGuid ===
-          (source.encoding === "pcm-s16le" ? PCM_SUBFORMAT : FLOAT_SUBFORMAT)) &&
+          (source.encoding === "pcm-s16le"
+            ? PCM_SUBFORMAT
+            : FLOAT_SUBFORMAT)) &&
     processing.kind === expectedKind &&
     processing.outputChannels === 1 &&
     processing.outputSampleRate === MIX_SAMPLE_RATE &&

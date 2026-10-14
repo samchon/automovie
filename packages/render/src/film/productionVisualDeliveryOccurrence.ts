@@ -18,7 +18,10 @@ import type { IAutoMovieFilmTimeline } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call formats one short key from one segment, so caching would cost more than formatting.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The occurrence key is a new string the delivery join compares and discards; the segment argument is read, not referenced afterward, and no handle or task is opened.
  */
-export const productionVisualDeliveryOccurrence: (segment: IAutoMovieFilmTimeline["segments"][number], index: number) => string = (
+export const productionVisualDeliveryOccurrence: (
+  segment: IAutoMovieFilmTimeline["segments"][number],
+  index: number,
+) => string = (
   segment: IAutoMovieFilmTimeline["segments"][number],
   index: number,
 ): string =>

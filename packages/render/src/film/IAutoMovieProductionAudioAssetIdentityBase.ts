@@ -1,4 +1,3 @@
-
 /**
  * Byte, clock and channel facts every planned audio asset carries, whatever
  * its provenance.

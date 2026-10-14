@@ -145,9 +145,8 @@ export const planProductionRenderJob: (props: {
     throw new Error(
       "The production H.264 render adapter requires even width and height.",
     );
-  const timelineRate: IAutoMovieProductionFrameRate = resolveProductionFrameRate(
-    props.timeline,
-  );
+  const timelineRate: IAutoMovieProductionFrameRate =
+    resolveProductionFrameRate(props.timeline);
   const productionRate: IAutoMovieProductionFrameRate =
     resolveProductionFrameRate(props.production.frameFormat);
   if (
@@ -201,8 +200,9 @@ export const planProductionRenderJob: (props: {
   }
   const legacyGuidePass: Exclude<AutoMovieGuidePass, "beauty"> =
     assertSingleGuidePass(props.guidePasses ?? ["pose"]);
-  const editFingerprint: string =
-    productionFilmEffectEditFingerprint(props.timeline);
+  const editFingerprint: string = productionFilmEffectEditFingerprint(
+    props.timeline,
+  );
   verifyProductionFilmEffectPopulation({
     timeline: props.timeline,
     effects: props.effects,
@@ -214,8 +214,7 @@ export const planProductionRenderJob: (props: {
         `Film effect runtime "${effect.effect.id}" belongs to production "${effect.production}", not "${props.production.id}".`,
       );
   const effectDigests: string[] = props.effects.map(
-    (effect: IAutoMovieCompiledFilmEffect): string =>
-      effect.digest,
+    (effect: IAutoMovieCompiledFilmEffect): string => effect.digest,
   );
   const frames: IAutoMovieProductionRenderFrame[] = Array.from(
     { length: props.timeline.totalFrames / tier.frameStep },
@@ -231,7 +230,9 @@ export const planProductionRenderJob: (props: {
     },
   );
   const moving: IMovingDeliverable[] = props.production.deliverables.filter(
-    (deliverable: IAutoMovieProductionDeliverable): deliverable is IMovingDeliverable =>
+    (
+      deliverable: IAutoMovieProductionDeliverable,
+    ): deliverable is IMovingDeliverable =>
       deliverable.kind === "feature" || deliverable.kind === "guide-pass",
   );
   const ranges: IRange[] = moving.length === 0 ? [] : partition(frames, props);
@@ -302,10 +303,13 @@ export const planProductionRenderJob: (props: {
  * attach the code-unit-sorted source digest of every shot each range shows,
  * throwing for a shot without a valid digest.
  */
-const partition: (frames: IAutoMovieProductionRenderFrame[], props: {
-  chunkFrames: number;
-  sourceFingerprints: Readonly<Record<string, string>>;
-}) => IRange[] = (
+const partition: (
+  frames: IAutoMovieProductionRenderFrame[],
+  props: {
+    chunkFrames: number;
+    sourceFingerprints: Readonly<Record<string, string>>;
+  },
+) => IRange[] = (
   frames: IAutoMovieProductionRenderFrame[],
   props: {
     chunkFrames: number;
@@ -336,8 +340,7 @@ const partition: (frames: IAutoMovieProductionRenderFrame[], props: {
       sources: [...shots]
         .sort(compareCodeUnits)
         .map((shot: string): { shot: string; digest: string } => {
-          const digest: string | undefined =
-            props.sourceFingerprints[shot];
+          const digest: string | undefined = props.sourceFingerprints[shot];
           if (digest === undefined || validDigest(digest) === false)
             throw new Error(
               `Render range references shot "${shot}" without one current builder-owned source fingerprint.`,

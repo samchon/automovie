@@ -1,6 +1,4 @@
-import type {
-  IAutoMovieCaptureRuntimeIdentity,
-} from "@automovie/interface";
+import type { IAutoMovieCaptureRuntimeIdentity } from "@automovie/interface";
 
 import type { IAutoMovieProductionEncoderIdentity } from "./IAutoMovieProductionEncoderIdentity";
 

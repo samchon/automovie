@@ -47,7 +47,11 @@ interface IAutoMovieCaptionGraphemeRuntime {
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work One call measures one timeline once; the profile index is built per call because profiles arrive with each call and are not known to be equal across calls.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Call-local indexes hold at most P profiles and one prior end per distinct cue language; normalized lines and each runtime iterable live during measurement. Returned cue records share the runtime/profile segmentation identity objects and retain one outcome per cue. There is no cue/text quota, segmentation timeout or iterator cancellation; the runtime owns any resources hidden in its iterable.
  */
-export const inspectAutoMovieCaptionReadabilityWithRuntime: (timeline: IAutoMovieFilmTimeline, profiles: readonly IAutoMovieCaptionReadabilityProfile[], runtime: IAutoMovieCaptionGraphemeRuntime) => IAutoMovieCaptionReadabilityReport = (
+export const inspectAutoMovieCaptionReadabilityWithRuntime: (
+  timeline: IAutoMovieFilmTimeline,
+  profiles: readonly IAutoMovieCaptionReadabilityProfile[],
+  runtime: IAutoMovieCaptionGraphemeRuntime,
+) => IAutoMovieCaptionReadabilityReport = (
   timeline: IAutoMovieFilmTimeline,
   profiles: readonly IAutoMovieCaptionReadabilityProfile[],
   runtime: IAutoMovieCaptionGraphemeRuntime,
@@ -114,13 +118,19 @@ export const inspectAutoMovieCaptionReadabilityWithRuntime: (timeline: IAutoMovi
 };
 
 /** Number of items an iterable yields, without materializing them. */
-const countItems: (items: Iterable<unknown>) => number = (items: Iterable<unknown>): number => {
+const countItems: (items: Iterable<unknown>) => number = (
+  items: Iterable<unknown>,
+): number => {
   let count: number = 0;
   for (const _ of items) count += 1;
   return count;
 };
 
-const captionReadabilityOutcome: (measurement: IAutoMovieCaptionReadabilityMeasurement, profile: IAutoMovieCaptionReadabilityProfile | undefined, actualSegmentation: IAutoMovieCaptionGraphemeSegmentationIdentity) => IAutoMovieCaptionReadabilityOutcome = (
+const captionReadabilityOutcome: (
+  measurement: IAutoMovieCaptionReadabilityMeasurement,
+  profile: IAutoMovieCaptionReadabilityProfile | undefined,
+  actualSegmentation: IAutoMovieCaptionGraphemeSegmentationIdentity,
+) => IAutoMovieCaptionReadabilityOutcome = (
   measurement: IAutoMovieCaptionReadabilityMeasurement,
   profile: IAutoMovieCaptionReadabilityProfile | undefined,
   actualSegmentation: IAutoMovieCaptionGraphemeSegmentationIdentity,
@@ -186,7 +196,10 @@ const captionReadabilityOutcome: (measurement: IAutoMovieCaptionReadabilityMeasu
   };
 };
 
-const sameCaptionGraphemeSegmentationIdentity: (left: IAutoMovieCaptionGraphemeSegmentationIdentity, right: IAutoMovieCaptionGraphemeSegmentationIdentity) => boolean = (
+const sameCaptionGraphemeSegmentationIdentity: (
+  left: IAutoMovieCaptionGraphemeSegmentationIdentity,
+  right: IAutoMovieCaptionGraphemeSegmentationIdentity,
+) => boolean = (
   left: IAutoMovieCaptionGraphemeSegmentationIdentity,
   right: IAutoMovieCaptionGraphemeSegmentationIdentity,
 ): boolean =>
@@ -199,13 +212,19 @@ const sameCaptionGraphemeSegmentationIdentity: (left: IAutoMovieCaptionGraphemeS
       left.locale.requested === right.locale.requested &&
       left.locale.resolved === right.locale.resolved));
 
-const maximumBoundaryPassed: (value: number, boundary: IAutoMovieCaptionReadabilityBoundary) => boolean = (
+const maximumBoundaryPassed: (
+  value: number,
+  boundary: IAutoMovieCaptionReadabilityBoundary,
+) => boolean = (
   value: number,
   boundary: IAutoMovieCaptionReadabilityBoundary,
 ): boolean =>
   boundary.inclusive ? value <= boundary.value : value < boundary.value;
 
-const minimumBoundaryPassed: (value: number, boundary: IAutoMovieCaptionReadabilityBoundary) => boolean = (
+const minimumBoundaryPassed: (
+  value: number,
+  boundary: IAutoMovieCaptionReadabilityBoundary,
+) => boolean = (
   value: number,
   boundary: IAutoMovieCaptionReadabilityBoundary,
 ): boolean =>

@@ -23,7 +23,11 @@ import type { IAutoMovieProductionPngProfile } from "./IAutoMovieProductionPngPr
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call builds one small profile from its arguments and coordinates no phases or requests whose work could be shared.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The PNG profile is a fresh eleven-field record handed to the validator that requested it; the engine raster constant is read, never retained, and no file handle or task is opened.
  */
-export const resolveProductionPngProfile: (props: { role: AutoMovieProductionPngRole; width?: number; height?: number }) => IAutoMovieProductionPngProfile = (props: {
+export const resolveProductionPngProfile: (props: {
+  role: AutoMovieProductionPngRole;
+  width?: number;
+  height?: number;
+}) => IAutoMovieProductionPngProfile = (props: {
   /** Output role selecting an engine-fixed or caller-supplied raster. */
   role: AutoMovieProductionPngRole;
 

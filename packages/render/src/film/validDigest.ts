@@ -18,5 +18,6 @@ const DIGEST_PATTERN: RegExp = /^sha256:[0-9a-f]{64}$/;
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure predicate on one short string coordinates no phases, so there is no work to share.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The compiled pattern is one module constant for the process lifetime and each test allocates nothing, so retention stays at that single expression object.
  */
-export const validDigest: (value: string) => boolean = (value: string): boolean =>
-  DIGEST_PATTERN.test(value);
+export const validDigest: (value: string) => boolean = (
+  value: string,
+): boolean => DIGEST_PATTERN.test(value);

@@ -26,7 +26,9 @@ import type { IAutoMovieBeatCaption } from "./IAutoMovieBeatCaption";
  * @evidence contracts/performance.md#bound-retention-and-release-resources The adjacency map is local and released on return, and the returned map, owned by the caller, holds one record per distinct beat id, bounded by the tree's beat count; recursion depth is bounded by the tree's depth.
  * @author Samchon
  */
-export const beatCaptions: (script: IAutoMovieScript) => Map<string, IAutoMovieBeatCaption> = (
+export const beatCaptions: (
+  script: IAutoMovieScript,
+) => Map<string, IAutoMovieBeatCaption> = (
   script: IAutoMovieScript,
 ): Map<string, IAutoMovieBeatCaption> => {
   const map: Map<string, IAutoMovieBeatCaption> = new Map();
@@ -40,7 +42,10 @@ export const beatCaptions: (script: IAutoMovieScript) => Map<string, IAutoMovieB
     children.set(node.parent, list);
   }
 
-  const walk: (node: IAutoMovieScriptNode, slug: string | null) => void = (node: IAutoMovieScriptNode, slug: string | null): void => {
+  const walk: (node: IAutoMovieScriptNode, slug: string | null) => void = (
+    node: IAutoMovieScriptNode,
+    slug: string | null,
+  ): void => {
     const current: string | null =
       node.kind === "scene" ? screenplaySceneSlug(node.payload) : slug;
     if (node.kind === "beat")

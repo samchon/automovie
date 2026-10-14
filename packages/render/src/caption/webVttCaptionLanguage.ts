@@ -17,7 +17,9 @@ import { parseAutoMovieCaptionLanguage } from "./parseAutoMovieCaptionLanguage";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The function validates one tag per cue and coordinates no phases; repeated tags reparse in a few character comparisons.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Nothing persists past the call except the returned display string, and no handle or task is opened.
  */
-export const webVttCaptionLanguage: (value: string) => string = (value: string): string => {
+export const webVttCaptionLanguage: (value: string) => string = (
+  value: string,
+): string => {
   const identity: ReturnType<typeof parseAutoMovieCaptionLanguage> =
     parseAutoMovieCaptionLanguage(value);
   if (identity === null)

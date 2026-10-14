@@ -66,7 +66,9 @@ const DIGIT: RegExp = /^[0-9]+$/u;
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure parse of one short string coordinates no phases, and its callers parse each tag at most a few times per validation.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The subtag array and the two uniqueness sets are released on return; only the module-level grandfathered set and patterns persist, fixed in size.
  */
-export const parseAutoMovieCaptionLanguage: (value: string) => IAutoMovieCaptionLanguageIdentity | null = (
+export const parseAutoMovieCaptionLanguage: (
+  value: string,
+) => IAutoMovieCaptionLanguageIdentity | null = (
   value: string,
 ): IAutoMovieCaptionLanguageIdentity | null => {
   if (/^[A-Za-z0-9-]+$/u.test(value) === false) return null;
@@ -153,5 +155,6 @@ const isVariant: (value: string) => boolean = (value: string): boolean =>
   (value.length >= 5 && value.length <= 8) ||
   (value.length === 4 && DIGIT.test(value[0]!));
 
-const isExtensionSingleton: (value: string) => boolean = (value: string): boolean =>
-  value.length === 1 && /^[0-9A-WY-Za-wy-z]$/u.test(value);
+const isExtensionSingleton: (value: string) => boolean = (
+  value: string,
+): boolean => value.length === 1 && /^[0-9A-WY-Za-wy-z]$/u.test(value);
