@@ -20,7 +20,10 @@ import { streamHumanViewerVerifiedFile } from "./streamHumanViewerVerifiedFile.j
 export function serveHumanViewerBasis(
   props: IServeHumanViewerDataProps,
 ): boolean {
-  const { url, response }: Pick<IServeHumanViewerDataProps, "url" | "response"> = props;
+  const {
+    url,
+    response,
+  }: Pick<IServeHumanViewerDataProps, "url" | "response"> = props;
   if (!url.pathname.startsWith("/basis/")) return false;
   const domain: string = url.pathname.slice(7);
   const candidate: string | null = url.searchParams.get("candidate");

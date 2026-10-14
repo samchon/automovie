@@ -1,5 +1,11 @@
+import { humanViewerErrorCode } from "./humanViewerErrorCode.js";
+
 /** The socket error codes a loaded server produces when it resets a kept-alive connection. */
-const RESET_CODES: readonly string[] = ["ECONNRESET", "UND_ERR_SOCKET", "EPIPE"];
+const RESET_CODES: readonly string[] = [
+  "ECONNRESET",
+  "UND_ERR_SOCKET",
+  "EPIPE",
+];
 
 /**
  * Repeat the capture caller's HTTP request for supported connection-reset failures, up to its explicit attempt limit with a growing pause. The caller supplies a finite positive integer limit; the current capture command supplies three. This helper does not admit the limit at runtime. A reset does not prove the server never ran the request, so the caller must allow repeated read/capture effects. Refused connections and unrelated errors propagate unchanged.
@@ -26,4 +32,3 @@ export async function retryHumanViewerFetch<T>(
     }
   }
 }
-import { humanViewerErrorCode } from "./humanViewerErrorCode.js";

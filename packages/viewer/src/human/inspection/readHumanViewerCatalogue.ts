@@ -30,7 +30,9 @@ export function readHumanViewerCatalogue(
   props: IReadHumanViewerCatalogueProps,
 ): IHumanViewerCatalogue {
   const sources: IReadHumanViewerCatalogueProps["revisions"] = props.revisions;
-  const readBasis: (file: string) => IHumanViewerBasisIdentity = (file: string): IHumanViewerBasisIdentity => {
+  const readBasis: (file: string) => IHumanViewerBasisIdentity = (
+    file: string,
+  ): IHumanViewerBasisIdentity => {
     if (props.basisOf !== undefined) return props.basisOf(file);
     const bytes: Buffer = fs.readFileSync(file);
     return {
@@ -51,7 +53,9 @@ export function readHumanViewerCatalogue(
   // The subject list is re-read and re-keyed only when it, the face basis or
   // the face source changed: an admission verdict republishes the catalogue.
   const subjectsStat: fs.Stats = fs.statSync(props.documentsFile);
-  const reference: ReturnType<IReadHumanViewerCatalogueProps["exampleSources"]["reference"]> = props.exampleSources.reference(bases.face);
+  const reference: ReturnType<
+    IReadHumanViewerCatalogueProps["exampleSources"]["reference"]
+  > = props.exampleSources.reference(bases.face);
   const faceSignature: string = `${subjectsStat.mtimeMs}:${subjectsStat.size}|${bases.face.digest}|${sources.face}|${JSON.stringify(reference)}`;
   const faces: ReturnType<typeof readHumanViewerFaceDocuments> =
     props.faceMemo !== undefined &&
@@ -68,19 +72,27 @@ export function readHumanViewerCatalogue(
     props.faceMemo.signature = faceSignature;
     props.faceMemo.value = faces;
   }
-  const generation: ReturnType<NonNullable<IReadHumanViewerCatalogueProps["generation"]>> | null = props.independentInput === true ? null : (
-    props.generation ??
-    ((): IHumanViewerRejectedInput => ({
-      file: "published person generation",
-      pending: false,
-      reason: "person generation files are not published yet",
-    }))
-  )();
+  const generation: ReturnType<
+    NonNullable<IReadHumanViewerCatalogueProps["generation"]>
+  > | null =
+    props.independentInput === true
+      ? null
+      : (
+          props.generation ??
+          ((): IHumanViewerRejectedInput => ({
+            file: "published person generation",
+            pending: false,
+            reason: "person generation files are not published yet",
+          }))
+        )();
   // Subject people come from the source owner's generation subject file when
   // it exists (drawn on the one-skin generation); otherwise from the legacy
   // published face and body pair.
-  const generationSubjects: ReturnType<typeof readHumanViewerGenerationSubjects> | null =
-    generation === null || "reason" in generation ||
+  const generationSubjects: ReturnType<
+    typeof readHumanViewerGenerationSubjects
+  > | null =
+    generation === null ||
+    "reason" in generation ||
     props.subjectPeopleFile === undefined ||
     !fs.existsSync(props.subjectPeopleFile)
       ? null
@@ -108,7 +120,11 @@ export function readHumanViewerCatalogue(
       ? { documents: [], rejected: generation === null ? [] : [generation] }
       : admitHumanViewerAuthoredEntries(
           [
-            ...readHumanViewerStandardBodies({ generation, sources, examples: props.bodyExamples }),
+            ...readHumanViewerStandardBodies({
+              generation,
+              sources,
+              examples: props.bodyExamples,
+            }),
             ...props.exampleSources.standardPeople({
               reference: faces.reference,
               generation,
@@ -116,7 +132,10 @@ export function readHumanViewerCatalogue(
               examples: props.bodyExamples,
             }),
             ...(generationSubjects?.documents ?? []),
-          ].filter((entry: IHumanViewerCatalogueEntry): boolean => props.selectedDoc === undefined || entry.id === props.selectedDoc),
+          ].filter(
+            (entry: IHumanViewerCatalogueEntry): boolean =>
+              props.selectedDoc === undefined || entry.id === props.selectedDoc,
+          ),
           admit,
         );
   if (generationSubjects !== null)
@@ -130,13 +149,16 @@ export function readHumanViewerCatalogue(
             read: (name: string): Buffer =>
               fs.readFileSync(path.join(props.inputsDirectory!, name)),
             stamp: (name: string): string => {
-              const stat: fs.Stats = fs.statSync(path.join(props.inputsDirectory!, name));
+              const stat: fs.Stats = fs.statSync(
+                path.join(props.inputsDirectory!, name),
+              );
               return `${stat.mtimeMs}:${stat.size}`;
             },
           },
           memo: props.inputsMemo,
           bases,
-          generation: generation === null || "reason" in generation ? null : generation,
+          generation:
+            generation === null || "reason" in generation ? null : generation,
           sources,
           sidecar: props.sidecar ?? ((): null => null),
           admission: admit,
@@ -150,6 +172,9 @@ export function readHumanViewerCatalogue(
       ...subjectPeople,
       ...authored.documents,
       ...inputs.documents,
-    ].filter((entry: IHumanViewerCatalogueEntry): boolean => props.selectedDoc === undefined || entry.id === props.selectedDoc),
+    ].filter(
+      (entry: IHumanViewerCatalogueEntry): boolean =>
+        props.selectedDoc === undefined || entry.id === props.selectedDoc,
+    ),
   };
 }

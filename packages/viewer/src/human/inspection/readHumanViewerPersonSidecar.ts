@@ -15,7 +15,8 @@ import { scanHumanViewerPacketIdentities } from "./scanHumanViewerPacketIdentiti
 export function readHumanViewerPersonSidecar(
   text: Buffer,
 ): IHumanViewerPersonSidecar {
-  const scanned: ReturnType<typeof scanHumanViewerPacketIdentities> = scanHumanViewerPacketIdentities(text);
+  const scanned: ReturnType<typeof scanHumanViewerPacketIdentities> =
+    scanHumanViewerPacketIdentities(text);
   const identity: (member: string) => string = (member: string): string => {
     const value: string | undefined = scanned.members[member];
     if (value === undefined || value === "")

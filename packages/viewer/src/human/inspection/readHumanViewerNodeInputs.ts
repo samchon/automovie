@@ -1,5 +1,6 @@
 import { createHash } from "node:crypto";
 import fs from "node:fs";
+
 import { readViewerMaintainedSourceFiles } from "../../inspection/readViewerMaintainedSourceFiles.js";
 
 /**
@@ -23,8 +24,12 @@ export function readHumanViewerNodeInputs(
     if (/\.(?:ts|mts|cts|js|mjs|cjs|json|glsl|wgsl)$/.test(file))
       selected.add(file);
   }
-  return Object.fromEntries([...selected].sort((a: string, b: string): number => a < b ? -1 : a > b ? 1 : 0).map((file: string): [string, string] => [
-    file,
-    createHash("sha256").update(fs.readFileSync(file)).digest("hex"),
-  ]));
+  return Object.fromEntries(
+    [...selected]
+      .sort((a: string, b: string): number => (a < b ? -1 : a > b ? 1 : 0))
+      .map((file: string): [string, string] => [
+        file,
+        createHash("sha256").update(fs.readFileSync(file)).digest("hex"),
+      ]),
+  );
 }

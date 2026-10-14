@@ -14,11 +14,12 @@ import { constants, gunzipSync } from "node:zlib";
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only the returned id survives and prefix buffers retain no file descriptor or numerical geometry.
  */
 export function readHumanViewerBasisIdentity(bytes: Uint8Array): string {
-  const id: RegExpExecArray | null = /^\s*\{\s*"id"\s*:\s*("(?:[^"\\]|\\.)*")/.exec(
-    gunzipSync(bytes.subarray(0, 8192), {
-      finishFlush: constants.Z_SYNC_FLUSH,
-    }).toString("utf8"),
-  );
+  const id: RegExpExecArray | null =
+    /^\s*\{\s*"id"\s*:\s*("(?:[^"\\]|\\.)*")/.exec(
+      gunzipSync(bytes.subarray(0, 8192), {
+        finishFlush: constants.Z_SYNC_FLUSH,
+      }).toString("utf8"),
+    );
   if (id === null) throw new Error("Basis does not open with an identity");
   return JSON.parse(id[1]!) as string;
 }

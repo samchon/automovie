@@ -1,4 +1,5 @@
 import { humanCaptureCameraPosition } from "@automovie/viewer/human/common/observation/humanCaptureCameraPosition";
+
 import type { IHumanViewerComposition } from "./IHumanViewerComposition.js";
 import type { IHumanViewerReferenceInfo } from "./IHumanViewerReferenceInfo.js";
 import type { IShowHumanViewerReferenceProps } from "./IShowHumanViewerReferenceProps.js";
@@ -20,21 +21,33 @@ import { planHumanViewerReference } from "./planHumanViewerReference.js";
 export async function showHumanViewerReference(
   props: IShowHumanViewerReferenceProps,
 ): Promise<IHumanViewerComposition | null> {
-  const { address, stage, display, canvas, reference }: IShowHumanViewerReferenceProps = props;
-  const response: Response = await fetch("/reference-info?" + new URLSearchParams({ doc: address.doc }));
+  const {
+    address,
+    stage,
+    display,
+    canvas,
+    reference,
+  }: IShowHumanViewerReferenceProps = props;
+  const response: Response = await fetch(
+    "/reference-info?" + new URLSearchParams({ doc: address.doc }),
+  );
   if (!response.ok) throw new Error(await response.text());
   const value: unknown = await response.json();
-  if (value === null || typeof value !== "object" || Array.isArray(value) ||
-      !("available" in value) || typeof value.available !== "boolean" ||
-      !("camera" in value) || (value.camera !== null && typeof value.camera !== "object") ||
-      !("landmarks" in value) || !Array.isArray(value.landmarks))
+  if (
+    value === null ||
+    typeof value !== "object" ||
+    Array.isArray(value) ||
+    !("available" in value) ||
+    typeof value.available !== "boolean" ||
+    !("camera" in value) ||
+    (value.camera !== null && typeof value.camera !== "object") ||
+    !("landmarks" in value) ||
+    !Array.isArray(value.landmarks)
+  )
     throw new Error("The server returned incompatible reference information.");
   const info: IHumanViewerReferenceInfo = value as IHumanViewerReferenceInfo;
-  const comparison: ReturnType<typeof planHumanViewerReference> = planHumanViewerReference(
-    info.available,
-    address.ref,
-    address.opacity,
-  );
+  const comparison: ReturnType<typeof planHumanViewerReference> =
+    planHumanViewerReference(info.available, address.ref, address.opacity);
   let composition: IHumanViewerComposition | null = null;
   reference.style.display = comparison.enabled ? "block" : "none";
   reference.style.clipPath = "";
@@ -71,17 +84,27 @@ export async function showHumanViewerReference(
   const shown: IHumanViewerComposition | null = composition;
   drawHumanViewerLandmarks(
     props.landmarks,
-    (): SVGCircleElement => document.createElementNS("http://www.w3.org/2000/svg", "circle"),
+    (): SVGCircleElement =>
+      document.createElementNS("http://www.w3.org/2000/svg", "circle"),
     shown === null || !address.landmarks
       ? null
-      : ((): { width: number; height: number; radius: number; markers: ReturnType<typeof layoutHumanViewerReference>["markers"] } => {
-          const layout: ReturnType<typeof layoutHumanViewerReference> = layoutHumanViewerReference(
-            shown.mode,
-            shown.size,
-            shown.opacity,
-            { width: reference.naturalWidth, height: reference.naturalHeight },
-            info.landmarks,
-          );
+      : ((): {
+          width: number;
+          height: number;
+          radius: number;
+          markers: ReturnType<typeof layoutHumanViewerReference>["markers"];
+        } => {
+          const layout: ReturnType<typeof layoutHumanViewerReference> =
+            layoutHumanViewerReference(
+              shown.mode,
+              shown.size,
+              shown.opacity,
+              {
+                width: reference.naturalWidth,
+                height: reference.naturalHeight,
+              },
+              info.landmarks,
+            );
           return {
             width: layout.width,
             height: layout.height,

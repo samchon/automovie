@@ -1,6 +1,6 @@
 import type { Browser, CDPSession } from "playwright";
-import { createAutoMovieResourceRetirement } from "../../createAutoMovieResourceRetirement.js";
 
+import { createAutoMovieResourceRetirement } from "../../createAutoMovieResourceRetirement.js";
 import type { IHumanViewerHeapUsage } from "./IHumanViewerHeapUsage.js";
 import type { IHumanViewerTargetDetached } from "./IHumanViewerTargetDetached.js";
 import type { IHumanViewerTargetEvent } from "./IHumanViewerTargetEvent.js";
@@ -27,9 +27,14 @@ export async function readHumanViewerWorkerHeaps(
   try {
     // Destruction events arrive only for discovered targets.
     await root.send("Target.setDiscoverTargets", { discover: true });
-    const { targetInfos }: { targetInfos: { type: string; targetId: string; url: string }[] } = await root.send("Target.getTargets");
+    const {
+      targetInfos,
+    }: { targetInfos: { type: string; targetId: string; url: string }[] } =
+      await root.send("Target.getTargets");
     const heaps: IHumanViewerWorkerHeap[] = [];
-    for (const target of targetInfos.filter((info: { type: string }): boolean => info.type === "worker")) {
+    for (const target of targetInfos.filter(
+      (info: { type: string }): boolean => info.type === "worker",
+    )) {
       // The whole read of one worker, attach included, ends when the worker
       // is destroyed: a worker torn down at a generation swap was seen to
       // leave even its attach unanswered (source's 5191, 11:56:05).
@@ -37,16 +42,25 @@ export async function readHumanViewerWorkerHeaps(
       let sessionId: string | undefined;
       let readingFailure: { error: unknown } | undefined;
       let cancel: () => void = (): void => {};
-      const lost: Promise<never> = new Promise<never>((_resolve: (value: never) => void, reject: (error: unknown) => void): void => {
-        const gone: (event: IHumanViewerTargetEvent) => void = (event: IHumanViewerTargetEvent): void => {
-          if (event.targetId !== target.targetId) return;
-          ended = true;
-          root.off("Target.targetDestroyed", gone);
-          reject(new Error("The worker ended while it was read"));
-        };
-        root.on("Target.targetDestroyed", gone);
-        cancel = (): void => { root.off("Target.targetDestroyed", gone); };
-      });
+      const lost: Promise<never> = new Promise<never>(
+        (
+          _resolve: (value: never) => void,
+          reject: (error: unknown) => void,
+        ): void => {
+          const gone: (event: IHumanViewerTargetEvent) => void = (
+            event: IHumanViewerTargetEvent,
+          ): void => {
+            if (event.targetId !== target.targetId) return;
+            ended = true;
+            root.off("Target.targetDestroyed", gone);
+            reject(new Error("The worker ended while it was read"));
+          };
+          root.on("Target.targetDestroyed", gone);
+          cancel = (): void => {
+            root.off("Target.targetDestroyed", gone);
+          };
+        },
+      );
       void lost.catch((): undefined => undefined);
       try {
         const attached: { sessionId: string } = await Promise.race([
@@ -58,67 +72,93 @@ export async function readHumanViewerWorkerHeaps(
         ]);
         sessionId = attached.sessionId;
         let next: number = 0;
-        const ask: <T>(method: string) => Promise<T> = <T>(method: string): Promise<T> => {
+        const ask: <T>(method: string) => Promise<T> = <T>(
+          method: string,
+        ): Promise<T> => {
           const id: number = ++next;
-          return new Promise<T>((resolve: (value: T) => void, reject: (error: unknown) => void): void => {
-            const done: () => void = (): void => {
-              root.off("Target.receivedMessageFromTarget", listen);
-              root.off("Target.detachedFromTarget", detached);
-              root.off("Target.targetDestroyed", destroyed);
-            };
-            const listen: (event: IHumanViewerTargetMessage) => void = (event: IHumanViewerTargetMessage): void => {
-              if (event.sessionId !== sessionId) return;
-              let reply: IHumanViewerWorkerReply<T>;
-              try {
-                const value: unknown = JSON.parse(event.message);
-                if (value === null || typeof value !== "object" || Array.isArray(value))
-                  throw new Error("The worker protocol reply is not an object.");
-                if ("error" in value && value.error !== undefined &&
-                    (value.error === null || typeof value.error !== "object" ||
-                     !("message" in value.error) || typeof value.error.message !== "string"))
-                  throw new Error("The worker protocol failure has no message.");
-                reply = value as IHumanViewerWorkerReply<T>;
-              } catch (error) {
+          return new Promise<T>(
+            (
+              resolve: (value: T) => void,
+              reject: (error: unknown) => void,
+            ): void => {
+              const done: () => void = (): void => {
+                root.off("Target.receivedMessageFromTarget", listen);
+                root.off("Target.detachedFromTarget", detached);
+                root.off("Target.targetDestroyed", destroyed);
+              };
+              const listen: (event: IHumanViewerTargetMessage) => void = (
+                event: IHumanViewerTargetMessage,
+              ): void => {
+                if (event.sessionId !== sessionId) return;
+                let reply: IHumanViewerWorkerReply<T>;
+                try {
+                  const value: unknown = JSON.parse(event.message);
+                  if (
+                    value === null ||
+                    typeof value !== "object" ||
+                    Array.isArray(value)
+                  )
+                    throw new Error(
+                      "The worker protocol reply is not an object.",
+                    );
+                  if (
+                    "error" in value &&
+                    value.error !== undefined &&
+                    (value.error === null ||
+                      typeof value.error !== "object" ||
+                      !("message" in value.error) ||
+                      typeof value.error.message !== "string")
+                  )
+                    throw new Error(
+                      "The worker protocol failure has no message.",
+                    );
+                  reply = value as IHumanViewerWorkerReply<T>;
+                } catch (error) {
+                  done();
+                  reject(error);
+                  return;
+                }
+                if (reply.id !== id) return;
                 done();
-                reject(error);
-                return;
-              }
-              if (reply.id !== id) return;
-              done();
-              if (reply.error !== undefined)
-                reject(new Error(reply.error.message));
-              else resolve(reply.result as T);
-            };
-            // A worker that ends while it is read (a generation swap removes
-            // the old frame and its worker) never answers: its detach or
-            // destruction ends the read instead of leaving it waiting forever.
-            const detached: (event: IHumanViewerTargetDetached) => void = (event: IHumanViewerTargetDetached): void => {
-              if (event.sessionId !== sessionId) return;
-              ended = true;
-              done();
-              reject(new Error("The worker detached while it was read"));
-            };
-            const destroyed: (event: IHumanViewerTargetEvent) => void = (event: IHumanViewerTargetEvent): void => {
-              if (event.targetId !== target.targetId) return;
-              ended = true;
-              done();
-              reject(new Error("The worker ended while it was read"));
-            };
-            root.on("Target.receivedMessageFromTarget", listen);
-            root.on("Target.detachedFromTarget", detached);
-            root.on("Target.targetDestroyed", destroyed);
-            void root
-              .send("Target.sendMessageToTarget", {
-                sessionId,
-                message: JSON.stringify({ id, method }),
-              })
-              .catch((error: unknown): void => {
+                if (reply.error !== undefined)
+                  reject(new Error(reply.error.message));
+                else resolve(reply.result as T);
+              };
+              // A worker that ends while it is read (a generation swap removes
+              // the old frame and its worker) never answers: its detach or
+              // destruction ends the read instead of leaving it waiting forever.
+              const detached: (event: IHumanViewerTargetDetached) => void = (
+                event: IHumanViewerTargetDetached,
+              ): void => {
+                if (event.sessionId !== sessionId) return;
+                ended = true;
                 done();
-                reject(
-                  error instanceof Error ? error : new Error(String(error)),
-                );
-              });
-          });
+                reject(new Error("The worker detached while it was read"));
+              };
+              const destroyed: (event: IHumanViewerTargetEvent) => void = (
+                event: IHumanViewerTargetEvent,
+              ): void => {
+                if (event.targetId !== target.targetId) return;
+                ended = true;
+                done();
+                reject(new Error("The worker ended while it was read"));
+              };
+              root.on("Target.receivedMessageFromTarget", listen);
+              root.on("Target.detachedFromTarget", detached);
+              root.on("Target.targetDestroyed", destroyed);
+              void root
+                .send("Target.sendMessageToTarget", {
+                  sessionId,
+                  message: JSON.stringify({ id, method }),
+                })
+                .catch((error: unknown): void => {
+                  done();
+                  reject(
+                    error instanceof Error ? error : new Error(String(error)),
+                  );
+                });
+            },
+          );
         };
         if (collect) await ask<object>("HeapProfiler.collectGarbage");
         heaps.push({
@@ -136,8 +176,10 @@ export async function readHumanViewerWorkerHeaps(
           const detach: () => Promise<void> = async (): Promise<void> => {
             await root.send("Target.detachFromTarget", { sessionId });
           };
-          if (readingFailure === undefined) await createAutoMovieResourceRetirement([detach])();
-          else await createAutoMovieResourceRetirement([detach], readingFailure)();
+          if (readingFailure === undefined)
+            await createAutoMovieResourceRetirement([detach])();
+          else
+            await createAutoMovieResourceRetirement([detach], readingFailure)();
         }
       }
     }
@@ -146,8 +188,11 @@ export async function readHumanViewerWorkerHeaps(
     primary = { error };
     throw error;
   } finally {
-    const detach: () => Promise<void> = async (): Promise<void> => { await root.detach(); };
-    if (primary === undefined) await createAutoMovieResourceRetirement([detach])();
+    const detach: () => Promise<void> = async (): Promise<void> => {
+      await root.detach();
+    };
+    if (primary === undefined)
+      await createAutoMovieResourceRetirement([detach])();
     else await createAutoMovieResourceRetirement([detach], primary)();
   }
 }

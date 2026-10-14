@@ -21,9 +21,15 @@ export function sendHumanViewerPng(
   for (const [name, value] of Object.entries(headers))
     response.setHeader(name, value);
   const source: fs.ReadStream = fs.createReadStream(file);
-  const close: () => void = (): void => { source.destroy(); };
+  const close: () => void = (): void => {
+    source.destroy();
+  };
   response.once("close", close);
-  source.once("close", (): void => { response.off("close", close); });
-  source.once("error", (error: Error): void => { response.destroy(error); });
+  source.once("close", (): void => {
+    response.off("close", close);
+  });
+  source.once("error", (error: Error): void => {
+    response.destroy(error);
+  });
   source.pipe(response);
 }

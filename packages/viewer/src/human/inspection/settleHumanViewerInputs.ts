@@ -17,7 +17,12 @@ export async function settleHumanViewerInputs<T>(
 ): Promise<T> {
   for (;;) {
     const value: T = read();
-    if (owners.every((owner: IHumanViewerSettleable): boolean => !owner.busy())) return value;
-    await Promise.all(owners.map((owner: IHumanViewerSettleable): Promise<void> => owner.settled()));
+    if (owners.every((owner: IHumanViewerSettleable): boolean => !owner.busy()))
+      return value;
+    await Promise.all(
+      owners.map(
+        (owner: IHumanViewerSettleable): Promise<void> => owner.settled(),
+      ),
+    );
   }
 }

@@ -24,10 +24,18 @@ export function stopHumanViewerServer(
   }
   if (probe.health === undefined)
     throw new Error("The port is busy; ownership cannot yet be verified");
-  const saved: ReturnType<typeof readHumanViewerRecord> = readHumanViewerRecord(context.record);
-  if (saved === null || saved.pid !== probe.health.pid || saved.port !== context.port)
+  const saved: ReturnType<typeof readHumanViewerRecord> = readHumanViewerRecord(
+    context.record,
+  );
+  if (
+    saved === null ||
+    saved.pid !== probe.health.pid ||
+    saved.port !== context.port
+  )
     throw new Error("The running server is not owned by this checkout");
   if (!saved.processStartedAt)
-    throw new Error("The process record lacks a creation identity; stop refused");
+    throw new Error(
+      "The process record lacks a creation identity; stop refused",
+    );
   killHumanViewerProcess(saved.pid, saved.processStartedAt);
 }

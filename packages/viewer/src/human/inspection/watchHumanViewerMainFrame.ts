@@ -17,5 +17,7 @@ export function watchHumanViewerMainFrame(
 ): () => void {
   const loaded: () => void = (): void => reloaded();
   page.on("domcontentloaded", loaded);
-  return (): void => { page.off("domcontentloaded", loaded); };
+  return (): void => {
+    page.off("domcontentloaded", loaded);
+  };
 }

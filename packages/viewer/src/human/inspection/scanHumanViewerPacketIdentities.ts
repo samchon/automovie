@@ -19,7 +19,9 @@ export function scanHumanViewerPacketIdentities(
   text: Buffer,
 ): IHumanViewerPacketIdentities {
   // The next position of each structural byte, advanced lazily.
-  const next: number[] = STRUCTURE.map((byte: number): number => text.indexOf(byte, 0));
+  const next: number[] = STRUCTURE.map((byte: number): number =>
+    text.indexOf(byte, 0),
+  );
   const nearest: (from: number) => number = (from: number): number => {
     let best: number = -1;
     for (let index: number = 0; index < STRUCTURE.length; ++index) {
@@ -44,7 +46,9 @@ export function scanHumanViewerPacketIdentities(
     throw new Error("A packet ends inside a string");
   };
   /** The first byte of the value whose key string ends at `end`. */
-  const opening: (end: number) => number | undefined = (end: number): number | undefined => {
+  const opening: (end: number) => number | undefined = (
+    end: number,
+  ): number | undefined => {
     let after: number = end + 1;
     while (after < text.length && text[after] !== 0x3a) ++after;
     ++after;
@@ -70,7 +74,9 @@ export function scanHumanViewerPacketIdentities(
     const byte: number = text[at]!;
     if (byte === QUOTE) {
       const end: number = close(at);
-      const value: string = JSON.parse(text.toString("utf8", at, end + 1)) as string;
+      const value: string = JSON.parse(
+        text.toString("utf8", at, end + 1),
+      ) as string;
       if (depth === 1) {
         if (key !== null && valueNext) {
           if (key === "id") identities.set("id", value);

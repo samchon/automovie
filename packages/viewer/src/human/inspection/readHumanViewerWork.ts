@@ -13,7 +13,9 @@ import type { HumanViewerWork } from "./HumanViewerWork.js";
  */
 export function readHumanViewerWork(text: string): HumanViewerWork | null {
   try {
-    const value: Partial<HumanViewerWork> | null = JSON.parse(text) as Partial<HumanViewerWork> | null;
+    const value: Partial<HumanViewerWork> | null = JSON.parse(
+      text,
+    ) as Partial<HumanViewerWork> | null;
     if (value === null || typeof value !== "object") return null;
     if (
       typeof value.revision !== "string" ||
@@ -22,7 +24,8 @@ export function readHumanViewerWork(text: string): HumanViewerWork | null {
     )
       return null;
     if (
-      typeof value.phase !== "string" || ![
+      typeof value.phase !== "string" ||
+      ![
         "loading",
         "cache-read",
         "build",

@@ -20,14 +20,24 @@ import { resolveHumanViewerReference } from "./resolveHumanViewerReference.js";
 export function serveHumanViewerReference(
   props: IServeHumanViewerReferenceProps,
 ): boolean {
-  const { url, response, cameraPosesFile, referenceDirectory: directory, json }: IServeHumanViewerReferenceProps = props;
+  const {
+    url,
+    response,
+    cameraPosesFile,
+    referenceDirectory: directory,
+    json,
+  }: IServeHumanViewerReferenceProps = props;
   if (
     url.pathname !== "/reference-info" &&
     url.pathname !== "/reference" &&
     url.pathname !== "/reference-index"
   )
     return false;
-  const resolve: (doc: string) => ReturnType<typeof resolveHumanViewerReference> = (doc: string): ReturnType<typeof resolveHumanViewerReference> =>
+  const resolve: (
+    doc: string,
+  ) => ReturnType<typeof resolveHumanViewerReference> = (
+    doc: string,
+  ): ReturnType<typeof resolveHumanViewerReference> =>
     resolveHumanViewerReference(doc, {
       list: (folder: "" | "body"): string[] => {
         const at: string = path.join(directory, folder);
@@ -54,11 +64,15 @@ export function serveHumanViewerReference(
     });
   if (url.pathname === "/reference-index") {
     json({
-      documents: props.documents.filter((doc: string): boolean => resolve(doc) !== null),
+      documents: props.documents.filter(
+        (doc: string): boolean => resolve(doc) !== null,
+      ),
     });
     return true;
   }
-  const reference: ReturnType<typeof resolve> = resolve(url.searchParams.get("doc") ?? "");
+  const reference: ReturnType<typeof resolve> = resolve(
+    url.searchParams.get("doc") ?? "",
+  );
   if (url.pathname === "/reference-info") {
     json({
       available: reference !== null,
@@ -85,10 +99,16 @@ export function serveHumanViewerReference(
   const stream: fs.ReadStream = fs.createReadStream(
     path.join(directory, reference.folder, reference.file),
   );
-  const closed: () => void = (): void => { stream.destroy(); };
+  const closed: () => void = (): void => {
+    stream.destroy();
+  };
   response.once("close", closed);
-  stream.once("close", (): void => { response.off("close", closed); });
-  stream.once("error", (error: Error): void => { response.destroy(error); });
+  stream.once("close", (): void => {
+    response.off("close", closed);
+  });
+  stream.once("error", (error: Error): void => {
+    response.destroy(error);
+  });
   stream.pipe(response);
   return true;
 }

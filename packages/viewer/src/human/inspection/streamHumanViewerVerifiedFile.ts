@@ -1,4 +1,4 @@
-import { createHash, type Hash } from "node:crypto";
+import { type Hash, createHash } from "node:crypto";
 import fs from "node:fs";
 import type { ServerResponse } from "node:http";
 
@@ -23,7 +23,10 @@ export function streamHumanViewerVerifiedFile(
   digest: string,
   label: string,
 ): void {
-  const answer: (status: number, error: string) => void = (status: number, error: string): void => {
+  const answer: (status: number, error: string) => void = (
+    status: number,
+    error: string,
+  ): void => {
     if (response.destroyed) return;
     response.statusCode = status;
     response.setHeader("Content-Type", "application/json");
@@ -34,24 +37,26 @@ export function streamHumanViewerVerifiedFile(
     const hasher: Hash = createHash("sha256");
     const chunks: Buffer[] = [];
     const stream: fs.ReadStream = fs.createReadStream(file);
-    const closed: () => void = (): void => { stream.destroy(); };
+    const closed: () => void = (): void => {
+      stream.destroy();
+    };
     response.once("close", closed);
     try {
-    for await (const chunk of stream) {
-      hasher.update(chunk as Buffer);
-      chunks.push(chunk as Buffer);
-    }
-    const actual: string = hasher.digest("hex");
-    if (response.destroyed) return;
-    if (!actual.startsWith(digest)) {
-      answer(
-        409,
-        `${label} changed: digest ${actual.slice(0, 12)}, requested ${digest}`,
-      );
-      return;
-    }
-    response.setHeader("Content-Type", "application/gzip");
-    response.end(Buffer.concat(chunks));
+      for await (const chunk of stream) {
+        hasher.update(chunk as Buffer);
+        chunks.push(chunk as Buffer);
+      }
+      const actual: string = hasher.digest("hex");
+      if (response.destroyed) return;
+      if (!actual.startsWith(digest)) {
+        answer(
+          409,
+          `${label} changed: digest ${actual.slice(0, 12)}, requested ${digest}`,
+        );
+        return;
+      }
+      response.setHeader("Content-Type", "application/gzip");
+      response.end(Buffer.concat(chunks));
     } finally {
       stream.destroy();
       chunks.length = 0;

@@ -17,10 +17,13 @@ export function serveHumanViewerDocs(
   if (props.url.pathname !== "/docs") return false;
   const selected: string | null = props.url.searchParams.get("doc");
   if (props.url.searchParams.get("settled") !== "1") {
-    props.json(selected === null ? props.inventory : props.readDocument(selected));
+    props.json(
+      selected === null ? props.inventory : props.readDocument(selected),
+    );
     return true;
   }
-  const settled: ReturnType<IServeHumanViewerDataProps["settleInputs"]> = selected === null ? props.settleInputs() : props.settleDocument(selected);
+  const settled: ReturnType<IServeHumanViewerDataProps["settleInputs"]> =
+    selected === null ? props.settleInputs() : props.settleDocument(selected);
   void settled
     .then((settled: IServeHumanViewerDataProps["inventory"]): void => {
       if (selected === null) props.publish(settled);

@@ -1,9 +1,9 @@
-import { spawn, type ChildProcess } from "node:child_process";
-import { createAutoMovieResourceRetirement } from "../../createAutoMovieResourceRetirement.js";
+import { type ChildProcess, spawn } from "node:child_process";
 import { randomUUID } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 
+import { createAutoMovieResourceRetirement } from "../../createAutoMovieResourceRetirement.js";
 import type { IHumanViewerCompileOutput } from "./IHumanViewerCompileOutput.js";
 import type { IHumanViewerCompiledPackage } from "./IHumanViewerCompiledPackage.js";
 import type { IRunHumanViewerCompileProps } from "./IRunHumanViewerCompileProps.js";
@@ -30,48 +30,58 @@ export async function runHumanViewerCompile(
   const began: number = performance.now();
   let primary: { error: unknown } | undefined;
   try {
-  console.log(`COMPILE start ${new Date().toISOString()}`);
-  await new Promise<undefined>((resolve: (value: undefined) => void, reject: (error: unknown) => void): void => {
-    const child: ChildProcess = spawn(
-      process.execPath,
-      [path.join(props.directory, "compile-human.ts"), props.human, output],
-      { windowsHide: true, stdio: "ignore" },
+    console.log(`COMPILE start ${new Date().toISOString()}`);
+    await new Promise<undefined>(
+      (
+        resolve: (value: undefined) => void,
+        reject: (error: unknown) => void,
+      ): void => {
+        const child: ChildProcess = spawn(
+          process.execPath,
+          [path.join(props.directory, "compile-human.ts"), props.human, output],
+          { windowsHide: true, stdio: "ignore" },
+        );
+        child.once("error", reject);
+        child.once("close", (code: number | null): void =>
+          code === 0
+            ? resolve(undefined)
+            : reject(new Error(`The human compile exited with ${code}`)),
+        );
+      },
     );
-    child.once("error", reject);
-    child.once("close", (code: number | null): void =>
-      code === 0
-        ? resolve(undefined)
-        : reject(new Error(`The human compile exited with ${code}`)),
-    );
-  });
-  const read: number = performance.now();
-  const result: IHumanViewerCompileOutput = JSON.parse(
-    await fs.promises.readFile(output, "utf8"),
-  ) as IHumanViewerCompileOutput;
-  const parseMs: number = performance.now() - read;
-  if (result.files === undefined) {
+    const read: number = performance.now();
+    const result: IHumanViewerCompileOutput = JSON.parse(
+      await fs.promises.readFile(output, "utf8"),
+    ) as IHumanViewerCompileOutput;
+    const parseMs: number = performance.now() - read;
+    if (result.files === undefined) {
+      console.log(
+        `COMPILE failed after ${Math.round(performance.now() - began)} ms: ${(result.error ?? "").slice(0, 300)}`,
+      );
+      throw new Error(result.error ?? "The human compile failed");
+    }
     console.log(
-      `COMPILE failed after ${Math.round(performance.now() - began)} ms: ${(result.error ?? "").slice(0, 300)}`,
+      `COMPILE done in ${Math.round(performance.now() - began)} ms, ${Object.keys(result.files).length} files (output read ${Math.round(parseMs)} ms)`,
     );
-    throw new Error(result.error ?? "The human compile failed");
-  }
-  console.log(
-    `COMPILE done in ${Math.round(performance.now() - began)} ms, ${Object.keys(result.files).length} files (output read ${Math.round(parseMs)} ms)`,
-  );
-  return {
-    files: result.files,
-    watch: result.watch ?? [],
-    inputs: result.inputs ?? [],
-  };
+    return {
+      files: result.files,
+      watch: result.watch ?? [],
+      inputs: result.inputs ?? [],
+    };
   } catch (error) {
     primary = { error };
     throw error;
   } finally {
     const operations: readonly (() => Promise<void>)[] = [
-      async (): Promise<void> => { await fs.promises.rm(output, { force: true }); },
-      async (): Promise<void> => { await fs.promises.rm(output + ".tmp", { force: true }); },
+      async (): Promise<void> => {
+        await fs.promises.rm(output, { force: true });
+      },
+      async (): Promise<void> => {
+        await fs.promises.rm(output + ".tmp", { force: true });
+      },
     ];
-    if (primary === undefined) await createAutoMovieResourceRetirement(operations)();
+    if (primary === undefined)
+      await createAutoMovieResourceRetirement(operations)();
     else await createAutoMovieResourceRetirement(operations, primary)();
   }
 }

@@ -39,16 +39,23 @@ export function queueHumanViewerRequest<Value>(
     },
   };
   return props.queue
-    .run(props.label, (): Promise<Value> => props.task(request), props.lane, controller.signal)
+    .run(
+      props.label,
+      (): Promise<Value> => props.task(request),
+      props.lane,
+      controller.signal,
+    )
     .catch((error: unknown): undefined => {
-      const message: string = error instanceof Error ? error.message : String(error);
+      const message: string =
+        error instanceof Error ? error.message : String(error);
       if (controller.signal.aborted || props.response.destroyed) {
         console.log(
           `REFUSED ${new Date().toISOString()} ${props.label} client gone: ${message.slice(0, 300)}`,
         );
         return undefined;
       }
-      const refusal: ReturnType<typeof classifyHumanViewerRefusal> = classifyHumanViewerRefusal(error);
+      const refusal: ReturnType<typeof classifyHumanViewerRefusal> =
+        classifyHumanViewerRefusal(error);
       // Every refusal is logged with its cause, so a failed request can be
       // traced afterwards like a served one.
       console.log(
@@ -65,5 +72,7 @@ export function queueHumanViewerRequest<Value>(
       );
       return undefined;
     })
-    .finally((): void => { props.response.off("close", close); });
+    .finally((): void => {
+      props.response.off("close", close);
+    });
 }

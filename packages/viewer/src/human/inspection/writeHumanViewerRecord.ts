@@ -1,7 +1,6 @@
 import fs from "node:fs";
 
 import { ProcessOwnership } from "../../process/ProcessOwnership.js";
-
 import type { IHumanViewerRecord } from "./IHumanViewerRecord.js";
 
 /**
@@ -16,7 +15,8 @@ import type { IHumanViewerRecord } from "./IHumanViewerRecord.js";
  * @evidence contracts/performance.md#bound-retention-and-release-resources The synchronous record write leaves no retained file handle; server/launcher ownership decides record lifetime and safe removal.
  */
 export function writeHumanViewerRecord(file: string, port: number): void {
-  const processStartedAt: ReturnType<typeof ProcessOwnership.read> = ProcessOwnership.read(process.pid);
+  const processStartedAt: ReturnType<typeof ProcessOwnership.read> =
+    ProcessOwnership.read(process.pid);
   if (processStartedAt === null)
     throw new Error("Could not establish this viewer's process identity");
   const record: IHumanViewerRecord = {

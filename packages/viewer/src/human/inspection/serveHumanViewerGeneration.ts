@@ -1,5 +1,5 @@
-import type { IServeHumanViewerGenerationProps } from "./IServeHumanViewerGenerationProps.js";
 import { reportAutoMovieResourceRetirement } from "../../reportAutoMovieResourceRetirement.js";
+import type { IServeHumanViewerGenerationProps } from "./IServeHumanViewerGenerationProps.js";
 
 /**
  * Answer the candidate window routes. `/generation/hold` opens a window, sends its token in `X-Human-Generation` and keeps the response open: the window closes when the client ends the request, so a tab closed or a page reloaded mid-load releases its hold without any timer. `/generation/label` answers a token's label once its window is closed (`{ label }`, null when the candidate's code is not a proven revision). Returns whether the path was one of them.
@@ -15,7 +15,10 @@ import { reportAutoMovieResourceRetirement } from "../../reportAutoMovieResource
 export function serveHumanViewerGeneration(
   props: IServeHumanViewerGenerationProps,
 ): boolean {
-  const { url, response }: Pick<IServeHumanViewerGenerationProps, "url" | "response"> = props;
+  const {
+    url,
+    response,
+  }: Pick<IServeHumanViewerGenerationProps, "url" | "response"> = props;
   if (url.pathname === "/generation/hold") {
     const token: string = props.windows.open();
     // The response closes when the client ends the request or its connection
@@ -24,12 +27,12 @@ export function serveHumanViewerGeneration(
     const closed: () => void = (): void => props.windows.close(token);
     response.once("close", closed);
     try {
-    response.statusCode = 200;
-    response.setHeader("X-Human-Generation", token);
-    response.setHeader("Content-Type", "text/plain");
-    response.setHeader("Cache-Control", "no-store");
-    response.flushHeaders();
-    response.write("held\n");
+      response.statusCode = 200;
+      response.setHeader("X-Human-Generation", token);
+      response.setHeader("Content-Type", "text/plain");
+      response.setHeader("Cache-Control", "no-store");
+      response.flushHeaders();
+      response.write("held\n");
     } catch (error) {
       response.off("close", closed);
       reportAutoMovieResourceRetirement([closed], { error });
@@ -37,17 +40,22 @@ export function serveHumanViewerGeneration(
     return true;
   }
   if (url.pathname === "/generation/label") {
-    void props.windows.label(url.searchParams.get("token")).then((label: string | null | undefined): void => {
-      if (label === undefined) {
-        response.statusCode = 404;
-        props.json({ error: "Unknown generation token" });
-        return;
-      }
-      props.json({ label });
-    }).catch((error: unknown): void => {
-      response.statusCode = 503;
-      props.json({ error: error instanceof Error ? error.message : String(error) });
-    });
+    void props.windows
+      .label(url.searchParams.get("token"))
+      .then((label: string | null | undefined): void => {
+        if (label === undefined) {
+          response.statusCode = 404;
+          props.json({ error: "Unknown generation token" });
+          return;
+        }
+        props.json({ label });
+      })
+      .catch((error: unknown): void => {
+        response.statusCode = 503;
+        props.json({
+          error: error instanceof Error ? error.message : String(error),
+        });
+      });
     return true;
   }
   return false;

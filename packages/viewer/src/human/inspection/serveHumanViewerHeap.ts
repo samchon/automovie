@@ -13,16 +13,22 @@ import type { IServeHumanViewerHeapProps } from "./IServeHumanViewerHeapProps.js
  */
 export function serveHumanViewerHeap(props: IServeHumanViewerHeapProps): void {
   void Promise.all([props.readLiveHeap(), props.readWorkerHeaps()])
-    .then(([live, workers]: [Awaited<ReturnType<IServeHumanViewerHeapProps["readLiveHeap"]>>, Awaited<ReturnType<IServeHumanViewerHeapProps["readWorkerHeaps"]>>]): void => {
-      const work: ReturnType<IServeHumanViewerHeapProps["work"]> = props.work();
-      props.json({
-        live,
-        workers,
-        residents: work?.residents ?? null,
-        residentBytes: work?.residentBytes ?? null,
-        revision: props.readyRevision(),
-      });
-    })
+    .then(
+      ([live, workers]: [
+        Awaited<ReturnType<IServeHumanViewerHeapProps["readLiveHeap"]>>,
+        Awaited<ReturnType<IServeHumanViewerHeapProps["readWorkerHeaps"]>>,
+      ]): void => {
+        const work: ReturnType<IServeHumanViewerHeapProps["work"]> =
+          props.work();
+        props.json({
+          live,
+          workers,
+          residents: work?.residents ?? null,
+          residentBytes: work?.residentBytes ?? null,
+          revision: props.readyRevision(),
+        });
+      },
+    )
     .catch((error: unknown): void => {
       props.response.statusCode = 503;
       props.json({

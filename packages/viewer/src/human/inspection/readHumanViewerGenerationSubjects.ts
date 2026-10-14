@@ -1,11 +1,11 @@
 import type { IHumanViewerCatalogueEntry } from "./IHumanViewerCatalogueEntry.js";
 import type { IHumanViewerGenerationSubjectsFile } from "./IHumanViewerGenerationSubjectsFile.js";
 import type { IHumanViewerInputs } from "./IHumanViewerInputs.js";
+import type { IHumanViewerPersonBases } from "./IHumanViewerPersonBases.js";
 import type { IReadHumanViewerGenerationSubjectsProps } from "./IReadHumanViewerGenerationSubjectsProps.js";
 import { humanViewerPersonKey } from "./humanViewerPersonKey.js";
 import { humanViewerPublishedGenerationBasis } from "./humanViewerPublishedGenerationBasis.js";
 import { readHumanViewerPersonBases } from "./readHumanViewerPersonBases.js";
-import type { IHumanViewerPersonBases } from "./IHumanViewerPersonBases.js";
 
 /**
  * The published subjects as whole people on the one-skin generation, `person:<subject>`, from the source owner's subject people file. Each person must name both of the published generation's view bases; one that names others (the file belongs to a generation not yet or no longer tracked) is refused by name with both identities, never drawn on another generation. Entries take the standard people's token and key, so they follow the view files' bytes. They are returned for admission like the other documents the viewer serves.
@@ -36,9 +36,14 @@ export function readHumanViewerGenerationSubjects(
     });
     return result;
   }
-  const { generation }: Pick<IReadHumanViewerGenerationSubjectsProps, "generation"> = props;
+  const {
+    generation,
+  }: Pick<IReadHumanViewerGenerationSubjectsProps, "generation"> = props;
   for (const document of parsed.people) {
-    const id: unknown = typeof document === "object" && document !== null && "id" in document ? document.id : undefined;
+    const id: unknown =
+      typeof document === "object" && document !== null && "id" in document
+        ? document.id
+        : undefined;
     if (typeof id !== "string" || !id.startsWith("person:")) {
       result.rejected.push({
         file: props.file,

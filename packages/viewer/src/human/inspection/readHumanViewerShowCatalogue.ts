@@ -16,19 +16,40 @@ export async function readHumanViewerShowCatalogue(
   loadedRevision: string,
 ): Promise<HumanViewerCatalogue> {
   async function read(settled: boolean): Promise<HumanViewerCatalogue> {
-    const response: Response = await fetch("/docs?" + (settled ? "settled=1&" : "") + "doc=" + encodeURIComponent(doc));
+    const response: Response = await fetch(
+      "/docs?" +
+        (settled ? "settled=1&" : "") +
+        "doc=" +
+        encodeURIComponent(doc),
+    );
     if (!response.ok) throw new Error(await response.text());
     const value: unknown = await response.json();
-    if (value === null || typeof value !== "object" || !("revision" in value) || typeof value.revision !== "string" ||
-        !("documents" in value) || !Array.isArray(value.documents) || !("rejected" in value) || !Array.isArray(value.rejected))
-      throw new Error("The server returned an incompatible document catalogue.");
+    if (
+      value === null ||
+      typeof value !== "object" ||
+      !("revision" in value) ||
+      typeof value.revision !== "string" ||
+      !("documents" in value) ||
+      !Array.isArray(value.documents) ||
+      !("rejected" in value) ||
+      !Array.isArray(value.rejected)
+    )
+      throw new Error(
+        "The server returned an incompatible document catalogue.",
+      );
     return value as HumanViewerCatalogue;
   }
   const published: HumanViewerCatalogue = await read(false);
   if (
     published.revision !== loadedRevision ||
-    published.documents.some((entry: HumanViewerCatalogue["documents"][number]): boolean => entry.id === doc) ||
-    !published.rejected.some((entry: HumanViewerCatalogue["rejected"][number]): boolean => entry.pending)
+    published.documents.some(
+      (entry: HumanViewerCatalogue["documents"][number]): boolean =>
+        entry.id === doc,
+    ) ||
+    !published.rejected.some(
+      (entry: HumanViewerCatalogue["rejected"][number]): boolean =>
+        entry.pending,
+    )
   )
     return published;
   return read(true);

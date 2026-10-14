@@ -1,7 +1,16 @@
 import type { IHumanViewerResolveIo } from "./IHumanViewerResolveIo.js";
 import type { IHumanViewerRevisionReadIo } from "./IHumanViewerRevisionReadIo.js";
 
-const SOURCE: readonly string[] = [".ts", ".mts", ".cts", ".tsx", ".js", ".mjs", ".json", ".wasm"];
+const SOURCE: readonly string[] = [
+  ".ts",
+  ".mts",
+  ".cts",
+  ".tsx",
+  ".js",
+  ".mjs",
+  ".json",
+  ".wasm",
+];
 
 /**
  * Resolve a supported relative or workspace import, returning null for registry packages, Node built-ins and unavailable targets. The supplied filesystem owner enforces physical checkout containment; an escaping relative path or symlink can throw rather than returning null.
@@ -19,18 +28,31 @@ const SOURCE: readonly string[] = [".ts", ".mts", ".cts", ".tsx", ".js", ".mjs",
 export function resolveHumanViewerImport(
   specifier: string,
   from: string,
-  props: { root: string; io: IHumanViewerResolveIo & IHumanViewerRevisionReadIo },
+  props: {
+    root: string;
+    io: IHumanViewerResolveIo & IHumanViewerRevisionReadIo;
+  },
 ): string | null {
-  const stem: (base: string) => string | null = (base: string): string | null => {
+  const stem: (base: string) => string | null = (
+    base: string,
+  ): string | null => {
     const written: string = base.replace(/\.(mjs|cjs|js)$/, "");
-    const emitted: string[] = base.endsWith(".mjs") ? [".mts"] : base.endsWith(".cjs") ? [".cts"] : [".ts", ".tsx"];
+    const emitted: string[] = base.endsWith(".mjs")
+      ? [".mts"]
+      : base.endsWith(".cjs")
+        ? [".cts"]
+        : [".ts", ".tsx"];
     const forms: string[] = [
       base,
-      ...(written === base ? SOURCE.map((extension: string): string => base + extension) : []),
+      ...(written === base
+        ? SOURCE.map((extension: string): string => base + extension)
+        : []),
       ...(written === base
         ? []
         : emitted.map((extension: string): string => written + extension)),
-      ...(written === base ? SOURCE.map((extension: string): string => `${base}/index${extension}`) : []),
+      ...(written === base
+        ? SOURCE.map((extension: string): string => `${base}/index${extension}`)
+        : []),
     ];
     return forms.find((form: string): boolean => props.io.exists(form)) ?? null;
   };
@@ -42,7 +64,8 @@ export function resolveHumanViewerImport(
     }
     return stem(parts.join("/"));
   }
-  const workspace: RegExpExecArray | null = /^@automovie\/([^/]+)(?:\/(.+))?$/.exec(specifier);
+  const workspace: RegExpExecArray | null =
+    /^@automovie\/([^/]+)(?:\/(.+))?$/.exec(specifier);
   if (workspace === null) return null;
   const base: string = `${props.root}/packages/${workspace[1]}`;
   const manifestFile: string = `${base}/package.json`;
@@ -50,14 +73,24 @@ export function resolveHumanViewerImport(
   const text: string | undefined = props.io.read(manifestFile);
   if (text === undefined) return null;
   let manifest: Record<string, unknown>;
-  try { manifest = JSON.parse(text) as Record<string, unknown>; }
-  catch { return null; }
+  try {
+    manifest = JSON.parse(text) as Record<string, unknown>;
+  } catch {
+    return null;
+  }
   const key: string = workspace[2] === undefined ? "." : `./${workspace[2]}`;
-  const choose: (value: unknown) => string | null | undefined = (value: unknown): string | null | undefined => {
+  const choose: (value: unknown) => string | null | undefined = (
+    value: unknown,
+  ): string | null | undefined => {
     if (typeof value === "string") return value;
-    if (value === null || typeof value !== "object" || Array.isArray(value)) return null;
+    if (value === null || typeof value !== "object" || Array.isArray(value))
+      return null;
     for (const [condition, target] of Object.entries(value))
-      if (condition === "node" || condition === "import" || condition === "default") {
+      if (
+        condition === "node" ||
+        condition === "import" ||
+        condition === "default"
+      ) {
         const selected: string | null | undefined = choose(target);
         if (selected !== undefined) return selected;
       }
@@ -66,30 +99,59 @@ export function resolveHumanViewerImport(
   let target: string | null;
   if (manifest.exports === undefined) {
     if (key !== "." || typeof manifest.main !== "string") return null;
-    target = manifest.main.startsWith("./") ? manifest.main : "./" + manifest.main;
+    target = manifest.main.startsWith("./")
+      ? manifest.main
+      : "./" + manifest.main;
   } else {
     const exports: unknown = manifest.exports;
-    if (exports !== null && typeof exports === "object" && !Array.isArray(exports) &&
-        Object.keys(exports).some((name: string): boolean => name.startsWith("."))) {
-      const entries: Record<string, unknown> = exports as Record<string, unknown>;
+    if (
+      exports !== null &&
+      typeof exports === "object" &&
+      !Array.isArray(exports) &&
+      Object.keys(exports).some((name: string): boolean => name.startsWith("."))
+    ) {
+      const entries: Record<string, unknown> = exports as Record<
+        string,
+        unknown
+      >;
       if (Object.hasOwn(entries, key)) target = choose(entries[key]) ?? null;
       else {
-        const pattern: string | undefined = Object.keys(entries).filter((name: string): boolean => {
-          const star: number = name.indexOf("*");
-          return star !== -1 && key.startsWith(name.slice(0, star)) &&
-            key.endsWith(name.slice(star + 1)) && key.length >= name.length - 1;
-        }).sort((left: string, right: string): number => right.indexOf("*") - left.indexOf("*") || right.length - left.length)[0];
+        const pattern: string | undefined = Object.keys(entries)
+          .filter((name: string): boolean => {
+            const star: number = name.indexOf("*");
+            return (
+              star !== -1 &&
+              key.startsWith(name.slice(0, star)) &&
+              key.endsWith(name.slice(star + 1)) &&
+              key.length >= name.length - 1
+            );
+          })
+          .sort(
+            (left: string, right: string): number =>
+              right.indexOf("*") - left.indexOf("*") ||
+              right.length - left.length,
+          )[0];
         if (pattern === undefined) return null;
         const star: number = pattern.indexOf("*");
-        const matched: string = key.slice(star, key.length - (pattern.length - star - 1));
+        const matched: string = key.slice(
+          star,
+          key.length - (pattern.length - star - 1),
+        );
         target = choose(entries[pattern]) ?? null;
         if (target !== null) target = target.replaceAll("*", matched);
       }
-    } else target = key === "." ? choose(exports) ?? null : null;
+    } else target = key === "." ? (choose(exports) ?? null) : null;
   }
-  if (target === null || !target.startsWith("./") || target.includes("\\")) return null;
+  if (target === null || !target.startsWith("./") || target.includes("\\"))
+    return null;
   const segments: string[] = target.slice(2).split("/");
-  if (segments.some((segment: string): boolean => segment === "." || segment === ".." || segment === "node_modules")) return null;
+  if (
+    segments.some(
+      (segment: string): boolean =>
+        segment === "." || segment === ".." || segment === "node_modules",
+    )
+  )
+    return null;
   const selected: string = `${base}/${target.slice(2)}`;
   return props.io.exists(selected) ? selected : null;
 }

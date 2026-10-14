@@ -18,28 +18,39 @@ import { humanViewerPublishedGenerationBasis } from "./humanViewerPublishedGener
 export function readHumanViewerStandardBodies(
   props: IReadHumanViewerStandardBodiesProps,
 ): IHumanViewerCatalogueEntry[] {
-  const { generation }: Pick<IReadHumanViewerStandardBodiesProps, "generation"> = props;
-  return Object.entries(props.examples).map(([name, state]: [string, IReadHumanViewerStandardBodiesProps["examples"][string]]): IHumanViewerCatalogueEntry => {
-    const document: { id: string; name: string; basis: string } & IReadHumanViewerStandardBodiesProps["examples"][string] = {
-      id: "body:" + name,
-      name,
-      basis: generation.body,
-      ...state,
-    };
-    return {
-      id: document.id,
-      domain: "body" as const,
-      document,
-      basis: humanViewerPublishedGenerationBasis(generation),
-      key: createHash("sha256")
-        .update(
-          JSON.stringify(document) +
-            generation.headDigest +
-            generation.bodyDigest +
-            props.sources.body +
-            props.sources.person,
-        )
-        .digest("hex"),
-    };
-  });
+  const {
+    generation,
+  }: Pick<IReadHumanViewerStandardBodiesProps, "generation"> = props;
+  return Object.entries(props.examples).map(
+    ([name, state]: [
+      string,
+      IReadHumanViewerStandardBodiesProps["examples"][string],
+    ]): IHumanViewerCatalogueEntry => {
+      const document: {
+        id: string;
+        name: string;
+        basis: string;
+      } & IReadHumanViewerStandardBodiesProps["examples"][string] = {
+        id: "body:" + name,
+        name,
+        basis: generation.body,
+        ...state,
+      };
+      return {
+        id: document.id,
+        domain: "body" as const,
+        document,
+        basis: humanViewerPublishedGenerationBasis(generation),
+        key: createHash("sha256")
+          .update(
+            JSON.stringify(document) +
+              generation.headDigest +
+              generation.bodyDigest +
+              props.sources.body +
+              props.sources.person,
+          )
+          .digest("hex"),
+      };
+    },
+  );
 }

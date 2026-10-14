@@ -18,7 +18,8 @@ export function resolveHumanViewerPose(
   poses: Record<string, IHumanCaptureCameraPose | null>,
   subject: string,
 ): string {
-  const pose: ReturnType<typeof admitHumanCaptureCameraPose> = admitHumanCaptureCameraPose(poses, subject);
+  const pose: ReturnType<typeof admitHumanCaptureCameraPose> =
+    admitHumanCaptureCameraPose(poses, subject);
   const target: readonly [number, number, number] = pose.target ?? [0, 0, 0.06];
   return [
     pose.yaw,

@@ -16,11 +16,28 @@ import type { IHumanViewerRecord } from "./IHumanViewerRecord.js";
 export function readHumanViewerRecord(file: string): IHumanViewerRecord | null {
   if (!fs.existsSync(file)) return null;
   const value: unknown = JSON.parse(fs.readFileSync(file, "utf8"));
-  if (value === null || typeof value !== "object" || Array.isArray(value) ||
-      !("pid" in value) || typeof value.pid !== "number" || !Number.isSafeInteger(value.pid) || value.pid <= 0 ||
-      !("port" in value) || typeof value.port !== "number" || !Number.isInteger(value.port) || value.port < 1024 || value.port > 65535 ||
-      !("startedAt" in value) || typeof value.startedAt !== "string" || value.startedAt === "" ||
-      ("processStartedAt" in value && (typeof value.processStartedAt !== "string" || value.processStartedAt === "")))
-    throw new Error("The viewer process record has malformed ownership fields.");
+  if (
+    value === null ||
+    typeof value !== "object" ||
+    Array.isArray(value) ||
+    !("pid" in value) ||
+    typeof value.pid !== "number" ||
+    !Number.isSafeInteger(value.pid) ||
+    value.pid <= 0 ||
+    !("port" in value) ||
+    typeof value.port !== "number" ||
+    !Number.isInteger(value.port) ||
+    value.port < 1024 ||
+    value.port > 65535 ||
+    !("startedAt" in value) ||
+    typeof value.startedAt !== "string" ||
+    value.startedAt === "" ||
+    ("processStartedAt" in value &&
+      (typeof value.processStartedAt !== "string" ||
+        value.processStartedAt === ""))
+  )
+    throw new Error(
+      "The viewer process record has malformed ownership fields.",
+    );
   return value as IHumanViewerRecord;
 }

@@ -1,6 +1,7 @@
+import { randomUUID } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
-import { randomUUID } from "node:crypto";
+
 import { createAutoMovieResourceRetirement } from "../../createAutoMovieResourceRetirement.js";
 
 /**
@@ -28,8 +29,11 @@ export async function writeHumanViewerThumbnail(
     primary = { error };
     throw error;
   } finally {
-    const remove: () => Promise<void> = async (): Promise<void> => { await fs.promises.rm(temporary, { force: true }); };
-    if (primary === undefined) await createAutoMovieResourceRetirement([remove])();
+    const remove: () => Promise<void> = async (): Promise<void> => {
+      await fs.promises.rm(temporary, { force: true });
+    };
+    if (primary === undefined)
+      await createAutoMovieResourceRetirement([remove])();
     else await createAutoMovieResourceRetirement([remove], primary)();
   }
 }

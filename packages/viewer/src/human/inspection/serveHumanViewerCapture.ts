@@ -10,12 +10,12 @@ import path from "node:path";
 import { PNG } from "pngjs";
 
 import type { HumanViewerAddress } from "./HumanViewerAddress.js";
+import type { HumanViewerHandle } from "./HumanViewerHandle.js";
 import type { HumanViewerLane } from "./HumanViewerLane.js";
 import type { IHumanViewerConstructionPartsResponse } from "./IHumanViewerConstructionPartsResponse.js";
 import type { IHumanViewerConstructionReadout } from "./IHumanViewerConstructionReadout.js";
 import type { IHumanViewerConstructionTransfer } from "./IHumanViewerConstructionTransfer.js";
 import type { IHumanViewerQueuedRequest } from "./IHumanViewerQueuedRequest.js";
-import type { HumanViewerHandle } from "./HumanViewerHandle.js";
 import type { IHumanViewerWindow } from "./IHumanViewerWindow.js";
 import type { IServeHumanViewerCaptureProps } from "./IServeHumanViewerCaptureProps.js";
 import { applyHumanViewerPose } from "./applyHumanViewerPose.js";
@@ -32,7 +32,14 @@ import { sendHumanViewerPng } from "./sendHumanViewerPng.js";
 import { serializeHumanViewerAddress } from "./serializeHumanViewerAddress.js";
 import { writeHumanViewerThumbnail } from "./writeHumanViewerThumbnail.js";
 
-const ROUTES: readonly string[] = ["/render", "/parts", "/sheet", "/compare", "/warm", "/export-construction"];
+const ROUTES: readonly string[] = [
+  "/render",
+  "/parts",
+  "/sheet",
+  "/compare",
+  "/warm",
+  "/export-construction",
+];
 
 /**
  * Answer one GPU route, or return false when the path is not one. A bulk `/render` is served from the thumbnail store when the current revision has drawn it, else from the last good thumbnail marked stale, else drawn. A drawn response names its revision, whether that revision is stale, the renderer, the pass's reading limit, its queue position and wait, and whether the model was cached or built. A frame whose generation changed while it was drawn is refused, never answered as current. `/export-construction` encodes the displayed paired Person through its product viewport and returns binary GLB with the original admission headers. The full admission remains available from `/parts` on the same construction; exporting a refused draft never turns it into an admitted preview.
@@ -48,7 +55,11 @@ const ROUTES: readonly string[] = ["/render", "/parts", "/sheet", "/compare", "/
 export function serveHumanViewerCapture(
   props: IServeHumanViewerCaptureProps,
 ): boolean {
-  const { url, response, json }: Pick<IServeHumanViewerCaptureProps, "url" | "response" | "json"> = props;
+  const {
+    url,
+    response,
+    json,
+  }: Pick<IServeHumanViewerCaptureProps, "url" | "response" | "json"> = props;
   if (!ROUTES.includes(url.pathname)) return false;
   const start: number = performance.now();
   const lane: string =
@@ -58,11 +69,19 @@ export function serveHumanViewerCapture(
     json({ error: "lane must be ui, cli or bulk" });
     return true;
   }
-  const wanted: string[] = [url.searchParams.get("doc"), url.searchParams.get("against")]
-    .filter((doc: string | null): doc is string => doc !== null);
+  const wanted: string[] = [
+    url.searchParams.get("doc"),
+    url.searchParams.get("against"),
+  ].filter((doc: string | null): doc is string => doc !== null);
   if (props.settleDocument !== undefined && wanted.length !== 0) {
-    const settleDocument: NonNullable<IServeHumanViewerCaptureProps["settleDocument"]> = props.settleDocument;
-    void Promise.all([...new Set(wanted)].map((doc: string): ReturnType<typeof settleDocument> => settleDocument(doc)))
+    const settleDocument: NonNullable<
+      IServeHumanViewerCaptureProps["settleDocument"]
+    > = props.settleDocument;
+    void Promise.all(
+      [...new Set(wanted)].map(
+        (doc: string): ReturnType<typeof settleDocument> => settleDocument(doc),
+      ),
+    )
       .then((): boolean => dispatchHumanViewerCapture(props, start, lane))
       .catch((error: unknown): void => {
         response.statusCode = 503;
@@ -79,21 +98,31 @@ function dispatchHumanViewerCapture(
   start: number,
   lane: HumanViewerLane,
 ): boolean {
-  const { url, response, json }: Pick<IServeHumanViewerCaptureProps, "url" | "response" | "json"> = props;
-  const inventory: ReturnType<IServeHumanViewerCaptureProps["inventory"]> = props.inventory();
+  const {
+    url,
+    response,
+    json,
+  }: Pick<IServeHumanViewerCaptureProps, "url" | "response" | "json"> = props;
+  const inventory: ReturnType<IServeHumanViewerCaptureProps["inventory"]> =
+    props.inventory();
   // A misspelled document fails here, not after a wait in the queue.
   for (const name of ["doc", "against"]) {
     const wanted: string | null = url.searchParams.get(name);
     if (
       wanted !== null &&
       url.searchParams.get("axes") === null &&
-      !inventory.documents.some((entry: (typeof inventory.documents)[number]): boolean => entry.id === wanted)
+      !inventory.documents.some(
+        (entry: (typeof inventory.documents)[number]): boolean =>
+          entry.id === wanted,
+      )
     ) {
       // A document awaiting admission (its key moved with the source) is
       // not unknown: it comes back once a page on the current code judges it.
-      const pending: (typeof inventory.rejected)[number] | undefined = inventory.rejected.find(
-        (entry: (typeof inventory.rejected)[number]): boolean | undefined => entry.pending && entry.id === wanted,
-      );
+      const pending: (typeof inventory.rejected)[number] | undefined =
+        inventory.rejected.find(
+          (entry: (typeof inventory.rejected)[number]): boolean | undefined =>
+            entry.pending && entry.id === wanted,
+        );
       if (pending !== undefined) {
         response.statusCode = 503;
         response.setHeader("Retry-After", "3");
@@ -109,10 +138,18 @@ function dispatchHumanViewerCapture(
       return true;
     }
   }
-  if (url.pathname === "/export-construction" &&
-      !inventory.documents.some((entry: (typeof inventory.documents)[number]): boolean => entry.id === url.searchParams.get("doc") && entry.domain === "person")) {
+  if (
+    url.pathname === "/export-construction" &&
+    !inventory.documents.some(
+      (entry: (typeof inventory.documents)[number]): boolean =>
+        entry.id === url.searchParams.get("doc") && entry.domain === "person",
+    )
+  ) {
     response.statusCode = 422;
-    json({ error: "Construction export requires a registered paired Person document." });
+    json({
+      error:
+        "Construction export requires a registered paired Person document.",
+    });
     return true;
   }
   if (url.pathname === "/render" && lane === "bulk") {
@@ -147,7 +184,11 @@ function dispatchHumanViewerCapture(
     task: (request: IHumanViewerQueuedRequest): Promise<void> =>
       retryAcrossHumanViewerGeneration(
         async (): Promise<void> => {
-          const requestCapture: (address: HumanViewerAddress) => Promise<Buffer> = (address: HumanViewerAddress): Promise<Buffer> =>
+          const requestCapture: (
+            address: HumanViewerAddress,
+          ) => Promise<Buffer> = (
+            address: HumanViewerAddress,
+          ): Promise<Buffer> =>
             request.run((): Promise<Buffer> => props.capture.capture(address));
           const queued: number = performance.now() - received;
           // A request that meets a rebuild waits for the settled generation
@@ -160,9 +201,12 @@ function dispatchHumanViewerCapture(
             await request.run((): Promise<void> => props.settle());
             settledMs += performance.now() - began;
           }
-          const current: ReturnType<IServeHumanViewerCaptureProps["inventory"]> = props.inventory();
+          const current: ReturnType<
+            IServeHumanViewerCaptureProps["inventory"]
+          > = props.inventory();
           const fields: URLSearchParams = new URLSearchParams(url.search);
-          if (url.pathname === "/export-construction") fields.set("operation", "construct");
+          if (url.pathname === "/export-construction")
+            fields.set("operation", "construct");
           fields.delete("lane");
           const axes: string | null = fields.get("axes");
           fields.delete("axes");
@@ -172,37 +216,44 @@ function dispatchHumanViewerCapture(
             fields.set("size", "320");
           applyHumanViewerPose(fields, (file: string): string =>
             fs.readFileSync(
-              path.join(
-                props.cameraPosesDirectory,
-                file + ".json",
-              ),
+              path.join(props.cameraPosesDirectory, file + ".json"),
               "utf8",
             ),
           );
-          const address: HumanViewerAddress = parseHumanViewerAddress(fields.toString(), current.documents[0]?.id);
+          const address: HumanViewerAddress = parseHumanViewerAddress(
+            fields.toString(),
+            current.documents[0]?.id,
+          );
           const ready: string = props.readyRevision();
-          const selectedRevision: string = ready === "" ? current.revision : ready;
+          const selectedRevision: string =
+            ready === "" ? current.revision : ready;
           let png: Buffer;
           if (url.pathname === "/sheet") {
             if (axes === null) throw new Error("A sheet requires review axes");
-            png = await request.run((): Promise<Buffer> =>
-              props.lifetime.run((): Promise<Buffer> =>
-                renderHumanViewerSheet({
-                  page: props.page(),
-                  capture: requestCapture,
-                  revision: props.readyRevision,
-                  cells: planHumanViewerSheet(
-                    address,
-                    axes,
-                    current.documents.map((entry: (typeof current.documents)[number]): string => entry.id),
-                  ),
-                }),
-              ),
+            png = await request.run(
+              (): Promise<Buffer> =>
+                props.lifetime.run(
+                  (): Promise<Buffer> =>
+                    renderHumanViewerSheet({
+                      page: props.page(),
+                      capture: requestCapture,
+                      revision: props.readyRevision,
+                      cells: planHumanViewerSheet(
+                        address,
+                        axes,
+                        current.documents.map(
+                          (entry: (typeof current.documents)[number]): string =>
+                            entry.id,
+                        ),
+                      ),
+                    }),
+                ),
             );
           } else if (url.pathname === "/warm") {
             const warmed: { document: string; ms: number }[] = [];
             for (const entry of current.documents.filter(
-              (entry: (typeof current.documents)[number]): boolean => entry.domain === "face",
+              (entry: (typeof current.documents)[number]): boolean =>
+                entry.domain === "face",
             )) {
               const before: number = performance.now();
               await requestCapture({ ...address, doc: entry.id });
@@ -215,7 +266,10 @@ function dispatchHumanViewerCapture(
               throw new Error("Source changed during request");
             request.check();
             response.setHeader("X-Human-Revision", selectedRevision);
-            response.setHeader("X-Human-Stale", String(selectedRevision !== props.inventory().revision));
+            response.setHeader(
+              "X-Human-Stale",
+              String(selectedRevision !== props.inventory().revision),
+            );
             return json({ revision: selectedRevision, warmed });
           } else if (url.pathname === "/compare") {
             if (against === null)
@@ -228,12 +282,13 @@ function dispatchHumanViewerCapture(
             const second: ReturnType<typeof PNG.sync.read> = PNG.sync.read(
               await requestCapture(forHumanViewerComparison(address, against)),
             );
-            const compared: ReturnType<typeof composeHumanViewerPixels> = composeHumanViewerPixels(
-              first.width,
-              first.height,
-              first.data,
-              second.data,
-            );
+            const compared: ReturnType<typeof composeHumanViewerPixels> =
+              composeHumanViewerPixels(
+                first.width,
+                first.height,
+                first.data,
+                second.data,
+              );
             const composed: PNG = new PNG({
               width: compared.width,
               height: compared.height,
@@ -266,39 +321,87 @@ function dispatchHumanViewerCapture(
           );
           response.setHeader("X-Human-Build", props.capture.build());
           if (url.pathname === "/export-construction") {
-            const asset: IHumanViewerConstructionTransfer = await request.run((): Promise<IHumanViewerConstructionTransfer> =>
-              props.lifetime.run((): Promise<IHumanViewerConstructionTransfer> => props.page().evaluate(async (): Promise<IHumanViewerConstructionTransfer> => {
-                const viewer: HumanViewerHandle = (window as unknown as IHumanViewerWindow).__humanViewer;
-                const before: IHumanViewerConstructionTransfer["before"] = {
-                  address: structuredClone(viewer.address()), revision: viewer.revision(),
-                };
-                const result: Awaited<ReturnType<HumanViewerHandle["exportConstruction"]>> = await viewer.exportConstruction();
-                // FileReader carries bytes through the browser bridge without
-                // expanding one GLB into a JavaScript array of numbers.
-                const dataUrl: string = await new Promise<string>((resolve: (value: string) => void, reject: (error: unknown) => void): void => {
-                  const reader: FileReader = new FileReader();
-                  reader.onload = (): void => {
-                    if (typeof reader.result !== "string") {
-                      reject(new Error("The exported construction has no binary data URL."));
-                      return;
-                    }
-                    resolve(reader.result);
-                  };
-                  reader.onerror = (): void => reject(reader.error ?? new Error("Construction byte transfer failed."));
-                  reader.readAsDataURL(new Blob([result.glb], { type: "model/gltf-binary" }));
-                });
-                return {
-                  dataUrl, admission: result.admission, before,
-                  after: { address: structuredClone(viewer.address()), revision: viewer.revision() },
-                };
-              })),
+            const asset: IHumanViewerConstructionTransfer = await request.run(
+              (): Promise<IHumanViewerConstructionTransfer> =>
+                props.lifetime.run(
+                  (): Promise<IHumanViewerConstructionTransfer> =>
+                    props
+                      .page()
+                      .evaluate(
+                        async (): Promise<IHumanViewerConstructionTransfer> => {
+                          const viewer: HumanViewerHandle = (
+                            window as unknown as IHumanViewerWindow
+                          ).__humanViewer;
+                          const before: IHumanViewerConstructionTransfer["before"] =
+                            {
+                              address: structuredClone(viewer.address()),
+                              revision: viewer.revision(),
+                            };
+                          const result: Awaited<
+                            ReturnType<HumanViewerHandle["exportConstruction"]>
+                          > = await viewer.exportConstruction();
+                          // FileReader carries bytes through the browser bridge without
+                          // expanding one GLB into a JavaScript array of numbers.
+                          const dataUrl: string = await new Promise<string>(
+                            (
+                              resolve: (value: string) => void,
+                              reject: (error: unknown) => void,
+                            ): void => {
+                              const reader: FileReader = new FileReader();
+                              reader.onload = (): void => {
+                                if (typeof reader.result !== "string") {
+                                  reject(
+                                    new Error(
+                                      "The exported construction has no binary data URL.",
+                                    ),
+                                  );
+                                  return;
+                                }
+                                resolve(reader.result);
+                              };
+                              reader.onerror = (): void =>
+                                reject(
+                                  reader.error ??
+                                    new Error(
+                                      "Construction byte transfer failed.",
+                                    ),
+                                );
+                              reader.readAsDataURL(
+                                new Blob([result.glb], {
+                                  type: "model/gltf-binary",
+                                }),
+                              );
+                            },
+                          );
+                          return {
+                            dataUrl,
+                            admission: result.admission,
+                            before,
+                            after: {
+                              address: structuredClone(viewer.address()),
+                              revision: viewer.revision(),
+                            },
+                          };
+                        },
+                      ),
+                ),
             );
-            if (props.readyRevision() !== selectedRevision ||
-                asset.before.revision !== selectedRevision || asset.after.revision !== selectedRevision)
+            if (
+              props.readyRevision() !== selectedRevision ||
+              asset.before.revision !== selectedRevision ||
+              asset.after.revision !== selectedRevision
+            )
               throw new Error("Source changed during request");
-            if ([asset.before.address, asset.after.address].some((observed: HumanViewerAddress): boolean =>
-                serializeHumanViewerAddress(observed) !== serializeHumanViewerAddress(address)))
-              throw new Error("Displayed selection changed during construction export.");
+            if (
+              [asset.before.address, asset.after.address].some(
+                (observed: HumanViewerAddress): boolean =>
+                  serializeHumanViewerAddress(observed) !==
+                  serializeHumanViewerAddress(address),
+              )
+            )
+              throw new Error(
+                "Displayed selection changed during construction export.",
+              );
             response.setHeader(
               "X-Human-Stale",
               String(selectedRevision !== props.inventory().revision),
@@ -306,12 +409,26 @@ function dispatchHumanViewerCapture(
             request.check();
             const prefix: string = "data:model/gltf-binary;base64,";
             if (!asset.dataUrl.startsWith(prefix))
-              throw new Error("Construction export did not return its binary GLB.");
-            const glb: Buffer = Buffer.from(asset.dataUrl.slice(prefix.length), "base64");
-            response.setHeader("X-Human-Construction-Accepted", String(asset.admission.accepted));
-            response.setHeader("X-Human-Construction-Failures", String(asset.admission.failures.length));
+              throw new Error(
+                "Construction export did not return its binary GLB.",
+              );
+            const glb: Buffer = Buffer.from(
+              asset.dataUrl.slice(prefix.length),
+              "base64",
+            );
+            response.setHeader(
+              "X-Human-Construction-Accepted",
+              String(asset.admission.accepted),
+            );
+            response.setHeader(
+              "X-Human-Construction-Failures",
+              String(asset.admission.failures.length),
+            );
             response.setHeader("Content-Type", "model/gltf-binary");
-            response.setHeader("Content-Disposition", 'attachment; filename="human-construction.glb"');
+            response.setHeader(
+              "Content-Disposition",
+              'attachment; filename="human-construction.glb"',
+            );
             response.setHeader("Content-Length", String(glb.length));
             response.end(glb);
             return;
@@ -320,51 +437,78 @@ function dispatchHumanViewerCapture(
             if (url.pathname === "/parts") {
               // Read the completed resident's identity, admission and values
               // together. A page or selection changed after capture refuses.
-              const readings: IHumanViewerConstructionReadout = await request.run((): Promise<IHumanViewerConstructionReadout> =>
-                props.lifetime.run((): Promise<IHumanViewerConstructionReadout> =>
-                  props.page().evaluate((): IHumanViewerConstructionReadout => {
-                    const viewer: HumanViewerHandle = (window as unknown as IHumanViewerWindow)
-                      .__humanViewer;
-                    return {
-                      revision: viewer.revision(),
-                      address: viewer.address(),
-                      admission: viewer.admission(),
-                      parts: viewer.parts(),
-                      periocularMappings: viewer.periocularMappings?.(),
-                      rigReading: viewer.rigReading?.(),
-                    };
-                  }),
-                ),
-              );
-              if (readings.revision !== selectedRevision ||
-                  props.readyRevision() !== selectedRevision)
+              const readings: IHumanViewerConstructionReadout =
+                await request.run(
+                  (): Promise<IHumanViewerConstructionReadout> =>
+                    props.lifetime.run(
+                      (): Promise<IHumanViewerConstructionReadout> =>
+                        props
+                          .page()
+                          .evaluate((): IHumanViewerConstructionReadout => {
+                            const viewer: HumanViewerHandle = (
+                              window as unknown as IHumanViewerWindow
+                            ).__humanViewer;
+                            return {
+                              revision: viewer.revision(),
+                              address: viewer.address(),
+                              admission: viewer.admission(),
+                              parts: viewer.parts(),
+                              periocularMappings: viewer.periocularMappings?.(),
+                              rigReading: viewer.rigReading?.(),
+                            };
+                          }),
+                    ),
+                );
+              if (
+                readings.revision !== selectedRevision ||
+                props.readyRevision() !== selectedRevision
+              )
                 throw new Error("Source changed during request");
-              if (serializeHumanViewerAddress(readings.address) !==
-                  serializeHumanViewerAddress(address))
-                throw new Error("Displayed selection changed during construction observation.");
+              if (
+                serializeHumanViewerAddress(readings.address) !==
+                serializeHumanViewerAddress(address)
+              )
+                throw new Error(
+                  "Displayed selection changed during construction observation.",
+                );
               if (readings.admission === null)
-                throw new Error("Construction observation is missing its admission report.");
+                throw new Error(
+                  "Construction observation is missing its admission report.",
+                );
               request.check();
-              response.setHeader("X-Human-Stale", String(selectedRevision !== props.inventory().revision));
-              response.setHeader("X-Human-Construction-Accepted", String(readings.admission.accepted));
-              response.setHeader("X-Human-Construction-Failures", String(readings.admission.failures.length));
+              response.setHeader(
+                "X-Human-Stale",
+                String(selectedRevision !== props.inventory().revision),
+              );
+              response.setHeader(
+                "X-Human-Construction-Accepted",
+                String(readings.admission.accepted),
+              );
+              response.setHeader(
+                "X-Human-Construction-Failures",
+                String(readings.admission.failures.length),
+              );
               const parts: IHumanViewerConstructionPartsResponse = {
                 ...readings,
                 admission: readings.admission,
               };
               return json(parts);
             }
-            const admission: ReturnType<HumanViewerHandle["admission"]> = await request.run((): Promise<ReturnType<HumanViewerHandle["admission"]>> =>
-              props.lifetime.run((): Promise<ReturnType<HumanViewerHandle["admission"]>> =>
-                props
-                  .page()
-                  .evaluate((): ReturnType<HumanViewerHandle["admission"]> =>
-                    (
-                      window as unknown as IHumanViewerWindow
-                    ).__humanViewer.admission(),
+            const admission: ReturnType<HumanViewerHandle["admission"]> =
+              await request.run(
+                (): Promise<ReturnType<HumanViewerHandle["admission"]>> =>
+                  props.lifetime.run(
+                    (): Promise<ReturnType<HumanViewerHandle["admission"]>> =>
+                      props
+                        .page()
+                        .evaluate(
+                          (): ReturnType<HumanViewerHandle["admission"]> =>
+                            (
+                              window as unknown as IHumanViewerWindow
+                            ).__humanViewer.admission(),
+                        ),
                   ),
-              ),
-            );
+              );
             if (admission === null)
               throw new Error(
                 "Construction observation is missing its admission report.",
@@ -386,27 +530,34 @@ function dispatchHumanViewerCapture(
             (performance.now() - start).toFixed(1),
           );
           if (url.pathname === "/parts") {
-            const parts: string[] = await request.run((): Promise<string[]> =>
-              props.lifetime.run((): Promise<string[]> =>
-                props
-                  .page()
-                  .evaluate((): string[] =>
-                    (
-                      window as unknown as IHumanViewerWindow
-                    ).__humanViewer.parts(),
-                  ),
-              ),
+            const parts: string[] = await request.run(
+              (): Promise<string[]> =>
+                props.lifetime.run(
+                  (): Promise<string[]> =>
+                    props
+                      .page()
+                      .evaluate((): string[] =>
+                        (
+                          window as unknown as IHumanViewerWindow
+                        ).__humanViewer.parts(),
+                      ),
+                ),
             );
             if (props.readyRevision() !== selectedRevision)
               throw new Error("Source changed during request");
             request.check();
-            response.setHeader("X-Human-Stale", String(selectedRevision !== props.inventory().revision));
+            response.setHeader(
+              "X-Human-Stale",
+              String(selectedRevision !== props.inventory().revision),
+            );
             return json(
-              parts.map((name: string): { name: string; limitation: string } => ({
-                name,
-                limitation:
-                  "Displayed mesh/material region, not an anatomical partition",
-              })),
+              parts.map(
+                (name: string): { name: string; limitation: string } => ({
+                  name,
+                  limitation:
+                    "Displayed mesh/material region, not an anatomical partition",
+                }),
+              ),
             );
           }
           if (
@@ -422,11 +573,16 @@ function dispatchHumanViewerCapture(
           request.check();
           // Final async work may have observed an inventory edit while the
           // same last-good page remains drawable. Label that page truthfully.
-          response.setHeader("X-Human-Stale", String(selectedRevision !== props.inventory().revision));
+          response.setHeader(
+            "X-Human-Stale",
+            String(selectedRevision !== props.inventory().revision),
+          );
           const before: number = performance.now();
           response.setHeader("Content-Type", "image/png");
           response.end(png);
-          const phases: ReturnType<IServeHumanViewerCaptureProps["capture"]["responded"]> = props.capture.responded({
+          const phases: ReturnType<
+            IServeHumanViewerCaptureProps["capture"]["responded"]
+          > = props.capture.responded({
             queueMs: queued,
             responseMs: performance.now() - before,
             totalMs: performance.now() - received,
@@ -442,7 +598,10 @@ function dispatchHumanViewerCapture(
                     (entry: [string, unknown]): entry is [string, number] =>
                       typeof entry[1] === "number",
                   )
-                  .map(([key, value]: [string, number]): [string, number] => [key, Math.round(value)]),
+                  .map(([key, value]: [string, number]): [string, number] => [
+                    key,
+                    Math.round(value),
+                  ]),
               ),
             ),
           );

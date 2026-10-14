@@ -35,7 +35,11 @@ export function serveHumanViewerData(
       response: props.response,
       cameraPosesFile: props.cameraPosesFile,
       referenceDirectory: props.referenceDirectory,
-      documents: props.inventory.documents.map((entry: IServeHumanViewerDataProps["inventory"]["documents"][number]): string => entry.id),
+      documents: props.inventory.documents.map(
+        (
+          entry: IServeHumanViewerDataProps["inventory"]["documents"][number],
+        ): string => entry.id,
+      ),
       json: props.json,
     }) ||
     serveHumanViewerGenerationView(props) ||

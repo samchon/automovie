@@ -15,7 +15,9 @@ import type { IHumanViewerPersonParts } from "./IHumanViewerPersonParts.js";
 export function readHumanViewerPersonBases(
   document: object,
 ): IHumanViewerPersonBases {
-  const basisOf: (side: "face" | "body") => string = (side: "face" | "body"): string => {
+  const basisOf: (side: "face" | "body") => string = (
+    side: "face" | "body",
+  ): string => {
     const part: unknown = (document as IHumanViewerPersonParts)[side];
     if (
       part === null ||

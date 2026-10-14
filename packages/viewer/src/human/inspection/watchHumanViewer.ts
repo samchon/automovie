@@ -1,9 +1,9 @@
 import type { ChildProcess } from "node:child_process";
 
 import type { IHumanShotContext } from "./IHumanShotContext.js";
+import { launchHumanViewerServer } from "./launchHumanViewerServer.js";
 import { planHumanViewerWatch } from "./planHumanViewerWatch.js";
 import { probeHumanViewer } from "./probeHumanViewer.js";
-import { launchHumanViewerServer } from "./launchHumanViewerServer.js";
 
 /**
  * Probe the viewer from outside its process and apply the existing watch plan: leave an answering server alone and start only after a refused port and an ended own child. Slow or unanswered probes never kill a process. SIGINT/SIGTERM withdraw this loop so the launcher's captured-identity child-stop handler cannot be followed by an automatic restart. Return after the current probe/pause settles and remove this watcher's signal bindings; the launcher owns child termination and log closure.
@@ -21,14 +21,22 @@ export async function watchHumanViewer(
 ): Promise<void> {
   let owned: ChildProcess | undefined;
   let stopping: boolean = false;
-  const stop: () => void = (): void => { stopping = true; };
+  const stop: () => void = (): void => {
+    stopping = true;
+  };
   process.once("SIGINT", stop);
   process.once("SIGTERM", stop);
-  const pause: (ms: number) => Promise<undefined> = (ms: number): Promise<undefined> =>
+  const pause: (ms: number) => Promise<undefined> = (
+    ms: number,
+  ): Promise<undefined> =>
     new Promise<undefined>((resolve: (value: undefined) => void): void => {
       setTimeout((): void => resolve(undefined), ms);
     });
-  const health: () => Promise<Awaited<ReturnType<typeof probeHumanViewer>>["health"]> = async (): Promise<Awaited<ReturnType<typeof probeHumanViewer>>["health"]> => {
+  const health: () => Promise<
+    Awaited<ReturnType<typeof probeHumanViewer>>["health"]
+  > = async (): Promise<
+    Awaited<ReturnType<typeof probeHumanViewer>>["health"]
+  > => {
     try {
       return (await probeHumanViewer(context)).health;
     } catch {
@@ -36,21 +44,25 @@ export async function watchHumanViewer(
     }
   };
   try {
-  while (!stopping) {
-    const answer: Awaited<ReturnType<typeof health>> = await health();
-    if (stopping) return;
-    const answered: boolean = answer?.service !== undefined;
-    const plan: ReturnType<typeof planHumanViewerWatch> = planHumanViewerWatch({
-      answered,
-      refused: answer === null,
-      ownedRunning: owned !== undefined && owned.exitCode === null && owned.signalCode === null,
-    });
-    if (plan === "start") {
-      console.error("watch: no server, starting");
-      owned = launchHumanViewerServer(context);
+    while (!stopping) {
+      const answer: Awaited<ReturnType<typeof health>> = await health();
+      if (stopping) return;
+      const answered: boolean = answer?.service !== undefined;
+      const plan: ReturnType<typeof planHumanViewerWatch> =
+        planHumanViewerWatch({
+          answered,
+          refused: answer === null,
+          ownedRunning:
+            owned !== undefined &&
+            owned.exitCode === null &&
+            owned.signalCode === null,
+        });
+      if (plan === "start") {
+        console.error("watch: no server, starting");
+        owned = launchHumanViewerServer(context);
+      }
+      await pause(3000);
     }
-    await pause(3000);
-  }
   } finally {
     process.off("SIGINT", stop);
     process.off("SIGTERM", stop);

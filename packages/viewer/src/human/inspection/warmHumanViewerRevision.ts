@@ -26,7 +26,10 @@ export async function warmHumanViewerRevision(
   await warmHumanViewerDocuments({
     revision: props.revision,
     documents: publishedHumanViewerWarmDocuments(props.inventory().documents),
-    currentRevision: (): string => props.inventory().revision === props.readyRevision() ? props.readyRevision() : "",
+    currentRevision: (): string =>
+      props.inventory().revision === props.readyRevision()
+        ? props.readyRevision()
+        : "",
     cached: (id: string): boolean => {
       const file: string | null = props.thumbnailFile(thumbnail(id));
       return file === null || fs.existsSync(file);
@@ -34,12 +37,16 @@ export async function warmHumanViewerRevision(
     capture: async (id: string): Promise<void> => {
       const search: string = thumbnail(id);
       const png: Buffer = await props.capture(parseHumanViewerAddress(search));
-      if (props.readyRevision() !== props.revision || props.inventory().revision !== props.revision)
+      if (
+        props.readyRevision() !== props.revision ||
+        props.inventory().revision !== props.revision
+      )
         throw new Error("Source changed during thumbnail warm.");
       const file: string | null = props.thumbnailFile(search);
       if (file !== null) await writeHumanViewerThumbnail(file, png);
     },
-    queue: (id: string, run: () => Promise<void>): Promise<void> => props.queue.run("warm " + id, run, "bulk"),
+    queue: (id: string, run: () => Promise<void>): Promise<void> =>
+      props.queue.run("warm " + id, run, "bulk"),
     status: props.warming,
   });
 }

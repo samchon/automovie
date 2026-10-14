@@ -13,7 +13,9 @@ import path from "node:path";
  * @evidence contracts/performance.md#reuse-equivalent-work The immutable route map is shared by requests, but each response owns a fresh file stream and no stale HTML-byte cache is retained.
  * @evidence contracts/performance.md#bound-retention-and-release-resources A matched request owns one reader; response close destroys it, read refusal reports or destroys the response and stream close withdraws its exact response listener.
  */
-export function serveHumanViewerPages(directory: string): (pathname: string, response: ServerResponse) => boolean {
+export function serveHumanViewerPages(
+  directory: string,
+): (pathname: string, response: ServerResponse) => boolean {
   const pages: Map<string, string> = new Map([
     ["/", "index.html"],
     ["/index.html", "index.html"],
@@ -27,17 +29,25 @@ export function serveHumanViewerPages(directory: string): (pathname: string, res
     if (page === undefined) return false;
     response.setHeader("Content-Type", "text/html; charset=utf-8");
     response.setHeader("Cache-Control", "no-store");
-    const stream: fs.ReadStream = fs.createReadStream(path.join(directory, page));
-    const closed: () => void = (): void => { stream.destroy(); };
+    const stream: fs.ReadStream = fs.createReadStream(
+      path.join(directory, page),
+    );
+    const closed: () => void = (): void => {
+      stream.destroy();
+    };
     response.once("close", closed);
-    stream.once("close", (): void => { response.off("close", closed); });
+    stream.once("close", (): void => {
+      response.off("close", closed);
+    });
     stream.once("error", (error: Error): void => {
-        if (response.headersSent) response.destroy(error);
-        else {
-          response.statusCode = 500;
-          response.end("The Human viewer page could not be read: " + error.message);
-        }
-      });
+      if (response.headersSent) response.destroy(error);
+      else {
+        response.statusCode = 500;
+        response.end(
+          "The Human viewer page could not be read: " + error.message,
+        );
+      }
+    });
     stream.pipe(response);
     return true;
   };

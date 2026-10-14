@@ -18,11 +18,13 @@ export async function showHumanViewerFirstAddress(
   report: (message: string) => void,
   standard: HumanViewerAddress,
 ): Promise<void> {
-  const outcomes: [PromiseSettledResult<unknown>, PromiseSettledResult<unknown>] =
-    await Promise.allSettled([
-      Promise.resolve().then((): Promise<void> => show(requested)),
-      loaded,
-    ]);
+  const outcomes: [
+    PromiseSettledResult<unknown>,
+    PromiseSettledResult<unknown>,
+  ] = await Promise.allSettled([
+    Promise.resolve().then((): Promise<void> => show(requested)),
+    loaded,
+  ]);
   // Both tasks settle before the candidate or its borrowed stage can retire.
   if (outcomes[1].status === "rejected") throw outcomes[1].reason;
   if (outcomes[0].status === "rejected") {

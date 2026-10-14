@@ -1,6 +1,6 @@
 import path from "node:path";
-import { reportAutoMovieResourceRetirement } from "../../reportAutoMovieResourceRetirement.js";
 
+import { reportAutoMovieResourceRetirement } from "../../reportAutoMovieResourceRetirement.js";
 import type { ISubscribeHumanViewerSourcesProps } from "./ISubscribeHumanViewerSourcesProps.js";
 
 /**
@@ -16,7 +16,7 @@ import type { ISubscribeHumanViewerSourcesProps } from "./ISubscribeHumanViewerS
  */
 export function subscribeHumanViewerSources(
   props: ISubscribeHumanViewerSourcesProps,
-): (() => void) {
+): () => void {
   const { source }: Pick<ISubscribeHumanViewerSourcesProps, "source"> = props;
   // The generation directory is watched, not its files: the views may not
   // exist yet, and their creation must reread the catalogue too.
@@ -27,7 +27,9 @@ export function subscribeHumanViewerSources(
     generationDirectory,
     ...Object.values(source.basisFiles),
     source.documentsFile,
-    ...(source.subjectPeopleFile === undefined ? [] : [source.subjectPeopleFile]),
+    ...(source.subjectPeopleFile === undefined
+      ? []
+      : [source.subjectPeopleFile]),
     source.bodyExamplesFile,
   ]);
   const changes: Set<string> = new Set<string>();
@@ -39,10 +41,18 @@ export function subscribeHumanViewerSources(
   /**
    * Publish one batch once its digests are computed off the request thread. Still updating while another batch waits or computes.
    */
-  const apply: (files: string[]) => Promise<void> = async (files: string[]): Promise<void> => {
+  const apply: (files: string[]) => Promise<void> = async (
+    files: string[],
+  ): Promise<void> => {
     try {
       source.refreshBases();
-      const { moved }: Awaited<ReturnType<ISubscribeHumanViewerSourcesProps["source"]["revisions"]["changed"]>> = await source.revisions.changed(files.map(source.slash));
+      const {
+        moved,
+      }: Awaited<
+        ReturnType<
+          ISubscribeHumanViewerSourcesProps["source"]["revisions"]["changed"]
+        >
+      > = await source.revisions.changed(files.map(source.slash));
       if (closed) return;
       if (moved.length !== 0) props.publish(files, moved);
       if (moved.includes("browser")) props.browser();
@@ -50,7 +60,12 @@ export function subscribeHumanViewerSources(
       if (!closed) props.error(error);
     } finally {
       --applying;
-      if (!closed && applying === 0 && cancel === undefined && changes.size === 0)
+      if (
+        !closed &&
+        applying === 0 &&
+        cancel === undefined &&
+        changes.size === 0
+      )
         props.updating(false);
     }
   };
@@ -60,37 +75,40 @@ export function subscribeHumanViewerSources(
       const timer: ReturnType<typeof setTimeout> = setTimeout(run, 100);
       return (): void => clearTimeout(timer);
     });
-  const stop: () => void = props.watch((_event: string, input: string): void => {
-    if (closed) return;
-    const file: string = path.resolve(input);
-    if (
-      file.startsWith(source.inputsDirectory + path.sep) ||
-      Object.values(source.generationFiles).includes(file) ||
-      file === source.subjectPeopleFile || file === source.bodyExamplesFile
-    ) {
-      try {
-        props.inputs();
-      } catch (error) {
-        props.error(error);
+  const stop: () => void = props.watch(
+    (_event: string, input: string): void => {
+      if (closed) return;
+      const file: string = path.resolve(input);
+      if (
+        file.startsWith(source.inputsDirectory + path.sep) ||
+        Object.values(source.generationFiles).includes(file) ||
+        file === source.subjectPeopleFile ||
+        file === source.bodyExamplesFile
+      ) {
+        try {
+          props.inputs();
+        } catch (error) {
+          props.error(error);
+        }
+        if (!source.revisions.reaches(source.slash(file))) return;
       }
-      if (!source.revisions.reaches(source.slash(file))) return;
-    }
-    const basis: boolean =
-      Object.values(source.basisFiles).includes(file) ||
-      file === source.documentsFile;
-    if (!basis && !source.revisions.reaches(source.slash(file))) return;
-    props.reached?.();
-    props.updating(true);
-    changes.add(file);
-    cancel?.();
-    cancel = schedule((): void => {
-      cancel = undefined;
-      const files: string[] = [...changes];
-      changes.clear();
-      ++applying;
-      void apply(files);
-    });
-  });
+      const basis: boolean =
+        Object.values(source.basisFiles).includes(file) ||
+        file === source.documentsFile;
+      if (!basis && !source.revisions.reaches(source.slash(file))) return;
+      props.reached?.();
+      props.updating(true);
+      changes.add(file);
+      cancel?.();
+      cancel = schedule((): void => {
+        cancel = undefined;
+        const files: string[] = [...changes];
+        changes.clear();
+        ++applying;
+        void apply(files);
+      });
+    },
+  );
   return (): void => {
     if (closed) {
       if (withdrawalFailure !== undefined) throw withdrawalFailure.error;
@@ -99,8 +117,13 @@ export function subscribeHumanViewerSources(
     closed = true;
     try {
       reportAutoMovieResourceRetirement([
-        (): void => { cancel?.(); },
-        (): void => { cancel = undefined; changes.clear(); },
+        (): void => {
+          cancel?.();
+        },
+        (): void => {
+          cancel = undefined;
+          changes.clear();
+        },
         stop,
       ]);
     } catch (error) {

@@ -21,13 +21,17 @@ export function readHumanViewerPublishedGeneration(
   );
   if (missing.length !== 0)
     return {
-      file: missing.map((view: "head" | "body"): string => props.files[view]).join(", "),
+      file: missing
+        .map((view: "head" | "body"): string => props.files[view])
+        .join(", "),
       pending: false,
       reason:
         "person generation files are not published yet: the standard people are drawn only on the published head and body views",
     };
-  const head: ReturnType<IReadHumanViewerPublishedGenerationProps["facts"]> = props.facts("head");
-  const body: ReturnType<IReadHumanViewerPublishedGenerationProps["facts"]> = props.facts("body");
+  const head: ReturnType<IReadHumanViewerPublishedGenerationProps["facts"]> =
+    props.facts("head");
+  const body: ReturnType<IReadHumanViewerPublishedGenerationProps["facts"]> =
+    props.facts("body");
   if (head === null || body === null)
     return {
       file: `${props.files.head}, ${props.files.body}`,

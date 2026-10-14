@@ -23,20 +23,25 @@ export function readHumanViewerFaceDocuments(
   const subjects: IHumanViewerSubjectDocument[] = JSON.parse(
     fs.readFileSync(props.documentsFile, "utf8"),
   ) as IHumanViewerSubjectDocument[];
-  const reference: IReadHumanViewerFaceDocumentsProps["reference"] = props.reference;
+  const reference: IReadHumanViewerFaceDocumentsProps["reference"] =
+    props.reference;
   return {
     reference,
     subjects,
-    entries: [reference, ...subjects].map((document: IHumanViewerSubjectDocument): IHumanViewerFaceDocuments["entries"][number] => ({
-      id: document.id,
-      domain: "face" as const,
-      document,
-      basis: humanViewerPublishedBasis(props.face.digest),
-      key: createHash("sha256")
-        .update(
-          JSON.stringify(document) + props.face.digest + props.sources.face,
-        )
-        .digest("hex"),
-    })),
+    entries: [reference, ...subjects].map(
+      (
+        document: IHumanViewerSubjectDocument,
+      ): IHumanViewerFaceDocuments["entries"][number] => ({
+        id: document.id,
+        domain: "face" as const,
+        document,
+        basis: humanViewerPublishedBasis(props.face.digest),
+        key: createHash("sha256")
+          .update(
+            JSON.stringify(document) + props.face.digest + props.sources.face,
+          )
+          .digest("hex"),
+      }),
+    ),
   };
 }

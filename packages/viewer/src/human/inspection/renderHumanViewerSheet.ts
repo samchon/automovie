@@ -30,14 +30,21 @@ export async function renderHumanViewerSheet(props: {
   if (props.revision() !== selectedRevision)
     throw new Error("Source changed during sheet capture");
   const result: string = await props.page.evaluate(
-    async ({ frames, size }: { frames: { png: string; label: string }[]; size: number }): Promise<string> => {
+    async ({
+      frames,
+      size,
+    }: {
+      frames: { png: string; label: string }[];
+      size: number;
+    }): Promise<string> => {
       const columns: number = Math.ceil(Math.sqrt(frames.length));
       const caption: number = 42;
       const canvas: HTMLCanvasElement = document.createElement("canvas");
       canvas.width = columns * size;
       canvas.height = Math.ceil(frames.length / columns) * (size + caption);
       const ctx: CanvasRenderingContext2D | null = canvas.getContext("2d");
-      if (ctx === null) throw new Error("A 2D canvas is required for a review sheet.");
+      if (ctx === null)
+        throw new Error("A 2D canvas is required for a review sheet.");
       ctx.fillStyle = "#1c252e";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       ctx.font = "12px sans-serif";

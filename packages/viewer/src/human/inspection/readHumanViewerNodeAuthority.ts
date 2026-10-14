@@ -20,15 +20,24 @@ import type { IHumanViewerNodeWorkerData } from "./IHumanViewerNodeWorkerData.js
 export function readHumanViewerNodeAuthority(
   input: IHumanViewerNodeWorkerData,
 ): IHumanViewerNodeAuthority {
-  const inputs: Record<string, string> = Object.fromEntries(Object.keys(input.inputs).map((file: string): [string, string] => [
-    file,
-    createHash("sha256").update(fs.readFileSync(file)).digest("hex"),
-  ]));
-  const changed: string[] = Object.keys(inputs).filter((file: string): boolean => inputs[file] !== input.inputs[file]);
+  const inputs: Record<string, string> = Object.fromEntries(
+    Object.keys(input.inputs).map((file: string): [string, string] => [
+      file,
+      createHash("sha256").update(fs.readFileSync(file)).digest("hex"),
+    ]),
+  );
+  const changed: string[] = Object.keys(inputs).filter(
+    (file: string): boolean => inputs[file] !== input.inputs[file],
+  );
   if (changed.length !== 0)
-    throw new Error("The Node numerical source changed while its checked realm loaded: " + changed.join(", "));
+    throw new Error(
+      "The Node numerical source changed while its checked realm loaded: " +
+        changed.join(", "),
+    );
   const require: ReturnType<typeof createRequire> = createRequire(input.entry);
-  const compiler: Record<string, unknown> = JSON.parse(fs.readFileSync(require.resolve("ttsc/package.json"), "utf8")) as Record<string, unknown>;
+  const compiler: Record<string, unknown> = JSON.parse(
+    fs.readFileSync(require.resolve("ttsc/package.json"), "utf8"),
+  ) as Record<string, unknown>;
   if (typeof compiler.version !== "string")
     throw new Error("The installed Node compiler has no version authority.");
   return {

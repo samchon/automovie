@@ -14,6 +14,5 @@ export async function waitForHumanViewerGeneration(
   pause: (ms: number) => Promise<void>,
   stepMs: number = 100,
 ): Promise<void> {
-  while (!ready())
-    await pause(stepMs);
+  while (!ready()) await pause(stepMs);
 }

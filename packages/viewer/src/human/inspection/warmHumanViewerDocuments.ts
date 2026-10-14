@@ -15,7 +15,11 @@ import { describeHumanViewerFailure } from "./describeHumanViewerFailure.js";
 export async function warmHumanViewerDocuments(
   props: IWarmHumanViewerDocumentsProps,
 ): Promise<void> {
-  const pending: IWarmHumanViewerDocumentsProps["documents"][number][] = props.documents.filter((entry: IWarmHumanViewerDocumentsProps["documents"][number]): boolean => !props.cached(entry.id));
+  const pending: IWarmHumanViewerDocumentsProps["documents"][number][] =
+    props.documents.filter(
+      (entry: IWarmHumanViewerDocumentsProps["documents"][number]): boolean =>
+        !props.cached(entry.id),
+    );
   Object.assign(props.status, {
     revision: props.revision,
     total: props.documents.length,

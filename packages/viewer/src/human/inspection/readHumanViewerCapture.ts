@@ -4,8 +4,8 @@
 import type { Page } from "playwright";
 
 import type { HumanViewerAddress } from "./HumanViewerAddress.js";
-import type { IHumanViewerWindow } from "./IHumanViewerWindow.js";
 import type { IHumanViewerCaptureReading } from "./IHumanViewerCaptureReading.js";
+import type { IHumanViewerWindow } from "./IHumanViewerWindow.js";
 
 /**
  * Capture page timing and PNG data under the caller's selected source revision. The actual ready bridge applies the address and finishes its frame; an absent bridge or a different loaded source refuses instead of waiting on another page.
@@ -25,31 +25,36 @@ export async function readHumanViewerCapture(
 ): Promise<IHumanViewerCaptureReading> {
   const waited: number = performance.now();
   // Passing the viewer explicitly avoids serializing a closure into the page.
-  const result: Omit<IHumanViewerCaptureReading, "waited"> = await page.evaluate(
-    async (input: { address: HumanViewerAddress; revision: string }): Promise<Omit<IHumanViewerCaptureReading, "waited">> => {
-      const viewer: IHumanViewerWindow["__humanViewer"] | undefined = (window as unknown as Partial<IHumanViewerWindow>)
-        .__humanViewer;
-      if (viewer === undefined)
-        throw new Error(
-          "The source generation was replaced during display (the page reloaded)",
-        );
-      if (viewer.revision() !== input.revision)
-        throw new Error("The source revision has not finished loading");
-      const before: number = viewer.builds();
-      const t0: number = performance.now();
-      await viewer.show(input.address);
-      const t1: number = performance.now();
-      const png: string = viewer.png();
-      return {
-        png,
-        built: viewer.builds() - before,
-        buildMs: viewer.buildMs(),
-        showMs: t1 - t0,
-        pngMs: performance.now() - t1,
-        spans: viewer.spans(),
-      };
-    },
-    { address, revision },
-  );
+  const result: Omit<IHumanViewerCaptureReading, "waited"> =
+    await page.evaluate(
+      async (input: {
+        address: HumanViewerAddress;
+        revision: string;
+      }): Promise<Omit<IHumanViewerCaptureReading, "waited">> => {
+        const viewer: IHumanViewerWindow["__humanViewer"] | undefined = (
+          window as unknown as Partial<IHumanViewerWindow>
+        ).__humanViewer;
+        if (viewer === undefined)
+          throw new Error(
+            "The source generation was replaced during display (the page reloaded)",
+          );
+        if (viewer.revision() !== input.revision)
+          throw new Error("The source revision has not finished loading");
+        const before: number = viewer.builds();
+        const t0: number = performance.now();
+        await viewer.show(input.address);
+        const t1: number = performance.now();
+        const png: string = viewer.png();
+        return {
+          png,
+          built: viewer.builds() - before,
+          buildMs: viewer.buildMs(),
+          showMs: t1 - t0,
+          pngMs: performance.now() - t1,
+          spans: viewer.spans(),
+        };
+      },
+      { address, revision },
+    );
   return { ...result, waited };
 }

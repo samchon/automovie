@@ -21,8 +21,16 @@ export function serveHumanViewerRescan(
       props.publish(settled);
       props.json({
         documents: settled.documents
-          .filter((entry: IServeHumanViewerDataProps["inventory"]["documents"][number]): boolean => entry.id.startsWith("file:"))
-          .map((entry: IServeHumanViewerDataProps["inventory"]["documents"][number]): string => entry.id),
+          .filter(
+            (
+              entry: IServeHumanViewerDataProps["inventory"]["documents"][number],
+            ): boolean => entry.id.startsWith("file:"),
+          )
+          .map(
+            (
+              entry: IServeHumanViewerDataProps["inventory"]["documents"][number],
+            ): string => entry.id,
+          ),
         rejected: settled.rejected,
       });
     })

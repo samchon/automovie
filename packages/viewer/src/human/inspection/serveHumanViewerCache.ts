@@ -1,10 +1,10 @@
+import { randomUUID } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import { promisify } from "node:util";
 import { gzip } from "node:zlib";
-import { randomUUID } from "node:crypto";
-import { createAutoMovieResourceRetirement } from "../../createAutoMovieResourceRetirement.js";
 
+import { createAutoMovieResourceRetirement } from "../../createAutoMovieResourceRetirement.js";
 import type { IServeHumanViewerDataProps } from "./IServeHumanViewerDataProps.js";
 import { admitHumanViewerCachePayload } from "./admitHumanViewerCachePayload.js";
 
@@ -24,12 +24,18 @@ const gzipAsync: (buffer: Uint8Array) => Promise<Buffer> = promisify(gzip);
 export function serveHumanViewerCache(
   props: IServeHumanViewerDataProps,
 ): boolean {
-  const { url, request, response }: Pick<IServeHumanViewerDataProps, "url" | "request" | "response"> = props;
+  const {
+    url,
+    request,
+    response,
+  }: Pick<IServeHumanViewerDataProps, "url" | "request" | "response"> = props;
   if (!url.pathname.startsWith("/cache/")) return false;
   const key: string = url.pathname.slice(7);
   if (
     !props.inventory.documents.some(
-      (document: IServeHumanViewerDataProps["inventory"]["documents"][number]): boolean =>
+      (
+        document: IServeHumanViewerDataProps["inventory"]["documents"][number],
+      ): boolean =>
         key === document.key + "-direct" || key === document.key + "-ao",
     )
   ) {
@@ -41,7 +47,8 @@ export function serveHumanViewerCache(
   if (request.method === "PUT") {
     // A result is stored only from code proven to be the current revision: a
     // candidate that loaded a held compile names current keys but ran older code.
-    const token: string | string[] | undefined = request.headers["x-human-generation"];
+    const token: string | string[] | undefined =
+      request.headers["x-human-generation"];
     if (!props.currentCode(typeof token === "string" ? token : null)) {
       response.statusCode = 409;
       props.json({
@@ -51,14 +58,19 @@ export function serveHumanViewerCache(
       return true;
     }
     const chunks: Buffer[] = [];
-    const data: (chunk: Buffer) => void = (chunk: Buffer): void => { chunks.push(chunk); };
+    const data: (chunk: Buffer) => void = (chunk: Buffer): void => {
+      chunks.push(chunk);
+    };
     function withdraw(): void {
       request.off("data", data);
       request.off("end", ended);
       request.off("aborted", aborted);
       response.off("close", aborted);
     }
-    function aborted(): void { withdraw(); chunks.length = 0; }
+    function aborted(): void {
+      withdraw();
+      chunks.length = 0;
+    }
     function closed(): void {
       aborted();
       request.off("error", failed);
@@ -75,7 +87,9 @@ export function serveHumanViewerCache(
         admitHumanViewerCachePayload(body);
         const temporary: string = `${file}.${process.pid}.${randomUUID()}.tmp`;
         const retire: () => Promise<void> = createAutoMovieResourceRetirement([
-          async (): Promise<void> => { await fs.promises.rm(temporary, { force: true }); },
+          async (): Promise<void> => {
+            await fs.promises.rm(temporary, { force: true });
+          },
         ]);
         try {
           await fs.promises.writeFile(temporary, await gzipAsync(body));
@@ -116,10 +130,16 @@ export function serveHumanViewerCache(
   response.setHeader("Content-Type", "application/json");
   response.setHeader("Content-Encoding", "gzip");
   const stream: fs.ReadStream = fs.createReadStream(file);
-  const closed: () => void = (): void => { stream.destroy(); };
+  const closed: () => void = (): void => {
+    stream.destroy();
+  };
   response.once("close", closed);
-  stream.once("close", (): void => { response.off("close", closed); });
-  stream.once("error", (error: Error): void => { response.destroy(error); });
+  stream.once("close", (): void => {
+    response.off("close", closed);
+  });
+  stream.once("error", (error: Error): void => {
+    response.destroy(error);
+  });
   stream.pipe(response);
   return true;
 }

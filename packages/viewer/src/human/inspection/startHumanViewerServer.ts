@@ -1,15 +1,14 @@
 import fs from "node:fs";
 import path from "node:path";
+import type { ViteDevServer } from "vite";
 
+import { createAutoMovieResourceRetirement } from "../../createAutoMovieResourceRetirement.js";
+import { ProcessOwnership } from "../../process/ProcessOwnership.js";
 import type { IStartHumanViewerServerProps } from "./IStartHumanViewerServerProps.js";
 import { humanViewerLaunch } from "./humanViewerLaunch.js";
 import { judgeViewerRenderer } from "./judgeViewerRenderer.js";
 import { subscribeHumanViewerSources } from "./subscribeHumanViewerSources.js";
 import { writeHumanViewerRecord } from "./writeHumanViewerRecord.js";
-import { ProcessOwnership } from "../../process/ProcessOwnership.js";
-
-import type { ViteDevServer } from "vite";
-import { createAutoMovieResourceRetirement } from "../../createAutoMovieResourceRetirement.js";
 
 /**
  * Own one server's listening socket, source subscription and shutdown. The launcher retains its public process record; a directly started server owns its own record. Readiness requires reported page readiness and the existing renderer-text policy, whose generic fallback acceptance does not independently prove hardware or display operation. Only after owning its listening socket does it publish an empty compilation report bound to its actual OS creation. The previous owner's failure or success cannot become this process's startup authority; model inputs, PNGs and historical logs remain separate from this per-owner status.
@@ -25,18 +24,30 @@ import { createAutoMovieResourceRetirement } from "../../createAutoMovieResource
 export async function startHumanViewerServer(
   props: IStartHumanViewerServerProps,
 ): Promise<void> {
-  const { source, instance, owner }: Pick<IStartHumanViewerServerProps, "source" | "instance" | "owner"> = props;
+  const {
+    source,
+    instance,
+    owner,
+  }: Pick<IStartHumanViewerServerProps, "source" | "instance" | "owner"> =
+    props;
   let vite: ViteDevServer | undefined;
   let stopSources: (() => void) | undefined;
   let ownsRecord: boolean = false;
   let stopping: boolean = false;
   const record: string = path.join(source.storage, instance.record);
   const retire: () => Promise<void> = createAutoMovieResourceRetirement([
-    (): void => { stopping = true; stopSources?.(); },
+    (): void => {
+      stopping = true;
+      stopSources?.();
+    },
     source.close,
     props.closeRenderer,
-    (): void => { if (ownsRecord) fs.rmSync(record, { force: true }); },
-    async (): Promise<void> => { if (vite !== undefined) await vite.close(); },
+    (): void => {
+      if (ownsRecord) fs.rmSync(record, { force: true });
+    },
+    async (): Promise<void> => {
+      if (vite !== undefined) await vite.close();
+    },
     (): void => {
       process.off("SIGINT", signal);
       process.off("SIGTERM", signal);
@@ -44,10 +55,14 @@ export async function startHumanViewerServer(
   ]);
   function signal(): void {
     stopping = true;
-    void retire().then((): void => { process.exit(0); }).catch((error: unknown): void => {
-      console.error(error);
-      process.exit(1);
-    });
+    void retire()
+      .then((): void => {
+        process.exit(0);
+      })
+      .catch((error: unknown): void => {
+        console.error(error);
+        process.exit(1);
+      });
   }
   try {
     vite = await props.createVite();
@@ -55,20 +70,35 @@ export async function startHumanViewerServer(
     process.once("SIGTERM", signal);
     await vite.listen();
     if (stopping) throw new Error("Viewer startup was stopped.");
-    const processStartedAt: ReturnType<typeof ProcessOwnership.read> = ProcessOwnership.read(process.pid);
+    const processStartedAt: ReturnType<typeof ProcessOwnership.read> =
+      ProcessOwnership.read(process.pid);
     if (processStartedAt === null)
       throw new Error("The listening viewer has no process creation identity.");
     fs.mkdirSync(source.storage, { recursive: true });
-    fs.writeFileSync(path.join(source.storage, instance.sourceStatus), JSON.stringify({
-      pid: process.pid, processStartedAt, error: null, goodAt: null,
-    }));
+    fs.writeFileSync(
+      path.join(source.storage, instance.sourceStatus),
+      JSON.stringify({
+        pid: process.pid,
+        processStartedAt,
+        error: null,
+        goodAt: null,
+      }),
+    );
     if (owner === null) {
       writeHumanViewerRecord(record, instance.port);
       ownsRecord = true;
     } else {
-      const address: ReturnType<NonNullable<ViteDevServer["httpServer"]>["address"]> | undefined = vite.httpServer?.address();
-      if (address === null || address === undefined || typeof address === "string")
-        throw new Error("The development server did not report its internal port");
+      const address:
+        | ReturnType<NonNullable<ViteDevServer["httpServer"]>["address"]>
+        | undefined = vite.httpServer?.address();
+      if (
+        address === null ||
+        address === undefined ||
+        typeof address === "string"
+      )
+        throw new Error(
+          "The development server did not report its internal port",
+        );
       console.log(humanViewerLaunch.upstreamPrefix + address.port);
     }
     fs.mkdirSync(source.inputsDirectory, { recursive: true });
@@ -76,10 +106,16 @@ export async function startHumanViewerServer(
     stopSources = subscribeHumanViewerSources({
       ...props.watching,
       source,
-      add: (files: string[]): void => { activeVite.watcher.add(files); },
-      watch: (changed: (event: string, input: string) => void): (() => void) => {
+      add: (files: string[]): void => {
+        activeVite.watcher.add(files);
+      },
+      watch: (
+        changed: (event: string, input: string) => void,
+      ): (() => void) => {
         activeVite.watcher.on("all", changed);
-        return (): void => { activeVite.watcher.off("all", changed); };
+        return (): void => {
+          activeVite.watcher.off("all", changed);
+        };
       },
       browser: props.publishRevision,
     });

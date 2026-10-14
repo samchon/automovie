@@ -3,8 +3,8 @@ import fs from "node:fs/promises";
 import type { IncomingMessage, ServerResponse } from "node:http";
 import path from "node:path";
 import { PNG } from "pngjs";
-import { createAutoMovieResourceRetirement } from "../../createAutoMovieResourceRetirement.js";
 
+import { createAutoMovieResourceRetirement } from "../../createAutoMovieResourceRetirement.js";
 import { judgeViewerRenderer } from "./judgeViewerRenderer.js";
 
 /**
@@ -36,7 +36,9 @@ export function serveHumanViewerDisplay(props: {
       response.end(String(cause));
     };
     if (request.method !== "POST" || request.headers.origin !== props.origin) {
-      fail(new Error("Display saving requires the local viewer's original POST."));
+      fail(
+        new Error("Display saving requires the local viewer's original POST."),
+      );
       return;
     }
     let text: string = "";
@@ -51,48 +53,115 @@ export function serveHumanViewerDisplay(props: {
     request.once("error", fail);
     request.once("end", (): void => {
       try {
-        const value: Record<string, unknown> = JSON.parse(text) as Record<string, unknown>;
-        const { session, generation, sequence, revision, renderer, png, width, height, camera, address }: Record<string, unknown> = value;
-        if (typeof session !== "string" || !/^[0-9a-f-]{36}$/.test(session) ||
-            typeof generation !== "number" || !Number.isSafeInteger(generation) || generation < 1 ||
-            typeof sequence !== "number" || !Number.isSafeInteger(sequence) || sequence < 1 ||
-            typeof revision !== "string" || revision.length === 0 ||
-            typeof renderer !== "string" || !judgeViewerRenderer(renderer).real ||
-            typeof png !== "string" || !png.startsWith("data:image/png;base64,") ||
-            typeof width !== "number" || typeof height !== "number" ||
-            !Number.isInteger(width) || !Number.isInteger(height) || width < 32 || height < 32 || width > 4096 || height > 2048 ||
-            camera === null || typeof camera !== "object" || address === null || typeof address !== "object")
-          throw new Error("Display saving requires the supported page-reported frame envelope.");
-        const bytes: Buffer = Buffer.from(png.slice("data:image/png;base64,".length), "base64");
-        const operation: Promise<void> = (queues.get(session) ?? Promise.resolve()).then(async (): Promise<void> => {
-          const decoded: PNG = await new Promise<PNG>((resolve: (value: PNG) => void, reject: (error: unknown) => void): void => {
-            new PNG().parse(bytes, (error: Error | null, parsed: PNG): void => error === null
-              ? resolve(parsed) : reject(error));
-          });
+        const value: Record<string, unknown> = JSON.parse(text) as Record<
+          string,
+          unknown
+        >;
+        const {
+          session,
+          generation,
+          sequence,
+          revision,
+          renderer,
+          png,
+          width,
+          height,
+          camera,
+          address,
+        }: Record<string, unknown> = value;
+        if (
+          typeof session !== "string" ||
+          !/^[0-9a-f-]{36}$/.test(session) ||
+          typeof generation !== "number" ||
+          !Number.isSafeInteger(generation) ||
+          generation < 1 ||
+          typeof sequence !== "number" ||
+          !Number.isSafeInteger(sequence) ||
+          sequence < 1 ||
+          typeof revision !== "string" ||
+          revision.length === 0 ||
+          typeof renderer !== "string" ||
+          !judgeViewerRenderer(renderer).real ||
+          typeof png !== "string" ||
+          !png.startsWith("data:image/png;base64,") ||
+          typeof width !== "number" ||
+          typeof height !== "number" ||
+          !Number.isInteger(width) ||
+          !Number.isInteger(height) ||
+          width < 32 ||
+          height < 32 ||
+          width > 4096 ||
+          height > 2048 ||
+          camera === null ||
+          typeof camera !== "object" ||
+          address === null ||
+          typeof address !== "object"
+        )
+          throw new Error(
+            "Display saving requires the supported page-reported frame envelope.",
+          );
+        const bytes: Buffer = Buffer.from(
+          png.slice("data:image/png;base64,".length),
+          "base64",
+        );
+        const operation: Promise<void> = (
+          queues.get(session) ?? Promise.resolve()
+        ).then(async (): Promise<void> => {
+          const decoded: PNG = await new Promise<PNG>(
+            (
+              resolve: (value: PNG) => void,
+              reject: (error: unknown) => void,
+            ): void => {
+              new PNG().parse(
+                bytes,
+                (error: Error | null, parsed: PNG): void =>
+                  error === null ? resolve(parsed) : reject(error),
+              );
+            },
+          );
           if (decoded.width !== width || decoded.height !== height)
-            throw new Error("The encoded display dimensions disagree with its frame.");
+            throw new Error(
+              "The encoded display dimensions disagree with its frame.",
+            );
           const prior: [number, number] | undefined = saved.get(session);
-          if (prior !== undefined && (generation < prior[0] || (generation === prior[0] && sequence <= prior[1])))
+          if (
+            prior !== undefined &&
+            (generation < prior[0] ||
+              (generation === prior[0] && sequence <= prior[1]))
+          )
             throw new Error("The display save was superseded.");
           const output: string = path.resolve(props.root, ".shots/output");
-          const records: string = path.resolve(props.storage, "display-records");
+          const records: string = path.resolve(
+            props.storage,
+            "display-records",
+          );
           await fs.mkdir(output, { recursive: true });
           await fs.mkdir(records, { recursive: true });
           const name: string = `current-${props.port}-${session}`;
           const temporary: string = path.join(records, randomUUID() + ".png");
           const hash: string = createHash("sha256").update(bytes).digest("hex");
-          const metadataTemp: string = path.join(records, randomUUID() + ".json.tmp");
+          const metadataTemp: string = path.join(
+            records,
+            randomUUID() + ".json.tmp",
+          );
           const serverRevisionAtSave: string = props.revision();
           const metadata: Record<string, unknown> = {
-            ...value, png: undefined, image: name + ".png", sha256: hash,
-            savedAt: new Date().toISOString(), serverRevisionAtSave,
+            ...value,
+            png: undefined,
+            image: name + ".png",
+            sha256: hash,
+            savedAt: new Date().toISOString(),
+            serverRevisionAtSave,
             stale: revision !== serverRevisionAtSave,
           };
           let primary: { error: unknown } | undefined;
           try {
             await fs.writeFile(temporary, bytes);
             await fs.writeFile(metadataTemp, JSON.stringify(metadata));
-            await fs.rename(metadataTemp, path.join(records, name + "-" + hash + ".json"));
+            await fs.rename(
+              metadataTemp,
+              path.join(records, name + "-" + hash + ".json"),
+            );
             await fs.rename(temporary, path.join(output, name + ".png"));
             saved.set(session, [generation, sequence]);
           } catch (error) {
@@ -100,19 +169,33 @@ export function serveHumanViewerDisplay(props: {
             throw error;
           } finally {
             const operations: readonly (() => Promise<void>)[] = [
-              async (): Promise<void> => { await fs.rm(temporary, { force: true }); },
-              async (): Promise<void> => { await fs.rm(metadataTemp, { force: true }); },
+              async (): Promise<void> => {
+                await fs.rm(temporary, { force: true });
+              },
+              async (): Promise<void> => {
+                await fs.rm(metadataTemp, { force: true });
+              },
             ];
-            if (primary === undefined) await createAutoMovieResourceRetirement(operations)();
+            if (primary === undefined)
+              await createAutoMovieResourceRetirement(operations)();
             else await createAutoMovieResourceRetirement(operations, primary)();
           }
         });
-        const settled: Promise<void> = operation.catch((): undefined => undefined);
+        const settled: Promise<void> = operation.catch(
+          (): undefined => undefined,
+        );
         queues.set(session, settled);
-        void operation.then((): void => { response.end(); }).catch(fail).finally((): void => {
-          if (queues.get(session) === settled) queues.delete(session);
-        });
-      } catch (cause) { fail(cause); }
+        void operation
+          .then((): void => {
+            response.end();
+          })
+          .catch(fail)
+          .finally((): void => {
+            if (queues.get(session) === settled) queues.delete(session);
+          });
+      } catch (cause) {
+        fail(cause);
+      }
     });
   };
 }

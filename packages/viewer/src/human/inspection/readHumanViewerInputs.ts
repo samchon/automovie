@@ -39,8 +39,9 @@ import { readHumanViewerPublishedGeneration } from "./readHumanViewerPublishedGe
 export function readHumanViewerInputs(
   props: IReadHumanViewerInputsProps,
 ): IHumanViewerInputs {
-  const hash: (bytes: string | Uint8Array) => string = (bytes: string | Uint8Array): string =>
-    createHash("sha256").update(bytes).digest("hex");
+  const hash: (bytes: string | Uint8Array) => string = (
+    bytes: string | Uint8Array,
+  ): string => createHash("sha256").update(bytes).digest("hex");
   const available: Set<string> = new Set(props.io.names());
   for (const retained of props.memo?.keys() ?? [])
     if (!available.has(retained)) props.memo?.delete(retained);
@@ -49,9 +50,13 @@ export function readHumanViewerInputs(
   // A document is drawable only after its owner admitted it in the page; a
   // pending or refused one is listed with the file and its reason instead.
   let file: string = "";
-  const accept: (entry: IHumanViewerCatalogueEntry) => void = (entry: IHumanViewerCatalogueEntry): void => {
-    if (props.selectedDoc !== undefined && entry.id !== props.selectedDoc) return;
-    const admission: ReturnType<IReadHumanViewerInputsProps["admission"]> = props.admission(entry);
+  const accept: (entry: IHumanViewerCatalogueEntry) => void = (
+    entry: IHumanViewerCatalogueEntry,
+  ): void => {
+    if (props.selectedDoc !== undefined && entry.id !== props.selectedDoc)
+      return;
+    const admission: ReturnType<IReadHumanViewerInputsProps["admission"]> =
+      props.admission(entry);
     if (admission.state === "admitted") documents.push(entry);
     else
       rejected.push({
@@ -63,9 +68,15 @@ export function readHumanViewerInputs(
       });
   };
   /** What every file's result depends on besides its own bytes and sidecars. */
-  const shared: string = JSON.stringify([props.bases, props.generation, props.sources]);
+  const shared: string = JSON.stringify([
+    props.bases,
+    props.generation,
+    props.sources,
+  ]);
   /** One file's entries and refusal, reused while nothing it depends on changed. */
-  const readFile: (input: string) => IHumanViewerInputFileRead = (input: string): IHumanViewerInputFileRead => {
+  const readFile: (input: string) => IHumanViewerInputFileRead = (
+    input: string,
+  ): IHumanViewerInputFileRead => {
     const name: string = input.slice(0, -".json".length);
     const facts: (sidecar: string) => string = (sidecar: string): string =>
       available.has(sidecar)
@@ -88,7 +99,9 @@ export function readHumanViewerInputs(
       return kept;
     const entries: IHumanViewerCatalogueEntry[] = [];
     let refusal: string | null = null;
-    const offer: (entry: IHumanViewerCatalogueEntry) => void = (entry: IHumanViewerCatalogueEntry): void => {
+    const offer: (entry: IHumanViewerCatalogueEntry) => void = (
+      entry: IHumanViewerCatalogueEntry,
+    ): void => {
       entries.push(entry);
     };
     try {
@@ -103,7 +116,9 @@ export function readHumanViewerInputs(
       const bodyFile: string = `${name}.body.json.gz`;
       // A sidecar still being read off the request path holds its documents
       // back; the catalogue is published again when its facts are known.
-      const sidecarOf: (sidecar: string) => IHumanViewerSidecarFacts | null = (sidecar: string): IHumanViewerSidecarFacts | null => {
+      const sidecarOf: (sidecar: string) => IHumanViewerSidecarFacts | null = (
+        sidecar: string,
+      ): IHumanViewerSidecarFacts | null => {
         if (!available.has(sidecar)) return null;
         const facts: IHumanViewerSidecarFacts | null = props.sidecar(sidecar);
         if (facts === null)
@@ -112,12 +127,15 @@ export function readHumanViewerInputs(
           );
         return facts;
       };
-      const candidate: IHumanViewerSidecarFacts | null = sidecarOf(candidateFile);
-      const packetFacts: IHumanViewerSidecarFacts | null = sidecarOf(packetFile);
+      const candidate: IHumanViewerSidecarFacts | null =
+        sidecarOf(candidateFile);
+      const packetFacts: IHumanViewerSidecarFacts | null =
+        sidecarOf(packetFile);
       const split: boolean = available.has(headFile) || available.has(bodyFile);
       const many: boolean = Array.isArray(parsed);
       for (const document of many ? (parsed as unknown[]) : [parsed]) {
-        const domain: ReturnType<typeof classifyHumanViewerInput> = classifyHumanViewerInput(document);
+        const domain: ReturnType<typeof classifyHumanViewerInput> =
+          classifyHumanViewerInput(document);
         if (domain !== "person" && packetFacts !== null)
           throw new Error(
             `${packetFile} is a person packet; a ${domain} document takes ${candidateFile}`,
@@ -128,7 +146,8 @@ export function readHumanViewerInputs(
               domain +
               " document.",
           );
-        const named: IHumanViewerInputDocument = document as IHumanViewerInputDocument;
+        const named: IHumanViewerInputDocument =
+          document as IHumanViewerInputDocument;
         if (typeof named.id !== "string" || named.id === "")
           throw new Error("A document needs an id");
         if (domain === "body" && split) {
@@ -144,13 +163,18 @@ export function readHumanViewerInputs(
                 bodyFile +
                 ".",
             );
-          const headFacts: IHumanViewerSidecarFacts | null = sidecarOf(headFile);
-          const bodyFacts: IHumanViewerSidecarFacts | null = sidecarOf(bodyFile);
-          const generation: ReturnType<typeof readHumanViewerPublishedGeneration> = readHumanViewerPublishedGeneration({
+          const headFacts: IHumanViewerSidecarFacts | null =
+            sidecarOf(headFile);
+          const bodyFacts: IHumanViewerSidecarFacts | null =
+            sidecarOf(bodyFile);
+          const generation: ReturnType<
+            typeof readHumanViewerPublishedGeneration
+          > = readHumanViewerPublishedGeneration({
             files: { head: headFile, body: bodyFile },
             exists: (view: "head" | "body"): boolean =>
               available.has(view === "head" ? headFile : bodyFile),
-            facts: (view: "head" | "body"): IHumanViewerSidecarFacts | null => (view === "head" ? headFacts : bodyFacts),
+            facts: (view: "head" | "body"): IHumanViewerSidecarFacts | null =>
+              view === "head" ? headFacts : bodyFacts,
           });
           if ("reason" in generation)
             throw new Error("Paired body candidate: " + generation.reason);
@@ -178,7 +202,8 @@ export function readHumanViewerInputs(
             throw new Error(
               "Person inputs use the published face and body bases; a candidate Person sidecar is unsupported.",
             );
-          const person: ReturnType<typeof readHumanViewerPersonBases> = readHumanViewerPersonBases(document as object);
+          const person: ReturnType<typeof readHumanViewerPersonBases> =
+            readHumanViewerPersonBases(document as object);
           if (split) {
             if (packetFacts !== null)
               throw new Error(
@@ -192,13 +217,20 @@ export function readHumanViewerInputs(
                   bodyFile +
                   ".",
               );
-            const headFacts: IHumanViewerSidecarFacts | null = sidecarOf(headFile);
-            const bodyFacts: IHumanViewerSidecarFacts | null = sidecarOf(bodyFile);
-            const generation: ReturnType<typeof readHumanViewerPublishedGeneration> = readHumanViewerPublishedGeneration({
+            const headFacts: IHumanViewerSidecarFacts | null =
+              sidecarOf(headFile);
+            const bodyFacts: IHumanViewerSidecarFacts | null =
+              sidecarOf(bodyFile);
+            const generation: ReturnType<
+              typeof readHumanViewerPublishedGeneration
+            > = readHumanViewerPublishedGeneration({
               files: { head: headFile, body: bodyFile },
               exists: (view: "head" | "body"): boolean =>
                 available.has(view === "head" ? headFile : bodyFile),
-              facts: (view: "head" | "body"): IHumanViewerSidecarFacts | null => (view === "head" ? headFacts : bodyFacts),
+              facts: (
+                view: "head" | "body",
+              ): IHumanViewerSidecarFacts | null =>
+                view === "head" ? headFacts : bodyFacts,
             });
             if ("reason" in generation)
               throw new Error("Split person candidate: " + generation.reason);
@@ -231,7 +263,8 @@ export function readHumanViewerInputs(
                 `${packetFile}: ${packetFacts.failure ?? "not a person packet"}`,
               );
             const digest: string = packetFacts.digest;
-            const packet: NonNullable<IHumanViewerSidecarFacts["packet"]> = packetFacts.packet;
+            const packet: NonNullable<IHumanViewerSidecarFacts["packet"]> =
+              packetFacts.packet;
             if (person.face !== packet.face)
               throw new Error(
                 `The person names face basis ${person.face} but its packet ${packetFile} carries face basis ${packet.face}`,
@@ -253,7 +286,8 @@ export function readHumanViewerInputs(
             });
             continue;
           }
-          const generation: IReadHumanViewerInputsProps["generation"] = props.generation;
+          const generation: IReadHumanViewerInputsProps["generation"] =
+            props.generation;
           if (
             generation !== null &&
             person.face === generation.face &&
@@ -306,7 +340,8 @@ export function readHumanViewerInputs(
           throw new Error(
             `${candidateFile}: ${candidate.failure ?? "not a basis"}`,
           );
-        const generation: IReadHumanViewerInputsProps["generation"] = props.generation;
+        const generation: IReadHumanViewerInputsProps["generation"] =
+          props.generation;
         if (
           domain === "body" &&
           candidate === null &&
@@ -356,11 +391,16 @@ export function readHumanViewerInputs(
     props.memo?.set(input, result);
     return result;
   };
-  for (file of [...available].sort((a: string, b: string): number => (a < b ? -1 : a > b ? 1 : 0))) {
+  for (file of [...available].sort((a: string, b: string): number =>
+    a < b ? -1 : a > b ? 1 : 0,
+  )) {
     if (!file.endsWith(".json") || file.endsWith(".basis.json")) continue;
-    if (props.selectedDoc !== undefined &&
-        (!props.selectedDoc.startsWith("file:") ||
-         file !== props.selectedDoc.slice(5).split("/")[0] + ".json")) continue;
+    if (
+      props.selectedDoc !== undefined &&
+      (!props.selectedDoc.startsWith("file:") ||
+        file !== props.selectedDoc.slice(5).split("/")[0] + ".json")
+    )
+      continue;
     try {
       const read: IHumanViewerInputFileRead = readFile(file);
       for (const entry of read.entries) accept(entry);

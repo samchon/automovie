@@ -16,14 +16,17 @@ export function readHumanViewerCameraAddress(
   address: HumanViewerAddress,
   stage: HumanViewerStage,
 ): HumanViewerAddress {
-  const camera: ReturnType<HumanViewerStage["observe"]["camera"]> = stage.observe.camera();
-  const [x, y, z]: number[] = camera.position.map((value: number, axis: number): number => value - camera.target[axis]);
+  const camera: ReturnType<HumanViewerStage["observe"]["camera"]> =
+    stage.observe.camera();
+  const [x, y, z]: number[] = camera.position.map(
+    (value: number, axis: number): number => value - camera.target[axis],
+  );
   const distance: number = Math.hypot(x, y, z);
   return {
     ...address,
     look: [
-      Math.atan2(x, z) * 180 / Math.PI,
-      Math.atan2(y, Math.hypot(x, z)) * 180 / Math.PI,
+      (Math.atan2(x, z) * 180) / Math.PI,
+      (Math.atan2(y, Math.hypot(x, z)) * 180) / Math.PI,
       distance,
       ...camera.target,
       camera.fov,

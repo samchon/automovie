@@ -20,7 +20,10 @@ import { streamHumanViewerVerifiedFile } from "./streamHumanViewerVerifiedFile.j
 export function serveHumanViewerGenerationView(
   props: IServeHumanViewerDataProps,
 ): boolean {
-  const { url, response }: Pick<IServeHumanViewerDataProps, "url" | "response"> = props;
+  const {
+    url,
+    response,
+  }: Pick<IServeHumanViewerDataProps, "url" | "response"> = props;
   if (
     url.pathname !== "/basis/person/head" &&
     url.pathname !== "/basis/person/body"
@@ -40,14 +43,20 @@ export function serveHumanViewerGenerationView(
     });
     return true;
   }
-  const [name, candidateDigest]: (string | undefined)[] = (candidate ?? "").split("@");
+  const [name, candidateDigest]: (string | undefined)[] = (
+    candidate ?? ""
+  ).split("@");
   const file: string =
     candidate === null
       ? props.generationFiles[view]
       : path.join(props.inputsDirectory, name + "." + view + ".json.gz");
   const digest: string | null | undefined =
     candidate === null ? url.searchParams.get("digest") : candidateDigest;
-  if (digest === null || digest === undefined || !/^[0-9a-f]{12,64}$/.test(digest)) {
+  if (
+    digest === null ||
+    digest === undefined ||
+    !/^[0-9a-f]{12,64}$/.test(digest)
+  ) {
     response.statusCode = 400;
     props.json({
       error: `The ${view} view request must name the digest its document was built for (?digest=<hex>)`,

@@ -1,14 +1,21 @@
 import type { IHumanCaptureCamera } from "@automovie/viewer/human/common/observation/IHumanCaptureCamera";
+
 import type { IHumanViewerReference } from "./IHumanViewerReference.js";
 import type { IHumanViewerReferenceIo } from "./IHumanViewerReferenceIo.js";
 
 const IMAGE: RegExp = /^[A-Za-z0-9._-]+\.(png|jpe?g|webp)$/i;
 
-const finite: (value: unknown) => value is number = (value: unknown): value is number =>
-  typeof value === "number" && Number.isFinite(value);
+const finite: (value: unknown) => value is number = (
+  value: unknown,
+): value is number => typeof value === "number" && Number.isFinite(value);
 
-const cameraOf: (value: unknown) => IHumanCaptureCamera | null = (value: unknown): IHumanCaptureCamera | null => {
-  const camera: Partial<IHumanCaptureCamera> | null | undefined = value as Partial<IHumanCaptureCamera> | null | undefined;
+const cameraOf: (value: unknown) => IHumanCaptureCamera | null = (
+  value: unknown,
+): IHumanCaptureCamera | null => {
+  const camera: Partial<IHumanCaptureCamera> | null | undefined = value as
+    | Partial<IHumanCaptureCamera>
+    | null
+    | undefined;
   if (
     camera === null ||
     camera === undefined ||
@@ -69,10 +76,17 @@ export function resolveHumanViewerReference(
   const id: string = doc.replace(/-connected$/, "");
   const file: string | undefined = io
     .list("")
-    .find((name: string): boolean => name.replace(/\.[^.]+$/, "") === id && IMAGE.test(name));
+    .find(
+      (name: string): boolean =>
+        name.replace(/\.[^.]+$/, "") === id && IMAGE.test(name),
+    );
   if (file === undefined) return null;
-  const poses: Record<string, unknown> | undefined = io.readJson("poses") as Record<string, unknown> | undefined;
-  const landmarks: Record<string, { x: number; y: number; group: string }[]> | undefined = io.readJson("landmarks") as
+  const poses: Record<string, unknown> | undefined = io.readJson("poses") as
+    | Record<string, unknown>
+    | undefined;
+  const landmarks:
+    | Record<string, { x: number; y: number; group: string }[]>
+    | undefined = io.readJson("landmarks") as
     | Record<string, { x: number; y: number; group: string }[]>
     | undefined;
   return {

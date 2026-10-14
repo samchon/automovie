@@ -14,10 +14,13 @@ import { captureHumanViewerReference } from "./captureHumanViewerReference.js";
  * @evidence contracts/performance.md#bound-retention-and-release-resources The stage and canvas are borrowed; the returned data URL retains this frame's encoded bytes and no new WebGL resource is acquired.
  */
 export function readHumanViewerPng(props: IReadHumanViewerPngProps): string {
-  const gl: ReturnType<IReadHumanViewerPngProps["renderer"]["getContext"]> = props.renderer.getContext();
-  if (gl.isContextLost()) throw new Error("The GPU context is lost before capture.");
+  const gl: ReturnType<IReadHumanViewerPngProps["renderer"]["getContext"]> =
+    props.renderer.getContext();
+  if (gl.isContextLost())
+    throw new Error("The GPU context is lost before capture.");
   props.stage.finish();
-  if (gl.isContextLost()) throw new Error("The GPU context was lost during capture.");
+  if (gl.isContextLost())
+    throw new Error("The GPU context was lost during capture.");
   assertHumanViewerFrame(gl.getError(), gl.NO_ERROR);
   if (props.composition === null) return props.canvas.toDataURL("image/png");
   return captureHumanViewerReference({
