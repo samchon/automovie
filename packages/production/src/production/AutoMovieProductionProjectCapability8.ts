@@ -9,7 +9,7 @@ import { productionProjectCommitGenerated } from "./productionProjectCommitGener
 import { productionProjectConfirmCurrentSnapshot } from "./productionProjectConfirmCurrentSnapshot";
 
 /**
- * Preserve the public project method group 8 as direct internal operation adapters.
+ * Forward render observation, deliverable publication, generated commits and input confirmation through one project state.
  *
  * @evidence contracts/common.md#principled-implementation Each method passes the same instance state and original arguments/defaults to its file-named operation, preserving supported return/refusal effects without binding callbacks or changing authored schemas.
  * @evidence contracts/common.md#clear-and-simple-design This inheritance layer groups a bounded number of adapters to keep one exported identity per file and source below 500 lines; implementation remains in operation owners rather than duplicated methods.
@@ -17,7 +17,7 @@ import { productionProjectConfirmCurrentSnapshot } from "./productionProjectConf
  * @evidence contracts/common.md#meaningful-documentation Individual methods carry their actual operation's effects, currentness premises, costs and lifetime limits, while this internal class adds only the public forwarding shape.
  * @evidence contracts/performance.md#efficient-algorithms Each invocation adds one constant-size direct call to the complete operation cost documented on that method; inheritance depth affects method lookup but adds no scan of designs, frames or payload bytes.
  * @evidence contracts/performance.md#reuse-equivalent-work All adapters borrow one state retained by the first base constructor; their operation's currentness checks decide when resident observations may be reused, with no cross-instance result cache.
- * @evidence contracts/performance.md#bound-retention-and-release-resources One facade retains one state through the first base's readonly field; subsequent bases add no per-instance handles, buffers, closure tables or tasks, and operation owners release resources they acquire.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources One facade retains one state through the first base's readonly field; later bases add no per-instance handles, payload buffers, closure tables or tasks. Operation owners attempt their own cleanup, whose failure and retained-resource limits follow those operations' contracts.
  */
 export class AutoMovieProductionProjectCapability8 extends AutoMovieProductionProjectCapability7 {
     /**
@@ -32,10 +32,18 @@ export class AutoMovieProductionProjectCapability8 extends AutoMovieProductionPr
      * @evidence contracts/performance.md#bound-retention-and-release-resources The adapter retains only its instance state between calls. Manifest/verification byte data is temporary per bundle, while projected views and cloned unresolved coverage grow with captured population and transfer to the caller; readers own descriptors and no renderer task is started.
      */
     public capturedRenderViews(target: IAutoMovieRenderBundleManifest["target"], fingerprint: string): Array<{
+        /** Captured frame time in seconds, copied from the admitted manifest. */
         time: number;
+
+        /** Actual guide pass recorded for this resident frame. */
         pass: AutoMovieGuidePass;
+
+        /** Detached coverage metadata when a matching semantic receipt exists. */
         semanticCoverage?: {
+            /** Drawable-claim or instance-set semantic entry ids without a resolved object root. */
             unresolved: string[];
+
+            /** Built Mesh objects without a nearest claimed ancestor, including hidden meshes. */
             unaddressed: number;
         };
     }> {
@@ -50,7 +58,7 @@ export class AutoMovieProductionProjectCapability8 extends AutoMovieProductionPr
      * @evidence contracts/common.md#meaningful-documentation Defines full resident verification and nullable refusal, uniqueness rules and shot-mask sidecar requirement; the tracked bundle receipt uses its existing field checks rather than a new strict receipt schema, and current generated compile equality is not independently checked here.
      * @evidence contracts/performance.md#efficient-algorithms One direct adapter call adds constant overhead to the delegated operation. Reads/parses manifest and receipt, hashes/probes all F frame byte populations and parses/verifies K semantic sidecars; each sidecar performs a linear frame match and final mask coverage scans frames, alongside PNG/semantic parser work and repeated namespace guards.
      * @evidence contracts/performance.md#reuse-equivalent-work One admitted manifest supplies path, receipt and frame/semantic checks, with Sets reused for duplicate/coverage membership; mutable resident bytes are freshly read rather than trusting an earlier bundle verdict.
-     * @evidence contracts/performance.md#bound-retention-and-release-resources The adapter retains only its instance state between calls. Manifest records, uniqueness Sets and original manifest bytes remain local while frame/sidecar/parser buffers are processed; admitted metadata escapes, guarded readers release descriptors and no pixel buffer, parser object or inspection task is retained.
+     * @evidence contracts/performance.md#bound-retention-and-release-resources The adapter retains only its instance state between calls. Manifest records, uniqueness Sets and original manifest bytes remain local while frame/sidecar/parser buffers are processed; admitted metadata escapes and guarded readers own descriptor cleanup. No pixel buffer, parser object or inspection task is retained here.
      */
     public verifiedRenderManifest(manifestPath: string): IAutoMovieRenderBundleManifest | null {
         return productionProjectVerifiedRenderManifest(this.state_, manifestPath);
@@ -62,17 +70,30 @@ export class AutoMovieProductionProjectCapability8 extends AutoMovieProductionPr
      * @evidence contracts/common.md#clear-and-simple-design The operation owns implementation behind this public forwarding signature. Owns terminal payload and receipt correspondence while media probes, semantic mask admission, publication identity and mutation accounting retain their respective responsibilities; it creates no encoder or render host.
      * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing, duplicate, unclaimed or digest-mismatched files refuse; resident immutable paths are reused only after exact byte comparison, and currentness callbacks are observations rather than a guarantee against every between-check ABA race.
      * @evidence contracts/common.md#meaningful-documentation Documents the terminal ledger and immutable payload policy, with malformed media or stale plan/input refusing before final revision publication; delegated rollback can report incomplete cleanup after partial filesystem effects.
-     * @evidence contracts/performance.md#efficient-algorithms One direct adapter call adds constant overhead to the delegated operation. Includes full manifest schema walk/clone, O(P log P) receipt sorting for P files, payload copies and hashing, per-format probe costs, serialization, commit staging and two post-write payload read/hash passes; MP4 probing also parses boxes/sample tables and performs media-range residency lookup, not merely O(1) metadata comparisons.
+     * @evidence contracts/performance.md#efficient-algorithms One direct adapter call adds constant overhead to full manifest schema walking/cloning, O(P log P) code-unit path comparisons for P receipt files, path-key normalization, payload copies/hashing, media probing, serialization, commit staging and two post-write read/hash passes. Path text contributes to sorting, and MP4 probing parses boxes/sample tables and performs media-range residency lookup.
      * @evidence contracts/performance.md#reuse-equivalent-work One owned supplied-byte map serves hashing/probing/staging and one cloned manifest serves all checks; existing immutable files are compared before reuse, while plan/input callbacks and resident bytes are deliberately reobserved at commit boundaries.
      * @evidence contracts/performance.md#bound-retention-and-release-resources The adapter retains only its instance state between calls. Attempt-owned payload copies, cloned manifest, media probe records and receipt/ledger strings remain until synchronous commit finishes; parsed MP4 copies/sample metadata and commit previous/current buffers contribute additional residency, so no unmeasured fixed peak factor is promised; commitFiles owns locks/temporary cleanup.
      */
     public commitProductionPublication(props: {
+        /** Complete supplied payload population copied by the operation. */
         files: ReadonlyMap<string, Uint8Array>;
+
+        /** Candidate terminal ledger admitted and cloned before staging. */
         manifest: IAutoMovieProductionRenderManifest;
+
+        /** Host plan whose exact identity the candidate must match. */
         plan: IAutoMovieProductionRenderJobPlan;
+
+        /** Fresh render-plan generation check at publication boundaries. */
         planCurrent: () => boolean;
+
+        /** Fresh compile-input closure check at publication boundaries. */
         inputCurrent: () => boolean;
+
+        /** Final gate between the operation's post-write byte/ledger checks. */
         publicationCurrent: () => void;
+
+        /** Optimistic revision required by the shared transaction. */
         expectedRevision: number;
     }): number {
         return productionProjectCommitProductionPublication(this.state_, props);
@@ -89,7 +110,10 @@ export class AutoMovieProductionProjectCapability8 extends AutoMovieProductionPr
      * @evidence contracts/performance.md#bound-retention-and-release-resources The adapter retains only its instance state between calls. Input byte arrays are borrowed and entry arrays reference them; commitFiles owns copied new/prior buffers and lock cleanup, while only revision/path strings escape without retaining deliverable media or an asynchronous task.
      */
     public commitProductionDeliverableFiles(deliverableId: string, files: ReadonlyMap<string, Uint8Array>): {
+        /** Revision returned after the supplied set's guarded transaction. */
         revision: number;
+
+        /** Sorted render-root-relative addresses of the supplied deliverable members. */
         paths: string[];
     } {
         return productionProjectCommitProductionDeliverableFiles(this.state_, deliverableId, files);
@@ -103,7 +127,7 @@ export class AutoMovieProductionProjectCapability8 extends AutoMovieProductionPr
      * @evidence contracts/common.md#meaningful-documentation Returns the transaction revision; verification or input races can refuse and rollback, while post-revision failure may report already committed data.
      * @evidence contracts/performance.md#efficient-algorithms One direct adapter call adds constant overhead to the delegated operation. Includes complete candidate/resident byte reads and copies, manifest serialization, retirement scans, staged previous bytes, atomic writes and full inventory/payload verification, even for a byte-identical no-op.
      * @evidence contracts/performance.md#reuse-equivalent-work Byte-identical members avoid writes after fresh observation; previous bytes remain available for rollback, and currentness callbacks are rerun rather than memoized.
-     * @evidence contracts/performance.md#bound-retention-and-release-resources The adapter retains only its instance state between calls. CommitFiles releases namespace/locks and atomic temporaries; candidate, resident and rollback buffers live for the attempt without a fixed byte cap, then return only the revision.
+     * @evidence contracts/performance.md#bound-retention-and-release-resources The adapter retains only its instance state between calls. CommitFiles and atomic owners attempt namespace/lock/temporary cleanup; refusal can retain fences or bytes, and incomplete rollback or postcommit failure is reported. Candidate, resident and rollback buffers live for the attempt without a fixed byte cap; success returns only the revision.
      */
     public commitGenerated(files: ReadonlyMap<string, Uint8Array>, manifest: IAutoMovieGeneratedManifest, inputCurrent?: () => boolean, expectedRevision: number = this.state_.lastReadRevision_): number {
         return productionProjectCommitGenerated(this.state_, files, manifest, inputCurrent, expectedRevision);

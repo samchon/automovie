@@ -4,7 +4,7 @@ import { canonicalAutoMovieJsonBytes, digestAutoMovieBytes, encodeAutoMoviePathS
 /**
  * Derive the canonical render-root-relative address of one bundle identity.
  *
- * @evidence contracts/common.md#principled-implementation Uses target kind and reversible encoded ID, target fingerprint and a canonical SHA-256 of target/dialogue runtime/renderer identity/render specification; changing capture metadata moves the bundle even when its selected target input is unchanged.
+ * @evidence contracts/common.md#principled-implementation Uses target kind and the shared portable ID encoding, the supplied target fingerprint and a canonical SHA-256 of target/dialogue runtime/renderer identity/render specification. Long IDs use the encoder's nonreversible hash segment, with their original identity retained by the manifest; changed capture metadata participates independently of selected target input.
  * @evidence contracts/common.md#clear-and-simple-design Oracle publication proposes this path and project bundle publication/reopening check the same derivation; source-frame facts and actual byte admission remain with their own receipt owners.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No production or target ID receives a special directory; the supplied target fingerprint is assumed already admitted, and removing its sha256 prefix here is formatting rather than digest validation.
  * @evidence contracts/common.md#meaningful-documentation Defines path domains and consumers, including the separately guarded target fingerprint; the helper returns a relative address and creates no directory or publication.

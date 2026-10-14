@@ -12,13 +12,13 @@ import { productionProjectReadGeneratedFile } from "./productionProjectReadGener
 /**
  * Verify generated membership, exact member bytes and exact manifest bytes before revision publication.
  *
- * @evidence contracts/common.md#principled-implementation Directory traversal records current paths, both inventories are ordered by complete code-unit path, and guarded readers compare every supplied member and manifest; failures become InputRaceError. Sorting complete paths makes membership independent of per-directory DFS order.
+ * @evidence contracts/common.md#principled-implementation Directory traversal records current paths, both inventories are ordered by complete code-unit path, and guarded readers compare every supplied member and manifest. Caught failures become InputRaceError when unguarded cause-to-string formatting succeeds; sorting complete paths makes membership independent of per-directory DFS order.
  * @evidence contracts/common.md#clear-and-simple-design One output fence is used by generated publication; it neither repairs files nor publishes a revision.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Unexpected files or unreadable bytes refuse instead of being ignored, and metadata/path equality does not replace byte comparison.
  * @evidence contracts/common.md#meaningful-documentation Throws on inventory, payload or manifest mismatch, including undeclared residents; equal prefix-shaped populations such as a/x and a-b are admitted regardless of discovery order.
- * @evidence contracts/performance.md#efficient-algorithms Enumerates every resident entry with per-directory sorting, globally sorts actual and candidate path arrays in O(F log F) for F members, reads/copies all payload and manifest bytes and compares them, plus recursive depth and repeated ancestry checks.
+ * @evidence contracts/performance.md#efficient-algorithms Enumerates E resident entries with per-directory name sorting, then globally sorts A actual non-directory paths and F candidate paths with O(A log A + F log F) code-unit comparisons. Compared text, path construction, joined inventory strings, all payload/manifest reads/copies/comparisons, recursion depth and repeated ancestry checks contribute additional cost.
  * @evidence contracts/performance.md#reuse-equivalent-work Expected bytes/serialized manifest are borrowed from the attempt; actual bytes and metadata are freshly acquired with no persistent validation cache.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Call-local inventory and comparison buffers release; delegated readers close descriptors, recursion grows with tree depth, and no fixed entry/byte cap is imposed.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Call-local inventories, joined path text and comparison buffers expire after return/refusal; delegated readers own descriptor cleanup. Recursion grows with tree depth, and no fixed entry/byte cap is imposed.
  */
 export function productionProjectAssertGeneratedOutputCurrent(state: AutoMovieProductionProjectState, files: ReadonlyMap<string, Uint8Array>, serializedManifest: string): void {
     try {

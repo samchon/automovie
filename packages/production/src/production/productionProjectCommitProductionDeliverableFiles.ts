@@ -18,7 +18,10 @@ import { productionProjectCommitFiles } from "./productionProjectCommitFiles";
  * @evidence contracts/performance.md#bound-retention-and-release-resources Input byte arrays are borrowed and entry arrays reference them; commitFiles owns copied new/prior buffers and lock cleanup, while only revision/path strings escape without retaining deliverable media or an asynchronous task.
  */
 export function productionProjectCommitProductionDeliverableFiles(state: AutoMovieProductionProjectState, deliverableId: string, files: ReadonlyMap<string, Uint8Array>): {
+    /** Revision returned after the supplied set's guarded transaction. */
     revision: number;
+
+    /** Sorted render-root-relative addresses of the supplied deliverable members. */
     paths: string[];
 } {
     if (files.size === 0)
