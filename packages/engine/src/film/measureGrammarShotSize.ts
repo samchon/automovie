@@ -27,7 +27,7 @@ import { projectToNdc } from "./projectToNdc";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function of one shot boundary; `readFilmGrammar` memoizes its answer per shot and boundary, which is answered there.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Allocates only the two projected points and the raised top vector, all released on return.
  */
-export function measureGrammarShotSize (
+export function measureGrammarShotSize(
   shot: IAutoMovieNormalizedGrammarShot,
   boundary: "start" | "end",
 ): IAutoMovieCameraIntent["framing"] | null {

@@ -19,9 +19,11 @@ import {
 export function defineShot<Context>(
   id: string,
   definition: IAutoMovieShotDefinition<Context>,
-): IAutoMovieDefinedShot<Context> { return ({
-  id,
-  scene: definition.scene,
-  contract: definition.contract,
-  build: definition.build,
-}); }
+): IAutoMovieDefinedShot<Context> {
+  return {
+    id,
+    scene: definition.scene,
+    contract: definition.contract,
+    build: definition.build,
+  };
+}

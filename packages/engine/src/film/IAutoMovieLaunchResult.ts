@@ -29,7 +29,7 @@ export interface IAutoMovieLaunchResult {
    * The projectile node's baked flight clip, id `trajectory:<projectile>`, with
    * translation and aim rotation keys on a launch-local clock from 0 to
    * {@link hitTime}; `performShot` shifts it by the action's `start` and
- * suffixes the id of a second or later flight of the same projectile.
+   * suffixes the id of a second or later flight of the same projectile.
    */
   clip: IAutoMovieClip;
 

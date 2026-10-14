@@ -29,7 +29,7 @@ import { IShotContractSubjectReader } from "./IShotContractSubjectReader";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Measures one predicate per call; the supplied reader caches object-channel samples and model extents within the grading call, while poseAt samples motion again for each pose read.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the returned result references the caller's predicate and holds one number.
  */
-export function evaluateShotPredicate (
+export function evaluateShotPredicate(
   reader: IShotContractSubjectReader,
   predicate: IAutoMovieShotPredicate,
   time: number,
@@ -55,7 +55,7 @@ export function evaluateShotPredicate (
 }
 
 /** The scalar a predicate compares; throws when a reference does not resolve. */
-function measure (
+function measure(
   reader: IShotContractSubjectReader,
   predicate: IAutoMovieShotPredicate,
   time: number,
@@ -68,7 +68,8 @@ function measure (
     return Math.hypot(from.x - to.x, from.y - to.y, from.z - to.z);
   }
   const node: IAutoMovieSceneNode | undefined = reader.node(predicate.actor);
-  if (node === undefined) throw new Error(`node "${predicate.actor}" is absent`);
+  if (node === undefined)
+    throw new Error(`node "${predicate.actor}" is absent`);
   const rig: IAutoMovieSkeleton | null = reader.skeleton(node);
   if (
     rig === null ||
@@ -77,7 +78,9 @@ function measure (
         bone.bone === predicate.bone,
     ) === false
   )
-    throw new Error(`node "${predicate.actor}" has no bone "${predicate.bone}"`);
+    throw new Error(
+      `node "${predicate.actor}" has no bone "${predicate.bone}"`,
+    );
   const pose: IAutoMoviePose = reader.poseAt(node, time);
   const joint: IAutoMoviePose["joints"][number] | undefined = pose.joints.find(
     (item: IAutoMoviePose["joints"][number]): boolean =>

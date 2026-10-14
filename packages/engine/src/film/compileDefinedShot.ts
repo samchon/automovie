@@ -243,7 +243,9 @@ export function compileDefinedShot<Context>(props: {
       return {
         success: false,
         diagnostics: measured.diagnostics.map(
-          (diagnostic: IAutoMovieDiagnostic): IAutoMovieAuthoringDiagnostic => ({
+          (
+            diagnostic: IAutoMovieDiagnostic,
+          ): IAutoMovieAuthoringDiagnostic => ({
             code: "contract-realization-failed",
             phase: "contract",
             path: diagnostic.path ?? "$shot.contract",
@@ -310,7 +312,7 @@ export function compileDefinedShot<Context>(props: {
 }
 
 /** Keep resumable simulation facts authoritative at the new opening instant. */
-function resumeOpeningSnapshot (
+function resumeOpeningSnapshot(
   opening: IAutoMovieBeatEndState,
   prior: IPriorActors | null,
 ): IAutoMovieBeatEndState {
@@ -337,32 +339,34 @@ function resumeOpeningSnapshot (
 }
 
 /** Resume root placement, facing, and persistent mounts before staging. */
-function resumeStage (
+function resumeStage(
   stage: IAutoMovieStage,
   prior: IPriorActors,
-): IAutoMovieStage { return ({
-  ...stage,
-  actors: stage.actors.map(
-    (actor: IAutoMovieStageActor): IAutoMovieStageActor => {
-      const state: IAutoMovieBeatEndActorState | undefined = prior.get(
-        actor.node,
-      );
-      return state === undefined
-        ? actor
-        : {
-            ...actor,
-            position: structuredClone(state.transform.translation),
-            facingDeg:
-              (Math.atan2(state.facing.x, state.facing.z) * 180) / Math.PI,
-            attach:
-              state.mount === null ? undefined : structuredClone(state.mount),
-          };
-    },
-  ),
-}); }
+): IAutoMovieStage {
+  return {
+    ...stage,
+    actors: stage.actors.map(
+      (actor: IAutoMovieStageActor): IAutoMovieStageActor => {
+        const state: IAutoMovieBeatEndActorState | undefined = prior.get(
+          actor.node,
+        );
+        return state === undefined
+          ? actor
+          : {
+              ...actor,
+              position: structuredClone(state.transform.translation),
+              facingDeg:
+                (Math.atan2(state.facing.x, state.facing.z) * 180) / Math.PI,
+              attach:
+                state.mount === null ? undefined : structuredClone(state.mount),
+            };
+      },
+    ),
+  };
+}
 
 /** Carry prior articulation onto the resumed scene's opening frame. */
-function resumePoses (
+function resumePoses(
   staged: IAutoMovieStagedSet.ISuccess,
   prior: IPriorActors | null,
 ): IAutoMovieStagedSet.ISuccess {
@@ -409,12 +413,15 @@ function validateRegistration<Context>(
 }
 
 /** Translate one gate's constraint violations into authoring diagnostics. */
-function fromViolations (
+function fromViolations(
   phase: "stage" | "blocking" | "performance",
   code: "stage-invalid" | "blocking-invalid" | "performance-invalid",
   violations: readonly IAutoMovieConstraintViolation[],
-): IAutoMovieAuthoringDiagnostic[] { return violations.map(
-    (violation: IAutoMovieConstraintViolation): IAutoMovieAuthoringDiagnostic => ({
+): IAutoMovieAuthoringDiagnostic[] {
+  return violations.map(
+    (
+      violation: IAutoMovieConstraintViolation,
+    ): IAutoMovieAuthoringDiagnostic => ({
       code,
       phase,
       path: violation.path,
@@ -423,12 +430,15 @@ function fromViolations (
       recovery: `Correct ${violation.path} according to the stated bound, then compile the same registered export again.`,
       violation,
     }),
-  ); }
+  );
+}
 
 /** Render a thrown value, falling back when its inspection or coercion throws. */
-function errorText (error: unknown): string {
+function errorText(error: unknown): string {
   try {
-    return error instanceof Error ? `${error.name}: ${error.message}` : String(error);
+    return error instanceof Error
+      ? `${error.name}: ${error.message}`
+      : String(error);
   } catch {
     return "an uninspectable thrown value";
   }

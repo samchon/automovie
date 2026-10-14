@@ -52,7 +52,7 @@ import { forgeProp } from "./forgeProp";
  * @evidence contracts/performance.md#reuse-equivalent-work The lowered graph, the drivable set, the baked channel and id sets and the profile list are each built once per call and shared by every clip and every sampled instant, and distinct key times are deduplicated so one instant is resolved once.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Every set, the lowered graph and the resolved frames are dropped on return; the caller owns the returned violations.
  */
-export function gateAuthoredObjectMotions (
+export function gateAuthoredObjectMotions(
   gate: IAutoMovieObjectMotionGate,
 ): IAutoMovieConstraintViolation[] {
   const out: ViolationCollector = new ViolationCollector();
@@ -207,7 +207,8 @@ export function gateAuthoredObjectMotions (
     },
   );
   if (profiles.length === 0) return out.items;
-  for (const time of authoredRotationCriticalTimes(gate.clips, gate.duration)) times.add(time);
+  for (const time of authoredRotationCriticalTimes(gate.clips, gate.duration))
+    times.add(time);
   // Only the channels these clips drive: `resolveFrame` clamps every bound
   // profile, so a prop whose rest joint already sits outside its own travel
   // would breach here too, and that is its own gate's fault to report.

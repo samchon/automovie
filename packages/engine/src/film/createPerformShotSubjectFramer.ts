@@ -57,7 +57,7 @@ import { unionSubjectBoxes } from "./unionSubjectBoxes";
  * @evidence contracts/performance.md#reuse-equivalent-work Memoizes model extents by node id and member extents by formation object while shot models, nodes and formations remain unchanged. Builds the staged-node index once, but does not memoize arbitrary skeleton/target callbacks whose results may vary.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The returned function retains node and formation extent maps, bounded by the shot's node/formation populations, plus borrowed staged and clip tables until performShot releases it. Per-sample group boxes are temporary and no cache survives the shot call.
  */
-export function createPerformShotSubjectFramer (
+export function createPerformShotSubjectFramer(
   context: IPerformShotGateContext,
   props: {
     models: readonly IAutoMovieModel[] | undefined;
@@ -66,7 +66,7 @@ export function createPerformShotSubjectFramer (
     objectMotions: readonly IAutoMovieClip[];
     rotations: ReadonlyMap<string, IAutoMovieQuaternion>;
   },
-): ((on: IAutoMovieActionTarget) => IAutoMovieFramedSubject) {
+): (on: IAutoMovieActionTarget) => IAutoMovieFramedSubject {
   const stagedNodes: Map<string, IAutoMovieSceneNode> = new Map(
     context.staged.scene.nodes.map(
       (entry: IAutoMovieSceneNode): [string, IAutoMovieSceneNode] => [
@@ -76,10 +76,17 @@ export function createPerformShotSubjectFramer (
     ),
   );
   const extents: Map<string, IAutoMovieSubjectBox | null> = new Map();
-  const memberExtents: Map<IAutoMovieCompiledFormation, { min: number; max: number }> = new Map();
+  const memberExtents: Map<
+    IAutoMovieCompiledFormation,
+    { min: number; max: number }
+  > = new Map();
   /** Reuse one immutable shot formation's portable member measurement. */
-  function memberExtent(formation: IAutoMovieCompiledFormation): { min: number; max: number } {
-    let extent: { min: number; max: number } | undefined = memberExtents.get(formation);
+  function memberExtent(formation: IAutoMovieCompiledFormation): {
+    min: number;
+    max: number;
+  } {
+    let extent: { min: number; max: number } | undefined =
+      memberExtents.get(formation);
     if (extent === undefined) {
       extent = formationMemberExtent(formation, props.models);
       memberExtents.set(formation, extent);
@@ -87,7 +94,7 @@ export function createPerformShotSubjectFramer (
     return extent;
   }
   /** A node's model-space extent, reusing its model measurement and querying the rig fallback when that measurement is absent. */
-  function nodeExtent (node: string): IAutoMovieSubjectBox {
+  function nodeExtent(node: string): IAutoMovieSubjectBox {
     let extent: IAutoMovieSubjectBox | null | undefined = extents.get(node);
     if (extent === undefined) {
       const staffed: IAutoMovieSceneNode | undefined = stagedNodes.get(node);
@@ -102,10 +109,13 @@ export function createPerformShotSubjectFramer (
     }
     const rig: IAutoMovieSkeleton | null =
       extent === null ? context.skeleton(node) : null;
-    return nodeSubjectExtent(extent, rig === null ? null : computeRestHeight(rig));
+    return nodeSubjectExtent(
+      extent,
+      rig === null ? null : computeRestHeight(rig),
+    );
   }
   /** The staged rotation and scale of a node, at a supplied translation. */
-  function placement (
+  function placement(
     node: string | null,
     translation: IAutoMovieVector3,
   ): IAutoMovieTransform {
@@ -118,31 +128,34 @@ export function createPerformShotSubjectFramer (
     };
   }
   /** One box per group member that resolves, at a shot-local instant. */
-  function groupBoxes (
+  function groupBoxes(
     on: IAutoMovieGroupTarget,
     seconds: number,
-  ): IAutoMovieSubjectBox[] { return [
-    ...on.nodes.flatMap((node: string): IAutoMovieSubjectBox[] => {
-      const at: IAutoMovieVector3 | undefined = context.nodePositions.get(node);
-      return at === undefined
-        ? []
-        : [nodeSubjectBox(placement(node, at), nodeExtent(node))];
-    }),
-    ...(on.formations ?? []).flatMap((id: string): IAutoMovieSubjectBox[] => {
-      const formation: IAutoMovieCompiledFormation | undefined =
-        context.formationById.get(id);
-      return formation === undefined
-        ? []
-        : [
-            formationSubjectBox({
-              formation,
-              motions: props.formationMotions,
-              member: memberExtent(formation),
-              seconds,
-            }),
-          ];
-    }),
-  ]; }
+  ): IAutoMovieSubjectBox[] {
+    return [
+      ...on.nodes.flatMap((node: string): IAutoMovieSubjectBox[] => {
+        const at: IAutoMovieVector3 | undefined =
+          context.nodePositions.get(node);
+        return at === undefined
+          ? []
+          : [nodeSubjectBox(placement(node, at), nodeExtent(node))];
+      }),
+      ...(on.formations ?? []).flatMap((id: string): IAutoMovieSubjectBox[] => {
+        const formation: IAutoMovieCompiledFormation | undefined =
+          context.formationById.get(id);
+        return formation === undefined
+          ? []
+          : [
+              formationSubjectBox({
+                formation,
+                motions: props.formationMotions,
+                member: memberExtent(formation),
+                seconds,
+              }),
+            ];
+      }),
+    ];
+  }
 
   return (on: IAutoMovieActionTarget): IAutoMovieFramedSubject => {
     if (on.kind === "group") {
@@ -153,12 +166,15 @@ export function createPerformShotSubjectFramer (
       // Which members resolve depends on the shot's tables, not the instant,
       // so a group that measured something at 0 measures something always.
       if (opening !== null) {
-        function framedAt (seconds: number): IAutoMovieFramedBox { return framedBoxOf(unionSubjectBoxes(groupBoxes(group, seconds))!); }
+        function framedAt(seconds: number): IAutoMovieFramedBox {
+          return framedBoxOf(unionSubjectBoxes(groupBoxes(group, seconds))!);
+        }
         const framed: IAutoMovieFramedBox = framedBoxOf(opening);
-        const cued: boolean = (on.formations ?? []).some((id: string): boolean =>
-          props.formationMotions.some(
-            (cue: IAutoMovieFormationMotion): boolean => cue.formation === id,
-          ),
+        const cued: boolean = (on.formations ?? []).some(
+          (id: string): boolean =>
+            props.formationMotions.some(
+              (cue: IAutoMovieFormationMotion): boolean => cue.formation === id,
+            ),
         );
         return {
           base: framed.base,
@@ -208,7 +224,7 @@ export function createPerformShotSubjectFramer (
 }
 
 /** How a point subject moves over shot time, or null when it holds still. */
-function movementOf (
+function movementOf(
   context: IPerformShotGateContext,
   props: {
     motions: Readonly<Record<string, IAutoMovieMotion>>;

@@ -46,7 +46,7 @@ import { validatePerformShotId } from "./validatePerformShotId";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Gates one action per call; the staged tables are the shared context's.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Appends at most one job to the caller's plan and retains nothing itself.
  */
-export function gatePerformShotStageAction (
+export function gatePerformShotStageAction(
   context: IPerformShotGateContext,
   plan: IPerformShotActionPlan,
   action: Exclude<IAutoMovieActionCall, { verb: "frame" }>,
@@ -59,8 +59,7 @@ export function gatePerformShotStageAction (
     case "locomote": {
       if (context.gaits !== undefined)
         for (const actor of actors) {
-          const available: readonly string[] | undefined =
-            context.gaits(actor);
+          const available: readonly string[] | undefined = context.gaits(actor);
           if (available !== undefined && !available.includes(action.gait))
             out.push(
               "type",
@@ -210,7 +209,10 @@ export function gatePerformShotStageAction (
       validatePerformShotId(out, action.clip, `${path}.clip`, "enact clip id");
       return;
     case "react":
-      if (typeof action.force !== "number" || !(action.force >= 0 && action.force <= 1))
+      if (
+        typeof action.force !== "number" ||
+        !(action.force >= 0 && action.force <= 1)
+      )
         out.push(
           "range",
           `${path}.force`,
@@ -227,7 +229,10 @@ export function gatePerformShotStageAction (
       });
       return;
     case "emote":
-      if (typeof action.intensity !== "number" || !(action.intensity >= 0 && action.intensity <= 1))
+      if (
+        typeof action.intensity !== "number" ||
+        !(action.intensity >= 0 && action.intensity <= 1)
+      )
         out.push(
           "range",
           `${path}.intensity`,
@@ -329,7 +334,7 @@ export function gatePerformShotStageAction (
 }
 
 /** Refuse an arm verb asked of a rig whose elbow cannot bend that arm. */
-function refuseUnbendableArm (
+function refuseUnbendableArm(
   context: IPerformShotGateContext,
   side: "left" | "right",
   path: string,

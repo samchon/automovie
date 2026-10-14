@@ -25,7 +25,7 @@ const BACK: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function of one vector that coordinates no work across calls; each keyframe aims along its own direction.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Allocates a few temporary vectors and retains nothing; the caller owns the returned quaternion.
  */
-export function lookRotation (
+export function lookRotation(
   direction: IAutoMovieVector3,
 ): IAutoMovieQuaternion {
   const z: IAutoMovieVector3 = Vector3.scale(Vector3.normalize(direction), -1);

@@ -20,7 +20,7 @@ import { compileCameraMove } from "./compileCameraMove";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Called once per coverage camera per shot with that camera's own entries, so no two calls compute the same take.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the returned take references the entries' intent records and a fresh clip, both owned by the caller.
  */
-export function compileCameraCoverage (props: {
+export function compileCameraCoverage(props: {
   /** The covering camera, staged in the same scene as the hero. */
   camera: IAutoMovieCamera;
 
@@ -35,17 +35,19 @@ export function compileCameraCoverage (props: {
 
   /** Frame width over height, as {@link compileCameraMove} reads it. */
   aspect?: number;
-}): IAutoMovieShotCoverage { return ({
-  camera: props.camera.id,
-  cameraMotion: compileCameraMove({
-    clipId: props.clipId,
-    camera: props.camera,
-    entries: props.entries,
-    shotDuration: props.shotDuration,
-    aspect: props.aspect,
-  }),
-  cameraIntent: props.entries.map(
-    (entry: IAutoMovieCameraCoverageEntry): IAutoMovieCameraIntent =>
-      entry.intent,
-  ),
-}); }
+}): IAutoMovieShotCoverage {
+  return {
+    camera: props.camera.id,
+    cameraMotion: compileCameraMove({
+      clipId: props.clipId,
+      camera: props.camera,
+      entries: props.entries,
+      shotDuration: props.shotDuration,
+      aspect: props.aspect,
+    }),
+    cameraIntent: props.entries.map(
+      (entry: IAutoMovieCameraCoverageEntry): IAutoMovieCameraIntent =>
+        entry.intent,
+    ),
+  };
+}

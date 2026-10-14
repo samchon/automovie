@@ -21,7 +21,7 @@ import { canonicalProductionFrameRate } from "./canonicalProductionFrameRate";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work One boundary per call with no shared state; the interval form calls it twice per interval because each end is a separate boundary.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Allocates a few `BigInt` temporaries and retains nothing.
  */
-export function productionFrameBoundaryToGridTick (props: {
+export function productionFrameBoundaryToGridTick(props: {
   frame: number;
   frameRate: IAutoMovieProductionFrameRate;
   ticksPerSecond: number;

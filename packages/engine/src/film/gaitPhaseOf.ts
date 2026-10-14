@@ -20,7 +20,7 @@ import { positiveModulo } from "../math/positiveModulo";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure scalar of one clip and one instant that coordinates no work across calls.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Allocates and retains nothing; it returns a number.
  */
-export function gaitPhaseOf (
+export function gaitPhaseOf(
   clip: IAutoMovieMotion,
   localTime: number,
 ): number | null {

@@ -52,7 +52,7 @@ interface IDeclaredNode {
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure gate over one prop spec that coordinates no work across calls or consumers.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing after return; success references the caller's spec, and failure owns a violation list bounded by a few violations per joint, asset, LOD level and mapped key plus the model's own.
  */
-export function forgeProp (spec: IAutoMoviePropSpec): IAutoMovieForgedProp {
+export function forgeProp(spec: IAutoMoviePropSpec): IAutoMovieForgedProp {
   const out: ViolationCollector = new ViolationCollector();
 
   if (spec.node.trim().length === 0)
@@ -113,7 +113,7 @@ export function forgeProp (spec: IAutoMoviePropSpec): IAutoMovieForgedProp {
  *
  * Whether the reference resolves and whether each digest matches bytes on disk remain the builder's responsibility. The engine holds neither the production's model registry nor its files, while the builder holds both.
  */
-function gateImportedAppearance (
+function gateImportedAppearance(
   model: IAutoMovieModel,
   modelRef: string,
   out: ViolationCollector,
@@ -273,7 +273,7 @@ function gateImportedAppearance (
  *
  * The model is here for the `mesh` payload. An articulation node is an {@link IAutoMovieNode}, so it can name the piece of the prop that rides it, and that reference is the whole of how a declared joint becomes a part that visibly moves: without it a hinge turns an empty frame while the leaf stands still, which is a shot that validates clean and shows nothing. The reference resolves inside this prop's own model, because a prop's moving part is a part of the prop; two joints may not claim the same part, since a part rides one frame.
  */
-function gateArticulation (
+function gateArticulation(
   articulation: IAutoMoviePropArticulation,
   model: IAutoMovieModel,
   out: ViolationCollector,
@@ -352,18 +352,30 @@ function gateArticulation (
     const trail: string[] = [];
     const active: Map<string, number> = new Map();
     let cursor: string | null = id;
-    while (cursor !== null && byId.has(cursor) && !completed.has(cursor) && !active.has(cursor)) {
+    while (
+      cursor !== null &&
+      byId.has(cursor) &&
+      !completed.has(cursor) &&
+      !active.has(cursor)
+    ) {
       active.set(cursor, trail.length);
       trail.push(cursor);
       cursor = byId.get(cursor)!.node.parent;
     }
-    const cycleStart: number | undefined = cursor === null ? undefined : active.get(cursor);
-    const repeated: string | undefined = cursor === null
-      ? undefined
-      : cycleStart === undefined ? cycleAt.get(cursor) : cursor;
+    const cycleStart: number | undefined =
+      cursor === null ? undefined : active.get(cursor);
+    const repeated: string | undefined =
+      cursor === null
+        ? undefined
+        : cycleStart === undefined
+          ? cycleAt.get(cursor)
+          : cursor;
     trail.forEach((node: string, index: number): void => {
       if (repeated !== undefined)
-        cycleAt.set(node, cycleStart !== undefined && index >= cycleStart ? node : repeated);
+        cycleAt.set(
+          node,
+          cycleStart !== undefined && index >= cycleStart ? node : repeated,
+        );
       completed.add(node);
     });
   }
@@ -404,7 +416,10 @@ function gateArticulation (
   }
 
   for (const key of profileSemanticKeys(profile))
-    if (!Object.hasOwn(binding.boneMap, key) || binding.boneMap[key] === undefined)
+    if (
+      !Object.hasOwn(binding.boneMap, key) ||
+      binding.boneMap[key] === undefined
+    )
       out.push(
         "type",
         `${path}.binding.boneMap`,

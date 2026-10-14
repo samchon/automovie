@@ -50,7 +50,7 @@ import { resolvedPerformShotPoint } from "./resolvedPerformShotPoint";
  * @evidence contracts/performance.md#reuse-equivalent-work One framer is built per shot and shared by every take, so a subject's model extent is measured once however many cameras frame it.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The framer and its memo are dropped on return; the caller owns the returned clips, intents, takes and reports.
  */
-export function compilePerformShotCameras (
+export function compilePerformShotCameras(
   context: IPerformShotGateContext,
   props: {
     liveCamera: string;

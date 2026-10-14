@@ -56,7 +56,7 @@ const BOX_EDGES: ReadonlyArray<readonly [number, number]> = [
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure predicate over one box and one camera that coordinates no work across calls; the grader calls it once per sampled instant.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Creates bounded constant-size original, camera-local and frustum corner arrays plus vector arithmetic temporaries, and retains none after return.
  */
-export function intersectsPerspectiveFrustumBox (props: {
+export function intersectsPerspectiveFrustumBox(props: {
   camera: IAutoMovieResolvedCamera;
   min: IAutoMovieVector3;
   max: IAutoMovieVector3;
@@ -99,17 +99,19 @@ export function intersectsPerspectiveFrustumBox (props: {
 }
 
 /** The eight corners of a box, indexed by the x, y, z choice bits. */
-function boxCorners (
+function boxCorners(
   min: IAutoMovieVector3,
   max: IAutoMovieVector3,
-): IAutoMovieVector3[] { return [min.x, max.x].flatMap((x: number): IAutoMovieVector3[] =>
+): IAutoMovieVector3[] {
+  return [min.x, max.x].flatMap((x: number): IAutoMovieVector3[] =>
     [min.y, max.y].flatMap((y: number): IAutoMovieVector3[] =>
       [min.z, max.z].map((z: number): IAutoMovieVector3 => ({ x, y, z })),
     ),
-  ); }
+  );
+}
 
 /** The eight world corners of a perspective frustum, near plane first. */
-function frustumCorners (
+function frustumCorners(
   props: {
     camera: IAutoMovieResolvedCamera;
     near: number;
@@ -118,7 +120,8 @@ function frustumCorners (
   },
   halfX: number,
   crop: IAutoMovieDeliveryCropNdc,
-): IAutoMovieVector3[] { return [props.near, props.far].flatMap((depth: number): IAutoMovieVector3[] =>
+): IAutoMovieVector3[] {
+  return [props.near, props.far].flatMap((depth: number): IAutoMovieVector3[] =>
     [crop.left, crop.right].flatMap((sx: number): IAutoMovieVector3[] =>
       [crop.bottom, crop.top].map(
         (sy: number): IAutoMovieVector3 =>
@@ -132,10 +135,11 @@ function frustumCorners (
           ),
       ),
     ),
-  ); }
+  );
+}
 
 /** Whether a world-space segment meets an axis-aligned box (slab clipping). */
-function segmentMeetsBox (
+function segmentMeetsBox(
   from: IAutoMovieVector3,
   to: IAutoMovieVector3,
   min: IAutoMovieVector3,

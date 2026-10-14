@@ -17,7 +17,7 @@ import { IPerformShotGateContext } from "./IPerformShotGateContext";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work One pass over one shot's frame moves; the sorted list itself is the result later stages reuse.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Reorders the caller's list and appends findings to the caller's collector, retaining no state after return. The host's sort may allocate temporary workspace during the call.
  */
-export function gatePerformShotFrameOverlaps (
+export function gatePerformShotFrameOverlaps(
   context: IPerformShotGateContext,
   frames: IPerformShotFrameJob[],
 ): void {

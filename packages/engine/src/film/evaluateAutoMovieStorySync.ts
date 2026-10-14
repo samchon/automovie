@@ -34,7 +34,7 @@ interface IStorySyncEntry {
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Evaluates one claim from its callbacks; `storySyncDiagnostics` routes every consumer through one call per claim and owns any reuse of realizations.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the caller owns the outcome and its one point per addressed event.
  */
-export function evaluateAutoMovieStorySync (props: {
+export function evaluateAutoMovieStorySync(props: {
   /** Addressed shot-and-event pairs in their declared order. */
   events: ReadonlyArray<{ shot: string; event: string }>;
 

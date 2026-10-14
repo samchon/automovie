@@ -89,7 +89,7 @@ interface IKey {
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function of one camera's entries, called once per take; the hero and coverage takes have different cameras and entries, so nothing is shared between calls.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the key list is a local bounded by the keys above, and the returned clip is a fresh value owned by the caller.
  */
-export function compileCameraMove (props: {
+export function compileCameraMove(props: {
   clipId: string;
   camera: IAutoMovieCamera;
   entries: IAutoMovieCameraFrameEntry[];
@@ -108,7 +108,7 @@ export function compileCameraMove (props: {
   const halfX: number = halfY * aspect;
 
   const keys: IKey[] = [];
-  function push (
+  function push(
     t: number,
     pos: IAutoMovieVector3,
     rot: IAutoMovieQuaternion,
@@ -137,11 +137,13 @@ export function compileCameraMove (props: {
       throw new Error(`unknown camera framing "${String(action.framing)}"`);
     const aimOffset: number =
       subject.height * FRAMING_AIM_FRACTION[action.framing];
-    function aimOf (base: IAutoMovieVector3): IAutoMovieVector3 { return ({
-      x: base.x,
-      y: base.y + aimOffset,
-      z: base.z,
-    }); }
+    function aimOf(base: IAutoMovieVector3): IAutoMovieVector3 {
+      return {
+        x: base.x,
+        y: base.y + aimOffset,
+        z: base.z,
+      };
+    }
     const aim0: IAutoMovieVector3 = aimOf(subject.base);
     if (action.move === "whip") {
       push(t0, camera.transform.translation, camera.transform.rotation);
@@ -176,9 +178,12 @@ export function compileCameraMove (props: {
         ? { x: -1, y: 0, z: 0 }
         : Vector3.normalize(side);
 
-    function framedAt (base: IAutoMovieVector3, d: number): IKey {
+    function framedAt(base: IAutoMovieVector3, d: number): IKey {
       const aim: IAutoMovieVector3 = aimOf(base);
-      const pos: IAutoMovieVector3 = Vector3.add(aim, Vector3.scale(bearing, d));
+      const pos: IAutoMovieVector3 = Vector3.add(
+        aim,
+        Vector3.scale(bearing, d),
+      );
       return { t: 0, pos, rot: lookRotation(Vector3.subtract(aim, pos)) };
     }
 
@@ -270,7 +275,11 @@ export function compileCameraMove (props: {
       {
         channel: { kind: "node", node: camera.id, path: "translation" },
         times,
-        values: keys.flatMap((k: IKey): number[] => [k.pos.x, k.pos.y, k.pos.z]),
+        values: keys.flatMap((k: IKey): number[] => [
+          k.pos.x,
+          k.pos.y,
+          k.pos.z,
+        ]),
         interpolation: "linear",
       },
       {

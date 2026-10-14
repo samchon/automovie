@@ -23,7 +23,7 @@ import { transformFormationBounds } from "../transformFormationBounds";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function of one unit at one instant; the framing passes that sample a unit repeatedly own any reuse.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the caller owns the returned box.
  */
-export function formationSubjectBox (props: {
+export function formationSubjectBox(props: {
   /** The unit being framed. */
   formation: IAutoMovieCompiledFormation;
 

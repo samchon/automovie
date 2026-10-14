@@ -21,7 +21,7 @@ import { skeletonRestFrames } from "./skeletonRestFrames";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure measurement of one skeleton that coordinates nothing across calls; a caller framing one rig repeatedly owns any reuse.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing past the call; the rest-frame map it builds is dropped on return and only a number leaves.
  */
-export function computeRestHeight (skeleton: IAutoMovieSkeleton): number {
+export function computeRestHeight(skeleton: IAutoMovieSkeleton): number {
   if (skeleton.bones.length === 0) return 0;
   const frames: ReadonlyMap<
     AutoMovieHumanoidBone,

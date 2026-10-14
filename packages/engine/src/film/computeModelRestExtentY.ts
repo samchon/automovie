@@ -17,7 +17,7 @@ import { computeModelRestExtent } from "./computeModelRestExtent";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure projection of one model's measurement that coordinates nothing across calls.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the three-axis box is dropped on return and the caller owns the two numbers.
  */
-export function computeModelRestExtentY (
+export function computeModelRestExtentY(
   model: IAutoMovieModel,
 ): { min: number; max: number } | null {
   const extent: { min: IAutoMovieVector3; max: IAutoMovieVector3 } | null =

@@ -1,4 +1,8 @@
-import { IAutoMovieSequence, IAutoMovieSequenceEntry, IAutoMovieShot } from "@automovie/interface";
+import {
+  IAutoMovieSequence,
+  IAutoMovieSequenceEntry,
+  IAutoMovieShot,
+} from "@automovie/interface";
 
 import { IAutoMoviePlaybackEntry } from "./IAutoMoviePlaybackEntry";
 import { IAutoMoviePlaybackTimeline } from "./IAutoMoviePlaybackTimeline";
@@ -27,25 +31,42 @@ export function preparePlaybackTimeline(
 } {
   if (sequence.shots.length === 0)
     throw new Error(`sequence "${sequence.id}" must contain at least one shot`);
-  const shotById: Map<string, { shot: IAutoMovieShot; index: number }> = new Map();
+  const shotById: Map<string, { shot: IAutoMovieShot; index: number }> =
+    new Map();
   shots.forEach((shot: IAutoMovieShot, index: number): void => {
-    const existing: { shot: IAutoMovieShot; index: number } | undefined = shotById.get(shot.id);
+    const existing: { shot: IAutoMovieShot; index: number } | undefined =
+      shotById.get(shot.id);
     if (existing !== undefined)
-      throw new Error(`shot id "${shot.id}" is duplicated at shots[${index}].id; first declared at shots[${existing.index}].id`);
+      throw new Error(
+        `shot id "${shot.id}" is duplicated at shots[${index}].id; first declared at shots[${existing.index}].id`,
+      );
     shotById.set(shot.id, { shot, index });
   });
   const entries: IAutoMoviePlaybackEntry[] = [];
   let cursor: number = 0;
-  sequence.shots.forEach((entry: IAutoMovieSequenceEntry, index: number): void => {
-    if (index === 0 && entry.transition !== null)
-      throw new Error("sequence.shots[0].transition has nothing to transition from");
-    const found: { shot: IAutoMovieShot; index: number } | undefined = shotById.get(entry.shot);
-    if (found === undefined)
-      throw new Error(`sequence shot "${entry.shot}" at sequence.shots[${index}].shot was not provided`);
-    const played: number = entry.trim?.duration ?? found.shot.duration;
-    const start: number = cursor - (entry.transition?.duration ?? 0);
-    entries.push({ entry: index, shot: entry.shot, start, played, offset: entry.trim?.start ?? 0 });
-    cursor = start + played;
-  });
+  sequence.shots.forEach(
+    (entry: IAutoMovieSequenceEntry, index: number): void => {
+      if (index === 0 && entry.transition !== null)
+        throw new Error(
+          "sequence.shots[0].transition has nothing to transition from",
+        );
+      const found: { shot: IAutoMovieShot; index: number } | undefined =
+        shotById.get(entry.shot);
+      if (found === undefined)
+        throw new Error(
+          `sequence shot "${entry.shot}" at sequence.shots[${index}].shot was not provided`,
+        );
+      const played: number = entry.trim?.duration ?? found.shot.duration;
+      const start: number = cursor - (entry.transition?.duration ?? 0);
+      entries.push({
+        entry: index,
+        shot: entry.shot,
+        start,
+        played,
+        offset: entry.trim?.start ?? 0,
+      });
+      cursor = start + played;
+    },
+  );
   return { timeline: { entries, runtime: cursor }, shotById };
 }

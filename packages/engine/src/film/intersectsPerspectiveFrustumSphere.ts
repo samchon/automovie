@@ -32,7 +32,7 @@ import { deliveryCropNdc } from "./deliveryCropNdc";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure predicate over one sphere and one camera that coordinates no work across calls.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The camera-local centre and the NDC crop are garbage on return, and the predicate keeps no reference to the camera or sphere.
  */
-export function intersectsPerspectiveFrustumSphere (props: {
+export function intersectsPerspectiveFrustumSphere(props: {
   camera: IAutoMovieResolvedCamera;
   center: IAutoMovieVector3;
   radius: number;

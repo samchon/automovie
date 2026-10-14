@@ -28,7 +28,7 @@ import { performShotActors } from "./performShotActors";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work One comparison of one blocking with one performance per call.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Pushes violations into the shared collector and retains nothing.
  */
-export function gatePerformShotBlocking (
+export function gatePerformShotBlocking(
   context: IPerformShotGateContext,
   blocking: IAutoMovieBlocking,
   stageActions: readonly IAutoMovieActionCall[],

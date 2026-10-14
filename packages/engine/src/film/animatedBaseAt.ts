@@ -29,15 +29,17 @@ const ZERO: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Samples on demand per instant; the launch solve and the camera compile ask for distinct instants, so there is no repeated work to share.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The returned function retains `base`, `facing` and `motion` by reference for as long as its caller keeps it, which is the launch solve or the framed subject of one `performShot` call.
  */
-export function animatedBaseAt (
-    base: IAutoMovieVector3,
-    facing: IAutoMovieQuaternion,
-    motion: IAutoMovieMotion,
-  ): ((seconds: number) => IAutoMovieVector3) { return (seconds: number): IAutoMovieVector3 =>
+export function animatedBaseAt(
+  base: IAutoMovieVector3,
+  facing: IAutoMovieQuaternion,
+  motion: IAutoMovieMotion,
+): (seconds: number) => IAutoMovieVector3 {
+  return (seconds: number): IAutoMovieVector3 =>
     Vector3.add(
       base,
       Quaternion.rotateVector(
         facing,
         sampleMotion(motion, seconds).pose.root?.translation ?? ZERO,
       ),
-    ); }
+    );
+}

@@ -1,7 +1,4 @@
-import {
-  IAutoMovieClip,
-  IAutoMovieTransform,
-} from "@automovie/interface";
+import { IAutoMovieClip, IAutoMovieTransform } from "@automovie/interface";
 
 import { IAutoMovieSampledChannel } from "../resolve/IAutoMovieSampledChannel";
 import { sampleClipSequence } from "../resolve/sampleClipSequence";
@@ -22,7 +19,7 @@ import { bakedTransformFromChannels } from "./bakedTransformFromChannels";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Reads mutable caller-owned clips at one instant and coordinates no requests; reusing a previous map would require clip identity, content and time equivalence that this function does not own.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The sampled map lives only for this call; the returned frame contains scalar copies except the shared unit-scale fallback, which consumers read without modifying.
  */
-export function bakedTransformFromClipsAt (
+export function bakedTransformFromClipsAt(
   clips: readonly IAutoMovieClip[],
   node: string,
   t: number,

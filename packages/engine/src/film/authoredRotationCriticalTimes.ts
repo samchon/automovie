@@ -1,4 +1,8 @@
-import { IAutoMovieClip, IAutoMovieQuaternion, IAutoMovieTrack } from "@automovie/interface";
+import {
+  IAutoMovieClip,
+  IAutoMovieQuaternion,
+  IAutoMovieTrack,
+} from "@automovie/interface";
 
 import { adjacentAutoMovieFloat64 } from "../math/adjacentAutoMovieFloat64";
 import { quaternionInterpolationCriticalRatios } from "../math/quaternionInterpolationCriticalRatios";
@@ -16,20 +20,32 @@ import { quaternionInterpolationCriticalRatios } from "../math/quaternionInterpo
  * @evidence contracts/performance.md#reuse-equivalent-work Reuses the first-cycle component extrema for identical later loop phases under constant direct limits; later latest-start authority can hide that track but cannot reactivate it. Nonlinear driver combinations require their own extrema analysis and are outside this helper's direct-curve premise.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Local ratios and phase clocks are released after each clip; the returned set grows only with authored keys and segment roots, owned until the gate completes, with no handles or tasks retained.
  */
-export function authoredRotationCriticalTimes(clips: readonly IAutoMovieClip[], shotDuration: number): Set<number> {
+export function authoredRotationCriticalTimes(
+  clips: readonly IAutoMovieClip[],
+  shotDuration: number,
+): Set<number> {
   const times: Set<number> = new Set();
   function keep(time: number): void {
-    if (Number.isFinite(time) && time >= 0 && time <= shotDuration) times.add(time);
+    if (Number.isFinite(time) && time >= 0 && time <= shotDuration)
+      times.add(time);
   }
   for (const clip of clips) {
     const phases: Set<number> = new Set();
     for (const track of clip.tracks) {
       for (const time of track.times) phases.add(time);
-      if (track.interpolation !== "linear" || track.channel.kind !== "node" || track.channel.path !== "rotation") continue;
+      if (
+        track.interpolation !== "linear" ||
+        track.channel.kind !== "node" ||
+        track.channel.path !== "rotation"
+      )
+        continue;
       for (let index: number = 0; index + 1 < track.times.length; index++) {
         const start: number = track.times[index]!;
         const end: number = track.times[index + 1]!;
-        for (const ratio of quaternionInterpolationCriticalRatios(keyQuaternion(track, index), keyQuaternion(track, index + 1)))
+        for (const ratio of quaternionInterpolationCriticalRatios(
+          keyQuaternion(track, index),
+          keyQuaternion(track, index + 1),
+        ))
           phases.add(start * (1 - ratio) + end * ratio);
       }
     }
@@ -44,7 +60,15 @@ export function authoredRotationCriticalTimes(clips: readonly IAutoMovieClip[], 
 }
 
 /** Read an admitted linear rotation key in glTF x/y/z/w order. */
-function keyQuaternion(track: IAutoMovieTrack, index: number): IAutoMovieQuaternion {
+function keyQuaternion(
+  track: IAutoMovieTrack,
+  index: number,
+): IAutoMovieQuaternion {
   const offset: number = index * 4;
-  return { x: track.values[offset]!, y: track.values[offset + 1]!, z: track.values[offset + 2]!, w: track.values[offset + 3]! };
+  return {
+    x: track.values[offset]!,
+    y: track.values[offset + 1]!,
+    z: track.values[offset + 2]!,
+    w: track.values[offset + 3]!,
+  };
 }

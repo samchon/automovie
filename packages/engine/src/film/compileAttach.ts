@@ -46,7 +46,7 @@ const IDENTITY_OFFSET: IAutoMovieTransform = {
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call bakes one coupling from its own inputs; `coupleObjects` coordinates the shot's couplings and shares a parent's baked clips with its riders.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing after returning; the two tracks share one time array and own position and rotation arrays, holding 1 + 3 + 4 numbers per sample for the caller.
  */
-export function compileAttach (props: {
+export function compileAttach(props: {
   /** The coupled child's scene node: the clip's target. */
   child: string;
 
@@ -103,18 +103,22 @@ export function compileAttach (props: {
     );
   const count: number = Math.max(1, Math.round(props.duration * fps));
   if (!Number.isSafeInteger(count))
-    throw new RangeError("attach follow interval count must be a safe integer so sampling can advance");
+    throw new RangeError(
+      "attach follow interval count must be a safe integer so sampling can advance",
+    );
   const attachment: IAutoMovieAttachment = {
     parentBone: props.bone,
     offset: IDENTITY_OFFSET,
   };
-  function boneAt (pose: IAutoMoviePose): IAutoMovieTransform { return resolveAttachment(
+  function boneAt(pose: IAutoMoviePose): IAutoMovieTransform {
+    return resolveAttachment(
       pose,
       props.parentSkeleton,
       attachment,
       props.jointAxes,
       props.restFrames,
-    ); }
+    );
+  }
   const parentMotion: IAutoMovieMotion | undefined = props.parentMotion;
   const restBone: IAutoMovieTransform | null =
     parentMotion === undefined

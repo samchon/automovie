@@ -27,7 +27,7 @@ import { resolveProductionLighting } from "./resolveProductionLighting";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call resolves one instant of one production for one shot and coordinates no work across calls; the caller evaluates it once per shot.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The map and set are dropped on return; the caller owns the returned array, bounded by staged lights plus production sources.
  */
-export function inheritProductionLighting (props: {
+export function inheritProductionLighting(props: {
   /** The production's declared sources, or `null` when it declares none. */
   lighting: IAutoMovieProductionLighting | null;
 
@@ -61,6 +61,8 @@ export function inheritProductionLighting (props: {
       (light: IAutoMovieLight): IAutoMovieLight =>
         inherited.get(light.id) ?? light,
     ),
-    ...resolved.filter((light: IAutoMovieLight): boolean => !staged.has(light.id)),
+    ...resolved.filter(
+      (light: IAutoMovieLight): boolean => !staged.has(light.id),
+    ),
   ];
 }

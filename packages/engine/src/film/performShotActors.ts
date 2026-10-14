@@ -16,8 +16,10 @@ import { IAutoMovieActionCall } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure projection of one action that coordinates no work across calls.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; a list actor is returned by reference, so callers must not mutate it.
  */
-export function performShotActors (action: IAutoMovieActionCall): string[] { return typeof action.actor === "string"
+export function performShotActors(action: IAutoMovieActionCall): string[] {
+  return typeof action.actor === "string"
     ? [action.actor]
     : Array.isArray(action.actor)
       ? action.actor
-      : []; }
+      : [];
+}

@@ -48,14 +48,16 @@ interface ICarriedContent {
  * @evidence contracts/performance.md#reuse-equivalent-work Each action's synthesis comes from the shot's memoized synthesizer, so the clips made here are the clips the performance compile later reuses, and each action's masked content is cached per actor across all its pairs.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The per-actor lists and content caches are dropped on return; synthesized clips stay in the caller's memo for the rest of the call.
  */
-export function gatePerformShotRegionOverlaps (
+export function gatePerformShotRegionOverlaps(
   context: IPerformShotGateContext,
   actions: readonly IAutoMovieActionCall[],
   synthesize: IAutoMovieActionSynthesizer,
 ): void {
   const duration: number = context.performance.duration;
-  const byActor: Map<string, { action: IAutoMovieActionCall; index: number }[]> =
-    new Map();
+  const byActor: Map<
+    string,
+    { action: IAutoMovieActionCall; index: number }[]
+  > = new Map();
   actions.forEach((action: IAutoMovieActionCall, index: number): void => {
     if (action.verb === "frame") return;
     for (const actor of performShotActors(action)) {
@@ -75,7 +77,7 @@ export function gatePerformShotRegionOverlaps (
         ),
       ).size > 1;
     const carried: Map<IAutoMovieActionCall, ICarriedContent> = new Map();
-    function contentOf (action: IAutoMovieActionCall): ICarriedContent {
+    function contentOf(action: IAutoMovieActionCall): ICarriedContent {
       const cached: ICarriedContent | undefined = carried.get(action);
       if (cached !== undefined) return cached;
       const content: ICarriedContent = carriedContent(
@@ -133,7 +135,7 @@ export function gatePerformShotRegionOverlaps (
 }
 
 /** The channels one clip carries after its region mask. */
-function carriedContent (
+function carriedContent(
   motion: IAutoMovieMotion | null,
   region: AutoMovieBodyRegion,
   layered: boolean,

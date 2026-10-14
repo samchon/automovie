@@ -24,7 +24,7 @@ import { IAutoMovieDeliveryCropNdc } from "./IAutoMovieDeliveryCropNdc";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure predicate over one segment; the reuse of transformed corners across segments is the caller's, which is why the inputs are camera-local.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains and allocates nothing beyond a few scalars for the call.
  */
-export function localSegmentMeetsPerspectiveFrustum (props: {
+export function localSegmentMeetsPerspectiveFrustum(props: {
   from: IAutoMovieVector3;
   to: IAutoMovieVector3;
   near: number;
@@ -56,7 +56,7 @@ export function localSegmentMeetsPerspectiveFrustum (props: {
 /**
  * One of the six frustum half-spaces at a camera-local point, written so the inside is `<= 0`: near, far, right, left, top, bottom in that order.
  */
-function planeValue (
+function planeValue(
   frustum: {
     near: number;
     far: number;

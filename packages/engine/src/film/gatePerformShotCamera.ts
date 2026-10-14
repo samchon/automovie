@@ -4,12 +4,12 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { describeInvalidValue } from "../validation/describeInvalidValue";
 import { IPerformShotCoverageJob } from "./IPerformShotCoverageJob";
 import { IPerformShotFrameJob } from "./IPerformShotFrameJob";
 import { IPerformShotGateContext } from "./IPerformShotGateContext";
-import { isFiniteStageVector3 } from "./staging/isFiniteStageVector3";
-import { describeInvalidValue } from "../validation/describeInvalidValue";
 import { resolvePerformShotTarget } from "./resolvePerformShotTarget";
+import { isFiniteStageVector3 } from "./staging/isFiniteStageVector3";
 import { validatePerformShotFraming } from "./validatePerformShotFraming";
 import { validatePerformShotId } from "./validatePerformShotId";
 
@@ -34,7 +34,7 @@ import { validatePerformShotId } from "./validatePerformShotId";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Gates one shot's cameras per call; the subject resolution reads the context's shared tables.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The covered-camera map is dropped on return; the caller owns the returned jobs, at most one per coverage intent.
  */
-export function gatePerformShotCamera (
+export function gatePerformShotCamera(
   context: IPerformShotGateContext,
   props: {
     liveCamera: string | null;
@@ -99,83 +99,93 @@ export function gatePerformShotCamera (
 }
 
 /** Gate the blocking's coverage intents against the elected live camera. */
-function gateCoverage (
+function gateCoverage(
   context: IPerformShotGateContext,
   liveCamera: string | null,
   coverage: readonly IAutoMovieBlockingCoverage[],
 ): IPerformShotCoverageJob[] {
   const jobs: IPerformShotCoverageJob[] = [];
   const covered: Map<string, number> = new Map();
-  coverage.forEach((intent: IAutoMovieBlockingCoverage, index: number): void => {
-    const path: string = `$blocking.coverage[${index}]`;
-    validatePerformShotId(
-      context.out,
-      intent.camera,
-      `${path}.camera`,
-      "coverage camera id",
-    );
-    const camera: IAutoMovieCamera | undefined =
-      context.staged.scene.cameras.find(
-        (candidate: IAutoMovieCamera): boolean =>
-          candidate.id === intent.camera,
-      );
-    if (camera === undefined)
-      context.out.push(
-        "type",
-        `${path}.camera`,
-        `a coverage camera must be a staged camera, but "${describeInvalidValue(intent.camera)}" is not`,
+  coverage.forEach(
+    (intent: IAutoMovieBlockingCoverage, index: number): void => {
+      const path: string = `$blocking.coverage[${index}]`;
+      validatePerformShotId(
+        context.out,
         intent.camera,
-      );
-    else if (intent.camera === liveCamera)
-      context.out.push(
-        "type",
         `${path}.camera`,
-        `coverage plays ANOTHER angle of the beat, but "${describeInvalidValue(intent.camera)}" is already this shot's live camera`,
-        intent.camera,
+        "coverage camera id",
       );
-    const first: number | undefined = covered.get(intent.camera);
-    if (first !== undefined)
-      context.out.push(
-        "type",
-        `${path}.camera`,
-        `coverage camera id "${describeInvalidValue(intent.camera)}" is duplicated; first declared at $blocking.coverage[${first}].camera`,
-        intent.camera,
+      const camera: IAutoMovieCamera | undefined =
+        context.staged.scene.cameras.find(
+          (candidate: IAutoMovieCamera): boolean =>
+            candidate.id === intent.camera,
+        );
+      if (camera === undefined)
+        context.out.push(
+          "type",
+          `${path}.camera`,
+          `a coverage camera must be a staged camera, but "${describeInvalidValue(intent.camera)}" is not`,
+          intent.camera,
+        );
+      else if (intent.camera === liveCamera)
+        context.out.push(
+          "type",
+          `${path}.camera`,
+          `coverage plays ANOTHER angle of the beat, but "${describeInvalidValue(intent.camera)}" is already this shot's live camera`,
+          intent.camera,
+        );
+      const first: number | undefined = covered.get(intent.camera);
+      if (first !== undefined)
+        context.out.push(
+          "type",
+          `${path}.camera`,
+          `coverage camera id "${describeInvalidValue(intent.camera)}" is duplicated; first declared at $blocking.coverage[${first}].camera`,
+          intent.camera,
+        );
+      else covered.set(intent.camera, index);
+      const usable: { framed: boolean; moved: boolean } =
+        validatePerformShotFraming(
+          context.out,
+          path,
+          intent.framing,
+          intent.move,
+        );
+      const subject: IAutoMovieVector3 | null = resolvePerformShotTarget(
+        context,
+        {
+          target: intent.on,
+          path: `${path}.on`,
+          label: "coverage target",
+          subject: "a coverage subject",
+          seconds: 0,
+          formationsFramed: true,
+        },
       );
-    else covered.set(intent.camera, index);
-    const usable: { framed: boolean; moved: boolean } =
-      validatePerformShotFraming(context.out, path, intent.framing, intent.move);
-    const subject: IAutoMovieVector3 | null = resolvePerformShotTarget(
-      context,
-      {
-        target: intent.on,
-        path: `${path}.on`,
-        label: "coverage target",
-        subject: "a coverage subject",
-        seconds: 0,
-        formationsFramed: true,
-      },
-    );
-    if (
-      camera !== undefined &&
-      intent.camera !== liveCamera &&
-      first === undefined &&
-      usable.framed &&
-      usable.moved &&
-      subject !== null
-    )
-      jobs.push({ intent, camera });
-  });
+      if (
+        camera !== undefined &&
+        intent.camera !== liveCamera &&
+        first === undefined &&
+        usable.framed &&
+        usable.moved &&
+        subject !== null
+      )
+        jobs.push({ intent, camera });
+    },
+  );
   return jobs;
 }
 
 /** Refuse a camera the framing solve cannot compile a move from. */
-function validateFramingCamera (
+function validateFramingCamera(
   context: IPerformShotGateContext,
   camera: IAutoMovieCamera,
   path: string,
   readsRotation: boolean,
 ): void {
-  if (typeof camera.fovY !== "number" || !(camera.fovY > 0 && camera.fovY < 180))
+  if (
+    typeof camera.fovY !== "number" ||
+    !(camera.fovY > 0 && camera.fovY < 180)
+  )
     context.out.push(
       "range",
       `${path}.fovY`,

@@ -11,8 +11,8 @@ import {
   IAutoMovieMotion,
   IAutoMoviePerformance,
   IAutoMovieQuaternion,
-  IAutoMovieScript,
   IAutoMovieSceneNode,
+  IAutoMovieScript,
   IAutoMovieShot,
   IAutoMovieShotPerformance,
   IAutoMovieSkeleton,
@@ -85,15 +85,16 @@ const EVENT_KIND_ORDER: Record<IAutoMovieInteractionEvent["kind"], number> = {
  * @evidence contracts/performance.md#reuse-equivalent-work Synthesis is memoized per action object and actor, so the overlap gate, the launch probe and the performance compile share one clip per pair; the staged lookup tables are built once into the gate context, and model extents once per node in the subject framer.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The synthesis memo is a `WeakMap` keyed by the caller's action objects and is dropped with the call, as are the gate context and the framer; the caller owns the returned shot, motions and plants.
  */
-export function performShot (props: IPerformShotProps): IAutoMoviePerformedShot {
+export function performShot(props: IPerformShotProps): IAutoMoviePerformedShot {
   const staged: IAutoMovieStagedSet.ISuccess = props.staged;
   const performance: IAutoMoviePerformance = props.performance;
   const skeleton: (node: string) => IAutoMovieSkeleton | null = props.skeleton;
   const out: ViolationCollector = new ViolationCollector();
-  const failure: () => IAutoMoviePerformedShot.IFailure = (): IAutoMoviePerformedShot.IFailure => ({
-    success: false,
-    violations: out.items,
-  });
+  const failure: () => IAutoMoviePerformedShot.IFailure =
+    (): IAutoMoviePerformedShot.IFailure => ({
+      success: false,
+      violations: out.items,
+    });
   const formationMotions: readonly IAutoMovieFormationMotion[] =
     props.formationMotions ?? [];
   const formationById: Map<string, IAutoMovieCompiledFormation> = new Map(
@@ -120,7 +121,9 @@ export function performShot (props: IPerformShotProps): IAutoMoviePerformedShot 
     staged,
     performance,
     base:
-      performance.revise.final !== null ? "$input.revise.final" : "$input.draft",
+      performance.revise.final !== null
+        ? "$input.revise.final"
+        : "$input.draft",
     skeleton,
     hasActorContext: props.hasActorContext,
     gaits: props.gaits,
@@ -318,7 +321,10 @@ export function performShot (props: IPerformShotProps): IAutoMoviePerformedShot 
     camera: liveCamera,
     cameraMotion: camera.cameraMotion,
     performances: Object.entries(motions).map(
-      ([node, motion]: [string, IAutoMovieMotion]): IAutoMovieShotPerformance => ({
+      ([node, motion]: [
+        string,
+        IAutoMovieMotion,
+      ]): IAutoMovieShotPerformance => ({
         node,
         motion: motion.id,
         startOffset: 0,
@@ -366,7 +372,7 @@ export function performShot (props: IPerformShotProps): IAutoMoviePerformedShot 
 /**
  * Refuse duplicate script beat ids and answer the beat the performance names, the first declaration of its id.
  */
-function gateScript (
+function gateScript(
   context: IPerformShotGateContext,
   script: IAutoMovieScript,
 ): IAutoMovieScript["beats"][number] | undefined {
@@ -391,7 +397,7 @@ function gateScript (
 /**
  * The synthesizer once per action object and actor, with the prior beat state bound, so every stage that needs a clip shares one.
  */
-function memoizeSynthesis (
+function memoizeSynthesis(
   synthesize: IAutoMovieActionSynthesizer,
   previous: IAutoMovieBeatEndState | null | undefined,
 ): IAutoMovieActionSynthesizer {
@@ -417,8 +423,10 @@ function memoizeSynthesis (
 }
 
 /** What a masked clip authored that its region drops, in words. */
-function maskedContent (drop: IAutoMovieMaskedContent): string { return [
+function maskedContent(drop: IAutoMovieMaskedContent): string {
+  return [
     ...(drop.bones.length > 0 ? [`the bones ${drop.bones.join(", ")}`] : []),
     ...(drop.root ? ["a root displacement"] : []),
     ...(drop.expression ? ["an expression"] : []),
-  ].join(" and "); }
+  ].join(" and ");
+}

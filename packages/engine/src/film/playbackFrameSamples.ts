@@ -22,7 +22,7 @@ import { sequenceTimeline } from "./sequenceTimeline";
  * @evidence contracts/performance.md#reuse-equivalent-work One timeline is built and shared by every frame's query through one cursor, so the layout is computed once per call rather than once per frame.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The timeline and cursor are dropped on return; the caller owns the returned array, one sample per frame, bounded by `round(runtime × fps)`.
  */
-export function playbackFrameSamples (
+export function playbackFrameSamples(
   sequence: IAutoMovieSequence,
   shots: IAutoMovieShot[],
 ): IAutoMoviePlaybackSample[] {

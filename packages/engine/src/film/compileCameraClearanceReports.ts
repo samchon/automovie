@@ -112,7 +112,9 @@ export function compileCameraClearanceReports(props: {
   out: ViolationCollector;
 }): IAutoMovieCameraClearanceReport[] | undefined {
   const baseline: number = props.out.items.length;
-  function refused (): boolean { return props.out.items.length > baseline; }
+  function refused(): boolean {
+    return props.out.items.length > baseline;
+  }
   const cameraIndex: Map<string, number> = new Map(
     props.scene.cameras.map(
       (camera: IAutoMovieCamera, index: number): [string, number] => [
@@ -122,7 +124,7 @@ export function compileCameraClearanceReports(props: {
     ),
   );
   const takes: ITake[] = [];
-  function addTake (
+  function addTake(
     id: string,
     path: string,
     motion: IAutoMovieShot["cameraMotion"],
@@ -212,7 +214,7 @@ export function compileCameraClearanceReports(props: {
   }
 
   const states: Map<number, IObstacleState[]> = new Map();
-  function obstaclesAt (time: number): IObstacleState[] {
+  function obstaclesAt(time: number): IObstacleState[] {
     const cached: IObstacleState[] | undefined = states.get(time);
     if (cached !== undefined) return cached;
     const sampled: Map<string, IAutoMovieSampledChannel> = sampleClipSequence(
@@ -224,7 +226,12 @@ export function compileCameraClearanceReports(props: {
         node: obstacle.node.id,
         bounds:
           obstacle.bounds ??
-          movingBounds(obstacle, props.motions[obstacle.node.id], sampled, time),
+          movingBounds(
+            obstacle,
+            props.motions[obstacle.node.id],
+            sampled,
+            time,
+          ),
       }),
     );
     states.set(time, result);
@@ -245,11 +252,11 @@ export function compileCameraClearanceReports(props: {
         samples: clockOf(take.motion).map(
           (time: number): IEvaluation["samples"][number] => {
             const resolved: IAutoMovieResolvedCamera = resolveCameraAt(
-                take.camera.transform,
-                take.motion,
-                take.camera.id,
-                time,
-              );
+              take.camera.transform,
+              take.motion,
+              take.camera.id,
+              time,
+            );
             return {
               time,
               camera: {
@@ -281,7 +288,7 @@ export function compileCameraClearanceReports(props: {
 /**
  * Validate and bound every staged node once, pushing a refusal for each node whose model is absent, invalid, empty or unboundable.
  */
-function measureObstacles (props: {
+function measureObstacles(props: {
   scene: IAutoMovieScene;
   motions: Readonly<Record<string, IAutoMovieMotion>>;
   objectMotions: readonly IAutoMovieClip[];
@@ -362,7 +369,7 @@ function measureObstacles (props: {
 /**
  * The box around a moving node's current root that holds its deformation radius scaled by its largest absolute scale component.
  */
-function movingBounds (
+function movingBounds(
   obstacle: IMeasuredObstacle,
   actorMotion: IAutoMovieMotion | undefined,
   sampled: Map<string, IAutoMovieSampledChannel>,
@@ -399,19 +406,21 @@ function movingBounds (
 }
 
 /** Address a take whose clock or evaluation threw. */
-function refuseEvaluation (
+function refuseEvaluation(
   out: ViolationCollector,
   take: ITake,
   error: unknown,
-): void { return out.push(
+): void {
+  return out.push(
     "range",
     `$staged.scene.cameras[${take.index}].clearance`,
     `camera clearance could not evaluate its fixed-clock input: ${safeThrownDescription(error)}`,
     take.camera.clearance,
-  ); }
+  );
+}
 
 /** Describe a thrown value without letting a hostile coercion escape. */
-function safeThrownDescription (error: unknown): string {
+function safeThrownDescription(error: unknown): string {
   try {
     return String(error);
   } catch {

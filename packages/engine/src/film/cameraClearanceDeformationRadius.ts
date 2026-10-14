@@ -15,7 +15,7 @@ import { IAutoMovieModel, IAutoMovieVector3 } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Computed once per obstacle node per clearance compilation; nothing coordinates across calls, and the memo is local to one model's chain walk.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing after return; the bone index and chain memo are locals bounded by the model's bone count and dropped with the call.
  */
-export function cameraClearanceDeformationRadius (
+export function cameraClearanceDeformationRadius(
   model: IAutoMovieModel,
   extent: { min: IAutoMovieVector3; max: IAutoMovieVector3 },
 ): number {
@@ -28,7 +28,7 @@ export function cameraClearanceDeformationRadius (
 }
 
 /** Farthest of the box's eight corners from the model origin. */
-function originRadius (extent: {
+function originRadius(extent: {
   min: IAutoMovieVector3;
   max: IAutoMovieVector3;
 }): number {
@@ -41,7 +41,7 @@ function originRadius (extent: {
 }
 
 /** Longest root-to-bone translation sum over the bones geometry rides. */
-function maximumRigReach (model: IAutoMovieModel): number {
+function maximumRigReach(model: IAutoMovieModel): number {
   const skeleton: IAutoMovieModel["skeleton"] = model.skeleton;
   if (skeleton === null) return 0;
   const skeletonId: string = skeleton.id;
@@ -50,7 +50,7 @@ function maximumRigReach (model: IAutoMovieModel): number {
     skeleton.bones.map((bone: Bone): [Bone["bone"], Bone] => [bone.bone, bone]),
   );
   const reaches: Map<Bone["bone"], number> = new Map();
-  function resolve (name: Bone["bone"]): number {
+  function resolve(name: Bone["bone"]): number {
     const cached: number | undefined = reaches.get(name);
     if (cached !== undefined) return cached;
     const bone: Bone = bones.get(name)!;

@@ -23,7 +23,7 @@ import { MIN_MEASURED_SUBJECT_HEIGHT } from "./constants/MIN_MEASURED_SUBJECT_HE
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function of one formation and the model list; a pass framing one unit over many samples owns any reuse of the extent.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the caller owns the returned two numbers.
  */
-export function formationMemberExtent (
+export function formationMemberExtent(
   formation: Pick<IAutoMovieCompiledFormation, "modelRecipe">,
   models: readonly IAutoMovieModel[] | undefined,
 ): { min: number; max: number } {

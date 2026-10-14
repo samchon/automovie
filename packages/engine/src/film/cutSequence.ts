@@ -36,7 +36,7 @@ interface IBuiltShot {
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure gate over one edit plan and shot list that coordinates no work across calls or consumers.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing after return; the result owns a new sequence and entry list, or a violation list bounded by a few violations per shot and entry.
  */
-export function cutSequence (
+export function cutSequence(
   assemble: IAutoMovieEditPlan,
   shots: IAutoMovieShot[],
 ): IAutoMovieCut {
@@ -56,11 +56,7 @@ export function cutSequence (
     byId.set(shot.id, { shot, index });
   });
 
-  function validateNonEmptyId (
-    id: string,
-    path: string,
-    label: string,
-  ): void {
+  function validateNonEmptyId(id: string, path: string, label: string): void {
     if (id.trim().length === 0)
       out.push("type", path, `${label} must be a non-empty id`, id);
   }
@@ -215,7 +211,12 @@ export function cutSequence (
   });
 
   if (out.items.length === 0 && !Number.isFinite(runtime))
-    out.push("range", "$input.entries", "the assembled runtime must be finite seconds", runtime);
+    out.push(
+      "range",
+      "$input.entries",
+      "the assembled runtime must be finite seconds",
+      runtime,
+    );
   if (out.items.length > 0) return { success: false, violations: out.items };
 
   return {

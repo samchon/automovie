@@ -20,7 +20,7 @@ import {
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure selection over one list at one instant that coordinates no work across calls.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The per-foot map is dropped on return; the caller owns the returned array, which references the input plants.
  */
-export function plantsAtEnd (
+export function plantsAtEnd(
   plants: readonly IAutoMovieBeatEndFootPlant[] | undefined,
   localTime: number,
 ): IAutoMovieBeatEndFootPlant[] | null {
@@ -29,9 +29,7 @@ export function plantsAtEnd (
     new Map();
   for (const plant of plants) {
     if (plant.start > localTime || plant.end < localTime) continue;
-    const held: IAutoMovieBeatEndFootPlant | undefined = byFoot.get(
-      plant.foot,
-    );
+    const held: IAutoMovieBeatEndFootPlant | undefined = byFoot.get(plant.foot);
     if (held === undefined || plant.start >= held.start)
       byFoot.set(plant.foot, plant);
   }

@@ -41,7 +41,7 @@ import { performShotActors } from "./performShotActors";
  * @evidence contracts/performance.md#reuse-equivalent-work The probe compile goes through the shot's memoized synthesizer, so the target's clips it synthesizes are the ones the authoritative compile reuses; its masked report is dropped because that compile reports every drop once at the same paths.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The probe performances are dropped after each solve; the caller owns the returned clips and events, one flight per launch.
  */
-export function compilePerformShotLaunches (
+export function compilePerformShotLaunches(
   context: IPerformShotGateContext,
   plan: IPerformShotActionPlan,
   synthesize: IAutoMovieActionSynthesizer,
@@ -111,7 +111,7 @@ export function compilePerformShotLaunches (
 }
 
 /** Where a launch's target is over time, or undefined for a static aim. */
-function leadOf (
+function leadOf(
   context: IPerformShotGateContext,
   plan: IPerformShotActionPlan,
   job: IPerformShotLaunchJob,
@@ -128,7 +128,11 @@ function leadOf (
     (action: IAutoMovieActionCall): boolean =>
       performShotActors(action).includes(node),
   );
-  if (!own.some((action: IAutoMovieActionCall): boolean => action.verb === "locomote"))
+  if (
+    !own.some(
+      (action: IAutoMovieActionCall): boolean => action.verb === "locomote",
+    )
+  )
     return undefined;
   return animatedBaseAt(
     context.nodePositions.get(node)!,

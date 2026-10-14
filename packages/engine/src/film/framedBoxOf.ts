@@ -21,14 +21,14 @@ import { IAutoMovieFramedBox } from "./IAutoMovieFramedBox";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure constant-time reduction of one box that coordinates no work across calls; `performShot` reuses the measured extents it is fed, not this result.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the caller owns the returned record and its fresh base vector.
  */
-export function framedBoxOf (
-  box: IAutoMovieSubjectBox,
-): IAutoMovieFramedBox {
-  const radius: number = Math.hypot(box.max.x - box.min.x, box.max.z - box.min.z) / 2;
-  const halfDiagonal: number = !Number.isFinite(radius) &&
+export function framedBoxOf(box: IAutoMovieSubjectBox): IAutoMovieFramedBox {
+  const radius: number =
+    Math.hypot(box.max.x - box.min.x, box.max.z - box.min.z) / 2;
+  const halfDiagonal: number =
+    !Number.isFinite(radius) &&
     [box.min.x, box.max.x, box.min.z, box.max.z].every(Number.isFinite)
-    ? Math.hypot(box.max.x / 2 - box.min.x / 2, box.max.z / 2 - box.min.z / 2)
-    : radius;
+      ? Math.hypot(box.max.x / 2 - box.min.x / 2, box.max.z / 2 - box.min.z / 2)
+      : radius;
   return {
     base: {
       x: midpoint(box.min.x, box.max.x),

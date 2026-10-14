@@ -1,8 +1,8 @@
 import {
   AutoMovieHumanoidBone,
   IAutoMovieBeatEndActorState,
-  IAutoMovieBeatEndState,
   IAutoMovieBeatEndFootPlant,
+  IAutoMovieBeatEndState,
   IAutoMovieMotion,
   IAutoMovieQuaternion,
   IAutoMovieSceneNode,
@@ -43,7 +43,7 @@ import { IAutoMovieStagedSet } from "./IAutoMovieStagedSet";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each actor's clip is planted once per call; the prior plants are indexed once by node.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The prior-plant index is dropped on return; planted clips are stored into the caller's `motions`, and the caller owns the returned entries.
  */
-export function plantPerformShotStanceFeet (props: {
+export function plantPerformShotStanceFeet(props: {
   staged: IAutoMovieStagedSet.ISuccess;
   motions: Record<string, IAutoMovieMotion>;
   previous: IAutoMovieBeatEndState | null | undefined;
@@ -51,12 +51,16 @@ export function plantPerformShotStanceFeet (props: {
   jointAxes:
     | ((
         node: string,
-      ) => Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>> | undefined)
+      ) =>
+        | Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>
+        | undefined)
     | undefined;
   restFrames:
     | ((
         node: string,
-      ) => Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>> | undefined)
+      ) =>
+        | Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>
+        | undefined)
     | undefined;
 }): IAutoMoviePerformedShot.ISuccess["plants"] {
   const plants: IAutoMoviePerformedShot.ISuccess["plants"] = [];
@@ -72,8 +76,10 @@ export function plantPerformShotStanceFeet (props: {
   const worldGround: ((x: number, z: number) => number) | null =
     space === null ? null : spaceGround(space);
   for (const [actor, motion] of Object.entries(props.motions).sort(
-    ([x]: [string, IAutoMovieMotion], [y]: [string, IAutoMovieMotion]): number =>
-      compareCodeUnits(x, y),
+    (
+      [x]: [string, IAutoMovieMotion],
+      [y]: [string, IAutoMovieMotion],
+    ): number => compareCodeUnits(x, y),
   )) {
     const prior: IAutoMovieBeatEndActorState["footPlants"] =
       previousByNode.get(actor)?.footPlants ?? null;
@@ -86,14 +92,15 @@ export function plantPerformShotStanceFeet (props: {
     const translation: IAutoMovieVector3 = node.transform.translation;
     const rotation: IAutoMovieQuaternion = node.transform.rotation;
     const inverse: IAutoMovieQuaternion = Quaternion.inverse(rotation);
-    function toModel (point: IAutoMovieVector3): IAutoMovieVector3 { return Quaternion.rotateVector(
+    function toModel(point: IAutoMovieVector3): IAutoMovieVector3 {
+      return Quaternion.rotateVector(
         inverse,
         Vector3.subtract(point, translation),
-      ); }
-    function toWorld (point: IAutoMovieVector3): IAutoMovieVector3 { return Vector3.add(
-        translation,
-        Quaternion.rotateVector(rotation, point),
-      ); }
+      );
+    }
+    function toWorld(point: IAutoMovieVector3): IAutoMovieVector3 {
+      return Vector3.add(translation, Quaternion.rotateVector(rotation, point));
+    }
     const modelGround: ((x: number, z: number) => number) | null =
       worldGround === null
         ? null

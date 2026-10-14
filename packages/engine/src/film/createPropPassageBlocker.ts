@@ -31,7 +31,9 @@ import { unionSubjectBoxes } from "./unionSubjectBoxes";
  * @evidence contracts/performance.md#reuse-equivalent-work The closure shares prepared bounds across queries over the exact same immutable-for-the-call environment; the validator keys queries by environment object identity and drops its map after validation. Changes require new preparation; there is no global cache or identity-only invalidation assumption.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Preparation's element/model/rest indexes are released before returning; the query retains one bound per measurable opening and connector route segment until its caller drops the closure. Blockage arrays are fresh caller-owned results; no handles or tasks are acquired.
  */
-export function createPropPassageBlocker(environment: IAutoMovieBuiltEnvironment): (bounds: IAutoMoviePropBox) => IAutoMoviePassageBlockage[] {
+export function createPropPassageBlocker(
+  environment: IAutoMovieBuiltEnvironment,
+): (bounds: IAutoMoviePropBox) => IAutoMoviePassageBlockage[] {
   const restMatrix: (id: string) => number[] | null =
     builtElementRestMatrices(environment);
   // First declaration wins, as a lookup by `find` would: duplicate ids are a
@@ -42,7 +44,11 @@ export function createPropPassageBlocker(environment: IAutoMovieBuiltEnvironment
   const models: Map<string, IAutoMovieModel> = new Map();
   for (const model of environment.models)
     if (!models.has(model.id)) models.set(model.id, model);
-  const passages: { kind: "opening" | "connector"; id: string; bounds: readonly IAutoMoviePropBox[] }[] = [];
+  const passages: {
+    kind: "opening" | "connector";
+    id: string;
+    bounds: readonly IAutoMoviePropBox[];
+  }[] = [];
   for (const opening of environment.openings) {
     if (opening.fill === null) continue;
     const element: IAutoMovieBuiltElement | undefined = elements.get(
@@ -60,18 +66,26 @@ export function createPropPassageBlocker(environment: IAutoMovieBuiltEnvironment
     passages.push({ kind: "opening", id: opening.id, bounds: [reveal] });
   }
   for (const connector of environment.connectors)
-    passages.push({ kind: "connector", id: connector.id, bounds: connectorCorridors(connector) });
+    passages.push({
+      kind: "connector",
+      id: connector.id,
+      bounds: connectorCorridors(connector),
+    });
   return (bounds: IAutoMoviePropBox): IAutoMoviePassageBlockage[] => {
     const blocked: IAutoMoviePassageBlockage[] = [];
     for (const passage of passages)
-      if (passage.bounds.some((corridor: IAutoMoviePropBox): boolean => propBoundsOverlap(bounds, corridor)))
+      if (
+        passage.bounds.some((corridor: IAutoMoviePropBox): boolean =>
+          propBoundsOverlap(bounds, corridor),
+        )
+      )
         blocked.push({ kind: passage.kind, id: passage.id });
     return blocked;
   };
 }
 
 /** Axis-aligned volumes a connector's route sweeps at its usable size. */
-function connectorCorridors (
+function connectorCorridors(
   connector: IAutoMovieBuiltConnector,
 ): IAutoMoviePropBox[] {
   const route: readonly IAutoMovieVector3[] = connector.route;

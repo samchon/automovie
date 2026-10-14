@@ -19,7 +19,7 @@ import { canonicalProductionFrameRate } from "./canonicalProductionFrameRate";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call maps one boundary independently and retains no mapping history; callers own reuse of a reduced rate or repeated boundary reads when their traversal needs it.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Allocates the reduced rate record and retains nothing.
  */
-export function productionFrameBoundaryToSeconds (props: {
+export function productionFrameBoundaryToSeconds(props: {
   frame: number;
   frameRate: IAutoMovieProductionFrameRate;
 }): number {

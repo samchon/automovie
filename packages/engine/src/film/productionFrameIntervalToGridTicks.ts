@@ -22,7 +22,7 @@ import { productionFrameBoundaryToGridTick } from "./productionFrameBoundaryToGr
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure conversion of one interval; a caller tiling many intervals maps each shared boundary twice, two constant-time conversions that need no cache.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the caller owns the returned pair.
  */
-export function productionFrameIntervalToGridTicks (props: {
+export function productionFrameIntervalToGridTicks(props: {
   startFrame: number;
   endFrame: number;
   frameRate: IAutoMovieProductionFrameRate;

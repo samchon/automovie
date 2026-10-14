@@ -18,7 +18,7 @@ import { placeTransformedPoint } from "./placeTransformedPoint";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function of two transforms that coordinates no work across calls.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the result shares `base`'s scale object, or is `base` itself for a null root, so a caller must copy before mutating.
  */
-export function foldRoot (
+export function foldRoot(
   base: IAutoMovieTransform,
   root: IAutoMovieTransform | null,
 ): IAutoMovieTransform {

@@ -56,7 +56,7 @@ const IDENTITY_SCALE: IAutoMovieVector3 = { x: 1, y: 1, z: 1 };
  * @evidence contracts/performance.md#reuse-equivalent-work Shares sampled object channels by exact shot-local second and geometry/member extents by node/formation id during one grade. The caller must keep artifact contents, world placements and fallback rig lookup answers unchanged; this scope has no live-edit invalidation, and a changed input requires a fresh reader.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The reader owns six index maps, sized by the compiled artifacts, and three caches grown by distinct grading instants, distinct required node subjects and distinct formation subjects, all named by the contract; nothing else is retained, and everything is released when `realizeShotContract` returns and drops the reader.
  */
-export function createShotContractSubjectReader (
+export function createShotContractSubjectReader(
   props: IRealizeShotContractProps,
 ): IShotContractSubjectReader {
   const compiled: IRealizeShotContractProps["compiled"] = props.compiled;
@@ -91,7 +91,7 @@ export function createShotContractSubjectReader (
     number,
     Map<string, IAutoMovieSampledChannel>
   > = new Map();
-  function objectChannelsAt (
+  function objectChannelsAt(
     time: number,
   ): Map<string, IAutoMovieSampledChannel> {
     const cached: Map<string, IAutoMovieSampledChannel> | undefined =
@@ -105,16 +105,17 @@ export function createShotContractSubjectReader (
     return sampled;
   }
 
-  function skeleton (node: IAutoMovieSceneNode): IAutoMovieSkeleton | null {
+  function skeleton(node: IAutoMovieSceneNode): IAutoMovieSkeleton | null {
     const model: IAutoMovieModel | undefined = models.get(node.model);
     return model === undefined
       ? (props.skeleton?.(node.id) ?? null)
       : model.skeleton;
   }
 
-  function poseAt (node: IAutoMovieSceneNode, time: number): IAutoMoviePose {
-    const performance: IAutoMovieShotPerformance | undefined =
-      performances.get(node.id);
+  function poseAt(node: IAutoMovieSceneNode, time: number): IAutoMoviePose {
+    const performance: IAutoMovieShotPerformance | undefined = performances.get(
+      node.id,
+    );
     const rig: IAutoMovieSkeleton | null = skeleton(node);
     if (rig === null) throw new Error(`node "${node.id}" has no skeleton`);
     const motionId: string | null =
@@ -131,16 +132,19 @@ export function createShotContractSubjectReader (
     ).pose;
   }
 
-  function transformAt (actor: string, time: number): IAutoMovieTransform {
+  function transformAt(actor: string, time: number): IAutoMovieTransform {
     const node: IAutoMovieSceneNode | undefined = nodes.get(actor);
     if (node === undefined) throw new Error(`node "${actor}" is absent`);
     const pose: IAutoMoviePose | null =
       skeleton(node) === null ? null : poseAt(node, time);
     const sampled: Map<string, IAutoMovieSampledChannel> =
       objectChannelsAt(time);
-    function channel (
+    function channel(
       path: "translation" | "rotation" | "scale",
-    ): number[] | undefined { return sampled.get(channelKey({ kind: "node", node: actor, path }))?.value; }
+    ): number[] | undefined {
+      return sampled.get(channelKey({ kind: "node", node: actor, path }))
+        ?.value;
+    }
     const translation: number[] | undefined = channel("translation");
     const rotation: number[] | undefined = channel("rotation");
     const scale: number[] | undefined = channel("scale");
@@ -168,7 +172,7 @@ export function createShotContractSubjectReader (
       : foldRoot(placed, { ...pose.root, scale: IDENTITY_SCALE });
   }
 
-  function spatialAt (
+  function spatialAt(
     selector: IAutoMovieShotSpatialSelector,
     time: number,
   ): IAutoMovieVector3 {
@@ -181,7 +185,8 @@ export function createShotContractSubjectReader (
         throw new Error(`landmark "${selector.id}" is absent`);
       return landmark.position;
     }
-    if (selector.kind === "node") return transformAt(selector.id, time).translation;
+    if (selector.kind === "node")
+      return transformAt(selector.id, time).translation;
     const formation: IAutoMovieCompiledFormation | undefined = formations.get(
       selector.id,
     );
@@ -200,7 +205,7 @@ export function createShotContractSubjectReader (
   }
 
   const nodeExtents: Map<string, IAutoMovieSubjectBox> = new Map();
-  function nodeExtent (subject: string): IAutoMovieSubjectBox {
+  function nodeExtent(subject: string): IAutoMovieSubjectBox {
     const cached: IAutoMovieSubjectBox | undefined = nodeExtents.get(subject);
     if (cached !== undefined) return cached;
     const node: IAutoMovieSceneNode | undefined = nodes.get(subject);
@@ -220,9 +225,10 @@ export function createShotContractSubjectReader (
   }
 
   const memberExtents: Map<string, { min: number; max: number }> = new Map();
-  function memberExtent (
-    formation: IAutoMovieCompiledFormation,
-  ): { min: number; max: number } {
+  function memberExtent(formation: IAutoMovieCompiledFormation): {
+    min: number;
+    max: number;
+  } {
     const cached: { min: number; max: number } | undefined = memberExtents.get(
       formation.id,
     );

@@ -4,7 +4,9 @@ import {
 } from "@automovie/interface";
 
 /** A number as the report carries it: itself when finite, else null. */
-function finiteOrNull (value: number): number | null { return Number.isFinite(value) ? value : null; }
+function finiteOrNull(value: number): number | null {
+  return Number.isFinite(value) ? value : null;
+}
 
 /**
  * Measure the largest gap between adjacent representable depths that a camera's standard perspective depth buffer leaves inside one required camera-space range, and judge it against an authored maximum.
@@ -21,7 +23,7 @@ function finiteOrNull (value: number): number | null { return Number.isFinite(va
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function of the current camera range and constraint; it coordinates no requests or effects and retains no map across mutable camera samples.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the returned report is a fresh record owned by the caller.
  */
-export function evaluateAutoMovieCameraDepthPrecision (props: {
+export function evaluateAutoMovieCameraDepthPrecision(props: {
   /** Stable scene camera identity, non-blank. */
   camera: string;
 
@@ -58,16 +60,18 @@ export function evaluateAutoMovieCameraDepthPrecision (props: {
     minimumDepthBits: finiteOrNull(props.constraint.minimumDepthBits),
     maximumStepMeters: finiteOrNull(props.constraint.maximumStepMeters),
   };
-  function unmeasured (
+  function unmeasured(
     status: "invalid" | "outside-clipping-range",
-  ): IAutoMovieCameraDepthPrecisionReport { return ({
-    ...base,
-    lowerCode: null,
-    upperCode: null,
-    measuredStepMeters: null,
-    status,
-    passed: false,
-  }); }
+  ): IAutoMovieCameraDepthPrecisionReport {
+    return {
+      ...base,
+      lowerCode: null,
+      upperCode: null,
+      measuredStepMeters: null,
+      status,
+      passed: false,
+    };
+  }
   const levels: number = 2 ** props.constraint.minimumDepthBits - 1;
   if (
     props.camera.trim().length === 0 ||
@@ -97,7 +101,9 @@ export function evaluateAutoMovieCameraDepthPrecision (props: {
     Math.min(1, Math.max(0, normalized)) * levels,
   );
   const lowerCode: number = Math.max(0, upperCode - 1);
-  function depthAtCode (code: number): number { return 1 / (reciprocalNear - (code / levels) * reciprocalSpan); }
+  function depthAtCode(code: number): number {
+    return 1 / (reciprocalNear - (code / levels) * reciprocalSpan);
+  }
   const measuredStepMeters: number =
     depthAtCode(upperCode) - depthAtCode(lowerCode);
   if (!Number.isFinite(measuredStepMeters) || measuredStepMeters < 0)

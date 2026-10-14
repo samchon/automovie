@@ -1,7 +1,7 @@
 import { IAutoMovieActionCall, IAutoMovieVector3 } from "@automovie/interface";
 
-import { describeInvalidValue } from "../validation/describeInvalidValue";
 import { withArticle } from "../text/withArticle";
+import { describeInvalidValue } from "../validation/describeInvalidValue";
 import { IPerformShotActionPlan } from "./IPerformShotActionPlan";
 import { IPerformShotGateContext } from "./IPerformShotGateContext";
 import { gatePerformShotStageAction } from "./gatePerformShotStageAction";
@@ -32,7 +32,7 @@ import { validatePerformShotId } from "./validatePerformShotId";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A single pass over one action list; the staged tables it reads are the context's, built once per shot.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The returned plan, bounded by the action count, is owned by `performShot` for the rest of its call; nothing else is retained.
  */
-export function gatePerformShotActions (
+export function gatePerformShotActions(
   context: IPerformShotGateContext,
   actions: readonly IAutoMovieActionCall[],
 ): IPerformShotActionPlan {
@@ -116,7 +116,7 @@ export function gatePerformShotActions (
 }
 
 /** Check an action's actor field and that every actor is staged. */
-function gateActors (
+function gateActors(
   context: IPerformShotGateContext,
   action: IAutoMovieActionCall,
   actors: readonly string[],
@@ -182,7 +182,7 @@ function gateActors (
 }
 
 /** Check an action's start, duration, span and repeat against the shot. */
-function gateTiming (
+function gateTiming(
   context: IPerformShotGateContext,
   action: IAutoMovieActionCall,
   path: string,
@@ -216,7 +216,11 @@ function gateTiming (
         `action duration must be a finite number > 0 seconds or "auto", but was ${describeInvalidValue(action.duration)}`,
         action.duration,
       );
-    if (finiteStart && finiteDuration && action.start + action.duration > duration)
+    if (
+      finiteStart &&
+      finiteDuration &&
+      action.start + action.duration > duration
+    )
       context.out.push(
         "range",
         `${path}.duration`,

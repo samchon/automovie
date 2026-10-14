@@ -17,10 +17,12 @@ import { IAutoMovieSubjectBox, IAutoMovieVector3 } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure constant-time constructor that coordinates no work across calls.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Copies three coordinates into two new corners and keeps no reference to the point or the extent record.
  */
-export function pointSubjectBox (
+export function pointSubjectBox(
   point: IAutoMovieVector3,
   extent: { min: number; max: number },
-): IAutoMovieSubjectBox { return ({
-  min: { x: point.x, y: point.y + extent.min, z: point.z },
-  max: { x: point.x, y: point.y + extent.max, z: point.z },
-}); }
+): IAutoMovieSubjectBox {
+  return {
+    min: { x: point.x, y: point.y + extent.min, z: point.z },
+    max: { x: point.x, y: point.y + extent.max, z: point.z },
+  };
+}

@@ -60,7 +60,9 @@ interface ICoupleContext {
   keep: (child: string, clip: IAutoMovieClip) => void;
 }
 
-function childrenOf (action: IAutoMovieActionCall): string[] { return typeof action.actor === "string" ? [action.actor] : action.actor; }
+function childrenOf(action: IAutoMovieActionCall): string[] {
+  return typeof action.actor === "string" ? [action.actor] : action.actor;
+}
 
 /**
  * Bake the object couplings a shot carries, the per-beat `attachTo` handoffs and the persistent staged `mounts` (#674), into follow clips once the parents' poses have compiled.
@@ -79,7 +81,7 @@ function childrenOf (action: IAutoMovieActionCall): string[] { return typeof act
  * @evidence contracts/performance.md#reuse-equivalent-work Each parent's baked clips are stored once and every rider of that parent reads the same clips, so a chain is baked link by link instead of recomposing the whole ancestry per rider; nothing is shared across calls, because each call bakes one shot's couplings.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The graph, order, grouping maps and per-parent clip lists live for one call and are released on return or throw; the returned arrays hold one clip per coupling, the handoff events of each `attachTo`, and one violation per refusal.
  */
-export function coupleObjects (props: {
+export function coupleObjects(props: {
   /** Validated `attachTo` jobs of this shot. */
   attachments: readonly IAttachJob[];
 
@@ -125,7 +127,7 @@ export function coupleObjects (props: {
   // The shot's coupling graph: coupled child -> the parents it rides. A
   // claimed child's mount was filtered above, so its edge is absent.
   const parentsOf: Map<string, Set<string>> = new Map();
-  function addEdge (child: string, parent: string): void {
+  function addEdge(child: string, parent: string): void {
     const set: Set<string> = parentsOf.get(child) ?? new Set<string>();
     set.add(parent);
     parentsOf.set(child, set);
@@ -143,7 +145,7 @@ export function coupleObjects (props: {
   const cyclic: Set<string> = new Set();
   const stack: string[] = [];
   const active: Map<string, number> = new Map();
-  function visit (node: string): void {
+  function visit(node: string): void {
     if (visited.has(node)) return;
     const at: number | undefined = active.get(node);
     if (at !== undefined) {
@@ -233,7 +235,7 @@ export function coupleObjects (props: {
 /**
  * Bake one child's per-beat `attachTo` follows and their handoff events. A handoff, the same child attached to two parents over disjoint spans, would otherwise bake two clips with one `attach:<child>` id, an uncommittable duplicate (#989). The child's attachments are processed in start order and repeats suffixed (`attach:<child>:2`, ...), so the first keeps the stable id; runtime authority follows track start and producer order, not the suffix.
  */
-function bakeAttachFollows (
+function bakeAttachFollows(
   child: string,
   jobs: readonly IAttachJob[],
   context: ICoupleContext,
@@ -277,7 +279,7 @@ function bakeAttachFollows (
 /**
  * Bake one persistent staged mount (#674): the rider descends through {@link compileAttach} over the whole shot. Staging validated that the parent is a placed actor; the parent's rig and the saddle bone are validated here.
  */
-function bakeMountFollow (
+function bakeMountFollow(
   mount: IAutoMovieStagedSet.IMount,
   context: ICoupleContext,
   out: ViolationCollector,
@@ -293,9 +295,11 @@ function bakeMountFollow (
     );
     return;
   }
-  if (!parentRig.bones.some(
+  if (
+    !parentRig.bones.some(
       (b: IAutoMovieBone): boolean => b.bone === mount.binding.bone,
-    )) {
+    )
+  ) {
     out.push(
       "type",
       "$staged.mounts",

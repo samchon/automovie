@@ -1,7 +1,4 @@
-import {
-  IAutoMovieSequence,
-  IAutoMovieTransition,
-} from "@automovie/interface";
+import { IAutoMovieSequence, IAutoMovieTransition } from "@automovie/interface";
 
 import { IAutoMoviePlaybackEntry } from "./IAutoMoviePlaybackEntry";
 import { IAutoMoviePlaybackSample } from "./IAutoMoviePlaybackSample";
@@ -25,7 +22,7 @@ import { IAutoMoviePlaybackSample } from "./IAutoMoviePlaybackSample";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure constructor of one sample that coordinates no work; locating the live entry, the costly part, is the caller's.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the caller owns the returned sample.
  */
-export function playbackSampleAt (
+export function playbackSampleAt(
   sequence: IAutoMovieSequence,
   entries: readonly IAutoMoviePlaybackEntry[],
   live: IAutoMoviePlaybackEntry,

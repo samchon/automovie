@@ -14,7 +14,7 @@
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A check of one number per call that coordinates no work across calls.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Allocates nothing on the accepting path and retains nothing; the thrown error is owned by the caller.
  */
-export function assertGrammarPositive (value: number, path: string): void {
+export function assertGrammarPositive(value: number, path: string): void {
   if (Number.isFinite(value) === false || value <= 0)
     throw new Error(`${path} must be finite and positive.`);
 }

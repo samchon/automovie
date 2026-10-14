@@ -37,7 +37,7 @@ type Sign = -1 | 0 | 1;
  * @evidence contracts/performance.md#reuse-equivalent-work Reads sizes through the caller's memo, so the incoming start size it shares with the shot-size check and the next cut's outgoing end size are measured once per read; subject lookups use the index `normalizeGrammarShot` built.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Appends at most six findings per call to the caller's list and retains nothing else; projected points and relation records are released on return.
  */
-export function inspectGrammarCut (
+export function inspectGrammarCut(
   diagnostics: IAutoMovieGrammarDiagnostic[],
   previous: IAutoMovieNormalizedGrammarShot,
   incoming: IAutoMovieNormalizedGrammarShot,
@@ -126,7 +126,7 @@ export function inspectGrammarCut (
 }
 
 /** Files an axis finding when an unseen cut puts the camera across the axis. */
-function inspectAxis (
+function inspectAxis(
   diagnostics: IAutoMovieGrammarDiagnostic[],
   previous: IAutoMovieNormalizedGrammarShot,
   incoming: IAutoMovieNormalizedGrammarShot,
@@ -160,7 +160,7 @@ function inspectAxis (
 /**
  * Files an eyeline finding when a reverse or a continuation of the outgoing primary subject's gaze reads the wrong way on screen.
  */
-function inspectEyeline (
+function inspectEyeline(
   diagnostics: IAutoMovieGrammarDiagnostic[],
   previous: IAutoMovieNormalizedGrammarShot,
   incoming: IAutoMovieNormalizedGrammarShot,
@@ -191,9 +191,13 @@ function inspectEyeline (
     incomingLooker.eyeline.start,
   );
   const expectedMultiplier: number = reverse ? -1 : 1;
-  function matches (outgoingValue: Sign, incomingValue: Sign): boolean { return outgoingValue === 0 ||
-    incomingValue === 0 ||
-    incomingValue === outgoingValue * expectedMultiplier; }
+  function matches(outgoingValue: Sign, incomingValue: Sign): boolean {
+    return (
+      outgoingValue === 0 ||
+      incomingValue === 0 ||
+      incomingValue === outgoingValue * expectedMultiplier
+    );
+  }
   if (
     matches(outgoingSide.horizontal, incomingSide.horizontal) &&
     matches(outgoingSide.vertical, incomingSide.vertical)
@@ -212,7 +216,7 @@ function inspectEyeline (
 }
 
 /** Files a finding when the shared subject's screen motion reverses at a cut. */
-function inspectScreenDirection (
+function inspectScreenDirection(
   diagnostics: IAutoMovieGrammarDiagnostic[],
   previous: IAutoMovieNormalizedGrammarShot,
   incoming: IAutoMovieNormalizedGrammarShot,
@@ -240,7 +244,7 @@ function inspectScreenDirection (
 }
 
 /** Which ground-plane side of the action axis the camera stands on. */
-function actionAxisSide (
+function actionAxisSide(
   shot: IAutoMovieNormalizedGrammarShot,
   boundary: "start" | "end",
 ): Sign {
@@ -262,7 +266,7 @@ function actionAxisSide (
 }
 
 /** Whether the camera visibly crosses the shot's own axis between boundaries. */
-function crossesActionAxisOnScreen (
+function crossesActionAxisOnScreen(
   shot: IAutoMovieNormalizedGrammarShot,
 ): boolean {
   if (shot.actionAxis === null) return false;
@@ -285,7 +289,7 @@ interface IScreenRelation {
 }
 
 /** Target offset from the subject; neutral when either depth is at or below GRAMMAR_EPSILON. */
-function relativeScreenDirection (
+function relativeScreenDirection(
   camera: IAutoMovieGrammarCameraObservation,
   subject: IAutoMovieVector3,
   target: IAutoMovieVector3,
@@ -312,7 +316,7 @@ function relativeScreenDirection (
 }
 
 /** Horizontal screen motion of a subject from its first to its last frame. */
-function screenMotionDirection (
+function screenMotionDirection(
   shot: IAutoMovieNormalizedGrammarShot,
   subject: IAutoMovieGrammarSubjectObservation,
 ): Sign {
@@ -330,15 +334,14 @@ function screenMotionDirection (
     endHalfY,
     shot.camera.end.aspect,
   );
-  if (start.depth <= GRAMMAR_EPSILON || end.depth <= GRAMMAR_EPSILON)
-    return 0;
+  if (start.depth <= GRAMMAR_EPSILON || end.depth <= GRAMMAR_EPSILON) return 0;
   return sign(end.ndcX - start.ndcX);
 }
 
 /**
  * Degrees between camera bearings across a cut; 180 when their length product is at or below GRAMMAR_EPSILON.
  */
-function cameraBearingAngleDegrees (
+function cameraBearingAngleDegrees(
   previousSubject: IAutoMovieVector3,
   incomingSubject: IAutoMovieVector3,
   previousCamera: IAutoMovieVector3,
@@ -362,10 +365,13 @@ function cameraBearingAngleDegrees (
 }
 
 /** The sign of `value`, zero inside the `GRAMMAR_EPSILON` dead band. */
-function sign (value: number): Sign { return Math.abs(value) <= GRAMMAR_EPSILON ? 0 : value > 0 ? 1 : -1; }
+function sign(value: number): Sign {
+  return Math.abs(value) <= GRAMMAR_EPSILON ? 0 : value > 0 ? 1 : -1;
+}
 
 /** A screen relation in finding prose, such as `screen-left/above`. */
-function screenRelation (direction: IScreenRelation): string { return [
+function screenRelation(direction: IScreenRelation): string {
+  return [
     direction.horizontal === 0
       ? "screen-center"
       : `screen-${direction.horizontal > 0 ? "right" : "left"}`,
@@ -374,4 +380,5 @@ function screenRelation (direction: IScreenRelation): string { return [
       : direction.vertical > 0
         ? "above"
         : "below",
-  ].join("/"); }
+  ].join("/");
+}

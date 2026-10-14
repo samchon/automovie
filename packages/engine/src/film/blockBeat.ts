@@ -38,7 +38,7 @@ import { validatePerformShotFraming } from "./validatePerformShotFraming";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure gate over one plan; the id sets are built once per call and shared by every check, and nothing is coordinated across calls.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing past the call; the success references the caller's plan and end state, and the failure owns one violation per contradiction.
  */
-export function blockBeat (
+export function blockBeat(
   script: IAutoMovieScript,
   staged: IAutoMovieStagedSet.ISuccess,
   blocking: IAutoMovieBlocking,
@@ -60,11 +60,7 @@ export function blockBeat (
     beatIds.set(beat.id, index);
   });
 
-  function validateNonEmptyId (
-    id: string,
-    path: string,
-    label: string,
-  ): void {
+  function validateNonEmptyId(id: string, path: string, label: string): void {
     if (id.trim().length === 0)
       out.push("type", path, `${label} must be a non-empty id`, id);
   }

@@ -23,7 +23,11 @@ const DEFAULT_GRAVITY: IAutoMovieVector3 = { x: 0, y: -9.81, z: 0 };
 /** Below this landing speed in m/s the incoming direction is undefined. */
 const STILL_SPEED: number = 1e-9;
 
-function firstActor (action: IAutoMovieLaunchAction): string | null { return typeof action.actor === "string" ? action.actor : (action.actor[0] ?? null); }
+function firstActor(action: IAutoMovieLaunchAction): string | null {
+  return typeof action.actor === "string"
+    ? action.actor
+    : (action.actor[0] ?? null);
+}
 
 /**
  * Compose the `launch` verb's engine primitives into one result: the projectile's flight and the struck target's reaction, timed to the engine-computed hit rather than a number the model had to guess.
@@ -44,7 +48,7 @@ function firstActor (action: IAutoMovieLaunchAction): string | null { return typ
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call compiles one launch from its own inputs and coordinates nothing across calls.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the caller owns the returned clip, at most one react and three events.
  */
-export function compileLaunch (props: {
+export function compileLaunch(props: {
   /** The launch to compile: its `projectile`, `speed`, `onHit` and `start`. */
   action: IAutoMovieLaunchAction;
 
@@ -55,13 +59,13 @@ export function compileLaunch (props: {
   target: IAutoMovieVector3;
 
   /**
- * The struck scene node, the emitted `react`'s actor, or null when the aim is a point or group with no single actor to recoil. A null value supports flight and contact without `onHit`; requesting `onHit` without a non-blank target node throws.
- */
+   * The struck scene node, the emitted `react`'s actor, or null when the aim is a point or group with no single actor to recoil. A null value supports flight and contact without `onHit`; requesting `onHit` without a non-blank target node throws.
+   */
   targetNode: string | null;
 
   /**
- * The target's world position at shot-local second `t`, when it moves during the shot. Supplied, the aim leads the mover to the intercept; omitted, the launch is a static intercept on `target`.
- */
+   * The target's world position at shot-local second `t`, when it moves during the shot. Supplied, the aim leads the mover to the intercept; omitted, the launch is a static intercept on `target`.
+   */
   targetAt?: (t: number) => IAutoMovieVector3;
 
   /** Constant acceleration in m/s²; defaults to Earth gravity along world −Y. */
@@ -118,8 +122,10 @@ export function compileLaunch (props: {
     solution.hitTime,
     props.fps,
   );
-  const landing: IAutoMovieProjectileState =
-    projectileAt(projectile, solution.hitTime);
+  const landing: IAutoMovieProjectileState = projectileAt(
+    projectile,
+    solution.hitTime,
+  );
   const hitAt: number = action.start + solution.hitTime;
   const targetNode: string | null = props.targetNode;
 

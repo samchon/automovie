@@ -23,11 +23,10 @@ import { IAutoMovieGrammarSubjectObservation } from "./IAutoMovieGrammarSubjectO
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Holds a sorted copy of the subject array, one map entry per subject and a copy of the intents, referencing the caller's subject and camera objects; it lives only for one `readFilmGrammar` call.
  * @author Samchon
  */
-export interface IAutoMovieNormalizedGrammarShot
-  extends Omit<
-    IAutoMovieGrammarShotObservation,
-    "subjects" | "actionAxis" | "styleIntent"
-  > {
+export interface IAutoMovieNormalizedGrammarShot extends Omit<
+  IAutoMovieGrammarShotObservation,
+  "subjects" | "actionAxis" | "styleIntent"
+> {
   /** The observed subjects, sorted by id in code-unit order. */
   subjects: IAutoMovieGrammarSubjectObservation[];
 

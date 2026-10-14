@@ -24,10 +24,10 @@ import { playbackSampleAt } from "./playbackSampleAt";
  * @evidence contracts/performance.md#reuse-equivalent-work Reuses the live index found by the previous query as the start of the next search, which is valid because the query clock never decreases; the timeline itself is built once by the caller and shared by every query.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The closure retains the sequence, the entry list and one index for as long as the caller holds the resolver, a constant bound beyond the caller's own timeline, and releases them when the resolver is dropped.
  */
-export function playbackCursor (
+export function playbackCursor(
   sequence: IAutoMovieSequence,
   timeline: IAutoMoviePlaybackTimeline,
-): ((seconds: number) => IAutoMoviePlaybackSample) {
+): (seconds: number) => IAutoMoviePlaybackSample {
   const entries: readonly IAutoMoviePlaybackEntry[] = timeline.entries;
   let live: number = 0;
   return (seconds: number): IAutoMoviePlaybackSample => {
