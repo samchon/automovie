@@ -6,9 +6,9 @@ import { IAutoMoviePose } from "../pose/IAutoMoviePose";
  *
  * A scene node binds a model (a character or an object) to a world transform and either a running motion clip or a held static pose. This is the seam where automovie's structured building lowering and ordinary stage authoring meet the renderer. A built environment defines logical rooms and visible elements; its lowering places those elements here with the shared world transform contract (see the scene coordinate note in the package README).
  *
- * @evidence contracts/common.md#principled-implementation Stable placement binds a reusable model to world TRS and either running motion or held pose, with rest represented by null motion and pose and rig compatibility checked by engine consumers.
+ * @evidence contracts/common.md#principled-implementation Stable placement binds a reusable model to world TRS and intended motion-or-pose state, with both null describing rest. Geometry/shot subject readers choose motion before held pose, while the current Production scene-artifact gate checks node identity, model reference and transform without admitting these two state fields.
  * @evidence contracts/common.md#clear-and-simple-design World placement and performed state remain node-owned while geometry, skeleton and material definitions stay on the referenced model.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Motion and held pose are mutually exclusive at admission; null state uses declared model rest rather than a guessed motion or bone configuration.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Mutual exclusion and compatible rig/state remain caller obligations because the current scene-artifact gate does not inspect motion or pose. The low-level viewer scene builder applies neither field; its host owns posing and playback instead of claiming that graph construction performed them.
  * @evidence contracts/common.md#meaningful-documentation Defines placement/model identity, world transform, motion-versus-pose exclusivity and rest null semantics.
  * @author Samchon
  */
@@ -28,7 +28,7 @@ export interface IAutoMovieSceneNode {
   motion: string | null;
 
   /**
-   * A held static pose when motion is null, or null for model rest. Admission refuses a nonnull pose alongside nonnull motion rather than ignoring either authored state.
+   * A held static pose when motion is null, or null for model rest. Author it exclusively with motion; current subject readers prefer motion if both are present, and scene-artifact admission does not enforce that exclusivity.
    */
   pose: IAutoMoviePose | null;
 }

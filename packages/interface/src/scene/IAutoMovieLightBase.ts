@@ -18,7 +18,7 @@ export interface IAutoMovieLightBase {
   /**
    * World placement. For directional light only the orientation matters.
    *
-   * Animatable, like every other field here: a shot's `lightMotions` reaches the translation through `/lights/<id>/position` and the rotation through `/lights/<id>/rotation`, so a light may travel and turn over time. `scale` is the one component no channel writes; a punctual light has no extent for a scale to describe.
+   * Light motion supports position for point/spot/area and rotation for directional/spot/area, through `/lights/<id>/position` and `/lights/<id>/rotation`. Other supported axes are intensity, RGB colour, point/spot range and spot cone angle. Scale, identity, shadow settings and area dimensions have no light pointer channel; the viewer still applies the authored TRS to its native light object.
    */
   transform: IAutoMovieTransform;
 

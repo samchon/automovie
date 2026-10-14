@@ -3,9 +3,9 @@ import { IAutoMovieLightBase } from "./IAutoMovieLightBase";
 /**
  * A rectangular emissive panel: a softbox, a window, a light strip, a luminous ceiling coffer.
  *
- * The light kind with extent. A punctual source has a position and no size, so its terminator is hard however far away it stands; a built interior is mostly lit by surfaces, and the soft wrap those surfaces give is a function of the panel's width and height, not of an intensity an author could tune to imitate it.
+ * This kind has finite width and height and maps to the viewer's native rectangular-area lighting approximation. Dimensions describe the emitting source separately from its intensity; they do not themselves establish observed softness, material response or shadowing.
  *
- * The panel occupies its transform's local XY plane and emits from the face its local −Z points at, which is the same convention every aimed light here uses, so one `direction` reads identically on a spot and on a window. It has no distance falloff parameter: the inverse-square term follows from the panel's own area, so a `range` would be a second, contradictory falloff.
+ * The panel occupies its transform's local XY plane and emits toward local −Z, matching the other aimed lights. The contract supplies width and height rather than a punctual cutoff range; native rectangular-area evaluation owns the resulting distance and angular response.
  *
  * Maps onto `three.js` `RectAreaLight`, which lights only physically-based materials and casts no shadow map (see {@link IAutoMovieLightBase.castShadow}). It has no glTF `KHR_lights_punctual` counterpart, which is exactly why it is modeled here rather than borrowed.
  *

@@ -13,7 +13,7 @@ import { AutoMovieSurfaceKind } from "./AutoMovieSurfaceKind";
  *
  * @evidence contracts/common.md#principled-implementation A closed simple outer XZ ring with optional interior holes and exactly one height representation defines support; shared constant/plane/bilinear height laws and legacy anchors produce the same single-valued ground query.
  * @evidence contracts/common.md#clear-and-simple-design Semantic label remains independent from footprint and height, while explicit void rings express one slab without splitting its support ownership into neighbouring patches.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Both or neither height spellings refuse, hole rims belong to the closed slab and invalid overlapping rings refuse; multi-valued ground and true curved footprints are unsupported rather than silently approximated.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Conflicting or missing height statements refuse; hole rims belong to the closed slab and invalid rings refuse. The gate requires absolute double plan area above 1e-9 square metres and legacy squared ramp span at least 1e-9 square metres. Finite fields do not guarantee finite derived heights, and multi-valued ground and true curved footprints remain unsupported.
  * @evidence contracts/common.md#meaningful-documentation Defines XZ and ignored-y ownership, concavity and hole rules, mutually exclusive height/anchor spelling and single-valued-ground limitations.
  * @author Samchon
  */
@@ -49,7 +49,7 @@ export interface IAutoMovieSurface {
    *
    * Constant and plane rules cover level and tilted ground; a heightfield additionally describes sampled relief. World terrain and scene support share this evaluator, with the same interpolation and finite-derived-arithmetic limits.
    *
-   * Present means {@link anchor} and {@link rampTo} are absent, and the reverse.
+   * Present requires anchor to be absent and rampTo to be absent or null. Without this rule, an anchor is required and an optional nonnull rampTo defines its slope.
    */
   height?: IAutoMovieHeightRule;
 
@@ -61,7 +61,7 @@ export interface IAutoMovieSurface {
   anchor?: IAutoMovieVector3;
 
   /**
-   * Second height anchor for a sloped surface: height interpolates linearly from `anchor.y` to `rampTo.y` along the `anchor → rampTo` direction on the XZ plan (constant perpendicular to it). Its `(x, z)` must differ from `anchor`'s. `null` or absent = flat at `anchor.y`.
+   * Second height anchor for a sloped surface. The query extrapolates linearly along the XZ anchor-to-ramp direction and is constant perpendicular to it. Admission requires squared XZ separation at least 1e-9 square metres; the direct evaluator treats smaller spans as flat. Null or omission means anchor.y everywhere.
    */
   rampTo?: IAutoMovieVector3 | null;
 }

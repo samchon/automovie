@@ -3,9 +3,9 @@ import { IAutoMovieColor } from "../color/IAutoMovieColor";
 /**
  * Image-based lighting, background, exposure, tone mapping, and shadows.
  *
- * @evidence contracts/common.md#principled-implementation Verified environment image media determines linear HDR or sRGB LDR decoding, while explicit intensity, Y rotation, exposure, tone curve and shadow policy configure the shared viewer and inventory paths.
+ * @evidence contracts/common.md#principled-implementation Environment admission checks image/background exclusivity and finite intensity, rotation, exposure and closed policies. Asset closure assigns Radiance headers linear intent and other admitted image media sRGB intent; the viewer separately uses decoded texture storage type, requiring decoder agreement rather than proving image radiometry.
  * @evidence contracts/common.md#clear-and-simple-design Lighting image and presentation controls share scene ownership, overriding a global render specification where their appearance decision actually belongs.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Contradictory image decoding and enabled VSM point shadows refuse; pcfSoft is the documented PCF alias and disabled shadows price no map work regardless of light flags.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Asset closure refuses contradictory decoding intent; contextual shadow admission refuses enabled VSM point shadows. Header facts do not prove complete decoding or transfer functions. Unresolved viewer images leave lighting unset, pcfSoft aliases PCF, and disabled shadows price no map work.
  * @evidence contracts/common.md#meaningful-documentation Defines image/background nulls, color decoding, physical intensity and rotation, exposure authority and effective shadow policy.
  * @author Samchon
  */
@@ -13,7 +13,7 @@ export interface IAutoMovieSceneEnvironment {
   /**
    * Equirectangular HDR/LDR asset id, or null for no image-based lighting.
    *
-   * Unlike a material's texture binding this states no decoding intent, because an environment image has only one: a Radiance HDR already holds linear radiance, and an 8-bit PNG, JPEG or WebP holds sRGB-encoded colour. The engine proves the media from the registered bytes and the viewer decodes on that fact, so the same image bound as a linear material measurement elsewhere is refused as a contradiction rather than decoded two ways.
+   * This carries no authored colour-space field. Production asset closure interprets supported Radiance header facts as linear and PNG/JPEG/WebP facts as sRGB, checking other uses for contradictory intent. The viewer instead treats unsigned-byte decoded storage as sRGB and other storage as linear; the host decoder must agree with that convention. Neither header media nor storage type certifies a source colour profile or physical radiance, and an unresolved image supplies no image lighting.
    */
   image: string | null;
 

@@ -28,10 +28,10 @@ export interface IAutoMovieCameraDepthPrecisionReport {
   /** Ordered far clip distance, or the finite invalid value/null observed. */
   far: number | null;
 
-  /** Nearest required camera-space depth, or null for invalid input. */
+  /** Nearest required camera-space depth; finite invalid values are echoed and nonfinite values become null. */
   requiredNear: number | null;
 
-  /** Farthest required camera-space depth, or null for invalid input. */
+  /** Farthest required camera-space depth; finite invalid values are echoed and nonfinite values become null. */
   requiredFar: number | null;
 
   /** Authored minimum depth bits, or null when non-finite. */

@@ -39,7 +39,7 @@ export interface IAutoMovieScene {
   /**
    * The scene's space: standable surfaces and walkability (#605). Absent or `null` means no declared space: the engine falls back to the scalar ground plane it assumed before the space layer existed. Optional (`?`) rather than required so every pre-space scene stays valid, the evolving-schema pattern {@link IAutoMovieShot.events} uses.
    *
-   * Staging authors it ({@link IAutoMovieStage.space}) and the viewer draws it: each surface becomes a real mesh, so the ground reaches the structural guide passes instead of leaving actors over a void (#1173).
+   * Staging authors it ({@link IAutoMovieStage.space}); the low-level viewer builder tessellates each nondegenerate patch for structural passes. Its ordinary material writes no beauty colour or depth, because semantic support does not establish that an authored physical floor exists. Heightfield interiors are planar triangle approximations of the bilinear height law.
    */
   space?: IAutoMovieSpace | null;
 
