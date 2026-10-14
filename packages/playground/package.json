@@ -5,8 +5,8 @@
   "description": "automovie playground, a usable web UI: viewer viewport + humanoid character editor",
   "type": "module",
   "scripts": {
-    "dev": "pnpm --filter @automovie/human build && vite",
-    "build": "ttsc --noEmit && ttsc --noEmit -p src/human/inspection/tsconfig.json && vite build",
+    "dev": "vite",
+    "build": "ttsc --noEmit && vite build",
     "build:stickman": "ttsx --no-plugins scripts/build-stickman.ts",
     "build:cat": "ttsx --no-plugins scripts/build-cat.ts",
     "build:horse": "ttsx --no-plugins scripts/build-horse.ts",
@@ -17,17 +17,13 @@
     "shots": "ttsx --no-plugins scripts/capture-shots.ts --",
     "preview": "vite preview --port 4173 --strictPort",
     "smoke:capture": "ttsx --no-plugins scripts/capture-smoke.ts --",
-    "observe:person": "ttsx --no-plugins scripts/observe-connected-person.ts --",
-    "evidence": "evidence",
-    "human:viewer": "ttsx --cache-dir node_modules/.cache/ttsc/ttsx -P src/human/inspection/tsconfig.json src/human/inspection/humanViewerCommand.ts",
-    "human:viewer:control": "node src/human/inspection/humanViewerControlCommand.ts"
+    "evidence": "evidence"
   },
   "author": "Samchon",
   "license": "MIT",
   "dependencies": {
     "@automovie/archetypes": "workspace:^",
     "@automovie/engine": "workspace:^",
-    "@automovie/human": "workspace:^",
     "@automovie/interface": "workspace:^",
     "@automovie/render": "workspace:^",
     "@automovie/viewer": "workspace:^",
@@ -52,7 +48,6 @@
   },
   "exports": {
     "./film/ICompilePursuitFilm": "./src/film/ICompilePursuitFilm.ts",
-    "./film/compilePursuitFilm": "./src/film/compilePursuitFilm.ts",
-    "./viewer/readPlaygroundViewerPublishedSource": "./src/viewer/readPlaygroundViewerPublishedSource.ts"
+    "./film/compilePursuitFilm": "./src/film/compilePursuitFilm.ts"
   }
 }

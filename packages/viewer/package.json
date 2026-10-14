@@ -6,21 +6,10 @@
   "exports": {
     ".": "./src/index.ts",
     "./node": "./src/node/index.ts",
-    "./human/*": "./src/human/*.ts",
     "./package.json": "./package.json",
     "./process/ProcessOwnership": "./src/process/ProcessOwnership.ts",
     "./inspection/createViewerDiskSource": "./src/inspection/createViewerDiskSource.ts",
     "./inspection/readViewerMaintainedSourceFiles": "./src/inspection/readViewerMaintainedSourceFiles.ts",
-    "./human/inspection/createHumanViewerMiddleware": "./src/human/inspection/createHumanViewerMiddleware.ts",
-    "./human/inspection/createHumanViewerNumericalPort": "./src/human/inspection/createHumanViewerNumericalPort.ts",
-    "./human/inspection/createHumanViewerSource": "./src/human/inspection/createHumanViewerSource.ts",
-    "./human/inspection/readHumanViewerCapture": "./src/human/inspection/readHumanViewerCapture.ts",
-    "./human/inspection/readHumanViewerCatalogue": "./src/human/inspection/readHumanViewerCatalogue.ts",
-    "./human/inspection/renderHumanViewerSheet": "./src/human/inspection/renderHumanViewerSheet.ts",
-    "./human/inspection/serveHumanViewerCapture": "./src/human/inspection/serveHumanViewerCapture.ts",
-    "./human/inspection/serveHumanViewerData": "./src/human/inspection/serveHumanViewerData.ts",
-    "./human/inspection/serveHumanViewerReference": "./src/human/inspection/serveHumanViewerReference.ts",
-    "./human/inspection/startHumanViewerServer": "./src/human/inspection/startHumanViewerServer.ts",
     "./AutoMovieResourceRetirementScope": "./src/AutoMovieResourceRetirementScope.ts",
     "./IViewerCameraStateSnapshot": "./src/IViewerCameraStateSnapshot.ts",
     "./constructAutoMovieOwnedResources": "./src/constructAutoMovieOwnedResources.ts",
@@ -65,50 +54,6 @@
       "./inspection/readViewerMaintainedSourceFiles": {
         "types": "./lib/inspection/readViewerMaintainedSourceFiles.d.ts",
         "default": "./lib/inspection/readViewerMaintainedSourceFiles.js"
-      },
-      "./human/*": {
-        "types": "./lib/human/*.d.ts",
-        "default": "./lib/human/*.js"
-      },
-      "./human/inspection/createHumanViewerMiddleware": {
-        "types": "./lib/human/inspection/createHumanViewerMiddleware.d.ts",
-        "default": "./lib/human/inspection/createHumanViewerMiddleware.js"
-      },
-      "./human/inspection/createHumanViewerNumericalPort": {
-        "types": "./lib/human/inspection/createHumanViewerNumericalPort.d.ts",
-        "default": "./lib/human/inspection/createHumanViewerNumericalPort.js"
-      },
-      "./human/inspection/createHumanViewerSource": {
-        "types": "./lib/human/inspection/createHumanViewerSource.d.ts",
-        "default": "./lib/human/inspection/createHumanViewerSource.js"
-      },
-      "./human/inspection/readHumanViewerCapture": {
-        "types": "./lib/human/inspection/readHumanViewerCapture.d.ts",
-        "default": "./lib/human/inspection/readHumanViewerCapture.js"
-      },
-      "./human/inspection/readHumanViewerCatalogue": {
-        "types": "./lib/human/inspection/readHumanViewerCatalogue.d.ts",
-        "default": "./lib/human/inspection/readHumanViewerCatalogue.js"
-      },
-      "./human/inspection/renderHumanViewerSheet": {
-        "types": "./lib/human/inspection/renderHumanViewerSheet.d.ts",
-        "default": "./lib/human/inspection/renderHumanViewerSheet.js"
-      },
-      "./human/inspection/serveHumanViewerCapture": {
-        "types": "./lib/human/inspection/serveHumanViewerCapture.d.ts",
-        "default": "./lib/human/inspection/serveHumanViewerCapture.js"
-      },
-      "./human/inspection/serveHumanViewerData": {
-        "types": "./lib/human/inspection/serveHumanViewerData.d.ts",
-        "default": "./lib/human/inspection/serveHumanViewerData.js"
-      },
-      "./human/inspection/serveHumanViewerReference": {
-        "types": "./lib/human/inspection/serveHumanViewerReference.d.ts",
-        "default": "./lib/human/inspection/serveHumanViewerReference.js"
-      },
-      "./human/inspection/startHumanViewerServer": {
-        "types": "./lib/human/inspection/startHumanViewerServer.d.ts",
-        "default": "./lib/human/inspection/startHumanViewerServer.js"
       },
       "./AutoMovieResourceRetirementScope": {
         "types": "./lib/AutoMovieResourceRetirementScope.d.ts",
@@ -157,8 +102,6 @@
     }
   },
   "scripts": {
-    "human:viewer": "ttsx -P tsconfig.json src/human/inspection/human-shot.ts",
-    "human:viewer:control": "node src/human/inspection/human-viewer-control.ts",
     "build": "rimraf lib && ttsc",
     "prepack": "pnpm run build",
     "evidence": "evidence"
@@ -173,16 +116,9 @@
   "dependencies": {
     "@automovie/engine": "workspace:^",
     "@automovie/interface": "workspace:^",
-    "@automovie/human": "workspace:^",
-    "three": "catalog:three",
-    "devalue": "6.0.2",
-    "playwright": "catalog:media",
-    "pngjs": "catalog:media",
-    "vite": "catalog:vite",
-    "typescript-compiler": "npm:typescript@5.9.3"
+    "three": "catalog:three"
   },
   "devDependencies": {
-    "@gltf-transform/core": "catalog:gltf",
     "@types/three": "catalog:three",
     "rimraf": "catalog:utils",
     "ttsc": "catalog:samchon",
@@ -190,8 +126,7 @@
     "@ttsc/lint": "catalog:samchon",
     "@wrtnlabs/evidence": "catalog:samchon",
     "@ttsc/evidence": "catalog:samchon",
-    "@types/node": "catalog:utils",
-    "@types/pngjs": "catalog:media"
+    "@types/node": "catalog:utils"
   },
   "type": "module",
   "engines": {

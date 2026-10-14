@@ -19,9 +19,6 @@ catalogs:
     '@types/pngjs':
       specifier: ^6.0.5
       version: 6.0.5
-    fflate:
-      specifier: ^0.8.3
-      version: 0.8.3
     gifenc:
       specifier: ^1.0.3
       version: 1.0.3
@@ -450,18 +447,6 @@ importers:
       '@automovie/interface':
         specifier: workspace:^
         version: link:../interface
-      '@gltf-transform/core':
-        specifier: catalog:gltf
-        version: 4.5.0
-      '@gltf-transform/extensions':
-        specifier: catalog:gltf
-        version: 4.5.0
-      fflate:
-        specifier: catalog:media
-        version: 0.8.3
-      typia:
-        specifier: catalog:samchon
-        version: 15.1.0(ttsc@0.32.1)
     devDependencies:
       '@ttsc/evidence':
         specifier: catalog:samchon
@@ -542,9 +527,6 @@ importers:
       '@automovie/engine':
         specifier: workspace:^
         version: link:../engine
-      '@automovie/human':
-        specifier: workspace:^
-        version: link:../human
       '@automovie/interface':
         specifier: workspace:^
         version: link:../interface
@@ -692,34 +674,13 @@ importers:
       '@automovie/engine':
         specifier: workspace:^
         version: link:../engine
-      '@automovie/human':
-        specifier: workspace:^
-        version: link:../human
       '@automovie/interface':
         specifier: workspace:^
         version: link:../interface
-      devalue:
-        specifier: 6.0.2
-        version: 6.0.2
-      playwright:
-        specifier: catalog:media
-        version: 1.62.0
-      pngjs:
-        specifier: catalog:media
-        version: 7.0.0
       three:
         specifier: catalog:three
         version: 0.186.0
-      typescript-compiler:
-        specifier: npm:typescript@5.9.3
-        version: typescript@5.9.3
-      vite:
-        specifier: catalog:vite
-        version: 5.4.21(@types/node@22.19.20)
     devDependencies:
-      '@gltf-transform/core':
-        specifier: catalog:gltf
-        version: 4.5.0
       '@ttsc/evidence':
         specifier: catalog:samchon
         version: 0.32.1(@ttsc/lint@0.32.1)
@@ -729,9 +690,6 @@ importers:
       '@types/node':
         specifier: catalog:utils
         version: 22.19.20
-      '@types/pngjs':
-        specifier: catalog:media
-        version: 6.0.5
       '@types/three':
         specifier: catalog:three
         version: 0.186.0
@@ -756,9 +714,6 @@ importers:
       '@automovie/engine':
         specifier: workspace:^
         version: link:../packages/engine
-      '@automovie/human':
-        specifier: workspace:^
-        version: link:../packages/human
       '@automovie/ingest':
         specifier: workspace:^
         version: link:../packages/ingest
