@@ -14,10 +14,10 @@ import type { IHumanViewerKeyedAdmission } from "./IHumanViewerKeyedAdmission.js
  *
  * @evidence contracts/common.md#principled-implementation Admission is requested through the page owner for the document's numerical key; unavailable requests remain pending and only an actual owner answer becomes a verdict.
  * @evidence contracts/common.md#clear-and-simple-design Separate verdict, waiting and in-flight maps express judgment, retry state and settlement without importing the human runtime into the server.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Old-key replies cannot overwrite a newer request, and page failure refuses rather than pretending admission or retrying forever automatically.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A reply whose key differs from the currently tracked key cannot publish. Requests sharing a repeated key, including A-to-B-to-A recurrence, are not distinguished by generation; page failure refuses rather than inventing admission or automatic endless retry.
  * @evidence contracts/common.md#meaningful-documentation The comment identifies key authority, explicit retry triggers, pending versus verdict state and the absence of workspace lease ownership.
  * @evidence contracts/performance.md#efficient-algorithms Per-entry reads and request bookkeeping use expected constant-time maps; status traverses waiting reasons and full settlement awaits currently registered work.
- * @evidence contracts/performance.md#reuse-equivalent-work Verdicts and pending reasons are reused only for equal document id and numerical key; a changed key starts its own request and stale responses are ignored.
+ * @evidence contracts/performance.md#reuse-equivalent-work Verdicts and pending reasons are reused for equal document id and numerical key; a changed key starts another request. Publication compares the currently tracked key, not request identity, so an earlier same-key request can publish after key recurrence.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Settled requests leave the request map and in-flight set; verdict and waiting maps retain encountered document ids for the server lifetime without an independent count cap or removed-id pruning.
  */
 export function createHumanViewerAdmission(
@@ -104,7 +104,7 @@ export function createHumanViewerAdmission(
             }),
           )
           .then((outcome: IHumanViewerAdmissionOutcome): void => {
-            // A newer key started its own request; this answer is outdated.
+            // A different key is currently tracked; this answer is outdated.
             if (asking.get(entry.id) !== entry.key) return;
             asking.delete(entry.id);
             (outcome.verdict ? verdicts : waiting).set(entry.id, {
@@ -142,10 +142,10 @@ export function createHumanViewerAdmission(
       return released;
     },
 
-    /** Whether any admission asked of the page is still awaiting its answer. */
+    /** Whether any task remains globally, or the document's latest registered request remains; older same-document tasks may still run. */
     busy: (doc?: string): boolean => doc === undefined ? inFlight.size !== 0 : requests.has(doc),
 
-    /** Resolves when every admission already asked of the page has its answer. */
+    /** Await all in-flight tasks globally, or successive latest registered requests for one document; the selected branch does not await displaced older requests. */
     settled: async (doc?: string): Promise<void> => {
       if (doc !== undefined) {
         let request: Promise<void> | undefined = requests.get(doc);

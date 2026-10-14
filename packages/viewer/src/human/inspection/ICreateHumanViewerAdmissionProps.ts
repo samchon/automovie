@@ -6,7 +6,7 @@ import type { IHumanViewerPageState } from "./IHumanViewerPageState.js";
  *
  * @evidence contracts/common.md#principled-implementation The admission owner asks the current page's domain bridge and stores only actual owner replies against document id and numerical key.
  * @evidence contracts/common.md#clear-and-simple-design Separates page availability, asynchronous judgment and publication notification so the server need not load Human numerical code.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Unavailable transport stays pending and a failed page refuses with cause; old-key replies cannot overwrite a newer document request.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Unavailable transport stays pending and a failed page refuses with cause; replies with a key different from the currently tracked key cannot publish. Repeated-key request generations, including A-to-B-to-A, are not distinguished.
  * @evidence contracts/common.md#meaningful-documentation Defines current page availability, owner-judged document JSON and notification after stored state; explicit host retry triggers govern re-admission.
  * @evidenceExclude contracts/performance.md#efficient-algorithms The bindings do not traverse catalogues; createHumanViewerAdmission uses maps for requests/verdicts and scans waiting reasons for status.
  * @evidence contracts/performance.md#reuse-equivalent-work Requests and verdicts share document id plus numerical key; supplied callbacks read current authority rather than caching startup readiness.
@@ -36,7 +36,7 @@ export interface ICreateHumanViewerAdmissionProps {
    * @evidence contracts/common.md#prohibited-implementation-shortcuts An unavailable envelope is not a verdict; thrown or incompatible replies become named pending causes instead of accepted geometry.
    * @evidence contracts/common.md#meaningful-documentation Domain identifies the numerical owner, text is its document JSON and basis is the paired authority token; null reason means an available owner admitted it.
    * @evidence contracts/performance.md#efficient-algorithms Serialization and domain judgment scale with document/model input. The owner tracks the latest requested key per id while earlier requests can remain unsettled; returning to a previous key can start another judgment for that key.
-   * @evidence contracts/performance.md#reuse-equivalent-work An equal document id/key shares tracked work and kept verdict; changed keys launch their own judgment and discard outdated responses.
+   * @evidence contracts/performance.md#reuse-equivalent-work Equal document id/key shares tracked work and kept verdict; changed keys launch their own judgment. Publication rejects a differing current key but does not distinguish earlier and later requests carrying the same key.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Each call returns a tracked task until settlement; the admission owner removes settled task references, while the page/bridge connection remains owned by the host.
    */
   admit: (
