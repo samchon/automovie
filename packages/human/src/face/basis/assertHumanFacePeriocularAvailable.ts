@@ -1,14 +1,13 @@
+import type { AutoMovieHumanFacePeriocularTissue as AutoMovieHumanFacePeriocularTissueImported } from "../structures/AutoMovieHumanFacePeriocularTissue";
 import type { IAutoMovieHumanFaceBasis } from "../structures/IAutoMovieHumanFaceBasis";
 import type { IAutoMovieHumanFaceBasisDocument } from "../structures/IAutoMovieHumanFaceBasisDocument";
-import { HumanFacePeriocularUnavailableError } from "./HumanFacePeriocularUnavailableError";
-import type { IAutoMovieHumanFaceOpticalSupport as IAutoMovieHumanFaceOpticalSupportImported } from "../structures/IAutoMovieHumanFaceOpticalSupport";
-import type { IAutoMovieHumanFaceLidSections as IAutoMovieHumanFaceLidSectionsImported } from "../structures/IAutoMovieHumanFaceLidSections";
-import type { AutoMovieHumanFacePeriocularTissue as AutoMovieHumanFacePeriocularTissueImported } from "../structures/AutoMovieHumanFacePeriocularTissue";
-import type { IAutoMovieHumanFacePeriocularTissueSection as IAutoMovieHumanFacePeriocularTissueSectionImported } from "../structures/IAutoMovieHumanFacePeriocularTissueSection";
 import type { IAutoMovieHumanFaceBrowPopulation as IAutoMovieHumanFaceBrowPopulationImported } from "../structures/IAutoMovieHumanFaceBrowPopulation";
+import type { IAutoMovieHumanFaceLidSections as IAutoMovieHumanFaceLidSectionsImported } from "../structures/IAutoMovieHumanFaceLidSections";
 import type { IAutoMovieHumanFaceOcularSurfaceShape as IAutoMovieHumanFaceOcularSurfaceShapeImported } from "../structures/IAutoMovieHumanFaceOcularSurfaceShape";
+import type { IAutoMovieHumanFaceOpticalSupport as IAutoMovieHumanFaceOpticalSupportImported } from "../structures/IAutoMovieHumanFaceOpticalSupport";
 import type { IAutoMovieHumanFacePeriocularSide as IAutoMovieHumanFacePeriocularSideImported } from "../structures/IAutoMovieHumanFacePeriocularSide";
-
+import type { IAutoMovieHumanFacePeriocularTissueSection as IAutoMovieHumanFacePeriocularTissueSectionImported } from "../structures/IAutoMovieHumanFacePeriocularTissueSection";
+import { HumanFacePeriocularUnavailableError } from "./HumanFacePeriocularUnavailableError";
 
 /**
  * Refuse a document's periocular fields that its basis cannot build.
@@ -37,7 +36,11 @@ export function assertHumanFacePeriocularAvailable(
 ): void {
   if (document.eyes !== undefined) {
     const owners: Set<"leftEye" | "rightEye"> = new Set(
-      (basis.opticalSupport ?? []).map((one: IAutoMovieHumanFaceOpticalSupportImported): "leftEye" | "rightEye"  => one.owner),
+      (basis.opticalSupport ?? []).map(
+        (
+          one: IAutoMovieHumanFaceOpticalSupportImported,
+        ): "leftEye" | "rightEye" => one.owner,
+      ),
     );
     if (!owners.has("leftEye") || !owners.has("rightEye"))
       throw new HumanFacePeriocularUnavailableError({
@@ -59,7 +62,7 @@ export function assertHumanFacePeriocularAvailable(
         });
       if (
         ["left", "right"].some(
-          (side: string): boolean  =>
+          (side: string): boolean =>
             basis.periocular![side as "left" | "right"].margins.lashRoots ===
             undefined,
         )
@@ -77,10 +80,22 @@ export function assertHumanFacePeriocularAvailable(
     "ocularSurfaces",
   ] as const)
     for (const side of ["left", "right"] as const) {
-      const profile: IAutoMovieHumanFaceLidSectionsImported | Partial<Record<AutoMovieHumanFacePeriocularTissueImported, IAutoMovieHumanFacePeriocularTissueSectionImported>> | IAutoMovieHumanFaceBrowPopulationImported | IAutoMovieHumanFaceOcularSurfaceShapeImported | undefined = document[field]?.[side];
+      const profile:
+        | IAutoMovieHumanFaceLidSectionsImported
+        | Partial<
+            Record<
+              AutoMovieHumanFacePeriocularTissueImported,
+              IAutoMovieHumanFacePeriocularTissueSectionImported
+            >
+          >
+        | IAutoMovieHumanFaceBrowPopulationImported
+        | IAutoMovieHumanFaceOcularSurfaceShapeImported
+        | undefined = document[field]?.[side];
       if (
         profile === undefined ||
-        Object.values(profile).every((value: unknown): boolean => value === undefined)
+        Object.values(profile).every(
+          (value: unknown): boolean => value === undefined,
+        )
       )
         continue;
       if (
@@ -90,7 +105,9 @@ export function assertHumanFacePeriocularAvailable(
         throw new Error(
           "Requested " + field + " needs its declared source contact geometry.",
         );
-      const registration: IAutoMovieHumanFacePeriocularSideImported | undefined = basis.periocular?.[side];
+      const registration:
+        | IAutoMovieHumanFacePeriocularSideImported
+        | undefined = basis.periocular?.[side];
       if (registration === undefined)
         throw new HumanFacePeriocularUnavailableError({
           field,

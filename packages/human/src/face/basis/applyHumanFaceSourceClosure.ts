@@ -1,8 +1,7 @@
 import { interpolateHumanBasisSourceTriangle } from "../../common/basis/interpolateHumanBasisSourceTriangle";
 import type { IAutoMovieHumanFaceSourceClosurePlan } from "../structures/IAutoMovieHumanFaceSourceClosurePlan";
-import { assertHumanFaceSourceClosurePlan } from "./assertHumanFaceSourceClosurePlan";
 import type { IAutoMovieHumanFaceSourceClosureRow as IAutoMovieHumanFaceSourceClosureRowImported } from "../structures/IAutoMovieHumanFaceSourceClosureRow";
-
+import { assertHumanFaceSourceClosurePlan } from "./assertHumanFaceSourceClosurePlan";
 
 /**
  * Form one source-registered closed endpoint after native posing and replay.
@@ -84,15 +83,16 @@ export function applyHumanFaceSourceClosure(
   }
   const output: Map<string, number[]> = new Map<string, number[]>();
   for (const [id, values] of open) {
-    const endpoint: readonly number[] = id === plan.surface ? closed : prior.get(id)!;
-    const result: number[] = values.map((value: number, i: number): number  =>
+    const endpoint: readonly number[] =
+      id === plan.surface ? closed : prior.get(id)!;
+    const result: number[] = values.map((value: number, i: number): number =>
       weight === 0
         ? value
         : weight === 1
           ? endpoint[i]
           : value + weight * (endpoint[i] - value),
     );
-    if (result.some((value: number): boolean  => !Number.isFinite(value)))
+    if (result.some((value: number): boolean => !Number.isFinite(value)))
       throw new Error(
         "Face source closure exceeded finite request arithmetic.",
       );

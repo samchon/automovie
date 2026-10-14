@@ -1,13 +1,12 @@
 import { createAutoMovieSignedMeshQuery } from "@automovie/engine";
 
 import type { IAutoMovieHumanFaceBasis } from "../structures/IAutoMovieHumanFaceBasis";
-import { readHumanFaceLipMarginPoints } from "./readHumanFaceLipMarginPoints";
+import type { IAutoMovieHumanFaceBasisChannel as IAutoMovieHumanFaceBasisChannelImported } from "../structures/IAutoMovieHumanFaceBasisChannel";
 import type { IAutoMovieHumanFaceBasisContact as IAutoMovieHumanFaceBasisContactImported } from "../structures/IAutoMovieHumanFaceBasisContact";
 import type { IAutoMovieHumanFaceBasisSurface as IAutoMovieHumanFaceBasisSurfaceImported } from "../structures/IAutoMovieHumanFaceBasisSurface";
-import type { IAutoMovieHumanFaceBasisChannel as IAutoMovieHumanFaceBasisChannelImported } from "../structures/IAutoMovieHumanFaceBasisChannel";
-import type { IHumanFaceLipMarginPoints as IHumanFaceLipMarginPointsImported } from "./IHumanFaceLipMarginPoints";
 import type { IHumanFaceLipMarginPoint as IHumanFaceLipMarginPointImported } from "./IHumanFaceLipMarginPoint";
-
+import type { IHumanFaceLipMarginPoints as IHumanFaceLipMarginPointsImported } from "./IHumanFaceLipMarginPoints";
+import { readHumanFaceLipMarginPoints } from "./readHumanFaceLipMarginPoints";
 
 /**
  * Admit a basis's coupled oral contact declaration before any document is
@@ -33,28 +32,47 @@ import type { IHumanFaceLipMarginPoint as IHumanFaceLipMarginPointImported } fro
  * @evidence contracts/performance.md#bound-retention-and-release-resources Local source maps, margin records and temporary neutral queries release on return/refusal; borrowed basis data is unchanged and no completed collider cache or external task escapes.
  */
 export function assertHumanFaceContact(basis: IAutoMovieHumanFaceBasis): void {
-  const contact: IAutoMovieHumanFaceBasisContactImported | undefined = basis.contact;
+  const contact: IAutoMovieHumanFaceBasisContactImported | undefined =
+    basis.contact;
   if (contact === undefined) return;
   if (basis.articulation === undefined)
     throw new Error(
       "Facial contact needs the mandibular articulation for its opening direction.",
     );
-  const surfaces: Map<string, IAutoMovieHumanFaceBasisSurfaceImported> = new Map(
-    basis.surfaces.map((surface: IAutoMovieHumanFaceBasisSurfaceImported): [string, IAutoMovieHumanFaceBasisSurfaceImported]  => [surface.id, surface]),
-  );
+  const surfaces: Map<string, IAutoMovieHumanFaceBasisSurfaceImported> =
+    new Map(
+      basis.surfaces.map(
+        (
+          surface: IAutoMovieHumanFaceBasisSurfaceImported,
+        ): [string, IAutoMovieHumanFaceBasisSurfaceImported] => [
+          surface.id,
+          surface,
+        ],
+      ),
+    );
   const channels: Map<string, "shape" | "expression"> = new Map(
-    basis.channels.map((channel: IAutoMovieHumanFaceBasisChannelImported): [string, "shape" | "expression"]  => [channel.id, channel.kind]),
+    basis.channels.map(
+      (
+        channel: IAutoMovieHumanFaceBasisChannelImported,
+      ): [string, "shape" | "expression"] => [channel.id, channel.kind],
+    ),
   );
-  const pair: (name: string, entry: { surface: string; upper: number; lower: number; }) => void = (
+  const pair: (
+    name: string,
+    entry: { surface: string; upper: number; lower: number },
+  ) => void = (
     name: string,
     entry: { surface: string; upper: number; lower: number },
   ): void => {
-    const surface: IAutoMovieHumanFaceBasisSurfaceImported | undefined = surfaces.get(entry.surface);
-    const count: number = surface === undefined ? 0 : surface.positions.length / 3;
+    const surface: IAutoMovieHumanFaceBasisSurfaceImported | undefined =
+      surfaces.get(entry.surface);
+    const count: number =
+      surface === undefined ? 0 : surface.positions.length / 3;
     if (
       surface === undefined ||
       [entry.upper, entry.lower].some(
-        (vertex: number): boolean  => !Number.isInteger(vertex) || vertex < 0 || vertex >= count,
+        (vertex: number): boolean =>
+          !Number.isInteger(vertex) || vertex < 0 || vertex >= count,
       ) ||
       entry.upper === entry.lower
     )
@@ -68,28 +86,67 @@ export function assertHumanFaceContact(basis: IAutoMovieHumanFaceBasis): void {
   if (contact.margin !== undefined) {
     const count: number =
       (surfaces.get(contact.lips.surface)?.positions.length ?? 0) / 3;
-    const surface: IAutoMovieHumanFaceBasisSurfaceImported = surfaces.get(contact.lips.surface)!;
-    const read: IHumanFaceLipMarginPointsImported = readHumanFaceLipMarginPoints(surface, contact.margin, surface.positions);
-    const chains: IHumanFaceLipMarginPointImported[][] = [read.upper, read.lower];
+    const surface: IAutoMovieHumanFaceBasisSurfaceImported = surfaces.get(
+      contact.lips.surface,
+    )!;
+    const read: IHumanFaceLipMarginPointsImported =
+      readHumanFaceLipMarginPoints(surface, contact.margin, surface.positions);
+    const chains: IHumanFaceLipMarginPointImported[][] = [
+      read.upper,
+      read.lower,
+    ];
     const all: IHumanFaceLipMarginPointImported[] = chains.flat();
-    const keys: (string | number | null)[][] = chains.map((chain: IHumanFaceLipMarginPointImported[]): (string | number | null)[]  => chain.map((point: IHumanFaceLipMarginPointImported): string | number | null  =>
-      contact.margin!.kind === "material" ? point.identity : point.nativeVertex));
-    const repeated: boolean = keys.some((chain: (string | number | null)[]): boolean  => new Set(chain).size !== chain.length);
-    const lowerOrdinals: Map<string | number | null, number> = new Map(keys[1].map((identity: string | number | null, at: number): [string | number | null, number] => [identity, at]));
-    const shared: boolean = keys[0].some((identity: string | number | null, upperAt: number): boolean  => {
-      const lowerAt: number | undefined = lowerOrdinals.get(identity);
-      if (lowerAt === undefined) return false;
-      // A native source course may name its one real commissure in both
-      // corresponding endpoints; legacy vertex chains keep their old guard.
-      return contact.margin!.kind !== "material" ||
-        !((upperAt === 0 && lowerAt === 0) ||
-          (upperAt === keys[0].length - 1 && lowerAt === keys[1].length - 1)) ||
-        chains[0][upperAt].nativeVertex === null || chains[1][lowerAt].nativeVertex === null;
-    });
+    const keys: (string | number | null)[][] = chains.map(
+      (chain: IHumanFaceLipMarginPointImported[]): (string | number | null)[] =>
+        chain.map(
+          (point: IHumanFaceLipMarginPointImported): string | number | null =>
+            contact.margin!.kind === "material"
+              ? point.identity
+              : point.nativeVertex,
+        ),
+    );
+    const repeated: boolean = keys.some(
+      (chain: (string | number | null)[]): boolean =>
+        new Set(chain).size !== chain.length,
+    );
+    const lowerOrdinals: Map<string | number | null, number> = new Map(
+      keys[1].map(
+        (
+          identity: string | number | null,
+          at: number,
+        ): [string | number | null, number] => [identity, at],
+      ),
+    );
+    const shared: boolean = keys[0].some(
+      (identity: string | number | null, upperAt: number): boolean => {
+        const lowerAt: number | undefined = lowerOrdinals.get(identity);
+        if (lowerAt === undefined) return false;
+        // A native source course may name its one real commissure in both
+        // corresponding endpoints; legacy vertex chains keep their old guard.
+        return (
+          contact.margin!.kind !== "material" ||
+          !(
+            (upperAt === 0 && lowerAt === 0) ||
+            (upperAt === keys[0].length - 1 && lowerAt === keys[1].length - 1)
+          ) ||
+          chains[0][upperAt].nativeVertex === null ||
+          chains[1][lowerAt].nativeVertex === null
+        );
+      },
+    );
     if (
-      chains.some((chain: IHumanFaceLipMarginPointImported[]): boolean  => chain.length < 2) ||
-      all.some((point: IHumanFaceLipMarginPointImported): boolean  => point.vertices.some((vertex: number): boolean  => !Number.isInteger(vertex) || vertex < 0 || vertex >= count)) ||
-      repeated || shared
+      chains.some(
+        (chain: IHumanFaceLipMarginPointImported[]): boolean =>
+          chain.length < 2,
+      ) ||
+      all.some((point: IHumanFaceLipMarginPointImported): boolean =>
+        point.vertices.some(
+          (vertex: number): boolean =>
+            !Number.isInteger(vertex) || vertex < 0 || vertex >= count,
+        ),
+      ) ||
+      repeated ||
+      shared
     )
       throw new Error(
         "Facial contact lip margin needs two chains of at least two distinct resident vertices of the lips surface.",
@@ -126,8 +183,10 @@ export function assertHumanFaceContact(basis: IAutoMovieHumanFaceBasis): void {
     );
   const named: Set<string> = new Set<string>();
   for (const collider of contact.colliders) {
-    const surface: IAutoMovieHumanFaceBasisSurfaceImported | undefined = surfaces.get(collider.surface);
-    const count: number = surface === undefined ? 0 : surface.positions.length / 3;
+    const surface: IAutoMovieHumanFaceBasisSurfaceImported | undefined =
+      surfaces.get(collider.surface);
+    const count: number =
+      surface === undefined ? 0 : surface.positions.length / 3;
     if (
       surface === undefined ||
       named.has(collider.surface) ||
@@ -139,7 +198,8 @@ export function assertHumanFaceContact(basis: IAutoMovieHumanFaceBasis): void {
       ) ||
       collider.closure.length % 3 !== 0 ||
       collider.closure.some(
-        (vertex: number): boolean  => !Number.isInteger(vertex) || vertex < 0 || vertex >= count,
+        (vertex: number): boolean =>
+          !Number.isInteger(vertex) || vertex < 0 || vertex >= count,
       )
     )
       throw new Error(

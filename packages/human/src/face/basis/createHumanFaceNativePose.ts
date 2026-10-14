@@ -1,22 +1,27 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
+import type {
+  IAutoMovieHumanFaceBasisChannel as IAutoMovieHumanFaceBasisChannelImported,
+  IAutoMovieHumanFaceBasisContact as IAutoMovieHumanFaceBasisContactImported,
+  IAutoMovieHumanFaceBasisSurface as IAutoMovieHumanFaceBasisSurfaceImported,
+  IAutoMovieHumanFaceOral as IAutoMovieHumanFaceOralImported,
+  IAutoMovieHumanFaceRigidMotion as IAutoMovieHumanFaceRigidMotionImported,
+} from "../../index";
 import { applyHumanFaceEyelidPhenotypes } from "../anatomy/eye/applyHumanFaceEyelidPhenotypes";
 import { applyHumanFaceLidSections } from "../anatomy/eye/applyHumanFaceLidSections";
 import { applyHumanFaceOralIdentity } from "../anatomy/oral/applyHumanFaceOralIdentity";
 import type { IAutoMovieHumanFaceBasis } from "../structures/IAutoMovieHumanFaceBasis";
+import type { IHumanFaceClosureGain as IHumanFaceClosureGainImported } from "./IHumanFaceClosureGain";
 import type { IHumanFaceNativePose } from "./IHumanFaceNativePose";
 import type { IHumanFacePoseGeometry } from "./IHumanFacePoseGeometry";
 import { createHumanFaceClosureGain } from "./createHumanFaceClosureGain";
 import { evaluateHumanFaceRest } from "./evaluateHumanFaceRest";
-import { measureHumanFaceClosureRatio } from "./measureHumanFaceClosureRatio";
 import type { humanFaceBasisWeights } from "./humanFaceBasisWeights";
+import { measureHumanFaceClosureRatio } from "./measureHumanFaceClosureRatio";
 import { poseHumanFaceSurface } from "./poseHumanFaceSurface";
 import { replayHumanFaceSourceRefinements } from "./replayHumanFaceSourceRefinements";
 import { resolveHumanFaceApertureUp } from "./resolveHumanFaceApertureUp";
 import { resolveHumanFaceArticulation } from "./resolveHumanFaceArticulation";
-import type { IAutoMovieHumanFaceBasisChannel as IAutoMovieHumanFaceBasisChannelImported, IAutoMovieHumanFaceBasisContact as IAutoMovieHumanFaceBasisContactImported, IAutoMovieHumanFaceRigidMotion as IAutoMovieHumanFaceRigidMotionImported, IAutoMovieHumanFaceBasisSurface as IAutoMovieHumanFaceBasisSurfaceImported, IAutoMovieHumanFaceOral as IAutoMovieHumanFaceOralImported } from "../../index";
-import type { IHumanFaceClosureGain as IHumanFaceClosureGainImported } from "./IHumanFaceClosureGain";
-
 
 /**
  * Evaluate the native source rest identity, rigid motion and closure companion.
@@ -49,51 +54,112 @@ export function createHumanFaceNativePose(
   );
   const shapeChannels: Set<string> = new Set(
     basis.channels
-      .filter((channel: IAutoMovieHumanFaceBasisChannelImported): boolean  => channel.kind === "shape")
-      .map((channel: IAutoMovieHumanFaceBasisChannelImported): string  => channel.id),
+      .filter(
+        (channel: IAutoMovieHumanFaceBasisChannelImported): boolean =>
+          channel.kind === "shape",
+      )
+      .map(
+        (channel: IAutoMovieHumanFaceBasisChannelImported): string =>
+          channel.id,
+      ),
   );
-  const contact: IAutoMovieHumanFaceBasisContactImported | undefined = basis.contact;
-  return (state: { weights: Map<string, number>; activations: { target: string; activation: number; shapeOnly: boolean; }[]; }, geometry: IHumanFacePoseGeometry | undefined, progress: ((owner: string) => void) | undefined): { posed: Map<string, number[]>; shaped: { surfaces: number[][]; landmarks: Record<string, IAutoMovieVector3>; } | undefined; up: IAutoMovieVector3 | undefined; closureRatio: number; motions: Map<string, IAutoMovieHumanFaceRigidMotionImported> | undefined; }  => {
-    const { oral, eyelids, eyelidPhenotypes }: IHumanFacePoseGeometry = geometry ?? {};
-    const rest: { surfaces: number[][]; landmarks: Record<string, IAutoMovieVector3>; } = evaluateHumanFaceRest(basis, state, closure);
+  const contact: IAutoMovieHumanFaceBasisContactImported | undefined =
+    basis.contact;
+  return (
+    state: {
+      weights: Map<string, number>;
+      activations: { target: string; activation: number; shapeOnly: boolean }[];
+    },
+    geometry: IHumanFacePoseGeometry | undefined,
+    progress: ((owner: string) => void) | undefined,
+  ): {
+    posed: Map<string, number[]>;
+    shaped:
+      | { surfaces: number[][]; landmarks: Record<string, IAutoMovieVector3> }
+      | undefined;
+    up: IAutoMovieVector3 | undefined;
+    closureRatio: number;
+    motions: Map<string, IAutoMovieHumanFaceRigidMotionImported> | undefined;
+  } => {
+    const { oral, eyelids, eyelidPhenotypes }: IHumanFacePoseGeometry =
+      geometry ?? {};
+    const rest: {
+      surfaces: number[][];
+      landmarks: Record<string, IAutoMovieVector3>;
+    } = evaluateHumanFaceRest(basis, state, closure);
     progress?.("native:rest");
     if (eyelids !== undefined) {
-      const lidRest: ReadonlyMap<string, readonly number[]> = applyHumanFaceLidSections(
-        basis,
-        new Map(
-          basis.surfaces.map((surface: IAutoMovieHumanFaceBasisSurfaceImported, at: number): [string, number[]]  => [surface.id, rest.surfaces[at]]),
-        ),
-        eyelids,
+      const lidRest: ReadonlyMap<string, readonly number[]> =
+        applyHumanFaceLidSections(
+          basis,
+          new Map(
+            basis.surfaces.map(
+              (
+                surface: IAutoMovieHumanFaceBasisSurfaceImported,
+                at: number,
+              ): [string, number[]] => [surface.id, rest.surfaces[at]],
+            ),
+          ),
+          eyelids,
+        );
+      basis.surfaces.forEach(
+        (
+          surface: IAutoMovieHumanFaceBasisSurfaceImported,
+          at: number,
+        ): void => {
+          rest.surfaces[at] = [...lidRest.get(surface.id)!];
+        },
       );
-      basis.surfaces.forEach((surface: IAutoMovieHumanFaceBasisSurfaceImported, at: number): void  => {
-        rest.surfaces[at] = [...lidRest.get(surface.id)!];
-      });
     }
     if (eyelidPhenotypes !== undefined) {
-      const namedLids: ReadonlyMap<string, readonly number[]> = applyHumanFaceEyelidPhenotypes(
-        basis,
-        new Map(
-          basis.surfaces.map((surface: IAutoMovieHumanFaceBasisSurfaceImported, at: number): [string, number[]]  => [surface.id, rest.surfaces[at]]),
-        ),
-        eyelidPhenotypes,
+      const namedLids: ReadonlyMap<string, readonly number[]> =
+        applyHumanFaceEyelidPhenotypes(
+          basis,
+          new Map(
+            basis.surfaces.map(
+              (
+                surface: IAutoMovieHumanFaceBasisSurfaceImported,
+                at: number,
+              ): [string, number[]] => [surface.id, rest.surfaces[at]],
+            ),
+          ),
+          eyelidPhenotypes,
+        );
+      basis.surfaces.forEach(
+        (
+          surface: IAutoMovieHumanFaceBasisSurfaceImported,
+          at: number,
+        ): void => {
+          rest.surfaces[at] = [...namedLids.get(surface.id)!];
+        },
       );
-      basis.surfaces.forEach((surface: IAutoMovieHumanFaceBasisSurfaceImported, at: number): void  => {
-        rest.surfaces[at] = [...namedLids.get(surface.id)!];
-      });
     }
     if (oral !== undefined) {
-      const oralRest: ReadonlyMap<string, readonly number[]> = applyHumanFaceOralIdentity(
-        basis,
-        new Map(
-          basis.surfaces.map((surface: IAutoMovieHumanFaceBasisSurfaceImported, at: number): [string, number[]]  => [surface.id, rest.surfaces[at]]),
-        ),
-        oral,
+      const oralRest: ReadonlyMap<string, readonly number[]> =
+        applyHumanFaceOralIdentity(
+          basis,
+          new Map(
+            basis.surfaces.map(
+              (
+                surface: IAutoMovieHumanFaceBasisSurfaceImported,
+                at: number,
+              ): [string, number[]] => [surface.id, rest.surfaces[at]],
+            ),
+          ),
+          oral,
+        );
+      basis.surfaces.forEach(
+        (
+          surface: IAutoMovieHumanFaceBasisSurfaceImported,
+          at: number,
+        ): void => {
+          rest.surfaces[at] = [...oralRest.get(surface.id)!];
+        },
       );
-      basis.surfaces.forEach((surface: IAutoMovieHumanFaceBasisSurfaceImported, at: number): void  => {
-        rest.surfaces[at] = [...oralRest.get(surface.id)!];
-      });
     }
-    const motions: Map<string, IAutoMovieHumanFaceRigidMotionImported> | undefined =
+    const motions:
+      | Map<string, IAutoMovieHumanFaceRigidMotionImported>
+      | undefined =
       basis.articulation === undefined
         ? undefined
         : resolveHumanFaceArticulation(
@@ -108,104 +174,157 @@ export function createHumanFaceNativePose(
     if (contact !== undefined) {
       shaped = evaluateHumanFaceRest(basis, {
         weights: new Map(
-          [...state.weights].filter(([id]: [string, number]): boolean  => shapeChannels.has(id)),
+          [...state.weights].filter(([id]: [string, number]): boolean =>
+            shapeChannels.has(id),
+          ),
         ),
-        activations: state.activations.filter((one: { target: string; activation: number; shapeOnly: boolean; }): boolean  => one.shapeOnly),
+        activations: state.activations.filter(
+          (one: {
+            target: string;
+            activation: number;
+            shapeOnly: boolean;
+          }): boolean => one.shapeOnly,
+        ),
       });
       if (eyelids !== undefined) {
-        const lidRest: ReadonlyMap<string, readonly number[]> = applyHumanFaceLidSections(
-          basis,
-          new Map(
-            basis.surfaces.map((surface: IAutoMovieHumanFaceBasisSurfaceImported, at: number): [string, number[]]  => [
-              surface.id,
-              shaped!.surfaces[at],
-            ]),
-          ),
-          eyelids,
+        const lidRest: ReadonlyMap<string, readonly number[]> =
+          applyHumanFaceLidSections(
+            basis,
+            new Map(
+              basis.surfaces.map(
+                (
+                  surface: IAutoMovieHumanFaceBasisSurfaceImported,
+                  at: number,
+                ): [string, number[]] => [surface.id, shaped!.surfaces[at]],
+              ),
+            ),
+            eyelids,
+          );
+        basis.surfaces.forEach(
+          (
+            surface: IAutoMovieHumanFaceBasisSurfaceImported,
+            at: number,
+          ): void => {
+            shaped!.surfaces[at] = [...lidRest.get(surface.id)!];
+          },
         );
-        basis.surfaces.forEach((surface: IAutoMovieHumanFaceBasisSurfaceImported, at: number): void  => {
-          shaped!.surfaces[at] = [...lidRest.get(surface.id)!];
-        });
       }
       if (eyelidPhenotypes !== undefined) {
-        const namedRestLids: ReadonlyMap<string, readonly number[]> = applyHumanFaceEyelidPhenotypes(
-          basis,
-          new Map(
-            basis.surfaces.map((surface: IAutoMovieHumanFaceBasisSurfaceImported, at: number): [string, number[]]  => [
-              surface.id,
-              shaped!.surfaces[at],
-            ]),
-          ),
-          eyelidPhenotypes,
+        const namedRestLids: ReadonlyMap<string, readonly number[]> =
+          applyHumanFaceEyelidPhenotypes(
+            basis,
+            new Map(
+              basis.surfaces.map(
+                (
+                  surface: IAutoMovieHumanFaceBasisSurfaceImported,
+                  at: number,
+                ): [string, number[]] => [surface.id, shaped!.surfaces[at]],
+              ),
+            ),
+            eyelidPhenotypes,
+          );
+        basis.surfaces.forEach(
+          (
+            surface: IAutoMovieHumanFaceBasisSurfaceImported,
+            at: number,
+          ): void => {
+            shaped!.surfaces[at] = [...namedRestLids.get(surface.id)!];
+          },
         );
-        basis.surfaces.forEach((surface: IAutoMovieHumanFaceBasisSurfaceImported, at: number): void  => {
-          shaped!.surfaces[at] = [...namedRestLids.get(surface.id)!];
-        });
       }
       if (oral !== undefined) {
         const identity: IAutoMovieHumanFaceOralImported = structuredClone(oral);
         delete identity.performance;
-        const oralRest: ReadonlyMap<string, readonly number[]> = applyHumanFaceOralIdentity(
-          basis,
-          new Map(
-            basis.surfaces.map((surface: IAutoMovieHumanFaceBasisSurfaceImported, at: number): [string, number[]]  => [
-              surface.id,
-              shaped!.surfaces[at],
-            ]),
-          ),
-          identity,
+        const oralRest: ReadonlyMap<string, readonly number[]> =
+          applyHumanFaceOralIdentity(
+            basis,
+            new Map(
+              basis.surfaces.map(
+                (
+                  surface: IAutoMovieHumanFaceBasisSurfaceImported,
+                  at: number,
+                ): [string, number[]] => [surface.id, shaped!.surfaces[at]],
+              ),
+            ),
+            identity,
+          );
+        basis.surfaces.forEach(
+          (
+            surface: IAutoMovieHumanFaceBasisSurfaceImported,
+            at: number,
+          ): void => {
+            shaped!.surfaces[at] = [...oralRest.get(surface.id)!];
+          },
         );
-        basis.surfaces.forEach((surface: IAutoMovieHumanFaceBasisSurfaceImported, at: number): void  => {
-          shaped!.surfaces[at] = [...oralRest.get(surface.id)!];
-        });
       }
       up = resolveHumanFaceApertureUp(basis.articulation!.jaw.axis);
       const weight: number = state.weights.get(contact.closure.channel) ?? 0;
       if (weight === 0) {
         closureRatio = measureHumanFaceClosureRatio(
-          basis, contact, rest.surfaces, motions!, up, contact.lips,
+          basis,
+          contact,
+          rest.surfaces,
+          motions!,
+          up,
+          contact.lips,
         );
         progress?.("native:closure-ratio");
       } else {
         const gains: IHumanFaceClosureGainImported = createHumanFaceClosureGain(
-          basis, contact, rest.surfaces, motions!, up,
+          basis,
+          contact,
+          rest.surfaces,
+          motions!,
+          up,
         );
         closureRatio = gains.ratio;
         progress?.("native:closure-field");
         const endpoint: string = basis.channels.find(
-          (channel: IAutoMovieHumanFaceBasisChannelImported): boolean  => channel.id === contact.closure.channel,
+          (channel: IAutoMovieHumanFaceBasisChannelImported): boolean =>
+            channel.id === contact.closure.channel,
         )!.positive;
-        basis.surfaces.forEach((surface: IAutoMovieHumanFaceBasisSurfaceImported, index: number): void  => {
-          const rows: number[] = surface.targets[endpoint];
-          if (rows === undefined) return;
-          const positions: number[] = rest.surfaces[index];
-          const lips: boolean = surface.id === contact.lips.surface;
-          for (let i: number = 0; i < rows.length; i += 4) {
-            const gain: number = weight * (lips ? gains.lips[rows[i]] : gains.ratio);
-            for (let axis: number = 0; axis < 3; axis++)
-              positions[rows[i] * 3 + axis] += gain * rows[i + axis + 1];
-          }
-        });
+        basis.surfaces.forEach(
+          (
+            surface: IAutoMovieHumanFaceBasisSurfaceImported,
+            index: number,
+          ): void => {
+            const rows: number[] = surface.targets[endpoint];
+            if (rows === undefined) return;
+            const positions: number[] = rest.surfaces[index];
+            const lips: boolean = surface.id === contact.lips.surface;
+            for (let i: number = 0; i < rows.length; i += 4) {
+              const gain: number =
+                weight * (lips ? gains.lips[rows[i]] : gains.ratio);
+              for (let axis: number = 0; axis < 3; axis++)
+                positions[rows[i] * 3 + axis] += gain * rows[i + axis + 1];
+            }
+          },
+        );
         progress?.("native:closure-application");
       }
     }
     const posed: Map<string, number[]> = new Map<string, number[]>();
-    basis.surfaces.forEach((surface: IAutoMovieHumanFaceBasisSurfaceImported, index: number): void  => {
-      posed.set(
-        surface.id,
-        replayHumanFaceSourceRefinements(
-          surface.sourcePosePlan,
-          motions !== undefined && (surface.attachments?.length ?? 0) > 0
-            ? poseHumanFaceSurface(
-                rest.surfaces[index],
-                surface.attachments!,
-                motions,
-              )
-            : rest.surfaces[index],
-        ),
-      );
-      progress?.("native:replay:" + surface.id);
-    });
+    basis.surfaces.forEach(
+      (
+        surface: IAutoMovieHumanFaceBasisSurfaceImported,
+        index: number,
+      ): void => {
+        posed.set(
+          surface.id,
+          replayHumanFaceSourceRefinements(
+            surface.sourcePosePlan,
+            motions !== undefined && (surface.attachments?.length ?? 0) > 0
+              ? poseHumanFaceSurface(
+                  rest.surfaces[index],
+                  surface.attachments!,
+                  motions,
+                )
+              : rest.surfaces[index],
+          ),
+        );
+        progress?.("native:replay:" + surface.id);
+      },
+    );
     return { posed, shaped, up, closureRatio, motions };
   };
 }

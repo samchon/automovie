@@ -1,14 +1,17 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
+import type {
+  IAutoMovieHumanFaceBasisChannel as IAutoMovieHumanFaceBasisChannelImported,
+  IAutoMovieHumanFaceBasisSurface as IAutoMovieHumanFaceBasisSurfaceImported,
+  IAutoMovieHumanFaceContactSoftSurface as IAutoMovieHumanFaceContactSoftSurfaceImported,
+} from "../../index";
 import type { IAutoMovieHumanFaceBasis } from "../structures/IAutoMovieHumanFaceBasis";
 import type { IAutoMovieHumanFaceBasisContact } from "../structures/IAutoMovieHumanFaceBasisContact";
 import type { IAutoMovieHumanFaceRigidMotion } from "../structures/IAutoMovieHumanFaceRigidMotion";
 import type { IHumanFaceClosureGain } from "./IHumanFaceClosureGain";
+import { createHumanFaceNativeClosureGain } from "./createHumanFaceNativeClosureGain";
 import { measureHumanFaceClosureRatio } from "./measureHumanFaceClosureRatio";
 import { poseHumanFaceVertex } from "./poseHumanFaceVertex";
-import { createHumanFaceNativeClosureGain } from "./createHumanFaceNativeClosureGain";
-import type { IAutoMovieHumanFaceBasisSurface as IAutoMovieHumanFaceBasisSurfaceImported, IAutoMovieHumanFaceBasisChannel as IAutoMovieHumanFaceBasisChannelImported, IAutoMovieHumanFaceContactSoftSurface as IAutoMovieHumanFaceContactSoftSurfaceImported } from "../../index";
-
 
 /** Fixed-point passes re-reading a chain vertex's place along the axis after its gain changes. */
 const PASSES: number = 4;
@@ -60,9 +63,11 @@ export function createHumanFaceClosureGain(
   up: IAutoMovieVector3,
 ): IHumanFaceClosureGain {
   const index: number = basis.surfaces.findIndex(
-    (surface: IAutoMovieHumanFaceBasisSurfaceImported): boolean  => surface.id === contact.lips.surface,
+    (surface: IAutoMovieHumanFaceBasisSurfaceImported): boolean =>
+      surface.id === contact.lips.surface,
   );
-  const surface: IAutoMovieHumanFaceBasisSurfaceImported = basis.surfaces[index];
+  const surface: IAutoMovieHumanFaceBasisSurfaceImported =
+    basis.surfaces[index];
   const positions: readonly number[] = rest[index];
   const count: number = positions.length / 3;
   const ratio: number = measureHumanFaceClosureRatio(
@@ -78,47 +83,80 @@ export function createHumanFaceClosureGain(
 
   const axis: [number, number, number] = basis.articulation!.jaw.axis;
   const endpoint: string = basis.channels.find(
-    (channel: IAutoMovieHumanFaceBasisChannelImported): boolean  => channel.id === contact.closure.channel,
+    (channel: IAutoMovieHumanFaceBasisChannelImported): boolean =>
+      channel.id === contact.closure.channel,
   )!.positive;
   const rows: number[] = surface.targets[endpoint] ?? [];
   const delta: Float64Array<ArrayBuffer> = new Float64Array(3 * count);
   for (let i: number = 0; i < rows.length; i += 4)
-    for (let k: number = 0; k < 3; k++) delta[3 * rows[i] + k] = rows[i + 1 + k];
+    for (let k: number = 0; k < 3; k++)
+      delta[3 * rows[i] + k] = rows[i + 1 + k];
   const budget: number =
-    contact.soft.find((entry: IAutoMovieHumanFaceContactSoftSurfaceImported): boolean  => entry.surface === contact.lips.surface)
-      ?.budgetMetres ?? 0;
+    contact.soft.find(
+      (entry: IAutoMovieHumanFaceContactSoftSurfaceImported): boolean =>
+        entry.surface === contact.lips.surface,
+    )?.budgetMetres ?? 0;
   if (contact.margin.kind === "material")
-    return { ratio, lips: createHumanFaceNativeClosureGain({
-      surface, contact, positions, motions, up, ratio, delta, budget, axis,
-      movableMetres: MOVABLE_METRES,
-    }) };
+    return {
+      ratio,
+      lips: createHumanFaceNativeClosureGain({
+        surface,
+        contact,
+        positions,
+        motions,
+        up,
+        ratio,
+        delta,
+        budget,
+        axis,
+        movableMetres: MOVABLE_METRES,
+      }),
+    };
 
   // posed position at gains 0 and 1 of every chain vertex: along and height
   // the central pair belongs to the margin: each chain takes its vertex, in order along the axis
-  const restAlong: (vertex: number) => number = (vertex: number): number  =>
+  const restAlong: (vertex: number) => number = (vertex: number): number =>
     positions[3 * vertex] * axis[0] +
     positions[3 * vertex + 1] * axis[1] +
     positions[3 * vertex + 2] * axis[2];
-  const withCentre: (chain: readonly number[], vertex: number) => number[] = (chain: readonly number[], vertex: number): number[]  =>
+  const withCentre: (chain: readonly number[], vertex: number) => number[] = (
+    chain: readonly number[],
+    vertex: number,
+  ): number[] =>
     (chain.includes(vertex) ? [...chain] : [...chain, vertex]).sort(
-      (a: number, b: number): number  => restAlong(a) - restAlong(b),
+      (a: number, b: number): number => restAlong(a) - restAlong(b),
     );
-  const upperChain: number[] = withCentre(contact.margin.upper, contact.lips.upper);
-  const lowerChain: number[] = withCentre(contact.margin.lower, contact.lips.lower);
+  const upperChain: number[] = withCentre(
+    contact.margin.upper,
+    contact.lips.upper,
+  );
+  const lowerChain: number[] = withCentre(
+    contact.margin.lower,
+    contact.lips.lower,
+  );
   const chains: number[][] = [upperChain, lowerChain];
   const nodes: number[] = chains.flat();
-  const column: Map<number, number> = new Map(nodes.map((vertex: number, at: number): [number, number]  => [vertex, at]));
+  const column: Map<number, number> = new Map(
+    nodes.map((vertex: number, at: number): [number, number] => [vertex, at]),
+  );
   const along0: number[] = [];
   const alongD: number[] = [];
   const height0: number[] = [];
   const heightD: number[] = [];
   for (const vertex of nodes) {
     const local: number[] = positions.slice(3 * vertex, 3 * vertex + 3);
-    const p0: IAutoMovieVector3 = poseHumanFaceVertex(surface, vertex, local, motions);
+    const p0: IAutoMovieVector3 = poseHumanFaceVertex(
+      surface,
+      vertex,
+      local,
+      motions,
+    );
     const p1: IAutoMovieVector3 = poseHumanFaceVertex(
       surface,
       vertex,
-      local.map((value: number, k: number): number  => value + delta[3 * vertex + k]),
+      local.map(
+        (value: number, k: number): number => value + delta[3 * vertex + k],
+      ),
       motions,
     );
     const a0: number = p0.x * axis[0] + p0.y * axis[1] + p0.z * axis[2];
@@ -132,13 +170,24 @@ export function createHumanFaceClosureGain(
   }
   const size: number = nodes.length;
   const gains: Float64Array<ArrayBuffer> = new Float64Array(size).fill(ratio);
-  const along: (at: number) => number = (at: number): number  => along0[at] + gains[at] * alongD[at];
-  const height: (at: number) => number = (at: number): number  => height0[at] + gains[at] * heightD[at];
+  const along: (at: number) => number = (at: number): number =>
+    along0[at] + gains[at] * alongD[at];
+  const height: (at: number) => number = (at: number): number =>
+    height0[at] + gains[at] * heightD[at];
   // height of a chain's polyline at a position along the axis (nearest end beyond it)
-  const across: (chain: readonly number[], at: number) => number = (chain: readonly number[], at: number): number => {
-    const ends: number[] = [column.get(chain[0])!, column.get(chain[chain.length - 1])!];
+  const across: (chain: readonly number[], at: number) => number = (
+    chain: readonly number[],
+    at: number,
+  ): number => {
+    const ends: number[] = [
+      column.get(chain[0])!,
+      column.get(chain[chain.length - 1])!,
+    ];
     const ascending: boolean = along(ends[1]) >= along(ends[0]);
-    const before: (a: number, b: number) => boolean = (a: number, b: number): boolean  => (ascending ? a <= b : a >= b);
+    const before: (a: number, b: number) => boolean = (
+      a: number,
+      b: number,
+    ): boolean => (ascending ? a <= b : a >= b);
     if (before(at, along(ends[0]))) return height(ends[0]);
     if (before(along(ends[1]), at)) return height(ends[1]);
     for (let j: number = 0; j + 1 < chain.length; j++) {
@@ -154,7 +203,10 @@ export function createHumanFaceClosureGain(
     return height(ends[1]);
   };
   // the gain that puts one chain vertex at a target height read at its own place along the axis
-  const reach: (at: number, target: (position: number) => number) => number = (at: number, target: (position: number) => number): number => {
+  const reach: (at: number, target: (position: number) => number) => number = (
+    at: number,
+    target: (position: number) => number,
+  ): number => {
     let gain: number = gains[at];
     for (let pass: number = 0; pass < PASSES; pass++) {
       const want: number = target(along0[at] + gain * alongD[at]);
@@ -169,16 +221,20 @@ export function createHumanFaceClosureGain(
   // 1. the lower chain meets the upper chain, which follows the central closure
   for (const vertex of lowerChain) {
     const at: number = column.get(vertex)!;
-    gains[at] = reach(at, (position: number): number  => across(upperChain, position));
+    gains[at] = reach(at, (position: number): number =>
+      across(upperChain, position),
+    );
   }
   // 2. re-read an upper vertex left above the current lower polyline. Changes
   // to along coordinates can change brackets; this pass proves no seal.
   for (const vertex of upperChain) {
     const at: number = column.get(vertex)!;
     if (height(at) > across(lowerChain, along(at)))
-      gains[at] = reach(at, (position: number): number  => across(lowerChain, position));
+      gains[at] = reach(at, (position: number): number =>
+        across(lowerChain, position),
+      );
   }
-  nodes.forEach((vertex: number, at: number): void  => {
+  nodes.forEach((vertex: number, at: number): void => {
     const reach: number = Math.hypot(
       delta[3 * vertex],
       delta[3 * vertex + 1],
@@ -206,7 +262,7 @@ export function createHumanFaceClosureGain(
     let nearest: number = Infinity;
     let weights: number = 0;
     let sum: number = 0;
-    nodes.forEach((node: number, at: number): void  => {
+    nodes.forEach((node: number, at: number): void => {
       const distance: number = Math.hypot(
         positions[3 * vertex] - positions[3 * node],
         positions[3 * vertex + 1] - positions[3 * node + 1],

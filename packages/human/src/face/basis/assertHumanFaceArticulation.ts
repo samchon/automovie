@@ -1,16 +1,18 @@
 import type { IAutoMovieHumanFaceBasis } from "../structures/IAutoMovieHumanFaceBasis";
-import type { IAutoMovieHumanFaceBasisLandmarks as IAutoMovieHumanFaceBasisLandmarksImported } from "../structures/IAutoMovieHumanFaceBasisLandmarks";
 import type { IAutoMovieHumanFaceBasisArticulation as IAutoMovieHumanFaceBasisArticulationImported } from "../structures/IAutoMovieHumanFaceBasisArticulation";
 import type { IAutoMovieHumanFaceBasisChannel as IAutoMovieHumanFaceBasisChannelImported } from "../structures/IAutoMovieHumanFaceBasisChannel";
+import type { IAutoMovieHumanFaceBasisLandmarks as IAutoMovieHumanFaceBasisLandmarksImported } from "../structures/IAutoMovieHumanFaceBasisLandmarks";
 import type { IAutoMovieHumanFaceSurfaceAttachment as IAutoMovieHumanFaceSurfaceAttachmentImported } from "../structures/IAutoMovieHumanFaceSurfaceAttachment";
 
-
-const unitAxis: (axis: readonly number[]) => boolean = (axis: readonly number[]): boolean =>
+const unitAxis: (axis: readonly number[]) => boolean = (
+  axis: readonly number[],
+): boolean =>
   axis.length === 3 &&
   axis.every(Number.isFinite) &&
   Math.abs(Math.hypot(axis[0], axis[1], axis[2]) - 1) <= 1e-6;
-const finiteTriple: (values: readonly number[]) => boolean = (values: readonly number[]): boolean =>
-  values.length === 3 && values.every(Number.isFinite);
+const finiteTriple: (values: readonly number[]) => boolean = (
+  values: readonly number[],
+): boolean => values.length === 3 && values.every(Number.isFinite);
 
 /**
  * Admit the landmarks, articulation and attachments of a facial basis.
@@ -50,8 +52,14 @@ export function assertHumanFaceArticulation(
   if (basis.landmarks !== undefined) {
     const expressionChannels: Set<string> = new Set(
       basis.channels
-        .filter((channel: IAutoMovieHumanFaceBasisChannelImported): boolean => channel.kind === "expression")
-        .map((channel: IAutoMovieHumanFaceBasisChannelImported): string => channel.id),
+        .filter(
+          (channel: IAutoMovieHumanFaceBasisChannelImported): boolean =>
+            channel.kind === "expression",
+        )
+        .map(
+          (channel: IAutoMovieHumanFaceBasisChannelImported): string =>
+            channel.id,
+        ),
     );
     const performanceEndpoints: Set<string> = new Set<string>();
     for (const channel of basis.channels)
@@ -61,12 +69,20 @@ export function assertHumanFaceArticulation(
           performanceEndpoints.add(channel.negative);
       }
     for (const corrective of basis.correctives ?? [])
-      if (corrective.inputs.some((input: { channel: string }): boolean => expressionChannels.has(input.channel)))
+      if (
+        corrective.inputs.some((input: { channel: string }): boolean =>
+          expressionChannels.has(input.channel),
+        )
+      )
         performanceEndpoints.add(corrective.target);
-    const { ids, positions, targets }: IAutoMovieHumanFaceBasisLandmarksImported = basis.landmarks;
+    const {
+      ids,
+      positions,
+      targets,
+    }: IAutoMovieHumanFaceBasisLandmarksImported = basis.landmarks;
     if (
       ids.length === 0 ||
-      ids.some((id: string): boolean  => id.trim() === "") ||
+      ids.some((id: string): boolean => id.trim() === "") ||
       new Set(ids).size !== ids.length ||
       positions.length !== ids.length * 3 ||
       !positions.every(Number.isFinite)
@@ -103,10 +119,15 @@ export function assertHumanFaceArticulation(
     }
   }
   const owners: Set<string> = new Set<string>();
-  const articulation: IAutoMovieHumanFaceBasisArticulationImported | undefined = basis.articulation;
+  const articulation: IAutoMovieHumanFaceBasisArticulationImported | undefined =
+    basis.articulation;
   if (articulation !== undefined) {
     const channels: Map<string, "shape" | "expression"> = new Map(
-      basis.channels.map((channel: IAutoMovieHumanFaceBasisChannelImported): [string, "shape" | "expression"]  => [channel.id, channel.kind]),
+      basis.channels.map(
+        (
+          channel: IAutoMovieHumanFaceBasisChannelImported,
+        ): [string, "shape" | "expression"] => [channel.id, channel.kind],
+      ),
     );
     const driven: Set<string> = new Set<string>();
     const drive: (channel: string) => void = (channel: string): void => {
@@ -170,7 +191,8 @@ export function assertHumanFaceArticulation(
     }
   }
   for (const surface of basis.surfaces) {
-    const attachments: IAutoMovieHumanFaceSurfaceAttachmentImported[] = surface.attachments ?? [];
+    const attachments: IAutoMovieHumanFaceSurfaceAttachmentImported[] =
+      surface.attachments ?? [];
     const vertices: number = surface.positions.length / 3;
     const sums: Map<number, number> = new Map<number, number>();
     const seen: Set<string> = new Set<string>();

@@ -1,13 +1,17 @@
-import { createAutoMovieMeshRayCaster, type IAutoMovieMeshRayCaster as IAutoMovieMeshRayCasterImported } from "@automovie/engine";
-import type { IAutoMovieModel, IAutoMovieMesh as IAutoMovieMeshImported, IAutoMovieModelPart as IAutoMovieModelPartImported } from "@automovie/interface";
+import {
+  type IAutoMovieMeshRayCaster as IAutoMovieMeshRayCasterImported,
+  createAutoMovieMeshRayCaster,
+} from "@automovie/engine";
+import type {
+  IAutoMovieMesh as IAutoMovieMeshImported,
+  IAutoMovieModel,
+  IAutoMovieModelPart as IAutoMovieModelPartImported,
+} from "@automovie/interface";
 
 import { encodePng } from "../../common/mesh/encodePng";
 import { readHumanLocalMeshWorld } from "../../common/mesh/readHumanLocalMeshWorld";
 import type { IHumanFaceOcclusionBakeOptions } from "./IHumanFaceOcclusionBakeOptions";
 import { humanFaceOcclusionOpaqueMaterials } from "./humanFaceOcclusionOpaqueMaterials";
-
-
-
 
 /** How far a ray starts off its surface along the normal, metres. */
 const LIFT: number = 0.00005;
@@ -44,13 +48,25 @@ export function bakeHumanFaceOcclusion(
   )
     throw new Error("Occlusion needs positive integer ray counts and sizes.");
   const opaque: Set<string> = humanFaceOcclusionOpaqueMaterials(model);
-  const meshes: { material: string; mesh: IAutoMovieMeshImported; }[] = model.parts.flatMap((part: IAutoMovieModelPartImported): { material: string; mesh: IAutoMovieMeshImported; }[]  =>
-    part.geometry.type === "mesh" &&
-    part.material !== null &&
-    opaque.has(part.material)
-      ? [{ material: part.material, mesh: readHumanLocalMeshWorld(part.geometry.mesh, part.transform) }]
-      : [],
-  );
+  const meshes: { material: string; mesh: IAutoMovieMeshImported }[] =
+    model.parts.flatMap(
+      (
+        part: IAutoMovieModelPartImported,
+      ): { material: string; mesh: IAutoMovieMeshImported }[] =>
+        part.geometry.type === "mesh" &&
+        part.material !== null &&
+        opaque.has(part.material)
+          ? [
+              {
+                material: part.material,
+                mesh: readHumanLocalMeshWorld(
+                  part.geometry.mesh,
+                  part.transform,
+                ),
+              },
+            ]
+          : [],
+    );
   const positions: number[] = [];
   const indices: number[] = [];
   for (const { mesh } of meshes) {
@@ -60,7 +76,10 @@ export function bakeHumanFaceOcclusion(
     for (const value of mesh.positions) positions.push(value);
     const own: number[] =
       mesh.indices ??
-      Array.from({ length: mesh.positions.length / 3 }, (_v: unknown, i: number): number  => i);
+      Array.from(
+        { length: mesh.positions.length / 3 },
+        (_v: unknown, i: number): number => i,
+      );
     for (const index of own) indices.push(offset + index);
   }
   const caster: IAutoMovieMeshRayCasterImported = createAutoMovieMeshRayCaster({
@@ -77,19 +96,28 @@ export function bakeHumanFaceOcclusion(
       low[axis] = Math.min(low[axis], positions[i + axis]);
       high[axis] = Math.max(high[axis], positions[i + axis]);
     }
-  const reach: number = Math.hypot(...[0, 1, 2].map((axis: number): number  => high[axis] - low[axis]));
-  const spiral: number[][] = Array.from({ length: rays }, (_v: unknown, i: number): number[]  => {
-    const radius: number = Math.sqrt((i + 0.5) / rays);
-    const azimuth: number = 2.39996 * i;
-    return [
-      radius * Math.cos(azimuth),
-      radius * Math.sin(azimuth),
-      Math.sqrt(1 - radius * radius),
-    ];
-  });
+  const reach: number = Math.hypot(
+    ...[0, 1, 2].map((axis: number): number => high[axis] - low[axis]),
+  );
+  const spiral: number[][] = Array.from(
+    { length: rays },
+    (_v: unknown, i: number): number[] => {
+      const radius: number = Math.sqrt((i + 0.5) / rays);
+      const azimuth: number = 2.39996 * i;
+      return [
+        radius * Math.cos(azimuth),
+        radius * Math.sin(azimuth),
+        Math.sqrt(1 - radius * radius),
+      ];
+    },
+  );
   const origin: number[] = [0, 0, 0];
   const direction: number[] = [0, 0, 0];
-  const visibility: (positions: readonly number[], normals: readonly number[] | null, vertex: number) => number = (
+  const visibility: (
+    positions: readonly number[],
+    normals: readonly number[] | null,
+    vertex: number,
+  ) => number = (
     positions: readonly number[],
     normals: readonly number[] | null,
     vertex: number,
@@ -104,7 +132,8 @@ export function bakeHumanFaceOcclusion(
     ny /= length;
     nz /= length;
     // A tangent frame: u across the normal from the less aligned axis.
-    const [sx, sy, sz]: [number, number, number] = Math.abs(nx) < 0.9 ? [1, 0, 0] : [0, 1, 0];
+    const [sx, sy, sz]: [number, number, number] =
+      Math.abs(nx) < 0.9 ? [1, 0, 0] : [0, 1, 0];
     let ux: number = sy * nz - sz * ny;
     let uy: number = sz * nx - sx * nz;
     let uz: number = sx * ny - sy * nx;
@@ -128,24 +157,50 @@ export function bakeHumanFaceOcclusion(
     return open / rays;
   };
   const baked: Map<string, string> = new Map<string, string>();
-  const receivers: string[] = [...new Set(meshes.map((one: { material: string; mesh: IAutoMovieMeshImported; }): string  => one.material))];
+  const receivers: string[] = [
+    ...new Set(
+      meshes.map(
+        (one: { material: string; mesh: IAutoMovieMeshImported }): string =>
+          one.material,
+      ),
+    ),
+  ];
   for (const material of receivers) {
     // A texture binds every mesh of its material, so a material any of whose
     // meshes lacks UVs receives none.
-    const own: { material: string; mesh: IAutoMovieMeshImported; }[] = meshes.filter((one: { material: string; mesh: IAutoMovieMeshImported; }): boolean  => one.material === material);
-    if (own.some((one: { material: string; mesh: IAutoMovieMeshImported; }): boolean  => one.mesh.uvs === null)) continue;
-    const field: Float64Array<ArrayBuffer> = new Float64Array(size * size).fill(-1);
+    const own: { material: string; mesh: IAutoMovieMeshImported }[] =
+      meshes.filter(
+        (one: { material: string; mesh: IAutoMovieMeshImported }): boolean =>
+          one.material === material,
+      );
+    if (
+      own.some(
+        (one: { material: string; mesh: IAutoMovieMeshImported }): boolean =>
+          one.mesh.uvs === null,
+      )
+    )
+      continue;
+    const field: Float64Array<ArrayBuffer> = new Float64Array(size * size).fill(
+      -1,
+    );
     for (const { mesh } of own) {
       const count: number = mesh.positions.length / 3;
-      const seen: number[] = Array.from({ length: count }, (_v: unknown, vertex: number): number  =>
-        visibility(mesh.positions, mesh.normals, vertex),
+      const seen: number[] = Array.from(
+        { length: count },
+        (_v: unknown, vertex: number): number =>
+          visibility(mesh.positions, mesh.normals, vertex),
       );
       const triangles: number[] =
-        mesh.indices ?? Array.from({ length: count }, (_v: unknown, i: number): number  => i);
+        mesh.indices ??
+        Array.from({ length: count }, (_v: unknown, i: number): number => i);
       const uvs: number[] = mesh.uvs!;
       for (let i: number = 0; i < triangles.length; i += 3) {
-        const ids: number[] = [triangles[i], triangles[i + 1], triangles[i + 2]];
-        const corner: number[][] = ids.map((vertex: number): number[]  => [
+        const ids: number[] = [
+          triangles[i],
+          triangles[i + 1],
+          triangles[i + 2],
+        ];
+        const corner: number[][] = ids.map((vertex: number): number[] => [
           uvs[2 * vertex] * size,
           (1 - uvs[2 * vertex + 1]) * size,
         ]);
@@ -155,19 +210,19 @@ export function bakeHumanFaceOcclusion(
         if (area === 0) continue;
         const x0: number = Math.max(
           0,
-          Math.floor(Math.min(...corner.map((p: number[]): number  => p[0]))),
+          Math.floor(Math.min(...corner.map((p: number[]): number => p[0]))),
         );
         const x1: number = Math.min(
           size - 1,
-          Math.ceil(Math.max(...corner.map((p: number[]): number  => p[0]))),
+          Math.ceil(Math.max(...corner.map((p: number[]): number => p[0]))),
         );
         const y0: number = Math.max(
           0,
-          Math.floor(Math.min(...corner.map((p: number[]): number  => p[1]))),
+          Math.floor(Math.min(...corner.map((p: number[]): number => p[1]))),
         );
         const y1: number = Math.min(
           size - 1,
-          Math.ceil(Math.max(...corner.map((p: number[]): number  => p[1]))),
+          Math.ceil(Math.max(...corner.map((p: number[]): number => p[1]))),
         );
         for (let y: number = y0; y <= y1; ++y)
           for (let x: number = x0; x <= x1; ++x) {
@@ -191,8 +246,11 @@ export function bakeHumanFaceOcclusion(
     // Four rings of seam filling: each ring fills the empty texels beside a
     // filled one with their filled neighbours' mean.
     let frontier: number[] = [];
-    const empty: (texel: number) => boolean = (texel: number): boolean  => field[texel] < 0;
-    const neighbours: (texel: number) => number[] = (texel: number): number[] => {
+    const empty: (texel: number) => boolean = (texel: number): boolean =>
+      field[texel] < 0;
+    const neighbours: (texel: number) => number[] = (
+      texel: number,
+    ): number[] => {
       const x: number = texel % size;
       const out: number[] = [];
       if (x > 0) out.push(texel - 1);
@@ -213,7 +271,7 @@ export function bakeHumanFaceOcclusion(
         frontier.push(texel);
     }
     for (let ring: number = 0; ring < 4 && frontier.length > 0; ++ring) {
-      const values: number[] = frontier.map((texel: number): number  => {
+      const values: number[] = frontier.map((texel: number): number => {
         let sum: number = 0;
         let filled: number = 0;
         for (const one of neighbours(texel))
@@ -223,7 +281,9 @@ export function bakeHumanFaceOcclusion(
           }
         return sum / filled;
       });
-      frontier.forEach((texel: number, k: number): number  => (field[texel] = values[k]));
+      frontier.forEach(
+        (texel: number, k: number): number => (field[texel] = values[k]),
+      );
       const next: Set<number> = new Set<number>();
       for (const texel of frontier)
         for (const one of neighbours(texel)) if (empty(one)) next.add(one);

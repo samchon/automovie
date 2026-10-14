@@ -1,8 +1,7 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import type { IAutoMovieHumanFaceBasis } from "../structures/IAutoMovieHumanFaceBasis";
 import type { IAutoMovieHumanFaceBasisSurface as IAutoMovieHumanFaceBasisSurfaceImported } from "../../index";
-
+import type { IAutoMovieHumanFaceBasis } from "../structures/IAutoMovieHumanFaceBasis";
 
 /**
  * Evaluate the rest layer of a facial basis: every endpoint row, on surfaces
@@ -40,7 +39,12 @@ export function evaluateHumanFaceRest(
   },
   except: ReadonlySet<string> = new Set(),
 ): { surfaces: number[][]; landmarks: Record<string, IAutoMovieVector3> } {
-  const accumulate: (positions: number[], targets: Record<string, number[]>, name: string, gain: number) => void = (
+  const accumulate: (
+    positions: number[],
+    targets: Record<string, number[]>,
+    name: string,
+    gain: number,
+  ) => void = (
     positions: number[],
     targets: Record<string, number[]>,
     name: string,
@@ -52,7 +56,10 @@ export function evaluateHumanFaceRest(
       for (let axis: number = 0; axis < 3; axis++)
         positions[rows[i] * 3 + axis] += gain * rows[i + axis + 1];
   };
-  const shape: (positions: number[], targets: Record<string, number[]>) => void = (
+  const shape: (
+    positions: number[],
+    targets: Record<string, number[]>,
+  ) => void = (
     positions: number[],
     targets: Record<string, number[]>,
   ): void => {
@@ -75,16 +82,18 @@ export function evaluateHumanFaceRest(
           corrective.activation,
         );
   };
-  const surfaces: number[][] = basis.surfaces.map((surface: IAutoMovieHumanFaceBasisSurfaceImported): number[]  => {
-    const positions: number[] = surface.positions.slice();
-    shape(positions, surface.targets);
-    return positions;
-  });
+  const surfaces: number[][] = basis.surfaces.map(
+    (surface: IAutoMovieHumanFaceBasisSurfaceImported): number[] => {
+      const positions: number[] = surface.positions.slice();
+      shape(positions, surface.targets);
+      return positions;
+    },
+  );
   const landmarks: Record<string, IAutoMovieVector3> = {};
   if (basis.landmarks !== undefined) {
     const marks: number[] = basis.landmarks.positions.slice();
     shape(marks, basis.landmarks.targets);
-    basis.landmarks.ids.forEach((id: string, i: number): void  => {
+    basis.landmarks.ids.forEach((id: string, i: number): void => {
       landmarks[id] = {
         x: marks[i * 3],
         y: marks[i * 3 + 1],

@@ -26,7 +26,8 @@ export function createHumanFaceSurfaceColours(
 ): number[] | undefined {
   let colours: number[] | undefined;
   if (fields !== undefined) {
-    const sample: (point: readonly number[]) => number[] = createPortraitColourField(fields);
+    const sample: (point: readonly number[]) => number[] =
+      createPortraitColourField(fields);
     colours = [];
     for (let at: number = 0; at < surface.positions.length; at += 3)
       colours.push(...sample(surface.positions.slice(at, at + 3)));
@@ -40,7 +41,7 @@ export function createHumanFaceSurfaceColours(
     colours =
       colours === undefined
         ? [...gains]
-        : colours.map((value: number, at: number): number  => value * gains[at]);
+        : colours.map((value: number, at: number): number => value * gains[at]);
   }
   return colours;
 }

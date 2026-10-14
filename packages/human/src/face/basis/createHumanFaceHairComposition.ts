@@ -1,16 +1,19 @@
 import { validateModel } from "@automovie/engine";
-import type { IAutoMovieModel, IAutoMovieModelPart as IAutoMovieModelPartImported, IAutoMovieMaterial as IAutoMovieMaterialImported, IAutoMovieValidation as IAutoMovieValidationImported } from "@automovie/interface";
+import type {
+  IAutoMovieMaterial as IAutoMovieMaterialImported,
+  IAutoMovieModel,
+  IAutoMovieModelPart as IAutoMovieModelPartImported,
+  IAutoMovieValidation as IAutoMovieValidationImported,
+} from "@automovie/interface";
 
+import type { IAutoMovieHumanFaceHair as IAutoMovieHumanFaceHairImported } from "../../index";
+import type { IHumanFaceHairContactLayout } from "../anatomy/hair/IHumanFaceHairContactLayout";
 import { assertHumanFaceHair } from "../anatomy/hair/assertHumanFaceHair";
 import { createHumanFaceHairBuilder } from "../anatomy/hair/createHumanFaceHairBuilder";
 import { createHumanFaceHairResultCache } from "../anatomy/hair/createHumanFaceHairResultCache";
 import { resolveHumanFaceFacialHair } from "../anatomy/hair/resolveHumanFaceFacialHair";
 import type { IAutoMovieHumanFaceBasis } from "../structures/IAutoMovieHumanFaceBasis";
 import type { IAutoMovieHumanFaceBasisDocument } from "../structures/IAutoMovieHumanFaceBasisDocument";
-import type { IHumanFaceHairContactLayout } from "../anatomy/hair/IHumanFaceHairContactLayout";
-import type { IAutoMovieHumanFaceHair as IAutoMovieHumanFaceHairImported } from "../../index";
-
-
 
 /**
  * Append numerical hair after the face's existing geometry and occlusion stages.
@@ -35,10 +38,56 @@ import type { IAutoMovieHumanFaceHair as IAutoMovieHumanFaceHairImported } from 
  *
  * @author Samchon
  */
-export function createHumanFaceHairComposition(basis: IAutoMovieHumanFaceBasis): (document: IAutoMovieHumanFaceBasisDocument, positions: ReadonlyMap<string, readonly number[]>, pose: object, model: IAutoMovieModel, progress?: (owner: string) => void, contactLayouts?: Map<string, IHumanFaceHairContactLayout>) => string[]  {
-  const producer: (hair: IAutoMovieHumanFaceHairImported, positions: ReadonlyMap<string, readonly number[]>, progress?: (owner: string) => void) => { parts: IAutoMovieModelPartImported[]; materials: IAutoMovieMaterialImported[]; contactLayouts: Map<string, IHumanFaceHairContactLayout>; stationCount: number; } = createHumanFaceHairBuilder(basis);
-  const buildScalp: (hair: IAutoMovieHumanFaceHairImported, positions: ReadonlyMap<string, readonly number[]>, pose: object, progress?: (owner: string) => void) => { value: { parts: IAutoMovieModelPartImported[]; materials: IAutoMovieMaterialImported[]; contactLayouts: Map<string, IHumanFaceHairContactLayout>; stationCount: number; }; certified: boolean; certify: () => void; } = createHumanFaceHairResultCache(producer);
-  const buildFacial: (hair: IAutoMovieHumanFaceHairImported, positions: ReadonlyMap<string, readonly number[]>, pose: object, progress?: (owner: string) => void) => { value: { parts: IAutoMovieModelPartImported[]; materials: IAutoMovieMaterialImported[]; contactLayouts: Map<string, IHumanFaceHairContactLayout>; stationCount: number; }; certified: boolean; certify: () => void; } = createHumanFaceHairResultCache(producer);
+export function createHumanFaceHairComposition(
+  basis: IAutoMovieHumanFaceBasis,
+): (
+  document: IAutoMovieHumanFaceBasisDocument,
+  positions: ReadonlyMap<string, readonly number[]>,
+  pose: object,
+  model: IAutoMovieModel,
+  progress?: (owner: string) => void,
+  contactLayouts?: Map<string, IHumanFaceHairContactLayout>,
+) => string[] {
+  const producer: (
+    hair: IAutoMovieHumanFaceHairImported,
+    positions: ReadonlyMap<string, readonly number[]>,
+    progress?: (owner: string) => void,
+  ) => {
+    parts: IAutoMovieModelPartImported[];
+    materials: IAutoMovieMaterialImported[];
+    contactLayouts: Map<string, IHumanFaceHairContactLayout>;
+    stationCount: number;
+  } = createHumanFaceHairBuilder(basis);
+  const buildScalp: (
+    hair: IAutoMovieHumanFaceHairImported,
+    positions: ReadonlyMap<string, readonly number[]>,
+    pose: object,
+    progress?: (owner: string) => void,
+  ) => {
+    value: {
+      parts: IAutoMovieModelPartImported[];
+      materials: IAutoMovieMaterialImported[];
+      contactLayouts: Map<string, IHumanFaceHairContactLayout>;
+      stationCount: number;
+    };
+    certified: boolean;
+    certify: () => void;
+  } = createHumanFaceHairResultCache(producer);
+  const buildFacial: (
+    hair: IAutoMovieHumanFaceHairImported,
+    positions: ReadonlyMap<string, readonly number[]>,
+    pose: object,
+    progress?: (owner: string) => void,
+  ) => {
+    value: {
+      parts: IAutoMovieModelPartImported[];
+      materials: IAutoMovieMaterialImported[];
+      contactLayouts: Map<string, IHumanFaceHairContactLayout>;
+      stationCount: number;
+    };
+    certified: boolean;
+    certify: () => void;
+  } = createHumanFaceHairResultCache(producer);
   return (
     document: IAutoMovieHumanFaceBasisDocument,
     positions: ReadonlyMap<string, readonly number[]>,
@@ -47,36 +96,100 @@ export function createHumanFaceHairComposition(basis: IAutoMovieHumanFaceBasis):
     progress?: (owner: string) => void,
     contactLayouts?: Map<string, IHumanFaceHairContactLayout>,
   ): string[] => {
-    const populations: { input: IAutoMovieHumanFaceHairImported | null | undefined; build: (hair: IAutoMovieHumanFaceHairImported, positions: ReadonlyMap<string, readonly number[]>, pose: object, progress?: (owner: string) => void) => { value: { parts: IAutoMovieModelPartImported[]; materials: IAutoMovieMaterialImported[]; contactLayouts: Map<string, IHumanFaceHairContactLayout>; stationCount: number; }; certified: boolean; certify: () => void; }; }[] = [{ input: document.hair, build: buildScalp }];
+    const populations: {
+      input: IAutoMovieHumanFaceHairImported | null | undefined;
+      build: (
+        hair: IAutoMovieHumanFaceHairImported,
+        positions: ReadonlyMap<string, readonly number[]>,
+        pose: object,
+        progress?: (owner: string) => void,
+      ) => {
+        value: {
+          parts: IAutoMovieModelPartImported[];
+          materials: IAutoMovieMaterialImported[];
+          contactLayouts: Map<string, IHumanFaceHairContactLayout>;
+          stationCount: number;
+        };
+        certified: boolean;
+        certify: () => void;
+      };
+    }[] = [{ input: document.hair, build: buildScalp }];
     if (document.facialHair !== undefined && document.facialHair !== null)
-      populations.push({ input: resolveHumanFaceFacialHair(document.facialHair, basis), build: buildFacial });
+      populations.push({
+        input: resolveHumanFaceFacialHair(document.facialHair, basis),
+        build: buildFacial,
+      });
     const ids: string[] = [];
     let stationCount: number = 0;
     for (const { input: population, build } of populations) {
       if (population === undefined || population === null) continue;
       assertHumanFaceHair(population);
-      const generated: { value: { parts: IAutoMovieModelPartImported[]; materials: IAutoMovieMaterialImported[]; contactLayouts: Map<string, IHumanFaceHairContactLayout>; stationCount: number; }; certified: boolean; certify: () => void; } = build(population, positions, pose, progress);
-      const hair: { parts: IAutoMovieModelPartImported[]; materials: IAutoMovieMaterialImported[]; contactLayouts: Map<string, IHumanFaceHairContactLayout>; stationCount: number; } = generated.value;
+      const generated: {
+        value: {
+          parts: IAutoMovieModelPartImported[];
+          materials: IAutoMovieMaterialImported[];
+          contactLayouts: Map<string, IHumanFaceHairContactLayout>;
+          stationCount: number;
+        };
+        certified: boolean;
+        certify: () => void;
+      } = build(population, positions, pose, progress);
+      const hair: {
+        parts: IAutoMovieModelPartImported[];
+        materials: IAutoMovieMaterialImported[];
+        contactLayouts: Map<string, IHumanFaceHairContactLayout>;
+        stationCount: number;
+      } = generated.value;
       stationCount += hair.stationCount;
       if (stationCount > 1_000_000)
-        throw new Error("Composed scalp and facial hair exceed the original million-station assembled budget.");
-      ids.push(...hair.parts.map((part: IAutoMovieModelPartImported): string  => part.id));
+        throw new Error(
+          "Composed scalp and facial hair exceed the original million-station assembled budget.",
+        );
+      ids.push(
+        ...hair.parts.map(
+          (part: IAutoMovieModelPartImported): string => part.id,
+        ),
+      );
       if (
-        hair.parts.some((part: IAutoMovieModelPartImported): boolean  => model.parts.some((resident: IAutoMovieModelPartImported): boolean  => resident.id === part.id)) ||
-        hair.materials.some((material: IAutoMovieMaterialImported): boolean  => model.materials.some((resident: IAutoMovieMaterialImported): boolean  => resident.id === material.id))
-      ) throw new Error("Numerical hair identities collide with resident face geometry or finishes.");
+        hair.parts.some((part: IAutoMovieModelPartImported): boolean =>
+          model.parts.some(
+            (resident: IAutoMovieModelPartImported): boolean =>
+              resident.id === part.id,
+          ),
+        ) ||
+        hair.materials.some((material: IAutoMovieMaterialImported): boolean =>
+          model.materials.some(
+            (resident: IAutoMovieMaterialImported): boolean =>
+              resident.id === material.id,
+          ),
+        )
+      )
+        throw new Error(
+          "Numerical hair identities collide with resident face geometry or finishes.",
+        );
       if (generated.certified) {
-        const validation: IAutoMovieValidationImported = validateModel({ model });
+        const validation: IAutoMovieValidationImported = validateModel({
+          model,
+        });
         if (!validation.success)
-          throw new Error("The numerical hairstyle did not form a valid resident model: " + JSON.stringify(validation));
+          throw new Error(
+            "The numerical hairstyle did not form a valid resident model: " +
+              JSON.stringify(validation),
+          );
       }
       model.parts.push(...hair.parts);
       model.materials.push(...hair.materials);
-      for (const [id, layout] of hair.contactLayouts) contactLayouts?.set(id, layout);
+      for (const [id, layout] of hair.contactLayouts)
+        contactLayouts?.set(id, layout);
       if (!generated.certified) {
-        const validation: IAutoMovieValidationImported = validateModel({ model });
+        const validation: IAutoMovieValidationImported = validateModel({
+          model,
+        });
         if (!validation.success)
-          throw new Error("The numerical hairstyle did not form a valid resident model: " + JSON.stringify(validation));
+          throw new Error(
+            "The numerical hairstyle did not form a valid resident model: " +
+              JSON.stringify(validation),
+          );
         generated.certify();
       }
       progress?.("hair-composition");

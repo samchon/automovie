@@ -42,5 +42,8 @@ export interface IHumanFaceGeneratedCompositionInput {
   materialMap: Map<string, IAutoMovieMaterial>;
 
   /** Same build's exact material-point attachments for downstream Person placement. */
-  materialAttachments: Map<string, ReadonlyMap<number, IHumanFaceMaterialAttachment>>;
+  materialAttachments: Map<
+    string,
+    ReadonlyMap<number, IHumanFaceMaterialAttachment>
+  >;
 }

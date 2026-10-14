@@ -1,9 +1,8 @@
 import type { IAutoMovieHumanFaceBasisClip } from "../structures/IAutoMovieHumanFaceBasisClip";
+import type { IAutoMovieHumanFaceBasisRegion as IAutoMovieHumanFaceBasisRegionImported } from "../structures/IAutoMovieHumanFaceBasisRegion";
 import type { IAutoMovieHumanFaceBasisSurface as Surface } from "../structures/IAutoMovieHumanFaceBasisSurface";
 import type { IAutoMovieHumanFaceClipStencil as Stencil } from "../structures/IAutoMovieHumanFaceClipStencil";
-import type { IAutoMovieHumanFaceBasisRegion as IAutoMovieHumanFaceBasisRegionImported } from "../structures/IAutoMovieHumanFaceBasisRegion";
 import type { IAutoMovieHumanFaceSurfaceAttachment as IAutoMovieHumanFaceSurfaceAttachmentImported } from "../structures/IAutoMovieHumanFaceSurfaceAttachment";
-
 
 /**
  * Clip an admitted facial basis surface above a neutral Y plane, in metres.
@@ -60,7 +59,11 @@ export function clipHumanFaceBasisSurface(
     );
   const stencils: Stencil[] = [];
   const vertices: Map<string, number> = new Map<string, number>();
-  const resident: (a: number, b?: number, t?: number) => number = (a: number, b: number = a, t: number = 0): number => {
+  const resident: (a: number, b?: number, t?: number) => number = (
+    a: number,
+    b: number = a,
+    t: number = 0,
+  ): number => {
     const key: string = a + "/" + b;
     const previous: number | undefined = vertices.get(key);
     if (previous !== undefined) return previous;
@@ -69,99 +72,164 @@ export function clipHumanFaceBasisSurface(
     vertices.set(key, index);
     return index;
   };
-  const height: (v: number) => number = (v: number): number => source.positions[3 * v + 1];
-  const retainedTriangles: Map<string, Map<number, number>> = new Map<string, Map<number, number>>();
-  const regions: { indices: number[]; uvs: number[] | null; id: string; material: string; }[] = source.regions.map((region: IAutoMovieHumanFaceBasisRegionImported): { indices: number[]; uvs: number[] | null; id: string; material: string; }  => {
-    const indices: number[] = [];
-    const uvs: number[] | null = region.uvs === null ? null : [];
-    const retained: Map<number, number> = new Map<number, number>();
-    retainedTriangles.set(region.id, retained);
-    for (let offset: number = 0; offset < region.indices.length; offset += 3) {
-      const ids: number[] = region.indices.slice(offset, offset + 3);
-      const inside: boolean[] = ids.map((v: number): boolean  => height(v) >= minimumY);
-      const polygon: { vertex: number; uv: number[] | null }[] = [];
-      const uv: (corner: number) => number[] | null = (corner: number): number[] | null =>
-        region.uvs === null
-          ? null
-          : region.uvs.slice((offset + corner) * 2, (offset + corner) * 2 + 2);
-      for (let corner: number = 0; corner < 3; corner++) {
-        const previous: number = (corner + 2) % 3;
-        const a: number = ids[previous];
-        const b: number = ids[corner];
-        if (inside[previous] !== inside[corner]) {
-          const low: number = Math.min(a, b);
-          const high: number = Math.max(a, b);
-          const span: number = height(high) - height(low);
-          const t: number = Number.isFinite(span)
-            ? (minimumY - height(low)) / span
-            : (minimumY / 2 - height(low) / 2) /
-              (height(high) / 2 - height(low) / 2);
-          if (!Number.isFinite(t) || t < 0 || t > 1)
-            throw new Error("Facial clipping exceeded finite edge arithmetic.");
-          const vertex: number =
-            t === 0
-              ? resident(low)
-              : t === 1
-                ? resident(high)
-                : resident(low, high, t);
-          const first: number[] | null = uv(previous);
-          const second: number[] | null = uv(corner);
-          const fraction: number = a === low ? t : 1 - t;
-          polygon.push({
-            vertex,
-            uv:
-              first === null
-                ? null
-                : first.map(
-                    (value: number, k: number): number  =>
-                      (1 - fraction) * value + fraction * second![k],
-                  ),
-          });
-        }
-        if (inside[corner])
-          polygon.push({ vertex: resident(b), uv: uv(corner) });
-      }
-      for (let corner: number = 1; corner + 1 < polygon.length; corner++) {
-        const triangle: { vertex: number; uv: number[] | null; }[] = [polygon[0], polygon[corner], polygon[corner + 1]];
-        if (new Set(triangle.map((v: { vertex: number; uv: number[] | null; }): number  => v.vertex)).size < 3) continue;
-        // Record correspondence only for emitted faces; repeated-corner
-        // triangles above contribute no retained mapping.
-        if (inside.every(Boolean)) retained.set(offset / 3, indices.length / 3);
-        indices.push(...triangle.map((v: { vertex: number; uv: number[] | null; }): number  => v.vertex));
-        if (uvs !== null) uvs.push(...triangle.flatMap((v: { vertex: number; uv: number[] | null; }): number[]  => v.uv!));
-      }
-    }
-    return { ...region, indices, uvs };
-  });
-  const positions: number[] = stencils.flatMap(({ a, b, t }: Stencil): number[]  =>
-    [0, 1, 2].map((k: number): number  =>
-      a !== b && k === 1
-        ? minimumY
-        : (1 - t) * source.positions[3 * a + k] +
-          t * source.positions[3 * b + k],
-    ),
-  );
-  const targets: { [k: string]: number[]; } = Object.fromEntries(
-    Object.entries(source.targets).map(([name, rows]: [string, number[]]): [string, number[]]  => {
-      const values: Map<number, number[]> = new Map<number, number[]>();
-      for (let i: number = 0; i < rows.length; i += 4)
-        values.set(rows[i], rows.slice(i + 1, i + 4));
-      const output: number[] = [];
-      for (const [vertex, { a, b, t }] of stencils.entries()) {
-        const first: number[] | undefined = values.get(a);
-        const second: number[] | undefined = values.get(b);
-        const delta: number[] = [0, 1, 2].map(
-          (k: number): number  => (1 - t) * (first?.[k] ?? 0) + t * (second?.[k] ?? 0),
+  const height: (v: number) => number = (v: number): number =>
+    source.positions[3 * v + 1];
+  const retainedTriangles: Map<string, Map<number, number>> = new Map<
+    string,
+    Map<number, number>
+  >();
+  const regions: {
+    indices: number[];
+    uvs: number[] | null;
+    id: string;
+    material: string;
+  }[] = source.regions.map(
+    (
+      region: IAutoMovieHumanFaceBasisRegionImported,
+    ): {
+      indices: number[];
+      uvs: number[] | null;
+      id: string;
+      material: string;
+    } => {
+      const indices: number[] = [];
+      const uvs: number[] | null = region.uvs === null ? null : [];
+      const retained: Map<number, number> = new Map<number, number>();
+      retainedTriangles.set(region.id, retained);
+      for (
+        let offset: number = 0;
+        offset < region.indices.length;
+        offset += 3
+      ) {
+        const ids: number[] = region.indices.slice(offset, offset + 3);
+        const inside: boolean[] = ids.map(
+          (v: number): boolean => height(v) >= minimumY,
         );
-        if (delta.some((value: number): boolean  => value !== 0)) output.push(vertex, ...delta);
+        const polygon: { vertex: number; uv: number[] | null }[] = [];
+        const uv: (corner: number) => number[] | null = (
+          corner: number,
+        ): number[] | null =>
+          region.uvs === null
+            ? null
+            : region.uvs.slice(
+                (offset + corner) * 2,
+                (offset + corner) * 2 + 2,
+              );
+        for (let corner: number = 0; corner < 3; corner++) {
+          const previous: number = (corner + 2) % 3;
+          const a: number = ids[previous];
+          const b: number = ids[corner];
+          if (inside[previous] !== inside[corner]) {
+            const low: number = Math.min(a, b);
+            const high: number = Math.max(a, b);
+            const span: number = height(high) - height(low);
+            const t: number = Number.isFinite(span)
+              ? (minimumY - height(low)) / span
+              : (minimumY / 2 - height(low) / 2) /
+                (height(high) / 2 - height(low) / 2);
+            if (!Number.isFinite(t) || t < 0 || t > 1)
+              throw new Error(
+                "Facial clipping exceeded finite edge arithmetic.",
+              );
+            const vertex: number =
+              t === 0
+                ? resident(low)
+                : t === 1
+                  ? resident(high)
+                  : resident(low, high, t);
+            const first: number[] | null = uv(previous);
+            const second: number[] | null = uv(corner);
+            const fraction: number = a === low ? t : 1 - t;
+            polygon.push({
+              vertex,
+              uv:
+                first === null
+                  ? null
+                  : first.map(
+                      (value: number, k: number): number =>
+                        (1 - fraction) * value + fraction * second![k],
+                    ),
+            });
+          }
+          if (inside[corner])
+            polygon.push({ vertex: resident(b), uv: uv(corner) });
+        }
+        for (let corner: number = 1; corner + 1 < polygon.length; corner++) {
+          const triangle: { vertex: number; uv: number[] | null }[] = [
+            polygon[0],
+            polygon[corner],
+            polygon[corner + 1],
+          ];
+          if (
+            new Set(
+              triangle.map(
+                (v: { vertex: number; uv: number[] | null }): number =>
+                  v.vertex,
+              ),
+            ).size < 3
+          )
+            continue;
+          // Record correspondence only for emitted faces; repeated-corner
+          // triangles above contribute no retained mapping.
+          if (inside.every(Boolean))
+            retained.set(offset / 3, indices.length / 3);
+          indices.push(
+            ...triangle.map(
+              (v: { vertex: number; uv: number[] | null }): number => v.vertex,
+            ),
+          );
+          if (uvs !== null)
+            uvs.push(
+              ...triangle.flatMap(
+                (v: { vertex: number; uv: number[] | null }): number[] => v.uv!,
+              ),
+            );
+        }
       }
-      return [name, output];
-    }),
+      return { ...region, indices, uvs };
+    },
+  );
+  const positions: number[] = stencils.flatMap(
+    ({ a, b, t }: Stencil): number[] =>
+      [0, 1, 2].map((k: number): number =>
+        a !== b && k === 1
+          ? minimumY
+          : (1 - t) * source.positions[3 * a + k] +
+            t * source.positions[3 * b + k],
+      ),
+  );
+  const targets: { [k: string]: number[] } = Object.fromEntries(
+    Object.entries(source.targets).map(
+      ([name, rows]: [string, number[]]): [string, number[]] => {
+        const values: Map<number, number[]> = new Map<number, number[]>();
+        for (let i: number = 0; i < rows.length; i += 4)
+          values.set(rows[i], rows.slice(i + 1, i + 4));
+        const output: number[] = [];
+        for (const [vertex, { a, b, t }] of stencils.entries()) {
+          const first: number[] | undefined = values.get(a);
+          const second: number[] | undefined = values.get(b);
+          const delta: number[] = [0, 1, 2].map(
+            (k: number): number =>
+              (1 - t) * (first?.[k] ?? 0) + t * (second?.[k] ?? 0),
+          );
+          if (delta.some((value: number): boolean => value !== 0))
+            output.push(vertex, ...delta);
+        }
+        return [name, output];
+      },
+    ),
   );
   const surface: Surface = {
     ...source,
     positions,
-    indices: regions.flatMap((region: { indices: number[]; uvs: number[] | null; id: string; material: string; }): number[]  => region.indices),
+    indices: regions.flatMap(
+      (region: {
+        indices: number[];
+        uvs: number[] | null;
+        id: string;
+        material: string;
+      }): number[] => region.indices,
+    ),
     regions,
     targets,
   };
@@ -169,17 +237,21 @@ export function clipHumanFaceBasisSurface(
   // row, a ring vertex takes the affine blend of its edge ends, and a row that
   // blends to nothing is omitted rather than published as a zero weight.
   if (source.attachments !== undefined)
-    surface.attachments = source.attachments.flatMap((attachment: IAutoMovieHumanFaceSurfaceAttachmentImported): { owner: string; rows: number[]; }[]  => {
-      const weights: Map<number, number> = new Map<number, number>();
-      for (let i: number = 0; i < attachment.rows.length; i += 2)
-        weights.set(attachment.rows[i], attachment.rows[i + 1]);
-      const rows: number[] = [];
-      stencils.forEach(({ a, b, t }: Stencil, index: number): void  => {
-        const weight: number =
-          (1 - t) * (weights.get(a) ?? 0) + t * (weights.get(b) ?? 0);
-        if (weight > 0) rows.push(index, weight);
-      });
-      return rows.length === 0 ? [] : [{ owner: attachment.owner, rows }];
-    });
+    surface.attachments = source.attachments.flatMap(
+      (
+        attachment: IAutoMovieHumanFaceSurfaceAttachmentImported,
+      ): { owner: string; rows: number[] }[] => {
+        const weights: Map<number, number> = new Map<number, number>();
+        for (let i: number = 0; i < attachment.rows.length; i += 2)
+          weights.set(attachment.rows[i], attachment.rows[i + 1]);
+        const rows: number[] = [];
+        stencils.forEach(({ a, b, t }: Stencil, index: number): void => {
+          const weight: number =
+            (1 - t) * (weights.get(a) ?? 0) + t * (weights.get(b) ?? 0);
+          if (weight > 0) rows.push(index, weight);
+        });
+        return rows.length === 0 ? [] : [{ owner: attachment.owner, rows }];
+      },
+    );
   return { surface, retainedTriangles, correspondence: stencils };
 }

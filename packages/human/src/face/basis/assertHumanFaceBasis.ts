@@ -1,20 +1,19 @@
 import { validateMeshTopology } from "@automovie/engine";
+import type { IAutoMovieMaterial as IAutoMovieMaterialImported } from "@automovie/interface";
 
 import { assertHumanSkinLandmarks } from "../../common/basis/assertHumanSkinLandmarks";
 import { assertHumanSkinRegions } from "../../common/basis/assertHumanSkinRegions";
 import type { IAutoMovieHumanFaceBasis } from "../structures/IAutoMovieHumanFaceBasis";
-import { assertHumanFaceArticulation } from "./assertHumanFaceArticulation";
-import { assertHumanFaceContact } from "./assertHumanFaceContact";
 import type { IAutoMovieHumanFaceBasisChannel as IAutoMovieHumanFaceBasisChannelImported } from "../structures/IAutoMovieHumanFaceBasisChannel";
-import type { IAutoMovieHumanFaceBasisSurface as IAutoMovieHumanFaceBasisSurfaceImported } from "../structures/IAutoMovieHumanFaceBasisSurface";
-import type { IAutoMovieMaterial as IAutoMovieMaterialImported } from "@automovie/interface";
-import type { IAutoMovieHumanFaceBasisRegion as IAutoMovieHumanFaceBasisRegionImported } from "../structures/IAutoMovieHumanFaceBasisRegion";
 import type { IAutoMovieHumanFaceBasisCorrective as IAutoMovieHumanFaceBasisCorrectiveImported } from "../structures/IAutoMovieHumanFaceBasisCorrective";
 import type { IAutoMovieHumanFaceBasisCorrectiveInput as IAutoMovieHumanFaceBasisCorrectiveInputImported } from "../structures/IAutoMovieHumanFaceBasisCorrectiveInput";
-import type { IAutoMovieHumanFaceBasisJaw as IAutoMovieHumanFaceBasisJawImported } from "../structures/IAutoMovieHumanFaceBasisJaw";
 import type { IAutoMovieHumanFaceBasisEye as IAutoMovieHumanFaceBasisEyeImported } from "../structures/IAutoMovieHumanFaceBasisEye";
 import type { IAutoMovieHumanFaceBasisEyeGaze as IAutoMovieHumanFaceBasisEyeGazeImported } from "../structures/IAutoMovieHumanFaceBasisEyeGaze";
-
+import type { IAutoMovieHumanFaceBasisJaw as IAutoMovieHumanFaceBasisJawImported } from "../structures/IAutoMovieHumanFaceBasisJaw";
+import type { IAutoMovieHumanFaceBasisRegion as IAutoMovieHumanFaceBasisRegionImported } from "../structures/IAutoMovieHumanFaceBasisRegion";
+import type { IAutoMovieHumanFaceBasisSurface as IAutoMovieHumanFaceBasisSurfaceImported } from "../structures/IAutoMovieHumanFaceBasisSurface";
+import { assertHumanFaceArticulation } from "./assertHumanFaceArticulation";
+import { assertHumanFaceContact } from "./assertHumanFaceContact";
 
 /**
  * Admit immutable connectivity, endpoint correspondence and triangle partitions,
@@ -39,16 +38,34 @@ export function assertHumanFaceBasis(basis: IAutoMovieHumanFaceBasis): void {
   assertHumanSkinLandmarks(basis);
   assertHumanSkinRegions(basis);
   const unique: (ids: string[]) => void = (ids: string[]): void => {
-    if (ids.some((id: string): boolean  => id.trim() === "") || new Set(ids).size !== ids.length)
+    if (
+      ids.some((id: string): boolean => id.trim() === "") ||
+      new Set(ids).size !== ids.length
+    )
       throw new Error("Facial basis identities must be nonempty and unique.");
   };
   unique([basis.id]);
-  unique(basis.channels.map((channel: IAutoMovieHumanFaceBasisChannelImported): string  => channel.id));
-  unique(basis.surfaces.map((surface: IAutoMovieHumanFaceBasisSurfaceImported): string  => surface.id));
-  unique(basis.materials.map((material: IAutoMovieMaterialImported): string  => material.id));
   unique(
-    basis.surfaces.flatMap((surface: IAutoMovieHumanFaceBasisSurfaceImported): string[]  =>
-      surface.regions.map((region: IAutoMovieHumanFaceBasisRegionImported): string  => region.id),
+    basis.channels.map(
+      (channel: IAutoMovieHumanFaceBasisChannelImported): string => channel.id,
+    ),
+  );
+  unique(
+    basis.surfaces.map(
+      (surface: IAutoMovieHumanFaceBasisSurfaceImported): string => surface.id,
+    ),
+  );
+  unique(
+    basis.materials.map(
+      (material: IAutoMovieMaterialImported): string => material.id,
+    ),
+  );
+  unique(
+    basis.surfaces.flatMap(
+      (surface: IAutoMovieHumanFaceBasisSurfaceImported): string[] =>
+        surface.regions.map(
+          (region: IAutoMovieHumanFaceBasisRegionImported): string => region.id,
+        ),
     ),
   );
   const endpoints: Set<string> = new Set<string>();
@@ -76,17 +93,28 @@ export function assertHumanFaceBasis(basis: IAutoMovieHumanFaceBasis): void {
   // parsed: a driver that is not a channel, or a side a channel does not have,
   // would evaluate to a silent zero and look like a corrective that was
   // authored badly rather than one that names something absent.
-  const correctives: IAutoMovieHumanFaceBasisCorrectiveImported[] = basis.correctives ?? [];
+  const correctives: IAutoMovieHumanFaceBasisCorrectiveImported[] =
+    basis.correctives ?? [];
   unique([
-    ...basis.channels.map((channel: IAutoMovieHumanFaceBasisChannelImported): string  => channel.id),
-    ...correctives.map((corrective: IAutoMovieHumanFaceBasisCorrectiveImported): string  => corrective.id),
+    ...basis.channels.map(
+      (channel: IAutoMovieHumanFaceBasisChannelImported): string => channel.id,
+    ),
+    ...correctives.map(
+      (corrective: IAutoMovieHumanFaceBasisCorrectiveImported): string =>
+        corrective.id,
+    ),
   ]);
-  const sides: Map<string, { positive: string; negative: string | null; }> = new Map(
-    basis.channels.map((channel: IAutoMovieHumanFaceBasisChannelImported): [string, { positive: string; negative: string | null; }]  => [
-      channel.id,
-      { positive: channel.positive, negative: channel.negative },
-    ]),
-  );
+  const sides: Map<string, { positive: string; negative: string | null }> =
+    new Map(
+      basis.channels.map(
+        (
+          channel: IAutoMovieHumanFaceBasisChannelImported,
+        ): [string, { positive: string; negative: string | null }] => [
+          channel.id,
+          { positive: channel.positive, negative: channel.negative },
+        ],
+      ),
+    );
   for (const corrective of correctives) {
     if (
       corrective.inputs.length === 0 ||
@@ -95,14 +123,18 @@ export function assertHumanFaceBasis(basis: IAutoMovieHumanFaceBasis): void {
       corrective.weight > 1 ||
       corrective.target.trim() === "" ||
       new Set(
-        corrective.inputs.map((input: IAutoMovieHumanFaceBasisCorrectiveInputImported): string  => input.channel + "/" + input.side),
+        corrective.inputs.map(
+          (input: IAutoMovieHumanFaceBasisCorrectiveInputImported): string =>
+            input.channel + "/" + input.side,
+        ),
       ).size !== corrective.inputs.length
     )
       throw new Error(
         "A facial corrective needs distinct drivers, a gain in (0,1] and a named endpoint.",
       );
     for (const input of corrective.inputs) {
-      const channel: { positive: string; negative: string | null; } | undefined = sides.get(input.channel);
+      const channel: { positive: string; negative: string | null } | undefined =
+        sides.get(input.channel);
       if (channel === undefined || channel[input.side] === null)
         throw new Error(
           "A facial corrective drives off a side no channel carries: " +
@@ -145,7 +177,11 @@ export function assertHumanFaceBasis(basis: IAutoMovieHumanFaceBasis): void {
     endpoints.add(corrective.target);
   }
   const residentEndpoints: Set<string> = new Set<string>();
-  const materials: Set<string> = new Set(basis.materials.map((material: IAutoMovieMaterialImported): string  => material.id));
+  const materials: Set<string> = new Set(
+    basis.materials.map(
+      (material: IAutoMovieMaterialImported): string => material.id,
+    ),
+  );
   if (basis.surfaces.length === 0)
     throw new Error("A facial basis needs resident surfaces.");
   for (const surface of basis.surfaces) {
@@ -160,13 +196,20 @@ export function assertHumanFaceBasis(basis: IAutoMovieHumanFaceBasis): void {
       surface.indices.length === 0 ||
       surface.indices.length % 3 !== 0 ||
       surface.indices.some(
-        (index: number): boolean  => !Number.isInteger(index) || index < 0 || index >= vertices,
+        (index: number): boolean =>
+          !Number.isInteger(index) || index < 0 || index >= vertices,
       )
     )
       throw new Error(
         "Facial neutral buffers need finite XYZ and resident triangles.",
       );
-    const mesh: { positions: number[]; indices: number[]; normals: null; uvs: null; skin: null; } = {
+    const mesh: {
+      positions: number[];
+      indices: number[];
+      normals: null;
+      uvs: null;
+      skin: null;
+    } = {
       positions: surface.positions,
       indices: surface.indices,
       normals: null,
@@ -236,7 +279,8 @@ export function assertHumanFaceBasis(basis: IAutoMovieHumanFaceBasis): void {
   // An endpoint whose whole effect is a joint motion has no residual row to
   // publish: the articulation is what it moves. Every other endpoint must
   // reach a surface, or a channel would evaluate to a silent no-op.
-  const jaw: IAutoMovieHumanFaceBasisJawImported | undefined = basis.articulation?.jaw;
+  const jaw: IAutoMovieHumanFaceBasisJawImported | undefined =
+    basis.articulation?.jaw;
   const articulated: Set<string> = new Set(
     jaw === undefined
       ? []
@@ -245,19 +289,29 @@ export function assertHumanFaceBasis(basis: IAutoMovieHumanFaceBasis): void {
           jaw.protrusion.channel,
           jaw.laterotrusion.left.channel,
           jaw.laterotrusion.right.channel,
-          ...basis.articulation!.eyes.flatMap((eye: IAutoMovieHumanFaceBasisEyeImported): string[]  =>
-            eye.gaze.map((gaze: IAutoMovieHumanFaceBasisEyeGazeImported): string  => gaze.channel),
+          ...basis.articulation!.eyes.flatMap(
+            (eye: IAutoMovieHumanFaceBasisEyeImported): string[] =>
+              eye.gaze.map(
+                (gaze: IAutoMovieHumanFaceBasisEyeGazeImported): string =>
+                  gaze.channel,
+              ),
           ),
         ],
   );
   const drivenEndpoints: Set<string> = new Set(
     basis.channels
-      .filter((channel: IAutoMovieHumanFaceBasisChannelImported): boolean  => articulated.has(channel.id))
-      .map((channel: IAutoMovieHumanFaceBasisChannelImported): string  => channel.positive),
+      .filter((channel: IAutoMovieHumanFaceBasisChannelImported): boolean =>
+        articulated.has(channel.id),
+      )
+      .map(
+        (channel: IAutoMovieHumanFaceBasisChannelImported): string =>
+          channel.positive,
+      ),
   );
   if (
     [...endpoints].some(
-      (name: string): boolean  => !residentEndpoints.has(name) && !drivenEndpoints.has(name),
+      (name: string): boolean =>
+        !residentEndpoints.has(name) && !drivenEndpoints.has(name),
     )
   )
     throw new Error(

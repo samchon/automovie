@@ -1,7 +1,10 @@
+import type {
+  IAutoMovieHumanFaceBasisChannel as IAutoMovieHumanFaceBasisChannelImported,
+  IAutoMovieHumanFaceBasisCorrective as IAutoMovieHumanFaceBasisCorrectiveImported,
+  IAutoMovieHumanFaceBasisCorrectiveInput as IAutoMovieHumanFaceBasisCorrectiveInputImported,
+} from "../../index";
 import type { IAutoMovieHumanFaceBasis } from "../structures/IAutoMovieHumanFaceBasis";
 import type { IAutoMovieHumanFaceBasisDocument } from "../structures/IAutoMovieHumanFaceBasisDocument";
-import type { IAutoMovieHumanFaceBasisChannel as IAutoMovieHumanFaceBasisChannelImported, IAutoMovieHumanFaceBasisCorrective as IAutoMovieHumanFaceBasisCorrectiveImported, IAutoMovieHumanFaceBasisCorrectiveInput as IAutoMovieHumanFaceBasisCorrectiveInputImported } from "../../index";
-
 
 /**
  * The control state one document asks of one admitted facial basis.
@@ -38,13 +41,22 @@ export function humanFaceBasisWeights(
   weights: Map<string, number>;
   activations: { target: string; activation: number; shapeOnly: boolean }[];
 } {
-  const channels: Map<string, IAutoMovieHumanFaceBasisChannelImported> = new Map(
-    basis.channels.map((channel: IAutoMovieHumanFaceBasisChannelImported): [string, IAutoMovieHumanFaceBasisChannelImported]  => [channel.id, channel]),
-  );
+  const channels: Map<string, IAutoMovieHumanFaceBasisChannelImported> =
+    new Map(
+      basis.channels.map(
+        (
+          channel: IAutoMovieHumanFaceBasisChannelImported,
+        ): [string, IAutoMovieHumanFaceBasisChannelImported] => [
+          channel.id,
+          channel,
+        ],
+      ),
+    );
   const weights: Map<string, number> = new Map<string, number>();
   for (const kind of ["shape", "expression"] as const)
     for (const [name, weight] of Object.entries(document[kind])) {
-      const channel: IAutoMovieHumanFaceBasisChannelImported | undefined = channels.get(name);
+      const channel: IAutoMovieHumanFaceBasisChannelImported | undefined =
+        channels.get(name);
       if (
         channel === undefined ||
         channel.kind !== kind ||
@@ -57,27 +69,42 @@ export function humanFaceBasisWeights(
         );
       weights.set(name, weight);
     }
-  const activations: { target: string; shapeOnly: boolean; activation: number; }[] = (basis.correctives ?? []).map((corrective: IAutoMovieHumanFaceBasisCorrectiveImported): { target: string; shapeOnly: boolean; activation: number; }  => ({
-    target: corrective.target,
-    shapeOnly: corrective.inputs.every(
-      (input: IAutoMovieHumanFaceBasisCorrectiveInputImported): boolean  => channels.get(input.channel)!.kind === "shape",
-    ),
-    activation: Math.min(
-      1,
-      corrective.inputs.reduce((total: number, input: IAutoMovieHumanFaceBasisCorrectiveInputImported): number  => {
-        const weight: number = weights.get(input.channel) ?? 0;
-        const driver: number = input.side === "negative" ? -weight : weight;
-        const peak: number = input.peak ?? 1;
-        const [below, above]: [number, number] = input.between ?? [0, 1];
-        const factor: number =
-          driver <= peak
-            ? (driver - below) / (peak - below)
-            : above > peak
-              ? (above - driver) / (above - peak)
-              : 1;
-        return total * Math.min(1, Math.max(0, factor));
-      }, corrective.weight),
-    ),
-  }));
+  const activations: {
+    target: string;
+    shapeOnly: boolean;
+    activation: number;
+  }[] = (basis.correctives ?? []).map(
+    (
+      corrective: IAutoMovieHumanFaceBasisCorrectiveImported,
+    ): { target: string; shapeOnly: boolean; activation: number } => ({
+      target: corrective.target,
+      shapeOnly: corrective.inputs.every(
+        (input: IAutoMovieHumanFaceBasisCorrectiveInputImported): boolean =>
+          channels.get(input.channel)!.kind === "shape",
+      ),
+      activation: Math.min(
+        1,
+        corrective.inputs.reduce(
+          (
+            total: number,
+            input: IAutoMovieHumanFaceBasisCorrectiveInputImported,
+          ): number => {
+            const weight: number = weights.get(input.channel) ?? 0;
+            const driver: number = input.side === "negative" ? -weight : weight;
+            const peak: number = input.peak ?? 1;
+            const [below, above]: [number, number] = input.between ?? [0, 1];
+            const factor: number =
+              driver <= peak
+                ? (driver - below) / (peak - below)
+                : above > peak
+                  ? (above - driver) / (above - peak)
+                  : 1;
+            return total * Math.min(1, Math.max(0, factor));
+          },
+          corrective.weight,
+        ),
+      ),
+    }),
+  );
   return { weights, activations };
 }

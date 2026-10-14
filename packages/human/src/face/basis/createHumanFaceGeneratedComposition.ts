@@ -1,18 +1,20 @@
-import type { IAutoMovieModel, IAutoMovieModelPart as IAutoMovieModelPartImported, IAutoMovieMaterial as IAutoMovieMaterialImported } from "@automovie/interface";
+import type {
+  IAutoMovieMaterial as IAutoMovieMaterialImported,
+  IAutoMovieModel,
+  IAutoMovieModelPart as IAutoMovieModelPartImported,
+} from "@automovie/interface";
 
+import type { IAutoMovieHumanConstructionClearanceReading as IAutoMovieHumanConstructionClearanceReadingImported } from "../../index";
 import { buildHumanFaceOcularSurfaces } from "../anatomy/eye/buildHumanFaceOcularSurfaces";
 import { createHumanFaceOpticalFinish } from "../anatomy/eye/createHumanFaceOpticalFinish";
 import { finishHumanFacePeriocularTissues } from "../anatomy/eye/finishHumanFacePeriocularTissues";
 import { readHumanFaceOcularSurfaceSpace } from "../anatomy/eye/readHumanFaceOcularSurfaceSpace";
 import { createHumanFaceLashFinish } from "../anatomy/lash/createHumanFaceLashFinish";
+import type { IHumanFaceLashRow as IHumanFaceLashRowImported } from "../anatomy/lash/structures/IHumanFaceLashRow";
 import { createHumanFaceOralFinish } from "../anatomy/oral/createHumanFaceOralFinish";
 import type { IAutoMovieHumanFaceBasis } from "../structures/IAutoMovieHumanFaceBasis";
 import type { IHumanFaceGeneratedCompositionInput } from "./IHumanFaceGeneratedCompositionInput";
 import { createHumanFaceClearanceCheck } from "./createHumanFaceClearanceCheck";
-
-import type { IHumanFaceLashRow as IHumanFaceLashRowImported } from "../anatomy/lash/structures/IHumanFaceLashRow";
-import type { IAutoMovieHumanConstructionClearanceReading as IAutoMovieHumanConstructionClearanceReadingImported } from "../../index";
-
 
 /**
  * Compose generated optical, fibre and soft-tissue parts into one owned model.
@@ -35,23 +37,40 @@ import type { IAutoMovieHumanConstructionClearanceReading as IAutoMovieHumanCons
  */
 export function createHumanFaceGeneratedComposition(
   basis: IAutoMovieHumanFaceBasis,
-): (input: IHumanFaceGeneratedCompositionInput) => void  {
+): (input: IHumanFaceGeneratedCompositionInput) => void {
   let opticalFinish:
     | ReturnType<typeof createHumanFaceOpticalFinish>
     | undefined;
   let lashFinish: ReturnType<typeof createHumanFaceLashFinish> | undefined;
   return (input: IHumanFaceGeneratedCompositionInput): void => {
-    const { document, pose, lashes, brows, model, materialMap, checks }: IHumanFaceGeneratedCompositionInput = input;
-    const append: (generated: Pick<IAutoMovieModel, "parts" | "materials">, label: string) => void = (
+    const {
+      document,
+      pose,
+      lashes,
+      brows,
+      model,
+      materialMap,
+      checks,
+    }: IHumanFaceGeneratedCompositionInput = input;
+    const append: (
+      generated: Pick<IAutoMovieModel, "parts" | "materials">,
+      label: string,
+    ) => void = (
       generated: Pick<IAutoMovieModel, "parts" | "materials">,
       label: string,
     ): void => {
       if (
-        generated.parts.some((part: IAutoMovieModelPartImported): boolean  =>
-          model.parts.some((old: IAutoMovieModelPartImported): boolean  => old.id === part.id),
+        generated.parts.some((part: IAutoMovieModelPartImported): boolean =>
+          model.parts.some(
+            (old: IAutoMovieModelPartImported): boolean => old.id === part.id,
+          ),
         ) ||
-        generated.materials.some((material: IAutoMovieMaterialImported): boolean  =>
-          model.materials.some((old: IAutoMovieMaterialImported): boolean  => old.id === material.id),
+        generated.materials.some(
+          (material: IAutoMovieMaterialImported): boolean =>
+            model.materials.some(
+              (old: IAutoMovieMaterialImported): boolean =>
+                old.id === material.id,
+            ),
         )
       )
         throw new Error(
@@ -69,7 +88,12 @@ export function createHumanFaceGeneratedComposition(
         "Independent optical",
       );
     }
-    if (lashes !== undefined && lashes.some((row: IHumanFaceLashRowImported): boolean  => row.mesh !== null)) {
+    if (
+      lashes !== undefined &&
+      lashes.some(
+        (row: IHumanFaceLashRowImported): boolean => row.mesh !== null,
+      )
+    ) {
       lashFinish ??= createHumanFaceLashFinish(basis);
       append(lashFinish(document, lashes, model.materials), "Numerical lash");
     }
@@ -103,27 +127,29 @@ export function createHumanFaceGeneratedComposition(
         throw new Error(
           "Ocular surfaces need their actual resting source reference.",
         );
-      const resting: Pick<IAutoMovieModel, "materials" | "parts"> = buildHumanFaceOcularSurfaces(
-        basis,
-        pose.reference,
-        document,
-        pose.optics,
-        model.materials,
-        "rest",
-      );
-      const performed: Pick<IAutoMovieModel, "materials" | "parts"> = buildHumanFaceOcularSurfaces(
-        basis,
-        pose.positions,
-        document,
-        pose.optics,
-        model.materials,
-      );
+      const resting: Pick<IAutoMovieModel, "materials" | "parts"> =
+        buildHumanFaceOcularSurfaces(
+          basis,
+          pose.reference,
+          document,
+          pose.optics,
+          model.materials,
+          "rest",
+        );
+      const performed: Pick<IAutoMovieModel, "materials" | "parts"> =
+        buildHumanFaceOcularSurfaces(
+          basis,
+          pose.positions,
+          document,
+          pose.optics,
+          model.materials,
+        );
       append(performed, "Ocular surface");
       checks.push(
         createHumanFaceClearanceCheck(
           "ocular-rest",
           "Ocular rest surface penetrates or crosses its actual optical exterior",
-          (): IAutoMovieHumanConstructionClearanceReadingImported[]  =>
+          (): IAutoMovieHumanConstructionClearanceReadingImported[] =>
             readHumanFaceOcularSurfaceSpace(
               basis,
               pose.reference!,
@@ -137,7 +163,7 @@ export function createHumanFaceGeneratedComposition(
         createHumanFaceClearanceCheck(
           "ocular-performed",
           "Ocular performed surface penetrates or crosses its actual optical exterior",
-          (): IAutoMovieHumanConstructionClearanceReadingImported[]  =>
+          (): IAutoMovieHumanConstructionClearanceReadingImported[] =>
             readHumanFaceOcularSurfaceSpace(
               basis,
               pose.positions,

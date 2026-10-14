@@ -1,8 +1,8 @@
 import typia from "typia";
 
+import type { IAutoMovieHumanFaceBasisChannel as IAutoMovieHumanFaceBasisChannelImported } from "../../index";
 import type { IAutoMovieHumanFaceBasis } from "../structures/IAutoMovieHumanFaceBasis";
 import type { IAutoMovieHumanFaceControlMap } from "../structures/IAutoMovieHumanFaceControlMap";
-import type { IAutoMovieHumanFaceBasisChannel as IAutoMovieHumanFaceBasisChannelImported } from "../../index";
 
 /** A copied authored group with its admitted resident channel records. */
 type CompiledGroup = IAutoMovieHumanFaceControlMap["groups"][number] & {
@@ -42,17 +42,38 @@ type Projection = {
 export function createHumanFaceControlMap(props: {
   basis: Pick<IAutoMovieHumanFaceBasis, "id" | "channels">;
   map: IAutoMovieHumanFaceControlMap;
-}): (input: Record<string, number>) => { controls: { id: string; label: string; description: string; value: number; minimum: number; maximum: number; }[]; resolve: (values: Record<string, number>) => Record<string, number>; }  {
+}): (input: Record<string, number>) => {
+  controls: {
+    id: string;
+    label: string;
+    description: string;
+    value: number;
+    minimum: number;
+    maximum: number;
+  }[];
+  resolve: (values: Record<string, number>) => Record<string, number>;
+} {
   const map: IAutoMovieHumanFaceControlMap = structuredClone(
     typia.assertEquals<IAutoMovieHumanFaceControlMap>(props.map),
   );
   if (map.basis !== props.basis.id)
     throw new Error("Simple facial controls require their exact basis.");
-  const channels: Map<string, IAutoMovieHumanFaceBasisChannelImported> = new Map(
-    props.basis.channels
-      .filter((channel: IAutoMovieHumanFaceBasisChannelImported): boolean  => channel.kind === "shape")
-      .map((channel: IAutoMovieHumanFaceBasisChannelImported): [string, IAutoMovieHumanFaceBasisChannelImported]  => [channel.id, { ...channel }]),
-  );
+  const channels: Map<string, IAutoMovieHumanFaceBasisChannelImported> =
+    new Map(
+      props.basis.channels
+        .filter(
+          (channel: IAutoMovieHumanFaceBasisChannelImported): boolean =>
+            channel.kind === "shape",
+        )
+        .map(
+          (
+            channel: IAutoMovieHumanFaceBasisChannelImported,
+          ): [string, IAutoMovieHumanFaceBasisChannelImported] => [
+            channel.id,
+            { ...channel },
+          ],
+        ),
+    );
   for (const channel of channels.values())
     if (
       !Number.isFinite(channel.minimum) ||
@@ -65,36 +86,59 @@ export function createHumanFaceControlMap(props: {
       );
   const identities: Set<string> = new Set<string>();
   const members: Set<string> = new Set<string>();
-  const groups: CompiledGroup[] = map.groups.map((group: { id: string; label: string; description: string; channels: string[]; }): CompiledGroup  => {
-    if (
-      group.id.trim() === "" ||
-      group.label.trim() === "" ||
-      group.description.trim() === "" ||
-      identities.has(group.id) ||
-      group.channels.length === 0
-    )
-      throw new Error(
-        "Simple facial groups need unique identities, descriptions and members.",
-      );
-    identities.add(group.id);
-    return {
-      ...group,
-      members: group.channels.map((id: string): IAutoMovieHumanFaceBasisChannelImported  => {
-        const channel: IAutoMovieHumanFaceBasisChannelImported | undefined = channels.get(id);
-        if (channel === undefined || members.has(id))
-          throw new Error(
-            "Simple facial groups require disjoint resident shape channels: " +
-              id,
-          );
-        members.add(id);
-        return channel;
-      }),
-    };
-  });
-  return (input: Record<string, number>): { controls: { id: string; label: string; description: string; value: number; minimum: number; maximum: number; }[]; resolve: (values: Record<string, number>) => Record<string, number>; }  => {
+  const groups: CompiledGroup[] = map.groups.map(
+    (group: {
+      id: string;
+      label: string;
+      description: string;
+      channels: string[];
+    }): CompiledGroup => {
+      if (
+        group.id.trim() === "" ||
+        group.label.trim() === "" ||
+        group.description.trim() === "" ||
+        identities.has(group.id) ||
+        group.channels.length === 0
+      )
+        throw new Error(
+          "Simple facial groups need unique identities, descriptions and members.",
+        );
+      identities.add(group.id);
+      return {
+        ...group,
+        members: group.channels.map(
+          (id: string): IAutoMovieHumanFaceBasisChannelImported => {
+            const channel: IAutoMovieHumanFaceBasisChannelImported | undefined =
+              channels.get(id);
+            if (channel === undefined || members.has(id))
+              throw new Error(
+                "Simple facial groups require disjoint resident shape channels: " +
+                  id,
+              );
+            members.add(id);
+            return channel;
+          },
+        ),
+      };
+    },
+  );
+  return (
+    input: Record<string, number>,
+  ): {
+    controls: {
+      id: string;
+      label: string;
+      description: string;
+      value: number;
+      minimum: number;
+      maximum: number;
+    }[];
+    resolve: (values: Record<string, number>) => Record<string, number>;
+  } => {
     const origin: Map<string, number> = new Map(Object.entries(input));
     for (const [id, value] of origin) {
-      const channel: IAutoMovieHumanFaceBasisChannelImported | undefined = channels.get(id);
+      const channel: IAutoMovieHumanFaceBasisChannelImported | undefined =
+        channels.get(id);
       if (
         channel === undefined ||
         !Number.isFinite(value) ||
@@ -105,54 +149,84 @@ export function createHumanFaceControlMap(props: {
           "Unsupported or out-of-domain fine shape coordinate: " + id,
         );
     }
-    const projections: Projection[] = groups.map((group: CompiledGroup): Projection  => {
-      const normalized: number[] = group.members.map((channel: IAutoMovieHumanFaceBasisChannelImported): number  => {
-        const value: number = origin.get(channel.id) ?? 0;
-        return value / (value < 0 ? -channel.minimum : channel.maximum);
-      });
-      // Divide before summing: the mean stays bounded for large groups too.
-      const value: number = normalized.reduce(
-        (sum: number, item: number): number  => sum + item / normalized.length,
-        0,
-      );
-      const residuals: number[] = normalized.map((item: number): number  => item - value);
-      return {
-        group,
-        value,
-        residuals,
-        // The admitted origin belongs to the intersection in real arithmetic.
-        // Subtracting a rounded residual (for example 1 - 1/3) can exclude it
-        // by one floating step. Include that known valid anchor explicitly.
-        minimum: Math.min(
+    const projections: Projection[] = groups.map(
+      (group: CompiledGroup): Projection => {
+        const normalized: number[] = group.members.map(
+          (channel: IAutoMovieHumanFaceBasisChannelImported): number => {
+            const value: number = origin.get(channel.id) ?? 0;
+            return value / (value < 0 ? -channel.minimum : channel.maximum);
+          },
+        );
+        // Divide before summing: the mean stays bounded for large groups too.
+        const value: number = normalized.reduce(
+          (sum: number, item: number): number => sum + item / normalized.length,
+          0,
+        );
+        const residuals: number[] = normalized.map(
+          (item: number): number => item - value,
+        );
+        return {
+          group,
           value,
-          group.members.reduce(
-            (minimum: number, channel: IAutoMovieHumanFaceBasisChannelImported, index: number): number  =>
-              Math.max(
-                minimum,
-                (channel.minimum < 0 ? -1 : 0) - residuals[index],
-              ),
-            -Infinity,
+          residuals,
+          // The admitted origin belongs to the intersection in real arithmetic.
+          // Subtracting a rounded residual (for example 1 - 1/3) can exclude it
+          // by one floating step. Include that known valid anchor explicitly.
+          minimum: Math.min(
+            value,
+            group.members.reduce(
+              (
+                minimum: number,
+                channel: IAutoMovieHumanFaceBasisChannelImported,
+                index: number,
+              ): number =>
+                Math.max(
+                  minimum,
+                  (channel.minimum < 0 ? -1 : 0) - residuals[index],
+                ),
+              -Infinity,
+            ),
           ),
-        ),
-        maximum: Math.max(
-          value,
-          residuals.reduce(
-            (maximum: number, residual: number): number  => Math.min(maximum, 1 - residual),
-            Infinity,
+          maximum: Math.max(
+            value,
+            residuals.reduce(
+              (maximum: number, residual: number): number =>
+                Math.min(maximum, 1 - residual),
+              Infinity,
+            ),
           ),
-        ),
-      };
-    });
-    const byId: Map<string, Projection> = new Map(projections.map((entry: Projection): [string, Projection]  => [entry.group.id, entry]));
+        };
+      },
+    );
+    const byId: Map<string, Projection> = new Map(
+      projections.map((entry: Projection): [string, Projection] => [
+        entry.group.id,
+        entry,
+      ]),
+    );
     return {
-      controls: projections.map(({ group, value, minimum, maximum }: Projection): { id: string; label: string; description: string; value: number; minimum: number; maximum: number; }  => ({
-        id: group.id,
-        label: group.label,
-        description: group.description,
-        value,
-        minimum,
-        maximum,
-      })),
+      controls: projections.map(
+        ({
+          group,
+          value,
+          minimum,
+          maximum,
+        }: Projection): {
+          id: string;
+          label: string;
+          description: string;
+          value: number;
+          minimum: number;
+          maximum: number;
+        } => ({
+          id: group.id,
+          label: group.label,
+          description: group.description,
+          value,
+          minimum,
+          maximum,
+        }),
+      ),
       resolve: (values: Record<string, number>): Record<string, number> => {
         const result: Map<string, number> = new Map(origin);
         for (const [id, value] of Object.entries(values)) {
@@ -168,22 +242,27 @@ export function createHumanFaceControlMap(props: {
             );
           // Preserve omitted coordinates and exact stored values for a no-op.
           if (value === entry.value) continue;
-          entry.group.members.forEach((channel: IAutoMovieHumanFaceBasisChannelImported, index: number): void  => {
-            // Admission above preserves the residual exactly in real arithmetic;
-            // only floating addition at an endpoint can stray outside its domain.
-            const normalized: number = Math.min(
-              1,
-              Math.max(
-                channel.minimum < 0 ? -1 : 0,
-                value + entry.residuals[index],
-              ),
-            );
-            result.set(
-              channel.id,
-              normalized *
-                (normalized < 0 ? -channel.minimum : channel.maximum),
-            );
-          });
+          entry.group.members.forEach(
+            (
+              channel: IAutoMovieHumanFaceBasisChannelImported,
+              index: number,
+            ): void => {
+              // Admission above preserves the residual exactly in real arithmetic;
+              // only floating addition at an endpoint can stray outside its domain.
+              const normalized: number = Math.min(
+                1,
+                Math.max(
+                  channel.minimum < 0 ? -1 : 0,
+                  value + entry.residuals[index],
+                ),
+              );
+              result.set(
+                channel.id,
+                normalized *
+                  (normalized < 0 ? -channel.minimum : channel.maximum),
+              );
+            },
+          );
         }
         return Object.fromEntries(result);
       },

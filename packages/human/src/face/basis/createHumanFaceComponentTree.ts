@@ -1,9 +1,19 @@
+import type {
+  IAutoMovieHumanFaceBasisChannel as IAutoMovieHumanFaceBasisChannelImported,
+  IAutoMovieHumanFaceBasisSurface as IAutoMovieHumanFaceBasisSurfaceImported,
+} from "../../index";
 import type { IAutoMovieHumanFaceBasis } from "../structures/IAutoMovieHumanFaceBasis";
 import type { IAutoMovieHumanFaceComponentTree } from "../structures/IAutoMovieHumanFaceComponentTree";
-import type { IAutoMovieHumanFaceBasisChannel as IAutoMovieHumanFaceBasisChannelImported, IAutoMovieHumanFaceBasisSurface as IAutoMovieHumanFaceBasisSurfaceImported } from "../../index";
 
-
-const DOCUMENT_FIELDS: readonly ["hair", "iris", "skin", "materials", "eyes", "lashes", "anatomical"] = [
+const DOCUMENT_FIELDS: readonly [
+  "hair",
+  "iris",
+  "skin",
+  "materials",
+  "eyes",
+  "lashes",
+  "anatomical",
+] = [
   "hair",
   "iris",
   "skin",
@@ -45,8 +55,12 @@ export function createHumanFaceComponentTree(
 } {
   if (manifest.basis !== basis.id)
     throw new Error("A facial component tree needs its exact basis revision.");
-  const channelIds: string[] = basis.channels.map((channel: IAutoMovieHumanFaceBasisChannelImported): string  => channel.id);
-  const surfaceIds: string[] = basis.surfaces.map((surface: IAutoMovieHumanFaceBasisSurfaceImported): string  => surface.id);
+  const channelIds: string[] = basis.channels.map(
+    (channel: IAutoMovieHumanFaceBasisChannelImported): string => channel.id,
+  );
+  const surfaceIds: string[] = basis.surfaces.map(
+    (surface: IAutoMovieHumanFaceBasisSurfaceImported): string => surface.id,
+  );
   if (
     new Set(channelIds).size !== channelIds.length ||
     new Set(surfaceIds).size !== surfaceIds.length
@@ -54,15 +68,28 @@ export function createHumanFaceComponentTree(
     throw new Error("A facial component tree needs distinct basis identities.");
   const knownChannels: Set<string> = new Set(channelIds),
     knownSurfaces: Set<string> = new Set(surfaceIds);
-  const channelPaths: Map<string, readonly string[]> = new Map<string, readonly string[]>(),
-    surfacePaths: Map<string, readonly string[]> = new Map<string, readonly string[]>(),
-    documentPaths: Map<IAutoMovieHumanFaceComponentTree.DocumentField, readonly string[]> = new Map<
+  const channelPaths: Map<string, readonly string[]> = new Map<
+      string,
+      readonly string[]
+    >(),
+    surfacePaths: Map<string, readonly string[]> = new Map<
+      string,
+      readonly string[]
+    >(),
+    documentPaths: Map<
+      IAutoMovieHumanFaceComponentTree.DocumentField,
+      readonly string[]
+    > = new Map<
       IAutoMovieHumanFaceComponentTree.DocumentField,
       readonly string[]
     >();
-  const nodes: WeakSet<IAutoMovieHumanFaceComponentTree.Node> = new WeakSet<IAutoMovieHumanFaceComponentTree.Node>(),
+  const nodes: WeakSet<IAutoMovieHumanFaceComponentTree.Node> =
+      new WeakSet<IAutoMovieHumanFaceComponentTree.Node>(),
     identities: Set<string> = new Set<string>();
-  const walk: (node: IAutoMovieHumanFaceComponentTree.Node, parents: readonly string[]) => IAutoMovieHumanFaceComponentTree.Node = (
+  const walk: (
+    node: IAutoMovieHumanFaceComponentTree.Node,
+    parents: readonly string[],
+  ) => IAutoMovieHumanFaceComponentTree.Node = (
     node: IAutoMovieHumanFaceComponentTree.Node,
     parents: readonly string[],
   ): IAutoMovieHumanFaceComponentTree.Node => {
@@ -83,10 +110,15 @@ export function createHumanFaceComponentTree(
       !Array.isArray(node.surfaces) ||
       !Array.isArray(node.documentFields) ||
       !Array.isArray(node.children) ||
-      node.channels.some((id: string): boolean  => typeof id !== "string" || id.trim() === "") ||
-      node.surfaces.some((id: string): boolean  => typeof id !== "string" || id.trim() === "") ||
+      node.channels.some(
+        (id: string): boolean => typeof id !== "string" || id.trim() === "",
+      ) ||
+      node.surfaces.some(
+        (id: string): boolean => typeof id !== "string" || id.trim() === "",
+      ) ||
       node.documentFields.some(
-        (field: IAutoMovieHumanFaceComponentTree.DocumentField): boolean  => typeof field !== "string" || field.trim() === "",
+        (field: IAutoMovieHumanFaceComponentTree.DocumentField): boolean =>
+          typeof field !== "string" || field.trim() === "",
       ) ||
       (node.channels.length === 0 &&
         node.surfaces.length === 0 &&
@@ -126,7 +158,11 @@ export function createHumanFaceComponentTree(
       channels: [...node.channels],
       surfaces: [...node.surfaces],
       documentFields: [...node.documentFields],
-      children: node.children.map((child: IAutoMovieHumanFaceComponentTree.Node): IAutoMovieHumanFaceComponentTree.Node  => walk(child, path)),
+      children: node.children.map(
+        (
+          child: IAutoMovieHumanFaceComponentTree.Node,
+        ): IAutoMovieHumanFaceComponentTree.Node => walk(child, path),
+      ),
     };
   };
   const root: IAutoMovieHumanFaceComponentTree.Node = walk(manifest.root, []);

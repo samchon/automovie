@@ -1,10 +1,11 @@
 import { compareCodeUnits } from "@automovie/engine";
-import type { IAutoMovieModel, IAutoMovieModelPart as IAutoMovieModelPartImported } from "@automovie/interface";
+import type {
+  IAutoMovieModel,
+  IAutoMovieModelPart as IAutoMovieModelPartImported,
+} from "@automovie/interface";
 
 import type { IHumanFaceOcclusionCacheEntry } from "./IHumanFaceOcclusionCacheEntry";
 import { humanFaceOcclusionOpaqueMaterials } from "./humanFaceOcclusionOpaqueMaterials";
-
-
 
 /**
  * Retain the expensive baked ambient-visibility images for one posed face.
@@ -31,12 +32,12 @@ export function createHumanFaceOcclusionCache(
   bake: (model: IAutoMovieModel) => ReadonlyMap<string, string>,
 ): (pose: object, model: IAutoMovieModel) => Map<string, string> {
   let last: IHumanFaceOcclusionCacheEntry | undefined;
-  return (pose: object, model: IAutoMovieModel): Map<string, string>  => {
+  return (pose: object, model: IAutoMovieModel): Map<string, string> => {
     const opaque: Set<string> = humanFaceOcclusionOpaqueMaterials(model);
     const opaqueMaterials: string = JSON.stringify(
       [
         ...new Set(
-          model.parts.flatMap((part: IAutoMovieModelPartImported): string[]  =>
+          model.parts.flatMap((part: IAutoMovieModelPartImported): string[] =>
             part.geometry.type === "mesh" &&
             part.material !== null &&
             opaque.has(part.material)

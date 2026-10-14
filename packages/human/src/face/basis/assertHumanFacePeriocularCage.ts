@@ -1,10 +1,10 @@
-import type { IAutoMovieHumanFaceBasis } from "../structures/IAutoMovieHumanFaceBasis";
-import type { IAutoMovieHumanFacePeriocularCage } from "../structures/IAutoMovieHumanFacePeriocularCage";
-import type { IAutoMovieHumanFaceBasisSurface as IAutoMovieHumanFaceBasisSurfaceImported } from "../structures/IAutoMovieHumanFaceBasisSurface";
 import type { IAutoMovieMaterial as IAutoMovieMaterialImported } from "@automovie/interface";
-import type { IAutoMovieHumanFacePeriocularStation as IAutoMovieHumanFacePeriocularStationImported } from "../structures/IAutoMovieHumanFacePeriocularStation";
-import type { AutoMovieHumanFacePeriocularStationRole as AutoMovieHumanFacePeriocularStationRoleImported } from "../structures/AutoMovieHumanFacePeriocularStationRole";
 
+import type { AutoMovieHumanFacePeriocularStationRole as AutoMovieHumanFacePeriocularStationRoleImported } from "../structures/AutoMovieHumanFacePeriocularStationRole";
+import type { IAutoMovieHumanFaceBasis } from "../structures/IAutoMovieHumanFaceBasis";
+import type { IAutoMovieHumanFaceBasisSurface as IAutoMovieHumanFaceBasisSurfaceImported } from "../structures/IAutoMovieHumanFaceBasisSurface";
+import type { IAutoMovieHumanFacePeriocularCage } from "../structures/IAutoMovieHumanFacePeriocularCage";
+import type { IAutoMovieHumanFacePeriocularStation as IAutoMovieHumanFacePeriocularStationImported } from "../structures/IAutoMovieHumanFacePeriocularStation";
 
 /**
  * Admit a source cage against the actual host's canonical native samples.
@@ -27,7 +27,11 @@ export function assertHumanFacePeriocularCage(
   basis: IAutoMovieHumanFaceBasis,
   cage: IAutoMovieHumanFacePeriocularCage,
 ): void {
-  const host: IAutoMovieHumanFaceBasisSurfaceImported | undefined = basis.surfaces.find((surface: IAutoMovieHumanFaceBasisSurfaceImported): boolean  => surface.id === cage.surface),
+  const host: IAutoMovieHumanFaceBasisSurfaceImported | undefined =
+      basis.surfaces.find(
+        (surface: IAutoMovieHumanFaceBasisSurfaceImported): boolean =>
+          surface.id === cage.surface,
+      ),
     samples: readonly number[] | undefined = host?.sourcePartition?.samples;
   const width: number = cage.stations[0]?.vertices.length ?? 0;
   if (
@@ -37,18 +41,28 @@ export function assertHumanFacePeriocularCage(
     cage.generation !== basis.periocular?.generation ||
     cage.generation !== host!.sourcePartition!.generation ||
     cage.sourceSha256.length === 0 ||
-    cage.sourceSha256.some((sha: string): boolean  => !/^[0-9a-f]{64}$/u.test(sha)) ||
-    !basis.materials.some((material: IAutoMovieMaterialImported): boolean  => material.id === cage.material)
+    cage.sourceSha256.some(
+      (sha: string): boolean => !/^[0-9a-f]{64}$/u.test(sha),
+    ) ||
+    !basis.materials.some(
+      (material: IAutoMovieMaterialImported): boolean =>
+        material.id === cage.material,
+    )
   )
     throw new Error(
       "Periocular cage needs its actual same-generation source receipt and host finish.",
     );
   if (
     width < 4 ||
-    new Set(cage.stations.map((station: IAutoMovieHumanFacePeriocularStationImported): AutoMovieHumanFacePeriocularStationRoleImported  => station.role)).size !==
-      cage.stations.length ||
+    new Set(
+      cage.stations.map(
+        (
+          station: IAutoMovieHumanFacePeriocularStationImported,
+        ): AutoMovieHumanFacePeriocularStationRoleImported => station.role,
+      ),
+    ).size !== cage.stations.length ||
     cage.stations.some(
-      (station: IAutoMovieHumanFacePeriocularStationImported): boolean  =>
+      (station: IAutoMovieHumanFacePeriocularStationImported): boolean =>
         station.vertices.length !== width ||
         station.sourceVertices.length !== width ||
         station.nativeVertices.length !== width ||
@@ -56,7 +70,7 @@ export function assertHumanFacePeriocularCage(
         new Set(station.nativeVertices).size !== width ||
         new Set(station.sourceVertices).size !== width ||
         station.vertices.some(
-          (vertex: number, column: number): boolean  =>
+          (vertex: number, column: number): boolean =>
             !Number.isSafeInteger(vertex) ||
             vertex < 0 ||
             vertex >= samples.length ||
@@ -79,16 +93,20 @@ export function assertHumanFacePeriocularCage(
     lower.length < 3 ||
     upperColumns.size !== upper.length ||
     lowerColumns.size !== lower.length ||
-    [upper[0], lower[0]].some((column: number): boolean  => column !== cage.medialColumn) ||
+    [upper[0], lower[0]].some(
+      (column: number): boolean => column !== cage.medialColumn,
+    ) ||
     [upper.at(-1), lower.at(-1)].some(
-      (column: number | undefined): boolean  => column !== cage.lateralColumn,
+      (column: number | undefined): boolean => column !== cage.lateralColumn,
     ) ||
     new Set([...upper, ...lower]).size !== width ||
     [...upper, ...lower].some(
-      (column: number): boolean  =>
+      (column: number): boolean =>
         !Number.isSafeInteger(column) || column < 0 || column >= width,
     ) ||
-    upper.slice(1, -1).some((column: number): boolean  => lowerColumns.has(column))
+    upper
+      .slice(1, -1)
+      .some((column: number): boolean => lowerColumns.has(column))
   )
     throw new Error(
       "Periocular cage halves must cover one closed row with exact shared canthi.",

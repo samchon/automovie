@@ -37,12 +37,13 @@ export function evaluateHumanFacePassage(
   },
   indices: readonly number[],
 ): { protrudingMetres: number; thicknessMetres: number } | null {
-  const section: { protrudingMetres: number; thicknessMetres: number | null; } = measureHumanFaceTongueSection(tongue, indices, {
-    origin: frame.incisors.lower,
-    forward: frame.forward,
-    up: frame.up,
-    slabMetres: contact.passage.slabMetres,
-  });
+  const section: { protrudingMetres: number; thicknessMetres: number | null } =
+    measureHumanFaceTongueSection(tongue, indices, {
+      origin: frame.incisors.lower,
+      forward: frame.forward,
+      up: frame.up,
+      slabMetres: contact.passage.slabMetres,
+    });
   const protruding: number = section.protrudingMetres;
   if (protruding <= contact.toleranceMetres) return null;
   if (section.thicknessMetres === null)
@@ -50,7 +51,8 @@ export function evaluateHumanFacePassage(
       "The protruding tongue has no incisal slab section to measure.",
     );
   const thickness: number = section.thicknessMetres;
-  const mm: (metres: number) => string = (metres: number): string => (metres * 1000).toFixed(1);
+  const mm: (metres: number) => string = (metres: number): string =>
+    (metres * 1000).toFixed(1);
   for (const [name, gap, channel] of [
     ["incisors", frame.incisors.gap, contact.closure.reference],
     ["lips", frame.lips.gap, contact.closure.channel],

@@ -1,17 +1,19 @@
+import type {
+  IAutoMovieHumanFaceBasisChannel as IAutoMovieHumanFaceBasisChannelImported,
+  IAutoMovieHumanFaceNasolabialRelief as IAutoMovieHumanFaceNasolabialReliefImported,
+} from "../../index";
+import type { AutoMovieHumanFacePeriocularTissue as AutoMovieHumanFacePeriocularTissueImported } from "../structures/AutoMovieHumanFacePeriocularTissue";
 import type { IAutoMovieHumanFaceBasis } from "../structures/IAutoMovieHumanFaceBasis";
 import type { IAutoMovieHumanFaceBasisDocument } from "../structures/IAutoMovieHumanFaceBasisDocument";
-import type { IAutoMovieHumanFaceRegionalRelief } from "../structures/IAutoMovieHumanFaceRegionalRelief";
+import type { IAutoMovieHumanFaceLidSectionDisplacement } from "../structures/IAutoMovieHumanFaceLidSectionDisplacement";
+import type { IAutoMovieHumanFaceLidSections as IAutoMovieHumanFaceLidSectionsImported } from "../structures/IAutoMovieHumanFaceLidSections";
+import type { IAutoMovieHumanFaceOcularSurfaceShape as IAutoMovieHumanFaceOcularSurfaceShapeImported } from "../structures/IAutoMovieHumanFaceOcularSurfaceShape";
 import type { IAutoMovieHumanFaceOralTooth } from "../structures/IAutoMovieHumanFaceOralTooth";
 import type { IAutoMovieHumanFacePeriocularTissueSection } from "../structures/IAutoMovieHumanFacePeriocularTissueSection";
-import type { IAutoMovieHumanFaceLidSectionDisplacement } from "../structures/IAutoMovieHumanFaceLidSectionDisplacement";
+import type { IAutoMovieHumanFaceRegionalRelief } from "../structures/IAutoMovieHumanFaceRegionalRelief";
 import type { IHumanFacePoseCacheEntry } from "./IHumanFacePoseCacheEntry";
 import type { IHumanFacePoseGeometry } from "./IHumanFacePoseGeometry";
 import { humanFaceBasisWeights } from "./humanFaceBasisWeights";
-import type { IAutoMovieHumanFaceBasisChannel as IAutoMovieHumanFaceBasisChannelImported, IAutoMovieHumanFaceNasolabialRelief as IAutoMovieHumanFaceNasolabialReliefImported } from "../../index";
-import type { AutoMovieHumanFacePeriocularTissue as AutoMovieHumanFacePeriocularTissueImported } from "../structures/AutoMovieHumanFacePeriocularTissue";
-import type { IAutoMovieHumanFaceLidSections as IAutoMovieHumanFaceLidSectionsImported } from "../structures/IAutoMovieHumanFaceLidSections";
-import type { IAutoMovieHumanFaceOcularSurfaceShape as IAutoMovieHumanFaceOcularSurfaceShapeImported } from "../structures/IAutoMovieHumanFaceOcularSurfaceShape";
-
 
 /**
  * Retain one posed foundation across appearance-only edits. The channel list
@@ -50,9 +52,20 @@ export function createHumanFaceBasisPoseCache<T>(
   geometry?: IHumanFacePoseGeometry,
   progress?: (owner: string) => void,
 ) => T {
-  const ids: string[] = channels.map((channel: Pick<IAutoMovieHumanFaceBasisChannelImported, "id">): string  => channel.id);
+  const ids: string[] = channels.map(
+    (channel: Pick<IAutoMovieHumanFaceBasisChannelImported, "id">): string =>
+      channel.id,
+  );
   let last: IHumanFacePoseCacheEntry<T> | undefined;
-  return (state: { weights: Map<string, number>; activations: { target: string; activation: number; shapeOnly: boolean; }[]; }, shape: Record<string, number>, geometry: IHumanFacePoseGeometry | undefined, progress: ((owner: string) => void) | undefined): T  => {
+  return (
+    state: {
+      weights: Map<string, number>;
+      activations: { target: string; activation: number; shapeOnly: boolean }[];
+    },
+    shape: Record<string, number>,
+    geometry: IHumanFacePoseGeometry | undefined,
+    progress: ((owner: string) => void) | undefined,
+  ): T => {
     const {
       eyes,
       skinRelief,
@@ -64,51 +77,66 @@ export function createHumanFaceBasisPoseCache<T>(
       eyelidPhenotypes,
       ocularSurfaces,
     }: IHumanFacePoseGeometry = geometry ?? {};
-    const weights: number[] = ids.map((id: string): number  => state.weights.get(id) ?? 0);
+    const weights: number[] = ids.map(
+      (id: string): number => state.weights.get(id) ?? 0,
+    );
     const dimensions: number[][] | null =
       eyes === undefined
         ? null
-        : (["left", "right"] as const).map((side: "left" | "right"): number[]  => [
-            eyes[side].globeRadiusMm,
-            eyes[side].limbusRadiusMm,
-            eyes[side].apexCurvatureRadiusMm,
-            eyes[side].centralThicknessMicrometres,
-            eyes[side].irisOuterRadiusMm,
-            eyes[side].irisApertureRadiusMm,
-            eyes[side].irisDepthFromAnteriorSupportMm,
-          ]);
+        : (["left", "right"] as const).map(
+            (side: "left" | "right"): number[] => [
+              eyes[side].globeRadiusMm,
+              eyes[side].limbusRadiusMm,
+              eyes[side].apexCurvatureRadiusMm,
+              eyes[side].centralThicknessMicrometres,
+              eyes[side].irisOuterRadiusMm,
+              eyes[side].irisApertureRadiusMm,
+              eyes[side].irisDepthFromAnteriorSupportMm,
+            ],
+          );
     const relief: (number[] | null)[] | null =
       skinRelief === undefined
         ? null
-        : (["left", "right"] as const).map((side: "left" | "right"): number[] | null  => {
-            const one: IAutoMovieHumanFaceNasolabialReliefImported | undefined = skinRelief.nasolabial?.[side];
-            return one === undefined
-              ? null
-              : [one.restDepthMm ?? 0, one.smileDepthMm ?? 0, one.widthMm];
-          });
-    const regionalValues: number[] = Object.values(skinRelief?.regions ?? {}).flatMap(
-      (region: IAutoMovieHumanFaceRegionalRelief | undefined): number[]  =>
+        : (["left", "right"] as const).map(
+            (side: "left" | "right"): number[] | null => {
+              const one:
+                | IAutoMovieHumanFaceNasolabialReliefImported
+                | undefined = skinRelief.nasolabial?.[side];
+              return one === undefined
+                ? null
+                : [one.restDepthMm ?? 0, one.smileDepthMm ?? 0, one.widthMm];
+            },
+          );
+    const regionalValues: number[] = Object.values(
+      skinRelief?.regions ?? {},
+    ).flatMap(
+      (region: IAutoMovieHumanFaceRegionalRelief | undefined): number[] =>
         region === undefined
           ? []
-          : Object.values(region).filter((value: number | undefined): boolean  => value !== undefined),
+          : Object.values(region).filter(
+              (value: number | undefined): boolean => value !== undefined,
+            ),
     );
     if (
       [
         ...weights,
         ...(dimensions?.flat() ?? []),
-        ...(relief?.flatMap((one: number[] | null): number[]  => one ?? []) ?? []),
+        ...(relief?.flatMap((one: number[] | null): number[] => one ?? []) ??
+          []),
         ...regionalValues,
-      ].some((value: number): boolean  => !Number.isFinite(value))
+      ].some((value: number): boolean => !Number.isFinite(value))
     )
       throw new Error(
         "Pose cache keys need finite admitted geometric inputs; nonfinite values cannot alias an omitted optional value.",
       );
-    const oralValues: number[] = Object.values(oral?.teeth ?? {}).flatMap((tooth: IAutoMovieHumanFaceOralTooth | undefined): number[]  =>
-      tooth === undefined
-        ? []
-        : [tooth.widthMm, tooth.heightMm, tooth.depthMm].filter(
-            (value: number | undefined): value is number => value !== undefined,
-          ),
+    const oralValues: number[] = Object.values(oral?.teeth ?? {}).flatMap(
+      (tooth: IAutoMovieHumanFaceOralTooth | undefined): number[] =>
+        tooth === undefined
+          ? []
+          : [tooth.widthMm, tooth.heightMm, tooth.depthMm].filter(
+              (value: number | undefined): value is number =>
+                value !== undefined,
+            ),
     );
     for (const group of [
       oral?.maxillary,
@@ -120,38 +148,62 @@ export function createHumanFaceBasisPoseCache<T>(
       if (group !== undefined)
         for (const value of Object.values(group))
           if (typeof value === "number") oralValues.push(value);
-    if (oralValues.some((value: number): boolean  => !Number.isFinite(value)))
+    if (oralValues.some((value: number): boolean => !Number.isFinite(value)))
       throw new Error(
         "Oral pose keys need finite numerical dimensions and performance.",
       );
     const tissueValues: number[] = [
       periocularTissues?.left,
       periocularTissues?.right,
-    ].flatMap((side: Partial<Record<AutoMovieHumanFacePeriocularTissueImported, IAutoMovieHumanFacePeriocularTissueSection>> | undefined): number[]  =>
-      Object.values(side ?? {}).flatMap((section: IAutoMovieHumanFacePeriocularTissueSection | undefined): number[]  =>
-        section === undefined
-          ? []
-          : [section.inwardOffsetMm, section.thicknessMm],
-      ),
+    ].flatMap(
+      (
+        side:
+          | Partial<
+              Record<
+                AutoMovieHumanFacePeriocularTissueImported,
+                IAutoMovieHumanFacePeriocularTissueSection
+              >
+            >
+          | undefined,
+      ): number[] =>
+        Object.values(side ?? {}).flatMap(
+          (
+            section: IAutoMovieHumanFacePeriocularTissueSection | undefined,
+          ): number[] =>
+            section === undefined
+              ? []
+              : [section.inwardOffsetMm, section.thicknessMm],
+        ),
     );
-    if (tissueValues.some((value: number): boolean  => !Number.isFinite(value)))
+    if (tissueValues.some((value: number): boolean => !Number.isFinite(value)))
       throw new Error("Periocular tissue pose keys need finite dimensions.");
     // Generated brow and lash geometry is composed downstream from these skin
     // arrays. Their profiles still invalidate the pose identity used by model AO.
-    const lidValues: number[] = [eyelids?.left, eyelids?.right].flatMap((side: IAutoMovieHumanFaceLidSectionsImported | undefined): number[]  =>
-      Object.values(side ?? {}).flatMap((section: IAutoMovieHumanFaceLidSectionDisplacement | undefined): number[]  =>
-        section === undefined
-          ? []
-          : [section.elevationMm, section.projectionMm],
-      ),
+    const lidValues: number[] = [eyelids?.left, eyelids?.right].flatMap(
+      (side: IAutoMovieHumanFaceLidSectionsImported | undefined): number[] =>
+        Object.values(side ?? {}).flatMap(
+          (
+            section: IAutoMovieHumanFaceLidSectionDisplacement | undefined,
+          ): number[] =>
+            section === undefined
+              ? []
+              : [section.elevationMm, section.projectionMm],
+        ),
     );
-    if (lidValues.some((value: number): boolean  => !Number.isFinite(value)))
+    if (lidValues.some((value: number): boolean => !Number.isFinite(value)))
       throw new Error("Lid section pose keys need finite dimensions.");
-    const ocularValues: number[] = [ocularSurfaces?.left, ocularSurfaces?.right].flatMap(
-      (side: IAutoMovieHumanFaceOcularSurfaceShapeImported | undefined): number[]  =>
-        Object.values(side ?? {}).filter((value: number | undefined): boolean  => value !== undefined),
+    const ocularValues: number[] = [
+      ocularSurfaces?.left,
+      ocularSurfaces?.right,
+    ].flatMap(
+      (
+        side: IAutoMovieHumanFaceOcularSurfaceShapeImported | undefined,
+      ): number[] =>
+        Object.values(side ?? {}).filter(
+          (value: number | undefined): boolean => value !== undefined,
+        ),
     );
-    if (ocularValues.some((value: number): boolean  => !Number.isFinite(value)))
+    if (ocularValues.some((value: number): boolean => !Number.isFinite(value)))
       throw new Error("Ocular surface pose keys need finite dimensions.");
     const key: string = JSON.stringify([
       weights,

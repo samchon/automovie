@@ -1,10 +1,12 @@
-import type { IAutoMovieModel, IAutoMovieMaterial as IAutoMovieMaterialImported, IAutoMovieModelPart as IAutoMovieModelPartImported } from "@automovie/interface";
+import type {
+  IAutoMovieMaterial as IAutoMovieMaterialImported,
+  IAutoMovieModel,
+  IAutoMovieModelPart as IAutoMovieModelPartImported,
+} from "@automovie/interface";
 
 import { buildPortraitHairGroom } from "../anatomy/hair/buildPortraitHairGroom";
 import { resolveHumanFaceGroom } from "../document/resolveHumanFaceGroom";
 import type { IAutoMovieHumanFaceGroom } from "../structures/IAutoMovieHumanFaceGroom";
-
-
 
 /**
  * Give a built connected face the hair authored against its own surfaces.
@@ -32,19 +34,36 @@ export function appendHumanFaceGroom(props: {
   model: IAutoMovieModel;
   groom: IAutoMovieHumanFaceGroom;
 }): IAutoMovieModel {
-  if (props.model.materials.some((item: IAutoMovieMaterialImported): boolean  => item.id === props.groom.finish.id))
+  if (
+    props.model.materials.some(
+      (item: IAutoMovieMaterialImported): boolean =>
+        item.id === props.groom.finish.id,
+    )
+  )
     throw new Error(
       "A groom finish collides with a finish this face already carries: " +
         props.groom.finish.id,
     );
-  const { parts, materials }: { parts: IAutoMovieModelPartImported[]; materials: IAutoMovieMaterialImported[]; } = buildPortraitHairGroom({
+  const {
+    parts,
+    materials,
+  }: {
+    parts: IAutoMovieModelPartImported[];
+    materials: IAutoMovieMaterialImported[];
+  } = buildPortraitHairGroom({
     hair: resolveHumanFaceGroom({ groom: props.groom, model: props.model }),
     materials: [...props.model.materials, props.groom.finish],
   });
-  const identities: Set<string> = new Set(props.model.parts.map((part: IAutoMovieModelPartImported): string => part.id));
+  const identities: Set<string> = new Set(
+    props.model.parts.map(
+      (part: IAutoMovieModelPartImported): string => part.id,
+    ),
+  );
   for (const part of parts) {
     if (identities.has(part.id))
-      throw new Error("A groom part collides with resident or generated geometry: " + part.id);
+      throw new Error(
+        "A groom part collides with resident or generated geometry: " + part.id,
+      );
     identities.add(part.id);
   }
   return {

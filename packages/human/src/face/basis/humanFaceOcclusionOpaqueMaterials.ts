@@ -1,6 +1,7 @@
-import type { IAutoMovieModel, IAutoMovieMaterial as IAutoMovieMaterialImported } from "@automovie/interface";
-
-
+import type {
+  IAutoMovieMaterial as IAutoMovieMaterialImported,
+  IAutoMovieModel,
+} from "@automovie/interface";
 
 /** Alpha-mode-only material classification shared by the AO bake and its cache.
  * Masked and blended finishes do not occlude this estimate. Transmission and
@@ -23,9 +24,9 @@ export function humanFaceOcclusionOpaqueMaterials(
   return new Set(
     model.materials
       .filter(
-        (material: IAutoMovieMaterialImported): boolean  =>
+        (material: IAutoMovieMaterialImported): boolean =>
           material.alphaMode !== "mask" && material.alphaMode !== "blend",
       )
-      .map((material: IAutoMovieMaterialImported): string  => material.id),
+      .map((material: IAutoMovieMaterialImported): string => material.id),
   );
 }

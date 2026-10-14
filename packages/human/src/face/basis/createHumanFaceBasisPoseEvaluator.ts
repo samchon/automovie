@@ -1,10 +1,28 @@
 import { Vector3 } from "@automovie/engine";
+import type { IAutoMovieVector3 as IAutoMovieVector3Imported } from "@automovie/interface";
 
 import { areaWeightedNormals } from "../../common/mesh/areaWeightedNormals";
+import type {
+  IAutoMovieHumanConstructionClearanceReading as IAutoMovieHumanConstructionClearanceReadingImported,
+  IAutoMovieHumanFaceBasisChannel as IAutoMovieHumanFaceBasisChannelImported,
+  IAutoMovieHumanFaceBasisContact as IAutoMovieHumanFaceBasisContactImported,
+  IAutoMovieHumanFaceBasisSurface as IAutoMovieHumanFaceBasisSurfaceImported,
+  IAutoMovieHumanFaceContactCollider as IAutoMovieHumanFaceContactColliderImported,
+  IAutoMovieHumanFaceContactResolutionSummary as IAutoMovieHumanFaceContactResolutionSummaryImported,
+  IAutoMovieHumanFaceMidlinePair as IAutoMovieHumanFaceMidlinePairImported,
+  IAutoMovieHumanFaceRigidMotion as IAutoMovieHumanFaceRigidMotionImported,
+  IAutoMovieHumanFaceSourceClosurePlan as IAutoMovieHumanFaceSourceClosurePlanImported,
+  IAutoMovieHumanFaceTonguePassageSummary as IAutoMovieHumanFaceTonguePassageSummaryImported,
+  IHumanConstructionCheck as IHumanConstructionCheckImported,
+  IHumanFaceOralAssembly as IHumanFaceOralAssemblyImported,
+} from "../../index";
 import { buildHumanFacePeriocularTissues } from "../anatomy/eye/buildHumanFacePeriocularTissues";
 import { createHumanFacePeriocularDefaults } from "../anatomy/eye/createHumanFacePeriocularDefaults";
 import { readHumanFacePeriocularTissueSpace } from "../anatomy/eye/readHumanFacePeriocularTissueSpace";
 import { seatHumanFaceLidCage } from "../anatomy/eye/seatHumanFaceLidCage";
+import type { IHumanFaceOcularSurface as IHumanFaceOcularSurfaceImported } from "../anatomy/eye/structures/IHumanFaceOcularSurface";
+import type { IHumanFaceOpticalAssembly as IHumanFaceOpticalAssemblyImported } from "../anatomy/eye/structures/IHumanFaceOpticalAssembly";
+import type { IHumanFacePeriocularTissuePart as IHumanFacePeriocularTissuePartImported } from "../anatomy/eye/structures/IHumanFacePeriocularTissuePart";
 import { buildHumanFaceOralAssembly } from "../anatomy/oral/buildHumanFaceOralAssembly";
 import { connectHumanFaceOralLipPorts } from "../anatomy/oral/connectHumanFaceOralLipPorts";
 import { evaluateHumanFaceOralPassage } from "../anatomy/oral/evaluateHumanFaceOralPassage";
@@ -14,10 +32,14 @@ import { applyHumanFaceRegionalRelief } from "../anatomy/skin/applyHumanFaceRegi
 import type { IAutoMovieHumanFaceBasis } from "../structures/IAutoMovieHumanFaceBasis";
 import type { IAutoMovieHumanFaceBasisDocument } from "../structures/IAutoMovieHumanFaceBasisDocument";
 import type { IAutoMovieHumanFaceContactSummary } from "../structures/IAutoMovieHumanFaceContactSummary";
-import type { IHumanFaceDynamicCollider } from "./IHumanFaceDynamicCollider";
+import type { IAutoMovieHumanFacePeriocularCage as IAutoMovieHumanFacePeriocularCageImported } from "../structures/IAutoMovieHumanFacePeriocularCage";
+import type { IAutoMovieHumanFacePeriocularTissues as IAutoMovieHumanFacePeriocularTissuesImported } from "../structures/IAutoMovieHumanFacePeriocularTissues";
 import type { IHumanFaceApertureDirections } from "./IHumanFaceApertureDirections";
+import type { IHumanFaceDynamicCollider } from "./IHumanFaceDynamicCollider";
+import type { IHumanFaceNativePose as IHumanFaceNativePoseImported } from "./IHumanFaceNativePose";
 import type { IHumanFacePoseGeometry } from "./IHumanFacePoseGeometry";
 import type { IHumanFacePoseResult } from "./IHumanFacePoseResult";
+import type { IHumanFaceReferencePreparation as IHumanFaceReferencePreparationImported } from "./IHumanFaceReferencePreparation";
 import { applyHumanFaceSourceClosure } from "./applyHumanFaceSourceClosure";
 import { assertHumanFacePeriocularCage } from "./assertHumanFacePeriocularCage";
 import { assertHumanFaceSourceClosurePlan } from "./assertHumanFaceSourceClosurePlan";
@@ -28,18 +50,8 @@ import { humanFaceBasisWeights } from "./humanFaceBasisWeights";
 import { measureHumanFaceApertureGap } from "./measureHumanFaceApertureGap";
 import { measureHumanFaceMarginGaps } from "./measureHumanFaceMarginGaps";
 import { prepareHumanFaceReference } from "./prepareHumanFaceReference";
-import { resolveHumanFaceContact } from "./resolveHumanFaceContact";
 import { resolveHumanFaceApertureDirections } from "./resolveHumanFaceApertureDirections";
-import type { IAutoMovieHumanFaceBasisContact as IAutoMovieHumanFaceBasisContactImported, IAutoMovieHumanFaceSourceClosurePlan as IAutoMovieHumanFaceSourceClosurePlanImported, IAutoMovieHumanFaceBasisSurface as IAutoMovieHumanFaceBasisSurfaceImported, IHumanFaceOralAssembly as IHumanFaceOralAssemblyImported, IAutoMovieHumanFaceRigidMotion as IAutoMovieHumanFaceRigidMotionImported, IHumanConstructionCheck as IHumanConstructionCheckImported, IAutoMovieHumanFaceBasisChannel as IAutoMovieHumanFaceBasisChannelImported, IAutoMovieHumanFaceContactCollider as IAutoMovieHumanFaceContactColliderImported, IAutoMovieHumanFaceContactResolutionSummary as IAutoMovieHumanFaceContactResolutionSummaryImported, IAutoMovieHumanFaceMidlinePair as IAutoMovieHumanFaceMidlinePairImported, IAutoMovieHumanFaceTonguePassageSummary as IAutoMovieHumanFaceTonguePassageSummaryImported, IAutoMovieHumanConstructionClearanceReading as IAutoMovieHumanConstructionClearanceReadingImported } from "../../index";
-import type { IHumanFaceNativePose as IHumanFaceNativePoseImported } from "./IHumanFaceNativePose";
-import type { IHumanFacePeriocularTissuePart as IHumanFacePeriocularTissuePartImported } from "../anatomy/eye/structures/IHumanFacePeriocularTissuePart";
-import type { IHumanFaceOpticalAssembly as IHumanFaceOpticalAssemblyImported } from "../anatomy/eye/structures/IHumanFaceOpticalAssembly";
-import type { IAutoMovieHumanFacePeriocularTissues as IAutoMovieHumanFacePeriocularTissuesImported } from "../structures/IAutoMovieHumanFacePeriocularTissues";
-import type { IHumanFaceReferencePreparation as IHumanFaceReferencePreparationImported } from "./IHumanFaceReferencePreparation";
-import type { IAutoMovieVector3 as IAutoMovieVector3Imported } from "@automovie/interface";
-import type { IAutoMovieHumanFacePeriocularCage as IAutoMovieHumanFacePeriocularCageImported } from "../structures/IAutoMovieHumanFacePeriocularCage";
-import type { IHumanFaceOcularSurface as IHumanFaceOcularSurfaceImported } from "../anatomy/eye/structures/IHumanFaceOcularSurface";
-
+import { resolveHumanFaceContact } from "./resolveHumanFaceContact";
 
 /**
  * Compile the connected basis's geometry stage, independent of appearance.
@@ -96,12 +108,16 @@ export function createHumanFaceBasisPoseEvaluator(
       throw new Error(
         "Face source pose and normal partitions need the same compiler generation.",
       );
-  const contact: IAutoMovieHumanFaceBasisContactImported | undefined = basis.contact;
-  const sourceSpan: IAutoMovieHumanFaceSourceClosurePlanImported | undefined = contact?.closure.sourceSpan;
+  const contact: IAutoMovieHumanFaceBasisContactImported | undefined =
+    basis.contact;
+  const sourceSpan: IAutoMovieHumanFaceSourceClosurePlanImported | undefined =
+    contact?.closure.sourceSpan;
   if (sourceSpan !== undefined) {
-    const source: IAutoMovieHumanFaceBasisSurfaceImported | undefined = basis.surfaces.find(
-      (surface: IAutoMovieHumanFaceBasisSurfaceImported): boolean  => surface.id === sourceSpan.surface,
-    );
+    const source: IAutoMovieHumanFaceBasisSurfaceImported | undefined =
+      basis.surfaces.find(
+        (surface: IAutoMovieHumanFaceBasisSurfaceImported): boolean =>
+          surface.id === sourceSpan.surface,
+      );
     if (source === undefined)
       throw new Error("Face source closure names an absent basis surface.");
     if (
@@ -109,7 +125,7 @@ export function createHumanFaceBasisPoseEvaluator(
         source.sourcePosePlan?.generation,
         source.sourcePartition?.generation,
       ].some(
-        (generation: string | undefined): boolean  =>
+        (generation: string | undefined): boolean =>
           generation !== undefined && generation !== sourceSpan.generation,
       )
     )
@@ -117,26 +133,62 @@ export function createHumanFaceBasisPoseEvaluator(
         "Face source closure needs the same compiler generation.",
       );
   }
-  const poseNative: (state: ReturnType<typeof humanFaceBasisWeights>, geometry?: IHumanFacePoseGeometry, progress?: (owner: string) => void) => IHumanFaceNativePoseImported = createHumanFaceNativePose(basis);
-  return (state: { weights: Map<string, number>; activations: { target: string; activation: number; shapeOnly: boolean; }[]; }, shape: Record<string, number>, geometry: IHumanFacePoseGeometry | undefined, progress: ((owner: string) => void) | undefined): { oral?: IHumanFaceOralAssemblyImported | undefined; jawMotion?: IAutoMovieHumanFaceRigidMotionImported | undefined; periocularTissues?: IHumanFacePeriocularTissuePartImported[] | undefined; reference?: Map<string, number[]> | undefined; optics?: IHumanFaceOpticalAssemblyImported[] | undefined; checks: IHumanConstructionCheckImported[]; positions: Map<string, number[]>; normals: Map<string, number[]>; summary: IAutoMovieHumanFaceContactSummary | null; }  => {
+  const poseNative: (
+    state: ReturnType<typeof humanFaceBasisWeights>,
+    geometry?: IHumanFacePoseGeometry,
+    progress?: (owner: string) => void,
+  ) => IHumanFaceNativePoseImported = createHumanFaceNativePose(basis);
+  return (
+    state: {
+      weights: Map<string, number>;
+      activations: { target: string; activation: number; shapeOnly: boolean }[];
+    },
+    shape: Record<string, number>,
+    geometry: IHumanFacePoseGeometry | undefined,
+    progress: ((owner: string) => void) | undefined,
+  ): {
+    oral?: IHumanFaceOralAssemblyImported | undefined;
+    jawMotion?: IAutoMovieHumanFaceRigidMotionImported | undefined;
+    periocularTissues?: IHumanFacePeriocularTissuePartImported[] | undefined;
+    reference?: Map<string, number[]> | undefined;
+    optics?: IHumanFaceOpticalAssemblyImported[] | undefined;
+    checks: IHumanConstructionCheckImported[];
+    positions: Map<string, number[]>;
+    normals: Map<string, number[]>;
+    summary: IAutoMovieHumanFaceContactSummary | null;
+  } => {
     const checks: IHumanFacePoseResult["checks"][number][] = [];
     const { skinRelief, oral }: IHumanFacePoseGeometry = geometry ?? {};
-    const periocularTissues: IAutoMovieHumanFacePeriocularTissuesImported | undefined = createHumanFacePeriocularDefaults(
-      basis,
-      geometry,
-    );
-    const fixed: (weight: number) => { weights: Map<string, number>; activations: { target: string; activation: number; shapeOnly: boolean; }[]; } = (weight: number): { weights: Map<string, number>; activations: { target: string; activation: number; shapeOnly: boolean; }[]; }  =>
+    const periocularTissues:
+      | IAutoMovieHumanFacePeriocularTissuesImported
+      | undefined = createHumanFacePeriocularDefaults(basis, geometry);
+    const fixed: (weight: number) => {
+      weights: Map<string, number>;
+      activations: { target: string; activation: number; shapeOnly: boolean }[];
+    } = (
+      weight: number,
+    ): {
+      weights: Map<string, number>;
+      activations: { target: string; activation: number; shapeOnly: boolean }[];
+    } =>
       humanFaceBasisWeights(basis, {
         shape,
         expression: Object.fromEntries(
           basis.channels
-            .filter((channel: IAutoMovieHumanFaceBasisChannelImported): boolean  => channel.kind === "expression")
-            .map((channel: IAutoMovieHumanFaceBasisChannelImported): [string, number]  => [
-              channel.id,
-              channel.id === contact!.closure.channel
-                ? weight
-                : (state.weights.get(channel.id) ?? 0),
-            ]),
+            .filter(
+              (channel: IAutoMovieHumanFaceBasisChannelImported): boolean =>
+                channel.kind === "expression",
+            )
+            .map(
+              (
+                channel: IAutoMovieHumanFaceBasisChannelImported,
+              ): [string, number] => [
+                channel.id,
+                channel.id === contact!.closure.channel
+                  ? weight
+                  : (state.weights.get(channel.id) ?? 0),
+              ],
+            ),
         ),
       });
     const native: IHumanFaceNativePoseImported = poseNative(
@@ -144,45 +196,75 @@ export function createHumanFaceBasisPoseEvaluator(
       geometry,
       progress,
     );
-    const closureWeight: number = contact === undefined ? 0 : (state.weights.get(contact.closure.channel) ?? 0);
+    const closureWeight: number =
+      contact === undefined
+        ? 0
+        : (state.weights.get(contact.closure.channel) ?? 0);
     const posed: Map<string, number[]> =
       sourceSpan === undefined
         ? native.posed
         : closureWeight === 0
-          ? ((): Map<string, number[]>  => {
+          ? ((): Map<string, number[]> => {
               assertHumanFaceSourceClosurePlan(sourceSpan, native.posed);
-              return new Map([...native.posed].map(([id, positions]: [string, number[]]): [string, number[]]  => [id, [...positions]]));
+              return new Map(
+                [...native.posed].map(
+                  ([id, positions]: [string, number[]]): [string, number[]] => [
+                    id,
+                    [...positions],
+                  ],
+                ),
+              );
             })()
           : applyHumanFaceSourceClosure(
-            sourceSpan,
-            native.posed,
-            poseNative(fixed(1), geometry, progress === undefined ? undefined :
-              (owner: string): void  => progress("closure-endpoint:" + owner)).posed,
-            closureWeight,
-          );
+              sourceSpan,
+              native.posed,
+              poseNative(
+                fixed(1),
+                geometry,
+                progress === undefined
+                  ? undefined
+                  : (owner: string): void =>
+                      progress("closure-endpoint:" + owner),
+              ).posed,
+              closureWeight,
+            );
     if (sourceSpan !== undefined)
-      progress?.(closureWeight === 0 ? "pose:source-closure-zero" : "pose:source-closure-endpoint");
-    const preparation: IHumanFaceReferencePreparationImported = prepareHumanFaceReference({
-      basis,
-      state,
-      geometry,
-      native,
-      progress,
-    });
+      progress?.(
+        closureWeight === 0
+          ? "pose:source-closure-zero"
+          : "pose:source-closure-endpoint",
+      );
+    const preparation: IHumanFaceReferencePreparationImported =
+      prepareHumanFaceReference({
+        basis,
+        state,
+        geometry,
+        native,
+        progress,
+      });
     progress?.("pose:reference-preparation");
-    const shaped: { surfaces: number[][]; landmarks: Record<string, IAutoMovieVector3Imported>; } | undefined = preparation.shaped;
+    const shaped:
+      | {
+          surfaces: number[][];
+          landmarks: Record<string, IAutoMovieVector3Imported>;
+        }
+      | undefined = preparation.shaped;
     // The lid margin is seated on the generated ocular exterior before any
     // stage reads the skin, so contact, tissue and every measurement see one
     // rest and one performed lid.
-    const optics: IHumanFaceOpticalAssemblyImported[] | undefined = preparation.optics;
+    const optics: IHumanFaceOpticalAssemblyImported[] | undefined =
+      preparation.optics;
     for (const eye of optics ?? []) {
-      const cage: IAutoMovieHumanFacePeriocularCageImported | undefined = basis.periocular?.[eye.side].cage;
+      const cage: IAutoMovieHumanFacePeriocularCageImported | undefined =
+        basis.periocular?.[eye.side].cage;
       if (cage === undefined) continue;
       assertHumanFacePeriocularCage(basis, cage);
       const host: number = basis.surfaces.findIndex(
-        (surface: IAutoMovieHumanFaceBasisSurfaceImported): boolean  => surface.id === cage.surface,
+        (surface: IAutoMovieHumanFaceBasisSurfaceImported): boolean =>
+          surface.id === cage.surface,
       );
-      const samples: readonly number[] = basis.surfaces[host].sourcePartition!.samples;
+      const samples: readonly number[] =
+        basis.surfaces[host].sourcePartition!.samples;
       posed.set(
         cage.surface,
         seatHumanFaceLidCage(
@@ -199,19 +281,22 @@ export function createHumanFaceBasisPoseEvaluator(
       oral === undefined
         ? undefined
         : shaped === undefined
-          ? ((): never  => {
+          ? ((): never => {
               throw new Error(
                 "Oral assembly needs its shape-only source reference.",
               );
             })()
-          : ((): IHumanFaceOralAssemblyImported  => {
+          : ((): IHumanFaceOralAssemblyImported => {
               const reference: Map<string, number[]> = new Map(
-                basis.surfaces.map((surface: IAutoMovieHumanFaceBasisSurfaceImported, at: number): [string, number[]]  => [
-                  surface.id,
-                  shaped.surfaces[at],
-                ]),
+                basis.surfaces.map(
+                  (
+                    surface: IAutoMovieHumanFaceBasisSurfaceImported,
+                    at: number,
+                  ): [string, number[]] => [surface.id, shaped.surfaces[at]],
+                ),
               );
-              const jaw: IAutoMovieHumanFaceRigidMotionImported | undefined = native.motions?.get("jaw");
+              const jaw: IAutoMovieHumanFaceRigidMotionImported | undefined =
+                native.motions?.get("jaw");
               if (jaw === undefined)
                 throw new Error(
                   "Oral assembly needs its actual source jaw motion.",
@@ -226,13 +311,22 @@ export function createHumanFaceBasisPoseEvaluator(
     if (oralAssembly !== undefined) progress?.("pose:oral-assembly");
     if (skinRelief !== undefined) {
       if (preparation.materialReference === undefined)
-        throw new Error("Skin relief needs its same shape-only material reference.");
-      const relieved: ReadonlyMap<string, readonly number[]> = applyHumanFaceRegionalRelief(
-        basis,
-        applyHumanFaceNasolabialRelief(basis, posed, state.weights, skinRelief, preparation.materialReference),
-        skinRelief,
-        preparation.materialReference,
-      );
+        throw new Error(
+          "Skin relief needs its same shape-only material reference.",
+        );
+      const relieved: ReadonlyMap<string, readonly number[]> =
+        applyHumanFaceRegionalRelief(
+          basis,
+          applyHumanFaceNasolabialRelief(
+            basis,
+            posed,
+            state.weights,
+            skinRelief,
+            preparation.materialReference,
+          ),
+          skinRelief,
+          preparation.materialReference,
+        );
       for (const [id, positions] of relieved)
         if (positions !== posed.get(id)) posed.set(id, [...positions]);
       progress?.("pose:skin-relief");
@@ -240,9 +334,13 @@ export function createHumanFaceBasisPoseEvaluator(
     const reference: Map<string, number[]> | undefined = preparation.complete();
     progress?.("pose:reference-complete");
     let summary: IAutoMovieHumanFaceContactSummary | null = null;
-    const generated: Map<string, IHumanFaceDynamicCollider[]> = new Map<string, IHumanFaceDynamicCollider[]>();
+    const generated: Map<string, IHumanFaceDynamicCollider[]> = new Map<
+      string,
+      IHumanFaceDynamicCollider[]
+    >();
     for (const eye of optics ?? []) {
-      const entries: IHumanFaceDynamicCollider[] = generated.get(eye.surface) ?? [];
+      const entries: IHumanFaceDynamicCollider[] =
+        generated.get(eye.surface) ?? [];
       entries.push(eye.collider);
       generated.set(eye.surface, entries);
     }
@@ -257,28 +355,47 @@ export function createHumanFaceBasisPoseEvaluator(
       optics !== undefined &&
       (contact === undefined ||
         [...generated.keys()].some(
-          (id: string): boolean  => !contact.colliders.some((c: IAutoMovieHumanFaceContactColliderImported): boolean  => c.surface === id),
+          (id: string): boolean =>
+            !contact.colliders.some(
+              (c: IAutoMovieHumanFaceContactColliderImported): boolean =>
+                c.surface === id,
+            ),
         ))
     )
       throw new Error(
         "Independent optics need their registered exterior in the source contact assembly.",
       );
     if (contact !== undefined) {
-      const resolved: IAutoMovieHumanFaceContactResolutionSummaryImported[] = resolveHumanFaceContact(
-        basis,
-        contact,
-        posed,
-        new Map(
-          basis.surfaces.map((surface: IAutoMovieHumanFaceBasisSurfaceImported, index: number): [string, number[]]  => [
-            surface.id,
-            shaped!.surfaces[index],
-          ]),
-        ),
-        generated,
-      );
-      const pair: (entry: IAutoMovieHumanFaceMidlinePairImported) => { upper: IAutoMovieVector3Imported; lower: IAutoMovieVector3Imported; gap: number; } = (entry: typeof contact.lips): { upper: IAutoMovieVector3Imported; lower: IAutoMovieVector3Imported; gap: number; }  => {
+      const resolved: IAutoMovieHumanFaceContactResolutionSummaryImported[] =
+        resolveHumanFaceContact(
+          basis,
+          contact,
+          posed,
+          new Map(
+            basis.surfaces.map(
+              (
+                surface: IAutoMovieHumanFaceBasisSurfaceImported,
+                index: number,
+              ): [string, number[]] => [surface.id, shaped!.surfaces[index]],
+            ),
+          ),
+          generated,
+        );
+      const pair: (entry: IAutoMovieHumanFaceMidlinePairImported) => {
+        upper: IAutoMovieVector3Imported;
+        lower: IAutoMovieVector3Imported;
+        gap: number;
+      } = (
+        entry: typeof contact.lips,
+      ): {
+        upper: IAutoMovieVector3Imported;
+        lower: IAutoMovieVector3Imported;
+        gap: number;
+      } => {
         const positions: number[] = posed.get(entry.surface)!;
-        const point: (vertex: number) => IAutoMovieVector3Imported = (vertex: number): IAutoMovieVector3Imported  =>
+        const point: (vertex: number) => IAutoMovieVector3Imported = (
+          vertex: number,
+        ): IAutoMovieVector3Imported =>
           Vector3.create(
             positions[3 * vertex],
             positions[3 * vertex + 1],
@@ -292,8 +409,16 @@ export function createHumanFaceBasisPoseEvaluator(
           gap: measureHumanFaceApertureGap(upper, lower, native.up!),
         };
       };
-      const authoredLips: { upper: IAutoMovieVector3Imported; lower: IAutoMovieVector3Imported; gap: number; } = pair(contact.lips);
-      const lips: { upper: IAutoMovieVector3Imported; lower: IAutoMovieVector3Imported; gap: number; } =
+      const authoredLips: {
+        upper: IAutoMovieVector3Imported;
+        lower: IAutoMovieVector3Imported;
+        gap: number;
+      } = pair(contact.lips);
+      const lips: {
+        upper: IAutoMovieVector3Imported;
+        lower: IAutoMovieVector3Imported;
+        gap: number;
+      } =
         sourceSpan === undefined
           ? authoredLips
           : pair({
@@ -304,23 +429,34 @@ export function createHumanFaceBasisPoseEvaluator(
       const missingIncisor: boolean =
         oralAssembly !== undefined &&
         contact.incisors.surface === oralAssembly.dentalSurface &&
-        [contact.incisors.upper, contact.incisors.lower].some((vertex: number): boolean  =>
-          oralAssembly.absentDentalVertices.has(vertex),
+        [contact.incisors.upper, contact.incisors.lower].some(
+          (vertex: number): boolean =>
+            oralAssembly.absentDentalVertices.has(vertex),
         );
-      const incisors: { upper: IAutoMovieVector3Imported; lower: IAutoMovieVector3Imported; gap: number; } | undefined = missingIncisor ? undefined : pair(contact.incisors);
+      const incisors:
+        | {
+            upper: IAutoMovieVector3Imported;
+            lower: IAutoMovieVector3Imported;
+            gap: number;
+          }
+        | undefined = missingIncisor ? undefined : pair(contact.incisors);
       const { up, forward }: IHumanFaceApertureDirections =
         resolveHumanFaceApertureDirections(basis.articulation!.jaw.axis);
-      const passage: { protrudingMetres: number; thicknessMetres: number; } | null =
+      const passage: {
+        protrudingMetres: number;
+        thicknessMetres: number;
+      } | null =
         oralAssembly === undefined
           ? evaluateHumanFacePassage(
               contact,
               posed.get(contact.passage.surface)!,
               { up, forward, lips, incisors: incisors! },
               basis.surfaces.find(
-                (surface: IAutoMovieHumanFaceBasisSurfaceImported): boolean  => surface.id === contact.passage.surface,
+                (surface: IAutoMovieHumanFaceBasisSurfaceImported): boolean =>
+                  surface.id === contact.passage.surface,
               )!.indices,
             )
-          : ((): IAutoMovieHumanFaceTonguePassageSummaryImported | null  => {
+          : ((): IAutoMovieHumanFaceTonguePassageSummaryImported | null => {
               if (reference === undefined)
                 throw new Error(
                   "Actual oral passage needs its matching shape-only source reference.",
@@ -348,7 +484,10 @@ export function createHumanFaceBasisPoseEvaluator(
                 contact.margin,
                 basis.articulation!.jaw.axis,
                 native.up!,
-                basis.surfaces.find((surface: IAutoMovieHumanFaceBasisSurfaceImported): boolean  => surface.id === contact.lips.surface)!,
+                basis.surfaces.find(
+                  (surface: IAutoMovieHumanFaceBasisSurfaceImported): boolean =>
+                    surface.id === contact.lips.surface,
+                )!,
               ),
             }),
         ...(sourceSpan === undefined
@@ -370,46 +509,68 @@ export function createHumanFaceBasisPoseEvaluator(
           );
     if (finalOral !== undefined) progress?.("pose:oral-ports");
     const normals: Map<string, number[]> = new Map(
-      basis.surfaces.map((surface: IAutoMovieHumanFaceBasisSurfaceImported): [string, number[]]  => [
-        surface.id,
-        areaWeightedNormals(posed.get(surface.id)!, surface.indices),
-      ]),
+      basis.surfaces.map(
+        (
+          surface: IAutoMovieHumanFaceBasisSurfaceImported,
+        ): [string, number[]] => [
+          surface.id,
+          areaWeightedNormals(posed.get(surface.id)!, surface.indices),
+        ],
+      ),
     );
     progress?.("pose:normals");
     const tissues: IHumanFacePeriocularTissuePartImported[] | undefined =
       periocularTissues === undefined
         ? undefined
-        : ((): IHumanFacePeriocularTissuePartImported[]  => {
+        : ((): IHumanFacePeriocularTissuePartImported[] => {
             if (reference === undefined)
               throw new Error(
                 "Periocular tissues need their actual shape-only source reference.",
               );
-            const exteriors: (state: "rest" | "posed") => Map<"left" | "right", IHumanFaceOcularSurfaceImported> = (state: "rest" | "posed"): Map<"left" | "right", IHumanFaceOcularSurfaceImported>  =>
+            const exteriors: (
+              state: "rest" | "posed",
+            ) => Map<"left" | "right", IHumanFaceOcularSurfaceImported> = (
+              state: "rest" | "posed",
+            ): Map<"left" | "right", IHumanFaceOcularSurfaceImported> =>
               new Map(
-                (optics ?? []).map((eye: IHumanFaceOpticalAssemblyImported): ["left" | "right", IHumanFaceOcularSurfaceImported]  => [eye.side, eye.exterior[state]]),
+                (optics ?? []).map(
+                  (
+                    eye: IHumanFaceOpticalAssemblyImported,
+                  ): ["left" | "right", IHumanFaceOcularSurfaceImported] => [
+                    eye.side,
+                    eye.exterior[state],
+                  ],
+                ),
               );
-            const resting: IHumanFacePeriocularTissuePartImported[] = buildHumanFacePeriocularTissues(
-              basis,
-              reference,
-              new Map(
-                basis.surfaces.map((surface: IAutoMovieHumanFaceBasisSurfaceImported): [string, number[]]  => [
-                  surface.id,
-                  areaWeightedNormals(
-                    [...reference.get(surface.id)!],
-                    surface.indices,
+            const resting: IHumanFacePeriocularTissuePartImported[] =
+              buildHumanFacePeriocularTissues(
+                basis,
+                reference,
+                new Map(
+                  basis.surfaces.map(
+                    (
+                      surface: IAutoMovieHumanFaceBasisSurfaceImported,
+                    ): [string, number[]] => [
+                      surface.id,
+                      areaWeightedNormals(
+                        [...reference.get(surface.id)!],
+                        surface.indices,
+                      ),
+                    ],
                   ),
-                ]),
-              ),
-              exteriors("rest"),
-              periocularTissues,
-              progress === undefined ? undefined : (owner: string): void  => progress("rest:" + owner),
-            );
+                ),
+                exteriors("rest"),
+                periocularTissues,
+                progress === undefined
+                  ? undefined
+                  : (owner: string): void => progress("rest:" + owner),
+              );
             progress?.("pose:periocular-rest");
             checks.push(
               createHumanFaceClearanceCheck(
                 "periocular-rest",
                 "Periocular rest shell exceeds its lid or intersects its optical exterior or another shell",
-                (): IAutoMovieHumanConstructionClearanceReadingImported[]  =>
+                (): IAutoMovieHumanConstructionClearanceReadingImported[] =>
                   readHumanFacePeriocularTissueSpace(
                     basis,
                     reference,
@@ -419,20 +580,23 @@ export function createHumanFaceBasisPoseEvaluator(
                   ),
               ),
             );
-            const performed: IHumanFacePeriocularTissuePartImported[] = buildHumanFacePeriocularTissues(
-              basis,
-              posed,
-              normals,
-              exteriors("posed"),
-              periocularTissues,
-              progress === undefined ? undefined : (owner: string): void  => progress("posed:" + owner),
-            );
+            const performed: IHumanFacePeriocularTissuePartImported[] =
+              buildHumanFacePeriocularTissues(
+                basis,
+                posed,
+                normals,
+                exteriors("posed"),
+                periocularTissues,
+                progress === undefined
+                  ? undefined
+                  : (owner: string): void => progress("posed:" + owner),
+              );
             progress?.("pose:periocular-performed");
             checks.push(
               createHumanFaceClearanceCheck(
                 "periocular-performed",
                 "Periocular performed shell exceeds its lid or intersects its optical exterior or another shell",
-                (): IAutoMovieHumanConstructionClearanceReadingImported[]  =>
+                (): IAutoMovieHumanConstructionClearanceReadingImported[] =>
                   readHumanFacePeriocularTissueSpace(
                     basis,
                     posed,

@@ -4,10 +4,9 @@ import { linearToSrgbByte } from "../../common/colour/linearToSrgbByte";
 import { srgbByteToLinear } from "../../common/colour/srgbByteToLinear";
 import { decodePng } from "../../common/mesh/decodePng";
 import { encodePng } from "../../common/mesh/encodePng";
+import type { IPngImage as IPngImageImported } from "../../index";
 import type { IAutoMovieHumanFaceBasisDocument } from "../structures/IAutoMovieHumanFaceBasisDocument";
 import type { IAutoMovieHumanFaceMaterialOverride as IAutoMovieHumanFaceMaterialOverrideImported } from "../structures/IAutoMovieHumanFaceMaterialOverride";
-import type { IPngImage as IPngImageImported } from "../../index";
-
 
 /**
  * Compile the shared fibre pigment rule: the colour and density of the hair
@@ -57,16 +56,31 @@ export function createHumanFaceFibrePigment(): (
   overrides: IAutoMovieHumanFaceBasisDocument["materials"],
   materials: IAutoMovieMaterial[],
 ) => void {
-  const decoded: Map<string, IDecodedFibres> = new Map<string, IDecodedFibres>();
-  const painted: Map<string, { key: string; uri: string; }> = new Map<string, { key: string; uri: string }>();
-  return (overrides: Record<string, IAutoMovieHumanFaceMaterialOverrideImported> | undefined, materials: IAutoMovieMaterial[]): void  => {
+  const decoded: Map<string, IDecodedFibres> = new Map<
+    string,
+    IDecodedFibres
+  >();
+  const painted: Map<string, { key: string; uri: string }> = new Map<
+    string,
+    { key: string; uri: string }
+  >();
+  return (
+    overrides:
+      | Record<string, IAutoMovieHumanFaceMaterialOverrideImported>
+      | undefined,
+    materials: IAutoMovieMaterial[],
+  ): void => {
     for (const [id, override] of Object.entries(overrides ?? {})) {
       if (override.pigment === undefined && override.density === undefined)
         continue;
-      const material: IAutoMovieMaterial | undefined = materials.find((one: IAutoMovieMaterial): boolean  => one.id === id);
+      const material: IAutoMovieMaterial | undefined = materials.find(
+        (one: IAutoMovieMaterial): boolean => one.id === id,
+      );
       if (
         (override.pigment !== undefined &&
-          !override.pigment.every((value: number): boolean  => value >= 0 && value <= 1)) ||
+          !override.pigment.every(
+            (value: number): boolean => value >= 0 && value <= 1,
+          )) ||
         (override.density !== undefined &&
           !(override.density >= 0 && override.density <= 4))
       )
@@ -83,7 +97,7 @@ export function createHumanFaceFibrePigment(): (
             id,
         );
       const key: string = JSON.stringify([override.pigment, override.density]);
-      let result: { key: string; uri: string; } | undefined = painted.get(id);
+      let result: { key: string; uri: string } | undefined = painted.get(id);
       if (result?.key !== key) {
         let source: IDecodedFibres | undefined = decoded.get(id);
         if (source === undefined) {
@@ -127,7 +141,7 @@ function decode(uri: string, cutoff: number): IDecodedFibres {
     const alpha: number = image.rgba[4 * texel + 3]! / 255;
     if (alpha > 0 && alpha >= cutoff) drawn.push(luminance(image.rgba, texel));
   }
-  drawn.sort((a: number, b: number): number  => a - b);
+  drawn.sort((a: number, b: number): number => a - b);
   return {
     ...image,
     reference: drawn.length === 0 ? 0 : drawn[Math.floor(drawn.length / 2)]!,

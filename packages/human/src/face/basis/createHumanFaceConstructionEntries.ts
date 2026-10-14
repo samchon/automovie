@@ -1,15 +1,19 @@
+import type { IAutoMovieModel as IAutoMovieModelImported } from "@automovie/interface";
+
 import { admitHumanConstruction } from "../../common/basis/admitHumanConstruction";
+import type {
+  IAutoMovieHumanConstructionAdmission as IAutoMovieHumanConstructionAdmissionImported,
+  IHumanConstructionCheck as IHumanConstructionCheckImported,
+  IHumanFaceOralMeasurementRegistration as IHumanFaceOralMeasurementRegistrationImported,
+} from "../../index";
+import type { IHumanFaceHairContactLayout as IHumanFaceHairContactLayoutImported } from "../anatomy/hair/IHumanFaceHairContactLayout";
 import type { IAutoMovieHumanFaceBasisBuilder } from "../structures/IAutoMovieHumanFaceBasisBuilder";
 import type { IAutoMovieHumanFaceBasisDocument } from "../structures/IAutoMovieHumanFaceBasisDocument";
 import type { IAutoMovieHumanFaceConstructionProgress } from "../structures/IAutoMovieHumanFaceConstructionProgress";
-import type { IHumanFaceConstructionStage } from "./IHumanFaceConstructionStage";
-import type { IAutoMovieModel as IAutoMovieModelImported } from "@automovie/interface";
-import type { IAutoMovieHumanConstructionAdmission as IAutoMovieHumanConstructionAdmissionImported, IHumanConstructionCheck as IHumanConstructionCheckImported, IHumanFaceOralMeasurementRegistration as IHumanFaceOralMeasurementRegistrationImported } from "../../index";
 import type { IAutoMovieHumanFacePeriocularMappingReport as IAutoMovieHumanFacePeriocularMappingReportImported } from "../structures/IAutoMovieHumanFacePeriocularMappingReport";
-import type { IHumanFaceResidentSourceRegion as IHumanFaceResidentSourceRegionImported } from "./IHumanFaceResidentSourceRegion";
-import type { IHumanFaceHairContactLayout as IHumanFaceHairContactLayoutImported } from "../anatomy/hair/IHumanFaceHairContactLayout";
 import type { IHumanFaceMaterialAttachment as IHumanFaceMaterialAttachmentImported } from "../structures/IHumanFaceMaterialAttachment";
-
+import type { IHumanFaceConstructionStage } from "./IHumanFaceConstructionStage";
+import type { IHumanFaceResidentSourceRegion as IHumanFaceResidentSourceRegionImported } from "./IHumanFaceResidentSourceRegion";
 
 /**
  * Share one geometry stage between admitted authoring and construction inspection.
@@ -38,7 +42,7 @@ export function createHumanFaceConstructionEntries(
   observe?: (progress: IAutoMovieHumanFaceConstructionProgress) => void,
 ): IAutoMovieHumanFaceBasisBuilder {
   const build: IAutoMovieHumanFaceBasisBuilder = Object.assign(
-    (document: IAutoMovieHumanFaceBasisDocument): IAutoMovieModelImported  => {
+    (document: IAutoMovieHumanFaceBasisDocument): IAutoMovieModelImported => {
       const current: IHumanFaceConstructionStage = stage(document);
       observe?.({
         documentId: document.id,
@@ -47,20 +51,25 @@ export function createHumanFaceConstructionEntries(
       });
       // Authoring needs the verdict only; the readings and census belong to
       // construction inspection, which takes them below.
-      const admission: IAutoMovieHumanConstructionAdmissionImported = admitHumanConstruction(
-        current.checks.map((check: IHumanConstructionCheckImported): { owner: string; assert: () => void; }  => ({
-          owner: check.owner,
-          assert: check.assert,
-        })),
-        (owner: string, accepted: boolean): void =>
-          observe?.({
-            documentId: document.id,
-            basis: document.basis,
-            phase: "admission-check-finished",
-            checkOwner: owner,
-            accepted,
-          }),
-      );
+      const admission: IAutoMovieHumanConstructionAdmissionImported =
+        admitHumanConstruction(
+          current.checks.map(
+            (
+              check: IHumanConstructionCheckImported,
+            ): { owner: string; assert: () => void } => ({
+              owner: check.owner,
+              assert: check.assert,
+            }),
+          ),
+          (owner: string, accepted: boolean): void =>
+            observe?.({
+              documentId: document.id,
+              basis: document.basis,
+              phase: "admission-check-finished",
+              checkOwner: owner,
+              accepted,
+            }),
+        );
       observe?.({
         documentId: document.id,
         basis: document.basis,
@@ -72,24 +81,44 @@ export function createHumanFaceConstructionEntries(
       return current.value.model;
     },
     {
-      construct: (document: IAutoMovieHumanFaceBasisDocument): { periocularMappings?: IAutoMovieHumanFacePeriocularMappingReportImported[]; admission: IAutoMovieHumanConstructionAdmissionImported; reference?: ReadonlyMap<string, readonly number[]> | undefined; oral?: IHumanFaceOralMeasurementRegistrationImported | undefined; sourceRegions: readonly IHumanFaceResidentSourceRegionImported[]; model: IAutoMovieModelImported; hairPartIds: readonly string[]; hairContactLayouts: ReadonlyMap<string, IHumanFaceHairContactLayoutImported>; materialAttachments: ReadonlyMap<string, ReadonlyMap<number, IHumanFaceMaterialAttachmentImported>>; browReplacements: ReadonlyMap<string, ReadonlySet<number>>; }  => {
+      construct: (
+        document: IAutoMovieHumanFaceBasisDocument,
+      ): {
+        periocularMappings?: IAutoMovieHumanFacePeriocularMappingReportImported[];
+        admission: IAutoMovieHumanConstructionAdmissionImported;
+        reference?: ReadonlyMap<string, readonly number[]> | undefined;
+        oral?: IHumanFaceOralMeasurementRegistrationImported | undefined;
+        sourceRegions: readonly IHumanFaceResidentSourceRegionImported[];
+        model: IAutoMovieModelImported;
+        hairPartIds: readonly string[];
+        hairContactLayouts: ReadonlyMap<
+          string,
+          IHumanFaceHairContactLayoutImported
+        >;
+        materialAttachments: ReadonlyMap<
+          string,
+          ReadonlyMap<number, IHumanFaceMaterialAttachmentImported>
+        >;
+        browReplacements: ReadonlyMap<string, ReadonlySet<number>>;
+      } => {
         const current: IHumanFaceConstructionStage = stage(document);
         observe?.({
           documentId: document.id,
           basis: document.basis,
           phase: "geometry-built",
         });
-        const admission: IAutoMovieHumanConstructionAdmissionImported = admitHumanConstruction(
-          current.checks,
-          (owner: string, accepted: boolean): void =>
-            observe?.({
-              documentId: document.id,
-              basis: document.basis,
-              phase: "admission-check-finished",
-              checkOwner: owner,
-              accepted,
-            }),
-        );
+        const admission: IAutoMovieHumanConstructionAdmissionImported =
+          admitHumanConstruction(
+            current.checks,
+            (owner: string, accepted: boolean): void =>
+              observe?.({
+                documentId: document.id,
+                basis: document.basis,
+                phase: "admission-check-finished",
+                checkOwner: owner,
+                accepted,
+              }),
+          );
         observe?.({
           documentId: document.id,
           basis: document.basis,

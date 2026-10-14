@@ -25,15 +25,21 @@ export function createHumanFaceClearanceCheck(
   measure: () => IAutoMovieHumanConstructionClearanceReading[],
 ): IHumanConstructionCheck {
   let readings: IAutoMovieHumanConstructionClearanceReading[] | undefined;
-  const read: () => IAutoMovieHumanConstructionClearanceReading[] = (): IAutoMovieHumanConstructionClearanceReading[] =>
-    (readings ??= measure());
-  const millimetres: (value: number | null) => string = (value: number | null): string =>
-    value === null ? "unknown" : (value * 1000).toFixed(4) + " mm";
+  const read: () => IAutoMovieHumanConstructionClearanceReading[] =
+    (): IAutoMovieHumanConstructionClearanceReading[] =>
+      (readings ??= measure());
+  const millimetres: (value: number | null) => string = (
+    value: number | null,
+  ): string => (value === null ? "unknown" : (value * 1000).toFixed(4) + " mm");
   return {
     owner,
     read,
-    assert: (): void  => {
-      const refused: IAutoMovieHumanConstructionClearanceReading[] = read().filter((reading: IAutoMovieHumanConstructionClearanceReading): boolean  => reading.refused);
+    assert: (): void => {
+      const refused: IAutoMovieHumanConstructionClearanceReading[] =
+        read().filter(
+          (reading: IAutoMovieHumanConstructionClearanceReading): boolean =>
+            reading.refused,
+        );
       if (refused.length === 0) return;
       const first: IAutoMovieHumanConstructionClearanceReading = refused[0];
       throw new Error(
