@@ -1,5 +1,7 @@
-import { AutoMovieContentDigest } from "@automovie/interface";
 import {
+  type AutoMovieRepaintRawOutputDisposition,
+  type IAutoMovieRepaintRawOutputPublication,
+  type IAutoMovieRepaintRawOutputReceipt,
   assertAutoMovieRepaintRawOutput,
   planAutoMovieRepaintRawOutput,
   productionRepaintRawOutputReceiptPath,
@@ -13,23 +15,26 @@ import { throwsError } from "../internal/predicates";
  *
  * Scenarios:
  *
- * 1. Candidate, invalid, partial, cancelled and over-budget output all receive
- *    the same content-addressed raw receipt without sharing mutable bytes.
+ * 1. Candidate, invalid, partial, cancelled and over-budget output retain detached bytes with exact SHA-256 and attempt-owned addresses.
  * 2. Empty, oversized, changed or cross-attempt bytes are refused.
- * 3. A plan with a blank identity, an unknown disposition, or an inexact
- *    instant is refused, and a stored receipt whose version, identities,
- *    text fields, instant, disposition, digest, ceiling, byte count, or path
- *    have drifted is refused before its bytes are trusted.
+ * 3. Blank identity, foreign disposition, inexact instant and drifted receipt fields refuse while an exact stored receipt remains admitted.
+ * 4. An otherwise exact forged empty receipt refuses through the public byte assertion; the adjacent singleton at its one-byte ceiling remains valid.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Public raw planning, receipt addressing and byte assertion exercise retained-copy identity and rejection; changing source bytes, output bytes, attempt or receipt metadata cannot become a valid recovery source, including the formerly admitted forged empty receipt.
+ * @evidence contracts/testing.md#independent-expectations Nonempty bounded retention, exact request/attempt addressing and detached copy semantics define expectations; SHA-256 vectors for [1,2,3,4], [1] and empty bytes come from independent standard SHA-256 reference computation rather than product output.
+ * @evidence contracts/testing.md#distinguishing-cases All five dispositions, exact ceiling, singleton, empty/oversized bytes, source mutation, changed digest bytes, cross-attempt and malformed metadata are covered; atomic filesystem transaction and playable-media admission belong to other owning tests.
+ * @evidence contracts/testing.md#execution-ownership This discoverable synchronous unit calls production exports and assertion seams without opening a project, provider, browser or process; the test function owns every generated disposition and mutation case.
  */
-export const test_production_repaint_raw_output = (): void => {
-  const source = new Uint8Array([1, 2, 3, 4]);
-  const publications = [
+export function test_production_repaint_raw_output(): void {
+  const source: Uint8Array = new Uint8Array([1, 2, 3, 4]);
+  const dispositions: AutoMovieRepaintRawOutputDisposition[] = [
     "candidate-source",
     "invalid",
     "partial",
     "cancelled",
     "budget-exhausted",
-  ].map((disposition) =>
+  ];
+  const publications: IAutoMovieRepaintRawOutputPublication[] = dispositions.map((disposition: AutoMovieRepaintRawOutputDisposition): IAutoMovieRepaintRawOutputPublication =>
     planAutoMovieRepaintRawOutput({
       productionId: "film",
       shot: "opening",
@@ -37,12 +42,7 @@ export const test_production_repaint_raw_output = (): void => {
       attemptId: "20000000-0000-4000-8000-000000000001",
       bytes: source,
       mediaType: "video/mp4",
-      disposition: disposition as
-        | "candidate-source"
-        | "invalid"
-        | "partial"
-        | "cancelled"
-        | "budget-exhausted",
+      disposition,
       retainedAt: "2026-09-04T00:00:00.000Z",
       maximumBytes: 4,
     }),
@@ -57,28 +57,30 @@ export const test_production_repaint_raw_output = (): void => {
     });
   TestValidator.equals(
     "every terminal disposition retains the same immutable copied raw bytes",
-    publications.map(({ receipt, bytes }) => ({
+    publications.map(({ receipt, bytes }: IAutoMovieRepaintRawOutputPublication): { disposition: AutoMovieRepaintRawOutputDisposition; bytes: number[]; digest: string; path: string; receiptPath: string } => ({
       disposition: receipt.disposition,
       bytes: [...bytes],
+      digest: receipt.digest,
       path: receipt.path,
       receiptPath: productionRepaintRawOutputReceiptPath(
         receipt.requestId,
         receipt.attemptId,
       ),
     })),
-    publications.map(({ receipt }) => ({
-      disposition: receipt.disposition,
+    dispositions.map((disposition: AutoMovieRepaintRawOutputDisposition): { disposition: AutoMovieRepaintRawOutputDisposition; bytes: number[]; digest: string; path: string; receiptPath: string } => ({
+      disposition,
       bytes: [1, 2, 3, 4],
-      path: `renditions/raw/10000000-0000-4000-8000-000000000001/20000000-0000-4000-8000-000000000001/${receipt.digest.slice("sha256:".length)}.bin`,
+      digest: "sha256:9f64a747e1b97f131fabb6b447296c9b6f0201e79fb3c5356e6c77e89b6a806a",
+      path: "renditions/raw/10000000-0000-4000-8000-000000000001/20000000-0000-4000-8000-000000000001/9f64a747e1b97f131fabb6b447296c9b6f0201e79fb3c5356e6c77e89b6a806a.bin",
       receiptPath:
         "renditions/raw/10000000-0000-4000-8000-000000000001/20000000-0000-4000-8000-000000000001/receipt.json",
     })),
   );
-  const receipt = publications[0]!.receipt;
+  const receipt: IAutoMovieRepaintRawOutputReceipt = publications[0]!.receipt;
   TestValidator.equals(
     "empty, oversized, changed and cross-attempt output are refused",
     [
-      throwsError(() =>
+      throwsError((): IAutoMovieRepaintRawOutputPublication =>
         planAutoMovieRepaintRawOutput({
           productionId: "film",
           shot: "opening",
@@ -91,7 +93,7 @@ export const test_production_repaint_raw_output = (): void => {
           maximumBytes: 4,
         }),
       ),
-      throwsError(() =>
+      throwsError((): IAutoMovieRepaintRawOutputPublication =>
         planAutoMovieRepaintRawOutput({
           productionId: "film",
           shot: "opening",
@@ -104,7 +106,7 @@ export const test_production_repaint_raw_output = (): void => {
           maximumBytes: 4,
         }),
       ),
-      throwsError(() =>
+      throwsError((): void =>
         assertAutoMovieRepaintRawOutput({
           receipt,
           bytes: new Uint8Array([1, 2, 3, 5]),
@@ -112,7 +114,7 @@ export const test_production_repaint_raw_output = (): void => {
           attemptId: receipt.attemptId,
         }),
       ),
-      throwsError(() =>
+      throwsError((): void =>
         assertAutoMovieRepaintRawOutput({
           receipt,
           bytes: publications[0]!.bytes,
@@ -120,15 +122,15 @@ export const test_production_repaint_raw_output = (): void => {
           attemptId: "different",
         }),
       ),
-      /^sha256:[0-9a-f]{64}$/u.test(receipt.digest as AutoMovieContentDigest),
+      /^sha256:[0-9a-f]{64}$/u.test(receipt.digest as string),
     ],
     [true, true, true, true, true],
   );
 
-  const plan = (
+  const plan: (overrides: Partial<Parameters<typeof planAutoMovieRepaintRawOutput>[0]>) => boolean = (
     overrides: Partial<Parameters<typeof planAutoMovieRepaintRawOutput>[0]>,
   ): boolean =>
-    throwsError(() =>
+    throwsError((): IAutoMovieRepaintRawOutputPublication =>
       planAutoMovieRepaintRawOutput({
         productionId: "film",
         shot: "opening",
@@ -142,8 +144,8 @@ export const test_production_repaint_raw_output = (): void => {
         ...overrides,
       }),
     );
-  const stored = (overrides: Partial<typeof receipt>): boolean =>
-    throwsError(() =>
+  const stored: (overrides: Partial<IAutoMovieRepaintRawOutputReceipt>) => boolean = (overrides: Partial<IAutoMovieRepaintRawOutputReceipt>): boolean =>
+    throwsError((): void =>
       assertAutoMovieRepaintRawOutput({
         receipt: { ...receipt, ...overrides },
         bytes: publications[0]!.bytes,
@@ -168,7 +170,7 @@ export const test_production_repaint_raw_output = (): void => {
         disposition: "retained" as "candidate-source",
       }),
       malformedDigest: stored({
-        digest: "sha256:short" as AutoMovieContentDigest,
+        digest: "sha256:short" as string,
       }),
       zeroCeiling: stored({ maximumBytes: 0 }),
       driftedCount: stored({ bytes: 3 }),
@@ -192,4 +194,48 @@ export const test_production_repaint_raw_output = (): void => {
       exactReceiptPasses: false,
     },
   );
-};
+  const empty: Uint8Array = new Uint8Array();
+  const emptyReceipt: IAutoMovieRepaintRawOutputReceipt = {
+    ...receipt,
+    bytes: 0,
+    digest: "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    path: "renditions/raw/10000000-0000-4000-8000-000000000001/20000000-0000-4000-8000-000000000001/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.bin",
+  };
+  TestValidator.predicate(
+    "an exact count/digest/path cannot make empty retained bytes valid",
+    throwsError((): void => assertAutoMovieRepaintRawOutput({
+      receipt: emptyReceipt,
+      bytes: empty,
+      requestId: receipt.requestId,
+      attemptId: receipt.attemptId,
+    }), "Repaint raw output does not match its immutable attempt-owned receipt."),
+  );
+  const singleton: IAutoMovieRepaintRawOutputPublication = planAutoMovieRepaintRawOutput({
+    productionId: "film",
+    shot: "opening",
+    requestId: receipt.requestId,
+    attemptId: receipt.attemptId,
+    bytes: new Uint8Array([1]),
+    mediaType: "video/mp4",
+    disposition: "candidate-source",
+    retainedAt: "2026-09-04T00:00:00.000Z",
+    maximumBytes: 1,
+  });
+  assertAutoMovieRepaintRawOutput({
+    receipt: singleton.receipt,
+    bytes: singleton.bytes,
+    requestId: receipt.requestId,
+    attemptId: receipt.attemptId,
+  });
+  TestValidator.equals("singleton at its exact ceiling remains a valid raw source", {
+    bytes: [...singleton.bytes],
+    count: singleton.receipt.bytes,
+    ceiling: singleton.receipt.maximumBytes,
+    digest: singleton.receipt.digest,
+  }, {
+    bytes: [1],
+    count: 1,
+    ceiling: 1,
+    digest: "sha256:4bf5122f344554c53bde2ebb8cd2b7e3d1600ad631c385a5d7cce23c7785459a",
+  });
+}
