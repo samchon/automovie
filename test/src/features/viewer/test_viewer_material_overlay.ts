@@ -1,19 +1,19 @@
 import { validateModel } from "@automovie/engine";
 import type {
   AutoMovieTextureBinding,
-  IAutoMovieModel,
   IAutoMovieMaterial,
   IAutoMovieMaterialOverlay,
+  IAutoMovieModel,
   IAutoMovieTextureReference,
 } from "@automovie/interface";
 import {
   DETAIL_NORMAL_TARGET,
+  type IMaterialOverlayShading,
   buildMaterial,
   detailNormalFragment,
   materialOverlayFragment,
   materialOverlayVertex,
   materialTextureBindings,
-  type IMaterialOverlayShading,
 } from "@automovie/viewer";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
@@ -21,7 +21,10 @@ import * as THREE from "three";
 import { createModel } from "../internal/fixtures";
 import { hasViolation, namedFacts, nclose } from "../internal/predicates";
 
-const reference: (asset: string, colorSpace: "srgb" | "linear") => IAutoMovieTextureReference = (
+const reference: (
+  asset: string,
+  colorSpace: "srgb" | "linear",
+) => IAutoMovieTextureReference = (
   asset: string,
   colorSpace: "srgb" | "linear",
 ): IAutoMovieTextureReference => ({
@@ -67,8 +70,13 @@ const NAILS: IAutoMovieMaterialOverlay = {
  */
 export function test_viewer_material_overlay(): void {
   const base: IAutoMovieMaterial = createModel().materials[0]!;
-  const resolve: (binding: unknown) => THREE.Texture<unknown, THREE.TextureEventMap> = (binding: unknown): THREE.Texture<unknown, THREE.TextureEventMap> => {
-    const texture: THREE.Texture<unknown, THREE.TextureEventMap> = new THREE.Texture();
+  const resolve: (
+    binding: unknown,
+  ) => THREE.Texture<unknown, THREE.TextureEventMap> = (
+    binding: unknown,
+  ): THREE.Texture<unknown, THREE.TextureEventMap> => {
+    const texture: THREE.Texture<unknown, THREE.TextureEventMap> =
+      new THREE.Texture();
     texture.name =
       typeof binding === "string"
         ? binding
@@ -85,7 +93,8 @@ export function test_viewer_material_overlay(): void {
     },
     resolve,
   );
-  const [veins, nails]: IMaterialOverlayShading[] = both.userData.overlays as IMaterialOverlayShading[];
+  const [veins, nails]: IMaterialOverlayShading[] = both.userData
+    .overlays as IMaterialOverlayShading[];
   TestValidator.predicate(
     "the overlays keep their images and factors",
     veins.color.name === "veins" &&
@@ -95,7 +104,8 @@ export function test_viewer_material_overlay(): void {
       veins.roughness === null &&
       nails.color.name === "nails" &&
       nails.normal === null &&
-      nails.roughness !== null && nclose(nails.roughness, 0.25, 0) &&
+      nails.roughness !== null &&
+      nclose(nails.roughness, 0.25, 0) &&
       nclose(nails.colorFactor.g, 0.4, 0) &&
       nclose(veins.colorFactor.r, 1, 0) &&
       nails.blend === "replace",
@@ -111,12 +121,19 @@ export function test_viewer_material_overlay(): void {
       ...base,
       normalTexture: reference("relief", "linear"),
       overlays: [VEINS, NAILS],
-    }).map((binding: AutoMovieTextureBinding): string => (binding as IAutoMovieTextureReference).asset),
+    }).map(
+      (binding: AutoMovieTextureBinding): string =>
+        (binding as IAutoMovieTextureReference).asset,
+    ),
     ["relief", "veins", "veins-relief", "nails"],
   );
 
-  const bare: THREE.MeshPhysicalMaterial = buildMaterial({ ...base, overlays: [VEINS] }, resolve);
-  const flat: THREE.DataTexture | null = bare.normalMap as THREE.DataTexture | null;
+  const bare: THREE.MeshPhysicalMaterial = buildMaterial(
+    { ...base, overlays: [VEINS] },
+    resolve,
+  );
+  const flat: THREE.DataTexture | null =
+    bare.normalMap as THREE.DataTexture | null;
   TestValidator.predicate(
     "an overlay's normal map gives a bare material a flat one",
     flat !== null &&
@@ -129,7 +146,23 @@ export function test_viewer_material_overlay(): void {
       undefined,
   );
 
-  const shapes: readonly [{ readonly blend: "multiply"; readonly roughness: false; readonly normal: true; }, { readonly blend: "replace"; readonly roughness: true; readonly normal: false; }, { readonly blend: "replace"; readonly roughness: false; readonly normal: true; }] = [
+  const shapes: readonly [
+    {
+      readonly blend: "multiply";
+      readonly roughness: false;
+      readonly normal: true;
+    },
+    {
+      readonly blend: "replace";
+      readonly roughness: true;
+      readonly normal: false;
+    },
+    {
+      readonly blend: "replace";
+      readonly roughness: false;
+      readonly normal: true;
+    },
+  ] = [
     { blend: "multiply", roughness: false, normal: true },
     { blend: "replace", roughness: true, normal: false },
     { blend: "replace", roughness: false, normal: true },
@@ -142,8 +175,10 @@ export function test_viewer_material_overlay(): void {
     detailNormalFragment(THREE.ShaderLib.physical.fragmentShader),
     shapes,
   );
-  const after: (text: string, anchor: string) => boolean = (text: string, anchor: string): boolean =>
-    fragment.indexOf(text) > fragment.indexOf(anchor);
+  const after: (text: string, anchor: string) => boolean = (
+    text: string,
+    anchor: string,
+  ): boolean => fragment.indexOf(text) > fragment.indexOf(anchor);
   TestValidator.equals(
     "the shaders composite each overlay in its place",
     namedFacts([
@@ -222,7 +257,9 @@ export function test_viewer_material_overlay(): void {
   );
 
   const model: IAutoMovieModel = createModel();
-  const validate: (overlays: unknown) => ReturnType<typeof validateModel> = (overlays: unknown): ReturnType<typeof validateModel> =>
+  const validate: (overlays: unknown) => ReturnType<typeof validateModel> = (
+    overlays: unknown,
+  ): ReturnType<typeof validateModel> =>
     validateModel({
       model: {
         ...model,
@@ -232,7 +269,10 @@ export function test_viewer_material_overlay(): void {
   TestValidator.equals(
     "overlays are validated",
     namedFacts([
-      ["notList", (): boolean => hasViolation(validate("veins"), "type", ".overlays")],
+      [
+        "notList",
+        (): boolean => hasViolation(validate("veins"), "type", ".overlays"),
+      ],
       [
         "tooMany",
         (): boolean =>
@@ -242,7 +282,10 @@ export function test_viewer_material_overlay(): void {
             ".overlays",
           ),
       ],
-      ["notRecord", (): boolean => hasViolation(validate([7]), "type", ".overlays[0]")],
+      [
+        "notRecord",
+        (): boolean => hasViolation(validate([7]), "type", ".overlays[0]"),
+      ],
       [
         "noColour",
         (): boolean =>

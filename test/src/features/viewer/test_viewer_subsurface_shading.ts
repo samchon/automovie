@@ -31,7 +31,8 @@ import { hasViolation, nclose } from "../internal/predicates";
 export function test_viewer_subsurface_shading(): void {
   const table: number[][] = subsurfaceTable();
   const cosines: number = table[0].length;
-  const cosineAt: (i: number) => number = (i: number): number => (i / (cosines - 1)) * 2 - 1;
+  const cosineAt: (i: number) => number = (i: number): number =>
+    (i / (cosines - 1)) * 2 - 1;
   TestValidator.predicate(
     "no blur is the clamped cosine",
     table[0].every((value: number, i: number): boolean =>
@@ -40,15 +41,20 @@ export function test_viewer_subsurface_shading(): void {
   );
 
   const blurs: number = table.length;
-  const rowAt: (s: number) => number[] = (s: number): number[] => table[Math.round((s / Math.PI) * (blurs - 1))];
-  const lookup: (row: number[], cosine: number) => number = (row: number[], cosine: number): number =>
-    row[Math.round(((cosine + 1) / 2) * (cosines - 1))];
+  const rowAt: (s: number) => number[] = (s: number): number[] =>
+    table[Math.round((s / Math.PI) * (blurs - 1))];
+  const lookup: (row: number[], cosine: number) => number = (
+    row: number[],
+    cosine: number,
+  ): number => row[Math.round(((cosine + 1) / 2) * (cosines - 1))];
   const half: number[] = rowAt(0.5);
   TestValidator.predicate(
     "blur carries light past the terminator and off the peak",
     lookup(half, Math.cos((100 * Math.PI) / 180)) > 0.01 &&
       lookup(half, 1) < 1 &&
-      table[blurs - 1].every((value: number): boolean => nclose(value, 1 / Math.PI, 0.02)),
+      table[blurs - 1].every((value: number): boolean =>
+        nclose(value, 1 / Math.PI, 0.02),
+      ),
   );
 
   // Integrate each row over theta, whose cosine indexes the table.
@@ -66,10 +72,14 @@ export function test_viewer_subsurface_shading(): void {
   };
   TestValidator.predicate(
     "each row keeps the Lambertian mean",
-    table.every((row: number[]): boolean => nclose(angleMean(row), 1 / Math.PI, 0.01)),
+    table.every((row: number[]): boolean =>
+      nclose(angleMean(row), 1 / Math.PI, 0.01),
+    ),
   );
 
-  const fragment: string = subsurfaceFragment(THREE.ShaderLib.physical.fragmentShader);
+  const fragment: string = subsurfaceFragment(
+    THREE.ShaderLib.physical.fragmentShader,
+  );
   const expanded: string = fragment.replace(
     /#include <(\w+)>/g,
     (_: string, name: string): string =>
@@ -88,34 +98,63 @@ export function test_viewer_subsurface_shading(): void {
   );
 
   const base: IAutoMovieMaterial = createModel().materials[0]!;
-  const radius: { r: number; g: number; b: number; } = { r: 0.00367, g: 0.00137, b: 0.00068 };
-  const translucent: THREE.MeshPhysicalMaterial = buildMaterial({ ...base, subsurfaceRadius: radius });
+  const radius: { r: number; g: number; b: number } = {
+    r: 0.00367,
+    g: 0.00137,
+    b: 0.00068,
+  };
+  const translucent: THREE.MeshPhysicalMaterial = buildMaterial({
+    ...base,
+    subsurfaceRadius: radius,
+  });
   const opaque: THREE.MeshPhysicalMaterial = buildMaterial(base);
   const radiusMetadata: unknown = translucent.userData.subsurfaceRadius;
   TestValidator.predicate(
     "all supplied radius channels are retained under the subsurface hook key",
-    typeof radiusMetadata === "object" && radiusMetadata !== null &&
-      "r" in radiusMetadata && typeof radiusMetadata.r === "number" && nclose(radiusMetadata.r, radius.r, 0) &&
-      "g" in radiusMetadata && typeof radiusMetadata.g === "number" && nclose(radiusMetadata.g, radius.g, 0) &&
-      "b" in radiusMetadata && typeof radiusMetadata.b === "number" && nclose(radiusMetadata.b, radius.b, 0) &&
+    typeof radiusMetadata === "object" &&
+      radiusMetadata !== null &&
+      "r" in radiusMetadata &&
+      typeof radiusMetadata.r === "number" &&
+      nclose(radiusMetadata.r, radius.r, 0) &&
+      "g" in radiusMetadata &&
+      typeof radiusMetadata.g === "number" &&
+      nclose(radiusMetadata.g, radius.g, 0) &&
+      "b" in radiusMetadata &&
+      typeof radiusMetadata.b === "number" &&
+      nclose(radiusMetadata.b, radius.b, 0) &&
       translucent.customProgramCacheKey() === "automovie-subsurface" &&
       opaque.userData.subsurfaceRadius === undefined &&
       opaque.customProgramCacheKey() !== "automovie-subsurface",
   );
 
   const model: import("@automovie/interface").IAutoMovieModel = createModel();
-  const validate: (patch: Partial<IAutoMovieMaterial>) => import("@automovie/interface").IAutoMovieValidation = (patch: Partial<IAutoMovieMaterial>): import("@automovie/interface").IAutoMovieValidation =>
+  const validate: (
+    patch: Partial<IAutoMovieMaterial>,
+  ) => import("@automovie/interface").IAutoMovieValidation = (
+    patch: Partial<IAutoMovieMaterial>,
+  ): import("@automovie/interface").IAutoMovieValidation =>
     validateModel({
       model: {
         ...model,
         materials: [{ ...model.materials[0]!, ...patch } as IAutoMovieMaterial],
       },
     });
-  const refusedAt: (patch: Partial<IAutoMovieMaterial>, path: string) => boolean = (patch: Partial<IAutoMovieMaterial>, path: string): boolean => {
-    const result: import("@automovie/interface").IAutoMovieValidation = validate(patch);
+  const refusedAt: (
+    patch: Partial<IAutoMovieMaterial>,
+    path: string,
+  ) => boolean = (
+    patch: Partial<IAutoMovieMaterial>,
+    path: string,
+  ): boolean => {
+    const result: import("@automovie/interface").IAutoMovieValidation =
+      validate(patch);
     return (
       result.success === false &&
-      result.violations.some((one: import("@automovie/interface").IAutoMovieConstraintViolation): boolean => one.path.includes(path))
+      result.violations.some(
+        (
+          one: import("@automovie/interface").IAutoMovieConstraintViolation,
+        ): boolean => one.path.includes(path),
+      )
     );
   };
   TestValidator.predicate(

@@ -1,8 +1,8 @@
 import { validateModel } from "@automovie/engine";
 import type {
   AutoMovieTextureBinding,
-  IAutoMovieModel,
   IAutoMovieMaterial,
+  IAutoMovieModel,
   IAutoMovieSceneEnvironment,
   IAutoMovieTextureReference,
 } from "@automovie/interface";
@@ -16,7 +16,12 @@ import { assertViewerPbrDeclarationRefusals } from "../internal/assertViewerPbrD
 import { createModel } from "../internal/fixtures";
 import { namedFacts, nclose } from "../internal/predicates";
 
-const reference: (asset: string, colorSpace: "srgb" | "linear", wrapS: NonNullable<IAutoMovieTextureReference["sampler"]>["wrapS"], minFilter: NonNullable<IAutoMovieTextureReference["sampler"]>["minFilter"]) => IAutoMovieTextureReference = (
+const reference: (
+  asset: string,
+  colorSpace: "srgb" | "linear",
+  wrapS: NonNullable<IAutoMovieTextureReference["sampler"]>["wrapS"],
+  minFilter: NonNullable<IAutoMovieTextureReference["sampler"]>["minFilter"],
+) => IAutoMovieTextureReference = (
   asset: string,
   colorSpace: "srgb" | "linear",
   wrapS: NonNullable<IAutoMovieTextureReference["sampler"]>["wrapS"],
@@ -48,7 +53,11 @@ const ENVIRONMENT: IAutoMovieSceneEnvironment = {
   shadows: { enabled: true, type: "pcfSoft" },
 };
 
-const validateMaterial: (patch: Record<string, unknown>) => ReturnType<typeof validateModel> = (patch: Record<string, unknown>): ReturnType<typeof validateModel> => {
+const validateMaterial: (
+  patch: Record<string, unknown>,
+) => ReturnType<typeof validateModel> = (
+  patch: Record<string, unknown>,
+): ReturnType<typeof validateModel> => {
   const model: IAutoMovieModel = createModel();
   return validateModel({
     model: {
@@ -117,23 +126,43 @@ export async function test_viewer_pbr_environment(): Promise<void> {
     clearcoat: 0.5,
   };
   const resolved: string[] = [];
-  const built: THREE.MeshPhysicalMaterial = buildMaterial(material, (binding: AutoMovieTextureBinding): THREE.Texture<unknown, THREE.TextureEventMap> => {
-    resolved.push(typeof binding === "string" ? binding : binding.asset);
-    return new THREE.Texture();
-  }) as THREE.MeshPhysicalMaterial;
+  const built: THREE.MeshPhysicalMaterial = buildMaterial(
+    material,
+    (
+      binding: AutoMovieTextureBinding,
+    ): THREE.Texture<unknown, THREE.TextureEventMap> => {
+      resolved.push(typeof binding === "string" ? binding : binding.asset);
+      return new THREE.Texture();
+    },
+  ) as THREE.MeshPhysicalMaterial;
   TestValidator.equals(
     "every PBR map and physical coefficient reaches Three.js",
     namedFacts([
       ["fiveAssets", (): boolean => resolved.length === 5],
-      ["baseSrgb", (): boolean => built.map?.colorSpace === THREE.SRGBColorSpace],
+      [
+        "baseSrgb",
+        (): boolean => built.map?.colorSpace === THREE.SRGBColorSpace,
+      ],
       ["metalShared", (): boolean => built.metalnessMap === built.roughnessMap],
       [
         "normal",
-        (): boolean => built.normalMap !== null && nclose(built.normalScale.x, 0.6),
+        (): boolean =>
+          built.normalMap !== null && nclose(built.normalScale.x, 0.6),
       ],
-      ["ao", (): boolean => built.aoMap !== null && nclose(built.aoMapIntensity, 0.4)],
-      ["emissive", (): boolean => built.emissiveMap !== null && nclose(built.emissive.r, 1, 0)],
-      ["mask", (): boolean => !built.transparent && nclose(built.alphaTest, 0.3)],
+      [
+        "ao",
+        (): boolean =>
+          built.aoMap !== null && nclose(built.aoMapIntensity, 0.4),
+      ],
+      [
+        "emissive",
+        (): boolean =>
+          built.emissiveMap !== null && nclose(built.emissive.r, 1, 0),
+      ],
+      [
+        "mask",
+        (): boolean => !built.transparent && nclose(built.alphaTest, 0.3),
+      ],
       ["maskDepth", (): boolean => built.depthWrite],
       ["double", (): boolean => built.side === THREE.DoubleSide],
       [
@@ -147,7 +176,8 @@ export async function test_viewer_pbr_environment(): Promise<void> {
       [
         "transform",
         (): boolean =>
-          built.map !== null && nclose(built.map.offset.x, 0.25, 0) &&
+          built.map !== null &&
+          nclose(built.map.offset.x, 0.25, 0) &&
           nclose(built.map.repeat.y, 3, 0) &&
           nclose(built.map.rotation, Math.PI / 2),
       ],
@@ -159,15 +189,23 @@ export async function test_viewer_pbr_environment(): Promise<void> {
           built.map.minFilter === THREE.NearestFilter &&
           built.map.magFilter === THREE.NearestFilter,
       ],
-      ["repeat", (): boolean => built.metalnessMap?.wrapS === THREE.RepeatWrapping],
-      ["mirror", (): boolean => built.normalMap?.wrapS === THREE.MirroredRepeatWrapping],
+      [
+        "repeat",
+        (): boolean => built.metalnessMap?.wrapS === THREE.RepeatWrapping,
+      ],
+      [
+        "mirror",
+        (): boolean => built.normalMap?.wrapS === THREE.MirroredRepeatWrapping,
+      ],
       [
         "mipmapNearest",
-        (): boolean => built.normalMap?.minFilter === THREE.NearestMipmapLinearFilter,
+        (): boolean =>
+          built.normalMap?.minFilter === THREE.NearestMipmapLinearFilter,
       ],
       [
         "mipmapLinear",
-        (): boolean => built.aoMap?.minFilter === THREE.LinearMipmapLinearFilter,
+        (): boolean =>
+          built.aoMap?.minFilter === THREE.LinearMipmapLinearFilter,
       ],
     ]),
     {
@@ -189,7 +227,10 @@ export async function test_viewer_pbr_environment(): Promise<void> {
       mipmapLinear: true,
     },
   );
-  const unresolved: THREE.MeshPhysicalMaterial = buildMaterial({ ...base, baseColorTexture: "base.png" });
+  const unresolved: THREE.MeshPhysicalMaterial = buildMaterial({
+    ...base,
+    baseColorTexture: "base.png",
+  });
   TestValidator.equals(
     "legacy material and unresolved texture preserve the no-map path",
     { mapped: unresolved.map !== null, transparent: unresolved.transparent },
@@ -221,13 +262,20 @@ export async function test_viewer_pbr_environment(): Promise<void> {
     "flat emissive color is preserved",
     nclose(emissive.emissive.g, 0.3),
   );
-  const blend: THREE.MeshPhysicalMaterial = buildMaterial({ ...base, opacity: 0.5, alphaMode: "blend" });
+  const blend: THREE.MeshPhysicalMaterial = buildMaterial({
+    ...base,
+    opacity: 0.5,
+    alphaMode: "blend",
+  });
   TestValidator.equals(
     "blend mode enables blending without writing opaque depth",
     { transparent: blend.transparent, depthWrite: blend.depthWrite },
     { transparent: true, depthWrite: false },
   );
-  const legacyBlend: THREE.MeshPhysicalMaterial = buildMaterial({ ...base, opacity: 0.5 });
+  const legacyBlend: THREE.MeshPhysicalMaterial = buildMaterial({
+    ...base,
+    opacity: 0.5,
+  });
   TestValidator.equals(
     "omitted alpha mode preserves legacy opacity blending",
     {
@@ -236,7 +284,10 @@ export async function test_viewer_pbr_environment(): Promise<void> {
     },
     { transparent: true, depthWrite: false },
   );
-  const defaultMask: THREE.MeshPhysicalMaterial = buildMaterial({ ...base, alphaMode: "mask" });
+  const defaultMask: THREE.MeshPhysicalMaterial = buildMaterial({
+    ...base,
+    alphaMode: "mask",
+  });
   TestValidator.predicate(
     "mask cutoff has a stable default",
     nclose(defaultMask.alphaTest, 0.5, 0),
@@ -278,7 +329,10 @@ export async function test_viewer_pbr_environment(): Promise<void> {
     validateMaterial({ opacity: 0.5 }).success,
   );
 
-  const geometry: THREE.BufferGeometry<THREE.NormalBufferAttributes, THREE.BufferGeometryEventMap> = buildGeometry({
+  const geometry: THREE.BufferGeometry<
+    THREE.NormalBufferAttributes,
+    THREE.BufferGeometryEventMap
+  > = buildGeometry({
     type: "mesh",
     mesh: {
       positions: [0, 0, 0, 1, 0, 0, 0, 1, 0],
@@ -290,16 +344,16 @@ export async function test_viewer_pbr_environment(): Promise<void> {
   });
   const uv: number[] = Array.from(geometry.getAttribute("uv").array);
   const expectedUv: readonly number[] = [0, 0, 1, 0, 0, 1];
-  TestValidator.predicate("the authored UV values reach the first channel",
-    uv.length === expectedUv.length && uv.every((value: number, index: number): boolean =>
-      nclose(value, expectedUv[index]!, 0)));
+  TestValidator.predicate(
+    "the authored UV values reach the first channel",
+    uv.length === expectedUv.length &&
+      uv.every((value: number, index: number): boolean =>
+        nclose(value, expectedUv[index]!, 0),
+      ),
+  );
   TestValidator.equals(
     "one UV attribute is stored, the only set a binding may address",
-    [
-      geometry.hasAttribute("uv1"),
-      built.map?.channel,
-      built.aoMap?.channel,
-    ],
+    [geometry.hasAttribute("uv1"), built.map?.channel, built.aoMap?.channel],
     [false, 0, 0],
   );
 

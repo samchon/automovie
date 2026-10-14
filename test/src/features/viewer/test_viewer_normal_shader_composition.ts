@@ -72,7 +72,9 @@ export function test_viewer_normal_shader_composition(): void {
   const texture: THREE.Texture = new THREE.Texture();
   texture.offset.set(0.25, 0.5);
   texture.repeat.set(2, 3);
-  const material: THREE.MeshPhysicalMaterial = new THREE.MeshPhysicalMaterial({ normalMap: texture });
+  const material: THREE.MeshPhysicalMaterial = new THREE.MeshPhysicalMaterial({
+    normalMap: texture,
+  });
   applyReliefWeights(material);
   applyDetailNormal(material, texture, 0.75);
   const shader: Pick<
@@ -101,7 +103,10 @@ export function test_viewer_normal_shader_composition(): void {
     createReliefWeightShaderPatch(),
     createDetailNormalShaderPatch(texture, 0.75),
   ];
-  const opaque: { nativeState: { marker: string }; edits: number } = { nativeState: { marker: "retained" }, edits: 0 };
+  const opaque: { nativeState: { marker: string }; edits: number } = {
+    nativeState: { marker: "retained" },
+    edits: 0,
+  };
   applyMaterialShaderPatches(
     [
       {
@@ -116,7 +121,11 @@ export function test_viewer_normal_shader_composition(): void {
     ],
     opaque,
   );
-  TestValidator.equals("an operation edits its complete supplied input", opaque.edits, 1);
+  TestValidator.equals(
+    "an operation edits its complete supplied input",
+    opaque.edits,
+    1,
+  );
   let patchRefused: boolean = false;
   try {
     applyMaterialShaderPatches(patches, {
@@ -131,10 +140,7 @@ export function test_viewer_normal_shader_composition(): void {
     "ordered composition propagates an unsupported patch boundary",
     patchRefused,
   );
-  applyMaterialShaderPatches(
-    patches,
-    shader,
-  );
+  applyMaterialShaderPatches(patches, shader);
   TestValidator.equals(
     "the material owns both ordered patches and the supplied strength",
     {
@@ -148,14 +154,18 @@ export function test_viewer_normal_shader_composition(): void {
       sameTexture: true,
     },
   );
-  TestValidator.predicate("the detail strength preserves its supplied value",
-    nclose(shader.uniforms.detailNormalScale!.value as number, 0.75, 0));
-  const transform: THREE.Matrix3 = shader.uniforms.detailNormalTransform!.value as THREE.Matrix3;
+  TestValidator.predicate(
+    "the detail strength preserves its supplied value",
+    nclose(shader.uniforms.detailNormalScale!.value as number, 0.75, 0),
+  );
+  const transform: THREE.Matrix3 = shader.uniforms.detailNormalTransform!
+    .value as THREE.Matrix3;
   TestValidator.predicate(
     "the detail transform is a value-preserving independent matrix",
-    transform !== texture.matrix && transform.elements.every(
-      (value: number, index: number): boolean => nclose(value, texture.matrix.elements[index]!, 0),
-    ),
+    transform !== texture.matrix &&
+      transform.elements.every((value: number, index: number): boolean =>
+        nclose(value, texture.matrix.elements[index]!, 0),
+      ),
   );
   TestValidator.predicate(
     "relief and detail retain their distinct interpolation and order",

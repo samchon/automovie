@@ -3,14 +3,17 @@ import type {
   IAutoMovieMaterial,
   IAutoMovieTextureReference,
 } from "@automovie/interface";
-import { buildMaterial } from "../../../../packages/viewer/src/buildMaterial";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
+import { buildMaterial } from "../../../../packages/viewer/src/buildMaterial";
 import { createModel } from "../internal/fixtures";
 import { hasViolation, nclose } from "../internal/predicates";
 
-const reference: (asset: string, repeat: number) => IAutoMovieTextureReference = (
+const reference: (
+  asset: string,
+  repeat: number,
+) => IAutoMovieTextureReference = (
   asset: string,
   repeat: number,
 ): IAutoMovieTextureReference => ({
@@ -51,7 +54,9 @@ const reference: (asset: string, repeat: number) => IAutoMovieTextureReference =
  */
 export function test_viewer_detail_normal(): void {
   const base: IAutoMovieMaterial = createModel().materials[0]!;
-  const resolve: (binding: unknown) => THREE.Texture = (binding: unknown): THREE.Texture => {
+  const resolve: (binding: unknown) => THREE.Texture = (
+    binding: unknown,
+  ): THREE.Texture => {
     const texture: THREE.Texture = new THREE.Texture();
     texture.name =
       typeof binding === "string"
@@ -107,7 +112,11 @@ export function test_viewer_detail_normal(): void {
   );
 
   const model: ReturnType<typeof createModel> = createModel();
-  const validate: (patch: Partial<IAutoMovieMaterial>) => ReturnType<typeof validateModel> = (patch: Partial<IAutoMovieMaterial>): ReturnType<typeof validateModel> =>
+  const validate: (
+    patch: Partial<IAutoMovieMaterial>,
+  ) => ReturnType<typeof validateModel> = (
+    patch: Partial<IAutoMovieMaterial>,
+  ): ReturnType<typeof validateModel> =>
     validateModel({
       model: {
         ...model,

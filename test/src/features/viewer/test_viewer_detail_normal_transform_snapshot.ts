@@ -1,7 +1,7 @@
-import { createDetailNormalShaderPatch } from "../../../../packages/viewer/src/detailNormalShading/createDetailNormalShaderPatch";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
+import { createDetailNormalShaderPatch } from "../../../../packages/viewer/src/detailNormalShading/createDetailNormalShaderPatch";
 import { nclose } from "../internal/predicates";
 
 /**
@@ -22,7 +22,8 @@ export function test_viewer_detail_normal_transform_snapshot(): void {
   const texture: THREE.Texture = new THREE.Texture();
   texture.offset.set(0.25, 0.5);
   texture.repeat.set(2, 3);
-  const patch: ReturnType<typeof createDetailNormalShaderPatch> = createDetailNormalShaderPatch(texture, 0.75);
+  const patch: ReturnType<typeof createDetailNormalShaderPatch> =
+    createDetailNormalShaderPatch(texture, 0.75);
   texture.offset.set(0.75, 0.125);
   texture.repeat.set(4, 5);
   texture.updateMatrix();
@@ -32,11 +33,26 @@ export function test_viewer_detail_normal_transform_snapshot(): void {
     uniforms: {} as Record<string, THREE.IUniform>,
   };
   patch.apply(shader);
-  const captured: THREE.Matrix3 = shader.uniforms.detailNormalTransform!.value as THREE.Matrix3;
+  const captured: THREE.Matrix3 = shader.uniforms.detailNormalTransform!
+    .value as THREE.Matrix3;
   const expected: number[] = [2, 0, 0, 0, 3, 0, 0.25, 0.5, 1];
-  TestValidator.predicate("the captured affine transform retains its registration values", captured.elements.every((value: number, index: number): boolean => nclose(value, expected[index]!, 0)));
-  TestValidator.predicate("the matrix is separately owned", captured !== texture.matrix && !captured.equals(texture.matrix));
-  TestValidator.predicate("the texture stays borrowed", shader.uniforms.detailNormalMap!.value === texture);
-  TestValidator.predicate("strength stays the registered value", nclose(shader.uniforms.detailNormalScale!.value as number, 0.75, 0));
+  TestValidator.predicate(
+    "the captured affine transform retains its registration values",
+    captured.elements.every((value: number, index: number): boolean =>
+      nclose(value, expected[index]!, 0),
+    ),
+  );
+  TestValidator.predicate(
+    "the matrix is separately owned",
+    captured !== texture.matrix && !captured.equals(texture.matrix),
+  );
+  TestValidator.predicate(
+    "the texture stays borrowed",
+    shader.uniforms.detailNormalMap!.value === texture,
+  );
+  TestValidator.predicate(
+    "strength stays the registered value",
+    nclose(shader.uniforms.detailNormalScale!.value as number, 0.75, 0),
+  );
   texture.dispose();
 }

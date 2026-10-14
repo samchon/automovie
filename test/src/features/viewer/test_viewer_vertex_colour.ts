@@ -1,8 +1,8 @@
 import { buildModel } from "@automovie/viewer";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
-import { nclose } from "../internal/nclose";
 
+import { nclose } from "../internal/nclose";
 import {
   vertexColourMesh,
   vertexColourModel,
@@ -21,16 +21,14 @@ import {
  * @evidence contracts/testing.md#execution-ownership The named entry uses existing portable triangle/model inputs and disposes its actual CPU geometries/materials without a renderer, import loader or new fixture.
  */
 export function test_viewer_vertex_colour(): void {
-  const colored: import("@automovie/interface").IAutoMovieMesh = vertexColourMesh();
-  const { colors: _colors, ...bare }: import("@automovie/interface").IAutoMovieMesh = colored;
-  const model: import("@automovie/interface").IAutoMovieModel = vertexColourModel([
-    colored,
-    bare,
-    colored,
-    bare,
-    colored,
-    bare,
-  ]);
+  const colored: import("@automovie/interface").IAutoMovieMesh =
+    vertexColourMesh();
+  const {
+    colors: _colors,
+    ...bare
+  }: import("@automovie/interface").IAutoMovieMesh = colored;
+  const model: import("@automovie/interface").IAutoMovieModel =
+    vertexColourModel([colored, bare, colored, bare, colored, bare]);
   model.parts[4]!.material = null;
   model.parts[5]!.material = "absent";
   model.parts.push({
@@ -41,20 +39,43 @@ export function test_viewer_vertex_colour(): void {
       shape: { type: "box", width: 1, height: 1, depth: 1 },
     },
   });
-  const built: import("../../../../packages/viewer/src/IAutoMovieModelObject").IAutoMovieModelObject = buildModel(model);
-  const parts: THREE.Mesh<THREE.BufferGeometry<THREE.NormalBufferAttributes, THREE.BufferGeometryEventMap>, THREE.MeshStandardMaterial, THREE.Object3DEventMap>[] = [...built.parts.values()] as THREE.Mesh<
+  const built: import("../../../../packages/viewer/src/IAutoMovieModelObject").IAutoMovieModelObject =
+    buildModel(model);
+  const parts: THREE.Mesh<
+    THREE.BufferGeometry<
+      THREE.NormalBufferAttributes,
+      THREE.BufferGeometryEventMap
+    >,
+    THREE.MeshStandardMaterial,
+    THREE.Object3DEventMap
+  >[] = [...built.parts.values()] as THREE.Mesh<
     THREE.BufferGeometry,
     THREE.MeshStandardMaterial
   >[];
   TestValidator.equals(
     "variant flags",
-    parts.map((p: THREE.Mesh<THREE.BufferGeometry<THREE.NormalBufferAttributes, THREE.BufferGeometryEventMap>, THREE.MeshStandardMaterial, THREE.Object3DEventMap>): boolean => p.material.vertexColors),
+    parts.map(
+      (
+        p: THREE.Mesh<
+          THREE.BufferGeometry<
+            THREE.NormalBufferAttributes,
+            THREE.BufferGeometryEventMap
+          >,
+          THREE.MeshStandardMaterial,
+          THREE.Object3DEventMap
+        >,
+      ): boolean => p.material.vertexColors,
+    ),
     [true, false, true, false, true, false, false],
   );
-  const uploaded: ArrayLike<number> = parts[0]!.geometry.getAttribute("color").array;
+  const uploaded: ArrayLike<number> =
+    parts[0]!.geometry.getAttribute("color").array;
   TestValidator.predicate(
     "constructed linear RGB attribute values",
-    uploaded.length === colored.colors!.length && Array.from(uploaded).every((value: number, index: number): boolean => nclose(value, colored.colors![index]!, 0)),
+    uploaded.length === colored.colors!.length &&
+      Array.from(uploaded).every((value: number, index: number): boolean =>
+        nclose(value, colored.colors![index]!, 0),
+      ),
   );
   TestValidator.predicate(
     "bare geometry has no colour attribute",
@@ -67,11 +88,31 @@ export function test_viewer_vertex_colour(): void {
       parts[0]!.material !== parts[1]!.material &&
       parts[6]!.material === parts[1]!.material,
   );
-  const baseColor: import("@automovie/interface").IAutoMovieColor = model.materials[0]!.baseColor;
+  const baseColor: import("@automovie/interface").IAutoMovieColor =
+    model.materials[0]!.baseColor;
   TestValidator.predicate(
     "base colour is not pre-multiplied",
-    [parts[0]!, parts[1]!].every((part: typeof parts[number]): boolean => nclose(part.material.color.r, baseColor.r, 0) && nclose(part.material.color.g, baseColor.g, 0) && nclose(part.material.color.b, baseColor.b, 0)),
+    [parts[0]!, parts[1]!].every(
+      (part: (typeof parts)[number]): boolean =>
+        nclose(part.material.color.r, baseColor.r, 0) &&
+        nclose(part.material.color.g, baseColor.g, 0) &&
+        nclose(part.material.color.b, baseColor.b, 0),
+    ),
   );
   for (const part of parts) part.geometry.dispose();
-  for (const mat of new Set(parts.map((p: THREE.Mesh<THREE.BufferGeometry<THREE.NormalBufferAttributes, THREE.BufferGeometryEventMap>, THREE.MeshStandardMaterial, THREE.Object3DEventMap>): THREE.MeshStandardMaterial => p.material))) mat.dispose();
+  for (const mat of new Set(
+    parts.map(
+      (
+        p: THREE.Mesh<
+          THREE.BufferGeometry<
+            THREE.NormalBufferAttributes,
+            THREE.BufferGeometryEventMap
+          >,
+          THREE.MeshStandardMaterial,
+          THREE.Object3DEventMap
+        >,
+      ): THREE.MeshStandardMaterial => p.material,
+    ),
+  ))
+    mat.dispose();
 }
