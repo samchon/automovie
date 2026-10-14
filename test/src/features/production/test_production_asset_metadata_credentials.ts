@@ -10,8 +10,13 @@ import { TestValidator } from "@nestia/e2e";
  * 1. A local asset with only its current identity and consumer passes.
  * 2. Descriptive local and HTTPS locations introduce no credential failure.
  * 3. Source and license locators with credentials report only their field.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Applies asset metadata admission to local, descriptive and credential-bearing locators, requiring exact secret-free field/class refusals; mandatory metadata or leaked locator content fails.
+ * @evidence contracts/testing.md#independent-expectations Optional provenance metadata and the URL userinfo credential boundary define null or the authored field/category independently of parser output; byte digest validity and complete acquisition provenance are outside this gate.
+ * @evidence contracts/testing.md#distinguishing-cases Contrasts no metadata, a non-URL source description and credential-free HTTPS license with embedded credentials independently in original/license fields; broader locator syntax and generation admission belong to other units.
+ * @evidence contracts/testing.md#execution-ownership The named exported portable unit calls production admission with authored records and owns all assertions, without network acquisition, filesystem effects or dynamically registered cases.
  */
-export const test_production_asset_metadata_credentials = (): void => {
+export function test_production_asset_metadata_credentials(): void {
   const asset: IAutoMovieAssetProvenance = {
     path: "assets/tile.png",
     digest: `sha256:${"0".repeat(64)}`,
@@ -47,4 +52,4 @@ export const test_production_asset_metadata_credentials = (): void => {
       }),
       { field, reason: "credential-bearing" },
     );
-};
+}

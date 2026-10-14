@@ -3,6 +3,9 @@ import { utf8 } from "../internal/designReference/utf8";
 import { inspect } from "../internal/designReference/inspect";
 import { stage } from "../internal/designReference/stage";
 import { refuses } from "../internal/designReference/refuses";
+import { nclose } from "../internal/predicates";
+
+type SvgMeasurement = { media: string; width: number; height: number };
 
 /**
  * XML namespace scope, expanded attribute identity, lexical references and root closure own admitted SVG facts.
@@ -11,27 +14,40 @@ import { refuses } from "../internal/designReference/refuses";
  *
  * 1. Admit the adjacent supported grammar and independently stated facts.
  * 2. Refuse every malformed family input at its owning native parsing stage.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Sends the original complete XML bytes through the actual container inspector, asserting SVG media and root-derived user-unit extents, null for a foreign root, namespace/expanded-name refusal, strict UTF-8 refusal and the exact native family/stage or admitted-fact spelling for every original lexical/closure case.
+ * @evidence contracts/testing.md#independent-expectations Authored root viewBox 420 by 297 and width/height 800 by 600 supply extent expectations independently of parsing; XML namespace binding, scalar/reference and complete-root rules supply admission/refusal expectations. Typed stage labels intentionally expose the maintained admission profile rather than proving a complete XML/SVG implementation or rendered geometry.
+ * @evidence contracts/testing.md#distinguishing-cases Preserves both numbered scenarios and every existing declaration/comment/child/root case, unbound and reserved prefixes, duplicate expanded attributes, malformed scalars/references/UTF-8, non-XML NBSP separators, legal replacement/astral text and supported entities. The boundary companion owns numeric spelling and adjacent whitespace/comment neighbors.
+ * @evidence contracts/testing.md#execution-ownership The named exported portable unit owns all in-memory strings/bytes and directly invokes existing inspector/stage/refusal helpers. It starts no filesystem consumer, XML network entity, browser, GPU, process or dynamic test and replaces no foreign method.
  */
-export const test_production_design_reference_svg = (): void => {
-  const svg = utf8(
+export function test_production_design_reference_svg(): void {
+  const svg: Uint8Array = utf8(
     '<?xml version="1.0"?><!-- viewBox="0 0 999 999" --><svg xmlns="http://www.w3.org/2000/svg" viewBox=\'0 0 420 297\'><g><path d="M0 0"/></g></svg><!-- epilog -->',
   );
-  const sizedSvg = utf8(
+  const sizedSvg: Uint8Array = utf8(
     '<s:svg xmlns:s="http://www.w3.org/2000/svg" width="800px" height="600"><s:g/></s:svg>',
   );
-  TestValidator.equals(
-    "the namespace root owns SVG family and bounds, not comments or children",
-    [
+  const containers: unknown[] = [
       inspect("plan.svg", svg),
       inspect("sized.svg", sizedSvg),
       inspect(
         "foreign.xml",
         utf8('<root><!-- <svg viewBox="0 0 9 9"/> --></root>'),
       ),
-    ],
+    ];
+  const { width: planWidth, height: planHeight, ...planFacts }: SvgMeasurement = containers[0] as SvgMeasurement;
+  const { width: sizedWidth, height: sizedHeight, ...sizedFacts }: SvgMeasurement = containers[1] as SvgMeasurement;
+  TestValidator.predicate(
+    "root viewBox and user-unit dimensions retain their exact authored extents",
+    nclose(planWidth, 420, 0) && nclose(planHeight, 297, 0) &&
+      nclose(sizedWidth, 800, 0) && nclose(sizedHeight, 600, 0),
+  );
+  TestValidator.equals(
+    "the namespace root owns SVG family and bounds, not comments or children",
+    [planFacts, sizedFacts, containers[2]],
     [
-      { media: "image/svg+xml", width: 420, height: 297 },
-      { media: "image/svg+xml", width: 800, height: 600 },
+      { media: "image/svg+xml" },
+      { media: "image/svg+xml" },
       null,
     ],
   );
@@ -73,9 +89,7 @@ export const test_production_design_reference_svg = (): void => {
     ],
     [{ media: "image/svg+xml" }, true, true, true, true, true],
   );
-  TestValidator.equals(
-    "malformed SVG and raw malformed UTF-8 never become measured evidence",
-    [
+  const lexical: unknown[] = [
       refuses(
         "broken.svg",
         utf8('<svg xmlns="http://www.w3.org/2000/svg"><g></svg>'),
@@ -145,7 +159,12 @@ export const test_production_design_reference_svg = (): void => {
           '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1 1">�</svg>',
         ),
       ),
-    ],
+    ];
+  const { width: replacementWidth, height: replacementHeight, ...replacementFacts }: SvgMeasurement = lexical[12] as SvgMeasurement;
+  TestValidator.predicate("legal replacement text retains the original exact unit extent", nclose(replacementWidth, 1, 0) && nclose(replacementHeight, 1, 0));
+  TestValidator.equals(
+    "malformed SVG and raw malformed UTF-8 never become measured evidence",
+    [...lexical.slice(0, 12), replacementFacts],
     [
       true,
       true,
@@ -159,11 +178,11 @@ export const test_production_design_reference_svg = (): void => {
       true,
       { media: "image/svg+xml" },
       true,
-      { media: "image/svg+xml", width: 1, height: 1 },
+      { media: "image/svg+xml" },
     ],
   );
-  const svgRoot = '<svg xmlns="http://www.w3.org/2000/svg"';
-  const svgOnly = JSON.stringify({ media: "image/svg+xml" });
+  const svgRoot: string = '<svg xmlns="http://www.w3.org/2000/svg"';
+  const svgOnly: string = JSON.stringify({ media: "image/svg+xml" });
   TestValidator.equals(
     "native parser stages retain exact family and refusal identity",
     {
@@ -244,4 +263,4 @@ export const test_production_design_reference_svg = (): void => {
     },
   );
 
-};
+}

@@ -12,8 +12,13 @@ import { makeProp, primitivePart } from "../internal/fixtures";
  *
  * 1. A plane-only model (zero-volume primitives) has no derivable center → null.
  * 2. A mesh-only model (no primitive parts at all) → null.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Derives centers for plane-only and mesh-only models and requires null, catching a fabricated origin where no supported solid volume supplies a center.
+ * @evidence contracts/testing.md#independent-expectations A plane has zero solid volume and this contract does not infer mesh volume; null follows from those declared limitations, not a sampled product result.
+ * @evidence contracts/testing.md#distinguishing-cases Distinguishes a supported degenerate primitive from unsupported mesh geometry; positive primitive aggregates and authored overrides belong to neighboring units.
+ * @evidence contracts/testing.md#execution-ownership The named exported portable unit supplies existing prop records directly and owns both assertions, with no host or dynamically registered case.
  */
-export const test_physics_derive_center_of_mass_degenerate = (): void => {
+export function test_physics_derive_center_of_mass_degenerate(): void {
   TestValidator.equals(
     "plane-only model has no derivable center",
     deriveCenterOfMass(
@@ -46,4 +51,4 @@ export const test_physics_derive_center_of_mass_degenerate = (): void => {
     ),
     null,
   );
-};
+}

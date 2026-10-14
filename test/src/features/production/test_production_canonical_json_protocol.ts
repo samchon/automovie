@@ -11,7 +11,7 @@ import {
 } from "@automovie/production";
 import { TestValidator } from "@nestia/e2e";
 
-const throws = (task: () => unknown): boolean => {
+const throws: (task: () => unknown) => boolean = (task: () => unknown): boolean => {
   try {
     task();
     return false;
@@ -20,7 +20,7 @@ const throws = (task: () => unknown): boolean => {
   }
 };
 
-const category = (task: () => unknown): string => {
+const category: (task: () => unknown) => string = (task: () => unknown): string => {
   try {
     task();
     return "accepted";
@@ -48,9 +48,14 @@ const category = (task: () => unknown): string => {
  *    disjoint for both protocols; the legacy encoder used only to verify a
  *    declared v1 digest keeps its exact lossy treatment of omitted members and
  *    nulled items, and a value the current protocol refuses never reaches it.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls the public canonical encoder, protocol selector, identity producer and verifier, asserting exact canonical text/bytes, array slot preservation, typed refusal categories and disjoint current/stale/migrated/unverifiable outcomes. The legacy verifier must authenticate predecessor bytes before returning current identity.
+ * @evidence contracts/testing.md#independent-expectations Authored JSON strings, null slots, refusal categories and declared v1/v2 rules supply expectations independently of the encoder. Digest comparisons deliberately share the digest helper and certify protocol composition, not an independent SHA implementation; the content-identity unit supplies its known SHA-256 vector.
+ * @evidence contracts/testing.md#distinguishing-cases Preserves all three numbered scenarios, sparse arrays, invalid object/array accessors, Unicode and scalar refusals, false runtime protocol, null prototypes, repeated noncyclic references, all seven verification outcomes and every existing legacy omission/nulling/stale/refusal case.
+ * @evidence contracts/testing.md#execution-ownership The named exported portable unit owns all values and original synchronous assertions. It invokes public production exports and authors accessors only on its own records; it opens no file, worker or dynamic test and does not claim native or renderer integration.
  */
-export const test_production_canonical_json_protocol = (): void => {
-  const sparse = new Array(2);
+export function test_production_canonical_json_protocol(): void {
+  const sparse: unknown[] = new Array<unknown>(2);
   sparse[1] = undefined;
   TestValidator.equals(
     "array length and every slot survive canonicalization",
@@ -62,7 +67,7 @@ export const test_production_canonical_json_protocol = (): void => {
     ],
     ["[]", "[null]", "[null,null]", [null, null]],
   );
-  const identity = identifyAutoMovieCanonicalJson({ b: 2, a: "😀" });
+  const identity: ReturnType<typeof identifyAutoMovieCanonicalJson> = identifyAutoMovieCanonicalJson({ b: 2, a: "😀" });
   TestValidator.equals(
     "identity exposes its protocol, valid bytes and digest",
     [
@@ -84,40 +89,40 @@ export const test_production_canonical_json_protocol = (): void => {
   );
   const cycle: { self?: unknown } = {};
   cycle.self = cycle;
-  const accessor = Object.defineProperty({}, "value", {
+  const accessor: object = Object.defineProperty({}, "value", {
     enumerable: true,
-    get: () => 1,
+    get: (): number => 1,
   });
   TestValidator.equals(
     "values outside the explicit acyclic plain scalar domain are refused",
     [
-      throws(() => canonicalizeAutoMovieJson(new Date(0))),
-      throws(() => canonicalizeAutoMovieJson(new Map())),
-      throws(() => canonicalizeAutoMovieJson(cycle)),
-      throws(() => canonicalizeAutoMovieJson("\ud800")),
-      throws(() => canonicalizeAutoMovieJson({ "\udc00": true })),
-      throws(() => canonicalizeAutoMovieJson(accessor)),
+      throws((): string => canonicalizeAutoMovieJson(new Date(0))),
+      throws((): string => canonicalizeAutoMovieJson(new Map())),
+      throws((): string => canonicalizeAutoMovieJson(cycle)),
+      throws((): string => canonicalizeAutoMovieJson("\ud800")),
+      throws((): string => canonicalizeAutoMovieJson({ "\udc00": true })),
+      throws((): string => canonicalizeAutoMovieJson(accessor)),
     ],
     [true, true, true, true, true, true],
   );
-  const accessorSlot = Object.defineProperty([0], 0, {
+  const accessorSlot: unknown[] = Object.defineProperty([0], 0, {
     enumerable: true,
-    get: () => 1,
+    get: (): number => 1,
   }) as unknown[];
   TestValidator.equals(
     "every refusal carries the category that names its domain violation",
     {
-      accessorSlot: category(() => canonicalizeAutoMovieJson(accessorSlot)),
-      trailingHighSurrogate: category(() =>
+      accessorSlot: category((): string => canonicalizeAutoMovieJson(accessorSlot)),
+      trailingHighSurrogate: category((): string =>
         canonicalizeAutoMovieJson("a\ud800"),
       ),
-      unpairedHighSurrogate: category(() =>
+      unpairedHighSurrogate: category((): string =>
         canonicalizeAutoMovieJson("a\ud800b"),
       ),
-      loneLowSurrogate: category(() => canonicalizeAutoMovieJson("\udc00")),
-      nonFinite: category(() => canonicalizeAutoMovieJson([Infinity])),
-      bigint: category(() => canonicalizeAutoMovieJson({ value: 1n })),
-      undefinedRoot: category(() => canonicalizeAutoMovieJson(undefined)),
+      loneLowSurrogate: category((): string => canonicalizeAutoMovieJson("\udc00")),
+      nonFinite: category((): string => canonicalizeAutoMovieJson([Infinity])),
+      bigint: category((): string => canonicalizeAutoMovieJson({ value: 1n })),
+      undefinedRoot: category((): string => canonicalizeAutoMovieJson(undefined)),
     },
     {
       accessorSlot: "accessor-property",
@@ -140,7 +145,7 @@ export const test_production_canonical_json_protocol = (): void => {
   // would satisfy a bare throw check while refusing nothing by contract.
   TestValidator.equals(
     "the runtime guard refuses a falsely typed historical protocol by category",
-    category(() =>
+    category((): ReturnType<typeof canonicalizeAutoMovieJsonForProtocol> =>
       canonicalizeAutoMovieJsonForProtocol({
         protocol:
           "automovie.canonical-json.v1" as typeof AUTOMOVIE_CANONICAL_JSON_PROTOCOL,
@@ -160,8 +165,8 @@ export const test_production_canonical_json_protocol = (): void => {
       ["automovie-canonical-json-invalid", "invalid-unicode"],
     );
   }
-  const shared = { value: 1 };
-  const nullPrototype = Object.assign(
+  const shared: { value: number } = { value: 1 };
+  const nullPrototype: Record<string, unknown> = Object.assign(
     Object.create(null) as Record<string, unknown>,
     { b: shared, a: shared },
   );
@@ -170,9 +175,9 @@ export const test_production_canonical_json_protocol = (): void => {
     canonicalizeAutoMovieJson(nullPrototype),
     '{"a":{"value":1},"b":{"value":1}}',
   );
-  const legacyValue = { b: 2, a: 1 };
-  const legacyDigest = digestAutoMovieBytes(Buffer.from('{"a":1,"b":2}'));
-  const migratedSparse = verifyAutoMovieCanonicalJsonIdentity({
+  const legacyValue: { b: number; a: number } = { b: 2, a: 1 };
+  const legacyDigest: string = digestAutoMovieBytes(Buffer.from('{"a":1,"b":2}'));
+  const migratedSparse: ReturnType<typeof verifyAutoMovieCanonicalJsonIdentity> = verifyAutoMovieCanonicalJsonIdentity({
     value: new Array(1),
     protocol: AUTOMOVIE_LEGACY_CANONICAL_JSON_PROTOCOL,
     digest: digestAutoMovieBytes(Buffer.from("[]")),
@@ -240,8 +245,8 @@ export const test_production_canonical_json_protocol = (): void => {
       "unverifiable",
     ],
   );
-  const legacy = (value: unknown, digest = legacyDigest): string => {
-    const verification = verifyAutoMovieCanonicalJsonIdentity({
+  const legacy: (value: unknown, digest?: string) => string = (value: unknown, digest: string = legacyDigest): string => {
+    const verification: ReturnType<typeof verifyAutoMovieCanonicalJsonIdentity> = verifyAutoMovieCanonicalJsonIdentity({
       value,
       protocol: AUTOMOVIE_LEGACY_CANONICAL_JSON_PROTOCOL,
       digest,
@@ -255,7 +260,7 @@ export const test_production_canonical_json_protocol = (): void => {
     {
       stale: legacy({ a: 1, b: 3 }),
       omittedMembers: legacy(
-        { b: 2, a: 1, skipped: undefined, method: () => 1 },
+        { b: 2, a: 1, skipped: undefined, method: (): number => 1 },
         legacyDigest,
       ),
       nulledItems: legacy(
@@ -280,4 +285,4 @@ export const test_production_canonical_json_protocol = (): void => {
       refusedBeforeLegacy: true,
     },
   );
-};
+}

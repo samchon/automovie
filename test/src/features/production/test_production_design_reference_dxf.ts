@@ -11,9 +11,14 @@ import { refuses } from "../internal/designReference/refuses";
  * Scenarios:
  *
  * 1. Admit the adjacent supported grammar and independently stated facts.
- * 2. Refuse every malformed family input at its owning native parsing stage.
+ * 2. Refuse every authored malformed family input at its owning production parsing stage.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Inspects authored DXF text through production container dispatch, requiring null for an unselected memo, complete unmeasured LF/CRLF drawings and typed exact-stage refusal of malformed record/section/closure inputs.
+ * @evidence contracts/testing.md#independent-expectations Paired integer group codes, named nonnested sections, ENDSEC and terminal EOF define the supported DXF framing contract independently of inspector output. Geometry/entity semantics and measured drawing extent are deliberately not proved.
+ * @evidence contracts/testing.md#distinguishing-cases Contrasts token-only noncandidate and valid LF/CRLF drawings with unclosed/nested sections, negative group code, odd record count, absent section name, missing EOF and no section; legal upper-code/whitespace/trailing boundaries belong to the adjacent DXF unit.
+ * @evidence contracts/testing.md#execution-ownership The named exported portable unit owns all cases and reaches the actual production inspector through existing typed-refusal helpers with in-memory UTF-8 bytes; no native parser process or dynamic registration runs.
  */
-export const test_production_design_reference_dxf = (): void => {
+export function test_production_design_reference_dxf(): void {
   TestValidator.equals(
     "token-only and unclosed DXF remain refusals",
     [
@@ -58,4 +63,4 @@ export const test_production_design_reference_dxf = (): void => {
     },
   );
 
-};
+}

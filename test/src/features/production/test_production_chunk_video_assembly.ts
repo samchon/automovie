@@ -76,9 +76,9 @@ const rangeTimeline: () => IAutoMovieFilmTimeline = (): IAutoMovieFilmTimeline =
  *    order, on one continuous clock, with an independent input-payload oracle
  *    and parity against the same ranges conformed through the repaint path.
  * 3. Assembling twice, and assembling again after an interrupted attempt, produce
- *    byte-identical films: the assembly is a pure function of the receipt-bound
- *    chunk bytes, so a resumed render publishes what an uninterrupted one would
- *    have.
+ *    byte-identical containers from the same supplied chunk bytes. The retry
+ *    observes the assembly function's result, not receipt acquisition, a
+ *    resumed native render or publication.
  * 4. No chunks, a chunk that changes raster mid-film, a chunk that is not H.264, a
  *    frame total the chunks do not cover, and a runtime past the exact MP4
  *    clock are each refused rather than silently re-encoded.
@@ -268,10 +268,10 @@ export function test_production_chunk_video_assembly(): void {
       ["theAssemblyCoversEveryFrame", (): boolean => probe.frameCount === TOTAL_FRAMES],
       ["theAssemblyKeepsTheRaster", (): boolean => probe.width === WIDTH],
       ["theAssemblyKeepsTheRasterHeight", (): boolean => probe.height === HEIGHT],
-      ["theAssemblyKeepsTheFrameClock", (): boolean => Math.abs(probe.fps - FPS) < 1e-9],
+      ["theAssemblyKeepsTheFrameClock", (): boolean => nclose(probe.fps, FPS, 1e-9) && Math.abs(probe.fps - FPS) < 1e-9],
       [
         "theAssemblyRunsTheWholeFilm",
-        (): boolean => Math.abs(probe.runtimeSeconds - TOTAL_FRAMES / FPS) < 1e-9,
+        (): boolean => nclose(probe.runtimeSeconds, TOTAL_FRAMES / FPS, 1e-9) && Math.abs(probe.runtimeSeconds - TOTAL_FRAMES / FPS) < 1e-9,
       ],
       [
         "theAssemblyIsSampleIdenticalToTheSameRangesConformed",
@@ -330,7 +330,7 @@ export function test_production_chunk_video_assembly(): void {
     totalFrames: TOTAL_FRAMES,
   });
   TestValidator.equals(
-    "a resumed assembly publishes exactly what an uninterrupted one would have",
+    "a retried assembly returns exactly the uninterrupted bytes",
     namedFacts([
       ["theInterruptedAttemptFailed", (): boolean => interrupted],
       [

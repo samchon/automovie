@@ -1,5 +1,4 @@
 import type {
-  AutoMovieContentDigest,
   IAutoMovieBuildProjectOutput,
   IAutoMovieDiagnostic,
 } from "@automovie/interface";
@@ -9,14 +8,15 @@ import path from "node:path";
 
 import { loadSourceModule } from "../internal/loadSourceModule";
 
-const { createAutoMovieBuildInputRaceFailure } = loadSourceModule<{
+type InputRaceFailureModule = {
   createAutoMovieBuildInputRaceFailure(props: {
     diagnostics: IAutoMovieDiagnostic[];
-    inputFingerprint: AutoMovieContentDigest;
+    inputFingerprint: string;
     failure: AutoMovieProductionInputRaceError;
     currentRevision: () => number;
   }): IAutoMovieBuildProjectOutput;
-}>(
+};
+const { createAutoMovieBuildInputRaceFailure }: InputRaceFailureModule = loadSourceModule<InputRaceFailureModule>(
   path.resolve(
     __dirname,
     "../../../../packages/production/src/production/createAutoMovieBuildInputRaceFailure.ts",
@@ -31,12 +31,17 @@ const { createAutoMovieBuildInputRaceFailure } = loadSourceModule<{
  *    and no materialized bytes, retaining the attempt's input identity.
  * 2. A refused revision observation preserves both the original race object and
  *    the exact observation failure, with no invented revision result.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Formats an input-race failure and asserts unsuccessful output, current revision, attempted fingerprint, no materialization, diagnostic order/identity and preservation of both causes when current revision observation fails.
+ * @evidence contracts/testing.md#independent-expectations The refused-attempt contract and authored prior finding/current revision independently define the output and exact object relationships. Supplied revision callbacks establish formatter behavior rather than real filesystem fences or transaction rollback.
+ * @evidence contracts/testing.md#distinguishing-cases Contrasts readable revision with an exact failing observation, requiring ordered compile/source findings, retained attempt identity and a two-cause AggregateError; publication and non-race propagation belong to neighboring units.
+ * @evidence contracts/testing.md#execution-ownership The named exported portable unit reaches the production formatter through the existing source loader and owns every assertion with local value/callback inputs, without a native project or dynamically registered cases.
  */
-export const test_production_compile_input_race_failure = (): void => {
-  const failure = new AutoMovieProductionInputRaceError(
+export function test_production_compile_input_race_failure(): void {
+  const failure: AutoMovieProductionInputRaceError = new AutoMovieProductionInputRaceError(
     "The source snapshot moved.",
   );
-  const fingerprint: AutoMovieContentDigest = `sha256:${"a".repeat(64)}`;
+  const fingerprint: string = `sha256:${"a".repeat(64)}`;
   const prior: IAutoMovieDiagnostic = {
     code: "source-export-missing",
     category: "warning",
@@ -45,12 +50,12 @@ export const test_production_compile_input_race_failure = (): void => {
     path: "src/ship.ts",
     message: "An incomplete source owner remains.",
   };
-  const diagnostics = [prior];
-  const result = createAutoMovieBuildInputRaceFailure({
+  const diagnostics: IAutoMovieDiagnostic[] = [prior];
+  const result: IAutoMovieBuildProjectOutput = createAutoMovieBuildInputRaceFailure({
     diagnostics,
     inputFingerprint: fingerprint,
     failure,
-    currentRevision: () => 8,
+    currentRevision: (): number => 8,
   });
   TestValidator.equals(
     "race result keeps its attempted identity and publishes nothing",
@@ -64,7 +69,7 @@ export const test_production_compile_input_race_failure = (): void => {
   );
   TestValidator.equals(
     "race diagnostic precedes the older source finding",
-    result.diagnostics.map(({ code, category, phase, target, path }) => ({
+    result.diagnostics.map(({ code, category, phase, target, path }: IAutoMovieDiagnostic): Pick<IAutoMovieDiagnostic, "code" | "category" | "phase" | "target" | "path"> => ({
       code,
       category,
       phase,
@@ -96,14 +101,14 @@ export const test_production_compile_input_race_failure = (): void => {
     "the caller's diagnostic channel is preserved",
     result.diagnostics === diagnostics && result.diagnostics[1] === prior,
   );
-  const observation = new Error("The admitted root generation was replaced.");
+  const observation: Error = new Error("The admitted root generation was replaced.");
   let caught: unknown;
   try {
     createAutoMovieBuildInputRaceFailure({
       diagnostics: [],
       inputFingerprint: fingerprint,
       failure,
-      currentRevision: () => {
+      currentRevision: (): number => {
         throw observation;
       },
     });
@@ -117,4 +122,4 @@ export const test_production_compile_input_race_failure = (): void => {
       caught.errors[0] === failure &&
       caught.errors[1] === observation,
   );
-};
+}

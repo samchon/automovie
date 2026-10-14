@@ -5,9 +5,9 @@ import { namedFacts, nclose } from "../internal/predicates";
 import { productionWav } from "../internal/productionMedia/productionWav";
 
 /** The finished-film sound plan's own rate, which every decode targets. */
-const PLAN_RATE = 48_000;
+const PLAN_RATE: number = 48_000;
 
-const decode = (bytes: Uint8Array, sampleRate = PLAN_RATE) =>
+const decode: (bytes: Uint8Array, sampleRate?: number) => ReturnType<typeof decodeProductionAudioAsset> = (bytes: Uint8Array, sampleRate: number = PLAN_RATE): ReturnType<typeof decodeProductionAudioAsset> =>
   decodeProductionAudioAsset({
     path: "public/audio/bed.wav",
     bytes,
@@ -17,12 +17,7 @@ const decode = (bytes: Uint8Array, sampleRate = PLAN_RATE) =>
 /**
  * A declared audio asset becomes the mono samples the mix plays.
  *
- * `renderProductionSound` accepts decoded mono samples per asset and nothing in
- * the repository produced them, so a production could declare a sound, plan it,
- * cut it, and still render the bus stand-in: every authored cue was expressible
- * and none of it was the sound the author chose. This pins the decode that
- * closes that gap -- what it reads out of a container, and what it reports the
- * container to be.
+ * This unit pins the decoder's supported container facts and mono output. It does not execute renderProductionSound or prove that a production renderer acquires these decoded bytes; the exported decoder's product wiring remains a separate obligation.
  *
  * The two are kept apart on purpose. The `source*` facts are the file's own,
  * before the downmix and before any resampling, because a render plan records
@@ -51,21 +46,26 @@ const decode = (bytes: Uint8Array, sampleRate = PLAN_RATE) =>
  * 7. A file at another rate is resampled to the plan's rate: the buffer stretches
  *    by the rate ratio, interpolates between source samples, holds the last
  *    sample past the end, and still reports the file's own rate and runtime.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Decodes actual authored RIFF/WAVE byte records and asserts source rate/layout/precision, mono sample amplitudes, copy/downmix/resample lineage and source-duration preservation, catching wrong scaling, channel selection or output facts substituted for source identity.
+ * @evidence contracts/testing.md#independent-expectations PCM codes divided by 32768, arithmetic stereo means and linear ramp midpoints independently supply sample expectations; authored frame/rate ratios supply duration and output length. Metadata/extensible comparisons share a decoded mono reference but its complete samples are independently checked; no anti-alias quality or renderer wiring is certified.
+ * @evidence contracts/testing.md#distinguishing-cases Preserves seven scenarios plus existing extensible-float stereo, negative zero, minimum subnormal, maximum finite float and combined downmix/resample boundaries; malformed containers and unsupported fields belong to the refusal unit.
+ * @evidence contracts/testing.md#execution-ownership The named exported portable unit owns all assertions and invokes the ingest decoder on the existing in-memory WAVE writer's records; it opens no asset file, audio device, native process or dynamic test.
  */
-export const test_production_audio_asset_decode = (): void => {
-  const monoPcm = decode(
+export function test_production_audio_asset_decode(): void {
+  const monoPcm: ReturnType<typeof decode> = decode(
     productionWav({
       channels: [[0, 16_384, -32_768, 8_192]],
       metadata: false,
     }),
   );
-  const withMetadata = decode(
+  const withMetadata: ReturnType<typeof decode> = decode(
     productionWav({
       channels: [[0, 16_384, -32_768, 8_192]],
       metadata: true,
     }),
   );
-  const stereoPcm = decode(
+  const stereoPcm: ReturnType<typeof decode> = decode(
     productionWav({
       channels: [
         [16_384, -16_384],
@@ -73,21 +73,21 @@ export const test_production_audio_asset_decode = (): void => {
       ],
     }),
   );
-  const float = decode(
+  const float: ReturnType<typeof decode> = decode(
     productionWav({
       formatTag: 3,
       bitsPerSample: 32,
       channels: [[0.25, -0.75, 1]],
     }),
   );
-  const extensible = decode(
+  const extensible: ReturnType<typeof decode> = decode(
     productionWav({
       formatTag: 0xfffe,
       subFormatTag: 1,
       channels: [[0, 16_384, -32_768, 8_192]],
     }),
   );
-  const extensibleFloatStereo = decode(
+  const extensibleFloatStereo: ReturnType<typeof decode> = decode(
     productionWav({
       formatTag: 0xfffe,
       subFormatTag: 3,
@@ -98,20 +98,20 @@ export const test_production_audio_asset_decode = (): void => {
       ],
     }),
   );
-  const finiteBoundaries = decode(
+  const finiteBoundaries: ReturnType<typeof decode> = decode(
     productionWav({
       formatTag: 3,
       bitsPerSample: 32,
       channels: [[-0, 1.401298464324817e-45, 3.4028234663852886e38]],
     }),
   );
-  const resampled = decode(
+  const resampled: ReturnType<typeof decode> = decode(
     productionWav({
       sampleRate: 24_000,
       channels: [[0, 8_192, 16_384, 24_576]],
     }),
   );
-  const downmixResampled = decode(
+  const downmixResampled: ReturnType<typeof decode> = decode(
     productionWav({
       sampleRate: 24_000,
       channels: [
@@ -121,15 +121,20 @@ export const test_production_audio_asset_decode = (): void => {
     }),
   );
 
+  TestValidator.predicate(
+    "authored PCM codes independently determine the complete mono reference",
+    [0, 0.5, -1, 0.25].every((sample: number, index: number): boolean =>
+      nclose(monoPcm.samples[index]!, sample, 1e-9)),
+  );
   TestValidator.equals(
     "a declared WAV asset decodes to mono samples at the plan's rate",
     namedFacts([
-      ["itReadsTheDeclaredRate", () => monoPcm.sourceSampleRate === PLAN_RATE],
-      ["itReadsTheDeclaredChannelCount", () => monoPcm.sourceChannels === 1],
-      ["itCountsTheSourceFrames", () => monoPcm.sourceFrames === 4],
+      ["itReadsTheDeclaredRate", (): boolean => monoPcm.sourceSampleRate === PLAN_RATE],
+      ["itReadsTheDeclaredChannelCount", (): boolean => monoPcm.sourceChannels === 1],
+      ["itCountsTheSourceFrames", (): boolean => monoPcm.sourceFrames === 4],
       [
         "legacyMonoPreservesItsDefaultFrontCenterFacts",
-        () =>
+        (): boolean =>
           monoPcm.sourceFormat.header === "wave-format-ex" &&
           monoPcm.sourceFormat.encoding === "pcm-s16le" &&
           monoPcm.sourceFormat.containerBits === 16 &&
@@ -140,116 +145,118 @@ export const test_production_audio_asset_decode = (): void => {
       ],
       [
         "exactRateMonoDeclaresCopyLineage",
-        () =>
+        (): boolean =>
           monoPcm.processing.kind === "copy" &&
           monoPcm.processing.outputSampleRate === PLAN_RATE &&
-          monoPcm.processing.matrix[0]?.[0] === 1,
+          nclose(monoPcm.processing.matrix[0]?.[0] ?? Number.NaN, 1, 0),
       ],
       [
         "itDerivesTheRuntimeFromThoseFrames",
-        () => nclose(monoPcm.durationSeconds, 4 / PLAN_RATE, 1e-12),
+        (): boolean => nclose(monoPcm.durationSeconds, 4 / PLAN_RATE, 1e-12),
       ],
       [
         "itScalesSixteenBitCodesToUnitFloats",
-        () => nclose(monoPcm.samples[1]!, 0.5, 1e-9),
+        (): boolean => nclose(monoPcm.samples[1]!, 0.5, 1e-9),
       ],
       [
         "andFullScaleNegativeIsExactlyMinusOne",
-        () => nclose(monoPcm.samples[2]!, -1, 1e-9),
+        (): boolean => nclose(monoPcm.samples[2]!, -1, 1e-9),
       ],
       // At the plan's own rate the buffer is copied rather than interpolated, so
       // an asset already in the right shape carries no conversion error at all.
       [
         "aFileAlreadyAtThePlanRateIsNotResampled",
-        () => monoPcm.samples.length === monoPcm.sourceFrames,
+        (): boolean => monoPcm.samples.length === monoPcm.sourceFrames,
       ],
       // Found by id, not by offset: a writer that puts a LIST first must not
       // shift what the decoder believes the format chunk is.
       [
         "aMetadataChunkAheadOfTheFormatChangesNothing",
-        () =>
-          [...withMetadata.samples].every((sample, index) =>
+        (): boolean =>
+          [...withMetadata.samples].every((sample: number, index: number): boolean =>
             nclose(sample, monoPcm.samples[index]!, 1e-9),
           ),
       ],
       [
         "stereoFoldsToTheAverageOfItsChannels",
-        () => nclose(stereoPcm.samples[0]!, 0.5, 1e-9),
+        (): boolean => nclose(stereoPcm.samples[0]!, 0.5, 1e-9),
       ],
       // Taking the left channel, or summing without dividing, both read 0.5
       // above and -0.5 here. Only the average cancels.
-      ["soAnOpposedPairCancels", () => nclose(stereoPcm.samples[1]!, 0, 1e-9)],
+      ["soAnOpposedPairCancels", (): boolean => nclose(stereoPcm.samples[1]!, 0, 1e-9)],
       [
         "thirtyTwoBitFloatSamplesDecodeAsWritten",
-        () =>
+        (): boolean =>
           nclose(float.samples[1]!, -0.75, 1e-9) &&
           float.sourceFormat.encoding === "float-f32le",
       ],
       [
         "anExtensibleHeaderDecodesAsItsSubFormat",
-        () =>
+        (): boolean =>
           extensible.sourceFormat.subFormatGuid ===
             "00000001-0000-0010-8000-00aa00389b71" &&
           extensible.sourceFormat.layout.mask === 0x4 &&
-          [...extensible.samples].every((sample, index) =>
+          [...extensible.samples].every((sample: number, index: number): boolean =>
             nclose(sample, monoPcm.samples[index]!, 1e-9),
           ),
       ],
       [
         "extensibleFloatStereoPreservesLayoutAndDownmix",
-        () =>
+        (): boolean =>
           extensibleFloatStereo.sourceFormat.encoding === "float-f32le" &&
           extensibleFloatStereo.sourceFormat.layout.speakers.join("|") ===
             "front-left|front-right" &&
           extensibleFloatStereo.processing.kind === "downmix" &&
-          extensibleFloatStereo.processing.matrix[0]?.join("|") === "0.5|0.5" &&
+          extensibleFloatStereo.processing.matrix[0]?.length === 2 &&
+          extensibleFloatStereo.processing.matrix[0].every((coefficient: number): boolean => nclose(coefficient, 0.5, 0)) &&
           nclose(extensibleFloatStereo.samples[0]!, 0.5, 1e-9) &&
           nclose(extensibleFloatStereo.samples[1]!, 0, 1e-9),
       ],
       [
         "finiteFloatBoundariesRemainAdmissible",
-        () =>
+        (): boolean =>
           Object.is(finiteBoundaries.samples[0], -0) &&
-          finiteBoundaries.samples[1] === 1.401298464324817e-45 &&
-          finiteBoundaries.samples[2] === 3.4028234663852886e38,
+          nclose(finiteBoundaries.samples[1]!, 1.401298464324817e-45, 0) &&
+          nclose(finiteBoundaries.samples[2]!, 3.4028234663852886e38, 0),
       ],
       [
         "aFileAtAnotherRateStretchesByTheRateRatio",
-        () => resampled.samples.length === 8,
+        (): boolean => resampled.samples.length === 8,
       ],
       [
         "andInterpolatesBetweenItsSourceSamples",
-        () => nclose(resampled.samples[1]!, 0.125, 1e-9),
+        (): boolean => nclose(resampled.samples[1]!, 0.125, 1e-9),
       ],
       // Past the last source sample the interpolation holds it rather than
       // reading off the end of the buffer.
       [
         "andHoldsTheLastSamplePastTheEnd",
-        () => nclose(resampled.samples[7]!, 0.75, 1e-9),
+        (): boolean => nclose(resampled.samples[7]!, 0.75, 1e-9),
       ],
       // The plan records the asset's identity from these, so they must stay the
       // file's own facts and not the mix's.
       [
         "whileTheReportedRateStaysTheFilesOwn",
-        () => resampled.sourceSampleRate === 24_000,
+        (): boolean => resampled.sourceSampleRate === 24_000,
       ],
       [
         "andTheReportedRuntimeStaysTheFilesOwn",
-        () => nclose(resampled.durationSeconds, 4 / 24_000, 1e-12),
+        (): boolean => nclose(resampled.durationSeconds, 4 / 24_000, 1e-12),
       ],
       [
         "resamplingIsNamedSeparatelyFromSourceFacts",
-        () =>
+        (): boolean =>
           resampled.processing.kind === "resample" &&
           resampled.sourceFormat.sampleRate === 24_000 &&
           resampled.processing.outputSampleRate === PLAN_RATE,
       ],
       [
         "stereoDownmixThenResampleKeepsCombinedLineage",
-        () =>
+        (): boolean =>
           downmixResampled.processing.kind === "downmix-resample" &&
-          downmixResampled.processing.matrix[0]?.join("|") === "0.5|0.5" &&
-          downmixResampled.samples.every((sample) => nclose(sample, 0.25)),
+          downmixResampled.processing.matrix[0]?.length === 2 &&
+          downmixResampled.processing.matrix[0].every((coefficient: number): boolean => nclose(coefficient, 0.5, 0)) &&
+          downmixResampled.samples.every((sample: number): boolean => nclose(sample, 0.25)),
       ],
     ]),
     {
@@ -278,4 +285,4 @@ export const test_production_audio_asset_decode = (): void => {
       stereoDownmixThenResampleKeepsCombinedLineage: true,
     },
   );
-};
+}

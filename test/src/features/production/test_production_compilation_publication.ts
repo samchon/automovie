@@ -13,7 +13,7 @@ import path from "node:path";
 
 import { loadSourceModule } from "../internal/loadSourceModule";
 
-const { publishAutoMovieGeneratedCompilation } = loadSourceModule<{
+type CompilationPublicationModule = {
   publishAutoMovieGeneratedCompilation(props: {
     authority: Pick<AutoMovieProductionProject, "commitGenerated" | "revision">;
     publication: {
@@ -26,7 +26,8 @@ const { publishAutoMovieGeneratedCompilation } = loadSourceModule<{
     diagnostics: IAutoMovieDiagnostic[];
     materialized: IAutoMovieBuildProjectOutput["materialized"];
   }): IAutoMovieBuildProjectOutput;
-}>(
+};
+const { publishAutoMovieGeneratedCompilation }: CompilationPublicationModule = loadSourceModule<CompilationPublicationModule>(
   path.resolve(
     __dirname,
     "../../../../packages/production/src/production/publishAutoMovieGeneratedCompilation.ts",
@@ -42,12 +43,17 @@ const { publishAutoMovieGeneratedCompilation } = loadSourceModule<{
  * 2. An input race publishes no statuses and reports the current revision.
  * 3. An unrelated publication error propagates unchanged; a failed revision
  *    observation after a race preserves both exact failure objects.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Publishes through the production handoff with a supplied transaction authority, asserting all four argument identities/values, one call per attempt, returned revision/list identity and typed-race versus unrelated/secondary failure handling.
+ * @evidence contracts/testing.md#independent-expectations Authored candidates, base/committed/current revisions and dedicated race classification define expected results independently of formatter output; supplied authority callbacks prove forwarding and error policy rather than physical writes, native locks or atomic publication.
+ * @evidence contracts/testing.md#distinguishing-cases Contrasts success without revision reread, input race without materialized output, exact unrelated failure and race plus observation failure, retaining exact identities and call counts; direct snapshot confirmation and diagnostic ordering belong to neighboring units.
+ * @evidence contracts/testing.md#execution-ownership The named exported portable unit reaches the production handoff through the existing source loader, owns local authority callbacks and all assertions, and starts no filesystem project, process or dynamically registered cases.
  */
-export const test_production_compilation_publication = (): void => {
+export function test_production_compilation_publication(): void {
   const inputFingerprint: IAutoMovieBuildProjectOutput["builder"]["inputFingerprint"] =
     "sha256:candidate";
-  const files = new Map([["models/ship.json", Buffer.from("candidate")]]);
-  const entry = {
+  const files: Parameters<AutoMovieProductionProject["commitGenerated"]>[0] = new Map([["models/ship.json", Buffer.from("candidate")]]);
+  const entry: IAutoMovieGeneratedManifest["files"][number] = {
     path: "models/ship.json",
     owner: "builder" as const,
     digest:
@@ -64,13 +70,13 @@ export const test_production_compilation_publication = (): void => {
   const materialized: IAutoMovieBuildProjectOutput["materialized"] = [
     { ...entry, status: "created" },
   ];
-  const inputCurrent = () => true;
-  const publication = { files, manifest, inputCurrent, inputRevision: 4 };
-  let committed = 0;
-  let observations = 0;
+  const inputCurrent: () => boolean = (): boolean => true;
+  const publication: Parameters<CompilationPublicationModule["publishAutoMovieGeneratedCompilation"]>[0]["publication"] = { files, manifest, inputCurrent, inputRevision: 4 };
+  let committed: number = 0;
+  let observations: number = 0;
   let failure: Error | undefined;
   const observation: { failure?: Error } = {};
-  const authority = {
+  const authority: Pick<AutoMovieProductionProject, "commitGenerated" | "revision"> = {
     commitGenerated: (
       ...received: Parameters<AutoMovieProductionProject["commitGenerated"]>
     ): number => {
@@ -100,14 +106,14 @@ export const test_production_compilation_publication = (): void => {
       return 6;
     },
   };
-  const props = {
+  const props: Parameters<CompilationPublicationModule["publishAutoMovieGeneratedCompilation"]>[0] = {
     authority,
     publication,
     inputFingerprint,
     diagnostics,
     materialized,
   };
-  const success = publishAutoMovieGeneratedCompilation(props);
+  const success: IAutoMovieBuildProjectOutput = publishAutoMovieGeneratedCompilation(props);
   TestValidator.equals(
     "successful settlement returns the transaction result",
     {
@@ -130,7 +136,7 @@ export const test_production_compilation_publication = (): void => {
   failure = new AutoMovieProductionInputRaceError(
     "Source changed before publication.",
   );
-  const raced = publishAutoMovieGeneratedCompilation({
+  const raced: IAutoMovieBuildProjectOutput = publishAutoMovieGeneratedCompilation({
     ...props,
     diagnostics: [],
   });
@@ -140,7 +146,7 @@ export const test_production_compilation_publication = (): void => {
       success: raced.success,
       revision: raced.revision,
       files: raced.materialized,
-      codes: raced.diagnostics.map((item) => item.code),
+      codes: raced.diagnostics.map((item: IAutoMovieDiagnostic): string => item.code),
     },
     {
       success: false,
@@ -149,7 +155,7 @@ export const test_production_compilation_publication = (): void => {
       codes: ["compile-input-changed"],
     },
   );
-  const unrelated = new Error("The native transaction failed.");
+  const unrelated: Error = new Error("The native transaction failed.");
   failure = unrelated;
   let caught: unknown;
   try {
@@ -186,4 +192,4 @@ export const test_production_compilation_publication = (): void => {
     committed,
     4,
   );
-};
+}

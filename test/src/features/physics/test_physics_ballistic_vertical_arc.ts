@@ -8,7 +8,7 @@ const GRAVITY: IAutoMovieVector3 = { x: 0, y: -9.81, z: 0 };
 const ORIGIN: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
 
 /** The projectile lands on `target` when the solved flight runs `hitTime`. */
-const landsOn = (
+const landsOn: (solution: { velocity: IAutoMovieVector3; hitTime: number }, target: IAutoMovieVector3) => boolean = (
   solution: { velocity: IAutoMovieVector3; hitTime: number },
   target: IAutoMovieVector3,
 ): boolean =>
@@ -34,21 +34,26 @@ const landsOn = (
  * the target via `projectileAt`):
  *
  * 1. Target 20 m straight below, speed 20, `direct` → fired straight down, `t =
- *    (−s + √(s²+2g·20))/g = 0.7796…` s.
+ *    (−s + √(s²+2g·20))/g = 0.8307…` s.
  * 2. The same target, `high` → fired straight up and falling past, `t = (s +
- *    √(s²+2g·20))/g = 4.8574…` s; both arcs land on the target.
+ *    √(s²+2g·20))/g = 4.9082…` s; both arcs land on the target.
  * 3. Target 10 m straight overhead, speed 20, `direct` → the rising first crossing
  *    `(s − √(s²−2gh))/g = 0.5835…` s (unchanged semantics).
  * 4. The same target, `high` → the descending re-crossing `(s + √(s²−2gh))/g =
  *    3.4939…` s, fired up; both land on the target.
  * 5. Negative twins: an overhead target beyond `s²/2g` is out of range for BOTH
  *    arcs; zero gravity keeps the straight sightline shot for both.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Solves direct and high vertical launches and checks direction, contact time, landing, unreachable refusal and the zero-gravity branch, catching an arc selector ignored by the vertical solve.
+ * @evidence contracts/testing.md#independent-expectations Authored positive roots of the constant-acceleration equation and requested speed supply independent time and velocity expectations. Landing through projectileAt is a supplementary composition check with a shared engine dependency, not the numeric oracle.
+ * @evidence contracts/testing.md#distinguishing-cases Contrasts below/overhead direct and high arcs, above-apex refusal for both arcs and a zero-gravity high request; general oblique and moving-target cases belong to neighboring units.
+ * @evidence contracts/testing.md#execution-ownership The named exported unit entry calls portable solver and state functions with local records; it owns every assertion directly and starts no process, browser or GPU.
  */
-export const test_physics_ballistic_vertical_arc = (): void => {
+export function test_physics_ballistic_vertical_arc(): void {
   // 1./2. Below: h = −20, s = 20 → disc = 400 + 2·9.81·20 = 792.4;
   //       √792.4 = 28.1495988…
   const below: IAutoMovieVector3 = { x: 0, y: -20, z: 0 };
-  const directDown = solveBallisticLaunch(
+  const directDown: NonNullable<ReturnType<typeof solveBallisticLaunch>> = solveBallisticLaunch(
     ORIGIN,
     below,
     20,
@@ -68,7 +73,7 @@ export const test_physics_ballistic_vertical_arc = (): void => {
     landsOn(directDown, below),
   );
 
-  const highDown = solveBallisticLaunch(ORIGIN, below, 20, GRAVITY, "high")!;
+  const highDown: NonNullable<ReturnType<typeof solveBallisticLaunch>> = solveBallisticLaunch(ORIGIN, below, 20, GRAVITY, "high")!;
   TestValidator.predicate(
     "high below fires straight up and falls past",
     vclose(highDown.velocity, { x: 0, y: 20, z: 0 }, 1e-9),
@@ -85,7 +90,7 @@ export const test_physics_ballistic_vertical_arc = (): void => {
   // 3./4. Overhead: h = 10, s = 20 → disc = 400 − 2·9.81·10 = 203.8;
   //       √203.8 = 14.2758537…
   const overhead: IAutoMovieVector3 = { x: 0, y: 10, z: 0 };
-  const directUp = solveBallisticLaunch(
+  const directUp: NonNullable<ReturnType<typeof solveBallisticLaunch>> = solveBallisticLaunch(
     ORIGIN,
     overhead,
     20,
@@ -96,7 +101,7 @@ export const test_physics_ballistic_vertical_arc = (): void => {
     "direct overhead keeps the rising first contact",
     nclose(directUp.hitTime, (20 - 14.2758537) / 9.81, 1e-4),
   );
-  const highUp = solveBallisticLaunch(ORIGIN, overhead, 20, GRAVITY, "high")!;
+  const highUp: NonNullable<ReturnType<typeof solveBallisticLaunch>> = solveBallisticLaunch(ORIGIN, overhead, 20, GRAVITY, "high")!;
   TestValidator.predicate(
     "high overhead takes the descending re-crossing",
     nclose(highUp.hitTime, (20 + 14.2758537) / 9.81, 1e-4),
@@ -105,13 +110,9 @@ export const test_physics_ballistic_vertical_arc = (): void => {
     "high overhead still fires straight up",
     vclose(highUp.velocity, { x: 0, y: 20, z: 0 }, 1e-9),
   );
-  TestValidator.equals(
+  TestValidator.predicate(
     "both overhead arcs land on the target",
-    namedFacts([
-      ["landsOnDirectUpOverhead", () => landsOn(directUp, overhead)],
-      ["landsOnHighUpOverhead", () => landsOn(highUp, overhead)],
-    ]),
-    { landsOnDirectUpOverhead: true, landsOnHighUpOverhead: true },
+    landsOn(directUp, overhead) && landsOn(highUp, overhead),
   );
 
   // 5. Negative twins.
@@ -122,13 +123,13 @@ export const test_physics_ballistic_vertical_arc = (): void => {
     namedFacts([
       [
         "solveBallisticLaunchORIGINUnreachable",
-        () =>
+        (): boolean =>
           solveBallisticLaunch(ORIGIN, unreachable, 10, GRAVITY, "direct") ===
           null,
       ],
       [
         "solveBallisticLaunchORIGINUnreachable2",
-        () =>
+        (): boolean =>
           solveBallisticLaunch(ORIGIN, unreachable, 10, GRAVITY, "high") ===
           null,
       ],
@@ -139,22 +140,16 @@ export const test_physics_ballistic_vertical_arc = (): void => {
     },
   );
   const weightless: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-  const straight = solveBallisticLaunch(
+  const straight: NonNullable<ReturnType<typeof solveBallisticLaunch>> = solveBallisticLaunch(
     { x: 0, y: 5, z: 0 },
     weightless,
     10,
     { x: 0, y: 0, z: 0 },
     "high",
   )!;
-  TestValidator.equals(
+  TestValidator.predicate(
     "zero gravity keeps the straight sightline shot for either arc",
-    namedFacts([
-      [
-        "vcloseStraightVelocity",
-        () => vclose(straight.velocity, { x: 0, y: -10, z: 0 }, 1e-9),
-      ],
-      ["ncloseStraightHitTime", () => nclose(straight.hitTime, 0.5, 1e-9)],
-    ]),
-    { vcloseStraightVelocity: true, ncloseStraightHitTime: true },
+    vclose(straight.velocity, { x: 0, y: -10, z: 0 }, 1e-9) &&
+      nclose(straight.hitTime, 0.5, 1e-9),
   );
-};
+}

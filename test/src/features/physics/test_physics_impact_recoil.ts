@@ -1,6 +1,7 @@
 import { impactRecoil, validatePoseResult } from "@automovie/engine";
 import {
   IAutoMovieBone,
+  IAutoMovieJointPose,
   IAutoMovieSkeleton,
   IAutoMovieTransform,
 } from "@automovie/interface";
@@ -13,7 +14,7 @@ const rest: IAutoMovieTransform = {
   rotation: { x: 0, y: 0, z: 0, w: 1 },
   scale: { x: 1, y: 1, z: 1 },
 };
-const bone = (
+const bone: (name: IAutoMovieBone["bone"], parent: IAutoMovieBone["parent"], constraint: IAutoMovieBone["constraint"]) => IAutoMovieBone = (
   name: IAutoMovieBone["bone"],
   parent: IAutoMovieBone["parent"],
   constraint: IAutoMovieBone["constraint"],
@@ -45,18 +46,22 @@ const skeleton: IAutoMovieSkeleton = {
  * 3. A bone absent from the skeleton has no constraint, so its axis is unclamped.
  * 4. A canonical elbow's immobile abduction axis is forced to rest, and a hip's
  *    simultaneous flexion/abduction is pulled inside its live swing cone.
- * 5. Every constrained recoil pose passes the ordinary pose validator, proving the
- *    producer and validator share one effective-ROM calculation.
+ * 5. The constrained contact, elbow and hip recoil poses pass the ordinary pose validator; this checks compatibility rather than independently proving their shared effective-ROM helpers.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Builds recoil poses and checks bounded axes, falloff, missing-bone behavior, immobile elbow response, combined hip swing and validator acceptance, catching unconstrained or incoherent produced poses.
+ * @evidence contracts/testing.md#independent-expectations Authored spine limits give independent 40/15/-30 bounds and explicit twist 10; declared default chest limits and immobile elbow policy give expected values. Validator acceptance shares ROM dependencies and cannot independently certify physiology or the exact hip projection.
+ * @evidence contracts/testing.md#distinguishing-cases Covers explicit/default constraints, upper/lower saturation, unchanged in-range twist, absent bone, immobile axis and a live combined swing cap; neutral zero-excluding axes and invalid input admission belong to neighboring recoil units.
+ * @evidence contracts/testing.md#execution-ownership The named exported portable unit calls recoil and pose validation on local skeletal records, owns all assertions and starts no figure renderer, process or dynamic cases.
  */
-export const test_physics_impact_recoil = (): void => {
-  const pose = impactRecoil(
+export function test_physics_impact_recoil(): void {
+  const pose: ReturnType<typeof impactRecoil> = impactRecoil(
     { flexion: 200, abduction: 100, twist: 10 },
     ["spine", "chest"],
     skeleton,
     0.6,
   );
-  const spine = pose.joints.find((j) => j.bone === "spine")!;
-  const chest = pose.joints.find((j) => j.bone === "chest")!;
+  const spine: IAutoMovieJointPose = pose.joints.find((j: IAutoMovieJointPose): boolean => j.bone === "spine")!;
+  const chest: IAutoMovieJointPose = pose.joints.find((j: IAutoMovieJointPose): boolean => j.bone === "chest")!;
 
   // 1. clamped to ROM at the contact joint; unclamped twist within range
   TestValidator.predicate(
@@ -83,14 +88,14 @@ export const test_physics_impact_recoil = (): void => {
   );
 
   // 2b. a push past the lower ROM bound clamps to the joint minimum
-  const back = impactRecoil({ flexion: -200 }, ["spine"], skeleton, 1);
+  const back: ReturnType<typeof impactRecoil> = impactRecoil({ flexion: -200 }, ["spine"], skeleton, 1);
   TestValidator.predicate(
     "spine flexion clamped to ROM min −30",
     nclose(back.joints[0]!.flexion!, -30),
   );
 
   // 3. a bone not in the skeleton is unconstrained
-  const off = impactRecoil({ abduction: 15 }, ["leftHand"], skeleton, 0.6);
+  const off: ReturnType<typeof impactRecoil> = impactRecoil({ abduction: 15 }, ["leftHand"], skeleton, 0.6);
   TestValidator.predicate(
     "unknown bone unclamped",
     nclose(off.joints[0]!.abduction!, 15),
@@ -110,16 +115,15 @@ export const test_physics_impact_recoil = (): void => {
     id: "elbow-rig",
     bones: [bone("leftLowerArm", null, null)],
   };
-  const elbow = impactRecoil(
+  const elbow: ReturnType<typeof impactRecoil> = impactRecoil(
     { abduction: 8 },
     ["leftLowerArm"],
     elbowSkeleton,
     1,
   );
-  TestValidator.equals(
+  TestValidator.predicate(
     "a canonical elbow cannot recoil along its immobile abduction axis",
-    elbow.joints[0]!.abduction,
-    0,
+    nclose(elbow.joints[0]!.abduction!, 0, 0),
   );
   TestValidator.equals(
     "the immobile-axis recoil is legal under the same skeleton",
@@ -131,7 +135,7 @@ export const test_physics_impact_recoil = (): void => {
     id: "hip-rig",
     bones: [bone("leftUpperLeg", null, null)],
   };
-  const hip = impactRecoil(
+  const hip: ReturnType<typeof impactRecoil> = impactRecoil(
     { flexion: 120, abduction: 45 },
     ["leftUpperLeg"],
     hipSkeleton,
@@ -140,10 +144,10 @@ export const test_physics_impact_recoil = (): void => {
   TestValidator.equals(
     "a canonical hip recoil is pulled out of the box corner by its swing cone",
     namedFacts([
-      ["hipJoints0", () => hip.joints[0]!.flexion! < 120],
+      ["hipJoints0", (): boolean => hip.joints[0]!.flexion! < 120],
       [
         "hipJoints02",
-        () => hip.joints[0]!.flexion! < 120 && hip.joints[0]!.abduction! < 45,
+        (): boolean => hip.joints[0]!.flexion! < 120 && hip.joints[0]!.abduction! < 45,
       ],
     ]),
     { hipJoints0: true, hipJoints02: true },
@@ -153,4 +157,4 @@ export const test_physics_impact_recoil = (): void => {
     validatePoseResult(hip, hipSkeleton),
     { success: true },
   );
-};
+}

@@ -4,38 +4,33 @@ import { TestValidator } from "@nestia/e2e";
 import { namedFacts, throwsError } from "../internal/predicates";
 import { productionWav } from "../internal/productionMedia/productionWav";
 
-const ASSET = "public/audio/bed.wav";
+const ASSET: string = "public/audio/bed.wav";
 
 /** True when decoding these bytes throws naming every listed fragment. */
-const refuses = (
+const refuses: (bytes: Uint8Array, fragments: readonly string[], sampleRate?: number) => boolean = (
   bytes: Uint8Array,
   fragments: readonly string[],
-  sampleRate = 48_000,
+  sampleRate: number = 48_000,
 ): boolean =>
   throwsError(
-    () => decodeProductionAudioAsset({ path: ASSET, bytes, sampleRate }),
+    (): ReturnType<typeof decodeProductionAudioAsset> => decodeProductionAudioAsset({ path: ASSET, bytes, sampleRate }),
     [ASSET, ...fragments],
   );
 
 /** What every refusal names, so a rejected asset says what to convert it to. */
-const SUPPORTED =
+const SUPPORTED: string =
   'Supported audio assets are RIFF/WAVE ("*.wav") containers carrying 16-bit PCM or 32-bit IEEE float samples, mono front-center or stereo front-left/front-right.';
 
 /**
  * One well-formed 16-bit PCM mono asset, the twin every refusal is one step
  * from.
  */
-const VALID = productionWav({ channels: [[0, 16_384, -32_768, 8_192]] });
+const VALID: Uint8Array = productionWav({ channels: [[0, 16_384, -32_768, 8_192]] });
 
 /**
  * An audio asset the decoder cannot read is an input violation, not silence.
  *
- * A decoder that returned an empty buffer for an unreadable file would publish
- * a film whose sound design is missing and whose render reported success, and
- * the author would have no way to tell a stem that failed to decode from a cue
- * they forgot to place. So every unsupported container, every unsupported
- * sample format, and every structurally broken WAV throws, and the message
- * names both what it found and what is supported instead.
+ * The decoder's supported subset refuses unsupported containers, encodings and malformed framing instead of returning silent or truncated samples. These API observations do not prove that a production renderer calls the decoder.
  *
  * Each case below is one step from {@link VALID}, which decodes: without that
  * twin these would equally be satisfied by a decoder that refused everything.
@@ -60,14 +55,19 @@ const VALID = productionWav({ channels: [[0, 16_384, -32_768, 8_192]] });
  *    rate cannot silently divide the resampler into NaN.
  * 9. The same bytes at a real rate decode, which is what makes each refusal a
  *    statement about the input rather than about the decoder.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Decodes malformed and unsupported authored audio bytes, requiring the original asset path and each exact field/message fragment in a synchronous Error, then admits the unchanged valid twin with four source frames.
+ * @evidence contracts/testing.md#independent-expectations RIFF framing, format field arithmetic, canonical extensible GUID/layout rules and the decoder's declared PCM16/float32 mono/stereo subset define the independent refusal basis. Authored diagnostics identify each cause; the checks do not prove internal read order, sound quality, renderer wiring or every possible malformed container.
+ * @evidence contracts/testing.md#distinguishing-cases Preserves nine scenarios and all existing thirty-five named receipts, including extent/padding/duplicates, format/precision/layout distinctions, target clock refusal and every authored non-finite frame/channel position, with the valid twin preventing unconditional refusal. Positive sample scaling and conversion lineage belong to the decode unit.
+ * @evidence contracts/testing.md#execution-ownership The named exported portable unit owns all cases and passes existing in-memory WAVE records directly to the ingest decoder; no file, audio device, native process, foreign method replacement or dynamic test is used.
  */
-export const test_production_audio_asset_refusal = (): void => {
+export function test_production_audio_asset_refusal(): void {
   TestValidator.equals(
     "an unreadable audio asset is refused by name",
     namedFacts([
       [
         "bytesTooShortForAHeaderAreRefusedByLength",
-        () =>
+        (): boolean =>
           refuses(Uint8Array.from([0x52, 0x49, 0x46, 0x46]), [
             "is 4 bytes, too short to carry a RIFF/WAVE header",
             SUPPORTED,
@@ -77,7 +77,7 @@ export const test_production_audio_asset_refusal = (): void => {
       // printable, so the refusal has to report hex beside the tag.
       [
         "anotherContainerIsRefusedByWhatItIs",
-        () =>
+        (): boolean =>
           refuses(
             Uint8Array.from([
               0x49, 0x44, 0x33, 0x03, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -87,12 +87,12 @@ export const test_production_audio_asset_refusal = (): void => {
       ],
       [
         "aRiffWhoseFormIsNotWaveIsRefusedByItsForm",
-        () =>
+        (): boolean =>
           refuses(productionWav({ form: "AVI " }), ['declares form "AVI "']),
       ],
       [
         "aTruncatedChunkIsRefusedWithBothCounts",
-        () =>
+        (): boolean =>
           refuses(
             productionWav({ channels: [[0, 0]], declaredDataSize: 4_096 }),
             [
@@ -102,7 +102,7 @@ export const test_production_audio_asset_refusal = (): void => {
       ],
       [
         "terminalBytesCannotImpersonateAChunkHeader",
-        () =>
+        (): boolean =>
           refuses(
             productionWav({
               channels: [[0]],
@@ -113,7 +113,7 @@ export const test_production_audio_asset_refusal = (): void => {
       ],
       [
         "anOddFinalChunkRequiresItsAlignmentByte",
-        () =>
+        (): boolean =>
           refuses(
             productionWav({
               declaredChannels: 1,
@@ -125,21 +125,21 @@ export const test_production_audio_asset_refusal = (): void => {
       ],
       [
         "aContainerWithoutAFormatChunkIsRefused",
-        () =>
+        (): boolean =>
           refuses(productionWav({ omitFormatChunk: true }), [
             'has no RIFF/WAVE "fmt " chunk',
           ]),
       ],
       [
         "aFormatChunkTooShortToDeclareItsFieldsIsRefused",
-        () =>
+        (): boolean =>
           refuses(productionWav({ formatChunkSize: 14, channels: [[0]] }), [
             'has a "fmt " chunk of 14 bytes; a WAVE format chunk is at least 16 bytes',
           ]),
       ],
       [
         "anExtensibleHeaderWithoutRoomForItsSubFormatIsRefused",
-        () =>
+        (): boolean =>
           refuses(
             productionWav({
               formatTag: 0xfffe,
@@ -153,7 +153,7 @@ export const test_production_audio_asset_refusal = (): void => {
       ],
       [
         "anExtensibleHeaderWithoutCbSizeIsRefused",
-        () =>
+        (): boolean =>
           refuses(
             productionWav({
               formatTag: 0xfffe,
@@ -165,7 +165,7 @@ export const test_production_audio_asset_refusal = (): void => {
       ],
       [
         "eightBitPcmIsRefusedByItsDepth",
-        () =>
+        (): boolean =>
           refuses(
             productionWav({
               bitsPerSample: 8,
@@ -177,7 +177,7 @@ export const test_production_audio_asset_refusal = (): void => {
       ],
       [
         "sixtyFourBitFloatIsRefusedByItsDepth",
-        () =>
+        (): boolean =>
           refuses(
             productionWav({
               formatTag: 3,
@@ -190,7 +190,7 @@ export const test_production_audio_asset_refusal = (): void => {
       ],
       [
         "anEntirelyDifferentEncodingIsRefusedByItsFormatTag",
-        () =>
+        (): boolean =>
           refuses(
             productionWav({
               formatTag: 0x0011,
@@ -203,7 +203,7 @@ export const test_production_audio_asset_refusal = (): void => {
       ],
       [
         "moreThanTwoChannelsIsRefusedByCount",
-        () =>
+        (): boolean =>
           refuses(
             productionWav({
               declaredChannels: 6,
@@ -214,21 +214,21 @@ export const test_production_audio_asset_refusal = (): void => {
       ],
       [
         "aZeroSampleRateIsRefusedByValue",
-        () =>
+        (): boolean =>
           refuses(productionWav({ sampleRate: 0, channels: [[0]] }), [
             "declares a sample rate of 0 Hz",
           ]),
       ],
       [
         "aContainerWithoutADataChunkIsRefused",
-        () =>
+        (): boolean =>
           refuses(productionWav({ omitDataChunk: true, channels: [[0]] }), [
             'has no RIFF/WAVE "data" chunk',
           ]),
       ],
       [
         "aRaggedDataChunkIsRefusedByFrameArithmetic",
-        () =>
+        (): boolean =>
           refuses(
             productionWav({ declaredChannels: 2, data: new Uint8Array(6) }),
             [
@@ -238,7 +238,7 @@ export const test_production_audio_asset_refusal = (): void => {
       ],
       [
         "anAssetCarryingNoFramesIsRefused",
-        () =>
+        (): boolean =>
           refuses(
             productionWav({ declaredChannels: 1, data: new Uint8Array(0) }),
             ["carries no sample frames"],
@@ -246,22 +246,22 @@ export const test_production_audio_asset_refusal = (): void => {
       ],
       [
         "aZeroDecodeRateIsRefusedBeforeAnyByteIsRead",
-        () => refuses(VALID, ["cannot be decoded at 0 Hz"], 0),
+        (): boolean => refuses(VALID, ["cannot be decoded at 0 Hz"], 0),
       ],
       [
         "aFractionalDecodeRateIsRefusedTheSameWay",
-        () => refuses(VALID, ["cannot be decoded at 48000.5 Hz"], 48_000.5),
+        (): boolean => refuses(VALID, ["cannot be decoded at 48000.5 Hz"], 48_000.5),
       ],
       [
         "aWrongRiffExtentIsRefused",
-        () =>
+        (): boolean =>
           refuses(productionWav({ channels: [[0]], declaredRiffSize: 4 }), [
             "[riff-size]",
           ]),
       ],
       [
         "aDuplicateFormatChunkIsRefused",
-        () =>
+        (): boolean =>
           refuses(
             productionWav({ channels: [[0]], duplicateFormatChunk: true }),
             ["[duplicate-fmt]"],
@@ -269,7 +269,7 @@ export const test_production_audio_asset_refusal = (): void => {
       ],
       [
         "aDuplicateDataChunkIsRefused",
-        () =>
+        (): boolean =>
           refuses(
             productionWav({ channels: [[0]], duplicateDataChunk: true }),
             ["[duplicate-data]"],
@@ -277,14 +277,14 @@ export const test_production_audio_asset_refusal = (): void => {
       ],
       [
         "aWrongBlockAlignmentIsRefused",
-        () =>
+        (): boolean =>
           refuses(productionWav({ channels: [[0]], blockAlign: 4 }), [
             "[block-align]",
           ]),
       ],
       [
         "aWrongAverageByteRateIsRefused",
-        () =>
+        (): boolean =>
           refuses(
             productionWav({
               channels: [[0]],
@@ -295,7 +295,7 @@ export const test_production_audio_asset_refusal = (): void => {
       ],
       [
         "aForeignSubformatGuidIsRefused",
-        () =>
+        (): boolean =>
           refuses(
             productionWav({
               formatTag: 0xfffe,
@@ -307,7 +307,7 @@ export const test_production_audio_asset_refusal = (): void => {
       ],
       [
         "anUnknownCanonicalSubformatTagIsRefused",
-        () =>
+        (): boolean =>
           refuses(
             productionWav({
               formatTag: 0xfffe,
@@ -319,7 +319,7 @@ export const test_production_audio_asset_refusal = (): void => {
       ],
       [
         "anInvalidValidBitRangeIsRefused",
-        () =>
+        (): boolean =>
           refuses(
             productionWav({
               formatTag: 0xfffe,
@@ -331,7 +331,7 @@ export const test_production_audio_asset_refusal = (): void => {
       ],
       [
         "aShortExtensibleDeclarationIsRefused",
-        () =>
+        (): boolean =>
           refuses(
             productionWav({
               formatTag: 0xfffe,
@@ -343,7 +343,7 @@ export const test_production_audio_asset_refusal = (): void => {
       ],
       [
         "aLegalUnsupportedPrecisionIsDistinguished",
-        () =>
+        (): boolean =>
           refuses(
             productionWav({
               formatTag: 0xfffe,
@@ -355,7 +355,7 @@ export const test_production_audio_asset_refusal = (): void => {
       ],
       [
         "aMaskCountMismatchIsRefused",
-        () =>
+        (): boolean =>
           refuses(
             productionWav({
               formatTag: 0xfffe,
@@ -367,8 +367,8 @@ export const test_production_audio_asset_refusal = (): void => {
       ],
       [
         "unsupportedSpeakerLayoutsAreRefused",
-        () =>
-          [0, 0x5, 0xc].every((channelMask) =>
+        (): boolean =>
+          [0, 0x5, 0xc].every((channelMask: number): boolean =>
             refuses(
               productionWav({
                 formatTag: 0xfffe,
@@ -384,7 +384,7 @@ export const test_production_audio_asset_refusal = (): void => {
       ],
       [
         "nonFiniteFloatPcmIsRefusedAtItsPosition",
-        () =>
+        (): boolean =>
           refuses(
             productionWav({
               formatTag: 3,
@@ -396,7 +396,7 @@ export const test_production_audio_asset_refusal = (): void => {
       ],
       [
         "everyNonFinitePositionAndStereoChannelIsRefused",
-        () =>
+        (): boolean =>
           [
             [[Number.NaN, 0, 0]],
             [[0, Infinity, 0]],
@@ -405,7 +405,7 @@ export const test_production_audio_asset_refusal = (): void => {
               [0, 0],
               [0, Number.NaN],
             ],
-          ].every((channels) =>
+          ].every((channels: number[][]): boolean =>
             refuses(
               productionWav({ formatTag: 3, bitsPerSample: 32, channels }),
               ["[non-finite-pcm]"],
@@ -416,7 +416,7 @@ export const test_production_audio_asset_refusal = (): void => {
       // step from decode, so the refusals above are about their inputs.
       [
         "andTheWellFormedTwinStillDecodes",
-        () =>
+        (): boolean =>
           decodeProductionAudioAsset({
             path: ASSET,
             bytes: VALID,
@@ -462,4 +462,4 @@ export const test_production_audio_asset_refusal = (): void => {
       andTheWellFormedTwinStillDecodes: true,
     },
   );
-};
+}

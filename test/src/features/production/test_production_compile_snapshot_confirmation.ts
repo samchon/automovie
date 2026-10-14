@@ -1,5 +1,4 @@
 import type {
-  AutoMovieContentDigest,
   IAutoMovieBuildProjectOutput,
   IAutoMovieDiagnostic,
 } from "@automovie/interface";
@@ -9,11 +8,11 @@ import path from "node:path";
 
 import { loadSourceModule } from "../internal/loadSourceModule";
 
-const { confirmAutoMovieBuildInputSnapshot } = loadSourceModule<{
+type SnapshotConfirmationModule = {
   confirmAutoMovieBuildInputSnapshot(props: {
     diagnostics: IAutoMovieDiagnostic[];
     inputCurrent: () => boolean;
-    inputFingerprint: AutoMovieContentDigest;
+    inputFingerprint: string;
     inputRevision: number;
     authority: {
       confirmCurrentSnapshot: (
@@ -23,7 +22,8 @@ const { confirmAutoMovieBuildInputSnapshot } = loadSourceModule<{
       revision: () => number;
     };
   }): IAutoMovieBuildProjectOutput | null;
-}>(
+};
+const { confirmAutoMovieBuildInputSnapshot }: SnapshotConfirmationModule = loadSourceModule<SnapshotConfirmationModule>(
   path.resolve(
     __dirname,
     "../../../../packages/production/src/production/confirmAutoMovieBuildInputSnapshot.ts",
@@ -38,25 +38,30 @@ const { confirmAutoMovieBuildInputSnapshot } = loadSourceModule<{
  *    returns no failure, and needs no additional revision observation.
  * 2. A generation-race refusal becomes a structured failure at current revision.
  * 3. An unrelated authority failure propagates unchanged without reading state.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Confirms compilation through a supplied authority, asserting exact guard/revision forwarding, null success with no extra read, typed-race conversion at current revision and unrelated Error propagation without observation.
+ * @evidence contracts/testing.md#independent-expectations The authority handoff contract supplies expected identities, base revision 7, current revision 8 and selective race classification; the authored callbacks do not prove real locking, filesystem currentness or atomicity.
+ * @evidence contracts/testing.md#distinguishing-cases Contrasts successful confirmation, dedicated input-race refusal and unrelated failure, asserting exact callback identity and revision-read counts; secondary race-observation failure belongs to the race formatter unit.
+ * @evidence contracts/testing.md#execution-ownership The named exported portable unit reaches the production confirmation owner through the existing source loader with supplied callback capabilities and owns all assertions; it starts no native project or dynamic cases.
  */
-export const test_production_compile_snapshot_confirmation = (): void => {
-  const inputCurrent = (): boolean => true;
-  const common = {
+export function test_production_compile_snapshot_confirmation(): void {
+  const inputCurrent: () => boolean = (): boolean => true;
+  const common: Omit<Parameters<SnapshotConfirmationModule["confirmAutoMovieBuildInputSnapshot"]>[0], "authority"> = {
     diagnostics: [] as IAutoMovieDiagnostic[],
     inputCurrent,
-    inputFingerprint: `sha256:${"a".repeat(64)}` as AutoMovieContentDigest,
+    inputFingerprint: `sha256:${"a".repeat(64)}` as string,
     inputRevision: 7,
   };
-  let revisionReads = 0;
-  let confirmed = false;
-  const revision = (): number => {
+  let revisionReads: number = 0;
+  let confirmed: boolean = false;
+  const revision: () => number = (): number => {
     revisionReads += 1;
     return 8;
   };
-  const successful = confirmAutoMovieBuildInputSnapshot({
+  const successful: IAutoMovieBuildProjectOutput | null = confirmAutoMovieBuildInputSnapshot({
     ...common,
     authority: {
-      confirmCurrentSnapshot: (current, expected) => {
+      confirmCurrentSnapshot: (current: () => boolean, expected: number): number => {
         confirmed = current === inputCurrent && expected === 7 && current();
         return expected;
       },
@@ -68,13 +73,13 @@ export const test_production_compile_snapshot_confirmation = (): void => {
     { successful, confirmed, revisionReads },
     { successful: null, confirmed: true, revisionReads: 0 },
   );
-  const race = new AutoMovieProductionInputRaceError(
+  const race: AutoMovieProductionInputRaceError = new AutoMovieProductionInputRaceError(
     "A concurrent source edit changed the input.",
   );
-  const refused = confirmAutoMovieBuildInputSnapshot({
+  const refused: IAutoMovieBuildProjectOutput | null = confirmAutoMovieBuildInputSnapshot({
     ...common,
     authority: {
-      confirmCurrentSnapshot: () => {
+      confirmCurrentSnapshot: (): number => {
         throw race;
       },
       revision,
@@ -95,13 +100,13 @@ export const test_production_compile_snapshot_confirmation = (): void => {
       revisionReads: 1,
     },
   );
-  const unrelated = new Error("The observation transport is unavailable.");
+  const unrelated: Error = new Error("The observation transport is unavailable.");
   let caught: unknown;
   try {
     confirmAutoMovieBuildInputSnapshot({
       ...common,
       authority: {
-        confirmCurrentSnapshot: () => {
+        confirmCurrentSnapshot: (): number => {
           throw unrelated;
         },
         revision,
@@ -119,4 +124,4 @@ export const test_production_compile_snapshot_confirmation = (): void => {
     revisionReads,
     1,
   );
-};
+}

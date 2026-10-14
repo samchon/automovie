@@ -28,20 +28,20 @@ import { TestValidator } from "@nestia/e2e";
 import { makeProp, primitivePart } from "../internal/fixtures";
 import { namedFacts } from "../internal/predicates";
 
-const FPS = 24;
-const SECONDS = 4;
-const ASPECT = 16 / 9;
-const FOV_Y = 40;
-const HALF_Y = Math.tan(((FOV_Y / 2) * Math.PI) / 180);
-const HALF_X = HALF_Y * ASPECT;
+const FPS: number = 24;
+const SECONDS: number = 4;
+const ASPECT: number = 16 / 9;
+const FOV_Y: number = 40;
+const HALF_Y: number = Math.tan(((FOV_Y / 2) * Math.PI) / 180);
+const HALF_X: number = HALF_Y * ASPECT;
 
-const point = (x: number, y: number, z: number): IAutoMovieVector3 => ({
+const point: (x: number, y: number, z: number) => IAutoMovieVector3 = (x: number, y: number, z: number): IAutoMovieVector3 => ({
   x,
   y,
   z,
 });
 
-const placed = (
+const placed: (translation: IAutoMovieVector3, rotation?: IAutoMovieQuaternion) => IAutoMovieTransform = (
   translation: IAutoMovieVector3,
   rotation: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 },
 ): IAutoMovieTransform => ({
@@ -55,7 +55,7 @@ const placed = (
  * where the building was placed, and the mass runs outward and upward from it.
  * `offset` is where the slab's centre lands in model space.
  */
-const element = (
+const element: (id: string, size: { width: number; height: number; depth: number }, offset: IAutoMovieVector3) => IAutoMovieModel = (
   id: string,
   size: { width: number; height: number; depth: number },
   offset: IAutoMovieVector3,
@@ -67,14 +67,14 @@ const element = (
 });
 
 /** A 60 m facade running outward from its element origin, 24 m tall, 2 m thick. */
-const FACADE = element(
+const FACADE: IAutoMovieModel = element(
   "facade",
   { width: 60, height: 24, depth: 2 },
   point(30, 12, 0),
 );
 
 /** A rig span far enough from the stand-in height to classify differently. */
-const RIG_SPAN = 6;
+const RIG_SPAN: number = 6;
 
 /**
  * A two-joint mast: nothing to draw, so the rig span is what stands in for the
@@ -99,7 +99,7 @@ const MAST: IAutoMovieSkeleton = {
 };
 
 /** A canopy whose 4 m deck hangs 8 m above its element origin. */
-const CANOPY = element(
+const CANOPY: IAutoMovieModel = element(
   "canopy",
   { width: 12, height: 4, depth: 6 },
   point(0, 10, 0),
@@ -112,20 +112,20 @@ const CANOPY = element(
  * Hand arithmetic rather than a call, so the fixture states the geometry it
  * expects the reader to check.
  */
-const solvedCamera = (
+const solvedCamera: (framed: ReturnType<typeof framedBoxOf>, framing: IAutoMovieCameraIntent["framing"]) => IAutoMovieTransform = (
   framed: ReturnType<typeof framedBoxOf>,
   framing: IAutoMovieCameraIntent["framing"],
 ): IAutoMovieTransform => {
-  const fraction = FRAMING_HEIGHT_FRACTION[framing];
-  const distance = Math.max(
+  const fraction: number = FRAMING_HEIGHT_FRACTION[framing];
+  const distance: number = Math.max(
     (framed.height * fraction) / 2 / HALF_Y,
     (framed.radius * 2 * fraction) / 2 / HALF_X,
   );
-  const aim = {
+  const aim: IAutoMovieVector3 = {
     ...framed.base,
     y: framed.base.y + framed.height * FRAMING_AIM_FRACTION[framing],
   };
-  const position = { ...aim, z: aim.z + distance };
+  const position: IAutoMovieVector3 = { ...aim, z: aim.z + distance };
   return placed(
     position,
     lookRotation({
@@ -137,7 +137,7 @@ const solvedCamera = (
 };
 
 /** The world box the framing solve and the contract grade both read. */
-const framedBoxAt = (
+const framedBoxAt: (model: IAutoMovieModel, placement: IAutoMovieTransform) => ReturnType<typeof framedBoxOf> = (
   model: IAutoMovieModel,
   placement: IAutoMovieTransform,
 ): ReturnType<typeof framedBoxOf> =>
@@ -149,7 +149,7 @@ const framedBoxAt = (
   );
 
 /** One shot holding one staged set piece, framed by the camera solved for it. */
-const readEdit = (props: {
+function readEdit(props: {
   model: IAutoMovieModel;
   placement: IAutoMovieTransform;
   framing: IAutoMovieCameraIntent["framing"];
@@ -157,7 +157,7 @@ const readEdit = (props: {
   solveFor?: IAutoMovieCameraIntent["framing"];
   /** The box the camera was solved for, when the model does not state it. */
   solveBox?: ReturnType<typeof framedBoxOf>;
-}): IAutoMovieDiagnostic[] => {
+}): IAutoMovieDiagnostic[] {
   const contract: IAutoMovieShotContract = {
     id: "elevation",
     beat: "beat-elevation",
@@ -250,25 +250,25 @@ const readEdit = (props: {
     contracts: new Map([[contract.id, contract]]),
     compiled: new Map([[contract.id, compiled]]),
   });
-};
+}
 
 /**
  * What the edit read reported before it shared the subject definition: the
  * node's root translation carrying the model's vertical span, projected for
  * vertical frame occupancy alone.
  */
-const rootAndHeightSize = (props: {
+function rootAndHeightSize(props: {
   model: IAutoMovieModel;
   placement: IAutoMovieTransform;
   framing: IAutoMovieCameraIntent["framing"];
-}): IAutoMovieCameraIntent["framing"] | null => {
-  const framed = framedBoxAt(props.model, props.placement);
-  const camera = solvedCamera(framed, props.framing);
-  const resolved = { position: camera.translation, rotation: camera.rotation };
-  const drawn = computeModelRestExtent(props.model)!;
-  const root = props.placement.translation;
-  const base = projectToNdc(resolved, root, HALF_Y, ASPECT);
-  const top = projectToNdc(
+}): IAutoMovieCameraIntent["framing"] | null {
+  const framed: ReturnType<typeof framedBoxOf> = framedBoxAt(props.model, props.placement);
+  const camera: IAutoMovieTransform = solvedCamera(framed, props.framing);
+  const resolved: Parameters<typeof projectToNdc>[0] = { position: camera.translation, rotation: camera.rotation };
+  const drawn: NonNullable<ReturnType<typeof computeModelRestExtent>> = computeModelRestExtent(props.model)!;
+  const root: IAutoMovieVector3 = props.placement.translation;
+  const base: ReturnType<typeof projectToNdc> = projectToNdc(resolved, root, HALF_Y, ASPECT);
+  const top: ReturnType<typeof projectToNdc> = projectToNdc(
     resolved,
     { ...root, y: root.y + (drawn.max.y - drawn.min.y) },
     HALF_Y,
@@ -276,7 +276,7 @@ const rootAndHeightSize = (props: {
   );
   if (base.depth <= 1e-6 || top.depth <= 1e-6) return null;
   return classifyGrammarShotSize(Math.abs(top.ndcY - base.ndcY) / 2);
-};
+}
 
 /**
  * The edit reads a staged set piece from the same box the camera was solved
@@ -314,13 +314,18 @@ const rootAndHeightSize = (props: {
  * 6. A framing the solved camera genuinely does not deliver is still reported:
  *    the facade camera solved for `medium` under a declared `close` intent
  *    keeps the finding, so the convergence did not silence the check.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Reads compiled facade, raised canopy and empty rig subjects against their declared framing, requiring no false size warning, exposing the old root/height misclassification and retaining a real close-versus-medium mismatch warning.
+ * @evidence contracts/testing.md#independent-expectations Authored dimensions, offsets, rig span and framing fractions supply the fixture geometry; pinhole hand arithmetic places the camera. The fixture deliberately shares box reducers, framing constants and rotation/projection helpers with production, so it proves integration agreement and the contrasting mismatch rather than independent correctness of every geometry owner or rendered pixels.
+ * @evidence contracts/testing.md#distinguishing-cases Preserves all six scenarios: width-bound facade, old vertical-only facade reading, elevated canopy, old origin canopy reading, empty model rig versus stand-in height and an actually mismatched declared framing. Motion-deformed bounds, malformed rigs and general projection admission belong to other units.
+ * @evidence contracts/testing.md#execution-ownership The named exported portable unit owns all cases and passes the existing in-memory geometric fixtures to production diagnostics; no new geometry asset, Human renderer, GPU, native host or dynamic test is created.
  */
-export const test_production_film_grammar_subject_box = (): void => {
-  const facade = {
+export function test_production_film_grammar_subject_box(): void {
+  const facade: Parameters<typeof readEdit>[0] = {
     model: FACADE,
     placement: placed(point(0, 0, 0)),
     framing: "medium",
-  } as const;
+  };
   TestValidator.equals(
     "a facade framed by its own solve files no shot-size finding",
     readEdit(facade),
@@ -332,11 +337,11 @@ export const test_production_film_grammar_subject_box = (): void => {
     "full",
   );
 
-  const canopy = {
+  const canopy: Parameters<typeof readEdit>[0] = {
     model: CANOPY,
     placement: placed(point(0, 0, 0)),
     framing: "medium",
-  } as const;
+  };
   TestValidator.equals(
     "a deck authored 8 m up is read where it draws",
     readEdit(canopy),
@@ -348,11 +353,11 @@ export const test_production_film_grammar_subject_box = (): void => {
     "full",
   );
 
-  const rigged = {
+  const rigged: Parameters<typeof readEdit>[0] = {
     model: { ...makeProp([], null), id: "rigged", skeleton: MAST },
     placement: placed(point(0, 0, 0)),
     framing: "full",
-  } as const;
+  };
   TestValidator.equals(
     "a subject with nothing to draw is framed and read on its rig span",
     readEdit({
@@ -370,11 +375,11 @@ export const test_production_film_grammar_subject_box = (): void => {
         height: DEFAULT_SUBJECT_HEIGHT,
         radius: 0,
       },
-    }).map((diagnostic) => diagnostic.code),
+    }).map((diagnostic: IAutoMovieDiagnostic): string => diagnostic.code),
     ["grammar-shot-size"],
   );
 
-  const mismatched = readEdit({
+  const mismatched: IAutoMovieDiagnostic[] = readEdit({
     ...facade,
     framing: "close",
     solveFor: "medium",
@@ -382,12 +387,12 @@ export const test_production_film_grammar_subject_box = (): void => {
   TestValidator.equals(
     "a framing the solved camera does not deliver is still reported",
     namedFacts([
-      ["one finding", () => mismatched.length === 1],
-      ["shot-size family", () => mismatched[0]!.code === "grammar-shot-size"],
-      ["filed on its shot", () => mismatched[0]!.target === "shot:elevation"],
+      ["one finding", (): boolean => mismatched.length === 1],
+      ["shot-size family", (): boolean => mismatched[0]!.code === "grammar-shot-size"],
+      ["filed on its shot", (): boolean => mismatched[0]!.target === "shot:elevation"],
       [
         "names the size the camera delivers",
-        () => mismatched[0]!.message.includes("medium -> medium"),
+        (): boolean => mismatched[0]!.message.includes("medium -> medium"),
       ],
     ]),
     {
@@ -397,4 +402,4 @@ export const test_production_film_grammar_subject_box = (): void => {
       "names the size the camera delivers": true,
     },
   );
-};
+}

@@ -10,9 +10,14 @@ import { refuses } from "../internal/designReference/refuses";
  * Scenarios:
  *
  * 1. Admit the adjacent supported grammar and independently stated facts.
- * 2. Refuse every malformed family input at its owning native parsing stage.
+ * 2. Refuse every authored malformed family input at its owning production parsing stage.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Inspects authored JPEG bytes and asserts typed refusals plus exact family/stage results and a fill-byte positive, catching incomplete framing, inconsistent components, invalid restart state or ignored trailing input.
+ * @evidence contracts/testing.md#independent-expectations Independent marker lengths, frame dimensions, scan membership and restart/EOI grammar define the supported marker profile; authored mutations target those obligations rather than snapshotting reader output. Huffman/DCT pixels and full JPEG semantics are not decoded or certified.
+ * @evidence contracts/testing.md#distinguishing-cases Covers incomplete/multiple/empty frames, missing or invalid scans, unknown/duplicate components, absent/zero/malformed DRI, empty scan, marker/length/extent/closure boundaries, legal fill bytes and out-of-order restart; baseline/progressive positive dispatch and adjacent segment boundaries belong to neighboring units.
+ * @evidence contracts/testing.md#execution-ownership The named exported portable unit owns all byte inputs and assertions through existing helpers calling actual production inspection; it creates no filesystem asset, native process, GPU or dynamic case.
  */
-export const test_production_design_reference_jpeg = (): void => {
+export function test_production_design_reference_jpeg(): void {
   TestValidator.equals(
     "JPEG needs a complete frame, scan and terminal EOI",
     [
@@ -99,8 +104,8 @@ export const test_production_design_reference_jpeg = (): void => {
     ],
     [true, true, true, true, true, true, true, true, true, true, true, true],
   );
-  const frame = segment(0xc0, [8, 0, 3, 0, 4, 1, 1, 0x11, 0]);
-  const scan = segment(0xda, [1, 1, 0, 0, 63, 0]);
+  const frame: number[] = segment(0xc0, [8, 0, 3, 0, 4, 1, 1, 0x11, 0]);
+  const scan: number[] = segment(0xda, [1, 1, 0, 0, 63, 0]);
   TestValidator.equals(
     "native parser stages retain exact family and refusal identity",
     {
@@ -187,4 +192,4 @@ export const test_production_design_reference_jpeg = (): void => {
     },
   );
 
-};
+}

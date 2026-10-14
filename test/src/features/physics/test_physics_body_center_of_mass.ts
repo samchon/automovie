@@ -5,8 +5,8 @@ import { TestValidator } from "@nestia/e2e";
 import { makeProp, primitivePart } from "../internal/fixtures";
 import { vclose } from "../internal/predicates";
 
-const box = primitivePart("b", { type: "box", width: 1, height: 1, depth: 1 });
-const body = (
+const box: ReturnType<typeof primitivePart> = primitivePart("b", { type: "box", width: 1, height: 1, depth: 1 });
+const body: (centerOfMass: IAutoMovieBody["centerOfMass"]) => IAutoMovieBody = (
   centerOfMass: IAutoMovieBody["centerOfMass"],
 ): IAutoMovieBody => ({
   mass: 1,
@@ -27,8 +27,13 @@ const body = (
  *    origin → the origin).
  * 3. No body at all also derives from geometry.
  * 4. No body and no primitive volume (a plane) → null.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Resolves model centers through bodyCenterOfMass, requiring authored override precedence, geometric fallback and null when no volume exists; a wrapper that always derives or always requires a body fails.
+ * @evidence contracts/testing.md#independent-expectations The authored offset and a symmetric unit box's origin are explicit expectations, independent of deriveCenterOfMass output. The fixture does not prove reference identity or arbitrary articulated density.
+ * @evidence contracts/testing.md#distinguishing-cases Contrasts non-null override, null center, absent body and plane-only absence; aggregate volume weighting and primitive formulas belong to neighboring physics units.
+ * @evidence contracts/testing.md#execution-ownership The named exported portable unit calls the engine with existing in-memory prop fixtures and owns all assertions without hosts or dynamic registration.
  */
-export const test_physics_body_center_of_mass = (): void => {
+export function test_physics_body_center_of_mass(): void {
   TestValidator.predicate(
     "explicit body COM wins",
     vclose(bodyCenterOfMass(makeProp([box], body({ x: 0.5, y: 0, z: 0 })))!, {
@@ -56,4 +61,4 @@ export const test_physics_body_center_of_mass = (): void => {
     ),
     null,
   );
-};
+}

@@ -12,11 +12,16 @@ import { utf8 } from "../internal/designReference/utf8";
  *
  * 1. Decode the independently authored four by three PNG extent.
  * 2. Read baseline, progressive and restart JPEG grammar at the same extent.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Inspects actual PNG bytes and authored JPEG marker streams through production dispatch, requiring parsed integer pixel extents and distinguishing typed encoding/container failures from noncandidate null.
+ * @evidence contracts/testing.md#independent-expectations The PNG writer receives width 4/height 3 and authored JPEG headers state those independent extents. JPEG fixtures establish marker-profile admission rather than decoded pixel or visual validity; the PNG positive alone does not establish all framing boundaries.
+ * @evidence contracts/testing.md#distinguishing-cases Covers PNG and baseline/progressive/restart JPEG, a truncated raster, malformed UTF-8 XML and plain text; detailed family refusal stages belong to neighboring design-reference units.
+ * @evidence contracts/testing.md#execution-ownership The named exported unit uses the real in-memory PNG codec and production inspector through existing helpers, owning its assertions without native processes, filesystem assets or dynamic cases.
  */
-export const test_production_design_reference_container = (): void => {
-  const image = new PNG({ width: 4, height: 3 });
+export function test_production_design_reference_container(): void {
+  const image: PNG = new PNG({ width: 4, height: 3 });
   image.data.fill(0xff);
-  const png = PNG.sync.write(image);
+  const png: Buffer = PNG.sync.write(image);
   TestValidator.predicate(
     "the adjacent supported raster does not raise a container refusal",
     refuses("supported.png", png) === false,
@@ -46,4 +51,4 @@ export const test_production_design_reference_container = (): void => {
     ],
   );
 
-};
+}

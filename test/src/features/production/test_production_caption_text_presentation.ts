@@ -8,6 +8,20 @@ import {
 } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
+/** Whether the real serializer refuses the supplied owned identifier by its exact message. */
+const refusedIdentifier: (value: string) => boolean = (value: string): boolean => {
+  try {
+    serializeAutoMovieWebVttIdentifier(value);
+    return false;
+  } catch (error) {
+    return (
+      error instanceof Error &&
+      error.message ===
+        "WebVTT header and cue identifiers must be non-empty and must not contain a line break or -->."
+    );
+  }
+};
+
 /**
  * Readability and WebVTT consume one canonical caption presentation.
  *
@@ -26,23 +40,15 @@ import { TestValidator } from "@nestia/e2e";
  *    would drop the cue's id.
  * 6. Direct WebVTT serialization refuses a malformed language rather than
  *    publishing it as an annotation.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls the real caption canonicalizer and WebVTT payload/annotation/identifier serializers, then serializes the original complete timeline. Exact strings assert newline/control mapping, escaping, empty-line spans, speaker/language markup and cue timing; malformed identifiers require their exact error message and malformed language must throw.
+ * @evidence contracts/testing.md#independent-expectations Authored LF strings and complete WebVTT bytes independently state the format transformations, and four frames at 4 fps give the one-second cue. The local payload extraction is only a secondary check of this known span shape, not a general WebVTT parser or proof of player rendering.
+ * @evidence contracts/testing.md#distinguishing-cases Preserves all six numbered scenarios, every C0 byte plus DEL, legal tab/LF, CRLF/CR/LF, all three reserved text characters, empty authored lines, verbatim special-character identifiers, three invalid identifier shapes and the original malformed-language serialization refusal.
+ * @evidence contracts/testing.md#execution-ownership The named exported portable unit owns its strings and timeline, mutating only the owned caption language for the last refusal. All assertions call maintained public render APIs without foreign method/global replacement, native player, file I/O or generated tests.
  */
-const refusedIdentifier = (value: string): boolean => {
-  try {
-    serializeAutoMovieWebVttIdentifier(value);
-    return false;
-  } catch (error) {
-    return (
-      error instanceof Error &&
-      error.message ===
-        "WebVTT header and cue identifiers must be non-empty and must not contain a line break or -->."
-    );
-  }
-};
-
-export const test_production_caption_text_presentation = (): void => {
-  const authored = "first\r\nsecond\rthird\nfourth\t<&>\u0001\n\nlast\u007f";
-  const canonical = "first\nsecond\nthird\nfourth\t<&> \n\nlast ";
+export function test_production_caption_text_presentation(): void {
+  const authored: string = "first\r\nsecond\rthird\nfourth\t<&>\u0001\n\nlast\u007f";
+  const canonical: string = "first\nsecond\nthird\nfourth\t<&> \n\nlast ";
   TestValidator.equals(
     "all authored newline forms share one presentation and legal tab survives",
     canonicalizeAutoMovieCaptionText(authored),
@@ -51,7 +57,7 @@ export const test_production_caption_text_presentation = (): void => {
   TestValidator.equals(
     "every prohibited caption control is sanitized without touching tab or LF",
     canonicalizeAutoMovieCaptionText(
-      `${String.fromCharCode(...Array.from({ length: 32 }, (_, index) => index))}\u007f`,
+      `${String.fromCharCode(...Array.from({ length: 32 }, (_: unknown, index: number): number => index))}\u007f`,
     ),
     `${" ".repeat(9)}\t\n  \n${" ".repeat(19)}`,
   );
@@ -101,13 +107,13 @@ export const test_production_caption_text_presentation = (): void => {
       ],
     },
   };
-  const serialized = canonicalProductionWebVtt(timeline);
+  const serialized: string = canonicalProductionWebVtt(timeline);
   TestValidator.equals(
     "canonical WebVTT preserves the exact caption presentation bytes",
     serialized,
     "WEBVTT film<&>\n\ncue<&>\n00:00:00.000 --> 00:00:01.000\n<lang EN-us><v Narrator One>first\n<c></c>\nthird\t&lt;&amp;&gt; </v></lang>\n",
   );
-  const payload = serialized
+  const payload: string = serialized
     .split("\n")
     .slice(4, -1)
     .join("\n")
@@ -125,6 +131,6 @@ export const test_production_caption_text_presentation = (): void => {
   timeline.tracks.captions[0]!.language = "en-12";
   TestValidator.error(
     "malformed caption languages fail closed at serialization",
-    () => canonicalProductionWebVtt(timeline),
+    (): string => canonicalProductionWebVtt(timeline),
   );
-};
+}

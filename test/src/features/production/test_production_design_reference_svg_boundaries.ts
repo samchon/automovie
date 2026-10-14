@@ -16,12 +16,18 @@ import { nclose } from "../internal/predicates";
  * 2. Withhold zero, negative, missing, infinite and non-SVG numeric bounds.
  * 3. Refuse reserved URI/prefix bindings, invalid character references,
  *    processing instructions, comments and exact closing-tag mismatches.
+ * 4. Require XML whitespace between attributes and forbid a comment body ending in a hyphen, while admitting adjacent legal spellings.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls the actual container inspector through shared direct-source helpers, asserting measured facts and typed family/stage refusals. Adjacent attributes and trailing-hyphen comments catch malformed XML previously admitted as SVG.
+ * @evidence contracts/testing.md#independent-expectations Literal user-unit extents and XML 1.0 Start-tag production 40 and Comment production 15 define the independent expected results; https://www.w3.org/TR/xml/#sec-starttags and https://www.w3.org/TR/xml/#sec-comments supply the grammar basis rather than a parser snapshot.
+ * @evidence contracts/testing.md#distinguishing-cases Preserves fraction/exponent/entity/declaration/namespace/CDATA positives, ten unsupported bounds and fourteen existing grammar refusals; adds root/child adjacent-attribute and prolog/body/epilog bad-comment cases alongside whitespace and legal-hyphen neighbors. Full SVG family selection belongs to the companion test.
+ * @evidence contracts/testing.md#execution-ownership The exported portable unit owns all authored in-memory XML cases and calls shared inspector/stage/UTF-8 helpers; it starts no filesystem consumer, process, browser, GPU or native build and replaces no foreign method.
  */
-export const test_production_design_reference_svg_boundaries = (): void => {
-  const root = '<svg xmlns="http://www.w3.org/2000/svg"';
-  const read = (xml: string): unknown => inspect("bounds.svg", utf8(xml));
-  const refusedStage = (xml: string): string => stage("boundary.svg", utf8(xml));
-  const fractional = read(`${root} viewBox="-1,+2,4e1,.5"/>`) as {
+export function test_production_design_reference_svg_boundaries(): void {
+  const root: string = '<svg xmlns="http://www.w3.org/2000/svg"';
+  function read(xml: string): unknown { return inspect("bounds.svg", utf8(xml)); }
+  function refusedStage(xml: string): string { return stage("boundary.svg", utf8(xml)); }
+  const fractional: { width: number; height: number } = read(`${root} viewBox="-1,+2,4e1,.5"/>`) as {
     width: number;
     height: number;
   };
@@ -29,17 +35,20 @@ export const test_production_design_reference_svg_boundaries = (): void => {
     "fraction and exponent spellings retain the independently calculated extent",
     nclose(fractional.width, 40) && nclose(fractional.height, 0.5),
   );
-  TestValidator.equals(
-    "supported lexical and user-unit neighbors retain their measured facts",
-    [
+  const supported: unknown[] = [
       read(`${root} width=" +4px " height="3e1"/>`),
       read(`${root} id="&lt;&gt;&quot;&apos;&amp;&#65;&#x42;">&#9;&#10;&#13;&#xE000;&#x10000;</svg>`),
       read(`<?xml version="1.0" encoding="utf-8" standalone="yes"?>${root}><g xmlns=""><leaf/></g><![CDATA[legal]]><!-- tail --></svg>`),
       read(`${root}></svg>\r\n<!-- epilog --><?pi data?>`),
       read(`${root}/><!-- epilog -->`),
-    ],
+    ];
+  const { width, height, ...supportedFacts }: { media: string; width: number; height: number } = supported[0] as { media: string; width: number; height: number };
+  TestValidator.predicate("unitless and px neighbors keep the exact authored extent", nclose(width, 4, 0) && nclose(height, 30, 0));
+  TestValidator.equals(
+    "supported lexical and user-unit neighbors retain their measured facts",
+    [supportedFacts, ...supported.slice(1)],
     [
-      { media: "image/svg+xml", width: 4, height: 30 },
+      { media: "image/svg+xml" },
       { media: "image/svg+xml" },
       { media: "image/svg+xml" },
       { media: "image/svg+xml" },
@@ -59,8 +68,8 @@ export const test_production_design_reference_svg_boundaries = (): void => {
       'width="4"',
       'height="4"',
       'width="0" height="4"',
-    ].map((attributes) => read(`${root} ${attributes}/>`)),
-    Array.from({ length: 10 }, () => ({ media: "image/svg+xml" })),
+    ].map((attributes: string): unknown => read(`${root} ${attributes}/>`)),
+    Array.from({ length: 10 }, (): { media: string } => ({ media: "image/svg+xml" })),
   );
   TestValidator.equals(
     "reserved and malformed lexical inputs retain the owning refusal stage",
@@ -86,4 +95,19 @@ export const test_production_design_reference_svg_boundaries = (): void => {
       "XML:instruction", "XML:character", "XML:character", "SVG:closure", "SVG:name",
     ],
   );
-};
+  const neighbors: unknown[] = [
+    read(`${root}\twidth="1"\r\nheight="2"/>`),
+    read(`<!---x-->${root}><g a="1" b="2"/><!--x- --></svg>`),
+    read(`${root}/><!-- -->`),
+  ];
+  const { width: neighborWidth, height: neighborHeight, ...neighborFacts }: { media: string; width: number; height: number } = neighbors[0] as { media: string; width: number; height: number };
+  TestValidator.predicate("XML whitespace keeps both exact dimensions", nclose(neighborWidth, 1, 0) && nclose(neighborHeight, 2, 0));
+  TestValidator.equals("XML whitespace and comment hyphen neighbors remain admissible", [neighborFacts, ...neighbors.slice(1)], [{ media: "image/svg+xml" }, { media: "image/svg+xml" }, { media: "image/svg+xml" }]);
+  TestValidator.equals("malformed attribute adjacency and comment closure refuse", [
+    refusedStage(`${root}width="1"/>`),
+    refusedStage(`${root}><g a="1"b="2"/></svg>`),
+    refusedStage(`<!--x--->${root}/>`),
+    refusedStage(`${root}><!--x---></svg>`),
+    refusedStage(`${root}/><!--x--->`),
+  ], ["SVG:root", "SVG:root", "XML:comment", "SVG:comment", "XML:comment"]);
+}

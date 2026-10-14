@@ -16,12 +16,17 @@ import { utf8 } from "../internal/designReference/utf8";
  *    identities without interpreting them as a different supported profile.
  * 3. Refuse unused/generation-mismatched Catalog entries and malformed page
  *    parent, type, Kids and Count identities at the native owner.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Inspects a nested classic PDF and malformed xref/trailer/page-tree records, asserting unmeasured admission or exact typed refusal stages; unsafe/coerced identities and inconsistent ancestry cannot become accepted metadata.
+ * @evidence contracts/testing.md#independent-expectations Authored indirect identities, exact byte offsets, safe-integer limits, parent links and one counted leaf define expected results independently of parser output. This bounded profile does not establish full PDF semantics, page extent or rendering.
+ * @evidence contracts/testing.md#distinguishing-cases Contrasts a two-level positive tree with absent objects, malformed/duplicate xref rows, unsafe/duplicate Root/Size, free or wrong-generation Root, invalid root/leaf parents and unsafe/duplicate counts or missing type; basic framing and cycles belong to the PDF unit.
+ * @evidence contracts/testing.md#execution-ownership The named exported portable unit owns all edits of existing in-memory PDF fixtures and calls production inspection through existing helpers; it starts no PDF host or dynamically registered cases.
  */
-export const test_production_design_reference_pdf_boundaries = (): void => {
-  const good = pdf();
-  const edit = (fn: (text: string) => string): string =>
+export function test_production_design_reference_pdf_boundaries(): void {
+  const good: Uint8Array = pdf();
+  const edit: (fn: (text: string) => string) => string = (fn: (text: string) => string): string =>
     stage("xref.pdf",latin1(good,fn));
-  const tree = (root: string, branch: string, leaf: string): string =>
+  const tree: (root: string, branch: string, leaf: string) => string = (root: string, branch: string, leaf: string): string =>
     stage("tree.pdf",pdf([
       "<< /Type /Catalog /Pages 2 0 R >>",root,branch,leaf,
     ]));
@@ -38,17 +43,17 @@ export const test_production_design_reference_pdf_boundaries = (): void => {
     "incomplete xref and Catalog identities are never admitted",
     [
       stage("objects.pdf",utf8("%PDF-1.4\nstartxref\n0\n%%EOF\n")),
-      edit((text)=>text.replace("0000000000 65535 f","malformed row")),
-      edit((text)=>text.replace("xref\n0 3","xref\n9007199254740992 3")),
-      edit((text)=>text.replace("xref\n0 3","xref\n0 9007199254740992")),
-      edit((text)=>text.replace("trailer\n", "0 1\n0000000000 65535 f \ntrailer\n")),
-      edit((text)=>text.replace("/Root 1 0 R", "/Root 1 0 R /Root 1 0 R")),
-      edit((text)=>text.replace("/Size 3", "/Size 3 /Size 3")),
-      edit((text)=>text.replace("/Size 3", "/Size 9007199254740992")),
-      edit((text)=>text.replace("/Root 1 0 R", "/Root 1 9007199254740992 R")),
-      edit((text)=>text.replace("/Size 3", "/Size 0")),
-      edit((text)=>text.replace("0000000009 00000 n", "0000000009 00000 f")),
-      edit((text)=>text.replace("/Root 1 0 R", "/Root 1 1 R")),
+      edit((text: string): string=>text.replace("0000000000 65535 f","malformed row")),
+      edit((text: string): string=>text.replace("xref\n0 3","xref\n9007199254740992 3")),
+      edit((text: string): string=>text.replace("xref\n0 3","xref\n0 9007199254740992")),
+      edit((text: string): string=>text.replace("trailer\n", "0 1\n0000000000 65535 f \ntrailer\n")),
+      edit((text: string): string=>text.replace("/Root 1 0 R", "/Root 1 0 R /Root 1 0 R")),
+      edit((text: string): string=>text.replace("/Size 3", "/Size 3 /Size 3")),
+      edit((text: string): string=>text.replace("/Size 3", "/Size 9007199254740992")),
+      edit((text: string): string=>text.replace("/Root 1 0 R", "/Root 1 9007199254740992 R")),
+      edit((text: string): string=>text.replace("/Size 3", "/Size 0")),
+      edit((text: string): string=>text.replace("0000000009 00000 n", "0000000009 00000 f")),
+      edit((text: string): string=>text.replace("/Root 1 0 R", "/Root 1 1 R")),
     ],
     ["PDF:object","PDF:trailer","PDF:trailer","PDF:trailer","PDF:trailer",
       "PDF:trailer","PDF:trailer","PDF:trailer","PDF:trailer","PDF:trailer",
@@ -65,6 +70,6 @@ export const test_production_design_reference_pdf_boundaries = (): void => {
       stage("double-count.pdf",pdf(["<< /Type /Catalog /Pages 2 0 R >>","<< /Type /Pages /Kids [] /Count 0 /Count 0 >>"])),
       stage("missing-type.pdf",pdf(["<< /Type /Catalog /Pages 2 0 R >>","<< /Kids [] /Count 0 >>"])),
     ],
-    Array.from({length:7},()=>"PDF:Pages"),
+    Array.from({length:7},(): string=>"PDF:Pages"),
   );
-};
+}

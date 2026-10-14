@@ -13,11 +13,16 @@ import { createFile } from "mp4box";
  * 3. Remove mvhd from actual owned box data and verify the native missing-header refusal.
  * 4. Refuse a movie duration whose floating-point product rounds onto a
  *    whole number while the exact quotient is fractional.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls the real trim operation on resident SDK movie/track records, admits the original 312-sample edit and requires the original messages for malformed clocks, missing track/header, duplicate edit and an exactly fractional movie duration. The rounded-duration refusal also leaves the track without an edit.
+ * @evidence contracts/testing.md#independent-expectations ISO edit durations require an integral presentationSamples * movieTimescale / mediaTimescale. The authored 3002399751580331 * 3 / 4 remainder is independently fractional despite double rounding; fixed messages and owned absent records distinguish the refusal causes. Successful edit field contents and playback are not independently asserted here.
+ * @evidence contracts/testing.md#distinguishing-cases Preserves four numbered scenarios, zero track, negative priming, 1 * 2 / 3 ticks, absent real track, duplicate 312-sample trim, missing mvhd and the large exact-remainder boundary with their original counts and ordering.
+ * @evidence contracts/testing.md#execution-ownership The named exported portable unit owns its SDK containers and mutates only their box data to author the missing-header input. It invokes real SDK lookup and product trim methods without replacing foreign methods or launching a codec, file process or dynamic test.
  */
-export const test_production_audio_presentation_trim = (): void => {
-  const editFile = createFile();
+export function test_production_audio_presentation_trim(): void {
+  const editFile: ReturnType<typeof createFile> = createFile();
   editFile.init({ brands: ["isom"], timescale: 48_000, duration: 960 });
-  const editTrack = editFile.addTrack({
+  const editTrack: number = editFile.addTrack({
     type: "Opus",
     hdlr: "soun",
     timescale: 48_000,
@@ -29,9 +34,9 @@ export const test_production_audio_presentation_trim = (): void => {
     namedFacts([
       [
         "refusedTrimProductionAudioPresentationFile",
-        () =>
+        (): boolean =>
           refused(
-            () =>
+            (): void =>
               trimProductionAudioPresentation({
                 file: editFile,
                 track: 0,
@@ -45,9 +50,9 @@ export const test_production_audio_presentation_trim = (): void => {
       ],
       [
         "refusedTrimProductionAudioPresentationFile2",
-        () =>
+        (): boolean =>
           refused(
-            () =>
+            (): void =>
               trimProductionAudioPresentation({
                 file: editFile,
                 track: editTrack,
@@ -61,9 +66,9 @@ export const test_production_audio_presentation_trim = (): void => {
       ],
       [
         "refusedTrimProductionAudioPresentationFile3",
-        () =>
+        (): boolean =>
           refused(
-            () =>
+            (): void =>
               trimProductionAudioPresentation({
                 file: editFile,
                 track: editTrack,
@@ -77,9 +82,9 @@ export const test_production_audio_presentation_trim = (): void => {
       ],
       [
         "refusedTrimProductionAudioPresentationFile4",
-        () =>
+        (): boolean =>
           refused(
-            () =>
+            (): void =>
               trimProductionAudioPresentation({
                 file: editFile,
                 track: editTrack + 1,
@@ -110,7 +115,7 @@ export const test_production_audio_presentation_trim = (): void => {
   TestValidator.predicate(
     "audio presentation edits cannot be added twice",
     refused(
-      () =>
+      (): void =>
         trimProductionAudioPresentation({
           file: editFile,
           track: editTrack,
@@ -122,9 +127,9 @@ export const test_production_audio_presentation_trim = (): void => {
       "already has",
     ),
   );
-  const headerless = createFile();
+  const headerless: ReturnType<typeof createFile> = createFile();
   headerless.init({ brands: ["isom"], timescale: 48_000, duration: 960 });
-  const headerlessTrack = headerless.addTrack({
+  const headerlessTrack: number = headerless.addTrack({
     type: "Opus",
     hdlr: "soun",
     timescale: 48_000,
@@ -134,7 +139,7 @@ export const test_production_audio_presentation_trim = (): void => {
   // This is the owned malformed container, not a replacement SDK method.
   // Native getBoxes traverses the writable child inventory of its moov.
   headerless.moov.boxes = headerless.moov.boxes!.filter(
-    (box) => box.type !== "mvhd",
+    (box: NonNullable<typeof headerless.moov.boxes>[number]): boolean => box.type !== "mvhd",
   );
   TestValidator.predicate(
     "the malformed container lacks mvhd while its real track still exists",
@@ -144,7 +149,7 @@ export const test_production_audio_presentation_trim = (): void => {
   TestValidator.predicate(
     "audio presentation edits require movie metadata",
     refused(
-      () =>
+      (): void =>
         trimProductionAudioPresentation({
           file: headerless,
           track: headerlessTrack,
@@ -159,9 +164,9 @@ export const test_production_audio_presentation_trim = (): void => {
 
   // 3002399751580331 * 3 is 2^53 + 1, which a double rounds to 2^53, a
   // multiple of 4; the exact product leaves remainder 1 over 4.
-  const rounded = createFile();
+  const rounded: ReturnType<typeof createFile> = createFile();
   rounded.init({ brands: ["isom"], timescale: 3, duration: 1 });
-  const roundedTrack = rounded.addTrack({
+  const roundedTrack: number = rounded.addTrack({
     type: "Opus",
     hdlr: "soun",
     timescale: 4,
@@ -171,7 +176,7 @@ export const test_production_audio_presentation_trim = (): void => {
   TestValidator.predicate(
     "a movie duration that is whole only after rounding is refused",
     refused(
-      () =>
+      (): void =>
         trimProductionAudioPresentation({
           file: rounded,
           track: roundedTrack,
@@ -183,4 +188,4 @@ export const test_production_audio_presentation_trim = (): void => {
       "does not land",
     ) && rounded.getTrackById(roundedTrack).edts === undefined,
   );
-};
+}

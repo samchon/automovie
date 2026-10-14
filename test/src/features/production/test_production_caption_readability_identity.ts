@@ -10,6 +10,8 @@ import {
 import { inspectAutoMovieCaptionReadabilityWithRuntime } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
+import { nclose } from "../internal/predicates";
+
 const identity: IAutoMovieCaptionGraphemeSegmentationIdentity = {
   algorithm: "fixture-segmenter",
   version: "1",
@@ -21,7 +23,7 @@ const identity: IAutoMovieCaptionGraphemeSegmentationIdentity = {
   },
 };
 
-const timeline = (
+const timeline: (captions: IAutoMovieFilmTimeline["tracks"]["captions"]) => IAutoMovieFilmTimeline = (
   captions: IAutoMovieFilmTimeline["tracks"]["captions"],
 ): IAutoMovieFilmTimeline => ({
   version: 1,
@@ -36,7 +38,7 @@ const timeline = (
   tracks: { audio: [], effects: [], captions },
 });
 
-const profile = (
+const profile: (segmentation: IAutoMovieCaptionGraphemeSegmentationIdentity, inclusive: boolean) => IAutoMovieCaptionReadabilityProfile = (
   segmentation: IAutoMovieCaptionGraphemeSegmentationIdentity,
   inclusive: boolean,
 ): IAutoMovieCaptionReadabilityProfile => ({
@@ -51,9 +53,9 @@ const profile = (
   minGapFrames: { value: 1, inclusive },
 });
 
-const runtime = (
+const runtime: (segmentation: IAutoMovieCaptionGraphemeSegmentationIdentity) => Parameters<typeof inspectAutoMovieCaptionReadabilityWithRuntime>[2] = (
   segmentation: IAutoMovieCaptionGraphemeSegmentationIdentity,
-) => ({
+): Parameters<typeof inspectAutoMovieCaptionReadabilityWithRuntime>[2] => ({
   identity: segmentation,
   segment: (value: string): Iterable<unknown> => Array.from(value),
 });
@@ -75,9 +77,14 @@ const runtime = (
  *    locale-mode mismatches remain unsupported without runtime fallback.
  * 7. Exact requested-to-resolved and exact locale-neutral identities evaluate,
  *    while the old two-field identity never becomes a version-2 verdict.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Measures the original canonical caption cues through both the public resident adapter and the real injected-runtime inspector, asserting measured counts/rate, complete identity propagation, language/profile/gap matching, inclusive/exclusive outcomes, all five breach kinds and explicit not-run reasons for missing or incompatible profiles.
+ * @evidence contracts/testing.md#independent-expectations The combining sequence and joined astronaut emoji supply two graphemes over four frames at 4 fps; authored ASCII cues independently give five graphemes, two lines, longest line four, duration four and gap one. Profile equality versus strict inequalities predicts the breach list. Public identity is compared with the published constant, not an independent proof of the host revision or every Unicode segmentation rule.
+ * @evidence contracts/testing.md#distinguishing-cases Preserves all seven numbered scenarios, Thai thresholds with the installed English segmenter, missing profile, case-equivalent and malformed languages, both boundary senses, each of six complete identity mismatches, locale-neutral success and the incomplete v1 identity refusal. Exclusive evaluation retains the same measured facts.
+ * @evidence contracts/testing.md#execution-ownership The named exported portable unit owns timeline/profile values and invokes the actual runtime injection seam; its fixture segmenter handles only the existing ASCII cases, while the Unicode case uses the installed public adapter. No foreign method/global replacement, native process, dynamic test or visual/readability user acceptance is claimed.
  */
-export const test_production_caption_readability_identity = (): void => {
-  const publicTimeline = timeline([
+export function test_production_caption_readability_identity(): void {
+  const publicTimeline: IAutoMovieFilmTimeline = timeline([
     {
       id: "unicode",
       text: "e\u0301\ud83d\udc69\u200d\ud83d\ude80\r\n",
@@ -86,12 +93,14 @@ export const test_production_caption_readability_identity = (): void => {
       endFrame: 4,
     },
   ]);
-  const measured = inspectAutoMovieCaptionReadability(publicTimeline, []);
+  const measured: ReturnType<typeof inspectAutoMovieCaptionReadability> = inspectAutoMovieCaptionReadability(publicTimeline, []);
+  const { graphemesPerSecond, ...measurement }: typeof measured.cues[number]["measurement"] = measured.cues[0]!.measurement;
+  TestValidator.predicate("two graphemes in one authored second retain the exact rate", nclose(graphemesPerSecond, 2, 0));
   TestValidator.equals(
     "the public wrapper reports its complete actual runtime identity",
     {
       version: measured.version,
-      measurement: measured.cues[0]!.measurement,
+      measurement,
       outcome: measured.cues[0]!.outcome,
       requested: AUTOMOVIE_CAPTION_GRAPHEME_SEGMENTATION.locale.requested,
       resolvedNonBlank:
@@ -108,7 +117,6 @@ export const test_production_caption_readability_identity = (): void => {
         maxLineGraphemes: 2,
         durationFrames: 4,
         gapBeforeFrames: null,
-        graphemesPerSecond: 2,
       },
       outcome: {
         status: "not-run",
@@ -120,7 +128,7 @@ export const test_production_caption_readability_identity = (): void => {
     },
   );
 
-  const thaiProfile = profile(AUTOMOVIE_CAPTION_GRAPHEME_SEGMENTATION, true);
+  const thaiProfile: IAutoMovieCaptionReadabilityProfile = profile(AUTOMOVIE_CAPTION_GRAPHEME_SEGMENTATION, true);
   thaiProfile.id = "thai-readability";
   thaiProfile.language = "th";
   TestValidator.equals(
@@ -146,14 +154,14 @@ export const test_production_caption_readability_identity = (): void => {
       endFrame: 9,
     },
   ];
-  const inclusive = inspectAutoMovieCaptionReadabilityWithRuntime(
+  const inclusive: ReturnType<typeof inspectAutoMovieCaptionReadabilityWithRuntime> = inspectAutoMovieCaptionReadabilityWithRuntime(
     timeline(cues),
     [profile(identity, true)],
     runtime(identity),
   );
   TestValidator.equals(
     "case-equivalent languages share profiles and same-language gap state",
-    inclusive.cues.map((cue) => ({
+    inclusive.cues.map((cue: typeof inclusive.cues[number]): { gap: number | null; status: typeof cue.outcome.status; passed: boolean | null } => ({
       gap: cue.measurement.gapBeforeFrames,
       status: cue.outcome.status,
       passed: cue.outcome.status === "evaluated" ? cue.outcome.passed : null,
@@ -164,9 +172,9 @@ export const test_production_caption_readability_identity = (): void => {
     ],
   );
 
-  const malformedLanguage = inspectAutoMovieCaptionReadabilityWithRuntime(
+  const malformedLanguage: ReturnType<typeof inspectAutoMovieCaptionReadabilityWithRuntime> = inspectAutoMovieCaptionReadabilityWithRuntime(
     timeline(
-      cues.map((cue, index) => ({
+      cues.map((cue: typeof cues[number], index: number): typeof cues[number] => ({
         ...cue,
         id: `malformed-${index}`,
         language: "en-12",
@@ -177,7 +185,7 @@ export const test_production_caption_readability_identity = (): void => {
   );
   TestValidator.equals(
     "malformed languages never become a profile or gap identity",
-    malformedLanguage.cues.map((cue) => ({
+    malformedLanguage.cues.map((cue: typeof malformedLanguage.cues[number]): { gap: number | null; outcome: typeof cue.outcome } => ({
       gap: cue.measurement.gapBeforeFrames,
       outcome: cue.outcome,
     })),
@@ -201,10 +209,19 @@ export const test_production_caption_readability_identity = (): void => {
     ],
   );
 
-  const exclusive = inspectAutoMovieCaptionReadabilityWithRuntime(
+  const exclusive: ReturnType<typeof inspectAutoMovieCaptionReadabilityWithRuntime> = inspectAutoMovieCaptionReadabilityWithRuntime(
     timeline(cues),
     [profile(identity, false)],
     runtime(identity),
+  );
+  TestValidator.predicate(
+    "changing threshold sense preserves every measured count, identity and rate",
+    exclusive.cues.every((cue: typeof exclusive.cues[number], index: number): boolean => {
+      const { graphemesPerSecond: actualRate, ...actual }: typeof cue.measurement = cue.measurement;
+      const { graphemesPerSecond: expectedRate, ...expected }: typeof cue.measurement = inclusive.cues[index]!.measurement;
+      TestValidator.equals("inclusive and exclusive measurement facts", actual, expected);
+      return nclose(actualRate, expectedRate, 0);
+    }),
   );
   TestValidator.equals(
     "exclusive equality reports every applicable boundary breach",
@@ -249,14 +266,14 @@ export const test_production_caption_readability_identity = (): void => {
   TestValidator.equals(
     "every complete identity mismatch is unsupported without fallback",
     mismatches.map(
-      (requested) =>
+      (requested: IAutoMovieCaptionGraphemeSegmentationIdentity): typeof inclusive.cues[number]["outcome"] =>
         inspectAutoMovieCaptionReadabilityWithRuntime(
           timeline(cues.slice(0, 1)),
           [profile(requested, true)],
           runtime(identity),
         ).cues[0]!.outcome,
     ),
-    mismatches.map((requested) => ({
+    mismatches.map((requested: IAutoMovieCaptionGraphemeSegmentationIdentity): typeof inclusive.cues[number]["outcome"] => ({
       status: "not-run" as const,
       segmentation: requested,
       reason: "caption-grapheme-segmentation-unsupported" as const,
@@ -269,7 +286,7 @@ export const test_production_caption_readability_identity = (): void => {
     granularity: "grapheme",
     locale: { kind: "locale-neutral" },
   };
-  const neutralOutcome = inspectAutoMovieCaptionReadabilityWithRuntime(
+  const neutralOutcome: typeof inclusive.cues[number]["outcome"] = inspectAutoMovieCaptionReadabilityWithRuntime(
     timeline(cues.slice(0, 1)),
     [profile(neutralIdentity, true)],
     runtime(neutralIdentity),
@@ -280,7 +297,7 @@ export const test_production_caption_readability_identity = (): void => {
     "evaluated",
   );
 
-  const oldProfile = {
+  const oldProfile: IAutoMovieCaptionReadabilityProfile = {
     ...profile(identity, true),
     segmentation: { algorithm: identity.algorithm, version: identity.version },
   } as unknown as IAutoMovieCaptionReadabilityProfile;
@@ -297,4 +314,4 @@ export const test_production_caption_readability_identity = (): void => {
       reason: "caption-grapheme-segmentation-unsupported",
     },
   );
-};
+}

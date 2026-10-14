@@ -12,77 +12,82 @@ import { refuses } from "../internal/designReference/refuses";
  * Scenarios:
  *
  * 1. Admit the adjacent supported grammar and independently stated facts.
- * 2. Refuse every malformed family input at its owning native parsing stage.
+ * 2. Refuse every authored malformed family input at its owning production parsing stage.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Inspects authored classic PDFs, requiring unmeasured empty/one-page admission and typed exact-stage refusals for invalid header, closure, xref, Root and Pages relationships; prefix-only or inconsistent tree admission fails.
+ * @evidence contracts/testing.md#independent-expectations The fixture computes byte offsets from independently authored object lengths; exact xref identity, Catalog reference, parent links, unique descendants and counted leaves define expected admission. The supported regex-based profile does not certify arbitrary dictionaries, streams, visual content or page extent.
+ * @evidence contracts/testing.md#distinguishing-cases Covers truncated/signature-only documents, offsets, xref counts, Root/Size and generation/type failures, missing or wrong Pages/Kids/Count, repeated/cyclic children and invalid parents, with empty/one-page positives; deeper and safe-integer boundaries belong to the adjacent PDF unit.
+ * @evidence contracts/testing.md#execution-ownership The named exported portable unit owns authored byte inputs and direct assertions through existing production-inspector helpers; it starts no PDF process, filesystem fixture or dynamic case.
  */
-export const test_production_design_reference_pdf = (): void => {
-  const invalidPdf = Buffer.from(
+export function test_production_design_reference_pdf(): void {
+  const invalidPdf: Buffer = Buffer.from(
     Buffer.from(pdf())
       .toString("latin1")
       .replace(/startxref\n\d+/, "startxref\n9999"),
     "latin1",
   );
-  const missingPdfRoot = Buffer.from(
+  const missingPdfRoot: Buffer = Buffer.from(
     Buffer.from(pdf()).toString("latin1").replace("/Root 1 0 R", "/Root 9 0 R"),
     "latin1",
   );
-  const wrongPdfOffset = Buffer.from(
+  const wrongPdfOffset: Buffer = Buffer.from(
     Buffer.from(pdf()).toString("latin1").replace("0000000009", "0000000008"),
     "latin1",
   );
-  const wrongPdfCount = Buffer.from(
+  const wrongPdfCount: Buffer = Buffer.from(
     Buffer.from(pdf()).toString("latin1").replace("xref\n0 3", "xref\n0 4"),
     "latin1",
   );
-  const wrongPdfRootType = Buffer.from(
+  const wrongPdfRootType: Buffer = Buffer.from(
     Buffer.from(pdf()).toString("latin1").replace("/Catalog", "/Pages"),
     "latin1",
   );
-  const missingPdfSize = Buffer.from(
+  const missingPdfSize: Buffer = Buffer.from(
     Buffer.from(pdf()).toString("latin1").replace("/Size 3 ", ""),
     "latin1",
   );
-  const shortPdfSize = Buffer.from(
+  const shortPdfSize: Buffer = Buffer.from(
     Buffer.from(pdf()).toString("latin1").replace("/Size 3", "/Size 2"),
     "latin1",
   );
-  const missingPages = pdf([
+  const missingPages: Uint8Array = pdf([
     "<< /Type /Catalog >>",
     "<< /Type /Pages /Kids [] /Count 0 >>",
   ]);
-  const missingPagesObject = pdf([
+  const missingPagesObject: Uint8Array = pdf([
     "<< /Type /Catalog /Pages 9 0 R >>",
     "<< /Type /Pages /Kids [] /Count 0 >>",
   ]);
-  const wrongPagesGeneration = pdf([
+  const wrongPagesGeneration: Uint8Array = pdf([
     "<< /Type /Catalog /Pages 2 1 R >>",
     "<< /Type /Pages /Kids [] /Count 0 >>",
   ]);
-  const wrongPagesType = pdf([
+  const wrongPagesType: Uint8Array = pdf([
     "<< /Type /Catalog /Pages 2 0 R >>",
     "<< /Type /Page >>",
   ]);
-  const missingKids = pdf([
+  const missingKids: Uint8Array = pdf([
     "<< /Type /Catalog /Pages 2 0 R >>",
     "<< /Type /Pages /Count 0 >>",
   ]);
-  const missingPageCount = pdf([
+  const missingPageCount: Uint8Array = pdf([
     "<< /Type /Catalog /Pages 2 0 R >>",
     "<< /Type /Pages /Kids [] >>",
   ]);
-  const wrongPageCount = pdf([
+  const wrongPageCount: Uint8Array = pdf([
     "<< /Type /Catalog /Pages 2 0 R >>",
     "<< /Type /Pages /Kids [] /Count 1 >>",
   ]);
-  const wrongPageParent = pdf([
+  const wrongPageParent: Uint8Array = pdf([
     "<< /Type /Catalog /Pages 2 0 R >>",
     "<< /Type /Pages /Kids [3 0 R] /Count 1 >>",
     "<< /Type /Page /Parent 9 0 R >>",
   ]);
-  const cyclicPages = pdf([
+  const cyclicPages: Uint8Array = pdf([
     "<< /Type /Catalog /Pages 2 0 R >>",
     "<< /Type /Pages /Kids [2 0 R] /Count 0 >>",
   ]);
-  const repeatedPage = pdf([
+  const repeatedPage: Uint8Array = pdf([
     "<< /Type /Catalog /Pages 2 0 R >>",
     "<< /Type /Pages /Kids [3 0 R 3 0 R] /Count 2 >>",
     "<< /Type /Page /Parent 2 0 R >>",
@@ -112,11 +117,11 @@ export const test_production_design_reference_pdf = (): void => {
     new Array(18).fill(true),
   );
   TestValidator.equals("closed empty and one-page PDF trees remain unmeasured", [inspect("sheet.pdf",pdf()), inspect("page.pdf",pdf(["<< /Type /Catalog /Pages 2 0 R >>","<< /Type /Pages /Kids [3 0 R] /Count 1 >>","<< /Type /Page /Parent 2 0 R >>"]))], [{media:"application/pdf"},{media:"application/pdf"}]);
-  const pdfText = (edit: (text: string) => string): Uint8Array =>
+  const pdfText: (edit: (text: string) => string) => Uint8Array = (edit: (text: string) => string): Uint8Array =>
     latin1(pdf(), edit);
-  const pageTree = (
+  const pageTree: (kid: string, pages?: string) => Uint8Array = (
     kid: string,
-    pages = "/Kids [3 0 R] /Count 1",
+    pages: string = "/Kids [3 0 R] /Count 1",
   ): Uint8Array =>
     pdf([
       "<< /Type /Catalog /Pages 2 0 R >>",
@@ -128,27 +133,27 @@ export const test_production_design_reference_pdf = (): void => {
     {
       pdfHeader: stage(
         "header.pdf",
-        pdfText((text) => text.replace("%PDF-1.4", "%PDF-2.0")),
+        pdfText((text: string): string => text.replace("%PDF-1.4", "%PDF-2.0")),
       ),
       pdfNoClosure: stage(
         "closure.pdf",
-        pdfText((text) => text.replace("%%EOF\n", "")),
+        pdfText((text: string): string => text.replace("%%EOF\n", "")),
       ),
       pdfNoTrailerKeyword: stage(
         "keyword.pdf",
-        pdfText((text) => text.replace("trailer", "trailor")),
+        pdfText((text: string): string => text.replace("trailer", "trailor")),
       ),
       pdfXrefLineSuffix: stage(
         "xref-line.pdf",
-        pdfText((text) => text.replace("xref\n0 3", "xref extra\n0 3")),
+        pdfText((text: string): string => text.replace("xref\n0 3", "xref extra\n0 3")),
       ),
       pdfXrefHeading: stage(
         "xref-heading.pdf",
-        pdfText((text) => text.replace("xref\n0 3\n", "xref\nzero 3\n")),
+        pdfText((text: string): string => text.replace("xref\n0 3\n", "xref\nzero 3\n")),
       ),
       pdfXrefEmptySubsection: stage(
         "xref-count.pdf",
-        pdfText((text) => text.replace("xref\n0 3\n", "xref\n0 0\n")),
+        pdfText((text: string): string => text.replace("xref\n0 3\n", "xref\n0 0\n")),
       ),
       pdfPageKidType: stage(
         "kid-type.pdf",
@@ -174,4 +179,4 @@ export const test_production_design_reference_pdf = (): void => {
     },
   );
 
-};
+}

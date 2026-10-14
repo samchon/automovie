@@ -12,7 +12,7 @@ import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts } from "../internal/predicates";
 
-const throws = (closure: () => unknown): boolean => {
+const throws: (closure: () => unknown) => boolean = (closure: () => unknown): boolean => {
   try {
     closure();
     return false;
@@ -21,15 +21,22 @@ const throws = (closure: () => unknown): boolean => {
   }
 };
 
-/** Content identity is canonical, domain-separated and source-EOL stable. */
-export const test_production_content_identity = (): void => {
+/**
+ * Content identity is canonical, domain-separated and source-EOL stable.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls public canonical JSON/byte, source-normalization, digest, framed-field fingerprint, comparator and path-segment APIs, asserting exact representations, the known SHA-256 of abc, separation when role or kind changes and portable filename round trips/refusal.
+ * @evidence contracts/testing.md#independent-expectations Authored canonical strings, BOM/EOL output, the fixed SHA-256 vector, UTF-16 order and RFC/Windows/dot escape spellings supply independent expectations. Role/kind inequality and repeated long-id equality establish only the checked separation/determinism cases, not collision freedom or complete fingerprint framing.
+ * @evidence contracts/testing.md#distinguishing-cases Retains every existing case: JSON omissions and null slots, three unsupported roots, BOM plus both CR forms, abc digest, independent role/kind changes, all three comparator outcomes, RFC hazards, CON/lpt9.json, dot aliases/trailing dot and the original long Unicode id whose hash segment is not reversible.
+ * @evidence contracts/testing.md#execution-ownership The named exported portable unit owns all authored values and byte arrays and invokes the real production exports synchronously. It opens no filesystem target, worker, native process or dynamic test; the protocol unit owns version migration and typed-domain categories.
+ */
+export function test_production_content_identity(): void {
   TestValidator.equals(
     "canonical keys and JSON omission semantics",
     canonicalizeAutoMovieJson({
       z: undefined,
       b: 2,
       a: [undefined, true, null, "x"],
-      omitted: () => undefined,
+      omitted: (): undefined => undefined,
       symbol: Symbol("x"),
     }),
     '{"a":[null,true,null,"x"],"b":2}',
@@ -44,15 +51,15 @@ export const test_production_content_identity = (): void => {
     namedFacts([
       [
         "throwsCanonicalizeAutoMovieJsonNaN",
-        () => throws(() => canonicalizeAutoMovieJson(Number.NaN)),
+        (): boolean => throws((): string => canonicalizeAutoMovieJson(Number.NaN)),
       ],
       [
         "throwsCanonicalizeAutoMovieJsonN",
-        () => throws(() => canonicalizeAutoMovieJson(1n)),
+        (): boolean => throws((): string => canonicalizeAutoMovieJson(1n)),
       ],
       [
         "throwsCanonicalizeAutoMovieJson",
-        () => throws(() => canonicalizeAutoMovieJson(undefined)),
+        (): boolean => throws((): string => canonicalizeAutoMovieJson(undefined)),
       ],
     ]),
     {
@@ -78,7 +85,7 @@ export const test_production_content_identity = (): void => {
     namedFacts([
       [
         "fingerprintAutoMovieFieldsRoleA",
-        () =>
+        (): boolean =>
           fingerprintAutoMovieFields([
             { role: "a", kind: "x", payload: Buffer.from("z") },
           ]) !==
@@ -88,7 +95,7 @@ export const test_production_content_identity = (): void => {
       ],
       [
         "fingerprintAutoMovieFieldsRoleA2",
-        () =>
+        (): boolean =>
           fingerprintAutoMovieFields([
             { role: "a", kind: "x", payload: Buffer.from("z") },
           ]) !==
@@ -121,15 +128,15 @@ export const test_production_content_identity = (): void => {
     namedFacts([
       [
         "encodeAutoMoviePathSegmentCONON",
-        () => encodeAutoMoviePathSegment("CON") === "%43ON",
+        (): boolean => encodeAutoMoviePathSegment("CON") === "%43ON",
       ],
       [
         "encodeAutoMoviePathSegmentLpt9Json",
-        () => encodeAutoMoviePathSegment("lpt9.json") === "%6Cpt9.json",
+        (): boolean => encodeAutoMoviePathSegment("lpt9.json") === "%6Cpt9.json",
       ],
       [
         "decodeAutoMoviePathSegmentONCON",
-        () => decodeAutoMoviePathSegment("%43ON") === "CON",
+        (): boolean => decodeAutoMoviePathSegment("%43ON") === "CON",
       ],
     ]),
     {
@@ -143,15 +150,15 @@ export const test_production_content_identity = (): void => {
     namedFacts([
       [
         "encodeAutoMoviePathSegmentE",
-        () => encodeAutoMoviePathSegment(".") === "%2E",
+        (): boolean => encodeAutoMoviePathSegment(".") === "%2E",
       ],
       [
         "encodeAutoMoviePathSegmentE2",
-        () => encodeAutoMoviePathSegment("..") === ".%2E",
+        (): boolean => encodeAutoMoviePathSegment("..") === ".%2E",
       ],
       [
         "encodeAutoMoviePathSegmentSharedShared",
-        () => encodeAutoMoviePathSegment("shared.") === "shared%2E",
+        (): boolean => encodeAutoMoviePathSegment("shared.") === "shared%2E",
       ],
     ]),
     {
@@ -160,19 +167,19 @@ export const test_production_content_identity = (): void => {
       encodeAutoMoviePathSegmentSharedShared: true,
     },
   );
-  const longId = "장편-전투-".repeat(64);
-  const longSegment = encodeAutoMoviePathSegment(longId);
+  const longId: string = "장편-전투-".repeat(64);
+  const longSegment: string = encodeAutoMoviePathSegment(longId);
   TestValidator.equals(
     "long ids use stable content-addressed segments",
     namedFacts([
-      ["sha256AF", () => /^~sha256-[0-9a-f]{64}$/.test(longSegment)],
+      ["sha256AF", (): boolean => /^~sha256-[0-9a-f]{64}$/.test(longSegment)],
       [
         "longSegmentEncodeAutoMoviePathSegmentLongId",
-        () => longSegment === encodeAutoMoviePathSegment(longId),
+        (): boolean => longSegment === encodeAutoMoviePathSegment(longId),
       ],
       [
         "throwsDecodeAutoMoviePathSegmentLongSegment",
-        () => throws(() => decodeAutoMoviePathSegment(longSegment)),
+        (): boolean => throws((): string => decodeAutoMoviePathSegment(longSegment)),
       ],
     ]),
     {
@@ -181,4 +188,4 @@ export const test_production_content_identity = (): void => {
       throwsDecodeAutoMoviePathSegmentLongSegment: true,
     },
   );
-};
+}

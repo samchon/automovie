@@ -5,6 +5,9 @@ import {
 } from "@automovie/engine";
 import {
   IAutoMovieCameraClearanceEnvelope,
+  IAutoMovieCamera,
+  IAutoMovieModel,
+  IAutoMovieScene,
   IAutoMovieStage,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -25,16 +28,17 @@ interface IClearanceRuntime {
   sampleRate: number;
 }
 
-const { recordAutoMovieProductionClearanceRevision } = loadSourceModule<{
+type ClearanceRevisionModule = {
   recordAutoMovieProductionClearanceRevision(props: {
     trace: ITrace | undefined;
     runtime: IClearanceRuntime;
   }): IClearanceRuntime;
-}>(productionModule("recordAutoMovieProductionClearanceRevision.ts"));
+};
+const { recordAutoMovieProductionClearanceRevision }: ClearanceRevisionModule = loadSourceModule<ClearanceRevisionModule>(productionModule("recordAutoMovieProductionClearanceRevision.ts"));
 
 /** One camera that either declares a physical envelope or carries none. */
-const stageWithClearance = (): IAutoMovieStage => {
-  const base = makeStagingWrite();
+const stageWithClearance: () => IAutoMovieStage = (): IAutoMovieStage => {
+  const base: IAutoMovieStage = makeStagingWrite();
   const clearance: IAutoMovieCameraClearanceEnvelope = {
     body: { center: { x: 0, y: 0, z: 0 }, radius: 0.01 },
     parentRig: null,
@@ -80,29 +84,34 @@ const stageWithClearance = (): IAutoMovieStage => {
  *    `$input.cameraClearance.currentRevision`, and the trace is still bound.
  * 4. A camera declaring no envelope compiles no report, raises no violation,
  *    and leaves the trace unbound.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Compiles actual camera clearance through the production recording runtime, requiring clear/stale/no-envelope outcomes, exact refusal path, revision-free report fields and the corresponding trace dependency flag.
+ * @evidence contracts/testing.md#independent-expectations The supplied matching/stale revision tokens and presence/absence of the authored envelope independently determine currentness admission and trace binding. Report-key absence is an observable artifact contract, not repository arrangement; the fixture does not independently certify geometric conservatism or a physical snapshot fence.
+ * @evidence contracts/testing.md#distinguishing-cases Contrasts matching envelope-bearing, changed current revision and no-envelope takes, preserving clear report count, zero findings, omitted revision fields and stale-path identity; untraced runtime identity, invalid clocks and geometric contacts belong to other units.
+ * @evidence contracts/testing.md#execution-ownership The named exported portable unit stages the existing in-memory scene and invokes engine compilation through the production wrapper loaded by the existing source hook. It owns every assertion and starts no renderer, filesystem project or dynamic case.
  */
-export const test_production_clearance_revision_binding = (): void => {
-  const stagedResult = stageScene(makeScriptWrite(), stageWithClearance());
+export function test_production_clearance_revision_binding(): void {
+  const stagedResult: ReturnType<typeof stageScene> = stageScene(makeScriptWrite(), stageWithClearance());
   if (stagedResult.success !== true)
     throw new Error("the clearance fixture must stage");
-  const scene = stagedResult.scene;
-  const heroCamera = scene.cameras[0]!;
-  const models = [
+  const scene: IAutoMovieScene = stagedResult.scene;
+  const heroCamera: IAutoMovieCamera = scene.cameras[0]!;
+  const models: IAutoMovieModel[] = [
     { ...createModel(), id: "stickman" },
     { ...createModel(), id: "knightB" },
   ];
 
-  const inspect = (props: {
+  function inspect(props: {
     revision: string;
     currentRevision: string;
     envelope: boolean;
-  }) => {
+  }): { reports: ReturnType<typeof compileCameraClearanceReports>; out: ViolationCollector; trace: ITrace } {
     const trace: ITrace = { documents: [], revisionBound: false };
-    const camera = props.envelope
+    const camera: IAutoMovieCamera = props.envelope
       ? heroCamera
       : { ...heroCamera, clearance: undefined };
-    const out = new ViolationCollector();
-    const reports = compileCameraClearanceReports({
+    const out: ViolationCollector = new ViolationCollector();
+    const reports: ReturnType<typeof compileCameraClearanceReports> = compileCameraClearanceReports({
       scene: { ...scene, cameras: [camera] },
       hero: { camera, motion: null },
       coverage: [],
@@ -121,9 +130,9 @@ export const test_production_clearance_revision_binding = (): void => {
       out,
     });
     return { reports, out, trace };
-  };
+  }
 
-  const current = inspect({
+  const current: ReturnType<typeof inspect> = inspect({
     revision: "41",
     currentRevision: "41",
     envelope: true,
@@ -141,15 +150,15 @@ export const test_production_clearance_revision_binding = (): void => {
 
   TestValidator.equals(
     "the bound answer's report records no revision of its own",
-    (current.reports ?? []).flatMap((report) =>
-      ["revision", "currentRevision"].filter((key) =>
+    (current.reports ?? []).flatMap((report: NonNullable<ReturnType<typeof compileCameraClearanceReports>>[number]): string[] =>
+      ["revision", "currentRevision"].filter((key: string): boolean =>
         Object.keys(report).includes(key),
       ),
     ),
     [],
   );
 
-  const moved = inspect({
+  const moved: ReturnType<typeof inspect> = inspect({
     revision: "41",
     currentRevision: "42",
     envelope: true,
@@ -158,13 +167,13 @@ export const test_production_clearance_revision_binding = (): void => {
     "a measured revision that is no longer current is refused while still bound",
     [
       moved.reports,
-      moved.out.items.map((item) => item.path),
+      moved.out.items.map((item: (typeof moved.out.items)[number]): string => item.path),
       moved.trace.revisionBound,
     ],
     [undefined, ["$input.cameraClearance.currentRevision"], true],
   );
 
-  const plain = inspect({
+  const plain: ReturnType<typeof inspect> = inspect({
     revision: "41",
     currentRevision: "41",
     envelope: false,
@@ -174,4 +183,4 @@ export const test_production_clearance_revision_binding = (): void => {
     [plain.reports, plain.out.items.length, plain.trace.revisionBound],
     [undefined, 0, false],
   );
-};
+}
