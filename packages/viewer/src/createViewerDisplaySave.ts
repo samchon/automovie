@@ -26,13 +26,40 @@ export function createViewerDisplaySave(props: {
   paint?: (surface: HTMLCanvasElement) => void;
   /** Keep the encoded completed bitmap for this display's graphics recovery. */
   retain?: (blob: Blob) => void;
-}): { active: () => boolean; prepare: () => boolean; commit: (session: string, generation: number) => boolean; changed: () => boolean; dispose: () => void; } {
+}): {
+  active: () => boolean;
+  prepare: () => boolean;
+  commit: (session: string, generation: number) => boolean;
+  changed: () => boolean;
+  dispose: () => void;
+} {
   let sequence: number = 0;
   let running: boolean = false;
-  const snapshot: () => { surface: HTMLCanvasElement; metadata: IAutoMovieViewerDisplayMetadata & { session?: string; generation?: number; width: number; height: number; displayedAt: string; }; } | undefined = (): { surface: HTMLCanvasElement; metadata: IAutoMovieViewerDisplayMetadata & {
-    session?: string; generation?: number; width: number; height: number; displayedAt: string;
-  } } | undefined => {
-    const observed: IAutoMovieViewerDisplayMetadata | undefined = props.observe();
+  const snapshot: () =>
+    | {
+        surface: HTMLCanvasElement;
+        metadata: IAutoMovieViewerDisplayMetadata & {
+          session?: string;
+          generation?: number;
+          width: number;
+          height: number;
+          displayedAt: string;
+        };
+      }
+    | undefined = ():
+    | {
+        surface: HTMLCanvasElement;
+        metadata: IAutoMovieViewerDisplayMetadata & {
+          session?: string;
+          generation?: number;
+          width: number;
+          height: number;
+          displayedAt: string;
+        };
+      }
+    | undefined => {
+    const observed: IAutoMovieViewerDisplayMetadata | undefined =
+      props.observe();
     if (observed === undefined) return undefined;
     const facts: IAutoMovieViewerDisplayMetadata = structuredClone(observed);
     const surface: HTMLCanvasElement = document.createElement("canvas");
@@ -41,14 +68,23 @@ export function createViewerDisplaySave(props: {
       else {
         surface.width = props.canvas.width;
         surface.height = props.canvas.height;
-        const context: CanvasRenderingContext2D | null = surface.getContext("2d");
-        if (context === null) throw new Error("A 2D surface is required to retain the completed display.");
+        const context: CanvasRenderingContext2D | null =
+          surface.getContext("2d");
+        if (context === null)
+          throw new Error(
+            "A 2D surface is required to retain the completed display.",
+          );
         context.drawImage(props.canvas, 0, 0);
       }
-      return { surface, metadata: {
-        ...facts, width: surface.width, height: surface.height,
-        displayedAt: new Date().toISOString(),
-      } };
+      return {
+        surface,
+        metadata: {
+          ...facts,
+          width: surface.width,
+          height: surface.height,
+          displayedAt: new Date().toISOString(),
+        },
+      };
     } catch (cause) {
       surface.width = 0;
       surface.height = 0;
@@ -58,30 +94,62 @@ export function createViewerDisplaySave(props: {
   let pending: ReturnType<typeof snapshot>;
   const flush: () => Promise<void> = async (): Promise<void> => {
     if (pending === undefined || running || !publication.active()) return;
-    const { surface, metadata }: { surface: HTMLCanvasElement; metadata: IAutoMovieViewerDisplayMetadata & { session?: string; generation?: number; width: number; height: number; displayedAt: string; }; } = pending;
+    const {
+      surface,
+      metadata,
+    }: {
+      surface: HTMLCanvasElement;
+      metadata: IAutoMovieViewerDisplayMetadata & {
+        session?: string;
+        generation?: number;
+        width: number;
+        height: number;
+        displayedAt: string;
+      };
+    } = pending;
     pending = undefined;
     running = true;
     const sequenceId: number = ++sequence;
     try {
-      const blob: Blob = await new Promise<Blob>((resolve: (value: Blob | PromiseLike<Blob>) => void, reject: (reason?: any) => void): void => {
-        surface.toBlob((value: Blob | null): void => value === null
-          ? reject(new Error("The displayed frame could not be encoded."))
-          : resolve(value), "image/png");
-        // The standard copies pixels before asynchronous serialization.
-        surface.width = 0;
-        surface.height = 0;
-      });
+      const blob: Blob = await new Promise<Blob>(
+        (
+          resolve: (value: Blob | PromiseLike<Blob>) => void,
+          reject: (reason?: any) => void,
+        ): void => {
+          surface.toBlob(
+            (value: Blob | null): void =>
+              value === null
+                ? reject(new Error("The displayed frame could not be encoded."))
+                : resolve(value),
+            "image/png",
+          );
+          // The standard copies pixels before asynchronous serialization.
+          surface.width = 0;
+          surface.height = 0;
+        },
+      );
       if (!publication.active()) return;
       props.retain?.(blob);
-      const data: string = await new Promise<string>((resolve: (value: string | PromiseLike<string>) => void, reject: (reason?: any) => void): void => {
-        const reader: FileReader = new FileReader();
-        reader.onload = (): void => resolve(String(reader.result));
-        reader.onerror = (): void => reject(new Error("The encoded display could not be read.", { cause: reader.error }));
-        reader.readAsDataURL(blob);
-      });
+      const data: string = await new Promise<string>(
+        (
+          resolve: (value: string | PromiseLike<string>) => void,
+          reject: (reason?: any) => void,
+        ): void => {
+          const reader: FileReader = new FileReader();
+          reader.onload = (): void => resolve(String(reader.result));
+          reader.onerror = (): void =>
+            reject(
+              new Error("The encoded display could not be read.", {
+                cause: reader.error,
+              }),
+            );
+          reader.readAsDataURL(blob);
+        },
+      );
       if (!publication.active()) return;
       const response: Response = await fetch("/display", {
-        method: "POST", headers: { "Content-Type": "application/json" },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...metadata, sequence: sequenceId, png: data }),
       });
       if (!response.ok) throw new Error(await response.text());
@@ -96,7 +164,18 @@ export function createViewerDisplaySave(props: {
   };
   const copy: () => boolean = (): boolean => {
     try {
-      const completed: { surface: HTMLCanvasElement; metadata: IAutoMovieViewerDisplayMetadata & { session?: string; generation?: number; width: number; height: number; displayedAt: string; }; } | undefined = snapshot();
+      const completed:
+        | {
+            surface: HTMLCanvasElement;
+            metadata: IAutoMovieViewerDisplayMetadata & {
+              session?: string;
+              generation?: number;
+              width: number;
+              height: number;
+              displayedAt: string;
+            };
+          }
+        | undefined = snapshot();
       if (completed === undefined) return false;
       if (pending !== undefined) {
         pending.surface.width = 0;
@@ -109,7 +188,13 @@ export function createViewerDisplaySave(props: {
       return false;
     }
   };
-  const publication: { active: () => boolean; prepare: () => boolean; commit: (session: string, generation: number) => boolean; changed: () => boolean; dispose: () => void; } = createViewerDisplayPublication({
+  const publication: {
+    active: () => boolean;
+    prepare: () => boolean;
+    commit: (session: string, generation: number) => boolean;
+    changed: () => boolean;
+    dispose: () => void;
+  } = createViewerDisplayPublication({
     copy,
     start: (session: string, generation: number): void => {
       // The lifecycle calls start only after a successful original copy.

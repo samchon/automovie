@@ -19,7 +19,9 @@ import type * as THREE from "three";
  * @evidence contracts/performance.md#reuse-equivalent-work Reads the existing camera view directly on each request because mutable offsets/full dimensions can change; no duplicated crop cache or invalidation protocol is introduced.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Borrows the camera and returns a small portable crop value or omission; retains no camera/GPU handle and launches no task.
  */
-export const readAutoMovieDeliveryCrop: (camera: THREE.PerspectiveCamera) => IAutoMovieDeliveryCrop | undefined = (
+export const readAutoMovieDeliveryCrop: (
+  camera: THREE.PerspectiveCamera,
+) => IAutoMovieDeliveryCrop | undefined = (
   camera: THREE.PerspectiveCamera,
 ): IAutoMovieDeliveryCrop | undefined => {
   const view: THREE.PerspectiveCamera["view"] = camera.view;

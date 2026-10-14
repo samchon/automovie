@@ -1,5 +1,8 @@
 import { transformFormationPoint } from "@automovie/engine";
-import type { IAutoMovieCompiledFormation, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieCompiledFormation,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import * as THREE from "three";
 
 /**
@@ -33,7 +36,12 @@ const ROOT_ORIGIN: IAutoMovieVector3 = Object.freeze({ x: 0, y: 0, z: 0 });
  * @evidence contracts/performance.md#reuse-equivalent-work Shares the frozen module origin and engine transform implementation across points; each returned mutable vector is independent, while arrangement-equivalence reuse belongs to the parent formation update.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Retains one fixed frozen origin value for module lifetime, borrows arguments only during the call and transfers one small vector; owns no geometry, texture or task.
  */
-export const formationSpacingOffset: (point: { x: number; y: number; z: number; }, anchor: IAutoMovieCompiledFormation["anchor"], spacing: { lateral: number; depth: number; }, baseFacingDeg: number) => THREE.Vector3 = (
+export const formationSpacingOffset: (
+  point: { x: number; y: number; z: number },
+  anchor: IAutoMovieCompiledFormation["anchor"],
+  spacing: { lateral: number; depth: number },
+  baseFacingDeg: number,
+) => THREE.Vector3 = (
   point: { x: number; y: number; z: number },
   anchor: IAutoMovieCompiledFormation["anchor"],
   spacing: { lateral: number; depth: number },

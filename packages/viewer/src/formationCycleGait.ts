@@ -21,6 +21,7 @@ import type { IAutoMovieGait, IAutoMovieModel } from "@automovie/interface";
  * @evidence contracts/performance.md#reuse-equivalent-work Reuses the engine's actual stored gait array/record and shared precedence law; mutable model profiles have no retained cross-call lookup cache here.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Borrows model/profile data and returns one borrowed gait or null, retaining no model, baked texture, native resource or task after return.
  */
-export const formationCycleGait: (model: IAutoMovieModel) => IAutoMovieGait | null = (
+export const formationCycleGait: (
   model: IAutoMovieModel,
-): IAutoMovieGait | null => autoMovieModelGaits(model)[0] ?? null;
+) => IAutoMovieGait | null = (model: IAutoMovieModel): IAutoMovieGait | null =>
+  autoMovieModelGaits(model)[0] ?? null;

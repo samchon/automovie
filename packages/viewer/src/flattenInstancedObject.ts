@@ -18,7 +18,10 @@ import { instancedModelParts } from "./instancedModelParts.js";
  * @evidence contracts/performance.md#reuse-equivalent-work Reuses already-decoded loaded buffers/materials as source inputs and canonical rigid flattening; world transforms/buffers can mutate, so a filename or root identity alone cannot key immutable merged output.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Lower merge owns and retires intermediate clones on success/refusal; this adapter transfers one completed merged geometry to the instance owner and borrows loaded graph/materials, acquiring no worker, texture decoder or native task.
  */
-export const flattenInstancedObject: (built: IAutoMovieModelObject, owner?: string) => IAutoMovieInstancedModelRepresentation<null> = (
+export const flattenInstancedObject: (
+  built: IAutoMovieModelObject,
+  owner?: string,
+) => IAutoMovieInstancedModelRepresentation<null> = (
   built: IAutoMovieModelObject,
   owner: string = "Loaded instanced runtime model",
 ): IAutoMovieInstancedModelRepresentation<null> => {

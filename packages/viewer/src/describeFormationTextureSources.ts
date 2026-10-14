@@ -1,4 +1,7 @@
-import type { IAutoMovieRenderTextureResidency, IAutoMovieRenderTextureSource } from "@automovie/engine";
+import type {
+  IAutoMovieRenderTextureResidency,
+  IAutoMovieRenderTextureSource,
+} from "@automovie/engine";
 import type { IAutoMovieCompiledFormationLod } from "@automovie/interface";
 
 import type { IFormationTierRepresentation } from "./IFormationTierRepresentation.js";
@@ -20,17 +23,30 @@ import { readAutoMovieTextureSource } from "./readAutoMovieTextureSource.js";
  * @evidence contracts/performance.md#reuse-equivalent-work Reuses owned DataTextures and canonical metadata extraction; mutable tier membership/source/upload state requires current reads, so no formation-name-only inventory cache is retained.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Borrows representation/texture objects and returns scalar source descriptions with generated owner strings; retains no native handle or task. The formation lifetime owner controls disposal and retains the existing map and resource closures after failure until that owner ends.
  */
-export const describeFormationTextureSources: (formation: string, representations: ReadonlyMap<IAutoMovieCompiledFormationLod["tier"], IFormationTierRepresentation>, drawableTiers: ReadonlySet<IAutoMovieCompiledFormationLod["tier"]>) => NonNullable<IAutoMovieRenderTextureResidency["runtimeTextures"]> = (
+export const describeFormationTextureSources: (
   formation: string,
-  representations: ReadonlyMap<IAutoMovieCompiledFormationLod["tier"], IFormationTierRepresentation>,
+  representations: ReadonlyMap<
+    IAutoMovieCompiledFormationLod["tier"],
+    IFormationTierRepresentation
+  >,
+  drawableTiers: ReadonlySet<IAutoMovieCompiledFormationLod["tier"]>,
+) => NonNullable<IAutoMovieRenderTextureResidency["runtimeTextures"]> = (
+  formation: string,
+  representations: ReadonlyMap<
+    IAutoMovieCompiledFormationLod["tier"],
+    IFormationTierRepresentation
+  >,
   drawableTiers: ReadonlySet<IAutoMovieCompiledFormationLod["tier"]>,
 ): NonNullable<IAutoMovieRenderTextureResidency["runtimeTextures"]> => {
-  const sources: NonNullable<IAutoMovieRenderTextureResidency["runtimeTextures"]>[number][] = [];
+  const sources: NonNullable<
+    IAutoMovieRenderTextureResidency["runtimeTextures"]
+  >[number][] = [];
   for (const [tier, representation] of representations) {
     if (!drawableTiers.has(tier) || representation.cycle === null) continue;
     for (const take of representation.cycle.takes.values()) {
       const owner: string = `formation-cycle:${JSON.stringify([formation, tier, take.gait])}`;
-      const { asset: _asset, ...texture }: IAutoMovieRenderTextureSource = readAutoMovieTextureSource(owner, take.texture);
+      const { asset: _asset, ...texture }: IAutoMovieRenderTextureSource =
+        readAutoMovieTextureSource(owner, take.texture);
       sources.push({ owner, texture });
     }
   }

@@ -14,7 +14,10 @@ import type * as THREE from "three";
  * @evidence contracts/performance.md#reuse-equivalent-work Normalized requested-slot equivalence is shared within one traversal; the current loaded object tree is reread each call and no map survives across a changed rig.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only matched node references escape in the result, keeping those borrowed nodes reachable; temporary name/slot maps leave the call and no skeleton or GPU resource is acquired.
  */
-export const mapImportedHumanoidBones: (object: THREE.Object3D, slots: readonly AutoMovieHumanoidBone[]) => Map<AutoMovieHumanoidBone, THREE.Object3D> = (
+export const mapImportedHumanoidBones: (
+  object: THREE.Object3D,
+  slots: readonly AutoMovieHumanoidBone[],
+) => Map<AutoMovieHumanoidBone, THREE.Object3D> = (
   object: THREE.Object3D,
   slots: readonly AutoMovieHumanoidBone[],
 ): Map<AutoMovieHumanoidBone, THREE.Object3D> => {
@@ -28,15 +31,19 @@ export const mapImportedHumanoidBones: (object: THREE.Object3D, slots: readonly 
   const bones: Map<AutoMovieHumanoidBone, THREE.Object3D> = new Map();
   object.traverse((node: THREE.Object3D): void => {
     const normalized: string = normalizeImportedBoneName(node.name);
-    const direct: AutoMovieHumanoidBone | undefined = directSlots.get(normalized);
-    const slot: AutoMovieHumanoidBone | undefined = direct ?? IMPORTED_HUMANOID_ALIASES[normalized];
+    const direct: AutoMovieHumanoidBone | undefined =
+      directSlots.get(normalized);
+    const slot: AutoMovieHumanoidBone | undefined =
+      direct ?? IMPORTED_HUMANOID_ALIASES[normalized];
     if (slot !== undefined && requested.has(slot) && bones.has(slot) === false)
       bones.set(slot, node);
   });
   return bones;
 };
 
-const normalizeImportedBoneName: (name: string) => string = (name: string): string =>
+const normalizeImportedBoneName: (name: string) => string = (
+  name: string,
+): string =>
   name
     .toLowerCase()
     .replace(/^mixamorig:?/u, "")

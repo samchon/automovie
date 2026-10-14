@@ -1,7 +1,10 @@
-import type { IAutoMovieCompiledFormationLod, IAutoMovieModel } from "@automovie/interface";
-import type { IAutoMovieInstancedModelRepresentation } from "./IAutoMovieInstancedModelRepresentation.js";
-import type { IAutoMovieFormationCycle } from "./IAutoMovieFormationCycle.js";
+import type {
+  IAutoMovieCompiledFormationLod,
+  IAutoMovieModel,
+} from "@automovie/interface";
 
+import type { IAutoMovieFormationCycle } from "./IAutoMovieFormationCycle.js";
+import type { IAutoMovieInstancedModelRepresentation } from "./IAutoMovieInstancedModelRepresentation.js";
 import type { IBuildInstancedFormationProps } from "./IBuildInstancedFormationProps.js";
 import type { IFormationTierRepresentation } from "./IFormationTierRepresentation.js";
 import { applyFormationCycleMaterial } from "./applyFormationCycleMaterial.js";
@@ -23,10 +26,21 @@ import { reportAutoMovieResourceRetirement } from "./reportAutoMovieResourceReti
  * @evidence contracts/performance.md#reuse-equivalent-work Builds one representation per declared tier for all later chunk borrowers and uses one repertoire Set during cue admission; independently mutable model/tier input has no immutable revision key for cross-build cache reuse.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Owns each completed flattened tier before acquiring shadows and attempts all registered tier resources on any later refusal, preserving primary and cleanup causes; success transfers T tiers/textures/materials to the formation runtime, while nested constructors retire their own pre-return allocations.
  */
-export const createFormationRepresentations: (input: IBuildInstancedFormationProps) => Map<IAutoMovieCompiledFormationLod["tier"], IFormationTierRepresentation> = (
+export const createFormationRepresentations: (
   input: IBuildInstancedFormationProps,
-): Map<IAutoMovieCompiledFormationLod["tier"], IFormationTierRepresentation> => {
-  const representations: Map<"hero" | "near" | "far", IFormationTierRepresentation> = new Map<
+) => Map<
+  IAutoMovieCompiledFormationLod["tier"],
+  IFormationTierRepresentation
+> = (
+  input: IBuildInstancedFormationProps,
+): Map<
+  IAutoMovieCompiledFormationLod["tier"],
+  IFormationTierRepresentation
+> => {
+  const representations: Map<
+    "hero" | "near" | "far",
+    IFormationTierRepresentation
+  > = new Map<
     IAutoMovieCompiledFormationLod["tier"],
     IFormationTierRepresentation
   >();
@@ -37,9 +51,12 @@ export const createFormationRepresentations: (input: IBuildInstancedFormationPro
         throw new Error(
           `Formation "${input.formation.id}" LOD "${lod.tier}" references missing runtime model "${lod.model}".`,
         );
-      const representation: IAutoMovieInstancedModelRepresentation<IAutoMovieFormationCycle | null> = flattenInstancedModel(
-        model, `Formation "${input.formation.id}" LOD "${lod.tier}"`, {},
-      );
+      const representation: IAutoMovieInstancedModelRepresentation<IAutoMovieFormationCycle | null> =
+        flattenInstancedModel(
+          model,
+          `Formation "${input.formation.id}" LOD "${lod.tier}"`,
+          {},
+        );
       const cycle: IAutoMovieFormationCycle | null = representation.cycle;
       const tier: IFormationTierRepresentation = {
         ...representation,
@@ -47,14 +64,18 @@ export const createFormationRepresentations: (input: IBuildInstancedFormationPro
       };
       representations.set(lod.tier, tier);
       if (cycle !== null)
-        tier.shadows = createFormationCycleShadowMaterials(cycle, representation.materials);
+        tier.shadows = createFormationCycleShadowMaterials(
+          cycle,
+          representation.materials,
+        );
       if (cycle !== null)
         for (const material of new Set(tier.materials))
           applyFormationCycleMaterial(material, cycle);
     }
     const repertoire: Set<string> = new Set(
-      [...representations.values()].flatMap((tier: IFormationTierRepresentation): string[] =>
-        tier.cycle === null ? [] : [...tier.cycle.takes.keys()],
+      [...representations.values()].flatMap(
+        (tier: IFormationTierRepresentation): string[] =>
+          tier.cycle === null ? [] : [...tier.cycle.takes.keys()],
       ),
     );
     if (repertoire.size !== 0)
@@ -69,9 +90,10 @@ export const createFormationRepresentations: (input: IBuildInstancedFormationPro
           );
     return representations;
   } catch (error) {
-    reportAutoMovieResourceRetirement([
-      (): void => disposeFormationRepresentations(representations.values()),
-    ], { error });
+    reportAutoMovieResourceRetirement(
+      [(): void => disposeFormationRepresentations(representations.values())],
+      { error },
+    );
     throw error;
   }
 };

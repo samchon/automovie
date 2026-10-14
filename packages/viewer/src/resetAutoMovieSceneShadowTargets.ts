@@ -1,9 +1,9 @@
 import type * as THREE from "three";
 
-import {restoreAutoMovieRenderModeState} from "./restoreAutoMovieRenderModeState.js";
-import {readAutoMovieCubeShadowDepth} from "./readAutoMovieCubeShadowDepth.js";
-import {retireAutoMovieCubeShadowDepth} from "./retireAutoMovieCubeShadowDepth.js";
-import {guardAutoMovieSceneShadowRetirement} from "./guardAutoMovieSceneShadowRetirement.js";
+import { guardAutoMovieSceneShadowRetirement } from "./guardAutoMovieSceneShadowRetirement.js";
+import { readAutoMovieCubeShadowDepth } from "./readAutoMovieCubeShadowDepth.js";
+import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
+import { retireAutoMovieCubeShadowDepth } from "./retireAutoMovieCubeShadowDepth.js";
 
 /**
  * Retire every scene light's retained shadow attachment after a filter change.
@@ -18,38 +18,89 @@ import {guardAutoMovieSceneShadowRetirement} from "./guardAutoMovieSceneShadowRe
  * @evidence contracts/performance.md#reuse-equivalent-work Resource/handle identity deduplicates one attempt; failure is retained by renderer identity and later retirement/pass calls return that same outcome without native retry or replacement allocation.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Slots withdraw before independent attempts; failed scene/resource/handle references and original cause stay under a weak renderer key. Existing scene passes then refuse drawing, and direct hosts must likewise respect this guard rather than infer physical release from empty slots.
  */
-export const resetAutoMovieSceneShadowTargets: (scene: THREE.Scene, renderer: THREE.WebGLRenderer) => void=(scene:THREE.Scene,renderer:THREE.WebGLRenderer):void=>{
-  guardAutoMovieSceneShadowRetirement(scene,renderer);
-  const resources: Set<THREE.RenderTarget | THREE.Texture>=new Set<THREE.RenderTarget|THREE.Texture>();
-  const nativeDepth: Set<WebGLTexture>=new Set<WebGLTexture>();
-  const failures:unknown[]=[];
-  const shadows:Array<THREE.LightShadow>=[];
-  const targets: Set<THREE.RenderTarget>=new Set<THREE.RenderTarget>();
-  scene.traverse((object: THREE.Object3D): void =>{
-    if((object as THREE.Light).isLight!==true)return;
-    const shadow: THREE.DirectionalLight["shadow"] | undefined=(object as THREE.DirectionalLight).shadow;
-    if(shadow===undefined)return;
+export const resetAutoMovieSceneShadowTargets: (
+  scene: THREE.Scene,
+  renderer: THREE.WebGLRenderer,
+) => void = (scene: THREE.Scene, renderer: THREE.WebGLRenderer): void => {
+  guardAutoMovieSceneShadowRetirement(scene, renderer);
+  const resources: Set<THREE.RenderTarget | THREE.Texture> = new Set<
+    THREE.RenderTarget | THREE.Texture
+  >();
+  const nativeDepth: Set<WebGLTexture> = new Set<WebGLTexture>();
+  const failures: unknown[] = [];
+  const shadows: Array<THREE.LightShadow> = [];
+  const targets: Set<THREE.RenderTarget> = new Set<THREE.RenderTarget>();
+  scene.traverse((object: THREE.Object3D): void => {
+    if ((object as THREE.Light).isLight !== true) return;
+    const shadow: THREE.DirectionalLight["shadow"] | undefined = (
+      object as THREE.DirectionalLight
+    ).shadow;
+    if (shadow === undefined) return;
     shadows.push(shadow);
-    for(const target of [shadow.map,shadow.mapPass])if(target!==null){targets.add(target);resources.add(target);if(target.depthTexture!==null)resources.add(target.depthTexture);}
-  });
-  const destination: ReturnType<THREE.WebGLRenderer["getRenderTarget"]>=renderer.getRenderTarget();
-  if(destination!==null && (targets.has(destination) || (destination.depthTexture!==null && resources.has(destination.depthTexture))))
-    throw new Error("Cannot retire shadow attachments borrowed by the caller's current render destination.");
-  for(const target of targets){
-      if("isWebGLCubeRenderTarget" in target && target.isWebGLCubeRenderTarget===true && target.depthTexture!==null && target.depthTexture.version!==0){
-        try{const handle: WebGLTexture | null=readAutoMovieCubeShadowDepth(renderer,target);if(handle!==null)nativeDepth.add(handle);}catch(error){failures.push(error);}
+    for (const target of [shadow.map, shadow.mapPass])
+      if (target !== null) {
+        targets.add(target);
+        resources.add(target);
+        if (target.depthTexture !== null) resources.add(target.depthTexture);
       }
-      target.depthTexture=null;
+  });
+  const destination: ReturnType<THREE.WebGLRenderer["getRenderTarget"]> =
+    renderer.getRenderTarget();
+  if (
+    destination !== null &&
+    (targets.has(destination) ||
+      (destination.depthTexture !== null &&
+        resources.has(destination.depthTexture)))
+  )
+    throw new Error(
+      "Cannot retire shadow attachments borrowed by the caller's current render destination.",
+    );
+  for (const target of targets) {
+    if (
+      "isWebGLCubeRenderTarget" in target &&
+      target.isWebGLCubeRenderTarget === true &&
+      target.depthTexture !== null &&
+      target.depthTexture.version !== 0
+    ) {
+      try {
+        const handle: WebGLTexture | null = readAutoMovieCubeShadowDepth(
+          renderer,
+          target,
+        );
+        if (handle !== null) nativeDepth.add(handle);
+      } catch (error) {
+        failures.push(error);
+      }
+    }
+    target.depthTexture = null;
   }
-  for(const shadow of shadows){
-    shadow.map=null;shadow.mapPass=null;shadow.needsUpdate=true;
+  for (const shadow of shadows) {
+    shadow.map = null;
+    shadow.mapPass = null;
+    shadow.needsUpdate = true;
   }
-  guardAutoMovieSceneShadowRetirement(scene,renderer,{
-    resources:[...resources],nativeDepth:[...nativeDepth],
-    run:():void=>restoreAutoMovieRenderModeState([
-    ...failures.map((error: unknown): () => void =>(): void =>{throw error;}),
-    ...Array.from(resources,(resource: THREE.RenderTarget | THREE.Texture): () => void =>(): void =>{resource.dispose();}),
-    ...Array.from(nativeDepth,(handle: WebGLTexture): () => void =>(): void =>{retireAutoMovieCubeShadowDepth(renderer,handle);}),
-    ]),
+  guardAutoMovieSceneShadowRetirement(scene, renderer, {
+    resources: [...resources],
+    nativeDepth: [...nativeDepth],
+    run: (): void =>
+      restoreAutoMovieRenderModeState([
+        ...failures.map((error: unknown): (() => void) => (): void => {
+          throw error;
+        }),
+        ...Array.from(
+          resources,
+          (resource: THREE.RenderTarget | THREE.Texture): (() => void) =>
+            (): void => {
+              resource.dispose();
+            },
+        ),
+        ...Array.from(
+          nativeDepth,
+          (handle: WebGLTexture): (() => void) =>
+            (): void => {
+              retireAutoMovieCubeShadowDepth(renderer, handle);
+            },
+        ),
+      ]),
   });
 };

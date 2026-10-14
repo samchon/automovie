@@ -13,12 +13,18 @@
  * @evidence contracts/performance.md#reuse-equivalent-work Reuses last completed time for out-of-loop redraws without a new authoritative timestamp; effectful producer callbacks are still invoked rather than skipped because their requested seconds match.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Holds only displayed/producing scalars, borrows each synchronous callback for its invocation and starts no timer, worker or render task; no cancellation/resource handle is acquired.
  */
-export function createViewerDisplayClock(): { current: () => number; run: (seconds: number, produce: () => void) => void; complete: (seconds?: number) => number } {
+export function createViewerDisplayClock(): {
+  current: () => number;
+  run: (seconds: number, produce: () => void) => void;
+  complete: (seconds?: number) => number;
+} {
   let displayed: number = 0;
   let producing: number | undefined;
   const validate: (seconds: number) => void = (seconds: number): void => {
     if (!Number.isFinite(seconds) || seconds < 0)
-      throw new Error("A completed display clock requires finite nonnegative seconds.");
+      throw new Error(
+        "A completed display clock requires finite nonnegative seconds.",
+      );
   };
   return {
     current: (): number => displayed,
@@ -26,8 +32,11 @@ export function createViewerDisplayClock(): { current: () => number; run: (secon
       validate(seconds);
       const previous: number | undefined = producing;
       producing = seconds;
-      try { produce(); }
-      finally { producing = previous; }
+      try {
+        produce();
+      } finally {
+        producing = previous;
+      }
     },
     complete: (seconds?: number): number => {
       const next: number = seconds ?? producing ?? displayed;

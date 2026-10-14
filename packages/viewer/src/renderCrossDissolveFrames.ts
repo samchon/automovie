@@ -1,6 +1,7 @@
 import * as THREE from "three";
-import {AutoMovieDisplayCompositor} from "./AutoMovieDisplayCompositor.js";
-import {AutoMovieDissolveCompositorState as states} from "./AutoMovieDissolveCompositorState.js";
+
+import { AutoMovieDisplayCompositor } from "./AutoMovieDisplayCompositor.js";
+import { AutoMovieDissolveCompositorState as states } from "./AutoMovieDissolveCompositorState.js";
 
 /**
  * Combine two independently resolved display frames with complementary byte weights. Each callback owns its scene's tone and exposure. The compositor independently attempts restoration of the selected destination, canvas backing and clear state; failed native restoration cannot guarantee their survival. Highp Float32 scalar thresholds permit one opaque byte of rounding versus Float64 delivery; endpoints and identical opaque sources retain identity. Low-alpha premultiplied canvas extraction is a presentation product; capture an unassociated target for transparent straight RGBA delivery.
@@ -15,10 +16,22 @@ import {AutoMovieDissolveCompositorState as states} from "./AutoMovieDissolveCom
  * @evidence contracts/performance.md#reuse-equivalent-work One WeakMap owner per renderer reuses equivalent live display-copy extent, but every requested source frame executes its original callback and terminal failed owners retain their outcome.
  * @evidence contracts/performance.md#bound-retention-and-release-resources At most one active dissolve owner per renderer retains three copy extents plus native compositor resources; disposal owner removes only successful lifetimes and failed retained extents remain reported until the renderer key becomes unreachable.
  */
-export const renderCrossDissolveFrames: (renderer: THREE.WebGLRenderer, renderOutgoing: () => void, renderIncoming: () => void, alpha: number) => void = (renderer: THREE.WebGLRenderer, renderOutgoing: () => void, renderIncoming: () => void, alpha: number): void => {
+export const renderCrossDissolveFrames: (
+  renderer: THREE.WebGLRenderer,
+  renderOutgoing: () => void,
+  renderIncoming: () => void,
+  alpha: number,
+) => void = (
+  renderer: THREE.WebGLRenderer,
+  renderOutgoing: () => void,
+  renderIncoming: () => void,
+  alpha: number,
+): void => {
   if (!Number.isFinite(alpha) || alpha < 0 || alpha > 1)
     throw new Error("Cross-dissolve alpha must be finite and inside [0, 1].");
-  const size: THREE.Vector2 = renderer.getDrawingBufferSize(new THREE.Vector2());
+  const size: THREE.Vector2 = renderer.getDrawingBufferSize(
+    new THREE.Vector2(),
+  );
   let state: AutoMovieDisplayCompositor | undefined = states.get(renderer);
   if (state === undefined) {
     state = new AutoMovieDisplayCompositor(size.x, size.y);
@@ -26,4 +39,3 @@ export const renderCrossDissolveFrames: (renderer: THREE.WebGLRenderer, renderOu
   } else state.resize(size.x, size.y);
   state.render(renderer, renderOutgoing, renderIncoming, alpha);
 };
-

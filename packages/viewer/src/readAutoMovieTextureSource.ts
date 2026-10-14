@@ -1,10 +1,11 @@
 import type { IAutoMovieRenderTextureSource } from "@automovie/engine";
 import type { IAutoMovieTextureReference } from "@automovie/interface";
 import * as THREE from "three";
-import { readAutoMovieEnvironmentColorSpace } from "./readAutoMovieEnvironmentColorSpace.js";
-import { readAutoMovieTextureUploadFormat } from "./readAutoMovieTextureUploadFormat.js";
+
 import { AutoMovieEnvironmentTextureOwnership } from "./AutoMovieEnvironmentTextureOwnership.js";
 import { AutoMovieTextureCacheAllocationAuthority } from "./AutoMovieTextureCacheAllocationAuthority.js";
+import { readAutoMovieEnvironmentColorSpace } from "./readAutoMovieEnvironmentColorSpace.js";
+import { readAutoMovieTextureUploadFormat } from "./readAutoMovieTextureUploadFormat.js";
 
 const objectIdentities: WeakMap<object, string> = new WeakMap<object, string>();
 let nextObjectIdentity: number = 0;
@@ -30,87 +31,221 @@ export function readAutoMovieTextureSource(
   asset: string,
   texture: THREE.Texture,
 ): IAutoMovieRenderTextureSource {
-  const cacheAllocationKnown: boolean = AutoMovieTextureCacheAllocationAuthority.current(texture);
-  const environmentAllocationKnown: boolean = AutoMovieEnvironmentTextureOwnership.current(texture);
+  const cacheAllocationKnown: boolean =
+    AutoMovieTextureCacheAllocationAuthority.current(texture);
+  const environmentAllocationKnown: boolean =
+    AutoMovieEnvironmentTextureOwnership.current(texture);
   const image: unknown = texture.image;
-  const data: boolean = "isDataTexture" in texture && texture.isDataTexture === true;
+  const data: boolean =
+    "isDataTexture" in texture && texture.isDataTexture === true;
   const original: ReturnType<typeof decodedExtent> = decodedExtent(image, data);
   if (typeof image !== "object" || image === null || original === undefined)
-    throw new Error(`Texture asset "${asset}" has no decoded two-dimensional extent.`);
+    throw new Error(
+      `Texture asset "${asset}" has no decoded two-dimensional extent.`,
+    );
   const mipmaps: unknown = texture.mipmaps;
   const manual: boolean = !Array.isArray(mipmaps) || mipmaps.length !== 0;
   const framebuffer: boolean = "isFramebufferTexture" in texture;
-  const usesManualBase: boolean = manual && !framebuffer &&
-    !("isDepthTexture" in texture) && !texture.isRenderTargetTexture;
-  const extent: {width: number; height: number} = usesManualBase && Array.isArray(mipmaps) ? decodedExtent(mipmaps[0], data) ?? original : original;
-  const unsupportedExtent: boolean = ("depth" in image && image.depth !== 1) ||
-    "isDataArrayTexture" in texture || "isData3DTexture" in texture ||
-    "isCompressedArrayTexture" in texture || texture.isRenderTargetTexture;
-  const format: ReturnType<typeof readAutoMovieTextureUploadFormat> = unsupportedExtent ? undefined : readAutoMovieTextureUploadFormat(texture);
-  const wrap: (value: THREE.Wrapping) => "clamp" | "repeat" | "mirror" | undefined = (value: THREE.Wrapping): "clamp" | "repeat" | "mirror" | undefined =>
-    value === THREE.RepeatWrapping ? "repeat" :
-      value === THREE.MirroredRepeatWrapping ? "mirror" :
-        value === THREE.ClampToEdgeWrapping ? "clamp" : undefined;
-  const minFilter: NonNullable<IAutoMovieTextureReference["sampler"]>["minFilter"] | undefined = texture.minFilter === THREE.NearestFilter ? "nearest" :
-    texture.minFilter === THREE.LinearFilter ? "linear" :
-    texture.minFilter === THREE.NearestMipmapLinearFilter ? "nearestMipmapLinear" :
-    texture.minFilter === THREE.LinearMipmapLinearFilter ? "linearMipmapLinear" : undefined;
+  const usesManualBase: boolean =
+    manual &&
+    !framebuffer &&
+    !("isDepthTexture" in texture) &&
+    !texture.isRenderTargetTexture;
+  const extent: { width: number; height: number } =
+    usesManualBase && Array.isArray(mipmaps)
+      ? (decodedExtent(mipmaps[0], data) ?? original)
+      : original;
+  const unsupportedExtent: boolean =
+    ("depth" in image && image.depth !== 1) ||
+    "isDataArrayTexture" in texture ||
+    "isData3DTexture" in texture ||
+    "isCompressedArrayTexture" in texture ||
+    texture.isRenderTargetTexture;
+  const format: ReturnType<typeof readAutoMovieTextureUploadFormat> =
+    unsupportedExtent ? undefined : readAutoMovieTextureUploadFormat(texture);
+  const wrap: (
+    value: THREE.Wrapping,
+  ) => "clamp" | "repeat" | "mirror" | undefined = (
+    value: THREE.Wrapping,
+  ): "clamp" | "repeat" | "mirror" | undefined =>
+    value === THREE.RepeatWrapping
+      ? "repeat"
+      : value === THREE.MirroredRepeatWrapping
+        ? "mirror"
+        : value === THREE.ClampToEdgeWrapping
+          ? "clamp"
+          : undefined;
+  const minFilter:
+    | NonNullable<IAutoMovieTextureReference["sampler"]>["minFilter"]
+    | undefined =
+    texture.minFilter === THREE.NearestFilter
+      ? "nearest"
+      : texture.minFilter === THREE.LinearFilter
+        ? "linear"
+        : texture.minFilter === THREE.NearestMipmapLinearFilter
+          ? "nearestMipmapLinear"
+          : texture.minFilter === THREE.LinearMipmapLinearFilter
+            ? "linearMipmapLinear"
+            : undefined;
   const wrapS: ReturnType<typeof wrap> = wrap(texture.wrapS);
   const wrapT: ReturnType<typeof wrap> = wrap(texture.wrapT);
-  const magFilter: NonNullable<IAutoMovieTextureReference["sampler"]>["magFilter"] | undefined = texture.magFilter === THREE.NearestFilter ? "nearest" :
-    texture.magFilter === THREE.LinearFilter ? "linear" : undefined;
+  const magFilter:
+    | NonNullable<IAutoMovieTextureReference["sampler"]>["magFilter"]
+    | undefined =
+    texture.magFilter === THREE.NearestFilter
+      ? "nearest"
+      : texture.magFilter === THREE.LinearFilter
+        ? "linear"
+        : undefined;
   const sampler: IAutoMovieTextureReference["sampler"] =
-    minFilter === undefined || wrapS === undefined || wrapT === undefined ||
-    magFilter === undefined ? undefined : {
-    wrapS, wrapT, minFilter, magFilter,
-  };
-  const nativeMinFilter: boolean = [THREE.NearestFilter, THREE.LinearFilter,
-    THREE.NearestMipmapNearestFilter, THREE.NearestMipmapLinearFilter,
-    THREE.LinearMipmapNearestFilter, THREE.LinearMipmapLinearFilter].includes(texture.minFilter);
-  const samplerState: string | null = wrapS === undefined || wrapT === undefined || magFilter === undefined || !nativeMinFilter ? null :
-    JSON.stringify([texture.wrapS, texture.wrapT, texture.minFilter, texture.magFilter]);
-  const conversionMinFilter: THREE.MinificationTextureFilter = texture.minFilter === THREE.LinearMipmapLinearFilter ? THREE.LinearFilter : texture.minFilter;
-  const environmentSampler: IAutoMovieTextureReference["sampler"] = sampler === undefined ? undefined : {
-    ...sampler, minFilter: texture.minFilter === THREE.LinearMipmapLinearFilter ? "linear" as const : sampler.minFilter,
-  };
+    minFilter === undefined ||
+    wrapS === undefined ||
+    wrapT === undefined ||
+    magFilter === undefined
+      ? undefined
+      : {
+          wrapS,
+          wrapT,
+          minFilter,
+          magFilter,
+        };
+  const nativeMinFilter: boolean = [
+    THREE.NearestFilter,
+    THREE.LinearFilter,
+    THREE.NearestMipmapNearestFilter,
+    THREE.NearestMipmapLinearFilter,
+    THREE.LinearMipmapNearestFilter,
+    THREE.LinearMipmapLinearFilter,
+  ].includes(texture.minFilter);
+  const samplerState: string | null =
+    wrapS === undefined ||
+    wrapT === undefined ||
+    magFilter === undefined ||
+    !nativeMinFilter
+      ? null
+      : JSON.stringify([
+          texture.wrapS,
+          texture.wrapT,
+          texture.minFilter,
+          texture.magFilter,
+        ]);
+  const conversionMinFilter: THREE.MinificationTextureFilter =
+    texture.minFilter === THREE.LinearMipmapLinearFilter
+      ? THREE.LinearFilter
+      : texture.minFilter;
+  const environmentSampler: IAutoMovieTextureReference["sampler"] =
+    sampler === undefined
+      ? undefined
+      : {
+          ...sampler,
+          minFilter:
+            texture.minFilter === THREE.LinearMipmapLinearFilter
+              ? ("linear" as const)
+              : sampler.minFilter,
+        };
   return {
-    asset, width: extent.width, height: extent.height, format, sampler, samplerState,
-    allocationStateKnown: cacheAllocationKnown && environmentAllocationKnown && !manual && !framebuffer && !unsupportedExtent && !("isCompressedTexture" in texture) && !("isDepthTexture" in texture) &&
-      "width" in image && "height" in image && original.width === image.width && original.height === image.height,
-    colorSpace: texture.colorSpace === THREE.SRGBColorSpace ? "srgb" :
-      texture.colorSpace === THREE.NoColorSpace ? "linear" :
-        texture.colorSpace === THREE.LinearSRGBColorSpace ? "linear-environment" : undefined,
+    asset,
+    width: extent.width,
+    height: extent.height,
+    format,
+    sampler,
+    samplerState,
+    allocationStateKnown:
+      cacheAllocationKnown &&
+      environmentAllocationKnown &&
+      !manual &&
+      !framebuffer &&
+      !unsupportedExtent &&
+      !("isCompressedTexture" in texture) &&
+      !("isDepthTexture" in texture) &&
+      "width" in image &&
+      "height" in image &&
+      original.width === image.width &&
+      original.height === image.height,
+    colorSpace:
+      texture.colorSpace === THREE.SRGBColorSpace
+        ? "srgb"
+        : texture.colorSpace === THREE.NoColorSpace
+          ? "linear"
+          : texture.colorSpace === THREE.LinearSRGBColorSpace
+            ? "linear-environment"
+            : undefined,
     environmentColorSpace: readAutoMovieEnvironmentColorSpace(texture),
     environmentSampler,
-    environmentSamplerState: samplerState === null ? null :
-      JSON.stringify([texture.wrapS, texture.wrapT, conversionMinFilter, texture.magFilter]),
-    environmentBackgroundFormat: texture.type === THREE.UnsignedByteType ? "rgba8" :
-      texture.type === THREE.HalfFloatType ? "rgba16f" :
-        texture.type === THREE.FloatType ? "rgba32f" : undefined,
-    sourceIdentity: objectIdentity(texture.source), textureIdentity: objectIdentity(texture),
-    uploadState: JSON.stringify([texture.format, texture.type, texture.internalFormat,
-      texture.anisotropy, texture.flipY, texture.premultiplyAlpha,
-      texture.unpackAlignment, texture.generateMipmaps,
-      "wrapR" in texture ? texture.wrapR || 0 : 0].map((value: unknown) : string => value === null ? "" : String(value))),
+    environmentSamplerState:
+      samplerState === null
+        ? null
+        : JSON.stringify([
+            texture.wrapS,
+            texture.wrapT,
+            conversionMinFilter,
+            texture.magFilter,
+          ]),
+    environmentBackgroundFormat:
+      texture.type === THREE.UnsignedByteType
+        ? "rgba8"
+        : texture.type === THREE.HalfFloatType
+          ? "rgba16f"
+          : texture.type === THREE.FloatType
+            ? "rgba32f"
+            : undefined,
+    sourceIdentity: objectIdentity(texture.source),
+    textureIdentity: objectIdentity(texture),
+    uploadState: JSON.stringify(
+      [
+        texture.format,
+        texture.type,
+        texture.internalFormat,
+        texture.anisotropy,
+        texture.flipY,
+        texture.premultiplyAlpha,
+        texture.unpackAlignment,
+        texture.generateMipmaps,
+        "wrapR" in texture ? texture.wrapR || 0 : 0,
+      ].map((value: unknown): string => (value === null ? "" : String(value))),
+    ),
     generateMipmaps: texture.generateMipmaps,
     explicitMipmaps: Array.isArray(mipmaps) && mipmaps.length > 1,
-    mipmapped: (Array.isArray(mipmaps) && mipmaps.length > 1) ||
-      texture.generateMipmaps || (framebuffer && texture.minFilter !== THREE.NearestFilter &&
+    mipmapped:
+      (Array.isArray(mipmaps) && mipmaps.length > 1) ||
+      texture.generateMipmaps ||
+      (framebuffer &&
+        texture.minFilter !== THREE.NearestFilter &&
         texture.minFilter !== THREE.LinearFilter),
   };
 }
 
 /** Decode the native base metadata; manual history remains uncertified. */
-const decodedExtent: (image: unknown, data: boolean) => { width: number; height: number } | undefined = (image: unknown, data: boolean): { width: number; height: number } | undefined => {
+const decodedExtent: (
+  image: unknown,
+  data: boolean,
+) => { width: number; height: number } | undefined = (
+  image: unknown,
+  data: boolean,
+): { width: number; height: number } | undefined => {
   if (typeof image !== "object" || image === null) return undefined;
   const rawWidth: unknown = "width" in image ? image.width : undefined;
   const rawHeight: unknown = "height" in image ? image.height : undefined;
-  const width: unknown = !data && "displayWidth" in image ? image.displayWidth :
-    !data && "naturalWidth" in image ? image.naturalWidth || rawWidth : rawWidth;
-  const height: unknown = !data && "displayHeight" in image ? image.displayHeight :
-    !data && "naturalHeight" in image ? image.naturalHeight || rawHeight : rawHeight;
-  return typeof width === "number" && typeof height === "number" &&
-    Number.isSafeInteger(width) && width > 0 && Number.isSafeInteger(height) && height > 0 ? { width, height } : undefined;
+  const width: unknown =
+    !data && "displayWidth" in image
+      ? image.displayWidth
+      : !data && "naturalWidth" in image
+        ? image.naturalWidth || rawWidth
+        : rawWidth;
+  const height: unknown =
+    !data && "displayHeight" in image
+      ? image.displayHeight
+      : !data && "naturalHeight" in image
+        ? image.naturalHeight || rawHeight
+        : rawHeight;
+  return typeof width === "number" &&
+    typeof height === "number" &&
+    Number.isSafeInteger(width) &&
+    width > 0 &&
+    Number.isSafeInteger(height) &&
+    height > 0
+    ? { width, height }
+    : undefined;
 };
 
 /**

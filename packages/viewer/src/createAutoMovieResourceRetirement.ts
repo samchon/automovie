@@ -36,15 +36,22 @@ export function createAutoMovieResourceRetirement(
   return (): Promise<void> => {
     if (completion === undefined)
       completion = Promise.allSettled(
-        operations.map((operation: (() => void) | (() => Promise<void>)): Promise<void> => Promise.resolve().then(operation)),
+        operations.map(
+          (operation: (() => void) | (() => Promise<void>)): Promise<void> =>
+            Promise.resolve().then(operation),
+        ),
       ).then((results: PromiseSettledResult<unknown>[]): void => {
         const failed: PromiseRejectedResult[] = results.filter(
-          (result: PromiseSettledResult<unknown>): result is PromiseRejectedResult =>
-            result.status === "rejected",
+          (
+            result: PromiseSettledResult<unknown>,
+          ): result is PromiseRejectedResult => result.status === "rejected",
         );
-        const reporting: (() => never)[] = failed.map((result: PromiseRejectedResult): () => never => (): never => {
-          throw result.reason;
-        });
+        const reporting: (() => never)[] = failed.map(
+          (result: PromiseRejectedResult): (() => never) =>
+            (): never => {
+              throw result.reason;
+            },
+        );
         reportAutoMovieResourceRetirement(reporting, primary);
       });
     return completion;

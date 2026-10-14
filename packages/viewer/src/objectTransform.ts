@@ -1,13 +1,21 @@
 import type { IAutoMovieTransform } from "@automovie/interface";
 import type * as THREE from "three";
 
-const point: (value: IAutoMovieTransform["translation"]) => IAutoMovieTransform["translation"] = (value: IAutoMovieTransform["translation"]): IAutoMovieTransform["translation"] => ({
+const point: (
+  value: IAutoMovieTransform["translation"],
+) => IAutoMovieTransform["translation"] = (
+  value: IAutoMovieTransform["translation"],
+): IAutoMovieTransform["translation"] => ({
   x: value.x,
   y: value.y,
   z: value.z,
 });
 
-const quaternion: (value: IAutoMovieTransform["rotation"]) => IAutoMovieTransform["rotation"] = (value: IAutoMovieTransform["rotation"]): IAutoMovieTransform["rotation"] => ({
+const quaternion: (
+  value: IAutoMovieTransform["rotation"],
+) => IAutoMovieTransform["rotation"] = (
+  value: IAutoMovieTransform["rotation"],
+): IAutoMovieTransform["rotation"] => ({
   x: value.x,
   y: value.y,
   z: value.z,
@@ -25,9 +33,9 @@ const quaternion: (value: IAutoMovieTransform["rotation"]) => IAutoMovieTransfor
  * @evidence contracts/performance.md#reuse-equivalent-work Every call reads current source components; an earlier transform cannot be reused after its source wrapper changes.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only copied scalars escape and no SDK object, resource handle or retained source reference is acquired.
  */
-export const objectTransform: (object: THREE.Object3D) => IAutoMovieTransform = (
+export const objectTransform: (
   object: THREE.Object3D,
-): IAutoMovieTransform => ({
+) => IAutoMovieTransform = (object: THREE.Object3D): IAutoMovieTransform => ({
   translation: point(object.position),
   rotation: quaternion(object.quaternion),
   scale: point(object.scale),

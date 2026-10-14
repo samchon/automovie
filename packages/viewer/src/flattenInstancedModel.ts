@@ -1,17 +1,17 @@
 import type { IAutoMovieModel } from "@automovie/interface";
 import * as THREE from "three";
 
+import type { IAutoMovieFormationCycle } from "./IAutoMovieFormationCycle.js";
+import type { IAutoMovieFormationCycleTake } from "./IAutoMovieFormationCycleTake.js";
+import type { IAutoMovieInstancedGeometry } from "./IAutoMovieInstancedGeometry.js";
 import type { IAutoMovieInstancedModelRepresentation } from "./IAutoMovieInstancedModelRepresentation.js";
 import type { IBakeFormationCycleProps } from "./IBakeFormationCycleProps.js";
 import { bakeFormationCycle } from "./bakeFormationCycle.js";
 import { buildModel } from "./buildModel.js";
+import { collectAutoMovieOwnedResources } from "./collectAutoMovieOwnedResources.js";
 import { flattenRigidParts } from "./flattenRigidParts.js";
 import { instancedModelParts } from "./instancedModelParts.js";
-import { collectAutoMovieOwnedResources } from "./collectAutoMovieOwnedResources.js";
 import { reportAutoMovieResourceRetirement } from "./reportAutoMovieResourceRetirement.js";
-import type { IAutoMovieInstancedGeometry } from "./IAutoMovieInstancedGeometry.js";
-import type { IAutoMovieFormationCycle } from "./IAutoMovieFormationCycle.js";
-import type { IAutoMovieFormationCycleTake } from "./IAutoMovieFormationCycleTake.js";
 
 /**
  * Flatten one runtime model for a chunked instancing consumer.
@@ -38,13 +38,18 @@ import type { IAutoMovieFormationCycleTake } from "./IAutoMovieFormationCycleTak
  * @evidence contracts/performance.md#reuse-equivalent-work Transfers generated source material objects directly and reuses canonical build/flatten/bake routines; separate prototype requests remain independent mutable owner transactions, while the parent shares a returned tier across chunks.
  * @evidence contracts/performance.md#bound-retention-and-release-resources This child owns generated source geometry/material/skeleton resources and any completed merged geometry until success; refusal independently retires them and later bake refusal rolls its own take textures back. Success retires temporary source geometry/skeletons and transfers merged geometry/material/tables; temporary-release failure retires all otherwise transferable resources before refusing.
  */
-export const flattenInstancedModel: (model: IAutoMovieModel, owner?: string, bake?: Pick<IBakeFormationCycleProps, "samples">) => IAutoMovieInstancedModelRepresentation = (
+export const flattenInstancedModel: (
+  model: IAutoMovieModel,
+  owner?: string,
+  bake?: Pick<IBakeFormationCycleProps, "samples">,
+) => IAutoMovieInstancedModelRepresentation = (
   model: IAutoMovieModel,
   owner: string = `Instanced runtime model "${model.id}"`,
   bake?: Pick<IBakeFormationCycleProps, "samples">,
 ): IAutoMovieInstancedModelRepresentation => {
   const built: ReturnType<typeof buildModel> = buildModel(model);
-  const sourceResources: readonly { dispose(): void }[] = collectAutoMovieOwnedResources(built.object);
+  const sourceResources: readonly { dispose(): void }[] =
+    collectAutoMovieOwnedResources(built.object);
   const temporary: Set<THREE.BufferGeometry | THREE.Skeleton> = new Set();
   built.object.traverse((object: THREE.Object3D): void => {
     if (!(object instanceof THREE.Mesh)) return;
@@ -54,13 +59,16 @@ export const flattenInstancedModel: (model: IAutoMovieModel, owner?: string, bak
   let representation: IAutoMovieInstancedGeometry | undefined;
   let cycle: IAutoMovieFormationCycle | null = null;
   try {
-  built.object.updateMatrixWorld(true);
-  const parts: ReturnType<typeof instancedModelParts> = instancedModelParts(built.object);
-  representation = flattenRigidParts(parts, owner);
-  // Geometry first, then the bake: baking poses the built object, and the
-  // flattened vertices above are the rest-space ones the bake's matrices are
-  // measured against.
-  cycle = bake === undefined
+    built.object.updateMatrixWorld(true);
+    const parts: ReturnType<typeof instancedModelParts> = instancedModelParts(
+      built.object,
+    );
+    representation = flattenRigidParts(parts, owner);
+    // Geometry first, then the bake: baking poses the built object, and the
+    // flattened vertices above are the rest-space ones the bake's matrices are
+    // measured against.
+    cycle =
+      bake === undefined
         ? null
         : bakeFormationCycle({
             model,
@@ -69,27 +77,59 @@ export const flattenInstancedModel: (model: IAutoMovieModel, owner?: string, bak
             samples: bake.samples,
           });
   } catch (error) {
-    const skeletons: THREE.Skeleton[] = [...temporary].filter((resource: THREE.BufferGeometry | THREE.Skeleton): resource is THREE.Skeleton => resource instanceof THREE.Skeleton);
-    reportAutoMovieResourceRetirement([
-      ...sourceResources.map((resource: { dispose(): void }): (() => void) => (): void => resource.dispose()),
-      ...skeletons.map((resource: THREE.Skeleton): (() => void) => (): void => resource.dispose()),
-      ...(representation === undefined ? [] : [(): void => representation!.geometry.dispose()]),
-    ], { error });
+    const skeletons: THREE.Skeleton[] = [...temporary].filter(
+      (
+        resource: THREE.BufferGeometry | THREE.Skeleton,
+      ): resource is THREE.Skeleton => resource instanceof THREE.Skeleton,
+    );
+    reportAutoMovieResourceRetirement(
+      [
+        ...sourceResources.map(
+          (resource: { dispose(): void }): (() => void) =>
+            (): void =>
+              resource.dispose(),
+        ),
+        ...skeletons.map(
+          (resource: THREE.Skeleton): (() => void) =>
+            (): void =>
+              resource.dispose(),
+        ),
+        ...(representation === undefined
+          ? []
+          : [(): void => representation!.geometry.dispose()]),
+      ],
+      { error },
+    );
     throw error;
   }
   try {
     reportAutoMovieResourceRetirement(
-      [...temporary].map((resource: THREE.BufferGeometry | THREE.Skeleton): (() => void) => (): void => resource.dispose()),
+      [...temporary].map(
+        (resource: THREE.BufferGeometry | THREE.Skeleton): (() => void) =>
+          (): void =>
+            resource.dispose(),
+      ),
     );
   } catch (error) {
     const transferred: Set<{ dispose(): void }> = new Set([
       representation!.geometry,
       ...representation!.materials,
-      ...(cycle === null ? [] : [...cycle.takes.values()].map((take: IAutoMovieFormationCycleTake): THREE.Texture => take.texture)),
+      ...(cycle === null
+        ? []
+        : [...cycle.takes.values()].map(
+            (take: IAutoMovieFormationCycleTake): THREE.Texture => take.texture,
+          )),
     ]);
-    reportAutoMovieResourceRetirement([
-      ...[...transferred].map((resource: { dispose(): void }): (() => void) => (): void => resource.dispose()),
-    ], { error });
+    reportAutoMovieResourceRetirement(
+      [
+        ...[...transferred].map(
+          (resource: { dispose(): void }): (() => void) =>
+            (): void =>
+              resource.dispose(),
+        ),
+      ],
+      { error },
+    );
     throw error;
   }
   return { ...representation!, cycle };

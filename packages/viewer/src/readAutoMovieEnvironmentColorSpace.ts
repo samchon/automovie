@@ -14,5 +14,7 @@ import * as THREE from "three";
 export function readAutoMovieEnvironmentColorSpace(
   texture: THREE.Texture,
 ): "srgb" | "linear-environment" {
-  return texture.type === THREE.UnsignedByteType ? "srgb" : "linear-environment";
+  return texture.type === THREE.UnsignedByteType
+    ? "srgb"
+    : "linear-environment";
 }

@@ -1,9 +1,14 @@
-import type { AutoMovieBuiltinTexturePurpose, IAutoMovieRenderTextureResidency } from "@automovie/engine";
+import type {
+  AutoMovieBuiltinTexturePurpose,
+  IAutoMovieRenderTextureResidency,
+} from "@automovie/engine";
 import * as THREE from "three";
 
 import { readAutoMovieTextureSource } from "./readAutoMovieTextureSource.js";
 
-type RuntimeSource = NonNullable<IAutoMovieRenderTextureResidency["runtimeTextures"]>[number];
+type RuntimeSource = NonNullable<
+  IAutoMovieRenderTextureResidency["runtimeTextures"]
+>[number];
 /** Returned rows always carry the current live-scope list, including an empty list. */
 type ObservedRuntimeSource = RuntimeSource & { residents: string[] };
 
@@ -24,22 +29,44 @@ export function readAutoMovieMaterialTextureSources(props: {
   scene: THREE.Scene;
   retained?: readonly RuntimeSource[];
 }): RuntimeSource[] {
-  const rows: ObservedRuntimeSource[] = (props.retained ?? []).map((row: RuntimeSource): ObservedRuntimeSource => ({ ...row,
-    residents: (row.residents ?? []).filter((scope: string): boolean => scope !== props.scope),
-  }));
+  const rows: ObservedRuntimeSource[] = (props.retained ?? []).map(
+    (row: RuntimeSource): ObservedRuntimeSource => ({
+      ...row,
+      residents: (row.residents ?? []).filter(
+        (scope: string): boolean => scope !== props.scope,
+      ),
+    }),
+  );
   const byTexture: Map<string, ObservedRuntimeSource> = new Map();
   const owners: Set<string> = new Set();
-  const counts: Map<AutoMovieBuiltinTexturePurpose | undefined, number> = new Map();
-  const key: (purpose: AutoMovieBuiltinTexturePurpose | undefined, identity: string | undefined) => string = (purpose: AutoMovieBuiltinTexturePurpose | undefined, identity: string | undefined): string => JSON.stringify([purpose, identity]);
+  const counts: Map<AutoMovieBuiltinTexturePurpose | undefined, number> =
+    new Map();
+  const key: (
+    purpose: AutoMovieBuiltinTexturePurpose | undefined,
+    identity: string | undefined,
+  ) => string = (
+    purpose: AutoMovieBuiltinTexturePurpose | undefined,
+    identity: string | undefined,
+  ): string => JSON.stringify([purpose, identity]);
   for (const row of rows) {
     const identity: string = key(row.purpose, row.texture.textureIdentity);
     if (!byTexture.has(identity)) byTexture.set(identity, row);
     owners.add(row.owner);
     counts.set(row.purpose, (counts.get(row.purpose) ?? 0) + 1);
   }
-  const observe: (purpose: AutoMovieBuiltinTexturePurpose, value: unknown) => void = (purpose: AutoMovieBuiltinTexturePurpose, value: unknown): void => {
+  const observe: (
+    purpose: AutoMovieBuiltinTexturePurpose,
+    value: unknown,
+  ) => void = (
+    purpose: AutoMovieBuiltinTexturePurpose,
+    value: unknown,
+  ): void => {
     if (!isTexture(value)) return;
-    const { asset: _asset, ...texture }: ReturnType<typeof readAutoMovieTextureSource> = readAutoMovieTextureSource(purpose, value);
+    const {
+      asset: _asset,
+      ...texture
+    }: ReturnType<typeof readAutoMovieTextureSource> =
+      readAutoMovieTextureSource(purpose, value);
     const identity: string = key(purpose, texture.textureIdentity);
     const previous: ObservedRuntimeSource | undefined = byTexture.get(identity);
     if (previous !== undefined) {
@@ -48,7 +75,12 @@ export function readAutoMovieMaterialTextureSources(props: {
     } else {
       let ordinal: number = counts.get(purpose) ?? 0;
       while (owners.has(`builtin:${purpose}:${ordinal}`)) ordinal++;
-      const row: ObservedRuntimeSource = { owner: `builtin:${purpose}:${ordinal}`, purpose, texture, residents: [props.scope] };
+      const row: ObservedRuntimeSource = {
+        owner: `builtin:${purpose}:${ordinal}`,
+        purpose,
+        texture,
+        residents: [props.scope],
+      };
       rows.push(row);
       byTexture.set(identity, row);
       owners.add(row.owner);
@@ -57,29 +89,66 @@ export function readAutoMovieMaterialTextureSources(props: {
   };
   let area: boolean = false;
   let pbr: boolean = false;
-  props.scene.traverse((object: THREE.Object3D) : void => {
-    if ("isRectAreaLight" in object && object.isRectAreaLight === true) area = true;
+  props.scene.traverse((object: THREE.Object3D): void => {
+    if ("isRectAreaLight" in object && object.isRectAreaLight === true)
+      area = true;
     if (!("material" in object)) return;
-    for (const material of Array.isArray(object.material) ? object.material : [object.material]) {
+    for (const material of Array.isArray(object.material)
+      ? object.material
+      : [object.material]) {
       if (!isMaterial(material)) continue;
-      if ("isMeshStandardMaterial" in material && material.isMeshStandardMaterial === true) pbr = true;
+      if (
+        "isMeshStandardMaterial" in material &&
+        material.isMeshStandardMaterial === true
+      )
+        pbr = true;
       observe("subsurface-lut", material.userData.autoMovieSubsurfaceTexture);
-      if ("normalMap" in material && material.normalMap === material.userData.autoMovieOverlayFlatNormal)
-        observe("overlay-flat-normal", material.userData.autoMovieOverlayFlatNormal);
+      if (
+        "normalMap" in material &&
+        material.normalMap === material.userData.autoMovieOverlayFlatNormal
+      )
+        observe(
+          "overlay-flat-normal",
+          material.userData.autoMovieOverlayFlatNormal,
+        );
     }
   });
   if (area && pbr) {
-    const float: boolean = props.renderer.extensions.has("OES_texture_float_linear");
-    observe("area-ltc-1", Reflect.get(THREE.UniformsLib, float ? "LTC_FLOAT_1" : "LTC_HALF_1") as unknown);
-    observe("area-ltc-2", Reflect.get(THREE.UniformsLib, float ? "LTC_FLOAT_2" : "LTC_HALF_2") as unknown);
+    const float: boolean = props.renderer.extensions.has(
+      "OES_texture_float_linear",
+    );
+    observe(
+      "area-ltc-1",
+      Reflect.get(
+        THREE.UniformsLib,
+        float ? "LTC_FLOAT_1" : "LTC_HALF_1",
+      ) as unknown,
+    );
+    observe(
+      "area-ltc-2",
+      Reflect.get(
+        THREE.UniformsLib,
+        float ? "LTC_FLOAT_2" : "LTC_HALF_2",
+      ) as unknown,
+    );
   }
   return rows;
 }
 
 /** Native markers keep the actual SDK objects usable across ESM/CJS realms. */
-const isTexture: (value: unknown) => value is THREE.Texture = (value: unknown): value is THREE.Texture => typeof value === "object" && value !== null &&
-  "isTexture" in value && value.isTexture === true;
+const isTexture: (value: unknown) => value is THREE.Texture = (
+  value: unknown,
+): value is THREE.Texture =>
+  typeof value === "object" &&
+  value !== null &&
+  "isTexture" in value &&
+  value.isTexture === true;
 
 /** Material user data and native features belong to the actual material object. */
-const isMaterial: (value: unknown) => value is THREE.Material = (value: unknown): value is THREE.Material => typeof value === "object" && value !== null &&
-  "isMaterial" in value && value.isMaterial === true;
+const isMaterial: (value: unknown) => value is THREE.Material = (
+  value: unknown,
+): value is THREE.Material =>
+  typeof value === "object" &&
+  value !== null &&
+  "isMaterial" in value &&
+  value.isMaterial === true;

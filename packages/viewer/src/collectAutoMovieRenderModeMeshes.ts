@@ -1,8 +1,12 @@
 import * as THREE from "three";
-import type {AutoMovieRenderModeMesh} from "./AutoMovieRenderModeMesh.js";
 
-const isMeshLike: (object: THREE.Object3D) => object is AutoMovieRenderModeMesh = (object: THREE.Object3D): object is AutoMovieRenderModeMesh =>
-  (object as THREE.Mesh).isMesh === true;
+import type { AutoMovieRenderModeMesh } from "./AutoMovieRenderModeMesh.js";
+
+const isMeshLike: (
+  object: THREE.Object3D,
+) => object is AutoMovieRenderModeMesh = (
+  object: THREE.Object3D,
+): object is AutoMovieRenderModeMesh => (object as THREE.Mesh).isMesh === true;
 
 /**
  * Collects actual mesh projections in deterministic traversal order without altering their state.
@@ -15,7 +19,11 @@ const isMeshLike: (object: THREE.Object3D) => object is AutoMovieRenderModeMesh 
  * @evidence contracts/performance.md#reuse-equivalent-work All passes reuse this collector implementation; mutable graph membership/order prevents a stale root-only collection cache, and pass owners handle their own cycle-equivalent material reuse.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Borrows root and transfers an array of borrowed mesh references; retains no scene registry, GPU allocation or task after return.
  */
-export const collectAutoMovieRenderModeMeshes: (root: THREE.Object3D) => AutoMovieRenderModeMesh[] = (root: THREE.Object3D): AutoMovieRenderModeMesh[] => {
+export const collectAutoMovieRenderModeMeshes: (
+  root: THREE.Object3D,
+) => AutoMovieRenderModeMesh[] = (
+  root: THREE.Object3D,
+): AutoMovieRenderModeMesh[] => {
   const meshes: AutoMovieRenderModeMesh[] = [];
   root.traverse((object: THREE.Object3D<THREE.Object3DEventMap>): void => {
     if (isMeshLike(object)) meshes.push(object);

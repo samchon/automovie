@@ -1,4 +1,4 @@
-import type {IAutoMovieLight} from "@automovie/interface";
+import type { IAutoMovieLight } from "@automovie/interface";
 import type * as THREE from "three";
 
 /**
@@ -12,8 +12,29 @@ import type * as THREE from "three";
  * @evidence contracts/performance.md#reuse-equivalent-work Every supplied object current participation is observed; equal id text alone does not cache another light allocation.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only copied id/kind/flag values escape, and no scene object, shadow target or native handle is acquired or retained.
  */
-export const readAutoMovieShadowLightSource: (id: string, object: THREE.Object3D) => Pick<IAutoMovieLight,"id"|"type"|"castShadow">|null=(id:string,object:THREE.Object3D):Pick<IAutoMovieLight,"id"|"type"|"castShadow">|null=>{
-  const light: THREE.Light & {isPointLight?: boolean; isDirectionalLight?: boolean; isSpotLight?: boolean}=object as THREE.Light & {isPointLight?:boolean;isDirectionalLight?:boolean;isSpotLight?:boolean};
-  const type: "point" | "directional" | "spot" | null=light.isPointLight===true?"point":light.isDirectionalLight===true?"directional":light.isSpotLight===true?"spot":null;
-  return type===null?null:{id,type,castShadow:light.castShadow};
+export const readAutoMovieShadowLightSource: (
+  id: string,
+  object: THREE.Object3D,
+) => Pick<IAutoMovieLight, "id" | "type" | "castShadow"> | null = (
+  id: string,
+  object: THREE.Object3D,
+): Pick<IAutoMovieLight, "id" | "type" | "castShadow"> | null => {
+  const light: THREE.Light & {
+    isPointLight?: boolean;
+    isDirectionalLight?: boolean;
+    isSpotLight?: boolean;
+  } = object as THREE.Light & {
+    isPointLight?: boolean;
+    isDirectionalLight?: boolean;
+    isSpotLight?: boolean;
+  };
+  const type: "point" | "directional" | "spot" | null =
+    light.isPointLight === true
+      ? "point"
+      : light.isDirectionalLight === true
+        ? "directional"
+        : light.isSpotLight === true
+          ? "spot"
+          : null;
+  return type === null ? null : { id, type, castShadow: light.castShadow };
 };

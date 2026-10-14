@@ -11,13 +11,18 @@ import type * as THREE from "three";
  * @evidence contracts/performance.md#reuse-equivalent-work Set identity reuses each material within this invalidation, while native program reuse remains Three's responsibility after notified state changes.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Materials are borrowed and the temporary Set leaves the call; no shader program is acquired/disposed or retained in this helper.
  */
-export const invalidateAutoMovieSceneShadowPrograms:(scene:THREE.Scene)=>void=(scene:THREE.Scene):void=>{
-  const materials:Set<THREE.Material>=new Set();
-  if(scene.overrideMaterial!==null)materials.add(scene.overrideMaterial);
-  scene.traverse((object:THREE.Object3D):void=>{
-    const material:THREE.Material|THREE.Material[]|undefined=(object as THREE.Mesh).material;
-    if(Array.isArray(material))for(const value of material)materials.add(value);
-    else if(material!==undefined)materials.add(material);
+export const invalidateAutoMovieSceneShadowPrograms: (
+  scene: THREE.Scene,
+) => void = (scene: THREE.Scene): void => {
+  const materials: Set<THREE.Material> = new Set();
+  if (scene.overrideMaterial !== null) materials.add(scene.overrideMaterial);
+  scene.traverse((object: THREE.Object3D): void => {
+    const material: THREE.Material | THREE.Material[] | undefined = (
+      object as THREE.Mesh
+    ).material;
+    if (Array.isArray(material))
+      for (const value of material) materials.add(value);
+    else if (material !== undefined) materials.add(material);
   });
-  for(const material of materials)material.needsUpdate=true;
+  for (const material of materials) material.needsUpdate = true;
 };

@@ -23,16 +23,35 @@ export function readAutoMovieTransmissionTextureTarget(
   },
   camera: THREE.Camera,
 ): IAutoMovieRenderTextureTarget {
-  const viewport: unknown = ("viewport" in camera ? camera.viewport : undefined) ||
+  const viewport: unknown =
+    ("viewport" in camera ? camera.viewport : undefined) ||
     renderer.getCurrentViewport(new THREE.Vector4());
-  const width: number = typeof viewport === "object" && viewport !== null && "z" in viewport && typeof viewport.z === "number" ? viewport.z : NaN;
-  const height: number = typeof viewport === "object" && viewport !== null && "w" in viewport && typeof viewport.w === "number" ? viewport.w : NaN;
-  const half: boolean = renderer.extensions.has("EXT_color_buffer_half_float") ||
+  const width: number =
+    typeof viewport === "object" &&
+    viewport !== null &&
+    "z" in viewport &&
+    typeof viewport.z === "number"
+      ? viewport.z
+      : NaN;
+  const height: number =
+    typeof viewport === "object" &&
+    viewport !== null &&
+    "w" in viewport &&
+    typeof viewport.w === "number"
+      ? viewport.w
+      : NaN;
+  const half: boolean =
+    renderer.extensions.has("EXT_color_buffer_half_float") ||
     renderer.extensions.has("EXT_color_buffer_float");
-  return { owner, transmissionScope,
+  return {
+    owner,
+    transmissionScope,
     width: Math.floor(width * renderer.transmissionResolutionScale),
     height: Math.floor(height * renderer.transmissionResolutionScale),
-    formats: [half ? "rgba16f" : "rgba8"], mipmapped: true,
-    samples: Math.max(4, renderer.capabilities.samples), depthBytesPerTexel: 4, depthTexture: false,
+    formats: [half ? "rgba16f" : "rgba8"],
+    mipmapped: true,
+    samples: Math.max(4, renderer.capabilities.samples),
+    depthBytesPerTexel: 4,
+    depthTexture: false,
   };
 }

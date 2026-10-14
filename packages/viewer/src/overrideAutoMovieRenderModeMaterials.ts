@@ -1,12 +1,15 @@
-import {restoreAutoMovieRenderModeState} from "./restoreAutoMovieRenderModeState.js";
+import type { AutoMovieGuidePass } from "@automovie/interface";
 import * as THREE from "three";
-import type {AutoMovieGuidePass} from "@automovie/interface";
-import type {IAutoMovieRenderModeHandle} from "./IAutoMovieRenderModeHandle.js";
-import {collectAutoMovieRenderModeMeshes} from "./collectAutoMovieRenderModeMeshes.js";
-import {formationCycleOf, applyFormationCycleMaterial} from "./formationCycle/index.js";
 
-import {restoreAutoMovieRenderModeOnce} from "./restoreAutoMovieRenderModeOnce.js";
-import {guardAutoMovieRenderModeRetirement} from "./guardAutoMovieRenderModeRetirement.js";
+import type { IAutoMovieRenderModeHandle } from "./IAutoMovieRenderModeHandle.js";
+import { collectAutoMovieRenderModeMeshes } from "./collectAutoMovieRenderModeMeshes.js";
+import {
+  applyFormationCycleMaterial,
+  formationCycleOf,
+} from "./formationCycle/index.js";
+import { guardAutoMovieRenderModeRetirement } from "./guardAutoMovieRenderModeRetirement.js";
+import { restoreAutoMovieRenderModeOnce } from "./restoreAutoMovieRenderModeOnce.js";
+import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
 
 /**
  * Swap every mesh material for `make()`'s, restoring the originals and disposing the created overrides.
@@ -21,37 +24,59 @@ import {guardAutoMovieRenderModeRetirement} from "./guardAutoMovieRenderModeReti
  * @evidence contracts/performance.md#reuse-equivalent-work Material identity deduplicates retirement within the pass and repeated restore shares its original outcome; another pass creates its own material effects rather than reusing a failed override.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Every override registers before later setup can throw and independent restoration attempts all owners. A failed callback retains originals/overrides/cause under the weak scene key even when setup returns no handle; existing pass admission refuses reacquisition without disposal retry.
  */
-export const overrideAutoMovieRenderModeMaterials: (scene: THREE.Scene, mode: AutoMovieGuidePass, make: () => THREE.Material) => IAutoMovieRenderModeHandle = (
+export const overrideAutoMovieRenderModeMaterials: (
+  scene: THREE.Scene,
+  mode: AutoMovieGuidePass,
+  make: () => THREE.Material,
+) => IAutoMovieRenderModeHandle = (
   scene: THREE.Scene,
   mode: AutoMovieGuidePass,
   make: () => THREE.Material,
 ): IAutoMovieRenderModeHandle => {
   guardAutoMovieRenderModeRetirement(scene);
-  const swaps: { mesh: ReturnType<typeof collectAutoMovieRenderModeMeshes>[number]; original: THREE.Material | THREE.Material[] }[] = [];
+  const swaps: {
+    mesh: ReturnType<typeof collectAutoMovieRenderModeMeshes>[number];
+    original: THREE.Material | THREE.Material[];
+  }[] = [];
   const overrides: Set<THREE.Material> = new Set();
   const restore: () => void = (): void => {
     restoreAutoMovieRenderModeState([
-      ...swaps.map(({ mesh, original }: (typeof swaps)[number]): (() => void) => (): void => { mesh.material = original; }),
-      ...[...overrides].map((override: THREE.Material): (() => void) => (): void => { override.dispose(); }),
+      ...swaps.map(
+        ({ mesh, original }: (typeof swaps)[number]): (() => void) =>
+          (): void => {
+            mesh.material = original;
+          },
+      ),
+      ...[...overrides].map(
+        (override: THREE.Material): (() => void) =>
+          (): void => {
+            override.dispose();
+          },
+      ),
     ]);
   };
   try {
-  for (const mesh of collectAutoMovieRenderModeMeshes(scene)) {
-    const original: THREE.Material | THREE.Material[] = mesh.material;
-    const override: THREE.Material = make();
-    overrides.add(override);
-    swaps.push({ mesh, original });
-    const cycle: ReturnType<typeof formationCycleOf> = formationCycleOf(mesh);
-    if (cycle !== null) applyFormationCycleMaterial(override, cycle);
-    mesh.material = override;
-  }
+    for (const mesh of collectAutoMovieRenderModeMeshes(scene)) {
+      const original: THREE.Material | THREE.Material[] = mesh.material;
+      const override: THREE.Material = make();
+      overrides.add(override);
+      swaps.push({ mesh, original });
+      const cycle: ReturnType<typeof formationCycleOf> = formationCycleOf(mesh);
+      if (cycle !== null) applyFormationCycleMaterial(override, cycle);
+      mesh.material = override;
+    }
   } catch (error) {
-    guardAutoMovieRenderModeRetirement(scene, { run: restore, primary: { error } });
+    guardAutoMovieRenderModeRetirement(scene, {
+      run: restore,
+      primary: { error },
+    });
     throw error;
   }
   return {
     mode,
     semantic: null,
-    restore: restoreAutoMovieRenderModeOnce((): void => guardAutoMovieRenderModeRetirement(scene, { run: restore })),
+    restore: restoreAutoMovieRenderModeOnce((): void =>
+      guardAutoMovieRenderModeRetirement(scene, { run: restore }),
+    ),
   };
 };

@@ -13,7 +13,9 @@ import type * as THREE from "three";
  * @evidence contracts/performance.md#reuse-equivalent-work Consumers share this enumeration rule but each call observes the current object tree; no old parts array is cached across graph changes.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The returned mesh references borrow the model owner's objects and keep them reachable while used; no geometry, texture or native renderer handle is acquired.
  */
-export const instancedModelParts: (root: THREE.Object3D) => THREE.Mesh[] = (root: THREE.Object3D): THREE.Mesh[] => {
+export const instancedModelParts: (root: THREE.Object3D) => THREE.Mesh[] = (
+  root: THREE.Object3D,
+): THREE.Mesh[] => {
   const parts: THREE.Mesh[] = [];
   root.traverse((object: THREE.Object3D): void => {
     if ((object as THREE.Mesh).isMesh === true)

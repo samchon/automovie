@@ -1,5 +1,6 @@
 import type * as THREE from "three";
-import {AutoMovieDissolveCompositorState as states} from "./AutoMovieDissolveCompositorState.js";
+
+import { AutoMovieDissolveCompositorState as states } from "./AutoMovieDissolveCompositorState.js";
 
 /**
  * Release renderer-owned dissolve copies and quad resources once. Success
@@ -14,7 +15,9 @@ import {AutoMovieDissolveCompositorState as states} from "./AutoMovieDissolveCom
  * @evidence contracts/performance.md#reuse-equivalent-work Repeated failed releases reuse the compositor's stored cause without native calls; repeated successful releases see no entry, and a later supported draw creates an independent fresh owner.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Renderer-keyed WeakMap retains the failed compositor/resources only while the renderer key is reachable; successful release removes the entry after all public operations fulfill. This primitive neither disposes the renderer nor certifies its physical context lifetime.
  */
-export const disposeCrossDissolve: (renderer: THREE.WebGLRenderer) => void = (renderer: THREE.WebGLRenderer): void => {
+export const disposeCrossDissolve: (renderer: THREE.WebGLRenderer) => void = (
+  renderer: THREE.WebGLRenderer,
+): void => {
   const state: ReturnType<typeof states.get> = states.get(renderer);
   if (state === undefined) return;
   state.dispose();

@@ -1,7 +1,7 @@
 import type * as THREE from "three";
 
-import {AutoMovieFadeCompositorState} from "./AutoMovieFadeCompositorState.js";
-import {AutoMovieDissolveCompositorState} from "./AutoMovieDissolveCompositorState.js";
+import { AutoMovieDissolveCompositorState } from "./AutoMovieDissolveCompositorState.js";
+import { AutoMovieFadeCompositorState } from "./AutoMovieFadeCompositorState.js";
 
 /**
  * Current renderer-owned beauty compositor storage for render-budget hosts.
@@ -16,11 +16,37 @@ import {AutoMovieDissolveCompositorState} from "./AutoMovieDissolveCompositorSta
  * @evidence contracts/performance.md#reuse-equivalent-work Only actual per-renderer owner state is reused; querying does not create an unused compositor or infer storage from arbitrary source sampling settings.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Returned rows are owned scalar copies and acquire no resource; the renderer-keyed compositor owns retained copies and sticky failure, and successful owner disposal removes its map entry.
  */
-export const readAutoMovieFilmDisplayTextureResidency: (renderer: THREE.WebGLRenderer) => Array<{owner:"film-fade"|"film-dissolve";width:number;height:number;copies:3}>=(renderer:THREE.WebGLRenderer):Array<{owner:"film-fade"|"film-dissolve";width:number;height:number;copies:3}>=>{
-  const rows:Array<{owner:"film-fade"|"film-dissolve";width:number;height:number;copies:3}>=[];
-  const fade: ReturnType<typeof AutoMovieFadeCompositorState.get>=AutoMovieFadeCompositorState.get(renderer);
-  const dissolve: ReturnType<typeof AutoMovieDissolveCompositorState.get>=AutoMovieDissolveCompositorState.get(renderer);
-  if(fade!==undefined)rows.push({owner:"film-fade",...fade.describeTextureResidency()});
-  if(dissolve!==undefined)rows.push({owner:"film-dissolve",...dissolve.describeTextureResidency()});
+export const readAutoMovieFilmDisplayTextureResidency: (
+  renderer: THREE.WebGLRenderer,
+) => Array<{
+  owner: "film-fade" | "film-dissolve";
+  width: number;
+  height: number;
+  copies: 3;
+}> = (
+  renderer: THREE.WebGLRenderer,
+): Array<{
+  owner: "film-fade" | "film-dissolve";
+  width: number;
+  height: number;
+  copies: 3;
+}> => {
+  const rows: Array<{
+    owner: "film-fade" | "film-dissolve";
+    width: number;
+    height: number;
+    copies: 3;
+  }> = [];
+  const fade: ReturnType<typeof AutoMovieFadeCompositorState.get> =
+    AutoMovieFadeCompositorState.get(renderer);
+  const dissolve: ReturnType<typeof AutoMovieDissolveCompositorState.get> =
+    AutoMovieDissolveCompositorState.get(renderer);
+  if (fade !== undefined)
+    rows.push({ owner: "film-fade", ...fade.describeTextureResidency() });
+  if (dissolve !== undefined)
+    rows.push({
+      owner: "film-dissolve",
+      ...dissolve.describeTextureResidency(),
+    });
   return rows;
 };

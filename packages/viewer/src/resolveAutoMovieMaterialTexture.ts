@@ -4,9 +4,9 @@ import {
 } from "@automovie/interface";
 import * as THREE from "three";
 
-import { IAutoMovieTextureResolver } from "./IAutoMovieTextureResolver.js";
 import { AutoMovieEnvironmentTextureOwnership } from "./AutoMovieEnvironmentTextureOwnership.js";
 import { AutoMovieTextureCacheAllocationAuthority } from "./AutoMovieTextureCacheAllocationAuthority.js";
+import { IAutoMovieTextureResolver } from "./IAutoMovieTextureResolver.js";
 
 /**
  * Resolve one material texture binding to a configured `three.js` texture.
@@ -21,7 +21,11 @@ import { AutoMovieTextureCacheAllocationAuthority } from "./AutoMovieTextureCach
  * @evidence contracts/performance.md#reuse-equivalent-work Decoded Source sharing can be reused through separate wrappers while binding-controlled state stays exclusive; supported receipt equivalence cannot repair prior uncontrolled version/fixed-input drift.
  * @evidence contracts/performance.md#bound-retention-and-release-resources No renderer or new decoded image is acquired here; resolver/cache owns issued wrapper retirement, including configuration failure, while the material borrows the returned wrapper.
  */
-export const resolveAutoMovieMaterialTexture: (binding: AutoMovieTextureBinding | null | undefined, legacyColorSpace: "srgb" | "linear", resolver: IAutoMovieTextureResolver | undefined) => THREE.Texture | null = (
+export const resolveAutoMovieMaterialTexture: (
+  binding: AutoMovieTextureBinding | null | undefined,
+  legacyColorSpace: "srgb" | "linear",
+  resolver: IAutoMovieTextureResolver | undefined,
+) => THREE.Texture | null = (
   binding: AutoMovieTextureBinding | null | undefined,
   legacyColorSpace: "srgb" | "linear",
   resolver: IAutoMovieTextureResolver | undefined,
@@ -31,7 +35,9 @@ export const resolveAutoMovieMaterialTexture: (binding: AutoMovieTextureBinding 
   const texture: THREE.Texture | undefined = resolver(binding);
   if (texture === undefined) return null;
   AutoMovieEnvironmentTextureOwnership.material(texture);
-  const allocation: ReturnType<typeof AutoMovieTextureCacheAllocationAuthority.beginBinding> = AutoMovieTextureCacheAllocationAuthority.beginBinding(texture);
+  const allocation: ReturnType<
+    typeof AutoMovieTextureCacheAllocationAuthority.beginBinding
+  > = AutoMovieTextureCacheAllocationAuthority.beginBinding(texture);
   const reference: IAutoMovieTextureReference =
     typeof binding === "string"
       ? { asset: binding, texCoord: 0, colorSpace: legacyColorSpace }
@@ -52,11 +58,20 @@ export const resolveAutoMovieMaterialTexture: (binding: AutoMovieTextureBinding 
     texture.rotation = (reference.transform.rotationDeg * Math.PI) / 180;
   }
   const sampler: IAutoMovieTextureReference["sampler"] = reference.sampler;
-  const sampling: Pick<THREE.Texture, "wrapS" | "wrapT" | "minFilter" | "magFilter"> | undefined = sampler === undefined ? undefined : {
-    wrapS: wrapMode(sampler.wrapS), wrapT: wrapMode(sampler.wrapT),
-    minFilter: minFilter(sampler.minFilter),
-    magFilter: sampler.magFilter === "nearest" ? THREE.NearestFilter : THREE.LinearFilter,
-  };
+  const sampling:
+    | Pick<THREE.Texture, "wrapS" | "wrapT" | "minFilter" | "magFilter">
+    | undefined =
+    sampler === undefined
+      ? undefined
+      : {
+          wrapS: wrapMode(sampler.wrapS),
+          wrapT: wrapMode(sampler.wrapT),
+          minFilter: minFilter(sampler.minFilter),
+          magFilter:
+            sampler.magFilter === "nearest"
+              ? THREE.NearestFilter
+              : THREE.LinearFilter,
+        };
   if (sampling !== undefined) {
     texture.wrapS = sampling.wrapS;
     texture.wrapT = sampling.wrapT;
@@ -64,18 +79,25 @@ export const resolveAutoMovieMaterialTexture: (binding: AutoMovieTextureBinding 
     texture.magFilter = sampling.magFilter;
   }
   texture.needsUpdate = true;
-  AutoMovieTextureCacheAllocationAuthority.finishBinding(allocation, { colorSpace, sampler: sampling });
+  AutoMovieTextureCacheAllocationAuthority.finishBinding(allocation, {
+    colorSpace,
+    sampler: sampling,
+  });
   return texture;
 };
 
-const wrapMode: (value: "clamp" | "repeat" | "mirror") => THREE.Wrapping = (value: "clamp" | "repeat" | "mirror"): THREE.Wrapping =>
+const wrapMode: (value: "clamp" | "repeat" | "mirror") => THREE.Wrapping = (
+  value: "clamp" | "repeat" | "mirror",
+): THREE.Wrapping =>
   value === "clamp"
     ? THREE.ClampToEdgeWrapping
     : value === "repeat"
       ? THREE.RepeatWrapping
       : THREE.MirroredRepeatWrapping;
 
-const minFilter: (value: "nearest" | "linear" | "nearestMipmapLinear" | "linearMipmapLinear") => THREE.MinificationTextureFilter = (
+const minFilter: (
+  value: "nearest" | "linear" | "nearestMipmapLinear" | "linearMipmapLinear",
+) => THREE.MinificationTextureFilter = (
   value: "nearest" | "linear" | "nearestMipmapLinear" | "linearMipmapLinear",
 ): THREE.MinificationTextureFilter => {
   switch (value) {

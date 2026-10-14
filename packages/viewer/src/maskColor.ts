@@ -11,5 +11,7 @@ import * as THREE from "three";
  * @evidence contracts/performance.md#reuse-equivalent-work Equal indices compute equal colours but mutable Color instances are fresh, so one caller cannot mutate a shared palette result.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The returned Color is caller-owned, contains no GPU texture/program and this helper retains no palette cache.
  */
-export const maskColor: (index: number) => THREE.Color = (index: number): THREE.Color =>
+export const maskColor: (index: number) => THREE.Color = (
+  index: number,
+): THREE.Color =>
   new THREE.Color().setHSL(((index * 137.508) % 360) / 360, 1, 0.5);

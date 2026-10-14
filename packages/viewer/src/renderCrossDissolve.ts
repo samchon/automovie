@@ -1,5 +1,6 @@
 import * as THREE from "three";
-import {renderCrossDissolveFrames} from "./renderCrossDissolveFrames.js";
+
+import { renderCrossDissolveFrames } from "./renderCrossDissolveFrames.js";
 
 /**
  * Cross-dissolve two beauty poses of one scene, optionally wrapping each draw.
@@ -12,7 +13,15 @@ import {renderCrossDissolveFrames} from "./renderCrossDissolveFrames.js";
  * @evidence contracts/performance.md#reuse-equivalent-work Both callbacks use the same borrowed scene/camera but resolve their actual source state independently; renderer-scoped copy reuse is owned by the downstream compositor.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The adapter retains no owner after return and acquires no geometry/target; caller owns scene/camera and the renderer compositor owns its copied display resources.
  */
-export const renderCrossDissolve: (renderer: THREE.WebGLRenderer, scene: THREE.Scene, camera: THREE.Camera, poseOutgoing: () => void, poseIncoming: () => void, alpha: number, renderHalf?: (render: () => void) => void) => void = (
+export const renderCrossDissolve: (
+  renderer: THREE.WebGLRenderer,
+  scene: THREE.Scene,
+  camera: THREE.Camera,
+  poseOutgoing: () => void,
+  poseIncoming: () => void,
+  alpha: number,
+  renderHalf?: (render: () => void) => void,
+) => void = (
   renderer: THREE.WebGLRenderer,
   scene: THREE.Scene,
   camera: THREE.Camera,
@@ -24,18 +33,18 @@ export const renderCrossDissolve: (renderer: THREE.WebGLRenderer, scene: THREE.S
    * configuration. Structural guide products select their dominant layer
    * before rendering and must never use this beauty compositor.
    */
-  renderHalf: (render: () => void) => void = (render: () => void) : void => render(),
+  renderHalf: (render: () => void) => void = (render: () => void): void =>
+    render(),
 ): void =>
   renderCrossDissolveFrames(
     renderer,
-    () : void => {
+    (): void => {
       poseOutgoing();
-      renderHalf(() : void => renderer.render(scene, camera));
+      renderHalf((): void => renderer.render(scene, camera));
     },
-    () : void => {
+    (): void => {
       poseIncoming();
-      renderHalf(() : void => renderer.render(scene, camera));
+      renderHalf((): void => renderer.render(scene, camera));
     },
     alpha,
   );
-

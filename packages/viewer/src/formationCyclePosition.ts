@@ -19,7 +19,11 @@ import type { IAutoMovieFormationCadence } from "./IAutoMovieFormationCadence.js
  * @evidence contracts/performance.md#reuse-equivalent-work Reuses the already integrated cadence rather than resampling cues per member; pure inexpensive scalar evaluation retains no phase cache and matching values do not imply shared render effects.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Borrows two scalar cadence fields and returns one number with no retained references, native handles or running task.
  */
-export const formationCyclePosition: (cadence: Pick<IAutoMovieFormationCadence, "advance" | "turn">, phase: number, radius?: number) => number = (
+export const formationCyclePosition: (
+  cadence: Pick<IAutoMovieFormationCadence, "advance" | "turn">,
+  phase: number,
+  radius?: number,
+) => number = (
   cadence: Pick<IAutoMovieFormationCadence, "advance" | "turn">,
   phase: number,
   /** The member's distance from its unit's origin, in meters. */

@@ -16,7 +16,9 @@ import type { IAutoMovieModelObject } from "./IAutoMovieModelObject.js";
  * @evidence contracts/performance.md#reuse-equivalent-work Reuses actual decoded root/bone objects and forwards existing hook references; separate placements require separate loaded/cloned native roots because a single object cannot retain multiple parents.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Borrows/adopts loaded graph into one wrapper and retains B bone/hook references with the returned handle; no decoder, worker or GPU allocation is acquired here, and the supplied graph's real owner must retire its resources when this runtime is released.
  */
-export const createImportedModelObject: (options: IAutoMovieImportedModelOptions) => IAutoMovieModelObject = (
+export const createImportedModelObject: (
+  options: IAutoMovieImportedModelOptions,
+) => IAutoMovieModelObject = (
   options: IAutoMovieImportedModelOptions,
 ): IAutoMovieModelObject => ({
   // ALWAYS wrap (#1047): `applyPose` writes `pose.root` onto the model root's
@@ -35,17 +37,24 @@ export const createImportedModelObject: (options: IAutoMovieImportedModelOptions
   afterAutoMovieFrame: options.afterAutoMovieFrame,
 });
 
-const wrapObject: (object: THREE.Object3D) => THREE.Group = (object: THREE.Object3D): THREE.Group => {
+const wrapObject: (object: THREE.Object3D) => THREE.Group = (
+  object: THREE.Object3D,
+): THREE.Group => {
   const group: THREE.Group<THREE.Object3DEventMap> = new THREE.Group();
   group.name = object.name === "" ? "imported" : `${object.name}:runtime`;
   group.add(object);
   return group;
 };
 
-const normalizeBones: (input: IAutoMovieImportedModelOptions["bones"]) => Map<AutoMovieHumanoidBone, THREE.Object3D> = (
+const normalizeBones: (
+  input: IAutoMovieImportedModelOptions["bones"],
+) => Map<AutoMovieHumanoidBone, THREE.Object3D> = (
   input: IAutoMovieImportedModelOptions["bones"],
 ): Map<AutoMovieHumanoidBone, THREE.Object3D> => {
-  const bones: Map<AutoMovieHumanoidBone, THREE.Object3D<THREE.Object3DEventMap>> = new Map<AutoMovieHumanoidBone, THREE.Object3D>();
+  const bones: Map<
+    AutoMovieHumanoidBone,
+    THREE.Object3D<THREE.Object3DEventMap>
+  > = new Map<AutoMovieHumanoidBone, THREE.Object3D>();
   if (input === undefined) return bones;
   if (input instanceof Map) {
     for (const [bone, node] of input)

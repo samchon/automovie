@@ -1,5 +1,3 @@
-
-
 /**
  * Attempt one synchronous restoration once. Later calls preserve its original failure instead of reporting success or retrying a partially released resource; reentrant calls do not start a second attempt.
  *
@@ -11,7 +9,9 @@
  * @evidence contracts/performance.md#reuse-equivalent-work Repeated calls represent the same owned restoration and share its attempt/outcome; a different owner must create a separate guard.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The guard retains one callback and optional original failure until its owning handle becomes unreachable, with no global registry or newly acquired GPU resource.
  */
-export const restoreAutoMovieRenderModeOnce: (fn: () => void) => (() => void) = (fn: () => void): (() => void) => {
+export const restoreAutoMovieRenderModeOnce: (fn: () => void) => () => void = (
+  fn: () => void,
+): (() => void) => {
   let done: boolean = false;
   let failure: { error: unknown } | undefined;
   return (): void => {
@@ -20,7 +20,11 @@ export const restoreAutoMovieRenderModeOnce: (fn: () => void) => (() => void) = 
       return;
     }
     done = true;
-    try { fn(); }
-    catch (error) { failure = { error }; throw error; }
+    try {
+      fn();
+    } catch (error) {
+      failure = { error };
+      throw error;
+    }
   };
 };

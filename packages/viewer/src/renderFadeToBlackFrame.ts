@@ -1,6 +1,7 @@
 import * as THREE from "three";
-import {AutoMovieDisplayCompositor} from "./AutoMovieDisplayCompositor.js";
-import {AutoMovieFadeCompositorState as states} from "./AutoMovieFadeCompositorState.js";
+
+import { AutoMovieDisplayCompositor } from "./AutoMovieDisplayCompositor.js";
+import { AutoMovieFadeCompositorState as states } from "./AutoMovieFadeCompositorState.js";
 
 /**
  * Fade one directly resolved display frame over opaque black. The weight acts on captured display bytes, including source-local tone and exposure, once. Target and clear-state restoration are independently attempted on exit, with native restoration failures reported rather than certified restored. Highp Float32 scalar thresholds permit one opaque byte of rounding versus Float64 delivery; weight one retains identity. Transparent straight delivery uses an unassociated target, not low-alpha premultiplied canvas extraction.
@@ -13,10 +14,20 @@ import {AutoMovieFadeCompositorState as states} from "./AutoMovieFadeCompositorS
  * @evidence contracts/performance.md#reuse-equivalent-work One actual WeakMap owner per renderer reuses equivalent live copy extent; a requested source frame still executes its original callback and failed owner state cannot be silently replaced.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The renderer owner retains three potential copy extents plus compositor resources until successful disposal; failed resize/dispose remains terminal with uncertain old extent and no new draw or native retry.
  */
-export const renderFadeToBlackFrame: (renderer: THREE.WebGLRenderer, renderFrame: () => void, weight: number) => void = (renderer: THREE.WebGLRenderer, renderFrame: () => void, weight: number): void => {
+export const renderFadeToBlackFrame: (
+  renderer: THREE.WebGLRenderer,
+  renderFrame: () => void,
+  weight: number,
+) => void = (
+  renderer: THREE.WebGLRenderer,
+  renderFrame: () => void,
+  weight: number,
+): void => {
   if (!Number.isFinite(weight) || weight < 0 || weight > 1)
     throw new Error("Film fade weight must be finite and inside [0, 1].");
-  const size: THREE.Vector2 = renderer.getDrawingBufferSize(new THREE.Vector2());
+  const size: THREE.Vector2 = renderer.getDrawingBufferSize(
+    new THREE.Vector2(),
+  );
   let state: AutoMovieDisplayCompositor | undefined = states.get(renderer);
   if (state === undefined) {
     state = new AutoMovieDisplayCompositor(size.x, size.y);

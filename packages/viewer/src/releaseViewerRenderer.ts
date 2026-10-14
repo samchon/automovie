@@ -1,8 +1,8 @@
 import type * as THREE from "three";
 
-import {disposeCrossDissolve} from "./disposeCrossDissolve.js";
-import {disposeFadeToBlack} from "./disposeFadeToBlack.js";
-import {restoreAutoMovieRenderModeState} from "./restoreAutoMovieRenderModeState.js";
+import { disposeCrossDissolve } from "./disposeCrossDissolve.js";
+import { disposeFadeToBlack } from "./disposeFadeToBlack.js";
+import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
 
 /**
  * Release both renderer-owned beauty compositors and the renderer independently. A failed resource listener cannot prevent another owner from releasing its resources. Preserve every failure rather than reporting successful cleanup. Compositor release is idempotent; renderer disposal follows its native API. Direct capture hosts retire their scene shadow targets before this call; mounted hosts use releaseMountedViewer for that complete lifecycle.
@@ -15,8 +15,17 @@ import {restoreAutoMovieRenderModeState} from "./restoreAutoMovieRenderModeState
  * @evidence contracts/performance.md#reuse-equivalent-work Successful compositor removal and failed terminal retention follow their actual state maps; direct repeated renderer.dispose is not cached here and callers own a terminal once guard.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Every independent owner is attempted even after another fails; retained failed compositor rows remain observable and this helper acquires no resource or replacement renderer.
  */
-export const releaseViewerRenderer: (renderer: THREE.WebGLRenderer) => void=(renderer:THREE.WebGLRenderer):void=>restoreAutoMovieRenderModeState([
-  (): void =>{disposeCrossDissolve(renderer);},
-  (): void =>{disposeFadeToBlack(renderer);},
-  (): void =>{renderer.dispose();},
-]);
+export const releaseViewerRenderer: (renderer: THREE.WebGLRenderer) => void = (
+  renderer: THREE.WebGLRenderer,
+): void =>
+  restoreAutoMovieRenderModeState([
+    (): void => {
+      disposeCrossDissolve(renderer);
+    },
+    (): void => {
+      disposeFadeToBlack(renderer);
+    },
+    (): void => {
+      renderer.dispose();
+    },
+  ]);

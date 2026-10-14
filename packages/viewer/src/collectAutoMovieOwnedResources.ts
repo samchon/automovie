@@ -25,11 +25,26 @@ export function collectAutoMovieOwnedResources(
   group: THREE.Object3D,
   ownTextures: boolean = false,
 ): readonly { dispose(): void }[] {
-  const geometries: Set<THREE.BufferGeometry<THREE.NormalBufferAttributes, THREE.BufferGeometryEventMap>> = new Set<THREE.BufferGeometry>();
-  const materials: Set<THREE.Material<THREE.MaterialEventMap>> = new Set<THREE.Material>();
-  const textures: Set<THREE.Texture<unknown, THREE.TextureEventMap>> = new Set<THREE.Texture>();
+  const geometries: Set<
+    THREE.BufferGeometry<
+      THREE.NormalBufferAttributes,
+      THREE.BufferGeometryEventMap
+    >
+  > = new Set<THREE.BufferGeometry>();
+  const materials: Set<THREE.Material<THREE.MaterialEventMap>> =
+    new Set<THREE.Material>();
+  const textures: Set<THREE.Texture<unknown, THREE.TextureEventMap>> =
+    new Set<THREE.Texture>();
   group.traverse((object: THREE.Object3D<THREE.Object3DEventMap>): void => {
-    const mesh: THREE.Mesh<THREE.BufferGeometry<THREE.NormalBufferAttributes, THREE.BufferGeometryEventMap>, THREE.Material<THREE.MaterialEventMap> | THREE.Material<THREE.MaterialEventMap>[], THREE.Object3DEventMap> = object as THREE.Mesh;
+    const mesh: THREE.Mesh<
+      THREE.BufferGeometry<
+        THREE.NormalBufferAttributes,
+        THREE.BufferGeometryEventMap
+      >,
+      | THREE.Material<THREE.MaterialEventMap>
+      | THREE.Material<THREE.MaterialEventMap>[],
+      THREE.Object3DEventMap
+    > = object as THREE.Mesh;
     if (mesh.isMesh !== true) return;
     geometries.add(mesh.geometry);
     for (const material of Array.isArray(mesh.material)

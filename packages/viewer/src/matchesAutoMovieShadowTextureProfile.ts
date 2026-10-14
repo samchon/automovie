@@ -11,11 +11,24 @@ import type { IAutoMovieRenderTextureTarget } from "@automovie/engine";
  * @evidence contracts/performance.md#reuse-equivalent-work Only matching representation, extent, attachments and formats permit the retained row to cover the planned factory; equal owner text alone is ignored.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Both metadata rows are borrowed and this read creates no target, attachment, texture or ownership record.
  */
-export const matchesAutoMovieShadowTextureProfile: (actual: IAutoMovieRenderTextureTarget, planned: IAutoMovieRenderTextureTarget) => boolean = (
+export const matchesAutoMovieShadowTextureProfile: (
   actual: IAutoMovieRenderTextureTarget,
   planned: IAutoMovieRenderTextureTarget,
-): boolean => actual.width === planned.width && actual.height === planned.height &&
-  (actual.faces ?? 1) === planned.faces && actual.samples === planned.samples &&
-  actual.mipmapped === planned.mipmapped && actual.depthBytesPerTexel === planned.depthBytesPerTexel &&
-  actual.depthTexture === planned.depthTexture && actual.formats.length === planned.formats.length &&
-  actual.formats.every((format: IAutoMovieRenderTextureTarget["formats"][number], index: number): boolean => format === planned.formats[index]);
+) => boolean = (
+  actual: IAutoMovieRenderTextureTarget,
+  planned: IAutoMovieRenderTextureTarget,
+): boolean =>
+  actual.width === planned.width &&
+  actual.height === planned.height &&
+  (actual.faces ?? 1) === planned.faces &&
+  actual.samples === planned.samples &&
+  actual.mipmapped === planned.mipmapped &&
+  actual.depthBytesPerTexel === planned.depthBytesPerTexel &&
+  actual.depthTexture === planned.depthTexture &&
+  actual.formats.length === planned.formats.length &&
+  actual.formats.every(
+    (
+      format: IAutoMovieRenderTextureTarget["formats"][number],
+      index: number,
+    ): boolean => format === planned.formats[index],
+  );

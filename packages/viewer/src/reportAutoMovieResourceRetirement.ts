@@ -23,15 +23,17 @@ export function reportAutoMovieResourceRetirement(
     try {
       if (error instanceof AggregateError && error !== primary?.error) {
         const values: unknown = error.errors;
-        if (Array.isArray(values) && values.length !== 0) causes = Array.from(values as unknown[]);
+        if (Array.isArray(values) && values.length !== 0)
+          causes = Array.from(values as unknown[]);
       }
-    } catch { throw error; }
+    } catch {
+      throw error;
+    }
     if (causes === undefined) throw error;
     throw new AggregateError(
       causes,
-      "Resource retirement failed: " + causes.map((cause: unknown): string =>
-        describeCause(cause),
-      ).join("; "),
+      "Resource retirement failed: " +
+        causes.map((cause: unknown): string => describeCause(cause)).join("; "),
     );
   }
 }

@@ -24,26 +24,34 @@ import type * as THREE from "three";
  * @evidence contracts/performance.md#reuse-equivalent-work Derives both path and contact proxy from the same selected baked track, reusing already sampled geometry without another pose solve; mutable trajectory input has no persistent cached equivalence key.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Borrows trajectory vectors and returns one scalar, retaining no tracks or native handles; temporary height arrays are released after the call and no worker/render task is acquired.
  */
-export const formationCycleStride: (tracks: ReadonlyArray<readonly THREE.Vector3[]>) => number = (
+export const formationCycleStride: (
   tracks: ReadonlyArray<readonly THREE.Vector3[]>,
-): number => {
+) => number = (tracks: ReadonlyArray<readonly THREE.Vector3[]>): number => {
   let planted: readonly THREE.Vector3[] | null = null;
   let lowest: number = Number.POSITIVE_INFINITY;
   for (const track of tracks) {
-    const bottom: number = Math.min(...track.map((point: THREE.Vector3): number => point.y));
+    const bottom: number = Math.min(
+      ...track.map((point: THREE.Vector3): number => point.y),
+    );
     if (bottom >= lowest) continue;
     lowest = bottom;
     planted = track;
   }
   if (planted === null) return 0;
-  const path: number = planted.reduce((sum: number, point: THREE.Vector3, index: number): number => {
-    const next: THREE.Vector3 = planted![(index + 1) % planted!.length]!;
-    return sum + Math.hypot(next.x - point.x, next.z - point.z);
-  }, 0);
+  const path: number = planted.reduce(
+    (sum: number, point: THREE.Vector3, index: number): number => {
+      const next: THREE.Vector3 = planted![(index + 1) % planted!.length]!;
+      return sum + Math.hypot(next.x - point.x, next.z - point.z);
+    },
+    0,
+  );
   if (path === 0) return 0;
-  const heights: number[] = planted.map((point: THREE.Vector3): number => point.y);
+  const heights: number[] = planted.map(
+    (point: THREE.Vector3): number => point.y,
+  );
   const middle: number = (Math.min(...heights) + Math.max(...heights)) / 2;
   const grounded: number =
-    heights.filter((height: number): boolean => height <= middle).length / heights.length;
+    heights.filter((height: number): boolean => height <= middle).length /
+    heights.length;
   return path / 2 / grounded;
 };

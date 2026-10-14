@@ -16,11 +16,12 @@ import { reportAutoMovieResourceRetirement } from "./reportAutoMovieResourceReti
  * @evidence contracts/performance.md#reuse-equivalent-work One attempt deduplicates shared geometry/material/shadow/texture objects; constructor and runtime callers reuse this implementation, while their lifetime owner must memoize completion rather than re-invoking this effectful primitive.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Acquires no new GPU resource and borrows the tier collection only for snapshot/retirement; attempts every role before reporting failures, and the calling lifetime owner must retain failed/indeterminate handles until its supported physical boundary ends.
  */
-export const disposeFormationRepresentations: (representations: Iterable<IFormationTierRepresentation>) => void = (
+export const disposeFormationRepresentations: (
   representations: Iterable<IFormationTierRepresentation>,
-): void => {
+) => void = (representations: Iterable<IFormationTierRepresentation>): void => {
   const geometries: Set<THREE.BufferGeometry> = new Set<THREE.BufferGeometry>();
-  const shadows: Set<NonNullable<IFormationTierRepresentation["shadows"]>> = new Set<NonNullable<IFormationTierRepresentation["shadows"]>>();
+  const shadows: Set<NonNullable<IFormationTierRepresentation["shadows"]>> =
+    new Set<NonNullable<IFormationTierRepresentation["shadows"]>>();
   const materials: Set<THREE.Material> = new Set<THREE.Material>();
   const textures: Set<THREE.Texture> = new Set<THREE.Texture>();
   for (const representation of representations) {
@@ -32,9 +33,27 @@ export const disposeFormationRepresentations: (representations: Iterable<IFormat
         textures.add(take.texture);
   }
   reportAutoMovieResourceRetirement([
-    ...[...geometries].map((geometry: THREE.BufferGeometry): (() => void) => (): void => geometry.dispose()),
-    ...[...shadows].map((shadow: NonNullable<IFormationTierRepresentation["shadows"]>): (() => void) => (): void => shadow.dispose()),
-    ...[...materials].map((material: THREE.Material): (() => void) => (): void => material.dispose()),
-    ...[...textures].map((texture: THREE.Texture): (() => void) => (): void => texture.dispose()),
+    ...[...geometries].map(
+      (geometry: THREE.BufferGeometry): (() => void) =>
+        (): void =>
+          geometry.dispose(),
+    ),
+    ...[...shadows].map(
+      (
+        shadow: NonNullable<IFormationTierRepresentation["shadows"]>,
+      ): (() => void) =>
+        (): void =>
+          shadow.dispose(),
+    ),
+    ...[...materials].map(
+      (material: THREE.Material): (() => void) =>
+        (): void =>
+          material.dispose(),
+    ),
+    ...[...textures].map(
+      (texture: THREE.Texture): (() => void) =>
+        (): void =>
+          texture.dispose(),
+    ),
   ]);
 };

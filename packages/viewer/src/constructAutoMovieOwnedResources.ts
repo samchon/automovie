@@ -22,17 +22,25 @@ import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeSta
  * @evidence contracts/performance.md#bound-retention-and-release-resources Holds registered resources through synchronous construction and rollback; successful result transfer drops the scope's registry, while failure attempts all release operations. Failed rollback ownership is not retained in a returned recovery handle, so native failure boundaries remain the child/host responsibility.
  */
 export function constructAutoMovieOwnedResources<Value>(
-  construct: (own: <Resource extends { dispose(): void }>(resource: Resource) => Resource) => Value,
+  construct: (
+    own: <Resource extends { dispose(): void }>(resource: Resource) => Resource,
+  ) => Value,
 ): Value {
-  const owned: Set<{ dispose(): void; }> = new Set<{ dispose(): void }>();
+  const owned: Set<{ dispose(): void }> = new Set<{ dispose(): void }>();
   try {
-    return construct(<Resource extends { dispose(): void }>(resource: Resource): Resource => {
-      owned.add(resource);
-      return resource;
-    });
+    return construct(
+      <Resource extends { dispose(): void }>(resource: Resource): Resource => {
+        owned.add(resource);
+        return resource;
+      },
+    );
   } catch (error) {
     return restoreAutoMovieRenderModeState(
-      [...owned].map((resource: { dispose(): void; }): () => void => (): void => resource.dispose()),
+      [...owned].map(
+        (resource: { dispose(): void }): (() => void) =>
+          (): void =>
+            resource.dispose(),
+      ),
       { error },
     );
   }

@@ -1,5 +1,9 @@
-import type { IAutoMovieCompiledFormation, IAutoMovieFormationSlot } from "@automovie/interface";
+import type {
+  IAutoMovieCompiledFormation,
+  IAutoMovieFormationSlot,
+} from "@automovie/interface";
 import * as THREE from "three";
+
 import { formationSpacingOffset } from "./formationSpacingOffset.js";
 
 /**
@@ -13,7 +17,12 @@ import { formationSpacingOffset } from "./formationSpacingOffset.js";
  * @evidence contracts/performance.md#reuse-equivalent-work The current slot/anchor/spacing/baseFacing determine each matrix; the shared offset law avoids a divergent cached viewer derivation.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only one returned Matrix4 and fixed scratch vectors/quaternion are owned, with no instance buffer, mesh or native resource acquired.
  */
-export const slotMatrix: (slot: IAutoMovieFormationSlot, anchor: IAutoMovieCompiledFormation["anchor"], spacing?: { lateral: number; depth: number }, baseFacingDeg?: number) => THREE.Matrix4 = (
+export const slotMatrix: (
+  slot: IAutoMovieFormationSlot,
+  anchor: IAutoMovieCompiledFormation["anchor"],
+  spacing?: { lateral: number; depth: number },
+  baseFacingDeg?: number,
+) => THREE.Matrix4 = (
   slot: IAutoMovieFormationSlot,
   anchor: IAutoMovieCompiledFormation["anchor"],
   spacing: { lateral: number; depth: number } = { lateral: 1, depth: 1 },

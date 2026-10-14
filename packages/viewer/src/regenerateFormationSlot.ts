@@ -1,5 +1,8 @@
 import { compiledFormationSlot } from "@automovie/engine";
-import type { IAutoMovieCompiledFormation, IAutoMovieFormationSlot } from "@automovie/interface";
+import type {
+  IAutoMovieCompiledFormation,
+  IAutoMovieFormationSlot,
+} from "@automovie/interface";
 
 /**
  * Regenerate one exact slot from compact runtime parameters.
@@ -14,7 +17,10 @@ import type { IAutoMovieCompiledFormation, IAutoMovieFormationSlot } from "@auto
  * @evidence contracts/performance.md#reuse-equivalent-work Each requested slot follows current compiled inputs; no viewer placement memo can disagree with changed Engine parameters.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The compiled input is borrowed and the returned value has no geometry/texture handle; batch owner later acquires and retires its native projection.
  */
-export const regenerateFormationSlot: (formation: IAutoMovieCompiledFormation, slot: number) => IAutoMovieFormationSlot = (
+export const regenerateFormationSlot: (
+  formation: IAutoMovieCompiledFormation,
+  slot: number,
+) => IAutoMovieFormationSlot = (
   formation: IAutoMovieCompiledFormation,
   slot: number,
 ): IAutoMovieFormationSlot => compiledFormationSlot(formation, slot);

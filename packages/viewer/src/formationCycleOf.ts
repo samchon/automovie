@@ -15,7 +15,9 @@ import type { IAutoMovieFormationCycle } from "./IAutoMovieFormationCycle.js";
  * @evidence contracts/performance.md#reuse-equivalent-work Returns the existing tier cycle identity, enabling actual uniform-equivalent material sharing; no duplicate bake or copied table is created.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Borrows object/cycle and retains neither beyond the call; tier owner still controls cycle texture lifetime, and the lookup acquires no native resource/task.
  */
-export const formationCycleOf: (object: THREE.Object3D) => IAutoMovieFormationCycle | null = (
+export const formationCycleOf: (
+  object: THREE.Object3D,
+) => IAutoMovieFormationCycle | null = (
   object: THREE.Object3D,
 ): IAutoMovieFormationCycle | null =>
   (object.userData.automovieFormationCycle as

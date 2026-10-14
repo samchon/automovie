@@ -16,7 +16,10 @@ import type * as THREE from "three";
  * @evidence contracts/performance.md#reuse-equivalent-work One counter-reset epoch aggregates every synchronous source/composite draw in the requested frame; another frame must reset anew and cannot reuse older submission counts.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The renderer is borrowed, no GPU owner is acquired and autoReset is restored after reset/draw completion or failure; caller must keep the SDK info object live and writable throughout the scope.
  */
-export const observeAutoMovieRendererFrame: <Output>(renderer: THREE.WebGLRenderer, draw: () => Output) => { output: Output; observed: IAutoMovieRenderObservation } = <Output>(
+export const observeAutoMovieRendererFrame: <Output>(
+  renderer: THREE.WebGLRenderer,
+  draw: () => Output,
+) => { output: Output; observed: IAutoMovieRenderObservation } = <Output>(
   renderer: THREE.WebGLRenderer,
   draw: () => Output,
 ): { output: Output; observed: IAutoMovieRenderObservation } => {

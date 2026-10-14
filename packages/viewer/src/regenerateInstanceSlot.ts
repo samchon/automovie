@@ -19,7 +19,10 @@ import type {
  * @evidence contracts/performance.md#reuse-equivalent-work Each slot reads current compiled parameters through the canonical law rather than reusing a separately derived viewer answer.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Returned member records acquire no native resource and input remains borrowed; instance batch construction owns subsequent acquisition/rollback/release.
  */
-export const regenerateInstanceSlot: (instanceSet: IAutoMovieCompiledInstanceSet, slot: number) => IAutoMovieInstanceSlot = (
+export const regenerateInstanceSlot: (
+  instanceSet: IAutoMovieCompiledInstanceSet,
+  slot: number,
+) => IAutoMovieInstanceSlot = (
   instanceSet: IAutoMovieCompiledInstanceSet,
   slot: number,
 ): IAutoMovieInstanceSlot => instanceSlot(instanceSet, slot);

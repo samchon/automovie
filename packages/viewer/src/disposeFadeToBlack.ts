@@ -1,5 +1,6 @@
 import type * as THREE from "three";
-import {AutoMovieFadeCompositorState as states} from "./AutoMovieFadeCompositorState.js";
+
+import { AutoMovieFadeCompositorState as states } from "./AutoMovieFadeCompositorState.js";
 
 /**
  * Release one renderer's fade resources with the compositor's shared outcome.
@@ -14,7 +15,9 @@ import {AutoMovieFadeCompositorState as states} from "./AutoMovieFadeCompositorS
  * @evidence contracts/performance.md#reuse-equivalent-work Uses the class's memoized disposal outcome for repeats, and success allows later fade to create a separate lifetime; failure never becomes a fresh native retry or a fake quiet-cache completion.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Successful compositor retirement relinquishes this WeakMap owner; failed resource/cause references remain reachable only with the renderer key, and host renderer/context release is still the separate physical lifetime boundary.
  */
-export const disposeFadeToBlack: (renderer: THREE.WebGLRenderer) => void = (renderer: THREE.WebGLRenderer): void => {
+export const disposeFadeToBlack: (renderer: THREE.WebGLRenderer) => void = (
+  renderer: THREE.WebGLRenderer,
+): void => {
   const state: ReturnType<typeof states.get> = states.get(renderer);
   if (state === undefined) return;
   state.dispose();

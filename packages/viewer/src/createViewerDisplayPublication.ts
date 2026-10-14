@@ -19,7 +19,13 @@ export function createViewerDisplayPublication(props: {
   copy: () => boolean;
   start: (session: string, generation: number) => void;
   release: () => void;
-}): { active: () => boolean; prepare: () => boolean; commit: (session: string, generation: number) => boolean; changed: () => boolean; dispose: () => void; } {
+}): {
+  active: () => boolean;
+  prepare: () => boolean;
+  commit: (session: string, generation: number) => boolean;
+  changed: () => boolean;
+  dispose: () => void;
+} {
   let identity: { session: string; generation: number } | undefined;
   let prepared: boolean = false;
   let disposed: boolean = false;

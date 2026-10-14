@@ -14,7 +14,12 @@ import type { IAutoMovieFormationCycleTake } from "./IAutoMovieFormationCycleTak
  * @evidence contracts/performance.md#reuse-equivalent-work Every request uses the current take/position with its canonical table; this helper does not reuse a stale matrix after take selection or cycle advancement.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only one returned matrix owns copied numbers, while cycle/take tables stay borrowed and no take texture, geometry or native resource is acquired.
  */
-export const sampleFormationCycleMatrix: (cycle: IAutoMovieFormationCycle, part: number, position: number, take?: IAutoMovieFormationCycleTake) => THREE.Matrix4 = (
+export const sampleFormationCycleMatrix: (
+  cycle: IAutoMovieFormationCycle,
+  part: number,
+  position: number,
+  take?: IAutoMovieFormationCycleTake,
+) => THREE.Matrix4 = (
   cycle: IAutoMovieFormationCycle,
   part: number,
   position: number,
@@ -33,9 +38,16 @@ export const sampleFormationCycleMatrix: (cycle: IAutoMovieFormationCycle, part:
   const first: number = Math.floor(scaled);
   const blend: number = scaled - first;
   const second: number = (first + 1) % cycle.samples;
-  const read: (sample: number, row: number, column: number) => number = (sample: number, row: number, column: number): number =>
+  const read: (sample: number, row: number, column: number) => number = (
+    sample: number,
+    row: number,
+    column: number,
+  ): number =>
     take.matrices[((part * 3 + row) * cycle.samples + sample) * 4 + column]!;
-  const mix: (row: number, column: number) => number = (row: number, column: number): number =>
+  const mix: (row: number, column: number) => number = (
+    row: number,
+    column: number,
+  ): number =>
     read(first, row, column) * (1 - blend) + read(second, row, column) * blend;
   return new THREE.Matrix4().set(
     mix(0, 0),

@@ -11,4 +11,6 @@ import { AutoMovieTextureBinding } from "@automovie/interface";
  * @evidence contracts/performance.md#reuse-equivalent-work Returns the existing text; cache/resolver owners decide equivalent decoding and sampler wrappers, not this selector.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Borrows its binding and acquires or retains no decoded image, texture wrapper or task.
  */
-export function textureBindingAsset(binding: AutoMovieTextureBinding): string { return (typeof binding === "string" ? binding : binding.asset); }
+export function textureBindingAsset(binding: AutoMovieTextureBinding): string {
+  return typeof binding === "string" ? binding : binding.asset;
+}

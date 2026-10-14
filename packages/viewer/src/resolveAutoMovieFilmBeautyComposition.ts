@@ -1,5 +1,5 @@
-import type { IAutoMovieFilmBeautyLayer } from "./IAutoMovieFilmBeautyLayer.js";
 import type { AutoMovieFilmBeautyComposition } from "./AutoMovieFilmBeautyComposition.js";
+import type { IAutoMovieFilmBeautyLayer } from "./IAutoMovieFilmBeautyLayer.js";
 
 /**
  * Resolve a builder-sampled beauty layer list into one explicit compositor.
@@ -14,7 +14,11 @@ import type { AutoMovieFilmBeautyComposition } from "./AutoMovieFilmBeautyCompos
  * @evidence contracts/performance.md#reuse-equivalent-work Returned branches borrow actual layer identity for their one draw; different sampled frame inputs are not memoized by equal weight or shot name.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only the small result wrapper holds borrowed layers, with no renderer, target, texture or persistent composition cache acquired.
  */
-export const resolveAutoMovieFilmBeautyComposition: <Layer extends IAutoMovieFilmBeautyLayer>(layers: readonly Layer[]) => AutoMovieFilmBeautyComposition<Layer> = <
+export const resolveAutoMovieFilmBeautyComposition: <
+  Layer extends IAutoMovieFilmBeautyLayer,
+>(
+  layers: readonly Layer[],
+) => AutoMovieFilmBeautyComposition<Layer> = <
   Layer extends IAutoMovieFilmBeautyLayer,
 >(
   layers: readonly Layer[],
@@ -36,7 +40,10 @@ export const resolveAutoMovieFilmBeautyComposition: <Layer extends IAutoMovieFil
     return layers[0]!.weight === 1
       ? { kind: "direct", layer: layers[0]! }
       : { kind: "fade", layer: layers[0]!, weight: layers[0]!.weight };
-  const [outgoing, incoming]: readonly [Layer, Layer] = layers as readonly [Layer, Layer];
+  const [outgoing, incoming]: readonly [Layer, Layer] = layers as readonly [
+    Layer,
+    Layer,
+  ];
   if (outgoing.weight + incoming.weight !== 1)
     throw new Error(
       `Film dissolve layer weights must sum to one, but received ${outgoing.weight} and ${incoming.weight}.`,

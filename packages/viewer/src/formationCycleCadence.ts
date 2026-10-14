@@ -32,7 +32,10 @@ import type { IAutoMovieFormationCycleTake } from "./IAutoMovieFormationCycleTak
  * @evidence contracts/performance.md#reuse-equivalent-work Uses the cycle's existing take records/textures and folds once per tier update for all members; changed absolute segment input requires reintegration, with no previous-frame accumulation cache.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Returns a small record borrowing one cycle-owned take and retains no segment/cycle after return; this arithmetic acquires no texture, native task or animation timer.
  */
-export const formationCycleCadence: (cycle: IAutoMovieFormationCycle, segments: readonly IAutoMovieFormationCadenceSegment[]) => IAutoMovieFormationCadence = (
+export const formationCycleCadence: (
+  cycle: IAutoMovieFormationCycle,
+  segments: readonly IAutoMovieFormationCadenceSegment[],
+) => IAutoMovieFormationCadence = (
   cycle: IAutoMovieFormationCycle,
   segments: readonly IAutoMovieFormationCadenceSegment[],
 ): IAutoMovieFormationCadence => {

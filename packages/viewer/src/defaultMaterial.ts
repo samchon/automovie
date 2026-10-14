@@ -12,9 +12,10 @@ import * as THREE from "three";
  * @evidence contracts/performance.md#reuse-equivalent-work Reuses the default definition while returning independent material instances because per-part flags and disposal ownership may differ; model-level caching remains with the model builder.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Transfers the new material to its caller for owned disposal and retains no registry, texture, renderer or task after return.
  */
-export const defaultMaterial: () => THREE.MeshStandardMaterial = (): THREE.MeshStandardMaterial =>
-  new THREE.MeshStandardMaterial({
-    color: new THREE.Color(0.8, 0.8, 0.8),
-    metalness: 0,
-    roughness: 0.9,
-  });
+export const defaultMaterial: () => THREE.MeshStandardMaterial =
+  (): THREE.MeshStandardMaterial =>
+    new THREE.MeshStandardMaterial({
+      color: new THREE.Color(0.8, 0.8, 0.8),
+      metalness: 0,
+      roughness: 0.9,
+    });

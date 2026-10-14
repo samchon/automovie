@@ -14,7 +14,9 @@ import {
  * @evidence contracts/performance.md#reuse-equivalent-work Loading/cache owners decide equivalent assets and variants; this pure ordered projection does not reuse or coalesce texture effects itself.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Returned binding references borrow the material document and retain no decoded image or GPU wrapper; loaders/cache owners acquire and retire those resources.
  */
-export const materialTextureBindings: (material: IAutoMovieMaterial) => AutoMovieTextureBinding[] = (
+export const materialTextureBindings: (
+  material: IAutoMovieMaterial,
+) => AutoMovieTextureBinding[] = (
   material: IAutoMovieMaterial,
 ): AutoMovieTextureBinding[] =>
   [
@@ -24,11 +26,17 @@ export const materialTextureBindings: (material: IAutoMovieMaterial) => AutoMovi
     material.detailNormalTexture,
     material.occlusionTexture,
     material.emissiveTexture,
-    ...(material.overlays ?? []).flatMap((overlay: NonNullable<IAutoMovieMaterial["overlays"]>[number]): (AutoMovieTextureBinding | null | undefined)[] => [
-      overlay.baseColorTexture,
-      overlay.normalTexture,
-    ]),
+    ...(material.overlays ?? []).flatMap(
+      (
+        overlay: NonNullable<IAutoMovieMaterial["overlays"]>[number],
+      ): (AutoMovieTextureBinding | null | undefined)[] => [
+        overlay.baseColorTexture,
+        overlay.normalTexture,
+      ],
+    ),
   ].filter(
-    (value: AutoMovieTextureBinding | null | undefined): value is AutoMovieTextureBinding =>
+    (
+      value: AutoMovieTextureBinding | null | undefined,
+    ): value is AutoMovieTextureBinding =>
       value !== null && value !== undefined,
   );

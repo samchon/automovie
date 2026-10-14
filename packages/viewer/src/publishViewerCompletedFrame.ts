@@ -13,12 +13,19 @@ import type { IAutoMovieViewerCompletedFrame } from "./IAutoMovieViewerCompleted
  * @evidence contracts/performance.md#reuse-equivalent-work Ordinary producer idle/change classification is preserved; explicit redraw intentionally publishes a new completed effect instead of treating equal metadata as pixel equivalence.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The publisher retains no listener or frame after dispatch; event detail is borrowed or shallow-copied, and subscribers own any retained capture work and withdrawal.
  */
-export function publishViewerCompletedFrame(canvas: {
-  getAttribute?: (name: string) => string | null;
-  dispatchEvent?: (event: Event) => boolean;
-}, frame: IAutoMovieViewerCompletedFrame, explicitDraw: boolean = false): void {
+export function publishViewerCompletedFrame(
+  canvas: {
+    getAttribute?: (name: string) => string | null;
+    dispatchEvent?: (event: Event) => boolean;
+  },
+  frame: IAutoMovieViewerCompletedFrame,
+  explicitDraw: boolean = false,
+): void {
   if (canvas.getAttribute?.("data-automovie-frame-observer") !== "on") return;
-  canvas.dispatchEvent?.(new CustomEvent<IAutoMovieViewerCompletedFrame>(
-    "automovie:completed-frame", { detail: explicitDraw ? { ...frame, changed: true } : frame },
-  ));
+  canvas.dispatchEvent?.(
+    new CustomEvent<IAutoMovieViewerCompletedFrame>(
+      "automovie:completed-frame",
+      { detail: explicitDraw ? { ...frame, changed: true } : frame },
+    ),
+  );
 }

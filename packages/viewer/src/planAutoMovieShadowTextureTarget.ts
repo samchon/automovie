@@ -12,7 +12,15 @@ import type * as THREE from "three";
  * @evidence contracts/performance.md#reuse-equivalent-work The retained-target comparator uses these exact planned representation facts to avoid a duplicate planned row only when current allocation metadata matches.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Public shadow/capability facts are borrowed and the returned row owns no texture, framebuffer or depth attachment.
  */
-export const planAutoMovieShadowTextureTarget: (scope: string, light: string, shadow: THREE.LightShadow, point: boolean, filter: "pcf" | "vsm", role: "map" | "blur", maxTextureSize: number) => IAutoMovieRenderTextureTarget = (
+export const planAutoMovieShadowTextureTarget: (
+  scope: string,
+  light: string,
+  shadow: THREE.LightShadow,
+  point: boolean,
+  filter: "pcf" | "vsm",
+  role: "map" | "blur",
+  maxTextureSize: number,
+) => IAutoMovieRenderTextureTarget = (
   scope: string,
   light: string,
   shadow: THREE.LightShadow,
@@ -22,13 +30,26 @@ export const planAutoMovieShadowTextureTarget: (scope: string, light: string, sh
   maxTextureSize: number,
 ): IAutoMovieRenderTextureTarget => {
   const extents: THREE.Vector2 = shadow.getFrameExtents();
-  const width: number = Math.floor(Math.min(shadow.mapSize.x, Math.floor(maxTextureSize / extents.x)) * extents.x);
-  const height: number = point ? width : Math.floor(Math.min(shadow.mapSize.y, Math.floor(maxTextureSize / extents.y)) * extents.y);
+  const width: number = Math.floor(
+    Math.min(shadow.mapSize.x, Math.floor(maxTextureSize / extents.x)) *
+      extents.x,
+  );
+  const height: number = point
+    ? width
+    : Math.floor(
+        Math.min(shadow.mapSize.y, Math.floor(maxTextureSize / extents.y)) *
+          extents.y,
+      );
   return {
     owner: `shadow-target:${JSON.stringify([scope, light, role, "planned"])}`,
-    shadow: { scope, light, role }, width, height, faces: point ? 6 : 1,
+    shadow: { scope, light, role },
+    width,
+    height,
+    faces: point ? 6 : 1,
     formats: [filter === "vsm" ? "rg16f" : "rgba8"],
-    mipmapped: false, samples: 0, depthBytesPerTexel: 4,
+    mipmapped: false,
+    samples: 0,
+    depthBytesPerTexel: 4,
     depthTexture: role === "map",
   };
 };

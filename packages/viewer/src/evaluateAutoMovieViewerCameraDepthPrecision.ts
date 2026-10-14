@@ -1,5 +1,6 @@
 import type { IAutoMovieCamera } from "@automovie/interface";
 import type * as THREE from "three";
+
 import type { IAutoMovieViewerCameraDepthPrecisionReport } from "./IAutoMovieViewerCameraDepthPrecisionReport.js";
 
 /**
@@ -23,7 +24,11 @@ import type { IAutoMovieViewerCameraDepthPrecisionReport } from "./IAutoMovieVie
  * @evidence contracts/performance.md#reuse-equivalent-work Shares the report with the assertion wrapper; no cache is retained because framebuffer binding, capabilities and camera clips jointly determine the observation and may change between requests.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Borrows renderer/context/camera for one synchronous query and returns scalars; no framebuffer ownership, GPU allocation, retained browser handle or running task is acquired.
  */
-export const evaluateAutoMovieViewerCameraDepthPrecision: (props: { renderer: THREE.WebGLRenderer; source: Pick<IAutoMovieCamera, "id" | "near" | "far" | "depthPrecision">; realized: THREE.PerspectiveCamera; }) => IAutoMovieViewerCameraDepthPrecisionReport = (props: {
+export const evaluateAutoMovieViewerCameraDepthPrecision: (props: {
+  renderer: THREE.WebGLRenderer;
+  source: Pick<IAutoMovieCamera, "id" | "near" | "far" | "depthPrecision">;
+  realized: THREE.PerspectiveCamera;
+}) => IAutoMovieViewerCameraDepthPrecisionReport = (props: {
   /** Viewer renderer whose currently bound draw framebuffer receives the shot. */
   renderer: THREE.WebGLRenderer;
   /** Portable resolved camera declaration. */
@@ -31,7 +36,8 @@ export const evaluateAutoMovieViewerCameraDepthPrecision: (props: { renderer: TH
   /** Three camera built from that declaration. */
   realized: THREE.PerspectiveCamera;
 }): IAutoMovieViewerCameraDepthPrecisionReport => {
-  const logarithmic: boolean = props.renderer.capabilities.logarithmicDepthBuffer;
+  const logarithmic: boolean =
+    props.renderer.capabilities.logarithmicDepthBuffer;
   const reversed: boolean = props.renderer.capabilities.reversedDepthBuffer;
   const projection: IAutoMovieViewerCameraDepthPrecisionReport["projection"] =
     logarithmic
@@ -41,11 +47,25 @@ export const evaluateAutoMovieViewerCameraDepthPrecision: (props: { renderer: TH
       : reversed
         ? "reversed"
         : "standard";
-  const context: WebGLRenderingContext | WebGL2RenderingContext = props.renderer.getContext();
+  const context: WebGLRenderingContext | WebGL2RenderingContext =
+    props.renderer.getContext();
   const observed: unknown = context.getParameter(context.DEPTH_BITS) as unknown;
   const observedDepthBits: number | null =
     typeof observed === "number" && Number.isFinite(observed) ? observed : null;
-  const base: { camera: string; sourceNear: number | null; sourceFar: number | null; realizedNear: number | null; realizedFar: number | null; minimumDepthBits: number | null; observedDepthBits: number | null; projection: "standard" | "logarithmic" | "reversed" | "logarithmic-reversed"; } = {
+  const base: {
+    camera: string;
+    sourceNear: number | null;
+    sourceFar: number | null;
+    realizedNear: number | null;
+    realizedFar: number | null;
+    minimumDepthBits: number | null;
+    observedDepthBits: number | null;
+    projection:
+      | "standard"
+      | "logarithmic"
+      | "reversed"
+      | "logarithmic-reversed";
+  } = {
     camera: props.source.id,
     sourceNear: finiteOrNull(props.source.near),
     sourceFar: finiteOrNull(props.source.far),
@@ -89,5 +109,6 @@ export const evaluateAutoMovieViewerCameraDepthPrecision: (props: { renderer: TH
   return { ...base, status: "satisfied", passed: true };
 };
 
-const finiteOrNull: (value: number) => number | null = (value: number): number | null =>
-  Number.isFinite(value) ? value : null;
+const finiteOrNull: (value: number) => number | null = (
+  value: number,
+): number | null => (Number.isFinite(value) ? value : null);

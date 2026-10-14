@@ -20,18 +20,51 @@ export function readAutoMovieRenderTextureTarget(
   transmissionScope?: string,
 ): IAutoMovieRenderTextureTarget {
   const cube: boolean = "isWebGLCubeRenderTarget" in target;
-  const unsupported: boolean = target.depth !== 1 ||
-    target.textures.some((texture: THREE.Texture) : boolean => "isDataArrayTexture" in texture || "isData3DTexture" in texture);
+  const unsupported: boolean =
+    target.depth !== 1 ||
+    target.textures.some(
+      (texture: THREE.Texture): boolean =>
+        "isDataArrayTexture" in texture || "isData3DTexture" in texture,
+    );
   const depth: THREE.DepthTexture | null = target.depthTexture;
-  const depthBytesPerTexel: number | null = !target.depthBuffer ? 0 : depth === null ? 4 :
-    depth.format !== THREE.DepthFormat && depth.format !== THREE.DepthStencilFormat ? null :
-    depth.type === THREE.FloatType ? target.stencilBuffer || depth.format === THREE.DepthStencilFormat ? 8 : 4 :
-    depth.type === THREE.UnsignedIntType || depth.type === THREE.UnsignedInt248Type ? 4 :
-    depth.type === THREE.UnsignedShortType ? target.stencilBuffer || depth.format === THREE.DepthStencilFormat ? 4 : 2 : null;
-  return { owner, transmissionScope, width: Math.floor(target.width), height: Math.floor(target.height),
-    formats: target.textures.map((texture: THREE.Texture) : ReturnType<typeof readAutoMovieTextureUploadFormat> => unsupported ? undefined : readAutoMovieTextureUploadFormat(texture)),
-    mipmapped: target.textures.some((texture: THREE.Texture) : boolean => texture.generateMipmaps || texture.mipmaps.length > 1),
-    samples: target.samples, depthBytesPerTexel, depthTexture: target.depthBuffer && depth !== null,
+  const depthBytesPerTexel: number | null = !target.depthBuffer
+    ? 0
+    : depth === null
+      ? 4
+      : depth.format !== THREE.DepthFormat &&
+          depth.format !== THREE.DepthStencilFormat
+        ? null
+        : depth.type === THREE.FloatType
+          ? target.stencilBuffer || depth.format === THREE.DepthStencilFormat
+            ? 8
+            : 4
+          : depth.type === THREE.UnsignedIntType ||
+              depth.type === THREE.UnsignedInt248Type
+            ? 4
+            : depth.type === THREE.UnsignedShortType
+              ? target.stencilBuffer ||
+                depth.format === THREE.DepthStencilFormat
+                ? 4
+                : 2
+              : null;
+  return {
+    owner,
+    transmissionScope,
+    width: Math.floor(target.width),
+    height: Math.floor(target.height),
+    formats: target.textures.map(
+      (
+        texture: THREE.Texture,
+      ): ReturnType<typeof readAutoMovieTextureUploadFormat> =>
+        unsupported ? undefined : readAutoMovieTextureUploadFormat(texture),
+    ),
+    mipmapped: target.textures.some(
+      (texture: THREE.Texture): boolean =>
+        texture.generateMipmaps || texture.mipmaps.length > 1,
+    ),
+    samples: target.samples,
+    depthBytesPerTexel,
+    depthTexture: target.depthBuffer && depth !== null,
     ...(cube ? { faces: 6 as const } : {}),
   };
 }

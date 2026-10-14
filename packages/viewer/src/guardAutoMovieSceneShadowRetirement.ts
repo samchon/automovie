@@ -34,10 +34,17 @@ export function guardAutoMovieSceneShadowRetirement(
   if (previous !== undefined) throw previous.error;
   if (attempt === undefined) return;
   const current: Retirement = {
-    scene, resources: [...attempt.resources], nativeDepth: [...attempt.nativeDepth],
+    scene,
+    resources: [...attempt.resources],
+    nativeDepth: [...attempt.nativeDepth],
     error: new Error("The scene's shadow resources are still being retired."),
   };
   retiring.set(renderer, current);
-  try { attempt.run(); retiring.delete(renderer); }
-  catch (error) { current.error = error; throw error; }
+  try {
+    attempt.run();
+    retiring.delete(renderer);
+  } catch (error) {
+    current.error = error;
+    throw error;
+  }
 }

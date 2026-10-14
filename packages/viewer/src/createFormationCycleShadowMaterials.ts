@@ -26,39 +26,86 @@ import { reportAutoMovieResourceRetirement } from "./reportAutoMovieResourceReti
  * @evidence contracts/performance.md#reuse-equivalent-work Repeated palette references share one ordinal and all chunk borrowers share the pair/cycle uniforms; local ordinals allow compatible program structure reuse across tiers while native material uniforms remain independently owned.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Construction registers depth/distance immediately and rolls both back on setup refusal; returned tier handle owns their independent disposal and borrows cycle textures/palette references. Its dispose is not memoized itself, so the formation lifetime owner must issue it once and retain any failed completion.
  */
-export const createFormationCycleShadowMaterials: (cycle: IAutoMovieFormationCycle, palette: readonly THREE.Material[]) => { depth: THREE.MeshDepthMaterial; distance: THREE.MeshDistanceMaterial; beforeDraw: (material: THREE.Material, paletteMaterial: THREE.Material) => void; dispose: () => void; } = (
+export const createFormationCycleShadowMaterials: (
   cycle: IAutoMovieFormationCycle,
   palette: readonly THREE.Material[],
-): { depth: THREE.MeshDepthMaterial; distance: THREE.MeshDistanceMaterial; beforeDraw: (material: THREE.Material, paletteMaterial: THREE.Material) => void; dispose: () => void; } => {
-  return constructAutoMovieOwnedResources((own: <Resource extends { dispose(): void; }>(resource: Resource) => Resource): { depth: THREE.MeshDepthMaterial; distance: THREE.MeshDistanceMaterial; beforeDraw: (material: THREE.Material, paletteMaterial: THREE.Material) => void; dispose: () => void; } => {
-  const depth: THREE.MeshDepthMaterial = own(new THREE.MeshDepthMaterial());
-  const distance: THREE.MeshDistanceMaterial = own(new THREE.MeshDistanceMaterial());
-  applyFormationCycleMaterial(depth, cycle);
-  applyFormationCycleMaterial(distance, cycle);
-  const cycleProgramKey: string = depth.customProgramCacheKey();
-  // Local ordinals let another LOD reuse the same shader program while its
-  // distinct material object still owns its own table and uniform uploads.
-  const identities: Map<THREE.Material<THREE.MaterialEventMap>, number> = new Map(
-    [...new Set(palette)].map((material: THREE.Material<THREE.MaterialEventMap>, index: number): readonly [THREE.Material<THREE.MaterialEventMap>, number] => [material, index] as const),
+) => {
+  depth: THREE.MeshDepthMaterial;
+  distance: THREE.MeshDistanceMaterial;
+  beforeDraw: (
+    material: THREE.Material,
+    paletteMaterial: THREE.Material,
+  ) => void;
+  dispose: () => void;
+} = (
+  cycle: IAutoMovieFormationCycle,
+  palette: readonly THREE.Material[],
+): {
+  depth: THREE.MeshDepthMaterial;
+  distance: THREE.MeshDistanceMaterial;
+  beforeDraw: (
+    material: THREE.Material,
+    paletteMaterial: THREE.Material,
+  ) => void;
+  dispose: () => void;
+} => {
+  return constructAutoMovieOwnedResources(
+    (
+      own: <Resource extends { dispose(): void }>(
+        resource: Resource,
+      ) => Resource,
+    ): {
+      depth: THREE.MeshDepthMaterial;
+      distance: THREE.MeshDistanceMaterial;
+      beforeDraw: (
+        material: THREE.Material,
+        paletteMaterial: THREE.Material,
+      ) => void;
+      dispose: () => void;
+    } => {
+      const depth: THREE.MeshDepthMaterial = own(new THREE.MeshDepthMaterial());
+      const distance: THREE.MeshDistanceMaterial = own(
+        new THREE.MeshDistanceMaterial(),
+      );
+      applyFormationCycleMaterial(depth, cycle);
+      applyFormationCycleMaterial(distance, cycle);
+      const cycleProgramKey: string = depth.customProgramCacheKey();
+      // Local ordinals let another LOD reuse the same shader program while its
+      // distinct material object still owns its own table and uniform uploads.
+      const identities: Map<
+        THREE.Material<THREE.MaterialEventMap>,
+        number
+      > = new Map(
+        [...new Set(palette)].map(
+          (
+            material: THREE.Material<THREE.MaterialEventMap>,
+            index: number,
+          ): readonly [THREE.Material<THREE.MaterialEventMap>, number] =>
+            [material, index] as const,
+        ),
+      );
+      let paletteIdentity: number = 0;
+      const programKey: () => string = (): string =>
+        `${cycleProgramKey}:shadow-palette:${paletteIdentity}`;
+      depth.customProgramCacheKey = programKey;
+      distance.customProgramCacheKey = programKey;
+      return {
+        depth,
+        distance,
+        beforeDraw: (
+          material: THREE.Material,
+          paletteMaterial: THREE.Material,
+        ): void => {
+          paletteIdentity = identities.get(paletteMaterial)!;
+          material.needsUpdate = true;
+        },
+        dispose: (): void => {
+          reportAutoMovieResourceRetirement([
+            (): void => depth.dispose(),
+            (): void => distance.dispose(),
+          ]);
+        },
+      };
+    },
   );
-  let paletteIdentity: number = 0;
-  const programKey: () => string = (): string =>
-    `${cycleProgramKey}:shadow-palette:${paletteIdentity}`;
-  depth.customProgramCacheKey = programKey;
-  distance.customProgramCacheKey = programKey;
-  return {
-    depth,
-    distance,
-    beforeDraw: (material: THREE.Material, paletteMaterial: THREE.Material): void => {
-      paletteIdentity = identities.get(paletteMaterial)!;
-      material.needsUpdate = true;
-    },
-    dispose: (): void => {
-      reportAutoMovieResourceRetirement([
-        (): void => depth.dispose(),
-        (): void => distance.dispose(),
-      ]);
-    },
-  };
-  });
 };

@@ -11,29 +11,88 @@ import type * as THREE from "three";
  * @evidence contracts/performance.md#reuse-equivalent-work The current bound destination must be reobserved because target/face/mip can change; no colorSpace-only cache substitutes for actual native encoding.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Temporary scalar/query arrays retain no texture or framebuffer handle; the caller keeps its selected borrowed destination alive and owns eventual release.
  */
-export const readAutoMovieDisplayDestinationEncoding: (renderer: Pick<THREE.WebGLRenderer,"getContext">) => "linear"|"srgb"=(renderer:Pick<THREE.WebGLRenderer,"getContext">):"linear"|"srgb"=>{
-  const gl: ReturnType<THREE.WebGLRenderer["getContext"]>=renderer.getContext();
-  if(!("FRAMEBUFFER_ATTACHMENT_COLOR_ENCODING" in gl))
-    throw new Error("Display destination encoding requires the public WebGL2 attachment-query profile.");
-  if(gl.checkFramebufferStatus(gl.FRAMEBUFFER)!==gl.FRAMEBUFFER_COMPLETE)
-    throw new Error("The selected display destination framebuffer is incomplete.");
-  const componentParameter:unknown=Reflect.get(gl,"FRAMEBUFFER_ATTACHMENT_COMPONENT_TYPE");
-  const normalizedType:unknown=Reflect.get(gl,"UNSIGNED_NORMALIZED");
-  const sizeParameters: unknown[]=["FRAMEBUFFER_ATTACHMENT_RED_SIZE","FRAMEBUFFER_ATTACHMENT_GREEN_SIZE","FRAMEBUFFER_ATTACHMENT_BLUE_SIZE","FRAMEBUFFER_ATTACHMENT_ALPHA_SIZE"].map((name: string):unknown=>Reflect.get(gl,name));
-  if(typeof componentParameter!=="number"||typeof normalizedType!=="number"||!sizeParameters.every((value: unknown):value is number=>typeof value==="number"))
-    throw new Error("Display destination requires public native component and RGBA precision queries.");
-  const component: unknown=gl.getFramebufferAttachmentParameter(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT0,componentParameter);
-  const sizes: unknown[]=sizeParameters.map((parameter: number): unknown =>gl.getFramebufferAttachmentParameter(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT0,parameter));
-  if(!sizes.every((size: unknown):size is number=>typeof size==="number"&&Number.isInteger(size)))
-    throw new Error("The selected display destination has no native RGBA precision profile.");
-  if(component===normalizedType){
-    if(sizes.some((size: number): boolean =>size<8))throw new Error("Display destination requires at least eight unsigned-normalized bits in every RGBA channel.");
-  }else if(component===gl.FLOAT){
-    if(!sizes.every((size: number): boolean =>size===16)&&!sizes.every((size: number): boolean =>size===32))
-      throw new Error("Display destination supports homogeneous RGBA16F or RGBA32F floating storage.");
-  }else throw new Error("Display destination components are incompatible with the float byte-product quad.");
-  const encoding: unknown=gl.getFramebufferAttachmentParameter(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT0,gl.FRAMEBUFFER_ATTACHMENT_COLOR_ENCODING);
-  if(encoding===gl.LINEAR)return "linear";
-  if(encoding===gl.SRGB)return "srgb";
-  throw new Error("The selected display destination has no supported linear or sRGB color attachment.");
+export const readAutoMovieDisplayDestinationEncoding: (
+  renderer: Pick<THREE.WebGLRenderer, "getContext">,
+) => "linear" | "srgb" = (
+  renderer: Pick<THREE.WebGLRenderer, "getContext">,
+): "linear" | "srgb" => {
+  const gl: ReturnType<THREE.WebGLRenderer["getContext"]> =
+    renderer.getContext();
+  if (!("FRAMEBUFFER_ATTACHMENT_COLOR_ENCODING" in gl))
+    throw new Error(
+      "Display destination encoding requires the public WebGL2 attachment-query profile.",
+    );
+  if (gl.checkFramebufferStatus(gl.FRAMEBUFFER) !== gl.FRAMEBUFFER_COMPLETE)
+    throw new Error(
+      "The selected display destination framebuffer is incomplete.",
+    );
+  const componentParameter: unknown = Reflect.get(
+    gl,
+    "FRAMEBUFFER_ATTACHMENT_COMPONENT_TYPE",
+  );
+  const normalizedType: unknown = Reflect.get(gl, "UNSIGNED_NORMALIZED");
+  const sizeParameters: unknown[] = [
+    "FRAMEBUFFER_ATTACHMENT_RED_SIZE",
+    "FRAMEBUFFER_ATTACHMENT_GREEN_SIZE",
+    "FRAMEBUFFER_ATTACHMENT_BLUE_SIZE",
+    "FRAMEBUFFER_ATTACHMENT_ALPHA_SIZE",
+  ].map((name: string): unknown => Reflect.get(gl, name));
+  if (
+    typeof componentParameter !== "number" ||
+    typeof normalizedType !== "number" ||
+    !sizeParameters.every(
+      (value: unknown): value is number => typeof value === "number",
+    )
+  )
+    throw new Error(
+      "Display destination requires public native component and RGBA precision queries.",
+    );
+  const component: unknown = gl.getFramebufferAttachmentParameter(
+    gl.FRAMEBUFFER,
+    gl.COLOR_ATTACHMENT0,
+    componentParameter,
+  );
+  const sizes: unknown[] = sizeParameters.map((parameter: number): unknown =>
+    gl.getFramebufferAttachmentParameter(
+      gl.FRAMEBUFFER,
+      gl.COLOR_ATTACHMENT0,
+      parameter,
+    ),
+  );
+  if (
+    !sizes.every(
+      (size: unknown): size is number =>
+        typeof size === "number" && Number.isInteger(size),
+    )
+  )
+    throw new Error(
+      "The selected display destination has no native RGBA precision profile.",
+    );
+  if (component === normalizedType) {
+    if (sizes.some((size: number): boolean => size < 8))
+      throw new Error(
+        "Display destination requires at least eight unsigned-normalized bits in every RGBA channel.",
+      );
+  } else if (component === gl.FLOAT) {
+    if (
+      !sizes.every((size: number): boolean => size === 16) &&
+      !sizes.every((size: number): boolean => size === 32)
+    )
+      throw new Error(
+        "Display destination supports homogeneous RGBA16F or RGBA32F floating storage.",
+      );
+  } else
+    throw new Error(
+      "Display destination components are incompatible with the float byte-product quad.",
+    );
+  const encoding: unknown = gl.getFramebufferAttachmentParameter(
+    gl.FRAMEBUFFER,
+    gl.COLOR_ATTACHMENT0,
+    gl.FRAMEBUFFER_ATTACHMENT_COLOR_ENCODING,
+  );
+  if (encoding === gl.LINEAR) return "linear";
+  if (encoding === gl.SRGB) return "srgb";
+  throw new Error(
+    "The selected display destination has no supported linear or sRGB color attachment.",
+  );
 };
