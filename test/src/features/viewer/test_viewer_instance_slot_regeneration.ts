@@ -4,15 +4,25 @@ import {
 } from "@automovie/engine";
 import type {
   IAutoMovieCompiledInstanceSet,
-  IAutoMovieInstanceSlot,
   IAutoMovieInstanceSetDesign,
+  IAutoMovieInstanceSlot,
 } from "@automovie/interface";
 import { regenerateInstanceSlot } from "@automovie/viewer";
 import { TestValidator } from "@nestia/e2e";
 
-import { namedFacts, nclose, qclose, throwsError, vclose } from "../internal/predicates";
+import {
+  namedFacts,
+  nclose,
+  qclose,
+  throwsError,
+  vclose,
+} from "../internal/predicates";
 
-const LANE: { id: string; waypoints: { x: number; z: number; }[]; allowedFormationWidth: number; } = {
+const LANE: {
+  id: string;
+  waypoints: { x: number; z: number }[];
+  allowedFormationWidth: number;
+} = {
   id: "lane",
   waypoints: [
     { x: -6, z: 0 },
@@ -23,7 +33,9 @@ const LANE: { id: string; waypoints: { x: number; z: number; }[]; allowedFormati
 };
 
 /** The laws every set below shares: a seed and a two-swatch palette. */
-const base: (props: Pick<IAutoMovieInstanceSetDesign, "id" | "count" | "layout">) => IAutoMovieInstanceSetDesign = (
+const base: (
+  props: Pick<IAutoMovieInstanceSetDesign, "id" | "count" | "layout">,
+) => IAutoMovieInstanceSetDesign = (
   props: Pick<IAutoMovieInstanceSetDesign, "id" | "count" | "layout">,
 ): IAutoMovieInstanceSetDesign => ({
   modelRecipe: "post",
@@ -39,90 +51,100 @@ const base: (props: Pick<IAutoMovieInstanceSetDesign, "id" | "count" | "layout">
 });
 
 /** One set per layout, the scattered one declaring every optional law. */
-const designs: () => IAutoMovieInstanceSetDesign[] = (): IAutoMovieInstanceSetDesign[] => [
-  base({
-    id: "fence",
-    count: 6,
-    layout: { kind: "grid", rows: 2, columns: 3, spacing: { x: 1.2, z: 0.8 } },
-  }),
-  {
-    ...base({ id: "crowd", count: 40, layout: { kind: "scatter", radius: 9 } }),
-    prototypes: [
-      { id: "tall", modelRecipe: "tall", weight: 2 },
-      { id: "short", modelRecipe: "short", weight: 1 },
-    ],
-    variation: {
-      scale: { min: 0.8, max: 1.2 },
-      scale3: {
-        min: { x: 0.9, y: 0.7, z: 0.9 },
-        max: { x: 1.1, y: 1.5, z: 1.1 },
-      },
-      rotationDeg: {
-        x: { min: -3, max: 3 },
-        y: { min: 0, max: 360 },
-        z: { min: -3, max: 3 },
-      },
-      visibleProbability: 0.8,
-      palette: ["#aa3311", "#11aa33", "#3311aa"],
-      traits: [{ name: "lean", min: -1, max: 1 }],
-    },
-  },
-  base({
-    id: "shelf",
-    count: 12,
-    layout: {
-      kind: "lattice",
-      rows: 2,
-      columns: 3,
-      layers: 2,
-      spacing: { x: 0.5, y: 0.4, z: 0.6 },
-    },
-  }),
-  {
-    ...base({
-      id: "statues",
-      count: 3,
+const designs: () => IAutoMovieInstanceSetDesign[] =
+  (): IAutoMovieInstanceSetDesign[] => [
+    base({
+      id: "fence",
+      count: 6,
       layout: {
-        kind: "explicit",
-        transforms: [
-          {
-            id: "left",
-            translation: { x: -2, y: 0, z: 1 },
-            rotation: { x: 0, y: 0, z: 0, w: 1 },
-            scale: { x: 1, y: 2, z: 1 },
-            prototype: "tall",
-            palette: "#ffffff",
-            traits: { lean: 0.5 },
-            visible: false,
-          },
-          {
-            id: "centre",
-            translation: { x: 0, y: 0, z: 0 },
-            rotation: {
-              x: 0,
-              y: 0.3826834323650898,
-              z: 0,
-              w: 0.9238795325112867,
-            },
-            scale: { x: 1.5, y: 1.5, z: 1.5 },
-          },
-          {
-            id: "right",
-            translation: { x: 2, y: 0, z: 1 },
-            rotation: { x: 0, y: 0, z: 0, w: 1 },
-            scale: { x: 1, y: 1, z: 1 },
-          },
-        ],
+        kind: "grid",
+        rows: 2,
+        columns: 3,
+        spacing: { x: 1.2, z: 0.8 },
       },
     }),
-    prototypes: [{ id: "tall", modelRecipe: "tall", weight: 1 }],
-  },
-  base({
-    id: "lamps",
-    count: 9,
-    layout: { kind: "along-route", route: "lane", lateralJitter: 0.6 },
-  }),
-];
+    {
+      ...base({
+        id: "crowd",
+        count: 40,
+        layout: { kind: "scatter", radius: 9 },
+      }),
+      prototypes: [
+        { id: "tall", modelRecipe: "tall", weight: 2 },
+        { id: "short", modelRecipe: "short", weight: 1 },
+      ],
+      variation: {
+        scale: { min: 0.8, max: 1.2 },
+        scale3: {
+          min: { x: 0.9, y: 0.7, z: 0.9 },
+          max: { x: 1.1, y: 1.5, z: 1.1 },
+        },
+        rotationDeg: {
+          x: { min: -3, max: 3 },
+          y: { min: 0, max: 360 },
+          z: { min: -3, max: 3 },
+        },
+        visibleProbability: 0.8,
+        palette: ["#aa3311", "#11aa33", "#3311aa"],
+        traits: [{ name: "lean", min: -1, max: 1 }],
+      },
+    },
+    base({
+      id: "shelf",
+      count: 12,
+      layout: {
+        kind: "lattice",
+        rows: 2,
+        columns: 3,
+        layers: 2,
+        spacing: { x: 0.5, y: 0.4, z: 0.6 },
+      },
+    }),
+    {
+      ...base({
+        id: "statues",
+        count: 3,
+        layout: {
+          kind: "explicit",
+          transforms: [
+            {
+              id: "left",
+              translation: { x: -2, y: 0, z: 1 },
+              rotation: { x: 0, y: 0, z: 0, w: 1 },
+              scale: { x: 1, y: 2, z: 1 },
+              prototype: "tall",
+              palette: "#ffffff",
+              traits: { lean: 0.5 },
+              visible: false,
+            },
+            {
+              id: "centre",
+              translation: { x: 0, y: 0, z: 0 },
+              rotation: {
+                x: 0,
+                y: 0.3826834323650898,
+                z: 0,
+                w: 0.9238795325112867,
+              },
+              scale: { x: 1.5, y: 1.5, z: 1.5 },
+            },
+            {
+              id: "right",
+              translation: { x: 2, y: 0, z: 1 },
+              rotation: { x: 0, y: 0, z: 0, w: 1 },
+              scale: { x: 1, y: 1, z: 1 },
+            },
+          ],
+        },
+      }),
+      prototypes: [{ id: "tall", modelRecipe: "tall", weight: 1 }],
+    },
+    base({
+      id: "lamps",
+      count: 9,
+      layout: { kind: "along-route", route: "lane", lateralJitter: 0.6 },
+    }),
+  ];
 
 /**
  * The viewer regenerates an instance member with the engine's member law.
@@ -141,11 +163,24 @@ const designs: () => IAutoMovieInstanceSetDesign[] = (): IAutoMovieInstanceSetDe
  * @evidence contracts/testing.md#execution-ownership This named synchronous unit invokes portable Engine/Viewer source and authored numerical records directly, acquiring no browser, renderer, GPU, process or native artifact and registering no hidden cases.
  */
 export function test_viewer_instance_slot_regeneration(): void {
-  const world: { routes: { id: string; waypoints: { x: number; z: number; }[]; allowedFormationWidth: number; }[]; } = { routes: [LANE] };
-  const sets: IAutoMovieCompiledInstanceSet[] = designs().map((instanceSet: IAutoMovieInstanceSetDesign): IAutoMovieCompiledInstanceSet =>
-    materializeCompiledInstanceSet({ instanceSet, world }),
+  const world: {
+    routes: {
+      id: string;
+      waypoints: { x: number; z: number }[];
+      allowedFormationWidth: number;
+    }[];
+  } = { routes: [LANE] };
+  const sets: IAutoMovieCompiledInstanceSet[] = designs().map(
+    (instanceSet: IAutoMovieInstanceSetDesign): IAutoMovieCompiledInstanceSet =>
+      materializeCompiledInstanceSet({ instanceSet, world }),
   );
-  const [fence, , , , lamps]: [IAutoMovieCompiledInstanceSet, IAutoMovieCompiledInstanceSet, IAutoMovieCompiledInstanceSet, IAutoMovieCompiledInstanceSet, IAutoMovieCompiledInstanceSet] = sets as [
+  const [fence, , , , lamps]: [
+    IAutoMovieCompiledInstanceSet,
+    IAutoMovieCompiledInstanceSet,
+    IAutoMovieCompiledInstanceSet,
+    IAutoMovieCompiledInstanceSet,
+    IAutoMovieCompiledInstanceSet,
+  ] = sets as [
     IAutoMovieCompiledInstanceSet,
     IAutoMovieCompiledInstanceSet,
     IAutoMovieCompiledInstanceSet,
@@ -166,8 +201,11 @@ export function test_viewer_instance_slot_regeneration(): void {
     "neighbouring viewer members stand apart",
     sets.every(
       (set: IAutoMovieCompiledInstanceSet): boolean =>
-        !vclose(regenerateInstanceSlot(set, 0).position,
-          regenerateInstanceSlot(set, 1).position, 0),
+        !vclose(
+          regenerateInstanceSlot(set, 0).position,
+          regenerateInstanceSlot(set, 1).position,
+          0,
+        ),
     ),
   );
 
@@ -259,29 +297,59 @@ export function test_viewer_instance_slot_regeneration(): void {
 /**
  * Compare canonical member fields with finite numerical predicates and preserved optional-field/trait-key presence.
  *
- * @evidence contracts/testing.md#behavioral-verification The existing regeneration scenario invokes this comparator for every compiled layout and slot, checking actual adapter output against the canonical Engine member.
- * @evidence contracts/testing.md#independent-expectations Engine output supplies the delegation reference; this helper compares names, field presence, finite scalar/vector values, quaternion orientation and exact quaternion components rather than independently validating the shared slot derivation.
- * @evidence contracts/testing.md#distinguishing-cases Existing legacy and enhanced layouts exercise absent/present rotation and scale axes plus varied trait keys; malformed member refusal is asserted by the calling scenario before comparison.
- * @evidence contracts/testing.md#execution-ownership This private synchronous predicate belongs to the named portable scenario, uses no host or dynamic registration and acquires only temporary sorted key arrays.
+ * The existing regeneration scenario invokes this comparator for every compiled layout and slot, checking actual adapter output against the canonical Engine member.
+ * Engine output supplies the delegation reference; this helper compares names, field presence, finite scalar/vector values, quaternion orientation and exact quaternion components rather than independently validating the shared slot derivation.
+ * Existing legacy and enhanced layouts exercise absent/present rotation and scale axes plus varied trait keys; malformed member refusal is asserted by the calling scenario before comparison.
+ * This private synchronous predicate belongs to the named portable scenario, uses no host or dynamic registration and acquires only temporary sorted key arrays.
  */
-function sameSlot(actual: IAutoMovieInstanceSlot, expected: IAutoMovieInstanceSlot): boolean {
-  const keys: string[] = Object.keys(actual.traits).sort((a: string, b: string): number => a < b ? -1 : a > b ? 1 : 0);
-  const expectedKeys: string[] = Object.keys(expected.traits).sort((a: string, b: string): number => a < b ? -1 : a > b ? 1 : 0);
-  const fields: string[] = Object.keys(actual).sort((a: string, b: string): number => a < b ? -1 : a > b ? 1 : 0);
-  const expectedFields: string[] = Object.keys(expected).sort((a: string, b: string): number => a < b ? -1 : a > b ? 1 : 0);
-  return fields.length === expectedFields.length &&
-    fields.every((field: string, index: number): boolean => field === expectedFields[index]) &&
-    actual.slot === expected.slot && actual.node === expected.node &&
-    actual.modelRecipe === expected.modelRecipe && actual.prototype === expected.prototype &&
-    actual.visible === expected.visible && actual.palette === expected.palette &&
+function sameSlot(
+  actual: IAutoMovieInstanceSlot,
+  expected: IAutoMovieInstanceSlot,
+): boolean {
+  const keys: string[] = Object.keys(actual.traits).sort(
+    (a: string, b: string): number => (a < b ? -1 : a > b ? 1 : 0),
+  );
+  const expectedKeys: string[] = Object.keys(expected.traits).sort(
+    (a: string, b: string): number => (a < b ? -1 : a > b ? 1 : 0),
+  );
+  const fields: string[] = Object.keys(actual).sort(
+    (a: string, b: string): number => (a < b ? -1 : a > b ? 1 : 0),
+  );
+  const expectedFields: string[] = Object.keys(expected).sort(
+    (a: string, b: string): number => (a < b ? -1 : a > b ? 1 : 0),
+  );
+  return (
+    fields.length === expectedFields.length &&
+    fields.every(
+      (field: string, index: number): boolean =>
+        field === expectedFields[index],
+    ) &&
+    actual.slot === expected.slot &&
+    actual.node === expected.node &&
+    actual.modelRecipe === expected.modelRecipe &&
+    actual.prototype === expected.prototype &&
+    actual.visible === expected.visible &&
+    actual.palette === expected.palette &&
     vclose(actual.position, expected.position, 0) &&
-    nclose(actual.facingDeg, expected.facingDeg, 0) && nclose(actual.scale, expected.scale, 0) &&
-    (actual.rotation === undefined ? expected.rotation === undefined :
-      expected.rotation !== undefined && qclose(actual.rotation, expected.rotation, 1e-12) &&
-      nclose(actual.rotation.x, expected.rotation.x, 0) && nclose(actual.rotation.y, expected.rotation.y, 0) &&
-      nclose(actual.rotation.z, expected.rotation.z, 0) && nclose(actual.rotation.w, expected.rotation.w, 0)) &&
-    (actual.scale3 === undefined ? expected.scale3 === undefined :
-      expected.scale3 !== undefined && vclose(actual.scale3, expected.scale3, 0)) &&
-    keys.length === expectedKeys.length && keys.every((key: string, index: number): boolean =>
-      key === expectedKeys[index] && nclose(actual.traits[key]!, expected.traits[key]!, 0));
+    nclose(actual.facingDeg, expected.facingDeg, 0) &&
+    nclose(actual.scale, expected.scale, 0) &&
+    (actual.rotation === undefined
+      ? expected.rotation === undefined
+      : expected.rotation !== undefined &&
+        qclose(actual.rotation, expected.rotation, 1e-12) &&
+        nclose(actual.rotation.x, expected.rotation.x, 0) &&
+        nclose(actual.rotation.y, expected.rotation.y, 0) &&
+        nclose(actual.rotation.z, expected.rotation.z, 0) &&
+        nclose(actual.rotation.w, expected.rotation.w, 0)) &&
+    (actual.scale3 === undefined
+      ? expected.scale3 === undefined
+      : expected.scale3 !== undefined &&
+        vclose(actual.scale3, expected.scale3, 0)) &&
+    keys.length === expectedKeys.length &&
+    keys.every(
+      (key: string, index: number): boolean =>
+        key === expectedKeys[index] &&
+        nclose(actual.traits[key]!, expected.traits[key]!, 0),
+    )
+  );
 }

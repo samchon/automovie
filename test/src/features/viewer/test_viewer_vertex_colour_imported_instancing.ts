@@ -22,10 +22,22 @@ import {
  * @evidence contracts/testing.md#execution-ownership The named entry reuses existing triangle inputs and real CPU attributes, disposes its owned merged/source geometry and borrowed-model materials, and observes no native shader/GPU output.
  */
 export function test_viewer_vertex_colour_imported_instancing(): void {
-  const colored: import("@automovie/interface").IAutoMovieMesh = vertexColourMesh();
-  const { colors: _colors, ...bare }: import("@automovie/interface").IAutoMovieMesh = colored;
-  const built: import("../../../../packages/viewer/src/IAutoMovieModelObject").IAutoMovieModelObject = buildModel(vertexColourModel([colored, colored, bare]));
-  const parts: THREE.Mesh<THREE.BufferGeometry<THREE.NormalBufferAttributes, THREE.BufferGeometryEventMap>, THREE.MeshStandardMaterial, THREE.Object3DEventMap>[] = [...built.parts.values()] as THREE.Mesh<
+  const colored: import("@automovie/interface").IAutoMovieMesh =
+    vertexColourMesh();
+  const {
+    colors: _colors,
+    ...bare
+  }: import("@automovie/interface").IAutoMovieMesh = colored;
+  const built: import("../../../../packages/viewer/src/IAutoMovieModelObject").IAutoMovieModelObject =
+    buildModel(vertexColourModel([colored, colored, bare]));
+  const parts: THREE.Mesh<
+    THREE.BufferGeometry<
+      THREE.NormalBufferAttributes,
+      THREE.BufferGeometryEventMap
+    >,
+    THREE.MeshStandardMaterial,
+    THREE.Object3DEventMap
+  >[] = [...built.parts.values()] as THREE.Mesh<
     THREE.BufferGeometry,
     THREE.MeshStandardMaterial
   >[];
@@ -34,19 +46,24 @@ export function test_viewer_vertex_colour_imported_instancing(): void {
     4,
     true,
   );
-  const rgb: THREE.InterleavedBufferAttribute = new THREE.InterleavedBufferAttribute(
-    new THREE.InterleavedBuffer(
-      new Uint8Array([7, 255, 128, 0, 7, 0, 255, 64, 7, 64, 0, 255]),
-      4,
-    ),
-    3,
-    1,
-    true,
-  );
+  const rgb: THREE.InterleavedBufferAttribute =
+    new THREE.InterleavedBufferAttribute(
+      new THREE.InterleavedBuffer(
+        new Uint8Array([7, 255, 128, 0, 7, 0, 255, 64, 7, 64, 0, 255]),
+        4,
+      ),
+      3,
+      1,
+      true,
+    );
   parts[0]!.geometry.setAttribute("color", rgba);
   parts[1]!.geometry.setAttribute("color", rgb);
-  const flattened: import("../../../../packages/viewer/src/IAutoMovieInstancedModelRepresentation").IAutoMovieInstancedModelRepresentation<null> = flattenInstancedObject(built);
-  const result: THREE.BufferAttribute<THREE.BufferAttributeEventMap> | THREE.InterleavedBufferAttribute = flattened.geometry.getAttribute("color");
+  const flattened: ReturnType<typeof flattenInstancedObject> =
+    flattenInstancedObject(built);
+  const result:
+    | THREE.BufferAttribute<THREE.BufferAttributeEventMap>
+    | THREE.InterleavedBufferAttribute =
+    flattened.geometry.getAttribute("color");
   const expected: number[] = [
     1,
     0,
@@ -78,7 +95,9 @@ export function test_viewer_vertex_colour_imported_instancing(): void {
   TestValidator.equals("complete output", result.array.length, expected.length);
   TestValidator.predicate(
     "decoded RGBA",
-    Array.from(result.array).every((value: number, i: number): boolean => nclose(value, expected[i]!)),
+    Array.from(result.array).every((value: number, i: number): boolean =>
+      nclose(value, expected[i]!),
+    ),
   );
   TestValidator.predicate(
     "float storage",

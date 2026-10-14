@@ -44,24 +44,53 @@ import {
  * @evidence contracts/testing.md#execution-ownership The named portable entry owns its existing Three objects and disposes simulated projections; its route-only cycle record exercises material key inheritance without a renderer, Human asset or new driver.
  */
 export function test_viewer_semantic_mask(): void {
-  const subject: (design: IAutoMovieScene) => IAutoMovieRenderSubject = (design: IAutoMovieScene): IAutoMovieRenderSubject => ({
+  const subject: (design: IAutoMovieScene) => IAutoMovieRenderSubject = (
+    design: IAutoMovieScene,
+  ): IAutoMovieRenderSubject => ({
     scene: design,
     models: modelsFixture(),
     environments: [buildingFixture()],
     instanceSets: [instanceSetFixture({ id: "windows", count: 3, chunks: 1 })],
   });
-  const ground: { id: string; surfaces: never[]; walkable: never[]; } = { id: "tower-ground", surfaces: [], walkable: [] };
-  const design: { space: { id: string; surfaces: never[]; walkable: never[]; }; id: string; name: string | null; nodes: import("@automovie/interface").IAutoMovieSceneNode[]; cameras: import("@automovie/interface").IAutoMovieCamera[]; lights: import("@automovie/interface").IAutoMovieLight[]; environment?: import("@automovie/interface").IAutoMovieSceneEnvironment | null; fog?: import("@automovie/interface").IAutoMovieFog | null; } = { ...sceneFixture(), space: ground };
-  const mask: IAutoMovieSemanticMask = deriveAutoMovieSemanticMask(subject(design));
+  const ground: { id: string; surfaces: never[]; walkable: never[] } = {
+    id: "tower-ground",
+    surfaces: [],
+    walkable: [],
+  };
+  const design: IAutoMovieScene & { space: typeof ground } = {
+    ...sceneFixture(),
+    space: ground,
+  };
+  const mask: IAutoMovieSemanticMask = deriveAutoMovieSemanticMask(
+    subject(design),
+  );
   const colorOf: (id: string) => string = (id: string): string =>
-    mask.entries.find((entry: import("@automovie/interface").IAutoMovieSemanticMaskEntry): boolean => entry.id === id)!.color;
+    mask.entries.find(
+      (
+        entry: import("@automovie/interface").IAutoMovieSemanticMaskEntry,
+      ): boolean => entry.id === id,
+    )!.color;
 
-  const built: { scene: THREE.Scene; meshes: Map<string, THREE.Mesh>; beauty: Map<THREE.Mesh, THREE.Material | THREE.Material[]>; batch: THREE.InstancedMesh; bare: THREE.InstancedMesh; unslotted: THREE.InstancedMesh; grid: THREE.Object3D; darkLine: THREE.Object3D; sprite: THREE.Object3D; points: THREE.Object3D; orphan: THREE.Mesh; palette: Float32Array; } = build(design, mask);
-  const handle: import("../../../../packages/viewer/src/index").IAutoMovieSemanticMaskHandle = applyAutoMovieSemanticMask({
-    scene: built.scene,
-    design,
-    mask,
-  });
+  const built: {
+    scene: THREE.Scene;
+    meshes: Map<string, THREE.Mesh>;
+    beauty: Map<THREE.Mesh, THREE.Material | THREE.Material[]>;
+    batch: THREE.InstancedMesh;
+    bare: THREE.InstancedMesh;
+    unslotted: THREE.InstancedMesh;
+    grid: THREE.Object3D;
+    darkLine: THREE.Object3D;
+    sprite: THREE.Object3D;
+    points: THREE.Object3D;
+    orphan: THREE.Mesh;
+    palette: Float32Array;
+  } = build(design, mask);
+  const handle: import("../../../../packages/viewer/src/index").IAutoMovieSemanticMaskHandle =
+    applyAutoMovieSemanticMask({
+      scene: built.scene,
+      design,
+      mask,
+    });
   const hex: (object: THREE.Mesh) => string = (object: THREE.Mesh): string =>
     `#${(object.material as THREE.MeshBasicMaterial).color.getHexString().toUpperCase()}`;
 
@@ -129,15 +158,18 @@ export function test_viewer_semantic_mask(): void {
     { cycled: "automovie-formation-cycle", still: false },
   );
 
-  const instanceHex: (mesh: THREE.InstancedMesh, index: number) => string = (mesh: THREE.InstancedMesh, index: number): string =>
+  const instanceHex: (mesh: THREE.InstancedMesh, index: number) => string = (
+    mesh: THREE.InstancedMesh,
+    index: number,
+  ): string =>
     `#${new THREE.Color()
       .fromBufferAttribute(mesh.instanceColor!, index)
       .getHexString()
       .toUpperCase()}`;
-  const effectiveInstanceHex: (mesh: THREE.InstancedMesh, index: number) => string = (
+  const effectiveInstanceHex: (
     mesh: THREE.InstancedMesh,
     index: number,
-  ): string =>
+  ) => string = (mesh: THREE.InstancedMesh, index: number): string =>
     `#${new THREE.Color()
       .fromBufferAttribute(mesh.instanceColor!, index)
       .multiply((mesh.material as THREE.MeshBasicMaterial).color)
@@ -181,7 +213,17 @@ export function test_viewer_semantic_mask(): void {
         "materials",
         (): boolean =>
           [...built.meshes.values()].every(
-            (mesh: THREE.Mesh<THREE.BufferGeometry<THREE.NormalBufferAttributes, THREE.BufferGeometryEventMap>, THREE.Material<THREE.MaterialEventMap> | THREE.Material<THREE.MaterialEventMap>[], THREE.Object3DEventMap>): boolean => mesh.material === built.beauty.get(mesh),
+            (
+              mesh: THREE.Mesh<
+                THREE.BufferGeometry<
+                  THREE.NormalBufferAttributes,
+                  THREE.BufferGeometryEventMap
+                >,
+                | THREE.Material<THREE.MaterialEventMap>
+                | THREE.Material<THREE.MaterialEventMap>[],
+                THREE.Object3DEventMap
+              >,
+            ): boolean => mesh.material === built.beauty.get(mesh),
           ),
       ],
       [
@@ -190,13 +232,18 @@ export function test_viewer_semantic_mask(): void {
           built.batch.instanceColor !== null &&
           built.batch.instanceColor.array.length === original.length &&
           [...(built.batch.instanceColor.array as Float32Array)].every(
-            (value: number, index: number): boolean => nclose(value, original[index]!, 0),
+            (value: number, index: number): boolean =>
+              nclose(value, original[index]!, 0),
           ),
       ],
-      ["created attribute removed", (): boolean => built.bare.instanceColor === null],
+      [
+        "created attribute removed",
+        (): boolean => built.bare.instanceColor === null,
+      ],
       [
         "background",
-        (): boolean => (built.scene.background as THREE.Color).getHex() === 0x123456,
+        (): boolean =>
+          (built.scene.background as THREE.Color).getHex() === 0x123456,
       ],
       ["fog", (): boolean => built.scene.fog !== null],
       ["image lighting", (): boolean => built.scene.environment !== null],
@@ -215,17 +262,34 @@ export function test_viewer_semantic_mask(): void {
     },
   );
 
-  const reversedDesign: { space: { id: string; surfaces: never[]; walkable: never[]; }; id: string; name: string | null; nodes: import("@automovie/interface").IAutoMovieSceneNode[]; cameras: import("@automovie/interface").IAutoMovieCamera[]; lights: import("@automovie/interface").IAutoMovieLight[]; environment?: import("@automovie/interface").IAutoMovieSceneEnvironment | null; fog?: import("@automovie/interface").IAutoMovieFog | null; } = { ...sceneFixture({ reversed: true }), space: ground };
-  const reversedBuilt: { scene: THREE.Scene; meshes: Map<string, THREE.Mesh>; beauty: Map<THREE.Mesh, THREE.Material | THREE.Material[]>; batch: THREE.InstancedMesh; bare: THREE.InstancedMesh; unslotted: THREE.InstancedMesh; grid: THREE.Object3D; darkLine: THREE.Object3D; sprite: THREE.Object3D; points: THREE.Object3D; orphan: THREE.Mesh; palette: Float32Array; } = build(reversedDesign, mask);
-  const reversedHandle: import("../../../../packages/viewer/src/index").IAutoMovieSemanticMaskHandle = applyAutoMovieSemanticMask({
-    scene: reversedBuilt.scene,
-    design: reversedDesign,
-    mask,
-  });
+  const reversedDesign: IAutoMovieScene & { space: typeof ground } = {
+    ...sceneFixture({ reversed: true }),
+    space: ground,
+  };
+  const reversedBuilt: {
+    scene: THREE.Scene;
+    meshes: Map<string, THREE.Mesh>;
+    beauty: Map<THREE.Mesh, THREE.Material | THREE.Material[]>;
+    batch: THREE.InstancedMesh;
+    bare: THREE.InstancedMesh;
+    unslotted: THREE.InstancedMesh;
+    grid: THREE.Object3D;
+    darkLine: THREE.Object3D;
+    sprite: THREE.Object3D;
+    points: THREE.Object3D;
+    orphan: THREE.Mesh;
+    palette: Float32Array;
+  } = build(reversedDesign, mask);
+  const reversedHandle: import("../../../../packages/viewer/src/index").IAutoMovieSemanticMaskHandle =
+    applyAutoMovieSemanticMask({
+      scene: reversedBuilt.scene,
+      design: reversedDesign,
+      mask,
+    });
   TestValidator.equals(
     "reversing the staged nodes repaints nothing",
-    ["tower/hall-wall", "tower/hall-door-leaf", "lantern"].map((id: string): string =>
-      hex(reversedBuilt.meshes.get(id)!),
+    ["tower/hall-wall", "tower/hall-door-leaf", "lantern"].map(
+      (id: string): string => hex(reversedBuilt.meshes.get(id)!),
     ),
     [
       colorOf("element:tower/hall-wall"),
@@ -250,52 +314,55 @@ export function test_viewer_semantic_mask(): void {
   );
 
   // Existing simulated projections join by their actual builder names. The later palette/material assertion verifies that join through its behavior.
-  const panel: import("../../../../packages/viewer/src/IAutoMovieSoftBodyObject").IAutoMovieSoftBodyObject = buildSoftBodyObject({
-    surface: {
-      domain: "panel",
-      step: 0,
-      mesh: {
-        positions: [0, 0, 0, 1, 0, 0, 0, 1, 0],
-        normals: [0, 0, 1, 0, 0, 1, 0, 0, 1],
-        uvs: [0, 0, 1, 0, 0, 1],
-        indices: [0, 1, 2],
-        skin: null,
+  const panel: import("../../../../packages/viewer/src/IAutoMovieSoftBodyObject").IAutoMovieSoftBodyObject =
+    buildSoftBodyObject({
+      surface: {
+        domain: "panel",
+        step: 0,
+        mesh: {
+          positions: [0, 0, 0, 1, 0, 0, 0, 1, 0],
+          normals: [0, 0, 1, 0, 0, 1, 0, 0, 1],
+          uvs: [0, 0, 1, 0, 0, 1],
+          indices: [0, 1, 2],
+          skin: null,
+        },
+        bounds: { min: { x: 0, y: 0, z: 0 }, max: { x: 1, y: 1, z: 0 } },
       },
-      bounds: { min: { x: 0, y: 0, z: 0 }, max: { x: 1, y: 1, z: 0 } },
-    },
-    status: "derived",
-  });
-  const bed: import("../../../../packages/viewer/src/IAutoMoviePlantingObject").IAutoMoviePlantingObject = buildPlantingObject({
-    plant: {
-      domain: "fern",
-      stage: 1,
-      branches: [],
-      leaves: [],
-      bounds: null,
-    },
-    arrangement: {
-      cluster: "atrium-bed",
-      domain: "fern",
-      placements: [],
-      rejected: 0,
-      bounds: null,
-    },
-  });
-  const pond: import("../../../../packages/viewer/src/IAutoMovieFluidSurfaceObject").IAutoMovieFluidSurfaceObject = buildFluidSurfaceObject({
-    surface: {
-      domain: "basin",
-      step: 0,
-      mesh: {
-        positions: [0, 0, 0, 1, 0, 0, 0, 0, 1],
-        normals: [0, 1, 0, 0, 1, 0, 0, 1, 0],
-        uvs: [0, 0, 1, 0, 0, 1],
-        indices: [0, 1, 2],
-        skin: null,
+      status: "derived",
+    });
+  const bed: import("../../../../packages/viewer/src/IAutoMoviePlantingObject").IAutoMoviePlantingObject =
+    buildPlantingObject({
+      plant: {
+        domain: "fern",
+        stage: 1,
+        branches: [],
+        leaves: [],
+        bounds: null,
       },
-      bounds: { min: { x: 0, y: 0, z: 0 }, max: { x: 1, y: 0, z: 1 } },
-      flow: [0, 0, 0, 0, 0, 0],
-    },
-  });
+      arrangement: {
+        cluster: "atrium-bed",
+        domain: "fern",
+        placements: [],
+        rejected: 0,
+        bounds: null,
+      },
+    });
+  const pond: import("../../../../packages/viewer/src/IAutoMovieFluidSurfaceObject").IAutoMovieFluidSurfaceObject =
+    buildFluidSurfaceObject({
+      surface: {
+        domain: "basin",
+        step: 0,
+        mesh: {
+          positions: [0, 0, 0, 1, 0, 0, 0, 0, 1],
+          normals: [0, 1, 0, 0, 1, 0, 0, 1, 0],
+          uvs: [0, 0, 1, 0, 0, 1],
+          indices: [0, 1, 2],
+          skin: null,
+        },
+        bounds: { min: { x: 0, y: 0, z: 0 }, max: { x: 1, y: 0, z: 1 } },
+        flow: [0, 0, 0, 0, 0, 0],
+      },
+    });
   const simulatedDesign: IAutoMovieScene = {
     id: "simulated",
     name: null,
@@ -336,21 +403,31 @@ export function test_viewer_semantic_mask(): void {
       },
     ],
   };
-  const simulatedMask: IAutoMovieSemanticMask = deriveAutoMovieSemanticMask(simulatedSubject);
+  const simulatedMask: IAutoMovieSemanticMask =
+    deriveAutoMovieSemanticMask(simulatedSubject);
   const simulatedScene: THREE.Scene<THREE.Object3DEventMap> = new THREE.Scene();
   simulatedScene.add(panel.object, bed.object, pond.object);
-  const stray: THREE.Mesh<THREE.BoxGeometry, THREE.MeshStandardMaterial, THREE.Object3DEventMap> = new THREE.Mesh(
+  const stray: THREE.Mesh<
+    THREE.BoxGeometry,
+    THREE.MeshStandardMaterial,
+    THREE.Object3DEventMap
+  > = new THREE.Mesh(
     new THREE.BoxGeometry(1, 1, 1),
     new THREE.MeshStandardMaterial(),
   );
   simulatedScene.add(stray);
-  const simulatedHandle: import("../../../../packages/viewer/src/index").IAutoMovieSemanticMaskHandle = applyAutoMovieSemanticMask({
-    scene: simulatedScene,
-    design: simulatedDesign,
-    mask: simulatedMask,
-  });
+  const simulatedHandle: import("../../../../packages/viewer/src/index").IAutoMovieSemanticMaskHandle =
+    applyAutoMovieSemanticMask({
+      scene: simulatedScene,
+      design: simulatedDesign,
+      mask: simulatedMask,
+    });
   const simulatedColor: (id: string) => string = (id: string): string =>
-    simulatedMask.entries.find((item: import("@automovie/interface").IAutoMovieSemanticMaskEntry): boolean => item.id === id)!.color;
+    simulatedMask.entries.find(
+      (
+        item: import("@automovie/interface").IAutoMovieSemanticMaskEntry,
+      ): boolean => item.id === id,
+    )!.color;
   TestValidator.equals(
     "a curtain, a bed and a pond paint their own identity instead of background",
     {

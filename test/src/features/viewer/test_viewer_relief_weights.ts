@@ -1,4 +1,3 @@
-import type { IAutoMovieCompiledInstanceSet, IAutoMovieMesh, IAutoMovieModel, IAutoMovieScene } from "@automovie/interface";
 import {
   deriveAutoMovieSemanticMask,
   inspectAutoMovieMeshTopology,
@@ -7,6 +6,12 @@ import {
   transformAutoMovieMesh,
   validateModel,
 } from "@automovie/engine";
+import type {
+  IAutoMovieCompiledInstanceSet,
+  IAutoMovieMesh,
+  IAutoMovieModel,
+  IAutoMovieScene,
+} from "@automovie/interface";
 import {
   type IAutoMovieModelObject,
   RELIEF_WEIGHT_TARGET,
@@ -46,7 +51,11 @@ export function test_viewer_relief_weights(): void {
     ...vertexColourMesh(),
     reliefWeights: [0, 0.5, 1],
   };
-  const { colors: _colors, reliefWeights: _weights, ...bare }: IAutoMovieMesh = weighted;
+  const {
+    colors: _colors,
+    reliefWeights: _weights,
+    ...bare
+  }: IAutoMovieMesh = weighted;
   const model: IAutoMovieModel = vertexColourModel([weighted, bare]);
   model.materials = [
     {
@@ -58,18 +67,28 @@ export function test_viewer_relief_weights(): void {
       },
     },
   ];
-  const built: IAutoMovieModelObject = buildModel(model, (): THREE.Texture<unknown, THREE.TextureEventMap> => new THREE.Texture());
+  const built: IAutoMovieModelObject = buildModel(
+    model,
+    (): THREE.Texture<unknown, THREE.TextureEventMap> => new THREE.Texture(),
+  );
   const meshes: THREE.Mesh[] = [];
   built.object.traverse((one: THREE.Object3D<THREE.Object3DEventMap>): void => {
     if (one instanceof THREE.Mesh) meshes.push(one);
   });
   const keyOf: (mesh: THREE.Mesh) => string = (mesh: THREE.Mesh): string =>
     (mesh.material as THREE.Material).customProgramCacheKey();
-  const plain: IAutoMovieModelObject = buildModel(vertexColourModel([weighted]));
-  const plainMesh: THREE.Mesh<THREE.BufferGeometry<THREE.NormalBufferAttributes, THREE.BufferGeometryEventMap>, THREE.Material<THREE.MaterialEventMap> | THREE.Material<THREE.MaterialEventMap>[], THREE.Object3DEventMap> = plain.object.getObjectByProperty(
-    "type",
-    "Mesh",
-  ) as THREE.Mesh;
+  const plain: IAutoMovieModelObject = buildModel(
+    vertexColourModel([weighted]),
+  );
+  const plainMesh: THREE.Mesh<
+    THREE.BufferGeometry<
+      THREE.NormalBufferAttributes,
+      THREE.BufferGeometryEventMap
+    >,
+    | THREE.Material<THREE.MaterialEventMap>
+    | THREE.Material<THREE.MaterialEventMap>[],
+    THREE.Object3DEventMap
+  > = plain.object.getObjectByProperty("type", "Mesh") as THREE.Mesh;
   TestValidator.equals(
     "a weighted part reads its weights through its own variant",
     [
@@ -83,7 +102,9 @@ export function test_viewer_relief_weights(): void {
     [true, true, false, false, false, false],
   );
 
-  const vertex: string = reliefWeightVertex(THREE.ShaderLib.physical.vertexShader);
+  const vertex: string = reliefWeightVertex(
+    THREE.ShaderLib.physical.vertexShader,
+  );
   const after: string = reliefWeightFragment(
     detailNormalFragment(THREE.ShaderLib.physical.fragmentShader),
   );
@@ -96,14 +117,19 @@ export function test_viewer_relief_weights(): void {
         after.indexOf("vec3 detailN"),
   );
 
-  const flattened: ReturnType<typeof flattenInstancedModel> = flattenInstancedModel(model);
+  const flattened: ReturnType<typeof flattenInstancedModel> =
+    flattenInstancedModel(model);
   TestValidator.predicate(
     "flattening pads a bare neighbour with ones",
-    sameWeights(Array.from(flattened.geometry.getAttribute("reliefWeight").array),
-      [0, 0.5, 1, 1, 1, 1]),
+    sameWeights(
+      Array.from(flattened.geometry.getAttribute("reliefWeight").array),
+      [0, 0.5, 1, 1, 1, 1],
+    ),
   );
 
-  const validate: (mesh: IAutoMovieMesh) => ReturnType<typeof validateModel> = (mesh: IAutoMovieMesh): ReturnType<typeof validateModel> =>
+  const validate: (mesh: IAutoMovieMesh) => ReturnType<typeof validateModel> = (
+    mesh: IAutoMovieMesh,
+  ): ReturnType<typeof validateModel> =>
     validateModel({ model: vertexColourModel([mesh]) });
   const merged: IAutoMovieMesh = mergeAutoMovieMeshes([weighted, bare]);
   TestValidator.equals(
@@ -139,8 +165,7 @@ export function test_viewer_relief_weights(): void {
       ["admitted", (): boolean => validate(weighted).success],
       [
         "merged",
-        (): boolean =>
-          sameWeights(merged.reliefWeights, [0, 0.5, 1, 1, 1, 1]),
+        (): boolean => sameWeights(merged.reliefWeights, [0, 0.5, 1, 1, 1, 1]),
       ],
       [
         "transformed",
@@ -174,11 +199,16 @@ export function test_viewer_relief_weights(): void {
     },
   );
 
-  const bytes: (meshes: IAutoMovieMesh[]) => number = (meshes: IAutoMovieMesh[]): number => {
+  const bytes: (meshes: IAutoMovieMesh[]) => number = (
+    meshes: IAutoMovieMesh[],
+  ): number => {
     const one: IAutoMovieModel = vertexColourModel(meshes);
     const scene: IAutoMovieScene = sceneFixture();
     scene.nodes = [{ ...scene.nodes[0]!, model: one.id }];
-    const subject: { scene: IAutoMovieScene; models: IAutoMovieModel[]; } = { scene, models: [one] };
+    const subject: { scene: IAutoMovieScene; models: IAutoMovieModel[] } = {
+      scene,
+      models: [one],
+    };
     return measureAutoMovieRenderInventory({
       subject,
       mask: deriveAutoMovieSemanticMask(subject),
@@ -194,7 +224,9 @@ export function test_viewer_relief_weights(): void {
     { ...weighted, colors: undefined },
     { ...bare, colors: undefined },
   ]);
-  const inventory: (instanced: boolean) => number = (instanced: boolean): number => {
+  const inventory: (instanced: boolean) => number = (
+    instanced: boolean,
+  ): number => {
     const scene: IAutoMovieScene = sceneFixture();
     scene.nodes = [{ ...scene.nodes[0]!, model: mixed.id }];
     scene.lights = [];
@@ -204,7 +236,12 @@ export function test_viewer_relief_weights(): void {
       chunks: 1,
       model: mixed.id,
     });
-    const subject: { scene: IAutoMovieScene; models: IAutoMovieModel[]; instanceSets: IAutoMovieCompiledInstanceSet[]; formations: never[]; } = {
+    const subject: {
+      scene: IAutoMovieScene;
+      models: IAutoMovieModel[];
+      instanceSets: IAutoMovieCompiledInstanceSet[];
+      formations: never[];
+    } = {
       scene,
       models: [mixed],
       instanceSets: instanced ? [set] : [],
@@ -229,12 +266,20 @@ export function test_viewer_relief_weights(): void {
 /**
  * Compare expected per-vertex relief values without serializing floating-point arrays.
  *
- * @evidence contracts/testing.md#behavioral-verification The existing relief scenario calls this finite predicate on actual flatten/merge/transform outputs, detecting changed length or weight values.
- * @evidence contracts/testing.md#independent-expectations Calling cases supply the authored 0/half/one values and the contract's unit padding for bare vertices; exact finite scalar comparison catches copying or padding errors without deriving expectations from the output.
- * @evidence contracts/testing.md#distinguishing-cases Covers the existing weighted and mixed bare-neighbour populations; malformed/negative/nonfinite admission remains owned by the scenario's validator cases.
- * @evidence contracts/testing.md#execution-ownership This private portable predicate belongs to the named relief unit and acquires no host, resource or hidden case; it reads only the supplied arrays.
+ * The existing relief scenario calls this finite predicate on actual flatten/merge/transform outputs, detecting changed length or weight values.
+ * Calling cases supply the authored 0/half/one values and the contract's unit padding for bare vertices; exact finite scalar comparison catches copying or padding errors without deriving expectations from the output.
+ * Covers the existing weighted and mixed bare-neighbour populations; malformed/negative/nonfinite admission remains owned by the scenario's validator cases.
+ * This private portable predicate belongs to the named relief unit and acquires no host, resource or hidden case; it reads only the supplied arrays.
  */
-function sameWeights(actual: readonly number[] | undefined, expected: readonly number[]): boolean {
-  return actual !== undefined && actual.length === expected.length &&
-    actual.every((weight: number, index: number): boolean => nclose(weight, expected[index]!, 0));
+function sameWeights(
+  actual: readonly number[] | undefined,
+  expected: readonly number[],
+): boolean {
+  return (
+    actual !== undefined &&
+    actual.length === expected.length &&
+    actual.every((weight: number, index: number): boolean =>
+      nclose(weight, expected[index]!, 0),
+    )
+  );
 }

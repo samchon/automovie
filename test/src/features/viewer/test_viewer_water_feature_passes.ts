@@ -13,18 +13,47 @@ import {
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
-import { namedFacts } from "../internal/predicates";
 import { observeThrownValue } from "../internal/observeThrownValue";
+import { namedFacts } from "../internal/predicates";
 
 /** The four courts, each a convex box two metres either side of its centre. */
-const COURTS: readonly [{ readonly space: "pond-court"; readonly rim: "pond-coping"; readonly centre: 0; }, { readonly space: "channel-court"; readonly rim: "channel-kerb"; readonly centre: 8; }, { readonly space: "fountain-court"; readonly rim: "fountain-rim"; readonly centre: 16; }, { readonly space: "fall-court"; readonly rim: "fall-parapet"; readonly centre: 24; }] = [
+const COURTS: readonly [
+  {
+    readonly space: "pond-court";
+    readonly rim: "pond-coping";
+    readonly centre: 0;
+  },
+  {
+    readonly space: "channel-court";
+    readonly rim: "channel-kerb";
+    readonly centre: 8;
+  },
+  {
+    readonly space: "fountain-court";
+    readonly rim: "fountain-rim";
+    readonly centre: 16;
+  },
+  {
+    readonly space: "fall-court";
+    readonly rim: "fall-parapet";
+    readonly centre: 24;
+  },
+] = [
   { space: "pond-court", rim: "pond-coping", centre: 0 },
   { space: "channel-court", rim: "channel-kerb", centre: 8 },
   { space: "fountain-court", rim: "fountain-rim", centre: 16 },
   { space: "fall-court", rim: "fall-parapet", centre: 24 },
 ] as const;
 
-const court: (centre: number) => { id: string; planes: { normal: { x: number; y: number; z: number; }; offset: number; }[]; } = (centre: number): { id: string; planes: { normal: { x: number; y: number; z: number; }; offset: number; }[]; } => ({
+const court: (centre: number) => {
+  id: string;
+  planes: { normal: { x: number; y: number; z: number }; offset: number }[];
+} = (
+  centre: number,
+): {
+  id: string;
+  planes: { normal: { x: number; y: number; z: number }; offset: number }[];
+} => ({
   id: `cell-${centre}`,
   planes: [
     { normal: { x: -1, y: 0, z: 0 }, offset: 2 - centre },
@@ -37,50 +66,128 @@ const court: (centre: number) => { id: string; planes: { normal: { x: number; y:
 });
 
 /** One building whose four logical spaces are four water courts. */
-const waterCourt: () => IAutoMovieBuiltEnvironment = (): IAutoMovieBuiltEnvironment => ({
-  version: 1,
-  id: "water-court",
-  units: "meter",
-  buildings: [{ id: "unit", element: "root", space: "court" }],
-  models: [],
-  modelReferences: [],
-  elements: [
-    {
-      id: "root",
-      kind: "building",
-      parent: null,
-      transform: {
-        translation: { x: 0, y: 0, z: 0 },
-        rotation: { x: 0, y: 0, z: 0, w: 1 },
-        scale: { x: 1, y: 1, z: 1 },
+const waterCourt: () => IAutoMovieBuiltEnvironment =
+  (): IAutoMovieBuiltEnvironment => ({
+    version: 1,
+    id: "water-court",
+    units: "meter",
+    buildings: [{ id: "unit", element: "root", space: "court" }],
+    models: [],
+    modelReferences: [],
+    elements: [
+      {
+        id: "root",
+        kind: "building",
+        parent: null,
+        transform: {
+          translation: { x: 0, y: 0, z: 0 },
+          rotation: { x: 0, y: 0, z: 0, w: 1 },
+          scale: { x: 1, y: 1, z: 1 },
+        },
+        model: null,
+        space: "court",
       },
-      model: null,
-      space: "court",
-    },
-  ],
-  spaces: [
-    { id: "court", kind: "room", parent: null, cells: [] },
-    ...COURTS.map((one: { readonly space: "pond-court"; readonly rim: "pond-coping"; readonly centre: 0; } | { readonly space: "channel-court"; readonly rim: "channel-kerb"; readonly centre: 8; } | { readonly space: "fountain-court"; readonly rim: "fountain-rim"; readonly centre: 16; } | { readonly space: "fall-court"; readonly rim: "fall-parapet"; readonly centre: 24; }): { id: "pond-court" | "channel-court" | "fountain-court" | "fall-court"; kind: "room"; parent: string; cells: { id: string; planes: { normal: { x: number; y: number; z: number; }; offset: number; }[]; }[]; } => ({
-      id: one.space,
-      kind: "room" as const,
-      parent: "court",
-      cells: [court(one.centre)],
-    })),
-  ],
-  boundaries: COURTS.map((one: { readonly space: "pond-court"; readonly rim: "pond-coping"; readonly centre: 0; } | { readonly space: "channel-court"; readonly rim: "channel-kerb"; readonly centre: 8; } | { readonly space: "fountain-court"; readonly rim: "fountain-rim"; readonly centre: 16; } | { readonly space: "fall-court"; readonly rim: "fall-parapet"; readonly centre: 24; }): { id: "pond-coping" | "channel-kerb" | "fountain-rim" | "fall-parapet"; kind: "wall"; spaces: ("pond-court" | "channel-court" | "fountain-court" | "fall-court")[]; elements: never[]; } => ({
-    id: one.rim,
-    kind: "wall" as const,
-    spaces: [one.space],
-    elements: [],
-  })),
-  openings: [],
-  connectors: [],
-  surfaces: [],
-  walkable: [],
-});
+    ],
+    spaces: [
+      { id: "court", kind: "room", parent: null, cells: [] },
+      ...COURTS.map(
+        (
+          one:
+            | {
+                readonly space: "pond-court";
+                readonly rim: "pond-coping";
+                readonly centre: 0;
+              }
+            | {
+                readonly space: "channel-court";
+                readonly rim: "channel-kerb";
+                readonly centre: 8;
+              }
+            | {
+                readonly space: "fountain-court";
+                readonly rim: "fountain-rim";
+                readonly centre: 16;
+              }
+            | {
+                readonly space: "fall-court";
+                readonly rim: "fall-parapet";
+                readonly centre: 24;
+              },
+        ): {
+          id: "pond-court" | "channel-court" | "fountain-court" | "fall-court";
+          kind: "room";
+          parent: string;
+          cells: {
+            id: string;
+            planes: {
+              normal: { x: number; y: number; z: number };
+              offset: number;
+            }[];
+          }[];
+        } => ({
+          id: one.space,
+          kind: "room" as const,
+          parent: "court",
+          cells: [court(one.centre)],
+        }),
+      ),
+    ],
+    boundaries: COURTS.map(
+      (
+        one:
+          | {
+              readonly space: "pond-court";
+              readonly rim: "pond-coping";
+              readonly centre: 0;
+            }
+          | {
+              readonly space: "channel-court";
+              readonly rim: "channel-kerb";
+              readonly centre: 8;
+            }
+          | {
+              readonly space: "fountain-court";
+              readonly rim: "fountain-rim";
+              readonly centre: 16;
+            }
+          | {
+              readonly space: "fall-court";
+              readonly rim: "fall-parapet";
+              readonly centre: 24;
+            },
+      ): {
+        id: "pond-coping" | "channel-kerb" | "fountain-rim" | "fall-parapet";
+        kind: "wall";
+        spaces: (
+          | "pond-court"
+          | "channel-court"
+          | "fountain-court"
+          | "fall-court"
+        )[];
+        elements: never[];
+      } => ({
+        id: one.rim,
+        kind: "wall" as const,
+        spaces: [one.space],
+        elements: [],
+      }),
+    ),
+    openings: [],
+    connectors: [],
+    surfaces: [],
+    walkable: [],
+  });
 
 /** A four-by-four lattice centred on one court, walled all round. */
-const lattice: (props: { id: string; centre: number; bed: number[]; depth: number[]; sources?: IAutoMovieFluidDomain["sources"]; drains?: IAutoMovieFluidDomain["drains"]; sprays?: IAutoMovieFluidSpray[]; }) => IAutoMovieFluidDomain = (props: {
+const lattice: (props: {
+  id: string;
+  centre: number;
+  bed: number[];
+  depth: number[];
+  sources?: IAutoMovieFluidDomain["sources"];
+  drains?: IAutoMovieFluidDomain["drains"];
+  sprays?: IAutoMovieFluidSpray[];
+}) => IAutoMovieFluidDomain = (props: {
   id: string;
   centre: number;
   bed: number[];
@@ -116,7 +223,10 @@ const lattice: (props: { id: string; centre: number; bed: number[]; depth: numbe
   sprays: props.sprays ?? [],
 });
 
-const mist: (column: number, row: number) => IAutoMovieFluidSpray = (column: number, row: number): IAutoMovieFluidSpray => ({
+const mist: (column: number, row: number) => IAutoMovieFluidSpray = (
+  column: number,
+  row: number,
+): IAutoMovieFluidSpray => ({
   id: "mist",
   column,
   row,
@@ -131,11 +241,17 @@ const mist: (column: number, row: number) => IAutoMovieFluidSpray = (column: num
   lodDistance: 10,
 });
 
-const flat: (value: number) => number[] = (value: number): number[] => new Array<number>(16).fill(value);
+const flat: (value: number) => number[] = (value: number): number[] =>
+  new Array<number>(16).fill(value);
 
 /** Bed and depth of the ledge: the upper two rows stand a metre above. */
-const ledge: (upper: number, lower: number) => number[] = (upper: number, lower: number): number[] =>
-  Array.from({ length: 16 }, (_: unknown, cell: number): number => (cell < 8 ? upper : lower));
+const ledge: (upper: number, lower: number) => number[] = (
+  upper: number,
+  lower: number,
+): number[] =>
+  Array.from({ length: 16 }, (_: unknown, cell: number): number =>
+    cell < 8 ? upper : lower,
+  );
 
 /**
  * Exercises the existing architecture-to-water numerical binding and reversible CPU guide-material projection.
@@ -254,7 +370,8 @@ export function test_viewer_water_feature_passes(): void {
     },
   ];
 
-  const binding: import("@automovie/interface").IAutoMovieValidation = validateWaterFeatures({ environment, features, domains });
+  const binding: import("@automovie/interface").IAutoMovieValidation =
+    validateWaterFeatures({ environment, features, domains });
   TestValidator.equals(
     "four independent lattices bind to four courts of one building",
     binding.success,
@@ -263,51 +380,102 @@ export function test_viewer_water_feature_passes(): void {
 
   const time: number = 2;
   const solvedStep: number = time / domains[0].solver.fixedStepSeconds;
-  const frames: import("@automovie/engine").IAutoMovieWaterFeatureFrame[] = features.map((feature: IAutoMovieWaterFeature, index: number): import("@automovie/engine").IAutoMovieWaterFeatureFrame =>
-    lowerWaterFeature({ feature, domain: domains[index], time }),
+  const frames: ReturnType<typeof lowerWaterFeature>[] = features.map(
+    (
+      feature: IAutoMovieWaterFeature,
+      index: number,
+    ): import("@automovie/engine").IAutoMovieWaterFeatureFrame =>
+      lowerWaterFeature({ feature, domain: domains[index], time }),
   );
-  const waters: import("../../../../packages/viewer/src/IAutoMovieFluidSurfaceObject").IAutoMovieFluidSurfaceObject[] = frames.map((frame: import("@automovie/engine").IAutoMovieWaterFeatureFrame, index: number): import("../../../../packages/viewer/src/IAutoMovieFluidSurfaceObject").IAutoMovieFluidSurfaceObject =>
-    buildFluidSurfaceObject({
-      surface: frame.surface,
-      mode: features[index].mode,
-    }),
+  const waters: ReturnType<typeof buildFluidSurfaceObject>[] = frames.map(
+    (
+      frame: import("@automovie/engine").IAutoMovieWaterFeatureFrame,
+      index: number,
+    ): import("../../../../packages/viewer/src/IAutoMovieFluidSurfaceObject").IAutoMovieFluidSurfaceObject =>
+      buildFluidSurfaceObject({
+        surface: frame.surface,
+        mode: features[index].mode,
+      }),
   );
-  const sprays: import("../../../../packages/viewer/src/IAutoMovieFluidSprayObject").IAutoMovieFluidSprayObject[] = frames.map((frame: import("@automovie/engine").IAutoMovieWaterFeatureFrame): import("../../../../packages/viewer/src/IAutoMovieFluidSprayObject").IAutoMovieFluidSprayObject =>
-    buildFluidSprayObject({ sample: frame.spray }),
+  const sprays: ReturnType<typeof buildFluidSprayObject>[] = frames.map(
+    (
+      frame: import("@automovie/engine").IAutoMovieWaterFeatureFrame,
+    ): import("../../../../packages/viewer/src/IAutoMovieFluidSprayObject").IAutoMovieFluidSprayObject =>
+      buildFluidSprayObject({ sample: frame.spray }),
   );
 
   TestValidator.equals(
     "every archetype lowers to a triangulated CPU surface marked visible",
     namedFacts([
-      ["bounds", (): boolean => frames.every((frame: import("@automovie/engine").IAutoMovieWaterFeatureFrame): boolean => frame.surface.bounds !== null)],
+      [
+        "bounds",
+        (): boolean =>
+          frames.every(
+            (
+              frame: import("@automovie/engine").IAutoMovieWaterFeatureFrame,
+            ): boolean => frame.surface.bounds !== null,
+          ),
+      ],
       [
         "quads",
         (): boolean =>
           frames.every(
-            (frame: import("@automovie/engine").IAutoMovieWaterFeatureFrame): boolean => (frame.surface.mesh.indices ?? []).length >= 6,
+            (
+              frame: import("@automovie/engine").IAutoMovieWaterFeatureFrame,
+            ): boolean => (frame.surface.mesh.indices ?? []).length >= 6,
           ),
       ],
-      ["visible", (): boolean => waters.every((water: import("../../../../packages/viewer/src/IAutoMovieFluidSurfaceObject").IAutoMovieFluidSurfaceObject): boolean => water.object.visible === true)],
+      [
+        "visible",
+        (): boolean =>
+          waters.every(
+            (
+              water: import("../../../../packages/viewer/src/IAutoMovieFluidSurfaceObject").IAutoMovieFluidSurfaceObject,
+            ): boolean => water.object.visible === true,
+          ),
+      ],
       [
         "named",
         (): boolean =>
-          waters.map((water: import("../../../../packages/viewer/src/IAutoMovieFluidSurfaceObject").IAutoMovieFluidSurfaceObject): string => water.object.name).join("|") ===
+          waters
+            .map(
+              (
+                water: import("../../../../packages/viewer/src/IAutoMovieFluidSurfaceObject").IAutoMovieFluidSurfaceObject,
+              ): string => water.object.name,
+            )
+            .join("|") ===
           "water:atrium-pond|water:cloister-channel|water:court-fountain|water:wall-fall",
       ],
       ["staticHolds", (): boolean => frames[0].state.step === 0],
       [
         "solvedSeek",
-        (): boolean => frames.slice(1).every((frame: import("@automovie/engine").IAutoMovieWaterFeatureFrame): boolean => frame.state.step === solvedStep),
+        (): boolean =>
+          frames
+            .slice(1)
+            .every(
+              (
+                frame: import("@automovie/engine").IAutoMovieWaterFeatureFrame,
+              ): boolean => frame.state.step === solvedStep,
+            ),
       ],
       [
         "surfaceFollowsState",
-        (): boolean => frames.every((frame: import("@automovie/engine").IAutoMovieWaterFeatureFrame): boolean => frame.surface.step === frame.state.step),
+        (): boolean =>
+          frames.every(
+            (
+              frame: import("@automovie/engine").IAutoMovieWaterFeatureFrame,
+            ): boolean => frame.surface.step === frame.state.step,
+          ),
       ],
       [
         "flowing",
         (): boolean =>
           waters
-            .map((water: import("../../../../packages/viewer/src/IAutoMovieFluidSurfaceObject").IAutoMovieFluidSurfaceObject): boolean => water.object.userData.flowing === true)
+            .map(
+              (
+                water: import("../../../../packages/viewer/src/IAutoMovieFluidSurfaceObject").IAutoMovieFluidSurfaceObject,
+              ): boolean => water.object.userData.flowing === true,
+            )
             .join(",") === "false,true,false,false",
       ],
     ]),
@@ -326,52 +494,149 @@ export function test_viewer_water_feature_passes(): void {
   const scene: THREE.Scene<THREE.Object3DEventMap> = new THREE.Scene();
   for (const water of waters) scene.add(water.object);
   for (const spray of sprays) scene.add(spray.object);
-  const originals: (THREE.Material<THREE.MaterialEventMap> | THREE.Material<THREE.MaterialEventMap>[])[] = waters.map((water: import("../../../../packages/viewer/src/IAutoMovieFluidSurfaceObject").IAutoMovieFluidSurfaceObject): THREE.Material<THREE.MaterialEventMap> | THREE.Material<THREE.MaterialEventMap>[] => water.object.material);
+  const originals: (
+    | THREE.Material<THREE.MaterialEventMap>
+    | THREE.Material<THREE.MaterialEventMap>[]
+  )[] = waters.map(
+    (
+      water: import("../../../../packages/viewer/src/IAutoMovieFluidSurfaceObject").IAutoMovieFluidSurfaceObject,
+    ):
+      | THREE.Material<THREE.MaterialEventMap>
+      | THREE.Material<THREE.MaterialEventMap>[] => water.object.material,
+  );
   // The two emitters that actually carry particles are the fountain's jet and the curtain at the foot of the ledge. The still pond and channel declare no emitter, so hiding them would prove nothing.
-  const misted: import("../../../../packages/viewer/src/IAutoMovieFluidSprayObject").IAutoMovieFluidSprayObject[] = [sprays[2], sprays[3]];
+  const misted: ReturnType<typeof buildFluidSprayObject>[] = [
+    sprays[2],
+    sprays[3],
+  ];
 
-  const structural: { overridden: boolean; mistHidden: boolean; restored: boolean; mistShown: boolean; }[] = (["depth", "normal", "mask"] as const).map((mode: "mask" | "depth" | "normal"): { overridden: boolean; mistHidden: boolean; restored: boolean; mistShown: boolean; } => {
-    const handle: import("../../../../packages/viewer/src/IAutoMovieRenderModeHandle").IAutoMovieRenderModeHandle = applyRenderMode(scene, mode);
-    const overridden: boolean = waters.every(
-      (water: import("../../../../packages/viewer/src/IAutoMovieFluidSurfaceObject").IAutoMovieFluidSurfaceObject, index: number): boolean => water.object.material !== originals[index],
-    );
-    const mistHidden: boolean = misted.every((spray: import("../../../../packages/viewer/src/IAutoMovieFluidSprayObject").IAutoMovieFluidSprayObject): boolean => spray.object.visible === false);
-    handle.restore();
-    return {
-      overridden,
-      mistHidden,
-      restored: waters.every(
-        (water: import("../../../../packages/viewer/src/IAutoMovieFluidSurfaceObject").IAutoMovieFluidSurfaceObject, index: number): boolean => water.object.material === originals[index],
-      ),
-      mistShown: misted.every((spray: import("../../../../packages/viewer/src/IAutoMovieFluidSprayObject").IAutoMovieFluidSprayObject): boolean => spray.object.visible === true),
-    };
-  });
-  const beauty: import("../../../../packages/viewer/src/IAutoMovieRenderModeHandle").IAutoMovieRenderModeHandle = applyRenderMode(scene, "beauty");
+  const structural: {
+    overridden: boolean;
+    mistHidden: boolean;
+    restored: boolean;
+    mistShown: boolean;
+  }[] = (["depth", "normal", "mask"] as const).map(
+    (
+      mode: "mask" | "depth" | "normal",
+    ): {
+      overridden: boolean;
+      mistHidden: boolean;
+      restored: boolean;
+      mistShown: boolean;
+    } => {
+      const handle: import("../../../../packages/viewer/src/IAutoMovieRenderModeHandle").IAutoMovieRenderModeHandle =
+        applyRenderMode(scene, mode);
+      const overridden: boolean = waters.every(
+        (
+          water: import("../../../../packages/viewer/src/IAutoMovieFluidSurfaceObject").IAutoMovieFluidSurfaceObject,
+          index: number,
+        ): boolean => water.object.material !== originals[index],
+      );
+      const mistHidden: boolean = misted.every(
+        (
+          spray: import("../../../../packages/viewer/src/IAutoMovieFluidSprayObject").IAutoMovieFluidSprayObject,
+        ): boolean => spray.object.visible === false,
+      );
+      handle.restore();
+      return {
+        overridden,
+        mistHidden,
+        restored: waters.every(
+          (
+            water: import("../../../../packages/viewer/src/IAutoMovieFluidSurfaceObject").IAutoMovieFluidSurfaceObject,
+            index: number,
+          ): boolean => water.object.material === originals[index],
+        ),
+        mistShown: misted.every(
+          (
+            spray: import("../../../../packages/viewer/src/IAutoMovieFluidSprayObject").IAutoMovieFluidSprayObject,
+          ): boolean => spray.object.visible === true,
+        ),
+      };
+    },
+  );
+  const beauty: import("../../../../packages/viewer/src/IAutoMovieRenderModeHandle").IAutoMovieRenderModeHandle =
+    applyRenderMode(scene, "beauty");
   const untouched: boolean = waters.every(
-    (water: import("../../../../packages/viewer/src/IAutoMovieFluidSurfaceObject").IAutoMovieFluidSurfaceObject, index: number): boolean => water.object.material === originals[index],
+    (
+      water: import("../../../../packages/viewer/src/IAutoMovieFluidSurfaceObject").IAutoMovieFluidSurfaceObject,
+      index: number,
+    ): boolean => water.object.material === originals[index],
   );
   beauty.restore();
 
   TestValidator.equals(
     "the three requested structural modes replace all four water materials and hide mist",
     namedFacts([
-      ["overridden", (): boolean => structural.every((pass: { overridden: boolean; mistHidden: boolean; restored: boolean; mistShown: boolean; }): boolean => pass.overridden)],
-      ["restored", (): boolean => structural.every((pass: { overridden: boolean; mistHidden: boolean; restored: boolean; mistShown: boolean; }): boolean => pass.restored)],
-      ["mistHidden", (): boolean => structural.every((pass: { overridden: boolean; mistHidden: boolean; restored: boolean; mistShown: boolean; }): boolean => pass.mistHidden)],
-      ["mistShown", (): boolean => structural.every((pass: { overridden: boolean; mistHidden: boolean; restored: boolean; mistShown: boolean; }): boolean => pass.mistShown)],
+      [
+        "overridden",
+        (): boolean =>
+          structural.every(
+            (pass: {
+              overridden: boolean;
+              mistHidden: boolean;
+              restored: boolean;
+              mistShown: boolean;
+            }): boolean => pass.overridden,
+          ),
+      ],
+      [
+        "restored",
+        (): boolean =>
+          structural.every(
+            (pass: {
+              overridden: boolean;
+              mistHidden: boolean;
+              restored: boolean;
+              mistShown: boolean;
+            }): boolean => pass.restored,
+          ),
+      ],
+      [
+        "mistHidden",
+        (): boolean =>
+          structural.every(
+            (pass: {
+              overridden: boolean;
+              mistHidden: boolean;
+              restored: boolean;
+              mistShown: boolean;
+            }): boolean => pass.mistHidden,
+          ),
+      ],
+      [
+        "mistShown",
+        (): boolean =>
+          structural.every(
+            (pass: {
+              overridden: boolean;
+              mistHidden: boolean;
+              restored: boolean;
+              mistShown: boolean;
+            }): boolean => pass.mistShown,
+          ),
+      ],
       ["beautyUntouched", (): boolean => untouched],
       [
         "mistProjectedCount",
         (): boolean =>
           misted.every(
-            (spray: import("../../../../packages/viewer/src/IAutoMovieFluidSprayObject").IAutoMovieFluidSprayObject, at: number): boolean =>
+            (
+              spray: import("../../../../packages/viewer/src/IAutoMovieFluidSprayObject").IAutoMovieFluidSprayObject,
+              at: number,
+            ): boolean =>
               spray.count() === frames[at + 2].spray.particles.length,
           ),
       ],
       [
         // A jet of 8 particles a second, each living one second, has a steady live set of exactly 8 from the emitter's own numbers, so stopping or doubling fails this independent expectation.
         "mistSteady",
-        (): boolean => misted.every((spray: import("../../../../packages/viewer/src/IAutoMovieFluidSprayObject").IAutoMovieFluidSprayObject): boolean => spray.count() === 8),
+        (): boolean =>
+          misted.every(
+            (
+              spray: import("../../../../packages/viewer/src/IAutoMovieFluidSprayObject").IAutoMovieFluidSprayObject,
+            ): boolean => spray.count() === 8,
+          ),
       ],
     ]),
     {
@@ -389,17 +654,47 @@ export function test_viewer_water_feature_passes(): void {
   const cleanupFailures: Error[] = [];
   const cleanupOutcomes: ReturnType<typeof observeThrownValue>[] = [];
   for (const projection of [...waters, ...sprays]) {
-    const failure: Error = new Error("Water projection geometry disposal failed.");
+    const failure: Error = new Error(
+      "Water projection geometry disposal failed.",
+    );
     const attempts: string[] = [];
     cleanupAttempts.push(attempts);
     cleanupFailures.push(failure);
-    const material: THREE.Material = projection.object.material as THREE.Material;
-    projection.object.geometry.addEventListener("dispose", (): never => { attempts.push("geometry"); throw failure; });
-    material.addEventListener("dispose", (): void => { attempts.push("material"); });
-    cleanupOutcomes.push(observeThrownValue(projection.dispose), observeThrownValue(projection.dispose));
+    const material: THREE.Material = projection.object
+      .material as THREE.Material;
+    projection.object.geometry.addEventListener("dispose", (): never => {
+      attempts.push("geometry");
+      throw failure;
+    });
+    material.addEventListener("dispose", (): void => {
+      attempts.push("material");
+    });
+    cleanupOutcomes.push(
+      observeThrownValue(projection.dispose),
+      observeThrownValue(projection.dispose),
+    );
   }
-  TestValidator.predicate("all eight existing projections retain their original geometry cause on both invocations",
-    cleanupFailures.length === 8 && cleanupOutcomes.length === 16 && cleanupOutcomes.every((outcome: ReturnType<typeof observeThrownValue>, index: number): boolean => outcome.threw && outcome.error === cleanupFailures[Math.floor(index / 2)]));
-  TestValidator.equals("geometry failure cannot skip any existing default material and preserves per-invocation retry order", cleanupAttempts,
-    Array.from({ length: 8 }, (): string[] => ["geometry", "material", "geometry", "material"]));
+  TestValidator.predicate(
+    "all eight existing projections retain their original geometry cause on both invocations",
+    cleanupFailures.length === 8 &&
+      cleanupOutcomes.length === 16 &&
+      cleanupOutcomes.every(
+        (
+          outcome: ReturnType<typeof observeThrownValue>,
+          index: number,
+        ): boolean =>
+          outcome.threw &&
+          outcome.error === cleanupFailures[Math.floor(index / 2)],
+      ),
+  );
+  TestValidator.equals(
+    "geometry failure cannot skip any existing default material and preserves per-invocation retry order",
+    cleanupAttempts,
+    Array.from({ length: 8 }, (): string[] => [
+      "geometry",
+      "material",
+      "geometry",
+      "material",
+    ]),
+  );
 }

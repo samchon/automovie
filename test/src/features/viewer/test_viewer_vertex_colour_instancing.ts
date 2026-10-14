@@ -1,8 +1,8 @@
 import { flattenInstancedModel } from "@automovie/viewer";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
-import { nclose } from "../internal/nclose";
 
+import { nclose } from "../internal/nclose";
 import {
   vertexColourMesh,
   vertexColourModel,
@@ -22,18 +22,34 @@ import {
  * @evidence contracts/testing.md#execution-ownership The named entry reuses canonical triangle/model inputs and owns returned CPU geometries/materials, retires them and starts no renderer or new asset/driver.
  */
 export function test_viewer_vertex_colour_instancing(): void {
-  const colored: import("@automovie/interface").IAutoMovieMesh = vertexColourMesh();
-  const { colors: _colors, ...bare }: import("@automovie/interface").IAutoMovieMesh = colored;
-  const model: import("@automovie/interface").IAutoMovieModel = vertexColourModel([colored, bare]);
-  const before: import("@automovie/interface").IAutoMovieModel = structuredClone(model);
-  const firstGeometry: typeof model.parts[number]["geometry"] = model.parts[0]!.geometry;
-  const secondGeometry: typeof model.parts[number]["geometry"] = model.parts[1]!.geometry;
-  const mixed: import("../../../../packages/viewer/src/IAutoMovieInstancedModelRepresentation").IAutoMovieInstancedModelRepresentation<import("../../../../packages/viewer/src/IAutoMovieFormationCycle").IAutoMovieFormationCycle | null> = flattenInstancedModel(model);
-  const expectedMixed: number[] = [...colored.colors!, ...new Array<number>(9).fill(1)];
-  const mixedColors: ArrayLike<number> = mixed.geometry.getAttribute("color").array;
+  const colored: import("@automovie/interface").IAutoMovieMesh =
+    vertexColourMesh();
+  const {
+    colors: _colors,
+    ...bare
+  }: import("@automovie/interface").IAutoMovieMesh = colored;
+  const model: import("@automovie/interface").IAutoMovieModel =
+    vertexColourModel([colored, bare]);
+  const before: import("@automovie/interface").IAutoMovieModel =
+    structuredClone(model);
+  const firstGeometry: (typeof model.parts)[number]["geometry"] =
+    model.parts[0]!.geometry;
+  const secondGeometry: (typeof model.parts)[number]["geometry"] =
+    model.parts[1]!.geometry;
+  const mixed: ReturnType<typeof flattenInstancedModel> =
+    flattenInstancedModel(model);
+  const expectedMixed: number[] = [
+    ...colored.colors!,
+    ...new Array<number>(9).fill(1),
+  ];
+  const mixedColors: ArrayLike<number> =
+    mixed.geometry.getAttribute("color").array;
   TestValidator.predicate(
     "mixed identity RGB",
-    mixedColors.length === expectedMixed.length && Array.from(mixedColors).every((value: number, index: number): boolean => nclose(value, expectedMixed[index]!, 0)),
+    mixedColors.length === expectedMixed.length &&
+      Array.from(mixedColors).every((value: number, index: number): boolean =>
+        nclose(value, expectedMixed[index]!, 0),
+      ),
   );
   TestValidator.equals("material spans", mixed.geometry.groups, [
     { start: 0, count: 3, materialIndex: 0 },
@@ -46,16 +62,34 @@ export function test_viewer_vertex_colour_instancing(): void {
     ),
     [true, false],
   );
-  TestValidator.predicate("caller input keys, ordered values and numeric fields remain unchanged", sameModelInput(model, before));
-  TestValidator.predicate("the caller retains its original geometry and mesh record identities", model.parts[0]!.geometry === firstGeometry && model.parts[1]!.geometry === secondGeometry && firstGeometry.type === "mesh" && firstGeometry.mesh === colored && secondGeometry.type === "mesh" && secondGeometry.mesh === bare);
-  const all: import("../../../../packages/viewer/src/IAutoMovieInstancedModelRepresentation").IAutoMovieInstancedModelRepresentation<import("../../../../packages/viewer/src/IAutoMovieFormationCycle").IAutoMovieFormationCycle | null> = flattenInstancedModel(vertexColourModel([colored, colored]));
+  TestValidator.predicate(
+    "caller input keys, ordered values and numeric fields remain unchanged",
+    sameModelInput(model, before),
+  );
+  TestValidator.predicate(
+    "the caller retains its original geometry and mesh record identities",
+    model.parts[0]!.geometry === firstGeometry &&
+      model.parts[1]!.geometry === secondGeometry &&
+      firstGeometry.type === "mesh" &&
+      firstGeometry.mesh === colored &&
+      secondGeometry.type === "mesh" &&
+      secondGeometry.mesh === bare,
+  );
+  const all: ReturnType<typeof flattenInstancedModel> = flattenInstancedModel(
+    vertexColourModel([colored, colored]),
+  );
   const expectedAll: number[] = [...colored.colors!, ...colored.colors!];
   const allColors: ArrayLike<number> = all.geometry.getAttribute("color").array;
   TestValidator.predicate(
     "all RGB preserved",
-    allColors.length === expectedAll.length && Array.from(allColors).every((value: number, index: number): boolean => nclose(value, expectedAll[index]!, 0)),
+    allColors.length === expectedAll.length &&
+      Array.from(allColors).every((value: number, index: number): boolean =>
+        nclose(value, expectedAll[index]!, 0),
+      ),
   );
-  const empty: import("../../../../packages/viewer/src/IAutoMovieInstancedModelRepresentation").IAutoMovieInstancedModelRepresentation<import("../../../../packages/viewer/src/IAutoMovieFormationCycle").IAutoMovieFormationCycle | null> = flattenInstancedModel(vertexColourModel([bare, bare]));
+  const empty: ReturnType<typeof flattenInstancedModel> = flattenInstancedModel(
+    vertexColourModel([bare, bare]),
+  );
   TestValidator.equals(
     "bare has no colour",
     empty.geometry.hasAttribute("color"),
@@ -69,15 +103,42 @@ export function test_viewer_vertex_colour_instancing(): void {
 
 /** Compare this existing plain model input without putting floating fields through deep equality. */
 function sameModelInput(actual: unknown, expected: unknown): boolean {
-  if (typeof actual === "number" && typeof expected === "number") return nclose(actual, expected, 0);
+  if (typeof actual === "number" && typeof expected === "number")
+    return nclose(actual, expected, 0);
   if (actual === expected) return true;
-  if (typeof actual !== "object" || actual === null || typeof expected !== "object" || expected === null) return false;
+  if (
+    typeof actual !== "object" ||
+    actual === null ||
+    typeof expected !== "object" ||
+    expected === null
+  )
+    return false;
   if (Array.isArray(actual) || Array.isArray(expected)) {
-    if (!Array.isArray(actual) || !Array.isArray(expected) || actual.length !== expected.length) return false;
-    return actual.every((value: unknown, index: number): boolean => sameModelInput(value, expected[index]));
+    if (
+      !Array.isArray(actual) ||
+      !Array.isArray(expected) ||
+      actual.length !== expected.length
+    )
+      return false;
+    return actual.every((value: unknown, index: number): boolean =>
+      sameModelInput(value, expected[index]),
+    );
   }
-  const actualRecord: Record<string, unknown> = actual as Record<string, unknown>;
-  const expectedRecord: Record<string, unknown> = expected as Record<string, unknown>;
+  const actualRecord: Record<string, unknown> = actual as Record<
+    string,
+    unknown
+  >;
+  const expectedRecord: Record<string, unknown> = expected as Record<
+    string,
+    unknown
+  >;
   const keys: string[] = Object.keys(actualRecord);
-  return keys.length === Object.keys(expectedRecord).length && keys.every((key: string): boolean => Object.prototype.hasOwnProperty.call(expectedRecord, key) && sameModelInput(actualRecord[key], expectedRecord[key]));
+  return (
+    keys.length === Object.keys(expectedRecord).length &&
+    keys.every(
+      (key: string): boolean =>
+        Object.prototype.hasOwnProperty.call(expectedRecord, key) &&
+        sameModelInput(actualRecord[key], expectedRecord[key]),
+    )
+  );
 }

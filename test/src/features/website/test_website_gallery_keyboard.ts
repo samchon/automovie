@@ -1,5 +1,6 @@
 import { TestValidator } from "@nestia/e2e";
 
+import type { GalleryController } from "../../../../website/src/gallery/GalleryController";
 import { GalleryUnit } from "../internal/GalleryUnit";
 import { createGalleryHostFacts } from "../internal/createGalleryHostFacts";
 
@@ -16,21 +17,63 @@ import { createGalleryHostFacts } from "../internal/createGalleryHostFacts";
  * @evidence contracts/testing.md#execution-ownership The named entry reuses existing logical host callbacks, disposes the controller and starts no DOM, native modal or new host/driver.
  */
 export function test_website_gallery_keyboard(): void {
-  const { host, facts }: ReturnType<typeof createGalleryHostFacts> = createGalleryHostFacts();
-  const controller: import("../../../../website/src/gallery/GalleryController").GalleryController<string> = new GalleryUnit.Controller(host, [3]);
-  const click: { button: number; ctrlKey: boolean; metaKey: boolean; shiftKey: boolean; altKey: boolean; } = { button: 0, ctrlKey: false, metaKey: false, shiftKey: false, altKey: false };
+  const { host, facts }: ReturnType<typeof createGalleryHostFacts> =
+    createGalleryHostFacts();
+  const controller: GalleryController<string> = new GalleryUnit.Controller(
+    host,
+    [3],
+  );
+  const click: {
+    button: number;
+    ctrlKey: boolean;
+    metaKey: boolean;
+    shiftKey: boolean;
+    altKey: boolean;
+  } = {
+    button: 0,
+    ctrlKey: false,
+    metaKey: false,
+    shiftKey: false,
+    altKey: false,
+  };
   controller.open(0, "capture", click, (): void => {});
   let intercepted: number = 0;
   for (const expected of [1, 2, 0]) {
-    TestValidator.equals("forward arrow consumed", controller.key({ ...click, key: "ArrowRight" }, (): void => { intercepted++; }), true);
+    TestValidator.equals(
+      "forward arrow consumed",
+      controller.key({ ...click, key: "ArrowRight" }, (): void => {
+        intercepted++;
+      }),
+      true,
+    );
     TestValidator.equals("forward view", facts.view, expected);
   }
   for (const expected of [2, 1]) {
-    controller.key({ ...click, key: "ArrowLeft" }, (): void => { intercepted++; });
+    controller.key({ ...click, key: "ArrowLeft" }, (): void => {
+      intercepted++;
+    });
     TestValidator.equals("backward view", facts.view, expected);
   }
-  for (const patch of [{ key: "Tab" }, { key: "Escape" }, { key: "Enter" }, { key: "ArrowRight", ctrlKey: true }, { key: "ArrowLeft", metaKey: true }, { key: "ArrowRight", shiftKey: true }, { key: "ArrowLeft", altKey: true }])
-    TestValidator.equals("native key retained", controller.key({ ...click, ...patch }, (): void => { intercepted++; }), false);
-  TestValidator.equals("only arrows changed selection", [facts.view, intercepted], [1, 5]);
+  for (const patch of [
+    { key: "Tab" },
+    { key: "Escape" },
+    { key: "Enter" },
+    { key: "ArrowRight", ctrlKey: true },
+    { key: "ArrowLeft", metaKey: true },
+    { key: "ArrowRight", shiftKey: true },
+    { key: "ArrowLeft", altKey: true },
+  ])
+    TestValidator.equals(
+      "native key retained",
+      controller.key({ ...click, ...patch }, (): void => {
+        intercepted++;
+      }),
+      false,
+    );
+  TestValidator.equals(
+    "only arrows changed selection",
+    [facts.view, intercepted],
+    [1, 5],
+  );
   controller.dispose();
 }

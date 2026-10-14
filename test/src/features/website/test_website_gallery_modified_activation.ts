@@ -1,5 +1,6 @@
 import { TestValidator } from "@nestia/e2e";
 
+import type { GalleryController } from "../../../../website/src/gallery/GalleryController";
 import { GalleryUnit } from "../internal/GalleryUnit";
 import { createGalleryHostFacts } from "../internal/createGalleryHostFacts";
 
@@ -16,14 +17,57 @@ import { createGalleryHostFacts } from "../internal/createGalleryHostFacts";
  * @evidence contracts/testing.md#execution-ownership The named entry owns existing logical host facts and controller lifecycle, disposes it and creates no DOM/modal/native host or new driver.
  */
 export function test_website_gallery_modified_activation(): void {
-  const { host, facts }: ReturnType<typeof createGalleryHostFacts> = createGalleryHostFacts();
-  const controller: import("../../../../website/src/gallery/GalleryController").GalleryController<string> = new GalleryUnit.Controller(host, [3]);
-  const click: { button: number; ctrlKey: boolean; metaKey: boolean; shiftKey: boolean; altKey: boolean; } = { button: 0, ctrlKey: false, metaKey: false, shiftKey: false, altKey: false };
+  const { host, facts }: ReturnType<typeof createGalleryHostFacts> =
+    createGalleryHostFacts();
+  const controller: GalleryController<string> = new GalleryUnit.Controller(
+    host,
+    [3],
+  );
+  const click: {
+    button: number;
+    ctrlKey: boolean;
+    metaKey: boolean;
+    shiftKey: boolean;
+    altKey: boolean;
+  } = {
+    button: 0,
+    ctrlKey: false,
+    metaKey: false,
+    shiftKey: false,
+    altKey: false,
+  };
   let intercepted: number = 0;
-  for (const patch of [{ button: 1 }, { button: 2 }, { ctrlKey: true }, { metaKey: true }, { shiftKey: true }, { altKey: true }])
-    TestValidator.equals("alternate activation stays native", controller.open(0, "capture", { ...click, ...patch }, (): void => { intercepted++; }), false);
-  TestValidator.equals("refused inputs have no effects", [intercepted, facts.effects], [0, []]);
-  TestValidator.equals("plain activation admits", controller.open(0, "capture", click, (): void => { intercepted++; }), true);
-  TestValidator.equals("plain activation opens and locks", [intercepted, facts.open, facts.locked], [1, true, true]);
+  for (const patch of [
+    { button: 1 },
+    { button: 2 },
+    { ctrlKey: true },
+    { metaKey: true },
+    { shiftKey: true },
+    { altKey: true },
+  ])
+    TestValidator.equals(
+      "alternate activation stays native",
+      controller.open(0, "capture", { ...click, ...patch }, (): void => {
+        intercepted++;
+      }),
+      false,
+    );
+  TestValidator.equals(
+    "refused inputs have no effects",
+    [intercepted, facts.effects],
+    [0, []],
+  );
+  TestValidator.equals(
+    "plain activation admits",
+    controller.open(0, "capture", click, (): void => {
+      intercepted++;
+    }),
+    true,
+  );
+  TestValidator.equals(
+    "plain activation opens and locks",
+    [intercepted, facts.open, facts.locked],
+    [1, true, true],
+  );
   controller.dispose();
 }

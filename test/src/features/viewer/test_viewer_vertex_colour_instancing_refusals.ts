@@ -21,8 +21,16 @@ import {
  * @evidence contracts/testing.md#execution-ownership The named entry uses existing CPU triangle geometry/attributes and disposes returned/source resources, replacing no foreign method and adding no renderer or new fixture.
  */
 export function test_viewer_vertex_colour_instancing_refusals(): void {
-  const built: import("../../../../packages/viewer/src/IAutoMovieModelObject").IAutoMovieModelObject = buildModel(vertexColourModel([vertexColourMesh()]));
-  const part: THREE.Mesh<THREE.BufferGeometry<THREE.NormalBufferAttributes, THREE.BufferGeometryEventMap>, THREE.MeshStandardMaterial, THREE.Object3DEventMap> = [...built.parts.values()][0] as THREE.Mesh<
+  const built: import("../../../../packages/viewer/src/IAutoMovieModelObject").IAutoMovieModelObject =
+    buildModel(vertexColourModel([vertexColourMesh()]));
+  const part: THREE.Mesh<
+    THREE.BufferGeometry<
+      THREE.NormalBufferAttributes,
+      THREE.BufferGeometryEventMap
+    >,
+    THREE.MeshStandardMaterial,
+    THREE.Object3DEventMap
+  > = [...built.parts.values()][0] as THREE.Mesh<
     THREE.BufferGeometry,
     THREE.MeshStandardMaterial
   >;
@@ -41,7 +49,8 @@ export function test_viewer_vertex_colour_instancing_refusals(): void {
     TestValidator.predicate(
       "malformed colour refused",
       throwsError(
-        (): import("../../../../packages/viewer/src/IAutoMovieInstancedModelRepresentation").IAutoMovieInstancedModelRepresentation<null> => flattenInstancedObject(built),
+        (): ReturnType<typeof flattenInstancedObject> =>
+          flattenInstancedObject(built),
         "one RGB or RGBA colour per vertex",
       ),
     );
@@ -49,7 +58,8 @@ export function test_viewer_vertex_colour_instancing_refusals(): void {
       "color",
       new THREE.Float32BufferAttribute(new Array<number>(9).fill(1), 3),
     );
-    const valid: import("../../../../packages/viewer/src/IAutoMovieInstancedModelRepresentation").IAutoMovieInstancedModelRepresentation<null> = flattenInstancedObject(built);
+    const valid: ReturnType<typeof flattenInstancedObject> =
+      flattenInstancedObject(built);
     TestValidator.equals(
       "adjacent aligned input",
       valid.geometry.getAttribute("color").count,

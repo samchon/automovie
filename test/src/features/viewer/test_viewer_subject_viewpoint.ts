@@ -11,6 +11,7 @@ import {
 } from "@automovie/viewer";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
+
 import { nclose, vclose } from "../internal/predicates";
 import { test12ValuesClose } from "../internal/test12ValuesClose";
 
@@ -65,7 +66,12 @@ export function test_viewer_subject_viewpoint(): void {
     parseAutoMovieViewerSubjectKey("primitive:shaft"),
     { kind: "primitive", id: "shaft", revision: null },
   );
-  const refusedKeys: string = ["hall-oriel-2", "shot:opening", "element:", "model:a@"]
+  const refusedKeys: string = [
+    "hall-oriel-2",
+    "shot:opening",
+    "element:",
+    "model:a@",
+  ]
     .map((key: string): string => {
       try {
         parseAutoMovieViewerSubjectKey(key);
@@ -84,13 +90,18 @@ export function test_viewer_subject_viewpoint(): void {
   //----
   // 2. The viewpoint plan belongs to the inspection.
   //----
-  const plan: import("../../../../packages/viewer/src/index").IAutoMovieViewerViewpoint[] = autoMovieViewerTurntableViewpoints({
-    azimuthCount: 4,
-    elevationsDeg: [20, -15],
-  });
+  const plan: ReturnType<typeof autoMovieViewerTurntableViewpoints> =
+    autoMovieViewerTurntableViewpoints({
+      azimuthCount: 4,
+      elevationsDeg: [20, -15],
+    });
   TestValidator.equals(
     "a turntable plan names its viewpoints deterministically",
-    plan.map((viewpoint: import("../../../../packages/viewer/src/index").IAutoMovieViewerViewpoint): string => viewpoint.id),
+    plan.map(
+      (
+        viewpoint: import("../../../../packages/viewer/src/index").IAutoMovieViewerViewpoint,
+      ): string => viewpoint.id,
+    ),
     [
       "az000-el020",
       "az090-el020",
@@ -106,7 +117,8 @@ export function test_viewer_subject_viewpoint(): void {
     "the plan carries its own distance rule",
     nclose(plan[0]!.distanceFactor, 1.25, 0),
   );
-  const repeatedPlan: ReturnType<typeof autoMovieViewerTurntableViewpoints> = autoMovieViewerTurntableViewpoints({
+  const repeatedPlan: ReturnType<typeof autoMovieViewerTurntableViewpoints> =
+    autoMovieViewerTurntableViewpoints({
       azimuthCount: 4,
       elevationsDeg: [20, -15],
     });
@@ -120,14 +132,28 @@ export function test_viewer_subject_viewpoint(): void {
     { azimuthCount: 2, elevationsDeg: [] },
     { azimuthCount: 2, elevationsDeg: [0], distanceFactor: 0 },
     { azimuthCount: 2, elevationsDeg: [20, 20.2] },
-  ].map((options: { azimuthCount: number; elevationsDeg: number[]; distanceFactor?: undefined; } | { azimuthCount: number; elevationsDeg: number[]; distanceFactor: number; }): "accepted" | "refused" => {
-    try {
-      autoMovieViewerTurntableViewpoints(options);
-      return "accepted";
-    } catch {
-      return "refused";
-    }
-  });
+  ].map(
+    (
+      options:
+        | {
+            azimuthCount: number;
+            elevationsDeg: number[];
+            distanceFactor?: undefined;
+          }
+        | {
+            azimuthCount: number;
+            elevationsDeg: number[];
+            distanceFactor: number;
+          },
+    ): "accepted" | "refused" => {
+      try {
+        autoMovieViewerTurntableViewpoints(options);
+        return "accepted";
+      } catch {
+        return "refused";
+      }
+    },
+  );
   TestValidator.equals(
     "a plan that cannot be counted or named is refused",
     refusedPlans,
@@ -137,23 +163,38 @@ export function test_viewer_subject_viewpoint(): void {
   //----
   // 3. One framing rule handles both scale extremes.
   //----
-  const lens: { fovDeg: number; aspect: number; } = { fovDeg: 40, aspect: 16 / 9 };
-  const mullion: import("../../../../packages/viewer/src/index").IAutoMovieViewerSubjectPose = frameAutoMovieViewerSubject(
-    {
-      min: { x: 0, y: 2, z: 0 },
-      max: { x: 0.05, y: 2.6, z: 0.05 },
-    },
-    { id: "az000-el000", azimuthDeg: 0, elevationDeg: 0, distanceFactor: 1.25 },
-    lens,
-  );
-  const elevation: import("../../../../packages/viewer/src/index").IAutoMovieViewerSubjectPose = frameAutoMovieViewerSubject(
-    {
-      min: { x: -25, y: 0, z: -6 },
-      max: { x: 25, y: 18, z: 6 },
-    },
-    { id: "az000-el000", azimuthDeg: 0, elevationDeg: 0, distanceFactor: 1.25 },
-    lens,
-  );
+  const lens: { fovDeg: number; aspect: number } = {
+    fovDeg: 40,
+    aspect: 16 / 9,
+  };
+  const mullion: import("../../../../packages/viewer/src/index").IAutoMovieViewerSubjectPose =
+    frameAutoMovieViewerSubject(
+      {
+        min: { x: 0, y: 2, z: 0 },
+        max: { x: 0.05, y: 2.6, z: 0.05 },
+      },
+      {
+        id: "az000-el000",
+        azimuthDeg: 0,
+        elevationDeg: 0,
+        distanceFactor: 1.25,
+      },
+      lens,
+    );
+  const elevation: import("../../../../packages/viewer/src/index").IAutoMovieViewerSubjectPose =
+    frameAutoMovieViewerSubject(
+      {
+        min: { x: -25, y: 0, z: -6 },
+        max: { x: 25, y: 18, z: 6 },
+      },
+      {
+        id: "az000-el000",
+        azimuthDeg: 0,
+        elevationDeg: 0,
+        distanceFactor: 1.25,
+      },
+      lens,
+    );
   TestValidator.predicate(
     "each eye stands off its own subject's centre",
     nclose(mullion.target.y, 2.3) && nclose(elevation.target.x, 0),
@@ -170,35 +211,49 @@ export function test_viewer_subject_viewpoint(): void {
     "the depth-buffer ratio is the same at both scales",
     nclose(mullion.far / mullion.near, elevation.far / elevation.near),
   );
-  const portrait: import("../../../../packages/viewer/src/index").IAutoMovieViewerSubjectPose = frameAutoMovieViewerSubject(
-    {
-      min: { x: -25, y: 0, z: -6 },
-      max: { x: 25, y: 18, z: 6 },
-    },
-    { id: "az000-el000", azimuthDeg: 0, elevationDeg: 0, distanceFactor: 1.25 },
-    { fovDeg: 40, aspect: 0.5 },
-  );
+  const portrait: import("../../../../packages/viewer/src/index").IAutoMovieViewerSubjectPose =
+    frameAutoMovieViewerSubject(
+      {
+        min: { x: -25, y: 0, z: -6 },
+        max: { x: 25, y: 18, z: 6 },
+      },
+      {
+        id: "az000-el000",
+        azimuthDeg: 0,
+        elevationDeg: 0,
+        distanceFactor: 1.25,
+      },
+      { fovDeg: 40, aspect: 0.5 },
+    );
   TestValidator.predicate(
     "a portrait viewport backs off further, fitting the narrower field",
     (): boolean => portrait.position.z > elevation.position.z,
   );
-  const orbit: import("../../../../packages/viewer/src/index").IAutoMovieViewerSubjectPose = frameAutoMovieViewerSubject(
-    { min: { x: -1, y: -1, z: -1 }, max: { x: 1, y: 1, z: 1 } },
-    { id: "az090-el030", azimuthDeg: 90, elevationDeg: 30, distanceFactor: 2 },
-    lens,
-  );
+  const orbit: import("../../../../packages/viewer/src/index").IAutoMovieViewerSubjectPose =
+    frameAutoMovieViewerSubject(
+      { min: { x: -1, y: -1, z: -1 }, max: { x: 1, y: 1, z: 1 } },
+      {
+        id: "az090-el030",
+        azimuthDeg: 90,
+        elevationDeg: 30,
+        distanceFactor: 2,
+      },
+      lens,
+    );
   TestValidator.predicate(
     "azimuth and elevation place the eye around the subject",
     (): boolean =>
       orbit.position.x > 0 &&
       orbit.position.y > 0 &&
-      nclose(orbit.position.z, 0, 1e-9) && Math.abs(orbit.position.z) < 1e-9,
+      nclose(orbit.position.z, 0, 1e-9) &&
+      Math.abs(orbit.position.z) < 1e-9,
   );
-  const wide: import("../../../../packages/viewer/src/index").IAutoMovieViewerSubjectPose = frameAutoMovieViewerSubject(
-    { min: { x: -1, y: -1, z: -1 }, max: { x: 1, y: 1, z: 1 } },
-    { id: "az000-el000", azimuthDeg: 0, elevationDeg: 0, distanceFactor: 1 },
-    { fovDeg: 179.9, aspect: 1 },
-  );
+  const wide: import("../../../../packages/viewer/src/index").IAutoMovieViewerSubjectPose =
+    frameAutoMovieViewerSubject(
+      { min: { x: -1, y: -1, z: -1 }, max: { x: 1, y: 1, z: 1 } },
+      { id: "az000-el000", azimuthDeg: 0, elevationDeg: 0, distanceFactor: 1 },
+      { fovDeg: 179.9, aspect: 1 },
+    );
   TestValidator.predicate(
     "an eye that sits on the subject still has a positive near plane",
     (): boolean => wide.near > 0,
@@ -207,23 +262,25 @@ export function test_viewer_subject_viewpoint(): void {
     { fovDeg: 0, aspect: 1 },
     { fovDeg: 180, aspect: 1 },
     { fovDeg: 40, aspect: 0 },
-  ].map((candidate: { fovDeg: number; aspect: number; }): "accepted" | "refused" => {
-    try {
-      frameAutoMovieViewerSubject(
-        { min: { x: 0, y: 0, z: 0 }, max: { x: 1, y: 1, z: 1 } },
-        {
-          id: "az000-el000",
-          azimuthDeg: 0,
-          elevationDeg: 0,
-          distanceFactor: 1,
-        },
-        candidate,
-      );
-      return "accepted";
-    } catch {
-      return "refused";
-    }
-  });
+  ].map(
+    (candidate: { fovDeg: number; aspect: number }): "accepted" | "refused" => {
+      try {
+        frameAutoMovieViewerSubject(
+          { min: { x: 0, y: 0, z: 0 }, max: { x: 1, y: 1, z: 1 } },
+          {
+            id: "az000-el000",
+            azimuthDeg: 0,
+            elevationDeg: 0,
+            distanceFactor: 1,
+          },
+          candidate,
+        );
+        return "accepted";
+      } catch {
+        return "refused";
+      }
+    },
+  );
   TestValidator.equals("an unusable lens is refused", refusedLenses, [
     "refused",
     "refused",
@@ -233,11 +290,12 @@ export function test_viewer_subject_viewpoint(): void {
   //----
   // 4. A subject with no measured extent is still aimable.
   //----
-  const degenerate: import("../../../../packages/viewer/src/index").IAutoMovieViewerSubjectPose = frameAutoMovieViewerSubject(
-    { min: { x: 3, y: 1, z: -2 }, max: { x: 3, y: 1, z: -2 } },
-    { id: "az000-el000", azimuthDeg: 0, elevationDeg: 0, distanceFactor: 1 },
-    lens,
-  );
+  const degenerate: import("../../../../packages/viewer/src/index").IAutoMovieViewerSubjectPose =
+    frameAutoMovieViewerSubject(
+      { min: { x: 3, y: 1, z: -2 }, max: { x: 3, y: 1, z: -2 } },
+      { id: "az000-el000", azimuthDeg: 0, elevationDeg: 0, distanceFactor: 1 },
+      lens,
+    );
   TestValidator.predicate(
     "a degenerate box is aimed at where the record does state",
     vclose(degenerate.target, { x: 3, y: 1, z: -2 }, 0),
@@ -250,24 +308,29 @@ export function test_viewer_subject_viewpoint(): void {
   //----
   // 5. The existing callbacks record pose application and encoding requests.
   //----
-  const heading: import("../../../../packages/viewer/src/index").IAutoMovieViewerSubjectPose = autoMovieViewerPoseFromHeading(
-    { x: 1, y: 2, z: 3 },
-    { yaw: 90, pitch: 0 },
-    lens,
-    { near: 0.05, far: 200 },
-  );
+  const heading: import("../../../../packages/viewer/src/index").IAutoMovieViewerSubjectPose =
+    autoMovieViewerPoseFromHeading(
+      { x: 1, y: 2, z: 3 },
+      { yaw: 90, pitch: 0 },
+      lens,
+      { near: 0.05, far: 200 },
+    );
   TestValidator.predicate(
     "a bare position and heading resolve to a look-at pose",
-    vclose({
-      x: Number(heading.target.x.toFixed(6)),
-      y: Number(heading.target.y.toFixed(6)),
-      z: Number(heading.target.z.toFixed(6)),
-    }, { x: 0, y: 2, z: 3 }, 0),
+    vclose(
+      {
+        x: Number(heading.target.x.toFixed(6)),
+        y: Number(heading.target.y.toFixed(6)),
+        z: Number(heading.target.z.toFixed(6)),
+      },
+      { x: 0, y: 2, z: 3 },
+      0,
+    ),
   );
   const refusedClips: ("accepted" | "refused")[] = [
     { near: 0, far: 1 },
     { near: 1, far: 1 },
-  ].map((clip: { near: number; far: number; }): "accepted" | "refused" => {
+  ].map((clip: { near: number; far: number }): "accepted" | "refused" => {
     try {
       autoMovieViewerPoseFromHeading(
         { x: 0, y: 0, z: 0 },
@@ -289,13 +352,19 @@ export function test_viewer_subject_viewpoint(): void {
   applyAutoMovieViewerSubjectPose(camera, heading);
   TestValidator.predicate(
     "the pose is staged on the camera's own world matrix",
-    vclose({
-      x: Number(camera.matrixWorld.elements[12]!.toFixed(6)),
-      y: Number(camera.matrixWorld.elements[13]!.toFixed(6)),
-      z: Number(camera.matrixWorld.elements[14]!.toFixed(6)),
-    }, { x: 1, y: 2, z: 3 }, 0) &&
-      nclose(camera.near, 0.05, 0) && nclose(camera.far, 200, 0) &&
-      nclose(camera.fov, 40, 0) && nclose(camera.aspect, lens.aspect, 0),
+    vclose(
+      {
+        x: Number(camera.matrixWorld.elements[12]!.toFixed(6)),
+        y: Number(camera.matrixWorld.elements[13]!.toFixed(6)),
+        z: Number(camera.matrixWorld.elements[14]!.toFixed(6)),
+      },
+      { x: 1, y: 2, z: 3 },
+      0,
+    ) &&
+      nclose(camera.near, 0.05, 0) &&
+      nclose(camera.far, 200, 0) &&
+      nclose(camera.fov, 40, 0) &&
+      nclose(camera.aspect, lens.aspect, 0),
   );
 
   const order: string[] = [];
@@ -304,11 +373,12 @@ export function test_viewer_subject_viewpoint(): void {
     domElement: {
       width: 1280,
       height: 720,
-      toDataURL: (type: string | undefined): string => `data:${type ?? "image/png"};base64,AA==`,
+      toDataURL: (type: string | undefined): string =>
+        `data:${type ?? "image/png"};base64,AA==`,
     },
   };
   const scene: THREE.Scene<THREE.Object3DEventMap> = new THREE.Scene();
-  const subject: { kind: "element"; id: string; revision: string; } = {
+  const subject: { kind: "element"; id: string; revision: string } = {
     kind: "element" as const,
     id: "hall-oriel-2",
     revision: "r7",
@@ -321,7 +391,10 @@ export function test_viewer_subject_viewpoint(): void {
     scene,
     camera,
     renderer,
-    resolveForCamera: (_camera: THREE.PerspectiveCamera, viewportHeight: number): void => {
+    resolveForCamera: (
+      _camera: THREE.PerspectiveCamera,
+      viewportHeight: number,
+    ): void => {
       order.push("resolve");
       resolvedHeight = viewportHeight;
     },
@@ -349,7 +422,8 @@ export function test_viewer_subject_viewpoint(): void {
       height: 720,
     },
   );
-  const repeatedView: IAutoMovieViewerSubjectView = captureAutoMovieViewerSubjectView({
+  const repeatedView: IAutoMovieViewerSubjectView =
+    captureAutoMovieViewerSubjectView({
       subject,
       pose: mullion,
       viewpoint: "az000-el000",
@@ -361,8 +435,14 @@ export function test_viewer_subject_viewpoint(): void {
     });
   TestValidator.predicate(
     "another request preserves borrowed labels and the supplied encoder result",
-    repeatedView.subject === subject && repeatedView.pose === mullion && repeatedView.viewpoint === view.viewpoint && repeatedView.image.dataUrl === view.image.dataUrl &&
-      repeatedView.image.mimeType === view.image.mimeType && repeatedView.image.width === view.image.width && repeatedView.image.height === view.image.height && repeatedView.deliveryEvidence === false,
+    repeatedView.subject === subject &&
+      repeatedView.pose === mullion &&
+      repeatedView.viewpoint === view.viewpoint &&
+      repeatedView.image.dataUrl === view.image.dataUrl &&
+      repeatedView.image.mimeType === view.image.mimeType &&
+      repeatedView.image.width === view.image.width &&
+      repeatedView.image.height === view.image.height &&
+      repeatedView.deliveryEvidence === false,
   );
   const adHoc: IAutoMovieViewerSubjectView = captureAutoMovieViewerSubjectView({
     subject,
@@ -386,7 +466,9 @@ export function test_viewer_subject_viewpoint(): void {
     [view.deliveryEvidence, adHoc.deliveryEvidence],
     [false, false],
   );
-  const deliveryReview: (evidence: { deliveryEvidence: true; }) => boolean = (evidence: { deliveryEvidence: true }): boolean =>
+  const deliveryReview: (evidence: {
+    deliveryEvidence: true;
+  }) => boolean = (evidence: { deliveryEvidence: true }): boolean =>
     evidence.deliveryEvidence;
   const offered: IAutoMovieViewerSubjectView = view;
   // @ts-expect-error A subject observation is structurally refused by a consumer that requires delivery evidence, so no caller can pass one in.
