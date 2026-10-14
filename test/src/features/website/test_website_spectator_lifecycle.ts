@@ -1,6 +1,6 @@
 import { TestValidator } from "@nestia/e2e";
 
-import { spectatorFixture } from "../internal/websiteSpectatorFixture";
+import { websiteSpectatorFixture as spectatorFixture } from "../internal/websiteSpectatorFixture";
 
 /**
  * Mouse capture failures remain recoverable and leaving the viewer stops motion.
@@ -40,9 +40,13 @@ export async function test_website_spectator_lifecycle(): Promise<void> {
   let finish!: () => void;
   f.request(
     (): Promise<undefined> =>
-      new Promise<undefined>((resolve: (value: undefined | PromiseLike<undefined>) => void): void => {
-        finish = (): void => resolve(undefined);
-      }),
+      new Promise<undefined>(
+        (
+          resolve: (value: undefined | PromiseLike<undefined>) => void,
+        ): void => {
+          finish = (): void => resolve(undefined);
+        },
+      ),
   );
   f.canvas.click();
   f.canvas.click();
@@ -106,9 +110,13 @@ export async function test_website_spectator_lifecycle(): Promise<void> {
   let finishPending!: () => void;
   pending.request(
     (): Promise<undefined> =>
-      new Promise<undefined>((resolve: (value: undefined | PromiseLike<undefined>) => void): void => {
-        finishPending = (): void => resolve(undefined);
-      }),
+      new Promise<undefined>(
+        (
+          resolve: (value: undefined | PromiseLike<undefined>) => void,
+        ): void => {
+          finishPending = (): void => resolve(undefined);
+        },
+      ),
   );
   pending.canvas.click();
   pending.controls.dispose();

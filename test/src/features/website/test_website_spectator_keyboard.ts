@@ -2,7 +2,7 @@ import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
 import { vclose } from "../internal/predicates";
-import { spectatorFixture } from "../internal/websiteSpectatorFixture";
+import { websiteSpectatorFixture as spectatorFixture } from "../internal/websiteSpectatorFixture";
 
 /**
  * Focused or mouse-captured flight responds to held physical keys, including slow Shift.

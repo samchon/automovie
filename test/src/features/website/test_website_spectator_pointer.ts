@@ -2,7 +2,7 @@ import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
 import { nclose, vclose } from "../internal/predicates";
-import { spectatorFixture } from "../internal/websiteSpectatorFixture";
+import { websiteSpectatorFixture as spectatorFixture } from "../internal/websiteSpectatorFixture";
 
 /**
  * Touch and drag use the same eye motion and allow look while a direction is held.
