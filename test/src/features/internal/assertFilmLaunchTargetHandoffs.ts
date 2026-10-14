@@ -6,7 +6,7 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import type { IAutoMoviePerformedShot } from "../../../../packages/engine/src/film/IAutoMoviePerformedShot";
+import type { IAutoMoviePerformedShot } from "@automovie/engine";
 import type { FilmLaunchPerformer } from "./FilmLaunchPerformer";
 import { namedFacts } from "./predicates";
 

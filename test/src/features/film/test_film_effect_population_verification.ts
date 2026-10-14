@@ -4,7 +4,7 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { verifyProductionFilmEffectPopulation } from "../../../../packages/engine/src/effectRuntime/verifyProductionFilmEffectPopulation";
+import { verifyProductionFilmEffectPopulation } from "@automovie/engine";
 import {
   filmEffectRefusal,
   filmEffectTimeline,

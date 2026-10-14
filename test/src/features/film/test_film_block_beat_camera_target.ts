@@ -6,10 +6,10 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { IAutoMovieBlockedBeat } from "../../../../packages/engine/src/film/IAutoMovieBlockedBeat";
-import { IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
-import { blockBeat } from "../../../../packages/engine/src/film/blockBeat";
-import { stageScene } from "../../../../packages/engine/src/film/stageScene";
+import { IAutoMovieBlockedBeat } from "@automovie/engine";
+import { IAutoMovieStagedSet } from "@automovie/engine";
+import { blockBeat } from "@automovie/engine";
+import { stageScene } from "@automovie/engine";
 import {
   makeBlockingWrite,
   makeScriptWrite,

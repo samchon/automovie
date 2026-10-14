@@ -10,16 +10,16 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import type { IAutoMovieSubjectContribution } from "../../../../packages/engine/src/IAutoMovieSubjectContribution";
-import { builtEnvironmentAdjacentSpaces } from "../../../../packages/engine/src/architecture/builtEnvironmentAdjacentSpaces";
-import { builtEnvironmentBuildingOfSpace } from "../../../../packages/engine/src/architecture/builtEnvironmentBuildingOfSpace";
-import { builtEnvironmentContainsPoint } from "../../../../packages/engine/src/architecture/builtEnvironmentContainsPoint";
-import { builtEnvironmentSpaceConnectors } from "../../../../packages/engine/src/architecture/builtEnvironmentSpaceConnectors";
-import { builtEnvironmentSpaceNodes } from "../../../../packages/engine/src/architecture/builtEnvironmentSpaceNodes";
-import { builtEnvironmentSpaceSurfaces } from "../../../../packages/engine/src/architecture/builtEnvironmentSpaceSurfaces";
-import { lowerBuiltEnvironment } from "../../../../packages/engine/src/architecture/lowerBuiltEnvironment";
-import { mergeAutoMovieSpaces } from "../../../../packages/engine/src/architecture/mergeAutoMovieSpaces";
-import { validateBuiltEnvironment } from "../../../../packages/engine/src/architecture/validateBuiltEnvironment";
+import type { IAutoMovieSubjectContribution } from "@automovie/engine";
+import { builtEnvironmentAdjacentSpaces } from "@automovie/engine";
+import { builtEnvironmentBuildingOfSpace } from "@automovie/engine";
+import { builtEnvironmentContainsPoint } from "@automovie/engine";
+import { builtEnvironmentSpaceConnectors } from "@automovie/engine";
+import { builtEnvironmentSpaceNodes } from "@automovie/engine";
+import { builtEnvironmentSpaceSurfaces } from "@automovie/engine";
+import { lowerBuiltEnvironment } from "@automovie/engine";
+import { mergeAutoMovieSpaces } from "@automovie/engine";
+import { validateBuiltEnvironment } from "@automovie/engine";
 import { assertBuiltEnvironmentTestRefusals } from "../internal/assertBuiltEnvironmentTestRefusals";
 import { builtEnvironmentTestBuilding as building } from "../internal/builtEnvironmentTestBuilding";
 import { builtEnvironmentTestCampus as campus } from "../internal/builtEnvironmentTestCampus";

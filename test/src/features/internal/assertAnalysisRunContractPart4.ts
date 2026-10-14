@@ -6,8 +6,8 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { autoMovieAnalysisMetric } from "../../../../packages/engine/src/analysis/autoMovieAnalysisMetric";
-import { AUTOMOVIE_ANALYSIS_MAX_SAMPLES } from "../../../../packages/engine/src/analysis/constants/AUTOMOVIE_ANALYSIS_MAX_SAMPLES";
+import { autoMovieAnalysisMetric } from "@automovie/engine";
+import { AUTOMOVIE_ANALYSIS_MAX_SAMPLES } from "@automovie/engine";
 import { hasViolation, namedFacts } from "./predicates";
 
 /** Execute the next ordered assertions of test_analysis_run_contract.

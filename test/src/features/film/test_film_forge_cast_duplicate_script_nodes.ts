@@ -1,7 +1,7 @@
 import { TestValidator } from "@nestia/e2e";
 
-import { IAutoMovieForgedCast } from "../../../../packages/engine/src/film/IAutoMovieForgedCast";
-import { forgeCast } from "../../../../packages/engine/src/film/forgeCast";
+import { IAutoMovieForgedCast } from "@automovie/engine";
+import { forgeCast } from "@automovie/engine";
 import { forgeEntry, makeScriptWrite } from "../internal/filmFixtures";
 import { hasViolation, namedFacts } from "../internal/predicates";
 

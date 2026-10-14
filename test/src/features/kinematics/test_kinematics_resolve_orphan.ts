@@ -5,11 +5,11 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { IAutoMovieResolvedBone } from "../../../../packages/engine/src/kinematics/IAutoMovieResolvedBone";
-import { IAutoMovieSkeletonTopology } from "../../../../packages/engine/src/kinematics/IAutoMovieSkeletonTopology";
-import { indexSkeletonTopology } from "../../../../packages/engine/src/kinematics/indexSkeletonTopology";
-import { reachableBoneNames } from "../../../../packages/engine/src/kinematics/reachableBoneNames";
-import { resolvePose } from "../../../../packages/engine/src/kinematics/resolvePose";
+import { IAutoMovieResolvedBone } from "@automovie/engine";
+import { IAutoMovieSkeletonTopology } from "@automovie/engine";
+import { indexSkeletonTopology } from "@automovie/engine";
+import { reachableBoneNames } from "@automovie/engine";
+import { resolvePose } from "@automovie/engine";
 import { makePose } from "../internal/makePose";
 import { throwsError } from "../internal/throwsError";
 

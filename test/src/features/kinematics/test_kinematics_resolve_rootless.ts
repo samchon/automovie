@@ -1,8 +1,8 @@
 import { IAutoMovieSkeleton } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { reachableBoneNames } from "../../../../packages/engine/src/kinematics/reachableBoneNames";
-import { resolvePose } from "../../../../packages/engine/src/kinematics/resolvePose";
+import { reachableBoneNames } from "@automovie/engine";
+import { resolvePose } from "@automovie/engine";
 import { makePose } from "../internal/makePose";
 
 const rest: {

@@ -6,7 +6,7 @@ import type {
   IAutoMovieValidation,
 } from "@automovie/interface";
 
-import { validatePropPlacements } from "../../../../packages/engine/src/film/validatePropPlacements";
+import { validatePropPlacements } from "@automovie/engine";
 import {
   propEnvironment,
   propRegistry,

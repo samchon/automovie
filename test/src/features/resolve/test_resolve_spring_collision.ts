@@ -5,9 +5,9 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { Matrix4 } from "../../../../packages/engine/src/math/Matrix4";
-import { createSpringState } from "../../../../packages/engine/src/resolve/createSpringState";
-import { stepSpring } from "../../../../packages/engine/src/resolve/stepSpring";
+import { Matrix4 } from "@automovie/engine";
+import { createSpringState } from "@automovie/engine";
+import { stepSpring } from "@automovie/engine";
 import { throwsError } from "../internal/throwsError";
 import { vclose } from "../internal/vclose";
 

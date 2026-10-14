@@ -12,8 +12,8 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { type IAutoMovieFormationPlacement } from "../../../../packages/engine/src/IAutoMovieFormationPlacement";
-import { validateAutoMovieFormationOverlap } from "../../../../packages/engine/src/validation/validateAutoMovieFormationOverlap";
+import { type IAutoMovieFormationPlacement } from "@automovie/engine";
+import { validateAutoMovieFormationOverlap } from "@automovie/engine";
 
 /** One staged unit as the overlap gate reads it: a placement and its tiers. */
 interface IFormationOverlapTier {

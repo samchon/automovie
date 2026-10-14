@@ -6,9 +6,9 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { designFrameScale } from "../../../../packages/engine/src/architecture/designFrameScale";
-import { designReferenceWorldPoint } from "../../../../packages/engine/src/architecture/designReferenceWorldPoint";
-import { promoteDesignObservations } from "../../../../packages/engine/src/architecture/promoteDesignObservations";
+import { designFrameScale } from "@automovie/engine";
+import { designReferenceWorldPoint } from "@automovie/engine";
+import { promoteDesignObservations } from "@automovie/engine";
 import { nclose } from "./nclose";
 import { namedFacts, throwsError, vclose } from "./predicates";
 import { sameProductData } from "./sameProductData";

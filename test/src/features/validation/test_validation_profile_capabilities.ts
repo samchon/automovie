@@ -5,8 +5,8 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { validateModel } from "../../../../packages/engine/src/validation/validateModel";
-import { validateProfileCapabilities } from "../../../../packages/engine/src/validation/validateProfileCapabilities";
+import { validateModel } from "@automovie/engine";
+import { validateProfileCapabilities } from "@automovie/engine";
 import { createModel } from "../internal/createModel";
 import { namedFacts } from "../internal/namedFacts";
 

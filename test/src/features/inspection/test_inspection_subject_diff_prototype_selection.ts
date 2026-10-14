@@ -4,10 +4,10 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { diffAutoMovieSubjects } from "../../../../packages/engine/src/diffAutoMovieSubjects";
-import { instanceSlot } from "../../../../packages/engine/src/populationRuntime/instanceSlot";
-import { materializeCompiledInstanceSet } from "../../../../packages/engine/src/populationRuntime/materializeCompiledInstanceSet";
-import { productionRuntimeModelId } from "../../../../packages/engine/src/productionRuntimeModelId";
+import { diffAutoMovieSubjects } from "@automovie/engine";
+import { instanceSlot } from "@automovie/engine";
+import { materializeCompiledInstanceSet } from "@automovie/engine";
+import { productionRuntimeModelId } from "@automovie/engine";
 import {
   type IAutoMovieModel,
   type IAutoMovieSubjectArtifact,

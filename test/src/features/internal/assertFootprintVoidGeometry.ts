@@ -7,21 +7,21 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { builtEnvironmentSpaceFidelity } from "../../../../packages/engine/src/architecture/builtEnvironmentSpaceFidelity";
-import { measureAutoMovieQuantities } from "../../../../packages/engine/src/drawing/measureAutoMovieQuantities";
-import { IAutoMoviePropSupportFace } from "../../../../packages/engine/src/film/IAutoMoviePropSupportFace";
-import { propSupportFace } from "../../../../packages/engine/src/film/propSupportFace";
-import { propSupportGap } from "../../../../packages/engine/src/film/propSupportGap";
-import { ITessellation } from "../../../../packages/engine/src/geometry/ITessellation";
-import { tessellateSurface } from "../../../../packages/engine/src/geometry/tessellateSurface";
-import { IAutoMovieFootprint } from "../../../../packages/engine/src/space/IAutoMovieFootprint";
-import { footprintContains } from "../../../../packages/engine/src/space/footprintContains";
-import { footprintConvexPieces } from "../../../../packages/engine/src/space/footprintConvexPieces";
-import { footprintRing } from "../../../../packages/engine/src/space/footprintRing";
-import { footprintRingPlacement } from "../../../../packages/engine/src/space/footprintRingPlacement";
-import { surfaceFootprint } from "../../../../packages/engine/src/space/surfaceFootprint";
-import { surfaceHeightAt } from "../../../../packages/engine/src/space/surfaceHeightAt";
-import { validateSpace } from "../../../../packages/engine/src/validation/validateSpace";
+import { builtEnvironmentSpaceFidelity } from "@automovie/engine";
+import { measureAutoMovieQuantities } from "@automovie/engine";
+import { IAutoMoviePropSupportFace } from "@automovie/engine";
+import { propSupportFace } from "@automovie/engine";
+import { propSupportGap } from "@automovie/engine";
+import { ITessellation } from "@automovie/engine";
+import { tessellateSurface } from "@automovie/engine";
+import { IAutoMovieFootprint } from "@automovie/engine";
+import { footprintContains } from "@automovie/engine";
+import { footprintConvexPieces } from "@automovie/engine";
+import { footprintRing } from "@automovie/engine";
+import { footprintRingPlacement } from "@automovie/engine";
+import { surfaceFootprint } from "@automovie/engine";
+import { surfaceHeightAt } from "@automovie/engine";
+import { validateSpace } from "@automovie/engine";
 import { IFootprintVoidGeometryProps } from "./IFootprintVoidGeometryProps";
 import { namedFacts, nclose } from "./predicates";
 

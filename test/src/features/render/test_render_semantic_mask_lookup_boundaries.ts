@@ -5,9 +5,9 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { IAutoMovieRenderSubject } from "../../../../packages/engine/src/render/IAutoMovieRenderSubject";
-import { deriveAutoMovieSemanticMask } from "../../../../packages/engine/src/render/deriveAutoMovieSemanticMask";
-import { resolveAutoMovieSemanticMask } from "../../../../packages/engine/src/render/resolveAutoMovieSemanticMask";
+import { IAutoMovieRenderSubject } from "@automovie/engine";
+import { deriveAutoMovieSemanticMask } from "@automovie/engine";
+import { resolveAutoMovieSemanticMask } from "@automovie/engine";
 import { createSemanticMaskTestInputs } from "../internal/createSemanticMaskTestInputs";
 
 /**

@@ -9,7 +9,7 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { validateModel } from "../../../../packages/engine/src/validation/validateModel";
+import { validateModel } from "@automovie/engine";
 import { createModel } from "../internal/fixtures";
 import { hasViolation } from "../internal/predicates";
 import { withoutArraySlot } from "../internal/withoutArraySlot";

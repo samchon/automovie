@@ -4,10 +4,10 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import type { IAutoMovieForgedCast } from "../../../../packages/engine/src/film/IAutoMovieForgedCast";
-import type { IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
-import { forgeCast } from "../../../../packages/engine/src/film/forgeCast";
-import { stageScene } from "../../../../packages/engine/src/film/stageScene";
+import type { IAutoMovieForgedCast } from "@automovie/engine";
+import type { IAutoMovieStagedSet } from "@automovie/engine";
+import { forgeCast } from "@automovie/engine";
+import { stageScene } from "@automovie/engine";
 import {
   forgeEntry,
   makeScriptWrite,

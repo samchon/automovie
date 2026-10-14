@@ -9,7 +9,7 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { sceneToNodes } from "../../../../packages/engine/src/resolve/sceneToNodes";
+import { sceneToNodes } from "@automovie/engine";
 import { createDoorPropSpec } from "../internal/createDoorPropSpec";
 import { vclose } from "../internal/vclose";
 

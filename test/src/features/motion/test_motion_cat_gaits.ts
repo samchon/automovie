@@ -11,11 +11,11 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { CAT_GAITS } from "@automovie/archetypes";
-import { CAT_PROFILE } from "@automovie/archetypes";
-import { bindProfileGaits } from "../../../../packages/engine/src/motion/bindProfileGaits";
-import { gaitMotion } from "../../../../packages/engine/src/motion/gaitMotion";
-import { validateMotion } from "../../../../packages/engine/src/validation/validateMotion";
+import { CAT_GAITS } from "../../../../packages/archetypes/src/CAT_GAITS";
+import { CAT_PROFILE } from "../../../../packages/archetypes/src/CAT_PROFILE";
+import { bindProfileGaits } from "@automovie/engine";
+import { gaitMotion } from "@automovie/engine";
+import { validateMotion } from "@automovie/engine";
 import { namedFacts, nclose } from "../internal/predicates";
 
 function range(min: number, max: number): { min: number; max: number } {

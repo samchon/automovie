@@ -4,10 +4,10 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { builtEnvironmentUnclaimedElements } from "../../../../packages/engine/src/architecture/builtEnvironmentUnclaimedElements";
-import { validateBuiltEnvironment } from "../../../../packages/engine/src/architecture/validateBuiltEnvironment";
-import { describeAutoMovieSubject } from "../../../../packages/engine/src/describeAutoMovieSubject";
-import { describeAutoMovieSubjects } from "../../../../packages/engine/src/describeAutoMovieSubjects";
+import { builtEnvironmentUnclaimedElements } from "@automovie/engine";
+import { validateBuiltEnvironment } from "@automovie/engine";
+import { describeAutoMovieSubject } from "@automovie/engine";
+import { describeAutoMovieSubjects } from "@automovie/engine";
 import {
   type IAutoMovieBuiltElement,
   type IAutoMovieBuiltSpace,

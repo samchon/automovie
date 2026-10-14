@@ -5,7 +5,7 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { validatePlantingInstallations } from "../../../../packages/engine/src/soft/validatePlantingInstallations";
+import { validatePlantingInstallations } from "@automovie/engine";
 import { hasViolation } from "../internal/hasViolation";
 import {
   plantingCluster,

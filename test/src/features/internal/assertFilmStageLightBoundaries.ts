@@ -5,7 +5,7 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import type { IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
+import type { IAutoMovieStagedSet } from "@automovie/engine";
 import type { IFilmStageLightBoundaryInputs } from "./IFilmStageLightBoundaryInputs";
 import { hasViolation, namedFacts } from "./predicates";
 

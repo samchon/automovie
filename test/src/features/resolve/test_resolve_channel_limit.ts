@@ -4,8 +4,8 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { type IAutoMovieClampOutcome } from "../../../../packages/engine/src/resolve/IAutoMovieClampOutcome";
-import { applyChannelLimit } from "../../../../packages/engine/src/resolve/applyChannelLimit";
+import { type IAutoMovieClampOutcome } from "@automovie/engine";
+import { applyChannelLimit } from "@automovie/engine";
 import { nclose } from "../internal/nclose";
 import { throwsError } from "../internal/throwsError";
 

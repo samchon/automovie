@@ -5,7 +5,7 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { builtEnvironmentElementPartBounds } from "../../../../packages/engine/src/architecture/builtEnvironmentElementPartBounds";
+import { builtEnvironmentElementPartBounds } from "@automovie/engine";
 import { originTransform } from "../internal/envelopeFixtures";
 import { makeProp, primitivePart } from "../internal/fixtures";
 import { namedFacts, vclose } from "../internal/predicates";

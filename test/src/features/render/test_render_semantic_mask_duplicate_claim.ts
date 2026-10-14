@@ -5,8 +5,8 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { IAutoMovieRenderSubject } from "../../../../packages/engine/src/render/IAutoMovieRenderSubject";
-import { deriveAutoMovieSemanticMask } from "../../../../packages/engine/src/render/deriveAutoMovieSemanticMask";
+import { IAutoMovieRenderSubject } from "@automovie/engine";
+import { deriveAutoMovieSemanticMask } from "@automovie/engine";
 import { createSemanticMaskTestInputs } from "../internal/createSemanticMaskTestInputs";
 import { throwsError } from "../internal/predicates";
 import { modelsFixture, sceneFixture } from "../internal/renderFixtures";

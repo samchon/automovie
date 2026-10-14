@@ -8,7 +8,7 @@ import {
 import { type IAutoMovieMesh } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { type IAutoMovieProfilePoint } from "../../../../packages/engine/src/geometry/IAutoMovieProfilePoint";
+import { type IAutoMovieProfilePoint } from "@automovie/engine";
 import { equalGeometryTestValues } from "../internal/equalGeometryTestValues";
 import { namedFacts, nclose } from "../internal/predicates";
 

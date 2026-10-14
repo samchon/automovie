@@ -6,7 +6,7 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { diffAutoMovieSubjects } from "../../../../packages/engine/src/diffAutoMovieSubjects";
+import { diffAutoMovieSubjects } from "@automovie/engine";
 import {
   subjectInspectionArtifact,
   subjectInspectionInstanceSet,

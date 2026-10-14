@@ -9,14 +9,14 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { type IAutoMovieResolvedBone } from "../../../../packages/engine/src/kinematics/IAutoMovieResolvedBone";
-import { resolvePose } from "../../../../packages/engine/src/kinematics/resolvePose";
-import { Matrix4 } from "../../../../packages/engine/src/math/Matrix4";
-import { type IAutoMovieMotionClipBridge } from "../../../../packages/engine/src/motion/IAutoMovieMotionClipBridge";
-import { motionToClip } from "../../../../packages/engine/src/motion/motionToClip";
-import { composeScene } from "../../../../packages/engine/src/resolve/composeScene";
-import { resolveFrame } from "../../../../packages/engine/src/resolve/resolveFrame";
-import { sceneToNodes } from "../../../../packages/engine/src/resolve/sceneToNodes";
+import { type IAutoMovieResolvedBone } from "@automovie/engine";
+import { resolvePose } from "@automovie/engine";
+import { Matrix4 } from "@automovie/engine";
+import { type IAutoMovieMotionClipBridge } from "@automovie/engine";
+import { motionToClip } from "@automovie/engine";
+import { composeScene } from "@automovie/engine";
+import { resolveFrame } from "@automovie/engine";
+import { sceneToNodes } from "@automovie/engine";
 import { createModel } from "../internal/createModel";
 import { createSkeleton } from "../internal/createSkeleton";
 import { joint } from "../internal/joint";

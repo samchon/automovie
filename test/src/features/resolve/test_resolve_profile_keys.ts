@@ -1,7 +1,7 @@
 import { IAutoMovieDriver, IAutoMovieProfile } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { profileSemanticKeys } from "../../../../packages/engine/src/resolve/profileSemanticKeys";
+import { profileSemanticKeys } from "@automovie/engine";
 import { throwsError } from "../internal/throwsError";
 
 const profileWith: (

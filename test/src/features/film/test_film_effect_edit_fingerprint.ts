@@ -3,7 +3,7 @@ import { IAutoMovieFilmTimeline } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 import { createHash } from "node:crypto";
 
-import { productionFilmEffectEditFingerprint } from "../../../../packages/engine/src/effectRuntime/productionFilmEffectEditFingerprint";
+import { productionFilmEffectEditFingerprint } from "@automovie/engine";
 import { filmEffectCue, filmEffectTimeline } from "./filmEffectRuntimeFixtures";
 
 /**

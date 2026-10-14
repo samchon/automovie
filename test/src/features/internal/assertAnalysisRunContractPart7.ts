@@ -4,7 +4,7 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { summarizeAutoMovieAnalysis } from "../../../../packages/engine/src/analysis/summarizeAutoMovieAnalysis";
+import { summarizeAutoMovieAnalysis } from "@automovie/engine";
 import { namedFacts, throwsError } from "./predicates";
 
 /** Execute the next ordered assertions of test_analysis_run_contract.

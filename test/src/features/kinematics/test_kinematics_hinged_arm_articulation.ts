@@ -1,10 +1,10 @@
 import { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { type IAutoMovieHingedArticulation } from "../../../../packages/engine/src/kinematics/IAutoMovieHingedArticulation";
-import { clinicalDeviation } from "../../../../packages/engine/src/kinematics/clinicalDeviation";
-import { hingedArmArticulation } from "../../../../packages/engine/src/kinematics/hingedArmArticulation";
-import { jointRomOvershoot } from "../../../../packages/engine/src/kinematics/jointRomOvershoot";
+import { type IAutoMovieHingedArticulation } from "@automovie/engine";
+import { clinicalDeviation } from "@automovie/engine";
+import { hingedArmArticulation } from "@automovie/engine";
+import { jointRomOvershoot } from "@automovie/engine";
 import { namedFacts } from "../internal/namedFacts";
 import { nclose } from "../internal/nclose";
 

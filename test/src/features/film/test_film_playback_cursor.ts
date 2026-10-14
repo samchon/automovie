@@ -1,13 +1,13 @@
 import { IAutoMovieSequence, IAutoMovieShot } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { IAutoMoviePlaybackEntry } from "../../../../packages/engine/src/film/IAutoMoviePlaybackEntry";
-import { IAutoMoviePlaybackSample } from "../../../../packages/engine/src/film/IAutoMoviePlaybackSample";
-import { IAutoMoviePlaybackTimeline } from "../../../../packages/engine/src/film/IAutoMoviePlaybackTimeline";
-import { cutSequence } from "../../../../packages/engine/src/film/cutSequence";
-import { playbackCursor } from "../../../../packages/engine/src/film/playbackCursor";
-import { resolveFromTimeline } from "../../../../packages/engine/src/film/resolveFromTimeline";
-import { sequenceTimeline } from "../../../../packages/engine/src/film/sequenceTimeline";
+import { IAutoMoviePlaybackEntry } from "@automovie/engine";
+import { IAutoMoviePlaybackSample } from "@automovie/engine";
+import { IAutoMoviePlaybackTimeline } from "@automovie/engine";
+import { cutSequence } from "@automovie/engine";
+import { playbackCursor } from "@automovie/engine";
+import { resolveFromTimeline } from "@automovie/engine";
+import { sequenceTimeline } from "@automovie/engine";
 import { nclose } from "../internal/predicates";
 
 /**

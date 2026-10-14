@@ -1,12 +1,12 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import type { AutoMovieGrammarDiagnosticCode } from "../../../../packages/engine/src/film/AutoMovieGrammarDiagnosticCode";
-import type { IAutoMovieGrammarCameraObservation } from "../../../../packages/engine/src/film/IAutoMovieGrammarCameraObservation";
-import type { IAutoMovieGrammarDiagnostic } from "../../../../packages/engine/src/film/IAutoMovieGrammarDiagnostic";
-import type { IAutoMovieGrammarInput } from "../../../../packages/engine/src/film/IAutoMovieGrammarInput";
-import type { IAutoMovieGrammarShotObservation } from "../../../../packages/engine/src/film/IAutoMovieGrammarShotObservation";
-import { lookRotation } from "../../../../packages/engine/src/film/lookRotation";
-import { readFilmGrammar } from "../../../../packages/engine/src/film/readFilmGrammar";
+import type { AutoMovieGrammarDiagnosticCode } from "@automovie/engine";
+import type { IAutoMovieGrammarCameraObservation } from "@automovie/engine";
+import type { IAutoMovieGrammarDiagnostic } from "@automovie/engine";
+import type { IAutoMovieGrammarInput } from "@automovie/engine";
+import type { IAutoMovieGrammarShotObservation } from "@automovie/engine";
+import { lookRotation } from "@automovie/engine";
+import { readFilmGrammar } from "@automovie/engine";
 
 /** Build hand-authored film observations and source readers shared by grammar unit cases. */
 export function createFilmGrammarCase(): {

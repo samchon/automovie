@@ -4,11 +4,11 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { IAutoMovieEffectSample } from "../../../../packages/engine/src/IAutoMovieEffectSample";
-import { type IAutoMovieFilmEffectCurrentIdentity } from "../../../../packages/engine/src/effectRuntime/IAutoMovieFilmEffectCurrentIdentity";
-import { IAutoMovieProductionFilmEffectSample } from "../../../../packages/engine/src/effectRuntime/IAutoMovieProductionFilmEffectSample";
-import { sampleProductionFilmEffects } from "../../../../packages/engine/src/effectRuntime/sampleProductionFilmEffects";
-import { sampleCompiledEffect } from "../../../../packages/engine/src/sampleCompiledEffect";
+import { IAutoMovieEffectSample } from "@automovie/engine";
+import { type IAutoMovieFilmEffectCurrentIdentity } from "@automovie/engine";
+import { IAutoMovieProductionFilmEffectSample } from "@automovie/engine";
+import { sampleProductionFilmEffects } from "@automovie/engine";
+import { sampleCompiledEffect } from "@automovie/engine";
 import { filmEffectValuesClose } from "../internal/filmEffectValuesClose";
 import { nclose } from "../internal/nclose";
 import {

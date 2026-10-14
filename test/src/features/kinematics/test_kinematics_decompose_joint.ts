@@ -1,11 +1,11 @@
 import { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { IAutoMovieJointAxes } from "../../../../packages/engine/src/kinematics/IAutoMovieJointAxes";
-import { type IAutoMovieResolvedJointAngles } from "../../../../packages/engine/src/kinematics/IAutoMovieResolvedJointAngles";
-import { decomposeJointRotation } from "../../../../packages/engine/src/kinematics/decomposeJointRotation";
-import { jointToQuaternion } from "../../../../packages/engine/src/kinematics/jointToQuaternion";
-import { Quaternion } from "../../../../packages/engine/src/math/Quaternion";
+import { IAutoMovieJointAxes } from "@automovie/engine";
+import { type IAutoMovieResolvedJointAngles } from "@automovie/engine";
+import { decomposeJointRotation } from "@automovie/engine";
+import { jointToQuaternion } from "@automovie/engine";
+import { Quaternion } from "@automovie/engine";
 import { type IAutoMovieQuaternion } from "@automovie/interface";
 import { namedFacts } from "../internal/namedFacts";
 import { nclose } from "../internal/nclose";

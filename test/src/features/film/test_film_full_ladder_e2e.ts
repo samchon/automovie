@@ -5,18 +5,18 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { IAutoMovieBlockedBeat } from "../../../../packages/engine/src/film/IAutoMovieBlockedBeat";
-import { IAutoMovieCut } from "../../../../packages/engine/src/film/IAutoMovieCut";
-import { IAutoMovieForgedCast } from "../../../../packages/engine/src/film/IAutoMovieForgedCast";
-import { IAutoMoviePerformedShot } from "../../../../packages/engine/src/film/IAutoMoviePerformedShot";
-import { IAutoMoviePlaybackSample } from "../../../../packages/engine/src/film/IAutoMoviePlaybackSample";
-import { IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
-import { blockBeat } from "../../../../packages/engine/src/film/blockBeat";
-import { cutSequence } from "../../../../packages/engine/src/film/cutSequence";
-import { forgeCast } from "../../../../packages/engine/src/film/forgeCast";
-import { performShot } from "../../../../packages/engine/src/film/performShot";
-import { playbackFrameSamples } from "../../../../packages/engine/src/film/playbackFrameSamples";
-import { stageScene } from "../../../../packages/engine/src/film/stageScene";
+import { IAutoMovieBlockedBeat } from "@automovie/engine";
+import { IAutoMovieCut } from "@automovie/engine";
+import { IAutoMovieForgedCast } from "@automovie/engine";
+import { IAutoMoviePerformedShot } from "@automovie/engine";
+import { IAutoMoviePlaybackSample } from "@automovie/engine";
+import { IAutoMovieStagedSet } from "@automovie/engine";
+import { blockBeat } from "@automovie/engine";
+import { cutSequence } from "@automovie/engine";
+import { forgeCast } from "@automovie/engine";
+import { performShot } from "@automovie/engine";
+import { playbackFrameSamples } from "@automovie/engine";
+import { stageScene } from "@automovie/engine";
 import {
   forgeEntry,
   makeBlockingWrite,

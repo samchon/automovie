@@ -4,8 +4,8 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { builtConvexCellVertices } from "../../../../packages/engine/src/architecture/builtConvexCellVertices";
-import { builtSpaceVolumeBounds } from "../../../../packages/engine/src/architecture/builtSpaceVolumeBounds";
+import { builtConvexCellVertices } from "@automovie/engine";
+import { builtSpaceVolumeBounds } from "@automovie/engine";
 import { boxCell } from "../internal/envelopeFixtures";
 import { nclose } from "../internal/nclose";
 import { namedFacts, vclose } from "../internal/predicates";

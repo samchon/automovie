@@ -9,8 +9,8 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { type IAutoMovieResolveOutput } from "../../../../packages/engine/src/resolve/IAutoMovieResolveOutput";
-import { resolveFrame } from "../../../../packages/engine/src/resolve/resolveFrame";
+import { type IAutoMovieResolveOutput } from "@automovie/engine";
+import { resolveFrame } from "@automovie/engine";
 import { nclose } from "../internal/nclose";
 import { throwsError } from "../internal/throwsError";
 

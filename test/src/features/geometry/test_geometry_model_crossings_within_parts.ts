@@ -1,8 +1,8 @@
 import { type IAutoMovieModel } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { type IAutoMovieModelCrossing } from "../../../../packages/engine/src/geometry/IAutoMovieModelCrossing";
-import { measureAutoMovieModelCrossings } from "../../../../packages/engine/src/geometry/measureAutoMovieModelCrossings";
+import { type IAutoMovieModelCrossing } from "@automovie/engine";
+import { measureAutoMovieModelCrossings } from "@automovie/engine";
 
 /** A model part holding the given hand-typed triangles as one mesh. */
 const part: (

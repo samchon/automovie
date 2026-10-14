@@ -1,11 +1,11 @@
 import { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { IAutoMovieClosestSegmentPoints } from "../../../../packages/engine/src/math/IAutoMovieClosestSegmentPoints";
-import { closestPointOnSegmentXZ } from "../../../../packages/engine/src/math/closestPointOnSegmentXZ";
-import { closestPointsBetweenSegments } from "../../../../packages/engine/src/math/closestPointsBetweenSegments";
-import { pointSegmentDistance } from "../../../../packages/engine/src/math/pointSegmentDistance";
-import { segmentSegmentDistance } from "../../../../packages/engine/src/math/segmentSegmentDistance";
+import { IAutoMovieClosestSegmentPoints } from "@automovie/engine";
+import { closestPointOnSegmentXZ } from "@automovie/engine";
+import { closestPointsBetweenSegments } from "@automovie/engine";
+import { pointSegmentDistance } from "@automovie/engine";
+import { segmentSegmentDistance } from "@automovie/engine";
 import { nclose, vclose } from "../internal/predicates";
 
 /**

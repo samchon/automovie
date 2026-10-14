@@ -4,7 +4,7 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { resolveDrivers } from "../../../../packages/engine/src/resolve/resolveDrivers";
+import { resolveDrivers } from "@automovie/engine";
 import { createCopyDriver as copy } from "./createCopyDriver";
 import { createDriverNode as node } from "./createDriverNode";
 import { createDriverSamples as seed } from "./createDriverSamples";

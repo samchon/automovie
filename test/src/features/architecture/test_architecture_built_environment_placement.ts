@@ -7,10 +7,10 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { builtEnvironmentPlacementBounds } from "../../../../packages/engine/src/architecture/builtEnvironmentPlacementBounds";
-import { builtEnvironmentPlacementOverlap } from "../../../../packages/engine/src/architecture/builtEnvironmentPlacementOverlap";
-import { builtEnvironmentSupportStatus } from "../../../../packages/engine/src/architecture/builtEnvironmentSupportStatus";
-import { validateBuiltEnvironment } from "../../../../packages/engine/src/architecture/validateBuiltEnvironment";
+import { builtEnvironmentPlacementBounds } from "@automovie/engine";
+import { builtEnvironmentPlacementOverlap } from "@automovie/engine";
+import { builtEnvironmentSupportStatus } from "@automovie/engine";
+import { validateBuiltEnvironment } from "@automovie/engine";
 import { builtPlacementTestBody as body } from "../internal/builtPlacementTestBody";
 import { builtPlacementTestEnvironment as environment } from "../internal/builtPlacementTestEnvironment";
 import { builtPlacementTestSupport as support } from "../internal/builtPlacementTestSupport";

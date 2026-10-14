@@ -5,10 +5,10 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import type { IAutoMovieAnalysisSolid } from "../../../../packages/engine/src/analysis/IAutoMovieAnalysisSolid";
-import { autoMovieContextSolids } from "../../../../packages/engine/src/analysis/autoMovieContextSolids";
-import { autoMovieEnvironmentInstant } from "../../../../packages/engine/src/analysis/autoMovieEnvironmentInstant";
-import { validateAutoMovieEnvironmentContext } from "../../../../packages/engine/src/analysis/validateAutoMovieEnvironmentContext";
+import type { IAutoMovieAnalysisSolid } from "@automovie/engine";
+import { autoMovieContextSolids } from "@automovie/engine";
+import { autoMovieEnvironmentInstant } from "@automovie/engine";
+import { validateAutoMovieEnvironmentContext } from "@automovie/engine";
 import { analysisContext, boxSolid } from "./analysisFixtures";
 import { hasViolation, namedFacts, nclose } from "./predicates";
 

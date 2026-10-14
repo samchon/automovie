@@ -1,9 +1,9 @@
 import { IAutoMovieReviewNote } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { IAutoMovieGrammarDiagnostic } from "../../../../packages/engine/src/film/IAutoMovieGrammarDiagnostic";
-import { IAutoMovieGrammarShotObservation } from "../../../../packages/engine/src/film/IAutoMovieGrammarShotObservation";
-import { grammarDiagnosticsToReviewNotes } from "../../../../packages/engine/src/film/grammarDiagnosticsToReviewNotes";
+import { IAutoMovieGrammarDiagnostic } from "@automovie/engine";
+import { IAutoMovieGrammarShotObservation } from "@automovie/engine";
+import { grammarDiagnosticsToReviewNotes } from "@automovie/engine";
 import { createFilmGrammarCase } from "../internal/createFilmGrammarCase";
 import { namedFacts } from "../internal/predicates";
 

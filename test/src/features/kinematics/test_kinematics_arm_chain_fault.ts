@@ -6,12 +6,12 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { IAutoMovieArmChainFault } from "../../../../packages/engine/src/kinematics/IAutoMovieArmChainFault";
-import { IAutoMovieResolvedBone } from "../../../../packages/engine/src/kinematics/IAutoMovieResolvedBone";
-import { armChainFault } from "../../../../packages/engine/src/kinematics/armChainFault";
-import { HUMANOID_JOINT_AXES } from "../../../../packages/engine/src/kinematics/constants/HUMANOID_JOINT_AXES";
-import { reachPose } from "../../../../packages/engine/src/kinematics/reachPose";
-import { resolvePose } from "../../../../packages/engine/src/kinematics/resolvePose";
+import { IAutoMovieArmChainFault } from "@automovie/engine";
+import { IAutoMovieResolvedBone } from "@automovie/engine";
+import { armChainFault } from "@automovie/engine";
+import { HUMANOID_JOINT_AXES } from "@automovie/engine";
+import { reachPose } from "@automovie/engine";
+import { resolvePose } from "@automovie/engine";
 import { namedFacts } from "../internal/namedFacts";
 import { nclose } from "../internal/nclose";
 

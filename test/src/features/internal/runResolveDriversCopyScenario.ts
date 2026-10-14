@@ -5,8 +5,8 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { type IAutoMovieSampledChannel } from "../../../../packages/engine/src/resolve/IAutoMovieSampledChannel";
-import { resolveDrivers } from "../../../../packages/engine/src/resolve/resolveDrivers";
+import { type IAutoMovieSampledChannel } from "@automovie/engine";
+import { resolveDrivers } from "@automovie/engine";
 import { createCopyDriver as copy } from "./createCopyDriver";
 import { createDriverNode as node } from "./createDriverNode";
 import { createDriverSamples as seed } from "./createDriverSamples";

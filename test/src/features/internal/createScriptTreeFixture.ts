@@ -1,4 +1,4 @@
-﻿import type { validateScriptTree } from "../../../../packages/engine/src/validation/validateScriptTree";
+import type { validateScriptTree } from "@automovie/engine";
 import { createScriptTree } from "./createScriptTree";
 import { treeBeats } from "./treeBeats";
 

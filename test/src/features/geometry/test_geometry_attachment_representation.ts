@@ -4,12 +4,12 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { type IAutoMovieMeshSeparationQuery } from "../../../../packages/engine/src/geometry/IAutoMovieMeshSeparationQuery";
-import { type IAutoMovieMeshSeparationResult } from "../../../../packages/engine/src/geometry/IAutoMovieMeshSeparationResult";
-import { type IAutoMovieTriangleAttachmentContactBound } from "../../../../packages/engine/src/geometry/IAutoMovieTriangleAttachmentContactBound";
-import { boundAutoMovieTriangleAttachmentContact } from "../../../../packages/engine/src/geometry/boundAutoMovieTriangleAttachmentContact";
-import { createAutoMovieMeshSeparationQuery } from "../../../../packages/engine/src/geometry/createAutoMovieMeshSeparationQuery";
-import { interpolateAutoMovieTrianglePoint } from "../../../../packages/engine/src/math/interpolateAutoMovieTrianglePoint";
+import { type IAutoMovieMeshSeparationQuery } from "@automovie/engine";
+import { type IAutoMovieMeshSeparationResult } from "@automovie/engine";
+import { type IAutoMovieTriangleAttachmentContactBound } from "@automovie/engine";
+import { boundAutoMovieTriangleAttachmentContact } from "@automovie/engine";
+import { createAutoMovieMeshSeparationQuery } from "@automovie/engine";
+import { interpolateAutoMovieTrianglePoint } from "@automovie/engine";
 import { equalGeometryTestValues } from "../internal/equalGeometryTestValues";
 import { throwsError } from "../internal/throwsError";
 import { vclose } from "../internal/vclose";

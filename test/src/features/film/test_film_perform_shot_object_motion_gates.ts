@@ -5,8 +5,8 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import type { IAutoMovieAuthoringDiagnostic } from "../../../../packages/engine/src/film/IAutoMovieAuthoringDiagnostic";
-import type { IAutoMovieCompiledDefinedShot } from "../../../../packages/engine/src/film/IAutoMovieCompiledDefinedShot";
+import type { IAutoMovieAuthoringDiagnostic } from "@automovie/engine";
+import type { IAutoMovieCompiledDefinedShot } from "@automovie/engine";
 import { HINGE } from "../internal/HINGE";
 import { IDoorShotProps } from "../internal/IDoorShotProps";
 import { compileDoorShot } from "../internal/compileDoorShot";

@@ -1,8 +1,8 @@
 import { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { aimRotation } from "../../../../packages/engine/src/kinematics/aimRotation";
-import { Quaternion } from "../../../../packages/engine/src/math/Quaternion";
+import { aimRotation } from "@automovie/engine";
+import { Quaternion } from "@automovie/engine";
 import { nclose } from "../internal/nclose";
 import { qclose } from "../internal/qclose";
 import { throwsError } from "../internal/throwsError";

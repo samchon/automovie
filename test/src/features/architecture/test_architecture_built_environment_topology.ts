@@ -5,12 +5,12 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { builtEnvironmentAdjacentSpaces } from "../../../../packages/engine/src/architecture/builtEnvironmentAdjacentSpaces";
-import { builtEnvironmentBuildingOfSpace } from "../../../../packages/engine/src/architecture/builtEnvironmentBuildingOfSpace";
-import { builtEnvironmentContainsPoint } from "../../../../packages/engine/src/architecture/builtEnvironmentContainsPoint";
-import { builtEnvironmentSpaceNodes } from "../../../../packages/engine/src/architecture/builtEnvironmentSpaceNodes";
-import { lowerBuiltEnvironment } from "../../../../packages/engine/src/architecture/lowerBuiltEnvironment";
-import { validateBuiltEnvironment } from "../../../../packages/engine/src/architecture/validateBuiltEnvironment";
+import { builtEnvironmentAdjacentSpaces } from "@automovie/engine";
+import { builtEnvironmentBuildingOfSpace } from "@automovie/engine";
+import { builtEnvironmentContainsPoint } from "@automovie/engine";
+import { builtEnvironmentSpaceNodes } from "@automovie/engine";
+import { lowerBuiltEnvironment } from "@automovie/engine";
+import { validateBuiltEnvironment } from "@automovie/engine";
 import { BUILT_TOPOLOGY_TEST_ANNEX_TILT as ANNEX_TILT } from "../internal/BUILT_TOPOLOGY_TEST_ANNEX_TILT";
 import { BUILT_TOPOLOGY_TEST_WING_YAW as WING_YAW } from "../internal/BUILT_TOPOLOGY_TEST_WING_YAW";
 import { builtTopologyTestRoll as roll } from "../internal/builtTopologyTestRoll";

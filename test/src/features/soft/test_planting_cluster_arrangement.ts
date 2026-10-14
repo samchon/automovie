@@ -6,9 +6,9 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { arrangePlantingCluster } from "../../../../packages/engine/src/soft/arrangePlantingCluster";
-import { growPlanting } from "../../../../packages/engine/src/soft/growPlanting";
-import { plantingBudget } from "../../../../packages/engine/src/soft/plantingBudget";
+import { arrangePlantingCluster } from "@automovie/engine";
+import { growPlanting } from "@automovie/engine";
+import { plantingBudget } from "@automovie/engine";
 import { hasPlantingSpacingOracle } from "../internal/hasPlantingSpacingOracle";
 import { namedFacts, nclose, qunit } from "../internal/predicates";
 import { plantingCluster, plantingRecipe } from "../internal/softFixtures";

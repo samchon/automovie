@@ -6,8 +6,8 @@ import type {
   IAutoMovieSkeleton,
 } from "@automovie/interface";
 
-import { compileDefinedShot } from "../../../../packages/engine/src/film/compileDefinedShot";
-import { defineShot } from "../../../../packages/engine/src/film/defineShot";
+import { compileDefinedShot } from "@automovie/engine";
+import { defineShot } from "@automovie/engine";
 import { DOOR_CONTRACT } from "./DOOR_CONTRACT";
 import { IDoorShotProps } from "./IDoorShotProps";
 import { createDoorPropSpec } from "./createDoorPropSpec";

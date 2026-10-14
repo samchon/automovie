@@ -7,16 +7,16 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import type { IAutoMoviePropClearanceBounds } from "../../../../packages/engine/src/film/IAutoMoviePropClearanceBounds";
-import type { IAutoMoviePropSupportFace } from "../../../../packages/engine/src/film/IAutoMoviePropSupportFace";
-import { propAnchorFrame } from "../../../../packages/engine/src/film/propAnchorFrame";
-import { propBoundsOverlap } from "../../../../packages/engine/src/film/propBoundsOverlap";
-import { propClearanceBounds } from "../../../../packages/engine/src/film/propClearanceBounds";
-import { propOccupancyBounds } from "../../../../packages/engine/src/film/propOccupancyBounds";
-import { propSpaceContainsBounds } from "../../../../packages/engine/src/film/propSpaceContainsBounds";
-import { propSupportFace } from "../../../../packages/engine/src/film/propSupportFace";
-import { validatePropPlacements } from "../../../../packages/engine/src/film/validatePropPlacements";
-import { footprintRing } from "../../../../packages/engine/src/space/footprintRing";
+import type { IAutoMoviePropClearanceBounds } from "@automovie/engine";
+import type { IAutoMoviePropSupportFace } from "@automovie/engine";
+import { propAnchorFrame } from "@automovie/engine";
+import { propBoundsOverlap } from "@automovie/engine";
+import { propClearanceBounds } from "@automovie/engine";
+import { propOccupancyBounds } from "@automovie/engine";
+import { propSpaceContainsBounds } from "@automovie/engine";
+import { propSupportFace } from "@automovie/engine";
+import { validatePropPlacements } from "@automovie/engine";
+import { footprintRing } from "@automovie/engine";
 import type { IFilmChairRing } from "../internal/IFilmChairRing";
 import type { IFilmChairRingInput } from "../internal/IFilmChairRingInput";
 import type { IFilmPropPatchInput } from "../internal/IFilmPropPatchInput";

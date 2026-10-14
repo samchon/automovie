@@ -12,13 +12,13 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { HUMANOID_GAITS } from "@automovie/archetypes";
-import type { IAutoMoviePerformedShot } from "../../../../packages/engine/src/film/IAutoMoviePerformedShot";
-import type { IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
-import { performShot } from "../../../../packages/engine/src/film/performShot";
-import { stageScene } from "../../../../packages/engine/src/film/stageScene";
-import type { IAutoMovieActorContext } from "../../../../packages/engine/src/perform/IAutoMovieActorContext";
-import { makeActorSynthesizer } from "../../../../packages/engine/src/perform/makeActorSynthesizer";
+import { HUMANOID_GAITS } from "../../../../packages/archetypes/src/HUMANOID_GAITS";
+import type { IAutoMoviePerformedShot } from "@automovie/engine";
+import type { IAutoMovieStagedSet } from "@automovie/engine";
+import { performShot } from "@automovie/engine";
+import { stageScene } from "@automovie/engine";
+import type { IAutoMovieActorContext } from "@automovie/engine";
+import { makeActorSynthesizer } from "@automovie/engine";
 import {
   makePerformanceWrite,
   makeScriptWrite,

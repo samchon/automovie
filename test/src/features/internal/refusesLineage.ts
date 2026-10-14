@@ -3,7 +3,7 @@ import type {
   IAutoMovieDesignLineage,
 } from "@automovie/interface";
 
-import { validateDesignLineage } from "../../../../packages/engine/src/architecture/validateDesignLineage";
+import { validateDesignLineage } from "@automovie/engine";
 import { brokenLineage } from "./brokenLineage";
 import { hasViolation } from "./predicates";
 

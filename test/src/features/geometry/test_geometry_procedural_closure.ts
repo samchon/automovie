@@ -13,7 +13,7 @@ import {
 import { IAutoMovieMesh, IAutoMovieModel } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { type IAutoMovieProfilePoint } from "../../../../packages/engine/src/geometry/IAutoMovieProfilePoint";
+import { type IAutoMovieProfilePoint } from "@automovie/engine";
 import { makeProp } from "../internal/fixtures";
 import {
   hasViolation,

@@ -7,10 +7,10 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { IAutoMovieFilmEffectCurrentIdentity } from "../../../../packages/engine/src/effectRuntime/IAutoMovieFilmEffectCurrentIdentity";
-import { type IAutoMovieShotEffectFilmInterval } from "../../../../packages/engine/src/effectRuntime/IAutoMovieShotEffectFilmInterval";
-import { materializeProductionFilmEffects } from "../../../../packages/engine/src/effectRuntime/materializeProductionFilmEffects";
-import { verifyProductionFilmEffectPopulation } from "../../../../packages/engine/src/effectRuntime/verifyProductionFilmEffectPopulation";
+import { IAutoMovieFilmEffectCurrentIdentity } from "@automovie/engine";
+import { type IAutoMovieShotEffectFilmInterval } from "@automovie/engine";
+import { materializeProductionFilmEffects } from "@automovie/engine";
+import { verifyProductionFilmEffectPopulation } from "@automovie/engine";
 import { filmEffectValuesClose } from "../internal/filmEffectValuesClose";
 import { throwsError } from "../internal/predicates";
 import {

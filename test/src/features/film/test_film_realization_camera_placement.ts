@@ -11,11 +11,11 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import type { IAutoMovieCompiledDefinedShot } from "../../../../packages/engine/src/film/IAutoMovieCompiledDefinedShot";
-import type { IAutoMovieResolvedCamera } from "../../../../packages/engine/src/film/IAutoMovieResolvedCamera";
-import { compileDefinedShot } from "../../../../packages/engine/src/film/compileDefinedShot";
-import { defineShot } from "../../../../packages/engine/src/film/defineShot";
-import { resolveCameraAt } from "../../../../packages/engine/src/film/resolveCameraAt";
+import type { IAutoMovieCompiledDefinedShot } from "@automovie/engine";
+import type { IAutoMovieResolvedCamera } from "@automovie/engine";
+import { compileDefinedShot } from "@automovie/engine";
+import { defineShot } from "@automovie/engine";
+import { resolveCameraAt } from "@automovie/engine";
 import {
   makeBlockingWrite,
   makePerformanceWrite,

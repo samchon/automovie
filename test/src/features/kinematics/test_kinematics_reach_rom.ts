@@ -5,12 +5,12 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { type IAutoMovieResolvedBone } from "../../../../packages/engine/src/kinematics/IAutoMovieResolvedBone";
-import { HUMANOID_JOINT_AXES } from "../../../../packages/engine/src/kinematics/constants/HUMANOID_JOINT_AXES";
-import { reachPose } from "../../../../packages/engine/src/kinematics/reachPose";
-import { resolvePose } from "../../../../packages/engine/src/kinematics/resolvePose";
-import { HUMANOID_REST_FRAME } from "../../../../packages/engine/src/rom/constants/HUMANOID_REST_FRAME";
-import { validatePoseResult } from "../../../../packages/engine/src/validation/validatePoseResult";
+import { type IAutoMovieResolvedBone } from "@automovie/engine";
+import { HUMANOID_JOINT_AXES } from "@automovie/engine";
+import { reachPose } from "@automovie/engine";
+import { resolvePose } from "@automovie/engine";
+import { HUMANOID_REST_FRAME } from "@automovie/engine";
+import { validatePoseResult } from "@automovie/engine";
 import {
   type IAutoMovieBone,
   type IAutoMovieConstraintViolation,

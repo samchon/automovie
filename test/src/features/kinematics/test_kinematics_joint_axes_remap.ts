@@ -1,11 +1,11 @@
 import { TestValidator } from "@nestia/e2e";
 
-import { type IAutoMovieJointAxes } from "../../../../packages/engine/src/kinematics/IAutoMovieJointAxes";
-import { type IAutoMovieResolvedBone } from "../../../../packages/engine/src/kinematics/IAutoMovieResolvedBone";
-import { DEFAULT_JOINT_AXES } from "../../../../packages/engine/src/kinematics/constants/DEFAULT_JOINT_AXES";
-import { HUMANOID_JOINT_AXES } from "../../../../packages/engine/src/kinematics/constants/HUMANOID_JOINT_AXES";
-import { jointToQuaternion } from "../../../../packages/engine/src/kinematics/jointToQuaternion";
-import { resolvePose } from "../../../../packages/engine/src/kinematics/resolvePose";
+import { type IAutoMovieJointAxes } from "@automovie/engine";
+import { type IAutoMovieResolvedBone } from "@automovie/engine";
+import { DEFAULT_JOINT_AXES } from "@automovie/engine";
+import { HUMANOID_JOINT_AXES } from "@automovie/engine";
+import { jointToQuaternion } from "@automovie/engine";
+import { resolvePose } from "@automovie/engine";
 import {
   type IAutoMoviePose,
   type IAutoMovieQuaternion,

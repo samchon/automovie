@@ -9,8 +9,8 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { inheritProductionLighting } from "../../../../packages/engine/src/film/inheritProductionLighting";
-import { Quaternion } from "../../../../packages/engine/src/math/Quaternion";
+import { inheritProductionLighting } from "@automovie/engine";
+import { Quaternion } from "@automovie/engine";
 import { IDENTITY_TRANSFORM } from "../internal/fixtures";
 import { namedFacts, nclose, vclose } from "../internal/predicates";
 

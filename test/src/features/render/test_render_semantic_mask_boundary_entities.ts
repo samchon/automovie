@@ -5,8 +5,8 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { autoMovieSemanticMaskNodeIndex } from "../../../../packages/engine/src/render/autoMovieSemanticMaskNodeIndex";
-import { deriveAutoMovieSemanticMask } from "../../../../packages/engine/src/render/deriveAutoMovieSemanticMask";
+import { autoMovieSemanticMaskNodeIndex } from "@automovie/engine";
+import { deriveAutoMovieSemanticMask } from "@automovie/engine";
 import {
   buildingFixture,
   modelsFixture,

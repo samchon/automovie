@@ -7,9 +7,9 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { IAutoMovieLaunchResult } from "../../../../packages/engine/src/film/IAutoMovieLaunchResult";
-import { compileLaunch } from "../../../../packages/engine/src/film/compileLaunch";
-import { projectileAt } from "../../../../packages/engine/src/physics/projectileAt";
+import { IAutoMovieLaunchResult } from "@automovie/engine";
+import { compileLaunch } from "@automovie/engine";
+import { projectileAt } from "@automovie/engine";
 import {
   namedFacts,
   nclose,

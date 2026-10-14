@@ -11,13 +11,13 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import type { IAutoMovieSubjectContribution } from "../../../../packages/engine/src/IAutoMovieSubjectContribution";
-import { builtEnvironmentSpaceContentBounds } from "../../../../packages/engine/src/architecture/builtEnvironmentSpaceContentBounds";
-import { builtEnvironmentSpaceFidelity } from "../../../../packages/engine/src/architecture/builtEnvironmentSpaceFidelity";
-import { builtEnvironmentSpaceNodes } from "../../../../packages/engine/src/architecture/builtEnvironmentSpaceNodes";
-import { builtEnvironmentSpacePopulations } from "../../../../packages/engine/src/architecture/builtEnvironmentSpacePopulations";
-import { lowerBuiltEnvironment } from "../../../../packages/engine/src/architecture/lowerBuiltEnvironment";
-import { validateBuiltEnvironment } from "../../../../packages/engine/src/architecture/validateBuiltEnvironment";
+import type { IAutoMovieSubjectContribution } from "@automovie/engine";
+import { builtEnvironmentSpaceContentBounds } from "@automovie/engine";
+import { builtEnvironmentSpaceFidelity } from "@automovie/engine";
+import { builtEnvironmentSpaceNodes } from "@automovie/engine";
+import { builtEnvironmentSpacePopulations } from "@automovie/engine";
+import { lowerBuiltEnvironment } from "@automovie/engine";
+import { validateBuiltEnvironment } from "@automovie/engine";
 import { makeProp, primitivePart } from "../internal/fixtures";
 import { namedFacts, nclose, vclose } from "../internal/predicates";
 

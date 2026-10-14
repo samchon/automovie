@@ -5,11 +5,11 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { AutoMovieBuiltinTexturePurpose } from "../../../../packages/engine/src/render/AutoMovieBuiltinTexturePurpose";
-import { type IAutoMovieRenderTextureResidency } from "../../../../packages/engine/src/render/IAutoMovieRenderTextureResidency";
-import { IAutoMovieRenderTextureResident } from "../../../../packages/engine/src/render/IAutoMovieRenderTextureResident";
-import { measureAutoMovieRenderTextureClosure } from "../../../../packages/engine/src/render/measureAutoMovieRenderTextureClosure";
-import { requiredAutoMovieMaterialTexturePurposes } from "../../../../packages/engine/src/render/requiredAutoMovieMaterialTexturePurposes";
+import { AutoMovieBuiltinTexturePurpose } from "@automovie/engine";
+import { type IAutoMovieRenderTextureResidency } from "@automovie/engine";
+import { IAutoMovieRenderTextureResident } from "@automovie/engine";
+import { measureAutoMovieRenderTextureClosure } from "@automovie/engine";
+import { requiredAutoMovieMaterialTexturePurposes } from "@automovie/engine";
 import { material } from "../internal/renderFixtures";
 
 /**

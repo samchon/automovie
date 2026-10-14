@@ -6,12 +6,12 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { IAutoMovieMeshQueryBudget } from "../../../../packages/engine/src/geometry/IAutoMovieMeshQueryBudget";
-import { IAutoMovieMeshSeparationQuery } from "../../../../packages/engine/src/geometry/IAutoMovieMeshSeparationQuery";
-import { IAutoMovieMeshSeparationResult } from "../../../../packages/engine/src/geometry/IAutoMovieMeshSeparationResult";
-import { boundAutoMovieConvexSeparation } from "../../../../packages/engine/src/geometry/boundAutoMovieConvexSeparation";
-import { boundAutoMovieProjectionSeparation } from "../../../../packages/engine/src/geometry/boundAutoMovieProjectionSeparation";
-import { createAutoMovieMeshSeparationQuery } from "../../../../packages/engine/src/geometry/createAutoMovieMeshSeparationQuery";
+import { IAutoMovieMeshQueryBudget } from "@automovie/engine";
+import { IAutoMovieMeshSeparationQuery } from "@automovie/engine";
+import { IAutoMovieMeshSeparationResult } from "@automovie/engine";
+import { boundAutoMovieConvexSeparation } from "@automovie/engine";
+import { boundAutoMovieProjectionSeparation } from "@automovie/engine";
+import { createAutoMovieMeshSeparationQuery } from "@automovie/engine";
 
 /**
  * Unsupported represented arithmetic and malformed requested work refuse by

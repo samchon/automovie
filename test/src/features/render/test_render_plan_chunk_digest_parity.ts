@@ -1,8 +1,8 @@
 import { TestValidator } from "@nestia/e2e";
 import { createHash } from "node:crypto";
 
-import { autoMovieRenderDigest } from "../../../../packages/engine/src/render/autoMovieRenderDigest";
-import { canonicalizeAutoMovieJson } from "../../../../packages/engine/src/text/canonicalizeAutoMovieJson";
+import { autoMovieRenderDigest } from "@automovie/engine";
+import { canonicalizeAutoMovieJson } from "@automovie/engine";
 import { namedFacts, throwsError } from "../internal/predicates";
 
 /** Recompute the identity digest without the engine primitive under test. */

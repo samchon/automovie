@@ -2,7 +2,7 @@ import { tessellate } from "@automovie/engine";
 import { AutoMoviePrimitiveShape } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { type ITessellation } from "../../../../packages/engine/src/geometry/ITessellation";
+import { type ITessellation } from "@automovie/engine";
 import { namedFacts } from "../internal/predicates";
 
 const SHAPES: AutoMoviePrimitiveShape[] = [

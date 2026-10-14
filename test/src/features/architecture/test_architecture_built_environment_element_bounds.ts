@@ -7,9 +7,9 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { builtEnvironmentElementBounds } from "../../../../packages/engine/src/architecture/builtEnvironmentElementBounds";
-import { builtEnvironmentSpaceContentBounds } from "../../../../packages/engine/src/architecture/builtEnvironmentSpaceContentBounds";
-import { validateBuiltEnvironment } from "../../../../packages/engine/src/architecture/validateBuiltEnvironment";
+import { builtEnvironmentElementBounds } from "@automovie/engine";
+import { builtEnvironmentSpaceContentBounds } from "@automovie/engine";
+import { validateBuiltEnvironment } from "@automovie/engine";
 import { makeProp, primitivePart } from "../internal/fixtures";
 import { namedFacts, vclose } from "../internal/predicates";
 

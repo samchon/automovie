@@ -6,10 +6,10 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { type IAutoMovieResolveOutput } from "../../../../packages/engine/src/resolve/IAutoMovieResolveOutput";
-import { IAutoMovieSampledChannel } from "../../../../packages/engine/src/resolve/IAutoMovieSampledChannel";
-import { resolveDrivers } from "../../../../packages/engine/src/resolve/resolveDrivers";
-import { resolveFrame } from "../../../../packages/engine/src/resolve/resolveFrame";
+import { type IAutoMovieResolveOutput } from "@automovie/engine";
+import { IAutoMovieSampledChannel } from "@automovie/engine";
+import { resolveDrivers } from "@automovie/engine";
+import { resolveFrame } from "@automovie/engine";
 import { nclose } from "../internal/nclose";
 import { throwsError } from "../internal/throwsError";
 

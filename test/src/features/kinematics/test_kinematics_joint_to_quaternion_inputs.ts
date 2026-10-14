@@ -1,6 +1,6 @@
 import { TestValidator } from "@nestia/e2e";
 
-import { jointToQuaternion } from "../../../../packages/engine/src/kinematics/jointToQuaternion";
+import { jointToQuaternion } from "@automovie/engine";
 import { type IAutoMovieQuaternion } from "@automovie/interface";
 import { qclose } from "../internal/qclose";
 import { throwsError } from "../internal/throwsError";

@@ -5,7 +5,7 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { measureAutoMovieMeshClearance } from "../../../../packages/engine/src/geometry/measureAutoMovieMeshClearance";
+import { measureAutoMovieMeshClearance } from "@automovie/engine";
 import { equalGeometryTestValues } from "../internal/equalGeometryTestValues";
 import { nclose } from "../internal/nclose";
 

@@ -6,8 +6,8 @@ import {
 import { type IAutoMovieMesh } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { type IAutoMovieMeshTopology } from "../../../../packages/engine/src/geometry/IAutoMovieMeshTopology";
-import { type ITessellation } from "../../../../packages/engine/src/geometry/ITessellation";
+import { type IAutoMovieMeshTopology } from "@automovie/engine";
+import { type ITessellation } from "@automovie/engine";
 import { PROCEDURAL_TEST_SQUARE as square } from "../internal/PROCEDURAL_TEST_SQUARE";
 import { equalGeometryTestValues } from "../internal/equalGeometryTestValues";
 import { isFiniteProceduralMesh as finiteMesh } from "../internal/isFiniteProceduralMesh";

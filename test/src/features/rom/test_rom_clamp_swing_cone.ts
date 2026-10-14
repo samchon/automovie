@@ -4,9 +4,9 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { clampJointRom } from "../../../../packages/engine/src/rom/clampJointRom";
-import { validateJointRom } from "../../../../packages/engine/src/rom/validateJointRom";
-import { ViolationCollector } from "../../../../packages/engine/src/validation/ViolationCollector";
+import { clampJointRom } from "@automovie/engine";
+import { validateJointRom } from "@automovie/engine";
+import { ViolationCollector } from "@automovie/engine";
 import { joint } from "../internal/joint";
 import { namedFacts } from "../internal/namedFacts";
 import { nclose } from "../internal/nclose";

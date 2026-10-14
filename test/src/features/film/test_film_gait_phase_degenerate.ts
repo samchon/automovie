@@ -7,7 +7,7 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { resolveBeatEnd } from "../../../../packages/engine/src/film/resolveBeatEnd";
+import { resolveBeatEnd } from "@automovie/engine";
 import {
   IDENTITY_TRANSFORM,
   joint,

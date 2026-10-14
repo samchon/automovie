@@ -4,7 +4,7 @@ import type {
   IAutoMovieStageSetPiece,
 } from "@automovie/interface";
 
-import type { IAutoMoviePropSupportFace } from "../../../../packages/engine/src/film/IAutoMoviePropSupportFace";
+import type { IAutoMoviePropSupportFace } from "@automovie/engine";
 import type { IFilmPropPatchInput } from "./IFilmPropPatchInput";
 
 /**

@@ -6,10 +6,10 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { type IAutoMovieResolvedBone } from "../../../../packages/engine/src/kinematics/IAutoMovieResolvedBone";
-import { HUMANOID_JOINT_AXES } from "../../../../packages/engine/src/kinematics/constants/HUMANOID_JOINT_AXES";
-import { resolvePose } from "../../../../packages/engine/src/kinematics/resolvePose";
-import { HUMANOID_REST_FRAME } from "../../../../packages/engine/src/rom/constants/HUMANOID_REST_FRAME";
+import { type IAutoMovieResolvedBone } from "@automovie/engine";
+import { HUMANOID_JOINT_AXES } from "@automovie/engine";
+import { resolvePose } from "@automovie/engine";
+import { HUMANOID_REST_FRAME } from "@automovie/engine";
 import { namedFacts } from "../internal/namedFacts";
 import { nclose } from "../internal/nclose";
 

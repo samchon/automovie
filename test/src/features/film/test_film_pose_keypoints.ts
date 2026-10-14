@@ -11,7 +11,7 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { resolvePoseKeypoints } from "../../../../packages/engine/src/film/resolvePoseKeypoints";
+import { resolvePoseKeypoints } from "@automovie/engine";
 import { nclose } from "../internal/predicates";
 
 const IDENTITY_Q: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };

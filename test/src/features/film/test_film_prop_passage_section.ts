@@ -6,9 +6,9 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { validateBuiltEnvironment } from "../../../../packages/engine/src/architecture/validateBuiltEnvironment";
-import type { IAutoMoviePassageBlockage } from "../../../../packages/engine/src/film/IAutoMoviePassageBlockage";
-import { propBlockedPassages } from "../../../../packages/engine/src/film/propBlockedPassages";
+import { validateBuiltEnvironment } from "@automovie/engine";
+import type { IAutoMoviePassageBlockage } from "@automovie/engine";
+import { propBlockedPassages } from "@automovie/engine";
 import { namedFacts } from "../internal/predicates";
 
 /** Construct the literal metre probe spanning y = 0.4 through 1.4. */

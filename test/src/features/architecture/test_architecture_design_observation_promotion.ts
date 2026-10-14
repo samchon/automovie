@@ -7,7 +7,7 @@ import type {
   IAutoMovieDesignWithholding,
 } from "@automovie/interface";
 
-import { promoteDesignObservations } from "../../../../packages/engine/src/architecture/promoteDesignObservations";
+import { promoteDesignObservations } from "@automovie/engine";
 import { assertArchitectureDesignObservationPromotionPart1 } from "../internal/assertArchitectureDesignObservationPromotionPart1";
 
 const PLAN_DIGEST: string =

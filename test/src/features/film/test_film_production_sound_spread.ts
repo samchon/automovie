@@ -9,10 +9,10 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { materializeCompiledFormation } from "../../../../packages/engine/src/populationRuntime/materializeCompiledFormation";
-import type { IAutoMovieRenderedProductionSound } from "../../../../packages/engine/src/sound/IAutoMovieRenderedProductionSound";
-import { deriveProductionSoundPlan } from "../../../../packages/engine/src/sound/deriveProductionSoundPlan";
-import { renderProductionSound } from "../../../../packages/engine/src/sound/renderProductionSound";
+import { materializeCompiledFormation } from "@automovie/engine";
+import type { IAutoMovieRenderedProductionSound } from "@automovie/engine";
+import { deriveProductionSoundPlan } from "@automovie/engine";
+import { renderProductionSound } from "@automovie/engine";
 import { nclose } from "../internal/predicates";
 
 const digest: string =

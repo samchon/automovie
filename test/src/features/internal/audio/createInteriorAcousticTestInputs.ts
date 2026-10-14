@@ -4,7 +4,7 @@ import type {
   IAutoMovieProductionSoundPlan,
 } from "@automovie/interface";
 
-import type { IAutoMovieAcousticRequest } from "../../../../../packages/engine/src/analysis/IAutoMovieAcousticRequest";
+import type { IAutoMovieAcousticRequest } from "@automovie/engine";
 
 /**
  * Existing mutable room-response input constructors borrowed by portable audio units.

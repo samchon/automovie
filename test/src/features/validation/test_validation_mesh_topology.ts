@@ -5,8 +5,8 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { tessellateToMesh } from "../../../../packages/engine/src/geometry/tessellateToMesh";
-import { validateMeshTopology } from "../../../../packages/engine/src/validation/validateMeshTopology";
+import { tessellateToMesh } from "@automovie/engine";
+import { validateMeshTopology } from "@automovie/engine";
 import {
   hasViolation,
   namedFacts,

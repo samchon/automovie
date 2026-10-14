@@ -7,10 +7,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IAutoMoviePerformedShot } from "../../../../packages/engine/src/film/IAutoMoviePerformedShot";
-import type { IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
-import { performShot } from "../../../../packages/engine/src/film/performShot";
-import { stageScene } from "../../../../packages/engine/src/film/stageScene";
+import type { IAutoMoviePerformedShot } from "@automovie/engine";
+import type { IAutoMovieStagedSet } from "@automovie/engine";
+import { performShot } from "@automovie/engine";
+import { stageScene } from "@automovie/engine";
 import {
   makePerformanceWrite,
   makeScriptWrite,

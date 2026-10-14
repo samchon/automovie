@@ -4,7 +4,7 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { validateMotion } from "../../../../packages/engine/src/validation/validateMotion";
+import { validateMotion } from "@automovie/engine";
 import { createSkeleton } from "../internal/createSkeleton";
 import { joint } from "../internal/joint";
 import { keyframe } from "../internal/keyframe";

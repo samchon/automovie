@@ -1,7 +1,7 @@
 import { type IAutoMovieMesh } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { createAutoMovieMeshDepthSampler } from "../../../../packages/engine/src/geometry/createAutoMovieMeshDepthSampler";
+import { createAutoMovieMeshDepthSampler } from "@automovie/engine";
 import { equalGeometryTestValues } from "../internal/equalGeometryTestValues";
 import { nclose } from "../internal/nclose";
 import { throwsError } from "../internal/throwsError";

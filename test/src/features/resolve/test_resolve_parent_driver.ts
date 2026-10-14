@@ -7,8 +7,8 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { Matrix4 } from "../../../../packages/engine/src/math/Matrix4";
-import { resolveWorldDrivers } from "../../../../packages/engine/src/resolve/resolveWorldDrivers";
+import { Matrix4 } from "@automovie/engine";
+import { resolveWorldDrivers } from "@automovie/engine";
 import { qclose } from "../internal/qclose";
 import { throwsError } from "../internal/throwsError";
 import { vclose } from "../internal/vclose";

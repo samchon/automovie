@@ -3,7 +3,7 @@ import type {
   IAutoMovieValidation,
 } from "@automovie/interface";
 
-import type { stageScene } from "../../../../packages/engine/src/film/stageScene";
+import type { stageScene } from "@automovie/engine";
 
 /**
  * Existing staging and refusal readers carried into the light boundary assertion group; runtime malformed writes reach the product validator through the owning entry's explicit ingress cast.

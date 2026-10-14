@@ -4,8 +4,8 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import type { IAutoMovieForgedProp } from "../../../../packages/engine/src/film/IAutoMovieForgedProp";
-import { forgeProp } from "../../../../packages/engine/src/film/forgeProp";
+import type { IAutoMovieForgedProp } from "@automovie/engine";
+import { forgeProp } from "@automovie/engine";
 import type { IFilmImportedLodInputs } from "./IFilmImportedLodInputs";
 import { namedFacts } from "./predicates";
 

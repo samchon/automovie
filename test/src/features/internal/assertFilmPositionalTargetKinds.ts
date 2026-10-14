@@ -1,6 +1,6 @@
 import { TestValidator } from "@nestia/e2e";
 
-import type { IAutoMoviePerformedShot } from "../../../../packages/engine/src/film/IAutoMoviePerformedShot";
+import type { IAutoMoviePerformedShot } from "@automovie/engine";
 import type { IFilmPositionalTargetAssertionsInput } from "./IFilmPositionalTargetAssertionsInput";
 import { namedFacts } from "./predicates";
 

@@ -6,9 +6,9 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import type { IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
-import { stageScene } from "../../../../packages/engine/src/film/stageScene";
-import { Quaternion } from "../../../../packages/engine/src/math/Quaternion";
+import type { IAutoMovieStagedSet } from "@automovie/engine";
+import { stageScene } from "@automovie/engine";
+import { Quaternion } from "@automovie/engine";
 import { makeScriptWrite, makeStagingWrite } from "../internal/filmFixtures";
 import {
   hasViolation,

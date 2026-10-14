@@ -5,10 +5,10 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { designLineagePhaseOrder } from "../../../../packages/engine/src/architecture/designLineagePhaseOrder";
-import { designLineagePhaseSnapshot } from "../../../../packages/engine/src/architecture/designLineagePhaseSnapshot";
-import { designLineageProject } from "../../../../packages/engine/src/architecture/designLineageProject";
-import { validateDesignLineage } from "../../../../packages/engine/src/architecture/validateDesignLineage";
+import { designLineagePhaseOrder } from "@automovie/engine";
+import { designLineagePhaseSnapshot } from "@automovie/engine";
+import { designLineageProject } from "@automovie/engine";
+import { validateDesignLineage } from "@automovie/engine";
 import { emptyLineage, renovationLineage } from "../internal/lineageFixtures";
 import { throwsError } from "../internal/predicates";
 

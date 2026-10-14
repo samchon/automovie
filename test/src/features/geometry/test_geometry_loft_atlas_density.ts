@@ -4,9 +4,9 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { buildAutoMoviePolyhedron } from "../../../../packages/engine/src/geometry/buildAutoMoviePolyhedron";
-import { extrudeAutoMovieRegion } from "../../../../packages/engine/src/geometry/extrudeAutoMovieRegion";
-import { loftAutoMovieSections } from "../../../../packages/engine/src/geometry/loftAutoMovieSections";
+import { buildAutoMoviePolyhedron } from "@automovie/engine";
+import { extrudeAutoMovieRegion } from "@automovie/engine";
+import { loftAutoMovieSections } from "@automovie/engine";
 import { type IAtlasDensityRange } from "../internal/IAtlasDensityRange";
 import { atlasDensityRange } from "../internal/atlasDensityRange";
 import { namedFacts } from "../internal/namedFacts";

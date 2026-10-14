@@ -1,10 +1,10 @@
 import { IAutoMovieSkeleton } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { IAutoMoviePerformedShot } from "../../../../packages/engine/src/film/IAutoMoviePerformedShot";
-import { IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
-import { performShot } from "../../../../packages/engine/src/film/performShot";
-import { stageScene } from "../../../../packages/engine/src/film/stageScene";
+import { IAutoMoviePerformedShot } from "@automovie/engine";
+import { IAutoMovieStagedSet } from "@automovie/engine";
+import { performShot } from "@automovie/engine";
+import { stageScene } from "@automovie/engine";
 import { assertFilmNonFrameActorShapes } from "../internal/assertFilmNonFrameActorShapes";
 import {
   makePerformanceWrite,

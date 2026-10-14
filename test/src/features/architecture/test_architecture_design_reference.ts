@@ -6,7 +6,7 @@ import type {
   IAutoMovieValidation,
 } from "@automovie/interface";
 
-import { validateDesignReference } from "../../../../packages/engine/src/architecture/validateDesignReference";
+import { validateDesignReference } from "@automovie/engine";
 import { assertArchitectureDesignReferencePart1 } from "../internal/assertArchitectureDesignReferencePart1";
 import { assertArchitectureDesignReferencePart2 } from "../internal/assertArchitectureDesignReferencePart2";
 import { assertArchitectureDesignReferencePart3 } from "../internal/assertArchitectureDesignReferencePart3";

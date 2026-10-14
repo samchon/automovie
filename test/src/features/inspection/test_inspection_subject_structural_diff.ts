@@ -1,8 +1,8 @@
 import { IAutoMovieModel } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { AUTOMOVIE_SUBJECT_DIFF_DEFAULT_TOLERANCE } from "../../../../packages/engine/src/constants/AUTOMOVIE_SUBJECT_DIFF_DEFAULT_TOLERANCE";
-import { diffAutoMovieSubjects } from "../../../../packages/engine/src/diffAutoMovieSubjects";
+import { AUTOMOVIE_SUBJECT_DIFF_DEFAULT_TOLERANCE } from "@automovie/engine";
+import { diffAutoMovieSubjects } from "@automovie/engine";
 import {
   type IAutoMovieCompiledInstanceSet,
   type IAutoMovieSceneNode,

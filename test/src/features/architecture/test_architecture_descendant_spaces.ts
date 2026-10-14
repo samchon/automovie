@@ -1,7 +1,7 @@
 import type { IAutoMovieBuiltEnvironment } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { builtEnvironmentDescendantSpaces } from "../../../../packages/engine/src/architecture/builtEnvironmentDescendantSpaces";
+import { builtEnvironmentDescendantSpaces } from "@automovie/engine";
 import { boxCell, originTransform } from "../internal/envelopeFixtures";
 import { namedFacts, throwsError } from "../internal/predicates";
 

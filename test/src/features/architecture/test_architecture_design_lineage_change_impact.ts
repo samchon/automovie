@@ -4,7 +4,7 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { designLineageImpact } from "../../../../packages/engine/src/architecture/designLineageImpact";
+import { designLineageImpact } from "@automovie/engine";
 import { brokenLineage, renovationLineage } from "../internal/lineageFixtures";
 import { throwsError } from "../internal/predicates";
 

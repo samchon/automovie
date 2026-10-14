@@ -6,14 +6,14 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { type IAutoMovieRenderTextureSource } from "../../../../packages/engine/src/render/IAutoMovieRenderTextureSource";
-import { autoMovieRenderTextureDigest } from "../../../../packages/engine/src/render/autoMovieRenderTextureDigest";
-import { measureAutoMovieRenderTextureClosure } from "../../../../packages/engine/src/render/measureAutoMovieRenderTextureClosure";
-import { sumAutoMovieRenderTextureAllocations } from "../../../../packages/engine/src/render/sumAutoMovieRenderTextureAllocations";
-import { IAutoMovieRenderBudgetAssessment } from "@automovie/render";
-import { assessAutoMovieRenderBudget } from "@automovie/render";
-import { autoMovieRenderBudgetEvidence } from "@automovie/render";
-import { autoMovieRenderBudgetRefusal } from "@automovie/render";
+import { type IAutoMovieRenderTextureSource } from "@automovie/engine";
+import { autoMovieRenderTextureDigest } from "@automovie/engine";
+import { measureAutoMovieRenderTextureClosure } from "@automovie/engine";
+import { sumAutoMovieRenderTextureAllocations } from "@automovie/engine";
+import { IAutoMovieRenderBudgetAssessment } from "../../../../packages/render/src/renderBudgetPreflight/IAutoMovieRenderBudgetAssessment";
+import { assessAutoMovieRenderBudget } from "../../../../packages/render/src/renderBudgetPreflight/assessAutoMovieRenderBudget";
+import { autoMovieRenderBudgetEvidence } from "../../../../packages/render/src/renderBudgetPreflight/autoMovieRenderBudgetEvidence";
+import { autoMovieRenderBudgetRefusal } from "../../../../packages/render/src/renderBudgetPreflight/autoMovieRenderBudgetRefusal";
 import { compiledShotFixture } from "../internal/renderBudgetFixtures";
 import { material, sceneFixture } from "../internal/renderFixtures";
 

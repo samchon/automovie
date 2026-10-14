@@ -4,15 +4,15 @@ import type {
   IAutoMovieSkeleton,
 } from "@automovie/interface";
 
-import type { IAutoMovieJointAxes } from "../../../../packages/engine/src/kinematics/IAutoMovieJointAxes";
-import type { IAutoMovieResolvedBone } from "../../../../packages/engine/src/kinematics/IAutoMovieResolvedBone";
-import { resolvePose } from "../../../../packages/engine/src/kinematics/resolvePose";
-import { Matrix4 } from "../../../../packages/engine/src/math/Matrix4";
-import type { IAutoMovieMotionClipBridge } from "../../../../packages/engine/src/motion/IAutoMovieMotionClipBridge";
-import { motionToClip } from "../../../../packages/engine/src/motion/motionToClip";
-import { sampleMotion } from "../../../../packages/engine/src/motion/sampleMotion";
-import { resolveFrame } from "../../../../packages/engine/src/resolve/resolveFrame";
-import type { IAutoMovieRestFrame } from "../../../../packages/engine/src/rom/IAutoMovieRestFrame";
+import type { IAutoMovieJointAxes } from "@automovie/engine";
+import type { IAutoMovieResolvedBone } from "@automovie/engine";
+import { resolvePose } from "@automovie/engine";
+import { Matrix4 } from "@automovie/engine";
+import type { IAutoMovieMotionClipBridge } from "@automovie/engine";
+import { motionToClip } from "@automovie/engine";
+import { sampleMotion } from "@automovie/engine";
+import { resolveFrame } from "@automovie/engine";
+import type { IAutoMovieRestFrame } from "@automovie/engine";
 import { qclose } from "./qclose";
 import { vclose } from "./vclose";
 

@@ -10,11 +10,11 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { IAutoMoviePerformedShot } from "../../../../packages/engine/src/film/IAutoMoviePerformedShot";
-import type { IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
-import { performShot } from "../../../../packages/engine/src/film/performShot";
-import { stageScene } from "../../../../packages/engine/src/film/stageScene";
-import { compareCodeUnits } from "../../../../packages/engine/src/text/compareCodeUnits";
+import { IAutoMoviePerformedShot } from "@automovie/engine";
+import type { IAutoMovieStagedSet } from "@automovie/engine";
+import { performShot } from "@automovie/engine";
+import { stageScene } from "@automovie/engine";
+import { compareCodeUnits } from "@automovie/engine";
 import {
   makePerformanceWrite,
   makeScriptWrite,

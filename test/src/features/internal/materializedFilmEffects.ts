@@ -3,7 +3,7 @@ import {
   IAutoMovieFilmTimeline,
 } from "@automovie/interface";
 
-import { materializeProductionFilmEffects } from "../../../../packages/engine/src/effectRuntime/materializeProductionFilmEffects";
+import { materializeProductionFilmEffects } from "@automovie/engine";
 import { filmEffectIdentity } from "./filmEffectIdentity";
 import { filmEffectWorld } from "./filmEffectWorld";
 

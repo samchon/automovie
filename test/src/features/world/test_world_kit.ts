@@ -4,15 +4,15 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { IAutoMovieWorldBlock } from "../../../../packages/engine/src/IAutoMovieWorldBlock";
-import { assertWorldPlacements } from "../../../../packages/engine/src/assertWorldPlacements";
-import { worldAlongRoute } from "../../../../packages/engine/src/worldAlongRoute";
-import { worldBlock } from "../../../../packages/engine/src/worldBlock";
-import { worldGrid } from "../../../../packages/engine/src/worldGrid";
-import { worldRamp } from "../../../../packages/engine/src/worldRamp";
-import { worldScatter } from "../../../../packages/engine/src/worldScatter";
-import { worldSurfaceHeight } from "../../../../packages/engine/src/worldSurfaceHeight";
-import { worldTerrain } from "../../../../packages/engine/src/worldTerrain";
+import { IAutoMovieWorldBlock } from "@automovie/engine";
+import { assertWorldPlacements } from "@automovie/engine";
+import { worldAlongRoute } from "@automovie/engine";
+import { worldBlock } from "@automovie/engine";
+import { worldGrid } from "@automovie/engine";
+import { worldRamp } from "@automovie/engine";
+import { worldScatter } from "@automovie/engine";
+import { worldSurfaceHeight } from "@automovie/engine";
+import { worldTerrain } from "@automovie/engine";
 import { namedFacts, nclose, throwsError } from "../internal/predicates";
 
 const instanceBase: () => Omit<

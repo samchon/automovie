@@ -4,12 +4,12 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { IAutoMovieProductionSoundRaster } from "../../../../packages/engine/src/sound/IAutoMovieProductionSoundRaster";
-import { IAutoMovieRenderedProductionSound } from "../../../../packages/engine/src/sound/IAutoMovieRenderedProductionSound";
-import { deriveProductionSoundPlan } from "../../../../packages/engine/src/sound/deriveProductionSoundPlan";
-import { productionSoundSpectrogram } from "../../../../packages/engine/src/sound/productionSoundSpectrogram";
-import { productionSoundWaveform } from "../../../../packages/engine/src/sound/productionSoundWaveform";
-import { renderProductionSound } from "../../../../packages/engine/src/sound/renderProductionSound";
+import { IAutoMovieProductionSoundRaster } from "@automovie/engine";
+import { IAutoMovieRenderedProductionSound } from "@automovie/engine";
+import { deriveProductionSoundPlan } from "@automovie/engine";
+import { productionSoundSpectrogram } from "@automovie/engine";
+import { productionSoundWaveform } from "@automovie/engine";
+import { renderProductionSound } from "@automovie/engine";
 import { namedFacts } from "../internal/predicates";
 import {
   productionSoundCompiled,

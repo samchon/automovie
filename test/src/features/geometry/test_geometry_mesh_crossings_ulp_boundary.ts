@@ -1,7 +1,7 @@
 import { type IAutoMovieMesh } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { measureAutoMovieMeshCrossings } from "../../../../packages/engine/src/geometry/measureAutoMovieMeshCrossings";
+import { measureAutoMovieMeshCrossings } from "@automovie/engine";
 import { throwsError } from "../internal/throwsError";
 
 const surface: IAutoMovieMesh = {

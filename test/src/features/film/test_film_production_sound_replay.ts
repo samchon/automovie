@@ -1,7 +1,7 @@
 import type { IAutoMovieProductionSoundPlan } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { renderProductionSound } from "../../../../packages/engine/src/sound/renderProductionSound";
+import { renderProductionSound } from "@automovie/engine";
 import { nclose } from "../internal/nclose";
 
 /**

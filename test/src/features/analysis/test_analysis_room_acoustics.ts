@@ -3,7 +3,7 @@ import type {
   IAutoMovieAnalysisRun,
 } from "@automovie/interface";
 
-import type { IAutoMovieAcousticRequest } from "../../../../packages/engine/src/analysis/IAutoMovieAcousticRequest";
+import type { IAutoMovieAcousticRequest } from "@automovie/engine";
 import { assertAnalysisRoomAcousticsPart1 } from "../internal/assertAnalysisRoomAcousticsPart1";
 import { assertAnalysisRoomAcousticsPart2 } from "../internal/assertAnalysisRoomAcousticsPart2";
 import { assertAnalysisRoomAcousticsPart3 } from "../internal/assertAnalysisRoomAcousticsPart3";

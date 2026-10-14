@@ -6,9 +6,9 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { assertAutoMovieAnalysisTargets } from "../../../../packages/engine/src/analysis/assertAutoMovieAnalysisTargets";
-import { autoMovieAnalysisMetric } from "../../../../packages/engine/src/analysis/autoMovieAnalysisMetric";
-import { summarizeAutoMovieAnalysis } from "../../../../packages/engine/src/analysis/summarizeAutoMovieAnalysis";
+import { assertAutoMovieAnalysisTargets } from "@automovie/engine";
+import { autoMovieAnalysisMetric } from "@automovie/engine";
+import { summarizeAutoMovieAnalysis } from "@automovie/engine";
 import { sealedAnalysisRun } from "./analysisFixtures";
 import { namedFacts, throwsError } from "./predicates";
 import { sameProductData } from "./sameProductData";

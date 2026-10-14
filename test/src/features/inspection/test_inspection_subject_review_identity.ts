@@ -4,7 +4,7 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { resolveAutoMovieSubjectReviewUnit } from "../../../../packages/engine/src/resolveAutoMovieSubjectReviewUnit";
+import { resolveAutoMovieSubjectReviewUnit } from "@automovie/engine";
 import {
   type AutoMovieSubjectKind,
   type IAutoMovieSubjectArtifact,

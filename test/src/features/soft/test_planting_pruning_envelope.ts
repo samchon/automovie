@@ -5,8 +5,8 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { growPlanting } from "../../../../packages/engine/src/soft/growPlanting";
-import { plantingStateDigest } from "../../../../packages/engine/src/soft/plantingStateDigest";
+import { growPlanting } from "@automovie/engine";
+import { plantingStateDigest } from "@automovie/engine";
 import { namedFacts, vclose } from "../internal/predicates";
 import { plantingRecipe } from "../internal/softFixtures";
 

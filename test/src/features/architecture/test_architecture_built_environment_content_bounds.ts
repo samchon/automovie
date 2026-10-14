@@ -9,10 +9,10 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { builtEnvironmentContainsPoint } from "../../../../packages/engine/src/architecture/builtEnvironmentContainsPoint";
-import { builtEnvironmentSpaceContentBounds } from "../../../../packages/engine/src/architecture/builtEnvironmentSpaceContentBounds";
-import { builtEnvironmentSpaceNodes } from "../../../../packages/engine/src/architecture/builtEnvironmentSpaceNodes";
-import { validateBuiltEnvironment } from "../../../../packages/engine/src/architecture/validateBuiltEnvironment";
+import { builtEnvironmentContainsPoint } from "@automovie/engine";
+import { builtEnvironmentSpaceContentBounds } from "@automovie/engine";
+import { builtEnvironmentSpaceNodes } from "@automovie/engine";
+import { validateBuiltEnvironment } from "@automovie/engine";
 import { makeProp, primitivePart } from "../internal/fixtures";
 import { namedFacts, throwsError, vclose } from "../internal/predicates";
 

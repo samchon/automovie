@@ -7,10 +7,10 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { autoMovieAnalysisRunDigest } from "../../../../packages/engine/src/analysis/autoMovieAnalysisRunDigest";
-import { isAutoMovieAnalysisDomain } from "../../../../packages/engine/src/analysis/isAutoMovieAnalysisDomain";
-import { sealAutoMovieAnalysisRun } from "../../../../packages/engine/src/analysis/sealAutoMovieAnalysisRun";
-import { validateAutoMovieAnalysisRun } from "../../../../packages/engine/src/analysis/validateAutoMovieAnalysisRun";
+import { autoMovieAnalysisRunDigest } from "@automovie/engine";
+import { isAutoMovieAnalysisDomain } from "@automovie/engine";
+import { sealAutoMovieAnalysisRun } from "@automovie/engine";
+import { validateAutoMovieAnalysisRun } from "@automovie/engine";
 import { sealedAnalysisRun } from "./analysisFixtures";
 import { hasViolation, throwsError } from "./predicates";
 

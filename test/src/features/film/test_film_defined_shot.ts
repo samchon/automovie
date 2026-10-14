@@ -7,10 +7,10 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import type { IAutoMovieAuthoringDiagnostic } from "../../../../packages/engine/src/film/IAutoMovieAuthoringDiagnostic";
-import { compileDefinedShot } from "../../../../packages/engine/src/film/compileDefinedShot";
-import { defineShot } from "../../../../packages/engine/src/film/defineShot";
-import { suggestCollisionResponse } from "../../../../packages/engine/src/physics/suggestCollisionResponse";
+import type { IAutoMovieAuthoringDiagnostic } from "@automovie/engine";
+import { compileDefinedShot } from "@automovie/engine";
+import { defineShot } from "@automovie/engine";
+import { suggestCollisionResponse } from "@automovie/engine";
 import {
   makeBlockingWrite,
   makePerformanceWrite,

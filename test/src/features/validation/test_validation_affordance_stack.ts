@@ -1,4 +1,4 @@
-﻿import type {
+import type {
   IAutoMovieAffordance,
   IAutoMovieQuaternion,
   IAutoMovieTransform,
@@ -6,9 +6,9 @@
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { affordanceSupportContacts } from "../../../../packages/engine/src/space/affordanceSupportContacts";
-import type { IAutoMovieSupportResult } from "../../../../packages/engine/src/validation/IAutoMovieSupportResult";
-import { detectSupportToppling } from "../../../../packages/engine/src/validation/detectSupportToppling";
+import { affordanceSupportContacts } from "@automovie/engine";
+import type { IAutoMovieSupportResult } from "@automovie/engine";
+import { detectSupportToppling } from "@automovie/engine";
 import {
   namedFacts,
   validationHasNoWarnings,

@@ -6,8 +6,8 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { resolveAutoMovieMeshPhysicalVertices } from "../../../../packages/engine/src/math/resolveAutoMovieMeshPhysicalVertices";
-import { validateMeshTopology } from "../../../../packages/engine/src/validation/validateMeshTopology";
+import { resolveAutoMovieMeshPhysicalVertices } from "@automovie/engine";
+import { validateMeshTopology } from "@automovie/engine";
 import { createPhysicalMesh } from "../internal/createPhysicalMesh";
 
 /**

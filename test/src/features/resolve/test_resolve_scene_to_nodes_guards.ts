@@ -5,9 +5,9 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { composeScene } from "../../../../packages/engine/src/resolve/composeScene";
-import { lowerSkeletonNodes } from "../../../../packages/engine/src/resolve/lowerSkeletonNodes";
-import { sceneToNodes } from "../../../../packages/engine/src/resolve/sceneToNodes";
+import { composeScene } from "@automovie/engine";
+import { lowerSkeletonNodes } from "@automovie/engine";
+import { sceneToNodes } from "@automovie/engine";
 import { createModel } from "../internal/createModel";
 import { namedFacts } from "../internal/namedFacts";
 import { qclose } from "../internal/qclose";

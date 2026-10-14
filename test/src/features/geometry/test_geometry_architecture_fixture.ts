@@ -1,10 +1,10 @@
 import { IAutoMovieMesh } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { IAutoMovieMeshAssembly } from "../../../../packages/engine/src/geometry/IAutoMovieMeshAssembly";
-import { buildAutoMovieWall } from "../../../../packages/engine/src/geometry/buildAutoMovieWall";
-import { inspectAutoMovieMeshTopology } from "../../../../packages/engine/src/geometry/inspectAutoMovieMeshTopology";
-import { mergeAutoMovieMeshParts } from "../../../../packages/engine/src/geometry/mergeAutoMovieMeshParts";
+import { IAutoMovieMeshAssembly } from "@automovie/engine";
+import { buildAutoMovieWall } from "@automovie/engine";
+import { inspectAutoMovieMeshTopology } from "@automovie/engine";
+import { mergeAutoMovieMeshParts } from "@automovie/engine";
 import { arch } from "../internal/arch";
 import { bounds } from "../internal/bounds";
 import { cofferedCeiling } from "../internal/cofferedCeiling";

@@ -10,7 +10,7 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { reviewVisualRead } from "../../../../packages/engine/src/film/reviewVisualRead";
+import { reviewVisualRead } from "@automovie/engine";
 import { createFilmVisualReadCamera as camera } from "../internal/createFilmVisualReadCamera";
 import { createFilmVisualReadCameraMotion as camMotion } from "../internal/createFilmVisualReadCameraMotion";
 import { createFilmVisualReadRootMotion as rootMotion } from "../internal/createFilmVisualReadRootMotion";

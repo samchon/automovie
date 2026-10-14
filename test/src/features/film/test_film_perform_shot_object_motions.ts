@@ -1,9 +1,9 @@
 import type { IAutoMovieClip, IAutoMovieNode } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import type { IAutoMovieAuthoringDiagnostic } from "../../../../packages/engine/src/film/IAutoMovieAuthoringDiagnostic";
-import type { IAutoMovieCompiledDefinedShot } from "../../../../packages/engine/src/film/IAutoMovieCompiledDefinedShot";
-import { sceneToNodes } from "../../../../packages/engine/src/resolve/sceneToNodes";
+import type { IAutoMovieAuthoringDiagnostic } from "@automovie/engine";
+import type { IAutoMovieCompiledDefinedShot } from "@automovie/engine";
+import { sceneToNodes } from "@automovie/engine";
 import { HINGE } from "../internal/HINGE";
 import { compileDoorShot } from "../internal/compileDoorShot";
 import { createDoorPropSpec } from "../internal/createDoorPropSpec";

@@ -1,12 +1,12 @@
 import { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { IAutoMovieHullEdge } from "../../../../packages/engine/src/math/IAutoMovieHullEdge";
-import { closestPointOnSegmentXZ } from "../../../../packages/engine/src/math/closestPointOnSegmentXZ";
-import { convexHull2D } from "../../../../packages/engine/src/math/convexHull2D";
-import { nearestHullEdge } from "../../../../packages/engine/src/math/nearestHullEdge";
-import { pointHullDistance } from "../../../../packages/engine/src/math/pointHullDistance";
-import { pointInHull } from "../../../../packages/engine/src/math/pointInHull";
+import { IAutoMovieHullEdge } from "@automovie/engine";
+import { closestPointOnSegmentXZ } from "@automovie/engine";
+import { convexHull2D } from "@automovie/engine";
+import { nearestHullEdge } from "@automovie/engine";
+import { pointHullDistance } from "@automovie/engine";
+import { pointInHull } from "@automovie/engine";
 import {
   namedFacts,
   nclose,

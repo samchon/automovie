@@ -1,7 +1,7 @@
 import { TestValidator } from "@nestia/e2e";
 
-import { type IAutoMovieMeshQueryHierarchy } from "../../../../packages/engine/src/geometry/IAutoMovieMeshQueryHierarchy";
-import { buildAutoMovieMeshQueryHierarchy } from "../../../../packages/engine/src/geometry/buildAutoMovieMeshQueryHierarchy";
+import { type IAutoMovieMeshQueryHierarchy } from "@automovie/engine";
+import { buildAutoMovieMeshQueryHierarchy } from "@automovie/engine";
 import { nclose } from "../internal/nclose";
 
 /**

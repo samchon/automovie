@@ -7,7 +7,7 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { materializeCompiledEffects } from "../../../../packages/engine/src/effectRuntime/materializeCompiledEffects";
+import { materializeCompiledEffects } from "@automovie/engine";
 import { filmEffectValuesClose } from "../internal/filmEffectValuesClose";
 import {
   filmEffectRecipe,

@@ -5,7 +5,7 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import type { IAutoMovieAcousticRequest } from "../../../../packages/engine/src/analysis/IAutoMovieAcousticRequest";
+import type { IAutoMovieAcousticRequest } from "@automovie/engine";
 
 /** Execute the next ordered assertions of test_analysis_room_acoustics.
  *

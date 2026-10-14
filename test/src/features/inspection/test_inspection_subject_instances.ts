@@ -1,7 +1,7 @@
 import { IAutoMovieCompiledInstanceSet } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { describeAutoMovieSubject } from "../../../../packages/engine/src/describeAutoMovieSubject";
+import { describeAutoMovieSubject } from "@automovie/engine";
 import {
   type IAutoMovieCompiledInstancePrototype,
   type IAutoMovieModel,

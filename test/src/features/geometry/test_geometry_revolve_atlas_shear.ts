@@ -7,7 +7,7 @@ import {
 import type { IAutoMovieMesh } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { type IAutoMovieProfilePoint } from "../../../../packages/engine/src/geometry/IAutoMovieProfilePoint";
+import { type IAutoMovieProfilePoint } from "@automovie/engine";
 import { namedFacts, nclose } from "../internal/predicates";
 
 /** How hard one triangle's atlas stretches, and by how much it changes area. */

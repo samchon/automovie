@@ -5,12 +5,12 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { IAutoMovieCut } from "../../../../packages/engine/src/film/IAutoMovieCut";
-import { IAutoMoviePerformedShot } from "../../../../packages/engine/src/film/IAutoMoviePerformedShot";
-import { IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
-import { cutSequence } from "../../../../packages/engine/src/film/cutSequence";
-import { performShot } from "../../../../packages/engine/src/film/performShot";
-import { stageScene } from "../../../../packages/engine/src/film/stageScene";
+import { IAutoMovieCut } from "@automovie/engine";
+import { IAutoMoviePerformedShot } from "@automovie/engine";
+import { IAutoMovieStagedSet } from "@automovie/engine";
+import { cutSequence } from "@automovie/engine";
+import { performShot } from "@automovie/engine";
+import { stageScene } from "@automovie/engine";
 import {
   makePerformanceWrite,
   makeScriptWrite,

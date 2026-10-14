@@ -9,7 +9,7 @@ import { builtOutlineIsClosed } from "../../../../packages/engine/src/architectu
 import { outlineHull } from "../../../../packages/engine/src/architecture/outlineHull";
 import { pointInPolygon } from "../../../../packages/engine/src/architecture/pointInPolygon";
 import { polygonInside } from "../../../../packages/engine/src/architecture/polygonInside";
-import { ViolationCollector } from "../../../../packages/engine/src/validation/ViolationCollector";
+import { ViolationCollector } from "@automovie/engine";
 
 /**
  * Containment includes boundary contact but refuses an edge leaving through

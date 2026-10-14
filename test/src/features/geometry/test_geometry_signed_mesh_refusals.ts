@@ -2,7 +2,7 @@ import { createAutoMovieSignedMeshQuery } from "@automovie/engine";
 import { type IAutoMovieMesh } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { type IAutoMovieSignedMeshQueryHit } from "../../../../packages/engine/src/geometry/IAutoMovieSignedMeshQueryHit";
+import { type IAutoMovieSignedMeshQueryHit } from "@automovie/engine";
 import { createSignedOctahedron } from "../internal/createSignedMeshFixture";
 import { throwsError } from "../internal/predicates";
 

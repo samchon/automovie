@@ -6,7 +6,7 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { resolveShotLighting } from "../../../../packages/engine/src/resolve/resolveShotLighting";
+import { resolveShotLighting } from "@automovie/engine";
 import { IDENTITY_TRANSFORM } from "../internal/IDENTITY_TRANSFORM";
 import { namedFacts } from "../internal/namedFacts";
 import { nclose } from "../internal/nclose";

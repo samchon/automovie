@@ -7,7 +7,7 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { validateModel } from "../../../../packages/engine/src/validation/validateModel";
+import { validateModel } from "@automovie/engine";
 import { IDENTITY_TRANSFORM } from "../internal/IDENTITY_TRANSFORM";
 import { createModel } from "../internal/createModel";
 import { hasViolation } from "../internal/hasViolation";

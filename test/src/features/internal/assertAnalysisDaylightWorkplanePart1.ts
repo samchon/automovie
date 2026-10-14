@@ -9,9 +9,9 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import type { IAutoMovieAnalysisWorkplane } from "../../../../packages/engine/src/analysis/IAutoMovieAnalysisWorkplane";
-import type { IAutoMovieDaylightRequest } from "../../../../packages/engine/src/analysis/IAutoMovieDaylightRequest";
-import { analyzeAutoMovieDaylight } from "../../../../packages/engine/src/analysis/analyzeAutoMovieDaylight";
+import type { IAutoMovieAnalysisWorkplane } from "@automovie/engine";
+import type { IAutoMovieDaylightRequest } from "@automovie/engine";
+import { analyzeAutoMovieDaylight } from "@automovie/engine";
 import { analysisContext, boxSolid } from "./analysisFixtures";
 import { nclose } from "./predicates";
 
