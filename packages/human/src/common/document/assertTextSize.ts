@@ -4,7 +4,7 @@
  * alike, share this one limit so a document that can be saved can be loaded.
  *
  *
- * @evidence contracts/common.md#principled-implementation Checks UTF-16 length against the common document envelope before face/body/person parsing or serialization continues; whitespace counts too.
+ * @evidence contracts/common.md#principled-implementation Checks supplied UTF-16 text length against the common document envelope; loaders call before JSON parsing and savers call after JSON serialization, so escaping and whitespace count too.
  * @evidence contracts/common.md#clear-and-simple-design Loaders and savers share one envelope rather than anatomy-specific limits.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The 16,777,216-code-unit limit is the supported document contract, not a phrase checker or test-only exception.
  * @evidence contracts/common.md#meaningful-documentation Documents length units, whitespace inclusion and shared save/load refusal.
