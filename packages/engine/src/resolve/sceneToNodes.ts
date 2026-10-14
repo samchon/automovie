@@ -1,9 +1,11 @@
-import { AutoMovieNodeKind, IAutoMovieTransform,
+import {
+  AutoMovieNodeKind,
   IAutoMovieModel,
   IAutoMovieNode,
   IAutoMoviePropArticulation,
   IAutoMoviePropSpec,
   IAutoMovieScene,
+  IAutoMovieTransform,
 } from "@automovie/interface";
 
 import { lowerSkeletonNodes } from "./lowerSkeletonNodes";
@@ -20,7 +22,12 @@ import { placementNodePrefix } from "./placementNodePrefix";
  * @evidence contracts/performance.md#reuse-equivalent-work All lowering uses shared naming; mutable scene/model records prevent retaining a graph solely by scene id.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns node wrappers/array and source transforms remain borrowed; partial arrays release on failure without native graph handles or tasks.
  */
-export const sceneToNodes: (props: { scene: IAutoMovieScene; models?: Record<string, IAutoMovieModel>; props?: Record<string, IAutoMoviePropSpec>; allowPartialModels?: boolean; }) => IAutoMovieNode[] = (props: {
+export const sceneToNodes: (props: {
+  scene: IAutoMovieScene;
+  models?: Record<string, IAutoMovieModel>;
+  props?: Record<string, IAutoMoviePropSpec>;
+  allowPartialModels?: boolean;
+}) => IAutoMovieNode[] = (props: {
   /** The staged scene to lower. */
   scene: IAutoMovieScene;
   /** Placed models by model id; omit for a placements-only lowering. */
@@ -38,7 +45,17 @@ export const sceneToNodes: (props: { scene: IAutoMovieScene; models?: Record<str
    */
   allowPartialModels?: boolean;
 }): IAutoMovieNode[] => {
-  const { scene, models, props: propSpecs, allowPartialModels = false }: { scene: IAutoMovieScene; models?: Record<string, IAutoMovieModel>; props?: Record<string, IAutoMoviePropSpec>; allowPartialModels?: boolean; } = props;
+  const {
+    scene,
+    models,
+    props: propSpecs,
+    allowPartialModels = false,
+  }: {
+    scene: IAutoMovieScene;
+    models?: Record<string, IAutoMovieModel>;
+    props?: Record<string, IAutoMoviePropSpec>;
+    allowPartialModels?: boolean;
+  } = props;
   const nodes: IAutoMovieNode[] = [];
 
   for (const placement of scene.nodes) {
@@ -122,13 +139,31 @@ export const sceneToNodes: (props: { scene: IAutoMovieScene; models?: Record<str
  * the skeleton lowering), and every other node field (kind, transform, payload
  * refs) carries verbatim (`forgeProp` already gated well-formedness).
  */
-const lowerArticulationNodes: (articulation: IAutoMoviePropArticulation, prefix: string, rootParent: string) => IAutoMovieNode[] = (
+const lowerArticulationNodes: (
+  articulation: IAutoMoviePropArticulation,
+  prefix: string,
+  rootParent: string,
+) => IAutoMovieNode[] = (
   articulation: IAutoMoviePropArticulation,
   prefix: string,
   rootParent: string,
 ): IAutoMovieNode[] =>
-  articulation.nodes.map((node: IAutoMovieNode) : { id: string; parent: string; name: string | null; kind: AutoMovieNodeKind; transform: IAutoMovieTransform; mesh: string | null; camera: string | null; light: string | null; skin: string | null; } => ({
-    ...node,
-    id: `${prefix}${node.id}`,
-    parent: node.parent === null ? rootParent : `${prefix}${node.parent}`,
-  }));
+  articulation.nodes.map(
+    (
+      node: IAutoMovieNode,
+    ): {
+      id: string;
+      parent: string;
+      name: string | null;
+      kind: AutoMovieNodeKind;
+      transform: IAutoMovieTransform;
+      mesh: string | null;
+      camera: string | null;
+      light: string | null;
+      skin: string | null;
+    } => ({
+      ...node,
+      id: `${prefix}${node.id}`,
+      parent: node.parent === null ? rootParent : `${prefix}${node.parent}`,
+    }),
+  );

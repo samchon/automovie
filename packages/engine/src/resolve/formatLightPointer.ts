@@ -10,11 +10,13 @@ import { AutoMovieLightProperty } from "./AutoMovieLightProperty";
  * @evidence contracts/performance.md#reuse-equivalent-work Pointer producers and the parser share this formatter; each supplied id is encoded directly without a retained string cache.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only the result string escapes and intermediate replacement text is temporary; no scene lookup, handle or task is retained.
  */
-export const formatLightPointer: (light: string, property: AutoMovieLightProperty) => string = (
+export const formatLightPointer: (
   light: string,
   property: AutoMovieLightProperty,
-): string => `/lights/${escapePointerSegment(light)}/${property}`;
+) => string = (light: string, property: AutoMovieLightProperty): string =>
+  `/lights/${escapePointerSegment(light)}/${property}`;
 
 /** RFC-6901: `~` becomes `~0` and `/` becomes `~1`, in that order. */
-const escapePointerSegment: (segment: string) => string = (segment: string): string =>
-  segment.replaceAll("~", "~0").replaceAll("/", "~1");
+const escapePointerSegment: (segment: string) => string = (
+  segment: string,
+): string => segment.replaceAll("~", "~0").replaceAll("/", "~1");

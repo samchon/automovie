@@ -1,5 +1,8 @@
-import type { AutoMovieHumanoidBone, IAutoMovieJointPose, IAutoMoviePose } from "@automovie/interface";
-
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieJointPose,
+  IAutoMoviePose,
+} from "@automovie/interface";
 
 /**
  * Apply a scalar envelope to reachPose's numeric clinical arm axes. Zero weight returns an empty articulation; root remains null. This internal helper assumes all supplied reach joints have numeric axes.
@@ -12,7 +15,11 @@ import type { AutoMovieHumanoidBone, IAutoMovieJointPose, IAutoMoviePose } from 
  * @evidence contracts/performance.md#reuse-equivalent-work Each sampled IK result is weighted once; poses with different targets or times are not shared through a cache.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the fresh pose and joint entries; input joints are read only and no retained map, task or external resource exists.
  */
-export const actorWeightedArmPose: (skeleton: string, pose: IAutoMoviePose, weight: number) => IAutoMoviePose = (
+export const actorWeightedArmPose: (
+  skeleton: string,
+  pose: IAutoMoviePose,
+  weight: number,
+) => IAutoMoviePose = (
   skeleton: string,
   pose: IAutoMoviePose,
   weight: number,
@@ -22,12 +29,20 @@ export const actorWeightedArmPose: (skeleton: string, pose: IAutoMoviePose, weig
   joints:
     weight === 0
       ? []
-      : pose.joints.map((joint: IAutoMovieJointPose) : { bone: AutoMovieHumanoidBone; flexion: number; abduction: number; twist: number; } => ({
-          bone: joint.bone,
+      : pose.joints.map(
+          (
+            joint: IAutoMovieJointPose,
+          ): {
+            bone: AutoMovieHumanoidBone;
+            flexion: number;
+            abduction: number;
+            twist: number;
+          } => ({
+            bone: joint.bone,
 
-
-          flexion: joint.flexion! * weight,
-          abduction: joint.abduction! * weight,
-          twist: joint.twist! * weight,
-        })),
+            flexion: joint.flexion! * weight,
+            abduction: joint.abduction! * weight,
+            twist: joint.twist! * weight,
+          }),
+        ),
 });

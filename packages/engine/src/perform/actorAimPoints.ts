@@ -1,4 +1,5 @@
 import { IAutoMovieVector3 } from "@automovie/interface";
+
 import { IAutoMovieActorContext } from "./IAutoMovieActorContext";
 
 /**
@@ -12,18 +13,26 @@ import { IAutoMovieActorContext } from "./IAutoMovieActorContext";
  * @evidence contracts/performance.md#reuse-equivalent-work The action's lookAt resolver shares this table; it is rebuilt from resumed contexts and placements so previous-beat positions are not stale.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The invocation owns the map and lifted vectors; unlifted vectors are borrowed and no persistent table or task is retained.
  */
-export const actorAimPoints: (contexts: ReadonlyMap < string , IAutoMovieActorContext >, nodes: ReadonlyMap < string , IAutoMovieVector3 >) => Map < string , IAutoMovieVector3 > = (
+export const actorAimPoints: (
+  contexts: ReadonlyMap<string, IAutoMovieActorContext>,
+  nodes: ReadonlyMap<string, IAutoMovieVector3>,
+) => Map<string, IAutoMovieVector3> = (
   contexts: ReadonlyMap<string, IAutoMovieActorContext>,
   nodes: ReadonlyMap<string, IAutoMovieVector3>,
 ): Map<string, IAutoMovieVector3> =>
   new Map(
-    [...nodes].map(([id, point]: [string, IAutoMovieVector3]) : readonly [string, IAutoMovieVector3] => {
-      const eyeHeight: number | undefined = contexts.get(id)?.eyeHeight;
-      return [
-        id,
-        eyeHeight === undefined
-          ? point
-          : { x: point.x, y: point.y + eyeHeight, z: point.z },
-      ] as const;
-    }),
+    [...nodes].map(
+      ([id, point]: [string, IAutoMovieVector3]): readonly [
+        string,
+        IAutoMovieVector3,
+      ] => {
+        const eyeHeight: number | undefined = contexts.get(id)?.eyeHeight;
+        return [
+          id,
+          eyeHeight === undefined
+            ? point
+            : { x: point.x, y: point.y + eyeHeight, z: point.z },
+        ] as const;
+      },
+    ),
   );

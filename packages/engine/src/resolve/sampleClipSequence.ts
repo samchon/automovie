@@ -15,7 +15,10 @@ import { sampleClip } from "./sampleClip";
  * @evidence contracts/performance.md#reuse-equivalent-work Completed clip samples serve all winning channels; repeated object occurrences are currently resampled before object-key deduplication, a reuse limitation.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Winning records escape in a new map; losing samples/authority release with the call and no persistent clip cache, handle or task is held.
  */
-export const sampleClipSequence: (clips: readonly IAutoMovieClip[], seconds: number) => Map<string, IAutoMovieSampledChannel> = (
+export const sampleClipSequence: (
+  clips: readonly IAutoMovieClip[],
+  seconds: number,
+) => Map<string, IAutoMovieSampledChannel> = (
   clips: readonly IAutoMovieClip[],
   seconds: number,
 ): Map<string, IAutoMovieSampledChannel> => {
@@ -23,21 +26,34 @@ export const sampleClipSequence: (clips: readonly IAutoMovieClip[], seconds: num
     throw new Error(
       `sampleClipSequence seconds must be finite, but was ${seconds}`,
     );
-  const sampledByClip: Map<IAutoMovieClip, Map<string, IAutoMovieSampledChannel>> = new Map(
-    clips.map((clip: IAutoMovieClip) : readonly [IAutoMovieClip, Map<string, IAutoMovieSampledChannel>] => [clip, sampleClip(clip, seconds)] as const),
+  const sampledByClip: Map<
+    IAutoMovieClip,
+    Map<string, IAutoMovieSampledChannel>
+  > = new Map(
+    clips.map(
+      (
+        clip: IAutoMovieClip,
+      ): readonly [IAutoMovieClip, Map<string, IAutoMovieSampledChannel>] =>
+        [clip, sampleClip(clip, seconds)] as const,
+    ),
   );
-  const authority: Map<string, { start: number; clip: IAutoMovieClip; }> = new Map<string, { start: number; clip: IAutoMovieClip }>();
+  const authority: Map<string, { start: number; clip: IAutoMovieClip }> =
+    new Map<string, { start: number; clip: IAutoMovieClip }>();
   for (const clip of clips)
     for (const track of clip.tracks) {
       const start: number = track.times[0]!;
       if (start > seconds) continue;
       const key: string = channelKey(track.channel);
-      const previous: { start: number; clip: IAutoMovieClip; } | undefined = authority.get(key);
+      const previous: { start: number; clip: IAutoMovieClip } | undefined =
+        authority.get(key);
       if (previous === undefined || start >= previous.start)
         authority.set(key, { start, clip });
     }
 
-  const out: Map<string, IAutoMovieSampledChannel> = new Map<string, IAutoMovieSampledChannel>();
+  const out: Map<string, IAutoMovieSampledChannel> = new Map<
+    string,
+    IAutoMovieSampledChannel
+  >();
   for (const [key, entry] of authority) {
     out.set(key, sampledByClip.get(entry.clip)!.get(key)!);
   }

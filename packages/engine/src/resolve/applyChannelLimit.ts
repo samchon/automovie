@@ -15,7 +15,10 @@ import { channelKey } from "./channelKey";
  * @evidence contracts/performance.md#reuse-equivalent-work The resolver consumes the clamped values and violations together; altered values/limits require fresh comparisons and no mutable-result cache is retained.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns fresh output/diagnostic arrays; borrowed input values/limits survive success or refusal unchanged, and no handle or task is acquired.
  */
-export const applyChannelLimit: (value: number[], limit: IAutoMovieChannelLimit) => IAutoMovieClampOutcome = (
+export const applyChannelLimit: (
+  value: number[],
+  limit: IAutoMovieChannelLimit,
+) => IAutoMovieClampOutcome = (
   value: number[],
   limit: IAutoMovieChannelLimit,
 ): IAutoMovieClampOutcome => {
@@ -28,7 +31,8 @@ export const applyChannelLimit: (value: number[], limit: IAutoMovieChannelLimit)
   const out: number[] = value.slice();
   const violations: IAutoMovieClampViolation[] = [];
   for (let i: number = 0; i < out.length; ++i) {
-    const lo: number | null = limit.min === null ? null : (limit.min[i] ?? null);
+    const lo: number | null =
+      limit.min === null ? null : (limit.min[i] ?? null);
     if (lo !== null && out[i]! < lo) {
       violations.push({
         component: i,
@@ -38,7 +42,8 @@ export const applyChannelLimit: (value: number[], limit: IAutoMovieChannelLimit)
       });
       out[i] = lo;
     }
-    const hi: number | null = limit.max === null ? null : (limit.max[i] ?? null);
+    const hi: number | null =
+      limit.max === null ? null : (limit.max[i] ?? null);
     if (hi !== null && out[i]! > hi) {
       violations.push({
         component: i,
@@ -52,7 +57,10 @@ export const applyChannelLimit: (value: number[], limit: IAutoMovieChannelLimit)
   return { value: out, violations };
 };
 
-const validateFiniteValues: (value: number[], key: string) => void = (value: number[], key: string): void => {
+const validateFiniteValues: (value: number[], key: string) => void = (
+  value: number[],
+  key: string,
+): void => {
   for (let i: number = 0; i < value.length; ++i)
     if (!Number.isFinite(value[i]!))
       throw new Error(
@@ -60,7 +68,12 @@ const validateFiniteValues: (value: number[], key: string) => void = (value: num
       );
 };
 
-const validateFiniteBounds: (bounds: (number | null)[] | null, key: string, side: "min" | "max", width: number) => void = (
+const validateFiniteBounds: (
+  bounds: (number | null)[] | null,
+  key: string,
+  side: "min" | "max",
+  width: number,
+) => void = (
   bounds: (number | null)[] | null,
   key: string,
   side: "min" | "max",
@@ -81,7 +94,11 @@ const validateFiniteBounds: (bounds: (number | null)[] | null, key: string, side
   }
 };
 
-const validateOrderedBounds: (min: (number | null)[] | null, max: (number | null)[] | null, key: string) => void = (
+const validateOrderedBounds: (
+  min: (number | null)[] | null,
+  max: (number | null)[] | null,
+  key: string,
+) => void = (
   min: (number | null)[] | null,
   max: (number | null)[] | null,
   key: string,

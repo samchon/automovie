@@ -1,4 +1,5 @@
-import { IAutoMovieQuaternion,
+import {
+  IAutoMovieQuaternion,
   IAutoMovieSpringDriver,
   IAutoMovieTransform,
   IAutoMovieVector3,
@@ -23,7 +24,14 @@ import { readWorld } from "./readWorld";
  * @evidence contracts/performance.md#reuse-equivalent-work History recovers velocity and frame reseeding preserves prior sprung positions; separate centre records prevent another chain consuming a translation delta.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns persistent maps/world updates and resets removed-driver history explicitly; no automatic population bound, worker or native handle exists.
  */
-export const stepSpring: (d: IAutoMovieSpringDriver, world: Map<string, number[]>, state: IAutoMovieSpringState, dt: number, localById: Map<string, IAutoMovieTransform>, colliders?: readonly IAutoMovieSpringSphere[]) => void = (
+export const stepSpring: (
+  d: IAutoMovieSpringDriver,
+  world: Map<string, number[]>,
+  state: IAutoMovieSpringState,
+  dt: number,
+  localById: Map<string, IAutoMovieTransform>,
+  colliders?: readonly IAutoMovieSpringSphere[],
+) => void = (
   d: IAutoMovieSpringDriver,
   world: Map<string, number[]>,
   state: IAutoMovieSpringState,
@@ -41,13 +49,25 @@ export const stepSpring: (d: IAutoMovieSpringDriver, world: Map<string, number[]
   for (let i: number = 1; i < d.chain.length; ++i) {
     const id: string = d.chain[i]!;
     const parentId: string = d.chain[i - 1]!;
-    const parentM: number[] = readWorld(world, parentId, "parent", "spring driver");
+    const parentM: number[] = readWorld(
+      world,
+      parentId,
+      "parent",
+      "spring driver",
+    );
     const parentPos: IAutoMovieVector3 = Matrix4.position(parentM);
     const currentM: number[] = readWorld(world, id, "joint", "spring driver");
     const cur: IAutoMovieVector3 = Matrix4.position(currentM);
-    const prev: IAutoMovieVector3 = Vector3.add(state.prev.get(id) ?? cur, centerDelta);
+    const prev: IAutoMovieVector3 = Vector3.add(
+      state.prev.get(id) ?? cur,
+      centerDelta,
+    );
 
-    const local: IAutoMovieTransform = readLocal(localById, id, "spring driver local transform");
+    const local: IAutoMovieTransform = readLocal(
+      localById,
+      id,
+      "spring driver local transform",
+    );
     const boneDir: IAutoMovieVector3 = Vector3.normalize(local.translation);
     const boneLength: number = Vector3.length(local.translation);
 
@@ -56,11 +76,20 @@ export const stepSpring: (d: IAutoMovieSpringDriver, world: Map<string, number[]
       Matrix4.decompose(parentM).rotation,
       boneDir,
     );
-    const restPos: IAutoMovieVector3 = Vector3.add(parentPos, Vector3.scale(restDir, boneLength));
+    const restPos: IAutoMovieVector3 = Vector3.add(
+      parentPos,
+      Vector3.scale(restDir, boneLength),
+    );
 
     // verlet: inertia + gravity, then a stiffness pull toward rest
-    const inertia: IAutoMovieVector3 = Vector3.scale(Vector3.subtract(cur, prev), 1 - d.drag);
-    let next: IAutoMovieVector3 = Vector3.add(Vector3.add(cur, inertia), gravity);
+    const inertia: IAutoMovieVector3 = Vector3.scale(
+      Vector3.subtract(cur, prev),
+      1 - d.drag,
+    );
+    let next: IAutoMovieVector3 = Vector3.add(
+      Vector3.add(cur, inertia),
+      gravity,
+    );
     next = Vector3.add(
       next,
       Vector3.scale(Vector3.subtract(restPos, next), d.stiffness * dt),
@@ -93,26 +122,39 @@ export const stepSpring: (d: IAutoMovieSpringDriver, world: Map<string, number[]
 
     state.prev.set(id, cur);
     state.sprung.set(id, next);
-    const dec: { position: IAutoMovieVector3; rotation: IAutoMovieQuaternion; scale: IAutoMovieVector3; } = Matrix4.decompose(currentM);
+    const dec: {
+      position: IAutoMovieVector3;
+      rotation: IAutoMovieQuaternion;
+      scale: IAutoMovieVector3;
+    } = Matrix4.decompose(currentM);
     world.set(id, Matrix4.compose(next, dec.rotation, dec.scale));
   }
 };
 
-const readCenterDelta: (d: IAutoMovieSpringDriver, world: Map<string, number[]>, state: IAutoMovieSpringState) => IAutoMovieVector3 = (
+const readCenterDelta: (
+  d: IAutoMovieSpringDriver,
+  world: Map<string, number[]>,
+  state: IAutoMovieSpringState,
+) => IAutoMovieVector3 = (
   d: IAutoMovieSpringDriver,
   world: Map<string, number[]>,
   state: IAutoMovieSpringState,
 ): IAutoMovieVector3 => {
   if (d.center === null) return Vector3.create();
 
-  const center: IAutoMovieVector3 = Matrix4.position(readWorld(world, d.center, "center", "spring driver"));
+  const center: IAutoMovieVector3 = Matrix4.position(
+    readWorld(world, d.center, "center", "spring driver"),
+  );
   const key: string = JSON.stringify([d.center, d.chain]);
   const prev: IAutoMovieVector3 = state.centers.get(key) ?? center;
   state.centers.set(key, center);
   return Vector3.subtract(center, prev);
 };
 
-const validateSpringInputs: (d: IAutoMovieSpringDriver, dt: number) => void = (d: IAutoMovieSpringDriver, dt: number): void => {
+const validateSpringInputs: (d: IAutoMovieSpringDriver, dt: number) => void = (
+  d: IAutoMovieSpringDriver,
+  dt: number,
+): void => {
   validateSpringFinite("time step", dt);
   if (dt <= 0)
     throw new Error(`spring driver time step must be > 0, but was ${dt}`);
@@ -146,10 +188,10 @@ const validateSpringInputs: (d: IAutoMovieSpringDriver, dt: number) => void = (d
     throw new Error("spring driver gravityDir must be non-zero");
 };
 
-const validateSpringColliders: (colliders: readonly IAutoMovieSpringSphere[]) => void = (
+const validateSpringColliders: (
   colliders: readonly IAutoMovieSpringSphere[],
-): void => {
-  colliders.forEach((sphere: IAutoMovieSpringSphere, i: number) : void => {
+) => void = (colliders: readonly IAutoMovieSpringSphere[]): void => {
+  colliders.forEach((sphere: IAutoMovieSpringSphere, i: number): void => {
     validateSpringVector(`colliders[${i}].center`, sphere.center);
     validateSpringFinite(`colliders[${i}].radius`, sphere.radius);
     if (sphere.radius <= 0)
@@ -159,16 +201,19 @@ const validateSpringColliders: (colliders: readonly IAutoMovieSpringSphere[]) =>
   });
 };
 
-const validateSpringVector: (label: string, value: IAutoMovieVector3) => void = (
+const validateSpringVector: (
   label: string,
   value: IAutoMovieVector3,
-): void => {
+) => void = (label: string, value: IAutoMovieVector3): void => {
   validateSpringFinite(`${label}.x`, value.x);
   validateSpringFinite(`${label}.y`, value.y);
   validateSpringFinite(`${label}.z`, value.z);
 };
 
-const validateSpringFinite: (label: string, value: number) => void = (label: string, value: number): void => {
+const validateSpringFinite: (label: string, value: number) => void = (
+  label: string,
+  value: number,
+): void => {
   if (!Number.isFinite(value))
     throw new Error(`spring driver ${label} must be finite, but was ${value}`);
 };

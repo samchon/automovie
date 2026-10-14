@@ -11,7 +11,11 @@ import { IAutoMovieTransform } from "@automovie/interface";
  * @evidence contracts/performance.md#reuse-equivalent-work Callers share the reader and always observe current map entries rather than caching stale transforms.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns map/record and the reader retains no graph, handle or task.
  */
-export const readLocal: (localById: Map<string, IAutoMovieTransform>, id: string, role?: string) => IAutoMovieTransform = (
+export const readLocal: (
+  localById: Map<string, IAutoMovieTransform>,
+  id: string,
+  role?: string,
+) => IAutoMovieTransform = (
   localById: Map<string, IAutoMovieTransform>,
   id: string,
   /** Diagnostic role that owns this required lookup. */
@@ -19,8 +23,6 @@ export const readLocal: (localById: Map<string, IAutoMovieTransform>, id: string
 ): IAutoMovieTransform => {
   const local: IAutoMovieTransform | undefined = localById.get(id);
   if (local === undefined)
-    throw new Error(
-      `${role} node "${id}" was not provided`,
-    );
+    throw new Error(`${role} node "${id}" was not provided`);
   return local;
 };

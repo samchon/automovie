@@ -9,5 +9,6 @@
  * @evidence contracts/performance.md#reuse-equivalent-work Child and lowering helpers share the same function, without retaining results over mutable placement identities.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only the prefix string escapes; no registry, native handle or running task is retained.
  */
-export const placementNodePrefix: (placement: string) => string = (placement: string): string =>
-  `${placement}/`;
+export const placementNodePrefix: (placement: string) => string = (
+  placement: string,
+): string => `${placement}/`;

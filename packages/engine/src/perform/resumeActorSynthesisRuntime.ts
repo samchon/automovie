@@ -1,7 +1,15 @@
-import { IAutoMovieBeatEndActorState, IAutoMovieBeatEndState, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  IAutoMovieBeatEndActorState,
+  IAutoMovieBeatEndState,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { IAutoMovieActorContext } from "./IAutoMovieActorContext";
 
-const resumeActorContext: (context: IAutoMovieActorContext, previous: IAutoMovieBeatEndActorState | undefined) => IAutoMovieActorContext = (
+const resumeActorContext: (
+  context: IAutoMovieActorContext,
+  previous: IAutoMovieBeatEndActorState | undefined,
+) => IAutoMovieActorContext = (
   context: IAutoMovieActorContext,
   previous: IAutoMovieBeatEndActorState | undefined,
 ): IAutoMovieActorContext => {
@@ -32,7 +40,20 @@ const resumeActorContext: (context: IAutoMovieActorContext, previous: IAutoMovie
  * @evidence contracts/performance.md#reuse-equivalent-work One returned snapshot serves all reads within its action; cross-action caching is absent because mutable maps and previous-state objects provide no revision contract.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Returned maps belong to the invocation and are released with it; only nested context, pose and translation references are shared, and there are no external resources.
  */
-export const resumeActorSynthesisRuntime: (contexts: ReadonlyMap < string , IAutoMovieActorContext >, placements: ReadonlyMap < string , IAutoMovieVector3 >, previous: IAutoMovieBeatEndState | null | undefined) => { /** Call-local resumed actor lookup; nested poses, rigs and unchanged contexts are borrowed. */ contexts : Map < string , IAutoMovieActorContext > ; /** Call-local staged-id lookup with known prior actor translations substituted; values are borrowed. */ nodes : Map < string , IAutoMovieVector3 > ; } = (
+export const resumeActorSynthesisRuntime: (
+  contexts: ReadonlyMap<string, IAutoMovieActorContext>,
+  placements: ReadonlyMap<string, IAutoMovieVector3>,
+  previous: IAutoMovieBeatEndState | null | undefined,
+) => {
+  /** Call-local resumed actor lookup; nested poses, rigs and unchanged contexts are borrowed. */ contexts: Map<
+    string,
+    IAutoMovieActorContext
+  >;
+  /** Call-local staged-id lookup with known prior actor translations substituted; values are borrowed. */ nodes: Map<
+    string,
+    IAutoMovieVector3
+  >;
+} = (
   contexts: ReadonlyMap<string, IAutoMovieActorContext>,
   placements: ReadonlyMap<string, IAutoMovieVector3>,
   previous: IAutoMovieBeatEndState | null | undefined,
@@ -48,11 +69,19 @@ export const resumeActorSynthesisRuntime: (contexts: ReadonlyMap < string , IAut
       contexts: new Map(contexts),
       nodes: new Map(placements),
     };
-  const states: Map<string, IAutoMovieBeatEndActorState> = new Map(previous.actors.map((actor: IAutoMovieBeatEndActorState) : [string, IAutoMovieBeatEndActorState] => [actor.node, actor]));
+  const states: Map<string, IAutoMovieBeatEndActorState> = new Map(
+    previous.actors.map(
+      (
+        actor: IAutoMovieBeatEndActorState,
+      ): [string, IAutoMovieBeatEndActorState] => [actor.node, actor],
+    ),
+  );
   const liveContexts: Map<string, IAutoMovieActorContext> = new Map(
     [...contexts].map(
-      ([node, context]: [string, IAutoMovieActorContext]) : readonly [string, IAutoMovieActorContext] =>
-        [node, resumeActorContext(context, states.get(node))] as const,
+      ([node, context]: [string, IAutoMovieActorContext]): readonly [
+        string,
+        IAutoMovieActorContext,
+      ] => [node, resumeActorContext(context, states.get(node))] as const,
     ),
   );
   const nodes: Map<string, IAutoMovieVector3> = new Map(placements);

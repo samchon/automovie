@@ -1,4 +1,7 @@
-import { IAutoMovieCopyDriver, IAutoMovieDrivenDriver } from "@automovie/interface";
+import {
+  IAutoMovieCopyDriver,
+  IAutoMovieDrivenDriver,
+} from "@automovie/interface";
 
 import { channelKey } from "./channelKey";
 
@@ -15,7 +18,9 @@ type ValueDriver = IAutoMovieCopyDriver | IAutoMovieDrivenDriver;
  * @evidence contracts/performance.md#reuse-equivalent-work One producer index serves all input lookups and one DFS color array shares completed dependencies across dependents; no graph cache persists across mutable driver fields or order.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Output retains D borrowed driver references; producer/dependency/color maps are call-local and no sampled channel, scene graph, handle or task survives here.
  */
-export function orderValueDrivers(drivers: readonly ValueDriver[]): ValueDriver[] {
+export function orderValueDrivers(
+  drivers: readonly ValueDriver[],
+): ValueDriver[] {
   const producers: Map<string, number[]> = new Map();
   for (let index: number = 0; index < drivers.length; ++index)
     for (const key of outputsOf(drivers[index]!)) {
@@ -23,13 +28,17 @@ export function orderValueDrivers(drivers: readonly ValueDriver[]): ValueDriver[
       if (previous === undefined) producers.set(key, [index]);
       else previous.push(index);
     }
-  const dependencies: number[][] = drivers.map((driver: ValueDriver, index: number): number[] => {
-    const required: Set<number> = new Set();
-    for (const key of inputsOf(driver))
-      for (const producer of producers.get(key) ?? [])
-        if (producer !== index) required.add(producer);
-    return [...required].sort((left: number, right: number): number => left - right);
-  });
+  const dependencies: number[][] = drivers.map(
+    (driver: ValueDriver, index: number): number[] => {
+      const required: Set<number> = new Set();
+      for (const key of inputsOf(driver))
+        for (const producer of producers.get(key) ?? [])
+          if (producer !== index) required.add(producer);
+      return [...required].sort(
+        (left: number, right: number): number => left - right,
+      );
+    },
+  );
   const color: number[] = new Array<number>(drivers.length).fill(0);
   const order: ValueDriver[] = [];
   function visit(index: number): void {
@@ -44,7 +53,10 @@ export function orderValueDrivers(drivers: readonly ValueDriver[]): ValueDriver[
   return order;
 }
 
-function trsKeys(node: string, flags: { translation: boolean; rotation: boolean; scale: boolean }): string[] {
+function trsKeys(
+  node: string,
+  flags: { translation: boolean; rotation: boolean; scale: boolean },
+): string[] {
   const keys: string[] = [];
   if (flags.translation) keys.push(`node:${node}:translation`);
   if (flags.rotation) keys.push(`node:${node}:rotation`);
@@ -53,9 +65,13 @@ function trsKeys(node: string, flags: { translation: boolean; rotation: boolean;
 }
 
 function outputsOf(driver: ValueDriver): string[] {
-  return driver.type === "copy" ? trsKeys(driver.owner, driver) : [channelKey(driver.output)];
+  return driver.type === "copy"
+    ? trsKeys(driver.owner, driver)
+    : [channelKey(driver.output)];
 }
 
 function inputsOf(driver: ValueDriver): string[] {
-  return driver.type === "copy" ? trsKeys(driver.source, driver) : [channelKey(driver.source)];
+  return driver.type === "copy"
+    ? trsKeys(driver.source, driver)
+    : [channelKey(driver.source)];
 }

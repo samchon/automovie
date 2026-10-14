@@ -2,19 +2,25 @@ import { IAutoMovieNode, IAutoMovieTransform } from "@automovie/interface";
 
 import { Matrix4 } from "../math/Matrix4";
 
-const indexNodes: (nodes: readonly IAutoMovieNode[]) => Map<string, { node: IAutoMovieNode; index: number; }> = (
+const indexNodes: (
+  nodes: readonly IAutoMovieNode[],
+) => Map<string, { node: IAutoMovieNode; index: number }> = (
   nodes: readonly IAutoMovieNode[],
 ): Map<string, { node: IAutoMovieNode; index: number }> => {
-  const byId: Map<string, { node: IAutoMovieNode; index: number; }> = new Map<string, { node: IAutoMovieNode; index: number }>();
-  nodes.forEach((node: IAutoMovieNode, index: number) : void => {
-    const existing: { node: IAutoMovieNode; index: number; } | undefined = byId.get(node.id);
+  const byId: Map<string, { node: IAutoMovieNode; index: number }> = new Map<
+    string,
+    { node: IAutoMovieNode; index: number }
+  >();
+  nodes.forEach((node: IAutoMovieNode, index: number): void => {
+    const existing: { node: IAutoMovieNode; index: number } | undefined =
+      byId.get(node.id);
     if (existing !== undefined)
       throw new Error(
         `node id "${node.id}" is duplicated at nodes[${index}].id; first declared at nodes[${existing.index}].id`,
       );
     byId.set(node.id, { node, index });
   });
-  nodes.forEach((node: IAutoMovieNode, index: number) : void => {
+  nodes.forEach((node: IAutoMovieNode, index: number): void => {
     if (node.parent !== null && !byId.has(node.parent))
       throw new Error(
         `node "${node.id}" references missing parent "${node.parent}" at nodes[${index}].parent`,
@@ -47,11 +53,15 @@ const indexNodes: (nodes: readonly IAutoMovieNode[]) => Map<string, { node: IAut
  * @evidence contracts/performance.md#reuse-equivalent-work Each node's completed world matrix is reused for all children within this call; changed graph/local overrides require a fresh composition.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns returned matrices/map; admission indices and active-path set are released on return/failure, with no native scene graph or task retained.
  */
-export const composeScene: (nodes: IAutoMovieNode[], localOverrides?: Map<string, IAutoMovieTransform>) => Map<string, number[]> = (
+export const composeScene: (
+  nodes: IAutoMovieNode[],
+  localOverrides?: Map<string, IAutoMovieTransform>,
+) => Map<string, number[]> = (
   nodes: IAutoMovieNode[],
   localOverrides?: Map<string, IAutoMovieTransform>,
 ): Map<string, number[]> => {
-  const byId: Map<string, { node: IAutoMovieNode; index: number; }> = indexNodes(nodes);
+  const byId: Map<string, { node: IAutoMovieNode; index: number }> =
+    indexNodes(nodes);
   const world: Map<string, number[]> = new Map<string, number[]>();
   const resolving: Set<string> = new Set<string>();
 

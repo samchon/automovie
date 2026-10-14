@@ -1,7 +1,8 @@
 import { IAutoMovieMotion, IAutoMoviePose } from "@automovie/interface";
+
 import { ease } from "../motion/ease";
-import { createDynamicActorPoseClip } from "./createDynamicActorPoseClip";
 import { actorWeightedArmPose } from "./actorWeightedArmPose";
+import { createDynamicActorPoseClip } from "./createDynamicActorPoseClip";
 
 /**
  * Bake a moving arm goal with an easeInOut extension over the first half of a positive second duration, then hold its sampled solved articulation. An unresolved target sample returns null.
@@ -14,7 +15,14 @@ import { actorWeightedArmPose } from "./actorWeightedArmPose";
  * @evidence contracts/performance.md#reuse-equivalent-work The single halfway landmark is deduplicated with the regular grid, and each callback result is used once for weighting.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns a successful clip; invocation-local partial poses are released on null/throw and no callback or task is retained beyond the clip construction.
  */
-export const createDynamicActorExtendClip: (props: { /** Caller-selected output motion identity. */ id : string ; /** Skeleton id shared by every callback pose. */ skeleton : string ; /** Finite strictly positive clip span in seconds. */ duration : number ; /** Resolve an admitted clinical pose at local seconds; null refuses the complete bake and thrown errors propagate. */ poseAt : ( time : number ) => IAutoMoviePose | null ; }) => IAutoMovieMotion | null = (props: {
+export const createDynamicActorExtendClip: (props: {
+  /** Caller-selected output motion identity. */ id: string;
+  /** Skeleton id shared by every callback pose. */ skeleton: string;
+  /** Finite strictly positive clip span in seconds. */ duration: number;
+  /** Resolve an admitted clinical pose at local seconds; null refuses the complete bake and thrown errors propagate. */ poseAt: (
+    time: number,
+  ) => IAutoMoviePose | null;
+}) => IAutoMovieMotion | null = (props: {
   /** Caller-selected output motion identity. */
   id: string;
 
@@ -31,7 +39,7 @@ export const createDynamicActorExtendClip: (props: { /** Caller-selected output 
   return createDynamicActorPoseClip({
     ...props,
     landmarks: [extendedAt],
-    poseAt: (time: number) : IAutoMoviePose | null => {
+    poseAt: (time: number): IAutoMoviePose | null => {
       const pose: IAutoMoviePose | null = props.poseAt(time);
       if (pose === null) return null;
       const weight: number =

@@ -11,5 +11,8 @@ import { placementNodePrefix } from "./placementNodePrefix";
  * @evidence contracts/performance.md#reuse-equivalent-work Consumers share the prefix law and recompute addresses for changed ids rather than keeping a global string cache.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only a string returns, retaining no source placement, graph, host node or task.
  */
-export const placementChildNode: (placement: string, child: string) => string = (placement: string, child: string): string =>
+export const placementChildNode: (
+  placement: string,
+  child: string,
+) => string = (placement: string, child: string): string =>
   `${placementNodePrefix(placement)}${child}`;

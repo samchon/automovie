@@ -1,5 +1,8 @@
-import type { IAutoMovieClipShapeFault } from "./../validation/IAutoMovieClipShapeFault";
-import { IAutoMovieQuaternion, IAutoMovieClip, IAutoMovieTrack } from "@automovie/interface";
+import {
+  IAutoMovieClip,
+  IAutoMovieQuaternion,
+  IAutoMovieTrack,
+} from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import { cubicHermiteValue } from "../math/cubicHermiteValue";
@@ -7,6 +10,7 @@ import { segmentIndex } from "../math/segmentIndex";
 import { clipDurationFault } from "../validation/clipDurationFault";
 import { clipLoopFault } from "../validation/clipLoopFault";
 import { clipTrackShapeFaults } from "../validation/clipTrackShapeFaults";
+import type { IAutoMovieClipShapeFault } from "./../validation/IAutoMovieClipShapeFault";
 import { IAutoMovieSampledChannel } from "./IAutoMovieSampledChannel";
 import { channelIsRotation } from "./channelIsRotation";
 import { channelKey } from "./channelKey";
@@ -22,13 +26,19 @@ import { channelKey } from "./channelKey";
  * @evidence contracts/performance.md#reuse-equivalent-work Staging/playback share validators/interpolators; mutable clip contents are revalidated without an identity-only track cache.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns fresh vectors/map and borrows channels; temporary arrays release with the call and no animation host or task is held.
  */
-export const sampleClip: (clip: IAutoMovieClip, seconds: number) => Map<string, IAutoMovieSampledChannel> = (
+export const sampleClip: (
+  clip: IAutoMovieClip,
+  seconds: number,
+) => Map<string, IAutoMovieSampledChannel> = (
   clip: IAutoMovieClip,
   seconds: number,
 ): Map<string, IAutoMovieSampledChannel> => {
   validateSampleTime(seconds, clip.duration, clip.loop);
   const time: number = normalizeTime(seconds, clip.duration, clip.loop);
-  const out: Map<string, IAutoMovieSampledChannel> = new Map<string, IAutoMovieSampledChannel>();
+  const out: Map<string, IAutoMovieSampledChannel> = new Map<
+    string,
+    IAutoMovieSampledChannel
+  >();
   for (const track of clip.tracks) {
     const key: string = channelKey(track.channel);
     if (out.has(key)) throw new Error(`duplicate track channel "${key}"`);
@@ -46,7 +56,11 @@ export const sampleClip: (clip: IAutoMovieClip, seconds: number) => Map<string, 
  * `cubicspline` evaluates the glTF cubic Hermite spline from the keyframes'
  * tangents.
  */
-const sampleTrack: (track: IAutoMovieTrack, time: number, duration: number) => number[] = (
+const sampleTrack: (
+  track: IAutoMovieTrack,
+  time: number,
+  duration: number,
+) => number[] = (
   track: IAutoMovieTrack,
   time: number,
   duration: number,
@@ -72,7 +86,11 @@ const sampleTrack: (track: IAutoMovieTrack, time: number, duration: number) => n
 
   // Strictly increasing times (validateTrackShape) let the binary search land on
   // the straddling segment; its tie rule matches the old linear scan exactly.
-  const lo: number = segmentIndex(times.length, (i: number) : number => times[i]!, time);
+  const lo: number = segmentIndex(
+    times.length,
+    (i: number): number => times[i]!,
+    time,
+  );
   const hi: number = lo + 1;
   const span: number = times[hi]! - times[lo]!;
   const localT: number = (time - times[lo]!) / span;
@@ -96,7 +114,15 @@ const sampleTrack: (track: IAutoMovieTrack, time: number, duration: number) => n
  * results are renormalized (interpolated quaternions drift off the unit
  * sphere).
  */
-const cubicHermite: (track: IAutoMovieTrack, lo: number, hi: number, span: number, t: number, width: number, stride: number) => number[] = (
+const cubicHermite: (
+  track: IAutoMovieTrack,
+  lo: number,
+  hi: number,
+  span: number,
+  t: number,
+  width: number,
+  stride: number,
+) => number[] = (
   track: IAutoMovieTrack,
   lo: number,
   hi: number,
@@ -117,10 +143,17 @@ const cubicHermite: (track: IAutoMovieTrack, lo: number, hi: number, span: numbe
   return channelIsRotation(channel) ? normalizeQuatArray(out) : out;
 };
 
-const lerpArray: (a: number[], b: number[], t: number) => number[] = (a: number[], b: number[], t: number): number[] =>
-  a.map((v: number, i: number) : number => v + (b[i]! - v) * t);
+const lerpArray: (a: number[], b: number[], t: number) => number[] = (
+  a: number[],
+  b: number[],
+  t: number,
+): number[] => a.map((v: number, i: number): number => v + (b[i]! - v) * t);
 
-const slerpArray: (a: number[], b: number[], t: number) => number[] = (a: number[], b: number[], t: number): number[] => {
+const slerpArray: (a: number[], b: number[], t: number) => number[] = (
+  a: number[],
+  b: number[],
+  t: number,
+): number[] => {
   const q: IAutoMovieQuaternion = Quaternion.slerp(
     { x: a[0]!, y: a[1]!, z: a[2]!, w: a[3]! },
     { x: b[0]!, y: b[1]!, z: b[2]!, w: b[3]! },
@@ -129,8 +162,15 @@ const slerpArray: (a: number[], b: number[], t: number) => number[] = (a: number
   return [q.x, q.y, q.z, q.w];
 };
 
-const normalizeQuatArray: (q: number[]) => number[] = (q: number[]): number[] => {
-  const n: IAutoMovieQuaternion = Quaternion.normalize({ x: q[0]!, y: q[1]!, z: q[2]!, w: q[3]! });
+const normalizeQuatArray: (q: number[]) => number[] = (
+  q: number[],
+): number[] => {
+  const n: IAutoMovieQuaternion = Quaternion.normalize({
+    x: q[0]!,
+    y: q[1]!,
+    z: q[2]!,
+    w: q[3]!,
+  });
   return [n.x, n.y, n.z, n.w];
 };
 
@@ -140,14 +180,15 @@ const normalizeQuatArray: (q: number[]) => number[] = (q: number[]): number[] =>
  * artifact gate that exists to spare a consumer this throw refuses exactly what
  * would reach it (#1353).
  */
-const validateSampleTime: (seconds: number, duration: number, loop: boolean) => void = (
+const validateSampleTime: (
   seconds: number,
   duration: number,
   loop: boolean,
-): void => {
+) => void = (seconds: number, duration: number, loop: boolean): void => {
   if (!Number.isFinite(seconds))
     throw new Error(`sampleClip seconds must be finite, but was ${seconds}`);
-  const fault: IAutoMovieClipShapeFault | null = clipDurationFault(duration) ?? clipLoopFault(loop);
+  const fault: IAutoMovieClipShapeFault | null =
+    clipDurationFault(duration) ?? clipLoopFault(loop);
   if (fault !== null) throw new Error(`sampleClip clip ${fault.message}`);
 };
 
@@ -157,21 +198,24 @@ const validateSampleTime: (seconds: number, duration: number, loop: boolean) => 
  * front of this one let it through, which is an engine defect rather than an
  * authoring one, and one sentence is what a stack trace can carry (#1353).
  */
-const validateTrackShape: (track: IAutoMovieTrack, key: string, duration: number) => void = (
+const validateTrackShape: (
   track: IAutoMovieTrack,
   key: string,
   duration: number,
-): void => {
-  const fault: IAutoMovieClipShapeFault = clipTrackShapeFaults(track, duration)[0];
+) => void = (track: IAutoMovieTrack, key: string, duration: number): void => {
+  const fault: IAutoMovieClipShapeFault = clipTrackShapeFaults(
+    track,
+    duration,
+  )[0];
   if (fault !== undefined) throw new Error(`track "${key}" ${fault.message}`);
 };
 
 /** Clamp (or wrap, when looping) a query time into the clip's duration. */
-const normalizeTime: (seconds: number, duration: number, loop: boolean) => number = (
+const normalizeTime: (
   seconds: number,
   duration: number,
   loop: boolean,
-): number => {
+) => number = (seconds: number, duration: number, loop: boolean): number => {
   if (duration <= 0) return 0;
   if (loop) {
     const m: number = seconds % duration;

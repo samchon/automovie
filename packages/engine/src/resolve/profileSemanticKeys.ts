@@ -11,7 +11,9 @@ import { IAutoMovieChannel, IAutoMovieProfile } from "@automovie/interface";
  * @evidence contracts/performance.md#reuse-equivalent-work One local set shares repeated references across the profile; changed authored data requires fresh enumeration.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the returned key array, with no bound graph, profile cache, native handle or task retained.
  */
-export const profileSemanticKeys: (profile: IAutoMovieProfile) => string[] = (profile: IAutoMovieProfile): string[] => {
+export const profileSemanticKeys: (profile: IAutoMovieProfile) => string[] = (
+  profile: IAutoMovieProfile,
+): string[] => {
   const keys: string[] = [];
   const seen: Set<string> = new Set<string>();
   const add: (key: string) => void = (key: string): void => {
@@ -19,7 +21,9 @@ export const profileSemanticKeys: (profile: IAutoMovieProfile) => string[] = (pr
     seen.add(key);
     keys.push(key);
   };
-  const addChannel: (channel: IAutoMovieChannel) => void = (channel: IAutoMovieChannel): void => {
+  const addChannel: (channel: IAutoMovieChannel) => void = (
+    channel: IAutoMovieChannel,
+  ): void => {
     if (channel.kind === "node") add(channel.node);
   };
 
@@ -53,7 +57,7 @@ export const profileSemanticKeys: (profile: IAutoMovieProfile) => string[] = (pr
         if (driver.center !== null) add(driver.center);
         break;
       default: {
-        const unknown: { type?: unknown; } = driver as { type?: unknown };
+        const unknown: { type?: unknown } = driver as { type?: unknown };
         throw new Error(`unknown driver type "${String(unknown.type)}"`);
       }
     }

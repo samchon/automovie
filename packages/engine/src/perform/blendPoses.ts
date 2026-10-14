@@ -4,12 +4,14 @@ import {
   IAutoMoviePose,
   IAutoMovieTransform,
 } from "@automovie/interface";
+
 import { IAutoMoviePoseLayer } from "./IAutoMoviePoseLayer";
 
-
-
-const AXES: readonly ["flexion", "abduction", "twist"] = ["flexion", "abduction", "twist"] as const;
-
+const AXES: readonly ["flexion", "abduction", "twist"] = [
+  "flexion",
+  "abduction",
+  "twist",
+] as const;
 
 interface IAxisAccumulator {
   /** Summed weight of the layers that set each axis (non-null). */
@@ -29,10 +31,15 @@ interface IAxisAccumulator {
  * @evidence contracts/performance.md#reuse-equivalent-work Each bone has one shared accumulator across layers; sampled poses and the selected root are read directly without another FK or motion bake.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Accumulators are invocation-local and the caller owns fresh joint output; the root remains borrowed and no pose cache, task or external resource persists.
  */
-export const blendPoses: (layers: IAutoMoviePoseLayer [ ]) => IAutoMoviePose = (layers: IAutoMoviePoseLayer[]): IAutoMoviePose => {
+export const blendPoses: (layers: IAutoMoviePoseLayer[]) => IAutoMoviePose = (
+  layers: IAutoMoviePoseLayer[],
+): IAutoMoviePose => {
   if (layers.length === 0) throw new Error("blend poses must not be empty");
 
-  const acc: Map<AutoMovieHumanoidBone, IAxisAccumulator> = new Map<AutoMovieHumanoidBone, IAxisAccumulator>();
+  const acc: Map<AutoMovieHumanoidBone, IAxisAccumulator> = new Map<
+    AutoMovieHumanoidBone,
+    IAxisAccumulator
+  >();
   const order: AutoMovieHumanoidBone[] = [];
   for (const layer of layers)
     for (const joint of layer.pose.joints) {
@@ -42,29 +49,44 @@ export const blendPoses: (layers: IAutoMoviePoseLayer [ ]) => IAutoMoviePose = (
         acc.set(joint.bone, entry);
         order.push(joint.bone);
       }
-      AXES.forEach((axis: "flexion" | "abduction" | "twist", i: number) : void => {
-        const value: number | null = joint[axis];
-        if (value !== null) {
-          entry!.weight[i] += layer.weight;
-          entry!.weighted[i] += layer.weight * value;
-        }
-      });
+      AXES.forEach(
+        (axis: "flexion" | "abduction" | "twist", i: number): void => {
+          const value: number | null = joint[axis];
+          if (value !== null) {
+            entry!.weight[i] += layer.weight;
+            entry!.weighted[i] += layer.weight * value;
+          }
+        },
+      );
     }
 
-  const joints: IAutoMovieJointPose[] = order.map((bone: AutoMovieHumanoidBone) : { bone: AutoMovieHumanoidBone; flexion: number | null; abduction: number | null; twist: number | null; } => {
-    const entry: IAxisAccumulator = acc.get(bone)!;
-    const axisValue: (i: number) => number | null = (i: number): number | null =>
-      entry.weight[i] > 0 ? entry.weighted[i] / entry.weight[i] : null;
-    return {
-      bone,
-      flexion: axisValue(0),
-      abduction: axisValue(1),
-      twist: axisValue(2),
-    };
-  });
+  const joints: IAutoMovieJointPose[] = order.map(
+    (
+      bone: AutoMovieHumanoidBone,
+    ): {
+      bone: AutoMovieHumanoidBone;
+      flexion: number | null;
+      abduction: number | null;
+      twist: number | null;
+    } => {
+      const entry: IAxisAccumulator = acc.get(bone)!;
+      const axisValue: (i: number) => number | null = (
+        i: number,
+      ): number | null =>
+        entry.weight[i] > 0 ? entry.weighted[i] / entry.weight[i] : null;
+      return {
+        bone,
+        flexion: axisValue(0),
+        abduction: axisValue(1),
+        twist: axisValue(2),
+      };
+    },
+  );
 
   let root: IAutoMovieTransform | null = layers[0]!.pose.root;
-  const owning: IAutoMoviePoseLayer[] = layers.filter((layer: IAutoMoviePoseLayer) : boolean => layer.ownsRoot === true);
+  const owning: IAutoMoviePoseLayer[] = layers.filter(
+    (layer: IAutoMoviePoseLayer): boolean => layer.ownsRoot === true,
+  );
   if (owning.length > 0) root = owning[owning.length - 1]!.pose.root;
   else
     for (const layer of layers)

@@ -1,4 +1,9 @@
-import { IAutoMovieLightShadow, IAutoMovieColor, IAutoMovieLight, IAutoMovieTransform } from "@automovie/interface";
+import {
+  IAutoMovieColor,
+  IAutoMovieLight,
+  IAutoMovieLightShadow,
+  IAutoMovieTransform,
+} from "@automovie/interface";
 
 import { IAutoMovieLightOverride } from "./IAutoMovieLightOverride";
 
@@ -13,11 +18,21 @@ import { IAutoMovieLightOverride } from "./IAutoMovieLightOverride";
  * @evidence contracts/performance.md#reuse-equivalent-work Unanimated nested values and optional shadow records are borrowed; the shot resolver bypasses this function entirely for untouched lights.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the new light/optional transform wrapper and the source owns borrowed fields; no native light, texture or task is acquired.
  */
-export const applyLightOverride: (light: IAutoMovieLight, override: IAutoMovieLightOverride) => IAutoMovieLight = (
+export const applyLightOverride: (
+  light: IAutoMovieLight,
+  override: IAutoMovieLightOverride,
+) => IAutoMovieLight = (
   light: IAutoMovieLight,
   override: IAutoMovieLightOverride,
 ): IAutoMovieLight => {
-  const base: { shadow?: IAutoMovieLightShadow | undefined; castShadow?: boolean | undefined; id: string; transform: IAutoMovieTransform; color: IAutoMovieColor; intensity: number; } = {
+  const base: {
+    shadow?: IAutoMovieLightShadow | undefined;
+    castShadow?: boolean | undefined;
+    id: string;
+    transform: IAutoMovieTransform;
+    color: IAutoMovieColor;
+    intensity: number;
+  } = {
     id: light.id,
     transform: applyLightTransformOverride(light.transform, override),
     color: override.color ?? light.color,
@@ -70,7 +85,10 @@ export const applyLightOverride: (light: IAutoMovieLight, override: IAutoMovieLi
  * without moving it leaves the very transform object the scene staged, so
  * nothing downstream can mistake a re-boxed copy for a move.
  */
-const applyLightTransformOverride: (transform: IAutoMovieTransform, override: IAutoMovieLightOverride) => IAutoMovieTransform = (
+const applyLightTransformOverride: (
+  transform: IAutoMovieTransform,
+  override: IAutoMovieLightOverride,
+) => IAutoMovieTransform = (
   transform: IAutoMovieTransform,
   override: IAutoMovieLightOverride,
 ): IAutoMovieTransform =>

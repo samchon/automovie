@@ -11,7 +11,9 @@ import { LIGHT_CHANNEL_PROPERTIES } from "./constants/LIGHT_CHANNEL_PROPERTIES";
  * @evidence contracts/performance.md#reuse-equivalent-work Parser and validation consumers reuse the same table membership law; no separate name cache is retained.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only the predicate boolean escapes, with no override record, scene object, handle or task held.
  */
-export const isLightProperty: (property: string) => property is AutoMovieLightProperty = (
+export const isLightProperty: (
+  property: string,
+) => property is AutoMovieLightProperty = (
   property: string,
 ): property is AutoMovieLightProperty =>
   Object.hasOwn(LIGHT_CHANNEL_PROPERTIES, property);

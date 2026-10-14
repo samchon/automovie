@@ -1,4 +1,5 @@
 import { IAutoMovieVector3 } from "@automovie/interface";
+
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { IAutoMovieActorWorldFrame } from "./IAutoMovieActorWorldFrame";
@@ -14,7 +15,10 @@ import { IAutoMovieActorWorldFrame } from "./IAutoMovieActorWorldFrame";
  * @evidence contracts/performance.md#reuse-equivalent-work Callers may reuse an unchanged frame for their action; the helper reads its supplied point and frame without a global identity cache.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the returned vector and intermediate values are call-local; no handle, task or retained geometry exists.
  */
-export const actorPointInModelSpace: (world: IAutoMovieVector3, frame: IAutoMovieActorWorldFrame) => IAutoMovieVector3 = (
+export const actorPointInModelSpace: (
+  world: IAutoMovieVector3,
+  frame: IAutoMovieActorWorldFrame,
+) => IAutoMovieVector3 = (
   world: IAutoMovieVector3,
   frame: IAutoMovieActorWorldFrame,
 ): IAutoMovieVector3 =>

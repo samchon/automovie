@@ -3,10 +3,18 @@ import {
   AutoMovieHumanoidBone,
 } from "@automovie/interface";
 
-
-
 /** Hips + both legs (the locomotion / stance region). */
-const LOWER: readonly ["hips", "leftUpperLeg", "leftLowerLeg", "leftFoot", "leftToes", "rightUpperLeg", "rightLowerLeg", "rightFoot", "rightToes"] = [
+const LOWER: readonly [
+  "hips",
+  "leftUpperLeg",
+  "leftLowerLeg",
+  "leftFoot",
+  "leftToes",
+  "rightUpperLeg",
+  "rightLowerLeg",
+  "rightFoot",
+  "rightToes",
+] = [
   "hips",
   "leftUpperLeg",
   "leftLowerLeg",
@@ -18,9 +26,50 @@ const LOWER: readonly ["hips", "leftUpperLeg", "leftLowerLeg", "leftFoot", "left
   "rightToes",
 ] as const satisfies readonly AutoMovieHumanoidBone[];
 
-
 /** Spine/chest + both arms + every finger (the gesture / reach region). */
-const UPPER: readonly ["spine", "chest", "upperChest", "leftShoulder", "leftUpperArm", "leftLowerArm", "leftHand", "rightShoulder", "rightUpperArm", "rightLowerArm", "rightHand", "leftThumbMetacarpal", "leftThumbProximal", "leftThumbDistal", "leftIndexProximal", "leftIndexIntermediate", "leftIndexDistal", "leftMiddleProximal", "leftMiddleIntermediate", "leftMiddleDistal", "leftRingProximal", "leftRingIntermediate", "leftRingDistal", "leftLittleProximal", "leftLittleIntermediate", "leftLittleDistal", "rightThumbMetacarpal", "rightThumbProximal", "rightThumbDistal", "rightIndexProximal", "rightIndexIntermediate", "rightIndexDistal", "rightMiddleProximal", "rightMiddleIntermediate", "rightMiddleDistal", "rightRingProximal", "rightRingIntermediate", "rightRingDistal", "rightLittleProximal", "rightLittleIntermediate", "rightLittleDistal"] = [
+const UPPER: readonly [
+  "spine",
+  "chest",
+  "upperChest",
+  "leftShoulder",
+  "leftUpperArm",
+  "leftLowerArm",
+  "leftHand",
+  "rightShoulder",
+  "rightUpperArm",
+  "rightLowerArm",
+  "rightHand",
+  "leftThumbMetacarpal",
+  "leftThumbProximal",
+  "leftThumbDistal",
+  "leftIndexProximal",
+  "leftIndexIntermediate",
+  "leftIndexDistal",
+  "leftMiddleProximal",
+  "leftMiddleIntermediate",
+  "leftMiddleDistal",
+  "leftRingProximal",
+  "leftRingIntermediate",
+  "leftRingDistal",
+  "leftLittleProximal",
+  "leftLittleIntermediate",
+  "leftLittleDistal",
+  "rightThumbMetacarpal",
+  "rightThumbProximal",
+  "rightThumbDistal",
+  "rightIndexProximal",
+  "rightIndexIntermediate",
+  "rightIndexDistal",
+  "rightMiddleProximal",
+  "rightMiddleIntermediate",
+  "rightMiddleDistal",
+  "rightRingProximal",
+  "rightRingIntermediate",
+  "rightRingDistal",
+  "rightLittleProximal",
+  "rightLittleIntermediate",
+  "rightLittleDistal",
+] = [
   "spine",
   "chest",
   "upperChest",
@@ -64,7 +113,6 @@ const UPPER: readonly ["spine", "chest", "upperChest", "leftShoulder", "leftUppe
   "rightLittleDistal",
 ] as const satisfies readonly AutoMovieHumanoidBone[];
 
-
 /** Neck/head + eyes + jaw (the look-at region). */
 const HEAD: readonly ["neck", "head", "leftEye", "rightEye", "jaw"] = [
   "neck",
@@ -85,7 +133,9 @@ const HEAD: readonly ["neck", "head", "leftEye", "rightEye", "jaw"] = [
  * @evidence contracts/performance.md#reuse-equivalent-work Module partition arrays are reused by narrow-region callers; fullBody's mutable underlying array is not globally shared.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Fixed module arrays persist for module lifetime; callers must honor readonly access, while fresh union/empty arrays belong to the call with no resource handles.
  */
-export const bodyRegionBones: (region: AutoMovieBodyRegion) => readonly AutoMovieHumanoidBone [ ] = (
+export const bodyRegionBones: (
+  region: AutoMovieBodyRegion,
+) => readonly AutoMovieHumanoidBone[] = (
   region: AutoMovieBodyRegion,
 ): readonly AutoMovieHumanoidBone[] => {
   if (region === "lowerBody") return LOWER;

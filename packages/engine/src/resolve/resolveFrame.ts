@@ -1,19 +1,20 @@
-import type { IAutoMovieSpringCollider } from "./IAutoMovieSpringCollider";
-import type { IAutoMovieClampOutcome } from "./IAutoMovieClampOutcome";
-import type { IAutoMovieBoundProfile } from "./IAutoMovieBoundProfile";
-import { IAutoMovieVector3,
+import {
   IAutoMovieChannelLimit,
   IAutoMovieClip,
   IAutoMovieDriver,
   IAutoMovieNode,
   IAutoMovieTransform,
+  IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { Matrix4 } from "../math/Matrix4";
+import type { IAutoMovieBoundProfile } from "./IAutoMovieBoundProfile";
+import type { IAutoMovieClampOutcome } from "./IAutoMovieClampOutcome";
 import { IAutoMovieResolveInput } from "./IAutoMovieResolveInput";
 import { IAutoMovieResolveOutput } from "./IAutoMovieResolveOutput";
 import { IAutoMovieResolveViolation } from "./IAutoMovieResolveViolation";
 import { IAutoMovieSampledChannel } from "./IAutoMovieSampledChannel";
+import type { IAutoMovieSpringCollider } from "./IAutoMovieSpringCollider";
 import { IAutoMovieSpringSphere } from "./IAutoMovieSpringSphere";
 import { IAutoMovieSpringState } from "./IAutoMovieSpringState";
 import { applyChannelLimit } from "./applyChannelLimit";
@@ -39,7 +40,9 @@ import { stepSpring } from "./stepSpring";
  * @evidence contracts/performance.md#reuse-equivalent-work One node/local/child index serves the frame and prior sprung positions reseed fresh composition; other maps rebuild for changed inputs.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns returned maps and persistent spring state; temporary binding/sample indices release with the call, with no renderer handle or task.
  */
-export const resolveFrame: (input: IAutoMovieResolveInput) => IAutoMovieResolveOutput = (
+export const resolveFrame: (
+  input: IAutoMovieResolveInput,
+) => IAutoMovieResolveOutput = (
   input: IAutoMovieResolveInput,
 ): IAutoMovieResolveOutput => {
   const sampled: Map<string, IAutoMovieSampledChannel> =
@@ -65,7 +68,9 @@ export const resolveFrame: (input: IAutoMovieResolveInput) => IAutoMovieResolveO
 
   // DRIVE (channel-space): resolve copy/driven into the sampled map; collect the
   // world-space drivers the post-compose pass owns.
-  const nodesById: Map<string, IAutoMovieNode> = new Map(input.nodes.map((n: IAutoMovieNode) : [string, IAutoMovieNode] => [n.id, n]));
+  const nodesById: Map<string, IAutoMovieNode> = new Map(
+    input.nodes.map((n: IAutoMovieNode): [string, IAutoMovieNode] => [n.id, n]),
+  );
   const worldSpaceDrivers: IAutoMovieDriver[] =
     drivers.length > 0 ? resolveDrivers(drivers, sampled, nodesById) : [];
   validateSampledNodeChannels(sampled, nodesById);
@@ -76,7 +81,10 @@ export const resolveFrame: (input: IAutoMovieResolveInput) => IAutoMovieResolveO
     const key: string = channelKey(entry.limit.channel);
     const hit: IAutoMovieSampledChannel | undefined = sampled.get(key);
     if (hit === undefined) continue;
-    const outcome: IAutoMovieClampOutcome = applyChannelLimit(hit.value, entry.limit);
+    const outcome: IAutoMovieClampOutcome = applyChannelLimit(
+      hit.value,
+      entry.limit,
+    );
     hit.value = outcome.value;
     for (const v of outcome.violations)
       violations.push(
@@ -87,19 +95,30 @@ export const resolveFrame: (input: IAutoMovieResolveInput) => IAutoMovieResolveO
   }
 
   // Fold node-targeting samples into per-node transform overrides + weights.
-  const overrides: Map<string, IAutoMovieTransform> = new Map<string, IAutoMovieTransform>();
+  const overrides: Map<string, IAutoMovieTransform> = new Map<
+    string,
+    IAutoMovieTransform
+  >();
   const weights: Map<string, number[]> = new Map<string, number[]>();
   for (const node of input.nodes) {
-    const t: IAutoMovieSampledChannel | undefined = sampled.get(`node:${node.id}:translation`);
-    const r: IAutoMovieSampledChannel | undefined = sampled.get(`node:${node.id}:rotation`);
-    const s: IAutoMovieSampledChannel | undefined = sampled.get(`node:${node.id}:scale`);
+    const t: IAutoMovieSampledChannel | undefined = sampled.get(
+      `node:${node.id}:translation`,
+    );
+    const r: IAutoMovieSampledChannel | undefined = sampled.get(
+      `node:${node.id}:rotation`,
+    );
+    const s: IAutoMovieSampledChannel | undefined = sampled.get(
+      `node:${node.id}:scale`,
+    );
     if (t !== undefined || r !== undefined || s !== undefined)
       overrides.set(node.id, {
         translation: t ? toVec3(t.value) : node.transform.translation,
         rotation: r ? toQuat(r.value) : node.transform.rotation,
         scale: s ? toVec3(s.value) : node.transform.scale,
       });
-    const w: IAutoMovieSampledChannel | undefined = sampled.get(`node:${node.id}:weights`);
+    const w: IAutoMovieSampledChannel | undefined = sampled.get(
+      `node:${node.id}:weights`,
+    );
     if (w !== undefined) weights.set(node.id, w.value);
   }
 
@@ -107,7 +126,10 @@ export const resolveFrame: (input: IAutoMovieResolveInput) => IAutoMovieResolveO
   // IK) over the composed hierarchy; springs step afterward when state+dt are
   // threaded, and defer otherwise.
   const world: Map<string, number[]> = composeScene(input.nodes, overrides);
-  const localById: Map<string, IAutoMovieTransform> = new Map<string, IAutoMovieTransform>();
+  const localById: Map<string, IAutoMovieTransform> = new Map<
+    string,
+    IAutoMovieTransform
+  >();
   for (const node of input.nodes)
     localById.set(node.id, overrides.get(node.id) ?? node.transform);
   const afterWorldPass: IAutoMovieDriver[] = resolveWorldDrivers(
@@ -123,10 +145,14 @@ export const resolveFrame: (input: IAutoMovieResolveInput) => IAutoMovieResolveO
   if (input.springs !== undefined) {
     const spheres: IAutoMovieSpringSphere[] = (
       input.springs.colliders ?? []
-    ).map((c: IAutoMovieSpringCollider) : { center: IAutoMovieVector3; radius: number; } => ({
-      center: Matrix4.position(readWorld(world, c.node, "spring collider")),
-      radius: c.radius,
-    }));
+    ).map(
+      (
+        c: IAutoMovieSpringCollider,
+      ): { center: IAutoMovieVector3; radius: number } => ({
+        center: Matrix4.position(readWorld(world, c.node, "spring collider")),
+        radius: c.radius,
+      }),
+    );
     deferredDrivers = [];
     for (const d of afterWorldPass)
       if (d.type === "spring") {
@@ -153,7 +179,11 @@ export const resolveFrame: (input: IAutoMovieResolveInput) => IAutoMovieResolveO
  * never accumulate sag. Rotation/scale stay animated: spring only owns the
  * position, exactly like {@link stepSpring}'s own write.
  */
-const seedSprungPositions: (chain: readonly string[], world: Map<string, number[]>, state: IAutoMovieSpringState) => void = (
+const seedSprungPositions: (
+  chain: readonly string[],
+  world: Map<string, number[]>,
+  state: IAutoMovieSpringState,
+) => void = (
   chain: readonly string[],
   world: Map<string, number[]>,
   state: IAutoMovieSpringState,
@@ -177,11 +207,26 @@ interface ILimitEntry {
   profile: string | null;
 }
 
-const toVec3: (a: number[]) => { x: number; y: number; z: number; } = (a: number[]) : { x: number; y: number; z: number; } => ({ x: a[0]!, y: a[1]!, z: a[2]! });
+const toVec3: (a: number[]) => { x: number; y: number; z: number } = (
+  a: number[],
+): { x: number; y: number; z: number } => ({ x: a[0]!, y: a[1]!, z: a[2]! });
 
-const toQuat: (a: number[]) => { x: number; y: number; z: number; w: number; } = (a: number[]) : { x: number; y: number; z: number; w: number; } => ({ x: a[0]!, y: a[1]!, z: a[2]!, w: a[3]! });
+const toQuat: (a: number[]) => {
+  x: number;
+  y: number;
+  z: number;
+  w: number;
+} = (a: number[]): { x: number; y: number; z: number; w: number } => ({
+  x: a[0]!,
+  y: a[1]!,
+  z: a[2]!,
+  w: a[3]!,
+});
 
-const validateSampledNodeChannels: (sampled: Map<string, IAutoMovieSampledChannel>, nodesById: Map<string, IAutoMovieNode>) => void = (
+const validateSampledNodeChannels: (
+  sampled: Map<string, IAutoMovieSampledChannel>,
+  nodesById: Map<string, IAutoMovieNode>,
+) => void = (
   sampled: Map<string, IAutoMovieSampledChannel>,
   nodesById: Map<string, IAutoMovieNode>,
 ): void => {

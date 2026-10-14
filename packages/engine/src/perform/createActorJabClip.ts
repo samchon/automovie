@@ -1,4 +1,8 @@
-import { IAutoMovieKeyframe, IAutoMovieMotion, IAutoMoviePose } from "@automovie/interface";
+import {
+  IAutoMovieKeyframe,
+  IAutoMovieMotion,
+  IAutoMoviePose,
+} from "@automovie/interface";
 
 /**
  * Build a non-looping rest-to-strike-to-rest clip with a 40% peak over a positive second duration. The supplied clinical strike pose is borrowed and the empty rest pose is shared only within this clip.
@@ -11,14 +15,23 @@ import { IAutoMovieKeyframe, IAutoMovieMotion, IAutoMoviePose } from "@automovie
  * @evidence contracts/performance.md#reuse-equivalent-work Both rest endpoints share the invocation's rest pose, while the solved strike pose is reused at its peak without another IK call.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the result and must preserve borrowed pose data during playback; no process, task or persistent cache is acquired.
  */
-export const createActorJabClip: (id: string, skeleton: string, pose: IAutoMoviePose, duration: number) => IAutoMovieMotion = (
+export const createActorJabClip: (
+  id: string,
+  skeleton: string,
+  pose: IAutoMoviePose,
+  duration: number,
+) => IAutoMovieMotion = (
   id: string,
   skeleton: string,
   pose: IAutoMoviePose,
   duration: number,
 ): IAutoMovieMotion => {
   const rest: IAutoMoviePose = { skeleton, root: null, joints: [] };
-  const key: (time: number, p: IAutoMoviePose, easing: IAutoMovieKeyframe [ "easing" ]) => IAutoMovieKeyframe = (
+  const key: (
+    time: number,
+    p: IAutoMoviePose,
+    easing: IAutoMovieKeyframe["easing"],
+  ) => IAutoMovieKeyframe = (
     time: number,
     p: IAutoMoviePose,
     easing: IAutoMovieKeyframe["easing"],

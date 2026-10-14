@@ -1,7 +1,12 @@
-import type { IAutoMoviePose, IAutoMovieQuaternion, IAutoMovieActionTarget, IAutoMovieMotion, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieActionTarget,
+  IAutoMovieMotion,
+  IAutoMoviePose,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import type { IAutoMovieResolvedBone } from "../kinematics/IAutoMovieResolvedBone";
-
-
 import { HUMANOID_JOINT_AXES } from "../kinematics/constants/HUMANOID_JOINT_AXES";
 import { resolvePose } from "../kinematics/resolvePose";
 import { Quaternion } from "../math/Quaternion";
@@ -20,7 +25,12 @@ import { IAutoMovieActorContext } from "./IAutoMovieActorContext";
  * @evidence contracts/performance.md#reuse-equivalent-work The one sampled pose feeds the entire FK; no cross-target cache is used because context rig, motion and time are caller-controlled without revision identity.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Inputs are borrowed and the resolved array is invocation-local; the caller owns the returned vector, and no rig cache or running task is retained.
  */
-export const resolveBoneTarget: (target: IAutoMovieActionTarget, contexts: ReadonlyMap < string , IAutoMovieActorContext >, motions: Readonly < Record < string , IAutoMovieMotion > > | undefined, seconds: number) => IAutoMovieVector3 | null = (
+export const resolveBoneTarget: (
+  target: IAutoMovieActionTarget,
+  contexts: ReadonlyMap<string, IAutoMovieActorContext>,
+  motions: Readonly<Record<string, IAutoMovieMotion>> | undefined,
+  seconds: number,
+) => IAutoMovieVector3 | null = (
   target: IAutoMovieActionTarget,
   contexts: ReadonlyMap<string, IAutoMovieActorContext>,
   motions: Readonly<Record<string, IAutoMovieMotion>> | undefined,
@@ -39,7 +49,9 @@ export const resolveBoneTarget: (target: IAutoMovieActionTarget, contexts: Reado
     context.rig,
     HUMANOID_JOINT_AXES,
     context.restFrames,
-  ).find((entry: IAutoMovieResolvedBone) : boolean => entry.bone === target.bone);
+  ).find(
+    (entry: IAutoMovieResolvedBone): boolean => entry.bone === target.bone,
+  );
   if (resolved === undefined) return null;
   const facing: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
     { x: 0, y: 1, z: 0 },

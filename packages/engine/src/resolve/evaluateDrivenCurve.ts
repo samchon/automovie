@@ -1,4 +1,7 @@
-import { IAutoMovieDrivenCurvePoint, IAutoMovieDrivenCurve } from "@automovie/interface";
+import {
+  IAutoMovieDrivenCurve,
+  IAutoMovieDrivenCurvePoint,
+} from "@automovie/interface";
 
 /**
  * Evaluate a nonlinear driven-key curve.
@@ -17,7 +20,10 @@ import { IAutoMovieDrivenCurvePoint, IAutoMovieDrivenCurve } from "@automovie/in
  * @evidence contracts/performance.md#reuse-equivalent-work Evaluation reuses borrowed authored points without copying; mutable point contents prevent retaining a validated-result cache solely by array identity.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only one scalar/error escapes; no point copy, channel registry, native handle or task survives evaluation.
  */
-export const evaluateDrivenCurve: (source: number | undefined, curve: IAutoMovieDrivenCurve) => number = (
+export const evaluateDrivenCurve: (
+  source: number | undefined,
+  curve: IAutoMovieDrivenCurve,
+) => number = (
   source: number | undefined,
   curve: IAutoMovieDrivenCurve,
 ): number => {
@@ -39,7 +45,9 @@ export const evaluateDrivenCurve: (source: number | undefined, curve: IAutoMovie
   return points[points.length - 1]!.output;
 };
 
-const validateDrivenCurve: (curve: IAutoMovieDrivenCurve) => void = (curve: IAutoMovieDrivenCurve): void => {
+const validateDrivenCurve: (curve: IAutoMovieDrivenCurve) => void = (
+  curve: IAutoMovieDrivenCurve,
+): void => {
   if (typeof curve !== "object" || curve === null || Array.isArray(curve))
     throw new Error("driven driver curve must be an object");
   if (!Array.isArray(curve.points))
@@ -61,7 +69,10 @@ const validateDrivenCurve: (curve: IAutoMovieDrivenCurve) => void = (curve: IAut
   }
 };
 
-const validateDrivenCurvePoint: (index: number, point: IAutoMovieDrivenCurve["points"][number]) => void = (
+const validateDrivenCurvePoint: (
+  index: number,
+  point: IAutoMovieDrivenCurve["points"][number],
+) => void = (
   index: number,
   point: IAutoMovieDrivenCurve["points"][number],
 ): void => {
@@ -73,7 +84,10 @@ const validateDrivenCurvePoint: (index: number, point: IAutoMovieDrivenCurve["po
   validateDrivenFinite(`curve.points[${index}].output`, point.output);
 };
 
-const validateDrivenFinite: (label: string, value: number) => void = (label: string, value: number): void => {
+const validateDrivenFinite: (label: string, value: number) => void = (
+  label: string,
+  value: number,
+): void => {
   if (!Number.isFinite(value))
     throw new Error(`driven driver ${label} must be finite, but was ${value}`);
 };

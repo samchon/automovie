@@ -45,7 +45,12 @@ const FALLBACK_DIR: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
  * @evidence contracts/performance.md#reuse-equivalent-work Read chain positions once per solve and reuse them during iteration; changed goals/world transforms require a fresh solve, with no persistent convergence cache.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns mutated world/local maps; iteration arrays and rotations are call-local, with no solver worker, native handle or future task retained.
  */
-export const applyIterativeIK: (d: IAutoMovieIKDriver, world: Map<string, number[]>, localById: Map<string, IAutoMovieTransform>, childrenById: Map<string, string[]>) => void = (
+export const applyIterativeIK: (
+  d: IAutoMovieIKDriver,
+  world: Map<string, number[]>,
+  localById: Map<string, IAutoMovieTransform>,
+  childrenById: Map<string, string[]>,
+) => void = (
   d: IAutoMovieIKDriver,
   world: Map<string, number[]>,
   localById: Map<string, IAutoMovieTransform>,
@@ -58,20 +63,26 @@ export const applyIterativeIK: (d: IAutoMovieIKDriver, world: Map<string, number
       `world driver iterative IK chain needs at least 2 nodes, but had ${d.chain.length}`,
     );
 
-  const matrices: number[][] = d.chain.map((id: string) : number[] =>
+  const matrices: number[][] = d.chain.map((id: string): number[] =>
     readWorld(world, id, "iterative IK chain"),
   );
-  const before: IAutoMovieVector3[] = matrices.map((m: number[]) : IAutoMovieVector3 => Matrix4.position(m));
+  const before: IAutoMovieVector3[] = matrices.map(
+    (m: number[]): IAutoMovieVector3 => Matrix4.position(m),
+  );
   const lengths: number[] = [];
   for (let i: number = 0; i + 1 < before.length; ++i) {
-    const length: number = Vector3.length(Vector3.subtract(before[i + 1]!, before[i]!));
+    const length: number = Vector3.length(
+      Vector3.subtract(before[i + 1]!, before[i]!),
+    );
     if (!(length > 0))
       throw new Error(
         `world driver iterative IK segment ${i} length must be > 0, but was ${length}`,
       );
     lengths.push(length);
   }
-  const goal: IAutoMovieVector3 = Matrix4.position(readWorld(world, d.goal, "iterative IK goal"));
+  const goal: IAutoMovieVector3 = Matrix4.position(
+    readWorld(world, d.goal, "iterative IK goal"),
+  );
 
   const after: IAutoMovieVector3[] =
     d.solver === "ccd"
@@ -81,7 +92,9 @@ export const applyIterativeIK: (d: IAutoMovieIKDriver, world: Map<string, number
   writeChain(d, world, matrices, before, after, childrenById, localById);
 };
 
-const readIterations: (iterations: number | null) => number = (iterations: number | null): number => {
+const readIterations: (iterations: number | null) => number = (
+  iterations: number | null,
+): number => {
   if (iterations === null) return DEFAULT_ITERATIONS;
   if (!Number.isSafeInteger(iterations) || iterations <= 0)
     throw new Error(
@@ -94,12 +107,18 @@ const readIterations: (iterations: number | null) => number = (iterations: numbe
  * Cyclic coordinate descent: back-to-front, rotate each joint so the tip swings
  * toward the goal, positions only (rotations are lowered afterward).
  */
-const solveCcd: (before: readonly IAutoMovieVector3[], goal: IAutoMovieVector3, iterations: number) => IAutoMovieVector3[] = (
+const solveCcd: (
+  before: readonly IAutoMovieVector3[],
+  goal: IAutoMovieVector3,
+  iterations: number,
+) => IAutoMovieVector3[] = (
   before: readonly IAutoMovieVector3[],
   goal: IAutoMovieVector3,
   iterations: number,
 ): IAutoMovieVector3[] => {
-  const p: { x: number; y: number; z: number; }[] = before.map((v: IAutoMovieVector3) : { x: number; y: number; z: number; } => ({ ...v }));
+  const p: { x: number; y: number; z: number }[] = before.map(
+    (v: IAutoMovieVector3): { x: number; y: number; z: number } => ({ ...v }),
+  );
   const tip: number = p.length - 1;
   for (let it: number = 0; it < iterations; ++it) {
     if (Vector3.length(Vector3.subtract(p[tip]!, goal)) <= CONVERGENCE_EPSILON)
@@ -129,16 +148,26 @@ const solveCcd: (before: readonly IAutoMovieVector3[], goal: IAutoMovieVector3, 
  * canonical unreachable handling, and exactly "the chain points at what it
  * cannot touch".
  */
-const solveFabrik: (before: readonly IAutoMovieVector3[], lengths: readonly number[], goal: IAutoMovieVector3, iterations: number) => IAutoMovieVector3[] = (
+const solveFabrik: (
+  before: readonly IAutoMovieVector3[],
+  lengths: readonly number[],
+  goal: IAutoMovieVector3,
+  iterations: number,
+) => IAutoMovieVector3[] = (
   before: readonly IAutoMovieVector3[],
   lengths: readonly number[],
   goal: IAutoMovieVector3,
   iterations: number,
 ): IAutoMovieVector3[] => {
-  const p: { x: number; y: number; z: number; }[] = before.map((v: IAutoMovieVector3) : { x: number; y: number; z: number; } => ({ ...v }));
+  const p: { x: number; y: number; z: number }[] = before.map(
+    (v: IAutoMovieVector3): { x: number; y: number; z: number } => ({ ...v }),
+  );
   const tip: number = p.length - 1;
-  const root: { x: number; y: number; z: number; } = { ...p[0]! };
-  const total: number = lengths.reduce((sum: number, l: number) : number => sum + l, 0);
+  const root: { x: number; y: number; z: number } = { ...p[0]! };
+  const total: number = lengths.reduce(
+    (sum: number, l: number): number => sum + l,
+    0,
+  );
   const toGoal: IAutoMovieVector3 = Vector3.subtract(goal, root);
   const goalDistance: number = Vector3.length(toGoal);
 
@@ -179,7 +208,9 @@ const solveFabrik: (before: readonly IAutoMovieVector3[], lengths: readonly numb
 };
 
 /** Unit vector of `v`, or the deterministic fallback when `v` is degenerate. */
-const unitOr: (v: IAutoMovieVector3) => IAutoMovieVector3 = (v: IAutoMovieVector3): IAutoMovieVector3 =>
+const unitOr: (v: IAutoMovieVector3) => IAutoMovieVector3 = (
+  v: IAutoMovieVector3,
+): IAutoMovieVector3 =>
   Vector3.length(v) < 1e-12 ? FALLBACK_DIR : Vector3.normalize(v);
 
 // The exact shortest-arc rotation now lives in worldShared.rotationBetween,
@@ -191,7 +222,15 @@ const unitOr: (v: IAutoMovieVector3) => IAutoMovieVector3 = (v: IAutoMovieVector
  * gets its segment's shortest-arc delta, everything blends by `influence`, and
  * the tip's subtree recomposes (the two-bone convention).
  */
-const writeChain: (d: IAutoMovieIKDriver, world: Map<string, number[]>, matrices: readonly number[][], before: readonly IAutoMovieVector3[], after: readonly IAutoMovieVector3[], childrenById: Map<string, string[]>, localById: Map<string, IAutoMovieTransform>) => void = (
+const writeChain: (
+  d: IAutoMovieIKDriver,
+  world: Map<string, number[]>,
+  matrices: readonly number[][],
+  before: readonly IAutoMovieVector3[],
+  after: readonly IAutoMovieVector3[],
+  childrenById: Map<string, string[]>,
+  localById: Map<string, IAutoMovieTransform>,
+) => void = (
   d: IAutoMovieIKDriver,
   world: Map<string, number[]>,
   matrices: readonly number[][],
@@ -203,7 +242,11 @@ const writeChain: (d: IAutoMovieIKDriver, world: Map<string, number[]>, matrices
   const t: number = d.influence;
   const tip: number = d.chain.length - 1;
   for (let j: number = 0; j <= tip; ++j) {
-    const dec: { position: IAutoMovieVector3; rotation: IAutoMovieQuaternion; scale: IAutoMovieVector3; } = Matrix4.decompose(matrices[j]!);
+    const dec: {
+      position: IAutoMovieVector3;
+      rotation: IAutoMovieQuaternion;
+      scale: IAutoMovieVector3;
+    } = Matrix4.decompose(matrices[j]!);
     const rotation: IAutoMovieQuaternion =
       j < tip
         ? Quaternion.slerp(

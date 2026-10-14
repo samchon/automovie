@@ -1,9 +1,9 @@
-import type { IAutoMovieLightChannelProperty } from "./IAutoMovieLightChannelProperty";
-import type { IAutoMovieLightPointer } from "./IAutoMovieLightPointer";
 import { IAutoMovieLight } from "@automovie/interface";
 
 import { withArticle } from "../text/withArticle";
+import type { IAutoMovieLightChannelProperty } from "./IAutoMovieLightChannelProperty";
 import { IAutoMovieLightOverride } from "./IAutoMovieLightOverride";
+import type { IAutoMovieLightPointer } from "./IAutoMovieLightPointer";
 import { IAutoMovieShotLightingInput } from "./IAutoMovieShotLightingInput";
 import { applyLightOverride } from "./applyLightOverride";
 import { LIGHT_CHANNEL_PROPERTIES } from "./constants/LIGHT_CHANNEL_PROPERTIES";
@@ -21,11 +21,21 @@ import { sampleClip } from "./sampleClip";
  * @evidence contracts/performance.md#reuse-equivalent-work One light index/override map serves all tracks, sharing unanimated staged fields without a persistent time cache.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns new light wrappers/array and borrows unchanged records; local maps release on failure/return without native light handles or tasks.
  */
-export const resolveShotLighting: (input: IAutoMovieShotLightingInput) => IAutoMovieLight[] = (
+export const resolveShotLighting: (
+  input: IAutoMovieShotLightingInput,
+) => IAutoMovieLight[] = (
   input: IAutoMovieShotLightingInput,
 ): IAutoMovieLight[] => {
-  const staged: Map<string, IAutoMovieLight> = new Map(input.lights.map((light: IAutoMovieLight) : [string, IAutoMovieLight] => [light.id, light]));
-  const overrides: Map<string, IAutoMovieLightOverride> = new Map<string, IAutoMovieLightOverride>();
+  const staged: Map<string, IAutoMovieLight> = new Map(
+    input.lights.map((light: IAutoMovieLight): [string, IAutoMovieLight] => [
+      light.id,
+      light,
+    ]),
+  );
+  const overrides: Map<string, IAutoMovieLightOverride> = new Map<
+    string,
+    IAutoMovieLightOverride
+  >();
 
   for (const clip of input.clips)
     for (const { channel, value } of sampleClip(clip, input.seconds).values()) {
@@ -40,19 +50,24 @@ export const resolveShotLighting: (input: IAutoMovieShotLightingInput) => IAutoM
         throw new Error(
           `light clip "${clip.id}" addresses missing light "${target.light}"`,
         );
-      const property: IAutoMovieLightChannelProperty = LIGHT_CHANNEL_PROPERTIES[target.property];
+      const property: IAutoMovieLightChannelProperty =
+        LIGHT_CHANNEL_PROPERTIES[target.property];
       if (!property.carries(light.type))
         throw new Error(
           `light clip "${clip.id}" addresses "${target.property}", which ${withArticle(light.type)} light does not carry`,
         );
-      const carried: IAutoMovieLightOverride | undefined = overrides.get(target.light);
+      const carried: IAutoMovieLightOverride | undefined = overrides.get(
+        target.light,
+      );
       const override: IAutoMovieLightOverride = carried ?? {};
       if (carried === undefined) overrides.set(target.light, override);
       property.write(override, value);
     }
 
-  return input.lights.map((light: IAutoMovieLight) : IAutoMovieLight => {
-    const override: IAutoMovieLightOverride | undefined = overrides.get(light.id);
+  return input.lights.map((light: IAutoMovieLight): IAutoMovieLight => {
+    const override: IAutoMovieLightOverride | undefined = overrides.get(
+      light.id,
+    );
     return override === undefined ? light : applyLightOverride(light, override);
   });
 };

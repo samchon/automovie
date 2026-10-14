@@ -15,7 +15,12 @@ import { readWorld } from "./readWorld";
  * @evidence contracts/performance.md#reuse-equivalent-work One frame's local/child maps serve all drivers; changed ancestors invalidate descendant matrices and require recomposition.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns replacements/maps and temporary locals/stack release on return or failure, with no host graph handle or worker.
  */
-export const recompose: (id: string, world: Map<string, number[]>, localById: Map<string, IAutoMovieTransform>, childrenById: Map<string, string[]>) => void = (
+export const recompose: (
+  id: string,
+  world: Map<string, number[]>,
+  localById: Map<string, IAutoMovieTransform>,
+  childrenById: Map<string, string[]>,
+) => void = (
   id: string,
   world: Map<string, number[]>,
   localById: Map<string, IAutoMovieTransform>,

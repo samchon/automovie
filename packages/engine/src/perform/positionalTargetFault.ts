@@ -36,7 +36,8 @@ export function positionalTargetFault(target: unknown): string {
           (node: unknown): string => `"${describeInvalidValue(node)}"`,
         ),
         ...(Array.isArray(target.formations) ? target.formations : []).map(
-          (formation: unknown): string => `formation "${describeInvalidValue(formation)}"`,
+          (formation: unknown): string =>
+            `formation "${describeInvalidValue(formation)}"`,
         ),
       ];
       return members.length === 0

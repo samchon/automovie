@@ -12,7 +12,11 @@ import { Vector3 } from "../math/Vector3";
  * @evidence contracts/performance.md#reuse-equivalent-work All supported world drivers reuse the same arithmetic law; no vector-identity cache is valid for mutable coordinates.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only the result vector escapes; intermediate vectors are call-local and no graph, buffer handle or task is retained.
  */
-export const blendVec: (a: IAutoMovieVector3, b: IAutoMovieVector3, t: number) => IAutoMovieVector3 = (
+export const blendVec: (
+  a: IAutoMovieVector3,
+  b: IAutoMovieVector3,
+  t: number,
+) => IAutoMovieVector3 = (
   a: IAutoMovieVector3,
   b: IAutoMovieVector3,
   t: number,

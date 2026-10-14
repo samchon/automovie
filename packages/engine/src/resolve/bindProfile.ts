@@ -18,7 +18,9 @@ import { IAutoMovieProfileApplication } from "./IAutoMovieProfileApplication";
  * @evidence contracts/performance.md#reuse-equivalent-work A single mapping closure serves all fields in one binding; callers may retain completed bindings only while profile contents, own map and prefix remain unchanged.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns new limit/driver arrays, while authored nested bounds/curve data remain borrowed; no registry, graph, handle or task survives the call.
  */
-export const bindProfile: (application: IAutoMovieProfileApplication) => IAutoMovieBoundProfile = (
+export const bindProfile: (
+  application: IAutoMovieProfileApplication,
+) => IAutoMovieBoundProfile = (
   application: IAutoMovieProfileApplication,
 ): IAutoMovieBoundProfile => {
   const { profile, binding }: IAutoMovieProfileApplication = application;
@@ -43,7 +45,9 @@ export const bindProfile: (application: IAutoMovieProfileApplication) => IAutoMo
     return `${prefix}${mapped}`;
   };
 
-  const mapChannel: (channel: IAutoMovieChannel) => IAutoMovieChannel = (channel: IAutoMovieChannel): IAutoMovieChannel =>
+  const mapChannel: (channel: IAutoMovieChannel) => IAutoMovieChannel = (
+    channel: IAutoMovieChannel,
+  ): IAutoMovieChannel =>
     channel.kind === "node"
       ? { ...channel, node: mapNode(channel.node) }
       : channel;
@@ -54,14 +58,19 @@ export const bindProfile: (application: IAutoMovieProfileApplication) => IAutoMo
       channel: mapChannel(limit.channel),
     }),
   );
-  const drivers: IAutoMovieDriver[] = profile.drivers.map((driver: IAutoMovieDriver) : IAutoMovieDriver =>
-    mapDriver(driver, mapNode, mapChannel),
+  const drivers: IAutoMovieDriver[] = profile.drivers.map(
+    (driver: IAutoMovieDriver): IAutoMovieDriver =>
+      mapDriver(driver, mapNode, mapChannel),
   );
   return { limits, drivers };
 };
 
 /** Remap every node reference one driver carries, exhaustively by type. */
-const mapDriver: (driver: IAutoMovieDriver, mapNode: (key: string) => string, mapChannel: (channel: IAutoMovieChannel) => IAutoMovieChannel) => IAutoMovieDriver = (
+const mapDriver: (
+  driver: IAutoMovieDriver,
+  mapNode: (key: string) => string,
+  mapChannel: (channel: IAutoMovieChannel) => IAutoMovieChannel,
+) => IAutoMovieDriver = (
   driver: IAutoMovieDriver,
   mapNode: (key: string) => string,
   mapChannel: (channel: IAutoMovieChannel) => IAutoMovieChannel,
@@ -112,7 +121,7 @@ const mapDriver: (driver: IAutoMovieDriver, mapNode: (key: string) => string, ma
         center: driver.center === null ? null : mapNode(driver.center),
       };
     default: {
-      const unknown: { type?: unknown; } = driver as { type?: unknown };
+      const unknown: { type?: unknown } = driver as { type?: unknown };
       throw new Error(`unknown driver type "${String(unknown.type)}"`);
     }
   }

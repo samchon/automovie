@@ -10,7 +10,9 @@ import { IAutoMovieNode } from "@automovie/interface";
  * @evidence contracts/performance.md#reuse-equivalent-work resolveFrame builds one adjacency map for all world drivers in that frame; changed parent/id topology requires rebuilding.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns fresh map/arrays and borrowed id strings; no source node records, traversal task or host handle is retained.
  */
-export const childrenIndex: (nodes: IAutoMovieNode[]) => Map<string, string[]> = (
+export const childrenIndex: (
+  nodes: IAutoMovieNode[],
+) => Map<string, string[]> = (
   nodes: IAutoMovieNode[],
 ): Map<string, string[]> => {
   const map: Map<string, string[]> = new Map<string, string[]>();

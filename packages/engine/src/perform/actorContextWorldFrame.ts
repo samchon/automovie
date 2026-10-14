@@ -13,7 +13,9 @@ import { IAutoMovieActorWorldFrame } from "./IAutoMovieActorWorldFrame";
  * @evidence contracts/performance.md#reuse-equivalent-work Consumers may hold the frame for one unchanged context; the helper has no identity cache and reads each supplied context afresh.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the returned frame and borrowed position lifetime; no handle, task or retained map is acquired.
  */
-export const actorContextWorldFrame: (context: IAutoMovieActorContext) => IAutoMovieActorWorldFrame = (
+export const actorContextWorldFrame: (
+  context: IAutoMovieActorContext,
+) => IAutoMovieActorWorldFrame = (
   context: IAutoMovieActorContext,
 ): IAutoMovieActorWorldFrame => ({
   position: context.position,

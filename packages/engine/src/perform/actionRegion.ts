@@ -4,8 +4,6 @@ import {
   IAutoMovieActionCall,
 } from "@automovie/interface";
 
-
-
 /** The body region a verb drives by default, when an action sets none. */
 const REGION_BY_VERB: Partial<
   Record<IAutoMovieActionCall["verb"], AutoMovieBodyRegion>
@@ -16,7 +14,6 @@ const REGION_BY_VERB: Partial<
   lookAt: "head",
   emote: "face",
 };
-
 
 /**
  * Per-kind gesture defaults, matching what {@link gestureMotion} actually
@@ -51,7 +48,9 @@ const REGION_BY_GESTURE: Partial<
  * @evidence contracts/performance.md#reuse-equivalent-work The immutable-by-contract module tables are reused across calls, and all per-call decisions depend only on the supplied action.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only fixed module tables persist; the caller receives a union value with no allocated resource or retained action reference.
  */
-export const actionRegion: (action: IAutoMovieActionCall) => AutoMovieBodyRegion = (
+export const actionRegion: (
+  action: IAutoMovieActionCall,
+) => AutoMovieBodyRegion = (
   action: IAutoMovieActionCall,
 ): AutoMovieBodyRegion =>
   action.region ??

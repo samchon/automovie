@@ -1,4 +1,8 @@
-import { IAutoMovieChannel, IAutoMovieNodeChannel, IAutoMoviePointerChannel } from "@automovie/interface";
+import {
+  IAutoMovieChannel,
+  IAutoMovieNodeChannel,
+  IAutoMoviePointerChannel,
+} from "@automovie/interface";
 
 import { CHANNEL_VALUE_TYPES } from "../validation/constants/CHANNEL_VALUE_TYPES";
 import { NODE_CHANNEL_PATHS } from "../validation/constants/NODE_CHANNEL_PATHS";
@@ -16,7 +20,9 @@ import { NODE_CHANNEL_PATHS } from "../validation/constants/NODE_CHANNEL_PATHS";
  * @evidence contracts/performance.md#reuse-equivalent-work Samplers, clamps and driver ordering reuse this exact key law; changed mutable channel fields require a new key and no global cache is kept.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the key string; validation sets are borrowed constants and no channel history, host handle or task is retained.
  */
-export const channelKey: (channel: IAutoMovieChannel) => string = (channel: IAutoMovieChannel): string => {
+export const channelKey: (channel: IAutoMovieChannel) => string = (
+  channel: IAutoMovieChannel,
+): string => {
   switch (channel.kind) {
     case "node":
       validateNodePath(channel.path);
@@ -29,19 +35,23 @@ export const channelKey: (channel: IAutoMovieChannel) => string = (channel: IAut
   }
 };
 
-const throwUnknownChannelKind: (channel: IAutoMovieChannel) => never = (channel: IAutoMovieChannel): never => {
+const throwUnknownChannelKind: (channel: IAutoMovieChannel) => never = (
+  channel: IAutoMovieChannel,
+): never => {
   const kind: unknown = (channel as { kind: unknown }).kind;
   throw new Error(`unknown channel kind "${String(kind)}"`);
 };
 
-const validateNodePath: (path: IAutoMovieNodeChannel["path"]) => void = (path: IAutoMovieNodeChannel["path"]): void => {
+const validateNodePath: (path: IAutoMovieNodeChannel["path"]) => void = (
+  path: IAutoMovieNodeChannel["path"],
+): void => {
   if (!NODE_CHANNEL_PATHS.has(path))
     throw new Error(`unknown channel path "${String(path)}"`);
 };
 
-const validateChannelValueType: (valueType: IAutoMoviePointerChannel["valueType"]) => void = (
+const validateChannelValueType: (
   valueType: IAutoMoviePointerChannel["valueType"],
-): void => {
+) => void = (valueType: IAutoMoviePointerChannel["valueType"]): void => {
   if (!CHANNEL_VALUE_TYPES.has(valueType))
     throw new Error(`unknown channel valueType "${String(valueType)}"`);
 };

@@ -1,7 +1,8 @@
 import { IAutoMovieMotion, IAutoMoviePose } from "@automovie/interface";
+
 import { ease } from "../motion/ease";
-import { createDynamicActorPoseClip } from "./createDynamicActorPoseClip";
 import { actorWeightedArmPose } from "./actorWeightedArmPose";
+import { createDynamicActorPoseClip } from "./createDynamicActorPoseClip";
 
 /**
  * Bake a moving strike goal with an easeIn envelope to the 40% peak and easeOut retraction over the remaining positive second duration. An unresolved target sample returns null.
@@ -14,7 +15,14 @@ import { actorWeightedArmPose } from "./actorWeightedArmPose";
  * @evidence contracts/performance.md#reuse-equivalent-work The peak is deduplicated before target sampling, and each solved pose feeds one scalar envelope application with no cross-action cache.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The invocation owns partial samples until success, null or throw; the caller owns a successful clip and no live target callback is retained.
  */
-export const createDynamicActorJabClip: (props: { /** Caller-selected output motion identity. */ id : string ; /** Skeleton id shared by every callback pose. */ skeleton : string ; /** Finite strictly positive clip span in seconds. */ duration : number ; /** Resolve an admitted clinical pose at local seconds; null refuses the complete bake and thrown errors propagate. */ poseAt : ( time : number ) => IAutoMoviePose | null ; }) => IAutoMovieMotion | null = (props: {
+export const createDynamicActorJabClip: (props: {
+  /** Caller-selected output motion identity. */ id: string;
+  /** Skeleton id shared by every callback pose. */ skeleton: string;
+  /** Finite strictly positive clip span in seconds. */ duration: number;
+  /** Resolve an admitted clinical pose at local seconds; null refuses the complete bake and thrown errors propagate. */ poseAt: (
+    time: number,
+  ) => IAutoMoviePose | null;
+}) => IAutoMovieMotion | null = (props: {
   /** Caller-selected output motion identity. */
   id: string;
 
@@ -31,7 +39,7 @@ export const createDynamicActorJabClip: (props: { /** Caller-selected output mot
   return createDynamicActorPoseClip({
     ...props,
     landmarks: [peakAt],
-    poseAt: (time: number) : IAutoMoviePose | null => {
+    poseAt: (time: number): IAutoMoviePose | null => {
       const pose: IAutoMoviePose | null = props.poseAt(time);
       if (pose === null) return null;
       const weight: number =

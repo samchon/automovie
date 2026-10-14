@@ -13,7 +13,9 @@ import { isLightProperty } from "./isLightProperty";
  * @evidence contracts/performance.md#reuse-equivalent-work All pointer producers/parser checks share formatLightPointer, without caching existence across mutable scenes.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only decoded strings/property escape; segments and re-encoded text release with the call, with no scene handle or task.
  */
-export const parseLightPointer: (pointer: unknown) => IAutoMovieLightPointer | null = (
+export const parseLightPointer: (
+  pointer: unknown,
+) => IAutoMovieLightPointer | null = (
   pointer: unknown,
 ): IAutoMovieLightPointer | null => {
   if (typeof pointer !== "string") return null;
@@ -29,5 +31,6 @@ export const parseLightPointer: (pointer: unknown) => IAutoMovieLightPointer | n
 };
 
 /** RFC-6901: `~1` becomes `/` and `~0` becomes `~`, in that order. */
-const unescapePointerSegment: (segment: string) => string = (segment: string): string =>
-  segment.replaceAll("~1", "/").replaceAll("~0", "~");
+const unescapePointerSegment: (segment: string) => string = (
+  segment: string,
+): string => segment.replaceAll("~1", "/").replaceAll("~0", "~");

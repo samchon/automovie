@@ -13,7 +13,11 @@ import { MOTION_ROOT_NODE_ID } from "./constants/MOTION_ROOT_NODE_ID";
  * @evidence contracts/performance.md#reuse-equivalent-work Scene/motion consumers share naming; changed mutable skeleton contents require new lowering instead of an identity-only cache.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns node/root records and the skeleton owns borrowed rest data; no native node, handle or task is retained.
  */
-export const lowerSkeletonNodes: (props: { skeleton: IAutoMovieSkeleton; prefix?: string; rootParent?: string | null; }) => IAutoMovieNode[] = (props: {
+export const lowerSkeletonNodes: (props: {
+  skeleton: IAutoMovieSkeleton;
+  prefix?: string;
+  rootParent?: string | null;
+}) => IAutoMovieNode[] = (props: {
   /** The rig to lower. */
   skeleton: IAutoMovieSkeleton;
   /** Node-id prefix for every lowered node. Defaults to `""` (bare names). */

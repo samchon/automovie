@@ -1,4 +1,7 @@
-import { IAutoMovieActionTarget, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  IAutoMovieActionTarget,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /**
  * Resolve a staged node, literal point or complete group to world metres. Node and point results alias their supplied vectors. A group returns a fresh centroid with each named node or formation weighted once; an empty group or any absent member returns null, so resolution never changes the authored group.

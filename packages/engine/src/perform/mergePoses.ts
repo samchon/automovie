@@ -1,5 +1,9 @@
-import type { IAutoMovieTransform, AutoMovieHumanoidBone, IAutoMovieJointPose, IAutoMoviePose } from "@automovie/interface";
-
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieJointPose,
+  IAutoMoviePose,
+  IAutoMovieTransform,
+} from "@automovie/interface";
 
 /**
  * Union a nonempty list of admitted same-skeleton poses by bone with later joints winning. Bone order follows first appearance, root is the last non-null value, and the first pose supplies skeleton identity. Returned joint/root objects are borrowed.
@@ -12,10 +16,15 @@ import type { IAutoMovieTransform, AutoMovieHumanoidBone, IAutoMovieJointPose, I
  * @evidence contracts/performance.md#reuse-equivalent-work Borrowed joint/root values are reused because union does not alter them; one Map entry per bone replaces earlier values without pose rebaking.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the returned pose/array, borrowed nested values remain input-owned, and the temporary map is released without retained tasks or handles.
  */
-export const mergePoses: (poses: IAutoMoviePose [ ]) => IAutoMoviePose = (poses: IAutoMoviePose[]): IAutoMoviePose => {
+export const mergePoses: (poses: IAutoMoviePose[]) => IAutoMoviePose = (
+  poses: IAutoMoviePose[],
+): IAutoMoviePose => {
   if (poses.length === 0) throw new Error("merge poses must not be empty");
 
-  const joints: Map<AutoMovieHumanoidBone, IAutoMovieJointPose> = new Map<AutoMovieHumanoidBone, IAutoMovieJointPose>();
+  const joints: Map<AutoMovieHumanoidBone, IAutoMovieJointPose> = new Map<
+    AutoMovieHumanoidBone,
+    IAutoMovieJointPose
+  >();
   let root: IAutoMovieTransform | null = poses[0]!.root;
   for (const pose of poses) {
     if (pose.root !== null) root = pose.root;

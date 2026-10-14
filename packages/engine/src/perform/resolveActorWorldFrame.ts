@@ -1,12 +1,16 @@
-import type { IAutoMovieTransform, IAutoMovieQuaternion, IAutoMovieVector3, IAutoMovieMotion } from "@automovie/interface";
-import { actorContextWorldFrame } from "./actorContextWorldFrame";
-
+import type {
+  IAutoMovieMotion,
+  IAutoMovieQuaternion,
+  IAutoMovieTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { sampleMotion } from "../motion/sampleMotion";
 import { IAutoMovieActorContext } from "./IAutoMovieActorContext";
 import { IAutoMovieActorWorldFrame } from "./IAutoMovieActorWorldFrame";
+import { actorContextWorldFrame } from "./actorContextWorldFrame";
 
 /**
  * Resolve an admitted motion root at shot-local seconds through the context's staged rigid world frame. Missing motion or a null sampled root returns null. Output rotation and heading include the motion root; root scale is not represented.
@@ -19,17 +23,29 @@ import { IAutoMovieActorWorldFrame } from "./IAutoMovieActorWorldFrame";
  * @evidence contracts/performance.md#reuse-equivalent-work The sampled pose root serves both translation and orientation in this invocation; no duplicate sampling or cache across mutable motion inputs occurs.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns fresh frame values; motion/context inputs are borrowed and no retained pose cache, renderer or task is acquired.
  */
-export const resolveActorWorldFrame: (context: IAutoMovieActorContext, motion: IAutoMovieMotion | undefined, seconds: number) => IAutoMovieActorWorldFrame | null = (
+export const resolveActorWorldFrame: (
+  context: IAutoMovieActorContext,
+  motion: IAutoMovieMotion | undefined,
+  seconds: number,
+) => IAutoMovieActorWorldFrame | null = (
   context: IAutoMovieActorContext,
   motion: IAutoMovieMotion | undefined,
   seconds: number,
 ): IAutoMovieActorWorldFrame | null => {
   if (motion === undefined) return null;
-  const root: IAutoMovieTransform | null = sampleMotion(motion, seconds).pose.root;
+  const root: IAutoMovieTransform | null = sampleMotion(motion, seconds).pose
+    .root;
   if (root === null) return null;
   const staged: IAutoMovieActorWorldFrame = actorContextWorldFrame(context);
-  const rotation: IAutoMovieQuaternion = Quaternion.multiply(staged.rotation, root.rotation);
-  const forward: IAutoMovieVector3 = Quaternion.rotateVector(rotation, { x: 0, y: 0, z: 1 });
+  const rotation: IAutoMovieQuaternion = Quaternion.multiply(
+    staged.rotation,
+    root.rotation,
+  );
+  const forward: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
+    x: 0,
+    y: 0,
+    z: 1,
+  });
   return {
     position: Vector3.add(
       staged.position,

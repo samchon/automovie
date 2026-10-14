@@ -12,7 +12,9 @@ import { AUTO_MOVIE_LIGHT_TYPES } from "./constants/AUTO_MOVIE_LIGHT_TYPES";
  * @evidence contracts/performance.md#reuse-equivalent-work Validators reuse the constant supported-kind set; no cross-request result cache or mutable light object is assumed.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only a boolean returns, borrowing the module constant set and retaining no light, native handle or task.
  */
-export const isAutoMovieLightType: (value: unknown) => value is IAutoMovieLight["type"] = (
+export const isAutoMovieLightType: (
+  value: unknown,
+) => value is IAutoMovieLight["type"] = (
   value: unknown,
 ): value is IAutoMovieLight["type"] =>
   typeof value === "string" &&

@@ -8,7 +8,10 @@
  * @evidence contracts/performance.md#reuse-equivalent-work All world solvers reuse the same range law and no scalar-result cache is needed.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only success/error returns; no map, native handle or running task is retained.
  */
-export const validateInfluence: (label: string, influence: number) => void = (label: string, influence: number): void => {
+export const validateInfluence: (label: string, influence: number) => void = (
+  label: string,
+  influence: number,
+): void => {
   if (!Number.isFinite(influence))
     throw new Error(
       `world driver ${label} influence must be finite, but was ${influence}`,

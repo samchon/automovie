@@ -10,8 +10,9 @@ import { IAutoMovieSpringState } from "./IAutoMovieSpringState";
  * @evidence contracts/performance.md#reuse-equivalent-work The caller reuses this state across its scene frames and explicitly replaces it when history is no longer equivalent.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The scene caller owns all maps, whose population has no automatic removal bound; construction opens no resource handle or running task.
  */
-export const createSpringState: () => IAutoMovieSpringState = (): IAutoMovieSpringState => ({
-  prev: new Map(),
-  centers: new Map(),
-  sprung: new Map(),
-});
+export const createSpringState: () => IAutoMovieSpringState =
+  (): IAutoMovieSpringState => ({
+    prev: new Map(),
+    centers: new Map(),
+    sprung: new Map(),
+  });

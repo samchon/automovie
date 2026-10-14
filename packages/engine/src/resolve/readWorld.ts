@@ -9,7 +9,12 @@
  * @evidence contracts/performance.md#reuse-equivalent-work Consumers read current world entries after each mutation, with no id-only stale matrix cache.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only the borrowed matrix/error returns; no native transform, graph or task is retained.
  */
-export const readWorld: (world: Map<string, number[]>, id: string, role: string, owner?: string) => number[] = (
+export const readWorld: (
+  world: Map<string, number[]>,
+  id: string,
+  role: string,
+  owner?: string,
+) => number[] = (
   world: Map<string, number[]>,
   id: string,
   role: string,
