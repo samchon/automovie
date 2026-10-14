@@ -2,9 +2,9 @@ import { humanViewerBasisDigests } from "./humanViewerBasisDigests.js";
 import { humanViewerBasisTokens } from "./humanViewerBasisTokens.js";
 
 /**
- * Where a single-file basis token is served. `published@<d12>` is the domain's published basis, requested with its digest so the server refuses bytes that changed; any other token is the candidate a hand-written document was dropped beside (`<name>@<digest12>`). A person candidate is one packet at `/basis/person`: a face/body basis pair or a one-skin source generation.
+ * Where a single-file basis token is served. `published@<d12>` is the domain's published basis, requested with its twelve-hex digest prefix so the server refuses a current-prefix mismatch; a prefix collision can still admit changed bytes. Any other token is the candidate a hand-written document was dropped beside (`<name>@<digest12>`). A person candidate is one packet at `/basis/person`: a face/body basis pair or a one-skin source generation.
  *
- * @evidence contracts/common.md#principled-implementation Published tokens become digest-authorized domain routes and candidate tokens become encoded stem/digest query values for the existing server.
+ * @evidence contracts/common.md#principled-implementation Published tokens become digest-prefix domain routes and candidate tokens become encoded stem/digest query values for the existing server. Route assembly proves no current bytes; the server checks the requested prefix, which is not full content identity.
  * @evidence contracts/common.md#clear-and-simple-design One token-prefix branch distinguishes the published and candidate single-file route forms.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Candidate text is URL-encoded rather than inserted as a path component, while actual domain and byte admission remain with the server.
  * @evidence contracts/common.md#meaningful-documentation Documentation describes single-file published and candidate bases and the person packet route without inventing geometry.

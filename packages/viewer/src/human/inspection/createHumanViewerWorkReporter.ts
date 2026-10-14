@@ -12,7 +12,7 @@ const UNMEASURED: ReadonlySet<HumanViewerWork["phase"]> = new Set([
 ]);
 
 /**
- * Report each display stage to the host as a `HUMAN_WORK` console line. The time of an unmeasured stage is added to the spans when the next stage is reported, so a capture's whole show time is attributed. The final unmeasured stage needs a subsequent report to close its duration; this adapter does not infer a missing completion from elapsed time.
+ * Report each display stage to the host as a `HUMAN_WORK` console line. The time of a preceding loading, prepare or draw stage is added to the spans when the next stage is reported. These intervals can overlap separately measured work and do not establish an exhaustive partition of show time. The final unmeasured stage needs a subsequent report to close its duration; this adapter does not infer a missing completion from elapsed time.
  *
  * @evidence contracts/common.md#principled-implementation Each report closes the preceding unmeasured phase using performance.now and forwards actual numerical completion readings when supplied.
  * @evidence contracts/common.md#clear-and-simple-design A previous phase and timestamp join the existing span accumulator with one host console record.

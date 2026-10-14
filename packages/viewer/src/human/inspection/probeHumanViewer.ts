@@ -12,7 +12,7 @@ import { humanViewerProtocol } from "./humanViewerProtocol.js";
  * @evidence contracts/common.md#clear-and-simple-design Fetch/JSON parsing and service checks separate unanswered-port classification from foreign-program refusal.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Accepted silence cannot authorize startup or kill, and arbitrary JSON is not sufficient owned health identity.
  * @evidence contracts/common.md#meaningful-documentation The comment describes absence, timeout/reset/body silence and answering-program errors.
- * @evidence contracts/performance.md#efficient-algorithms Network/text/JSON work follows response bytes and the supplied abort timeout bounds the attempt.
+ * @evidence contracts/performance.md#efficient-algorithms Network/text/JSON work follows response bytes. The supplied abort signal limits asynchronous fetch/body waiting; synchronous JSON parsing and identity checks run to completion and are not preempted by that timer.
  * @evidence contracts/performance.md#reuse-equivalent-work Each probe observes current health while wrapped-code inspection has its own bounded diagnostic traversal.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Response bytes and the timeout signal live through the attempt, with no persistent connection, process or watcher acquired.
  */

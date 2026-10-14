@@ -14,9 +14,9 @@ import { humanViewerBasisUrl } from "./humanViewerBasisUrl.js";
 import { humanViewerResidentRuntime } from "./humanViewerResidentRuntime.js";
 
 /**
- * Read actual digest-checked source assets once for document admission and numerical construction in the same worker. Paired body and person routes borrow the identical typed views, so anatomy context cannot come from a different source than the later runtime. One latest asset per source kind is retained; loading a replacement clears the prior cache entry.
+ * Read actual source assets through digest-prefix-checked routes for document admission and numerical construction in the same worker. Prefix collisions can accept changed bytes; this transport is not full-content identity proof. Paired body and person routes borrow the identical typed views, so their context and later runtime share the same fetched objects. One latest asset per source kind is retained; loading a replacement clears the prior cache entry.
  *
- * @evidence contracts/common.md#principled-implementation Domain basis tokens select digest-checked existing asset routes, and paired body/person requests share the actual candidate or published generation promise.
+ * @evidence contracts/common.md#principled-implementation Domain basis tokens select existing digest-prefix-checked asset routes, and paired body/person requests share the actual candidate or published generation promise; prefix equality does not prove complete byte identity.
  * @evidence contracts/common.md#clear-and-simple-design Four latest-key promise maps separate face, body, person and paired generation sources without constructing anatomy in this adapter.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Paired contexts borrow the same generation views as numerical construction and ordinary asset routes still use the product asset reader rather than a synthetic basis fallback.
  * @evidence contracts/common.md#meaningful-documentation The comment defines same-worker admission/construction sharing and one-latest-asset retention per source kind.

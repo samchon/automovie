@@ -12,7 +12,7 @@ import { frameHumanViewerParts } from "./frameHumanViewerParts.js";
  * @evidence contracts/common.md#clear-and-simple-design Three frame/view branches followed by one optional look branch delegate actual camera mutation to the observation stage.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Framing uses resident geometry without changing the numerical document, and explicit look remains a supplied camera request rather than an observed output reading.
  * @evidence contracts/common.md#meaningful-documentation The comment states framing precedence and the final explicit-look camera override.
- * @evidence contracts/performance.md#efficient-algorithms Named-part framing delegates one geometry traversal; other branches perform fixed tuple arithmetic and one canonical camera conversion.
+ * @evidence contracts/performance.md#efficient-algorithms Selected-part or zoomed-whole framing delegates current mesh-subtree bounds, and an ordinary named view delegates current root bounds to observation; only an explicit sphere avoids geometry traversal before fixed camera conversion. Overlapping selected subtrees can repeat vertex visits in the delegated part owner.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A camera request is an owned stage effect and is not skipped because another address once used equal coordinates.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Stage/group/address are borrowed and only temporary frame tuples are created; the existing stage owns camera and viewport lifetime.
  */

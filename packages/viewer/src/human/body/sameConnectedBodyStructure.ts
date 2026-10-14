@@ -6,14 +6,11 @@ import type { IConnectedBodyResident } from "./IConnectedBodyResident.js";
 /**
  * Whether a resident body group's buffers can take a new frame in place.
  *
- * The finishes and every part's non-geometry fields must serialize equally,
- * and each mesh must keep its position and normal counts and the exact same
- * UVs, colours and indices. Only coordinates may differ, which the renderer
- * then writes into the existing buffers.
+ * The finishes and every part's non-geometry fields must serialize equally, and each mesh must keep its position and normal counts and the exact same UVs, colours and indices. Coordinate and normal values may differ and are written into existing buffers. Physical correspondence is outside this reuse predicate and is admitted separately by the renderer.
  *
  * @author Samchon
  *
- * @evidence contracts/common.md#principled-implementation Reuse requires equal serialized materials and non-geometry part records, identical part order/count, matching position/normal lengths and exact UV/color/index elements. Only coordinate and normal values may change; admitted model records must retain the same meanings and JSON serializable field order.
+ * @evidence contracts/common.md#principled-implementation Reuse requires equal serialized materials and non-geometry part records, identical part order/count, matching position/normal lengths and exact UV/color/index elements. Coordinate/normal values and physical correspondence are not compared here; the renderer independently admits current physical metadata before publication. Source part records must remain consistent with their native resident buffers, and JSON field order affects comparison.
  * @evidence contracts/common.md#clear-and-simple-design One predicate owns the body renderer's in-place buffer reuse boundary, with a private numeric-array comparator for retained static attributes.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Equality uses actual configuration and topology rather than a fixture id or source/prose fingerprint. JSON property order can conservatively reject equivalent records, and unrepresented custom part state would require explicit inclusion before reuse is sound.
  * @evidence contracts/common.md#meaningful-documentation The comment lists mutable coordinates versus fixed finish/metadata/count/static-buffer premises; the return only permits GPU buffer reuse and is not anatomical or clinical equivalence.

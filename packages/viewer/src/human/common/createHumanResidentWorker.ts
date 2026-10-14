@@ -6,16 +6,13 @@ import type { IHumanWorkerMessage } from "./IHumanWorkerMessage.js";
 import { humanWorkerErrorMessage } from "./humanWorkerErrorMessage.js";
 
 /**
- * Keep one numerical worker alive across edits and correlate concurrent replies.
- * Cancelling a request withdraws its result without discarding the compiled
- * basis. Transport failure rejects every pending request; successful connection
- * retirement allows the next request to reconnect. Failed termination retains
- * the connection and original combined cause and blocks further allocation.
- * Late replies from the withdrawn connection have no authority.
+ * Keep one numerical worker alive across edits and correlate concurrent replies. Cancelling a request withdraws its result without discarding the compiled basis. Transport failure whose message extraction succeeds rejects every pending request; successful connection retirement allows the next request to reconnect. Failed termination retains the connection and original combined cause and blocks further allocation. Late replies from the withdrawn connection have no authority.
+ *
+ * Throwing error getters or string coercion can escape before transport cleanup is entered; that unresolved boundary does not guarantee settlement of all pending work.
  *
  * @evidence contracts/common.md#principled-implementation Lazy connection acquisition and monotonically assigned request ids correlate a pending map; current-port identity rejects stale connection replies. Cancellation deletes and rejects its pending entry without aborting numerical processing. Typed envelopes rely on the port producer's actual protocol; ids have no safe-integer exhaustion guard.
  * @evidence contracts/common.md#clear-and-simple-design One coordinator owns transport callbacks, pending settlement and lazy reconnection; body/face numerical operation grammar and browser worker construction remain supplied collaborators.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Every request keeps its own result; synchronous factory/postMessage failure keeps its contextual message and original Error.cause. Termination failure combines transport and cleanup causes before pending rejection, retains the port and refuses reentrant/new allocation or native retries. Shared error messages still use historical face wording; public termination completion is not a physical census.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Every request keeps its own result; synchronous factory/postMessage failure keeps its contextual message and original Error.cause when message extraction succeeds. Throwing error getters/string coercion can escape before close and leave pending ownership unsettled; this boundary remains unresolved. Termination failure combines transport and cleanup causes before pending rejection, retains the port and refuses reentrant/new allocation or native retries. Shared error messages still use historical face wording; public termination completion is not a physical census.
  * @evidence contracts/common.md#meaningful-documentation The comment distinguishes withdrawn result authority from worker computation cancellation, connection recovery and late-reply refusal. Disposal rejects future requests, while caller-supplied port termination is the native lifetime boundary.
  * @evidence contracts/performance.md#efficient-algorithms Normal request/reply/cancel uses map lookup and deletion; connection failure/disposal visits P pending callbacks once. Retention grows with P independently issued unsettled requests, without a configured cap or timeout.
  * @evidence contracts/performance.md#reuse-equivalent-work One live connection and its admitted numerical basis serve successful edits; successful transport cleanup permits lazy reconnection, while failed termination shares the same stored cause for future requests and repeated disposal without native retries. Equal inputs remain independently effectful and canceled ids have no reply authority.

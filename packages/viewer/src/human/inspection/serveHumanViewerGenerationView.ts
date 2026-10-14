@@ -9,7 +9,7 @@ import { streamHumanViewerVerifiedFile } from "./streamHumanViewerVerifiedFile.j
  *
  * Current SHA-256 is compared using the requested 12-to-64-hex prefix. A collision can accept changed view bytes; this local availability check is not a complete frame receipt, and workflow dependency substitution remains caller-owned.
  *
- * @evidence contracts/common.md#principled-implementation Selects one named head/body published or candidate view and requires its digest prefix, then delegates exact current-byte comparison and streaming to the verified-file owner.
+ * @evidence contracts/common.md#principled-implementation Selects one named head/body published or candidate view and requires its digest prefix, then delegates current digest-prefix comparison and streaming of those same read bytes to the verified-file owner.
  * @evidence contracts/common.md#clear-and-simple-design Specific paired-view paths and candidate naming stay separate from the general basis route, preserving the selected view's authority.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing, ambiguous or malformed view selection refuses and unavailable generation views do not fall back to unrelated face/body files.
  * @evidence contracts/common.md#meaningful-documentation Documentation identifies split candidate names, digest requirements, byte-change refusal and the limit of local availability proof.

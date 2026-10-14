@@ -10,7 +10,7 @@ import { reportAutoMovieResourceRetirement } from "../../reportAutoMovieResource
  * @evidence contracts/common.md#meaningful-documentation Documentation describes response-owned holds, candidate label/null semantics and acquisition-failure release.
  * @evidence contracts/performance.md#efficient-algorithms Route dispatch and token lookup use fixed adapter work; pending label duration and retained window population belong to the supplied window owner.
  * @evidence contracts/performance.md#reuse-equivalent-work Holds are distinct lifetime effects even for equal source candidates; resolved token labels are shared only by the windows owner's existing token identity.
- * @evidence contracts/performance.md#bound-retention-and-release-resources One response close listener releases its acquired hold and setup failure withdraws the listener before independently reporting cleanup/primary failures; normal window retention is bounded by the windows owner.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources One response close listener releases its acquired hold and setup failure withdraws the listener before independently reporting cleanup/primary failures. Active held responses and pending label waits have no numeric cap here; the windows owner retains at most 64 closed labels while active windows remain until their actual close.
  */
 export function serveHumanViewerGeneration(
   props: IServeHumanViewerGenerationProps,

@@ -61,6 +61,6 @@ export interface HumanViewerWork {
   /** Documents the page keeps drawn-ready. */
   residents: number;
 
-  /** Bytes of arrays those residents keep alive, the quantity their cache is bounded by. */
+  /** Counted array weight used by residency policy; aliases can be counted repeatedly, so this is not a physical memory measurement. */
   residentBytes: number;
 }

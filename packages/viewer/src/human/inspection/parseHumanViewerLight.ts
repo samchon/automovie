@@ -4,7 +4,7 @@ import { humanViewerChoices } from "./humanViewerChoices.js";
 /**
  * Admit the display protocol name,x,y,z for a body studio-light direction. The viewport owns normalization and original-distance restoration; this parser preserves finite raw components and rejects empty or zero vectors. HTTP addresses and the light controls use this same admission boundary. Coordinates are dimensionless world Y-up directions, not model parameters.
  *
- * @evidence contracts/common.md#principled-implementation A supported studio-light name and three finite nonzero raw components form the shared light protocol vector.
+ * @evidence contracts/common.md#principled-implementation A supported studio-light name and three raw components with a finite positive representable Euclidean norm form the shared light protocol vector; individual components may be zero.
  * @evidence contracts/common.md#clear-and-simple-design Split/name/magnitude checks preserve raw direction while normalization remains with the viewport.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Empty or zero/nonfinite vectors refuse and dimensionless directions are not labeled model positions.
  * @evidence contracts/common.md#meaningful-documentation The comment defines syntax, Y-up units and normalization/original-distance ownership.

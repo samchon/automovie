@@ -3,7 +3,7 @@ import { humanViewerThumbnailDirectory } from "./humanViewerThumbnailDirectory.j
 import { planHumanViewerThumbnailPrune } from "./planHumanViewerThumbnailPrune.js";
 
 /**
- * The disk folder of display thumbnails, one directory per source revision. A thumbnail the current revision has not drawn yet is answered with the same picture from the newest older revision (`stale`), so a gallery never empties when a source edit starts a new revision, and the caller marks that answer stale so it is dimmed and never cached as current. Pruning keeps the current revision and that one previous revision and removes the rest, since only these can still be shown. Nothing outside the thumbnail folder is read or removed, and the numerical result cache is not touched.
+ * The disk folder of display thumbnails, one directory per source revision. A thumbnail missing from the current revision can use the same basename from the newest older directory that contains it, or null when none does. The capture route marks that fallback stale instead of caching it as current. Successful pruning keeps the current revision and the older directory with the latest modification time; it does not prove that directory has every gallery image. Paths derive from the supplied thumbnail folder and disk-reported directory names; the numerical result cache is not touched.
  *
  * @evidence contracts/common.md#principled-implementation The canonical revision-directory planner selects pruning targets and stale lookup searches older directories by actual disk times for the same thumbnail basename.
  * @evidence contracts/common.md#clear-and-simple-design Prune and stale are independent disk-policy adapters over one folder and the shared revision naming function.

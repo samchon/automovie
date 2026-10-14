@@ -57,10 +57,7 @@ export interface HumanViewerAddress {
    */
   look: [number, number, number, number, number, number, number] | null;
 
-  /**
-   * Multiplier of the fitted camera distance's inverse: two shows the framed
-   * subject twice as large, a half twice as far. The framing centre stays.
-   */
+  /** Divisor of the framing sphere's radius before camera fitting; its centre stays fixed, and an explicit look overrides the resulting placement. This does not promise proportional projected size for every depth on a three-dimensional surface. */
   zoom: number;
 
   /** Bake numerical ambient occlusion when true. */
@@ -87,12 +84,12 @@ export interface HumanViewerAddress {
    */
   calibrate: boolean;
 
-  /** Square capture side in pixels. */
+  /** Square render-cell side in pixels; reference or sheet composition can widen the final capture. */
   size: number;
 
-  /** Local reference presentation, absent when no local reference is configured. */
+  /** Requested local reference presentation, or null for none; the display owner separately checks photograph availability. */
   ref: "split" | "overlay" | "swipe" | null;
 
-  /** Render contribution in overlay mode, between zero and one. */
+  /** Render contribution in overlay mode or horizontal divider fraction in swipe mode, between zero and one. */
   opacity: number;
 }

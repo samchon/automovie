@@ -1,6 +1,5 @@
 /**
- * Directions toward a round light source of angular radius `halfAngle`
- * centred on `direction`, as `count` point lights of equal solid angle.
+ * Directions toward a round light source of angular radius `halfAngle` centred on `direction`, as `count` equal-solid-angle directional samples.
  *
  * The source is sampled on its spherical cap with a golden-angle spiral:
  * the k-th of `count` directions sits at the
@@ -12,7 +11,7 @@
  * Pure: returns new arrays.
  *
  * @evidence contracts/common.md#principled-implementation Midpoints of equal solid-angle cap intervals select polar angles, golden-angle turns distribute azimuths, and a least-aligned axis supplies a stable orthonormal basis. Finite nonzero direction length, supported angle and feasible integer count are premises; positive infinite direction length passes the current gate, and tiny angles can collapse under floating rounding.
- * @evidence contracts/common.md#clear-and-simple-design The function returns numerical directions of the original length; native point-light allocation, power division and shadow map policy remain with addHumanPreviewRig.
+ * @evidence contracts/common.md#clear-and-simple-design The function returns numerical directions of the original length; native directional-light allocation, power division and shadow map policy remain with addHumanPreviewRig.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Sampling follows a uniform formula rather than source names or expected shadow shapes. Equal solid-angle intervals approximate an extended emitter; they do not guarantee exact penumbra widths or observed smoothness at a finite sample count.
  * @evidence contracts/common.md#meaningful-documentation The comment gives radian cap radius, midpoint indexing, equal-share interpretation and retained direction length without unobserved centimetre-scale appearance claims.
  * @evidence contracts/performance.md#efficient-algorithms Builds N direction tuples in linear time and storage; basis construction has fixed three-axis work. Count has no finite memory cap beyond the host's Array.from limits.
