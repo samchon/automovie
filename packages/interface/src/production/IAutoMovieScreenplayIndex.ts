@@ -8,8 +8,9 @@ import { IAutoMovieTreatmentSequence } from "./IAutoMovieTreatmentSequence";
  * Machine index beside production-owned treatment and screenplay prose.
  *
  * Markdown remains the authored narrative source. This index carries stable identity, coverage, lock history, catalogs and traceability rather than automatic judgments of dramatic quality.
+ * The production screenplay host is retired; this retained DTO does not load documents or validate the relationships below.
  *
- * @evidence contracts/common.md#principled-implementation Typed ledgers connect treatment promises, ordered screenplay scenes, permanent lock identity, catalogs and continuity proof owners under one active production namespace; production validation checks cross-record consistency.
+ * @evidence contracts/common.md#principled-implementation A version-2 record groups authored treatment, scene, catalog and continuity ledgers; string joins describe their intended relationships without checking cross-record consistency or active-production membership.
  * @evidence contracts/common.md#clear-and-simple-design Narrative documents retain prose ownership while this versioned companion provides machine-addressable relationships needed by source, review and edit coverage.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Stable ids and explicit disposition distinguish active coverage from omission; catalog citations and declared claims do not prove dramatic quality or successful compiled realization by themselves.
  * @evidence contracts/common.md#meaningful-documentation Defines production and document addressing, treatment and scene populations, optional lock state, catalog categories and single-owner continuity claims.

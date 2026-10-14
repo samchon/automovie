@@ -5,9 +5,9 @@ import { IAutoMovieScreenplayParticipant } from "./IAutoMovieScreenplayParticipa
 /**
  * One stable screenplay scene or permanent deletion tombstone whose narrative prose remains in Markdown.
  *
- * @evidence contracts/common.md#principled-implementation Stable scene ids join exact treatment coverage, story-time identity, participants and catalog location, while status and phase-local disposition determine downstream coverage and preserve lock references through deletion.
+ * @evidence contracts/common.md#principled-implementation A scene record carries authored coverage, location, story time and participation beside an active-or-OMITTED status; the flat interface does not validate joins or constrain other fields by status.
  * @evidence contracts/common.md#clear-and-simple-design The scene ledger stores addressable semantic relationships and an optional per-scene document path; full narrative prose remains in its authoritative document.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts An OMITTED scene is a tombstone with no prose path, and explicit unknown story time differs from a missing carrier; neither omission nor a descriptive index entry proves shot realization.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Tombstone path omission and explicit unknown story time are documented conventions; this declaration neither refuses malformed carriers nor proves downstream shot realization.
  * @evidence contracts/common.md#meaningful-documentation Defines stable numbering and insertion form, title, active/tombstone status, split-document addressing, exact promises, location, story time, participants and local exemption.
  * @author Samchon
  */
@@ -41,7 +41,7 @@ export interface IAutoMovieScreenplayScene {
   /**
    * Exact story-time identity stated by the authoritative prose carrier.
    *
-   * Use `unknown` when the story deliberately leaves the time unresolved. An absent carrier is different from that explicit state and is refused.
+   * Use `unknown` when the story deliberately leaves the time unresolved. The string field does not verify that the prose carrier exists or states this value.
    */
   storyTime: string;
 
