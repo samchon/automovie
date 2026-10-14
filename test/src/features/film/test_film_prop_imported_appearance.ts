@@ -16,10 +16,7 @@ const SIDECAR_BYTES: string = FILM_IMPORTED_PROP_BYTES.sidecar;
 /**
  * Forge a fresh imported chair after one mutation, so cases never compound.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls the real prop forge after the supplied mutation and reports whether its refusal has the caller's path and reason.
- * @evidence contracts/testing.md#independent-expectations The owning entry supplies contract-derived expected paths and reason fragments; the helper never creates expectations from the returned result.
- * @evidence contracts/testing.md#distinguishing-cases Every invocation creates fresh input so malformed ledger, reference, media and prop cases remain isolated; accepted neighbors use tolerated.
- * @evidence contracts/testing.md#execution-ownership This private synchronous reader serves the discoverable appearance entry and delegated LOD group; it loads no bytes or host and retains no result cache.
+ * The owning entry supplies the required refusal path and reason fragment; accepted neighbors use tolerated. No asset bytes are loaded.
  */
 function refuses (
   mutate: (spec: IAutoMoviePropSpec) => void,
@@ -40,10 +37,7 @@ function refuses (
 /**
  * The same mutation, asserted to leave the prop forgeable.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls the real prop forge on a fresh mutated appearance and returns its admission result to the owning predicate.
- * @evidence contracts/testing.md#independent-expectations The entry chooses contract-supported mutations expected to remain valid; this helper reads success without generating an oracle.
- * @evidence contracts/testing.md#distinguishing-cases Keeps isolated valid neighboring media, ledger and articulation changes; the refusal reader owns negative paths and reasons.
- * @evidence contracts/testing.md#execution-ownership The discoverable appearance entry owns all invocations of this private portable helper; no asset, host or completed-result cache is acquired.
+ * Calls the real prop forge on fresh input and returns admission to the owning entry's predicate.
  */
 function tolerated (mutate: (spec: IAutoMoviePropSpec) => void): boolean {
   const spec: IAutoMoviePropSpec = createImportedPropSpec();
@@ -80,24 +74,13 @@ function tolerated (mutate: (spec: IAutoMoviePropSpec) => void): boolean {
  */
 export function test_film_prop_imported_appearance (): void {
   const forged: IAutoMovieForgedProp = forgeProp(createImportedPropSpec());
-  TestValidator.equals(
+  TestValidator.predicate(
     "an imported chair forges",
-    forged.success === true
-      ? {
-          node: forged.prop.node,
-          modelRef: forged.prop.modelRef,
-          origin: forged.prop.model.origin,
-          mass: forged.prop.model.body !== null && forged.prop.model.body !== undefined && nclose(forged.prop.model.body.mass, 6, 0),
-          affordance: forged.prop.model.affordances?.[0]?.kind ?? null,
-        }
-      : null,
-    {
-      node: "chair",
-      modelRef: "chair-recipe",
-      origin: "imported",
-      mass: true,
-      affordance: "stack-top",
-    },
+    forged.success === true && forged.prop.node === "chair" &&
+      forged.prop.modelRef === "chair-recipe" && forged.prop.model.origin === "imported" &&
+      forged.prop.model.body !== null && forged.prop.model.body !== undefined &&
+      nclose(forged.prop.model.body.mass, 6, 0) &&
+      forged.prop.model.affordances?.[0]?.kind === "stack-top",
   );
 
   TestValidator.equals(

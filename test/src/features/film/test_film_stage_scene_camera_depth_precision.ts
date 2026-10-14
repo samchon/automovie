@@ -4,7 +4,7 @@ import type { IAutoMovieStagedSet } from "../../../../packages/engine/src/film/I
 import { stageScene } from "../../../../packages/engine/src/film/stageScene";
 import { TestValidator } from "@nestia/e2e";
 import { makeScriptWrite, makeStagingWrite } from "../internal/filmFixtures";
-import { hasViolation, namedFacts } from "../internal/predicates";
+import { hasViolation } from "../internal/predicates";
 
 /**
  * Authored clip and precision values are validated and lowered without defaults.
@@ -32,27 +32,13 @@ export function test_film_stage_scene_camera_depth_precision(): void {
     makeScriptWrite(),
     makeStagingWrite({ cameras: [authored] }),
   );
-  TestValidator.equals(
+  TestValidator.predicate(
     "accepted values reach the resolved camera without aliasing",
-    namedFacts([
-      ["success", (): boolean => accepted.success],
-      [
-        "values",
-        (): boolean =>
-          accepted.success &&
-          nclose(accepted.scene.cameras[0]!.near, 0.25, 0) &&
-          nclose(accepted.scene.cameras[0]!.far, 250, 0) &&
-          accepted.scene.cameras[0]!.depthPrecision.minimumDepthBits === 16 &&
-          nclose(accepted.scene.cameras[0]!.depthPrecision.maximumStepMeters, 0.5, 0),
-      ],
-      [
-        "copied",
-        (): boolean =>
-          accepted.success &&
-          accepted.scene.cameras[0]!.depthPrecision !== authored.depthPrecision,
-      ],
-    ]),
-    { success: true, values: true, copied: true },
+    accepted.success && nclose(accepted.scene.cameras[0]!.near, 0.25, 0) &&
+      nclose(accepted.scene.cameras[0]!.far, 250, 0) &&
+      accepted.scene.cameras[0]!.depthPrecision.minimumDepthBits === 16 &&
+      nclose(accepted.scene.cameras[0]!.depthPrecision.maximumStepMeters, 0.5, 0) &&
+      accepted.scene.cameras[0]!.depthPrecision !== authored.depthPrecision,
   );
 
   /** Apply one malformed operand patch without admitting it in the fixture, retaining an independently aimed valid base camera. */

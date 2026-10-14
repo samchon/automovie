@@ -8,7 +8,10 @@ import { namedFacts } from "../internal/predicates";
  * Every original identity refusal retains its full addressed field and adjacent physical contract.
  *
  * Scenarios:
- * 1. Evaluate the unchanged case builder on fresh original registries; retain every original true predicate and refusal path.
+ * 1. Locate duplicate and ambiguous prop, staging and environment identities, failed forging and missing or mismatched staged joins.
+ * 2. Refuse unsupported relation/target combinations and dangling environment, space, element, boundary, opening and surface references.
+ * 3. Distinguish self-support, missing hosts or affordances, and wrong stack-top, socket or hook kinds.
+ * 4. Refuse a building relation or supporting prop in a different environment from the occupied space.
  *
  * @evidence contracts/testing.md#behavioral-verification Invokes the existing identity-case builder and requires every addressed duplicate, join, target-kind, missing-reference and affordance refusal from real placement validation.
  * @evidence contracts/testing.md#independent-expectations Literal registry identities, relation-kind rules and independently selected missing/ambiguous targets supply the expected paths and all-true predicates rather than a copied validator output.

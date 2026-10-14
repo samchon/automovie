@@ -87,10 +87,10 @@ const compile: (framed: boolean) => IAutoMovieCompiledDefinedShot = (framed: boo
  * the camera `resolveCameraAt` gives the renderer at that instant.
  * 2. That placement is a different point from the staged transform, which is
  * what makes the record worth writing.
- * 3. A beat with no `frame` action compiles no move and records no placement. Independent depth precision belongs to the dedicated depth tests; the former copied report decimals are removed from this entry.
+ * 3. A beat with no `frame` action compiles no move and records no placement; independent depth precision belongs to the dedicated depth tests.
  *
  * @evidence contracts/testing.md#behavioral-verification Compiles framed and locked programs and observes actual camera-motion membership, recorded placement and preservation of staged camera inputs; recorded framed placement is compared through the renderer's camera resolver seam.
- * @evidence contracts/testing.md#independent-expectations The authored staged position and framed-versus-locked contract provide independent changed/unchanged expectations; the shared resolver comparison proves agreement between consumers rather than an independent camera-solve algorithm, and copied depth-report decimals are not used as an oracle.
+ * @evidence contracts/testing.md#independent-expectations The authored staged position and framed-versus-locked contract provide independent changed/unchanged expectations; the shared resolver comparison proves agreement between consumers rather than an independent camera-solve or depth-precision algorithm.
  * @evidence contracts/testing.md#distinguishing-cases Keeps framed and locked successful compilation, moved placement at every sample, unchanged staged translation and absence of locked placements; independent depth precision is owned by its dedicated tests.
  * @evidence contracts/testing.md#execution-ownership The runner discovers test_film_realization_camera_placement and this entry owns its direct and delegated in-memory CPU assertions; it acquires no renderer, GPU, decoder, native build, installed consumer or completed-result cache. Numeric/byte observations do not prove hardware appearance or universal cross-host identity.
  */
@@ -98,9 +98,9 @@ export function test_film_realization_camera_placement(): void {
   const framed: IAutoMovieCompiledDefinedShot = compile(true);
   const locked: IAutoMovieCompiledDefinedShot = compile(false);
   const staged: { x: number; y: number; z: number; } = { x: 2, y: 1.5, z: 0.35 };
-  TestValidator.equals(
+  TestValidator.predicate(
     "a realization records the camera a compiled move actually renders",
-    namedFacts([
+    Object.values(namedFacts([
       ["framedSuccess", (): boolean => framed.success],
       ["lockedSuccess", (): boolean => locked.success],
       [
@@ -171,17 +171,6 @@ export function test_film_realization_camera_placement(): void {
             (outcome: { time: number; placement?: { position: IAutoMovieVector3; rotation: IAutoMovieQuaternion; }; depthPrecision: IAutoMovieCameraDepthPrecisionReport; requiredSubjects: number; resolvedSubjects: number; readableSubjects: number; passed: boolean; }): boolean => "placement" in outcome === false,
           ),
       ],
-    ]),
-    {
-      framedSuccess: true,
-      lockedSuccess: true,
-      framedHasMove: true,
-      lockedHasNoMove: true,
-      framedSamplesCarryPlacement: true,
-      framedPlacementIsTheRenderedCamera: true,
-      framedStagedCameraIsUnchanged: true,
-      framedPlacementLeavesTheStagedPoint: true,
-      lockedSamplesCarryNoPlacement: true,
-    },
+    ])).every((fact: boolean): boolean => fact),
   );
 }

@@ -4,16 +4,16 @@ import {
   TestValidator,
 } from "@nestia/e2e";
 import {
-  namedFacts,
   nclose,
 } from "../internal/predicates";
 import { createProductionSoundAssetTestInputs } from "../internal/audio/createProductionSoundAssetTestInputs";
 
 /**
- * A shorter decoded generation reads exact reached samples and leaves only its unreached final tick silent.
+ * A shorter decoded generation preserves the last reached sample within 1e-6
+ * and leaves its adjacent unreached final tick exactly silent.
  *
  * Scenarios:
- * 1. A decoded generation ending one sample before its declared span is exact at the last reached sample.
+ * 1. A decoded generation ending one sample before its declared span preserves the last reached sample within 1e-6.
  * 2. Only the single unreached native tick becomes silent.
  *
  * @evidence contracts/testing.md#behavioral-verification Mixes a supplied asset generation one sample shorter than its declared cue and observes the last reached sample and the one unreached silent tick.
@@ -35,20 +35,12 @@ export function test_film_production_sound_generation_extent(): void {
       assets: new Map([["public/bed.wav", source.subarray(0, length - 1)]]),
     }).pcm;
 
-  TestValidator.equals(
-      "a generation is exact where it reaches and silent where it does not",
-      namedFacts([
-        [
-          "theReachedSampleIsExact",
-          (): boolean =>
-            nclose(
+  TestValidator.predicate(
+      "the last reached sample stays within 1e-6 and the next tick is silent",
+      nclose(
               at(shortGeneration, length - 2),
               source[length - 2]! * gain,
               1e-6,
-            ),
-        ],
-        ["theUnreachedTickIsSilent", (): boolean => nclose(at(shortGeneration, length - 1), 0, 0)],
-      ]),
-      { theReachedSampleIsExact: true, theUnreachedTickIsSilent: true },
+            ) && nclose(at(shortGeneration, length - 1), 0, 0),
     );
 }

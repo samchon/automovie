@@ -127,24 +127,11 @@ export function test_film_production_sound_viseme(): void {
   const silence: IAutoMovieRenderedProductionSound = renderProductionSound({
     plan: { ...plan, events: [], cues: [], dialogue: [] },
   });
-  TestValidator.equals(
+  TestValidator.predicate(
     "an empty plan remains exact-runtime measurable silence",
-    namedFacts([
-      [
-        "silenceAnalysisIntegratedLoudness",
-        (): boolean => silence.analysis.integratedLoudness === null,
-      ],
-      ["silenceAnalysisSamplePeak", (): boolean => nclose(silence.analysis.samplePeak, 0, 0)],
-      [
-        "silenceAnalysisLongestSilenceSeconds",
-        (): boolean => nclose(silence.analysis.longestSilenceSeconds, 3, 0),
-      ],
-    ]),
-    {
-      silenceAnalysisIntegratedLoudness: true,
-      silenceAnalysisSamplePeak: true,
-      silenceAnalysisLongestSilenceSeconds: true,
-    },
+    silence.analysis.integratedLoudness === null &&
+      nclose(silence.analysis.samplePeak, 0, 0) &&
+      nclose(silence.analysis.longestSilenceSeconds, 3, 0),
   );
   TestValidator.equals(
     "sound planning refuses missing and inconsistent compiled evidence",

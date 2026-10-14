@@ -21,7 +21,7 @@ import {
  * 3. The largest fitting source offset survives planning, and the mixed master has the authored stereo extent, audible bounded peaks and admitted event alignment.
  *
  * @evidence contracts/testing.md#behavioral-verification Plans trimmed semantic events and mixes cues/dialogue, asserting event membership, camera-relative pan signs, live formation positions, source offsets and audible bounded master analysis.
- * @evidence contracts/testing.md#independent-expectations The fixture's declared frame trim, dyadic formation positions and three-second 48kHz stereo extent provide expectations; frame rounding and mixed-master alignment checks share planner/analysis quantities and do not independently isolate each event's energy.
+ * @evidence contracts/testing.md#independent-expectations The authored trim gives six retained events, dyadic formation X positions and three seconds at 48kHz gives 144000 sample frames. The trim assertion counts events without checking the full retained id set; frame rounding and mixed-master alignment share planner/analysis quantities and do not isolate each event's energy. Exact formation/runtime predicates retain zero tolerance, and alignment count prevents an empty report from passing vacuously.
  * @evidence contracts/testing.md#distinguishing-cases Covers actor, formation and instance emitters, an omitted trimmed event, positive/negative/zero pan and the largest fitting source offset; dedicated density, spread, cue-ingress and viseme entries own those boundaries.
  * @evidence contracts/testing.md#execution-ownership The runner discovers test_film_production_sound and this entry owns its direct and delegated in-memory CPU assertions; it acquires no renderer, GPU, decoder, native build, installed consumer or completed-result cache. Numeric/byte observations do not prove hardware appearance or universal cross-host identity.
  */
@@ -32,54 +32,26 @@ export function test_film_production_sound(): void {
     contracts: new Map([["sound-shot", productionSoundContract()]]),
     compiled: new Map([["sound-shot", source]]),
   });
-  TestValidator.equals(
+  TestValidator.predicate(
     "trimmed events are omitted while every audible event stays frame-bound",
-    namedFacts([
-      ["trimmedOmitted", (): boolean => plan.events.length === 6],
-      [
-        "framesRounded",
-        (): boolean =>
-          plan.events.every(
-            (event: IAutoMovieProductionSoundEvent): boolean => event.frame === Math.round(event.timeSeconds * plan.fps),
-          ),
-      ],
-      ["audible", (): boolean => plan.events.every((event: IAutoMovieProductionSoundEvent): boolean => event.attenuation > 0)],
-      [
-        "attenuationCapped",
-        (): boolean => plan.events.every((event: IAutoMovieProductionSoundEvent): boolean => event.attenuation <= 1),
-      ],
-      // The pan's own bounds are not asserted here. It is one component of a
-      // displacement over that displacement's own norm, so `[-1, 1]` is
-      // arithmetic rather than a rule, and no emitter a production can place
-      // could put it outside. The next case checks which side of the lens
-      // each emitter occupies.
-    ]),
-    {
-      trimmedOmitted: true,
-      framesRounded: true,
-      audible: true,
-      attenuationCapped: true,
-    },
+    plan.events.length === 6 &&
+      plan.events.every((event: IAutoMovieProductionSoundEvent): boolean => event.frame === Math.round(event.timeSeconds * plan.fps)) &&
+      plan.events.every((event: IAutoMovieProductionSoundEvent): boolean => event.attenuation > 0) &&
+      plan.events.every((event: IAutoMovieProductionSoundEvent): boolean => event.attenuation <= 1),
   );
-  TestValidator.equals(
+  TestValidator.predicate(
     "camera-relative emitters cover nodes, formations and instance sets",
-    namedFacts([
-      ["planEventsEvent", (): boolean => plan.events.some((event: IAutoMovieProductionSoundEvent): boolean => event.pan > 0)],
-      ["planEventsEvent2", (): boolean => plan.events.some((event: IAutoMovieProductionSoundEvent): boolean => event.pan < 0)],
-      ["planEventsEvent3", (): boolean => plan.events.some((event: IAutoMovieProductionSoundEvent): boolean => nclose(event.pan, 0, 0))],
-    ]),
-    { planEventsEvent: true, planEventsEvent2: true, planEventsEvent3: true },
+    plan.events.some((event: IAutoMovieProductionSoundEvent): boolean => event.pan > 0) &&
+      plan.events.some((event: IAutoMovieProductionSoundEvent): boolean => event.pan < 0) &&
+      plan.events.some((event: IAutoMovieProductionSoundEvent): boolean => nclose(event.pan, 0, 0)),
   );
   const formationEvents: IAutoMovieProductionSoundEvent[] = plan.events.filter(
     (event: IAutoMovieProductionSoundEvent): boolean => event.event === "arrival" || event.event === "reveal",
   );
-  TestValidator.equals(
+  TestValidator.predicate(
     "formation emitters sample compact motion at each event time",
-    namedFacts([
-      ["arrivalEmitterPlaced", (): boolean => formationEvents[0] !== undefined && nclose(formationEvents[0].emitter.x, -1.75, 0)],
-      ["revealEmitterPlaced", (): boolean => formationEvents[1] !== undefined && nclose(formationEvents[1].emitter.x, 2, 0)],
-    ]),
-    { arrivalEmitterPlaced: true, revealEmitterPlaced: true },
+    formationEvents[0] !== undefined && nclose(formationEvents[0].emitter.x, -1.75, 0) &&
+      formationEvents[1] !== undefined && nclose(formationEvents[1].emitter.x, 2, 0),
   );
   const dialogue: Map<string, Float32Array<ArrayBuffer>> = new Map([["line", Float32Array.from([0.5])]]);
   const first: IAutoMovieRenderedProductionSound = renderProductionSound({ plan, dialogue });
@@ -114,40 +86,14 @@ export function test_film_production_sound(): void {
       offsetPlanCuesSourceOffsetFrame: true,
     },
   );
-  TestValidator.equals(
+  TestValidator.predicate(
     "mixed sound is exact-runtime, audible, unclipped and event aligned",
-    namedFacts([
-      [
-        "firstAnalysisSampleFrames",
-        (): boolean => first.analysis.sampleFrames === 144_000,
-      ],
-      [
-        "firstAnalysisRuntimeSeconds",
-        (): boolean => nclose(first.analysis.runtimeSeconds, 3, 0),
-      ],
-      [
-        "firstAnalysisIntegratedLoudness",
-        (): boolean => first.analysis.integratedLoudness !== null,
-      ],
-      ["firstAnalysisSamplePeak", (): boolean => first.analysis.samplePeak > 0],
-      ["firstAnalysisSamplePeak2", (): boolean => first.analysis.samplePeak <= 0.95],
-      [
-        "firstAnalysisClippingSamples",
-        (): boolean => first.analysis.clippingSamples === 0,
-      ],
-      [
-        "firstAnalysisEventAlignment",
-        (): boolean => first.analysis.eventAlignment.every((event: { id: string; expectedSeconds: number; peakSeconds: number; errorFrames: number; passed: boolean; }): boolean => event.passed),
-      ],
-    ]),
-    {
-      firstAnalysisSampleFrames: true,
-      firstAnalysisRuntimeSeconds: true,
-      firstAnalysisIntegratedLoudness: true,
-      firstAnalysisSamplePeak: true,
-      firstAnalysisSamplePeak2: true,
-      firstAnalysisClippingSamples: true,
-      firstAnalysisEventAlignment: true,
-    },
+    first.analysis.sampleFrames === 144_000 &&
+      first.analysis.integratedLoudness !== null &&
+      first.analysis.samplePeak > 0 && first.analysis.samplePeak <= 0.95 &&
+      first.analysis.clippingSamples === 0 &&
+      first.analysis.eventAlignment.length === plan.events.length &&
+      first.analysis.eventAlignment.every((event: { id: string; expectedSeconds: number; peakSeconds: number; errorFrames: number; passed: boolean; }): boolean => event.passed),
   );
+  TestValidator.predicate("the mixed runtime is exactly three seconds", nclose(first.analysis.runtimeSeconds, 3, 0));
 }

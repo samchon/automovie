@@ -37,7 +37,7 @@ export function test_film_production_sound_raster(): void {
   const waveform: IAutoMovieProductionSoundRaster = productionSoundWaveform(mixed.pcm, 32, 16);
   const spectrogram: IAutoMovieProductionSoundRaster = productionSoundSpectrogram(mixed.pcm, 8, 8);
   TestValidator.equals(
-    "waveform and spectrogram expose deterministic opaque RGBA rasters",
+    "waveform and spectrogram expose sized opaque RGBA rasters",
     namedFacts([
       ["waveformRgba", (): boolean => waveform.rgba.length === 32 * 16 * 4],
       ["spectrogramRgba", (): boolean => spectrogram.rgba.length === 8 * 8 * 4],

@@ -134,7 +134,7 @@ const violated: (mutate: (props: IAutoMoviePropSpec[], pieces: IAutoMovieStageSe
  * 1. The imported chair, the lamp standing on its seat, and the stool beside them
  * resolve: an external appearance forges and stages like any other prop.
  * 2. As a subject it is refused where a generated prop would be: floating off the
- * floor it names, leaving the logical space it occupies, and standing in the doorway.
+ * floor it names, sinking into it, leaving the logical space it occupies, and standing in the doorway.
  * 3. Its keep-out volume is its own: the stool pushed into the chair's pull-out
  * clearance is refused, and the stool pushed into the chair itself is refused as occupancy with no declared contact.
  * 4. As a host it bears: the lamp floats above and sinks into the seat face the

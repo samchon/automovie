@@ -19,9 +19,9 @@ export function assertFilmPropPassagesAndAnchors(
   input: IFilmPropUtilityInputs,
 ): void {
   const { environment, box }: IFilmPropUtilityInputs = input;
-  TestValidator.equals(
+  TestValidator.predicate(
     "passages and anchors answer only what the record can support",
-    namedFacts([
+    Object.values(namedFacts([
       [
         "filledOpeningIsBlocked",
         (): boolean =>
@@ -349,27 +349,6 @@ export function assertFilmPropPassagesAndAnchors(
             ],
           }) === null,
       ],
-    ]),
-    {
-      filledOpeningIsBlocked: true,
-      sweptConnectorIsBlocked: true,
-      openCutIsNeverBlocked: true,
-      unmodelledFillIsNeverBlocked: true,
-      unresolvedFillIsNeverBlocked: true,
-      degenerateRouteSweepsNothing: true,
-      clearOfEverythingBlocksNothing: true,
-      spaceHasNoFrame: true,
-      elementFrameIsItsWorldTransform: true,
-      boundaryFrameIsItsFirstElement: true,
-      openingFrameIsItsFill: true,
-      anchoredSurfaceFrameIsItsCentroid: true,
-      ruledSurfaceFrameReadsItsHeightRule: true,
-      affordanceFrameRidesItsStagedProp: true,
-      everyDanglingCitationAnswersNull: true,
-      unstagedAffordanceAnswersNull: true,
-      unregisteredPropsAnswerNull: true,
-      cyclicElementChainAnswersNull: true,
-      emptyPolygonSurfaceAnswersNull: true,
-    },
+    ])).every((fact: boolean): boolean => fact),
   );
 }

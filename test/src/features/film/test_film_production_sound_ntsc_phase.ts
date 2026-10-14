@@ -4,7 +4,6 @@ import {
   TestValidator,
 } from "@nestia/e2e";
 import {
-  namedFacts,
   nclose,
 } from "../internal/predicates";
 import { createProductionSoundAssetTestInputs } from "../internal/audio/createProductionSoundAssetTestInputs";
@@ -55,61 +54,28 @@ export function test_film_production_sound_ntsc_phase(): void {
       assets: new Map([["public/bed.wav", threeFrames]]),
     }).pcm;
 
-  TestValidator.equals(
+  TestValidator.predicate(
       "a rational frame clock places the trim and its film span by one tick rule",
-      namedFacts([
         // Film frame 1 is [1602, 3203): 1601 samples. Source frame 0 is
         // [0, 1602): 1602 samples. The 1601 presentation samples read source
         // samples 0 through 1600 in order; source sample 1601 is unread.
-        [
-          "theFirstPresentationSampleReadsTheTrimStart",
-          (): boolean => nclose(sample(shortPresentation, TICK_1), twoFrames[0]!, 1e-6),
-        ],
-        [
-          "theLastPresentationSampleReadsTheLastReachableSourceSample",
-          (): boolean =>
-            nclose(
+        nclose(sample(shortPresentation, TICK_1), twoFrames[0]!, 1e-6) &&
+        nclose(
               sample(shortPresentation, TICK_2 - 1),
               twoFrames[TICK_2 - TICK_1 - 1]!,
               1e-6,
-            ),
-        ],
-        [
-          "andTheSampleAfterTheSpanIsSilent",
-          (): boolean => nclose(sample(shortPresentation, TICK_2), 0, 0),
-        ],
+            ) && nclose(sample(shortPresentation, TICK_2), 0, 0) &&
         // Film frame 0 is [0, 1602): 1602 samples. Source frame 1 is
         // [1602, 3203): 1601 samples. Presentation samples 0 through 1600 read
         // source samples 1602 through 3202; presentation sample 1601 would read
         // source sample 3203, which the trim does not include although the
         // three-frame generation does, so it is silent.
-        [
-          "theFirstPresentationSampleReadsTheOffsetTick",
-          (): boolean => nclose(sample(shortSource, 0), threeFrames[TICK_1]!, 1e-6),
-        ],
-        [
-          "theLastReadSampleIsTheTrimsLast",
-          (): boolean =>
-            nclose(
+        nclose(sample(shortSource, 0), threeFrames[TICK_1]!, 1e-6) &&
+        nclose(
               sample(shortSource, TICK_2 - TICK_1 - 1),
               threeFrames[TICK_2 - 1]!,
               1e-6,
-            ),
-        ],
-        [
-          "thePresentationSamplePastTheTrimIsSilent",
-          (): boolean => nclose(sample(shortSource, TICK_2 - TICK_1), 0, 0),
-        ],
-        ["andSoIsTheSampleAfterTheSpan", (): boolean => nclose(sample(shortSource, TICK_1), 0, 0)],
-      ]),
-      {
-        theFirstPresentationSampleReadsTheTrimStart: true,
-        theLastPresentationSampleReadsTheLastReachableSourceSample: true,
-        andTheSampleAfterTheSpanIsSilent: true,
-        theFirstPresentationSampleReadsTheOffsetTick: true,
-        theLastReadSampleIsTheTrimsLast: true,
-        thePresentationSamplePastTheTrimIsSilent: true,
-        andSoIsTheSampleAfterTheSpan: true,
-      },
+            ) && nclose(sample(shortSource, TICK_2 - TICK_1), 0, 0) &&
+        nclose(sample(shortSource, TICK_1), 0, 0),
     );
 }

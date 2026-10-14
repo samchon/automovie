@@ -249,17 +249,21 @@ export function test_film_prop_placement_boundaries(): void {
   );
 
   const declaredHost: IAutoMoviePropSpec = table();
-  declaredHost.node = declaredHost.model.id = "a";
+  declaredHost.model.id = "a";
+  declaredHost.node = "a";
   const declaredGuest: IAutoMoviePropSpec = charger();
-  declaredGuest.node = declaredGuest.model.id = "b\u0000c";
+  declaredGuest.model.id = "b\u0000c";
+  declaredGuest.node = "b\u0000c";
   const contactTarget: IAutoMoviePropRelationTarget = declaredGuest.placement!.relations[1]!.target;
   if (contactTarget.kind !== "prop-affordance")
     throw new Error("the canonical charger must declare its table socket attachment");
   contactTarget.prop = declaredHost.node;
   const unrelatedHost: IAutoMoviePropSpec = table();
-  unrelatedHost.node = unrelatedHost.model.id = "a\u0000b";
+  unrelatedHost.model.id = "a\u0000b";
+  unrelatedHost.node = "a\u0000b";
   const unrelatedGuest: IAutoMoviePropSpec = charger();
-  unrelatedGuest.node = unrelatedGuest.model.id = "c";
+  unrelatedGuest.model.id = "c";
+  unrelatedGuest.node = "c";
   unrelatedGuest.placement!.relations.splice(1, 1);
   const pairProps: IAutoMoviePropSpec[] = [declaredHost, declaredGuest, unrelatedHost, unrelatedGuest];
   const pairSet: IAutoMovieStageSetPiece[] = [

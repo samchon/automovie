@@ -21,9 +21,9 @@ export function assertFilmPropSupportFaces(
   input: IFilmPropUtilityInputs,
 ): void {
   const { environment, box, UNIT, tableTop, bearing, tipped, patch }: IFilmPropUtilityInputs = input;
-  TestValidator.equals(
+  TestValidator.predicate(
     "a support states one face, and a footprint bears on it or does not",
-    namedFacts([
+    Object.values(namedFacts([
       [
         "aPatchIsItsOwnPolygonAndHeight",
         (): boolean => {
@@ -280,27 +280,7 @@ export function assertFilmPropSupportFaces(
               }) === null,
           ),
       ],
-    ]),
-    {
-      aPatchIsItsOwnPolygonAndHeight: true,
-      aRuledPatchAnswersFromItsRule: true,
-      aHostTopStandsAtTheHostsOwnTop: true,
-      aHostTopTravelsWithTheHostsScale: true,
-      aTiltedTopIsReadAsThePlaneItIs: true,
-      anEdgeOnTopStatesNoFace: true,
-      aStackTopWithoutAnExtentStatesNoFace: true,
-      anEmptyPatchPolygonStatesNoFace: true,
-      everyDanglingSupportCitationStatesNoFace: true,
-      anUnstagedOrUnregisteredHostStatesNoFace: true,
-      restingIsExactlyZero: true,
-      floatingIsPositive: true,
-      sinkingIsNegative: true,
-      standingOffTheFaceIsNull: true,
-      aRampBearsAtItsHighestProbe: true,
-      aFaceSmallerThanTheFootprintIsFoundByItsCentre: true,
-      aFaceOffTheFootprintsCentreIsFoundByItsOwnCorners: true,
-      aFaceBesideTheFootprintOnEitherSideIsStillNull: true,
-    },
+    ])).every((fact: boolean): boolean => fact),
   );
 }
 

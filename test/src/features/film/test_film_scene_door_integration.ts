@@ -14,10 +14,10 @@ import { createDoorPropSpec } from "../internal/createDoorPropSpec";
 /**
  * Quaternion components for the authored rotation in degrees about +Y.
  *
- * @evidence contracts/testing.md#behavioral-verification Supplies the input quaternion used by the door clip; observable world basis and violations are asserted by the owning integration entry.
- * @evidence contracts/testing.md#independent-expectations The conventional half-angle axis quaternion authors the clip, while the entry's full-angle cosine/sine supplies its independent world-basis expectations.
- * @evidence contracts/testing.md#distinguishing-cases The original 90-degree legal and 150-degree excessive rotations share this input construction; profile clamping is the product's responsibility.
- * @evidence contracts/testing.md#execution-ownership This private pure input helper runs inside the discovered CPU entry and retains no state or native resource.
+ * Supplies the input quaternion used by the door clip; observable world basis and violations are asserted by the owning integration entry.
+ * The conventional half-angle axis quaternion authors the clip, while the entry's full-angle cosine/sine supplies its independent world-basis expectations.
+ * The original 90-degree legal and 150-degree excessive rotations share this input construction; profile clamping is the product's responsibility.
+ * This private pure input helper runs inside the discovered CPU entry and retains no state or native resource.
  */
 function yQuat (deg: number): number[] {
   const half: number = (deg * Math.PI) / 360;
@@ -27,10 +27,10 @@ function yQuat (deg: number): number[] {
 /**
  * Construct the original single-key hinge clip for the supplied angle.
  *
- * @evidence contracts/testing.md#behavioral-verification Supplies the prefixed hinge rotation channel to the actual scene resolver used by the integration entry.
- * @evidence contracts/testing.md#independent-expectations The authored channel, angle and one-second clock are input; full-angle world vectors and declared profile limits determine expected outcomes in the entry.
- * @evidence contracts/testing.md#distinguishing-cases Preserves the legal and excessive angle pair and single-key linear clip without adding another interpolation policy.
- * @evidence contracts/testing.md#execution-ownership The private clip constructor is called only by the discovered portable door integration case and creates caller-owned records without a host or cache.
+ * Supplies the prefixed hinge rotation channel to the actual scene resolver used by the integration entry.
+ * The authored channel, angle and one-second clock are input; full-angle world vectors and declared profile limits determine expected outcomes in the entry.
+ * Preserves the legal and excessive angle pair and single-key linear clip without adding another interpolation policy.
+ * The private clip constructor is called only by the discovered portable door integration case and creates caller-owned records without a host or cache.
  */
 function swing (deg: number): IAutoMovieClip { return ({
   id: "swing",
@@ -50,10 +50,10 @@ function swing (deg: number): IAutoMovieClip { return ({
 /**
  * Read the transformed local +X basis from a column-major world matrix.
  *
- * @evidence contracts/testing.md#behavioral-verification Exposes the resolver's first matrix column for the owning entry's numerical hinge and copy-driver assertions.
- * @evidence contracts/testing.md#independent-expectations Column-major basis layout defines indices zero through two; the entry compares these observations with its independently calculated rotation vectors.
- * @evidence contracts/testing.md#distinguishing-cases Reads legal hinge, copied mirror and clamped excessive hinge outputs, preserving each original asserted component.
- * @evidence contracts/testing.md#execution-ownership This private synchronous observation reader serves the discovered CPU integration entry and retains no matrix or host resource.
+ * Exposes the resolver's first matrix column for the owning entry's numerical hinge and copy-driver assertions.
+ * Column-major basis layout defines indices zero through two; the entry compares these observations with its independently calculated rotation vectors.
+ * Reads legal hinge, copied mirror and clamped excessive hinge outputs, preserving each original asserted component.
+ * This private synchronous observation reader serves the discovered CPU integration entry and retains no matrix or host resource.
  */
 function basisX (m: number[]): [number, number, number] { return [m[0]!, m[1]!, m[2]!]; }
 
@@ -158,23 +158,14 @@ export function test_film_scene_door_integration (): void {
     vclose(Matrix4.position(hinge), { x: 5, y: 1, z: 2 }),
   );
   const openX: [number, number, number] = basisX(hinge);
-  TestValidator.equals(
+  TestValidator.predicate(
     "hinge world rotated 90° through the scene",
-    namedFacts([
-      ["ncloseOpenX", () : boolean => nclose(openX[0], 0)],
-      ["ncloseOpenX2", () : boolean => nclose(openX[1], 0)],
-      ["ncloseOpenX3", () : boolean => nclose(openX[2], -1)],
-    ]),
-    { ncloseOpenX: true, ncloseOpenX2: true, ncloseOpenX3: true },
+    nclose(openX[0], 0) && nclose(openX[1], 0) && nclose(openX[2], -1),
   );
   const mirrorX: [number, number, number] = basisX(open.world.get("frontDoor/handleMirror")!);
-  TestValidator.equals(
+  TestValidator.predicate(
     "the declared driver mirrors the hinge in-scene",
-    namedFacts([
-      ["mirrorLeftPlusX", () : boolean => nclose(mirrorX[0], 0)],
-      ["mirrorFacesMinusZ", () : boolean => nclose(mirrorX[2], -1)],
-    ]),
-    { mirrorLeftPlusX: true, mirrorFacesMinusZ: true },
+    nclose(mirrorX[0], 0) && nclose(mirrorX[2], -1),
   );
 
   const slammed: IAutoMovieResolveOutput = resolveFrame({
@@ -213,18 +204,10 @@ export function test_film_scene_door_integration (): void {
   const cos110: number = Math.cos((110 * Math.PI) / 180);
   const sin110: number = Math.sin((110 * Math.PI) / 180);
   const slammedX: [number, number, number] = basisX(slammed.world.get("frontDoor/hinge")!);
-  TestValidator.equals(
-    "over-swing clamps to exactly 110° through the scene",
-    namedFacts([
-      ["ncloseSlammedXCos110", () : boolean => nclose(slammedX[0], cos110)],
-      ["ncloseSlammedX", () : boolean => nclose(slammedX[1], 0)],
-      ["ncloseSlammedXSin110", () : boolean => nclose(slammedX[2], -sin110)],
-    ]),
-    {
-      ncloseSlammedXCos110: true,
-      ncloseSlammedX: true,
-      ncloseSlammedXSin110: true,
-    },
+  TestValidator.predicate(
+    "over-swing clamps to the 110° boundary through the scene",
+    nclose(slammedX[0], cos110) && nclose(slammedX[1], 0) &&
+      nclose(slammedX[2], -sin110),
   );
 
   TestValidator.predicate(

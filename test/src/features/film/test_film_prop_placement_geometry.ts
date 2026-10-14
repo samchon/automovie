@@ -8,7 +8,11 @@ import { namedFacts } from "../internal/predicates";
  * Every original geometry refusal retains its full addressed field and adjacent physical contract.
  *
  * Scenarios:
- * 1. Evaluate the unchanged case builder on fresh original registries; retain every original true predicate and refusal path.
+ * 1. Refuse duplicate relations, second occupied spaces/openings, cross-building fills and support cycles.
+ * 2. Locate invalid footprint axes and blank, duplicate, reversed or non-finite clearances.
+ * 3. Refuse containment and opening-fit faults, including a leaf that declares no occupied space.
+ * 4. Detect declared-footprint and ordinary occupancy overlap, blocked clearance, opening and connector.
+ * 5. Distinguish floating, sinking and off-patch support, a second support, and the corresponding table-top faults.
  *
  * @evidence contracts/testing.md#behavioral-verification Invokes the existing geometry-case builder and requires every addressed multiplicity, volume, passage and bearing refusal through its real validator calls.
  * @evidence contracts/testing.md#independent-expectations The independently chosen registry mutations and literal field/message expectations describe supported placement rules; the helper returns observed predicates, while the entry supplies the independent all-true requirements.

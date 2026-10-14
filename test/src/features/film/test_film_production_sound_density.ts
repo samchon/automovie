@@ -5,7 +5,7 @@ import { materializeCompiledFormation } from "../../../../packages/engine/src/po
 import { materializeCompiledInstanceSet } from "../../../../packages/engine/src/populationRuntime/materializeCompiledInstanceSet";
 import { renderProductionSound } from "../../../../packages/engine/src/sound/renderProductionSound";
 import { TestValidator } from "@nestia/e2e";
-import { namedFacts, nclose } from "../internal/predicates";
+import { nclose } from "../internal/predicates";
 
 const digest: string =
   "sha256:0000000000000000000000000000000000000000000000000000000000000000" as string;
@@ -206,7 +206,7 @@ const amplitudeAt: (pcm: Float32Array, frame: number) => number = (pcm: Float32A
  * 2. A unit has a size: `spreadRadiusMeters` is the RMS radius of the uniform box
  * the compiled bounds describe, and `attenuation` is taken at `hypot(distance, spread)`, not at the centroid alone, which is strictly less than the centroid-only gain the mixer used to apply.
  * 3. The controlled pair: two units in the same footprint at the same distance,
- * 64x apart in count, come out exactly 8x apart in level, in the plan and in the rendered PCM, which is `sqrt(64)` and nothing else.
+ * 64x apart in count, have an 8x planned gain within 1e-12 and PCM amplitude ratio within 1e-4, the square-root count model with Float32 mix rounding.
  * 4. Several subjects combine by member count, not by subject count: one figure
  * standing 20 m across and 20 m in front of a hundred-strong crowd emits from `(20/101, -3010/101)`. The subject-count mean `(10, -20)` would place it roughly ten metres from that weighted centre on either axis.
  *
@@ -226,63 +226,25 @@ export function test_film_production_sound_density(): void {
   const mixed: IAutoMovieProductionSoundEvent = eventOf(plan, "mixed");
 
   // 1. every event counts its real members and gains by their square root.
-  TestValidator.equals(
+  TestValidator.predicate(
     "member counts are the units' own, and density gain is their square root",
-    namedFacts([
-      ["smallCount", (): boolean => small.memberCount === SMALL_COUNT],
-      ["largeCount", (): boolean => large.memberCount === LARGE_COUNT],
-      ["mixedCount", (): boolean => mixed.memberCount === CROWD_COUNT + 1],
-      [
-        "gainIsSqrtOfCount",
-        (): boolean =>
-          plan.events.every((event: IAutoMovieProductionSoundEvent): boolean =>
-            nclose(event.densityGain, Math.sqrt(event.memberCount), 1e-12),
-          ),
-      ],
-    ]),
-    {
-      smallCount: true,
-      largeCount: true,
-      mixedCount: true,
-      gainIsSqrtOfCount: true,
-    },
+    small.memberCount === SMALL_COUNT && large.memberCount === LARGE_COUNT &&
+      mixed.memberCount === CROWD_COUNT + 1 &&
+      plan.events.every((event: IAutoMovieProductionSoundEvent): boolean =>
+        nclose(event.densityGain, Math.sqrt(event.memberCount), 1e-12)),
   );
 
   // 2. a unit has a size, and the size is what the listener is really far from.
   const boxRadius: number = HALF_WIDTH / Math.sqrt(3);
-  TestValidator.equals(
+  TestValidator.predicate(
     "spread is the box's RMS radius and attenuation is taken at the RMS distance",
-    namedFacts([
-      ["smallSpread", (): boolean => nclose(small.spreadRadiusMeters, boxRadius, 1e-9)],
-      ["largeSpread", (): boolean => nclose(large.spreadRadiusMeters, boxRadius, 1e-9)],
-      [
-        "attenuationAtRmsDistance",
-        (): boolean =>
-          plan.events.every((event: IAutoMovieProductionSoundEvent): boolean =>
-            nclose(
-              event.attenuation,
-              1 /
-                (1 +
-                  0.08 *
-                    (event.distanceMeters * event.distanceMeters +
-                      event.spreadRadiusMeters * event.spreadRadiusMeters)),
-              1e-12,
-            ),
-          ),
-      ],
-      [
-        "spreadShrinksTheDryGain",
-        (): boolean =>
-          small.attenuation <
-          1 / (1 + 0.08 * small.distanceMeters * small.distanceMeters),
-      ],
-    ]),
-    {
-      smallSpread: true,
-      largeSpread: true,
-      attenuationAtRmsDistance: true,
-      spreadShrinksTheDryGain: true,
-    },
+    nclose(small.spreadRadiusMeters, boxRadius, 1e-9) &&
+      nclose(large.spreadRadiusMeters, boxRadius, 1e-9) &&
+      plan.events.every((event: IAutoMovieProductionSoundEvent): boolean =>
+        nclose(event.attenuation, 1 / (1 + 0.08 *
+          (event.distanceMeters * event.distanceMeters +
+            event.spreadRadiusMeters * event.spreadRadiusMeters)), 1e-12)) &&
+      small.attenuation < 1 / (1 + 0.08 * small.distanceMeters * small.distanceMeters),
   );
 
   // 3. the controlled pair: same footprint, same distance, 64x the members.
@@ -295,40 +257,20 @@ export function test_film_production_sound_density(): void {
     );
   const smallSample: number = sampleOf(small.frame);
   const largeSample: number = sampleOf(large.frame);
-  TestValidator.equals(
-    "sixty-four times the members is exactly eight times the level, in plan and in PCM",
-    namedFacts([
-      [
-        "sameDistance",
-        (): boolean => nclose(small.distanceMeters, large.distanceMeters),
-      ],
-      ["sameAttenuation", (): boolean => nclose(small.attenuation, large.attenuation)],
-      [
-        "planLevelRatio",
-        (): boolean => nclose(large.densityGain / small.densityGain, 8, 1e-12),
-      ],
-      ["bothAudible", (): boolean => smallSample > 0 && largeSample > 0],
-      ["pcmLevelRatio", (): boolean => nclose(largeSample / smallSample, 8, 1e-4)],
-    ]),
-    {
-      sameDistance: true,
-      sameAttenuation: true,
-      planLevelRatio: true,
-      bothAudible: true,
-      pcmLevelRatio: true,
-    },
+  TestValidator.predicate(
+    "sixty-four times the members gives the expected eightfold planned and PCM levels",
+    nclose(small.distanceMeters, large.distanceMeters) &&
+      nclose(small.attenuation, large.attenuation) &&
+      nclose(large.densityGain / small.densityGain, 8, 1e-12) &&
+      smallSample > 0 && largeSample > 0 && nclose(largeSample / smallSample, 8, 1e-4),
   );
 
   // 4. subjects combine by member count, not by subject count.
-  TestValidator.equals(
+  TestValidator.predicate(
     "a hero beside a crowd emits from the crowd, not from the midpoint",
-    namedFacts([
-      ["weightedX", (): boolean => nclose(mixed.emitter.x, 20 / 101, 1e-9)],
-      ["notTheMidpoint", (): boolean => mixed.emitter.x < 1],
+    nclose(mixed.emitter.x, 20 / 101, 1e-9) && mixed.emitter.x < 1 &&
       // (1 x -10 + 100 x -30) / 101. Weighting by subject instead would put it
       // at -20, ten metres of empty ground in front of the crowd.
-      ["weightedZ", (): boolean => nclose(mixed.emitter.z, -3_010 / 101, 1e-9)],
-    ]),
-    { weightedX: true, notTheMidpoint: true, weightedZ: true },
+      nclose(mixed.emitter.z, -3_010 / 101, 1e-9),
   );
 }

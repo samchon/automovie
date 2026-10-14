@@ -4,7 +4,6 @@ import {
   TestValidator,
 } from "@nestia/e2e";
 import {
-  namedFacts,
   nclose,
 } from "../internal/predicates";
 import { createProductionSoundAssetTestInputs } from "../internal/audio/createProductionSoundAssetTestInputs";
@@ -57,52 +56,25 @@ export function test_film_production_sound_asset(): void {
     // renderer reading one sample early or late writes a different number here.
     const OFFSET: number = 1_000;
 
-  TestValidator.equals(
+  TestValidator.predicate(
       "an authored cue mixes the asset it names at unit rate",
-      namedFacts([
-        [
-          "itPlaysTheSampleTheAssetHasThere",
-          (): boolean => nclose(at(played, OFFSET), source[OFFSET]! * gain, 1e-6),
-        ],
+      nclose(at(played, OFFSET), source[OFFSET]! * gain, 1e-6) &&
         // The stand-in still sounds, and sounds like something else: without both
         // halves this reads as "the mix produced a number" rather than "the mix
         // produced the asset".
-        ["theStandInStillSounds", (): boolean => Math.abs(at(standIn, OFFSET)) > 1e-6],
-        [
-          "andTheStandInIsNotTheAsset",
-          (): boolean => nclose(at(standIn, OFFSET), at(played, OFFSET), 1e-6) === false,
-        ],
+        Math.abs(at(standIn, OFFSET)) > 1e-6 &&
+        nclose(at(standIn, OFFSET), at(played, OFFSET), 1e-6) === false &&
         // A cue half as long as its asset reads the first half of it, not the
         // whole asset at twice the speed.
-        [
-          "aCueShorterThanItsAssetReadsAtUnitRate",
-          (): boolean => nclose(at(shorterCue, OFFSET), longSource[OFFSET]! * gain, 1e-6),
-        ],
-        [
-          "aTrimEndingAtTheCompleteDurationReadsNativeTime",
-          (): boolean =>
-            nclose(
+        nclose(at(shorterCue, OFFSET), longSource[OFFSET]! * gain, 1e-6) &&
+        nclose(
               at(offsetCue, OFFSET),
               longSource[length + OFFSET]! * gain,
               1e-6,
-            ),
-        ],
-        [
-          "aCueEndingAtTheFilmEndIsAccepted",
-          (): boolean =>
-            renderProductionSound({
+            ) &&
+        renderProductionSound({
               plan: plan({ startFrame: TOTAL_FRAMES - DURATION_FRAMES }),
               assets: new Map([["public/bed.wav", source]]),
             }).analysis.samplePeak > 0,
-        ],
-      ]),
-      {
-        itPlaysTheSampleTheAssetHasThere: true,
-        theStandInStillSounds: true,
-        andTheStandInIsNotTheAsset: true,
-        aCueShorterThanItsAssetReadsAtUnitRate: true,
-        aTrimEndingAtTheCompleteDurationReadsNativeTime: true,
-        aCueEndingAtTheFilmEndIsAccepted: true,
-      },
     );
 }

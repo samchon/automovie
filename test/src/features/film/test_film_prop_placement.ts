@@ -7,7 +7,10 @@ import { propRegistry, propSet, sculpture } from "../internal/propPlacementFixtu
  * Semantic placement keeps the original furnished-room and legacy compatibility inputs.
  *
  * Scenarios:
- * 1. Accept the full room, reversed declaration order, placementless legacy sculpture and empty registries.
+ * 1. Accept the full furnished room with its support and building relations.
+ * 2. Reversing props and set pieces preserves forward-reference admission.
+ * 3. A placementless legacy sculpture needs no building environment.
+ * 4. Empty prop, set and environment registries remain valid.
  *
  * @evidence contracts/testing.md#behavioral-verification Validates the furnished registry, reversed declaration order, placementless legacy prop and empty registries through the existing placement scenario helper.
  * @evidence contracts/testing.md#independent-expectations The fixture declares a geometrically supported room and unique joins, so success and order invariance follow the placement contract; expected success is literal rather than copied from a validation snapshot.
@@ -33,6 +36,4 @@ export function test_film_prop_placement(): void {
     validate([], [], []).success,
     true,
   );
-
-
 }

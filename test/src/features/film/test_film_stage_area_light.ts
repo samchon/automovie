@@ -38,7 +38,7 @@ const refusedAt: (patch: Record<string, unknown>, kind: "type" | "range", path: 
  * Scenarios:
  *
  * 1. A complete panel lowers to an `area` scene light keeping its extent, its aim
- * as a rotation of local −Z, and its position.
+ * as a rotation of local −Z, and its X/Y position. Z and intensity are supplied but not asserted here.
  * 2. Missing panel extent is refused, as are zero width, infinite height and a
  * nonnumeric width; extent on spot and directional inputs is refused at its own field.
  * 3. The parameters a panel cannot act on are refused rather than dropped: a
@@ -52,9 +52,9 @@ const refusedAt: (patch: Record<string, unknown>, kind: "type" | "range", path: 
 export function test_film_stage_area_light(): void {
   const staged: IAutoMovieStagedSet = stagedWith(WINDOW);
   const light: IAutoMovieLight | undefined = staged.success === true ? staged.scene.lights[0] : undefined;
-  TestValidator.equals(
+  TestValidator.predicate(
     "a complete panel lowers whole",
-    namedFacts([
+    Object.values(namedFacts([
       ["staged", (): boolean => staged.success === true],
       ["kind", (): boolean => light?.type === "area"],
       [
@@ -81,15 +81,7 @@ export function test_film_stage_area_light(): void {
           nclose(light.transform.translation.y, 2.2, 0),
       ],
       ["noRange", (): boolean => light !== undefined && !("range" in light)],
-    ]),
-    {
-      staged: true,
-      kind: true,
-      extent: true,
-      aim: true,
-      position: true,
-      noRange: true,
-    },
+    ])).every((fact: boolean): boolean => fact),
   );
 
   TestValidator.equals(

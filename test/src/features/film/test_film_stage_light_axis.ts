@@ -43,10 +43,9 @@ const WARM: { r: number; g: number; b: number; a: null; hex: null; } = { r: 1, g
  *
  * 1. Compatibility: the pre-existing `{node, role, direction, intensity}` shape
  * still stages, and still lowers to exactly the white directional light at the origin it lowered to before, so no committed scene changes meaning.
- * 2. `role` is no longer required: dropping it stages identically, byte for byte,
- * which is what "the lowering does not read it" means operationally.
+ * 2. `role` is optional: dropping it preserves every lowered directional-light field, with zero tolerance for its numeric fields.
  * 3. A warm point light lowers to `type: "point"` at its `position`, in its color,
- * with its `range`; a spot lowers with `range` and `coneAngle`, aimed by `direction`.
+ * with its `range`; a spot with a supplied direction preserves `range`, `coneAngle` and position. The spot's rotation is not asserted here.
  * 4. Defaults: an omitted `type` is directional, an omitted `color` is neutral
  * white with `a: null` (the light-slot convention), an omitted `range` is `0` (infinite), an omitted `coneAngle` is `45`.
  * 5. Negative twins per kind, each one property away from a staging that works: a
@@ -54,8 +53,8 @@ const WARM: { r: number; g: number; b: number; a: null; hex: null; } = { r: 1, g
  * 6. Missing required-per-kind parameters: a directional or spot light with no
  * `direction`, and a point or spot light with no `position`.
  * 7. Boundaries: `intensity: 0` stages (a light that is off is a legitimate
- * light); a zero-length `direction` is still refused; `coneAngle` at both ends of `(0, 90]`, just past each end, and non-finite; `range: 0` means infinite while a negative range is refused; a non-finite `position` is a range fault rather than a missing-parameter one; a color component outside `[0, 1]` is refused.
- * 8. The color check is total and complete: a color that is not a JSON object
+ * light); a zero-length `direction` is refused; `coneAngle: 90` is accepted while zero, 90.0001 and NaN are refused; `range: 0` means infinite while a negative range is refused; a non-finite `position` is a range fault rather than a missing-parameter one; a color component outside `[0, 1]` is refused.
+ * 8. A color that is not a JSON object
  * reports rather than dereferencing into a TypeError (the engine validator has no transport gate under it), a light-slot `a: null` is the documented value, and an alpha outside `[0, 1]` is refused at staging rather than passing `stage` and being refused a rung later by `commitScene`'s color artifact check, which is the wrong-stage failure this cycle closes elsewhere. A `null` direction or an array position is likewise reported at its own path instead of throwing.
  * 9. An unknown runtime discriminator is refused at `type`; it cannot fall through
  * to the directional default and enter a committed scene.
@@ -82,9 +81,9 @@ export function test_film_stage_light_axis(): void {
     legacyLight?.type,
     "directional",
   );
-  TestValidator.equals(
+  TestValidator.predicate(
     "at the origin, in neutral white, as before",
-    namedFacts([
+    Object.values(namedFacts([
       ["legacyLight", (): boolean => legacyLight !== undefined],
       [
         "vcloseLegacyLightTransform",
@@ -112,16 +111,7 @@ export function test_film_stage_light_axis(): void {
         "legacyLightIntensity",
         (): boolean => legacyLight !== undefined && nclose(legacyLight.intensity, 1, 0),
       ],
-    ]),
-    {
-      legacyLight: true,
-      vcloseLegacyLightTransform: true,
-      legacyLightColorR: true,
-      legacyLightColorG: true,
-      legacyLightColorB: true,
-      legacyLightColorA: true,
-      legacyLightIntensity: true,
-    },
+    ])).every((fact: boolean): boolean => fact),
   );
 
   // 2. `role` is annotation: removing it changes nothing
@@ -164,9 +154,9 @@ export function test_film_stage_light_axis(): void {
       },
     ]),
   )[0];
-  TestValidator.equals(
+  TestValidator.predicate(
     "a warm point light lowers with its place, color, and range",
-    namedFacts([
+    Object.values(namedFacts([
       ["point", (): boolean => point !== undefined],
       ["pointTypePoint", (): boolean => point !== undefined && point.type === "point"],
       [
@@ -216,18 +206,7 @@ export function test_film_stage_light_axis(): void {
           point.type === "point" &&
           qclose(point.transform.rotation, { x: 0, y: 0, z: 0, w: 1 }),
       ],
-    ]),
-    {
-      point: true,
-      pointTypePoint: true,
-      pointRange: true,
-      pointIntensity: true,
-      vclosePointTransform: true,
-      pointColorR: true,
-      pointColorG: true,
-      pointColorB: true,
-      qclosePointTransform: true,
-    },
+    ])).every((fact: boolean): boolean => fact),
   );
   const spot: IAutoMovieLight = lightsOf(
     stageLights([
@@ -242,9 +221,9 @@ export function test_film_stage_light_axis(): void {
       },
     ]),
   )[0];
-  TestValidator.equals(
-    "a spot lowers with its cone, its range, and its aim",
-    namedFacts([
+  TestValidator.predicate(
+    "a spot lowers with its cone, range and position",
+    Object.values(namedFacts([
       ["spot", (): boolean => spot !== undefined],
       ["spotTypeSpot", (): boolean => spot !== undefined && spot.type === "spot"],
       [
@@ -263,14 +242,7 @@ export function test_film_stage_light_axis(): void {
           spot.type === "spot" &&
           vclose(spot.transform.translation, { x: 0, y: 2.4, z: 0 }),
       ],
-    ]),
-    {
-      spot: true,
-      spotTypeSpot: true,
-      spotRange: true,
-      spotConeAngle: true,
-      vcloseSpotTransform: true,
-    },
+    ])).every((fact: boolean): boolean => fact),
   );
 
   // 4. Defaults.
@@ -291,9 +263,9 @@ export function test_film_stage_light_axis(): void {
       },
     ]),
   );
-  TestValidator.equals(
+  TestValidator.predicate(
     "an omitted range is infinite and an omitted cone is 45 degrees",
-    namedFacts([
+    Object.values(namedFacts([
       ["defaults", (): boolean => defaults.length === 2],
       ["defaultsTypePoint", (): boolean => defaults[0]!.type === "point"],
       [
@@ -309,15 +281,7 @@ export function test_film_stage_light_axis(): void {
         "defaultsConeAngle",
         (): boolean => defaults[1]!.type === "spot" && nclose(defaults[1]!.coneAngle, 45, 0),
       ],
-    ]),
-    {
-      defaults: true,
-      defaultsTypePoint: true,
-      defaultsRange: true,
-      defaultsTypeSpot: true,
-      defaultsRange2: true,
-      defaultsConeAngle: true,
-    },
+    ])).every((fact: boolean): boolean => fact),
   );
 
   // 5. A parameter unavailable to its chosen kind is refused.

@@ -170,8 +170,7 @@ const chairRing: (props: IFilmChairRingInput) => IFilmChairRing = (props: IFilmC
  * cannot answers `null`, including each way a citation can dangle.
  * 7. A support states one face however it was written: a patch answers from its
  * own polygon and height rule, a host's top from the extent it carries through the host's staged scale and tilt, and a citation that dangles, a contact with no face, an empty polygon, and a top staged edge-on state none. The bearing on that face is zero where the prop rests, signed where it floats or sinks, taken at the highest probe over a ramp, `null` where the prop does not stand over it on either side, and found from whichever side can answer when the face is smaller than the footprint, centred under it or not.
- * 8. Twelve chairs authored as one seeded loop validate, reproduce byte for byte
- * across runs, and move as a body when the seed changes.
+ * 8. Twelve chairs authored as one seeded loop validate and reproduce serialized records across repeated calls; changing the seed changes the placements and leaves them valid.
  *
  * @evidence contracts/testing.md#behavioral-verification Calls real occupancy, clearance, overlap, containment, passage, anchor and support queries, and validates the existing seeded chair loop through shared delegated assertion groups.
  * @evidence contracts/testing.md#independent-expectations Literal TRS boxes, interval contact, fixture-authored plane heights and signed support gaps supply numerical expectations; repeated authored-loop equality is metamorphic input determinism and does not certify cross-host trigonometric bytes.
@@ -181,9 +180,9 @@ const chairRing: (props: IFilmChairRingInput) => IFilmChairRing = (props: IFilmC
 export function test_film_prop_placement_utility(): void {
   const environment: IAutoMovieBuiltEnvironment = propEnvironment();
 
-  TestValidator.equals(
+  TestValidator.predicate(
     "occupancy, clearance, overlap and containment agree with hand math",
-    namedFacts([
+    Object.values(namedFacts([
       [
         "derivedOccupancy",
         (): boolean =>
@@ -348,22 +347,7 @@ export function test_film_prop_placement_utility(): void {
             'no logical space "missing"',
           ),
       ],
-    ]),
-    {
-      derivedOccupancy: true,
-      declaredFootprintWins: true,
-      placementlessOccupancyIsDerived: true,
-      verticeslessPropCollapsesToItsOrigin: true,
-      facingDegDrivesTheSameTransform: true,
-      clearanceTransformsWithTheProp: true,
-      placementlessPropDeclaresNoClearance: true,
-      overlapIsTrueWhenVolumesIntersect: true,
-      eachAxisSeparatesOnEitherSide: true,
-      containedBoundsAreInside: true,
-      oneCornerOutsideIsOutside: true,
-      cellLessPartitionExcludesNothing: true,
-      undeclaredSpaceThrows: true,
-    },
+    ])).every((fact: boolean): boolean => fact),
   );
 
   assertFilmPropPassagesAndAnchors({

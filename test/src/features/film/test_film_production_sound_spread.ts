@@ -4,7 +4,7 @@ import { deriveProductionSoundPlan } from "../../../../packages/engine/src/sound
 import { materializeCompiledFormation } from "../../../../packages/engine/src/populationRuntime/materializeCompiledFormation";
 import { renderProductionSound } from "../../../../packages/engine/src/sound/renderProductionSound";
 import { TestValidator } from "@nestia/e2e";
-import { namedFacts, nclose } from "../internal/predicates";
+import { nclose } from "../internal/predicates";
 
 const digest: string =
   "sha256:0000000000000000000000000000000000000000000000000000000000000000" as string;
@@ -238,7 +238,7 @@ const squaredDistance: (left: { x: number; y: number; z: number; }, right: { x: 
  * 4. The post-mix limiter owns the headroom a crowd's own level does not: a mass
  * of four hundred at z = -2 mixes past full scale and returns within 1e-6 of the 0.95 ceiling with nothing clipped, while the same plan without it stays below that ceiling.
  *
- * @evidence contracts/testing.md#behavioral-verification Plans static, closing and combined masses and mixes a near loud crowd, asserting uniform-box/parallel-axis spread, cue-scaled extent, weighted centre and limited versus quiet master behavior.
+ * @evidence contracts/testing.md#behavioral-verification Plans static, closing and combined masses and mixes a near loud crowd, asserting uniform-box/parallel-axis spread, cue-scaled extent, weighted XZ centre and limited versus quiet master behavior.
  * @evidence contracts/testing.md#independent-expectations Fixture geometry supplies box variance and the complete count-weighted parallel-axis calculation including centre displacement; the literal 0.95 ceiling is the mixer contract, and no empirical acoustic or external loudness reference is claimed.
  * @evidence contracts/testing.md#distinguishing-cases Keeps one mass, spacing-only cue motion, a displaced lone source plus mass, and loud versus quiet plans; population scaling at equal footprint remains in the density entry.
  * @evidence contracts/testing.md#execution-ownership The runner discovers test_film_production_sound_spread and this entry owns its direct and delegated in-memory CPU assertions; it acquires no renderer, GPU, decoder, native build, installed consumer or completed-result cache. Numeric/byte observations do not prove hardware appearance or universal cross-host identity.
@@ -255,62 +255,23 @@ export function test_film_production_sound_spread(): void {
 
   // 1. the designed box.
   const restVariance: number = boxVariance({ x: CROWD_REACH, y: 0, z: 0 });
-  TestValidator.equals(
+  TestValidator.predicate(
     "a mass is heard at the RMS radius of the box its bounds describe",
-    namedFacts([
-      ["count", (): boolean => rest.memberCount === CROWD_COUNT],
-      [
-        "spread",
-        (): boolean => nclose(rest.spreadRadiusMeters, Math.sqrt(restVariance), 1e-9),
-      ],
-      [
-        "emitter",
-        (): boolean =>
-          nclose(rest.emitter.x, 0, 1e-9) &&
-          nclose(rest.emitter.z, FAR_Z, 1e-9),
-      ],
-    ]),
-    { count: true, spread: true, emitter: true },
+    rest.memberCount === CROWD_COUNT &&
+      nclose(rest.spreadRadiusMeters, Math.sqrt(restVariance), 1e-9) &&
+      nclose(rest.emitter.x, 0, 1e-9) && nclose(rest.emitter.z, FAR_Z, 1e-9),
   );
 
   // 2. the cue closes it, and only its size moves.
   const closedVariance: number = boxVariance({ x: CROWD_REACH * CLOSED, y: 0, z: 0 });
-  TestValidator.equals(
+  TestValidator.predicate(
     "a cue that closes a mass's intervals is heard as the smaller mass it makes",
-    namedFacts([
-      ["sameCount", (): boolean => closed.memberCount === CROWD_COUNT],
-      [
-        "sameEmitter",
-        (): boolean =>
-          nclose(closed.emitter.x, rest.emitter.x, 1e-9) &&
-          nclose(closed.emitter.z, rest.emitter.z, 1e-9),
-      ],
-      [
-        "spread",
-        (): boolean =>
-          nclose(closed.spreadRadiusMeters, Math.sqrt(closedVariance), 1e-9),
-      ],
-      // Exactly half, because the cue halved the one axis the box has.
-      [
-        "halfTheDesignedSpread",
-        (): boolean =>
-          nclose(
-            closed.spreadRadiusMeters,
-            rest.spreadRadiusMeters * CLOSED,
-            1e-9,
-          ),
-      ],
-      // And the attenuation moves with it, because spread is what the RMS
-      // listener distance is taken at.
-      ["louderClosed", (): boolean => closed.attenuation > rest.attenuation],
-    ]),
-    {
-      sameCount: true,
-      sameEmitter: true,
-      spread: true,
-      halfTheDesignedSpread: true,
-      louderClosed: true,
-    },
+    closed.memberCount === CROWD_COUNT &&
+      nclose(closed.emitter.x, rest.emitter.x, 1e-9) &&
+      nclose(closed.emitter.z, rest.emitter.z, 1e-9) &&
+      nclose(closed.spreadRadiusMeters, Math.sqrt(closedVariance), 1e-9) &&
+      nclose(closed.spreadRadiusMeters, rest.spreadRadiusMeters * CLOSED, 1e-9) &&
+      closed.attenuation > rest.attenuation,
   );
 
   // 3. the parallel-axis sum, computed from the fixture's own geometry.
@@ -330,42 +291,16 @@ export function test_film_production_sound_spread(): void {
   /** The same sum with the displacement dropped: what an average would say. */
   const withoutTheCrossTerm: number =
     (1 * 0 + CROWD_COUNT * restVariance) / combinedCount;
-  TestValidator.equals(
+  TestValidator.predicate(
     "several subjects combine by the parallel-axis identity, cross term included",
-    namedFacts([
-      ["count", (): boolean => mixed.memberCount === combinedCount],
-      [
-        "weightedCentre",
-        (): boolean =>
-          nclose(mixed.emitter.x, combinedCentre.x, 1e-9) &&
-          nclose(mixed.emitter.z, combinedCentre.z, 1e-9),
-      ],
-      [
-        "spread",
-        (): boolean =>
-          nclose(mixed.spreadRadiusMeters, Math.sqrt(combinedVariance), 1e-9),
-      ],
-      // The two comparisons that make the assertion above falsifiable: the
-      // combined spread is neither the mass's own nor the weighted mean of the
-      // parts, and the gap between it and the mean is the displacement.
-      [
-        "widerThanTheMassAlone",
-        (): boolean => mixed.spreadRadiusMeters > rest.spreadRadiusMeters,
-      ],
-      [
-        "widerThanTheMeanOfTheParts",
-        (): boolean =>
-          mixed.spreadRadiusMeters > Math.sqrt(withoutTheCrossTerm) + 1 &&
-          nclose(Math.sqrt(withoutTheCrossTerm), 4.216, 1e-3),
-      ],
-    ]),
-    {
-      count: true,
-      weightedCentre: true,
-      spread: true,
-      widerThanTheMassAlone: true,
-      widerThanTheMeanOfTheParts: true,
-    },
+    mixed.memberCount === combinedCount &&
+      nclose(mixed.emitter.x, combinedCentre.x, 1e-9) &&
+      nclose(mixed.emitter.z, combinedCentre.z, 1e-9) &&
+      nclose(mixed.spreadRadiusMeters, Math.sqrt(combinedVariance), 1e-9) &&
+      // These comparisons distinguish the omitted displacement cross term.
+      mixed.spreadRadiusMeters > rest.spreadRadiusMeters &&
+      mixed.spreadRadiusMeters > Math.sqrt(withoutTheCrossTerm) + 1 &&
+      nclose(Math.sqrt(withoutTheCrossTerm), 4.216, 1e-3),
   );
 
   // 4. the limiter owns the headroom, and only when there is none left.
@@ -376,53 +311,22 @@ export function test_film_production_sound_spread(): void {
       events: plan.events.filter((event: IAutoMovieProductionSoundEvent): boolean => event.event !== "near"),
     },
   });
-  TestValidator.equals(
+  TestValidator.predicate(
     "a mass loud enough to leave no headroom is limited, and a plan with headroom is not",
-    namedFacts([
-      ["near", (): boolean => eventOf(plan, "near").memberCount === NEAR_COUNT],
-      // The adopted count gain and the independently stated dry-amplitude rule
-      // put this near event above full scale before limiting.
-      [
-        "wouldHaveClipped",
-        (): boolean =>
-          (0.5 *
-            eventOf(plan, "near").attenuation *
-            eventOf(plan, "near").densityGain) /
-            Math.SQRT2 >
-          1,
-      ],
-      [
-        "limitedToTheCeiling",
-        (): boolean => nclose(loud.analysis.samplePeak, 0.95, 1e-6),
-      ],
-      ["nothingClipped", (): boolean => loud.analysis.clippingSamples === 0],
-      ["quietIsAudible", (): boolean => quiet.analysis.samplePeak > 0],
-      ["quietIsLeftAlone", (): boolean => quiet.analysis.samplePeak < 0.95],
-      // And the near mass really is what raised it, rather than the ceiling
-      // being where a quiet plan lands anyway.
-      [
-        "theNearMassRaisedIt",
-        (): boolean => loud.analysis.samplePeak > quiet.analysis.samplePeak,
-      ],
-    ]),
-    {
-      near: true,
-      wouldHaveClipped: true,
-      limitedToTheCeiling: true,
-      nothingClipped: true,
-      quietIsAudible: true,
-      quietIsLeftAlone: true,
-      theNearMassRaisedIt: true,
-    },
+    eventOf(plan, "near").memberCount === NEAR_COUNT &&
+      // The independently stated impulse law puts the near event over full scale.
+      (0.5 * eventOf(plan, "near").attenuation * eventOf(plan, "near").densityGain) / Math.SQRT2 > 1 &&
+      nclose(loud.analysis.samplePeak, 0.95, 1e-6) &&
+      loud.analysis.clippingSamples === 0 && quiet.analysis.samplePeak > 0 &&
+      quiet.analysis.samplePeak < 0.95 && loud.analysis.samplePeak > quiet.analysis.samplePeak,
   );
 
-  TestValidator.equals(
+  TestValidator.predicate(
     "the near mass is measured as the tight box it is",
     nclose(
       eventOf(plan, "near").spreadRadiusMeters,
       Math.sqrt(boxVariance({ x: NEAR_REACH, y: 0, z: 0 })),
       1e-9,
     ),
-    true,
   );
 }
