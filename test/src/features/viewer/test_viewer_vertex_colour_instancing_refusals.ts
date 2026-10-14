@@ -9,15 +9,20 @@ import {
 } from "../internal/vertexColourFixture";
 
 /**
- * Imported colour alignment is refused before instancing reads missing values.
+ * Exercises alignment refusal before loaded-object color lowering and adjacent aligned recovery.
  *
  * Scenarios:
- * 1. Two-channel colour and incomplete RGB/RGBA arrays refuse explicitly.
- * 2. Replacing only that attribute with aligned RGB admits the same geometry.
+ * 1. The existing part's two-channel or incomplete RGB/RGBA populations refuse before loaded-object flattening.
+ * 2. Replacing only the owned malformed attribute with the existing aligned RGB triangle admits three output vertices and preserves local disposal ownership.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls actual building/flattening on the existing part with malformed owned color attributes, checking refusal diagnostic and valid output vertex count.
+ * @evidence contracts/testing.md#independent-expectations Authored two/three/four-channel population mismatches and a separately supplied aligned triangle determine expected refusal and count.
+ * @evidence contracts/testing.md#distinguishing-cases Contrasts unsupported item size and incomplete RGB/RGBA arrays, replacing only that owned attribute with aligned RGB before the next call.
+ * @evidence contracts/testing.md#execution-ownership The named entry uses existing CPU triangle geometry/attributes and disposes returned/source resources, replacing no foreign method and adding no renderer or new fixture.
  */
-export const test_viewer_vertex_colour_instancing_refusals = (): void => {
-  const built = buildModel(vertexColourModel([vertexColourMesh()]));
-  const part = [...built.parts.values()][0] as THREE.Mesh<
+export function test_viewer_vertex_colour_instancing_refusals(): void {
+  const built: import("../../../../packages/viewer/src/IAutoMovieModelObject").IAutoMovieModelObject = buildModel(vertexColourModel([vertexColourMesh()]));
+  const part: THREE.Mesh<THREE.BufferGeometry<THREE.NormalBufferAttributes, THREE.BufferGeometryEventMap>, THREE.MeshStandardMaterial, THREE.Object3DEventMap> = [...built.parts.values()][0] as THREE.Mesh<
     THREE.BufferGeometry,
     THREE.MeshStandardMaterial
   >;
@@ -29,22 +34,22 @@ export const test_viewer_vertex_colour_instancing_refusals = (): void => {
     part.geometry.setAttribute(
       "color",
       new THREE.Float32BufferAttribute(
-        new Array(size! * count!).fill(1),
+        new Array<number>(size! * count!).fill(1),
         size!,
       ),
     );
     TestValidator.predicate(
       "malformed colour refused",
       throwsError(
-        () => flattenInstancedObject(built),
+        (): import("../../../../packages/viewer/src/IAutoMovieInstancedModelRepresentation").IAutoMovieInstancedModelRepresentation<null> => flattenInstancedObject(built),
         "one RGB or RGBA colour per vertex",
       ),
     );
     part.geometry.setAttribute(
       "color",
-      new THREE.Float32BufferAttribute(new Array(9).fill(1), 3),
+      new THREE.Float32BufferAttribute(new Array<number>(9).fill(1), 3),
     );
-    const valid = flattenInstancedObject(built);
+    const valid: import("../../../../packages/viewer/src/IAutoMovieInstancedModelRepresentation").IAutoMovieInstancedModelRepresentation<null> = flattenInstancedObject(built);
     TestValidator.equals(
       "adjacent aligned input",
       valid.geometry.getAttribute("color").count,
@@ -54,4 +59,4 @@ export const test_viewer_vertex_colour_instancing_refusals = (): void => {
   }
   part.geometry.dispose();
   part.material.dispose();
-};
+}

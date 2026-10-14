@@ -11,7 +11,7 @@ import type * as THREE from "three";
 import { IDENTITY_TRANSFORM, createModel } from "../internal/fixtures";
 import { namedFacts } from "../internal/predicates";
 
-const FLOOR_POLYGON = [
+const FLOOR_POLYGON: { x: number; y: number; z: number; }[] = [
   { x: -2, y: 0, z: -1 },
   { x: 2, y: 0, z: -1 },
   { x: 2, y: 0, z: 1 },
@@ -24,7 +24,7 @@ const SPACE: IAutoMovieSpace = {
   walkable: ["floor"],
 };
 
-const sceneOf = () =>
+const sceneOf: () => THREE.Scene<THREE.Object3DEventMap> = (): THREE.Scene<THREE.Object3DEventMap> =>
   buildScene(
     {
       id: "scene-1",
@@ -51,85 +51,60 @@ const sceneOf = () =>
       ],
       space: SPACE,
     },
-    () => buildModel({ ...createModel(), id: "model-a" }),
+    (): import("../../../../packages/viewer/src/IAutoMovieModelObject").IAutoMovieModelObject => buildModel({ ...createModel(), id: "model-a" }),
   ).scene;
 
 /** Every mesh under one object, in traversal order. */
-const meshesUnder = (root: THREE.Object3D): THREE.Mesh[] => {
+const meshesUnder: (root: THREE.Object3D) => THREE.Mesh[] = (root: THREE.Object3D): THREE.Mesh[] => {
   const out: THREE.Mesh[] = [];
-  root.traverse((object) => {
+  root.traverse((object: THREE.Object3D<THREE.Object3DEventMap>): void => {
     if ((object as THREE.Mesh).isMesh === true) out.push(object as THREE.Mesh);
   });
   return out;
 };
 
 /**
- * A built scene says which objects cast a shadow and which receive one.
- *
- * Every other link of the chain was already built and none of them produced a
- * shadow. `stageScene` validates a light's `castShadow` and refuses shadow
- * settings without it; the render inventory counts `shadowMaps` as
- * `casters.length` and a render budget constrains that count; the scaffold's
- * own example declares `shadows: { enabled: true, type: "pcfSoft" }`;
- * `buildLight` applies the flag and the entire shadow camera — map size, bias,
- * normal bias, near and far; `applySceneEnvironment` enables
- * `renderer.shadowMap` from the scene's declaration and restores the prior
- * state afterwards. `receiveShadow` appeared nowhere in the repository, and
- * `castShadow` only ever on a light. `three.js` needs an enabled map, a casting
- * light **and** participating geometry, so every production that declared a
- * caster rendered none.
- *
- * The absence does not look like one. A `#1954` benchmark authored a fascia and
- * soffit band with a deliberate dark recess above the wall; the darkening reads
- * as a shadow in every captured frame and is nothing but geometry and material
- * response to light direction. Building the appearance out of geometry is what
- * an author reaches for when the mechanism is missing and no gate says so.
+ * Exercises the object-role shadow flags of a built scene and a later host-added mesh.
  *
  * Scenarios:
+ * 1. Built model meshes cast and receive shadows by their CPU participation flags.
+ * 2. Semantic support meshes neither cast nor receive by those flags.
+ * 3. Grid, line, points and sprite nodes retain their excluded flags.
+ * 4. A later mesh receives participation while reapplication preserves prior model flags.
  *
- * 1. A model's parts both cast and receive. They are the solids in the scene,
- *    and a solid that occludes nothing is the defect this closes.
- * 2. A standable surface neither casts nor receives. It is a semantic patch
- *    reserved for structural guide passes, not beauty geometry; receiving a
- *    shadow would promote the declaration back into the delivered image, while
- *    casting from a volume-free plane produces depth acne rather than a shadow.
- * 3. Non-mesh renderables are untouched. A grid helper, a line, a point cloud
- *    and a sprite carry the same `castShadow` field and mean nothing by it, so
- *    a rule that set every `Object3D` would silently claim they participate.
- * 4. The pass is idempotent and reapplicable by a host that assembles its own
- *    graph — the playground's film page, which is what the offline renderer
- *    captures. Running it twice changes nothing, and running it on a graph
- *    built elsewhere reaches the meshes added after `buildScene` returned.
+ * @evidence contracts/testing.md#behavioral-verification Calls actual model/scene builders and participation projection, checking mesh flags, semantic support exclusion and nonmesh state before and after reapplication.
+ * @evidence contracts/testing.md#independent-expectations Authored model/support roles and separately retained pre-pass flags define expectations; flags alone do not certify submitted shadows, pixels or GPU depth storage.
+ * @evidence contracts/testing.md#distinguishing-cases Contrasts model/support meshes, grid/line/points/sprite nodes, a late mesh and an unchanged second projection so blanket Object3D marking fails.
+ * @evidence contracts/testing.md#execution-ownership The named entry owns actual CPU Three graphs and existing portable model inputs; it creates no native renderer/browser, captures no production image and replaces no foreign method.
  */
-export const test_viewer_shadow_participation = async (): Promise<void> => {
-  const THREE = await import("three");
-  const scene = sceneOf();
-  const ground = scene.getObjectByName(SPACE_GROUP_NAME)!;
-  const groundMeshes = meshesUnder(ground);
-  const nodeMeshes = meshesUnder(scene.getObjectByName("node-a")!);
+export async function test_viewer_shadow_participation(): Promise<void> {
+  const THREE: typeof import("three") = await import("three");
+  const scene: THREE.Scene<THREE.Object3DEventMap> = sceneOf();
+  const ground: THREE.Object3D<THREE.Object3DEventMap> = scene.getObjectByName(SPACE_GROUP_NAME)!;
+  const groundMeshes: THREE.Mesh<THREE.BufferGeometry<THREE.NormalBufferAttributes, THREE.BufferGeometryEventMap>, THREE.Material<THREE.MaterialEventMap> | THREE.Material<THREE.MaterialEventMap>[], THREE.Object3DEventMap>[] = meshesUnder(ground);
+  const nodeMeshes: THREE.Mesh<THREE.BufferGeometry<THREE.NormalBufferAttributes, THREE.BufferGeometryEventMap>, THREE.Material<THREE.MaterialEventMap> | THREE.Material<THREE.MaterialEventMap>[], THREE.Object3DEventMap>[] = meshesUnder(scene.getObjectByName("node-a")!);
 
   TestValidator.equals(
     "solids cast and receive while a support patch participates in neither",
     namedFacts([
-      ["the model contributed meshes", () => nodeMeshes.length > 0],
+      ["the model contributed meshes", (): boolean => nodeMeshes.length > 0],
       [
         "and every one of them casts",
-        () => nodeMeshes.every((mesh) => mesh.castShadow === true),
+        (): boolean => nodeMeshes.every((mesh: THREE.Mesh<THREE.BufferGeometry<THREE.NormalBufferAttributes, THREE.BufferGeometryEventMap>, THREE.Material<THREE.MaterialEventMap> | THREE.Material<THREE.MaterialEventMap>[], THREE.Object3DEventMap>): boolean => mesh.castShadow === true),
       ],
       [
         "and receives",
-        () => nodeMeshes.every((mesh) => mesh.receiveShadow === true),
+        (): boolean => nodeMeshes.every((mesh: THREE.Mesh<THREE.BufferGeometry<THREE.NormalBufferAttributes, THREE.BufferGeometryEventMap>, THREE.Material<THREE.MaterialEventMap> | THREE.Material<THREE.MaterialEventMap>[], THREE.Object3DEventMap>): boolean => mesh.receiveShadow === true),
       ],
-      ["the space contributed a patch", () => groundMeshes.length > 0],
-      // The whole distinction in one assertion. A blanket rule passes every
-      // other fact in this case and fails this one.
+      ["the space contributed a patch", (): boolean => groundMeshes.length > 0],
+      // The whole distinction in one assertion. A blanket rule passes every other fact in this case and fails this one.
       [
         "which receives nothing",
-        () => groundMeshes.every((mesh) => mesh.receiveShadow === false),
+        (): boolean => groundMeshes.every((mesh: THREE.Mesh<THREE.BufferGeometry<THREE.NormalBufferAttributes, THREE.BufferGeometryEventMap>, THREE.Material<THREE.MaterialEventMap> | THREE.Material<THREE.MaterialEventMap>[], THREE.Object3DEventMap>): boolean => mesh.receiveShadow === false),
       ],
       [
         "and casts nothing",
-        () => groundMeshes.every((mesh) => mesh.castShadow === false),
+        (): boolean => groundMeshes.every((mesh: THREE.Mesh<THREE.BufferGeometry<THREE.NormalBufferAttributes, THREE.BufferGeometryEventMap>, THREE.Material<THREE.MaterialEventMap> | THREE.Material<THREE.MaterialEventMap>[], THREE.Object3DEventMap>): boolean => mesh.castShadow === false),
       ],
     ]),
     {
@@ -142,31 +117,31 @@ export const test_viewer_shadow_participation = async (): Promise<void> => {
     },
   );
 
-  const grid = new THREE.GridHelper(10, 10);
-  const line = new THREE.Line(
+  const grid: THREE.GridHelper = new THREE.GridHelper(10, 10);
+  const line: THREE.Line<THREE.BufferGeometry<THREE.NormalBufferAttributes, THREE.BufferGeometryEventMap>, THREE.LineBasicMaterial, THREE.Object3DEventMap> = new THREE.Line(
     new THREE.BufferGeometry().setFromPoints([
       new THREE.Vector3(0, 0, 0),
       new THREE.Vector3(1, 0, 0),
     ]),
     new THREE.LineBasicMaterial(),
   );
-  const points = new THREE.Points(
+  const points: THREE.Points<THREE.BufferGeometry<THREE.NormalBufferAttributes, THREE.BufferGeometryEventMap>, THREE.PointsMaterial, THREE.Object3DEventMap> = new THREE.Points(
     new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 1, 0)]),
     new THREE.PointsMaterial(),
   );
-  const sprite = new THREE.Sprite(new THREE.SpriteMaterial());
-  const late = new THREE.Mesh(
+  const sprite: THREE.Sprite<THREE.Object3DEventMap> = new THREE.Sprite(new THREE.SpriteMaterial());
+  const late: THREE.Mesh<THREE.BoxGeometry, THREE.MeshStandardMaterial, THREE.Object3DEventMap> = new THREE.Mesh(
     new THREE.BoxGeometry(1, 1, 1),
     new THREE.MeshStandardMaterial(),
   );
   scene.add(grid, line, points, sprite, late);
 
-  const before = nodeMeshes.map(
-    (mesh) => `${String(mesh.castShadow)}/${String(mesh.receiveShadow)}`,
+  const before: string[] = nodeMeshes.map(
+    (mesh: THREE.Mesh<THREE.BufferGeometry<THREE.NormalBufferAttributes, THREE.BufferGeometryEventMap>, THREE.Material<THREE.MaterialEventMap> | THREE.Material<THREE.MaterialEventMap>[], THREE.Object3DEventMap>): string => `${String(mesh.castShadow)}/${String(mesh.receiveShadow)}`,
   );
   applyAutoMovieShadowParticipation(scene);
-  const after = nodeMeshes.map(
-    (mesh) => `${String(mesh.castShadow)}/${String(mesh.receiveShadow)}`,
+  const after: string[] = nodeMeshes.map(
+    (mesh: THREE.Mesh<THREE.BufferGeometry<THREE.NormalBufferAttributes, THREE.BufferGeometryEventMap>, THREE.Material<THREE.MaterialEventMap> | THREE.Material<THREE.MaterialEventMap>[], THREE.Object3DEventMap>): string => `${String(mesh.castShadow)}/${String(mesh.receiveShadow)}`,
   );
 
   TestValidator.equals(
@@ -174,19 +149,18 @@ export const test_viewer_shadow_participation = async (): Promise<void> => {
     namedFacts([
       [
         "a grid, line, point cloud and sprite neither cast nor receive",
-        () =>
+        (): boolean =>
           [grid, line, points, sprite].every(
-            (object) =>
+            (object: THREE.Sprite<THREE.Object3DEventMap> | THREE.Line<THREE.BufferGeometry<THREE.NormalBufferAttributes, THREE.BufferGeometryEventMap>, THREE.LineBasicMaterial, THREE.Object3DEventMap> | THREE.Points<THREE.BufferGeometry<THREE.NormalBufferAttributes, THREE.BufferGeometryEventMap>, THREE.PointsMaterial, THREE.Object3DEventMap>): boolean =>
               object.castShadow === false && object.receiveShadow === false,
           ),
       ],
-      // A host assembling its own graph adds meshes after `buildScene` has
-      // returned, so the pass has to be callable rather than only internal.
-      ["a mesh added afterwards casts", () => late.castShadow === true],
-      ["and receives", () => late.receiveShadow === true],
+      // A host assembling its own graph adds meshes after `buildScene` has returned, so the pass has to be callable rather than only internal.
+      ["a mesh added afterwards casts", (): boolean => late.castShadow === true],
+      ["and receives", (): boolean => late.receiveShadow === true],
       [
         "and the second pass changed nothing",
-        () => after.join() === before.join(),
+        (): boolean => after.join() === before.join(),
       ],
     ]),
     {
@@ -196,4 +170,4 @@ export const test_viewer_shadow_participation = async (): Promise<void> => {
       "and the second pass changed nothing": true,
     },
   );
-};
+}

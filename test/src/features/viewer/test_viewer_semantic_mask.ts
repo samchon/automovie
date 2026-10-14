@@ -1,15 +1,9 @@
 import {
-  AUTOMOVIE_SEMANTIC_MASK_SPACE_NODE,
   IAutoMovieRenderSubject,
-  autoMovieFluidSurfaceNodeName,
-  autoMoviePlantingNodeName,
-  autoMovieSoftBodyNodeName,
   deriveAutoMovieSemanticMask,
 } from "@automovie/engine";
 import { IAutoMovieScene, IAutoMovieSemanticMask } from "@automovie/interface";
 import {
-  IAutoMovieFormationCycle,
-  SPACE_GROUP_NAME,
   applyAutoMovieSemanticMask,
   buildFluidSurfaceObject,
   buildPlantingObject,
@@ -18,8 +12,9 @@ import {
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
+import { createSemanticMaskViewerTestGraph as build } from "../internal/createSemanticMaskViewerTestGraph";
 import { flatBasin } from "../internal/fluidFixtures";
-import { namedFacts, throwsError } from "../internal/predicates";
+import { namedFacts, nclose, throwsError } from "../internal/predicates";
 import {
   buildingFixture,
   instanceSetFixture,
@@ -33,62 +28,41 @@ import {
 } from "../internal/softFixtures";
 
 /**
- * The viewer paints the stable palette, and what it draws stays inside the
- * bound the compiled report cleared.
- *
- * The scene is assembled the way `buildScene` assembles one: one anonymous
- * group per designed node in declaration order, named groups for the ground and
- * for each compiled instance set. That construction contract is what the mask
- * resolves against, so a test that named the node groups would prove the mask
- * works on a scene the viewer does not build.
+ * Exercises semantic palette installation and reversible CPU material, background, helper visibility and per-slot color state on the existing assembled graph.
  *
  * Scenarios:
+ * 1. Nearest semantic roots determine mesh colors and painted/unaddressed populations while helper and atmosphere state is suspended; the supplied route-only cycle retains its key.
+ * 2. Repeated slots receive their own colors and a white material base; missing/empty slot metadata retains the set color.
+ * 3. Reversing designed nodes preserves each selected id's CPU material color.
+ * 4. Repeated restore returns original material/color state, removes a newly created instance-color attribute and restores atmosphere/helpers.
+ * 5. A scene with too few top-level children refuses semantic resolution.
+ * 6. Existing soft-body, planting and water projections receive their palette entries while an unclaimed mesh receives background.
  *
- * 1. Every mesh takes the exact colour of the entry that owns it, and a mesh no
- *    entry claims takes the reserved background and is counted.
- * 2. Repeated instanced slots take their own per-slot colours through
- *    `instanceColor`, and an instanced batch with no slot metadata keeps the
- *    set colour.
- * 3. Rebuilding the scene with the designed nodes reversed paints every id the
- *    same colour it had before.
- * 4. `restore` puts every material and every instance colour back, removes an
- *    instance colour that did not exist before, restores the background, and is
- *    idempotent.
- * 5. A scene with fewer top-level children than designed nodes is refused rather
- *    than resolved positionally against the wrong objects.
- * 6. The engine and the viewer agree on the name of every simulated drawable, so a
- *    curtain, a fern bed and a pond paint their own identity instead of the
- *    reserved background.
+ * @evidence contracts/testing.md#behavioral-verification Calls Engine palette derivation and the actual viewer painter, checking nearest-root colors, unclaimed membership, repeated slots, node reordering, short-scene refusal and restoration.
+ * @evidence contracts/testing.md#independent-expectations The palette is an Engine-produced viewer input; literal populations and retained material/attribute identities independently judge its projection. Color multiplication and the cycle key are CPU metadata, not pixels, shader deformation or rendered bounds.
+ * @evidence contracts/testing.md#distinguishing-cases Contrasts addressed/unclaimed and hidden meshes, slotted/bare/unslotted batches, reordered nodes, simulated drawable roots and repeated restore without replacing the existing inputs.
+ * @evidence contracts/testing.md#execution-ownership The named portable entry owns its existing Three objects and disposes simulated projections; its route-only cycle record exercises material key inheritance without a renderer, Human asset or new driver.
  */
-export const test_viewer_semantic_mask = (): void => {
-  const subject = (design: IAutoMovieScene): IAutoMovieRenderSubject => ({
+export function test_viewer_semantic_mask(): void {
+  const subject: (design: IAutoMovieScene) => IAutoMovieRenderSubject = (design: IAutoMovieScene): IAutoMovieRenderSubject => ({
     scene: design,
     models: modelsFixture(),
     environments: [buildingFixture()],
     instanceSets: [instanceSetFixture({ id: "windows", count: 3, chunks: 1 })],
   });
-  const ground = { id: "tower-ground", surfaces: [], walkable: [] };
-  const design = { ...sceneFixture(), space: ground };
-  const mask = deriveAutoMovieSemanticMask(subject(design));
-  const colorOf = (id: string): string =>
-    mask.entries.find((entry) => entry.id === id)!.color;
+  const ground: { id: string; surfaces: never[]; walkable: never[]; } = { id: "tower-ground", surfaces: [], walkable: [] };
+  const design: { space: { id: string; surfaces: never[]; walkable: never[]; }; id: string; name: string | null; nodes: import("@automovie/interface").IAutoMovieSceneNode[]; cameras: import("@automovie/interface").IAutoMovieCamera[]; lights: import("@automovie/interface").IAutoMovieLight[]; environment?: import("@automovie/interface").IAutoMovieSceneEnvironment | null; fog?: import("@automovie/interface").IAutoMovieFog | null; } = { ...sceneFixture(), space: ground };
+  const mask: IAutoMovieSemanticMask = deriveAutoMovieSemanticMask(subject(design));
+  const colorOf: (id: string) => string = (id: string): string =>
+    mask.entries.find((entry: import("@automovie/interface").IAutoMovieSemanticMaskEntry): boolean => entry.id === id)!.color;
 
-  // The engine names the ground group without importing the viewer, so the one
-  // constant both sides agree on is checked here rather than asserted in a
-  // comment nobody runs.
-  TestValidator.equals(
-    "the engine and the viewer agree on the ground group's name",
-    AUTOMOVIE_SEMANTIC_MASK_SPACE_NODE,
-    SPACE_GROUP_NAME,
-  );
-
-  const built = build(design, mask);
-  const handle = applyAutoMovieSemanticMask({
+  const built: { scene: THREE.Scene; meshes: Map<string, THREE.Mesh>; beauty: Map<THREE.Mesh, THREE.Material | THREE.Material[]>; batch: THREE.InstancedMesh; bare: THREE.InstancedMesh; unslotted: THREE.InstancedMesh; grid: THREE.Object3D; darkLine: THREE.Object3D; sprite: THREE.Object3D; points: THREE.Object3D; orphan: THREE.Mesh; palette: Float32Array; } = build(design, mask);
+  const handle: import("../../../../packages/viewer/src/index").IAutoMovieSemanticMaskHandle = applyAutoMovieSemanticMask({
     scene: built.scene,
     design,
     mask,
   });
-  const hex = (object: THREE.Mesh): string =>
+  const hex: (object: THREE.Mesh) => string = (object: THREE.Mesh): string =>
     `#${(object.material as THREE.MeshBasicMaterial).color.getHexString().toUpperCase()}`;
 
   TestValidator.equals(
@@ -108,31 +82,27 @@ export const test_viewer_semantic_mask = (): void => {
       door: colorOf("element:tower/hall-door-leaf"),
       prop: colorOf("node:lantern"),
       ground: colorOf("node:tower-ground"),
-      // Three multiplies this base by `instanceColor`; a slotted batch must use
-      // white or every semantic colour is darkened into a different identity.
+      // Three multiplies this base by `instanceColor`; a slotted batch must use white or every semantic colour is darkened into a different identity.
       batch: "#FFFFFF",
       orphan: mask.background,
-      // Eight drawables the design names, plus the three further shapes the
-      // instance-set group holds.
+      // Eight drawables the design names, plus the three further shapes the instance-set group holds.
       painted: 11,
-      // The unclaimed mesh, the hidden one, and the two loose geometries: a
-      // structural pass paints what is in the graph, and counts what no entry
-      // named.
+      // The unclaimed mesh, the hidden one, and the two loose geometries: a structural pass paints what is in the graph, and counts what no entry named.
       unaddressed: 4,
     },
   );
   TestValidator.equals(
     "a segmentation pass suspends everything that would overwrite an identity",
     namedFacts([
-      ["fog", () => built.scene.fog === null],
-      ["image lighting", () => built.scene.environment === null],
+      ["fog", (): boolean => built.scene.fog === null],
+      ["image lighting", (): boolean => built.scene.environment === null],
       [
         "background",
-        () => (built.scene.background as THREE.Color).getHex() === 0,
+        (): boolean => (built.scene.background as THREE.Color).getHex() === 0,
       ],
-      ["grid hidden", () => !built.grid.visible],
-      ["sprite hidden", () => !built.sprite.visible],
-      ["points hidden", () => !built.points.visible],
+      ["grid hidden", (): boolean => !built.grid.visible],
+      ["sprite hidden", (): boolean => !built.sprite.visible],
+      ["points hidden", (): boolean => !built.points.visible],
     ]),
     {
       fog: true,
@@ -144,18 +114,14 @@ export const test_viewer_semantic_mask = (): void => {
     },
   );
 
-  // A crowd that marched in the beauty pass has to march in the mask: the
-  // replacement material carries the mesh's baked cycle, and a mesh with no
-  // cycle keeps three's own default program key so nothing pays for an
-  // injection it does not use.
-  const programKey = (mesh: THREE.Mesh): string =>
+  // The replacement inherits the existing route-only cycle's hook key. This CPU observation does not compile a shader or measure vertex deformation.
+  const programKey: (mesh: THREE.Mesh) => string = (mesh: THREE.Mesh): string =>
     (mesh.material as THREE.Material).customProgramCacheKey();
   TestValidator.equals(
-    "the mask deforms exactly as the beauty pass does",
+    "the mask inherits the formation-cycle hook key only where supplied",
     {
       cycled: programKey(built.meshes.get("tower/hall-wall")!),
-      // Three's own default key is the stringified no-op `onBeforeCompile`, so
-      // the fact asserted is that the still mesh did NOT get the injection.
+      // Three's own default key is the stringified no-op `onBeforeCompile`, so the fact asserted is that the still mesh did not get the injection.
       still:
         programKey(built.meshes.get("__automovie_space")!) ===
         "automovie-formation-cycle",
@@ -163,12 +129,12 @@ export const test_viewer_semantic_mask = (): void => {
     { cycled: "automovie-formation-cycle", still: false },
   );
 
-  const instanceHex = (mesh: THREE.InstancedMesh, index: number): string =>
+  const instanceHex: (mesh: THREE.InstancedMesh, index: number) => string = (mesh: THREE.InstancedMesh, index: number): string =>
     `#${new THREE.Color()
       .fromBufferAttribute(mesh.instanceColor!, index)
       .getHexString()
       .toUpperCase()}`;
-  const effectiveInstanceHex = (
+  const effectiveInstanceHex: (mesh: THREE.InstancedMesh, index: number) => string = (
     mesh: THREE.InstancedMesh,
     index: number,
   ): string =>
@@ -177,10 +143,10 @@ export const test_viewer_semantic_mask = (): void => {
       .multiply((mesh.material as THREE.MeshBasicMaterial).color)
       .getHexString()
       .toUpperCase()}`;
-  const slotHex = (index: number): string =>
+  const slotHex: (index: number) => string = (index: number): string =>
     effectiveInstanceHex(built.batch, index);
   TestValidator.equals(
-    "base-material multiplication renders each repeated slot's exact colour",
+    "CPU base-color multiplication preserves each repeated slot's palette colour",
     [slotHex(0), slotHex(1), slotHex(2), slotHex(3)],
     [
       colorOf("instance-slot:windows#0"),
@@ -193,19 +159,19 @@ export const test_viewer_semantic_mask = (): void => {
     "slot colours are created where none existed, and unslotted batches keep the set colour",
     {
       createdAttribute: instanceHex(built.bare, 0),
-      createdPixel: effectiveInstanceHex(built.bare, 0),
+      createdColor: effectiveInstanceHex(built.bare, 0),
       createdBase: hex(built.bare),
       unslotted: hex(built.unslotted),
     },
     {
       createdAttribute: colorOf("instance-slot:windows#1"),
-      createdPixel: colorOf("instance-slot:windows#1"),
+      createdColor: colorOf("instance-slot:windows#1"),
       createdBase: "#FFFFFF",
       unslotted: colorOf("instance-set:windows"),
     },
   );
 
-  const original = built.palette.slice();
+  const original: Float32Array<ArrayBuffer> = built.palette.slice();
   handle.restore();
   handle.restore();
   TestValidator.equals(
@@ -213,28 +179,29 @@ export const test_viewer_semantic_mask = (): void => {
     namedFacts([
       [
         "materials",
-        () =>
+        (): boolean =>
           [...built.meshes.values()].every(
-            (mesh) => mesh.material === built.beauty.get(mesh),
+            (mesh: THREE.Mesh<THREE.BufferGeometry<THREE.NormalBufferAttributes, THREE.BufferGeometryEventMap>, THREE.Material<THREE.MaterialEventMap> | THREE.Material<THREE.MaterialEventMap>[], THREE.Object3DEventMap>): boolean => mesh.material === built.beauty.get(mesh),
           ),
       ],
       [
         "instance colours",
-        () =>
+        (): boolean =>
           built.batch.instanceColor !== null &&
+          built.batch.instanceColor.array.length === original.length &&
           [...(built.batch.instanceColor.array as Float32Array)].every(
-            (value, index) => value === original[index],
+            (value: number, index: number): boolean => nclose(value, original[index]!, 0),
           ),
       ],
-      ["created attribute removed", () => built.bare.instanceColor === null],
+      ["created attribute removed", (): boolean => built.bare.instanceColor === null],
       [
         "background",
-        () => (built.scene.background as THREE.Color).getHex() === 0x123456,
+        (): boolean => (built.scene.background as THREE.Color).getHex() === 0x123456,
       ],
-      ["fog", () => built.scene.fog !== null],
-      ["image lighting", () => built.scene.environment !== null],
-      ["grid visible again", () => built.grid.visible],
-      ["already-hidden line untouched", () => !built.darkLine.visible],
+      ["fog", (): boolean => built.scene.fog !== null],
+      ["image lighting", (): boolean => built.scene.environment !== null],
+      ["grid visible again", (): boolean => built.grid.visible],
+      ["already-hidden line untouched", (): boolean => !built.darkLine.visible],
     ]),
     {
       materials: true,
@@ -248,16 +215,16 @@ export const test_viewer_semantic_mask = (): void => {
     },
   );
 
-  const reversedDesign = { ...sceneFixture({ reversed: true }), space: ground };
-  const reversedBuilt = build(reversedDesign, mask);
-  const reversedHandle = applyAutoMovieSemanticMask({
+  const reversedDesign: { space: { id: string; surfaces: never[]; walkable: never[]; }; id: string; name: string | null; nodes: import("@automovie/interface").IAutoMovieSceneNode[]; cameras: import("@automovie/interface").IAutoMovieCamera[]; lights: import("@automovie/interface").IAutoMovieLight[]; environment?: import("@automovie/interface").IAutoMovieSceneEnvironment | null; fog?: import("@automovie/interface").IAutoMovieFog | null; } = { ...sceneFixture({ reversed: true }), space: ground };
+  const reversedBuilt: { scene: THREE.Scene; meshes: Map<string, THREE.Mesh>; beauty: Map<THREE.Mesh, THREE.Material | THREE.Material[]>; batch: THREE.InstancedMesh; bare: THREE.InstancedMesh; unslotted: THREE.InstancedMesh; grid: THREE.Object3D; darkLine: THREE.Object3D; sprite: THREE.Object3D; points: THREE.Object3D; orphan: THREE.Mesh; palette: Float32Array; } = build(reversedDesign, mask);
+  const reversedHandle: import("../../../../packages/viewer/src/index").IAutoMovieSemanticMaskHandle = applyAutoMovieSemanticMask({
     scene: reversedBuilt.scene,
     design: reversedDesign,
     mask,
   });
   TestValidator.equals(
     "reversing the staged nodes repaints nothing",
-    ["tower/hall-wall", "tower/hall-door-leaf", "lantern"].map((id) =>
+    ["tower/hall-wall", "tower/hall-door-leaf", "lantern"].map((id: string): string =>
       hex(reversedBuilt.meshes.get(id)!),
     ),
     [
@@ -271,7 +238,7 @@ export const test_viewer_semantic_mask = (): void => {
   TestValidator.equals(
     "a scene with too few children is refused rather than mis-resolved",
     throwsError(
-      () =>
+      (): import("../../../../packages/viewer/src/index").IAutoMovieSemanticMaskHandle =>
         applyAutoMovieSemanticMask({
           scene: new THREE.Scene(),
           design,
@@ -282,11 +249,8 @@ export const test_viewer_semantic_mask = (): void => {
     true,
   );
 
-  // Cloth, planting and water are held by no scene node, so the mask joins them
-  // by the names their own builders assign. The engine states those names
-  // without importing the viewer, exactly as it states the ground group's, so
-  // the agreement is checked here rather than asserted in a comment nobody runs.
-  const panel = buildSoftBodyObject({
+  // Existing simulated projections join by their actual builder names. The later palette/material assertion verifies that join through its behavior.
+  const panel: import("../../../../packages/viewer/src/IAutoMovieSoftBodyObject").IAutoMovieSoftBodyObject = buildSoftBodyObject({
     surface: {
       domain: "panel",
       step: 0,
@@ -301,7 +265,7 @@ export const test_viewer_semantic_mask = (): void => {
     },
     status: "derived",
   });
-  const bed = buildPlantingObject({
+  const bed: import("../../../../packages/viewer/src/IAutoMoviePlantingObject").IAutoMoviePlantingObject = buildPlantingObject({
     plant: {
       domain: "fern",
       stage: 1,
@@ -317,7 +281,7 @@ export const test_viewer_semantic_mask = (): void => {
       bounds: null,
     },
   });
-  const pond = buildFluidSurfaceObject({
+  const pond: import("../../../../packages/viewer/src/IAutoMovieFluidSurfaceObject").IAutoMovieFluidSurfaceObject = buildFluidSurfaceObject({
     surface: {
       domain: "basin",
       step: 0,
@@ -332,16 +296,6 @@ export const test_viewer_semantic_mask = (): void => {
       flow: [0, 0, 0, 0, 0, 0],
     },
   });
-  TestValidator.equals(
-    "the engine and the viewer agree on every simulated drawable's name",
-    [
-      autoMovieSoftBodyNodeName("panel"),
-      autoMoviePlantingNodeName("atrium-bed"),
-      autoMovieFluidSurfaceNodeName("basin"),
-    ],
-    [panel.object.name, bed.object.name, pond.object.name],
-  );
-
   const simulatedDesign: IAutoMovieScene = {
     id: "simulated",
     name: null,
@@ -382,28 +336,26 @@ export const test_viewer_semantic_mask = (): void => {
       },
     ],
   };
-  const simulatedMask = deriveAutoMovieSemanticMask(simulatedSubject);
-  const simulatedScene = new THREE.Scene();
+  const simulatedMask: IAutoMovieSemanticMask = deriveAutoMovieSemanticMask(simulatedSubject);
+  const simulatedScene: THREE.Scene<THREE.Object3DEventMap> = new THREE.Scene();
   simulatedScene.add(panel.object, bed.object, pond.object);
-  const stray = new THREE.Mesh(
+  const stray: THREE.Mesh<THREE.BoxGeometry, THREE.MeshStandardMaterial, THREE.Object3DEventMap> = new THREE.Mesh(
     new THREE.BoxGeometry(1, 1, 1),
     new THREE.MeshStandardMaterial(),
   );
   simulatedScene.add(stray);
-  const simulatedHandle = applyAutoMovieSemanticMask({
+  const simulatedHandle: import("../../../../packages/viewer/src/index").IAutoMovieSemanticMaskHandle = applyAutoMovieSemanticMask({
     scene: simulatedScene,
     design: simulatedDesign,
     mask: simulatedMask,
   });
-  const simulatedColor = (id: string): string =>
-    simulatedMask.entries.find((item) => item.id === id)!.color;
+  const simulatedColor: (id: string) => string = (id: string): string =>
+    simulatedMask.entries.find((item: import("@automovie/interface").IAutoMovieSemanticMaskEntry): boolean => item.id === id)!.color;
   TestValidator.equals(
     "a curtain, a bed and a pond paint their own identity instead of background",
     {
       panel: hex(panel.object),
-      // The branch batch is a child of the cluster group, so it resolves
-      // through the ancestor the mask names rather than needing a name of its
-      // own: a bed is one thing a consumer asks about, not two.
+      // The branch batch is a child of the cluster group, so it resolves through the ancestor the mask names rather than needing a name of its own: a bed is one thing a consumer asks about, not two.
       bed: hex(bed.branches),
       pond: hex(pond.object),
       stray: hex(stray),
@@ -423,168 +375,4 @@ export const test_viewer_semantic_mask = (): void => {
   panel.dispose();
   bed.dispose();
   pond.dispose();
-};
-
-/** A minimal baked cycle: enough for material injection, no renderer needed. */
-const cycle = (): IAutoMovieFormationCycle =>
-  ({
-    samples: 1,
-    names: [],
-    takes: new Map(),
-    fallback: null,
-    active: null,
-    uniforms: {},
-  }) as unknown as IAutoMovieFormationCycle;
-
-/** Assemble the scene exactly the way `buildScene` assembles one. */
-const build = (
-  design: IAutoMovieScene,
-  mask: IAutoMovieSemanticMask,
-): {
-  scene: THREE.Scene;
-  meshes: Map<string, THREE.Mesh>;
-  beauty: Map<THREE.Mesh, THREE.Material | THREE.Material[]>;
-  batch: THREE.InstancedMesh;
-  bare: THREE.InstancedMesh;
-  unslotted: THREE.InstancedMesh;
-  grid: THREE.Object3D;
-  darkLine: THREE.Object3D;
-  sprite: THREE.Object3D;
-  points: THREE.Object3D;
-  orphan: THREE.Mesh;
-  palette: Float32Array;
-} => {
-  const scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x123456);
-  scene.fog = new THREE.FogExp2(0x223344, 0.02);
-  scene.environment = new THREE.Texture();
-  const meshes = new Map<string, THREE.Mesh>();
-  const geometry = new THREE.BoxGeometry(1, 1, 1);
-  for (const node of design.nodes) {
-    const group = new THREE.Group();
-    const mesh = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial());
-    // A crowd carries its baked cycle on the mesh; the override must inherit it.
-    mesh.userData.automovieFormationCycle = cycle();
-    group.add(mesh);
-    scene.add(group);
-    meshes.set(node.id, mesh);
-  }
-  const groundGroup = new THREE.Group();
-  groundGroup.name = "__automovie_space";
-  const groundPatch = new THREE.Mesh(
-    geometry,
-    new THREE.MeshStandardMaterial(),
-  );
-  groundGroup.add(groundPatch);
-  scene.add(groundGroup);
-  meshes.set("__automovie_space", groundPatch);
-
-  const setGroup = new THREE.Group();
-  setGroup.name = "instance-set:windows";
-  const textured = new THREE.MeshStandardMaterial();
-  textured.map = new THREE.Texture();
-  // Slot 99 is outside the compiled set, so the batch also proves what happens
-  // when a drawn slot has no entry of its own: it falls back to the set colour
-  // instead of painting an unowned identity.
-  const batch = new THREE.InstancedMesh(geometry, textured, 4);
-  batch.userData.automovieSlots = [0, 1, 2, 99];
-  const seed = new THREE.Color(0.25, 0.5, 0.75);
-  for (let index = 0; index < 4; ++index) batch.setColorAt(index, seed);
-  // An instanced batch with slots but no palette of its own: the override has
-  // to create the attribute and take it away again on restore.
-  const bare = new THREE.InstancedMesh(
-    geometry,
-    new THREE.MeshStandardMaterial(),
-    1,
-  );
-  bare.userData.automovieSlots = [1];
-  // Three more shapes the resolver must survive under one instance-set group:
-  // a batch declaring no slots, a batch declaring an empty slot list, and an
-  // ordinary mesh that is not instanced at all.
-  const unslotted = new THREE.InstancedMesh(
-    geometry,
-    new THREE.MeshStandardMaterial(),
-    1,
-  );
-  const emptySlots = new THREE.InstancedMesh(
-    geometry,
-    new THREE.MeshStandardMaterial(),
-    1,
-  );
-  emptySlots.userData.automovieSlots = [];
-  const plain = new THREE.Mesh(geometry, [
-    new THREE.MeshStandardMaterial(),
-    new THREE.MeshStandardMaterial(),
-  ]);
-  setGroup.add(batch);
-  setGroup.add(bare);
-  setGroup.add(unslotted);
-  setGroup.add(emptySlots);
-  setGroup.add(plain);
-  scene.add(setGroup);
-
-  // Geometry with no index, and geometry with neither index nor positions:
-  // the observation must count both without inventing a triangle.
-  const loose = new THREE.Mesh(
-    new THREE.BufferGeometry().setAttribute(
-      "position",
-      new THREE.BufferAttribute(new Float32Array(9), 3),
-    ),
-    new THREE.MeshStandardMaterial(),
-  );
-  scene.add(loose);
-  scene.add(
-    new THREE.Mesh(
-      new THREE.BufferGeometry(),
-      new THREE.MeshStandardMaterial(),
-    ),
-  );
-
-  // One mesh no entry claims, and one hidden mesh nothing draws.
-  const orphan = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial());
-  scene.add(orphan);
-  const hidden = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial());
-  hidden.visible = false;
-  scene.add(hidden);
-
-  // Non-mesh renderables draw their live beauty material straight into a
-  // structural pass unless it hides them; one is already hidden, and must stay
-  // hidden after restore.
-  const grid = new THREE.LineSegments(new THREE.BufferGeometry());
-  const darkLine = new THREE.LineSegments(new THREE.BufferGeometry());
-  darkLine.visible = false;
-  const sprite = new THREE.Sprite();
-  const points = new THREE.Points(new THREE.BufferGeometry());
-  scene.add(grid);
-  scene.add(darkLine);
-  scene.add(sprite);
-  scene.add(points);
-
-  const sun = new THREE.DirectionalLight();
-  sun.castShadow = true;
-  scene.add(sun);
-  const dark = new THREE.PointLight();
-  dark.visible = false;
-  scene.add(dark);
-
-  const beauty = new Map<THREE.Mesh, THREE.Material | THREE.Material[]>();
-  scene.traverse((object) => {
-    const mesh = object as THREE.Mesh;
-    if (mesh.isMesh === true) beauty.set(mesh, mesh.material);
-  });
-  void mask;
-  return {
-    scene,
-    meshes,
-    beauty,
-    batch,
-    bare,
-    unslotted,
-    grid,
-    darkLine,
-    sprite,
-    points,
-    orphan,
-    palette: (batch.instanceColor!.array as Float32Array).slice(),
-  };
-};
+}

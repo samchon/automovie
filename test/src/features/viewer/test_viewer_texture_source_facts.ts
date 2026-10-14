@@ -5,21 +5,20 @@ import { TestValidator } from "@nestia/e2e";
 import { throwsError } from "../internal/predicates";
 
 /**
- * Capture facts follow the actual decoded texture before upload, including its
- * component representation and inherited sampling. Unsupported storage is not
- * silently described as an eight-bit image.
+ * Exercises ordinary decoded source representation, sampler projection and invalid-extent refusal.
  *
  * Scenarios:
+ * 1. Authored component/internal/color-space formats distinguish supported ordinary source and environment projections from unknown representations.
+ * 2. Independent S/T wraps and min/mag filters retain every supplied sampler field without changing the source; generation and explicit mip metadata remain distinct.
+ * 3. Unsupported sampler values remain unreported and absent/nonpositive/fractional/nonfinite dimensions refuse.
  *
- * 1. RGBA unsigned byte, half and float sources report 4-by-4 dimensions and
- *    their actual component width; explicit internal formats take precedence.
- * 2. Wrap and each supported filter are reported without changing the source;
- *    generated and explicit mip policies remain distinct facts.
- * 3. Unknown format/filter/wrap state stays unreported; absent or invalid image
- *    extents refuse with the source asset's diagnostic.
+ * @evidence contracts/testing.md#behavioral-verification Calls actual source observation across component/internal/color formats, wraps/filters and generated/manual policies without changing the observed sampler.
+ * @evidence contracts/testing.md#independent-expectations Independent authored format/sampler pairs and 4x4 dimensions judge every returned field; supplied image metadata is not a successful decoder or native allocation receipt.
+ * @evidence contracts/testing.md#distinguishing-cases Contrasts supported byte/half/float layouts, explicit overrides, unsupported representation/sampler values and absent/nonpositive/fractional/nonfinite extents.
+ * @evidence contracts/testing.md#execution-ownership The named entry mutates only its owned CPU Texture inputs and disposes them; it starts no decoder/renderer/native host and replaces no SDK method.
  */
-export const test_viewer_texture_source_facts = async (): Promise<void> => {
-  const THREE = await import("three");
+export async function test_viewer_texture_source_facts(): Promise<void> {
+  const THREE: typeof import("three") = await import("three");
   const texture: ThreeTypes.Texture = new THREE.DataTexture(new Uint8Array(64), 4, 4, THREE.RGBAFormat, THREE.UnsignedByteType);
   for (const [type, format] of [[THREE.UnsignedByteType, "rgba8"], [THREE.HalfFloatType, "rgba16f"], [THREE.FloatType, "rgba32f"]] as const) {
     texture.type = type;
@@ -48,8 +47,6 @@ export const test_viewer_texture_source_facts = async (): Promise<void> => {
   TestValidator.equals("unreported RG float representation", readAutoMovieTextureSource("image", texture).format, undefined);
   texture.format = THREE.RedFormat;
   TestValidator.equals("unreported R float representation", readAutoMovieTextureSource("image", texture).format, undefined);
-  texture.format = THREE.RedFormat;
-  TestValidator.equals("unsupported channel format", readAutoMovieTextureSource("image", texture).format, undefined);
   texture.format = THREE.RGBAFormat;
   texture.type = THREE.IntType;
   TestValidator.equals("unsupported component type", readAutoMovieTextureSource("image", texture).format, undefined);
@@ -57,7 +54,7 @@ export const test_viewer_texture_source_facts = async (): Promise<void> => {
   texture.type = THREE.UnsignedByteType;
   for (const [colorSpace, expected] of [[THREE.SRGBColorSpace, "srgb"], [THREE.NoColorSpace, "linear"], [THREE.LinearSRGBColorSpace, "linear-environment"]] as const) {
     texture.colorSpace = colorSpace;
-    TestValidator.equals("actual upload decoding", readAutoMovieTextureSource("image", texture).colorSpace, expected);
+    TestValidator.equals("the supplied color-space field projects its decoding policy", readAutoMovieTextureSource("image", texture).colorSpace, expected);
   }
   texture.colorSpace = "unsupported";
   TestValidator.equals("unreported decoding", readAutoMovieTextureSource("image", texture).colorSpace, undefined);
@@ -65,17 +62,18 @@ export const test_viewer_texture_source_facts = async (): Promise<void> => {
   texture.type = THREE.HalfFloatType;
   TestValidator.equals("float environment decoding", readAutoMovieTextureSource("image", texture).environmentColorSpace, "linear-environment");
   texture.type = THREE.UnsignedByteType;
-  for (const minFilter of [THREE.NearestFilter, THREE.LinearFilter, THREE.NearestMipmapLinearFilter, THREE.LinearMipmapLinearFilter]) {
+  for (const [minFilter, expectedMinFilter] of [[THREE.NearestFilter, "nearest"], [THREE.LinearFilter, "linear"], [THREE.NearestMipmapLinearFilter, "nearestMipmapLinear"], [THREE.LinearMipmapLinearFilter, "linearMipmapLinear"]] as const) {
     texture.minFilter = minFilter;
-    for (const wrap of [THREE.ClampToEdgeWrapping, THREE.RepeatWrapping, THREE.MirroredRepeatWrapping]) {
-      texture.wrapS = wrap;
-      texture.wrapT = wrap;
-      for (const magFilter of [THREE.NearestFilter, THREE.LinearFilter]) {
+    for (const [wrapS, expectedWrapS] of [[THREE.ClampToEdgeWrapping, "clamp"], [THREE.RepeatWrapping, "repeat"], [THREE.MirroredRepeatWrapping, "mirror"]] as const)
+      for (const [wrapT, expectedWrapT] of [[THREE.ClampToEdgeWrapping, "clamp"], [THREE.RepeatWrapping, "repeat"], [THREE.MirroredRepeatWrapping, "mirror"]] as const) {
+      texture.wrapS = wrapS;
+      texture.wrapT = wrapT;
+      for (const [magFilter, expectedMagFilter] of [[THREE.NearestFilter, "nearest"], [THREE.LinearFilter, "linear"]] as const) {
         texture.magFilter = magFilter;
-        const fact = readAutoMovieTextureSource("image", texture);
-        TestValidator.predicate("supported inherited sampler", fact.sampler !== undefined);
+        const fact: import("@automovie/engine").IAutoMovieRenderTextureSource = readAutoMovieTextureSource("image", texture);
+        TestValidator.equals("every inherited sampler field retains its own authored value", fact.sampler, { wrapS: expectedWrapS, wrapT: expectedWrapT, minFilter: expectedMinFilter, magFilter: expectedMagFilter });
         TestValidator.equals("decoded dimensions", [fact.width, fact.height], [4, 4]);
-        TestValidator.equals("source remains unchanged", texture.wrapS, wrap);
+        TestValidator.equals("sampler observation does not change the source", [texture.wrapS, texture.wrapT, texture.minFilter, texture.magFilter], [wrapS, wrapT, minFilter, magFilter]);
       }
     }
   }
@@ -85,7 +83,7 @@ export const test_viewer_texture_source_facts = async (): Promise<void> => {
       THREE.LinearMipmapNearestFilter, THREE.LinearMipmapLinearFilter]) {
       texture.generateMipmaps = generate;
       texture.minFilter = filter;
-      TestValidator.equals("native generation is independent of filtering", readAutoMovieTextureSource("image", texture).mipmapped, generate);
+      TestValidator.equals("requested generation metadata is independent of filtering", readAutoMovieTextureSource("image", texture).mipmapped, generate);
     }
   texture.generateMipmaps = false;
   texture.mipmaps = [{ width: 4, height: 4, data: new Uint8Array(64) }, { width: 2, height: 2, data: new Uint8Array(16) }];
@@ -103,7 +101,7 @@ export const test_viewer_texture_source_facts = async (): Promise<void> => {
   TestValidator.equals("unreported magnification filter", readAutoMovieTextureSource("image", texture).sampler, undefined);
   for (const image of [null, false, 4, "image", {}, { width: 4 }, { width: "4", height: 4 }, { width: 4, height: "4" }, { width: 0, height: 4 }, { width: 4, height: 0 }, { width: 1.5, height: 4 }, { width: 4, height: Infinity }]) {
     texture.image = image;
-    TestValidator.predicate("invalid decoded extent", throwsError(() => readAutoMovieTextureSource("image", texture), "image"));
+    TestValidator.predicate("invalid decoded extent", throwsError((): import("@automovie/engine").IAutoMovieRenderTextureSource => readAutoMovieTextureSource("image", texture), "image"));
   }
   texture.dispose();
-};
+}

@@ -50,8 +50,8 @@ const DESIGN: IAutoMovieScene = {
 };
 
 /** The one support-patch mesh in a freshly built copy of the design. */
-const built = (): { scene: THREE.Scene; patch: THREE.Mesh } => {
-  const scene = buildScene(DESIGN, () =>
+const built: () => { scene: THREE.Scene; patch: THREE.Mesh; } = (): { scene: THREE.Scene; patch: THREE.Mesh } => {
+  const scene: THREE.Scene<THREE.Object3DEventMap> = buildScene(DESIGN, (): import("../../../../packages/viewer/src/IAutoMovieModelObject").IAutoMovieModelObject =>
     buildModel({ ...createModel(), id: "model-a" }),
   ).scene;
   return {
@@ -61,53 +61,45 @@ const built = (): { scene: THREE.Scene; patch: THREE.Mesh } => {
 };
 
 /**
- * A semantic support declaration is structural evidence and never beauty
- * geometry proving that a physical floor exists.
- *
- * The defect was stronger than z-fighting. A walkable polygon with no slab was
- * an opaque neutral floor in the delivered frame, so the declaration rendered
- * as evidence of its own satisfaction. The patch must remain a real mesh for
- * the depth, normal, outline, legacy mask, and stable semantic-mask products
- * introduced by #1173, while its ordinary material changes neither beauty
- * colour nor beauty depth.
+ * Exercises semantic support material write flags and reversible structural material installation.
  *
  * Scenarios:
+ * 1. Direct and embedded support materials disable beauty writes while model materials retain color/depth writes.
+ * 2. Depth, normal, outline and legacy mask install structural materials and repeated restore retains the original reference.
+ * 3. Semantic audit/painting counts graph membership and restores support material.
+ * 4. Beauty leaves that nonwriting support material installed.
  *
- * 1. Direct `buildSpaceObject` and `buildScene` embedders receive a patch whose
- *    ordinary material writes neither colour nor depth, while a model's
- *    authored material keeps both channels.
- * 2. Depth, normal, outline, and legacy mask replace that ordinary material,
- *    then idempotent restoration returns the exact borrowed material.
- * 3. Semantic-mask audit still resolves the support group, direct semantic-mask
- *    application paints it, and restoration returns the non-beauty material.
- * 4. The beauty mode is a no-op and cannot promote the declaration into pixels.
+ * @evidence contracts/testing.md#behavioral-verification Calls direct space/scene builders, the existing depth/normal/outline/mask modes, semantic audit/paint and healthy beauty; checks flags, membership counts and material identities.
+ * @evidence contracts/testing.md#independent-expectations Authored support versus model roles define independent color/depth-write expectations; audit counts establish graph membership, not submitted or visible pixels.
+ * @evidence contracts/testing.md#distinguishing-cases Contrasts direct/embedded support, model materials, depth/normal/outline/legacy/semantic mask, repeated restore and beauty retaining the nonwriting support material.
+ * @evidence contracts/testing.md#execution-ownership The named portable entry owns CPU Three graphs and pass handles, restores every installed pass and makes no browser, native renderer or physical-floor observation.
  */
-export const test_viewer_space_ground_beauty = (): void => {
-  const direct = built();
-  const beautyMaterial = direct.patch.material as THREE.Material;
-  const embeddedPatch = buildSpaceObject(SPACE).children[0] as THREE.Mesh;
-  const embeddedMaterial = embeddedPatch.material as THREE.Material;
+export function test_viewer_space_ground_beauty(): void {
+  const direct: { scene: THREE.Scene; patch: THREE.Mesh; } = built();
+  const beautyMaterial: THREE.Material<THREE.MaterialEventMap> = direct.patch.material as THREE.Material;
+  const embeddedPatch: THREE.Mesh<THREE.BufferGeometry<THREE.NormalBufferAttributes, THREE.BufferGeometryEventMap>, THREE.Material<THREE.MaterialEventMap> | THREE.Material<THREE.MaterialEventMap>[], THREE.Object3DEventMap> = buildSpaceObject(SPACE).children[0] as THREE.Mesh;
+  const embeddedMaterial: THREE.Material<THREE.MaterialEventMap> = embeddedPatch.material as THREE.Material;
   const modelMaterials: THREE.Material[] = [];
-  direct.scene.getObjectByName("node-a")!.traverse((object) => {
+  direct.scene.getObjectByName("node-a")!.traverse((object: THREE.Object3D<THREE.Object3DEventMap>): void => {
     if ((object as THREE.Mesh).isMesh === true)
       modelMaterials.push((object as THREE.Mesh).material as THREE.Material);
   });
   TestValidator.equals(
-    "only authored geometry contributes to the beauty buffers",
+    "only authored geometry retains beauty color/depth write flags",
     namedFacts([
-      ["the space contributed a patch", () => direct.patch.isMesh],
-      ["the patch writes no beauty colour", () => !beautyMaterial.colorWrite],
-      ["the patch writes no beauty depth", () => !beautyMaterial.depthWrite],
+      ["the space contributed a patch", (): true => direct.patch.isMesh],
+      ["the patch writes no beauty colour", (): boolean => !beautyMaterial.colorWrite],
+      ["the patch writes no beauty depth", (): boolean => !beautyMaterial.depthWrite],
       [
         "a directly embedded patch writes neither",
-        () => !embeddedMaterial.colorWrite && !embeddedMaterial.depthWrite,
+        (): boolean => !embeddedMaterial.colorWrite && !embeddedMaterial.depthWrite,
       ],
-      ["the model contributed meshes", () => modelMaterials.length > 0],
+      ["the model contributed meshes", (): boolean => modelMaterials.length > 0],
       [
         "authored meshes still write colour and depth",
-        () =>
+        (): boolean =>
           modelMaterials.every(
-            (material) => material.colorWrite && material.depthWrite,
+            (material: THREE.Material<THREE.MaterialEventMap>): boolean => material.colorWrite && material.depthWrite,
           ),
       ],
     ]),
@@ -122,7 +114,7 @@ export const test_viewer_space_ground_beauty = (): void => {
   );
 
   for (const mode of ["depth", "normal", "outline", "mask"] as const) {
-    const handle = applyRenderMode(direct.scene, mode);
+    const handle: import("../../../../packages/viewer/src/IAutoMovieRenderModeHandle").IAutoMovieRenderModeHandle = applyRenderMode(direct.scene, mode);
     TestValidator.predicate(
       `${mode} gives the support patch a structural material`,
       direct.patch.material !== beautyMaterial,
@@ -135,7 +127,7 @@ export const test_viewer_space_ground_beauty = (): void => {
     );
   }
 
-  const mask = deriveAutoMovieSemanticMask({ scene: DESIGN, models: [] });
+  const mask: import("@automovie/interface").IAutoMovieSemanticMask = deriveAutoMovieSemanticMask({ scene: DESIGN, models: [] });
   TestValidator.equals(
     "semantic audit resolves the support patch without beauty participation",
     auditAutoMovieSemanticMaskScene({
@@ -145,7 +137,7 @@ export const test_viewer_space_ground_beauty = (): void => {
     }),
     { unresolved: [], unaddressed: 0 },
   );
-  const semantic = applyAutoMovieSemanticMask({
+  const semantic: import("../../../../packages/viewer/src/index").IAutoMovieSemanticMaskHandle = applyAutoMovieSemanticMask({
     scene: direct.scene,
     design: DESIGN,
     mask,
@@ -167,7 +159,7 @@ export const test_viewer_space_ground_beauty = (): void => {
     direct.patch.material === beautyMaterial,
   );
 
-  const beauty = applyRenderMode(direct.scene, "beauty");
+  const beauty: import("../../../../packages/viewer/src/IAutoMovieRenderModeHandle").IAutoMovieRenderModeHandle = applyRenderMode(direct.scene, "beauty");
   TestValidator.predicate(
     "beauty leaves the non-writing material in place",
     direct.patch.material === beautyMaterial &&
@@ -175,4 +167,4 @@ export const test_viewer_space_ground_beauty = (): void => {
       !beautyMaterial.depthWrite,
   );
   beauty.restore();
-};
+}

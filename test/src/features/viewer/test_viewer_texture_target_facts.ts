@@ -2,19 +2,20 @@ import { readAutoMovieRenderTextureTarget } from "@automovie/viewer";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * Framebuffer facts come from the actual target object, including every color
- * attachment and its depth/stencil type. Source-image facts cannot replace them.
+ * Exercises caller-owned CPU target attachment profiles separately from decoded-source facts.
  *
  * Scenarios:
+ * 1. Multiple color attachments retain component formats, integer extents, requested samples and generated/explicit mip metadata; supported short/float/stencil depth retains conservative widths.
+ * 2. Unsupported or disabled depth retains unknown/zero width respectively; cube faces remain six while array/volume/3D textures refuse ordinary 2D formats, followed by owned-wrapper disposal requests.
  *
- * 1. Real byte/half/float targets report their actual formats, mip and samples;
- *    custom short/float depth and stencil keep their conservative storage widths.
- * 2. Unsupported depth and color formats stay unknown, while an absent depth
- *    attachment reports zero; cube/array/volume targets stay outside 2D support.
+ * @evidence contracts/testing.md#behavioral-verification Calls actual target observation and checks color populations, integer extents, samples, mip requests, supported custom depth and face metadata.
+ * @evidence contracts/testing.md#independent-expectations Authored attachment formats and conservative depth byte widths independently judge returned profiles; observed declarations are not physical framebuffer measurements.
+ * @evidence contracts/testing.md#distinguishing-cases Contrasts byte/half/float colors, disabled/short/float/stencil/unknown depth, explicit chains and 2D/cube/array/volume targets while preserving original caller ownership.
+ * @evidence contracts/testing.md#execution-ownership The named entry owns real CPU Three target/depth objects and requests their disposal without drawing, querying a GPU or starting a new driver.
  */
-export const test_viewer_texture_target_facts = async (): Promise<void> => {
-  const THREE = await import("three");
-  const target = new THREE.WebGLRenderTarget(4, 4, { count: 2, samples: 4, generateMipmaps: true });
+export async function test_viewer_texture_target_facts(): Promise<void> {
+  const THREE: typeof import("three") = await import("three");
+  const target: import("three").WebGLRenderTarget<import("three").Texture<unknown, import("three").TextureEventMap>> = new THREE.WebGLRenderTarget(4, 4, { count: 2, samples: 4, generateMipmaps: true });
   TestValidator.equals("actual attachment population", readAutoMovieRenderTextureTarget("view", target, "shot"), {
     owner: "view", transmissionScope: "shot", width: 4, height: 4,
     formats: ["rgba8", "rgba8"], mipmapped: true, samples: 4, depthBytesPerTexel: 4, depthTexture: false,
@@ -23,7 +24,7 @@ export const test_viewer_texture_target_facts = async (): Promise<void> => {
   target.textures[1].type = THREE.FloatType;
   TestValidator.equals("actual component formats", readAutoMovieRenderTextureTarget("view", target).formats, ["rgba16f", "rgba32f"]);
   target.setSize(4.5, 3.75);
-  TestValidator.equals("physical fractional target extents", [readAutoMovieRenderTextureTarget("view", target).width,
+  TestValidator.equals("fractional target fields project to integer profile extents", [readAutoMovieRenderTextureTarget("view", target).width,
     readAutoMovieRenderTextureTarget("view", target).height], [4, 3]);
   target.setSize(4, 4);
   target.depthTexture = new THREE.DepthTexture(4, 4, THREE.UnsignedShortType);
@@ -58,13 +59,13 @@ export const test_viewer_texture_target_facts = async (): Promise<void> => {
   TestValidator.equals("explicit target mip chain", readAutoMovieRenderTextureTarget("view", target).mipmapped, true);
   target.depthBuffer = false;
   TestValidator.equals("absent depth", readAutoMovieRenderTextureTarget("view", target).depthBytesPerTexel, 0);
-  TestValidator.equals("disabled depth texture does not allocate", readAutoMovieRenderTextureTarget("view", target).depthTexture, false);
+  TestValidator.equals("disabled depth texture is excluded from the target profile", readAutoMovieRenderTextureTarget("view", target).depthTexture, false);
   target.depth = 2;
   TestValidator.equals("volume target is not 2D", readAutoMovieRenderTextureTarget("view", target).formats, [undefined, undefined]);
-  const cube = new THREE.WebGLCubeRenderTarget(4);
+  const cube: import("three").WebGLCubeRenderTarget = new THREE.WebGLCubeRenderTarget(4);
   TestValidator.equals("cube target retains its actual face population", [readAutoMovieRenderTextureTarget("cube", cube).formats,
     readAutoMovieRenderTextureTarget("cube", cube).faces], [["rgba8"], 6]);
-  const rg = new THREE.WebGLRenderTarget(4, 4, { format: THREE.RGFormat, type: THREE.HalfFloatType });
+  const rg: import("three").WebGLRenderTarget<import("three").Texture<unknown, import("three").TextureEventMap>> = new THREE.WebGLRenderTarget(4, 4, { format: THREE.RGFormat, type: THREE.HalfFloatType });
   TestValidator.equals("native RG half attachment", readAutoMovieRenderTextureTarget("rg", rg).formats, ["rg16f"]);
   rg.texture.internalFormat = "RG16F";
   TestValidator.equals("explicit RG half attachment", readAutoMovieRenderTextureTarget("rg", rg).formats, ["rg16f"]);
@@ -76,4 +77,4 @@ export const test_viewer_texture_target_facts = async (): Promise<void> => {
   cube.dispose();
   rg.dispose();
   target.dispose();
-};
+}

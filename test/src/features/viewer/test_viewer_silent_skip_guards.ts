@@ -24,28 +24,23 @@ const TWO_BONES: IAutoMovieSkeleton = {
 };
 
 /**
- * Two viewer paths used to drop caller data in silence (#1051):
+ * Exercises explicit unresolved-model refusal and the existing partial imported bone-map report.
  *
- * 1. `buildScene` skipped a node whose model id could not resolve, and the
- *    segmentation mask palette is keyed by top-level child INDEX, so every
- *    later node shifted one color over and a mask consumer attributed pixels to
- *    the wrong node. Unresolvable caller data now throws, the same class as
- *    `buildModel`'s missing skin bone.
- * 2. `applyPose` dropped articulation for any bone missing from the model's bone
- *    map with no trace: a typo in an imported bone map was indistinguishable
- *    from a deliberately partial one. It now returns the skipped bones so the
- *    host can compare against what it meant to map.
+ * Scenarios:
+ * 1. An unresolved scene model refuses with both supplied node and model ids.
+ * 2. The existing partial imported skeleton reports its missing head; a complete existing bone map reports none, without adding a Human case.
  *
- * Scenarios: an unresolvable scene node throws naming the node and the model; a
- * two-bone skeleton applied to a model mapping only `hips` reports `head` as
- * skipped (and nothing when the map is complete).
+ * @evidence contracts/testing.md#behavioral-verification Calls actual scene construction, imported-object adaptation and pose application; checks offending ids and only the missing semantic bone list.
+ * @evidence contracts/testing.md#independent-expectations Authored unresolved ids and the existing two-bone skeleton with deliberately partial or complete mapping independently define refusal/report expectations.
+ * @evidence contracts/testing.md#distinguishing-cases Missing model contrasts partial and complete maps; this preserves the existing skeleton case and adds no Human test, pose, figure or probe.
+ * @evidence contracts/testing.md#execution-ownership The named entry uses existing portable records and CPU Object3D values without a renderer, process or worker, and replaces no solver or foreign method.
  */
-export const test_viewer_silent_skip_guards = (): void => {
+export function test_viewer_silent_skip_guards(): void {
   // 1. unresolvable scene node throws instead of shifting the mask palette
   TestValidator.predicate(
     "an unresolvable scene node throws with its ids",
     throwsError(
-      () =>
+      (): import("../../../../packages/viewer/src/IAutoMovieSceneObject").IAutoMovieSceneObject =>
         buildScene(
           {
             id: "scene-1",
@@ -62,25 +57,25 @@ export const test_viewer_silent_skip_guards = (): void => {
             cameras: [],
             lights: [],
           },
-          () => undefined,
+          (): undefined => undefined,
         ),
       ['scene node "node-ghost"', 'model "model-ghost"', "could not resolve"],
     ),
   );
 
   // 2. applyPose reports the bones the model map does not carry
-  const hipsOnly = new THREE.Object3D();
-  const partial = createImportedModelObject({
+  const hipsOnly: THREE.Object3D<THREE.Object3DEventMap> = new THREE.Object3D();
+  const partial: import("../../../../packages/viewer/src/IAutoMovieModelObject").IAutoMovieModelObject = createImportedModelObject({
     object: new THREE.Object3D(),
     bones: { hips: hipsOnly },
   });
-  const pose = { skeleton: TWO_BONES.id, root: null, joints: [] };
+  const pose: { skeleton: string; root: null; joints: never[]; } = { skeleton: TWO_BONES.id, root: null, joints: [] };
   TestValidator.equals(
     "unmapped skeleton bones are reported, mapped ones are not",
     applyPose(partial, pose, TWO_BONES),
     ["head"],
   );
-  const full = createImportedModelObject({
+  const full: import("../../../../packages/viewer/src/IAutoMovieModelObject").IAutoMovieModelObject = createImportedModelObject({
     object: new THREE.Object3D(),
     bones: { hips: new THREE.Object3D(), head: new THREE.Object3D() },
   });
@@ -89,4 +84,4 @@ export const test_viewer_silent_skip_guards = (): void => {
     applyPose(full, pose, TWO_BONES),
     [],
   );
-};
+}
