@@ -1,5 +1,10 @@
 import { performShot, stageScene } from "@automovie/engine";
-import { IAutoMovieActionCall, IAutoMovieCameraIntent, IAutoMovieConstraintViolation, IAutoMovieSkeleton } from "@automovie/interface";
+import {
+  IAutoMovieActionCall,
+  IAutoMovieCameraIntent,
+  IAutoMovieConstraintViolation,
+  IAutoMovieSkeleton,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import {
@@ -12,14 +17,24 @@ import { createSkeleton } from "../internal/fixtures";
 import { namedFacts, nclose, vclose } from "../internal/predicates";
 import { test12ValuesClose } from "../internal/test12ValuesClose";
 
-const staged: Extract<ReturnType<typeof stageScene>, { success: true }> = ((): Extract<ReturnType<typeof stageScene>, { success: true }> => {
-  const result: ReturnType<typeof stageScene> = stageScene(makeScriptWrite(), makeStagingWrite());
+const staged: Extract<
+  ReturnType<typeof stageScene>,
+  { success: true }
+> = ((): Extract<ReturnType<typeof stageScene>, { success: true }> => {
+  const result: ReturnType<typeof stageScene> = stageScene(
+    makeScriptWrite(),
+    makeStagingWrite(),
+  );
   if (result.success !== true) throw new Error("staging fixture must succeed");
   return result;
 })();
 
 /** Perform the beat-1 fixture with its frame action swapped for `frame`. */
-const perform: (frame: IAutoMovieActionCall) => ReturnType<typeof performShot> = (frame: IAutoMovieActionCall): ReturnType<typeof performShot> => {
+const perform: (
+  frame: IAutoMovieActionCall,
+) => ReturnType<typeof performShot> = (
+  frame: IAutoMovieActionCall,
+): ReturnType<typeof performShot> => {
   const base: ReturnType<typeof makePerformanceWrite> = makePerformanceWrite();
   return performShot({
     script: makeScriptWrite(),
@@ -33,7 +48,9 @@ const perform: (frame: IAutoMovieActionCall) => ReturnType<typeof performShot> =
   });
 };
 
-const frameAction: (over?: Partial<Extract<IAutoMovieActionCall, { verb: "frame" }>>) => IAutoMovieActionCall = (
+const frameAction: (
+  over?: Partial<Extract<IAutoMovieActionCall, { verb: "frame" }>>,
+) => IAutoMovieActionCall = (
   over: Partial<Extract<IAutoMovieActionCall, { verb: "frame" }>> = {},
 ): IAutoMovieActionCall => ({
   verb: "frame",
@@ -83,7 +100,11 @@ export function test_film_camera_intent(): void {
   TestValidator.equals("one intent entry", intent.length, 1);
   TestValidator.equals(
     "framing and move carried",
-    [intent[0]!.framing, intent[0]!.move, nclose(intent[0]!.focalLength ?? Number.NaN, 85)],
+    [
+      intent[0]!.framing,
+      intent[0]!.move,
+      nclose(intent[0]!.focalLength ?? Number.NaN, 85),
+    ],
     ["medium", "static", true],
   );
   TestValidator.predicate(
@@ -121,13 +142,16 @@ export function test_film_camera_intent(): void {
         (): boolean =>
           ghost.success === false &&
           ghost.violations.some(
-            (v: IAutoMovieConstraintViolation): boolean => v.kind === "type" && v.path.includes(".focus"),
+            (v: IAutoMovieConstraintViolation): boolean =>
+              v.kind === "type" && v.path.includes(".focus"),
           ),
       ],
     ]),
     { refused: true, violated: true },
   );
-  const zeroLens: ReturnType<typeof perform> = perform(frameAction({ focalLength: 0 }));
+  const zeroLens: ReturnType<typeof perform> = perform(
+    frameAction({ focalLength: 0 }),
+  );
   TestValidator.equals(
     "a zero focal length is a range violation",
     namedFacts([
@@ -137,13 +161,16 @@ export function test_film_camera_intent(): void {
         (): boolean =>
           zeroLens.success === false &&
           zeroLens.violations.some(
-            (v: IAutoMovieConstraintViolation): boolean => v.kind === "range" && v.path.includes(".focalLength"),
+            (v: IAutoMovieConstraintViolation): boolean =>
+              v.kind === "range" && v.path.includes(".focalLength"),
           ),
       ],
     ]),
     { refused: true, violated: true },
   );
-  const nanLens: ReturnType<typeof perform> = perform(frameAction({ focalLength: Number.NaN }));
+  const nanLens: ReturnType<typeof perform> = perform(
+    frameAction({ focalLength: Number.NaN }),
+  );
   TestValidator.equals(
     "a non-finite focal length is a range violation",
     namedFacts([
@@ -153,7 +180,8 @@ export function test_film_camera_intent(): void {
         (): boolean =>
           nanLens.success === false &&
           nanLens.violations.some(
-            (v: IAutoMovieConstraintViolation): boolean => v.kind === "range" && v.path.includes(".focalLength"),
+            (v: IAutoMovieConstraintViolation): boolean =>
+              v.kind === "range" && v.path.includes(".focalLength"),
           ),
       ],
     ]),

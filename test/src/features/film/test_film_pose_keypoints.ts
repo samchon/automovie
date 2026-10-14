@@ -1,4 +1,3 @@
-import { resolvePoseKeypoints } from "../../../../packages/engine/src/film/resolvePoseKeypoints";
 import {
   AutoMovieHumanoidBone,
   IAutoMovieCamera,
@@ -12,10 +11,15 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { resolvePoseKeypoints } from "../../../../packages/engine/src/film/resolvePoseKeypoints";
 import { nclose } from "../internal/predicates";
 
 const IDENTITY_Q: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
-const t3: (x: number, y: number, z: number) => IAutoMovieTransform = (x: number, y: number, z: number): IAutoMovieTransform => ({
+const t3: (x: number, y: number, z: number) => IAutoMovieTransform = (
+  x: number,
+  y: number,
+  z: number,
+): IAutoMovieTransform => ({
   translation: { x, y, z },
   rotation: IDENTITY_Q,
   scale: { x: 1, y: 1, z: 1 },
@@ -24,7 +28,9 @@ const t3: (x: number, y: number, z: number) => IAutoMovieTransform = (x: number,
 /**
  * Hips at the rig origin, head at `headRest` above it.
  */
-const skeleton: (headRest: IAutoMovieTransform) => IAutoMovieSkeleton = (headRest: IAutoMovieTransform): IAutoMovieSkeleton => ({
+const skeleton: (headRest: IAutoMovieTransform) => IAutoMovieSkeleton = (
+  headRest: IAutoMovieTransform,
+): IAutoMovieSkeleton => ({
   id: "sk",
   bones: [
     { bone: "hips", parent: null, rest: t3(0, 0, 0), constraint: null },
@@ -35,13 +41,19 @@ const skeleton: (headRest: IAutoMovieTransform) => IAutoMovieSkeleton = (headRes
 /**
  * An articulation-free pose whose rig root sits at (x, y, z).
  */
-const poseAt: (x: number, y: number, z: number) => IAutoMoviePose = (x: number, y: number, z: number): IAutoMoviePose => ({
+const poseAt: (x: number, y: number, z: number) => IAutoMoviePose = (
+  x: number,
+  y: number,
+  z: number,
+): IAutoMoviePose => ({
   skeleton: "sk",
   root: t3(x, y, z),
   joints: [],
 });
 
-const camera: (over?: Partial<IAutoMovieCamera>) => IAutoMovieCamera = (over: Partial<IAutoMovieCamera> = {}): IAutoMovieCamera => ({
+const camera: (over?: Partial<IAutoMovieCamera>) => IAutoMovieCamera = (
+  over: Partial<IAutoMovieCamera> = {},
+): IAutoMovieCamera => ({
   id: "cam",
   transform: t3(0, 0, 0),
   fovY: 60,
@@ -54,7 +66,17 @@ const camera: (over?: Partial<IAutoMovieCamera>) => IAutoMovieCamera = (over: Pa
   },
 });
 
-const keypoints: (props: { pose: IAutoMoviePose; headRest?: IAutoMovieTransform; node?: IAutoMovieTransform; camera?: IAutoMovieCamera; joints?: readonly AutoMovieHumanoidBone[]; aspect?: number; crop?: IAutoMovieDeliveryCrop; cameraMotion?: IAutoMovieClip | null; time?: number }) => IAutoMoviePoseKeypoint[] = (props: {
+const keypoints: (props: {
+  pose: IAutoMoviePose;
+  headRest?: IAutoMovieTransform;
+  node?: IAutoMovieTransform;
+  camera?: IAutoMovieCamera;
+  joints?: readonly AutoMovieHumanoidBone[];
+  aspect?: number;
+  crop?: IAutoMovieDeliveryCrop;
+  cameraMotion?: IAutoMovieClip | null;
+  time?: number;
+}) => IAutoMoviePoseKeypoint[] = (props: {
   pose: IAutoMoviePose;
   headRest?: IAutoMovieTransform;
   node?: IAutoMovieTransform;
@@ -77,7 +99,13 @@ const keypoints: (props: { pose: IAutoMoviePose; headRest?: IAutoMovieTransform;
     time: props.time,
   });
 
-const of: (ks: IAutoMoviePoseKeypoint[], bone: string) => IAutoMoviePoseKeypoint = (ks: IAutoMoviePoseKeypoint[], bone: string): IAutoMoviePoseKeypoint =>
+const of: (
+  ks: IAutoMoviePoseKeypoint[],
+  bone: string,
+) => IAutoMoviePoseKeypoint = (
+  ks: IAutoMoviePoseKeypoint[],
+  bone: string,
+): IAutoMoviePoseKeypoint =>
   ks.find((k: IAutoMoviePoseKeypoint): boolean => k.bone === bone)!;
 
 /**
@@ -96,7 +124,9 @@ const of: (ks: IAutoMoviePoseKeypoint[], bone: string) => IAutoMoviePoseKeypoint
  */
 export function test_film_pose_keypoints(): void {
   // 1. basic projection.
-  const centered: IAutoMoviePoseKeypoint[] = keypoints({ pose: poseAt(0, 0, -5) });
+  const centered: IAutoMoviePoseKeypoint[] = keypoints({
+    pose: poseAt(0, 0, -5),
+  });
   TestValidator.equals("hips + head keypoints", centered.length, 2);
   const hips: IAutoMoviePoseKeypoint = of(centered, "hips");
   const head: IAutoMoviePoseKeypoint = of(centered, "head");
@@ -107,7 +137,8 @@ export function test_film_pose_keypoints(): void {
   TestValidator.predicate(
     "the head 1 m up projects above center, in frame",
     nclose(head.x, 0.5) &&
-      nclose(head.y, (1 - 1 / (5 * Math.tan(Math.PI / 6))) / 2, 1e-6) && head.inFrame,
+      nclose(head.y, (1 - 1 / (5 * Math.tan(Math.PI / 6))) / 2, 1e-6) &&
+      head.inFrame,
   );
   const croppedHips: IAutoMoviePoseKeypoint = of(
     keypoints({
@@ -118,7 +149,9 @@ export function test_film_pose_keypoints(): void {
   );
   TestValidator.predicate(
     "a keypoint on the crop boundary maps to the output edge and stays in frame",
-    nclose(croppedHips.x, 0) && nclose(croppedHips.y, 0.5) && croppedHips.inFrame,
+    nclose(croppedHips.x, 0) &&
+      nclose(croppedHips.y, 0.5) &&
+      croppedHips.inFrame,
   );
 
   // 2. out-of-frame joints project honestly (unclamped) with inFrame false.
@@ -140,7 +173,10 @@ export function test_film_pose_keypoints(): void {
     of(keypoints({ pose: poseAt(0, 0, -200) }), "hips").inFrame,
     false,
   );
-  const beside: IAutoMoviePoseKeypoint = of(keypoints({ pose: poseAt(20, 0, -5) }), "hips");
+  const beside: IAutoMoviePoseKeypoint = of(
+    keypoints({ pose: poseAt(20, 0, -5) }),
+    "hips",
+  );
   TestValidator.predicate(
     "a joint beside the frame is out, not clamped",
     beside.inFrame === false && beside.x > 1,

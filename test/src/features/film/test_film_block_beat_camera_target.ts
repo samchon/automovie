@@ -1,11 +1,20 @@
-import { IAutoMovieBlockingCamera, IAutoMovieBlockingCoverage, IAutoMovieConstraintViolation, IAutoMovieScript } from "@automovie/interface";
+import {
+  IAutoMovieBlockingCamera,
+  IAutoMovieBlockingCoverage,
+  IAutoMovieConstraintViolation,
+  IAutoMovieScript,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { IAutoMovieBlockedBeat } from "../../../../packages/engine/src/film/IAutoMovieBlockedBeat";
 import { IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
 import { blockBeat } from "../../../../packages/engine/src/film/blockBeat";
 import { stageScene } from "../../../../packages/engine/src/film/stageScene";
-import { makeBlockingWrite, makeScriptWrite, makeStagingWrite } from "../internal/filmFixtures";
+import {
+  makeBlockingWrite,
+  makeScriptWrite,
+  makeStagingWrite,
+} from "../internal/filmFixtures";
 
 /**
  * Blocking accepts every staged placement as a camera subject and refuses plans
@@ -27,38 +36,132 @@ import { makeBlockingWrite, makeScriptWrite, makeStagingWrite } from "../interna
  */
 export function test_film_block_beat_camera_target(): void {
   const script: IAutoMovieScript = makeScriptWrite();
-  const staged: IAutoMovieStagedSet = stageScene(script, makeStagingWrite({
-    set: [{ node: "altar", model: "box", position: { x: 1, y: 0, z: 1 } }],
-    cameras: [
-      { node: "cam-main", position: { x: 2, y: 1.5, z: 0.35 }, lookAt: { kind: "node", node: "knightA" }, fovDeg: 40, near: 0.1, far: 1000, depthPrecision: { minimumDepthBits: 24, maximumStepMeters: 100 } },
-      { node: "cam-alt", position: { x: -2, y: 1.5, z: 0.35 }, lookAt: { kind: "node", node: "knightB" }, fovDeg: 40, near: 0.1, far: 1000, depthPrecision: { minimumDepthBits: 24, maximumStepMeters: 100 } },
-    ],
-  }));
+  const staged: IAutoMovieStagedSet = stageScene(
+    script,
+    makeStagingWrite({
+      set: [{ node: "altar", model: "box", position: { x: 1, y: 0, z: 1 } }],
+      cameras: [
+        {
+          node: "cam-main",
+          position: { x: 2, y: 1.5, z: 0.35 },
+          lookAt: { kind: "node", node: "knightA" },
+          fovDeg: 40,
+          near: 0.1,
+          far: 1000,
+          depthPrecision: { minimumDepthBits: 24, maximumStepMeters: 100 },
+        },
+        {
+          node: "cam-alt",
+          position: { x: -2, y: 1.5, z: 0.35 },
+          lookAt: { kind: "node", node: "knightB" },
+          fovDeg: 40,
+          near: 0.1,
+          far: 1000,
+          depthPrecision: { minimumDepthBits: 24, maximumStepMeters: 100 },
+        },
+      ],
+    }),
+  );
   if (!staged.success) throw new Error("staging fixture must succeed");
   const placed: IAutoMovieStagedSet.ISuccess = staged;
-  function block(camera: Partial<IAutoMovieBlockingCamera> = {}, coverage?: IAutoMovieBlockingCoverage[]): IAutoMovieBlockedBeat {
-    return blockBeat(script, placed, makeBlockingWrite({
-      camera: { framing: "medium", move: "static", on: { kind: "node", node: "knightA" }, ...camera },
-      ...(coverage === undefined ? {} : { coverage }),
-    }));
+  function block(
+    camera: Partial<IAutoMovieBlockingCamera> = {},
+    coverage?: IAutoMovieBlockingCoverage[],
+  ): IAutoMovieBlockedBeat {
+    return blockBeat(
+      script,
+      placed,
+      makeBlockingWrite({
+        camera: {
+          framing: "medium",
+          move: "static",
+          on: { kind: "node", node: "knightA" },
+          ...camera,
+        },
+        ...(coverage === undefined ? {} : { coverage }),
+      }),
+    );
   }
-  function cover(on: IAutoMovieBlockingCoverage["on"]): IAutoMovieBlockingCoverage[] {
+  function cover(
+    on: IAutoMovieBlockingCoverage["on"],
+  ): IAutoMovieBlockingCoverage[] {
     return [{ camera: "cam-alt", framing: "medium", move: "static", on }];
   }
   for (const subject of ["cam-alt", "knightB", "altar"])
-    TestValidator.equals(`hero may favour ${subject}`, block({ on: { kind: "node", node: subject } }).success, true);
+    TestValidator.equals(
+      `hero may favour ${subject}`,
+      block({ on: { kind: "node", node: subject } }).success,
+      true,
+    );
   for (const subject of ["cam-main", "knightB", "altar"])
-    TestValidator.equals(`coverage may favour ${subject}`, block({}, cover({ kind: "node", node: subject })).success, true);
-  assertRefusal(block({ on: { kind: "node", node: "nobody" } }), "$input.camera.on.node", "an actor, a set piece, or another camera");
-  assertRefusal(block({}, cover({ kind: "node", node: "nobody" })), "$input.coverage[0].on.node", "an actor, a set piece, or another camera");
-  assertRefusal(block({}, [{ ...cover({ kind: "node", node: "knightB" })[0]!, camera: "cam-ghost" }]), "$input.coverage[0].camera", "staged camera");
-  assertRefusal(block({ framing: "invalid" as IAutoMovieBlockingCamera["framing"] }), "$input.camera.framing", "camera framing must be one of");
-  assertRefusal(block({ move: "invalid" as IAutoMovieBlockingCamera["move"] }), "$input.camera.move", "camera move must be one of");
-  assertRefusal(block({}, [{ ...cover({ kind: "node", node: "knightB" })[0]!, framing: "invalid" as IAutoMovieBlockingCoverage["framing"] }]), "$input.coverage[0].framing", "camera framing must be one of");
-  assertRefusal(block({}, [{ ...cover({ kind: "node", node: "knightB" })[0]!, move: "invalid" as IAutoMovieBlockingCoverage["move"] }]), "$input.coverage[0].move", "camera move must be one of");
+    TestValidator.equals(
+      `coverage may favour ${subject}`,
+      block({}, cover({ kind: "node", node: subject })).success,
+      true,
+    );
+  assertRefusal(
+    block({ on: { kind: "node", node: "nobody" } }),
+    "$input.camera.on.node",
+    "an actor, a set piece, or another camera",
+  );
+  assertRefusal(
+    block({}, cover({ kind: "node", node: "nobody" })),
+    "$input.coverage[0].on.node",
+    "an actor, a set piece, or another camera",
+  );
+  assertRefusal(
+    block({}, [
+      { ...cover({ kind: "node", node: "knightB" })[0]!, camera: "cam-ghost" },
+    ]),
+    "$input.coverage[0].camera",
+    "staged camera",
+  );
+  assertRefusal(
+    block({ framing: "invalid" as IAutoMovieBlockingCamera["framing"] }),
+    "$input.camera.framing",
+    "camera framing must be one of",
+  );
+  assertRefusal(
+    block({ move: "invalid" as IAutoMovieBlockingCamera["move"] }),
+    "$input.camera.move",
+    "camera move must be one of",
+  );
+  assertRefusal(
+    block({}, [
+      {
+        ...cover({ kind: "node", node: "knightB" })[0]!,
+        framing: "invalid" as IAutoMovieBlockingCoverage["framing"],
+      },
+    ]),
+    "$input.coverage[0].framing",
+    "camera framing must be one of",
+  );
+  assertRefusal(
+    block({}, [
+      {
+        ...cover({ kind: "node", node: "knightB" })[0]!,
+        move: "invalid" as IAutoMovieBlockingCoverage["move"],
+      },
+    ]),
+    "$input.coverage[0].move",
+    "camera move must be one of",
+  );
 }
 
 /** Require a located type refusal, including the reason the author can act on. */
-function assertRefusal(result: IAutoMovieBlockedBeat, path: string, reason: string): void {
-  TestValidator.predicate(`refuses ${path}: ${reason}`, result.success === false && result.violations.some((item: IAutoMovieConstraintViolation): boolean => item.kind === "type" && item.path === path && item.expected.includes(reason)));
+function assertRefusal(
+  result: IAutoMovieBlockedBeat,
+  path: string,
+  reason: string,
+): void {
+  TestValidator.predicate(
+    `refuses ${path}: ${reason}`,
+    result.success === false &&
+      result.violations.some(
+        (item: IAutoMovieConstraintViolation): boolean =>
+          item.kind === "type" &&
+          item.path === path &&
+          item.expected.includes(reason),
+      ),
+  );
 }

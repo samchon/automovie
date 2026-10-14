@@ -1,33 +1,35 @@
-import { IAutoMoviePlaybackTimeline } from "../../../../packages/engine/src/film/IAutoMoviePlaybackTimeline";
+import { IAutoMovieSequence, IAutoMovieShot } from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
 import { IAutoMoviePlaybackEntry } from "../../../../packages/engine/src/film/IAutoMoviePlaybackEntry";
 import { IAutoMoviePlaybackSample } from "../../../../packages/engine/src/film/IAutoMoviePlaybackSample";
+import { IAutoMoviePlaybackTimeline } from "../../../../packages/engine/src/film/IAutoMoviePlaybackTimeline";
 import { cutSequence } from "../../../../packages/engine/src/film/cutSequence";
 import { playbackCursor } from "../../../../packages/engine/src/film/playbackCursor";
 import { resolveFromTimeline } from "../../../../packages/engine/src/film/resolveFromTimeline";
 import { sequenceTimeline } from "../../../../packages/engine/src/film/sequenceTimeline";
-import { IAutoMovieSequence, IAutoMovieShot } from "@automovie/interface";
-import { TestValidator } from "@nestia/e2e";
-
 import { nclose } from "../internal/predicates";
 
 /**
  * Builds an authored empty-motion shot with a supplied id and span; its playback entry owns assertions derived from the stated trims, overlap clocks and boundaries.
  */
-function shot (id: string, duration: number): IAutoMovieShot { return ({
-  id,
-  name: null,
-  scene: "scene-duel",
-  camera: "cam-main",
-  cameraMotion: null,
-  performances: [],
-  objectMotions: [],
-  duration,
-}); }
+function shot(id: string, duration: number): IAutoMovieShot {
+  return {
+    id,
+    name: null,
+    scene: "scene-duel",
+    camera: "cam-main",
+    cameraMotion: null,
+    performances: [],
+    objectMotions: [],
+    duration,
+  };
+}
 
 /**
  * Compares exact categorical playback ids and tolerant clocks/blend weights; cursor-versus-resolver agreement cannot catch a shared playbackSampleAt formula defect.
  */
-function sameSample (
+function sameSample(
   a: IAutoMoviePlaybackSample,
   b: IAutoMoviePlaybackSample,
 ): boolean {
@@ -55,10 +57,13 @@ function sameSample (
  * @evidence contracts/testing.md#distinguishing-cases Covers dense transitions, exact boundaries, equal starts allowed by full overlap and a long hard-cut edit under the documented monotone-clock precondition; random-access refusal and event seams belong to test_film_playback_resolver.
  * @evidence contracts/testing.md#execution-ownership This discoverable synchronous unit entry owns all clock sweeps and numerical comparisons with source functions; it starts no playback host, browser, renderer or native build.
  */
-export function test_film_playback_cursor (): void {
+export function test_film_playback_cursor(): void {
   // Hand-laid sequence with a trim and a dissolve: entry starts 0 / 3 / 4.5,
   // runtime 7.5 (the transition overlap [4.5, 5) has entry 1 AND entry 2 live).
-  const shots: IAutoMovieShot[] = [shot("shot:beat-1", 3), shot("shot:beat-2", 4)];
+  const shots: IAutoMovieShot[] = [
+    shot("shot:beat-1", 3),
+    shot("shot:beat-2", 4),
+  ];
   const sequence: IAutoMovieSequence = {
     id: "seq",
     name: null,
@@ -77,8 +82,14 @@ export function test_film_playback_cursor (): void {
       },
     ],
   };
-  const timeline: IAutoMoviePlaybackTimeline = sequenceTimeline(sequence, shots);
-  const cursor: (seconds: number) => IAutoMoviePlaybackSample = playbackCursor(sequence, timeline);
+  const timeline: IAutoMoviePlaybackTimeline = sequenceTimeline(
+    sequence,
+    shots,
+  );
+  const cursor: (seconds: number) => IAutoMoviePlaybackSample = playbackCursor(
+    sequence,
+    timeline,
+  );
 
   // Dense monotone sweep at 240 Hz across [0, runtime): the cursor sample must
   // equal the scan sample at every instant, and the sweep must actually cross
@@ -89,7 +100,11 @@ export function test_film_playback_cursor (): void {
   const seen: Set<string> = new Set<string>();
   for (let i: number = 0; i < count; ++i) {
     const t: number = i / rate;
-    const scan: IAutoMoviePlaybackSample = resolveFromTimeline(sequence, timeline, t);
+    const scan: IAutoMoviePlaybackSample = resolveFromTimeline(
+      sequence,
+      timeline,
+      t,
+    );
     const cur: IAutoMoviePlaybackSample = cursor(t);
     TestValidator.predicate(
       `cursor==scan at t=${t.toFixed(4)}`,
@@ -101,14 +116,17 @@ export function test_film_playback_cursor (): void {
   TestValidator.predicate("sweep crossed a transition (blend seen)", sawBlend);
   TestValidator.equals(
     "sweep visited every distinct shot",
-    [...seen].sort((a: string, b: string) : number => a.localeCompare(b)),
+    [...seen].sort((a: string, b: string): number => a.localeCompare(b)),
     ["shot:beat-1", "shot:beat-2"],
   );
 
   // Exact entry-start instants: at a start the cursor must have advanced onto
   // the new entry (incoming wins), matching the scan.
-  for (const start of timeline.entries.map((e: IAutoMoviePlaybackEntry) : number => e.start)) {
-    const freshCursor: (seconds: number) => IAutoMoviePlaybackSample = playbackCursor(sequence, timeline);
+  for (const start of timeline.entries.map(
+    (e: IAutoMoviePlaybackEntry): number => e.start,
+  )) {
+    const freshCursor: (seconds: number) => IAutoMoviePlaybackSample =
+      playbackCursor(sequence, timeline);
     TestValidator.predicate(
       `cursor==scan exactly at entry start ${start}`,
       sameSample(
@@ -152,12 +170,19 @@ export function test_film_playback_cursor (): void {
     ).success,
     true,
   );
-  const overlapTimeline: IAutoMoviePlaybackTimeline = sequenceTimeline(overlapSequence, overlapShots);
+  const overlapTimeline: IAutoMoviePlaybackTimeline = sequenceTimeline(
+    overlapSequence,
+    overlapShots,
+  );
   TestValidator.predicate(
     "the full overlap makes the two entry starts equal",
-    nclose(overlapTimeline.entries[0]!.start, overlapTimeline.entries[1]!.start),
+    nclose(
+      overlapTimeline.entries[0]!.start,
+      overlapTimeline.entries[1]!.start,
+    ),
   );
-  const overlapCursor: (seconds: number) => IAutoMoviePlaybackSample = playbackCursor(overlapSequence, overlapTimeline);
+  const overlapCursor: (seconds: number) => IAutoMoviePlaybackSample =
+    playbackCursor(overlapSequence, overlapTimeline);
   TestValidator.predicate(
     "at the shared start the cursor lands on the incoming entry, like the scan",
     sameSample(
@@ -173,22 +198,37 @@ export function test_film_playback_cursor (): void {
   // Large-N tiling: 200 back-to-back 1 s shots (no trims/transitions), swept
   // per second: the cursor advances across at most 200 entries while the
   // stateless resolver searches again each call; both samples must agree.
-  const bigShots: IAutoMovieShot[] = Array.from({ length: 200 }, (_: unknown, i: number) : IAutoMovieShot =>
-    shot(`shot:beat-${i}`, 1),
+  const bigShots: IAutoMovieShot[] = Array.from(
+    { length: 200 },
+    (_: unknown, i: number): IAutoMovieShot => shot(`shot:beat-${i}`, 1),
   );
   const bigSequence: IAutoMovieSequence = {
     id: "big",
     name: null,
     fps: 24,
-    shots: bigShots.map((s: IAutoMovieShot) : { shot: string; trim: null; transition: null; } => ({ shot: s.id, trim: null, transition: null })),
+    shots: bigShots.map(
+      (s: IAutoMovieShot): { shot: string; trim: null; transition: null } => ({
+        shot: s.id,
+        trim: null,
+        transition: null,
+      }),
+    ),
   };
-  const bigTimeline: IAutoMoviePlaybackTimeline = sequenceTimeline(bigSequence, bigShots);
+  const bigTimeline: IAutoMoviePlaybackTimeline = sequenceTimeline(
+    bigSequence,
+    bigShots,
+  );
   TestValidator.predicate("large-N runtime", nclose(bigTimeline.runtime, 200));
-  const bigCursor: (seconds: number) => IAutoMoviePlaybackSample = playbackCursor(bigSequence, bigTimeline);
+  const bigCursor: (seconds: number) => IAutoMoviePlaybackSample =
+    playbackCursor(bigSequence, bigTimeline);
   const bigSeen: Set<string> = new Set<string>();
   for (let i: number = 0; i < 200 * 4; ++i) {
     const t: number = i / 4; // 4 Hz sweep, monotone
-    const scan: IAutoMoviePlaybackSample = resolveFromTimeline(bigSequence, bigTimeline, t);
+    const scan: IAutoMoviePlaybackSample = resolveFromTimeline(
+      bigSequence,
+      bigTimeline,
+      t,
+    );
     const cur: IAutoMoviePlaybackSample = bigCursor(t);
     TestValidator.predicate(
       `large cursor==scan at t=${t}`,

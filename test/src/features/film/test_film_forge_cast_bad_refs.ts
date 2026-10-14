@@ -1,8 +1,10 @@
+import { TestValidator } from "@nestia/e2e";
+
 import { IAutoMovieForgedCast } from "../../../../packages/engine/src/film/IAutoMovieForgedCast";
 import { forgeCast } from "../../../../packages/engine/src/film/forgeCast";
-import { TestValidator } from "@nestia/e2e";
 import { forgeEntry, makeScriptWrite } from "../internal/filmFixtures";
 import { hasViolation } from "../internal/predicates";
+
 /**
  * An incoherent forge plan reports each violated casting join at its field.
  *

@@ -1,9 +1,25 @@
-import { IAutoMovieBeatEndActorState, IAutoMovieGaitCycle, IAutoMovieMotion, IAutoMovieScene, IAutoMovieShot } from "@automovie/interface";
-import { resolveBeatEnd } from "../../../../packages/engine/src/film/resolveBeatEnd";
+import {
+  IAutoMovieBeatEndActorState,
+  IAutoMovieGaitCycle,
+  IAutoMovieMotion,
+  IAutoMovieScene,
+  IAutoMovieShot,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-import { IDENTITY_TRANSFORM, joint, keyframe, makeMotion, makePose } from "../internal/fixtures";
+
+import { resolveBeatEnd } from "../../../../packages/engine/src/film/resolveBeatEnd";
+import {
+  IDENTITY_TRANSFORM,
+  joint,
+  keyframe,
+  makeMotion,
+  makePose,
+} from "../internal/fixtures";
 import { nclose } from "../internal/predicates";
-const withCycle: (gaitCycle: IAutoMovieGaitCycle) => IAutoMovieMotion = (gaitCycle: IAutoMovieGaitCycle): IAutoMovieMotion => ({
+
+const withCycle: (gaitCycle: IAutoMovieGaitCycle) => IAutoMovieMotion = (
+  gaitCycle: IAutoMovieGaitCycle,
+): IAutoMovieMotion => ({
   ...makeMotion(
     [
       keyframe(0, makePose([joint("leftUpperLeg", { flexion: 0 })])),
@@ -42,7 +58,10 @@ const shot: IAutoMovieShot = {
   duration: 0.5,
 };
 
-const phaseOf: (gaitCycle: IAutoMovieGaitCycle, duration?: number) => number | null = (
+const phaseOf: (
+  gaitCycle: IAutoMovieGaitCycle,
+  duration?: number,
+) => number | null = (
   gaitCycle: IAutoMovieGaitCycle,
   duration: number = shot.duration,
 ): number | null =>
@@ -51,7 +70,9 @@ const phaseOf: (gaitCycle: IAutoMovieGaitCycle, duration?: number) => number | n
     scene,
     shot: { ...shot, duration },
     motions: [withCycle(gaitCycle)],
-  }).actors.find((a: IAutoMovieBeatEndActorState): boolean => a.node === "hero")!.gaitPhase;
+  }).actors.find(
+    (a: IAutoMovieBeatEndActorState): boolean => a.node === "hero",
+  )!.gaitPhase;
 
 /**
  * A carried cycle determines beat-end phase and invalid cycle scalars return null.

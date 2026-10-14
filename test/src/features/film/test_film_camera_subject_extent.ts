@@ -16,7 +16,9 @@ import { namedFacts, nclose } from "../internal/predicates";
 
 const HEIGHT: number = 1.72;
 
-const transform: (y: number) => IAutoMovieTransform = (y: number): IAutoMovieTransform => ({
+const transform: (y: number) => IAutoMovieTransform = (
+  y: number,
+): IAutoMovieTransform => ({
   translation: { x: 0, y, z: 0 },
   rotation: { x: 0, y: 0, z: 0, w: 1 },
   scale: { x: 1, y: 1, z: 1 },
@@ -61,7 +63,15 @@ const skeleton: () => IAutoMovieSkeleton = (): IAutoMovieSkeleton => ({
   ],
 });
 
-const part: (id: string, attachedBone: IAutoMovieModelPart["attachedBone"], shape: Extract<IAutoMovieModelPart["geometry"], { type: "primitive" }>["shape"], y: number) => IAutoMovieModelPart = (
+const part: (
+  id: string,
+  attachedBone: IAutoMovieModelPart["attachedBone"],
+  shape: Extract<
+    IAutoMovieModelPart["geometry"],
+    { type: "primitive" }
+  >["shape"],
+  y: number,
+) => IAutoMovieModelPart = (
   id: string,
   attachedBone: IAutoMovieModelPart["attachedBone"],
   shape: Extract<
@@ -131,7 +141,8 @@ const model: () => IAutoMovieModel = (): IAutoMovieModel => ({
  */
 export function test_film_camera_subject_extent(): void {
   const jointSpan: number = computeRestHeight(skeleton());
-  const extent: ReturnType<typeof computeModelRestExtentY> = computeModelRestExtentY(model());
+  const extent: ReturnType<typeof computeModelRestExtentY> =
+    computeModelRestExtentY(model());
 
   TestValidator.predicate(
     "the rig measurement is the joint span, not the figure",
@@ -157,7 +168,9 @@ export function test_film_camera_subject_extent(): void {
   );
 
   // The band a `full` shot shows, in world Y, given a base at the ground.
-  const band: (height: number) => { low: number; high: number } = (height: number): { low: number; high: number } => {
+  const band: (height: number) => { low: number; high: number } = (
+    height: number,
+  ): { low: number; high: number } => {
     const visible: number = height * FRAMING_HEIGHT_FRACTION.full;
     const aim: number = height * FRAMING_AIM_FRACTION.full;
     return { low: aim - visible / 2, high: aim + visible / 2 };
@@ -170,7 +183,10 @@ export function test_film_camera_subject_extent(): void {
       ["jointsCropTheCrown", (): boolean => fromJoints.high < HEIGHT],
       ["extentHoldsTheCrown", (): boolean => fromExtent.high >= HEIGHT],
       ["extentHoldsTheFloor", (): boolean => fromExtent.low <= 0],
-      ["cropIsAboutAQuarter", (): boolean => (HEIGHT - fromJoints.high) / HEIGHT > 0.25],
+      [
+        "cropIsAboutAQuarter",
+        (): boolean => (HEIGHT - fromJoints.high) / HEIGHT > 0.25,
+      ],
     ]),
     {
       jointsCropTheCrown: true,
@@ -187,7 +203,8 @@ export function test_film_camera_subject_extent(): void {
     ],
     skeleton: null,
   };
-  const propExtent: ReturnType<typeof computeModelRestExtentY> = computeModelRestExtentY(prop);
+  const propExtent: ReturnType<typeof computeModelRestExtentY> =
+    computeModelRestExtentY(prop);
   TestValidator.equals(
     "a rigless prop measures from its own geometry",
     namedFacts([

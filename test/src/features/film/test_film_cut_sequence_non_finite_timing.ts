@@ -1,5 +1,9 @@
 import { cutSequence } from "@automovie/engine";
-import { type IAutoMovieConstraintViolation, type IAutoMovieEditEntry, type IAutoMovieShot } from "@automovie/interface";
+import {
+  type IAutoMovieConstraintViolation,
+  type IAutoMovieEditEntry,
+  type IAutoMovieShot,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { hasViolation } from "../internal/predicates";
@@ -15,7 +19,13 @@ const SHOT: IAutoMovieShot = {
   duration: 3,
 };
 
-const run: (props: { fps?: number; entries?: IAutoMovieEditEntry[] }) => ReturnType<typeof cutSequence> = (props: { fps?: number; entries?: IAutoMovieEditEntry[] }): ReturnType<typeof cutSequence> =>
+const run: (props: {
+  fps?: number;
+  entries?: IAutoMovieEditEntry[];
+}) => ReturnType<typeof cutSequence> = (props: {
+  fps?: number;
+  entries?: IAutoMovieEditEntry[];
+}): ReturnType<typeof cutSequence> =>
   cutSequence(
     {
       sequence: { id: "seq-finite", name: "finite timing" },
@@ -29,10 +39,10 @@ const run: (props: { fps?: number; entries?: IAutoMovieEditEntry[] }) => ReturnT
     [SHOT],
   );
 
-const hasFiniteViolation: (cut: ReturnType<typeof run>, path: string) => boolean = (
+const hasFiniteViolation: (
   cut: ReturnType<typeof run>,
   path: string,
-): boolean =>
+) => boolean = (cut: ReturnType<typeof run>, path: string): boolean =>
   cut.success === false &&
   hasViolation(cut, "range", path) &&
   cut.violations.some(
@@ -59,7 +69,9 @@ const hasFiniteViolation: (cut: ReturnType<typeof run>, path: string) => boolean
  * @evidence contracts/testing.md#execution-ownership The synchronous test_film_cut_sequence_non_finite_timing entry owns four direct in-process assembly cases through its private run helper, creating no native artifact, installed consumer or real host.
  */
 export function test_film_cut_sequence_non_finite_timing(): void {
-  const infiniteFps: ReturnType<typeof run> = run({ fps: Number.POSITIVE_INFINITY });
+  const infiniteFps: ReturnType<typeof run> = run({
+    fps: Number.POSITIVE_INFINITY,
+  });
   TestValidator.equals("infinite fps fails", infiniteFps.success, false);
   TestValidator.predicate(
     "infinite fps rejected",

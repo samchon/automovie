@@ -10,16 +10,16 @@ import {
   sampleMotion,
 } from "@automovie/engine";
 import {
-  IAutoMovieDefinedShotContract,
   IAutoMovieBeatEndActorState,
   IAutoMovieBeatEndFootPlant,
+  IAutoMovieDefinedShotContract,
   IAutoMovieGait,
   IAutoMovieMotion,
   IAutoMovieSceneNode,
+  IAutoMovieShotProgram,
   IAutoMovieSkeleton,
   IAutoMovieStageActor,
   IAutoMovieStageCamera,
-  IAutoMovieShotProgram,
   IAutoMovieTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -38,7 +38,11 @@ import {
 import { createSkeleton, makePose } from "../internal/fixtures";
 import { namedFacts, nclose, vclose } from "../internal/predicates";
 
-const restAt: (x: number, y: number, z: number) => IAutoMovieTransform = (x: number, y: number, z: number): IAutoMovieTransform => ({
+const restAt: (x: number, y: number, z: number) => IAutoMovieTransform = (
+  x: number,
+  y: number,
+  z: number,
+): IAutoMovieTransform => ({
   translation: { x, y, z },
   rotation: { x: 0, y: 0, z: 0, w: 1 },
   scale: { x: 1, y: 1, z: 1 },
@@ -64,7 +68,12 @@ const WALK: IAutoMovieGait = {
   ],
 };
 
-const walkingProgram: (stage: ReturnType<typeof makeStagingWrite>, target: IAutoMovieVector3, speed: number, duration: number | "auto") => IAutoMovieShotProgram = (
+const walkingProgram: (
+  stage: ReturnType<typeof makeStagingWrite>,
+  target: IAutoMovieVector3,
+  speed: number,
+  duration: number | "auto",
+) => IAutoMovieShotProgram = (
   stage: ReturnType<typeof makeStagingWrite>,
   target: IAutoMovieVector3,
   speed: number,
@@ -109,26 +118,34 @@ const walkingProgram: (stage: ReturnType<typeof makeStagingWrite>, target: IAuto
   };
 };
 
-const walkingContract: () => IAutoMovieDefinedShotContract = (): IAutoMovieDefinedShotContract => ({
-  beat: "beat-1",
-  durationSeconds: 1,
-  participants: [{ kind: "actor", id: "knightA" }],
-  opening: [],
-  closing: [],
-  camera: {
-    intent: "Keep the grounded walker readable.",
-    requiredSubjects: ["knightA"],
-    maxOcclusionRatio: 0.2,
-  },
-  events: [],
-  reviewFrames: [{ id: "middle", time: 0.5, passes: ["beauty"] }],
-});
+const walkingContract: () => IAutoMovieDefinedShotContract =
+  (): IAutoMovieDefinedShotContract => ({
+    beat: "beat-1",
+    durationSeconds: 1,
+    participants: [{ kind: "actor", id: "knightA" }],
+    opening: [],
+    closing: [],
+    camera: {
+      intent: "Keep the grounded walker readable.",
+      requiredSubjects: ["knightA"],
+      maxOcclusionRatio: 0.2,
+    },
+    events: [],
+    reviewFrames: [{ id: "middle", time: 0.5, passes: ["beauty"] }],
+  });
 
 /** Compile one grounded gait shot against the shared rig. */
-const compileWalk: (props: IFilmCompileWalkInput) => ReturnType<typeof compileDefinedShot> = (props: IFilmCompileWalkInput): ReturnType<typeof compileDefinedShot> => {
+const compileWalk: (
+  props: IFilmCompileWalkInput,
+) => ReturnType<typeof compileDefinedShot> = (
+  props: IFilmCompileWalkInput,
+): ReturnType<typeof compileDefinedShot> => {
   const speed: number = props.speed ?? 1;
   const gait: IAutoMovieGait = props.gait ?? WALK;
-  const contexts: Map<string, IAutoMovieActorContext> = new Map<string, IAutoMovieActorContext>([
+  const contexts: Map<string, IAutoMovieActorContext> = new Map<
+    string,
+    IAutoMovieActorContext
+  >([
     [
       "knightA",
       {
@@ -144,10 +161,17 @@ const compileWalk: (props: IFilmCompileWalkInput) => ReturnType<typeof compileDe
       },
     ],
   ]);
-  const nodes: Map<string, IAutoMovieVector3> = new Map<string, IAutoMovieVector3>([
-    ...props.stage.actors.map((actor: IAutoMovieStageActor): readonly [string, IAutoMovieVector3] => [actor.node, actor.position] as const),
+  const nodes: Map<string, IAutoMovieVector3> = new Map<
+    string,
+    IAutoMovieVector3
+  >([
+    ...props.stage.actors.map(
+      (actor: IAutoMovieStageActor): readonly [string, IAutoMovieVector3] =>
+        [actor.node, actor.position] as const,
+    ),
     ...props.stage.cameras.map(
-      (camera: IAutoMovieStageCamera): readonly [string, IAutoMovieVector3] => [camera.node, camera.position] as const,
+      (camera: IAutoMovieStageCamera): readonly [string, IAutoMovieVector3] =>
+        [camera.node, camera.position] as const,
     ),
   ]);
   return compileDefinedShot({
@@ -165,11 +189,15 @@ const compileWalk: (props: IFilmCompileWalkInput) => ReturnType<typeof compileDe
     context: undefined,
     runtime: {
       synthesize: makeActorSynthesizer(contexts, nodes),
-      skeleton: (node: string): IAutoMovieSkeleton | null => (node === "knightA" ? props.rig : null),
+      skeleton: (node: string): IAutoMovieSkeleton | null =>
+        node === "knightA" ? props.rig : null,
       hasActorContext: (node: string): boolean => node === "knightA",
-      jointAxes: (node: string): IFilmCompileWalkInput["jointAxes"] => (node === "knightA" ? props.jointAxes : undefined),
-      restFrames: (node: string): IFilmCompileWalkInput["restFrames"] => (node === "knightA" ? props.restFrames : undefined),
-      gaits: (node: string): string[] | undefined => (node === "knightA" ? ["walk"] : undefined),
+      jointAxes: (node: string): IFilmCompileWalkInput["jointAxes"] =>
+        node === "knightA" ? props.jointAxes : undefined,
+      restFrames: (node: string): IFilmCompileWalkInput["restFrames"] =>
+        node === "knightA" ? props.restFrames : undefined,
+      gaits: (node: string): string[] | undefined =>
+        node === "knightA" ? ["walk"] : undefined,
       frameFormat: { width: 1920, height: 1080 },
       previous: props.previous,
     },
@@ -210,8 +238,10 @@ export function test_film_defined_shot_continuity(): void {
   // 0.9 m hip-to-ground height, giving the ground-IK solve enough reach to hold
   // one pin through each stance and across the cut while the downhill foot
   // remains in default-tolerance contact as the root climbs the ramp.
-  rig.bones.find((bone: IAutoMovieSkeleton["bones"][number]): boolean => bone.bone === "leftLowerLeg")!.rest.translation.z =
-    0.4;
+  rig.bones.find(
+    (bone: IAutoMovieSkeleton["bones"][number]): boolean =>
+      bone.bone === "leftLowerLeg",
+  )!.rest.translation.z = 0.4;
   rig.bones.push({
     bone: "leftFoot",
     parent: "leftLowerLeg",
@@ -251,15 +281,17 @@ export function test_film_defined_shot_continuity(): void {
         2,
       )}`,
     );
-  const firstPlantActor: IAutoMovieBeatEndActorState | undefined = first.continuity.closing.actors.find(
-    (actor: IAutoMovieBeatEndActorState): boolean => actor.node === "knightA",
-  );
+  const firstPlantActor: IAutoMovieBeatEndActorState | undefined =
+    first.continuity.closing.actors.find(
+      (actor: IAutoMovieBeatEndActorState): boolean => actor.node === "knightA",
+    );
   TestValidator.predicate(
     `a first gait shot produces its own ground-IK plant seed; closing actor=${JSON.stringify(
       firstPlantActor,
     )}`,
-    firstPlantActor?.footPlants?.some((plant: IAutoMovieBeatEndFootPlant): boolean => plant.foot === "leftFoot") ===
-      true,
+    firstPlantActor?.footPlants?.some(
+      (plant: IAutoMovieBeatEndFootPlant): boolean => plant.foot === "leftFoot",
+    ) === true,
   );
 
   assertFilmClinicalAndAirborneContinuity({
@@ -275,9 +307,10 @@ export function test_film_defined_shot_continuity(): void {
   )
     return;
 
-  const firstActor: IAutoMovieBeatEndActorState = first.continuity.closing.actors.find(
-    (actor: IAutoMovieBeatEndActorState): boolean => actor.node === "knightA",
-  )!;
+  const firstActor: IAutoMovieBeatEndActorState =
+    first.continuity.closing.actors.find(
+      (actor: IAutoMovieBeatEndActorState): boolean => actor.node === "knightA",
+    )!;
   const firstPin: IAutoMovieVector3 = firstActor.footPlants!.find(
     (plant: IAutoMovieBeatEndFootPlant): boolean => plant.foot === "leftFoot",
   )!.position;
@@ -304,8 +337,12 @@ export function test_film_defined_shot_continuity(): void {
   const secondMotion: IAutoMovieMotion = second.source.motions.find(
     (motion: IAutoMovieMotion): boolean => (motion.gaitCycle ?? null) !== null,
   )!;
-  const secondFoot: IAutoMovieVector3 = resolvePose(sampleMotion(secondMotion, 0).pose, rig).find(
-    (bone: ReturnType<typeof resolvePose>[number]): boolean => bone.bone === "leftFoot",
+  const secondFoot: IAutoMovieVector3 = resolvePose(
+    sampleMotion(secondMotion, 0).pose,
+    rig,
+  ).find(
+    (bone: ReturnType<typeof resolvePose>[number]): boolean =>
+      bone.bone === "leftFoot",
   )!.worldPosition;
   const secondWorldFoot: IAutoMovieVector3 = Vector3.add(
     secondNode.transform.translation,
@@ -359,12 +396,15 @@ export function test_film_defined_shot_continuity(): void {
   const afterStaleNode: IAutoMovieSceneNode | null =
     afterStale.success === false
       ? null
-      : afterStale.source.scene.nodes.find((node: IAutoMovieSceneNode): boolean => node.id === "knightA")!;
+      : afterStale.source.scene.nodes.find(
+          (node: IAutoMovieSceneNode): boolean => node.id === "knightA",
+        )!;
   const afterStaleMotion: IAutoMovieMotion | null =
     afterStale.success === false
       ? null
       : afterStale.source.motions.find(
-          (motion: IAutoMovieMotion): boolean => (motion.gaitCycle ?? null) !== null,
+          (motion: IAutoMovieMotion): boolean =>
+            (motion.gaitCycle ?? null) !== null,
         )!;
   const afterStaleFoot: IAutoMovieVector3 | null =
     afterStaleNode === null || afterStaleMotion === null
@@ -374,7 +414,8 @@ export function test_film_defined_shot_continuity(): void {
           Quaternion.rotateVector(
             afterStaleNode.transform.rotation,
             resolvePose(sampleMotion(afterStaleMotion, 0).pose, rig).find(
-              (bone: ReturnType<typeof resolvePose>[number]): boolean => bone.bone === "leftFoot",
+              (bone: ReturnType<typeof resolvePose>[number]): boolean =>
+                bone.bone === "leftFoot",
             )!.worldPosition,
           ),
         );
@@ -384,8 +425,10 @@ export function test_film_defined_shot_continuity(): void {
       [
         "staleClosingActorsFind",
         (): boolean =>
-          staleClosing.actors.find((actor: IAutoMovieBeatEndActorState): boolean => actor.node === "knightA")
-            ?.footPlants === null,
+          staleClosing.actors.find(
+            (actor: IAutoMovieBeatEndActorState): boolean =>
+              actor.node === "knightA",
+          )?.footPlants === null,
       ],
       ["afterStaleSuccess", (): boolean => afterStale.success],
       ["afterStaleFoot", (): boolean => afterStaleFoot !== null],

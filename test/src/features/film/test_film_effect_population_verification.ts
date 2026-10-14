@@ -1,7 +1,17 @@
-import { verifyProductionFilmEffectPopulation } from "../../../../packages/engine/src/effectRuntime/verifyProductionFilmEffectPopulation";
-import { IAutoMovieCompiledFilmEffect, IAutoMovieFilmTimeline } from "@automovie/interface";
+import {
+  IAutoMovieCompiledFilmEffect,
+  IAutoMovieFilmTimeline,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-import { filmEffectRefusal, filmEffectTimeline, materializedFilmEffects, resealFilmEffect } from "./filmEffectRuntimeFixtures";
+
+import { verifyProductionFilmEffectPopulation } from "../../../../packages/engine/src/effectRuntime/verifyProductionFilmEffectPopulation";
+import {
+  filmEffectRefusal,
+  filmEffectTimeline,
+  materializedFilmEffects,
+  resealFilmEffect,
+} from "./filmEffectRuntimeFixtures";
+
 /**
  * The persisted effect population must match the complete current cue set.
  *
@@ -17,12 +27,16 @@ import { filmEffectRefusal, filmEffectTimeline, materializedFilmEffects, resealF
  */
 export function test_film_effect_population_verification(): void {
   const timeline: IAutoMovieFilmTimeline = filmEffectTimeline();
-  const effects: IAutoMovieCompiledFilmEffect[] = materializedFilmEffects(timeline);
-  const [haze, mist]: [IAutoMovieCompiledFilmEffect, IAutoMovieCompiledFilmEffect] = effects as [
+  const effects: IAutoMovieCompiledFilmEffect[] =
+    materializedFilmEffects(timeline);
+  const [haze, mist]: [
     IAutoMovieCompiledFilmEffect,
     IAutoMovieCompiledFilmEffect,
-  ];
-  const verify: (candidate: readonly IAutoMovieCompiledFilmEffect[], current?: IAutoMovieFilmTimeline) => string = (
+  ] = effects as [IAutoMovieCompiledFilmEffect, IAutoMovieCompiledFilmEffect];
+  const verify: (
+    candidate: readonly IAutoMovieCompiledFilmEffect[],
+    current?: IAutoMovieFilmTimeline,
+  ) => string = (
     candidate: readonly IAutoMovieCompiledFilmEffect[],
     current: IAutoMovieFilmTimeline = timeline,
   ): string =>
@@ -99,8 +113,9 @@ export function test_film_effect_population_verification(): void {
   TestValidator.equals(
     "a digest-valid runtime that differs from its cue or identity is refused",
     [
-      ...retargeted.map((mutate: (draft: IAutoMovieCompiledFilmEffect) => void): string =>
-        verify([haze, resealFilmEffect(mist, mutate)]),
+      ...retargeted.map(
+        (mutate: (draft: IAutoMovieCompiledFilmEffect) => void): string =>
+          verify([haze, resealFilmEffect(mist, mutate)]),
       ),
       verify(effects, {
         ...timeline,
@@ -108,7 +123,9 @@ export function test_film_effect_population_verification(): void {
       }),
       verify(effects, { ...timeline, totalFrames: 49 }),
     ],
-    [...retargeted, "compile", "edit"].map((): string => "film-effect-runtime-invalid"),
+    [...retargeted, "compile", "edit"].map(
+      (): string => "film-effect-runtime-invalid",
+    ),
   );
   TestValidator.equals(
     "shape and clock refusals keep their own classes",

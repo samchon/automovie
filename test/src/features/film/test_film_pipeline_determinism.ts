@@ -1,12 +1,16 @@
-import { cutSequence } from "../../../../packages/engine/src/film/cutSequence";
+import {
+  IAutoMovieMotion,
+  IAutoMovieScript,
+  IAutoMovieSkeleton,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
 import { IAutoMovieCut } from "../../../../packages/engine/src/film/IAutoMovieCut";
 import { IAutoMoviePerformedShot } from "../../../../packages/engine/src/film/IAutoMoviePerformedShot";
 import { IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
-import { IAutoMovieMotion, IAutoMovieScript, IAutoMovieSkeleton } from "@automovie/interface";
+import { cutSequence } from "../../../../packages/engine/src/film/cutSequence";
 import { performShot } from "../../../../packages/engine/src/film/performShot";
 import { stageScene } from "../../../../packages/engine/src/film/stageScene";
-import { TestValidator } from "@nestia/e2e";
-
 import {
   makePerformanceWrite,
   makeScriptWrite,
@@ -21,7 +25,10 @@ import { namedFacts } from "../internal/predicates";
  * motions, sequence and runtime. Motion keyframes are retained as produced;
  * the owning entry requires nonempty output rather than per-frame density.
  */
-const runPipeline: () => { serialized: string; motionKeyframes: number } = (): { serialized: string; motionKeyframes: number } => {
+const runPipeline: () => { serialized: string; motionKeyframes: number } = (): {
+  serialized: string;
+  motionKeyframes: number;
+} => {
   const script: IAutoMovieScript = makeScriptWrite({
     beats: [
       {
@@ -91,13 +98,23 @@ const runPipeline: () => { serialized: string; motionKeyframes: number } = (): {
   );
   if (cut.success !== true) throw new Error("cut fixture must succeed");
 
-  return { serialized: JSON.stringify({
-    scenes: [staged.scene],
-    shots: [charge.shot, aftermath.shot],
-    motions: [charge.motions, aftermath.motions],
-    sequence: cut.sequence,
-    runtime: cut.runtime,
-  }), motionKeyframes: [...Object.values(charge.motions), ...Object.values(aftermath.motions)].reduce((count: number, motion: IAutoMovieMotion): number => count + motion.keyframes.length, 0) };
+  return {
+    serialized: JSON.stringify({
+      scenes: [staged.scene],
+      shots: [charge.shot, aftermath.shot],
+      motions: [charge.motions, aftermath.motions],
+      sequence: cut.sequence,
+      runtime: cut.runtime,
+    }),
+    motionKeyframes: [
+      ...Object.values(charge.motions),
+      ...Object.values(aftermath.motions),
+    ].reduce(
+      (count: number, motion: IAutoMovieMotion): number =>
+        count + motion.keyframes.length,
+      0,
+    ),
+  };
 };
 
 /**

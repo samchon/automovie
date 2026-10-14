@@ -24,7 +24,10 @@ import { hasViolation, namedFacts } from "../internal/predicates";
  */
 export function test_film_block_beat_nonempty_refs(): void {
   const baseScript: ReturnType<typeof makeScriptWrite> = makeScriptWrite();
-  const baseStaged: ReturnType<typeof stageScene> = stageScene(baseScript, makeStagingWrite());
+  const baseStaged: ReturnType<typeof stageScene> = stageScene(
+    baseScript,
+    makeStagingWrite(),
+  );
   if (baseStaged.success !== true) throw new Error("staging must succeed");
 
   const script: ReturnType<typeof makeScriptWrite> = makeScriptWrite({

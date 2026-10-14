@@ -1,13 +1,24 @@
+import {
+  IAutoMovieCompiledFilmEffect,
+  IAutoMovieFilmTimeline,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
+import { IAutoMovieEffectSample } from "../../../../packages/engine/src/IAutoMovieEffectSample";
+import { type IAutoMovieFilmEffectCurrentIdentity } from "../../../../packages/engine/src/effectRuntime/IAutoMovieFilmEffectCurrentIdentity";
+import { IAutoMovieProductionFilmEffectSample } from "../../../../packages/engine/src/effectRuntime/IAutoMovieProductionFilmEffectSample";
+import { sampleProductionFilmEffects } from "../../../../packages/engine/src/effectRuntime/sampleProductionFilmEffects";
+import { sampleCompiledEffect } from "../../../../packages/engine/src/sampleCompiledEffect";
 import { filmEffectValuesClose } from "../internal/filmEffectValuesClose";
 import { nclose } from "../internal/nclose";
-import { IAutoMovieEffectSample } from "../../../../packages/engine/src/IAutoMovieEffectSample";
-import { IAutoMovieProductionFilmEffectSample } from "../../../../packages/engine/src/effectRuntime/IAutoMovieProductionFilmEffectSample";
-import { IAutoMovieFilmTimeline, IAutoMovieCompiledFilmEffect } from "@automovie/interface";
-import { type IAutoMovieFilmEffectCurrentIdentity } from "../../../../packages/engine/src/effectRuntime/IAutoMovieFilmEffectCurrentIdentity";
-import { sampleCompiledEffect } from "../../../../packages/engine/src/sampleCompiledEffect";
-import { sampleProductionFilmEffects } from "../../../../packages/engine/src/effectRuntime/sampleProductionFilmEffects";
-import { TestValidator } from "@nestia/e2e";
-import { filmEffectIdentity, filmEffectRefusal, filmEffectTimeline, materializedFilmEffects, resealFilmEffect } from "./filmEffectRuntimeFixtures";
+import {
+  filmEffectIdentity,
+  filmEffectRefusal,
+  filmEffectTimeline,
+  materializedFilmEffects,
+  resealFilmEffect,
+} from "./filmEffectRuntimeFixtures";
+
 /**
  * Film sampling preserves half-open cue ownership and rejects stale or malformed runtime data.
  *
@@ -23,13 +34,20 @@ import { filmEffectIdentity, filmEffectRefusal, filmEffectTimeline, materialized
  */
 export function test_film_effect_runtime_sampling(): void {
   const timeline: IAutoMovieFilmTimeline = filmEffectTimeline();
-  const identity: IAutoMovieFilmEffectCurrentIdentity = filmEffectIdentity(timeline);
-  const effects: IAutoMovieCompiledFilmEffect[] = materializedFilmEffects(timeline);
-  const [haze, mist]: [IAutoMovieCompiledFilmEffect, IAutoMovieCompiledFilmEffect] = effects as [
+  const identity: IAutoMovieFilmEffectCurrentIdentity =
+    filmEffectIdentity(timeline);
+  const effects: IAutoMovieCompiledFilmEffect[] =
+    materializedFilmEffects(timeline);
+  const [haze, mist]: [
     IAutoMovieCompiledFilmEffect,
     IAutoMovieCompiledFilmEffect,
-  ];
-  const sample: (timelineFrame: number, cameraDistance?: number | undefined, candidates?: readonly IAutoMovieCompiledFilmEffect[], current?: IAutoMovieFilmEffectCurrentIdentity) => IAutoMovieProductionFilmEffectSample[] = (
+  ] = effects as [IAutoMovieCompiledFilmEffect, IAutoMovieCompiledFilmEffect];
+  const sample: (
+    timelineFrame: number,
+    cameraDistance?: number | undefined,
+    candidates?: readonly IAutoMovieCompiledFilmEffect[],
+    current?: IAutoMovieFilmEffectCurrentIdentity,
+  ) => IAutoMovieProductionFilmEffectSample[] = (
     timelineFrame: number,
     cameraDistance?: number,
     candidates: readonly IAutoMovieCompiledFilmEffect[] = effects,
@@ -45,7 +63,10 @@ export function test_film_effect_runtime_sampling(): void {
   TestValidator.equals(
     "active windows follow the half-open cue frames",
     [11, 12, 23, 24, 0, 6].map((frame: number): boolean[] =>
-      sample(frame).map((item: IAutoMovieProductionFilmEffectSample): boolean => item.sample.active),
+      sample(frame).map(
+        (item: IAutoMovieProductionFilmEffectSample): boolean =>
+          item.sample.active,
+      ),
     ),
     [
       [false, false],
@@ -59,28 +80,31 @@ export function test_film_effect_runtime_sampling(): void {
   TestValidator.predicate(
     "each sample is the engine sample at the exact frame second",
     filmEffectValuesClose(
-      sample(12, 3).map((item: IAutoMovieProductionFilmEffectSample): IAutoMovieEffectSample => item.sample),
+      sample(12, 3).map(
+        (item: IAutoMovieProductionFilmEffectSample): IAutoMovieEffectSample =>
+          item.sample,
+      ),
       [
-      sampleCompiledEffect(haze.effect, 12 / 24, 3),
-      sampleCompiledEffect(mist.effect, 12 / 24, 3),
-    ],
+        sampleCompiledEffect(haze.effect, 12 / 24, 3),
+        sampleCompiledEffect(mist.effect, 12 / 24, 3),
+      ],
     ),
   );
   const boundary: IAutoMovieProductionFilmEffectSample[] = sample(12, 3);
   TestValidator.predicate(
     "frame twelve samples half a second with mist's authored constant intensity",
     boundary.length === 2 &&
-      boundary.every((item: IAutoMovieProductionFilmEffectSample): boolean => nclose(item.sample.time, 0.5)) &&
-      nclose(boundary[0]!.sample.intensity, 0) && nclose(boundary[1]!.sample.intensity, 0.5),
+      boundary.every((item: IAutoMovieProductionFilmEffectSample): boolean =>
+        nclose(item.sample.time, 0.5),
+      ) &&
+      nclose(boundary[0]!.sample.intensity, 0) &&
+      nclose(boundary[1]!.sample.intensity, 0.5),
   );
   const late: IAutoMovieProductionFilmEffectSample[] = sample(23);
   const early: IAutoMovieProductionFilmEffectSample[] = sample(12);
   TestValidator.predicate(
     "reordered seeks reconstruct the same state",
-    filmEffectValuesClose(
-      [sample(23), sample(12)],
-      [late, early],
-    ),
+    filmEffectValuesClose([sample(23), sample(12)], [late, early]),
   );
   const copied: IAutoMovieProductionFilmEffectSample[] = sample(12);
   copied[1]!.runtime.effect.id = "mutated";
@@ -90,12 +114,18 @@ export function test_film_effect_runtime_sampling(): void {
     ["mist", []],
   );
 
-  const refusal: (task: () => unknown) => string = (task: () => unknown): string => filmEffectRefusal(task);
+  const refusal: (task: () => unknown) => string = (
+    task: () => unknown,
+  ): string => filmEffectRefusal(task);
   TestValidator.equals(
     "malformed identity, frame and distance are refused as input",
     [
-      refusal((): IAutoMovieProductionFilmEffectSample[] => sample(0, undefined, [], { ...identity, production: " " })),
-      refusal((): IAutoMovieProductionFilmEffectSample[] => sample(0, undefined, [], { ...identity, film: "" })),
+      refusal((): IAutoMovieProductionFilmEffectSample[] =>
+        sample(0, undefined, [], { ...identity, production: " " }),
+      ),
+      refusal((): IAutoMovieProductionFilmEffectSample[] =>
+        sample(0, undefined, [], { ...identity, film: "" }),
+      ),
       refusal((): IAutoMovieProductionFilmEffectSample[] =>
         sample(0, undefined, [], {
           ...identity,
@@ -112,8 +142,12 @@ export function test_film_effect_runtime_sampling(): void {
       refusal((): IAutoMovieProductionFilmEffectSample[] => sample(1.5)),
       refusal((): IAutoMovieProductionFilmEffectSample[] => sample(Number.NaN)),
       refusal((): IAutoMovieProductionFilmEffectSample[] => sample(0, -0.1)),
-      refusal((): IAutoMovieProductionFilmEffectSample[] => sample(0, Number.POSITIVE_INFINITY)),
-      refusal((): IAutoMovieProductionFilmEffectSample[] => sample(0, Number.NaN)),
+      refusal((): IAutoMovieProductionFilmEffectSample[] =>
+        sample(0, Number.POSITIVE_INFINITY),
+      ),
+      refusal((): IAutoMovieProductionFilmEffectSample[] =>
+        sample(0, Number.NaN),
+      ),
       refusal((): IAutoMovieProductionFilmEffectSample[] => sample(0, 0)),
     ],
     [
@@ -130,7 +164,17 @@ export function test_film_effect_runtime_sampling(): void {
         { ...identity, compileFingerprint: `sha256:${"1".repeat(64)}` },
         { ...identity, editFingerprint: `sha256:${"2".repeat(64)}` },
       ] satisfies IAutoMovieFilmEffectCurrentIdentity[]
-    ).map((current: { production: string; film: string; compileFingerprint: string; editFingerprint: string; }): string => refusal((): IAutoMovieProductionFilmEffectSample[] => sample(0, undefined, effects, current))),
+    ).map(
+      (current: {
+        production: string;
+        film: string;
+        compileFingerprint: string;
+        editFingerprint: string;
+      }): string =>
+        refusal((): IAutoMovieProductionFilmEffectSample[] =>
+          sample(0, undefined, effects, current),
+        ),
+    ),
     Array.from({ length: 4 }, (): string => "film-effect-runtime-stale"),
   );
 
@@ -230,9 +274,13 @@ export function test_film_effect_runtime_sampling(): void {
     "a runtime the builder would not write is refused as invalid",
     [
       ...malformed.map((runtime: IAutoMovieCompiledFilmEffect): string =>
-        refusal((): IAutoMovieProductionFilmEffectSample[] => sample(12, undefined, [runtime])),
+        refusal((): IAutoMovieProductionFilmEffectSample[] =>
+          sample(12, undefined, [runtime]),
+        ),
       ),
-      refusal((): IAutoMovieProductionFilmEffectSample[] => sample(12, undefined, [resealFilmEffect(mist, (): void => {})])),
+      refusal((): IAutoMovieProductionFilmEffectSample[] =>
+        sample(12, undefined, [resealFilmEffect(mist, (): void => {})]),
+      ),
     ],
     [...malformed.map((): string => "film-effect-runtime-invalid"), "accepted"],
   );

@@ -1,9 +1,11 @@
-import { productionFilmEffectEditFingerprint } from "../../../../packages/engine/src/effectRuntime/productionFilmEffectEditFingerprint";
-import { IAutoMovieFilmTimeline } from "@automovie/interface";
 import { canonicalizeAutoMovieJson } from "@automovie/engine";
+import { IAutoMovieFilmTimeline } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 import { createHash } from "node:crypto";
+
+import { productionFilmEffectEditFingerprint } from "../../../../packages/engine/src/effectRuntime/productionFilmEffectEditFingerprint";
 import { filmEffectCue, filmEffectTimeline } from "./filmEffectRuntimeFixtures";
+
 /**
  * The effect edit digest follows normalized edit fields and excludes builder provenance.
  *
@@ -21,19 +23,21 @@ export function test_film_effect_edit_fingerprint(): void {
   const nodeProtocolDigest: (timeline: IAutoMovieFilmTimeline) => string = (
     timeline: IAutoMovieFilmTimeline,
   ): string =>
-    `sha256:${createHash("sha256").update(
-      canonicalizeAutoMovieJson({
-        protocol: "automovie.production-render-edit.v2",
-        id: timeline.id,
-        fps: timeline.fps,
-        frameRate: timeline.frameRate,
-        totalFrames: timeline.totalFrames,
-        segments: timeline.segments,
-        omissions: timeline.omissions,
-        tracks: timeline.tracks,
-      }),
-      "utf8",
-    ).digest("hex")}`;
+    `sha256:${createHash("sha256")
+      .update(
+        canonicalizeAutoMovieJson({
+          protocol: "automovie.production-render-edit.v2",
+          id: timeline.id,
+          fps: timeline.fps,
+          frameRate: timeline.frameRate,
+          totalFrames: timeline.totalFrames,
+          segments: timeline.segments,
+          omissions: timeline.omissions,
+          tracks: timeline.tracks,
+        }),
+        "utf8",
+      )
+      .digest("hex")}`;
   const minimal: IAutoMovieFilmTimeline = {
     ...filmEffectTimeline([]),
     id: "f",

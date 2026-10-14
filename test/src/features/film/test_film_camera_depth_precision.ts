@@ -10,7 +10,11 @@ const CONSTRAINT: IAutoMovieCameraDepthPrecisionConstraint = {
   maximumStepMeters: 20,
 };
 
-const evaluate: (overrides?: Partial<Parameters<typeof evaluateAutoMovieCameraDepthPrecision>[0]>) => ReturnType<typeof evaluateAutoMovieCameraDepthPrecision> = (
+const evaluate: (
+  overrides?: Partial<
+    Parameters<typeof evaluateAutoMovieCameraDepthPrecision>[0]
+  >,
+) => ReturnType<typeof evaluateAutoMovieCameraDepthPrecision> = (
   overrides: Partial<
     Parameters<typeof evaluateAutoMovieCameraDepthPrecision>[0]
   > = {},
@@ -53,7 +57,10 @@ export function test_film_camera_depth_precision(): void {
     namedFacts([
       ["passed", (): boolean => valid.passed],
       ["status", (): boolean => valid.status === "satisfied"],
-      ["codes", (): boolean => valid.lowerCode === 252 && valid.upperCode === 253],
+      [
+        "codes",
+        (): boolean => valid.lowerCode === 252 && valid.upperCode === 253,
+      ],
       [
         "step",
         (): boolean =>
@@ -91,8 +98,12 @@ export function test_film_camera_depth_precision(): void {
     ["satisfied", true, "insufficient-precision", false],
   );
 
-  const outsideNear: ReturnType<typeof evaluate> = evaluate({ requiredNear: 0.5 });
-  const outsideFar: ReturnType<typeof evaluate> = evaluate({ requiredFar: 102 });
+  const outsideNear: ReturnType<typeof evaluate> = evaluate({
+    requiredNear: 0.5,
+  });
+  const outsideFar: ReturnType<typeof evaluate> = evaluate({
+    requiredFar: 102,
+  });
   TestValidator.equals(
     "either required-range edge outside the clip range is refused",
     [outsideNear.status, outsideFar.status],
@@ -148,13 +159,24 @@ export function test_film_camera_depth_precision(): void {
         report.lowerCode === null &&
         report.upperCode === null &&
         report.measuredStepMeters === null,
-    ) && invalid.every((report: ReturnType<typeof evaluate>): boolean => JSON.stringify(report).includes("null")),
+    ) &&
+      invalid.every((report: ReturnType<typeof evaluate>): boolean =>
+        JSON.stringify(report).includes("null"),
+      ),
   );
 
-  const nearPoint: ReturnType<typeof evaluate> = evaluate({ requiredNear: 1, requiredFar: 1 });
+  const nearPoint: ReturnType<typeof evaluate> = evaluate({
+    requiredNear: 1,
+    requiredFar: 1,
+  });
   TestValidator.equals(
     "a degenerate required point exactly on near owns no preceding cell",
-    [nearPoint.lowerCode, nearPoint.upperCode, nearPoint.measuredStepMeters !== null && nclose(nearPoint.measuredStepMeters, 0)],
+    [
+      nearPoint.lowerCode,
+      nearPoint.upperCode,
+      nearPoint.measuredStepMeters !== null &&
+        nclose(nearPoint.measuredStepMeters, 0),
+    ],
     [0, 0, true],
   );
 
@@ -166,7 +188,10 @@ export function test_film_camera_depth_precision(): void {
         "camera",
         (): boolean => evaluate({ camera: "alternate" }).camera === "alternate",
       ],
-      ["time", (): boolean => nclose(evaluate({ time: 2 }).time ?? Number.NaN, 2)],
+      [
+        "time",
+        (): boolean => nclose(evaluate({ time: 2 }).time ?? Number.NaN, 2),
+      ],
     ]),
     { same: true, camera: true, time: true },
   );

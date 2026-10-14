@@ -25,14 +25,24 @@ import {
  * @evidence contracts/testing.md#execution-ownership The synchronous test_film_block_beat_valid entry owns one portable stageScene result and both in-process blockBeat calls through existing fixtures, without installed consumers, native artifacts or a running host.
  */
 export function test_film_block_beat_valid(): void {
-  const staged: ReturnType<typeof stageScene> = stageScene(makeScriptWrite(), makeStagingWrite());
+  const staged: ReturnType<typeof stageScene> = stageScene(
+    makeScriptWrite(),
+    makeStagingWrite(),
+  );
   if (staged.success !== true) throw new Error("staging must succeed");
 
   const plan: ReturnType<typeof makeBlockingWrite> = makeBlockingWrite();
-  const blocked: ReturnType<typeof blockBeat> = blockBeat(makeScriptWrite(), staged, plan);
+  const blocked: ReturnType<typeof blockBeat> = blockBeat(
+    makeScriptWrite(),
+    staged,
+    plan,
+  );
   TestValidator.equals("success", blocked.success, true);
   if (blocked.success === true) {
-    TestValidator.predicate("the admitted plan is borrowed unchanged", blocked.blocking === plan);
+    TestValidator.predicate(
+      "the admitted plan is borrowed unchanged",
+      blocked.blocking === plan,
+    );
     TestValidator.equals(
       "plan carried verbatim",
       blocked.blocking.beat,

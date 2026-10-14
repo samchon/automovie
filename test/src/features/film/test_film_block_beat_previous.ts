@@ -13,7 +13,9 @@ import {
 import { IDENTITY_TRANSFORM } from "../internal/fixtures";
 import { hasViolation } from "../internal/predicates";
 
-const endActor: (node: string) => IAutoMovieBeatEndActorState = (node: string): IAutoMovieBeatEndActorState => ({
+const endActor: (node: string) => IAutoMovieBeatEndActorState = (
+  node: string,
+): IAutoMovieBeatEndActorState => ({
   node,
   transform: IDENTITY_TRANSFORM,
   facing: { x: 0, y: 0, z: 1 },
@@ -26,7 +28,9 @@ const endActor: (node: string) => IAutoMovieBeatEndActorState = (node: string): 
   mount: null,
 });
 
-const endState: (nodes: string[]) => IAutoMovieBeatEndState = (nodes: string[]): IAutoMovieBeatEndState => ({
+const endState: (nodes: string[]) => IAutoMovieBeatEndState = (
+  nodes: string[],
+): IAutoMovieBeatEndState => ({
   beat: "beat-0",
   shot: "shot:beat-0",
   actors: nodes.map(endActor),
@@ -56,7 +60,10 @@ const endState: (nodes: string[]) => IAutoMovieBeatEndState = (nodes: string[]):
  * @evidence contracts/testing.md#execution-ownership The synchronous test_film_block_beat_previous entry owns every literal prior state and direct portable blocking call after one existing staging prerequisite, with no installation, native artifact, process or rendering host.
  */
 export function test_film_block_beat_previous(): void {
-  const staged: ReturnType<typeof stageScene> = stageScene(makeScriptWrite(), makeStagingWrite());
+  const staged: ReturnType<typeof stageScene> = stageScene(
+    makeScriptWrite(),
+    makeStagingWrite(),
+  );
   if (staged.success !== true) throw new Error("staging must succeed");
 
   const previous: IAutoMovieBeatEndState = endState(["knightA", "knightB"]);
@@ -68,9 +75,16 @@ export function test_film_block_beat_previous(): void {
   );
   TestValidator.equals("valid prior state passes", resumed.success, true);
   if (resumed.success === true)
-    TestValidator.predicate("prior state surfaced by identity", resumed.previous === previous);
+    TestValidator.predicate(
+      "prior state surfaced by identity",
+      resumed.previous === previous,
+    );
 
-  const first: ReturnType<typeof blockBeat> = blockBeat(makeScriptWrite(), staged, makeBlockingWrite());
+  const first: ReturnType<typeof blockBeat> = blockBeat(
+    makeScriptWrite(),
+    staged,
+    makeBlockingWrite(),
+  );
   TestValidator.equals("first beat passes", first.success, true);
   if (first.success === true)
     TestValidator.equals("first beat has no prior state", first.previous, null);

@@ -51,7 +51,15 @@ const walk: IAutoMovieMotion = {
  * 0.5 s beat advances the hero one metre (x = 2t), so its END is `stagedX + 1`
  * and its OPENING is `stagedX`.
  */
-const beatProps: (beat: string, stagedX: number, duration: number) => Parameters<typeof validateFilmContinuity>[0]["beats"][number] = (beat: string, stagedX: number, duration: number): Parameters<typeof validateFilmContinuity>[0]["beats"][number] => {
+const beatProps: (
+  beat: string,
+  stagedX: number,
+  duration: number,
+) => Parameters<typeof validateFilmContinuity>[0]["beats"][number] = (
+  beat: string,
+  stagedX: number,
+  duration: number,
+): Parameters<typeof validateFilmContinuity>[0]["beats"][number] => {
   const scene: IAutoMovieScene = {
     id: "scene",
     name: null,
@@ -118,17 +126,19 @@ export function test_film_continuity_walk(): void {
     { success: true },
   );
 
-  const resumed: ReturnType<typeof validateFilmContinuity> = validateFilmContinuity({
-    beats: [beatProps("b1", 0, 0.5), beatProps("b2", 1, 0.5)],
-  });
+  const resumed: ReturnType<typeof validateFilmContinuity> =
+    validateFilmContinuity({
+      beats: [beatProps("b1", 0, 0.5), beatProps("b2", 1, 0.5)],
+    });
   TestValidator.predicate(
     "a resumed cut has no drift",
     validationHasNoWarnings("resumed film cut", resumed),
   );
 
-  const drifted: ReturnType<typeof validateFilmContinuity> = validateFilmContinuity({
-    beats: [beatProps("b1", 0, 0.5), beatProps("b2", 0, 0.5)],
-  });
+  const drifted: ReturnType<typeof validateFilmContinuity> =
+    validateFilmContinuity({
+      beats: [beatProps("b1", 0, 0.5), beatProps("b2", 0, 0.5)],
+    });
   TestValidator.predicate(
     "a cut back to the origin warns, keyed by beat index",
     validationHasWarning(
@@ -139,10 +149,12 @@ export function test_film_continuity_walk(): void {
     ),
   );
 
-  const bad: ReturnType<typeof validateFilmContinuity> = validateFilmContinuity({
-    beats: [beatProps("b1", 0, 0.5), beatProps("b2", 0, 0.5)],
-    positionTolerance: Number.NaN,
-  });
+  const bad: ReturnType<typeof validateFilmContinuity> = validateFilmContinuity(
+    {
+      beats: [beatProps("b1", 0, 0.5), beatProps("b2", 0, 0.5)],
+      positionTolerance: Number.NaN,
+    },
+  );
   TestValidator.predicate(
     "a non-finite tolerance is a range error",
     hasViolation(bad, "range", "$input.positionTolerance"),

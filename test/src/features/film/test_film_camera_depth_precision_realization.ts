@@ -15,7 +15,9 @@ import { TestValidator } from "@nestia/e2e";
 import { namedFacts, nclose } from "../internal/predicates";
 import { test12ValuesClose } from "../internal/test12ValuesClose";
 
-const transform: (z?: number) => IAutoMovieTransform = (z: number = 0): IAutoMovieTransform => ({
+const transform: (z?: number) => IAutoMovieTransform = (
+  z: number = 0,
+): IAutoMovieTransform => ({
   translation: { x: 0, y: 0, z },
   rotation: { x: 0, y: 0, z: 0, w: 1 },
   scale: { x: 1, y: 1, z: 1 },
@@ -97,11 +99,16 @@ function realize(
       reviewFrames:
         options.reviewTimes === undefined
           ? contract.reviewFrames
-          : options.reviewTimes.map((time: number, index: number): IAutoMovieShotContract["reviewFrames"][number] => ({
-              id: `frame-${index}`,
-              time,
-              passes: ["beauty" as const],
-            })),
+          : options.reviewTimes.map(
+              (
+                time: number,
+                index: number,
+              ): IAutoMovieShotContract["reviewFrames"][number] => ({
+                id: `frame-${index}`,
+                time,
+                passes: ["beauty" as const],
+              }),
+            ),
     },
     production: null,
     ...(options.frameFormat === false
@@ -163,15 +170,16 @@ function realize(
  * @evidence contracts/testing.md#execution-ownership Uses local model/scene/contract records and synchronous engine grading without a renderer, real depth buffer, filesystem, clock, or dependency replacement. Exact-copy replay uses existing test12ValuesClose; the NaN review-time observation belongs to the static-camera path and does not claim a moving clip accepts NaN sampling.
  */
 export function test_film_camera_depth_precision_realization(): void {
-  const expected: ReturnType<typeof evaluateAutoMovieCameraDepthPrecision> = evaluateAutoMovieCameraDepthPrecision({
-    camera: "camera-main",
-    time: 0,
-    near: 1,
-    far: 100,
-    requiredNear: 8,
-    requiredFar: 12,
-    constraint: { minimumDepthBits: 8, maximumStepMeters: 1 },
-  });
+  const expected: ReturnType<typeof evaluateAutoMovieCameraDepthPrecision> =
+    evaluateAutoMovieCameraDepthPrecision({
+      camera: "camera-main",
+      time: 0,
+      near: 1,
+      far: 100,
+      requiredNear: 8,
+      requiredFar: 12,
+      constraint: { minimumDepthBits: 8, maximumStepMeters: 1 },
+    });
   const accepted: ReturnType<typeof realize> = realize(camera());
   TestValidator.equals(
     "every addressed sample reports the exact current box depth range",
@@ -182,7 +190,9 @@ export function test_film_camera_depth_precision_realization(): void {
         "range",
         (): boolean =>
           accepted.realization.camera.every(
-            (sample: IAutoMovieCompiledContractRealization["camera"][number]): boolean =>
+            (
+              sample: IAutoMovieCompiledContractRealization["camera"][number],
+            ): boolean =>
               nclose(sample.depthPrecision.requiredNear ?? Number.NaN, 8) &&
               nclose(sample.depthPrecision.requiredFar ?? Number.NaN, 12),
           ),
@@ -191,15 +201,29 @@ export function test_film_camera_depth_precision_realization(): void {
         "measurement",
         (): boolean =>
           accepted.realization.camera.every(
-            (sample: IAutoMovieCompiledContractRealization["camera"][number]): boolean =>
-              sample.depthPrecision.measuredStepMeters !== null && expected.measuredStepMeters !== null &&
-                nclose(sample.depthPrecision.measuredStepMeters, expected.measuredStepMeters, 0) && sample.depthPrecision.passed,
+            (
+              sample: IAutoMovieCompiledContractRealization["camera"][number],
+            ): boolean =>
+              sample.depthPrecision.measuredStepMeters !== null &&
+              expected.measuredStepMeters !== null &&
+              nclose(
+                sample.depthPrecision.measuredStepMeters,
+                expected.measuredStepMeters,
+                0,
+              ) &&
+              sample.depthPrecision.passed,
           ),
       ],
       [
         "identity",
         (): boolean =>
-          [0, 1, 2].every((time: number, index: number): boolean => nclose(accepted.realization.camera[index]!.depthPrecision.time ?? Number.NaN, time)),
+          [0, 1, 2].every((time: number, index: number): boolean =>
+            nclose(
+              accepted.realization.camera[index]!.depthPrecision.time ??
+                Number.NaN,
+              time,
+            ),
+          ),
       ],
     ]),
     {
@@ -215,7 +239,9 @@ export function test_film_camera_depth_precision_realization(): void {
   TestValidator.predicate(
     "a partly visible box outside the full required clip interval is refused",
     outside.realization.camera.every(
-      (sample: IAutoMovieCompiledContractRealization["camera"][number]): boolean =>
+      (
+        sample: IAutoMovieCompiledContractRealization["camera"][number],
+      ): boolean =>
         sample.readableSubjects === 1 &&
         sample.depthPrecision.status === "outside-clipping-range" &&
         sample.passed === false,
@@ -233,7 +259,9 @@ export function test_film_camera_depth_precision_realization(): void {
   TestValidator.predicate(
     "a precision-only negative twin fails every addressed realization sample",
     insufficient.realization.camera.every(
-      (sample: IAutoMovieCompiledContractRealization["camera"][number]): boolean =>
+      (
+        sample: IAutoMovieCompiledContractRealization["camera"][number],
+      ): boolean =>
         sample.depthPrecision.status === "insufficient-precision" &&
         sample.passed === false,
     ) && insufficient.diagnostics.length === 3,
@@ -241,11 +269,18 @@ export function test_film_camera_depth_precision_realization(): void {
 
   TestValidator.predicate(
     "repeat realization preserves report structure and numeric components",
-    test12ValuesClose(realize(camera()).realization.camera, accepted.realization.camera),
+    test12ValuesClose(
+      realize(camera()).realization.camera,
+      accepted.realization.camera,
+    ),
   );
 
-  const absentCamera: ReturnType<typeof realize> = realize(camera(), { camera: false });
-  const absentRaster: ReturnType<typeof realize> = realize(camera(), { frameFormat: false });
+  const absentCamera: ReturnType<typeof realize> = realize(camera(), {
+    camera: false,
+  });
+  const absentRaster: ReturnType<typeof realize> = realize(camera(), {
+    frameFormat: false,
+  });
   const absentSubject: ReturnType<typeof realize> = realize(camera(), {
     requiredSubjects: ["absent-required-box"],
   });
@@ -256,7 +291,9 @@ export function test_film_camera_depth_precision_realization(): void {
         "camera",
         (): boolean =>
           absentCamera.realization.camera.every(
-            (sample: IAutoMovieCompiledContractRealization["camera"][number]): boolean =>
+            (
+              sample: IAutoMovieCompiledContractRealization["camera"][number],
+            ): boolean =>
               sample.depthPrecision.camera === "camera-main" &&
               sample.depthPrecision.status === "invalid" &&
               sample.resolvedSubjects === 0 &&
@@ -267,7 +304,9 @@ export function test_film_camera_depth_precision_realization(): void {
         "raster",
         (): boolean =>
           absentRaster.realization.camera.every(
-            (sample: IAutoMovieCompiledContractRealization["camera"][number]): boolean =>
+            (
+              sample: IAutoMovieCompiledContractRealization["camera"][number],
+            ): boolean =>
               sample.depthPrecision.status === "invalid" &&
               sample.resolvedSubjects === 0 &&
               sample.passed === false,
@@ -277,7 +316,9 @@ export function test_film_camera_depth_precision_realization(): void {
         "subject",
         (): boolean =>
           absentSubject.realization.camera.every(
-            (sample: IAutoMovieCompiledContractRealization["camera"][number]): boolean =>
+            (
+              sample: IAutoMovieCompiledContractRealization["camera"][number],
+            ): boolean =>
               sample.depthPrecision.status === "invalid" &&
               sample.requiredSubjects === 1 &&
               sample.resolvedSubjects === 0 &&
@@ -291,12 +332,16 @@ export function test_film_camera_depth_precision_realization(): void {
 
   // A review frame at a time no clock can reach is graded and fails, rather
   // than being dropped from the camera samples while the shot passes.
-  const unreachable: ReturnType<typeof realize> = realize(camera(), { reviewTimes: [Number.NaN] });
+  const unreachable: ReturnType<typeof realize> = realize(camera(), {
+    reviewTimes: [Number.NaN],
+  });
   TestValidator.predicate(
     "a non-finite review frame is a failing camera sample, not a skipped one",
     unreachable.realization.camera.length === 3 &&
       unreachable.realization.camera.some(
-        (sample: IAutoMovieCompiledContractRealization["camera"][number]): boolean => Number.isNaN(sample.time) && sample.passed === false,
+        (
+          sample: IAutoMovieCompiledContractRealization["camera"][number],
+        ): boolean => Number.isNaN(sample.time) && sample.passed === false,
       ) &&
       unreachable.diagnostics.length === 1,
   );

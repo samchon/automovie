@@ -3,12 +3,17 @@ import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts } from "../internal/predicates";
 
-const camera: Parameters<typeof intersectsPerspectiveFrustumSphere>[0]["camera"] = {
+const camera: Parameters<
+  typeof intersectsPerspectiveFrustumSphere
+>[0]["camera"] = {
   position: { x: 0, y: 0, z: 0 },
   rotation: { x: 0, y: 0, z: 0, w: 1 },
 };
 
-const visible: (center: { x: number; y: number; z: number }, radius: number) => boolean = (
+const visible: (
+  center: { x: number; y: number; z: number },
+  radius: number,
+) => boolean = (
   center: { x: number; y: number; z: number },
   radius: number,
 ): boolean =>
@@ -55,10 +60,14 @@ export function test_film_camera_projection_sphere(): void {
         (): boolean =>
           visible({ x: horizontalTangent + 0.001, y: 0, z: -5 }, 1) === false,
       ],
-      ["visibleXY2", (): boolean => visible({ x: 0, y: verticalTangent, z: -5 }, 1)],
+      [
+        "visibleXY2",
+        (): boolean => visible({ x: 0, y: verticalTangent, z: -5 }, 1),
+      ],
       [
         "visibleXY3",
-        (): boolean => visible({ x: 0, y: verticalTangent + 0.001, z: -5 }, 1) === false,
+        (): boolean =>
+          visible({ x: 0, y: verticalTangent + 0.001, z: -5 }, 1) === false,
       ],
     ]),
     {
@@ -73,9 +82,15 @@ export function test_film_camera_projection_sphere(): void {
     "near and far planes include tangent spheres only",
     namedFacts([
       ["visibleXY", (): boolean => visible({ x: 0, y: 0, z: -0.5 }, 0.5)],
-      ["visibleXY2", (): boolean => visible({ x: 0, y: 0, z: -0.499 }, 0.5) === false],
+      [
+        "visibleXY2",
+        (): boolean => visible({ x: 0, y: 0, z: -0.499 }, 0.5) === false,
+      ],
       ["visibleXY3", (): boolean => visible({ x: 0, y: 0, z: -10.5 }, 0.5)],
-      ["visibleXY4", (): boolean => visible({ x: 0, y: 0, z: -10.501 }, 0.5) === false],
+      [
+        "visibleXY4",
+        (): boolean => visible({ x: 0, y: 0, z: -10.501 }, 0.5) === false,
+      ],
     ]),
     { visibleXY: true, visibleXY2: true, visibleXY3: true, visibleXY4: true },
   );

@@ -8,15 +8,15 @@ import {
   stageScene,
 } from "@automovie/engine";
 import {
-  IAutoMovieCameraClearanceEnvelope,
   IAutoMovieCamera,
+  IAutoMovieCameraClearanceEnvelope,
   IAutoMovieCameraClearanceReport,
   IAutoMovieClip,
   IAutoMovieConstraintViolation,
   IAutoMovieModel,
   IAutoMovieSceneNode,
-  IAutoMovieSkeleton,
   IAutoMovieShotProgram,
+  IAutoMovieSkeleton,
   IAutoMovieTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -24,8 +24,8 @@ import { TestValidator } from "@nestia/e2e";
 
 import type { IFilmCameraClearanceAdapterOverrides } from "../internal/IFilmCameraClearanceAdapterOverrides";
 import type { IFilmCameraClearanceAdapterResult } from "../internal/IFilmCameraClearanceAdapterResult";
-import type { IFilmCameraClearanceEvaluationOverrides } from "../internal/IFilmCameraClearanceEvaluationOverrides";
 import type { IFilmCameraClearanceBox } from "../internal/IFilmCameraClearanceBox";
+import type { IFilmCameraClearanceEvaluationOverrides } from "../internal/IFilmCameraClearanceEvaluationOverrides";
 import type { IFilmCameraClearanceSample } from "../internal/IFilmCameraClearanceSample";
 import { assertFilmCameraClearanceArtifacts } from "../internal/assertFilmCameraClearanceArtifacts";
 import { assertFilmCameraClearanceDeformation } from "../internal/assertFilmCameraClearanceDeformation";
@@ -41,18 +41,31 @@ import {
 import { createModel, createSkeleton } from "../internal/fixtures";
 import { throwsError as throws } from "../internal/throwsError";
 
-const identity: (x?: number, y?: number, z?: number) => IAutoMovieTransform = (x: number = 0, y: number = 0, z: number = 0): IAutoMovieTransform => ({
+const identity: (x?: number, y?: number, z?: number) => IAutoMovieTransform = (
+  x: number = 0,
+  y: number = 0,
+  z: number = 0,
+): IAutoMovieTransform => ({
   translation: { x, y, z },
   rotation: { x: 0, y: 0, z: 0, w: 1 },
   scale: { x: 1, y: 1, z: 1 },
 });
 
-const box: (center: IAutoMovieVector3, half?: number) => IFilmCameraClearanceBox = (center: IAutoMovieVector3, half: number = 0.1): IFilmCameraClearanceBox => ({
+const box: (
+  center: IAutoMovieVector3,
+  half?: number,
+) => IFilmCameraClearanceBox = (
+  center: IAutoMovieVector3,
+  half: number = 0.1,
+): IFilmCameraClearanceBox => ({
   min: { x: center.x - half, y: center.y - half, z: center.z - half },
   max: { x: center.x + half, y: center.y + half, z: center.z + half },
 });
 
-const envelope: (body?: IAutoMovieCameraClearanceEnvelope["body"], parentRig?: IAutoMovieCameraClearanceEnvelope["parentRig"]) => IAutoMovieCameraClearanceEnvelope = (
+const envelope: (
+  body?: IAutoMovieCameraClearanceEnvelope["body"],
+  parentRig?: IAutoMovieCameraClearanceEnvelope["parentRig"],
+) => IAutoMovieCameraClearanceEnvelope = (
   body: IAutoMovieCameraClearanceEnvelope["body"] = {
     center: { x: 0, y: 0, z: 0 },
     radius: 0.1,
@@ -60,7 +73,11 @@ const envelope: (body?: IAutoMovieCameraClearanceEnvelope["body"], parentRig?: I
   parentRig: IAutoMovieCameraClearanceEnvelope["parentRig"] = null,
 ): IAutoMovieCameraClearanceEnvelope => ({ body, parentRig });
 
-const evaluate: (over?: IFilmCameraClearanceEvaluationOverrides) => ReturnType<typeof evaluateCameraClearance> = (over: IFilmCameraClearanceEvaluationOverrides = {}): ReturnType<typeof evaluateCameraClearance> =>
+const evaluate: (
+  over?: IFilmCameraClearanceEvaluationOverrides,
+) => ReturnType<typeof evaluateCameraClearance> = (
+  over: IFilmCameraClearanceEvaluationOverrides = {},
+): ReturnType<typeof evaluateCameraClearance> =>
   evaluateCameraClearance({
     camera: "camera-main",
     envelope: over.envelope ?? envelope(),
@@ -70,11 +87,13 @@ const evaluate: (over?: IFilmCameraClearanceEvaluationOverrides) => ReturnType<t
     duration: over.duration ?? 1,
     samples:
       over.samples ??
-      [0, 1].map((time: number): IFilmCameraClearanceSample => ({
-        time,
-        camera: identity(),
-        obstacles: [{ node: "wall", bounds: box({ x: 5, y: 0, z: 0 }) }],
-      })),
+      [0, 1].map(
+        (time: number): IFilmCameraClearanceSample => ({
+          time,
+          camera: identity(),
+          obstacles: [{ node: "wall", bounds: box({ x: 5, y: 0, z: 0 }) }],
+        }),
+      ),
   });
 
 const runtimeModels: () => IAutoMovieModel[] = (): IAutoMovieModel[] => [
@@ -167,7 +186,14 @@ export function test_film_camera_clearance(): void {
   const heroCamera: IAutoMovieCamera = clearStage.scene.cameras.find(
     (camera: IAutoMovieCamera): boolean => camera.id === performed.shot.camera,
   )!;
-  const baseAdapterProps: Omit<Parameters<typeof compileCameraClearanceReports>[0], "out" | "runtime"> & { runtime: NonNullable<Parameters<typeof compileCameraClearanceReports>[0]["runtime"]> } = {
+  const baseAdapterProps: Omit<
+    Parameters<typeof compileCameraClearanceReports>[0],
+    "out" | "runtime"
+  > & {
+    runtime: NonNullable<
+      Parameters<typeof compileCameraClearanceReports>[0]["runtime"]
+    >;
+  } = {
     scene: clearStage.scene,
     hero: { camera: heroCamera, motion: performed.shot.cameraMotion },
     coverage: performed.shot.coverage ?? [],
@@ -181,15 +207,18 @@ export function test_film_camera_clearance(): void {
       sampleRate: 24,
     },
   };
-  const inspectAdapter: (over?: IFilmCameraClearanceAdapterOverrides) => IFilmCameraClearanceAdapterResult = (
+  const inspectAdapter: (
+    over?: IFilmCameraClearanceAdapterOverrides,
+  ) => IFilmCameraClearanceAdapterResult = (
     over: IFilmCameraClearanceAdapterOverrides = {},
   ): IFilmCameraClearanceAdapterResult => {
     const out: ViolationCollector = new ViolationCollector();
-    const reports: ReturnType<typeof compileCameraClearanceReports> = compileCameraClearanceReports({
-      ...baseAdapterProps,
-      ...over,
-      out,
-    });
+    const reports: ReturnType<typeof compileCameraClearanceReports> =
+      compileCameraClearanceReports({
+        ...baseAdapterProps,
+        ...over,
+        out,
+      });
     return { reports, out };
   };
 
@@ -199,7 +228,9 @@ export function test_film_camera_clearance(): void {
     hero: { camera: plainCamera, motion: performed.shot.cameraMotion },
     runtime: undefined,
   });
-  const noRuntime: IFilmCameraClearanceAdapterResult = inspectAdapter({ runtime: undefined });
+  const noRuntime: IFilmCameraClearanceAdapterResult = inspectAdapter({
+    runtime: undefined,
+  });
   TestValidator.equals(
     "legacy camera and missing builder authority remain distinct",
     [
@@ -212,9 +243,13 @@ export function test_film_camera_clearance(): void {
     ],
   );
 
-  const missingGeometry: IFilmCameraClearanceAdapterResult = inspectAdapter({ models: [] });
+  const missingGeometry: IFilmCameraClearanceAdapterResult = inspectAdapter({
+    models: [],
+  });
   const emptyGeometry: IFilmCameraClearanceAdapterResult = inspectAdapter({
-    models: runtimeModels().map((model: IAutoMovieModel): IAutoMovieModel => ({ ...model, parts: [] })),
+    models: runtimeModels().map(
+      (model: IAutoMovieModel): IAutoMovieModel => ({ ...model, parts: [] }),
+    ),
   });
   TestValidator.predicate(
     "absent and empty obstacle geometry are addressed rather than skipped",
@@ -222,7 +257,9 @@ export function test_film_camera_clearance(): void {
       ({ reports, out }: IFilmCameraClearanceAdapterResult): boolean =>
         reports === undefined &&
         out.items.length === clearStage.scene.nodes.length &&
-        out.items.every((item: IAutoMovieConstraintViolation): boolean => item.path.endsWith(".model")),
+        out.items.every((item: IAutoMovieConstraintViolation): boolean =>
+          item.path.endsWith(".model"),
+        ),
     ),
   );
 
@@ -294,7 +331,10 @@ export function test_film_camera_clearance(): void {
     "static and moving obstacles share the clock across hero and coverage takes",
     animated.out.items.length === 0 &&
       animated.reports?.length === 2 &&
-      animated.reports.every((report: IAutoMovieCameraClearanceReport): boolean => report.status === "clear"),
+      animated.reports.every(
+        (report: IAutoMovieCameraClearanceReport): boolean =>
+          report.status === "clear",
+      ),
   );
 
   const contact: IAutoMovieVector3 = staticNode.transform.translation;
@@ -358,19 +398,20 @@ export function test_film_camera_clearance(): void {
           item.expected.includes('obstacle "static-prop"'),
       ),
   );
-  const hostileCoercionMotion: IAutoMovieClip = assertFilmCameraClearanceDeformation({
-    performed,
-    clearStage,
-    heroCamera,
-    sourceNode,
-    movingNode,
-    propModel,
-    inspectAdapter,
-    runtimeModels,
-    identity,
-    offClockCameraMotion,
-    runtime: baseAdapterProps.runtime,
-  });
+  const hostileCoercionMotion: IAutoMovieClip =
+    assertFilmCameraClearanceDeformation({
+      performed,
+      clearStage,
+      heroCamera,
+      sourceNode,
+      movingNode,
+      propModel,
+      inspectAdapter,
+      runtimeModels,
+      identity,
+      offClockCameraMotion,
+      runtime: baseAdapterProps.runtime,
+    });
 
   const rigCamera: IAutoMovieCamera = {
     ...heroCamera,
@@ -393,15 +434,17 @@ export function test_film_camera_clearance(): void {
       ),
   );
 
-  const staleBeforeGeometry: IFilmCameraClearanceAdapterResult = inspectAdapter({
-    models: [],
-    hero: { camera: heroCamera, motion: hostileCoercionMotion },
-    runtime: {
-      revision: "old",
-      currentRevision: "current",
-      sampleRate: 24,
+  const staleBeforeGeometry: IFilmCameraClearanceAdapterResult = inspectAdapter(
+    {
+      models: [],
+      hero: { camera: heroCamera, motion: hostileCoercionMotion },
+      runtime: {
+        revision: "old",
+        currentRevision: "current",
+        sampleRate: 24,
+      },
     },
-  });
+  );
   TestValidator.predicate(
     "stale revision is addressed before geometry or motion is read",
     staleBeforeGeometry.reports === undefined &&
@@ -422,30 +465,34 @@ export function test_film_camera_clearance(): void {
     "stale performance is addressed",
     stalePerformance.success === false &&
       stalePerformance.violations.some(
-        (item: IAutoMovieConstraintViolation): boolean => item.path === "$input.cameraClearance.currentRevision",
+        (item: IAutoMovieConstraintViolation): boolean =>
+          item.path === "$input.cameraClearance.currentRevision",
       ),
   );
 
-  const blockedProgram: () => IAutoMovieShotProgram = (): IAutoMovieShotProgram => {
-    const blocking: ReturnType<typeof makeBlockingWrite> = makeBlockingWrite();
-    const performance: ReturnType<typeof makePerformanceWrite> = makePerformanceWrite();
-    blocking.camera.framing = "full";
-    for (const action of performance.draft)
-      if (action.verb === "frame") action.framing = "full";
-    return {
-      actors: [
-        { node: "knightA", model: "knightA", speed: 1, eyeHeight: 1.6 },
-        { node: "knightB", model: "knightB", speed: 1, eyeHeight: 1.6 },
-      ],
-      script: makeScriptWrite(),
-      stage: stageWithClearance(
-        envelope({ center: { x: 0, y: 0, z: 0 }, radius: 3 }),
-      ),
-      blocking,
-      performance,
-      eventSamples: [],
+  const blockedProgram: () => IAutoMovieShotProgram =
+    (): IAutoMovieShotProgram => {
+      const blocking: ReturnType<typeof makeBlockingWrite> =
+        makeBlockingWrite();
+      const performance: ReturnType<typeof makePerformanceWrite> =
+        makePerformanceWrite();
+      blocking.camera.framing = "full";
+      for (const action of performance.draft)
+        if (action.verb === "frame") action.framing = "full";
+      return {
+        actors: [
+          { node: "knightA", model: "knightA", speed: 1, eyeHeight: 1.6 },
+          { node: "knightB", model: "knightB", speed: 1, eyeHeight: 1.6 },
+        ],
+        script: makeScriptWrite(),
+        stage: stageWithClearance(
+          envelope({ center: { x: 0, y: 0, z: 0 }, radius: 3 }),
+        ),
+        blocking,
+        performance,
+        eventSamples: [],
+      };
     };
-  };
   const blocked: ReturnType<typeof compileDefinedShot> = compileDefinedShot({
     shot: defineShot("clearance-blocked", {
       scene: "scene-duel",
@@ -485,7 +532,12 @@ export function test_film_camera_clearance(): void {
     "builder returns an addressed camera-body refusal",
     blocked.success === false &&
       blocked.diagnostics.some(
-        (item: Extract<ReturnType<typeof compileDefinedShot>, { success: false }>["diagnostics"][number]): boolean =>
+        (
+          item: Extract<
+            ReturnType<typeof compileDefinedShot>,
+            { success: false }
+          >["diagnostics"][number],
+        ): boolean =>
           item.phase === "performance" &&
           item.path.includes(".clearance.body") &&
           item.fact.includes("contacts obstacle"),

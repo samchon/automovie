@@ -22,7 +22,10 @@ import { hasViolation, namedFacts } from "../internal/predicates";
  * @evidence contracts/testing.md#execution-ownership The synchronous test_film_block_beat_non_finite_timeline entry owns the portable staging call and both direct blocking cases, using existing fixtures without a consumer installation, native artifact or running host.
  */
 export function test_film_block_beat_non_finite_timeline(): void {
-  const staged: ReturnType<typeof stageScene> = stageScene(makeScriptWrite(), makeStagingWrite());
+  const staged: ReturnType<typeof stageScene> = stageScene(
+    makeScriptWrite(),
+    makeStagingWrite(),
+  );
   if (staged.success !== true) throw new Error("staging must succeed");
 
   const infiniteDuration: ReturnType<typeof blockBeat> = blockBeat(

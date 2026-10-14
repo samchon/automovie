@@ -1,4 +1,8 @@
-import { IAutoMovieFramedSubject, Quaternion, compileCameraMove } from "@automovie/engine";
+import {
+  IAutoMovieFramedSubject,
+  Quaternion,
+  compileCameraMove,
+} from "@automovie/engine";
 import {
   IAutoMovieCamera,
   IAutoMovieCameraAction,
@@ -10,7 +14,10 @@ import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts, nclose, qclose, vclose } from "../internal/predicates";
 
-const camera: (translation?: IAutoMovieVector3, rotation?: IAutoMovieQuaternion) => IAutoMovieCamera = (
+const camera: (
+  translation?: IAutoMovieVector3,
+  rotation?: IAutoMovieQuaternion,
+) => IAutoMovieCamera = (
   translation: IAutoMovieVector3 = { x: 0, y: 1.44, z: 5 },
   rotation: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 },
 ): IAutoMovieCamera => ({
@@ -22,7 +29,12 @@ const camera: (translation?: IAutoMovieVector3, rotation?: IAutoMovieQuaternion)
   depthPrecision: { minimumDepthBits: 24, maximumStepMeters: 100 },
 });
 
-const frame: (move: IAutoMovieCameraAction["move"], framing: IAutoMovieCameraAction["framing"], start?: number, duration?: number | "auto") => IAutoMovieCameraAction = (
+const frame: (
+  move: IAutoMovieCameraAction["move"],
+  framing: IAutoMovieCameraAction["framing"],
+  start?: number,
+  duration?: number | "auto",
+) => IAutoMovieCameraAction = (
   move: IAutoMovieCameraAction["move"],
   framing: IAutoMovieCameraAction["framing"],
   start: number = 0,
@@ -37,7 +49,11 @@ const frame: (move: IAutoMovieCameraAction["move"], framing: IAutoMovieCameraAct
   on: { kind: "point", point: { x: 0, y: 0, z: 0 } },
 });
 
-const SUBJECT: IAutoMovieFramedSubject = { base: { x: 0, y: 0, z: 0 }, height: 2, at: null };
+const SUBJECT: IAutoMovieFramedSubject = {
+  base: { x: 0, y: 0, z: 0 },
+  height: 2,
+  at: null,
+};
 
 /**
  * Pins the framing grammar's arithmetic with hand-computed oracles. With a 90°
@@ -74,10 +90,19 @@ export function test_film_camera_move_grammar(): void {
   if (still === null) return;
   TestValidator.equals(
     "track channels",
-    still.tracks.map((t: IAutoMovieTrack): string => (t.channel.kind === "node" ? t.channel.path : "")),
+    still.tracks.map((t: IAutoMovieTrack): string =>
+      t.channel.kind === "node" ? t.channel.path : "",
+    ),
     ["translation", "rotation"],
   );
-  TestValidator.equals("one key", { length: still.tracks[0]!.times.length, atZero: nclose(still.tracks[0]!.times[0]!, 0) }, { length: 1, atZero: true });
+  TestValidator.equals(
+    "one key",
+    {
+      length: still.tracks[0]!.times.length,
+      atZero: nclose(still.tracks[0]!.times[0]!, 0),
+    },
+    { length: 1, atZero: true },
+  );
   TestValidator.predicate(
     "framed position",
     vclose(
@@ -91,15 +116,25 @@ export function test_film_camera_move_grammar(): void {
   );
   TestValidator.predicate(
     "aim already down −Z (identity rotation)",
-    nclose(still.tracks[1]!.values[3]!, 1) && qclose({ x: still.tracks[1]!.values[0]!, y: still.tracks[1]!.values[1]!, z: still.tracks[1]!.values[2]!, w: still.tracks[1]!.values[3]! }, { x: 0, y: 0, z: 0, w: 1 }),
+    nclose(still.tracks[1]!.values[3]!, 1) &&
+      qclose(
+        {
+          x: still.tracks[1]!.values[0]!,
+          y: still.tracks[1]!.values[1]!,
+          z: still.tracks[1]!.values[2]!,
+          w: still.tracks[1]!.values[3]!,
+        },
+        { x: 0, y: 0, z: 0, w: 1 },
+      ),
   );
 
-  const dolly: NonNullable<ReturnType<typeof compileCameraMove>> = compileCameraMove({
-    clipId: "clip",
-    camera: camera(),
-    entries: [{ action: frame("push-in", "medium"), subject: SUBJECT }],
-    shotDuration: 2,
-  })!;
+  const dolly: NonNullable<ReturnType<typeof compileCameraMove>> =
+    compileCameraMove({
+      clipId: "clip",
+      camera: camera(),
+      entries: [{ action: frame("push-in", "medium"), subject: SUBJECT }],
+      shotDuration: 2,
+    })!;
   TestValidator.equals(
     "push-in eases over 9 keys",
     dolly.tracks[0]!.times.length,
@@ -108,7 +143,10 @@ export function test_film_camera_move_grammar(): void {
   TestValidator.equals(
     "push-in spans the shot (0 → 2 s)",
     namedFacts([
-      ["startsAtShotOpen", (): boolean => nclose(dolly.tracks[0]!.times[0]!, 0)],
+      [
+        "startsAtShotOpen",
+        (): boolean => nclose(dolly.tracks[0]!.times[0]!, 0),
+      ],
       ["endsAtShotClose", (): boolean => nclose(dolly.tracks[0]!.times[8]!, 2)],
     ]),
     { startsAtShotOpen: true, endsAtShotClose: true },
@@ -135,16 +173,32 @@ export function test_film_camera_move_grammar(): void {
     z: 0,
     w: Math.SQRT1_2,
   });
-  const whip: NonNullable<ReturnType<typeof compileCameraMove>> = compileCameraMove({
-    clipId: "clip",
-    camera: yawed,
-    entries: [{ action: frame("whip", "medium"), subject: SUBJECT }],
-    shotDuration: 2,
-  })!;
-  TestValidator.equals("whip snaps in 0.2 s", { length: whip.tracks[0]!.times.length, start: nclose(whip.tracks[0]!.times[0]!, 0), end: nclose(whip.tracks[0]!.times[1]!, 0.2) }, { length: 2, start: true, end: true });
+  const whip: NonNullable<ReturnType<typeof compileCameraMove>> =
+    compileCameraMove({
+      clipId: "clip",
+      camera: yawed,
+      entries: [{ action: frame("whip", "medium"), subject: SUBJECT }],
+      shotDuration: 2,
+    })!;
+  TestValidator.equals(
+    "whip snaps in 0.2 s",
+    {
+      length: whip.tracks[0]!.times.length,
+      start: nclose(whip.tracks[0]!.times[0]!, 0),
+      end: nclose(whip.tracks[0]!.times[1]!, 0.2),
+    },
+    { length: 2, start: true, end: true },
+  );
   TestValidator.predicate(
     "whip starts at the staged position",
-    vclose({ x: whip.tracks[0]!.values[0]!, y: whip.tracks[0]!.values[1]!, z: whip.tracks[0]!.values[2]! }, yawed.transform.translation),
+    vclose(
+      {
+        x: whip.tracks[0]!.values[0]!,
+        y: whip.tracks[0]!.values[1]!,
+        z: whip.tracks[0]!.values[2]!,
+      },
+      yawed.transform.translation,
+    ),
   );
   TestValidator.predicate(
     "whip holds the staged position",
@@ -159,7 +213,16 @@ export function test_film_camera_move_grammar(): void {
   );
   TestValidator.predicate(
     "whip starts on the staged orientation",
-    nclose(Math.abs(whip.tracks[1]!.values[1]!), Math.SQRT1_2) && qclose({ x: whip.tracks[1]!.values[0]!, y: whip.tracks[1]!.values[1]!, z: whip.tracks[1]!.values[2]!, w: whip.tracks[1]!.values[3]! }, yawed.transform.rotation),
+    nclose(Math.abs(whip.tracks[1]!.values[1]!), Math.SQRT1_2) &&
+      qclose(
+        {
+          x: whip.tracks[1]!.values[0]!,
+          y: whip.tracks[1]!.values[1]!,
+          z: whip.tracks[1]!.values[2]!,
+          w: whip.tracks[1]!.values[3]!,
+        },
+        yawed.transform.rotation,
+      ),
   );
   const landing: IAutoMovieQuaternion = {
     x: whip.tracks[1]!.values[4]!,

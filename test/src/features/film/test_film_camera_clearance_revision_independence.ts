@@ -1,9 +1,13 @@
-import { canonicalizeAutoMovieJson, performShot, stageScene } from "@automovie/engine";
+import {
+  canonicalizeAutoMovieJson,
+  performShot,
+  stageScene,
+} from "@automovie/engine";
 import {
   IAutoMovieCameraClearanceEnvelope,
   IAutoMovieCameraClearanceReport,
-  IAutoMovieSkeleton,
   IAutoMovieShot,
+  IAutoMovieSkeleton,
   IAutoMovieStage,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -39,8 +43,17 @@ const stageWithClearance: () => IAutoMovieStage = (): IAutoMovieStage => {
 };
 
 /** Perform the same authored take under one clearance runtime. */
-const compileTake: (revision: string, sampleRate: number) => Extract<ReturnType<typeof performShot>, { success: true }> = (revision: string, sampleRate: number): Extract<ReturnType<typeof performShot>, { success: true }> => {
-  const staged: ReturnType<typeof stageScene> = stageScene(makeScriptWrite(), stageWithClearance());
+const compileTake: (
+  revision: string,
+  sampleRate: number,
+) => Extract<ReturnType<typeof performShot>, { success: true }> = (
+  revision: string,
+  sampleRate: number,
+): Extract<ReturnType<typeof performShot>, { success: true }> => {
+  const staged: ReturnType<typeof stageScene> = stageScene(
+    makeScriptWrite(),
+    stageWithClearance(),
+  );
   if (staged.success !== true)
     throw new Error("the clearance fixture must stage");
   const performed: ReturnType<typeof performShot> = performShot({
@@ -61,7 +74,9 @@ const compileTake: (revision: string, sampleRate: number) => Extract<ReturnType<
 };
 
 /** Digest of the exact canonical bytes this shot would be materialized as. */
-const artifactDigest: (shot: IAutoMovieShot) => string = (shot: IAutoMovieShot): string =>
+const artifactDigest: (shot: IAutoMovieShot) => string = (
+  shot: IAutoMovieShot,
+): string =>
   `sha256:${createHash("sha256").update(canonicalizeAutoMovieJson(shot), "utf8").digest("hex")}`;
 
 /**
@@ -103,13 +118,21 @@ export function test_film_camera_clearance_revision_independence(): void {
 
   TestValidator.equals(
     "every arranged take publishes one clear report over a real sample plan",
-    [first, second, finer].map((performed: ReturnType<typeof compileTake>): [number | undefined, IAutoMovieCameraClearanceReport["status"] | undefined, boolean] => [
-      performed.shot.cameraClearance?.length,
-      performed.shot.cameraClearance?.[0]?.status,
-      performed.shot.cameraClearance?.[0]?.sampleTimes.length ===
-        (performed.shot.cameraClearance?.[0]?.intervals ?? -1) + 1 &&
-        (performed.shot.cameraClearance?.[0]?.sampleTimes.length ?? 0) > 0,
-    ]),
+    [first, second, finer].map(
+      (
+        performed: ReturnType<typeof compileTake>,
+      ): [
+        number | undefined,
+        IAutoMovieCameraClearanceReport["status"] | undefined,
+        boolean,
+      ] => [
+        performed.shot.cameraClearance?.length,
+        performed.shot.cameraClearance?.[0]?.status,
+        performed.shot.cameraClearance?.[0]?.sampleTimes.length ===
+          (performed.shot.cameraClearance?.[0]?.intervals ?? -1) + 1 &&
+          (performed.shot.cameraClearance?.[0]?.sampleTimes.length ?? 0) > 0,
+      ],
+    ),
     [
       [1, "clear", true],
       [1, "clear", true],
@@ -130,7 +153,8 @@ export function test_film_camera_clearance_revision_independence(): void {
 
   TestValidator.predicate(
     "the finer inspection clock carries more sample instants",
-    finer.shot.cameraClearance![0]!.sampleTimes.length > first.shot.cameraClearance![0]!.sampleTimes.length,
+    finer.shot.cameraClearance![0]!.sampleTimes.length >
+      first.shot.cameraClearance![0]!.sampleTimes.length,
   );
   TestValidator.predicate(
     "those same bytes still follow the inspection clock the runtime carries",
@@ -139,12 +163,14 @@ export function test_film_camera_clearance_revision_independence(): void {
 
   TestValidator.equals(
     "no published report carries a revision of its own",
-    [first, second, finer].flatMap((performed: ReturnType<typeof compileTake>): string[] =>
-      (performed.shot.cameraClearance ?? []).flatMap((report: IAutoMovieCameraClearanceReport): string[] =>
-        ["revision", "currentRevision"].filter((key: string): boolean =>
-          Object.keys(report).includes(key),
+    [first, second, finer].flatMap(
+      (performed: ReturnType<typeof compileTake>): string[] =>
+        (performed.shot.cameraClearance ?? []).flatMap(
+          (report: IAutoMovieCameraClearanceReport): string[] =>
+            ["revision", "currentRevision"].filter((key: string): boolean =>
+              Object.keys(report).includes(key),
+            ),
         ),
-      ),
     ),
     [],
   );

@@ -8,7 +8,14 @@ import {
   sampleClip,
   sampleMotion,
 } from "@automovie/engine";
-import { type IAutoMovieClip, type IAutoMovieMotion, type IAutoMoviePose, type IAutoMovieTrack, type IAutoMovieTransform, type IAutoMovieVector3 } from "@automovie/interface";
+import {
+  type IAutoMovieClip,
+  type IAutoMovieMotion,
+  type IAutoMoviePose,
+  type IAutoMovieTrack,
+  type IAutoMovieTransform,
+  type IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import {
@@ -81,7 +88,9 @@ export function test_film_attach(): void {
   TestValidator.equals("the clip is the child's", rest.id, "attach:sword");
   TestValidator.equals(
     "the clip drives the child node",
-    rest.tracks.map((t: IAutoMovieTrack): string => (t.channel.kind === "node" ? t.channel.node : "")),
+    rest.tracks.map((t: IAutoMovieTrack): string =>
+      t.channel.kind === "node" ? t.channel.node : "",
+    ),
     ["sword", "sword"],
   );
 
@@ -96,7 +105,10 @@ export function test_film_attach(): void {
     "the rest attach lands on the hand's world point",
     vclose(posAt(rest, 0.5), expected, 1e-9),
   );
-  TestValidator.predicate("rest attach agrees with the independent quarter-turn composition", vclose(posAt(rest, 0.5), { x: 1, y: 1.4, z: 1.25 }, 1e-9));
+  TestValidator.predicate(
+    "rest attach agrees with the independent quarter-turn composition",
+    vclose(posAt(rest, 0.5), { x: 1, y: 1.4, z: 1.25 }, 1e-9),
+  );
   TestValidator.predicate(
     "a resting parent → a static child",
     vclose(posAt(rest, 0.5), posAt(rest, 1.5), 1e-12),
@@ -158,7 +170,18 @@ export function test_film_attach(): void {
     vclose(posAt(dyn, t), composed, 1e-9),
   );
   const elbowRadians: number = (80 * Math.PI) / 180;
-  TestValidator.predicate("moving hand agrees with independent elbow and staged rotations", vclose(posAt(dyn, t), { x: 1 - 0.25 * Math.sin(elbowRadians), y: 1.4, z: 1.5 - 0.25 * Math.cos(elbowRadians) }, 1e-9));
+  TestValidator.predicate(
+    "moving hand agrees with independent elbow and staged rotations",
+    vclose(
+      posAt(dyn, t),
+      {
+        x: 1 - 0.25 * Math.sin(elbowRadians),
+        y: 1.4,
+        z: 1.5 - 0.25 * Math.cos(elbowRadians),
+      },
+      1e-9,
+    ),
+  );
 
   // 4. Clinical parent motion reads the supplied rest-frame offset.
   const raisedMotion: IAutoMovieMotion = makeMotion(
@@ -210,8 +233,14 @@ export function test_film_attach(): void {
     "rest-framed attach differs from raw rig-space FK",
     !vclose(posAt(framed, 0.5), posAt(raw, 0.5), 1e-3),
   );
-  TestValidator.predicate("clinical ninety-degree shoulder maps the hand above its pivot", vclose(posAt(framed, 0.5), { x: 1, y: 1.95, z: 1.8 }, 1e-9));
-  TestValidator.predicate("unframed 180-degree shoulder maps the hand across its pivot", vclose(posAt(raw, 0.5), { x: 1, y: 1.4, z: 2.35 }, 1e-9));
+  TestValidator.predicate(
+    "clinical ninety-degree shoulder maps the hand above its pivot",
+    vclose(posAt(framed, 0.5), { x: 1, y: 1.95, z: 1.8 }, 1e-9),
+  );
+  TestValidator.predicate(
+    "unframed 180-degree shoulder maps the hand across its pivot",
+    vclose(posAt(raw, 0.5), { x: 1, y: 1.4, z: 2.35 }, 1e-9),
+  );
 
   // 5. a non-positive span throws before it can bake a degenerate clip (#1224).
   // With duration 0 the sample loop emits `start` for both endpoints, so the

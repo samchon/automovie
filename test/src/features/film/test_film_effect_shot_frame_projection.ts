@@ -1,11 +1,18 @@
-import { IAutoMovieShotEffectFilmInterval } from "../../../../packages/engine/src/effectRuntime/IAutoMovieShotEffectFilmInterval";
-import { type IAutoMovieFilmEffectClock } from "../../../../packages/engine/src/effectRuntime/IAutoMovieFilmEffectClock";
-import { productionFilmFrameForShotTime } from "../../../../packages/engine/src/effectRuntime/productionFilmFrameForShotTime";
-import { projectProductionShotEffectFilmIntervals } from "../../../../packages/engine/src/effectRuntime/projectProductionShotEffectFilmIntervals";
 import { IAutoMovieFilmTimelineSegment } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
+
+import { type IAutoMovieFilmEffectClock } from "../../../../packages/engine/src/effectRuntime/IAutoMovieFilmEffectClock";
+import { IAutoMovieShotEffectFilmInterval } from "../../../../packages/engine/src/effectRuntime/IAutoMovieShotEffectFilmInterval";
+import { productionFilmFrameForShotTime } from "../../../../packages/engine/src/effectRuntime/productionFilmFrameForShotTime";
+import { projectProductionShotEffectFilmIntervals } from "../../../../packages/engine/src/effectRuntime/projectProductionShotEffectFilmIntervals";
 import { filmEffectRefusal } from "./filmEffectRuntimeFixtures";
-const segment: (shot: string, sourceInFrame: number, sourceOutFrame: number, startFrame: number) => IAutoMovieFilmTimelineSegment = (
+
+const segment: (
+  shot: string,
+  sourceInFrame: number,
+  sourceOutFrame: number,
+  startFrame: number,
+) => IAutoMovieFilmTimelineSegment = (
   shot: string,
   sourceInFrame: number,
   sourceOutFrame: number,
@@ -45,7 +52,12 @@ export function test_film_effect_shot_frame_projection(): void {
       segment("ghost", 0, 10, 92),
     ],
   };
-  const effect: (id: string, start: number, end: number, zone?: string) => { id: string; zone: string; start: number; end: number; } = (
+  const effect: (
+    id: string,
+    start: number,
+    end: number,
+    zone?: string,
+  ) => { id: string; zone: string; start: number; end: number } = (
     id: string,
     start: number,
     end: number,
@@ -126,13 +138,19 @@ export function test_film_effect_shot_frame_projection(): void {
       effect("infinite", 0, Number.POSITIVE_INFINITY),
       effect("huge", 1e300, 2e300),
     ]
-      .map((item: { id: string; zone: string; start: number; end: number; }): string =>
-        filmEffectRefusal((): IAutoMovieShotEffectFilmInterval[] =>
-          projectProductionShotEffectFilmIntervals({
-            timeline: clock,
-            shots: new Map([["s1", { effects: [item] }]]),
-          }),
-        ),
+      .map(
+        (item: {
+          id: string;
+          zone: string;
+          start: number;
+          end: number;
+        }): string =>
+          filmEffectRefusal((): IAutoMovieShotEffectFilmInterval[] =>
+            projectProductionShotEffectFilmIntervals({
+              timeline: clock,
+              shots: new Map([["s1", { effects: [item] }]]),
+            }),
+          ),
       )
       .concat(
         filmEffectRefusal((): IAutoMovieShotEffectFilmInterval[] =>
@@ -148,7 +166,11 @@ export function test_film_effect_shot_frame_projection(): void {
     Array.from({ length: 6 }, (): string => "film-effect-input-invalid"),
   );
 
-  const frame: (shot: string, time: number, timeline?: IAutoMovieFilmEffectClock) => number | null = (
+  const frame: (
+    shot: string,
+    time: number,
+    timeline?: IAutoMovieFilmEffectClock,
+  ) => number | null = (
     shot: string,
     time: number,
     timeline: IAutoMovieFilmEffectClock = clock,

@@ -1,10 +1,16 @@
 import { cutSequence } from "@automovie/engine";
-import { type IAutoMovieSequenceEntry, type IAutoMovieShot } from "@automovie/interface";
+import {
+  type IAutoMovieSequenceEntry,
+  type IAutoMovieShot,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/predicates";
 
-const shot: (id: string, duration: number) => IAutoMovieShot = (id: string, duration: number): IAutoMovieShot => ({
+const shot: (id: string, duration: number) => IAutoMovieShot = (
+  id: string,
+  duration: number,
+): IAutoMovieShot => ({
   id,
   name: null,
   scene: "scene-duel",

@@ -1,23 +1,29 @@
-import { IAutoMovieScriptNode, IAutoMovieConstraintViolation } from "@automovie/interface";
-import { locateOnBeat } from "../../../../packages/engine/src/film/locateOnBeat";
+import {
+  IAutoMovieConstraintViolation,
+  IAutoMovieScriptNode,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
+
+import { locateOnBeat } from "../../../../packages/engine/src/film/locateOnBeat";
 import { createScriptTree } from "../internal/createScriptTree";
-const sample: () => IAutoMovieConstraintViolation[] = (): IAutoMovieConstraintViolation[] => [
-  {
-    kind: "physics",
-    severity: "warning",
-    path: "$input.support.overshoot",
-    expected: "would topple",
-    value: 0.2,
-  },
-  {
-    kind: "type",
-    severity: "error",
-    path: "$input.id",
-    expected: "must be a shot id",
-    value: null,
-  },
-];
+
+const sample: () => IAutoMovieConstraintViolation[] =
+  (): IAutoMovieConstraintViolation[] => [
+    {
+      kind: "physics",
+      severity: "warning",
+      path: "$input.support.overshoot",
+      expected: "would topple",
+      value: 0.2,
+    },
+    {
+      kind: "type",
+      severity: "error",
+      path: "$input.id",
+      expected: "must be a shot id",
+      value: null,
+    },
+  ];
 
 /**
  * Beat location preserves feedback fields and leaves original violations unstamped.
@@ -35,35 +41,62 @@ const sample: () => IAutoMovieConstraintViolation[] = (): IAutoMovieConstraintVi
 export function test_film_locate_on_beat(): void {
   const tree: IAutoMovieScriptNode[] = createScriptTree();
   const violations: IAutoMovieConstraintViolation[] = sample();
-  const located: IAutoMovieConstraintViolation[] = locateOnBeat(violations, tree, "beat-1");
+  const located: IAutoMovieConstraintViolation[] = locateOnBeat(
+    violations,
+    tree,
+    "beat-1",
+  );
   TestValidator.equals(
     "every violation gains the beat node",
-    located.map((violation: IAutoMovieConstraintViolation): string | undefined => violation.node),
+    located.map(
+      (violation: IAutoMovieConstraintViolation): string | undefined =>
+        violation.node,
+    ),
     ["b1", "b1"],
   );
   TestValidator.equals(
     "severity and path ride along untouched",
-    located.map((violation: IAutoMovieConstraintViolation): string => `${violation.severity}:${violation.path}`),
+    located.map(
+      (violation: IAutoMovieConstraintViolation): string =>
+        `${violation.severity}:${violation.path}`,
+    ),
     ["warning:$input.support.overshoot", "error:$input.id"],
   );
   TestValidator.equals(
     "originals are not mutated",
-    violations.every((violation: IAutoMovieConstraintViolation): boolean => violation.node === undefined),
+    violations.every(
+      (violation: IAutoMovieConstraintViolation): boolean =>
+        violation.node === undefined,
+    ),
     true,
   );
 
-  const treeless: IAutoMovieConstraintViolation[] = locateOnBeat(sample(), null, "beat-1");
+  const treeless: IAutoMovieConstraintViolation[] = locateOnBeat(
+    sample(),
+    null,
+    "beat-1",
+  );
   TestValidator.equals(
     "treeless call passes through unstamped",
     treeless.length === violations.length &&
-      treeless.every((violation: IAutoMovieConstraintViolation): boolean => violation.node === undefined),
+      treeless.every(
+        (violation: IAutoMovieConstraintViolation): boolean =>
+          violation.node === undefined,
+      ),
     true,
   );
-  const unclaimed: IAutoMovieConstraintViolation[] = locateOnBeat(sample(), tree, "beat-99");
+  const unclaimed: IAutoMovieConstraintViolation[] = locateOnBeat(
+    sample(),
+    tree,
+    "beat-99",
+  );
   TestValidator.equals(
     "unclaimed beat passes through unstamped",
     unclaimed.length === violations.length &&
-      unclaimed.every((violation: IAutoMovieConstraintViolation): boolean => violation.node === undefined),
+      unclaimed.every(
+        (violation: IAutoMovieConstraintViolation): boolean =>
+          violation.node === undefined,
+      ),
     true,
   );
 }

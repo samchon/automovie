@@ -1,13 +1,26 @@
+import {
+  IAutoMovieActionCall,
+  IAutoMovieBeatEndActorState,
+  IAutoMovieBeatEndState,
+  IAutoMovieGait,
+  IAutoMovieJointPose,
+  IAutoMovieMotion,
+  IAutoMoviePose,
+  IAutoMovieScene,
+  IAutoMovieShot,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
+import { resolveBeatEnd } from "../../../../packages/engine/src/film/resolveBeatEnd";
+import { sampleMotion } from "../../../../packages/engine/src/motion/sampleMotion";
 import { IAutoMovieActionSynthesizer } from "../../../../packages/engine/src/perform/IAutoMovieActionSynthesizer";
-import { IAutoMovieMotion, IAutoMovieBeatEndState, IAutoMovieBeatEndActorState, IAutoMoviePose, IAutoMovieJointPose, IAutoMovieActionCall, IAutoMovieGait, IAutoMovieScene, IAutoMovieShot, IAutoMovieVector3 } from "@automovie/interface";
 import { IAutoMovieActorContext } from "../../../../packages/engine/src/perform/IAutoMovieActorContext";
 import { compilePerformance } from "../../../../packages/engine/src/perform/compilePerformance";
 import { makeActorSynthesizer } from "../../../../packages/engine/src/perform/makeActorSynthesizer";
-import { resolveBeatEnd } from "../../../../packages/engine/src/film/resolveBeatEnd";
-import { sampleMotion } from "../../../../packages/engine/src/motion/sampleMotion";
-import { TestValidator } from "@nestia/e2e";
 import { IDENTITY_TRANSFORM, joint, makePose } from "../internal/fixtures";
 import { nclose } from "../internal/predicates";
+
 const WALK: IAutoMovieGait = {
   name: "walk",
   period: 1,
@@ -24,10 +37,14 @@ const ctx: IAutoMovieActorContext = {
   restPose: makePose([joint("spine", { flexion: 0 })]),
 };
 
-const contexts: Map<string, IAutoMovieActorContext> = new Map<string, IAutoMovieActorContext>([["hero", ctx]]);
-const nodes: Map<string, IAutoMovieVector3> = new Map<string, IAutoMovieVector3>([
-  ["door", { x: 0, y: 0, z: 5 }],
-]);
+const contexts: Map<string, IAutoMovieActorContext> = new Map<
+  string,
+  IAutoMovieActorContext
+>([["hero", ctx]]);
+const nodes: Map<string, IAutoMovieVector3> = new Map<
+  string,
+  IAutoMovieVector3
+>([["door", { x: 0, y: 0, z: 5 }]]);
 
 const locomote: IAutoMovieActionCall = {
   verb: "locomote",
@@ -70,7 +87,10 @@ const scene: IAutoMovieScene = {
   lights: [],
 };
 
-const shotOf: (motionId: string, duration: number) => IAutoMovieShot = (motionId: string, duration: number): IAutoMovieShot => ({
+const shotOf: (motionId: string, duration: number) => IAutoMovieShot = (
+  motionId: string,
+  duration: number,
+): IAutoMovieShot => ({
   id: "shot:beat-1",
   name: null,
   scene: "scene",
@@ -95,14 +115,22 @@ const shotOf: (motionId: string, duration: number) => IAutoMovieShot = (motionId
  * @evidence contracts/testing.md#execution-ownership The discoverable synchronous unit owns the portable synthesis/compile/snapshot composition. It does not call performShot itself or run the render ladder, browser or GPU.
  */
 export function test_film_gait_phase_pipeline(): void {
-  const synthesize: IAutoMovieActionSynthesizer = makeActorSynthesizer(contexts, nodes);
+  const synthesize: IAutoMovieActionSynthesizer = makeActorSynthesizer(
+    contexts,
+    nodes,
+  );
 
-  const walking: Record<string, IAutoMovieMotion> = compilePerformance([locomote], synthesize).performances;
+  const walking: Record<string, IAutoMovieMotion> = compilePerformance(
+    [locomote],
+    synthesize,
+  ).performances;
   const hero: IAutoMovieMotion = walking["hero"]!;
   TestValidator.predicate(
     "the compiled composite carries the cycle",
-    hero.gaitCycle !== undefined && hero.gaitCycle !== null &&
-      nclose(hero.gaitCycle.period, 1) && nclose(hero.gaitCycle.phaseAt, 0),
+    hero.gaitCycle !== undefined &&
+      hero.gaitCycle !== null &&
+      nclose(hero.gaitCycle.period, 1) &&
+      nclose(hero.gaitCycle.phaseAt, 0),
   );
 
   const end: IAutoMovieBeatEndState = resolveBeatEnd({
@@ -111,7 +139,9 @@ export function test_film_gait_phase_pipeline(): void {
     shot: shotOf(hero.id, 3.5),
     motions: [hero],
   });
-  const heroEnd: IAutoMovieBeatEndActorState = end.actors.find((a: IAutoMovieBeatEndActorState): boolean => a.node === "hero")!;
+  const heroEnd: IAutoMovieBeatEndActorState = end.actors.find(
+    (a: IAutoMovieBeatEndActorState): boolean => a.node === "hero",
+  )!;
   TestValidator.predicate(
     "resolveBeatEnd reads a live stride phase off the real ladder",
     (): boolean => heroEnd.gaitPhase !== null && nclose(heroEnd.gaitPhase, 0.5),
@@ -119,25 +149,37 @@ export function test_film_gait_phase_pipeline(): void {
 
   const atEnd: IAutoMoviePose = sampleMotion(hero, 3.5).pose;
   const cycleClip: IAutoMovieMotion = synthesize(locomote, "hero")!; // the travel composite
-  const atPhase: IAutoMoviePose = sampleMotion(cycleClip, heroEnd.gaitPhase!).pose;
-  const legAtEnd: IAutoMovieJointPose = atEnd.joints.find((j: IAutoMovieJointPose): boolean => j.bone === "leftUpperLeg")!;
-  const legAtPhase: IAutoMovieJointPose = atPhase.joints.find((j: IAutoMovieJointPose): boolean => j.bone === "leftUpperLeg")!;
+  const atPhase: IAutoMoviePose = sampleMotion(
+    cycleClip,
+    heroEnd.gaitPhase!,
+  ).pose;
+  const legAtEnd: IAutoMovieJointPose = atEnd.joints.find(
+    (j: IAutoMovieJointPose): boolean => j.bone === "leftUpperLeg",
+  )!;
+  const legAtPhase: IAutoMovieJointPose = atPhase.joints.find(
+    (j: IAutoMovieJointPose): boolean => j.bone === "leftUpperLeg",
+  )!;
   TestValidator.predicate(
     "the carried phase re-samples to the same stride",
     nclose(legAtEnd.flexion ?? 0, legAtPhase.flexion ?? 0),
   );
 
-  const layered: IAutoMovieMotion = compilePerformance([locomote, lookAt], synthesize)
-    .performances["hero"]!;
+  const layered: IAutoMovieMotion = compilePerformance(
+    [locomote, lookAt],
+    synthesize,
+  ).performances["hero"]!;
   TestValidator.predicate(
     "layered regions keep the single striding clock",
-    layered.gaitCycle !== undefined && layered.gaitCycle !== null &&
-      nclose(layered.gaitCycle.period, 1) && nclose(layered.gaitCycle.phaseAt, 0),
+    layered.gaitCycle !== undefined &&
+      layered.gaitCycle !== null &&
+      nclose(layered.gaitCycle.period, 1) &&
+      nclose(layered.gaitCycle.phaseAt, 0),
   );
 
-  const gestureOnly: IAutoMovieMotion = compilePerformance([gesture], synthesize).performances[
-    "hero"
-  ]!;
+  const gestureOnly: IAutoMovieMotion = compilePerformance(
+    [gesture],
+    synthesize,
+  ).performances["hero"]!;
   const gestureEnd: IAutoMovieBeatEndState = resolveBeatEnd({
     beat: "beat-1",
     scene,
@@ -146,7 +188,9 @@ export function test_film_gait_phase_pipeline(): void {
   });
   TestValidator.equals(
     "a gesture-only performance stays phase-null",
-    gestureEnd.actors.find((a: IAutoMovieBeatEndActorState): boolean => a.node === "hero")!.gaitPhase,
+    gestureEnd.actors.find(
+      (a: IAutoMovieBeatEndActorState): boolean => a.node === "hero",
+    )!.gaitPhase,
     null,
   );
 }

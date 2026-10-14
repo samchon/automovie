@@ -4,7 +4,10 @@ import { TestValidator } from "@nestia/e2e";
 
 import { hasViolation, namedFacts } from "../internal/predicates";
 
-const shot: (id: string, duration: number) => IAutoMovieShot = (id: string, duration: number): IAutoMovieShot => ({
+const shot: (id: string, duration: number) => IAutoMovieShot = (
+  id: string,
+  duration: number,
+): IAutoMovieShot => ({
   id,
   name: null,
   scene: "scene-duel",

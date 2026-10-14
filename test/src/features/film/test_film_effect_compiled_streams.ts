@@ -1,8 +1,21 @@
-import { filmEffectValuesClose } from "../internal/filmEffectValuesClose";
-import { IAutoMovieCompiledEffect, IAutoMovieWorldEffectZone, IAutoMovieShotContract, IAutoMovieShotEffectCue, IAutoMovieWorldDesign } from "@automovie/interface";
-import { materializeCompiledEffects } from "../../../../packages/engine/src/effectRuntime/materializeCompiledEffects";
+import {
+  IAutoMovieCompiledEffect,
+  IAutoMovieShotContract,
+  IAutoMovieShotEffectCue,
+  IAutoMovieWorldDesign,
+  IAutoMovieWorldEffectZone,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-import { filmEffectRecipe, filmEffectWorld, filmEffectZone, nodeCanonicalDigest } from "./filmEffectRuntimeFixtures";
+
+import { materializeCompiledEffects } from "../../../../packages/engine/src/effectRuntime/materializeCompiledEffects";
+import { filmEffectValuesClose } from "../internal/filmEffectValuesClose";
+import {
+  filmEffectRecipe,
+  filmEffectWorld,
+  filmEffectZone,
+  nodeCanonicalDigest,
+} from "./filmEffectRuntimeFixtures";
+
 /**
  * Effect streams preserve their owner protocol, ordered cue identity and independent input data.
  *
@@ -17,7 +30,9 @@ import { filmEffectRecipe, filmEffectWorld, filmEffectZone, nodeCanonicalDigest 
  * @evidence contracts/testing.md#execution-ownership The discoverable synchronous unit owns these in-memory stream cases and calls source directly; Node crypto is a portable reference within this process, without browser/GPU or cross-machine execution proof.
  */
 export function test_film_effect_compiled_streams(): void {
-  const contract: IAutoMovieShotContract = { id: "shot-1" } as IAutoMovieShotContract;
+  const contract: IAutoMovieShotContract = {
+    id: "shot-1",
+  } as IAutoMovieShotContract;
   const world: IAutoMovieWorldDesign = {
     ...filmEffectWorld(),
     effectZones: [
@@ -61,39 +76,55 @@ export function test_film_effect_compiled_streams(): void {
   TestValidator.predicate(
     "shot streams are ordered, filtered, and carry their event",
     filmEffectValuesClose(
-      shot.map((stream: IAutoMovieCompiledEffect): { id: string; zone: string; kind: "fog" | "smoke" | "dust"; event: string | null | undefined; window: number[]; step: number; } => ({
-      id: stream.id,
-      zone: stream.zone,
-      kind: stream.kind,
-      event: "event" in stream ? stream.event : null,
-      window: [stream.start, stream.end],
-      step: stream.fixedStepSeconds,
-    })),
+      shot.map(
+        (
+          stream: IAutoMovieCompiledEffect,
+        ): {
+          id: string;
+          zone: string;
+          kind: "fog" | "smoke" | "dust";
+          event: string | null | undefined;
+          window: number[];
+          step: number;
+        } => ({
+          id: stream.id,
+          zone: stream.zone,
+          kind: stream.kind,
+          event: "event" in stream ? stream.event : null,
+          window: [stream.start, stream.end],
+          step: stream.fixedStepSeconds,
+        }),
+      ),
       [
-      {
-        id: "a",
-        zone: "yard",
-        kind: "fog" as const,
-        event: "door-opens",
-        window: [0, 1],
-        step: 1 / 30,
-      },
-      {
-        id: "b",
-        zone: "gate",
-        kind: "fog" as const,
-        event: null,
-        window: [1, 2],
-        step: 1 / 30,
-      },
-    ],
+        {
+          id: "a",
+          zone: "yard",
+          kind: "fog" as const,
+          event: "door-opens",
+          window: [0, 1],
+          step: 1 / 30,
+        },
+        {
+          id: "b",
+          zone: "gate",
+          kind: "fog" as const,
+          event: null,
+          window: [1, 2],
+          step: 1 / 30,
+        },
+      ],
     ),
   );
   const zoneSeed: (id: string) => number = (id: string): number =>
-    world.effectZones.find((zone: IAutoMovieWorldEffectZone): boolean => zone.id === id)!.seed;
+    world.effectZones.find(
+      (zone: IAutoMovieWorldEffectZone): boolean => zone.id === id,
+    )!.seed;
   TestValidator.equals(
     "shot seeds and digests follow the shot stream protocol",
-    shot.map((stream: IAutoMovieCompiledEffect): (string | number)[] => [stream.seed, stream.digest]),
+    shot.map((stream: IAutoMovieCompiledEffect): (string | number)[] => [
+      stream.seed,
+      stream.digest,
+    ]),
     shot.map((stream: IAutoMovieCompiledEffect): (string | number)[] => [
       Number.parseInt(
         nodeCanonicalDigest({
@@ -115,15 +146,18 @@ export function test_film_effect_compiled_streams(): void {
     "emitted data does not alias the authored world or cue",
     filmEffectValuesClose(
       [
-      world.effectZones[0]!.bounds.min.x,
-      world.effectRecipes[0]!.seed,
-      cues[1]!.intensity.from,
-    ],
+        world.effectZones[0]!.bounds.min.x,
+        world.effectRecipes[0]!.seed,
+        cues[1]!.intensity.from,
+      ],
       [-1, 7, 1],
     ),
   );
 
-  const owner: { production: string; film: string; } = { production: "p", film: "f" };
+  const owner: { production: string; film: string } = {
+    production: "p",
+    film: "f",
+  };
   const film: IAutoMovieCompiledEffect = materializeCompiledEffects({
     world,
     seedOwner: owner,
@@ -135,19 +169,19 @@ export function test_film_effect_compiled_streams(): void {
     filmEffectValuesClose(
       [film.seed, film.fixedStepSeconds, film.digest],
       [
-      Number.parseInt(
-        nodeCanonicalDigest({
-          protocol: "automovie.film-effect-seed.v1",
-          owner,
-          cue: "a",
-          recipe: filmEffectRecipe(),
-          zone: filmEffectZone("yard"),
-        }).slice(7, 20),
-        16,
-      ),
-      0.125,
-      nodeCanonicalDigest({ ...film, digest: undefined }),
-    ],
+        Number.parseInt(
+          nodeCanonicalDigest({
+            protocol: "automovie.film-effect-seed.v1",
+            owner,
+            cue: "a",
+            recipe: filmEffectRecipe(),
+            zone: filmEffectZone("yard"),
+          }).slice(7, 20),
+          16,
+        ),
+        0.125,
+        nodeCanonicalDigest({ ...film, digest: undefined }),
+      ],
     ),
   );
   TestValidator.equals(

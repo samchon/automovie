@@ -1,9 +1,11 @@
 import { IAutoMovieConstraintViolation } from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
 import { IAutoMovieForgedCast } from "../../../../packages/engine/src/film/IAutoMovieForgedCast";
 import { forgeCast } from "../../../../packages/engine/src/film/forgeCast";
-import { TestValidator } from "@nestia/e2e";
 import { makeScriptWrite } from "../internal/filmFixtures";
 import { hasViolation, namedFacts } from "../internal/predicates";
+
 /**
  * An empty forge reports only the cast member whose model reference is absent.
  *
@@ -17,7 +19,9 @@ import { hasViolation, namedFacts } from "../internal/predicates";
  * @evidence contracts/testing.md#execution-ownership This synchronous discoverable entry owns one portable forge case and lazy named facts, which stop at the first false guard. It starts no consumer, browser or rendering process.
  */
 export function test_film_forge_cast_missing(): void {
-  const forged: IAutoMovieForgedCast = forgeCast(makeScriptWrite(), { entries: [] });
+  const forged: IAutoMovieForgedCast = forgeCast(makeScriptWrite(), {
+    entries: [],
+  });
   TestValidator.equals("fails", forged.success, false);
   TestValidator.equals(
     "names the unforged stand-in member only",
@@ -33,13 +37,19 @@ export function test_film_forge_cast_missing(): void {
         "forgedViolationsV",
         (): boolean =>
           forged.success === false &&
-          forged.violations.some((v: IAutoMovieConstraintViolation): boolean => v.value === "knightB"),
+          forged.violations.some(
+            (v: IAutoMovieConstraintViolation): boolean =>
+              v.value === "knightB",
+          ),
       ],
       [
         "forgedViolationsV2",
         (): boolean =>
           forged.success === false &&
-          forged.violations.every((v: IAutoMovieConstraintViolation): boolean => v.value !== "knightA"),
+          forged.violations.every(
+            (v: IAutoMovieConstraintViolation): boolean =>
+              v.value !== "knightA",
+          ),
       ],
     ]),
     {

@@ -18,7 +18,10 @@ import {
 } from "../internal/fixtures";
 import { nclose, throwsError, vclose } from "../internal/predicates";
 
-const transform: (translation: IAutoMovieTransform["translation"], rotation?: IAutoMovieTransform["rotation"]) => IAutoMovieTransform = (
+const transform: (
+  translation: IAutoMovieTransform["translation"],
+  rotation?: IAutoMovieTransform["rotation"],
+) => IAutoMovieTransform = (
   translation: IAutoMovieTransform["translation"],
   rotation: IAutoMovieTransform["rotation"] = IDENTITY_TRANSFORM.rotation,
 ): IAutoMovieTransform => ({
@@ -27,7 +30,10 @@ const transform: (translation: IAutoMovieTransform["translation"], rotation?: IA
   scale: { x: 1, y: 1, z: 1 },
 });
 
-const rootAt: (translation: IAutoMovieTransform["translation"], yaw?: number) => IAutoMovieTransform = (
+const rootAt: (
+  translation: IAutoMovieTransform["translation"],
+  yaw?: number,
+) => IAutoMovieTransform = (
   translation: IAutoMovieTransform["translation"],
   yaw: number = 0,
 ): IAutoMovieTransform =>
@@ -177,14 +183,21 @@ export function test_film_beat_end(): void {
   TestValidator.predicate("crowd local time", nclose(crowd.localTime, 2));
   TestValidator.equals(
     "crowd clip clamps to last pose",
-    { bone: crowd.pose?.joints[0]?.bone, flexion: crowd.pose?.joints[0]?.flexion, abduction: crowd.pose?.joints[0]?.abduction },
+    {
+      bone: crowd.pose?.joints[0]?.bone,
+      flexion: crowd.pose?.joints[0]?.flexion,
+      abduction: crowd.pose?.joints[0]?.abduction,
+    },
     {
       bone: "head",
       flexion: null,
       abduction: null,
     },
   );
-  TestValidator.predicate("crowd clip clamps to last twist", nclose(crowd.pose?.joints[0]?.twist ?? Number.NaN, 20));
+  TestValidator.predicate(
+    "crowd clip clamps to last twist",
+    nclose(crowd.pose?.joints[0]?.twist ?? Number.NaN, 20),
+  );
 
   const extra: IAutoMovieBeatEndActorState = end.actors[3]!;
   TestValidator.equals(

@@ -9,7 +9,10 @@ import { TestValidator } from "@nestia/e2e";
 import { IDENTITY_TRANSFORM, createSkeleton } from "../internal/fixtures";
 import { nclose, throwsError } from "../internal/predicates";
 
-const bone: (name: AutoMovieHumanoidBone, parent: AutoMovieHumanoidBone | null) => IAutoMovieBone = (
+const bone: (
+  name: AutoMovieHumanoidBone,
+  parent: AutoMovieHumanoidBone | null,
+) => IAutoMovieBone = (
   name: AutoMovieHumanoidBone,
   parent: AutoMovieHumanoidBone | null,
 ): IAutoMovieBone => ({
@@ -19,7 +22,9 @@ const bone: (name: AutoMovieHumanoidBone, parent: AutoMovieHumanoidBone | null) 
   constraint: null,
 });
 
-const skeleton: (bones: IAutoMovieBone[]) => IAutoMovieSkeleton = (bones: IAutoMovieBone[]): IAutoMovieSkeleton => ({
+const skeleton: (bones: IAutoMovieBone[]) => IAutoMovieSkeleton = (
+  bones: IAutoMovieBone[],
+): IAutoMovieSkeleton => ({
   id: "bad-skeleton",
   bones,
 });

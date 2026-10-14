@@ -1,12 +1,23 @@
-import type { IAutoMovieValidation, IAutoMovieConstraintViolation, IAutoMovieBuiltEnvironment, IAutoMoviePropBox } from "@automovie/interface";
+import type {
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieConstraintViolation,
+  IAutoMoviePropBox,
+  IAutoMovieValidation,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
+import { validateBuiltEnvironment } from "../../../../packages/engine/src/architecture/validateBuiltEnvironment";
 import type { IAutoMoviePassageBlockage } from "../../../../packages/engine/src/film/IAutoMoviePassageBlockage";
 import { propBlockedPassages } from "../../../../packages/engine/src/film/propBlockedPassages";
-import { validateBuiltEnvironment } from "../../../../packages/engine/src/architecture/validateBuiltEnvironment";
-import { TestValidator } from "@nestia/e2e";
 import { namedFacts } from "../internal/predicates";
 
 /** Construct the literal metre probe spanning y = 0.4 through 1.4. */
-const box: (minX: number, minZ: number, maxX: number, maxZ: number) => IAutoMoviePropBox = (
+const box: (
+  minX: number,
+  minZ: number,
+  maxX: number,
+  maxZ: number,
+) => IAutoMoviePropBox = (
   minX: number,
   minZ: number,
   maxX: number,
@@ -21,89 +32,92 @@ const box: (minX: number, minZ: number, maxX: number, maxZ: number) => IAutoMovi
  *
  * `taper` narrows station by station across two route segments, `bulge` widens in the middle of a single segment, and `unstated` declares no section at all. The spaces carry no cells because nothing here asks about containment: what is under test is the volume a connector sweeps, and that comes from the route and the section alone.
  */
-const corridors: () => IAutoMovieBuiltEnvironment = (): IAutoMovieBuiltEnvironment => ({
-  version: 1,
-  id: "wing",
-  units: "meter",
-  buildings: [{ id: "unit", element: "root", space: "whole" }],
-  models: [],
-  modelReferences: [],
-  elements: [
-    {
-      id: "root",
-      kind: "building",
-      parent: null,
-      transform: {
-        translation: { x: 0, y: 0, z: 0 },
-        rotation: { x: 0, y: 0, z: 0, w: 1 },
-        scale: { x: 1, y: 1, z: 1 },
+const corridors: () => IAutoMovieBuiltEnvironment =
+  (): IAutoMovieBuiltEnvironment => ({
+    version: 1,
+    id: "wing",
+    units: "meter",
+    buildings: [{ id: "unit", element: "root", space: "whole" }],
+    models: [],
+    modelReferences: [],
+    elements: [
+      {
+        id: "root",
+        kind: "building",
+        parent: null,
+        transform: {
+          translation: { x: 0, y: 0, z: 0 },
+          rotation: { x: 0, y: 0, z: 0, w: 1 },
+          scale: { x: 1, y: 1, z: 1 },
+        },
+        model: null,
+        space: "whole",
       },
-      model: null,
-      space: "whole",
-    },
-  ],
-  spaces: [
-    { id: "whole", kind: "building", parent: null, cells: [] },
-    { id: "west", kind: "hall", parent: "whole", cells: [] },
-    { id: "east", kind: "hall", parent: "whole", cells: [] },
-  ],
-  boundaries: [],
-  openings: [],
-  connectors: [
-    {
-      id: "taper",
-      kind: "passage",
-      from: "west",
-      to: "east",
-      bidirectional: true,
-      route: [
-        { x: 0, y: 0, z: 0 },
-        { x: 10, y: 0, z: 0 },
-        { x: 20, y: 0, z: 0 },
-      ],
-      sections: [
-        { at: 0, width: 4, clearHeight: 2 },
-        { at: 0.5, width: 2, clearHeight: 2 },
-        { at: 1, width: 1, clearHeight: 2 },
-      ],
-      elements: [],
-    },
-    {
-      id: "bulge",
-      kind: "passage",
-      from: "west",
-      to: "east",
-      bidirectional: true,
-      route: [
-        { x: 0, y: 0, z: 10 },
-        { x: 20, y: 0, z: 10 },
-      ],
-      sections: [
-        { at: 0, width: 1, clearHeight: 2 },
-        { at: 0.5, width: 4, clearHeight: 2 },
-        { at: 1, width: 1, clearHeight: 2 },
-      ],
-      elements: [],
-    },
-    {
-      id: "unstated",
-      kind: "passage",
-      from: "west",
-      to: "east",
-      bidirectional: true,
-      route: [
-        { x: 0, y: 0, z: 20 },
-        { x: 10, y: 0, z: 20 },
-      ],
-      elements: [],
-    },
-  ],
-  surfaces: [],
-  walkable: [],
-});
+    ],
+    spaces: [
+      { id: "whole", kind: "building", parent: null, cells: [] },
+      { id: "west", kind: "hall", parent: "whole", cells: [] },
+      { id: "east", kind: "hall", parent: "whole", cells: [] },
+    ],
+    boundaries: [],
+    openings: [],
+    connectors: [
+      {
+        id: "taper",
+        kind: "passage",
+        from: "west",
+        to: "east",
+        bidirectional: true,
+        route: [
+          { x: 0, y: 0, z: 0 },
+          { x: 10, y: 0, z: 0 },
+          { x: 20, y: 0, z: 0 },
+        ],
+        sections: [
+          { at: 0, width: 4, clearHeight: 2 },
+          { at: 0.5, width: 2, clearHeight: 2 },
+          { at: 1, width: 1, clearHeight: 2 },
+        ],
+        elements: [],
+      },
+      {
+        id: "bulge",
+        kind: "passage",
+        from: "west",
+        to: "east",
+        bidirectional: true,
+        route: [
+          { x: 0, y: 0, z: 10 },
+          { x: 20, y: 0, z: 10 },
+        ],
+        sections: [
+          { at: 0, width: 1, clearHeight: 2 },
+          { at: 0.5, width: 4, clearHeight: 2 },
+          { at: 1, width: 1, clearHeight: 2 },
+        ],
+        elements: [],
+      },
+      {
+        id: "unstated",
+        kind: "passage",
+        from: "west",
+        to: "east",
+        bidirectional: true,
+        route: [
+          { x: 0, y: 0, z: 20 },
+          { x: 10, y: 0, z: 20 },
+        ],
+        elements: [],
+      },
+    ],
+    surfaces: [],
+    walkable: [],
+  });
 
 /** The ids a probe volume is reported to block, in report order. */
-const blocked: (bounds: IAutoMoviePropBox) => string[] = (bounds: IAutoMoviePropBox): string[] =>
+const blocked: (bounds: IAutoMoviePropBox) => string[] = (
+  bounds: IAutoMoviePropBox,
+): string[] =>
   propBlockedPassages({ environment: corridors(), bounds }).map(
     (blockage: IAutoMoviePassageBlockage): string => blockage.id,
   );
@@ -134,12 +148,16 @@ export function test_film_prop_passage_section(): void {
     namedFacts([
       // Segment one spans at [0, 0.5], whose widest station is 4 m, so its
       // sweep reaches 2 m either side of the centre line.
-      ["wideEndBlocked", (): boolean => blocked(box(4, 1.4, 5, 1.6)).includes("taper")],
+      [
+        "wideEndBlocked",
+        (): boolean => blocked(box(4, 1.4, 5, 1.6)).includes("taper"),
+      ],
       // Segment two spans at [0.5, 1], whose widest station is 2 m, so the
       // same 1.5 m offset is outside it.
       [
         "narrowEndCleared",
-        (): boolean => blocked(box(14, 1.4, 15, 1.6)).includes("taper") === false,
+        (): boolean =>
+          blocked(box(14, 1.4, 15, 1.6)).includes("taper") === false,
       ],
       // The bulge is interior to the only segment, so it must still be
       // sampled: at 1.4 m off the centre line the two end sections alone (1 m
@@ -150,11 +168,13 @@ export function test_film_prop_passage_section(): void {
       ],
       [
         "beyondTheWidestStationIsClear",
-        (): boolean => blocked(box(9, 12.4, 11, 12.6)).includes("bulge") === false,
+        (): boolean =>
+          blocked(box(9, 12.4, 11, 12.6)).includes("bulge") === false,
       ],
       [
         "unstatedSectionSweepsNothing",
-        (): boolean => blocked(box(0, 19.5, 10, 20.5)).includes("unstated") === false,
+        (): boolean =>
+          blocked(box(0, 19.5, 10, 20.5)).includes("unstated") === false,
       ],
       // Without this twin the fact above would hold just as well if the probe
       // had been nowhere near the route, or if nothing were ever reported.
@@ -168,10 +188,16 @@ export function test_film_prop_passage_section(): void {
           return propBlockedPassages({
             environment: stated,
             bounds: box(0, 19.5, 10, 20.5),
-          }).some((blockage: IAutoMoviePassageBlockage): boolean => blockage.id === "unstated");
+          }).some(
+            (blockage: IAutoMoviePassageBlockage): boolean =>
+              blockage.id === "unstated",
+          );
         },
       ],
-      ["clearOfEverything", (): boolean => blocked(box(50, 50, 51, 51)).length === 0],
+      [
+        "clearOfEverything",
+        (): boolean => blocked(box(50, 50, 51, 51)).length === 0,
+      ],
     ]),
     {
       wideEndBlocked: true,
@@ -192,7 +218,10 @@ export function test_film_prop_passage_section(): void {
       });
       return validation.success === true
         ? []
-        : validation.violations.map((violation: IAutoMovieConstraintViolation): string => violation.path);
+        : validation.violations.map(
+            (violation: IAutoMovieConstraintViolation): string =>
+              violation.path,
+          );
     })(),
     ["$input.connectors[2].width"],
   );

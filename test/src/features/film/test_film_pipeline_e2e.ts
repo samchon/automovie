@@ -1,12 +1,16 @@
-import { cutSequence } from "../../../../packages/engine/src/film/cutSequence";
+import {
+  IAutoMovieScript,
+  IAutoMovieSequenceEntry,
+  IAutoMovieSkeleton,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
 import { IAutoMovieCut } from "../../../../packages/engine/src/film/IAutoMovieCut";
 import { IAutoMoviePerformedShot } from "../../../../packages/engine/src/film/IAutoMoviePerformedShot";
 import { IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
-import { IAutoMovieScript, IAutoMovieSequenceEntry, IAutoMovieSkeleton } from "@automovie/interface";
+import { cutSequence } from "../../../../packages/engine/src/film/cutSequence";
 import { performShot } from "../../../../packages/engine/src/film/performShot";
 import { stageScene } from "../../../../packages/engine/src/film/stageScene";
-import { TestValidator } from "@nestia/e2e";
-
 import {
   makePerformanceWrite,
   makeScriptWrite,

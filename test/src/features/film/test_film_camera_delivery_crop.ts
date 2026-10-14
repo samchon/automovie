@@ -24,10 +24,10 @@ const RIGHT_HALF: IAutoMovieDeliveryCrop = {
   bottom: 1,
 };
 
-const segment: (x: number, crop: IAutoMovieDeliveryCrop | undefined) => boolean = (
+const segment: (
   x: number,
   crop: IAutoMovieDeliveryCrop | undefined,
-): boolean =>
+) => boolean = (x: number, crop: IAutoMovieDeliveryCrop | undefined): boolean =>
   intersectsPerspectiveFrustumSegment({
     camera: CAMERA,
     from: { x, y: 0, z: -2 },
@@ -39,10 +39,10 @@ const segment: (x: number, crop: IAutoMovieDeliveryCrop | undefined) => boolean 
     crop,
   });
 
-const verticalSegment: (y: number, crop: IAutoMovieDeliveryCrop | undefined) => boolean = (
+const verticalSegment: (
   y: number,
   crop: IAutoMovieDeliveryCrop | undefined,
-): boolean =>
+) => boolean = (y: number, crop: IAutoMovieDeliveryCrop | undefined): boolean =>
   intersectsPerspectiveFrustumSegment({
     camera: CAMERA,
     from: { x: 0, y, z: -2 },
@@ -73,14 +73,20 @@ const verticalSegment: (y: number, crop: IAutoMovieDeliveryCrop | undefined) => 
  * @evidence contracts/testing.md#execution-ownership Uses synchronous pure mathematical functions and local records, with one deliberate caller-owned source mutation to test copying. No renderer, resource access, clock, process state, or dependency replacement is involved; exact numeric record checks reuse existing test12ValuesClose, and zero-radius spheres do not exercise conservative finite-radius corner behavior.
  */
 export function test_film_camera_delivery_crop(): void {
-  const whole: ReturnType<typeof resolveAutoMovieDeliveryCrop> = resolveAutoMovieDeliveryCrop(undefined);
+  const whole: ReturnType<typeof resolveAutoMovieDeliveryCrop> =
+    resolveAutoMovieDeliveryCrop(undefined);
   const explicitWhole: IAutoMovieDeliveryCrop = {
     left: 0,
     top: 0,
     right: 1,
     bottom: 1,
   };
-  const uncropped: ReturnType<typeof projectToNdc> = projectToNdc(CAMERA, { x: 0.5, y: 0.25, z: -1 }, 1, 1);
+  const uncropped: ReturnType<typeof projectToNdc> = projectToNdc(
+    CAMERA,
+    { x: 0.5, y: 0.25, z: -1 },
+    1,
+    1,
+  );
   const explicit: ReturnType<typeof projectToNdc> = projectToNdc(
     CAMERA,
     { x: 0.5, y: 0.25, z: -1 },
@@ -90,28 +96,39 @@ export function test_film_camera_delivery_crop(): void {
   );
   TestValidator.predicate(
     "omitted and explicit whole crops are exact no-ops",
-    test12ValuesClose({ whole, explicit, uncropped }, { whole: explicitWhole, explicit: uncropped, uncropped }),
+    test12ValuesClose(
+      { whole, explicit, uncropped },
+      { whole: explicitWhole, explicit: uncropped, uncropped },
+    ),
   );
 
-  const source: IAutoMovieDeliveryCrop = { left: 0.25, top: 0.25, right: 0.75, bottom: 0.75 };
-  const resolved: ReturnType<typeof resolveAutoMovieDeliveryCrop> = resolveAutoMovieDeliveryCrop(source);
+  const source: IAutoMovieDeliveryCrop = {
+    left: 0.25,
+    top: 0.25,
+    right: 0.75,
+    bottom: 0.75,
+  };
+  const resolved: ReturnType<typeof resolveAutoMovieDeliveryCrop> =
+    resolveAutoMovieDeliveryCrop(source);
   source.left = 0;
   TestValidator.predicate(
     "a crop resolves by value and maps its window onto the complete output",
-    test12ValuesClose({
-      resolved,
-      projected: projectToNdc(
-        CAMERA,
-        { x: 0.5, y: 0.25, z: -1 },
-        1,
-        1,
+    test12ValuesClose(
+      {
         resolved,
-      ),
-    },
-    {
-      resolved: { left: 0.25, top: 0.25, right: 0.75, bottom: 0.75 },
-      projected: { ndcX: 1, ndcY: 0.5, depth: 1 },
-    }),
+        projected: projectToNdc(
+          CAMERA,
+          { x: 0.5, y: 0.25, z: -1 },
+          1,
+          1,
+          resolved,
+        ),
+      },
+      {
+        resolved: { left: 0.25, top: 0.25, right: 0.75, bottom: 0.75 },
+        projected: { ndcX: 1, ndcY: 0.5, depth: 1 },
+      },
+    ),
   );
 
   TestValidator.equals(
@@ -123,7 +140,8 @@ export function test_film_camera_delivery_crop(): void {
       ["rightOutside", (): boolean => segment(2.001, RIGHT_HALF) === false],
       [
         "cropOnlyRejection",
-        (): boolean => segment(-0.001, undefined) && !segment(-0.001, RIGHT_HALF),
+        (): boolean =>
+          segment(-0.001, undefined) && !segment(-0.001, RIGHT_HALF),
       ],
       [
         "wholeParity",
@@ -235,7 +253,10 @@ export function test_film_camera_delivery_crop(): void {
   TestValidator.predicate(
     "invalid and out-of-raster crop regions fail closed",
     invalid.every((crop: IAutoMovieDeliveryCrop): boolean =>
-      throwsError((): ReturnType<typeof resolveAutoMovieDeliveryCrop> => resolveAutoMovieDeliveryCrop(crop)),
+      throwsError(
+        (): ReturnType<typeof resolveAutoMovieDeliveryCrop> =>
+          resolveAutoMovieDeliveryCrop(crop),
+      ),
     ),
   );
 }

@@ -1,4 +1,3 @@
-import { resolveBeatEnd } from "../../../../packages/engine/src/film/resolveBeatEnd";
 import {
   IAutoMovieBeatEndActorState,
   IAutoMovieClip,
@@ -8,6 +7,7 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { resolveBeatEnd } from "../../../../packages/engine/src/film/resolveBeatEnd";
 import { IDENTITY_TRANSFORM } from "../internal/fixtures";
 import { namedFacts, nclose, vclose } from "../internal/predicates";
 
@@ -24,7 +24,12 @@ const SLID: IAutoMovieVector3 = { x: 2, y: 0, z: -1 };
 const RELEASE: number = 2.2;
 const CONTACT: number = 2.836250052458314;
 
-const drives: (id: string, times: number[], points: IAutoMovieVector3[], rotation?: boolean) => IAutoMovieClip = (
+const drives: (
+  id: string,
+  times: number[],
+  points: IAutoMovieVector3[],
+  rotation?: boolean,
+) => IAutoMovieClip = (
   id: string,
   times: number[],
   points: IAutoMovieVector3[],
@@ -40,7 +45,11 @@ const drives: (id: string, times: number[], points: IAutoMovieVector3[], rotatio
     {
       channel: { kind: "node", node: "stone", path: "translation" },
       times,
-      values: points.flatMap((point: IAutoMovieVector3) : number[] => [point.x, point.y, point.z]),
+      values: points.flatMap((point: IAutoMovieVector3): number[] => [
+        point.x,
+        point.y,
+        point.z,
+      ]),
       interpolation: "linear",
     },
     ...(rotation
@@ -52,7 +61,7 @@ const drives: (id: string, times: number[], points: IAutoMovieVector3[], rotatio
               path: "rotation" as const,
             },
             times,
-            values: times.flatMap(() : number[] => [0, 0, 0, 1]),
+            values: times.flatMap((): number[] => [0, 0, 0, 1]),
             interpolation: "linear" as const,
           },
         ]
@@ -64,13 +73,22 @@ const drives: (id: string, times: number[], points: IAutoMovieVector3[], rotatio
 const HELD: IAutoMovieClip = drives("attach:stone", [0, RELEASE], [HAND, HAND]);
 
 /** Authored release and landing endpoints; this linear fixture does not model the flight's interior ballistic arc. */
-const FLIGHT: IAutoMovieClip = drives("trajectory:stone", [RELEASE, CONTACT], [HAND, LANDED]);
+const FLIGHT: IAutoMovieClip = drives(
+  "trajectory:stone",
+  [RELEASE, CONTACT],
+  [HAND, LANDED],
+);
 
 /** A clip driving the same node under an id no consumer knows to look for. */
 const SLIDE: IAutoMovieClip = drives("slide:stone", [3, 4], [LANDED, SLID]);
 
 /** Translation-only late authority; rotation remains owned by the flight. */
-const PARTIAL: IAutoMovieClip = drives("drift:stone", [4, 4.5], [SLID, HAND], false);
+const PARTIAL: IAutoMovieClip = drives(
+  "drift:stone",
+  [4, 4.5],
+  [SLID, HAND],
+  false,
+);
 
 /** An authority that begins exactly at the requested beat-end instant. */
 const JUST_STARTED: IAutoMovieClip = drives("arrival:stone", [5], [LANDED]);
@@ -101,7 +119,10 @@ const scene: IAutoMovieScene = {
   lights: [],
 };
 
-const shotOf: (duration: number, objectMotions: IAutoMovieClip[]) => IAutoMovieShot = (
+const shotOf: (
+  duration: number,
+  objectMotions: IAutoMovieClip[],
+) => IAutoMovieShot = (
   duration: number,
   objectMotions: IAutoMovieClip[],
 ): IAutoMovieShot => ({
@@ -115,7 +136,10 @@ const shotOf: (duration: number, objectMotions: IAutoMovieClip[]) => IAutoMovieS
   duration,
 });
 
-const stoneAt: (duration: number, objectMotions: IAutoMovieClip[]) => IAutoMovieVector3 = (
+const stoneAt: (
+  duration: number,
+  objectMotions: IAutoMovieClip[],
+) => IAutoMovieVector3 = (
   duration: number,
   objectMotions: IAutoMovieClip[],
 ): IAutoMovieVector3 =>
@@ -124,7 +148,9 @@ const stoneAt: (duration: number, objectMotions: IAutoMovieClip[]) => IAutoMovie
     scene,
     shot: shotOf(duration, objectMotions),
     motions: [],
-  }).actors.find((actor: IAutoMovieBeatEndActorState) : boolean => actor.node === "stone")!.transform.translation;
+  }).actors.find(
+    (actor: IAutoMovieBeatEndActorState): boolean => actor.node === "stone",
+  )!.transform.translation;
 
 /**
  * A beat end reports a driven prop where the shot's own clips leave it.
@@ -153,11 +179,31 @@ const stoneAt: (duration: number, objectMotions: IAutoMovieClip[]) => IAutoMovie
  * @evidence contracts/testing.md#execution-ownership This synchronous portable entry owns all cases and imports resolveBeatEnd source directly; numeric clips reuse the existing authored trajectory and no process, browser, GPU or Human fixture is created.
  */
 export function test_film_beat_end_launched_prop(): void {
-  const offsetShot: IAutoMovieShot = { ...shotOf(3, [HELD, FLIGHT]), performances: [{ node: "stone", motion: null, startOffset: 1 }] };
-  const offsetEnd: IAutoMovieBeatEndActorState = resolveBeatEnd({ beat: "beat-1", scene, shot: offsetShot, motions: [] }).actors.find((actor: IAutoMovieBeatEndActorState): boolean => actor.node === "stone")!;
-  TestValidator.predicate("performer offset changes only the actor's pose-local clock", nclose(offsetEnd.localTime, 2, 1e-12));
-  TestValidator.predicate("performer offset does not rewind a landed object's shot clock", vclose(offsetEnd.transform.translation, LANDED, 1e-9));
-  TestValidator.predicate("performer offset does not rewind object velocity", offsetEnd.rootVelocity !== null && vclose(offsetEnd.rootVelocity, { x: 0, y: 0, z: 0 }, 1e-9));
+  const offsetShot: IAutoMovieShot = {
+    ...shotOf(3, [HELD, FLIGHT]),
+    performances: [{ node: "stone", motion: null, startOffset: 1 }],
+  };
+  const offsetEnd: IAutoMovieBeatEndActorState = resolveBeatEnd({
+    beat: "beat-1",
+    scene,
+    shot: offsetShot,
+    motions: [],
+  }).actors.find(
+    (actor: IAutoMovieBeatEndActorState): boolean => actor.node === "stone",
+  )!;
+  TestValidator.predicate(
+    "performer offset changes only the actor's pose-local clock",
+    nclose(offsetEnd.localTime, 2, 1e-12),
+  );
+  TestValidator.predicate(
+    "performer offset does not rewind a landed object's shot clock",
+    vclose(offsetEnd.transform.translation, LANDED, 1e-9),
+  );
+  TestValidator.predicate(
+    "performer offset does not rewind object velocity",
+    offsetEnd.rootVelocity !== null &&
+      vclose(offsetEnd.rootVelocity, { x: 0, y: 0, z: 0 }, 1e-9),
+  );
   // 1. the contradiction, resolved: the shot's clip decides.
   TestValidator.predicate(
     "a launched prop ends where its flight landed it",
@@ -194,16 +240,18 @@ export function test_film_beat_end_launched_prop(): void {
     scene,
     shot: shotOf(5, [HELD, FLIGHT]),
     motions: [],
-  }).actors.find((actor: IAutoMovieBeatEndActorState) : boolean => actor.node === "stone")!;
+  }).actors.find(
+    (actor: IAutoMovieBeatEndActorState): boolean => actor.node === "stone",
+  )!;
   TestValidator.equals(
     "a landed prop reports no residual velocity",
     namedFacts([
-      ["velocityReported", () : boolean => landed.rootVelocity !== null],
+      ["velocityReported", (): boolean => landed.rootVelocity !== null],
       [
         "velocityZero",
         // The null check is restated because the previous fact's narrowing of
         // the nullable field does not reach inside this closure.
-        () : boolean =>
+        (): boolean =>
           landed.rootVelocity !== null &&
           vclose(landed.rootVelocity, { x: 0, y: 0, z: 0 }, 1e-9),
       ],
@@ -228,16 +276,18 @@ export function test_film_beat_end_launched_prop(): void {
     scene,
     shot: shotOf(5, [JUST_STARTED]),
     motions: [],
-  }).actors.find((actor: IAutoMovieBeatEndActorState) : boolean => actor.node === "stone")!;
+  }).actors.find(
+    (actor: IAutoMovieBeatEndActorState): boolean => actor.node === "stone",
+  )!;
   TestValidator.equals(
     "an authority starting at beat end has no prior velocity sample",
     namedFacts([
-      ["velocityReported", () : boolean => justStarted.rootVelocity !== null],
+      ["velocityReported", (): boolean => justStarted.rootVelocity !== null],
       [
         "velocityZero",
         // The null check is restated because the previous fact's narrowing of
         // the nullable field does not reach inside this closure.
-        () : boolean =>
+        (): boolean =>
           justStarted.rootVelocity !== null &&
           vclose(justStarted.rootVelocity, { x: 0, y: 0, z: 0 }, 1e-9),
       ],
@@ -267,7 +317,9 @@ export function test_film_beat_end_launched_prop(): void {
         scene,
         shot: shotOf(5, [grown]),
         motions: [],
-      }).actors.find((actor: IAutoMovieBeatEndActorState) : boolean => actor.node === "stone")!.transform.scale,
+      }).actors.find(
+        (actor: IAutoMovieBeatEndActorState): boolean => actor.node === "stone",
+      )!.transform.scale,
       { x: 2, y: 3, z: 4 },
       1e-9,
     ),

@@ -1,9 +1,10 @@
-import type { IAutoMovieGrammarSubjectObservation } from "../../../../packages/engine/src/film/IAutoMovieGrammarSubjectObservation";
-import type { IAutoMovieGrammarShotObservation } from "../../../../packages/engine/src/film/IAutoMovieGrammarShotObservation";
-import type { IAutoMovieGrammarReading } from "../../../../packages/engine/src/film/IAutoMovieGrammarReading";
-import type { IAutoMovieGrammarDiagnostic } from "../../../../packages/engine/src/film/IAutoMovieGrammarDiagnostic";
-import { readFilmGrammar } from "../../../../packages/engine/src/film/readFilmGrammar";
 import { TestValidator } from "@nestia/e2e";
+
+import type { IAutoMovieGrammarDiagnostic } from "../../../../packages/engine/src/film/IAutoMovieGrammarDiagnostic";
+import type { IAutoMovieGrammarReading } from "../../../../packages/engine/src/film/IAutoMovieGrammarReading";
+import type { IAutoMovieGrammarShotObservation } from "../../../../packages/engine/src/film/IAutoMovieGrammarShotObservation";
+import type { IAutoMovieGrammarSubjectObservation } from "../../../../packages/engine/src/film/IAutoMovieGrammarSubjectObservation";
+import { readFilmGrammar } from "../../../../packages/engine/src/film/readFilmGrammar";
 import { createFilmGrammarCase } from "../internal/createFilmGrammarCase";
 
 /**
@@ -21,7 +22,15 @@ import { createFilmGrammarCase } from "../internal/createFilmGrammarCase";
  * @evidence contracts/testing.md#execution-ownership The discoverable synchronous unit entry owns every axis case and reaches portable source grammar through the shared fixture reader; no browser, GPU or process is needed.
  */
 export function test_film_grammar_axis(): void {
-  const { point, cameraSample, camera, subject, shot, reportedGrammar, codes }: ReturnType<typeof createFilmGrammarCase> = createFilmGrammarCase();
+  const {
+    point,
+    cameraSample,
+    camera,
+    subject,
+    shot,
+    reportedGrammar,
+    codes,
+  }: ReturnType<typeof createFilmGrammarCase> = createFilmGrammarCase();
   const axisSubjects: IAutoMovieGrammarSubjectObservation[] = [
     subject("alpha", point(-1, 0, 0)),
     subject("bravo", point(1, 0, 0)),
@@ -62,29 +71,35 @@ export function test_film_grammar_axis(): void {
     primarySubject: null,
     actionAxis: ["alpha", "bravo"],
   });
-  const afterRotation: IAutoMovieGrammarShotObservation = shot("after-rotation", {
-    camera: camera(point(5, 1, 5)),
-    subjects: [
-      subject("alpha", point(0, 0, -1)),
-      subject("bravo", point(0, 0, 1)),
-    ],
-    primarySubject: null,
-    actionAxis: ["alpha", "bravo"],
-  });
+  const afterRotation: IAutoMovieGrammarShotObservation = shot(
+    "after-rotation",
+    {
+      camera: camera(point(5, 1, 5)),
+      subjects: [
+        subject("alpha", point(0, 0, -1)),
+        subject("bravo", point(0, 0, 1)),
+      ],
+      primarySubject: null,
+      actionAxis: ["alpha", "bravo"],
+    },
+  );
   TestValidator.predicate(
     "outgoing end axis and incoming start axis define the cut boundary",
     codes([rotatingAxis, afterRotation]).includes("grammar-axis-crossed") ===
       false,
   );
-  const visibleCrossing: IAutoMovieGrammarShotObservation = shot("visible-crossing", {
-    camera: {
-      start: cameraSample(point(0, 1, 5)),
-      end: cameraSample(point(0, 1, -5)),
+  const visibleCrossing: IAutoMovieGrammarShotObservation = shot(
+    "visible-crossing",
+    {
+      camera: {
+        start: cameraSample(point(0, 1, 5)),
+        end: cameraSample(point(0, 1, -5)),
+      },
+      subjects: axisSubjects,
+      primarySubject: null,
+      actionAxis: ["alpha", "bravo"],
     },
-    subjects: axisSubjects,
-    primarySubject: null,
-    actionAxis: ["alpha", "bravo"],
-  });
+  );
   TestValidator.predicate(
     "camera crossing the action axis inside a shot legalizes the next cut",
     codes([visibleCrossing, positive]).includes("grammar-axis-crossed") ===
@@ -140,9 +155,25 @@ export function test_film_grammar_axis(): void {
     }),
   );
 
-
-  const crossing: IAutoMovieGrammarReading = readFilmGrammar({ shots: [positive, negative] });
-  TestValidator.predicate("crossing recovery exposes its supported style intent", crossing.reported.some((diagnostic: IAutoMovieGrammarDiagnostic) : boolean => diagnostic.code === "grammar-axis-crossed" && diagnostic.recovery.includes("mark axis-cross")));
-  const marked: IAutoMovieGrammarReading = readFilmGrammar({ shots: [positive, { ...negative, styleIntent: ["axis-cross"] }] });
-  TestValidator.predicate("following the recovery suppresses only the intended crossing", marked.reported.every((diagnostic: IAutoMovieGrammarDiagnostic) : boolean => diagnostic.code !== "grammar-axis-crossed") && marked.unmatched.length === 0);
+  const crossing: IAutoMovieGrammarReading = readFilmGrammar({
+    shots: [positive, negative],
+  });
+  TestValidator.predicate(
+    "crossing recovery exposes its supported style intent",
+    crossing.reported.some(
+      (diagnostic: IAutoMovieGrammarDiagnostic): boolean =>
+        diagnostic.code === "grammar-axis-crossed" &&
+        diagnostic.recovery.includes("mark axis-cross"),
+    ),
+  );
+  const marked: IAutoMovieGrammarReading = readFilmGrammar({
+    shots: [positive, { ...negative, styleIntent: ["axis-cross"] }],
+  });
+  TestValidator.predicate(
+    "following the recovery suppresses only the intended crossing",
+    marked.reported.every(
+      (diagnostic: IAutoMovieGrammarDiagnostic): boolean =>
+        diagnostic.code !== "grammar-axis-crossed",
+    ) && marked.unmatched.length === 0,
+  );
 }

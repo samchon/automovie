@@ -1,6 +1,6 @@
 import { blockBeat, stageScene } from "@automovie/engine";
-import { TestValidator } from "@nestia/e2e";
 import { type IAutoMovieConstraintViolation } from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
 
 import {
   makeBlockingWrite,
@@ -30,7 +30,10 @@ import { hasViolation } from "../internal/predicates";
  * @evidence contracts/testing.md#execution-ownership The synchronous test_film_block_beat_invalid entry owns a portable stageScene prerequisite and one blockBeat refusal using existing fixtures, without installing a consumer, compiling native code or starting a real host.
  */
 export function test_film_block_beat_invalid(): void {
-  const staged: ReturnType<typeof stageScene> = stageScene(makeScriptWrite(), makeStagingWrite());
+  const staged: ReturnType<typeof stageScene> = stageScene(
+    makeScriptWrite(),
+    makeStagingWrite(),
+  );
   if (staged.success !== true) throw new Error("staging must succeed");
 
   const blocked: ReturnType<typeof blockBeat> = blockBeat(
@@ -83,7 +86,15 @@ export function test_film_block_beat_invalid(): void {
     "causality reversal",
     hasViolation(blocked, "range", "$input.actors[1].anchors[1].t"),
   );
-  TestValidator.predicate("causality reversal is reported independently of timeline overflow", blocked.violations.some((item: IAutoMovieConstraintViolation): boolean => item.kind === "range" && item.path === "$input.actors[1].anchors[1].t" && item.expected.includes("runs before its predecessor")));
+  TestValidator.predicate(
+    "causality reversal is reported independently of timeline overflow",
+    blocked.violations.some(
+      (item: IAutoMovieConstraintViolation): boolean =>
+        item.kind === "range" &&
+        item.path === "$input.actors[1].anchors[1].t" &&
+        item.expected.includes("runs before its predecessor"),
+    ),
+  );
   TestValidator.predicate(
     "camera on a stranger",
     hasViolation(blocked, "type", "$input.camera.on.node"),

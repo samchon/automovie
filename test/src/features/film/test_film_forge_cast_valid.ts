@@ -1,10 +1,13 @@
-import { forgeCast } from "../../../../packages/engine/src/film/forgeCast";
-import { stageScene } from "../../../../packages/engine/src/film/stageScene";
-import type { IAutoMovieScript, IAutoMovieSceneNode } from "@automovie/interface";
-import type { IAutoMovieForgedCast } from "../../../../packages/engine/src/film/IAutoMovieForgedCast";
-import type { IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
+import type {
+  IAutoMovieSceneNode,
+  IAutoMovieScript,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import type { IAutoMovieForgedCast } from "../../../../packages/engine/src/film/IAutoMovieForgedCast";
+import type { IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
+import { forgeCast } from "../../../../packages/engine/src/film/forgeCast";
+import { stageScene } from "../../../../packages/engine/src/film/stageScene";
 import {
   forgeEntry,
   makeScriptWrite,
@@ -41,7 +44,9 @@ export function test_film_forge_cast_valid(): void {
   const staged: IAutoMovieStagedSet = stageScene(script, makeStagingWrite());
   TestValidator.equals("staging", staged.success, true);
   if (staged.success !== true) return;
-  const nodeB: IAutoMovieSceneNode = staged.scene.nodes.find((n: IAutoMovieSceneNode): boolean => n.id === "knightB")!;
+  const nodeB: IAutoMovieSceneNode = staged.scene.nodes.find(
+    (n: IAutoMovieSceneNode): boolean => n.id === "knightB",
+  )!;
   TestValidator.equals(
     "scene joins the forged model by id",
     nodeB.model,
@@ -49,7 +54,17 @@ export function test_film_forge_cast_valid(): void {
   );
   for (const id of ["__proto__", "constructor", "toString"]) {
     const entry: ReturnType<typeof forgeEntry> = forgeEntry(id);
-    const result: IAutoMovieForgedCast = forgeCast(makeScriptWrite({ cast: [{ node: id, character: "the champion", modelRef: null }] }), { entries: [entry] });
-    TestValidator.predicate(`forge preserves own key ${id}`, result.success && Object.prototype.hasOwnProperty.call(result.models, id) && result.models[id] === entry.model);
+    const result: IAutoMovieForgedCast = forgeCast(
+      makeScriptWrite({
+        cast: [{ node: id, character: "the champion", modelRef: null }],
+      }),
+      { entries: [entry] },
+    );
+    TestValidator.predicate(
+      `forge preserves own key ${id}`,
+      result.success &&
+        Object.prototype.hasOwnProperty.call(result.models, id) &&
+        result.models[id] === entry.model,
+    );
   }
 }

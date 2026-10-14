@@ -17,7 +17,9 @@ const CAMERA: IAutoMovieCamera = {
   depthPrecision: { minimumDepthBits: 24, maximumStepMeters: 100 },
 };
 
-const frame: (move: IAutoMovieCameraAction["move"]) => IAutoMovieCameraAction = (
+const frame: (
+  move: IAutoMovieCameraAction["move"],
+) => IAutoMovieCameraAction = (
   move: IAutoMovieCameraAction["move"],
 ): IAutoMovieCameraAction => ({
   verb: "frame",
@@ -29,7 +31,13 @@ const frame: (move: IAutoMovieCameraAction["move"]) => IAutoMovieCameraAction = 
   on: { kind: "point", point: { x: 0, y: 0, z: 0 } },
 });
 
-const SUBJECT: Parameters<typeof compileCameraMove>[0]["entries"][number]["subject"] = { base: { x: 0, y: 0, z: 0 }, height: 2, at: null };
+const SUBJECT: Parameters<
+  typeof compileCameraMove
+>[0]["entries"][number]["subject"] = {
+  base: { x: 0, y: 0, z: 0 },
+  height: 2,
+  at: null,
+};
 
 /**
  * Camera frame actions are a runtime grammar boundary. Unknown move names must

@@ -24,7 +24,10 @@ import { hasViolation, namedFacts } from "../internal/predicates";
  */
 export function test_film_block_beat_duplicate_script_beats(): void {
   const baseScript: ReturnType<typeof makeScriptWrite> = makeScriptWrite();
-  const staged: ReturnType<typeof stageScene> = stageScene(baseScript, makeStagingWrite());
+  const staged: ReturnType<typeof stageScene> = stageScene(
+    baseScript,
+    makeStagingWrite(),
+  );
   if (staged.success !== true) throw new Error("staging must succeed");
 
   const blocked: ReturnType<typeof blockBeat> = blockBeat(

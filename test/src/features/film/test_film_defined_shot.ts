@@ -1,10 +1,16 @@
+import {
+  IAutoMovieBeatEndActorState,
+  IAutoMovieCompiledContractRealization,
+  IAutoMovieDefinedShot,
+  IAutoMovieShotProgram,
+  IAutoMovieSkeleton,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
 import type { IAutoMovieAuthoringDiagnostic } from "../../../../packages/engine/src/film/IAutoMovieAuthoringDiagnostic";
 import { compileDefinedShot } from "../../../../packages/engine/src/film/compileDefinedShot";
 import { defineShot } from "../../../../packages/engine/src/film/defineShot";
 import { suggestCollisionResponse } from "../../../../packages/engine/src/physics/suggestCollisionResponse";
-import { IAutoMovieShotProgram, IAutoMovieDefinedShot, IAutoMovieSkeleton, IAutoMovieBeatEndActorState, IAutoMovieCompiledContractRealization } from "@automovie/interface";
-import { TestValidator } from "@nestia/e2e";
-
 import {
   makeBlockingWrite,
   makePerformanceWrite,
@@ -18,7 +24,8 @@ import { test12ValuesClose } from "../internal/test12ValuesClose";
 
 const program: () => IAutoMovieShotProgram = (): IAutoMovieShotProgram => {
   const blocking: ReturnType<typeof makeBlockingWrite> = makeBlockingWrite();
-  const performance: ReturnType<typeof makePerformanceWrite> = makePerformanceWrite();
+  const performance: ReturnType<typeof makePerformanceWrite> =
+    makePerformanceWrite();
   blocking.camera.framing = "full";
   blocking.rationale =
     "full static keeps both required actor roots readable throughout the duel.";
@@ -76,38 +83,66 @@ export function test_film_defined_shot(): void {
     },
     build: program,
   });
-  for (const thrown of [Object.create(null), { /** Deliberately refuses string coercion at the builder error boundary. */ toString(): never { throw new Error("coercion failed"); } }] as readonly unknown[]) {
+  for (const thrown of [
+    Object.create(null),
+    {
+      /** Deliberately refuses string coercion at the builder error boundary. */ toString(): never {
+        throw new Error("coercion failed");
+      },
+    },
+  ] as readonly unknown[]) {
     const failed: ReturnType<typeof compileDefinedShot> = compileDefinedShot({
-      shot: defineShot("SB-uninspectable", { scene: shot.scene, contract: shot.contract, build: (): never => { throw thrown; } }),
+      shot: defineShot("SB-uninspectable", {
+        scene: shot.scene,
+        contract: shot.contract,
+        build: (): never => {
+          throw thrown;
+        },
+      }),
       context: undefined,
-      runtime: { synthesize: validSynthesizer, skeleton: (): IAutoMovieSkeleton => createSkeleton(), frameFormat: { width: 1920, height: 1080 } },
+      runtime: {
+        synthesize: validSynthesizer,
+        skeleton: (): IAutoMovieSkeleton => createSkeleton(),
+        frameFormat: { width: 1920, height: 1080 },
+      },
     });
-    TestValidator.predicate("uninspectable builder throw remains diagnostic", failed.success === false && failed.diagnostics.some((diagnostic: IAutoMovieAuthoringDiagnostic): boolean => diagnostic.code === "builder-failed" && diagnostic.phase === "build" && diagnostic.fact.includes("uninspectable thrown value") && diagnostic.recovery.length !== 0));
+    TestValidator.predicate(
+      "uninspectable builder throw remains diagnostic",
+      failed.success === false &&
+        failed.diagnostics.some(
+          (diagnostic: IAutoMovieAuthoringDiagnostic): boolean =>
+            diagnostic.code === "builder-failed" &&
+            diagnostic.phase === "build" &&
+            diagnostic.fact.includes("uninspectable thrown value") &&
+            diagnostic.recovery.length !== 0,
+        ),
+    );
   }
-  const advice: ReturnType<typeof suggestCollisionResponse> = suggestCollisionResponse({
-    a: {
-      mass: 80,
-      velocity: { x: 0, y: 0, z: 3 },
-      restitution: 0.1,
-      hardness: 0.6,
-      penetrability: 0,
-    },
-    b: {
-      mass: 75,
-      velocity: { x: 0, y: 0, z: 0 },
-      restitution: 0.1,
-      hardness: 0.4,
-      penetrability: 0,
-    },
-    normal: { x: 0, y: 0, z: 1 },
-    gainDegPerImpulse: 0.2,
-  });
+  const advice: ReturnType<typeof suggestCollisionResponse> =
+    suggestCollisionResponse({
+      a: {
+        mass: 80,
+        velocity: { x: 0, y: 0, z: 3 },
+        restitution: 0.1,
+        hardness: 0.6,
+        penetrability: 0,
+      },
+      b: {
+        mass: 75,
+        velocity: { x: 0, y: 0, z: 0 },
+        restitution: 0.1,
+        hardness: 0.4,
+        penetrability: 0,
+      },
+      normal: { x: 0, y: 0, z: 1 },
+      gainDegPerImpulse: 0.2,
+    });
   const compiled: ReturnType<typeof compileDefinedShot> = compileDefinedShot({
     shot,
     context: undefined,
     runtime: {
       synthesize: validSynthesizer,
-      skeleton: () : IAutoMovieSkeleton => createSkeleton(),
+      skeleton: (): IAutoMovieSkeleton => createSkeleton(),
       frameFormat: { width: 1920, height: 1080 },
       advice: [
         {
@@ -123,37 +158,44 @@ export function test_film_defined_shot(): void {
   TestValidator.equals(
     "registered code reaches the complete engine pipeline",
     namedFacts([
-      ["compiledSuccess", () : boolean => compiled.success],
+      ["compiledSuccess", (): boolean => compiled.success],
       [
         "compiledSourceShot",
-        () : boolean => compiled.success && compiled.source.shot.id === "SB-012",
+        (): boolean => compiled.success && compiled.source.shot.id === "SB-012",
       ],
       [
         "compiledSourceShot2",
-        () : boolean => compiled.success && compiled.source.shot.scene === "scene-duel",
+        (): boolean =>
+          compiled.success && compiled.source.shot.scene === "scene-duel",
       ],
       [
         "compiledContinuityOpening",
-        () : boolean => compiled.success && compiled.continuity.opening.shot === "SB-012",
+        (): boolean =>
+          compiled.success && compiled.continuity.opening.shot === "SB-012",
       ],
       [
         "compiledContinuityClosing",
-        () : boolean => compiled.success && compiled.continuity.closing.shot === "SB-012",
+        (): boolean =>
+          compiled.success && compiled.continuity.closing.shot === "SB-012",
       ],
       [
         "compiledRealizationCamera",
-        () : boolean =>
+        (): boolean =>
           compiled.success &&
           compiled.realization.camera.length === 3 &&
-          compiled.realization.camera.every((outcome: IAutoMovieCompiledContractRealization["camera"][number]) : boolean => outcome.passed),
+          compiled.realization.camera.every(
+            (
+              outcome: IAutoMovieCompiledContractRealization["camera"][number],
+            ): boolean => outcome.passed,
+          ),
       ],
       [
         "compiledContinuityClosing2",
-        () : boolean =>
+        (): boolean =>
           compiled.success &&
           compiled.continuity.closing.actors.length === 2 &&
           compiled.continuity.closing.actors.every(
-            (actor: IAutoMovieBeatEndActorState) : boolean =>
+            (actor: IAutoMovieBeatEndActorState): boolean =>
               "gaitPhase" in actor &&
               "rootVelocity" in actor &&
               "footPlants" in actor &&
@@ -174,25 +216,26 @@ export function test_film_defined_shot(): void {
   TestValidator.equals(
     "D010 response remains optional data",
     namedFacts([
-      ["compiledSuccess", () : boolean => compiled.success],
+      ["compiledSuccess", (): boolean => compiled.success],
       [
         "compiledAdviceId",
-        () : boolean => compiled.success && compiled.advice[0]?.id === "duel-contact",
+        (): boolean =>
+          compiled.success && compiled.advice[0]?.id === "duel-contact",
       ],
       [
         "compiledAdviceDecision",
-        () : boolean => compiled.success && compiled.advice[0].decision === null,
+        (): boolean => compiled.success && compiled.advice[0].decision === null,
       ],
       [
         "compiledAdviceProposal",
-        () : boolean =>
+        (): boolean =>
           compiled.success &&
           compiled.advice[0].decision === null &&
           compiled.advice[0].proposal.impact.impulse.z !== 0,
       ],
       [
         "compiledAdviceSelected",
-        () : boolean =>
+        (): boolean =>
           compiled.success &&
           compiled.advice[0].decision === null &&
           compiled.advice[0].selected === null,
@@ -207,14 +250,15 @@ export function test_film_defined_shot(): void {
     },
   );
 
-  const modifiedResponse: ReturnType<typeof suggestCollisionResponse> = structuredClone(advice);
+  const modifiedResponse: ReturnType<typeof suggestCollisionResponse> =
+    structuredClone(advice);
   modifiedResponse.push.flexion = (modifiedResponse.push.flexion ?? 0) + 1;
   const decisions: ReturnType<typeof compileDefinedShot> = compileDefinedShot({
     shot,
     context: undefined,
     runtime: {
       synthesize: validSynthesizer,
-      skeleton: () : IAutoMovieSkeleton => createSkeleton(),
+      skeleton: (): IAutoMovieSkeleton => createSkeleton(),
       frameFormat: { width: 1920, height: 1080 },
       advice: [
         {
@@ -248,29 +292,36 @@ export function test_film_defined_shot(): void {
   TestValidator.equals(
     "D010 accepted, modified, and rejected decisions remain distinguishable",
     namedFacts([
-      ["decisionsSuccess", () : boolean => decisions.success],
+      ["decisionsSuccess", (): boolean => decisions.success],
       [
         "decisionsAdviceDecision",
-        () : boolean => decisions.success && decisions.advice[0]?.decision === "accepted",
+        (): boolean =>
+          decisions.success && decisions.advice[0]?.decision === "accepted",
       ],
       [
         "decisionsAdviceDecision2",
-        () : boolean => decisions.success && decisions.advice[1]?.decision === "modified",
+        (): boolean =>
+          decisions.success && decisions.advice[1]?.decision === "modified",
       ],
       [
         "decisionsAdviceSelected",
-        () : boolean =>
+        (): boolean =>
           decisions.success &&
-          nclose(decisions.advice[1].selected?.push.flexion ?? Number.NaN,
-            modifiedResponse.push.flexion ?? Number.NaN, 0),
+          nclose(
+            decisions.advice[1].selected?.push.flexion ?? Number.NaN,
+            modifiedResponse.push.flexion ?? Number.NaN,
+            0,
+          ),
       ],
       [
         "decisionsAdviceDecision3",
-        () : boolean => decisions.success && decisions.advice[2]?.decision === "rejected",
+        (): boolean =>
+          decisions.success && decisions.advice[2]?.decision === "rejected",
       ],
       [
         "decisionsAdviceSelected2",
-        () : boolean => decisions.success && decisions.advice[2].selected === null,
+        (): boolean =>
+          decisions.success && decisions.advice[2].selected === null,
       ],
     ]),
     {
@@ -283,7 +334,13 @@ export function test_film_defined_shot(): void {
     },
   );
 
-  TestValidator.predicate("advice remains copied data without changing compiled actor motion", compiled.success && decisions.success && test12ValuesClose(compiled.advice[0]!.proposal, advice) && test12ValuesClose(decisions.source.motions, compiled.source.motions));
+  TestValidator.predicate(
+    "advice remains copied data without changing compiled actor motion",
+    compiled.success &&
+      decisions.success &&
+      test12ValuesClose(compiled.advice[0]!.proposal, advice) &&
+      test12ValuesClose(decisions.source.motions, compiled.source.motions),
+  );
 
   const mismatched: ReturnType<typeof compileDefinedShot> = compileDefinedShot({
     shot: defineShot("SB-013", {
@@ -294,20 +351,20 @@ export function test_film_defined_shot(): void {
     context: undefined,
     runtime: {
       synthesize: validSynthesizer,
-      skeleton: () : IAutoMovieSkeleton => createSkeleton(),
+      skeleton: (): IAutoMovieSkeleton => createSkeleton(),
       frameFormat: { width: 1920, height: 1080 },
     },
   });
   TestValidator.equals(
     "registration mismatch is an actionable diagnostic, not a throw",
     namedFacts([
-      ["refused", () : boolean => mismatched.success === false],
+      ["refused", (): boolean => mismatched.success === false],
       [
         "violated",
-        () : boolean =>
+        (): boolean =>
           mismatched.success === false &&
           mismatched.diagnostics.some(
-            (diagnostic: IAutoMovieAuthoringDiagnostic) : boolean =>
+            (diagnostic: IAutoMovieAuthoringDiagnostic): boolean =>
               diagnostic.code === "contract-mismatch" &&
               diagnostic.path === "$program.stage.scene.id" &&
               diagnostic.recovery.includes("defineShot"),
@@ -348,30 +405,31 @@ export function test_film_defined_shot(): void {
     context: undefined,
     runtime: {
       synthesize: validSynthesizer,
-      skeleton: () : IAutoMovieSkeleton => createSkeleton(),
+      skeleton: (): IAutoMovieSkeleton => createSkeleton(),
       frameFormat: { width: 1920, height: 1080 },
     },
   });
   TestValidator.equals(
     "source output cannot self-certify an unrealized state contract",
     namedFacts([
-      ["unrealizedSuccess", () : boolean => unrealized.success === false],
+      ["unrealizedSuccess", (): boolean => unrealized.success === false],
       [
         "unrealizedDiagnosticsDiagnostic",
-        () : boolean =>
+        (): boolean =>
           unrealized.success === false &&
           unrealized.diagnostics.some(
-            (diagnostic: IAutoMovieAuthoringDiagnostic) : boolean =>
+            (diagnostic: IAutoMovieAuthoringDiagnostic): boolean =>
               diagnostic.code === "contract-realization-failed" &&
               diagnostic.fact.includes("impossible-opening"),
           ),
       ],
       [
         "unrealizedDiagnosticsDiagnostic2",
-        () : boolean =>
+        (): boolean =>
           unrealized.success === false &&
-          unrealized.diagnostics.some((diagnostic: IAutoMovieAuthoringDiagnostic) : boolean =>
-            diagnostic.fact.includes('actor "ghost"'),
+          unrealized.diagnostics.some(
+            (diagnostic: IAutoMovieAuthoringDiagnostic): boolean =>
+              diagnostic.fact.includes('actor "ghost"'),
           ),
       ],
     ]),
@@ -382,27 +440,28 @@ export function test_film_defined_shot(): void {
     },
   );
 
-  const runtimeFailure: ReturnType<typeof compileDefinedShot> = compileDefinedShot({
-    shot,
-    context: undefined,
-    runtime: {
-      synthesize: () : never => {
-        throw new Error("synthesizer fixture failed");
+  const runtimeFailure: ReturnType<typeof compileDefinedShot> =
+    compileDefinedShot({
+      shot,
+      context: undefined,
+      runtime: {
+        synthesize: (): never => {
+          throw new Error("synthesizer fixture failed");
+        },
+        skeleton: (): IAutoMovieSkeleton => createSkeleton(),
+        frameFormat: { width: 1920, height: 1080 },
       },
-      skeleton: () : IAutoMovieSkeleton => createSkeleton(),
-      frameFormat: { width: 1920, height: 1080 },
-    },
-  });
+    });
   TestValidator.equals(
     "runtime exceptions remain structured at the public authoring boundary",
     namedFacts([
-      ["refused", () : boolean => runtimeFailure.success === false],
+      ["refused", (): boolean => runtimeFailure.success === false],
       [
         "violated",
-        () : boolean =>
+        (): boolean =>
           runtimeFailure.success === false &&
           runtimeFailure.diagnostics.some(
-            (diagnostic: IAutoMovieAuthoringDiagnostic) : boolean =>
+            (diagnostic: IAutoMovieAuthoringDiagnostic): boolean =>
               diagnostic.code === "pipeline-failed" &&
               diagnostic.phase === "performance" &&
               diagnostic.fact.includes("synthesizer fixture failed") &&
@@ -414,29 +473,30 @@ export function test_film_defined_shot(): void {
     { refused: true, violated: true },
   );
 
-  const continuityFailure: ReturnType<typeof compileDefinedShot> = compileDefinedShot({
-    shot,
-    context: undefined,
-    runtime: {
-      synthesize: validSynthesizer,
-      skeleton: () : IAutoMovieSkeleton => createSkeleton(),
-      frameFormat: { width: 1920, height: 1080 },
-      plants: [
-        { node: "knightA", plants: [] },
-        { node: "knightA", plants: [] },
-      ],
-    },
-  });
+  const continuityFailure: ReturnType<typeof compileDefinedShot> =
+    compileDefinedShot({
+      shot,
+      context: undefined,
+      runtime: {
+        synthesize: validSynthesizer,
+        skeleton: (): IAutoMovieSkeleton => createSkeleton(),
+        frameFormat: { width: 1920, height: 1080 },
+        plants: [
+          { node: "knightA", plants: [] },
+          { node: "knightA", plants: [] },
+        ],
+      },
+    });
   TestValidator.equals(
     "continuity exceptions remain structured at the public boundary",
     namedFacts([
-      ["refused", () : boolean => continuityFailure.success === false],
+      ["refused", (): boolean => continuityFailure.success === false],
       [
         "violated",
-        () : boolean =>
+        (): boolean =>
           continuityFailure.success === false &&
           continuityFailure.diagnostics.some(
-            (diagnostic: IAutoMovieAuthoringDiagnostic) : boolean =>
+            (diagnostic: IAutoMovieAuthoringDiagnostic): boolean =>
               diagnostic.code === "pipeline-failed" &&
               diagnostic.phase === "continuity" &&
               diagnostic.fact.includes("duplicated"),

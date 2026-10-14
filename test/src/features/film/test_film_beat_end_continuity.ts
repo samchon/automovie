@@ -64,7 +64,9 @@ const scene: IAutoMovieScene = {
   lights: [],
 };
 
-const shotOf: (duration: number) => IAutoMovieShot = (duration: number): IAutoMovieShot => ({
+const shotOf: (duration: number) => IAutoMovieShot = (
+  duration: number,
+): IAutoMovieShot => ({
   id: "shot:beat-1",
   name: null,
   scene: "scene",
@@ -75,7 +77,9 @@ const shotOf: (duration: number) => IAutoMovieShot = (duration: number): IAutoMo
   duration,
 });
 
-const endOf: (duration: number) => IAutoMovieBeatEndActorState = (duration: number): IAutoMovieBeatEndActorState =>
+const endOf: (duration: number) => IAutoMovieBeatEndActorState = (
+  duration: number,
+): IAutoMovieBeatEndActorState =>
   resolveBeatEnd({
     beat: "beat-1",
     scene,
@@ -119,13 +123,42 @@ export function test_film_beat_end_continuity(): void {
   const ended: IAutoMoviePose = sampleMotion(walk, 2.25).pose;
   TestValidator.equals(
     "resume reproduces joints",
-    resumed.joints.map((joint: IAutoMovieJointPose): readonly [string, boolean, boolean] => [joint.bone, joint.abduction === null, joint.twist === null]),
-    ended.joints.map((joint: IAutoMovieJointPose): readonly [string, boolean, boolean] => [joint.bone, joint.abduction === null, joint.twist === null]),
+    resumed.joints.map(
+      (joint: IAutoMovieJointPose): readonly [string, boolean, boolean] => [
+        joint.bone,
+        joint.abduction === null,
+        joint.twist === null,
+      ],
+    ),
+    ended.joints.map(
+      (joint: IAutoMovieJointPose): readonly [string, boolean, boolean] => [
+        joint.bone,
+        joint.abduction === null,
+        joint.twist === null,
+      ],
+    ),
   );
   for (const pose of [resumed, ended]) {
-    TestValidator.equals("resumed joint identity and nullable axes", pose.joints.map((joint: IAutoMovieJointPose): readonly [string, boolean, boolean] => [joint.bone, joint.abduction === null, joint.twist === null]), [["leftLowerLeg", true, true]]);
-    TestValidator.predicate("resumed flexion follows the authored linear quarter cycle", nclose(pose.joints[0]?.flexion ?? Number.NaN, 10, 1e-12));
-    TestValidator.predicate("resumed root follows the authored linear quarter cycle", pose.root !== null && vclose(pose.root.translation, { x: 0.5, y: 0, z: 0 }, 1e-12));
+    TestValidator.equals(
+      "resumed joint identity and nullable axes",
+      pose.joints.map(
+        (joint: IAutoMovieJointPose): readonly [string, boolean, boolean] => [
+          joint.bone,
+          joint.abduction === null,
+          joint.twist === null,
+        ],
+      ),
+      [["leftLowerLeg", true, true]],
+    );
+    TestValidator.predicate(
+      "resumed flexion follows the authored linear quarter cycle",
+      nclose(pose.joints[0]?.flexion ?? Number.NaN, 10, 1e-12),
+    );
+    TestValidator.predicate(
+      "resumed root follows the authored linear quarter cycle",
+      pose.root !== null &&
+        vclose(pose.root.translation, { x: 0.5, y: 0, z: 0 }, 1e-12),
+    );
   }
   TestValidator.predicate(
     "resume reproduces root",

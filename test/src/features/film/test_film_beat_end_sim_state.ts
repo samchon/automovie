@@ -1,8 +1,8 @@
 import { resolveBeatEnd } from "@automovie/engine";
 import {
   type IAutoMovieBeatEndActorState,
-  type IAutoMovieBeatEndState,
   IAutoMovieBeatEndFootPlant,
+  type IAutoMovieBeatEndState,
   IAutoMovieMotion,
   IAutoMovieScene,
   IAutoMovieShot,
@@ -67,7 +67,9 @@ const scene: IAutoMovieScene = {
   lights: [],
 };
 
-const shotOf: (duration: number) => IAutoMovieShot = (duration: number): IAutoMovieShot => ({
+const shotOf: (duration: number) => IAutoMovieShot = (
+  duration: number,
+): IAutoMovieShot => ({
   id: "shot:beat-1",
   name: null,
   scene: "scene",
@@ -78,7 +80,12 @@ const shotOf: (duration: number) => IAutoMovieShot = (duration: number): IAutoMo
   duration,
 });
 
-const plant: (foot: IAutoMovieBeatEndFootPlant["foot"], start: number, x: number, end?: number) => IAutoMovieBeatEndFootPlant = (
+const plant: (
+  foot: IAutoMovieBeatEndFootPlant["foot"],
+  start: number,
+  x: number,
+  end?: number,
+) => IAutoMovieBeatEndFootPlant = (
   foot: IAutoMovieBeatEndFootPlant["foot"],
   start: number,
   x: number,
@@ -188,13 +195,26 @@ export function test_film_beat_end_sim_state(): void {
 
   TestValidator.equals(
     "latest active plant per foot carried with inclusive cut bounds",
-    hero.footPlants?.map((value: IAutoMovieBeatEndFootPlant): IAutoMovieBeatEndFootPlant["foot"] => value.foot),
+    hero.footPlants?.map(
+      (value: IAutoMovieBeatEndFootPlant): IAutoMovieBeatEndFootPlant["foot"] =>
+        value.foot,
+    ),
     ["leftFoot", "rightFoot"],
   );
-  const expectedPlants: readonly IAutoMovieBeatEndFootPlant[] = [plant("leftFoot", 2, 3), plant("rightFoot", 2, 2, 2)];
+  const expectedPlants: readonly IAutoMovieBeatEndFootPlant[] = [
+    plant("leftFoot", 2, 3),
+    plant("rightFoot", 2, 2, 2),
+  ];
   for (const [index, expected] of expectedPlants.entries()) {
-    const actual: IAutoMovieBeatEndFootPlant | undefined = hero.footPlants?.[index];
-    TestValidator.predicate(`plant ${expected.foot} keeps its inclusive times and position`, actual !== undefined && nclose(actual.start, expected.start, 1e-12) && nclose(actual.end, expected.end, 1e-12) && vclose(actual.position, expected.position, 1e-12));
+    const actual: IAutoMovieBeatEndFootPlant | undefined =
+      hero.footPlants?.[index];
+    TestValidator.predicate(
+      `plant ${expected.foot} keeps its inclusive times and position`,
+      actual !== undefined &&
+        nclose(actual.start, expected.start, 1e-12) &&
+        nclose(actual.end, expected.end, 1e-12) &&
+        vclose(actual.position, expected.position, 1e-12),
+    );
   }
   TestValidator.equals("mount carried to its rider", hero.mount, {
     parent: "horse",

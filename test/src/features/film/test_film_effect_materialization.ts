@@ -1,12 +1,29 @@
-import { filmEffectValuesClose } from "../internal/filmEffectValuesClose";
+import {
+  IAutoMovieCompiledFilmEffect,
+  IAutoMovieFilmTimeline,
+  IAutoMovieProductionFrameRate,
+  IAutoMovieWorldDesign,
+  IAutoMovieWorldEffectZone,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
 import { IAutoMovieFilmEffectCurrentIdentity } from "../../../../packages/engine/src/effectRuntime/IAutoMovieFilmEffectCurrentIdentity";
-import { IAutoMovieCompiledFilmEffect, IAutoMovieWorldEffectZone, IAutoMovieFilmTimeline, IAutoMovieProductionFrameRate, IAutoMovieWorldDesign } from "@automovie/interface";
 import { type IAutoMovieShotEffectFilmInterval } from "../../../../packages/engine/src/effectRuntime/IAutoMovieShotEffectFilmInterval";
 import { materializeProductionFilmEffects } from "../../../../packages/engine/src/effectRuntime/materializeProductionFilmEffects";
 import { verifyProductionFilmEffectPopulation } from "../../../../packages/engine/src/effectRuntime/verifyProductionFilmEffectPopulation";
-import { TestValidator } from "@nestia/e2e";
+import { filmEffectValuesClose } from "../internal/filmEffectValuesClose";
 import { throwsError } from "../internal/predicates";
-import { filmEffectCue, filmEffectIdentity, filmEffectRecipe, filmEffectRefusal, filmEffectTimeline, filmEffectWorld, filmEffectZone, nodeCanonicalDigest } from "./filmEffectRuntimeFixtures";
+import {
+  filmEffectCue,
+  filmEffectIdentity,
+  filmEffectRecipe,
+  filmEffectRefusal,
+  filmEffectTimeline,
+  filmEffectWorld,
+  filmEffectZone,
+  nodeCanonicalDigest,
+} from "./filmEffectRuntimeFixtures";
+
 /**
  * Film cue materialization enforces current identity, rational clock and exclusive zone ownership.
  *
@@ -32,8 +49,11 @@ export function test_film_effect_materialization(): void {
     }),
     filmEffectCue({ id: "dew", startFrame: 24, durationFrames: 6 }),
   ]);
-  const identity: IAutoMovieFilmEffectCurrentIdentity = filmEffectIdentity(timeline);
-  const materialize: (overrides: Partial<Parameters<typeof materializeProductionFilmEffects>[0]>) => IAutoMovieCompiledFilmEffect[] = (
+  const identity: IAutoMovieFilmEffectCurrentIdentity =
+    filmEffectIdentity(timeline);
+  const materialize: (
+    overrides: Partial<Parameters<typeof materializeProductionFilmEffects>[0]>,
+  ) => IAutoMovieCompiledFilmEffect[] = (
     overrides: Partial<Parameters<typeof materializeProductionFilmEffects>[0]>,
   ): IAutoMovieCompiledFilmEffect[] =>
     materializeProductionFilmEffects({
@@ -44,50 +64,80 @@ export function test_film_effect_materialization(): void {
       ...overrides,
     });
   const output: IAutoMovieCompiledFilmEffect[] = materialize({});
-  const zoneOf: (id: string) => IAutoMovieWorldEffectZone = (id: string): IAutoMovieWorldEffectZone =>
-    filmEffectWorld().effectZones.find((zone: IAutoMovieWorldEffectZone): boolean => zone.id === id)!;
+  const zoneOf: (id: string) => IAutoMovieWorldEffectZone = (
+    id: string,
+  ): IAutoMovieWorldEffectZone =>
+    filmEffectWorld().effectZones.find(
+      (zone: IAutoMovieWorldEffectZone): boolean => zone.id === id,
+    )!;
 
   TestValidator.predicate(
     "cues become ordered runtimes on their exact frame clock",
     filmEffectValuesClose(
-      output.map((runtime: IAutoMovieCompiledFilmEffect): { id: string; zone: string; owner: (string | number)[]; identity: string[]; rate: IAutoMovieProductionFrameRate; frames: number[]; seconds: number[]; step: number; intensity: { from: number; to: number; }; } => ({
-      id: runtime.effect.id,
-      zone: runtime.effect.zone,
-      owner: [runtime.version, runtime.owner, runtime.clock] as Array<
-        string | number
-      >,
-      identity: [
-        runtime.production,
-        runtime.film,
-        runtime.compileFingerprint,
-        runtime.editFingerprint,
-      ],
-      rate: runtime.frameRate,
-      frames: [runtime.startFrame, runtime.endFrame],
-      seconds: [runtime.effect.start, runtime.effect.end],
-      step: runtime.effect.fixedStepSeconds,
-      intensity: runtime.effect.intensity,
-    })),
+      output.map(
+        (
+          runtime: IAutoMovieCompiledFilmEffect,
+        ): {
+          id: string;
+          zone: string;
+          owner: (string | number)[];
+          identity: string[];
+          rate: IAutoMovieProductionFrameRate;
+          frames: number[];
+          seconds: number[];
+          step: number;
+          intensity: { from: number; to: number };
+        } => ({
+          id: runtime.effect.id,
+          zone: runtime.effect.zone,
+          owner: [runtime.version, runtime.owner, runtime.clock] as Array<
+            string | number
+          >,
+          identity: [
+            runtime.production,
+            runtime.film,
+            runtime.compileFingerprint,
+            runtime.editFingerprint,
+          ],
+          rate: runtime.frameRate,
+          frames: [runtime.startFrame, runtime.endFrame],
+          seconds: [runtime.effect.start, runtime.effect.end],
+          step: runtime.effect.fixedStepSeconds,
+          intensity: runtime.effect.intensity,
+        }),
+      ),
       [
-      ["haze", "gate", 0, 6, 1],
-      ["mist", "yard", 12, 24, 0.5],
-      ["dew", "yard", 24, 30, 0.5],
-    ].map(([id, zone, start, end, intensity]: (string | number)[]): { id: string; zone: string; owner: (string | number)[]; identity: string[]; rate: { numerator: number; denominator: number; }; frames: number[]; seconds: number[]; step: number; intensity: { from: number; to: number; }; } => ({
-      id: id as string,
-      zone: zone as string,
-      owner: [1, "film", "timeline-frame"],
-      identity: [
-        "production",
-        "film",
-        timeline.inputFingerprint,
-        identity.editFingerprint,
-      ],
-      rate: { numerator: 24, denominator: 1 },
-      frames: [start as number, end as number],
-      seconds: [(start as number) / 24, (end as number) / 24],
-      step: 1 / 24,
-      intensity: { from: intensity as number, to: intensity as number },
-    })),
+        ["haze", "gate", 0, 6, 1],
+        ["mist", "yard", 12, 24, 0.5],
+        ["dew", "yard", 24, 30, 0.5],
+      ].map(
+        ([id, zone, start, end, intensity]: (string | number)[]): {
+          id: string;
+          zone: string;
+          owner: (string | number)[];
+          identity: string[];
+          rate: { numerator: number; denominator: number };
+          frames: number[];
+          seconds: number[];
+          step: number;
+          intensity: { from: number; to: number };
+        } => ({
+          id: id as string,
+          zone: zone as string,
+          owner: [1, "film", "timeline-frame"],
+          identity: [
+            "production",
+            "film",
+            timeline.inputFingerprint,
+            identity.editFingerprint,
+          ],
+          rate: { numerator: 24, denominator: 1 },
+          frames: [start as number, end as number],
+          seconds: [(start as number) / 24, (end as number) / 24],
+          step: 1 / 24,
+          intensity: { from: intensity as number, to: intensity as number },
+        }),
+      ),
     ),
   );
   TestValidator.equals(
@@ -132,7 +182,9 @@ export function test_film_effect_materialization(): void {
         }),
         filmEffectCue({ id: "B", startFrame: 0, durationFrames: 6 }),
       ],
-    }).map((runtime: IAutoMovieCompiledFilmEffect): string => runtime.effect.id),
+    }).map(
+      (runtime: IAutoMovieCompiledFilmEffect): string => runtime.effect.id,
+    ),
     ["B", "a"],
   );
 
@@ -148,18 +200,23 @@ export function test_film_effect_materialization(): void {
     "a rational clock yields the authored rational bounds within 1e-12",
     filmEffectValuesClose(
       [
-      rationalRuntime.frameRate,
-      rationalRuntime.effect.start,
-      rationalRuntime.effect.end,
-      rationalRuntime.effect.fixedStepSeconds,
-    ],
+        rationalRuntime.frameRate,
+        rationalRuntime.effect.start,
+        rationalRuntime.effect.end,
+        rationalRuntime.effect.fixedStepSeconds,
+      ],
       [rational, 3003 / 30000, 5005 / 30000, 1001 / 30000],
     ),
   );
 
-  const refuse: (overrides: Partial<Parameters<typeof materializeProductionFilmEffects>[0]>) => string = (
+  const refuse: (
     overrides: Partial<Parameters<typeof materializeProductionFilmEffects>[0]>,
-  ): string => filmEffectRefusal((): IAutoMovieCompiledFilmEffect[] => materialize(overrides));
+  ) => string = (
+    overrides: Partial<Parameters<typeof materializeProductionFilmEffects>[0]>,
+  ): string =>
+    filmEffectRefusal((): IAutoMovieCompiledFilmEffect[] =>
+      materialize(overrides),
+    );
   TestValidator.equals(
     "a malformed identity or rate is refused as input",
     [
@@ -178,7 +235,11 @@ export function test_film_effect_materialization(): void {
     ],
     Array.from({ length: 7 }, (): string => "film-effect-input-invalid"),
   );
-  const world: (patch: Partial<Pick<IAutoMovieWorldDesign, "effectRecipes" | "effectZones">>) => IAutoMovieWorldDesign = (
+  const world: (
+    patch: Partial<
+      Pick<IAutoMovieWorldDesign, "effectRecipes" | "effectZones">
+    >,
+  ) => IAutoMovieWorldDesign = (
     patch: Partial<
       Pick<IAutoMovieWorldDesign, "effectRecipes" | "effectZones">
     >,
@@ -220,14 +281,69 @@ export function test_film_effect_materialization(): void {
       { endFrame: 36.5 },
       { endFrame: 30 },
       {},
-    ].map((patch: { cue: string; shot?: undefined; zone?: undefined; startFrame?: undefined; endFrame?: undefined; } | { shot: string; cue?: undefined; zone?: undefined; startFrame?: undefined; endFrame?: undefined; } | { zone: string; cue?: undefined; shot?: undefined; startFrame?: undefined; endFrame?: undefined; } | { startFrame: number; cue?: undefined; shot?: undefined; zone?: undefined; endFrame?: undefined; } | { endFrame: number; cue?: undefined; shot?: undefined; zone?: undefined; startFrame?: undefined; } | { cue?: undefined; shot?: undefined; zone?: undefined; startFrame?: undefined; endFrame?: undefined; }): string => refuse({ shotEffects: [{ ...interval, ...patch }] })),
+    ].map(
+      (
+        patch:
+          | {
+              cue: string;
+              shot?: undefined;
+              zone?: undefined;
+              startFrame?: undefined;
+              endFrame?: undefined;
+            }
+          | {
+              shot: string;
+              cue?: undefined;
+              zone?: undefined;
+              startFrame?: undefined;
+              endFrame?: undefined;
+            }
+          | {
+              zone: string;
+              cue?: undefined;
+              shot?: undefined;
+              startFrame?: undefined;
+              endFrame?: undefined;
+            }
+          | {
+              startFrame: number;
+              cue?: undefined;
+              shot?: undefined;
+              zone?: undefined;
+              endFrame?: undefined;
+            }
+          | {
+              endFrame: number;
+              cue?: undefined;
+              shot?: undefined;
+              zone?: undefined;
+              startFrame?: undefined;
+            }
+          | {
+              cue?: undefined;
+              shot?: undefined;
+              zone?: undefined;
+              startFrame?: undefined;
+              endFrame?: undefined;
+            },
+      ): string => refuse({ shotEffects: [{ ...interval, ...patch }] }),
+    ),
     [
       ...Array.from({ length: 7 }, (): string => "film-effect-input-invalid"),
       "accepted",
     ],
   );
 
-  const cue: (patch: Partial<{ id: string; recipe: "world-zone"; zone: string; startFrame: number; durationFrames: number; intensity: number; }>) => string = (
+  const cue: (
+    patch: Partial<{
+      id: string;
+      recipe: "world-zone";
+      zone: string;
+      startFrame: number;
+      durationFrames: number;
+      intensity: number;
+    }>,
+  ) => string = (
     patch: Partial<IAutoMovieFilmTimeline["tracks"]["effects"][number]>,
   ): string => refuse({ effects: [filmEffectCue(patch)] });
   TestValidator.equals(
@@ -311,7 +427,7 @@ export function test_film_effect_materialization(): void {
         { startFrame: 24, endFrame: 30 },
         { startFrame: 0, endFrame: 12 },
         { startFrame: 30, endFrame: 36 },
-      ].map((frames: { startFrame: number; endFrame: number; }): string =>
+      ].map((frames: { startFrame: number; endFrame: number }): string =>
         refuse({
           effects: [filmEffectCue()],
           shotEffects: [{ ...interval, zone: "yard", ...frames }],

@@ -1,5 +1,8 @@
 import { cutSequence } from "@automovie/engine";
-import { type IAutoMovieConstraintViolation, type IAutoMovieShot } from "@automovie/interface";
+import {
+  type IAutoMovieConstraintViolation,
+  type IAutoMovieShot,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { hasViolation, namedFacts, nclose } from "../internal/predicates";
@@ -95,7 +98,8 @@ export function test_film_cut_sequence_invalid_entries(): void {
       (v: IAutoMovieConstraintViolation): boolean =>
         v.kind === "range" &&
         v.path === "$input.entries[3].trim" &&
-        v.overshoot !== undefined && nclose(v.overshoot, 1),
+        v.overshoot !== undefined &&
+        nclose(v.overshoot, 1),
     ),
   );
   TestValidator.predicate(
@@ -108,7 +112,8 @@ export function test_film_cut_sequence_invalid_entries(): void {
       (v: IAutoMovieConstraintViolation): boolean =>
         v.kind === "range" &&
         v.path === "$input.entries[5].transition.duration" &&
-        v.overshoot !== undefined && nclose(v.overshoot, 1),
+        v.overshoot !== undefined &&
+        nclose(v.overshoot, 1),
     ),
   );
 

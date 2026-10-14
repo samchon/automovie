@@ -1,11 +1,20 @@
-import { IAutoMovieForgedCast } from "../../../../packages/engine/src/film/IAutoMovieForgedCast";
-import { IAutoMovieConstraintViolation, AutoMovieHumanoidBone, IAutoMovieBone } from "@automovie/interface";
-import { forgeCast } from "../../../../packages/engine/src/film/forgeCast";
+import {
+  AutoMovieHumanoidBone,
+  IAutoMovieBone,
+  IAutoMovieConstraintViolation,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
+
+import { IAutoMovieForgedCast } from "../../../../packages/engine/src/film/IAutoMovieForgedCast";
+import { forgeCast } from "../../../../packages/engine/src/film/forgeCast";
 import { forgeEntry, makeScriptWrite } from "../internal/filmFixtures";
 import { IDENTITY_TRANSFORM } from "../internal/fixtures";
 import { hasViolation, namedFacts } from "../internal/predicates";
-const b: (bone: AutoMovieHumanoidBone, parent: AutoMovieHumanoidBone | null) => IAutoMovieBone = (
+
+const b: (
+  bone: AutoMovieHumanoidBone,
+  parent: AutoMovieHumanoidBone | null,
+) => IAutoMovieBone = (
   bone: AutoMovieHumanoidBone,
   parent: AutoMovieHumanoidBone | null,
 ): IAutoMovieBone => ({
@@ -129,8 +138,9 @@ export function test_film_forge_cast_skeleton_graph(): void {
         "doubledViolationsV",
         (): boolean =>
           doubled.success === false &&
-          doubled.violations.every((v: IAutoMovieConstraintViolation): boolean =>
-            v.path.endsWith(".skeleton.bones[2].bone"),
+          doubled.violations.every(
+            (v: IAutoMovieConstraintViolation): boolean =>
+              v.path.endsWith(".skeleton.bones[2].bone"),
           ),
       ],
     ]),

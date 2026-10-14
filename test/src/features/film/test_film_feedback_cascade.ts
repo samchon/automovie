@@ -1,11 +1,16 @@
-import { IAutoMovieSupportResult } from "../../../../packages/engine/src/validation/IAutoMovieSupportResult";
-import { IAutoMovieScriptNode, IAutoMovieConstraintViolation } from "@automovie/interface";
-import { detectSupportToppling } from "../../../../packages/engine/src/validation/detectSupportToppling";
+import {
+  IAutoMovieConstraintViolation,
+  IAutoMovieScriptNode,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
 import { locateOnBeat } from "../../../../packages/engine/src/film/locateOnBeat";
 import { scriptAncestors } from "../../../../packages/engine/src/film/scriptAncestors";
-import { TestValidator } from "@nestia/e2e";
-import { validationHasWarningCount } from "../internal/predicates";
+import { IAutoMovieSupportResult } from "../../../../packages/engine/src/validation/IAutoMovieSupportResult";
+import { detectSupportToppling } from "../../../../packages/engine/src/validation/detectSupportToppling";
 import { createScriptTree } from "../internal/createScriptTree";
+import { validationHasWarningCount } from "../internal/predicates";
+
 /**
  * A support warning can be addressed through the authored screenplay ancestry.
  *
@@ -24,7 +29,7 @@ export function test_film_feedback_cascade(): void {
 
   // A crate whose center of mass overhangs its small support square: a real
   // physics warning produced "while working beat-1".
-  const support: { x: number; y: number; z: number; }[] = [
+  const support: { x: number; y: number; z: number }[] = [
     { x: -0.1, y: 0, z: -0.1 },
     { x: 0.1, y: 0, z: -0.1 },
     { x: 0.1, y: 0, z: 0.1 },
@@ -49,7 +54,11 @@ export function test_film_feedback_cascade(): void {
     "warning",
   );
 
-  const located: IAutoMovieConstraintViolation[] = locateOnBeat(warnings, tree, "beat-1");
+  const located: IAutoMovieConstraintViolation[] = locateOnBeat(
+    warnings,
+    tree,
+    "beat-1",
+  );
   TestValidator.equals(
     "the warning locates on the beat node",
     located[0]!.node,
@@ -64,7 +73,11 @@ export function test_film_feedback_cascade(): void {
     "root",
   ]);
 
-  const unlocated: IAutoMovieConstraintViolation[] = locateOnBeat(warnings, null, "beat-1");
+  const unlocated: IAutoMovieConstraintViolation[] = locateOnBeat(
+    warnings,
+    null,
+    "beat-1",
+  );
   TestValidator.equals(
     "without a tree the feedback stays motion-local",
     unlocated[0]!.node,

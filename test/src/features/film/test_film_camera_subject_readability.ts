@@ -29,7 +29,9 @@ const camera: () => IAutoMovieCamera = (): IAutoMovieCamera => ({
   depthPrecision: { minimumDepthBits: 24, maximumStepMeters: 100 },
 });
 
-const frame: (framing: IAutoMovieCameraAction["framing"]) => IAutoMovieCameraAction = (
+const frame: (
+  framing: IAutoMovieCameraAction["framing"],
+) => IAutoMovieCameraAction = (
   framing: IAutoMovieCameraAction["framing"],
 ): IAutoMovieCameraAction => ({
   verb: "frame",
@@ -42,7 +44,10 @@ const frame: (framing: IAutoMovieCameraAction["framing"]) => IAutoMovieCameraAct
 });
 
 /** Solve the live camera for one framing of a subject standing at `base`. */
-const solved: (framing: IAutoMovieCameraAction["framing"], base: IAutoMovieVector3) => ReturnType<typeof resolveCameraAt> = (
+const solved: (
+  framing: IAutoMovieCameraAction["framing"],
+  base: IAutoMovieVector3,
+) => ReturnType<typeof resolveCameraAt> = (
   framing: IAutoMovieCameraAction["framing"],
   base: IAutoMovieVector3,
 ): ReturnType<typeof resolveCameraAt> => {
@@ -65,7 +70,11 @@ const ORIGIN: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
  * `framedOn`. The two differ only in the negative case: a camera re-solved on
  * the displaced subject would simply follow it, which tests nothing.
  */
-const readable: (framing: IAutoMovieCameraAction["framing"], base: IAutoMovieVector3, framedOn?: IAutoMovieVector3) => boolean = (
+const readable: (
+  framing: IAutoMovieCameraAction["framing"],
+  base: IAutoMovieVector3,
+  framedOn?: IAutoMovieVector3,
+) => boolean = (
   framing: IAutoMovieCameraAction["framing"],
   base: IAutoMovieVector3,
   framedOn: IAutoMovieVector3 = base,
@@ -110,28 +119,52 @@ const readable: (framing: IAutoMovieCameraAction["framing"], base: IAutoMovieVec
  * @evidence contracts/testing.md#execution-ownership Runs synchronous compilation, clip sampling, projection, and mathematical intersection on local records without a renderer, external resources, clock, or replacement of product dependencies; the result is sampled numerical visibility rather than rendered-image proof.
  */
 export function test_film_camera_subject_readability(): void {
-  const framings: readonly ["wide", "full", "medium", "close"] = ["wide", "full", "medium", "close"];
+  const framings: readonly ["wide", "full", "medium", "close"] = [
+    "wide",
+    "full",
+    "medium",
+    "close",
+  ];
 
   TestValidator.equals(
     "every shot size reads a correctly staged subject",
-    namedFacts(framings.map((f: IAutoMovieCameraAction["framing"]): [string, () => boolean] => [f, (): boolean => readable(f, ORIGIN)])),
+    namedFacts(
+      framings.map(
+        (f: IAutoMovieCameraAction["framing"]): [string, () => boolean] => [
+          f,
+          (): boolean => readable(f, ORIGIN),
+        ],
+      ),
+    ),
     { wide: true, full: true, medium: true, close: true },
   );
   TestValidator.equals(
     "a displaced subject reads at no shot size",
     namedFacts(
-      framings.map((f: IAutoMovieCameraAction["framing"]): [string, () => boolean] => [
-        f,
-        (): boolean => readable(f, { x: 1_000, y: 0, z: 0 }, ORIGIN),
-      ]),
+      framings.map(
+        (f: IAutoMovieCameraAction["framing"]): [string, () => boolean] => [
+          f,
+          (): boolean => readable(f, { x: 1_000, y: 0, z: 0 }, ORIGIN),
+        ],
+      ),
     ),
     { wide: false, full: false, medium: false, close: false },
   );
 
-  const groundOnly: (framing: IAutoMovieCameraAction["framing"]) => boolean = (framing: IAutoMovieCameraAction["framing"]): boolean => {
-    const resolved: ReturnType<typeof resolveCameraAt> = solved(framing, ORIGIN);
+  const groundOnly: (framing: IAutoMovieCameraAction["framing"]) => boolean = (
+    framing: IAutoMovieCameraAction["framing"],
+  ): boolean => {
+    const resolved: ReturnType<typeof resolveCameraAt> = solved(
+      framing,
+      ORIGIN,
+    );
     const halfY: number = Math.tan((camera().fovY * Math.PI) / 360);
-    const projection: ReturnType<typeof projectToNdc> = projectToNdc(resolved, ORIGIN, halfY, ASPECT);
+    const projection: ReturnType<typeof projectToNdc> = projectToNdc(
+      resolved,
+      ORIGIN,
+      halfY,
+      ASPECT,
+    );
     return (
       projection.depth >= camera().near &&
       projection.depth <= camera().far &&
@@ -141,11 +174,21 @@ export function test_film_camera_subject_readability(): void {
   };
   TestValidator.equals(
     "the ground point alone is what the cropped shot sizes exclude",
-    namedFacts(framings.map((f: IAutoMovieCameraAction["framing"]): [string, () => boolean] => [f, (): boolean => groundOnly(f)])),
+    namedFacts(
+      framings.map(
+        (f: IAutoMovieCameraAction["framing"]): [string, () => boolean] => [
+          f,
+          (): boolean => groundOnly(f),
+        ],
+      ),
+    ),
     { wide: true, full: true, medium: false, close: false },
   );
 
-  const depthProbe: (from: IAutoMovieVector3, to: IAutoMovieVector3) => boolean = (from: IAutoMovieVector3, to: IAutoMovieVector3): boolean =>
+  const depthProbe: (
+    from: IAutoMovieVector3,
+    to: IAutoMovieVector3,
+  ) => boolean = (from: IAutoMovieVector3, to: IAutoMovieVector3): boolean =>
     intersectsPerspectiveFrustumSegment({
       camera: solved("wide", ORIGIN),
       from,
@@ -180,7 +223,8 @@ export function test_film_camera_subject_readability(): void {
     namedFacts([
       [
         "insideTheFrame",
-        (): boolean => depthProbe({ x: -0.2, y: 0.85, z: 0 }, { x: 0.2, y: 0.85, z: 0 }),
+        (): boolean =>
+          depthProbe({ x: -0.2, y: 0.85, z: 0 }, { x: 0.2, y: 0.85, z: 0 }),
       ],
       [
         "outsideTheFrame",

@@ -42,10 +42,10 @@ const WIDE: IAutoMovieCameraAction = {
 };
 
 /** How far back the solve stood the camera from its subject's aim point. */
-const framedDistance: (subject: IAutoMovieFramedSubject, aspect?: number) => number = (
+const framedDistance: (
   subject: IAutoMovieFramedSubject,
   aspect?: number,
-): number => {
+) => number = (subject: IAutoMovieFramedSubject, aspect?: number): number => {
   const clip: ReturnType<typeof compileCameraMove> = compileCameraMove({
     clipId: "clip",
     camera: camera(),
@@ -64,7 +64,9 @@ const FIGURE: IAutoMovieFramedSubject = {
 };
 
 /** The same place, occupied by a mass `radius * 2` meters across. */
-const crowd: (radius: number) => IAutoMovieFramedSubject = (radius: number): IAutoMovieFramedSubject => ({
+const crowd: (radius: number) => IAutoMovieFramedSubject = (
+  radius: number,
+): IAutoMovieFramedSubject => ({
   ...FIGURE,
   radius,
 });
@@ -76,8 +78,10 @@ const SHOWN: number = FRAMING_HEIGHT_FRACTION.wide;
 const VERTICAL: number = (HEIGHT * SHOWN) / 2;
 
 /** The horizontal fit for a mass `radius * 2` across, on a frame `aspect` wide. */
-const horizontal: (radius: number, aspect?: number) => number = (radius: number, aspect: number = 1): number =>
-  (radius * 2 * SHOWN) / 2 / aspect;
+const horizontal: (radius: number, aspect?: number) => number = (
+  radius: number,
+  aspect: number = 1,
+): number => (radius * 2 * SHOWN) / 2 / aspect;
 
 /**
  * A camera can frame a crowd: the framing distance is solved from the subject's
@@ -117,7 +121,10 @@ export function test_film_camera_group_extent_framing(): void {
     "one body is framed from its height alone, exactly as before",
     namedFacts([
       ["figure", (): boolean => nclose(framedDistance(FIGURE), VERTICAL)],
-      ["rasterIrrelevant", (): boolean => nclose(framedDistance(FIGURE, 16 / 9), 3.4)],
+      [
+        "rasterIrrelevant",
+        (): boolean => nclose(framedDistance(FIGURE, 16 / 9), 3.4),
+      ],
       ["zeroRadius", (): boolean => nclose(framedDistance(crowd(0)), VERTICAL)],
     ]),
     { figure: true, rasterIrrelevant: true, zeroRadius: true },
@@ -126,8 +133,14 @@ export function test_film_camera_group_extent_framing(): void {
   TestValidator.equals(
     "a crowd is framed from the width of the crowd",
     namedFacts([
-      ["furtherThanTheFigure", (): boolean => framedDistance(crowd(20)) > VERTICAL],
-      ["oracle", (): boolean => nclose(framedDistance(crowd(20)), horizontal(20))],
+      [
+        "furtherThanTheFigure",
+        (): boolean => framedDistance(crowd(20)) > VERTICAL,
+      ],
+      [
+        "oracle",
+        (): boolean => nclose(framedDistance(crowd(20)), horizontal(20)),
+      ],
       ["eighty", (): boolean => nclose(framedDistance(crowd(20)), 80)],
     ]),
     { furtherThanTheFigure: true, oracle: true, eighty: true },
@@ -136,8 +149,14 @@ export function test_film_camera_group_extent_framing(): void {
   TestValidator.equals(
     "a crowd that grows is framed further back still",
     namedFacts([
-      ["grew", (): boolean => framedDistance(crowd(40)) > framedDistance(crowd(20))],
-      ["oracle", (): boolean => nclose(framedDistance(crowd(40)), horizontal(40))],
+      [
+        "grew",
+        (): boolean => framedDistance(crowd(40)) > framedDistance(crowd(20)),
+      ],
+      [
+        "oracle",
+        (): boolean => nclose(framedDistance(crowd(40)), horizontal(40)),
+      ],
       ["twiceAsFar", (): boolean => nclose(framedDistance(crowd(40)), 160)],
     ]),
     { grew: true, oracle: true, twiceAsFar: true },
@@ -148,11 +167,13 @@ export function test_film_camera_group_extent_framing(): void {
     namedFacts([
       [
         "wideRasterComesCloser",
-        (): boolean => framedDistance(crowd(20), 16 / 9) < framedDistance(crowd(20)),
+        (): boolean =>
+          framedDistance(crowd(20), 16 / 9) < framedDistance(crowd(20)),
       ],
       [
         "wideRasterOracle",
-        (): boolean => nclose(framedDistance(crowd(20), 16 / 9), horizontal(20, 16 / 9)),
+        (): boolean =>
+          nclose(framedDistance(crowd(20), 16 / 9), horizontal(20, 16 / 9)),
       ],
       [
         "stillFurtherThanTheFigure",
@@ -160,7 +181,8 @@ export function test_film_camera_group_extent_framing(): void {
       ],
       [
         "noRasterIsSquare",
-        (): boolean => nclose(framedDistance(crowd(20), 0), framedDistance(crowd(20))),
+        (): boolean =>
+          nclose(framedDistance(crowd(20), 0), framedDistance(crowd(20))),
       ],
     ]),
     {

@@ -1,20 +1,33 @@
-import { IAutoMovieSceneNode, IAutoMovieScript, IAutoMovieSkeleton } from "@automovie/interface";
-import { IAutoMovieForgedCast } from "../../../../packages/engine/src/film/IAutoMovieForgedCast";
-import { IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
+import {
+  IAutoMovieSceneNode,
+  IAutoMovieScript,
+  IAutoMovieSkeleton,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
 import { IAutoMovieBlockedBeat } from "../../../../packages/engine/src/film/IAutoMovieBlockedBeat";
-import { IAutoMoviePerformedShot } from "../../../../packages/engine/src/film/IAutoMoviePerformedShot";
 import { IAutoMovieCut } from "../../../../packages/engine/src/film/IAutoMovieCut";
+import { IAutoMovieForgedCast } from "../../../../packages/engine/src/film/IAutoMovieForgedCast";
+import { IAutoMoviePerformedShot } from "../../../../packages/engine/src/film/IAutoMoviePerformedShot";
 import { IAutoMoviePlaybackSample } from "../../../../packages/engine/src/film/IAutoMoviePlaybackSample";
+import { IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
 import { blockBeat } from "../../../../packages/engine/src/film/blockBeat";
 import { cutSequence } from "../../../../packages/engine/src/film/cutSequence";
 import { forgeCast } from "../../../../packages/engine/src/film/forgeCast";
 import { performShot } from "../../../../packages/engine/src/film/performShot";
 import { playbackFrameSamples } from "../../../../packages/engine/src/film/playbackFrameSamples";
 import { stageScene } from "../../../../packages/engine/src/film/stageScene";
-import { TestValidator } from "@nestia/e2e";
-import { forgeEntry, makeBlockingWrite, makePerformanceWrite, makeScriptWrite, makeStagingWrite, validSynthesizer } from "../internal/filmFixtures";
+import {
+  forgeEntry,
+  makeBlockingWrite,
+  makePerformanceWrite,
+  makeScriptWrite,
+  makeStagingWrite,
+  validSynthesizer,
+} from "../internal/filmFixtures";
 import { createSkeleton } from "../internal/fixtures";
 import { nclose } from "../internal/predicates";
+
 /**
  * A source-authored take flows through forging, staging, blocking, performance,
  * cutting and playback without losing its cast, camera or timing.
@@ -34,7 +47,7 @@ import { nclose } from "../internal/predicates";
  * @evidence contracts/testing.md#distinguishing-cases Owns one complete successful composition across film stages; rejection domains, repeated shots, trim seams and transitions belong to the focused stage and playback tests, without pretending this path covers those decisions.
  * @evidence contracts/testing.md#execution-ownership Despite its historical e2e filename, this discoverable synchronous entry is a portable engine unit composition with hand-authored data and the existing one-second fixture synthesizer, not the actor-context synthesizer. It installs or starts no consumer, process, browser or GPU.
  */
-export function test_film_full_ladder_e2e (): void {
+export function test_film_full_ladder_e2e(): void {
   const script: IAutoMovieScript = makeScriptWrite();
 
   const forged: IAutoMovieForgedCast = forgeCast(script, {
@@ -48,11 +61,17 @@ export function test_film_full_ladder_e2e (): void {
   if (staged.success !== true) return;
   TestValidator.equals(
     "the stage wears the forged stand-in",
-    staged.scene.nodes.find((n: IAutoMovieSceneNode) : boolean => n.id === "knightB")!.model,
+    staged.scene.nodes.find(
+      (n: IAutoMovieSceneNode): boolean => n.id === "knightB",
+    )!.model,
     forged.models["knightB"]!.id,
   );
 
-  const blocked: IAutoMovieBlockedBeat = blockBeat(script, staged, makeBlockingWrite());
+  const blocked: IAutoMovieBlockedBeat = blockBeat(
+    script,
+    staged,
+    makeBlockingWrite(),
+  );
   TestValidator.equals("block", blocked.success, true);
   if (blocked.success !== true) return;
 
@@ -61,7 +80,7 @@ export function test_film_full_ladder_e2e (): void {
     staged,
     performance: makePerformanceWrite(),
     synthesize: validSynthesizer,
-    skeleton: () : IAutoMovieSkeleton => createSkeleton(),
+    skeleton: (): IAutoMovieSkeleton => createSkeleton(),
     blocking: blocked.blocking,
   });
   TestValidator.equals("perform", performed.success, true);
@@ -85,14 +104,21 @@ export function test_film_full_ladder_e2e (): void {
   if (cut.success !== true) return;
   TestValidator.predicate("runtime", nclose(cut.runtime, 2));
 
-  const samples: IAutoMoviePlaybackSample[] = playbackFrameSamples(cut.sequence, [performed.shot]);
+  const samples: IAutoMoviePlaybackSample[] = playbackFrameSamples(
+    cut.sequence,
+    [performed.shot],
+  );
   TestValidator.equals("frame count", samples.length, 48);
   TestValidator.predicate(
     "first frame opens the shot",
-    (): boolean => samples[0]!.shot === "shot:beat-1" && nclose(samples[0]!.time, 0),
+    (): boolean =>
+      samples[0]!.shot === "shot:beat-1" && nclose(samples[0]!.time, 0),
   );
   TestValidator.predicate(
     "every frame plays the one shot, hard-cut free",
-    samples.every((s: IAutoMoviePlaybackSample) : boolean => s.shot === "shot:beat-1" && s.blend === null),
+    samples.every(
+      (s: IAutoMoviePlaybackSample): boolean =>
+        s.shot === "shot:beat-1" && s.blend === null,
+    ),
   );
 }

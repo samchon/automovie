@@ -1,10 +1,12 @@
-import { IAutoMovieGrammarShotObservation } from "../../../../packages/engine/src/film/IAutoMovieGrammarShotObservation";
-import { IAutoMovieGrammarDiagnostic } from "../../../../packages/engine/src/film/IAutoMovieGrammarDiagnostic";
 import { IAutoMovieReviewNote } from "@automovie/interface";
-import { grammarDiagnosticsToReviewNotes } from "../../../../packages/engine/src/film/grammarDiagnosticsToReviewNotes";
 import { TestValidator } from "@nestia/e2e";
+
+import { IAutoMovieGrammarDiagnostic } from "../../../../packages/engine/src/film/IAutoMovieGrammarDiagnostic";
+import { IAutoMovieGrammarShotObservation } from "../../../../packages/engine/src/film/IAutoMovieGrammarShotObservation";
+import { grammarDiagnosticsToReviewNotes } from "../../../../packages/engine/src/film/grammarDiagnosticsToReviewNotes";
 import { createFilmGrammarCase } from "../internal/createFilmGrammarCase";
 import { namedFacts } from "../internal/predicates";
+
 /**
  * Camera geometry and authored style intent jointly determine film findings.
  *
@@ -23,7 +25,15 @@ import { namedFacts } from "../internal/predicates";
  * @evidence contracts/testing.md#execution-ownership This portable synchronous unit entry owns its cases and calls source grammar functions through createFilmGrammarCase readers; the factory registers no hidden scenarios and starts no renderer or process.
  */
 export function test_film_grammar(): void {
-  const { point, cameraSample, camera, subject, shot, reportedGrammar, codes }: ReturnType<typeof createFilmGrammarCase> = createFilmGrammarCase();
+  const {
+    point,
+    cameraSample,
+    camera,
+    subject,
+    shot,
+    reportedGrammar,
+    codes,
+  }: ReturnType<typeof createFilmGrammarCase> = createFilmGrammarCase();
   const movingRight: IAutoMovieGrammarShotObservation = shot("moving-right", {
     subjects: [subject("hero", point(-0.5, 0, 0), point(0.5, 0, 0))],
   });
@@ -35,10 +45,13 @@ export function test_film_grammar(): void {
   TestValidator.equals(
     "same-size shallow cut and screen reversal both report",
     namedFacts([
-      ["jumpCutReported", () : boolean => unsuppressed.includes("grammar-jump-cut")],
+      [
+        "jumpCutReported",
+        (): boolean => unsuppressed.includes("grammar-jump-cut"),
+      ],
       [
         "screenDirectionReported",
-        () : boolean => unsuppressed.includes("grammar-screen-direction"),
+        (): boolean => unsuppressed.includes("grammar-screen-direction"),
       ],
     ]),
     { jumpCutReported: true, screenDirectionReported: true },
@@ -52,22 +65,25 @@ export function test_film_grammar(): void {
     namedFacts([
       [
         "jumpCutSuppressed",
-        () : boolean => suppressed.includes("grammar-jump-cut") === false,
+        (): boolean => suppressed.includes("grammar-jump-cut") === false,
       ],
       [
         "screenDirectionKept",
-        () : boolean => suppressed.includes("grammar-screen-direction"),
+        (): boolean => suppressed.includes("grammar-screen-direction"),
       ],
     ]),
     { jumpCutSuppressed: true, screenDirectionKept: true },
   );
-  const followedRight: IAutoMovieGrammarShotObservation = shot("followed-right", {
-    camera: {
-      start: cameraSample(point(0, 0.9, 3)),
-      end: cameraSample(point(1, 0.9, 3), point(1, 0.9, 0)),
+  const followedRight: IAutoMovieGrammarShotObservation = shot(
+    "followed-right",
+    {
+      camera: {
+        start: cameraSample(point(0, 0.9, 3)),
+        end: cameraSample(point(1, 0.9, 3), point(1, 0.9, 0)),
+      },
+      subjects: [subject("hero", point(0, 0, 0), point(1, 0, 0))],
     },
-    subjects: [subject("hero", point(0, 0, 0), point(1, 0, 0))],
-  });
+  );
   TestValidator.predicate(
     "following camera keeps matching world motion screen-neutral",
     codes([movingRight, followedRight]).includes("grammar-screen-direction") ===
@@ -94,10 +110,13 @@ export function test_film_grammar(): void {
     "three-dimensional camera angle accepts an elevation change above 30 degrees",
     codes([levelWide, elevated]).includes("grammar-jump-cut") === false,
   );
-  const relocatedSameBearing: IAutoMovieGrammarShotObservation = shot("relocated-same-bearing", {
-    camera: camera(point(20, 0.9, 3), point(20, 0.9, 0)),
-    subjects: [subject("hero", point(20, 0, 0))],
-  });
+  const relocatedSameBearing: IAutoMovieGrammarShotObservation = shot(
+    "relocated-same-bearing",
+    {
+      camera: camera(point(20, 0.9, 3), point(20, 0.9, 0)),
+      subjects: [subject("hero", point(20, 0, 0))],
+    },
+  );
   TestValidator.predicate(
     "cut angle uses each camera's respective subject boundary position",
     codes([shot("before-relocation"), relocatedSameBearing]).includes(
@@ -114,17 +133,20 @@ export function test_film_grammar(): void {
       }),
     ],
   });
-  const reverseEyeline: IAutoMovieGrammarShotObservation = shot("reverse-eyeline", {
-    camera: camera(point(0, 0.9, -5)),
-    subjects: [
-      subject("hero", point(0, 0, 0)),
-      subject("target", point(1, 0, 0), point(1, 0, 0), {
-        target: "hero",
-        point: point(0, 0, 0),
-      }),
-    ],
-    primarySubject: "target",
-  });
+  const reverseEyeline: IAutoMovieGrammarShotObservation = shot(
+    "reverse-eyeline",
+    {
+      camera: camera(point(0, 0.9, -5)),
+      subjects: [
+        subject("hero", point(0, 0, 0)),
+        subject("target", point(1, 0, 0), point(1, 0, 0), {
+          target: "hero",
+          point: point(0, 0, 0),
+        }),
+      ],
+      primarySubject: "target",
+    },
+  );
   TestValidator.predicate(
     "primary switch with a non-opposite reverse relation diagnoses eyeline",
     codes([looking, reverseEyeline]).includes("grammar-eyeline"),
@@ -144,20 +166,23 @@ export function test_film_grammar(): void {
       }),
     ],
   });
-  const brokenVerticalLook: IAutoMovieGrammarShotObservation = shot("broken-vertical-look", {
-    subjects: [
-      subject("hero", point(0, 0, 0), point(0, 0, 0), {
-        target: "target",
-        point: point(1, -1, 0),
-      }),
-    ],
-  });
+  const brokenVerticalLook: IAutoMovieGrammarShotObservation = shot(
+    "broken-vertical-look",
+    {
+      subjects: [
+        subject("hero", point(0, 0, 0), point(0, 0, 0), {
+          target: "target",
+          point: point(1, -1, 0),
+        }),
+      ],
+    },
+  );
   TestValidator.predicate(
     "continuing eyeline compares horizontal and vertical screen components",
     reportedGrammar({
       shots: [verticalLook, brokenVerticalLook],
     }).some(
-      (diagnostic: IAutoMovieGrammarDiagnostic) : boolean =>
+      (diagnostic: IAutoMovieGrammarDiagnostic): boolean =>
         diagnostic.code === "grammar-eyeline" &&
         diagnostic.fact.includes("screen-center/above") &&
         diagnostic.fact.includes("screen-right/below"),
@@ -258,7 +283,10 @@ export function test_film_grammar(): void {
           ],
         },
       ],
-    }).filter((diagnostic: IAutoMovieGrammarDiagnostic) : boolean => diagnostic.code === "grammar-reestablish").length,
+    }).filter(
+      (diagnostic: IAutoMovieGrammarDiagnostic): boolean =>
+        diagnostic.code === "grammar-reestablish",
+    ).length,
     1,
   );
   TestValidator.predicate(
@@ -277,16 +305,17 @@ export function test_film_grammar(): void {
     namedFacts([
       [
         "pacingReported",
-        () : boolean =>
+        (): boolean =>
           diagnostics.some(
-            (diagnostic: IAutoMovieGrammarDiagnostic) : boolean => diagnostic.code === "grammar-pacing",
+            (diagnostic: IAutoMovieGrammarDiagnostic): boolean =>
+              diagnostic.code === "grammar-pacing",
           ),
       ],
       [
         "allCarryGuidance",
-        () : boolean =>
+        (): boolean =>
           diagnostics.every(
-            (diagnostic: IAutoMovieGrammarDiagnostic) : boolean =>
+            (diagnostic: IAutoMovieGrammarDiagnostic): boolean =>
               diagnostic.fact.length !== 0 &&
               diagnostic.impact.length !== 0 &&
               diagnostic.recovery.length !== 0,
@@ -301,13 +330,13 @@ export function test_film_grammar(): void {
   });
   TestValidator.predicate(
     "review socket preserves diagnostic identity and recovery",
-    notes.length === diagnostics.length && notes.every(
-      (note: IAutoMovieReviewNote, index: number) : boolean =>
-        note.tier === "visual" &&
-        note.beat === "beat-grammar" &&
-        note.issue.startsWith(`${diagnostics[index]!.code}: `) &&
-        note.suggestion === diagnostics[index]!.recovery,
-    ),
+    notes.length === diagnostics.length &&
+      notes.every(
+        (note: IAutoMovieReviewNote, index: number): boolean =>
+          note.tier === "visual" &&
+          note.beat === "beat-grammar" &&
+          note.issue.startsWith(`${diagnostics[index]!.code}: `) &&
+          note.suggestion === diagnostics[index]!.recovery,
+      ),
   );
-
 }

@@ -1,11 +1,14 @@
-import { playbackFrameSamples } from "../../../../packages/engine/src/film/playbackFrameSamples";
-import { IAutoMoviePlaybackSample } from "../../../../packages/engine/src/film/IAutoMoviePlaybackSample";
 import { IAutoMovieSequence, IAutoMovieShot } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { IAutoMoviePlaybackSample } from "../../../../packages/engine/src/film/IAutoMoviePlaybackSample";
+import { playbackFrameSamples } from "../../../../packages/engine/src/film/playbackFrameSamples";
 import { nclose, throwsError } from "../internal/predicates";
 
-const shot: (id: string, duration: number) => IAutoMovieShot = (id: string, duration: number): IAutoMovieShot => ({
+const shot: (id: string, duration: number) => IAutoMovieShot = (
+  id: string,
+  duration: number,
+): IAutoMovieShot => ({
   id,
   name: null,
   scene: "scene-duel",
@@ -39,7 +42,10 @@ export function test_film_playback_frames(): void {
       { shot: "b", trim: null, transition: null },
     ],
   };
-  const samples: IAutoMoviePlaybackSample[] = playbackFrameSamples(sequence, [shot("a", 1), shot("b", 1)]);
+  const samples: IAutoMoviePlaybackSample[] = playbackFrameSamples(sequence, [
+    shot("a", 1),
+    shot("b", 1),
+  ]);
   TestValidator.equals("frame count", samples.length, 8);
   TestValidator.equals(
     "shot per frame",
@@ -48,12 +54,15 @@ export function test_film_playback_frames(): void {
   );
   TestValidator.predicate(
     "local times ride the frame grid",
-    samples.every((s: IAutoMoviePlaybackSample, i: number): boolean => nclose(s.time, (i % 4) / 4)),
+    samples.every((s: IAutoMoviePlaybackSample, i: number): boolean =>
+      nclose(s.time, (i % 4) / 4),
+    ),
   );
   TestValidator.predicate(
     "frame sampling rejects zero fps",
     throwsError(
-      (): IAutoMoviePlaybackSample[] => playbackFrameSamples({ ...sequence, fps: 0 }, [shot("a", 1)]),
+      (): IAutoMoviePlaybackSample[] =>
+        playbackFrameSamples({ ...sequence, fps: 0 }, [shot("a", 1)]),
       ["sequence fps", "> 0", "0"],
     ),
   );

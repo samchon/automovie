@@ -1,8 +1,10 @@
-import { IAutoMovieForgedProp } from "../../../../packages/engine/src/film/IAutoMovieForgedProp";
-import { forgeProp } from "../../../../packages/engine/src/film/forgeProp";
 import { IAutoMoviePropSpec } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
+
+import { IAutoMovieForgedProp } from "../../../../packages/engine/src/film/IAutoMovieForgedProp";
+import { forgeProp } from "../../../../packages/engine/src/film/forgeProp";
 import { createDoorPropSpec } from "../internal/createDoorPropSpec";
+
 /**
  * ForgeProp accepts a prop authored entirely as data (crude primitive parts
  * carrying a physical body, a stack-top affordance, and a self-declared hinge
@@ -21,7 +23,7 @@ import { createDoorPropSpec } from "../internal/createDoorPropSpec";
  * @evidence contracts/testing.md#distinguishing-cases Keeps the same model while changing articulation to null, isolating the optional articulation boundary. Malformed model/articulation refusals, dangling joint bindings and mesh reach are owned by the dedicated forge_prop_gates and forge_prop_articulation_mesh tests.
  * @evidence contracts/testing.md#execution-ownership The runner discovers test_film_forge_prop and calls portable TypeScript forgeProp over in-memory data, with no renderer, process or external asset; this function owns both cases.
  */
-export function test_film_forge_prop (): void {
+export function test_film_forge_prop(): void {
   const spec: IAutoMoviePropSpec = createDoorPropSpec();
   const forged: IAutoMovieForgedProp = forgeProp(spec);
   TestValidator.equals("articulated prop passes", forged.success, true);
@@ -31,6 +33,9 @@ export function test_film_forge_prop (): void {
     "door",
   );
 
-  const rigid: IAutoMovieForgedProp = forgeProp({ ...spec, articulation: null });
+  const rigid: IAutoMovieForgedProp = forgeProp({
+    ...spec,
+    articulation: null,
+  });
   TestValidator.equals("rigid prop passes", rigid.success, true);
 }

@@ -1,50 +1,57 @@
-import { IAutoMoviePlaybackTimeline } from "../../../../packages/engine/src/film/IAutoMoviePlaybackTimeline";
-import { IAutoMoviePlaybackEntry } from "../../../../packages/engine/src/film/IAutoMoviePlaybackEntry";
-import { IAutoMoviePlaybackSample } from "../../../../packages/engine/src/film/IAutoMoviePlaybackSample";
-import { IAutoMoviePlaybackEvent } from "../../../../packages/engine/src/film/IAutoMoviePlaybackEvent";
-import { resolveSequencePlayback } from "../../../../packages/engine/src/film/resolveSequencePlayback";
-import { sequenceEventTimeline } from "../../../../packages/engine/src/film/sequenceEventTimeline";
-import { sequenceTimeline } from "../../../../packages/engine/src/film/sequenceTimeline";
 import { IAutoMovieSequence, IAutoMovieShot } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { IAutoMoviePlaybackEntry } from "../../../../packages/engine/src/film/IAutoMoviePlaybackEntry";
+import { IAutoMoviePlaybackEvent } from "../../../../packages/engine/src/film/IAutoMoviePlaybackEvent";
+import { IAutoMoviePlaybackSample } from "../../../../packages/engine/src/film/IAutoMoviePlaybackSample";
+import { IAutoMoviePlaybackTimeline } from "../../../../packages/engine/src/film/IAutoMoviePlaybackTimeline";
+import { resolveSequencePlayback } from "../../../../packages/engine/src/film/resolveSequencePlayback";
+import { sequenceEventTimeline } from "../../../../packages/engine/src/film/sequenceEventTimeline";
+import { sequenceTimeline } from "../../../../packages/engine/src/film/sequenceTimeline";
 import { nclose, throwsError } from "../internal/predicates";
 
 /**
  * Builds an authored empty-motion shot with a supplied id and span; its playback entry owns assertions derived from the stated trims, overlap clocks and boundaries.
  */
-function shot (id: string, duration: number): IAutoMovieShot { return ({
-  id,
-  name: null,
-  scene: "scene-duel",
-  camera: "cam-main",
-  cameraMotion: null,
-  performances: [],
-  objectMotions: [],
-  duration,
-}); }
-const SHOTS: IAutoMovieShot[] = [shot("shot:beat-1", 3), shot("shot:beat-2", 4)];
+function shot(id: string, duration: number): IAutoMovieShot {
+  return {
+    id,
+    name: null,
+    scene: "scene-duel",
+    camera: "cam-main",
+    cameraMotion: null,
+    performances: [],
+    objectMotions: [],
+    duration,
+  };
+}
+const SHOTS: IAutoMovieShot[] = [
+  shot("shot:beat-1", 3),
+  shot("shot:beat-2", 4),
+];
 type Event = NonNullable<IAutoMovieShot["events"]>[number];
 /**
  * Builds the authored event identity, kind, source and shot clock with absent optional subjects; the owning resolver entry independently determines trim-seam and replay placement.
  */
-function event (
+function event(
   id: string,
   kind: Event["kind"],
   source: Event["source"],
   time: number,
-): Event { return ({
-  id,
-  kind,
-  source,
-  time,
-  actor: null,
-  target: null,
-  object: null,
-  point: null,
-  actionIndex: null,
-  reaction: null,
-}); }
+): Event {
+  return {
+    id,
+    kind,
+    source,
+    time,
+    actor: null,
+    target: null,
+    object: null,
+    point: null,
+    actionIndex: null,
+    reaction: null,
+  };
+}
 
 const SEQUENCE: IAutoMovieSequence = {
   id: "seq",
@@ -84,15 +91,25 @@ const SEQUENCE: IAutoMovieSequence = {
  * @evidence contracts/testing.md#distinguishing-cases Covers hard cuts, trim offsets, inside/after dissolve, opening/exclusive end/nonfinite clocks, duplicate/missing shots, empty cut, first-entry transition, absent events, tied event ids, contiguous seam, cut-away hit and noncontiguous flashback replay; monotone-cursor equivalence belongs to its separate entry.
  * @evidence contracts/testing.md#execution-ownership The discoverable synchronous unit entry owns its hand-authored shots, events and assertions and imports the portable numerical source functions; it needs no installed consumer, process, browser or GPU.
  */
-export function test_film_playback_resolver (): void {
-  const timeline: IAutoMoviePlaybackTimeline = sequenceTimeline(SEQUENCE, SHOTS);
+export function test_film_playback_resolver(): void {
+  const timeline: IAutoMoviePlaybackTimeline = sequenceTimeline(
+    SEQUENCE,
+    SHOTS,
+  );
   TestValidator.predicate(
     "entry starts",
-    timeline.entries.length === 3 && timeline.entries.every((entry: IAutoMoviePlaybackEntry, index: number): boolean => nclose(entry.start, [0, 3, 4.5][index]!)),
+    timeline.entries.length === 3 &&
+      timeline.entries.every(
+        (entry: IAutoMoviePlaybackEntry, index: number): boolean =>
+          nclose(entry.start, [0, 3, 4.5][index]!),
+      ),
   );
   TestValidator.predicate("runtime", nclose(timeline.runtime, 7.5));
 
-  const at: (t: number) => IAutoMoviePlaybackSample | null = (t: number) : IAutoMoviePlaybackSample | null => resolveSequencePlayback(SEQUENCE, SHOTS, t);
+  const at: (t: number) => IAutoMoviePlaybackSample | null = (
+    t: number,
+  ): IAutoMoviePlaybackSample | null =>
+    resolveSequencePlayback(SEQUENCE, SHOTS, t);
 
   const t1: IAutoMoviePlaybackSample = at(1)!;
   TestValidator.equals("T=1 shot", t1.shot, "shot:beat-1");
@@ -109,8 +126,10 @@ export function test_film_playback_resolver (): void {
   TestValidator.predicate("T=4.7 live local", nclose(t47.time, 0.2));
   TestValidator.predicate(
     "T=4.7 outgoing tail",
-    t47.blend !== null && t47.blend.shot === "shot:beat-2" &&
-      nclose(t47.blend.time, 2.2) && nclose(t47.blend.alpha, 0.4),
+    t47.blend !== null &&
+      t47.blend.shot === "shot:beat-2" &&
+      nclose(t47.blend.time, 2.2) &&
+      nclose(t47.blend.alpha, 0.4),
   );
 
   TestValidator.equals("T=5.1 past the dissolve", at(5.1)!.blend, null);
@@ -126,7 +145,7 @@ export function test_film_playback_resolver (): void {
   TestValidator.predicate(
     "duplicate playback shots reject ambiguous lookup",
     throwsError(
-      () : IAutoMoviePlaybackTimeline =>
+      (): IAutoMoviePlaybackTimeline =>
         sequenceTimeline(SEQUENCE, [
           SHOTS[0]!,
           { ...SHOTS[0]!, duration: 9 },
@@ -138,7 +157,7 @@ export function test_film_playback_resolver (): void {
   TestValidator.predicate(
     "missing trimmed playback shot rejects bad sequence entry",
     throwsError(
-      () : IAutoMoviePlaybackTimeline =>
+      (): IAutoMoviePlaybackTimeline =>
         sequenceTimeline(
           {
             ...SEQUENCE,
@@ -158,14 +177,15 @@ export function test_film_playback_resolver (): void {
   TestValidator.predicate(
     "empty playback sequence rejects before sampling",
     throwsError(
-      () : IAutoMoviePlaybackTimeline => sequenceTimeline({ ...SEQUENCE, shots: [] }, SHOTS),
+      (): IAutoMoviePlaybackTimeline =>
+        sequenceTimeline({ ...SEQUENCE, shots: [] }, SHOTS),
       ['sequence "seq"', "at least one shot"],
     ),
   );
   TestValidator.predicate(
     "first playback transition rejects missing outgoing entry",
     throwsError(
-      () : IAutoMoviePlaybackSample | null =>
+      (): IAutoMoviePlaybackSample | null =>
         resolveSequencePlayback(
           {
             ...SEQUENCE,
@@ -218,20 +238,29 @@ export function test_film_playback_resolver (): void {
       },
     ],
   };
-  const events: IAutoMoviePlaybackEvent[] = sequenceEventTimeline(eventSequence, eventShots);
+  const events: IAutoMoviePlaybackEvent[] = sequenceEventTimeline(
+    eventSequence,
+    eventShots,
+  );
   TestValidator.equals(
     "sequence events keep only events inside trims",
-    events.map((e: IAutoMoviePlaybackEvent) : string => e.id),
+    events.map((e: IAutoMoviePlaybackEvent): string => e.id),
     ["a-in", "a-z", "b-in"],
   );
   TestValidator.predicate(
     "shot-local events are placed on the global clock",
-    nclose(events[0]!.shotTime, 1.25) && nclose(events[0]!.globalTime, 0.25) &&
-      events[0]!.entry === 0 && events[0]!.shot === "shot:beat-1" &&
-      nclose(events[1]!.shotTime, 1.25) && nclose(events[1]!.globalTime, 0.25) &&
-      events[1]!.entry === 0 && events[1]!.shot === "shot:beat-1" &&
-      nclose(events[2]!.shotTime, 1) && nclose(events[2]!.globalTime, 1.75) &&
-      events[2]!.entry === 1 && events[2]!.shot === "shot:beat-2",
+    nclose(events[0]!.shotTime, 1.25) &&
+      nclose(events[0]!.globalTime, 0.25) &&
+      events[0]!.entry === 0 &&
+      events[0]!.shot === "shot:beat-1" &&
+      nclose(events[1]!.shotTime, 1.25) &&
+      nclose(events[1]!.globalTime, 0.25) &&
+      events[1]!.entry === 0 &&
+      events[1]!.shot === "shot:beat-1" &&
+      nclose(events[2]!.shotTime, 1) &&
+      nclose(events[2]!.globalTime, 1.75) &&
+      events[2]!.entry === 1 &&
+      events[2]!.shot === "shot:beat-2",
   );
   TestValidator.equals(
     "shots without interaction metadata produce no sequence events",
@@ -271,7 +300,10 @@ export function test_film_playback_resolver (): void {
   );
   TestValidator.equals(
     "a seam event emits once and the shot-final event survives",
-    seamEvents.map((e: IAutoMoviePlaybackEvent) : (string | number)[] => [e.id, e.entry]),
+    seamEvents.map((e: IAutoMoviePlaybackEvent): (string | number)[] => [
+      e.id,
+      e.entry,
+    ]),
     [
       ["seam", 1],
       ["final", 1],
@@ -304,7 +336,10 @@ export function test_film_playback_resolver (): void {
   );
   TestValidator.predicate(
     "a hit exactly on a mid-shot cut-away survives at the cut",
-    cutEvents.length === 1 && cutEvents[0]!.id === "hit" && cutEvents[0]!.entry === 0 && nclose(cutEvents[0]!.globalTime, 2),
+    cutEvents.length === 1 &&
+      cutEvents[0]!.id === "hit" &&
+      cutEvents[0]!.entry === 0 &&
+      nclose(cutEvents[0]!.globalTime, 2),
   );
 
   // 9. a flashback's cut keeps its own hit: shot-local coincidence with a
@@ -337,6 +372,12 @@ export function test_film_playback_resolver (): void {
   );
   TestValidator.predicate(
     "a flashback's cut emits the hit at its own global time (per play)",
-    flashbackEvents.length === 2 && flashbackEvents.every((event: IAutoMoviePlaybackEvent, index: number): boolean => event.id === "hit" && event.entry === index && nclose(event.globalTime, index === 0 ? 0 : 4)),
+    flashbackEvents.length === 2 &&
+      flashbackEvents.every(
+        (event: IAutoMoviePlaybackEvent, index: number): boolean =>
+          event.id === "hit" &&
+          event.entry === index &&
+          nclose(event.globalTime, index === 0 ? 0 : 4),
+      ),
   );
 }

@@ -36,7 +36,8 @@ export function test_film_cut_sequence_empty(): void {
       ["refused", (): boolean => cut.success === false],
       [
         "violated",
-        (): boolean => cut.success === false && hasViolation(cut, "range", "$input.fps"),
+        (): boolean =>
+          cut.success === false && hasViolation(cut, "range", "$input.fps"),
       ],
     ]),
     { refused: true, violated: true },

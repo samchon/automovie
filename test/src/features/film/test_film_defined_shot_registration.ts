@@ -1,11 +1,13 @@
+import { IAutoMovieDefinedShot } from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
 import { IAutoMovieAuthoringDiagnostic } from "../../../../packages/engine/src/film/IAutoMovieAuthoringDiagnostic";
 import { IAutoMovieCompiledDefinedShot } from "../../../../packages/engine/src/film/IAutoMovieCompiledDefinedShot";
 import { IAutoMovieShotRuntime } from "../../../../packages/engine/src/film/IAutoMovieShotRuntime";
 import { compileDefinedShot } from "../../../../packages/engine/src/film/compileDefinedShot";
 import { defineShot } from "../../../../packages/engine/src/film/defineShot";
-import { IAutoMovieDefinedShot } from "@automovie/interface";
-import { TestValidator } from "@nestia/e2e";
 import { namedFacts } from "../internal/predicates";
+
 /**
  * The host capabilities the boundary carries.
  *
@@ -20,7 +22,9 @@ const runtime: () => IAutoMovieShotRuntime = (): IAutoMovieShotRuntime =>
   }) as unknown as IAutoMovieShotRuntime;
 
 /** A registration the boundary accepts, so a case breaks one field only. */
-const registered: (overrides?: Record<string, unknown>) => IAutoMovieDefinedShot<null> = (
+const registered: (
+  overrides?: Record<string, unknown>,
+) => IAutoMovieDefinedShot<null> = (
   overrides: Record<string, unknown> = {},
 ): IAutoMovieDefinedShot<null> =>
   ({
@@ -32,20 +36,32 @@ const registered: (overrides?: Record<string, unknown>) => IAutoMovieDefinedShot
     ...overrides,
   }) as unknown as IAutoMovieDefinedShot<null>;
 
-const compile: (shot: IAutoMovieDefinedShot<null>) => IAutoMovieCompiledDefinedShot = (
+const compile: (
+  shot: IAutoMovieDefinedShot<null>,
+) => IAutoMovieCompiledDefinedShot = (
   shot: IAutoMovieDefinedShot<null>,
 ): IAutoMovieCompiledDefinedShot =>
   compileDefinedShot({ shot, context: null, runtime: runtime() });
 
-const codes: (compiled: IAutoMovieCompiledDefinedShot) => string[] = (compiled: IAutoMovieCompiledDefinedShot): string[] =>
+const codes: (compiled: IAutoMovieCompiledDefinedShot) => string[] = (
+  compiled: IAutoMovieCompiledDefinedShot,
+): string[] =>
   compiled.success === true
     ? []
-    : compiled.diagnostics.map((diagnostic: IAutoMovieAuthoringDiagnostic): IAutoMovieAuthoringDiagnostic["code"] => diagnostic.code);
+    : compiled.diagnostics.map(
+        (
+          diagnostic: IAutoMovieAuthoringDiagnostic,
+        ): IAutoMovieAuthoringDiagnostic["code"] => diagnostic.code,
+      );
 
-const paths: (compiled: IAutoMovieCompiledDefinedShot) => string[] = (compiled: IAutoMovieCompiledDefinedShot): string[] =>
+const paths: (compiled: IAutoMovieCompiledDefinedShot) => string[] = (
+  compiled: IAutoMovieCompiledDefinedShot,
+): string[] =>
   compiled.success === true
     ? []
-    : compiled.diagnostics.map((diagnostic: IAutoMovieAuthoringDiagnostic): string => diagnostic.path);
+    : compiled.diagnostics.map(
+        (diagnostic: IAutoMovieAuthoringDiagnostic): string => diagnostic.path,
+      );
 
 /**
  * Shot registration faults and builder throws remain structured compilation diagnostics.
@@ -74,7 +90,9 @@ export function test_film_defined_shot_registration(): void {
       [
         "blankIdIsRegistrationInvalid",
         (): boolean => {
-          const compiled: IAutoMovieCompiledDefinedShot = compile(registered({ id: "  " }));
+          const compiled: IAutoMovieCompiledDefinedShot = compile(
+            registered({ id: "  " }),
+          );
           return (
             codes(compiled).join(",") === "registration-invalid" &&
             paths(compiled).join(",") === "$shot.id"
@@ -123,7 +141,8 @@ export function test_film_defined_shot_registration(): void {
       ],
       [
         "theRegistrationIdOutranksTheDefinitionId",
-        (): boolean => defineShot<null>("renamed", registered()).id === "renamed",
+        (): boolean =>
+          defineShot<null>("renamed", registered()).id === "renamed",
       ],
       [
         "aBlankReregisteredIdIsRegistrationInvalid",

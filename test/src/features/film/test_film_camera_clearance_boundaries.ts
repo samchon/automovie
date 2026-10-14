@@ -74,9 +74,12 @@ export function test_film_camera_clearance_boundaries(): void {
     compile(foreign);
   TestValidator.equals(
     "a foreign violation does not suppress a clear report",
-    [reports?.map(
-      (report: IAutoMovieCameraClearanceReport): string => report.status,
-    ), foreign.items.length],
+    [
+      reports?.map(
+        (report: IAutoMovieCameraClearanceReport): string => report.status,
+      ),
+      foreign.items.length,
+    ],
     [["clear"], 1],
   );
 

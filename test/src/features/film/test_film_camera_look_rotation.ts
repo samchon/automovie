@@ -1,5 +1,8 @@
 import { Quaternion, lookRotation } from "@automovie/engine";
-import { type IAutoMovieQuaternion, type IAutoMovieVector3 } from "@automovie/interface";
+import {
+  type IAutoMovieQuaternion,
+  type IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose, qclose, qunit, vclose } from "../internal/predicates";
@@ -43,7 +46,11 @@ export function test_film_camera_look_rotation(): void {
     TestValidator.predicate(`unit ${JSON.stringify(direction)}`, qunit(q));
     TestValidator.predicate(
       `forward lands ${JSON.stringify(direction)}`,
-      vclose(Quaternion.rotateVector(q, FORWARD), { x: direction.x / length, y: direction.y / length, z: direction.z / length }),
+      vclose(Quaternion.rotateVector(q, FORWARD), {
+        x: direction.x / length,
+        y: direction.y / length,
+        z: direction.z / length,
+      }),
     );
     TestValidator.predicate(
       `horizon level ${JSON.stringify(direction)}`,

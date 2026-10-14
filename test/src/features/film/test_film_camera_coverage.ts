@@ -4,7 +4,11 @@ import {
   compileCameraCoverage,
   compileCameraMove,
 } from "@automovie/engine";
-import { IAutoMovieCamera, IAutoMovieCameraIntent, IAutoMovieTrack } from "@automovie/interface";
+import {
+  IAutoMovieCamera,
+  IAutoMovieCameraIntent,
+  IAutoMovieTrack,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { qclose, vclose } from "../internal/predicates";
@@ -24,9 +28,16 @@ const ALT: IAutoMovieCamera = {
   depthPrecision: { minimumDepthBits: 24, maximumStepMeters: 100 },
 };
 
-const SUBJECT: IAutoMovieFramedSubject = { base: { x: 0, y: 0, z: 0 }, height: 2, at: null };
+const SUBJECT: IAutoMovieFramedSubject = {
+  base: { x: 0, y: 0, z: 0 },
+  height: 2,
+  at: null,
+};
 
-const intent: (start: number, over?: Partial<IAutoMovieCameraIntent>) => IAutoMovieCameraIntent = (
+const intent: (
+  start: number,
+  over?: Partial<IAutoMovieCameraIntent>,
+) => IAutoMovieCameraIntent = (
   start: number,
   over: Partial<IAutoMovieCameraIntent> = {},
 ): IAutoMovieCameraIntent => ({
@@ -38,7 +49,11 @@ const intent: (start: number, over?: Partial<IAutoMovieCameraIntent>) => IAutoMo
   ...over,
 });
 
-const entry: (start: number, move: "static" | "push-in", spanIntent: IAutoMovieCameraIntent) => IAutoMovieCameraCoverageEntry = (
+const entry: (
+  start: number,
+  move: "static" | "push-in",
+  spanIntent: IAutoMovieCameraIntent,
+) => IAutoMovieCameraCoverageEntry = (
   start: number,
   move: "static" | "push-in",
   spanIntent: IAutoMovieCameraIntent,
@@ -156,16 +171,25 @@ export function test_film_camera_coverage(): void {
     "the take's clip is the hero grammar on the same camera",
     test12ValuesClose(take.cameraMotion, hero),
   );
-  TestValidator.predicate("intent records ride in span order", test12ValuesClose(take.cameraIntent, [intents[0], intents[1]]));
-  TestValidator.predicate("intent records retain their caller-owned identities", take.cameraIntent.length === 2 && take.cameraIntent[0] === intents[0] && take.cameraIntent[1] === intents[1]);
+  TestValidator.predicate(
+    "intent records ride in span order",
+    test12ValuesClose(take.cameraIntent, [intents[0], intents[1]]),
+  );
+  TestValidator.predicate(
+    "intent records retain their caller-owned identities",
+    take.cameraIntent.length === 2 &&
+      take.cameraIntent[0] === intents[0] &&
+      take.cameraIntent[1] === intents[1],
+  );
 
   // 3. no frame spans: a locked-off covering camera.
-  const locked: ReturnType<typeof compileCameraCoverage> = compileCameraCoverage({
-    camera: ALT,
-    clipId: "cam:beat-1:cam-alt",
-    entries: [],
-    shotDuration: 2,
-  });
+  const locked: ReturnType<typeof compileCameraCoverage> =
+    compileCameraCoverage({
+      camera: ALT,
+      clipId: "cam:beat-1:cam-alt",
+      entries: [],
+      shotDuration: 2,
+    });
   TestValidator.equals(
     "an empty take is locked off",
     [locked.camera, locked.cameraMotion, locked.cameraIntent],

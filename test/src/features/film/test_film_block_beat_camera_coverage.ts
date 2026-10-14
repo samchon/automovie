@@ -12,7 +12,9 @@ import { hasViolation, violationCount } from "../internal/predicates";
 type ICoverage = IAutoMovieBlockingCoverage;
 
 /** One valid coverage intent: the side camera holds a medium static on knightB. */
-const coverage: (over?: Partial<ICoverage>) => ICoverage = (over: Partial<ICoverage> = {}): ICoverage => ({
+const coverage: (over?: Partial<ICoverage>) => ICoverage = (
+  over: Partial<ICoverage> = {},
+): ICoverage => ({
   camera: "cam-alt",
   framing: "medium",
   move: "static",
@@ -21,7 +23,10 @@ const coverage: (over?: Partial<ICoverage>) => ICoverage = (over: Partial<ICover
 });
 
 /** The duel staged with two extra cameras ready to cover the beat (#1187). */
-const staged: Extract<ReturnType<typeof stageScene>, { success: true }> = ((): Extract<ReturnType<typeof stageScene>, { success: true }> => {
+const staged: Extract<
+  ReturnType<typeof stageScene>,
+  { success: true }
+> = ((): Extract<ReturnType<typeof stageScene>, { success: true }> => {
   const result: ReturnType<typeof stageScene> = stageScene(
     makeScriptWrite(),
     makeStagingWrite({
@@ -60,7 +65,9 @@ const staged: Extract<ReturnType<typeof stageScene>, { success: true }> = ((): E
   return result;
 })();
 
-const block: (list: ICoverage[]) => ReturnType<typeof blockBeat> = (list: ICoverage[]): ReturnType<typeof blockBeat> =>
+const block: (list: ICoverage[]) => ReturnType<typeof blockBeat> = (
+  list: ICoverage[],
+): ReturnType<typeof blockBeat> =>
   blockBeat(makeScriptWrite(), staged, makeBlockingWrite({ coverage: list }));
 
 /**
@@ -111,7 +118,9 @@ export function test_film_block_beat_camera_coverage(): void {
   TestValidator.equals("empty coverage passes", empty.success, true);
 
   // 3. camera id gates.
-  const ghost: ReturnType<typeof block> = block([coverage({ camera: "cam-ghost" })]);
+  const ghost: ReturnType<typeof block> = block([
+    coverage({ camera: "cam-ghost" }),
+  ]);
   TestValidator.predicate(
     "an unstaged coverage camera is a type violation",
     hasViolation(ghost, "type", "$input.coverage[0].camera"),
@@ -128,17 +137,23 @@ export function test_film_block_beat_camera_coverage(): void {
   );
 
   // 4. target and closed-union gates.
-  const stranger: ReturnType<typeof block> = block([coverage({ on: { kind: "node", node: "ghost" } })]);
+  const stranger: ReturnType<typeof block> = block([
+    coverage({ on: { kind: "node", node: "ghost" } }),
+  ]);
   TestValidator.predicate(
     "a coverage favouring a stranger is a type violation",
     hasViolation(stranger, "type", "$input.coverage[0].on.node"),
   );
-  const badFraming: ReturnType<typeof block> = block([coverage({ framing: "dutch" as never })]);
+  const badFraming: ReturnType<typeof block> = block([
+    coverage({ framing: "dutch" as never }),
+  ]);
   TestValidator.predicate(
     "a forged framing is a type violation",
     hasViolation(badFraming, "type", "$input.coverage[0].framing"),
   );
-  const badMove: ReturnType<typeof block> = block([coverage({ move: "dolly" as never })]);
+  const badMove: ReturnType<typeof block> = block([
+    coverage({ move: "dolly" as never }),
+  ]);
   TestValidator.predicate(
     "a forged move is a type violation",
     hasViolation(badMove, "type", "$input.coverage[0].move"),

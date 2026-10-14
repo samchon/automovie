@@ -109,8 +109,12 @@ export function test_film_beat_opening(): void {
     nclose(opening.localTime, 0),
   );
 
-  const end: IAutoMovieBeatEndActorState = resolveBeatEnd({ beat: "beat-1", scene, shot, motions: [walk] })
-    .actors[0]!;
+  const end: IAutoMovieBeatEndActorState = resolveBeatEnd({
+    beat: "beat-1",
+    scene,
+    shot,
+    motions: [walk],
+  }).actors[0]!;
   TestValidator.predicate(
     "the beat end has advanced to x = 1.0, so opening != end",
     vclose(end.transform.translation, { x: 1, y: 0, z: 0 }),

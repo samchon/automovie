@@ -1,9 +1,11 @@
-import { IAutoMovieForgedCast } from "../../../../packages/engine/src/film/IAutoMovieForgedCast";
 import { IAutoMovieForgeEntry } from "@automovie/interface";
-import { forgeCast } from "../../../../packages/engine/src/film/forgeCast";
 import { TestValidator } from "@nestia/e2e";
+
+import { IAutoMovieForgedCast } from "../../../../packages/engine/src/film/IAutoMovieForgedCast";
+import { forgeCast } from "../../../../packages/engine/src/film/forgeCast";
 import { forgeEntry, makeScriptWrite } from "../internal/filmFixtures";
 import { hasViolation, namedFacts } from "../internal/predicates";
+
 /**
  * Forge rejects a boneless stand-in while retaining located model findings.
  *
