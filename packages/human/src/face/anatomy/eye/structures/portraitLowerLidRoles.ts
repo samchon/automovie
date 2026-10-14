@@ -5,7 +5,10 @@
  *
  * @author Samchon
  */
-export const portraitLowerLidRoles = [
+export const portraitLowerLidRoles: readonly [
+  Exclude<keyof IPortraitLowerLidSection, "attachment">,
+  ...Exclude<keyof IPortraitLowerLidSection, "attachment">[],
+] = [
   "margin",
   "pretarsalCrest",
   "pretarsalLower",
@@ -13,3 +16,5 @@ export const portraitLowerLidRoles = [
   "subtarsalOuter",
   "preseptal",
 ] as const;
+import type { IPortraitLowerLidSection } from "./IPortraitLowerLidSection";
+
