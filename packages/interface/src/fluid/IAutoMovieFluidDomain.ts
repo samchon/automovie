@@ -8,37 +8,19 @@ import { IAutoMovieFluidSpray } from "./IAutoMovieFluidSpray";
 /**
  * One independent deterministic fluid computation domain.
  *
- * The record is not a member of the architecture package. A pond in an atrium,
- * a channel around a courtyard, a fountain basin and a falling water wall are
- * the same computational object as a tank in a production world with no
- * building at all; a building only binds a domain to one of its logical spaces
- * through `IAutoMovieWaterFeature`. Making the solver a child of the building
- * would make the same water two different things depending on who owns the
- * frame.
+ * A domain is independent of architecture: IAutoMovieWaterFeature binds it to a logical basin, while a building-free production can use the same domain directly. The grid, state and flow model do not depend on which record owns its placement.
  *
- * The state is a fixed-grid, fixed-step shallow-water field: a per-cell water
- * depth over a per-cell bed elevation plus horizontal face velocities. It is not
- * a 3D Navier-Stokes solver: it does not resolve breaking waves, vertical
- * recirculation or surface tension, and it does not promise byte-identical
- * results from a GPU projection. The CPU reference state from
- * `simulateFluidDomain` is the only normative one.
+ * The fixed-grid, fixed-step shallow-water state stores cell depths/bed elevations and horizontal face velocities. It does not resolve 3D Navier-Stokes flow, breaking waves, vertical recirculation or surface tension. simulateFluidDomain's CPU state is normative; GPU projection supplies no byte-identity guarantee.
  *
- * All cell-indexed arrays are row-major: index `row * grid.columns + column`,
- * with `column` increasing along `+x` and `row` along `+z`.
+ * Cell arrays are row-major at row * grid.columns + column, with columns increasing along +X and rows along +Z.
  *
- * The authored state is water at rest: a domain states depths over a bed, and
- * every face velocity starts at zero. Motion comes from what the water cannot
- * be in equilibrium with, such as an uneven free surface, a declared source or
- * drain, or an open rim, so an author never states a velocity field.
+ * Authored initial depths sit over the bed with zero face velocity. An uneven free surface, declared flow or open rim drives subsequent motion; this record exposes no initial velocity field.
  *
- * The solver assumes a record `validateFluidDomain` accepted: version `1`,
- * units `meter`, a non-blank id, arrays of the right length, finite values,
- * depths within the design depth, flows off solid cells, declared counts within
- * their caps, and a stable step. It does not re-check them while integrating.
+ * The solver assumes caller-run validateFluidDomain admission for version 1, metre units, identity, array lengths, finite authored values, initial depths within design depth, nonsolid flow sites and count budgets. It does not repeat those checks. The Courant comparison uses the initial design depth and can miss derived NaN; integration and surface/spray arithmetic retain separate finite-result and representation limits.
  *
- * @evidence contracts/common.md#principled-implementation A linearized shallow-water field on an Arakawa C grid, cell depths and beds at centres and velocities on faces, integrated explicitly by `simulateFluidDomain` under the Courant bound the validator enforces at `solver.referenceDepth`; the representation conserves volume except through declared sources, drains and open edges.
+ * @evidence contracts/common.md#principled-implementation The explicit linearized shallow-water field uses an Arakawa C grid, with centre depths/beds and face velocities. Flux-form updates target conservation except declared sources, drains and open edges; the design-depth Courant premise and finite representable arithmetic are necessary, while current validation and integration leave the numerical gaps documented on the solver/state types.
  * @evidence contracts/common.md#clear-and-simple-design The domain owns only lattice, solver settings, edges, per-cell arrays and declared flows; its placement in a building is a separate `IAutoMovieWaterFeature` binding, so the same record serves a building basin and a building-free world.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No initial velocity field is accepted, so motion is always derived from the stated surface and flows, and an invalid record is refused by `validateFluidDomain` rather than clamped by the solver.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Initial face velocities are zero and motion derives from surface/flow inputs. Caller-run validation rejects its stated field violations without rewriting them, but the integrator assumes admission, clamps nonpositive depth and does not independently close every derived-arithmetic gap.
  * @evidence contracts/common.md#meaningful-documentation States why the domain is independent of architecture, the model and what it does not resolve, the normative CPU state, the row-major layout, the at-rest initial state, and the validation preconditions; members give units, lengths, datums and caps.
  * @author Samchon
  */
@@ -47,8 +29,7 @@ export interface IAutoMovieFluidDomain {
   version: 1;
 
   /**
-   * Stable, non-blank identity; `validateWaterFeatures` also refuses two
-   * domains with one id among those a binding is checked against.
+   * Stable, nonblank identity; validateWaterFeatures also rejects duplicate domain ids in the supplied binding population.
    */
   id: string;
 
@@ -65,24 +46,17 @@ export interface IAutoMovieFluidDomain {
   boundaries: IAutoMovieFluidBoundaries;
 
   /**
-   * Finite bed elevation of every cell in metres above `grid.origin.y`,
-   * row-major, exactly `grid.columns * grid.rows` long. The world elevation of
-   * dry ground in a cell is therefore `grid.origin.y + bed[k]`.
+   * Finite cell bed elevations in metres above grid.origin.y, row-major with grid.columns * grid.rows entries. Dry ground's world height is grid.origin.y + bed[k].
    */
   bed: number[];
 
   /**
-   * Initial water depth of every cell in metres, row-major, each finite, `>= 0`
-   * and at most `solver.referenceDepth`. The world elevation of the free
-   * surface is `grid.origin.y + bed[k] + depth[k]`.
+   * Initial cell water depths in metres, row-major, each finite and within [0, solver.referenceDepth]. The free surface's world height is grid.origin.y + bed[k] + depth[k].
    */
   depth: number[];
 
   /**
-   * Cells occupied by solid matter such as a pier, an island or a channel wall,
-   * row-major, exactly `grid.columns * grid.rows` booleans. A solid cell holds
-   * no water (its `depth` must be `0`), every face touching it reflects, and no
-   * source, drain or spray may sit on it.
+   * Solid-cell flags in row-major order, with grid.columns * grid.rows booleans. A solid cell must have zero depth, touching faces reflect, and no source, drain or spray may occupy it.
    */
   solid: boolean[];
 
@@ -90,15 +64,12 @@ export interface IAutoMovieFluidDomain {
   sources: IAutoMovieFluidSource[];
 
   /**
-   * Declared outflows such as a fountain return or a basin overflow, at most
-   * 256, whose removed volume is counted.
+   * Declared outflows such as a return or overflow, at most 256, whose removed volume is counted.
    */
   drains: IAutoMovieFluidDrain[];
 
   /**
-   * Decorative spray emitters, at most 32. Spray is not part of the conserved
-   * water: it is a bounded particle garnish sampled from the same clock, and
-   * its mass never enters or leaves the depth field.
+   * Decorative spray emitters, at most 32, sampled on the same clock outside the conserved depth field. Their particle mass is not added to or removed from water depth.
    */
   sprays: IAutoMovieFluidSpray[];
 }

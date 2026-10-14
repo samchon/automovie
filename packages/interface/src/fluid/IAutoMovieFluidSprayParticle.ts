@@ -1,16 +1,14 @@
 import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 
 /**
- * One live decorative spray particle at the sampled step, as `sampleFluidSpray`
- * places it.
+ * One decorative spray particle returned by sampleFluidSpray at the sampled step.
  *
- * The viewer's `buildFluidSprayObject` uploads `position`, `size` and
- * `ageRatio` as point attributes without changing them.
+ * buildFluidSprayObject copies position, size and ageRatio into Float32 point attributes. The stock PointsMaterial uses one fixed point size and opacity; a supplied shader must consume aSize/aAge for those particle values to affect appearance.
  *
- * @evidence contracts/common.md#principled-implementation `sampleFluidSpray` fills each particle from the emitter's seeded jitter at `index` and the age `time - index / rate`, so the record is the closed-form ballistic position at that age rather than an integrated one.
- * @evidence contracts/common.md#clear-and-simple-design The record holds the emitter id and spawn index for identity plus exactly the three values a point renderer draws, with velocity and direction left as sampling internals.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts `size` is copied from the emitter rather than scaled by age or distance, so any fading or attenuation is a renderer choice made from `ageRatio`, not a second engine opinion.
- * @evidence contracts/common.md#meaningful-documentation States the producer and the viewer consumer; members give identity scope, spawn-time meaning of the index, world units, and the half-open range of the age ratio.
+ * @evidence contracts/common.md#principled-implementation sampleFluidSpray combines seeded spawn-index jitter and age time - index / rate into a closed-form ballistic position. Valid domain/state and representable index, direction and age arithmetic remain sampling premises; this record performs no admission.
+ * @evidence contracts/common.md#clear-and-simple-design Emitter id and spawn index identify the sample, while position, size and ageRatio supply projection attributes; velocity and launch direction stay with sampling rather than being duplicated here.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Size is copied from the emitter without age/distance scaling. Float32 projection may round values, and the default point material leaves per-particle size and age unused rather than implementing implicit fading.
+ * @evidence contracts/common.md#meaningful-documentation Identifies producer, emitter-scoped spawn identity, ballistic metre position, size and age conventions, Float32 projection and default-material limitations.
  * @author Samchon
  */
 export interface IAutoMovieFluidSprayParticle {
@@ -18,8 +16,7 @@ export interface IAutoMovieFluidSprayParticle {
   spray: string;
 
   /**
-   * Stable zero-based spawn identity within that emitter; the particle launched
-   * at `index / rate` domain-clock seconds.
+   * Zero-based spawn identity within the emitter, with launch time index / rate in domain-clock seconds. Extreme time/rate products must remain representable for distinct integer identities.
    */
   index: number;
 
@@ -29,6 +26,6 @@ export interface IAutoMovieFluidSprayParticle {
   /** World billboard size in metres, copied from the emitter. */
   size: number;
 
-  /** Age divided by the emitter's `lifetime`, in `[0, 1)`. */
+  /** Age divided by lifetime; the live-window rule targets [0, 1), without independently clamping or validating the resulting ratio. */
   ageRatio: number;
 }

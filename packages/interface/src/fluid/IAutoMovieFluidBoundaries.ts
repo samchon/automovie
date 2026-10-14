@@ -3,10 +3,7 @@ import { AutoMovieFluidBoundaryKind } from "./AutoMovieFluidBoundaryKind";
 /**
  * Which lattice edge reflects and which lets water leave the domain.
  *
- * Each of the four edges is chosen independently, so a channel can be open at
- * both ends and walled along its banks. `validateFluidDomain` refuses any value
- * other than `wall` or `open` on each edge. Solid cells reflect on their own
- * faces whatever the edges say.
+ * Four independent edges allow open channel ends and walled banks. validateFluidDomain requires wall or open at each edge, while solid cells block their own touching faces independently.
  *
  * @evidence contracts/common.md#principled-implementation `simulateFluidDomain` consults `xMin` and `xMax` for the outermost x faces of every row and `zMin` and `zMax` for the outermost z faces of every column, the only faces with a missing neighbour cell.
  * @evidence contracts/common.md#clear-and-simple-design Four named fields, one per axis-aligned edge of the rectangular lattice, need no per-face list because every face on one edge shares its condition.

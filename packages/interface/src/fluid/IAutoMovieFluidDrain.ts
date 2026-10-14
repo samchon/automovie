@@ -1,14 +1,11 @@
 /**
  * One declared outflow from a single cell.
  *
- * `validateFluidDomain` requires the cell to lie inside the lattice and not be
- * solid, the `id` to be non-blank and unique among the domain's drains, and the
- * numbers to be finite. Removed volume accumulates in
- * `IAutoMovieFluidState.drainVolume`.
+ * validateFluidDomain requires a nonsolid in-grid cell, a nonblank id unique among drains and finite authored numbers. The solver limits requested drain/face outflows against held water and records drainVolume; nonfinite intermediate and ledger handling retains IAutoMovieFluidState's documented gaps.
  *
- * @evidence contracts/common.md#principled-implementation `simulateFluidDomain` adds `flowRate * dt` to the cell's outgoing volume for each step whose start time lies in `[start, end)` and whose step-start free surface stands above `sillLevel`, then lets the positivity limiter scale drain and face outflows together so depth never goes negative.
+ * @evidence contracts/common.md#principled-implementation Active steps request flowRate * dt when the step-start free surface exceeds sillLevel, then share one donor scaling factor with outgoing faces. For finite representable arithmetic that factor bounds removal by held water; overflowed requests and NaN ledger values are not independently admitted by this type or fully rejected by the current integrator.
  * @evidence contracts/common.md#clear-and-simple-design A single-cell point outflow with a rate cap, a sill and a time window covers floor drains, overflow weirs and timed returns without a pump or pipe model.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The drain removes only water the cell holds, through the same limiter as face fluxes, and its removal is recorded in the ledger rather than deleted silently.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Drain and face fluxes share the same held-volume limiter and ledger path, without a drain-specific depth clamp. An overflowed request can produce a NaN scaled removal, so the current implementation does not establish the intended bounded-removal identity for every finite authored rate.
  * @evidence contracts/common.md#meaningful-documentation States the validation rules and where removed volume is counted; members give units, index ranges, how the realized rate is limited, the sill comparison and the half-open activity window.
  * @author Samchon
  */
@@ -23,30 +20,22 @@ export interface IAutoMovieFluidDrain {
   row: number;
 
   /**
-   * Maximum volumetric outflow in m³/s; must be `>= 0`. The realized rate is
-   * limited by the water actually available in the cell during the step: when
-   * the drain and the cell's outgoing faces together ask for more than it
-   * holds, all of them are scaled by the same factor.
+   * Finite nonnegative requested maximum outflow in cubic metres per second. When requested drain and outgoing-face volumes exceed held water, the solver scales them by one factor; the documented intermediate-arithmetic limits still apply.
    */
   flowRate: number;
 
   /**
-   * Free-surface elevation in metres above `grid.origin.y` at or below which
-   * the drain is closed: the sill of an overflow weir, or the bed elevation for
-   * a plain floor drain. The drain runs during a step only while the cell's
-   * `bed + depth` at the step's start stands strictly above it.
+   * Free-surface threshold in metres above grid.origin.y, such as an overflow sill or floor-drain bed elevation. A step drains only when its initial bed + depth is strictly above the threshold.
    */
   sillLevel: number;
 
   /**
-   * Domain-clock second at which the drain opens; `>= 0`. A step drains when
-   * its start time `t` satisfies `start <= t < end`.
+   * Nonnegative domain-clock opening second; a step drains when its start time satisfies start <= t < end.
    */
   start: number;
 
   /**
-   * Domain-clock second at which it closes, strictly after `start`, or `null`
-   * for never.
+   * Closing second strictly after start, or null for no close.
    */
   end: number | null;
 }

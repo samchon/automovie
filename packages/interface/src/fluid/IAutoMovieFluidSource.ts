@@ -1,14 +1,11 @@
 /**
  * One declared inflow into a single cell.
  *
- * `validateFluidDomain` requires the cell to lie inside the lattice and not be
- * solid, the `id` to be non-blank and unique among the domain's sources, and
- * the numbers to be finite. Added volume accumulates in
- * `IAutoMovieFluidState.sourceVolume`.
+ * validateFluidDomain requires a nonsolid in-grid cell, a nonblank id unique among sources and finite authored numbers. simulateFluidDomain accumulates admitted flow in sourceVolume without capping it to current or design depth; derived accumulation limits remain those of IAutoMovieFluidState.
  *
- * @evidence contracts/common.md#principled-implementation `simulateFluidDomain` adds `flowRate * dt` to the cell's continuity update for each step whose start time lies in `[start, end)`, and sums the same amount into the source ledger, so the volume balance holds by construction.
+ * @evidence contracts/common.md#principled-implementation For each active step start in [start, end), simulateFluidDomain adds flowRate * dt to the cell update and the source ledger. The same contribution targets finite-arithmetic volume balance; authored-field finiteness alone does not prove finite products or cumulative totals.
  * @evidence contracts/common.md#clear-and-simple-design A single-cell constant-rate inflow with a time window covers taps, jets and supply ports, and `lowerWetZoneDrainage` produces these records from service-network supply ports without a second flow model.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Inflow is never capped by depth or design depth, so the solver neither invents nor discards water; the consequence that a cell can rise past `referenceDepth` is stated on the solver settings.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No current-depth or referenceDepth cap discards authored inflow. Rising beyond the stability design depth and nonfinite derived ledger arithmetic remain the solver/state types' documented limits rather than a universal conservation guarantee.
  * @evidence contracts/common.md#meaningful-documentation States the validation rules and where added volume is counted; members give units, index ranges, that the full amount arrives however deep the cell is, and the half-open activity window.
  * @author Samchon
  */
@@ -23,21 +20,17 @@ export interface IAutoMovieFluidSource {
   row: number;
 
   /**
-   * Volumetric inflow in m³/s; must be `>= 0`, and a drain removes water. The
-   * full `flowRate * dt` is added at every active step, however deep the cell
-   * already is.
+   * Finite nonnegative inflow in cubic metres per second. Each active step requests the full flowRate * dt regardless of current depth; use a drain for outflow.
    */
   flowRate: number;
 
   /**
-   * Domain-clock second at which the source starts; `>= 0`. A step receives
-   * water when its start time `t` satisfies `start <= t < end`.
+   * Nonnegative domain-clock start second; a step receives water when its start time satisfies start <= t < end.
    */
   start: number;
 
   /**
-   * Domain-clock second at which it stops, strictly after `start`, or `null`
-   * for never.
+   * End second strictly after start, or null for no end.
    */
   end: number | null;
 }

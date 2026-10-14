@@ -1,12 +1,9 @@
 import { IAutoMovieFluidSprayParticle } from "./IAutoMovieFluidSprayParticle";
 
 /**
- * One bounded decorative spray sample at an absolute step, from
- * `sampleFluidSpray`.
+ * One bounded decorative spray sample returned by sampleFluidSpray.
  *
- * `step` and `time` are the solved state's own, so spray shares the fluid's
- * snapped clock rather than the raw shot second. `sampleFluidSpray` throws when
- * the state belongs to another domain or the camera distance is not finite.
+ * Step and time are copied from the supplied state's snapped clock rather than recalculated from a shot second. sampleFluidSpray rejects a mismatched domain id or nonfinite camera distance; it does not independently validate every state field.
  *
  * @evidence contracts/common.md#principled-implementation `sampleFluidSpray` copies `step` and `time` from the `IAutoMovieFluidState` it is given and walks each emitter's live spawn indices newest-first, so the sample and the surface of one frame always describe the same instant.
  * @evidence contracts/common.md#clear-and-simple-design One flat particle list ordered by emitter and spawn index serves the viewer's single point cloud, with the emitter id on each particle instead of a nested per-emitter structure.
@@ -22,9 +19,7 @@ export interface IAutoMovieFluidSpraySample {
   time: number;
 
   /**
-   * Live particles after distance thinning and the hard per-emitter cap,
-   * grouped by emitter in `domain.sprays` order and in ascending spawn index
-   * within each; empty when nothing is alive.
+   * Live particles after distance thinning and the per-emitter cap, grouped in domain.sprays order and returned in spawn-index order within each. Empty when no particle survives; extreme index arithmetic retains the emitter/particle types' documented limits.
    */
   particles: IAutoMovieFluidSprayParticle[];
 }

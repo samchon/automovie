@@ -1,11 +1,7 @@
 /**
- * Semantic label of a bound water feature: a human-readable name for what the
- * basin is.
+ * Semantic label describing a bound water feature.
  *
- * It selects nothing in the solver, the surface derivation, or the viewer; the
- * physics comes from the bound fluid domain alone. `validateWaterFeatures`
- * refuses any string outside the set, and `other` names a feature none of the
- * five common names fits.
+ * The label selects no solver, surface or viewer behavior; computation comes from the domain. validateWaterFeatures rejects words outside the set, while other describes a feature outside the five named kinds.
  *
  * @evidence contracts/common.md#principled-implementation A closed label set read only by `validateWaterFeatures` membership checks, because a pond and a waterfall differ in their domain's bed, flows and sprays, not in a mode the solver could switch on.
  * @evidence contracts/common.md#clear-and-simple-design Five common names plus `other` keep the label meaningful to a reader without a free-text field or a per-kind parameter set.

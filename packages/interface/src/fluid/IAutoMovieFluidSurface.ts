@@ -4,16 +4,12 @@ import { IAutoMovieFluidSurfaceBounds } from "./IAutoMovieFluidSurfaceBounds";
 /**
  * The derived free-surface geometry of one fluid state.
  *
- * The engine owns this derivation so the renderer stays a projection: the mesh
- * a viewer uploads and the depth field the solver produced are one statement,
- * not two that can disagree. `fluidSurfaceGeometry` produces it and throws when
- * the state's `domain` is not the domain's id; the viewer's
- * `buildFluidSurfaceObject` uploads it unchanged.
+ * fluidSurfaceGeometry derives positions, normals, UVs, flow and drawn bounds from the supplied domain/state and refuses a mismatched domain id. The viewer copies numeric attributes into Float32 buffers rather than deriving another surface; upload therefore preserves the authored projection path, not binary64 values or pixel equality.
  *
- * @evidence contracts/common.md#principled-implementation `fluidSurfaceGeometry` places one vertex per cell at `origin.y + bed + depth`, takes normals from finite differences of that free surface, and triangulates a quad only when its four corner cells are wet and not solid, so the drawn water is read directly off the solved depth field.
+ * @evidence contracts/common.md#principled-implementation fluidSurfaceGeometry places one vertex per cell at origin.y + bed + depth, derives finite-difference normals and triangulates only quads with four wet, nonsolid cells. The supplied state must match the admitted domain's array layout; a matching id alone does not validate those arrays, and extreme derived sums, slopes or normal arithmetic have no separate finite-result gate.
  * @evidence contracts/common.md#clear-and-simple-design The surface reuses the shared `IAutoMovieMesh` shape and adds only the domain, the step, the drawn extent and the per-vertex flow, which are the facts a viewer needs beyond plain geometry.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Dry vertices stay in the buffer so vertex and cell indices coincide, and `bounds` excludes them so culling never measures water that is not drawn; the remaining gap is that no shader reads `flow` yet.
- * @evidence contracts/common.md#meaningful-documentation States why the engine owns the derivation, the producer and its refusal, and the viewer consumer; members give vertex order, the triangulation rule, normals, UVs, winding, when `bounds` is null and why it is one box, and the flow layout and reader.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Dry vertices retain cell-index correspondence, while bounds reads only emitted triangle indices. Float32 upload is a numerical projection rather than exact-value or visual proof, and the stock viewer material does not consume flow for ripples.
+ * @evidence contracts/common.md#meaningful-documentation Identifies the derivation and mismatch refusal, admitted-array and arithmetic limits, Float32 viewer projection, indexed drawn bounds, vertex/triangle/normal/UV conventions and unconsumed flow metadata.
  * @author Samchon
  */
 export interface IAutoMovieFluidSurface {
@@ -24,33 +20,21 @@ export interface IAutoMovieFluidSurface {
   step: number;
 
   /**
-   * Triangulated free surface in world space. Vertices sit at cell centres, one
-   * per cell including dry ones, so vertex order is the row-major cell order;
-   * only quads whose four corner cells are wet and non-solid are triangulated,
-   * which is what makes a dry basin draw nothing.
+   * Triangulated free surface in world metres. One vertex per cell, including dry cells, follows row-major order; only quads whose four corners are wet and nonsolid produce triangles, so a dry basin emits no drawn quad.
    *
-   * Normals come from central differences of the free surface, one-sided at
-   * the lattice edge, and an axis with a single cell contributes no slope. UVs
-   * run from 0 to 1 across the lattice and stay 0 along a single-cell axis,
-   * triangles wind counter-clockwise seen from above, and `skin` is `null`.
+   * Normals use central differences, one-sided at edges, with no slope contribution from a single-cell axis. UVs span [0, 1] and stay zero on a single-cell axis, triangles wind counter-clockwise from above and skin is null; finite-result admission for extreme derived arithmetic remains outside this derivation.
    */
   mesh: IAutoMovieMesh;
 
   /**
-   * World extent of the drawn surface, or `null` when no quad was emitted at
-   * all: a drained basin, or a lattice too small to hold one.
+   * World extent of the numerical vertices referenced by drawn triangles, or null when no quad is emitted, including dry or too-small lattices. It is not a separately measured Float32/GPU bound.
    *
-   * One nullable box rather than a nullable minimum beside a nullable maximum,
-   * because the two can only ever be absent together.
+   * One nullable box keeps minimum and maximum absent together.
    */
   bounds: IAutoMovieFluidSurfaceBounds | null;
 
   /**
-   * Per-vertex horizontal flow velocity `[x, z, ...]` in m/s, aligned to the
-   * mesh vertices: the average of the two faces bounding each cell on each
-   * axis. The viewer uploads it as the `aFlow` attribute for a ripple shader to
-   * scroll along, though none in this repository reads it yet; no consumer
-   * re-derives it.
+   * Per-vertex horizontal velocity [x, z, ...] in m/s, averaging the two faces around each cell on each axis. The viewer copies it into the Float32 aFlow attribute for a supplied shader; no maintained stock material uses it to scroll ripples.
    */
   flow: number[];
 }

@@ -3,10 +3,7 @@ import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 /**
  * The fixed lattice a fluid domain is solved on.
  *
- * Cell `(column, row)` spans `[origin.x + column * cellX, origin.x + (column +
- * 1) * cellX]` along `x` and likewise along `z`; its surface vertex sits at the
- * cell centre. `validateFluidDomain` refuses a lattice of more than 65,536
- * cells.
+ * Cell (column, row) spans origin.x + column * cellX through origin.x + (column + 1) * cellX on X, with the analogous Z interval; its surface vertex sits at the centre. validateFluidDomain rejects more than 65,536 cells.
  *
  * @evidence contracts/common.md#principled-implementation A uniform axis-aligned rectangular lattice, which the solver's finite differences, `fluidSurfaceGeometry`'s centred vertices and `validateWaterFeatures`' basin test all address by `origin + (index + 0.5) * cell` with no per-cell geometry.
  * @evidence contracts/common.md#clear-and-simple-design Two counts, two cell sizes and one corner fully determine every cell, so no rotation, cell list or variable spacing is stored that the current solver could not use.
@@ -28,9 +25,7 @@ export interface IAutoMovieFluidGrid {
   cellZ: number;
 
   /**
-   * World position of the lattice corner at `column = 0, row = 0`, finite on
-   * every axis. `x` and `z` are the minimum corner of that cell; `y` is the
-   * datum every `bed` value and drain sill is measured above.
+   * Finite world corner for cell (0, 0). X and Z give that cell's minimum corner, while Y is the datum for bed elevations and drain sills.
    */
   origin: IAutoMovieVector3;
 }

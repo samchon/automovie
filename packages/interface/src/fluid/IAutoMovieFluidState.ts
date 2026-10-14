@@ -1,25 +1,16 @@
 /**
  * The complete conserved state of a fluid domain at one absolute step.
  *
- * A state is a pure function of the domain record and the integer step index,
- * so seeking a shot backwards, forwards, or out of order yields exactly the
- * same numbers as playing it straight through; nothing accumulates in a runtime
- * object between frames. `simulateFluidDomain` produces it by integrating from
- * the authored state, so a state at step `n` costs `n` lattice updates, and it
- * throws for a step that is not an integer in `[0, solver.maxSteps]` or a state
- * that turns non-finite.
+ * simulateFluidDomain replays the supplied domain from its authored state for each absolute integer step, with no retained inter-call state. A seek to n costs n lattice updates and rejects a step outside [0, solver.maxSteps]. After each update it checks depth and face velocities for finiteness; returned clock/ledger totals have no corresponding check, and the depth assignment converts a NaN intermediate to zero before that check.
  *
- * Cell arrays are row-major (`row * columns + column`). Face arrays are indexed
- * as documented on each field: a face lies between two cells, so there is one
- * more of them than cells along the axis they cross.
+ * Cell arrays are row-major at row * columns + column. Face arrays contain one extra face along the crossed axis, with their indexing given below.
  *
- * The ledger balances: `volume` equals the step-0 volume plus `sourceVolume`
- * minus `drainVolume` and `outflowVolume`, up to floating-point rounding.
+ * With finite representable arithmetic, the flux ledger targets initial volume plus sourceVolume minus drainVolume and outflowVolume, up to rounding. Extreme admitted fields can overflow flux or ledger intermediates; the current checks do not prove that balance for every returned record.
  *
- * @evidence contracts/common.md#principled-implementation `simulateFluidDomain` replays the explicit flux-form update from step 0 on every call and accumulates the three ledger terms from the same limited fluxes it applies to depth, so the balance follows from each interior face appearing once with each sign.
+ * @evidence contracts/common.md#principled-implementation Each call replays an explicit flux-form update from zero, with a shared donor-scaled limiter and ledger contributions from the same fluxes. Interior cancellation gives mathematical conservation under finite arithmetic; shape admission and the current depth/velocity checks do not establish finite clock/ledger values or detect a NaN depth intermediate already replaced by zero.
  * @evidence contracts/common.md#clear-and-simple-design Depth on cells and velocity on faces is the whole state the next step needs, plus four ledger totals that let a caller audit conservation without re-solving.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No result is cached between seeks, which costs a full replay but keeps every state independent of call order; depth is floored at zero only after the positivity limiter, so the floor absorbs rounding rather than hiding lost volume.
- * @evidence contracts/common.md#meaningful-documentation States the absolute-step determinism, the producer, its cost and both refusals, the array layouts, and the ledger identity; members give units, index formulas and what each total counts.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No result cache makes seek results independent of earlier calls for unchanged inputs. The nonpositive-depth assignment follows limiting but also hides NaN intermediates, and ledger/time overflow is not independently refused; these remain unresolved numerical admission gaps rather than guaranteed roundoff-only corrections.
+ * @evidence contracts/common.md#meaningful-documentation States replay ownership and cost, step refusal, exact scope and limits of finite-state checks, array layouts and the intended finite-arithmetic ledger relation; members give units, indices and each total's meaning.
  * @author Samchon
  */
 export interface IAutoMovieFluidState {
@@ -36,16 +27,12 @@ export interface IAutoMovieFluidState {
   depth: number[];
 
   /**
-   * Face velocity along `+x` in m/s, indexed `row * (columns + 1) + column`
-   * with `column` in `[0, columns]`. Face `column` separates cell `column - 1`
-   * from cell `column`; the outermost two lie on the domain edge.
+   * +X face velocity in metres per second at row * (columns + 1) + column for columns within [0, columns]. Face column separates cells column - 1 and column; the first and last faces are domain edges.
    */
   velocityX: number[];
 
   /**
-   * Face velocity along `+z` in m/s, indexed `row * columns + column` with
-   * `row` in `[0, rows]`. Face `row` separates cell row `row - 1` from cell row
-   * `row`; the outermost two lie on the domain edge.
+   * +Z face velocity in metres per second at row * columns + column for rows within [0, rows]. Face row separates cell rows row - 1 and row; the first and last faces are domain edges.
    */
   velocityZ: number[];
 

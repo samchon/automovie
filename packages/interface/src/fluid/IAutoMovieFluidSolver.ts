@@ -1,15 +1,12 @@
 /**
  * Fixed-step integration settings and the budgets validation enforces.
  *
- * `validateFluidDomain` requires every number finite and refuses a step whose
- * Courant number at `referenceDepth` exceeds 1. Only the initial depths are
- * held to that design depth: a source can raise a cell past it during the
- * solve, where the checked bound no longer applies.
+ * validateFluidDomain checks finite authored scalars and rejects a computed Courant number above one at referenceDepth. Its direct intermediate products can produce NaN for extreme finite inputs, which that comparison does not reject. Initial depths are bounded by referenceDepth, while inflow can raise solved depths beyond it without a new Courant check.
  *
- * @evidence contracts/common.md#principled-implementation The settings parameterize an explicit linearized shallow-water step: `gravity` drives the surface-gradient term, `drag` is applied implicitly as division by `1 + dt * drag` so it cannot overshoot, `dryDepth` gates wetting, and stability is the Courant condition at `referenceDepth`.
+ * @evidence contracts/common.md#principled-implementation Gravity drives the linearized surface-gradient step, drag divides velocity by 1 + dt * drag and dryDepth controls wetting. The analytic gravity-wave Courant condition uses referenceDepth; finite representable derived arithmetic and depth within that design premise are required for its stability interpretation, and current validation does not prove them for every admitted record.
  * @evidence contracts/common.md#clear-and-simple-design Six scalars are everything the fixed-step solver reads; the step cap lives here because it bounds the cost of a seek through the same clock.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The validator refuses an unstable step rather than choosing one for the author, and the gap that a source can push depth past the checked design depth is stated instead of silently re-clamped.
- * @evidence contracts/common.md#meaningful-documentation States the finiteness and Courant refusals and the limit of the design-depth bound; members give units, ranges, how drag and dry depth act, and that seeking past `maxSteps` throws.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No step is chosen for the author and inflow is not silently clamped to design depth. A derived NaN Courant value can escape the greater-than-one comparison, and sources can exceed the depth used by the one-time bound; these unresolved limits are not a stable-solve guarantee.
+ * @evidence contracts/common.md#meaningful-documentation States scalar admission, the computed comparison and NaN gap, reference-depth limitation, units, wet/dry and drag rules, and the absolute seek budget.
  * @author Samchon
  */
 export interface IAutoMovieFluidSolver {
@@ -20,33 +17,22 @@ export interface IAutoMovieFluidSolver {
   gravity: number;
 
   /**
-   * Linear drag in 1/s, `>= 0`, applied implicitly to face velocity: each
-   * update divides by `1 + dt * drag`, which is how a shallow basin loses
-   * momentum to its floor. `0` is frictionless.
+   * Linear drag in inverse seconds, nonnegative, dividing updated face velocity by 1 + dt * drag. Zero disables this drag term.
    */
   drag: number;
 
   /**
-   * Depth in metres, `>= 0`, at or below which a cell counts as dry; a cell is
-   * wet only while its depth is strictly greater. A face beside a dry cell
-   * stays still unless the wet side's free surface stands above the dry side's,
-   * so no water is pushed uphill onto land it cannot reach. `0` still refuses
-   * flow out of an empty cell; a small positive value also suppresses
-   * film-thin sloshing.
+   * Nonnegative depth threshold in metres; a cell is wet only above it. A face beside dry ground remains still unless the wet free surface stands above that ground. Zero still prevents flow from empty cells, while positive thresholds suppress thinner wet films.
    */
   dryDepth: number;
 
   /**
-   * The deepest water this domain is designed for, in metres, strictly
-   * positive. It is the depth the Courant condition is checked against, and no
-   * initial depth may exceed it.
+   * Strictly positive design depth in metres, used for the Courant comparison and as the upper bound on initial depth. Solved inflow is not capped to it.
    */
   referenceDepth: number;
 
   /**
-   * Highest absolute step index a sample may integrate to, a safe integer in
-   * `[1, 100000]`. It bounds the work one seek can cost, so a shot cannot ask
-   * for an unbounded solve; seeking past it throws.
+   * Highest absolute step index, a safe integer within [1, 100000], bounding one replay's iteration count. Seeking beyond it throws.
    */
   maxSteps: number;
 }
