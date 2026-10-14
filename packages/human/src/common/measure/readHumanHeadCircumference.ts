@@ -49,8 +49,9 @@ export function readHumanHeadCircumference(
     humanHeadPoint(head, rule.tragion).y,
   );
   // The plane y = glabella.y + slope * (z - glabella.z) is parallel to X; a positive slope lowers it at the back.
-  const slopeTo: (point: IAutoMovieVector3) => number = (point: IAutoMovieVector3): number =>
-    (glabella.y - point.y) / (glabella.z - point.z);
+  const slopeTo: (point: IAutoMovieVector3) => number = (
+    point: IAutoMovieVector3,
+  ): number => (glabella.y - point.y) / (glabella.z - point.z);
   // the tape is not lower in front than at the back: a plane that would rise behind is held level
   let slope: number = Math.max(0, slopeTo(opisthocranion));
   let clearance: IAutoMovieVector3 | undefined;
@@ -82,11 +83,16 @@ export function readHumanHeadCircumference(
     normal: { x: 0, y: 1 / size, z: -slope / size },
   };
   const back: IAutoMovieVector3 = clearance ?? opisthocranion;
-  const section: ReturnType<typeof measureHumanSection> = measureHumanSection(head.positions, head.indices, plane, {
-    x: glabella.x,
-    y: (glabella.y + back.y) / 2,
-    z: (glabella.z + back.z) / 2,
-  });
+  const section: ReturnType<typeof measureHumanSection> = measureHumanSection(
+    head.positions,
+    head.indices,
+    plane,
+    {
+      x: glabella.x,
+      y: (glabella.y + back.y) / 2,
+      z: (glabella.z + back.z) / 2,
+    },
+  );
   if (section === null)
     throw new Error(
       `The head circumference plane of ${head.id} closes no loop.`,

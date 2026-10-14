@@ -1,8 +1,8 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import { humanHeadRegionVertices } from "./humanHeadRegionVertices";
 import type { IAutoMovieHumanHeadReading } from "./IAutoMovieHumanHeadReading";
 import type { IAutoMovieHumanHeadSkin } from "./IAutoMovieHumanHeadSkin";
+import { humanHeadRegionVertices } from "./humanHeadRegionVertices";
 
 /**
  * Read an auricle's length, in metres: ANSUR II 6.4.32 (Hotzman et al. 2011,
@@ -34,7 +34,9 @@ export function readHumanEarLength(
     if (p[v * 3 + 1] > p[top * 3 + 1]) top = v;
     if (p[v * 3 + 1] < p[bottom * 3 + 1]) bottom = v;
   }
-  const at: (v: number) => IAutoMovieVector3 = (v: number): IAutoMovieVector3 => ({ x: p[v * 3], y: p[v * 3 + 1], z: p[v * 3 + 2] });
+  const at: (v: number) => IAutoMovieVector3 = (
+    v: number,
+  ): IAutoMovieVector3 => ({ x: p[v * 3], y: p[v * 3 + 1], z: p[v * 3 + 2] });
   const a: IAutoMovieVector3 = at(top);
   const b: IAutoMovieVector3 = at(bottom);
   return {

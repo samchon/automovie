@@ -38,7 +38,9 @@ export function readHumanEarBreadth(
     if (p[v * 3 + 2] > p[front * 3 + 2]) front = v;
     if (p[v * 3 + 2] < p[back * 3 + 2]) back = v;
   }
-  const at: (v: number) => IAutoMovieVector3 = (v: number): IAutoMovieVector3 => ({ x: p[v * 3], y: p[v * 3 + 1], z: p[v * 3 + 2] });
+  const at: (v: number) => IAutoMovieVector3 = (
+    v: number,
+  ): IAutoMovieVector3 => ({ x: p[v * 3], y: p[v * 3 + 1], z: p[v * 3 + 2] });
   const a: IAutoMovieVector3 = at(front);
   const b: IAutoMovieVector3 = at(back);
   return {

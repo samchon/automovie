@@ -66,8 +66,10 @@ export function readHumanConchaExtent(
   let wLow: number = Infinity;
   let wHigh: number = -Infinity;
   for (const v of humanHeadRegionVertices(head, concha)) {
-    const a: number = p[v * 3] * u[0] + p[v * 3 + 1] * u[1] + p[v * 3 + 2] * u[2];
-    const b: number = p[v * 3] * w[0] + p[v * 3 + 1] * w[1] + p[v * 3 + 2] * w[2];
+    const a: number =
+      p[v * 3] * u[0] + p[v * 3 + 1] * u[1] + p[v * 3 + 2] * u[2];
+    const b: number =
+      p[v * 3] * w[0] + p[v * 3 + 1] * w[1] + p[v * 3 + 2] * w[2];
     uLow = Math.min(uLow, a);
     uHigh = Math.max(uHigh, a);
     wLow = Math.min(wLow, b);

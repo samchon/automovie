@@ -34,20 +34,34 @@ export function readHumanEarProjection(
   height: number,
 ): IAutoMovieHumanHeadReading {
   const ear: ReturnType<typeof humanHeadEar> = humanHeadEar(head, region);
-  const area: NonNullable<IAutoMovieHumanHeadSkin["skinRegions"]>[string] = head.skinRegions![region];
+  const area: NonNullable<IAutoMovieHumanHeadSkin["skinRegions"]>[string] =
+    head.skinRegions![region];
   const sign: number = Math.sign(
-    area.vertices.reduce((sum: number, v: number): number => sum + head.positions[v * 3], 0),
+    area.vertices.reduce(
+      (sum: number, v: number): number => sum + head.positions[v * 3],
+      0,
+    ),
   );
-  const lateral: (point: IAutoMovieVector3) => number = (point: IAutoMovieVector3): number => sign * point.x;
-  const outermost: (points: IAutoMovieVector3[]) => IAutoMovieVector3 | undefined = (
+  const lateral: (point: IAutoMovieVector3) => number = (
+    point: IAutoMovieVector3,
+  ): number => sign * point.x;
+  const outermost: (
+    points: IAutoMovieVector3[],
+  ) => IAutoMovieVector3 | undefined = (
     points: IAutoMovieVector3[],
   ): IAutoMovieVector3 | undefined =>
     points.reduce<IAutoMovieVector3 | undefined>(
-      (a: IAutoMovieVector3 | undefined, b: IAutoMovieVector3): IAutoMovieVector3 | undefined => (a === undefined || lateral(b) > lateral(a) ? b : a),
+      (
+        a: IAutoMovieVector3 | undefined,
+        b: IAutoMovieVector3,
+      ): IAutoMovieVector3 | undefined =>
+        a === undefined || lateral(b) > lateral(a) ? b : a,
       undefined,
     );
   const earPoint: IAutoMovieVector3 | undefined = outermost(
-    humanHeadPlanePoints(head, 1, height, (t: number): boolean => ear.triangles.has(t)).filter(
+    humanHeadPlanePoints(head, 1, height, (t: number): boolean =>
+      ear.triangles.has(t),
+    ).filter(
       (point: IAutoMovieVector3): boolean => Math.sign(point.x) === sign,
     ),
   );
@@ -56,8 +70,14 @@ export function readHumanEarProjection(
       `The head view of ${head.id} cuts no ${region} at ${(height * 1000).toFixed(1)} mm.`,
     );
   const scalp: IAutoMovieVector3 | undefined = outermost(
-    humanHeadPlanePoints(head, 1, height, (t: number): boolean => !ear.triangles.has(t)).filter(
-      (point: IAutoMovieVector3): boolean => Math.sign(point.x) === sign && point.z < earPoint.z,
+    humanHeadPlanePoints(
+      head,
+      1,
+      height,
+      (t: number): boolean => !ear.triangles.has(t),
+    ).filter(
+      (point: IAutoMovieVector3): boolean =>
+        Math.sign(point.x) === sign && point.z < earPoint.z,
     ),
   );
   if (scalp === undefined)

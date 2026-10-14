@@ -29,7 +29,10 @@ export function readHumanColumellaWidth(
   leftMargin: string,
 ): number {
   const p: number[] = head.positions;
-  const band: (vertices: number[], pick: (a: number, b: number) => number) => Map<number, number> = (
+  const band: (
+    vertices: number[],
+    pick: (a: number, b: number) => number,
+  ) => Map<number, number> = (
     vertices: number[],
     pick: (a: number, b: number) => number,
   ): Map<number, number> => {
@@ -42,8 +45,14 @@ export function readHumanColumellaWidth(
     }
     return out;
   };
-  const right: Map<number, number> = band(humanHeadRegionVertices(head, [rightMargin]), Math.max);
-  const left: Map<number, number> = band(humanHeadRegionVertices(head, [leftMargin]), Math.min);
+  const right: Map<number, number> = band(
+    humanHeadRegionVertices(head, [rightMargin]),
+    Math.max,
+  );
+  const left: Map<number, number> = band(
+    humanHeadRegionVertices(head, [leftMargin]),
+    Math.min,
+  );
   let width: number = Infinity;
   for (const [k, x] of right) {
     const l: number | undefined = left.get(k);

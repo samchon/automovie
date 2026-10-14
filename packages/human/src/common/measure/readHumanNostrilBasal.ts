@@ -39,16 +39,19 @@ export function readHumanNostrilBasal(
   margin: string,
 ): IAutoMovieHumanNostrilBasal {
   const p: number[] = head.positions;
-  const points: [number, number][] = humanHeadRegionVertices(head, [margin]).map((v: number): [number, number] => [
-    p[v * 3],
-    p[v * 3 + 2],
-  ]);
+  const points: [number, number][] = humanHeadRegionVertices(head, [
+    margin,
+  ]).map((v: number): [number, number] => [p[v * 3], p[v * 3 + 2]]);
   if (points.length < 3)
     throw new Error(
       `The nostril margin ${margin} of ${head.id} has fewer than three points.`,
     );
-  const cx: number = points.reduce((s: number, q: [number, number]): number => s + q[0], 0) / points.length;
-  const cz: number = points.reduce((s: number, q: [number, number]): number => s + q[1], 0) / points.length;
+  const cx: number =
+    points.reduce((s: number, q: [number, number]): number => s + q[0], 0) /
+    points.length;
+  const cz: number =
+    points.reduce((s: number, q: [number, number]): number => s + q[1], 0) /
+    points.length;
   points.sort(
     (a: [number, number], b: [number, number]): number =>
       Math.atan2(a[1] - cz, a[0] - cx) - Math.atan2(b[1] - cz, b[0] - cx),
@@ -69,7 +72,9 @@ export function readHumanNostrilBasal(
         axis = [(b[0] - a[0]) / d, (b[1] - a[1]) / d];
       }
     }
-  const across: number[] = points.map((q: [number, number]): number => -q[0] * axis[1] + q[1] * axis[0]);
+  const across: number[] = points.map(
+    (q: [number, number]): number => -q[0] * axis[1] + q[1] * axis[0],
+  );
   const area: number = Math.abs(twice) / 2;
   const shortAxis: number = Math.max(...across) - Math.min(...across);
   if (area === 0 || longAxis === 0 || shortAxis === 0)

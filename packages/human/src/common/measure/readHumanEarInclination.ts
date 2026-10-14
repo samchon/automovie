@@ -29,7 +29,13 @@ export function readHumanEarInclination(
   region: string,
   otobasionSuperius: IAutoMovieVector3,
 ): number {
-  const { superaurale, subaurale }: ReturnType<typeof readHumanEarLength>["points"] = readHumanEarLength(head, region).points;
+  const {
+    superaurale,
+    subaurale,
+  }: ReturnType<typeof readHumanEarLength>["points"] = readHumanEarLength(
+    head,
+    region,
+  ).points;
   const a: number[] = [
     superaurale.x - subaurale.x,
     superaurale.y - subaurale.y,

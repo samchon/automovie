@@ -34,12 +34,22 @@ export function readHumanHeadBreadth(
   head: IAutoMovieHumanHeadSkin,
   rule: IAutoMovieHumanHeadBreadthMeasurement,
 ): IAutoMovieHumanHeadReading {
-  const right: ReturnType<typeof humanHeadEar> = humanHeadEar(head, rule.rightEar);
-  const left: ReturnType<typeof humanHeadEar> = humanHeadEar(head, rule.leftEar);
+  const right: ReturnType<typeof humanHeadEar> = humanHeadEar(
+    head,
+    rule.rightEar,
+  );
+  const left: ReturnType<typeof humanHeadEar> = humanHeadEar(
+    head,
+    rule.leftEar,
+  );
   const p: number[] = head.positions;
   let euryonRight: IAutoMovieVector3 | undefined;
   let euryonLeft: IAutoMovieVector3 | undefined;
-  const consider: (x: number, y: number, z: number) => void = (x: number, y: number, z: number): void => {
+  const consider: (x: number, y: number, z: number) => void = (
+    x: number,
+    y: number,
+    z: number,
+  ): void => {
     if (x < 0) {
       if (y >= right.top && (euryonRight === undefined || x < euryonRight.x))
         euryonRight = { x, y, z };
