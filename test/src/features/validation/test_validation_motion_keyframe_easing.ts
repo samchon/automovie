@@ -1,7 +1,12 @@
-import type { AutoMovieEasing, IAutoMovieKeyframe, IAutoMovieMotion, IAutoMovieValidation } from "@automovie/interface";
-import { validateMotion } from "../../../../packages/engine/src/validation/validateMotion";
+import type {
+  AutoMovieEasing,
+  IAutoMovieKeyframe,
+  IAutoMovieMotion,
+  IAutoMovieValidation,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { validateMotion } from "../../../../packages/engine/src/validation/validateMotion";
 import { createSkeleton } from "../internal/createSkeleton";
 import { createValidMotion } from "../internal/createValidMotion";
 import { hasViolation } from "../internal/hasViolation";
@@ -21,12 +26,16 @@ export function test_validation_motion_keyframe_easing(): void {
   const base: IAutoMovieMotion = createValidMotion();
   const motion: IAutoMovieMotion = {
     ...base,
-    keyframes: base.keyframes.map((kf: IAutoMovieKeyframe, i: number) : IAutoMovieKeyframe =>
-      i === 0 ? { ...kf, easing: "bounce" as AutoMovieEasing } : kf,
+    keyframes: base.keyframes.map(
+      (kf: IAutoMovieKeyframe, i: number): IAutoMovieKeyframe =>
+        i === 0 ? { ...kf, easing: "bounce" as AutoMovieEasing } : kf,
     ),
   };
 
-  const result: IAutoMovieValidation = validateMotion({ motion, skeleton: createSkeleton() });
+  const result: IAutoMovieValidation = validateMotion({
+    motion,
+    skeleton: createSkeleton(),
+  });
   TestValidator.equals("unknown easing fails", result.success, false);
   TestValidator.predicate(
     "easing type violation",

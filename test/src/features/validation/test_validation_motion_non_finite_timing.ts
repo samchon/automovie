@@ -1,22 +1,33 @@
-import type { IAutoMovieKeyframe, IAutoMoviePose, IAutoMovieValidation } from "@automovie/interface";
-import { validateMotion } from "../../../../packages/engine/src/validation/validateMotion";
+import type {
+  IAutoMovieKeyframe,
+  IAutoMoviePose,
+  IAutoMovieValidation,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { validateMotion } from "../../../../packages/engine/src/validation/validateMotion";
 import { createSkeleton } from "../internal/createSkeleton";
+import { hasViolation } from "../internal/hasViolation";
 import { joint } from "../internal/joint";
 import { keyframe } from "../internal/keyframe";
 import { makeMotion } from "../internal/makeMotion";
 import { makePose } from "../internal/makePose";
-import { hasViolation } from "../internal/hasViolation";
 import { namedFacts } from "../internal/namedFacts";
 
-const pose: (flexion: number) => IAutoMoviePose = (flexion: number) : IAutoMoviePose =>
-  makePose([joint("leftLowerArm", { flexion })]);
+const pose: (flexion: number) => IAutoMoviePose = (
+  flexion: number,
+): IAutoMoviePose => makePose([joint("leftLowerArm", { flexion })]);
 
-const validate: (duration: number, times: number[]) => IAutoMovieValidation = (duration: number, times: number[]) : IAutoMovieValidation =>
+const validate: (duration: number, times: number[]) => IAutoMovieValidation = (
+  duration: number,
+  times: number[],
+): IAutoMovieValidation =>
   validateMotion({
     motion: makeMotion(
-      times.map((time: number, i: number) : IAutoMovieKeyframe => keyframe(time, pose(i * 10))),
+      times.map(
+        (time: number, i: number): IAutoMovieKeyframe =>
+          keyframe(time, pose(i * 10)),
+      ),
       duration,
     ),
     skeleton: createSkeleton(),
@@ -37,7 +48,10 @@ const validate: (duration: number, times: number[]) => IAutoMovieValidation = (d
  * @evidence contracts/testing.md#execution-ownership This named unit uses local pose/clip adapters and existing portable factories, without a clock host, sampler or dynamic registration.
  */
 export function test_validation_motion_non_finite_timing(): void {
-  const infiniteDuration: IAutoMovieValidation = validate(Number.POSITIVE_INFINITY, [0, 1]);
+  const infiniteDuration: IAutoMovieValidation = validate(
+    Number.POSITIVE_INFINITY,
+    [0, 1],
+  );
   TestValidator.equals(
     "infinite motion duration fails",
     infiniteDuration.success,
@@ -46,10 +60,10 @@ export function test_validation_motion_non_finite_timing(): void {
   TestValidator.equals(
     "infinite duration rejected",
     namedFacts([
-      ["refused", () : boolean => infiniteDuration.success === false],
+      ["refused", (): boolean => infiniteDuration.success === false],
       [
         "violated",
-        () : boolean =>
+        (): boolean =>
           infiniteDuration.success === false &&
           hasViolation(infiniteDuration, "temporal", "$input.duration"),
       ],
@@ -66,10 +80,10 @@ export function test_validation_motion_non_finite_timing(): void {
   TestValidator.equals(
     "zero duration rejected at duration",
     namedFacts([
-      ["refused", () : boolean => zeroDuration.success === false],
+      ["refused", (): boolean => zeroDuration.success === false],
       [
         "violated",
-        () : boolean =>
+        (): boolean =>
           zeroDuration.success === false &&
           hasViolation(zeroDuration, "temporal", "$input.duration"),
       ],
@@ -86,10 +100,10 @@ export function test_validation_motion_non_finite_timing(): void {
   TestValidator.equals(
     "non-finite keyframe time rejected",
     namedFacts([
-      ["refused", () : boolean => nanTime.success === false],
+      ["refused", (): boolean => nanTime.success === false],
       [
         "violated",
-        () : boolean =>
+        (): boolean =>
           nanTime.success === false &&
           hasViolation(nanTime, "temporal", "$input.keyframes[1].time"),
       ],

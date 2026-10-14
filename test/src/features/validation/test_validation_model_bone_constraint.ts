@@ -1,5 +1,10 @@
 import { validateModel } from "@automovie/engine";
-import { IAutoMovieBone, IAutoMovieModel, IAutoMovieValidation, IAutoMovieJointConstraint } from "@automovie/interface";
+import {
+  IAutoMovieBone,
+  IAutoMovieJointConstraint,
+  IAutoMovieModel,
+  IAutoMovieValidation,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { createModel } from "../internal/fixtures";
@@ -12,7 +17,11 @@ const VALID_CONSTRAINT: IAutoMovieJointConstraint = {
   swingDeg: 30,
 };
 
-const modelWithConstraint: (constraint: IAutoMovieJointConstraint) => IAutoMovieModel = (constraint: IAutoMovieJointConstraint): IAutoMovieModel => {
+const modelWithConstraint: (
+  constraint: IAutoMovieJointConstraint,
+) => IAutoMovieModel = (
+  constraint: IAutoMovieJointConstraint,
+): IAutoMovieModel => {
   const base: IAutoMovieModel = createModel();
   return {
     ...base,
@@ -21,8 +30,9 @@ const modelWithConstraint: (constraint: IAutoMovieJointConstraint) => IAutoMovie
         ? null
         : {
             ...base.skeleton,
-            bones: base.skeleton.bones.map((bone: IAutoMovieBone, i: number): IAutoMovieBone =>
-              i === 0 ? { ...bone, constraint } : bone,
+            bones: base.skeleton.bones.map(
+              (bone: IAutoMovieBone, i: number): IAutoMovieBone =>
+                i === 0 ? { ...bone, constraint } : bone,
             ),
           },
   };

@@ -1,11 +1,16 @@
-import type { IAutoMoviePose, IAutoMovieSkeleton, IAutoMovieTransform, IAutoMovieValidation } from "@automovie/interface";
-import { validatePoseResult } from "../../../../packages/engine/src/validation/validatePoseResult";
+import type {
+  IAutoMoviePose,
+  IAutoMovieSkeleton,
+  IAutoMovieTransform,
+  IAutoMovieValidation,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { validatePoseResult } from "../../../../packages/engine/src/validation/validatePoseResult";
 import { createSkeleton } from "../internal/createSkeleton";
+import { hasViolation } from "../internal/hasViolation";
 import { joint } from "../internal/joint";
 import { makePose } from "../internal/makePose";
-import { hasViolation } from "../internal/hasViolation";
 
 const ROOT: IAutoMovieTransform = {
   translation: { x: 0, y: 1, z: 2 },
@@ -13,8 +18,9 @@ const ROOT: IAutoMovieTransform = {
   scale: { x: 1, y: 1, z: 1 },
 };
 
-const poseWith: (root: IAutoMovieTransform) => IAutoMoviePose = (root: IAutoMovieTransform) : IAutoMoviePose =>
-  makePose([joint("leftLowerArm", { flexion: 30 })], root);
+const poseWith: (root: IAutoMovieTransform) => IAutoMoviePose = (
+  root: IAutoMovieTransform,
+): IAutoMoviePose => makePose([joint("leftLowerArm", { flexion: 30 })], root);
 
 /**
  * Exercise optional pose-root TRS admission without normalizing authored values.

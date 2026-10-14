@@ -1,13 +1,16 @@
-import type { IAutoMovieMotion, IAutoMovieValidation } from "@automovie/interface";
-import { validateMotion } from "../../../../packages/engine/src/validation/validateMotion";
+import type {
+  IAutoMovieMotion,
+  IAutoMovieValidation,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { validateMotion } from "../../../../packages/engine/src/validation/validateMotion";
 import { createSkeleton } from "../internal/createSkeleton";
+import { hasViolation } from "../internal/hasViolation";
 import { joint } from "../internal/joint";
 import { keyframe } from "../internal/keyframe";
 import { makeMotion } from "../internal/makeMotion";
 import { makePose } from "../internal/makePose";
-import { hasViolation } from "../internal/hasViolation";
 
 /**
  * Exercise the inclusive clip-duration bound for an otherwise increasing keyframe sequence.
@@ -28,7 +31,10 @@ export function test_validation_motion_time_duration(): void {
     ],
     1,
   );
-  const result: IAutoMovieValidation = validateMotion({ motion, skeleton: createSkeleton() });
+  const result: IAutoMovieValidation = validateMotion({
+    motion,
+    skeleton: createSkeleton(),
+  });
   TestValidator.equals("time past duration fails", result.success, false);
   TestValidator.predicate(
     "temporal violation on time",

@@ -1,11 +1,11 @@
 import type { IAutoMovieValidation } from "@automovie/interface";
-import { validatePoseResult } from "../../../../packages/engine/src/validation/validatePoseResult";
 import { TestValidator } from "@nestia/e2e";
 
+import { validatePoseResult } from "../../../../packages/engine/src/validation/validatePoseResult";
 import { createSkeleton } from "../internal/createSkeleton";
+import { hasViolation } from "../internal/hasViolation";
 import { joint } from "../internal/joint";
 import { makePose } from "../internal/makePose";
-import { hasViolation } from "../internal/hasViolation";
 
 /**
  * Exercise joint-bone membership independently of matching pose/rig skeleton identities.

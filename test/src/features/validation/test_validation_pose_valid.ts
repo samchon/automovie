@@ -1,7 +1,7 @@
 import type { IAutoMovieValidation } from "@automovie/interface";
-import { validatePoseResult } from "../../../../packages/engine/src/validation/validatePoseResult";
 import { TestValidator } from "@nestia/e2e";
 
+import { validatePoseResult } from "../../../../packages/engine/src/validation/validatePoseResult";
 import { createSkeleton } from "../internal/createSkeleton";
 import { createValidPose } from "../internal/createValidPose";
 
@@ -17,6 +17,9 @@ import { createValidPose } from "../internal/createValidPose";
  * @evidence contracts/testing.md#execution-ownership The named unit reuses the existing rig/pose records and evaluates portable validation without FK construction, Human assets or a GPU.
  */
 export function test_validation_pose_valid(): void {
-  const result: IAutoMovieValidation = validatePoseResult(createValidPose(), createSkeleton());
+  const result: IAutoMovieValidation = validatePoseResult(
+    createValidPose(),
+    createSkeleton(),
+  );
   TestValidator.equals("valid pose succeeds", result.success, true);
 }

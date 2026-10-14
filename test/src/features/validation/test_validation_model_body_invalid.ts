@@ -5,7 +5,9 @@ import { TestValidator } from "@nestia/e2e";
 import { createModel } from "../internal/fixtures";
 import { hasViolation } from "../internal/predicates";
 
-const withBody: (body: IAutoMovieBody) => ReturnType<typeof validateModel> = (body: IAutoMovieBody): ReturnType<typeof validateModel> =>
+const withBody: (body: IAutoMovieBody) => ReturnType<typeof validateModel> = (
+  body: IAutoMovieBody,
+): ReturnType<typeof validateModel> =>
   validateModel({ model: { ...createModel(), body } });
 
 /**

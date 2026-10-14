@@ -1,18 +1,27 @@
-import type { IAutoMovieConstraintViolation, IAutoMovieMaterial, IAutoMovieModel, IAutoMovieModelPart, IAutoMovieValidation } from "@automovie/interface";
-import { validateModel } from "../../../../packages/engine/src/validation/validateModel";
+import type {
+  IAutoMovieConstraintViolation,
+  IAutoMovieMaterial,
+  IAutoMovieModel,
+  IAutoMovieModelPart,
+  IAutoMovieValidation,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { validateModel } from "../../../../packages/engine/src/validation/validateModel";
 import { createModel } from "../internal/createModel";
 import { hasViolation } from "../internal/hasViolation";
 
-const hasFiniteViolation: (result: ReturnType<typeof validateModel>, path: string) => boolean = (
+const hasFiniteViolation: (
+  result: ReturnType<typeof validateModel>,
+  path: string,
+) => boolean = (
   result: ReturnType<typeof validateModel>,
   path: string,
 ): boolean =>
   result.success === false &&
   hasViolation(result, "range", path) &&
   result.violations.some(
-    (v: IAutoMovieConstraintViolation) : boolean =>
+    (v: IAutoMovieConstraintViolation): boolean =>
       v.kind === "range" &&
       v.path.includes(path) &&
       v.expected.includes("finite"),
@@ -35,22 +44,26 @@ export function test_validation_model_non_finite_scalars(): void {
   const base: IAutoMovieModel = createModel();
   const model: IAutoMovieModel = {
     ...base,
-    parts: base.parts.map((p: IAutoMovieModelPart) : IAutoMovieModelPart => ({
-      ...p,
-      geometry: {
-        type: "primitive" as const,
-        shape: {
-          type: "box" as const,
-          width: Number.NaN,
-          height: Number.POSITIVE_INFINITY,
-          depth: 0.2,
+    parts: base.parts.map(
+      (p: IAutoMovieModelPart): IAutoMovieModelPart => ({
+        ...p,
+        geometry: {
+          type: "primitive" as const,
+          shape: {
+            type: "box" as const,
+            width: Number.NaN,
+            height: Number.POSITIVE_INFINITY,
+            depth: 0.2,
+          },
         },
-      },
-    })),
-    materials: base.materials.map((m: IAutoMovieMaterial) : IAutoMovieMaterial => ({
-      ...m,
-      metallic: Number.NaN,
-    })),
+      }),
+    ),
+    materials: base.materials.map(
+      (m: IAutoMovieMaterial): IAutoMovieMaterial => ({
+        ...m,
+        metallic: Number.NaN,
+      }),
+    ),
   };
 
   const result: IAutoMovieValidation = validateModel({ model });

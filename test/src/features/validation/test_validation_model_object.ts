@@ -1,7 +1,7 @@
 import type { IAutoMovieValidation } from "@automovie/interface";
-import { validateModel } from "../../../../packages/engine/src/validation/validateModel";
 import { TestValidator } from "@nestia/e2e";
 
+import { validateModel } from "../../../../packages/engine/src/validation/validateModel";
 import { createModel } from "../internal/createModel";
 
 /**
@@ -16,7 +16,9 @@ import { createModel } from "../internal/createModel";
  * @evidence contracts/testing.md#execution-ownership This named portable unit consumes the existing model record factory without loading an object, host or asset.
  */
 export function test_validation_model_object(): void {
-  const result: IAutoMovieValidation = validateModel({ model: { ...createModel(), skeleton: null } });
+  const result: IAutoMovieValidation = validateModel({
+    model: { ...createModel(), skeleton: null },
+  });
   TestValidator.equals(
     "skeletonless object model is valid",
     result.success,

@@ -1,6 +1,10 @@
 import { validateModel } from "@automovie/engine";
+import {
+  IAutoMovieMaterial,
+  IAutoMovieModel,
+  IAutoMovieValidation,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-import { IAutoMovieMaterial, IAutoMovieModel, IAutoMovieValidation } from "@automovie/interface";
 
 import { createModel } from "../internal/fixtures";
 import { hasViolation } from "../internal/predicates";
@@ -20,7 +24,9 @@ export function test_validation_model_coeff_range(): void {
   const base: IAutoMovieModel = createModel();
   const model: IAutoMovieModel = {
     ...base,
-    materials: base.materials.map((m: IAutoMovieMaterial): IAutoMovieMaterial => ({ ...m, metallic: 2 })),
+    materials: base.materials.map(
+      (m: IAutoMovieMaterial): IAutoMovieMaterial => ({ ...m, metallic: 2 }),
+    ),
   };
   const result: IAutoMovieValidation = validateModel({ model });
   TestValidator.equals("out-of-range metallic fails", result.success, false);

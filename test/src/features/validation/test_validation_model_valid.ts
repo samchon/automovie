@@ -1,7 +1,7 @@
 import type { IAutoMovieValidation } from "@automovie/interface";
-import { validateModel } from "../../../../packages/engine/src/validation/validateModel";
 import { TestValidator } from "@nestia/e2e";
 
+import { validateModel } from "../../../../packages/engine/src/validation/validateModel";
 import { createModel } from "../internal/createModel";
 
 /**

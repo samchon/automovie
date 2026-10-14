@@ -10,7 +10,10 @@ import { TestValidator } from "@nestia/e2e";
 import { createModel } from "../internal/fixtures";
 import { hasViolation } from "../internal/predicates";
 
-const part: (id: string, shape: AutoMoviePrimitiveShape) => IAutoMovieModelPart = (
+const part: (
+  id: string,
+  shape: AutoMoviePrimitiveShape,
+) => IAutoMovieModelPart = (
   id: string,
   shape: AutoMoviePrimitiveShape,
 ): IAutoMovieModelPart => ({
@@ -59,6 +62,19 @@ export function test_validation_model_extent_shapes(): void {
     "cylinder/capsule height flagged",
     hasViolation(result, "range", ".height"),
   );
-  for (const [index, dimension] of [[0, "radius"], [1, "width"], [2, "height"], [3, "radius"], [4, "height"]] as const)
-    TestValidator.predicate(`part ${index} ${dimension} flagged`, hasViolation(result, "range", `$input.parts[${index}].geometry.shape.${dimension}`));
+  for (const [index, dimension] of [
+    [0, "radius"],
+    [1, "width"],
+    [2, "height"],
+    [3, "radius"],
+    [4, "height"],
+  ] as const)
+    TestValidator.predicate(
+      `part ${index} ${dimension} flagged`,
+      hasViolation(
+        result,
+        "range",
+        `$input.parts[${index}].geometry.shape.${dimension}`,
+      ),
+    );
 }

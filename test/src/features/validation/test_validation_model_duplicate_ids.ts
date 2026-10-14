@@ -1,6 +1,10 @@
 import { validateModel } from "@automovie/engine";
+import {
+  IAutoMovieModel,
+  IAutoMovieSkeleton,
+  IAutoMovieValidation,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-import { IAutoMovieModel, IAutoMovieSkeleton, IAutoMovieValidation } from "@automovie/interface";
 
 import { createModel } from "../internal/fixtures";
 import { hasViolation } from "../internal/predicates";

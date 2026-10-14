@@ -1,7 +1,12 @@
-import type { AutoMoviePrimitiveShape, IAutoMovieModel, IAutoMovieModelPart, IAutoMovieValidation } from "@automovie/interface";
-import { validateModel } from "../../../../packages/engine/src/validation/validateModel";
+import type {
+  AutoMoviePrimitiveShape,
+  IAutoMovieModel,
+  IAutoMovieModelPart,
+  IAutoMovieValidation,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { validateModel } from "../../../../packages/engine/src/validation/validateModel";
 import { createModel } from "../internal/createModel";
 import { hasViolation } from "../internal/hasViolation";
 
@@ -25,13 +30,15 @@ export function test_validation_model_primitive_shape_type(): void {
   const base: IAutoMovieModel = createModel();
   const model: IAutoMovieModel = {
     ...base,
-    parts: base.parts.map((part: IAutoMovieModelPart) : IAutoMovieModelPart => ({
-      ...part,
-      geometry: {
-        type: "primitive" as const,
-        shape: unknownShape,
-      },
-    })),
+    parts: base.parts.map(
+      (part: IAutoMovieModelPart): IAutoMovieModelPart => ({
+        ...part,
+        geometry: {
+          type: "primitive" as const,
+          shape: unknownShape,
+        },
+      }),
+    ),
   };
 
   const result: IAutoMovieValidation = validateModel({ model });

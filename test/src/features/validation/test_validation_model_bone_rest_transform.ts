@@ -1,11 +1,18 @@
 import { validateModel } from "@automovie/engine";
-import { IAutoMovieBone, IAutoMovieModel, IAutoMovieTransform, IAutoMovieValidation } from "@automovie/interface";
+import {
+  IAutoMovieBone,
+  IAutoMovieModel,
+  IAutoMovieTransform,
+  IAutoMovieValidation,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { IDENTITY_TRANSFORM, createModel } from "../internal/fixtures";
 import { hasViolation } from "../internal/predicates";
 
-const modelWithBoneRest: (rest: IAutoMovieTransform) => IAutoMovieModel = (rest: IAutoMovieTransform): IAutoMovieModel => {
+const modelWithBoneRest: (rest: IAutoMovieTransform) => IAutoMovieModel = (
+  rest: IAutoMovieTransform,
+): IAutoMovieModel => {
   const base: IAutoMovieModel = createModel();
   return {
     ...base,
@@ -14,8 +21,9 @@ const modelWithBoneRest: (rest: IAutoMovieTransform) => IAutoMovieModel = (rest:
         ? null
         : {
             ...base.skeleton,
-            bones: base.skeleton.bones.map((bone: IAutoMovieBone, i: number): IAutoMovieBone =>
-              i === 0 ? { ...bone, rest } : bone,
+            bones: base.skeleton.bones.map(
+              (bone: IAutoMovieBone, i: number): IAutoMovieBone =>
+                i === 0 ? { ...bone, rest } : bone,
             ),
           },
   };

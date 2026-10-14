@@ -1,14 +1,18 @@
-import type { IAutoMovieMotion, IAutoMoviePose, IAutoMovieValidation } from "@automovie/interface";
-import { validateMotion } from "../../../../packages/engine/src/validation/validateMotion";
+import type {
+  IAutoMovieMotion,
+  IAutoMoviePose,
+  IAutoMovieValidation,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { validateMotion } from "../../../../packages/engine/src/validation/validateMotion";
 import { createSkeleton } from "../internal/createSkeleton";
+import { hasViolation } from "../internal/hasViolation";
 import { joint } from "../internal/joint";
 import { keyframe } from "../internal/keyframe";
 import { makeExpression } from "../internal/makeExpression";
 import { makeMotion } from "../internal/makeMotion";
 import { makePose } from "../internal/makePose";
-import { hasViolation } from "../internal/hasViolation";
 
 const rest: IAutoMoviePose = makePose([joint("leftLowerArm", { flexion: 0 })]);
 
@@ -36,7 +40,10 @@ export function test_validation_motion_keyframe_expression(): void {
     ],
     1,
   );
-  const result: IAutoMovieValidation = validateMotion({ motion, skeleton: createSkeleton() });
+  const result: IAutoMovieValidation = validateMotion({
+    motion,
+    skeleton: createSkeleton(),
+  });
   TestValidator.equals("bad keyframe expression fails", result.success, false);
   TestValidator.predicate(
     "range violation under a keyframe expression",

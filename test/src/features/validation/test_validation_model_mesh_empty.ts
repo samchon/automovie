@@ -1,19 +1,29 @@
 import { validateModel } from "@automovie/engine";
-import { IAutoMovieConstraintViolation, IAutoMovieMesh, IAutoMovieModel, IAutoMovieModelPart, IAutoMovieValidation } from "@automovie/interface";
+import {
+  IAutoMovieConstraintViolation,
+  IAutoMovieMesh,
+  IAutoMovieModel,
+  IAutoMovieModelPart,
+  IAutoMovieValidation,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { createModel } from "../internal/fixtures";
 import { hasViolation, namedFacts } from "../internal/predicates";
 
-const modelWithMesh: (mesh: IAutoMovieMesh) => IAutoMovieModel = (mesh: IAutoMovieMesh): IAutoMovieModel => {
+const modelWithMesh: (mesh: IAutoMovieMesh) => IAutoMovieModel = (
+  mesh: IAutoMovieMesh,
+): IAutoMovieModel => {
   const base: IAutoMovieModel = createModel(null);
   return {
     ...base,
     origin: "imported",
-    parts: base.parts.map((part: IAutoMovieModelPart): IAutoMovieModelPart => ({
-      ...part,
-      geometry: { type: "mesh", mesh },
-    })),
+    parts: base.parts.map(
+      (part: IAutoMovieModelPart): IAutoMovieModelPart => ({
+        ...part,
+        geometry: { type: "mesh", mesh },
+      }),
+    ),
   };
 };
 
@@ -81,7 +91,10 @@ export function test_validation_model_mesh_empty(): void {
             "$input.parts[0].geometry.mesh.positions",
           ),
       ],
-      ["withEmptyBuffersSuccess", (): boolean => withEmptyBuffers.success === false],
+      [
+        "withEmptyBuffersSuccess",
+        (): boolean => withEmptyBuffers.success === false,
+      ],
       [
         "withEmptyBuffersViolationsViolation",
         (): boolean =>

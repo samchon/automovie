@@ -1,9 +1,19 @@
-import { validateModel } from "../../../../packages/engine/src/validation/validateModel";
-import { withoutArraySlot } from "../internal/withoutArraySlot";
-import { IAutoMovieMesh, IAutoMovieModel, IAutoMovieMeshSkin, IAutoMovieModelPart, AutoMovieHumanoidBone, IAutoMovieTransform, IAutoMovieValidation } from "@automovie/interface";
+import {
+  AutoMovieHumanoidBone,
+  IAutoMovieMesh,
+  IAutoMovieMeshSkin,
+  IAutoMovieModel,
+  IAutoMovieModelPart,
+  IAutoMovieTransform,
+  IAutoMovieValidation,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
+
+import { validateModel } from "../../../../packages/engine/src/validation/validateModel";
 import { createModel } from "../internal/fixtures";
 import { hasViolation } from "../internal/predicates";
+import { withoutArraySlot } from "../internal/withoutArraySlot";
+
 const VALID_MESH: IAutoMovieMesh = {
   positions: [0, 0, 0, 1, 0, 0, 0, 1, 0],
   normals: [0, 0, 1, 0, 0, 1, 0, 0, 1],
@@ -12,15 +22,30 @@ const VALID_MESH: IAutoMovieMesh = {
   skin: null,
 };
 
-const modelWithMesh: (mesh: IAutoMovieMesh) => IAutoMovieModel = (mesh: IAutoMovieMesh): IAutoMovieModel => {
-  const base: IAutoMovieModel = createModel(mesh.skin === null ? null : undefined);
+const modelWithMesh: (mesh: IAutoMovieMesh) => IAutoMovieModel = (
+  mesh: IAutoMovieMesh,
+): IAutoMovieModel => {
+  const base: IAutoMovieModel = createModel(
+    mesh.skin === null ? null : undefined,
+  );
   return {
     ...base,
     origin: "imported",
-    parts: base.parts.map((part: IAutoMovieModelPart): { geometry: { type: "mesh"; mesh: IAutoMovieMesh; }; id: string; name: string | null; material: string | null; attachedBone: AutoMovieHumanoidBone | null; transform: IAutoMovieTransform | null; } => ({
-      ...part,
-      geometry: { type: "mesh", mesh },
-    })),
+    parts: base.parts.map(
+      (
+        part: IAutoMovieModelPart,
+      ): {
+        geometry: { type: "mesh"; mesh: IAutoMovieMesh };
+        id: string;
+        name: string | null;
+        material: string | null;
+        attachedBone: AutoMovieHumanoidBone | null;
+        transform: IAutoMovieTransform | null;
+      } => ({
+        ...part,
+        geometry: { type: "mesh", mesh },
+      }),
+    ),
   };
 };
 
@@ -124,8 +149,17 @@ export function test_validation_model_mesh_buffers(): void {
   for (const value of [Number.NaN, Number.POSITIVE_INFINITY]) {
     const positions: number[] = [...VALID_MESH.positions];
     positions[4] = value;
-    const result: IAutoMovieValidation = validateModel({ model: modelWithMesh({ ...VALID_MESH, positions }) });
-    TestValidator.predicate("nonfinite positions report before topology", hasViolation(result, "range", "$input.parts[0].geometry.mesh.positions[4]"));
+    const result: IAutoMovieValidation = validateModel({
+      model: modelWithMesh({ ...VALID_MESH, positions }),
+    });
+    TestValidator.predicate(
+      "nonfinite positions report before topology",
+      hasViolation(
+        result,
+        "range",
+        "$input.parts[0].geometry.mesh.positions[4]",
+      ),
+    );
   }
   const missingPosition: number[] = withoutArraySlot(VALID_MESH.positions, 4);
   const missingIndex: number[] = withoutArraySlot([0, 1, 2], 1);
@@ -135,20 +169,63 @@ export function test_validation_model_mesh_buffers(): void {
     boneIndices: new Array<number>(12).fill(0),
     weights: [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0],
   };
-  TestValidator.predicate("dense optional attributes and normalized skin remain valid", validateModel({ model: modelWithMesh({ ...VALID_MESH, reliefWeights: [0, 1, 0], skin }) }).success);
+  TestValidator.predicate(
+    "dense optional attributes and normalized skin remain valid",
+    validateModel({
+      model: modelWithMesh({ ...VALID_MESH, reliefWeights: [0, 1, 0], skin }),
+    }).success,
+  );
   const missingWeights: number[] = withoutArraySlot(skin.weights, 3);
   const missingBoneIndex: number[] = withoutArraySlot(skin.boneIndices, 3);
-  const missingJoint: AutoMovieHumanoidBone[] = new Array<AutoMovieHumanoidBone>(1);
-  const cases: { mesh: IAutoMovieMesh; kind: "range" | "type"; field: string }[] = [
-    { mesh: { ...VALID_MESH, positions: missingPosition }, kind: "range", field: "positions[4]" },
-    { mesh: { ...VALID_MESH, indices: missingIndex }, kind: "range", field: "indices[1]" },
-    { mesh: { ...VALID_MESH, reliefWeights: missingRelief }, kind: "range", field: "reliefWeights[1]" },
-    { mesh: { ...VALID_MESH, skin: { ...skin, weights: missingWeights } }, kind: "range", field: "skin.weights[3]" },
-    { mesh: { ...VALID_MESH, skin: { ...skin, boneIndices: missingBoneIndex } }, kind: "range", field: "skin.boneIndices[3]" },
-    { mesh: { ...VALID_MESH, skin: { ...skin, joints: missingJoint } }, kind: "type", field: "skin.joints[0]" },
+  const missingJoint: AutoMovieHumanoidBone[] =
+    new Array<AutoMovieHumanoidBone>(1);
+  const cases: {
+    mesh: IAutoMovieMesh;
+    kind: "range" | "type";
+    field: string;
+  }[] = [
+    {
+      mesh: { ...VALID_MESH, positions: missingPosition },
+      kind: "range",
+      field: "positions[4]",
+    },
+    {
+      mesh: { ...VALID_MESH, indices: missingIndex },
+      kind: "range",
+      field: "indices[1]",
+    },
+    {
+      mesh: { ...VALID_MESH, reliefWeights: missingRelief },
+      kind: "range",
+      field: "reliefWeights[1]",
+    },
+    {
+      mesh: { ...VALID_MESH, skin: { ...skin, weights: missingWeights } },
+      kind: "range",
+      field: "skin.weights[3]",
+    },
+    {
+      mesh: { ...VALID_MESH, skin: { ...skin, boneIndices: missingBoneIndex } },
+      kind: "range",
+      field: "skin.boneIndices[3]",
+    },
+    {
+      mesh: { ...VALID_MESH, skin: { ...skin, joints: missingJoint } },
+      kind: "type",
+      field: "skin.joints[0]",
+    },
   ];
   for (const entry of cases) {
-    const result: IAutoMovieValidation = validateModel({ model: modelWithMesh(entry.mesh) });
-    TestValidator.predicate("each required resident slot is admitted by index", hasViolation(result, entry.kind, "$input.parts[0].geometry.mesh." + entry.field));
+    const result: IAutoMovieValidation = validateModel({
+      model: modelWithMesh(entry.mesh),
+    });
+    TestValidator.predicate(
+      "each required resident slot is admitted by index",
+      hasViolation(
+        result,
+        entry.kind,
+        "$input.parts[0].geometry.mesh." + entry.field,
+      ),
+    );
   }
 }

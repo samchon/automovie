@@ -1,13 +1,22 @@
-import type { AutoMovieHumanoidBone, IAutoMovieBone, IAutoMovieConstraintViolation, IAutoMovieModel, IAutoMovieValidation } from "@automovie/interface";
-import { validateModel } from "../../../../packages/engine/src/validation/validateModel";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieBone,
+  IAutoMovieConstraintViolation,
+  IAutoMovieModel,
+  IAutoMovieValidation,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { validateModel } from "../../../../packages/engine/src/validation/validateModel";
 import { IDENTITY_TRANSFORM } from "../internal/IDENTITY_TRANSFORM";
 import { createModel } from "../internal/createModel";
 import { hasViolation } from "../internal/hasViolation";
 import { namedFacts } from "../internal/namedFacts";
 
-const b: (bone: AutoMovieHumanoidBone, parent: AutoMovieHumanoidBone | null) => IAutoMovieBone = (
+const b: (
+  bone: AutoMovieHumanoidBone,
+  parent: AutoMovieHumanoidBone | null,
+) => IAutoMovieBone = (
   bone: AutoMovieHumanoidBone,
   parent: AutoMovieHumanoidBone | null,
 ): IAutoMovieBone => ({
@@ -62,13 +71,13 @@ export function test_validation_model_skeleton_graph(): void {
   TestValidator.equals(
     "root count violation",
     namedFacts([
-      ["refused", () : boolean => twoRoots.success === false],
+      ["refused", (): boolean => twoRoots.success === false],
       [
         "violated",
-        () : boolean =>
+        (): boolean =>
           twoRoots.success === false &&
           twoRoots.violations.some(
-            (v: IAutoMovieConstraintViolation) : boolean =>
+            (v: IAutoMovieConstraintViolation): boolean =>
               v.path.endsWith("$input.skeleton.bones") &&
               String(v.expected).includes("exactly one root"),
           ),
@@ -95,16 +104,16 @@ export function test_validation_model_skeleton_graph(): void {
   TestValidator.equals(
     "detached cycle bones unreachable",
     namedFacts([
-      ["detachedCycleSuccess", () : boolean => detachedCycle.success === false],
+      ["detachedCycleSuccess", (): boolean => detachedCycle.success === false],
       [
         "hasViolationDetachedCycleType",
-        () : boolean =>
+        (): boolean =>
           detachedCycle.success === false &&
           hasViolation(detachedCycle, "type", "$input.skeleton.bones[2]"),
       ],
       [
         "hasViolationDetachedCycleType2",
-        () : boolean =>
+        (): boolean =>
           detachedCycle.success === false &&
           hasViolation(detachedCycle, "type", "$input.skeleton.bones[3]"),
       ],

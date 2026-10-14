@@ -1,7 +1,7 @@
 import type { IAutoMovieValidation } from "@automovie/interface";
-import { validateModel } from "../../../../packages/engine/src/validation/validateModel";
 import { TestValidator } from "@nestia/e2e";
 
+import { validateModel } from "../../../../packages/engine/src/validation/validateModel";
 import { createModel } from "../internal/createModel";
 import { hasViolation } from "../internal/hasViolation";
 
@@ -17,7 +17,9 @@ import { hasViolation } from "../internal/hasViolation";
  * @evidence contracts/testing.md#execution-ownership This named discoverable unit uses the portable validator and existing model factory without a renderer, loader or dynamic registration.
  */
 export function test_validation_model_no_parts(): void {
-  const result: IAutoMovieValidation = validateModel({ model: { ...createModel(), parts: [] } });
+  const result: IAutoMovieValidation = validateModel({
+    model: { ...createModel(), parts: [] },
+  });
   TestValidator.equals("empty model fails", result.success, false);
   TestValidator.predicate(
     "type violation on parts",

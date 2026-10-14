@@ -1,13 +1,16 @@
-import type { IAutoMovieSkeleton, IAutoMovieValidation } from "@automovie/interface";
-import { validateMotion } from "../../../../packages/engine/src/validation/validateMotion";
+import type {
+  IAutoMovieSkeleton,
+  IAutoMovieValidation,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { validateMotion } from "../../../../packages/engine/src/validation/validateMotion";
 import { createSkeleton } from "../internal/createSkeleton";
+import { hasViolation } from "../internal/hasViolation";
 import { joint } from "../internal/joint";
 import { keyframe } from "../internal/keyframe";
 import { makeMotion } from "../internal/makeMotion";
 import { makePose } from "../internal/makePose";
-import { hasViolation } from "../internal/hasViolation";
 
 /**
  * Exercise the minimum two-keyframe admission contract for a motion interval.

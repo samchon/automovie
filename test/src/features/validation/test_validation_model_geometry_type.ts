@@ -1,5 +1,10 @@
 import { validateModel } from "@automovie/engine";
-import { IAutoMovieGeometry, IAutoMovieModel, IAutoMovieModelPart, IAutoMovieValidation } from "@automovie/interface";
+import {
+  IAutoMovieGeometry,
+  IAutoMovieModel,
+  IAutoMovieModelPart,
+  IAutoMovieValidation,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { createModel } from "../internal/fixtures";
@@ -23,10 +28,12 @@ export function test_validation_model_geometry_type(): void {
   const base: IAutoMovieModel = createModel();
   const model: IAutoMovieModel = {
     ...base,
-    parts: base.parts.map((part: IAutoMovieModelPart): IAutoMovieModelPart => ({
-      ...part,
-      geometry: unknownGeometry,
-    })),
+    parts: base.parts.map(
+      (part: IAutoMovieModelPart): IAutoMovieModelPart => ({
+        ...part,
+        geometry: unknownGeometry,
+      }),
+    ),
   };
 
   const result: IAutoMovieValidation = validateModel({ model });

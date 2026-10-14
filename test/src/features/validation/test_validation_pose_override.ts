@@ -1,7 +1,11 @@
-import type { IAutoMovieBone, IAutoMovieSkeleton, IAutoMovieValidation } from "@automovie/interface";
-import { validatePoseResult } from "../../../../packages/engine/src/validation/validatePoseResult";
+import type {
+  IAutoMovieBone,
+  IAutoMovieSkeleton,
+  IAutoMovieValidation,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { validatePoseResult } from "../../../../packages/engine/src/validation/validatePoseResult";
 import { createSkeleton } from "../internal/createSkeleton";
 import { joint } from "../internal/joint";
 import { makePose } from "../internal/makePose";
@@ -21,17 +25,18 @@ export function test_validation_pose_override(): void {
   const base: IAutoMovieSkeleton = createSkeleton();
   const skeleton: IAutoMovieSkeleton = {
     ...base,
-    bones: base.bones.map((b: IAutoMovieBone) : IAutoMovieBone =>
-      b.bone === "leftLowerArm"
-        ? {
-            ...b,
-            constraint: {
-              flexion: { min: 0, max: 200 },
-              abduction: null,
-              twist: null,
-            },
-          }
-        : b,
+    bones: base.bones.map(
+      (b: IAutoMovieBone): IAutoMovieBone =>
+        b.bone === "leftLowerArm"
+          ? {
+              ...b,
+              constraint: {
+                flexion: { min: 0, max: 200 },
+                abduction: null,
+                twist: null,
+              },
+            }
+          : b,
     ),
   };
   const result: IAutoMovieValidation = validatePoseResult(

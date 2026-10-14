@@ -1,7 +1,12 @@
-import type { IAutoMovieModel, IAutoMovieModelPart, IAutoMovieTransform, IAutoMovieValidation } from "@automovie/interface";
-import { validateModel } from "../../../../packages/engine/src/validation/validateModel";
+import type {
+  IAutoMovieModel,
+  IAutoMovieModelPart,
+  IAutoMovieTransform,
+  IAutoMovieValidation,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { validateModel } from "../../../../packages/engine/src/validation/validateModel";
 import { createModel } from "../internal/createModel";
 import { hasViolation } from "../internal/hasViolation";
 
@@ -11,12 +16,15 @@ const PART_TRANSFORM: IAutoMovieTransform = {
   scale: { x: 1, y: 1, z: 1 },
 };
 
-const modelWithPartTransform: (transform: IAutoMovieTransform) => IAutoMovieModel = (transform: IAutoMovieTransform) : IAutoMovieModel => {
+const modelWithPartTransform: (
+  transform: IAutoMovieTransform,
+) => IAutoMovieModel = (transform: IAutoMovieTransform): IAutoMovieModel => {
   const base: IAutoMovieModel = createModel();
   return {
     ...base,
-    parts: base.parts.map((part: IAutoMovieModelPart, i: number) : IAutoMovieModelPart =>
-      i === 0 ? { ...part, transform } : part,
+    parts: base.parts.map(
+      (part: IAutoMovieModelPart, i: number): IAutoMovieModelPart =>
+        i === 0 ? { ...part, transform } : part,
     ),
   };
 };

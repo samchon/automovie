@@ -1,7 +1,11 @@
-import { validateMotion } from "../../../../packages/engine/src/validation/validateMotion";
-import { IAutoMovieMotion, IAutoMovieValidation, IAutoMovieKeyframe } from "@automovie/interface";
+import {
+  IAutoMovieKeyframe,
+  IAutoMovieMotion,
+  IAutoMovieValidation,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { validateMotion } from "../../../../packages/engine/src/validation/validateMotion";
 import { createSkeleton } from "../internal/createSkeleton";
 import { createValidMotion } from "../internal/createValidMotion";
 import { hasViolation } from "../internal/hasViolation";
@@ -21,14 +25,17 @@ import { withoutArraySlot } from "../internal/withoutArraySlot";
  * @evidence contracts/testing.md#execution-ownership The discoverable exported unit uses portable validateMotion plus existing canonical rig/clip fixtures and the shared local sparse-array helper, without loading a host or creating an asset.
  */
 export function test_validation_motion_keyframe_bezier(): void {
-  const makeMotion: (patch: Partial<IAutoMovieKeyframe>) => ReturnType<typeof createValidMotion> = (
+  const makeMotion: (
+    patch: Partial<IAutoMovieKeyframe>,
+  ) => ReturnType<typeof createValidMotion> = (
     patch: Partial<IAutoMovieKeyframe>,
   ): ReturnType<typeof createValidMotion> => {
     const base: IAutoMovieMotion = createValidMotion();
     return {
       ...base,
-      keyframes: base.keyframes.map((kf: IAutoMovieKeyframe, i: number): IAutoMovieKeyframe =>
-        i === 0 ? { ...kf, ...patch } : kf,
+      keyframes: base.keyframes.map(
+        (kf: IAutoMovieKeyframe, i: number): IAutoMovieKeyframe =>
+          i === 0 ? { ...kf, ...patch } : kf,
       ),
     };
   };
@@ -59,7 +66,10 @@ export function test_validation_motion_keyframe_bezier(): void {
       name: "cubicBezier missing y control slot",
       patch: {
         easing: "cubicBezier",
-        bezier: withoutArraySlot([0, 0, 1, 1], 1) as IAutoMovieKeyframe["bezier"],
+        bezier: withoutArraySlot(
+          [0, 0, 1, 1],
+          1,
+        ) as IAutoMovieKeyframe["bezier"],
       },
     },
     {

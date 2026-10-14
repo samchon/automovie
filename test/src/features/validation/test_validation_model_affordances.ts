@@ -1,5 +1,10 @@
 import { validateModel } from "@automovie/engine";
-import { IAutoMovieAffordance, IAutoMovieModel, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  IAutoMovieAffordance,
+  IAutoMovieModel,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { createModel } from "../internal/fixtures";
@@ -37,7 +42,9 @@ const HANDLE: IAutoMovieAffordance = {
   extent: null,
 };
 
-const withAffordances: (affordances: IAutoMovieAffordance[] | null | undefined) => IAutoMovieModel = (
+const withAffordances: (
+  affordances: IAutoMovieAffordance[] | null | undefined,
+) => IAutoMovieModel = (
   affordances: IAutoMovieAffordance[] | null | undefined,
 ): IAutoMovieModel =>
   affordances === undefined ? createModel() : { ...createModel(), affordances };

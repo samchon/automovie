@@ -1,6 +1,10 @@
 import { validateModel } from "@automovie/engine";
+import {
+  IAutoMovieModel,
+  IAutoMovieModelPart,
+  IAutoMovieValidation,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-import { IAutoMovieModel, IAutoMovieModelPart, IAutoMovieValidation } from "@automovie/interface";
 
 import { createModel } from "../internal/fixtures";
 import { hasViolation } from "../internal/predicates";
@@ -20,13 +24,15 @@ export function test_validation_model_extent(): void {
   const base: IAutoMovieModel = createModel();
   const model: IAutoMovieModel = {
     ...base,
-    parts: base.parts.map((p: IAutoMovieModelPart): IAutoMovieModelPart => ({
-      ...p,
-      geometry: {
-        type: "primitive" as const,
-        shape: { type: "box" as const, width: 0, height: 0.6, depth: 0.2 },
-      },
-    })),
+    parts: base.parts.map(
+      (p: IAutoMovieModelPart): IAutoMovieModelPart => ({
+        ...p,
+        geometry: {
+          type: "primitive" as const,
+          shape: { type: "box" as const, width: 0, height: 0.6, depth: 0.2 },
+        },
+      }),
+    ),
   };
   const result: IAutoMovieValidation = validateModel({ model });
   TestValidator.equals("zero extent fails", result.success, false);

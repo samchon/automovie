@@ -1,7 +1,12 @@
-import type { IAutoMovieMaterial, IAutoMovieModel, IAutoMovieModelPart, IAutoMovieValidation } from "@automovie/interface";
-import { validateModel } from "../../../../packages/engine/src/validation/validateModel";
+import type {
+  IAutoMovieMaterial,
+  IAutoMovieModel,
+  IAutoMovieModelPart,
+  IAutoMovieValidation,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { validateModel } from "../../../../packages/engine/src/validation/validateModel";
 import { createModel } from "../internal/createModel";
 import { hasViolation } from "../internal/hasViolation";
 
@@ -24,16 +29,20 @@ export function test_validation_model_nonempty_ids(): void {
       id: "",
       asset: " ",
       skeleton: { ...base.skeleton!, id: " " },
-      materials: base.materials.map((material: IAutoMovieMaterial) : IAutoMovieMaterial => ({
-        ...material,
-        id: "",
-        baseColorTexture: " ",
-      })),
-      parts: base.parts.map((part: IAutoMovieModelPart) : IAutoMovieModelPart => ({
-        ...part,
-        id: " ",
-        material: "",
-      })),
+      materials: base.materials.map(
+        (material: IAutoMovieMaterial): IAutoMovieMaterial => ({
+          ...material,
+          id: "",
+          baseColorTexture: " ",
+        }),
+      ),
+      parts: base.parts.map(
+        (part: IAutoMovieModelPart): IAutoMovieModelPart => ({
+          ...part,
+          id: " ",
+          material: "",
+        }),
+      ),
     },
   });
 

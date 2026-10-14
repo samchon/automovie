@@ -26,15 +26,19 @@ const VALID_MESH: IAutoMovieMesh = {
   skin: VALID_SKIN,
 };
 
-const modelWithSkin: (skin: IAutoMovieMeshSkin) => IAutoMovieModel = (skin: IAutoMovieMeshSkin): IAutoMovieModel => {
+const modelWithSkin: (skin: IAutoMovieMeshSkin) => IAutoMovieModel = (
+  skin: IAutoMovieMeshSkin,
+): IAutoMovieModel => {
   const base: IAutoMovieModel = createModel();
   return {
     ...base,
     origin: "imported",
-    parts: base.parts.map((part: IAutoMovieModelPart): IAutoMovieModelPart => ({
-      ...part,
-      geometry: { type: "mesh", mesh: { ...VALID_MESH, skin } },
-    })),
+    parts: base.parts.map(
+      (part: IAutoMovieModelPart): IAutoMovieModelPart => ({
+        ...part,
+        geometry: { type: "mesh", mesh: { ...VALID_MESH, skin } },
+      }),
+    ),
   };
 };
 

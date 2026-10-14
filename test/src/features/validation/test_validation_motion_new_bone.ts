@@ -1,7 +1,10 @@
-import type { IAutoMovieMotion, IAutoMovieValidation } from "@automovie/interface";
-import { validateMotion } from "../../../../packages/engine/src/validation/validateMotion";
+import type {
+  IAutoMovieMotion,
+  IAutoMovieValidation,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { validateMotion } from "../../../../packages/engine/src/validation/validateMotion";
 import { createSkeleton } from "../internal/createSkeleton";
 import { joint } from "../internal/joint";
 import { keyframe } from "../internal/keyframe";
@@ -33,7 +36,10 @@ export function test_validation_motion_new_bone(): void {
     ],
     1,
   );
-  const result: IAutoMovieValidation = validateMotion({ motion, skeleton: createSkeleton() });
+  const result: IAutoMovieValidation = validateMotion({
+    motion,
+    skeleton: createSkeleton(),
+  });
   TestValidator.equals(
     "a newly-introduced bone does not trip the speed check",
     result.success,
