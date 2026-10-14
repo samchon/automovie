@@ -1,12 +1,21 @@
+import type {
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieBuiltPopulation,
+  IAutoMovieInstanceSetDesign,
+} from "@automovie/interface";
+
+import { validateBuiltEnvironment } from "../../../../packages/engine/src/architecture/validateBuiltEnvironment";
 import { assertArchitectureBuiltPopulationRefusalsPart1 } from "../internal/assertArchitectureBuiltPopulationRefusalsPart1";
 import { assertArchitectureBuiltPopulationRefusalsPart2 } from "../internal/assertArchitectureBuiltPopulationRefusalsPart2";
 import { assertArchitectureBuiltPopulationRefusalsPart3 } from "../internal/assertArchitectureBuiltPopulationRefusalsPart3";
 import { assertArchitectureBuiltPopulationRefusalsPart4 } from "../internal/assertArchitectureBuiltPopulationRefusalsPart4";
-import { validateBuiltEnvironment } from "../../../../packages/engine/src/architecture/validateBuiltEnvironment";
-import type { IAutoMovieBuiltEnvironment, IAutoMovieBuiltPopulation, IAutoMovieInstanceSetDesign } from "@automovie/interface";
 import { hasViolation } from "../internal/predicates";
 
-const population: (input?: Partial<IAutoMovieInstanceSetDesign>, space?: string, prototypeBounds?: IAutoMovieBuiltPopulation["prototypeBounds"]) => IAutoMovieBuiltPopulation = (
+const population: (
+  input?: Partial<IAutoMovieInstanceSetDesign>,
+  space?: string,
+  prototypeBounds?: IAutoMovieBuiltPopulation["prototypeBounds"],
+) => IAutoMovieBuiltPopulation = (
   input: Partial<IAutoMovieInstanceSetDesign> = {},
   space: string = "place",
   prototypeBounds: IAutoMovieBuiltPopulation["prototypeBounds"] = {
@@ -29,7 +38,9 @@ const population: (input?: Partial<IAutoMovieInstanceSetDesign>, space?: string,
   },
 });
 
-const work: (populations: IAutoMovieBuiltPopulation[]) => IAutoMovieBuiltEnvironment = (
+const work: (
+  populations: IAutoMovieBuiltPopulation[],
+) => IAutoMovieBuiltEnvironment = (
   populations: IAutoMovieBuiltPopulation[],
 ): IAutoMovieBuiltEnvironment => ({
   version: 1,
@@ -61,7 +72,11 @@ const work: (populations: IAutoMovieBuiltPopulation[]) => IAutoMovieBuiltEnviron
   walkable: [],
 });
 
-const refuses: (populations: IAutoMovieBuiltPopulation[], path: string, kind?: "type" | "range") => boolean = (
+const refuses: (
+  populations: IAutoMovieBuiltPopulation[],
+  path: string,
+  kind?: "type" | "range",
+) => boolean = (
   populations: IAutoMovieBuiltPopulation[],
   path: string,
   kind: "type" | "range" = "range",

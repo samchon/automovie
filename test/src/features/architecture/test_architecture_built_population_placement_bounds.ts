@@ -1,9 +1,17 @@
-import { builtInstanceSetPlacementBounds } from "../../../../packages/engine/src/architecture/builtInstanceSetPlacementBounds";
-import type { IAutoMovieSubjectBox, IAutoMovieInstanceSetDesign, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieInstanceSetDesign,
+  IAutoMovieSubjectBox,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
+
+import { builtInstanceSetPlacementBounds } from "../../../../packages/engine/src/architecture/builtInstanceSetPlacementBounds";
 import { namedFacts, throwsError, vclose } from "../internal/predicates";
 
-const set: (input: Partial<IAutoMovieInstanceSetDesign> & Pick<IAutoMovieInstanceSetDesign, "layout" | "count">) => IAutoMovieInstanceSetDesign = (
+const set: (
+  input: Partial<IAutoMovieInstanceSetDesign> &
+    Pick<IAutoMovieInstanceSetDesign, "layout" | "count">,
+) => IAutoMovieInstanceSetDesign = (
   input: Partial<IAutoMovieInstanceSetDesign> &
     Pick<IAutoMovieInstanceSetDesign, "layout" | "count">,
 ): IAutoMovieInstanceSetDesign => ({
@@ -16,16 +24,30 @@ const set: (input: Partial<IAutoMovieInstanceSetDesign> & Pick<IAutoMovieInstanc
   ...input,
 });
 
-const bounded: (design: IAutoMovieInstanceSetDesign, min: IAutoMovieVector3, max: IAutoMovieVector3, prototypeBounds?: { min: { x: number; y: number; z: number; }; max: { x: number; y: number; z: number; }; }) => boolean = (
+const bounded: (
   design: IAutoMovieInstanceSetDesign,
   min: IAutoMovieVector3,
   max: IAutoMovieVector3,
-  prototypeBounds: { min: { x: number; y: number; z: number; }; max: { x: number; y: number; z: number; }; } = {
+  prototypeBounds?: {
+    min: { x: number; y: number; z: number };
+    max: { x: number; y: number; z: number };
+  },
+) => boolean = (
+  design: IAutoMovieInstanceSetDesign,
+  min: IAutoMovieVector3,
+  max: IAutoMovieVector3,
+  prototypeBounds: {
+    min: { x: number; y: number; z: number };
+    max: { x: number; y: number; z: number };
+  } = {
     min: { x: 0, y: 0, z: 0 },
     max: { x: 0, y: 0, z: 0 },
   },
 ): boolean => {
-  const measured: IAutoMovieSubjectBox = builtInstanceSetPlacementBounds(design, prototypeBounds);
+  const measured: IAutoMovieSubjectBox = builtInstanceSetPlacementBounds(
+    design,
+    prototypeBounds,
+  );
   return vclose(measured.min, min) && vclose(measured.max, max);
 };
 
@@ -185,12 +207,22 @@ export function test_architecture_built_population_placement_bounds(): void {
             { x: 0, y: 2, z: 0 },
             { x: 0, y: 0, z: 5 },
             { x: 100, y: 100, z: 100 },
-          ].map((translation: { x: number; y: number; z: number; }, index: number): { id: string; translation: { x: number; y: number; z: number; }; rotation: { x: number; y: number; z: number; w: number; }; scale: { x: number; y: number; z: number; }; } => ({
-            id: `slot-${index}`,
-            translation,
-            rotation: { x: 0, y: 0, z: 0, w: 1 },
-            scale: { x: 1, y: 1, z: 1 },
-          })),
+          ].map(
+            (
+              translation: { x: number; y: number; z: number },
+              index: number,
+            ): {
+              id: string;
+              translation: { x: number; y: number; z: number };
+              rotation: { x: number; y: number; z: number; w: number };
+              scale: { x: number; y: number; z: number };
+            } => ({
+              id: `slot-${index}`,
+              translation,
+              rotation: { x: 0, y: 0, z: 0, w: 1 },
+              scale: { x: 1, y: 1, z: 1 },
+            }),
+          ),
         },
       }),
       { x: 0, y: 1, z: 0.5 },
@@ -329,14 +361,20 @@ export function test_architecture_built_population_placement_bounds(): void {
         },
       ),
       repeat: ((): boolean => {
-        const first: IAutoMovieSubjectBox = builtInstanceSetPlacementBounds(varyingRotation, {
-          min: { x: -1, y: -2, z: -3 },
-          max: { x: 1, y: 2, z: 3 },
-        });
-        const second: IAutoMovieSubjectBox = builtInstanceSetPlacementBounds(varyingRotation, {
-          min: { x: -1, y: -2, z: -3 },
-          max: { x: 1, y: 2, z: 3 },
-        });
+        const first: IAutoMovieSubjectBox = builtInstanceSetPlacementBounds(
+          varyingRotation,
+          {
+            min: { x: -1, y: -2, z: -3 },
+            max: { x: 1, y: 2, z: 3 },
+          },
+        );
+        const second: IAutoMovieSubjectBox = builtInstanceSetPlacementBounds(
+          varyingRotation,
+          {
+            min: { x: -1, y: -2, z: -3 },
+            max: { x: 1, y: 2, z: 3 },
+          },
+        );
         return vclose(first.min, second.min) && vclose(first.max, second.max);
       })(),
     },

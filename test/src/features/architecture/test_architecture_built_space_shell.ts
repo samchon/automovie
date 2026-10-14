@@ -1,14 +1,23 @@
+import type {
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieBuiltSpace,
+  IAutoMovieDrawingGap,
+  IAutoMovieDrawingView,
+  IAutoMovieQuantityContributor,
+  IAutoMovieQuantityFinding,
+  IAutoMovieSpaceShell,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
 import { builtEnvironmentContainsPoint } from "../../../../packages/engine/src/architecture/builtEnvironmentContainsPoint";
 import { builtEnvironmentSpaceFidelity } from "../../../../packages/engine/src/architecture/builtEnvironmentSpaceFidelity";
 import { builtSpaceContainsPoint } from "../../../../packages/engine/src/architecture/builtSpaceContainsPoint";
 import { builtSpaceIsConvex } from "../../../../packages/engine/src/architecture/builtSpaceIsConvex";
 import { builtSpaceShellVolume } from "../../../../packages/engine/src/architecture/builtSpaceShellVolume";
 import { builtSpaceStatesVolume } from "../../../../packages/engine/src/architecture/builtSpaceStatesVolume";
+import { validateBuiltEnvironment } from "../../../../packages/engine/src/architecture/validateBuiltEnvironment";
 import { deriveAutoMovieDrawing } from "../../../../packages/engine/src/drawing/deriveAutoMovieDrawing";
 import { measureAutoMovieQuantities } from "../../../../packages/engine/src/drawing/measureAutoMovieQuantities";
-import { validateBuiltEnvironment } from "../../../../packages/engine/src/architecture/validateBuiltEnvironment";
-import type { IAutoMovieBuiltEnvironment, IAutoMovieQuantityFinding, IAutoMovieQuantityContributor, IAutoMovieDrawingGap, IAutoMovieDrawingView, IAutoMovieBuiltSpace, IAutoMovieSpaceShell } from "@automovie/interface";
-import { TestValidator } from "@nestia/e2e";
 import { BUILT_SPACE_SHELL_TEST_HALL as HALL } from "../internal/BUILT_SPACE_SHELL_TEST_HALL";
 import { assertBuiltSpaceShellTestRefusals } from "../internal/assertBuiltSpaceShellTestRefusals";
 import { builtSpaceShellTestBoxShell as boxShell } from "../internal/builtSpaceShellTestBoxShell";
@@ -43,7 +52,8 @@ export function test_architecture_built_space_shell(): void {
     namedFacts([
       [
         "valid",
-        (): boolean => validateBuiltEnvironment({ environment: shelled }).success,
+        (): boolean =>
+          validateBuiltEnvironment({ environment: shelled }).success,
       ],
       [
         "inTheRoom",
@@ -112,7 +122,10 @@ export function test_architecture_built_space_shell(): void {
     nclose(builtSpaceShellVolume(HALL), 10 * 4 * 10 - 4 * 4 * 4, 1e-9),
   );
 
-  const cube: IAutoMovieSpaceShell = boxShell({ x: 0, y: 0, z: 0 }, { x: 2, y: 2, z: 2 });
+  const cube: IAutoMovieSpaceShell = boxShell(
+    { x: 0, y: 0, z: 0 },
+    { x: 2, y: 2, z: 2 },
+  );
   assertBuiltSpaceShellTestRefusals(cube);
 
   const faceted: IAutoMovieBuiltEnvironment = work({ fidelity: "faceted" });
@@ -121,7 +134,8 @@ export function test_architecture_built_space_shell(): void {
     namedFacts([
       [
         "facetedValidates",
-        (): boolean => validateBuiltEnvironment({ environment: faceted }).success,
+        (): boolean =>
+          validateBuiltEnvironment({ environment: faceted }).success,
       ],
       [
         "exactValidates",
@@ -156,15 +170,18 @@ export function test_architecture_built_space_shell(): void {
       ],
       [
         "theHallIsExactByDefault",
-        (): boolean => builtEnvironmentSpaceFidelity(shelled, "hall") === "exact",
+        (): boolean =>
+          builtEnvironmentSpaceFidelity(shelled, "hall") === "exact",
       ],
       [
         "theFacetedHallIsFaceted",
-        (): boolean => builtEnvironmentSpaceFidelity(faceted, "hall") === "faceted",
+        (): boolean =>
+          builtEnvironmentSpaceFidelity(faceted, "hall") === "faceted",
       ],
       [
         "andSoIsTheBuildingOverIt",
-        (): boolean => builtEnvironmentSpaceFidelity(faceted, "whole") === "faceted",
+        (): boolean =>
+          builtEnvironmentSpaceFidelity(faceted, "whole") === "faceted",
       ],
       [
         "aVolumelessSubtreeIsUnstated",
@@ -195,9 +212,14 @@ export function test_architecture_built_space_shell(): void {
       [
         "shellVolumeIsMeasured",
         (): boolean => {
-          const finding: IAutoMovieQuantityFinding = measureAutoMovieQuantities({
-            environment: shelled,
-          }).findings.find((entry: IAutoMovieQuantityFinding): boolean => entry.subject === "space-volume")!;
+          const finding: IAutoMovieQuantityFinding = measureAutoMovieQuantities(
+            {
+              environment: shelled,
+            },
+          ).findings.find(
+            (entry: IAutoMovieQuantityFinding): boolean =>
+              entry.subject === "space-volume",
+          )!;
           return (
             finding.contributors.some(
               (contributor: IAutoMovieQuantityContributor): boolean =>
@@ -211,7 +233,8 @@ export function test_architecture_built_space_shell(): void {
         "anExactSpaceRaisesNoCurvatureGap",
         (): boolean =>
           measureAutoMovieQuantities({ environment: shelled }).gaps.some(
-            (gap: IAutoMovieDrawingGap): boolean => gap.subject === "curved-space-boundary",
+            (gap: IAutoMovieDrawingGap): boolean =>
+              gap.subject === "curved-space-boundary",
           ) === false,
       ],
       [
@@ -248,7 +271,9 @@ export function test_architecture_built_space_shell(): void {
       },
     ],
   });
-  const plan: IAutoMovieDrawingView = drawingView({ origin: { x: 0, y: 2, z: 0 } });
+  const plan: IAutoMovieDrawingView = drawingView({
+    origin: { x: 0, y: 2, z: 0 },
+  });
   TestValidator.equals(
     "a shell is a section the drafter cannot cut, and it says which",
     namedFacts([
@@ -280,7 +305,8 @@ export function test_architecture_built_space_shell(): void {
         "andRaisesNoSuchGap",
         (): boolean =>
           deriveAutoMovieDrawing({ environment: celled, view: plan }).gaps.some(
-            (gap: IAutoMovieDrawingGap): boolean => gap.subject === "shelled-space-section",
+            (gap: IAutoMovieDrawingGap): boolean =>
+              gap.subject === "shelled-space-section",
           ) === false,
       ],
       [
@@ -304,7 +330,8 @@ export function test_architecture_built_space_shell(): void {
         "andAnExactOneDoesNot",
         (): boolean =>
           deriveAutoMovieDrawing({ environment: celled, view: plan }).gaps.some(
-            (gap: IAutoMovieDrawingGap): boolean => gap.subject === "curved-space-boundary",
+            (gap: IAutoMovieDrawingGap): boolean =>
+              gap.subject === "curved-space-boundary",
           ) === false,
       ],
     ]),
@@ -332,12 +359,19 @@ export function test_architecture_built_space_shell(): void {
         "aShellIsAVolume",
         (): boolean => builtSpaceStatesVolume(spaceOf(shelled, "hall")),
       ],
-      ["aCellIsAVolume", (): boolean => builtSpaceStatesVolume(spaceOf(celled, "hall"))],
+      [
+        "aCellIsAVolume",
+        (): boolean => builtSpaceStatesVolume(spaceOf(celled, "hall")),
+      ],
       [
         "aNameIsNot",
-        (): boolean => builtSpaceStatesVolume(spaceOf(shelled, "whole")) === false,
+        (): boolean =>
+          builtSpaceStatesVolume(spaceOf(shelled, "whole")) === false,
       ],
-      ["oneCellIsConvex", (): boolean => builtSpaceIsConvex(spaceOf(celled, "hall"))],
+      [
+        "oneCellIsConvex",
+        (): boolean => builtSpaceIsConvex(spaceOf(celled, "hall")),
+      ],
       [
         "twoCellsAreNot",
         (): boolean => builtSpaceIsConvex(spaceOf(twoCells, "hall")) === false,
@@ -368,12 +402,17 @@ export function test_architecture_built_space_shell(): void {
   };
   const flat: IAutoMovieSpaceShell = {
     vertices: cube.vertices,
-    triangles: cube.triangles.map((index: number, at: number): number => (at === 1 ? 0 : index)),
+    triangles: cube.triangles.map((index: number, at: number): number =>
+      at === 1 ? 0 : index,
+    ),
   };
   TestValidator.equals(
     "an unvalidated shell is read as the arithmetic says",
     namedFacts([
-      ["danglingEnclosesNothing", (): boolean => nclose(builtSpaceShellVolume(dangling), 0, 0)],
+      [
+        "danglingEnclosesNothing",
+        (): boolean => nclose(builtSpaceShellVolume(dangling), 0, 0),
+      ],
       [
         "danglingHoldsNothing",
         (): boolean =>

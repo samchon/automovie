@@ -1,3 +1,17 @@
+import type {
+  IAutoMovieBuiltElement,
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieBuiltPlacementBounds,
+  IAutoMovieBuiltPlacementOverlapReport,
+  IAutoMovieBuiltPlacementOverlapResult,
+  IAutoMovieBuiltSupportResult,
+  IAutoMovieBuiltSupportSweepReport,
+  IAutoMovieModel,
+  IAutoMovieSubjectBox,
+  IAutoMovieTransform,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
 import { builtEnvironmentElementPartBounds } from "../../../../packages/engine/src/architecture/builtEnvironmentElementPartBounds";
 import { builtEnvironmentPlacementBounds } from "../../../../packages/engine/src/architecture/builtEnvironmentPlacementBounds";
 import { builtEnvironmentPlacementOverlap } from "../../../../packages/engine/src/architecture/builtEnvironmentPlacementOverlap";
@@ -5,12 +19,14 @@ import { builtEnvironmentPlacementOverlapSweep } from "../../../../packages/engi
 import { builtEnvironmentSupportStatus } from "../../../../packages/engine/src/architecture/builtEnvironmentSupportStatus";
 import { builtEnvironmentSupportSweep } from "../../../../packages/engine/src/architecture/builtEnvironmentSupportSweep";
 import { validateBuiltEnvironment } from "../../../../packages/engine/src/architecture/validateBuiltEnvironment";
-import type { IAutoMovieBuiltPlacementBounds, IAutoMovieSubjectBox, IAutoMovieBuiltSupportResult, IAutoMovieBuiltPlacementOverlapResult, IAutoMovieBuiltElement, IAutoMovieBuiltSupportSweepReport, IAutoMovieBuiltPlacementOverlapReport, IAutoMovieBuiltEnvironment, IAutoMovieModel, IAutoMovieTransform } from "@automovie/interface";
-import { TestValidator } from "@nestia/e2e";
 import { makeProp, primitivePart } from "../internal/fixtures";
 import { namedFacts, nclose } from "../internal/predicates";
 
-const place: (x: number, y: number, z: number) => IAutoMovieTransform = (x: number, y: number, z: number): IAutoMovieTransform => ({
+const place: (x: number, y: number, z: number) => IAutoMovieTransform = (
+  x: number,
+  y: number,
+  z: number,
+): IAutoMovieTransform => ({
   translation: { x, y, z },
   rotation: { x: 0, y: 0, z: 0, w: 1 },
   scale: { x: 1, y: 1, z: 1 },
@@ -100,84 +116,86 @@ const benchModel: () => IAutoMovieModel = (): IAutoMovieModel => ({
  *
  * Its underside is exactly the boards' top, so a probe that reads the union box answers `resting` with a zero gap — a confident yes about a body standing over nothing at all.
  */
-const notchEnvironment: () => IAutoMovieBuiltEnvironment = (): IAutoMovieBuiltEnvironment => ({
-  ...environment(),
-  id: "bench-room",
-  models: [benchModel(), caseModel()],
-  elements: [
-    {
-      id: "root",
-      kind: "building",
-      parent: null,
-      transform: place(0, 0, 0),
-      model: null,
-      space: "whole",
-    },
-    {
-      id: "bench",
-      kind: "equipment",
-      parent: "root",
-      transform: place(0, 0, 0),
-      model: "bench-model",
-      space: "whole",
-    },
-    {
-      id: "case",
-      kind: "equipment",
-      parent: "root",
-      transform: place(0.5, 0.69, 0.5),
-      model: "case-model",
-      space: "whole",
-    },
-  ],
-});
+const notchEnvironment: () => IAutoMovieBuiltEnvironment =
+  (): IAutoMovieBuiltEnvironment => ({
+    ...environment(),
+    id: "bench-room",
+    models: [benchModel(), caseModel()],
+    elements: [
+      {
+        id: "root",
+        kind: "building",
+        parent: null,
+        transform: place(0, 0, 0),
+        model: null,
+        space: "whole",
+      },
+      {
+        id: "bench",
+        kind: "equipment",
+        parent: "root",
+        transform: place(0, 0, 0),
+        model: "bench-model",
+        space: "whole",
+      },
+      {
+        id: "case",
+        kind: "equipment",
+        parent: "root",
+        transform: place(0.5, 0.69, 0.5),
+        model: "case-model",
+        space: "whole",
+      },
+    ],
+  });
 
 /**
  * One shelf and a case resting exactly on its lower board.
  *
  * `0.775` is the board's top: `0.75 + 0.05 / 2`. The case's own box is 0.28 high about its origin, so an origin at `0.915` puts its underside at `0.775` — zero gap, zero interpenetration.
  */
-const environment: () => IAutoMovieBuiltEnvironment = (): IAutoMovieBuiltEnvironment => ({
-  version: 1,
-  id: "records-room",
-  units: "meter",
-  buildings: [{ id: "room", element: "root", space: "whole" }],
-  models: [shelfModel(), caseModel()],
-  modelReferences: [],
-  elements: [
-    {
-      id: "root",
-      kind: "building",
-      parent: null,
-      transform: place(0, 0, 0),
-      model: null,
-      space: "whole",
-    },
-    {
-      id: "shelf",
-      kind: "equipment",
-      parent: "root",
-      transform: place(0, 0, 0),
-      model: "shelf-model",
-      space: "whole",
-    },
-    {
-      id: "case",
-      kind: "equipment",
-      parent: "root",
-      transform: place(0, 0.915, 0),
-      model: "case-model",
-      space: "whole",
-    },
-  ],
-  spaces: [{ id: "whole", kind: "building", parent: null, cells: [] }],
-  boundaries: [],
-  openings: [],
-  connectors: [],
-  surfaces: [],
-  populations: [],
-  walkable: [],
-});
+const environment: () => IAutoMovieBuiltEnvironment =
+  (): IAutoMovieBuiltEnvironment => ({
+    version: 1,
+    id: "records-room",
+    units: "meter",
+    buildings: [{ id: "room", element: "root", space: "whole" }],
+    models: [shelfModel(), caseModel()],
+    modelReferences: [],
+    elements: [
+      {
+        id: "root",
+        kind: "building",
+        parent: null,
+        transform: place(0, 0, 0),
+        model: null,
+        space: "whole",
+      },
+      {
+        id: "shelf",
+        kind: "equipment",
+        parent: "root",
+        transform: place(0, 0, 0),
+        model: "shelf-model",
+        space: "whole",
+      },
+      {
+        id: "case",
+        kind: "equipment",
+        parent: "root",
+        transform: place(0, 0.915, 0),
+        model: "case-model",
+        space: "whole",
+      },
+    ],
+    spaces: [{ id: "whole", kind: "building", parent: null, cells: [] }],
+    boundaries: [],
+    openings: [],
+    connectors: [],
+    surfaces: [],
+    populations: [],
+    walkable: [],
+  });
 
 /**
  * Probe support and overlap using part boxes, retaining the union box for extent reporting.
@@ -198,115 +216,133 @@ const environment: () => IAutoMovieBuiltEnvironment = (): IAutoMovieBuiltEnviron
  * @evidence contracts/testing.md#execution-ownership Portable CPU unit test_architecture_built_environment_multipart_support imports the actual engine/archetype operations and owns its locally enumerated cases; no dynamic registration, consumer installation, native artifact build, process, browser or GPU host is required.
  */
 export function test_architecture_built_environment_multipart_support(): void {
-    const world: IAutoMovieBuiltEnvironment = environment();
-    validateBuiltEnvironment({ environment: world });
+  const world: IAutoMovieBuiltEnvironment = environment();
+  validateBuiltEnvironment({ environment: world });
 
-    const union: IAutoMovieBuiltPlacementBounds | null = builtEnvironmentPlacementBounds({
+  const union: IAutoMovieBuiltPlacementBounds | null =
+    builtEnvironmentPlacementBounds({
       environment: world,
       target: { kind: "element", id: "shelf" },
     });
-    const parts: IAutoMovieSubjectBox[] | null = builtEnvironmentElementPartBounds(world, "shelf");
-    const support: IAutoMovieBuiltSupportResult = builtEnvironmentSupportStatus({
-      environment: world,
-      query: {
-        kind: "bearing",
-        subject: { kind: "element", id: "case" },
-        support: { kind: "element", id: "shelf" },
-      },
-    });
-    const overlap: IAutoMovieBuiltPlacementOverlapResult = builtEnvironmentPlacementOverlap({
+  const parts: IAutoMovieSubjectBox[] | null =
+    builtEnvironmentElementPartBounds(world, "shelf");
+  const support: IAutoMovieBuiltSupportResult = builtEnvironmentSupportStatus({
+    environment: world,
+    query: {
+      kind: "bearing",
+      subject: { kind: "element", id: "case" },
+      support: { kind: "element", id: "shelf" },
+    },
+  });
+  const overlap: IAutoMovieBuiltPlacementOverlapResult =
+    builtEnvironmentPlacementOverlap({
       environment: world,
       left: { kind: "element", id: "case" },
       right: { kind: "element", id: "shelf" },
     });
 
-    const sunkWorld: IAutoMovieBuiltEnvironment = environment();
-    sunkWorld.elements = sunkWorld.elements.map((element: IAutoMovieBuiltElement): IAutoMovieBuiltElement =>
+  const sunkWorld: IAutoMovieBuiltEnvironment = environment();
+  sunkWorld.elements = sunkWorld.elements.map(
+    (element: IAutoMovieBuiltElement): IAutoMovieBuiltElement =>
       element.id === "case"
         ? { ...element, transform: place(0, 0.85, 0) }
         : element,
-    );
-    const sweep: IAutoMovieBuiltSupportSweepReport = builtEnvironmentSupportSweep({ environment: world });
-    const overlaps: IAutoMovieBuiltPlacementOverlapReport = builtEnvironmentPlacementOverlapSweep({
+  );
+  const sweep: IAutoMovieBuiltSupportSweepReport = builtEnvironmentSupportSweep(
+    { environment: world },
+  );
+  const overlaps: IAutoMovieBuiltPlacementOverlapReport =
+    builtEnvironmentPlacementOverlapSweep({
       environment: world,
     });
-    const sunkOverlaps: IAutoMovieBuiltPlacementOverlapReport = builtEnvironmentPlacementOverlapSweep({
+  const sunkOverlaps: IAutoMovieBuiltPlacementOverlapReport =
+    builtEnvironmentPlacementOverlapSweep({
       environment: sunkWorld,
     });
-    const notch: IAutoMovieBuiltSupportResult = builtEnvironmentSupportStatus({
-      environment: notchEnvironment(),
-      query: {
-        kind: "bearing",
-        subject: { kind: "element", id: "case" },
-        support: { kind: "element", id: "bench" },
-      },
-    });
-    const sunk: IAutoMovieBuiltSupportResult = builtEnvironmentSupportStatus({
-      environment: sunkWorld,
-      query: {
-        kind: "bearing",
-        subject: { kind: "element", id: "case" },
-        support: { kind: "element", id: "shelf" },
-      },
-    });
+  const notch: IAutoMovieBuiltSupportResult = builtEnvironmentSupportStatus({
+    environment: notchEnvironment(),
+    query: {
+      kind: "bearing",
+      subject: { kind: "element", id: "case" },
+      support: { kind: "element", id: "bench" },
+    },
+  });
+  const sunk: IAutoMovieBuiltSupportResult = builtEnvironmentSupportStatus({
+    environment: sunkWorld,
+    query: {
+      kind: "bearing",
+      subject: { kind: "element", id: "case" },
+      support: { kind: "element", id: "shelf" },
+    },
+  });
 
-    TestValidator.equals(
-      "a placement probe reads a multi-part support by its parts",
-      namedFacts([
-        // The reported box is unchanged: this is about what is read from it.
-        [
-          "the union box still spans the whole shelf",
-          (): boolean =>
-            union !== null &&
-            nclose(union.min.y, 0) &&
-            nclose(union.max.y, 1.8),
-        ],
-        ["the parts resolve one box each", (): boolean => parts?.length === 3],
-        [
-          "and the lower board's top is where the case sits",
-          (): boolean =>
-            parts !== null && parts.some((part: IAutoMovieSubjectBox): boolean => nclose(part.max.y, 0.775)),
-        ],
-        // The defect: this was `floating` by 1.025 m, the height of a panel the
-        // case is nowhere near.
-        ["the seated case rests", (): boolean => support.status === "resting"],
-        ["with no gap", (): boolean => support.gap !== null && nclose(support.gap, 0)],
-        // The paired defect: the union box swallowed the case whole.
-        ["and does not overlap its shelf", (): boolean => overlap.status === "separate"],
-        // Tighter boxes must not cost an answer that was already right.
-        ["a case pushed into the board is sunk", (): boolean => sunk.status === "sunk"],
-        // The sweeps are where the eight false findings came from.
-        [
-          "the support sweep finds nothing floating",
-          (): boolean => sweep.floating.length === 0 && sweep.borne > 0,
-        ],
-        [
-          "and the overlap sweep finds no pair",
-          (): boolean => overlaps.pairs.length === 0,
-        ],
-        [
-          "a case in an L-shaped bench's notch is over no part of it",
-          (): boolean => notch.status === "not-over-support" && notch.gap === null,
-        ],
-        [
-          "while the sunk case is still reported as intersecting",
-          (): boolean =>
-            sunkOverlaps.pairs.length === 1 &&
-            sunkOverlaps.pairs[0]!.volume > 0,
-        ],
-      ]),
-      {
-        "the union box still spans the whole shelf": true,
-        "the parts resolve one box each": true,
-        "and the lower board's top is where the case sits": true,
-        "the seated case rests": true,
-        "with no gap": true,
-        "and does not overlap its shelf": true,
-        "a case pushed into the board is sunk": true,
-        "the support sweep finds nothing floating": true,
-        "and the overlap sweep finds no pair": true,
-        "a case in an L-shaped bench's notch is over no part of it": true,
-        "while the sunk case is still reported as intersecting": true,
-      },
-    );
-  }
+  TestValidator.equals(
+    "a placement probe reads a multi-part support by its parts",
+    namedFacts([
+      // The reported box is unchanged: this is about what is read from it.
+      [
+        "the union box still spans the whole shelf",
+        (): boolean =>
+          union !== null && nclose(union.min.y, 0) && nclose(union.max.y, 1.8),
+      ],
+      ["the parts resolve one box each", (): boolean => parts?.length === 3],
+      [
+        "and the lower board's top is where the case sits",
+        (): boolean =>
+          parts !== null &&
+          parts.some((part: IAutoMovieSubjectBox): boolean =>
+            nclose(part.max.y, 0.775),
+          ),
+      ],
+      // The defect: this was `floating` by 1.025 m, the height of a panel the
+      // case is nowhere near.
+      ["the seated case rests", (): boolean => support.status === "resting"],
+      [
+        "with no gap",
+        (): boolean => support.gap !== null && nclose(support.gap, 0),
+      ],
+      // The paired defect: the union box swallowed the case whole.
+      [
+        "and does not overlap its shelf",
+        (): boolean => overlap.status === "separate",
+      ],
+      // Tighter boxes must not cost an answer that was already right.
+      [
+        "a case pushed into the board is sunk",
+        (): boolean => sunk.status === "sunk",
+      ],
+      // The sweeps are where the eight false findings came from.
+      [
+        "the support sweep finds nothing floating",
+        (): boolean => sweep.floating.length === 0 && sweep.borne > 0,
+      ],
+      [
+        "and the overlap sweep finds no pair",
+        (): boolean => overlaps.pairs.length === 0,
+      ],
+      [
+        "a case in an L-shaped bench's notch is over no part of it",
+        (): boolean =>
+          notch.status === "not-over-support" && notch.gap === null,
+      ],
+      [
+        "while the sunk case is still reported as intersecting",
+        (): boolean =>
+          sunkOverlaps.pairs.length === 1 && sunkOverlaps.pairs[0]!.volume > 0,
+      ],
+    ]),
+    {
+      "the union box still spans the whole shelf": true,
+      "the parts resolve one box each": true,
+      "and the lower board's top is where the case sits": true,
+      "the seated case rests": true,
+      "with no gap": true,
+      "and does not overlap its shelf": true,
+      "a case pushed into the board is sunk": true,
+      "the support sweep finds nothing floating": true,
+      "and the overlap sweep finds no pair": true,
+      "a case in an L-shaped bench's notch is over no part of it": true,
+      "while the sunk case is still reported as intersecting": true,
+    },
+  );
+}

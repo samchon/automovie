@@ -1,13 +1,20 @@
-import type { IAutoMovieBuiltPlacementBounds, IAutoMovieBuiltEnvironment, IAutoMovieBuiltSupportResult, IAutoMovieBuiltPlacementOverlapResult, AutoMovieBuiltPlacementSupportLocator } from "@automovie/interface";
-import { nclose } from "../internal/nclose";
+import type {
+  AutoMovieBuiltPlacementSupportLocator,
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieBuiltPlacementBounds,
+  IAutoMovieBuiltPlacementOverlapResult,
+  IAutoMovieBuiltSupportResult,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
 import { builtEnvironmentPlacementBounds } from "../../../../packages/engine/src/architecture/builtEnvironmentPlacementBounds";
 import { builtEnvironmentPlacementOverlap } from "../../../../packages/engine/src/architecture/builtEnvironmentPlacementOverlap";
 import { builtEnvironmentSupportStatus } from "../../../../packages/engine/src/architecture/builtEnvironmentSupportStatus";
 import { validateBuiltEnvironment } from "../../../../packages/engine/src/architecture/validateBuiltEnvironment";
-import { TestValidator } from "@nestia/e2e";
 import { builtPlacementTestBody as body } from "../internal/builtPlacementTestBody";
 import { builtPlacementTestEnvironment as environment } from "../internal/builtPlacementTestEnvironment";
 import { builtPlacementTestSupport as support } from "../internal/builtPlacementTestSupport";
+import { nclose } from "../internal/nclose";
 import { throwsError } from "../internal/predicates";
 
 /**
@@ -37,32 +44,48 @@ export function test_architecture_built_environment_placement(): void {
 
   TestValidator.predicate(
     "element world bounds",
-    (() : boolean => {
-      const observed: IAutoMovieBuiltPlacementBounds | null = builtEnvironmentPlacementBounds({
-      environment: source,
-      target: body("element", "resting"),
-    });
+    ((): boolean => {
+      const observed: IAutoMovieBuiltPlacementBounds | null =
+        builtEnvironmentPlacementBounds({
+          environment: source,
+          target: body("element", "resting"),
+        });
       return (
-        typeof observed === "object" && typeof observed === "object" && observed !== null && observed !== undefined &&
+        typeof observed === "object" &&
+        typeof observed === "object" &&
+        observed !== null &&
+        observed !== undefined &&
         Object.keys(observed).length === 3 &&
         Object.hasOwn(observed, "min") &&
-        typeof observed["min"] === "object" && typeof observed["min"] === "object" && observed["min"] !== null && observed["min"] !== undefined &&
+        typeof observed["min"] === "object" &&
+        typeof observed["min"] === "object" &&
+        observed["min"] !== null &&
+        observed["min"] !== undefined &&
         Object.keys(observed["min"]).length === 3 &&
         Object.hasOwn(observed["min"], "x") &&
-        typeof observed["min"]["x"] === "number" && nclose(observed["min"]["x"], -0.5) &&
+        typeof observed["min"]["x"] === "number" &&
+        nclose(observed["min"]["x"], -0.5) &&
         Object.hasOwn(observed["min"], "y") &&
-        typeof observed["min"]["y"] === "number" && nclose(observed["min"]["y"], 1) &&
+        typeof observed["min"]["y"] === "number" &&
+        nclose(observed["min"]["y"], 1) &&
         Object.hasOwn(observed["min"], "z") &&
-        typeof observed["min"]["z"] === "number" && nclose(observed["min"]["z"], -0.5) &&
+        typeof observed["min"]["z"] === "number" &&
+        nclose(observed["min"]["z"], -0.5) &&
         Object.hasOwn(observed, "max") &&
-        typeof observed["max"] === "object" && typeof observed["max"] === "object" && observed["max"] !== null && observed["max"] !== undefined &&
+        typeof observed["max"] === "object" &&
+        typeof observed["max"] === "object" &&
+        observed["max"] !== null &&
+        observed["max"] !== undefined &&
         Object.keys(observed["max"]).length === 3 &&
         Object.hasOwn(observed["max"], "x") &&
-        typeof observed["max"]["x"] === "number" && nclose(observed["max"]["x"], 0.5) &&
+        typeof observed["max"]["x"] === "number" &&
+        nclose(observed["max"]["x"], 0.5) &&
         Object.hasOwn(observed["max"], "y") &&
-        typeof observed["max"]["y"] === "number" && nclose(observed["max"]["y"], 2) &&
+        typeof observed["max"]["y"] === "number" &&
+        nclose(observed["max"]["y"], 2) &&
         Object.hasOwn(observed["max"], "z") &&
-        typeof observed["max"]["z"] === "number" && nclose(observed["max"]["z"], 0.5) &&
+        typeof observed["max"]["z"] === "number" &&
+        nclose(observed["max"]["z"], 0.5) &&
         Object.hasOwn(observed, "basis") &&
         observed["basis"] === "element-geometry-bounds"
       );
@@ -70,32 +93,48 @@ export function test_architecture_built_environment_placement(): void {
   );
   TestValidator.predicate(
     "compact population world bounds",
-    (() : boolean => {
-      const observed: IAutoMovieBuiltPlacementBounds | null = builtEnvironmentPlacementBounds({
-      environment: source,
-      target: body("population", "flags"),
-    });
+    ((): boolean => {
+      const observed: IAutoMovieBuiltPlacementBounds | null =
+        builtEnvironmentPlacementBounds({
+          environment: source,
+          target: body("population", "flags"),
+        });
       return (
-        typeof observed === "object" && typeof observed === "object" && observed !== null && observed !== undefined &&
+        typeof observed === "object" &&
+        typeof observed === "object" &&
+        observed !== null &&
+        observed !== undefined &&
         Object.keys(observed).length === 3 &&
         Object.hasOwn(observed, "min") &&
-        typeof observed["min"] === "object" && typeof observed["min"] === "object" && observed["min"] !== null && observed["min"] !== undefined &&
+        typeof observed["min"] === "object" &&
+        typeof observed["min"] === "object" &&
+        observed["min"] !== null &&
+        observed["min"] !== undefined &&
         Object.keys(observed["min"]).length === 3 &&
         Object.hasOwn(observed["min"], "x") &&
-        typeof observed["min"]["x"] === "number" && nclose(observed["min"]["x"], -1.5) &&
+        typeof observed["min"]["x"] === "number" &&
+        nclose(observed["min"]["x"], -1.5) &&
         Object.hasOwn(observed["min"], "y") &&
-        typeof observed["min"]["y"] === "number" && nclose(observed["min"]["y"], 1) &&
+        typeof observed["min"]["y"] === "number" &&
+        nclose(observed["min"]["y"], 1) &&
         Object.hasOwn(observed["min"], "z") &&
-        typeof observed["min"]["z"] === "number" && nclose(observed["min"]["z"], 3.5) &&
+        typeof observed["min"]["z"] === "number" &&
+        nclose(observed["min"]["z"], 3.5) &&
         Object.hasOwn(observed, "max") &&
-        typeof observed["max"] === "object" && typeof observed["max"] === "object" && observed["max"] !== null && observed["max"] !== undefined &&
+        typeof observed["max"] === "object" &&
+        typeof observed["max"] === "object" &&
+        observed["max"] !== null &&
+        observed["max"] !== undefined &&
         Object.keys(observed["max"]).length === 3 &&
         Object.hasOwn(observed["max"], "x") &&
-        typeof observed["max"]["x"] === "number" && nclose(observed["max"]["x"], 1.5) &&
+        typeof observed["max"]["x"] === "number" &&
+        nclose(observed["max"]["x"], 1.5) &&
         Object.hasOwn(observed["max"], "y") &&
-        typeof observed["max"]["y"] === "number" && nclose(observed["max"]["y"], 2) &&
+        typeof observed["max"]["y"] === "number" &&
+        nclose(observed["max"]["y"], 2) &&
         Object.hasOwn(observed["max"], "z") &&
-        typeof observed["max"]["z"] === "number" && nclose(observed["max"]["z"], 4.5) &&
+        typeof observed["max"]["z"] === "number" &&
+        nclose(observed["max"]["z"], 4.5) &&
         Object.hasOwn(observed, "basis") &&
         observed["basis"] === "population-placement-bounds"
       );
@@ -119,32 +158,48 @@ export function test_architecture_built_environment_placement(): void {
   );
   TestValidator.predicate(
     "referenced model without local geometry is its stated origin point",
-    (() : boolean => {
-      const observed: IAutoMovieBuiltPlacementBounds | null = builtEnvironmentPlacementBounds({
-      environment: source,
-      target: body("element", "external"),
-    });
+    ((): boolean => {
+      const observed: IAutoMovieBuiltPlacementBounds | null =
+        builtEnvironmentPlacementBounds({
+          environment: source,
+          target: body("element", "external"),
+        });
       return (
-        typeof observed === "object" && typeof observed === "object" && observed !== null && observed !== undefined &&
+        typeof observed === "object" &&
+        typeof observed === "object" &&
+        observed !== null &&
+        observed !== undefined &&
         Object.keys(observed).length === 3 &&
         Object.hasOwn(observed, "min") &&
-        typeof observed["min"] === "object" && typeof observed["min"] === "object" && observed["min"] !== null && observed["min"] !== undefined &&
+        typeof observed["min"] === "object" &&
+        typeof observed["min"] === "object" &&
+        observed["min"] !== null &&
+        observed["min"] !== undefined &&
         Object.keys(observed["min"]).length === 3 &&
         Object.hasOwn(observed["min"], "x") &&
-        typeof observed["min"]["x"] === "number" && nclose(observed["min"]["x"], 0) &&
+        typeof observed["min"]["x"] === "number" &&
+        nclose(observed["min"]["x"], 0) &&
         Object.hasOwn(observed["min"], "y") &&
-        typeof observed["min"]["y"] === "number" && nclose(observed["min"]["y"], 1) &&
+        typeof observed["min"]["y"] === "number" &&
+        nclose(observed["min"]["y"], 1) &&
         Object.hasOwn(observed["min"], "z") &&
-        typeof observed["min"]["z"] === "number" && nclose(observed["min"]["z"], 0) &&
+        typeof observed["min"]["z"] === "number" &&
+        nclose(observed["min"]["z"], 0) &&
         Object.hasOwn(observed, "max") &&
-        typeof observed["max"] === "object" && typeof observed["max"] === "object" && observed["max"] !== null && observed["max"] !== undefined &&
+        typeof observed["max"] === "object" &&
+        typeof observed["max"] === "object" &&
+        observed["max"] !== null &&
+        observed["max"] !== undefined &&
         Object.keys(observed["max"]).length === 3 &&
         Object.hasOwn(observed["max"], "x") &&
-        typeof observed["max"]["x"] === "number" && nclose(observed["max"]["x"], 0) &&
+        typeof observed["max"]["x"] === "number" &&
+        nclose(observed["max"]["x"], 0) &&
         Object.hasOwn(observed["max"], "y") &&
-        typeof observed["max"]["y"] === "number" && nclose(observed["max"]["y"], 1) &&
+        typeof observed["max"]["y"] === "number" &&
+        nclose(observed["max"]["y"], 1) &&
         Object.hasOwn(observed["max"], "z") &&
-        typeof observed["max"]["z"] === "number" && nclose(observed["max"]["z"], 0) &&
+        typeof observed["max"]["z"] === "number" &&
+        nclose(observed["max"]["z"], 0) &&
         Object.hasOwn(observed, "basis") &&
         observed["basis"] === "element-origin-point"
       );
@@ -169,7 +224,11 @@ export function test_architecture_built_environment_placement(): void {
     null,
   );
 
-  const bearing: (subjectId: string, target?: AutoMovieBuiltPlacementSupportLocator, tolerance?: number) => IAutoMovieBuiltSupportResult = (
+  const bearing: (
+    subjectId: string,
+    target?: AutoMovieBuiltPlacementSupportLocator,
+    tolerance?: number,
+  ) => IAutoMovieBuiltSupportResult = (
     subjectId: string,
     target: AutoMovieBuiltPlacementSupportLocator = support("element", "slab"),
     tolerance?: number,
@@ -185,17 +244,22 @@ export function test_architecture_built_environment_placement(): void {
     });
   TestValidator.predicate(
     "resting on element support",
-    (() : boolean => {
+    ((): boolean => {
       const observed: IAutoMovieBuiltSupportResult = bearing("resting");
       return (
-        typeof observed === "object" && typeof observed === "object" && observed !== null && observed !== undefined &&
+        typeof observed === "object" &&
+        typeof observed === "object" &&
+        observed !== null &&
+        observed !== undefined &&
         Object.keys(observed).length === 5 &&
         Object.hasOwn(observed, "status") &&
         observed["status"] === "resting" &&
         Object.hasOwn(observed, "gap") &&
-        typeof observed["gap"] === "number" && nclose(observed["gap"], 0) &&
+        typeof observed["gap"] === "number" &&
+        nclose(observed["gap"], 0) &&
         Object.hasOwn(observed, "unresolved") &&
-        Array.isArray(observed["unresolved"]) && observed["unresolved"].length === 0 &&
+        Array.isArray(observed["unresolved"]) &&
+        observed["unresolved"].length === 0 &&
         Object.hasOwn(observed, "subjectBasis") &&
         observed["subjectBasis"] === "element-geometry-bounds" &&
         Object.hasOwn(observed, "supportBasis") &&
@@ -205,17 +269,22 @@ export function test_architecture_built_environment_placement(): void {
   );
   TestValidator.predicate(
     "floating above element support",
-    (() : boolean => {
+    ((): boolean => {
       const observed: IAutoMovieBuiltSupportResult = bearing("floating");
       return (
-        typeof observed === "object" && typeof observed === "object" && observed !== null && observed !== undefined &&
+        typeof observed === "object" &&
+        typeof observed === "object" &&
+        observed !== null &&
+        observed !== undefined &&
         Object.keys(observed).length === 5 &&
         Object.hasOwn(observed, "status") &&
         observed["status"] === "floating" &&
         Object.hasOwn(observed, "gap") &&
-        typeof observed["gap"] === "number" && nclose(observed["gap"], 0.25) &&
+        typeof observed["gap"] === "number" &&
+        nclose(observed["gap"], 0.25) &&
         Object.hasOwn(observed, "unresolved") &&
-        Array.isArray(observed["unresolved"]) && observed["unresolved"].length === 0 &&
+        Array.isArray(observed["unresolved"]) &&
+        observed["unresolved"].length === 0 &&
         Object.hasOwn(observed, "subjectBasis") &&
         observed["subjectBasis"] === "element-geometry-bounds" &&
         Object.hasOwn(observed, "supportBasis") &&
@@ -225,17 +294,22 @@ export function test_architecture_built_environment_placement(): void {
   );
   TestValidator.predicate(
     "sunk into element support",
-    (() : boolean => {
+    ((): boolean => {
       const observed: IAutoMovieBuiltSupportResult = bearing("sunk");
       return (
-        typeof observed === "object" && typeof observed === "object" && observed !== null && observed !== undefined &&
+        typeof observed === "object" &&
+        typeof observed === "object" &&
+        observed !== null &&
+        observed !== undefined &&
         Object.keys(observed).length === 5 &&
         Object.hasOwn(observed, "status") &&
         observed["status"] === "sunk" &&
         Object.hasOwn(observed, "gap") &&
-        typeof observed["gap"] === "number" && nclose(observed["gap"], -0.25) &&
+        typeof observed["gap"] === "number" &&
+        nclose(observed["gap"], -0.25) &&
         Object.hasOwn(observed, "unresolved") &&
-        Array.isArray(observed["unresolved"]) && observed["unresolved"].length === 0 &&
+        Array.isArray(observed["unresolved"]) &&
+        observed["unresolved"].length === 0 &&
         Object.hasOwn(observed, "subjectBasis") &&
         observed["subjectBasis"] === "element-geometry-bounds" &&
         Object.hasOwn(observed, "supportBasis") &&
@@ -243,26 +317,39 @@ export function test_architecture_built_environment_placement(): void {
       );
     })(),
   );
-  TestValidator.equals("element standing outside named support", bearing("off-support"), {
+  TestValidator.equals(
+    "element standing outside named support",
+    bearing("off-support"),
+    {
       status: "not-over-support",
       gap: null,
       unresolved: [],
       subjectBasis: "element-geometry-bounds",
       supportBasis: "element-geometry-bounds",
-    });
+    },
+  );
   TestValidator.predicate(
     "exact tolerance boundary is resting",
-    (() : boolean => {
-      const observed: IAutoMovieBuiltSupportResult = bearing("floating", support("element", "slab"), 0.25);
+    ((): boolean => {
+      const observed: IAutoMovieBuiltSupportResult = bearing(
+        "floating",
+        support("element", "slab"),
+        0.25,
+      );
       return (
-        typeof observed === "object" && typeof observed === "object" && observed !== null && observed !== undefined &&
+        typeof observed === "object" &&
+        typeof observed === "object" &&
+        observed !== null &&
+        observed !== undefined &&
         Object.keys(observed).length === 5 &&
         Object.hasOwn(observed, "status") &&
         observed["status"] === "resting" &&
         Object.hasOwn(observed, "gap") &&
-        typeof observed["gap"] === "number" && nclose(observed["gap"], 0.25) &&
+        typeof observed["gap"] === "number" &&
+        nclose(observed["gap"], 0.25) &&
         Object.hasOwn(observed, "unresolved") &&
-        Array.isArray(observed["unresolved"]) && observed["unresolved"].length === 0 &&
+        Array.isArray(observed["unresolved"]) &&
+        observed["unresolved"].length === 0 &&
         Object.hasOwn(observed, "subjectBasis") &&
         observed["subjectBasis"] === "element-geometry-bounds" &&
         Object.hasOwn(observed, "supportBasis") &&
@@ -272,17 +359,25 @@ export function test_architecture_built_environment_placement(): void {
   );
   TestValidator.predicate(
     "authored support surface uses its height rule",
-    (() : boolean => {
-      const observed: IAutoMovieBuiltSupportResult = bearing("resting", support("surface", "floor-surface"));
+    ((): boolean => {
+      const observed: IAutoMovieBuiltSupportResult = bearing(
+        "resting",
+        support("surface", "floor-surface"),
+      );
       return (
-        typeof observed === "object" && typeof observed === "object" && observed !== null && observed !== undefined &&
+        typeof observed === "object" &&
+        typeof observed === "object" &&
+        observed !== null &&
+        observed !== undefined &&
         Object.keys(observed).length === 5 &&
         Object.hasOwn(observed, "status") &&
         observed["status"] === "resting" &&
         Object.hasOwn(observed, "gap") &&
-        typeof observed["gap"] === "number" && nclose(observed["gap"], 0) &&
+        typeof observed["gap"] === "number" &&
+        nclose(observed["gap"], 0) &&
         Object.hasOwn(observed, "unresolved") &&
-        Array.isArray(observed["unresolved"]) && observed["unresolved"].length === 0 &&
+        Array.isArray(observed["unresolved"]) &&
+        observed["unresolved"].length === 0 &&
         Object.hasOwn(observed, "subjectBasis") &&
         observed["subjectBasis"] === "element-geometry-bounds" &&
         Object.hasOwn(observed, "supportBasis") &&
@@ -292,17 +387,25 @@ export function test_architecture_built_environment_placement(): void {
   );
   TestValidator.predicate(
     "compact population can be the named support without expansion",
-    (() : boolean => {
-      const observed: IAutoMovieBuiltSupportResult = bearing("population-resting", support("population", "flags"));
+    ((): boolean => {
+      const observed: IAutoMovieBuiltSupportResult = bearing(
+        "population-resting",
+        support("population", "flags"),
+      );
       return (
-        typeof observed === "object" && typeof observed === "object" && observed !== null && observed !== undefined &&
+        typeof observed === "object" &&
+        typeof observed === "object" &&
+        observed !== null &&
+        observed !== undefined &&
         Object.keys(observed).length === 5 &&
         Object.hasOwn(observed, "status") &&
         observed["status"] === "resting" &&
         Object.hasOwn(observed, "gap") &&
-        typeof observed["gap"] === "number" && nclose(observed["gap"], 0) &&
+        typeof observed["gap"] === "number" &&
+        nclose(observed["gap"], 0) &&
         Object.hasOwn(observed, "unresolved") &&
-        Array.isArray(observed["unresolved"]) && observed["unresolved"].length === 0 &&
+        Array.isArray(observed["unresolved"]) &&
+        observed["unresolved"].length === 0 &&
         Object.hasOwn(observed, "subjectBasis") &&
         observed["subjectBasis"] === "element-geometry-bounds" &&
         Object.hasOwn(observed, "supportBasis") &&
@@ -313,17 +416,22 @@ export function test_architecture_built_environment_placement(): void {
 
   TestValidator.predicate(
     "a body the record carries no vertices for is probed as its origin",
-    (() : boolean => {
+    ((): boolean => {
       const observed: IAutoMovieBuiltSupportResult = bearing("external");
       return (
-        typeof observed === "object" && typeof observed === "object" && observed !== null && observed !== undefined &&
+        typeof observed === "object" &&
+        typeof observed === "object" &&
+        observed !== null &&
+        observed !== undefined &&
         Object.keys(observed).length === 5 &&
         Object.hasOwn(observed, "status") &&
         observed["status"] === "resting" &&
         Object.hasOwn(observed, "gap") &&
-        typeof observed["gap"] === "number" && nclose(observed["gap"], 0) &&
+        typeof observed["gap"] === "number" &&
+        nclose(observed["gap"], 0) &&
         Object.hasOwn(observed, "unresolved") &&
-        Array.isArray(observed["unresolved"]) && observed["unresolved"].length === 0 &&
+        Array.isArray(observed["unresolved"]) &&
+        observed["unresolved"].length === 0 &&
         Object.hasOwn(observed, "subjectBasis") &&
         observed["subjectBasis"] === "element-origin-point" &&
         Object.hasOwn(observed, "supportBasis") &&
@@ -332,108 +440,164 @@ export function test_architecture_built_environment_placement(): void {
     })(),
   );
 
-  TestValidator.equals("authored chandelier suspension", builtEnvironmentSupportStatus({
+  TestValidator.equals(
+    "authored chandelier suspension",
+    builtEnvironmentSupportStatus({
       environment: source,
       query: {
         subject: body("element", "chandelier"),
         support: support("element", "ceiling"),
         kind: "suspended",
       },
-    }), {
+    }),
+    {
       status: "suspended",
       gap: null,
       unresolved: [],
       subjectBasis: "element-geometry-bounds",
       supportBasis: "element-geometry-bounds",
-    });
-  TestValidator.equals("unresolved subject retains support basis", bearing("missing"), {
+    },
+  );
+  TestValidator.equals(
+    "unresolved subject retains support basis",
+    bearing("missing"),
+    {
       status: "unresolved",
       gap: null,
       unresolved: ["subject"],
       subjectBasis: null,
       supportBasis: "element-geometry-bounds",
-    });
-  TestValidator.equals("unresolved support retains subject basis", bearing("resting", support("surface", "missing")), {
+    },
+  );
+  TestValidator.equals(
+    "unresolved support retains subject basis",
+    bearing("resting", support("surface", "missing")),
+    {
       status: "unresolved",
       gap: null,
       unresolved: ["support"],
       subjectBasis: "element-geometry-bounds",
       supportBasis: null,
-    });
-  TestValidator.equals("both unresolved sides are named in stable order", bearing("missing", support("element", "missing")), {
+    },
+  );
+  TestValidator.equals(
+    "both unresolved sides are named in stable order",
+    bearing("missing", support("element", "missing")),
+    {
       status: "unresolved",
       gap: null,
       unresolved: ["subject", "support"],
       subjectBasis: null,
       supportBasis: null,
-    });
+    },
+  );
   const degenerate: IAutoMovieBuiltEnvironment = environment();
   degenerate.surfaces[0]!.surface.polygon = [];
-  TestValidator.equals("surface with no measurable face is unresolved", builtEnvironmentSupportStatus({
+  TestValidator.equals(
+    "surface with no measurable face is unresolved",
+    builtEnvironmentSupportStatus({
       environment: degenerate,
       query: {
         subject: body("element", "resting"),
         support: support("surface", "floor-surface"),
         kind: "bearing",
       },
-    }).status, "unresolved");
+    }).status,
+    "unresolved",
+  );
   TestValidator.predicate(
     "negative tolerance is refused",
-    throwsError((): IAutoMovieBuiltSupportResult => bearing("resting", support("element", "slab"), -1)),
+    throwsError(
+      (): IAutoMovieBuiltSupportResult =>
+        bearing("resting", support("element", "slab"), -1),
+    ),
   );
   TestValidator.predicate(
     "non-finite tolerance is refused",
-    throwsError((): IAutoMovieBuiltSupportResult => bearing("resting", support("element", "slab"), Infinity)),
+    throwsError(
+      (): IAutoMovieBuiltSupportResult =>
+        bearing("resting", support("element", "slab"), Infinity),
+    ),
   );
 
-  const overlap: (left: string, right: string) => IAutoMovieBuiltPlacementOverlapResult = (left: string, right: string): IAutoMovieBuiltPlacementOverlapResult =>
+  const overlap: (
+    left: string,
+    right: string,
+  ) => IAutoMovieBuiltPlacementOverlapResult = (
+    left: string,
+    right: string,
+  ): IAutoMovieBuiltPlacementOverlapResult =>
     builtEnvironmentPlacementOverlap({
       environment: source,
       left: body("element", left),
       right: body("element", right),
     });
-  TestValidator.equals("positive-volume neighbour overlap", overlap("resting", "overlap-neighbour"), {
+  TestValidator.equals(
+    "positive-volume neighbour overlap",
+    overlap("resting", "overlap-neighbour"),
+    {
       status: "overlapping",
       unresolved: [],
       leftBasis: "element-geometry-bounds",
       rightBasis: "element-geometry-bounds",
-    });
-  TestValidator.equals("exact face contact is not overlap", overlap("resting", "touch-neighbour"), {
+    },
+  );
+  TestValidator.equals(
+    "exact face contact is not overlap",
+    overlap("resting", "touch-neighbour"),
+    {
       status: "separate",
       unresolved: [],
       leftBasis: "element-geometry-bounds",
       rightBasis: "element-geometry-bounds",
-    });
-  TestValidator.equals("separated neighbours", overlap("resting", "off-support"), {
+    },
+  );
+  TestValidator.equals(
+    "separated neighbours",
+    overlap("resting", "off-support"),
+    {
       status: "separate",
       unresolved: [],
       leftBasis: "element-geometry-bounds",
       rightBasis: "element-geometry-bounds",
-    });
-  TestValidator.equals("population overlap preserves conservative basis", builtEnvironmentPlacementOverlap({
+    },
+  );
+  TestValidator.equals(
+    "population overlap preserves conservative basis",
+    builtEnvironmentPlacementOverlap({
       environment: source,
       left: body("population", "flags"),
       right: body("element", "off-support"),
-    }), {
+    }),
+    {
       status: "separate",
       unresolved: [],
       leftBasis: "population-placement-bounds",
       rightBasis: "element-geometry-bounds",
-    });
-  TestValidator.equals("an extent-free operand clears its neighbour under a disclosed basis", overlap("external", "resting"), {
+    },
+  );
+  TestValidator.equals(
+    "an extent-free operand clears its neighbour under a disclosed basis",
+    overlap("external", "resting"),
+    {
       status: "separate",
       unresolved: [],
       leftBasis: "element-origin-point",
       rightBasis: "element-geometry-bounds",
-    });
-  TestValidator.equals("both unresolved overlap operands are named", builtEnvironmentPlacementOverlap({
+    },
+  );
+  TestValidator.equals(
+    "both unresolved overlap operands are named",
+    builtEnvironmentPlacementOverlap({
       environment: source,
       left: body("element", "missing-left"),
       right: body("population", "missing-right"),
-    }), {
+    }),
+    {
       status: "unresolved",
       unresolved: ["left", "right"],
       leftBasis: null,
       rightBasis: null,
-    });
+    },
+  );
 }

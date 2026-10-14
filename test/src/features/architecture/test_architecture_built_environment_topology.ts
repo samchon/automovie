@@ -1,11 +1,16 @@
-import type { IAutoMovieBuiltEnvironment, IAutoMovieBuiltConnector, IAutoMovieStageSetPiece } from "@automovie/interface";
+import type {
+  IAutoMovieBuiltConnector,
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieStageSetPiece,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
 import { builtEnvironmentAdjacentSpaces } from "../../../../packages/engine/src/architecture/builtEnvironmentAdjacentSpaces";
 import { builtEnvironmentBuildingOfSpace } from "../../../../packages/engine/src/architecture/builtEnvironmentBuildingOfSpace";
 import { builtEnvironmentContainsPoint } from "../../../../packages/engine/src/architecture/builtEnvironmentContainsPoint";
 import { builtEnvironmentSpaceNodes } from "../../../../packages/engine/src/architecture/builtEnvironmentSpaceNodes";
 import { lowerBuiltEnvironment } from "../../../../packages/engine/src/architecture/lowerBuiltEnvironment";
 import { validateBuiltEnvironment } from "../../../../packages/engine/src/architecture/validateBuiltEnvironment";
-import { TestValidator } from "@nestia/e2e";
 import { BUILT_TOPOLOGY_TEST_ANNEX_TILT as ANNEX_TILT } from "../internal/BUILT_TOPOLOGY_TEST_ANNEX_TILT";
 import { BUILT_TOPOLOGY_TEST_WING_YAW as WING_YAW } from "../internal/BUILT_TOPOLOGY_TEST_WING_YAW";
 import { builtTopologyTestRoll as roll } from "../internal/builtTopologyTestRoll";
@@ -40,19 +45,32 @@ export function test_architecture_built_environment_topology(): void {
     validateBuiltEnvironment({ environment: citadel }).success,
     true,
   );
-  TestValidator.equals("every logical space names its owning building unit", {
+  TestValidator.equals(
+    "every logical space names its owning building unit",
+    {
       hall: builtEnvironmentBuildingOfSpace(citadel, "hall"),
       duplex: builtEnvironmentBuildingOfSpace(citadel, "duplex"),
       annexUpper: builtEnvironmentBuildingOfSpace(citadel, "annex-storey-1"),
-    }, { hall: "keep", duplex: "keep", annexUpper: "annex" });
+    },
+    { hall: "keep", duplex: "keep", annexUpper: "annex" },
+  );
   const bridge: IAutoMovieBuiltConnector = citadel.connectors.find(
-    (connector: IAutoMovieBuiltConnector): boolean => connector.id === "skybridge",
+    (connector: IAutoMovieBuiltConnector): boolean =>
+      connector.id === "skybridge",
   )!;
-  TestValidator.equals("the sky-bridge is a work-owned relation between two units at two heights", {
+  TestValidator.equals(
+    "the sky-bridge is a work-owned relation between two units at two heights",
+    {
       from: builtEnvironmentBuildingOfSpace(citadel, bridge.from),
       to: builtEnvironmentBuildingOfSpace(citadel, bridge.to),
-    }, { from: "keep", to: "annex" });
-  TestValidator.equals("one duplex logical space owns two slabs", builtEnvironmentSpaceNodes(citadel, "duplex"), ["citadel/keep-duplex-lower-slab", "citadel/keep-duplex-upper-slab"]);
+    },
+    { from: "keep", to: "annex" },
+  );
+  TestValidator.equals(
+    "one duplex logical space owns two slabs",
+    builtEnvironmentSpaceNodes(citadel, "duplex"),
+    ["citadel/keep-duplex-lower-slab", "citadel/keep-duplex-upper-slab"],
+  );
   TestValidator.equals(
     "continuous volume, independent logical partitions, and a real void",
     namedFacts([
@@ -143,8 +161,12 @@ export function test_architecture_built_environment_topology(): void {
     { keep: true, annex: true },
   );
 
-  const pieces: readonly IAutoMovieStageSetPiece[] = lowerBuiltEnvironment(citadel).set ?? [];
-  const wing: IAutoMovieStageSetPiece = pieces.find((piece: IAutoMovieStageSetPiece): boolean => piece.node === "citadel/keep-wing-slab")!;
+  const pieces: readonly IAutoMovieStageSetPiece[] =
+    lowerBuiltEnvironment(citadel).set ?? [];
+  const wing: IAutoMovieStageSetPiece = pieces.find(
+    (piece: IAutoMovieStageSetPiece): boolean =>
+      piece.node === "citadel/keep-wing-slab",
+  )!;
   TestValidator.equals(
     "a yawed wing places its child by the composed rotation",
     namedFacts([
@@ -171,7 +193,8 @@ export function test_architecture_built_environment_topology(): void {
     { position: true, rotation: true, perAxisScale: true, scale: true },
   );
   const annex: IAutoMovieStageSetPiece = pieces.find(
-    (piece: IAutoMovieStageSetPiece): boolean => piece.node === "citadel/annex-upper-slab",
+    (piece: IAutoMovieStageSetPiece): boolean =>
+      piece.node === "citadel/annex-upper-slab",
   )!;
   TestValidator.equals(
     "a tilted unit root is a real coordinate root",
@@ -189,12 +212,21 @@ export function test_architecture_built_environment_topology(): void {
     ]),
     { position: true, rotation: true },
   );
-  TestValidator.equals("the dome and the door leaf stage like any other element", {
-      dome: pieces.find((piece: IAutoMovieStageSetPiece): boolean => piece.node === "citadel/keep-dome")?.model,
-      leaf: pieces.find((piece: IAutoMovieStageSetPiece): boolean => piece.node === "citadel/keep-door-leaf")
-        ?.model,
-    }, {
+  TestValidator.equals(
+    "the dome and the door leaf stage like any other element",
+    {
+      dome: pieces.find(
+        (piece: IAutoMovieStageSetPiece): boolean =>
+          piece.node === "citadel/keep-dome",
+      )?.model,
+      leaf: pieces.find(
+        (piece: IAutoMovieStageSetPiece): boolean =>
+          piece.node === "citadel/keep-door-leaf",
+      )?.model,
+    },
+    {
       dome: "dome-mesh",
       leaf: "stone",
-    });
+    },
+  );
 }

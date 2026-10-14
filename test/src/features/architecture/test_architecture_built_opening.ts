@@ -1,23 +1,35 @@
-import { sameProductData } from "../internal/sameProductData";
-import type { IAutoMovieOpeningSweep } from "../../../../packages/engine/src/architecture/IAutoMovieOpeningSweep";
-import type { IAutoMovieOpeningPanelPlacement } from "../../../../packages/engine/src/architecture/IAutoMovieOpeningPanelPlacement";
-import type { IAutoMovieMeshTopology } from "../../../../packages/engine/src/geometry/IAutoMovieMeshTopology";
-import type { IAutoMovieWallOpening } from "../../../../packages/engine/src/geometry/IAutoMovieWallOpening";
+import type {
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieBuiltOpening,
+  IAutoMovieMesh,
+  IAutoMovieStageSetPiece,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
 import type { IAutoMovieBoundaryWallCut } from "../../../../packages/engine/src/architecture/IAutoMovieBoundaryWallCut";
-import type { IAutoMovieBuiltEnvironment, IAutoMovieMesh, IAutoMovieStageSetPiece, IAutoMovieBuiltOpening } from "@automovie/interface";
-import { buildAutoMovieWall } from "../../../../packages/engine/src/geometry/buildAutoMovieWall";
+import type { IAutoMovieOpeningPanelPlacement } from "../../../../packages/engine/src/architecture/IAutoMovieOpeningPanelPlacement";
+import type { IAutoMovieOpeningSweep } from "../../../../packages/engine/src/architecture/IAutoMovieOpeningSweep";
 import { builtBoundaryWallCut } from "../../../../packages/engine/src/architecture/builtBoundaryWallCut";
 import { builtOpeningPanelPlacements } from "../../../../packages/engine/src/architecture/builtOpeningPanelPlacements";
 import { builtOpeningSweepEnvelope } from "../../../../packages/engine/src/architecture/builtOpeningSweepEnvelope";
-import { inspectAutoMovieMeshTopology } from "../../../../packages/engine/src/geometry/inspectAutoMovieMeshTopology";
 import { lowerBuiltEnvironment } from "../../../../packages/engine/src/architecture/lowerBuiltEnvironment";
 import { validateBuiltEnvironment } from "../../../../packages/engine/src/architecture/validateBuiltEnvironment";
-import { TestValidator } from "@nestia/e2e";
+import type { IAutoMovieMeshTopology } from "../../../../packages/engine/src/geometry/IAutoMovieMeshTopology";
+import type { IAutoMovieWallOpening } from "../../../../packages/engine/src/geometry/IAutoMovieWallOpening";
+import { buildAutoMovieWall } from "../../../../packages/engine/src/geometry/buildAutoMovieWall";
+import { inspectAutoMovieMeshTopology } from "../../../../packages/engine/src/geometry/inspectAutoMovieMeshTopology";
 import { BUILT_OPENING_TEST_NO_ROTATION as NO_ROTATION } from "../internal/BUILT_OPENING_TEST_NO_ROTATION";
 import { assertBuiltOpeningTestRefusals } from "../internal/assertBuiltOpeningTestRefusals";
 import { builtOpeningTestPartition as partition } from "../internal/builtOpeningTestPartition";
 import { builtOpeningTestRefusalPaths as refusalPaths } from "../internal/builtOpeningTestRefusalPaths";
-import { namedFacts, nclose, qclose, throwsError, vclose } from "../internal/predicates";
+import {
+  namedFacts,
+  nclose,
+  qclose,
+  throwsError,
+  vclose,
+} from "../internal/predicates";
+import { sameProductData } from "../internal/sameProductData";
 
 /**
  * Join architectural voids to the wall kernel, place operating panels and measure analytic travel envelopes.
@@ -49,54 +61,84 @@ export function test_architecture_built_opening(): void {
     true,
   );
 
-  const cut: IAutoMovieBoundaryWallCut = builtBoundaryWallCut(source, "partition");
+  const cut: IAutoMovieBoundaryWallCut = builtBoundaryWallCut(
+    source,
+    "partition",
+  );
   TestValidator.predicate(
     "the wall cut names each void by its own architectural opening id",
-    (() : boolean => {
-      const observed: { panel: { width: number; height: number; depth: number; }; openings: string[]; door: IAutoMovieWallOpening | undefined; } = {
-      panel: { width: cut.width, height: cut.height, depth: cut.depth },
-      openings: cut.openings.map((opening: IAutoMovieWallOpening): string => opening.id),
-      door: cut.openings.find((opening: IAutoMovieWallOpening): boolean => opening.id === "door"),
-    };
+    ((): boolean => {
+      const observed: {
+        panel: { width: number; height: number; depth: number };
+        openings: string[];
+        door: IAutoMovieWallOpening | undefined;
+      } = {
+        panel: { width: cut.width, height: cut.height, depth: cut.depth },
+        openings: cut.openings.map(
+          (opening: IAutoMovieWallOpening): string => opening.id,
+        ),
+        door: cut.openings.find(
+          (opening: IAutoMovieWallOpening): boolean => opening.id === "door",
+        ),
+      };
       return (
-        typeof observed === "object" && typeof observed === "object" && observed !== null && observed !== undefined &&
+        typeof observed === "object" &&
+        typeof observed === "object" &&
+        observed !== null &&
+        observed !== undefined &&
         Object.keys(observed).length === 3 &&
         Object.hasOwn(observed, "panel") &&
-        typeof observed["panel"] === "object" && typeof observed["panel"] === "object" && observed["panel"] !== null && observed["panel"] !== undefined &&
+        typeof observed["panel"] === "object" &&
+        typeof observed["panel"] === "object" &&
+        observed["panel"] !== null &&
+        observed["panel"] !== undefined &&
         Object.keys(observed["panel"]).length === 3 &&
         Object.hasOwn(observed["panel"], "width") &&
-        typeof observed["panel"]["width"] === "number" && nclose(observed["panel"]["width"], 9) &&
+        typeof observed["panel"]["width"] === "number" &&
+        nclose(observed["panel"]["width"], 9) &&
         Object.hasOwn(observed["panel"], "height") &&
-        typeof observed["panel"]["height"] === "number" && nclose(observed["panel"]["height"], 3) &&
+        typeof observed["panel"]["height"] === "number" &&
+        nclose(observed["panel"]["height"], 3) &&
         Object.hasOwn(observed["panel"], "depth") &&
-        typeof observed["panel"]["depth"] === "number" && nclose(observed["panel"]["depth"], 0.2) &&
+        typeof observed["panel"]["depth"] === "number" &&
+        nclose(observed["panel"]["depth"], 0.2) &&
         Object.hasOwn(observed, "openings") &&
-        Array.isArray(observed["openings"]) && observed["openings"].length === 5 &&
+        Array.isArray(observed["openings"]) &&
+        observed["openings"].length === 5 &&
         observed["openings"][0] === "door" &&
         observed["openings"][1] === "casement" &&
         observed["openings"][2] === "hatch" &&
         observed["openings"][3] === "oculus" &&
         observed["openings"][4] === "arch" &&
         Object.hasOwn(observed, "door") &&
-        typeof observed["door"] === "object" && typeof observed["door"] === "object" && observed["door"] !== null && observed["door"] !== undefined &&
+        typeof observed["door"] === "object" &&
+        typeof observed["door"] === "object" &&
+        observed["door"] !== null &&
+        observed["door"] !== undefined &&
         Object.keys(observed["door"]).length === 5 &&
         Object.hasOwn(observed["door"], "id") &&
         observed["door"]["id"] === "door" &&
         Object.hasOwn(observed["door"], "x") &&
-        typeof observed["door"]["x"] === "number" && nclose(observed["door"]["x"], 1) &&
+        typeof observed["door"]["x"] === "number" &&
+        nclose(observed["door"]["x"], 1) &&
         Object.hasOwn(observed["door"], "y") &&
-        typeof observed["door"]["y"] === "number" && nclose(observed["door"]["y"], 0) &&
+        typeof observed["door"]["y"] === "number" &&
+        nclose(observed["door"]["y"], 0) &&
         Object.hasOwn(observed["door"], "width") &&
-        typeof observed["door"]["width"] === "number" && nclose(observed["door"]["width"], 2) &&
+        typeof observed["door"]["width"] === "number" &&
+        nclose(observed["door"]["width"], 2) &&
         Object.hasOwn(observed["door"], "height") &&
-        typeof observed["door"]["height"] === "number" && nclose(observed["door"]["height"], 2.1)
+        typeof observed["door"]["height"] === "number" &&
+        nclose(observed["door"]["height"], 2.1)
       );
     })(),
   );
   TestValidator.predicate(
     "a round void reaches the rectangular kernel as its own exact bound",
     ((): boolean => {
-      const oculus: IAutoMovieWallOpening = cut.openings.find((opening: IAutoMovieWallOpening): boolean => opening.id === "oculus")!;
+      const oculus: IAutoMovieWallOpening = cut.openings.find(
+        (opening: IAutoMovieWallOpening): boolean => opening.id === "oculus",
+      )!;
       return (
         nclose(oculus.x, 8) &&
         nclose(oculus.y, 1.6) &&
@@ -128,8 +170,10 @@ export function test_architecture_built_opening(): void {
   TestValidator.predicate(
     "the declared voids become real holes in a closed wall",
     ((): boolean => {
-      const cutTopology: IAutoMovieMeshTopology = inspectAutoMovieMeshTopology(cutWall);
-      const solidTopology: IAutoMovieMeshTopology = inspectAutoMovieMeshTopology(solidWall);
+      const cutTopology: IAutoMovieMeshTopology =
+        inspectAutoMovieMeshTopology(cutWall);
+      const solidTopology: IAutoMovieMeshTopology =
+        inspectAutoMovieMeshTopology(solidWall);
       return (
         cutTopology.triangles > solidTopology.triangles &&
         cutTopology.volume < solidTopology.volume &&
@@ -141,11 +185,22 @@ export function test_architecture_built_opening(): void {
   TestValidator.predicate(
     "panel placement answers for the record's state and for another",
     ((): boolean => {
-      const closed: IAutoMovieOpeningPanelPlacement[] = builtOpeningPanelPlacements(source, "door");
-      const open: IAutoMovieOpeningPanelPlacement[] = builtOpeningPanelPlacements(source, "door", "open");
-      const closedOuter: IAutoMovieOpeningPanelPlacement = closed.find((entry: IAutoMovieOpeningPanelPlacement): boolean => entry.panel === "outer")!;
-      const openOuter: IAutoMovieOpeningPanelPlacement = open.find((entry: IAutoMovieOpeningPanelPlacement): boolean => entry.panel === "outer")!;
-      const openInner: IAutoMovieOpeningPanelPlacement = open.find((entry: IAutoMovieOpeningPanelPlacement): boolean => entry.panel === "inner")!;
+      const closed: IAutoMovieOpeningPanelPlacement[] =
+        builtOpeningPanelPlacements(source, "door");
+      const open: IAutoMovieOpeningPanelPlacement[] =
+        builtOpeningPanelPlacements(source, "door", "open");
+      const closedOuter: IAutoMovieOpeningPanelPlacement = closed.find(
+        (entry: IAutoMovieOpeningPanelPlacement): boolean =>
+          entry.panel === "outer",
+      )!;
+      const openOuter: IAutoMovieOpeningPanelPlacement = open.find(
+        (entry: IAutoMovieOpeningPanelPlacement): boolean =>
+          entry.panel === "outer",
+      )!;
+      const openInner: IAutoMovieOpeningPanelPlacement = open.find(
+        (entry: IAutoMovieOpeningPanelPlacement): boolean =>
+          entry.panel === "inner",
+      )!;
       return (
         closedOuter.node === "vestibule/door-leaf" &&
         vclose(closedOuter.position, { x: 1, y: 0, z: 0 }) &&
@@ -164,18 +219,22 @@ export function test_architecture_built_opening(): void {
     })(),
   );
 
-  const staged: readonly IAutoMovieStageSetPiece[] = lowerBuiltEnvironment(source).set ?? [];
+  const staged: readonly IAutoMovieStageSetPiece[] =
+    lowerBuiltEnvironment(source).set ?? [];
   const opened: IAutoMovieBuiltEnvironment = partition();
   opened.openings[0]!.operation!.state = "open";
-  const openedStaged: readonly IAutoMovieStageSetPiece[] = lowerBuiltEnvironment(opened).set ?? [];
+  const openedStaged: readonly IAutoMovieStageSetPiece[] =
+    lowerBuiltEnvironment(opened).set ?? [];
   TestValidator.predicate(
     "the staged leaf reproduces the operating state the record stands in",
     ((): boolean => {
       const shut: IAutoMovieStageSetPiece = staged.find(
-        (piece: IAutoMovieStageSetPiece): boolean => piece.node === "vestibule/door-fold",
+        (piece: IAutoMovieStageSetPiece): boolean =>
+          piece.node === "vestibule/door-fold",
       )!;
       const swung: IAutoMovieStageSetPiece = openedStaged.find(
-        (piece: IAutoMovieStageSetPiece): boolean => piece.node === "vestibule/door-fold",
+        (piece: IAutoMovieStageSetPiece): boolean =>
+          piece.node === "vestibule/door-fold",
       )!;
       return (
         vclose(shut.position!, { x: 2, y: 0, z: 0 }) &&
@@ -185,13 +244,21 @@ export function test_architecture_built_opening(): void {
     })(),
   );
   const inert: IAutoMovieBuiltEnvironment = partition();
-  inert.openings.forEach((opening: IAutoMovieBuiltOpening): boolean => delete opening.operation);
-  TestValidator.predicate("a record with no operation lowers exactly as a rest-state record does", sameProductData(lowerBuiltEnvironment(inert).set, staged));
+  inert.openings.forEach(
+    (opening: IAutoMovieBuiltOpening): boolean => delete opening.operation,
+  );
+  TestValidator.predicate(
+    "a record with no operation lowers exactly as a rest-state record does",
+    sameProductData(lowerBuiltEnvironment(inert).set, staged),
+  );
 
   TestValidator.predicate(
     "a quarter-turn leaf sweeps exactly the quarter disc it can reach",
     ((): boolean => {
-      const sweep: IAutoMovieOpeningSweep = builtOpeningSweepEnvelope(source, "door").find(
+      const sweep: IAutoMovieOpeningSweep = builtOpeningSweepEnvelope(
+        source,
+        "door",
+      ).find(
         (entry: IAutoMovieOpeningSweep): boolean => entry.panel === "outer",
       )!;
       return (
@@ -203,7 +270,10 @@ export function test_architecture_built_opening(): void {
   TestValidator.predicate(
     "a double-acting leaf reaches its widest at an interior critical angle",
     ((): boolean => {
-      const sweep: IAutoMovieOpeningSweep = builtOpeningSweepEnvelope(source, "casement")[0]!;
+      const sweep: IAutoMovieOpeningSweep = builtOpeningSweepEnvelope(
+        source,
+        "casement",
+      )[0]!;
       return (
         sweep.panel === "leaf" &&
         // x = 4 + 0.8 cos(t) peaks at t = 0, which is neither travel limit.
@@ -215,7 +285,10 @@ export function test_architecture_built_opening(): void {
   TestValidator.predicate(
     "a sliding leaf sweeps its own travel and no more",
     ((): boolean => {
-      const sweep: IAutoMovieOpeningSweep = builtOpeningSweepEnvelope(source, "hatch")[0]!;
+      const sweep: IAutoMovieOpeningSweep = builtOpeningSweepEnvelope(
+        source,
+        "hatch",
+      )[0]!;
       return (
         vclose(sweep.min, { x: 6, y: 0, z: 0 }) &&
         vclose(sweep.max, { x: 7, y: 2, z: 0 })
@@ -230,9 +303,11 @@ export function test_architecture_built_opening(): void {
       // The record is now invalid, and validation says so; the query still has
       // to answer rather than fail on a value it was never given.
       partial.openings[0]!.operation!.states[1]!.panels.pop();
-      const inner: IAutoMovieOpeningPanelPlacement = builtOpeningPanelPlacements(partial, "door", "open").find(
-        (entry: IAutoMovieOpeningPanelPlacement): boolean => entry.panel === "inner",
-      )!;
+      const inner: IAutoMovieOpeningPanelPlacement =
+        builtOpeningPanelPlacements(partial, "door", "open").find(
+          (entry: IAutoMovieOpeningPanelPlacement): boolean =>
+            entry.panel === "inner",
+        )!;
       return (
         validateBuiltEnvironment({ environment: partial }).success === false &&
         // Carried a quarter turn by its parent leaf, but not turned itself.
@@ -257,23 +332,34 @@ export function test_architecture_built_opening(): void {
   );
   TestValidator.predicate(
     "an unknown opening refuses placement",
-    throwsError((): IAutoMovieOpeningPanelPlacement[] => builtOpeningPanelPlacements(source, "missing")),
+    throwsError((): IAutoMovieOpeningPanelPlacement[] =>
+      builtOpeningPanelPlacements(source, "missing"),
+    ),
   );
   TestValidator.predicate(
     "an unknown opening refuses an envelope",
-    throwsError((): IAutoMovieOpeningSweep[] => builtOpeningSweepEnvelope(source, "missing")),
+    throwsError((): IAutoMovieOpeningSweep[] =>
+      builtOpeningSweepEnvelope(source, "missing"),
+    ),
   );
   TestValidator.predicate(
     "an unknown operating state is refused",
-    throwsError((): IAutoMovieOpeningPanelPlacement[] => builtOpeningPanelPlacements(source, "door", "ajar")),
+    throwsError((): IAutoMovieOpeningPanelPlacement[] =>
+      builtOpeningPanelPlacements(source, "door", "ajar"),
+    ),
   );
   TestValidator.predicate(
     "an unknown boundary refuses a wall cut",
-    throwsError((): IAutoMovieBoundaryWallCut => builtBoundaryWallCut(source, "missing")),
+    throwsError(
+      (): IAutoMovieBoundaryWallCut => builtBoundaryWallCut(source, "missing"),
+    ),
   );
   TestValidator.predicate(
     "a boundary with no face refuses a wall cut",
-    throwsError((): IAutoMovieBoundaryWallCut => builtBoundaryWallCut(source, "threshold")),
+    throwsError(
+      (): IAutoMovieBoundaryWallCut =>
+        builtBoundaryWallCut(source, "threshold"),
+    ),
   );
   TestValidator.predicate(
     "a dangling panel element refuses placement",
@@ -322,7 +408,11 @@ export function test_architecture_built_opening(): void {
     }),
   );
   const invalidRanges: [label: string, minimum: number, maximum: number][] = [
-    ["a finite singleton too large for an advancing critical-angle counter", 1e308, 1e308],
+    [
+      "a finite singleton too large for an advancing critical-angle counter",
+      1e308,
+      1e308,
+    ],
     ["an empty rest interval", 0, 0],
     ["a reversed interval", 1, -1],
     ["a positive-only interval", 1, 2],

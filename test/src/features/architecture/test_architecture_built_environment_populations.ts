@@ -1,3 +1,16 @@
+import type {
+  IAutoMovieBuiltElement,
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieBuiltPopulation,
+  IAutoMovieConvexSpaceCell,
+  IAutoMovieInstanceSetDesign,
+  IAutoMovieModel,
+  IAutoMovieSubjectBox,
+  IAutoMovieTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
 import type { IAutoMovieSubjectContribution } from "../../../../packages/engine/src/IAutoMovieSubjectContribution";
 import { builtEnvironmentSpaceContentBounds } from "../../../../packages/engine/src/architecture/builtEnvironmentSpaceContentBounds";
 import { builtEnvironmentSpaceFidelity } from "../../../../packages/engine/src/architecture/builtEnvironmentSpaceFidelity";
@@ -5,18 +18,24 @@ import { builtEnvironmentSpaceNodes } from "../../../../packages/engine/src/arch
 import { builtEnvironmentSpacePopulations } from "../../../../packages/engine/src/architecture/builtEnvironmentSpacePopulations";
 import { lowerBuiltEnvironment } from "../../../../packages/engine/src/architecture/lowerBuiltEnvironment";
 import { validateBuiltEnvironment } from "../../../../packages/engine/src/architecture/validateBuiltEnvironment";
-import type { IAutoMovieSubjectBox, IAutoMovieBuiltElement, IAutoMovieBuiltEnvironment, IAutoMovieBuiltPopulation, IAutoMovieConvexSpaceCell, IAutoMovieInstanceSetDesign, IAutoMovieModel, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
-import { TestValidator } from "@nestia/e2e";
 import { makeProp, primitivePart } from "../internal/fixtures";
 import { namedFacts, nclose, vclose } from "../internal/predicates";
 
-const place: (x: number, y: number, z: number) => IAutoMovieTransform = (x: number, y: number, z: number): IAutoMovieTransform => ({
+const place: (x: number, y: number, z: number) => IAutoMovieTransform = (
+  x: number,
+  y: number,
+  z: number,
+): IAutoMovieTransform => ({
   translation: { x, y, z },
   rotation: { x: 0, y: 0, z: 0, w: 1 },
   scale: { x: 1, y: 1, z: 1 },
 });
 
-const box: (id: string, min: IAutoMovieVector3, max: IAutoMovieVector3) => IAutoMovieConvexSpaceCell = (
+const box: (
+  id: string,
+  min: IAutoMovieVector3,
+  max: IAutoMovieVector3,
+) => IAutoMovieConvexSpaceCell = (
   id: string,
   min: IAutoMovieVector3,
   max: IAutoMovieVector3,
@@ -32,7 +51,9 @@ const box: (id: string, min: IAutoMovieVector3, max: IAutoMovieVector3) => IAuto
   ],
 });
 
-const unitBox: (id: string) => IAutoMovieModel = (id: string): IAutoMovieModel => ({
+const unitBox: (id: string) => IAutoMovieModel = (
+  id: string,
+): IAutoMovieModel => ({
   ...makeProp([
     primitivePart("block", { type: "box", width: 1, height: 1, depth: 1 }),
   ]),
@@ -40,7 +61,15 @@ const unitBox: (id: string) => IAutoMovieModel = (id: string): IAutoMovieModel =
 });
 
 /** One compact field laid on a whole-metre grid, so every bound is arithmetic. */
-const field: (input: { id: string; space: string; anchor: IAutoMovieVector3; columns: number; rows: number; count: number; spacing: { x: number; z: number; }; }) => IAutoMovieBuiltPopulation = (input: {
+const field: (input: {
+  id: string;
+  space: string;
+  anchor: IAutoMovieVector3;
+  columns: number;
+  rows: number;
+  count: number;
+  spacing: { x: number; z: number };
+}) => IAutoMovieBuiltPopulation = (input: {
   id: string;
   space: string;
   anchor: IAutoMovieVector3;
@@ -80,140 +109,146 @@ const field: (input: { id: string; space: string; anchor: IAutoMovieVector3; col
  *
  * Every population is a whole-metre grid centred on its own anchor, so each expected box is hand arithmetic over `(column - (columns - 1) / 2) * spacing.x` and `row * spacing.z` rather than a transcript of what the query printed.
  */
-const residence: () => IAutoMovieBuiltEnvironment = (): IAutoMovieBuiltEnvironment => ({
-  version: 1,
-  id: "residence",
-  units: "meter",
-  buildings: [
-    { id: "residence-unit", element: "residence-root", space: "residence" },
-  ],
-  models: [unitBox("stone")],
-  modelReferences: [],
-  elements: [
-    {
-      id: "residence-root",
-      kind: "building",
-      parent: null,
-      transform: place(0, 0, 0),
-      model: null,
-      space: "residence",
-    },
-    {
-      id: "hall-table",
-      kind: "furniture",
-      parent: "residence-root",
-      transform: place(5, 0.5, 4),
-      model: "stone",
-      space: "great-hall",
-    },
-    {
-      id: "solar-chest",
-      kind: "furniture",
-      parent: "residence-root",
-      transform: place(15, 0.5, 4),
-      model: "stone",
-      space: "solar",
-    },
-  ],
-  populations: [
-    // The hall's own flagging: 3 columns by 2 rows about (5, 0, 2), so
-    // x runs 5 - 2 .. 5 + 2 and z runs 2 .. 2 + 2.
-    field({
-      id: "hall-flags",
-      space: "great-hall",
-      anchor: { x: 5, y: 0, z: 2 },
-      columns: 3,
-      rows: 2,
-      count: 6,
-      spacing: { x: 2, z: 2 },
-    }),
-    // The undercroft holds nothing but casks: the boundary case where a room
-    // is furnished entirely by a population.
-    field({
-      id: "undercroft-casks",
-      space: "undercroft",
-      anchor: { x: 2, y: -2.5, z: 3 },
-      columns: 2,
-      rows: 2,
-      count: 4,
-      spacing: { x: 1.5, z: 1.5 },
-    }),
-    // The slate covers the whole work, so it names the building's own space
-    // rather than any one room beneath it.
-    field({
-      id: "roof-slate",
-      space: "residence",
-      anchor: { x: 10, y: 9, z: 0 },
-      columns: 4,
-      rows: 3,
-      count: 12,
-      spacing: { x: 5, z: 5 },
-    }),
-    // One authored paving run crossing a room boundary, declared as the two
-    // populations it actually is.
-    field({
-      id: "paving-hall",
-      space: "great-hall",
-      anchor: { x: 3, y: 0, z: 6 },
-      columns: 2,
-      rows: 2,
-      count: 4,
-      spacing: { x: 2, z: 2 },
-    }),
-    field({
-      id: "paving-porch",
-      space: "porch",
-      anchor: { x: 3, y: 0, z: 10 },
-      columns: 2,
-      rows: 2,
-      count: 4,
-      spacing: { x: 2, z: 2 },
-    }),
-  ],
-  spaces: [
-    { id: "residence", kind: "building", parent: null, cells: [] },
-    {
-      id: "great-hall",
-      kind: "hall",
-      parent: "residence",
-      cells: [
-        box("great-hall-cell", { x: 0, y: 0, z: 0 }, { x: 10, y: 5, z: 8 }),
-      ],
-    },
-    {
-      id: "undercroft",
-      kind: "cellar",
-      parent: "residence",
-      cells: [
-        box("undercroft-cell", { x: 0, y: -3, z: 0 }, { x: 10, y: 0, z: 8 }),
-      ],
-    },
-    {
-      id: "solar",
-      kind: "room",
-      parent: "residence",
-      cells: [box("solar-cell", { x: 12, y: 0, z: 0 }, { x: 20, y: 5, z: 8 })],
-    },
-    {
-      id: "porch",
-      kind: "porch",
-      parent: "residence",
-      cells: [box("porch-cell", { x: 0, y: 0, z: 8 }, { x: 10, y: 5, z: 12 })],
-    },
-  ],
-  boundaries: [],
-  openings: [],
-  connectors: [],
-  surfaces: [],
-  walkable: [],
-});
+const residence: () => IAutoMovieBuiltEnvironment =
+  (): IAutoMovieBuiltEnvironment => ({
+    version: 1,
+    id: "residence",
+    units: "meter",
+    buildings: [
+      { id: "residence-unit", element: "residence-root", space: "residence" },
+    ],
+    models: [unitBox("stone")],
+    modelReferences: [],
+    elements: [
+      {
+        id: "residence-root",
+        kind: "building",
+        parent: null,
+        transform: place(0, 0, 0),
+        model: null,
+        space: "residence",
+      },
+      {
+        id: "hall-table",
+        kind: "furniture",
+        parent: "residence-root",
+        transform: place(5, 0.5, 4),
+        model: "stone",
+        space: "great-hall",
+      },
+      {
+        id: "solar-chest",
+        kind: "furniture",
+        parent: "residence-root",
+        transform: place(15, 0.5, 4),
+        model: "stone",
+        space: "solar",
+      },
+    ],
+    populations: [
+      // The hall's own flagging: 3 columns by 2 rows about (5, 0, 2), so
+      // x runs 5 - 2 .. 5 + 2 and z runs 2 .. 2 + 2.
+      field({
+        id: "hall-flags",
+        space: "great-hall",
+        anchor: { x: 5, y: 0, z: 2 },
+        columns: 3,
+        rows: 2,
+        count: 6,
+        spacing: { x: 2, z: 2 },
+      }),
+      // The undercroft holds nothing but casks: the boundary case where a room
+      // is furnished entirely by a population.
+      field({
+        id: "undercroft-casks",
+        space: "undercroft",
+        anchor: { x: 2, y: -2.5, z: 3 },
+        columns: 2,
+        rows: 2,
+        count: 4,
+        spacing: { x: 1.5, z: 1.5 },
+      }),
+      // The slate covers the whole work, so it names the building's own space
+      // rather than any one room beneath it.
+      field({
+        id: "roof-slate",
+        space: "residence",
+        anchor: { x: 10, y: 9, z: 0 },
+        columns: 4,
+        rows: 3,
+        count: 12,
+        spacing: { x: 5, z: 5 },
+      }),
+      // One authored paving run crossing a room boundary, declared as the two
+      // populations it actually is.
+      field({
+        id: "paving-hall",
+        space: "great-hall",
+        anchor: { x: 3, y: 0, z: 6 },
+        columns: 2,
+        rows: 2,
+        count: 4,
+        spacing: { x: 2, z: 2 },
+      }),
+      field({
+        id: "paving-porch",
+        space: "porch",
+        anchor: { x: 3, y: 0, z: 10 },
+        columns: 2,
+        rows: 2,
+        count: 4,
+        spacing: { x: 2, z: 2 },
+      }),
+    ],
+    spaces: [
+      { id: "residence", kind: "building", parent: null, cells: [] },
+      {
+        id: "great-hall",
+        kind: "hall",
+        parent: "residence",
+        cells: [
+          box("great-hall-cell", { x: 0, y: 0, z: 0 }, { x: 10, y: 5, z: 8 }),
+        ],
+      },
+      {
+        id: "undercroft",
+        kind: "cellar",
+        parent: "residence",
+        cells: [
+          box("undercroft-cell", { x: 0, y: -3, z: 0 }, { x: 10, y: 0, z: 8 }),
+        ],
+      },
+      {
+        id: "solar",
+        kind: "room",
+        parent: "residence",
+        cells: [
+          box("solar-cell", { x: 12, y: 0, z: 0 }, { x: 20, y: 5, z: 8 }),
+        ],
+      },
+      {
+        id: "porch",
+        kind: "porch",
+        parent: "residence",
+        cells: [
+          box("porch-cell", { x: 0, y: 0, z: 8 }, { x: 10, y: 5, z: 12 }),
+        ],
+      },
+    ],
+    boundaries: [],
+    openings: [],
+    connectors: [],
+    surfaces: [],
+    walkable: [],
+  });
 
 /** The same work with its populations removed, for the regression comparison. */
-const unpopulated: () => IAutoMovieBuiltEnvironment = (): IAutoMovieBuiltEnvironment => {
-  const bare: IAutoMovieBuiltEnvironment = residence();
-  delete bare.populations;
-  return bare;
-};
+const unpopulated: () => IAutoMovieBuiltEnvironment =
+  (): IAutoMovieBuiltEnvironment => {
+    const bare: IAutoMovieBuiltEnvironment = residence();
+    delete bare.populations;
+    return bare;
+  };
 
 /**
  * Fold compact population membership into room content bounds, node identities and lowered sets without per-member expansion.
@@ -243,7 +278,8 @@ export function test_architecture_built_environment_populations(): void {
     true,
   );
 
-  const undercroft: IAutoMovieSubjectBox | null = builtEnvironmentSpaceContentBounds(work, "undercroft");
+  const undercroft: IAutoMovieSubjectBox | null =
+    builtEnvironmentSpaceContentBounds(work, "undercroft");
   TestValidator.equals(
     "a room furnished only by a population is measured, not reported empty",
     namedFacts([
@@ -264,22 +300,25 @@ export function test_architecture_built_environment_populations(): void {
     { measured: true, min: true, max: true },
   );
 
-  const solar: IAutoMovieSubjectBox | null = builtEnvironmentSpaceContentBounds(work, "solar");
-  const solarBefore: IAutoMovieSubjectBox | null = builtEnvironmentSpaceContentBounds(
-    unpopulated(),
+  const solar: IAutoMovieSubjectBox | null = builtEnvironmentSpaceContentBounds(
+    work,
     "solar",
   );
+  const solarBefore: IAutoMovieSubjectBox | null =
+    builtEnvironmentSpaceContentBounds(unpopulated(), "solar");
   TestValidator.equals(
     "a room holding only elements answers what it always answered",
     namedFacts([
       ["measured", (): boolean => solar !== null],
       [
         "min",
-        (): boolean => solar !== null && vclose(solar.min, { x: 14.5, y: 0, z: 3.5 }),
+        (): boolean =>
+          solar !== null && vclose(solar.min, { x: 14.5, y: 0, z: 3.5 }),
       ],
       [
         "max",
-        (): boolean => solar !== null && vclose(solar.max, { x: 15.5, y: 1, z: 4.5 }),
+        (): boolean =>
+          solar !== null && vclose(solar.max, { x: 15.5, y: 1, z: 4.5 }),
       ],
       [
         "unchangedByTheFieldExisting",
@@ -298,22 +337,36 @@ export function test_architecture_built_environment_populations(): void {
     },
   );
 
-  const hall: IAutoMovieSubjectBox | null = builtEnvironmentSpaceContentBounds(work, "great-hall");
+  const hall: IAutoMovieSubjectBox | null = builtEnvironmentSpaceContentBounds(
+    work,
+    "great-hall",
+  );
   TestValidator.equals(
     "a room holding both is their union, and only theirs",
     namedFacts([
       ["measured", (): boolean => hall !== null],
       [
         "min",
-        (): boolean => hall !== null && vclose(hall.min, { x: 1.5, y: 0, z: 1.5 }),
+        (): boolean =>
+          hall !== null && vclose(hall.min, { x: 1.5, y: 0, z: 1.5 }),
       ],
       [
         "max",
-        (): boolean => hall !== null && vclose(hall.max, { x: 7.5, y: 1, z: 8.5 }),
+        (): boolean =>
+          hall !== null && vclose(hall.max, { x: 7.5, y: 1, z: 8.5 }),
       ],
-      ["theCellarBelowDidNotLeakIn", (): boolean => hall !== null && nclose(hall.min.y, 0, 0)],
-      ["thePorchBeyondDidNotLeakIn", (): boolean => hall !== null && nclose(hall.max.z, 8.5, 0)],
-      ["theSlateAboveDidNotLeakIn", (): boolean => hall !== null && nclose(hall.max.y, 1, 0)],
+      [
+        "theCellarBelowDidNotLeakIn",
+        (): boolean => hall !== null && nclose(hall.min.y, 0, 0),
+      ],
+      [
+        "thePorchBeyondDidNotLeakIn",
+        (): boolean => hall !== null && nclose(hall.max.z, 8.5, 0),
+      ],
+      [
+        "theSlateAboveDidNotLeakIn",
+        (): boolean => hall !== null && nclose(hall.max.y, 1, 0),
+      ],
     ]),
     {
       measured: true,
@@ -325,7 +378,10 @@ export function test_architecture_built_environment_populations(): void {
     },
   );
 
-  const whole: IAutoMovieSubjectBox | null = builtEnvironmentSpaceContentBounds(work, "residence");
+  const whole: IAutoMovieSubjectBox | null = builtEnvironmentSpaceContentBounds(
+    work,
+    "residence",
+  );
   TestValidator.equals(
     "the work's own space carries the field that covers the work",
     namedFacts([
@@ -337,13 +393,16 @@ export function test_architecture_built_environment_populations(): void {
       ],
       [
         "max",
-        (): boolean => whole !== null && vclose(whole.max, { x: 18, y: 10, z: 12.5 }),
+        (): boolean =>
+          whole !== null && vclose(whole.max, { x: 18, y: 10, z: 12.5 }),
       ],
     ]),
     { measured: true, min: true, max: true },
   );
 
-  TestValidator.equals("each space owns exactly the populations declared on it", {
+  TestValidator.equals(
+    "each space owns exactly the populations declared on it",
+    {
       hall: builtEnvironmentSpacePopulations(work, "great-hall").map(
         (population: IAutoMovieBuiltPopulation): string => population.set.id,
       ),
@@ -362,7 +421,8 @@ export function test_architecture_built_environment_populations(): void {
       whole: builtEnvironmentSpacePopulations(work, "residence").map(
         (population: IAutoMovieBuiltPopulation): string => population.set.id,
       ),
-    }, {
+    },
+    {
       hall: ["hall-flags", "paving-hall"],
       undercroft: ["undercroft-casks"],
       solar: [],
@@ -375,14 +435,18 @@ export function test_architecture_built_environment_populations(): void {
         "paving-hall",
         "paving-porch",
       ],
-    });
+    },
+  );
 
-  TestValidator.equals("a population is named once, by the owner id the render side uses", {
+  TestValidator.equals(
+    "a population is named once, by the owner id the render side uses",
+    {
       hall: builtEnvironmentSpaceNodes(work, "great-hall"),
       undercroft: builtEnvironmentSpaceNodes(work, "undercroft"),
       solar: builtEnvironmentSpaceNodes(work, "solar"),
       whole: builtEnvironmentSpaceNodes(work, "residence"),
-    }, {
+    },
+    {
       hall: [
         "residence/hall-table",
         "instance-set:hall-flags",
@@ -399,45 +463,69 @@ export function test_architecture_built_environment_populations(): void {
         "instance-set:paving-hall",
         "instance-set:paving-porch",
       ],
-    });
+    },
+  );
 
   const empty: IAutoMovieBuiltEnvironment = residence();
-  empty.elements = empty.elements.filter((element: IAutoMovieBuiltElement): boolean => element.model === null);
+  empty.elements = empty.elements.filter(
+    (element: IAutoMovieBuiltElement): boolean => element.model === null,
+  );
   empty.populations = [];
-  TestValidator.equals("empty content remains null and population content does not alter fidelity", {
+  TestValidator.equals(
+    "empty content remains null and population content does not alter fidelity",
+    {
       empty: builtEnvironmentSpaceContentBounds(empty, "solar"),
       populatedFidelity: builtEnvironmentSpaceFidelity(work, "great-hall"),
       bareFidelity: builtEnvironmentSpaceFidelity(unpopulated(), "great-hall"),
-    }, { empty: null, populatedFidelity: "exact", bareFidelity: "exact" });
+    },
+    { empty: null, populatedFidelity: "exact", bareFidelity: "exact" },
+  );
 
   const lowered: IAutoMovieSubjectContribution = lowerBuiltEnvironment(work);
-  const loweredBare: IAutoMovieSubjectContribution = lowerBuiltEnvironment(unpopulated());
+  const loweredBare: IAutoMovieSubjectContribution =
+    lowerBuiltEnvironment(unpopulated());
   TestValidator.predicate(
     "lowering contributes the compact sets and never expands them",
-    (() : boolean => {
-      const observed: { sets: string[]; slots: number; setPieces: number; bareOmitsTheKey: boolean; } = {
-      sets: (lowered.instanceSets ?? []).map((set: IAutoMovieInstanceSetDesign): string => set.id),
-      slots: (lowered.instanceSets ?? []).reduce(
-        (total: number, set: IAutoMovieInstanceSetDesign): number => total + set.count,
-        0,
-      ),
-      setPieces: lowered.set?.length ?? 0,
-      bareOmitsTheKey: Object.hasOwn(loweredBare, "instanceSets"),
-    };
+    ((): boolean => {
+      const observed: {
+        sets: string[];
+        slots: number;
+        setPieces: number;
+        bareOmitsTheKey: boolean;
+      } = {
+        sets: (lowered.instanceSets ?? []).map(
+          (set: IAutoMovieInstanceSetDesign): string => set.id,
+        ),
+        slots: (lowered.instanceSets ?? []).reduce(
+          (total: number, set: IAutoMovieInstanceSetDesign): number =>
+            total + set.count,
+          0,
+        ),
+        setPieces: lowered.set?.length ?? 0,
+        bareOmitsTheKey: Object.hasOwn(loweredBare, "instanceSets"),
+      };
       return (
-        typeof observed === "object" && typeof observed === "object" && observed !== null && observed !== undefined &&
+        typeof observed === "object" &&
+        typeof observed === "object" &&
+        observed !== null &&
+        observed !== undefined &&
         Object.keys(observed).length === 4 &&
         Object.hasOwn(observed, "sets") &&
-        Array.isArray(observed["sets"]) && observed["sets"].length === 5 &&
+        Array.isArray(observed["sets"]) &&
+        observed["sets"].length === 5 &&
         observed["sets"][0] === "hall-flags" &&
         observed["sets"][1] === "undercroft-casks" &&
         observed["sets"][2] === "roof-slate" &&
         observed["sets"][3] === "paving-hall" &&
         observed["sets"][4] === "paving-porch" &&
         Object.hasOwn(observed, "slots") &&
-        typeof observed["slots"] === "number" && Number.isInteger(observed["slots"]) && nclose(observed["slots"], 30, 0) &&
+        typeof observed["slots"] === "number" &&
+        Number.isInteger(observed["slots"]) &&
+        nclose(observed["slots"], 30, 0) &&
         Object.hasOwn(observed, "setPieces") &&
-        typeof observed["setPieces"] === "number" && Number.isInteger(observed["setPieces"]) && nclose(observed["setPieces"], 2, 0) &&
+        typeof observed["setPieces"] === "number" &&
+        Number.isInteger(observed["setPieces"]) &&
+        nclose(observed["setPieces"], 2, 0) &&
         Object.hasOwn(observed, "bareOmitsTheKey") &&
         observed["bareOmitsTheKey"] === false
       );
