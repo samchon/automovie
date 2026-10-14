@@ -25,21 +25,37 @@ export function refinePortraitSkinBridge(
   depth: (x: number, y: number) => number,
 ): { positions: number[][]; indices: number[] } {
   if (
-    input.some((p: readonly number[]): boolean  => p.length !== 3 || !p.every(Number.isFinite)) ||
+    input.some(
+      (p: readonly number[]): boolean =>
+        p.length !== 3 || !p.every(Number.isFinite),
+    ) ||
     indices.length % 3 !== 0 ||
-    indices.some((id: number): boolean  => !Number.isInteger(id) || id < 0 || id >= input.length)
+    indices.some(
+      (id: number): boolean =>
+        !Number.isInteger(id) || id < 0 || id >= input.length,
+    )
   )
     throw new Error(
       "Skin bridge needs finite XYZ vertices and complete valid triangle indices.",
     );
-  const positions: number[][] = input.map((p: readonly number[]): number[]  => [...p]);
+  const positions: number[][] = input.map((p: readonly number[]): number[] => [
+    ...p,
+  ]);
   const scale: number =
     input.reduce(
-      (maximum: number, p: readonly number[]): number  => Math.max(maximum, Math.abs(p[0]), Math.abs(p[1])),
+      (maximum: number, p: readonly number[]): number =>
+        Math.max(maximum, Math.abs(p[0]), Math.abs(p[1])),
       0,
     ) || 1;
-  const chart: number[][] = input.map((p: readonly number[]): number[]  => [p[0] / scale, p[1] / scale]);
-  const area: (a: number, b: number, c: number) => number = (a: number, b: number, c: number): number  =>
+  const chart: number[][] = input.map((p: readonly number[]): number[] => [
+    p[0] / scale,
+    p[1] / scale,
+  ]);
+  const area: (a: number, b: number, c: number) => number = (
+    a: number,
+    b: number,
+    c: number,
+  ): number =>
     (chart[b][0] - chart[a][0]) * (chart[c][1] - chart[a][1]) -
     (chart[b][1] - chart[a][1]) * (chart[c][0] - chart[a][0]);
   const faces: number[][] = [];
@@ -49,8 +65,14 @@ export function refinePortraitSkinBridge(
       throw new Error(
         "Skin bridge needs counterclockwise nondegenerate XY triangles.",
       );
-    const x: number = face.reduce((sum: number, id: number): number  => sum + positions[id][0] / 3, 0);
-    const y: number = face.reduce((sum: number, id: number): number  => sum + positions[id][1] / 3, 0);
+    const x: number = face.reduce(
+      (sum: number, id: number): number => sum + positions[id][0] / 3,
+      0,
+    );
+    const y: number = face.reduce(
+      (sum: number, id: number): number => sum + positions[id][1] / 3,
+      0,
+    );
     const z: number = depth(x, y);
     if (!Number.isFinite(z))
       throw new Error(
@@ -71,10 +93,10 @@ export function refinePortraitSkinBridge(
   // cocircular oscillation. Every accepted Lawson flip improves the planar
   // triangulation; a complete pass without an eligible flip is the fixed point.
   for (;;) {
-    const edges: Map<string, { face: number; a: number; b: number; c: number; }[]> = new Map<
+    const edges: Map<
       string,
       { face: number; a: number; b: number; c: number }[]
-    >();
+    > = new Map<string, { face: number; a: number; b: number; c: number }[]>();
     for (let f: number = 0; f < faces.length; f++)
       for (let e: number = 0; e < 3; e++) {
         const [a, b, c]: [number, number, number] = [
@@ -83,25 +105,37 @@ export function refinePortraitSkinBridge(
           faces[f][(e + 2) % 3],
         ];
         const key: string = a < b ? `${a}/${b}` : `${b}/${a}`;
-        const edge: { face: number; a: number; b: number; c: number; }[] = edges.get(key) ?? [];
+        const edge: { face: number; a: number; b: number; c: number }[] =
+          edges.get(key) ?? [];
         edge.push({ face: f, a, b, c });
         edges.set(key, edge);
       }
     const touched: Set<number> = new Set<number>();
     let changed: boolean = false;
     for (const edge of edges.values()) {
-      if (edge.length !== 2 || edge.some((e: { face: number; a: number; b: number; c: number; }): boolean  => touched.has(e.face))) continue;
-      const { a, b, c }: { face: number; a: number; b: number; c: number; } = edge[0],
+      if (
+        edge.length !== 2 ||
+        edge.some(
+          (e: { face: number; a: number; b: number; c: number }): boolean =>
+            touched.has(e.face),
+        )
+      )
+        continue;
+      const { a, b, c }: { face: number; a: number; b: number; c: number } =
+          edge[0],
         d: number = edge[1].c;
       if (area(c, d, b) <= 0 || area(d, c, a) <= 0) continue;
-      const delta: number[][] = [a, b, c].map((id: number): number[]  => [
+      const delta: number[][] = [a, b, c].map((id: number): number[] => [
         chart[id][0] - chart[d][0],
         chart[id][1] - chart[d][1],
       ]);
       const extent: number = Math.max(...delta.flat().map(Math.abs));
-      const q: number[][] = delta.map((p: number[]): number[]  => p.map((v: number): number  => v / extent));
+      const q: number[][] = delta.map((p: number[]): number[] =>
+        p.map((v: number): number => v / extent),
+      );
       const [u, v, w]: number[][] = q,
-        sq: (p: number[]) => number = (p: number[]): number  => p[0] * p[0] + p[1] * p[1];
+        sq: (p: number[]) => number = (p: number[]): number =>
+          p[0] * p[0] + p[1] * p[1];
       const determinant: number =
         sq(u) * (v[0] * w[1] - v[1] * w[0]) -
         sq(v) * (u[0] * w[1] - u[1] * w[0]) +
@@ -110,7 +144,10 @@ export function refinePortraitSkinBridge(
       if (determinant <= 1e-12 * radiusSquared * radiusSquared) continue;
       faces[edge[0].face] = [c, d, b];
       faces[edge[1].face] = [d, c, a];
-      edge.forEach((e: { face: number; a: number; b: number; c: number; }): Set<number>  => touched.add(e.face));
+      edge.forEach(
+        (e: { face: number; a: number; b: number; c: number }): Set<number> =>
+          touched.add(e.face),
+      );
       changed = true;
     }
     if (!changed) return { positions, indices: faces.flat() };

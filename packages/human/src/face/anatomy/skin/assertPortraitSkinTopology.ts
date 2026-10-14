@@ -19,8 +19,10 @@ export function assertPortraitSkinTopology(
   cage: IControlMesh,
   openings: number[][],
 ): void {
-  const key: (a: number, b: number) => string = (a: number, b: number): string =>
-    Math.min(a, b) + "/" + Math.max(a, b);
+  const key: (a: number, b: number) => string = (
+    a: number,
+    b: number,
+  ): string => Math.min(a, b) + "/" + Math.max(a, b);
   const expected: Set<string> = new Set<string>();
   for (const loop of openings) {
     if (loop.length < 3 || new Set(loop).size !== loop.length)
@@ -34,7 +36,10 @@ export function assertPortraitSkinTopology(
       expected.add(id);
     }
   }
-  const edges: Map<string, { count: number; direction: number; }> = new Map<string, { count: number; direction: number }>();
+  const edges: Map<string, { count: number; direction: number }> = new Map<
+    string,
+    { count: number; direction: number }
+  >();
   for (let i: number = 0; i < cage.indices.length; i += 3)
     for (let corner: number = 0; corner < 3; corner++) {
       const a: number = cage.indices[i + corner],
@@ -49,7 +54,10 @@ export function assertPortraitSkinTopology(
           "A skin triangle needs distinct resident vertex identities.",
         );
       const id: string = key(a, b),
-        edge: { count: number; direction: number; } = edges.get(id) ?? { count: 0, direction: 0 };
+        edge: { count: number; direction: number } = edges.get(id) ?? {
+          count: 0,
+          direction: 0,
+        };
       edge.count++;
       edge.direction += a < b ? 1 : -1;
       edges.set(id, edge);

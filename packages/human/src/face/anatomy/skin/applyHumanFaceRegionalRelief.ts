@@ -1,18 +1,17 @@
+import type { IAutoMovieHumanSkinLandmark as IAutoMovieHumanSkinLandmarkImported } from "../../../common/basis/IAutoMovieHumanSkinLandmark";
 import { findHumanSkinLandmark } from "../../../common/basis/findHumanSkinLandmark";
+import type { IHumanFaceLipMarginPoint as IHumanFaceLipMarginPointImported } from "../../basis/IHumanFaceLipMarginPoint";
+import type { IHumanFaceLipMarginPoints as IHumanFaceLipMarginPointsImported } from "../../basis/IHumanFaceLipMarginPoints";
 import { readHumanFaceLipMarginPoints } from "../../basis/readHumanFaceLipMarginPoints";
 import type { IAutoMovieHumanFaceBasis } from "../../structures/IAutoMovieHumanFaceBasis";
-import type { IAutoMovieHumanFaceSkinRelief } from "../../structures/IAutoMovieHumanFaceSkinRelief";
+import type { IAutoMovieHumanFaceBasisSurface as IAutoMovieHumanFaceBasisSurfaceImported } from "../../structures/IAutoMovieHumanFaceBasisSurface";
 import type { IAutoMovieHumanFaceRegionalRelief } from "../../structures/IAutoMovieHumanFaceRegionalRelief";
+import type { IAutoMovieHumanFaceSkinRelief } from "../../structures/IAutoMovieHumanFaceSkinRelief";
+import type { IHumanFaceSkinHost as IHumanFaceSkinHostImported } from "./IHumanFaceSkinHost";
+import type { IHumanFaceSkinMaterialGuidePoint } from "./IHumanFaceSkinMaterialGuidePoint";
 import { applyHumanFaceSkinCourseRelief } from "./applyHumanFaceSkinCourseRelief";
 import { createHumanFaceSkinHost } from "./createHumanFaceSkinHost";
 import { createHumanFaceSkinMaterialCourse } from "./createHumanFaceSkinMaterialCourse";
-import type { IHumanFaceSkinMaterialGuidePoint } from "./IHumanFaceSkinMaterialGuidePoint";
-import type { IAutoMovieHumanSkinLandmark as IAutoMovieHumanSkinLandmarkImported } from "../../../common/basis/IAutoMovieHumanSkinLandmark";
-import type { IAutoMovieHumanFaceBasisSurface as IAutoMovieHumanFaceBasisSurfaceImported } from "../../structures/IAutoMovieHumanFaceBasisSurface";
-import type { IHumanFaceLipMarginPoints as IHumanFaceLipMarginPointsImported } from "../../basis/IHumanFaceLipMarginPoints";
-import type { IHumanFaceLipMarginPoint as IHumanFaceLipMarginPointImported } from "../../basis/IHumanFaceLipMarginPoint";
-import type { IHumanFaceSkinHost as IHumanFaceSkinHostImported } from "./IHumanFaceSkinHost";
-
 
 /**
  * Shape forehead, glabellar, marionette, philtral and perioral relief on the
@@ -56,10 +55,12 @@ export function applyHumanFaceRegionalRelief(
   reference: ReadonlyMap<string, readonly number[]>,
 ): ReadonlyMap<string, readonly number[]> {
   if (relief?.regions === undefined) return positions;
-  const glabella: IAutoMovieHumanSkinLandmarkImported | undefined = findHumanSkinLandmark(basis, "glabella");
+  const glabella: IAutoMovieHumanSkinLandmarkImported | undefined =
+    findHumanSkinLandmark(basis, "glabella");
   const surface: IAutoMovieHumanFaceBasisSurfaceImported | undefined =
     glabella === undefined ? undefined : basis.surfaces[glabella.surface];
-  const source: readonly number[] | undefined = surface === undefined ? undefined : positions.get(surface.id);
+  const source: readonly number[] | undefined =
+    surface === undefined ? undefined : positions.get(surface.id);
   if (
     source === undefined ||
     surface === undefined ||
@@ -70,17 +71,29 @@ export function applyHumanFaceRegionalRelief(
     throw new Error(
       "Regional skin relief needs registered connected head skin and complete lip ports.",
     );
-  const margin: IHumanFaceLipMarginPointsImported = readHumanFaceLipMarginPoints(surface, basis.contact.margin, source);
+  const margin: IHumanFaceLipMarginPointsImported =
+    readHumanFaceLipMarginPoints(surface, basis.contact.margin, source);
   const held: Set<number> = new Set([
-    ...[...margin.upper, ...margin.lower].flatMap((point: IHumanFaceLipMarginPointImported): number[]  =>
-      point.vertices.filter((_: number, axis: number): boolean  => point.weights[axis] !== 0)),
+    ...[...margin.upper, ...margin.lower].flatMap(
+      (point: IHumanFaceLipMarginPointImported): number[] =>
+        point.vertices.filter(
+          (_: number, axis: number): boolean => point.weights[axis] !== 0,
+        ),
+    ),
     ...Object.values(basis.skinLandmarks ?? {})
-      .filter((landmark: IAutoMovieHumanSkinLandmarkImported): boolean  => landmark.surface === glabella.surface)
-      .map((landmark: IAutoMovieHumanSkinLandmarkImported): number  => landmark.vertex),
+      .filter(
+        (landmark: IAutoMovieHumanSkinLandmarkImported): boolean =>
+          landmark.surface === glabella.surface,
+      )
+      .map(
+        (landmark: IAutoMovieHumanSkinLandmarkImported): number =>
+          landmark.vertex,
+      ),
   ]);
   const supportVertices: Set<number> = new Set<number>();
   const point: (name: string) => number[] = (name: string): number[] => {
-    const landmark: IAutoMovieHumanSkinLandmarkImported | undefined = findHumanSkinLandmark(basis, name);
+    const landmark: IAutoMovieHumanSkinLandmarkImported | undefined =
+      findHumanSkinLandmark(basis, name);
     if (landmark === undefined || landmark.surface !== glabella.surface)
       throw new Error(
         "Regional skin relief needs a registered source landmark: " + name,
@@ -88,10 +101,14 @@ export function applyHumanFaceRegionalRelief(
     supportVertices.add(landmark.vertex);
     return source.slice(3 * landmark.vertex, 3 * landmark.vertex + 3);
   };
-  const host: IHumanFaceSkinHostImported = createHumanFaceSkinHost(surface.indices, source);
+  const host: IHumanFaceSkinHostImported = createHumanFaceSkinHost(
+    surface.indices,
+    source,
+  );
   const changed: number[] = [...source];
   let active: boolean = false;
-  const regions: [string, IAutoMovieHumanFaceRegionalRelief | undefined][] = Object.entries(relief.regions);
+  const regions: [string, IAutoMovieHumanFaceRegionalRelief | undefined][] =
+    Object.entries(relief.regions);
   for (const [name, settings] of regions) {
     if (settings === undefined) continue;
     supportVertices.clear();
@@ -126,7 +143,11 @@ export function applyHumanFaceRegionalRelief(
         "Regional skin guide dimensions are unsupported: " + name,
       );
     let guide: number[][];
-    const side: 0 | 1 | -1 = name.endsWith("Left") ? 1 : name.endsWith("Right") ? -1 : 0;
+    const side: 0 | 1 | -1 = name.endsWith("Left")
+      ? 1
+      : name.endsWith("Right")
+        ? -1
+        : 0;
     if (name === "forehead" || name === "glabellar") {
       if (
         settings.lengthMm === undefined ||
@@ -188,8 +209,13 @@ export function applyHumanFaceRegionalRelief(
     // The admission of a course keeps its original frontal-projection measure.
     const lengths: number[] = guide
       .slice(1)
-      .map((b: number[], k: number): number  => Math.hypot(b[0] - guide[k][0], b[1] - guide[k][1]));
-    const total: number = lengths.reduce((sum: number, length: number): number  => sum + length, 0);
+      .map((b: number[], k: number): number =>
+        Math.hypot(b[0] - guide[k][0], b[1] - guide[k][1]),
+      );
+    const total: number = lengths.reduce(
+      (sum: number, length: number): number => sum + length,
+      0,
+    );
     if (!(total > 0) || !Number.isFinite(total))
       throw new Error(
         "Regional skin source course has no finite projected length: " + name,
@@ -203,14 +229,23 @@ export function applyHumanFaceRegionalRelief(
     const materialGuide: IHumanFaceSkinMaterialGuidePoint[] =
       name === "forehead" || name === "glabellar"
         ? (name === "forehead"
-            ? [[-settings.lengthMm! / 2000, settings.elevationMm! / 1000, 0],
-               [settings.lengthMm! / 2000, settings.elevationMm! / 1000, 0]]
-            : [[0, 0, 0], [0, settings.lengthMm! / 1000, 0]])
-          .map((displacement: number[]): { vertex: number; displacement: number[]; }  => ({
-            vertex: glabella.vertex,
-            displacement,
-          }))
-        : anchors.map((vertex: number): { vertex: number; }  => ({ vertex }));
+            ? [
+                [-settings.lengthMm! / 2000, settings.elevationMm! / 1000, 0],
+                [settings.lengthMm! / 2000, settings.elevationMm! / 1000, 0],
+              ]
+            : [
+                [0, 0, 0],
+                [0, settings.lengthMm! / 1000, 0],
+              ]
+          ).map(
+            (
+              displacement: number[],
+            ): { vertex: number; displacement: number[] } => ({
+              vertex: glabella.vertex,
+              displacement,
+            }),
+          )
+        : anchors.map((vertex: number): { vertex: number } => ({ vertex }));
     const supported: boolean = applyHumanFaceSkinCourseRelief({
       host,
       source,

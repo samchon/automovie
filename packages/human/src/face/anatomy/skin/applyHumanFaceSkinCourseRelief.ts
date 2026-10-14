@@ -1,6 +1,5 @@
-import type { IHumanFaceSkinCourseRelief } from "./IHumanFaceSkinCourseRelief";
 import type { IHumanFaceProjectedSkinCourseReading as IHumanFaceProjectedSkinCourseReadingImported } from "./IHumanFaceProjectedSkinCourseReading";
-
+import type { IHumanFaceSkinCourseRelief } from "./IHumanFaceSkinCourseRelief";
 
 /**
  * Displace the skin along its own normal around one course lying on it.
@@ -44,7 +43,14 @@ import type { IHumanFaceProjectedSkinCourseReading as IHumanFaceProjectedSkinCou
 export function applyHumanFaceSkinCourseRelief(
   props: IHumanFaceSkinCourseRelief,
 ): boolean {
-  const { host, source, changed, course, held, side }: IHumanFaceSkinCourseRelief = props;
+  const {
+    host,
+    source,
+    changed,
+    course,
+    held,
+    side,
+  }: IHumanFaceSkinCourseRelief = props;
   const width: number = props.widthMetres,
     offset: number = props.offsetMetres;
   if (!(course.totalLengthMetres > 0)) return false;
@@ -52,7 +58,9 @@ export function applyHumanFaceSkinCourseRelief(
   for (let vertex: number = 0; vertex < source.length / 3; vertex++) {
     if (held.has(vertex) || (side !== 0 && side * source[3 * vertex] <= 0))
       continue;
-    const reading: IHumanFaceProjectedSkinCourseReadingImported = course.read(source.slice(3 * vertex, 3 * vertex + 3));
+    const reading: IHumanFaceProjectedSkinCourseReadingImported = course.read(
+      source.slice(3 * vertex, 3 * vertex + 3),
+    );
     const station: number = reading.station;
     // Comparing distances before dividing preserves every positive width,
     // including subnormal metres; squared widths need not be representable.

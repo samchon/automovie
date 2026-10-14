@@ -1,17 +1,16 @@
+import type { IAutoMovieHumanSkinLandmark as IAutoMovieHumanSkinLandmarkImported } from "../../../common/basis/IAutoMovieHumanSkinLandmark";
 import { findHumanSkinLandmark } from "../../../common/basis/findHumanSkinLandmark";
+import type { IHumanFaceLipMarginPoint as IHumanFaceLipMarginPointImported } from "../../basis/IHumanFaceLipMarginPoint";
+import type { IHumanFaceLipMarginPoints as IHumanFaceLipMarginPointsImported } from "../../basis/IHumanFaceLipMarginPoints";
 import { readHumanFaceLipMarginPoints } from "../../basis/readHumanFaceLipMarginPoints";
 import type { IAutoMovieHumanFaceBasis } from "../../structures/IAutoMovieHumanFaceBasis";
+import type { IAutoMovieHumanFaceBasisSurface as IAutoMovieHumanFaceBasisSurfaceImported } from "../../structures/IAutoMovieHumanFaceBasisSurface";
+import type { IAutoMovieHumanFaceNasolabialRelief as IAutoMovieHumanFaceNasolabialReliefImported } from "../../structures/IAutoMovieHumanFaceNasolabialRelief";
 import type { IAutoMovieHumanFaceSkinRelief } from "../../structures/IAutoMovieHumanFaceSkinRelief";
+import type { IHumanFaceSkinHost as IHumanFaceSkinHostImported } from "./IHumanFaceSkinHost";
 import { applyHumanFaceSkinCourseRelief } from "./applyHumanFaceSkinCourseRelief";
 import { createHumanFaceSkinHost } from "./createHumanFaceSkinHost";
 import { createHumanFaceSkinMaterialCourse } from "./createHumanFaceSkinMaterialCourse";
-import type { IAutoMovieHumanSkinLandmark as IAutoMovieHumanSkinLandmarkImported } from "../../../common/basis/IAutoMovieHumanSkinLandmark";
-import type { IAutoMovieHumanFaceNasolabialRelief as IAutoMovieHumanFaceNasolabialReliefImported } from "../../structures/IAutoMovieHumanFaceNasolabialRelief";
-import type { IAutoMovieHumanFaceBasisSurface as IAutoMovieHumanFaceBasisSurfaceImported } from "../../structures/IAutoMovieHumanFaceBasisSurface";
-import type { IHumanFaceLipMarginPoints as IHumanFaceLipMarginPointsImported } from "../../basis/IHumanFaceLipMarginPoints";
-import type { IHumanFaceLipMarginPoint as IHumanFaceLipMarginPointImported } from "../../basis/IHumanFaceLipMarginPoint";
-import type { IHumanFaceSkinHost as IHumanFaceSkinHostImported } from "./IHumanFaceSkinHost";
-
 
 /**
  * Add independently authored resting and smile-dependent nasolabial valleys
@@ -66,50 +65,81 @@ export function applyHumanFaceNasolabialRelief(
   reference: ReadonlyMap<string, readonly number[]>,
 ): ReadonlyMap<string, readonly number[]> {
   if (relief?.nasolabial === undefined) return positions;
-  const rows: { side: "left" | "right"; depth: number; width: number; ala: IAutoMovieHumanSkinLandmarkImported; corner: IAutoMovieHumanSkinLandmarkImported; }[] = (["left", "right"] as const).flatMap((side: "left" | "right"): { side: "left" | "right"; depth: number; width: number; ala: IAutoMovieHumanSkinLandmarkImported; corner: IAutoMovieHumanSkinLandmarkImported; }[]  => {
-    const input: IAutoMovieHumanFaceNasolabialReliefImported | undefined = relief.nasolabial![side];
-    if (input === undefined) return [];
-    const rest: number = input.restDepthMm ?? 0;
-    const performed: number = input.smileDepthMm ?? 0;
-    if (
-      ![rest, performed, input.widthMm].every(Number.isFinite) ||
-      rest < 0 ||
-      performed < 0 ||
-      input.widthMm <= 0
-    )
-      throw new Error(
-        `Nasolabial ${side} relief needs nonnegative finite depths and a positive finite width.`,
-      );
-    const smile: number =
-      weights.get(side === "left" ? "mouthSmileLeft" : "mouthSmileRight") ?? 0;
-    if (!Number.isFinite(smile) || smile < 0 || smile > 1)
-      throw new Error(
-        `Nasolabial ${side} relief needs its source smile weight in [0,1].`,
-      );
-    const activeMm: number = rest + performed * smile;
-    const depth: number = activeMm / 1000;
-    const width: number = input.widthMm / 1000;
-    if (!Number.isFinite(activeMm) || !Number.isFinite(depth) || !(width > 0))
-      throw new Error(
-        `Nasolabial ${side} depth and width must be representable in metres.`,
-      );
-    if (depth === 0) return [];
-    const ala: IAutoMovieHumanSkinLandmarkImported | undefined = findHumanSkinLandmark(basis, `alar-curvature-${side}`);
-    const corner: IAutoMovieHumanSkinLandmarkImported | undefined = findHumanSkinLandmark(basis, `cheilion-${side}`);
-    if (
-      ala === undefined ||
-      corner === undefined ||
-      ala.surface !== corner.surface
-    )
-      throw new Error(
-        `Nasolabial ${side} relief needs registered alar-curvature and cheilion on one skin surface.`,
-      );
-    return [{ side, depth, width, ala, corner }];
-  });
+  const rows: {
+    side: "left" | "right";
+    depth: number;
+    width: number;
+    ala: IAutoMovieHumanSkinLandmarkImported;
+    corner: IAutoMovieHumanSkinLandmarkImported;
+  }[] = (["left", "right"] as const).flatMap(
+    (
+      side: "left" | "right",
+    ): {
+      side: "left" | "right";
+      depth: number;
+      width: number;
+      ala: IAutoMovieHumanSkinLandmarkImported;
+      corner: IAutoMovieHumanSkinLandmarkImported;
+    }[] => {
+      const input: IAutoMovieHumanFaceNasolabialReliefImported | undefined =
+        relief.nasolabial![side];
+      if (input === undefined) return [];
+      const rest: number = input.restDepthMm ?? 0;
+      const performed: number = input.smileDepthMm ?? 0;
+      if (
+        ![rest, performed, input.widthMm].every(Number.isFinite) ||
+        rest < 0 ||
+        performed < 0 ||
+        input.widthMm <= 0
+      )
+        throw new Error(
+          `Nasolabial ${side} relief needs nonnegative finite depths and a positive finite width.`,
+        );
+      const smile: number =
+        weights.get(side === "left" ? "mouthSmileLeft" : "mouthSmileRight") ??
+        0;
+      if (!Number.isFinite(smile) || smile < 0 || smile > 1)
+        throw new Error(
+          `Nasolabial ${side} relief needs its source smile weight in [0,1].`,
+        );
+      const activeMm: number = rest + performed * smile;
+      const depth: number = activeMm / 1000;
+      const width: number = input.widthMm / 1000;
+      if (!Number.isFinite(activeMm) || !Number.isFinite(depth) || !(width > 0))
+        throw new Error(
+          `Nasolabial ${side} depth and width must be representable in metres.`,
+        );
+      if (depth === 0) return [];
+      const ala: IAutoMovieHumanSkinLandmarkImported | undefined =
+        findHumanSkinLandmark(basis, `alar-curvature-${side}`);
+      const corner: IAutoMovieHumanSkinLandmarkImported | undefined =
+        findHumanSkinLandmark(basis, `cheilion-${side}`);
+      if (
+        ala === undefined ||
+        corner === undefined ||
+        ala.surface !== corner.surface
+      )
+        throw new Error(
+          `Nasolabial ${side} relief needs registered alar-curvature and cheilion on one skin surface.`,
+        );
+      return [{ side, depth, width, ala, corner }];
+    },
+  );
   if (rows.length === 0) return positions;
   const output: Map<string, readonly number[]> = new Map(positions);
-  for (const index of new Set(rows.map((row: { side: "left" | "right"; depth: number; width: number; ala: IAutoMovieHumanSkinLandmarkImported; corner: IAutoMovieHumanSkinLandmarkImported; }): number  => row.ala.surface))) {
-    const surface: IAutoMovieHumanFaceBasisSurfaceImported = basis.surfaces[index];
+  for (const index of new Set(
+    rows.map(
+      (row: {
+        side: "left" | "right";
+        depth: number;
+        width: number;
+        ala: IAutoMovieHumanSkinLandmarkImported;
+        corner: IAutoMovieHumanSkinLandmarkImported;
+      }): number => row.ala.surface,
+    ),
+  )) {
+    const surface: IAutoMovieHumanFaceBasisSurfaceImported =
+      basis.surfaces[index];
     const source: readonly number[] | undefined =
       surface === undefined ? undefined : positions.get(surface.id);
     if (source === undefined)
@@ -123,20 +153,52 @@ export function applyHumanFaceNasolabialRelief(
       throw new Error(
         "Nasolabial relief needs the same skin's registered complete lip margin.",
       );
-    const margin: IHumanFaceLipMarginPointsImported = readHumanFaceLipMarginPoints(surface, basis.contact.margin, source);
+    const margin: IHumanFaceLipMarginPointsImported =
+      readHumanFaceLipMarginPoints(surface, basis.contact.margin, source);
     // Holding actual nonzero native support keeps the material contact course
     // invariant under this separately authored persistent relief field.
-    const held: Set<number> = new Set([...margin.upper, ...margin.lower].flatMap((point: IHumanFaceLipMarginPointImported): number[]  =>
-      point.vertices.filter((_: number, axis: number): boolean  => point.weights[axis] !== 0)));
-    for (const row of rows.filter((item: { side: "left" | "right"; depth: number; width: number; ala: IAutoMovieHumanSkinLandmarkImported; corner: IAutoMovieHumanSkinLandmarkImported; }): boolean  => item.ala.surface === index)) {
+    const held: Set<number> = new Set(
+      [...margin.upper, ...margin.lower].flatMap(
+        (point: IHumanFaceLipMarginPointImported): number[] =>
+          point.vertices.filter(
+            (_: number, axis: number): boolean => point.weights[axis] !== 0,
+          ),
+      ),
+    );
+    for (const row of rows.filter(
+      (item: {
+        side: "left" | "right";
+        depth: number;
+        width: number;
+        ala: IAutoMovieHumanSkinLandmarkImported;
+        corner: IAutoMovieHumanSkinLandmarkImported;
+      }): boolean => item.ala.surface === index,
+    )) {
       held.add(row.ala.vertex);
       held.add(row.corner.vertex);
     }
-    const host: IHumanFaceSkinHostImported = createHumanFaceSkinHost(surface.indices, source);
+    const host: IHumanFaceSkinHostImported = createHumanFaceSkinHost(
+      surface.indices,
+      source,
+    );
     const changed: number[] = source.slice();
-    for (const row of rows.filter((item: { side: "left" | "right"; depth: number; width: number; ala: IAutoMovieHumanSkinLandmarkImported; corner: IAutoMovieHumanSkinLandmarkImported; }): boolean  => item.ala.surface === index)) {
-      const a: number[] = source.slice(3 * row.ala.vertex, 3 * row.ala.vertex + 3);
-      const b: number[] = source.slice(3 * row.corner.vertex, 3 * row.corner.vertex + 3);
+    for (const row of rows.filter(
+      (item: {
+        side: "left" | "right";
+        depth: number;
+        width: number;
+        ala: IAutoMovieHumanSkinLandmarkImported;
+        corner: IAutoMovieHumanSkinLandmarkImported;
+      }): boolean => item.ala.surface === index,
+    )) {
+      const a: number[] = source.slice(
+        3 * row.ala.vertex,
+        3 * row.ala.vertex + 3,
+      );
+      const b: number[] = source.slice(
+        3 * row.corner.vertex,
+        3 * row.corner.vertex + 3,
+      );
       if (
         a.length !== 3 ||
         b.length !== 3 ||

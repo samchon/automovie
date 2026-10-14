@@ -1,6 +1,7 @@
-import { triangulateAutoMovieRegion, type IAutoMovieRegionTriangulation as IAutoMovieRegionTriangulationImported } from "@automovie/engine";
-
-
+import {
+  type IAutoMovieRegionTriangulation as IAutoMovieRegionTriangulationImported,
+  triangulateAutoMovieRegion,
+} from "@automovie/engine";
 
 /**
  * Triangulate a shared skin annulus without flattening or copying its vertices.
@@ -26,7 +27,9 @@ export function portraitSkinAnnulus(
   outer: readonly number[],
   inner: readonly number[],
 ): number[] {
-  const point: (id: number) => { x: number; y: number; } = (id: number): { x: number; y: number; }  => {
+  const point: (id: number) => { x: number; y: number } = (
+    id: number,
+  ): { x: number; y: number } => {
     const p: readonly number[] = positions[id];
     if (p === undefined || p.length !== 3 || !p.every(Number.isFinite))
       throw new Error(
@@ -34,16 +37,20 @@ export function portraitSkinAnnulus(
       );
     return { x: p[0] / 1000, y: p[1] / 1000 };
   };
-  const outerPoints: { x: number; y: number; }[] = outer.map(point),
-    innerPoints: { x: number; y: number; }[] = inner.map(point);
-  const triangulated: IAutoMovieRegionTriangulationImported = triangulateAutoMovieRegion({
-    outer: outerPoints,
-    holes: [innerPoints],
-  });
+  const outerPoints: { x: number; y: number }[] = outer.map(point),
+    innerPoints: { x: number; y: number }[] = inner.map(point);
+  const triangulated: IAutoMovieRegionTriangulationImported =
+    triangulateAutoMovieRegion({
+      outer: outerPoints,
+      holes: [innerPoints],
+    });
   const identities: number[] = [...outer, ...inner];
-  const mapped: number[] = triangulated.sourceIndices.map((index: number): number  => identities[index]);
+  const mapped: number[] = triangulated.sourceIndices.map(
+    (index: number): number => identities[index],
+  );
   const reversed: boolean = mapped[0] !== outer[0];
-  const innerReversed: boolean = mapped[triangulated.rings[1].start] !== inner[0];
+  const innerReversed: boolean =
+    mapped[triangulated.rings[1].start] !== inner[0];
   if (reversed === innerReversed)
     throw new Error(
       "Skin annulus boundaries must have matching projected winding.",
@@ -52,7 +59,7 @@ export function portraitSkinAnnulus(
   for (let i: number = 0; i < triangulated.triangles.length; i += 3) {
     const [a, b, c]: number[] = triangulated.triangles
       .slice(i, i + 3)
-      .map((v: number): number  => mapped[v]);
+      .map((v: number): number => mapped[v]);
     indices.push(a, reversed ? c : b, reversed ? b : c);
   }
   return indices;

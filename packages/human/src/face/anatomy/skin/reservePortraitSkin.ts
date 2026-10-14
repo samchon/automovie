@@ -35,15 +35,25 @@ export function reservePortraitSkin(
 ): { faces: number[]; boundary: number[] } {
   if (
     targets.length !== inner.length ||
-    targets.some((point: readonly number[]): boolean  => point.length !== 3 || !point.every(Number.isFinite))
+    targets.some(
+      (point: readonly number[]): boolean =>
+        point.length !== 3 || !point.every(Number.isFinite),
+    )
   )
     throw new Error(
       "Reserved skin needs one finite XYZ target per seam vertex.",
     );
-  let selected: Set<number> = new Set(selectHostFacesInsideLoop(host, [...inner]));
-  const point: (p: readonly number[]) => { x: number; y: number; } = (p: readonly number[]): { x: number; y: number; }  => ({ x: p[0] / 1000, y: p[1] / 1000 });
+  let selected: Set<number> = new Set(
+    selectHostFacesInsideLoop(host, [...inner]),
+  );
+  const point: (p: readonly number[]) => { x: number; y: number } = (
+    p: readonly number[],
+  ): { x: number; y: number } => ({ x: p[0] / 1000, y: p[1] / 1000 });
   for (;;) {
-    const edges: Map<string, { a: number; b: number; count: number; }> = new Map<string, { a: number; b: number; count: number }>();
+    const edges: Map<string, { a: number; b: number; count: number }> = new Map<
+      string,
+      { a: number; b: number; count: number }
+    >();
     const vertices: Set<number> = new Set<number>();
     for (const face of selected) {
       const ids: number[] = host.indices.slice(3 * face, 3 * face + 3);
@@ -52,13 +62,26 @@ export function reservePortraitSkin(
           b: number = ids[(j + 1) % 3];
         const key: string = a < b ? `${a}/${b}` : `${b}/${a}`;
         vertices.add(a);
-        const edge: { a: number; b: number; count: number; } | undefined = edges.get(key);
+        const edge: { a: number; b: number; count: number } | undefined =
+          edges.get(key);
         if (edge === undefined) edges.set(key, { a, b, count: 1 });
         else edge.count++;
       }
     }
-    const perimeter: { a: number; b: number; count: number; }[] = [...edges.values()].filter((edge: { a: number; b: number; count: number; }): boolean  => edge.count === 1);
-    const next: Map<number, number> = new Map(perimeter.map((edge: { a: number; b: number; count: number; }): [number, number]  => [edge.a, edge.b]));
+    const perimeter: { a: number; b: number; count: number }[] = [
+      ...edges.values(),
+    ].filter(
+      (edge: { a: number; b: number; count: number }): boolean =>
+        edge.count === 1,
+    );
+    const next: Map<number, number> = new Map(
+      perimeter.map(
+        (edge: { a: number; b: number; count: number }): [number, number] => [
+          edge.a,
+          edge.b,
+        ],
+      ),
+    );
     const loop: number[] = [];
     if (perimeter.length !== 0 && next.size === perimeter.length) {
       let vertex: number = perimeter[0].a;
@@ -71,9 +94,11 @@ export function reservePortraitSkin(
       }
       if (
         loop.length === perimeter.length &&
-        inner.every((id: number): boolean  => !loop.includes(id)) &&
+        inner.every((id: number): boolean => !loop.includes(id)) &&
         autoMoviePlanarRegionFailure({
-          outer: loop.map((id: number): { x: number; y: number; }  => point(host.positions[id])),
+          outer: loop.map((id: number): { x: number; y: number } =>
+            point(host.positions[id]),
+          ),
           holes: [targets.map(point)],
         }) === null
       )
@@ -84,7 +109,7 @@ export function reservePortraitSkin(
       if (
         host.indices
           .slice(3 * face, 3 * face + 3)
-          .some((id: number): boolean  => vertices.has(id))
+          .some((id: number): boolean => vertices.has(id))
       )
         expanded.add(face);
     if (expanded.size === selected.size)

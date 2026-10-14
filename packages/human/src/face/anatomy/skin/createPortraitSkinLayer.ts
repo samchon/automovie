@@ -1,6 +1,13 @@
 import { createAutoMovieMeshDepthSampler } from "@automovie/engine";
-import type { IAutoMovieMeshDeformationField, IAutoMovieVector3 as IAutoMovieVector3Imported } from "@automovie/interface";
+import type {
+  IAutoMovieMeshDeformationField,
+  IAutoMovieVector3 as IAutoMovieVector3Imported,
+} from "@automovie/interface";
 
+import type {
+  IPortraitEyeSocket as IPortraitEyeSocketImported,
+  IPortraitSurfaceHost as IPortraitSurfaceHostImported,
+} from "../../../index";
 import { resolveHumanFaceExpression } from "../../document/resolveHumanFaceExpression";
 import { catmullRomPoint } from "../../mesh/catmullRomPoint";
 import { createMetricMeshPart } from "../../mesh/createMetricMeshPart";
@@ -9,9 +16,6 @@ import type { IAutoMovieHumanFaceExpression } from "../../structures/IAutoMovieH
 import type { IPortraitSurfaceLayer } from "../../surface/structures/IPortraitSurfaceLayer";
 import { resolvePortraitSkinShape } from "./resolvePortraitSkinShape";
 import { type IPortraitSkinShape } from "./structures/IPortraitSkinShape";
-import type { IPortraitSurfaceHost as IPortraitSurfaceHostImported, IPortraitEyeSocket as IPortraitEyeSocketImported } from "../../../index";
-
-
 
 /**
  * Shape resting and expression-dependent skin on the live shared face. Eye
@@ -44,18 +48,55 @@ export function createPortraitSkinLayer(
   input: IPortraitSkinShape,
   inputExpression: IAutoMovieHumanFaceExpression = {},
 ): IPortraitSurfaceLayer {
-  const bindings: Pick<IAutoMovieHumanFaceBindings, "eyes" | "mouth"> = structuredClone(inputBindings),
-    shape: Required<Partial<Record<"forehead" | "laxity" | "wrinkleDepth" | "wrinkleWidth" | "glabella" | "crowFeet" | "lowerLid" | "nasolabial" | "marionette" | "perioral" | "cheekSag" | "jowlSag" | "underEyeBag" | "volumeLoss" | "expressionCreasing", number>>> = resolvePortraitSkinShape(input),
-    expression: Required<{ blink?: { right: number; left: number; } | undefined; browRaise?: { right: number; left: number; } | undefined; smile?: { right: number; left: number; } | undefined; jawOpen?: number | undefined; lipPart?: number | undefined; pucker?: number | undefined; tongueRaise?: number | undefined; tongueAdvance?: number | undefined; gazePitch?: { right: number; left: number; } | undefined; gazeYaw?: { right: number; left: number; } | undefined; }> = resolveHumanFaceExpression(inputExpression);
+  const bindings: Pick<IAutoMovieHumanFaceBindings, "eyes" | "mouth"> =
+      structuredClone(inputBindings),
+    shape: Required<
+      Partial<
+        Record<
+          | "forehead"
+          | "laxity"
+          | "wrinkleDepth"
+          | "wrinkleWidth"
+          | "glabella"
+          | "crowFeet"
+          | "lowerLid"
+          | "nasolabial"
+          | "marionette"
+          | "perioral"
+          | "cheekSag"
+          | "jowlSag"
+          | "underEyeBag"
+          | "volumeLoss"
+          | "expressionCreasing",
+          number
+        >
+      >
+    > = resolvePortraitSkinShape(input),
+    expression: Required<{
+      blink?: { right: number; left: number } | undefined;
+      browRaise?: { right: number; left: number } | undefined;
+      smile?: { right: number; left: number } | undefined;
+      jawOpen?: number | undefined;
+      lipPart?: number | undefined;
+      pucker?: number | undefined;
+      tongueRaise?: number | undefined;
+      tongueAdvance?: number | undefined;
+      gazePitch?: { right: number; left: number } | undefined;
+      gazeYaw?: { right: number; left: number } | undefined;
+    }> = resolveHumanFaceExpression(inputExpression);
   return {
     id: "anatomical-skin",
     sampleSpacing:
       shape.laxity * shape.wrinkleDepth > 0 || shape.expressionCreasing > 0
         ? shape.wrinkleWidth * 0.75
         : undefined,
-    fields: (host: IPortraitSurfaceHostImported): IAutoMovieMeshDeformationField[]  => {
+    fields: (
+      host: IPortraitSurfaceHostImported,
+    ): IAutoMovieMeshDeformationField[] => {
       if (shape.laxity === 0 && shape.expressionCreasing === 0) return [];
-      const point: (id: number) => readonly number[] = (id: number): readonly number[] => {
+      const point: (id: number) => readonly number[] = (
+        id: number,
+      ): readonly number[] => {
         const p: readonly number[] = host.positions[id];
         if (
           !Number.isInteger(id) ||
@@ -68,42 +109,61 @@ export function createPortraitSkinLayer(
           );
         return p;
       };
-      const curve: (ids: readonly number[]) => (readonly number[])[] = (ids: readonly number[]): (readonly number[])[]  => {
+      const curve: (ids: readonly number[]) => (readonly number[])[] = (
+        ids: readonly number[],
+      ): (readonly number[])[] => {
         if (ids.length < 2)
           throw new Error(
             "Skin morphology requires nonempty anatomical boundary curves.",
           );
         return ids.map(point);
       };
-      const middle: (points: readonly (readonly number[])[]) => readonly number[] = (points: readonly (readonly number[])[]): readonly number[]  =>
-        points[Math.floor(points.length / 2)];
+      const middle: (
+        points: readonly (readonly number[])[],
+      ) => readonly number[] = (
+        points: readonly (readonly number[])[],
+      ): readonly number[] => points[Math.floor(points.length / 2)];
       const mouth: (readonly number[])[] = curve(bindings.mouth.upper),
         lowerMouth: (readonly number[])[] = curve(bindings.mouth.lower);
-      const skin: (u: number, v: number) => { minimum: number; maximum: number; } | null = createAutoMovieMeshDepthSampler(
-        createMetricMeshPart(
-          "skin-morphology-basis",
-          {
-            positions: host.positions.flat(),
-            indices: [...host.indices],
-            normals: null,
-            uvs: null,
-            skin: null,
-          },
-          "skin-morphology-basis",
-        ).geometry.mesh,
-        "z",
-      );
+      const skin: (
+        u: number,
+        v: number,
+      ) => { minimum: number; maximum: number } | null =
+        createAutoMovieMeshDepthSampler(
+          createMetricMeshPart(
+            "skin-morphology-basis",
+            {
+              positions: host.positions.flat(),
+              indices: [...host.indices],
+              normals: null,
+              uvs: null,
+              skin: null,
+            },
+            "skin-morphology-basis",
+          ).geometry.mesh,
+          "z",
+        );
       const fields: IAutoMovieMeshDeformationField[] = [];
-      const support: (x: number, y: number, rx: number, ry: number, dy: number, dz: number) => void = (
+      const support: (
         x: number,
         y: number,
         rx: number,
         ry: number,
         dy: number,
         dz: number,
-      ): void  => {
+      ) => void = (
+        x: number,
+        y: number,
+        rx: number,
+        ry: number,
+        dy: number,
+        dz: number,
+      ): void => {
         if (dy === 0 && dz === 0) return;
-        const hit: { minimum: number; maximum: number; } | null = skin(x / 1000, y / 1000);
+        const hit: { minimum: number; maximum: number } | null = skin(
+          x / 1000,
+          y / 1000,
+        );
         if (hit === null) return;
         fields.push({
           center: { x: x / 1000, y: y / 1000, z: hit.maximum },
@@ -112,17 +172,32 @@ export function createPortraitSkinLayer(
           stretch: { x: 0, y: 0, z: 0 },
         });
       };
-      const stroke: (points: readonly (readonly number[])[], depth: number, width?: number) => void = (
+      const stroke: (
+        points: readonly (readonly number[])[],
+        depth: number,
+        width?: number,
+      ) => void = (
         points: readonly (readonly number[])[],
         depth: number,
         width: number = shape.wrinkleWidth,
-      ): void  => {
+      ): void => {
         if (depth === 0) return;
         const lengths: number[] = points
           .slice(1)
-          .map((p: readonly number[], i: number): number  => Math.hypot(p[0] - points[i][0], p[1] - points[i][1]));
-        const total: number = lengths.reduce((a: number, b: number): number  => a + b, 0);
-        const guide: { x: number; y: number; z: number; }[] = points.map((p: readonly number[]): { x: number; y: number; z: number; }  => ({ x: p[0], y: p[1], z: 0 }));
+          .map((p: readonly number[], i: number): number =>
+            Math.hypot(p[0] - points[i][0], p[1] - points[i][1]),
+          );
+        const total: number = lengths.reduce(
+          (a: number, b: number): number => a + b,
+          0,
+        );
+        const guide: { x: number; y: number; z: number }[] = points.map(
+          (p: readonly number[]): { x: number; y: number; z: number } => ({
+            x: p[0],
+            y: p[1],
+            z: 0,
+          }),
+        );
         // Every constructed path spans at least seven millimetres vertically,
         // has a positive admitted eye span, or contains the forehead arch.
         let travelled: number = 0;
@@ -133,7 +208,10 @@ export function createPortraitSkinLayer(
             const t: number = sample / count,
               progress: number = (travelled + length * t) / total;
             // A sine envelope retains the continuous interior and zero ends.
-            const at: IAutoMovieVector3Imported = catmullRomPoint(guide, (i + t) / lengths.length);
+            const at: IAutoMovieVector3Imported = catmullRomPoint(
+              guide,
+              (i + t) / lengths.length,
+            );
             support(
               at.x,
               at.y,
@@ -148,22 +226,73 @@ export function createPortraitSkinLayer(
       };
       const rest: number = shape.laxity * shape.wrinkleDepth,
         dynamic: number = shape.expressionCreasing;
-      const eyeData: { side: "right" | "left"; sign: number; outer: readonly number[]; inner: readonly number[]; width: number; brow: (readonly number[])[]; lower: readonly number[]; }[] = (["right", "left"] as const).map((side: "right" | "left"): { side: "right" | "left"; sign: number; outer: readonly number[]; inner: readonly number[]; width: number; brow: (readonly number[])[]; lower: readonly number[]; }  => {
-        const eye: IPortraitEyeSocketImported = bindings.eyes[side],
-          top: (readonly number[])[] = curve(eye.top),
-          bottom: (readonly number[])[] = curve(eye.bottom),
-          brow: (readonly number[])[] = curve(eye.browBottom),
-          sign: 1 | -1 = side === "right" ? -1 : 1;
-        const outer: readonly number[] = top[side === "right" ? 0 : top.length - 1],
-          inner: readonly number[] = top[side === "right" ? top.length - 1 : 0],
-          width: number = Math.abs(outer[0] - inner[0]);
-        if (!(width > 1))
-          throw new Error("Skin morphology requires nondegenerate eye spans.");
-        return { side, sign, outer, inner, width, brow, lower: middle(bottom) };
-      });
-      const leftEdge: number = Math.min(...eyeData[0].brow.map((p: readonly number[]): number  => p[0])),
-        rightEdge: number = Math.max(...eyeData[1].brow.map((p: readonly number[]): number  => p[0]));
-      const browY: number = eyeData.reduce((s: number, e: { side: "right" | "left"; sign: number; outer: readonly number[]; inner: readonly number[]; width: number; brow: (readonly number[])[]; lower: readonly number[]; }): number  => s + middle(e.brow)[1], 0) / 2;
+      const eyeData: {
+        side: "right" | "left";
+        sign: number;
+        outer: readonly number[];
+        inner: readonly number[];
+        width: number;
+        brow: (readonly number[])[];
+        lower: readonly number[];
+      }[] = (["right", "left"] as const).map(
+        (
+          side: "right" | "left",
+        ): {
+          side: "right" | "left";
+          sign: number;
+          outer: readonly number[];
+          inner: readonly number[];
+          width: number;
+          brow: (readonly number[])[];
+          lower: readonly number[];
+        } => {
+          const eye: IPortraitEyeSocketImported = bindings.eyes[side],
+            top: (readonly number[])[] = curve(eye.top),
+            bottom: (readonly number[])[] = curve(eye.bottom),
+            brow: (readonly number[])[] = curve(eye.browBottom),
+            sign: 1 | -1 = side === "right" ? -1 : 1;
+          const outer: readonly number[] =
+              top[side === "right" ? 0 : top.length - 1],
+            inner: readonly number[] =
+              top[side === "right" ? top.length - 1 : 0],
+            width: number = Math.abs(outer[0] - inner[0]);
+          if (!(width > 1))
+            throw new Error(
+              "Skin morphology requires nondegenerate eye spans.",
+            );
+          return {
+            side,
+            sign,
+            outer,
+            inner,
+            width,
+            brow,
+            lower: middle(bottom),
+          };
+        },
+      );
+      const leftEdge: number = Math.min(
+          ...eyeData[0].brow.map((p: readonly number[]): number => p[0]),
+        ),
+        rightEdge: number = Math.max(
+          ...eyeData[1].brow.map((p: readonly number[]): number => p[0]),
+        );
+      const browY: number =
+        eyeData.reduce(
+          (
+            s: number,
+            e: {
+              side: "right" | "left";
+              sign: number;
+              outer: readonly number[];
+              inner: readonly number[];
+              width: number;
+              brow: (readonly number[])[];
+              lower: readonly number[];
+            },
+          ): number => s + middle(e.brow)[1],
+          0,
+        ) / 2;
       const elevation: number =
         (expression.browRaise.left + expression.browRaise.right) / 2;
       for (let line: number = 0; line < 4; line++) {
@@ -171,7 +300,7 @@ export function createPortraitSkinLayer(
         const span: number = 0.78 - line * 0.07,
           centreX: number = (leftEdge + rightEdge) / 2;
         stroke(
-          Array.from({ length: 9 }, (_: unknown, i: number): number[]  => {
+          Array.from({ length: 9 }, (_: unknown, i: number): number[] => {
             const t: number = i / 8;
             return [
               centreX +
@@ -186,8 +315,23 @@ export function createPortraitSkinLayer(
       }
       const midX: number = (eyeData[0].inner[0] + eyeData[1].inner[0]) / 2;
       for (const e of eyeData) {
-        const { side, sign, width, outer, lower }: { side: "right" | "left"; sign: number; outer: readonly number[]; inner: readonly number[]; width: number; brow: (readonly number[])[]; lower: readonly number[]; } = e,
-          corner: readonly number[] = mouth[side === "right" ? 0 : mouth.length - 1],
+        const {
+            side,
+            sign,
+            width,
+            outer,
+            lower,
+          }: {
+            side: "right" | "left";
+            sign: number;
+            outer: readonly number[];
+            inner: readonly number[];
+            width: number;
+            brow: (readonly number[])[];
+            lower: readonly number[];
+          } = e,
+          corner: readonly number[] =
+            mouth[side === "right" ? 0 : mouth.length - 1],
           smile: number = Math.max(0, expression.smile[side]) / 8;
         stroke(
           [

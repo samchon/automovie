@@ -38,12 +38,19 @@ export function solvePortraitSkinSystem(
   scale: number,
 ): number[] {
   const tolerance: number = 128 * Number.EPSILON * scale;
-  const converged: (residual: number[]) => boolean = (residual: number[]): boolean =>
-    residual.every((value: number, i: number): boolean  => Math.abs(value) / diagonal[i] <= tolerance);
-  const solution: number[] = rhs.map((): number  => 0);
+  const converged: (residual: number[]) => boolean = (
+    residual: number[],
+  ): boolean =>
+    residual.every(
+      (value: number, i: number): boolean =>
+        Math.abs(value) / diagonal[i] <= tolerance,
+    );
+  const solution: number[] = rhs.map((): number => 0);
   let residual: number[] = [...rhs];
   if (converged(residual)) return solution;
-  let direction: number[] = residual.map((value: number, i: number): number  => value / diagonal[i]);
+  let direction: number[] = residual.map(
+    (value: number, i: number): number => value / diagonal[i],
+  );
   let energy: number = dot(residual, direction);
   for (let iteration: number = 0; iteration < 4 * rhs.length; iteration++) {
     const product: number[] = multiply(direction);
@@ -56,17 +63,23 @@ export function solvePortraitSkinSystem(
       solution[i] += step * direction[i];
       residual[i] -= step * product[i];
     }
-    const restart: boolean = converged(residual) || iteration + 1 === 4 * rhs.length;
+    const restart: boolean =
+      converged(residual) || iteration + 1 === 4 * rhs.length;
     if (restart) {
       const actual: number[] = multiply(solution);
-      residual = rhs.map((value: number, i: number): number  => value - actual[i]);
+      residual = rhs.map(
+        (value: number, i: number): number => value - actual[i],
+      );
       if (converged(residual)) return solution;
     }
-    const preconditioned: number[] = residual.map((value: number, i: number): number  => value / diagonal[i]);
+    const preconditioned: number[] = residual.map(
+      (value: number, i: number): number => value / diagonal[i],
+    );
     const nextEnergy: number = dot(residual, preconditioned);
     const beta: number = nextEnergy / energy;
     direction = preconditioned.map(
-      (value: number, i: number): number  => value + (restart ? 0 : beta * direction[i]),
+      (value: number, i: number): number =>
+        value + (restart ? 0 : beta * direction[i]),
     );
     energy = nextEnergy;
   }
@@ -75,5 +88,8 @@ export function solvePortraitSkinSystem(
 
 /** Euclidean inner product; arrays share the admitted free-vertex ordering. */
 function dot(left: number[], right: number[]): number {
-  return left.reduce((sum: number, value: number, i: number): number  => sum + value * right[i], 0);
+  return left.reduce(
+    (sum: number, value: number, i: number): number => sum + value * right[i],
+    0,
+  );
 }

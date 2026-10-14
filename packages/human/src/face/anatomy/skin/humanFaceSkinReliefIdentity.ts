@@ -1,5 +1,5 @@
-import type { IAutoMovieHumanFaceSkinRelief } from "../../structures/IAutoMovieHumanFaceSkinRelief";
 import type { IAutoMovieHumanFaceRegionalRelief } from "../../structures/IAutoMovieHumanFaceRegionalRelief";
+import type { IAutoMovieHumanFaceSkinRelief } from "../../structures/IAutoMovieHumanFaceSkinRelief";
 
 /**
  * Retain persistent skin traits while omitting independent performed folds.
@@ -21,15 +21,18 @@ export function humanFaceSkinReliefIdentity(
   relief: IAutoMovieHumanFaceSkinRelief | undefined,
 ): IAutoMovieHumanFaceSkinRelief | undefined {
   if (relief === undefined) return relief;
-  const regions: (IAutoMovieHumanFaceRegionalRelief | undefined)[] = Object.values(relief.regions ?? {});
+  const regions: (IAutoMovieHumanFaceRegionalRelief | undefined)[] =
+    Object.values(relief.regions ?? {});
   if (
     !regions.some(
-      (settings: IAutoMovieHumanFaceRegionalRelief | undefined): boolean  => settings?.performance !== undefined,
+      (settings: IAutoMovieHumanFaceRegionalRelief | undefined): boolean =>
+        settings?.performance !== undefined,
     )
   )
     return relief;
   const identity: IAutoMovieHumanFaceSkinRelief = structuredClone(relief);
-  const identityRegions: (IAutoMovieHumanFaceRegionalRelief | undefined)[] = Object.values(identity.regions ?? {});
+  const identityRegions: (IAutoMovieHumanFaceRegionalRelief | undefined)[] =
+    Object.values(identity.regions ?? {});
   for (const settings of identityRegions)
     if (settings !== undefined) delete settings.performance;
   return identity;

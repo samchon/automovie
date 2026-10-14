@@ -41,13 +41,17 @@ export function blendPortraitSkin(
   indices: number[],
   constraints: IPortraitSkinConstraint[],
 ): number[][] {
-  const neighbours: Map<number, number>[] = positions.map((): Map<number, number>  => new Map<number, number>());
+  const neighbours: Map<number, number>[] = positions.map(
+    (): Map<number, number> => new Map<number, number>(),
+  );
   for (let i: number = 0; i < indices.length; i += 3)
     for (let corner: number = 0; corner < 3; corner++) {
       const a: number = indices[i + corner],
         b: number = indices[i + ((corner + 1) % 3)];
       const distance: number = Math.hypot(
-        ...positions[a].map((value: number, axis: number): number  => value - positions[b][axis]),
+        ...positions[a].map(
+          (value: number, axis: number): number => value - positions[b][axis],
+        ),
       );
       neighbours[a].set(b, distance);
       neighbours[b].set(a, distance);
@@ -70,7 +74,10 @@ export function blendPortraitSkin(
     const previous: number[] | undefined = fixed.get(constraint.vertex);
     if (
       previous !== undefined &&
-      previous.some((value: number, axis: number): boolean  => value !== constraint.target[axis])
+      previous.some(
+        (value: number, axis: number): boolean =>
+          value !== constraint.target[axis],
+      )
     )
       throw new Error(
         "Two components request different positions for one skin attachment.",
@@ -86,7 +93,9 @@ export function blendPortraitSkin(
   // still select the lowest vertex ID, independent of constraint insertion.
   const visited: Set<number> = new Set<number>();
   const frontier: Set<number> = new Set(
-    reach.flatMap((remaining: number, id: number): number[]  => (remaining > 0 ? [id] : [])),
+    reach.flatMap((remaining: number, id: number): number[] =>
+      remaining > 0 ? [id] : [],
+    ),
   );
   for (;;) {
     let next: number = -1,
@@ -107,62 +116,114 @@ export function blendPortraitSkin(
       }
     }
   }
-  const delta: number[][] = positions.map((point: number[], id: number): number[]  => {
-    const target: number[] | undefined = fixed.get(id);
-    return target === undefined
-      ? [0, 0, 0]
-      : target.map((value: number, axis: number): number  => value - point[axis]);
-  });
+  const delta: number[][] = positions.map(
+    (point: number[], id: number): number[] => {
+      const target: number[] | undefined = fixed.get(id);
+      return target === undefined
+        ? [0, 0, 0]
+        : target.map(
+            (value: number, axis: number): number => value - point[axis],
+          );
+    },
+  );
   const free: number[] = [...visited]
-    .filter((id: number): boolean  => !fixed.has(id))
-    .sort((a: number, b: number): number  => a - b);
+    .filter((id: number): boolean => !fixed.has(id))
+    .sort((a: number, b: number): number => a - b);
   // Eliminate the boundary unknowns. Each reachable free component has a path
   // to a fixed pin, making its positive-weight Dirichlet matrix positive
   // definite. A self edge contributes w*(u-u)=0, including at a repeated corner.
-  const columns: Map<number, number> = new Map(free.map((id: number, column: number): [number, number]  => [id, column]));
-  const rows: { near: number; column: number | undefined; weight: number; }[][] = free.map((id: number): { near: number; column: number | undefined; weight: number; }[]  =>
-    [...neighbours[id]]
-      .filter(([near]: [number, number]): boolean  => near !== id)
-      .map(([near, distance]: [number, number]): { near: number; column: number | undefined; weight: number; }  => ({
-        near,
-        column: columns.get(near),
-        weight: 1 / Math.max(distance, 1e-6),
-      })),
+  const columns: Map<number, number> = new Map(
+    free.map((id: number, column: number): [number, number] => [id, column]),
   );
-  const diagonal: number[] = rows.map((row: { near: number; column: number | undefined; weight: number; }[]): number  =>
-    row.reduce((sum: number, edge: { near: number; column: number | undefined; weight: number; }): number  => sum + edge.weight, 0),
-  );
-  const multiply: (values: number[]) => number[] = (values: number[]): number[] =>
-    rows.map((row: { near: number; column: number | undefined; weight: number; }[], i: number): number  =>
+  const rows: { near: number; column: number | undefined; weight: number }[][] =
+    free.map(
+      (
+        id: number,
+      ): { near: number; column: number | undefined; weight: number }[] =>
+        [...neighbours[id]]
+          .filter(([near]: [number, number]): boolean => near !== id)
+          .map(
+            ([near, distance]: [number, number]): {
+              near: number;
+              column: number | undefined;
+              weight: number;
+            } => ({
+              near,
+              column: columns.get(near),
+              weight: 1 / Math.max(distance, 1e-6),
+            }),
+          ),
+    );
+  const diagonal: number[] = rows.map(
+    (
+      row: { near: number; column: number | undefined; weight: number }[],
+    ): number =>
       row.reduce(
-        (sum: number, edge: { near: number; column: number | undefined; weight: number; }): number  =>
-          sum +
-          edge.weight *
-            (values[i] - (edge.column === undefined ? 0 : values[edge.column])),
+        (
+          sum: number,
+          edge: { near: number; column: number | undefined; weight: number },
+        ): number => sum + edge.weight,
         0,
       ),
+  );
+  const multiply: (values: number[]) => number[] = (
+    values: number[],
+  ): number[] =>
+    rows.map(
+      (
+        row: { near: number; column: number | undefined; weight: number }[],
+        i: number,
+      ): number =>
+        row.reduce(
+          (
+            sum: number,
+            edge: { near: number; column: number | undefined; weight: number },
+          ): number =>
+            sum +
+            edge.weight *
+              (values[i] -
+                (edge.column === undefined ? 0 : values[edge.column])),
+          0,
+        ),
     );
   for (let axis: number = 0; axis < 3; axis++) {
-    const rhs: number[] = rows.map((row: { near: number; column: number | undefined; weight: number; }[]): number  =>
-      row.reduce(
-        (sum: number, edge: { near: number; column: number | undefined; weight: number; }): number  =>
-          sum +
-          (edge.column === undefined
-            ? edge.weight * delta[edge.near][axis]
-            : 0),
-        0,
-      ),
+    const rhs: number[] = rows.map(
+      (
+        row: { near: number; column: number | undefined; weight: number }[],
+      ): number =>
+        row.reduce(
+          (
+            sum: number,
+            edge: { near: number; column: number | undefined; weight: number },
+          ): number =>
+            sum +
+            (edge.column === undefined
+              ? edge.weight * delta[edge.near][axis]
+              : 0),
+          0,
+        ),
     );
     const scale: number = delta.reduce(
-      (maximum: number, displacement: number[]): number  =>
+      (maximum: number, displacement: number[]): number =>
         Math.max(maximum, Math.abs(displacement[axis])),
       1,
     );
-    const values: number[] = solvePortraitSkinSystem(multiply, diagonal, rhs, scale);
-    free.forEach((id: number, column: number): number  => (delta[id][axis] = values[column]));
+    const values: number[] = solvePortraitSkinSystem(
+      multiply,
+      diagonal,
+      rhs,
+      scale,
+    );
+    free.forEach(
+      (id: number, column: number): number =>
+        (delta[id][axis] = values[column]),
+    );
   }
   return positions.map(
-    (point: number[], id: number): number[]  =>
-      fixed.get(id) ?? point.map((value: number, axis: number): number  => value + delta[id][axis]),
+    (point: number[], id: number): number[] =>
+      fixed.get(id) ??
+      point.map(
+        (value: number, axis: number): number => value + delta[id][axis],
+      ),
   );
 }

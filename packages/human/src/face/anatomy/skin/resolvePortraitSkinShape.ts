@@ -16,7 +16,28 @@ import { IPortraitSkinShape } from "./structures/IPortraitSkinShape";
 export function resolvePortraitSkinShape(
   input: IPortraitSkinShape = {},
 ): Required<IPortraitSkinShape> {
-  const output: Required<Partial<Record<"forehead" | "laxity" | "wrinkleDepth" | "wrinkleWidth" | "glabella" | "crowFeet" | "lowerLid" | "nasolabial" | "marionette" | "perioral" | "cheekSag" | "jowlSag" | "underEyeBag" | "volumeLoss" | "expressionCreasing", number>>> = {} as Required<IPortraitSkinShape>;
+  const output: Required<
+    Partial<
+      Record<
+        | "forehead"
+        | "laxity"
+        | "wrinkleDepth"
+        | "wrinkleWidth"
+        | "glabella"
+        | "crowFeet"
+        | "lowerLid"
+        | "nasolabial"
+        | "marionette"
+        | "perioral"
+        | "cheekSag"
+        | "jowlSag"
+        | "underEyeBag"
+        | "volumeLoss"
+        | "expressionCreasing",
+        number
+      >
+    >
+  > = {} as Required<IPortraitSkinShape>;
   for (const parameter of portraitSkinParameters) {
     const value: number =
       input[parameter.id] === undefined
