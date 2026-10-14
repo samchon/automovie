@@ -5,11 +5,11 @@ import { IAutoMovieExternalMotionMappingEntry } from "./IAutoMovieExternalMotion
 /**
  * User-owned decision to adopt one external motion take in one shot.
  *
- * The engine validates and applies this record. It does not select the asset, take, target actor, adoption mode, or retarget mapping.
+ * This retains production intent; the production conversion host is retired. Ingest's executable adoption API uses its own separate local contract and does not automatically consume this record.
  *
- * @evidence contracts/common.md#principled-implementation Inventory binds source bytes/take/basis and validates explicit mapping; adoption reconciles mapped parent/rest records with fixed helper-TRS composition, without a complete unmapped-rest/constraint check or general shear preservation. Source conversion requires mapped rotations and a common step/linear law, then lowers the union of key times into clinical poses; linear clinical interpolation need not preserve the original quaternion curve between keys. Native or retarget resolution separately binds the declared actor and enact actions.
+ * @evidence contracts/common.md#principled-implementation Asset, take, shot, actor, exposed clip, source rig and mapping explicitly describe one intended conversion. This pure declaration has no surviving production inventory/conversion reader; byte identity, rig compatibility, conversion precision and actor binding require an explicit host rather than following from these fields.
  * @evidence contracts/common.md#clear-and-simple-design Asset and take selection, actor ownership, exposed clip and mapping are declared once, with retarget-only translation scale confined to the mode union.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The engine cannot select a take or infer bone mapping from names, and another actor with the same rig cannot consume this actor-bound adoption; final performance must enact its exact clip.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No automatic asset/take selection or name-derived mapping is declared. Actor/clip exclusivity and actual enactment are intended obligations without a surviving production enforcement gate; retaining this metadata does not create a converted clip.
  * @evidence contracts/common.md#meaningful-documentation Identifies user ownership of every adoption choice, manifest and inspected take addressing, shot and actor scope, exposed clip identity and byte-grounded source characterization.
  * @author Samchon
  */
