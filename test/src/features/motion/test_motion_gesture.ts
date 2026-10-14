@@ -71,12 +71,7 @@ const maxAbs: (motion: NonNullable < ReturnType < typeof gestureMotion > >, b: A
   );
 
 /**
- * `gestureMotion`: the postural/whole-body half of the harness `gesture` verb.
- * The trunk/head/leg gestures are single-axis oscillations; the arm gestures
- * (wave/celebrate/draw/throw) are authored in clinical space and read up
- * through the rig's rest frame at render. All are engine-authored and hand-kept
- * inside the humanoid ROM; only the targeted `strike` jab is left to a richer
- * synthesiser.
+ * Exercise the engine-authored generic gesture vocabulary, jump root motion, duration scaling and independently owned output joints. Numeric joint conventions and admission against the shipped default constraints are observed here; rig rendering and biological feasibility are not established.
  *
  * Scenarios:
  *
@@ -102,9 +97,9 @@ const maxAbs: (motion: NonNullable < ReturnType < typeof gestureMotion > >, b: A
  *    skips them for the reach-based synthesiser.
  * 7. A caller may change its returned gesture joints without rewriting a later call's authored bow stops.
  *
- * @evidence contracts/testing.md#behavioral-verification Synthesizes each supported gesture and asserts clinical joint activity, default-ROM admission, neutral endpoints, duration and jump root arc; mutating returned bow content cannot change later synthesis.
- * @evidence contracts/testing.md#independent-expectations Named verbs determine moving bone/axis and sign, default anatomical constraints bound authored clinical angles, and bow's authored peak is50degrees; these assertions allow shape variation inside documented thresholds without copying an output snapshot.
- * @evidence contracts/testing.md#distinguishing-cases Every generic kind, jump root motion, arm-side clinical signs, duration stretching, unsupported strike/unknown and returned-joint mutation distinguish content scope from shared-table corruption; rig-space rendering and targeted IK belong to their owners.
+ * @evidence contracts/testing.md#behavioral-verification Synthesizes each supported gesture and checks expected bone/axis activity, default-table admission, representative flexion/twist endpoint neutrality, duration and jump root arc; mutation of one returned bow must not change a later call's authored stops.
+ * @evidence contracts/testing.md#independent-expectations Existing verb-specific bone/axis/sign thresholds and the preserved 50-degree bow stop are the authored content contract. Shipped ROM tables supply numerical admission, not independent biological measurements; endpoint assertions inspect flexion/twist and selected root values rather than every pose field. Zero-tolerance nclose retains exact former endpoint/time expectations, while existing other tolerances remain unchanged.
+ * @evidence contracts/testing.md#distinguishing-cases Preserves every generic kind, jump root motion, same positive arm abduction convention, duration stretching, strike/unknown null results and returned-joint mutation. These distinguish content and output ownership; rig-space rendering, targeted IK and complete anatomical acceptance remain outside this unit.
  * @evidence contracts/testing.md#execution-ownership Portable unit test discovered as test_motion_gesture; this export directly owns numeric output/validation cases and does not start Human inspection, a renderer or native build.
  */
 export function test_motion_gesture(): void {
@@ -121,11 +116,11 @@ export function test_motion_gesture(): void {
     const last: IAutoMovieJointPose[] = clip.keyframes[clip.keyframes.length - 1]!.pose.joints;
     TestValidator.predicate(
       `${kind} opens on neutral`,
-      first.every((jj: IAutoMovieJointPose) : boolean => (jj.flexion ?? 0) === 0 && (jj.twist ?? 0) === 0),
+      first.every((jj: IAutoMovieJointPose) : boolean => nclose(jj.flexion ?? 0, 0, 0) && nclose(jj.twist ?? 0, 0, 0)),
     );
     TestValidator.predicate(
       `${kind} closes on neutral`,
-      last.every((jj: IAutoMovieJointPose) : boolean => (jj.flexion ?? 0) === 0 && (jj.twist ?? 0) === 0),
+      last.every((jj: IAutoMovieJointPose) : boolean => nclose(jj.flexion ?? 0, 0, 0) && nclose(jj.twist ?? 0, 0, 0)),
     );
     TestValidator.equals(
       `${kind} is ROM-legal`,
@@ -275,14 +270,13 @@ export function test_motion_gesture(): void {
   );
 
   const long: NonNullable<ReturnType<typeof gestureMotion>> = gestureMotion("bow", RIG.id, "bow", 2)!;
-  TestValidator.equals(
+  TestValidator.predicate(
     "stretches to the duration",
-    long.keyframes[long.keyframes.length - 1]!.time,
-    2,
+    nclose(long.keyframes[long.keyframes.length - 1]!.time, 2, 0),
   );
 
   // jump: a whole-body coil-and-leap. Unlike the postural gestures it carries
-  // root translation (the ballistic rise), folds the knees on the coil/landing,
+  // authored vertical root stops, folds the knees on the coil/landing,
   // opens and closes grounded, and stays ROM-legal.
   const jump: NonNullable<ReturnType<typeof gestureMotion>> = gestureMotion("j", RIG.id, "jump", 1)!;
   TestValidator.predicate("jump synthesises a clip", jump !== null);

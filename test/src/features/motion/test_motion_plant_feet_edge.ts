@@ -136,17 +136,14 @@ const indirectLeg: IAutoMovieSkeleton = {
 };
 
 /**
- * Degenerate legs are skipped rather than crashed, and an unreachable pin
- * extends the leg fully toward it without producing NaN.
+ * Observe completed stance reporting for absent and degenerate chains, articulation omission for invalid ancestry, correction for indirect ancestry, and finite FK for an unreachable target. The unreachable case asserts finiteness, not full extension or exact placement on the reach shell.
  *
  * Scenarios:
  *
- * 1. A foot whose leg segments are absent: the stance run is detected but the leg
- *    is left untouched (no throw).
- * 2. A zero-length thigh (l1 = 0) is skipped.
- * 3. A leg folded so the foot rests on the hip (reach distance 0) is skipped.
- * 4. A pin beyond the leg's reach extends it fully: the corrected foot is finite
- *    (no NaN), on the reachable shell.
+ * 1. A foot whose leg segments are absent still reports one stance run without throwing; unchanged articulation is not separately asserted.
+ * 2. A zero-length thigh (l1 = 0) still reports one run without throwing.
+ * 3. A folded leg whose foot rests on the hip (reach distance 0) still reports one run without throwing.
+ * 4. A pin beyond the leg's reach produces finite corrected foot coordinates; exact extension is not asserted.
  * 5. A root-reachable but branched pseudo-chain is left untouched because the fast
  *    chain FK requires lower and effector descendant ancestry.
  * 6. A lower/effector branch separated from the declared upper is likewise left
@@ -155,7 +152,7 @@ const indirectLeg: IAutoMovieSkeleton = {
  * 8. Nonfinite/negative tolerance, scalar ground, callback height and carried opening-target coordinates refuse; zero tolerance on an actual ground contact remains valid.
  *
  * @evidence contracts/testing.md#behavioral-verification Exercises planting through absent/degenerate/branched and valid indirect chains, then observes finite unreachable correction and exact input refusals; malformed contact fields cannot silently suppress detection or inject NaN targets.
- * @evidence contracts/testing.md#independent-expectations Declared hierarchy determines whether upper→lower→foot is descendant-connected, and explicit zero-length offsets determine degeneracy independently; finite-coordinate and nonnegative-tolerance domains require refusal, while a zero-height foot at tolerance0 is contact.
+ * @evidence contracts/testing.md#independent-expectations Declared hierarchy determines whether upper-to-lower-to-foot is descendant-connected, and explicit zero-length offsets determine degeneracy independently. Exact one-run counts, authored absence/presence of chain joints, finite coordinates and malformed-input fragments constrain outputs without calling fitting as an oracle. A zero-height foot at tolerance 0 is contact; no reach-shell distance is expected here.
  * @evidence contracts/testing.md#distinguishing-cases Missing/zero/folded/unreachable/branched/split/indirect chains, sample-rate boundary and static/dynamic/contact-target invalid numbers distinguish non-destructive best effort from malformed numeric input; exact achievable pin and swing trajectories belong to planting suites.
  * @evidence contracts/testing.md#execution-ownership Portable unit test discovered as test_motion_plant_feet_edge; this export owns the directly invoked numeric cases and requires no Human inspection, renderer or native artifact.
  */

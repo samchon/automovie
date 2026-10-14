@@ -6,7 +6,7 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-const t = (x: number, y: number, z: number): IAutoMovieTransform => ({
+const t: (x: number, y: number, z: number) => IAutoMovieTransform = (x: number, y: number, z: number): IAutoMovieTransform => ({
   translation: { x, y, z },
   rotation: { x: 0, y: 0, z: 0, w: 1 },
   scale: { x: 1, y: 1, z: 1 },
@@ -62,17 +62,20 @@ const skating: IAutoMovieMotion = {
 };
 
 /**
- * With no options the pass uses the default ground plane (0), tolerance (0.02),
- * sample rate (24), and both humanoid legs. A leg whose foot bone is absent
- * from the rig contributes no stance; it is simply skipped, not an error.
+ * Observe the default leg population on a left-only rig: one leftFoot stance is reported while the absent default rightFoot contributes none. Ground 0, tolerance 0.02 and 24 Hz are source defaults exercised here, but this unit does not independently distinguish their exact numerical values.
  *
  * Scenarios:
  *
  * 1. The default left leg plants (one run for leftFoot).
  * 2. The absent rightFoot (named by the default legs) produces no run.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls plantStanceFeet with omitted options and checks the emitted plant count and foot identity, observing default leg selection and missing-foot handling in the product result.
+ * @evidence contracts/testing.md#independent-expectations The unchanged rig contains only leftFoot at zero height, so the authored expectation is exactly one leftFoot run with no rightFoot record. No expected value is extracted from the default chain table; exact clock, tolerance and corrected coordinates are not asserted here.
+ * @evidence contracts/testing.md#distinguishing-cases Preserves present left versus absent right within the same omitted-options call and the original 0.15-metre root travel. Explicit legs, malformed chains, exact default scalar boundaries and pin geometry belong to adjacent units.
+ * @evidence contracts/testing.md#execution-ownership This named synchronous unit owns its direct planting call with local in-memory rig and motion; the transform helper registers no cases and no renderer, viewer or native artifact is started.
  */
-export const test_motion_plant_feet_defaults = (): void => {
-  const planted = plantStanceFeet({ skeleton, motion: skating });
+export function test_motion_plant_feet_defaults(): void {
+  const planted: ReturnType<typeof plantStanceFeet> = plantStanceFeet({ skeleton, motion: skating });
   TestValidator.equals(
     "only the left foot is planted",
     planted.plants.length,
@@ -83,4 +86,4 @@ export const test_motion_plant_feet_defaults = (): void => {
     planted.plants[0]!.foot,
     "leftFoot",
   );
-};
+}

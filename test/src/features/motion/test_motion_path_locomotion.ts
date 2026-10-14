@@ -37,10 +37,7 @@ const rootAt: (motion: IAutoMovieMotion, time: number) => IAutoMovieTransform = 
   motion.keyframes.find((k: IAutoMovieKeyframe): boolean => nclose(k.time, time))!.pose.root!;
 
 /**
- * FollowPathMotion bakes a gait along a waypoint polyline: the root follows arc
- * length at the snapped speed, passes exactly through each waypoint, and faces
- * the path tangent, blending linearly across a corner window instead of
- * snapping, unless the window is zero.
+ * Observe followPathMotion root placement and heading at authored sample times on a waypoint polyline. Arc-length placement, linear corner blending and the zero-window tie are numeric contracts here; no rendered locomotion or continuous-time contact is observed.
  *
  * Scenarios (L-path, speed 1 → 4 whole cycles, effective speed 1):
  *
@@ -62,7 +59,7 @@ const rootAt: (motion: IAutoMovieMotion, time: number) => IAutoMovieTransform = 
  * 7. Mutating a default output scale cannot change another frame or the next path bake.
  *
  * @evidence contracts/testing.md#behavioral-verification Bakes L-shaped and straight paths and observes exact root points, yaw/tangents, cycle/clock metadata, seam easing and default-scale ownership; catches wrong segment ties, sway frame and module state exposure.
- * @evidence contracts/testing.md#independent-expectations A four-metre L at snapped1m/s determines positions and four cycles; a one-metre corner window linearly blends90to0degrees giving45atcentre/22.5threequarters, and +Y90 maps model+x sway to world-z.
+ * @evidence contracts/testing.md#independent-expectations A four-metre L at snapped 1 m/s determines the literal positions and four cycles; a one-metre corner window linearly blends 90 to 0 degrees, giving 45 at its centre and 22.5 three-quarters through. A +Y 90-degree rotation maps model +X sway to world -Z. Quaternion.fromAxisAngle is a shared representation helper, not an independent orientation implementation; the literal yaw/tangent observations bound that shared comparison.
  * @evidence contracts/testing.md#distinguishing-cases Straight stretches, exact corner, both corner-window sides, zero-window earlier-boundary tie, null and swaying roots, seam deduplication and output mutation distinguish unchanged meaning from altered placement; invalid/overflow input belongs to path_guards.
  * @evidence contracts/testing.md#execution-ownership Portable unit test discovered as test_motion_path_locomotion; the export owns numeric bake cases and uses no renderer, Human inspection host or native artifact.
  */

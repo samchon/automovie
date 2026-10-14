@@ -41,8 +41,7 @@ const synth: IAutoMovieActionSynthesizer = (
 const times: (m: IAutoMovieMotion) => number [ ] = (m: IAutoMovieMotion): number[] => m.keyframes.map((k: IAutoMovieKeyframe) : number => k.time);
 
 /**
- * `compilePerformance`: the action builder's timeline assembly (the content
- * seam is faked here; rig-specific clips are exercised elsewhere).
+ * Observe timeline assembly through compilePerformance's injected content callback. The callback deliberately supplies fixed authored clips; actual actor/rig-specific synthesis is exercised elsewhere.
  *
  * Scenarios:
  *
@@ -53,12 +52,11 @@ const times: (m: IAutoMovieMotion) => number [ ] = (m: IAutoMovieMotion): number
  *    a `null` synthesis (actor `"skip"`) is dropped.
  * 4. `repeat > 1` concatenates the base cycle N times (duration ×N); `repeat` of 1
  *    or undefined leaves a single cycle.
- * 5. Two actions for one actor with a gap arrange into one clip, holding the first
- *    pose across the gap.
+ * 5. Two actions for one actor with a gap retain the checked ordered times and final span; held pose values across that gap are not separately asserted.
  * 6. Prototype-spelled actor ids remain own enumerable performance keys.
  *
  * @evidence contracts/testing.md#behavioral-verification Calls compilePerformance with an injected content callback and observes actual actor clips, placement/repeat times and null omission; prototype-spelled ids catch assignment through inherited setters.
- * @evidence contracts/testing.md#independent-expectations One-second authored cycles independently imply endpoint times, repeat durations and gap holds; actor identifiers must retain exact string identity and own-key storage cannot change the ordinary result prototype.
+ * @evidence contracts/testing.md#independent-expectations One-second authored cycles independently imply expected times and repeat/final durations, while exact actor ids and an unchanged ordinary result prototype constrain dictionary storage. Existing every(time) checks compare emitted times but do not independently assert each array's expected length; gap pose values are not observed. No expected result is obtained by calling the compiler twice.
  * @evidence contracts/testing.md#distinguishing-cases Covers empty/single/unison actions, null synthesis, omitted/one/two repeats, held gaps and __proto__/constructor/toString actor keys; concurrent envelopes and region-loss behavior remain in owning layer/masked-content tests.
  * @evidence contracts/testing.md#execution-ownership The discoverable test_perform_compile function is a synchronous portable unit test of the compiler's injected content seam; no foreign method is replaced, asset consumer installed or real render/native host started.
  */

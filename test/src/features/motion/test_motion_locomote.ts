@@ -1,10 +1,11 @@
 import { Quaternion, locomoteMotion } from "@automovie/engine";
+import type { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { joint, keyframe, makeMotion, makePose } from "../internal/fixtures";
 import { namedFacts, nclose, vclose } from "../internal/predicates";
 
-const throws = (task: () => void): boolean => {
+const throws: (task: () => void) => boolean = (task: () => void): boolean => {
   try {
     task();
     return false;
@@ -14,8 +15,7 @@ const throws = (task: () => void): boolean => {
 };
 
 /**
- * `locomoteMotion`, the harness `locomote` verb: carry a looping gait across a
- * distance at a speed, the engine sizing the cycles + forward velocity.
+ * Observe gait-cycle sizing, exact-arrival travel and optional heading in the locomoteMotion producer using a two-keyframe authored cycle.
  *
  * Scenarios:
  *
@@ -37,9 +37,14 @@ const throws = (task: () => void): boolean => {
  * 6. A fractional ask arrives exactly: 3.49 m at 1 m/s on a 1 s gait rounds to 3
  *    cycles but ends at 3.49 m along the heading (the old bake of the requested
  *    speed stopped at 3.0 m).
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls locomoteMotion and observes duration, terminal displacement, compressed cycle metadata and rotated model-forward direction, then asserts malformed distance/speed/duration/vector refusals and fractional exact arrival.
+ * @evidence contracts/testing.md#independent-expectations Authored distance divided by speed supplies nominal time, whole-cycle sizing supplies the preserved cycle counts, and the existing half-speed policy gives 0.4 seconds for a 0.2-metre trip. Literal destinations and +Z-to-+X facing independently bound the output; Quaternion.rotateVector observes orientation rather than proving that shared math independently. Existing tolerances and any-throw refusal semantics remain unchanged.
+ * @evidence contracts/testing.md#distinguishing-cases Preserves six-cycle travel, unnormalized heading, sub-half-stride compression and its 0.6-metre twin, default strafe versus faceTravel, malformed scalars/directions including overflowed vector length, and the 3.49-metre fractional destination. Contact, arbitrary path corners and gait articulation laws belong to their owners.
+ * @evidence contracts/testing.md#execution-ownership This named synchronous unit owns direct engine calls and its unchanged fixture-created gait. The local refusal helper and named facts register no cases; no process, viewer, GPU or native artifact is started.
  */
-export const test_motion_locomote = (): void => {
-  const gait = makeMotion(
+export function test_motion_locomote(): void {
+  const gait: ReturnType<typeof makeMotion> = makeMotion(
     [
       keyframe(0, makePose([joint("leftUpperLeg", { flexion: -20 })])),
       keyframe(1, makePose([joint("leftUpperLeg", { flexion: 20 })])),
@@ -49,29 +54,29 @@ export const test_motion_locomote = (): void => {
   );
 
   // 1. 6 m at 1 m/s on a 1 s gait → 6 cycles, ~6 m of +Z travel
-  const stroll = locomoteMotion("stroll", gait, 6, 1, { x: 0, y: 0, z: 1 });
+  const stroll: ReturnType<typeof locomoteMotion> = locomoteMotion("stroll", gait, 6, 1, { x: 0, y: 0, z: 1 });
   TestValidator.predicate(
     "duration = 6 cycles × 1 s",
     nclose(stroll.duration, 6),
   );
-  const lastZ =
+  const lastZ: number =
     stroll.keyframes[stroll.keyframes.length - 1]!.pose.root!.translation.z;
   TestValidator.predicate("travelled ≈ 6 m forward", nclose(lastZ, 6, 0.001));
 
   // 2. unnormalised direction is normalised (a (0,0,5) dir still travels at speed)
-  const diag = locomoteMotion("d", gait, 4, 2, { x: 0, y: 0, z: 5 });
-  const dz =
+  const diag: ReturnType<typeof locomoteMotion> = locomoteMotion("d", gait, 4, 2, { x: 0, y: 0, z: 5 });
+  const dz: number =
     diag.keyframes[diag.keyframes.length - 1]!.pose.root!.translation.z;
   // 4 m at 2 m/s on a 1 s gait → round(2) = 2 cycles → 2 s → 2 × 2 = 4 m
   TestValidator.predicate("normalised: ≈ 4 m at 2 m/s", nclose(dz, 4, 0.001));
 
   // 3. sub-half-stride distance compresses the cycle to floor the speed (#1065)
-  const tiny = locomoteMotion("t", gait, 0.2, 1, { x: 0, y: 0, z: 1 });
+  const tiny: ReturnType<typeof locomoteMotion> = locomoteMotion("t", gait, 0.2, 1, { x: 0, y: 0, z: 1 });
   TestValidator.predicate(
     "one compressed cycle spans 2·distance/speed = 0.4 s",
     nclose(tiny.duration, 0.4),
   );
-  const tinyZ =
+  const tinyZ: number =
     tiny.keyframes[tiny.keyframes.length - 1]!.pose.root!.translation.z;
   TestValidator.predicate(
     "a 0.2 m ask still ends at 0.2 m, not a full stride",
@@ -84,14 +89,14 @@ export const test_motion_locomote = (): void => {
   TestValidator.equals(
     "the gait-cycle meta scales with the compression",
     namedFacts([
-      ["tinyGaitCycle", () => tiny.gaitCycle !== null],
+      ["tinyGaitCycle", (): boolean => tiny.gaitCycle !== null],
       [
         "tinyGaitCycle2",
-        () => tiny.gaitCycle !== null && tiny.gaitCycle !== undefined,
+        (): boolean => tiny.gaitCycle !== null && tiny.gaitCycle !== undefined,
       ],
       [
         "ncloseTinyGaitCycle",
-        () =>
+        (): boolean =>
           tiny.gaitCycle !== null &&
           tiny.gaitCycle !== undefined &&
           nclose(tiny.gaitCycle.period, 0.4),
@@ -100,12 +105,12 @@ export const test_motion_locomote = (): void => {
     { tinyGaitCycle: true, tinyGaitCycle2: true, ncloseTinyGaitCycle: true },
   );
   // negative twin: past the half-stride point the cycle stays uncompressed
-  const halfStride = locomoteMotion("h", gait, 0.6, 1, { x: 0, y: 0, z: 1 });
+  const halfStride: ReturnType<typeof locomoteMotion> = locomoteMotion("h", gait, 0.6, 1, { x: 0, y: 0, z: 1 });
   TestValidator.predicate(
     "a 0.6 m ask keeps the full 1 s cycle",
     nclose(halfStride.duration, 1),
   );
-  const halfZ =
+  const halfZ: number =
     halfStride.keyframes[halfStride.keyframes.length - 1]!.pose.root!
       .translation.z;
   TestValidator.predicate(
@@ -114,13 +119,13 @@ export const test_motion_locomote = (): void => {
   );
 
   // 4. faceTravel turns the body toward the heading
-  const strafe = locomoteMotion("s", gait, 4, 1, { x: 1, y: 0, z: 0 });
+  const strafe: ReturnType<typeof locomoteMotion> = locomoteMotion("s", gait, 4, 1, { x: 1, y: 0, z: 0 });
   TestValidator.predicate(
     "default keeps rest facing (identity root rotation)",
     nclose(strafe.keyframes[1]!.pose.root!.rotation.w, 1),
   );
-  const turned = locomoteMotion("f", gait, 4, 1, { x: 1, y: 0, z: 0 }, true);
-  const rot =
+  const turned: ReturnType<typeof locomoteMotion> = locomoteMotion("f", gait, 4, 1, { x: 1, y: 0, z: 0 }, true);
+  const rot: IAutoMovieQuaternion =
     turned.keyframes[turned.keyframes.length - 1]!.pose.root!.rotation;
   TestValidator.predicate(
     "faceTravel: model +Z now points +X (the travel heading)",
@@ -134,7 +139,7 @@ export const test_motion_locomote = (): void => {
   for (const distance of [Number.NaN, 0, -1])
     TestValidator.predicate(
       `rejects invalid distance ${distance}`,
-      throws(() => {
+      throws((): void => {
         locomoteMotion("badDistance", gait, distance, 1, { x: 0, y: 0, z: 1 });
       }),
     );
@@ -142,7 +147,7 @@ export const test_motion_locomote = (): void => {
   for (const speed of [Number.NaN, 0, -1])
     TestValidator.predicate(
       `rejects invalid speed ${speed}`,
-      throws(() => {
+      throws((): void => {
         locomoteMotion("badSpeed", gait, 1, speed, { x: 0, y: 0, z: 1 });
       }),
     );
@@ -150,7 +155,7 @@ export const test_motion_locomote = (): void => {
   for (const duration of [Number.NaN, 0, -1])
     TestValidator.predicate(
       `rejects invalid gait duration ${duration}`,
-      throws(() => {
+      throws((): void => {
         locomoteMotion("badGait", { ...gait, duration }, 1, 1, {
           x: 0,
           y: 0,
@@ -159,7 +164,7 @@ export const test_motion_locomote = (): void => {
       }),
     );
 
-  const invalidDirections = [
+  const invalidDirections: IAutoMovieVector3[] = [
     { x: Number.NaN, y: 0, z: 1 },
     { x: 0, y: Infinity, z: 1 },
     { x: 0, y: 0, z: -Infinity },
@@ -169,22 +174,22 @@ export const test_motion_locomote = (): void => {
   for (const direction of invalidDirections)
     TestValidator.predicate(
       "rejects invalid direction",
-      throws(() => {
+      throws((): void => {
         locomoteMotion("badDirection", gait, 1, 1, direction);
       }),
     );
 
   // 6. a fractional ask arrives exactly
-  const fractional = locomoteMotion("fr", gait, 3.49, 1, { x: 0, y: 0, z: 1 });
+  const fractional: ReturnType<typeof locomoteMotion> = locomoteMotion("fr", gait, 3.49, 1, { x: 0, y: 0, z: 1 });
   TestValidator.predicate(
     "3.49 m rounds to 3 cycles",
     nclose(fractional.duration, 3),
   );
-  const fractionalZ =
+  const fractionalZ: number =
     fractional.keyframes[fractional.keyframes.length - 1]!.pose.root!
       .translation.z;
   TestValidator.predicate(
     "3.49 m ask ends at 3.49 m along the heading",
     nclose(fractionalZ, 3.49, 0.001),
   );
-};
+}

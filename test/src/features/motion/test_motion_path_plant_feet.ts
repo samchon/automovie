@@ -17,7 +17,7 @@ import {
   validationHasWarnings,
 } from "../internal/predicates";
 
-const t = (x: number, y: number, z: number): IAutoMovieTransform => ({
+const t: (x: number, y: number, z: number) => IAutoMovieTransform = (x: number, y: number, z: number): IAutoMovieTransform => ({
   translation: { x, y, z },
   rotation: { x: 0, y: 0, z: 0, w: 1 },
   scale: { x: 1, y: 1, z: 1 },
@@ -51,7 +51,7 @@ const legSkeleton: IAutoMovieSkeleton = {
   ],
 };
 
-const kf = (time: number): IAutoMovieKeyframe => ({
+const kf: (time: number) => IAutoMovieKeyframe = (time: number): IAutoMovieKeyframe => ({
   time,
   pose: { skeleton: "leg", root: null, joints: [] },
   expression: null,
@@ -68,23 +68,20 @@ const gait: IAutoMovieMotion = {
   keyframes: [kf(0), kf(1)],
 };
 
-const LEG = {
+const LEG: NonNullable<Parameters<typeof plantStanceFeet>[0]["legs"]>[number] = {
   foot: "leftFoot",
   upper: "leftUpperLeg",
   lower: "leftLowerLeg",
 } as const;
-const KNEE_REST_FLEXION = (2 * Math.atan2(0.15, 0.4) * 180) / Math.PI;
-const REST_FRAMES = {
+const KNEE_REST_FLEXION: number = (2 * Math.atan2(0.15, 0.4) * 180) / Math.PI;
+const REST_FRAMES: NonNullable<Parameters<typeof plantStanceFeet>[0]["restFrames"]> = {
   leftLowerLeg: {
     flexion: { sign: 1 as const, neutral: KNEE_REST_FLEXION },
   },
 };
 
 /**
- * Path locomotion composes with the ground-IK pass (#596): a path-baked walk
- * whose raw root drag skates the foot is corrected by plantStanceFeet into a
- * clip that passes the very foot-skate and ground-contact validators the raw
- * bake fails: the full "walk a path, feet planted" pipeline on flat ground.
+ * Observe path baking composed with stance planting on one reachable bent-rest leg. The raw bake produces a foot-skate warning, and the corrected clip produces neither skate nor penetration warnings under the existing sampled validators; warnings are advisory rather than failed admission, and the raw ground result is not asserted.
  *
  * Scenarios (0.2 m path at 0.2 m/s → one cycle, root slides 0.2 m, yaw 90°):
  *
@@ -94,9 +91,14 @@ const REST_FRAMES = {
  *    pinned while the hip walks the path (through the rotated frame the path's
  *    facing put the rig in).
  * 3. The corrected clip also passes validateGroundContact at the plane.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls followPathMotion, measures a raw foot-skate warning, corrects through plantStanceFeet and measures warning-free foot-skate and ground-contact results with the same rig/rest frame. This observes composed correction through consumers rather than merely the arrangement.
+ * @evidence contracts/testing.md#independent-expectations The unchanged 0.2-metre path over one second exceeds the validator's 0.02 m/s skate threshold, while a reachable planted foot is expected to stop sliding and remain above the zero plane. The clinical knee neutral comes from the authored rest offsets. Shared FK and sampled validators provide consumer agreement, not an independent exact-pin or biological proof; direct pin coordinates belong to the numeric planting units.
+ * @evidence contracts/testing.md#distinguishing-cases Preserves raw versus corrected motion, yaw-rotated +X travel, the same full-cycle contact window, 24 Hz planting, 0.02 stance tolerance and 1e-3 penetration tolerance. Corners, unreachable targets and swing preservation have separate owning tests.
+ * @evidence contracts/testing.md#execution-ownership This named synchronous unit owns the path, correction and validator calls using its local bent-rest rig and unchanged stance annotation. Helpers register no cases and no physics host, viewer or native artifact is started.
  */
-export const test_motion_path_plant_feet = (): void => {
-  const path = followPathMotion({
+export function test_motion_path_plant_feet(): void {
+  const path: ReturnType<typeof followPathMotion> = followPathMotion({
     id: "walk-short",
     gait,
     waypoints: [
@@ -105,7 +107,7 @@ export const test_motion_path_plant_feet = (): void => {
     ],
     speed: 0.2,
   });
-  const contacts = [{ bone: "leftFoot", start: 0, end: 1 } as const];
+  const contacts: Parameters<typeof validateFootSkate>[0]["contacts"] = [{ bone: "leftFoot", start: 0, end: 1 } as const];
 
   TestValidator.predicate(
     "raw path bake skates the foot (warns)",
@@ -120,7 +122,7 @@ export const test_motion_path_plant_feet = (): void => {
     ),
   );
 
-  const planted = plantStanceFeet({
+  const planted: ReturnType<typeof plantStanceFeet> = plantStanceFeet({
     skeleton: legSkeleton,
     motion: path.motion,
     groundY: 0,
@@ -155,4 +157,4 @@ export const test_motion_path_plant_feet = (): void => {
       }),
     ),
   );
-};
+}

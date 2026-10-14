@@ -2,7 +2,7 @@ import { followPathMotion } from "@automovie/engine";
 import { IAutoMovieKeyframe, IAutoMovieMotion, IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { throwsError } from "../internal/predicates";
+import { nclose, throwsError } from "../internal/predicates";
 
 const kf: (time: number) => IAutoMovieKeyframe = (time: number): IAutoMovieKeyframe => ({
   time,
@@ -26,9 +26,7 @@ const LINE: IAutoMovieVector3[] = [
 ];
 
 /**
- * FollowPathMotion rejects degenerate input up front: rough types make these
- * runtime guards, and each has a passing twin so a guard never fires on valid
- * input.
+ * Observe path input and derived-arithmetic refusals before repetition, with one valid large-speed twin that retains one minimum cycle and effective speed 1.
  *
  * Scenarios:
  *
@@ -38,7 +36,7 @@ const LINE: IAutoMovieVector3[] = [
  *    is ignored.
  * 3. Non-finite waypoint x / z are rejected by index.
  * 4. Zero, negative, and non-finite speed are rejected.
- * 5. A non-positive or non-finite gait duration is rejected.
+ * 5. Zero gait duration is rejected.
  * 6. A negative or non-finite turn window is rejected.
  * 7. A non-finite scalar ground is rejected up front; a callback returning a
  *    non-finite height is rejected at evaluation.
@@ -46,8 +44,8 @@ const LINE: IAutoMovieVector3[] = [
  *    with the effective speed snapped to the path.
  * 9. Finite inputs whose stretch or cumulative arc arithmetic overflows, or whose tiny next stretch cannot advance the represented arc, refuse before baking. Unrepresentable cycle count also refuses before its loop.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls path baking and asserts named refusal for invalid authored scalars and derived arc/cycle arithmetic; valid huge speed still produces one exact-arrival cycle.
- * @evidence contracts/testing.md#independent-expectations XZ-coincident points have no heading regardless of y, finite metres must yield a finite advancing arc, and one metre over the admitted one-second minimum cycle gives speed1 independently of path implementation.
+ * @evidence contracts/testing.md#behavioral-verification Calls path baking and asserts named refusal for invalid authored scalars and derived arc/cycle arithmetic; valid huge speed still produces one cycle with effective speed 1. Terminal placement is not asserted by this guard unit.
+ * @evidence contracts/testing.md#independent-expectations XZ-coincident points have no heading regardless of Y; an admitted cumulative arc must remain finite and advance, and a one-metre path over its one-second minimum cycle gives speed 1. Literal malformed inputs and diagnostic fragments are authored independently of the baker, with nclose eps=0 retaining the prior exact effective-speed expectation.
  * @evidence contracts/testing.md#distinguishing-cases Short/coincident/NaN/Infinity inputs, invalid speed/duration/window/ground, overflow/lost arc increment/unsafe cycles and a valid fast twin distinguish admission from legitimate minimum-cycle travel; corner facing and sampled placement belong to path_locomotion.
  * @evidence contracts/testing.md#execution-ownership Portable unit test discovered as test_motion_path_guards; this function owns synchronous guard cases and starts no native artifact or consumer host.
  */
@@ -185,7 +183,7 @@ export function test_motion_path_guards(): void {
     speed: 100,
   });
   TestValidator.equals("at least one cycle", sprint.cycles, 1);
-  TestValidator.equals("effective speed snapped to the path", sprint.speed, 1);
+  TestValidator.predicate("effective speed snapped to the path", nclose(sprint.speed, 1, 0));
   TestValidator.predicate("finite waypoint difference cannot overflow", throwsError((): ReturnType<typeof followPathMotion> => followPathMotion({
     id: "overflow-stretch", gait: { ...gait, duration: 1e308 }, speed: 1e308,
     waypoints: [{ x: -1e308, y: 0, z: 0 }, { x: 1e308, y: 0, z: 0 }],

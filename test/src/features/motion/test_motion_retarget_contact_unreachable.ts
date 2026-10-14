@@ -1,4 +1,5 @@
 import { retargetHumanoidMotion } from "@automovie/engine";
+import type { IAutoMovieMotion, IAutoMovieSkeleton, IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import {
@@ -15,22 +16,15 @@ import {
 } from "../internal/retargetRigs";
 
 /** Distance between a resolved effector and the contact it should hold. */
-const missBy = (
-  a: { x: number; y: number; z: number },
-  b: { x: number; y: number; z: number },
+const missBy: (a: IAutoMovieVector3, b: IAutoMovieVector3) => number = (
+  a: IAutoMovieVector3,
+  b: IAutoMovieVector3,
 ): number => Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z);
 
 /**
- * A contact the target rig cannot physically hold is reported as a warning, not
- * a failure: residual foot slide is implausible, not impossible.
+ * Observe advisory residuals under the synthetic target's shipped ROM, including strict improvement over disabled correction and a warning-free wider-budget twin. The bounded fitting search and sampled FK do not prove physical impossibility or a globally minimal residual.
  *
- * The rig pair is the same legs-1.5x / torso-0.9x target as the tracking case,
- * but now under the **default** humanoid ROM, whose hip gamut stops at 120
- * degrees of flexion and -30 of extension. Folding a leg that long under the
- * mapped contact needs more than the gamut allows, so the clamped chain stops
- * short. The retarget still returns a clip: the correction that the ROM did
- * permit is kept, the residual is measured, and the shortfall surfaces as
- * advice the harness can accept or act on.
+ * The rig uses the same 1.5 leg/0.9 torso proportions as the wide-hip tracking case, with shipped humanoid ROM instead of the explicit override. The test observes the retained correction and advisory shortfall; no harness acceptance decision or exhaustive feasibility search runs here.
  *
  * Scenarios:
  *
@@ -41,19 +35,23 @@ const missBy = (
  *    contact by more than the 0.02 * rootScale contact budget.
  * 3. The clamped correction is still an improvement, not damage: the pinned foot
  *    ends closer to the mapped contact than the verbatim angle copy does.
- * 4. Widening `contacts.tolerance` widens the same budget, so the identical
- *    residual stops being worth reporting and the run comes back clean.
+ * 4. Widening contacts.tolerance yields a warning-free result; residual identity between the two runs is not separately asserted.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Retargets with default ROM and requires two located physics warnings plus non-null motion/characterization, measures the left residual beyond its budget and below the disabled-copy residual, and observes the existing wider-tolerance result without warnings.
+ * @evidence contracts/testing.md#independent-expectations Authored proportion/ROM fixtures define the bounded fitting problem, Math.hypot measures the source-mapped coordinate miss independently of warning text, and the explicit 0.02*scale budget must be exceeded. Warning count and paths are literal expectations; shared FK and rootScale characterization remain product consumers. The wider twin does not independently assert identical residual coordinates.
+ * @evidence contracts/testing.md#distinguishing-cases Preserves default limited hips versus disabled correction, two effector warnings at key 0, left-foot quantitative improvement and >0.5 disabled miss, plus tolerance 0.5 versus default 0.02. Exact achievable contacts and degenerate chains belong to separate units.
+ * @evidence contracts/testing.md#execution-ownership This named synchronous unit owns three retarget calls and resolved-effector observations with the unchanged synthetic rig fixtures. The local distance reader registers no extra case and starts no viewer, process or native artifact.
  */
-export const test_motion_retarget_contact_unreachable = (): void => {
-  const source = proportionedRig("unreachable-source");
-  const target = proportionedRig("unreachable-target", {
+export function test_motion_retarget_contact_unreachable(): void {
+  const source: IAutoMovieSkeleton = proportionedRig("unreachable-source");
+  const target: IAutoMovieSkeleton = proportionedRig("unreachable-target", {
     leg: 1.5,
     torso: 0.9,
   });
-  const motion = rootShiftClip(source.id, { x: 0, y: 0, z: 0.25 });
+  const motion: IAutoMovieMotion = rootShiftClip(source.id, { x: 0, y: 0, z: 0.25 });
 
   // 1. a warning per foot, not a failure.
-  const pinned = retargetHumanoidMotion({ motion, source, target });
+  const pinned: ReturnType<typeof retargetHumanoidMotion> = retargetHumanoidMotion({ motion, source, target });
   TestValidator.predicate(
     "one plausibility warning per pinned foot",
     validationHasWarningCount(
@@ -76,9 +74,9 @@ export const test_motion_retarget_contact_unreachable = (): void => {
     );
 
   // 2. the residual is beyond the contact budget it names.
-  const scale = pinned.characterization.rootScale;
-  const contact = mapped(keyframeWorld(source, motion, 0, "leftFoot"), scale);
-  const residual = missBy(
+  const scale: number = pinned.characterization.rootScale;
+  const contact: IAutoMovieVector3 = mapped(keyframeWorld(source, motion, 0, "leftFoot"), scale);
+  const residual: number = missBy(
     keyframeWorld(target, pinned.motion, 0, "leftFoot"),
     contact,
   );
@@ -88,7 +86,7 @@ export const test_motion_retarget_contact_unreachable = (): void => {
   );
 
   // 3. the clamped correction still beats carrying the angles verbatim.
-  const carried = retargetHumanoidMotion({
+  const carried: ReturnType<typeof retargetHumanoidMotion> = retargetHumanoidMotion({
     motion,
     source,
     target,
@@ -110,7 +108,7 @@ export const test_motion_retarget_contact_unreachable = (): void => {
   );
 
   // 4. a wider contact tolerance widens the budget the residual is judged by.
-  const tolerant = retargetHumanoidMotion({
+  const tolerant: ReturnType<typeof retargetHumanoidMotion> = retargetHumanoidMotion({
     motion,
     source,
     target,
@@ -121,4 +119,4 @@ export const test_motion_retarget_contact_unreachable = (): void => {
     validationHasNoWarnings("tolerant retarget contact", tolerant.validation),
   );
   if (tolerant.motion === null) throw new Error("tolerant retarget failed");
-};
+}

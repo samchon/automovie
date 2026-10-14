@@ -7,16 +7,16 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { vclose } from "../internal/predicates";
+import { nclose, vclose } from "../internal/predicates";
 
-const t = (x: number, y: number, z: number): IAutoMovieTransform => ({
+const t: (x: number, y: number, z: number) => IAutoMovieTransform = (x: number, y: number, z: number): IAutoMovieTransform => ({
   translation: { x, y, z },
   rotation: { x: 0, y: 0, z: 0, w: 1 },
   scale: { x: 1, y: 1, z: 1 },
 });
 
 // The bent-rest leg of the plant-feet suites; foot lands at world
-// (root + 0.1, root.y - 0.8, 0).
+// (root.x + 0.1, root.y, root.z) before articulation.
 const legSkeleton: IAutoMovieSkeleton = {
   id: "leg",
   bones: [
@@ -42,19 +42,19 @@ const legSkeleton: IAutoMovieSkeleton = {
   ],
 };
 
-const LEG = {
+const LEG: NonNullable<Parameters<typeof plantStanceFeet>[0]["legs"]>[number] = {
   foot: "leftFoot",
   upper: "leftUpperLeg",
   lower: "leftLowerLeg",
 } as const;
 
-const still = (rootX: number): IAutoMovieMotion => ({
+const still: (rootX: number) => IAutoMovieMotion = (rootX: number): IAutoMovieMotion => ({
   id: "still",
   skeleton: "leg",
   duration: 0.5,
   loop: false,
   keyframes: [0, 0.5].map(
-    (time): IAutoMovieKeyframe => ({
+    (time: number): IAutoMovieKeyframe => ({
       time,
       pose: { skeleton: "leg", root: t(rootX, 0, 0), joints: [] },
       expression: null,
@@ -65,13 +65,10 @@ const still = (rootX: number): IAutoMovieMotion => ({
 });
 
 /** Ground rises with x: h(x) = 0.2·x. */
-const rising = (x: number): number => 0.2 * x;
+const rising: (x: number) => number = (x: number): number => 0.2 * x;
 
 /**
- * `plantStanceFeet` pins against the ground height at the stance-start contact,
- * not a global plane: on a slope the pin's `y` is the local surface height, so
- * a foot standing uphill plants higher than one at the origin, and a constant
- * callback stays identical to the scalar it generalizes.
+ * Observe local ground height in compact stance metadata and exact record equivalence between a constant ground callback and scalar ground. This unit inspects reported pins rather than measuring the corrected foot's achieved FK height.
  *
  * Scenarios (stationary stand at root x=1 → foot world x=1.1):
  *
@@ -80,9 +77,14 @@ const rising = (x: number): number => 0.2 * x;
  * 2. The same stand planted with the constant callback `() => 0` produces exactly
  *    the scalar `groundY: 0` plant: the widened parameter preserved the scalar
  *    behavior.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls planting with rising, scalar-zero and callback-zero ground, then observes one sloped run with its literal local pin and equivalent complete compact plant fields for both zero-ground forms.
+ * @evidence contracts/testing.md#independent-expectations The authored root x=1 and rest foot x offset 0.1 give x=1.1; h(x)=0.2*x gives y=0.22 independently of pin construction. The unchanged scalar/callback comparison uses nclose/vclose eps=0 to preserve the previous exact numeric requirement; equivalent metadata alone does not prove exact achieved correction.
+ * @evidence contracts/testing.md#distinguishing-cases Retains nonconstant slope versus zero plane, scalar versus constant callback, 0.25 stance tolerance and one stationary half-second clip. Ground refusal and achieved contact have separate owning units.
+ * @evidence contracts/testing.md#execution-ownership This named synchronous unit owns its three planting calls and pure local ground callbacks. Fixture helpers register no cases, retain no terrain resource and start no viewer, process or native artifact.
  */
-export const test_motion_plant_feet_surface = (): void => {
-  const sloped = plantStanceFeet({
+export function test_motion_plant_feet_surface(): void {
+  const sloped: ReturnType<typeof plantStanceFeet> = plantStanceFeet({
     skeleton: legSkeleton,
     motion: still(1),
     groundY: rising,
@@ -95,23 +97,25 @@ export const test_motion_plant_feet_surface = (): void => {
     vclose(sloped.plants[0]!.position, { x: 1.1, y: 0.22, z: 0 }),
   );
 
-  const scalar = plantStanceFeet({
+  const scalar: ReturnType<typeof plantStanceFeet> = plantStanceFeet({
     skeleton: legSkeleton,
     motion: still(1),
     groundY: 0,
     tolerance: 0.25,
     legs: [LEG],
   });
-  const constant = plantStanceFeet({
+  const constant: ReturnType<typeof plantStanceFeet> = plantStanceFeet({
     skeleton: legSkeleton,
     motion: still(1),
-    groundY: () => 0,
+    groundY: (): number => 0,
     tolerance: 0.25,
     legs: [LEG],
   });
-  TestValidator.equals(
+  TestValidator.predicate(
     "constant callback plants exactly as the scalar",
-    constant.plants,
-    scalar.plants,
+    constant.plants.length === scalar.plants.length && constant.plants.every((plant: ReturnType<typeof plantStanceFeet>["plants"][number], index: number): boolean => {
+      const expected: ReturnType<typeof plantStanceFeet>["plants"][number] = scalar.plants[index]!;
+      return plant.foot === expected.foot && nclose(plant.start, expected.start, 0) && nclose(plant.end, expected.end, 0) && vclose(plant.position, expected.position, 0);
+    }),
   );
-};
+}

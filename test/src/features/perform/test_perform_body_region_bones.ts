@@ -4,28 +4,18 @@ import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts } from "../internal/predicates";
 
-const disjoint = (
+const disjoint: (a: readonly AutoMovieHumanoidBone[], b: readonly AutoMovieHumanoidBone[]) => boolean = (
   a: readonly AutoMovieHumanoidBone[],
   b: readonly AutoMovieHumanoidBone[],
 ): boolean => {
-  const set = new Set(a);
-  return b.every((x) => !set.has(x));
+  const set: Set<AutoMovieHumanoidBone> = new Set(a);
+  return b.every((x: AutoMovieHumanoidBone): boolean => !set.has(x));
 };
 
 /**
- * `bodyRegionBones`: the disjoint-and-complete partition of the humanoid
- * skeleton into body regions, the basis for layering clips on non-overlapping
- * regions.
+ * Observe literal region sizes, selected semantic membership, disjointness and fullBody concatenation. The runtime unit does not enumerate the complete AutoMovieHumanoidBone union independently, so extending that vocabulary without updating the partition is outside these assertions.
  *
- * Completeness is not asserted here, and the count below is documentation
- * rather than proof. This scenario used to claim the three regions "cover the
- * full 55-bone VRM rig exactly" while comparing them only with each other, so a
- * bone added to the union and to no region kept every assertion green while
- * every mask stripped it (#1400). The claim now belongs to the builder:
- * `AUTOMOVIE_RIG_IS_PARTITIONED` types as `true` only while the partition
- * covers `AutoMovieHumanoidBone`, and an escaped bone fails the build by name.
- * What is left for run time is what a type cannot see: disjointness, the empty
- * face region, and `fullBody` really being the three concatenated.
+ * Current bodyRegionBones declares its three lists with satisfies readonly AutoMovieHumanoidBone[], which admits each named element but does not prove vocabulary exhaustiveness. No AUTOMOVIE_RIG_IS_PARTITIONED declaration exists in that source owner, so this comment does not claim a compiler completeness guard that the current implementation lacks.
  *
  * Scenarios:
  *
@@ -33,23 +23,27 @@ const disjoint = (
  *    fingers, head = neck/head/eyes/jaw, face = none).
  * 2. The three bony regions are pairwise disjoint.
  * 3. `fullBody` is exactly their concatenation, element for element. Nothing here
- *    asserts completeness: an assertion that cannot fail is not a guard, and
- *    `AUTOMOVIE_RIG_IS_PARTITIONED` is a type, checked when the engine builds.
+ *    asserts independent vocabulary completeness; the unique population is additionally fixed at 55.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls bodyRegionBones for all five regions and inspects literal lengths, selected membership, pairwise disjointness, concatenation order and the unique fullBody size. This observes the product's mask vocabulary, not only test fixture arrangement.
+ * @evidence contracts/testing.md#independent-expectations Literal counts 9/41/5/0/55 and named hips/foot/spine/hand/finger/neck/jaw expectations independently constrain the returned lists. Concatenation agreement alone can share an omitted vocabulary member, so no complete union enumeration or current compiler exhaustiveness check is claimed.
+ * @evidence contracts/testing.md#distinguishing-cases Retains lower/upper/head/face/full regions, all three pairwise intersections, concatenation order and unique count. Unknown runtime region admission, list mutation ownership and future bone-union completeness are outside this unchanged unit.
+ * @evidence contracts/testing.md#execution-ownership This named synchronous unit owns all direct region reads and local set observations. The private intersection helper registers no extra cases and starts no viewer, process or native artifact.
  */
-export const test_perform_body_region_bones = (): void => {
-  const lower = bodyRegionBones("lowerBody");
-  const upper = bodyRegionBones("upperBody");
-  const head = bodyRegionBones("head");
-  const face = bodyRegionBones("face");
-  const full = bodyRegionBones("fullBody");
+export function test_perform_body_region_bones(): void {
+  const lower: readonly AutoMovieHumanoidBone[] = bodyRegionBones("lowerBody");
+  const upper: readonly AutoMovieHumanoidBone[] = bodyRegionBones("upperBody");
+  const head: readonly AutoMovieHumanoidBone[] = bodyRegionBones("head");
+  const face: readonly AutoMovieHumanoidBone[] = bodyRegionBones("face");
+  const full: readonly AutoMovieHumanoidBone[] = bodyRegionBones("fullBody");
 
   // 1. membership
   TestValidator.equals("lowerBody owns 9 bones", lower.length, 9);
   TestValidator.equals(
     "lowerBody has hips + a foot",
     namedFacts([
-      ["lowerIncludesHips", () => lower.includes("hips")],
-      ["lowerIncludesLeftFoot", () => lower.includes("leftFoot")],
+      ["lowerIncludesHips", (): boolean => lower.includes("hips")],
+      ["lowerIncludesLeftFoot", (): boolean => lower.includes("leftFoot")],
     ]),
     { lowerIncludesHips: true, lowerIncludesLeftFoot: true },
   );
@@ -57,11 +51,11 @@ export const test_perform_body_region_bones = (): void => {
   TestValidator.equals(
     "upperBody has spine, a hand, a finger",
     namedFacts([
-      ["upperIncludesSpine", () => upper.includes("spine")],
-      ["upperIncludesLeftHand", () => upper.includes("leftHand")],
+      ["upperIncludesSpine", (): boolean => upper.includes("spine")],
+      ["upperIncludesLeftHand", (): boolean => upper.includes("leftHand")],
       [
         "upperIncludesRightLittleDistal",
-        () => upper.includes("rightLittleDistal"),
+        (): boolean => upper.includes("rightLittleDistal"),
       ],
     ]),
     {
@@ -74,8 +68,8 @@ export const test_perform_body_region_bones = (): void => {
   TestValidator.equals(
     "head has neck + jaw",
     namedFacts([
-      ["headIncludesNeck", () => head.includes("neck")],
-      ["headIncludesJaw", () => head.includes("jaw")],
+      ["headIncludesNeck", (): boolean => head.includes("neck")],
+      ["headIncludesJaw", (): boolean => head.includes("jaw")],
     ]),
     { headIncludesNeck: true, headIncludesJaw: true },
   );
@@ -86,11 +80,11 @@ export const test_perform_body_region_bones = (): void => {
   TestValidator.predicate("lower ∩ head = ∅", disjoint(lower, head));
   TestValidator.predicate("upper ∩ head = ∅", disjoint(upper, head));
 
-  // 3. fullBody is the three regions, and the build proved they are all of them
+  // 3. fullBody preserves the current three-list order and unique population.
   TestValidator.equals(
     "fullBody is the three regions concatenated",
     [...full],
     [...lower, ...upper, ...head],
   );
   TestValidator.equals("fullBody has no duplicates", new Set(full).size, 55);
-};
+}

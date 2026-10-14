@@ -6,7 +6,7 @@ import {
   resolvePose,
   sampleMotion,
 } from "@automovie/engine";
-import { IAutoMovieTrack } from "@automovie/interface";
+import { IAutoMovieMotion, IAutoMovieNode, IAutoMovieSkeleton, IAutoMovieTrack } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { bakeTimes } from "../internal/clipParity";
@@ -20,24 +20,26 @@ import {
 import { namedFacts, qclose, vclose } from "../internal/predicates";
 
 /**
- * `motionToClip`'s `nodePrefix` gives a multi-actor node graph per-actor
- * channel namespaces (S3): every lowered node id AND every clip channel ref
- * (bones and the synthetic root alike) carries the prefix, while the default
- * stays the bare single-actor naming S1 shipped (byte-compat).
+ * Observe node/channel prefix identity and numeric bone-world agreement under one actor prefix. Default naming is checked through the existing selected ids and channel references, not serialized byte compatibility or a populated multi-actor scene.
  *
  * Scenarios:
  *
  * 1. Default (no prefix): node ids and channel refs are bare, the S1 contract
- *    unchanged (the byte-compat twin of the prefixed run).
- * 2. Prefixed: every node id, every bone channel, and the root TRS channels carry
+ *    unchanged for the selected root/bone ids and slash-free channel refs.
+ * 2. Prefixed: every node id, every bone channel, and the root translation/rotation channels carry
  *    the prefix; no bare id survives.
  * 3. Parity holds under the prefix: the world of `"knightA/" + bone` over the
  *    prefixed bridge equals `resolvePose ∘ sampleMotion` on every bake time:
  *    prefixing renames the graph without moving it.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Bakes bare and knightA-prefixed graphs, checks selected bare names and all prefixed node/channel identities including root presence, then resolves the prefixed graph at every bake time and compares each fixture bone's position/rotation with clinical sampling/FK.
+ * @evidence contracts/testing.md#independent-expectations Literal knightA/ and unchanged bone names independently determine graph addresses, with a bare-name twin exposing missing prefix propagation. FK/bridge equality is a metamorphic representation law using shared product math and existing default vclose/qclose tolerances; serialized bytes and prototype identity are not observed.
+ * @evidence contracts/testing.md#distinguishing-cases Retains omitted versus explicit prefix, root and articulated bone tracks, mixed null/non-null root and every nonempty bake-time bone population. Two actors, prefix collisions and parent-prefix admission are outside this unchanged fixture.
+ * @evidence contracts/testing.md#execution-ownership This named synchronous unit owns both bakes and all direct frame/FK observations. Local channel reading and existing fixture helpers register no cases and start no viewer, process or GPU artifact.
  */
-export const test_motion_to_clip_prefix = (): void => {
-  const skeleton = createSkeleton();
-  const motion = makeMotion(
+export function test_motion_to_clip_prefix(): void {
+  const skeleton: IAutoMovieSkeleton = createSkeleton();
+  const motion: IAutoMovieMotion = makeMotion(
     [
       keyframe(
         0,
@@ -52,66 +54,66 @@ export const test_motion_to_clip_prefix = (): void => {
     1,
   );
 
-  const channelNode = (track: IAutoMovieTrack): string =>
+  const channelNode: (track: IAutoMovieTrack) => string = (track: IAutoMovieTrack): string =>
     track.channel.kind === "node" ? track.channel.node : "";
 
-  const bare = motionToClip({ motion, skeleton });
+  const bare: ReturnType<typeof motionToClip> = motionToClip({ motion, skeleton });
   TestValidator.equals(
     "default keeps the bare S1 naming",
     namedFacts([
       [
         "bareNodesNode",
-        () => bare.nodes.some((node) => node.id === MOTION_ROOT_NODE_ID),
+        (): boolean => bare.nodes.some((node: IAutoMovieNode): boolean => node.id === MOTION_ROOT_NODE_ID),
       ],
       [
         "bareNodesNode2",
-        () => bare.nodes.some((node) => node.id === "leftLowerArm"),
+        (): boolean => bare.nodes.some((node: IAutoMovieNode): boolean => node.id === "leftLowerArm"),
       ],
       [
         "bareClipTracks",
-        () =>
-          bare.clip.tracks.every((track) => !channelNode(track).includes("/")),
+        (): boolean =>
+          bare.clip.tracks.every((track: IAutoMovieTrack): boolean => !channelNode(track).includes("/")),
       ],
     ]),
     { bareNodesNode: true, bareNodesNode2: true, bareClipTracks: true },
   );
 
-  const prefixed = motionToClip({ motion, skeleton, nodePrefix: "knightA/" });
+  const prefixed: ReturnType<typeof motionToClip> = motionToClip({ motion, skeleton, nodePrefix: "knightA/" });
   TestValidator.predicate(
     "every node id carries the prefix",
-    prefixed.nodes.every((node) => node.id.startsWith("knightA/")),
+    prefixed.nodes.every((node: IAutoMovieNode): boolean => node.id.startsWith("knightA/")),
   );
   TestValidator.equals(
     "every channel ref carries the prefix (root TRS included)",
     namedFacts([
       [
         "prefixedClipTracks",
-        () =>
-          prefixed.clip.tracks.every((track) =>
+        (): boolean =>
+          prefixed.clip.tracks.every((track: IAutoMovieTrack): boolean =>
             channelNode(track).startsWith("knightA/"),
           ),
       ],
       [
         "prefixedClipTracks2",
-        () =>
+        (): boolean =>
           prefixed.clip.tracks.some(
-            (track) => channelNode(track) === `knightA/${MOTION_ROOT_NODE_ID}`,
+            (track: IAutoMovieTrack): boolean => channelNode(track) === `knightA/${MOTION_ROOT_NODE_ID}`,
           ),
       ],
     ]),
     { prefixedClipTracks: true, prefixedClipTracks2: true },
   );
 
-  let parity = true;
+  let parity: boolean = true;
   for (const time of bakeTimes(motion.duration)) {
-    const world = resolveFrame({
+    const world: Map<string, number[]> = resolveFrame({
       nodes: prefixed.nodes,
       clip: prefixed.clip,
       limits: [],
       seconds: time,
     }).world;
     for (const bone of resolvePose(sampleMotion(motion, time).pose, skeleton)) {
-      const matrix = world.get(`knightA/${bone.bone}`);
+      const matrix: number[] | undefined = world.get(`knightA/${bone.bone}`);
       if (
         matrix === undefined ||
         !vclose(Matrix4.position(matrix), bone.worldPosition) ||
@@ -124,4 +126,4 @@ export const test_motion_to_clip_prefix = (): void => {
     if (!parity) break;
   }
   TestValidator.predicate("parity holds under the prefix", parity);
-};
+}

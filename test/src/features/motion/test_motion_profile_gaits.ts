@@ -31,24 +31,21 @@ const doorlike: IAutoMovieProfile = {
 };
 
 /**
- * `bindProfileGaits`: synthesise a profile's declarative gait set onto a
- * concrete skeleton. The same profile bound to two different bodies yields each
- * its own clips: one gait set, many bodies.
+ * Observe exact-name gait indexing, profile-scoped identity and requested skeleton-id binding. The binder assigns the requested skeleton identifier without inspecting geometry or performing body-proportion retargeting.
  *
  * Scenarios:
  *
  * 1. The horse profile bound to a rig produces a clip per named gait, keyed by
  *    name, each targeting that skeleton with its own period and a
  *    profile-scoped id.
- * 2. The same profile bound to a _different_ skeleton retargets every clip onto
- *    the new body: the point of a binding.
+ * 2. The same profile bound to a different skeleton id carries that new identity on its walk clip; geometry-dependent retargeting is not asserted.
  * 3. A profile that declares no gaits (a door) binds to nothing.
  * 4. Duplicate gait names are rejected before one clip overwrites another under
  *    the same profile binding key.
  * 5. Exact gait names that also occur on Object.prototype remain enumerable own clip keys without changing the result's prototype.
  *
  * @evidence contracts/testing.md#behavioral-verification Calls profile binding and asserts clip count, exact keys, skeleton identity, periods and duplicate rejection; reserved property names cannot disappear or change the result prototype.
- * @evidence contracts/testing.md#independent-expectations Declared walk/trot periods1/0.6 and requested skeleton ids determine the output metadata independently; exact unique gait names must index their own generated clips even when JavaScript objects reserve a setter.
+ * @evidence contracts/testing.md#independent-expectations The local walk/trot declarations supply periods 1/0.6 and literal profile-scoped identity, while requested skeleton ids independently determine the observed clip targets. Exact unique names must remain enumerable own keys even when they also name Object.prototype members; these checks do not compare body geometry.
  * @evidence contracts/testing.md#distinguishing-cases Two gaits, a second skeleton, no gait, duplicate name and __proto__/constructor/toString names distinguish valid exact-name indexing from overwrite and prototype mutation; gait sampling/clinical formulas belong to gait suites.
  * @evidence contracts/testing.md#execution-ownership Portable unit test discovered as test_motion_profile_gaits; this function owns its cases and directly invokes the binding seam without building or hosting a consumer.
  */

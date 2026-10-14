@@ -8,21 +8,27 @@ import {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
   IAutoMovieJointConstraint,
+  IAutoMovieGait,
+  IAutoMovieGaitLimb,
   IAutoMovieSkeleton,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts, nclose } from "../internal/predicates";
 
-const range = (min: number, max: number) => ({ min, max });
-const con = (
+const range: (min: number, max: number) => { min: number; max: number } = (min: number, max: number): { min: number; max: number } => ({ min, max });
+const con: (
+  flexion: { min: number; max: number } | null,
+  abduction: { min: number; max: number } | null,
+  twist: { min: number; max: number } | null,
+) => IAutoMovieJointConstraint = (
   flexion: { min: number; max: number } | null,
   abduction: { min: number; max: number } | null,
   twist: { min: number; max: number } | null,
 ): IAutoMovieJointConstraint => ({ flexion, abduction, twist });
 
-const legCon = con(range(-80, 90), range(-15, 25), range(-15, 15));
-const kneeCon = con(range(-10, 150), null, null);
+const legCon: IAutoMovieJointConstraint = con(range(-80, 90), range(-15, 25), range(-15, 15));
+const kneeCon: IAutoMovieJointConstraint = con(range(-10, 150), null, null);
 
 const HORSE_ROM: Partial<
   Record<AutoMovieHumanoidBone, IAutoMovieJointConstraint>
@@ -41,7 +47,7 @@ const HORSE_ROM: Partial<
   rightLowerLeg: kneeCon,
 };
 
-const bone = (b: AutoMovieHumanoidBone): IAutoMovieBone => ({
+const bone: (b: AutoMovieHumanoidBone) => IAutoMovieBone = (b: AutoMovieHumanoidBone): IAutoMovieBone => ({
   bone: b,
   parent: null,
   rest: {
@@ -68,47 +74,50 @@ const RIG: IAutoMovieSkeleton = {
     "rightUpperLeg",
     "leftLowerLeg",
     "rightLowerLeg",
-  ].map((b) => bone(b as AutoMovieHumanoidBone)),
+  ].map((b: string): IAutoMovieBone => bone(b as AutoMovieHumanoidBone)),
 };
 
-const NAMES = ["walk", "trot", "gallop", "rear"] as const;
+const NAMES: readonly (keyof typeof HORSE_GAITS)[] = ["walk", "trot", "gallop", "rear"] as const;
 
-const limbOf = (
+const limbOf: (
   gait: (typeof HORSE_GAITS)[keyof typeof HORSE_GAITS],
   b: AutoMovieHumanoidBone,
-) => gait.limbs.find((l) => l.bone === b)!;
+) => IAutoMovieGaitLimb = (
+  gait: (typeof HORSE_GAITS)[keyof typeof HORSE_GAITS],
+  b: AutoMovieHumanoidBone,
+): IAutoMovieGaitLimb => gait.limbs.find((l: IAutoMovieGaitLimb): boolean => l.bone === b)!;
 
-const minimumFlexion = (
+const minimumFlexion: (
+  gait: (typeof HORSE_GAITS)[keyof typeof HORSE_GAITS],
+  b: AutoMovieHumanoidBone,
+) => number = (
   gait: (typeof HORSE_GAITS)[keyof typeof HORSE_GAITS],
   b: AutoMovieHumanoidBone,
 ): number => {
-  const limb = limbOf(gait, b);
+  const limb: IAutoMovieGaitLimb = limbOf(gait, b);
   return (limb.neutral ?? 0) - limb.amplitude;
 };
 
 /**
- * The canonical horse gait library: the playground mount's core movement names
- * as reusable Profile data. This locks the data fixture before the visual
- * playground clips are replaced or compared frame by frame.
+ * Exercise the canonical horse gait table through actual cycle synthesis, the test-owned quadruped constraints and profile binding. The arm-named rows act as front legs in this rig; this unit observes numerical clips rather than equine motion or rendered appearance.
  *
  * Scenarios:
  *
- * 1. The fixture exposes walk/trot/gallop/rear under their stable names and keeps
- *    the periods inherited from the playground clips.
- * 2. Every gait synthesises into a concrete clip and validates against the horse
- *    ROM: leg rows stay in quadruped raw rig-space, not humanoid clinical
- *    rest-frame space.
- * 3. Movement energy is ordered by intent: walk < trot < gallop in stride
- *    amplitude and period, while rear pitches the spine and front legs far
- *    beyond locomotion.
- * 4. The horse profile carries the same names and binds each gait to
- *    profile-scoped clip ids.
+ * 1. The fixture exposes walk/trot/gallop/rear with the stable authored periods.
+ * 2. Every gait synthesizes and validates against the test-owned quadruped constraints.
+ * 3. Walk, trot and gallop increase stride amplitude and shorten period, while rear exceeds the tested front-leg and spine extrema.
+ * 4. The profile carries the same names and binds them to profile-scoped clip identities.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Synthesizes and validates all four shipped horse cycles, checks intended amplitude/period/rear distinctions and observes profile-bound identities and validation; catches missing rows, unusable numerical motion or binding to the wrong profile identity.
+ * @evidence contracts/testing.md#independent-expectations Existing literal names, periods, ordering inequalities and rear thresholds are the authored fixture contract, while the unit supplies its own quadruped constraints. Profile-to-table name agreement is a related-input consistency check and cannot alone prove either population correct; the literal name list supplies that independent boundary. These conventions are not biological measurements.
+ * @evidence contracts/testing.md#distinguishing-cases Preserves walk/trot/gallop/rear, exact name sets, each expected period, increasing stride and decreasing periods, rear leg/spine differences, concrete synthesis, profile identity and all bound validations. Unsupported gait data, contact and visual execution belong to other units or real consumers.
+ * @evidence contracts/testing.md#execution-ownership This named synchronous unit owns all direct calls to gaitMotion, bindProfileGaits and validateMotion using a test-owned rig. Private helpers supply constraint and limb views only; no playground, renderer, process or native artifact is started.
  */
-export const test_motion_horse_gaits = (): void => {
+export function test_motion_horse_gaits(): void {
   TestValidator.equals(
     "all horse movement names present",
-    Object.keys(HORSE_GAITS).sort((a, b) => a.localeCompare(b)),
-    [...NAMES].sort((a, b) => a.localeCompare(b)),
+    Object.keys(HORSE_GAITS).sort((a: string, b: string): number => a.localeCompare(b)),
+    [...NAMES].sort((a: string, b: string): number => a.localeCompare(b)),
   );
   for (const name of NAMES)
     TestValidator.equals(
@@ -135,7 +144,7 @@ export const test_motion_horse_gaits = (): void => {
   );
 
   for (const name of NAMES) {
-    const clip = gaitMotion(name, RIG.id, HORSE_GAITS[name], 24);
+    const clip: ReturnType<typeof gaitMotion> = gaitMotion(name, RIG.id, HORSE_GAITS[name], 24);
     TestValidator.equals(
       `${name} stays inside horse ROM`,
       validateMotion({ motion: clip, skeleton: RIG }).success,
@@ -148,13 +157,13 @@ export const test_motion_horse_gaits = (): void => {
     namedFacts([
       [
         "limbOfHORSE_GAITSWalk",
-        () =>
+        (): boolean =>
           limbOf(HORSE_GAITS.walk, "leftUpperArm").amplitude <
           limbOf(HORSE_GAITS.trot, "leftUpperArm").amplitude,
       ],
       [
         "limbOfHORSE_GAITSTrot",
-        () =>
+        (): boolean =>
           limbOf(HORSE_GAITS.trot, "leftUpperArm").amplitude <
           limbOf(HORSE_GAITS.gallop, "leftUpperArm").amplitude,
       ],
@@ -166,11 +175,11 @@ export const test_motion_horse_gaits = (): void => {
     namedFacts([
       [
         "hORSE_GAITSWalkPeriod",
-        () => HORSE_GAITS.walk.period > HORSE_GAITS.trot.period,
+        (): boolean => HORSE_GAITS.walk.period > HORSE_GAITS.trot.period,
       ],
       [
         "hORSE_GAITSTrotPeriod",
-        () =>
+        (): boolean =>
           HORSE_GAITS.walk.period > HORSE_GAITS.trot.period &&
           HORSE_GAITS.trot.period > HORSE_GAITS.gallop.period,
       ],
@@ -182,11 +191,11 @@ export const test_motion_horse_gaits = (): void => {
     namedFacts([
       [
         "minimumFlexionHORSE_GAITSRear",
-        () => -70 > minimumFlexion(HORSE_GAITS.rear, "leftUpperArm"),
+        (): boolean => -70 > minimumFlexion(HORSE_GAITS.rear, "leftUpperArm"),
       ],
       [
         "minimumFlexionHORSE_GAITSRear2",
-        () =>
+        (): boolean =>
           minimumFlexion(HORSE_GAITS.rear, "spine") <
           minimumFlexion(HORSE_GAITS.gallop, "spine"),
       ],
@@ -197,16 +206,16 @@ export const test_motion_horse_gaits = (): void => {
     },
   );
 
-  const bound = bindProfileGaits(HORSE_PROFILE, RIG.id, 24);
+  const bound: ReturnType<typeof bindProfileGaits> = bindProfileGaits(HORSE_PROFILE, RIG.id, 24);
   TestValidator.equals(
     "horse profile carries all gait names",
-    HORSE_PROFILE.gaits!.map((g) => g.name).sort((a, b) => a.localeCompare(b)),
-    [...NAMES].sort((a, b) => a.localeCompare(b)),
+    HORSE_PROFILE.gaits!.map((g: IAutoMovieGait): string => g.name).sort((a: string, b: string): number => a.localeCompare(b)),
+    [...NAMES].sort((a: string, b: string): number => a.localeCompare(b)),
   );
   TestValidator.equals(
     "horse profile binds every gait",
-    Object.keys(bound).sort((a, b) => a.localeCompare(b)),
-    [...NAMES].sort((a, b) => a.localeCompare(b)),
+    Object.keys(bound).sort((a: string, b: string): number => a.localeCompare(b)),
+    [...NAMES].sort((a: string, b: string): number => a.localeCompare(b)),
   );
   TestValidator.equals(
     "profile-bound gallop has a profile-scoped id",
@@ -219,4 +228,4 @@ export const test_motion_horse_gaits = (): void => {
       validateMotion({ motion: bound[name], skeleton: RIG }).success,
       true,
     );
-};
+}

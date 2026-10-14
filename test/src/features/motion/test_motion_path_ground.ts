@@ -3,14 +3,15 @@ import {
   IAutoMovieKeyframe,
   IAutoMovieMotion,
   IAutoMovieVector3,
+  IAutoMovieTransform,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts, nclose } from "../internal/predicates";
 
-const BOB = 0.05;
+const BOB: number = 0.05;
 
-const kf = (time: number): IAutoMovieKeyframe => ({
+const kf: (time: number) => IAutoMovieKeyframe = (time: number): IAutoMovieKeyframe => ({
   time,
   pose: {
     skeleton: "s",
@@ -41,15 +42,11 @@ const RAMP: IAutoMovieVector3[] = [
   { x: 4, y: 7, z: 0 },
 ];
 
-const rootAt = (motion: IAutoMovieMotion, time: number) =>
-  motion.keyframes.find((k) => nclose(k.time, time))!.pose.root!;
+const rootAt: (motion: IAutoMovieMotion, time: number) => IAutoMovieTransform = (motion: IAutoMovieMotion, time: number): IAutoMovieTransform =>
+  motion.keyframes.find((k: IAutoMovieKeyframe): boolean => nclose(k.time, time))!.pose.root!;
 
 /**
- * Root height follows the ground source, not the waypoints: waypoint `y` is
- * ignored, the height comes from a plane scalar or an `(x, z) → y` callback,
- * and any vertical bob the gait's own root carries rides on top. The frames
- * sidecar reports the bare path point (ground height without the bob), so a
- * later pass reads the terrain, not the gait.
+ * Observe ground-source height and carried gait bob separately: waypoint Y is ignored, the root adds its existing bob to the supplied ground, and the frame sidecar reports the bare path height.
  *
  * Scenarios (straight 4 m path, speed 1 → 4 cycles, waypoint y = 7 everywhere):
  *
@@ -60,14 +57,19 @@ const rootAt = (motion: IAutoMovieMotion, time: number) =>
  * 3. Scalar plane 2: root y is bob + 2 all along.
  * 4. Default ground (omitted): root y is just the bob.
  * 5. Horizontal progress is unaffected by height: x=1 at t=1 in every case.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Bakes the same XZ line against slope, scalar and default ground, then checks root height, bare sidecar height and unchanged horizontal progress, catching use of waypoint Y or double application of gait bob.
+ * @evidence contracts/testing.md#independent-expectations The authored y=0.5*x slope, constant plane 2 and fixed 0.05-metre root bob determine literal heights independently of path baking. Four metres over four one-second cycles gives x=1 at t=1; existing absolute tolerances and sample lookup remain unchanged.
+ * @evidence contracts/testing.md#distinguishing-cases Retains the callback slope at x=1/x=3, sidecar without bob, scalar plane, omitted flat ground and all three horizontal-progress twins despite waypoint y=7. Callback refusal, corners and contact correction have separate owning tests.
+ * @evidence contracts/testing.md#execution-ownership This named synchronous unit owns all three direct followPathMotion calls with in-memory fixture records and a pure slope callback. Private sample lookup registers no cases and no terrain host, process or renderer is started.
  */
-export const test_motion_path_ground = (): void => {
-  const slope = followPathMotion({
+export function test_motion_path_ground(): void {
+  const slope: ReturnType<typeof followPathMotion> = followPathMotion({
     id: "walk-slope",
     gait,
     waypoints: RAMP,
     speed: 1,
-    ground: (x) => 0.5 * x,
+    ground: (x: number): number => 0.5 * x,
   });
   TestValidator.predicate(
     "slope y at x=1",
@@ -79,10 +81,10 @@ export const test_motion_path_ground = (): void => {
   );
   TestValidator.predicate(
     "frame carries bare ground height",
-    nclose(slope.frames.find((f) => nclose(f.time, 1))!.position.y, 0.5),
+    nclose(slope.frames.find((f: ReturnType<typeof followPathMotion>["frames"][number]): boolean => nclose(f.time, 1))!.position.y, 0.5),
   );
 
-  const plane = followPathMotion({
+  const plane: ReturnType<typeof followPathMotion> = followPathMotion({
     id: "walk-plane",
     gait,
     waypoints: RAMP,
@@ -94,7 +96,7 @@ export const test_motion_path_ground = (): void => {
     nclose(rootAt(plane.motion, 3).translation.y, BOB + 2),
   );
 
-  const flat = followPathMotion({
+  const flat: ReturnType<typeof followPathMotion> = followPathMotion({
     id: "walk-flat",
     gait,
     waypoints: RAMP,
@@ -110,15 +112,15 @@ export const test_motion_path_ground = (): void => {
     namedFacts([
       [
         "ncloseRootAtSlope",
-        () => nclose(rootAt(slope.motion, 1).translation.x, 1),
+        (): boolean => nclose(rootAt(slope.motion, 1).translation.x, 1),
       ],
       [
         "ncloseRootAtPlane",
-        () => nclose(rootAt(plane.motion, 1).translation.x, 1),
+        (): boolean => nclose(rootAt(plane.motion, 1).translation.x, 1),
       ],
       [
         "ncloseRootAtFlat",
-        () => nclose(rootAt(flat.motion, 1).translation.x, 1),
+        (): boolean => nclose(rootAt(flat.motion, 1).translation.x, 1),
       ],
     ]),
     {
@@ -127,4 +129,4 @@ export const test_motion_path_ground = (): void => {
       ncloseRootAtFlat: true,
     },
   );
-};
+}

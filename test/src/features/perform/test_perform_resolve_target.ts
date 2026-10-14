@@ -10,14 +10,13 @@ import { vclose } from "../internal/predicates";
  * Scenarios:
  * 1. Node and literal-point targets resolve; an absent node returns null.
  * 2. Complete singleton and multi-member groups return equal-weight centroids.
- * 3. Empty, all-missing and partially missing groups return null, including a
- *    missing formation table or formation member.
+ * 3. Empty, all-missing and partially missing groups return null, including a missing formation table or formation member.
  * 4. Formations carry one member's weight beside each node, regardless of mass.
  * 5. Large finite same-sign coordinates average without summation overflow.
  * 6. Relative direction/offscreen goals and live bones need other context.
  *
  * @evidence contracts/testing.md#behavioral-verification Directly calls resolveTargetPoint and asserts complete-group centroids and null for every missing member; catches silently discarded nodes/formations and overflow of a finite centroid while allowing staged and literal point resolution.
- * @evidence contracts/testing.md#independent-expectations Hand-authored x coordinates 1 and 3 average to 2, and adding a formation at 8 yields 4 under equal member weights; identical 1e308 coordinates average to that same finite value without relying on the implementation's accumulation order.
+ * @evidence contracts/testing.md#independent-expectations Hand-authored x coordinates 1 and 3 average to 2, and adding a formation at 8 yields 4 under equal member weights; identical 1e308 coordinates average to that same finite value without relying on the implementation's accumulation order. Original vclose component tolerance remains; the unit does not check vector alias identity, malformed/nonfinite shape admission or a different accumulation-rounding bound.
  * @evidence contracts/testing.md#distinguishing-cases Covers existing/missing nodes, literal points, empty/singleton/two-member/mixed-missing groups, supplied and absent formation maps, large finite values and relative/live target kinds; film gate tests own located user-facing membership diagnostics.
  * @evidence contracts/testing.md#execution-ownership This synchronous discoverable unit entry owns all cases and imports the portable engine resolver directly; it needs no host, renderer, native artifact or installed consumer.
  */

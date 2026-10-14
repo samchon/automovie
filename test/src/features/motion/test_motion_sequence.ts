@@ -1,10 +1,11 @@
 import { sequenceMotion } from "@automovie/engine";
+import type { IAutoMovieKeyframe, IAutoMovieMotion } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { joint, keyframe, makeMotion, makePose } from "../internal/fixtures";
 import { nclose } from "../internal/predicates";
 
-const errorMessage = (task: () => void): string | null => {
+const errorMessage: (task: () => void) => string | null = (task: () => void): string | null => {
   try {
     task();
     return null;
@@ -14,10 +15,7 @@ const errorMessage = (task: () => void): string | null => {
 };
 
 /**
- * `sequenceMotion`: concatenating clips into one timeline. Parts are laid
- * end-to-end with their keyframe times offset by the running duration; a later
- * part's `time: 0` boundary keyframe is dropped so the merged times stay
- * strictly increasing.
+ * Observe concatenated seconds, retained seam key counts, loop/skeleton identity and incoming seam easing. Source clips supply ordered keys; this unit does not establish complete motion admission, gait-clock continuity or rendered transition quality.
  *
  * Scenarios:
  *
@@ -29,16 +27,23 @@ const errorMessage = (task: () => void): string | null => {
  * 3. `loop` defaults to false and is passed through when set.
  * 4. Invalid part lists and durations reject before emitting malformed sequence
  *    clips.
+ *
+ * The existing incoming-easing twin also checks the seam and final easing labels without sampling rendered or numerical segment playback.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Concatenates two authored clips and checks three ordered key times and total duration, skeleton and loop policy, exact malformed-input messages, then observes incoming seam and final easing labels.
+ * @evidence contracts/testing.md#independent-expectations Durations 1+0.8 give 1.8, dropping the second time-zero seam gives literal [0,1,1.8], and local easeOut/step labels distinguish incoming from outgoing easing. Expected values/messages are authored independently of sequenceMotion; the helper retains existing non-Error String conversion and numeric tolerances.
+ * @evidence contracts/testing.md#distinguishing-cases Retains default/explicit loop, empty and mixed-skeleton lists, NaN/zero/negative part duration, ordinary seam count and opposing incoming/final easing. Gait-cycle metadata and cumulative overflow admission are outside this unchanged case population.
+ * @evidence contracts/testing.md#execution-ownership This named synchronous unit owns every direct sequence call, including refusal observations; local fixture and error readers register no extra cases and start no viewer, process or native artifact.
  */
-export const test_motion_sequence = (): void => {
-  const A = makeMotion(
+export function test_motion_sequence(): void {
+  const A: IAutoMovieMotion = makeMotion(
     [
       keyframe(0, makePose([joint("leftUpperArm", { abduction: 0 })])),
       keyframe(1, makePose([joint("leftUpperArm", { abduction: 60 })])),
     ],
     1,
   );
-  const B = makeMotion(
+  const B: IAutoMovieMotion = makeMotion(
     [
       keyframe(0, makePose([joint("leftLowerArm", { flexion: 0 })])),
       keyframe(0.8, makePose([joint("leftLowerArm", { flexion: 120 })])),
@@ -46,7 +51,7 @@ export const test_motion_sequence = (): void => {
     0.8,
   );
 
-  const seq = sequenceMotion("combo", [A, B]);
+  const seq: IAutoMovieMotion = sequenceMotion("combo", [A, B]);
 
   // 1. merge shape
   TestValidator.equals(
@@ -66,7 +71,7 @@ export const test_motion_sequence = (): void => {
   TestValidator.predicate(
     "strictly increasing times",
     seq.keyframes.every(
-      (k, i) => i === 0 || k.time > seq.keyframes[i - 1]!.time,
+      (k: IAutoMovieKeyframe, i: number): boolean => i === 0 || k.time > seq.keyframes[i - 1]!.time,
     ),
   );
   TestValidator.equals("skeleton id from first part", seq.skeleton, A.skeleton);
@@ -82,12 +87,12 @@ export const test_motion_sequence = (): void => {
   // 4. invalid part contracts
   TestValidator.equals(
     "empty sequence rejects with contract error",
-    errorMessage(() => sequenceMotion("empty", [])),
+    errorMessage((): IAutoMovieMotion => sequenceMotion("empty", [])),
     "sequence parts must not be empty",
   );
   TestValidator.equals(
     "mixed skeleton sequence rejects",
-    errorMessage(() =>
+    errorMessage((): IAutoMovieMotion =>
       sequenceMotion("mixed", [A, { ...B, skeleton: "skeleton-2" }]),
     ),
     "sequence part skeletons must match",
@@ -95,7 +100,7 @@ export const test_motion_sequence = (): void => {
   for (const duration of [Number.NaN, 0, -1])
     TestValidator.equals(
       `invalid part duration ${duration} rejects`,
-      errorMessage(() =>
+      errorMessage((): IAutoMovieMotion =>
         sequenceMotion("badDuration", [{ ...A, duration }, B]),
       ),
       "sequence part duration must be finite and positive",
@@ -105,11 +110,11 @@ export const test_motion_sequence = (): void => {
   //    sampleMotion eases each segment from its starting keyframe, so keeping
   //    the outgoing part's final easing would freeze/pop the next part's
   //    first segment
-  const eased = makeMotion(
+  const eased: IAutoMovieMotion = makeMotion(
     [keyframe(0, makePose([]), "easeOut"), keyframe(1, makePose([]), "step")],
     1,
   );
-  const seamed = sequenceMotion("seamEase", [eased, eased]);
+  const seamed: IAutoMovieMotion = sequenceMotion("seamEase", [eased, eased]);
   TestValidator.equals(
     "seam easing is the incoming part's first",
     seamed.keyframes[1]!.easing,
@@ -120,4 +125,4 @@ export const test_motion_sequence = (): void => {
     seamed.keyframes[2]!.easing,
     "step",
   );
-};
+}

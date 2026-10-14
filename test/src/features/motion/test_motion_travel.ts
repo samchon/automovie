@@ -7,10 +7,7 @@ import { joint, keyframe, makeMotion, makePose } from "../internal/fixtures";
 import { namedFacts, nclose, throwsError } from "../internal/predicates";
 
 /**
- * `travelMotion`: baking continuous root travel onto an in-place locomotion
- * cycle. A looping clip is repeated `cycles` times and a root offset growing
- * linearly with elapsed time (`velocity · t`) is added, so the figure glides
- * forward across every seam while its legs keep cycling.
+ * Observe repeated-cycle root travel, facing composition, seam metadata, fallback ownership and arithmetic refusal. Velocity times global seconds determines queried root offsets; the unit does not render a gliding figure or establish continuous-time foot contact.
  *
  * Scenarios:
  *
@@ -31,7 +28,7 @@ import { namedFacts, nclose, throwsError } from "../internal/predicates";
  *    returning nonfinite or repeated keyframe quantities.
  *
  * @evidence contracts/testing.md#behavioral-verification Calls travelMotion and inspects actual times, root transforms, seam easing and refusal; returned-root mutations catch private identity leakage across frames and later invocations.
- * @evidence contracts/testing.md#independent-expectations Velocity times global seconds and quaternion yaw addition determine numeric expectations independently; three one-second cycles require four unique endpoints and a fresh fallback identity must remain unit-valued after another output is mutated.
+ * @evidence contracts/testing.md#independent-expectations Velocity times global seconds and quaternion yaw addition determine literal root expectations independently; three one-second cycles require four unique endpoints, and a fresh fallback identity must remain unit-valued after another output is mutated. Facing is checked through the existing W component and X/Z sway values rather than full quaternion equality; original tolerances and diagnostic fragments are preserved.
  * @evidence contracts/testing.md#distinguishing-cases Covers null and authored roots, facing and no facing, incoming seam easing, invalid cycle/vector inputs, fallback ownership, unsafe repetition and finite-input arithmetic overflow; locomotion sizing and path corners belong to their owning tests.
  * @evidence contracts/testing.md#execution-ownership The discoverable test_motion_travel function is a synchronous portable unit case calling engine arithmetic; it installs no asset consumer and starts no browser, renderer, native build or external host.
  */
