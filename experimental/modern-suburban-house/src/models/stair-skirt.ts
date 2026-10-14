@@ -1,5 +1,5 @@
 /**
- * Three closed stair side-finish plates from docs/models/04-stair-members.md.
+ * Three closed stair side-finish plates
  * Treads and room boundaries stay in spaces; these plates occupy only the
  * outward 0.015 m bands and end at the ground-floor ceiling underside.
  */

@@ -1,5 +1,5 @@
 /**
- * Derive the observation population in docs/spaces/observations.md#geometry-observations
+ * Derive the observation population
  * from the current built environment. Engine stations cover four central directions,
  * four inside corners and opening thresholds; their eyes are raised 1.6 m above
  * actual supports. Add four central directions for each of six colonnade regions.
@@ -27,128 +27,28 @@ import { templeSiteIds } from "./site/assembly";
 /**
  * Inspection view enabled with an observation: exact server-cut solids in an
  * orthographic vertical section, or a roof-off overhead view hiding roof and ceiling.
- * @evidence spaces/observations.md Types the roof-off and X/Z section inspection views enabled with an observation.
- * @evidence spaces/observations.md#viewer-path Delivers inspection mode, section position, projection and half-height to the viewer.
- * @evidence principles/core/source-units.md#source-scope-preservation Contains view settings without rebuilding geometry.
- * @evidence principles/core/source-units.md#source-substantive-completion Five fields reproduce the view without client guesswork.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Directly represents the viewer-path inspection and cutting rules.
  */
 export interface TempleView {
-  /**
-   * @evidence spaces/observations.md Selects the roof-off overhead cutaway or an X/Z vertical section.
-   * @evidence principles/core/source-units.md#source-scope-preservation Restricts cuts to three designed modes, excluding diagonal sections.
-   * @evidence principles/core/source-units.md#source-substantive-completion The union excludes unknown modes and maps cut-x/cut-z directly to server axes.
-   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Directly represents the roof-off and X/Z methods in viewer-path.
-   */
   section: "roof-off" | "cut-x" | "cut-z";
-  /**
-   * @evidence spaces/observations.md Gives the vertical cutting plane's world coordinate in meters.
-   * @evidence principles/core/source-units.md#source-scope-preservation Contains one position without adding thickness or range.
-   * @evidence principles/core/source-units.md#source-substantive-completion A number places the plane used to cut current-source solids on the server.
-   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Directly represents the exact plane section rule in viewer-path.
-   */
   offset: number;
-  /**
-   * @evidence spaces/observations.md Selects an orthographic view normal to the section plane.
-   * @evidence principles/core/source-units.md#source-scope-preservation Only chooses between perspective and orthographic projection.
-   * @evidence principles/core/source-units.md#source-substantive-completion A boolean enables the viewer's orthographic section camera.
-   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Directly represents orthographic section reading in viewer-path.
-   */
   ortho: boolean;
-  /**
-   * @evidence spaces/observations.md Gives the orthographic frame's half-height in meters.
-   * @evidence principles/core/source-units.md#source-scope-preservation Contains only half-height; camera position comes from the observation pose.
-   * @evidence principles/core/source-units.md#source-substantive-completion A numeric frame size reproduces the same section scale.
-   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Directly represents the viewer-path section frame rule.
-   */
   span: number;
-  /**
-   * @evidence spaces/observations.md Chooses the greater-coordinate or lesser-coordinate side of the cutting plane.
-   * @evidence principles/core/source-units.md#source-scope-preservation Contains only the retained-side choice.
-   * @evidence principles/core/source-units.md#source-substantive-completion A boolean controls which side the viewer's clipping plane retains.
-   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Directly represents reading both section sides in viewer-path.
-   */
   flip: boolean;
 }
-
-/**
- * @evidence spaces/observations.md Types an observation's ID, group, space, role, label, pose, view and note.
- * @evidence principles/core/source-units.md#source-scope-preservation Contains observation locations and reasons without visual verdicts.
- * @evidence principles/core/source-units.md#source-substantive-completion Position and target are null for unavailable poses, with a note explaining why.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Directly represents the geometry-observations item structure.
- */
 export interface TempleObservation {
-  /**
-   * @evidence spaces/observations.md Stable ID incorporates the observation's group, space and role.
-   * @evidence principles/core/source-units.md#source-scope-preservation Contains an ID string without copying an input numbering scheme.
-   * @evidence principles/core/source-units.md#source-substantive-completion Viewer selection and self-check reports refer to the same string ID.
-   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Directly represents per-item identification in geometry-observations.
-   */
   id: string;
-  /**
-   * @evidence spaces/observations.md Chooses among space, exterior, site, junction, section and reference groups.
-   * @evidence principles/core/source-units.md#source-scope-preservation Excludes groups outside those six values.
-   * @evidence principles/core/source-units.md#source-substantive-completion The string union lets the viewer divide lists by group.
-   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Directly represents the six geometry-observations groups.
-   */
   group: "exterior" | "space" | "site" | "junction" | "section" | "reference";
-  /**
-   * @evidence spaces/observations.md Identifies an interior observation's space; exterior, section and reference views use null.
-   * @evidence principles/core/source-units.md#source-scope-preservation Does not invent spaces for exterior or section observations.
-   * @evidence principles/core/source-units.md#source-substantive-completion A nullable string supports the viewer's space filter.
-   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Directly represents per-space stations in geometry-observations.
-   */
   space: string | null;
-  /**
-   * @evidence spaces/observations.md Gives the observation role, such as threshold, corner, center or facade.
-   * @evidence principles/core/source-units.md#source-scope-preservation Contains a role name without a verdict.
-   * @evidence principles/core/source-units.md#source-substantive-completion Carries engine station roles and the census facade role as strings.
-   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Directly represents station roles in geometry-observations.
-   */
   role: string;
-  /**
-   * @evidence spaces/observations.md Provides the English operating label.
-   * @evidence principles/core/source-units.md#source-scope-preservation Contains only the English label.
-   * @evidence principles/core/source-units.md#source-substantive-completion The string displays the observation in the operating language.
-   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Directly represents operating-language names in geometry-observations under the full-English instruction.
-   */
   label: string;
-  /**
-   * @evidence spaces/observations.md Camera position is null when no pose is available.
-   * @evidence principles/core/source-units.md#source-scope-preservation Contains only the camera location, using null for unavailable poses.
-   * @evidence principles/core/source-units.md#source-substantive-completion The viewer and buried-pose self-check use the same nullable vector.
-   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Directly represents eye placement 1.6 m above the floor in geometry-observations.
-   */
   position: IAutoMovieVector3 | null;
-  /**
-   * @evidence spaces/observations.md Camera target is null when no pose is available.
-   * @evidence principles/core/source-units.md#source-scope-preservation Contains only the viewed point, using null for unavailable poses.
-   * @evidence principles/core/source-units.md#source-substantive-completion The nullable vector defines the viewer camera direction.
-   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Directly represents view direction in geometry-observations.
-   */
   target: IAutoMovieVector3 | null;
-  /**
-   * @evidence spaces/observations.md Explains missing poses, height adjustments or invalid stations.
-   * @evidence principles/core/source-units.md#source-scope-preservation Contains reasons without visual verdicts.
-   * @evidence principles/core/source-units.md#source-substantive-completion A nullable string preserves unavailable, adjusted and invalid items with their reasons.
-   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Directly represents preservation of unavailable items in geometry-observations.
-   */
   note: string | null;
-  /**
-   * @evidence spaces/observations.md Optional inspection view enabled with this observation.
-   * @evidence principles/core/source-units.md#source-scope-preservation Contains only the observation's view, omitted when absent.
-   * @evidence principles/core/source-units.md#source-substantive-completion The optional TempleView field enables inspection when the observation is selected.
-   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Directly represents per-observation inspection views in viewer-path.
-   */
   view?: TempleView;
 }
 
 /**
  * Space names in the English operating language.
- * @evidence spaces/observations.md Names the nine spaces and site used in observation labels.
- * @evidence principles/core/source-units.md#source-scope-preservation Names existing IDs without adding spaces.
- * @evidence principles/core/source-units.md#source-substantive-completion Observations and viewer share the same ID-to-name record.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Represents the observation UI names under the full-English instruction.
  */
 export const templeSpaceNames: Record<string, string> = {
   entrance: "Entrance", courtyard: "Courtyard", colonnade: "Colonnade", sanctuary: "Sanctuary",
@@ -162,14 +62,6 @@ const directionNames: Record<string, string> = {
   "corner-x-minus-z-minus": "Northwest corner", "corner-x-minus-z-plus": "Southwest corner",
   "corner-x-plus-z-minus": "Northeast corner", "corner-x-plus-z-plus": "Southeast corner",
 };
-
-/**
- * @evidence spaces/observations.md Derives all space, exterior, site, junction, section and reference observations from the current environment.
- * @evidence spaces/observations.md#geometry-observations Raises stations 1.6 m above floors; adds six colonnade regions, corners, census facades, roofs, undersides, openings, junctions, sections and five references; preserves unavailable and invalid poses with reasons.
- * @evidence principles/core/source-units.md#source-scope-preservation Reads the environment without creating geometry or copying observation counts.
- * @evidence principles/core/source-units.md#source-substantive-completion Returns the observation list used by self-check to count buried poses.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Directly implements the population rules and groups in geometry-observations.
- */
 export const templeObservations = (environment: IAutoMovieBuiltEnvironment): TempleObservation[] => {
   const result: TempleObservation[] = [];
   for (const space of environment.spaces.filter((s) => s.cells.length > 0)) {

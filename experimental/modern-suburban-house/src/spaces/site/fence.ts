@@ -1,31 +1,11 @@
-/**
- * `garden-fence` and `side-yard-gate`: the wooden fence around the garden and
- * the opening and posts for its gate. The leaf belongs to the model prototype.
- *
- * Design owners: `docs/spaces/site/fence.md` and
- * `site/side-walk.md#side-gate-interface`. Centre lines: front plane F is the
- * gate plane, the garage front outer face Z = -0.30; left line L is 0.60 m left
- * of the farther-left of the chimney cap and the main wall, derived from
- * their source bounds; right line R is 0.35 m right of the side path: 13.85; back line B is
- * 0.35 m behind the back cross path: −17.75. Runs: main left wall → (L, F) →
- * (L, B) → (R, B) → (R, F) → the garage front-right corner, leaving the gate
- * interval X = [12.30, 13.50]. Posts are 0.12 m square, gate posts stand
- * outside the interval, end posts stand just outside the building faces;
- * panels occupy 0.05 m each side of the centre line. The panel top equals the
- * reserved gate leaf top, S + 1.70 m; the model owns the closed leaf.
- *
- * Provisional: the panel bottom is g + 0.05 m on the maps ground g, which does
- * not exist yet (maps disabled). This owner uses the side path top S = −0.45 m
- * in place of g so the fence stands in the blocking view; the ground contact is
- * not complete and is reported as such.
- */
+
 import { GARAGE, MAIN } from "../building";
 import { CHIMNEY_CAP_OVERHANG } from "../envelope/left";
 import { PALETTE } from "../palette";
 import { CHIMNEY_PLAN } from "../roof/junctions";
 import { block } from "../solids";
 import { part } from "../part";
-import type { IHousePart } from "../IHousePart";
+import type { IHousePart } from "../../types/IHousePart";
 import { SIDE_WALK } from "./side-walk";
 
 const OWNER = "site/fence.ts";
@@ -40,15 +20,6 @@ const POST = 0.06;
 const HALF = 0.05;
 
 /** Emit the fence runs and gate posts while leaving the model leaf opening clear. */
-/**
- * @evidence spaces/site/fence.md This builder emits the fixed garden fence and gate posts while leaving the movable leaf empty.
- * @evidence spaces/site/fence.md#fence-enclosure-plan The left, back, right, and front runs meet at shared posts; end posts terminate at MAIN and GARAGE outer faces.
- * @evidence spaces/site/fence.md#fence-gate-junction Two posts flank SIDE_WALK.x and the front panel omits that gate interval.
- * @evidence spaces/site/fence.md#fence-ground-profile Panel tops follow the side-walk datum plus 1.70 m; bottoms use its provisional ground proxy plus 0.05 m.
- * @evidence principles/core/source-units.md#source-scope-preservation Value imports keep building/path contacts aligned, and no gate leaf or map-ground foundation is emitted.
- * @evidence principles/core/source-units.md#source-substantive-completion Stable post and run ids yield a continuous fixed enclosure except for the authored gate gap.
- * @evidence upstream/design/space-sources.md#design-revision-from-space-source-work The initial source revealed a missing ground datum; the fence design now authorizes only a marked temporary display bottom.
- */
 export const buildFence = (): IHousePart[] => {
   const post = (id: string, x: number, z: number): IHousePart =>
     part(

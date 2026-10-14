@@ -1,20 +1,11 @@
 /**
  * Shared plan inputs for the temple. All values are in m; +X is east and +Z is front.
- * Implements the sole dimension basis in docs/spaces/building.md#plan-datums.
+ * Implements the sole dimension basis
  * Rooms, walls and roofs consume these values; this owner generates no surfaces or members.
  * A datum change requires every dependent space and junction to be checked again.
  */
 import type { IAutoMovieBuiltSpace } from "@automovie/interface";
 import { templeLevels } from "./storey";
-
-/**
- * @evidence spaces/building.md One value object holds the envelope and datum X/Z coordinates in m, so rooms, walls, roofs and observations consume the same dimension basis.
- * @evidence spaces/building.md#plan-datums Transfers every datum from west/east-outer ±10.5 to south-outer 10.25 with the table's names and values.
- * @evidence spaces/building.md#footprint The four outer values define the 21×20.5m envelope; interior dimensions come only from differences between inner, room, ring and court datums.
- * @evidence principles/core/source-units.md#source-scope-preservation Holds only datum values, makes no surfaces, members or spaces, and adds no datum absent from the design.
- * @evidence principles/core/source-units.md#source-substantive-completion An as const value object gives all consumers the same numbers at compile time and includes the 0.001m tolerance.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Transfers the building.md datum table and 21×20.5m envelope unchanged; the actual wall, roof and collision scan produced 0 overlaps from these values.
- */
 export const templePlan = {
   westOuter: -10.5, eastOuter: 10.5,
   westInner: -9.9, eastInner: 9.9,
@@ -36,14 +27,9 @@ export const templePlan = {
 } as const;
 
 /**
- * Assembles the building → one storey → nine spaces of docs/spaces/building.md#containment.
+ * Assembles the building → one storey → nine spaces
  * Preserves the caller's actual cell records and refuses missing, duplicate or foreign spaces.
  * Returns the topology's space population, without proving physical elements or access.
- * @evidence spaces/building.md Assembles the building → ground storey → nine spaces population.
- * @evidence spaces/building.md#containment Requires each of the nine space IDs exactly once, parented to the ground storey and represented only by cells; refuses missing, duplicate and foreign spaces.
- * @evidence principles/core/source-units.md#source-scope-preservation Preserves the caller's cell records and prepends only the building and storey records.
- * @evidence principles/core/source-units.md#source-substantive-completion Returns the admitted space array; errors identify the space for wrong storey ownership, mixed shell representation, empty cells or omissions.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Implements the one building, one storey and nine-room list of building.md#containment unchanged; no parent space count or storey arrangement needed revision.
  */
 export const templeSpaceHierarchy = (
   rooms: readonly IAutoMovieBuiltSpace[],

@@ -10,11 +10,6 @@ import type { TempleObservation } from "./observations";
 
 /**
  * Follow the opening's actual host normal toward the compiled room centre, then stand back from its far wall.
- * @evidence spaces/observations.md The opening-facing camera position is compiled from the current host and room geometry.
- * @evidence spaces/observations.md#geometry-observations The room-facing observation is derived from the compiled host and room volume instead of copying a door coordinate.
- * @evidence principles/core/source-units.md#source-scope-preservation This function locates a camera only; it does not create another opening, room, or building surface.
- * @evidence principles/core/source-units.md#source-substantive-completion The room-side point is tested against the room's own compiled volume and returns null when the host direction cannot supply one.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The corrected observation rule was paid at observations.md#geometry-observations before this helper realized it.
  */
 export const openingFacingEye = (
   space: IAutoMovieBuiltSpace, mouth: IAutoMovieVector3, normal: IAutoMovieVector3, anchor: IAutoMovieVector3,
@@ -45,11 +40,6 @@ export const openingFacingEye = (
 /**
  * Interior views bound to opening IDs and actual host profiles. Engine threshold
  * arrival directions are not mistaken for views facing the windows.
- * @evidence spaces/observations.md Adds room-side views to the actual opening observation population.
- * @evidence spaces/observations.md#geometry-observations Gives each of sixteen openings a separate interior pose facing its profile.
- * @evidence principles/core/source-units.md#source-scope-preservation Derives views from spaces, boundaries and openings without adding geometry.
- * @evidence principles/core/source-units.md#source-substantive-completion Returns an interior eye-height pose targeting the actual profile center for every opening ID, rejecting positions outside the space.
- * @evidence upstream/design/space-sources.md#design-revision-from-space-source-work clerestories excludes arrival thresholds from window inspection and requires ID-facing poses; geometry-observations first established separate room-side views for all sixteen doors and windows.
  */
 export const openingFacingObservations = (environment: IAutoMovieBuiltEnvironment): TempleObservation[] => {
   return environment.openings.map((opening) => {
@@ -84,14 +74,6 @@ export const openingFacingObservations = (environment: IAutoMovieBuiltEnvironmen
 
 /** Distance in meters at which width fills about 78% of the shared comparison frame. */
 const fitDistance = (width: number): number => (width / 0.78) / 2 / (Math.tan(templeViewerLens.halfVerticalRadians) * templeViewerLens.aspect);
-
-/**
- * @evidence spaces/observations.md Derives exterior setting, boundary and opening observations from the current environment.
- * @evidence spaces/observations.md#geometry-observations Uses exposed census facades and actual opening profiles for exterior views.
- * @evidence principles/core/source-units.md#source-scope-preservation Reads current boundaries and openings to create views without reauthoring facades or windows.
- * @evidence principles/core/source-units.md#source-substantive-completion Returns stable IDs for setting, facades, four corners, roofs, undersides and exterior openings.
- * @evidence upstream/design/space-sources.md#design-revision-from-space-source-work geometry-observations first corrected four low recessed-wall poses facing the wrong wall side and specified new views for anta ends and both porch gables; this implements those rules.
- */
 export const exteriorObservations = (environment: IAutoMovieBuiltEnvironment): TempleObservation[] => {
   const census = builtEnvironmentBuildingCensus(environment)[0];
   const center = { x: 0, y: 2.2, z: 0 };

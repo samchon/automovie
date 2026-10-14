@@ -1,5 +1,5 @@
 /**
- * Stair guard infill from docs/models/04-stair-members.md. The stair space
+ * Stair guard infill The stair space
  * owns treads, posts and handrails; this model supplies only black infill and
  * the upper-hall bottom rail. Coordinates are Y-up metres in the house frame.
  */

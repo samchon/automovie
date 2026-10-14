@@ -1,5 +1,5 @@
 /**
- * Room-wall baseboard prototype from docs/models/06-interior-trim.md. Instances
+ * Room-wall baseboard prototype Instances
  * supply each exposed wall-run length and placement; this source owns only its
  * closed 0.10 m high pentagonal section and square or 45-degree end cuts.
  */

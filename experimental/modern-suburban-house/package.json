@@ -5,7 +5,7 @@
   "version": "0.1.0",
   "exports": {
     "./viewer/scene": {
-      "default": "./src/viewer/scene.mts"
+      "default": "./src/viewer/scene.ts"
     }
   },
   "license": "MIT",
@@ -38,16 +38,15 @@
     "allowJs": true,
     "checkJs": true
   },
-  "include": ["lint.config.ts", "src"],
+  "include": ["src"],
   "scripts": {
     "lint": "ttsc --noEmit -p package.json",
     "format": "ttsc format --cache-dir node_modules/.cache/ttsc -p package.json",
-    "viewer": "tsx src/viewer/server.cts",
+    "viewer": "tsx src/viewer/server.ts",
     "geometry-audit": "tsx src/measurements/geometry-check.ts",
-    "test": "node --import tsx --test src/measurements/*.test.cts src/measurements/*.test.ts src/spaces/*.test.cts",
-    "check": "tsx src/measurements/check.cts",
-    "regression:1952-repair": "tsx src/measurements/scene-regression.cts",
-    "evidence": "evidence --config lint.config.ts"
+    "test": "node --import tsx --test src/measurements/*.test.ts src/spaces/*.test.ts",
+    "check": "tsx src/measurements/check.ts",
+    "regression:1952-repair": "tsx src/measurements/scene-regression.ts"
   },
   "dependencies": {
     "@automovie/archetypes": "workspace:^",
@@ -61,15 +60,12 @@
     "three": "^0.186.0"
   },
   "devDependencies": {
-    "@automovie/evidence": "workspace:^",
     "@automovie/template": "workspace:^",
     "@ttsc/lint": "catalog:samchon",
     "@types/node": "^22.19.17",
     "ttsc": "catalog:samchon",
     "typescript": "^7.0.2",
     "@types/three": "^0.186.0",
-    "tsx": "^4.23.15",
-    "@wrtnlabs/evidence": "catalog:samchon",
-    "@ttsc/evidence": "catalog:samchon"
+    "tsx": "^4.23.15"
   }
 }

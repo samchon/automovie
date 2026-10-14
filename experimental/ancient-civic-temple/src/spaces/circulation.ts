@@ -1,11 +1,4 @@
-/**
- * Emits the public and service circulation of docs/spaces/circulation.md as public connectors.
- * Only actual door passages between distinct spaces and the single south
- * courtyard step become connectors; the colonnade loop stays within one volume
- * and makes no self-connector. The exterior space is temple-site from
- * docs/spaces/site.md#site-connections. The exterior service passage and two-step
- * main entrance stair are the only connectors joining the site and building.
- */
+
 import type { IAutoMovieBuiltConnector, IAutoMovieBuiltSpace, IAutoMovieVector3 } from "@automovie/interface";
 import { edgeInside, planeHeight, type RoofPatch } from "../geometry/planar-domain";
 import { templePlan as p } from "./building";
@@ -17,13 +10,6 @@ import { templeLevels as y } from "./storey";
 /**
  * Passage connectors join points 0.3m inside each side of a door wall; courtyard
  * step and main entrance stair connectors complete the routes.
- * @evidence spaces/circulation.md Emits the eight door passages, one south courtyard step and two-step main entrance stair as public connectors.
- * @evidence spaces/circulation.md#public-route Joins the entrance stair, entrance, colonnade and doors to the courtyard, sanctuary, offering room and three work rooms; movement around the colonnade stays within one volume and makes no self-connector.
- * @evidence spaces/circulation.md#service-route Door connectors join the exterior service door (temple-site→service-yard) and yard door (service-yard→colonnade), giving the carrying route its two thresholds.
- * @evidence spaces/site.md#site-connections Uses temple-site as the exterior endpoint so only the main stair and service door join the site and building.
- * @evidence principles/core/source-units.md#source-scope-preservation Reads route width and clear height from the door table and actual roof undersides, inventing no route or passage rule.
- * @evidence principles/core/source-units.md#source-substantive-completion Checks that both connector endpoints lie in actual spaces and stops with a door-ID error otherwise; stairs emit step count, rise and tread together.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Implements the public/service routes of circulation.md and two contacts of site.md#site-connections as written. Endpoint and roof-underside clearance checks passed, exposing no parent-route defect to repair.
  */
 export const templeConnectors = (
   spaces: readonly IAutoMovieBuiltSpace[], roof: readonly RoofPatch[],

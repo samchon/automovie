@@ -1,4 +1,4 @@
-/** Recognizable fixed furniture and ritual fittings from docs/models/fixtures.md.
+/** Recognizable fixed furniture and ritual fittings
  * These are static metre prototypes; instances own placement and materials own finish. */
 import type { IAutoMovieModel } from "@automovie/interface";
 import { ObjectMesh } from "../geometry/object-mesh";
@@ -17,19 +17,8 @@ const disc=(m:ObjectMesh,id:string,y0:number,y1:number,r:number,n=16)=>
 
 /**
  * Fixed fit-out prototypes with placement and finish left to later branches.
- * @evidence models/fixtures.md This class exposes the ten fixture H2s as separate rough part-based meshes.
- * @evidence principles/core/source-units.md#source-scope-preservation Its public methods make only reviewed fountain, altar, niche, lamp and furniture families, without choosing room transforms.
- * @evidence principles/core/source-units.md#source-substantive-completion Each method returns a stable model ID and actual named mesh parts, including the two shelf and desk variants.
- * @evidenceExclude upstream/design/model-sources.md#design-revision-from-model-source-work The fixture H2s name their characteristic parts, broad extents and fixed states; these approximate proxy builders needed no additional object identity.
- * @evidence obligations/design/model-sources.md#design-owned-construction The box, frustum, vessel and loop calls use each H2's recognizable sections and part names as the construction basis.
  */
 export class TempleFixtures {
-  /**
-   * @evidence models/fixtures.md#fountain Seven emitted parts separate the circular step, hollow rim, basin floor, water disc, ripple, nozzle and single jet.
-   * @evidence principles/core/source-units.md#source-scope-preservation This fixed 2.30 m footprint makes no flowing-water state or courtyard position.
-   * @evidence principles/core/source-units.md#source-substantive-completion The 48-sector rings and vessels return a low basin with a jet reaching Y=1.09 m, rather than one solid cylinder.
-   * @evidenceExclude upstream/design/model-sources.md#design-revision-from-model-source-work The fountain H2 supplies the low rim, water level, centered nozzle and one upward jet used by this rough stationary proxy.
-   */
   fountain():IAutoMovieModel {
     const m=new ObjectMesh();
     disc(m,"step",0,0.08,1.15,48);
@@ -41,13 +30,6 @@ export class TempleFixtures {
     m.frustum("jet",0,0,0.49,1.09,0.025,0.012,48);
     return m.model("fixture.fountain","Courtyard fountain");
   }
-
-  /**
-   * @evidence models/fixtures.md#altar A 2.40 m step carries two side supports and a 1.40 m top slab, leaving the middle under the slab open.
-   * @evidence principles/core/source-units.md#source-scope-preservation This builder makes only the altar/step prototype; the northern sanctuary placement is not chosen here.
-   * @evidence principles/core/source-units.md#source-substantive-completion Three named part meshes establish the step, paired supports and top at Y=1.10 m.
-   * @evidenceExclude upstream/design/model-sources.md#design-revision-from-model-source-work The altar H2 fixes the step and two-support arrangement and top height needed for this blocking shape.
-   */
   altar():IAutoMovieModel {
     const m=new ObjectMesh();
     box(m,"step",0,0,0,2.4,0.15,1.6);
@@ -55,13 +37,6 @@ export class TempleFixtures {
     for(const x of [-0.52,0.52]) box(m,"support",x,0.15,-0.20,0.28,0.81,0.67);
     return m.model("fixture.altar","Stone altar");
   }
-
-  /**
-   * @evidence models/fixtures.md#niche Side blocks and upper/lower frame bars surround a shallower back slab beneath a wider cap.
-   * @evidence principles/core/source-units.md#source-scope-preservation This unmarked niche has no statue or wall hole; only the freestanding plinth/body/recess-frame/recess/cap parts are emitted.
-   * @evidence principles/core/source-units.md#source-substantive-completion The rear slab is set back from the front bars, so the central bay has actual depth in the mesh.
-   * @evidenceExclude upstream/design/model-sources.md#design-revision-from-model-source-work The niche H2 fixes its five part roles and recessed bay, which these box sections realize at approximate blocking fidelity.
-   */
   niche():IAutoMovieModel {
     const m=new ObjectMesh();
     box(m,"plinth",0,0,0.20,1.20,0.60,0.40);
@@ -72,13 +47,6 @@ export class TempleFixtures {
     box(m,"cap",0,1.80,0.21,1.24,0.14,0.42);
     return m.model("fixture.niche","Plain niche");
   }
-
-  /**
-   * @evidence models/fixtures.md#lampstand A tapered foot, narrow 1.02 m stem, two small knops and open vessel dish produce the unlit standing-lamp outline.
-   * @evidence principles/core/source-units.md#source-scope-preservation The builder emits the fixed lampstand without flame, light source or sanctuary placement.
-   * @evidence principles/core/source-units.md#source-substantive-completion Separate foot/stem/knop/dish meshes reach the reviewed 1.15 m rim height.
-   * @evidenceExclude upstream/design/model-sources.md#design-revision-from-model-source-work The lampstand H2 gives the foot, stem, two knops and cup heights used by this static proxy.
-   */
   lampstand():IAutoMovieModel {
     const m=new ObjectMesh();
     const rings=([[0,0.13],[0.06,0.08],[0.08,0.08]] as const).map(([y,r])=>
@@ -94,26 +62,12 @@ export class TempleFixtures {
       [[1.15,0.10],[1.106,0.10]],16);
     return m.model("fixture.lampstand","Metal lampstand");
   }
-
-  /**
-   * @evidence models/fixtures.md#offering-table A 2.20 m long top rests on two thin stone trestles at Z ±0.75 m, leaving the center underneath open.
-   * @evidence principles/core/source-units.md#source-scope-preservation It supplies the empty table prototype alone; offerings and its position in the room remain instance decisions.
-   * @evidence principles/core/source-units.md#source-substantive-completion The top and trestle parts meet at Y=0.72 m and form the H2's low, long blocking silhouette.
-   * @evidenceExclude upstream/design/model-sources.md#design-revision-from-model-source-work The offering-table H2 locates its slab and two end supports, sufficient for this rough fixed mesh.
-   */
   offeringTable():IAutoMovieModel {
     const m=new ObjectMesh();
     box(m,"top",0,0.72,0,0.75,0.10,2.20);
     for(const z of [-0.75,0.75]) box(m,"trestle",0,0,z,0.60,0.72,0.12);
     return m.model("fixture.offering-table","Offering table");
   }
-
-  /**
-   * @evidence models/fixtures.md#display-shelf The offering branch spans 1.60 m with 1.40 m-high, 0.40 m-deep sides and four boards; administration spans 1.00 m with 1.20 m-high, 0.30 m-deep sides and three boards.
-   * @evidence principles/core/source-units.md#source-scope-preservation Only the two reviewed shelf identities are available, with no contents or wall-side placement embedded.
-   * @evidence principles/core/source-units.md#source-substantive-completion Side and board parts create open front and back bays at the branch-specific heights.
-   * @evidenceExclude upstream/design/model-sources.md#design-revision-from-model-source-work The display-shelf H2 supplies both widths, depths, heights and board counts used by these coarse shelves.
-   */
   displayShelf(kind:"offering"|"administration"):IAutoMovieModel {
     const m=new ObjectMesh();
     const wide=kind==="offering",w=wide?1.60:1.00,d=wide?0.40:0.30,h=wide?1.40:1.20;
@@ -123,13 +77,6 @@ export class TempleFixtures {
       woodBox(m,"board",0,y,d/2,w-2*side,0.03,d);
     return m.model(`fixture.display-shelf.${kind}`,`Wall shelf ${kind}`);
   }
-
-  /**
-   * @evidence models/fixtures.md#desk Two size branches make a thin top, four legs at inset corners and four low stretcher bars around the open under-space.
-   * @evidence principles/core/source-units.md#source-scope-preservation Writing and reading dimensions are the only desk variants; drawers and room placement are absent.
-   * @evidence principles/core/source-units.md#source-substantive-completion Each branch returns top/leg/stretcher parts with a four-legged silhouette rather than a solid desk box.
-   * @evidenceExclude upstream/design/model-sources.md#design-revision-from-model-source-work The desk H2 fixes both top sizes, leg inset and low brace arrangement realized by the loops.
-   */
   desk(kind:"writing"|"reading"):IAutoMovieModel {
     const m=new ObjectMesh(),writing=kind==="writing";
     const w=writing?1.10:0.90,d=writing?0.60:0.55,h=writing?0.75:0.72;
@@ -141,13 +88,6 @@ export class TempleFixtures {
     for(const x of [-lx,lx]) woodBox(m,"stretcher",x,0.15,0,0.04,0.05,2*lz);
     return m.model(`fixture.desk.${kind}`,`Work table ${kind}`);
   }
-
-  /**
-   * @evidence models/fixtures.md#stool A 0.40 by 0.35 m seat stands on four short legs joined by low stretchers, reaching 0.45 m.
-   * @evidence principles/core/source-units.md#source-scope-preservation The builder keeps this backless seat fixed and leaves desk pairing to instances.
-   * @evidence principles/core/source-units.md#source-substantive-completion Seat, leg and stretcher parts give the H2's open under-seat outline.
-   * @evidenceExclude upstream/design/model-sources.md#design-revision-from-model-source-work The stool H2 already gives the seat, leg centers and brace level used by these boxes.
-   */
   stool():IAutoMovieModel {
     const m=new ObjectMesh();woodBox(m,"seat",0,0.41,0,0.40,0.04,0.35);
     for(const x of [-0.16,0.16]) for(const z of [-0.135,0.135])
@@ -156,13 +96,6 @@ export class TempleFixtures {
     for(const x of [-0.16,0.16]) woodBox(m,"stretcher",x,0.12,0,0.025,0.03,0.27);
     return m.model("fixture.stool","Stool");
   }
-
-  /**
-   * @evidence models/fixtures.md#scroll-shelf Two side frames and six horizontal boards bound five levels, with three dividers per level making four open bays across.
-   * @evidence principles/core/source-units.md#source-scope-preservation This is the 1.80 m record-room shelf only; scroll placement and counts are not emitted.
-   * @evidence principles/core/source-units.md#source-substantive-completion Separate frame, board and divider parts make an actual 4 by 5 cell silhouette without a back panel.
-   * @evidenceExclude upstream/design/model-sources.md#design-revision-from-model-source-work The scroll-shelf H2 sets the 4 by 5 partition and board/divider intervals used by the nested loops.
-   */
   scrollShelf():IAutoMovieModel {
     const m=new ObjectMesh();
     for(const x of [-0.88,0.88]) woodBox(m,"frame",x,0,0.20,0.04,1.70,0.40);
@@ -173,13 +106,6 @@ export class TempleFixtures {
         woodBox(m,"divider",x,low,0.20,0.03,high-low,0.40);
     return m.model("fixture.scroll-shelf","Records shelf");
   }
-
-  /**
-   * @evidence models/fixtures.md#chest A body box and slightly wider raised lid retain a visible seam, with a front hasp and metal strip proxies on the rear and corners.
-   * @evidence principles/core/source-units.md#source-scope-preservation It returns the H2's closed fixed chest outline; no opening animation or stored contents are added.
-   * @evidence principles/core/source-units.md#source-substantive-completion Body, lid, hasp and strap are four separate named mesh parts, so the closure reads independently from the wood.
-   * @evidenceExclude upstream/design/model-sources.md#design-revision-from-model-source-work The chest H2 gives the body/lid seam and front/rear hardware positions used for this approximate fixed proxy.
-   */
   chest():IAutoMovieModel {
     const m=new ObjectMesh();
     woodBox(m,"body",0,0,0,0.80,0.44,0.50);

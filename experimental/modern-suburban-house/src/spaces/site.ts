@@ -1,7 +1,7 @@
 /**
  * `house-site`: containment and access assembly of the site owners.
  *
- * Design owner: `docs/spaces/site/00-access.md#site-access-interface`. The site
+ * The site
  * contains the main building, the garage, the porch and the exterior access
  * areas, all bound to the ground storey. This owner does not create paving or
  * terrain itself: it gathers the front walk, driveway, side path, terrace and
@@ -17,13 +17,6 @@ import { buildTerrace } from "./site/terrace";
 import type { ISiteBuild } from "./site/zone";
 
 /** Emit every site zone and part in a fixed owner order. */
-/**
- * @evidence spaces/site/00-access.md This assembly combines the separate authored exterior access owners into one site return value.
- * @evidence spaces/site/00-access.md#site-access-interface It gathers front walk, driveway, side walk, terrace, and fence without creating a terrain or outside street node.
- * @evidence principles/core/source-units.md#source-scope-preservation The assembly imports each owner as a value and retains its zones and parts instead of drawing a second paving surface.
- * @evidence principles/core/source-units.md#source-substantive-completion A fixed call and concatenation order makes the built site zones and solids deterministic on each build.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Site-access-interface makes site.ts the assembly owner and 03-surface-owners.md#exterior-surface-handoff assigns the five paving/fence builders; their returned parts and zones required no new parcel boundary.
- */
 export const buildSite = (): ISiteBuild => {
   const builds = [
     buildFrontWalk(),

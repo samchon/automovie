@@ -2,7 +2,7 @@
  * `front-walk`: the walk from the porch steps to the paving end, and its cross
  * connector to the driveway.
  *
- * Design owner: `docs/spaces/site/front-walk.md#front-walk-plan`. Width and
+ * Width and
  * centre X follow the porch stair: X = [0.15, 1.65]. It starts at the first
  * porch riser Z = 2.80 (two 0.30 m treads in front of the porch edge 2.20) and
  * runs to the paving end Z = 6.50, level at the front walk datum −0.45 m, so it
@@ -13,7 +13,7 @@
  */
 import { PALETTE } from "../palette";
 import { part } from "../part";
-import type { IHousePart } from "../IHousePart";
+import type { IHousePart } from "../../types/IHousePart";
 import { rect, slopedSlab } from "../solids";
 import { STOREYS } from "../storeys";
 import type { IExteriorZone, ISiteBuild } from "./zone";
@@ -34,13 +34,6 @@ import {
 const OWNER = "site/front-walk.ts";
 
 /** Front walk extent, metres. */
-/**
- * @evidence spaces/site/front-walk.md The porch-axis path and its cross band have one plan record for slab, zone, and connector.
- * @evidence spaces/site/front-walk.md#front-walk-plan X follows the porch-step centre, the inner Z follows its front riser, and the cross band keeps its reviewed Z limits.
- * @evidence principles/core/source-units.md#source-scope-preservation The path consumes PORCH_STEP_CENTRE_X and PORCH_STEP_FRONT_Z rather than owning a second entry axis.
- * @evidence principles/core/source-units.md#source-substantive-completion The slab, joined zone patches, and exterior connector read the same path bounds.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Front-walk-plan places the T connector at the driveway side and consumes porch-platform-access for the 1.50 m stair-width near contact; this record shares those bounds.
- */
 export const FRONT_WALK = {
   x: [PORCH_STEP_CENTRE_X - PORCH_STEP_HALF_WIDTH, PORCH_STEP_CENTRE_X + PORCH_STEP_HALF_WIDTH] as const,
   z: [PORCH_STEP_FRONT_Z, DRIVEWAY.z[1]] as const,
@@ -48,13 +41,6 @@ export const FRONT_WALK = {
 };
 
 /** Emit the walk and its sloped cross connector. */
-/**
- * @evidence spaces/site/front-walk.md This builder owns the porch-axis walk and its cross connector to the drive.
- * @evidence spaces/site/front-walk.md#front-walk-plan The level walk reaches from the porch steps to Z=6.50; its connector blends the walk height to driveTop.
- * @evidence principles/core/source-units.md#source-scope-preservation It uses DRIVEWAY and driveTop value imports and creates no second driveway or porch landing.
- * @evidence principles/core/source-units.md#source-substantive-completion A flat slab, triangulated connector parts, and a named walk zone return together.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Front-walk-plan fixes the porch-axis walk, lower waiting area and T band to the driveway; buildFrontWalk emits those surfaces and one joined standing zone without another crossing.
- */
 export const buildFrontWalk = (): ISiteBuild => {
   const walkY = STOREYS.frontWalk;
   const [left, right] = [FRONT_WALK.x[1], DRIVEWAY.x[0]];

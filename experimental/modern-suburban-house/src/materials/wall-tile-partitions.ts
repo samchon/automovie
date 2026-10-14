@@ -1,6 +1,6 @@
 /** Partition existing wall faces at the authored wet-zone boundaries. */
 import type { IAutoMovieMesh } from "@automovie/interface";
-import type { IHousePart } from "../spaces/IHousePart";
+import type { IHousePart } from "../types/IHousePart";
 type Vertex={p:number[];n:number[];uv:number[]|null};
 type Zone={box:readonly [number,number,number,number,number,number];normal:readonly [number,number,number]|null;part?:string};
 const EPS=1e-8;

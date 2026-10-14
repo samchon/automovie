@@ -12,7 +12,7 @@
  */
 import { MAIN } from "./building";
 import { PALETTE } from "./palette";
-import type { IHousePart } from "./IHousePart";
+import type { IHousePart } from "../types/IHousePart";
 import { part } from "./part";
 import { bar, block, slab } from "./solids";
 import type { STAIR_OPENING, STAIR_STEPS } from "./stair";
@@ -26,16 +26,6 @@ type StairWall = (
   bottom: number,
   top: number,
 ) => IHousePart;
-
-/**
- * @evidence spaces/02-stair.md This called helper fills the stair's open guard edges, floor notch finish and high ceiling under the same stair owner.
- * @evidence spaces/02-stair.md#stair-floor-opening The five opening sides receive stair-owned edge finish; the front side splits where its upper neighbour changes, and the same outline closes the stair hall ceiling above the guard band.
- * @evidence spaces/02-stair.md#stair-clearance Posts and rails derive their section from the opening's guardReserve and are checked against it.
- * @evidence spaces/02-stair.md#stair-boundary-heights Each sloped rail follows its flight's tread noses 0.90 m above them; the corner post receives their distinct landing and first upper-nose heights, and the hall rail rises 1.05 m over its floor.
- * @evidence principles/core/source-units.md#source-scope-preservation The helper receives the stair owner and datums rather than declaring another stair or taking the entry-owned closet interior.
- * @evidence principles/core/source-units.md#source-substantive-completion The returned ordered solids close the floor edge and ceiling while constructing and checking actual guard sections.
- * @evidence upstream/design/space-sources.md#design-revision-from-space-source-work Emission first exposed shared ceiling and floor finish volumes at the opening edge, then exposed lower gaps at its west and back sides and an upper gap at the linen corner. The revisions to 02-stair.md#stair-boundary-heights, 08-floor-assembly.md#interstorey-edge-junctions and 03-surface-owners.md#interior-surface-handoff assign each edge interval to its actual neighbour.
- */
 export const buildStairGuards = (props: {
   owner: string;
   opening: typeof STAIR_OPENING;

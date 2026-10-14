@@ -1,7 +1,7 @@
 /**
  * `powder-room`: the front room of the service band.
  *
- * Design owner: `docs/spaces/rooms/powder.md#powder-plan`. Finished inner
+ * Finished inner
  * X = [3.22, 5.50], Z = [-1.90, -0.25] m. 07 assigns this owner its partitions
  * to service-access (X = [3.07, 3.22], carrying `service-powder-door`
  * Z = [-1.65, -0.70], Y = [0, 2.20] m, from Z = -1.90; the corner
@@ -22,10 +22,6 @@ import {
 } from "./shared";
 import { floorOf } from "../storeys";
 /** Shared void owned by this room and consumed at its floor and adjacent finish.
- * @evidence spaces/rooms/powder.md The service-powder-door void follows the partition assigned to powder.
- * @evidence principles/core/source-units.md#source-scope-preservation The service-powder-door interval remains with powder while its adjacent room receives the span.
- * @evidence principles/core/source-units.md#source-substantive-completion The service-powder-door span cuts its wall and sets floor finish limits on both sides.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Powder-plan fixes service-powder-door in the west partition at Z=[-1.65, -0.70], Y=[0, 2.20], clear of the washbasin reservation; this export carries the rough span.
  */
 export const DOOR_SERVICE_POWDER_DOOR = door(
   "service-powder-door",
@@ -58,14 +54,6 @@ const POWDER: IRoomSpace = {
 };
 
 /** Emit the powder room floor and its two partitions. */
-/**
- * @evidence spaces/rooms/powder.md This builder returns the front service-band powder room and its two partition bodies.
- * @evidence spaces/rooms/powder.md#powder-plan The service-side wall holds service-powder-door while the rear wall closes against laundry.
- * @evidence spaces/rooms/powder.md#powder-fixture-use Toilet, basin, mirror, towel, and the separate approach/waiting rectangles remain reservations for later fills.
- * @evidence principles/core/source-units.md#source-scope-preservation It creates room surfaces and partition voids, not a toilet, basin, mirror, or towel mesh.
- * @evidence principles/core/source-units.md#source-substantive-completion The room record, tile floor, ceiling, under-door strip, and two walls form an executable builder result.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Powder-plan fixes the single service door and toilet/basin body boxes; powder-fixture-use adds their heights, facing and separate use/waiting rectangles; buildPowder consumes those decisions without a parent revision.
- */
 export const buildPowder = (): IRoomBuild => ({
   space: POWDER,
   parts: [

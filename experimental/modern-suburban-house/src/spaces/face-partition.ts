@@ -13,11 +13,6 @@ import type { IAutoMovieMesh } from "@automovie/interface";
 
 /**
  * Partition triangles lying wholly on one world-axis plane.
- * @evidence spaces/03-surface-owners.md The structural and room owners can receive disjoint triangles of one already-authored surface boundary.
- * @evidence spaces/03-surface-owners.md#interior-surface-handoff The room finish is selected from the shared solid without overlapping its support face.
- * @evidence principles/core/source-units.md#source-scope-preservation The caller supplies the mesh and world plane; this helper chooses no house surface owner.
- * @evidence principles/core/source-units.md#source-substantive-completion The result carries every source triangle and aligned attribute exactly once in a face or body mesh.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The reviewed surface handoff already assigns support and finish faces to their respective source files; this helper only separates their triangle buffers.
  */
 export const partitionPlaneFace = (
   mesh: IAutoMovieMesh,

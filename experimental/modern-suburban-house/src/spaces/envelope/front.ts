@@ -2,7 +2,7 @@
  * Front elevation: the main front wall with the gable triangle, and the garage
  * front wall, each with its real voids.
  *
- * Design owner: `docs/spaces/envelope/front.md`. The main front wall is
+ * The main front wall is
  * Z = [-0.25, 0] m over X = [-5.75, 5.75] m and owns both front corners (07
  * exterior-boundary-junctions). Its top follows the roof undersides at the
  * outer line: the gable triangle F − 0.24 over X = [-5.75, -1.80], the main roof
@@ -36,7 +36,7 @@ import {
   rFront,
 } from "../roof/junctions";
 import { FRONT_DOOR } from "../rooms/entry";
-import type { IHousePart } from "../IHousePart";
+import type { IHousePart } from "../../types/IHousePart";
 import { part } from "../part";
 import { block, slopedSlab, wallPanel } from "../solids";
 import { GROUND_LAYERS, STOREYS } from "../storeys";
@@ -49,13 +49,6 @@ const B = EXTERIOR_WALL_BOTTOM;
 const FRONT = MAIN.outer.z[1];
 const INNER = FRONT - MAIN.wall;
 /** Rough garage opening; room fit-out reserves the guide from this host. */
-/**
- * @evidence spaces/envelope/front.md The garage's one broad opening is measured at its front elevation.
- * @evidence spaces/envelope/front.md#garage-front-opening The 6.10..11.10 m jambs and 2.15 m head form the garage opening; the wall-cut bottom extends below the garage floor through its support base.
- * @evidence principles/core/source-units.md#source-scope-preservation This host leaves the moving panel and guides to later models and garage reservations.
- * @evidence principles/core/source-units.md#source-substantive-completion The wall cut, floor base tongue, and interior guide reservations consume its span.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Garage-front-opening fixes garage-front-door jambs X=6.10..11.10 m and a 2.15 m head; this host keeps that one rough void while panel movement remains a model duty.
- */
 export const GARAGE_FRONT_DOOR = {
   id: "garage-front-door",
   from: 6.1,
@@ -66,20 +59,6 @@ export const GARAGE_FRONT_DOOR = {
 /** Bottom of the ground base reservation the wall leaves under the front door (10). */
 
 /** Emit the front elevation walls. */
-/**
- * @evidence spaces/envelope/front.md This builder emits the complete front wall bodies with their authored rough voids and threshold support.
- * @evidence spaces/envelope/front.md#front-roof-closures One wall outline rises under the high gable, main plane, and low right roof, with thickness wedges at those contacts.
- * @evidence spaces/envelope/front.md#front-openings Five named front voids remain in the shared wall face; service and powder receive no invented front window.
- * @evidence spaces/envelope/front.md#living-front-window The ground living void spans X=-5.10..-2.30 below the porch roof.
- * @evidence spaces/envelope/front.md#bedroom-two-front-window The left upper bedroom void spans X=-4.80..-2.70 beneath the gable.
- * @evidence spaces/envelope/front.md#stair-front-window The narrow upper-height void stays in the stair's front-wall span.
- * @evidence spaces/envelope/front.md#bedroom-three-front-window The right upper bedroom void lies on the lower-roof portion, not the garage face.
- * @evidence spaces/envelope/front.md#front-entry-filling The front-door rough void and finish threshold give the later wood/glass leaf its authored host and porch contact.
- * @evidence spaces/envelope/front.md#garage-front-opening One wide garage-front-door void and the base beneath it leave room for the later single moving panel door.
- * @evidence principles/core/source-units.md#source-scope-preservation This source builds wall/reveal void geometry and threshold only; window frames, door leaves, and rails remain model work.
- * @evidence principles/core/source-units.md#source-substantive-completion The result includes separate siding and brick regions in the main and garage walls, roof-contact wedges, six real voids, and a solid front threshold.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Entry-plan sets front-door X=[0.40, 1.40], garage-front-opening sets X=[6.10, 11.10], and the four front-window H2s set their own rough cuts; ground-support-handoff supplies the provisional wall bottom Y=-0.45, while ground-threshold-junctions supplies the two entrance base notches.
- */
 export const buildFront = (): IHousePart[] => {
   const mainTop = mFront(FRONT) - ROOF_THICKNESS;
   const rightTop = rFront(FRONT) - ROOF_THICKNESS;

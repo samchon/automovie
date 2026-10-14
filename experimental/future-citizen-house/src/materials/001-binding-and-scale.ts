@@ -1,7 +1,7 @@
 import { srgbHexToLinearColor } from "@automovie/engine";
 import type { IAutoMovieMaterial, IAutoMovieTextureReference } from "@automovie/interface";
 
-/** Native response shared by the finish owners in docs/materials/001-binding-and-scale.md. */
+/** Native response shared by the finish owners */
 export function materialFinish(
   id: string,
   color: string,

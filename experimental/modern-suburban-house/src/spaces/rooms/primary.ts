@@ -1,7 +1,7 @@
 /**
  * `primary-bedroom`: the upper-storey rear-left bedroom.
  *
- * Design owner: `docs/spaces/rooms/primary.md#primary-plan`. Finished inner
+ * Finished inner
  * area is the back body X = [-5.50, 0.75], Z = [-10.45, -6.06] m joined with the
  * left part X = [-5.50, -3.35], Z = [-6.06, -4.71] m. 07 assigns this owner its
  * partitions to bedroom-two (Z = [-4.71, -4.56]) and to the upper hall
@@ -25,10 +25,6 @@ import {
 import { floorOf } from "../storeys";
 import { STAIR_OPENING } from "../stair";
 /** Shared void owned by this room and consumed at its floor and adjacent finish.
- * @evidence spaces/rooms/primary.md The hall-primary-door void follows the partition assigned to primary.
- * @evidence principles/core/source-units.md#source-scope-preservation The hall-primary-door interval remains with primary while its adjacent room receives the span.
- * @evidence principles/core/source-units.md#source-substantive-completion The hall-primary-door span cuts its wall and sets floor finish limits on both sides.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Primary-plan fixes hall-primary-door in the corridor wall at X=[-2.70, -1.70], Y=[3.06, 5.26], allowing direct bedroom access; this export carries that interval.
  */
 export const DOOR_HALL_PRIMARY_DOOR = door(
   "hall-primary-door",
@@ -52,7 +48,7 @@ const PRIMARY: IRoomSpace = {
     { x: -5.5, z: -10.45 },
   ],
   floor: PALETTE.carpet,
-  // primary.md#primary-furniture-use; heights are above the upper floor (+3.06).
+  // ; heights are above the upper floor (+3.06).
   reservations: [
     { id: "primary-bedroom-bed", kind: "furniture", x: [-1.5, 0.65], z: [-8.65, -7.05], y: [FLOOR, FLOOR + 1] },
     { id: "primary-bedroom-rear-nightstand", kind: "furniture", x: [0.15, 0.65], z: [-9.15, -8.65], y: [FLOOR, FLOOR + 1.1] },
@@ -70,14 +66,6 @@ const PRIMARY: IRoomSpace = {
 };
 
 /** Emit the primary bedroom floor and its three partition runs. */
-/**
- * @evidence spaces/rooms/primary.md This builder owns the L-shaped upper rear-left primary bedroom.
- * @evidence spaces/rooms/primary.md#primary-plan The hall door, bedroom-two boundary, and wardrobe threshold stay on the room's allocated partition edges.
- * @evidence spaces/rooms/primary.md#primary-furniture-use Bed, two nightstands, dresser/drawer use, and wardrobe-door waiting occupy separate reservations.
- * @evidence principles/core/source-units.md#source-scope-preservation The function emits its carpet finishes and three walls, not the bed or wardrobe storage meshes.
- * @evidence principles/core/source-units.md#source-substantive-completion It returns the room record, two finish planes, two door-floor shares, and the three partition runs.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Primary-plan fixes the L outline and hall-primary-door X=[-2.70, -1.70], primary-wardrobe-plan owns the wardrobe door Z=[-10.20, -9.20], and primary-furniture-use assigns the bed and two curtains; buildPrimary consumes those separate owners.
- */
 export const buildPrimary = (): IRoomBuild => ({
   space: PRIMARY,
   parts: [

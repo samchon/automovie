@@ -1,12 +1,4 @@
-/**
- * Emits the building assembly of docs/spaces/building.md#containment as a public
- * built environment. Shared inputs assemble nine space cells on one storey,
- * solid facade/interior-wall/roof/floor/low-ceiling models, boundaries with host
- * faces, door/clerestory profiles, connectors between distinct spaces and walking
- * supports. The site is the separately owned temple-site unit (docs/spaces/site.md);
- * exterior wall bottoms read its minimum ground contact. Independent door leaves,
- * columns and basins belong to models and are excluded here.
- */
+
 import { validateBuiltEnvironment } from "@automovie/engine";
 import type {
   IAutoMovieVector3,
@@ -45,18 +37,6 @@ import { createTempleSite } from "./site/assembly";
 import { templeSiteContactMinimum, templeSiteGradeBreaks, templeSiteGradePlane } from "./site/extent";
 import { templeStorage, templeStorageCeiling, templeStoragePlan } from "./rooms/storage";
 import { templeLevels as y, templeWallBottom } from "./storey";
-
-/**
- * @evidence spaces/building.md Assembles one building, one storey and nine space cells, facade/interior-wall/roof/floor/ceiling models, host-face boundaries, profile openings, connectors and walking supports into one generation of the public built environment.
- * @evidence spaces/building.md#approach-contacts Carries the main stair and exterior service-door connectors in the same environment as the site unit and space, joining temple-site to the building contacts.
- * @evidence spaces/junctions.md#gable-closures Culls composite roof pieces and adds step-closure front faces and pocket-facing back faces, emitting closure above and below roofs as surfaces.
- * @evidence principles/core/source-units.md#source-scope-preservation Only assembles spaces, boundaries, openings, roofs and site from their owner functions; sets no room dimension or roof height here and includes no independent door leaves, columns or basins.
- * @evidence principles/core/source-units.md#source-substantive-completion Returns the actual environment admitted by validateBuiltEnvironment plus walls, roof, wallBottom, floors, site and trim; validation failure throws paths and expected values.
- * @evidence upstream/design/space-sources.md#design-revision-from-space-source-work Names every parent repair exposed by implementation: openings.md#boundary-ownership exterior clerestory boundaries above roofs (c7af729c), local return-wall roof lines (86d6fd15), recessed-wall end-cell north/side faces (b99fa668), single-space addresses at street-facing anta ends and both pediment faces with a 3.678m side cut (f8e372a8); observations.md#geometry-observations corresponding facade poses, own-face readings and two upper under-eave junction bands; roofs/assembly.md#roof-junctions front/back step closures (0cd21642). Each decision entered assembly after its parent H2 settled it.
- * @evidence obligations/design/space-sources.md#space-source-invalid-topology Validates the assembled environment through validateBuiltEnvironment; failure stops with every violation path and expectation and returns no partial result.
- * @evidence obligations/design/space-sources.md#space-source-stable-identities Derives space, boundary, opening, model and element IDs from design addresses (boundary-*, window-*, model.wall.*, element.*), without clocks, randomness or file state, so identical inputs produce the same environment.
- * @evidence obligations/design/space-sources.md#space-source-design-ownership Every environment space, boundary, opening, roof and site fact comes from an owner export citing one spaces design file; decisions first exposed by source, such as closure backs, entered only after parent-H2 repair.
- */
 export const createTempleEnvironment = () => {
   const roof = templeRoofEnvelope();
   const site = createTempleSite();
@@ -154,7 +134,7 @@ export const createTempleEnvironment = () => {
     id, kind: wallId.startsWith("wall.boundary") ? "interior-wall" : "exterior-wall",
     spaces: spaceIds, elements: [`element.${wallId}`], face: face(wall(wallId), host[0], host[1], band),
   });
-  // docs/spaces/openings.md#boundary-ownership: split six level hosts and two
+  // Split six level hosts and two
   // return walls exposed by local slopes; a distant roof maximum must not hide local bands.
   const roofTopAlong = (points: readonly PlanPoint[]): number => Math.max(...points.map((point) => {
     const heights = roof.filter((patch) => patch.tier === "wing" && patch.polygon.every((q, i) =>

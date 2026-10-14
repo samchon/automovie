@@ -1,5 +1,5 @@
 /**
- * East exterior wall solid of docs/spaces/facades/east.md#east-envelope.
+ * East exterior wall solid
  * The yard section is a low stone wall sharing the north facade's top, cut by
  * the exterior service-door void. South of the storage room's north shared
  * wall, it closes to the east-wing roof underside; only the southeast corner
@@ -17,14 +17,6 @@ const roof = { kind: "roof", tier: "wing" } as const;
 const yardTop = {
   kind: "flat", height: templeYardWallTop, surface: "surface.service-yard.wall-top", coping: templeWallTrim.copingThickness,
 } as const;
-
-/**
- * @evidence spaces/facades/east.md Emits an east exterior WallSpec partitioned into low yard wall, eave wall and southeast corner cell.
- * @evidence spaces/facades/east.md#east-envelope Implements the 2.55m yard wall and exterior service-door void, the wall closing to east eave undersides south of the storage north partition, and the southeast corner rising to coping height.
- * @evidence principles/core/source-units.md#source-scope-preservation Takes heights from the north yard wall, south coping and roof underside, without choosing new heights.
- * @evidence principles/core/source-units.md#source-substantive-completion Returns a WallSpec with plan, intervals, top policies, voids and band splits; its bottom is the caller's common exterior-wall bottom.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Implements the three sections and service-door position of facades/east.md unchanged; 0 envelope overlap and a closed wall model exposed no parent defect.
- */
 export const templeEastWalls = (bottom: number): WallSpec[] => [{
   id: "wall.facade-east", owner: "facade-east", axis: "z", bottom,
   plan: templeOuterWallPlans().east,

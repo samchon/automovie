@@ -1,4 +1,4 @@
-/** Native finish recipes owned by docs/materials/004-wood.md.
+/** Native finish recipes
  * The shared constructor supplies only the documented renderer defaults. */
 
 export const woodTextured = {

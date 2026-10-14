@@ -23,30 +23,6 @@ type Finish =
   | "water"
   | "foliage"
   | "plaster";
-
-/**
- * @evidence materials/00-surface-palette.md The 17 fixed finish keys retain their authored color, surface response, bitmap choice, and metre repeat.
- * @evidence materials/00-surface-palette.md#stone The stone key uses pale limestone and the stone image at a one-metre repeat.
- * @evidence materials/00-surface-palette.md#paving The two paving keys share an image but use two- and one-metre repeats.
- * @evidence materials/00-surface-palette.md#plaster Warm plaster receives a 1.5-metre image repeat.
- * @evidence materials/00-surface-palette.md#dado The lower red band uses its own color and plaster image.
- * @evidence materials/00-surface-palette.md#timber Structural dark wood uses the timber image.
- * @evidence materials/00-surface-palette.md#roof-tile Roof terracotta uses the tile image at half-metre repeat.
- * @evidence materials/00-surface-palette.md#metal Hardware has a metallic response and no bitmap asset.
- * @evidence materials/00-surface-palette.md#ceramic Ceramic is its own untextured red finish.
- * @evidence materials/00-surface-palette.md#wicker Wicker is a distinct dry-fibre untextured finish.
- * @evidence materials/00-surface-palette.md#parchment Writing surfaces retain their light separate color.
- * @evidence materials/00-surface-palette.md#textile Linen uses the existing textile image.
- * @evidence materials/00-surface-palette.md#rope-fibre Rope has its own short repeat and color.
- * @evidence materials/00-surface-palette.md#earth Foreground soil uses the earth image.
- * @evidence materials/00-surface-palette.md#distant-ridge Distant earth is an untextured separate key.
- * @evidence materials/00-surface-palette.md#foliage Foliage has its own low-gloss color.
- * @evidence materials/00-surface-palette.md#water Water receives the lowest roughness without a repaint texture.
- * @evidence principles/core/source-units.md#source-scope-preservation The record contains only the 17 authored finish keys and renderer fields, with no mesh or placement decisions.
- * @evidence principles/core/source-units.md#source-substantive-completion Each key has concrete color, roughness, metallic, repeat and optional existing image values.
- * @evidenceExclude upstream/design/material-sources.md#design-revision-from-material-source-work The palette H2s already specify every key and surface response encoded in this record.
- * @evidence obligations/design/material-sources.md#material-source-renderer-mapping One literal palette record gives every selected finish its renderer color, roughness, metallic and texture values.
- */
 export const templeMaterialPalette: Record<
   Finish,
   {
@@ -222,17 +198,6 @@ const material = (finish: Finish): IAutoMovieMaterial => {
           },
   };
 };
-
-/**
- * @evidence materials/20-space-bindings.md The surface classifier assigns the authored finish from emitted space IDs.
- * @evidence materials/20-space-bindings.md#space-binding-map Ground, floor, dado, stone joints, roof, timber, and plaster IDs each have one finish.
- * @evidence materials/20-space-bindings.md#material-junctions Separate upper, edge, soffit, coping, and dado IDs keep material changes at their physical boundaries.
- * @evidence materials/20-space-bindings.md#material-review-set Unmapped IDs fail instead of silently receiving a display fallback.
- * @evidence principles/core/source-units.md#source-scope-preservation The classifier returns a finish key only and leaves the space mesh and UVs unchanged.
- * @evidence principles/core/source-units.md#source-substantive-completion Every emitted space surface receives a key and unsupported IDs raise an explicit error.
- * @evidenceExclude upstream/design/material-sources.md#design-revision-from-material-source-work The authored surface binding table already separates stone, paving, plaster, roof, wood and dado IDs.
- * @evidence obligations/design/material-sources.md#material-source-design-ownership The classifier reads the space-owned surface names and creates no new faces.
- */
 export const templeSpaceFinish: (id: string) => Finish = (id: string): Finish => {
   if (!Object.hasOwn(templeSpaceFinishes, id))
     throw new Error(`${id}: no space finish`);
@@ -356,13 +321,6 @@ const objectFinishes: Readonly<
 /**
  * Explicit object IDs and parts require own table keys. Building and landscape prefix branches consume the source owners' admitted family IDs/parts; this classifier does not independently enumerate or validate every member of those families.
  *
- * @evidence materials/10-model-bindings.md Each building or object part receives its exact declared finish key.
- * @evidence materials/10-model-bindings.md#binding-map The explicit object table preserves wood/metal chest and yoke parts, paper/rope scrolls, pot/soil and every ritual part without a fallback.
- * @evidence principles/core/source-units.md#source-scope-preservation Only finish keys are returned; prototype geometry and placement stay unchanged.
- * @evidence principles/core/source-units.md#source-substantive-completion Every placed family is classified and an unknown object part is refused with its identity.
- * @evidence obligations/design/material-sources.md#material-source-design-ownership Existing named prototype parts consume the authored binding table verbatim.
- * @evidence obligations/design/material-sources.md#material-source-invalid-state Own-key object/part checks reject inherited or unknown table entries and unmatched families raise a named diagnostic; recognized building/landscape prefix branches require the source owners' admitted member identities.
- * @evidenceExclude upstream/design/material-sources.md#design-revision-from-material-source-work The existing binding table already supplies every object part-to-finish relationship; no parent material changes were needed.
  */
 export const templeModelFinish: (id: string, part: string) => Finish = (id: string, part: string): Finish => {
   if (Object.hasOwn(objectFinishes, id)) {
@@ -402,16 +360,6 @@ export const templeModelFinish: (id: string, part: string) => Finish = (id: stri
     return ["water", "ripple", "jet"].includes(part) ? "water" : "limestone";
   throw new Error(`${id}/${part}: no model finish`);
 };
-
-/**
- * @evidence materials/20-space-bindings.md This assembly applies a single keyed material to every model part emitted by the built environment.
- * @evidence materials/20-space-bindings.md#space-binding-map Surface IDs reach templeSpaceFinish, and every returned finish gets a material record.
- * @evidence materials/10-model-bindings.md#binding-map Model part IDs reach templeModelFinish, retaining distinct metal door and water fountain parts.
- * @evidence principles/core/source-units.md#source-scope-preservation The assembly adds material records and part material IDs without changing geometry, transform or host ownership.
- * @evidence principles/core/source-units.md#source-substantive-completion All scene models return with an explicit material per part and a matching material record.
- * @evidenceExclude upstream/design/material-sources.md#design-revision-from-material-source-work The palette and two binding tables cover the emitted finish relationships; this assembly adds no new material decision.
- * @evidence obligations/design/material-sources.md#material-source-renderer-mapping The same environment and static lookup create the same material list and part bindings.
- */
 export const bindTempleMaterials = (
   environment: IAutoMovieBuiltEnvironment,
 ): IAutoMovieBuiltEnvironment => ({

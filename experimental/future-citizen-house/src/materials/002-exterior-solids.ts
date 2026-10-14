@@ -1,4 +1,4 @@
-/** Native finish recipes owned by docs/materials/002-exterior-solids.md.
+/** Native finish recipes
  * The shared constructor supplies only the documented renderer defaults. */
 
 export const exteriorSolidsTextured = {

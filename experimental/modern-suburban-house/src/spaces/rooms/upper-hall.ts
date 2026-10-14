@@ -1,17 +1,4 @@
-/**
- * `upper-hall`: the one L-shaped upper-storey corridor and its linen closet.
- *
- * Design owner: `docs/spaces/rooms/upper-hall.md` (`upper-hall-plan`,
- * `upper-linen-storage`). The arrival part X = [1.87, 3.07], Z = [-4.71, -3.41]
- * joins the cross part X = [-3.20, 3.07], Z = [-5.91, -4.71] m. The linen
- * closet keeps a hollow interior X = [1.87, 3.07], Z = [-3.26, -2.66], 2.20 m
- * high from the upper floor, inside 0.15 m side and back partitions
- * (reservation X = [1.72, 3.22], Z = [-3.26, -2.51]). The hall-side boundary
- * Z = [-3.41, -3.26] is cut by `upper-linen-opening` X = [1.97, 2.97] from the
- * floor to 2.20 m; the closet is closed above its 2.20 m interior. Its floor
- * inset and the opening strip close the finish layer missing from the L-shaped
- * circulation outline. Shelves, sliding leaves and rails are later fit-out.
- */
+
 import { DOOR_HALL_TUB_DOOR } from "./tub-bath";
 import { DOOR_HALL_BEDROOM_THREE_DOOR } from "./bedroom-three";
 import { DOOR_HALL_BEDROOM_TWO_DOOR } from "./bedroom-two";
@@ -54,14 +41,6 @@ const UPPER_HALL: IRoomSpace = {
 const LINEN_HEIGHT = 2.2;
 
 /** Emit the hall finishes, its shares under the five room doors and the linen closet boundaries around its hollow interior. */
-/**
- * @evidence spaces/rooms/upper-hall.md This builder forms one L-shaped upper corridor and its hollow linen storage.
- * @evidence spaces/rooms/upper-hall.md#upper-hall-plan The joined arrival and cross bands retain floor shares below five direct room doors.
- * @evidence spaces/rooms/upper-hall.md#upper-linen-storage Four closet walls, a door opening, and an upper head enclose the 2.20 m storage volume.
- * @evidence principles/core/source-units.md#source-scope-preservation The hall does not create bedroom or bathroom partition bodies, and leaves linen shelves/leaves to models.
- * @evidence principles/core/source-units.md#source-substantive-completion The room, storage record, separate storage floor, connecting strip, five room-door strips and closed closet shell are built in a fixed order.
- * @evidence upstream/design/space-sources.md#design-revision-from-space-source-work Emitting the linen storage beyond the corridor outline exposed its missing upper-floor finish; rooms/upper-hall.md#upper-linen-storage, 03-surface-owners.md#interior-surface-handoff and 08-floor-assembly.md#interstorey-floor-boundary were revised so this owner finishes the storage inset and opening without a second hall.
- */
 export const buildUpperHall = (): IRoomBuild => {
   const owner = UPPER_HALL.owner;
   const storey = UPPER_HALL.storey;

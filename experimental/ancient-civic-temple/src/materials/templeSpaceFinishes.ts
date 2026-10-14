@@ -5,10 +5,6 @@ import type { templeMaterialPalette } from "./bindings";
  *
  * The classifier reads only these full IDs. This table includes concealed contacts but creates no faces, changes no geometry and supplies no default for an unknown owner or face. Palette response and texture repeats remain with templeMaterialPalette.
  *
- * @evidence materials/20-space-bindings.md#space-binding-map Full surface IDs retain the authored dado, timber, stone, paving, plaster, roof and site assignments without suffix-based admission of undeclared faces.
- * @evidence principles/core/source-units.md#source-scope-preservation The record assigns finish keys only to the spatial IDs in the material owner and changes neither palette values nor surface geometry.
- * @evidence principles/core/source-units.md#source-substantive-completion templeSpaceFinish consumes this complete lookup and refuses an ID absent from its own keys rather than substituting plaster.
- * @evidence obligations/design/material-sources.md#material-source-design-ownership Every own-key assignment comes from the spatial material binding table; prototype parts remain with templeModelFinish.
  */
 export const templeSpaceFinishes: Readonly<Record<string, keyof typeof templeMaterialPalette>> = {
   "surface.colonnade.dado": "dado",

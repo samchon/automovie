@@ -1,5 +1,5 @@
 /**
- * Interior wall solids of docs/spaces/openings.md#boundary-ownership.
+ * Interior wall solids
  * Makes each west/east spine, sanctuary south wall and three east cross walls
  * one physical wall, leaving finishes on both faces with adjacent room surface
  * owners. Bottoms use the ordinary floor structure underside; tops use composite
@@ -14,14 +14,6 @@ import { templeLevels as y } from "./storey";
 const roof = { kind: "roof", tier: "wing" } as const;
 const sanctuary = { kind: "roof", tier: "sanctuary" } as const;
 const wall = (space: string) => `surface.${space}.wall`;
-
-/**
- * @evidence spaces/openings.md Emits each west/east spine, sanctuary south wall and three east cross walls as one physical WallSpec, cutting door and clerestory voids through the same boundary IDs.
- * @evidence spaces/openings.md#boundary-ownership Splits wall hosts and adjacent-space intervals (offering/sanctuary, offering/colonnade, sanctuary/yard, colonnade/three rooms) by ownership; sanctuary clerestories take voids from upper exterior-facing boundaries.
- * @evidence principles/core/source-units.md#source-scope-preservation Sets only interior wall solids and finish surface names; wall thickness and ends come from building/junctions and tops directly from composite roof undersides.
- * @evidence principles/core/source-units.md#source-substantive-completion Returns six WallSpecs with complete plans, intervals, top policies, voids and band splits, allowing wallFaces to build column prisms directly.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Implements the spine interval boundaries, three cross-wall east-room~east-inner ranges, sanctuary south-wall west-ring~east-ring range and door voids of openings.md#boundary-ownership as written, exposing no parent defect here.
- */
 export const templeInteriorWalls = (): WallSpec[] => {
   const ends = templeInteriorWallEnds();
   const bottom = y.floor - y.slabThickness;

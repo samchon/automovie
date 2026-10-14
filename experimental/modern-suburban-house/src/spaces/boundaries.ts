@@ -1,26 +1,12 @@
-/**
- * Derive one boundary face's sided segments from the built space cells.
- *
- * Design owner: `docs/spaces/07-boundary-assembly.md` owns the common-wall
- * handoff and junction rule. `environment-links.ts` consumes these calculations to
- * emit engine boundaries and openings from the same wall face that produced
- * the visible mesh. No wall geometry or room finish is created here.
- *
- * Inputs are a wall outline and holes in local (u, world-Y) metres, an axis
- * and thickness across world X or Z, and compiled convex space cells. Probe
- * points lie 1 mm beyond either wall face. Segments split at each cell and
- * void edge, then merge only while their two side IDs remain equal. A segment
- * with equal IDs on both sides is not a separating boundary. Consumers must
- * rebuild after any room cell, wall outline, or void changes.
- */
+
 import { builtSpaceContainsPoint } from "@automovie/engine";
 import type {
   IAutoMovieBuiltSpace,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IWallFace } from "./IWallFace";
-import type { IWallPoint } from "./IWallPoint";
+import type { IWallFace } from "../types/IWallFace";
+import type { IWallPoint } from "../types/IWallPoint";
 
 /** World point at (u, y) of a face, pushed `offset` along the face normal. */
 const facePoint = (face: IWallFace, u: number, y: number, offset: number): IAutoMovieVector3 => {
@@ -51,12 +37,6 @@ const insideOutline = (outline: readonly IWallPoint[], u: number, y: number): bo
 };
 
 /** Clip a face outline to a (u, y) rectangle, one rectangle side at a time. */
-/**
- * @evidence spaces/07-boundary-assembly.md clipOutline restricts one existing wall face to a smaller u/Y boundary rectangle.
- * @evidence principles/core/source-units.md#source-scope-preservation It returns clipped points only; it does not create another wall or assign a room finish.
- * @evidence principles/core/source-units.md#source-substantive-completion Four successive half-plane clips and duplicate-corner removal produce an actual polygon for the segment.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Interior-boundary-ownership assigns one common wall body and sided boundary records; clipOutline crops the supplied face for one segment without creating a second body.
- */
 export const clipOutline = (outline: readonly IWallPoint[], u: readonly [number, number], y: readonly [number, number]): IWallPoint[] => {
   const sides: ((p: IWallPoint) => number)[] = [
     (p) => p.u - u[0],
@@ -99,13 +79,6 @@ interface ISegment {
  * height, and at every void edge; a cell whose two sides are the same space,
  * or whose centre lies outside the wall outline, bounds nothing and is
  * dropped. Equal-pair cells merge along the wall, then equal runs merge upward.
- */
-/**
- * @evidence spaces/07-boundary-assembly.md segmentsOf assigns the two logical sides of each part of an existing wall face.
- * @evidence spaces/07-boundary-assembly.md#interior-boundary-junctions It cuts at cell and void edges, then merges adjacent rectangles only when both space ids agree.
- * @evidence principles/core/source-units.md#source-scope-preservation The function reads built cells and the given face; it returns sided segment data for environment links without a second wall mesh.
- * @evidence principles/core/source-units.md#source-substantive-completion It drops exterior-to-exterior or same-side cells and returns deterministic u/Y segments for environment boundaries.
-  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Interior-boundary-ownership assigns one body and two space ids per boundary, while interior-boundary-junctions keeps room-owned opening locations on that body. segmentsOf tests face and cell edges as candidate cuts, merges equal-sided cells across redundant hole edges, and leaves opening records for buildEnvironmentLinks to attach afterward.
  */
 export const segmentsOf = (inner: readonly IAutoMovieBuiltSpace[], face: IWallFace): ISegment[] => {
   const axis = face.axis;

@@ -1,4 +1,4 @@
-/** Built-in bedroom and wardrobe storage from docs/models/13-bedrooms.md. */
+/** Built-in bedroom and wardrobe storage */
 import { FittingParts, type FittingBuilt, type FittingPoint } from "./geometry";
 
 /** Fixed storage carcasses, moving sliding leaves, rods and authored clothes proxies. */

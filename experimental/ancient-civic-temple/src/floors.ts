@@ -24,7 +24,7 @@ import { templeServiceYardFloor } from "./spaces/rooms/service-yard";
 import { templeStorageFloor } from "./spaces/rooms/storage";
 
 /**
- * Per-room floor ownership input. exteriorBottom is the common bottom of docs/spaces/storey.md#wall-ground-contact;
+ * Per-room floor ownership input. exteriorBottom is the common bottom;
  * the structure in front of the entrance steps that meets the site ground goes down to that height.
  * Null uses the ordinary thickness only (a read-only finished face used to derive the common bottom).
  */

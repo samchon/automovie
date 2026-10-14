@@ -18,7 +18,7 @@ import { GARAGE } from "./building";
 import { clipOutline, segmentsOf } from "./boundaries";
 import { boundaryOrientation } from "./boundary-orientation";
 import type { IHouse } from "./house";
-import type { IHousePart } from "./IHousePart";
+import type { IHousePart } from "../types/IHousePart";
 import { driveTop, DRIVEWAY } from "./site/driveway";
 import { FRONT_WALK } from "./site/front-walk";
 import { SIDE_WALK } from "./site/side-walk";
@@ -216,11 +216,6 @@ const exteriorConnectors = (house: IHouse): IAutoMovieBuiltConnector[] => {
 
 /**
  * Build sided wall records, their hosted voids and site crossing connectors.
- * @evidence spaces/04-observations.md The environment handoff carries emitted boundary faces, their openings and exterior route links from the same house.
- * @evidence spaces/04-observations.md#engine-render-handoff Each wall void selects the boundary segment containing its centre, a mesh witness assigns an apparent interior gap to its junction body, and site anchors select the exterior connectors.
- * @evidence principles/core/source-units.md#source-scope-preservation The adapter uses the supplied house, cells and measured junction bodies without moving an authored room or paving endpoint.
- * @evidence principles/core/source-units.md#source-substantive-completion Every wall void receives its containing face and every exterior passage receives a named route and emitting elements.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Interior-boundary-junctions assigns cut walls their shared host and room-route-network assigns exterior crossings to the paving zones; both input relations suffice for this assembly.
  */
 export const buildEnvironmentLinks = (
   house: IHouse,

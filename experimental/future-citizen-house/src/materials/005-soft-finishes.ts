@@ -1,4 +1,4 @@
-/** Native finish recipes owned by docs/materials/005-soft-finishes.md.
+/** Native finish recipes
  * The shared constructor supplies only the documented renderer defaults. */
 
 export const softFinishesTextured = {

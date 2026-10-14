@@ -11,64 +11,17 @@
 import { buildAutoMoviePolyhedron } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import type { IWallSolid } from "../IWallSolid";
+import type { IWallSolid } from "../../types/IWallSolid";
 
 /**
  * Metric envelope and cavity intervals for the shower's blind wall niche.
- * @evidence spaces/rooms/shower-bath.md The shower room reserves a niche in its own partition.
- * @evidence spaces/rooms/shower-bath.md#shower-fixture-use The cavity is closed behind and does not create a route to the next room.
- * @evidence principles/core/source-units.md#source-scope-preservation This input describes the shower wall's own recess and no sanitary fixture.
- * @evidence principles/core/source-units.md#source-substantive-completion Wall, opening and depth intervals fully determine the solid.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Shower-fixture-use sets a 0.08 m blind recess in the X=[0.75, 0.90] partition, ending at X=0.82 with 0.07 m back wall; these intervals represent that existing cavity.
  */
 export interface IBlindRecess {
-  /**
-   * @evidence spaces/rooms/shower-bath.md The shower's partition owns the niche.
-   * @evidence spaces/rooms/shower-bath.md#shower-fixture-use The wall's thickness retains material behind the niche.
-   * @evidence principles/core/source-units.md#source-scope-preservation This interval remains inside the assigned shower partition.
-   * @evidence principles/core/source-units.md#source-substantive-completion Both wall faces are available for the back-depth check.
-   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Shower-bath-plan gives the primary-shower partition X=[0.75, 0.90] m; wallX passes those two faces to the recess builder.
-   */
   wallX: readonly [number, number];
-  /**
-   * @evidence spaces/rooms/shower-bath.md The niche lies in the shower's wall.
-   * @evidence spaces/rooms/shower-bath.md#shower-fixture-use The wall spans the shower's full vertical boundary.
-   * @evidence principles/core/source-units.md#source-scope-preservation Heights describe the existing wall rather than a fixture.
-   * @evidence principles/core/source-units.md#source-substantive-completion The vertical margins can be checked against the full wall.
-   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Shower-fixture-use locates the niche 1.10–1.50 m above the upper floor while storey-datums puts that floor at Y=3.06 m; wallY bounds that opening inside the partition.
-   */
   wallY: readonly [number, number];
-  /**
-   * @evidence spaces/rooms/shower-bath.md The room plan assigns this partition run.
-   * @evidence spaces/rooms/shower-bath.md#shower-bath-plan The wall follows the shower-side plan interval.
-   * @evidence principles/core/source-units.md#source-scope-preservation The interval does not extend into bedroom or hall ownership.
-   * @evidence principles/core/source-units.md#source-substantive-completion The recess can be bounded along the full wall length.
-   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Shower-bath-plan runs the partition beside the primary bedroom and shower-fixture-use puts the cavity at Z=[-8.55, -8.15] m; wallZ retains the surrounding wall run.
-   */
   wallZ: readonly [number, number];
-  /**
-   * @evidence spaces/rooms/shower-bath.md The shower partition has a blind recess.
-   * @evidence spaces/rooms/shower-bath.md#shower-fixture-use The niche opening stays within the wall height.
-   * @evidence principles/core/source-units.md#source-scope-preservation This opening is a wall cavity, not another room entrance.
-   * @evidence principles/core/source-units.md#source-substantive-completion Its upper and lower margins are checked before mesh construction.
-   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Shower-fixture-use fixes the niche opening 1.10–1.50 m above the upper floor; openingY cuts only that vertical band.
-   */
   openingY: readonly [number, number];
-  /**
-   * @evidence spaces/rooms/shower-bath.md The shower partition has a local niche.
-   * @evidence spaces/rooms/shower-bath.md#shower-fixture-use The niche opening stays within the wall length.
-   * @evidence principles/core/source-units.md#source-scope-preservation The recess does not cut the partition's ends.
-   * @evidence principles/core/source-units.md#source-substantive-completion Its two side margins are checked before mesh construction.
-   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Shower-fixture-use fixes the bottle niche's Z=[-8.55, -8.15] m interval, which openingZ carries to the wall cut.
-   */
   openingZ: readonly [number, number];
-  /**
-   * @evidence spaces/rooms/shower-bath.md The shower niche remains a blind recess.
-   * @evidence spaces/rooms/shower-bath.md#shower-fixture-use The blind cavity stops before the opposite wall face.
-   * @evidence principles/core/source-units.md#source-scope-preservation Depth does not convert the niche into an opening between rooms.
-   * @evidence principles/core/source-units.md#source-substantive-completion The positive remaining back is checked in the solid builder.
-   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Shower-fixture-use makes the cavity 0.08 m deep in a 0.15 m partition, retaining 0.07 m toward the bedroom; depth applies that blind cut.
-   */
   depth: number;
 }
 
@@ -80,12 +33,6 @@ const point = (x: number, y: number, z: number): IAutoMovieVector3 => ({
 
 /**
  * Build closed concave wall geometry from metric intervals, with no Boolean mesh subtraction.
- * @evidence spaces/rooms/shower-bath.md The shower owner uses this solid for its blind partition niche.
- * @evidence spaces/rooms/shower-bath.md#shower-bath-plan Its face remains one partition boundary, with no through opening.
- * @evidence spaces/rooms/shower-bath.md#shower-fixture-use The occupied grid leaves a recessed cavity with material at its back and margins.
- * @evidence principles/core/source-units.md#source-scope-preservation The function builds only the assigned partition solid and no shelf or fixture model.
- * @evidence principles/core/source-units.md#source-substantive-completion It checks finite ordered intervals and emits a closed polyhedron plus the full wall-face record.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Shower-fixture-use requires one connected shower-primary-partition with a blind niche and no through opening; this builder leaves the 0.07 m back wall and records no inter-room void.
  */
 export const blindRecessWall = (input: IBlindRecess): IWallSolid => {
   const [x0, x2] = input.wallX;

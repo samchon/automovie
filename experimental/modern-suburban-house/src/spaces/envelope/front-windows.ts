@@ -1,11 +1,4 @@
 /** Front elevation rough window voids shared with their room reservations. */
-
-/**
- * @evidence spaces/envelope/front.md Three selected front windows retain their facade-owned rough spans.
- * @evidence principles/core/source-units.md#source-scope-preservation Rooms consume these cuts without owning a second window coordinate.
- * @evidence principles/core/source-units.md#source-substantive-completion Wall holes and curtain reservations move together when a front void changes.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Living-front-window, bedroom-two-front-window, and bedroom-three-front-window each fix their own rough X span and sill/head; this record carries those three facade voids to the rooms.
- */
 export const FRONT_WINDOWS = {
   living: {
     id: "living-front-window",

@@ -1,6 +1,6 @@
 /**
  * Topology ledger for model meshes sent to the actual renderer
- * (`.agents/skills/source-authoring/geometry.md`, Consequence ledger). Joins one
+ * . Joins one
  * model's part meshes through engine mergeAutoMovieMeshes, reads
  * inspectAutoMovieMeshTopology (triangles, degeneracy, non-finite components,
  * open/non-manifold edges and signed volume) and validateMeshTopology (winding
@@ -92,7 +92,7 @@ export const accountEnvironment = (environment: IAutoMovieBuiltEnvironment): Mes
 
 /**
  * Temple model closure contract. The soil, paving, neighbor floors and distant
- * ridge in docs/spaces/site.md are open top-only surfaces
+ * ridge are open top-only surfaces
  * (src/spaces/site/ground.ts and ridge.ts). The three wing-roof owners are culled
  * together: their touching side faces hide inside adjacent slabs
  * (src/geometry/roof-solids.ts), so each owner model is open at those interfaces
@@ -101,13 +101,7 @@ export const accountEnvironment = (environment: IAutoMovieBuiltEnvironment): Mes
  * 0 non-manifold edges, 0 winding errors and positive volume.
  */
 export const templeOpenSurfaceModels: ReadonlySet<string> = new Set(["model.site-ground", "model.site-distant"]);
-/**
- * Among docs/models members, tile shells and tegula boards are open shells laid
- * on slabs. Columns, beams, door frames, leaves, window frames, rafters, trusses,
- * ceiling joists and basins are assemblies of touching closed members, without
- * a Boolean union. Assemblies require only 0 degeneracy/non-finite components
- * and positive volume, ruling out inverted members.
- */
+
 export const templeContractOf = (id: string): LedgerRow["contract"] =>
   templeOpenSurfaceModels.has(id) || id.startsWith("model.cladding-") ? "open-surface"
     : /^model.(column|beam|porch-entablature|door|window|rafters|truss|joists|fountain)/.test(id) ? "solid-assembly" : "closed";
@@ -115,12 +109,7 @@ export const templeCompositeSolids: ReadonlyArray<{ id: string; models: readonly
   { id: "composite.wing-roofs", models: ["model.roof-west", "model.roof-east", "model.roof-colonnade"] },
 ];
 
-/**
- * Named interface: wing-roof step closures (docs/spaces/junctions.md#gable-closures,
- * "height differences within a wing unit") are zero-thickness double-sided sheets.
- * The composite-solid ledger excludes their triangles before measuring closure
- * and reports the sheets' front and back face counts separately.
- */
+
 export interface NamedSheet { id: string; corners: readonly IAutoMovieVector3[] }
 
 const onSheet = (sheets: readonly NamedSheet[], points: ReadonlyArray<readonly [number, number, number]>): boolean => sheets.some((sheet) =>

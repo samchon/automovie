@@ -1,19 +1,8 @@
-/**
- * `roof.main.front`: the main roof's front face.
- *
- * Design owner: `docs/spaces/roof/main-front.md#main-front-roof`, with its
- * region, height and edges from `roof/00-junctions.md`. The face covers
- * X = [LEFT_EAVE_X, 1.60], Z = [ridge −5.35, front eave 0.40] under
- * Mfront(Z) = 6.30 − (8/12) Z, minus the exposed front-gable triangle (the two
- * valleys and the front eave) and minus the chimney notch
- * X = [-6.30, -5.50] × Z = [-2.75, -1.65]. Four coplanar convex top and underside faces form one mesh around
- * the notch. Sides close only free eaves; ridge, valleys and tile seams
- * receive no internal vertical face; the free X = SPLIT_X step closes its thickness.
- */
+
 import { PALETTE } from "../palette";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import { part } from "../part";
-import type { IHousePart } from "../IHousePart";
+import type { IHousePart } from "../../types/IHousePart";
 import { slopedPlate } from "../solids";
 import { roofFreeEdge } from "./edges";
 import {
@@ -32,11 +21,6 @@ const OWNER = "roof/main-front.ts";
 
 /**
  * Emit the single main front roof part.
- * @evidence spaces/roof/main-front.md This export builds the front main-roof remainder around the exposed gable and chimney notch.
- * @evidence spaces/roof/main-front.md#main-front-roof Convex coplanar tiles form one roof part around the shared gable valley and chimney notch without internal side faces.
- * @evidence principles/core/source-units.md#source-scope-preservation The function cuts out the gable and chimney footprints before creating its one roof mesh; it imports junction values instead of claiming their faces.
- * @evidence principles/core/source-units.md#source-substantive-completion Four top/bottom tiles in one mesh preserve the cut plan and close every free edge, including the step and chimney notch.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Main-front-roof omits the GABLE_CORNERS valley triangle and CHIMNEY_PLAN notch while retaining its left and front free eaves; the convex remainder tiles follow those shared boundaries.
  */
 export const buildMainFrontRoof = (): IHousePart[] => {
   const { apex, leftFoot, rightFoot } = GABLE_CORNERS;

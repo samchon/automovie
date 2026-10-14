@@ -27,7 +27,7 @@ const urls: Record<string, string> = {
 // `report` names each phase before it starts and may return a promise so a host
 // can paint the message; the geometry work between two reports is synchronous.
 /**
- * Loads the seven authored albedo assets, derives the shared instance inventory, and builds the visual manor while reporting each phase. The returned texture disposer releases this adapter's cache; a construction failure attempts that disposal before rethrowing, and a disposal failure interrupts that rethrow.
+ * Loads the seven authored albedo assets, derives the shared instance inventory, and builds the visual manor while reporting each phase. The returned texture disposer releases this adapter's cache. Construction rollback preserves its original cause, or reports that cause followed by a cache-cleanup failure in AggregateError.errors; cache disposal owns once-only attempts and its retained failure receipt.
  *
  * @param {{report?: (phase: string) => void | Promise<void>, shadows?: boolean}} [options]
  */
@@ -50,5 +50,9 @@ export async function createTexturedManorScene({report=(): undefined =>undefined
   // own way and only needs the light to follow the eye.
   const followLighting: () => void=manor.update;manor.update=(): void =>{followLighting();consumer.update(manor.camera);};
   return {...manor,followLighting,instanceConsumer:consumer,instanceState:consumer.stats(),textureState:{ready:true,decoded:cache.size,assets:Object.keys(urls)},disposeTextures:(): Promise<void> =>cache.dispose()};
- }catch(error){await cache.dispose();throw error;}
+ }catch(error){
+  try{await cache.dispose();}
+  catch(cleanupError){throw new AggregateError([error,cleanupError],'Manor construction and texture cleanup failed.');}
+  throw error;
+ }
 }

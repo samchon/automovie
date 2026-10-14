@@ -2,7 +2,7 @@ import type { IAutoMoviePreviewNavigation } from "./IAutoMoviePreviewNavigation"
 import type { IAutoMoviePreviewNavigationItem } from "./IAutoMoviePreviewNavigationItem";
 
 /**
- * Mounts navigation without owning the production's camera or identities. The returned disposer removes the panel and all of its event listeners.
+ * Mounts navigation without owning the production's camera or identities. Disposal retires authority before attempting listener abortion and panel removal independently; a saved failure is rethrown without retrying effects. Returning from those callbacks does not certify browser listener release.
  */
 export const mountPreviewNavigation: (navigation: IAutoMoviePreviewNavigation) => (() => void) = (
   navigation: IAutoMoviePreviewNavigation,
@@ -117,8 +117,18 @@ export const mountPreviewNavigation: (navigation: IAutoMoviePreviewNavigation) =
   );
   refresh();
   document.body.append(panel);
+  let disposed: boolean = false;
+  const failures: unknown[] = [];
   return () : void => {
-    input.abort();
-    panel.remove();
+    if (!disposed) {
+      disposed = true;
+      try { input.abort(); }
+      catch (error) { failures.push(error); }
+      try { panel.remove(); }
+      catch (error) { failures.push(error); }
+    }
+    if (failures.length === 1) throw failures[0];
+    if (failures.length > 1)
+      throw new AggregateError(failures, "Preview navigation cleanup failed.");
   };
 };

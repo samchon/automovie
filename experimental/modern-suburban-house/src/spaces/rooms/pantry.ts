@@ -1,7 +1,7 @@
 /**
  * `pantry`: the store room at the back of the service band.
  *
- * Design owner: `docs/spaces/rooms/pantry.md#pantry-plan`. Finished inner
+ * Finished inner
  * X = [3.22, 5.50], Z = [-6.05, -4.70] m. 07 assigns this owner its partition
  * to service-access (X = [3.07, 3.22]) carrying `service-pantry-door`
  * Z = [-5.75, -4.80], Y = [0, 2.20] m. Shelves are later models.
@@ -19,10 +19,6 @@ import {
 } from "./shared";
 import { floorOf } from "../storeys";
 /** Shared void owned by this room and consumed at its floor and adjacent finish.
- * @evidence spaces/rooms/pantry.md The service-pantry-door void follows the partition assigned to pantry.
- * @evidence principles/core/source-units.md#source-scope-preservation The service-pantry-door interval remains with pantry while its adjacent room receives the span.
- * @evidence principles/core/source-units.md#source-substantive-completion The service-pantry-door span cuts its wall and sets floor finish limits on both sides.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Pantry-plan fixes service-pantry-door in the west partition at Z=[-5.75, -4.80], Y=[0, 2.20]; this export carries that cut.
  */
 export const DOOR_SERVICE_PANTRY_DOOR = door(
   "service-pantry-door",
@@ -64,15 +60,6 @@ const PANTRY: IRoomSpace = {
 };
 
 /** Emit the pantry floor and its partition to the service band. */
-/**
- * @evidence spaces/rooms/pantry.md This builder forms the narrow rear service-band pantry behind its one door.
- * @evidence spaces/rooms/pantry.md#pantry-plan PANTRY retains the 3.22..5.50 by -6.05..-4.70 interior and service-facing partition.
- * @evidence spaces/rooms/pantry.md#pantry-storage-use Separate back and right shelf reserves share their L corner once and rise to 2.10 m.
- * @evidence spaces/rooms/pantry.md#pantry-use-route A clear route and turning box remain between the open door and shelves.
- * @evidence principles/core/source-units.md#source-scope-preservation The function leaves shelves and food to models and emits only floor/ceiling finish and its door-cut wall.
- * @evidence principles/core/source-units.md#source-substantive-completion The room record and four solids include the floor under the service-pantry-door void.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Pantry-plan fixes the service door and back/right L shelf depths; pantry-storage-use adds the one-corner rule and shelf heights, while pantry-use-route centres a 0.90 m turn square between shelf and door; buildPantry carries those reservations.
- */
 export const buildPantry = (): IRoomBuild => ({
   space: PANTRY,
   parts: [

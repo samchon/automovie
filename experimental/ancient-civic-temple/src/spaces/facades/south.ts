@@ -1,5 +1,5 @@
 /**
- * Front exterior wall solids of docs/spaces/facades/south.md#south-envelope.
+ * Front exterior wall solids
  * West/east exterior sections and two return walls are level parapets with
  * stone coping; inner faces divide into colonnade/room finishes, roof contacts
  * and parapet backs above roofs. The recessed entrance wall closes to the porch
@@ -13,29 +13,16 @@ import { templeDoorVoidsOn } from "../openings";
 
 /**
  * Exterior parapet coping top (m), shared by west/north facades.
- * @evidence spaces/facades/south.md Holds the exterior parapet coping top 4.85m as one value.
- * @evidence spaces/facades/south.md#south-envelope Defines the coping height consumed by west/north/east facades and return walls in one place.
- * @evidence principles/core/source-units.md#source-scope-preservation Holds coping height only; junctions owns thickness and projection.
- * @evidence principles/core/source-units.md#source-substantive-completion One numeric constant gives parapets on all four facades and wall-trim coping cells the same height.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Transfers 4.85m from facades/south.md unchanged; overlap scans confirmed that three roofs and sanctuary eaves do not intersect coping.
  */
 export const templeParapetTop = 4.85;
 
 /**
  * Exterior stone-plinth top height above ground (m), shared by all four facades.
- * @evidence spaces/facades/south.md Holds the exterior stone-plinth top height 0.65m above ground.
- * @evidence principles/core/source-units.md#source-scope-preservation Holds plinth-top height only; junctions owns projection.
- * @evidence principles/core/source-units.md#source-substantive-completion One numeric constant raises wall-trim plinth cells to the same height above their ground planes.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Transfers 0.65m from facades/south.md#south-envelope unchanged; the plinth model accounts as a closed solid.
  */
 export const templePlinthRise = 0.65;
 
 /**
  * Porch tympanum underside (m), at the support height of the horizontal beam above columns.
- * @evidence spaces/facades/south.md Holds the porch tympanum underside at 3.5m.
- * @evidence principles/core/source-units.md#source-scope-preservation Holds only the tympanum bottom height; its upper edge comes from the porch roof underside.
- * @evidence principles/core/source-units.md#source-substantive-completion One numeric constant starts the south-facade pediment wall interval at the same height.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Transfers 3.5m from facades/south.md#south-envelope unchanged; the pediment model is a closed solid.
  */
 export const templePedimentBase = 3.5;
 
@@ -47,13 +34,6 @@ const coping = {
   kind: "flat", height: templeParapetTop, surface: "surface.facade-south.coping", coping: templeWallTrim.copingThickness,
 } as const;
 const wing = { tier: "wing", above: back } as const;
-
-/**
- * @evidence spaces/facades/south.md Emits WallSpecs for two front exterior sections, two returns, the recessed entrance wall and porch tympanum.
- * @evidence principles/core/source-units.md#source-scope-preservation Takes coping/plinth/tympanum heights from the constants above, recessed-wall tops from porch undersides and end positions from junctions.
- * @evidence principles/core/source-units.md#source-substantive-completion Returns complete WallSpecs including the main-door void, parapet-back band splits and coping cells at both recessed-wall ends.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Implements the parapet, return, recessed-wall and tympanum arrangement of facades/south.md#south-envelope unchanged, with 0 envelope overlap.
- */
 export const templeSouthWalls = (bottom: number): WallSpec[] => {
   const plans = templeOuterWallPlans();
   const entry = templeInteriorWallEnds().entryBack;

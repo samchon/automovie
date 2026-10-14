@@ -19,9 +19,9 @@ import { buildHouse } from "../house/build";
 import type { auditCanopy } from "../house/canopy-audit";
 import { pvCellTexture } from "../house/canopy-finish";
 import { observations } from "../house/observations";
-import { passageClearance } from "../house/passage-clearance.mjs";
+import { passageClearance } from "../house/passage-clearance.js";
 import { materialFrameQuestions } from "../materials/007-observation";
-import { makeTextureAssets } from "../materials/generate-textures.cjs";
+import { makeTextureAssets } from "../materials/generate-textures.js";
 import type { MaterialTextureScaleAudit } from "../materials/observation";
 import { instancePaletteReference } from "./instance-palette";
 

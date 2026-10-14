@@ -1,4 +1,4 @@
-import type { HousePartRole } from "../spaces/HousePartRole";
+import type { HousePartRole } from "../types/HousePartRole";
 
 /**
  * One triangle mesh placed in world space by translation only.

@@ -1,8 +1,7 @@
 /**
  * Source identity recorded with observations and measurements
- * (`.agents/skills/source-authoring/compilation.md`). The basis is the first 16
- * sha256 characters of source, public, settings, space, model, material, instance
- * and work-contract input bytes; viewer and self-check display the same value.
+ * The basis is the first 16 sha256 characters of source, public, and package
+ * input bytes; viewer and self-check display the same value.
  * Revision gives the last Git commit changing this production path and whether
  * its working tree changed. Uncommitted changes mean dirty; their result does
  * not belong to the recorded commit.
@@ -31,16 +30,9 @@ export const sourceBasis = (): string => {
   for (const directory of [
     "src",
     "public",
-    "docs/spaces",
-    "docs/settings",
-    "docs/materials",
-    "docs/models",
-    "docs/instances",
-    "docs/contracts",
   ]) visit(directory);
   for (const file of [
     "package.json",
-    "lint.config.ts",
   ]) hash.update(file).update(readFileSync(resolve(productionRoot, file)));
   return hash.digest("hex").slice(0, 16);
 };

@@ -1,7 +1,7 @@
 /**
  * Rear elevation: the main rear wall and the garage rear wall with their voids.
  *
- * Design owner: `docs/spaces/envelope/rear.md`. The main rear wall is
+ * The main rear wall is
  * Z = [-10.70, -10.45] m over X = [-5.75, 5.75] m and owns both rear corners
  * (07). Its top follows the main back roof to X = 1.60 and the right low roof
  * beyond, with wall-head wedges across the thickness. Voids (X, Y m):
@@ -26,7 +26,7 @@ import {
   mBack,
   rBack,
 } from "../roof/junctions";
-import type { IHousePart } from "../IHousePart";
+import type { IHousePart } from "../../types/IHousePart";
 import { part } from "../part";
 import { block, wallPanel } from "../solids";
 import { GROUND_LAYERS, STOREYS } from "../storeys";
@@ -39,13 +39,6 @@ const BACK = MAIN.outer.z[0];
 const INNER = BACK + MAIN.wall;
 /** Bottom of the ground base reservation the wall leaves under the garden door (10). */
 const SILL = STOREYS.groundFloor - GROUND_LAYERS.finish - GROUND_LAYERS.base;
-/**
- * @evidence spaces/envelope/rear.md The central rear exit has one opening span for wall, threshold, and floor support.
- * @evidence spaces/envelope/rear.md#garden-door Its -1.20..1.20 m jambs meet the level terrace; the rough wall cut extends below the finished sill through the ground base reservation.
- * @evidence principles/core/source-units.md#source-scope-preservation The host defines the rough wall cut and leaves glazed leaves and hardware to models.
- * @evidence principles/core/source-units.md#source-substantive-completion Rear wall, rear threshold, and ground slab tongue take their X bounds from this object.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Garden-door fixes X=-1.20..1.20 m and a finished threshold level with the raised terrace; this export gives the wall, floor tongue, and terrace one opening axis.
- */
 export const GARDEN_DOOR = {
   id: "garden-door",
   from: -1.2,
@@ -54,13 +47,6 @@ export const GARDEN_DOOR = {
   top: 2.25,
 } as const;
 /** Rough opening owned by the rear elevation and consumed by bedroom reservations. */
-/**
- * @evidence spaces/envelope/rear.md The upper rear opening in the primary bedroom remains a wall-hosted void.
- * @evidence spaces/envelope/rear.md#primary-rear-window The -3.85..-1.45 m span and 3.91..5.31 m heights avoid the wardrobe bay.
- * @evidence principles/core/source-units.md#source-scope-preservation The bedroom imports this void only to reserve its inward curtain strip.
- * @evidence principles/core/source-units.md#source-substantive-completion The rear wall cut and the bedroom curtain share one sill, head, and horizontal host.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Primary-rear-window fixes the X=-3.85..-1.45 m upper opening and Y=3.91..5.31 m sill/head, which the bedroom curtain consumes.
- */
 export const PRIMARY_REAR_WINDOW = {
   id: "primary-rear-window",
   from: -3.85,
@@ -68,13 +54,6 @@ export const PRIMARY_REAR_WINDOW = {
   bottom: 3.91,
   top: 5.31,
 } as const;
-
-/**
- * @evidence spaces/envelope/rear.md The family room rear window owns one rough opening.
- * @evidence principles/core/source-units.md#source-scope-preservation The common room uses this window span for its curtain and to stop the garden-door approach before the curtain; the wall cut remains here.
- * @evidence principles/core/source-units.md#source-substantive-completion The wall cut and curtain share the same jambs and head while the curtain's lower edge follows the room floor.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Family-rear-window fixes the ground opening X=2.75..4.75 m above its 0.75 m sill; the wall host exports that span to common-room fit-out and route clearance.
- */
 export const FAMILY_REAR_WINDOW = {
   id: "family-rear-window",
   from: 2.75,
@@ -84,18 +63,6 @@ export const FAMILY_REAR_WINDOW = {
 } as const;
 
 /** Emit the rear elevation walls. */
-/**
- * @evidence spaces/envelope/rear.md This builder creates the rear main and garage walls with room-specific voids.
- * @evidence spaces/envelope/rear.md#rear-roof-closures The main top steps under high and low rear roofs and the garage rear wall remains separate.
- * @evidence spaces/envelope/rear.md#rear-openings Four named rough voids in the main rear wall bind kitchen, family, primary bedroom, and garden access.
- * @evidence spaces/envelope/rear.md#kitchen-rear-window The narrow kitchen hole begins at Y=1.15 over the counter reservation.
- * @evidence spaces/envelope/rear.md#family-rear-window The right ground window hole remains in the common room's family side.
- * @evidence spaces/envelope/rear.md#primary-rear-window The upper rear hole stops in the primary bedroom span, leaving wardrobe storage wall closed.
- * @evidence spaces/envelope/rear.md#garden-door The central X=-1.20..1.20 void and finished threshold reach the level terrace side.
- * @evidence principles/core/source-units.md#source-scope-preservation Door leaves and window frames remain model fills; this source owns wall, openings, roof wedges, and threshold.
- * @evidence principles/core/source-units.md#source-substantive-completion The return has two siding wall regions, two brick plinth regions, four real voids, three head wedges, and garden threshold support.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Rear-roof-closures fixes the high/low rear step, rear-openings fixes the kitchen, family, primary, and garden-door voids, and garden-door meets the level terrace; buildRear emits those hosts.
- */
 export const buildRear = (): IHousePart[] => {
   const mainTop = mBack(BACK) - ROOF_THICKNESS;
   const rightTop = rBack(BACK) - ROOF_THICKNESS;

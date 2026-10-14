@@ -115,7 +115,7 @@ export function createManorCraft({box,mesh,beam,finish,polyhedron,revolve,extrud
   solid(id,faces.flatMap((f: CraftPoint[]): CraftPoint[][] =>[[f[0],f[1],f[2]],[f[0],f[2],f[3]]]),[x,y,z],mat,a.r);
  }
  function table(id: string,x: number,y: number,z: number,length: number,width: number,level: number=0,angle: number=0): void {
-  // The hall consumes the seated free volume in spaces/001-manor.md. Keep its
+  // The hall consumes the seated free volume in . Keep its
   // tabletop and service objects at their existing height and clear the knees
   // below it; the other authored tables retain their original dimensions.
   const hall: boolean=id==='hall-table',leg: 0.12 | 0.1=hall?.10:.12,apronHeight: 0.11 | 0.13=hall?.11:.13,apronY: 0.655 | 0.645=hall?.655:.645,stretcherY: 0.645 | 0.22=hall?.645:.22;

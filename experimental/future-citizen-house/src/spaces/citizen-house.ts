@@ -1,21 +1,11 @@
-import type { IAutoMovieLibrarySourceOwner } from "@automovie/interface";
+import type { IAutoMovieLibraryContribution } from "@automovie/interface";
 
 import { buildHouse } from "../house/build";
 
 /** Deterministic library registration. This source owner calls buildHouse for
  * library delivery; the live viewer calls buildHouse directly from payload.ts.
  * Both paths execute the same CJS house builder and its metric plan inputs.
- * @evidence spaces/001-citizen-house.md Registers the house, site, and observation inputs as one library environment. The current buildHouse call carries the topology and architectural surfaces together with the temporary fit-out meshes of the room sources, but permanent ownership of the objects does not lie with this spaceSource.
- * @evidence spaces/001-citizen-house.md#citizen-house-space Makes house, under citizen-site, the parent of two storeys and generates no independent mass or additional stair. buildHouse calls the file of each complete surface.
- * @evidence spaces/001-citizen-house.md#site-access The garden call of buildHouse makes the ground, path, two steps, y=0 landing, and whole landscape ending outside the boundary; members above the ground start from the ground, and the ground-level paving is filled down to the soil bottom -0.852, the underside of the catch-basin floor plate. Following the maintenance relocation of roof-face that site-access consumes, it preserves the existing side/i IDs of tree-0..3 and the hedges at the rear and moves front-grass-3..7 outside the cassette reserve surface. The canopy audit of the same call checks the overlap of plant bounds with the reserve strips.
- * @evidence spaces/001-citizen-house.md#spatial-observation observations consumes the cells, surfaces, connectors, boundary.face, and opening.profile of the current environment. It emits the required spatial viewpoints, every envelope face, corner, and opening, and the five additional references, and keeps the null viewpoints and their reasons. The GPU verdict is separate from this enumeration.
- * @evidence principles/core/source-units.md#source-scope-preservation This registration owns only the single house and site assembly of 001. Room dimensions come from plan and the envelope from each elevation module, and it neither attaches references to surfaces nor makes independent viewer geometry.
- * @evidence principles/core/source-units.md#source-substantive-completion build returns actual models, elements, populations, spaces, boundaries, openings, connectors, and surfaces. The viewer's explicit states also use the same buildHouse, and the result is displayed only after passing the public engine's lowerBuiltEnvironment.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Implemented the site→house→storey relation of 001, the front access landing, and the failure retention conditions of observation. This registration step needed no design change of the site scope or additional buildings or circulation, and physical usability is left separately unverified.
- * @evidence obligations/design/space-sources.md#space-source-invalid-topology buildHouse throws the exact errors from native validation and the room/storey containment, endpoint, and entry reach checks and never returns an invalid environment. The viewer consumption boundary preserves, as blocked diagnostics per obstacle id, the continuous cylinder collision for door passage and for the contact-based ascent path of the stair on the same lowered triangles. Every tread, riser, landing, and upper floor of the stair stays in the collision population, and a path without a support surface is an error. Continuous cylinder passage inside rooms and actual human walking were not measured, so they are unverified and not replaced with clear.
- * @evidence obligations/design/space-sources.md#space-source-stable-identities ids are made from design addresses and metric repetition indices, and no clock, file, or random number enters build. A room's parent, the door and boundary references, and compact set membership are generated in the same order from the same explicit state.
  */
-export const citizenHouseSpaceSource: IAutoMovieLibrarySourceOwner = {
-  design: "docs/spaces/001-citizen-house.md#citizen-house-space",
-  build: (_context) => ({ environments: [buildHouse()], models: [] }),
+export const citizenHouseSpaceSource: { build(): IAutoMovieLibraryContribution } = {
+  build: (): IAutoMovieLibraryContribution => ({ environments: [buildHouse()], models: [] }),
 };

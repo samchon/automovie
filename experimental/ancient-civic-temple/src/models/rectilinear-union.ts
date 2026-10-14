@@ -18,18 +18,10 @@ const distinct = (values: number[]): number[] => [...new Set(values)].sort(
 
 /**
  * Omit coincident internal faces and use one grid for every exterior junction.
- * @evidence models/openings.md The stone and wood rectangular assemblies retain their reviewed apertures and surface identities while shared contact faces become one continuous exterior.
- * @evidence principles/core/source-units.md#source-scope-preservation This shared mesh operation constructs only the axis-aligned solids supplied by a model owner, preserving the opening and tile builders' authored extents.
- * @evidence principles/core/source-units.md#source-substantive-completion It emits indexed exterior faces and refuses an empty, flat, or edge-only assembly rather than returning a shape record.
- * @evidenceExclude upstream/design/model-sources.md#design-revision-from-model-source-work The operation receives all solid bounds from its callers and makes no new opening, column, or tile dimensions.
  */
 export class TempleRectilinearUnion {
   /**
    * Merge face-contacting boxes, retaining one face grid at every junction.
-   * @evidence models/openings.md Stone and wood openings call this method with their reviewed box bounds, leaving the door and window voids unfilled.
-   * @evidence principles/core/source-units.md#source-scope-preservation The operation has no model id, placement, or material input; only its caller's part and rectangular bounds determine the mesh.
-   * @evidence principles/core/source-units.md#source-substantive-completion Occupied grid cells contribute only exposed faces and the returned mesh passes the engine topology inspection.
-   * @evidenceExclude upstream/design/model-sources.md#design-revision-from-model-source-work This grid construction selects no silhouette or surface partition; the opening and tile callers supply those decisions.
    */
   static mesh(part: string, solids: readonly RectilinearSolid[]): IAutoMovieMesh {
     if (solids.length === 0) throw new Error(

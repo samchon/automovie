@@ -1,4 +1,4 @@
-/** Building finish decisions from docs/materials/002-006. Geometry and part
+/** Building finish decisions Geometry and part
  * identities stay with their existing space and model owners. */
 import type { IAutoMovieMaterial } from "@automovie/interface";
 

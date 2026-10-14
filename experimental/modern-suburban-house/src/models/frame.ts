@@ -1,8 +1,8 @@
-/** Fixed model inspection views from docs/models/00-model-frame.md; metres, Y up. */
+/** Fixed model inspection views; metres, Y up. */
 import {
   type IViewerModelInputs,
   lowerViewerModels,
-} from "../viewer/modelScene.cjs";
+} from "../viewer/modelScene.js";
 import type { IViewerScene } from "../viewer/scenePayload";
 import { sectionCaps } from "../viewer/sectionCaps";
 import { FittingParts } from "./furnishings/geometry";

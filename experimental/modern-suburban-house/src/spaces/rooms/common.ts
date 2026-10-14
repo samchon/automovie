@@ -1,7 +1,7 @@
 /**
  * `kitchen-dining-family`: the one continuous rear common room.
  *
- * Design owner: `docs/spaces/rooms/common.md#common-room-plan`. Finished inner
+ * Finished inner
  * X = [-5.50, 5.50], Z = [-10.45, -6.20] m. 07 assigns this owner the front
  * partition Z = [-6.20, -6.05] facing living-room, service-access and pantry,
  * with two doorless openings of head 2.40 m: `living-common-opening`
@@ -26,10 +26,6 @@ import {
 } from "./shared";
 import { floorOf } from "../storeys";
 /** Shared void owned by this room and consumed at its floor and adjacent finish.
- * @evidence spaces/rooms/common.md The service-common-opening void follows the partition assigned to common.
- * @evidence principles/core/source-units.md#source-scope-preservation The service-common-opening interval remains with common while its adjacent room receives the span.
- * @evidence principles/core/source-units.md#source-substantive-completion The service-common-opening span cuts its wall and sets floor finish limits on both sides.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Common-room-plan fixes service-common-opening at X=[-1.35, 3.07], Y=[0, 2.40] without a door leaf; this export supplies that opening span to the front partition.
  */
 export const DOOR_SERVICE_COMMON_OPENING = door(
   "service-common-opening",
@@ -40,10 +36,6 @@ export const DOOR_SERVICE_COMMON_OPENING = door(
 );
 
 /** Shared void owned by this room and consumed at its floor and adjacent finish.
- * @evidence spaces/rooms/common.md The living-common-opening void follows the partition assigned to common.
- * @evidence principles/core/source-units.md#source-scope-preservation The living-common-opening interval remains with common while its adjacent room receives the span.
- * @evidence principles/core/source-units.md#source-substantive-completion The living-common-opening span cuts its wall and sets floor finish limits on both sides.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Common-room-plan fixes living-common-opening at X=[-5.00, -2.15], Y=[0, 2.40] without a leaf; this separate export supplies the left front-partition cut.
  */
 export const DOOR_LIVING_COMMON_OPENING = door(
   "living-common-opening",
@@ -131,18 +123,6 @@ const COMMON: IRoomSpace = {
 };
 
 /** Emit the common room floor and its front partition with two open voids. */
-/**
- * @evidence spaces/rooms/common.md This export builds one continuous kitchen-dining-family room with a front wall cut for two open passages.
- * @evidence spaces/rooms/common.md#common-room-plan COMMON uses the full rear X/Z outline and one partition with living and service opening ids.
- * @evidence spaces/rooms/common.md#common-kitchen-wall-reservation Back/left cabinet bands and fridge, range, oven, and microwave boxes retain distinct work/swing areas.
- * @evidence spaces/rooms/common.md#common-island-reservation The sink/dishwasher island and three stool use boxes are recorded without furniture geometry.
- * @evidence spaces/rooms/common.md#common-dining-reservation Six separate seat-use rectangles surround one dining table reserve.
- * @evidence spaces/rooms/common.md#common-family-reservation The right-side sofa and table have their own reserved footprints toward the family zone.
- * @evidence spaces/rooms/common.md#common-clear-routes Four clear route bands cover the right edge, rear, garden-door approach, and kitchen side of the work boxes.
- * @evidence principles/core/source-units.md#source-scope-preservation The builder emits room finishes and its front partition, leaving cabinet/appliance and seating bodies to models.
- * @evidence principles/core/source-units.md#source-substantive-completion A floor, ceiling, two threshold strips, and one wall with real doorless voids are returned with the reservations.
- * @evidence upstream/design/space-sources.md#design-revision-from-space-source-work Building this room exposed a collision between family-rear-curtain and common-main-route-back; rooms/common.md#common-clear-routes was revised in fa601efa to stop the rear band at Z=-10.33 and add common-garden-door-approach.
- */
 export const buildCommon = (): IRoomBuild => ({
   space: COMMON,
   parts: [

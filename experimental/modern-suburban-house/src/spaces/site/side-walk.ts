@@ -2,7 +2,7 @@
  * `side-walk`: the service path from the driveway past the garage to the
  * garden lower landing.
  *
- * Design owner: `docs/spaces/site/side-walk.md#side-walk-plan`. The long path
+ * The long path
  * starts 0.60 m right of the garage outer right face 11.70 and is 1.20 m wide:
  * X = [12.30, 13.50]. The front connector is the 1.20 m band 1.40 m to 0.20 m
  * short of the paving end, Z = [5.10, 6.30], from the driveway's right edge
@@ -15,7 +15,7 @@
 import { GARAGE } from "../building";
 import { PALETTE } from "../palette";
 import { part } from "../part";
-import type { IHousePart } from "../IHousePart";
+import type { IHousePart } from "../../types/IHousePart";
 import { rect, slopedSlab } from "../solids";
 import { driveTop, DRIVEWAY } from "./driveway";
 import {
@@ -32,12 +32,6 @@ const OWNER = "site/side-walk.ts";
 const PATH_WIDTH = 1.2;
 
 /** Side path geometry, metres. */
-/**
- * @evidence spaces/site/side-walk.md SIDE_WALK records the side path X band, both cross bands, and lower-landing top.
- * @evidence principles/core/source-units.md#source-scope-preservation Its rear band takes the landing's outer Z as its endpoint and extends one path width behind it; the builder takes its X start from LOWER_LANDING.
- * @evidence principles/core/source-units.md#source-substantive-completion The typed intervals and elevation let the side-walk builder close three paving bands consistently.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Side-walk-plan puts the path 0.60 m east of GARAGE's right outer wall and takes its rear junction from garden-lower-landing-plan; SIDE_WALK derives those contacts.
- */
 export const SIDE_WALK = {
   x: [GARAGE.outer.x[1] + 0.6, GARAGE.outer.x[1] + 0.6 + PATH_WIDTH] as const,
   frontBand: [DRIVEWAY.z[1] - 1.4, DRIVEWAY.z[1] - 0.2] as const,
@@ -46,14 +40,6 @@ export const SIDE_WALK = {
 };
 
 /** Emit the three bands of the side path. */
-/**
- * @evidence spaces/site/side-walk.md This builder links the drive to the garden landing in three joined surface bands.
- * @evidence spaces/site/side-walk.md#side-walk-plan Two flat slabs hold the lower landing height; the front connector blends from the driveway grade into that height.
- * @evidence spaces/site/side-walk.md#side-gate-interface Two named waiting zones straddle the gate plane taken from imported GARAGE bounds.
- * @evidence principles/core/source-units.md#source-scope-preservation The builder returns paving and standing zones while the fence owner creates the gate posts and model owner the leaf.
- * @evidence principles/core/source-units.md#source-substantive-completion Three solid bands and three zone records (continuous walk and two gate waits) share their end coordinates.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Side-walk-plan gives the long path plus front and rear cross bands, and side-gate-interface sets waiting on both sides of the gate; buildSideWalk returns those three access zones.
- */
 export const buildSideWalk = (): ISiteBuild => {
   const s = SIDE_WALK.top;
   const [left, right] = [DRIVEWAY.x[1], SIDE_WALK.x[0]];

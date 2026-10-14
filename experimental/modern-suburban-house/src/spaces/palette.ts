@@ -1,24 +1,4 @@
-/**
- * Base colours for the blocking pass.
- *
- * Source: settings `visual-grammar` (`docs/settings/20-verification.md`): warm
- * white lap siding, dark charcoal frames, white trim, red-brown brick for the
- * chimney and fireplace, honey to mid-brown wood, grey-beige textiles, dark
- * asphalt shingles, ground-floor wood, upper-floor carpet, bath tile and
- * garage concrete. Only a flat base colour per part is chosen here; optical
- * values, texture scale and texture images belong to the materials branch.
- * The spaces surface owner sets UV axes, origin and seams; the viewer preview
- * projects world vertices to those coordinates. No colour here is sampled from
- * a reference image.
- *
- * Consumers: every spaces owner when it emits a part.
- * @evidence spaces/03-surface-owners.md The table supplies named blocking colours for parts made by the allocated surface owners.
- * @evidence spaces/03-surface-owners.md#exterior-surface-handoff Exterior siding, trim, roof, brick, paving and fence colours are available to their assigned owners.
- * @evidence spaces/03-surface-owners.md#interior-surface-handoff Room owners can distinguish floor, ceiling and partition base colours.
- * @evidence principles/core/source-units.md#source-scope-preservation This palette supplies flat source colours; materials owns images, optical values and repetition.
- * @evidence principles/core/source-units.md#source-substantive-completion The emitted parts have named base colours for all surface families in this blocking pass.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Exterior-surface-handoff assigns siding and brick to envelope owners and interior-surface-handoff assigns room finishes to room owners; this colour table changes neither assignment nor boundary.
- */
+
 export const PALETTE = {
   siding: 0xebe5d8,
   trim: 0xf4f2ec,

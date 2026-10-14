@@ -1,29 +1,4 @@
-/**
- * Right elevation: the exposed parts of the main right gable wall, the step
- * wall between the main and low roofs, and the garage right gable wall.
- *
- * Design owner: `docs/spaces/envelope/right.md` (`right-roof-closures`,
- * `right-openings`, `family-right-window`, `tub-right-window`,
- * `garage-right-window`). The main right wall is X = [5.50, 5.75] m; the part
- * shared with the garage, Z = [-6.70, -0.30], has its lower body in `garage.ts`
- * and its exposed upper siding here (03, 07). This owner also emits Z = [-10.45, -6.70] and
- * the sliver Z = [-0.30, -0.25] between the garage front and the front wall.
- * Its top is the right low roof underside. Voids (Z, Y m):
- * `family-right-window` [-9.95, -8.25] × [0.75, 2.30],
- * `tub-right-window` [-8.40, -7.50] × [4.56, 5.31].
- *
- * The step wall reserves X = [1.45, 1.60] from the low roof's underside up
- * to the main roof underside; inside the front and rear wall thickness the
- * front/rear owners already close it (07), so it spans Z = [-10.45, -0.25] and
- * the two eave runs outside those walls.
- *
- * The garage right wall is X = [11.45, 11.70] between the garage front and rear
- * walls' inner faces, a gable under the garage roof, with the
- * `garage-right-window` void Z = [-5.85, -4.25], Y = [1.40, 2.20].
- * The exposed rear, short front, and garage outer wall runs split at world
- * Y = 0.60 m into brick below and siding above. Their whole-height logical
- * faces stay on the siding parts; the covered garage shared wall is unsplit.
- */
+
 import { EXTERIOR_WALL_BOTTOM, GARAGE, MAIN } from "../building";
 import { PALETTE } from "../palette";
 import {
@@ -39,18 +14,11 @@ import {
   mainRoof,
   rightRoof,
 } from "../roof/junctions";
-import type { IHousePart } from "../IHousePart";
-import type { IWallPoint } from "../IWallPoint";
+import type { IHousePart } from "../../types/IHousePart";
+import type { IWallPoint } from "../../types/IWallPoint";
 import { part } from "../part";
 import { wallPanel } from "../solids";
 import { EXTERIOR_PLINTH_TOP } from "./finish-boundary";
-
-/**
- * @evidence spaces/envelope/right.md The family room side window owns its rough wall cut.
- * @evidence principles/core/source-units.md#source-scope-preservation The common room consumes only the cut's inward curtain extent.
- * @evidence principles/core/source-units.md#source-substantive-completion The wall hole and fit-out reservation move from one coordinate.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Family-right-window fixes the ground side opening Z=-9.95..-8.25 m at a 0.75 m sill; the common-room curtain consumes this host span.
- */
 export const FAMILY_RIGHT_WINDOW = {
   id: "family-right-window",
   from: -9.95,
@@ -77,17 +45,6 @@ const stepRun = (z0: number, z1: number): IWallPoint[] => {
 };
 
 /** Emit the right elevation parts. */
-/**
- * @evidence spaces/envelope/right.md This builder forms the exposed main-right, stepped roof, and garage-right wall segments.
- * @evidence spaces/envelope/right.md#right-roof-closures Main-right panels include the exposed siding above the garage-owned lower wall; separate step runs close high-to-low roof spans.
- * @evidence spaces/envelope/right.md#right-openings Two house windows and one garage window puncture exposed walls, never the main/garage shared contact.
- * @evidence spaces/envelope/right.md#family-right-window The ground family hole lies behind the garage rear wall under the low right roof.
- * @evidence spaces/envelope/right.md#tub-right-window The upper bath hole lies behind the garage rear at Z=[-8.40,-7.50] and Y=[4.56,5.31]; its Z span overlaps the family hole by 0.15 m.
- * @evidence spaces/envelope/right.md#garage-right-window The garage-side void sits under its own gable between the front and rear garage walls.
- * @evidence principles/core/source-units.md#source-scope-preservation Garage owns the shared lower body and this builder owns siding above its roof; window leaves remain with models.
- * @evidence principles/core/source-units.md#source-substantive-completion Back/sliver and garage siding panels, their brick bases, the above-garage panel, and three step runs form concrete meshes with three named holes.
- * @evidence upstream/design/space-sources.md#design-revision-from-space-source-work The `garageSharedUpper` case exposed the need to split one shared wall at the garage roof weather line; spaces/envelope/right.md#right-roof-closures, spaces/03-surface-owners.md#exterior-surface-handoff, and spaces/07-boundary-assembly.md#exterior-boundary-junctions allocate lower door body to garage and exposed upper siding to right.
- */
 export const buildRight = (): IHousePart[] => {
   const back = MAIN.inner.z[0];
   const garageBack = GARAGE.outer.z[0];

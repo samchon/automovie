@@ -1,7 +1,7 @@
 /**
  * `service-access`: the ground-storey L-shaped service passage.
  *
- * Design owner: `docs/spaces/rooms/service.md#service-access-plan`. Finished
+ * Finished
  * inner area is the right band X = [2.02, 3.07], Z = [-6.05, -0.25] m joined
  * with the band behind the stair X = [-1.80, 2.02], Z = [-6.05, -4.71] m. The
  * connection to the entry at X = 2.02, Z = [-3.41, -0.25] has no door or
@@ -42,13 +42,6 @@ const SERVICE: IRoomSpace = {
 };
 
 /** Emit the service passage floor and ceiling finishes and its shares of the floor under its door voids. */
-/**
- * @evidence spaces/rooms/service.md This export supplies the joined right-and-rear service passage as a room record and finish surfaces.
- * @evidence spaces/rooms/service.md#service-access-plan The six-corner L outline keeps the front-entry connection wall-less and serves powder, laundry, pantry, and common openings.
- * @evidence principles/core/source-units.md#source-scope-preservation Its neighbours own all partition bodies; this builder emits only its floor, ceiling, and shares under the coat opening and four room voids.
- * @evidence principles/core/source-units.md#source-substantive-completion The return has a continuous floor/ceiling and four named doorFloor strips for actual passage bottoms.
- * @evidence upstream/design/space-sources.md#design-revision-from-space-source-work Emitting the service side of the coat opening exposed an unfinished crossing between the passage and storage; rooms/service.md#service-access-plan and 03-surface-owners.md#interior-surface-handoff were revised to make this builder own its half of the opening floor.
- */
 export const buildService = (): IRoomBuild => ({
   space: SERVICE,
   parts: [
