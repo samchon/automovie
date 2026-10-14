@@ -1,8 +1,7 @@
 /**
  * Rebuild the website's derived transports directly from the three native production producers before dev or build. Output lives in an ignored public directory and is regenerated every time, never used as authored model input. Gzip retains serialized mesh precision while reducing the download; textures retain production-relative names. SHA-256 covers the current native JSON and sorted immediate texture filenames/bytes for ancient/modern, with future texture bytes already inside the native payload. This digest is transport provenance rather than a source-tree or visual-equivalence proof. Copying does not remove obsolete output textures from a prior run.
  */
-import { createHash } from "node:crypto";
-import type { Hash } from "node:crypto";
+import { type Hash, createHash } from "node:crypto";
 import {
   cpSync,
   mkdirSync,
