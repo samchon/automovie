@@ -4,14 +4,6 @@ import type { IAutoMovieSequenceDissolvePixelCheck } from "./IAutoMovieSequenceD
 /**
  * Existing sequence render plan/result augmented with route, JSON destination, H.264 encoder identity, pixel viewport, page duration/shot order and one diagnostic dissolve observation per transition. It preserves underlying result data and reports the limited distance heuristic rather than asserting model health or exact linear blending.
  *
- * @evidence contracts/common.md#principled-implementation Named dimensions, paths and canonical render/sequence references expose the existing typed capture boundary without a second protocol.
- * @evidence contracts/common.md#clear-and-simple-design The original CLI and capture function consume this record; rendering, page capture and output admission remain with their existing owners.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts An erased type does not validate physical anatomy, resource existence, pixels or successful encoding; the comment separates requested values from observations.
- * @evidence contracts/common.md#meaningful-documentation Identifies inherited render planning/capture data, route and JSON destinations, HME implementation, supplied pixel viewport, second-valued page duration, shot order and limited per-transition observations; the plan does not certify encoded chroma or QP/CRF equivalence.
- * @evidenceExclude contracts/performance.md#efficient-algorithms Erased shape declarations perform no capture, numerical sampling or pixel iteration.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work Erased shape declarations own no cache or repeated runtime work.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Erased shape declarations acquire no native handle; runtime owners release browser/page/encoder resources.
- *
  * @author Samchon
  */
 export interface IAutoMoviePlaygroundSequenceRenderArtifact extends IAutoMovieSequenceRenderAndSeeResult {
