@@ -15,7 +15,7 @@ import type { IAutoMovieMesh } from "@automovie/interface";
  * not test it, and welding columns that are not the same curve would smooth a
  * real edge. A mesh without normals is returned as a shallow copy.
  *
- * @evidence contracts/common.md#principled-implementation Each coincident first/last column pair receives the normalized sum of its existing area-weighted normals; zero sums preserve both inputs. The caller owns seam coincidence and finite normals, while this function refuses an array size inconsistent with lattice dimensions.
+ * @evidence contracts/common.md#principled-implementation Each coincident first/last column pair receives the normalized sum of its supplied normals; zero sums preserve both inputs. The lattice producer has already normalized its area-weighted sums, so this blend does not preserve their relative incident areas. The caller owns seam coincidence and finite normals, while this function refuses an array size inconsistent with lattice dimensions.
  * @evidence contracts/common.md#clear-and-simple-design Normal welding is separate from topology generation so ear front/back lattices keep their original vertices, winding, and numbering while sharing only seam shading.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No position tolerance, specimen id, duplicated surface, or forced direction invents seam correspondence; unmatched endpoints remain a caller violation rather than being moved together.
  * @evidence contracts/common.md#meaningful-documentation The comment gives row-major endpoint identities, normalized sums, zero-sum preservation, unchanged geometry/numbering, caller coincidence, and the shallow-copy behavior without normals.

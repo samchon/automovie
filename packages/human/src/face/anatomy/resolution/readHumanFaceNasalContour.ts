@@ -10,10 +10,10 @@ import type { IHumanFaceNasalContourReading } from "./IHumanFaceNasalContourRead
  * @evidence contracts/common.md#principled-implementation Qualified ordered current nasal correspondence projects into a registered plane for polygon area and chord extents.
  * @evidence contracts/common.md#clear-and-simple-design Generation/protocol/qualification checks bind the instrument to its supplied source correspondence.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Crossing contours and unusable plane normals refuse; supplied generation metadata does not independently prove publisher correspondence acquisition.
- * @evidence contracts/common.md#meaningful-documentation Current Float32 source points yield model planar area or length, with square/linear metre conversion at output.
+ * @evidence contracts/common.md#meaningful-documentation Current Float32 source points yield area in square metres and chord/extents in metres; registry readers own conversion to their published units. Missing or invalid correspondence throws a named refusal.
  * @evidence contracts/performance.md#efficient-algorithms Pairwise crossing/chord work is quadratic in contour points and projection/shoelace work is linear.
  * @evidence contracts/performance.md#reuse-equivalent-work One projected contour supplies area, longest chord and perpendicular extent.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Projected points and pairwise temporaries are per-call; only a scalar or gap escapes.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Projected points and pairwise temporaries are per-call; only the new area/longAxis/shortAxis scalar record escapes, and refusal retains no geometry.
  */
 export function readHumanFaceNasalContour(
   context: IHumanFaceMeasurementContext,
