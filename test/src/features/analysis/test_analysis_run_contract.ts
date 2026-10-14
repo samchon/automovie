@@ -1,3 +1,19 @@
+import type {
+  AutoMovieAnalysisComparison,
+  IAutoMovieAnalysisMetric,
+  IAutoMovieAnalysisReport,
+  IAutoMovieAnalysisRun,
+  IAutoMovieAnalysisSample,
+  IAutoMovieAnalysisWarning,
+  IAutoMovieValidation,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
+import { autoMovieAnalysisMetric } from "../../../../packages/engine/src/analysis/autoMovieAnalysisMetric";
+import { autoMovieAnalysisRunDigest } from "../../../../packages/engine/src/analysis/autoMovieAnalysisRunDigest";
+import { sealAutoMovieAnalysisRun } from "../../../../packages/engine/src/analysis/sealAutoMovieAnalysisRun";
+import { summarizeAutoMovieAnalysis } from "../../../../packages/engine/src/analysis/summarizeAutoMovieAnalysis";
+import { validateAutoMovieAnalysisRun } from "../../../../packages/engine/src/analysis/validateAutoMovieAnalysisRun";
 import { assertAnalysisRunContractPart1 } from "../internal/assertAnalysisRunContractPart1";
 import { assertAnalysisRunContractPart2 } from "../internal/assertAnalysisRunContractPart2";
 import { assertAnalysisRunContractPart3 } from "../internal/assertAnalysisRunContractPart3";
@@ -5,13 +21,6 @@ import { assertAnalysisRunContractPart4 } from "../internal/assertAnalysisRunCon
 import { assertAnalysisRunContractPart5 } from "../internal/assertAnalysisRunContractPart5";
 import { assertAnalysisRunContractPart6 } from "../internal/assertAnalysisRunContractPart6";
 import { assertAnalysisRunContractPart7 } from "../internal/assertAnalysisRunContractPart7";
-import { autoMovieAnalysisMetric } from "../../../../packages/engine/src/analysis/autoMovieAnalysisMetric";
-import { autoMovieAnalysisRunDigest } from "../../../../packages/engine/src/analysis/autoMovieAnalysisRunDigest";
-import { sealAutoMovieAnalysisRun } from "../../../../packages/engine/src/analysis/sealAutoMovieAnalysisRun";
-import { summarizeAutoMovieAnalysis } from "../../../../packages/engine/src/analysis/summarizeAutoMovieAnalysis";
-import { validateAutoMovieAnalysisRun } from "../../../../packages/engine/src/analysis/validateAutoMovieAnalysisRun";
-import type { AutoMovieAnalysisComparison, IAutoMovieAnalysisMetric, IAutoMovieAnalysisRun, IAutoMovieAnalysisSample, IAutoMovieAnalysisWarning, IAutoMovieValidation, IAutoMovieAnalysisReport } from "@automovie/interface";
-import { TestValidator } from "@nestia/e2e";
 import { hasViolation, throwsError } from "../internal/predicates";
 
 /**
@@ -47,46 +56,182 @@ export function test_analysis_run_contract(): void {
     settings: "resident-slot admission",
     outcome: {
       status: "solved",
-      metrics: [{ key: "room.reverberationTime", unit: "s", value: 0.8, target: null, comparison: null, status: "untargeted", gap: null }],
+      metrics: [
+        {
+          key: "room.reverberationTime",
+          unit: "s",
+          value: 0.8,
+          target: null,
+          comparison: null,
+          status: "untargeted",
+          gap: null,
+        },
+      ],
       samples: [],
       warnings: [],
     },
   });
   if (sparseBase.outcome.status !== "solved")
     throw new Error("The authored finite metric must seal as solved.");
-  const sparseCases: ReadonlyArray<readonly [string, IAutoMovieAnalysisRun["outcome"], string]> = [
-    ["metric", { ...sparseBase.outcome, metrics: new Array<IAutoMovieAnalysisMetric>(1) }, "$input.outcome.metrics[0]"],
-    ["sample", { ...sparseBase.outcome, samples: new Array<IAutoMovieAnalysisSample>(1) }, "$input.outcome.samples[0]"],
-    ["warning", { ...sparseBase.outcome, warnings: new Array<IAutoMovieAnalysisWarning>(1) }, "$input.outcome.warnings[0]"],
-    ["comparison", { ...sparseBase.outcome, metrics: [{ ...sparseBase.outcome.metrics[0]!, target: 1, comparison: "near" as AutoMovieAnalysisComparison, status: "meets" }] }, "$input.outcome.metrics[0].comparison"],
+  const sparseCases: ReadonlyArray<
+    readonly [string, IAutoMovieAnalysisRun["outcome"], string]
+  > = [
+    [
+      "metric",
+      {
+        ...sparseBase.outcome,
+        metrics: new Array<IAutoMovieAnalysisMetric>(1),
+      },
+      "$input.outcome.metrics[0]",
+    ],
+    [
+      "sample",
+      {
+        ...sparseBase.outcome,
+        samples: new Array<IAutoMovieAnalysisSample>(1),
+      },
+      "$input.outcome.samples[0]",
+    ],
+    [
+      "warning",
+      {
+        ...sparseBase.outcome,
+        warnings: new Array<IAutoMovieAnalysisWarning>(1),
+      },
+      "$input.outcome.warnings[0]",
+    ],
+    [
+      "comparison",
+      {
+        ...sparseBase.outcome,
+        metrics: [
+          {
+            ...sparseBase.outcome.metrics[0]!,
+            target: 1,
+            comparison: "near" as AutoMovieAnalysisComparison,
+            status: "meets",
+          },
+        ],
+      },
+      "$input.outcome.metrics[0].comparison",
+    ],
   ];
   const refusalResults: Record<string, boolean> = {};
   for (const [name, outcome, path] of sparseCases) {
-    const contents: Omit<IAutoMovieAnalysisRun, "digest"> = { ...sparseBase, outcome };
-    const run: IAutoMovieAnalysisRun = { ...contents, digest: autoMovieAnalysisRunDigest(contents) };
-    refusalResults[`${name}:received`] = hasViolation(validateAutoMovieAnalysisRun({ run }), "type", path);
-    refusalResults[`${name}:sealed`] = throwsError((): IAutoMovieAnalysisRun => sealAutoMovieAnalysisRun({
-      id: contents.id,
-      domain: contents.domain,
-      subject: contents.subject,
-      inputRevision: contents.inputRevision,
-      solver: contents.solver,
-      settings: "resident-slot admission",
+    const contents: Omit<IAutoMovieAnalysisRun, "digest"> = {
+      ...sparseBase,
       outcome,
-    }), path);
-    refusalResults[`${name}:summarized`] = throwsError((): IAutoMovieAnalysisReport => summarizeAutoMovieAnalysis({ runs: [run], revision: "r7", required: ["acoustic"] }), path);
+    };
+    const run: IAutoMovieAnalysisRun = {
+      ...contents,
+      digest: autoMovieAnalysisRunDigest(contents),
+    };
+    refusalResults[`${name}:received`] = hasViolation(
+      validateAutoMovieAnalysisRun({ run }),
+      "type",
+      path,
+    );
+    refusalResults[`${name}:sealed`] = throwsError(
+      (): IAutoMovieAnalysisRun =>
+        sealAutoMovieAnalysisRun({
+          id: contents.id,
+          domain: contents.domain,
+          subject: contents.subject,
+          inputRevision: contents.inputRevision,
+          solver: contents.solver,
+          settings: "resident-slot admission",
+          outcome,
+        }),
+      path,
+    );
+    refusalResults[`${name}:summarized`] = throwsError(
+      (): IAutoMovieAnalysisReport =>
+        summarizeAutoMovieAnalysis({
+          runs: [run],
+          revision: "r7",
+          required: ["acoustic"],
+        }),
+      path,
+    );
   }
-  TestValidator.equals("received, sealed and summarized artifacts refuse every missing resident record and unknown comparison", refusalResults, {
-    "metric:received": true, "metric:sealed": true, "metric:summarized": true,
-    "sample:received": true, "sample:sealed": true, "sample:summarized": true,
-    "warning:received": true, "warning:sealed": true, "warning:summarized": true,
-    "comparison:received": true, "comparison:sealed": true, "comparison:summarized": true,
-  });
-  const { digest, measured, draft, check, solved }: { digest: (fill: string) => `sha256:${string}`; measured: (overrides?: Partial<IAutoMovieAnalysisMetric>) => IAutoMovieAnalysisMetric; draft: (overrides?: Partial<Omit<IAutoMovieAnalysisRun, "digest">>) => Omit<IAutoMovieAnalysisRun, "digest">; check: (overrides?: Partial<Omit<IAutoMovieAnalysisRun, "digest">>) => IAutoMovieValidation; solved: (metrics: IAutoMovieAnalysisMetric[], samples?: IAutoMovieAnalysisSample[], warnings?: IAutoMovieAnalysisWarning[]) => IAutoMovieValidation; } = assertAnalysisRunContractPart1();
-  const { gap, absent }: { gap: { reason: string; remedy: string; }; absent: (overrides?: Partial<IAutoMovieAnalysisMetric>) => IAutoMovieAnalysisMetric; } = assertAnalysisRunContractPart2(measured, check, solved);
-  const { at }: { at: (id: string, key: string, value?: number) => IAutoMovieAnalysisSample; } = assertAnalysisRunContractPart3(measured, solved, gap, absent);
-  const { warnings, build }: { warnings: IAutoMovieAnalysisWarning[]; build: (value: number | null, targets: Parameters<typeof autoMovieAnalysisMetric>[0]["targets"], extra?: Partial<Parameters<typeof autoMovieAnalysisMetric>[0]>) => IAutoMovieAnalysisMetric; } = assertAnalysisRunContractPart4(measured, solved, absent, at);
-  const { run, clean, report }: { run: (id: string, overrides: Partial<Omit<IAutoMovieAnalysisRun, "digest">>) => IAutoMovieAnalysisRun; clean: IAutoMovieAnalysisRun; report: IAutoMovieAnalysisReport; } = assertAnalysisRunContractPart5(measured, draft, gap, warnings, build);
+  TestValidator.equals(
+    "received, sealed and summarized artifacts refuse every missing resident record and unknown comparison",
+    refusalResults,
+    {
+      "metric:received": true,
+      "metric:sealed": true,
+      "metric:summarized": true,
+      "sample:received": true,
+      "sample:sealed": true,
+      "sample:summarized": true,
+      "warning:received": true,
+      "warning:sealed": true,
+      "warning:summarized": true,
+      "comparison:received": true,
+      "comparison:sealed": true,
+      "comparison:summarized": true,
+    },
+  );
+  const {
+    digest,
+    measured,
+    draft,
+    check,
+    solved,
+  }: {
+    digest: (fill: string) => `sha256:${string}`;
+    measured: (
+      overrides?: Partial<IAutoMovieAnalysisMetric>,
+    ) => IAutoMovieAnalysisMetric;
+    draft: (
+      overrides?: Partial<Omit<IAutoMovieAnalysisRun, "digest">>,
+    ) => Omit<IAutoMovieAnalysisRun, "digest">;
+    check: (
+      overrides?: Partial<Omit<IAutoMovieAnalysisRun, "digest">>,
+    ) => IAutoMovieValidation;
+    solved: (
+      metrics: IAutoMovieAnalysisMetric[],
+      samples?: IAutoMovieAnalysisSample[],
+      warnings?: IAutoMovieAnalysisWarning[],
+    ) => IAutoMovieValidation;
+  } = assertAnalysisRunContractPart1();
+  const {
+    gap,
+    absent,
+  }: {
+    gap: { reason: string; remedy: string };
+    absent: (
+      overrides?: Partial<IAutoMovieAnalysisMetric>,
+    ) => IAutoMovieAnalysisMetric;
+  } = assertAnalysisRunContractPart2(measured, check, solved);
+  const {
+    at,
+  }: {
+    at: (id: string, key: string, value?: number) => IAutoMovieAnalysisSample;
+  } = assertAnalysisRunContractPart3(measured, solved, gap, absent);
+  const {
+    warnings,
+    build,
+  }: {
+    warnings: IAutoMovieAnalysisWarning[];
+    build: (
+      value: number | null,
+      targets: Parameters<typeof autoMovieAnalysisMetric>[0]["targets"],
+      extra?: Partial<Parameters<typeof autoMovieAnalysisMetric>[0]>,
+    ) => IAutoMovieAnalysisMetric;
+  } = assertAnalysisRunContractPart4(measured, solved, absent, at);
+  const {
+    run,
+    clean,
+    report,
+  }: {
+    run: (
+      id: string,
+      overrides: Partial<Omit<IAutoMovieAnalysisRun, "digest">>,
+    ) => IAutoMovieAnalysisRun;
+    clean: IAutoMovieAnalysisRun;
+    report: IAutoMovieAnalysisReport;
+  } = assertAnalysisRunContractPart5(measured, draft, gap, warnings, build);
   assertAnalysisRunContractPart6(measured, absent, run, clean, report);
   assertAnalysisRunContractPart7(digest, clean);
 }

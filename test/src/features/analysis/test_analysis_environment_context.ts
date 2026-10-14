@@ -1,11 +1,18 @@
+import type {
+  IAutoMovieContextOccluder,
+  IAutoMovieEnvironmentContext,
+  IAutoMovieEnvironmentInstant,
+  IAutoMovieHalfSpacePlane,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
+import { assertAutoMovieAnalysisSolids } from "../../../../packages/engine/src/analysis/assertAutoMovieAnalysisSolids";
+import { validateAutoMovieEnvironmentContext } from "../../../../packages/engine/src/analysis/validateAutoMovieEnvironmentContext";
+import { analysisContext } from "../internal/analysisContext";
 import { assertAnalysisEnvironmentContextPart1 } from "../internal/assertAnalysisEnvironmentContextPart1";
 import { assertAnalysisEnvironmentContextPart2 } from "../internal/assertAnalysisEnvironmentContextPart2";
 import { assertAnalysisEnvironmentContextPart3 } from "../internal/assertAnalysisEnvironmentContextPart3";
-import { assertAutoMovieAnalysisSolids } from "../../../../packages/engine/src/analysis/assertAutoMovieAnalysisSolids";
-import { validateAutoMovieEnvironmentContext } from "../../../../packages/engine/src/analysis/validateAutoMovieEnvironmentContext";
-import type { IAutoMovieContextOccluder, IAutoMovieEnvironmentInstant, IAutoMovieHalfSpacePlane, IAutoMovieEnvironmentContext, IAutoMovieVector3 } from "@automovie/interface";
-import { TestValidator } from "@nestia/e2e";
-import { analysisContext } from "../internal/analysisContext";
 import { hasViolation, throwsError } from "../internal/predicates";
 
 /**
@@ -27,17 +34,75 @@ import { hasViolation, throwsError } from "../internal/predicates";
  * @evidence contracts/testing.md#execution-ownership Portable CPU unit test_analysis_environment_context is the discoverable entry and owns the ordered cases delegated to assertAnalysisEnvironmentContextPart1, assertAnalysisEnvironmentContextPart2, assertAnalysisEnvironmentContextPart3; those helpers are called explicitly, with no dynamic registration, native artifact build, process, browser or GPU host.
  */
 export function test_analysis_environment_context(): void {
-  const sparseInstants: IAutoMovieEnvironmentContext = analysisContext({ instants: new Array<IAutoMovieEnvironmentInstant>(1) });
-  const sparseOccluders: IAutoMovieEnvironmentContext = analysisContext({ occluders: new Array<IAutoMovieContextOccluder>(1) });
-  const sparsePlanes: IAutoMovieContextOccluder = { id: "missing-plane", kind: "neighbour", planes: new Array<IAutoMovieHalfSpacePlane>(4) };
-  const sparseResults: Record<string, boolean> = {
-    instant: hasViolation(validateAutoMovieEnvironmentContext({ context: sparseInstants }), "type", "$input.instants[0]"),
-    occluder: hasViolation(validateAutoMovieEnvironmentContext({ context: sparseOccluders }), "type", "$input.occluders[0]"),
-    plane: hasViolation(validateAutoMovieEnvironmentContext({ context: analysisContext({ occluders: [sparsePlanes] }) }), "type", "$input.occluders[0].planes[0]"),
-    shade: throwsError((): void => assertAutoMovieAnalysisSolids([sparsePlanes], "shade"), "shade.planes[0]"),
+  const sparseInstants: IAutoMovieEnvironmentContext = analysisContext({
+    instants: new Array<IAutoMovieEnvironmentInstant>(1),
+  });
+  const sparseOccluders: IAutoMovieEnvironmentContext = analysisContext({
+    occluders: new Array<IAutoMovieContextOccluder>(1),
+  });
+  const sparsePlanes: IAutoMovieContextOccluder = {
+    id: "missing-plane",
+    kind: "neighbour",
+    planes: new Array<IAutoMovieHalfSpacePlane>(4),
   };
-  TestValidator.equals("every resident context/shade slot must contain its declared record", sparseResults, { instant: true, occluder: true, plane: true, shade: true });
-  const { context, neighbour, occluded, broken, instantOf }: { context: IAutoMovieEnvironmentContext; neighbour: { id: string; planes: IAutoMovieHalfSpacePlane[]; }; occluded: IAutoMovieEnvironmentContext; broken: (overrides: Partial<IAutoMovieEnvironmentContext>) => ReturnType<typeof validateAutoMovieEnvironmentContext>; instantOf: (index: number, patch: Partial<IAutoMovieEnvironmentContext["instants"][number]>) => IAutoMovieEnvironmentContext["instants"]; } = assertAnalysisEnvironmentContextPart1();
-  const { cube, rising }: { cube: { id: string; planes: IAutoMovieHalfSpacePlane[]; }; rising: IAutoMovieVector3; } = assertAnalysisEnvironmentContextPart2(context, neighbour, occluded, broken, instantOf);
+  const sparseResults: Record<string, boolean> = {
+    instant: hasViolation(
+      validateAutoMovieEnvironmentContext({ context: sparseInstants }),
+      "type",
+      "$input.instants[0]",
+    ),
+    occluder: hasViolation(
+      validateAutoMovieEnvironmentContext({ context: sparseOccluders }),
+      "type",
+      "$input.occluders[0]",
+    ),
+    plane: hasViolation(
+      validateAutoMovieEnvironmentContext({
+        context: analysisContext({ occluders: [sparsePlanes] }),
+      }),
+      "type",
+      "$input.occluders[0].planes[0]",
+    ),
+    shade: throwsError(
+      (): void => assertAutoMovieAnalysisSolids([sparsePlanes], "shade"),
+      "shade.planes[0]",
+    ),
+  };
+  TestValidator.equals(
+    "every resident context/shade slot must contain its declared record",
+    sparseResults,
+    { instant: true, occluder: true, plane: true, shade: true },
+  );
+  const {
+    context,
+    neighbour,
+    occluded,
+    broken,
+    instantOf,
+  }: {
+    context: IAutoMovieEnvironmentContext;
+    neighbour: { id: string; planes: IAutoMovieHalfSpacePlane[] };
+    occluded: IAutoMovieEnvironmentContext;
+    broken: (
+      overrides: Partial<IAutoMovieEnvironmentContext>,
+    ) => ReturnType<typeof validateAutoMovieEnvironmentContext>;
+    instantOf: (
+      index: number,
+      patch: Partial<IAutoMovieEnvironmentContext["instants"][number]>,
+    ) => IAutoMovieEnvironmentContext["instants"];
+  } = assertAnalysisEnvironmentContextPart1();
+  const {
+    cube,
+    rising,
+  }: {
+    cube: { id: string; planes: IAutoMovieHalfSpacePlane[] };
+    rising: IAutoMovieVector3;
+  } = assertAnalysisEnvironmentContextPart2(
+    context,
+    neighbour,
+    occluded,
+    broken,
+    instantOf,
+  );
   assertAnalysisEnvironmentContextPart3(context, neighbour, cube, rising);
 }

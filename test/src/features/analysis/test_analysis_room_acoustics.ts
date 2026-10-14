@@ -1,8 +1,12 @@
+import type {
+  IAutoMovieAnalysisMetric,
+  IAutoMovieAnalysisRun,
+} from "@automovie/interface";
+
+import type { IAutoMovieAcousticRequest } from "../../../../packages/engine/src/analysis/IAutoMovieAcousticRequest";
 import { assertAnalysisRoomAcousticsPart1 } from "../internal/assertAnalysisRoomAcousticsPart1";
 import { assertAnalysisRoomAcousticsPart2 } from "../internal/assertAnalysisRoomAcousticsPart2";
 import { assertAnalysisRoomAcousticsPart3 } from "../internal/assertAnalysisRoomAcousticsPart3";
-import type { IAutoMovieAnalysisMetric, IAutoMovieAnalysisRun } from "@automovie/interface";
-import type { IAutoMovieAcousticRequest } from "../../../../packages/engine/src/analysis/IAutoMovieAcousticRequest";
 
 /**
  * Compute broadband room absorption, reverberation, receiver level and composite partition loss while retaining diffuse-field and numerical-range gaps.
@@ -24,7 +28,17 @@ import type { IAutoMovieAcousticRequest } from "../../../../packages/engine/src/
  * @evidence contracts/testing.md#execution-ownership Portable CPU unit test_analysis_room_acoustics is the discoverable entry and owns the ordered cases delegated to assertAnalysisRoomAcousticsPart1, assertAnalysisRoomAcousticsPart2, assertAnalysisRoomAcousticsPart3; those helpers are called explicitly, with no dynamic registration, native artifact build, process, browser or GPU host.
  */
 export function test_analysis_room_acoustics(): void {
-  const { study, metrics, statusOf }: { study: (overrides?: Partial<IAutoMovieAcousticRequest>) => IAutoMovieAnalysisRun; metrics: (run: IAutoMovieAnalysisRun) => IAutoMovieAnalysisMetric[]; statusOf: (run: IAutoMovieAnalysisRun, key: string) => string; } = assertAnalysisRoomAcousticsPart1();
+  const {
+    study,
+    metrics,
+    statusOf,
+  }: {
+    study: (
+      overrides?: Partial<IAutoMovieAcousticRequest>,
+    ) => IAutoMovieAnalysisRun;
+    metrics: (run: IAutoMovieAnalysisRun) => IAutoMovieAnalysisMetric[];
+    statusOf: (run: IAutoMovieAnalysisRun, key: string) => string;
+  } = assertAnalysisRoomAcousticsPart1();
   assertAnalysisRoomAcousticsPart2(study, metrics, statusOf);
   assertAnalysisRoomAcousticsPart3(study);
 }

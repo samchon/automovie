@@ -1,10 +1,14 @@
-import { assertAnalysisEnvelopeHygrothermalPart1 } from "../internal/assertAnalysisEnvelopeHygrothermalPart1";
-import { assertAnalysisEnvelopeHygrothermalPart2 } from "../internal/assertAnalysisEnvelopeHygrothermalPart2";
-import { assertAnalysisEnvelopeHygrothermalPart3 } from "../internal/assertAnalysisEnvelopeHygrothermalPart3";
-import type { IAutoMovieAnalysisMetric, IAutoMovieAnalysisRun } from "@automovie/interface";
+import type {
+  IAutoMovieAnalysisMetric,
+  IAutoMovieAnalysisRun,
+} from "@automovie/interface";
+
 import type { IAutoMovieEnvelopeAssembly } from "../../../../packages/engine/src/analysis/IAutoMovieEnvelopeAssembly";
 import type { IAutoMovieEnvelopeRequest } from "../../../../packages/engine/src/analysis/IAutoMovieEnvelopeRequest";
 import type { IAutoMovieSpaceAirRequest } from "../../../../packages/engine/src/analysis/IAutoMovieSpaceAirRequest";
+import { assertAnalysisEnvelopeHygrothermalPart1 } from "../internal/assertAnalysisEnvelopeHygrothermalPart1";
+import { assertAnalysisEnvelopeHygrothermalPart2 } from "../internal/assertAnalysisEnvelopeHygrothermalPart2";
+import { assertAnalysisEnvelopeHygrothermalPart3 } from "../internal/assertAnalysisEnvelopeHygrothermalPart3";
 
 /**
  * Solve declared series thermal resistances and well-mixed ventilation, keeping condensation, absent boundaries and unsupported fields distinct.
@@ -28,7 +32,36 @@ import type { IAutoMovieSpaceAirRequest } from "../../../../packages/engine/src/
  * @evidence contracts/testing.md#execution-ownership Portable CPU unit test_analysis_envelope_hygrothermal is the discoverable entry and owns the ordered cases delegated to assertAnalysisEnvelopeHygrothermalPart1, assertAnalysisEnvelopeHygrothermalPart2, assertAnalysisEnvelopeHygrothermalPart3; those helpers are called explicitly, with no dynamic registration, native artifact build, process, browser or GPU host.
  */
 export function test_analysis_envelope_hygrothermal(): void {
-  const { wall, study, metrics, of, statusOf, bone }: { wall: IAutoMovieEnvelopeAssembly; study: (overrides?: Partial<IAutoMovieEnvelopeRequest>) => { thermal: IAutoMovieAnalysisRun; moisture: IAutoMovieAnalysisRun; }; metrics: (run: IAutoMovieAnalysisRun) => IAutoMovieAnalysisMetric[]; of: (run: IAutoMovieAnalysisRun, key: string) => number | null; statusOf: (run: IAutoMovieAnalysisRun, key: string) => string; bone: { thermal: IAutoMovieAnalysisRun; moisture: IAutoMovieAnalysisRun; }; } = assertAnalysisEnvelopeHygrothermalPart1();
-  const { air }: { air: (overrides?: Partial<IAutoMovieSpaceAirRequest>) => IAutoMovieAnalysisRun; } = assertAnalysisEnvelopeHygrothermalPart2(study, metrics, of, statusOf, bone);
+  const {
+    wall,
+    study,
+    metrics,
+    of,
+    statusOf,
+    bone,
+  }: {
+    wall: IAutoMovieEnvelopeAssembly;
+    study: (overrides?: Partial<IAutoMovieEnvelopeRequest>) => {
+      thermal: IAutoMovieAnalysisRun;
+      moisture: IAutoMovieAnalysisRun;
+    };
+    metrics: (run: IAutoMovieAnalysisRun) => IAutoMovieAnalysisMetric[];
+    of: (run: IAutoMovieAnalysisRun, key: string) => number | null;
+    statusOf: (run: IAutoMovieAnalysisRun, key: string) => string;
+    bone: { thermal: IAutoMovieAnalysisRun; moisture: IAutoMovieAnalysisRun };
+  } = assertAnalysisEnvelopeHygrothermalPart1();
+  const {
+    air,
+  }: {
+    air: (
+      overrides?: Partial<IAutoMovieSpaceAirRequest>,
+    ) => IAutoMovieAnalysisRun;
+  } = assertAnalysisEnvelopeHygrothermalPart2(
+    study,
+    metrics,
+    of,
+    statusOf,
+    bone,
+  );
   assertAnalysisEnvelopeHygrothermalPart3(wall, study, air);
 }

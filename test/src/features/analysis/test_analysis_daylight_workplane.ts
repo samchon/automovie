@@ -1,9 +1,13 @@
+import type {
+  IAutoMovieAnalysisMetric,
+  IAutoMovieAnalysisRun,
+} from "@automovie/interface";
+
+import type { IAutoMovieAnalysisWorkplane } from "../../../../packages/engine/src/analysis/IAutoMovieAnalysisWorkplane";
+import type { IAutoMovieDaylightRequest } from "../../../../packages/engine/src/analysis/IAutoMovieDaylightRequest";
 import { assertAnalysisDaylightWorkplanePart1 } from "../internal/assertAnalysisDaylightWorkplanePart1";
 import { assertAnalysisDaylightWorkplanePart2 } from "../internal/assertAnalysisDaylightWorkplanePart2";
 import { assertAnalysisDaylightWorkplanePart3 } from "../internal/assertAnalysisDaylightWorkplanePart3";
-import type { IAutoMovieAnalysisMetric, IAutoMovieAnalysisRun } from "@automovie/interface";
-import type { IAutoMovieAnalysisWorkplane } from "../../../../packages/engine/src/analysis/IAutoMovieAnalysisWorkplane";
-import type { IAutoMovieDaylightRequest } from "../../../../packages/engine/src/analysis/IAutoMovieDaylightRequest";
 
 /**
  * Measure beam, isotropic sky and point-luminaire light on declared workplanes, preserving unsupported reflection and missing-emitter gaps.
@@ -27,7 +31,27 @@ import type { IAutoMovieDaylightRequest } from "../../../../packages/engine/src/
  * @evidence contracts/testing.md#execution-ownership Portable CPU unit test_analysis_daylight_workplane is the discoverable entry and owns the ordered cases delegated to assertAnalysisDaylightWorkplanePart1, assertAnalysisDaylightWorkplanePart2, assertAnalysisDaylightWorkplanePart3; those helpers are called explicitly, with no dynamic registration, native artifact build, process, browser or GPU host.
  */
 export function test_analysis_daylight_workplane(): void {
-  const { upward, study, metrics, of, statusOf, noon, afternoon, shaded }: { upward: IAutoMovieAnalysisWorkplane; study: (overrides?: Partial<IAutoMovieDaylightRequest>) => IAutoMovieAnalysisRun; metrics: (run: IAutoMovieAnalysisRun) => IAutoMovieAnalysisMetric[]; of: (run: IAutoMovieAnalysisRun, key: string) => number | null; statusOf: (run: IAutoMovieAnalysisRun, key: string) => string; noon: IAutoMovieAnalysisRun; afternoon: IAutoMovieAnalysisRun; shaded: IAutoMovieAnalysisRun; } = assertAnalysisDaylightWorkplanePart1();
+  const {
+    upward,
+    study,
+    metrics,
+    of,
+    statusOf,
+    noon,
+    afternoon,
+    shaded,
+  }: {
+    upward: IAutoMovieAnalysisWorkplane;
+    study: (
+      overrides?: Partial<IAutoMovieDaylightRequest>,
+    ) => IAutoMovieAnalysisRun;
+    metrics: (run: IAutoMovieAnalysisRun) => IAutoMovieAnalysisMetric[];
+    of: (run: IAutoMovieAnalysisRun, key: string) => number | null;
+    statusOf: (run: IAutoMovieAnalysisRun, key: string) => string;
+    noon: IAutoMovieAnalysisRun;
+    afternoon: IAutoMovieAnalysisRun;
+    shaded: IAutoMovieAnalysisRun;
+  } = assertAnalysisDaylightWorkplanePart1();
   assertAnalysisDaylightWorkplanePart2(upward, study, metrics, of, statusOf);
   assertAnalysisDaylightWorkplanePart3(upward, study, noon, afternoon, shaded);
 }
