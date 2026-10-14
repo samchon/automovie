@@ -1,7 +1,6 @@
 import type { IAutoMovieMaterial, IAutoMovieModel } from "@automovie/interface";
 
 import { createHumanLocalModelPart } from "../../../common/mesh/createHumanLocalModelPart";
-
 import type { IAutoMovieHumanFaceBasis } from "../../structures/IAutoMovieHumanFaceBasis";
 import type { IHumanFacePeriocularTissuePart } from "./structures/IHumanFacePeriocularTissuePart";
 
@@ -31,7 +30,7 @@ export function finishHumanFacePeriocularTissues(
   };
   for (const part of generated) {
     const source: IAutoMovieMaterial | undefined = materials.find(
-      (material: IAutoMovieMaterial): boolean  =>
+      (material: IAutoMovieMaterial): boolean =>
         material.id === basis.periocular?.[part.side].cage?.material,
     );
     if (source === undefined)
@@ -51,14 +50,19 @@ export function finishHumanFacePeriocularTissues(
     finish.doubleSided = false;
     finish.baseColor.a = 1;
     result.materials.push(finish);
-    result.parts.push(createHumanLocalModelPart({
-      id,
-      name: id,
-      material: id,
-      geometry: { type: "mesh", mesh: part.mesh },
-      attachedBone: null,
-      transform: null,
-    }, part.publication));
+    result.parts.push(
+      createHumanLocalModelPart(
+        {
+          id,
+          name: id,
+          material: id,
+          geometry: { type: "mesh", mesh: part.mesh },
+          attachedBone: null,
+          transform: null,
+        },
+        part.publication,
+      ),
+    );
   }
   return result;
 }

@@ -55,18 +55,31 @@ export function humanFaceIrisTexelColour(props: {
   /** Source texel's linear colour, retained outside the blended iris edge. */
   original: readonly [number, number, number];
 }): [number, number, number] {
-  const { theta, phi, limbus, pupil, edge }: Parameters<typeof humanFaceIrisTexelColour>[0] = props;
-  const rho: number = clampAutoMovieUnitInterval((theta - pupil) / (limbus - pupil));
+  const {
+    theta,
+    phi,
+    limbus,
+    pupil,
+    edge,
+  }: Parameters<typeof humanFaceIrisTexelColour>[0] = props;
+  const rho: number = clampAutoMovieUnitInterval(
+    (theta - pupil) / (limbus - pupil),
+  );
   const fibre: number =
     0.48 +
     0.23 * Math.sin(phi * 37 + rho * 7) +
     0.17 * Math.sin(phi * 71 - rho * 11) +
     0.12 * Math.cos(phi * 13);
-  const band: number = rho > 0.87 ? 0 : Math.max(0, Math.min(7, Math.floor(fibre * 8)));
+  const band: number =
+    rho > 0.87 ? 0 : Math.max(0, Math.min(7, Math.floor(fibre * 8)));
   const stroma: readonly [number, number, number] = props.bands[band];
-  const open: number = clampAutoMovieUnitInterval((theta - pupil + edge) / (2 * edge));
-  const inside: number = clampAutoMovieUnitInterval((limbus + edge - theta) / (2 * edge));
-  return [0, 1, 2].map((c: number): number  => {
+  const open: number = clampAutoMovieUnitInterval(
+    (theta - pupil + edge) / (2 * edge),
+  );
+  const inside: number = clampAutoMovieUnitInterval(
+    (limbus + edge - theta) / (2 * edge),
+  );
+  return [0, 1, 2].map((c: number): number => {
     const iris: number =
       HUMAN_FACE_PUPIL_COLOUR[c] +
       (stroma[c] - HUMAN_FACE_PUPIL_COLOUR[c]) * open;

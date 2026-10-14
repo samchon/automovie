@@ -1,4 +1,8 @@
-import type { IAutoMovieModel, IAutoMovieModelPart, IAutoMovieMesh } from "@automovie/interface";
+import type {
+  IAutoMovieMesh,
+  IAutoMovieModel,
+  IAutoMovieModelPart,
+} from "@automovie/interface";
 
 import type { IAutoMovieHumanConstructionClearanceReading } from "../../../common/structures/IAutoMovieHumanConstructionClearanceReading";
 import { measureHumanFaceClearance } from "../../basis/measureHumanFaceClearance";
@@ -39,7 +43,7 @@ export function readHumanFaceOcularSurfaceSpace(
   const readings: IAutoMovieHumanConstructionClearanceReading[] = [];
   for (const side of ["left", "right"] as const) {
     const selected: IAutoMovieModelPart[] = parts.filter(
-      (part: IAutoMovieModelPart): boolean  =>
+      (part: IAutoMovieModelPart): boolean =>
         part.id.startsWith("ocular:" + side + ":") &&
         part.geometry.type === "mesh",
     );

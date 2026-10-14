@@ -40,12 +40,20 @@ import type { IHumanFaceLidDisplacementInput } from "./structures/IHumanFaceLidD
 export function interpolateHumanFaceLidDisplacement(
   input: IHumanFaceLidDisplacementInput,
 ): Map<number, IAutoMovieVector3> {
-  const { positions, indices, samples, pins, boundaryVertices }: IHumanFaceLidDisplacementInput = input;
+  const {
+    positions,
+    indices,
+    samples,
+    pins,
+    boundaryVertices,
+  }: IHumanFaceLidDisplacementInput = input;
   if (
     positions.length === 0 ||
     positions.length !== 3 * samples.length ||
     !positions.every(Number.isFinite) ||
-    !samples.every((sample: number): boolean  => Number.isSafeInteger(sample) && sample >= 0) ||
+    !samples.every(
+      (sample: number): boolean => Number.isSafeInteger(sample) && sample >= 0,
+    ) ||
     indices.length === 0 ||
     indices.length % 3 !== 0
   )
@@ -58,7 +66,10 @@ export function interpolateHumanFaceLidDisplacement(
     return samples[vertex];
   };
   const neighbours: Map<number, Set<number>> = new Map<number, Set<number>>();
-  const edges: Map<string, [number, number, number]> = new Map<string, [number, number, number]>();
+  const edges: Map<string, [number, number, number]> = new Map<
+    string,
+    [number, number, number]
+  >();
   const triangles: Set<string> = new Set<string>();
   for (let at: number = 0; at < indices.length; at += 3) {
     const corners: number[] = indices.slice(at, at + 3).map(sampleAt);
@@ -66,7 +77,9 @@ export function interpolateHumanFaceLidDisplacement(
       throw new Error(
         "Lid displacement has a collapsed source-sample triangle.",
       );
-    const triangle: string = [...corners].sort((a: number, b: number): number  => a - b).join(":");
+    const triangle: string = [...corners]
+      .sort((a: number, b: number): number => a - b)
+      .join(":");
     if (triangles.has(triangle))
       throw new Error(
         "Lid displacement repeats a native source-sample triangle.",
@@ -103,12 +116,17 @@ export function interpolateHumanFaceLidDisplacement(
   if (
     actualBoundary.size === 0 ||
     actualBoundary.size !== declaredBoundary.size ||
-    [...actualBoundary].some((sample: number): boolean  => !declaredBoundary.has(sample))
+    [...actualBoundary].some(
+      (sample: number): boolean => !declaredBoundary.has(sample),
+    )
   )
     throw new Error(
       "Lid displacement needs its complete native annulus boundary.",
     );
-  const fixed: Map<number, IAutoMovieVector3> = new Map<number, IAutoMovieVector3>();
+  const fixed: Map<number, IAutoMovieVector3> = new Map<
+    number,
+    IAutoMovieVector3
+  >();
   for (const [vertex, delta] of pins) {
     const sample: number = sampleAt(vertex);
     if (
@@ -128,12 +146,14 @@ export function interpolateHumanFaceLidDisplacement(
       throw new Error("Lid displacement has contradictory source-alias pins.");
     fixed.set(sample, { x: delta.x, y: delta.y, z: delta.z });
   }
-  if ([...actualBoundary].some((sample: number): boolean  => !fixed.has(sample)))
+  if ([...actualBoundary].some((sample: number): boolean => !fixed.has(sample)))
     throw new Error(
       "Lid displacement needs an exact pin on every boundary sample.",
     );
   const reached: Set<number> = new Set(fixed.keys());
-  const queue: number[] = [...reached].sort((a: number, b: number): number  => a - b);
+  const queue: number[] = [...reached].sort(
+    (a: number, b: number): number => a - b,
+  );
   for (let at: number = 0; at < queue.length; at++)
     for (const near of neighbours.get(queue[at])!)
       if (!reached.has(near)) {
@@ -143,16 +163,23 @@ export function interpolateHumanFaceLidDisplacement(
   if (reached.size !== neighbours.size)
     throw new Error("Lid displacement has a free component without a pin.");
   const free: number[] = [...neighbours.keys()]
-    .filter((sample: number): boolean  => !fixed.has(sample))
-    .sort((a: number, b: number): number  => a - b);
-  const columns: Map<number, number> = new Map(free.map((sample: number, column: number): [number, number]  => [sample, column]));
-  const rows: number[][] = free.map((sample: number): number[]  =>
-    [...neighbours.get(sample)!].sort((a: number, b: number): number  => a - b),
+    .filter((sample: number): boolean => !fixed.has(sample))
+    .sort((a: number, b: number): number => a - b);
+  const columns: Map<number, number> = new Map(
+    free.map((sample: number, column: number): [number, number] => [
+      sample,
+      column,
+    ]),
   );
-  const diagonal: number[] = rows.map((row: number[]): number  => row.length);
-  const multiply: (values: number[]) => number[] = (values: number[]): number[] =>
-    rows.map((row: number[], i: number): number  =>
-      row.reduce((sum: number, near: number): number  => {
+  const rows: number[][] = free.map((sample: number): number[] =>
+    [...neighbours.get(sample)!].sort((a: number, b: number): number => a - b),
+  );
+  const diagonal: number[] = rows.map((row: number[]): number => row.length);
+  const multiply: (values: number[]) => number[] = (
+    values: number[],
+  ): number[] =>
+    rows.map((row: number[], i: number): number =>
+      row.reduce((sum: number, near: number): number => {
         const column: number | undefined = columns.get(near);
         return sum + values[i] - (column === undefined ? 0 : values[column]);
       }, 0),
@@ -161,23 +188,41 @@ export function interpolateHumanFaceLidDisplacement(
   for (const sample of free) result.set(sample, { x: 0, y: 0, z: 0 });
   for (const axis of ["x", "y", "z"] as const) {
     const millimetres: Map<number, number> = new Map(
-      [...fixed].map(([sample, delta]: [number, IAutoMovieVector3]): [number, number]  => [sample, delta[axis] * 1000]),
+      [...fixed].map(
+        ([sample, delta]: [number, IAutoMovieVector3]): [number, number] => [
+          sample,
+          delta[axis] * 1000,
+        ],
+      ),
     );
     const scale: number = [...millimetres.values()].reduce(
-      (maximum: number, value: number): number  => Math.max(maximum, Math.abs(value)),
+      (maximum: number, value: number): number =>
+        Math.max(maximum, Math.abs(value)),
       1,
     );
-    const rhs: number[] = rows.map((row: number[]): number  =>
-      row.reduce((sum: number, near: number): number  => sum + (millimetres.get(near) ?? 0), 0),
+    const rhs: number[] = rows.map((row: number[]): number =>
+      row.reduce(
+        (sum: number, near: number): number =>
+          sum + (millimetres.get(near) ?? 0),
+        0,
+      ),
     );
     if (!Number.isFinite(scale) || !rhs.every(Number.isFinite))
       throw new Error("Lid displacement exceeds finite solver millimetres.");
-    const values: number[] = solvePortraitSkinSystem(multiply, diagonal, rhs, scale);
+    const values: number[] = solvePortraitSkinSystem(
+      multiply,
+      diagonal,
+      rhs,
+      scale,
+    );
     for (let column: number = 0; column < free.length; column++)
       result.get(free[column])![axis] = values[column] / 1000;
   }
-  const expanded: Map<number, IAutoMovieVector3> = new Map<number, IAutoMovieVector3>();
-  samples.forEach((sample: number, vertex: number): void  => {
+  const expanded: Map<number, IAutoMovieVector3> = new Map<
+    number,
+    IAutoMovieVector3
+  >();
+  samples.forEach((sample: number, vertex: number): void => {
     const delta: IAutoMovieVector3 | undefined = result.get(sample);
     if (delta !== undefined)
       expanded.set(vertex, { x: delta.x, y: delta.y, z: delta.z });

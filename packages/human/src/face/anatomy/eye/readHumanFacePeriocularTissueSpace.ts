@@ -1,10 +1,9 @@
-import type { IAutoMovieHumanFaceBasisSurface } from "../../structures/IAutoMovieHumanFaceBasisSurface";
-
 import type { IAutoMovieMesh, IAutoMovieTransform } from "@automovie/interface";
 
 import type { IAutoMovieHumanConstructionClearanceReading } from "../../../common/structures/IAutoMovieHumanConstructionClearanceReading";
 import { measureHumanFaceClearance } from "../../basis/measureHumanFaceClearance";
 import type { IAutoMovieHumanFaceBasis } from "../../structures/IAutoMovieHumanFaceBasis";
+import type { IAutoMovieHumanFaceBasisSurface } from "../../structures/IAutoMovieHumanFaceBasisSurface";
 import { readHumanFaceOpticalExterior } from "./readHumanFaceOpticalExterior";
 import type { IHumanFaceOpticalAssembly } from "./structures/IHumanFaceOpticalAssembly";
 import type { IHumanFacePeriocularTissuePart } from "./structures/IHumanFacePeriocularTissuePart";
@@ -50,17 +49,30 @@ export function readHumanFacePeriocularTissueSpace(
       "Periocular tissue space needs its source contact tolerance.",
     );
   const owner: string = "periocular-" + state;
-  const transforms: Map<IHumanFacePeriocularTissuePart, IAutoMovieTransform> = new Map<IHumanFacePeriocularTissuePart, IAutoMovieTransform>(
-    parts.map((part: IHumanFacePeriocularTissuePart): [IHumanFacePeriocularTissuePart, IAutoMovieTransform] => [part, {
-      translation: part.publication.origin,
-      rotation: { x: 0, y: 0, z: 0, w: 1 },
-      scale: { x: 1, y: 1, z: 1 },
-    }]),
-  );
+  const transforms: Map<IHumanFacePeriocularTissuePart, IAutoMovieTransform> =
+    new Map<IHumanFacePeriocularTissuePart, IAutoMovieTransform>(
+      parts.map(
+        (
+          part: IHumanFacePeriocularTissuePart,
+        ): [IHumanFacePeriocularTissuePart, IAutoMovieTransform] => [
+          part,
+          {
+            translation: part.publication.origin,
+            rotation: { x: 0, y: 0, z: 0, w: 1 },
+            scale: { x: 1, y: 1, z: 1 },
+          },
+        ],
+      ),
+    );
   const readings: IAutoMovieHumanConstructionClearanceReading[] = [];
-  const skins: Map<"left" | "right", IAutoMovieMesh> = new Map<"left" | "right", IAutoMovieMesh>();
+  const skins: Map<"left" | "right", IAutoMovieMesh> = new Map<
+    "left" | "right",
+    IAutoMovieMesh
+  >();
   for (const side of ["left", "right"] as const) {
-    const selected: IHumanFacePeriocularTissuePart[] = parts.filter((part: IHumanFacePeriocularTissuePart): boolean  => part.side === side);
+    const selected: IHumanFacePeriocularTissuePart[] = parts.filter(
+      (part: IHumanFacePeriocularTissuePart): boolean => part.side === side,
+    );
     if (selected.length === 0) continue;
     const optical: IAutoMovieMesh | undefined = readHumanFaceOpticalExterior(
       basis,
@@ -73,8 +85,9 @@ export function readHumanFacePeriocularTissueSpace(
       throw new Error(
         "Periocular tissue space needs its registered optical proxy: " + side,
       );
-    const id: (part: IHumanFacePeriocularTissuePart) => string = (part: IHumanFacePeriocularTissuePart): string =>
-      "periocular:" + side + ":" + part.tissue;
+    const id: (part: IHumanFacePeriocularTissuePart) => string = (
+      part: IHumanFacePeriocularTissuePart,
+    ): string => "periocular:" + side + ":" + part.tissue;
     for (const part of selected)
       readings.push({
         owner,
@@ -99,8 +112,13 @@ export function readHumanFacePeriocularTissueSpace(
     // layer (Ferreira et al. 2020), so no shell vertex may be in front of
     // the skin sheet and no shell face may cross it.
     const skinId: string | undefined = basis.periocular?.[side].cage?.surface;
-    const host: IAutoMovieHumanFaceBasisSurface | undefined = basis.surfaces.find((surface: IAutoMovieHumanFaceBasisSurface): boolean  => surface.id === skinId);
-    const skinPoints: readonly number[] | undefined = skinId === undefined ? undefined : positions.get(skinId);
+    const host: IAutoMovieHumanFaceBasisSurface | undefined =
+      basis.surfaces.find(
+        (surface: IAutoMovieHumanFaceBasisSurface): boolean =>
+          surface.id === skinId,
+      );
+    const skinPoints: readonly number[] | undefined =
+      skinId === undefined ? undefined : positions.get(skinId);
     if (host === undefined || skinPoints === undefined)
       throw new Error(
         "Periocular tissue space needs the lid skin of its cage: " + side,

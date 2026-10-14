@@ -1,12 +1,4 @@
 import type { IPortraitEyebrowProfile } from "../brow/IPortraitEyebrowProfile";
-
-
-
-import type { IPortraitOcularTissueBoundary } from "./structures/IPortraitOcularTissueBoundary";
-import type { IPortraitOcularTissueMeshes } from "./structures/IPortraitOcularTissueMeshes";
-import type { IPortraitLowerLidSection } from "./structures/IPortraitLowerLidSection";
-import type { IPortraitUpperLidSection } from "./structures/IPortraitUpperLidSection";
-
 import { assertPortraitEyebrowProfile } from "../brow/assertPortraitEyebrowProfile";
 import { portraitEyebrowProfile } from "../brow/portraitEyebrowProfile";
 import { assertPortraitEyelashProfile } from "../lash/assertPortraitEyelashProfile";
@@ -18,6 +10,10 @@ import { createPortraitUpperLidProfile } from "./createPortraitUpperLidProfile";
 import { type IPortraitEyePerformance } from "./structures/IPortraitEyePerformance";
 import type { IPortraitEyeShape } from "./structures/IPortraitEyeShape";
 import type { IPortraitEyeSocket } from "./structures/IPortraitEyeSocket";
+import type { IPortraitLowerLidSection } from "./structures/IPortraitLowerLidSection";
+import type { IPortraitOcularTissueBoundary } from "./structures/IPortraitOcularTissueBoundary";
+import type { IPortraitOcularTissueMeshes } from "./structures/IPortraitOcularTissueMeshes";
+import type { IPortraitUpperLidSection } from "./structures/IPortraitUpperLidSection";
 
 /**
  * Own and validate one eye's numerical inputs before any host is fitted.
@@ -41,7 +37,14 @@ export function resolvePortraitEyeInputs(
   inputSocket: IPortraitEyeSocket,
   inputShape: IPortraitEyeShape,
   inputPerformance?: IPortraitEyePerformance,
-): { performance: IPortraitEyePerformance | undefined; socket: IPortraitEyeSocket; shape: IPortraitEyeShape & { browProfile: IPortraitEyebrowProfile }; tissues: ReturnType<typeof createPortraitOcularTissues> | undefined; lowerProfile: ReturnType<typeof createPortraitLowerLidProfile> | undefined; upperProfile: ReturnType<typeof createPortraitUpperLidProfile> | undefined; }  {
+): {
+  performance: IPortraitEyePerformance | undefined;
+  socket: IPortraitEyeSocket;
+  shape: IPortraitEyeShape & { browProfile: IPortraitEyebrowProfile };
+  tissues: ReturnType<typeof createPortraitOcularTissues> | undefined;
+  lowerProfile: ReturnType<typeof createPortraitLowerLidProfile> | undefined;
+  upperProfile: ReturnType<typeof createPortraitUpperLidProfile> | undefined;
+} {
   const performance: IPortraitEyePerformance | undefined =
     inputPerformance === undefined ? undefined : { ...inputPerformance };
   if (
@@ -108,7 +111,9 @@ export function resolvePortraitEyeInputs(
   };
   // Build/validate once and retain the copied dimensions through fitting. Both
   // visible tissue surfaces will consume this eye's final refined boundary.
-  const tissues: ((boundary: IPortraitOcularTissueBoundary) => IPortraitOcularTissueMeshes) | undefined =
+  const tissues:
+    | ((boundary: IPortraitOcularTissueBoundary) => IPortraitOcularTissueMeshes)
+    | undefined =
     shape.tissues === undefined
       ? undefined
       : createPortraitOcularTissues(shape.tissues);
@@ -140,7 +145,8 @@ export function resolvePortraitEyeInputs(
       (shape.aegyoSal.weights !== undefined &&
         (shape.aegyoSal.weights.length !== 7 ||
           shape.aegyoSal.weights.some(
-            (weight: number): boolean  => !Number.isFinite(weight) || weight < 0 || weight > 1,
+            (weight: number): boolean =>
+              !Number.isFinite(weight) || weight < 0 || weight > 1,
           ))))
   )
     throw new Error(
@@ -197,9 +203,9 @@ export function resolvePortraitEyeInputs(
   ];
   const counts: number[] = Object.values(shape.sampling);
   if (
-    positive.some((v: number): boolean  => !Number.isFinite(v) || v <= 0) ||
-    nonnegative.some((v: number): boolean  => !Number.isFinite(v) || v < 0) ||
-    counts.some((v: number): boolean  => !Number.isInteger(v) || v < 1) ||
+    positive.some((v: number): boolean => !Number.isFinite(v) || v <= 0) ||
+    nonnegative.some((v: number): boolean => !Number.isFinite(v) || v < 0) ||
+    counts.some((v: number): boolean => !Number.isInteger(v) || v < 1) ||
     !Number.isFinite(shape.socketLift) ||
     (shape.globeLift !== undefined && !Number.isFinite(shape.globeLift)) ||
     (shape.sphereFit !== undefined &&

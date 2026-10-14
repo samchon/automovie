@@ -1,13 +1,12 @@
-import type { IHumanFaceIrisDisc } from "./structures/IHumanFaceIrisDisc";
-import type { IHumanFaceIrisTexels } from "./structures/IHumanFaceIrisTexels";
-
 import { srgbByteToLinear } from "../../../common/colour/srgbByteToLinear";
 import { decodePng } from "../../../common/mesh/decodePng";
 import { HUMAN_FACE_IRIS_EDGE } from "./HUMAN_FACE_IRIS_EDGE";
 import { locateHumanFaceIrisDisc } from "./locateHumanFaceIrisDisc";
 import { rasterizeHumanFaceIrisTexels } from "./rasterizeHumanFaceIrisTexels";
+import type { IHumanFaceIrisDisc } from "./structures/IHumanFaceIrisDisc";
 import type { IHumanFaceIrisGlobe } from "./structures/IHumanFaceIrisGlobe";
 import type { IHumanFaceIrisPreparedTexture } from "./structures/IHumanFaceIrisPreparedTexture";
+import type { IHumanFaceIrisTexels } from "./structures/IHumanFaceIrisTexels";
 
 /** Width of the sclera ring averaged outside the painted iris, radians. */
 const SCLERA_BAND: number = (2 * Math.PI) / 180;
@@ -35,9 +34,14 @@ const SCLERA_BAND: number = (2 * Math.PI) / 180;
 export function prepareHumanFaceIrisTextures(
   globes: readonly IHumanFaceIrisGlobe[],
 ): Map<string, IHumanFaceIrisPreparedTexture> {
-  const byMaterial: Map<string, IHumanFaceIrisPreparedTexture> = new Map<string, IHumanFaceIrisPreparedTexture>();
+  const byMaterial: Map<string, IHumanFaceIrisPreparedTexture> = new Map<
+    string,
+    IHumanFaceIrisPreparedTexture
+  >();
   for (const globe of globes) {
-    let texture: IHumanFaceIrisPreparedTexture | undefined = byMaterial.get(globe.material);
+    let texture: IHumanFaceIrisPreparedTexture | undefined = byMaterial.get(
+      globe.material,
+    );
     if (texture === undefined) {
       texture = { ...decodePng(globe.texture), eyes: [] };
       byMaterial.set(globe.material, texture);
@@ -54,7 +58,7 @@ export function prepareHumanFaceIrisTextures(
     // The sclera just outside the painted iris, averaged in linear colour.
     const sum: number[] = [0, 0, 0];
     let count: number = 0;
-    texels.index.forEach((index: number, at: number): void  => {
+    texels.index.forEach((index: number, at: number): void => {
       if (texels.theta[at] <= disc.painted + HUMAN_FACE_IRIS_EDGE) return;
       for (let c: number = 0; c < 3; ++c)
         sum[c] += srgbByteToLinear(texture!.rgba[4 * index + c]);
@@ -64,7 +68,9 @@ export function prepareHumanFaceIrisTextures(
       eye: globe.eye,
       disc,
       texels,
-      sclera: (count === 0 ? [1, 1, 1] : sum.map((value: number): number  => value / count)) as [
+      sclera: (count === 0
+        ? [1, 1, 1]
+        : sum.map((value: number): number => value / count)) as [
         number,
         number,
         number,

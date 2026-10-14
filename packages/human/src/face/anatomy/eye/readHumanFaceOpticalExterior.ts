@@ -1,9 +1,8 @@
-import type { IAutoMovieHumanFaceBasisSurface } from "../../structures/IAutoMovieHumanFaceBasisSurface";
-import type { IAutoMovieHumanFaceContactCollider } from "../../structures/IAutoMovieHumanFaceContactCollider";
-
 import type { IAutoMovieMesh } from "@automovie/interface";
 
 import type { IAutoMovieHumanFaceBasis } from "../../structures/IAutoMovieHumanFaceBasis";
+import type { IAutoMovieHumanFaceBasisSurface } from "../../structures/IAutoMovieHumanFaceBasisSurface";
+import type { IAutoMovieHumanFaceContactCollider } from "../../structures/IAutoMovieHumanFaceContactCollider";
 import type { IHumanFaceOpticalAssembly } from "./structures/IHumanFaceOpticalAssembly";
 
 /**
@@ -31,15 +30,24 @@ export function readHumanFaceOpticalExterior(
   side: "left" | "right",
   state: "rest" | "performed",
 ): IAutoMovieMesh | undefined {
-  const eye: IHumanFaceOpticalAssembly | undefined = optics?.find((candidate: IHumanFaceOpticalAssembly): boolean  => candidate.side === side);
+  const eye: IHumanFaceOpticalAssembly | undefined = optics?.find(
+    (candidate: IHumanFaceOpticalAssembly): boolean => candidate.side === side,
+  );
   if (eye !== undefined)
     return eye.collider[state === "rest" ? "rest" : "posed"];
   const id: string | undefined = basis.periocular?.[side].globe.surface;
-  const surface: IAutoMovieHumanFaceBasisSurface | undefined = basis.surfaces.find((candidate: IAutoMovieHumanFaceBasisSurface): boolean  => candidate.id === id);
-  const collider: IAutoMovieHumanFaceContactCollider | undefined = basis.contact?.colliders.find(
-    (candidate: IAutoMovieHumanFaceContactCollider): boolean  => candidate.surface === id,
-  );
-  const points: readonly number[] | undefined = id === undefined ? undefined : positions.get(id);
+  const surface: IAutoMovieHumanFaceBasisSurface | undefined =
+    basis.surfaces.find(
+      (candidate: IAutoMovieHumanFaceBasisSurface): boolean =>
+        candidate.id === id,
+    );
+  const collider: IAutoMovieHumanFaceContactCollider | undefined =
+    basis.contact?.colliders.find(
+      (candidate: IAutoMovieHumanFaceContactCollider): boolean =>
+        candidate.surface === id,
+    );
+  const points: readonly number[] | undefined =
+    id === undefined ? undefined : positions.get(id);
   if (surface === undefined || collider === undefined || points === undefined)
     return undefined;
   return {

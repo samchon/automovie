@@ -32,7 +32,20 @@ import type { IAutoMovieHumanFaceOpticalDimensions } from "../../structures/IAut
  */
 export function resolveHumanFaceOpticalProfile(
   input: IAutoMovieHumanFaceOpticalDimensions,
-): { radius: number; limbus: number; curvature: number; thickness: number; iris: number; aperture: number; depth: number; rim: number; apex: number; irisZ: number; height: (r: number) => number; slope: (r: number) => number; }  {
+): {
+  radius: number;
+  limbus: number;
+  curvature: number;
+  thickness: number;
+  iris: number;
+  aperture: number;
+  depth: number;
+  rim: number;
+  apex: number;
+  irisZ: number;
+  height: (r: number) => number;
+  slope: (r: number) => number;
+} {
   const dimensions: number[] = [
     input.globeRadiusMm,
     input.limbusRadiusMm,
@@ -42,13 +55,17 @@ export function resolveHumanFaceOpticalProfile(
     input.irisApertureRadiusMm,
     input.irisDepthFromAnteriorSupportMm,
   ];
-  if (dimensions.some((value: number): boolean  => !Number.isFinite(value) || value <= 0))
+  if (
+    dimensions.some(
+      (value: number): boolean => !Number.isFinite(value) || value <= 0,
+    )
+  )
     throw new Error(
       "Independent optics need seven finite positive dimensions.",
     );
   const [radius, limbus, curvature]: number[] = dimensions
     .slice(0, 3)
-    .map((v: number): number  => v / 1000);
+    .map((v: number): number => v / 1000);
   const thickness: number = input.centralThicknessMicrometres / 1000000;
   const iris: number = input.irisOuterRadiusMm / 1000;
   const aperture: number = input.irisApertureRadiusMm / 1000;
@@ -56,7 +73,7 @@ export function resolveHumanFaceOpticalProfile(
   if (
     !(0 < aperture && aperture < iris && iris <= limbus && limbus < radius) ||
     [radius, limbus, curvature, thickness, iris, aperture, depth].some(
-      (v: number): boolean  => v <= 0,
+      (v: number): boolean => v <= 0,
     )
   )
     throw new Error(

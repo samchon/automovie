@@ -76,15 +76,17 @@ export function locateHumanFaceIrisDisc(
 ): IHumanFaceIrisDisc {
   if (positions.length < 8)
     throw new Error("An iris disc needs at least eight globe vertices.");
-  const first: { centre: [number, number, number]; radius: number; } = fitSphere(positions);
+  const first: { centre: [number, number, number]; radius: number } =
+    fitSphere(positions);
   const firstAxis: [number, number, number] = protrusionAxis(positions, first);
   const sclera: (readonly [number, number, number])[] = positions.filter(
-    (point: readonly [number, number, number]): boolean  =>
+    (point: readonly [number, number, number]): boolean =>
       dot(unit(sub(point, first.centre)), firstAxis) < Math.cos(Math.PI / 4),
   );
   if (sclera.length < 4)
     throw new Error("An iris disc needs sclera vertices behind the cornea.");
-  const sphere: { centre: [number, number, number]; radius: number; } = fitSphere(sclera);
+  const sphere: { centre: [number, number, number]; radius: number } =
+    fitSphere(sclera);
   if (2 * sphere.radius < HUMAN_FACE_LIMBAL_DIAMETER_MM / 1000)
     throw new Error(
       "The globe diameter cannot be smaller than the absolute iris diameter.",
@@ -92,7 +94,9 @@ export function locateHumanFaceIrisDisc(
   const axis: [number, number, number] = protrusionAxis(positions, sphere);
   const up: [number, number, number] =
     Math.abs(axis[1]) > 0.999 ? [1, 0, 0] : [0, 1, 0];
-  const reference: [number, number, number] = unit(sub(up, scale(axis, dot(up, axis))));
+  const reference: [number, number, number] = unit(
+    sub(up, scale(axis, dot(up, axis))),
+  );
   return {
     centre: sphere.centre,
     radius: sphere.radius,
@@ -118,13 +122,21 @@ function fitSphere(points: readonly (readonly [number, number, number])[]): {
   // still depends on the actual sampled geometry.
   const mean: [number, number, number] = scale(
     points.reduce<[number, number, number]>(
-      (sum: [number, number, number], point: readonly [number, number, number]): [number, number, number]  => add(sum, point),
+      (
+        sum: [number, number, number],
+        point: readonly [number, number, number],
+      ): [number, number, number] => add(sum, point),
       [0, 0, 0],
     ),
     1 / points.length,
   );
-  const matrix: number[][] = Array.from({ length: 4 }, (): number[]  => [0, 0, 0, 0, 0]);
-  for (const [x, y, z] of points.map((point: readonly [number, number, number]): [number, number, number]  => sub(point, mean))) {
+  const matrix: number[][] = Array.from({ length: 4 }, (): number[] => [
+    0, 0, 0, 0, 0,
+  ]);
+  for (const [x, y, z] of points.map(
+    (point: readonly [number, number, number]): [number, number, number] =>
+      sub(point, mean),
+  )) {
     const row: number[] = [2 * x, 2 * y, 2 * z, 1];
     const value: number = x * x + y * y + z * z;
     for (let i: number = 0; i < 4; ++i) {
@@ -147,7 +159,9 @@ function fitSphere(points: readonly (readonly [number, number, number])[]): {
         matrix[row][k] -= factor * matrix[column][k];
     }
   }
-  const solution: number[] = matrix.map((row: number[], index: number): number  => row[4] / row[index]);
+  const solution: number[] = matrix.map(
+    (row: number[], index: number): number => row[4] / row[index],
+  );
   const local: [number, number, number] = [
     solution[0],
     solution[1],

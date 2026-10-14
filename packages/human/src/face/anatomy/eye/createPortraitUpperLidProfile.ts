@@ -1,10 +1,9 @@
-import type { IPortraitUpperLidPoint } from "./structures/IPortraitUpperLidPoint";
-
 import { polygonIsSimple } from "@automovie/engine";
 
 import { assertPortraitEyePerformance } from "./assertPortraitEyePerformance";
 import { createPortraitLidSectionSampler } from "./createPortraitLidSectionSampler";
 import { IPortraitEyePerformance } from "./structures/IPortraitEyePerformance";
+import type { IPortraitUpperLidPoint } from "./structures/IPortraitUpperLidPoint";
 import { IPortraitUpperLidProfile } from "./structures/IPortraitUpperLidProfile";
 import { IPortraitUpperLidSection } from "./structures/IPortraitUpperLidSection";
 
@@ -40,21 +39,30 @@ export function createPortraitUpperLidProfile(
   if (input.closedSections === undefined)
     return createPortraitLidSectionSampler(input.sections, roles, "Upper-lid");
   if (performance !== undefined) assertPortraitEyePerformance(performance);
-  const observed: (at: number) => { attachment: number; } & Record<"margin" | "preseptal" | "tarsal" | "creaseInner" | "creaseOuter" | "hood", { offset: number; projection: number; }> = createPortraitLidSectionSampler(
+  const observed: (
+    at: number,
+  ) => { attachment: number } & Record<
+    "margin" | "preseptal" | "tarsal" | "creaseInner" | "creaseOuter" | "hood",
+    { offset: number; projection: number }
+  > = createPortraitLidSectionSampler(
     input.sections,
     roles,
     "Upper-lid",
     assertFoldedSection,
   );
-  const closed: (at: number) => { attachment: number; } & Record<"margin" | "preseptal" | "tarsal" | "creaseInner" | "creaseOuter" | "hood", { offset: number; projection: number; }> = createPortraitLidSectionSampler(
-    input.closedSections,
-    roles,
-    "Upper-lid",
-  );
+  const closed: (
+    at: number,
+  ) => { attachment: number } & Record<
+    "margin" | "preseptal" | "tarsal" | "creaseInner" | "creaseOuter" | "hood",
+    { offset: number; projection: number }
+  > = createPortraitLidSectionSampler(input.closedSections, roles, "Upper-lid");
   if (
     input.sections.length !== input.closedSections.length ||
     input.sections.some(
-      (witness: { at: number; section: IPortraitUpperLidSection; }, i: number): boolean  =>
+      (
+        witness: { at: number; section: IPortraitUpperLidSection },
+        i: number,
+      ): boolean =>
         witness.at !== input.closedSections![i].at ||
         witness.section.attachment !==
           input.closedSections![i].section.attachment,
@@ -69,9 +77,30 @@ export function createPortraitUpperLidProfile(
       : (performance.blink - performance.observedBlink) /
         (1 - performance.observedBlink);
   if (closure === 0) return observed;
-  return (at: number): { attachment: number; } & Record<"margin" | "preseptal" | "tarsal" | "creaseInner" | "creaseOuter" | "hood", { offset: number; projection: number; }>  => {
-    const from: { attachment: number; } & Record<"margin" | "preseptal" | "tarsal" | "creaseInner" | "creaseOuter" | "hood", { offset: number; projection: number; }> = observed(at),
-      to: { attachment: number; } & Record<"margin" | "preseptal" | "tarsal" | "creaseInner" | "creaseOuter" | "hood", { offset: number; projection: number; }> = closed(at);
+  return (
+    at: number,
+  ): { attachment: number } & Record<
+    "margin" | "preseptal" | "tarsal" | "creaseInner" | "creaseOuter" | "hood",
+    { offset: number; projection: number }
+  > => {
+    const from: { attachment: number } & Record<
+        | "margin"
+        | "preseptal"
+        | "tarsal"
+        | "creaseInner"
+        | "creaseOuter"
+        | "hood",
+        { offset: number; projection: number }
+      > = observed(at),
+      to: { attachment: number } & Record<
+        | "margin"
+        | "preseptal"
+        | "tarsal"
+        | "creaseInner"
+        | "creaseOuter"
+        | "hood",
+        { offset: number; projection: number }
+      > = closed(at);
     for (const role of roles) {
       from[role].offset += closure * (to[role].offset - from[role].offset);
       from[role].projection +=
@@ -111,15 +140,38 @@ function assertFoldedSection(section: IPortraitUpperLidSection): void {
       "Upper-lid hood must remain between margin and preseptal skin.",
     );
   const floor: number =
-    Math.min(0, ...roles.map((role: "margin" | "preseptal" | "tarsal" | "creaseInner" | "creaseOuter" | "hood"): number  => section[role].projection)) - 1;
+    Math.min(
+      0,
+      ...roles.map(
+        (
+          role:
+            | "margin"
+            | "preseptal"
+            | "tarsal"
+            | "creaseInner"
+            | "creaseOuter"
+            | "hood",
+        ): number => section[role].projection,
+      ),
+    ) - 1;
   // Close below the entire tissue curve. This auxiliary edge is only for the
   // engine's shared metre-space intersection predicate; it is never rendered.
-  const polygon: { x: number; y: number; }[] = [
+  const polygon: { x: number; y: number }[] = [
     { x: 0, y: 0 },
-    ...roles.map((role: "margin" | "preseptal" | "tarsal" | "creaseInner" | "creaseOuter" | "hood"): { x: number; y: number; }  => ({
-      x: section[role].offset / 1000,
-      y: section[role].projection / 1000,
-    })),
+    ...roles.map(
+      (
+        role:
+          | "margin"
+          | "preseptal"
+          | "tarsal"
+          | "creaseInner"
+          | "creaseOuter"
+          | "hood",
+      ): { x: number; y: number } => ({
+        x: section[role].offset / 1000,
+        y: section[role].projection / 1000,
+      }),
+    ),
     { x: section.attachment / 1000, y: 0 },
     { x: section.attachment / 1000, y: floor / 1000 },
     { x: 0, y: floor / 1000 },
@@ -128,7 +180,14 @@ function assertFoldedSection(section: IPortraitUpperLidSection): void {
     throw new Error("Upper-lid folded tissue must not cross or touch itself.");
 }
 
-const roles: readonly ["margin", "tarsal", "creaseInner", "creaseOuter", "hood", "preseptal"] = [
+const roles: readonly [
+  "margin",
+  "tarsal",
+  "creaseInner",
+  "creaseOuter",
+  "hood",
+  "preseptal",
+] = [
   "margin",
   "tarsal",
   "creaseInner",

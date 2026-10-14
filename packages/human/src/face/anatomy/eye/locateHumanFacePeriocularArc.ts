@@ -1,13 +1,12 @@
-import type { IHumanFaceSkinFrame } from "../skin/IHumanFaceSkinFrame";
-import type { IHumanFaceOcularSurfaceHit } from "./structures/IHumanFaceOcularSurfaceHit";
-
 import { Vector3 } from "@automovie/engine";
 
 import type { IAutoMovieHumanFaceAttachmentPoint } from "../../structures/IAutoMovieHumanFaceAttachmentPoint";
+import type { IHumanFaceSkinFrame } from "../skin/IHumanFaceSkinFrame";
 import type { IHumanFaceSkinHost } from "../skin/IHumanFaceSkinHost";
 import type { IHumanFaceSkinSeat } from "../skin/IHumanFaceSkinSeat";
 import type { IHumanFaceAttachmentChartHost } from "./structures/IHumanFaceAttachmentChartHost";
 import type { IHumanFaceOcularSurface } from "./structures/IHumanFaceOcularSurface";
+import type { IHumanFaceOcularSurfaceHit } from "./structures/IHumanFaceOcularSurfaceHit";
 import type { IHumanFacePeriocularArcLocation } from "./structures/IHumanFacePeriocularArcLocation";
 
 /**
@@ -46,20 +45,33 @@ export function locateHumanFacePeriocularArc(
     throw new Error(
       "A tarsal extent needs a finite nonnegative arc and its source meridian path.",
     );
-  const metricAt: (seat: IHumanFaceSkinSeat) => number = (seat: IHumanFaceSkinSeat): number => {
+  const metricAt: (seat: IHumanFaceSkinSeat) => number = (
+    seat: IHumanFaceSkinSeat,
+  ): number => {
     const frame: IHumanFaceSkinFrame = skin.frame(seat);
-    const projected: IHumanFaceOcularSurfaceHit = surface.project(Vector3.create(...frame.point));
+    const projected: IHumanFaceOcularSurfaceHit = surface.project(
+      Vector3.create(...frame.point),
+    );
     return surface.meridianArc(projected.point);
   };
-  const metric: (point: readonly number[]) => number = (point: readonly number[]): number =>
-    metricAt(chart.seat(point));
+  const metric: (point: readonly number[]) => number = (
+    point: readonly number[],
+  ): number => metricAt(chart.seat(point));
   const coordinates: [number, number][] = [
-    ...path.map((vertex: number): [number, number]  => chart.coordinate(vertex)),
-    ...continuation.map((point: IAutoMovieHumanFaceAttachmentPoint): [number, number]  => chart.coordinateAt(point)),
+    ...path.map((vertex: number): [number, number] => chart.coordinate(vertex)),
+    ...continuation.map(
+      (point: IAutoMovieHumanFaceAttachmentPoint): [number, number] =>
+        chart.coordinateAt(point),
+    ),
   ];
   const seats: IHumanFaceSkinSeat[] = [
-    ...path.map((vertex: number): IHumanFaceSkinSeat  => chart.vertexSeat(vertex)),
-    ...continuation.map((point: IAutoMovieHumanFaceAttachmentPoint): IHumanFaceSkinSeat  => chart.sourceSeat(point)),
+    ...path.map(
+      (vertex: number): IHumanFaceSkinSeat => chart.vertexSeat(vertex),
+    ),
+    ...continuation.map(
+      (point: IAutoMovieHumanFaceAttachmentPoint): IHumanFaceSkinSeat =>
+        chart.sourceSeat(point),
+    ),
   ];
   const start: [number, number] = coordinates[0];
   if (distance === 0) return { coordinate: start, seat: seats[0] };
@@ -92,7 +104,9 @@ export function locateHumanFacePeriocularArc(
     return { coordinate: next, seat: seats[at + 1] };
   let low: number = 0,
     high: number = 1;
-  const mix: (t: number) => [number, number] = (t: number): [number, number] => [
+  const mix: (t: number) => [number, number] = (
+    t: number,
+  ): [number, number] => [
     previous[0] + (next[0] - previous[0]) * t,
     previous[1] + (next[1] - previous[1]) * t,
   ];

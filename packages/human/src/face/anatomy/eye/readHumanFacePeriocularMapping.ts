@@ -1,16 +1,17 @@
-import type { IHumanFacePeriocularTopology } from "./structures/IHumanFacePeriocularTopology";
-import type { IHumanFaceSkinFrame } from "../skin/IHumanFaceSkinFrame";
-import type { IHumanFaceSkinSeat } from "../skin/IHumanFaceSkinSeat";
-
-import { measureAutoMovieMeshCrossings, type IAutoMovieMeshCrossing } from "@automovie/engine";
+import {
+  type IAutoMovieMeshCrossing,
+  measureAutoMovieMeshCrossings,
+} from "@automovie/engine";
 import type { IAutoMovieMesh, IAutoMovieVector3 } from "@automovie/interface";
 
 import { readHumanLocalMeshWorld } from "../../../common/mesh/readHumanLocalMeshWorld";
-
+import type { IHumanFaceSkinFrame } from "../skin/IHumanFaceSkinFrame";
+import type { IHumanFaceSkinSeat } from "../skin/IHumanFaceSkinSeat";
 import { createHumanFacePeriocularTopology } from "./createHumanFacePeriocularTopology";
 import type { IHumanFacePeriocularCrossingWitness } from "./structures/IHumanFacePeriocularCrossingWitness";
 import type { IHumanFacePeriocularMappingInput } from "./structures/IHumanFacePeriocularMappingInput";
 import type { IHumanFacePeriocularMappingReading } from "./structures/IHumanFacePeriocularMappingReading";
+import type { IHumanFacePeriocularTopology } from "./structures/IHumanFacePeriocularTopology";
 
 /**
  * Read the generated band's material, sampled-skin and offset stages separately.
@@ -38,7 +39,8 @@ import type { IHumanFacePeriocularMappingReading } from "./structures/IHumanFace
 export function readHumanFacePeriocularMapping(
   input: IHumanFacePeriocularMappingInput,
 ): IHumanFacePeriocularMappingReading {
-  const topology: IHumanFacePeriocularTopology = createHumanFacePeriocularTopology(input);
+  const topology: IHumanFacePeriocularTopology =
+    createHumanFacePeriocularTopology(input);
   const indices: number[] =
     input.indices === undefined ? [] : [...input.indices];
   if (input.indices === undefined)
@@ -48,29 +50,55 @@ export function readHumanFacePeriocularMapping(
         [a, c, d],
       ])
         if (new Set(corners).size === 3) indices.push(...corners);
-  const sheet: (positions: number[], origin?: IAutoMovieVector3) => IAutoMovieMesh = (positions: number[], origin?: IAutoMovieVector3): IAutoMovieMesh => readHumanLocalMeshWorld({
-    positions: origin === undefined ? positions : positions.map(
-      (value: number, at: number): number  => value - [origin.x, origin.y, origin.z][at % 3],
-    ),
-    indices,
-    normals: null,
-    uvs: null,
-    skin: null,
-  }, origin === undefined ? undefined : {
-    translation: origin,
-    rotation: { x: 0, y: 0, z: 0, w: 1 },
-    scale: { x: 1, y: 1, z: 1 },
-  });
+  const sheet: (
+    positions: number[],
+    origin?: IAutoMovieVector3,
+  ) => IAutoMovieMesh = (
+    positions: number[],
+    origin?: IAutoMovieVector3,
+  ): IAutoMovieMesh =>
+    readHumanLocalMeshWorld(
+      {
+        positions:
+          origin === undefined
+            ? positions
+            : positions.map(
+                (value: number, at: number): number =>
+                  value - [origin.x, origin.y, origin.z][at % 3],
+              ),
+        indices,
+        normals: null,
+        uvs: null,
+        skin: null,
+      },
+      origin === undefined
+        ? undefined
+        : {
+            translation: origin,
+            rotation: { x: 0, y: 0, z: 0, w: 1 },
+            scale: { x: 1, y: 1, z: 1 },
+          },
+    );
   const skin: IAutoMovieMesh | undefined =
     input.sourceReading === undefined ? sheet(input.skin) : undefined;
   const outer: IAutoMovieMesh = sheet(input.outer, input.publicationOrigin),
     inner: IAutoMovieMesh = sheet(input.inner, input.publicationOrigin);
-  const crossings: (a: IAutoMovieMesh, b: IAutoMovieMesh) => IAutoMovieMeshCrossing[] = (a: IAutoMovieMesh, b: IAutoMovieMesh): IAutoMovieMeshCrossing[]  =>
-    measureAutoMovieMeshCrossings(a, b).filter((hit: IAutoMovieMeshCrossing): boolean  => !hit.coplanar);
+  const crossings: (
+    a: IAutoMovieMesh,
+    b: IAutoMovieMesh,
+  ) => IAutoMovieMeshCrossing[] = (
+    a: IAutoMovieMesh,
+    b: IAutoMovieMesh,
+  ): IAutoMovieMeshCrossing[] =>
+    measureAutoMovieMeshCrossings(a, b).filter(
+      (hit: IAutoMovieMeshCrossing): boolean => !hit.coplanar,
+    );
   const outerHits: IAutoMovieMeshCrossing[] = crossings(outer, outer),
     innerHits: IAutoMovieMeshCrossing[] = crossings(inner, inner);
   const betweenHits: IAutoMovieMeshCrossing[] = crossings(outer, inner);
-  const witness: (hit: IAutoMovieMeshCrossing) => IHumanFacePeriocularCrossingWitness = (
+  const witness: (
+    hit: IAutoMovieMeshCrossing,
+  ) => IHumanFacePeriocularCrossingWitness = (
     hit: (typeof outerHits)[number],
   ): IHumanFacePeriocularCrossingWitness => ({
     triangle: hit.triangle,
@@ -80,12 +108,18 @@ export function readHumanFacePeriocularMapping(
     corners: indices.slice(3 * hit.triangle, 3 * hit.triangle + 3),
     otherCorners: indices.slice(3 * hit.other, 3 * hit.other + 3),
   });
-  const outerWitnesses: IHumanFacePeriocularCrossingWitness[] = outerHits.map(witness),
-    innerWitnesses: IHumanFacePeriocularCrossingWitness[] = innerHits.map(witness);
-  const betweenWitnesses: IHumanFacePeriocularCrossingWitness[] = betweenHits.map(witness);
+  const outerWitnesses: IHumanFacePeriocularCrossingWitness[] =
+      outerHits.map(witness),
+    innerWitnesses: IHumanFacePeriocularCrossingWitness[] =
+      innerHits.map(witness);
+  const betweenWitnesses: IHumanFacePeriocularCrossingWitness[] =
+    betweenHits.map(witness);
   const used: Set<number> = new Set(
     [...outerWitnesses, ...innerWitnesses, ...betweenWitnesses].flatMap(
-      (hit: IHumanFacePeriocularCrossingWitness): number[]  => [...hit.corners, ...hit.otherCorners],
+      (hit: IHumanFacePeriocularCrossingWitness): number[] => [
+        ...hit.corners,
+        ...hit.otherCorners,
+      ],
     ),
   );
   let positive: number = 0,
@@ -129,7 +163,9 @@ export function readHumanFacePeriocularMapping(
     betweenSheetCrossings: betweenHits.length,
     sampledSourceTriangles:
       input.sourceReading?.sampledSourceTriangles ??
-      [...new Set(input.sourceTriangles)].sort((a: number, b: number): number  => a - b),
+      [...new Set(input.sourceTriangles)].sort(
+        (a: number, b: number): number => a - b,
+      ),
     ...(input.frames === undefined || input.seats === undefined
       ? {}
       : {
@@ -140,12 +176,20 @@ export function readHumanFacePeriocularMapping(
             inner: innerWitnesses,
             between: betweenWitnesses,
             vertices: [...used]
-              .sort((a: number, b: number): number  => a - b)
-              .map((vertex: number): { vertex: number; frame: IHumanFaceSkinFrame; seat: IHumanFaceSkinSeat; }  => ({
-                vertex,
-                frame: input.frames![vertex],
-                seat: input.seats![vertex],
-              })),
+              .sort((a: number, b: number): number => a - b)
+              .map(
+                (
+                  vertex: number,
+                ): {
+                  vertex: number;
+                  frame: IHumanFaceSkinFrame;
+                  seat: IHumanFaceSkinSeat;
+                } => ({
+                  vertex,
+                  frame: input.frames![vertex],
+                  seat: input.seats![vertex],
+                }),
+              ),
           },
         }),
   };

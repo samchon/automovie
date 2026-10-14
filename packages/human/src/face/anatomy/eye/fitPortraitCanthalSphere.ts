@@ -54,7 +54,7 @@ export function fitPortraitCanthalSphere(
     radius <= 0 ||
     !Number.isFinite(lift) ||
     [...upper, ...lower, direction].some(
-      (p: Point): boolean  => ![p.x, p.y, p.z].every(Number.isFinite),
+      (p: Point): boolean => ![p.x, p.y, p.z].every(Number.isFinite),
     ) ||
     Vector3.length(direction) === 0
   )
@@ -69,12 +69,16 @@ export function fitPortraitCanthalSphere(
     Vector3.length(Vector3.subtract(...(anchors as [Point, Point]))) === 0
   )
     throw new Error("Canthal curves must share two distinct fixed endpoints.");
-  const midpoint: Point = Vector3.scale(Vector3.add(anchors[0], anchors[1]), 0.5);
+  const midpoint: Point = Vector3.scale(
+    Vector3.add(anchors[0], anchors[1]),
+    0.5,
+  );
   const ray: Point = Vector3.normalize(direction);
   const residual: (point: Point) => number[] = (point: Point): number[] => {
     const delta: Point = Vector3.subtract(point, midpoint);
     const depth: number = Vector3.dot(delta, ray);
-    const squared: number = radius * radius - Vector3.dot(delta, delta) + depth * depth;
+    const squared: number =
+      radius * radius - Vector3.dot(delta, delta) + depth * depth;
     return squared < 0 ? [] : [depth - Math.sqrt(squared)];
   };
   const offsets: number[] = [...lower, ...upper.slice(1, -1)].flatMap(residual);
@@ -83,9 +87,14 @@ export function fitPortraitCanthalSphere(
       "The optical disk must support at least one observed lid ray.",
     );
   const bounds: number[] = anchors.flatMap(residual);
-  const mean: number = offsets.reduce((sum: number, value: number): number  => sum + value, 0) / offsets.length;
+  const mean: number =
+    offsets.reduce((sum: number, value: number): number => sum + value, 0) /
+    offsets.length;
   const depth: number = Math.min(mean, ...bounds) + lift;
-  if (!Number.isFinite(depth) || bounds.some((bound: number): boolean  => depth > bound + 1e-9))
+  if (
+    !Number.isFinite(depth) ||
+    bounds.some((bound: number): boolean => depth > bound + 1e-9)
+  )
     throw new Error(
       "Optical depth must preserve visible canthi in its finite domain.",
     );

@@ -37,9 +37,11 @@ export function createPortraitIrisMaterials(
     prefix !== prefix.trim() ||
     pigment.base.length !== 3 ||
     pigment.variation.length !== 3 ||
-    [...pigment.base, ...pigment.variation].some((v: number): boolean  => !Number.isFinite(v)) ||
+    [...pigment.base, ...pigment.variation].some(
+      (v: number): boolean => !Number.isFinite(v),
+    ) ||
     pigment.base.some(
-      (v: number, i: number): boolean  =>
+      (v: number, i: number): boolean =>
         v < 0 ||
         v > 1 ||
         v + pigment.variation[i] < 0 ||
@@ -49,21 +51,38 @@ export function createPortraitIrisMaterials(
     throw new Error(
       "Iris pigmentation needs a material prefix and finite unit-range RGB endpoints.",
     );
-  return Array.from({ length: 8 }, (_: unknown, i: number): { id: string; name: string; baseColor: { r: number; g: number; b: number; a: number; hex: null; }; roughness: number; metallic: number; opacity: number; emissive: null; baseColorTexture: null; doubleSided: true; }  => {
-    const rgb: number[] = pigment.base.map(
-      (value: number, axis: number): number  => value + pigment.variation[axis] * (i / 7),
-    );
-    const id: string = `${prefix}-${i}`;
-    return {
-      id,
-      name: id,
-      baseColor: { r: rgb[0], g: rgb[1], b: rgb[2], a: 1, hex: null },
-      roughness: 0.65,
-      metallic: 0,
-      opacity: 1,
-      emissive: null,
-      baseColorTexture: null,
-      doubleSided: true,
-    };
-  });
+  return Array.from(
+    { length: 8 },
+    (
+      _: unknown,
+      i: number,
+    ): {
+      id: string;
+      name: string;
+      baseColor: { r: number; g: number; b: number; a: number; hex: null };
+      roughness: number;
+      metallic: number;
+      opacity: number;
+      emissive: null;
+      baseColorTexture: null;
+      doubleSided: true;
+    } => {
+      const rgb: number[] = pigment.base.map(
+        (value: number, axis: number): number =>
+          value + pigment.variation[axis] * (i / 7),
+      );
+      const id: string = `${prefix}-${i}`;
+      return {
+        id,
+        name: id,
+        baseColor: { r: rgb[0], g: rgb[1], b: rgb[2], a: 1, hex: null },
+        roughness: 0.65,
+        metallic: 0,
+        opacity: 1,
+        emissive: null,
+        baseColorTexture: null,
+        doubleSided: true,
+      };
+    },
+  );
 }

@@ -1,9 +1,8 @@
-import type { IHumanFaceSkinHost } from "../skin/IHumanFaceSkinHost";
 import type { IAutoMovieHumanFaceAttachmentPoint } from "../../structures/IAutoMovieHumanFaceAttachmentPoint";
-import type { IHumanFaceSkinFrame } from "../skin/IHumanFaceSkinFrame";
-
 import type { IAutoMovieHumanFaceBasisSurface } from "../../structures/IAutoMovieHumanFaceBasisSurface";
 import type { IAutoMovieHumanFaceMaterialPatch } from "../../structures/IAutoMovieHumanFaceMaterialPatch";
+import type { IHumanFaceSkinFrame } from "../skin/IHumanFaceSkinFrame";
+import type { IHumanFaceSkinHost } from "../skin/IHumanFaceSkinHost";
 import { createHumanFaceSkinHost } from "../skin/createHumanFaceSkinHost";
 import type { IHumanFaceMaterialPatchGeometry } from "./structures/IHumanFaceMaterialPatchGeometry";
 
@@ -32,7 +31,7 @@ export function evaluateHumanFaceMaterialPatch(
     patch.generation !== source.sourcePartition?.generation ||
     patch.qualification !== "authoredConvention" ||
     current.length !== source.positions.length ||
-    current.some((value: number): boolean  => !Number.isFinite(value)) ||
+    current.some((value: number): boolean => !Number.isFinite(value)) ||
     patch.indices.length % 3 ||
     patch.points.length === 0 ||
     patch.indices.length === 0 ||
@@ -51,25 +50,32 @@ export function evaluateHumanFaceMaterialPatch(
       patch.medialEndpoint,
       patch.upperEndpoint,
       patch.lowerEndpoint,
-    ].some((point: number): boolean  => !resident(point))
+    ].some((point: number): boolean => !resident(point))
   )
     throw new Error(
       "Material patch incidence references a nonresident material point.",
     );
-  const host: IHumanFaceSkinHost = createHumanFaceSkinHost(source.indices, current),
+  const host: IHumanFaceSkinHost = createHumanFaceSkinHost(
+      source.indices,
+      current,
+    ),
     positions: number[] = [],
     normals: number[] = [];
   for (let at: number = 0; at < patch.points.length; at++) {
     const point: IAutoMovieHumanFaceAttachmentPoint = patch.points[at],
       native: number | null = patch.nativeVertices[at];
-    const sum: number = point.weights.reduce((total: number, weight: number): number  => total + weight, 0);
+    const sum: number = point.weights.reduce(
+      (total: number, weight: number): number => total + weight,
+      0,
+    );
     if (
       !Number.isSafeInteger(point.triangle) ||
       point.triangle < 0 ||
       3 * point.triangle + 2 >= source.indices.length ||
       point.weights.length !== 3 ||
       [point.weights[0], point.weights[1], point.weights[2]].some(
-        (weight: number): boolean  => !Number.isFinite(weight) || weight < 0 || weight > 1,
+        (weight: number): boolean =>
+          !Number.isFinite(weight) || weight < 0 || weight > 1,
       ) ||
       Math.abs(sum - 1) > 8 * Number.EPSILON
     )
@@ -84,7 +90,10 @@ export function evaluateHumanFaceMaterialPatch(
         !Number.isSafeInteger(native) ||
         native < 0 ||
         corner < 0 ||
-        point.weights.some((weight: number, at: number): boolean  => weight !== (at === corner ? 1 : 0))
+        point.weights.some(
+          (weight: number, at: number): boolean =>
+            weight !== (at === corner ? 1 : 0),
+        )
       )
         throw new Error(
           "Material patch native point identity differs from its complete original-corner stencil.",
@@ -98,7 +107,9 @@ export function evaluateHumanFaceMaterialPatch(
     if (
       !(length > 0) ||
       !Number.isFinite(length) ||
-      [...frame.point, ...frame.normal].some((value: number): boolean  => !Number.isFinite(value))
+      [...frame.point, ...frame.normal].some(
+        (value: number): boolean => !Number.isFinite(value),
+      )
     )
       throw new Error(
         "Material patch has no finite compatible live host direction.",

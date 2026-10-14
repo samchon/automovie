@@ -57,7 +57,8 @@ export function posePortraitLidCurves(
     upper.length < 3 ||
     lower.length !== upper.length ||
     [...upper, ...lower].some(
-      (point: IAutoMovieVector3): boolean  => ![point.x, point.y, point.z].every(Number.isFinite),
+      (point: IAutoMovieVector3): boolean =>
+        ![point.x, point.y, point.z].every(Number.isFinite),
     )
   )
     throw new Error(
@@ -68,24 +69,33 @@ export function posePortraitLidCurves(
       upper: structuredClone([...upper]),
       lower: structuredClone([...lower]),
     };
-  const ratio: number = (1 - performance.blink) / (1 - performance.observedBlink);
-  const seam: IAutoMovieVector3[] = upper.map((point: IAutoMovieVector3, i: number): IAutoMovieVector3  =>
-    Vector3.add(
-      Vector3.scale(point, LOWER_MARGIN_CLOSURE_SHARE),
-      Vector3.scale(lower[i], 1 - LOWER_MARGIN_CLOSURE_SHARE),
-    ),
-  );
-  const move: (points: readonly IAutoMovieVector3[]) => IAutoMovieVector3[] = (points: readonly IAutoMovieVector3[]): IAutoMovieVector3[]  =>
-    points.map((point: IAutoMovieVector3, i: number): IAutoMovieVector3  =>
+  const ratio: number =
+    (1 - performance.blink) / (1 - performance.observedBlink);
+  const seam: IAutoMovieVector3[] = upper.map(
+    (point: IAutoMovieVector3, i: number): IAutoMovieVector3 =>
       Vector3.add(
-        seam[i],
-        Vector3.scale(Vector3.subtract(point, seam[i]), ratio),
+        Vector3.scale(point, LOWER_MARGIN_CLOSURE_SHARE),
+        Vector3.scale(lower[i], 1 - LOWER_MARGIN_CLOSURE_SHARE),
       ),
+  );
+  const move: (points: readonly IAutoMovieVector3[]) => IAutoMovieVector3[] = (
+    points: readonly IAutoMovieVector3[],
+  ): IAutoMovieVector3[] =>
+    points.map(
+      (point: IAutoMovieVector3, i: number): IAutoMovieVector3 =>
+        Vector3.add(
+          seam[i],
+          Vector3.scale(Vector3.subtract(point, seam[i]), ratio),
+        ),
     );
-  const result: { upper: IAutoMovieVector3[]; lower: IAutoMovieVector3[]; } = { upper: move(upper), lower: move(lower) };
+  const result: { upper: IAutoMovieVector3[]; lower: IAutoMovieVector3[] } = {
+    upper: move(upper),
+    lower: move(lower),
+  };
   if (
     [...result.upper, ...result.lower].some(
-      (point: IAutoMovieVector3): boolean  => ![point.x, point.y, point.z].every(Number.isFinite),
+      (point: IAutoMovieVector3): boolean =>
+        ![point.x, point.y, point.z].every(Number.isFinite),
     )
   )
     throw new Error(

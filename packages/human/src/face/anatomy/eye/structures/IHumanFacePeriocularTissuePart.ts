@@ -1,7 +1,6 @@
 import type { IAutoMovieMesh } from "@automovie/interface";
 
 import type { IHumanLocalMeshFrame } from "../../../../common/mesh/IHumanLocalMeshFrame";
-
 import type { AutoMovieHumanFacePeriocularTissue } from "../../../structures/AutoMovieHumanFacePeriocularTissue";
 import type { IHumanFacePeriocularMappingReading } from "./IHumanFacePeriocularMappingReading";
 import type { IHumanFacePeriocularTissueFit } from "./IHumanFacePeriocularTissueFit";

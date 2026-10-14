@@ -1,17 +1,16 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
-import type { IAutoMovieHumanFaceBasisSurface } from "../../structures/IAutoMovieHumanFaceBasisSurface";
-import type { IAutoMovieHumanFaceBasisEye } from "../../structures/IAutoMovieHumanFaceBasisEye";
-import type { IAutoMovieHumanFaceOpticalSupportGaze } from "../../structures/IAutoMovieHumanFaceOpticalSupportGaze";
-import type { IHumanBasisRegionCorners } from "../../../common/structures/IHumanBasisRegionCorners";
-import type { IAutoMovieHumanFaceOpticalSupportAnterior } from "../../structures/IAutoMovieHumanFaceOpticalSupportAnterior";
-import type { IAutoMovieHumanFaceOpticalSupportTarget } from "../../structures/IAutoMovieHumanFaceOpticalSupportTarget";
-
 import { Vector3 } from "@automovie/engine";
+import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { humanBasisRegionCorners } from "../../../common/basis/humanBasisRegionCorners";
+import type { IHumanBasisRegionCorners } from "../../../common/structures/IHumanBasisRegionCorners";
 import type { evaluateHumanFaceRest } from "../../basis/evaluateHumanFaceRest";
 import type { IAutoMovieHumanFaceBasis } from "../../structures/IAutoMovieHumanFaceBasis";
+import type { IAutoMovieHumanFaceBasisEye } from "../../structures/IAutoMovieHumanFaceBasisEye";
+import type { IAutoMovieHumanFaceBasisSurface } from "../../structures/IAutoMovieHumanFaceBasisSurface";
 import type { IAutoMovieHumanFaceOpticalSupport } from "../../structures/IAutoMovieHumanFaceOpticalSupport";
+import type { IAutoMovieHumanFaceOpticalSupportAnterior } from "../../structures/IAutoMovieHumanFaceOpticalSupportAnterior";
+import type { IAutoMovieHumanFaceOpticalSupportGaze } from "../../structures/IAutoMovieHumanFaceOpticalSupportGaze";
+import type { IAutoMovieHumanFaceOpticalSupportTarget } from "../../structures/IAutoMovieHumanFaceOpticalSupportTarget";
 
 /**
  * Register supplied optics on an exact source chart in the shaped head frame.
@@ -43,7 +42,16 @@ export function resolveHumanFaceOpticalFrame(
   shaped: ReturnType<typeof evaluateHumanFaceRest>,
   state: Parameters<typeof evaluateHumanFaceRest>[1],
   apex: number,
-): { origin: IAutoMovieVector3; center: IAutoMovieVector3; axis: IAutoMovieVector3; up: IAutoMovieVector3; lateral: IAutoMovieVector3; owner: "leftEye" | "rightEye"; surface: string; vertices: Set<number>; }  {
+): {
+  origin: IAutoMovieVector3;
+  center: IAutoMovieVector3;
+  axis: IAutoMovieVector3;
+  up: IAutoMovieVector3;
+  lateral: IAutoMovieVector3;
+  owner: "leftEye" | "rightEye";
+  surface: string;
+  vertices: Set<number>;
+} {
   const refuse: (cause: string) => never = (cause: string): never => {
     throw new Error(
       "Unqualified independent optical support for " +
@@ -53,27 +61,35 @@ export function resolveHumanFaceOpticalFrame(
     );
   };
   const surfaceIndex: number = basis.surfaces.findIndex(
-    (s: IAutoMovieHumanFaceBasisSurface): boolean  => s.id === support.surface,
+    (s: IAutoMovieHumanFaceBasisSurface): boolean => s.id === support.surface,
   );
   const surface: IAutoMovieHumanFaceBasisSurface = basis.surfaces[surfaceIndex];
-  const eye: IAutoMovieHumanFaceBasisEye | undefined = basis.articulation?.eyes.find((e: IAutoMovieHumanFaceBasisEye): boolean  => e.id === support.owner);
-  const pivotIndex: number = basis.landmarks?.ids.indexOf(eye?.center ?? "") ?? -1;
+  const eye: IAutoMovieHumanFaceBasisEye | undefined =
+    basis.articulation?.eyes.find(
+      (e: IAutoMovieHumanFaceBasisEye): boolean => e.id === support.owner,
+    );
+  const pivotIndex: number =
+    basis.landmarks?.ids.indexOf(eye?.center ?? "") ?? -1;
   if (
     surface === undefined ||
     eye === undefined ||
     pivotIndex < 0 ||
     support.generation.trim() === "" ||
     support.sourceSha256.length === 0 ||
-    support.sourceSha256.some((v: string): boolean  => !/^[0-9a-f]{64}$/.test(v))
+    support.sourceSha256.some((v: string): boolean => !/^[0-9a-f]{64}$/.test(v))
   )
     return refuse("missing source, generation, attachment owner or provenance");
-  const equal: (a: readonly number[], b: readonly number[]) => boolean = (a: readonly number[], b: readonly number[]): boolean  =>
-    a.length === b.length && a.every((v: number, i: number): boolean  => v === b[i]);
+  const equal: (a: readonly number[], b: readonly number[]) => boolean = (
+    a: readonly number[],
+    b: readonly number[],
+  ): boolean =>
+    a.length === b.length &&
+    a.every((v: number, i: number): boolean => v === b[i]);
   if (
     support.rigid.center !== eye.center ||
     support.rigid.gaze.length !== eye.gaze.length ||
     support.rigid.gaze.some(
-      (g: IAutoMovieHumanFaceOpticalSupportGaze, at: number): boolean  =>
+      (g: IAutoMovieHumanFaceOpticalSupportGaze, at: number): boolean =>
         g.channel !== eye.gaze[at].channel ||
         !equal(
           [...g.axis, g.degrees, ...g.translation],
@@ -91,22 +107,23 @@ export function resolveHumanFaceOpticalFrame(
     vertices.size === 0 ||
     vertices.size !== support.vertices.length ||
     support.vertices.some(
-      (v: number): boolean  =>
+      (v: number): boolean =>
         !Number.isSafeInteger(v) || v < 0 || v >= surface.positions.length / 3,
     ) ||
     support.neutralPositions.length !== vertices.size * 3 ||
     support.neutralUvs.length !== support.triangles.length * 2
   )
     refuse("invalid native component witness rows");
-  const actualXYZ: number[] = support.vertices.flatMap((v: number): number[]  =>
+  const actualXYZ: number[] = support.vertices.flatMap((v: number): number[] =>
     surface.positions.slice(v * 3, v * 3 + 3),
   );
   if (!equal(actualXYZ, support.neutralPositions)) refuse("stale neutral XYZ");
   const actualTriangles: number[] = [];
   for (let at: number = 0; at < surface.indices.length; at += 3) {
     const row: number[] = surface.indices.slice(at, at + 3);
-    if (row.every((v: number): boolean  => vertices.has(v))) actualTriangles.push(...row);
-    else if (row.some((v: number): boolean  => vertices.has(v)))
+    if (row.every((v: number): boolean => vertices.has(v)))
+      actualTriangles.push(...row);
+    else if (row.some((v: number): boolean => vertices.has(v)))
       refuse("component crosses a native triangle");
   }
   if (!equal(actualTriangles, support.triangles))
@@ -122,7 +139,7 @@ export function resolveHumanFaceOpticalFrame(
           refuse("component is not exclusively bound to its named eye");
         weights.set(attachment.rows[at], attachment.rows[at + 1]);
       }
-  if (support.vertices.some((v: number): boolean  => weights.get(v) !== 1))
+  if (support.vertices.some((v: number): boolean => weights.get(v) !== 1))
     refuse("attachment is not weight one");
   const cornerUvs: Map<string, number[]> = new Map<string, number[]>();
   for (const region of surface.regions) {
@@ -130,19 +147,25 @@ export function resolveHumanFaceOpticalFrame(
     if (corners.uvs === null) continue;
     for (let at: number = 0; at < corners.indices.length; at += 3) {
       const render: number[] = corners.indices.slice(at, at + 3);
-      const shared: number[] = render.map((r: number): number  => corners.sources[r]);
-      if (!shared.every((v: number): boolean  => vertices.has(v))) continue;
+      const shared: number[] = render.map(
+        (r: number): number => corners.sources[r],
+      );
+      if (!shared.every((v: number): boolean => vertices.has(v))) continue;
       const key: string = shared.join(",");
       if (cornerUvs.has(key)) refuse("ambiguous native UV chart");
       cornerUvs.set(
         key,
-        render.flatMap((r: number): number[]  => corners.uvs!.slice(r * 2, r * 2 + 2)),
+        render.flatMap((r: number): number[] =>
+          corners.uvs!.slice(r * 2, r * 2 + 2),
+        ),
       );
     }
   }
   const actualUvs: number[] = [];
   for (let at: number = 0; at < actualTriangles.length; at += 3) {
-    const pairs: number[] | undefined = cornerUvs.get(actualTriangles.slice(at, at + 3).join(","));
+    const pairs: number[] | undefined = cornerUvs.get(
+      actualTriangles.slice(at, at + 3).join(","),
+    );
     if (pairs === undefined) refuse("missing native UV correspondence");
     actualUvs.push(...pairs!);
   }
@@ -151,7 +174,7 @@ export function resolveHumanFaceOpticalFrame(
   const triangle: [number, number, number] = support.anterior.triangle;
   const { u, v }: IAutoMovieHumanFaceOpticalSupportAnterior = support.anterior;
   if (
-    triangle.some((id: number): boolean  => !vertices.has(id)) ||
+    triangle.some((id: number): boolean => !vertices.has(id)) ||
     !Number.isFinite(u) ||
     !Number.isFinite(v) ||
     u < 0 ||
@@ -160,19 +183,27 @@ export function resolveHumanFaceOpticalFrame(
   )
     refuse("invalid anterior source chart");
   const hasTriangle: boolean = actualTriangles.some(
-    (_value: number, at: number): boolean  =>
+    (_value: number, at: number): boolean =>
       at % 3 === 0 &&
-      [0, 1, 2].some((shift: number): boolean  =>
+      [0, 1, 2].some((shift: number): boolean =>
         triangle.every(
-          (id: number, corner: number): boolean  => id === actualTriangles[at + ((corner + shift) % 3)],
+          (id: number, corner: number): boolean =>
+            id === actualTriangles[at + ((corner + shift) % 3)],
         ),
       ),
   );
   if (!hasTriangle) refuse("anterior chart is not an oriented native triangle");
-  const point: (rows: readonly number[], id: number) => IAutoMovieVector3 = (rows: readonly number[], id: number): IAutoMovieVector3  =>
+  const point: (rows: readonly number[], id: number) => IAutoMovieVector3 = (
+    rows: readonly number[],
+    id: number,
+  ): IAutoMovieVector3 =>
     Vector3.create(rows[id * 3], rows[id * 3 + 1], rows[id * 3 + 2]);
-  const affine: (rows: readonly number[]) => IAutoMovieVector3 = (rows: readonly number[]): IAutoMovieVector3  => {
-    const [a, b, c]: IAutoMovieVector3[] = triangle.map((id: number): IAutoMovieVector3  => point(rows, id));
+  const affine: (rows: readonly number[]) => IAutoMovieVector3 = (
+    rows: readonly number[],
+  ): IAutoMovieVector3 => {
+    const [a, b, c]: IAutoMovieVector3[] = triangle.map(
+      (id: number): IAutoMovieVector3 => point(rows, id),
+    );
     return Vector3.add(
       a,
       Vector3.add(
@@ -181,8 +212,9 @@ export function resolveHumanFaceOpticalFrame(
       ),
     );
   };
-  const tuple: (values: readonly number[]) => IAutoMovieVector3 = (values: readonly number[]): IAutoMovieVector3  =>
-    Vector3.create(values[0], values[1], values[2]);
+  const tuple: (values: readonly number[]) => IAutoMovieVector3 = (
+    values: readonly number[],
+  ): IAutoMovieVector3 => Vector3.create(values[0], values[1], values[2]);
   if (
     ![...support.axis, ...support.axisOrigin, ...support.reference, apex].every(
       Number.isFinite,
@@ -205,7 +237,9 @@ export function resolveHumanFaceOpticalFrame(
   );
   if (!Number.isFinite(lineError) || lineError > 32 * Number.EPSILON * scale)
     refuse("anterior chart is off the source axis");
-  const [a, b, c]: IAutoMovieVector3[] = triangle.map((id: number): IAutoMovieVector3  => point(surface.positions, id));
+  const [a, b, c]: IAutoMovieVector3[] = triangle.map(
+    (id: number): IAutoMovieVector3 => point(surface.positions, id),
+  );
   const facing: number = Vector3.dot(
     Vector3.cross(Vector3.subtract(b, a), Vector3.subtract(c, a)),
     axis,
@@ -224,10 +258,13 @@ export function resolveHumanFaceOpticalFrame(
     refuse("source reference is parallel to axis");
   const up: IAutoMovieVector3 = Vector3.normalize(projected);
   const lateral: IAutoMovieVector3 = Vector3.normalize(Vector3.cross(up, axis));
-  const rowsFor: (rows: readonly number[] | undefined, selected: ReadonlySet<number>) => number[] = (
+  const rowsFor: (
     rows: readonly number[] | undefined,
     selected: ReadonlySet<number>,
-  ): number[]  => {
+  ) => number[] = (
+    rows: readonly number[] | undefined,
+    selected: ReadonlySet<number>,
+  ): number[] => {
     const out: number[] = [];
     for (let at: number = 0; at < (rows?.length ?? 0); at += 4)
       if (selected.has(rows![at])) out.push(...rows!.slice(at, at + 4));
@@ -248,11 +285,21 @@ export function resolveHumanFaceOpticalFrame(
       new Set([pivotIndex]),
     );
     if (
-      surfaceRows.every((_n: number, at: number): boolean  => at % 4 === 0 || surfaceRows[at] === 0) &&
-      pivotRows.every((_n: number, at: number): boolean  => at % 4 === 0 || pivotRows[at] === 0)
+      surfaceRows.every(
+        (_n: number, at: number): boolean =>
+          at % 4 === 0 || surfaceRows[at] === 0,
+      ) &&
+      pivotRows.every(
+        (_n: number, at: number): boolean =>
+          at % 4 === 0 || pivotRows[at] === 0,
+      )
     )
       continue;
-    const witness: IAutoMovieHumanFaceOpticalSupportTarget | undefined = support.targets.find((t: IAutoMovieHumanFaceOpticalSupportTarget): boolean  => t.id === target);
+    const witness: IAutoMovieHumanFaceOpticalSupportTarget | undefined =
+      support.targets.find(
+        (t: IAutoMovieHumanFaceOpticalSupportTarget): boolean =>
+          t.id === target,
+      );
     if (
       witness === undefined ||
       !equal(surfaceRows, witness.surfaceRows) ||
@@ -261,7 +308,10 @@ export function resolveHumanFaceOpticalFrame(
       refuse("unqualified nonzero endpoint " + target);
   }
   const origin: IAutoMovieVector3 = affine(shaped.surfaces[surfaceIndex]);
-  const center: IAutoMovieVector3 = Vector3.subtract(origin, Vector3.scale(axis, apex));
+  const center: IAutoMovieVector3 = Vector3.subtract(
+    origin,
+    Vector3.scale(axis, apex),
+  );
   if (
     ![origin.x, origin.y, origin.z, center.x, center.y, center.z].every(
       Number.isFinite,

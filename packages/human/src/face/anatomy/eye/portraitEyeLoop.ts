@@ -17,7 +17,6 @@ import type { IPortraitEyeSocket } from "./structures/IPortraitEyeSocket";
  * @evidence contracts/performance.md#reuse-equivalent-work Every consumer shares this canonical ordering without mutating either rim.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only a new identity array escapes; no socket, cache or resource is retained.
  */
-export const portraitEyeLoop: (socket: IPortraitEyeSocket) => number[] = (socket: IPortraitEyeSocket): number[] => [
-  ...socket.bottom,
-  ...socket.top.slice(1, -1).reverse(),
-];
+export const portraitEyeLoop: (socket: IPortraitEyeSocket) => number[] = (
+  socket: IPortraitEyeSocket,
+): number[] => [...socket.bottom, ...socket.top.slice(1, -1).reverse()];

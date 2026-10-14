@@ -28,7 +28,8 @@ export function integrateHumanFaceOcularMeridian(
       "Ocular meridian integration needs a cap radius in its admitted domain.",
     );
   if (end === 0) return 0;
-  const integrand: (r: number) => number = (r: number): number => Math.hypot(1, profile.slope(r));
+  const integrand: (r: number) => number = (r: number): number =>
+    Math.hypot(1, profile.slope(r));
   let previous: number | undefined;
   for (let cells: number = 8; cells <= 8192; cells *= 2) {
     const step: number = end / cells;

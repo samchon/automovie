@@ -1,15 +1,14 @@
-import type { IAutoMovieHumanFacePeriocularStation } from "../../structures/IAutoMovieHumanFacePeriocularStation";
-import type { IAutoMovieHumanFacePeriocularDisplacementPatch } from "../../structures/IAutoMovieHumanFacePeriocularDisplacementPatch";
-import type { IHumanFaceOcularSurfaceHit } from "./structures/IHumanFaceOcularSurfaceHit";
-
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { IAutoMovieHumanFacePeriocularCage } from "../../structures/IAutoMovieHumanFacePeriocularCage";
+import type { IAutoMovieHumanFacePeriocularDisplacementPatch } from "../../structures/IAutoMovieHumanFacePeriocularDisplacementPatch";
+import type { IAutoMovieHumanFacePeriocularStation } from "../../structures/IAutoMovieHumanFacePeriocularStation";
 import { HUMAN_FACE_LID_SEAT } from "./HUMAN_FACE_LID_SEAT";
 import { createHumanFaceLidBoundaryPins } from "./createHumanFaceLidBoundaryPins";
 import { interpolateHumanFaceLidDisplacement } from "./interpolateHumanFaceLidDisplacement";
 import type { IHumanFaceOcularSurface } from "./structures/IHumanFaceOcularSurface";
+import type { IHumanFaceOcularSurfaceHit } from "./structures/IHumanFaceOcularSurfaceHit";
 
 /**
  * Seat one eye's lid skin cage on its ocular exterior.
@@ -60,15 +59,23 @@ export function seatHumanFaceLidCage(
   surface: IHumanFaceOcularSurface,
   indices: readonly number[] = [],
 ): number[] {
-  const role: (name: string, from: number) => number = (name: string, from: number): number => {
-    const at: number = cage.stations.findIndex((station: IAutoMovieHumanFacePeriocularStation): boolean  => station.role === name);
+  const role: (name: string, from: number) => number = (
+    name: string,
+    from: number,
+  ): number => {
+    const at: number = cage.stations.findIndex(
+      (station: IAutoMovieHumanFacePeriocularStation): boolean =>
+        station.role === name,
+    );
     if (at < from)
       throw new Error("Lid seating needs its ordered station row: " + name);
     return at;
   };
   const margin: number = role("posteriorMargin", 0);
   const anchor: number = role("preseptal", margin + 1);
-  const point: (vertex: number) => IAutoMovieVector3 = (vertex: number): IAutoMovieVector3 =>
+  const point: (vertex: number) => IAutoMovieVector3 = (
+    vertex: number,
+  ): IAutoMovieVector3 =>
     Vector3.create(
       positions[3 * vertex],
       positions[3 * vertex + 1],
@@ -79,15 +86,22 @@ export function seatHumanFaceLidCage(
     return t * t * (3 - 2 * t);
   };
   const aliases: Map<number, number[]> = new Map<number, number[]>();
-  samples.forEach((sample: number, vertex: number): void  => {
+  samples.forEach((sample: number, vertex: number): void => {
     const group: number[] = aliases.get(sample) ?? [];
     group.push(vertex);
     aliases.set(sample, group);
   });
   const result: number[] = [...positions];
-  const patch: IAutoMovieHumanFacePeriocularDisplacementPatch | undefined = cage.displacementPatch;
-  const pins: Map<number, IAutoMovieVector3> = new Map<number, IAutoMovieVector3>();
-  const pin: (vertex: number, delta: IAutoMovieVector3) => void = (vertex: number, delta: IAutoMovieVector3): void => {
+  const patch: IAutoMovieHumanFacePeriocularDisplacementPatch | undefined =
+    cage.displacementPatch;
+  const pins: Map<number, IAutoMovieVector3> = new Map<
+    number,
+    IAutoMovieVector3
+  >();
+  const pin: (vertex: number, delta: IAutoMovieVector3) => void = (
+    vertex: number,
+    delta: IAutoMovieVector3,
+  ): void => {
     const previous: IAutoMovieVector3 | undefined = pins.get(vertex);
     if (
       previous !== undefined &&
@@ -102,7 +116,9 @@ export function seatHumanFaceLidCage(
   };
   const moved: Set<number> = new Set<number>();
   const row: number[] = cage.stations[margin].vertices;
-  const join: IHumanFaceOcularSurfaceHit = surface.project(point(row[cage.medialColumn]));
+  const join: IHumanFaceOcularSurfaceHit = surface.project(
+    point(row[cage.medialColumn]),
+  );
   for (const [columns, registered] of [
     [cage.upperColumns, cage.medialBed?.upperColumns],
     [cage.lowerColumns, cage.medialBed?.lowerColumns],
@@ -154,7 +170,8 @@ export function seatHumanFaceLidCage(
       if (!(total > 0) || !Number.isFinite(total))
         throw new Error("Lid seating needs a cage column of finite length.");
       for (let station: number = margin; station < anchor; station++) {
-        const weight: number = 1 - smoothstep(lengths[station - margin] / total);
+        const weight: number =
+          1 - smoothstep(lengths[station - margin] / total);
         const vertex: number = cage.stations[station].vertices[column];
         if (patch !== undefined) pin(vertex, Vector3.scale(shift, weight));
         for (const alias of aliases.get(samples[vertex]) ?? [vertex]) {
@@ -172,14 +189,16 @@ export function seatHumanFaceLidCage(
       patch.posteriorBoundary.length !== patch.posteriorSamples.length ||
       patch.preseptalBoundary.length !== patch.preseptalSamples.length ||
       patch.posteriorBoundary.some(
-        (vertex: number, at: number): boolean  => samples[vertex] !== patch.posteriorSamples[at],
+        (vertex: number, at: number): boolean =>
+          samples[vertex] !== patch.posteriorSamples[at],
       ) ||
       patch.preseptalBoundary.some(
-        (vertex: number, at: number): boolean  => samples[vertex] !== patch.preseptalSamples[at],
+        (vertex: number, at: number): boolean =>
+          samples[vertex] !== patch.preseptalSamples[at],
       ) ||
       new Set(patch.triangles).size !== patch.triangles.length ||
       patch.triangles.some(
-        (triangle: number): boolean  =>
+        (triangle: number): boolean =>
           !Number.isSafeInteger(triangle) ||
           triangle < 0 ||
           3 * triangle + 2 >= indices.length,
@@ -200,25 +219,30 @@ export function seatHumanFaceLidCage(
       pins,
     }))
       pin(vertex, delta);
-    const displacement: Map<number, IAutoMovieVector3> = interpolateHumanFaceLidDisplacement({
-      positions,
-      samples,
-      pins,
-      indices: patch.triangles.flatMap((triangle: number): number[]  =>
-        indices.slice(3 * triangle, 3 * triangle + 3),
-      ),
-      boundaryVertices: [
-        ...patch.posteriorBoundary,
-        ...patch.preseptalBoundary,
-      ],
-    });
+    const displacement: Map<number, IAutoMovieVector3> =
+      interpolateHumanFaceLidDisplacement({
+        positions,
+        samples,
+        pins,
+        indices: patch.triangles.flatMap((triangle: number): number[] =>
+          indices.slice(3 * triangle, 3 * triangle + 3),
+        ),
+        boundaryVertices: [
+          ...patch.posteriorBoundary,
+          ...patch.preseptalBoundary,
+        ],
+      });
     for (const [vertex, delta] of displacement) {
       result[3 * vertex] = positions[3 * vertex] + delta.x;
       result[3 * vertex + 1] = positions[3 * vertex + 1] + delta.y;
       result[3 * vertex + 2] = positions[3 * vertex + 2] + delta.z;
     }
   }
-  if (!result.every((value: number): boolean  => Number.isFinite(Math.fround(value))))
+  if (
+    !result.every((value: number): boolean =>
+      Number.isFinite(Math.fround(value)),
+    )
+  )
     throw new Error("Lid seating exceeds finite Float32 source coordinates.");
   return result;
 }

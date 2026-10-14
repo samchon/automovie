@@ -1,7 +1,10 @@
-import type { IAutoMovieHumanFaceSurfaceAttachment } from "../../structures/IAutoMovieHumanFaceSurfaceAttachment";
-import type { AutoMovieTextureBinding, IAutoMovieMaterial } from "@automovie/interface";
+import type {
+  AutoMovieTextureBinding,
+  IAutoMovieMaterial,
+} from "@automovie/interface";
 
 import type { IAutoMovieHumanFaceBasis } from "../../structures/IAutoMovieHumanFaceBasis";
+import type { IAutoMovieHumanFaceSurfaceAttachment } from "../../structures/IAutoMovieHumanFaceSurfaceAttachment";
 import type { IHumanFaceIrisGlobe } from "./structures/IHumanFaceIrisGlobe";
 import type { IHumanFaceIrisGlobeTriangle } from "./structures/IHumanFaceIrisGlobeTriangle";
 
@@ -32,19 +35,25 @@ export function findHumanFaceIrisGlobe(
 ): IHumanFaceIrisGlobe | null {
   for (const surface of basis.surfaces) {
     const rows: number[] =
-      surface.attachments?.find((one: IAutoMovieHumanFaceSurfaceAttachment): boolean  => one.owner === eye)?.rows ?? [];
+      surface.attachments?.find(
+        (one: IAutoMovieHumanFaceSurfaceAttachment): boolean =>
+          one.owner === eye,
+      )?.rows ?? [];
     const bound: Set<number> = new Set<number>();
     for (let i: number = 0; i < rows.length; i += 2)
       if (rows[i + 1] === 1) bound.add(rows[i]);
-    const point: (vertex: number) => [number, number, number] = (vertex: number): [number, number, number] => [
+    const point: (vertex: number) => [number, number, number] = (
+      vertex: number,
+    ): [number, number, number] => [
       surface.positions[3 * vertex],
       surface.positions[3 * vertex + 1],
       surface.positions[3 * vertex + 2],
     ];
     for (const region of surface.regions) {
-      const texture: AutoMovieTextureBinding | null | undefined = basis.materials.find(
-        (one: IAutoMovieMaterial): boolean  => one.id === region.material,
-      )?.baseColorTexture;
+      const texture: AutoMovieTextureBinding | null | undefined =
+        basis.materials.find(
+          (one: IAutoMovieMaterial): boolean => one.id === region.material,
+        )?.baseColorTexture;
       // Non-string texture references and untextured regions cannot supply
       // this reader's resident string binding; PNG admission belongs to preparation.
       if (region.uvs === null || typeof texture !== "string") continue;
@@ -52,15 +61,20 @@ export function findHumanFaceIrisGlobe(
       const triangles: IHumanFaceIrisGlobeTriangle[] = [];
       for (let t: number = 0; t < region.indices.length; t += 3) {
         const corners: number[] = region.indices.slice(t, t + 3);
-        if (corners.every((vertex: number): boolean  => bound.has(vertex)))
+        if (corners.every((vertex: number): boolean => bound.has(vertex)))
           triangles.push({
             positions: corners.map(point),
-            uvs: [0, 1, 2].map((k: number): [number, number]  => [uvs[2 * (t + k)], uvs[2 * (t + k) + 1]]),
+            uvs: [0, 1, 2].map((k: number): [number, number] => [
+              uvs[2 * (t + k)],
+              uvs[2 * (t + k) + 1],
+            ]),
           });
       }
       if (triangles.length === 0) continue;
       const vertices: number[] = [
-        ...new Set(region.indices.filter((vertex: number): boolean  => bound.has(vertex))),
+        ...new Set(
+          region.indices.filter((vertex: number): boolean => bound.has(vertex)),
+        ),
       ];
       return {
         eye,

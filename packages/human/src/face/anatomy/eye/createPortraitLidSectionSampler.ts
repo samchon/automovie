@@ -37,7 +37,8 @@ export function createPortraitLidSectionSampler<K extends string>(
   name: "Lower-lid" | "Upper-lid",
   validateSection?: (section: Section<K>) => void,
 ): (at: number) => Section<K> {
-  const sections: readonly { at: number; section: Section<K>; }[] = structuredClone(input);
+  const sections: readonly { at: number; section: Section<K> }[] =
+    structuredClone(input);
   const ownedRoles: K[] = [...roles];
   if (
     sections.length < 2 ||
@@ -49,7 +50,7 @@ export function createPortraitLidSectionSampler<K extends string>(
       `${name} detail needs two through 32 sections spanning zero to one.`,
     );
   for (let i: number = 0; i < sections.length; i++) {
-    const { at, section }: { at: number; section: Section<K>; } = sections[i];
+    const { at, section }: { at: number; section: Section<K> } = sections[i];
     if (
       !Number.isFinite(at) ||
       at < 0 ||
@@ -79,30 +80,38 @@ export function createPortraitLidSectionSampler<K extends string>(
       );
     validateSection?.(section);
   }
-  return (at: number): Section<K>  => {
+  return (at: number): Section<K> => {
     if (!Number.isFinite(at) || at < 0 || at > 1)
       throw new Error(
         `${name} sampling must stay in medial-to-lateral progress [0,1].`,
       );
     let index: number = 0;
     while (index < sections.length - 2 && at > sections[index + 1].at) index++;
-    const left: { at: number; section: Section<K>; } = sections[index],
-      right: { at: number; section: Section<K>; } = sections[index + 1];
+    const left: { at: number; section: Section<K> } = sections[index],
+      right: { at: number; section: Section<K> } = sections[index + 1];
     const t: number = (at - left.at) / (right.at - left.at),
       weight: number = t * t * (3 - 2 * t);
-    const mix: (a: number, b: number) => number = (a: number, b: number): number  => a * (1 - weight) + b * weight;
+    const mix: (a: number, b: number) => number = (
+      a: number,
+      b: number,
+    ): number => a * (1 - weight) + b * weight;
     const section: Section<K> = {
       ...Object.fromEntries(
-        ownedRoles.map((role: K): [K, { offset: number; projection: number; }]  => [
-          role,
-          {
-            offset: mix(left.section[role].offset, right.section[role].offset),
-            projection: mix(
-              left.section[role].projection,
-              right.section[role].projection,
-            ),
-          },
-        ]),
+        ownedRoles.map(
+          (role: K): [K, { offset: number; projection: number }] => [
+            role,
+            {
+              offset: mix(
+                left.section[role].offset,
+                right.section[role].offset,
+              ),
+              projection: mix(
+                left.section[role].projection,
+                right.section[role].projection,
+              ),
+            },
+          ],
+        ),
       ),
       attachment: mix(left.section.attachment, right.section.attachment),
     } as Section<K>;

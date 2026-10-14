@@ -36,7 +36,10 @@ export function createPortraitOpticalFrame(
   sphere: IPortraitEyeSphere,
   axialWitness: IAutoMovieVector3,
 ): { sphere: IPortraitEyeSphere; transform: IAutoMovieMeshTransform } {
-  const direction: IAutoMovieVector3 = Vector3.subtract(axialWitness, sphere.center);
+  const direction: IAutoMovieVector3 = Vector3.subtract(
+    axialWitness,
+    sphere.center,
+  );
   if (
     ![
       sphere.radius,

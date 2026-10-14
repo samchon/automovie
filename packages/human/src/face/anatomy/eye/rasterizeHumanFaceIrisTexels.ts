@@ -44,18 +44,31 @@ export function rasterizeHumanFaceIrisTexels(props: {
   disc: IHumanFaceIrisDisc;
   margin: number;
 }): IHumanFaceIrisTexels {
-  const { width, height, disc }: Parameters<typeof rasterizeHumanFaceIrisTexels>[0] = props;
+  const {
+    width,
+    height,
+    disc,
+  }: Parameters<typeof rasterizeHumanFaceIrisTexels>[0] = props;
   const side: [number, number, number] = cross(disc.axis, disc.reference);
   const claimed: Set<number> = new Set<number>();
   const result: IHumanFaceIrisTexels = { index: [], theta: [], phi: [] };
   for (const triangle of props.triangles) {
-    const [a, b, c]: number[][] = triangle.uvs.map(([u, v]: readonly [number, number]): number[]  => [u * width, v * height]);
-    const area: number = (b[0] - a[0]) * (c[1] - a[1]) - (c[0] - a[0]) * (b[1] - a[1]);
+    const [a, b, c]: number[][] = triangle.uvs.map(
+      ([u, v]: readonly [number, number]): number[] => [u * width, v * height],
+    );
+    const area: number =
+      (b[0] - a[0]) * (c[1] - a[1]) - (c[0] - a[0]) * (b[1] - a[1]);
     if (area === 0) continue;
     const x0: number = Math.max(0, Math.floor(Math.min(a[0], b[0], c[0])));
-    const x1: number = Math.min(width - 1, Math.ceil(Math.max(a[0], b[0], c[0])));
+    const x1: number = Math.min(
+      width - 1,
+      Math.ceil(Math.max(a[0], b[0], c[0])),
+    );
     const y0: number = Math.max(0, Math.floor(Math.min(a[1], b[1], c[1])));
-    const y1: number = Math.min(height - 1, Math.ceil(Math.max(a[1], b[1], c[1])));
+    const y1: number = Math.min(
+      height - 1,
+      Math.ceil(Math.max(a[1], b[1], c[1])),
+    );
     for (let y: number = y0; y <= y1; ++y)
       for (let x: number = x0; x <= x1; ++x) {
         const px: number = x + 0.5;
@@ -69,7 +82,7 @@ export function rasterizeHumanFaceIrisTexels(props: {
         const index: number = y * width + x;
         if (claimed.has(index)) continue;
         const point: number[] = [0, 1, 2].map(
-          (axis: number): number  =>
+          (axis: number): number =>
             wa * triangle.positions[0][axis] +
             wb * triangle.positions[1][axis] +
             wc * triangle.positions[2][axis] -
