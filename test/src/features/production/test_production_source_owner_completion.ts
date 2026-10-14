@@ -4,21 +4,24 @@ import { libraryCompletionBinding } from "../internal/createLibraryCompletionEvi
 import { inspectSourceOwnerCompletion } from "../internal/inspectSourceOwnerCompletion";
 
 /**
- * Enforced evidence completes independently of optional review metadata.
+ * Enforced evidence and the compatible review stage complete an exact source owner.
  *
  * Scenarios:
  *
- * 1. Evidence and compatible review edges with either review value admit
- *    execution and resolve the same exact identity during source diagnosis.
+ * 1. Evidence and compatible review edges admit execution and resolve the same exact identity during source diagnosis.
+ *
+ * The former optional reviewed flag is absent from the maintained binding contract. Its two values no longer form an input dimension; the two declared stages remain the meaningful completion neighbors.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Invokes the actual completion predicate and source-owner resolver through the existing inspector, requiring completion, execution admission and exact diagnostic resolution for each enforced completed stage.
+ * @evidence contracts/testing.md#independent-expectations The literal three true results follow the conjunction of enforcement and the two supported completed stages; supplied fixture digests test identity matching rather than independently hashing source bytes.
+ * @evidence contracts/testing.md#distinguishing-cases Evidence and compatible review are the two admitted stage neighbors. Adjacent incomplete and unenforced tests retain their refusal cases; the deleted reviewed metadata field cannot be supplied as an additional completion authority.
+ * @evidence contracts/testing.md#execution-ownership The discoverable file-named synchronous unit owns both stage cases through existing resident binding and inspector fixtures, without a generated consumer, process, filesystem or new runtime host.
  */
-export const test_production_source_owner_completion = (): void => {
+export function test_production_source_owner_completion(): void {
   for (const stage of ["evidence", "review"])
-    for (const reviewed of [false, true])
-      TestValidator.equals(
-        `completed ${stage}/${reviewed} admits execution`,
-        inspectSourceOwnerCompletion(
-          libraryCompletionBinding({ stage, reviewed }),
-        ),
-        { complete: true, admission: true, sourceDiagnosis: true },
-      );
-};
+    TestValidator.equals(
+      `completed ${stage} admits execution`,
+      inspectSourceOwnerCompletion(libraryCompletionBinding({ stage })),
+      { complete: true, admission: true, sourceDiagnosis: true },
+    );
+}
