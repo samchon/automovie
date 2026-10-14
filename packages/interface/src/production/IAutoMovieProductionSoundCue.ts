@@ -1,7 +1,7 @@
 /**
  * One authored timeline cue lowered into the deterministic procedural score.
  *
- * @evidence contracts/common.md#principled-implementation The normalized cue maps a unit-rate source trim and fade spans onto the film frame clock, retaining exact asset identity, gain and bus; the host validates decoded source duration and the mixer reads finite samples within the admitted trim.
+ * @evidence contracts/common.md#principled-implementation The normalized cue maps a unit-rate source trim and fade spans onto the film frame clock, retaining asset identity, gain and bus; the mixer checks declared frame bounds and reads finite supplied samples within the trim, but does not prove that sourceDurationFrames matches decoded byte duration.
  * @evidence contracts/common.md#clear-and-simple-design Keeps reusable source extent distinct from selected duration and source offset; decoded PCM remains a caller-supplied input rather than a codec or filesystem responsibility inside deterministic mixing.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing decoded assets currently use the documented procedural bus stand-in, so this plan alone does not prove adopted-asset playback; source-overflow, invalid spans and non-finite supplied samples refuse.
  * @evidence contracts/common.md#meaningful-documentation Defines exact asset and cue identity, global frame placement, unit-rate trim ceiling, fades, gain, bus and procedural seed, including the missing-buffer stand-in limitation.
@@ -28,7 +28,7 @@ export interface IAutoMovieProductionSoundCue {
   /**
    * Complete source-asset duration on the production frame clock.
    *
-   * This is the asset's identity and the ceiling the trim fits inside, never a selected span or a playback-rate control: the cue reads `durationFrames` frames from `sourceOffsetFrame` at unit rate, and `sourceOffsetFrame + durationFrames` may not exceed this value. Planning verifies it against the decoded asset's own sample count.
+   * This is the declared ceiling the trim fits inside, never a selected span or a playback-rate control: the cue reads `durationFrames` frames from `sourceOffsetFrame` at unit rate, and `sourceOffsetFrame + durationFrames` may not exceed this value. The planner copies this declaration without decoding assets; callers own agreement with the asset's actual duration.
    */
   sourceDurationFrames: number;
 

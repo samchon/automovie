@@ -7,7 +7,7 @@ import { IAutoMovieShotEventContract } from "./IAutoMovieShotEventContract";
  *
  * @evidence contracts/common.md#principled-implementation Sound planning maps current shot event samples into film occurrences, samples camera placement and models population variance from uniform axis-aligned boxes before sqrt(memberCount) gain and optional propagation. It copies acousticProfile without deriving event responses; a consumer supplies those separately.
  * @evidence contracts/common.md#clear-and-simple-design One event carries authoritative timing, spatial mass and bounded acoustic results so the pure mixer needs no scene traversal or policy selection while rendering PCM.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Population spread is a box-based source approximation rather than measured individual positions. Final sound validation requires a supplied response outcome when an acoustic profile is selected; the standalone mixer can still take a dry event with no response and does not establish that final admission.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Population spread is a box-based source approximation rather than measured individual positions. Selecting an acoustic profile does not populate or require acousticResponse in the standalone planner or mixer; callers own any stronger response-admission policy.
  * @evidence contracts/common.md#meaningful-documentation Defines occurrence identity, film frame and seconds, world-meter source/listener positions, RMS spread, incoherent density, stereo pan and optional propagation and room-response effects.
  * @author Samchon
  */
@@ -98,7 +98,7 @@ export interface IAutoMovieProductionSoundEvent {
   };
 
   /**
-   * Consumer-supplied room-path result. The planner does not derive it; final sound admission requires an outcome for each event when production selects an acoustic profile and refuses an undeclared response.
+   * Consumer-supplied room-path result. The planner does not derive it, and the mixer uses the dry event when it is absent; acousticProfile alone does not establish a response or enforce a complete response population.
    */
   acousticResponse?: IAutoMovieProductionAcousticResponse;
 
