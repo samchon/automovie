@@ -54,7 +54,6 @@
     "@automovie/human": "workspace:^",
     "@automovie/ingest": "workspace:^",
     "@automovie/interface": "workspace:^",
-    "@automovie/production": "workspace:^",
     "@automovie/render": "workspace:^",
     "three": "^0.186.0"
   },
