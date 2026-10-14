@@ -6,19 +6,32 @@ import { Matrix4 } from "../../../../packages/engine/src/math/Matrix4";
 import { forgeProp } from "../../../../packages/engine/src/film/forgeProp";
 import { resolveFrame } from "../../../../packages/engine/src/resolve/resolveFrame";
 import { sceneToNodes } from "../../../../packages/engine/src/resolve/sceneToNodes";
-
 import { TestValidator } from "@nestia/e2e";
-
 import { createModel } from "../internal/fixtures";
 import { namedFacts, nclose, vclose } from "../internal/predicates";
 import { createDoorPropSpec } from "../internal/createDoorPropSpec";
 
-/** Quat values for a rotation of `deg` about +Y. */
+/**
+ * Quaternion components for the authored rotation in degrees about +Y.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Supplies the input quaternion used by the door clip; observable world basis and violations are asserted by the owning integration entry.
+ * @evidence contracts/testing.md#independent-expectations The conventional half-angle axis quaternion authors the clip, while the entry's full-angle cosine/sine supplies its independent world-basis expectations.
+ * @evidence contracts/testing.md#distinguishing-cases The original 90-degree legal and 150-degree excessive rotations share this input construction; profile clamping is the product's responsibility.
+ * @evidence contracts/testing.md#execution-ownership This private pure input helper runs inside the discovered CPU entry and retains no state or native resource.
+ */
 function yQuat (deg: number): number[] {
   const half: number = (deg * Math.PI) / 360;
   return [0, Math.sin(half), 0, Math.cos(half)];
 }
 
+/**
+ * Construct the original single-key hinge clip for the supplied angle.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Supplies the prefixed hinge rotation channel to the actual scene resolver used by the integration entry.
+ * @evidence contracts/testing.md#independent-expectations The authored channel, angle and one-second clock are input; full-angle world vectors and declared profile limits determine expected outcomes in the entry.
+ * @evidence contracts/testing.md#distinguishing-cases Preserves the legal and excessive angle pair and single-key linear clip without adding another interpolation policy.
+ * @evidence contracts/testing.md#execution-ownership The private clip constructor is called only by the discovered portable door integration case and creates caller-owned records without a host or cache.
+ */
 function swing (deg: number): IAutoMovieClip { return ({
   id: "swing",
   name: null,
@@ -34,6 +47,14 @@ function swing (deg: number): IAutoMovieClip { return ({
   ],
 }); }
 
+/**
+ * Read the transformed local +X basis from a column-major world matrix.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Exposes the resolver's first matrix column for the owning entry's numerical hinge and copy-driver assertions.
+ * @evidence contracts/testing.md#independent-expectations Column-major basis layout defines indices zero through two; the entry compares these observations with its independently calculated rotation vectors.
+ * @evidence contracts/testing.md#distinguishing-cases Reads legal hinge, copied mirror and clamped excessive hinge outputs, preserving each original asserted component.
+ * @evidence contracts/testing.md#execution-ownership This private synchronous observation reader serves the discovered CPU integration entry and retains no matrix or host resource.
+ */
 function basisX (m: number[]): [number, number, number] { return [m[0]!, m[1]!, m[2]!]; }
 
 const SCENE: IAutoMovieScene = {
@@ -68,23 +89,17 @@ const SCENE: IAutoMovieScene = {
 };
 
 /**
- * The #603×S3 integration made whole: a door forged by forgeProp is placed in a
- * scene, its articulation lowers into the one scene graph, and its
- * author-declared constraint executes with the placement composed in: the
- * S4/#642 door oracles now hold through the scene, alongside a second occupant
- * whose skeleton shares the graph without collision.
+ * The #603×S3 integration made whole: a door forged by forgeProp is placed in a scene, its articulation lowers into the one scene graph, and its author-declared constraint executes with the placement composed in: the S4/#642 door oracles now hold through the scene, alongside a second occupant whose skeleton shares the graph without collision.
  *
  * Scenarios:
  *
  * 1. The forged door forges, lowers under its placement, and an in-range 90° swing
- *    passes: the hinge's world position is `placement + (0,1,0)` (the placement
- *    composition is real), and its world X basis lands at `(0,0,-1)`.
+ * passes: the hinge's world position is `placement + (0,1,0)` (the placement composition is real), and its world X basis lands at `(0,0,-1)`.
  * 2. The declared copy driver mirrors the hinge in the same scene graph.
  * 3. An over-limit 150° swing clamps to exactly 110° (world X basis `(cos110°, 0,
- *    −sin110°)`) with every violation tagged by the forged profile on the
- *    prefixed hinge channel.
+ * −sin110°)`) with every violation tagged by the forged profile on the prefixed hinge channel.
  * 4. The second occupant's bones live in the same graph (`knight/hips` resolves):
- *    no id collisions between actor and prop subtrees.
+ * no id collisions between actor and prop subtrees.
  *
  * @evidence contracts/testing.md#behavioral-verification Forges and lowers a placed door beside an actor, then resolves legal and excess rotations; world hinge position, copied orientation, prefixed profile violations and actor-bone membership show placement, articulation and the actor subtree share one executable graph.
  * @evidence contracts/testing.md#independent-expectations Identity placement rotation makes hinge translation (5,0,2)+(0,1,0)=(5,1,2), and Y rotation maps +X to (cos(angle),0,-sin(angle)). The authored component boundary corresponds to 110 degrees, checked with vclose/nclose rather than a resolver-derived snapshot; graph membership proves identity coexistence rather than rendered appearance.

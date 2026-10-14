@@ -1,42 +1,28 @@
-import {
-  deriveProductionSoundPlan,
-  materializeCompiledFormation,
-  materializeCompiledInstanceSet,
-  renderProductionSound,
-} from "@automovie/engine";
-import {
-  AutoMovieContentDigest,
-  IAutoMovieCompiledShotSource,
-  IAutoMovieFilmTimeline,
-  IAutoMovieProductionSoundPlan,
-  IAutoMovieShotContract,
-} from "@automovie/interface";
+import type { IAutoMovieCompiledFormation, IAutoMovieProductionSoundEvent, IAutoMovieCompiledShotSource, IAutoMovieFilmTimeline, IAutoMovieProductionSoundPlan, IAutoMovieShotContract } from "@automovie/interface";
+import type { IAutoMovieRenderedProductionSound } from "../../../../packages/engine/src/sound/IAutoMovieRenderedProductionSound";
+import { deriveProductionSoundPlan } from "../../../../packages/engine/src/sound/deriveProductionSoundPlan";
+import { materializeCompiledFormation } from "../../../../packages/engine/src/populationRuntime/materializeCompiledFormation";
+import { materializeCompiledInstanceSet } from "../../../../packages/engine/src/populationRuntime/materializeCompiledInstanceSet";
+import { renderProductionSound } from "../../../../packages/engine/src/sound/renderProductionSound";
 import { TestValidator } from "@nestia/e2e";
-
 import { namedFacts, nclose } from "../internal/predicates";
 
-const digest =
-  "sha256:0000000000000000000000000000000000000000000000000000000000000000" as AutoMovieContentDigest;
+const digest: string =
+  "sha256:0000000000000000000000000000000000000000000000000000000000000000" as string;
 
-const transform = (x: number, y: number, z: number) => ({
+/** Construct the authored identity-oriented emitter placement. */
+const transform: (x: number, y: number, z: number) => { translation: { x: number; y: number; z: number; }; rotation: { x: number; y: number; z: number; w: number; }; scale: { x: number; y: number; z: number; }; } = (x: number, y: number, z: number): { translation: { x: number; y: number; z: number; }; rotation: { x: number; y: number; z: number; w: number; }; scale: { x: number; y: number; z: number; }; } => ({
   translation: { x, y, z },
   rotation: { x: 0, y: 0, z: 0, w: 1 },
   scale: { x: 1, y: 1, z: 1 },
 });
 
 /**
- * Two units standing in the SAME footprint, differing only in how many stand in
- * it.
+ * Two units share a footprint and differ only in member count.
  *
- * A `line` places slot `s` at `x = (s - (files - 1)/2) * lateral`, `z = 0`, so
- * a one-rank line is centered on its anchor and reaches `((files - 1)/2) *
- * lateral` to either side. Picking `4 x 2.65625` and `256 x 0.03125` makes both
- * reaches exactly `3.984375` m, and every value here is a dyadic rational, so
- * the two boxes are bit-identical rather than nearly so. That is the whole
- * point of the fixture: centroid, distance, spread and attenuation are held
- * fixed, and `memberCount` is the only thing left that can move the level.
+ * A `line` places slot `s` at `x = (s - (files - 1)/2) * lateral`, `z = 0`, so a one-rank line is centered on its anchor and reaches `((files - 1)/2) * lateral` to either side. Picking `4 x 2.65625` and `256 x 0.03125` makes both reaches exactly `3.984375` m, and every value here is a dyadic rational, so the two boxes are bit-identical rather than nearly so. That is the whole point of the fixture: centroid, distance, spread and attenuation are held fixed, and `memberCount` is the only thing left that can move the level.
  */
-const unit = (id: string, count: number, lateral: number) =>
+const unit: (id: string, count: number, lateral: number) => IAutoMovieCompiledFormation = (id: string, count: number, lateral: number): IAutoMovieCompiledFormation =>
   materializeCompiledFormation({
     formation: {
       id,
@@ -56,21 +42,22 @@ const unit = (id: string, count: number, lateral: number) =>
     },
   });
 
-const SMALL_COUNT = 4;
-const LARGE_COUNT = 256;
-const CROWD_COUNT = 100;
+const SMALL_COUNT: number = 4;
+const LARGE_COUNT: number = 256;
+const CROWD_COUNT: number = 100;
 
 /** Half the shared footprint: `(4 - 1)/2 * 2.65625 = (256 - 1)/2 * 0.03125`. */
-const HALF_WIDTH = 3.984375;
+const HALF_WIDTH: number = 3.984375;
 
-const contract = (): IAutoMovieShotContract =>
+/** Declare the three original event subjects; unrelated shot fields remain unused by this planner test. */
+const contract: () => IAutoMovieShotContract = (): IAutoMovieShotContract =>
   ({
     id: "density-shot",
     events: [
       { id: "small", subjects: ["small-unit"] },
       { id: "large", subjects: ["large-unit"] },
       { id: "mixed", subjects: ["hero", "crowd"] },
-    ].map((event, index) => ({
+    ].map((event: { id: string; subjects: string[]; }, index: number): { kind: "arrival"; window: { from: number; to: number; }; predicates: {}[]; id: string; subjects: string[]; } => ({
       ...event,
       // One kind throughout, and the one whose procedural voice is a pure tone:
       // `arrival` mixes `sin(2*pi*(58 + 42*n)*t)` with no seeded noise in it, so
@@ -83,7 +70,8 @@ const contract = (): IAutoMovieShotContract =>
     })),
   }) as IAutoMovieShotContract;
 
-const compiled = (): IAutoMovieCompiledShotSource =>
+/** Build the original equal-footprint formations and one hero/crowd group consumed by the sound planner. */
+const compiled: () => IAutoMovieCompiledShotSource = (): IAutoMovieCompiledShotSource =>
   ({
     eventSamples: [
       { id: "small", time: 0.25 },
@@ -95,8 +83,8 @@ const compiled = (): IAutoMovieCompiledShotSource =>
       name: null,
       nodes: [
         {
-          // Off the crowd's own line in BOTH axes. Sharing its depth would let
-          // any weighting at all — by member, by subject, or none — put the
+          // Off the crowd's own line in both axes. Sharing its depth would let
+          // weighting by member, by subject, or neither put the
           // emitter at the crowd's `z`, and the depth fact would hold without
           // measuring anything.
           id: "hero",
@@ -169,7 +157,8 @@ const compiled = (): IAutoMovieCompiledShotSource =>
     effects: [],
   }) satisfies IAutoMovieCompiledShotSource;
 
-const timeline = (): IAutoMovieFilmTimeline =>
+/** Declare the original density shot duration and empty auxiliary tracks. */
+const timeline: () => IAutoMovieFilmTimeline = (): IAutoMovieFilmTimeline =>
   ({
     version: 1,
     builder: "test",
@@ -195,69 +184,58 @@ const timeline = (): IAutoMovieFilmTimeline =>
     tracks: { audio: [], captions: [], effects: [] },
   }) as IAutoMovieFilmTimeline;
 
-const eventOf = (plan: IAutoMovieProductionSoundPlan, id: string) =>
-  plan.events.find((event) => event.event === id)!;
+/** Read the required planned event by its authored id; a missing event fails the owning assertions. */
+const eventOf: (plan: IAutoMovieProductionSoundPlan, id: string) => IAutoMovieProductionSoundEvent = (plan: IAutoMovieProductionSoundPlan, id: string): IAutoMovieProductionSoundEvent =>
+  plan.events.find((event: IAutoMovieProductionSoundEvent): boolean => event.event === id)!;
 
 /** Absolute amplitude of one mixed stereo frame, independent of its pan. */
-const amplitudeAt = (pcm: Float32Array, frame: number): number =>
+const amplitudeAt: (pcm: Float32Array, frame: number) => number = (pcm: Float32Array, frame: number): number =>
   Math.hypot(pcm[frame * 2]!, pcm[frame * 2 + 1]!);
 
 /**
- * A group's sound scales with how many are in it (the sound-design handbook's
- * "distant mass" made measurable), instead of collapsing to a single point
- * emitter at its centroid.
+ * Count scaling and the adopted uniform-box spread model affect planned and mixed sound.
  *
- * Before this, a subject that was a unit contributed exactly one emitter no
- * matter its member count, level was a fixed constant times distance
- * attenuation, and several subjects were averaged into one arithmetic centroid.
- * Three people and a hundred thousand were therefore acoustically identical,
- * and an event naming one hero plus the army behind him emitted from the empty
- * midpoint between them.
+ * Before this, a subject that was a unit contributed exactly one emitter no matter its member count, level was a fixed constant times distance attenuation, and several subjects were averaged into one arithmetic centroid. Three people and a hundred thousand were therefore acoustically identical, and an event naming one hero plus the army behind him emitted from the empty midpoint between them.
  *
- * The model is the ordinary one for many independent sources: uncorrelated
- * sources add in POWER, so `N` of them are `sqrt(N)` in amplitude and
- * `10*log10(N)` dB up, and a source with size is heard at the root-mean-square
- * listener distance `sqrt(d^2 + a^2)` rather than at its centroid, which is an
- * identity (`E|x_i - L|^2 = |c - L|^2 + E|x_i - c|^2`) and not a taste.
+ * The planner adopts square-root member scaling and a uniform-box variance for each compiled bound. The parallel-axis formula gives the listener-distance term for that approximation; it does not measure discrete member variance or empirical acoustics.
  *
  * Scenarios (listener at (0, 1, 0), both units centered on (0, 0, -30)):
  *
  * 1. `memberCount` is the unit's real count, and `densityGain` is exactly its
- *    square root, for a node (one, no size), a formation, and an instance set.
+ * square root, for a node (one, no size), a formation, and an instance set.
  * 2. A unit has a size: `spreadRadiusMeters` is the RMS radius of the uniform box
- *    the compiled bounds describe, and `attenuation` is taken at
- *    `hypot(distance, spread)`, not at the centroid alone, which is strictly
- *    less than the centroid-only gain the mixer used to apply.
- * 3. The controlled pair: two units in the SAME footprint at the SAME distance,
- *    64x apart in count, come out exactly 8x apart in level, in the plan AND in
- *    the rendered PCM, which is `sqrt(64)` and nothing else.
+ * the compiled bounds describe, and `attenuation` is taken at `hypot(distance, spread)`, not at the centroid alone, which is strictly less than the centroid-only gain the mixer used to apply.
+ * 3. The controlled pair: two units in the same footprint at the same distance,
+ * 64x apart in count, come out exactly 8x apart in level, in the plan and in the rendered PCM, which is `sqrt(64)` and nothing else.
  * 4. Several subjects combine by member count, not by subject count: one figure
- *    standing 20 m across and 20 m in front of a hundred-strong crowd emits
- *    from `(20/101, -3010/101)`, essentially the crowd's own position, where
- *    the arithmetic mean would have put the sound at `(10, -20)` — ten metres
- *    of empty ground on either axis.
+ * standing 20 m across and 20 m in front of a hundred-strong crowd emits from `(20/101, -3010/101)`. The subject-count mean `(10, -20)` would place it roughly ten metres from that weighted centre on either axis.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Plans controlled equal-footprint formations and a mixed hero/crowd, then observes count, density, RMS spread, attenuation, member-weighted centre and rendered amplitude ratio.
+ * @evidence contracts/testing.md#independent-expectations Dyadic equal footprints, square-root count scaling and the independently written weighted centroid and uniform-box variance provide arithmetic expectations; the attenuation-law check reuses observed distance/spread and does not independently measure physical acoustics.
+ * @evidence contracts/testing.md#distinguishing-cases Keeps the four-member versus 256-member equal-footprint pair, mixed one-node/100-instance mass and audible PCM ratio; changed spread, cue motion and limiting belong to the spread entry.
+ * @evidence contracts/testing.md#execution-ownership The runner discovers test_film_production_sound_density and this entry owns its direct and delegated in-memory CPU assertions; it acquires no renderer, GPU, decoder, native build, installed consumer or completed-result cache. Numeric/byte observations do not prove hardware appearance or universal cross-host identity.
  */
-export const test_film_production_sound_density = (): void => {
-  const plan = deriveProductionSoundPlan({
+export function test_film_production_sound_density(): void {
+  const plan: IAutoMovieProductionSoundPlan = deriveProductionSoundPlan({
     timeline: timeline(),
     contracts: new Map([["density-shot", contract()]]),
     compiled: new Map([["density-shot", compiled()]]),
   });
-  const small = eventOf(plan, "small");
-  const large = eventOf(plan, "large");
-  const mixed = eventOf(plan, "mixed");
+  const small: IAutoMovieProductionSoundEvent = eventOf(plan, "small");
+  const large: IAutoMovieProductionSoundEvent = eventOf(plan, "large");
+  const mixed: IAutoMovieProductionSoundEvent = eventOf(plan, "mixed");
 
   // 1. every event counts its real members and gains by their square root.
   TestValidator.equals(
     "member counts are the units' own, and density gain is their square root",
     namedFacts([
-      ["smallCount", () => small.memberCount === SMALL_COUNT],
-      ["largeCount", () => large.memberCount === LARGE_COUNT],
-      ["mixedCount", () => mixed.memberCount === CROWD_COUNT + 1],
+      ["smallCount", (): boolean => small.memberCount === SMALL_COUNT],
+      ["largeCount", (): boolean => large.memberCount === LARGE_COUNT],
+      ["mixedCount", (): boolean => mixed.memberCount === CROWD_COUNT + 1],
       [
         "gainIsSqrtOfCount",
-        () =>
-          plan.events.every((event) =>
+        (): boolean =>
+          plan.events.every((event: IAutoMovieProductionSoundEvent): boolean =>
             nclose(event.densityGain, Math.sqrt(event.memberCount), 1e-12),
           ),
       ],
@@ -271,16 +249,16 @@ export const test_film_production_sound_density = (): void => {
   );
 
   // 2. a unit has a size, and the size is what the listener is really far from.
-  const boxRadius = HALF_WIDTH / Math.sqrt(3);
+  const boxRadius: number = HALF_WIDTH / Math.sqrt(3);
   TestValidator.equals(
     "spread is the box's RMS radius and attenuation is taken at the RMS distance",
     namedFacts([
-      ["smallSpread", () => nclose(small.spreadRadiusMeters, boxRadius, 1e-9)],
-      ["largeSpread", () => nclose(large.spreadRadiusMeters, boxRadius, 1e-9)],
+      ["smallSpread", (): boolean => nclose(small.spreadRadiusMeters, boxRadius, 1e-9)],
+      ["largeSpread", (): boolean => nclose(large.spreadRadiusMeters, boxRadius, 1e-9)],
       [
         "attenuationAtRmsDistance",
-        () =>
-          plan.events.every((event) =>
+        (): boolean =>
+          plan.events.every((event: IAutoMovieProductionSoundEvent): boolean =>
             nclose(
               event.attenuation,
               1 /
@@ -294,7 +272,7 @@ export const test_film_production_sound_density = (): void => {
       ],
       [
         "spreadShrinksTheDryGain",
-        () =>
+        (): boolean =>
           small.attenuation <
           1 / (1 + 0.08 * small.distanceMeters * small.distanceMeters),
       ],
@@ -308,28 +286,29 @@ export const test_film_production_sound_density = (): void => {
   );
 
   // 3. the controlled pair: same footprint, same distance, 64x the members.
-  const rendered = renderProductionSound({ plan });
-  const sampleOf = (frame: number): number =>
+  const rendered: IAutoMovieRenderedProductionSound = renderProductionSound({ plan });
+  /** Read stereo amplitude at the independently chosen offset after the planned event frame. */
+  const sampleOf: (frame: number) => number = (frame: number): number =>
     amplitudeAt(
       rendered.pcm,
       Math.round((frame / plan.fps) * plan.sampleRate) + 1_000,
     );
-  const smallSample = sampleOf(small.frame);
-  const largeSample = sampleOf(large.frame);
+  const smallSample: number = sampleOf(small.frame);
+  const largeSample: number = sampleOf(large.frame);
   TestValidator.equals(
     "sixty-four times the members is exactly eight times the level, in plan and in PCM",
     namedFacts([
       [
         "sameDistance",
-        () => nclose(small.distanceMeters, large.distanceMeters),
+        (): boolean => nclose(small.distanceMeters, large.distanceMeters),
       ],
-      ["sameAttenuation", () => nclose(small.attenuation, large.attenuation)],
+      ["sameAttenuation", (): boolean => nclose(small.attenuation, large.attenuation)],
       [
         "planLevelRatio",
-        () => nclose(large.densityGain / small.densityGain, 8, 1e-12),
+        (): boolean => nclose(large.densityGain / small.densityGain, 8, 1e-12),
       ],
-      ["bothAudible", () => smallSample > 0 && largeSample > 0],
-      ["pcmLevelRatio", () => nclose(largeSample / smallSample, 8, 1e-4)],
+      ["bothAudible", (): boolean => smallSample > 0 && largeSample > 0],
+      ["pcmLevelRatio", (): boolean => nclose(largeSample / smallSample, 8, 1e-4)],
     ]),
     {
       sameDistance: true,
@@ -344,12 +323,12 @@ export const test_film_production_sound_density = (): void => {
   TestValidator.equals(
     "a hero beside a crowd emits from the crowd, not from the midpoint",
     namedFacts([
-      ["weightedX", () => nclose(mixed.emitter.x, 20 / 101, 1e-9)],
-      ["notTheMidpoint", () => mixed.emitter.x < 1],
+      ["weightedX", (): boolean => nclose(mixed.emitter.x, 20 / 101, 1e-9)],
+      ["notTheMidpoint", (): boolean => mixed.emitter.x < 1],
       // (1 x -10 + 100 x -30) / 101. Weighting by subject instead would put it
       // at -20, ten metres of empty ground in front of the crowd.
-      ["weightedZ", () => nclose(mixed.emitter.z, -3_010 / 101, 1e-9)],
+      ["weightedZ", (): boolean => nclose(mixed.emitter.z, -3_010 / 101, 1e-9)],
     ]),
     { weightedX: true, notTheMidpoint: true, weightedZ: true },
   );
-};
+}

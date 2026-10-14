@@ -1,6 +1,5 @@
-import {
-  renderProductionSound,
-} from "@automovie/engine";
+import type { IAutoMovieProductionSoundPlan } from "@automovie/interface";
+import { renderProductionSound } from "../../../../packages/engine/src/sound/renderProductionSound";
 import {
   TestValidator,
 } from "@nestia/e2e";
@@ -8,33 +7,37 @@ import {
   namedFacts,
   nclose,
 } from "../internal/predicates";
-
 import { createProductionSoundAssetTestInputs } from "../internal/audio/createProductionSoundAssetTestInputs";
 
 /**
- * The30000/1001 clock keeps independent1602,3203,4805 sample ticks and preserves one-sample presentation/source phase differences.
+ * The 30000/1001 clock keeps independently expected 1602, 3203 and 4805 sample ticks and preserves one-sample presentation/source phase differences.
  *
  * Scenarios:
- * 1. Independent nearest ticks1602,3203,4805 on the 30000/1001 clock retain native unit-rate sample reads.
+ * 1. Independent nearest ticks 1602, 3203 and 4805 on the 30000/1001 clock retain native unit-rate sample reads.
  * 2. Both one-sample phase directions preserve the final reachable sample and silence beyond either the source trim or presentation span.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Mixes the two source/presentation phase directions on the rational NTSC clock and observes trim-start, last reachable and first silent samples.
+ * @evidence contracts/testing.md#independent-expectations Literal nearest ticks 1602, 3203 and 4805 follow 48000 times 1001/30000 independently of the engine clock helper, while authored ramp samples supply the PCM oracle.
+ * @evidence contracts/testing.md#distinguishing-cases Preserves a shorter presentation interval and a shorter source interval, both final reachable samples and the adjacent trim/span silence; integer-rate playback remains in the asset entry.
+ * @evidence contracts/testing.md#execution-ownership The runner discovers test_film_production_sound_ntsc_phase and this entry owns its direct and delegated in-memory CPU assertions; it acquires no renderer, GPU, decoder, native build, installed consumer or completed-result cache. Numeric/byte observations do not prove hardware appearance or universal cross-host identity.
  */
-export const test_film_production_sound_ntsc_phase = (): void => {
-  const { ntscPlan, ramp, sample } = createProductionSoundAssetTestInputs();
+export function test_film_production_sound_ntsc_phase(): void {
+  const { ntscPlan, ramp, sample }: { FPS: number; SAMPLE_RATE: number; SAMPLES_PER_FRAME: number; START_FRAME: number; DURATION_FRAMES: number; TOTAL_FRAMES: number; plan: (props: { sourceDurationFrames?: number; sourceOffsetFrame?: number; startFrame?: number; durationFrames?: number; gain?: number; }) => IAutoMovieProductionSoundPlan; ntscPlan: (props: { sourceDurationFrames: number; sourceOffsetFrame: number; startFrame: number; }) => IAutoMovieProductionSoundPlan; ramp: (length: number) => Float32Array; at: (pcm: Float32Array, offset: number) => number; sample: (pcm: Float32Array, index: number) => number; } = createProductionSoundAssetTestInputs();
 
   // Frame ticks on the NTSC clock, from 1601.6 samples per frame rounded to
     // nearest: 0, 1602, 3203, 4805. Written out rather than computed, so the
     // expectation is the arithmetic and not the renderer's own conversion.
-    const TICK_1 = 1_602;
+    const TICK_1: number = 1_602;
 
-  const TICK_2 = 3_203;
+  const TICK_2: number = 3_203;
 
-  const TICK_3 = 4_805;
+  const TICK_3: number = 4_805;
 
-  const twoFrames = ramp(TICK_2);
+  const twoFrames: Float32Array<ArrayBufferLike> = ramp(TICK_2);
 
-  const threeFrames = ramp(TICK_3);
+  const threeFrames: Float32Array<ArrayBufferLike> = ramp(TICK_3);
 
-  const shortPresentation = renderProductionSound({
+  const shortPresentation: Float32Array<ArrayBufferLike> = renderProductionSound({
       plan: ntscPlan({
         sourceDurationFrames: 2,
         sourceOffsetFrame: 0,
@@ -43,7 +46,7 @@ export const test_film_production_sound_ntsc_phase = (): void => {
       assets: new Map([["public/bed.wav", twoFrames]]),
     }).pcm;
 
-  const shortSource = renderProductionSound({
+  const shortSource: Float32Array<ArrayBufferLike> = renderProductionSound({
       plan: ntscPlan({
         sourceDurationFrames: 3,
         sourceOffsetFrame: 1,
@@ -60,11 +63,11 @@ export const test_film_production_sound_ntsc_phase = (): void => {
         // samples 0 through 1600 in order; source sample 1601 is unread.
         [
           "theFirstPresentationSampleReadsTheTrimStart",
-          () => nclose(sample(shortPresentation, TICK_1), twoFrames[0]!, 1e-6),
+          (): boolean => nclose(sample(shortPresentation, TICK_1), twoFrames[0]!, 1e-6),
         ],
         [
           "theLastPresentationSampleReadsTheLastReachableSourceSample",
-          () =>
+          (): boolean =>
             nclose(
               sample(shortPresentation, TICK_2 - 1),
               twoFrames[TICK_2 - TICK_1 - 1]!,
@@ -73,7 +76,7 @@ export const test_film_production_sound_ntsc_phase = (): void => {
         ],
         [
           "andTheSampleAfterTheSpanIsSilent",
-          () => sample(shortPresentation, TICK_2) === 0,
+          (): boolean => nclose(sample(shortPresentation, TICK_2), 0, 0),
         ],
         // Film frame 0 is [0, 1602): 1602 samples. Source frame 1 is
         // [1602, 3203): 1601 samples. Presentation samples 0 through 1600 read
@@ -82,11 +85,11 @@ export const test_film_production_sound_ntsc_phase = (): void => {
         // three-frame generation does, so it is silent.
         [
           "theFirstPresentationSampleReadsTheOffsetTick",
-          () => nclose(sample(shortSource, 0), threeFrames[TICK_1]!, 1e-6),
+          (): boolean => nclose(sample(shortSource, 0), threeFrames[TICK_1]!, 1e-6),
         ],
         [
           "theLastReadSampleIsTheTrimsLast",
-          () =>
+          (): boolean =>
             nclose(
               sample(shortSource, TICK_2 - TICK_1 - 1),
               threeFrames[TICK_2 - 1]!,
@@ -95,9 +98,9 @@ export const test_film_production_sound_ntsc_phase = (): void => {
         ],
         [
           "thePresentationSamplePastTheTrimIsSilent",
-          () => sample(shortSource, TICK_2 - TICK_1) === 0,
+          (): boolean => nclose(sample(shortSource, TICK_2 - TICK_1), 0, 0),
         ],
-        ["andSoIsTheSampleAfterTheSpan", () => sample(shortSource, TICK_1) === 0],
+        ["andSoIsTheSampleAfterTheSpan", (): boolean => nclose(sample(shortSource, TICK_1), 0, 0)],
       ]),
       {
         theFirstPresentationSampleReadsTheTrimStart: true,
@@ -109,4 +112,4 @@ export const test_film_production_sound_ntsc_phase = (): void => {
         andSoIsTheSampleAfterTheSpan: true,
       },
     );
-};
+}

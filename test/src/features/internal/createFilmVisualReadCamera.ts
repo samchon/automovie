@@ -3,7 +3,7 @@ import type { IAutoMovieCamera } from "@automovie/interface";
 import { createFilmVisualReadTransform } from "./createFilmVisualReadTransform";
 
 /** Preserve the existing origin camera and its explicit optional overrides. */
-export const createFilmVisualReadCamera = (
+export const createFilmVisualReadCamera: (over?: Partial<IAutoMovieCamera>) => IAutoMovieCamera = (
   over: Partial<IAutoMovieCamera> = {},
 ): IAutoMovieCamera => ({
   id: "cam",

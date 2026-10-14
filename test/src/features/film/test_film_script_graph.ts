@@ -1,30 +1,31 @@
-import { beatNodeOf, scriptAncestors } from "@automovie/engine";
+import type { IAutoMovieScriptNode } from "@automovie/interface";
+import { beatNodeOf } from "../../../../packages/engine/src/film/beatNodeOf";
+import { scriptAncestors } from "../../../../packages/engine/src/film/scriptAncestors";
 import { TestValidator } from "@nestia/e2e";
-
 import { throwsError } from "../internal/predicates";
-import { createScriptTree } from "../validation/test_validation_script_tree";
+import { createScriptTree } from "../internal/createScriptTree";
 
 /**
- * The refinement-graph walkers of the feedback cascade: scriptAncestors returns
- * the chain a located violation climbs, and beatNodeOf is the flat-beat →
- * graph-node join a beat-scoped consumer locates itself with. Walkers serve
- * validated trees but refuse silent drops on malformed input (the bindProfile
- * precedent): a cascade that stopped short would misdirect the correction.
+ * The refinement-graph walkers of the feedback cascade: scriptAncestors returns the chain a located violation climbs, and beatNodeOf is the flat-beat → graph-node join a beat-scoped consumer locates itself with. Walkers serve validated trees but refuse silent drops on malformed input (the bindProfile precedent): a cascade that stopped short would misdirect the correction.
  *
  * Scenarios:
  *
  * 1. A deep chain walks nearest-first to the root, excluding the node itself: beat
- *    `b1` under group/scene/act/intent yields exactly `["grp", "scene1",
- *    "act1", "root"]`.
+ * `b1` under group/scene/act/intent yields exactly `["grp", "scene1", "act1", "root"]`.
  * 2. The root itself has no ancestors: an empty chain, not a throw.
  * 3. An unknown node id throws (refusal, not an empty answer).
  * 4. A dangling parent mid-walk throws.
  * 5. A cyclic parent chain throws instead of looping forever.
  * 6. BeatNodeOf finds the claiming beat node, and returns null for an unclaimed
- *    beat, a null tree, and an undefined tree alike.
+ * beat, a null tree, and an undefined tree alike.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls screenplay parent and flat-beat joins and observes exact nearest-first ancestors, located malformed-chain throws and null unclaimed/absent-tree answers.
+ * @evidence contracts/testing.md#independent-expectations The fixture's explicitly authored hierarchy supplies literal ancestor ids and claiming beat node, independent of the walkers; tests do not validate all possible screenplay graph shapes.
+ * @evidence contracts/testing.md#distinguishing-cases Keeps a deep chain, root, unknown node, dangling parent, cycle, claimed/unclaimed beats and null/undefined tree inputs.
+ * @evidence contracts/testing.md#execution-ownership The runner discovers test_film_script_graph and this entry owns its direct and delegated in-memory CPU assertions; it acquires no renderer, GPU, decoder, native build, installed consumer or completed-result cache. Numeric/byte observations do not prove hardware appearance or universal cross-host identity.
  */
-export const test_film_script_graph = (): void => {
-  const tree = createScriptTree();
+export function test_film_script_graph(): void {
+  const tree: IAutoMovieScriptNode[] = createScriptTree();
   TestValidator.equals(
     "deep chain walks nearest-first to the root",
     scriptAncestors(tree, "b1"),
@@ -37,14 +38,14 @@ export const test_film_script_graph = (): void => {
   );
   TestValidator.predicate(
     "unknown node id throws",
-    throwsError(() => scriptAncestors(tree, "ghost"), "is not in the"),
+    throwsError((): string[] => scriptAncestors(tree, "ghost"), "is not in the"),
   );
   TestValidator.predicate(
     "dangling parent mid-walk throws",
     throwsError(
-      () =>
+      (): string[] =>
         scriptAncestors(
-          tree.map((node) =>
+          tree.map((node: IAutoMovieScriptNode): IAutoMovieScriptNode =>
             node.id === "scene1" ? { ...node, parent: "ghost" } : node,
           ),
           "b1",
@@ -55,9 +56,9 @@ export const test_film_script_graph = (): void => {
   TestValidator.predicate(
     "cyclic parent chain throws",
     throwsError(
-      () =>
+      (): string[] =>
         scriptAncestors(
-          tree.map((node) =>
+          tree.map((node: IAutoMovieScriptNode): IAutoMovieScriptNode =>
             node.id === "root" ? { ...node, parent: "grp" } : node,
           ),
           "b1",
@@ -86,4 +87,4 @@ export const test_film_script_graph = (): void => {
     beatNodeOf(undefined, "beat-1"),
     null,
   );
-};
+}

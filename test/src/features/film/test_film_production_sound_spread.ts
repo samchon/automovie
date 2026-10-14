@@ -1,59 +1,50 @@
-import {
-  deriveProductionSoundPlan,
-  materializeCompiledFormation,
-  renderProductionSound,
-} from "@automovie/engine";
-import {
-  AutoMovieContentDigest,
-  IAutoMovieCompiledShotSource,
-  IAutoMovieFilmTimeline,
-  IAutoMovieFormationMotion,
-  IAutoMovieProductionSoundPlan,
-  IAutoMovieShotContract,
-} from "@automovie/interface";
+import type { IAutoMovieCompiledFormation, IAutoMovieProductionSoundEvent, IAutoMovieCompiledShotSource, IAutoMovieFilmTimeline, IAutoMovieFormationMotion, IAutoMovieProductionSoundPlan, IAutoMovieShotContract } from "@automovie/interface";
+import type { IAutoMovieRenderedProductionSound } from "../../../../packages/engine/src/sound/IAutoMovieRenderedProductionSound";
+import { deriveProductionSoundPlan } from "../../../../packages/engine/src/sound/deriveProductionSoundPlan";
+import { materializeCompiledFormation } from "../../../../packages/engine/src/populationRuntime/materializeCompiledFormation";
+import { renderProductionSound } from "../../../../packages/engine/src/sound/renderProductionSound";
 import { TestValidator } from "@nestia/e2e";
-
 import { namedFacts, nclose } from "../internal/predicates";
 
-const digest =
-  "sha256:0000000000000000000000000000000000000000000000000000000000000000" as AutoMovieContentDigest;
+const digest: string =
+  "sha256:0000000000000000000000000000000000000000000000000000000000000000" as string;
 
-const transform = (x: number, y: number, z: number) => ({
+/** Construct the authored identity-oriented emitter placement. */
+const transform: (x: number, y: number, z: number) => { translation: { x: number; y: number; z: number; }; rotation: { x: number; y: number; z: number; w: number; }; scale: { x: number; y: number; z: number; }; } = (x: number, y: number, z: number): { translation: { x: number; y: number; z: number; }; rotation: { x: number; y: number; z: number; w: number; }; scale: { x: number; y: number; z: number; }; } => ({
   translation: { x, y, z },
   rotation: { x: 0, y: 0, z: 0, w: 1 },
   scale: { x: 1, y: 1, z: 1 },
 });
 
 /** Where the listener stands, and where the far mass and the lone source are. */
-const LISTENER = { x: 0, y: 1, z: 0 };
-const FAR_Z = -30;
-const LONE_X = 24;
+const LISTENER: { x: number; y: number; z: number; } = { x: 0, y: 1, z: 0 };
+const FAR_Z: number = -30;
+const LONE_X: number = 24;
 
 /** The far mass: one rank of five at four-metre intervals, so it reaches 8 m. */
-const CROWD_COUNT = 5;
-const CROWD_INTERVAL = 4;
-const CROWD_REACH = ((CROWD_COUNT - 1) / 2) * CROWD_INTERVAL;
+const CROWD_COUNT: number = 5;
+const CROWD_INTERVAL: number = 4;
+const CROWD_REACH: number = ((CROWD_COUNT - 1) / 2) * CROWD_INTERVAL;
 
-/** The near mass: many members packed tight, two metres from the listener. */
-const NEAR_COUNT = 400;
-const NEAR_INTERVAL = 0.02;
-const NEAR_REACH = ((NEAR_COUNT - 1) / 2) * NEAR_INTERVAL;
-const NEAR_Z = -2;
+/** The near mass has tightly packed members at z = -2; the listener is one metre above its anchor. */
+const NEAR_COUNT: number = 400;
+const NEAR_INTERVAL: number = 0.02;
+const NEAR_REACH: number = ((NEAR_COUNT - 1) / 2) * NEAR_INTERVAL;
+const NEAR_Z: number = -2;
 
 /** How far the cue closes the far mass's own intervals, and over how long. */
-const CLOSED = 0.5;
-const CUE_END = 2;
+const CLOSED: number = 0.5;
+const CUE_END: number = 2;
 
 /**
- * One rank of `count` members on a stated line, as the builder materializes
- * it.
+ * One rank of `count` members on a stated line, as the builder materializes it.
  */
-const unit = (props: {
+const unit: (props: { id: string; count: number; interval: number; z: number; }) => IAutoMovieCompiledFormation = (props: {
   id: string;
   count: number;
   interval: number;
   z: number;
-}) =>
+}): IAutoMovieCompiledFormation =>
   materializeCompiledFormation({
     formation: {
       id: props.id,
@@ -76,10 +67,7 @@ const unit = (props: {
 /**
  * The far mass closes its own intervals to half of themselves.
  *
- * Translation stays at zero throughout, and the anchor is the unit's own
- * centroid, so nothing about where the mass is heard from moves: the cue
- * changes how large it is and nothing else, which is what leaves the spread as
- * the only quantity a case below can be reading.
+ * Translation stays at zero throughout, and the anchor is the unit's own centroid, so nothing about where the mass is heard from moves: the cue changes how large it is and nothing else, which is what leaves the spread as the only quantity a case below can be reading.
  */
 const CLOSE_RANKS: IAutoMovieFormationMotion[] = [
   {
@@ -102,7 +90,8 @@ const CLOSE_RANKS: IAutoMovieFormationMotion[] = [
   },
 ];
 
-const contract = (): IAutoMovieShotContract =>
+/** Declare the original rest, closed, mixed and near event subjects for this planner test. */
+const contract: () => IAutoMovieShotContract = (): IAutoMovieShotContract =>
   ({
     id: "spread-shot",
     events: [
@@ -110,7 +99,7 @@ const contract = (): IAutoMovieShotContract =>
       { id: "closed", subjects: ["crowd"] },
       { id: "mixed", subjects: ["lone", "crowd"] },
       { id: "near", subjects: ["near-crowd"] },
-    ].map((event) => ({
+    ].map((event: { id: string; subjects: string[]; }): { kind: "arrival"; window: { from: number; to: number; }; predicates: {}[]; id: string; subjects: string[]; } => ({
       ...event,
       // One kind throughout, and the one whose procedural voice carries no
       // seeded noise, so two events compared at the same offset differ by their
@@ -121,7 +110,8 @@ const contract = (): IAutoMovieShotContract =>
     })),
   }) as IAutoMovieShotContract;
 
-const compiled = (): IAutoMovieCompiledShotSource =>
+/** Build the original crowd, lone emitter and spacing-only cue inputs consumed by the planner. */
+const compiled: () => IAutoMovieCompiledShotSource = (): IAutoMovieCompiledShotSource =>
   ({
     eventSamples: [
       { id: "rest", time: 0 },
@@ -186,7 +176,8 @@ const compiled = (): IAutoMovieCompiledShotSource =>
     effects: [],
   }) satisfies IAutoMovieCompiledShotSource;
 
-const timeline = (): IAutoMovieFilmTimeline =>
+/** Declare the original spread shot duration and empty auxiliary tracks. */
+const timeline: () => IAutoMovieFilmTimeline = (): IAutoMovieFilmTimeline =>
   ({
     version: 1,
     builder: "test",
@@ -212,85 +203,69 @@ const timeline = (): IAutoMovieFilmTimeline =>
     tracks: { audio: [], captions: [], effects: [] },
   }) as IAutoMovieFilmTimeline;
 
-const eventOf = (plan: IAutoMovieProductionSoundPlan, id: string) =>
-  plan.events.find((event) => event.event === id)!;
+/** Read the required planned event by its authored id; a missing event fails the owning assertions. */
+const eventOf: (plan: IAutoMovieProductionSoundPlan, id: string) => IAutoMovieProductionSoundEvent = (plan: IAutoMovieProductionSoundPlan, id: string): IAutoMovieProductionSoundEvent =>
+  plan.events.find((event: IAutoMovieProductionSoundEvent): boolean => event.event === id)!;
 
 /**
- * The mean squared distance from the centre of a box to a point drawn uniformly
- * inside it, over its half-extents: one third of its squared half-diagonal.
+ * The mean squared distance from the centre of a box to a point drawn uniformly inside it, over its half-extents: one third of its squared half-diagonal.
  */
-const boxVariance = (half: { x: number; y: number; z: number }): number =>
+const boxVariance: (half: { x: number; y: number; z: number; }) => number = (half: { x: number; y: number; z: number }): number =>
   (half.x * half.x + half.y * half.y + half.z * half.z) / 3;
 
 /** Squared distance between two points. */
-const squaredDistance = (
+const squaredDistance: (left: { x: number; y: number; z: number; }, right: { x: number; y: number; z: number; }) => number = (
   left: { x: number; y: number; z: number },
   right: { x: number; y: number; z: number },
 ): number =>
   (left.x - right.x) ** 2 + (left.y - right.y) ** 2 + (left.z - right.z) ** 2;
 
 /**
- * A group of sources is heard as ONE extended source, and how far it is spread
- * is the parallel-axis sum of its parts rather than an average of them.
+ * The adopted extended-source approximation combines uniform-box variance with displacement between subject centres.
  *
- * A source with size is heard at the root-mean-square listener distance, so how
- * far a group is spread is the one quantity that decides both its pan and its
- * attenuation. For several subjects that quantity does not average: the members
- * of each subject are spread about their OWN centre, and every one of those
- * centres is itself displaced from the group's. Dropping the displacement — the
- * cross term — makes one figure standing 24 m from a mass acoustically the same
- * as one standing inside it, which is the whole of what the identity `variance
- * = sum_i n_i (variance_i + |c_i - c|^2) / sum_i n_i` exists to refuse. It is
- * an identity and not a taste, so the oracle below is arithmetic over the
- * fixture's own geometry and never a reading of the plan.
+ * The independently written formula `variance = sum_i n_i (variance_i + |c_i - c|^2) / sum_i n_i` includes both authored box variance and centre displacement. Omitting the displacement gives a different answer for the displaced lone emitter. The box approximation is the supported planner model, not the actual discrete crowd variance or an empirical acoustic measurement.
  *
- * A cue is likewise the only thing that changes how large a mass is. A unit
- * that closes its intervals is smaller, and a mix that went on hearing it at
- * its designed width would be describing an arrangement the shot no longer
- * holds.
+ * The spacing-only cue reduces the compiled bounds at the later event while preserving the count and anchor. This pair detects a planner that keeps the designed spread after the cue.
  *
  * Scenarios:
  *
  * 1. A lone mass is heard at the RMS radius of the box its compiled bounds
- *    describe: one rank of five at four-metre intervals reaches 8 m, so the
- *    spread is `8 / sqrt(3)`.
+ * describe: one rank of five at four-metre intervals reaches 8 m, so the spread is `8 / sqrt(3)`.
  * 2. That mass closing its own intervals to half is heard at half the spread, at
- *    the same count and from the same place, so what the cue changed is the
- *    size and nothing else. Reading the designed bounds instead would report
- *    the same number twice.
+ * the same count and from the same place, so what the cue changed is the size and nothing else. Reading the designed bounds instead would report the same number twice.
  * 3. A lone source beside that mass is one combined source whose spread is the
- *    parallel-axis sum, which is strictly larger than either the mass's own
- *    spread or the count-weighted mean of the two variances. That second
- *    comparison is the cross term: without it the answer would be 4.216 m
- *    rather than 9.888 m.
+ * parallel-axis sum, which is strictly larger than either the mass's own spread or the count-weighted mean of the two variances. That second comparison is the cross term: without it the answer would be 4.216 m rather than 9.888 m.
  * 4. The post-mix limiter owns the headroom a crowd's own level does not: a mass
- *    of four hundred two metres from the listener mixes far past full scale and
- *    comes back at exactly 0.95 with nothing clipped, while the same plan
- *    without it is left alone below that ceiling.
+ * of four hundred at z = -2 mixes past full scale and returns within 1e-6 of the 0.95 ceiling with nothing clipped, while the same plan without it stays below that ceiling.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Plans static, closing and combined masses and mixes a near loud crowd, asserting uniform-box/parallel-axis spread, cue-scaled extent, weighted centre and limited versus quiet master behavior.
+ * @evidence contracts/testing.md#independent-expectations Fixture geometry supplies box variance and the complete count-weighted parallel-axis calculation including centre displacement; the literal 0.95 ceiling is the mixer contract, and no empirical acoustic or external loudness reference is claimed.
+ * @evidence contracts/testing.md#distinguishing-cases Keeps one mass, spacing-only cue motion, a displaced lone source plus mass, and loud versus quiet plans; population scaling at equal footprint remains in the density entry.
+ * @evidence contracts/testing.md#execution-ownership The runner discovers test_film_production_sound_spread and this entry owns its direct and delegated in-memory CPU assertions; it acquires no renderer, GPU, decoder, native build, installed consumer or completed-result cache. Numeric/byte observations do not prove hardware appearance or universal cross-host identity.
  */
-export const test_film_production_sound_spread = (): void => {
-  const plan = deriveProductionSoundPlan({
+export function test_film_production_sound_spread(): void {
+  const plan: IAutoMovieProductionSoundPlan = deriveProductionSoundPlan({
     timeline: timeline(),
     contracts: new Map([["spread-shot", contract()]]),
     compiled: new Map([["spread-shot", compiled()]]),
   });
-  const rest = eventOf(plan, "rest");
-  const closed = eventOf(plan, "closed");
-  const mixed = eventOf(plan, "mixed");
+  const rest: IAutoMovieProductionSoundEvent = eventOf(plan, "rest");
+  const closed: IAutoMovieProductionSoundEvent = eventOf(plan, "closed");
+  const mixed: IAutoMovieProductionSoundEvent = eventOf(plan, "mixed");
 
   // 1. the designed box.
-  const restVariance = boxVariance({ x: CROWD_REACH, y: 0, z: 0 });
+  const restVariance: number = boxVariance({ x: CROWD_REACH, y: 0, z: 0 });
   TestValidator.equals(
     "a mass is heard at the RMS radius of the box its bounds describe",
     namedFacts([
-      ["count", () => rest.memberCount === CROWD_COUNT],
+      ["count", (): boolean => rest.memberCount === CROWD_COUNT],
       [
         "spread",
-        () => nclose(rest.spreadRadiusMeters, Math.sqrt(restVariance), 1e-9),
+        (): boolean => nclose(rest.spreadRadiusMeters, Math.sqrt(restVariance), 1e-9),
       ],
       [
         "emitter",
-        () =>
+        (): boolean =>
           nclose(rest.emitter.x, 0, 1e-9) &&
           nclose(rest.emitter.z, FAR_Z, 1e-9),
       ],
@@ -299,26 +274,26 @@ export const test_film_production_sound_spread = (): void => {
   );
 
   // 2. the cue closes it, and only its size moves.
-  const closedVariance = boxVariance({ x: CROWD_REACH * CLOSED, y: 0, z: 0 });
+  const closedVariance: number = boxVariance({ x: CROWD_REACH * CLOSED, y: 0, z: 0 });
   TestValidator.equals(
     "a cue that closes a mass's intervals is heard as the smaller mass it makes",
     namedFacts([
-      ["sameCount", () => closed.memberCount === CROWD_COUNT],
+      ["sameCount", (): boolean => closed.memberCount === CROWD_COUNT],
       [
         "sameEmitter",
-        () =>
+        (): boolean =>
           nclose(closed.emitter.x, rest.emitter.x, 1e-9) &&
           nclose(closed.emitter.z, rest.emitter.z, 1e-9),
       ],
       [
         "spread",
-        () =>
+        (): boolean =>
           nclose(closed.spreadRadiusMeters, Math.sqrt(closedVariance), 1e-9),
       ],
       // Exactly half, because the cue halved the one axis the box has.
       [
         "halfTheDesignedSpread",
-        () =>
+        (): boolean =>
           nclose(
             closed.spreadRadiusMeters,
             rest.spreadRadiusMeters * CLOSED,
@@ -327,7 +302,7 @@ export const test_film_production_sound_spread = (): void => {
       ],
       // And the attenuation moves with it, because spread is what the RMS
       // listener distance is taken at.
-      ["louderClosed", () => closed.attenuation > rest.attenuation],
+      ["louderClosed", (): boolean => closed.attenuation > rest.attenuation],
     ]),
     {
       sameCount: true,
@@ -339,47 +314,47 @@ export const test_film_production_sound_spread = (): void => {
   );
 
   // 3. the parallel-axis sum, computed from the fixture's own geometry.
-  const combinedCount = CROWD_COUNT + 1;
-  const lone = { x: LONE_X, y: 0, z: FAR_Z };
-  const crowdCentre = { x: 0, y: 0, z: FAR_Z };
-  const combinedCentre = {
+  const combinedCount: number = CROWD_COUNT + 1;
+  const lone: { x: number; y: number; z: number; } = { x: LONE_X, y: 0, z: FAR_Z };
+  const crowdCentre: { x: number; y: number; z: number; } = { x: 0, y: 0, z: FAR_Z };
+  const combinedCentre: { x: number; y: number; z: number; } = {
     x: (lone.x + CROWD_COUNT * crowdCentre.x) / combinedCount,
     y: (lone.y + CROWD_COUNT * crowdCentre.y) / combinedCount,
     z: (lone.z + CROWD_COUNT * crowdCentre.z) / combinedCount,
   };
-  const combinedVariance =
+  const combinedVariance: number =
     (1 * (0 + squaredDistance(lone, combinedCentre)) +
       CROWD_COUNT *
         (restVariance + squaredDistance(crowdCentre, combinedCentre))) /
     combinedCount;
   /** The same sum with the displacement dropped: what an average would say. */
-  const withoutTheCrossTerm =
+  const withoutTheCrossTerm: number =
     (1 * 0 + CROWD_COUNT * restVariance) / combinedCount;
   TestValidator.equals(
     "several subjects combine by the parallel-axis identity, cross term included",
     namedFacts([
-      ["count", () => mixed.memberCount === combinedCount],
+      ["count", (): boolean => mixed.memberCount === combinedCount],
       [
         "weightedCentre",
-        () =>
+        (): boolean =>
           nclose(mixed.emitter.x, combinedCentre.x, 1e-9) &&
           nclose(mixed.emitter.z, combinedCentre.z, 1e-9),
       ],
       [
         "spread",
-        () =>
+        (): boolean =>
           nclose(mixed.spreadRadiusMeters, Math.sqrt(combinedVariance), 1e-9),
       ],
       // The two comparisons that make the assertion above falsifiable: the
       // combined spread is neither the mass's own nor the weighted mean of the
-      // parts, and the gap between it and the mean IS the displacement.
+      // parts, and the gap between it and the mean is the displacement.
       [
         "widerThanTheMassAlone",
-        () => mixed.spreadRadiusMeters > rest.spreadRadiusMeters,
+        (): boolean => mixed.spreadRadiusMeters > rest.spreadRadiusMeters,
       ],
       [
         "widerThanTheMeanOfTheParts",
-        () =>
+        (): boolean =>
           mixed.spreadRadiusMeters > Math.sqrt(withoutTheCrossTerm) + 1 &&
           nclose(Math.sqrt(withoutTheCrossTerm), 4.216, 1e-3),
       ],
@@ -394,22 +369,22 @@ export const test_film_production_sound_spread = (): void => {
   );
 
   // 4. the limiter owns the headroom, and only when there is none left.
-  const loud = renderProductionSound({ plan });
-  const quiet = renderProductionSound({
+  const loud: IAutoMovieRenderedProductionSound = renderProductionSound({ plan });
+  const quiet: IAutoMovieRenderedProductionSound = renderProductionSound({
     plan: {
       ...plan,
-      events: plan.events.filter((event) => event.event !== "near"),
+      events: plan.events.filter((event: IAutoMovieProductionSoundEvent): boolean => event.event !== "near"),
     },
   });
   TestValidator.equals(
     "a mass loud enough to leave no headroom is limited, and a plan with headroom is not",
     namedFacts([
-      ["near", () => eventOf(plan, "near").memberCount === NEAR_COUNT],
-      // Four hundred uncorrelated sources two metres away mix an order of
-      // magnitude past full scale before the limiter reads the peak.
+      ["near", (): boolean => eventOf(plan, "near").memberCount === NEAR_COUNT],
+      // The adopted count gain and the independently stated dry-amplitude rule
+      // put this near event above full scale before limiting.
       [
         "wouldHaveClipped",
-        () =>
+        (): boolean =>
           (0.5 *
             eventOf(plan, "near").attenuation *
             eventOf(plan, "near").densityGain) /
@@ -418,16 +393,16 @@ export const test_film_production_sound_spread = (): void => {
       ],
       [
         "limitedToTheCeiling",
-        () => nclose(loud.analysis.samplePeak, 0.95, 1e-6),
+        (): boolean => nclose(loud.analysis.samplePeak, 0.95, 1e-6),
       ],
-      ["nothingClipped", () => loud.analysis.clippingSamples === 0],
-      ["quietIsAudible", () => quiet.analysis.samplePeak > 0],
-      ["quietIsLeftAlone", () => quiet.analysis.samplePeak < 0.95],
+      ["nothingClipped", (): boolean => loud.analysis.clippingSamples === 0],
+      ["quietIsAudible", (): boolean => quiet.analysis.samplePeak > 0],
+      ["quietIsLeftAlone", (): boolean => quiet.analysis.samplePeak < 0.95],
       // And the near mass really is what raised it, rather than the ceiling
       // being where a quiet plan lands anyway.
       [
         "theNearMassRaisedIt",
-        () => loud.analysis.samplePeak > quiet.analysis.samplePeak,
+        (): boolean => loud.analysis.samplePeak > quiet.analysis.samplePeak,
       ],
     ]),
     {
@@ -450,4 +425,4 @@ export const test_film_production_sound_spread = (): void => {
     ),
     true,
   );
-};
+}

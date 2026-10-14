@@ -3,8 +3,15 @@ import { IDENTITY_TRANSFORM, createModel } from "../fixtures";
 import { inSpace } from "./inSpace";
 import { boxProp } from "./boxProp";
 
-/** The table every stacked, plugged, and hung prop in the room cites. */
-export const table = (): IAutoMoviePropSpec => ({
+/**
+ * The table every stacked, plugged, and hung prop in the room cites.
+ *
+ * Behavior: Constructs the original floor-supported table with stack-top, socket and hook affordances used as real placement/query targets.
+ * Expectation basis: The authored 0.3m local top above its staged 0.3m centre defines 0.6m support, while the square extent is input geometry rather than an observed support result.
+ * Cases: Keeps floor/room relations and all three affordance kinds; missing, wrong-kind, ambiguous and tilted/scaled host cases remain in the existing callers.
+ * Execution: The existing owning entries call table during their portable in-memory cases and retain responsibility for assertion expectations and dynamically invoked predicates; this helper acquires no asset, process, renderer or GPU and keeps no completed-result cache.
+ */
+export function table(): IAutoMoviePropSpec { return ({
   ...boxProp("table"),
   model: {
     ...createModel(null),
@@ -42,4 +49,4 @@ export const table = (): IAutoMoviePropSpec => ({
     footprint: null,
     clearance: [],
   },
-});
+}); }

@@ -1,6 +1,5 @@
-import {
-  renderProductionSound,
-} from "@automovie/engine";
+import type { IAutoMovieProductionSoundPlan } from "@automovie/interface";
+import { renderProductionSound } from "../../../../packages/engine/src/sound/renderProductionSound";
 import {
   TestValidator,
 } from "@nestia/e2e";
@@ -8,7 +7,6 @@ import {
   namedFacts,
   nclose,
 } from "../internal/predicates";
-
 import { createProductionSoundAssetTestInputs } from "../internal/audio/createProductionSoundAssetTestInputs";
 
 /**
@@ -17,17 +15,22 @@ import { createProductionSoundAssetTestInputs } from "../internal/audio/createPr
  * Scenarios:
  * 1. A decoded generation ending one sample before its declared span is exact at the last reached sample.
  * 2. Only the single unreached native tick becomes silent.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Mixes a supplied asset generation one sample shorter than its declared cue and observes the last reached sample and the one unreached silent tick.
+ * @evidence contracts/testing.md#independent-expectations The authored ramp, gain and independently chosen final two indices supply expected sample values; the test checks this exact one-sample generation deficit rather than general decoder extent reconciliation.
+ * @evidence contracts/testing.md#distinguishing-cases Distinguishes the final reached tick from the adjacent unreached tick without stretching the source; missing assets, unit-rate trims and malformed supplied PCM remain in their owning entries.
+ * @evidence contracts/testing.md#execution-ownership The runner discovers test_film_production_sound_generation_extent and this entry owns its direct and delegated in-memory CPU assertions; it acquires no renderer, GPU, decoder, native build, installed consumer or completed-result cache. Numeric/byte observations do not prove hardware appearance or universal cross-host identity.
  */
-export const test_film_production_sound_generation_extent = (): void => {
-  const { SAMPLES_PER_FRAME, DURATION_FRAMES, plan, ramp, at } = createProductionSoundAssetTestInputs();
+export function test_film_production_sound_generation_extent(): void {
+  const { SAMPLES_PER_FRAME, DURATION_FRAMES, plan, ramp, at }: { FPS: number; SAMPLE_RATE: number; SAMPLES_PER_FRAME: number; START_FRAME: number; DURATION_FRAMES: number; TOTAL_FRAMES: number; plan: (props: { sourceDurationFrames?: number; sourceOffsetFrame?: number; startFrame?: number; durationFrames?: number; gain?: number; }) => IAutoMovieProductionSoundPlan; ntscPlan: (props: { sourceDurationFrames: number; sourceOffsetFrame: number; startFrame: number; }) => IAutoMovieProductionSoundPlan; ramp: (length: number) => Float32Array; at: (pcm: Float32Array, offset: number) => number; sample: (pcm: Float32Array, index: number) => number; } = createProductionSoundAssetTestInputs();
 
-  const length = DURATION_FRAMES * SAMPLES_PER_FRAME;
+  const length: number = DURATION_FRAMES * SAMPLES_PER_FRAME;
 
-  const source = ramp(length);
+  const source: Float32Array<ArrayBufferLike> = ramp(length);
 
-  const gain = 0.5;
+  const gain: number = 0.5;
 
-  const shortGeneration = renderProductionSound({
+  const shortGeneration: Float32Array<ArrayBufferLike> = renderProductionSound({
       plan: plan({ gain }),
       assets: new Map([["public/bed.wav", source.subarray(0, length - 1)]]),
     }).pcm;
@@ -37,15 +40,15 @@ export const test_film_production_sound_generation_extent = (): void => {
       namedFacts([
         [
           "theReachedSampleIsExact",
-          () =>
+          (): boolean =>
             nclose(
               at(shortGeneration, length - 2),
               source[length - 2]! * gain,
               1e-6,
             ),
         ],
-        ["theUnreachedTickIsSilent", () => at(shortGeneration, length - 1) === 0],
+        ["theUnreachedTickIsSilent", (): boolean => nclose(at(shortGeneration, length - 1), 0, 0)],
       ]),
       { theReachedSampleIsExact: true, theUnreachedTickIsSilent: true },
     );
-};
+}

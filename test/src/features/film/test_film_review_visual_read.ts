@@ -1,21 +1,14 @@
-import { reviewVisualRead } from "@automovie/engine";
-import {
-  IAutoMovieCamera,
-  IAutoMovieInteractionEvent,
-  IAutoMovieMotion,
-  IAutoMovieScene,
-  IAutoMovieSceneNode,
-  IAutoMovieShot,
-} from "@automovie/interface";
+import type { IAutoMovieReviewNote, IAutoMovieClip, IAutoMovieCamera, IAutoMovieInteractionEvent, IAutoMovieMotion, IAutoMovieScene, IAutoMovieSceneNode, IAutoMovieShot } from "@automovie/interface";
+import { reviewVisualRead } from "../../../../packages/engine/src/film/reviewVisualRead";
 import { TestValidator } from "@nestia/e2e";
-
 import { createFilmVisualReadCamera as camera } from "../internal/createFilmVisualReadCamera";
 import { createFilmVisualReadCameraMotion as camMotion } from "../internal/createFilmVisualReadCameraMotion";
 import { createFilmVisualReadRootMotion as rootMotion } from "../internal/createFilmVisualReadRootMotion";
 import { createFilmVisualReadTransform as t3 } from "../internal/createFilmVisualReadTransform";
 import { namedFacts } from "../internal/predicates";
 
-const node = (id: string): IAutoMovieSceneNode => ({
+/** Construct one origin-placed actor node for the numerical visibility reader. */
+const node: (id: string) => IAutoMovieSceneNode = (id: string): IAutoMovieSceneNode => ({
   id,
   model: "m",
   transform: t3(0, 0, 0),
@@ -23,7 +16,8 @@ const node = (id: string): IAutoMovieSceneNode => ({
   pose: null,
 });
 
-const scene = (cam: IAutoMovieCamera): IAutoMovieScene => ({
+/** Place the original actor and supplied camera in an otherwise empty scene. */
+const scene: (cam: IAutoMovieCamera) => IAutoMovieScene = (cam: IAutoMovieCamera): IAutoMovieScene => ({
   id: "s",
   name: null,
   nodes: [node("hero")],
@@ -31,7 +25,8 @@ const scene = (cam: IAutoMovieCamera): IAutoMovieScene => ({
   lights: [],
 });
 
-const shot = (over: Partial<IAutoMovieShot> = {}): IAutoMovieShot => ({
+/** Construct the original one-second performance and apply the caller's isolated shot override. */
+const shot: (over?: Partial<IAutoMovieShot>) => IAutoMovieShot = (over: Partial<IAutoMovieShot> = {}): IAutoMovieShot => ({
   id: "shot",
   name: null,
   scene: "s",
@@ -44,11 +39,11 @@ const shot = (over: Partial<IAutoMovieShot> = {}): IAutoMovieShot => ({
 });
 
 /** Run the framing metric for a single (camera, actor-position) pair. */
-const framing = (
+const framing: (cam: IAutoMovieCamera, actor: IAutoMovieMotion, shotOver?: Partial<IAutoMovieShot>) => IAutoMovieReviewNote[] = (
   cam: IAutoMovieCamera,
   actor: IAutoMovieMotion,
   shotOver: Partial<IAutoMovieShot> = {},
-) =>
+): IAutoMovieReviewNote[] =>
   reviewVisualRead({
     beat: "b1",
     scene: scene(cam),
@@ -57,7 +52,8 @@ const framing = (
     sampleRate: 1,
   });
 
-const hitEvent = (
+/** Construct the original hit record, preserving caller overrides for each contact case. */
+const hitEvent: (over?: Partial<IAutoMovieInteractionEvent>) => IAutoMovieInteractionEvent = (
   over: Partial<IAutoMovieInteractionEvent> = {},
 ): IAutoMovieInteractionEvent => ({
   id: "e",
@@ -74,11 +70,11 @@ const hitEvent = (
 });
 
 /** Contact metric only: an invalid camera skips framing, isolating the sweep. */
-const contact = (
+const contact: (actor: IAutoMovieMotion, events: IAutoMovieInteractionEvent[], contactRadius?: number) => IAutoMovieReviewNote[] = (
   actor: IAutoMovieMotion,
   events: IAutoMovieInteractionEvent[],
   contactRadius?: number,
-) =>
+): IAutoMovieReviewNote[] =>
   reviewVisualRead({
     beat: "b1",
     scene: scene(camera()),
@@ -89,11 +85,11 @@ const contact = (
   });
 
 /** Two performing actors "a" and "b" over the default origin camera. */
-const silhouette = (
+const silhouette: (a: IAutoMovieMotion, b: IAutoMovieMotion, silhouetteRadius?: number) => IAutoMovieReviewNote[] = (
   a: IAutoMovieMotion,
   b: IAutoMovieMotion,
   silhouetteRadius?: number,
-) =>
+): IAutoMovieReviewNote[] =>
   reviewVisualRead({
     beat: "b1",
     scene: {
@@ -115,37 +111,39 @@ const silhouette = (
   });
 
 /**
- * `reviewVisualRead` (#1177) computes deterministic visual-read advisory notes
- * (`tier: "visual"`, D015: notes, not gates).
+ * `reviewVisualRead` (#1177) computes deterministic visual-read advisory notes (`tier: "visual"`, D015: notes, not gates).
  *
  * Subject-in-frame scenarios:
  *
  * 1. A subject 5 m down the camera's −Z stays centered: no note; the default
- *    sample rate and an explicit aspect frame it too.
+ * sample rate and an explicit aspect frame it too.
  * 2. A subject above/behind/past-far/beside the frustum each earns exactly one
- *    note naming it and the first off-frame time.
+ * note; the above-frame case also checks the subject name and visual tier.
  * 3. No live camera, a non-finite/zero/too-wide FOV, and far≤near read nothing.
  * 4. A craning camera is sampled, not read as static; a move missing its rotation
- *    or translation track falls back to the static component.
+ * or translation track falls back to the static component.
  * 5. A held (null-motion) performance, a missing motion, and a missing node are
- *    skipped, not errored.
+ * skipped, not errored.
  *
  * Contact-connection scenarios (isolated with an invalid camera):
  *
  * 6. A hit landing on the target connects (no note); landing past the body radius
- *    reads as a miss; a `contact`-kind event checks the same way.
+ * reads as a miss; a `contact`-kind event checks the same way.
  * 7. A non-impact event (grab), a null point, a null target, a target that does
- *    not perform, and a held target are skipped; a generous contactRadius
- *    tolerates the offset.
+ * not perform, and a held target are skipped; a generous contactRadius tolerates the offset.
  *
  * Silhouette-separation scenarios (two performing actors):
  *
  * 8. Actors stacked on the camera line merge into one blob; actors spread across
- *    the frame do not; a large silhouette radius merges the spread pair; an
- *    actor inside the near plane is a framing note, not a silhouette merge.
+ * the frame do not; a large silhouette radius merges the spread pair; an actor inside the near plane is a framing note, not a silhouette merge.
  * 9. Precomputed film-grammar diagnostics enter this same visual-note backlog.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls the numerical review reader and observes advisory note counts, subjects, tiers and recovery text for frame, contact, silhouette and supplied grammar decisions.
+ * @evidence contracts/testing.md#independent-expectations Authored root positions relative to literal camera frusta, contact radii and separated/stacked actors supply expected notes and silences; root-point metrics do not independently establish body visibility or rendered pixels.
+ * @evidence contracts/testing.md#distinguishing-cases Preserves all nine original scenario groups, including degenerate cameras, missing tracks/performers, skipped events, contact neighbors, silhouette-radius changes and near-plane separation; actual viewer/beauty evidence is outside this CPU entry.
+ * @evidence contracts/testing.md#execution-ownership The runner discovers test_film_review_visual_read and this entry owns its direct and delegated in-memory CPU assertions; it acquires no renderer, GPU, decoder, native build, installed consumer or completed-result cache. Numeric/byte observations do not prove hardware appearance or universal cross-host identity.
  */
-export const test_film_review_visual_read = (): void => {
+export function test_film_review_visual_read(): void {
   TestValidator.equals(
     "a centered subject earns no note",
     framing(camera(), rootMotion("m1", 0, 0, -5)).length,
@@ -165,14 +163,14 @@ export const test_film_review_visual_read = (): void => {
     0,
   );
 
-  const above = framing(camera(), rootMotion("m1", 0, 10, -5));
+  const above: IAutoMovieReviewNote[] = framing(camera(), rootMotion("m1", 0, 10, -5));
   TestValidator.equals(
     "a subject above the frame earns one visual note",
     namedFacts([
-      ["above", () => above.length === 1],
-      ["aboveTierVisual", () => above[0]!.tier === "visual"],
-      ["aboveBeatB1", () => above[0]!.beat === "b1"],
-      ["aboveIssueIncludes", () => above[0]!.issue.includes("hero")],
+      ["above", (): boolean => above.length === 1],
+      ["aboveTierVisual", (): boolean => above[0]!.tier === "visual"],
+      ["aboveBeatB1", (): boolean => above[0]!.beat === "b1"],
+      ["aboveIssueIncludes", (): boolean => above[0]!.issue.includes("hero")],
     ]),
     {
       above: true,
@@ -226,7 +224,7 @@ export const test_film_review_visual_read = (): void => {
 
   // 11. a camera crane samples the move: a centered subject leaves frame as the
   // camera rises to y=50 by t=1.
-  const crane = camMotion([
+  const crane: IAutoMovieClip = camMotion([
     {
       channel: { kind: "node", node: "cam", path: "translation" },
       times: [0, 1],
@@ -248,7 +246,7 @@ export const test_film_review_visual_read = (): void => {
   );
 
   // 12. camera move with no rotation track → falls back to static rotation.
-  const noRot = camMotion([
+  const noRot: IAutoMovieClip = camMotion([
     {
       channel: { kind: "node", node: "cam", path: "translation" },
       times: [0, 1],
@@ -263,7 +261,7 @@ export const test_film_review_visual_read = (): void => {
     0,
   );
   // 13. camera move with no translation track → falls back to static position.
-  const noPos = camMotion([
+  const noPos: IAutoMovieClip = camMotion([
     {
       channel: { kind: "node", node: "cam", path: "rotation" },
       times: [0, 1],
@@ -303,22 +301,22 @@ export const test_film_review_visual_read = (): void => {
 
   // contact-connection: a hit whose point lands on the target reads as
   // connected; landing past the body radius reads as a miss.
-  const heroAtOrigin = rootMotion("m1", 0, 0, 0);
+  const heroAtOrigin: IAutoMovieMotion = rootMotion("m1", 0, 0, 0);
   TestValidator.equals(
     "a hit that lands on the target connects",
     contact(heroAtOrigin, [hitEvent({ point: { x: 0, y: 0, z: 0 } })]).length,
     0,
   );
-  const miss = contact(heroAtOrigin, [
+  const miss: IAutoMovieReviewNote[] = contact(heroAtOrigin, [
     hitEvent({ point: { x: 5, y: 0, z: 0 } }),
   ]);
   TestValidator.equals(
     "a hit that lands off the body reads as a miss",
     namedFacts([
-      ["miss", () => miss.length === 1],
-      ["missTierVisual", () => miss[0]!.tier === "visual"],
-      ["missIssueIncludes", () => miss[0]!.issue.includes("hero")],
-      ["missIssueIncludes2", () => miss[0]!.issue.includes("hit")],
+      ["miss", (): boolean => miss.length === 1],
+      ["missTierVisual", (): boolean => miss[0]!.tier === "visual"],
+      ["missIssueIncludes", (): boolean => miss[0]!.issue.includes("hero")],
+      ["missIssueIncludes2", (): boolean => miss[0]!.issue.includes("hit")],
     ]),
     {
       miss: true,
@@ -383,20 +381,20 @@ export const test_film_review_visual_read = (): void => {
   );
 
   // silhouette separation: two actors nearly on the camera's line merge.
-  const merged = silhouette(
+  const merged: IAutoMovieReviewNote[] = silhouette(
     rootMotion("ma", 0, 0, -5),
     rootMotion("mb", 0.1, 0, -5),
   );
   TestValidator.equals(
     "two actors stacked on the camera line merge in silhouette",
     namedFacts([
-      ["merged", () => merged.length === 1],
+      ["merged", (): boolean => merged.length === 1],
       [
         "mergedIssueIncludes",
-        () => merged[0]!.issue.includes("merge in silhouette"),
+        (): boolean => merged[0]!.issue.includes("merge in silhouette"),
       ],
-      ["mergedIssueIncludes2", () => merged[0]!.issue.includes('"a"')],
-      ["mergedIssueIncludes3", () => merged[0]!.issue.includes('"b"')],
+      ["mergedIssueIncludes2", (): boolean => merged[0]!.issue.includes('"a"')],
+      ["mergedIssueIncludes3", (): boolean => merged[0]!.issue.includes('"b"')],
     ]),
     {
       merged: true,
@@ -417,26 +415,26 @@ export const test_film_review_visual_read = (): void => {
     1,
   );
   // an actor within the near plane: framing flags it, the silhouette pair skips.
-  const nearGuard = silhouette(
+  const nearGuard: IAutoMovieReviewNote[] = silhouette(
     rootMotion("ma", 0, 0, -0.05),
     rootMotion("mb", 0, 0, -5),
   );
   TestValidator.equals(
     "an actor inside the near plane is a framing note, not a silhouette merge",
     namedFacts([
-      ["nearGuard", () => nearGuard.length === 1],
+      ["nearGuard", (): boolean => nearGuard.length === 1],
       [
         "nearGuardIssueIncludes",
-        () => nearGuard[0]!.issue.includes("leaves the camera frame"),
+        (): boolean => nearGuard[0]!.issue.includes("leaves the camera frame"),
       ],
       [
         "nearGuardNN",
-        () => !nearGuard.some((n) => n.issue.includes("silhouette")),
+        (): boolean => !nearGuard.some((n: IAutoMovieReviewNote): boolean => n.issue.includes("silhouette")),
       ],
     ]),
     { nearGuard: true, nearGuardIssueIncludes: true, nearGuardNN: true },
   );
-  const grammar = reviewVisualRead({
+  const grammar: IAutoMovieReviewNote[] = reviewVisualRead({
     beat: "b1",
     scene: scene(camera()),
     shot: shot({ camera: "nope", performances: [] }),
@@ -456,16 +454,16 @@ export const test_film_review_visual_read = (): void => {
   TestValidator.equals(
     "grammar diagnostics share the visual review-note socket",
     namedFacts([
-      ["grammar", () => grammar.length === 1],
-      ["grammarBeatB1", () => grammar[0]!.beat === "b1"],
-      ["grammarTierVisual", () => grammar[0]!.tier === "visual"],
+      ["grammar", (): boolean => grammar.length === 1],
+      ["grammarBeatB1", (): boolean => grammar[0]!.beat === "b1"],
+      ["grammarTierVisual", (): boolean => grammar[0]!.tier === "visual"],
       [
         "grammarIssueStartsWith",
-        () => grammar[0]!.issue.startsWith("grammar-jump-cut:"),
+        (): boolean => grammar[0]!.issue.startsWith("grammar-jump-cut:"),
       ],
       [
         "grammarSuggestionIncludes",
-        () => grammar[0]!.suggestion.includes("30 degrees"),
+        (): boolean => grammar[0]!.suggestion.includes("30 degrees"),
       ],
     ]),
     {
@@ -476,4 +474,4 @@ export const test_film_review_visual_read = (): void => {
       grammarSuggestionIncludes: true,
     },
   );
-};
+}

@@ -1,18 +1,22 @@
-import type {
-  IAutoMovieColor,
-  IAutoMovieStageLight,
-} from "@automovie/interface";
+import type { IAutoMovieValidation, IAutoMovieColor, IAutoMovieStageLight } from "@automovie/interface";
+import type { IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
 import { TestValidator } from "@nestia/e2e";
-
 import type { IFilmStageLightBoundaryInputs } from "./IFilmStageLightBoundaryInputs";
 import { hasViolation, namedFacts } from "./predicates";
 
-/** Run the existing light numeric, color and discriminator boundary assertions in their original order. */
+/**
+ * Run the existing light numeric, color and discriminator boundary assertions in their original order.
+ *
+ * Behavior: Executes the original light staging numeric/color/discriminator cases through the supplied product seam and requires their located admission/refusal results.
+ * Expectation basis: Closed per-kind fields, finite scalar/vector requirements, cone interval and canonical color rules determine literal expected kinds/paths; the helper supplies no rendered-light oracle.
+ * Cases: Preserves intensity zero, zero aim, cone/range neighbors, non-finite coordinates, malformed vectors/colors, nullable/numeric alpha and unknown discriminator cases.
+ * Execution: The existing owning entries call assertFilmStageLightBoundaries during their portable in-memory cases and retain responsibility for assertion expectations and dynamically invoked predicates; this helper acquires no asset, process, renderer or GPU and keeps no completed-result cache.
+ */
 export function assertFilmStageLightBoundaries(
   input: IFilmStageLightBoundaryInputs,
 ): void {
-  const { stageLights, failure } = input;
-  // 7. BOUNDARIES
+  const { stageLights, failure }: IFilmStageLightBoundaryInputs = input;
+  // 7. Boundaries.
   TestValidator.equals(
     "a light that is off is still a light",
     stageLights([
@@ -32,7 +36,8 @@ export function assertFilmStageLightBoundaries(
       "$input.lights[0].direction",
     ),
   );
-  const spotAt = (coneAngle: number) =>
+  /** Stage the original spot operands with one supplied cone angle. */
+  const spotAt: (coneAngle: number) => IAutoMovieStagedSet = (coneAngle: number): IAutoMovieStagedSet =>
     stageLights([
       {
         node: "lamp",
@@ -44,24 +49,24 @@ export function assertFilmStageLightBoundaries(
       },
     ]);
   TestValidator.equals(
-    "the cone's open end (90) is legal",
+    "the cone's closed upper end (90) is legal",
     spotAt(90).success,
     true,
   );
   TestValidator.equals(
-    "and both sides just past it are not",
+    "zero, above ninety and non-finite angles are refused",
     namedFacts([
       [
         "hasViolationFailureSpotAt",
-        () => hasViolation(failure(spotAt(90.0001)), "range", "coneAngle"),
+        (): boolean => hasViolation(failure(spotAt(90.0001)), "range", "coneAngle"),
       ],
       [
         "hasViolationFailureSpotAt2",
-        () => hasViolation(failure(spotAt(0)), "range", "coneAngle"),
+        (): boolean => hasViolation(failure(spotAt(0)), "range", "coneAngle"),
       ],
       [
         "hasViolationFailureSpotAt3",
-        () => hasViolation(failure(spotAt(Number.NaN)), "range", "coneAngle"),
+        (): boolean => hasViolation(failure(spotAt(Number.NaN)), "range", "coneAngle"),
       ],
     ]),
     {
@@ -75,7 +80,7 @@ export function assertFilmStageLightBoundaries(
     namedFacts([
       [
         "zeroRangeStages",
-        () =>
+        (): boolean =>
           stageLights([
             {
               node: "flame",
@@ -88,7 +93,7 @@ export function assertFilmStageLightBoundaries(
       ],
       [
         "negativeRangeRefused",
-        () =>
+        (): boolean =>
           hasViolation(
             failure(
               stageLights([
@@ -145,7 +150,8 @@ export function assertFilmStageLightBoundaries(
 
   // 8. the color's own totality and its alpha, the rule the scene artifact
   //     validator applies one rung later
-  const withColor = (color: unknown) =>
+  /** Stage an isolated unknown color payload through the original typed ingress and read its validation result. */
+  const withColor: (color: unknown) => IAutoMovieValidation = (color: unknown): IAutoMovieValidation =>
     failure(
       stageLights([
         {
@@ -161,11 +167,11 @@ export function assertFilmStageLightBoundaries(
     namedFacts([
       [
         "nullColorRefused",
-        () => hasViolation(withColor(null), "type", "$input.lights[0].color"),
+        (): boolean => hasViolation(withColor(null), "type", "$input.lights[0].color"),
       ],
       [
         "arrayColorRefused",
-        () =>
+        (): boolean =>
           hasViolation(withColor([1, 1, 1]), "type", "$input.lights[0].color"),
       ],
     ]),
@@ -176,7 +182,7 @@ export function assertFilmStageLightBoundaries(
     namedFacts([
       [
         "nullDirectionRefused",
-        () =>
+        (): boolean =>
           hasViolation(
             failure(
               stageLights([
@@ -193,7 +199,7 @@ export function assertFilmStageLightBoundaries(
       ],
       [
         "arrayPositionRefused",
-        () =>
+        (): boolean =>
           hasViolation(
             failure(
               stageLights([
@@ -237,7 +243,7 @@ export function assertFilmStageLightBoundaries(
     true,
   );
   TestValidator.predicate(
-    "and an alpha outside it is refused HERE, not one rung later at commitScene",
+    "an out-of-range alpha is refused at staging",
     hasViolation(
       withColor({ r: 1, g: 1, b: 1, a: 5, hex: null }),
       "range",

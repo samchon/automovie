@@ -1,5 +1,5 @@
+import type { IAutoMoviePropSpec, IAutoMovieStageSetPiece, IAutoMovieBuiltEnvironment, IAutoMovieValidation } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
 import { createFilmPropPlacementScenario } from "../internal/createFilmPropPlacementScenario";
 import { createFilmPropPlacementGeometryCases } from "../internal/createFilmPropPlacementGeometryCases";
 import { namedFacts } from "../internal/predicates";
@@ -9,9 +9,14 @@ import { namedFacts } from "../internal/predicates";
  *
  * Scenarios:
  * 1. Evaluate the unchanged case builder on fresh original registries; retain every original true predicate and refusal path.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Invokes the existing geometry-case builder and requires every addressed multiplicity, volume, passage and bearing refusal through its real validator calls.
+ * @evidence contracts/testing.md#independent-expectations The independently chosen registry mutations and literal field/message expectations describe supported placement rules; the helper returns observed predicates, while the entry supplies the independent all-true requirements.
+ * @evidence contracts/testing.md#distinguishing-cases Retains every original duplicate relation, occupied-space/opening multiplicity, support cycle, invalid box/clearance, occupancy/passage and signed-bearing case; adjacent accepted or unmeasurable neighbors are in the boundary entry.
+ * @evidence contracts/testing.md#execution-ownership The runner discovers test_film_prop_placement_geometry and this entry owns its direct and delegated in-memory CPU assertions; it acquires no renderer, GPU, decoder, native build, installed consumer or completed-result cache. Numeric/byte observations do not prove hardware appearance or universal cross-host identity.
  */
-export const test_film_prop_placement_geometry = (): void => {
-  const scenario = createFilmPropPlacementScenario();
+export function test_film_prop_placement_geometry(): void {
+  const scenario: { validate: (props?: IAutoMoviePropSpec[], set?: IAutoMovieStageSetPiece[], builtEnvironments?: IAutoMovieBuiltEnvironment[]) => IAutoMovieValidation; violated: (mutate: (props: IAutoMoviePropSpec[], set: IAutoMovieStageSetPiece[], environments: IAutoMovieBuiltEnvironment[]) => void, path: string, message?: string) => boolean; tolerated: (mutate: (props: IAutoMoviePropSpec[], set: IAutoMovieStageSetPiece[], environments: IAutoMovieBuiltEnvironment[]) => void) => boolean; TABLE: number; LAMP: number; SCONCE: number; CHARGER: number; PENDANT: number; CHIME: number; CABINET: number; DOOR: number; CRATE: number; SCULPTURE: number; } = createFilmPropPlacementScenario();
   TestValidator.equals(
     "multiplicity, bounds and geometry failures are located",
     namedFacts(createFilmPropPlacementGeometryCases(scenario)),
@@ -44,4 +49,4 @@ export const test_film_prop_placement_geometry = (): void => {
       standsOffItsHostTop: true,
     },
   );
-};
+}

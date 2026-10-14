@@ -4,7 +4,7 @@ import { createFilmVisualReadTransform } from "./createFilmVisualReadTransform";
 import { keyframe, makeMotion, makePose } from "./fixtures";
 
 /** Build the existing stationary actor root at its authored world coordinates. */
-export const createFilmVisualReadRootMotion = (
+export const createFilmVisualReadRootMotion: (id: string, x: number, y: number, z: number) => IAutoMovieMotion = (
   id: string,
   x: number,
   y: number,

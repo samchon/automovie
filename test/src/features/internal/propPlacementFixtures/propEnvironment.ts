@@ -2,23 +2,18 @@ import type { IAutoMovieBuiltEnvironment } from "@automovie/interface";
 import { IDENTITY_TRANSFORM, createModel } from "../fixtures";
 
 /**
- * One furnished room, sized so every declared relation is also geometrically
- * true.
+ * One furnished room, sized so every declared relation is also geometrically true.
  *
- * The room cell spans `x, z in [-5, 5]` and `y in [-1, 4]`; the annex is a
- * deliberately cell-less semantic partition, so a prop placed in it can be
- * anywhere. The doorway's leaf occupies `x in [3.5, 4.5]`, `y in [0, 2]`, `z in
- * [-0.05, 0.05]`, and the stair sweeps `x in [-5.2, -3.8]`, `y in [0, 2.2]`, `z
- * in [-4.7, -1.3]`. Every prop below is placed clear of both, which is what
- * makes each blockage case in the suite a change of one number rather than a
- * rearrangement.
+ * The room cell spans `x, z in [-5, 5]` and `y in [-1, 4]`; the annex is a deliberately cell-less semantic partition. The doorway's leaf occupies `x in [3.5, 4.5]`, `y in [0, 2]`, `z in [-0.05, 0.05]`, and the stair sweeps `x in [-5.2, -3.8]`, `y in [0, 2.2]`, `z in [-4.7, -1.3]`. The staged door fills that opening by declaration; the other registry placements clear the filled opening and stair sweep.
  *
- * The three props that name a support bear on it exactly: the table and the
- * cabinet stand on the floor patch at `y = 0`, and the lamp stands on the
- * table's own top face at `y = 0.6`. So a support case is one staged height
- * away from resting, in either direction.
+ * The three props that name a support bear on it exactly: the table and the cabinet stand on the floor patch at `y = 0`, and the lamp stands on the table's own top face at `y = 0.6`. So a support case is one staged height away from resting, in either direction.
+ *
+ * Behavior: Builds the original room/annex, opening fill, route and floor records queried and validated by placement, passage and support tests.
+ * Expectation basis: Literal cell planes, proxy dimensions and surface heights define independent fixture geometry; shared identity transforms remain input references and no external asset bytes are loaded.
+ * Cases: Keeps the bounded room, cell-less annex, filled/open openings, swept stair and constant elevated annex floor, with caller-selected environment id.
+ * Execution: The existing owning entries call propEnvironment during their portable in-memory cases and retain responsibility for assertion expectations and dynamically invoked predicates; this helper acquires no asset, process, renderer or GPU and keeps no completed-result cache.
  */
-export const propEnvironment = (id = "house"): IAutoMovieBuiltEnvironment => ({
+export function propEnvironment(id: string = "house"): IAutoMovieBuiltEnvironment { return ({
   version: 1,
   id,
   units: "meter",
@@ -171,4 +166,4 @@ export const propEnvironment = (id = "house"): IAutoMovieBuiltEnvironment => ({
     },
   ],
   walkable: ["floor", "annex-floor"],
-});
+}); }

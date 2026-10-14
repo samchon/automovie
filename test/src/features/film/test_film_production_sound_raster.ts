@@ -1,3 +1,4 @@
+import type { IAutoMovieCompiledShotSource, IAutoMovieProductionSoundPlan } from "@automovie/interface";
 import { deriveProductionSoundPlan } from "../../../../packages/engine/src/sound/deriveProductionSoundPlan";
 import { productionSoundSpectrogram } from "../../../../packages/engine/src/sound/productionSoundSpectrogram";
 import { productionSoundWaveform } from "../../../../packages/engine/src/sound/productionSoundWaveform";
@@ -5,7 +6,6 @@ import { renderProductionSound } from "../../../../packages/engine/src/sound/ren
 import { TestValidator } from "@nestia/e2e";
 import { namedFacts } from "../internal/predicates";
 import { productionSoundCompiled, productionSoundContract, productionSoundRefused, productionSoundTimeline } from "./productionSoundFixtures";
-import { IAutoMovieCompiledShotSource, IAutoMovieProductionSoundPlan } from "@automovie/interface";
 import { IAutoMovieRenderedProductionSound } from "../../../../packages/engine/src/sound/IAutoMovieRenderedProductionSound";
 import { IAutoMovieProductionSoundRaster } from "../../../../packages/engine/src/sound/IAutoMovieProductionSoundRaster";
 /**
@@ -19,7 +19,7 @@ import { IAutoMovieProductionSoundRaster } from "../../../../packages/engine/src
  * 4. NaN and infinity samples are refused before drawing, while empty stereo input remains an opaque silent raster.
  *
  * @evidence contracts/testing.md#behavioral-verification Real planning/mixing and both CPU raster drawers produce observable byte buffers and refusals; tiny-height centre pixels catch negative-radius omission and huge finite peaks must return a fully bounded column.
- * @evidence contracts/testing.md#independent-expectations Four channels per pixel and alpha255 follow the RGBA contract; tiny canvases have a centre row floor(height/2), and an over-height bar occupies all eight admitted rows. Named refusal checks do not call a private pixel or sizing helper as their oracle.
+ * @evidence contracts/testing.md#independent-expectations Four channels per pixel and alpha255 follow the RGBA contract; tiny canvases have a centre row floor(height/2), and an over-height bar fills all eight rows. A silent eight-row control supplies contrasting background and centreline bytes solely to identify painted rows; this geometric metamorphic check is not an independent palette or spectral oracle, and no implementation color codes are transcribed.
  * @evidence contracts/testing.md#distinguishing-cases Mixed stereo, zero/fractional sizes, odd sample length, three tiny heights, huge finite peaks, both non-finite kinds and empty PCM distinguish drawable viewport bounds from rewriting audio; spectral/clock physical laws remain in their owning sound tests.
  * @evidence contracts/testing.md#execution-ownership Portable CPU unit discovered as test_film_production_sound_raster; existing authored-film fixtures, engine mix and returned raster bytes require no encoder, viewer, GPU or mock host.
  */
@@ -106,14 +106,18 @@ export function test_film_production_sound_raster(): void {
       refusedProductionSoundSpectrogramNew: true,
     },
   );
+  const silentColumn: IAutoMovieProductionSoundRaster = productionSoundWaveform(new Float32Array(), 1, 8);
+  const painted: Uint8Array<ArrayBufferLike> = silentColumn.rgba.subarray(4 * 4, 4 * 4 + 3);
+  const background: Uint8Array<ArrayBufferLike> = silentColumn.rgba.subarray(0, 3);
+  TestValidator.predicate("silence has a contrasting centreline", painted.some((value: number, index: number): boolean => value !== background[index]));
   for (const height of [1, 2, 3]) {
     const tiny: IAutoMovieProductionSoundRaster = productionSoundWaveform(Float32Array.from([2, 2]), 1, height);
     const centre: number = Math.floor(height / 2) * 4;
-    TestValidator.equals(`height ${height} has a drawable centre row`, Array.from(tiny.rgba.slice(centre, centre + 4)), [75, 222, 190, 255]);
+    TestValidator.predicate(`height ${height} has a drawable centre row`, tiny.rgba[centre + 3] === 255 && tiny.rgba.subarray(centre, centre + 3).every((value: number, index: number): boolean => value === painted[index]));
   }
   const saturated: IAutoMovieProductionSoundRaster = productionSoundWaveform(Float32Array.from([3e38, 3e38]), 1, 8);
   for (let row: number = 0; row < 8; ++row)
-    TestValidator.equals(`large finite peak clips to viewport row ${row}`, Array.from(saturated.rgba.slice(row * 4, row * 4 + 4)), [75, 222, 190, 255]);
+    TestValidator.predicate(`large finite peak clips to viewport row ${row}`, saturated.rgba[row * 4 + 3] === 255 && saturated.rgba.subarray(row * 4, row * 4 + 3).every((value: number, index: number): boolean => value === painted[index]));
   for (const value of [NaN, Infinity]) {
     TestValidator.equals("waveform refuses non-finite PCM", productionSoundRefused((): IAutoMovieProductionSoundRaster => productionSoundWaveform(Float32Array.from([value, 0]), 1, 8), "finite PCM"), true);
     TestValidator.equals("spectrogram refuses non-finite PCM", productionSoundRefused((): IAutoMovieProductionSoundRaster => productionSoundSpectrogram(Float32Array.from([value, 0]), 1, 8), "finite PCM"), true);
