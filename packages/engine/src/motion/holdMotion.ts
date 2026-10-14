@@ -4,7 +4,6 @@ import {
   IAutoMoviePose,
 } from "@automovie/interface";
 
-
 /**
  * Hold the supplied pose for a finite positive duration in seconds, retargeting only its skeleton identity; two linear keyframes carry shallow pose copies with shared nested root/joint records and no expression.
  *
@@ -16,7 +15,12 @@ import {
  * @evidence contracts/performance.md#reuse-equivalent-work Both endpoints reuse the supplied pose values instead of copying a full rig or running FK; no cache survives across holds.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns output wrappers and continues to share nested root/joints with the input; no retained motion history, timer or handle is acquired.
  */
-export const holdMotion: (id: string, skeleton: string, pose: IAutoMoviePose, duration: number) => IAutoMovieMotion = (
+export const holdMotion: (
+  id: string,
+  skeleton: string,
+  pose: IAutoMoviePose,
+  duration: number,
+) => IAutoMovieMotion = (
   id: string,
   skeleton: string,
   pose: IAutoMoviePose,
@@ -27,7 +31,9 @@ export const holdMotion: (id: string, skeleton: string, pose: IAutoMoviePose, du
   if (duration <= 0)
     throw new Error("hold duration must be finite and positive");
 
-  const frame: (time: number) => IAutoMovieKeyframe = (time: number): IAutoMovieKeyframe => ({
+  const frame: (time: number) => IAutoMovieKeyframe = (
+    time: number,
+  ): IAutoMovieKeyframe => ({
     time,
     pose: { ...pose, skeleton },
     expression: null,

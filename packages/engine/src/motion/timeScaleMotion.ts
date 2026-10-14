@@ -1,5 +1,10 @@
-import type { IAutoMoviePose, IAutoMovieExpression, AutoMovieEasing, IAutoMovieKeyframe, IAutoMovieMotion } from "@automovie/interface";
-
+import type {
+  AutoMovieEasing,
+  IAutoMovieExpression,
+  IAutoMovieKeyframe,
+  IAutoMovieMotion,
+  IAutoMoviePose,
+} from "@automovie/interface";
 
 /**
  * Multiply an admitted clip's seconds clock by a positive finite factor. Keyframe times, duration and optional stride period/phase scale together; pose and expression values are borrowed and unchanged.
@@ -12,13 +17,26 @@ import type { IAutoMoviePose, IAutoMovieExpression, AutoMovieEasing, IAutoMovieK
  * @evidence contracts/performance.md#reuse-equivalent-work Nested pose/expression values are reused because changing only the clock leaves them equivalent; no repeated geometry solve or cross-call cache occurs.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the new clip and keyframes, while nested motion content remains borrowed; no retained workspace or task is acquired.
  */
-export const timeScaleMotion: (clip: IAutoMovieMotion, k: number) => IAutoMovieMotion = (
+export const timeScaleMotion: (
+  clip: IAutoMovieMotion,
+  k: number,
+) => IAutoMovieMotion = (
   clip: IAutoMovieMotion,
   k: number,
 ): IAutoMovieMotion => ({
   ...clip,
   duration: clip.duration * k,
-  keyframes: clip.keyframes.map((kf: IAutoMovieKeyframe) : { time: number; pose: IAutoMoviePose; expression: IAutoMovieExpression | null; easing: AutoMovieEasing; bezier: [number, number, number, number] | null; } => ({ ...kf, time: kf.time * k })),
+  keyframes: clip.keyframes.map(
+    (
+      kf: IAutoMovieKeyframe,
+    ): {
+      time: number;
+      pose: IAutoMoviePose;
+      expression: IAutoMovieExpression | null;
+      easing: AutoMovieEasing;
+      bezier: [number, number, number, number] | null;
+    } => ({ ...kf, time: kf.time * k }),
+  ),
   ...(clip.gaitCycle === null || clip.gaitCycle === undefined
     ? {}
     : {

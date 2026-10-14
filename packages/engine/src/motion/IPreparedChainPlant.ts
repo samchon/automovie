@@ -5,7 +5,6 @@ import type { IAutoMovieResolvedBone } from "../kinematics/IAutoMovieResolvedBon
 import type { Quaternion } from "../math/Quaternion";
 import type { IAutoMoviePlantChain } from "./IAutoMoviePlantChain";
 
-
 /**
  * Pose-invariant chain frames and effective clinical domains prepared for one target.
  * The solver and residual reader share these same rest transforms and constraints;
@@ -25,38 +24,29 @@ export interface IPreparedChainPlant {
   /** Ordered root, mid and effector identities from the caller's chain. */
   chain: IAutoMoviePlantChain;
 
-
   /** Effective root clinical domain used by inverse and final ROM scoring. */
   upperDomain: IAutoMovieJointRotationDomain;
-
 
   /** Effective mid clinical domain used by inverse and final ROM scoring. */
   lowerDomain: IAutoMovieJointRotationDomain;
 
-
   /** Root resolved with this chain's articulation removed, retaining its parent pose. */
   upper: IAutoMovieResolvedBone;
-
 
   /** Mid resolved in the same articulation-free chain and current parent pose. */
   lower: IAutoMovieResolvedBone;
 
-
   /** Current effector location of that chain, in model metres. */
   end: IAutoMovieVector3;
-
 
   /** Declared flexion axis rotated into the resolved model frame. */
   hinge: IAutoMovieVector3;
 
-
   /** Root-to-mid offset in the root's local frame, metres. */
   lowerOffset: IAutoMovieVector3;
 
-
   /** Mid orientation relative to the root before the candidate articulation. */
   lowerRotation: ReturnType<typeof Quaternion.identity>;
-
 
   /** Mid-to-effector offset in the mid's local frame, metres. */
   effectorOffset: IAutoMovieVector3;

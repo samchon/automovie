@@ -1,21 +1,29 @@
-import type { IAutoMovieTransform, IAutoMovieKeyframe, IAutoMovieMotion, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-
+import type {
+  IAutoMovieKeyframe,
+  IAutoMovieMotion,
+  IAutoMovieQuaternion,
+  IAutoMovieTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 
 const IDENTITY_ROT: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
 const IDENTITY_SCALE: IAutoMovieVector3 = { x: 1, y: 1, z: 1 };
 
-const assertFiniteVector: (label: string, vector: IAutoMovieVector3) => void = (label: string, vector: IAutoMovieVector3): void => {
+const assertFiniteVector: (label: string, vector: IAutoMovieVector3) => void = (
+  label: string,
+  vector: IAutoMovieVector3,
+): void => {
   if (!Number.isFinite(vector.x)) throw new Error(`${label}.x must be finite`);
   if (!Number.isFinite(vector.y)) throw new Error(`${label}.y must be finite`);
   if (!Number.isFinite(vector.z)) throw new Error(`${label}.z must be finite`);
 };
 
-const assertFiniteQuaternion: (label: string, quaternion: IAutoMovieQuaternion) => void = (
+const assertFiniteQuaternion: (
   label: string,
   quaternion: IAutoMovieQuaternion,
-): void => {
+) => void = (label: string, quaternion: IAutoMovieQuaternion): void => {
   if (!Number.isFinite(quaternion.x))
     throw new Error(`${label}.x must be finite`);
   if (!Number.isFinite(quaternion.y))
@@ -37,7 +45,13 @@ const assertFiniteQuaternion: (label: string, quaternion: IAutoMovieQuaternion) 
  * @evidence contracts/performance.md#reuse-equivalent-work Base articulation and authored root values remain borrowed, while fallback identity values are fresh per output root; gait metadata is carried once rather than recalculated.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the output clip and its roots; no shared mutable fallback identity escapes and no ongoing simulation task or cache is retained.
  */
-export const travelMotion: (id: string, base: IAutoMovieMotion, cycles: number, velocity: IAutoMovieVector3, facing?: IAutoMovieQuaternion) => IAutoMovieMotion = (
+export const travelMotion: (
+  id: string,
+  base: IAutoMovieMotion,
+  cycles: number,
+  velocity: IAutoMovieVector3,
+  facing?: IAutoMovieQuaternion,
+) => IAutoMovieMotion = (
   id: string,
   base: IAutoMovieMotion,
   cycles: number,
@@ -70,8 +84,11 @@ export const travelMotion: (id: string, base: IAutoMovieMotion, cycles: number, 
         continue;
       }
       const globalT: number = c * base.duration + k.time;
-      if (!Number.isFinite(globalT) ||
-          (keyframes.length > 0 && globalT <= keyframes[keyframes.length - 1]!.time))
+      if (
+        !Number.isFinite(globalT) ||
+        (keyframes.length > 0 &&
+          globalT <= keyframes[keyframes.length - 1]!.time)
+      )
         throw new Error("travel keyframe times must advance finitely");
       const baseRoot: IAutoMovieTransform | null = k.pose.root;
       // The base root (a bob or sway) lives in the model frame; under a

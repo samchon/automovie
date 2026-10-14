@@ -1,4 +1,5 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
+
 import { Vector3 } from "../math/Vector3";
 import { IAutoMovieHit } from "./IAutoMovieHit";
 import { IAutoMovieProjectile } from "./IAutoMovieProjectile";
@@ -23,7 +24,12 @@ import { segmentSphere } from "./segmentSphere";
  * @evidence contracts/performance.md#reuse-equivalent-work Each previous endpoint is reused as the next chord start; no trajectory array or cross-projectile cache is built.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The loop returns immediately on hit and retains O(1) vectors; no task or handle survives null, hit or failure.
  */
-export const projectileSphereHit: (projectile: IAutoMovieProjectile, sphere: IAutoMovieSphere, tMax: number, steps?: number) => IAutoMovieHit | null = (
+export const projectileSphereHit: (
+  projectile: IAutoMovieProjectile,
+  sphere: IAutoMovieSphere,
+  tMax: number,
+  steps?: number,
+) => IAutoMovieHit | null = (
   projectile: IAutoMovieProjectile,
   sphere: IAutoMovieSphere,
   tMax: number,
@@ -45,7 +51,12 @@ export const projectileSphereHit: (projectile: IAutoMovieProjectile, sphere: IAu
   for (let i: number = 1; i <= steps; ++i) {
     const t: number = i * dt;
     const cur: IAutoMovieVector3 = projectileAt(projectile, t).position;
-    const s: number | null = segmentSphere(prev, cur, sphere.center, sphere.radius);
+    const s: number | null = segmentSphere(
+      prev,
+      cur,
+      sphere.center,
+      sphere.radius,
+    );
     if (s !== null)
       return {
         time: (i - 1) * dt + s * dt,

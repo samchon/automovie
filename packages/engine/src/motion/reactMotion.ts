@@ -10,7 +10,6 @@ import {
 import { IAutoMovieRecoilPush } from "../physics/IAutoMovieRecoilPush";
 import { impactRecoil } from "../physics/impactRecoil";
 
-
 /**
  * Bake a three-stop rest/flinch/rest reaction over positive seconds, using the impact recoil clamped to the supplied rig. Peak defaults to min(0.16, duration*0.4); neutral axes stay null even when a custom ROM excludes numeric zero.
  *
@@ -22,7 +21,14 @@ import { impactRecoil } from "../physics/impactRecoil";
  * @evidence contracts/performance.md#reuse-equivalent-work Both rest endpoints reuse one neutral pose; the recoil pose is computed once for the peak and no result is cached across changing rig or push inputs.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Returned keyframes own their wrappers and share the neutral pose at both ends; call-local recoil state is released and no simulation handle or ongoing task exists.
  */
-export const reactMotion: (id: string, skeleton: IAutoMovieSkeleton, push: IAutoMovieRecoilPush, chain: AutoMovieHumanoidBone [ ], duration: number, peak?: number) => IAutoMovieMotion = (
+export const reactMotion: (
+  id: string,
+  skeleton: IAutoMovieSkeleton,
+  push: IAutoMovieRecoilPush,
+  chain: AutoMovieHumanoidBone[],
+  duration: number,
+  peak?: number,
+) => IAutoMovieMotion = (
   id: string,
   skeleton: IAutoMovieSkeleton,
   push: IAutoMovieRecoilPush,
@@ -44,19 +50,25 @@ export const reactMotion: (id: string, skeleton: IAutoMovieSkeleton, push: IAuto
   if (peak >= duration)
     throw new Error("react peak must be before react duration");
 
-  const neutral: IAutoMovieJointPose[] = chain.map((bone: AutoMovieHumanoidBone): IAutoMovieJointPose => ({
-    bone,
-    flexion: null,
-    abduction: null,
-    twist: null,
-  }));
+  const neutral: IAutoMovieJointPose[] = chain.map(
+    (bone: AutoMovieHumanoidBone): IAutoMovieJointPose => ({
+      bone,
+      flexion: null,
+      abduction: null,
+      twist: null,
+    }),
+  );
   const rest: IAutoMoviePose = {
     skeleton: skeleton.id,
     root: null,
     joints: neutral,
   };
   const flinch: IAutoMoviePose = impactRecoil(push, chain, skeleton);
-  const key: (time: number, pose: IAutoMoviePose, easing: IAutoMovieKeyframe [ "easing" ]) => IAutoMovieKeyframe = (
+  const key: (
+    time: number,
+    pose: IAutoMoviePose,
+    easing: IAutoMovieKeyframe["easing"],
+  ) => IAutoMovieKeyframe = (
     time: number,
     pose: IAutoMoviePose,
     easing: IAutoMovieKeyframe["easing"],

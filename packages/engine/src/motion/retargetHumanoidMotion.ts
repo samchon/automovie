@@ -1,11 +1,11 @@
 import {
   AutoMovieHumanoidBone,
+  IAutoMovieBone,
+  IAutoMovieConstraintViolation,
+  IAutoMovieKeyframe,
   IAutoMovieMotion,
   IAutoMovieProfileBinding,
   IAutoMovieSkeleton,
-  IAutoMovieBone,
-  IAutoMovieKeyframe,
-  IAutoMovieConstraintViolation,
 } from "@automovie/interface";
 
 import { IAutoMovieJointAxes } from "../kinematics/IAutoMovieJointAxes";
@@ -26,7 +26,6 @@ import { validateRetargetContacts } from "./validateRetargetContacts";
 
 const EPSILON: number = 1e-6;
 
-
 /**
  * Retarget an admitted clinical clip from one normalized rig to another, scaling root translation by positive explicit scale or target/source rest height and preserving root rotation. Source, rig/mapping and enabled static-contact failures return null motion/characterization with located validation; target-ROM failure also returns null. Dynamic ground callback failures propagate, and contact residual warnings may accompany a successful motion.
  *
@@ -38,7 +37,9 @@ const EPSILON: number = 1e-6;
  * @evidence contracts/performance.md#reuse-equivalent-work Resolved clinical tables are shared by characterization and both FK/IK sides; rest spans feed height scaling and default source floor once, and no retarget cache assumes mutable rig/clip equivalence.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns returned clip and characterization maps, which share admitted nested joint/rotation/scale/table records where unchanged; collector and temporary sets/FK maps are call-local with no handles or background tasks.
  */
-export const retargetHumanoidMotion: (props: IAutoMovieHumanoidRetargetProps) => IAutoMovieHumanoidRetargetResult = (
+export const retargetHumanoidMotion: (
+  props: IAutoMovieHumanoidRetargetProps,
+) => IAutoMovieHumanoidRetargetResult = (
   props: IAutoMovieHumanoidRetargetProps,
 ): IAutoMovieHumanoidRetargetResult => {
   const collector: ViolationCollector = new ViolationCollector();
@@ -48,14 +49,19 @@ export const retargetHumanoidMotion: (props: IAutoMovieHumanoidRetargetProps) =>
     motion: props.motion,
     skeleton: props.source,
   });
-  const sourceFindings: IAutoMovieConstraintViolation[] = sourceValidation.success
-    ? (sourceValidation.warnings ?? [])
-    : sourceValidation.violations;
+  const sourceFindings: IAutoMovieConstraintViolation[] =
+    sourceValidation.success
+      ? (sourceValidation.warnings ?? [])
+      : sourceValidation.violations;
   collector.items.push(
-    ...sourceFindings.map((violation: IAutoMovieConstraintViolation): IAutoMovieConstraintViolation => ({
-      ...violation,
-      path: violation.path.replace("$input", "$input.motion"),
-    })),
+    ...sourceFindings.map(
+      (
+        violation: IAutoMovieConstraintViolation,
+      ): IAutoMovieConstraintViolation => ({
+        ...violation,
+        path: violation.path.replace("$input", "$input.motion"),
+      }),
+    ),
   );
 
   validateSkeleton("source", props.source, requiredBones, collector);
@@ -94,8 +100,12 @@ export const retargetHumanoidMotion: (props: IAutoMovieHumanoidRetargetProps) =>
   );
   validateRetargetContacts(props.contacts, props.motion.duration, collector);
 
-  const sourceSpan: ReturnType<typeof restVerticalSpan> = restVerticalSpan(props.source);
-  const targetSpan: ReturnType<typeof restVerticalSpan> = restVerticalSpan(props.target);
+  const sourceSpan: ReturnType<typeof restVerticalSpan> = restVerticalSpan(
+    props.source,
+  );
+  const targetSpan: ReturnType<typeof restVerticalSpan> = restVerticalSpan(
+    props.target,
+  );
   const sourceHeight: number = sourceSpan.height;
   const targetHeight: number = targetSpan.height;
   if (!(sourceHeight > EPSILON))
@@ -133,10 +143,18 @@ export const retargetHumanoidMotion: (props: IAutoMovieHumanoidRetargetProps) =>
 
   // Resolved once: the characterization, the contact pass's source FK, and the
   // contact pass's target FK must all read the clip through the same tables.
-  const sourceJointAxes: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>> = props.sourceJointAxes ?? HUMANOID_JOINT_AXES;
-  const sourceRestFrames: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>> = props.sourceRestFrames ?? HUMANOID_REST_FRAME;
-  const targetJointAxes: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>> = props.targetJointAxes ?? HUMANOID_JOINT_AXES;
-  const targetRestFrames: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>> = props.targetRestFrames ?? HUMANOID_REST_FRAME;
+  const sourceJointAxes: Partial<
+    Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>
+  > = props.sourceJointAxes ?? HUMANOID_JOINT_AXES;
+  const sourceRestFrames: Partial<
+    Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>
+  > = props.sourceRestFrames ?? HUMANOID_REST_FRAME;
+  const targetJointAxes: Partial<
+    Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>
+  > = props.targetJointAxes ?? HUMANOID_JOINT_AXES;
+  const targetRestFrames: Partial<
+    Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>
+  > = props.targetRestFrames ?? HUMANOID_REST_FRAME;
 
   const source: IAutoMovieHumanoidRigCharacterization = characterizeRig({
     skeleton: props.source,
@@ -177,7 +195,10 @@ export const retargetHumanoidMotion: (props: IAutoMovieHumanoidRetargetProps) =>
       })
     : scaled;
 
-  const targetValidation: ReturnType<typeof validateMotion> = validateMotion({ motion, skeleton: props.target });
+  const targetValidation: ReturnType<typeof validateMotion> = validateMotion({
+    motion,
+    skeleton: props.target,
+  });
   if (!targetValidation.success) {
     collector.items.push(...targetValidation.violations);
     return {
@@ -204,7 +225,9 @@ export const retargetHumanoidMotion: (props: IAutoMovieHumanoidRetargetProps) =>
   };
 };
 
-const collectRequiredBones: (props: IAutoMovieHumanoidRetargetProps) => AutoMovieHumanoidBone [ ] = (
+const collectRequiredBones: (
+  props: IAutoMovieHumanoidRetargetProps,
+) => AutoMovieHumanoidBone[] = (
   props: IAutoMovieHumanoidRetargetProps,
 ): AutoMovieHumanoidBone[] => {
   const bones: Set<AutoMovieHumanoidBone> = new Set(["hips"]);
@@ -214,7 +237,12 @@ const collectRequiredBones: (props: IAutoMovieHumanoidRetargetProps) => AutoMovi
   return [...bones].sort(compareCodeUnits);
 };
 
-const validateSkeleton: (label: string, skeleton: IAutoMovieSkeleton, requiredBones: readonly AutoMovieHumanoidBone [ ], collector: ViolationCollector) => void = (
+const validateSkeleton: (
+  label: string,
+  skeleton: IAutoMovieSkeleton,
+  requiredBones: readonly AutoMovieHumanoidBone[],
+  collector: ViolationCollector,
+) => void = (
   label: string,
   skeleton: IAutoMovieSkeleton,
   requiredBones: readonly AutoMovieHumanoidBone[],
@@ -260,7 +288,12 @@ const validateSkeleton: (label: string, skeleton: IAutoMovieSkeleton, requiredBo
       );
 };
 
-const validateBinding: (label: "sourceBinding" | "targetBinding", binding: IAutoMovieProfileBinding | undefined, requiredBones: readonly AutoMovieHumanoidBone [ ], collector: ViolationCollector) => void = (
+const validateBinding: (
+  label: "sourceBinding" | "targetBinding",
+  binding: IAutoMovieProfileBinding | undefined,
+  requiredBones: readonly AutoMovieHumanoidBone[],
+  collector: ViolationCollector,
+) => void = (
   label: "sourceBinding" | "targetBinding",
   binding: IAutoMovieProfileBinding | undefined,
   requiredBones: readonly AutoMovieHumanoidBone[],
@@ -279,7 +312,11 @@ const validateBinding: (label: "sourceBinding" | "targetBinding", binding: IAuto
   }
 };
 
-const validateAxes: (label: "sourceJointAxes" | "targetJointAxes", axes: Partial < Record < AutoMovieHumanoidBone , IAutoMovieJointAxes > >, collector: ViolationCollector) => void = (
+const validateAxes: (
+  label: "sourceJointAxes" | "targetJointAxes",
+  axes: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>,
+  collector: ViolationCollector,
+) => void = (
   label: "sourceJointAxes" | "targetJointAxes",
   axes: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>,
   collector: ViolationCollector,
@@ -295,7 +332,11 @@ const validateAxes: (label: "sourceJointAxes" | "targetJointAxes", axes: Partial
       collector.push("range", issue.path, issue.expected, issue.value);
 };
 
-const validateRestFrames: (label: "sourceRestFrames" | "targetRestFrames", frames: Partial < Record < AutoMovieHumanoidBone , IAutoMovieRestFrame > >, collector: ViolationCollector) => void = (
+const validateRestFrames: (
+  label: "sourceRestFrames" | "targetRestFrames",
+  frames: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>,
+  collector: ViolationCollector,
+) => void = (
   label: "sourceRestFrames" | "targetRestFrames",
   frames: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>,
   collector: ViolationCollector,
@@ -324,16 +365,16 @@ const validateRestFrames: (label: "sourceRestFrames" | "targetRestFrames", frame
     }
 };
 
-
 /**
  * The rig's rest-pose vertical extent: `height` drives the root-motion scale,
  * `floor` is the world Y its lowest bone sits at, the ground plane the contact
  * pass judges stance against, so a rig authored with its feet above the origin
  * is still detected as standing on something.
  */
-const restVerticalSpan: (skeleton: IAutoMovieSkeleton) => { floor : number ; height : number } = (
-  skeleton: IAutoMovieSkeleton,
-): { floor: number; height: number } => {
+const restVerticalSpan: (skeleton: IAutoMovieSkeleton) => {
+  floor: number;
+  height: number;
+} = (skeleton: IAutoMovieSkeleton): { floor: number; height: number } => {
   const resolved: ReturnType<typeof resolvePose> = resolvePose(
     { skeleton: skeleton.id, root: null, joints: [] },
     skeleton,
@@ -348,7 +389,13 @@ const restVerticalSpan: (skeleton: IAutoMovieSkeleton) => { floor : number ; hei
   return { floor: minY, height: maxY - minY };
 };
 
-const characterizeRig: (props: { /** Rig whose unchanged topology and ROM constrain correction. */ skeleton : IAutoMovieSkeleton ; binding : IAutoMovieProfileBinding | undefined ; height : number ; jointAxes : Partial < Record < AutoMovieHumanoidBone , IAutoMovieJointAxes > > ; restFrames : Partial < Record < AutoMovieHumanoidBone , IAutoMovieRestFrame > > ; }) => IAutoMovieHumanoidRigCharacterization = (props: {
+const characterizeRig: (props: {
+  /** Rig whose unchanged topology and ROM constrain correction. */ skeleton: IAutoMovieSkeleton;
+  binding: IAutoMovieProfileBinding | undefined;
+  height: number;
+  jointAxes: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>;
+  restFrames: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>;
+}) => IAutoMovieHumanoidRigCharacterization = (props: {
   /** Rig whose unchanged topology and ROM constrain correction. */
   skeleton: IAutoMovieSkeleton;
   binding: IAutoMovieProfileBinding | undefined;
@@ -356,7 +403,11 @@ const characterizeRig: (props: { /** Rig whose unchanged topology and ROM constr
   jointAxes: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>;
   restFrames: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>;
 }): IAutoMovieHumanoidRigCharacterization => {
-  const slots: Set<AutoMovieHumanoidBone> = new Set(props.skeleton.bones.map((bone: IAutoMovieBone): AutoMovieHumanoidBone => bone.bone));
+  const slots: Set<AutoMovieHumanoidBone> = new Set(
+    props.skeleton.bones.map(
+      (bone: IAutoMovieBone): AutoMovieHumanoidBone => bone.bone,
+    ),
+  );
   const boneMap: Partial<Record<AutoMovieHumanoidBone, string>> = {};
   const jointAxes: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>> =
     {};
@@ -381,7 +432,12 @@ const characterizeRig: (props: { /** Rig whose unchanged topology and ROM constr
   };
 };
 
-const retargetMotion: (motion: IAutoMovieMotion, targetSkeleton: string, rootScale: number, id: string | undefined) => IAutoMovieMotion = (
+const retargetMotion: (
+  motion: IAutoMovieMotion,
+  targetSkeleton: string,
+  rootScale: number,
+  id: string | undefined,
+) => IAutoMovieMotion = (
   motion: IAutoMovieMotion,
   targetSkeleton: string,
   rootScale: number,
@@ -390,22 +446,24 @@ const retargetMotion: (motion: IAutoMovieMotion, targetSkeleton: string, rootSca
   ...motion,
   id: id ?? `${motion.id}:to:${targetSkeleton}`,
   skeleton: targetSkeleton,
-  keyframes: motion.keyframes.map((kf: IAutoMovieKeyframe): IAutoMovieKeyframe => ({
-    ...kf,
-    pose: {
-      ...kf.pose,
-      skeleton: targetSkeleton,
-      root:
-        kf.pose.root === null
-          ? null
-          : {
-              ...kf.pose.root,
-              translation: {
-                x: kf.pose.root.translation.x * rootScale,
-                y: kf.pose.root.translation.y * rootScale,
-                z: kf.pose.root.translation.z * rootScale,
+  keyframes: motion.keyframes.map(
+    (kf: IAutoMovieKeyframe): IAutoMovieKeyframe => ({
+      ...kf,
+      pose: {
+        ...kf.pose,
+        skeleton: targetSkeleton,
+        root:
+          kf.pose.root === null
+            ? null
+            : {
+                ...kf.pose.root,
+                translation: {
+                  x: kf.pose.root.translation.x * rootScale,
+                  y: kf.pose.root.translation.y * rootScale,
+                  z: kf.pose.root.translation.z * rootScale,
+                },
               },
-            },
-    },
-  })),
+      },
+    }),
+  ),
 });

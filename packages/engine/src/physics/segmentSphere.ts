@@ -4,7 +4,10 @@ import { Vector3 } from "../math/Vector3";
 
 const VECTOR_AXES: readonly ["x", "y", "z"] = ["x", "y", "z"] as const;
 
-const assertFiniteVector: (name: string, vector: IAutoMovieVector3) => void = (name: string, vector: IAutoMovieVector3): void => {
+const assertFiniteVector: (name: string, vector: IAutoMovieVector3) => void = (
+  name: string,
+  vector: IAutoMovieVector3,
+): void => {
   for (const axis of VECTOR_AXES)
     if (!Number.isFinite(vector[axis]))
       throw new RangeError(
@@ -31,7 +34,12 @@ const assertFiniteVector: (name: string, vector: IAutoMovieVector3) => void = (n
  * @evidence contracts/performance.md#reuse-equivalent-work projectileSphereHit shares this predicate for each chord; mutable endpoints and collider values prevent an identity-only intersection cache.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only a number or null escapes, with no retained segment, collider, handle or asynchronous work.
  */
-export const segmentSphere: (a: IAutoMovieVector3, b: IAutoMovieVector3, c: IAutoMovieVector3, radius: number) => number | null = (
+export const segmentSphere: (
+  a: IAutoMovieVector3,
+  b: IAutoMovieVector3,
+  c: IAutoMovieVector3,
+  radius: number,
+) => number | null = (
   a: IAutoMovieVector3,
   b: IAutoMovieVector3,
   c: IAutoMovieVector3,

@@ -3,7 +3,6 @@ import { IAutoMovieKeyframe, IAutoMovieMotion } from "@automovie/interface";
 import { IAutoMovieFootPlant } from "./IAutoMovieFootPlant";
 import { IAutoMoviePlantedFeet } from "./IAutoMoviePlantedFeet";
 
-
 /**
  * Assemble corrected planting keyframes and stance metadata while retaining the original clip's identity, clock and cycle metadata; arrays and nested records are borrowed from the pass.
  *
@@ -15,7 +14,11 @@ import { IAutoMoviePlantedFeet } from "./IAutoMoviePlantedFeet";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The result directly shares completed keyframes and stance metadata from the owning pass rather than running detection or IK again.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The caller owns the assembled result and its borrowed arrays; the helper retains no additional state or disposal-capable resource.
  */
-export const assemblePlantedFeet: (motion: IAutoMovieMotion, keyframes: IAutoMovieKeyframe [ ], plants: IAutoMovieFootPlant [ ]) => IAutoMoviePlantedFeet = (
+export const assemblePlantedFeet: (
+  motion: IAutoMovieMotion,
+  keyframes: IAutoMovieKeyframe[],
+  plants: IAutoMovieFootPlant[],
+) => IAutoMoviePlantedFeet = (
   motion: IAutoMovieMotion,
   keyframes: IAutoMovieKeyframe[],
   plants: IAutoMovieFootPlant[],

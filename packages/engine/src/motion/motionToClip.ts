@@ -1,13 +1,13 @@
 import {
   AutoMovieHumanoidBone,
+  IAutoMovieBone,
+  IAutoMovieJointPose,
   IAutoMovieMotion,
   IAutoMoviePose,
+  IAutoMovieQuaternion,
   IAutoMovieSkeleton,
   IAutoMovieTrack,
-  IAutoMovieJointPose,
-  IAutoMovieQuaternion,
   IAutoMovieVector3,
-  IAutoMovieBone,
 } from "@automovie/interface";
 
 import { IAutoMovieJointAxes } from "../kinematics/IAutoMovieJointAxes";
@@ -22,7 +22,6 @@ import { sampleTimes } from "./sampleTimes";
 
 const DEFAULT_SAMPLE_RATE: number = 24;
 
-
 /**
  * Bake admitted clinical motion into general node tracks at a positive sample rate, default24Hz, with matching rig clinical tables. Full local bone rotations and rigid root translation/rotation reproduce FK at bake times; bone/root scale is ignored as in resolvePose, expressions are omitted, and inter-sample quaternion interpolation approximates clinical easing rather than preserving it exactly.
  *
@@ -34,7 +33,18 @@ const DEFAULT_SAMPLE_RATE: number = 24;
  * @evidence contracts/performance.md#reuse-equivalent-work One sampleMotion pose and joint lookup map per bake time serve all bone tracks; root translation/rotation share the sampled poses, and track time arrays are independent outputs rather than a retained cross-clip cache.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns nodes, per-track time/value buffers and clip; sampled pose arrays are released after packaging, output grows with rate*duration and articulated bones, and no renderer/native handle is acquired.
  */
-export const motionToClip: (props: { /** The humanoid motion to lower. */ motion : IAutoMovieMotion ; /** The rig the motion articulates; lowered to the returned nodes. */ skeleton : IAutoMovieSkeleton ; /** Optional per-bone clinical-axis remap, as {@link resolvePose} takes. */ jointAxes ? : Partial < Record < AutoMovieHumanoidBone , IAutoMovieJointAxes > > ; /** Optional per-bone rest-frame remap, as {@link resolvePose} takes. */ restFrames ? : Partial < Record < AutoMovieHumanoidBone , IAutoMovieRestFrame > > ; /** Bake samples per second. Defaults to `24`. */ sampleRate ? : number ; /** Node-id prefix applied to every lowered node AND every clip channel ref (root and bones alike). Defaults to `""`: the bare single-actor naming. A multi-actor graph (see `sceneToNodes`) passes the placement prefix (e.g. `"figureA/"`) so each actor's channels drive its own subtree. */ nodePrefix ? : string ; }) => IAutoMovieMotionClipBridge = (props: {
+export const motionToClip: (props: {
+  /** The humanoid motion to lower. */ motion: IAutoMovieMotion;
+  /** The rig the motion articulates; lowered to the returned nodes. */ skeleton: IAutoMovieSkeleton;
+  /** Optional per-bone clinical-axis remap, as {@link resolvePose} takes. */ jointAxes?: Partial<
+    Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>
+  >;
+  /** Optional per-bone rest-frame remap, as {@link resolvePose} takes. */ restFrames?: Partial<
+    Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>
+  >;
+  /** Bake samples per second. Defaults to `24`. */ sampleRate?: number;
+  /** Node-id prefix applied to every lowered node AND every clip channel ref (root and bones alike). Defaults to `""`: the bare single-actor naming. A multi-actor graph (see `sceneToNodes`) passes the placement prefix (e.g. `"figureA/"`) so each actor's channels drive its own subtree. */ nodePrefix?: string;
+}) => IAutoMovieMotionClipBridge = (props: {
   /** The humanoid motion to lower. */
   motion: IAutoMovieMotion;
 
@@ -74,7 +84,11 @@ export const motionToClip: (props: { /** The humanoid motion to lower. */ motion
       `motionToClip motion "${motion.id}" must have keyframes to bake`,
     );
 
-  const boneNames: Set<AutoMovieHumanoidBone> = new Set(skeleton.bones.map((bone: IAutoMovieBone): AutoMovieHumanoidBone => bone.bone));
+  const boneNames: Set<AutoMovieHumanoidBone> = new Set(
+    skeleton.bones.map(
+      (bone: IAutoMovieBone): AutoMovieHumanoidBone => bone.bone,
+    ),
+  );
   const articulated: Set<AutoMovieHumanoidBone> = new Set();
   let hasRoot: boolean = false;
   for (const frame of motion.keyframes) {
@@ -88,15 +102,26 @@ export const motionToClip: (props: { /** The humanoid motion to lower. */ motion
     if (frame.pose.root !== null) hasRoot = true;
   }
 
-  const nodes: ReturnType<typeof lowerSkeletonNodes> = lowerSkeletonNodes({ skeleton, prefix });
-  const times: number[] = sampleTimes(motion.duration, sampleRate);
-  const samples: IAutoMoviePose[] = times.map((time: number): IAutoMoviePose => sampleMotion(motion, time).pose);
-  const jointsBySample: Map<AutoMovieHumanoidBone, IAutoMovieJointPose>[] = samples.map((pose: IAutoMoviePose): Map<AutoMovieHumanoidBone, IAutoMovieJointPose> => {
-    const joints: Map<AutoMovieHumanoidBone, IAutoMovieJointPose> = new Map();
-    for (const joint of pose.joints)
-      if (!joints.has(joint.bone)) joints.set(joint.bone, joint);
-    return joints;
+  const nodes: ReturnType<typeof lowerSkeletonNodes> = lowerSkeletonNodes({
+    skeleton,
+    prefix,
   });
+  const times: number[] = sampleTimes(motion.duration, sampleRate);
+  const samples: IAutoMoviePose[] = times.map(
+    (time: number): IAutoMoviePose => sampleMotion(motion, time).pose,
+  );
+  const jointsBySample: Map<AutoMovieHumanoidBone, IAutoMovieJointPose>[] =
+    samples.map(
+      (
+        pose: IAutoMoviePose,
+      ): Map<AutoMovieHumanoidBone, IAutoMovieJointPose> => {
+        const joints: Map<AutoMovieHumanoidBone, IAutoMovieJointPose> =
+          new Map();
+        for (const joint of pose.joints)
+          if (!joints.has(joint.bone)) joints.set(joint.bone, joint);
+        return joints;
+      },
+    );
 
   const tracks: IAutoMovieTrack[] = [];
   if (hasRoot) {
@@ -121,7 +146,10 @@ export const motionToClip: (props: { /** The humanoid motion to lower. */ motion
               props.jointAxes?.[bone.bone],
               props.restFrames?.[bone.bone],
             );
-      const local: IAutoMovieQuaternion = Quaternion.multiply(bone.rest.rotation, articulation);
+      const local: IAutoMovieQuaternion = Quaternion.multiply(
+        bone.rest.rotation,
+        articulation,
+      );
       values.push(local.x, local.y, local.z, local.w);
     }
     tracks.push({
@@ -148,9 +176,13 @@ export const motionToClip: (props: { /** The humanoid motion to lower. */ motion
   };
 };
 
-
 /** The root node's translation or rotation track from the sampled root. */
-const rootTrack: (times: number [ ], samples: IAutoMoviePose [ ], path: "translation" | "rotation", prefix: string) => IAutoMovieTrack = (
+const rootTrack: (
+  times: number[],
+  samples: IAutoMoviePose[],
+  path: "translation" | "rotation",
+  prefix: string,
+) => IAutoMovieTrack = (
   times: number[],
   samples: IAutoMoviePose[],
   path: "translation" | "rotation",
@@ -159,10 +191,15 @@ const rootTrack: (times: number [ ], samples: IAutoMoviePose [ ], path: "transla
   const values: number[] = [];
   for (const pose of samples) {
     if (path === "translation") {
-      const t: IAutoMovieVector3 = pose.root?.translation ?? { x: 0, y: 0, z: 0 };
+      const t: IAutoMovieVector3 = pose.root?.translation ?? {
+        x: 0,
+        y: 0,
+        z: 0,
+      };
       values.push(t.x, t.y, t.z);
     } else {
-      const r: IAutoMovieQuaternion = pose.root?.rotation ?? Quaternion.identity();
+      const r: IAutoMovieQuaternion =
+        pose.root?.rotation ?? Quaternion.identity();
       values.push(r.x, r.y, r.z, r.w);
     }
   }

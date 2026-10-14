@@ -19,7 +19,9 @@ import { deriveCenterOfMass } from "./deriveCenterOfMass";
  * @evidence contracts/performance.md#reuse-equivalent-work The authored center is reused directly; derived values are recomputed because mutable parts, scales and transforms determine equivalence.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only a returned center escapes; no model cache, native handle or background task is retained.
  */
-export const bodyCenterOfMass: (model: IAutoMovieModel) => IAutoMovieVector3 | null = (
+export const bodyCenterOfMass: (
+  model: IAutoMovieModel,
+) => IAutoMovieVector3 | null = (
   model: IAutoMovieModel,
 ): IAutoMovieVector3 | null =>
   model.body?.centerOfMass ?? deriveCenterOfMass(model);

@@ -25,7 +25,6 @@ const MIN_SEGMENT: number = 1e-9;
 
 const DEFAULT_TURN_WINDOW: number = 0.5;
 
-
 /** One straight XZ stretch of the polyline, arc-length addressed. */
 interface ISegment {
   /** Start of the stretch on the ground plan. */
@@ -57,7 +56,14 @@ interface ISegment {
  * @evidence contracts/performance.md#reuse-equivalent-work The frame's located segment is reused for position/yaw, and fixed segments/corner windows serve the whole bake; source gait values are reused without caching effectful ground samples across requests.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Returned motion/sidecar arrays grow with baked frame population and belong to the caller; source nested joints/expression and authored nonnull scale may remain shared, but fallback identity scale is freshly owned per output frame. No retained path cache or handles exist.
  */
-export const followPathMotion: (props: { /** Output clip id. */ id : string ; /** The looping in-place gait cycle to carry along the path. */ gait : IAutoMovieMotion ; /** World-space waypoints, at least two; `y` is ignored (see `ground`). */ waypoints : readonly IAutoMovieVector3 [ ] ; /** Requested pace along the path, m/s. The engine snaps to whole cycles. */ speed : number ; /** Ground height: plane scalar or `(x, z) → y` callback. Defaults to `0`. */ ground ? : AutoMoviePathGround ; /** Corner blend span, meters of arc on both sides combined. Default `0.5`. */ turnWindow ? : number ; }) => IAutoMoviePathLocomotion = (props: {
+export const followPathMotion: (props: {
+  /** Output clip id. */ id: string;
+  /** The looping in-place gait cycle to carry along the path. */ gait: IAutoMovieMotion;
+  /** World-space waypoints, at least two; `y` is ignored (see `ground`). */ waypoints: readonly IAutoMovieVector3[];
+  /** Requested pace along the path, m/s. The engine snaps to whole cycles. */ speed: number;
+  /** Ground height: plane scalar or `(x, z) → y` callback. Defaults to `0`. */ ground?: AutoMoviePathGround;
+  /** Corner blend span, meters of arc on both sides combined. Default `0.5`. */ turnWindow?: number;
+}) => IAutoMoviePathLocomotion = (props: {
   /** Output clip id. */
   id: string;
 
@@ -185,9 +191,10 @@ export const followPathMotion: (props: { /** Output clip id. */ id : string ; /*
   };
 };
 
-
 /** Validate the waypoints and cut them into arc-length-addressed stretches. */
-const buildSegments: (waypoints: readonly IAutoMovieVector3 [ ]) => ISegment [ ] = (waypoints: readonly IAutoMovieVector3[]): ISegment[] => {
+const buildSegments: (waypoints: readonly IAutoMovieVector3[]) => ISegment[] = (
+  waypoints: readonly IAutoMovieVector3[],
+): ISegment[] => {
   if (waypoints.length < 2)
     throw new Error("path needs at least two waypoints");
   for (let i: number = 0; i < waypoints.length; ++i) {
@@ -223,13 +230,15 @@ const buildSegments: (waypoints: readonly IAutoMovieVector3 [ ]) => ISegment [ ]
   return segments;
 };
 
-
 /**
  * Half-width of the yaw blend at each corner (indexed by the segment the corner
  * starts): capped so adjacent corners' windows never overlap past a stretch
  * midpoint. Index 0 (the path start) has no corner.
  */
-const cornerHalfWindows: (segments: readonly ISegment [ ], turnWindow: number) => number [ ] = (
+const cornerHalfWindows: (
+  segments: readonly ISegment[],
+  turnWindow: number,
+) => number[] = (
   segments: readonly ISegment[],
   turnWindow: number,
 ): number[] => {
@@ -245,19 +254,29 @@ const cornerHalfWindows: (segments: readonly ISegment [ ], turnWindow: number) =
   return halves;
 };
 
-
 /** The stretch containing arc length `s`; boundaries go to the earlier one. */
-const segmentIndexAt: (segments: readonly ISegment [ ], s: number) => number = (segments: readonly ISegment[], s: number): number => {
+const segmentIndexAt: (segments: readonly ISegment[], s: number) => number = (
+  segments: readonly ISegment[],
+  s: number,
+): number => {
   const last: ISegment = segments[segments.length - 1]!;
   if (s <= 0) return 0;
   if (s >= last.from + last.length) return segments.length - 1;
-  return segmentIndex(segments.length + 1, (index: number): number =>
-    index === 0 ? 0 : segments[index - 1]!.from + segments[index - 1]!.length, s);
+  return segmentIndex(
+    segments.length + 1,
+    (index: number): number =>
+      index === 0 ? 0 : segments[index - 1]!.from + segments[index - 1]!.length,
+    s,
+  );
 };
 
-
 /** Facing at arc length `s`, linearly blended inside a corner window. */
-const yawAt: (segments: readonly ISegment [ ], halfWindows: readonly number [ ], s: number, k: number) => number = (
+const yawAt: (
+  segments: readonly ISegment[],
+  halfWindows: readonly number[],
+  s: number,
+  k: number,
+) => number = (
   segments: readonly ISegment[],
   halfWindows: readonly number[],
   s: number,
@@ -287,14 +306,19 @@ const yawAt: (segments: readonly ISegment [ ], halfWindows: readonly number [ ],
   return seg.yawDeg;
 };
 
-
 /** Blend from `a` toward `b` (degrees) along the shortest angular arc. */
-const blendYaw: (a: number, b: number, t: number) => number = (a: number, b: number, t: number): number =>
-  a + (((((b - a) % 360) + 540) % 360) - 180) * t;
-
+const blendYaw: (a: number, b: number, t: number) => number = (
+  a: number,
+  b: number,
+  t: number,
+): number => a + (((((b - a) % 360) + 540) % 360) - 180) * t;
 
 /** Ground height at a plan point: scalar plane, callback, or flat 0. */
-const groundHeightAt: (ground: AutoMoviePathGround | undefined, x: number, z: number) => number = (
+const groundHeightAt: (
+  ground: AutoMoviePathGround | undefined,
+  x: number,
+  z: number,
+) => number = (
   ground: AutoMoviePathGround | undefined,
   x: number,
   z: number,

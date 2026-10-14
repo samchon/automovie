@@ -21,7 +21,9 @@ import {
  * @evidence contracts/performance.md#reuse-equivalent-work deriveCenterOfMass shares these canonical formulas; values are recomputed from the current primitive dimensions rather than cached by mutable identity.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only the fixed-size returned vector escapes; there is no geometry retention or resource acquisition.
  */
-export const primitiveCentroid: (shape: AutoMoviePrimitiveShape) => IAutoMovieVector3 = (
+export const primitiveCentroid: (
+  shape: AutoMoviePrimitiveShape,
+) => IAutoMovieVector3 = (
   shape: AutoMoviePrimitiveShape,
 ): IAutoMovieVector3 => {
   if (shape.type === "cone") return { x: 0, y: shape.height / 4, z: 0 };

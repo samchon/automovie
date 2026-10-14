@@ -1,5 +1,11 @@
-import type { IAutoMovieBone, IAutoMovieJointConstraint, AutoMovieHumanoidBone, IAutoMovieJointPose, IAutoMoviePose, IAutoMovieSkeleton } from "@automovie/interface";
-
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieBone,
+  IAutoMovieJointConstraint,
+  IAutoMovieJointPose,
+  IAutoMoviePose,
+  IAutoMovieSkeleton,
+} from "@automovie/interface";
 
 import { clampJointRom } from "../rom/clampJointRom";
 import { getConstraint } from "../rom/getConstraint";
@@ -12,13 +18,19 @@ import { IAutoMovieRecoilPush } from "./IAutoMovieRecoilPush";
  * legal under the same validator. A non-zero deflection stays explicit for the
  * shared whole-joint ROM clamp.
  */
-const scaledPushAxis: (value: number | null, scale: number) => number | null = (value: number | null, scale: number): number | null => {
+const scaledPushAxis: (value: number | null, scale: number) => number | null = (
+  value: number | null,
+  scale: number,
+): number | null => {
   if (value === null) return null;
   const scaled: number = value * scale;
   return scaled === 0 ? null : scaled;
 };
 
-const readPushAxis: (axis: keyof IAutoMovieRecoilPush, value: number | undefined) => number | null = (
+const readPushAxis: (
+  axis: keyof IAutoMovieRecoilPush,
+  value: number | undefined,
+) => number | null = (
   axis: keyof IAutoMovieRecoilPush,
   value: number | undefined,
 ): number | null => {
@@ -54,7 +66,12 @@ const readPushAxis: (axis: keyof IAutoMovieRecoilPush, value: number | undefined
  * @evidence contracts/performance.md#reuse-equivalent-work Constraint helpers are reused, but poses are fresh per push/chain/skeleton evaluation; mutable joint ranges rule out an identity-only cache.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The returned pose owns its new joint records; temporary chain work and failed calls retain no handles or ongoing simulation.
  */
-export const impactRecoil: (push: IAutoMovieRecoilPush, chain: AutoMovieHumanoidBone [ ], skeleton: IAutoMovieSkeleton, falloff?: number) => IAutoMoviePose = (
+export const impactRecoil: (
+  push: IAutoMovieRecoilPush,
+  chain: AutoMovieHumanoidBone[],
+  skeleton: IAutoMovieSkeleton,
+  falloff?: number,
+) => IAutoMoviePose = (
   push: IAutoMovieRecoilPush,
   chain: AutoMovieHumanoidBone[],
   skeleton: IAutoMovieSkeleton,
@@ -73,20 +90,24 @@ export const impactRecoil: (push: IAutoMovieRecoilPush, chain: AutoMovieHumanoid
   const abduction: number | null = readPushAxis("abduction", push.abduction);
   const twist: number | null = readPushAxis("twist", push.twist);
 
-  const joints: IAutoMovieJointPose[] = chain.map((bone: AutoMovieHumanoidBone, i: number) : IAutoMovieJointPose => {
-    const configured: IAutoMovieBone | undefined = skeleton.bones.find((entry: IAutoMovieBone) : boolean => entry.bone === bone);
-    const constraint: IAutoMovieJointConstraint | null =
-      configured === undefined
-        ? null
-        : getConstraint(bone, configured.constraint);
-    const k: number = Math.pow(falloff, i);
-    const recoil: IAutoMovieJointPose = {
-      bone,
-      flexion: scaledPushAxis(flexion, k),
-      abduction: scaledPushAxis(abduction, k),
-      twist: scaledPushAxis(twist, k),
-    };
-    return constraint === null ? recoil : clampJointRom(recoil, constraint);
-  });
+  const joints: IAutoMovieJointPose[] = chain.map(
+    (bone: AutoMovieHumanoidBone, i: number): IAutoMovieJointPose => {
+      const configured: IAutoMovieBone | undefined = skeleton.bones.find(
+        (entry: IAutoMovieBone): boolean => entry.bone === bone,
+      );
+      const constraint: IAutoMovieJointConstraint | null =
+        configured === undefined
+          ? null
+          : getConstraint(bone, configured.constraint);
+      const k: number = Math.pow(falloff, i);
+      const recoil: IAutoMovieJointPose = {
+        bone,
+        flexion: scaledPushAxis(flexion, k),
+        abduction: scaledPushAxis(abduction, k),
+        twist: scaledPushAxis(twist, k),
+      };
+      return constraint === null ? recoil : clampJointRom(recoil, constraint);
+    },
+  );
   return { skeleton: skeleton.id, root: null, joints };
 };

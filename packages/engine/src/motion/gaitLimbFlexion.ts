@@ -4,11 +4,15 @@ import { positiveModulo } from "../math/positiveModulo";
 import { cubicBezierEasing } from "./cubicBezierEasing";
 import { ease } from "./ease";
 
-
 /** Wrap a cycle position into `[0, 1)`. */
-const wrap01: (x: number) => number = (x: number): number => positiveModulo(x, 1);
+const wrap01: (x: number) => number = (x: number): number =>
+  positiveModulo(x, 1);
 
-const gaitPhaseEase: (curve: IAutoMovieGaitLimb [ "stanceEasing" ], bezier: IAutoMovieGaitLimb [ "stanceBezier" ], t: number) => number = (
+const gaitPhaseEase: (
+  curve: IAutoMovieGaitLimb["stanceEasing"],
+  bezier: IAutoMovieGaitLimb["stanceBezier"],
+  t: number,
+) => number = (
   curve: IAutoMovieGaitLimb["stanceEasing"],
   bezier: IAutoMovieGaitLimb["stanceBezier"],
   t: number,
@@ -16,7 +20,6 @@ const gaitPhaseEase: (curve: IAutoMovieGaitLimb [ "stanceEasing" ], bezier: IAut
   curve === "cubicBezier" && bezier !== undefined && bezier !== null
     ? cubicBezierEasing(bezier, t)
     : ease(curve ?? "linear", t);
-
 
 /**
  * Evaluate one gait row's clinical-axis angle in degrees at cycle time t in seconds. Stance sweeps +amplitude to -amplitude, swing returns, phase offsets the wrapped cycle and neutral shifts both halves; optional easing shapes each half.
@@ -29,11 +32,11 @@ const gaitPhaseEase: (curve: IAutoMovieGaitLimb [ "stanceEasing" ], bezier: IAut
  * @evidence contracts/performance.md#reuse-equivalent-work Only the selected stance or swing easing is evaluated at the current phase; no sampled trajectory is cached across mutable gait rows.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Returns one angle and retains no gait row, frame history or external resource.
  */
-export const gaitLimbFlexion: (limb: IAutoMovieGaitLimb, t: number, period: number) => number = (
+export const gaitLimbFlexion: (
   limb: IAutoMovieGaitLimb,
   t: number,
   period: number,
-): number => {
+) => number = (limb: IAutoMovieGaitLimb, t: number, period: number): number => {
   if (!Number.isFinite(period))
     throw new Error("gait period must be finite and positive");
   if (!(period > 0)) throw new Error("gait period must be finite and positive");

@@ -24,7 +24,6 @@ const IDENTITY_TRANSFORM: IAutoMovieTransform = {
   scale: { x: 1, y: 1, z: 1 },
 };
 
-
 /**
  * Sample caller-admitted clinical motion at finite seconds using clamped or looping clip time and the outgoing segment's easing. Ordered finite keyframes and valid pose/easing data are validateMotion's premise. End samples shallowly share frame data; interior samples interpolate joints, roots and expressions, treating unauthored values as neutral.
  *
@@ -36,7 +35,10 @@ const IDENTITY_TRANSFORM: IAutoMovieTransform = {
  * @evidence contracts/performance.md#reuse-equivalent-work One segment/eased progress serves pose and expression; joint maps remove repeated linear bone lookup, while no cache assumes keyframes or expression arrays remain unchanged across calls.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Interior results own new interpolated records and endpoint wrappers share original root/joints/expression; temporary maps/sets are call-local, and no frame history, handle or task persists.
  */
-export const sampleMotion: (motion: IAutoMovieMotion, seconds: number) => IAutoMovieMotionSample = (
+export const sampleMotion: (
+  motion: IAutoMovieMotion,
+  seconds: number,
+) => IAutoMovieMotionSample = (
   motion: IAutoMovieMotion,
   seconds: number,
 ): IAutoMovieMotionSample => {
@@ -53,7 +55,11 @@ export const sampleMotion: (motion: IAutoMovieMotion, seconds: number) => IAutoM
   // Precondition: the clip has strictly increasing keyframe times (the contract
   // validateMotion enforces), so the binary search lands on a segment with a
   // positive span, and its tie rule matches the old linear scan exactly.
-  const loIdx: number = segmentIndex(frames.length, (i: number): number => frames[i]!.time, time);
+  const loIdx: number = segmentIndex(
+    frames.length,
+    (i: number): number => frames[i]!.time,
+    time,
+  );
   const lo: IAutoMovieKeyframe = frames[loIdx]!;
   const hi: IAutoMovieKeyframe = frames[loIdx + 1]!;
   const span: number = hi.time - lo.time;
@@ -69,11 +75,11 @@ export const sampleMotion: (motion: IAutoMovieMotion, seconds: number) => IAutoM
   };
 };
 
-const normalizeTime: (seconds: number, duration: number, loop: boolean) => number = (
+const normalizeTime: (
   seconds: number,
   duration: number,
   loop: boolean,
-): number => {
+) => number = (seconds: number, duration: number, loop: boolean): number => {
   if (duration <= 0) return 0;
   if (loop) {
     const m: number = seconds % duration;
@@ -82,7 +88,10 @@ const normalizeTime: (seconds: number, duration: number, loop: boolean) => numbe
   return Math.min(duration, Math.max(0, seconds));
 };
 
-const toSample: (motion: IAutoMovieMotion, frame: IAutoMovieKeyframe) => IAutoMovieMotionSample = (
+const toSample: (
+  motion: IAutoMovieMotion,
+  frame: IAutoMovieKeyframe,
+) => IAutoMovieMotionSample = (
   motion: IAutoMovieMotion,
   frame: IAutoMovieKeyframe,
 ): IAutoMovieMotionSample => ({
@@ -90,14 +99,31 @@ const toSample: (motion: IAutoMovieMotion, frame: IAutoMovieKeyframe) => IAutoMo
   expression: frame.expression,
 });
 
-const interpolatePose: (skeleton: string, a: IAutoMoviePose, b: IAutoMoviePose, t: number) => IAutoMoviePose = (
+const interpolatePose: (
+  skeleton: string,
+  a: IAutoMoviePose,
+  b: IAutoMoviePose,
+  t: number,
+) => IAutoMoviePose = (
   skeleton: string,
   a: IAutoMoviePose,
   b: IAutoMoviePose,
   t: number,
 ): IAutoMoviePose => {
-  const aJoints: Map<AutoMovieHumanoidBone, IAutoMovieJointPose> = new Map(a.joints.map((j: IAutoMovieJointPose): [AutoMovieHumanoidBone, IAutoMovieJointPose] => [j.bone, j]));
-  const bJoints: Map<AutoMovieHumanoidBone, IAutoMovieJointPose> = new Map(b.joints.map((j: IAutoMovieJointPose): [AutoMovieHumanoidBone, IAutoMovieJointPose] => [j.bone, j]));
+  const aJoints: Map<AutoMovieHumanoidBone, IAutoMovieJointPose> = new Map(
+    a.joints.map(
+      (
+        j: IAutoMovieJointPose,
+      ): [AutoMovieHumanoidBone, IAutoMovieJointPose] => [j.bone, j],
+    ),
+  );
+  const bJoints: Map<AutoMovieHumanoidBone, IAutoMovieJointPose> = new Map(
+    b.joints.map(
+      (
+        j: IAutoMovieJointPose,
+      ): [AutoMovieHumanoidBone, IAutoMovieJointPose] => [j.bone, j],
+    ),
+  );
   const bones: Set<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([
     ...aJoints.keys(),
     ...bJoints.keys(),
@@ -122,12 +148,15 @@ const interpolatePose: (skeleton: string, a: IAutoMoviePose, b: IAutoMoviePose, 
   };
 };
 
-
 /**
  * Interpolate one axis; `null` is treated as 0 but preserved when both sides
  * are null.
  */
-const lerpAxis: (a: number | null, b: number | null, t: number) => number | null = (
+const lerpAxis: (
+  a: number | null,
+  b: number | null,
+  t: number,
+) => number | null = (
   a: number | null,
   b: number | null,
   t: number,
@@ -136,7 +165,11 @@ const lerpAxis: (a: number | null, b: number | null, t: number) => number | null
   return (a ?? 0) + ((b ?? 0) - (a ?? 0)) * t;
 };
 
-const lerpTransform: (a: IAutoMovieTransform | null, b: IAutoMovieTransform | null, t: number) => IAutoMovieTransform | null = (
+const lerpTransform: (
+  a: IAutoMovieTransform | null,
+  b: IAutoMovieTransform | null,
+  t: number,
+) => IAutoMovieTransform | null = (
   a: IAutoMovieTransform | null,
   b: IAutoMovieTransform | null,
   t: number,
@@ -151,7 +184,11 @@ const lerpTransform: (a: IAutoMovieTransform | null, b: IAutoMovieTransform | nu
   };
 };
 
-const interpolateExpression: (a: IAutoMovieExpression | null, b: IAutoMovieExpression | null, t: number) => IAutoMovieExpression | null = (
+const interpolateExpression: (
+  a: IAutoMovieExpression | null,
+  b: IAutoMovieExpression | null,
+  t: number,
+) => IAutoMovieExpression | null = (
   a: IAutoMovieExpression | null,
   b: IAutoMovieExpression | null,
   t: number,
@@ -176,15 +213,20 @@ const interpolateExpression: (a: IAutoMovieExpression | null, b: IAutoMovieExpre
   };
 };
 
-
 /** The rest expression of a preset: present but with zero intensity/channels. */
-const neutral: (preset: AutoMovieExpressionPreset) => IAutoMovieExpression = (preset: AutoMovieExpressionPreset): IAutoMovieExpression => ({
+const neutral: (preset: AutoMovieExpressionPreset) => IAutoMovieExpression = (
+  preset: AutoMovieExpressionPreset,
+): IAutoMovieExpression => ({
   preset,
   intensity: 0,
   blendshapes: null,
 });
 
-const blendChannels: (a: IAutoMovieExpression, b: IAutoMovieExpression, t: number) => IAutoMovieBlendshapeChannel [ ] | null = (
+const blendChannels: (
+  a: IAutoMovieExpression,
+  b: IAutoMovieExpression,
+  t: number,
+) => IAutoMovieBlendshapeChannel[] | null = (
   a: IAutoMovieExpression,
   b: IAutoMovieExpression,
   t: number,
@@ -195,5 +237,10 @@ const blendChannels: (a: IAutoMovieExpression, b: IAutoMovieExpression, t: numbe
     weights.set(c.channel, c.weight * (1 - t));
   for (const c of b.blendshapes ?? [])
     weights.set(c.channel, (weights.get(c.channel) ?? 0) + c.weight * t);
-  return [...weights].map(([channel, weight]: [AutoMovieArkitChannel, number]): IAutoMovieBlendshapeChannel => ({ channel, weight }));
+  return [...weights].map(
+    ([channel, weight]: [
+      AutoMovieArkitChannel,
+      number,
+    ]): IAutoMovieBlendshapeChannel => ({ channel, weight }),
+  );
 };

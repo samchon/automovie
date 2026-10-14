@@ -1,10 +1,12 @@
 import { ISpringParams } from "./ISpringParams";
 import { ISpringStep } from "./ISpringStep";
 
-const assertFinite: (label: string, value: number) => void = (label: string, value: number): void => {
+const assertFinite: (label: string, value: number) => void = (
+  label: string,
+  value: number,
+): void => {
   if (!Number.isFinite(value)) throw new Error(`${label} must be finite`);
 };
-
 
 /**
  * Advance a one-dimensional damped spring one fixed timestep (semi-implicit
@@ -31,7 +33,13 @@ const assertFinite: (label: string, value: number) => void = (label: string, val
  *
  * @author Samchon
  */
-export const dampedSpring: (current: number, velocity: number, target: number, params: ISpringParams, dt: number) => ISpringStep = (
+export const dampedSpring: (
+  current: number,
+  velocity: number,
+  target: number,
+  params: ISpringParams,
+  dt: number,
+) => ISpringStep = (
   current: number,
   velocity: number,
   target: number,

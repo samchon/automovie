@@ -6,7 +6,10 @@ import { IAutoMovieProjectileState } from "./IAutoMovieProjectileState";
 
 const VECTOR_AXES: readonly ["x", "y", "z"] = ["x", "y", "z"] as const;
 
-const assertFiniteVector: (name: string, vector: IAutoMovieVector3) => void = (name: string, vector: IAutoMovieVector3): void => {
+const assertFiniteVector: (name: string, vector: IAutoMovieVector3) => void = (
+  name: string,
+  vector: IAutoMovieVector3,
+): void => {
   for (const axis of VECTOR_AXES)
     if (!Number.isFinite(vector[axis]))
       throw new RangeError(
@@ -30,7 +33,10 @@ const assertFiniteVector: (name: string, vector: IAutoMovieVector3) => void = (n
  * @evidence contracts/performance.md#reuse-equivalent-work Trajectory and collision sampling reuse this equation owner, not results across mutable projectile/time pairs.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Each state transfers to the caller; the launch record is borrowed and no integration history or resource is retained.
  */
-export const projectileAt: (p: IAutoMovieProjectile, t: number) => IAutoMovieProjectileState = (
+export const projectileAt: (
+  p: IAutoMovieProjectile,
+  t: number,
+) => IAutoMovieProjectileState = (
   p: IAutoMovieProjectile,
   t: number,
 ): IAutoMovieProjectileState => {

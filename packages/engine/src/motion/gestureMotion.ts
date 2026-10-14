@@ -25,7 +25,10 @@ const GENERIC: Set<string> = new Set<string>([
 // arm gestures are authored in **clinical** space (abduction 0 = arm down, 90 =
 // horizontal, 180 = overhead: the same value raises either arm); the per-side
 // rest-frame remap that fits it to a rig lives in the render, not these angles.
-const j: (bone: AutoMovieHumanoidBone, axes: Partial < Pick < IAutoMovieJointPose , "flexion" | "abduction" | "twist" > >) => IAutoMovieJointPose = (
+const j: (
+  bone: AutoMovieHumanoidBone,
+  axes: Partial<Pick<IAutoMovieJointPose, "flexion" | "abduction" | "twist">>,
+) => IAutoMovieJointPose = (
   bone: AutoMovieHumanoidBone,
   axes: Partial<Pick<IAutoMovieJointPose, "flexion" | "abduction" | "twist">>,
 ): IAutoMovieJointPose => ({
@@ -34,7 +37,6 @@ const j: (bone: AutoMovieHumanoidBone, axes: Partial < Pick < IAutoMovieJointPos
   abduction: axes.abduction ?? null,
   twist: axes.twist ?? null,
 });
-
 
 /**
  * Each generic gesture as a list of `[fraction, joints]` stops over the beat:
@@ -209,7 +211,6 @@ const SHAPES: Record<
   ],
 };
 
-
 /**
  * Both arms thrown up in a V, scaled by `s` (a pump raises them higher). The
  * clinical abduction raises either arm alike, so both sides carry the same
@@ -269,7 +270,6 @@ const JUMP_STOPS: [number, number, number][] = [
   [1, 0, 0], // recover
 ];
 
-
 /** The pose at a jump stop: symmetric leg bend + a root risen to `rootY`. */
 function jumpPose(
   skeleton: string,
@@ -305,7 +305,12 @@ function jumpPose(
  * @evidence contracts/performance.md#reuse-equivalent-work Private shape tables are reused as read-only authored content, but every emitted joint record is copied so mutating one clip cannot rewrite later calls' presets.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Module preset tables have a fixed population; callers own generated keyframes/poses/joints and no output retains a mutable preset joint or acquires a resource handle.
  */
-export const gestureMotion: (id: string, skeleton: string, kind: string, duration: number) => IAutoMovieMotion | null = (
+export const gestureMotion: (
+  id: string,
+  skeleton: string,
+  kind: string,
+  duration: number,
+) => IAutoMovieMotion | null = (
   id: string,
   skeleton: string,
   kind: string,
@@ -313,7 +318,11 @@ export const gestureMotion: (id: string, skeleton: string, kind: string, duratio
 ): IAutoMovieMotion | null => {
   if (kind === "jump") {
     const keyframes: IAutoMovieKeyframe[] = JUMP_STOPS.map(
-      ([fraction, rootY, legFlex]: [number, number, number]): IAutoMovieKeyframe => ({
+      ([fraction, rootY, legFlex]: [
+        number,
+        number,
+        number,
+      ]): IAutoMovieKeyframe => ({
         time: fraction * duration,
         pose: jumpPose(skeleton, rootY, legFlex),
         expression: null,
@@ -324,20 +333,28 @@ export const gestureMotion: (id: string, skeleton: string, kind: string, duratio
     return { id, skeleton, duration, loop: false, keyframes };
   }
   if (!GENERIC.has(kind)) return null;
-  const shape: [number, IAutoMovieJointPose[]][] = SHAPES[kind as AutoMovieGenericGesture];
-  const keyframes: IAutoMovieKeyframe[] = shape.map(([fraction, joints]: [number, IAutoMovieJointPose[]]): IAutoMovieKeyframe => {
-    const pose: IAutoMoviePose = {
-      skeleton,
-      root: null,
-      joints: joints.map((joint: IAutoMovieJointPose): IAutoMovieJointPose => ({ ...joint })),
-    };
-    return {
-      time: fraction * duration,
-      pose,
-      expression: null,
-      easing: "easeInOut",
-      bezier: null,
-    };
-  });
+  const shape: [number, IAutoMovieJointPose[]][] =
+    SHAPES[kind as AutoMovieGenericGesture];
+  const keyframes: IAutoMovieKeyframe[] = shape.map(
+    ([fraction, joints]: [
+      number,
+      IAutoMovieJointPose[],
+    ]): IAutoMovieKeyframe => {
+      const pose: IAutoMoviePose = {
+        skeleton,
+        root: null,
+        joints: joints.map(
+          (joint: IAutoMovieJointPose): IAutoMovieJointPose => ({ ...joint }),
+        ),
+      };
+      return {
+        time: fraction * duration,
+        pose,
+        expression: null,
+        easing: "easeInOut",
+        bezier: null,
+      };
+    },
+  );
   return { id, skeleton, duration, loop: false, keyframes };
 };

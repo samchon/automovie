@@ -2,8 +2,8 @@ import {
   AutoMovieHumanoidBone,
   IAutoMovieJointPose,
   IAutoMoviePose,
-  IAutoMovieVector3,
   IAutoMovieQuaternion,
+  IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { IAutoMovieJointAxes } from "../kinematics/IAutoMovieJointAxes";
@@ -14,11 +14,10 @@ import { Vector3 } from "../math/Vector3";
 import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import { clampJointToSkeleton } from "../rom/clampJointToSkeleton";
 import type { IFitChainToTargetProps } from "./IFitChainToTargetProps";
-import { resolveBoneMap } from "./resolveBoneMap";
-import { solvePreparedChainPlant } from "./solvePreparedChainPlant";
 import { prepareChainPlant } from "./prepareChainPlant";
+import { resolveBoneMap } from "./resolveBoneMap";
 import { resolvePreparedChainEffector } from "./resolvePreparedChainEffector";
-
+import { solvePreparedChainPlant } from "./solvePreparedChainPlant";
 
 /**
  * Fit a reachable two-bone chain to a model-frame target under the rig's effective ROM, retaining authored non-chain joints. A deterministic finite bend-plane search scores clamped FK and keeps the original pose unless its 1e-7-metre residual bucket improves or equal-bucket continuity improves toward an explicit prior pose; it is a bounded search, not a global-optimum guarantee.
@@ -31,12 +30,15 @@ import { resolvePreparedChainEffector } from "./resolvePreparedChainEffector";
  * @evidence contracts/performance.md#reuse-equivalent-work All bend candidates share prepared frames/domains and reference-angle maps; only candidate joints and scores vary, while per-frame parent pose changes force new preparation.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Sweep/minima arrays are bounded by32 entries and all temporary poses/maps are released after completion; the caller owns the selected pose, which may be the original, and no handles or background tasks exist.
  */
-export const fitChainToTarget: (props: IFitChainToTargetProps) => IAutoMoviePose = (
+export const fitChainToTarget: (
   props: IFitChainToTargetProps,
-): IAutoMoviePose => {
-  const prepared: ReturnType<typeof prepareChainPlant> = prepareChainPlant(props);
+) => IAutoMoviePose = (props: IFitChainToTargetProps): IAutoMoviePose => {
+  const prepared: ReturnType<typeof prepareChainPlant> =
+    prepareChainPlant(props);
   if (prepared === null) return props.pose;
-  const solve: (bendNormal?: IAutoMovieVector3) => ReturnType < typeof solvePreparedChainPlant > = (
+  const solve: (
+    bendNormal?: IAutoMovieVector3,
+  ) => ReturnType<typeof solvePreparedChainPlant> = (
     bendNormal?: IAutoMovieVector3,
   ): ReturnType<typeof solvePreparedChainPlant> =>
     solvePreparedChainPlant({
@@ -56,16 +58,32 @@ export const fitChainToTarget: (props: IFitChainToTargetProps) => IAutoMoviePose
     props.jointAxes,
     props.restFrames,
   ).get(props.chain.effector)!.worldPosition;
-  const distance: (position: IAutoMovieVector3) => number = (position: IAutoMovieVector3): number =>
-    Vector3.length(Vector3.subtract(position, props.target));
+  const distance: (position: IAutoMovieVector3) => number = (
+    position: IAutoMovieVector3,
+  ): number => Vector3.length(Vector3.subtract(position, props.target));
   const reference: IAutoMoviePose = props.referencePose ?? props.pose;
-  const referenceAngles: Map<AutoMovieHumanoidBone, IAutoMovieJointPose> = new Map(
-    reference.joints.map((joint: IAutoMovieJointPose): readonly [AutoMovieHumanoidBone, IAutoMovieJointPose] => [joint.bone, joint] as const),
-  );
-  const authoredAngles: Map<AutoMovieHumanoidBone, IAutoMovieJointPose> = new Map(
-    props.pose.joints.map((joint: IAutoMovieJointPose): readonly [AutoMovieHumanoidBone, IAutoMovieJointPose] => [joint.bone, joint] as const),
-  );
-  const rotationDistance: (bone: AutoMovieHumanoidBone, candidate: IAutoMovieJointPose | undefined) => number = (
+  const referenceAngles: Map<AutoMovieHumanoidBone, IAutoMovieJointPose> =
+    new Map(
+      reference.joints.map(
+        (
+          joint: IAutoMovieJointPose,
+        ): readonly [AutoMovieHumanoidBone, IAutoMovieJointPose] =>
+          [joint.bone, joint] as const,
+      ),
+    );
+  const authoredAngles: Map<AutoMovieHumanoidBone, IAutoMovieJointPose> =
+    new Map(
+      props.pose.joints.map(
+        (
+          joint: IAutoMovieJointPose,
+        ): readonly [AutoMovieHumanoidBone, IAutoMovieJointPose] =>
+          [joint.bone, joint] as const,
+      ),
+    );
+  const rotationDistance: (
+    bone: AutoMovieHumanoidBone,
+    candidate: IAutoMovieJointPose | undefined,
+  ) => number = (
     bone: AutoMovieHumanoidBone,
     candidate: IAutoMovieJointPose | undefined,
   ): number =>
@@ -95,11 +113,19 @@ export const fitChainToTarget: (props: IFitChainToTargetProps) => IAutoMoviePose
             authoredAngles.get(props.chain.lower),
           ),
   };
-  const consider: (solved: NonNullable < ReturnType < typeof solve > >) => IPlantCandidateScore = (
+  const consider: (
+    solved: NonNullable<ReturnType<typeof solve>>,
+  ) => IPlantCandidateScore = (
     solved: NonNullable<ReturnType<typeof solve>>,
   ): IPlantCandidateScore => {
-    const upper: IAutoMovieJointPose = clampJointToSkeleton(solved.upper, props.skeleton);
-    const lower: IAutoMovieJointPose = clampJointToSkeleton(solved.lower, props.skeleton);
+    const upper: IAutoMovieJointPose = clampJointToSkeleton(
+      solved.upper,
+      props.skeleton,
+    );
+    const lower: IAutoMovieJointPose = clampJointToSkeleton(
+      solved.lower,
+      props.skeleton,
+    );
     const candidate: IAutoMoviePose = {
       ...props.pose,
       joints: [
@@ -134,7 +160,10 @@ export const fitChainToTarget: (props: IFitChainToTargetProps) => IAutoMoviePose
         props.jointAxes?.[lower.bone],
         props.restFrames?.[lower.bone],
       );
-    const score: IPlantCandidateScore = { residual: candidateResidual, continuity };
+    const score: IPlantCandidateScore = {
+      residual: candidateResidual,
+      continuity,
+    };
     if (comparePlantCandidate(score, best) < 0)
       best = {
         pose: candidate,
@@ -164,15 +193,22 @@ export const fitChainToTarget: (props: IFitChainToTargetProps) => IAutoMoviePose
   if (Vector3.length(primary) < 1e-6)
     primary = Vector3.cross(reachAxis, { x: 0, y: 0, z: 1 });
   primary = Vector3.normalize(primary);
-  const secondary: IAutoMovieVector3 = Vector3.normalize(Vector3.cross(reachAxis, primary));
-  const normalAt: (angle: number) => IAutoMovieVector3 = (angle: number): IAutoMovieVector3 =>
+  const secondary: IAutoMovieVector3 = Vector3.normalize(
+    Vector3.cross(reachAxis, primary),
+  );
+  const normalAt: (angle: number) => IAutoMovieVector3 = (
+    angle: number,
+  ): IAutoMovieVector3 =>
     Vector3.add(
       Vector3.scale(primary, Math.cos(angle)),
       Vector3.scale(secondary, Math.sin(angle)),
     );
 
   if (props.referencePose !== undefined) {
-    const referenceJoints: IAutoMovieJointPose[] = [props.chain.upper, props.chain.lower].map(
+    const referenceJoints: IAutoMovieJointPose[] = [
+      props.chain.upper,
+      props.chain.lower,
+    ].map(
       (bone: AutoMovieHumanoidBone): IAutoMovieJointPose =>
         referenceAngles.get(bone) ?? {
           bone,
@@ -215,17 +251,20 @@ export const fitChainToTarget: (props: IFitChainToTargetProps) => IAutoMoviePose
     sweep.push({ angle, ...consider(solve(normalAt(angle))!) });
     if (canFinish()) return best.pose;
   }
-  const minima: IPlantBendCandidate[] = sweep.filter((entry: IPlantBendCandidate, index: number): boolean => {
-    const previous: IPlantBendCandidate = sweep[(index + segments - 1) % segments]!;
-    const next: IPlantBendCandidate = sweep[(index + 1) % segments]!;
-    const previousOrder: number = comparePlantCandidate(entry, previous);
-    const nextOrder: number = comparePlantCandidate(entry, next);
-    return (
-      previousOrder <= 0 &&
-      nextOrder <= 0 &&
-      (previousOrder < 0 || nextOrder < 0)
-    );
-  });
+  const minima: IPlantBendCandidate[] = sweep.filter(
+    (entry: IPlantBendCandidate, index: number): boolean => {
+      const previous: IPlantBendCandidate =
+        sweep[(index + segments - 1) % segments]!;
+      const next: IPlantBendCandidate = sweep[(index + 1) % segments]!;
+      const previousOrder: number = comparePlantCandidate(entry, previous);
+      const nextOrder: number = comparePlantCandidate(entry, next);
+      return (
+        previousOrder <= 0 &&
+        nextOrder <= 0 &&
+        (previousOrder < 0 || nextOrder < 0)
+      );
+    },
+  );
   for (const minimum of minima) {
     let center: IPlantBendCandidate = minimum;
     let step: number = (2 * Math.PI) / segments;
@@ -266,12 +305,15 @@ interface IPlantBendCandidate extends IPlantCandidateScore {
   angle: number;
 }
 
-const plantResidualBucket: (residual: number) => number = (residual: number): number =>
-  Math.floor(residual / PLANT_RESIDUAL_EPSILON);
-
+const plantResidualBucket: (residual: number) => number = (
+  residual: number,
+): number => Math.floor(residual / PLANT_RESIDUAL_EPSILON);
 
 /** Residual buckets are ordered first; continuity breaks equivalent pins. */
-const comparePlantCandidate: (left: IPlantCandidateScore, right: IPlantCandidateScore) => number = (
+const comparePlantCandidate: (
+  left: IPlantCandidateScore,
+  right: IPlantCandidateScore,
+) => number = (
   left: IPlantCandidateScore,
   right: IPlantCandidateScore,
 ): number => {
@@ -284,9 +326,13 @@ const comparePlantCandidate: (left: IPlantCandidateScore, right: IPlantCandidate
     : continuityOrder;
 };
 
-
 /** Sign-insensitive geodesic distance between two joint rotations. */
-const jointRotationDistance: (joint: IAutoMovieJointPose, reference: IAutoMovieJointPose | undefined, axes: IAutoMovieJointAxes | undefined, restFrame: IAutoMovieRestFrame | undefined) => number = (
+const jointRotationDistance: (
+  joint: IAutoMovieJointPose,
+  reference: IAutoMovieJointPose | undefined,
+  axes: IAutoMovieJointAxes | undefined,
+  restFrame: IAutoMovieRestFrame | undefined,
+) => number = (
   joint: IAutoMovieJointPose,
   reference: IAutoMovieJointPose | undefined,
   axes: IAutoMovieJointAxes | undefined,

@@ -1,9 +1,12 @@
-import type { IAutoMovieQuaternion, IAutoMovieClip, IAutoMovieVector3 } from "@automovie/interface";
-import type { IAutoMovieProjectileState } from "./IAutoMovieProjectileState";
-
+import type {
+  IAutoMovieClip,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { aimRotation } from "../kinematics/aimRotation";
 import { IAutoMovieProjectile } from "./IAutoMovieProjectile";
+import type { IAutoMovieProjectileState } from "./IAutoMovieProjectileState";
 import { projectileAt } from "./projectileAt";
 
 /** A projectile model faces +Z; its trajectory rotates that onto the flight. */
@@ -30,7 +33,12 @@ const PROJECTILE_FORWARD: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
  * @evidence contracts/performance.md#reuse-equivalent-work The sampled state serves both translation and facing at each frame; no result is cached across mutable projectile or sample-clock inputs.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Allocated clip arrays transfer to the caller on success; no native handle or background sampler survives failure or completion.
  */
-export const projectileTrajectory: (node: string, p: IAutoMovieProjectile, duration: number, fps?: number) => IAutoMovieClip = (
+export const projectileTrajectory: (
+  node: string,
+  p: IAutoMovieProjectile,
+  duration: number,
+  fps?: number,
+) => IAutoMovieClip = (
   node: string,
   p: IAutoMovieProjectile,
   duration: number,
@@ -59,7 +67,10 @@ export const projectileTrajectory: (node: string, p: IAutoMovieProjectile, durat
   const rot: number[] = [];
   for (let i: number = 0; i <= count; ++i) {
     const t: number = (i / count) * duration;
-    const { position, velocity }: IAutoMovieProjectileState = projectileAt(p, t);
+    const { position, velocity }: IAutoMovieProjectileState = projectileAt(
+      p,
+      t,
+    );
     times.push(t);
     pos.push(position.x, position.y, position.z);
     const q: IAutoMovieQuaternion = aimRotation(PROJECTILE_FORWARD, velocity);

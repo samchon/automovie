@@ -22,16 +22,13 @@ import { contactMask } from "./contactMask";
 import { fitChainToTarget } from "./fitChainToTarget";
 import { resolveBoneMap } from "./resolveBoneMap";
 
-
 /** Contact tolerance above the source ground counted as a planted contact. */
 const DEFAULT_TOLERANCE: number = 0.02;
-
 
 /**
  * Target model-unit drift at or below this absolute threshold skips another fit. Binary64 scaling and FK need not commute exactly, so this is a numerical no-op policy rather than a zero-residual or scale-relative error proof.
  */
 const NOOP_EPSILON: number = 1e-9;
-
 
 /** A chain plus the frames on which its contact must be preserved. */
 interface IAutoMovieContactWindow {
@@ -52,91 +49,125 @@ interface IAutoMovieContactWindow {
  * @evidence contracts/performance.md#reuse-equivalent-work Source and target topology are reused for all frames, source FK maps serve every contact chain, and each frame's target FK is refreshed only after an accepted pose correction.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Temporary source maps/pins and corrected keyframes scale with F and admitted chains; the returned clip owns its new keyframe array, unchanged records may be shared, collector warnings belong to the caller, and no resource handles persist.
  */
-export const preserveRetargetContacts: (props: { /** Rig the clip was authored on. */ source : IAutoMovieSkeleton ; /** Rig the clip now plays on. */ target : IAutoMovieSkeleton ; /** The authored clip, read for source-space contact detection. */ sourceMotion : IAutoMovieMotion ; /** The root-scaled clip this pass corrects. */ retargeted : IAutoMovieMotion ; /** Root translation multiplier the contacts are mapped through. */ rootScale : number ; /** Lowest world Y of the source rest pose; the default ground plane. */ sourceFloor : number ; /** Source clinical axes. */ sourceJointAxes : Partial < Record < AutoMovieHumanoidBone , IAutoMovieJointAxes > > ; /** Source clinical rest frames. */ sourceRestFrames : Partial < Record < AutoMovieHumanoidBone , IAutoMovieRestFrame > > ; /** Target clinical axes. */ targetJointAxes : Partial < Record < AutoMovieHumanoidBone , IAutoMovieJointAxes > > ; /** Target clinical rest frames. */ targetRestFrames : Partial < Record < AutoMovieHumanoidBone , IAutoMovieRestFrame > > ; /** Caller policy; omitted means humanoid legs and no hand contact. */ contacts : IAutoMovieRetargetContactProps | undefined ; /** Sink the residual-slide warnings are reported on. */ collector : ViolationCollector ; }) => IAutoMovieMotion = (props: {
+export const preserveRetargetContacts: (props: {
+  /** Rig the clip was authored on. */ source: IAutoMovieSkeleton;
+  /** Rig the clip now plays on. */ target: IAutoMovieSkeleton;
+  /** The authored clip, read for source-space contact detection. */ sourceMotion: IAutoMovieMotion;
+  /** The root-scaled clip this pass corrects. */ retargeted: IAutoMovieMotion;
+  /** Root translation multiplier the contacts are mapped through. */ rootScale: number;
+  /** Lowest world Y of the source rest pose; the default ground plane. */ sourceFloor: number;
+  /** Source clinical axes. */ sourceJointAxes: Partial<
+    Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>
+  >;
+  /** Source clinical rest frames. */ sourceRestFrames: Partial<
+    Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>
+  >;
+  /** Target clinical axes. */ targetJointAxes: Partial<
+    Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>
+  >;
+  /** Target clinical rest frames. */ targetRestFrames: Partial<
+    Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>
+  >;
+  /** Caller policy; omitted means humanoid legs and no hand contact. */ contacts:
+    | IAutoMovieRetargetContactProps
+    | undefined;
+  /** Sink the residual-slide warnings are reported on. */ collector: ViolationCollector;
+}) => IAutoMovieMotion = (props: {
   /** Rig the clip was authored on. */
   source: IAutoMovieSkeleton;
-
 
   /** Rig the clip now plays on. */
   target: IAutoMovieSkeleton;
 
-
   /** The authored clip, read for source-space contact detection. */
   sourceMotion: IAutoMovieMotion;
-
 
   /** The root-scaled clip this pass corrects. */
   retargeted: IAutoMovieMotion;
 
-
   /** Root translation multiplier the contacts are mapped through. */
   rootScale: number;
-
 
   /** Lowest world Y of the source rest pose; the default ground plane. */
   sourceFloor: number;
 
-
   /** Source clinical axes. */
   sourceJointAxes: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>;
-
 
   /** Source clinical rest frames. */
   sourceRestFrames: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>;
 
-
   /** Target clinical axes. */
   targetJointAxes: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>;
-
 
   /** Target clinical rest frames. */
   targetRestFrames: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>;
 
-
   /** Caller policy; omitted means humanoid legs and no hand contact. */
   contacts: IAutoMovieRetargetContactProps | undefined;
-
 
   /** Sink the residual-slide warnings are reported on. */
   collector: ViolationCollector;
 }): IAutoMovieMotion => {
   const contacts: IAutoMovieRetargetContactProps = props.contacts ?? {};
-  const groundAt: ReturnType<typeof groundFunction> = groundFunction(contacts.groundY ?? props.sourceFloor);
+  const groundAt: ReturnType<typeof groundFunction> = groundFunction(
+    contacts.groundY ?? props.sourceFloor,
+  );
   const tolerance: number = contacts.tolerance ?? DEFAULT_TOLERANCE;
 
-  const sourceTopology: ReturnType<typeof indexSkeletonTopology> = indexSkeletonTopology(props.source);
-  const targetTopology: ReturnType<typeof indexSkeletonTopology> = indexSkeletonTopology(props.target);
-  const sourceBones: ReadonlySet<AutoMovieHumanoidBone> = reachableBoneNames(props.source, sourceTopology);
-  const targetBones: ReadonlySet<AutoMovieHumanoidBone> = reachableBoneNames(props.target, targetTopology);
+  const sourceTopology: ReturnType<typeof indexSkeletonTopology> =
+    indexSkeletonTopology(props.source);
+  const targetTopology: ReturnType<typeof indexSkeletonTopology> =
+    indexSkeletonTopology(props.target);
+  const sourceBones: ReadonlySet<AutoMovieHumanoidBone> = reachableBoneNames(
+    props.source,
+    sourceTopology,
+  );
+  const targetBones: ReadonlySet<AutoMovieHumanoidBone> = reachableBoneNames(
+    props.target,
+    targetTopology,
+  );
 
   // Only a chain both rigs actually resolve can carry a contact; a rig missing
   // an arm (or a hand contact declared against bones it does not have) is
   // skipped rather than half-solved.
   const windows: IAutoMovieContactWindow[] = [
-    ...HUMANOID_LEG_CHAINS.map((chain: IAutoMoviePlantChain): IAutoMovieContactWindow => ({ chain, window: null })),
-    ...(contacts.hands ?? []).map((hand: IAutoMovieRetargetHandContact): IAutoMovieContactWindow => ({
-      chain: {
-        effector: hand.hand,
-        upper: hand.upper,
-        lower: hand.lower,
-      },
-      window: { start: hand.start, end: hand.end },
-    })),
+    ...HUMANOID_LEG_CHAINS.map(
+      (chain: IAutoMoviePlantChain): IAutoMovieContactWindow => ({
+        chain,
+        window: null,
+      }),
+    ),
+    ...(contacts.hands ?? []).map(
+      (hand: IAutoMovieRetargetHandContact): IAutoMovieContactWindow => ({
+        chain: {
+          effector: hand.hand,
+          upper: hand.upper,
+          lower: hand.lower,
+        },
+        window: { start: hand.start, end: hand.end },
+      }),
+    ),
   ].filter(({ chain }: IAutoMovieContactWindow): boolean =>
-    [sourceBones, targetBones].every((bones: ReadonlySet<AutoMovieHumanoidBone>): boolean => resolvable(chain, bones)),
+    [sourceBones, targetBones].every(
+      (bones: ReadonlySet<AutoMovieHumanoidBone>): boolean =>
+        resolvable(chain, bones),
+    ),
   );
   if (windows.length === 0) return props.retargeted;
 
   const frames: IAutoMovieKeyframe[] = props.retargeted.keyframes;
-  const sourceResolved: ReturnType<typeof resolveBoneMap>[] = props.sourceMotion.keyframes.map((kf: IAutoMovieKeyframe): ReturnType<typeof resolveBoneMap> =>
-    resolveBoneMap(
-      props.source,
-      kf.pose,
-      sourceTopology,
-      props.sourceJointAxes,
-      props.sourceRestFrames,
-    ),
-  );
+  const sourceResolved: ReturnType<typeof resolveBoneMap>[] =
+    props.sourceMotion.keyframes.map(
+      (kf: IAutoMovieKeyframe): ReturnType<typeof resolveBoneMap> =>
+        resolveBoneMap(
+          props.source,
+          kf.pose,
+          sourceTopology,
+          props.sourceJointAxes,
+          props.sourceRestFrames,
+        ),
+    );
 
   // Per-frame contact pins, already mapped into target space.
   const pins: Array<Map<AutoMovieHumanoidBone, IAutoMovieVector3>> = frames.map(
@@ -153,7 +184,10 @@ export const preserveRetargetContacts: (props: { /** Rig the clip was authored o
             groundAt,
             tolerance,
           })
-        : frames.map((kf: IAutoMovieKeyframe): boolean => kf.time >= window.start && kf.time <= window.end);
+        : frames.map(
+            (kf: IAutoMovieKeyframe): boolean =>
+              kf.time >= window.start && kf.time <= window.end,
+          );
     mask.forEach((inContact: boolean, index: number): void => {
       if (inContact === false) return;
       pins[index]!.set(
@@ -166,10 +200,8 @@ export const preserveRetargetContacts: (props: { /** Rig the clip was authored o
     });
   }
 
-  const worst: Map<AutoMovieHumanoidBone, { residual: number; index: number }> = new Map<
-    AutoMovieHumanoidBone,
-    { residual: number; index: number }
-  >();
+  const worst: Map<AutoMovieHumanoidBone, { residual: number; index: number }> =
+    new Map<AutoMovieHumanoidBone, { residual: number; index: number }>();
   const keyframes: IAutoMovieKeyframe[] = [];
   let referencePose: IAutoMoviePose | undefined;
   frames.forEach((keyframe: IAutoMovieKeyframe, index: number): void => {
@@ -203,21 +235,35 @@ export const preserveRetargetContacts: (props: { /** Rig the clip was authored o
   return { ...props.retargeted, keyframes };
 };
 
-
 /** Every bone of the chain resolves on the rig's FK walk. */
-const resolvable: (chain: IAutoMoviePlantChain, bones: ReadonlySet < AutoMovieHumanoidBone >) => boolean = (
+const resolvable: (
+  chain: IAutoMoviePlantChain,
+  bones: ReadonlySet<AutoMovieHumanoidBone>,
+) => boolean = (
   chain: IAutoMoviePlantChain,
   bones: ReadonlySet<AutoMovieHumanoidBone>,
 ): boolean =>
-  [chain.effector, chain.upper, chain.lower].every((bone: AutoMovieHumanoidBone): boolean => bones.has(bone));
-
+  [chain.effector, chain.upper, chain.lower].every(
+    (bone: AutoMovieHumanoidBone): boolean => bones.has(bone),
+  );
 
 /**
  * Re-solve one keyframe's pinned limbs and record each effector's worst
  * residual. A limb already on its pin, or one whose chain is geometrically
  * degenerate, is left exactly as authored.
  */
-const correctFrame: (props: { keyframe : IAutoMovieKeyframe ; index : number ; pins : ReadonlyMap < AutoMovieHumanoidBone , IAutoMovieVector3 > ; chains : ReadonlyMap < AutoMovieHumanoidBone , IAutoMoviePlantChain > ; /** Rig whose unchanged topology and ROM constrain correction. */ skeleton : IAutoMovieSkeleton ; topology : ReturnType < typeof indexSkeletonTopology > ; jointAxes : Partial < Record < AutoMovieHumanoidBone , IAutoMovieJointAxes > > ; restFrames : Partial < Record < AutoMovieHumanoidBone , IAutoMovieRestFrame > > ; worst : Map < AutoMovieHumanoidBone , { residual : number ; index : number } > ; referencePose ? : IAutoMoviePose ; }) => IAutoMovieKeyframe = (props: {
+const correctFrame: (props: {
+  keyframe: IAutoMovieKeyframe;
+  index: number;
+  pins: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieVector3>;
+  chains: ReadonlyMap<AutoMovieHumanoidBone, IAutoMoviePlantChain>;
+  /** Rig whose unchanged topology and ROM constrain correction. */ skeleton: IAutoMovieSkeleton;
+  topology: ReturnType<typeof indexSkeletonTopology>;
+  jointAxes: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>;
+  restFrames: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>;
+  worst: Map<AutoMovieHumanoidBone, { residual: number; index: number }>;
+  referencePose?: IAutoMoviePose;
+}) => IAutoMovieKeyframe = (props: {
   keyframe: IAutoMovieKeyframe;
   index: number;
   pins: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieVector3>;
@@ -233,7 +279,9 @@ const correctFrame: (props: { keyframe : IAutoMovieKeyframe ; index : number ; p
 }): IAutoMovieKeyframe => {
   if (props.pins.size === 0) return props.keyframe;
 
-  const resolve: (pose: IAutoMoviePose) => ReturnType < typeof resolveBoneMap > = (pose: IAutoMoviePose): ReturnType<typeof resolveBoneMap> =>
+  const resolve: (pose: IAutoMoviePose) => ReturnType<typeof resolveBoneMap> = (
+    pose: IAutoMoviePose,
+  ): ReturnType<typeof resolveBoneMap> =>
     resolveBoneMap(
       props.skeleton,
       pose,
@@ -264,8 +312,12 @@ const correctFrame: (props: { keyframe : IAutoMovieKeyframe ; index : number ; p
   }
 
   for (const [effector, target] of props.pins) {
-    const residual: number = drift(resolved.get(effector)!.worldPosition, target);
-    const prior: { residual: number; index: number } | undefined = props.worst.get(effector);
+    const residual: number = drift(
+      resolved.get(effector)!.worldPosition,
+      target,
+    );
+    const prior: { residual: number; index: number } | undefined =
+      props.worst.get(effector);
     if (prior === undefined || residual > prior.residual)
       props.worst.set(effector, { residual, index: props.index });
   }
@@ -275,11 +327,12 @@ const correctFrame: (props: { keyframe : IAutoMovieKeyframe ; index : number ; p
     : { ...props.keyframe, pose };
 };
 
-
 /** Distance between a resolved effector and the contact it must hold. */
-const drift: (a: IAutoMovieVector3, b: IAutoMovieVector3) => number = (a: IAutoMovieVector3, b: IAutoMovieVector3): number =>
-  Vector3.length(Vector3.subtract(a, b));
-
+const drift: (a: IAutoMovieVector3, b: IAutoMovieVector3) => number = (
+  a: IAutoMovieVector3,
+  b: IAutoMovieVector3,
+): number => Vector3.length(Vector3.subtract(a, b));
 
 /** Six-decimal rounding so a warning message stays readable and stable. */
-const round: (value: number) => number = (value: number): number => Math.round(value * 1e6) / 1e6;
+const round: (value: number) => number = (value: number): number =>
+  Math.round(value * 1e6) / 1e6;

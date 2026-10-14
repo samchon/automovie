@@ -2,7 +2,6 @@ import { AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import { IAutoMovieResolvedBone } from "../kinematics/IAutoMovieResolvedBone";
 
-
 /**
  * Classify each resolved effector sample as stance when its model-frame Y is at or below sampled ground plus finite nonnegative tolerance. Missing effectors are false; nonfinite sampled ground throws and callback exceptions propagate.
  *
@@ -14,7 +13,17 @@ import { IAutoMovieResolvedBone } from "../kinematics/IAutoMovieResolvedBone";
  * @evidence contracts/performance.md#reuse-equivalent-work Consumes already completed FK maps supplied by the caller; ground callbacks are evaluated at actual effector positions and are not memoized across possibly effectful samples.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Returns one owned boolean per input frame and retains neither callback nor maps; callback/terrain resources remain caller-owned.
  */
-export const contactMask: (props: { /** End-effector bone judged against the ground. */ effector : AutoMovieHumanoidBone ; /** Per-frame FK bone lookups. */ resolved : ReadonlyArray < ReadonlyMap < AutoMovieHumanoidBone , IAutoMovieResolvedBone > > ; /** Ground height at a plan position. */ groundAt : ( x : number , z : number ) => number ; /** Contact tolerance above the ground counted as stance. */ tolerance : number ; }) => boolean [ ] = (props: {
+export const contactMask: (props: {
+  /** End-effector bone judged against the ground. */ effector: AutoMovieHumanoidBone;
+  /** Per-frame FK bone lookups. */ resolved: ReadonlyArray<
+    ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>
+  >;
+  /** Ground height at a plan position. */ groundAt: (
+    x: number,
+    z: number,
+  ) => number;
+  /** Contact tolerance above the ground counted as stance. */ tolerance: number;
+}) => boolean[] = (props: {
   /** End-effector bone judged against the ground. */
   effector: AutoMovieHumanoidBone;
 
@@ -31,12 +40,20 @@ export const contactMask: (props: { /** End-effector bone judged against the gro
 }): boolean[] => {
   if (!Number.isFinite(props.tolerance) || props.tolerance < 0)
     throw new Error("contact tolerance must be finite and non-negative");
-  return props.resolved.map((map: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>): boolean => {
-    const p: IAutoMovieVector3 | undefined = map.get(props.effector)?.worldPosition;
-    if (p === undefined) return false;
-    const height: number = props.groundAt(p.x, p.z);
-    if (!Number.isFinite(height))
-      throw new Error(`contact ground height at (${p.x}, ${p.z}) must be finite`);
-    return p.y <= height + props.tolerance;
-  });
+  return props.resolved.map(
+    (
+      map: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+    ): boolean => {
+      const p: IAutoMovieVector3 | undefined = map.get(
+        props.effector,
+      )?.worldPosition;
+      if (p === undefined) return false;
+      const height: number = props.groundAt(p.x, p.z);
+      if (!Number.isFinite(height))
+        throw new Error(
+          `contact ground height at (${p.x}, ${p.z}) must be finite`,
+        );
+      return p.y <= height + props.tolerance;
+    },
+  );
 };

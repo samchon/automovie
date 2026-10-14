@@ -15,7 +15,11 @@ type ImpactCoefficient = "restitution" | "hardness" | "penetrability";
 
 const VECTOR_AXES: readonly ["x", "y", "z"] = ["x", "y", "z"] as const;
 
-const assertImpactVector: (label: "a" | "b", name: "velocity", vector: IAutoMovieVector3) => void = (
+const assertImpactVector: (
+  label: "a" | "b",
+  name: "velocity",
+  vector: IAutoMovieVector3,
+) => void = (
   label: "a" | "b",
   name: "velocity",
   vector: IAutoMovieVector3,
@@ -27,7 +31,10 @@ const assertImpactVector: (label: "a" | "b", name: "velocity", vector: IAutoMovi
       );
 };
 
-const assertImpactMass: (label: "a" | "b", mass: number) => void = (label: "a" | "b", mass: number): void => {
+const assertImpactMass: (label: "a" | "b", mass: number) => void = (
+  label: "a" | "b",
+  mass: number,
+): void => {
   if (!Number.isFinite(mass))
     throw new RangeError(
       `impact body ${label} mass must be finite, but was ${mass}`,
@@ -38,7 +45,11 @@ const assertImpactMass: (label: "a" | "b", mass: number) => void = (label: "a" |
     );
 };
 
-const assertImpactCoefficient: (label: "a" | "b", name: ImpactCoefficient, value: number) => void = (
+const assertImpactCoefficient: (
+  label: "a" | "b",
+  name: ImpactCoefficient,
+  value: number,
+) => void = (
   label: "a" | "b",
   name: ImpactCoefficient,
   value: number,
@@ -53,10 +64,10 @@ const assertImpactCoefficient: (label: "a" | "b", name: ImpactCoefficient, value
     );
 };
 
-const assertImpactBody: (label: "a" | "b", body: IAutoMovieImpactBody) => void = (
+const assertImpactBody: (
   label: "a" | "b",
   body: IAutoMovieImpactBody,
-): void => {
+) => void = (label: "a" | "b", body: IAutoMovieImpactBody): void => {
   assertImpactMass(label, body.mass);
   assertImpactVector(label, "velocity", body.velocity);
   assertImpactCoefficient(label, "restitution", body.restitution);
@@ -86,7 +97,11 @@ const assertImpactBody: (label: "a" | "b", body: IAutoMovieImpactBody) => void =
  * @evidence contracts/performance.md#reuse-equivalent-work The no-closing branch borrows unchanged input velocities; active response creates new vectors. No cached collision result survives changed inputs.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only the returned response survives; no body history, iterative solver state or resource is held after the call.
  */
-export const resolveImpact: (a: IAutoMovieImpactBody, b: IAutoMovieImpactBody, normal: IAutoMovieVector3) => IAutoMovieImpact = (
+export const resolveImpact: (
+  a: IAutoMovieImpactBody,
+  b: IAutoMovieImpactBody,
+  normal: IAutoMovieVector3,
+) => IAutoMovieImpact = (
   a: IAutoMovieImpactBody,
   b: IAutoMovieImpactBody,
   normal: IAutoMovieVector3,

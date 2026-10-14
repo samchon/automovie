@@ -1,7 +1,7 @@
 import {
   AutoMovieHumanoidBone,
-  IAutoMovieMotion,
   IAutoMovieKeyframe,
+  IAutoMovieMotion,
   IAutoMovieSkeleton,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -28,7 +28,6 @@ const DEFAULT_GROUND_Y: number = 0;
 
 const DEFAULT_TOLERANCE: number = 0.02;
 
-
 /**
  * The humanoid legs, named from the shared chain table so the ground-IK pass
  * and the retarget contact pass cannot disagree about which bones a leg is.
@@ -41,7 +40,6 @@ const DEFAULT_LEGS: readonly IAutoMovieFootLeg[] = HUMANOID_LEG_CHAINS.map(
   }),
 );
 
-
 /**
  * Sample admitted motion on a fixed clock, detect finite model-frame stance contacts, pin each run and fit targeted leg chains under the same clinical mappings and rig ROM. Unreachable/constrained pins retain the best allowed pose and may leave residual; the result does not guarantee exact no-skate contact. Opening plants resume authoritative targets only for opening stance.
  *
@@ -53,7 +51,25 @@ const DEFAULT_LEGS: readonly IAutoMovieFootLeg[] = HUMANOID_LEG_CHAINS.map(
  * @evidence contracts/performance.md#reuse-equivalent-work Completed sampled poses/FK maps feed run detection directly; one topology and each run's fixed target are reused while changing parent poses still need per-frame chain preparation.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Returned dense frames and plants belong to the caller; sample/FK/target arrays are call-local, bounded by frame/leg/bone populations, and no renderer/native handles or continuing tasks are retained.
  */
-export const plantStanceFeet: (props: { /** Rig for forward kinematics. */ skeleton : IAutoMovieSkeleton ; /** The humanoid gait/motion to correct. */ motion : IAutoMovieMotion ; /** Ground height: plane scalar or `(x, z) → y` source. Defaults to `0`. */ groundY ? : number | ( ( x : number , z : number ) => number ) ; /** Contact tolerance above the plane counted as stance. Defaults to `0.02`. */ tolerance ? : number ; /** Legs to plant. Defaults to both humanoid legs. */ legs ? : readonly IAutoMovieFootLeg [ ] ; /** Optional clinical-axis remap used consistently by detection and IK. */ jointAxes ? : Partial < Record < AutoMovieHumanoidBone , IAutoMovieJointAxes > > ; /** Optional clinical rest frames used consistently by detection and IK. */ restFrames ? : Partial < Record < AutoMovieHumanoidBone , IAutoMovieRestFrame > > ; /** Samples/second for detection and re-keying. Defaults to `24`. */ sampleRate ? : number ; /** Prior beat plants expressed in this motion's model frame. When a detected stance begins at the opening sample, its first pin resumes this authoritative position instead of deriving a nearby replacement. */ openingPlants ? : ReadonlyArray < Pick < IAutoMovieFootPlant , "foot" | "position" > > ; }) => IAutoMoviePlantedFeet = (props: {
+export const plantStanceFeet: (props: {
+  /** Rig for forward kinematics. */ skeleton: IAutoMovieSkeleton;
+  /** The humanoid gait/motion to correct. */ motion: IAutoMovieMotion;
+  /** Ground height: plane scalar or `(x, z) → y` source. Defaults to `0`. */ groundY?:
+    | number
+    | ((x: number, z: number) => number);
+  /** Contact tolerance above the plane counted as stance. Defaults to `0.02`. */ tolerance?: number;
+  /** Legs to plant. Defaults to both humanoid legs. */ legs?: readonly IAutoMovieFootLeg[];
+  /** Optional clinical-axis remap used consistently by detection and IK. */ jointAxes?: Partial<
+    Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>
+  >;
+  /** Optional clinical rest frames used consistently by detection and IK. */ restFrames?: Partial<
+    Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>
+  >;
+  /** Samples/second for detection and re-keying. Defaults to `24`. */ sampleRate?: number;
+  /** Prior beat plants expressed in this motion's model frame. When a detected stance begins at the opening sample, its first pin resumes this authoritative position instead of deriving a nearby replacement. */ openingPlants?: ReadonlyArray<
+    Pick<IAutoMovieFootPlant, "foot" | "position">
+  >;
+}) => IAutoMoviePlantedFeet = (props: {
   /** Rig for forward kinematics. */
   skeleton: IAutoMovieSkeleton;
 
@@ -86,7 +102,9 @@ export const plantStanceFeet: (props: { /** Rig for forward kinematics. */ skele
    */
   openingPlants?: ReadonlyArray<Pick<IAutoMovieFootPlant, "foot" | "position">>;
 }): IAutoMoviePlantedFeet => {
-  const groundAt: ReturnType<typeof groundFunction> = groundFunction(props.groundY ?? DEFAULT_GROUND_Y);
+  const groundAt: ReturnType<typeof groundFunction> = groundFunction(
+    props.groundY ?? DEFAULT_GROUND_Y,
+  );
   const tolerance: number = props.tolerance ?? DEFAULT_TOLERANCE;
   const legs: readonly IAutoMovieFootLeg[] = props.legs ?? DEFAULT_LEGS;
   const sampleRate: number = props.sampleRate ?? DEFAULT_SAMPLE_RATE;
@@ -99,30 +117,46 @@ export const plantStanceFeet: (props: { /** Rig for forward kinematics. */ skele
       `sampleRate must be a finite number > 0, but was ${sampleRate}`,
     );
 
-  const topology: IAutoMovieSkeletonTopology = indexSkeletonTopology(props.skeleton);
+  const topology: IAutoMovieSkeletonTopology = indexSkeletonTopology(
+    props.skeleton,
+  );
   const times: number[] = sampleTimes(props.motion.duration, sampleRate);
-  const poses: ReturnType<typeof sampleMotion>[] = times.map((time: number): ReturnType<typeof sampleMotion> => sampleMotion(props.motion, time));
-  const resolved: ReturnType<typeof resolveBoneMap>[] = poses.map((sampled: ReturnType<typeof sampleMotion>): ReturnType<typeof resolveBoneMap> =>
-    resolveBoneMap(
-      props.skeleton,
-      sampled.pose,
-      topology,
-      props.jointAxes,
-      props.restFrames,
-    ),
+  const poses: ReturnType<typeof sampleMotion>[] = times.map(
+    (time: number): ReturnType<typeof sampleMotion> =>
+      sampleMotion(props.motion, time),
+  );
+  const resolved: ReturnType<typeof resolveBoneMap>[] = poses.map(
+    (
+      sampled: ReturnType<typeof sampleMotion>,
+    ): ReturnType<typeof resolveBoneMap> =>
+      resolveBoneMap(
+        props.skeleton,
+        sampled.pose,
+        topology,
+        props.jointAxes,
+        props.restFrames,
+      ),
   );
 
   // A stance run per leg pinned to its start contact; per-frame solve targets.
-  const { plants, targets }: ReturnType<typeof pinStanceTargets> = pinStanceTargets({
-    legs,
-    resolved,
-    times,
-    groundAt,
-    tolerance,
-    openingTargets: new Map(
-      (props.openingPlants ?? []).map((plant: Pick<IAutoMovieFootPlant, "foot" | "position">): [AutoMovieHumanoidBone, IAutoMovieVector3] => [plant.foot, plant.position]),
-    ),
-  });
+  const { plants, targets }: ReturnType<typeof pinStanceTargets> =
+    pinStanceTargets({
+      legs,
+      resolved,
+      times,
+      groundAt,
+      tolerance,
+      openingTargets: new Map(
+        (props.openingPlants ?? []).map(
+          (
+            plant: Pick<IAutoMovieFootPlant, "foot" | "position">,
+          ): [AutoMovieHumanoidBone, IAutoMovieVector3] => [
+            plant.foot,
+            plant.position,
+          ],
+        ),
+      ),
+    });
 
   const keyframes: IAutoMovieKeyframe[] = rekeyPlantedFeet({
     skeleton: props.skeleton,

@@ -1,6 +1,5 @@
 import { AutoMovieEasing } from "@automovie/interface";
 
-
 /**
  * Evaluate a normalized easing curve: maps a linear progress `t` in `[0, 1]`
  * between two keyframes to an eased progress in `[0, 1]`.
@@ -19,7 +18,10 @@ import { AutoMovieEasing } from "@automovie/interface";
  *
  * @author Samchon
  */
-export const ease: (curve: AutoMovieEasing, t: number) => number = (curve: AutoMovieEasing, t: number): number => {
+export const ease: (curve: AutoMovieEasing, t: number) => number = (
+  curve: AutoMovieEasing,
+  t: number,
+): number => {
   if (!Number.isFinite(t)) throw new Error("easing progress must be finite");
   const x: number = Math.min(1, Math.max(0, t));
   switch (curve) {

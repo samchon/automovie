@@ -1,13 +1,13 @@
 import type {
   AutoMovieHumanoidBone,
   AutoMovieInterpolation,
+  IAutoMovieJointPose,
+  IAutoMovieKeyframe,
   IAutoMovieMotion,
   IAutoMovieQuaternion,
   IAutoMovieSkeleton,
-  IAutoMovieVector3,
   IAutoMovieTransform,
-  IAutoMovieKeyframe,
-  IAutoMovieJointPose,
+  IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { HUMANOID_JOINT_AXES } from "../kinematics/constants/HUMANOID_JOINT_AXES";
@@ -18,9 +18,8 @@ import { sampleClip } from "../resolve/sampleClip";
 import { HUMANOID_REST_FRAME } from "../rom/constants/HUMANOID_REST_FRAME";
 import { getConstraint } from "../rom/getConstraint";
 import { compareCodeUnits } from "../text/compareCodeUnits";
-import { IAutoMovieImportedNodeMotionProps } from "./IAutoMovieImportedNodeMotionProps";
 import { IAutoMovieImportedNodeBoneMapping } from "./IAutoMovieImportedNodeBoneMapping";
-
+import { IAutoMovieImportedNodeMotionProps } from "./IAutoMovieImportedNodeMotionProps";
 
 /**
  * Lower admitted imported node tracks into clinical keyframes at the sorted union of source key times. Every mapped node needs a rotation track; only hips translation is supported, all tracks share step or linear interpolation, and unsupported/missing/duplicate/nonfinite content throws. Key orientations are retained within clinical inversion tolerance; inter-key linear clinical interpolation generally differs from quaternion slerp.
@@ -33,7 +32,9 @@ import { IAutoMovieImportedNodeBoneMapping } from "./IAutoMovieImportedNodeBoneM
  * @evidence contracts/performance.md#reuse-equivalent-work Source bone and channel maps are reused at all key times, each sampleClip result supplies every mapped rotation/root value for that time, and no conversion cache survives mutable clip/skeleton edits.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Temporary maps/sets and key-time union live for this conversion; the caller owns new keyframes/root/joint records and no source buffer, native resource or callback is retained independently.
  */
-export const importedNodeClipToAutoMovieMotion: (props: IAutoMovieImportedNodeMotionProps) => IAutoMovieMotion = (
+export const importedNodeClipToAutoMovieMotion: (
+  props: IAutoMovieImportedNodeMotionProps,
+) => IAutoMovieMotion = (
   props: IAutoMovieImportedNodeMotionProps,
 ): IAutoMovieMotion => {
   if (props.motionId.trim().length === 0)
@@ -46,10 +47,10 @@ export const importedNodeClipToAutoMovieMotion: (props: IAutoMovieImportedNodeMo
     );
 
   const skeletonBones: Set<AutoMovieHumanoidBone> = new Set();
-  const sourceBones: Map<AutoMovieHumanoidBone, IAutoMovieSkeleton["bones"][number]> = new Map<
+  const sourceBones: Map<
     AutoMovieHumanoidBone,
     IAutoMovieSkeleton["bones"][number]
-  >();
+  > = new Map<AutoMovieHumanoidBone, IAutoMovieSkeleton["bones"][number]>();
   for (const bone of props.sourceSkeleton.bones) {
     if (skeletonBones.has(bone.bone))
       throw new Error(
@@ -90,7 +91,8 @@ export const importedNodeClipToAutoMovieMotion: (props: IAutoMovieImportedNodeMo
     mappedBones.add(entry.bone);
   }
 
-  const channelTracks: Map<string, (typeof props.clip.tracks)[number]> = new Map();
+  const channelTracks: Map<string, (typeof props.clip.tracks)[number]> =
+    new Map();
   let interpolation: Exclude<AutoMovieInterpolation, "cubicspline"> | null =
     null;
   for (const track of props.clip.tracks) {
@@ -100,7 +102,9 @@ export const importedNodeClipToAutoMovieMotion: (props: IAutoMovieImportedNodeMo
     if (channelTracks.has(key))
       throw new Error(`imported motion repeats channel "${key}"`);
     channelTracks.set(key, track);
-    const bone: AutoMovieHumanoidBone | undefined = nodeToBone.get(track.channel.node);
+    const bone: AutoMovieHumanoidBone | undefined = nodeToBone.get(
+      track.channel.node,
+    );
     if (bone === undefined)
       throw new Error(
         `imported motion node "${track.channel.node}" has no explicit bone mapping`,
@@ -128,8 +132,13 @@ export const importedNodeClipToAutoMovieMotion: (props: IAutoMovieImportedNodeMo
   const law: Exclude<AutoMovieInterpolation, "cubicspline"> = interpolation;
 
   // Bone identities are already unique, so they alone define the stable order.
-  const orderedMapping: IAutoMovieImportedNodeBoneMapping[] = [...props.mapping].sort((left: IAutoMovieImportedNodeBoneMapping, right: IAutoMovieImportedNodeBoneMapping): number =>
-    compareCodeUnits(left.bone, right.bone),
+  const orderedMapping: IAutoMovieImportedNodeBoneMapping[] = [
+    ...props.mapping,
+  ].sort(
+    (
+      left: IAutoMovieImportedNodeBoneMapping,
+      right: IAutoMovieImportedNodeBoneMapping,
+    ): number => compareCodeUnits(left.bone, right.bone),
   );
   for (const entry of orderedMapping) {
     const rotationKey: string = channelKey({
@@ -144,14 +153,22 @@ export const importedNodeClipToAutoMovieMotion: (props: IAutoMovieImportedNodeMo
   }
 
   const keyTimes: number[] = [
-    ...new Set(props.clip.tracks.flatMap((track: (typeof props.clip.tracks)[number]): number[] => track.times)),
+    ...new Set(
+      props.clip.tracks.flatMap(
+        (track: (typeof props.clip.tracks)[number]): number[] => track.times,
+      ),
+    ),
   ].sort((left: number, right: number): number => left - right);
   if (keyTimes.length < 2)
     throw new Error(
       "imported motion needs at least two distinct authored key times",
     );
 
-  const hips: IAutoMovieImportedNodeBoneMapping | undefined = orderedMapping.find((entry: IAutoMovieImportedNodeBoneMapping): boolean => entry.bone === "hips");
+  const hips: IAutoMovieImportedNodeBoneMapping | undefined =
+    orderedMapping.find(
+      (entry: IAutoMovieImportedNodeBoneMapping): boolean =>
+        entry.bone === "hips",
+    );
   const hipsTranslationKey: string | null =
     hips === undefined
       ? null
@@ -165,7 +182,10 @@ export const importedNodeClipToAutoMovieMotion: (props: IAutoMovieImportedNodeMo
     duration: props.clip.duration,
     loop: props.clip.loop,
     keyframes: keyTimes.map((time: number): IAutoMovieKeyframe => {
-      const sampled: ReturnType<typeof sampleClip> = sampleClip(props.clip, time);
+      const sampled: ReturnType<typeof sampleClip> = sampleClip(
+        props.clip,
+        time,
+      );
       return {
         time,
         pose: {
@@ -176,36 +196,44 @@ export const importedNodeClipToAutoMovieMotion: (props: IAutoMovieImportedNodeMo
                 sourceBones.get("hips")!.rest.translation,
               )
             : null,
-          joints: orderedMapping.map((entry: IAutoMovieImportedNodeBoneMapping): IAutoMovieJointPose => {
-            const value: number[] = sampled.get(
-              channelKey({
-                kind: "node",
-                node: entry.node,
-                path: "rotation",
-              }),
-            )!.value;
-            const quaternion: IAutoMovieQuaternion = finiteUnitQuaternion(value, entry.node, time);
-            const rest: IAutoMovieQuaternion = sourceBones.get(entry.bone)!.rest.rotation;
-            const relative: IAutoMovieQuaternion = Quaternion.multiply(
-              Quaternion.inverse(rest),
-              quaternion,
-            );
-            const angles: ReturnType<typeof decomposeJointRotation> = decomposeJointRotation(
-              relative,
-              props.sourceJointAxes?.[entry.bone] ??
-                HUMANOID_JOINT_AXES[entry.bone],
-              props.sourceRestFrames?.[entry.bone] ??
-                HUMANOID_REST_FRAME[entry.bone],
-              {
-                bone: entry.bone,
-                constraint: getConstraint(
-                  entry.bone,
-                  sourceBones.get(entry.bone)!.constraint,
-                ),
-              },
-            );
-            return { bone: entry.bone, ...angles };
-          }),
+          joints: orderedMapping.map(
+            (entry: IAutoMovieImportedNodeBoneMapping): IAutoMovieJointPose => {
+              const value: number[] = sampled.get(
+                channelKey({
+                  kind: "node",
+                  node: entry.node,
+                  path: "rotation",
+                }),
+              )!.value;
+              const quaternion: IAutoMovieQuaternion = finiteUnitQuaternion(
+                value,
+                entry.node,
+                time,
+              );
+              const rest: IAutoMovieQuaternion = sourceBones.get(entry.bone)!
+                .rest.rotation;
+              const relative: IAutoMovieQuaternion = Quaternion.multiply(
+                Quaternion.inverse(rest),
+                quaternion,
+              );
+              const angles: ReturnType<typeof decomposeJointRotation> =
+                decomposeJointRotation(
+                  relative,
+                  props.sourceJointAxes?.[entry.bone] ??
+                    HUMANOID_JOINT_AXES[entry.bone],
+                  props.sourceRestFrames?.[entry.bone] ??
+                    HUMANOID_REST_FRAME[entry.bone],
+                  {
+                    bone: entry.bone,
+                    constraint: getConstraint(
+                      entry.bone,
+                      sourceBones.get(entry.bone)!.constraint,
+                    ),
+                  },
+                );
+              return { bone: entry.bone, ...angles };
+            },
+          ),
         },
         expression: null,
         easing: law,
@@ -216,7 +244,13 @@ export const importedNodeClipToAutoMovieMotion: (props: IAutoMovieImportedNodeMo
   };
 };
 
-const rootTransform: (value: readonly number [ ], rest: IAutoMovieVector3) => IAutoMovieTransform = (value: readonly number[], rest: IAutoMovieVector3): IAutoMovieTransform => ({
+const rootTransform: (
+  value: readonly number[],
+  rest: IAutoMovieVector3,
+) => IAutoMovieTransform = (
+  value: readonly number[],
+  rest: IAutoMovieVector3,
+): IAutoMovieTransform => ({
   translation: {
     x: value[0]! - rest.x,
     y: value[1]! - rest.y,
@@ -226,7 +260,11 @@ const rootTransform: (value: readonly number [ ], rest: IAutoMovieVector3) => IA
   scale: { x: 1, y: 1, z: 1 },
 });
 
-const finiteUnitQuaternion: (value: readonly number [ ], node: string, time: number) => IAutoMovieQuaternion = (
+const finiteUnitQuaternion: (
+  value: readonly number[],
+  node: string,
+  time: number,
+) => IAutoMovieQuaternion = (
   value: readonly number[],
   node: string,
   time: number,

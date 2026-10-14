@@ -2,7 +2,6 @@ import { IAutoMovieVector3 } from "@automovie/interface";
 
 import { LOCOMOTE_GROUND_EPSILON } from "./constants/LOCOMOTE_GROUND_EPSILON";
 
-
 /**
  * Classify an admitted finite root displacement in metres into no travel, vertical-only travel or ground-plan travel using the shared locomotion epsilon.
  *
@@ -14,20 +13,24 @@ import { LOCOMOTE_GROUND_EPSILON } from "./constants/LOCOMOTE_GROUND_EPSILON";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Both classification flags reuse the computed full norm; no mutable displacement result is cached across calls.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Only two distances and two booleans escape; the input vector and no external resource are retained.
  */
-export const classifyLocomoteGroundDisplacement: (displacement: IAutoMovieVector3) => { /** Horizontal XZ displacement length, metres. */ groundDistance : number ; /** Full XYZ displacement length, metres. */ travelDistance : number ; /** Full displacement is strictly below the shared epsilon. */ alreadyThere : boolean ; /** Meaningful full travel with horizontal travel strictly below epsilon. */ verticalOnly : boolean ; } = (
+export const classifyLocomoteGroundDisplacement: (
+  displacement: IAutoMovieVector3,
+) => {
+  /** Horizontal XZ displacement length, metres. */ groundDistance: number;
+  /** Full XYZ displacement length, metres. */ travelDistance: number;
+  /** Full displacement is strictly below the shared epsilon. */ alreadyThere: boolean;
+  /** Meaningful full travel with horizontal travel strictly below epsilon. */ verticalOnly: boolean;
+} = (
   displacement: IAutoMovieVector3,
 ): {
   /** Horizontal XZ displacement length, metres. */
   groundDistance: number;
 
-
   /** Full XYZ displacement length, metres. */
   travelDistance: number;
 
-
   /** Full displacement is strictly below the shared epsilon. */
   alreadyThere: boolean;
-
 
   /** Meaningful full travel with horizontal travel strictly below epsilon. */
   verticalOnly: boolean;

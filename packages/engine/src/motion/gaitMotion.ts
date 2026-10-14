@@ -16,11 +16,14 @@ const IDENTITY_ROOT: Pick<IAutoMovieTransform, "rotation" | "scale"> = {
   scale: { x: 1, y: 1, z: 1 },
 };
 
-
 /** Wrap a cycle position into `[0, 1)`. */
-const wrap01: (x: number) => number = (x: number): number => positiveModulo(x, 1);
+const wrap01: (x: number) => number = (x: number): number =>
+  positiveModulo(x, 1);
 
-const gaitRoot: (gait: IAutoMovieGait, time: number) => IAutoMovieTransform | null = (
+const gaitRoot: (
+  gait: IAutoMovieGait,
+  time: number,
+) => IAutoMovieTransform | null = (
   gait: IAutoMovieGait,
   time: number,
 ): IAutoMovieTransform | null => {
@@ -45,12 +48,17 @@ const gaitRoot: (gait: IAutoMovieGait, time: number) => IAutoMovieTransform | nu
   };
 };
 
-const gaitJoints: (limbs: readonly IAutoMovieGaitLimb [ ], time: number, period: number) => IAutoMovieJointPose [ ] = (
+const gaitJoints: (
+  limbs: readonly IAutoMovieGaitLimb[],
+  time: number,
+  period: number,
+) => IAutoMovieJointPose[] = (
   limbs: readonly IAutoMovieGaitLimb[],
   time: number,
   period: number,
 ): IAutoMovieJointPose[] => {
-  const joints: Map<IAutoMovieGaitLimb["bone"], IAutoMovieJointPose> = new Map();
+  const joints: Map<IAutoMovieGaitLimb["bone"], IAutoMovieJointPose> =
+    new Map();
   for (const limb of limbs) {
     let joint: IAutoMovieJointPose | undefined = joints.get(limb.bone);
     if (joint === undefined) {
@@ -67,17 +75,19 @@ const gaitJoints: (limbs: readonly IAutoMovieGaitLimb [ ], time: number, period:
   return [...joints.values()];
 };
 
-const assertUniqueGaitAxes: (limbs: readonly IAutoMovieGaitLimb [ ]) => void = (limbs: readonly IAutoMovieGaitLimb[]): void => {
+const assertUniqueGaitAxes: (limbs: readonly IAutoMovieGaitLimb[]) => void = (
+  limbs: readonly IAutoMovieGaitLimb[],
+): void => {
   const seen: Set<string> = new Set<string>();
   for (const limb of limbs) {
-    const axis: NonNullable<IAutoMovieGaitLimb["axis"]> = limb.axis ?? "flexion";
+    const axis: NonNullable<IAutoMovieGaitLimb["axis"]> =
+      limb.axis ?? "flexion";
     const key: string = `${limb.bone}:${axis}`;
     if (seen.has(key))
       throw new Error(`duplicate gait row for ${limb.bone}.${axis}`);
     seen.add(key);
   }
 };
-
 
 /**
  * Bake one declarative gait cycle into samples+1 evenly timed clinical poses, including a closing copy of cycle phase. Optional phase is seconds into the cycle; gaitCycle records the wrapped seed, and rig-specific ROM validation remains the consumer's responsibility.
@@ -90,7 +100,13 @@ const assertUniqueGaitAxes: (limbs: readonly IAutoMovieGaitLimb [ ]) => void = (
  * @evidence contracts/performance.md#reuse-equivalent-work All rows at a frame share its sampleTime and each bone's joint record; identity root values are copied into caller-owned records, while no generated clip is memoized across calls.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The returned clip owns sampled joints, roots and keyframes including nested rotation/scale; temporary per-frame maps are released, and module identity constants contain no growing population or handles.
  */
-export const gaitMotion: (id: string, skeleton: string, gait: IAutoMovieGait, samples: number, phase?: number) => IAutoMovieMotion = (
+export const gaitMotion: (
+  id: string,
+  skeleton: string,
+  gait: IAutoMovieGait,
+  samples: number,
+  phase?: number,
+) => IAutoMovieMotion = (
   id: string,
   skeleton: string,
   gait: IAutoMovieGait,

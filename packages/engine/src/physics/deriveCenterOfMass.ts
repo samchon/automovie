@@ -31,7 +31,9 @@ import { primitiveVolume } from "./primitiveVolume";
  * @evidence contracts/performance.md#reuse-equivalent-work Primitive formulas are shared canonical helpers; no aggregate cache survives mutable part geometry or transform changes.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Temporary vectors are call-owned and the resulting centroid transfers to the caller; no part history or handle is retained.
  */
-export const deriveCenterOfMass: (model: IAutoMovieModel) => IAutoMovieVector3 | null = (
+export const deriveCenterOfMass: (
+  model: IAutoMovieModel,
+) => IAutoMovieVector3 | null = (
   model: IAutoMovieModel,
 ): IAutoMovieVector3 | null => {
   let total: number = 0;
@@ -59,11 +61,15 @@ const IDENTITY: IAutoMovieTransform = {
 };
 
 /** How much a transform's scale multiplies a solid's volume. */
-const scaleVolume: (t: IAutoMovieTransform) => number = (t: IAutoMovieTransform): number =>
-  t.scale.x * t.scale.y * t.scale.z;
+const scaleVolume: (t: IAutoMovieTransform) => number = (
+  t: IAutoMovieTransform,
+): number => t.scale.x * t.scale.y * t.scale.z;
 
 /** Apply a full TRS transform to a local point. */
-const applyTransform: (t: IAutoMovieTransform, p: IAutoMovieVector3) => IAutoMovieVector3 = (
+const applyTransform: (
+  t: IAutoMovieTransform,
+  p: IAutoMovieVector3,
+) => IAutoMovieVector3 = (
   t: IAutoMovieTransform,
   p: IAutoMovieVector3,
 ): IAutoMovieVector3 =>

@@ -18,7 +18,9 @@ import { AutoMoviePrimitiveShape } from "@automovie/interface";
  * @evidence contracts/performance.md#reuse-equivalent-work deriveCenterOfMass reuses this owner for every part; no identity cache would be valid after dimension mutation.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only a number is returned; no vectors, mesh storage, handles or tasks survive the call.
  */
-export const primitiveVolume: (shape: AutoMoviePrimitiveShape) => number = (shape: AutoMoviePrimitiveShape): number => {
+export const primitiveVolume: (shape: AutoMoviePrimitiveShape) => number = (
+  shape: AutoMoviePrimitiveShape,
+): number => {
   switch (shape.type) {
     case "box":
       return shape.width * shape.height * shape.depth;

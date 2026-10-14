@@ -1,8 +1,8 @@
-import type { IPreparedChainPlant } from "./IPreparedChainPlant";
 import type { IAutoMovieTwoBoneArticulation } from "../kinematics/IAutoMovieTwoBoneArticulation";
 import { decomposeJointRotation } from "../kinematics/decomposeJointRotation";
 import { twoBoneChainArticulation } from "../kinematics/twoBoneChainArticulation";
 import type { IAutoMovieSolvedChainPlant } from "./IAutoMovieSolvedChainPlant";
+import type { IPreparedChainPlant } from "./IPreparedChainPlant";
 import type { ISolvePreparedChainPlantProps } from "./ISolvePreparedChainPlantProps";
 
 /**
@@ -16,18 +16,21 @@ import type { ISolvePreparedChainPlantProps } from "./ISolvePreparedChainPlantPr
  * @evidence contracts/performance.md#reuse-equivalent-work The prepared chain's endpoints and domains are reused across bend candidates, preserving the same data in solver and residual readers.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the returned articulation records; preparation and input maps are borrowed and the helper retains no solver workspace or resource.
  */
-export const solvePreparedChainPlant: (props: ISolvePreparedChainPlantProps) => IAutoMovieSolvedChainPlant | null = (
+export const solvePreparedChainPlant: (
+  props: ISolvePreparedChainPlantProps,
+) => IAutoMovieSolvedChainPlant | null = (
   props: ISolvePreparedChainPlantProps,
 ): IAutoMovieSolvedChainPlant | null => {
   const { chain, upper, lower }: IPreparedChainPlant = props.prepared;
 
-  const articulation: IAutoMovieTwoBoneArticulation | null = twoBoneChainArticulation({
-    upper,
-    lower,
-    end: props.prepared.end,
-    target: props.target,
-    bendNormal: props.bendNormal,
-  });
+  const articulation: IAutoMovieTwoBoneArticulation | null =
+    twoBoneChainArticulation({
+      upper,
+      lower,
+      end: props.prepared.end,
+      target: props.target,
+      bendNormal: props.bendNormal,
+    });
   if (articulation === null) return null;
 
   return {

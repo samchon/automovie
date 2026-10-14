@@ -1,6 +1,13 @@
-import { AutoMovieHumanoidBone, IAutoMovieBone, IAutoMovieJointPose, IAutoMoviePose, IAutoMovieQuaternion } from "@automovie/interface";
-import { IAutoMovieSkeletonTopology } from "../kinematics/IAutoMovieSkeletonTopology";
+import {
+  AutoMovieHumanoidBone,
+  IAutoMovieBone,
+  IAutoMovieJointPose,
+  IAutoMoviePose,
+  IAutoMovieQuaternion,
+} from "@automovie/interface";
+
 import { IAutoMovieResolvedBone } from "../kinematics/IAutoMovieResolvedBone";
+import { IAutoMovieSkeletonTopology } from "../kinematics/IAutoMovieSkeletonTopology";
 import { DEFAULT_JOINT_AXES } from "../kinematics/constants/DEFAULT_JOINT_AXES";
 import { normalizeJointAxes } from "../kinematics/normalizeJointAxes";
 import { Quaternion } from "../math/Quaternion";
@@ -9,7 +16,6 @@ import { getConstraint } from "../rom/getConstraint";
 import { IFitChainToTargetProps } from "./IFitChainToTargetProps";
 import { IPreparedChainPlant } from "./IPreparedChainPlant";
 import { resolveBoneMap } from "./resolveBoneMap";
-
 
 /**
  * Prepare articulation-free frames and effective domains for one reachable descendant two-bone chain in the current pose's resolved model-metre frame. Missing bones or invalid ancestry return null; supplied topology and clinical mappings must match the unchanged skeleton.
@@ -22,7 +28,12 @@ import { resolveBoneMap } from "./resolveBoneMap";
  * @evidence contracts/performance.md#reuse-equivalent-work One prepared record is reused for every candidate of the same parent pose/chain; a changed pose or semantic mapping requires new preparation rather than a name-only cache.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Returned fields borrow chain and resolved records and own derived offsets; temporary zeroed joints/FK map are released after return/null, with no resource handles.
  */
-export const prepareChainPlant: (props: Pick < IFitChainToTargetProps , "skeleton" | "pose" | "chain" | "topology" | "jointAxes" | "restFrames" >) => IPreparedChainPlant | null = (
+export const prepareChainPlant: (
+  props: Pick<
+    IFitChainToTargetProps,
+    "skeleton" | "pose" | "chain" | "topology" | "jointAxes" | "restFrames"
+  >,
+) => IPreparedChainPlant | null = (
   props: Pick<
     IFitChainToTargetProps,
     "skeleton" | "pose" | "chain" | "topology" | "jointAxes" | "restFrames"
@@ -35,7 +46,8 @@ export const prepareChainPlant: (props: Pick < IFitChainToTargetProps , "skeleto
     skeleton: props.pose.skeleton,
     root: props.pose.root,
     joints: props.pose.joints.filter(
-      (j: IAutoMovieJointPose): boolean => j.bone !== chain.upper && j.bone !== chain.lower,
+      (j: IAutoMovieJointPose): boolean =>
+        j.bone !== chain.upper && j.bone !== chain.lower,
     ),
   };
   const map: ReturnType<typeof resolveBoneMap> = resolveBoneMap(
@@ -56,8 +68,12 @@ export const prepareChainPlant: (props: Pick < IFitChainToTargetProps , "skeleto
   )
     return null;
 
-  const upperInverse: IAutoMovieQuaternion = Quaternion.inverse(upper.worldRotation);
-  const lowerInverse: IAutoMovieQuaternion = Quaternion.inverse(lower.worldRotation);
+  const upperInverse: IAutoMovieQuaternion = Quaternion.inverse(
+    upper.worldRotation,
+  );
+  const lowerInverse: IAutoMovieQuaternion = Quaternion.inverse(
+    lower.worldRotation,
+  );
   return {
     chain,
     upper,
@@ -66,16 +82,18 @@ export const prepareChainPlant: (props: Pick < IFitChainToTargetProps , "skeleto
       bone: chain.upper,
       constraint: getConstraint(
         chain.upper,
-        props.skeleton.bones.find((bone: IAutoMovieBone): boolean => bone.bone === chain.upper)
-          ?.constraint ?? null,
+        props.skeleton.bones.find(
+          (bone: IAutoMovieBone): boolean => bone.bone === chain.upper,
+        )?.constraint ?? null,
       ),
     },
     lowerDomain: {
       bone: chain.lower,
       constraint: getConstraint(
         chain.lower,
-        props.skeleton.bones.find((bone: IAutoMovieBone): boolean => bone.bone === chain.lower)
-          ?.constraint ?? null,
+        props.skeleton.bones.find(
+          (bone: IAutoMovieBone): boolean => bone.bone === chain.lower,
+        )?.constraint ?? null,
       ),
     },
     end: effector.worldPosition,
@@ -98,9 +116,12 @@ export const prepareChainPlant: (props: Pick < IFitChainToTargetProps , "skeleto
   };
 };
 
-
 /** Whether a reachable bone sits strictly below another in the rig tree. */
-const isDescendant: (topology: IAutoMovieSkeletonTopology, ancestor: AutoMovieHumanoidBone, descendant: AutoMovieHumanoidBone) => boolean = (
+const isDescendant: (
+  topology: IAutoMovieSkeletonTopology,
+  ancestor: AutoMovieHumanoidBone,
+  descendant: AutoMovieHumanoidBone,
+) => boolean = (
   topology: IAutoMovieSkeletonTopology,
   ancestor: AutoMovieHumanoidBone,
   descendant: AutoMovieHumanoidBone,
@@ -110,4 +131,3 @@ const isDescendant: (topology: IAutoMovieSkeletonTopology, ancestor: AutoMovieHu
       child.bone === descendant ||
       isDescendant(topology, child.bone, descendant),
   );
-

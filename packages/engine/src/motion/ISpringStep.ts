@@ -15,7 +15,6 @@ export interface ISpringStep {
   /** The sprung value this step. */
   value: number;
 
-
   /** Velocity carried into the next step. */
   velocity: number;
 }

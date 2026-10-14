@@ -14,7 +14,6 @@ import { IAutoMovieFootLeg } from "./IAutoMovieFootLeg";
 import { fitChainToTarget } from "./fitChainToTarget";
 import { sampleMotion } from "./sampleMotion";
 
-
 /**
  * Emit one corrected keyframe per admitted parallel time/pose/target sample using the same unchanged skeleton topology as stance detection. Only targeted leg chains are fitted; roots, expressions and other joints persist, while the prior corrected pose ranks equally accurate bend choices.
  *
@@ -26,7 +25,24 @@ import { sampleMotion } from "./sampleMotion";
  * @evidence contracts/performance.md#reuse-equivalent-work Reuses caller topology across all corrected frames and the preceding corrected pose for continuity; frame-specific parent pose and target still require fresh chain preparation.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The pass caller owns new keyframes and corrected joints; unchanged root/expression/joints may be shared with sampled input, while no cross-call cache or native handle persists.
  */
-export const rekeyPlantedFeet: (props: { /** Rig whose unchanged topology and ROM constrain correction. */ skeleton : IAutoMovieSkeleton ; /** Index of the same unchanged rig already used by stance detection. */ topology : IAutoMovieSkeletonTopology ; /** Sample times in local seconds, parallel to poses and targets. */ times : readonly number [ ] ; /** Already sampled pose/expression values at the parallel times. */ poses : ReadonlyArray < ReturnType < typeof sampleMotion > > ; /** Declared leg chains eligible for pinned correction. */ legs : readonly IAutoMovieFootLeg [ ] ; /** Per-frame fixed model-metre contacts keyed by foot bone. */ targets : ReadonlyArray < ReadonlyMap < AutoMovieHumanoidBone , IAutoMovieVector3 > > ; /** Optional clinical axes used to lower and replay solved joints. */ jointAxes ? : Partial < Record < AutoMovieHumanoidBone , IAutoMovieJointAxes > > ; /** Optional clinical rest frames used to lower and replay solved joints. */ restFrames ? : Partial < Record < AutoMovieHumanoidBone , IAutoMovieRestFrame > > ; }) => IAutoMovieKeyframe [ ] = (props: {
+export const rekeyPlantedFeet: (props: {
+  /** Rig whose unchanged topology and ROM constrain correction. */ skeleton: IAutoMovieSkeleton;
+  /** Index of the same unchanged rig already used by stance detection. */ topology: IAutoMovieSkeletonTopology;
+  /** Sample times in local seconds, parallel to poses and targets. */ times: readonly number[];
+  /** Already sampled pose/expression values at the parallel times. */ poses: ReadonlyArray<
+    ReturnType<typeof sampleMotion>
+  >;
+  /** Declared leg chains eligible for pinned correction. */ legs: readonly IAutoMovieFootLeg[];
+  /** Per-frame fixed model-metre contacts keyed by foot bone. */ targets: ReadonlyArray<
+    ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieVector3>
+  >;
+  /** Optional clinical axes used to lower and replay solved joints. */ jointAxes?: Partial<
+    Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>
+  >;
+  /** Optional clinical rest frames used to lower and replay solved joints. */ restFrames?: Partial<
+    Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>
+  >;
+}) => IAutoMovieKeyframe[] = (props: {
   /** Rig whose unchanged topology and ROM constrain correction. */
   skeleton: IAutoMovieSkeleton;
 
@@ -82,13 +98,21 @@ export const rekeyPlantedFeet: (props: { /** Rig whose unchanged topology and RO
   return keyframes;
 };
 
-
 /**
  * The frame's joints with every pinned leg re-solved onto its target: planted
  * legs get their {@link fitChainToTarget} articulation, everything else is
  * carried through unchanged.
  */
-const plantedJoints: (skeleton: IAutoMovieSkeleton, pose: IAutoMoviePose, legs: readonly IAutoMovieFootLeg [ ], targets: ReadonlyMap < AutoMovieHumanoidBone , IAutoMovieVector3 >, topology: IAutoMovieSkeletonTopology, referencePose?: IAutoMoviePose, jointAxes?: Partial < Record < AutoMovieHumanoidBone , IAutoMovieJointAxes > >, restFrames?: Partial < Record < AutoMovieHumanoidBone , IAutoMovieRestFrame > >) => IAutoMovieJointPose [ ] = (
+const plantedJoints: (
+  skeleton: IAutoMovieSkeleton,
+  pose: IAutoMoviePose,
+  legs: readonly IAutoMovieFootLeg[],
+  targets: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieVector3>,
+  topology: IAutoMovieSkeletonTopology,
+  referencePose?: IAutoMoviePose,
+  jointAxes?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>,
+  restFrames?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>,
+) => IAutoMovieJointPose[] = (
   skeleton: IAutoMovieSkeleton,
   pose: IAutoMoviePose,
   legs: readonly IAutoMovieFootLeg[],

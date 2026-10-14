@@ -5,7 +5,6 @@ import { IAutoMovieFootLeg } from "./IAutoMovieFootLeg";
 import { IAutoMovieFootPlant } from "./IAutoMovieFootPlant";
 import { contactMask } from "./contactMask";
 
-
 /**
  * Group each leg's stance mask into maximal inclusive runs and assign one fixed model-frame contact per run. A run beginning at frame zero resumes an authoritative opening target; otherwise its first foot supplies XZ and sampled ground supplies Y. Parallel times/FK arrays are caller-admitted.
  *
@@ -17,7 +16,27 @@ import { contactMask } from "./contactMask";
  * @evidence contracts/performance.md#reuse-equivalent-work All frames in one run share the same fixed target object and the compact plant record, so IK reads one admitted contact rather than resampling ground at each pinned frame.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Returned per-frame maps and plants belong to the pass caller; run masks/ranges are temporary, and no input pose, callback or external handle is retained.
  */
-export const pinStanceTargets: (props: { /** Legs whose feet are planted. */ legs : readonly IAutoMovieFootLeg [ ] ; /** Per-frame FK bone lookups. */ resolved : ReadonlyArray < ReadonlyMap < AutoMovieHumanoidBone , IAutoMovieResolvedBone > > ; /** Frame times, parallel to `resolved`. */ times : readonly number [ ] ; /** Ground height at a plan position. */ groundAt : ( x : number , z : number ) => number ; /** Contact tolerance above the ground counted as stance. */ tolerance : number ; /** Prior beat's authoritative opening pin per foot, in model space. */ openingTargets ? : ReadonlyMap < AutoMovieHumanoidBone , IAutoMovieVector3 > ; }) => { /** Compact inclusive stance records, one per detected run. */ plants : IAutoMovieFootPlant [ ] ; /** Parallel per-frame maps sharing each run's fixed contact target. */ targets : Array < Map < AutoMovieHumanoidBone , IAutoMovieVector3 > > ; } = (props: {
+export const pinStanceTargets: (props: {
+  /** Legs whose feet are planted. */ legs: readonly IAutoMovieFootLeg[];
+  /** Per-frame FK bone lookups. */ resolved: ReadonlyArray<
+    ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>
+  >;
+  /** Frame times, parallel to `resolved`. */ times: readonly number[];
+  /** Ground height at a plan position. */ groundAt: (
+    x: number,
+    z: number,
+  ) => number;
+  /** Contact tolerance above the ground counted as stance. */ tolerance: number;
+  /** Prior beat's authoritative opening pin per foot, in model space. */ openingTargets?: ReadonlyMap<
+    AutoMovieHumanoidBone,
+    IAutoMovieVector3
+  >;
+}) => {
+  /** Compact inclusive stance records, one per detected run. */ plants: IAutoMovieFootPlant[];
+  /** Parallel per-frame maps sharing each run's fixed contact target. */ targets: Array<
+    Map<AutoMovieHumanoidBone, IAutoMovieVector3>
+  >;
+} = (props: {
   /** Legs whose feet are planted. */
   legs: readonly IAutoMovieFootLeg[];
 
@@ -46,9 +65,8 @@ export const pinStanceTargets: (props: { /** Legs whose feet are planted. */ leg
 } => {
   const { legs, resolved, times, groundAt, tolerance }: typeof props = props;
   const plants: IAutoMovieFootPlant[] = [];
-  const targets: Array<Map<AutoMovieHumanoidBone, IAutoMovieVector3>> = times.map(
-    (): Map<AutoMovieHumanoidBone, IAutoMovieVector3> => new Map(),
-  );
+  const targets: Array<Map<AutoMovieHumanoidBone, IAutoMovieVector3>> =
+    times.map((): Map<AutoMovieHumanoidBone, IAutoMovieVector3> => new Map());
 
   for (const leg of legs) {
     const contact: boolean[] = contactMask({
@@ -58,7 +76,9 @@ export const pinStanceTargets: (props: { /** Legs whose feet are planted. */ leg
       tolerance,
     });
     for (const run of stanceRuns(contact)) {
-      const startFoot: IAutoMovieVector3 = resolved[run.start]!.get(leg.foot)!.worldPosition;
+      const startFoot: IAutoMovieVector3 = resolved[run.start]!.get(
+        leg.foot,
+      )!.worldPosition;
       const carried: IAutoMovieVector3 | undefined =
         run.start === 0 ? props.openingTargets?.get(leg.foot) : undefined;
       const target: IAutoMovieVector3 =
@@ -69,8 +89,14 @@ export const pinStanceTargets: (props: { /** Legs whose feet are planted. */ leg
               z: startFoot.z,
             }
           : { ...carried };
-      if (!Number.isFinite(target.x) || !Number.isFinite(target.y) || !Number.isFinite(target.z))
-        throw new Error(`stance target for ${leg.foot} must have finite coordinates`);
+      if (
+        !Number.isFinite(target.x) ||
+        !Number.isFinite(target.y) ||
+        !Number.isFinite(target.z)
+      )
+        throw new Error(
+          `stance target for ${leg.foot} must have finite coordinates`,
+        );
       for (let f: number = run.start; f <= run.end; ++f)
         targets[f]!.set(leg.foot, target);
       plants.push({
@@ -85,9 +111,10 @@ export const pinStanceTargets: (props: { /** Legs whose feet are planted. */ leg
   return { plants, targets };
 };
 
-
 /** Contiguous `true` runs of a contact mask, as inclusive frame ranges. */
-const stanceRuns: (contact: readonly boolean [ ]) => Array < { start : number ; end : number } > = (
+const stanceRuns: (
+  contact: readonly boolean[],
+) => Array<{ start: number; end: number }> = (
   contact: readonly boolean[],
 ): Array<{ start: number; end: number }> => {
   const runs: Array<{ start: number; end: number }> = [];

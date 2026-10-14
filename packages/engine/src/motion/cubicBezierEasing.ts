@@ -15,7 +15,10 @@
  *
  * @author Samchon
  */
-export const cubicBezierEasing: (control: readonly [ number , number , number , number ], t: number) => number = (
+export const cubicBezierEasing: (
+  control: readonly [number, number, number, number],
+  t: number,
+) => number = (
   control: readonly [number, number, number, number],
   t: number,
 ): number => {
@@ -26,13 +29,21 @@ export const cubicBezierEasing: (control: readonly [ number , number , number , 
 
   const [x1, y1, x2, y2]: readonly [number, number, number, number] = control;
   const x: number = Math.min(1, Math.max(0, t));
-  const bez: (a: number, b: number, s: number) => number = (a: number, b: number, s: number): number => {
+  const bez: (a: number, b: number, s: number) => number = (
+    a: number,
+    b: number,
+    s: number,
+  ): number => {
     const c: number = 3 * a;
     const d: number = 3 * (b - a) - c;
     const e: number = 1 - c - d;
     return ((e * s + d) * s + c) * s;
   };
-  const dbez: (a: number, b: number, s: number) => number = (a: number, b: number, s: number): number => {
+  const dbez: (a: number, b: number, s: number) => number = (
+    a: number,
+    b: number,
+    s: number,
+  ): number => {
     const c: number = 3 * a;
     const d: number = 3 * (b - a) - c;
     const e: number = 1 - c - d;

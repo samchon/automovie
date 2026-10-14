@@ -11,7 +11,6 @@ import { indexSkeletonTopology } from "../kinematics/indexSkeletonTopology";
 import { resolvePose } from "../kinematics/resolvePose";
 import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 
-
 /**
  * Index root-reachable FK results by humanoid bone name using the same clinical axes/rest frames as playback. Caller topology must describe the unchanged skeleton; omission builds it for this call. Rest and pose-root scale are ignored by resolvePose.
  *
@@ -23,7 +22,13 @@ import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
  * @evidence contracts/performance.md#reuse-equivalent-work Reuses caller-supplied topology for repeated poses of the same unchanged skeleton; the resolved pose itself changes per frame and is not cached.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Returns a caller-owned map referencing fresh resolved bone records; the intermediate tuple/result arrays are temporary and no input rig or resource handle is retained.
  */
-export const resolveBoneMap: (skeleton: IAutoMovieSkeleton, pose: IAutoMoviePose, topology?: IAutoMovieSkeletonTopology, jointAxes?: Partial < Record < AutoMovieHumanoidBone , IAutoMovieJointAxes > >, restFrames?: Partial < Record < AutoMovieHumanoidBone , IAutoMovieRestFrame > >) => Map < AutoMovieHumanoidBone , IAutoMovieResolvedBone > = (
+export const resolveBoneMap: (
+  skeleton: IAutoMovieSkeleton,
+  pose: IAutoMoviePose,
+  topology?: IAutoMovieSkeletonTopology,
+  jointAxes?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>,
+  restFrames?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>,
+) => Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = (
   skeleton: IAutoMovieSkeleton,
   pose: IAutoMoviePose,
   topology: IAutoMovieSkeletonTopology = indexSkeletonTopology(skeleton),
@@ -31,8 +36,9 @@ export const resolveBoneMap: (skeleton: IAutoMovieSkeleton, pose: IAutoMoviePose
   restFrames?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>,
 ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =>
   new Map(
-    resolvePose(pose, skeleton, jointAxes, restFrames, topology).map((bone: IAutoMovieResolvedBone): [AutoMovieHumanoidBone, IAutoMovieResolvedBone] => [
-      bone.bone,
-      bone,
-    ]),
+    resolvePose(pose, skeleton, jointAxes, restFrames, topology).map(
+      (
+        bone: IAutoMovieResolvedBone,
+      ): [AutoMovieHumanoidBone, IAutoMovieResolvedBone] => [bone.bone, bone],
+    ),
   );

@@ -6,9 +6,9 @@ import {
 
 import { gaitMotion } from "./gaitMotion";
 
-const assertUniqueProfileGaitNames: (gaits: readonly IAutoMovieGait [ ]) => void = (
+const assertUniqueProfileGaitNames: (
   gaits: readonly IAutoMovieGait[],
-): void => {
+) => void = (gaits: readonly IAutoMovieGait[]): void => {
   const seen: Set<string> = new Set<string>();
   for (const gait of gaits) {
     if (seen.has(gait.name))
@@ -16,7 +16,6 @@ const assertUniqueProfileGaitNames: (gaits: readonly IAutoMovieGait [ ]) => void
     seen.add(gait.name);
   }
 };
-
 
 /**
  * Synthesize each uniquely named profile gait into a clip targeting the supplied skeleton id, keyed by the exact gait name; absent gaits yield an empty object. This assigns clinical controls and identity without inspecting body geometry.
@@ -29,7 +28,11 @@ const assertUniqueProfileGaitNames: (gaits: readonly IAutoMovieGait [ ]) => void
  * @evidence contracts/performance.md#reuse-equivalent-work Each declared gait is synthesized once per call; different skeleton ids produce independently identified clips rather than reusing a mutable cache by profile name.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The result owns its clips and keyframe populations; the temporary name set is released after return/throw and no profile object or resource handle is retained.
  */
-export const bindProfileGaits: (profile: IAutoMovieProfile, skeleton: string, samples: number) => Record < string , IAutoMovieMotion > = (
+export const bindProfileGaits: (
+  profile: IAutoMovieProfile,
+  skeleton: string,
+  samples: number,
+) => Record<string, IAutoMovieMotion> = (
   profile: IAutoMovieProfile,
   skeleton: string,
   samples: number,

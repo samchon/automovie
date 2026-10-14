@@ -9,14 +9,16 @@
  * @evidence contracts/performance.md#reuse-equivalent-work The interval count is computed once and shared by allocation and generation; sampleTimes delegates here, and no cross-call clock cache is maintained.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the grid and all temporary allocation is invocation-local; no sampling task or external resource is retained.
  */
-export const windowSampleTimes: (start: number, end: number, sampleRate: number) => number [ ] = (
+export const windowSampleTimes: (
   start: number,
   end: number,
   sampleRate: number,
-): number[] => {
+) => number[] = (start: number, end: number, sampleRate: number): number[] => {
   const frames: number = Math.max(1, Math.ceil((end - start) * sampleRate));
-  const times: number[] = Array.from({ length: frames + 1 }, (_: unknown, index: number) : number =>
-    Math.min(end, start + index / sampleRate),
+  const times: number[] = Array.from(
+    { length: frames + 1 },
+    (_: unknown, index: number): number =>
+      Math.min(end, start + index / sampleRate),
   );
   // FP can land (end − start) × rate just above an integer; the extra instant
   // clamps onto `end` and duplicates it, a zero-width segment downstream

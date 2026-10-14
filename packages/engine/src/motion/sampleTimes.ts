@@ -11,5 +11,7 @@ import { windowSampleTimes } from "./windowSampleTimes";
  * @evidence contracts/performance.md#reuse-equivalent-work The full and shifted forms share one algorithm rather than separate arithmetic copies; returned arrays are not cached across mutable caller inputs.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the returned number array; the wrapper acquires no handle or task and retains no previous grid.
  */
-export const sampleTimes: (duration: number, sampleRate: number) => number [ ] = (duration: number, sampleRate: number): number[] =>
-  windowSampleTimes(0, duration, sampleRate);
+export const sampleTimes: (duration: number, sampleRate: number) => number[] = (
+  duration: number,
+  sampleRate: number,
+): number[] => windowSampleTimes(0, duration, sampleRate);

@@ -3,7 +3,6 @@ import { IAutoMovieKeyframe, IAutoMovieMotion } from "@automovie/interface";
 import { addPositiveModulo } from "../math/addPositiveModulo";
 import { IAutoMoviePlacement } from "./IAutoMoviePlacement";
 
-
 /**
  * Arrange admitted clips on one actor's shot clock in stable start order. Keyframes shift by placement start, gaps hold the previous tail, and coincident or overlapping later frames are dropped rather than layered; empty placements return an empty zero-duration clip.
  *
@@ -15,7 +14,10 @@ import { IAutoMoviePlacement } from "./IAutoMoviePlacement";
  * @evidence contracts/performance.md#reuse-equivalent-work Shifted frames share their existing pose/expression records; the last placement's completed gait metadata is reused with only its clock offset changed, and no cross-call cache is retained.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the new clip/keyframe array; nested pose/expression data remain shared with input clips, and sorted/shifted temporary arrays become collectible on completion or throw.
  */
-export const arrangeMotion: (id: string, placements: IAutoMoviePlacement [ ]) => IAutoMovieMotion = (
+export const arrangeMotion: (
+  id: string,
+  placements: IAutoMoviePlacement[],
+) => IAutoMovieMotion = (
   id: string,
   placements: IAutoMoviePlacement[],
 ): IAutoMovieMotion => {
@@ -37,20 +39,28 @@ export const arrangeMotion: (id: string, placements: IAutoMoviePlacement [ ]) =>
       );
   }
 
-  const sorted: IAutoMoviePlacement[] = [...placements].sort((a: IAutoMoviePlacement, b: IAutoMoviePlacement): number => a.start - b.start);
+  const sorted: IAutoMoviePlacement[] = [...placements].sort(
+    (a: IAutoMoviePlacement, b: IAutoMoviePlacement): number =>
+      a.start - b.start,
+  );
   const keyframes: IAutoMovieKeyframe[] = [];
-  const push: (k: IAutoMovieKeyframe) => void = (k: IAutoMovieKeyframe): void => {
-    const last: IAutoMovieKeyframe | undefined = keyframes[keyframes.length - 1];
+  const push: (k: IAutoMovieKeyframe) => void = (
+    k: IAutoMovieKeyframe,
+  ): void => {
+    const last: IAutoMovieKeyframe | undefined =
+      keyframes[keyframes.length - 1];
     if (last !== undefined && k.time <= last.time) return; // keep strictly increasing
     keyframes.push(k);
   };
 
   for (let i: number = 0; i < sorted.length; ++i) {
     const p: IAutoMoviePlacement = sorted[i]!;
-    const shifted: IAutoMovieKeyframe[] = p.motion.keyframes.map((k: IAutoMovieKeyframe): IAutoMovieKeyframe => ({
-      ...k,
-      time: k.time + p.start,
-    }));
+    const shifted: IAutoMovieKeyframe[] = p.motion.keyframes.map(
+      (k: IAutoMovieKeyframe): IAutoMovieKeyframe => ({
+        ...k,
+        time: k.time + p.start,
+      }),
+    );
     for (const k of shifted) push(k);
 
     const end: number = p.start + p.motion.duration;
@@ -70,7 +80,8 @@ export const arrangeMotion: (id: string, placements: IAutoMoviePlacement [ ]) =>
   // mid-timeline cycle followed by a cycle-less action is deliberately NOT
   // carried. The end state is what the handoff resumes.
   const last: IAutoMoviePlacement | undefined = sorted[sorted.length - 1];
-  const lastCycle: NonNullable<IAutoMovieMotion["gaitCycle"]> | null = last?.motion.gaitCycle ?? null;
+  const lastCycle: NonNullable<IAutoMovieMotion["gaitCycle"]> | null =
+    last?.motion.gaitCycle ?? null;
   const gaitCycle: NonNullable<IAutoMovieMotion["gaitCycle"]> | null =
     lastCycle === null
       ? null

@@ -1,5 +1,8 @@
-import type { IAutoMovieGaitCycle, IAutoMovieKeyframe, IAutoMovieMotion } from "@automovie/interface";
-
+import type {
+  IAutoMovieGaitCycle,
+  IAutoMovieKeyframe,
+  IAutoMovieMotion,
+} from "@automovie/interface";
 
 /**
  * Concatenate nonempty admitted same-skeleton clips in seconds. Durations must be finite and positive; later time-zero seam frames transfer their easing to the retained previous endpoint. Pose and expression values remain borrowed.
@@ -12,7 +15,11 @@ import type { IAutoMovieGaitCycle, IAutoMovieKeyframe, IAutoMovieMotion } from "
  * @evidence contracts/performance.md#reuse-equivalent-work Part pose/expression objects are reused while clock-bearing keyframes are copied; equal gait metadata is carried once rather than rebaked.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the sequence and copied keyframes; input parts and nested pose values are borrowed and no sequence cache or task remains.
  */
-export const sequenceMotion: (id: string, parts: IAutoMovieMotion [ ], loop?: boolean) => IAutoMovieMotion = (
+export const sequenceMotion: (
+  id: string,
+  parts: IAutoMovieMotion[],
+  loop?: boolean,
+) => IAutoMovieMotion = (
   id: string,
   parts: IAutoMovieMotion[],
   loop: boolean = false,
@@ -58,7 +65,7 @@ export const sequenceMotion: (id: string, parts: IAutoMovieMotion [ ], loop?: bo
   const continuous: boolean =
     first !== null &&
     parts.every(
-      (part: IAutoMovieMotion) : boolean =>
+      (part: IAutoMovieMotion): boolean =>
         (part.gaitCycle ?? null) !== null &&
         part.gaitCycle!.period === first.period &&
         part.gaitCycle!.phaseAt === first.phaseAt &&

@@ -4,14 +4,17 @@ import { Vector3 } from "../math/Vector3";
 import { IAutoMovieBallisticSolution } from "./IAutoMovieBallisticSolution";
 import { solveBallisticLaunch } from "./solveBallisticLaunch";
 
-const finiteVector: (v: IAutoMovieVector3) => boolean = (v: IAutoMovieVector3): boolean => {
+const finiteVector: (v: IAutoMovieVector3) => boolean = (
+  v: IAutoMovieVector3,
+): boolean => {
   if (!Number.isFinite(v.x)) return false;
   if (!Number.isFinite(v.y)) return false;
   return Number.isFinite(v.z);
 };
 
-const validArc: (arc: string) => arc is "direct" | "high" = (arc: string): arc is "direct" | "high" =>
-  arc === "direct" || arc === "high";
+const validArc: (arc: string) => arc is "direct" | "high" = (
+  arc: string,
+): arc is "direct" | "high" => arc === "direct" || arc === "high";
 
 /**
  * Solve the launch that **leads a moving target**: the aim that lands the
@@ -39,7 +42,14 @@ const validArc: (arc: string) => arc is "direct" | "high" = (arc: string): arc i
  * @evidence contracts/performance.md#reuse-equivalent-work The best visited candidate is retained within the call; target callbacks may be effectful, so evaluations and results are never memoized across calls.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Iteration ends on convergence, exhaustion or failure; no callback reference, task or native resource is retained afterwards.
  */
-export const solveMovingLaunch: (origin: IAutoMovieVector3, targetAt: ( t : number ) => IAutoMovieVector3, speed: number, gravity?: IAutoMovieVector3, arc?: "direct" | "high", iterations?: number) => IAutoMovieBallisticSolution | null = (
+export const solveMovingLaunch: (
+  origin: IAutoMovieVector3,
+  targetAt: (t: number) => IAutoMovieVector3,
+  speed: number,
+  gravity?: IAutoMovieVector3,
+  arc?: "direct" | "high",
+  iterations?: number,
+) => IAutoMovieBallisticSolution | null = (
   origin: IAutoMovieVector3,
   targetAt: (t: number) => IAutoMovieVector3,
   speed: number,
@@ -63,7 +73,8 @@ export const solveMovingLaunch: (origin: IAutoMovieVector3, targetAt: ( t : numb
   // oscillate rather than settle, and the final guess need not be the nearest
   // one visited. Converged shots hit the `settled` early-out, where the last
   // iterate IS the minimum, so tracking only changes the un-settled tail.
-  let t: number = Vector3.length(Vector3.subtract(initialTarget, origin)) / speed;
+  let t: number =
+    Vector3.length(Vector3.subtract(initialTarget, origin)) / speed;
   let best: IAutoMovieBallisticSolution | null = null;
   let bestResidual: number = Infinity;
   for (let i: number = 0; i < iterations; ++i) {

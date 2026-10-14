@@ -22,7 +22,10 @@ import { IAutoMovieRecoilPush } from "./IAutoMovieRecoilPush";
  * @evidence contracts/performance.md#reuse-equivalent-work Vector3 owns the norm formula; no push is reused across distinct impulse/gain pairs or mutable inputs.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the returned push and no impact history, callback or native resource is retained.
  */
-export const impulseToRecoilPush: (impulse: IAutoMovieVector3, gainDegPerImpulse: number) => IAutoMovieRecoilPush = (
+export const impulseToRecoilPush: (
+  impulse: IAutoMovieVector3,
+  gainDegPerImpulse: number,
+) => IAutoMovieRecoilPush = (
   impulse: IAutoMovieVector3,
   gainDegPerImpulse: number,
 ): IAutoMovieRecoilPush => {

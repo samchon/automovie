@@ -3,14 +3,17 @@ import { IAutoMovieVector3 } from "@automovie/interface";
 import { Vector3 } from "../math/Vector3";
 import { IAutoMovieBallisticSolution } from "./IAutoMovieBallisticSolution";
 
-const finiteVector: (v: IAutoMovieVector3) => boolean = (v: IAutoMovieVector3): boolean => {
+const finiteVector: (v: IAutoMovieVector3) => boolean = (
+  v: IAutoMovieVector3,
+): boolean => {
   if (!Number.isFinite(v.x)) return false;
   if (!Number.isFinite(v.y)) return false;
   return Number.isFinite(v.z);
 };
 
-const validArc: (arc: string) => arc is "direct" | "high" = (arc: string): arc is "direct" | "high" =>
-  arc === "direct" || arc === "high";
+const validArc: (arc: string) => arc is "direct" | "high" = (
+  arc: string,
+): arc is "direct" | "high" => arc === "direct" || arc === "high";
 
 /**
  * Solve the **launch velocity** that lands a projectile fired from `origin` at
@@ -39,7 +42,13 @@ const validArc: (arc: string) => arc is "direct" | "high" = (arc: string): arc i
  * @evidence contracts/performance.md#reuse-equivalent-work solveMovingLaunch reuses this analytic solver per candidate time; no result is cached across mutable target or gravity inputs.
  * @evidence contracts/performance.md#bound-retention-and-release-resources A fresh solution transfers to the caller; null and failure retain no iteration history, native handle or task.
  */
-export const solveBallisticLaunch: (origin: IAutoMovieVector3, target: IAutoMovieVector3, speed: number, gravity?: IAutoMovieVector3, arc?: "direct" | "high") => IAutoMovieBallisticSolution | null = (
+export const solveBallisticLaunch: (
+  origin: IAutoMovieVector3,
+  target: IAutoMovieVector3,
+  speed: number,
+  gravity?: IAutoMovieVector3,
+  arc?: "direct" | "high",
+) => IAutoMovieBallisticSolution | null = (
   origin: IAutoMovieVector3,
   target: IAutoMovieVector3,
   speed: number,
@@ -68,7 +77,10 @@ export const solveBallisticLaunch: (origin: IAutoMovieVector3, target: IAutoMovi
 
   const up: IAutoMovieVector3 = Vector3.scale(gravity, -1 / g); // unit "up" (against gravity)
   const h: number = Vector3.dot(delta, up); // signed height along up
-  const horizontal: IAutoMovieVector3 = Vector3.subtract(delta, Vector3.scale(up, h));
+  const horizontal: IAutoMovieVector3 = Vector3.subtract(
+    delta,
+    Vector3.scale(up, h),
+  );
   const d: number = Vector3.length(horizontal);
   const s2: number = speed * speed;
 
