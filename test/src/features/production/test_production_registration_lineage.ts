@@ -1,15 +1,23 @@
 import { TestValidator } from "@nestia/e2e";
-import path from "node:path";
-
-import { loadSourceModule } from "../internal/loadSourceModule";
+import { planAutoMovieProductionRegistration as plan } from "../../../../packages/production/src/production/planAutoMovieProductionRegistration";
 import { throwsError } from "../internal/predicates";
 
+/**
+ * Independent portable-registry fixture used by the registration cases.
+ *
+ * @author Samchon
+ */
 interface IRegistry {
   productions: readonly string[];
   layoutVersion: number;
   retiredLineage: boolean;
 }
 
+/**
+ * Observable registration decisions asserted without executing filesystem effects.
+ *
+ * @author Samchon
+ */
 interface IPlan {
   publish: {
     version: 1;
@@ -20,35 +28,15 @@ interface IPlan {
   issue: boolean;
 }
 
-const { planAutoMovieProductionRegistration: plan } = loadSourceModule<{
-  planAutoMovieProductionRegistration: (props: {
-    registry: IRegistry | null;
-    productionId: string;
-    incarnationPresent: boolean;
-    mutable: boolean;
-  }) => IPlan;
-}>(
-  path.resolve(
-    __dirname,
-    "../../../../packages/production/src/production/planAutoMovieProductionRegistration.ts",
-  ),
-);
-
-const tracked = (
+const tracked: (productions: readonly string[], retiredLineage?: boolean) => IRegistry = (
   productions: readonly string[],
-  retiredLineage = false,
+  retiredLineage: boolean = false,
 ): IRegistry => ({ productions, layoutVersion: 1, retiredLineage });
 
 /**
- * The tracked registry is portable identity and a production incarnation is
- * one checkout's generation of its local namespace.
+ * Pin portable registration decisions separately from a checkout's local generation.
  *
- * A new clone inherits the registration and must issue its own incarnation
- * without rewriting the tracked record, while the origin checkout reopens with
- * no write at all. A registration of an id the registry does not name must
- * discard whatever incarnation an ended namespace left and issue a new one, so
- * no registry ever names a production beside a generation from its previous
- * life. Read-only opens never register or issue.
+ * Expected plans are written from the portable/local identity contract; these cases do not execute project opening, physical publication or namespace locking.
  *
  * Scenarios:
  *
@@ -68,11 +56,16 @@ const tracked = (
  *    issues; a stray incarnation beside no registry is discarded first.
  * 6. Read-only: a registered production with an incarnation plans no write even
  *    when retired lineage remains, a registered production without one is
- *    refused toward a build, and an unregistered id or missing registry is
+ *    refused toward the writable project-open API, and an unregistered id or missing registry is
  *    refused without registering.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls the actual registration planner and checks full publish/discard/issue decisions plus read-only refusal causes and writable-open guidance; wrong lineage adoption or portable rewrites fail these assertions.
+ * @evidence contracts/testing.md#independent-expectations Literal plans follow portable registration versus local generation rules, with code-unit Zeta-before-alpha order and layout-zero fresh initialization; expected results are not computed by the planner. Filesystem ordering and physical race safety are outside this oracle.
+ * @evidence contracts/testing.md#distinguishing-cases Covers clone/origin twins, retired/current lineage, sibling ordering, ended namespace with/without survivor, empty/missing registry and read-only present/absent incarnation. Project admission and transactional recovery have separate owners.
+ * @evidence contracts/testing.md#execution-ownership The discoverable named unit imports the portable planner directly and registers no dynamic cases, process, browser or GPU; synchronous fixture callbacks and assertions run in this exported body.
  */
-export const test_production_registration_lineage = (): void => {
-  const mutable = (
+export function test_production_registration_lineage(): void {
+  const mutable: (registry: IRegistry | null, productionId: string, incarnationPresent: boolean) => IPlan = (
     registry: IRegistry | null,
     productionId: string,
     incarnationPresent: boolean,
@@ -169,7 +162,7 @@ export const test_production_registration_lineage = (): void => {
     },
   );
 
-  const readOnly = (
+  const readOnly: (registry: IRegistry | null, productionId: string, incarnationPresent: boolean) => IPlan = (
     registry: IRegistry | null,
     productionId: string,
     incarnationPresent: boolean,
@@ -183,22 +176,22 @@ export const test_production_registration_lineage = (): void => {
   TestValidator.predicate(
     "read-only refuses a clone that holds no incarnation yet",
     throwsError(
-      () => readOnly(tracked(["film"]), "film", false),
-      ['"film"', "incarnation", "npm run build"],
+      (): IPlan => readOnly(tracked(["film"]), "film", false),
+      ['"film"', "incarnation", "AutoMovieProductionProject.open"],
     ),
   );
   TestValidator.predicate(
     "read-only refuses an id the registry does not name",
     throwsError(
-      () => readOnly(tracked(["trailer"]), "film", true),
-      ['missing production "film"', "npm run build"],
+      (): IPlan => readOnly(tracked(["trailer"]), "film", true),
+      ['missing production "film"', "AutoMovieProductionProject.open"],
     ),
   );
   TestValidator.predicate(
     "read-only refuses when no registry exists",
     throwsError(
-      () => readOnly(null, "film", true),
+      (): IPlan => readOnly(null, "film", true),
       ['missing production "film"'],
     ),
   );
-};
+}

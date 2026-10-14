@@ -1,40 +1,40 @@
-import type {
-  IAutoMovieBuildProjectOutput,
-  IAutoMovieDiagnostic,
-} from "@automovie/interface";
-
+import type { IAutoMovieBuildProjectOutput, IAutoMovieDiagnostic } from "@automovie/interface";
 import { AutoMovieProductionInputRaceError } from "./AutoMovieProductionInputRaceError";
 import type { AutoMovieProductionProject } from "./AutoMovieProductionProject";
 import { createAutoMovieBuildInputRaceFailure } from "./createAutoMovieBuildInputRaceFailure";
 import { AUTOMOVIE_PRODUCTION_BUILD_VERSION } from "./productionBuildProtocol";
 
 /**
- * Settle one validated compilation through the project's publication authority.
+ * Publish an admitted compilation through the project's transaction authority.
  *
- * Timed and library builders call this only after every requested gate passed.
- * The existing project transaction owns revision comparison, input confirmation,
- * output fencing and atomic writes. This stage passes the exact candidate and
- * guard to it and reports its committed revision with the prepared file status.
+ * Timed and library builders supply candidates after their requested gates pass. This function forwards the exact four commit arguments and reports the authority's returned revision with the prepared status and diagnostics references. An input-race error becomes the shared failure result; other failures propagate, and failed revision observation preserves both causes.
  *
- * A concurrent input change becomes the shared structured failure result. Other
- * publication errors propagate unchanged, and a failed revision observation
- * preserves both original causes through the race-result policy. This stage
- * creates no lock, revision owner, retry, fallback artifact or partial success.
+ * @evidence contracts/common.md#principled-implementation The project authority owns revision comparison, input confirmation, output fencing and atomic writes. Success depends on caller-admitted candidates and the commit result; prepared statuses are not independently recomputed after publication.
+ * @evidence contracts/common.md#clear-and-simple-design Timed and library publication share one handoff and one structured race policy, keeping lock and revision ownership in commitGenerated.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Only the explicit AutoMovieProductionInputRaceError is converted; unrelated errors retain identity. No retry, fallback artifact, stale revision or partial materialized success is invented.
+ * @evidence contracts/common.md#meaningful-documentation Documents admission premises, argument forwarding, borrowed output lists, committed revision and distinct race/other-error behavior.
+ * @evidence contracts/performance.md#efficient-algorithms The success formatter allocates fixed record structure but includes the entire delegated staged transaction and its byte/fence/rollback work. A race appends and sorts D diagnostics in O(D log D) text comparisons and freshly observes revision.
+ * @evidence contracts/performance.md#reuse-equivalent-work Prepared diagnostics/status arrays are reused by reference; publication effects remain attempt-specific and are not memoized. The transaction's byte no-op detection owns permissible write reuse.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Success transfers the supplied lists and their retained objects to the caller; race failure shares the diagnostics list and may retain error causes. Transaction owners release locks/temporaries, and this stage starts no task or cache and imposes no bound on candidate bytes.
  */
-export const publishAutoMovieGeneratedCompilation = (props: {
+export function publishAutoMovieGeneratedCompilation(
+  props: {
   /** Shared namespace and transaction owner of this compilation. */
   authority: Pick<AutoMovieProductionProject, "commitGenerated" | "revision">;
+
 
   /** Candidate bytes, ownership manifest, currentness guard and base revision. */
   publication: {
     /** Complete candidate files acquired for this attempt. */
     files: Parameters<AutoMovieProductionProject["commitGenerated"]>[0];
 
+
     /** Exact ownership manifest derived from those files and inputs. */
     manifest: Parameters<AutoMovieProductionProject["commitGenerated"]>[1];
 
     /** Required confirmation of this attempt's source and content closure. */
     inputCurrent: () => boolean;
+
 
     /** Revision observed before evaluating the candidate. */
     inputRevision: number;
@@ -43,12 +43,14 @@ export const publishAutoMovieGeneratedCompilation = (props: {
   /** Input identity the successful candidate was derived from. */
   inputFingerprint: IAutoMovieBuildProjectOutput["builder"]["inputFingerprint"];
 
+
   /** Complete ordered findings of the passed gates. */
   diagnostics: IAutoMovieDiagnostic[];
 
   /** Prepared statuses of the exact files being published. */
   materialized: IAutoMovieBuildProjectOutput["materialized"];
-}): IAutoMovieBuildProjectOutput => {
+}
+): IAutoMovieBuildProjectOutput {
   let revision: number;
   try {
     revision = props.authority.commitGenerated(
@@ -64,7 +66,7 @@ export const publishAutoMovieGeneratedCompilation = (props: {
       diagnostics: props.diagnostics,
       inputFingerprint: props.inputFingerprint,
       failure: error,
-      currentRevision: () => props.authority.revision(),
+      currentRevision: (): number => props.authority.revision(),
     });
   }
   return {
@@ -77,4 +79,4 @@ export const publishAutoMovieGeneratedCompilation = (props: {
     diagnostics: props.diagnostics,
     materialized: props.materialized,
   };
-};
+}

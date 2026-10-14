@@ -1,13 +1,6 @@
-import type {
-  IAutoMovieAssetProvenance,
-  IAutoMovieDerivedArtifactSource,
-  IAutoMovieDiagnostic,
-} from "@automovie/interface";
-
-import type {
-  AutoMovieProductionProject,
-  IAutoMovieProductionContentInput,
-} from "./AutoMovieProductionProject";
+import type { IAutoMovieAssetProvenance, IAutoMovieDerivedArtifactSource, IAutoMovieDiagnostic } from "@automovie/interface";
+import type { IAutoMovieProductionContentInput } from "./IAutoMovieProductionContentInput";
+import type { AutoMovieProductionProject } from "./AutoMovieProductionProject";
 import type { IAutoMovieFingerprintField } from "./contentIdentity";
 import { inspectAutoMovieDerivedArtifacts } from "./derivedArtifacts";
 import { productionAssetInventory } from "./productionAssetInventory";
@@ -15,29 +8,33 @@ import { errorMessage } from "./productionBuildDiagnostics";
 import { contentFingerprintFields } from "./productionBuildIdentity";
 
 /**
- * Read the content closure one library compile executes against and hashes.
+ * Read library content identity, adopted assets and admitted derivation artifacts.
  *
- * A library's input identity ends with its declared content inventory and the
- * verified derivation closure, and its execution receives the admitted derived
- * artifacts from the same read. A compile and a later currentness check that both
- * read the closure through this one function cannot drift apart on the fields a
- * result was bound to, which is why the source snapshot reads it here.
+ * Disabled design reads touch no project method. Enabled reads obtain manifest outside inventory recovery, then content and asset inventory; inventory failure appends an unsafe field and diagnostic while preserving any content already read. Derivation inspection still runs afterward. Manifest or derivation-inspection throws outside that recovery propagate.
  *
- * An unreadable inventory is not an exception. It becomes the
- * `content:inventory` unsafe field and a `content-input-unsafe` diagnostic, and
- * the derivation closure is still inspected, so the failure reaches both the
- * identity and the author. A disabled read, which the design scope asks for,
- * touches nothing.
+ * Library execution and later currentness checks use this same field policy, but perform separate mutable reads; sharing a function does not establish one physical snapshot. Returned content/artifact/asset values follow their admitted owners rather than being deep-copied here.
+ *
+ * @evidence contracts/common.md#principled-implementation Content fingerprint fields and verified derivation closure bind library execution inputs; unsafe inventory contributes explicit refusal identity and diagnostics. Asset-ledger and derived-artifact admission stay with their canonical validators.
+ * @evidence contracts/common.md#clear-and-simple-design One reader returns execution artifacts and identity fields together, avoiding divergent content policies between compileAutoMovieLibrary and acquireAutoMovieProductionSourceSnapshot.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Disabled reads intentionally omit content for design scope. Inventory failure does not become a safe empty inventory; previously observed content remains, unsafe identity is appended and independent derivation inspection proceeds without swallowing its own failures.
+ * @evidence contracts/common.md#meaningful-documentation States disabled-read ownership, recovery boundaries, partial content preservation, admitted borrowed records and the limitation of separate currentness observations.
+ * @evidence contracts/performance.md#efficient-algorithms Cost includes complete content-byte fingerprinting, asset inventory's geometry/audio/motion admission, and full derived closure reads/hash/parse, plus field and diagnostic array construction. The reader must inspect all declared dependencies; no measured speedup or fixed-size bound is claimed.
+ * @evidence contracts/performance.md#reuse-equivalent-work Compile and currentness share the same identity policy, while each call rereads mutable dependencies. Within a call, admitted artifacts serve execution and fingerprint fields; no cross-call content cache is owned here.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Returned arrays and artifacts transfer to the caller and can retain admitted content bytes until released. Callees own filesystem handle cleanup; this reader starts no task, and declared content/artifact/diagnostic populations have no cap here.
  */
-export const readAutoMovieLibraryDerivedInputs = (props: {
+export function readAutoMovieLibraryDerivedInputs(
+  props: {
   /** Project handle the library compiles in. */
   project: AutoMovieProductionProject;
 
+
   /** Whether the requested scope reads content at all. */
   enabled: boolean;
-}): {
+}
+): {
   /** Derived artifacts admitted to library execution. */
   artifacts: Readonly<Record<string, IAutoMovieDerivedArtifactSource>>;
+
 
   /** Content inventory and derivation closure fields in read order. */
   fields: IAutoMovieFingerprintField[];
@@ -45,25 +42,26 @@ export const readAutoMovieLibraryDerivedInputs = (props: {
   /** Inventory, asset ledger and derivation refusals. */
   diagnostics: IAutoMovieDiagnostic[];
 
+
   /** Adopted asset records the ledger declares. */
   assets: IAutoMovieAssetProvenance[];
 
-  /** Declared content inputs, empty when the inventory was unreadable. */
+  /** Declared content inputs, retained if a later asset-inventory step fails; empty when content acquisition failed or was disabled. */
   content: IAutoMovieProductionContentInput[];
-} => {
+} {
   const fields: IAutoMovieFingerprintField[] = [];
   const diagnostics: IAutoMovieDiagnostic[] = [];
   let assets: IAutoMovieAssetProvenance[] = [];
   let content: IAutoMovieProductionContentInput[] = [];
   if (props.enabled === false)
     return { artifacts: {}, fields, diagnostics, assets, content };
-  const project = props.project;
-  const manifest = project.manifest();
+  const project: AutoMovieProductionProject = props.project;
+  const manifest: ReturnType<AutoMovieProductionProject["manifest"]> = project.manifest();
   let externalAssetPaths: string[] = [];
   try {
     content = project.contentInputs();
     fields.push(...contentFingerprintFields(content));
-    const inventory = productionAssetInventory(
+    const inventory: ReturnType<typeof productionAssetInventory> = productionAssetInventory(
       manifest.assetManifest,
       content,
       project.productionId,
@@ -71,7 +69,7 @@ export const readAutoMovieLibraryDerivedInputs = (props: {
       project.archetypes,
     );
     assets = inventory.records;
-    externalAssetPaths = assets.map((asset) => asset.path);
+    externalAssetPaths = assets.map((asset: IAutoMovieAssetProvenance): string => asset.path);
     diagnostics.push(...inventory.diagnostics);
   } catch (error) {
     fields.push({
@@ -88,7 +86,7 @@ export const readAutoMovieLibraryDerivedInputs = (props: {
       message: errorMessage(error),
     });
   }
-  const inspection = inspectAutoMovieDerivedArtifacts({
+  const inspection: ReturnType<typeof inspectAutoMovieDerivedArtifacts> = inspectAutoMovieDerivedArtifacts({
     root: project.root,
     manifestPath: manifest.derivedArtifactManifest,
     externalAssetPaths,
@@ -96,7 +94,7 @@ export const readAutoMovieLibraryDerivedInputs = (props: {
   fields.push(...inspection.fingerprintFields);
   diagnostics.push(
     ...inspection.problems.map(
-      (problem): IAutoMovieDiagnostic => ({
+      (problem: ReturnType<typeof inspectAutoMovieDerivedArtifacts>["problems"][number]): IAutoMovieDiagnostic => ({
         code: problem.code,
         category: "error",
         phase: "project",
@@ -113,4 +111,4 @@ export const readAutoMovieLibraryDerivedInputs = (props: {
     assets,
     content,
   };
-};
+}
