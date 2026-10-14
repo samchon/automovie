@@ -1,16 +1,15 @@
-import type { IAutoMovieHumanFacePeriocularMedialBed } from "../../structures/IAutoMovieHumanFacePeriocularMedialBed";
-import type { IAutoMovieHumanFaceBasisSurface } from "../../structures/IAutoMovieHumanFaceBasisSurface";
-import type { IHumanFaceMaterialPatchGeometry } from "./structures/IHumanFaceMaterialPatchGeometry";
-import type { IAutoMovieHumanFacePeriocularStation } from "../../structures/IAutoMovieHumanFacePeriocularStation";
-
 import type { IAutoMovieMesh } from "@automovie/interface";
 
 import { areaWeightedNormals } from "../../../common/mesh/areaWeightedNormals";
 import type { IAutoMovieHumanFaceBasis } from "../../structures/IAutoMovieHumanFaceBasis";
+import type { IAutoMovieHumanFaceBasisSurface } from "../../structures/IAutoMovieHumanFaceBasisSurface";
 import type { IAutoMovieHumanFaceOcularSurfaceShape } from "../../structures/IAutoMovieHumanFaceOcularSurfaceShape";
 import type { IAutoMovieHumanFacePeriocularCage } from "../../structures/IAutoMovieHumanFacePeriocularCage";
+import type { IAutoMovieHumanFacePeriocularMedialBed } from "../../structures/IAutoMovieHumanFacePeriocularMedialBed";
+import type { IAutoMovieHumanFacePeriocularStation } from "../../structures/IAutoMovieHumanFacePeriocularStation";
 import { createHumanFaceSkinHost } from "../skin/createHumanFaceSkinHost";
 import { evaluateHumanFaceMaterialPatch } from "./evaluateHumanFaceMaterialPatch";
+import type { IHumanFaceMaterialPatchGeometry } from "./structures/IHumanFaceMaterialPatchGeometry";
 
 /**
  * Raise medial relief on the source-registered pocket and plica edge path.
@@ -37,8 +36,13 @@ export function buildHumanFaceMedialBedSurface(
   positions: readonly number[],
   profile: IAutoMovieHumanFaceOcularSurfaceShape,
 ): IAutoMovieMesh {
-  const bed: IAutoMovieHumanFacePeriocularMedialBed | undefined = cage.medialBed;
-  const source: IAutoMovieHumanFaceBasisSurface | undefined = basis.surfaces.find((surface: IAutoMovieHumanFaceBasisSurface): boolean  => surface.id === cage.surface);
+  const bed: IAutoMovieHumanFacePeriocularMedialBed | undefined =
+    cage.medialBed;
+  const source: IAutoMovieHumanFaceBasisSurface | undefined =
+    basis.surfaces.find(
+      (surface: IAutoMovieHumanFaceBasisSurface): boolean =>
+        surface.id === cage.surface,
+    );
   if (bed === undefined || source === undefined)
     throw new Error(
       "Medial relief needs its registered skin pocket and plica path.",
@@ -54,13 +58,13 @@ export function buildHumanFaceMedialBedSurface(
       ? bed.pocketVertices
       : Array.from(
           { length: material.positions.length / 3 },
-          (_value: unknown, at: number): number  => at,
+          (_value: unknown, at: number): number => at,
         ),
   );
   if (
     plicaVertices.length < 2 ||
     [...vertices, ...plicaVertices].some(
-      (vertex: number): boolean  =>
+      (vertex: number): boolean =>
         !Number.isSafeInteger(vertex) ||
         vertex < 0 ||
         3 * vertex + 2 >= initialPositions.length,
@@ -69,12 +73,13 @@ export function buildHumanFaceMedialBedSurface(
     throw new Error(
       "Medial relief registration has a nonresident skin vertex.",
     );
-  const triangles: number[] = [];
+  let triangles: number[] = [];
   const edges: Map<string, number[]> = new Map<string, number[]>();
   const hostIndices: number[] = material?.indices ?? source.indices;
   for (let at: number = 0; at < hostIndices.length; at += 3) {
     const face: number[] = hostIndices.slice(at, at + 3);
-    if (!face.every((vertex: number): boolean  => vertices.has(vertex))) continue;
+    if (!face.every((vertex: number): boolean => vertices.has(vertex)))
+      continue;
     triangles.push(...face);
     for (let corner: number = 0; corner < 3; corner++) {
       const a: number = face[corner],
@@ -85,17 +90,19 @@ export function buildHumanFaceMedialBedSurface(
       else entry[2]++;
     }
   }
-  let boundary: number[][] = [...edges.values()].filter((edge: number[]): boolean  => edge[2] === 1);
+  let boundary: number[][] = [...edges.values()].filter(
+    (edge: number[]): boolean => edge[2] === 1,
+  );
   if (triangles.length === 0 || boundary.length === 0)
     throw new Error(
       "Medial relief needs a resident skin patch with a boundary.",
     );
   if (
-    plicaVertices.some((vertex: number): boolean  => !vertices.has(vertex)) ||
+    plicaVertices.some((vertex: number): boolean => !vertices.has(vertex)) ||
     plicaVertices
       .slice(1)
       .some(
-        (vertex: number, at: number): boolean  =>
+        (vertex: number, at: number): boolean =>
           !edges.has(
             Math.min(vertex, plicaVertices[at]) +
               ":" +
@@ -112,9 +119,11 @@ export function buildHumanFaceMedialBedSurface(
   ];
   const point: (vertex: number) => number[] = (vertex: number): number[] =>
     samples.slice(3 * vertex, 3 * vertex + 3);
-  const margin: IAutoMovieHumanFacePeriocularStation | undefined = cage.stations.find(
-    (station: IAutoMovieHumanFacePeriocularStation): boolean  => station.role === "posteriorMargin",
-  );
+  const margin: IAutoMovieHumanFacePeriocularStation | undefined =
+    cage.stations.find(
+      (station: IAutoMovieHumanFacePeriocularStation): boolean =>
+        station.role === "posteriorMargin",
+    );
   if (margin === undefined)
     throw new Error("Medial relief needs its actual posterior margin.");
   const origin: number = positions[3 * margin.vertices[cage.medialColumn]];
@@ -122,9 +131,9 @@ export function buildHumanFaceMedialBedSurface(
     positions[3 * margin.vertices[cage.upperColumns[1]]] - origin,
   );
   const extent: number = profile.cornerLength / 1000;
-  const span: number = Math.max(
-    ...[...vertices].map((vertex: number): number  => towards * (point(vertex)[0] - origin)),
-  );
+  let span: number = -Infinity;
+  for (const vertex of vertices)
+    span = Math.max(span, towards * (point(vertex)[0] - origin));
   if (towards === 0 || !(extent > 0) || extent > span)
     throw new Error(
       "Medial relief extent exceeds its registered skin pocket's support: requested " +
@@ -137,13 +146,17 @@ export function buildHumanFaceMedialBedSurface(
   // interior relief samples while preserving the original patch boundary.
   for (let level: number = 0; level < 2; level++) {
     const shared: Map<string, number> = new Map<string, number>();
-    const midpoint: (a: number, b: number) => number = (a: number, b: number): number => {
+    const midpoint: (a: number, b: number) => number = (
+      a: number,
+      b: number,
+    ): number => {
       const key: string = Math.min(a, b) + ":" + Math.max(a, b);
       const existing: number | undefined = shared.get(key);
       if (existing !== undefined) return existing;
       const vertex: number = samples.length / 3;
       const normal: number[] = [0, 1, 2].map(
-        (axis: number): number  => directions[3 * a + axis] + directions[3 * b + axis],
+        (axis: number): number =>
+          directions[3 * a + axis] + directions[3 * b + axis],
       );
       const length: number = Math.hypot(...normal);
       if (!(length > 0))
@@ -151,9 +164,12 @@ export function buildHumanFaceMedialBedSurface(
           "Medial patch subdivision needs compatible skin normals.",
         );
       samples.push(
-        ...point(a).map((value: number, axis: number): number  => (value + samples[3 * b + axis]) / 2),
+        ...point(a).map(
+          (value: number, axis: number): number =>
+            (value + samples[3 * b + axis]) / 2,
+        ),
       );
-      directions.push(...normal.map((value: number): number  => value / length));
+      directions.push(...normal.map((value: number): number => value / length));
       shared.set(key, vertex);
       return vertex;
     };
@@ -167,14 +183,17 @@ export function buildHumanFaceMedialBedSurface(
         ca: number = midpoint(c, a);
       refined.push(a, ab, ca, ab, b, bc, ca, bc, c, ab, bc, ca);
     }
-    triangles.splice(0, triangles.length, ...refined);
+    triangles = refined;
   }
   // Clip the actual host to the requested medial-to-iris extent. Crossing
   // edges share their intersection, retaining a continuous resident patch.
   const cuts: Map<string, number> = new Map<string, number>();
   const depth: (vertex: number) => number = (vertex: number): number =>
     towards * (point(vertex)[0] - origin);
-  const cut: (a: number, b: number) => number = (a: number, b: number): number => {
+  const cut: (a: number, b: number) => number = (
+    a: number,
+    b: number,
+  ): number => {
     if (depth(a) === extent) return a;
     if (depth(b) === extent) return b;
     const key: string = Math.min(a, b) + ":" + Math.max(a, b);
@@ -183,7 +202,7 @@ export function buildHumanFaceMedialBedSurface(
     const t: number = (extent - depth(a)) / (depth(b) - depth(a));
     const vertex: number = samples.length / 3;
     const normal: number[] = [0, 1, 2].map(
-      (axis: number): number  =>
+      (axis: number): number =>
         directions[3 * a + axis] * (1 - t) + directions[3 * b + axis] * t,
     );
     const length: number = Math.hypot(...normal);
@@ -191,10 +210,11 @@ export function buildHumanFaceMedialBedSurface(
       throw new Error("Medial relief cut needs compatible host normals.");
     samples.push(
       ...point(a).map(
-        (value: number, axis: number): number  => value * (1 - t) + samples[3 * b + axis] * t,
+        (value: number, axis: number): number =>
+          value * (1 - t) + samples[3 * b + axis] * t,
       ),
     );
-    directions.push(...normal.map((value: number): number  => value / length));
+    directions.push(...normal.map((value: number): number => value / length));
     cuts.set(key, vertex);
     return vertex;
   };
@@ -215,7 +235,7 @@ export function buildHumanFaceMedialBedSurface(
     for (let corner: number = 1; corner + 1 < polygon.length; corner++)
       clipped.push(polygon[0], polygon[corner], polygon[corner + 1]);
   }
-  triangles.splice(0, triangles.length, ...clipped);
+  triangles = clipped;
   const clippedEdges: Map<string, number[]> = new Map<string, number[]>();
   for (let at: number = 0; at < triangles.length; at += 3)
     for (let corner: number = 0; corner < 3; corner++) {
@@ -226,16 +246,27 @@ export function buildHumanFaceMedialBedSurface(
       if (edge === undefined) clippedEdges.set(key, [a, b, 1]);
       else edge[2]++;
     }
-  boundary = [...clippedEdges.values()].filter((edge: number[]): boolean  => edge[2] === 1);
+  boundary = [...clippedEdges.values()].filter(
+    (edge: number[]): boolean => edge[2] === 1,
+  );
   if (triangles.length === 0 || boundary.length === 0)
     throw new Error("Medial relief extent leaves no supported skin patch.");
-  const distance: (p: readonly number[], a: readonly number[], b: readonly number[]) => number = (
+  const distance: (
+    p: readonly number[],
+    a: readonly number[],
+    b: readonly number[],
+  ) => number = (
     p: readonly number[],
     a: readonly number[],
     b: readonly number[],
   ): number => {
-    const d: number[] = b.map((value: number, axis: number): number  => value - a[axis]);
-    const squared: number = d.reduce((sum: number, value: number): number  => sum + value * value, 0);
+    const d: number[] = b.map(
+      (value: number, axis: number): number => value - a[axis],
+    );
+    const squared: number = d.reduce(
+      (sum: number, value: number): number => sum + value * value,
+      0,
+    );
     const t: number =
       squared === 0
         ? 0
@@ -244,44 +275,75 @@ export function buildHumanFaceMedialBedSurface(
             Math.max(
               0,
               d.reduce(
-                (sum: number, value: number, axis: number): number  => sum + value * (p[axis] - a[axis]),
+                (sum: number, value: number, axis: number): number =>
+                  sum + value * (p[axis] - a[axis]),
                 0,
               ) / squared,
             ),
           );
-    return Math.hypot(...p.map((value: number, axis: number): number  => value - a[axis] - t * d[axis]));
+    return Math.hypot(
+      ...p.map(
+        (value: number, axis: number): number => value - a[axis] - t * d[axis],
+      ),
+    );
   };
   const path: number[][][] = plicaVertices
     .slice(1)
-    .map((vertex: number, at: number): number[][]  => [point(plicaVertices[at]), point(vertex)]);
+    .map((vertex: number, at: number): number[][] => [
+      point(plicaVertices[at]),
+      point(vertex),
+    ]);
   if (
     !path.some(
-      ([a, b]: number[][]): boolean  => Math.hypot(...a.map((value: number, axis: number): number  => value - b[axis])) > 0,
+      ([a, b]: number[][]): boolean =>
+        Math.hypot(
+          ...a.map((value: number, axis: number): number => value - b[axis]),
+        ) > 0,
     )
   )
     throw new Error("Medial relief needs a nonzero registered plica path.");
   const resident: number[] = [...new Set(triangles)];
-  const border: number[] = resident.map((vertex: number): number  =>
-    Math.min(
-      ...boundary.map(([a, b]: number[]): number  => distance(point(vertex), point(a), point(b))),
+  const border: number[] = resident.map((vertex: number): number =>
+    boundary.reduce(
+      (nearest: number, [a, b]: number[]): number =>
+        Math.min(nearest, distance(point(vertex), point(a), point(b))),
+      Infinity,
     ),
   );
-  const maximum: number = Math.max(...border);
+  const maximum: number = border.reduce(
+    (maximum: number, value: number): number => Math.max(maximum, value),
+    -Infinity,
+  );
   const width: number = profile.cornerLength / 12000;
-  const output: number[] = resident.flatMap((vertex: number, at: number): number[]  => {
-    const p: number[] = point(vertex);
-    const weight: number = maximum === 0 ? 0 : border[at] / maximum;
-    const near: number = Math.min(...path.map(([a, b]: number[][]): number  => distance(p, a, b)));
-    const fold: number = width === 0 ? 0 : Math.exp(-((near / width) ** 2));
-    const height: number =
-      (weight * (profile.caruncleProjection + profile.plicaProjection * fold)) /
-      1000;
-    return p.map(
-      (value: number, axis: number): number  => value + directions[3 * vertex + axis] * height,
-    );
-  });
-  const lookup: Map<number, number> = new Map(resident.map((vertex: number, at: number): [number, number]  => [vertex, at]));
-  const indices: number[] = triangles.map((vertex: number): number  => lookup.get(vertex)!);
+  const output: number[] = resident.flatMap(
+    (vertex: number, at: number): number[] => {
+      const p: number[] = point(vertex);
+      const weight: number = maximum === 0 ? 0 : border[at] / maximum;
+      const near: number = path.reduce(
+        (nearest: number, [a, b]: number[][]): number =>
+          Math.min(nearest, distance(p, a, b)),
+        Infinity,
+      );
+      const fold: number = width === 0 ? 0 : Math.exp(-((near / width) ** 2));
+      const height: number =
+        (weight *
+          (profile.caruncleProjection + profile.plicaProjection * fold)) /
+        1000;
+      return p.map(
+        (value: number, axis: number): number =>
+          value + directions[3 * vertex + axis] * height,
+      );
+    },
+  );
+  const lookup: Map<number, number> = new Map(
+    resident.map((vertex: number, at: number): [number, number] => [
+      vertex,
+      at,
+    ]),
+  );
+  const indices: number[] = triangles.map(
+    (vertex: number): number => lookup.get(vertex)!,
+  );
   return {
     positions: output,
     indices,

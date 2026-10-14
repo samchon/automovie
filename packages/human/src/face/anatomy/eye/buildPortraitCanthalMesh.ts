@@ -46,10 +46,14 @@ export function buildPortraitCanthalMesh(
 } {
   if (
     anchors.length !== 2 ||
-    anchors.some((p: Point): boolean  => ![p.x, p.y, p.z].every(Number.isFinite))
+    anchors.some((p: Point): boolean => ![p.x, p.y, p.z].every(Number.isFinite))
   )
     throw new Error("Canthal support needs two finite anchors.");
-  const globe: IAutoMovieMesh = buildPortraitPerformanceGlobe(sphere, columns, rows);
+  const globe: IAutoMovieMesh = buildPortraitPerformanceGlobe(
+    sphere,
+    columns,
+    rows,
+  );
   const positions: number[] = [...globe.positions];
   const opticalCount: number = positions.length / 3;
   let indices: number[] = [...globe.indices!];
@@ -59,7 +63,10 @@ export function buildPortraitCanthalMesh(
     );
   for (const anchor of anchors) {
     const retained: number[] = [];
-    const horizon: Map<string, [number, number]> = new Map<string, [number, number]>();
+    const horizon: Map<string, [number, number]> = new Map<
+      string,
+      [number, number]
+    >();
     for (let i: number = 0; i < indices.length; i += 3) {
       const face: number[] = indices.slice(i, i + 3);
       const a: Point = point(face[0]);
@@ -89,11 +96,18 @@ export function buildPortraitCanthalMesh(
   // Keep the exact optical normals at shared globe vertices. Newly introduced
   // apices have no analytic unique normal, so use their incident face average.
   const normals: number[] = areaWeightedNormals(positions, indices);
-  normals.splice(0, globe.normals!.length, ...globe.normals!);
-  const surface: IAutoMovieMesh = extractTriangleRegion(positions, normals, indices);
+  for (let index: number = 0; index < globe.normals!.length; index++)
+    normals[index] = globe.normals![index];
+  const surface: IAutoMovieMesh = extractTriangleRegion(
+    positions,
+    normals,
+    indices,
+  );
   const connective: (i: number) => boolean = (i: number): boolean => {
     const face: number = Math.floor(i / 3) * 3;
-    return indices.slice(face, face + 3).some((id: number): boolean  => id >= opticalCount);
+    return indices
+      .slice(face, face + 3)
+      .some((id: number): boolean => id >= opticalCount);
   };
   // The visible boundary is the hull, not the old globe plus a second cap.
   // Retaining buried globe faces at a shared horizon would create three
@@ -102,12 +116,12 @@ export function buildPortraitCanthalMesh(
   const exposed: IAutoMovieMesh = extractTriangleRegion(
     positions,
     normals,
-    indices.filter((_id: number, i: number): boolean  => !connective(i)),
+    indices.filter((_id: number, i: number): boolean => !connective(i)),
   );
   const extension: IAutoMovieMesh = extractTriangleRegion(
     positions,
     normals,
-    indices.filter((_id: number, i: number): boolean  => connective(i)),
+    indices.filter((_id: number, i: number): boolean => connective(i)),
   );
   return { globe, exposed, extension, surface };
 }
