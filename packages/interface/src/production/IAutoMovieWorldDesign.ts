@@ -8,9 +8,9 @@ import { IAutoMovieWorldSurface } from "./IAutoMovieWorldSurface";
 /**
  * Production world of named spatial constraints, terrain, environmental effects and compact general populations.
  *
- * @evidence contracts/common.md#principled-implementation The typed world declares meter-based landmarks, surface height laws and route constraints plus closed effect recipes/zones and instance placement laws; production validates identities and references before materializing current runtime records.
+ * @evidence contracts/common.md#principled-implementation The typed world declares meter-based landmarks, surface height laws, route constraints, effect recipes/zones and instance placement laws. Engine callers query or materialize those records explicitly; unique identities, valid numeric domains and complete references remain caller premises after whole-production admission retirement.
  * @evidence contracts/common.md#clear-and-simple-design Each spatial population keeps its own shape and responsibility, separating terrain lookup, navigation width, effect regions and non-formation placement from shot performance.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing referenced landmarks, routes or effect recipes cannot become guessed geometry; optional instanceSets alone preserves older world records as an empty population.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Optional instanceSets preserves older world records as an empty population. Missing instance routes refuse during regeneration, while materializeCompiledEffects drops unresolved zone or recipe cues; this type supplies no universal missing-reference refusal or invented geometry.
  * @evidence contracts/common.md#meaningful-documentation Defines world identity and meter units, every spatial population and the backward-compatible empty instance-set omission.
  * @author Samchon
  */

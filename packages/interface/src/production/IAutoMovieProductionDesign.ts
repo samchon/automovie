@@ -19,9 +19,9 @@ import type { IAutoMovieRepaintReferenceInput } from "./capture/IAutoMovieRepain
 import type { IAutoMovieRepaintRequestEvidence } from "./capture/IAutoMovieRepaintRequestEvidence";
 
 /**
- * Production-owned frame, story, appearance, sound and delivery decisions consumed by source compilation and final validation.
+ * Authored frame, story, appearance, sound and delivery decisions shared by engine and render callers.
  *
- * @evidence contracts/common.md#principled-implementation Exact structural acquisition precedes semantic raster/frame-clock, delivery, motion-mapping and caption-profile checks; the canonical design projection participates in compile identity. Selected fields feed shot lighting, motion adoption, sound-evidence and delivery validation, while documented metadata-only fields have no execution reader. Structural presence alone does not enforce every intended policy or freeze the record.
+ * @evidence contracts/common.md#principled-implementation Render planning reads identity, runtime, frame format and deliverables, verifies their agreement with the supplied film timeline, and projects explicit caller-selected tiers. Engine runtime contracts also reuse the frame-format shape. This pure type performs no acquisition or whole-design admission; the retired production builder no longer supplies automatic lighting, motion-adoption, caption or delivery validation.
  * @evidence contracts/common.md#clear-and-simple-design Related optional sound, repaint, tier and simulation decisions stay grouped with the global frame and art contract; their implementations and per-shot performance remain in the responsible engine and host packages.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts This record chooses no provider, asset or physical threshold on the author's behalf. Explicit-argument budget/live-soft helpers and host-supplied repaint options are distinct from automatic consumption of similarly shaped design fields; documented absent wiring is not a passed execution gate.
  * @evidence contracts/common.md#meaningful-documentation Defines production identity, shared units and limits, optional-state effects, policy ownership, explicit adoptions and the separation between deterministic technical truth and rendition delivery.
@@ -34,7 +34,7 @@ export interface IAutoMovieProductionDesign {
   /** Non-blank human-facing title. */
   title: string;
 
-  /** Non-blank narrative promise; the gate does not parse sentence count or meaning. */
+  /** Non-blank narrative promise supplied by the author; no sentence-count or meaning parser. */
   logline: string;
 
   /**
@@ -45,7 +45,7 @@ export interface IAutoMovieProductionDesign {
   /**
    * Legacy all-one-lane shorthand or an explicit mixed film delivery.
    *
-   * Deterministic delivery uses builder/render output directly. Repainted delivery keeps that output as technical truth and additionally requires a required feature plus a receipt-bound rendition review for every delivered shot.
+   * Deterministic delivery uses engine/render output directly. Repainted delivery expresses an intended appearance lane over that technical truth; this field has no surviving automatic receipt-bound delivery gate.
    */
   visualDelivery: "deterministic" | "repainted" | "mixed";
 
@@ -58,7 +58,7 @@ export interface IAutoMovieProductionDesign {
   /**
    * Story clock every pinned shot and cross-shot criterion is measured on.
    *
-   * Omitted means the production asserts nothing about story time; shots may then carry no pin and no cross-shot criterion is admissible.
+   * Omitted means the author asserts no shared story time. Explicit engine story validators own pin and cross-shot checks; the field does not invoke them.
    */
   storyClock?: IAutoMovieStoryClock;
 
@@ -67,7 +67,7 @@ export interface IAutoMovieProductionDesign {
    *
    * Where {@link storyClock} says when a shot happens, this says what the light is doing then. A shot's `lightMotions` is the right unit for a light that belongs to the moment and the wrong unit for one that belongs to the production: stated per shot, every shot restages the same source and nothing relates the light in the first shot to the light in the last. A production that runs across a stretch of story could not say that its light travelled over that stretch, whatever the subject.
    *
-   * Current Production assembly samples a pinned shot's opening story instant only, then merges shot-local lights. Production tracks do not automatically animate through the shot; continued change belongs to shot-local lightMotions. Omission and unpinned shots preserve shot-only lighting.
+   * This field has no surviving assembly reader after production package retirement. Engine lighting samplers require explicit inputs, and shot-local lightMotions own continued change within a shot.
    */
   lighting?: IAutoMovieProductionLighting;
 
@@ -83,23 +83,23 @@ export interface IAutoMovieProductionDesign {
   /**
    * User-selected external motion adoptions, unique by id and clip.
    *
-   * The builder validates and applies these records but does not choose an asset, take, actor, adoption mode, or retarget mapping. Omission preserves the legacy source-computed motion path.
+   * These records preserve the author's intended asset, take, actor, adoption mode and mapping. The production adoption writer is retired; presence performs no conversion or actor mutation, and source-authored motion remains separate.
    */
   externalMotions?: IAutoMovieExternalMotionAdoption[];
 
   /**
    * Production-owned caption readability profiles, unique by language.
    *
-   * Omission provides no implicit thresholds: measurements may be reported, but their verdict is `not-run` and existing compiled output is unchanged.
+   * Omission provides no implicit thresholds. This field has no surviving automatic caption-measurement reader; retaining a profile does not run an inspection.
    */
   captionReadabilityProfiles?: IAutoMovieCaptionReadabilityProfile[];
 
   /**
    * Optional production-owned propagation, room-response, and dialogue choices.
    *
-   * Omitting propagation or the room response preserves the legacy dry path. The engine does not choose a physical profile, external provider, adopted asset, or room mapping.
+   * Explicit Engine sound callers choose propagation and room-response inputs independently of this metadata field. The engine does not choose a physical profile, external provider, adopted asset or room mapping.
    *
-   * Dialogue generator and speaker declarations retain authored choices, not independently verified rights or synthesis effects. Their current fields have no in-tree execution consumer; supplied TTS receipts are consumed separately by sound-evidence validation.
+   * Dialogue generator and speaker declarations retain authored choices, not independently verified rights or synthesis effects. These design fields and their supplied TTS receipt integration have no surviving automatic production reader; explicit engine sound operations remain separate.
    */
   sound?: {
     /** Selected direct-path propagation model. */
@@ -195,9 +195,9 @@ export interface IAutoMovieProductionDesign {
   /**
    * Authored appearance-generator, execution-policy and shot-request declarations.
    *
-   * These fields retain the intended generator, execution boundary, retry and cost policy, prompt, seed, preservation strength and role-specific references. They participate in acquired design identity, but the current repaint service does not read this field: it consumes host-supplied adapter/adoption and execution options plus request controls and references.
+   * These fields retain the intended generator, execution boundary, retry and cost policy, prompt, seed, preservation strength and role-specific references. The production repaint service and design-acquisition identity are retired; this metadata installs no execution host or request writer.
    *
-   * Candidate selection and sequence observation use separate persisted records. This declaration does not prove a request was reviewed, freeze its object or select the delivery lane; visualDelivery and its current admission gates own that choice.
+   * Candidate selection and sequence observation use separate records. This declaration does not prove a request was reviewed, freeze its object or enforce the intended visualDelivery lane; production delivery admission is retired.
    */
   repaint?: {
     /** Authored runtime adoption and descriptive generator context; source/license/terms metadata does not establish reviewed legal rights. */
@@ -239,7 +239,7 @@ export interface IAutoMovieProductionDesign {
    *
    * Sun, sky, reference ground and neighbouring occluder masses are conditions a building is subject to, not parts of it. Declaring them here keeps that direction one-way: an analysis reads the context and the building, and neither the context nor a result it produces can become design.
    *
-   * Production review validates this context against ids collected from compiled building elements, spaces and boundaries. Design-only scope has no compiled members to reserve, and the field does not itself run an environmental analysis; an explicit analysis caller owns that invocation. Omission adds no shared context or collision check.
+   * Explicit Engine context validation and analysis callers own identity collisions and analysis invocation. The production review reader is retired, and this field alone adds no shared context check or analysis.
    */
   environmentContext?: IAutoMovieEnvironmentContext;
 
@@ -277,7 +277,7 @@ export interface IAutoMovieProductionDesign {
     /** Foundation visual style. */
     style: "primitive-3d";
 
-    /** Nonempty exact-string-unique palette entries; the design gate checks nonblank text, not CSS color syntax. */
+    /** Intended nonempty exact-string-unique palette entries; no surviving whole-design gate checks text or CSS color syntax. */
     palette: string[];
 
     /** Non-blank rules that keep important silhouettes legible. */
