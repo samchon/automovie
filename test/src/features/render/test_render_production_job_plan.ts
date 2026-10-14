@@ -17,13 +17,15 @@ import {
   materializedFilmEffects,
   resealFilmEffect,
 } from "../film/filmEffectRuntimeFixtures";
-import { GRAPHICS_FIXTURE } from "../internal/renderBudgetFixtures";
 import { throwsError } from "../internal/predicates";
+import { GRAPHICS_FIXTURE } from "../internal/renderBudgetFixtures";
 
-const SHOT_DIGEST = `sha256:${"e".repeat(64)}` as const;
+const SHOT_DIGEST: `sha256:${string}` = `sha256:${"e".repeat(64)}` as const;
 
 /** The 48-frame, 24 fps effect fixture film, owned by production `production`. */
-const timeline = (
+const timeline: (
+  audio?: IAutoMovieFilmTimeline["tracks"]["audio"],
+) => IAutoMovieFilmTimeline = (
   audio: IAutoMovieFilmTimeline["tracks"]["audio"] = [],
 ): IAutoMovieFilmTimeline => {
   const base: IAutoMovieFilmTimeline = filmEffectTimeline();
@@ -35,7 +37,9 @@ const timeline = (
 };
 
 /** A 2-second, 16 x 16 production with one deliverable of every listed kind. */
-const production = (
+const production: (
+  deliverables?: IAutoMovieProductionDesign["deliverables"],
+) => IAutoMovieProductionDesign = (
   deliverables: IAutoMovieProductionDesign["deliverables"] = [
     { id: "feature", kind: "feature", required: true },
     { id: "depth", kind: "guide-pass", pass: "depth", required: true },
@@ -57,44 +61,47 @@ const production = (
   deliverables,
 });
 
-const runtimeIdentity = (): IAutoMovieProductionRenderRuntimeIdentity => ({
-  protocolVersion: "automovie.production-render-runtime.v3",
-  sourceDigest: `sha256:${"a".repeat(64)}`,
-  dialogueRuntimeIdentity: null,
-  capture: {
-    protocolVersion: "automovie.capture-runtime.v2",
-    playwright: { package: "playwright", version: "1.55.0" },
-    runtimeClosure: {
-      protocolVersion: "automovie.capture-runtime-closure.v1",
-      contentDigest: `sha256:${"b".repeat(64)}`,
-      packages: [],
-      browserSupport: {
-        status: "system-channel-unsealed",
-        source: "system-channel",
+const runtimeIdentity: () => IAutoMovieProductionRenderRuntimeIdentity =
+  (): IAutoMovieProductionRenderRuntimeIdentity => ({
+    protocolVersion: "automovie.production-render-runtime.v3",
+    sourceDigest: `sha256:${"a".repeat(64)}`,
+    dialogueRuntimeIdentity: null,
+    capture: {
+      protocolVersion: "automovie.capture-runtime.v2",
+      playwright: { package: "playwright", version: "1.55.0" },
+      runtimeClosure: {
+        protocolVersion: "automovie.capture-runtime-closure.v1",
+        contentDigest: `sha256:${"b".repeat(64)}`,
+        packages: [],
+        browserSupport: {
+          status: "system-channel-unsealed",
+          source: "system-channel",
+        },
       },
+      browser: {
+        product: "chromium",
+        version: "140.0.0",
+        revision: null,
+        source: "system-channel",
+        executableDigest: null,
+      },
+      platform: { os: "linux", arch: "x64" },
+      mode: { headless: "chromium", deviceScaleFactor: 1 },
+      graphics: GRAPHICS_FIXTURE,
     },
-    browser: {
-      product: "chromium",
-      version: "140.0.0",
-      revision: null,
-      source: "system-channel",
-      executableDigest: null,
+    encoder: {
+      package: "h264-mp4-encoder",
+      version: "1.0.12",
+      closureDigest: `sha256:${"d".repeat(64)}`,
+      codec: "h264",
+      arguments: { quantizationParameter: 20, speed: 4, groupOfPictures: 24 },
     },
-    platform: { os: "linux", arch: "x64" },
-    mode: { headless: "chromium", deviceScaleFactor: 1 },
-    graphics: GRAPHICS_FIXTURE,
-  },
-  encoder: {
-    package: "h264-mp4-encoder",
-    version: "1.0.12",
-    closureDigest: `sha256:${"d".repeat(64)}`,
-    codec: "h264",
-    arguments: { quantizationParameter: 20, speed: 4, groupOfPictures: 24 },
-  },
-});
+  });
 
 /** A 48 kHz stereo placeholder stem holding `sourceFrames` sample frames. */
-const stem = (sourceFrames: number): IAutoMovieProductionAudioAssetIdentity => ({
+const stem: (sourceFrames: number) => IAutoMovieProductionAudioAssetIdentity = (
+  sourceFrames: number,
+): IAutoMovieProductionAudioAssetIdentity => ({
   kind: "placeholder-audio-stem",
   path: "audio/stem.wav",
   digest: `sha256:${"f".repeat(64)}`,
@@ -120,7 +127,9 @@ const CUE: IAutoMovieFilmTimeline["tracks"]["audio"][number] = {
 
 type IPlanProps = Parameters<typeof planProductionRenderJob>[0];
 
-const plan = (
+const plan: (
+  overrides?: Partial<IPlanProps>,
+) => IAutoMovieProductionRenderJobPlan = (
   overrides: Partial<IPlanProps> = {},
 ): IAutoMovieProductionRenderJobPlan => {
   const film: IAutoMovieFilmTimeline = overrides.timeline ?? timeline();
@@ -165,14 +174,19 @@ const plan = (
  * 5. An audio cue joins its asset by path and must name exactly the asset's
  *    sample count; one sample short and a missing asset are both refused, as
  *    is a shot without a source digest.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls the real render planner and checks exact final/proxy ranges, frame/layer membership, stable distinct chunk identities, legacy guide-pass selection and effect/audio/source-identity refusals.
+ * @evidence contracts/testing.md#independent-expectations Forty-eight source frames split into 20/20/8 final chunks or 20/4 proxy chunks; factor-two raster/time sampling and 48000-Hz stereo sample counts supply independent arithmetic. Repeated ids test determinism rather than independently specifying digest bytes.
+ * @evidence contracts/testing.md#distinguishing-cases Final/proxy, feature/guide/caption, explicit/default/conflicting legacy passes, complete/truncated/foreign effects, exact/short/missing audio and absent shot fingerprint preserve both admitted and refused boundaries.
+ * @evidence contracts/testing.md#execution-ownership The named portable synchronous unit owns all planner cases through supplied numerical timelines and runtime-identity records; no browser, encoder, native media asset, process or production workspace is opened.
  */
-export const test_render_production_job_plan = (): void => {
+export function test_render_production_job_plan(): void {
   const final: IAutoMovieProductionRenderJobPlan = plan();
   TestValidator.equals(
     "a final plan partitions both moving deliverables into the same ranges",
     {
       totalFrames: final.totalFrames,
-      chunks: final.chunks.map((chunk) => ({
+      chunks: final.chunks.map((chunk: IAutoMovieProductionRenderJobPlan["chunks"][number]): { slot: string; kind: typeof chunk.kind; pass: typeof chunk.pass; range: number[]; frames: number } => ({
         slot: chunk.slot,
         kind: chunk.kind,
         pass: chunk.pass,
@@ -189,7 +203,7 @@ export const test_render_production_job_plan = (): void => {
         ["depth", "guide-pass", "depth", 0, 0, 20],
         ["depth", "guide-pass", "depth", 1, 20, 40],
         ["depth", "guide-pass", "depth", 2, 40, 48],
-      ].map(([deliverable, kind, pass, index, start, end]) => ({
+      ].map(([deliverable, kind, pass, index, start, end]: (string | number)[]): { slot: string; kind: "feature" | "guide-pass"; pass: "beauty" | "depth"; range: number[]; frames: number } => ({
         slot: `production:final:${deliverable}:${pass}:${index}`,
         kind: kind as "feature" | "guide-pass",
         pass: pass as "beauty" | "depth",
@@ -200,9 +214,9 @@ export const test_render_production_job_plan = (): void => {
   );
   TestValidator.equals(
     "every planned frame shows the fixture's one shot",
-    final.chunks.every((chunk) =>
-      chunk.frames.every((frame) =>
-        frame.layers.every((layer) => layer.shot === "shot"),
+    final.chunks.every((chunk: IAutoMovieProductionRenderJobPlan["chunks"][number]): boolean =>
+      chunk.frames.every((frame: typeof chunk.frames[number]): boolean =>
+        frame.layers.every((layer: typeof frame.layers[number]): boolean => layer.shot === "shot"),
       ),
     ),
     true,
@@ -210,10 +224,10 @@ export const test_render_production_job_plan = (): void => {
   TestValidator.equals(
     "ids are distinct per deliverable and range and stable across plans",
     {
-      distinct: new Set(final.chunks.map((chunk) => chunk.id)).size,
-      repeated: plan().chunks.map((chunk) => chunk.id),
+      distinct: new Set(final.chunks.map((chunk: IAutoMovieProductionRenderJobPlan["chunks"][number]): string => chunk.id)).size,
+      repeated: plan().chunks.map((chunk: IAutoMovieProductionRenderJobPlan["chunks"][number]): string => chunk.id),
     },
-    { distinct: 6, repeated: final.chunks.map((chunk) => chunk.id) },
+    { distinct: 6, repeated: final.chunks.map((chunk: IAutoMovieProductionRenderJobPlan["chunks"][number]): string => chunk.id) },
   );
 
   const proxy: IAutoMovieProductionRenderJobPlan = plan({
@@ -229,11 +243,12 @@ export const test_render_production_job_plan = (): void => {
         proxy.frameFormat.fps,
       ],
       ranges: proxy.chunks
-        .filter((chunk) => chunk.kind === "feature")
-        .map((chunk) => [chunk.frameStart, chunk.frameEndExclusive]),
-      timelineFrames: proxy.chunks[0]!.frames
-        .slice(0, 3)
-        .map((frame) => [frame.globalFrame, frame.timelineFrame]),
+        .filter((chunk: IAutoMovieProductionRenderJobPlan["chunks"][number]): boolean => chunk.kind === "feature")
+        .map((chunk: IAutoMovieProductionRenderJobPlan["chunks"][number]): number[] => [chunk.frameStart, chunk.frameEndExclusive]),
+      timelineFrames: proxy.chunks[0]!.frames.slice(0, 3).map((frame: IAutoMovieProductionRenderJobPlan["chunks"][number]["frames"][number]): number[] => [
+        frame.globalFrame,
+        frame.timelineFrame,
+      ]),
       slot: proxy.chunks[0]!.slot,
     },
     {
@@ -262,7 +277,7 @@ export const test_render_production_job_plan = (): void => {
         .pass,
       defaulted: plan({ production: legacy }).chunks[0]!.pass,
       twoPasses: throwsError(
-        () => plan({ production: legacy, guidePasses: ["normal", "mask"] }),
+        (): IAutoMovieProductionRenderJobPlan => plan({ production: legacy, guidePasses: ["normal", "mask"] }),
         "exactly one declared pass",
       ),
     },
@@ -274,12 +289,14 @@ export const test_render_production_job_plan = (): void => {
   TestValidator.equals(
     "the effect runtimes must be the whole current population",
     {
-      truncated: filmEffectRefusal(() => plan({ effects: effects.slice(0, 1) })),
-      foreign: filmEffectRefusal(() =>
+      truncated: filmEffectRefusal((): IAutoMovieProductionRenderJobPlan =>
+        plan({ effects: effects.slice(0, 1) }),
+      ),
+      foreign: filmEffectRefusal((): IAutoMovieProductionRenderJobPlan =>
         plan({
           effects: [
             effects[0]!,
-            resealFilmEffect(effects[1]!, (draft) => {
+            resealFilmEffect(effects[1]!, (draft: Parameters<Parameters<typeof resealFilmEffect>[1]>[0]): void => {
               draft.production = "other";
             }),
           ],
@@ -299,18 +316,18 @@ export const test_render_production_job_plan = (): void => {
       exact: plan({ timeline: scored, audioAssets: [stem(96_000)] }).tracks
         .audioAssets.length,
       short: throwsError(
-        () => plan({ timeline: scored, audioAssets: [stem(95_999)] }),
+        (): IAutoMovieProductionRenderJobPlan => plan({ timeline: scored, audioAssets: [stem(95_999)] }),
         'Audio cue "cue"',
       ),
       missing: throwsError(
-        () => plan({ timeline: scored, audioAssets: [] }),
+        (): IAutoMovieProductionRenderJobPlan => plan({ timeline: scored, audioAssets: [] }),
         'Audio cue "cue"',
       ),
       unsourcedShot: throwsError(
-        () => plan({ sourceFingerprints: {} }),
+        (): IAutoMovieProductionRenderJobPlan => plan({ sourceFingerprints: {} }),
         'shot "shot" without one current builder-owned source fingerprint',
       ),
     },
     { exact: 1, short: true, missing: true, unsourcedShot: true },
   );
-};
+}

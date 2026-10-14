@@ -24,9 +24,17 @@ const BASE: IAutoMovieTransform = {
  *    from the staged position, and its 90 degree yaw adds to the staging's.
  * 3. A root carrying scale 2 keeps the staged unit scale and the same position,
  *    since the viewer never draws a root scale.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls foldRoot for null, translated/yawed and scaled pose roots, observing placement retention, node-space translation, composed rotation and omitted pose-root scale.
+ * @evidence contracts/testing.md#independent-expectations A +90-degree Y turn maps local +X to world -Z, giving (3,0,-3); two quarter turns give a half turn and pose-root scale is excluded by the Engine/viewer contract. Finite vector/quaternion predicates compare these independent values.
+ * @evidence contracts/testing.md#distinguishing-cases Null root contrasts nonzero translation/rotation, while changing only root scale must preserve staged scale and the already computed translation. General affine scaling and skeleton FK have separate owners.
+ * @evidence contracts/testing.md#execution-ownership The named portable synchronous unit owns three local transform cases and calls the actual Engine composition without a viewer, renderer, filesystem or replacement dependency.
  */
-export const test_film_fold_root = (): void => {
-  TestValidator.equals("a null root is the staged base", foldRoot(BASE, null), BASE);
+export function test_film_fold_root(): void {
+  TestValidator.predicate(
+    "a null root is the staged base",
+    foldRoot(BASE, null) === BASE,
+  );
 
   const root: IAutoMovieTransform = {
     translation: { x: 1, y: 0, z: 0 },
@@ -59,4 +67,4 @@ export const test_film_fold_root = (): void => {
     "a root scale does not move the root",
     vclose(scaled.translation, folded.translation, 1e-9),
   );
-};
+}
