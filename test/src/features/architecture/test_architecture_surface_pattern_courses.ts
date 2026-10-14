@@ -1,4 +1,10 @@
-import { type IAutoMoviePatternPlacement, type IAutoMoviePatternPoint, type IAutoMovieSurfacePattern, type IAutoMovieSurfacePatternResult, generateAutoMovieSurfacePattern } from "@automovie/engine";
+import {
+  type IAutoMoviePatternPlacement,
+  type IAutoMoviePatternPoint,
+  type IAutoMovieSurfacePattern,
+  type IAutoMovieSurfacePatternResult,
+  generateAutoMovieSurfacePattern,
+} from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { pattern, rectangle, zone } from "../internal/patternFixtures";
@@ -33,11 +39,13 @@ import { test12ValuesClose } from "../internal/test12ValuesClose";
  */
 export function test_architecture_surface_pattern_courses(): void {
   const field: IAutoMovieSurfacePattern = pattern();
-  const laid: IAutoMovieSurfacePatternResult = generateAutoMovieSurfacePattern({ pattern: field });
+  const laid: IAutoMovieSurfacePatternResult = generateAutoMovieSurfacePattern({
+    pattern: field,
+  });
 
   TestValidator.equals(
     "modules are laid in row-major cell order under a zone-scoped identity",
-    laid.placements.map((one: IAutoMoviePatternPlacement) : string => one.id),
+    laid.placements.map((one: IAutoMoviePatternPlacement): string => one.id),
     [
       "field/t-0-0",
       "field/t-1-0",
@@ -53,44 +61,68 @@ export function test_architecture_surface_pattern_courses(): void {
   TestValidator.equals(
     "every module of an exactly divisible field is whole",
     namedFacts([
-      ["count", () : boolean => laid.placements.length === 8],
-      ["cuts", () : boolean => laid.placements.every((one: IAutoMoviePatternPlacement) : boolean => one.cut === "none")],
+      ["count", (): boolean => laid.placements.length === 8],
+      [
+        "cuts",
+        (): boolean =>
+          laid.placements.every(
+            (one: IAutoMoviePatternPlacement): boolean => one.cut === "none",
+          ),
+      ],
       [
         "coverage",
-        () : boolean => laid.placements.every((one: IAutoMoviePatternPlacement) : boolean => nclose(one.coverage, 1, 1e-12)),
+        (): boolean =>
+          laid.placements.every((one: IAutoMoviePatternPlacement): boolean =>
+            nclose(one.coverage, 1, 1e-12),
+          ),
       ],
       [
         "areas",
-        () : boolean => laid.placements.every((one: IAutoMoviePatternPlacement) : boolean => nclose(one.area, 0.25, 1e-12)),
+        (): boolean =>
+          laid.placements.every((one: IAutoMoviePatternPlacement): boolean =>
+            nclose(one.area, 0.25, 1e-12),
+          ),
       ],
       [
         "material",
-        () : boolean => laid.placements.every((one: IAutoMoviePatternPlacement) : boolean => one.material === "tile-surface"),
+        (): boolean =>
+          laid.placements.every(
+            (one: IAutoMoviePatternPlacement): boolean =>
+              one.material === "tile-surface",
+          ),
       ],
       [
         "zone",
-        () : boolean =>
+        (): boolean =>
           laid.placements.every(
-            (one: IAutoMoviePatternPlacement) : boolean => one.zone === "field" && one.module.startsWith("t-"),
+            (one: IAutoMoviePatternPlacement): boolean =>
+              one.zone === "field" && one.module.startsWith("t-"),
           ),
       ],
       [
         "outlines",
-        () : boolean => laid.placements.every((one: IAutoMoviePatternPlacement) : boolean => one.outline.length === 4),
+        (): boolean =>
+          laid.placements.every(
+            (one: IAutoMoviePatternPlacement): boolean =>
+              one.outline.length === 4,
+          ),
       ],
       [
         "untouched",
-        () : boolean => laid.placements.every((one: IAutoMoviePatternPlacement) : boolean => nclose(one.punchedArea, 0, 0)),
+        (): boolean =>
+          laid.placements.every((one: IAutoMoviePatternPlacement): boolean =>
+            nclose(one.punchedArea, 0, 0),
+          ),
       ],
       [
         "firstCentre",
-        () : boolean =>
+        (): boolean =>
           nclose(laid.placements[0]!.center.u, 0.25, 1e-12) &&
           nclose(laid.placements[0]!.center.v, 0.25, 1e-12),
       ],
       [
         "lastCentre",
-        () : boolean =>
+        (): boolean =>
           nclose(laid.placements[7]!.center.u, 1.75, 1e-12) &&
           nclose(laid.placements[7]!.center.v, 0.75, 1e-12),
       ],
@@ -112,17 +144,20 @@ export function test_architecture_surface_pattern_courses(): void {
   TestValidator.equals(
     "the take-off of an exactly divisible field wastes nothing",
     namedFacts([
-      ["modules", () : boolean => laid.quantities.modules === 8],
-      ["whole", () : boolean => laid.quantities.whole === 8],
-      ["cut", () : boolean => laid.quantities.cut === 0],
-      ["covered", () : boolean => nclose(laid.quantities.coveredArea, 2, 1e-12)],
-      ["consumed", () : boolean => nclose(laid.quantities.consumedArea, 2, 1e-12)],
-      ["waste", () : boolean => nclose(laid.quantities.wasteArea, 0, 1e-12)],
-      ["ratio", () : boolean => nclose(laid.quantities.wasteRatio, 0, 1e-12)],
-      ["net", () : boolean => nclose(laid.quantities.netRegionArea, 2, 1e-12)],
-      ["jointArea", () : boolean => nclose(laid.quantities.jointArea, 0, 1e-12)],
-      ["jointLength", () : boolean => nclose(laid.quantities.jointLength, 0, 0)],
-      ["findings", () : boolean => laid.findings.length === 0],
+      ["modules", (): boolean => laid.quantities.modules === 8],
+      ["whole", (): boolean => laid.quantities.whole === 8],
+      ["cut", (): boolean => laid.quantities.cut === 0],
+      ["covered", (): boolean => nclose(laid.quantities.coveredArea, 2, 1e-12)],
+      [
+        "consumed",
+        (): boolean => nclose(laid.quantities.consumedArea, 2, 1e-12),
+      ],
+      ["waste", (): boolean => nclose(laid.quantities.wasteArea, 0, 1e-12)],
+      ["ratio", (): boolean => nclose(laid.quantities.wasteRatio, 0, 1e-12)],
+      ["net", (): boolean => nclose(laid.quantities.netRegionArea, 2, 1e-12)],
+      ["jointArea", (): boolean => nclose(laid.quantities.jointArea, 0, 1e-12)],
+      ["jointLength", (): boolean => nclose(laid.quantities.jointLength, 0, 0)],
+      ["findings", (): boolean => laid.findings.length === 0],
     ]),
     {
       modules: true,
@@ -141,44 +176,68 @@ export function test_architecture_surface_pattern_courses(): void {
 
   TestValidator.predicate(
     "the same declaration laid twice preserves structure and numeric components",
-    test12ValuesClose(generateAutoMovieSurfacePattern({ pattern: field }), laid),
+    test12ValuesClose(
+      generateAutoMovieSurfacePattern({ pattern: field }),
+      laid,
+    ),
   );
 
-  const narrow: IAutoMovieSurfacePatternResult = generateAutoMovieSurfacePattern({
-    pattern: pattern({
-      zones: [zone({ region: rectangle(0, 0, 1.75, 1) })],
-      minimumPiece: 0.4,
-    }),
-  });
+  const narrow: IAutoMovieSurfacePatternResult =
+    generateAutoMovieSurfacePattern({
+      pattern: pattern({
+        zones: [zone({ region: rectangle(0, 0, 1.75, 1) })],
+        minimumPiece: 0.4,
+      }),
+    });
   TestValidator.equals(
     "a region that does not divide cuts the last module of every course",
     namedFacts([
-      ["count", () : boolean => narrow.placements.length === 8],
+      ["count", (): boolean => narrow.placements.length === 8],
       [
         "kinds",
-        () : boolean =>
-          narrow.placements.map((one: IAutoMoviePatternPlacement) : "none" | "boundary" | "exclusion" | "both" => one.cut).join() ===
-          "none,none,none,boundary,none,none,none,boundary",
+        (): boolean =>
+          narrow.placements
+            .map(
+              (
+                one: IAutoMoviePatternPlacement,
+              ): "none" | "boundary" | "exclusion" | "both" => one.cut,
+            )
+            .join() === "none,none,none,boundary,none,none,none,boundary",
       ],
       [
         "coverage",
-        () : boolean =>
+        (): boolean =>
           nclose(narrow.placements[3]!.coverage, 0.5, 1e-12) &&
           nclose(narrow.placements[7]!.coverage, 0.5, 1e-12),
       ],
-      ["area", () : boolean => nclose(narrow.placements[3]!.area, 0.125, 1e-12)],
-      ["covered", () : boolean => nclose(narrow.quantities.coveredArea, 1.75, 1e-12)],
-      ["consumed", () : boolean => nclose(narrow.quantities.consumedArea, 2, 1e-12)],
-      ["waste", () : boolean => nclose(narrow.quantities.wasteArea, 0.25, 1e-12)],
-      ["ratio", () : boolean => nclose(narrow.quantities.wasteRatio, 0.125, 1e-12)],
-      ["net", () : boolean => nclose(narrow.quantities.netRegionArea, 1.75, 1e-12)],
-      ["whole", () : boolean => narrow.quantities.whole === 6],
-      ["cutCount", () : boolean => narrow.quantities.cut === 2],
+      ["area", (): boolean => nclose(narrow.placements[3]!.area, 0.125, 1e-12)],
+      [
+        "covered",
+        (): boolean => nclose(narrow.quantities.coveredArea, 1.75, 1e-12),
+      ],
+      [
+        "consumed",
+        (): boolean => nclose(narrow.quantities.consumedArea, 2, 1e-12),
+      ],
+      [
+        "waste",
+        (): boolean => nclose(narrow.quantities.wasteArea, 0.25, 1e-12),
+      ],
+      [
+        "ratio",
+        (): boolean => nclose(narrow.quantities.wasteRatio, 0.125, 1e-12),
+      ],
+      [
+        "net",
+        (): boolean => nclose(narrow.quantities.netRegionArea, 1.75, 1e-12),
+      ],
+      ["whole", (): boolean => narrow.quantities.whole === 6],
+      ["cutCount", (): boolean => narrow.quantities.cut === 2],
       [
         "outlineTrimmed",
-        () : boolean =>
+        (): boolean =>
           narrow.placements[3]!.outline.every(
-            (point: IAutoMoviePatternPoint) : boolean => point.u <= 1.75 + 1e-12,
+            (point: IAutoMoviePatternPoint): boolean => point.u <= 1.75 + 1e-12,
           ),
       ],
     ]),
@@ -198,20 +257,24 @@ export function test_architecture_surface_pattern_courses(): void {
     },
   );
 
-  const barren: IAutoMovieSurfacePatternResult = generateAutoMovieSurfacePattern({
-    pattern: pattern({ zones: [zone({ generate: () : never[] => [] })] }),
-  });
+  const barren: IAutoMovieSurfacePatternResult =
+    generateAutoMovieSurfacePattern({
+      pattern: pattern({ zones: [zone({ generate: (): never[] => [] })] }),
+    });
   TestValidator.equals(
     "an empty program retains region accounting with zero consumption and waste ratio",
     namedFacts([
-      ["placements", () : boolean => barren.placements.length === 0],
-      ["modules", () : boolean => barren.quantities.modules === 0],
-      ["consumed", () : boolean => nclose(barren.quantities.consumedArea, 0, 0)],
-      ["ratio", () : boolean => nclose(barren.quantities.wasteRatio, 0, 0)],
-      ["net", () : boolean => nclose(barren.quantities.netRegionArea, 2, 1e-12)],
-      ["jointArea", () : boolean => nclose(barren.quantities.jointArea, 2, 1e-12)],
-      ["findings", () : boolean => barren.findings.length === 0],
-      ["zones", () : boolean => barren.quantities.zones.length === 1],
+      ["placements", (): boolean => barren.placements.length === 0],
+      ["modules", (): boolean => barren.quantities.modules === 0],
+      ["consumed", (): boolean => nclose(barren.quantities.consumedArea, 0, 0)],
+      ["ratio", (): boolean => nclose(barren.quantities.wasteRatio, 0, 0)],
+      ["net", (): boolean => nclose(barren.quantities.netRegionArea, 2, 1e-12)],
+      [
+        "jointArea",
+        (): boolean => nclose(barren.quantities.jointArea, 2, 1e-12),
+      ],
+      ["findings", (): boolean => barren.findings.length === 0],
+      ["zones", (): boolean => barren.quantities.zones.length === 1],
     ]),
     {
       placements: true,

@@ -1,10 +1,16 @@
-import type { IAutoMovieExplicitInstanceTransform, IAutoMovieQuaternion } from "@automovie/interface";
 import {
-  type IAutoMoviePatternInstancing, type IAutoMoviePatternPlacement, type IAutoMoviePatternPoint, type IAutoMovieSurfacePatternResult,
+  type IAutoMoviePatternInstancing,
+  type IAutoMoviePatternPlacement,
+  type IAutoMoviePatternPoint,
+  type IAutoMovieSurfacePatternResult,
   Quaternion,
   autoMoviePatternInstanceTransforms,
   generateAutoMovieSurfacePattern,
 } from "@automovie/engine";
+import type {
+  IAutoMovieExplicitInstanceTransform,
+  IAutoMovieQuaternion,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { pattern, rectangle, zone } from "../internal/patternFixtures";
@@ -17,13 +23,21 @@ import {
   vclose,
 } from "../internal/predicates";
 
-const WALL: { origin: { x: number; y: number; z: number; }; u: { x: number; y: number; z: number; }; v: { x: number; y: number; z: number; }; } = {
+const WALL: {
+  origin: { x: number; y: number; z: number };
+  u: { x: number; y: number; z: number };
+  v: { x: number; y: number; z: number };
+} = {
   origin: { x: 0, y: 0, z: 0 },
   u: { x: 1, y: 0, z: 0 },
   v: { x: 0, y: 1, z: 0 },
 };
 
-const FLOOR: { origin: { x: number; y: number; z: number; }; u: { x: number; y: number; z: number; }; v: { x: number; y: number; z: number; }; } = {
+const FLOOR: {
+  origin: { x: number; y: number; z: number };
+  u: { x: number; y: number; z: number };
+  v: { x: number; y: number; z: number };
+} = {
   origin: { x: 0, y: 0, z: 0 },
   u: { x: 0, y: 0, z: 1 },
   v: { x: 1, y: 0, z: 0 },
@@ -70,44 +84,55 @@ export function test_architecture_surface_pattern_instancing(): void {
 
   TestValidator.equals(
     "every whole module becomes one slot carrying its own occurrence id",
-    wall.transforms.map((one: IAutoMovieExplicitInstanceTransform) : string => one.id),
-    laid.placements.map((one: IAutoMoviePatternPlacement) : string => one.id),
+    wall.transforms.map(
+      (one: IAutoMovieExplicitInstanceTransform): string => one.id,
+    ),
+    laid.placements.map((one: IAutoMoviePatternPlacement): string => one.id),
   );
   TestValidator.equals(
     "a wall face places modules at their centres with a non-uniform scale",
     namedFacts([
-      ["count", () : boolean => wall.transforms.length === 8],
-      ["cut", () : boolean => wall.cut.length === 0],
+      ["count", (): boolean => wall.transforms.length === 8],
+      ["cut", (): boolean => wall.cut.length === 0],
       [
         "first",
-        () : boolean =>
+        (): boolean =>
           vclose(wall.transforms[0]!.translation, { x: 0.25, y: 0.25, z: 0 }),
       ],
       [
         "last",
-        () : boolean =>
+        (): boolean =>
           vclose(wall.transforms[7]!.translation, { x: 1.75, y: 0.75, z: 0 }),
       ],
       [
         "identity",
-        () : boolean =>
-          wall.transforms.every((one: IAutoMovieExplicitInstanceTransform) : boolean =>
-            qclose(one.rotation, { x: 0, y: 0, z: 0, w: 1 }) && vclose(
-              Quaternion.rotateVector(one.rotation, { x: 1, y: 0, z: 0 }),
-              {
-                x: 1,
-                y: 0,
-                z: 0,
-              },
-            ),
+        (): boolean =>
+          wall.transforms.every(
+            (one: IAutoMovieExplicitInstanceTransform): boolean =>
+              qclose(one.rotation, { x: 0, y: 0, z: 0, w: 1 }) &&
+              vclose(
+                Quaternion.rotateVector(one.rotation, { x: 1, y: 0, z: 0 }),
+                {
+                  x: 1,
+                  y: 0,
+                  z: 0,
+                },
+              ),
           ),
       ],
-      ["unit", () : boolean => wall.transforms.every((one: IAutoMovieExplicitInstanceTransform) : boolean => qunit(one.rotation))],
+      [
+        "unit",
+        (): boolean =>
+          wall.transforms.every(
+            (one: IAutoMovieExplicitInstanceTransform): boolean =>
+              qunit(one.rotation),
+          ),
+      ],
       [
         "scale",
-        () : boolean =>
+        (): boolean =>
           wall.transforms.every(
-            (one: IAutoMovieExplicitInstanceTransform) : boolean =>
+            (one: IAutoMovieExplicitInstanceTransform): boolean =>
               nclose(one.scale.x, 0.5, 1e-12) &&
               nclose(one.scale.y, 0.5, 1e-12) &&
               nclose(one.scale.z, 0.012, 1e-12),
@@ -115,7 +140,8 @@ export function test_architecture_surface_pattern_instancing(): void {
       ],
       [
         "nonUniform",
-        () : boolean => !nclose(wall.transforms[0]!.scale.x, wall.transforms[0]!.scale.z, 0),
+        (): boolean =>
+          !nclose(wall.transforms[0]!.scale.x, wall.transforms[0]!.scale.z, 0),
       ],
     ]),
     {
@@ -130,23 +156,25 @@ export function test_architecture_surface_pattern_instancing(): void {
     },
   );
 
-  const floor: IAutoMoviePatternInstancing = autoMoviePatternInstanceTransforms({
-    result: laid,
-    frame: FLOOR,
-    thickness: 0.02,
-  });
+  const floor: IAutoMoviePatternInstancing = autoMoviePatternInstanceTransforms(
+    {
+      result: laid,
+      frame: FLOOR,
+      thickness: 0.02,
+    },
+  );
   const floorRotation: IAutoMovieQuaternion = floor.transforms[0]!.rotation;
   TestValidator.equals(
     "the quaternion carries the prototype axes onto the face axes",
     namedFacts([
       [
         "translation",
-        () : boolean =>
+        (): boolean =>
           vclose(floor.transforms[0]!.translation, { x: 0.25, y: 0, z: 0.25 }),
       ],
       [
         "localX",
-        () : boolean =>
+        (): boolean =>
           vclose(Quaternion.rotateVector(floorRotation, { x: 1, y: 0, z: 0 }), {
             x: 0,
             y: 0,
@@ -155,7 +183,7 @@ export function test_architecture_surface_pattern_instancing(): void {
       ],
       [
         "localY",
-        () : boolean =>
+        (): boolean =>
           vclose(Quaternion.rotateVector(floorRotation, { x: 0, y: 1, z: 0 }), {
             x: 1,
             y: 0,
@@ -164,14 +192,14 @@ export function test_architecture_surface_pattern_instancing(): void {
       ],
       [
         "localZ",
-        () : boolean =>
+        (): boolean =>
           vclose(Quaternion.rotateVector(floorRotation, { x: 0, y: 0, z: 1 }), {
             x: 0,
             y: 1,
             z: 0,
           }),
       ],
-      ["unit", () : boolean => qunit(floorRotation)],
+      ["unit", (): boolean => qunit(floorRotation)],
     ]),
     {
       translation: true,
@@ -182,37 +210,54 @@ export function test_architecture_surface_pattern_instancing(): void {
     },
   );
 
-  const turned: IAutoMoviePatternInstancing = autoMoviePatternInstanceTransforms({
-    result: generateAutoMovieSurfacePattern({
-      pattern: pattern({
-        zones: [
-          zone({
-            region: rectangle(0, 0, 1, 1),
-            period: { u: 1, v: 1 },
-            reach: { u: 0.7, v: 0.85 },
-            generate: ({ column, row, origin }: { column: number; row: number; origin: IAutoMoviePatternPoint; period: { u: number; v: number; }; }) : { id: string; center: { u: number; v: number; }; size: { u: number; v: number; }; rotationDeg: number; grainDeg: number; mirror: false; }[] => [
-              {
-                id: `t-${column}-${row}`,
-                center: { u: origin.u + 0.5, v: origin.v + 0.5 },
-                size: { u: 0.6, v: 0.3 },
-                rotationDeg: 90,
-                grainDeg: 0,
-                mirror: false,
-              },
-            ],
-          }),
-        ],
+  const turned: IAutoMoviePatternInstancing =
+    autoMoviePatternInstanceTransforms({
+      result: generateAutoMovieSurfacePattern({
+        pattern: pattern({
+          zones: [
+            zone({
+              region: rectangle(0, 0, 1, 1),
+              period: { u: 1, v: 1 },
+              reach: { u: 0.7, v: 0.85 },
+              generate: ({
+                column,
+                row,
+                origin,
+              }: {
+                column: number;
+                row: number;
+                origin: IAutoMoviePatternPoint;
+                period: { u: number; v: number };
+              }): {
+                id: string;
+                center: { u: number; v: number };
+                size: { u: number; v: number };
+                rotationDeg: number;
+                grainDeg: number;
+                mirror: false;
+              }[] => [
+                {
+                  id: `t-${column}-${row}`,
+                  center: { u: origin.u + 0.5, v: origin.v + 0.5 },
+                  size: { u: 0.6, v: 0.3 },
+                  rotationDeg: 90,
+                  grainDeg: 0,
+                  mirror: false,
+                },
+              ],
+            }),
+          ],
+        }),
       }),
-    }),
-    frame: WALL,
-    thickness: 0.012,
-  });
+      frame: WALL,
+      thickness: 0.012,
+    });
   TestValidator.equals(
     "an in-plane rotation is a real quaternion, not a yaw about world up",
     namedFacts([
       [
         "localX",
-        () : boolean =>
+        (): boolean =>
           vclose(
             Quaternion.rotateVector(turned.transforms[0]!.rotation, {
               x: 1,
@@ -224,7 +269,7 @@ export function test_architecture_surface_pattern_instancing(): void {
       ],
       [
         "localY",
-        () : boolean =>
+        (): boolean =>
           vclose(
             Quaternion.rotateVector(turned.transforms[0]!.rotation, {
               x: 0,
@@ -236,7 +281,7 @@ export function test_architecture_surface_pattern_instancing(): void {
       ],
       [
         "scale",
-        () : boolean =>
+        (): boolean =>
           nclose(turned.transforms[0]!.scale.x, 0.6, 1e-12) &&
           nclose(turned.transforms[0]!.scale.y, 0.3, 1e-12),
       ],
@@ -244,17 +289,19 @@ export function test_architecture_surface_pattern_instancing(): void {
     { localX: true, localY: true, scale: true },
   );
 
-  const narrow: IAutoMovieSurfacePatternResult = generateAutoMovieSurfacePattern({
-    pattern: pattern({
-      zones: [zone({ region: rectangle(0, 0, 1.75, 1) })],
-      minimumPiece: 0.4,
-    }),
-  });
-  const partial: IAutoMoviePatternInstancing = autoMoviePatternInstanceTransforms({
-    result: narrow,
-    frame: WALL,
-    thickness: 0.012,
-  });
+  const narrow: IAutoMovieSurfacePatternResult =
+    generateAutoMovieSurfacePattern({
+      pattern: pattern({
+        zones: [zone({ region: rectangle(0, 0, 1.75, 1) })],
+        minimumPiece: 0.4,
+      }),
+    });
+  const partial: IAutoMoviePatternInstancing =
+    autoMoviePatternInstanceTransforms({
+      result: narrow,
+      frame: WALL,
+      thickness: 0.012,
+    });
   TestValidator.equals(
     "a cut piece produces no slot and is named for the caller to build",
     {
@@ -265,60 +312,88 @@ export function test_architecture_surface_pattern_instancing(): void {
   );
 
   const prototypes: string[] = ["worn", "clean", "chipped"];
-  const varied: IAutoMoviePatternInstancing = autoMoviePatternInstanceTransforms({
-    result: laid,
-    frame: WALL,
-    thickness: 0.012,
-    prototypes,
-  });
+  const varied: IAutoMoviePatternInstancing =
+    autoMoviePatternInstanceTransforms({
+      result: laid,
+      frame: WALL,
+      thickness: 0.012,
+      prototypes,
+    });
   TestValidator.equals(
     "the seeded variant selects the prototype, the same way every run",
     namedFacts([
       [
         "inRange",
-        () : boolean =>
-          laid.placements.every((one: IAutoMoviePatternPlacement) : boolean => one.variant >= 0 && one.variant < 3),
+        (): boolean =>
+          laid.placements.every(
+            (one: IAutoMoviePatternPlacement): boolean =>
+              one.variant >= 0 && one.variant < 3,
+          ),
       ],
       [
         "indexed",
-        () : boolean =>
+        (): boolean =>
           varied.transforms.every(
-            (one: IAutoMovieExplicitInstanceTransform, index: number) : boolean =>
+            (
+              one: IAutoMovieExplicitInstanceTransform,
+              index: number,
+            ): boolean =>
               one.prototype === prototypes[laid.placements[index]!.variant],
           ),
       ],
       [
         "varies",
-        () : boolean => new Set(laid.placements.map((one: IAutoMoviePatternPlacement) : number => one.variant)).size > 1,
+        (): boolean =>
+          new Set(
+            laid.placements.map(
+              (one: IAutoMoviePatternPlacement): number => one.variant,
+            ),
+          ).size > 1,
       ],
       [
         "repeatable",
-        () : boolean =>
+        (): boolean =>
           generateAutoMovieSurfacePattern({
             pattern: pattern({ variants: 3, seed: 20260810 }),
           })
-            .placements.map((one: IAutoMoviePatternPlacement) : number => one.variant)
-            .join() === laid.placements.map((one: IAutoMoviePatternPlacement) : number => one.variant).join(),
+            .placements.map(
+              (one: IAutoMoviePatternPlacement): number => one.variant,
+            )
+            .join() ===
+          laid.placements
+            .map((one: IAutoMoviePatternPlacement): number => one.variant)
+            .join(),
       ],
       [
         "seedMatters",
-        () : boolean =>
+        (): boolean =>
           generateAutoMovieSurfacePattern({
             pattern: pattern({ variants: 3, seed: 20260811 }),
           })
-            .placements.map((one: IAutoMoviePatternPlacement) : number => one.variant)
-            .join() !== laid.placements.map((one: IAutoMoviePatternPlacement) : number => one.variant).join(),
+            .placements.map(
+              (one: IAutoMoviePatternPlacement): number => one.variant,
+            )
+            .join() !==
+          laid.placements
+            .map((one: IAutoMoviePatternPlacement): number => one.variant)
+            .join(),
       ],
       [
         "single",
-        () : boolean =>
+        (): boolean =>
           generateAutoMovieSurfacePattern({
             pattern: pattern({ variants: 1 }),
-          }).placements.every((one: IAutoMoviePatternPlacement) : boolean => one.variant === 0),
+          }).placements.every(
+            (one: IAutoMoviePatternPlacement): boolean => one.variant === 0,
+          ),
       ],
       [
         "noTable",
-        () : boolean => wall.transforms.every((one: IAutoMovieExplicitInstanceTransform) : boolean => one.prototype === undefined),
+        (): boolean =>
+          wall.transforms.every(
+            (one: IAutoMovieExplicitInstanceTransform): boolean =>
+              one.prototype === undefined,
+          ),
       ],
     ]),
     {
@@ -337,9 +412,9 @@ export function test_architecture_surface_pattern_instancing(): void {
     namedFacts([
       [
         "thickness",
-        () : boolean =>
+        (): boolean =>
           throwsError(
-            () : IAutoMoviePatternInstancing =>
+            (): IAutoMoviePatternInstancing =>
               autoMoviePatternInstanceTransforms({
                 result: laid,
                 frame: WALL,
@@ -350,9 +425,9 @@ export function test_architecture_surface_pattern_instancing(): void {
       ],
       [
         "nonFiniteU",
-        () : boolean =>
+        (): boolean =>
           throwsError(
-            () : IAutoMoviePatternInstancing =>
+            (): IAutoMoviePatternInstancing =>
               autoMoviePatternInstanceTransforms({
                 result: laid,
                 frame: { ...WALL, u: { x: Number.NaN, y: 0, z: 0 } },
@@ -363,9 +438,9 @@ export function test_architecture_surface_pattern_instancing(): void {
       ],
       [
         "shortU",
-        () : boolean =>
+        (): boolean =>
           throwsError(
-            () : IAutoMoviePatternInstancing =>
+            (): IAutoMoviePatternInstancing =>
               autoMoviePatternInstanceTransforms({
                 result: laid,
                 frame: { ...WALL, u: { x: 2, y: 0, z: 0 } },
@@ -376,9 +451,9 @@ export function test_architecture_surface_pattern_instancing(): void {
       ],
       [
         "shortV",
-        () : boolean =>
+        (): boolean =>
           throwsError(
-            () : IAutoMoviePatternInstancing =>
+            (): IAutoMoviePatternInstancing =>
               autoMoviePatternInstanceTransforms({
                 result: laid,
                 frame: { ...WALL, v: { x: 0, y: 0.5, z: 0 } },
@@ -389,9 +464,9 @@ export function test_architecture_surface_pattern_instancing(): void {
       ],
       [
         "nonFiniteOrigin",
-        () : boolean =>
+        (): boolean =>
           throwsError(
-            () : IAutoMoviePatternInstancing =>
+            (): IAutoMoviePatternInstancing =>
               autoMoviePatternInstanceTransforms({
                 result: laid,
                 frame: {
@@ -405,9 +480,9 @@ export function test_architecture_surface_pattern_instancing(): void {
       ],
       [
         "notPerpendicular",
-        () : boolean =>
+        (): boolean =>
           throwsError(
-            () : IAutoMoviePatternInstancing =>
+            (): IAutoMoviePatternInstancing =>
               autoMoviePatternInstanceTransforms({
                 result: laid,
                 frame: {
@@ -421,9 +496,9 @@ export function test_architecture_surface_pattern_instancing(): void {
       ],
       [
         "emptyTable",
-        () : boolean =>
+        (): boolean =>
           throwsError(
-            () : IAutoMoviePatternInstancing =>
+            (): IAutoMoviePatternInstancing =>
               autoMoviePatternInstanceTransforms({
                 result: laid,
                 frame: WALL,

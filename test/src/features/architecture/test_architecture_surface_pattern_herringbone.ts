@@ -1,16 +1,20 @@
-import type { IAutoMovieExplicitInstanceTransform } from "@automovie/interface";
 import {
-  type IAutoMoviePatternFinding, type IAutoMoviePatternInstancing, type IAutoMoviePatternPlacement, type IAutoMoviePatternPoint, type IAutoMovieSurfacePatternResult,
   type AutoMovieSurfacePatternGenerator,
   type IAutoMoviePatternCandidate,
+  type IAutoMoviePatternFinding,
+  type IAutoMoviePatternInstancing,
+  type IAutoMoviePatternPlacement,
+  type IAutoMoviePatternPoint,
   type IAutoMovieSurfacePattern,
+  type IAutoMovieSurfacePatternResult,
   Quaternion,
   autoMoviePatternInstanceTransforms,
   generateAutoMovieSurfacePattern,
 } from "@automovie/engine";
+import type { IAutoMovieExplicitInstanceTransform } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-import { compareCodeUnits } from "../../../../packages/engine/src/text/compareCodeUnits";
 
+import { compareCodeUnits } from "../../../../packages/engine/src/text/compareCodeUnits";
 import { pattern, rectangle, zone } from "../internal/patternFixtures";
 import { namedFacts, nclose, vclose } from "../internal/predicates";
 import { test12ValuesClose } from "../internal/test12ValuesClose";
@@ -19,7 +23,11 @@ import { test12ValuesClose } from "../internal/test12ValuesClose";
 const WIDTH: number = 0.15;
 
 /** The floor face: local U runs north, local V runs east, the normal is up. */
-const FLOOR: { origin: { x: number; y: number; z: number; }; u: { x: number; y: number; z: number; }; v: { x: number; y: number; z: number; }; } = {
+const FLOOR: {
+  origin: { x: number; y: number; z: number };
+  u: { x: number; y: number; z: number };
+  v: { x: number; y: number; z: number };
+} = {
   origin: { x: 0, y: 0, z: 0 },
   u: { x: 0, y: 0, z: 1 },
   v: { x: 1, y: 0, z: 0 },
@@ -38,7 +46,12 @@ const herringbone: AutoMovieSurfacePatternGenerator = ({
   column,
   row,
   origin,
-}: { column: number; row: number; origin: IAutoMoviePatternPoint; period: { u: number; v: number; }; }) : IAutoMoviePatternCandidate[] => {
+}: {
+  column: number;
+  row: number;
+  origin: IAutoMoviePatternPoint;
+  period: { u: number; v: number };
+}): IAutoMoviePatternCandidate[] => {
   const boards: IAutoMoviePatternCandidate[] = [];
   for (let step: number = 0; step < 4; ++step) {
     boards.push({
@@ -67,7 +80,9 @@ const herringbone: AutoMovieSurfacePatternGenerator = ({
   return boards;
 };
 
-const floor: (overrides?: Partial<IAutoMovieSurfacePattern>) => IAutoMovieSurfacePattern = (
+const floor: (
+  overrides?: Partial<IAutoMovieSurfacePattern>,
+) => IAutoMovieSurfacePattern = (
   overrides: Partial<IAutoMovieSurfacePattern> = {},
 ): IAutoMovieSurfacePattern =>
   pattern({
@@ -125,11 +140,13 @@ const floor: (overrides?: Partial<IAutoMovieSurfacePattern>) => IAutoMovieSurfac
  * @evidence contracts/testing.md#execution-ownership Uses existing local pattern/generator fixtures and synchronous numerical generation/instancing without rendering, resources, clocks, global replacement, or another test host. Quaternion-vector observations check selected axes; these assertions do not establish a rendered floor or universal herringbone coverage.
  */
 export function test_architecture_surface_pattern_herringbone(): void {
-  const laid: IAutoMovieSurfacePatternResult = generateAutoMovieSurfacePattern({ pattern: floor() });
+  const laid: IAutoMovieSurfacePatternResult = generateAutoMovieSurfacePattern({
+    pattern: floor(),
+  });
 
   TestValidator.equals(
     "every piece reaching the room is laid once, in lattice order",
-    laid.placements.map((one: IAutoMoviePatternPlacement) : string => one.id),
+    laid.placements.map((one: IAutoMoviePatternPlacement): string => one.id),
     [
       "wood/v2@0,-1",
       "wood/v3@0,-1",
@@ -145,34 +162,49 @@ export function test_architecture_surface_pattern_herringbone(): void {
   );
   TestValidator.equals(
     "the room's own edge is what cuts, and it cuts exactly four boards",
-    laid.placements.filter((one: IAutoMoviePatternPlacement) : boolean => one.cut !== "none").map((one: IAutoMoviePatternPlacement) : string => one.id),
+    laid.placements
+      .filter((one: IAutoMoviePatternPlacement): boolean => one.cut !== "none")
+      .map((one: IAutoMoviePatternPlacement): string => one.id),
     ["wood/v2@0,-1", "wood/h3@-1,0", "wood/v2@0,0", "wood/h3@0,0"],
   );
 
   TestValidator.equals(
     "the lay is an exact tiling, so the take-off closes on the room area",
     namedFacts([
-      ["modules", () : boolean => laid.quantities.modules === 10],
-      ["whole", () : boolean => laid.quantities.whole === 6],
-      ["cut", () : boolean => laid.quantities.cut === 4],
-      ["covered", () : boolean => nclose(laid.quantities.coveredArea, 0.36, 1e-12)],
-      ["net", () : boolean => nclose(laid.quantities.netRegionArea, 0.36, 1e-12)],
-      ["jointArea", () : boolean => nclose(laid.quantities.jointArea, 0, 1e-12)],
-      ["consumed", () : boolean => nclose(laid.quantities.consumedArea, 0.45, 1e-12)],
-      ["waste", () : boolean => nclose(laid.quantities.wasteArea, 0.09, 1e-12)],
-      ["ratio", () : boolean => nclose(laid.quantities.wasteRatio, 0.2, 1e-12)],
+      ["modules", (): boolean => laid.quantities.modules === 10],
+      ["whole", (): boolean => laid.quantities.whole === 6],
+      ["cut", (): boolean => laid.quantities.cut === 4],
+      [
+        "covered",
+        (): boolean => nclose(laid.quantities.coveredArea, 0.36, 1e-12),
+      ],
+      [
+        "net",
+        (): boolean => nclose(laid.quantities.netRegionArea, 0.36, 1e-12),
+      ],
+      ["jointArea", (): boolean => nclose(laid.quantities.jointArea, 0, 1e-12)],
+      [
+        "consumed",
+        (): boolean => nclose(laid.quantities.consumedArea, 0.45, 1e-12),
+      ],
+      ["waste", (): boolean => nclose(laid.quantities.wasteArea, 0.09, 1e-12)],
+      ["ratio", (): boolean => nclose(laid.quantities.wasteRatio, 0.2, 1e-12)],
       [
         "halves",
-        () : boolean =>
+        (): boolean =>
           laid.placements
-            .filter((one: IAutoMoviePatternPlacement) : boolean => one.cut !== "none")
-            .every((one: IAutoMoviePatternPlacement) : boolean => nclose(one.coverage, 0.5, 1e-9)),
+            .filter(
+              (one: IAutoMoviePatternPlacement): boolean => one.cut !== "none",
+            )
+            .every((one: IAutoMoviePatternPlacement): boolean =>
+              nclose(one.coverage, 0.5, 1e-9),
+            ),
       ],
       [
         "boards",
-        () : boolean =>
+        (): boolean =>
           laid.placements.every(
-            (one: IAutoMoviePatternPlacement) : boolean =>
+            (one: IAutoMoviePatternPlacement): boolean =>
               nclose(one.size.u, 0.3, 1e-12) && nclose(one.size.v, 0.15, 1e-12),
           ),
       ],
@@ -198,13 +230,18 @@ export function test_architecture_surface_pattern_herringbone(): void {
     0,
   );
 
-  const turning: IAutoMovieSurfacePatternResult = generateAutoMovieSurfacePattern({
-    pattern: floor({ grainToleranceDeg: 5 }),
-  });
+  const turning: IAutoMovieSurfacePatternResult =
+    generateAutoMovieSurfacePattern({
+      pattern: floor({ grainToleranceDeg: 5 }),
+    });
   // Rectangle contacts independently enumerated from the ten authored pieces.
   TestValidator.equals(
     "every cross-grain rectangle contact is reported exactly once",
-    turning.findings.map((finding: IAutoMoviePatternFinding): string => [...finding.occurrences].sort(compareCodeUnits).join("|")).sort(compareCodeUnits),
+    turning.findings
+      .map((finding: IAutoMoviePatternFinding): string =>
+        [...finding.occurrences].sort(compareCodeUnits).join("|"),
+      )
+      .sort(compareCodeUnits),
     [
       ["wood/v2@0,-1", "wood/h0@0,0"],
       ["wood/v2@0,-1", "wood/h1@0,0"],
@@ -218,21 +255,27 @@ export function test_architecture_surface_pattern_herringbone(): void {
       ["wood/v1@0,0", "wood/h2@0,0"],
       ["wood/h2@0,0", "wood/v2@0,0"],
       ["wood/v2@0,0", "wood/h3@0,0"],
-    ].map((pair: string[]): string => pair.sort(compareCodeUnits).join("|")).sort(compareCodeUnits),
+    ]
+      .map((pair: string[]): string => pair.sort(compareCodeUnits).join("|"))
+      .sort(compareCodeUnits),
   );
   TestValidator.equals(
     "the grain turns where a flat board meets one on end, and nowhere else",
     namedFacts([
-      ["raised", () : boolean => turning.findings.length > 0],
+      ["raised", (): boolean => turning.findings.length > 0],
       [
         "kinds",
-        () : boolean => turning.findings.every((one: IAutoMoviePatternFinding) : boolean => one.kind === "grain-break"),
+        (): boolean =>
+          turning.findings.every(
+            (one: IAutoMoviePatternFinding): boolean =>
+              one.kind === "grain-break",
+          ),
       ],
       [
         "crossings",
-        () : boolean =>
-          turning.findings.every((one: IAutoMoviePatternFinding) : boolean => {
-            const kinds: string[] = one.occurrences.map((id: string) : string =>
+        (): boolean =>
+          turning.findings.every((one: IAutoMoviePatternFinding): boolean => {
+            const kinds: string[] = one.occurrences.map((id: string): string =>
               id.slice(id.indexOf("/") + 1).charAt(0),
             );
             return kinds.length === 2 && kinds[0] !== kinds[1];
@@ -240,16 +283,19 @@ export function test_architecture_surface_pattern_herringbone(): void {
       ],
       [
         "rightAngle",
-        () : boolean => turning.findings.every((one: IAutoMoviePatternFinding) : boolean => nclose(one.measured, 90, 1e-9)),
+        (): boolean =>
+          turning.findings.every((one: IAutoMoviePatternFinding): boolean =>
+            nclose(one.measured, 90, 1e-9),
+          ),
       ],
       [
         "tolerated",
-        () : boolean =>
+        (): boolean =>
           generateAutoMovieSurfacePattern({
             pattern: floor({ grainToleranceDeg: 90 }),
           }).findings.length === 0,
       ],
-      ["noTolerance", () : boolean => laid.findings.length === 0],
+      ["noTolerance", (): boolean => laid.findings.length === 0],
     ]),
     {
       raised: true,
@@ -264,14 +310,17 @@ export function test_architecture_surface_pattern_herringbone(): void {
   TestValidator.equals(
     "a halved board sits exactly on the minimum piece, either side of it",
     namedFacts([
-      ["atMinimum", () : boolean => laid.findings.length === 0],
+      ["atMinimum", (): boolean => laid.findings.length === 0],
       [
         "above",
-        () : boolean =>
+        (): boolean =>
           generateAutoMovieSurfacePattern({
             pattern: floor({ minimumPiece: 0.6 }),
           })
-            .findings.map((one: IAutoMoviePatternFinding) : string => `${one.kind}:${one.occurrences.join()}`)
+            .findings.map(
+              (one: IAutoMoviePatternFinding): string =>
+                `${one.kind}:${one.occurrences.join()}`,
+            )
             .join("|") ===
           [
             "sliver:wood/v2@0,-1",
@@ -282,7 +331,7 @@ export function test_architecture_surface_pattern_herringbone(): void {
       ],
       [
         "below",
-        () : boolean =>
+        (): boolean =>
           generateAutoMovieSurfacePattern({
             pattern: floor({ minimumPiece: 0.4 }),
           }).findings.length === 0,
@@ -291,18 +340,21 @@ export function test_architecture_surface_pattern_herringbone(): void {
     { atMinimum: true, above: true, below: true },
   );
 
-  const instanced: IAutoMoviePatternInstancing = autoMoviePatternInstanceTransforms({
-    result: laid,
-    frame: FLOOR,
-    thickness: 0.018,
-  });
+  const instanced: IAutoMoviePatternInstancing =
+    autoMoviePatternInstanceTransforms({
+      result: laid,
+      frame: FLOOR,
+      thickness: 0.018,
+    });
   TestValidator.equals(
     "only whole boards become slots, and each carries its own long axis",
     namedFacts([
       [
         "slots",
-        () : boolean =>
-          instanced.transforms.map((one: IAutoMovieExplicitInstanceTransform) : string => one.id).join() ===
+        (): boolean =>
+          instanced.transforms
+            .map((one: IAutoMovieExplicitInstanceTransform): string => one.id)
+            .join() ===
           [
             "wood/v3@0,-1",
             "wood/h0@0,0",
@@ -314,13 +366,13 @@ export function test_architecture_surface_pattern_herringbone(): void {
       ],
       [
         "cut",
-        () : boolean =>
+        (): boolean =>
           instanced.cut.join() ===
           ["wood/v2@0,-1", "wood/h3@-1,0", "wood/v2@0,0", "wood/h3@0,0"].join(),
       ],
       [
         "flat",
-        () : boolean =>
+        (): boolean =>
           vclose(instanced.transforms[1]!.translation, {
             x: 0.075,
             y: 0,
@@ -337,7 +389,7 @@ export function test_architecture_surface_pattern_herringbone(): void {
       ],
       [
         "onEnd",
-        () : boolean =>
+        (): boolean =>
           vclose(instanced.transforms[2]!.translation, {
             x: 0.3,
             y: 0,
@@ -354,9 +406,9 @@ export function test_architecture_surface_pattern_herringbone(): void {
       ],
       [
         "scale",
-        () : boolean =>
+        (): boolean =>
           instanced.transforms.every(
-            (one: IAutoMovieExplicitInstanceTransform) : boolean =>
+            (one: IAutoMovieExplicitInstanceTransform): boolean =>
               nclose(one.scale.x, 0.3, 1e-12) &&
               nclose(one.scale.y, 0.15, 1e-12) &&
               nclose(one.scale.z, 0.018, 1e-12),
@@ -368,6 +420,9 @@ export function test_architecture_surface_pattern_herringbone(): void {
 
   TestValidator.predicate(
     "the same herringbone laid twice preserves structure and numeric components",
-    test12ValuesClose(generateAutoMovieSurfacePattern({ pattern: floor() }), laid),
+    test12ValuesClose(
+      generateAutoMovieSurfacePattern({ pattern: floor() }),
+      laid,
+    ),
   );
 }

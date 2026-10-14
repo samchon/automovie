@@ -1,26 +1,38 @@
-import type { IAutoMovieExplicitInstanceTransform } from "@automovie/interface";
 import {
-  type IAutoMoviePatternFinding, type IAutoMoviePatternInstancing, type IAutoMoviePatternPlacement, type IAutoMoviePatternZoneQuantities, type IAutoMovieSurfacePatternResult,
+  type IAutoMoviePatternFinding,
+  type IAutoMoviePatternInstancing,
+  type IAutoMoviePatternPlacement,
   type IAutoMoviePatternPoint,
+  type IAutoMoviePatternZoneQuantities,
+  type IAutoMovieSurfacePatternResult,
   type IAutoMovieSurfacePatternZone,
   Quaternion,
   autoMoviePatternInstanceTransforms,
   generateAutoMovieSurfacePattern,
 } from "@automovie/engine";
+import type { IAutoMovieExplicitInstanceTransform } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { pattern, rectangle, zone } from "../internal/patternFixtures";
 import { namedFacts, nclose, vclose } from "../internal/predicates";
 
 /** The ceiling face: local U runs east, local V runs north, the normal is down. */
-const CEILING: { origin: { x: number; y: number; z: number; }; u: { x: number; y: number; z: number; }; v: { x: number; y: number; z: number; }; } = {
+const CEILING: {
+  origin: { x: number; y: number; z: number };
+  u: { x: number; y: number; z: number };
+  v: { x: number; y: number; z: number };
+} = {
   origin: { x: 0, y: 3, z: 0 },
   u: { x: 1, y: 0, z: 0 },
   v: { x: 0, y: 0, z: 1 },
 };
 
 /** One coffer per lattice cell, on the 0.5 m grid the whole ceiling shares. */
-const coffers: (id: string, region: IAutoMoviePatternPoint[], material: string) => IAutoMovieSurfacePatternZone = (
+const coffers: (
+  id: string,
+  region: IAutoMoviePatternPoint[],
+  material: string,
+) => IAutoMovieSurfacePatternZone = (
   id: string,
   region: IAutoMoviePatternPoint[],
   material: string,
@@ -32,7 +44,23 @@ const coffers: (id: string, region: IAutoMoviePatternPoint[], material: string) 
     period: { u: 0.5, v: 0.5 },
     reach: { u: 0.5, v: 0.5 },
     material,
-    generate: ({ column, row, origin }: { column: number; row: number; origin: IAutoMoviePatternPoint; period: { u: number; v: number; }; }) : { id: string; center: { u: number; v: number; }; size: { u: number; v: number; }; rotationDeg: number; grainDeg: number; mirror: false; }[] => [
+    generate: ({
+      column,
+      row,
+      origin,
+    }: {
+      column: number;
+      row: number;
+      origin: IAutoMoviePatternPoint;
+      period: { u: number; v: number };
+    }): {
+      id: string;
+      center: { u: number; v: number };
+      size: { u: number; v: number };
+      rotationDeg: number;
+      grainDeg: number;
+      mirror: false;
+    }[] => [
       {
         id: `c${column},${row}`,
         center: { u: origin.u + 0.25, v: origin.v + 0.25 },
@@ -45,7 +73,13 @@ const coffers: (id: string, region: IAutoMoviePatternPoint[], material: string) 
   });
 
 /** One mitred length of moulding, cut to its own trapezoid of the border. */
-const moulding: (id: string, region: IAutoMoviePatternPoint[], center: IAutoMoviePatternPoint, length: number, rotationDeg: number) => IAutoMovieSurfacePatternZone = (
+const moulding: (
+  id: string,
+  region: IAutoMoviePatternPoint[],
+  center: IAutoMoviePatternPoint,
+  length: number,
+  rotationDeg: number,
+) => IAutoMovieSurfacePatternZone = (
   id: string,
   region: IAutoMoviePatternPoint[],
   center: IAutoMoviePatternPoint,
@@ -59,7 +93,22 @@ const moulding: (id: string, region: IAutoMoviePatternPoint[], center: IAutoMovi
     period: { u: 10, v: 10 },
     reach: { u: 3.1, v: 2.1 },
     material: "moulding",
-    generate: ({ column, row }: { column: number; row: number; origin: IAutoMoviePatternPoint; period: { u: number; v: number; }; }) : { id: string; center: IAutoMoviePatternPoint; size: { u: number; v: number; }; rotationDeg: number; grainDeg: number; mirror: false; }[] =>
+    generate: ({
+      column,
+      row,
+    }: {
+      column: number;
+      row: number;
+      origin: IAutoMoviePatternPoint;
+      period: { u: number; v: number };
+    }): {
+      id: string;
+      center: IAutoMoviePatternPoint;
+      size: { u: number; v: number };
+      rotationDeg: number;
+      grainDeg: number;
+      mirror: false;
+    }[] =>
       column !== 0 || row !== 0
         ? []
         : [
@@ -74,7 +123,9 @@ const moulding: (id: string, region: IAutoMoviePatternPoint[], center: IAutoMovi
           ],
   });
 
-const ceiling: (minimumPiece: number) => IAutoMovieSurfacePatternResult = (minimumPiece: number) : IAutoMovieSurfacePatternResult =>
+const ceiling: (minimumPiece: number) => IAutoMovieSurfacePatternResult = (
+  minimumPiece: number,
+): IAutoMovieSurfacePatternResult =>
   generateAutoMovieSurfacePattern({
     pattern: pattern({
       id: "coffered-ceiling",
@@ -172,7 +223,9 @@ export function test_architecture_surface_pattern_coffers(): void {
 
   TestValidator.equals(
     "the border is cut by its own mitre and every coffer is laid whole",
-    laid.placements.map((one: IAutoMoviePatternPlacement) : string => `${one.id}:${one.cut}`),
+    laid.placements.map(
+      (one: IAutoMoviePatternPlacement): string => `${one.id}:${one.cut}`,
+    ),
     [
       "border-south/trim:boundary",
       "border-east/trim:boundary",
@@ -199,27 +252,34 @@ export function test_architecture_surface_pattern_coffers(): void {
   TestValidator.equals(
     "the nine regions cover the ceiling exactly once and say what it cost",
     namedFacts([
-      ["modules", () : boolean => laid.quantities.modules === 19],
-      ["whole", () : boolean => laid.quantities.whole === 15],
-      ["cut", () : boolean => laid.quantities.cut === 4],
-      ["covered", () : boolean => nclose(laid.quantities.coveredArea, 6, 1e-12)],
-      ["net", () : boolean => nclose(laid.quantities.netRegionArea, 6, 1e-12)],
-      ["consumed", () : boolean => nclose(laid.quantities.consumedArea, 6.25, 1e-12)],
-      ["waste", () : boolean => nclose(laid.quantities.wasteArea, 0.25, 1e-12)],
-      ["ratio", () : boolean => nclose(laid.quantities.wasteRatio, 0.04, 1e-12)],
-      ["jointArea", () : boolean => nclose(laid.quantities.jointArea, 0, 1e-12)],
-      ["jointLength", () : boolean => nclose(laid.quantities.jointLength, 0, 0)],
+      ["modules", (): boolean => laid.quantities.modules === 19],
+      ["whole", (): boolean => laid.quantities.whole === 15],
+      ["cut", (): boolean => laid.quantities.cut === 4],
+      ["covered", (): boolean => nclose(laid.quantities.coveredArea, 6, 1e-12)],
+      ["net", (): boolean => nclose(laid.quantities.netRegionArea, 6, 1e-12)],
+      [
+        "consumed",
+        (): boolean => nclose(laid.quantities.consumedArea, 6.25, 1e-12),
+      ],
+      ["waste", (): boolean => nclose(laid.quantities.wasteArea, 0.25, 1e-12)],
+      ["ratio", (): boolean => nclose(laid.quantities.wasteRatio, 0.04, 1e-12)],
+      ["jointArea", (): boolean => nclose(laid.quantities.jointArea, 0, 1e-12)],
+      ["jointLength", (): boolean => nclose(laid.quantities.jointLength, 0, 0)],
       [
         "inlayMaterial",
-        () : boolean =>
-          laid.placements.filter((one: IAutoMoviePatternPlacement) : boolean => one.material === "rosette").length ===
-          1,
+        (): boolean =>
+          laid.placements.filter(
+            (one: IAutoMoviePatternPlacement): boolean =>
+              one.material === "rosette",
+          ).length === 1,
       ],
       [
         "coffered",
-        () : boolean =>
-          laid.placements.filter((one: IAutoMoviePatternPlacement) : boolean => one.material === "coffer").length ===
-          14,
+        (): boolean =>
+          laid.placements.filter(
+            (one: IAutoMoviePatternPlacement): boolean =>
+              one.material === "coffer",
+          ).length === 14,
       ],
     ]),
     {
@@ -240,7 +300,10 @@ export function test_architecture_surface_pattern_coffers(): void {
 
   TestValidator.equals(
     "every zone is reported apart, in declaration order",
-    laid.quantities.zones.map((one: IAutoMoviePatternZoneQuantities) : string => `${one.zone}:${one.modules}`),
+    laid.quantities.zones.map(
+      (one: IAutoMoviePatternZoneQuantities): string =>
+        `${one.zone}:${one.modules}`,
+    ),
     [
       "border-south:1",
       "border-east:1",
@@ -258,25 +321,26 @@ export function test_architecture_surface_pattern_coffers(): void {
     namedFacts([
       [
         "long",
-        () : boolean =>
+        (): boolean =>
           nclose(laid.quantities.zones[0]!.coveredArea, 0.6875, 1e-12) &&
           nclose(laid.quantities.zones[2]!.coveredArea, 0.6875, 1e-12),
       ],
       [
         "short",
-        () : boolean =>
+        (): boolean =>
           nclose(laid.quantities.zones[1]!.coveredArea, 0.4375, 1e-12) &&
           nclose(laid.quantities.zones[3]!.coveredArea, 0.4375, 1e-12),
       ],
       [
         "field",
-        () : boolean =>
+        (): boolean =>
           nclose(laid.quantities.zones[4]!.coveredArea, 1.5, 1e-12) &&
           nclose(laid.quantities.zones[5]!.coveredArea, 1.5, 1e-12),
       ],
       [
         "inlay",
-        () : boolean => nclose(laid.quantities.zones[8]!.coveredArea, 0.25, 1e-12),
+        (): boolean =>
+          nclose(laid.quantities.zones[8]!.coveredArea, 0.25, 1e-12),
       ],
     ]),
     { long: true, short: true, field: true, inlay: true },
@@ -290,7 +354,10 @@ export function test_architecture_surface_pattern_coffers(): void {
 
   TestValidator.equals(
     "a mitre leaves the short lengths just under nine tenths and the long ones over",
-    ceiling(0.9).findings.map((one: IAutoMoviePatternFinding) : string => `${one.kind}:${one.occurrences.join()}`),
+    ceiling(0.9).findings.map(
+      (one: IAutoMoviePatternFinding): string =>
+        `${one.kind}:${one.occurrences.join()}`,
+    ),
     ["sliver:border-east/trim", "sliver:border-west/trim"],
   );
 
@@ -302,10 +369,10 @@ export function test_architecture_surface_pattern_coffers(): void {
   TestValidator.equals(
     "the coffers hang from the ceiling and the cut mouldings are named",
     namedFacts([
-      ["slots", () : boolean => hung.transforms.length === 15],
+      ["slots", (): boolean => hung.transforms.length === 15],
       [
         "cut",
-        () : boolean =>
+        (): boolean =>
           hung.cut.join() ===
           [
             "border-south/trim",
@@ -316,29 +383,31 @@ export function test_architecture_surface_pattern_coffers(): void {
       ],
       [
         "first",
-        () : boolean => vclose(hung.transforms[0]!.translation, { x: 0.5, y: 3, z: 0.5 }),
+        (): boolean =>
+          vclose(hung.transforms[0]!.translation, { x: 0.5, y: 3, z: 0.5 }),
       ],
       [
         "inlay",
-        () : boolean =>
+        (): boolean =>
           hung.transforms[14]!.id === "inlay/c2,1" &&
           vclose(hung.transforms[14]!.translation, { x: 1.5, y: 3, z: 1 }),
       ],
       [
         "downward",
-        () : boolean =>
-          hung.transforms.every((one: IAutoMovieExplicitInstanceTransform) : boolean =>
-            vclose(
-              Quaternion.rotateVector(one.rotation, { x: 0, y: 0, z: 1 }),
-              { x: 0, y: -1, z: 0 },
-            ),
+        (): boolean =>
+          hung.transforms.every(
+            (one: IAutoMovieExplicitInstanceTransform): boolean =>
+              vclose(
+                Quaternion.rotateVector(one.rotation, { x: 0, y: 0, z: 1 }),
+                { x: 0, y: -1, z: 0 },
+              ),
           ),
       ],
       [
         "depth",
-        () : boolean =>
+        (): boolean =>
           hung.transforms.every(
-            (one: IAutoMovieExplicitInstanceTransform) : boolean =>
+            (one: IAutoMovieExplicitInstanceTransform): boolean =>
               nclose(one.scale.x, 0.5, 1e-12) &&
               nclose(one.scale.y, 0.5, 1e-12) &&
               nclose(one.scale.z, 0.08, 1e-12),

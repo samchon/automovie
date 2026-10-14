@@ -1,5 +1,9 @@
 import {
-  type IAutoMoviePatternPlacement, type IAutoMoviePatternPoint, type IAutoMoviePatternTextureTransform, type IAutoMoviePatternTexturing, type IAutoMovieSurfacePatternResult,
+  type IAutoMoviePatternPlacement,
+  type IAutoMoviePatternPoint,
+  type IAutoMoviePatternTextureTransform,
+  type IAutoMoviePatternTexturing,
+  type IAutoMovieSurfacePatternResult,
   autoMoviePatternTextureTransforms,
   generateAutoMovieSurfacePattern,
 } from "@automovie/engine";
@@ -24,7 +28,15 @@ import { test12ValuesClose } from "../internal/test12ValuesClose";
  * here is what keeps these cases an independent check of the arithmetic rather
  * than a restatement of it.
  */
-const sample: (transform: { offset: { x: number; y: number; }; scale: { x: number; y: number; }; rotationDeg: number; }, u: number, v: number) => { x: number; y: number; } = (
+const sample: (
+  transform: {
+    offset: { x: number; y: number };
+    scale: { x: number; y: number };
+    rotationDeg: number;
+  },
+  u: number,
+  v: number,
+) => { x: number; y: number } = (
   transform: {
     offset: { x: number; y: number };
     scale: { x: number; y: number };
@@ -87,29 +99,36 @@ const sample: (transform: { offset: { x: number; y: number; }; scale: { x: numbe
  * @evidence contracts/testing.md#execution-ownership Uses local generated declarations and synchronous numerical UV records/oracles without texture loading, rendering, resources, clocks, global replacement or an added host. Independent UV arithmetic and selected cases do not certify rendered book matching, cut-mesh UV authoring or every near-shear numerical boundary.
  */
 export function test_architecture_surface_pattern_texture(): void {
-  const field: IAutoMovieSurfacePatternResult = generateAutoMovieSurfacePattern({ pattern: pattern() });
-  const perModule: IAutoMoviePatternTexturing = autoMoviePatternTextureTransforms({
-    result: field,
-    tile: { u: 0.5, v: 0.5 },
-    sheet: { kind: "module" },
-  });
+  const field: IAutoMovieSurfacePatternResult = generateAutoMovieSurfacePattern(
+    { pattern: pattern() },
+  );
+  const perModule: IAutoMoviePatternTexturing =
+    autoMoviePatternTextureTransforms({
+      result: field,
+      tile: { u: 0.5, v: 0.5 },
+      sheet: { kind: "module" },
+    });
 
   TestValidator.equals(
     "a sheet pinned to the module shows every piece the same image",
     namedFacts([
-      ["count", () : boolean => perModule.transforms.length === 8],
-      ["sheared", () : boolean => perModule.sheared.length === 0],
+      ["count", (): boolean => perModule.transforms.length === 8],
+      ["sheared", (): boolean => perModule.sheared.length === 0],
       [
         "ids",
-        () : boolean =>
-          perModule.transforms.map((one: IAutoMoviePatternTextureTransform) : string => one.id).join() ===
-          field.placements.map((one: IAutoMoviePatternPlacement) : string => one.id).join(),
+        (): boolean =>
+          perModule.transforms
+            .map((one: IAutoMoviePatternTextureTransform): string => one.id)
+            .join() ===
+          field.placements
+            .map((one: IAutoMoviePatternPlacement): string => one.id)
+            .join(),
       ],
       [
         "identity",
-        () : boolean =>
+        (): boolean =>
           perModule.transforms.every(
-            (one: IAutoMoviePatternTextureTransform) : boolean =>
+            (one: IAutoMoviePatternTextureTransform): boolean =>
               nclose(one.offset.x, 0, 1e-12) &&
               nclose(one.offset.y, 0, 1e-12) &&
               nclose(one.scale.x, 1, 1e-12) &&
@@ -121,19 +140,21 @@ export function test_architecture_surface_pattern_texture(): void {
     { count: true, sheared: true, ids: true, identity: true },
   );
 
-  const perFace: IAutoMoviePatternTexturing = autoMoviePatternTextureTransforms({
-    result: field,
-    tile: { u: 2, v: 1 },
-    sheet: { kind: "face", origin: { u: 0, v: 0 } },
-  });
+  const perFace: IAutoMoviePatternTexturing = autoMoviePatternTextureTransforms(
+    {
+      result: field,
+      tile: { u: 2, v: 1 },
+      sheet: { kind: "face", origin: { u: 0, v: 0 } },
+    },
+  );
   TestValidator.equals(
     "a sheet pinned to the face cuts each piece out of one image",
     namedFacts([
       [
         "scale",
-        () : boolean =>
+        (): boolean =>
           perFace.transforms.every(
-            (one: IAutoMoviePatternTextureTransform) : boolean =>
+            (one: IAutoMoviePatternTextureTransform): boolean =>
               nclose(one.scale.x, 0.25, 1e-12) &&
               nclose(one.scale.y, 0.5, 1e-12) &&
               nclose(one.rotationDeg, 0, 1e-12),
@@ -141,17 +162,38 @@ export function test_architecture_surface_pattern_texture(): void {
       ],
       [
         "walk",
-        () : boolean =>
+        (): boolean =>
           test12ValuesClose(
-            perFace.transforms.map((one: IAutoMoviePatternTextureTransform): { x: number; y: number } => one.offset),
-            [{ x: 0, y: 0 }, { x: 0.25, y: 0 }, { x: 0.5, y: 0 }, { x: 0.75, y: 0 }, { x: 0, y: 0.5 }, { x: 0.25, y: 0.5 }, { x: 0.5, y: 0.5 }, { x: 0.75, y: 0.5 }],
+            perFace.transforms.map(
+              (
+                one: IAutoMoviePatternTextureTransform,
+              ): { x: number; y: number } => one.offset,
+            ),
+            [
+              { x: 0, y: 0 },
+              { x: 0.25, y: 0 },
+              { x: 0.5, y: 0 },
+              { x: 0.75, y: 0 },
+              { x: 0, y: 0.5 },
+              { x: 0.25, y: 0.5 },
+              { x: 0.5, y: 0.5 },
+              { x: 0.75, y: 0.5 },
+            ],
           ),
       ],
       [
         "first",
-        () : boolean => {
-          const low: { x: number; y: number; } = sample(perFace.transforms[0]!, 0, 0);
-          const high: { x: number; y: number; } = sample(perFace.transforms[0]!, 1, 1);
+        (): boolean => {
+          const low: { x: number; y: number } = sample(
+            perFace.transforms[0]!,
+            0,
+            0,
+          );
+          const high: { x: number; y: number } = sample(
+            perFace.transforms[0]!,
+            1,
+            1,
+          );
           return (
             nclose(low.x, 0, 1e-12) &&
             nclose(low.y, 0, 1e-12) &&
@@ -162,8 +204,12 @@ export function test_architecture_surface_pattern_texture(): void {
       ],
       [
         "last",
-        () : boolean => {
-          const high: { x: number; y: number; } = sample(perFace.transforms[7]!, 1, 1);
+        (): boolean => {
+          const high: { x: number; y: number } = sample(
+            perFace.transforms[7]!,
+            1,
+            1,
+          );
           return nclose(high.x, 1, 1e-12) && nclose(high.y, 1, 1e-12);
         },
       ],
@@ -171,31 +217,40 @@ export function test_architecture_surface_pattern_texture(): void {
     { scale: true, walk: true, first: true, last: true },
   );
 
-  const acrossSheet: IAutoMoviePatternTexturing = autoMoviePatternTextureTransforms({
-    result: generateAutoMovieSurfacePattern({
-      pattern: pattern({
-        id: "across-grain",
-        zones: [zone({ generate: stackBond(0.5, 90) })],
+  const acrossSheet: IAutoMoviePatternTexturing =
+    autoMoviePatternTextureTransforms({
+      result: generateAutoMovieSurfacePattern({
+        pattern: pattern({
+          id: "across-grain",
+          zones: [zone({ generate: stackBond(0.5, 90) })],
+        }),
       }),
-    }),
-    tile: { u: 2, v: 1 },
-    sheet: { kind: "face", origin: { u: 0, v: 0 } },
-  });
+      tile: { u: 2, v: 1 },
+      sheet: { kind: "face", origin: { u: 0, v: 0 } },
+    });
   TestValidator.equals(
     "a sheet turned by the grain is read in the sheet's own axes",
     namedFacts([
       [
         "turnedBack",
-        () : boolean =>
+        (): boolean =>
           nclose(acrossSheet.transforms[0]!.rotationDeg, 90, 1e-12) &&
           nclose(acrossSheet.transforms[0]!.scale.x, 0.25, 1e-12) &&
           nclose(acrossSheet.transforms[0]!.scale.y, 0.5, 1e-12),
       ],
       [
         "corner",
-        () : boolean => {
-          const low: { x: number; y: number; } = sample(acrossSheet.transforms[0]!, 0, 0);
-          const high: { x: number; y: number; } = sample(acrossSheet.transforms[0]!, 1, 1);
+        (): boolean => {
+          const low: { x: number; y: number } = sample(
+            acrossSheet.transforms[0]!,
+            0,
+            0,
+          );
+          const high: { x: number; y: number } = sample(
+            acrossSheet.transforms[0]!,
+            1,
+            1,
+          );
           return (
             nclose(low.x, 0, 1e-12) &&
             nclose(low.y, 0, 1e-12) &&
@@ -206,43 +261,68 @@ export function test_architecture_surface_pattern_texture(): void {
       ],
       [
         "straightTwin",
-        () : boolean => nclose(perFace.transforms[0]!.rotationDeg, 0, 1e-12),
+        (): boolean => nclose(perFace.transforms[0]!.rotationDeg, 0, 1e-12),
       ],
     ]),
     { turnedBack: true, corner: true, straightTwin: true },
   );
 
-  const flippedField: IAutoMoviePatternTexturing = autoMoviePatternTextureTransforms({
-    result: generateAutoMovieSurfacePattern({
-      pattern: pattern({
-        id: "flipped-field",
-        zones: [
-          zone({
-            generate: ({ column, row, origin }: { column: number; row: number; origin: IAutoMoviePatternPoint; period: { u: number; v: number; }; }) : { id: string; center: { u: number; v: number; }; size: { u: number; v: number; }; rotationDeg: number; grainDeg: number; mirror: true; }[] => [
-              {
-                id: `t-${column}-${row}`,
-                center: { u: origin.u + 0.25, v: origin.v + 0.25 },
-                size: { u: 0.5, v: 0.5 },
-                rotationDeg: 0,
-                grainDeg: 0,
-                mirror: true,
-              },
-            ],
-          }),
-        ],
+  const flippedField: IAutoMoviePatternTexturing =
+    autoMoviePatternTextureTransforms({
+      result: generateAutoMovieSurfacePattern({
+        pattern: pattern({
+          id: "flipped-field",
+          zones: [
+            zone({
+              generate: ({
+                column,
+                row,
+                origin,
+              }: {
+                column: number;
+                row: number;
+                origin: IAutoMoviePatternPoint;
+                period: { u: number; v: number };
+              }): {
+                id: string;
+                center: { u: number; v: number };
+                size: { u: number; v: number };
+                rotationDeg: number;
+                grainDeg: number;
+                mirror: true;
+              }[] => [
+                {
+                  id: `t-${column}-${row}`,
+                  center: { u: origin.u + 0.25, v: origin.v + 0.25 },
+                  size: { u: 0.5, v: 0.5 },
+                  rotationDeg: 0,
+                  grainDeg: 0,
+                  mirror: true,
+                },
+              ],
+            }),
+          ],
+        }),
       }),
-    }),
-    tile: { u: 2, v: 1 },
-    sheet: { kind: "face", origin: { u: 0, v: 0 } },
-  });
+      tile: { u: 2, v: 1 },
+      sheet: { kind: "face", origin: { u: 0, v: 0 } },
+    });
   TestValidator.equals(
     "a flipped piece cut from a face sheet keeps its span and swaps its ends",
     namedFacts([
       [
         "swapped",
-        () : boolean => {
-          const low: { x: number; y: number; } = sample(flippedField.transforms[0]!, 0, 0);
-          const high: { x: number; y: number; } = sample(flippedField.transforms[0]!, 1, 1);
+        (): boolean => {
+          const low: { x: number; y: number } = sample(
+            flippedField.transforms[0]!,
+            0,
+            0,
+          );
+          const high: { x: number; y: number } = sample(
+            flippedField.transforms[0]!,
+            1,
+            1,
+          );
           return (
             nclose(low.x, 0.25, 1e-12) &&
             nclose(low.y, 0, 1e-12) &&
@@ -253,7 +333,7 @@ export function test_architecture_surface_pattern_texture(): void {
       ],
       [
         "sameSpan",
-        () : boolean =>
+        (): boolean =>
           nclose(flippedField.transforms[0]!.scale.x, -0.25, 1e-12) &&
           nclose(flippedField.transforms[0]!.scale.y, 0.5, 1e-12),
       ],
@@ -261,24 +341,25 @@ export function test_architecture_surface_pattern_texture(): void {
     { swapped: true, sameSpan: true },
   );
 
-  const narrowed: IAutoMoviePatternTexturing = autoMoviePatternTextureTransforms({
-    result: generateAutoMovieSurfacePattern({
-      pattern: pattern({
-        id: "narrow",
-        zones: [zone({ region: rectangle(0, 0, 1.75, 1) })],
-        minimumPiece: 0.4,
+  const narrowed: IAutoMoviePatternTexturing =
+    autoMoviePatternTextureTransforms({
+      result: generateAutoMovieSurfacePattern({
+        pattern: pattern({
+          id: "narrow",
+          zones: [zone({ region: rectangle(0, 0, 1.75, 1) })],
+          minimumPiece: 0.4,
+        }),
       }),
-    }),
-    tile: { u: 2, v: 1 },
-    sheet: { kind: "face", origin: { u: 0, v: 0 } },
-  });
+      tile: { u: 2, v: 1 },
+      sheet: { kind: "face", origin: { u: 0, v: 0 } },
+    });
   TestValidator.equals(
     "a cut piece samples the module it was cut from, not the sliver it became",
     namedFacts([
-      ["kept", () : boolean => narrowed.transforms.length === 8],
+      ["kept", (): boolean => narrowed.transforms.length === 8],
       [
         "unchanged",
-        () : boolean =>
+        (): boolean =>
           test12ValuesClose(narrowed.transforms, perFace.transforms),
       ],
     ]),
@@ -288,53 +369,77 @@ export function test_architecture_surface_pattern_texture(): void {
   // 6-7. Book matching and grain retain the original sequential assertions.
   assertPatternTextureBookMatch(sample);
 
-  const diagonal: IAutoMoviePatternTexturing = autoMoviePatternTextureTransforms({
-    result: generateAutoMovieSurfacePattern({
-      pattern: pattern({
-        id: "diagonal-grain",
-        zones: [
-          zone({
-            generate: ({ column, row, origin }: { column: number; row: number; origin: IAutoMoviePatternPoint; period: { u: number; v: number; }; }) : { id: string; center: { u: number; v: number; }; size: { u: number; v: number; }; rotationDeg: number; grainDeg: number; mirror: false; }[] => [
-              {
-                id: `t-${column}-${row}`,
-                center: { u: origin.u + 0.25, v: origin.v + 0.25 },
-                size: { u: 0.5, v: 0.5 },
-                rotationDeg: 0,
-                grainDeg: 45,
-                mirror: false,
-              },
-            ],
-          }),
-        ],
+  const diagonal: IAutoMoviePatternTexturing =
+    autoMoviePatternTextureTransforms({
+      result: generateAutoMovieSurfacePattern({
+        pattern: pattern({
+          id: "diagonal-grain",
+          zones: [
+            zone({
+              generate: ({
+                column,
+                row,
+                origin,
+              }: {
+                column: number;
+                row: number;
+                origin: IAutoMoviePatternPoint;
+                period: { u: number; v: number };
+              }): {
+                id: string;
+                center: { u: number; v: number };
+                size: { u: number; v: number };
+                rotationDeg: number;
+                grainDeg: number;
+                mirror: false;
+              }[] => [
+                {
+                  id: `t-${column}-${row}`,
+                  center: { u: origin.u + 0.25, v: origin.v + 0.25 },
+                  size: { u: 0.5, v: 0.5 },
+                  rotationDeg: 0,
+                  grainDeg: 45,
+                  mirror: false,
+                },
+              ],
+            }),
+          ],
+        }),
       }),
-    }),
-    tile: { u: 0.5, v: 0.5 },
-    sheet: { kind: "module" },
-  });
+      tile: { u: 0.5, v: 0.5 },
+      sheet: { kind: "module" },
+    });
   TestValidator.equals(
     "grain rotates the sheet under the piece, not the piece",
     namedFacts([
       [
         "straight",
-        () : boolean => nclose(perModule.transforms[0]!.rotationDeg, 0, 1e-12),
+        (): boolean => nclose(perModule.transforms[0]!.rotationDeg, 0, 1e-12),
       ],
-      ["rotated", () : boolean => nclose(diagonal.transforms[0]!.rotationDeg, 45, 1e-12)],
-      ["sheared", () : boolean => diagonal.sheared.length === 0],
+      [
+        "rotated",
+        (): boolean => nclose(diagonal.transforms[0]!.rotationDeg, 45, 1e-12),
+      ],
+      ["sheared", (): boolean => diagonal.sheared.length === 0],
       [
         "scale",
-        () : boolean =>
+        (): boolean =>
           diagonal.transforms.every(
-            (one: IAutoMoviePatternTextureTransform) : boolean =>
+            (one: IAutoMoviePatternTextureTransform): boolean =>
               nclose(one.scale.x, 1, 1e-12) && nclose(one.scale.y, 1, 1e-12),
           ),
       ],
       [
         "centred",
-        () : boolean =>
-          diagonal.transforms.every((one: IAutoMoviePatternTextureTransform) : boolean => {
-            const middle: { x: number; y: number; } = sample(one, 0.5, 0.5);
-            return nclose(middle.x, 0.5, 1e-12) && nclose(middle.y, 0.5, 1e-12);
-          }),
+        (): boolean =>
+          diagonal.transforms.every(
+            (one: IAutoMoviePatternTextureTransform): boolean => {
+              const middle: { x: number; y: number } = sample(one, 0.5, 0.5);
+              return (
+                nclose(middle.x, 0.5, 1e-12) && nclose(middle.y, 0.5, 1e-12)
+              );
+            },
+          ),
       ],
     ]),
     {
@@ -346,7 +451,13 @@ export function test_architecture_surface_pattern_texture(): void {
     },
   );
 
-  const skewed: (size: { u: number; v: number; }) => IAutoMoviePatternTexturing = (size: { u: number; v: number }) : IAutoMoviePatternTexturing =>
+  const skewed: (size: {
+    u: number;
+    v: number;
+  }) => IAutoMoviePatternTexturing = (size: {
+    u: number;
+    v: number;
+  }): IAutoMoviePatternTexturing =>
     autoMoviePatternTextureTransforms({
       result: generateAutoMovieSurfacePattern({
         pattern: pattern({
@@ -356,7 +467,23 @@ export function test_architecture_surface_pattern_texture(): void {
               region: rectangle(0, 0, 1, 1),
               period: { u: 1, v: 1 },
               reach: { u: 1, v: 1 },
-              generate: ({ column, row, origin }: { column: number; row: number; origin: IAutoMoviePatternPoint; period: { u: number; v: number; }; }) : { id: string; center: { u: number; v: number; }; size: { u: number; v: number; }; rotationDeg: number; grainDeg: number; mirror: false; }[] => [
+              generate: ({
+                column,
+                row,
+                origin,
+              }: {
+                column: number;
+                row: number;
+                origin: IAutoMoviePatternPoint;
+                period: { u: number; v: number };
+              }): {
+                id: string;
+                center: { u: number; v: number };
+                size: { u: number; v: number };
+                rotationDeg: number;
+                grainDeg: number;
+                mirror: false;
+              }[] => [
                 {
                   id: `t-${column}-${row}`,
                   center: { u: origin.u + 0.5, v: origin.v + 0.5 },
@@ -379,17 +506,17 @@ export function test_architecture_surface_pattern_texture(): void {
   TestValidator.equals(
     "a long piece turned off its grain needs a shear, a square one does not",
     namedFacts([
-      ["shearedIds", () : boolean => plank.sheared.join() === "field/t-0-0"],
-      ["shearedEmpty", () : boolean => plank.transforms.length === 0],
-      ["squareSheared", () : boolean => square.sheared.length === 0],
-      ["squareCount", () : boolean => square.transforms.length === 1],
+      ["shearedIds", (): boolean => plank.sheared.join() === "field/t-0-0"],
+      ["shearedEmpty", (): boolean => plank.transforms.length === 0],
+      ["squareSheared", (): boolean => square.sheared.length === 0],
+      ["squareCount", (): boolean => square.transforms.length === 1],
       [
         "squareRotation",
-        () : boolean => nclose(square.transforms[0]!.rotationDeg, -45, 1e-12),
+        (): boolean => nclose(square.transforms[0]!.rotationDeg, -45, 1e-12),
       ],
       [
         "squareScale",
-        () : boolean =>
+        (): boolean =>
           nclose(square.transforms[0]!.scale.x, 0.5, 1e-12) &&
           nclose(square.transforms[0]!.scale.y, 2, 1e-12),
       ],
@@ -409,9 +536,9 @@ export function test_architecture_surface_pattern_texture(): void {
     namedFacts([
       [
         "tileU",
-        () : boolean =>
+        (): boolean =>
           throwsError(
-            () : IAutoMoviePatternTexturing =>
+            (): IAutoMoviePatternTexturing =>
               autoMoviePatternTextureTransforms({
                 result: field,
                 tile: { u: 0, v: 0.5 },
@@ -422,9 +549,9 @@ export function test_architecture_surface_pattern_texture(): void {
       ],
       [
         "tileV",
-        () : boolean =>
+        (): boolean =>
           throwsError(
-            () : IAutoMoviePatternTexturing =>
+            (): IAutoMoviePatternTexturing =>
               autoMoviePatternTextureTransforms({
                 result: field,
                 tile: { u: 0.5, v: Number.NaN },
@@ -435,9 +562,9 @@ export function test_architecture_surface_pattern_texture(): void {
       ],
       [
         "origin",
-        () : boolean =>
+        (): boolean =>
           throwsError(
-            () : IAutoMoviePatternTexturing =>
+            (): IAutoMoviePatternTexturing =>
               autoMoviePatternTextureTransforms({
                 result: field,
                 tile: { u: 0.5, v: 0.5 },

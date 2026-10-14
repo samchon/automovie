@@ -1,24 +1,24 @@
 import {
-  type IAutoMovieSurfacePatternResult,
   type IAutoMovieSurfacePattern,
+  type IAutoMovieSurfacePatternResult,
   generateAutoMovieSurfacePattern,
 } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
-import {
-  pattern,
-  rectangle,
-  zone,
-} from "../internal/patternFixtures";
-import { namedFacts, throwsError } from "../internal/predicates";
 import { assertPatternGeneratedModuleRefusals } from "../internal/assertPatternGeneratedModuleRefusals";
+import { pattern, rectangle, zone } from "../internal/patternFixtures";
+import { namedFacts, throwsError } from "../internal/predicates";
 
-const refuses: (overrides: Partial<IAutoMovieSurfacePattern>, message: string | readonly string[]) => boolean = (
+const refuses: (
+  overrides: Partial<IAutoMovieSurfacePattern>,
+  message: string | readonly string[],
+) => boolean = (
   overrides: Partial<IAutoMovieSurfacePattern>,
   message: string | readonly string[],
 ): boolean =>
   throwsError(
-    () : IAutoMovieSurfacePatternResult => generateAutoMovieSurfacePattern({ pattern: pattern(overrides) }),
+    (): IAutoMovieSurfacePatternResult =>
+      generateAutoMovieSurfacePattern({ pattern: pattern(overrides) }),
     message,
   );
 
@@ -59,15 +59,18 @@ export function test_architecture_surface_pattern_refusals(): void {
   TestValidator.equals(
     "envelope scalars are refused one at a time",
     namedFacts([
-      ["id", () : boolean => refuses({ id: " " }, "pattern id must be non-empty")],
+      [
+        "id",
+        (): boolean => refuses({ id: " " }, "pattern id must be non-empty"),
+      ],
       [
         "zones",
-        () : boolean =>
+        (): boolean =>
           refuses({ zones: [] }, "a surface pattern needs at least one zone"),
       ],
       [
         "joint",
-        () : boolean =>
+        (): boolean =>
           refuses(
             { joint: -1e-9 },
             "pattern joint must be a finite number >= 0",
@@ -75,7 +78,7 @@ export function test_architecture_surface_pattern_refusals(): void {
       ],
       [
         "tolerance",
-        () : boolean =>
+        (): boolean =>
           refuses(
             { jointTolerance: Number.NaN },
             "pattern joint tolerance must be a finite number >= 0",
@@ -83,7 +86,7 @@ export function test_architecture_surface_pattern_refusals(): void {
       ],
       [
         "adjacency",
-        () : boolean =>
+        (): boolean =>
           refuses(
             { adjacency: -1 },
             "pattern adjacency must be a finite number >= 0",
@@ -91,7 +94,7 @@ export function test_architecture_surface_pattern_refusals(): void {
       ],
       [
         "minimumZero",
-        () : boolean =>
+        (): boolean =>
           refuses(
             { minimumPiece: 0 },
             "pattern minimum piece must be a finite number in (0, 1]",
@@ -99,7 +102,7 @@ export function test_architecture_surface_pattern_refusals(): void {
       ],
       [
         "minimumAbove",
-        () : boolean =>
+        (): boolean =>
           refuses(
             { minimumPiece: 1 + 1e-9 },
             "pattern minimum piece must be a finite number in (0, 1]",
@@ -107,7 +110,7 @@ export function test_architecture_surface_pattern_refusals(): void {
       ],
       [
         "minimumNonFinite",
-        () : boolean =>
+        (): boolean =>
           refuses(
             { minimumPiece: Number.NaN },
             "pattern minimum piece must be a finite number in (0, 1]",
@@ -115,7 +118,7 @@ export function test_architecture_surface_pattern_refusals(): void {
       ],
       [
         "grain",
-        () : boolean =>
+        (): boolean =>
           refuses(
             { grainToleranceDeg: -1e-9 },
             "pattern grain tolerance must be a finite number >= 0",
@@ -123,16 +126,17 @@ export function test_architecture_surface_pattern_refusals(): void {
       ],
       [
         "seedNegative",
-        () : boolean => refuses({ seed: -1 }, "pattern seed must be a safe integer >= 0"),
+        (): boolean =>
+          refuses({ seed: -1 }, "pattern seed must be a safe integer >= 0"),
       ],
       [
         "seedFractional",
-        () : boolean =>
+        (): boolean =>
           refuses({ seed: 1.5 }, "pattern seed must be a safe integer >= 0"),
       ],
       [
         "variantsZero",
-        () : boolean =>
+        (): boolean =>
           refuses(
             { variants: 0 },
             "pattern variants must be a safe integer >= 1",
@@ -140,7 +144,7 @@ export function test_architecture_surface_pattern_refusals(): void {
       ],
       [
         "variantsFractional",
-        () : boolean =>
+        (): boolean =>
           refuses(
             { variants: 2.5 },
             "pattern variants must be a safe integer >= 1",
@@ -148,7 +152,7 @@ export function test_architecture_surface_pattern_refusals(): void {
       ],
       [
         "boundaryValues",
-        () : boolean =>
+        (): boolean =>
           generateAutoMovieSurfacePattern({
             pattern: pattern({
               joint: 0,
@@ -185,7 +189,7 @@ export function test_architecture_surface_pattern_refusals(): void {
     namedFacts([
       [
         "blankId",
-        () : boolean =>
+        (): boolean =>
           refuses(
             { zones: [zone({ id: "  " })] },
             "pattern zone[0] id must be non-empty",
@@ -193,7 +197,7 @@ export function test_architecture_surface_pattern_refusals(): void {
       ],
       [
         "duplicateId",
-        () : boolean =>
+        (): boolean =>
           refuses(
             {
               zones: [
@@ -206,7 +210,7 @@ export function test_architecture_surface_pattern_refusals(): void {
       ],
       [
         "origin",
-        () : boolean =>
+        (): boolean =>
           refuses(
             { zones: [zone({ origin: { u: Number.NaN, v: 0 } })] },
             'pattern zone "field" origin must be finite',
@@ -214,7 +218,7 @@ export function test_architecture_surface_pattern_refusals(): void {
       ],
       [
         "periodU",
-        () : boolean =>
+        (): boolean =>
           refuses(
             { zones: [zone({ period: { u: 0, v: 0.5 } })] },
             'pattern zone "field" period u must be a finite number > 0',
@@ -222,7 +226,7 @@ export function test_architecture_surface_pattern_refusals(): void {
       ],
       [
         "periodV",
-        () : boolean =>
+        (): boolean =>
           refuses(
             { zones: [zone({ period: { u: 0.5, v: -1 } })] },
             'pattern zone "field" period v must be a finite number > 0',
@@ -230,7 +234,7 @@ export function test_architecture_surface_pattern_refusals(): void {
       ],
       [
         "reachU",
-        () : boolean =>
+        (): boolean =>
           refuses(
             { zones: [zone({ reach: { u: 0, v: 0.5 } })] },
             'pattern zone "field" reach u must be a finite number > 0',
@@ -238,7 +242,7 @@ export function test_architecture_surface_pattern_refusals(): void {
       ],
       [
         "reachV",
-        () : boolean =>
+        (): boolean =>
           refuses(
             { zones: [zone({ reach: { u: 0.5, v: Number.NaN } })] },
             'pattern zone "field" reach v must be a finite number > 0',
@@ -261,7 +265,7 @@ export function test_architecture_surface_pattern_refusals(): void {
     namedFacts([
       [
         "nonFinite",
-        () : boolean =>
+        (): boolean =>
           refuses(
             {
               zones: [
@@ -279,7 +283,7 @@ export function test_architecture_surface_pattern_refusals(): void {
       ],
       [
         "collinear",
-        () : boolean =>
+        (): boolean =>
           refuses(
             {
               zones: [
@@ -297,7 +301,7 @@ export function test_architecture_surface_pattern_refusals(): void {
       ],
       [
         "reflex",
-        () : boolean =>
+        (): boolean =>
           refuses(
             {
               zones: [
@@ -324,7 +328,7 @@ export function test_architecture_surface_pattern_refusals(): void {
     namedFacts([
       [
         "overlapping",
-        () : boolean =>
+        (): boolean =>
           refuses(
             {
               zones: [
@@ -341,7 +345,7 @@ export function test_architecture_surface_pattern_refusals(): void {
       ],
       [
         "touching",
-        () : boolean =>
+        (): boolean =>
           generateAutoMovieSurfacePattern({
             pattern: pattern({
               zones: [
@@ -364,7 +368,7 @@ export function test_architecture_surface_pattern_refusals(): void {
     namedFacts([
       [
         "blankId",
-        () : boolean =>
+        (): boolean =>
           refuses(
             {
               exclusions: [{ id: "", polygon: rectangle(0.1, 0.1, 0.2, 0.2) }],
@@ -374,7 +378,7 @@ export function test_architecture_surface_pattern_refusals(): void {
       ],
       [
         "duplicateId",
-        () : boolean =>
+        (): boolean =>
           refuses(
             {
               exclusions: [
@@ -387,7 +391,7 @@ export function test_architecture_surface_pattern_refusals(): void {
       ],
       [
         "nonConvex",
-        () : boolean =>
+        (): boolean =>
           refuses(
             {
               exclusions: [
@@ -408,7 +412,7 @@ export function test_architecture_surface_pattern_refusals(): void {
       ],
       [
         "overlapping",
-        () : boolean =>
+        (): boolean =>
           refuses(
             {
               exclusions: [
@@ -421,7 +425,7 @@ export function test_architecture_surface_pattern_refusals(): void {
       ],
       [
         "touching",
-        () : boolean =>
+        (): boolean =>
           generateAutoMovieSurfacePattern({
             pattern: pattern({
               exclusions: [
