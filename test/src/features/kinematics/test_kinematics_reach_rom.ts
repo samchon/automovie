@@ -17,7 +17,7 @@ import {
   type IAutoMovieJointPose,
   type IAutoMoviePose,
   type IAutoMovieValidation,
-} from "../../../../packages/interface/src/index";
+} from "@automovie/interface";
 import { createSkeleton } from "../internal/createSkeleton";
 import { namedFacts } from "../internal/namedFacts";
 import { nclose } from "../internal/nclose";

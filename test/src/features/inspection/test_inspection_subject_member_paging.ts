@@ -9,7 +9,7 @@ import {
   type IAutoMovieSubjectDescription,
   type IAutoMovieSubjectMemberSummary,
   type IAutoMovieTransform,
-} from "../../../../packages/interface/src/index";
+} from "@automovie/interface";
 import { namedFacts } from "../internal/namedFacts";
 import { subjectInspectionArtifact } from "../internal/subjectInspectionArtifact";
 import { subjectInspectionIdentityTransform } from "../internal/subjectInspectionIdentityTransform";

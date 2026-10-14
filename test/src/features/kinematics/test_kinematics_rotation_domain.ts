@@ -6,7 +6,7 @@ import { type IAutoMovieResolvedJointAngles } from "../../../../packages/engine/
 import { decomposeJointRotation } from "../../../../packages/engine/src/kinematics/decomposeJointRotation";
 import { jointToQuaternion } from "../../../../packages/engine/src/kinematics/jointToQuaternion";
 import { Quaternion } from "../../../../packages/engine/src/math/Quaternion";
-import { type IAutoMovieQuaternion } from "../../../../packages/interface/src/index";
+import { type IAutoMovieQuaternion } from "@automovie/interface";
 import { nclose } from "../internal/nclose";
 import { qclose } from "../internal/qclose";
 

@@ -18,7 +18,7 @@ import {
   type IAutoMovieQuaternion,
   type IAutoMovieSkeleton,
   type IAutoMovieVector3,
-} from "../../../../packages/interface/src/index";
+} from "@automovie/interface";
 import { createSkeleton } from "../internal/createSkeleton";
 import { joint } from "../internal/joint";
 import { makePose } from "../internal/makePose";

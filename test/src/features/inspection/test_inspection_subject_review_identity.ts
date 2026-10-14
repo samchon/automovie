@@ -9,7 +9,7 @@ import {
   type AutoMovieSubjectKind,
   type IAutoMovieSubjectArtifact,
   type IAutoMovieSubjectReviewTarget,
-} from "../../../../packages/interface/src/index";
+} from "@automovie/interface";
 import { subjectInspectionArtifact } from "../internal/subjectInspectionArtifact";
 import { subjectInspectionInstanceSet } from "../internal/subjectInspectionInstanceSet";
 import { throwsError } from "../internal/throwsError";

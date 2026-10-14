@@ -3,7 +3,7 @@ import { TestValidator } from "@nestia/e2e";
 
 import { IAutoMovieResolvedBone } from "../../../../packages/engine/src/kinematics/IAutoMovieResolvedBone";
 import { resolvePose } from "../../../../packages/engine/src/kinematics/resolvePose";
-import { type IAutoMovieSkeleton } from "../../../../packages/interface/src/index";
+import { type IAutoMovieSkeleton } from "@automovie/interface";
 import { createSkeleton } from "../internal/createSkeleton";
 import { makePose } from "../internal/makePose";
 import { qclose } from "../internal/qclose";

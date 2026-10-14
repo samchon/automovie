@@ -6,7 +6,7 @@ import {
   type IAutoMovieSubjectArtifact,
   type IAutoMovieSubjectChange,
   type IAutoMovieSubjectDiff,
-} from "../../../../packages/interface/src/index";
+} from "@automovie/interface";
 import { subjectInspectionArtifact } from "../internal/subjectInspectionArtifact";
 import { subjectInspectionIdentityTransform } from "../internal/subjectInspectionIdentityTransform";
 import { subjectInspectionModel } from "../internal/subjectInspectionModel";

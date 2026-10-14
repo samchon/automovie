@@ -14,7 +14,7 @@ import {
   type IAutoMovieModel,
   type IAutoMovieSubjectDescription,
   type IAutoMovieTransform,
-} from "../../../../packages/interface/src/index";
+} from "@automovie/interface";
 import { makeProp } from "../internal/makeProp";
 import { namedFacts } from "../internal/namedFacts";
 import { primitivePart } from "../internal/primitivePart";

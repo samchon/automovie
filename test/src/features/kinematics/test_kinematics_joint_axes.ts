@@ -1,7 +1,7 @@
 import { TestValidator } from "@nestia/e2e";
 
 import { jointToQuaternion } from "../../../../packages/engine/src/kinematics/jointToQuaternion";
-import { type IAutoMovieQuaternion } from "../../../../packages/interface/src/index";
+import { type IAutoMovieQuaternion } from "@automovie/interface";
 import { qclose } from "../internal/qclose";
 
 /**

@@ -7,7 +7,7 @@ import {
   type IAutoMovieModel,
   type IAutoMovieSubjectArtifact,
   type IAutoMovieSubjectDescription,
-} from "../../../../packages/interface/src/index";
+} from "@automovie/interface";
 import { nclose } from "../internal/nclose";
 import { subjectInspectionArtifact } from "../internal/subjectInspectionArtifact";
 import { subjectInspectionInstanceSet } from "../internal/subjectInspectionInstanceSet";

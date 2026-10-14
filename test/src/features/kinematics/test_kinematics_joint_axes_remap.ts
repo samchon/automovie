@@ -9,7 +9,7 @@ import { resolvePose } from "../../../../packages/engine/src/kinematics/resolveP
 import {
   type IAutoMoviePose,
   type IAutoMovieQuaternion,
-} from "../../../../packages/interface/src/index";
+} from "@automovie/interface";
 import { createSkeleton } from "../internal/createSkeleton";
 import { joint } from "../internal/joint";
 import { makePose } from "../internal/makePose";

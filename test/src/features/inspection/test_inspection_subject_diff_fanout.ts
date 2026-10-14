@@ -9,7 +9,7 @@ import {
   type IAutoMovieSubjectChange,
   type IAutoMovieSubjectDiff,
   type IAutoMovieSubjectDiffFanout,
-} from "../../../../packages/interface/src/index";
+} from "@automovie/interface";
 import { subjectInspectionArtifact } from "../internal/subjectInspectionArtifact";
 import { subjectInspectionInstanceSet } from "../internal/subjectInspectionInstanceSet";
 import { subjectInspectionModel } from "../internal/subjectInspectionModel";

@@ -12,7 +12,7 @@ import {
   type IAutoMovieModel,
   type IAutoMovieSubjectArtifact,
   type IAutoMovieSubjectChange,
-} from "../../../../packages/interface/src/index";
+} from "@automovie/interface";
 import { namedFacts } from "../internal/namedFacts";
 import { nclose } from "../internal/nclose";
 import { subjectInspectionArtifact } from "../internal/subjectInspectionArtifact";
