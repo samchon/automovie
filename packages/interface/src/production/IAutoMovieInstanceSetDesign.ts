@@ -8,7 +8,7 @@ import { IAutoMovieInstanceVariation } from "./IAutoMovieInstanceVariation";
  *
  * @evidence contracts/common.md#principled-implementation Count, layout, anchor, heading and seed regenerate stable slots; positive weighted prototypes and bounded variation determine each member without serializing a full scene node per slot.
  * @evidence contracts/common.md#clear-and-simple-design Keeps general instance placement separate from formation capabilities, hero promotion and motion channels; optional prototypes extend the default recipe with explicit weighted choices.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Existing recipe and route references and admitted layout capacity are required; seed-derived variation does not stand in for missing model geometry or authorize a guessed instance count.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Recipe references, count limits, seed and layout capacity are authoring premises, not checks performed by this type or the compact compiler. Building populations receive the narrower validateBuiltPopulation check; world compilation regenerates slots and rejects missing routes and nonfinite sampled positions but does not replace the retired whole-design gate.
  * @evidence contracts/common.md#meaningful-documentation Defines the count limit, seed range, layout and recipe roles, world-meter anchor and degree heading; route placement uses its route snapshot rather than the anchor's XZ position.
  * @author Samchon
  */
@@ -16,7 +16,7 @@ export interface IAutoMovieInstanceSetDesign {
   /** Stable id unique within the world. */
   id: string;
 
-  /** Existing default model recipe used when no alternate prototype is selected. */
+  /** Existing base recipe; compilation inserts it as prototype `default` with weight one when a prototype table is supplied. */
   modelRecipe: string;
 
   /** Optional weighted prototype table; `modelRecipe` remains the default. */

@@ -11,7 +11,7 @@ import { IAutoMovieWorldDesign } from "./IAutoMovieWorldDesign";
  *
  * @evidence contracts/common.md#principled-implementation Layout, route snapshot, seed and variation regenerate positions and prototype choices; chunk and overall summaries are measured through that same slot law, and canonical digest covers the compiled inputs and summaries.
  * @evidence contracts/common.md#clear-and-simple-design Compact placement and variation laws serve both viewer and oracle, with reusable prototype tables and bounded chunk summaries rather than one persisted record per instance.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Along-route placement uses the compiled route snapshot instead of mutable design, and invalid route or nonfinite variation refuses regeneration rather than fabricating positions.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Along-route placement uses the compiled route snapshot instead of mutable design. Missing or unusable routes, nonfinite sampled position/scalar scale/procedural traits and an unavailable palette selection refuse regeneration; this does not certify all enhanced transforms, explicit traits, count limits or recipe references.
  * @evidence contracts/common.md#meaningful-documentation Describes optional prototype compatibility, route-null local layouts, world anchor and degree heading, seed and variation, slot-point bounds, radius expansion, chunks, tiers and digest coverage.
  * @author Samchon
  */
@@ -28,7 +28,7 @@ export interface IAutoMovieCompiledInstanceSet {
   /** Base design recipe. */
   modelRecipe: string;
 
-  /** Resolved prototype runtimes; omitted for a legacy single-prototype set. */
+  /** Resolved prototype runtimes with base `default` weight one first; omitted for a legacy single-prototype set. */
   prototypes?: IAutoMovieCompiledInstancePrototype[];
 
   /** Exact compact placement law. */
