@@ -36,7 +36,7 @@ export function test_ingest_external_model_hierarchy_deep_static(): void {
   TestValidator.predicate(
     "deep static cycle retains its cause",
     throwsError(
-      (): import("../../../../packages/ingest/src/IAutoMovieExternalModelInspection").IAutoMovieExternalModelInspection =>
+      (): import("@automovie/ingest").IAutoMovieExternalModelInspection =>
         inspectExternalModelHierarchyFixture(fixture, "gltf-static-v1"),
       "nodes[0] belongs to a parent cycle.",
     ),

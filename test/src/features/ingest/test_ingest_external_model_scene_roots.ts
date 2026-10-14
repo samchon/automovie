@@ -36,7 +36,7 @@ export function test_ingest_external_model_scene_roots(): void {
     fixture.document.scenes = [{ nodes: [0, 1, 2] }, { nodes: [0, 2] }];
     for (const scene of [undefined, 0, 1]) {
       fixture.document.scene = scene;
-      const accepted: import("../../../../packages/ingest/src/IAutoMovieExternalModelInspection").IAutoMovieExternalModelInspection =
+      const accepted: import("@automovie/ingest").IAutoMovieExternalModelInspection =
         inspectExternalModelHierarchyFixture(fixture, profile);
       TestValidator.predicate(
         `${profile}: mesh instances remain distinct`,
@@ -54,7 +54,7 @@ export function test_ingest_external_model_scene_roots(): void {
     TestValidator.predicate(
       `${profile}: repeated root in unselected scene`,
       throwsError(
-        (): import("../../../../packages/ingest/src/IAutoMovieExternalModelInspection").IAutoMovieExternalModelInspection =>
+        (): import("@automovie/ingest").IAutoMovieExternalModelInspection =>
           inspectExternalModelHierarchyFixture(fixture, profile),
         "scenes[1].nodes[1] repeats root node 0.",
       ),
@@ -64,7 +64,7 @@ export function test_ingest_external_model_scene_roots(): void {
     TestValidator.predicate(
       `${profile}: a parented node is not a scene root`,
       throwsError(
-        (): import("../../../../packages/ingest/src/IAutoMovieExternalModelInspection").IAutoMovieExternalModelInspection =>
+        (): import("@automovie/ingest").IAutoMovieExternalModelInspection =>
           inspectExternalModelHierarchyFixture(fixture, profile),
         "scenes[0].nodes[1] references non-root node 1.",
       ),
@@ -81,7 +81,7 @@ export function test_ingest_external_model_scene_roots(): void {
     TestValidator.predicate(
       `${profile}: scene root index must resolve`,
       throwsError(
-        (): import("../../../../packages/ingest/src/IAutoMovieExternalModelInspection").IAutoMovieExternalModelInspection =>
+        (): import("@automovie/ingest").IAutoMovieExternalModelInspection =>
           inspectExternalModelHierarchyFixture(fixture, profile),
         "scenes[0].nodes[0] does not resolve inside its declared inventory.",
       ),
@@ -93,7 +93,7 @@ export function test_ingest_external_model_scene_roots(): void {
       TestValidator.predicate(
         `${profile}: invalid default scene ${scene}`,
         throwsError(
-          (): import("../../../../packages/ingest/src/IAutoMovieExternalModelInspection").IAutoMovieExternalModelInspection =>
+          (): import("@automovie/ingest").IAutoMovieExternalModelInspection =>
             inspectExternalModelHierarchyFixture(fixture, profile),
           "scene does not resolve inside its declared inventory.",
         ),
@@ -112,7 +112,7 @@ export function test_ingest_external_model_scene_roots(): void {
       TestValidator.predicate(
         `${profile}: selected scene requires an inventory`,
         throwsError(
-          (): import("../../../../packages/ingest/src/IAutoMovieExternalModelInspection").IAutoMovieExternalModelInspection =>
+          (): import("@automovie/ingest").IAutoMovieExternalModelInspection =>
             inspectExternalModelHierarchyFixture(fixture, profile),
           "scene does not resolve inside its declared inventory.",
         ),

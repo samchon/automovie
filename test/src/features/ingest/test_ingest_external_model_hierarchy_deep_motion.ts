@@ -23,7 +23,7 @@ import { test12ValuesClose } from "../internal/test12ValuesClose";
 export function test_ingest_external_model_hierarchy_deep_motion(): void {
   const fixture: ReturnType<typeof createExternalModelHierarchyChain> =
     createExternalModelHierarchyChain(16_384);
-  const inspected: import("../../../../packages/ingest/src/IAutoMovieExternalModelInspection").IAutoMovieExternalModelInspection =
+  const inspected: import("@automovie/ingest").IAutoMovieExternalModelInspection =
     inspectExternalModelHierarchyFixture(fixture, "gltf-motion-v1");
   TestValidator.predicate(
     "deep motion hierarchy inventory",
