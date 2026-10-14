@@ -5,6 +5,7 @@ import type { IAutoMovieHumanGltfExport } from "../../common/export/IAutoMovieHu
 import type { IAutoMovieHumanFaceContactSummary } from "../../index";
 import { createHumanFaceBasisBuilder } from "../basis/createHumanFaceBasisBuilder";
 import { readHumanFacePartCensus } from "../basis/readHumanFacePartCensus";
+import { resolveHumanFaceAppearanceDocument } from "../basis/resolveHumanFaceAppearanceDocument";
 import { summarizeHumanFaceArticulation } from "../basis/summarizeHumanFaceArticulation";
 import { parseHumanFaceBasisDocument } from "../document/parseHumanFaceBasisDocument";
 import { createHumanFaceOralExportQualification } from "../export/createHumanFaceOralExportQualification";
@@ -48,7 +49,7 @@ const FACE_OCCLUSION: { rays: number; size: number } = { rays: 32, size: 1024 };
  *
  * The ordinary builder owns its source clone, but lazy occlusion compilation, articulation summaries and oral export qualification still read `props.basis`. Callers keep that source unchanged for the runtime's lifetime. Compilation can throw synchronously; later parse, build and export failures reject the operation promise.
  *
- * Preview and construction summaries separately evaluate the parsed document's rest geometry through their shared articulation owner. The builder first expands named appearance inputs into shape channels, while this summary receives the unexpanded document. A basis whose expanded rows move joint landmarks can therefore produce different reported centres. Export currently writes both binary and JSON formats, returning only the binary bytes here.
+ * Preview and construction summaries separately evaluate rest geometry after the same named-appearance expansion as the builder, so named epicanthal endpoints also move the reported joint landmarks. Export currently writes both binary and JSON formats, returning only the binary bytes here.
  *
  * @param props Caller-owned basis and optional actual owner-boundary observer.
  * @returns Resident numerical operation closure; parsing/admission errors reject its promise.
@@ -56,7 +57,7 @@ const FACE_OCCLUSION: { rays: number; size: number } = { rays: 32, size: 1024 };
  * @evidence contracts/common.md#principled-implementation One parsed numerical document and shared basis drive ordinary admission, separate construction inspection and qualified static export. Success contact comes from the builder's observer; construction returns null contact and the owner's unchanged admission, with optional report-only crossings.
  * @evidence contracts/common.md#clear-and-simple-design A resident closure owns one ordinary builder and one lazily compiled occlusion builder, branching only on the three explicit operations.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A refused construction is never returned as preview/export success, progress reflects owner callbacks, and the runtime supplies no asset, default measurement or anatomical certification. Shared source readouts require the caller to retain an unchanged basis.
- * @evidence contracts/common.md#meaningful-documentation The comment states source-clone versus borrowed-source ownership, synchronous compilation versus promise rejection, optional bake/census, unexpanded-summary limitations and the distinct construction publication rule.
+ * @evidence contracts/common.md#meaningful-documentation The comment states source-clone versus borrowed-source ownership, synchronous compilation versus promise rejection, optional bake/census, appearance-expanded summaries and the distinct construction publication rule.
  * @evidence contracts/performance.md#efficient-algorithms Compilation clones and admits a full basis and builds its neutral once per builder, with the second builder created on first occlusion use. Requests pay their builder-owned geometry/admission/bake costs; preview and construction add a separate rest/articulation evaluation and optional spatial crossing census, construction supplies a part census when absent, and export prepares resources and serializes both formats despite returning only GLB.
  * @evidence contracts/performance.md#reuse-equivalent-work Both paths reuse resident builders and their producer-owned pose/bake caches; a successful build's contact callback avoids a second evaluation solely to obtain that report.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The closure retains props and its source basis, at most two private builder sources/caches and the latest contact observation. Export's unused JSON becomes collectible after the exporter returns; returned models/bytes belong to callers. The resident worker caller owns runtime lifetime and delivery, and no independent worker/task is launched here.
@@ -108,7 +109,7 @@ export function createConnectedFaceRuntime(
             readHumanFacePartCensus(construction.model),
         },
         periocularMappings: construction.periocularMappings,
-        articulation: summarizeHumanFaceArticulation(props.basis, document),
+        articulation: summarizeHumanFaceArticulation(props.basis, resolveHumanFaceAppearanceDocument(props.basis, document)),
         // Construction publishes no success-only contact observer. Its
         // complete measured relations remain in the owner's admission.
         contact: null,
@@ -133,7 +134,7 @@ export function createConnectedFaceRuntime(
     return {
       operation: "preview" as const,
       model,
-      articulation: summarizeHumanFaceArticulation(props.basis, document),
+      articulation: summarizeHumanFaceArticulation(props.basis, resolveHumanFaceAppearanceDocument(props.basis, document)),
       contact,
       crossings:
         request.measure === true ? measureAutoMovieModelCrossings(model) : null,
