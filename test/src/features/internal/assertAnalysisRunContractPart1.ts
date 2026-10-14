@@ -1,3 +1,9 @@
+import {
+  autoMovieAnalysisRunDigest,
+  isAutoMovieAnalysisDomain,
+  sealAutoMovieAnalysisRun,
+  validateAutoMovieAnalysisRun,
+} from "@automovie/engine";
 import type {
   IAutoMovieAnalysisMetric,
   IAutoMovieAnalysisRun,
@@ -7,10 +13,6 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { autoMovieAnalysisRunDigest } from "../../../../packages/engine/src/analysis/autoMovieAnalysisRunDigest";
-import { isAutoMovieAnalysisDomain } from "../../../../packages/engine/src/analysis/isAutoMovieAnalysisDomain";
-import { sealAutoMovieAnalysisRun } from "../../../../packages/engine/src/analysis/sealAutoMovieAnalysisRun";
-import { validateAutoMovieAnalysisRun } from "../../../../packages/engine/src/analysis/validateAutoMovieAnalysisRun";
 import { sealedAnalysisRun } from "./analysisFixtures";
 import { hasViolation, throwsError } from "./predicates";
 

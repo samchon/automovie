@@ -1,10 +1,12 @@
+import {
+  type IAutoMovieGrammarDiagnostic,
+  type IAutoMovieGrammarReading,
+  type IAutoMovieGrammarShotObservation,
+  type IAutoMovieGrammarSubjectObservation,
+  readFilmGrammar,
+} from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
-import type { IAutoMovieGrammarDiagnostic } from "../../../../packages/engine/src/film/IAutoMovieGrammarDiagnostic";
-import type { IAutoMovieGrammarReading } from "../../../../packages/engine/src/film/IAutoMovieGrammarReading";
-import type { IAutoMovieGrammarShotObservation } from "../../../../packages/engine/src/film/IAutoMovieGrammarShotObservation";
-import type { IAutoMovieGrammarSubjectObservation } from "../../../../packages/engine/src/film/IAutoMovieGrammarSubjectObservation";
-import { readFilmGrammar } from "../../../../packages/engine/src/film/readFilmGrammar";
 import { createFilmGrammarCase } from "../internal/createFilmGrammarCase";
 
 /**

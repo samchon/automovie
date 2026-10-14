@@ -1,3 +1,4 @@
+import { resolveBeatEnd } from "@automovie/engine";
 import {
   IAutoMovieBeatEndActorState,
   IAutoMovieGaitCycle,
@@ -7,7 +8,6 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { resolveBeatEnd } from "../../../../packages/engine/src/film/resolveBeatEnd";
 import {
   IDENTITY_TRANSFORM,
   joint,

@@ -249,7 +249,7 @@ export function test_inspect_external_model_container(): void {
           "unsupportedProfile",
           (): boolean =>
             throwsError(
-              (): import("../../../../packages/ingest/src/IAutoMovieExternalModelInspection").IAutoMovieExternalModelInspection =>
+              (): import("@automovie/ingest").IAutoMovieExternalModelInspection =>
                 inspectAutoMovieExternalModelBytes({
                   path: "public/models/actor.glb",
                   bytes: container({}),

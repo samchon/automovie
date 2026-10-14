@@ -17,7 +17,7 @@ export function test12MotionRejectsDocument(
     cubicRotation: number[];
   } = test12MotionFixture(document);
   return throwsError(
-    (): import("../../../../../packages/ingest/src/IAutoMovieExternalModelInspection").IAutoMovieExternalModelInspection =>
+    (): import("@automovie/ingest").IAutoMovieExternalModelInspection =>
       test12MotionInspect(fixture),
     message,
   );

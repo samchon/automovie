@@ -17,7 +17,8 @@ const revisions = createHumanViewerRevisions({
   extra: init.extra,
   checkedInputs: init.checkedInputs,
   bases: () => bases,
-  io: createNodeHumanViewerResolveIo(init.root),
+  runtimeRoots: init.runtimeRoots,
+  io: createNodeHumanViewerResolveIo(init.root, init.runtimeRoots),
 });
 parentPort!.on("message", (change: IHumanViewerRevisionsChange) => {
   let reply: IHumanViewerRevisionsReply;

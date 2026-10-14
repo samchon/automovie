@@ -17,7 +17,7 @@ import { createViewerDisplayPublication } from "./createViewerDisplayPublication
  * @evidence contracts/common.md#meaningful-documentation Distinguishes provisional copy, committed upload, async failure and independent original-pixel retention; one-running/one-pending population and superseded-surface release are explicit.
  * @evidence contracts/performance.md#efficient-algorithms Copy/PNG/base64 serialization are O(frame pixels or encoded bytes plus cloned metadata); one encoder/upload runs while only latest pending bitmap survives, preventing a frame-per-draw backlog. Driver/browser serialization and network costs remain real work.
  * @evidence contracts/performance.md#reuse-equivalent-work Prepared original copy is reused by commit, successive pending copies replace superseded surfaces, and the running result is retained for graphics recovery; different completed pixels/facts require a new original snapshot rather than a metadata-only equivalence claim.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Owns at most one running surface/blob/data URL and one pending surface/facts, bounded in bytes by their raster/encoded sizes rather than a fixed byte cap; release zeros/discards pending canvas and closes future authority. In-flight FileReader/fetch is not actively aborted or time-bounded, though closed checks prevent later stages from starting after their waits.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Owns at most one running surface/blob/data URL and one pending surface/facts, bounded by their raster/encoded sizes. Release discards pending pixels, aborts the owned FileReader and fetch and closes publication authority. Native toBlob cannot be canceled; its callback is awaited without starting later work after disposal.
  */
 export function createViewerDisplaySave(props: {
   canvas: HTMLCanvasElement;
@@ -35,6 +35,8 @@ export function createViewerDisplaySave(props: {
 } {
   let sequence: number = 0;
   let running: boolean = false;
+  const cancellation: AbortController = new AbortController();
+  let reader: FileReader | undefined;
   const snapshot: () =>
     | {
         surface: HTMLCanvasElement;
@@ -135,27 +137,33 @@ export function createViewerDisplaySave(props: {
           resolve: (value: string | PromiseLike<string>) => void,
           reject: (reason?: any) => void,
         ): void => {
-          const reader: FileReader = new FileReader();
-          reader.onload = (): void => resolve(String(reader.result));
-          reader.onerror = (): void =>
+          const reading: FileReader = new FileReader();
+          reader = reading;
+          reading.onload = (): void => resolve(String(reading.result));
+          reading.onerror = (): void =>
             reject(
               new Error("The encoded display could not be read.", {
-                cause: reader.error,
+                cause: reading.error,
               }),
             );
-          reader.readAsDataURL(blob);
+          reading.onabort = (): void => reject(cancellation.signal.reason);
+          reading.readAsDataURL(blob);
         },
       );
+      reader = undefined;
       if (!publication.active()) return;
       const response: Response = await fetch("/display", {
+        signal: cancellation.signal,
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...metadata, sequence: sequenceId, png: data }),
       });
       if (!response.ok) throw new Error(await response.text());
     } catch (cause) {
-      console.warn("AUTOMOVIE_DISPLAY_SAVE " + String(cause));
+      if (!cancellation.signal.aborted)
+        console.warn("AUTOMOVIE_DISPLAY_SAVE " + String(cause));
     } finally {
+      reader = undefined;
       surface.width = 0;
       surface.height = 0;
       running = false;
@@ -203,6 +211,8 @@ export function createViewerDisplaySave(props: {
       void flush();
     },
     release: (): void => {
+      cancellation.abort();
+      reader?.abort();
       if (pending !== undefined) {
         pending.surface.width = 0;
         pending.surface.height = 0;

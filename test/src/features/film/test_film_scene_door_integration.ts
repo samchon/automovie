@@ -1,3 +1,12 @@
+import {
+  type IAutoMovieForgedProp,
+  type IAutoMovieResolveOutput,
+  type IAutoMovieResolveViolation,
+  Matrix4,
+  forgeProp,
+  resolveFrame,
+  sceneToNodes,
+} from "@automovie/engine";
 import type {
   IAutoMovieClip,
   IAutoMovieNode,
@@ -9,13 +18,6 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import type { IAutoMovieForgedProp } from "../../../../packages/engine/src/film/IAutoMovieForgedProp";
-import { forgeProp } from "../../../../packages/engine/src/film/forgeProp";
-import { Matrix4 } from "../../../../packages/engine/src/math/Matrix4";
-import type { IAutoMovieResolveOutput } from "../../../../packages/engine/src/resolve/IAutoMovieResolveOutput";
-import type { IAutoMovieResolveViolation } from "../../../../packages/engine/src/resolve/IAutoMovieResolveViolation";
-import { resolveFrame } from "../../../../packages/engine/src/resolve/resolveFrame";
-import { sceneToNodes } from "../../../../packages/engine/src/resolve/sceneToNodes";
 import { createDoorPropSpec } from "../internal/createDoorPropSpec";
 import { createModel } from "../internal/fixtures";
 import { namedFacts, nclose, vclose } from "../internal/predicates";

@@ -1,13 +1,13 @@
-import { IAutoMovieCompiledInstanceSet } from "@automovie/interface";
-import { TestValidator } from "@nestia/e2e";
-
-import { describeAutoMovieSubject } from "../../../../packages/engine/src/describeAutoMovieSubject";
+import { describeAutoMovieSubject } from "@automovie/engine";
 import {
   type IAutoMovieCompiledInstancePrototype,
+  IAutoMovieCompiledInstanceSet,
   type IAutoMovieModel,
   type IAutoMovieSubjectArtifact,
   type IAutoMovieSubjectDescription,
-} from "../../../../packages/interface/src/index";
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
 import { nclose } from "../internal/nclose";
 import { subjectInspectionArtifact } from "../internal/subjectInspectionArtifact";
 import { subjectInspectionInstanceSet } from "../internal/subjectInspectionInstanceSet";

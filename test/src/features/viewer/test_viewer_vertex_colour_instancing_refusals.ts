@@ -21,8 +21,9 @@ import {
  * @evidence contracts/testing.md#execution-ownership The named entry uses existing CPU triangle geometry/attributes and disposes returned/source resources, replacing no foreign method and adding no renderer or new fixture.
  */
 export function test_viewer_vertex_colour_instancing_refusals(): void {
-  const built: import("../../../../packages/viewer/src/IAutoMovieModelObject").IAutoMovieModelObject =
-    buildModel(vertexColourModel([vertexColourMesh()]));
+  const built: import("@automovie/viewer").IAutoMovieModelObject = buildModel(
+    vertexColourModel([vertexColourMesh()]),
+  );
   const part: THREE.Mesh<
     THREE.BufferGeometry<
       THREE.NormalBufferAttributes,

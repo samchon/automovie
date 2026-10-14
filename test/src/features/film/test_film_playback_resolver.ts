@@ -1,13 +1,15 @@
+import {
+  IAutoMoviePlaybackEntry,
+  IAutoMoviePlaybackEvent,
+  IAutoMoviePlaybackSample,
+  IAutoMoviePlaybackTimeline,
+  resolveSequencePlayback,
+  sequenceEventTimeline,
+  sequenceTimeline,
+} from "@automovie/engine";
 import { IAutoMovieSequence, IAutoMovieShot } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { IAutoMoviePlaybackEntry } from "../../../../packages/engine/src/film/IAutoMoviePlaybackEntry";
-import { IAutoMoviePlaybackEvent } from "../../../../packages/engine/src/film/IAutoMoviePlaybackEvent";
-import { IAutoMoviePlaybackSample } from "../../../../packages/engine/src/film/IAutoMoviePlaybackSample";
-import { IAutoMoviePlaybackTimeline } from "../../../../packages/engine/src/film/IAutoMoviePlaybackTimeline";
-import { resolveSequencePlayback } from "../../../../packages/engine/src/film/resolveSequencePlayback";
-import { sequenceEventTimeline } from "../../../../packages/engine/src/film/sequenceEventTimeline";
-import { sequenceTimeline } from "../../../../packages/engine/src/film/sequenceTimeline";
 import { nclose, throwsError } from "../internal/predicates";
 
 /**

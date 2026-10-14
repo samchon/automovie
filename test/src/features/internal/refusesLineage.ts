@@ -1,9 +1,9 @@
+import { validateDesignLineage } from "@automovie/engine";
 import type {
   AutoMovieViolationKind,
   IAutoMovieDesignLineage,
 } from "@automovie/interface";
 
-import { validateDesignLineage } from "../../../../packages/engine/src/architecture/validateDesignLineage";
 import { brokenLineage } from "./brokenLineage";
 import { hasViolation } from "./predicates";
 

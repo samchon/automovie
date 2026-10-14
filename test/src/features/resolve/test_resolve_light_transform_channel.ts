@@ -1,3 +1,4 @@
+import { Quaternion, resolveShotLighting } from "@automovie/engine";
 import {
   AutoMovieChannelValueType,
   IAutoMovieChannel,
@@ -8,8 +9,6 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { Quaternion } from "../../../../packages/engine/src/math/Quaternion";
-import { resolveShotLighting } from "../../../../packages/engine/src/resolve/resolveShotLighting";
 import { IDENTITY_TRANSFORM } from "../internal/IDENTITY_TRANSFORM";
 import { namedFacts } from "../internal/namedFacts";
 import { nclose } from "../internal/nclose";

@@ -1,3 +1,8 @@
+import {
+  designFrameScale,
+  designReferenceWorldPoint,
+  promoteDesignObservations,
+} from "@automovie/engine";
 import type {
   IAutoMovieDesignPromotion,
   IAutoMovieDesignReference,
@@ -6,9 +11,6 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { designFrameScale } from "../../../../packages/engine/src/architecture/designFrameScale";
-import { designReferenceWorldPoint } from "../../../../packages/engine/src/architecture/designReferenceWorldPoint";
-import { promoteDesignObservations } from "../../../../packages/engine/src/architecture/promoteDesignObservations";
 import { nclose } from "./nclose";
 import { namedFacts, throwsError, vclose } from "./predicates";
 import { sameProductData } from "./sameProductData";

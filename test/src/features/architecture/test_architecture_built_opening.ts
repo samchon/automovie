@@ -1,3 +1,17 @@
+import {
+  type IAutoMovieBoundaryWallCut,
+  type IAutoMovieMeshTopology,
+  type IAutoMovieOpeningPanelPlacement,
+  type IAutoMovieOpeningSweep,
+  type IAutoMovieWallOpening,
+  buildAutoMovieWall,
+  builtBoundaryWallCut,
+  builtOpeningPanelPlacements,
+  builtOpeningSweepEnvelope,
+  inspectAutoMovieMeshTopology,
+  lowerBuiltEnvironment,
+  validateBuiltEnvironment,
+} from "@automovie/engine";
 import type {
   IAutoMovieBuiltEnvironment,
   IAutoMovieBuiltOpening,
@@ -6,18 +20,6 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import type { IAutoMovieBoundaryWallCut } from "../../../../packages/engine/src/architecture/IAutoMovieBoundaryWallCut";
-import type { IAutoMovieOpeningPanelPlacement } from "../../../../packages/engine/src/architecture/IAutoMovieOpeningPanelPlacement";
-import type { IAutoMovieOpeningSweep } from "../../../../packages/engine/src/architecture/IAutoMovieOpeningSweep";
-import { builtBoundaryWallCut } from "../../../../packages/engine/src/architecture/builtBoundaryWallCut";
-import { builtOpeningPanelPlacements } from "../../../../packages/engine/src/architecture/builtOpeningPanelPlacements";
-import { builtOpeningSweepEnvelope } from "../../../../packages/engine/src/architecture/builtOpeningSweepEnvelope";
-import { lowerBuiltEnvironment } from "../../../../packages/engine/src/architecture/lowerBuiltEnvironment";
-import { validateBuiltEnvironment } from "../../../../packages/engine/src/architecture/validateBuiltEnvironment";
-import type { IAutoMovieMeshTopology } from "../../../../packages/engine/src/geometry/IAutoMovieMeshTopology";
-import type { IAutoMovieWallOpening } from "../../../../packages/engine/src/geometry/IAutoMovieWallOpening";
-import { buildAutoMovieWall } from "../../../../packages/engine/src/geometry/buildAutoMovieWall";
-import { inspectAutoMovieMeshTopology } from "../../../../packages/engine/src/geometry/inspectAutoMovieMeshTopology";
 import { BUILT_OPENING_TEST_NO_ROTATION as NO_ROTATION } from "../internal/BUILT_OPENING_TEST_NO_ROTATION";
 import { assertBuiltOpeningTestRefusals } from "../internal/assertBuiltOpeningTestRefusals";
 import { builtOpeningTestPartition as partition } from "../internal/builtOpeningTestPartition";

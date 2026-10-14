@@ -1,11 +1,7 @@
+import { renderAndSeeCommand as main } from "@automovie/render/node";
 import path from "node:path";
 
-import { main } from "./renderAndSee/main.ts";
-
-export { main } from "./renderAndSee/main.ts";
-export { captureRenderAndSee } from "./captureRenderAndSee.ts";
-export type { IAutoMoviePlaygroundRenderAndSeeOptions } from "./IAutoMoviePlaygroundRenderAndSeeOptions";
-export type { IAutoMoviePlaygroundRenderAndSeeArtifact } from "./IAutoMoviePlaygroundRenderAndSeeArtifact";
+export { renderAndSeeCommand as main } from "@automovie/render/node";
 
 if (path.resolve(process.argv[1] ?? "") === path.resolve(import.meta.filename))
   void main().catch((error: unknown): void => {

@@ -1,4 +1,12 @@
 import {
+  IAutoMovieActionSynthesizer,
+  IAutoMoviePerformedShot,
+  IAutoMovieStagedSet,
+  compareCodeUnits,
+  performShot,
+  stageScene,
+} from "@automovie/engine";
+import {
   AutoMovieHumanoidBone,
   IAutoMovieActionCall,
   IAutoMovieCameraAction,
@@ -12,12 +20,6 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { IAutoMoviePerformedShot } from "../../../../packages/engine/src/film/IAutoMoviePerformedShot";
-import { IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
-import { performShot } from "../../../../packages/engine/src/film/performShot";
-import { stageScene } from "../../../../packages/engine/src/film/stageScene";
-import { IAutoMovieActionSynthesizer } from "../../../../packages/engine/src/perform/IAutoMovieActionSynthesizer";
-import { compareCodeUnits } from "../../../../packages/engine/src/text/compareCodeUnits";
 import {
   makePerformanceWrite,
   makeScriptWrite,

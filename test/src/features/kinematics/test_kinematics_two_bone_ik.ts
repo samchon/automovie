@@ -1,7 +1,6 @@
+import { ITwoBoneIK, solveTwoBoneIK } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
-import { ITwoBoneIK } from "../../../../packages/engine/src/kinematics/ITwoBoneIK";
-import { solveTwoBoneIK } from "../../../../packages/engine/src/kinematics/solveTwoBoneIK";
 import { nclose } from "../internal/nclose";
 import { throwsError } from "../internal/throwsError";
 

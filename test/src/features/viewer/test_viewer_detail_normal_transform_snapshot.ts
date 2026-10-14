@@ -1,7 +1,7 @@
+import { createDetailNormalShaderPatch } from "@automovie/viewer";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
-import { createDetailNormalShaderPatch } from "../../../../packages/viewer/src/detailNormalShading/createDetailNormalShaderPatch";
 import { nclose } from "../internal/predicates";
 
 /**

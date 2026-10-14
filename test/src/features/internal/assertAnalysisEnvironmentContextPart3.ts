@@ -1,3 +1,9 @@
+import {
+  autoMovieHemisphereDirections,
+  autoMovieRayObstructed,
+  autoMovieSkyward,
+  autoMovieSolidBlocks,
+} from "@automovie/engine";
 import type {
   IAutoMovieEnvironmentContext,
   IAutoMovieHalfSpacePlane,
@@ -5,10 +11,6 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { autoMovieHemisphereDirections } from "../../../../packages/engine/src/analysis/autoMovieHemisphereDirections";
-import { autoMovieRayObstructed } from "../../../../packages/engine/src/analysis/autoMovieRayObstructed";
-import { autoMovieSkyward } from "../../../../packages/engine/src/analysis/autoMovieSkyward";
-import { autoMovieSolidBlocks } from "../../../../packages/engine/src/analysis/autoMovieSolidBlocks";
 import { namedFacts, nclose, throwsError } from "./predicates";
 
 /** Execute the next ordered assertions of test_analysis_environment_context.

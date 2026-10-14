@@ -1,3 +1,4 @@
+import { IAutoMovieForgedProp, forgeProp } from "@automovie/engine";
 import {
   IAutoMovieConstraintViolation,
   IAutoMovieModelPart,
@@ -6,8 +7,6 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { IAutoMovieForgedProp } from "../../../../packages/engine/src/film/IAutoMovieForgedProp";
-import { forgeProp } from "../../../../packages/engine/src/film/forgeProp";
 import { createDoorPropSpec } from "../internal/createDoorPropSpec";
 import { createSkeleton } from "../internal/fixtures";
 import { hasViolation } from "../internal/predicates";

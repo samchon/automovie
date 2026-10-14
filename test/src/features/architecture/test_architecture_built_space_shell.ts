@@ -1,3 +1,14 @@
+import {
+  builtEnvironmentContainsPoint,
+  builtEnvironmentSpaceFidelity,
+  builtSpaceContainsPoint,
+  builtSpaceIsConvex,
+  builtSpaceShellVolume,
+  builtSpaceStatesVolume,
+  deriveAutoMovieDrawing,
+  measureAutoMovieQuantities,
+  validateBuiltEnvironment,
+} from "@automovie/engine";
 import type {
   IAutoMovieBuiltEnvironment,
   IAutoMovieBuiltSpace,
@@ -9,15 +20,6 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { builtEnvironmentContainsPoint } from "../../../../packages/engine/src/architecture/builtEnvironmentContainsPoint";
-import { builtEnvironmentSpaceFidelity } from "../../../../packages/engine/src/architecture/builtEnvironmentSpaceFidelity";
-import { builtSpaceContainsPoint } from "../../../../packages/engine/src/architecture/builtSpaceContainsPoint";
-import { builtSpaceIsConvex } from "../../../../packages/engine/src/architecture/builtSpaceIsConvex";
-import { builtSpaceShellVolume } from "../../../../packages/engine/src/architecture/builtSpaceShellVolume";
-import { builtSpaceStatesVolume } from "../../../../packages/engine/src/architecture/builtSpaceStatesVolume";
-import { validateBuiltEnvironment } from "../../../../packages/engine/src/architecture/validateBuiltEnvironment";
-import { deriveAutoMovieDrawing } from "../../../../packages/engine/src/drawing/deriveAutoMovieDrawing";
-import { measureAutoMovieQuantities } from "../../../../packages/engine/src/drawing/measureAutoMovieQuantities";
 import { BUILT_SPACE_SHELL_TEST_HALL as HALL } from "../internal/BUILT_SPACE_SHELL_TEST_HALL";
 import { assertBuiltSpaceShellTestRefusals } from "../internal/assertBuiltSpaceShellTestRefusals";
 import { builtSpaceShellTestBoxShell as boxShell } from "../internal/builtSpaceShellTestBoxShell";

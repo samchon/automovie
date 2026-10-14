@@ -4,12 +4,14 @@ import {
   IAutoMovieShot,
   IAutoMovieTrim,
 } from "@automovie/interface";
+import {
+  IAutoMovieSequenceRenderFrame,
+  IAutoMovieSequenceRenderPlan,
+  IAutoMovieSequenceRenderShotSpan,
+  planSequenceRender,
+} from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
-import { IAutoMovieSequenceRenderFrame } from "../../../../packages/render/src/IAutoMovieSequenceRenderFrame";
-import { IAutoMovieSequenceRenderPlan } from "../../../../packages/render/src/IAutoMovieSequenceRenderPlan";
-import { IAutoMovieSequenceRenderShotSpan } from "../../../../packages/render/src/IAutoMovieSequenceRenderShotSpan";
-import { planSequenceRender } from "../../../../packages/render/src/planSequenceRender";
 import { filmEffectValuesClose } from "../internal/filmEffectValuesClose";
 import { namedFacts, nclose, throwsError } from "../internal/predicates";
 

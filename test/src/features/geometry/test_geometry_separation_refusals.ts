@@ -1,17 +1,18 @@
 import {
+  IAutoMovieMeshQueryBudget,
+  IAutoMovieMeshSeparationQuery,
+  IAutoMovieMeshSeparationResult,
+  boundAutoMovieConvexSeparation,
+  boundAutoMovieProjectionSeparation,
+  createAutoMovieMeshSeparationQuery,
+} from "@automovie/engine";
+import {
   IAutoMovieMesh,
   IAutoMovieMeshPhysicalVertices,
   IAutoMovieMeshSkin,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { IAutoMovieMeshQueryBudget } from "../../../../packages/engine/src/geometry/IAutoMovieMeshQueryBudget";
-import { IAutoMovieMeshSeparationQuery } from "../../../../packages/engine/src/geometry/IAutoMovieMeshSeparationQuery";
-import { IAutoMovieMeshSeparationResult } from "../../../../packages/engine/src/geometry/IAutoMovieMeshSeparationResult";
-import { boundAutoMovieConvexSeparation } from "../../../../packages/engine/src/geometry/boundAutoMovieConvexSeparation";
-import { boundAutoMovieProjectionSeparation } from "../../../../packages/engine/src/geometry/boundAutoMovieProjectionSeparation";
-import { createAutoMovieMeshSeparationQuery } from "../../../../packages/engine/src/geometry/createAutoMovieMeshSeparationQuery";
 
 /**
  * Unsupported represented arithmetic and malformed requested work refuse by

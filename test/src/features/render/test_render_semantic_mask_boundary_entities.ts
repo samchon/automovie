@@ -1,12 +1,14 @@
 import {
+  autoMovieSemanticMaskNodeIndex,
+  deriveAutoMovieSemanticMask,
+} from "@automovie/engine";
+import {
   IAutoMovieBuiltEnvironment,
   IAutoMovieSemanticMask,
   IAutoMovieSemanticMaskEntry,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { autoMovieSemanticMaskNodeIndex } from "../../../../packages/engine/src/render/autoMovieSemanticMaskNodeIndex";
-import { deriveAutoMovieSemanticMask } from "../../../../packages/engine/src/render/deriveAutoMovieSemanticMask";
 import {
   buildingFixture,
   modelsFixture,

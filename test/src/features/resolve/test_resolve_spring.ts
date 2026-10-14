@@ -1,14 +1,16 @@
 import {
+  type IAutoMovieSpringState,
+  Matrix4,
+  createSpringState,
+  stepSpring,
+} from "@automovie/engine";
+import {
   IAutoMovieSpringDriver,
   IAutoMovieTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { Matrix4 } from "../../../../packages/engine/src/math/Matrix4";
-import { type IAutoMovieSpringState } from "../../../../packages/engine/src/resolve/IAutoMovieSpringState";
-import { createSpringState } from "../../../../packages/engine/src/resolve/createSpringState";
-import { stepSpring } from "../../../../packages/engine/src/resolve/stepSpring";
 import { nclose } from "../internal/nclose";
 import { throwsError } from "../internal/throwsError";
 import { vclose } from "../internal/vclose";

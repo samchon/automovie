@@ -1,4 +1,17 @@
 import {
+  HUMANOID_JOINT_AXES,
+  IAutoMovieActionSynthesizer,
+  IAutoMoviePerformedShot,
+  IAutoMovieStagedSet,
+  Quaternion,
+  Vector3,
+  performShot,
+  resolveAttachment,
+  sampleClip,
+  sampleMotion,
+  stageScene,
+} from "@automovie/engine";
+import {
   IAutoMovieActionCall,
   IAutoMovieClip,
   IAutoMovieConstraintViolation,
@@ -15,17 +28,6 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { IAutoMoviePerformedShot } from "../../../../packages/engine/src/film/IAutoMoviePerformedShot";
-import { IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
-import { performShot } from "../../../../packages/engine/src/film/performShot";
-import { stageScene } from "../../../../packages/engine/src/film/stageScene";
-import { HUMANOID_JOINT_AXES } from "../../../../packages/engine/src/kinematics/constants/HUMANOID_JOINT_AXES";
-import { resolveAttachment } from "../../../../packages/engine/src/kinematics/resolveAttachment";
-import { Quaternion } from "../../../../packages/engine/src/math/Quaternion";
-import { Vector3 } from "../../../../packages/engine/src/math/Vector3";
-import { sampleMotion } from "../../../../packages/engine/src/motion/sampleMotion";
-import { IAutoMovieActionSynthesizer } from "../../../../packages/engine/src/perform/IAutoMovieActionSynthesizer";
-import { sampleClip } from "../../../../packages/engine/src/resolve/sampleClip";
 import {
   makePerformanceWrite,
   makeScriptWrite,

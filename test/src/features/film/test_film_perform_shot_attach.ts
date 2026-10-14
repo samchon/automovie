@@ -1,4 +1,21 @@
 import {
+  HUMANOID_JOINT_AXES,
+  HUMANOID_REST_FRAME,
+  IAutoMovieActionSynthesizer,
+  IAutoMovieJointAxes,
+  IAutoMoviePerformedShot,
+  IAutoMovieRestFrame,
+  IAutoMovieStagedSet,
+  Quaternion,
+  Vector3,
+  performShot,
+  resolveAttachment,
+  resolveBeatEnd,
+  sampleClip,
+  sampleMotion,
+  stageScene,
+} from "@automovie/engine";
+import {
   AutoMovieHumanoidBone,
   AutoMovieInteractionEventKind,
   IAutoMovieActionCall,
@@ -17,21 +34,6 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { IAutoMoviePerformedShot } from "../../../../packages/engine/src/film/IAutoMoviePerformedShot";
-import { IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
-import { performShot } from "../../../../packages/engine/src/film/performShot";
-import { resolveBeatEnd } from "../../../../packages/engine/src/film/resolveBeatEnd";
-import { stageScene } from "../../../../packages/engine/src/film/stageScene";
-import { IAutoMovieJointAxes } from "../../../../packages/engine/src/kinematics/IAutoMovieJointAxes";
-import { HUMANOID_JOINT_AXES } from "../../../../packages/engine/src/kinematics/constants/HUMANOID_JOINT_AXES";
-import { resolveAttachment } from "../../../../packages/engine/src/kinematics/resolveAttachment";
-import { Quaternion } from "../../../../packages/engine/src/math/Quaternion";
-import { Vector3 } from "../../../../packages/engine/src/math/Vector3";
-import { sampleMotion } from "../../../../packages/engine/src/motion/sampleMotion";
-import { IAutoMovieActionSynthesizer } from "../../../../packages/engine/src/perform/IAutoMovieActionSynthesizer";
-import { sampleClip } from "../../../../packages/engine/src/resolve/sampleClip";
-import { IAutoMovieRestFrame } from "../../../../packages/engine/src/rom/IAutoMovieRestFrame";
-import { HUMANOID_REST_FRAME } from "../../../../packages/engine/src/rom/constants/HUMANOID_REST_FRAME";
 import { FILM_ATTACH_JOINT_AXES as CUSTOM_JOINT_AXES } from "../internal/FILM_ATTACH_JOINT_AXES";
 import { createFilmAttachRaisedMotion } from "../internal/createFilmAttachRaisedMotion";
 import { createFilmAttachScript as scriptOf } from "../internal/createFilmAttachScript";

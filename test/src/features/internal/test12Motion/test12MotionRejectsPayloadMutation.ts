@@ -18,7 +18,7 @@ export function test12MotionRejectsPayloadMutation(
   } = test12MotionFixture();
   mutate(fixture.payload);
   return throwsError(
-    (): import("../../../../../packages/ingest/src/IAutoMovieExternalModelInspection").IAutoMovieExternalModelInspection =>
+    (): import("@automovie/ingest").IAutoMovieExternalModelInspection =>
       test12MotionInspect(fixture),
     message,
   );

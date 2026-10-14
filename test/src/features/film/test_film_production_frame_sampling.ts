@@ -1,12 +1,14 @@
 import {
+  IAutoMovieProductionRenderFrame,
+  IAutoMovieProductionRenderLayer,
+  sampleProductionRenderFrame,
+} from "@automovie/engine";
+import {
   IAutoMovieFilmTimeline,
   IAutoMovieFilmTimelineSegment,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { IAutoMovieProductionRenderFrame } from "../../../../packages/engine/src/film/IAutoMovieProductionRenderFrame";
-import { IAutoMovieProductionRenderLayer } from "../../../../packages/engine/src/film/IAutoMovieProductionRenderLayer";
-import { sampleProductionRenderFrame } from "../../../../packages/engine/src/film/sampleProductionRenderFrame";
 import { nclose, throwsError } from "../internal/predicates";
 import { sameFilmProductionRenderFrames } from "../internal/sameFilmProductionRenderFrames";
 import { sameFilmProductionRenderLayers } from "../internal/sameFilmProductionRenderLayers";

@@ -1,3 +1,8 @@
+import {
+  builtEnvironmentElementBounds,
+  builtEnvironmentSpaceContentBounds,
+  validateBuiltEnvironment,
+} from "@automovie/engine";
 import type {
   IAutoMovieBuiltEnvironment,
   IAutoMovieModel,
@@ -7,9 +12,6 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { builtEnvironmentElementBounds } from "../../../../packages/engine/src/architecture/builtEnvironmentElementBounds";
-import { builtEnvironmentSpaceContentBounds } from "../../../../packages/engine/src/architecture/builtEnvironmentSpaceContentBounds";
-import { validateBuiltEnvironment } from "../../../../packages/engine/src/architecture/validateBuiltEnvironment";
 import { makeProp, primitivePart } from "../internal/fixtures";
 import { namedFacts, vclose } from "../internal/predicates";
 

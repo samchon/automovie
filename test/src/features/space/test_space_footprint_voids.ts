@@ -1,4 +1,20 @@
 import {
+  IAutoMovieFootprint,
+  autoMoviePlanarRegionFailure,
+  footprintArea,
+  footprintContains,
+  footprintConvexPieces,
+  footprintInteriorPoint,
+  footprintRing,
+  footprintRingPlacement,
+  heightAt,
+  isWalkable,
+  spaceGround,
+  supportContactsFor,
+  surfaceContains,
+  surfaceFootprint,
+} from "@automovie/engine";
+import {
   IAutoMovieBuiltEnvironment,
   IAutoMovieSpace,
   IAutoMovieSurface,
@@ -6,20 +22,6 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { autoMoviePlanarRegionFailure } from "../../../../packages/engine/src/geometry/autoMoviePlanarRegionFailure";
-import { IAutoMovieFootprint } from "../../../../packages/engine/src/space/IAutoMovieFootprint";
-import { footprintArea } from "../../../../packages/engine/src/space/footprintArea";
-import { footprintContains } from "../../../../packages/engine/src/space/footprintContains";
-import { footprintConvexPieces } from "../../../../packages/engine/src/space/footprintConvexPieces";
-import { footprintInteriorPoint } from "../../../../packages/engine/src/space/footprintInteriorPoint";
-import { footprintRing } from "../../../../packages/engine/src/space/footprintRing";
-import { footprintRingPlacement } from "../../../../packages/engine/src/space/footprintRingPlacement";
-import { heightAt } from "../../../../packages/engine/src/space/heightAt";
-import { isWalkable } from "../../../../packages/engine/src/space/isWalkable";
-import { spaceGround } from "../../../../packages/engine/src/space/spaceGround";
-import { supportContactsFor } from "../../../../packages/engine/src/space/supportContactsFor";
-import { surfaceContains } from "../../../../packages/engine/src/space/surfaceContains";
-import { surfaceFootprint } from "../../../../packages/engine/src/space/surfaceFootprint";
 import { assertFootprintVoidGeometry } from "../internal/assertFootprintVoidGeometry";
 import { createModel } from "../internal/fixtures";
 import { namedFacts, nclose } from "../internal/predicates";

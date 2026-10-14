@@ -1,8 +1,7 @@
+import { Matrix4, Quaternion } from "@automovie/engine";
 import { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { Matrix4 } from "../../../../packages/engine/src/math/Matrix4";
-import { Quaternion } from "../../../../packages/engine/src/math/Quaternion";
 import { nclose } from "../internal/nclose";
 import { qclose } from "../internal/qclose";
 import { qunit } from "../internal/qunit";

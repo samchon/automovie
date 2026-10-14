@@ -1,6 +1,5 @@
 import type { IAutoMovieHumanPersonDocument } from "@automovie/human";
-
-import type { IConnectedPersonHeadSolution } from "./IConnectedPersonHeadSolution";
+import type { IConnectedPersonHeadSolution } from "@automovie/human/human/runtime/IConnectedPersonHeadSolution";
 
 /**
  * What the head measurement controls render into and call: the container, the current person, the panel's intent tickets, the off-thread reader and solver, and the panel's transaction, status and refusal owners. Readers evaluate complete-person skin at rest in metres and the section assembly refuses reads on a construction draft. Solves produce a complete candidate and reporting values; the shared current transaction separately decides publication and history. Required and optional secondary targets retain their numerical owner's distinct acceptance rules.

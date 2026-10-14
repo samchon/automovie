@@ -1,3 +1,4 @@
+import { type IAutoMovieForgedProp, forgeProp } from "@automovie/engine";
 import type {
   IAutoMovieConstraintViolation,
   IAutoMoviePropArticulation,
@@ -6,8 +7,6 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import type { IAutoMovieForgedProp } from "../../../../packages/engine/src/film/IAutoMovieForgedProp";
-import { forgeProp } from "../../../../packages/engine/src/film/forgeProp";
 import { FILM_IMPORTED_PROP_BYTES } from "../internal/FILM_IMPORTED_PROP_BYTES";
 import { assertFilmImportedLodClosure } from "../internal/assertFilmImportedLodClosure";
 import { createDoorPropSpec } from "../internal/createDoorPropSpec";

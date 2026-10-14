@@ -1,3 +1,8 @@
+import {
+  type IAutoMovieEnvelopeRequest,
+  type IAutoMovieSpaceAirRequest,
+  analyzeAutoMovieSpaceAir,
+} from "@automovie/engine";
 import type {
   AutoMovieAnalysisDomain,
   IAutoMovieAnalysisMetric,
@@ -7,9 +12,6 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import type { IAutoMovieEnvelopeRequest } from "../../../../packages/engine/src/analysis/IAutoMovieEnvelopeRequest";
-import type { IAutoMovieSpaceAirRequest } from "../../../../packages/engine/src/analysis/IAutoMovieSpaceAirRequest";
-import { analyzeAutoMovieSpaceAir } from "../../../../packages/engine/src/analysis/analyzeAutoMovieSpaceAir";
 import { nclose } from "./predicates";
 
 /** Execute the next ordered assertions of test_analysis_envelope_hygrothermal.

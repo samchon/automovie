@@ -1,3 +1,4 @@
+import { IAutoMovieForgedCast, forgeCast } from "@automovie/engine";
 import {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
@@ -5,8 +6,6 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { IAutoMovieForgedCast } from "../../../../packages/engine/src/film/IAutoMovieForgedCast";
-import { forgeCast } from "../../../../packages/engine/src/film/forgeCast";
 import { forgeEntry, makeScriptWrite } from "../internal/filmFixtures";
 import { IDENTITY_TRANSFORM } from "../internal/fixtures";
 import { hasViolation, namedFacts } from "../internal/predicates";

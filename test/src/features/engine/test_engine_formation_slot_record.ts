@@ -1,7 +1,7 @@
+import { formationSlotRecord } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { formationSlotRecord } from "../../../../packages/engine/src/formationSlotRecord";
 import { namedFacts, nclose } from "../internal/predicates";
 import { test12ValuesClose } from "../internal/test12ValuesClose";
 

@@ -1,7 +1,7 @@
+import { validateScriptTree } from "@automovie/engine";
 import { IAutoMovieScriptNode } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { validateScriptTree } from "../../../../packages/engine/src/validation/validateScriptTree";
 import { createScriptTreeFixture } from "../internal/createScriptTreeFixture";
 
 /**

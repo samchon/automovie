@@ -1,20 +1,20 @@
 import {
+  describeAutoMovieSubject,
+  instanceSlot,
+  materializeCompiledInstanceSet,
+  productionRuntimeModelId,
+} from "@automovie/engine";
+import {
   IAutoMovieCompiledInstanceSet,
   IAutoMovieInstanceSetDesign,
+  type IAutoMovieInstanceSlot,
   IAutoMovieQuaternion,
+  type IAutoMovieSubjectArtifact,
+  type IAutoMovieSubjectDescription,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { describeAutoMovieSubject } from "../../../../packages/engine/src/describeAutoMovieSubject";
-import { instanceSlot } from "../../../../packages/engine/src/populationRuntime/instanceSlot";
-import { materializeCompiledInstanceSet } from "../../../../packages/engine/src/populationRuntime/materializeCompiledInstanceSet";
-import { productionRuntimeModelId } from "../../../../packages/engine/src/productionRuntimeModelId";
-import {
-  type IAutoMovieInstanceSlot,
-  type IAutoMovieSubjectArtifact,
-  type IAutoMovieSubjectDescription,
-} from "../../../../packages/interface/src/index";
 import { namedFacts } from "../internal/namedFacts";
 import { nclose } from "../internal/nclose";
 import { subjectInspectionArtifact } from "../internal/subjectInspectionArtifact";

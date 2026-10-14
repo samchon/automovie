@@ -1,8 +1,10 @@
+import {
+  IAutoMoviePlaybackSample,
+  playbackFrameSamples,
+} from "@automovie/engine";
 import { IAutoMovieSequence, IAutoMovieShot } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { IAutoMoviePlaybackSample } from "../../../../packages/engine/src/film/IAutoMoviePlaybackSample";
-import { playbackFrameSamples } from "../../../../packages/engine/src/film/playbackFrameSamples";
 import { nclose, throwsError } from "../internal/predicates";
 
 const shot: (id: string, duration: number) => IAutoMovieShot = (

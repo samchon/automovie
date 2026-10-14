@@ -1,3 +1,13 @@
+import {
+  type IAutoMovieConnectorCarriagePlacement,
+  type IAutoMovieConnectorGeometry,
+  builtConnectorCarriagePlacements,
+  builtConnectorGeometry,
+  builtEnvironmentAdjacentSpaces,
+  builtEnvironmentSpaceConnectors,
+  lowerBuiltEnvironment,
+  validateBuiltEnvironment,
+} from "@automovie/engine";
 import type {
   IAutoMovieBuiltConnector,
   IAutoMovieBuiltElement,
@@ -6,14 +16,6 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import type { IAutoMovieConnectorCarriagePlacement } from "../../../../packages/engine/src/architecture/IAutoMovieConnectorCarriagePlacement";
-import type { IAutoMovieConnectorGeometry } from "../../../../packages/engine/src/architecture/IAutoMovieConnectorGeometry";
-import { builtConnectorCarriagePlacements } from "../../../../packages/engine/src/architecture/builtConnectorCarriagePlacements";
-import { builtConnectorGeometry } from "../../../../packages/engine/src/architecture/builtConnectorGeometry";
-import { builtEnvironmentAdjacentSpaces } from "../../../../packages/engine/src/architecture/builtEnvironmentAdjacentSpaces";
-import { builtEnvironmentSpaceConnectors } from "../../../../packages/engine/src/architecture/builtEnvironmentSpaceConnectors";
-import { lowerBuiltEnvironment } from "../../../../packages/engine/src/architecture/lowerBuiltEnvironment";
-import { validateBuiltEnvironment } from "../../../../packages/engine/src/architecture/validateBuiltEnvironment";
 import { BUILT_CONNECTOR_OPERATION_TEST_CAR_REST as CAR_REST } from "../internal/BUILT_CONNECTOR_OPERATION_TEST_CAR_REST";
 import { BUILT_CONNECTOR_OPERATION_TEST_NO_ROTATION as NO_ROTATION } from "../internal/BUILT_CONNECTOR_OPERATION_TEST_NO_ROTATION";
 import { BUILT_CONNECTOR_OPERATION_TEST_STOREY as STOREY } from "../internal/BUILT_CONNECTOR_OPERATION_TEST_STOREY";

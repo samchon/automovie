@@ -1,4 +1,10 @@
 import {
+  IAutoMovieBlockedBeat,
+  IAutoMovieStagedSet,
+  blockBeat,
+  stageScene,
+} from "@automovie/engine";
+import {
   IAutoMovieBlockingCamera,
   IAutoMovieBlockingCoverage,
   IAutoMovieConstraintViolation,
@@ -6,10 +12,6 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { IAutoMovieBlockedBeat } from "../../../../packages/engine/src/film/IAutoMovieBlockedBeat";
-import { IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
-import { blockBeat } from "../../../../packages/engine/src/film/blockBeat";
-import { stageScene } from "../../../../packages/engine/src/film/stageScene";
 import {
   makeBlockingWrite,
   makeScriptWrite,

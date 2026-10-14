@@ -1,10 +1,12 @@
+import {
+  DEFAULT_JOINT_AXES,
+  IAutoMovieJointAxes,
+  decomposeJointRotation,
+  jointToQuaternion,
+} from "@automovie/engine";
 import { IAutoMovieQuaternion } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { IAutoMovieJointAxes } from "../../../../packages/engine/src/kinematics/IAutoMovieJointAxes";
-import { DEFAULT_JOINT_AXES } from "../../../../packages/engine/src/kinematics/constants/DEFAULT_JOINT_AXES";
-import { decomposeJointRotation } from "../../../../packages/engine/src/kinematics/decomposeJointRotation";
-import { jointToQuaternion } from "../../../../packages/engine/src/kinematics/jointToQuaternion";
 import { qclose } from "../internal/qclose";
 import { makeRng, randomUnitQuaternion } from "../internal/random";
 

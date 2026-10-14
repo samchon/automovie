@@ -15,17 +15,17 @@ export interface IHumanViewerNodeAuthority {
   /** Source revision selected by the host before this owned realm starts. */
   revision: string;
 
-  /** Public checked loader that admitted the TypeScript entry. */
-  loader: "ttsc/register";
+  /** Checked source loader or native Node execution of published JavaScript. */
+  loader: "ttsc/register" | "node";
 
-  /** Entry-relative ../../../tsconfig.json path; loader-selected configuration is not independently observed. */
-  project: string;
+  /** Entry-relative source project, absent for already compiled JavaScript. */
+  project: string | null;
 
   /** Running Node version, independently of the browser's V8. */
   node: string;
 
-  /** Installed compiler package version. */
-  compiler: string;
+  /** Installed source compiler version, absent for native JavaScript execution. */
+  compiler: string | null;
 
   /** Byte digest per actual watched input after the entry loaded. */
   inputs: Record<string, string>;

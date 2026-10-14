@@ -1,8 +1,10 @@
-import { triangulateAutoMovieRegion } from "@automovie/engine";
+import {
+  type IAutoMovieProfilePoint,
+  type IAutoMovieRegionTriangulation,
+  triangulateAutoMovieRegion,
+} from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
-import { type IAutoMovieProfilePoint } from "../../../../packages/engine/src/geometry/IAutoMovieProfilePoint";
-import { type IAutoMovieRegionTriangulation } from "../../../../packages/engine/src/geometry/IAutoMovieRegionTriangulation";
 import { equalGeometryTestValues } from "../internal/equalGeometryTestValues";
 import { nclose, throwsError } from "../internal/predicates";
 

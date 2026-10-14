@@ -1,8 +1,7 @@
+import { Matrix4, resolveWorldDrivers } from "@automovie/engine";
 import { IAutoMovieIKDriver, IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { Matrix4 } from "../../../../packages/engine/src/math/Matrix4";
-import { resolveWorldDrivers } from "../../../../packages/engine/src/resolve/resolveWorldDrivers";
 import { namedFacts } from "../internal/namedFacts";
 import { nclose } from "../internal/nclose";
 import { vclose } from "../internal/vclose";

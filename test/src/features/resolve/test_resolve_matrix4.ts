@@ -1,6 +1,6 @@
+import { Matrix4 } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
-import { Matrix4 } from "../../../../packages/engine/src/math/Matrix4";
 import { nclose } from "../internal/nclose";
 
 const close: (a: number[], b: number[], eps?: number) => boolean = (

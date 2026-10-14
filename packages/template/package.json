@@ -5,7 +5,9 @@
   "main": "src/index.ts",
   "exports": {
     ".": "./src/index.ts",
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./IScaffoldPosixConstants": "./src/IScaffoldPosixConstants.ts",
+    "./resolveScaffoldPosixConstants": "./src/resolveScaffoldPosixConstants.ts"
   },
   "scripts": {
     "prepare": "pnpm run build:versions && pnpm run build:instructions",
@@ -45,7 +47,15 @@
         "types": "./lib/index.d.ts",
         "default": "./lib/index.js"
       },
-      "./package.json": "./package.json"
+      "./package.json": "./package.json",
+      "./IScaffoldPosixConstants": {
+        "types": "./lib/IScaffoldPosixConstants.d.ts",
+        "default": "./lib/IScaffoldPosixConstants.js"
+      },
+      "./resolveScaffoldPosixConstants": {
+        "types": "./lib/resolveScaffoldPosixConstants.d.ts",
+        "default": "./lib/resolveScaffoldPosixConstants.js"
+      }
     }
   },
   "dependencies": {

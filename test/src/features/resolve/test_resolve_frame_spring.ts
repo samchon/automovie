@@ -1,4 +1,10 @@
 import {
+  type IAutoMovieResolveOutput,
+  type IAutoMovieSpringState,
+  createSpringState,
+  resolveFrame,
+} from "@automovie/engine";
+import {
   IAutoMovieIKDriver,
   IAutoMovieNode,
   IAutoMovieSpringDriver,
@@ -6,10 +12,6 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { type IAutoMovieResolveOutput } from "../../../../packages/engine/src/resolve/IAutoMovieResolveOutput";
-import { type IAutoMovieSpringState } from "../../../../packages/engine/src/resolve/IAutoMovieSpringState";
-import { createSpringState } from "../../../../packages/engine/src/resolve/createSpringState";
-import { resolveFrame } from "../../../../packages/engine/src/resolve/resolveFrame";
 import { throwsError } from "../internal/throwsError";
 import { vclose } from "../internal/vclose";
 

@@ -1,6 +1,5 @@
+import { type IAutoMovieSampledChannel } from "@automovie/engine";
 import { type IAutoMovieChannel } from "@automovie/interface";
-
-import { type IAutoMovieSampledChannel } from "../../../../packages/engine/src/resolve/IAutoMovieSampledChannel";
 
 /** Box supplied channel/value tuples into the existing sampled-map fixture, borrowing the records and arrays without validating them. */
 export function createDriverSamples(

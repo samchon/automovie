@@ -1,8 +1,7 @@
+import { channelIsRotation, channelKey } from "@automovie/engine";
 import { IAutoMovieChannel } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { channelIsRotation } from "../../../../packages/engine/src/resolve/channelIsRotation";
-import { channelKey } from "../../../../packages/engine/src/resolve/channelKey";
 import { throwsError } from "../internal/throwsError";
 
 const node: (

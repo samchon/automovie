@@ -1,7 +1,7 @@
+import { validatePoseResult } from "@automovie/engine";
 import type { IAutoMovieValidation } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { validatePoseResult } from "../../../../packages/engine/src/validation/validatePoseResult";
 import { createSkeleton } from "../internal/createSkeleton";
 import { createValidPose } from "../internal/createValidPose";
 import { hasViolation } from "../internal/hasViolation";

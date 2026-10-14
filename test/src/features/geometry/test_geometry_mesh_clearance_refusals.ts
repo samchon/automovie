@@ -1,6 +1,6 @@
+import { measureAutoMovieMeshClearance } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
-import { measureAutoMovieMeshClearance } from "../../../../packages/engine/src/geometry/measureAutoMovieMeshClearance";
 import { nclose } from "../internal/nclose";
 import { throwsError } from "../internal/throwsError";
 

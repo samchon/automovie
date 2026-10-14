@@ -1,3 +1,4 @@
+import { validateShotArtifact } from "@automovie/engine";
 import {
   IAutoMovieConstraintViolation,
   IAutoMovieScene,
@@ -6,7 +7,6 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { validateShotArtifact } from "../../../../packages/engine/src/validation/validateShotArtifact";
 import { namedFacts } from "../internal/predicates";
 
 const transform: () => {

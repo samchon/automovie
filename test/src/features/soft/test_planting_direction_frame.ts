@@ -1,3 +1,4 @@
+import { growPlanting } from "@automovie/engine";
 import {
   IAutoMoviePlantingBranch,
   IAutoMoviePlantingDomain,
@@ -5,7 +6,6 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { growPlanting } from "../../../../packages/engine/src/soft/growPlanting";
 import { namedFacts, vclose } from "../internal/predicates";
 import { plantingRecipe } from "../internal/softFixtures";
 

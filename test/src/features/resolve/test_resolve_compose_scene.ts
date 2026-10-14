@@ -1,7 +1,7 @@
+import { composeScene } from "@automovie/engine";
 import { IAutoMovieNode, IAutoMovieTransform } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { composeScene } from "../../../../packages/engine/src/resolve/composeScene";
 import { nclose } from "../internal/nclose";
 import { throwsError } from "../internal/throwsError";
 

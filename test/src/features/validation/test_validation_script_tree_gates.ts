@@ -1,3 +1,4 @@
+import { validateScriptTree } from "@automovie/engine";
 import {
   IAutoMovieConstraintViolation,
   IAutoMovieScriptNode,
@@ -5,7 +6,6 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { validateScriptTree } from "../../../../packages/engine/src/validation/validateScriptTree";
 import { createScriptTreeFixture } from "../internal/createScriptTreeFixture";
 
 /** Run a mutation of an otherwise valid tree against its independent flat header and beats. */

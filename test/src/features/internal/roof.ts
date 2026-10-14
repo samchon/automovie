@@ -1,6 +1,5 @@
+import { buildAutoMoviePolyhedron } from "@automovie/engine";
 import { IAutoMovieMesh, type IAutoMovieVector3 } from "@automovie/interface";
-
-import { buildAutoMoviePolyhedron } from "../../../../packages/engine/src/geometry/buildAutoMoviePolyhedron";
 
 /**
  * Build the architecture test's ridged solid from five oriented faces: a gable at zero ridgeInset and a hip for the tested inset strictly between zero and half the depth. Dimensions are metres and the bottom face lies at Y=0; the helper relies on the production polyhedron builder for admission and tessellation.

@@ -1,7 +1,7 @@
+import { validateDesignReference } from "@automovie/engine";
 import type { IAutoMovieDesignReference } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { validateDesignReference } from "../../../../packages/engine/src/architecture/validateDesignReference";
 import { nclose } from "./nclose";
 import { violationCount } from "./predicates";
 

@@ -7,7 +7,16 @@
     ".": "./src/index.ts",
     "./math/*": "./src/math/*.ts",
     "./validation/constants/SHA256_DIGEST_PATTERN": "./src/validation/constants/SHA256_DIGEST_PATTERN.ts",
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./architecture/appendBuiltRegionDefects": "./src/architecture/appendBuiltRegionDefects.ts",
+    "./architecture/builtOutlineIsClosed": "./src/architecture/builtOutlineIsClosed.ts",
+    "./architecture/outlineHull": "./src/architecture/outlineHull.ts",
+    "./architecture/pointInPolygon": "./src/architecture/pointInPolygon.ts",
+    "./architecture/polygonInside": "./src/architecture/polygonInside.ts",
+    "./geometry/assertAutoMovieDeformedTriangles": "./src/geometry/assertAutoMovieDeformedTriangles.ts",
+    "./populationRuntime/summarizeCompiledSlotChunks": "./src/populationRuntime/summarizeCompiledSlotChunks.ts",
+    "./render/assertAutoMovieSemanticMaskCapacity": "./src/render/assertAutoMovieSemanticMaskCapacity.ts",
+    "./validation/channelValueWidth": "./src/validation/channelValueWidth.ts"
   },
   "scripts": {
     "build": "rimraf lib && ttsc",
@@ -47,7 +56,43 @@
         "types": "./lib/validation/constants/SHA256_DIGEST_PATTERN.d.ts",
         "default": "./lib/validation/constants/SHA256_DIGEST_PATTERN.js"
       },
-      "./package.json": "./package.json"
+      "./package.json": "./package.json",
+      "./architecture/appendBuiltRegionDefects": {
+        "types": "./lib/architecture/appendBuiltRegionDefects.d.ts",
+        "default": "./lib/architecture/appendBuiltRegionDefects.js"
+      },
+      "./architecture/builtOutlineIsClosed": {
+        "types": "./lib/architecture/builtOutlineIsClosed.d.ts",
+        "default": "./lib/architecture/builtOutlineIsClosed.js"
+      },
+      "./architecture/outlineHull": {
+        "types": "./lib/architecture/outlineHull.d.ts",
+        "default": "./lib/architecture/outlineHull.js"
+      },
+      "./architecture/pointInPolygon": {
+        "types": "./lib/architecture/pointInPolygon.d.ts",
+        "default": "./lib/architecture/pointInPolygon.js"
+      },
+      "./architecture/polygonInside": {
+        "types": "./lib/architecture/polygonInside.d.ts",
+        "default": "./lib/architecture/polygonInside.js"
+      },
+      "./geometry/assertAutoMovieDeformedTriangles": {
+        "types": "./lib/geometry/assertAutoMovieDeformedTriangles.d.ts",
+        "default": "./lib/geometry/assertAutoMovieDeformedTriangles.js"
+      },
+      "./populationRuntime/summarizeCompiledSlotChunks": {
+        "types": "./lib/populationRuntime/summarizeCompiledSlotChunks.d.ts",
+        "default": "./lib/populationRuntime/summarizeCompiledSlotChunks.js"
+      },
+      "./render/assertAutoMovieSemanticMaskCapacity": {
+        "types": "./lib/render/assertAutoMovieSemanticMaskCapacity.d.ts",
+        "default": "./lib/render/assertAutoMovieSemanticMaskCapacity.js"
+      },
+      "./validation/channelValueWidth": {
+        "types": "./lib/validation/channelValueWidth.d.ts",
+        "default": "./lib/validation/channelValueWidth.js"
+      }
     }
   },
   "dependencies": {

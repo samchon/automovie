@@ -4,6 +4,7 @@
 import fs from "node:fs";
 import { createRequire } from "node:module";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 import { createAutoMovieResourceRetirement } from "../../createAutoMovieResourceRetirement.js";
 import type { HumanViewerBodyExamples } from "./HumanViewerBodyExamples.js";
@@ -21,6 +22,7 @@ import { humanViewerStorage } from "./humanViewerStorage.js";
 import { readHumanViewerCatalogue } from "./readHumanViewerCatalogue.js";
 import { readHumanViewerNodeInputs } from "./readHumanViewerNodeInputs.js";
 import { readHumanViewerPublishedGeneration } from "./readHumanViewerPublishedGeneration.js";
+import { readHumanViewerRuntimeFiles } from "./readHumanViewerRuntimeFiles.js";
 
 /**
  * Open the published input and source revision owners for one server directory. The host refreshes basis versions before publishing a source edit batch; catalogue readers share that memo and the graph's current domain digests. Application-owned paths and factories supply every named example. The repository ships no basis or person generation; published ones are files an operator places in the ignored storage's `published` directory. One checked-loader scope feeds both numerical startup witnesses and the browser admission revision; checked-project edits outside a numerical entry's dependency graph leave that model key intact. Imported barrels can make otherwise unrelated files part of that graph. File identity memoization uses mtime/size stamps, which can collide after an in-place rewrite that preserves both values; this adapter does not certify a fresh byte digest in that case. Close retires the revision worker and waits for already-started sidecar reads after withdrawing catalogue notifications.
@@ -37,6 +39,8 @@ export function createHumanViewerSource(
   directory: string,
   applicationDirectory: string,
   exampleSources: IHumanViewerExampleSources,
+  root: string = path.resolve(directory, "../../../../.."),
+  applicationSources: readonly string[] = [applicationDirectory],
 ): {
   root: string;
   storage: string;
@@ -67,7 +71,6 @@ export function createHumanViewerSource(
   ) => void;
   close: () => Promise<void>;
 } {
-  const root: string = path.resolve(directory, "../../../../..");
   const storage: string = humanViewerStorage(
     root,
     process.env.HUMAN_VIEWER_STORAGE_ROOT,
@@ -97,8 +100,17 @@ export function createHumanViewerSource(
   const slash: (file: string) => string = (file: string): string =>
     file.replaceAll("\\", "/");
   const rootPath: string = slash(root);
+  const sourceMode: boolean = import.meta.url.endsWith(".ts");
+  const humanDirectory: string = path.dirname(
+    fileURLToPath(import.meta.resolve("@automovie/human")),
+  );
   const human: (file: string) => string = (file: string): string =>
-    `${rootPath}/packages/human/src/${file}`;
+    slash(
+      path.join(
+        humanDirectory,
+        sourceMode ? file : file.replace(/\.ts$/, ".js"),
+      ),
+    );
   /** Digest and identity of a large input file, recomputed only when it changes on disk. */
   const basisOf: ReturnType<typeof createHumanViewerBasisMemo> =
     createHumanViewerBasisMemo({
@@ -121,39 +133,60 @@ export function createHumanViewerSource(
       .map((file: string): string => basisOf(file).digest)
       .join("");
   let bases: string = basisDigest();
-  const watched: string[] = [
-    "human",
-    "engine",
-    "interface",
-    "viewer",
-    "playground",
-  ].map((name: string): string => path.join(root, "packages", name, "src"));
-  watched.push(directory, applicationDirectory);
+  const runtimeRoots: string[] = sourceMode
+    ? []
+    : [
+        ...applicationSources,
+        ...["human", "engine", "interface", "viewer"].map(
+          (name: string): string =>
+            fs.realpathSync.native(
+              path.dirname(
+                fileURLToPath(import.meta.resolve(`@automovie/${name}`)),
+              ),
+            ),
+        ),
+      ];
+  const watched: string[] = sourceMode
+    ? ["human", "engine", "interface", "viewer"].map((name: string): string =>
+        path.join(root, "packages", name, "src"),
+      )
+    : [...runtimeRoots];
+  watched.push(directory, ...applicationSources);
   const numericalRequire: ReturnType<typeof createRequire> = createRequire(
-    path.join(directory, "numerical-worker.ts"),
+    path.join(
+      directory,
+      sourceMode ? "numerical-worker.ts" : "numerical-worker.js",
+    ),
   );
   const checkedInputs: IHumanViewerNodeInputScope = {
-    directories: [...watched],
-    files: [
-      "pnpm-lock.yaml",
-      "pnpm-workspace.yaml",
-      "config/tsconfig.json",
-      "packages/playground/package.json",
-      "packages/playground/tsconfig.json",
-      path.join(applicationDirectory, "tsconfig.json"),
-      "packages/playground/lint.config.ts",
-      "packages/viewer/tsconfig.json",
-      "packages/viewer/lint.config.ts",
-      numericalRequire.resolve("ttsc/register"),
-      numericalRequire.resolve("ttsc/package.json"),
-      numericalRequire.resolve("devalue"),
-      ...["human", "engine", "interface", "viewer", "playground"].flatMap(
-        (name: string): string[] => [
-          path.join(root, "packages", name, "package.json"),
-          path.join(root, "packages", name, "tsconfig.json"),
+    directories: sourceMode ? [...watched] : [],
+    files: sourceMode
+      ? [
+          "pnpm-lock.yaml",
+          "pnpm-workspace.yaml",
+          "config/tsconfig.json",
+          ...["human", "engine", "interface", "viewer"].flatMap(
+            (name: string): string[] => [
+              `packages/${name}/package.json`,
+              `packages/${name}/tsconfig.json`,
+              `packages/${name}/lint.config.ts`,
+            ],
+          ),
+          numericalRequire.resolve("ttsc/register"),
+          numericalRequire.resolve("ttsc/package.json"),
+          numericalRequire.resolve("devalue"),
+          process.env.HUMAN_VIEWER_APPLICATION ??
+            path.join(applicationDirectory, "tsconfig.json"),
+        ].map((file: string): string => path.resolve(root, file))
+      : [
+          ...readHumanViewerRuntimeFiles(runtimeRoots),
+          ...["human", "engine", "interface", "viewer"].map(
+            (name: string): string =>
+              fileURLToPath(
+                import.meta.resolve(`@automovie/${name}/package.json`),
+              ),
+          ),
         ],
-      ),
-    ].map((file: string): string => path.resolve(root, file)),
   };
   watched.push(...checkedInputs.files);
   // Numerical-domain digests follow their existing import graphs. The browser
@@ -164,10 +197,15 @@ export function createHumanViewerSource(
     createHumanViewerRevisionsWorker({
       checkedInputs,
       root: rootPath,
+      runtimeRoots,
       entries: {
         browser: [
-          ...["page.ts", "numerical-worker.ts"].map(
-            (name: string): string => `${slash(directory)}/${name}`,
+          ...(process.env.HUMAN_VIEWER_APPLICATION === undefined
+            ? []
+            : [slash(path.resolve(process.env.HUMAN_VIEWER_APPLICATION))]),
+          ...["page", "numerical-worker"].map(
+            (name: string): string =>
+              `${slash(directory)}/${name}${sourceMode ? ".ts" : ".js"}`,
           ),
           ...["host.ts", "scene.html", "view.html"].map(
             (name: string): string => `${slash(applicationDirectory)}/${name}`,
@@ -180,18 +218,22 @@ export function createHumanViewerSource(
         ],
         person: [human("human/runtime/createConnectedPersonRuntime.ts")],
       },
-      extra: [
-        "pnpm-lock.yaml",
-        "config/tsconfig.json",
-        "packages/human/tsconfig.json",
-        "packages/viewer/tsconfig.json",
-        "packages/human/package.json",
-        "packages/playground/package.json",
-        "packages/viewer/package.json",
-      ].map((file: string): string => `${rootPath}/${file}`),
+      extra: sourceMode
+        ? [
+            "pnpm-lock.yaml",
+            "config/tsconfig.json",
+            "packages/human/tsconfig.json",
+            "packages/viewer/tsconfig.json",
+            "packages/human/package.json",
+            "packages/viewer/package.json",
+          ].map((file: string): string => slash(path.resolve(root, file)))
+        : checkedInputs.files.map(slash),
       bases: (): string => bases,
-      io: createNodeHumanViewerResolveIo(root),
-      worker: path.join(directory, "revisions-worker.ts"),
+      io: createNodeHumanViewerResolveIo(root, runtimeRoots),
+      worker: path.join(
+        directory,
+        sourceMode ? "revisions-worker.ts" : "revisions-worker.js",
+      ),
     });
   // Candidate sidecars are read off the request path; when one becomes known
   // the host republishes its catalogue through the registered listener.

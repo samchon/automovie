@@ -22,7 +22,7 @@ import { servePlaygroundViewerPages } from "./servePlaygroundViewerPages.js";
  *
  * PLAYGROUND_VIEWER_PORT selects an unused port from 1024 through 65535, with a separate storage/cache outside .shots/output. The existing display publisher owns PNG ordering/publication. host.json records this socket owner's OS creation observation and startup receipt, not a liveness heartbeat; its diagnostic record is retained after shutdown. No other process/port is adopted or stopped.
  *
- * Startup failure, native server close and SIGINT/SIGTERM request one shared retirement: signal/watch bindings, deferred refresh, event streams and the returned Vite server are all attempted independently. A completed public close is not independent proof of physical allocation release. Compiler output placement belongs to the configured runtime and is checked separately, rather than inferred from successful listening.
+ * Startup failure, native server close and SIGINT/SIGTERM request one shared retirement: signal/watch bindings, deferred refresh, event streams, display publication and the returned Vite server are all attempted independently. Display close retires live sessions while retaining this port's latest judgment PNG. A completed public close is not independent proof of physical allocation release. Compiler output placement belongs to the configured runtime and is checked separately, rather than inferred from successful listening.
  *
  * @evidence contracts/common.md#principled-implementation Strict loopback listening establishes this server's socket authority; actual source receipts, canonical publication guards and same-origin display/HTML handlers preserve input/source admission while the parent controls completed-page replacement.
  * @evidence contracts/common.md#clear-and-simple-design One Vite host reuses source, event-stream, page and display owners and one canonical shared retirement, without introducing another application renderer or shutdown framework.
@@ -117,6 +117,7 @@ export async function startPlaygroundViewerHost(): Promise<void> {
       server?.httpServer?.off("close", nativeClosed);
     },
     events.close,
+    (): Promise<void> => display.close(),
     async (): Promise<void> => {
       if (server !== undefined) await server.close();
     },

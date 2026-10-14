@@ -1,3 +1,10 @@
+import {
+  IAutoMoviePerformedShot,
+  type IAutoMovieStagedSet,
+  compareCodeUnits,
+  performShot,
+  stageScene,
+} from "@automovie/engine";
 import type {
   IAutoMovieActionCall,
   IAutoMovieActionTarget,
@@ -10,11 +17,6 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { IAutoMoviePerformedShot } from "../../../../packages/engine/src/film/IAutoMoviePerformedShot";
-import type { IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
-import { performShot } from "../../../../packages/engine/src/film/performShot";
-import { stageScene } from "../../../../packages/engine/src/film/stageScene";
-import { compareCodeUnits } from "../../../../packages/engine/src/text/compareCodeUnits";
 import {
   makePerformanceWrite,
   makeScriptWrite,

@@ -1,7 +1,6 @@
+import { equalRational } from "@automovie/render/node/equalRational";
+import { exactProductionClockProduct } from "@automovie/render/node/exactProductionClockProduct";
 import { TestValidator } from "@nestia/e2e";
-
-import { equalRational } from "../../../../packages/render/src/node/equalRational";
-import { exactProductionClockProduct } from "../../../../packages/render/src/node/exactProductionClockProduct";
 
 /**
  * Two MP4 tracks are compared by an exact cross-product, never by division.

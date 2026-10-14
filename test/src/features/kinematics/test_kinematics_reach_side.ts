@@ -1,7 +1,7 @@
+import { reachPose } from "@automovie/engine";
 import { IAutoMovieSkeleton, IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { reachPose } from "../../../../packages/engine/src/kinematics/reachPose";
 import { createSkeleton } from "../internal/createSkeleton";
 
 const withRightHand: () => IAutoMovieSkeleton = (): IAutoMovieSkeleton => {

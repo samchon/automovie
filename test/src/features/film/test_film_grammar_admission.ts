@@ -1,12 +1,14 @@
+import {
+  type IAutoMovieGrammarDiagnostic,
+  type IAutoMovieGrammarShotObservation,
+  classifyGrammarShotSize,
+} from "@automovie/engine";
 import type {
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import type { IAutoMovieGrammarDiagnostic } from "../../../../packages/engine/src/film/IAutoMovieGrammarDiagnostic";
-import type { IAutoMovieGrammarShotObservation } from "../../../../packages/engine/src/film/IAutoMovieGrammarShotObservation";
-import { classifyGrammarShotSize } from "../../../../packages/engine/src/film/classifyGrammarShotSize";
 import { createFilmGrammarCase } from "../internal/createFilmGrammarCase";
 import { namedFacts, throwsError } from "../internal/predicates";
 

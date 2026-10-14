@@ -241,7 +241,7 @@ export function test12MotionAdoptionRefusalFacts3(
       "pointerTracksAreRefused",
       (): boolean =>
         throwsError(
-          (): import("../../../../../packages/ingest/src/IAutoMovieExternalMotionAdoption").IAutoMovieExternalMotionAdoption =>
+          (): import("@automovie/ingest").IAutoMovieExternalMotionAdoption =>
             adoptAutoMovieExternalMotion({
               inspection: test12MotionWithTrack(inspection, {
                 channel: {
@@ -263,7 +263,7 @@ export function test12MotionAdoptionRefusalFacts3(
       "scaleTracksAreRefused",
       (): boolean =>
         throwsError(
-          (): import("../../../../../packages/ingest/src/IAutoMovieExternalMotionAdoption").IAutoMovieExternalMotionAdoption =>
+          (): import("@automovie/ingest").IAutoMovieExternalMotionAdoption =>
             adoptAutoMovieExternalMotion({
               inspection: test12MotionWithTrack(inspection, {
                 channel: { kind: "node", node: "node_0", path: "scale" },
@@ -281,7 +281,7 @@ export function test12MotionAdoptionRefusalFacts3(
       "weightTracksAreRefused",
       (): boolean =>
         throwsError(
-          (): import("../../../../../packages/ingest/src/IAutoMovieExternalMotionAdoption").IAutoMovieExternalMotionAdoption =>
+          (): import("@automovie/ingest").IAutoMovieExternalMotionAdoption =>
             adoptAutoMovieExternalMotion({
               inspection: test12MotionWithTrack(inspection, {
                 channel: { kind: "node", node: "node_0", path: "weights" },

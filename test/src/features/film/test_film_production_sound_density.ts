@@ -1,3 +1,10 @@
+import {
+  type IAutoMovieRenderedProductionSound,
+  deriveProductionSoundPlan,
+  materializeCompiledFormation,
+  materializeCompiledInstanceSet,
+  renderProductionSound,
+} from "@automovie/engine";
 import type {
   IAutoMovieCompiledFormation,
   IAutoMovieCompiledShotSource,
@@ -8,11 +15,6 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { materializeCompiledFormation } from "../../../../packages/engine/src/populationRuntime/materializeCompiledFormation";
-import { materializeCompiledInstanceSet } from "../../../../packages/engine/src/populationRuntime/materializeCompiledInstanceSet";
-import type { IAutoMovieRenderedProductionSound } from "../../../../packages/engine/src/sound/IAutoMovieRenderedProductionSound";
-import { deriveProductionSoundPlan } from "../../../../packages/engine/src/sound/deriveProductionSoundPlan";
-import { renderProductionSound } from "../../../../packages/engine/src/sound/renderProductionSound";
 import { nclose } from "../internal/predicates";
 
 const digest: string =

@@ -9,11 +9,10 @@ import {
   IAutoMovieModelRecipe,
   IAutoMovieWorldDesign,
 } from "@automovie/interface";
+import { buildInstancedInstanceSet, buildMaterial } from "@automovie/viewer";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
-import { buildInstancedInstanceSet } from "../../../../packages/viewer/src/buildInstancedInstanceSet";
-import { buildMaterial } from "../../../../packages/viewer/src/buildMaterial";
 import { createModel } from "../internal/fixtures";
 import { nclose, throwsError } from "../internal/predicates";
 

@@ -1,9 +1,11 @@
+import {
+  productionSoftBodyUsesMovingBoundary,
+  readProductionLiveWearableSoftBodies,
+  selectProductionLiveWearableSoftBodies,
+} from "@automovie/engine";
 import { IAutoMovieSoftBodyDomain } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { productionSoftBodyUsesMovingBoundary } from "../../../../packages/engine/src/soft/productionSoftBodyUsesMovingBoundary";
-import { readProductionLiveWearableSoftBodies } from "../../../../packages/engine/src/soft/readProductionLiveWearableSoftBodies";
-import { selectProductionLiveWearableSoftBodies } from "../../../../packages/engine/src/soft/selectProductionLiveWearableSoftBodies";
 import { throwsError } from "../internal/predicates";
 
 type Boundary = Pick<IAutoMovieSoftBodyDomain, "id" | "anchors" | "colliders">;

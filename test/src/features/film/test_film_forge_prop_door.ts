@@ -1,14 +1,16 @@
 import {
+  IAutoMovieForgedProp,
+  IAutoMovieResolveOutput,
+  IAutoMovieResolveViolation,
+  forgeProp,
+  resolveFrame,
+} from "@automovie/engine";
+import {
   IAutoMovieClip,
   IAutoMoviePropArticulation,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { IAutoMovieForgedProp } from "../../../../packages/engine/src/film/IAutoMovieForgedProp";
-import { forgeProp } from "../../../../packages/engine/src/film/forgeProp";
-import { IAutoMovieResolveOutput } from "../../../../packages/engine/src/resolve/IAutoMovieResolveOutput";
-import { IAutoMovieResolveViolation } from "../../../../packages/engine/src/resolve/IAutoMovieResolveViolation";
-import { resolveFrame } from "../../../../packages/engine/src/resolve/resolveFrame";
 import { createDoorPropSpec } from "../internal/createDoorPropSpec";
 import { namedFacts, nclose } from "../internal/predicates";
 

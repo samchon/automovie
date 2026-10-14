@@ -21,7 +21,7 @@ import type { IPlaygroundViewerPage } from "./IPlaygroundViewerPage";
  * @evidence contracts/common.md#meaningful-documentation The comment separates restoration/admission, visible original redraw, activation and unverified appearance/IO.
  * @evidence contracts/performance.md#efficient-algorithms Each completion traverses visible scene objects and clones/serializes captured facts/state; bitmap copy/encoding scales with canvas pixels. The original rendering and saver upload remain real costs, and no frame-time improvement is measured.
  * @evidence contracts/performance.md#reuse-equivalent-work One latest completed frame/state and identity gate avoid unchanged saves, staged original pixels are reused for commitment and GPU recovery retains the actual completed bitmap rather than constructing another model.
- * @evidence contracts/performance.md#bound-retention-and-release-resources One initialization, frame waiter, latest frame/state and saver/display pair are owned by this page. Its subscribed-canvas set can grow with every discovered canvas until pagehide; close aborts listeners/source fetch, rejects the waiter, releases candidate suspension and independently disposes both display owners. Saver encode/upload waits retain their documented noncancellable lifetime.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources One initialization, frame waiter, latest frame/state and saver/display pair are owned by this page. Its subscribed-canvas set can grow until terminal pagehide; history-cache suspension preserves these owners and the terminal listener. Close aborts listeners/source fetch, rejects the waiter, releases candidate suspension and independently disposes both display owners. Saver disposal aborts FileReader and fetch; native toBlob callbacks remain awaited without starting later work after disposal.
  *
  * @author Samchon
  */
@@ -478,48 +478,44 @@ export function createPlaygroundViewerPage():
     },
     { signal: listeners.signal },
   );
-  addEventListener(
-    "pagehide",
-    (): void => {
-      if (closed) return;
-      closed = true;
-      terminal = true;
-      const waiter: typeof frameWaiter = frameWaiter;
-      const resume: (() => void) | undefined = resumeCandidate;
-      const saved: typeof saver = saver;
-      const display: typeof gpuDisplay = gpuDisplay;
-      const targets: HTMLCanvasElement[] = [...subscribed];
-      frameWaiter = undefined;
-      resumeCandidate = undefined;
-      saver = undefined;
-      gpuDisplay = undefined;
-      frame = undefined;
-      canvas = undefined;
-      application = undefined;
-      facts = undefined;
-      completedState = undefined;
-      transfer = undefined;
-      subscribed.clear();
-      reportAutoMovieResourceRetirement([
-        (): void => listeners.abort(),
-        (): void => sourceRead.abort(),
-        (): void => mutations.disconnect(),
-        (): void =>
-          waiter?.reject(
-            new Error("The hosted page closed before frame admission."),
-          ),
-        (): void => resume?.(),
-        (): void => saved?.dispose(),
-        (): void => display?.dispose(),
-        ...targets.map(
-          (target: HTMLCanvasElement): (() => void) =>
-            (): void =>
-              target.removeAttribute("data-automovie-frame-observer"),
+  addEventListener("pagehide", (event: PageTransitionEvent): void => {
+    if (event.persisted || closed) return;
+    closed = true;
+    terminal = true;
+    const waiter: typeof frameWaiter = frameWaiter;
+    const resume: (() => void) | undefined = resumeCandidate;
+    const saved: typeof saver = saver;
+    const display: typeof gpuDisplay = gpuDisplay;
+    const targets: HTMLCanvasElement[] = [...subscribed];
+    frameWaiter = undefined;
+    resumeCandidate = undefined;
+    saver = undefined;
+    gpuDisplay = undefined;
+    frame = undefined;
+    canvas = undefined;
+    application = undefined;
+    facts = undefined;
+    completedState = undefined;
+    transfer = undefined;
+    subscribed.clear();
+    reportAutoMovieResourceRetirement([
+      (): void => listeners.abort(),
+      (): void => sourceRead.abort(),
+      (): void => mutations.disconnect(),
+      (): void =>
+        waiter?.reject(
+          new Error("The hosted page closed before frame admission."),
         ),
-      ]);
-    },
-    { once: true },
-  );
+      (): void => resume?.(),
+      (): void => saved?.dispose(),
+      (): void => display?.dispose(),
+      ...targets.map(
+        (target: HTMLCanvasElement): (() => void) =>
+          (): void =>
+            target.removeAttribute("data-automovie-frame-observer"),
+      ),
+    ]);
+  });
   announce("automovie:initialize");
   return {
     capture,

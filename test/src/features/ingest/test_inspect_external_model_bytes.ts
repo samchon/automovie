@@ -22,7 +22,7 @@ import { test12ValuesClose } from "../internal/test12ValuesClose";
 export function test_inspect_external_model_bytes(): void {
   const source: ReturnType<typeof modelDocument> = modelDocument();
   const gltf: Buffer<ArrayBuffer> = Buffer.from(JSON.stringify(source), "utf8");
-  const inspection: import("../../../../packages/ingest/src/IAutoMovieExternalModelInspection").IAutoMovieExternalModelInspection =
+  const inspection: import("@automovie/ingest").IAutoMovieExternalModelInspection =
     inspectAutoMovieExternalModelBytes({
       path: "public/models/actor.gltf",
       bytes: gltf,
@@ -76,9 +76,9 @@ export function test_inspect_external_model_bytes(): void {
   );
   const inspectStaticGlb: (
     paddingByte: number,
-  ) => import("../../../../packages/ingest/src/IAutoMovieExternalModelInspection").IAutoMovieExternalModelInspection = (
+  ) => import("@automovie/ingest").IAutoMovieExternalModelInspection = (
     paddingByte: number,
-  ): import("../../../../packages/ingest/src/IAutoMovieExternalModelInspection").IAutoMovieExternalModelInspection =>
+  ): import("@automovie/ingest").IAutoMovieExternalModelInspection =>
     inspectAutoMovieExternalModelBytes({
       path: "public/models/actor.glb",
       bytes: glb(source, paddingByte),
@@ -133,7 +133,7 @@ export function test_inspect_external_model_bytes(): void {
           "truncatedGlbLength",
           (): boolean =>
             throwsError(
-              (): import("../../../../packages/ingest/src/IAutoMovieExternalModelInspection").IAutoMovieExternalModelInspection =>
+              (): import("@automovie/ingest").IAutoMovieExternalModelInspection =>
                 inspectAutoMovieExternalModelBytes({
                   path: "public/models/actor.glb",
                   bytes: vrm.subarray(0, vrm.length - 1),
@@ -146,7 +146,7 @@ export function test_inspect_external_model_bytes(): void {
           "unsupportedProfile",
           (): boolean =>
             throwsError(
-              (): import("../../../../packages/ingest/src/IAutoMovieExternalModelInspection").IAutoMovieExternalModelInspection =>
+              (): import("@automovie/ingest").IAutoMovieExternalModelInspection =>
                 inspectAutoMovieExternalModelBytes({
                   path: "public/models/actor.gltf",
                   bytes: gltf,
@@ -159,7 +159,7 @@ export function test_inspect_external_model_bytes(): void {
           "missingHumanoidRig",
           (): boolean =>
             throwsError(
-              (): import("../../../../packages/ingest/src/IAutoMovieExternalModelInspection").IAutoMovieExternalModelInspection =>
+              (): import("@automovie/ingest").IAutoMovieExternalModelInspection =>
                 inspectAutoMovieExternalModelBytes({
                   path: "public/models/actor.gltf",
                   bytes: Buffer.from(
@@ -181,7 +181,7 @@ export function test_inspect_external_model_bytes(): void {
           "shortBufferSidecar",
           (): boolean =>
             throwsError(
-              (): import("../../../../packages/ingest/src/IAutoMovieExternalModelInspection").IAutoMovieExternalModelInspection =>
+              (): import("@automovie/ingest").IAutoMovieExternalModelInspection =>
                 inspectAutoMovieExternalModelBytes({
                   path: "public/models/actor.gltf",
                   bytes: gltf,
@@ -196,7 +196,7 @@ export function test_inspect_external_model_bytes(): void {
           "missingBinPayload",
           (): boolean =>
             throwsError(
-              (): import("../../../../packages/ingest/src/IAutoMovieExternalModelInspection").IAutoMovieExternalModelInspection =>
+              (): import("@automovie/ingest").IAutoMovieExternalModelInspection =>
                 inspectAutoMovieExternalModelBytes({
                   path: "public/models/actor.glb",
                   bytes: glb({
@@ -213,7 +213,7 @@ export function test_inspect_external_model_bytes(): void {
           "zeroSkinInfluences",
           (): boolean =>
             throwsError(
-              (): import("../../../../packages/ingest/src/IAutoMovieExternalModelInspection").IAutoMovieExternalModelInspection =>
+              (): import("@automovie/ingest").IAutoMovieExternalModelInspection =>
                 inspectAutoMovieExternalModelBytes({
                   path: "public/models/actor.gltf",
                   bytes: gltf,

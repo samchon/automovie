@@ -59,7 +59,7 @@ export function test12MotionAdoptionRefusalFacts2(
       "missingMotion",
       (): boolean =>
         throwsError(
-          (): import("../../../../../packages/ingest/src/IAutoMovieExternalMotionAdoption").IAutoMovieExternalMotionAdoption =>
+          (): import("@automovie/ingest").IAutoMovieExternalMotionAdoption =>
             adoptAutoMovieExternalMotion({
               inspection: { ...inspection, motion: undefined },
               source,
@@ -72,7 +72,7 @@ export function test12MotionAdoptionRefusalFacts2(
       "motionProfileIsRequired",
       (): boolean =>
         throwsError(
-          (): import("../../../../../packages/ingest/src/IAutoMovieExternalMotionAdoption").IAutoMovieExternalMotionAdoption =>
+          (): import("@automovie/ingest").IAutoMovieExternalMotionAdoption =>
             adoptAutoMovieExternalMotion({
               inspection: { ...inspection, profile: "gltf-static-v1" },
               source,
@@ -85,7 +85,7 @@ export function test12MotionAdoptionRefusalFacts2(
       "motionInterpretationIsRequired",
       (): boolean =>
         throwsError(
-          (): import("../../../../../packages/ingest/src/IAutoMovieExternalMotionAdoption").IAutoMovieExternalMotionAdoption =>
+          (): import("@automovie/ingest").IAutoMovieExternalMotionAdoption =>
             adoptAutoMovieExternalMotion({
               inspection: {
                 ...inspection,

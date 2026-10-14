@@ -1,6 +1,6 @@
+import { renderScreenplay } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
-import { renderScreenplay } from "../../../../packages/render/src/screenplay/renderScreenplay";
 import { TREE_SCRIPT } from "../internal/TREE_SCRIPT";
 
 /**

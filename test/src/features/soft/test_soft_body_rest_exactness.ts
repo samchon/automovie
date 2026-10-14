@@ -1,12 +1,14 @@
 import {
+  simulateSoftBody,
+  softBodyRestConfiguration,
+  softBodyStateDigest,
+} from "@automovie/engine";
+import {
   IAutoMovieSoftBodyDomain,
   IAutoMovieSoftBodyState,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { simulateSoftBody } from "../../../../packages/engine/src/soft/simulateSoftBody";
-import { softBodyRestConfiguration } from "../../../../packages/engine/src/soft/softBodyRestConfiguration";
-import { softBodyStateDigest } from "../../../../packages/engine/src/soft/softBodyStateDigest";
 import { namedFacts, nclose, throwsError } from "../internal/predicates";
 import { exactValues, softPanel } from "../internal/softFixtures";
 

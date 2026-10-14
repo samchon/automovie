@@ -1,3 +1,8 @@
+import {
+  AUTOMOVIE_SABINE_CONSTANT,
+  type IAutoMovieAcousticRequest,
+  analyzeAutoMovieAcoustics,
+} from "@automovie/engine";
 import type {
   AutoMovieAnalysisDomain,
   IAutoMovieAnalysisMetric,
@@ -6,9 +11,6 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import type { IAutoMovieAcousticRequest } from "../../../../packages/engine/src/analysis/IAutoMovieAcousticRequest";
-import { analyzeAutoMovieAcoustics } from "../../../../packages/engine/src/analysis/analyzeAutoMovieAcoustics";
-import { AUTOMOVIE_SABINE_CONSTANT } from "../../../../packages/engine/src/analysis/constants/AUTOMOVIE_SABINE_CONSTANT";
 import { namedFacts, nclose } from "./predicates";
 
 /** Execute the next ordered assertions of test_analysis_room_acoustics.

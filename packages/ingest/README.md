@@ -13,7 +13,7 @@ npm install @automovie/ingest
 | Callable | Purpose |
 | --- | --- |
 | `inspectAutoMovieExternalModelBytes` | Validate glTF, GLB, or VRM bytes against a closed ingest profile, with their exact sidecars |
-| `ingestDocument`, `ingestFaceTemplate`, `humanoidSkeleton` | Convert a parsed document into models, skeletons, clips, and face templates |
+| `ingestDocument`, `humanoidSkeleton` | Convert a parsed document into models, skeletons, and clips |
 | `decodeProductionAudioAsset` | Decode RIFF/WAVE bytes into observed format facts and a mono sample buffer |
 
-A structural defect, such as a duplicate morph target or an unknown attached bone, is refused with its cause; nothing is guessed or substituted.
+A structural defect, such as an unknown attached bone, is refused with its cause; nothing is guessed or substituted.

@@ -1,14 +1,16 @@
 import {
+  AUTOMOVIE_SEMANTIC_MASK_MAX_ENTRIES,
+  IAutoMovieRenderSubject,
+  deriveAutoMovieSemanticMask,
+} from "@automovie/engine";
+import { assertAutoMovieSemanticMaskCapacity } from "@automovie/engine/render/assertAutoMovieSemanticMaskCapacity";
+import {
   IAutoMovieSceneNode,
   IAutoMovieSemanticMask,
   IAutoMovieSemanticMaskEntry,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { IAutoMovieRenderSubject } from "../../../../packages/engine/src/render/IAutoMovieRenderSubject";
-import { assertAutoMovieSemanticMaskCapacity } from "../../../../packages/engine/src/render/assertAutoMovieSemanticMaskCapacity";
-import { AUTOMOVIE_SEMANTIC_MASK_MAX_ENTRIES } from "../../../../packages/engine/src/render/constants/AUTOMOVIE_SEMANTIC_MASK_MAX_ENTRIES";
-import { deriveAutoMovieSemanticMask } from "../../../../packages/engine/src/render/deriveAutoMovieSemanticMask";
 import { createSemanticMaskTestInputs } from "../internal/createSemanticMaskTestInputs";
 import { throwsError } from "../internal/predicates";
 import { modelsFixture, sceneFixture } from "../internal/renderFixtures";

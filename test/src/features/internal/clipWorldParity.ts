@@ -1,18 +1,20 @@
+import {
+  type IAutoMovieJointAxes,
+  type IAutoMovieMotionClipBridge,
+  type IAutoMovieResolvedBone,
+  type IAutoMovieRestFrame,
+  Matrix4,
+  motionToClip,
+  resolveFrame,
+  resolvePose,
+  sampleMotion,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotion,
   IAutoMovieSkeleton,
 } from "@automovie/interface";
 
-import type { IAutoMovieJointAxes } from "../../../../packages/engine/src/kinematics/IAutoMovieJointAxes";
-import type { IAutoMovieResolvedBone } from "../../../../packages/engine/src/kinematics/IAutoMovieResolvedBone";
-import { resolvePose } from "../../../../packages/engine/src/kinematics/resolvePose";
-import { Matrix4 } from "../../../../packages/engine/src/math/Matrix4";
-import type { IAutoMovieMotionClipBridge } from "../../../../packages/engine/src/motion/IAutoMovieMotionClipBridge";
-import { motionToClip } from "../../../../packages/engine/src/motion/motionToClip";
-import { sampleMotion } from "../../../../packages/engine/src/motion/sampleMotion";
-import { resolveFrame } from "../../../../packages/engine/src/resolve/resolveFrame";
-import type { IAutoMovieRestFrame } from "../../../../packages/engine/src/rom/IAutoMovieRestFrame";
 import { qclose } from "./qclose";
 import { vclose } from "./vclose";
 

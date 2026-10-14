@@ -22,6 +22,9 @@ export interface ICreateHumanViewerRevisionsProps {
    */
   root: string;
 
+  /** Explicit physical installed-package roots; absent retains checkout-only ownership. */
+  runtimeRoots?: readonly string[];
+
   /** Entry files of each digest's import graph. */
   entries: IHumanViewerRevisionsEntries;
 

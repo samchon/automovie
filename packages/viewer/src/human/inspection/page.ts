@@ -86,7 +86,10 @@ const numerical = createHumanViewerNumericalPort({ work, spans });
 const residentCapture = new URLSearchParams(parent.location.search).has(
   "resident",
 );
-addEventListener("pagehide", () => numerical.dispose(), { once: true });
+// History-cache suspension preserves the page's owners until terminal navigation.
+addEventListener("pagehide", (event: PageTransitionEvent): void => {
+  if (!event.persisted) numerical.dispose();
+});
 Object.assign(window, { __humanViewerPersistence: numerical.persistence });
 Object.assign(window, {
   __humanViewerAdmit: numerical.admit,
@@ -166,8 +169,12 @@ addEventListener("message", (event: MessageEvent<unknown>) => {
   )
     displaySave.commit(value.session, value.generation);
 });
-addEventListener("pagehide", displaySave.dispose, { once: true });
-addEventListener("pagehide", gpuDisplay.dispose, { once: true });
+addEventListener("pagehide", (event: PageTransitionEvent): void => {
+  if (!event.persisted) displaySave.dispose();
+});
+addEventListener("pagehide", (event: PageTransitionEvent): void => {
+  if (!event.persisted) gpuDisplay.dispose();
+});
 /**
  * Conventional 512 MiB counted-array weight for retained drawn-ready residents. The accountant omits textures, object headers and other native/heap storage, while preparation can retain transient copies, so this policy is not a measured physical memory bound or a guarantee against allocation failure.
  */

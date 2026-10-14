@@ -1,3 +1,4 @@
+import type { IAutoMovieRenderSubject } from "@automovie/engine";
 import {
   AutoMovieRenderMetric,
   IAutoMovieRenderBudget,
@@ -14,7 +15,6 @@ import { measureRenderBudgetSubject as measure } from "../internal/measureRender
 import { renderBudgetSubjectFixture } from "../internal/renderBudgetSubjectFixture";
 import { renderBudgetTargetFixture } from "../internal/renderBudgetTargetFixture";
 import { renderReportBudgetFixture } from "../internal/renderReportBudgetFixture";
-import type { IAutoMovieRenderSubject } from "./../../../../packages/engine/src/render/IAutoMovieRenderSubject";
 
 /**
  * An absent measurement reason and an unowned overrun cannot become a cleared report.

@@ -1,3 +1,9 @@
+import {
+  designLineageCompare,
+  designLineageDecisionComparisons,
+  designLineageDigest,
+  validateDesignLineage,
+} from "@automovie/engine";
 import type {
   IAutoMovieDesignComparison,
   IAutoMovieDesignDifference,
@@ -5,10 +11,6 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { designLineageCompare } from "../../../../packages/engine/src/architecture/designLineageCompare";
-import { designLineageDecisionComparisons } from "../../../../packages/engine/src/architecture/designLineageDecisionComparisons";
-import { designLineageDigest } from "../../../../packages/engine/src/architecture/designLineageDigest";
-import { validateDesignLineage } from "../../../../packages/engine/src/architecture/validateDesignLineage";
 import { brokenLineage, renovationLineage } from "../internal/lineageFixtures";
 import { throwsError } from "../internal/predicates";
 

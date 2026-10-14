@@ -1,10 +1,10 @@
+import { IAutoMovieRenderSubject } from "@automovie/engine";
 import {
   IAutoMovieScene,
   IAutoMovieSceneNode,
   IAutoMovieSemanticMask,
 } from "@automovie/interface";
 
-import { IAutoMovieRenderSubject } from "../../../../packages/engine/src/render/IAutoMovieRenderSubject";
 import {
   buildingFixture,
   instanceSetFixture,
