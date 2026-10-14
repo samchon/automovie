@@ -3,12 +3,14 @@ import {
   placementChildNode,
   sceneToNodes,
 } from "@automovie/engine";
-import {
+import type {
   IAutoMovieNode,
   IAutoMoviePropSpec,
   IAutoMovieScene,
+  IAutoMovieSceneNode,
 } from "@automovie/interface";
 import {
+  type IAutoMovieModelObject,
   applyObjectMotions,
   buildModel,
   buildPropArticulation,
@@ -19,18 +21,18 @@ import * as THREE from "three";
 
 import { namedFacts, throwsError, vclose } from "../internal/predicates";
 
-const IDENTITY = {
+const IDENTITY: { translation: { x: number; y: number; z: number; }; rotation: { x: number; y: number; z: number; w: number; }; scale: { x: number; y: number; z: number; }; } = {
   translation: { x: 0, y: 0, z: 0 },
   rotation: { x: 0, y: 0, z: 0, w: 1 },
   scale: { x: 1, y: 1, z: 1 },
 };
 
 /** One articulation joint, optionally driving one part of the prop's model. */
-const joint = (
+const joint: (id: string, parent: string | null, mesh: string | null, x?: number) => IAutoMovieNode = (
   id: string,
   parent: string | null,
   mesh: string | null,
-  x = 0,
+  x: number = 0,
 ): IAutoMovieNode => ({
   id,
   name: null,
@@ -44,7 +46,7 @@ const joint = (
 });
 
 /** A two-box gate: a post that never moves, a leaf hung on one hinge. */
-const gateSpec = (
+const gateSpec: (nodes?: IAutoMovieNode[]) => IAutoMoviePropSpec = (
   nodes: IAutoMovieNode[] = [
     joint("hinge", null, "leaf", -0.5),
     joint("cap", "hinge", null),
@@ -79,8 +81,7 @@ const gateSpec = (
         },
         material: null,
         attachedBone: null,
-        // Model-local, like every part: the leaf fills the opening the prop
-        // stands in, and the hinge it hangs on is half a width to its left.
+        // The model-local leaf center is half a width to the right of its hinge.
         transform: { ...IDENTITY, translation: { x: 0, y: 1, z: 0 } },
       },
     ],
@@ -92,21 +93,18 @@ const gateSpec = (
     profile: {
       id: "gate-hinge",
       name: "hinge",
-      controls: [],
       drivers: [] as [],
       limits: [],
     },
     binding: {
       profile: "gate-hinge",
-      root: "hinge",
-      instanceName: null,
       boneMap: {},
     },
   },
 });
 
 /** The staged scene the gate stands in, at `x` metres along +X. */
-const sceneOf = (x = 2): IAutoMovieScene => ({
+const sceneOf: (x?: number) => IAutoMovieScene = (x: number = 2): IAutoMovieScene => ({
   id: "hall",
   name: null,
   nodes: [
@@ -123,79 +121,64 @@ const sceneOf = (x = 2): IAutoMovieScene => ({
 });
 
 /** Build the scene, then its prop articulation, and hand both back. */
-const build = (
+const build: (spec: IAutoMoviePropSpec, scene?: IAutoMovieScene) => { root: THREE.Scene; articulation: ReturnType<typeof buildPropArticulation>; } = (
   spec: IAutoMoviePropSpec,
   scene: IAutoMovieScene = sceneOf(),
 ): {
   root: THREE.Scene;
   articulation: ReturnType<typeof buildPropArticulation>;
 } => {
-  const model = buildModel(spec.model);
-  const root = buildScene(scene, () => model).scene;
+  const model: IAutoMovieModelObject = buildModel(spec.model);
+  const root: THREE.Scene<THREE.Object3DEventMap> = buildScene(scene, (): IAutoMovieModelObject => model).scene;
   return {
     root,
     articulation: buildPropArticulation({
       scene,
       props: [spec],
       nodeObjects: new Map(
-        scene.nodes.map((node) => [node.id, root.getObjectByName(node.id)!]),
+        scene.nodes.map((node: IAutoMovieSceneNode): [string, THREE.Object3D<THREE.Object3DEventMap>] => [node.id, root.getObjectByName(node.id)!]),
       ),
-      modelObjects: new Map(scene.nodes.map((node) => [node.id, model])),
+      modelObjects: new Map(scene.nodes.map((node: IAutoMovieSceneNode): [string, IAutoMovieModelObject] => [node.id, model])),
     }),
   };
 };
 
 /** World position of the named object, as a plain vector. */
-const worldOf = (root: THREE.Object3D, name: string): THREE.Vector3 => {
+const worldOf: (root: THREE.Object3D, name: string) => THREE.Vector3 = (root: THREE.Object3D, name: string): THREE.Vector3 => {
   root.updateMatrixWorld(true);
   return root.getObjectByName(name)!.getWorldPosition(new THREE.Vector3());
 };
 
 /**
- * A prop's declared joints become objects, and the part each one names rides
- * it.
+ * A prop's declared joints become native groups, and each claimed model part moves beneath its joint.
  *
- * The engine gates a prop's articulation, lowers it under the placement, and
- * bounds the clip that drives it; the viewer built one object per scene node
- * and nothing under it, so a hinge with a validated, ROM-checked swing rendered
- * a door standing still. Two facts have to hold for that to stop being true:
- * the object a clip channel names must exist under the placement it belongs to,
- * and the part the joint claims must hang off it rather than off the model
- * root.
+ * The unit compares lowered joint identities and real CPU-side hierarchy/transforms after construction, object-motion application and restore. It does not establish a complete production shot host, joint-range admission or rendered articulation.
  *
  * Scenarios:
  *
- * 1. The joints the viewer builds are named exactly what `sceneToNodes` lowers
- *    them as, so the artifact a shot was gated against and the objects a frame
- *    is drawn from agree by construction rather than by two spellings.
- * 2. The claimed leaf leaves the model root and hangs under the hinge; the post it
- *    did not claim stays where the model put it. Placement composes: the hinge
- *    stands at the placement plus its own local offset.
- * 3. Turning the hinge 90° about +Y through `applyObjectMotions` carries the leaf
- *    around the pivot, which is the whole claim: the hinge's own world position
- *    is unchanged and the leaf's is not.
- * 4. `restore` puts every joint back at the transform its prop declares, so a host
- *    seeking backwards past a clip's first key does not keep the last frame's
- *    turn.
- * 5. A joint that names a part the model does not carry, a placement the host
- *    built no group for, and one it built no model for all throw rather than
- *    rendering a leaf frozen at the model origin, and so does a joint whose
- *    declared parent the prop never declares.
- * 6. Nothing is built for a placement no prop claims, for a rigid prop, or for a
- *    second registration of a node already registered: the first wins, exactly
- *    as the engine's own gate resolves it.
+ * 1. Constructed joint names match sceneToNodes lowering.
+ * 2. The claimed leaf moves beneath the hinge, the unclaimed post retains its parent and placement composes with the joint's local offset.
+ * 3. A quarter turn through applyObjectMotions moves the leaf around the unchanged hinge pivot.
+ * 4. Restore reinstates the declared joint transforms; this directly tests restoration rather than a host's backward-seek scheduling.
+ * 5. Missing parts, placement groups, models and declared joint parents refuse.
+ * 6. Unclaimed placements, rigid props and repeated registration create no extra articulation.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Builds existing generic gate articulation, applies a keyed joint turn and restores it, observing object names, parents and world positions; catches a missing joint projection, reparenting that changes placement and a stale rest pose.
+ * @evidence contracts/testing.md#independent-expectations A half-metre hinge offset and quarter-turn geometry define literal leaf/pivot positions; Engine-lowered names pin canonical identity but do not independently establish Engine lowering. No assertion observes a rendered door or profile-driver evaluation.
+ * @evidence contracts/testing.md#distinguishing-cases Covers claimed/unclaimed parts, turn/restoration, missing part/host/parent refusals and rigid/unclaimed/repeated registrations; partial setup rollback and authored profile drivers remain documented producer limitations.
+ * @evidence contracts/testing.md#execution-ownership This named portable unit calls maintained Engine/Viewer source with the existing two-box record and CPU-side Three graph, acquiring no renderer, browser, worker, process or new production asset.
  */
-export const test_viewer_prop_articulation = (): void => {
-  const spec = gateSpec();
-  const scene = sceneOf();
-  const { root, articulation } = build(spec, scene);
-  const hinge = placementChildNode("frontGate", "hinge");
+export function test_viewer_prop_articulation(): void {
+  const spec: IAutoMoviePropSpec = gateSpec();
+  const scene: IAutoMovieScene = sceneOf();
+  const { root, articulation }: { root: THREE.Scene; articulation: ReturnType<typeof buildPropArticulation>; } = build(spec, scene);
+  const hinge: string = placementChildNode("frontGate", "hinge");
   TestValidator.equals(
     "the viewer names its joints what the engine lowers them as",
     [...articulation.joints.keys()].sort(compareCodeUnits),
     sceneToNodes({ scene, props: { gate: spec } })
-      .map((node) => node.id)
-      .filter((id) => id !== "frontGate")
+      .map((node: IAutoMovieNode): string => node.id)
+      .filter((id: string): boolean => id !== "frontGate")
       .sort(compareCodeUnits),
   );
 
@@ -212,14 +195,14 @@ export const test_viewer_prop_articulation = (): void => {
     namedFacts([
       [
         "hingePlaced",
-        () => vclose(worldOf(root, hinge), { x: 1.5, y: 0, z: 0 }),
+        (): boolean => vclose(worldOf(root, hinge), { x: 1.5, y: 0, z: 0 }),
       ],
-      ["leafHeld", () => vclose(worldOf(root, "leaf"), { x: 2, y: 1, z: 0 })],
+      ["leafHeld", (): boolean => vclose(worldOf(root, "leaf"), { x: 2, y: 1, z: 0 })],
     ]),
     { hingePlaced: true, leafHeld: true },
   );
 
-  const before = worldOf(root, "leaf");
+  const before: THREE.Vector3 = worldOf(root, "leaf");
   applyObjectMotions(
     [
       {
@@ -239,17 +222,16 @@ export const test_viewer_prop_articulation = (): void => {
       },
     ],
     0,
-    (node) => articulation.joints.get(node),
+    (node: string): THREE.Object3D<THREE.Object3DEventMap> | undefined => articulation.joints.get(node),
   );
-  const after = worldOf(root, "leaf");
+  const after: THREE.Vector3 = worldOf(root, "leaf");
   TestValidator.equals(
     "the turn carries the leaf around the pivot and leaves the pivot alone",
     namedFacts([
-      ["hingeHeld", () => vclose(worldOf(root, hinge), { x: 1.5, y: 0, z: 0 })],
-      // The leaf sat half a width along +X of the hinge; a quarter turn about
-      // +Y puts it half a width along −Z of it, at the same height.
-      ["leafSwung", () => vclose(after, { x: 1.5, y: 1, z: -0.5 })],
-      ["leafMoved", () => before.distanceTo(after) > 0.5],
+      ["hingeHeld", (): boolean => vclose(worldOf(root, hinge), { x: 1.5, y: 0, z: 0 })],
+      // A quarter turn about +Y moves the half-width +X offset to −Z at the same height.
+      ["leafSwung", (): boolean => vclose(after, { x: 1.5, y: 1, z: -0.5 })],
+      ["leafMoved", (): boolean => before.distanceTo(after) > 0.5],
     ]),
     { hingeHeld: true, leafSwung: true, leafMoved: true },
   );
@@ -263,7 +245,7 @@ export const test_viewer_prop_articulation = (): void => {
   TestValidator.predicate(
     "a joint naming a part the model does not carry throws",
     throwsError(
-      () => build(gateSpec([joint("hinge", null, "sash")])),
+      (): { root: THREE.Scene; articulation: ReturnType<typeof buildPropArticulation>; } => build(gateSpec([joint("hinge", null, "sash")])),
       'drives part "sash"',
     ),
   );
@@ -272,9 +254,9 @@ export const test_viewer_prop_articulation = (): void => {
     namedFacts([
       [
         "noGroup",
-        () =>
+        (): boolean =>
           throwsError(
-            () =>
+            (): ReturnType<typeof buildPropArticulation> =>
               buildPropArticulation({
                 scene,
                 props: [spec],
@@ -286,9 +268,9 @@ export const test_viewer_prop_articulation = (): void => {
       ],
       [
         "noModel",
-        () =>
+        (): boolean =>
           throwsError(
-            () =>
+            (): ReturnType<typeof buildPropArticulation> =>
               buildPropArticulation({
                 scene,
                 props: [spec],
@@ -304,7 +286,7 @@ export const test_viewer_prop_articulation = (): void => {
   TestValidator.predicate(
     "a joint whose declared parent the prop does not carry throws",
     throwsError(
-      () => build(gateSpec([joint("cap", "ghost", null)])),
+      (): { root: THREE.Scene; articulation: ReturnType<typeof buildPropArticulation>; } => build(gateSpec([joint("cap", "ghost", null)])),
       'declares parent "ghost"',
     ),
   );
@@ -329,4 +311,4 @@ export const test_viewer_prop_articulation = (): void => {
     },
     { unclaimed: 0, rigid: 0, repeated: 0 },
   );
-};
+}

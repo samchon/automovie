@@ -12,9 +12,9 @@ import * as THREE from "three";
 
 import { namedFacts, vclose } from "../internal/predicates";
 
-const keyed = (q: IAutoMovieQuaternion): number[] => [q.x, q.y, q.z, q.w];
+const keyed: (q: IAutoMovieQuaternion) => number[] = (q: IAutoMovieQuaternion): number[] => [q.x, q.y, q.z, q.w];
 
-const aboutY = (deg: number): IAutoMovieQuaternion =>
+const aboutY: (deg: number) => IAutoMovieQuaternion = (deg: number): IAutoMovieQuaternion =>
   Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, deg);
 
 const scene: IAutoMovieScene = {
@@ -61,93 +61,72 @@ const swing: IAutoMovieClip = {
 };
 
 /** The artifact's own direction: the light's local −Z carried by its rotation. */
-const declaredDirection = (light: IAutoMovieLight): IAutoMovieVector3 =>
+const declaredDirection: (light: IAutoMovieLight) => IAutoMovieVector3 = (light: IAutoMovieLight): IAutoMovieVector3 =>
   Quaternion.rotateVector(light.transform.rotation, { x: 0, y: 0, z: -1 });
 
 /**
- * The direction a `three.js` light actually shines: from where it stands toward
- * the target it aims at, which is the only thing the renderer reads.
+ * Read the normalized world position-to-target aiming vector supplied to native lighting, without a rendered illumination observation.
  */
-const renderedDirection = (light: THREE.Light): IAutoMovieVector3 => {
-  const aimed = light as THREE.SpotLight;
+const renderedDirection: (light: THREE.Light) => IAutoMovieVector3 = (light: THREE.Light): IAutoMovieVector3 => {
+  const aimed: THREE.SpotLight = light as THREE.SpotLight;
   aimed.updateMatrixWorld(true);
-  const from = new THREE.Vector3();
-  const to = new THREE.Vector3();
+  const from: THREE.Vector3 = new THREE.Vector3();
+  const to: THREE.Vector3 = new THREE.Vector3();
   aimed.getWorldPosition(from);
   aimed.target.getWorldPosition(to);
-  const direction = to.sub(from).normalize();
+  const direction: THREE.Vector3 = to.sub(from).normalize();
   return { x: direction.x, y: direction.y, z: direction.z };
 };
 
 /** The engine's resolved lamp at `seconds`. */
-const resolvedAt = (seconds: number): IAutoMovieLight =>
+const resolvedAt: (seconds: number) => IAutoMovieLight = (seconds: number): IAutoMovieLight =>
   resolveShotLighting({ lights: scene.lights, clips: [swing], seconds })[0]!;
 
 /**
- * Where the swing's own two keys put the lamp halfway along, arrived at without
- * the engine.
+ * Interpolate the authored keys independently with native Three quaternion arithmetic.
  *
- * The comparisons above hold the rendered direction against the direction the
- * ENGINE resolved, so a resolve that read the clip wrongly would move both
- * sides of them together. This one reads the keyframes straight out of the clip
- * and interpolates them with `three.js`' own quaternion math, which is a second
- * arithmetic over the same declaration rather than a second call into the first
- * one.
+ * The other comparisons share the Engine's resolved direction. Direct keyframe interpolation distinguishes a shared sampling error without calling that resolver a second time.
  */
-const keyedMidpointDirection = (): IAutoMovieVector3 => {
-  const values = swing.tracks[0]!.values;
-  const midpoint = new THREE.Quaternion()
+const keyedMidpointDirection: () => IAutoMovieVector3 = (): IAutoMovieVector3 => {
+  const values: number[] = swing.tracks[0]!.values;
+  const midpoint: THREE.Quaternion = new THREE.Quaternion()
     .fromArray(values.slice(0, 4))
     .slerp(new THREE.Quaternion().fromArray(values.slice(4, 8)), 0.5);
-  const direction = new THREE.Vector3(0, 0, -1).applyQuaternion(midpoint);
+  const direction: THREE.Vector3 = new THREE.Vector3(0, 0, -1).applyQuaternion(midpoint);
   return { x: direction.x, y: direction.y, z: direction.z };
 };
 
 /**
- * The viewer and the renderer derive the SAME direction, at build time and at
- * every frame after it.
+ * Initial light construction and animated updates install the resolved aiming direction on actual native light objects.
  *
- * `buildLight` places a light once; `applyLightMotion` resolves the scene's
- * lights, clips and frame time through the engine on each update. Both write
- * through `applyLightState`. The parity risk is between initial construction
- * and subsequent animation, not between a viewer page and a deleted scaffold
- * runtime. The light must follow its animated transform rather than keep
- * facing the direction in which it was first staged.
+ * Both paths write through applyLightState. The cases distinguish an animated transform that updates the target from one that retains its original aim.
  *
- * `three.js` does not shine an aimed light along its quaternion; it shines from
- * its position toward its `target`, so the rendered direction is measured the
- * way the renderer actually computes it, from world positions, and compared
- * against the artifact's own local −Z carried by the resolved rotation.
- * Anything that agreed on the quaternion but disagreed on the aim would still
- * be caught.
+ * World target minus light position is compared with the resolved local negative-Z axis and a separate Three quaternion interpolation. These are CPU-side native lighting inputs, without a rendered illumination oracle.
  *
  * Scenarios:
  *
- * 1. A staged light built with `buildLight` alone already shines where the
- *    artifact says, so the build path needs no animation to be correct.
- * 2. At the start, the midpoint and the end of the swing, the direction the
- *    `three.js` light shines equals the direction the engine resolved — the
- *    frame follows the declaration rather than the staging.
- * 3. The frame is right, not merely self-consistent: the animated lamp's direction
- *    is what `three.js`' own interpolation of the clip's two keys gives, so
- *    nothing in the engine is on both sides of the comparison. A
- *    build-against-animate check would not say this — both paths reduce to one
- *    `applyLightState` call, and a resolve reading the clip wrongly would carry
- *    them together.
+ * 1. A built staged light has the declared aiming vector before any animation update.
+ * 2. Start, midpoint and end updates follow the Engine's resolved transform.
+ * 3. Three's interpolation of the authored keys supplies an independent direction reference, distinguishing a shared applyLightState path from a correct motion resolver.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Builds a staged spot and applies resolved light motion at selected times, reading native light/target world vectors and positions; catches build and frame writers disagreeing on absolute transform or leaving the target at its initial aim.
+ * @evidence contracts/testing.md#independent-expectations Authored endpoint keys and an independent Three quaternion slerp define the midpoint direction; Engine resolveLightMotion is a shared contract reference for resolved fields, so the independent key interpolation prevents parity alone from blessing the same sampling error.
+ * @evidence contracts/testing.md#distinguishing-cases Covers initial construction and resolved start/midpoint/end aiming vectors, then an independently interpolated midpoint; absolute translation, point-light absence of aim and other light kinds have separate coverage obligations.
+ * @evidence contracts/testing.md#execution-ownership This named synchronous unit exercises maintained source with actual CPU-side native light objects and clip records, creating no renderer, browser, GPU, process or new fixture host; world-vector parity is not pixel evidence.
  */
-export const test_viewer_light_transform_parity = (): void => {
+export function test_viewer_light_transform_parity(): void {
   // 1. the build path alone is already correct.
-  const staged = buildLight(scene.lights[0]!);
+  const staged: THREE.Light = buildLight(scene.lights[0]!);
   TestValidator.predicate(
     "a staged light shines along the direction its artifact declares",
     vclose(renderedDirection(staged), declaredDirection(scene.lights[0]!)),
   );
 
   // 2. the frame follows the declaration, at three instants.
-  const built = buildScene(scene, () => undefined);
-  const lamp = built.lights.get("lamp")!;
-  const parityAt = (seconds: number): boolean => {
-    applyLightMotion(scene.lights, [swing], seconds, (id) =>
+  const built: ReturnType<typeof buildScene> = buildScene(scene, (): undefined => undefined);
+  const lamp: THREE.Light = built.lights.get("lamp")!;
+  const parityAt: (seconds: number) => boolean = (seconds: number): boolean => {
+    applyLightMotion(scene.lights, [swing], seconds, (id: string): THREE.Light | undefined =>
       built.lights.get(id),
     );
     return vclose(
@@ -156,19 +135,19 @@ export const test_viewer_light_transform_parity = (): void => {
     );
   };
   TestValidator.equals(
-    "the rendered direction equals the resolved direction at every instant",
+    "native aiming equals resolved direction at the three selected instants",
     namedFacts([
-      ["atTheStart", () => parityAt(0)],
-      ["atTheMidpoint", () => parityAt(2)],
-      ["atTheEnd", () => parityAt(4)],
+      ["atTheStart", (): boolean => parityAt(0)],
+      ["atTheMidpoint", (): boolean => parityAt(2)],
+      ["atTheEnd", (): boolean => parityAt(4)],
     ]),
     { atTheStart: true, atTheMidpoint: true, atTheEnd: true },
   );
 
   // 3. the animated frame against arithmetic the engine took no part in.
-  applyLightMotion(scene.lights, [swing], 2, (id) => built.lights.get(id));
+  applyLightMotion(scene.lights, [swing], 2, (id: string): THREE.Light | undefined => built.lights.get(id));
   TestValidator.predicate(
     "the animated lamp shines where the clip's own keys put it, interpolated independently",
     vclose(renderedDirection(lamp), keyedMidpointDirection()),
   );
-};
+}

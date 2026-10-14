@@ -12,11 +12,11 @@ import { IDENTITY_TRANSFORM, createModel } from "./fixtures";
  * model and compact-formation boundaries. Root bob has zero ground stride,
  * so seconds independently determine its phase without a hand-written table.
  */
-export const createFormationShadowInputs = (
-  count = 2,
-  cyclic = true,
+export const createFormationShadowInputs: (count?: number, cyclic?: boolean) => Parameters<typeof buildInstancedFormation>[0] = (
+  count: number = 2,
+  cyclic: boolean = true,
 ): Parameters<typeof buildInstancedFormation>[0] => {
-  const formation = materializeCompiledFormation({
+  const formation: ReturnType<typeof materializeCompiledFormation> = materializeCompiledFormation({
     formation: {
       id: "shadow-unit", modelRecipe: "box", count: Math.max(1, count),
       layout: { kind: "line", files: Math.max(1, count), ranks: 1,
@@ -40,13 +40,13 @@ export const createFormationShadowInputs = (
   model.parts.push({ ...model.parts[0]!, id: "second-box", name: "second-box" });
   model.materials.push({ ...model.materials[0]!, id: "second-palette" });
   model.parts.push({ ...model.parts[0]!, id: "third-box", name: "third-box", material: "second-palette" });
-  model.profiles = [{ id: "box-cycles", name: "box-cycles", controls: [],
+  model.profiles = [{ id: "box-cycles", name: "box-cycles",
     drivers: [], limits: [], gaits: cyclic ? [
       { name: "bob", period: 1, rootBob: { center: 1.5, amplitude: 0.5, phase: 0 }, limbs: [] },
       { name: "high", period: 2, rootBob: { center: 2, amplitude: 0.25, phase: 0 }, limbs: [] },
     ] : [],
   }];
-  const still = { translation: { x: 0, y: 0, z: 0 }, facingOffsetDeg: 0,
+  const still: IAutoMovieFormationMotion["from"] = { translation: { x: 0, y: 0, z: 0 }, facingOffsetDeg: 0,
     spacingScale: { lateral: 1, depth: 1 } };
   const motions: IAutoMovieFormationMotion[] = cyclic ? [
     { id: "bob-cue", formation: formation.id, action: "hold", gait: "bob",

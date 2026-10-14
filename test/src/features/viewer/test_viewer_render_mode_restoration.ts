@@ -22,29 +22,17 @@ type CacheValue = { id: string; bytes: number };
 const caught: (operation: () => void) => unknown=(operation:()=>void):unknown=>{try{operation();return undefined;}catch(error){return error;}};
 
 /**
- * A failed resource listener cannot retain a structural override or skip its
- * neighboring scene state. Real materials and their disposal events exercise
- * the failure, without claiming fake renderer pixels as visual evidence.
+ * A failed resource listener cannot retain a structural override or skip its neighboring scene state. Existing real materials and their disposal events exercise that failure while GPU pixels and physical release remain unobserved.
  *
  * Scenarios:
  * 1. Empty and successful restoration sets finish without altering error state.
- * 2. Primary, single, multiple and nested errors retain every independent
- *    failure while all later operations still execute.
- * 3. Depth, normal, mask and outline dispose failures still restore original
- *    materials, fog, environment, background and non-mesh visibility.
- * 4. Pose geometry disposal failure removes the overlay and restores original
- *    mesh visibility and scene state; repeated failed restores keep their original cause without repeating real disposal events.
- * 5. A generic subtree shares geometry and standard/custom shadow materials;
- *    each distinct owner is attempted once despite disposal listeners failing.
- *    Cached textures remain borrowed, while decoded subtree textures retire.
- * 6. A generic resident cache keeps pending/failed array bytes, independently
- *    completes replacement and eviction, and preserves existing recency and
- *    oversize policy with explicit error settlement.
- * 7. A generic box observation restores borrowed display state synchronously,
- *    independently retires six owned pass materials, preserves original
- *    failures and shares its actual completion under repeat and reentry.
- * 8. Showing a previously hidden mutable box succeeds; a frozen box's refused
- *    visibility restoration remains owned and observable during final close.
+ * 2. Primary, single, multiple and nested errors retain every independent failure while all later operations still execute.
+ * 3. Depth, normal, mask and outline dispose failures still restore original materials, fog, environment, background and non-mesh visibility.
+ * 4. Pose geometry disposal failure removes the overlay and restores original mesh visibility and scene state; repeated failed restores keep their original cause without repeating real disposal events.
+ * 5. A generic subtree shares geometry and standard/custom shadow materials; each distinct owner is attempted once despite disposal listeners failing. Cached textures remain borrowed, while decoded subtree textures retire.
+ * 6. A generic resident cache keeps pending/failed array bytes, independently completes replacement and eviction, and preserves existing recency and oversize policy with explicit error settlement.
+ * 7. A generic box observation restores borrowed display state synchronously, independently retires six owned pass materials, preserves original failures and shares its actual completion under repeat and reentry.
+ * 8. Showing a previously hidden mutable box succeeds; a frozen box's refused visibility restoration remains owned and observable during final close.
  *
  * @evidence contracts/testing.md#behavioral-verification Exercises independent restoration, actual Three disposal events, source-state restoration, cache retirement and the existing generic-box observation seam. Failed depth/normal/mask/outline/pose restores must retain their original error and attempt each owned disposal only once; neighboring owners and borrowed scene state must still restore.
  * @evidence contracts/testing.md#independent-expectations Original material/scene object identities and independently recorded dispose events define restoration and ownership; manually arranged byte totals and error order define cache expectations. Box resources are actual Three objects without a renderer, so these assertions do not prove hardware pixels, anatomical validity, kernel memory release or physical process shutdown.

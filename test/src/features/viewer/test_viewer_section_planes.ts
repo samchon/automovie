@@ -20,29 +20,28 @@ const WEST_WALL: IAutoMovieSectionPlane = {
   normal: { x: -1, y: 0, z: 0 },
 };
 
-const scene = (): {
+const scene: () => { root: THREE.Scene; single: THREE.MeshStandardMaterial; multi: THREE.MeshStandardMaterial[]; } = (): {
   root: THREE.Scene;
   single: THREE.MeshStandardMaterial;
   multi: THREE.MeshStandardMaterial[];
 } => {
-  const root = new THREE.Scene();
-  const single = new THREE.MeshStandardMaterial();
-  const multi = [
+  const root: THREE.Scene<THREE.Object3DEventMap> = new THREE.Scene();
+  const single: THREE.MeshStandardMaterial = new THREE.MeshStandardMaterial();
+  const multi: THREE.MeshStandardMaterial[] = [
     new THREE.MeshStandardMaterial(),
     new THREE.MeshStandardMaterial(),
   ];
   root.add(new THREE.Mesh(new THREE.BoxGeometry(), single));
   root.add(new THREE.Mesh(new THREE.BoxGeometry(), multi));
-  // A non-drawing child, so the walk must skip what carries no material rather
-  // than reach into `undefined`.
+  // A material-less child must be skipped during clipping assignment.
   root.add(new THREE.Group());
   return { root, single, multi };
 };
 
-const materialsOf = (root: THREE.Object3D): THREE.Material[] => {
+const materialsOf: (root: THREE.Object3D) => THREE.Material[] = (root: THREE.Object3D): THREE.Material[] => {
   const found: THREE.Material[] = [];
-  root.traverse((object) => {
-    const holder = object as { material?: THREE.Material | THREE.Material[] };
+  root.traverse((object: THREE.Object3D<THREE.Object3DEventMap>): void => {
+    const holder: { material?: THREE.Material | THREE.Material[]; } = object as { material?: THREE.Material | THREE.Material[] };
     if (holder.material === undefined) return;
     for (const material of Array.isArray(holder.material)
       ? holder.material
@@ -53,49 +52,31 @@ const materialsOf = (root: THREE.Object3D): THREE.Material[] => {
 };
 
 /**
- * The section a reviewer actually looks through: the state handed to `three.js`
- * one step before the renderer, read back instead of inferred from a picture.
+ * Section planes install native clipping state whose signed half-space agrees with the Engine's numerical point predicate.
  *
- * Two facts decide whether a cut shows the right half, and both are convention
- * translations that no screenshot would explain if they were wrong.
- * `IAutoMovieSectionPlane.normal` points at the half-space to REMOVE, while a
- * `THREE.Plane` keeps the side ITS normal points at, so the runtime plane must
- * carry the negated normal; and `three.js` discards only a strictly negative
- * signed distance, so a vertex exactly on the cut is drawn — which must be the
- * same answer `autoMovieSectionPlanesKeepPoint` gives, or the engine would
- * report a floor present that the renderer erased.
+ * The declaration points toward the removed half-space, while the native plane retains its positive side. Negating the normal must preserve below/on/above membership, including the boundary's zero signed distance. This unit observes CPU-side planes and material version changes, without a raster oracle.
  *
- * Expectations are hand geometry: with the removed half above y = 3, a runtime
- * plane through (0,3,0) with normal (0,−1,0) has constant +3, so its distance
- * to a point is `3 − y` — positive below, zero on the cut, negative above.
+ * With the removed half above y=3, the expected plane has normal (0,-1,0), constant 3 and signed distance 3-y. These literal geometric values are independent of the plane builder.
  *
  * Scenarios:
  *
- * 1. One declared plane switches local clipping on, and every material in the
- *    subtree — including each member of an array material — receives the same
- *    plane array with `clipIntersection` false. A material-less child is
- *    skipped rather than faulted.
- * 2. The built plane's normal is the NEGATED declared normal, unit length, and
- *    its `distanceToPoint` sign agrees with `autoMovieSectionPlanesKeepPoint`
- *    below, above, and exactly on the cut. This is the whole convention.
- * 3. A non-unit declared normal still produces a unit runtime plane at the same
- *    place, so a caller need not pre-normalize.
- * 4. Taking a section bumps each material's `version` (the shader bakes the
- *    plane COUNT), while re-applying the SAME count leaves the version alone,
- *    so sliding a cut costs no recompile. `version` rather than `needsUpdate`,
- *    because the latter is a write-only setter in `three.js` and reading it
- *    back would assert `undefined === true` forever.
- * 5. Two planes produce two runtime planes in declared order, and the count
- *    change again marks the materials for recompile.
- * 6. Releasing the section (an empty list) clears every material back to `null`
- *    and switches local clipping off, so an uncut scene renders exactly as it
- *    did before section planes existed. The negative twin of case 1.
+ * 1. One plane enables local clipping and shares its plane array across scalar and array materials with clipIntersection false; a material-less child is skipped.
+ * 2. The normalized negated normal and signed distance agree with Engine membership below, above and on the cut.
+ * 3. A non-unit declared normal yields the same normalized plane.
+ * 4. A changed plane count advances material version, while the same count leaves it unchanged. Version is observed rather than the write-only needsUpdate setter; actual native program compilation is not counted.
+ * 5. Two planes preserve declaration order and advance version for the changed count.
+ * 6. An empty declaration clears material planes to null and disables local clipping; pixel equality with an earlier frame is not asserted.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Applies and releases actual section planes on scalar/array native material populations and reads plane signs, identity and version counters; catches reversed halfspaces, skipped material slots and recompilation requested for value-only movement.
+ * @evidence contracts/testing.md#independent-expectations Hand geometry gives ceiling distance 3-y and the negated west normal; Engine keep-point is the canonical boundary reference. Plane-count changes define version increments, while CPU signs/version counters do not prove GPU fragment precision or pixel equality.
+ * @evidence contracts/testing.md#distinguishing-cases Covers below/on/above boundaries, nonunit normal, material-less child, scalar/array materials, unchanged/changed count and empty release; arbitrary prior clipping policy and native capture are outside this owner.
+ * @evidence contracts/testing.md#execution-ownership This named portable unit invokes maintained Engine/Viewer source with real CPU-side planes/materials and a supplied clipping flag, acquiring no renderer, browser, GPU or process.
  */
-export const test_viewer_section_planes = (): void => {
+export function test_viewer_section_planes(): void {
   // 1. one plane reaches every material, and only the ones that exist
-  const first = scene();
-  const renderer = { localClippingEnabled: false };
-  const built = applyAutoMovieSectionPlanes({
+  const first: { root: THREE.Scene; single: THREE.MeshStandardMaterial; multi: THREE.MeshStandardMaterial[]; } = scene();
+  const renderer: { localClippingEnabled: boolean; } = { localClippingEnabled: false };
+  const built: THREE.Plane[] = applyAutoMovieSectionPlanes({
     renderer,
     root: first.root,
     planes: [CEILING],
@@ -106,7 +87,7 @@ export const test_viewer_section_planes = (): void => {
     true,
   );
   TestValidator.equals("one declared plane builds one", built.length, 1);
-  const materials = materialsOf(first.root);
+  const materials: THREE.Material<THREE.MaterialEventMap>[] = materialsOf(first.root);
   TestValidator.equals(
     "every mesh material in the subtree is reached",
     materials.length,
@@ -115,14 +96,14 @@ export const test_viewer_section_planes = (): void => {
   TestValidator.predicate(
     "every material holds that exact plane array, intersecting",
     materials.every(
-      (material) =>
+      (material: THREE.Material<THREE.MaterialEventMap>): boolean =>
         material.clippingPlanes === built &&
         material.clipIntersection === false,
     ),
   );
 
   // 2. the convention: negated normal, and agreement at the boundary
-  const plane = built[0]!;
+  const plane: THREE.Plane = built[0]!;
   TestValidator.predicate(
     "the runtime plane carries the negated, unit normal",
     nclose(plane.normal.x, 0) &&
@@ -146,10 +127,10 @@ export const test_viewer_section_planes = (): void => {
     nclose(plane.constant, 3),
   );
 
-  // 4. recompile only when the count changes
+  // 4. Material version advances only when the plane count changes.
   TestValidator.predicate(
     "taking a section marks every material for recompile",
-    materials.every((material) => material.version === 1),
+    materials.every((material: THREE.Material<THREE.MaterialEventMap>): boolean => material.version === 1),
   );
   applyAutoMovieSectionPlanes({
     renderer,
@@ -157,12 +138,12 @@ export const test_viewer_section_planes = (): void => {
     planes: [{ ...CEILING, point: { x: 0, y: 1, z: 0 } }],
   });
   TestValidator.predicate(
-    "sliding a cut of the same count costs no recompile",
-    materials.every((material) => material.version === 1),
+    "sliding a cut of the same count leaves material versions unchanged",
+    materials.every((material: THREE.Material<THREE.MaterialEventMap>): boolean => material.version === 1),
   );
 
-  // 5. two planes, in declared order, with a fresh compile
-  const pair = applyAutoMovieSectionPlanes({
+  // 5. Two planes preserve order and advance material version.
+  const pair: THREE.Plane[] = applyAutoMovieSectionPlanes({
     renderer,
     root: first.root,
     planes: [CEILING, WEST_WALL],
@@ -174,11 +155,11 @@ export const test_viewer_section_planes = (): void => {
   );
   TestValidator.predicate(
     "a changed count marks every material for recompile",
-    materials.every((material) => material.version === 2),
+    materials.every((material: THREE.Material<THREE.MaterialEventMap>): boolean => material.version === 2),
   );
 
   // 6. releasing the section restores the uncut scene
-  const released = applyAutoMovieSectionPlanes({
+  const released: THREE.Plane[] = applyAutoMovieSectionPlanes({
     renderer,
     root: first.root,
     planes: [],
@@ -191,6 +172,6 @@ export const test_viewer_section_planes = (): void => {
   );
   TestValidator.predicate(
     "every material is back to no clipping planes",
-    materials.every((material) => material.clippingPlanes === null),
+    materials.every((material: THREE.Material<THREE.MaterialEventMap>): boolean => material.clippingPlanes === null),
   );
-};
+}
