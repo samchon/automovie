@@ -1,6 +1,9 @@
-import type { IAutoMovieHumanFaceContactCollider as ImportedIAutoMovieHumanFaceContactCollider } from "@automovie/human";
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type { IAutoMovieMesh, IAutoMovieVector3 as ImportedIAutoMovieVector3 } from "@automovie/interface";
+import type { IAutoMovieHumanFaceContactCollider as ImportedIAutoMovieHumanFaceContactCollider } from "@automovie/human";
+import type {
+  IAutoMovieMesh,
+  IAutoMovieVector3 as ImportedIAutoMovieVector3,
+} from "@automovie/interface";
 
 import type { IHumanFaceDynamicCollider } from "../../basis/IHumanFaceDynamicCollider";
 import type { IAutoMovieHumanFaceBasis } from "../../structures/IAutoMovieHumanFaceBasis";
@@ -30,18 +33,25 @@ export function poseHumanFaceOralAssembly(
   jaw: IAutoMovieHumanFaceRigidMotion,
 ): IHumanFaceOralAssembly {
   const dental: readonly number[] = rest.get(assembly.dentalSurface)!;
-  const source: ImportedIAutoMovieHumanFaceContactCollider | undefined = basis.contact?.colliders.find(
-    (collider: ImportedIAutoMovieHumanFaceContactCollider): boolean => collider.surface === assembly.dentalSurface,
-  );
+  const source: ImportedIAutoMovieHumanFaceContactCollider | undefined =
+    basis.contact?.colliders.find(
+      (collider: ImportedIAutoMovieHumanFaceContactCollider): boolean =>
+        collider.surface === assembly.dentalSurface,
+    );
   if (source === undefined)
     throw new Error(
       "Oral assembly needs its registered source dental contact owner.",
     );
-  const pose: (mesh: IAutoMovieMesh, mandibular: boolean) => IAutoMovieMesh = (mesh: IAutoMovieMesh, mandibular: boolean): IAutoMovieMesh => {
+  const pose: (mesh: IAutoMovieMesh, mandibular: boolean) => IAutoMovieMesh = (
+    mesh: IAutoMovieMesh,
+    mandibular: boolean,
+  ): IAutoMovieMesh => {
     const result: IAutoMovieMesh = structuredClone(mesh);
     if (mandibular)
       for (let at: number = 0; at < result.positions.length; at += 3) {
-        const point: ImportedIAutoMovieVector3 = Vector3.create(...result.positions.slice(at, at + 3));
+        const point: ImportedIAutoMovieVector3 = Vector3.create(
+          ...result.positions.slice(at, at + 3),
+        );
         const placed: ImportedIAutoMovieVector3 = Vector3.add(
           Vector3.add(
             jaw.pivot,
@@ -69,7 +79,9 @@ export function poseHumanFaceOralAssembly(
   const dentalColliderIds: IHumanFaceOralCrown["id"][] = [];
   for (const crown of readHumanFaceOralCrowns(basis)) {
     if (
-      crown.vertices.some((vertex: number): boolean => assembly.absentDentalVertices.has(vertex))
+      crown.vertices.some((vertex: number): boolean =>
+        assembly.absentDentalVertices.has(vertex),
+      )
     )
       continue;
     const allowed: Set<number> = new Set(crown.vertices);
@@ -83,7 +95,12 @@ export function poseHumanFaceOralAssembly(
       throw new Error(
         "Oral crown needs its source's numerical cervical closure: " + crown.id,
       );
-    const indices: Map<number, number> = new Map(crown.vertices.map((vertex: number, at: number): [number, number] => [vertex, at]));
+    const indices: Map<number, number> = new Map(
+      crown.vertices.map((vertex: number, at: number): [number, number] => [
+        vertex,
+        at,
+      ]),
+    );
     const mesh: IAutoMovieMesh = {
       positions: crown.vertices.flatMap((vertex: number): number[] =>
         dental.slice(3 * vertex, 3 * vertex + 3),
@@ -95,9 +112,16 @@ export function poseHumanFaceOralAssembly(
       uvs: null,
       skin: null,
     };
-    const collider: { id: string; pointIds: string[]; rest: IAutoMovieMesh; posed: IAutoMovieMesh; } = {
+    const collider: {
+      id: string;
+      pointIds: string[];
+      rest: IAutoMovieMesh;
+      posed: IAutoMovieMesh;
+    } = {
       id: "oral:tooth-" + crown.id,
-      pointIds: crown.vertices.map((vertex: number): string => "dental:" + vertex),
+      pointIds: crown.vertices.map(
+        (vertex: number): string => "dental:" + vertex,
+      ),
       rest: mesh,
       posed: pose(mesh, crown.mandibular),
     };

@@ -21,25 +21,36 @@ export function resolveHumanFaceOralArchFrame(
 ): IHumanFaceOralArchFrame {
   if (members.length < 3)
     throw new Error("Oral arch frame needs at least three registered crowns.");
-  const order: (crown: IHumanFaceOralCrown) => number = (crown: IHumanFaceOralCrown): number => {
+  const order: (crown: IHumanFaceOralCrown) => number = (
+    crown: IHumanFaceOralCrown,
+  ): number => {
     const quadrant: number = Number(crown.id[0]);
     const position: number = Number(crown.id[1]);
     return quadrant === 1 || quadrant === 4 ? -position : position;
   };
-  const ordered: IHumanFaceOralCrown[] = [...members].sort((a: IHumanFaceOralCrown, b: IHumanFaceOralCrown): number => order(a) - order(b));
+  const ordered: IHumanFaceOralCrown[] = [...members].sort(
+    (a: IHumanFaceOralCrown, b: IHumanFaceOralCrown): number =>
+      order(a) - order(b),
+  );
   const point: (vertex: number) => number[] = (vertex: number): number[] => [
     dental[3 * vertex],
     dental[3 * vertex + 1],
     dental[3 * vertex + 2],
   ];
-  const centres: number[][] = ordered.map((crown: IHumanFaceOralCrown): number[] => {
-    const ring: number[][] = crown.cervical.map(point);
-    return [0, 1, 2].map(
-      (axis: number): number => ring.reduce((sum: number, p: number[]): number => sum + p[axis], 0) / ring.length,
-    );
-  });
+  const centres: number[][] = ordered.map(
+    (crown: IHumanFaceOralCrown): number[] => {
+      const ring: number[][] = crown.cervical.map(point);
+      return [0, 1, 2].map(
+        (axis: number): number =>
+          ring.reduce((sum: number, p: number[]): number => sum + p[axis], 0) /
+          ring.length,
+      );
+    },
+  );
   const origin: number[] = [0, 1, 2].map(
-    (axis: number): number => centres.reduce((sum: number, p: number[]): number => sum + p[axis], 0) / centres.length,
+    (axis: number): number =>
+      centres.reduce((sum: number, p: number[]): number => sum + p[axis], 0) /
+      centres.length,
   );
   // Centred normal equations of y = α + βx + γz.
   let xx: number = 0;
@@ -70,33 +81,98 @@ export function resolveHumanFaceOralArchFrame(
   };
   const normal: number[] = unit([-beta, 1, -gamma]);
   const forward: number[] = unit(
-    [0, 0, 1].map((value: number, axis: number): number => value - normal[2] * normal[axis]),
+    [0, 0, 1].map(
+      (value: number, axis: number): number => value - normal[2] * normal[axis],
+    ),
   );
   const lateral: number[] = [
     normal[1] * forward[2] - normal[2] * forward[1],
     normal[2] * forward[0] - normal[0] * forward[2],
     normal[0] * forward[1] - normal[1] * forward[0],
   ];
-  const apical: number[] = mandibular ? normal.map((value: number): number => -value) : normal;
-  const local: (p: readonly number[]) => number[] = (p: readonly number[]): number[] => {
-    const delta: number[] = p.map((value: number, axis: number): number => value - origin[axis]);
-    const dot: (direction: readonly number[]) => number = (direction: readonly number[]): number =>
+  const apical: number[] = mandibular
+    ? normal.map((value: number): number => -value)
+    : normal;
+  const local: (p: readonly number[]) => number[] = (
+    p: readonly number[],
+  ): number[] => {
+    const delta: number[] = p.map(
+      (value: number, axis: number): number => value - origin[axis],
+    );
+    const dot: (direction: readonly number[]) => number = (
+      direction: readonly number[],
+    ): number =>
       delta[0] * direction[0] +
       delta[1] * direction[1] +
       delta[2] * direction[2];
     return [dot(lateral), dot(forward), dot(apical)];
   };
-  const stations: IHumanFaceOralToothStation[] = ordered.map((crown: IHumanFaceOralCrown, at: number): { id: "11" | "12" | "13" | "18" | "14" | "16" | "15" | "17" | "21" | "22" | "23" | "28" | "24" | "26" | "25" | "27" | "31" | "32" | "33" | "38" | "34" | "36" | "35" | "37" | "41" | "42" | "43" | "48" | "44" | "46" | "45" | "47"; centre: number[]; cervical: number[]; vertices: number[]; } => ({
-    id: crown.id,
-    centre: local(centres[at]),
-    cervical: crown.cervical.flatMap((vertex: number): number[] => local(point(vertex))),
-    vertices: [...crown.cervical],
-  }));
+  const stations: IHumanFaceOralToothStation[] = ordered.map(
+    (
+      crown: IHumanFaceOralCrown,
+      at: number,
+    ): {
+      id:
+        | "11"
+        | "12"
+        | "13"
+        | "18"
+        | "14"
+        | "16"
+        | "15"
+        | "17"
+        | "21"
+        | "22"
+        | "23"
+        | "28"
+        | "24"
+        | "26"
+        | "25"
+        | "27"
+        | "31"
+        | "32"
+        | "33"
+        | "38"
+        | "34"
+        | "36"
+        | "35"
+        | "37"
+        | "41"
+        | "42"
+        | "43"
+        | "48"
+        | "44"
+        | "46"
+        | "45"
+        | "47";
+      centre: number[];
+      cervical: number[];
+      vertices: number[];
+    } => ({
+      id: crown.id,
+      centre: local(centres[at]),
+      cervical: crown.cervical.flatMap((vertex: number): number[] =>
+        local(point(vertex)),
+      ),
+      vertices: [...crown.cervical],
+    }),
+  );
   const midline: number =
-    stations.reduce((sum: number, station: IHumanFaceOralToothStation): number => sum + station.centre[0], 0) /
-    stations.length;
-  const rear: number = Math.min(...stations.map((station: IHumanFaceOralToothStation): number => station.centre[1]));
-  const front: number = Math.max(...stations.map((station: IHumanFaceOralToothStation): number => station.centre[1]));
+    stations.reduce(
+      (sum: number, station: IHumanFaceOralToothStation): number =>
+        sum + station.centre[0],
+      0,
+    ) / stations.length;
+  const rear: number = Math.min(
+    ...stations.map(
+      (station: IHumanFaceOralToothStation): number => station.centre[1],
+    ),
+  );
+  const front: number = Math.max(
+    ...stations.map(
+      (station: IHumanFaceOralToothStation): number => station.centre[1],
+    ),
+  );
   const samples: number = 64;
   let vaultSpanMetres: number = 0;
   for (let k: number = 0; k <= samples; k++)

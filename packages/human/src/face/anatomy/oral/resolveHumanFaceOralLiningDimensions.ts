@@ -1,4 +1,5 @@
 import type { IAutoMovieHumanFaceOralArch as ImportedIAutoMovieHumanFaceOralArch } from "@automovie/human";
+
 import type { IAutoMovieHumanFaceOral } from "../../structures/IAutoMovieHumanFaceOral";
 import type { IHumanFaceOralLiningDimensions } from "./IHumanFaceOralLiningDimensions";
 
@@ -21,7 +22,10 @@ export function resolveHumanFaceOralLiningDimensions(
   oral: IAutoMovieHumanFaceOral,
   mandibular: boolean,
 ): IHumanFaceOralLiningDimensions {
-  const metres: (value: number | undefined, fallback: number) => number = (value: number | undefined, fallback: number): number => {
+  const metres: (value: number | undefined, fallback: number) => number = (
+    value: number | undefined,
+    fallback: number,
+  ): number => {
     const result: number = value === undefined ? fallback : value / 1000;
     if (!Number.isFinite(result) || result <= 0)
       throw new Error(
@@ -29,8 +33,13 @@ export function resolveHumanFaceOralLiningDimensions(
       );
     return result;
   };
-  const arch: ImportedIAutoMovieHumanFaceOralArch | undefined = mandibular ? oral.mandibular : oral.maxillary;
-  const collarThicknessMetres: number = metres(arch?.gingivalThicknessMm, 0.0015);
+  const arch: ImportedIAutoMovieHumanFaceOralArch | undefined = mandibular
+    ? oral.mandibular
+    : oral.maxillary;
+  const collarThicknessMetres: number = metres(
+    arch?.gingivalThicknessMm,
+    0.0015,
+  );
   const collarHeightMetres: number = metres(arch?.gingivalHeightMm, 0.00425);
   const wallClearanceMetres: number = metres(
     oral.space?.wallClearanceMm,

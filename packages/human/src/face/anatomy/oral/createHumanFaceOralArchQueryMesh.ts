@@ -31,14 +31,20 @@ export function createHumanFaceOralArchQueryMesh(
         throw new Error(
           "Oral arch query needs every triangle point's physical identity.",
         );
-      const point: number[] = part.mesh.positions.slice(3 * vertex, 3 * vertex + 3);
+      const point: number[] = part.mesh.positions.slice(
+        3 * vertex,
+        3 * vertex + 3,
+      );
       let at: number | undefined = identities.get(identity);
       if (at === undefined) {
         at = identities.size;
         identities.set(identity, at);
         positions.push(...point);
       } else if (
-        point.some((value: number, axis: number): boolean => value !== positions[3 * at! + axis])
+        point.some(
+          (value: number, axis: number): boolean =>
+            value !== positions[3 * at! + axis],
+        )
       )
         throw new Error(
           "Oral arch physical identity has inconsistent boundary coordinates: " +

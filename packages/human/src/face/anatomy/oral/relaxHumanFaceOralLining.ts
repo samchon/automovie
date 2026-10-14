@@ -20,7 +20,12 @@ export function relaxHumanFaceOralLining(
   collar: ReadonlySet<number> = new Set(),
 ): number[] {
   const current: number[] = [...indices];
-  const inside: (a: number, b: number, c: number, d: number) => boolean = (a: number, b: number, c: number, d: number): boolean => {
+  const inside: (a: number, b: number, c: number, d: number) => boolean = (
+    a: number,
+    b: number,
+    c: number,
+    d: number,
+  ): boolean => {
     const ax: number = points[a][0] - points[d][0];
     const ay: number = points[a][1] - points[d][1];
     const bx: number = points[b][0] - points[d][0];
@@ -35,7 +40,11 @@ export function relaxHumanFaceOralLining(
       (ax * ax + ay * ay + bx * bx + by * by + cx * cx + cy * cy) ** 2;
     return determinant > 1e-12 * scale;
   };
-  const area: (a: number, b: number, c: number) => number = (a: number, b: number, c: number): number =>
+  const area: (a: number, b: number, c: number) => number = (
+    a: number,
+    b: number,
+    c: number,
+  ): number =>
     (points[b][0] - points[a][0]) * (points[c][1] - points[a][1]) -
     (points[b][1] - points[a][1]) * (points[c][0] - points[a][0]);
   for (let pass: number = 0; pass < 64; pass++) {

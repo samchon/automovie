@@ -1,10 +1,13 @@
-import type { IAutoMovieHumanFaceBasisContact as ImportedIAutoMovieHumanFaceBasisContact, IAutoMovieHumanFaceBasisSurface as ImportedIAutoMovieHumanFaceBasisSurface } from "@automovie/human";
-import type { IHumanFaceLipMarginPoints as ImportedIHumanFaceLipMarginPoints } from "../../basis/IHumanFaceLipMarginPoints";
-import type { IAutoMovieVector3 as ImportedIAutoMovieVector3 } from "@automovie/interface";
-import type { IHumanFaceLipMarginPoint as ImportedIHumanFaceLipMarginPoint } from "../../basis/IHumanFaceLipMarginPoint";
 import { Quaternion, Vector3 } from "@automovie/engine";
-import { readHumanFaceLipMarginPoints } from "../../basis/readHumanFaceLipMarginPoints";
+import type {
+  IAutoMovieHumanFaceBasisContact as ImportedIAutoMovieHumanFaceBasisContact,
+  IAutoMovieHumanFaceBasisSurface as ImportedIAutoMovieHumanFaceBasisSurface,
+} from "@automovie/human";
+import type { IAutoMovieVector3 as ImportedIAutoMovieVector3 } from "@automovie/interface";
 
+import type { IHumanFaceLipMarginPoint as ImportedIHumanFaceLipMarginPoint } from "../../basis/IHumanFaceLipMarginPoint";
+import type { IHumanFaceLipMarginPoints as ImportedIHumanFaceLipMarginPoints } from "../../basis/IHumanFaceLipMarginPoints";
+import { readHumanFaceLipMarginPoints } from "../../basis/readHumanFaceLipMarginPoints";
 import type { IAutoMovieHumanFaceBasis } from "../../structures/IAutoMovieHumanFaceBasis";
 import type { IAutoMovieHumanFaceRigidMotion } from "../../structures/IAutoMovieHumanFaceRigidMotion";
 import type { IHumanFaceOralAssembly } from "./IHumanFaceOralAssembly";
@@ -29,12 +32,17 @@ export function connectHumanFaceOralLipPorts(
   performed: ReadonlyMap<string, readonly number[]>,
   jaw: IAutoMovieHumanFaceRigidMotion,
 ): IHumanFaceOralAssembly {
-  const contact: ImportedIAutoMovieHumanFaceBasisContact | undefined = basis.contact;
+  const contact: ImportedIAutoMovieHumanFaceBasisContact | undefined =
+    basis.contact;
   const surface: ImportedIAutoMovieHumanFaceBasisSurface | undefined =
     contact === undefined
       ? undefined
-      : basis.surfaces.find((one: ImportedIAutoMovieHumanFaceBasisSurface): boolean => one.id === contact.lips.surface);
-  const lip: readonly number[] | undefined = surface === undefined ? undefined : performed.get(surface.id);
+      : basis.surfaces.find(
+          (one: ImportedIAutoMovieHumanFaceBasisSurface): boolean =>
+            one.id === contact.lips.surface,
+        );
+  const lip: readonly number[] | undefined =
+    surface === undefined ? undefined : performed.get(surface.id);
   if (
     contact?.margin === undefined ||
     surface?.sourcePartition === undefined ||
@@ -44,13 +52,23 @@ export function connectHumanFaceOralLipPorts(
       "Oral soft wall needs the actual final source lip ports and canonical skin correspondence.",
     );
   const joined: IHumanFaceOralPart[] = [];
-  const ports: ImportedIHumanFaceLipMarginPoints = readHumanFaceLipMarginPoints(surface, contact.margin, lip);
-  const stations: (points: readonly number[][]) => number[] = (points: readonly number[][]): number[] => {
+  const ports: ImportedIHumanFaceLipMarginPoints = readHumanFaceLipMarginPoints(
+    surface,
+    contact.margin,
+    lip,
+  );
+  const stations: (points: readonly number[][]) => number[] = (
+    points: readonly number[][],
+  ): number[] => {
     const distances: number[] = [0];
     for (let k: number = 1; k < points.length; k++)
       distances.push(
         distances[k - 1] +
-          Math.hypot(...points[k].map((v: number, axis: number): number => v - points[k - 1][axis])),
+          Math.hypot(
+            ...points[k].map(
+              (v: number, axis: number): number => v - points[k - 1][axis],
+            ),
+          ),
       );
     const total: number = distances[distances.length - 1];
     if (!(total > 0) || !Number.isFinite(total))
@@ -58,35 +76,51 @@ export function connectHumanFaceOralLipPorts(
     return distances.map((distance: number): number => distance / total);
   };
   for (const mandibular of [false, true]) {
-    const prefix: "mandibular" | "maxillary" = mandibular ? "mandibular" : "maxillary";
+    const prefix: "mandibular" | "maxillary" = mandibular
+      ? "mandibular"
+      : "maxillary";
     const wall: IHumanFaceOralPart | undefined = assembly.parts.find(
-      (part: IHumanFaceOralPart): boolean => part.id === prefix + ":vestibular-wall",
+      (part: IHumanFaceOralPart): boolean =>
+        part.id === prefix + ":vestibular-wall",
     );
     if (wall === undefined || wall.mesh.positions.length % 6 !== 0)
       throw new Error("Oral soft wall needs its generated vestibular edge.");
     const n: number = wall.mesh.positions.length / 6;
-    const edge: number[][] = Array.from({ length: n }, (_: unknown, vertex: number): number[] => {
-      const original: number[] = wall.mesh.positions.slice(
-        3 * (n + vertex),
-        3 * (n + vertex) + 3,
-      );
-      if (!mandibular) return original;
-      const point: ImportedIAutoMovieVector3 = Vector3.create(...original);
-      const placed: ImportedIAutoMovieVector3 = Vector3.add(
-        Vector3.add(
-          jaw.pivot,
-          Quaternion.rotateVector(
-            jaw.rotation,
-            Vector3.subtract(point, jaw.pivot),
+    const edge: number[][] = Array.from(
+      { length: n },
+      (_: unknown, vertex: number): number[] => {
+        const original: number[] = wall.mesh.positions.slice(
+          3 * (n + vertex),
+          3 * (n + vertex) + 3,
+        );
+        if (!mandibular) return original;
+        const point: ImportedIAutoMovieVector3 = Vector3.create(...original);
+        const placed: ImportedIAutoMovieVector3 = Vector3.add(
+          Vector3.add(
+            jaw.pivot,
+            Quaternion.rotateVector(
+              jaw.rotation,
+              Vector3.subtract(point, jaw.pivot),
+            ),
           ),
-        ),
-        jaw.translation,
-      );
-      return [placed.x, placed.y, placed.z];
-    });
-    const margin: ImportedIHumanFaceLipMarginPoint[] = mandibular ? ports.lower : ports.upper;
-    const lipPoints: number[][] = margin.map(({ point }: ImportedIHumanFaceLipMarginPoint): number[] => [point.x, point.y, point.z]);
-    const lipIds: string[] = margin.map((point: ImportedIHumanFaceLipMarginPoint): string => point.identity);
+          jaw.translation,
+        );
+        return [placed.x, placed.y, placed.z];
+      },
+    );
+    const margin: ImportedIHumanFaceLipMarginPoint[] = mandibular
+      ? ports.lower
+      : ports.upper;
+    const lipPoints: number[][] = margin.map(
+      ({ point }: ImportedIHumanFaceLipMarginPoint): number[] => [
+        point.x,
+        point.y,
+        point.z,
+      ],
+    );
+    const lipIds: string[] = margin.map(
+      (point: ImportedIHumanFaceLipMarginPoint): string => point.identity,
+    );
     if (lipPoints[0][0] > lipPoints[lipPoints.length - 1][0]) {
       lipPoints.reverse();
       lipIds.reverse();
@@ -94,24 +128,36 @@ export function connectHumanFaceOralLipPorts(
     // The strip spans only the arc of the vestibular edge that faces the lip port: the bearings,
     // about the edge's own centre in the transverse plane, that the port itself covers.
     const pivot: number[] = [0, 2].map(
-      (axis: number): number => edge.reduce((sum: number, point: number[]): number => sum + point[axis], 0) / n,
+      (axis: number): number =>
+        edge.reduce(
+          (sum: number, point: number[]): number => sum + point[axis],
+          0,
+        ) / n,
     );
-    const bearing: (point: readonly number[]) => number = (point: readonly number[]): number =>
-      Math.atan2(point[0] - pivot[0], point[2] - pivot[1]);
+    const bearing: (point: readonly number[]) => number = (
+      point: readonly number[],
+    ): number => Math.atan2(point[0] - pivot[0], point[2] - pivot[1]);
     const bearings: number[] = lipPoints.map(bearing);
     const least: number = Math.min(...bearings),
       most: number = Math.max(...bearings);
-    const rimVertices: number[] = Array.from({ length: n }, (_: unknown, vertex: number): number => vertex)
+    const rimVertices: number[] = Array.from(
+      { length: n },
+      (_: unknown, vertex: number): number => vertex,
+    )
       .filter(
         (vertex: number): boolean =>
           bearing(edge[vertex]) >= least && bearing(edge[vertex]) <= most,
       )
-      .sort((a: number, b: number): number => bearing(edge[a]) - bearing(edge[b]));
+      .sort(
+        (a: number, b: number): number => bearing(edge[a]) - bearing(edge[b]),
+      );
     if (rimVertices.length < 2)
       throw new Error(
         "Oral soft wall needs a vestibular arc facing the lip port.",
       );
-    const rim: number[][] = rimVertices.map((vertex: number): number[] => edge[vertex]);
+    const rim: number[][] = rimVertices.map(
+      (vertex: number): number[] => edge[vertex],
+    );
     const a: number[] = stations(rim),
       b: number[] = stations(lipPoints),
       count: number = rim.length;
@@ -145,7 +191,9 @@ export function connectHumanFaceOralLipPorts(
         skin: null,
       },
       physicalPoints: [
-        ...rimVertices.map((vertex: number): string => wall.physicalPoints[n + vertex]),
+        ...rimVertices.map(
+          (vertex: number): string => wall.physicalPoints[n + vertex],
+        ),
         ...lipIds,
       ],
     });

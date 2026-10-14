@@ -1,4 +1,8 @@
-import type { IAutoMovieHumanFaceBasisSurface as ImportedIAutoMovieHumanFaceBasisSurface, IHumanFaceOralCrown as ImportedIHumanFaceOralCrown, IPngImage as ImportedIPngImage } from "@automovie/human";
+import type {
+  IAutoMovieHumanFaceBasisSurface as ImportedIAutoMovieHumanFaceBasisSurface,
+  IHumanFaceOralCrown as ImportedIHumanFaceOralCrown,
+  IPngImage as ImportedIPngImage,
+} from "@automovie/human";
 import type { IAutoMovieMaterial } from "@automovie/interface";
 
 import { srgbByteToLinear } from "../../../common/colour/srgbByteToLinear";
@@ -23,9 +27,14 @@ export function readHumanFaceOralPigment(
   basis: IAutoMovieHumanFaceBasis,
   material: IAutoMovieMaterial,
 ): number[] {
-  const surface: ImportedIAutoMovieHumanFaceBasisSurface = basis.surfaces.find((one: ImportedIAutoMovieHumanFaceBasisSurface): boolean => one.id === "Human.teeth_base")!;
+  const surface: ImportedIAutoMovieHumanFaceBasisSurface = basis.surfaces.find(
+    (one: ImportedIAutoMovieHumanFaceBasisSurface): boolean =>
+      one.id === "Human.teeth_base",
+  )!;
   const crownVertices: Set<number> = new Set(
-    readHumanFaceOralCrowns(basis).flatMap((crown: ImportedIHumanFaceOralCrown): number[] => crown.vertices),
+    readHumanFaceOralCrowns(basis).flatMap(
+      (crown: ImportedIHumanFaceOralCrown): number[] => crown.vertices,
+    ),
   );
   const total: number[] = [0, 0, 0];
   let samples: number = 0;

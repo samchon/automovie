@@ -1,9 +1,20 @@
-import type { IAutoMovieHumanFaceBasisContact as ImportedIAutoMovieHumanFaceBasisContact, IAutoMovieHumanFaceBasisSurface as ImportedIAutoMovieHumanFaceBasisSurface } from "@automovie/human";
-import type { IHumanFaceLipMarginPoints as ImportedIHumanFaceLipMarginPoints } from "../../basis/IHumanFaceLipMarginPoints";
-import type { IHumanFaceLipMarginPoint as ImportedIHumanFaceLipMarginPoint } from "../../basis/IHumanFaceLipMarginPoint";
-import { Vector3, measureAutoMovieMeshCrossings, triangulateAutoMovieRegion, type IAutoMovieMeshCrossing as ImportedIAutoMovieMeshCrossing } from "@automovie/engine";
-import type { IAutoMovieMesh, IAutoMovieVector3 as ImportedIAutoMovieVector3 } from "@automovie/interface";
+import {
+  type IAutoMovieMeshCrossing as ImportedIAutoMovieMeshCrossing,
+  Vector3,
+  measureAutoMovieMeshCrossings,
+  triangulateAutoMovieRegion,
+} from "@automovie/engine";
+import type {
+  IAutoMovieHumanFaceBasisContact as ImportedIAutoMovieHumanFaceBasisContact,
+  IAutoMovieHumanFaceBasisSurface as ImportedIAutoMovieHumanFaceBasisSurface,
+} from "@automovie/human";
+import type {
+  IAutoMovieMesh,
+  IAutoMovieVector3 as ImportedIAutoMovieVector3,
+} from "@automovie/interface";
 
+import type { IHumanFaceLipMarginPoint as ImportedIHumanFaceLipMarginPoint } from "../../basis/IHumanFaceLipMarginPoint";
+import type { IHumanFaceLipMarginPoints as ImportedIHumanFaceLipMarginPoints } from "../../basis/IHumanFaceLipMarginPoints";
 import { measureHumanFaceTongueSection } from "../../basis/measureHumanFaceTongueSection";
 import { readHumanFaceLipMarginPoints } from "../../basis/readHumanFaceLipMarginPoints";
 import type { IAutoMovieHumanFaceTonguePassageSummary } from "../../structures/IAutoMovieHumanFaceTonguePassageSummary";
@@ -27,59 +38,102 @@ import type { IHumanFaceOralPassageProps } from "./IHumanFaceOralPassageProps";
 export function evaluateHumanFaceOralPassage(
   props: IHumanFaceOralPassageProps,
 ): IAutoMovieHumanFaceTonguePassageSummary | null {
-  const { basis, assembly, positions, reference, up, forward }: IHumanFaceOralPassageProps = props;
-  const contact: ImportedIAutoMovieHumanFaceBasisContact | undefined = basis.contact;
+  const {
+    basis,
+    assembly,
+    positions,
+    reference,
+    up,
+    forward,
+  }: IHumanFaceOralPassageProps = props;
+  const contact: ImportedIAutoMovieHumanFaceBasisContact | undefined =
+    basis.contact;
   if (contact?.margin === undefined || assembly.dentalColliders === undefined)
     throw new Error(
       "Generated oral passage needs actual retained crowns and complete source lip ports.",
     );
-  const skin: readonly number[] | undefined = positions.get(contact.lips.surface),
-    tongue: readonly number[] | undefined = positions.get(contact.passage.surface);
-  const tongueRest: readonly number[] | undefined = reference.get(contact.passage.surface);
-  const sourceTongue: ImportedIAutoMovieHumanFaceBasisSurface | undefined = basis.surfaces.find(
-    (surface: ImportedIAutoMovieHumanFaceBasisSurface): boolean => surface.id === contact.passage.surface,
+  const skin: readonly number[] | undefined = positions.get(
+      contact.lips.surface,
+    ),
+    tongue: readonly number[] | undefined = positions.get(
+      contact.passage.surface,
+    );
+  const tongueRest: readonly number[] | undefined = reference.get(
+    contact.passage.surface,
   );
-  const sourceSkin: ImportedIAutoMovieHumanFaceBasisSurface | undefined = basis.surfaces.find((surface: ImportedIAutoMovieHumanFaceBasisSurface): boolean => surface.id === contact.lips.surface);
+  const sourceTongue: ImportedIAutoMovieHumanFaceBasisSurface | undefined =
+    basis.surfaces.find(
+      (surface: ImportedIAutoMovieHumanFaceBasisSurface): boolean =>
+        surface.id === contact.passage.surface,
+    );
+  const sourceSkin: ImportedIAutoMovieHumanFaceBasisSurface | undefined =
+    basis.surfaces.find(
+      (surface: ImportedIAutoMovieHumanFaceBasisSurface): boolean =>
+        surface.id === contact.lips.surface,
+    );
   if (
     skin === undefined ||
     tongue === undefined ||
     tongueRest === undefined ||
-    sourceTongue === undefined || sourceSkin === undefined
+    sourceTongue === undefined ||
+    sourceSkin === undefined
   )
     throw new Error(
       "Generated oral passage needs actual performed and shape-only tongue geometry.",
     );
-  const ports: ImportedIHumanFaceLipMarginPoints = readHumanFaceLipMarginPoints(sourceSkin, contact.margin, skin);
-  const lower: ImportedIAutoMovieVector3[] = ports.lower.map((entry: ImportedIHumanFaceLipMarginPoint): ImportedIAutoMovieVector3 => entry.point);
+  const ports: ImportedIHumanFaceLipMarginPoints = readHumanFaceLipMarginPoints(
+    sourceSkin,
+    contact.margin,
+    skin,
+  );
+  const lower: ImportedIAutoMovieVector3[] = ports.lower.map(
+    (entry: ImportedIHumanFaceLipMarginPoint): ImportedIAutoMovieVector3 =>
+      entry.point,
+  );
   const origin: ImportedIAutoMovieVector3 = Vector3.scale(
     lower.reduce(
-      (sum: ImportedIAutoMovieVector3, point: ImportedIAutoMovieVector3): ImportedIAutoMovieVector3 => Vector3.add(sum, point),
+      (
+        sum: ImportedIAutoMovieVector3,
+        point: ImportedIAutoMovieVector3,
+      ): ImportedIAutoMovieVector3 => Vector3.add(sum, point),
       Vector3.create(0, 0, 0),
     ),
     1 / lower.length,
   );
-  const section: { protrudingMetres: number; thicknessMetres: number | null; } = measureHumanFaceTongueSection(tongue, sourceTongue.indices, {
-    origin,
-    forward,
-    up,
-    slabMetres: contact.passage.slabMetres,
-  });
+  const section: { protrudingMetres: number; thicknessMetres: number | null } =
+    measureHumanFaceTongueSection(tongue, sourceTongue.indices, {
+      origin,
+      forward,
+      up,
+      slabMetres: contact.passage.slabMetres,
+    });
   if (section.protrudingMetres <= contact.toleranceMetres) return null;
   if (section.thicknessMetres === null)
     throw new Error(
       "The protruding tongue has no actual lip-port slab section.",
     );
   const across: ImportedIAutoMovieVector3 = Vector3.cross(up, forward);
-  const projected: (point: readonly number[]) => number[] = (point: readonly number[]): number[] => {
-    const delta: ImportedIAutoMovieVector3 = Vector3.subtract(Vector3.create(...point), origin);
+  const projected: (point: readonly number[]) => number[] = (
+    point: readonly number[],
+  ): number[] => {
+    const delta: ImportedIAutoMovieVector3 = Vector3.subtract(
+      Vector3.create(...point),
+      origin,
+    );
     return [
       Vector3.dot(delta, across),
       Vector3.dot(delta, up),
       Vector3.dot(delta, forward),
     ];
   };
-  const upper: number[][] = ports.upper.map(({ point }: ImportedIHumanFaceLipMarginPoint): number[] => projected([point.x, point.y, point.z]));
-  const bottom: number[][] = ports.lower.map(({ point }: ImportedIHumanFaceLipMarginPoint): number[] => projected([point.x, point.y, point.z]));
+  const upper: number[][] = ports.upper.map(
+    ({ point }: ImportedIHumanFaceLipMarginPoint): number[] =>
+      projected([point.x, point.y, point.z]),
+  );
+  const bottom: number[][] = ports.lower.map(
+    ({ point }: ImportedIHumanFaceLipMarginPoint): number[] =>
+      projected([point.x, point.y, point.z]),
+  );
   if (
     (upper[upper.length - 1][0] - upper[0][0]) *
       (bottom[bottom.length - 1][0] - bottom[0][0]) >
@@ -99,9 +153,14 @@ export function evaluateHumanFaceOralPassage(
   )
     opening.pop();
   triangulateAutoMovieRegion({
-    outer: opening.map((point: number[]): { x: number; y: number; } => ({ x: point[0], y: point[1] })),
+    outer: opening.map((point: number[]): { x: number; y: number } => ({
+      x: point[0],
+      y: point[1],
+    })),
   });
-  const inside: (point: readonly number[]) => boolean = (point: readonly number[]): boolean => {
+  const inside: (point: readonly number[]) => boolean = (
+    point: readonly number[],
+  ): boolean => {
     let contained: boolean = false;
     for (let at: number = 0; at < opening.length; at++) {
       const a: number[] = opening[at],
@@ -128,11 +187,15 @@ export function evaluateHumanFaceOralPassage(
     }
     return contained;
   };
-  const crossesBoundary: (a: readonly number[], b: readonly number[]) => boolean = (
+  const crossesBoundary: (
     a: readonly number[],
     b: readonly number[],
-  ): boolean => {
-    const orientation: (p: readonly number[], q: readonly number[], r: readonly number[]) => number = (
+  ) => boolean = (a: readonly number[], b: readonly number[]): boolean => {
+    const orientation: (
+      p: readonly number[],
+      q: readonly number[],
+      r: readonly number[],
+    ) => number = (
       p: readonly number[],
       q: readonly number[],
       r: readonly number[],
@@ -160,7 +223,8 @@ export function evaluateHumanFaceOralPassage(
   };
   const projectedTongue: number[][] = Array.from(
     { length: tongue.length / 3 },
-    (_: unknown, vertex: number): number[] => projected(tongue.slice(3 * vertex, 3 * vertex + 3)),
+    (_: unknown, vertex: number): number[] =>
+      projected(tongue.slice(3 * vertex, 3 * vertex + 3)),
   );
   for (let at: number = 0; at < sourceTongue.indices.length; at += 3) {
     let polygon: number[][] = sourceTongue.indices
@@ -177,7 +241,12 @@ export function evaluateHumanFaceOralPassage(
         if (first !== second) {
           const t: number =
             (direction * contact.passage.slabMetres - a[2]) / (b[2] - a[2]);
-          next.push(a.map((value: number, axis: number): number => value + t * (b[axis] - value)));
+          next.push(
+            a.map(
+              (value: number, axis: number): number =>
+                value + t * (b[axis] - value),
+            ),
+          );
         }
       }
       polygon = next;
@@ -207,16 +276,18 @@ export function evaluateHumanFaceOralPassage(
     const known: Set<string> = new Set(
       measureAutoMovieMeshCrossings(referenceMesh, crown.rest, {
         allPairs: true,
-      }).map((pair: ImportedIAutoMovieMeshCrossing): string => pair.triangle + ":" + pair.other + ":" + pair.coplanar),
+      }).map(
+        (pair: ImportedIAutoMovieMeshCrossing): string =>
+          pair.triangle + ":" + pair.other + ":" + pair.coplanar,
+      ),
     );
-    const additional: ImportedIAutoMovieMeshCrossing | undefined = measureAutoMovieMeshCrossings(
-      performedMesh,
-      crown.posed,
-      { allPairs: true },
-    ).find(
-      (pair: ImportedIAutoMovieMeshCrossing): boolean =>
-        !known.has(pair.triangle + ":" + pair.other + ":" + pair.coplanar),
-    );
+    const additional: ImportedIAutoMovieMeshCrossing | undefined =
+      measureAutoMovieMeshCrossings(performedMesh, crown.posed, {
+        allPairs: true,
+      }).find(
+        (pair: ImportedIAutoMovieMeshCrossing): boolean =>
+          !known.has(pair.triangle + ":" + pair.other + ":" + pair.coplanar),
+      );
     if (additional !== undefined)
       throw new Error(
         "The performed tongue adds a crossing of an actual retained crown at tongue triangle " +

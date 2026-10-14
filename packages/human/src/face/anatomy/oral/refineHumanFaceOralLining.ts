@@ -27,7 +27,10 @@ export function refineHumanFaceOralLining(
   let current: number[] = [...indices];
   for (let pass: number = 0; pass < 64; pass++) {
     const midpoint: Map<string, number> = new Map<string, number>();
-    const split: (a: number, b: number) => number = (a: number, b: number): number => {
+    const split: (a: number, b: number) => number = (
+      a: number,
+      b: number,
+    ): number => {
       const key: string = Math.min(a, b) + ":" + Math.max(a, b);
       if (fixed.has(key)) return -1;
       const known: number | undefined = midpoint.get(key);
@@ -47,8 +50,12 @@ export function refineHumanFaceOralLining(
     const next: number[] = [];
     for (let at: number = 0; at < current.length; at += 3) {
       const vertices: number[] = current.slice(at, at + 3);
-      const midpoints: number[] = vertices.map((a: number, k: number): number => split(a, vertices[(k + 1) % 3]));
-      const count: number = midpoints.filter((vertex: number): boolean => vertex !== -1).length;
+      const midpoints: number[] = vertices.map((a: number, k: number): number =>
+        split(a, vertices[(k + 1) % 3]),
+      );
+      const count: number = midpoints.filter(
+        (vertex: number): boolean => vertex !== -1,
+      ).length;
       if (count === 0) {
         next.push(...vertices);
         continue;
@@ -64,8 +71,12 @@ export function refineHumanFaceOralLining(
         count === 1
           ? midpoints.findIndex((vertex: number): boolean => vertex !== -1)
           : (midpoints.indexOf(-1) + 1) % 3;
-      const [a, b, c]: number[] = [0, 1, 2].map((k: number): number => vertices[(start + k) % 3]);
-      const [ab, bc]: number[] = [0, 1].map((k: number): number => midpoints[(start + k) % 3]);
+      const [a, b, c]: number[] = [0, 1, 2].map(
+        (k: number): number => vertices[(start + k) % 3],
+      );
+      const [ab, bc]: number[] = [0, 1].map(
+        (k: number): number => midpoints[(start + k) % 3],
+      );
       if (count === 1) next.push(a, ab, c, ab, b, c);
       else next.push(b, bc, ab, a, ab, c, ab, bc, c);
     }
