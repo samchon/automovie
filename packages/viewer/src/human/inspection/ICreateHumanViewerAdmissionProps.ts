@@ -35,7 +35,7 @@ export interface ICreateHumanViewerAdmissionProps {
    * @evidence contracts/common.md#clear-and-simple-design Keeps server transport and domain schema judgment on opposite sides of one asynchronous bridge.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts An unavailable envelope is not a verdict; thrown or incompatible replies become named pending causes instead of accepted geometry.
    * @evidence contracts/common.md#meaningful-documentation Domain identifies the numerical owner, text is its document JSON and basis is the paired authority token; null reason means an available owner admitted it.
-   * @evidence contracts/performance.md#efficient-algorithms Serialization and domain judgment scale with document/model input; createHumanViewerAdmission sends at most one concurrent request for an id's current key.
+   * @evidence contracts/performance.md#efficient-algorithms Serialization and domain judgment scale with document/model input. The owner tracks the latest requested key per id while earlier requests can remain unsettled; returning to a previous key can start another judgment for that key.
    * @evidence contracts/performance.md#reuse-equivalent-work An equal document id/key shares tracked work and kept verdict; changed keys launch their own judgment and discard outdated responses.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Each call returns a tracked task until settlement; the admission owner removes settled task references, while the page/bridge connection remains owned by the host.
    */
