@@ -38,14 +38,14 @@ const instanceBase: () => Omit<
  * World constructors produce procedural design records, and placement admission refuses the authored contradictions.
  *
  * Scenarios:
- * 1. Terrain, ramp, block and layout constructors retain selected recipe, bounds,
+ * 1. Terrain, ramp, block and layout constructors retain selected model, bounds,
  *    height and layout facts without resolving the whole population.
  * 2. Ground, raised support, route-only and rim landmarks admit their actual
  *    authored placement inputs.
  * 3. Blank id, collapsed/nonfinite block extents, zero-length ramp, overlap,
  *    overhang, floating bounds, blocked route and unreachable landmark throw.
  *
- * @evidence contracts/testing.md#behavioral-verification Actual world constructor fields and assertWorldPlacements results exercise design production and placement refusal. Selected output fields expose wrong recipes/layouts/heights, while the existing contradiction cases must throw.
+ * @evidence contracts/testing.md#behavioral-verification Actual world constructor fields and assertWorldPlacements results exercise design production and placement refusal. Selected output fields expose wrong block models/layouts/heights, while the existing contradiction cases must throw.
  * @evidence contracts/testing.md#independent-expectations Authored block base and dimensions determine bounds, ramp endpoints determine its height, and layouts retain their requested discriminator. Geometry and walkable/route membership determine the supported and refused placement cases; this does not inspect rendered buildings or every output field.
  * @evidence contracts/testing.md#distinguishing-cases Ordinary ground and raised support, route-only and exact-rim landmarks contrast malformed sizes/coordinates, overlap, overhang, unsupported height and blocked/unreachable placements. Heightfield interpolation belongs to its separate owning test.
  * @evidence contracts/testing.md#execution-ownership Portable CPU unit discovered as test_world_kit; this exported function owns the constructor assertions and registered rejected callbacks, without generating a production artifact or installing a browser/GPU host.
@@ -84,9 +84,6 @@ export function test_world_kit(): void {
     base: { x: -8, y: 0, z: 8 },
     size: { x: 5, y: 2, z: 0.4 },
     color: "#777777",
-    // A production whose catalogue registers its own static-primitive builder
-    // names it here; the default is the shipped one.
-    archetype: "registered-block",
   });
   const route: {
     id: string;
@@ -165,12 +162,28 @@ export function test_world_kit(): void {
     "terrain, ramp, blocks, and compact placement helpers retain exact facts",
     namedFacts([
       [
-        "buildingRecipeParameters",
-        (): boolean => building.recipe.parameters.shape === "box",
+        "buildingModelBox",
+        (): boolean => {
+          const part: IAutoMovieWorldBlock["model"]["parts"][number] | undefined =
+            building.model.parts[0];
+          return (
+            building.model.parts.length === 1 &&
+            building.model.skeleton === null &&
+            part?.geometry.type === "primitive" &&
+            part.geometry.shape.type === "box" &&
+            part.geometry.shape.width === 3 &&
+            part.geometry.shape.height === 4 &&
+            part.geometry.shape.depth === 3 &&
+            building.model.materials.length === 1 &&
+            part.material === building.model.materials[0]!.id
+          );
+        },
       ],
       [
         "buildingNodeModel",
-        (): boolean => building.node.model.endsWith(":house"),
+        (): boolean =>
+          building.node.model.endsWith(":house") &&
+          building.node.model === building.model.id,
       ],
       ["buildingBoundsMin", (): boolean => nclose(building.bounds.min.y, 0, 0)],
       [
@@ -190,7 +203,7 @@ export function test_world_kit(): void {
       ["gridInstanceBase", (): boolean => grid !== gridBase],
     ]),
     {
-      buildingRecipeParameters: true,
+      buildingModelBox: true,
       buildingNodeModel: true,
       buildingBoundsMin: true,
       worldSurfaceHeightGroundX: true,
@@ -280,7 +293,7 @@ export function test_world_kit(): void {
           {
             ...building,
             id: "overlap",
-            recipe: { ...building.recipe, id: "overlap" },
+            model: { ...building.model, id: "overlap" },
             node: { ...building.node, id: "overlap" },
           },
         ],

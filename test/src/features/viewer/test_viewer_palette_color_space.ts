@@ -6,7 +6,6 @@ import {
 import {
   IAutoMovieInstanceSetDesign,
   IAutoMovieModel,
-  IAutoMovieModelRecipe,
   IAutoMovieWorldDesign,
 } from "@automovie/interface";
 import { buildInstancedInstanceSet, buildMaterial } from "@automovie/viewer";
@@ -175,10 +174,10 @@ const instanceAlbedos: (swatch: string) => THREE.Color[] = (
 function paletteInstances(
   swatch: string,
 ): ReturnType<typeof buildInstancedInstanceSet> {
-  const recipe: IAutoMovieModelRecipe = paletteRecipe(swatch);
+  const slab: IAutoMovieModel = paletteModel(swatch);
   const design: IAutoMovieInstanceSetDesign = {
     id: "roof",
-    modelRecipe: recipe.id,
+    modelRecipe: "slate",
     count: 2,
     layout: { kind: "grid", rows: 1, columns: 2, spacing: { x: 1, z: 1 } },
     anchor: { x: 0, y: 0, z: 0 },
@@ -200,18 +199,13 @@ function paletteInstances(
     effectZones: [],
     instanceSets: [design],
   };
-  const recipes: Map<string, IAutoMovieModelRecipe> = new Map([
-    [recipe.id, recipe],
-  ]);
   return buildInstancedInstanceSet({
     instanceSet: materializeCompiledInstanceSet({
       instanceSet: design,
       world,
-      recipes,
+      models: new Map([["slate", slab]]),
     }),
-    models: new Map([
-      [productionRuntimeModelId(recipe.id), paletteModel(swatch)],
-    ]),
+    models: new Map([[slab.id, slab]]),
   });
 }
 
@@ -226,20 +220,6 @@ function paletteModel(swatch: string): IAutoMovieModel {
   };
   return model;
 }
-
-/** One flat slab whose single material color is the swatch under test. */
-const paletteRecipe: (swatch: string) => IAutoMovieModelRecipe = (
-  swatch: string,
-): IAutoMovieModelRecipe => ({
-  id: "slate",
-  role: "prop",
-  archetype: "primitive-prop",
-  parameters: { shape: "box", width: 1, height: 0.05, depth: 1 },
-  palette: { slate: swatch },
-  lod: [{ tier: "near", maxDistance: null, recipe: "slate" }],
-  capabilities: [],
-  attachments: [],
-});
 
 /**
  * Float32 instance attributes introduce rounding relative to the double-precision material color, so both paths use the same finite 1e-7 comparison tolerance.

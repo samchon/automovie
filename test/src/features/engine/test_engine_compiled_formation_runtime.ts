@@ -11,12 +11,14 @@ import {
   IAutoMovieCompiledFormationLod,
   IAutoMovieFormationChunk,
   IAutoMovieFormationDesign,
-  IAutoMovieModelRecipe,
+  IAutoMovieModel,
+  IAutoMovieModelLodRecipe,
   IAutoMovieWorldSurface,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 import { createHash } from "node:crypto";
 
+import { createModel } from "../internal/createModel";
 import {
   namedFacts,
   nclose,
@@ -57,40 +59,27 @@ const column: (
   ...overrides,
 });
 
-const recipe: (
-  id: string,
-  lod: IAutoMovieModelRecipe["lod"],
-  parameters?: IAutoMovieModelRecipe["parameters"],
-) => IAutoMovieModelRecipe = (
-  id: string,
-  lod: IAutoMovieModelRecipe["lod"],
-  parameters: IAutoMovieModelRecipe["parameters"] = { height: 1.8 },
-): IAutoMovieModelRecipe => ({
+/** One fresh skeletonless box model group carrying the given id. */
+const model: (id: string) => IAutoMovieModel = (id: string): IAutoMovieModel => ({
+  ...createModel(null),
   id,
-  role: "performer",
-  archetype: "stickman",
-  parameters,
-  palette: { body: "#808080" },
-  lod,
-  capabilities: [],
-  attachments: [],
 });
 
-/** A declared hero tier, a near tier of the base recipe, and a far tier nobody declared. */
-const tiered: () => Map<string, IAutoMovieModelRecipe> = (): Map<
+/** A declared hero tier, a near tier of the base group, and a far tier of a group nobody supplied. */
+const TIERS: IAutoMovieModelLodRecipe[] = [
+  { tier: "hero", maxDistance: 2, recipe: "member-hero" },
+  { tier: "near", maxDistance: 20, recipe: "member" },
+  { tier: "far", maxDistance: null, recipe: "member-far" },
+];
+
+/** The supplied model groups: the base and its hero group, but no far group. */
+const groups: () => Map<string, IAutoMovieModel> = (): Map<
   string,
-  IAutoMovieModelRecipe
+  IAutoMovieModel
 > =>
   new Map([
-    [
-      "member",
-      recipe("member", [
-        { tier: "hero", maxDistance: 2, recipe: "member-hero" },
-        { tier: "near", maxDistance: 20, recipe: "member" },
-        { tier: "far", maxDistance: null, recipe: "member-far" },
-      ]),
-    ],
-    ["member-hero", recipe("member-hero", [])],
+    ["member", model("member")],
+    ["member-hero", model("member-hero")],
   ]);
 
 /** The Node builder's digest of one value's canonical JSON. */
@@ -126,24 +115,25 @@ const strip: (
  *    anonymous members after the hero standing in it is excluded.
  * 2. Heroes compile in slot order at their authored unturned positions, with a
  *    heading quaternion; a quarter heading turns that quaternion a quarter about +Y.
- * 3. Anonymous tiers drop the declared hero tier and keep the rest in order; a
- *    declared tier recipe carries the Node digest of that recipe, and every tier
- *    carries its runtime model id. A base recipe declaring no tiers draws
- *    through one unbounded near tier of itself, and a recipe whose parameter
- *    cannot be encoded still compiles its tier instead of refusing the record.
+ * 3. Anonymous tiers drop the design's declared hero tier and keep the rest in
+ *    order; a tier whose model group is supplied carries the Node digest of
+ *    that group, and every tier carries its runtime model id. A formation
+ *    declaring no tiers draws through one unbounded near tier of its base
+ *    group, and a group with a value canonical JSON cannot encode still
+ *    compiles its tier instead of refusing the record.
  * 4. The member radius is the largest tier radius, a tier without one borrowing
- *    the base recipe's, then half a metre, and never below a centimetre.
+ *    the base group's, then half a metre, and never below a centimetre.
  * 5. Only terrain reaching the rank's own footprint is snapshotted, in declared
  *    order; a surface beyond it on each of the four sides is dropped.
  * 6. The record's digest is the Node digest of every other field, identical for
  *    identical input and different for another seed, with and without terrain.
- * 7. Omitted recipes, radii and terrain compile a record with no terrain, one
+ * 7. Omitted tiers, model groups, radii and terrain compile a record with no terrain, one
  *    near tier and a half-metre radius, and a hero outside the formation refuses
  *    compilation.
  *
  * @evidence contracts/testing.md#behavioral-verification Runs materializeCompiledFormation and asserts chunk/whole bounds, hero placement/count, applicable tiers, measured/fallback radii, terrain selection and canonical digest; wrong chunk folds, default tier policy or selected terrain change observable fields.
- * @evidence contracts/testing.md#independent-expectations The authored 1025-member rank at x=slot-512 gives first-chunk extrema -512..511 and mean -0.5, last point 512 and whole mean zero. Literal hero quaternions, runtime model ids and terrain rectangle overlap anchor geometry/identity. Node SHA checks the portable hash while canonical text is shared; missing-radius expectations pin policy rather than geometric enclosure, and unencodable-recipe cases check continuation rather than independently verify the fallback marker digest.
- * @evidence contracts/testing.md#distinguishing-cases Covers one beyond a chunk, out-of-order heroes, quarter-turn heading, hero-tier filtering, absent/unencodable recipes, measured/base/0.5m/floor radii, terrain beyond every footprint side, seed/terrain digest changes and outside hero refusal. Slot identity on nonflat relief is owned by test_engine_compiled_formation_slot.
+ * @evidence contracts/testing.md#independent-expectations The authored 1025-member rank at x=slot-512 gives first-chunk extrema -512..511 and mean -0.5, last point 512 and whole mean zero. Literal hero quaternions, runtime model ids and terrain rectangle overlap anchor geometry/identity. Node SHA checks the portable hash while canonical text is shared; missing-radius expectations pin policy rather than geometric enclosure, and unencodable-group cases check continuation rather than independently verify the fallback marker digest.
+ * @evidence contracts/testing.md#distinguishing-cases Covers one beyond a chunk, out-of-order heroes, quarter-turn heading, hero-tier filtering, absent/unencodable model groups, measured/base/0.5m/floor radii, terrain beyond every footprint side, seed/terrain digest changes and outside hero refusal. Slot identity on nonflat relief is owned by test_engine_compiled_formation_slot.
  * @evidence contracts/testing.md#execution-ownership The discoverable test_engine_compiled_formation_runtime owns synchronous portable compiler cases; Node crypto independently hashes the shared canonicalizer's encoded bytes. All records/maps remain local and no viewer, GPU, publication, global replacement or production consumer is launched; selected digests do not prove collision-free identity or universal platform equivalence.
  */
 export function test_engine_compiled_formation_runtime(): void {
@@ -287,21 +277,26 @@ export function test_engine_compiled_formation_runtime(): void {
   );
 
   // 3. Tiers.
-  const recipes: Map<string, IAutoMovieModelRecipe> = tiered();
+  const models: Map<string, IAutoMovieModel> = groups();
   const withTiers: IAutoMovieCompiledFormation = materializeCompiledFormation({
-    formation: column(),
-    recipes,
+    formation: column({ lod: TIERS }),
+    models,
   });
+  // Canonical JSON refuses a non-finite number, so this group cannot be encoded.
+  const unencodableGroup: IAutoMovieModel = model("member");
+  unencodableGroup.parts[0]!.transform = {
+    translation: { x: Number.NaN, y: 0, z: 0 },
+    rotation: { x: 0, y: 0, z: 0, w: 1 },
+    scale: { x: 1, y: 1, z: 1 },
+  };
   const unencodable: IAutoMovieCompiledFormation = materializeCompiledFormation(
     {
       formation: column(),
-      recipes: new Map([
-        ["member", recipe("member", [], { height: Number.NaN })],
-      ]),
+      models: new Map([["member", unencodableGroup]]),
     },
   );
   TestValidator.equals(
-    "anonymous tiers drop the hero tier and bind each recipe digest",
+    "anonymous tiers drop the hero tier and bind each model group digest",
     namedFacts([
       [
         "tiers",
@@ -316,7 +311,7 @@ export function test_engine_compiled_formation_runtime(): void {
       [
         "nearDigest",
         (): boolean =>
-          withTiers.lod[0]!.recipeDigest === nodeDigest(recipes.get("member")),
+          withTiers.lod[0]!.recipeDigest === nodeDigest(models.get("member")),
       ],
       [
         "models",
@@ -356,14 +351,14 @@ export function test_engine_compiled_formation_runtime(): void {
   // 4. Radius.
   const radius: (
     radii: ReadonlyArray<readonly [string, number]>,
-    tierRecipes?: ReadonlyMap<string, IAutoMovieModelRecipe>,
+    lod?: IAutoMovieModelLodRecipe[],
   ) => number = (
     radii: ReadonlyArray<readonly [string, number]>,
-    tierRecipes: ReadonlyMap<string, IAutoMovieModelRecipe> = recipes,
+    lod: IAutoMovieModelLodRecipe[] = TIERS,
   ): number =>
     materializeCompiledFormation({
-      formation: column(),
-      recipes: tierRecipes,
+      formation: column({ lod }),
+      models,
       projectionRadii: new Map(radii),
     }).projectionRadius;
   TestValidator.equals(
@@ -387,10 +382,7 @@ export function test_engine_compiled_formation_runtime(): void {
         "centimetreFloor",
         (): boolean =>
           nclose(
-            radius(
-              [["member", 0.001]],
-              new Map([["member", recipe("member", [])]]),
-            ),
+            radius([["member", 0.001]], []),
             0.01,
             0,
           ),

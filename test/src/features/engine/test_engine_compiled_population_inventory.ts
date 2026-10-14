@@ -70,9 +70,9 @@ const field: IAutoMovieWorldSurface = worldRamp({
  * Scenarios:
  *
  * 1. Formations listed b, B, a are keyed B, a, b, and the selected
- *    B record matches a direct kernel call with radii, terrain and no recipes.
+ *    B record matches a direct kernel call with radii, terrain and no model groups.
  * 2. Instance sets declared y, X, x are keyed X, x, y, and X matches the direct
- *    instance-set kernel's output for the same world, radii and no recipes.
+ *    instance-set kernel's output for the same world, radii and no model groups.
  * 3. No formations, and a world that declares no instance sets or an empty list,
  *    compile to empty inventories.
  *
