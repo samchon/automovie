@@ -16,40 +16,38 @@ import { inspectDesignReferenceAsset } from "./inspectDesignReferenceAsset";
 import { AutoMovieUtf8Error } from "./strictUtf8";
 
 /** Containers that carry exactly one page, so no frame may cite a second. */
-const SINGLE_PAGE_MEDIA = new Set(["image/png", "image/jpeg", "image/svg+xml"]);
+const SINGLE_PAGE_MEDIA: Set<string> = new Set(["image/png", "image/jpeg", "image/svg+xml"]);
 
 /**
- * Compile-time gate over the design references one production declares.
+ * Validate declared observation references against supplied asset bytes, typed uses and authored citations.
  *
- * ## What it is for
- *
- * A design reference is the only place in the graph where bytes somebody else
- * produced — a scanned plan, a vector sheet, a generated study — are allowed to
- * influence a building. It is therefore the one place where the design source
- * of truth could be replaced without anybody noticing: an image swapped under a
- * stable path, a frame that claims more sheet than the file holds, a citation
- * pointing at a reading that was deleted. Every check here exists to make one
- * of those substitutions loud.
- *
- * ## What it refuses
- *
- * The document must be internally consistent ({@link validateDesignReference}),
- * its bytes must exist, its declared digest must still be the digest of those
- * bytes, its declared container family must be the family the bytes actually
- * are, its frames must fit inside the extent the container itself states, and
- * every authored citation must resolve ({@link validateDesignEvidence}). The
- * asset must additionally carry a typed `design-reference` use naming this
- * document, so a reference that no ledger authorizes cannot ride along on bytes
- * registered for something else.
- *
- * ## What it deliberately does not do
- *
- * It never reads a plan. It produces no walls, no openings, no levels, and no
- * scale. An unmeasurable container (a PDF page, a DXF drawing) simply leaves
- * the frame unverified instead of being approximated into agreement, because a
- * gate that invents the number it is checking is not a gate.
+ * @evidence contracts/common.md#principled-implementation In source order records duplicate ids, validates each observation, checks asset-use membership and current SHA-256, inspects the actual container family/extent, then validates reverse uses and evidence links.
+ * @evidence contracts/common.md#clear-and-simple-design Build review calls this one reference gate; engine observation/evidence validators and each format inspector retain semantic/container ownership.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No geometry, scale or wall is inferred from pixels. Unmeasured containers withhold frame measurement, and supplied byte/use maps must describe the same captured attempt; duplicate diagnostics prevent successful publication despite later map projection.
+ * @evidence contracts/common.md#meaningful-documentation Defines reference/source ordering, missing/stale/mismatched bytes, single-page scope and measured-width/height-only frame comparison without claiming an atomic physical snapshot.
+ * @evidence contracts/performance.md#efficient-algorithms Includes domain validation, hashing and container inspection per reference, all frame checks, reverse-use joins and evidence validation; shared assets may be rehashed/reinspected for distinct references and diagnostics scale with reported findings.
+ * @evidence contracts/performance.md#reuse-equivalent-work Uses one seen-id set and declared-id map for this attempt and shares canonical hash/domain owners; no persistent inspector cache substitutes for fresh supplied bytes.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Input buffers/maps remain borrowed and diagnostics transfer to the build result; local sets/maps and inspector state expire, with no filesystem descriptor or capture task acquired here.
  */
-export const designReferenceDiagnostics = (props: {
+export const designReferenceDiagnostics: (props: {
+  /** Project-relative ledger path reported as each diagnostic's file. */
+  path: string;
+
+  /** Design-reference documents this production declares, in source order. */
+  references: readonly IAutoMovieDesignReference[];
+
+  /** Citations the building source makes against those documents. */
+  evidence: readonly IAutoMovieDesignEvidence[];
+
+  /** Current project bytes by canonical asset path; `null` when absent. */
+  assets: ReadonlyMap<string, Uint8Array | null>;
+
+  /**
+   * Design-reference document ids authorized on each asset path by an active
+   * `design-reference` use in the production's asset manifest.
+   */
+  uses: ReadonlyMap<string, ReadonlySet<string>>;
+}) => IAutoMovieDiagnostic[] = (props: {
   /** Project-relative ledger path reported as each diagnostic's file. */
   path: string;
 
@@ -69,7 +67,7 @@ export const designReferenceDiagnostics = (props: {
   uses: ReadonlyMap<string, ReadonlySet<string>>;
 }): IAutoMovieDiagnostic[] => {
   const diagnostics: IAutoMovieDiagnostic[] = [];
-  const diagnostic = (
+  const diagnostic: (code: AutoMovieDiagnosticCode, target: string, message: string) => void = (
     code: AutoMovieDiagnosticCode,
     target: string,
     message: string,
@@ -84,7 +82,7 @@ export const designReferenceDiagnostics = (props: {
     });
   };
 
-  const seen = new Set<string>();
+  const seen: Set<string> = new Set<string>();
   for (const reference of props.references) {
     if (seen.has(reference.id))
       diagnostic(
@@ -94,13 +92,13 @@ export const designReferenceDiagnostics = (props: {
       );
     seen.add(reference.id);
 
-    const validated = validateDesignReference({ reference });
+    const validated: ReturnType<typeof validateDesignReference> = validateDesignReference({ reference });
     if (validated.success === false) {
       diagnostic(
         "design-reference-invalid",
         reference.id,
         `Design reference "${reference.id}" is not a consistent observation: ${validated.violations
-          .map((item) => `${item.path}: ${item.expected}`)
+          .map((item: (typeof validated.violations)[number]): string => `${item.path}: ${item.expected}`)
           .join(
             "; ",
           )}. Correct the observation; do not resolve it by promoting a reading into the building source.`,
@@ -108,7 +106,7 @@ export const designReferenceDiagnostics = (props: {
       continue;
     }
 
-    const authorized = props.uses.get(reference.asset);
+    const authorized: ReadonlySet<string> | undefined = props.uses.get(reference.asset);
     if (authorized === undefined || !authorized.has(reference.id))
       diagnostic(
         "design-reference-use-unbound",
@@ -116,7 +114,7 @@ export const designReferenceDiagnostics = (props: {
         `Design reference "${reference.id}" reads "${reference.asset}", but that asset declares no active design-reference use naming this document. Register the typed use before citing the bytes as design evidence.`,
       );
 
-    const bytes = props.assets.get(reference.asset) ?? null;
+    const bytes: Uint8Array | null = props.assets.get(reference.asset) ?? null;
     if (bytes === null) {
       diagnostic(
         "design-reference-asset-missing",
@@ -126,7 +124,7 @@ export const designReferenceDiagnostics = (props: {
       continue;
     }
 
-    const current = digestAutoMovieBytes(bytes);
+    const current: string = digestAutoMovieBytes(bytes);
     if (current !== reference.digest) {
       diagnostic(
         "design-reference-stale",
@@ -161,7 +159,7 @@ export const designReferenceDiagnostics = (props: {
       continue;
     }
 
-    const single = SINGLE_PAGE_MEDIA.has(inspected.media);
+    const single: boolean = SINGLE_PAGE_MEDIA.has(inspected.media);
     for (const frame of reference.frames) {
       if (single && frame.page !== 1)
         diagnostic(
@@ -182,12 +180,12 @@ export const designReferenceDiagnostics = (props: {
     }
   }
 
-  const declared = new Map(
-    props.references.map((reference) => [reference.id, reference.asset]),
+  const declared: Map<string, string> = new Map(
+    props.references.map((reference: IAutoMovieDesignReference): [string, string] => [reference.id, reference.asset]),
   );
   for (const [asset, documents] of props.uses)
     for (const document of documents) {
-      const owner = declared.get(document);
+      const owner: string | undefined = declared.get(document);
       if (owner === undefined)
         diagnostic(
           "design-reference-use-dangling",
@@ -202,7 +200,7 @@ export const designReferenceDiagnostics = (props: {
         );
     }
 
-  const evidence = validateDesignEvidence({
+  const evidence: ReturnType<typeof validateDesignEvidence> = validateDesignEvidence({
     references: props.references,
     evidence: props.evidence,
   });
