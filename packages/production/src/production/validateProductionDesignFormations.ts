@@ -16,13 +16,13 @@ import { encodeAutoMoviePathSegment } from "./contentIdentity";
 /**
  * Check keyed formation identity, model reference, count, anchor, heading, seed, layout, capabilities and unique hero slots/actors.
  *
- * @evidence contracts/common.md#principled-implementation Existing declared capacity and hero limits do not establish placement clearance or source realization.
- * @evidence contracts/common.md#clear-and-simple-design validateProductionDesignFormations owns this operation at its existing validation position; the graph coordinator retains diagnostic ordering and final sorting.
+ * @evidence contracts/common.md#principled-implementation Schema-admitted map entries must match exact keyed ids and existing model recipes; scalar gates constrain count/anchor/heading/seed and the layout helper checks capacity. Local Sets enforce unique hero slots/actors alongside slot/count and hero-count limits. These declarations do not establish placement clearance or source realization.
+ * @evidence contracts/common.md#clear-and-simple-design This per-record formation pass owns keyed identity, model membership and hero-slot/actor uniqueness; aggregate budgets precede it and layout arithmetic remains in the layout helper.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Retained declaration limits, identity comparisons and numerical policies decide admission; no consumer fixture, expected result or foreign-method replacement changes the decision.
- * @evidence contracts/common.md#meaningful-documentation The account gives this operation's premises, caller ownership and admission limits alongside its dominant work.
+ * @evidence contracts/common.md#meaningful-documentation Documents metre anchors, degree headings, integral counts/seeds and hero identity limits; sharedRoot supplies record paths and all findings append without changing records or realizing members.
  * @evidence contracts/performance.md#efficient-algorithms Formation fields and hero populations are scanned with call-local identity sets; each fixed layout check retains its original arithmetic.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work This synchronous call owns no cross-request cache or pending work; current graph records and registry contents determine each admission.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources No handle or task is acquired. Call-local storage becomes unreachable on exit; diagnostics and returned values remain with the caller for its required lifetime and grow with addressed input and findings.
+ * @evidence contracts/performance.md#reuse-equivalent-work Each formation borrows the current model map and keeps local slot/actor Sets across its hero loop; no earlier graph admission or realized formation is cached.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Hero identity Sets and capability keys are temporary, proportional to supplied populations; all appended findings remain in the caller's array without a diagnostic cap, handle or task.
  */
 export function validateProductionDesignFormations(diagnostics: IAutoMovieDiagnostic[], graph: IAutoMovieProductionDesignGraph, sharedRoot: string): void {
 for (const [id, formation] of graph.formations) {

@@ -12,12 +12,12 @@ import { validateProfileCapabilities } from "@automovie/engine";
  * Translate shared profile capability refusals first, then check profile identities and mountable or destructible trait quantities.
  *
  * @evidence contracts/common.md#principled-implementation Invalid shared admission returns before local trait traversal; profile scalars are declarations rather than a physical simulation. Range violations use their structured kind, while duplicate categorization retains the shared refusal's unique wording as a protocol dependency.
- * @evidence contracts/common.md#clear-and-simple-design validateProductionDesignModelProfiles owns this operation at its existing validation position; the graph coordinator retains diagnostic ordering and final sorting.
+ * @evidence contracts/common.md#clear-and-simple-design The engine capability owner admits common trait semantics; this production adapter translates its findings and owns design attribution before the retained local profile/trait pass.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Retained declaration limits, identity comparisons and numerical policies decide admission; no consumer fixture, expected result or foreign-method replacement changes the decision.
- * @evidence contracts/common.md#meaningful-documentation The account gives this operation's premises, caller ownership and admission limits alongside its dominant work.
+ * @evidence contracts/common.md#meaningful-documentation States shared-refusal early return, code translation and subsequent trait checks; profiles remain borrowed and findings append with the model target/file, without mounting or simulating a capability.
  * @evidence contracts/performance.md#efficient-algorithms Shared admission plus profile and trait scans determine work; identity sets retain at most the current declared populations.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work This synchronous call owns no cross-request cache or pending work; current graph records and registry contents determine each admission.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources No handle or task is acquired. Call-local storage becomes unreachable on exit; diagnostics and returned values remain with the caller for its required lifetime and grow with addressed input and findings.
+ * @evidence contracts/performance.md#reuse-equivalent-work One shared capability result controls the early return or local pass; profile/trait Sets then share membership only within their addressed population, without caching mutable profile validity.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Shared violation records, profile/trait Sets and correction strings are input-sized temporaries; translated/appended findings remain in the caller's array without a local cap, handle or task.
  */
 export const validateProductionDesignModelProfiles: (diagnostics: IAutoMovieDiagnostic[], profiles: readonly IAutoMovieProfile[], target: string, file: string) => void = (
   diagnostics: IAutoMovieDiagnostic[],

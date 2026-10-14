@@ -6,13 +6,13 @@ import { IAutoMovieDiagnostic, IAutoMovieFormationDesign, IAutoMovieFormationLay
 /**
  * Read existing optional dressing after the layout kind, admit its metre bounds and require twice each spacing tolerance or the arc's narrower tolerance to stay below its neighbour interval.
  *
- * @evidence contracts/common.md#principled-implementation Scatter and absent dressing return unchanged. One arc member has no finite neighbour interval; no placement or body-clearance proof follows.
- * @evidence contracts/common.md#clear-and-simple-design validateProductionDesignFormationDressing owns this operation at its existing validation position; the graph coordinator retains diagnostic ordering and final sorting.
+ * @evidence contracts/common.md#principled-implementation Scatter and absent dressing return unchanged; other layouts first check lateral/depth metre bounds. Arc uses the represented neighbour chord and twice the narrower tolerance, while straight layouts check each spacing against twice its axis tolerance. Schema-admitted layout/count and separate layout-range checks remain premises; one arc member has infinite neighbour interval and no body-clearance proof follows.
+ * @evidence contracts/common.md#clear-and-simple-design The layout gate delegates optional dressing here; scalar bounds and straight-axis neighbour intervals use shared helpers while this owner computes the arc chord relation.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Retained declaration limits, identity comparisons and numerical policies decide admission; no consumer fixture, expected result or foreign-method replacement changes the decision.
- * @evidence contracts/common.md#meaningful-documentation The account gives this operation's premises, caller ownership and admission limits alongside its dominant work.
+ * @evidence contracts/common.md#meaningful-documentation Defines absent/scatter skips, metre tolerance bounds, one-member arc behavior and the narrower-tolerance arc test; findings append to the borrowed array without producing placement or a clearance certificate.
  * @evidence contracts/performance.md#efficient-algorithms Fixed layout fields and one arc chord calculation take constant work and storage.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work This synchronous call owns no cross-request cache or pending work; current graph records and registry contents determine each admission.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources No handle or task is acquired. Call-local storage becomes unreachable on exit; diagnostics and returned values remain with the caller for its required lifetime and grow with addressed input and findings.
+ * @evidence contracts/performance.md#reuse-equivalent-work One borrowed layout/dressing pair supplies scalar and neighbour checks; the chord is computed once for an arc and no placement result is cached.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Only fixed scalar/label temporaries are local; appended range/interval findings transfer to the caller-owned array without retaining a member population, handle or task.
  */
 export const validateProductionDesignFormationDressing: (diagnostics: IAutoMovieDiagnostic[], formation: IAutoMovieFormationDesign, target: string, file: string) => void = (
   diagnostics: IAutoMovieDiagnostic[],

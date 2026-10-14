@@ -9,7 +9,7 @@ import type { AutoMovieDerivedArtifactEncoding } from "@automovie/interface";
  * @evidence contracts/common.md#meaningful-documentation Documents callback invocation/isolation contract and canonical path/encoding responsibilities.
  * @evidenceExclude contracts/performance.md#efficient-algorithms This erased operand shape performs no generation; generateAutoMovieDerivedArtifact owns path checks, copied callback runs, basis validation and publication.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The shape coordinates no shared callback work; generation intentionally invokes the supplied operation against fresh independent byte copies.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The type acquires no lock or callback capture; generation releases its token and temporary descriptors, while the callback owner manages its own captures/resources.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This type acquires no resource. Generation attempts token release and temporary descriptor/path cleanup; native cleanup failures can retain resources, while callback captures remain their owner's responsibility.
  * @author Samchon
  */
 export interface IGenerateAutoMovieDerivedArtifactProps {

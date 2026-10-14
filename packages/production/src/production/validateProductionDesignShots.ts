@@ -16,13 +16,13 @@ import { encodeAutoMoviePathSegment } from "./contentIdentity";
 /**
  * Check keyed shot identity and canonical project-relative POSIX TypeScript source paths, including case-fold spelling collisions for Windows portability.
  *
- * @evidence contracts/common.md#principled-implementation Time pins, participants, hero ownership, states, camera, events and review-frame declarations retain original order. This neither reads source files nor proves compiled events or visual results.
- * @evidence contracts/common.md#clear-and-simple-design validateProductionDesignShots owns this operation at its existing validation position; the graph coordinator retains diagnostic ordering and final sorting.
+ * @evidence contracts/common.md#principled-implementation Schema-admitted shots undergo exact keyed identity and lexical source-path checks with a case-fold spelling map; scalar clocks/windows, local participant/hero/event/frame identity Sets and current formation references constrain declarations in source order. State/predicate helpers add their rules. This neither reads source files nor proves compiled events or visual results, and the lexical profile does not reject every host-reserved filename character.
+ * @evidence contracts/common.md#clear-and-simple-design This shot pass owns keyed/source identity, local participant/hero/event/frame relations and time addresses; state/predicate rules and rational clock membership remain shared owners.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Retained declaration limits, identity comparisons and numerical policies decide admission; no consumer fixture, expected result or foreign-method replacement changes the decision.
- * @evidence contracts/common.md#meaningful-documentation The account gives this operation's premises, caller ownership and admission limits alongside its dominant work.
+ * @evidence contracts/common.md#meaningful-documentation States portable source spelling, seconds/frame-clock checks, hero ownership and declared review/event obligations; productionRoot attributes appended findings and source bytes, compiled events and rendered appearance are not observed here.
  * @evidence contracts/performance.md#efficient-algorithms Shot source strings and nested participants/events/frames are scanned, with formation/model/state reference lookups and predicate-owned searches; sets/maps grow with declared identities.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work This synchronous call owns no cross-request cache or pending work; current graph records and registry contents determine each admission.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources No handle or task is acquired. Call-local storage becomes unreachable on exit; diagnostics and returned values remain with the caller for its required lifetime and grow with addressed input and findings.
+ * @evidence contracts/performance.md#reuse-equivalent-work The source-spelling map spans the current shot population and local identity/hero-owner Sets span each shot; formation lookups and predicate searches remain current work without cached source or compiled-event results.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The source map and per-shot identity/owner Sets scale with declarations; source segments and nested field labels are temporary, while findings remain caller-owned without a local quota. No source descriptor, scene runtime or task is acquired.
  */
 export function validateProductionDesignShots(diagnostics: IAutoMovieDiagnostic[], graph: IAutoMovieProductionDesignGraph, productionRoot: string): void {
 const sourceModuleSpellings: Map<string, string> = new Map<string, string>();

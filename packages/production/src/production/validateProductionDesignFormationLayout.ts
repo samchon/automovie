@@ -8,13 +8,13 @@ import { IAutoMovieDiagnostic, IAutoMovieFormationDesign, IAutoMovieFormationLay
 /**
  * Check original line/column/wedge capacity, spacing or arc/scatter radius fields after dressing admission.
  *
- * @evidence contracts/common.md#principled-implementation Existing numeric limits and seed policy remain declared production constraints rather than measured member geometry.
- * @evidence contracts/common.md#clear-and-simple-design validateProductionDesignFormationLayout owns this operation at its existing validation position; the graph coordinator retains diagnostic ordering and final sorting.
+ * @evidence contracts/common.md#principled-implementation After dressing, closed layout dispatch checks finite spacing/radius and integral ranks/files/depth/seed; rank-times-file and squared-depth capacity must cover count, and arc degrees must lie in (0,360]. The formation pass supplies schema-admitted layouts and count admission; these declared limits do not measure member geometry.
+ * @evidence contracts/common.md#clear-and-simple-design Closed layout dispatch owns capacity, spacing, radius, arc and scatter-seed policy; optional dressing admission and scalar numeric checks retain their shared owners.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Retained declaration limits, identity comparisons and numerical policies decide admission; no consumer fixture, expected result or foreign-method replacement changes the decision.
- * @evidence contracts/common.md#meaningful-documentation The account gives this operation's premises, caller ownership and admission limits alongside its dominant work.
+ * @evidence contracts/common.md#meaningful-documentation States dressing-first order, layout-specific capacity and scalar limits; schema-admitted formation input is borrowed, findings append and no slots or geometry are materialized.
  * @evidence contracts/performance.md#efficient-algorithms Each layout selects fixed scalar checks; dressing uses its own fixed chord/spacing operations.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work This synchronous call owns no cross-request cache or pending work; current graph records and registry contents determine each admission.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources No handle or task is acquired. Call-local storage becomes unreachable on exit; diagnostics and returned values remain with the caller for its required lifetime and grow with addressed input and findings.
+ * @evidence contracts/performance.md#reuse-equivalent-work One borrowed layout supplies dressing and branch-specific scalar/capacity checks; no slot generation or previous layout verdict is cached.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Fixed field labels and appended correction records remain with the caller's diagnostic array; the layout is borrowed and no slot array, handle or task is acquired.
  */
 export const validateProductionDesignFormationLayout: (diagnostics: IAutoMovieDiagnostic[], formation: IAutoMovieFormationDesign, target: string, file: string) => void = (
   diagnostics: IAutoMovieDiagnostic[],

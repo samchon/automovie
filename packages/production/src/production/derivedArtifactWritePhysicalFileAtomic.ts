@@ -16,7 +16,7 @@ import { derivedArtifactAssertDirectoryAncestry } from "./derivedArtifactAssertD
  * @evidence contracts/common.md#meaningful-documentation States exclusive temporary ownership, close-before-rename and unpublished-temporary cleanup; cleanup failure can replace an earlier error.
  * @evidence contracts/performance.md#efficient-algorithms Writes/fsyncs B bytes and observes D ancestors before/after rename; storage is one temporary file plus ancestry records and filesystem time is unbounded.
  * @evidence contracts/performance.md#reuse-equivalent-work Current ancestry snapshots are reused only within this one write attempt; the operation is effectful and not shared across callers.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The descriptor closes in inner finally; outer finally removes an unpublished temporary. Successfully renamed files remain, including after a subsequent identity refusal.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Inner finally attempts descriptor close and outer finally attempts unpublished-temporary removal; native failures can retain either resource and replace the primary refusal. Successfully renamed files remain, including after a subsequent identity refusal.
  */
 export const derivedArtifactWritePhysicalFileAtomic: (root: string, file: string, bytes: Uint8Array) => void = (root: string, file: string, bytes: Uint8Array): void => {
     derivedArtifactEnsurePhysicalDirectory(root, path.dirname(file));

@@ -22,13 +22,13 @@ import { IAutoMovieDiagnostic, IAutoMovieWorldEffectZone, IAutoMovieEffectRecipe
 /**
  * Check world landmarks, finite simple surfaces and height declarations, route lengths, instance sets, effect recipes and zones in original order.
  *
- * @evidence contracts/common.md#principled-implementation Existing metre limits, 1e-9 policies and particle peak arithmetic remain unchanged; declarations do not certify realized geometry or rendered budgets.
- * @evidence contracts/common.md#clear-and-simple-design validateProductionDesignWorld owns this operation at its existing validation position; the graph coordinator retains diagnostic ordering and final sorting.
+ * @evidence contracts/common.md#principled-implementation Schema-admitted world populations use local identity Sets, scalar bounds, simple-polygon and heightfield cardinality checks, positive route length, instance admission and recipe/zone membership. Floor/ceil emission-lifetime arithmetic estimates peak particles against recipe and aggregate caps. These metre/tolerance/budget policies admit declarations and do not certify realized geometry or rendered budgets.
+ * @evidence contracts/common.md#clear-and-simple-design This singleton pass owns world record relations and surface/route/effect populations; polygon topology, instance layout and scalar interval policies stay with their respective helpers.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Retained declaration limits, identity comparisons and numerical policies decide admission; no consumer fixture, expected result or foreign-method replacement changes the decision.
- * @evidence contracts/common.md#meaningful-documentation The account gives this operation's premises, caller ownership and admission limits alongside its dominant work.
+ * @evidence contracts/common.md#meaningful-documentation States optional-world skip, metre and heightfield obligations, effect timing/particle estimates and declaration limits; sharedRoot attributes appended findings and no terrain, particle stream or GPU allocation is realized here.
  * @evidence contracts/performance.md#efficient-algorithms Surface polygons require quadratic edge-pair tests; height samples, routes and effects are scanned, while zone-to-recipe searches and instance layout queries add their actual populations.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work This synchronous call owns no cross-request cache or pending work; current graph records and registry contents determine each admission.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources No handle or task is acquired. Call-local storage becomes unreachable on exit; diagnostics and returned values remain with the caller for its required lifetime and grow with addressed input and findings.
+ * @evidence contracts/performance.md#reuse-equivalent-work Current route and recipe Sets supply later membership checks; recipe peak scalars are reused within one estimate, while zone budget reduction still searches recipes per zone and no earlier world verdict is cached.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Identity Sets, polygon coordinate keys, route slices and instance temporaries are declaration-sized locals; findings remain in the caller's array without a diagnostic cap. Estimates allocate no terrain, particle stream, GPU buffer, native handle or task.
  */
 export function validateProductionDesignWorld(diagnostics: IAutoMovieDiagnostic[], graph: IAutoMovieProductionDesignGraph, sharedRoot: string): void {
 if (graph.world !== null) {

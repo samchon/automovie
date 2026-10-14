@@ -25,7 +25,7 @@ import { derivedArtifactErrorMessage } from "./derivedArtifactErrorMessage";
  * @evidence contracts/common.md#meaningful-documentation States changed meaning, preserved obsolete bytes and the explicit subsequent generation needed to reactivate an entry.
  * @evidence contracts/performance.md#efficient-algorithms Reads/admit the complete ledger, scans A records and serializes a changed ledger with sorting/admission costs from its readers.
  * @evidence contracts/performance.md#reuse-equivalent-work The admitted manifest is reused for filtering; current lock-protected reads replace any stale prior inspection.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Finally releases the acquired token; atomic manifest publication closes its descriptor and cleans an unpublished temporary, while old output files remain caller-managed.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Finally attempts matching token release; its void owner can swallow cleanup failures and retain a resident fence/local ownership. Atomic manifest publication attempts descriptor close and unpublished-temporary removal, whose failure can replace an earlier error; old output files remain caller-managed and the parsed ledger/buffer populations are input-sized without a cap.
  */
 export const retireAutoMovieDerivedArtifact: (props: {
 

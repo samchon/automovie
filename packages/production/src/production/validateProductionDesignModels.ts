@@ -16,13 +16,13 @@ import { validateModelParameters } from "./validateModelParameters";
 /**
  * Check each keyed model's identity, registered archetype, parameters, profiles, single-material palette, ordered LOD, capability and attachment claims.
  *
- * @evidence contracts/common.md#principled-implementation Unknown archetypes retain their diagnostic and skip only checks needing that catalogue entry, without replacing geometry.
- * @evidence contracts/common.md#clear-and-simple-design validateProductionDesignModels owns this operation at its existing validation position; the graph coordinator retains diagnostic ordering and final sorting.
+ * @evidence contracts/common.md#principled-implementation Schema-admitted keyed recipes undergo exact identity, catalogue lookup, parameter/profile admission, one-swatch color, ordered LOD membership and declared capability/bone checks. Unknown archetypes retain their diagnostic and skip only catalogue-dependent checks; current map/registry facts remain the premise and no geometry is built or replaced.
+ * @evidence contracts/common.md#clear-and-simple-design This recipe pass owns keyed identity, palette cardinality, LOD order and catalogue capability/bone references; parameter planning and profile semantics stay with their respective validators.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Retained declaration limits, identity comparisons and numerical policies decide admission; no consumer fixture, expected result or foreign-method replacement changes the decision.
- * @evidence contracts/common.md#meaningful-documentation The account gives this operation's premises, caller ownership and admission limits alongside its dominant work.
+ * @evidence contracts/common.md#meaningful-documentation Defines registered-archetype skip boundaries, one-swatch policy, near-to-far LOD and attachment limits; sharedRoot supplies record paths and findings append without invoking geometry builders or changing recipes.
  * @evidence contracts/performance.md#efficient-algorithms Model fields and nested LOD/profile/capability/attachment lists are scanned; catalogue capability/bone searches and parameter-plan costs remain included.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work This synchronous call owns no cross-request cache or pending work; current graph records and registry contents determine each admission.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources No handle or task is acquired. Call-local storage becomes unreachable on exit; diagnostics and returned values remain with the caller for its required lifetime and grow with addressed input and findings.
+ * @evidence contracts/performance.md#reuse-equivalent-work One archetype lookup supplies parameter, capability and attachment checks for a recipe; LOD/attachment/capability Sets share local membership while no prior graph or strategy verdict is cached.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Palette entry/key arrays, local identity Sets and delegated parameter/profile temporaries scale with declarations; findings remain in the caller's array without a diagnostic cap. No builder geometry, native handle or task is acquired here.
  */
 export function validateProductionDesignModels(diagnostics: IAutoMovieDiagnostic[], graph: IAutoMovieProductionDesignGraph, sharedRoot: string, archetypes: AutoMovieModelArchetypeRegistry): void {
 for (const [id, model] of graph.models) {

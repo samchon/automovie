@@ -16,12 +16,12 @@ import { IAutoMovieDiagnostic, IAutoMovieInstanceSetDesign, IAutoMovieInstanceSe
  * Check the original grid, scatter, route, lattice or explicit placement declaration against capacity and horizontal world extent.
  *
  * @evidence contracts/common.md#principled-implementation Explicit transform quaternion, scale, prototype, palette and trait checks preserve order. Coordinates are metres, scales dimensionless and rotations unit quaternions; these conservative declaration bounds do not replace realized geometry admission.
- * @evidence contracts/common.md#clear-and-simple-design validateProductionDesignInstanceLayout owns this operation at its existing validation position; the graph coordinator retains diagnostic ordering and final sorting.
+ * @evidence contracts/common.md#clear-and-simple-design Closed layout dispatch owns capacity and explicit transform/reference rules; scalar bounds and conservative horizontal envelopes use shared helpers instead of materializing every anonymous slot.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Retained declaration limits, identity comparisons and numerical policies decide admission; no consumer fixture, expected result or foreign-method replacement changes the decision.
- * @evidence contracts/common.md#meaningful-documentation The account gives this operation's premises, caller ownership and admission limits alongside its dominant work.
+ * @evidence contracts/common.md#meaningful-documentation States metre coordinates, dimensionless scale, unit-quaternion tolerance and declaration-envelope limits; routeIds comes from the current world's route pass and findings append without changing placement data.
  * @evidence contracts/performance.md#efficient-algorithms Declared route searches and explicit transform/trait scans dominate; identity sets scale with explicit transforms and prototypes.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work This synchronous call owns no cross-request cache or pending work; current graph records and registry contents determine each admission.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources No handle or task is acquired. Call-local storage becomes unreachable on exit; diagnostics and returned values remain with the caller for its required lifetime and grow with addressed input and findings.
+ * @evidence contracts/performance.md#reuse-equivalent-work The borrowed route-id Set supplies membership, one matching route supplies waypoint reach and explicit transforms share local known-prototype/transform-id Sets; trait names still search the declaration per override without a result cache.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Prototype/transform keys and Object.entries trait arrays are local and input-sized; appended findings and correction strings remain caller-owned. No anonymous slot population, native handle or task is materialized here.
  */
 export function validateProductionDesignInstanceLayout(diagnostics: IAutoMovieDiagnostic[], graph: IAutoMovieProductionDesignGraph, routeIds: ReadonlySet<string>, file: string, instanceSet: IAutoMovieInstanceSetDesign, target: string): void {
 const layout: IAutoMovieInstanceSetLayout = instanceSet.layout;

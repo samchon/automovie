@@ -8,12 +8,12 @@ import { autoMovieStoryInterval } from "@automovie/engine";
  * Check film ownership, story-clock and event addressability before mapping finite positive-rate pins.
  *
  * @evidence contracts/common.md#principled-implementation Complete mapped event windows have minimum attainable spread max(0, latest opening minus earliest closing); an inclusive tolerance below that spread is unsatisfiable. Missing or unusable dependencies suppress derived infeasibility without repairing them.
- * @evidence contracts/common.md#clear-and-simple-design validateProductionDesignStorySyncCriterion owns this operation at its existing validation position; the graph coordinator retains diagnostic ordering and final sorting.
+ * @evidence contracts/common.md#clear-and-simple-design Acceptance dispatch delegates cross-shot window feasibility here; the engine owns affine story mapping and runtime realized-event comparison remains a later gate.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Retained declaration limits, identity comparisons and numerical policies decide admission; no consumer fixture, expected result or foreign-method replacement changes the decision.
- * @evidence contracts/common.md#meaningful-documentation The account gives this operation's premises, caller ownership and admission limits alongside its dominant work.
+ * @evidence contracts/common.md#meaningful-documentation Defines film ownership, duplicate/address/pin refusals, seconds and inclusive tolerance, plus suppression when a dependency is unusable; findings append without changing windows, pins or the criterion.
  * @evidence contracts/performance.md#efficient-algorithms E addressed events scan their shots' event arrays and retain O(E) mapped windows and address keys; extrema scan complete usable windows. The retained array-spread extrema also depend on the runtime argument limit, without an event-count cap.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work This synchronous call owns no cross-request cache or pending work; current graph records and registry contents determine each admission.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources No handle or task is acquired. Call-local storage becomes unreachable on exit; diagnostics and returned values remain with the caller for its required lifetime and grow with addressed input and findings.
+ * @evidence contracts/performance.md#reuse-equivalent-work Each resolved shot/event/pin supplies one mapped window, and that retained window population supplies both extrema; duplicate keys share only current membership and no earlier feasibility result is cached.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Address keys, mapped windows and extrema arrays are input-sized locals without an event cap; appended findings remain in the caller's array. No realized event, native handle or task is retained here.
  */
 export const validateProductionDesignStorySyncCriterion: (diagnostics: IAutoMovieDiagnostic[], graph: IAutoMovieProductionDesignGraph, acceptance: IAutoMovieAcceptanceScenario, criterion: Extract<IAutoMovieAcceptanceScenario["criterion"], { kind: "story-sync"; }>, target: string, file: string) => void = (
   diagnostics: IAutoMovieDiagnostic[],

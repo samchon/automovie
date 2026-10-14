@@ -9,13 +9,13 @@ import { IAutoMovieDiagnostic, IAutoMovieFormationDesign, IAutoMovieModelLodReci
 /**
  * Aggregate original member counts, anonymous LOD matrix/phase bytes and estimated compact runtime payload before individual formation validation.
  *
- * @evidence contracts/common.md#principled-implementation Payload estimates retain fixed per-formation/chunk/hero conventions and shot occurrence searches; they are admission estimates rather than measured output bytes.
- * @evidence contracts/common.md#clear-and-simple-design validateProductionDesignFormationBudgets owns this operation at its existing validation position; the graph coordinator retains diagnostic ordering and final sorting.
+ * @evidence contracts/common.md#principled-implementation Three reductions sum member counts, anonymous count times at least one nonhero LOD allowance times declared attribute bytes, and serialized metadata plus fixed formation/chunk/hero allowances times at least one shot-occurrence allowance. Missing or zero nonhero tiers and zero occurrences each retain that one-unit minimum. Unsafe-integer or over-budget totals append refusals; schema-admitted records remain a premise and these are estimates rather than measured output bytes.
+ * @evidence contracts/common.md#clear-and-simple-design This aggregate pass owns total formation member, instance-attribute and serialized-runtime estimates before per-formation validation; the engine and viewer own actual materialization and allocation.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Retained declaration limits, identity comparisons and numerical policies decide admission; no consumer fixture, expected result or foreign-method replacement changes the decision.
- * @evidence contracts/common.md#meaningful-documentation The account gives this operation's premises, caller ownership and admission limits alongside its dominant work.
+ * @evidence contracts/common.md#meaningful-documentation States aggregate dimensions, estimate-versus-measurement limits and fixed payload conventions; findings use sharedRoot/ formations attribution and append without allocating member matrices or changing counts.
  * @evidence contracts/performance.md#efficient-algorithms F formations search model LOD and shot participant populations, encode their declared payloads and retain transient iteration/serialization arrays; no actual instance matrices are allocated.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work This synchronous call owns no cross-request cache or pending work; current graph records and registry contents determine each admission.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources No handle or task is acquired. Call-local storage becomes unreachable on exit; diagnostics and returned values remain with the caller for its required lifetime and grow with addressed input and findings.
+ * @evidence contracts/performance.md#reuse-equivalent-work The same borrowed graph supplies all three reductions, but formation arrays are rebuilt three times and each formation repeats LOD/shot searches and serialization; no aggregate result is cached.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Formation/shot/filter arrays and serialized metadata are call-local and input-sized without a quota; up to three aggregate findings remain in the caller's array. Count arithmetic allocates no instance matrix, descriptor or task.
  */
 export function validateProductionDesignFormationBudgets(diagnostics: IAutoMovieDiagnostic[], graph: IAutoMovieProductionDesignGraph, sharedRoot: string): void {
 const formationMemberCount: number = [...graph.formations.values()].reduce(

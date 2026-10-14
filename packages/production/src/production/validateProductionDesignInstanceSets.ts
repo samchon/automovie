@@ -20,13 +20,13 @@ import { IAutoMovieDiagnostic, IAutoMovieInstanceSetDesign, IAutoMovieModelRecip
 /**
  * Check each world instance set's identity, recipe, placement, prototype and variation in original order, then aggregate instance count and matrix/color/trait storage.
  *
- * @evidence contracts/common.md#principled-implementation Missing optional instanceSets means an empty population. Declared budgets do not certify final GPU allocation or realized placement.
- * @evidence contracts/common.md#clear-and-simple-design validateProductionDesignInstanceSets owns this operation at its existing validation position; the graph coordinator retains diagnostic ordering and final sorting.
+ * @evidence contracts/common.md#principled-implementation Missing optional instanceSets means empty; current model membership, local identity Sets and scalar/layout gates check each schema-admitted set and its prototypes/variation. Count and largest-prototype-LOD attribute-byte totals must be safe integers within declared budgets; the estimates do not certify final GPU allocation or realized placement.
+ * @evidence contracts/common.md#clear-and-simple-design This world pass owns instance/prototype/variation identities and aggregate count/attribute estimates, while layout geometry and scalar admission remain delegated owners.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Retained declaration limits, identity comparisons and numerical policies decide admission; no consumer fixture, expected result or foreign-method replacement changes the decision.
- * @evidence contracts/common.md#meaningful-documentation The account gives this operation's premises, caller ownership and admission limits alongside its dominant work.
+ * @evidence contracts/common.md#meaningful-documentation Defines optional empty population, current recipe/route dependencies and estimate-versus-allocation limits; each instance and final aggregate finding appends to the caller's array without realizing slots or changing the world.
  * @evidence contracts/performance.md#efficient-algorithms All instance rows and prototypes/traits are scanned; layout queries can search routes and their points. Diagnostics grow with findings, and storage estimates use the largest declared prototype LOD population.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work This synchronous call owns no cross-request cache or pending work; current graph records and registry contents determine each admission.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources No handle or task is acquired. Call-local storage becomes unreachable on exit; diagnostics and returned values remain with the caller for its required lifetime and grow with addressed input and findings.
+ * @evidence contracts/performance.md#reuse-equivalent-work The one instance population supplies per-record checks and accumulated totals; current model lookups and the route-id Set are borrowed while each set owns fresh prototype/trait identity Sets, without a cross-call cache.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Instance/prototype/trait keys and layout temporaries scale with declarations and become collectible after validation; appended findings remain in the caller's array without a local cap. Byte estimates allocate no instance buffer, handle or task.
  */
 export const validateProductionDesignInstanceSets: (diagnostics: IAutoMovieDiagnostic[], graph: IAutoMovieProductionDesignGraph, routeIds: ReadonlySet<string>, file: string) => void = (
   diagnostics: IAutoMovieDiagnostic[],

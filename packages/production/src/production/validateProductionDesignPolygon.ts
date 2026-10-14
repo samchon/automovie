@@ -4,13 +4,13 @@ import { validateProductionDesignSegmentsIntersect } from "./validateProductionD
 /**
  * Reject nonfinite or repeated XZ vertices, negligible signed area, reverse collinear bends and nonadjacent segment intersections.
  *
- * @evidence contracts/common.md#principled-implementation The existing 1e-9 arithmetic policies remain unchanged and are not a scale-independent exact geometric predicate.
- * @evidence contracts/common.md#clear-and-simple-design validateProductionDesignPolygon owns this operation at its existing validation position; the graph coordinator retains diagnostic ordering and final sorting.
+ * @evidence contracts/common.md#principled-implementation Exact coordinate keys reject repeated vertices, the shoelace sum requires nonnegligible represented area, adjacent determinants/dot products reject reversals and every nonadjacent edge pair must not intersect. World surface callers supply XZ coordinates; either winding and nonconvex simple polygons are allowed. Fixed 1e-9 arithmetic policies are not scale-independent exact predicates.
+ * @evidence contracts/common.md#clear-and-simple-design One boolean surface-polygon gate composes shared orientation and segment arithmetic; the world owner supplies metre limits and emits the attributed diagnostic.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Retained declaration limits, identity comparisons and numerical policies decide admission; no consumer fixture, expected result or foreign-method replacement changes the decision.
- * @evidence contracts/common.md#meaningful-documentation The account gives this operation's premises, caller ownership and admission limits alongside its dominant work.
+ * @evidence contracts/common.md#meaningful-documentation States minimum vertex count, distinct finite coordinates, area/bend/intersection refusals and numeric limitations; true is declaration admission rather than realized-mesh validity, and points remain borrowed and unchanged.
  * @evidence contracts/performance.md#efficient-algorithms For P vertices, area and bend passes are O(P), distinct-coordinate keys use O(P) storage and nonadjacent edge pairs cost O(P squared).
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work This synchronous call owns no cross-request cache or pending work; current graph records and registry contents determine each admission.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources No handle or task is acquired. Call-local storage becomes unreachable on exit; diagnostics and returned values remain with the caller for its required lifetime and grow with addressed input and findings.
+ * @evidence contracts/performance.md#reuse-equivalent-work Each current vertex population supplies all area, bend and edge-pair passes; the orientation/segment implementations are shared without caching mutable polygon verdicts.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Coordinate-key arrays and their Set are call-local and input-sized; only a boolean escapes, without retaining points, diagnostics, a handle or task.
  */
 export const validateProductionDesignPolygon: (polygon: ReadonlyArray<{ x: number; z: number; }>) => boolean = (
   polygon: ReadonlyArray<{ x: number; z: number }>,

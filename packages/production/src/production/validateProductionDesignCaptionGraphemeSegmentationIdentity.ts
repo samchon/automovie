@@ -5,13 +5,13 @@ import { IAutoMovieDiagnostic } from "@automovie/interface";
 /**
  * Admit the original runtime segmentation identity shape, nonblank algorithm/version and grapheme literal before locale-neutral or requested-resolved locale handling.
  *
- * @evidence contracts/common.md#principled-implementation Early refusals preserve original diagnostic order; metadata does not prove actual runtime segmentation equivalence.
- * @evidence contracts/common.md#clear-and-simple-design validateProductionDesignCaptionGraphemeSegmentationIdentity owns this operation at its existing validation position; the graph coordinator retains diagnostic ordering and final sorting.
+ * @evidence contracts/common.md#principled-implementation Runtime object and member-kind checks precede nonblank algorithm/version and the grapheme literal, then a closed locale-kind dispatch requires requested/resolved text only for that branch. The production gate supplies each profile's metadata; these labels do not prove runtime segmentation equivalence or exact-key admission.
+ * @evidence contracts/common.md#clear-and-simple-design This profile-local structural/label gate delegates nonblank text to the shared owner while actual caption segmentation remains outside design admission.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Retained declaration limits, identity comparisons and numerical policies decide admission; no consumer fixture, expected result or foreign-method replacement changes the decision.
- * @evidence contracts/common.md#meaningful-documentation The account gives this operation's premises, caller ownership and admission limits alongside its dominant work.
+ * @evidence contracts/common.md#meaningful-documentation Documents early object/locale refusals, the locale-neutral branch and metadata limits; profileId supplies field attribution and all findings append without modifying the supplied identity.
  * @evidence contracts/performance.md#efficient-algorithms A fixed number of object fields and text lengths determine work and temporary storage.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work This synchronous call owns no cross-request cache or pending work; current graph records and registry contents determine each admission.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources No handle or task is acquired. Call-local storage becomes unreachable on exit; diagnostics and returned values remain with the caller for its required lifetime and grow with addressed input and findings.
+ * @evidence contracts/performance.md#reuse-equivalent-work One profile field address is reused across identity/locale checks; no earlier metadata verdict or segmentation runtime is cached.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Fixed-field findings and constructed profile addresses remain in the caller's diagnostic array; object casts borrow the input without cloning or retaining a segmentation engine, handle or task.
  */
 export const validateProductionDesignCaptionGraphemeSegmentationIdentity: (diagnostics: IAutoMovieDiagnostic[], value: unknown, profileId: string, target: string, file: string) => void = (
   diagnostics: IAutoMovieDiagnostic[],

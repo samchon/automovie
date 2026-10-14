@@ -9,13 +9,13 @@ import { IAutoMovieDiagnostic, IAutoMovieShotPredicate, IAutoMovieWorldLandmark 
 /**
  * Require a nonempty predicate list, finite values and nonnegative tolerance, then check actor or point/formation/landmark selector fields.
  *
- * @evidence contracts/common.md#principled-implementation The local selector retains current graph reference lookups and never evaluates the predicate on emitted source.
- * @evidence contracts/common.md#clear-and-simple-design validateProductionDesignPredicates owns this operation at its existing validation position; the graph coordinator retains diagnostic ordering and final sorting.
+ * @evidence contracts/common.md#principled-implementation A schema-admitted closed predicate kind selects actor text or point/formation/landmark address checks after finite value and nonnegative tolerance admission. Formation/landmark selectors resolve against current graph membership; node and joint-angle actor labels are checked only for nonblank text, and no predicate is evaluated on emitted source.
+ * @evidence contracts/common.md#clear-and-simple-design Named states and events share this declaration gate; a local selector unifies position and distance addresses while runtime realization retains observation ownership.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Retained declaration limits, identity comparisons and numerical policies decide admission; no consumer fixture, expected result or foreign-method replacement changes the decision.
- * @evidence contracts/common.md#meaningful-documentation The account gives this operation's premises, caller ownership and admission limits alongside its dominant work.
+ * @evidence contracts/common.md#meaningful-documentation Defines nonempty population, numeric/tolerance checks and selector lookup limits; field supplies nested addresses and findings append without resolving runtime objects or modifying predicates.
  * @evidence contracts/performance.md#efficient-algorithms Predicate work includes declared world-landmark searches and fixed selector checks; no scene or runtime task is built.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work This synchronous call owns no cross-request cache or pending work; current graph records and registry contents determine each admission.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources No handle or task is acquired. Call-local storage becomes unreachable on exit; diagnostics and returned values remain with the caller for its required lifetime and grow with addressed input and findings.
+ * @evidence contracts/performance.md#reuse-equivalent-work One local selector closure shares attribution and graph access across current predicates; each landmark lookup still scans the current list and no runtime object or verdict is cached.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The selector closure and nested field strings are call-local unless retained by appended findings; the caller owns diagnostic growth without a local cap and no scene object, handle or task is created.
  */
 export const validateProductionDesignPredicates: (diagnostics: IAutoMovieDiagnostic[], graph: IAutoMovieProductionDesignGraph, predicates: readonly IAutoMovieShotPredicate[], target: string, file: string, field: string) => void = (
   diagnostics: IAutoMovieDiagnostic[],

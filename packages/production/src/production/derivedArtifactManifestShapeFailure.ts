@@ -9,7 +9,7 @@ import { derivedArtifactDependencyShapeFailure } from "./derivedArtifactDependen
  * @evidence contracts/common.md#clear-and-simple-design This first-failure shape pass precedes manifest semantic invariants and source materialization.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Array containers are refused as records, but the helper does not check object prototypes beyond object/non-array; persistent JSON supplies ordinary materialized objects.
  * @evidence contracts/common.md#meaningful-documentation States first structural reason or null, without claiming paths, ordering or digest consistency are validated here.
- * @evidence contracts/performance.md#efficient-algorithms Visits A artifact records and I dependencies with fixed-size key sorts and no full output clone.
+ * @evidence contracts/performance.md#efficient-algorithms Visits A artifact records and I dependencies with an own-key sort at each admitted object boundary; malformed unknown objects can contain K unexpected keys, adding O(K log K) comparisons and K key references before refusal. No full output clone is made.
  * @evidence contracts/performance.md#reuse-equivalent-work Calls the shared dependency shape and key-set helpers; the parent reuses the admitted tree for semantic checks.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only a reason string escapes; all per-record key lists are temporary and no handle is acquired.
  */

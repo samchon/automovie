@@ -17,13 +17,13 @@ import { parseAutoMovieCaptionLanguage } from "@automovie/render";
 /**
  * Check production identity, frame/delivery/art declarations, explicit motion mappings and caption profiles in their existing order.
  *
- * @evidence contracts/common.md#principled-implementation Null production adds nothing; exact frame clocks, catalogue-free declaration limits and canonical caption language identity retain their owning validators. This does not execute a source or provider.
- * @evidence contracts/common.md#clear-and-simple-design validateProductionDesignProduction owns this operation at its existing validation position; the graph coordinator retains diagnostic ordering and final sorting.
+ * @evidence contracts/common.md#principled-implementation Null production adds nothing; schema-admitted fields undergo scalar/raster bounds, closed delivery-lane policy and exact frame-clock checks, then local Sets enforce deliverable/motion/channel/caption identities and graph lookups resolve motion targets. Caption language/segmentation metadata use their owners; these declarations execute no source or provider.
+ * @evidence contracts/common.md#clear-and-simple-design This singleton pass owns production field relations and delivery/motion/caption identity populations; rational clock, language and segmentation metadata rules remain delegated owners.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Retained declaration limits, identity comparisons and numerical policies decide admission; no consumer fixture, expected result or foreign-method replacement changes the decision.
- * @evidence contracts/common.md#meaningful-documentation The account gives this operation's premises, caller ownership and admission limits alongside its dominant work.
+ * @evidence contracts/common.md#meaningful-documentation States optional-production skip, rational clock and delivery/motion/caption obligations; productionRoot supplies the diagnostic path and findings append without executing source, providers, retargeting or caption segmentation.
  * @evidence contracts/performance.md#efficient-algorithms Delivery, motion mapping and caption profile scans dominate with repeated shot/participant lookups and string identity sets; no raster is allocated.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work This synchronous call owns no cross-request cache or pending work; current graph records and registry contents determine each admission.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources No handle or task is acquired. Call-local storage becomes unreachable on exit; diagnostics and returned values remain with the caller for its required lifetime and grow with addressed input and findings.
+ * @evidence contracts/performance.md#reuse-equivalent-work The current production/graph supply all field relations and local Sets share identity within each population; language parsing runs once per profile, while repeated shot/clock checks remain actual work without a cross-call cache.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Lane/motion/bone/caption Sets, mapping arrays and serialized refusal details are declaration-sized temporaries; findings remain in the caller's array without a local quota. No raster, retargeter, caption runtime, native handle or task is allocated.
  */
 export function validateProductionDesignProduction(diagnostics: IAutoMovieDiagnostic[], graph: IAutoMovieProductionDesignGraph, productionRoot: string): void {
 const seenDeliverables: Set<string> = new Set<string>();

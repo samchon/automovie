@@ -4,13 +4,13 @@ import { IAutoMovieDiagnostic } from "@automovie/interface";
 /**
  * Report a nonfinite or nonpositive scalar without changing it.
  *
- * @evidence contracts/common.md#principled-implementation Units and field meaning remain caller-owned and this predicate introduces no physical tolerance.
- * @evidence contracts/common.md#clear-and-simple-design validateProductionDesignPositive owns this operation at its existing validation position; the graph coordinator retains diagnostic ordering and final sorting.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Retained declaration limits, identity comparisons and numerical policies decide admission; no consumer fixture, expected result or foreign-method replacement changes the decision.
- * @evidence contracts/common.md#meaningful-documentation The account gives this operation's premises, caller ownership and admission limits alongside its dominant work.
+ * @evidence contracts/common.md#principled-implementation Number.isFinite and a strict greater-than-zero boundary report one range finding for nonfinite, zero or negative scalars. Duration, mass, spacing and radius callers supply schema-admitted numbers and retain their units and further domain constraints.
+ * @evidence contracts/common.md#clear-and-simple-design One positivity-only gate serves fields without a shared upper limit while the common sink owns diagnostic construction.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No physical tolerance, minimum substitute or sign correction changes an authored value; positive subnormal numbers remain accepted by this rule.
+ * @evidence contracts/common.md#meaningful-documentation Documents strict finite positivity and field attribution; the helper appends findings to its borrowed array without changing a scalar or returning a verdict.
  * @evidence contracts/performance.md#efficient-algorithms Fixed numeric checks and optional field-message construction take constant scalar work.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work This synchronous call owns no cross-request cache or pending work; current graph records and registry contents determine each admission.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources No handle or task is acquired. Call-local storage becomes unreachable on exit; diagnostics and returned values remain with the caller for its required lifetime and grow with addressed input and findings.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work The current scalar is checked directly, with no cached or pending operation to coordinate.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources At most one finding and field correction string enter the caller-owned array; no scalar history, descriptor or task is retained here.
  */
 export const validateProductionDesignPositive: (diagnostics: IAutoMovieDiagnostic[], value: number, target: string, file: string, field: string) => void = (
   diagnostics: IAutoMovieDiagnostic[],
