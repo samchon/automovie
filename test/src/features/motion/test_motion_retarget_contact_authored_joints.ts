@@ -1,5 +1,10 @@
 import { retargetHumanoidMotion } from "@automovie/engine";
-import { AutoMovieHumanoidBone, IAutoMovieJointPose, IAutoMovieSkeleton, IAutoMovieMotion } from "@automovie/interface";
+import {
+  AutoMovieHumanoidBone,
+  IAutoMovieJointPose,
+  IAutoMovieMotion,
+  IAutoMovieSkeleton,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { joint } from "../internal/fixtures";
@@ -12,10 +17,16 @@ import {
 } from "../internal/retargetRigs";
 
 /** Sorted bone names, retaining duplicate entries so a duplicated chain joint remains visible. */
-const bonesOf: (joints: readonly { bone: AutoMovieHumanoidBone }[]) => string[] = (
+const bonesOf: (
+  joints: readonly { bone: AutoMovieHumanoidBone }[],
+) => string[] = (
   joints: readonly { bone: AutoMovieHumanoidBone }[],
 ): string[] =>
-  joints.map((j: { bone: AutoMovieHumanoidBone }): AutoMovieHumanoidBone => j.bone).sort((a: AutoMovieHumanoidBone, b: AutoMovieHumanoidBone): number => (a < b ? -1 : a > b ? 1 : 0));
+  joints
+    .map((j: { bone: AutoMovieHumanoidBone }): AutoMovieHumanoidBone => j.bone)
+    .sort((a: AutoMovieHumanoidBone, b: AutoMovieHumanoidBone): number =>
+      a < b ? -1 : a > b ? 1 : 0,
+    );
 
 /**
  * Observe replacement of authored pinned-leg joints and preservation of an unrelated spine joint, together with achieved mapped left-foot contact. Sparse bone uniqueness and literal articulation constrain the rewrite independently of shared FK observations.
@@ -45,18 +56,23 @@ export function test_motion_retarget_contact_authored_joints(): void {
     leg: 1.05,
     torso: 0.98,
   });
-  const motion: IAutoMovieMotion = posedRootShiftClip(source.id, { x: 0, y: 0, z: 0.2 }, [
-    joint("spine", { flexion: 5 }),
-    joint("leftUpperLeg", { flexion: 8 }),
-    joint("leftLowerLeg", { flexion: 12 }),
-  ]);
+  const motion: IAutoMovieMotion = posedRootShiftClip(
+    source.id,
+    { x: 0, y: 0, z: 0.2 },
+    [
+      joint("spine", { flexion: 5 }),
+      joint("leftUpperLeg", { flexion: 8 }),
+      joint("leftLowerLeg", { flexion: 12 }),
+    ],
+  );
 
-  const pinned: ReturnType<typeof retargetHumanoidMotion> = retargetHumanoidMotion({
-    motion,
-    source,
-    target,
-    contacts: { tolerance: 0.5 },
-  });
+  const pinned: ReturnType<typeof retargetHumanoidMotion> =
+    retargetHumanoidMotion({
+      motion,
+      source,
+      target,
+      contacts: { tolerance: 0.5 },
+    });
   TestValidator.equals("authored-joint retarget succeeds", pinned.validation, {
     success: true,
   });
@@ -76,20 +92,32 @@ export function test_motion_retarget_contact_authored_joints(): void {
   TestValidator.predicate(
     "the authored spine bend is carried through",
     ((): boolean => {
-      const spine: IAutoMovieJointPose | undefined = joints.find((j: IAutoMovieJointPose): boolean => j.bone === "spine");
-      return spine !== undefined && spine.bone === "spine" && spine.flexion !== null && nclose(spine.flexion, 5, 0) && spine.abduction === null && spine.twist === null;
+      const spine: IAutoMovieJointPose | undefined = joints.find(
+        (j: IAutoMovieJointPose): boolean => j.bone === "spine",
+      );
+      return (
+        spine !== undefined &&
+        spine.bone === "spine" &&
+        spine.flexion !== null &&
+        nclose(spine.flexion, 5, 0) &&
+        spine.abduction === null &&
+        spine.twist === null
+      );
     })(),
   );
 
   // 3. the pinned limb's authored angles are superseded.
-  const knee: IAutoMovieJointPose = joints.find((j: IAutoMovieJointPose): boolean => j.bone === "leftLowerLeg")!;
+  const knee: IAutoMovieJointPose = joints.find(
+    (j: IAutoMovieJointPose): boolean => j.bone === "leftLowerLeg",
+  )!;
   TestValidator.equals(
     "the solved knee is not the authored 12 degrees",
     namedFacts([
       ["kneeFlexion", (): boolean => knee.flexion !== null],
       [
         "ncloseKneeFlexion",
-        (): boolean => knee.flexion !== null && nclose(knee.flexion, 12, 1e-3) === false,
+        (): boolean =>
+          knee.flexion !== null && nclose(knee.flexion, 12, 1e-3) === false,
       ],
     ]),
     { kneeFlexion: true, ncloseKneeFlexion: true },

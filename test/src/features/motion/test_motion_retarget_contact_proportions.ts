@@ -1,5 +1,9 @@
 import { retargetHumanoidMotion } from "@automovie/engine";
-import { IAutoMovieJointConstraint, IAutoMovieMotion, IAutoMovieSkeleton } from "@automovie/interface";
+import {
+  IAutoMovieJointConstraint,
+  IAutoMovieMotion,
+  IAutoMovieSkeleton,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose, vclose } from "../internal/predicates";
@@ -51,7 +55,11 @@ export function test_motion_retarget_contact_proportions(): void {
     ["leftUpperLeg", "rightUpperLeg"],
     WIDE_HIP,
   );
-  const motion: IAutoMovieMotion = rootShiftClip(source.id, { x: 0, y: 0, z: 0.25 });
+  const motion: IAutoMovieMotion = rootShiftClip(source.id, {
+    x: 0,
+    y: 0,
+    z: 0.25,
+  });
 
   // 1. the source contacts, straight off the rest offsets.
   TestValidator.predicate(
@@ -72,7 +80,8 @@ export function test_motion_retarget_contact_proportions(): void {
   );
 
   // 2. the pass holds both feet on the mapped contacts.
-  const pinned: ReturnType<typeof retargetHumanoidMotion> = retargetHumanoidMotion({ motion, source, target });
+  const pinned: ReturnType<typeof retargetHumanoidMotion> =
+    retargetHumanoidMotion({ motion, source, target });
   TestValidator.equals("contact retarget succeeds", pinned.validation, {
     success: true,
   });
@@ -96,12 +105,13 @@ export function test_motion_retarget_contact_proportions(): void {
       );
 
   // 3. the negative twin: the pass off reproduces the v1 slide.
-  const carried: ReturnType<typeof retargetHumanoidMotion> = retargetHumanoidMotion({
-    motion,
-    source,
-    target,
-    contacts: { enabled: false },
-  });
+  const carried: ReturnType<typeof retargetHumanoidMotion> =
+    retargetHumanoidMotion({
+      motion,
+      source,
+      target,
+      contacts: { enabled: false },
+    });
   if (carried.motion === null || carried.characterization === null)
     throw new Error("carried retarget unexpectedly failed");
   for (const index of [0, 1] as const)
@@ -127,6 +137,8 @@ export function test_motion_retarget_contact_proportions(): void {
   );
   TestValidator.predicate(
     "the corrected clip keeps the authored keyframe times",
-    pinned.motion.keyframes.length === 2 && nclose(pinned.motion.keyframes[0]!.time, 0, 0) && nclose(pinned.motion.keyframes[1]!.time, 1, 0),
+    pinned.motion.keyframes.length === 2 &&
+      nclose(pinned.motion.keyframes[0]!.time, 0, 0) &&
+      nclose(pinned.motion.keyframes[1]!.time, 1, 0),
   );
 }

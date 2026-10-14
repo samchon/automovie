@@ -1,5 +1,9 @@
 import { retargetHumanoidMotion } from "@automovie/engine";
-import type { IAutoMovieMotion, IAutoMovieSkeleton, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotion,
+  IAutoMovieSkeleton,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import {
@@ -48,10 +52,15 @@ export function test_motion_retarget_contact_unreachable(): void {
     leg: 1.5,
     torso: 0.9,
   });
-  const motion: IAutoMovieMotion = rootShiftClip(source.id, { x: 0, y: 0, z: 0.25 });
+  const motion: IAutoMovieMotion = rootShiftClip(source.id, {
+    x: 0,
+    y: 0,
+    z: 0.25,
+  });
 
   // 1. a warning per foot, not a failure.
-  const pinned: ReturnType<typeof retargetHumanoidMotion> = retargetHumanoidMotion({ motion, source, target });
+  const pinned: ReturnType<typeof retargetHumanoidMotion> =
+    retargetHumanoidMotion({ motion, source, target });
   TestValidator.predicate(
     "one plausibility warning per pinned foot",
     validationHasWarningCount(
@@ -75,7 +84,10 @@ export function test_motion_retarget_contact_unreachable(): void {
 
   // 2. the residual is beyond the contact budget it names.
   const scale: number = pinned.characterization.rootScale;
-  const contact: IAutoMovieVector3 = mapped(keyframeWorld(source, motion, 0, "leftFoot"), scale);
+  const contact: IAutoMovieVector3 = mapped(
+    keyframeWorld(source, motion, 0, "leftFoot"),
+    scale,
+  );
   const residual: number = missBy(
     keyframeWorld(target, pinned.motion, 0, "leftFoot"),
     contact,
@@ -86,12 +98,13 @@ export function test_motion_retarget_contact_unreachable(): void {
   );
 
   // 3. the clamped correction still beats carrying the angles verbatim.
-  const carried: ReturnType<typeof retargetHumanoidMotion> = retargetHumanoidMotion({
-    motion,
-    source,
-    target,
-    contacts: { enabled: false },
-  });
+  const carried: ReturnType<typeof retargetHumanoidMotion> =
+    retargetHumanoidMotion({
+      motion,
+      source,
+      target,
+      contacts: { enabled: false },
+    });
   if (carried.motion === null) throw new Error("carried retarget failed");
   TestValidator.predicate(
     "a ROM-bound correction still closes part of the gap",
@@ -108,12 +121,13 @@ export function test_motion_retarget_contact_unreachable(): void {
   );
 
   // 4. a wider contact tolerance widens the budget the residual is judged by.
-  const tolerant: ReturnType<typeof retargetHumanoidMotion> = retargetHumanoidMotion({
-    motion,
-    source,
-    target,
-    contacts: { tolerance: 0.5 },
-  });
+  const tolerant: ReturnType<typeof retargetHumanoidMotion> =
+    retargetHumanoidMotion({
+      motion,
+      source,
+      target,
+      contacts: { tolerance: 0.5 },
+    });
   TestValidator.predicate(
     "a wider contact budget stops reporting the same residual",
     validationHasNoWarnings("tolerant retarget contact", tolerant.validation),

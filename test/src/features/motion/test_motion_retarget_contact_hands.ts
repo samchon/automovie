@@ -2,10 +2,18 @@ import {
   IAutoMovieRetargetHandContact,
   retargetHumanoidMotion,
 } from "@automovie/engine";
-import type { IAutoMovieKeyframe, IAutoMovieMotion, IAutoMovieSkeleton } from "@automovie/interface";
+import type {
+  IAutoMovieKeyframe,
+  IAutoMovieMotion,
+  IAutoMovieSkeleton,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { nclose, validationHasNoWarnings, vclose } from "../internal/predicates";
+import {
+  nclose,
+  validationHasNoWarnings,
+  vclose,
+} from "../internal/predicates";
 import {
   keyframeWorld,
   mapped,
@@ -47,11 +55,18 @@ const LEFT_ARM: Omit<IAutoMovieRetargetHandContact, "start" | "end"> = {
  */
 export function test_motion_retarget_contact_hands(): void {
   const source: IAutoMovieSkeleton = proportionedRig("hand-source");
-  const target: IAutoMovieSkeleton = proportionedRig("long-arm-target", { arm: 1.3 });
-  const motion: IAutoMovieMotion = rootShiftClip(source.id, { x: 0, y: 0, z: 0.25 });
+  const target: IAutoMovieSkeleton = proportionedRig("long-arm-target", {
+    arm: 1.3,
+  });
+  const motion: IAutoMovieMotion = rootShiftClip(source.id, {
+    x: 0,
+    y: 0,
+    z: 0.25,
+  });
 
   // 1. undeclared: the arm keeps its angles and the hand lands elsewhere.
-  const undeclared: ReturnType<typeof retargetHumanoidMotion> = retargetHumanoidMotion({ motion, source, target });
+  const undeclared: ReturnType<typeof retargetHumanoidMotion> =
+    retargetHumanoidMotion({ motion, source, target });
   if (undeclared.motion === null || undeclared.characterization === null)
     throw new Error("undeclared hand retarget unexpectedly failed");
   TestValidator.predicate(
@@ -76,12 +91,13 @@ export function test_motion_retarget_contact_hands(): void {
   );
 
   // 2. declared over the whole clip: the hand holds the mapped contact.
-  const declared: ReturnType<typeof retargetHumanoidMotion> = retargetHumanoidMotion({
-    motion,
-    source,
-    target,
-    contacts: { hands: [{ ...LEFT_ARM, start: 0, end: 1 }] },
-  });
+  const declared: ReturnType<typeof retargetHumanoidMotion> =
+    retargetHumanoidMotion({
+      motion,
+      source,
+      target,
+      contacts: { hands: [{ ...LEFT_ARM, start: 0, end: 1 }] },
+    });
   TestValidator.equals("declared hand retarget succeeds", declared.validation, {
     success: true,
   });
@@ -101,12 +117,13 @@ export function test_motion_retarget_contact_hands(): void {
   );
 
   // 3. a window between the keyframes pins nothing.
-  const between: ReturnType<typeof retargetHumanoidMotion> = retargetHumanoidMotion({
-    motion,
-    source,
-    target,
-    contacts: { hands: [{ ...LEFT_ARM, start: 0.4, end: 0.6 }] },
-  });
+  const between: ReturnType<typeof retargetHumanoidMotion> =
+    retargetHumanoidMotion({
+      motion,
+      source,
+      target,
+      contacts: { hands: [{ ...LEFT_ARM, start: 0.4, end: 0.6 }] },
+    });
   if (between.motion === null) throw new Error("windowed retarget failed");
   TestValidator.predicate(
     "a window covering no keyframe leaves the clip untouched",
@@ -119,22 +136,23 @@ export function test_motion_retarget_contact_hands(): void {
     "rightLowerArm",
     "rightHand",
   ]);
-  const skipped: ReturnType<typeof retargetHumanoidMotion> = retargetHumanoidMotion({
-    motion,
-    source,
-    target: armless,
-    contacts: {
-      hands: [
-        {
-          hand: "rightHand",
-          upper: "rightUpperArm",
-          lower: "rightLowerArm",
-          start: 0,
-          end: 1,
-        },
-      ],
-    },
-  });
+  const skipped: ReturnType<typeof retargetHumanoidMotion> =
+    retargetHumanoidMotion({
+      motion,
+      source,
+      target: armless,
+      contacts: {
+        hands: [
+          {
+            hand: "rightHand",
+            upper: "rightUpperArm",
+            lower: "rightLowerArm",
+            start: 0,
+            end: 1,
+          },
+        ],
+      },
+    });
   TestValidator.equals(
     "a declaration naming absent bones still succeeds",
     skipped.validation,
@@ -143,7 +161,9 @@ export function test_motion_retarget_contact_hands(): void {
   if (skipped.motion === null) throw new Error("skipped retarget failed");
   TestValidator.equals(
     "the unresolvable chain contributes no correction",
-    skipped.motion.keyframes.map((kf: IAutoMovieKeyframe): number => kf.pose.joints.length),
+    skipped.motion.keyframes.map(
+      (kf: IAutoMovieKeyframe): number => kf.pose.joints.length,
+    ),
     [0, 0],
   );
 }

@@ -1,5 +1,8 @@
 import { retargetHumanoidMotion } from "@automovie/engine";
-import type { IAutoMovieMotion, IAutoMovieSkeleton } from "@automovie/interface";
+import type {
+  IAutoMovieMotion,
+  IAutoMovieSkeleton,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import {
@@ -49,7 +52,8 @@ export function test_motion_retarget_contact_airborne(): void {
     nclose(keyframeWorld(source, jump, 1, "leftFoot").y, 1.1),
   );
 
-  const jumped: ReturnType<typeof retargetHumanoidMotion> = retargetHumanoidMotion({ motion: jump, source, target });
+  const jumped: ReturnType<typeof retargetHumanoidMotion> =
+    retargetHumanoidMotion({ motion: jump, source, target });
   TestValidator.predicate(
     "a reachable grounded contact reports no warning",
     validationHasNoWarnings("reachable grounded contact", jumped.validation),
@@ -65,19 +69,25 @@ export function test_motion_retarget_contact_airborne(): void {
     [],
   );
   // 2. no contact anywhere: identical to carrying the angles verbatim.
-  const slide: IAutoMovieMotion = rootShiftClip(source.id, { x: 0, y: 0, z: 0.25 });
-  const ungrounded: ReturnType<typeof retargetHumanoidMotion> = retargetHumanoidMotion({
-    motion: slide,
-    source,
-    target,
-    contacts: { groundY: -5 },
+  const slide: IAutoMovieMotion = rootShiftClip(source.id, {
+    x: 0,
+    y: 0,
+    z: 0.25,
   });
-  const carried: ReturnType<typeof retargetHumanoidMotion> = retargetHumanoidMotion({
-    motion: slide,
-    source,
-    target,
-    contacts: { enabled: false },
-  });
+  const ungrounded: ReturnType<typeof retargetHumanoidMotion> =
+    retargetHumanoidMotion({
+      motion: slide,
+      source,
+      target,
+      contacts: { groundY: -5 },
+    });
+  const carried: ReturnType<typeof retargetHumanoidMotion> =
+    retargetHumanoidMotion({
+      motion: slide,
+      source,
+      target,
+      contacts: { enabled: false },
+    });
   TestValidator.predicate(
     "no ground contact reports no warning",
     validationHasNoWarnings("ungrounded retarget", ungrounded.validation),
@@ -93,11 +103,12 @@ export function test_motion_retarget_contact_airborne(): void {
     test12ValuesClose(ungrounded.motion, carried.motion),
   );
   // 3. a single-keyframe clip fails validation instead of crashing the pass.
-  const lone: ReturnType<typeof retargetHumanoidMotion> = retargetHumanoidMotion({
-    motion: rootShiftClip(source.id, { x: 0, y: 0, z: 0.25 }, [0]),
-    source,
-    target,
-  });
+  const lone: ReturnType<typeof retargetHumanoidMotion> =
+    retargetHumanoidMotion({
+      motion: rootShiftClip(source.id, { x: 0, y: 0, z: 0.25 }, [0]),
+      source,
+      target,
+    });
   TestValidator.equals(
     "a single-keyframe clip returns no motion",
     lone.motion,

@@ -21,15 +21,15 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { keyframe } from "../internal/fixtures";
-import { hasViolation, nclose, vclose } from "../internal/predicates";
+import { createRetargetHumanoidBinding as bindingFor } from "../internal/createRetargetHumanoidBinding";
 import { createRetargetHumanoidSourceSkeleton as sourceSkeleton } from "../internal/createRetargetHumanoidSourceSkeleton";
+import { keyframe } from "../internal/fixtures";
+import { malformedRetargetTarget as malformedTarget } from "../internal/malformedRetargetTarget";
+import { hasViolation, nclose, vclose } from "../internal/predicates";
+import { retargetHumanoidWorld as world } from "../internal/retargetHumanoidWorld";
+import { retargetRootlessSkeleton as rootless } from "../internal/retargetRootlessSkeleton";
 import { scaleRetargetHumanoidSkeleton as scaleSkeleton } from "../internal/scaleRetargetHumanoidSkeleton";
 import { withRetargetReachElbowConstraint as withReachElbowConstraint } from "../internal/withRetargetReachElbowConstraint";
-import { retargetRootlessSkeleton as rootless } from "../internal/retargetRootlessSkeleton";
-import { malformedRetargetTarget as malformedTarget } from "../internal/malformedRetargetTarget";
-import { createRetargetHumanoidBinding as bindingFor } from "../internal/createRetargetHumanoidBinding";
-import { retargetHumanoidWorld as world } from "../internal/retargetHumanoidWorld";
 
 /**
  * Observe humanoid retarget characterization, proportional root/hand behavior and field-located refusal on synthetic source/target rigs. The target id says imported-avatar and its binding uses vrm prefixes, but no imported asset, viewer or rendered human is used. Existing fixture operations live in canonical leaves to keep this test below the source-file size limit after explicit typing.
@@ -58,22 +58,31 @@ import { retargetHumanoidWorld as world } from "../internal/retargetHumanoidWorl
  */
 export function test_motion_retarget_humanoid(): void {
   const source: IAutoMovieSkeleton = sourceSkeleton();
-  const target: IAutoMovieSkeleton = scaleSkeleton(source, "imported-avatar", 2);
+  const target: IAutoMovieSkeleton = scaleSkeleton(
+    source,
+    "imported-avatar",
+    2,
+  );
   const targetBinding: IAutoMovieProfileBinding = bindingFor(target, "vrm");
 
   // 1. walk/travel root motion scales, facing is preserved by policy.
-  const walk: IAutoMovieMotion = bindProfileGaits(HUMANOID_PROFILE, source.id, 4).walk!;
+  const walk: IAutoMovieMotion = bindProfileGaits(
+    HUMANOID_PROFILE,
+    source.id,
+    4,
+  ).walk!;
   const travelled: IAutoMovieMotion = travelMotion("walk-forward", walk, 1, {
     x: 0,
     y: 0,
     z: 1,
   });
-  const walkResult: ReturnType<typeof retargetHumanoidMotion> = retargetHumanoidMotion({
-    motion: travelled,
-    source,
-    target,
-    targetBinding,
-  });
+  const walkResult: ReturnType<typeof retargetHumanoidMotion> =
+    retargetHumanoidMotion({
+      motion: travelled,
+      source,
+      target,
+      targetBinding,
+    });
   TestValidator.equals("walk retarget succeeds", walkResult.validation, {
     success: true,
   });
@@ -87,7 +96,9 @@ export function test_motion_retarget_humanoid(): void {
   );
   TestValidator.equals(
     "keyframe poses target imported skeleton",
-    walkResult.motion.keyframes.every((kf: IAutoMovieKeyframe): boolean => kf.pose.skeleton === target.id),
+    walkResult.motion.keyframes.every(
+      (kf: IAutoMovieKeyframe): boolean => kf.pose.skeleton === target.id,
+    ),
     true,
   );
   TestValidator.predicate(
@@ -113,18 +124,19 @@ export function test_motion_retarget_humanoid(): void {
     "target-override-then-default-humanoid",
   );
 
-  const namedWave: ReturnType<typeof retargetHumanoidMotion> = retargetHumanoidMotion({
-    motion: gestureMotion("named-wave", source.id, "wave", 1)!,
-    source,
-    target,
-    sourceBinding: bindingFor(source, "src"),
-    sourceJointAxes: HUMANOID_JOINT_AXES,
-    targetJointAxes: HUMANOID_JOINT_AXES,
-    sourceRestFrames: HUMANOID_REST_FRAME,
-    targetRestFrames: HUMANOID_REST_FRAME,
-    rootScale: 2,
-    id: "imported-wave",
-  });
+  const namedWave: ReturnType<typeof retargetHumanoidMotion> =
+    retargetHumanoidMotion({
+      motion: gestureMotion("named-wave", source.id, "wave", 1)!,
+      source,
+      target,
+      sourceBinding: bindingFor(source, "src"),
+      sourceJointAxes: HUMANOID_JOINT_AXES,
+      targetJointAxes: HUMANOID_JOINT_AXES,
+      sourceRestFrames: HUMANOID_REST_FRAME,
+      targetRestFrames: HUMANOID_REST_FRAME,
+      rootScale: 2,
+      id: "imported-wave",
+    });
   TestValidator.equals(
     "explicit retarget options succeed",
     namedWave.validation,
@@ -147,12 +159,13 @@ export function test_motion_retarget_humanoid(): void {
 
   // 2. wave: clinical right-arm abduction rises on the imported rig.
   const wave: IAutoMovieMotion = gestureMotion("wave", source.id, "wave", 1)!;
-  const waveResult: ReturnType<typeof retargetHumanoidMotion> = retargetHumanoidMotion({
-    motion: wave,
-    source,
-    target,
-    requiredBones: ["rightHand"],
-  });
+  const waveResult: ReturnType<typeof retargetHumanoidMotion> =
+    retargetHumanoidMotion({
+      motion: wave,
+      source,
+      target,
+      requiredBones: ["rightHand"],
+    });
   TestValidator.equals("wave retarget succeeds", waveResult.validation, {
     success: true,
   });
@@ -166,9 +179,14 @@ export function test_motion_retarget_humanoid(): void {
     waveResult.characterization.target.jointAxes,
     waveResult.characterization.target.restFrames,
   );
-  const shoulderY: number = raised.find((b: ReturnType<typeof resolvePose>[number]): boolean => b.bone === "rightUpperArm")!
-    .worldPosition.y;
-  const handY: number = raised.find((b: ReturnType<typeof resolvePose>[number]): boolean => b.bone === "rightHand")!.worldPosition.y;
+  const shoulderY: number = raised.find(
+    (b: ReturnType<typeof resolvePose>[number]): boolean =>
+      b.bone === "rightUpperArm",
+  )!.worldPosition.y;
+  const handY: number = raised.find(
+    (b: ReturnType<typeof resolvePose>[number]): boolean =>
+      b.bone === "rightHand",
+  )!.worldPosition.y;
   TestValidator.predicate(
     "clinical wave raises the imported right hand",
     handY > shoulderY + 0.45,
@@ -192,12 +210,13 @@ export function test_motion_retarget_humanoid(): void {
       keyframe(1, reach),
     ],
   };
-  const reachDefault: ReturnType<typeof retargetHumanoidMotion> = retargetHumanoidMotion({
-    motion: reachMotion,
-    source,
-    target,
-    requiredBones: ["rightHand"],
-  });
+  const reachDefault: ReturnType<typeof retargetHumanoidMotion> =
+    retargetHumanoidMotion({
+      motion: reachMotion,
+      source,
+      target,
+      requiredBones: ["rightHand"],
+    });
   // Since #1345 the source reach no longer swings the elbow off its hinge, so
   // the pose that retargets carries NO elbow abduction to reject. The contact
   // pass cannot reintroduce it either: it pins humanoid legs by default and no
@@ -217,25 +236,34 @@ export function test_motion_retarget_humanoid(): void {
   );
 
   const reachTarget: IAutoMovieSkeleton = withReachElbowConstraint(target);
-  const reachResult: ReturnType<typeof retargetHumanoidMotion> = retargetHumanoidMotion({
-    motion: reachMotion,
-    source,
-    target: reachTarget,
-    requiredBones: ["rightHand"],
-  });
+  const reachResult: ReturnType<typeof retargetHumanoidMotion> =
+    retargetHumanoidMotion({
+      motion: reachMotion,
+      source,
+      target: reachTarget,
+      requiredBones: ["rightHand"],
+    });
   TestValidator.equals("reach retarget succeeds", reachResult.validation, {
     success: true,
   });
   if (reachResult.motion === null || reachResult.characterization === null)
     throw new Error("reach retarget unexpectedly failed");
 
-  const sourceHand: IAutoMovieVector3 = world(source, reachMotion, 1, "rightHand");
+  const sourceHand: IAutoMovieVector3 = world(
+    source,
+    reachMotion,
+    1,
+    "rightHand",
+  );
   const targetHand: IAutoMovieVector3 = resolvePose(
     sampleMotion(reachResult.motion, 1).pose,
     reachTarget,
     reachResult.characterization.target.jointAxes,
     reachResult.characterization.target.restFrames,
-  ).find((b: ReturnType<typeof resolvePose>[number]): boolean => b.bone === "rightHand")!.worldPosition;
+  ).find(
+    (b: ReturnType<typeof resolvePose>[number]): boolean =>
+      b.bone === "rightHand",
+  )!.worldPosition;
   TestValidator.predicate(
     "reach lands proportionally on the imported rig",
     vclose(targetHand, {
@@ -249,14 +277,17 @@ export function test_motion_retarget_humanoid(): void {
   const noHand: IAutoMovieSkeleton = {
     ...target,
     id: "missing-hand",
-    bones: target.bones.filter((b: IAutoMovieBone): boolean => b.bone !== "rightHand"),
+    bones: target.bones.filter(
+      (b: IAutoMovieBone): boolean => b.bone !== "rightHand",
+    ),
   };
-  const missing: ReturnType<typeof retargetHumanoidMotion> = retargetHumanoidMotion({
-    motion: wave,
-    source,
-    target: noHand,
-    requiredBones: ["rightHand"],
-  });
+  const missing: ReturnType<typeof retargetHumanoidMotion> =
+    retargetHumanoidMotion({
+      motion: wave,
+      source,
+      target: noHand,
+      requiredBones: ["rightHand"],
+    });
   TestValidator.predicate(
     "missing required bone reports the target field",
     hasViolation(
@@ -266,12 +297,13 @@ export function test_motion_retarget_humanoid(): void {
     ),
   );
 
-  const invalidScale: ReturnType<typeof retargetHumanoidMotion> = retargetHumanoidMotion({
-    motion: wave,
-    source,
-    target,
-    rootScale: 0,
-  });
+  const invalidScale: ReturnType<typeof retargetHumanoidMotion> =
+    retargetHumanoidMotion({
+      motion: wave,
+      source,
+      target,
+      rootScale: 0,
+    });
   TestValidator.predicate(
     "invalid explicit root scale reports rootScale",
     hasViolation(invalidScale.validation, "range", "$input.rootScale"),
@@ -279,45 +311,48 @@ export function test_motion_retarget_humanoid(): void {
 
   const srcBinding: IAutoMovieProfileBinding = bindingFor(source, "src");
   const tgtBinding: IAutoMovieProfileBinding = bindingFor(target, "bad");
-  const malformed: ReturnType<typeof retargetHumanoidMotion> = retargetHumanoidMotion({
-    motion: { ...wave, skeleton: "wrong-source" },
-    source: rootless(source),
-    target: malformedTarget(target),
-    sourceBinding: {
-      ...srcBinding,
-      boneMap: { ...srcBinding.boneMap, hips: "" },
-    },
-    targetBinding: {
-      ...tgtBinding,
-      boneMap: { ...tgtBinding.boneMap, rightHand: "" },
-    },
-    sourceJointAxes: {
-      rightUpperArm: {
-        flexion: { x: Number.NaN, y: 0, z: 0 },
-        abduction: { x: 0, y: 0, z: 1 },
-        twist: { x: 1, y: 0, z: 0 },
+  const malformed: ReturnType<typeof retargetHumanoidMotion> =
+    retargetHumanoidMotion({
+      motion: { ...wave, skeleton: "wrong-source" },
+      source: rootless(source),
+      target: malformedTarget(target),
+      sourceBinding: {
+        ...srcBinding,
+        boneMap: { ...srcBinding.boneMap, hips: "" },
       },
-    },
-    targetJointAxes: {
-      leftUpperArm: {
-        flexion: { x: 0, y: 1, z: 0 },
-        abduction: { x: 0, y: 1, z: 1 },
-        twist: { x: 1, y: 0, z: 0 },
+      targetBinding: {
+        ...tgtBinding,
+        boneMap: { ...tgtBinding.boneMap, rightHand: "" },
       },
-      rightUpperArm: {
-        flexion: { x: 0, y: 1, z: 0 },
-        abduction: { x: 0, y: 0, z: Infinity },
-        twist: { x: 1, y: 0, z: 0 },
+      sourceJointAxes: {
+        rightUpperArm: {
+          flexion: { x: Number.NaN, y: 0, z: 0 },
+          abduction: { x: 0, y: 0, z: 1 },
+          twist: { x: 1, y: 0, z: 0 },
+        },
       },
-    },
-    sourceRestFrames: {
-      rightUpperArm: { abduction: { sign: 0, neutral: 90 } },
-    } as unknown as NonNullable<Parameters<typeof retargetHumanoidMotion>[0]["sourceRestFrames"]>,
-    targetRestFrames: {
-      rightUpperArm: { abduction: { sign: -1, neutral: Number.NaN } },
-    },
-    requiredBones: ["rightHand"],
-  });
+      targetJointAxes: {
+        leftUpperArm: {
+          flexion: { x: 0, y: 1, z: 0 },
+          abduction: { x: 0, y: 1, z: 1 },
+          twist: { x: 1, y: 0, z: 0 },
+        },
+        rightUpperArm: {
+          flexion: { x: 0, y: 1, z: 0 },
+          abduction: { x: 0, y: 0, z: Infinity },
+          twist: { x: 1, y: 0, z: 0 },
+        },
+      },
+      sourceRestFrames: {
+        rightUpperArm: { abduction: { sign: 0, neutral: 90 } },
+      } as unknown as NonNullable<
+        Parameters<typeof retargetHumanoidMotion>[0]["sourceRestFrames"]
+      >,
+      targetRestFrames: {
+        rightUpperArm: { abduction: { sign: -1, neutral: Number.NaN } },
+      },
+      requiredBones: ["rightHand"],
+    });
   TestValidator.predicate(
     "malformed retarget reports the source skeleton id field",
     hasViolation(malformed.validation, "type", "$input.motion.skeleton"),

@@ -1,5 +1,9 @@
 import { retargetHumanoidMotion } from "@automovie/engine";
-import type { IAutoMovieKeyframe, IAutoMovieMotion, IAutoMovieSkeleton } from "@automovie/interface";
+import type {
+  IAutoMovieKeyframe,
+  IAutoMovieMotion,
+  IAutoMovieSkeleton,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import {
@@ -42,15 +46,21 @@ export function test_motion_retarget_contact_uniform(): void {
     torso: 2,
     arm: 2,
   });
-  const motion: IAutoMovieMotion = rootShiftClip(source.id, { x: 0.4, y: 0, z: 0.25 });
-
-  const pinned: ReturnType<typeof retargetHumanoidMotion> = retargetHumanoidMotion({ motion, source, target });
-  const carried: ReturnType<typeof retargetHumanoidMotion> = retargetHumanoidMotion({
-    motion,
-    source,
-    target,
-    contacts: { enabled: false },
+  const motion: IAutoMovieMotion = rootShiftClip(source.id, {
+    x: 0.4,
+    y: 0,
+    z: 0.25,
   });
+
+  const pinned: ReturnType<typeof retargetHumanoidMotion> =
+    retargetHumanoidMotion({ motion, source, target });
+  const carried: ReturnType<typeof retargetHumanoidMotion> =
+    retargetHumanoidMotion({
+      motion,
+      source,
+      target,
+      contacts: { enabled: false },
+    });
   TestValidator.equals("uniform contact retarget succeeds", pinned.validation, {
     success: true,
   });
@@ -73,7 +83,9 @@ export function test_motion_retarget_contact_uniform(): void {
   );
   TestValidator.equals(
     "no joint is invented on a pose the source left empty",
-    pinned.motion.keyframes.map((kf: IAutoMovieKeyframe): number => kf.pose.joints.length),
+    pinned.motion.keyframes.map(
+      (kf: IAutoMovieKeyframe): number => kf.pose.joints.length,
+    ),
     [0, 0],
   );
 
