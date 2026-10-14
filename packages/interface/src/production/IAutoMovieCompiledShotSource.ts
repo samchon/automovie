@@ -7,17 +7,17 @@ import { IAutoMovieFormationSlotMotion } from "./IAutoMovieFormationSlotMotion";
 import { IAutoMovieShotSourceOutput } from "./IAutoMovieShotSourceOutput";
 
 /**
- * Builder-owned shot artifact consumed by render and numerical oracle services. Resolved models and compact populations travel with source-authored scene and motion, so consumers read one compiled snapshot.
+ * Host-composed shot artifact consumed by render and numerical oracle services. Resolved models and compact populations travel with source-authored scene and motion, so consumers read one supplied snapshot.
  *
- * @evidence contracts/common.md#principled-implementation The builder combines admitted shot source with resolved models, regenerable populations, validated formation motion and deterministic effects; source-owner and acceptance attribution identify the exact graph-selected exports that produced or verified the authored unit.
+ * @evidence contracts/common.md#principled-implementation The record combines shot source output, resolved models, regenerable populations, formation cues and deterministic effects for Engine measurement and render adapters. The production composer is retired; a host must assemble and explicitly admit these fields, and optional source attribution is declared metadata rather than a surviving graph-selection proof.
  * @evidence contracts/common.md#clear-and-simple-design Extending shot output preserves its scene and motion representation, while compiler-only resolution and provenance fields stay on the compiled artifact rather than expanding the source authoring API.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Acceptance exports are attributed without executing them as shot builders, and review or final cannot publish the legacy source-only artifact that omits authoring ownership evidence.
- * @evidence contracts/common.md#meaningful-documentation States builder ownership, source-owner omission limits, acceptance attribution, model and compact-population membership, validated sparse motion exceptions and deterministic effect ownership.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Render and measurement consume the supplied artifact without executing acceptance exports. This type supplies no source-owner admission, review/final publication gate or automatic formation-cue validation after production retirement; the host owns those checks.
+ * @evidence contracts/common.md#meaningful-documentation States host composition, optional unverified source/acceptance attribution, model and compact-population membership, explicit cue admission ownership and deterministic effect records.
  * @author Samchon
  */
 export interface IAutoMovieCompiledShotSource extends IAutoMovieShotSourceOutput {
   /**
-   * Exact graph-selected source export and authored unit carried into the materialized shot. Omitted only for legacy source-scope callers that did not supply authoring evidence; review and final never publish without it.
+   * Optional source export and authored-unit attribution supplied by the host. No surviving production graph or publication gate proves this metadata or requires its presence.
    */
   sourceOwner?: {
     /** Graph-selected source branch that owns this authored unit. */
@@ -62,10 +62,10 @@ export interface IAutoMovieCompiledShotSource extends IAutoMovieShotSourceOutput
   /** Compact general instance runtimes placed by the production world. */
   instanceSets: IAutoMovieCompiledInstanceSet[];
 
-  /** Validated compact formation-level cues, empty when source omitted them. */
+  /** Compact formation-level cues; the composing host supplies an empty list for none and owns explicit validation. */
   formationMotions: IAutoMovieFormationMotion[];
 
-  /** Validated sparse per-member exceptions, empty when source omitted them. */
+  /** Sparse per-member exceptions; the composing host supplies an empty list for none and owns explicit validation. */
   formationSlotMotions: IAutoMovieFormationSlotMotion[];
 
   /** Compiler-owned deterministic effect runtimes. */

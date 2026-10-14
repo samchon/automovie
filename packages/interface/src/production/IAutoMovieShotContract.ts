@@ -9,7 +9,7 @@ import { IAutoMovieShotStoryTime } from "./IAutoMovieShotStoryTime";
 /**
  * Source-bound shot obligations measured against compiled performance, camera and event output.
  *
- * @evidence contracts/common.md#principled-implementation A canonical source registration and finite frame-grid duration bind the shot to explicit participants, boundary-state predicates, event windows and required review samples; realizeShotContract grades those obligations from compiled artifacts.
+ * @evidence contracts/common.md#principled-implementation Explicit participants, boundary-state predicates, event windows and required review samples describe one shot; realizeShotContract grades those obligations from supplied artifacts. Valid contract clocks and source attribution are caller premises, while direct compileDefinedShot uses its registered declaration and a synthetic source address without a resident project loader.
  * @evidence contracts/common.md#clear-and-simple-design Separates narrative identity and source binding from measurable opening, closing, camera and event obligations, leaving dense motion and scene construction to the source and engine pipeline.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Echoed ids and camera intent prose do not prove realization; occlusion ratio remains an external current-frame review requirement rather than a builder-measured mask statistic, and style intent suppresses only its named heuristic.
  * @evidence contracts/common.md#meaningful-documentation Defines source path admission, shot seconds and frame clock, independent story pin, participant and predicate obligations, camera limits and required visual evidence.
@@ -25,7 +25,7 @@ export interface IAutoMovieShotContract {
   /** Coding-agent-owned source export. */
   source: {
     /**
-     * Canonical project-relative POSIX TypeScript path. Backslashes, absolute paths, dot segments and case-variant aliases are refused.
+     * Intended canonical project-relative POSIX TypeScript path. The production path resolver is retired; direct compileDefinedShot uses a synthetic source address and does not load this path.
      */
     module: string;
 
@@ -36,7 +36,7 @@ export interface IAutoMovieShotContract {
   /**
    * Screenplay scenes and optional canon claims this shot intends to realize.
    *
-   * Project lint requires this field once a screenplay index is resident.
+   * Retains optional screenplay attribution; the production screenplay/project lint gate is retired.
    */
   evidence?: IAutoMovieSceneEvidence[];
 
@@ -79,7 +79,7 @@ export interface IAutoMovieShotContract {
     /**
      * Finite maximum allowed pixel-occlusion ratio, inclusive from zero to one.
      *
-     * The builder tests sampled subject boxes against the cropped camera frustum and declared depth precision; it does not measure this pixel-occlusion ratio. External review must compare current mask, depth, outline or beauty frames against the authored threshold.
+     * realizeShotContract tests sampled subject boxes against the cropped camera frustum and declared depth precision; it does not measure this pixel-occlusion ratio. External review must compare current mask, depth, outline or beauty frames against the authored threshold.
      */
     maxOcclusionRatio: number;
   };
