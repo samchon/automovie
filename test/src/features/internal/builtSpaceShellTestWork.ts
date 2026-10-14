@@ -6,8 +6,13 @@ import type {
 import { BUILT_SPACE_SHELL_TEST_HALL as HALL } from "./BUILT_SPACE_SHELL_TEST_HALL";
 import { createModel } from "./fixtures";
 
-/** Create the existing scenario environment with fresh mutable records. */
-export const builtSpaceShellTestWork = (
+/** Create the existing scenario environment with fresh mutable records.
+ *
+ * Supply the existing gallery with an unlocated root and an overridable hall shell. Constructing or locating this fixture alone is not a product behavior proof; its consumers own assertions.
+ * The literal identity placement and authored hall shell establish the input geometry; createModel supplies the original ordinary model record without generating expected containment results.
+ * Consumers override shell/cells to distinguish either spelling, absent volume and malformed meshes. Each call creates mutable top-level records while retaining the module-owned hall shell reference.
+ */
+export const builtSpaceShellTestWork: (space: Partial<IAutoMovieBuiltSpace>) => IAutoMovieBuiltEnvironment = (
   space: Partial<IAutoMovieBuiltSpace>,
 ): IAutoMovieBuiltEnvironment => ({
   version: 1,
