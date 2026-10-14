@@ -41,12 +41,22 @@ export function placeHumanBodyHumeralHead(
     input.source === "observed"
       ? input.observation.millimetres / 1000
       : input.radiusMetres;
-  const sphere: ReturnType<typeof placeHumanBodyArticularSphere<IAutoMovieHumanBodyHumeralHead["bone"]>> = placeHumanBodyArticularSphere({
+  const sphere: ReturnType<
+    typeof placeHumanBodyArticularSphere<IAutoMovieHumanBodyHumeralHead["bone"]>
+  > = placeHumanBodyArticularSphere({
     bone: input.bone,
     radiusMetres,
     bones: input.bones,
   });
-  const provenance: { source: "observed"; observation: Extract<IAutoMovieHumanBodyTomographicLength, { kind: "observed" }> } | { source: "measured" | "target" | "adult-ct-prior" } =
+  const provenance:
+    | {
+        source: "observed";
+        observation: Extract<
+          IAutoMovieHumanBodyTomographicLength,
+          { kind: "observed" }
+        >;
+      }
+    | { source: "measured" | "target" | "adult-ct-prior" } =
     input.source === "observed"
       ? { source: "observed" as const, observation: { ...input.observation } }
       : { source: input.source };

@@ -60,24 +60,28 @@ export function createHumanBodyHumeralHeads(input: {
           0.10963013823784803 * male,
       ) / 1000
     : null;
-  return (["leftUpperArm", "rightUpperArm"] as const).flatMap((bone: IAutoMovieHumanBodyHumeralHead["bone"]): IAutoMovieHumanBodyHumeralHead[] => {
-    const measuredMillimetres: number | undefined =
-      bone === "leftUpperArm"
-        ? radii?.leftRadiusMillimetres
-        : radii?.rightRadiusMillimetres;
-    const radiusMetres: number | null =
-      measuredMillimetres === undefined
-        ? priorMetres
-        : measuredMillimetres / 1000;
-    if (radiusMetres === null) return [];
-    return [
-      placeHumanBodyHumeralHead({
-        bone,
-        radiusMetres,
-        source:
-          measuredMillimetres === undefined ? "adult-ct-prior" : "measured",
-        bones,
-      }),
-    ];
-  });
+  return (["leftUpperArm", "rightUpperArm"] as const).flatMap(
+    (
+      bone: IAutoMovieHumanBodyHumeralHead["bone"],
+    ): IAutoMovieHumanBodyHumeralHead[] => {
+      const measuredMillimetres: number | undefined =
+        bone === "leftUpperArm"
+          ? radii?.leftRadiusMillimetres
+          : radii?.rightRadiusMillimetres;
+      const radiusMetres: number | null =
+        measuredMillimetres === undefined
+          ? priorMetres
+          : measuredMillimetres / 1000;
+      if (radiusMetres === null) return [];
+      return [
+        placeHumanBodyHumeralHead({
+          bone,
+          radiusMetres,
+          source:
+            measuredMillimetres === undefined ? "adult-ct-prior" : "measured",
+          bones,
+        }),
+      ];
+    },
+  );
 }

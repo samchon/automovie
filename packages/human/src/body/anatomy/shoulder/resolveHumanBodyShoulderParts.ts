@@ -1,9 +1,9 @@
+import type { AutoMovieHumanBodyAnatomicalUnavailableReason } from "../generated/AutoMovieHumanBodyAnatomicalUnavailableReason";
 import type { IAutoMovieHumanBodyPartResolution } from "../generated/IAutoMovieHumanBodyPartResolution";
 import type { IAutoMovieHumanBodyRegionPartsInput } from "../generated/IAutoMovieHumanBodyRegionPartsInput";
-import type { AutoMovieHumanBodyAnatomicalUnavailableReason } from "../generated/AutoMovieHumanBodyAnatomicalUnavailableReason";
-import type { IAutoMovieHumanBodyShoulderMeasurements } from "./IAutoMovieHumanBodyShoulderMeasurements";
-import type { IAutoMovieHumanBodyRotatorCuffMeasurements } from "./IAutoMovieHumanBodyRotatorCuffMeasurements";
 import { humanBodyUnavailablePart } from "../generated/humanBodyUnavailablePart";
+import type { IAutoMovieHumanBodyRotatorCuffMeasurements } from "./IAutoMovieHumanBodyRotatorCuffMeasurements";
+import type { IAutoMovieHumanBodyShoulderMeasurements } from "./IAutoMovieHumanBodyShoulderMeasurements";
 
 /**
  * Answer each side's clavicle, scapula, deltoid and rotator cuff muscles.
@@ -22,46 +22,51 @@ import { humanBodyUnavailablePart } from "../generated/humanBodyUnavailablePart"
 export function resolveHumanBodyShoulderParts(
   input: IAutoMovieHumanBodyRegionPartsInput,
 ): readonly IAutoMovieHumanBodyPartResolution[] {
-  const muscle: AutoMovieHumanBodyAnatomicalUnavailableReason = "missing-tissue-boundary";
-  return (["left", "right"] as const).flatMap((side: "left" | "right"): IAutoMovieHumanBodyPartResolution[] => {
-    const shoulder: IAutoMovieHumanBodyShoulderMeasurements | undefined = input.targets?.[`${side}UpperLimb`]?.shoulder;
-    const cuff: IAutoMovieHumanBodyRotatorCuffMeasurements | undefined = shoulder?.rotatorCuff;
-    return [
-      humanBodyUnavailablePart(
-        `${side}Clavicle` as const,
-        shoulder?.clavicle,
-        "missing-bone-landmark",
-      ),
-      humanBodyUnavailablePart(
-        `${side}Scapula` as const,
-        shoulder?.scapula,
-        "missing-bone-landmark",
-      ),
-      humanBodyUnavailablePart(
-        `${side}Deltoid` as const,
-        shoulder?.deltoid,
-        muscle,
-      ),
-      humanBodyUnavailablePart(
-        `${side}Supraspinatus` as const,
-        cuff?.supraspinatus,
-        muscle,
-      ),
-      humanBodyUnavailablePart(
-        `${side}Infraspinatus` as const,
-        cuff?.infraspinatus,
-        muscle,
-      ),
-      humanBodyUnavailablePart(
-        `${side}TeresMinor` as const,
-        cuff?.teresMinor,
-        muscle,
-      ),
-      humanBodyUnavailablePart(
-        `${side}Subscapularis` as const,
-        cuff?.subscapularis,
-        muscle,
-      ),
-    ];
-  });
+  const muscle: AutoMovieHumanBodyAnatomicalUnavailableReason =
+    "missing-tissue-boundary";
+  return (["left", "right"] as const).flatMap(
+    (side: "left" | "right"): IAutoMovieHumanBodyPartResolution[] => {
+      const shoulder: IAutoMovieHumanBodyShoulderMeasurements | undefined =
+        input.targets?.[`${side}UpperLimb`]?.shoulder;
+      const cuff: IAutoMovieHumanBodyRotatorCuffMeasurements | undefined =
+        shoulder?.rotatorCuff;
+      return [
+        humanBodyUnavailablePart(
+          `${side}Clavicle` as const,
+          shoulder?.clavicle,
+          "missing-bone-landmark",
+        ),
+        humanBodyUnavailablePart(
+          `${side}Scapula` as const,
+          shoulder?.scapula,
+          "missing-bone-landmark",
+        ),
+        humanBodyUnavailablePart(
+          `${side}Deltoid` as const,
+          shoulder?.deltoid,
+          muscle,
+        ),
+        humanBodyUnavailablePart(
+          `${side}Supraspinatus` as const,
+          cuff?.supraspinatus,
+          muscle,
+        ),
+        humanBodyUnavailablePart(
+          `${side}Infraspinatus` as const,
+          cuff?.infraspinatus,
+          muscle,
+        ),
+        humanBodyUnavailablePart(
+          `${side}TeresMinor` as const,
+          cuff?.teresMinor,
+          muscle,
+        ),
+        humanBodyUnavailablePart(
+          `${side}Subscapularis` as const,
+          cuff?.subscapularis,
+          muscle,
+        ),
+      ];
+    },
+  );
 }
