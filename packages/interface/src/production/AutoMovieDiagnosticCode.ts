@@ -1,10 +1,10 @@
 /**
  * One stable machine-readable identity in the closed production diagnostic vocabulary.
  *
- * @evidence contracts/common.md#principled-implementation Explicit literals define the current diagnostic vocabulary; Production's runtime registry satisfies Record<AutoMovieDiagnosticCode, true>, so an omitted or extra key is a compile-time error.
- * @evidence contracts/common.md#clear-and-simple-design The authoring package owns the erased code constraint, while Production owns the ordered runtime registry and descriptive catalog; no runtime value is imported into this pure type.
+ * @evidence contracts/common.md#principled-implementation Explicit literals constrain typed diagnostic identities. Engine validators and realization still emit a subset, while retired Production codes remain representable for compatibility; the removed runtime catalog no longer establishes an exhaustive current producer registry.
+ * @evidence contracts/common.md#clear-and-simple-design The pure authoring package owns the erased code constraint and Engine producers choose their findings explicitly, without importing a runtime catalog into this type.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The union remains closed after removal of the obsolete prose-grader reservation; code membership constrains producers without widening to string or proving every declared code has a current producer.
- * @evidence contracts/common.md#meaningful-documentation Defines closed machine identity, its runtime registry owner and exhaustiveness relation, distinct from user-facing correction prose.
+ * @evidence contracts/common.md#meaningful-documentation Defines closed machine identity and distinguishes representable legacy codes from current producers and user-facing correction prose.
  * @author Samchon
  */
 export type AutoMovieDiagnosticCode =

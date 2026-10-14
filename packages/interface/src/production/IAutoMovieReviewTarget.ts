@@ -4,7 +4,7 @@ import type { IAutoMovieSubjectReviewTarget } from "./IAutoMovieSubjectReviewTar
 /**
  * Closed addresses for review and mutation consequences across authored decisions, compiled results and selected visual evidence.
  *
- * @evidence contracts/common.md#principled-implementation Kind discrimination preserves the identity domain of asset, design, source, shot, rendition, sequence, film or compiled subject, so review freshness and mutation fanout resolve against the responsible current owner.
+ * @evidence contracts/common.md#principled-implementation Kind discrimination preserves asset, design, source, shot, rendition, sequence, film or subject address domains used by capture metadata. Production review/currentness and mutation resolvers are retired; these fields declare an intended owner without resolving existence or applying freshness checks.
  * @evidence contracts/common.md#clear-and-simple-design Each arm carries its own minimal address, and subject review composes its existing artifact-plus-subject contract instead of flattening that address into a frame target.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A shot containing a subject cannot substitute for subject review, and a deterministic shot is distinct from its receipt-bound rendition; no path parsing silently converts one target class into another.
  * @evidence contracts/common.md#meaningful-documentation Defines each target kind and exact identifier, source path, typed design address or compiled subject address it owns.

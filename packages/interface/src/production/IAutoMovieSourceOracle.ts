@@ -28,7 +28,7 @@ export interface IAutoMovieSourceOracle {
    * World-meter height of the first containing world surface at the supplied XZ point, or zero when none contains it.
    *
    * @evidence contracts/common.md#principled-implementation Delegates to worldGroundHeight over the current borrowed world surfaces so source placement uses the same containment and terrain interpolation as engine placement.
-   * @evidence contracts/common.md#clear-and-simple-design Returns only height for this source helper; richer ground surface identity and walkability belong to the production geometry query.
+   * @evidence contracts/common.md#clear-and-simple-design Returns only height for this helper; richer surface identity and walkability belong to explicit Engine geometry measurement.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Zero is the declared no-surface answer, not fabricated walkable terrain or an inferred ground mesh.
    * @evidence contracts/common.md#meaningful-documentation Defines XZ world-meter sampling, first-containing precedence, height units and no-surface zero.
    */
