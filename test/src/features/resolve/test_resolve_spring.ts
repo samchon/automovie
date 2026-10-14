@@ -53,9 +53,7 @@ const run: (steps: number) => Map<string, number[]> = (steps: number): Map<strin
 };
 
 /**
- * The Verlet spring driver: a horizontal hair/skirt-like chain sags under
- * gravity, keeps its bone lengths within 1e-9 and replays the checked positions
- * identically.
+ * A horizontal numerical spring chain sags under gravity, keeps link lengths within 1e-9 and replays checked positions identically.
  *
  * Scenarios:
  *

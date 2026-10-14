@@ -14,10 +14,7 @@ const profileWith: (drivers: IAutoMovieDriver[], limits?: IAutoMovieProfile["lim
 });
 
 /**
- * ProfileSemanticKeys walks exactly the references bindProfile remaps (limit
- * node channels and every driver's node fields), deduplicated in
- * first-reference order, so forgeProp can demand every boneMap entry in one
- * correction round.
+ * Profile semantic keys enumerate node references from limits and drivers in first-reference order, removing duplicates for binding admission.
  *
  * Scenarios:
  *

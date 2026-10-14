@@ -6,8 +6,7 @@ const close: (a: number[], b: number[], eps?: number) => boolean = (a: number[],
   a.length === b.length && a.every((v: number, i: number): boolean  => nclose(v, b[i]!, eps));
 
 /**
- * The column-major 4×4 matrix algebra the compose pass rests on: identity, TRS
- * composition (matching `three.js` `Matrix4.compose`), and the matrix product.
+ * Column-major matrix algebra supplies identity, TRS composition and ordered matrix multiplication.
  *
  * Scenarios:
  *

@@ -33,13 +33,7 @@ const wildPose: (rng: () => number) => IAutoMovieJointPose[] = (rng: () => numbe
   );
 
 /**
- * ROM clamping must be **idempotent**: clamping an already-clamped pose changes
- * nothing. If it were not, a second validation/clamp pass could drift a pose
- * that the first pass called settled, the fixed point the "clamp then validate"
- * contract assumes. Two hundred seeded poses cover a fixed population of
- * eight conventional joint names and angles in [-200,200); individual angles
- * can be inside their bounds, and this sweep does not cover every branch or
- * establish population-specific clinical ranges.
+ * Clamping an already clamped pose must reach the same fixed point. Two hundred seeded poses exercise eight conventional joint names with angles in [-200,200); the finite sweep does not establish exhaustive branches or population-specific clinical ranges.
  *
  * Scenarios:
  *

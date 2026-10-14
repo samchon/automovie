@@ -52,9 +52,7 @@ const runAim: (d: IAutoMovieAimDriver, ownerPos: IAutoMovieVector3, targetPos: I
 };
 
 /**
- * The world-space `aim` (look-at) driver: orient a node so its aim axis points
- * at a target, twisting toward `worldUp` for roll, blended by influence, with
- * the owner's subtree recomposed afterward.
+ * World aim drivers orient an owner's aim axis toward a target, use worldUp for roll where defined, blend by influence and recompose descendants.
  *
  * Scenarios:
  *

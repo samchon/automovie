@@ -19,6 +19,7 @@ import { createModel } from "../internal/createModel";
 import { createSkeleton } from "../internal/createSkeleton";
 import { namedFacts } from "../internal/namedFacts";
 import { qclose } from "../internal/qclose";
+import { nclose } from "../internal/nclose";
 import { vclose } from "../internal/vclose";
 import { type IAutoMovieForgedCast } from "../../../../packages/engine/src/film/IAutoMovieForgedCast";
 import { type IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
@@ -26,16 +27,7 @@ import { type IAutoMoviePerformedShot } from "../../../../packages/engine/src/fi
 import { type IAutoMovieResolvedBone } from "../../../../packages/engine/src/kinematics/IAutoMovieResolvedBone";
 
 /**
- * The convergence proof of #594 S3: a real performed film shot plays back
- * within the stated numerical predicates through the general Clip path at
- * bake-clock samples. The duel fixture runs the actual
- * pipeline (forge → stage → perform), each actor's compiled humanoid motion is
- * baked through `motionToClip` with its placement prefix, the tracks merge into
- * ONE clip over the ONE `sceneToNodes` graph, and at every bake-clock time each
- * actor's every bone world from `resolveFrame` equals the specialized path:
- * `placement ∘ resolvePose(sampleMotion(motion, t))`. The engine's execution
- * representation converges on Clip while `IAutoMovieMotion` stays the authoring
- * surface.
+ * The existing duel fixture runs forge/stage/perform, merges both actors' prefixed motion tracks into one clip and compares its resolved bones with specialized motion/FK under each placement at bake-clock times. Agreement uses the stated numerical predicates and shared product math.
  *
  * Scenarios:
  *
@@ -47,7 +39,7 @@ import { type IAutoMovieResolvedBone } from "../../../../packages/engine/src/kin
  *    agree between the specialized and general paths (1e-6), including the hold
  *    window where the shorter actor has ended (the hold semantics agree across
  *    both pipelines).
- * 3. The negative twin: reading knightA's bones through knightB's prefix does NOT
+ * 3. The negative twin: reading knightA's bones through knightB's prefix does not
  *    match: the per-placement prefixes really keep the two actors' subtrees
  *    distinct (the knights stand 0.7 m apart, facing opposite ways).
  *
@@ -97,7 +89,7 @@ export function test_resolve_scene_clip_parity(): void {
         (): boolean  =>
           actors.some(
             (node: "knightA" | "knightB"): boolean  =>
-              performed.motions[node]!.duration === performed.shot.duration,
+              nclose(performed.motions[node]!.duration, performed.shot.duration, 0),
           ),
       ],
     ]),

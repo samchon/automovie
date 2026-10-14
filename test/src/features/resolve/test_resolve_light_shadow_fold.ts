@@ -5,6 +5,11 @@ import { namedFacts } from "../internal/namedFacts";
 import { nclose } from "../internal/nclose";
 import { vclose } from "../internal/vclose";
 
+/** Order field names by their UTF-16 code units, independent of object insertion order. */
+function fieldOrder(a: string, b: string): number {
+  return a < b ? -1 : a > b ? 1 : 0;
+}
+
 const SHADOW: IAutoMovieLightShadow = {
   mapSize: 2048,
   bias: -0.0005,
@@ -30,15 +35,9 @@ const KEY: IAutoMovieLight = {
 };
 
 /**
- * Folding a shot's lighting over a light preserves the renderer policy it was
- * staged with.
+ * Folding animated light values preserves staged shadow policy.
  *
- * `applyLightOverride` rebuilds each light kind from an explicit base so a
- * parameter one kind lacks cannot leak into another. That base is also the one
- * place a field with no animation channel can be silently dropped, which is
- * what `castShadow` and `shadow` were: dimming a lamp over a beat rebuilt it
- * without either, so a key light stopped occluding at the first keyframe that
- * touched it and nothing failed.
+ * Reconstructing a light must retain unanimated castShadow and shadow fields rather than silently losing them when intensity changes. This test observes the returned records and references, not rendered occlusion.
  *
  * Scenarios:
  *
@@ -87,7 +86,7 @@ export function test_resolve_light_shadow_fold(): void {
   const folded: IAutoMovieLight = applyLightOverride(legacy, { range: 9 });
   TestValidator.equals(
     "a legacy light gains neither optional key",
-    Object.keys(folded).sort((a: string, b: string): number => (a < b ? -1 : a > b ? 1 : 0)),
+    Object.keys(folded).sort(fieldOrder),
     ["color", "id", "intensity", "range", "transform", "type"],
   );
   TestValidator.predicate("legacy range override applies", folded.type === "point" && nclose(folded.range, 9, 0));
@@ -95,10 +94,10 @@ export function test_resolve_light_shadow_fold(): void {
   const empty: IAutoMovieLight = applyLightOverride(KEY, {});
   TestValidator.equals(
     "empty override retains staged discrete fields and keys",
-    [empty.id, empty.type, empty.castShadow, empty.color.a, empty.color.hex, Object.keys(empty).sort(), Object.keys(empty.transform).sort(), Object.keys(empty.color).sort(), Object.keys(empty.shadow ?? {}).sort(), empty.shadow?.mapSize],
-    [KEY.id, KEY.type, KEY.castShadow, KEY.color.a, KEY.color.hex, Object.keys(KEY).sort(), Object.keys(KEY.transform).sort(), Object.keys(KEY.color).sort(), Object.keys(SHADOW).sort(), SHADOW.mapSize],
+    [empty.id, empty.type, empty.castShadow, empty.color.a, empty.color.hex, Object.keys(empty).sort(fieldOrder), Object.keys(empty.transform).sort(fieldOrder), Object.keys(empty.color).sort(fieldOrder), Object.keys(empty.shadow ?? {}).sort(fieldOrder), empty.shadow?.mapSize],
+    [KEY.id, KEY.type, KEY.castShadow, KEY.color.a, KEY.color.hex, Object.keys(KEY).sort(fieldOrder), Object.keys(KEY.transform).sort(fieldOrder), Object.keys(KEY.color).sort(fieldOrder), Object.keys(SHADOW).sort(fieldOrder), SHADOW.mapSize],
   );
-  TestValidator.equals("empty override retains transform component keys", [Object.keys(empty.transform.translation).sort(), Object.keys(empty.transform.rotation).sort(), Object.keys(empty.transform.scale).sort()], [Object.keys(KEY.transform.translation).sort(), Object.keys(KEY.transform.rotation).sort(), Object.keys(KEY.transform.scale).sort()]);
+  TestValidator.equals("empty override retains transform component keys", [Object.keys(empty.transform.translation).sort(fieldOrder), Object.keys(empty.transform.rotation).sort(fieldOrder), Object.keys(empty.transform.scale).sort(fieldOrder)], [Object.keys(KEY.transform.translation).sort(fieldOrder), Object.keys(KEY.transform.rotation).sort(fieldOrder), Object.keys(KEY.transform.scale).sort(fieldOrder)]);
   TestValidator.predicate("empty override retains all staged numerical fields", empty.type === "spot" &&
     vclose(empty.transform.translation, KEY.transform.translation, 0) && vclose(empty.transform.scale, KEY.transform.scale, 0) &&
     nclose(empty.transform.rotation.x, KEY.transform.rotation.x, 0) && nclose(empty.transform.rotation.y, KEY.transform.rotation.y, 0) &&

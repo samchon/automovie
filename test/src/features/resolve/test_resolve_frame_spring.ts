@@ -53,11 +53,7 @@ const at: (world: Map<string, number[]>, id: string) => IAutoMovieVector3 = (wor
 };
 
 /**
- * Springs step inside {@link resolveFrame} when the caller threads the
- * cross-frame `springs` input (state + dt + colliders), completing S2: the
- * engine advances the one stateful driver deterministically instead of
- * deferring it to a host pass. Without that input the existing descriptor
- * count/type assertions check deferral rather than a serialized-byte snapshot.
+ * Frame resolution advances springs when the caller supplies state, time step and optional colliders. Without that input, descriptor count and type assertions check deferral; they do not compare serialized bytes.
  *
  * Scenarios:
  *

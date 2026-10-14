@@ -18,8 +18,7 @@ const roundTrip: (title: string, t: IAutoMovieVector3, r: IAutoMovieQuaternion, 
 };
 
 /**
- * `Matrix4.decompose` inverts `compose` and reaches each branch of the
- * largest-diagonal quaternion extraction, recovering position and scale too.
+ * Compose/decompose round trips recover authored position, scale and rotation across trace and largest-diagonal extraction branches.
  *
  * Scenarios (each rotation steers the quaternion read down a different branch):
  *

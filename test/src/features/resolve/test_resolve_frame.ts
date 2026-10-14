@@ -37,14 +37,9 @@ const track: (channel: IAutoMovieChannel, times: number[], values: number[]) => 
 const tx: (m: number[]) => number = (m: number[]): number => m[12]!;
 
 /**
- * The per-frame resolver end to end: SAMPLE → CONSTRAIN → COMPOSE, plus the
- * weights side-channel and the rest-pose (null clip) path.
+ * Resolve a frame through sampling, constraints and composition, including morph weights and a null-clip rest pose.
  *
- * The scene has five nodes (one animating translation+rotation, one rotation
- * only, one scale only, one morph weights, and one static), exercising
- * selected present/absent TRS channels when folding samples into overrides.
- * Assertions check world x translation, one scale coefficient and morph values,
- * rather than every world coefficient or all channel combinations.
+ * Five nodes exercise translation/rotation, rotation-only, scale-only, morph and static paths. Assertions check world X translation, one scale coefficient and morph values; they do not establish every world coefficient or channel combination.
  *
  * Scenarios:
  *
@@ -131,7 +126,7 @@ export function test_resolve_frame(): void {
     ],
   );
   TestValidator.predicate("violation preserves limit and original overshoot", nclose(out.violations[0]!.limit, 50, 0) && nclose(out.violations[0]!.actual, 100, 0));
-  TestValidator.equals("violation has only the expected output fields", Object.keys(out.violations[0]!).sort(), ["actual", "bound", "channel", "component", "limit"]);
+  TestValidator.equals("violation has only the expected output fields", Object.keys(out.violations[0]!).sort((a: string, b: string): number => a < b ? -1 : a > b ? 1 : 0), ["actual", "bound", "channel", "component", "limit"]);
 
   // 2. scale-only node animates scale, keeps rest translation/rotation
   TestValidator.predicate(

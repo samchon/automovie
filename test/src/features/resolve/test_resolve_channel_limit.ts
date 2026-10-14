@@ -22,8 +22,7 @@ const limit: (min: (number | null)[] | null, max: (number | null)[] | null) => I
 ): IAutoMovieChannelLimit => ({ channel: CHANNEL, min, max });
 
 /**
- * The CONSTRAIN pass: clamp a value to a channel limit and report every bound
- * it crossed, with the `null`-side / `null`-component freedoms.
+ * Clamp sampled components to channel bounds and report each crossing, preserving null-side and null-component freedoms.
  *
  * Scenarios:
  *
@@ -66,7 +65,7 @@ export function test_resolve_channel_limit(): void {
     { component: 0, bound: "min" }, { component: 2, bound: "max" },
   ]);
   TestValidator.predicate("mixed clamp violation numbers", nclose(mixed.violations[0]!.limit, 0, 0) && nclose(mixed.violations[0]!.actual, -3, 0) && nclose(mixed.violations[1]!.limit, 50, 0) && nclose(mixed.violations[1]!.actual, 100, 0));
-  TestValidator.equals("mixed clamp violation output fields", mixed.violations.map((entry: typeof mixed.violations[number]): string[] => Object.keys(entry).sort()), [["actual", "bound", "component", "limit"], ["actual", "bound", "component", "limit"]]);
+  TestValidator.equals("mixed clamp violation output fields", mixed.violations.map((entry: typeof mixed.violations[number]): string[] => Object.keys(entry).sort((a: string, b: string): number => a < b ? -1 : a > b ? 1 : 0)), [["actual", "bound", "component", "limit"], ["actual", "bound", "component", "limit"]]);
 
   // 3. within range → untouched, both comparisons take the "not crossed" side
   const inside: IAutoMovieClampOutcome = applyChannelLimit([5, 5, 5], limit([0, 0, 0], [10, 10, 10]));

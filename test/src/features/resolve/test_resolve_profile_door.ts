@@ -53,11 +53,7 @@ const SIN55: number = Math.sin((55 * Math.PI) / 180);
 const COS55: number = Math.cos((55 * Math.PI) / 180);
 
 /**
- * The door profile a prop author (#603 forgeProp) would ship: a one-DOF +Y
- * hinge capped at 110°, expressed as per-component quaternion bounds (x/z
- * pinned to 0, `y ∈ [0, sin55°]`, `w ∈ [cos55°, 1]`, so the clamped corner is
- * exactly the 110° unit quaternion), plus a copy driver mirroring the hinge
- * onto a dependent node.
+ * A conventional +Y hinge profile caps the tested swing at the 110-degree quaternion corner: x/z are zero, y lies in [0,sin55] and w in [cos55,1]. A copy driver mirrors the sampled hinge rotation onto another node before limits run.
  */
 const DOOR_PROFILE: IAutoMovieProfile = {
   id: "door-profile",
@@ -90,10 +86,7 @@ const DOOR_BINDING: IAutoMovieProfileBinding = {
 const basisX: (m: number[]) => [number, number, number] = (m: number[]): [number, number, number] => [m[0]!, m[1]!, m[2]!];
 
 /**
- * The #603 gate proof: a skeleton-less prop declares its own constraint and
- * dependency purely as profile DATA (a hinge limited to 0..110° and a copy
- * driver), and resolveFrame enforces both. This is exactly what forgeProp will
- * author; "profiles are data, not code" as an executable fact.
+ * Resolve a conventional door profile's admitted and excessive swings, checking bound remapping, profile diagnostics and the copy driver's in-range result. This does not prove that the copied node receives the hinge's later clamp.
  *
  * Scenarios:
  *

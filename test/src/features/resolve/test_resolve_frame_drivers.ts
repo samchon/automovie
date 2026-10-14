@@ -21,15 +21,12 @@ const node: (id: string, x: number) => IAutoMovieNode = (id: string, x: number):
 });
 
 /**
- * The DRIVE pass wired through {@link resolveFrame}: channel-space drivers run
- * between SAMPLE and COMPOSE so their output reaches the world matrix, while
- * the world pass then handles supported world drivers and returns remaining
- * descriptors in `deferredDrivers`.
+ * Frame resolution applies value drivers before composition, then applies supported world drivers and returns the remaining descriptors.
  *
- * Scenario: with no clip (rest pose), a full-influence `copy` makes node `a`
- * follow node `b`'s translation; the composed world matrix for `a` shows b's
- * x=5. The accompanying twoBone descriptor has only two chain nodes, so it
- * cannot enter the three-node analytic solve and remains deferred.
+ * Scenarios:
+ *
+ * 1. With no clip, full-influence copying makes node a follow node b's x=5 translation in its world matrix.
+ * 2. A twoBone descriptor with only two chain nodes remains deferred because the analytic solve needs three.
  *
  * @evidence contracts/testing.md#behavioral-verification Calls resolveFrame with a rest-pose copy driver and short twoBone chain, observing the copied translation in world output and one deferred descriptor.
  * @evidence contracts/testing.md#independent-expectations Full translation influence copies source x=5; a two-node chain lacks the mid/tip structure required by the analytic three-node solve. The count alone does not assert deferred descriptor identity.

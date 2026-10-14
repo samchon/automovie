@@ -9,13 +9,8 @@ import { throwsError } from "../internal/throwsError";
 import { vclose } from "../internal/vclose";
 
 /**
- * A lamp standing away from the origin, so a move is visible as a move.
+ * An offset lamp with nonidentity rotation and nonuniform scale distinguishes retained staged fields from accidental identity defaults.
  *
- * Staged facing `+Z` — half a turn about Y — and scaled unevenly, neither of
- * which position-only clips below write, and neither is the identity. A pass
- * that addressed one axis and quietly rebuilt the rest would answer with the
- * identity instead of with what the light was staged with, and an identity
- * fixture could not tell those two apart.
  */
 const lamp: IAutoMovieLight = {
   id: "lamp",
@@ -104,29 +99,11 @@ const SWING: IAutoMovieClip = clip(
 );
 
 /**
- * A light's PLACEMENT is an animatable channel, so its direction and position
- * move like any other keyed value.
+ * Light position and rotation tracks change placement while retaining unaddressed staged values.
  *
- * Before this, `LIGHT_CHANNEL_PROPERTIES` carried intensity, colour, range and
- * cone, and a light was not a scene node, so there was no channel of any kind
- * that could reach where a light stood or which way it faced. A light's
- * direction was fixed for the whole film. That is not a small omission on a
- * long production: light travelling across a stretch of time is how a
- * production of any subject shows that the stretch passed at all.
+ * Existing placement/value tracks accumulate on one light through the shot-lighting pass, and property-kind mismatches must reject.
  *
- * Placement resolves through the SAME path as the four value axes rather than a
- * parallel one — the same table, the same pointer grammar, the same sampler,
- * the same per-light accumulation, the same fold — so
- * animated and staged light fields use the same numerical application rules.
- *
- * Expected values are geometry, computed by hand and not read off the pass. A
- * quarter turn about world Y carries the light's local −Z from `(0, 0, -1)` to
- * `(-1, 0, 0)`, an exactly 90° change; the `quaternion` value type makes LINEAR
- * interpolation a SLERP, which sweeps at constant angular velocity, so the
- * beat's midpoint is exactly 45° along and lands on `(-sin45°, 0, -cos45°)`.
- * A plain component lerp generally leaves the unit sphere. These three times
- * check endpoints and the symmetric midpoint; normalized lerp also reaches
- * that midpoint, so this case does not independently verify constant speed.
+ * A positive quarter-turn about Y carries local negative Z to negative X, with midpoint direction (-sin45,0,-cos45). Endpoints and the symmetric midpoint also match normalized lerp, so these checks do not independently establish constant angular speed.
  *
  * Scenarios:
  *

@@ -90,10 +90,7 @@ const AIM_BINDING: IAutoMovieProfileBinding = {
 const basisX: (m: number[]) => [number, number, number] = (m: number[]): [number, number, number] => [m[0]!, m[1]!, m[2]!];
 
 /**
- * Profile-declared drivers actually drive: a bound copy driver moves its
- * dependent channel inside resolveFrame, a prefix-bound profile lands on a
- * bridged actor's prefixed nodes, and profile-bound world drivers apply before
- * directly-passed ones (the caller's word is final).
+ * Bound profile drivers reach prefixed node channels, and directly supplied world drivers apply after profile drivers on the same owner.
  *
  * Scenarios:
  *

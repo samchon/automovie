@@ -41,8 +41,7 @@ const close: (a: number[], b: number[], eps?: number) => boolean = (a: number[],
   a.length === b.length && a.every((v: number, i: number): boolean  => nclose(v, b[i]!, eps));
 
 /**
- * The SAMPLE pass over the existing linear, step and cubic examples, scalar,
- * vec3, quaternion and weights channels, plus time-normalization branches.
+ * Sample existing linear, step and cubic tracks across scalar, vector, quaternion and weights channels, including time normalization and malformed-input refusals.
  *
  * Scenarios:
  *

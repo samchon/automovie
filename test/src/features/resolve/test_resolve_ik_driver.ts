@@ -46,9 +46,7 @@ const at: (world: Map<string, number[]>, id: string) => IAutoMovieVector3 = (wor
   Matrix4.position(world.get(id)!);
 
 /**
- * The analytic two-bone IK driver back-solves a `root → mid → tip` limb so its
- * tip reaches the goal, preserving bone lengths and bending in the pole's
- * plane.
+ * Analytic two-bone IK places a root/mid/tip chain toward its goal, preserving link lengths and using the pole to select its bend plane.
  *
  * Scenarios:
  *

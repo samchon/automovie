@@ -31,9 +31,7 @@ const trs: (x: number, y: number, z: number) => IAutoMovieTransform = (x: number
 });
 
 /**
- * The world-space `parent` (Child-Of) driver: the owner inherits the parent
- * node's world frame per component, keeping its own value where a flag is off,
- * and recomposes its subtree.
+ * A parent driver inherits selected parent world components and recomposes descendants; disabled components retain the owner's values.
  *
  * Scenarios:
  *

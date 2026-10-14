@@ -42,24 +42,17 @@ const driven: (over: Partial<IAutoMovieDrivenDriver>) => IAutoMovieDrivenDriver 
 });
 
 /**
- * The driven output gate is width-aware for node `weights` (#1100): the
- * corrective-morph driver (`node:X:weights` on a single-morph node) is
- * genuinely scalar-width and folds into `resolveFrame`'s weights, so rejecting
- * every node output was a capability regression whose suggested remedy (a
- * scalar JSON pointer) never folds into node outputs at all. TRS outputs stay
- * banned (#1055's NaN-poisoning rationale holds only for multi-component matrix
- * inputs), and an already-sampled MULTI-morph weights array still refuses the
- * narrowing write.
+ * A driven scalar may create or replace singleton node weights, which resolveFrame publishes as morph output. Existing multiple weights and TRS channels reject a scalar write rather than losing components.
  *
  * Scenarios:
  *
  * 1. End-to-end: a driven driver writing `node:k:weights` with no sampled weights
- *    CREATES the scalar channel (exactly as a width-1 clip track would) and
+ *    creates the scalar channel (exactly as a width-1 clip track would) and
  *    `resolveFrame` folds it into `weights`: the classic corrective-morph
  *    driver works again.
  * 2. A sampled width-1 weights channel is overwritten in place (the driver
  *    replaces the clip's value).
- * 3. Negative twin: sampled THREE-morph weights refuse the scalar write, naming
+ * 3. Negative twin: sampled three-morph weights refuse the scalar write, naming
  *    the narrowing.
  * 4. Negative twin: a TRS output still rejects with the NaN-poisoning rationale.
  *

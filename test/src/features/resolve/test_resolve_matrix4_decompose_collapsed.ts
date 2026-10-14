@@ -16,12 +16,7 @@ const finiteQuat: (q: IAutoMovieQuaternion) => boolean = (q: IAutoMovieQuaternio
   Number.isFinite(q.w);
 
 /**
- * `Matrix4.decompose` on a **collapsed axis** (scale 0: a hidden part, a
- * folded joint) completes the missing basis direction from the surviving
- * columns instead of dividing `0 / 0 = NaN` into the quaternion and every
- * descendant world matrix (#719), so the rotation is a finite unit quaternion
- * and composing the result again rebuilds every surviving column under any
- * rotation, not only the identity.
+ * Decomposition completes collapsed basis directions without dividing by zero; the existing rotated examples must recompose their surviving columns, and genuine tiny scales must remain nonzero.
  *
  * Scenarios:
  *

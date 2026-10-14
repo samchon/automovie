@@ -32,11 +32,7 @@ const SKELETON: IAutoMovieSkeleton = {
 };
 
 /**
- * `clampPose`, the enforce face of ROM. Every joint axis is pulled into its
- * `[min,max]`; an immobile (`null`) axis is forced to 0; an unconstrained bone
- * passes through. The examples exercise admitted engine interval conventions;
- * they do not prove skeleton membership, arbitrary cone projection or
- * clinical suitability of the default table.
+ * Clamp joint angles into intervals, force immobile axes to zero and preserve unconstrained values. These engine interval examples do not prove skeleton membership, arbitrary cone projection or clinical suitability of the default table.
  *
  * Scenarios:
  *

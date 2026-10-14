@@ -35,10 +35,7 @@ const dist: (a: IAutoMovieVector3, b: IAutoMovieVector3) => number = (a: IAutoMo
   Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z);
 
 /**
- * The FABRIK iterative IK solver runs inside the engine's world pass (S2):
- * backward/forward position passes re-place every joint at its exact segment
- * length, an out-of-reach goal resolves directly as full extension toward it,
- * and the whole solve rides a fixed iteration budget for determinism.
+ * FABRIK uses backward/forward position passes within a fixed iteration budget, preserving segment lengths at full influence and fully extending toward unreachable goals.
  *
  * Scenarios:
  *

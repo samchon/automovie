@@ -25,12 +25,7 @@ const placedScene: () => IAutoMovieScene = (): IAutoMovieScene => ({
 });
 
 /**
- * A placed prop's articulation lowers under its placement group exactly the way
- * a skeleton does: prefixed ids and parents, a `null` parent seating directly
- * under the placement (props declare their own root joint; no synthetic root is
- * added). This case checks parent references, hinge translation and node kind;
- * it does not compare every copied node field or count the articulated subtree.
- * A rigid prop lowers nothing extra.
+ * Lower articulated prop nodes beneath their placement with prefixed ids and parents, checking parent references, hinge translation and node kind. A rigid prop contributes only its placement; articulated cardinality and every copied field are not checked here.
  *
  * Scenarios:
  *

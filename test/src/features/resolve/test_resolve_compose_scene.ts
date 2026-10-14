@@ -30,8 +30,7 @@ const node: (id: string, parent: string | null, tx: number) => IAutoMovieNode = 
 const tx: (m: number[]) => number = (m: number[]): number => m[12]!;
 
 /**
- * The COMPOSE pass: flat nodes → world matrices, walking parent-before-child
- * with on-demand parent resolution and memoization.
+ * Compose flat nodes into world matrices, resolving and memoizing each parent before its children.
  *
  * Scenarios:
  *

@@ -30,10 +30,7 @@ const scene: (nodeId: string, modelRef: string) => IAutoMovieScene = (nodeId: st
 });
 
 /**
- * `sceneToNodes` is a lossless bridge: with a model registry supplied every
- * placed ref must resolve; without one it lowers placements only. Duplicate
- * node ids are rejected downstream by `composeScene`'s index guard: the bridge
- * does not duplicate that gate, so the downstream contract is pinned here.
+ * A supplied model registry must resolve each placement; an omitted registry permits placement-only lowering. ComposeScene rejects duplicated concrete node ids downstream, and independent lowering results must own their synthetic root vectors.
  *
  * Scenarios:
  *

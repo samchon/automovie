@@ -27,10 +27,7 @@ const scene: (placements: ReadonlyArray<readonly [string, string]>) => IAutoMovi
 });
 
 /**
- * The lossless-bridge rules over the two registries: when either is supplied
- * every placement must resolve in their union, an id present in BOTH registries
- * is a contradiction (a forged prop carries its own model), and mixed scenes
- * resolve each placement through its own registry.
+ * With either registry supplied, each placement must resolve in the model/prop union without contradictory ownership. Omitting both registries permits placement-only lowering.
  *
  * Scenarios:
  *

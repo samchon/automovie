@@ -39,11 +39,7 @@ const at: (w: Map<string, number[]>, id: string) => IAutoMovieVector3 = (w: Map<
   Matrix4.position(w.get(id)!);
 
 /**
- * `stepSpring`'s sphere colliders complete the VRM SpringBone semantics the
- * validated `hitRadius` always declared: after the length constraint each joint
- * is pushed out of every penetrated sphere to its surface plus `hitRadius`, in
- * array order, with a deterministic upward fallback when the joint sits exactly
- * on a center.
+ * After the length constraint, spring sphere collisions push each joint to sphere radius plus hitRadius in array order, using an upward fallback at a coincident center.
  *
  * Scenarios:
  *

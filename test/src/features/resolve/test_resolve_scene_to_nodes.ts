@@ -33,14 +33,7 @@ const T: (x: number, y: number, z: number, rotY?: { y: number; w: number; }) => 
 });
 
 /**
- * `sceneToNodes` lowers the specialized scene onto the general node graph as
- * REST STRUCTURE (placements as world-transformed groups, cameras/lights as
- * payload nodes, skeleton subtrees prefixed per placement), and what a node is
- * DOING arrives as clip overrides. The static parity contract (proof A of #594
- * S3) is checked on placement position/rotation, camera/light positions and
- * held-pose bone position/rotation against `placement ∘ resolvePose(pose)`.
- * The actor's synthetic root position checks `placement ∘ pose.root`;
- * full matrix/scale parity is not established by these assertions.
+ * Lower scene rest structure into placement groups, camera/light payloads and prefixed skeleton subtrees, then play a held pose through clip overrides. Checks cover placement position/rotation, camera/light positions, bone position/rotation parity and the folded root position; full matrix and scale parity are not established.
  *
  * Scenarios:
  *

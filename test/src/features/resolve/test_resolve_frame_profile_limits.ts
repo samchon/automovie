@@ -64,10 +64,7 @@ const BINDING: IAutoMovieProfileBinding = {
 const tx: (m: number[]) => number = (m: number[]): number => m[12]!;
 
 /**
- * Profile-declared limits actually constrain in resolveFrame's CONSTRAIN stage:
- * a bound limit clamps the sampled channel, its violation is tagged with the
- * sourcing profile id, and the caller's directly-passed limit clamps last: the
- * direct bound is the final word.
+ * Bound profile limits clamp sampled channels and report their profile ids; directly supplied limits apply afterward.
  *
  * Scenarios:
  *

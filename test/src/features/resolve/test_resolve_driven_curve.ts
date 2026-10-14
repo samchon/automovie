@@ -45,10 +45,7 @@ function scalarMatches(actual: number[], expected: number): boolean {
 }
 
 /**
- * The nonlinear `driven.curve` contract is separate from the linear range
- * remap: it carries named `{ source, output }` points, supplies its own
- * source-absent default, and rejects malformed curve data before
- * interpolation.
+ * A nonlinear driven curve uses named source/output points and its own missing-source default; malformed curve data rejects before interpolation.
  *
  * Scenarios:
  *

@@ -78,19 +78,11 @@ const intensityOf: (lights: IAutoMovieLight[], id: string) => number = (lights: 
   lights.find((light: IAutoMovieLight): boolean  => light.id === id)!.intensity;
 
 /**
- * `resolveShotLighting` is the applier that makes a shot's light-time axis real
- * (#1348): the consumer that turns "the candle is 1.4 candela until 1.6s and
- * 0.04 after" from a committed statement into a number at any frame.
+ * Shot-lighting resolution applies authored cue values and preserves unaddressed staged light references.
  *
- * Expected values here come from the glTF sampler contract and hand arithmetic,
- * not from what the pass emits. STEP holds `v_k` for `t_k <= t < t_{k+1}`, so
- * the value at the cue instant is the value AFTER the cue, and LINEAR at the
- * midpoint of a segment is the mean of its endpoints.
+ * Step interpolation holds the key value from its time until the next key, so the cue instant uses the new value. Linear interpolation at a segment midpoint gives the endpoint mean.
  *
- * The pass exists because the axis without an applier is #1339's false green
- * and an applier that skips part of its input is #1349, so every refusal here
- * is loud: a track this pass cannot honor throws rather than resolving to
- * something plausible.
+ * Unsupported channels, absent lights and property-kind mismatches must throw rather than silently skipping a track.
  *
  * Scenarios:
  *

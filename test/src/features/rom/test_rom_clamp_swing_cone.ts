@@ -22,9 +22,7 @@ const passesCone: (j: ReturnType<typeof joint>) => boolean = (j: ReturnType<type
 };
 
 /**
- * The clamp face of the swing cone: a corner pose past the cone is pulled
- * straight back onto it (preserving the flexion:abduction ratio), so the result
- * passes {@link validateJointRom}: clamp and validate stay one calculation.
+ * Swing-cone clamping reduces an excessive symmetric corner while preserving its flexion/abduction ratio, and the result must pass the product validator.
  *
  * Scenarios:
  *

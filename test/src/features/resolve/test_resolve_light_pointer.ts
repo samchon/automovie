@@ -12,32 +12,18 @@ const parsed: (pointer: unknown) => string | null = (pointer: unknown): string |
 };
 
 /**
- * The light pointer grammar (#1348): `/lights/<light id>/<property>`, the one
- * address form that can reach a light, since a light is not a scene node.
+ * Light channels address a stable id and property through /lights/id/property.
  *
- * Two properties carry the axis's safety. The light is named by its stable
- * **id**, never by its index in `scene.lights` — the benchmark agent wrote
- * `/lights/0/intensity` and an index read against an array whose order is
- * load-bearing elsewhere (the viewer's mask palette is keyed by top-level child
- * index) would silently re-target whenever staging inserts a light. And the
- * accepted property set is read out of `LIGHT_CHANNEL_PROPERTIES`, the same
- * table the applier writes through, so the grammar cannot admit a property
- * nothing applies.
+ * The literal expected property list pins the admitted vocabulary, and parser/formatter assertions pin id escaping and address shape. This test does not resolve an id against scene lights or prove that every admitted property is applied.
  *
- * Expected values come from RFC-6901, which the channel type cites: `~1`
- * decodes to `/` and `~0` to `~`, in that order. Supported
- * `/lights/id/property` addresses also round-trip through the product formatter;
- * other address forms return null. General JSON Pointer target evaluation is
- * outside this test.
+ * RFC6901 escaping decodes ~1 to slash before decoding ~0 to tilde. Literal escaped-id expectations accompany formatter/parser round trips; general JSON Pointer target evaluation is outside this test.
  *
  * Scenarios:
  *
  * 1. Every table property parses on a plain id, and each round-trips back to the
  *    pointer it came from. The placement pair (`position`, `rotation`) is
  *    addressed through the very same grammar as the four value axes, because a
- *    light's placement is not a second kind of thing to animate: automovie
- *    stages lights outside `nodes`, so a pointer is the ONLY way to reach one,
- *    and where it stands is as much the light's property as how bright it is.
+ *    placement uses the same grammar as intensity, color, range and coneAngle.
  * 2. An id carrying reserved characters survives: `/lights/a~1b~0c/intensity`
  *    decodes to the id `a/b~c`, and formatting that id reproduces the pointer.
  * 3. Every way a string fails to be a light pointer yields `null` rather than a
@@ -46,7 +32,7 @@ const parsed: (pointer: unknown) => string | null = (pointer: unknown): string |
  *    different collection (`/cameras/0/fovY`, the other example the channel
  *    type advertises), an unknown property, an empty id, and an invalid escape
  *    (`~2`), which the canonicality rule catches for free.
- * 4. `isLightProperty` answers from the table's OWN keys: `constructor` and
+ * 4. `isLightProperty` answers from the table's own keys: `constructor` and
  *    `toString` are properties of every object and neither is a light
  *    property.
  *

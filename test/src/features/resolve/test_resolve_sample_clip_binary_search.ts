@@ -6,13 +6,7 @@ import { nclose } from "../internal/nclose";
 import { type IAutoMovieSampledChannel } from "../../../../packages/engine/src/resolve/IAutoMovieSampledChannel";
 
 /**
- * The track sampler now binary-searches the enclosing keyframe segment instead
- * of scanning front to back on the general channel path. Segment lookup is
- * logarithmic, but sampleClip also validates every track payload per query;
- * this numerical sweep is not a complexity or timing measurement. A
- * closed-form ramp on a vec3 translation track (value.x = i at time
- * i·dt, linear) gives an exact oracle: the sampled x equals time/dt across the
- * whole 240-key array.
+ * A 240-key linear translation ramp supplies the closed-form x=time/DT expectation for midpoint, exact-key and off-grid queries. Numerical agreement does not prove the segment-search algorithm or its complexity.
  *
  * Scenarios:
  *
@@ -79,8 +73,8 @@ export function test_resolve_sample_clip_binary_search(): void {
       `translation.x ramp is exact at t=${t.toFixed(4)}`,
       namedFacts([
         ["ncloseVT", (): boolean  => nclose(v[0]!, t / DT, 1e-9)],
-        ["v", (): boolean  => v[1] === 0],
-        ["v2", (): boolean  => v[2] === 0],
+        ["v", (): boolean  => nclose(v[1]!, 0, 0)],
+        ["v2", (): boolean  => nclose(v[2]!, 0, 0)],
       ]),
       { ncloseVT: true, v: true, v2: true },
     );
