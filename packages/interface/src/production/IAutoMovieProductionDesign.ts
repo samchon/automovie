@@ -21,9 +21,9 @@ import type { IAutoMovieRepaintRequestEvidence } from "./capture/IAutoMovieRepai
 /**
  * Production-owned frame, story, appearance, sound and delivery decisions consumed by source compilation and final validation.
  *
- * @evidence contracts/common.md#principled-implementation The production design fixes shared invariants and explicitly adopted profiles before shot source executes; validation checks raster and rational frame clocks, delivery populations and optional policy identities, and the acquired design bytes participate in compile freshness.
+ * @evidence contracts/common.md#principled-implementation Exact structural acquisition precedes semantic raster/frame-clock, delivery, motion-mapping and caption-profile checks; the canonical design projection participates in compile identity. Selected fields feed shot lighting, motion adoption, sound-evidence and delivery validation, while documented metadata-only fields have no execution reader. Structural presence alone does not enforce every intended policy or freeze the record.
  * @evidence contracts/common.md#clear-and-simple-design Related optional sound, repaint, tier and simulation decisions stay grouped with the global frame and art contract; their implementations and per-shot performance remain in the responsible engine and host packages.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Optional physical and review policies supply no invented thresholds or providers; legacy delivery and tier defaults are documented, while external motion, repaint and moving-boundary choices require explicit production declarations.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts This record chooses no provider, asset or physical threshold on the author's behalf. Explicit-argument budget/live-soft helpers and host-supplied repaint options are distinct from automatic consumption of similarly shaped design fields; documented absent wiring is not a passed execution gate.
  * @evidence contracts/common.md#meaningful-documentation Defines production identity, shared units and limits, optional-state effects, policy ownership, explicit adoptions and the separation between deterministic technical truth and rendition delivery.
  * @author Samchon
  */
@@ -34,7 +34,7 @@ export interface IAutoMovieProductionDesign {
   /** Non-blank human-facing title. */
   title: string;
 
-  /** Non-blank one-sentence narrative promise. */
+  /** Non-blank narrative promise; the gate does not parse sentence count or meaning. */
   logline: string;
 
   /**
@@ -223,11 +223,11 @@ export interface IAutoMovieProductionDesign {
   };
 
   /**
-   * Soft-body domains this production admits to a live moving-boundary solve.
+   * Authored production-wide order intended for live moving-boundary soft domains.
    *
-   * A moving anchor or a body capsule makes a domain expensive in a way a static one is not, so which domains are worth that cost is a production decision rather than a solver default. The list is production-wide, so a domain may be absent from a shot that does not stage it; across every compiled shot, however, this set must equal the set of domains that actually declare a moving boundary, and list order is the stable subject budget order every shot shares.
+   * The explicit Engine selector accepts this list as an argument, preserves each authored budget slot, skips selected domains absent from a shot and refuses present static selections or unselected moving domains. No Production/Viewer execution caller currently reads this design field into that selector, and no builder-wide equality gate proves the list matches every compiled shot's moving-domain population.
    *
-   * Omission admits none. That is correct for a production staging no moving-boundary domain, and refused for one that stages any.
+   * Omission supplies no intended live list and creates no runtime solve. Explicit selector callers must supply their own admitted list; retaining this metadata does not install a live host or enforce an omission refusal during ordinary production compilation.
    */
   simulation?: {
     /** Unique, non-blank, trimmed domain ids in stable budget order. */
@@ -239,7 +239,7 @@ export interface IAutoMovieProductionDesign {
    *
    * Sun, sky, reference ground and neighbouring occluder masses are conditions a building is subject to, not parts of it. Declaring them here keeps that direction one-way: an analysis reads the context and the building, and neither the context nor a result it produces can become design.
    *
-   * The builder refuses a context whose ids collide with the building's own elements, spaces or boundaries, because a shading mass sharing an id with a wall is a mass the building would appear to own. Optional and purely additive: a production declaring none runs no analysis and is otherwise unaffected.
+   * Production review validates this context against ids collected from compiled building elements, spaces and boundaries. Design-only scope has no compiled members to reserve, and the field does not itself run an environmental analysis; an explicit analysis caller owns that invocation. Omission adds no shared context or collision check.
    */
   environmentContext?: IAutoMovieEnvironmentContext;
 
@@ -277,7 +277,7 @@ export interface IAutoMovieProductionDesign {
     /** Foundation visual style. */
     style: "primitive-3d";
 
-    /** Non-empty unique CSS-compatible palette colors. */
+    /** Nonempty exact-string-unique palette entries; the design gate checks nonblank text, not CSS color syntax. */
     palette: string[];
 
     /** Non-blank rules that keep important silhouettes legible. */
