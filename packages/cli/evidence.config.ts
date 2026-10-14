@@ -7,17 +7,12 @@ export default {
     {
       name: "cli declarations",
       type: "typescript",
-      files: [
-        "src/**/*.ts",
-      ],
+      files: ["src/**/*.ts"],
       symbol: ["type", "function"],
       reference: {
         type: "markdown",
         root: "../../.agents/skills",
-        files: [
-          "contracts/common.md",
-          "contracts/performance.md",
-        ],
+        files: ["contracts/common.md", "contracts/performance.md"],
         symbol: "h2",
         checklist: true,
       },

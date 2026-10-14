@@ -8,8 +8,8 @@ import {
 import * as path from "node:path";
 
 import type { AutoMovieCommand } from "./AutoMovieCommand";
-import { readAutoMovieCommandArguments } from "./readAutoMovieCommandArguments";
 import { deriveAutoMovieProjectName } from "./deriveAutoMovieProjectName";
+import { readAutoMovieCommandArguments } from "./readAutoMovieCommandArguments";
 import { renderAutoMovieScaffoldNextSteps } from "./renderAutoMovieScaffoldNextSteps";
 
 const USAGE: string = `automovie: scaffold an automovie project

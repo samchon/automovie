@@ -1,4 +1,5 @@
 import { type AutoMovieCommand } from "./AutoMovieCommand";
+
 /**
  * Resolve one complete CLI request before any scaffold publication begins.
  *
@@ -55,7 +56,6 @@ function standalone(
   rest: readonly string[],
   request: AutoMovieCommand,
 ): AutoMovieCommand {
-  if (rest.length !== 0)
-    throw new Error(`${flag} must be the only argument.`);
+  if (rest.length !== 0) throw new Error(`${flag} must be the only argument.`);
   return request;
 }
