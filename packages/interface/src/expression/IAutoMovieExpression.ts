@@ -2,28 +2,17 @@ import { AutoMovieExpressionPreset } from "./AutoMovieExpressionPreset";
 import { IAutoMovieBlendshapeChannel } from "./IAutoMovieBlendshapeChannel";
 
 /**
- * A facial expression at one instant: a coarse preset plus optional
- * fine-grained ARKit overrides.
+ * A facial expression at one instant: preset, intensity and a required nullable ARKit override list.
  *
- * Two levels let the model work at the resolution a task needs:
+ * Preset and intensity supply coarse semantic control; blendshapes overrides expanded ARKit weights. Visible response requires matching morph targets or a host-supplied expression sink, so the names alone do not establish portability across every avatar or equivalent appearance.
  *
- * - `preset` and `intensity`: the coarse handle, such as `happy` at `0.8`,
- *   portable across every VRM avatar.
- * - `blendshapes`: ARKit channel overrides for precise lip shapes, asymmetric
- *   expressions or audio-driven lip-sync, layered over the preset.
+ * validateExpression refuses unknown names, nonfinite or out-of-range [0, 1] magnitudes and repeated channels when invoked. The viewer separately clamps finite values to [0, 1] and treats nonfinite values as zero.
  *
- * The engine's `validateExpression` refuses an unknown preset or channel, an
- * intensity or weight outside `[0, 1]`, and a channel set twice.
+ * sampleMotion blends same-preset intensity and channel weights using outgoing eased progress, switching differing presets when that progress reaches 0.5. An absent side is neutral intensity zero with no channels. Cubic y controls can overshoot between admitted keys; the sampler does not independently gate expression magnitudes there.
  *
- * Between two keyframes `sampleMotion` blends the same preset's intensity and
- * channel weights linearly, switches between different presets at the
- * midpoint, and treats a keyframe without an expression as the other side's
- * preset at intensity `0` with no channels, so an expression ramps in and out
- * instead of popping.
- *
- * @evidence contracts/common.md#principled-implementation `sampleMotion` interpolates intensity linearly and channel weights as `a(1 - t) + b t` per channel, switches presets at `t = 0.5` because two named presets have no meaningful blend, and substitutes intensity `0` of the authored preset for an absent side, matching how unauthored joints and transforms rest.
- * @evidence contracts/common.md#clear-and-simple-design A preset, one intensity and an optional override list keep the common case to two fields while still reaching the full 52-channel vector, and both levels share the closed-name and `[0, 1]` validation.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Duplicate channels are refused by validation instead of being merged by a consumer, and the midpoint switch is the stated rule for differing presets rather than a cross-fade invented per avatar.
+ * @evidence contracts/common.md#principled-implementation sampleMotion uses outgoing eased progress t for same-preset linear intensity/channel interpolation, switches differing presets at t = 0.5 and substitutes zero intensity/no channels for an absent side. That threshold need not be the chronological segment midpoint.
+ * @evidence contracts/common.md#clear-and-simple-design Three required fields separate the coarse preset and intensity from nullable fine overrides; null expresses no overrides without omitting a required member, and validation shares closed names and unit-interval authored magnitudes.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Validation refuses duplicate channels rather than assigning authoring-time merge semantics. Differing presets switch at eased progress 0.5 instead of receiving an invented per-avatar cross-fade; key admission does not prove intermediate magnitudes remain in range or that the avatar implements the requested targets.
  * @evidence contracts/common.md#meaningful-documentation States the two control levels and when to use each, the validator's refusals, and the interpolation rules between keyframes; members give the intensity range and the meaning of `null` overrides and their uniqueness rule.
  * @author Samchon
  */
@@ -35,8 +24,7 @@ export interface IAutoMovieExpression {
   intensity: number;
 
   /**
-   * ARKit channel overrides layered over `preset`, or `null` when the preset
-   * alone suffices; each channel at most once.
+   * ARKit weights replacing expanded preset contributions for the same channel, or null when there are no overrides; each channel at most once.
    */
   blendshapes: IAutoMovieBlendshapeChannel[] | null;
 }

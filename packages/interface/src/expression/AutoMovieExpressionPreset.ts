@@ -1,20 +1,9 @@
 /**
- * The closed set of VRM 1.0 expression presets: named emotions, visemes and
- * eye controls.
+ * Closed VRM 1.0 preset names for emotions, visemes and eye controls.
  *
- * Where {@link AutoMovieArkitChannel} is the fine-grained 52-channel control,
- * a preset is the coarse semantic handle: one name conveys an emotion or a
- * mouth shape, and each VRM avatar's author defines how that preset deforms
- * their own mesh, so a preset retargets across avatars. The `aa`, `ih`, `ou`,
- * `ee` and `oh` visemes drive lip-sync, the emotions drive mood, and `blink`
- * and the look directions drive the eyes.
+ * A preset supplies coarse intent while ARKit channels supply fine coefficients. Visemes name mouth-shape intent; blink and look presets name eye intent. The avatar's targets or expression sink determine whether and how those names deform its appearance.
  *
- * The viewer's `applyExpression` sets the preset's own name to the clamped
- * intensity and also expands it into ARKit channels through a fixed weight
- * table scaled by that intensity, taking the larger weight where they overlap,
- * so the same expression drives VRM expression targets and plain morph meshes.
- * `neutral` drives no weight at all. The engine's `validateExpression` refuses
- * any name outside this union.
+ * applyExpression writes a non-neutral preset's own name and expands its explicit illustrative ARKit factor table at clamped intensity. Explicit blendshape weights then replace expanded values. Neutral alone adds no weights, while authored overrides still apply. Existing supported names reset before writes; absent morph targets remain absent and supplied sinks own external interpretation. validateExpression refuses unknown preset names.
  *
  * Reference: VRM 1.0 expressions (https://vrm.dev/en/vrm/vrm_features/).
  *

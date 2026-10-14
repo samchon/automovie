@@ -1,23 +1,13 @@
 /**
  * The closed set of ARKit's 52 facial blendshape channels.
  *
- * Apple face tracking, MetaHuman, Ready Player Me and NVIDIA Audio2Face all
- * target these coefficients, each a weight in `[0, 1]`, so a fixed, named,
- * low-dimensional menu is a reliable structured-output target: the model picks
- * names from this union and the engine's `validateExpression` refuses any other
- * spelling and any weight outside `[0, 1]`.
+ * validateExpression checks names against the runtime channel set and requires finite weights in [0, 1]. This named coefficient vocabulary does not establish anatomical equivalence or a matching target on every avatar.
  *
- * Names follow Apple's `ARFaceAnchor.BlendShapeLocation` keys verbatim, so an
- * expression maps one to one onto any ARKit-compatible runtime. The viewer's
- * `applyExpression` drives a morph target whose name matches exactly or
- * case-insensitively, and does nothing on a model without one.
+ * Names follow ARFaceAnchor.BlendShapeLocation keys. applyExpression matches an existing morph name exactly first and then case-insensitively; when folded names collide, dictionary insertion order determines the fallback. Host expression sinks receive names directly and own any external mapping.
  *
- * The union is erased at runtime, so `validateExpression` and `applyExpression`
- * each hold their own list of these names; a channel added here must be added
- * to both.
+ * The union is erased at runtime, so validateExpression and applyExpression keep separate name lists. A channel added here must be added to both lists; current subset typing does not prove completeness.
  *
- * Reference: Apple ARKit `ARFaceAnchor.blendShapes`
- * (https://developer.apple.com/documentation/arkit/arfaceanchor/blendshapes).
+ * Reference: Apple ARKit ARFaceAnchor.blendShapes (https://developer.apple.com/documentation/arkit/arfaceanchor/blendshapes).
  *
  * @evidence contracts/common.md#principled-implementation The union reproduces Apple's documented 52 blend shape locations, grouped by facial region in the source, and `validateExpression` checks each authored `channel` against a runtime `Set` of the same names because a type alone cannot reject a string at runtime.
  * @evidence contracts/common.md#clear-and-simple-design A closed string union is the whole vocabulary with no wrapper or registry, and it is the only structural constraint on `IAutoMovieBlendshapeChannel.channel`, with magnitudes left to the validator.
