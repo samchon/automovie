@@ -17,26 +17,17 @@ import { normalizeSlash } from "./productionBuildDiagnostics";
 /**
  * Compare resident generated ownership with the exact result derived now.
  *
- * Both timed and library builders use this policy before publication. The
- * project reader owns physical fencing and returns exact bytes; the host lists
- * the generated root, while this module owns stale, unowned, unsafe and changed
- * output diagnostics. It never writes. Only a matching prior owned output may
- * be retired automatically, and repair mode downgrades repairable differences
- * without admitting unsafe paths or unowned files.
+ * The project film builder uses this policy before publication. Project readers own physical fencing and exact bytes while the host lists the generated root; this module emits stale, unowned, unsafe and changed-output diagnostics without writing. Matching prior bytes permit a repairable retirement finding, while unsafe or unowned members remain errors.
  *
- * File observations precede whole-manifest comparison so each unsafe or
- * mismatched member retains its own address. A missing owned file is reported
- * through the reader's existing missing-file refusal; other read failures stay
- * unsafe. Publication must still confirm the input snapshot after this check,
- * since these observations alone do not establish a transaction snapshot.
+ * Member observations precede whole-manifest comparison so each unsafe or mismatched member keeps its address. Only the reader's typed initial-absence identity is repairable; other expected-member read failures stay unsafe. Publication must still confirm inputs because these sequential observations do not establish a transaction snapshot.
  *
  * @evidence contracts/common.md#principled-implementation Exact expected/prior path maps and current byte digests distinguish stale owned output from unowned entries; only the project's typed missing-file observation is repairable absence, while manifest identity and full canonical contents are compared independently.
- * @evidence contracts/common.md#clear-and-simple-design Timed and library coordinators share one read-only ownership policy; physical project readers own namespace/link fencing and the transaction owner separately confirms inputs and publishes or retires owned output.
+ * @evidence contracts/common.md#clear-and-simple-design The project builder delegates read-only ownership comparison here; project readers own namespace/link fencing, listing owns discovery and the transaction separately confirms inputs and publishes or retires output.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Unsafe/unowned observations never become repairable warnings, Error text does not prove absence, and prior filename ownership alone cannot authorize stale-output removal without matching prior bytes.
  * @evidence contracts/common.md#meaningful-documentation States read-only policy, exact-byte prior ownership, repair severity, typed absence and post-check transaction requirement.
- * @evidence contracts/performance.md#efficient-algorithms For E expected and P prior entries, maps cost O(E+P) space/time plus normalized path text; the physical scan and expected-file scan read/hash relevant current bytes, then full canonical manifest comparison sorts object keys. Distinct observed files are read for their required ownership comparison and full bytes are not retained after hashing.
+ * @evidence contracts/performance.md#efficient-algorithms E expected and P prior entries build O(E+P) map populations plus path text; native listing sorts directory entries and supplied project calls perform complete namespace/registry/ancestry admission. Relevant prior-only and expected members are read and hashed before complete canonical manifest comparison, including nested sorting and extra Buffer copies. Repeated supplied entries can repeat reads, and maps retain only the last normalized-path entry rather than validating uniqueness.
  * @evidence contracts/performance.md#reuse-equivalent-work Expected and prior maps serve all per-file membership checks inside one attempt; current filesystem bytes are freshly observed and no previous ownership answer is cached across edits or namespace replacement.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Maps and current buffers are local to the inspection, diagnostics transfer to compilation and grow with observed faults; project readers and the listing callback own filesystem handles and this policy performs no write or independent task.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Maps, full listing paths, parsed manifests and fault-sized diagnostics coexist; canonical text/bytes and Buffer copies add temporary residency without a byte or entry cap. Diagnostic records transfer to compilation, project readers/listing own handle cleanup attempts, and this policy starts no write or task.
  */
 export function inspectAutoMovieGeneratedOwnership(props: {
   /** Fenced reader for resident generated records and bytes. */
@@ -52,7 +43,7 @@ export function inspectAutoMovieGeneratedOwnership(props: {
   /** Exact manifest derived from the current design, source and protocol. */
   expected: IAutoMovieGeneratedManifest;
 
-  /** Whether the caller will atomically replace repairable owned output. */
+  /** Whether the caller may repair admitted owned output through its guarded publication transaction. */
   repairDeclaredFiles: boolean;
 
   /** Host-owned physical listing, including links so they cannot disappear. */

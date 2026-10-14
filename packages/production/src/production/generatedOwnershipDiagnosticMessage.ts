@@ -2,24 +2,14 @@
 /**
  * Say why builder-owned bytes on disk are not the bytes derived now.
  *
- * The message used to name "current source and design" as what derived the
- * expected digest, which reads as a verdict about the author's own inputs. A
- * digest mismatch is a statement about one output, and its cause is either an
- * edit to that builder-owned file or a move in any compile input, the build
- * protocol included. Naming the complete input set keeps an author from hunting
- * a source change that never happened, which is exactly what the old wording
- * cost while a compiled clearance report still carried the project revision and
- * every build rewrote it.
+ * The formatter renders the supplied actual or absent digest and the caller's derived digest, naming stored-byte edits and compile-input changes as possible causes. It does not independently determine which cause occurred or prove the supplied dependency closure complete.
  *
- * `repair` separates the build that will rewrite the file from the read-only
- * lint that can only refuse it, because those two ask the author for different
- * things. An absent file has no digest, and rendering that absence rather than
- * inventing one keeps the two cases one message.
+ * repair selects regeneration wording or the read-only compile remedy; publication success still belongs to the builder. Null is rendered explicitly for an absent file instead of inventing a digest.
  *
- * @evidence contracts/common.md#principled-implementation Actual digest or null absence is compared in prose with the expected identity from the complete current input closure, and the repair flag distinguishes writable regeneration from read-only refusal without asserting a specific cause.
+ * @evidence contracts/common.md#principled-implementation Supplied actual digest or null absence is rendered beside the caller's expected identity; repair selects writable or read-only remedy text without calculating a digest or establishing the physical cause.
  * @evidence contracts/common.md#clear-and-simple-design Generated ownership inspection shares one explanation for missing and changed output; the inspector owns digest admission and the builder owns physical regeneration.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The message does not invent an absent digest, blame source alone, or claim read-only lint will repair stored bytes.
- * @evidence contracts/common.md#meaningful-documentation States complete-input versus stored-output identity and writable/read-only correction effects.
+ * @evidence contracts/common.md#meaningful-documentation States supplied-identity ownership and writable/read-only wording; the literal message still mentions authoring evidence although the current project builder no longer acquires the retired internal Evidence graph.
  * @evidence contracts/performance.md#efficient-algorithms String construction costs O(A+E) space/time for rendered actual and expected identities plus fixed prose; no digest or filesystem operation is repeated here.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each diagnostic reflects its caller's current observed/derived identities and no formatted answer is cached.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The returned string transfers to its diagnostic and remains until that result is released; this formatter retains no bytes, handles or tasks.
