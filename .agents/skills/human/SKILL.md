@@ -30,7 +30,8 @@ These rules add to the [3d-modeling skill](../3d-modeling/SKILL.md) for Human wo
 - Facial features are generator modules that shape one continuous face surface. Eyeballs, teeth, tongue, nails and hair are separate meshes; the ear is a separate part.
 - Refine each part alone from every side before joining, join parts only through the junction module on control cages, subdivide the joined cage once, and judge on the joined person.
 - Within a profile every identity shares one topology and one published UV layout.
-- When `interface` or `engine` lacks what Human needs, fix it from `../automovie@core` as its own pull request, merge it, and `git pull origin master` into the Human branch. Never work around a core gap inside Human.
+- A capability that any generated or imported model could use, such as skeleton axes and ranges, skinning methods, morph targets, materials, images or general geometry, belongs in core; human anatomy, measurements, proportions and the Human parameter vocabulary belong in Human.
+- When core lacks what Human needs, add it to the core campaign in `../automovie@core`, land it there, and `git pull origin master` into the Human branch. Never work around a core gap inside Human.
 
 ## Verification And Reporting
 
