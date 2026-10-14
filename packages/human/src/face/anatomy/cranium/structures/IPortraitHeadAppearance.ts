@@ -12,7 +12,7 @@ import type { IPortraitHeadPerformance } from "./IPortraitHeadPerformance";
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The reference assembly does not replace tissue rest geometry or certify anatomical appearance; concrete sampling and topology guards remain with consumers.
  * @evidence contracts/common.md#meaningful-documentation Members distinguish the independently assembled millimetre host, component ordering, optional performance and linear RGB sampling domain.
  * @evidenceExclude contracts/performance.md#efficient-algorithms This erased input shape performs no assembly, correspondence or colour evaluation; its concrete producers and consumers own those algorithms.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work The declaration owns no cache or equivalence policy; the sampler owner compiles the current reference field.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work The declaration owns no cache or equivalence policy; the sampler owner decides whether a reference field can be compiled or reused.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The schema starts no task or handle; referenced host, components and sampler follow the actual formation owner's lifetime.
  *
  *
