@@ -431,7 +431,12 @@ export function test_motion_retarget_humanoid(): void {
       bones: [...original.bones, original.bones[0]!],
     };
     const refused: ReturnType<typeof retargetHumanoidMotion> =
-      retargetHumanoidMotion({ motion: wave, source, target, [side]: duplicate });
+      retargetHumanoidMotion({
+        motion: wave,
+        source,
+        target,
+        [side]: duplicate,
+      });
     TestValidator.predicate(
       `${side} duplicate returns a located refusal before FK`,
       refused.motion === null &&
