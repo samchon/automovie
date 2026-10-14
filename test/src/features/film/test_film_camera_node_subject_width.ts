@@ -31,10 +31,24 @@ const ASPECT: number = 16 / 9;
 const HALF_Y: number = Math.tan(((FOV_Y / 2) * Math.PI) / 180);
 const HALF_X: number = HALF_Y * ASPECT;
 
-const { facade, meshFacade, worldBox, solve, grade, framesPoint, solvedDistance }: ReturnType<typeof createFilmCameraWidthFixture> = createFilmCameraWidthFixture({
-  node: NODE, width: WIDTH, height: HEIGHT, depth: DEPTH,
-  fovY: FOV_Y, aspect: ASPECT, halfY: HALF_Y,
-});
+const {
+  facade,
+  meshFacade,
+  worldBox,
+  solve,
+  grade,
+  framesPoint,
+  solvedDistance,
+}: ReturnType<typeof createFilmCameraWidthFixture> =
+  createFilmCameraWidthFixture({
+    node: NODE,
+    width: WIDTH,
+    height: HEIGHT,
+    depth: DEPTH,
+    fovY: FOV_Y,
+    aspect: ASPECT,
+    halfY: HALF_Y,
+  });
 
 /**
  * A required node subject is framed and graded on the width its geometry
