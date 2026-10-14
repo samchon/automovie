@@ -6,9 +6,7 @@ import { IAutoMovieOffscreenTarget } from "./IAutoMovieOffscreenTarget";
 import { IAutoMoviePointTarget } from "./IAutoMoviePointTarget";
 
 /**
- * Where an action points. Prefer a {@link IAutoMovieNodeTarget}, which the
- * engine resolves to the live position of a moving actor, over a literal
- * {@link IAutoMoviePointTarget}.
+ * Where an action points. Prefer a node identity when the target is staged; whether it follows live motion depends on the consuming verb and supplied host resolver, rather than on this union.
  *
  * `node`, `point`, and `group` resolve to one world point through
  * `resolveTargetPoint`; `bone` needs a rigged staged actor and is sampled on

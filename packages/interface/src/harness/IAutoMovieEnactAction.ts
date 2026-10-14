@@ -8,11 +8,7 @@ import { IAutoMovieActionBase } from "./IAutoMovieActionBase";
  * parametric curves, phase composition, or sampled solvers, and hands it in by
  * `clip` id for the host's synthesizer to resolve.
  *
- * Enforcement still applies. The engine masks the clip to its region
- * (`fullBody` by default), layers it with disjoint-region actions, sequences
- * overlapping same-region ones, and gates the compiled composite on the rig's
- * range of motion exactly like synthesized content. Prefer a thin verb
- * whenever one fits.
+ * The engine masks the clip to its region, fullBody by default, arranges nonoverlapping placements into lanes and layers concurrent lanes. performShot checks actual masked-content overlaps and gates the compiled composite's range of motion like synthesized content; direct compilePerformance alone does not perform those shot gates. Prefer a thin verb whenever one fits.
  *
  * `performShot` refuses a blank `clip`. The production builder resolves the id
  * from the shot program's `clips` and refuses one that is absent, while the

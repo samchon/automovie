@@ -18,8 +18,7 @@ import { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
  * and `custom` produce no motion unless a host supplies its own synthesizer.
  * `actionRegion` defaults `nod` and `shake` to `head`, `bow`, `crouch`, `kick`,
  * `stagger`, `jump`, and `draw` to `fullBody`, and every other kind to
- * `upperBody`. An idle creature pose with no target, such as a cat's stretch
- * or a tail flick, is a `hold` plus an `emote`.
+ * `upperBody`. Hold preserves existing articulation and emote supplies facial expression; a stretch or tail flick that changes body joints needs authored enact motion or a host synthesizer.
  *
  * @evidence contracts/common.md#principled-implementation A closed string union converges parallel generations on one spelling per family, and the engine maps kinds to motion through explicit tables, `gestureMotion`'s generic set and `actionRegion`'s per-kind region defaults, so each kind's behavior is a lookup rather than a guess.
  * @evidence contracts/common.md#clear-and-simple-design Eighteen families with `note` for refinement and `custom` as the escape keep the vocabulary small enough to choose from while leaving variety to the free-text note the engine ignores.
