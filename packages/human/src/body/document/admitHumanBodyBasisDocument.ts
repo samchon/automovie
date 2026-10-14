@@ -24,7 +24,8 @@ export function admitHumanBodyBasisDocument(
   input: unknown,
   source?: IAutoMovieHumanBodyAnatomicalAssembly,
 ): IAutoMovieHumanBodyBasisDocument {
-  const document: IAutoMovieHumanBodyBasisDocument = typia.assertEquals<IAutoMovieHumanBodyBasisDocument>(input);
+  const document: IAutoMovieHumanBodyBasisDocument =
+    typia.assertEquals<IAutoMovieHumanBodyBasisDocument>(input);
   if (source !== undefined && source.basis !== document.basis)
     throw new Error(
       "Body source quantity admission needs the document's exact registered basis.",
@@ -37,7 +38,10 @@ export function admitHumanBodyBasisDocument(
       document.toes,
       document.anatomicalMotion,
       document.thighGoals,
-    ].some((rows: readonly unknown[] | undefined): boolean => (rows?.length ?? 0) !== 0) ||
+    ].some(
+      (rows: readonly unknown[] | undefined): boolean =>
+        (rows?.length ?? 0) !== 0,
+    ) ||
       document.groundPlacement !== undefined)
   )
     throw new Error(
@@ -71,27 +75,58 @@ export function admitHumanBodyBasisDocument(
     values.push(...Object.values(material.color ?? {}));
     if (material.roughness !== undefined) values.push(material.roughness);
   }
-  const bones: NonNullable<IAutoMovieHumanBodyBasisDocument["pose"]>[number]["bone"][] = (document.pose ?? []).map((joint: NonNullable<IAutoMovieHumanBodyBasisDocument["pose"]>[number]): typeof joint.bone => joint.bone);
-  const shoulderBones: NonNullable<IAutoMovieHumanBodyBasisDocument["shoulders"]>[number]["bone"][] = (document.shoulders ?? []).map((one: NonNullable<IAutoMovieHumanBodyBasisDocument["shoulders"]>[number]): typeof one.bone => one.bone);
-  const goalBones: NonNullable<IAutoMovieHumanBodyBasisDocument["thighGoals"]>[number]["bone"][] = (document.thighGoals ?? []).map((one: NonNullable<IAutoMovieHumanBodyBasisDocument["thighGoals"]>[number]): typeof one.bone => one.bone);
+  const bones: NonNullable<
+    IAutoMovieHumanBodyBasisDocument["pose"]
+  >[number]["bone"][] = (document.pose ?? []).map(
+    (
+      joint: NonNullable<IAutoMovieHumanBodyBasisDocument["pose"]>[number],
+    ): typeof joint.bone => joint.bone,
+  );
+  const shoulderBones: NonNullable<
+    IAutoMovieHumanBodyBasisDocument["shoulders"]
+  >[number]["bone"][] = (document.shoulders ?? []).map(
+    (
+      one: NonNullable<IAutoMovieHumanBodyBasisDocument["shoulders"]>[number],
+    ): typeof one.bone => one.bone,
+  );
+  const goalBones: NonNullable<
+    IAutoMovieHumanBodyBasisDocument["thighGoals"]
+  >[number]["bone"][] = (document.thighGoals ?? []).map(
+    (
+      one: NonNullable<IAutoMovieHumanBodyBasisDocument["thighGoals"]>[number],
+    ): typeof one.bone => one.bone,
+  );
   const anatomicalCoordinates: string[] = (document.anatomicalMotion ?? []).map(
-    (one: NonNullable<IAutoMovieHumanBodyBasisDocument["anatomicalMotion"]>[number]): string => one.bone + "." + one.axis,
+    (
+      one: NonNullable<
+        IAutoMovieHumanBodyBasisDocument["anatomicalMotion"]
+      >[number],
+    ): string => one.bone + "." + one.axis,
   );
   if (
     !values.every(Number.isFinite) ||
     (document.humeralHeads !== undefined &&
-      Object.values(document.humeralHeads).some((radius: number): boolean => radius <= 0)) ||
+      Object.values(document.humeralHeads).some(
+        (radius: number): boolean => radius <= 0,
+      )) ||
     [document.id, document.name, document.basis].some(
       (id: string): boolean => id.trim() === "",
     ) ||
     new Set(bones).size !== bones.length ||
-    bones.some((bone: typeof bones[number]): boolean => bone === "leftUpperArm" || bone === "rightUpperArm") ||
+    bones.some(
+      (bone: (typeof bones)[number]): boolean =>
+        bone === "leftUpperArm" || bone === "rightUpperArm",
+    ) ||
     new Set(shoulderBones).size !== shoulderBones.length ||
     new Set(goalBones).size !== goalBones.length ||
     new Set(anatomicalCoordinates).size !== anatomicalCoordinates.length ||
-    goalBones.some((bone: typeof goalBones[number]): boolean => bones.includes(bone)) ||
+    goalBones.some((bone: (typeof goalBones)[number]): boolean =>
+      bones.includes(bone),
+    ) ||
     (document.shoulders ?? []).some(
-      (one: NonNullable<IAutoMovieHumanBodyBasisDocument["shoulders"]>[number]): boolean => one.plane < -180 || one.plane >= 180,
+      (
+        one: NonNullable<IAutoMovieHumanBodyBasisDocument["shoulders"]>[number],
+      ): boolean => one.plane < -180 || one.plane >= 180,
     )
   )
     throw new Error(
