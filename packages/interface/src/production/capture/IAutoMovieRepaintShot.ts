@@ -4,19 +4,19 @@ import { IAutoMovieRepaintReceipt } from "./IAutoMovieRepaintReceipt";
 import { IAutoMovieRepaintReferenceInput } from "./IAutoMovieRepaintReferenceInput";
 
 /**
- * Result of one repaint candidate generation, kept separate from guarded active selection.
+ * Retained repaint candidate result shape; its former generation and selection host has been removed.
  *
- * @evidence contracts/common.md#principled-implementation Repaint execution binds current source, references, parameters and adopted runtime to an immutable request and bounded attempts; media-validated atomic candidate publication sets repainted while a separate selection transaction sets selected.
+ * @evidence contracts/common.md#principled-implementation Separate result flags describe intended candidate publication and active selection, alongside request identity, receipt and diagnostics; no current product producer establishes these effects.
  * @evidence contracts/common.md#clear-and-simple-design Separate generated and selected booleans distinguish candidate existence from active delivery, and nullable request and receipt identify admission failure before a request exists versus later attempt refusal.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A successful candidate does not automatically become active or completed visual review; rejected or stale attempt bytes stay outside accepted receipt lineage and exact diagnostics remain visible.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Supplied success flags and receipts prove no publication, byte admission, selection or visual review; the retained type supplies no replacement execution path.
  * @evidence contracts/common.md#meaningful-documentation Defines generation versus selection effects, immutable retry request identity, production and shot, accepted receipt nulls and attributed refusal diagnostics.
  * @author Samchon
  */
 export interface IAutoMovieRepaintShot {
-  /** True only after media parsing and atomic receipt commit. */
+  /** Intended media-parsed and atomically committed candidate status; no current producer enforces it. */
   repainted: boolean;
 
-  /** True only when a separate guarded selection transaction made it active. */
+  /** Intended active selection status from a separate transaction; this type performs none. */
   selected: boolean;
 
   /**
@@ -45,9 +45,9 @@ export namespace IAutoMovieRepaintShot {
   /**
    * One shot repaint request with fixed role-specific references and exact generation controls.
    *
-   * @evidence contracts/common.md#principled-implementation The host joins the exact production and current registry shot with its service-supplied adapter, generator adoption and execution options, then verifies the request's controls and fixed reference bytes before creating immutable request identity.
-   * @evidence contracts/common.md#clear-and-simple-design Input selects shot and appearance guidance while the service configuration owns adapter adoption and execution policy; deterministic source acquisition remains host-owned.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts A request cannot substitute arbitrary source geometry or select a provider through its fields. Current compile, frame contract and fixed reference bytes gate it; ProductionDesign.repaint currently supplies no execution reader or automatic adoption check.
+   * @evidence contracts/common.md#principled-implementation Production and shot strings address the intended source, while references and parameters describe appearance guidance; this erased request performs no registry, byte or adoption validation.
+   * @evidence contracts/common.md#clear-and-simple-design Input contains shot identity and appearance guidance without embedding provider configuration, execution policy or deterministic source acquisition.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The shape provides no arbitrary geometry or provider field, but it also supplies no compile, frame, reference or adoption gate; the former execution host has been removed.
    * @evidence contracts/common.md#meaningful-documentation Defines production and shot addressing, non-collapsible manifest references and exact controls retained by the candidate receipt.
    * @author Samchon
    */

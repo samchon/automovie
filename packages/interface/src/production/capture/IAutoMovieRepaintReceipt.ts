@@ -7,12 +7,12 @@ import { IAutoMovieRepaintParameters } from "./IAutoMovieRepaintParameters";
 import { IAutoMovieRepaintRequestEvidence } from "./IAutoMovieRepaintRequestEvidence";
 
 /**
- * Immutable provenance for one admitted repaint candidate; candidate admission is separate from active selection and completed visual review.
+ * Retained provenance shape for one repaint candidate; no current product producer admits candidates or commits this receipt.
  *
- * @evidence contracts/common.md#principled-implementation The host binds current deterministic source, controls, fixed reference digests, exact adapter identity and output media facts to one successful invocation, with version-four request, timing, cost and policy records retained for bounded execution provenance.
- * @evidence contracts/common.md#clear-and-simple-design Source technical authority, generator context, authored controls and candidate output remain distinct receipt groups, allowing guarded selection and sequence review to reference the immutable candidate without mutating it.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Candidate bytes never become geometry, contact or timing truth; optional legacy execution fields do not imply current bounded-attempt proof, and descriptive generator metadata does not prove rights review.
- * @evidence contracts/common.md#meaningful-documentation Defines version compatibility, request/attempt ownership, source and references, optional execution provenance, deterministic structural authority and verified output byte/media identity.
+ * @evidence contracts/common.md#principled-implementation Explicit groups describe source identity, reference digests, adapter identity and output media claims, with optional request, timing, cost and policy records. The erased type binds or verifies none of those supplied values.
+ * @evidence contracts/common.md#clear-and-simple-design Source authority, generator context, controls and candidate output occupy distinct groups without embedding a renderer, provider or selection transaction.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The structural-authority literal states the intended boundary; supplied digests and media facts prove neither actual bytes nor bounded attempts, and descriptive generator metadata does not prove rights review.
+ * @evidence contracts/common.md#meaningful-documentation Defines version compatibility, intended request/attempt ownership, source and references, optional execution provenance and output byte/media claims, with producer absence explicit.
  * @author Samchon
  */
 export interface IAutoMovieRepaintReceipt {
@@ -92,7 +92,7 @@ export interface IAutoMovieRepaintReceipt {
   /** Stable evidence addresses from which this immutable request was formed. */
   evidence?: IAutoMovieRepaintRequestEvidence;
 
-  /** Verified rendition output. */
+  /** Claimed rendition output; this type does not reopen or parse its bytes. */
   output: {
     /** Render-root-relative content-addressed path. */
     path: string;

@@ -7,7 +7,7 @@ import { IAutoMovieAssetTurntableView } from "./IAutoMovieAssetTurntableView";
  *
  * Views describe intended canonical coverage, while supplied result fields alone prove neither capture completion nor image provenance.
  *
- * @evidence contracts/common.md#principled-implementation The record expresses intended all-view completion using one asset review target, ordered view rows and diagnostics. The active asset-review descriptor factory remains separate; no current producer computes this aggregate's capture success.
+ * @evidence contracts/common.md#principled-implementation The record expresses intended all-view completion using one asset review target, ordered view rows and diagnostics; no current producer computes this aggregate's capture success or its required view population.
  * @evidence contracts/common.md#clear-and-simple-design Partial and whole-request outcomes share the retained result shape without adding a renderer or duplicating full frame receipts into every row.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A supplied true flag or nonnull frame path establishes no decoded pixel, current receipt or complete view coverage; producer removal introduces no alternate capture host or weaker success path.
  * @evidence contracts/common.md#meaningful-documentation Defines intended all-view success, canonical population, attribution and view-specific diagnostics while stating current producer absence.

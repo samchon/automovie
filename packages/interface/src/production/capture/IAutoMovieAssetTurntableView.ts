@@ -3,12 +3,12 @@ import { AutoMovieGuidePass } from "../../cinematics/AutoMovieGuidePass";
 /**
  * One asset-review view descriptor with an optional captured-frame path.
  *
- * Production's IAutoMovieAssetReviewView omits frame and its factory returns the fixed rest or rigged descriptor population. The former turntable-capture producer has been removed; this record itself creates or verifies no image.
+ * The former review-view factory and turntable-capture producer have been removed; this record itself creates or verifies no image.
  *
- * @evidence contracts/common.md#principled-implementation Stable view id, degree angles, pose and pass form the descriptor consumed through Production's frame-omitting review type. The nullable path preserves the retained result contract without claiming an active captured-row producer.
- * @evidence contracts/common.md#clear-and-simple-design Descriptor fields are shared with the current review-view factory; image paths remain separate from full receipt and byte provenance.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A path or descriptor population is not visual approval or verified pixels. Rigged view selection is an explicit factory input, and this type performs no compiled-rig lookup or refusal recovery.
- * @evidence contracts/common.md#meaningful-documentation Defines view identity, degree units, pose, pass, nullable path, live descriptor consumption and absent turntable-capture production.
+ * @evidence contracts/common.md#principled-implementation Stable view id, degree angles, pose and pass describe one intended view. The nullable path preserves the retained turntable result contract without claiming an active captured-row producer.
+ * @evidence contracts/common.md#clear-and-simple-design View descriptors and optional image paths remain separate from full receipt and byte provenance.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A path or descriptor population is not visual approval or verified pixels; this type performs no view selection, compiled-rig lookup or refusal recovery.
+ * @evidence contracts/common.md#meaningful-documentation Defines view identity, degree units, pose, pass and nullable path, and states that the former producers are absent.
  * @author Samchon
  */
 export interface IAutoMovieAssetTurntableView {

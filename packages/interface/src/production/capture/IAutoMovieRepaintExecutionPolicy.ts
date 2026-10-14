@@ -3,9 +3,9 @@ import { AutoMovieRepaintRetryableFailureClass } from "./AutoMovieRepaintRetryab
 /**
  * Explicit attempt, elapsed-time, cancellation and metered-cost envelope for one immutable repaint request.
  *
- * @evidence contracts/common.md#principled-implementation Execution admits positive safe-integer attempt and host-safe timer bounds, non-negative finite cost and exactly one deterministic backoff per possible retry, checking remaining budgets and immutable request identity before dispatch.
- * @evidence contracts/common.md#clear-and-simple-design One policy groups every execution limit with its admitted retry classes so retries cannot borrow unstated host defaults or silently change the request.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Cancellation, stale input and budget exhaustion cannot retry; provider work is charged even when it fails, and timers signal cancellation rather than guaranteeing a noncooperative adapter has stopped executing.
+ * @evidence contracts/common.md#principled-implementation Numeric fields and a closed retry vocabulary describe the intended attempt, time and cost envelope. Safe-integer bounds, finite cost, backoff cardinality and remaining budgets are documented obligations, not checks performed by this erased type.
+ * @evidence contracts/common.md#clear-and-simple-design One policy groups attempt, elapsed-time and cost limits with retry classes and backoff values, keeping the intended execution envelope explicit.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The retry vocabulary omits cancellation, stale input and budget exhaustion. No current execution host implements charging, cancellation or deadline enforcement for this retained policy.
  * @evidence contracts/common.md#meaningful-documentation Defines attempts, millisecond deadlines and total ceiling, adapter cost units, backoff population and explicit retry classes.
  * @author Samchon
  */
