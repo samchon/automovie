@@ -9,7 +9,7 @@ import { AutoMovieAffordanceKind } from "./AutoMovieAffordanceKind";
  *
  * @evidence contracts/common.md#principled-implementation A model-local contact transform and optional convex XZ footprint separate point seating from support geometry; prop anchoring composes the frame with the staged model and propSupportFace uses full affine footprint placement.
  * @evidence contracts/common.md#clear-and-simple-design Contact identity, kind, frame and extent form one record beside the model's body; bone attachments use their own skeleton-based representation rather than mixing rig references into a model contact.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Point contacts carry no invented support area, and stack-top extents must satisfy the same convex-footprint premise used by the support judgment rather than relying on a table or prop name.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Point contacts require null extent. Stack-top admission checks finite XZ points and a noncollinear convex hull, without certifying the authored order as a simple convex polygon; propSupportFace constructs the transformed hull, so an authored concavity is not preserved as a support notch.
  * @evidence contracts/common.md#meaningful-documentation States model-local frame ownership, contact-axis convention, coincident seating, model-scoped ids and the stack-top convex XZ extent with null for point contacts.
  * @author Samchon
  */
@@ -26,7 +26,7 @@ export interface IAutoMovieAffordance {
   frame: IAutoMovieTransform;
 
   /**
-   * Stack-top support footprint: a convex polygon in the affordance frame's XZ plane with at least three non-collinear points; y is ignored and should be zero. propSupportFace transforms these corners through the full affordance and staged matrices for placement support. Point-like handle, socket and hook kinds require null; this field does not establish a wired toppling judgment.
+   * Stack-top support points in the affordance-local XZ plane, with at least three noncollinear finite XZ points; y is ignored. The intended footprint is convex: propSupportFace transforms the points and constructs their convex hull, filling any authored concavity. Point-like handle, socket and hook kinds require null. This does not establish a wired toppling judgment.
    */
   extent: IAutoMovieVector3[] | null;
 }

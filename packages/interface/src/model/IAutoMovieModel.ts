@@ -24,7 +24,7 @@ import { IAutoMovieModelPart } from "./IAutoMovieModelPart";
  * @author Samchon
  */
 export interface IAutoMovieModel {
-  /** Stable id; poses, motions, and scene nodes cite the model by this. */
+  /** Stable model id cited by scene placements; poses and motions separately cite the skeleton id. */
   id: string;
 
   /** Human / LLM readable name. Null if unnamed. */
@@ -92,7 +92,7 @@ export interface IAutoMovieModel {
         /** Non-negative glTF node index. */
         node: number;
 
-        /** Whether resident skin weights prove visible influence for this bone. */
+        /** Whether inspected JOINTS_0/WEIGHTS_0 data contains a positive influence on this bone; no pixel visibility or anatomical proof. */
         weighted: boolean;
       }>;
     }>;
@@ -114,7 +114,7 @@ export interface IAutoMovieModel {
       /** Non-negative glTF node index. */
       node: number;
 
-      /** Whether resident skin weights prove visible influence for this bone. */
+      /** Whether inspected JOINTS_0/WEIGHTS_0 data contains a positive influence on this bone; no pixel visibility or anatomical proof. */
       weighted: boolean;
     }>;
   };
