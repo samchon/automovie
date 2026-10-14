@@ -16,7 +16,13 @@
  *
  * @author Samchon
  */
-export const HUMAN_BODY_TOE_RANGE = {
+export const HUMAN_BODY_TOE_RANGE: {
+  readonly proximal: {
+    readonly flexion: readonly [-70, 45];
+    readonly abduction: readonly [-10, 10];
+  };
+  readonly interphalangeal: { readonly flexion: readonly [0, 60] };
+} = {
   proximal: { flexion: [-70, 45], abduction: [-10, 10] },
   interphalangeal: { flexion: [0, 60] },
 } as const;
