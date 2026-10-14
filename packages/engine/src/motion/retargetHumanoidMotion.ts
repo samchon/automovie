@@ -2,15 +2,16 @@ import {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
   IAutoMovieConstraintViolation,
+  IAutoMovieJointAxes,
   IAutoMovieKeyframe,
   IAutoMovieMotion,
   IAutoMovieProfileBinding,
   IAutoMovieSkeleton,
 } from "@automovie/interface";
 
-import { IAutoMovieJointAxes } from "../kinematics/IAutoMovieJointAxes";
 import { HUMANOID_JOINT_AXES } from "../kinematics/constants/HUMANOID_JOINT_AXES";
 import { resolvePose } from "../kinematics/resolvePose";
+import { skeletonJointAxes } from "../kinematics/skeletonJointAxes";
 import { validateJointAxesBasis } from "../kinematics/validateJointAxesBasis";
 import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import { HUMANOID_REST_FRAME } from "../rom/constants/HUMANOID_REST_FRAME";
@@ -88,16 +89,23 @@ export const retargetHumanoidMotion: (
     requiredBones,
     collector,
   );
-  validateAxes(
-    "sourceJointAxes",
+  // Resolved once: the characterization, the contact pass's source FK, and the
+  // contact pass's target FK must all read the clip through the same tables,
+  // with each rig's declared bone axes over the host table.
+  const sourceJointAxes: Partial<
+    Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>
+  > = skeletonJointAxes(
+    props.source,
     props.sourceJointAxes ?? HUMANOID_JOINT_AXES,
-    collector,
   );
-  validateAxes(
-    "targetJointAxes",
+  const targetJointAxes: Partial<
+    Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>
+  > = skeletonJointAxes(
+    props.target,
     props.targetJointAxes ?? HUMANOID_JOINT_AXES,
-    collector,
   );
+  validateAxes("sourceJointAxes", sourceJointAxes, collector);
+  validateAxes("targetJointAxes", targetJointAxes, collector);
   validateRestFrames(
     "sourceRestFrames",
     props.sourceRestFrames ?? HUMANOID_REST_FRAME,
@@ -151,17 +159,9 @@ export const retargetHumanoidMotion: (
       characterization: null,
     };
 
-  // Resolved once: the characterization, the contact pass's source FK, and the
-  // contact pass's target FK must all read the clip through the same tables.
-  const sourceJointAxes: Partial<
-    Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>
-  > = props.sourceJointAxes ?? HUMANOID_JOINT_AXES;
   const sourceRestFrames: Partial<
     Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>
   > = props.sourceRestFrames ?? HUMANOID_REST_FRAME;
-  const targetJointAxes: Partial<
-    Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>
-  > = props.targetJointAxes ?? HUMANOID_JOINT_AXES;
   const targetRestFrames: Partial<
     Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>
   > = props.targetRestFrames ?? HUMANOID_REST_FRAME;

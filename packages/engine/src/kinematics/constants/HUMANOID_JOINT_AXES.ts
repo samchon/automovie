@@ -1,6 +1,7 @@
-import { AutoMovieHumanoidBone } from "@automovie/interface";
-
-import { IAutoMovieJointAxes } from "../IAutoMovieJointAxes";
+import {
+  AutoMovieHumanoidBone,
+  IAutoMovieJointAxes,
+} from "@automovie/interface";
 
 /**
  * Per-bone clinical axes for the **canonical humanoid rest pose** (VRM T-pose:

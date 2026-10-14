@@ -1,5 +1,6 @@
+import { IAutoMovieJointAxes } from "@automovie/interface";
+
 import { Vector3 } from "../math/Vector3";
-import { IAutoMovieJointAxes } from "./IAutoMovieJointAxes";
 import { IAutoMovieJointAxesIssue } from "./IAutoMovieJointAxesIssue";
 import { validateJointAxesBasis } from "./validateJointAxesBasis";
 

@@ -1,6 +1,7 @@
 import {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
+  IAutoMovieJointAxes,
   IAutoMoviePose,
   IAutoMovieQuaternion,
   IAutoMovieSkeleton,
@@ -10,12 +11,12 @@ import {
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
-import { IAutoMovieJointAxes } from "./IAutoMovieJointAxes";
 import { IAutoMovieResolvedBone } from "./IAutoMovieResolvedBone";
 import { IAutoMovieSkeletonTopology } from "./IAutoMovieSkeletonTopology";
 import { SKELETON_ROOT_PARENT } from "./constants/SKELETON_ROOT_PARENT";
 import { indexSkeletonTopology } from "./indexSkeletonTopology";
 import { jointToQuaternion } from "./jointToQuaternion";
+import { skeletonJointAxes } from "./skeletonJointAxes";
 
 /**
  * Forward kinematics: resolve a pose against its skeleton into one transform
@@ -39,8 +40,9 @@ import { jointToQuaternion } from "./jointToQuaternion";
  *
  * @param pose Joint angles and root transform to resolve.
  * @param skeleton Rig the pose articulates.
- * @param jointAxes Per-bone clinical axes, such as `HUMANOID_JOINT_AXES`; an
- *   absent bone uses the default basis.
+ * @param jointAxes Per-bone clinical axes, such as `HUMANOID_JOINT_AXES`, for
+ *   the bones that declare none of their own ({@link skeletonJointAxes}); a
+ *   bone in neither uses the default basis.
  * @param restFrames Per-bone rest frames that read the joint angles as
  *   clinical, such as `HUMANOID_REST_FRAME`; an absent bone reads its angles
  *   as rest-relative.
@@ -49,10 +51,10 @@ import { jointToQuaternion } from "./jointToQuaternion";
  *   for this call.
  *
  * @evidence contracts/common.md#principled-implementation Standard forward kinematics over a rooted tree, composing quaternion rotations and rotating each rest offset by the parent's world rotation; a parent-first depth-first walk guarantees the parent frame exists when a child is reached, and it premises unit rotations, no rest scale, and a topology built from this unchanged skeleton.
- * @evidence contracts/common.md#clear-and-simple-design Articulation is delegated to `jointToQuaternion` and the hierarchy to the shared topology index, so this function only composes; the root sentinel is the shared `SKELETON_ROOT_PARENT`, and the walk receives bone objects so no name lookup happens during descent.
+ * @evidence contracts/common.md#clear-and-simple-design Articulation is delegated to `jointToQuaternion`, axis precedence to `skeletonJointAxes` and the hierarchy to the shared topology index, so this function only composes; the root sentinel is the shared `SKELETON_ROOT_PARENT`, and the walk receives bone objects so no name lookup happens during descent.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Unreachable bones are omitted by the stated contract instead of being attached to a root or thrown on, and no bone or rig is special-cased.
- * @evidence contracts/common.md#meaningful-documentation States the composition for rotation and position, that rest scale is ignored, the root default, the output order, which bones are omitted and how to gate on them, how stray and repeated joints are read, and each optional parameter's default.
- * @evidence contracts/performance.md#efficient-algorithms Linear in joints plus reachable bones: one articulation per joint, then one composition per bone; building the topology when none is passed is also linear in the bone count.
+ * @evidence contracts/common.md#meaningful-documentation States the composition for rotation and position, the axes precedence, that rest scale is ignored, the root default, the output order, which bones are omitted and how to gate on them, how stray and repeated joints are read, and each optional parameter's default.
+ * @evidence contracts/performance.md#efficient-algorithms Linear in joints plus bones: one scan for declared axes, one articulation per joint, then one composition per reachable bone; building the topology when none is passed is also linear in the bone count.
  * @evidence contracts/performance.md#reuse-equivalent-work Reuses a caller-supplied topology across poses of one skeleton instead of rebuilding it; equivalence is the unchanged skeleton object, which the caller owns, and omitting the topology always rebuilds.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the articulation map is local to the call and the returned bones, one per reachable bone, are owned by the caller.
  * @author Samchon
@@ -74,12 +76,14 @@ export const resolvePose: (
   restFrames?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>,
   topology: IAutoMovieSkeletonTopology = indexSkeletonTopology(skeleton),
 ): IAutoMovieResolvedBone[] => {
+  const axes: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>> =
+    skeletonJointAxes(skeleton, jointAxes);
   const articulation: Map<AutoMovieHumanoidBone, IAutoMovieQuaternion> =
     new Map();
   for (const j of pose.joints)
     articulation.set(
       j.bone,
-      jointToQuaternion(j, jointAxes?.[j.bone], restFrames?.[j.bone]),
+      jointToQuaternion(j, axes[j.bone], restFrames?.[j.bone]),
     );
 
   const resolved: IAutoMovieResolvedBone[] = [];
