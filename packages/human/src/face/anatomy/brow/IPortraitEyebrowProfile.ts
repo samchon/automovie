@@ -63,7 +63,7 @@ export interface IPortraitEyebrowProfile {
   /** Optional cross-brow fibre span in [0,1]; without flow it cannot exceed one minus the maximum root. Omission uses 0.26 to 0.34 along the brow. */
   span?: number;
 
-  /** Optional medial/lateral density fade lengths as fractions of the brow arc, each in [0,0.5]. Omission retains every fibre. */
+  /** Optional medial/lateral density fade extents in the boundary's longitudinal parameter, each in [0,0.5], rather than physical arc length. Omission retains every fibre. */
   endFade?: readonly [number, number];
 
   /** Optional unsigned 32-bit density seed. Presence selects thinning independent of root height; omission preserves the original coupled population for numerical replay. */
@@ -78,10 +78,10 @@ export interface IPortraitEyebrowProfile {
   /** Highest root position across the band, in [rootLower,1]; the named spelling of `rootBand[1]`. Omitted with `rootLower` present, it is 0.22. */
   rootUpper?: number;
 
-  /** Length of the medial end over which the population thins, as a fraction of the brow in [0,0.5]; the named spelling of `endFade[0]`. */
+  /** Medial thinning extent in the boundary's longitudinal parameter, in [0,0.5]; the named spelling of `endFade[0]`, rather than a physical arc-length fraction. */
   medialFade?: number;
 
-  /** Length of the lateral end over which the population thins, as a fraction of the brow in [0,0.5]; the named spelling of `endFade[1]`. */
+  /** Lateral thinning extent in the boundary's longitudinal parameter, in [0,0.5]; the named spelling of `endFade[1]`, rather than a physical arc-length fraction. */
   lateralFade?: number;
 
   /** The brow's grain in four numbers; replaces span and outwardBend for emitted fibres, and is the authoring spelling of `flow`. */

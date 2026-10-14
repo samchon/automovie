@@ -2,11 +2,10 @@ import type { IPortraitEyebrowBinding } from "./IPortraitEyebrowBinding";
 import type { IPortraitEyebrowProfile } from "./IPortraitEyebrowProfile";
 
 /**
- * Native reference band and numerical shaft traits shared by source preparation
- * and runtime. These source positions are not a person's sculpting resource.
+ * Native reference band and numerical shaft traits consumed by the connected shaft builder's guide owner. These source positions are not a person's sculpting resource.
  *
  *
- * @evidence contracts/common.md#principled-implementation Complete shape-only skin coordinates and native band identities define the same reference guide for source preparation and runtime.
+ * @evidence contracts/common.md#principled-implementation Complete shape-only skin coordinates and native band identities define finite reference guides before the connected builder seats them on its chart.
  * @evidence contracts/common.md#clear-and-simple-design Reference geometry, boundary binding, requested population and shaft profile are separate inputs to the shared guide owner.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Reference positions are source assets, not a person's sculpting controls, and requested count remains distinct from end-fade survivors.
  * @evidence contracts/common.md#meaningful-documentation Members distinguish head-frame metres from profile millimetres and document the pre-thinning count.

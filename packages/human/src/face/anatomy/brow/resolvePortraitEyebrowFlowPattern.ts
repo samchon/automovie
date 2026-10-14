@@ -5,15 +5,7 @@ import type { IPortraitEyebrowFlowProfile } from "./IPortraitEyebrowFlowProfile"
  * Expand the four-number brow grain into the direction witnesses the flow
  * owner interpolates.
  *
- * Three witnesses are produced, at the medial end, at the end of the head
- * (three tenths of the brow) and at the lateral end. At the medial end a hair
- * rooted at the lower border ends at `headTip` and one rooted at the upper
- * border at the upper boundary, both with the head's sweep, which is the
- * upward fan. At the other two witnesses hairs of both borders end at
- * `convergence` with the body's sweep, so a hair rooted above that fraction
- * runs down and one rooted below it runs up. This is the one place the
- * pattern becomes witnesses; the conversion has no inverse, because a
- * witness list can state patterns the four numbers cannot.
+ * Three witnesses are produced, at the medial end, at the end of the head (three tenths of the boundary's longitudinal parameter, not physical arc length) and at the lateral end. At the medial end a hair rooted at the lower border ends at `headTip` and one rooted at the upper border at the upper boundary, both with the head's sweep, which is the upward fan. At the other two witnesses hairs of both borders end at `convergence` with the body's sweep, so a hair rooted above that fraction runs down and one rooted below it runs up. This is the one place the pattern becomes witnesses; the conversion has no inverse, because a witness list can state patterns the four numbers cannot.
  *
  * A fraction outside [0,1] or a non-finite sweep refuses.
  *

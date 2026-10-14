@@ -19,7 +19,7 @@ export interface IPortraitEyebrowPlacement {
   /** Lowest and highest root position across the band, lower boundary zero to upper one. */
   rootBand: readonly [number, number];
 
-  /** Medial and lateral thinning lengths as fractions of the brow's length. */
+  /** Medial and lateral thinning extents in the boundary's longitudinal parameter, not physical arc-length fractions. */
   endFade: readonly [number, number];
 
   /**

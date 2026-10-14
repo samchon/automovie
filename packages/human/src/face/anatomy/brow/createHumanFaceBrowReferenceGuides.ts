@@ -10,12 +10,7 @@ import { assertPortraitEyebrowProfile } from "./assertPortraitEyebrowProfile";
 import { resolvePortraitEyebrowPlacement } from "./resolvePortraitEyebrowPlacement";
 
 /**
- * Derive finite brow guides from the actual native reference band before any
- * material disk is selected. Source preparation and the shaft builder consume
- * this same definition, so extending disk support cannot change a guide.
- * Uniform Catmull-Rom interpolates the two registered boundaries; placement
- * chooses roots, tip fractions, thinning and flow in their existing meanings.
- * Source-band tangent and millimetre bend define each finite reference chord.
+ * Derive finite brow guides from the actual native reference band before any material disk is selected. The connected shaft builder consumes this definition, so extending disk support cannot change a guide. Uniform Catmull-Rom interpolates the two registered boundaries; placement chooses roots, tip fractions, thinning and flow in their existing meanings. Source-band tangent and millimetre bend define each finite reference chord.
  *
  * These are authored construction conventions rather than measured follicles
  * or geodesics. Resolution samples the same free guide the source registers;
@@ -25,7 +20,7 @@ import { resolvePortraitEyebrowPlacement } from "./resolvePortraitEyebrowPlaceme
  * @author Samchon
  *
  * @evidence contracts/common.md#principled-implementation Uniform Catmull-Rom band interpolation, deterministic root/thinning laws and source lateral tangent derive finite reference chords before native seating.
- * @evidence contracts/common.md#clear-and-simple-design Source preparation and the connected shaft builder share this same guide definition while registration and current metric/normal reads remain downstream.
+ * @evidence contracts/common.md#clear-and-simple-design The connected shaft builder delegates reference guide construction here while registration and current metric/normal reads remain downstream.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Guides retain original ordinals and requested dimensions; authored construction is not follicle measurement or a clinical/geodesic length certificate.
  * @evidence contracts/common.md#meaningful-documentation The prose identifies source reference authority, finite resolution, unchanged population defaults and downstream native support.
  * @evidence contracts/performance.md#efficient-algorithms After boundary/profile admission, requested count N and segment count S drive O(N*S) guide stations; each Catmull-Rom query touches four boundary neighbours.

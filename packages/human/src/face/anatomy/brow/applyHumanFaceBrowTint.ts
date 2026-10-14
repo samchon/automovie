@@ -13,22 +13,7 @@ import type { IHumanFaceBrowTintProps } from "./IHumanFaceBrowTintProps";
  * under scalp hair, so the brow reads as a band where its shafts cannot be
  * resolved and the shafts carry the detail where they can.
  *
- * Coverage is the shafts' silhouette area over the band's area, at most one.
- * A tube's silhouette seen broadside is its lateral area over pi and a
- * ribbon's is its own area; overlap between shafts is not removed, which the
- * cap at one bounds. The band's area is summed over a 48 by 8 lattice of the
- * band between its two registered boundaries before those points are seated.
- * This is authored loft area, not a projected-skin area integral or an exact
- * visible-pixel average. Subsequent skin seating supplies only the splat:
- * each lattice point gives its triangle's three vertices its barycentric weights;
- * a vertex's weight is its accumulated share normalized by the largest, so
- * the tint is full inside the band and falls off over the band's own
- * boundary triangles. The gain of a vertex is
- * `1 + (fibre / skin - 1) * coverage * opacity * weight` per channel,
- * clamped to [0,1] and multiplied into the supplied gains. The actual builder
- * starts those gains at one, so that caller's gains remain in [0,1]; this
- * function does not independently clamp arbitrary preexisting gains. Fibres
- * lighter than the skin leave the gains unchanged, as under scalp hair.
+ * Coverage is the shafts' silhouette area over the band's area, at most one. A tube's silhouette seen broadside is its lateral area over pi and a ribbon's is its own area; overlap between shafts is not removed, which the cap at one bounds. The band's area is summed over a 48 by 8 lattice of the band between its two registered boundaries before those points are seated. This is authored loft area, not a projected-skin area integral or an exact visible-pixel average. Subsequent skin seating supplies only the splat: each lattice point gives its triangle's three vertices its barycentric weights. A vertex's weight is its accumulated share normalized by the largest, so only the largest share reaches one; interior weights depend on the sampled lattice and host tessellation, and touched triangle vertices may lie outside the loft band. This is not a uniform interior tint or an exact band indicator. The gain of a vertex is `1 + (fibre / skin - 1) * coverage * opacity * weight` per channel, clamped to [0,1] and multiplied into the supplied gains. The actual builder starts those gains at one, so that caller's gains remain in [0,1]; this function does not independently clamp arbitrary preexisting gains. Fibres lighter than the skin leave the gains unchanged, as under scalp hair.
  *
  * No shaft gives no tint. The coverage is a geometric ratio of the emitted
  * population and no measured optical density of a brow.
