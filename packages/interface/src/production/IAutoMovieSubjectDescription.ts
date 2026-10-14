@@ -57,7 +57,7 @@ export interface IAutoMovieSubjectDescription {
   /** Declared and measured spatial extent. */
   bounds: IAutoMovieSubjectBounds;
 
-  /** Code-unit-sorted materials directly used by the subject. */
+  /** Code-unit-sorted declared model materials, narrowed to the cited material for a part; whole-model entries need not be visibly used. */
   materials: IAutoMovieSubjectMaterial[];
 
   /** Exact member count and bounded stable-id sample. */

@@ -14,13 +14,13 @@ export interface IAutoMovieSubjectReviewCoverage {
   /** Required viewpoint ids in declared plan order. */
   planned: string[];
 
-  /** Required viewpoint ids covered at the current subject revision. */
+  /** Required viewpoint ids covered by the current revision, compile, plan and runtime identities. */
   observed: string[];
 
   /** Required viewpoint ids with no current observation. */
   missing: string[];
 
-  /** Required viewpoint ids observed only at another revision. */
+  /** Required viewpoint ids observed only with a different revision, compile, plan or runtime identity. */
   stale: string[];
 
   /** Extra current observations for a viewpoint outside the plan. */
