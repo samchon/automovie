@@ -1,13 +1,12 @@
-import type { IAutoMovieSpringState } from "./../../../../packages/engine/src/resolve/IAutoMovieSpringState";
-import { Matrix4, createSpringState, stepSpring } from "@automovie/engine";
-import {
-  IAutoMovieSpringDriver,
-  IAutoMovieTransform,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { type IAutoMovieSpringState } from "../../../../packages/engine/src/resolve/IAutoMovieSpringState";
+import { Matrix4 } from "../../../../packages/engine/src/math/Matrix4";
+import { createSpringState } from "../../../../packages/engine/src/resolve/createSpringState";
+import { stepSpring } from "../../../../packages/engine/src/resolve/stepSpring";
+import { IAutoMovieSpringDriver, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { nclose, throwsError, vclose } from "../internal/predicates";
+import { nclose } from "../internal/nclose";
+import { throwsError } from "../internal/throwsError";
+import { vclose } from "../internal/vclose";
 
 const W: (p: IAutoMovieVector3) => number[] = (p: IAutoMovieVector3): number[] =>
   Matrix4.compose(p, { x: 0, y: 0, z: 0, w: 1 }, { x: 1, y: 1, z: 1 });
@@ -55,16 +54,17 @@ const run: (steps: number) => Map<string, number[]> = (steps: number): Map<strin
 
 /**
  * The Verlet spring driver: a horizontal hair/skirt-like chain sags under
- * gravity, keeps its bone lengths, and replays identically.
+ * gravity, keeps its bone lengths within 1e-9 and replays the checked positions
+ * identically.
  *
  * Scenarios:
  *
  * 1. After enough steps the chain laid out along +X has sagged downward: both
  *    joints sit below the rest line, the tip lower than the mid.
- * 2. Each bone keeps its rest length exactly (the hard length constraint), so the
+ * 2. Each bone keeps its rest length within 1e-9, so the
  *    joints ride a unit sphere around their parent.
- * 3. The same inputs replay bit-for-bit (determinism: the property that makes
- *    spring usable in a reproducible render).
+ * 3. The same inputs replay joint positions with zero tolerance. This does not
+ *    compare every transform coefficient or a rendered frame.
  * 4. Invalid integration parameters reject before the integrator reads world or
  *    local transforms.
  * 5. A `center` reference subtracts body locomotion from inertia: after the

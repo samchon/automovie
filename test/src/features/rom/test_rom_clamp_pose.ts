@@ -1,20 +1,17 @@
-import { clampJointRom, clampPose } from "@automovie/engine";
-import {
-  IAutoMovieBone,
-  IAutoMovieJointConstraint,
-  IAutoMoviePose,
-  IAutoMovieSkeleton,
-} from "@automovie/interface";
+import { clampJointRom } from "../../../../packages/engine/src/rom/clampJointRom";
+import { clampPose } from "../../../../packages/engine/src/rom/clampPose";
+import { IAutoMovieBone, IAutoMovieJointConstraint, IAutoMoviePose, IAutoMovieSkeleton, type IAutoMovieJointPose, type IAutoMovieTransform } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
+import { namedFacts } from "../internal/namedFacts";
+import { nclose } from "../internal/nclose";
+import { vclose } from "../internal/vclose";
 
-import { namedFacts } from "../internal/predicates";
-
-const REST = {
+const REST: IAutoMovieTransform = {
   translation: { x: 0, y: 0, z: 0 },
   rotation: { x: 0, y: 0, z: 0, w: 1 },
   scale: { x: 1, y: 1, z: 1 },
 };
-const bone = (
+const bone: (name: IAutoMovieBone["bone"], constraint: IAutoMovieJointConstraint | null) => IAutoMovieBone = (
   name: IAutoMovieBone["bone"],
   constraint: IAutoMovieJointConstraint | null,
 ): IAutoMovieBone => ({ bone: name, parent: null, rest: REST, constraint });
@@ -37,8 +34,9 @@ const SKELETON: IAutoMovieSkeleton = {
 /**
  * `clampPose`, the enforce face of ROM. Every joint axis is pulled into its
  * `[min,max]`; an immobile (`null`) axis is forced to 0; an unconstrained bone
- * passes through. Mirrors `validateJointRom`'s bounds, so a clamped pose is one
- * that pose-ROM validation would accept.
+ * passes through. The examples exercise admitted engine interval conventions;
+ * they do not prove skeleton membership, arbitrary cone projection or
+ * clinical suitability of the default table.
  *
  * Scenarios:
  *
@@ -52,8 +50,13 @@ const SKELETON: IAutoMovieSkeleton = {
  *    root transform is preserved.
  * 5. Non-finite constrained-axis values are neutralized before range clamping, so
  *    the clamp output remains finite.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Runs clampJointRom/clampPose and observes override/default/unconstrained values, null preservation, root preservation and neutral repair of specified nonfinite angles.
+ * @evidence contracts/testing.md#independent-expectations The authored elbow override caps120 at90 and immobile abduction at0; current engine defaults supply shoulder min-60 and elbow max150, while null remains rest. These defaults are API conventions, not independently sourced clinical norms.
+ * @evidence contracts/testing.md#distinguishing-cases Override/default/absent-bone/unconstrained paths, in-range/null axes, borrowed root and NaN/Infinity repair contrast projection with preservation; coupled cone behavior and broad fixed-point sweeps have separate tests.
+ * @evidence contracts/testing.md#execution-ownership The named test_rom_clamp_pose entry directly executes portable synchronous angular projection on existing records, without new Human assets, live inspection or physiological validation.
  */
-export const test_rom_clamp_pose = (): void => {
+export function test_rom_clamp_pose(): void {
   const pose: IAutoMoviePose = {
     skeleton: "s",
     root: REST,
@@ -64,19 +67,17 @@ export const test_rom_clamp_pose = (): void => {
       { bone: "hips", flexion: 999, abduction: null, twist: null },
     ],
   };
-  const out = clampPose(pose, SKELETON);
-  const byBone = (b: string) => out.joints.find((j) => j.bone === b)!;
+  const out: IAutoMoviePose = clampPose(pose, SKELETON);
+  const byBone: (b: string) => IAutoMovieJointPose = (b: string): IAutoMovieJointPose  => out.joints.find((j: IAutoMovieJointPose): boolean  => j.bone === b)!;
 
   // 1. override
-  TestValidator.equals(
+  TestValidator.predicate(
     "flexion clamped to override max",
-    byBone("leftLowerArm").flexion,
-    90,
+    nclose(byBone("leftLowerArm").flexion!, 90, 0),
   );
-  TestValidator.equals(
+  TestValidator.predicate(
     "immobile abduction → 0",
-    byBone("leftLowerArm").abduction,
-    0,
+    nclose(byBone("leftLowerArm").abduction!, 0, 0),
   );
   TestValidator.equals(
     "null twist stays null",
@@ -85,34 +86,31 @@ export const test_rom_clamp_pose = (): void => {
   );
 
   // 2. default-table fallback
-  TestValidator.equals(
+  TestValidator.predicate(
     "flexion clamped to table min",
-    byBone("leftUpperArm").flexion,
-    -60,
+    nclose(byBone("leftUpperArm").flexion!, -60, 0),
   );
-  TestValidator.equals(
+  TestValidator.predicate(
     "in-range abduction untouched",
-    byBone("leftUpperArm").abduction,
-    50,
+    nclose(byBone("leftUpperArm").abduction!, 50, 0),
   );
 
   // 3. bone absent from the skeleton → default table
-  TestValidator.equals(
+  TestValidator.predicate(
     "absent bone uses table",
-    byBone("rightLowerArm").flexion,
-    150,
+    nclose(byBone("rightLowerArm").flexion!, 150, 0),
   );
 
   // 4. unconstrained bone passes through; root preserved
-  TestValidator.equals(
+  TestValidator.predicate(
     "unconstrained passes through",
-    byBone("hips").flexion,
-    999,
+    nclose(byBone("hips").flexion!, 999, 0),
   );
-  TestValidator.equals("root preserved", out.root, REST);
+  TestValidator.predicate("root preserved", out.root !== null && vclose(out.root.translation, REST.translation, 0) && vclose(out.root.scale, REST.scale, 0) &&
+    nclose(out.root.rotation.x, REST.rotation.x, 0) && nclose(out.root.rotation.y, REST.rotation.y, 0) && nclose(out.root.rotation.z, REST.rotation.z, 0) && nclose(out.root.rotation.w, REST.rotation.w, 0));
 
   // 5. non-finite constrained axes are sanitized before clamping
-  const sanitizedJoint = clampJointRom(
+  const sanitizedJoint: IAutoMovieJointPose = clampJointRom(
     {
       bone: "leftLowerArm",
       flexion: Number.NaN,
@@ -121,13 +119,12 @@ export const test_rom_clamp_pose = (): void => {
     },
     SKELETON.bones[0]!.constraint!,
   );
-  TestValidator.equals(
+  TestValidator.predicate(
     "NaN flexion neutralizes to rest",
-    sanitizedJoint.flexion,
-    0,
+    nclose(sanitizedJoint.flexion!, 0, 0),
   );
 
-  const sanitizedPose = clampPose(
+  const sanitizedPose: IAutoMoviePose = clampPose(
     {
       skeleton: "s",
       root: REST,
@@ -142,29 +139,27 @@ export const test_rom_clamp_pose = (): void => {
     },
     SKELETON,
   );
-  const sanitizedArm = sanitizedPose.joints[0]!;
-  TestValidator.equals(
+  const sanitizedArm: IAutoMovieJointPose = sanitizedPose.joints[0]!;
+  TestValidator.predicate(
     "pose NaN flexion neutralizes to rest",
-    sanitizedArm.flexion,
-    0,
+    nclose(sanitizedArm.flexion!, 0, 0),
   );
-  TestValidator.equals(
+  TestValidator.predicate(
     "pose infinite abduction neutralizes to rest",
-    sanitizedArm.abduction,
-    0,
+    nclose(sanitizedArm.abduction!, 0, 0),
   );
   TestValidator.equals(
     "pose clamp output axes are finite",
     namedFacts([
       [
         "isFiniteSanitizedArmFlexion",
-        () => Number.isFinite(sanitizedArm.flexion),
+        (): boolean  => Number.isFinite(sanitizedArm.flexion),
       ],
       [
         "isFiniteSanitizedArmAbduction",
-        () => Number.isFinite(sanitizedArm.abduction),
+        (): boolean  => Number.isFinite(sanitizedArm.abduction),
       ],
-      ["isFiniteSanitizedArmTwist", () => Number.isFinite(sanitizedArm.twist)],
+      ["isFiniteSanitizedArmTwist", (): boolean  => Number.isFinite(sanitizedArm.twist)],
     ]),
     {
       isFiniteSanitizedArmFlexion: true,
@@ -172,4 +167,4 @@ export const test_rom_clamp_pose = (): void => {
       isFiniteSanitizedArmTwist: true,
     },
   );
-};
+}

@@ -1,21 +1,18 @@
-import { Matrix4, resolveWorldDrivers } from "@automovie/engine";
-import {
-  IAutoMovieParentDriver,
-  IAutoMovieQuaternion,
-  IAutoMovieTransform,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { Matrix4 } from "../../../../packages/engine/src/math/Matrix4";
+import { resolveWorldDrivers } from "../../../../packages/engine/src/resolve/resolveWorldDrivers";
+import { IAutoMovieParentDriver, IAutoMovieQuaternion, IAutoMovieTransform, IAutoMovieVector3, type IAutoMovieDriver } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
+import { qclose } from "../internal/qclose";
+import { throwsError } from "../internal/throwsError";
+import { vclose } from "../internal/vclose";
 
-import { qclose, throwsError, vclose } from "../internal/predicates";
-
-const W = (
+const W: (pos: IAutoMovieVector3, rot?: IAutoMovieQuaternion, scl?: IAutoMovieVector3) => number[] = (
   pos: IAutoMovieVector3,
   rot: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 },
   scl: IAutoMovieVector3 = { x: 1, y: 1, z: 1 },
 ): number[] => Matrix4.compose(pos, rot, scl);
 
-const parent = (
+const parent: (over: Partial<IAutoMovieParentDriver>) => IAutoMovieParentDriver = (
   over: Partial<IAutoMovieParentDriver>,
 ): IAutoMovieParentDriver => ({
   type: "parent",
@@ -27,7 +24,7 @@ const parent = (
   ...over,
 });
 
-const trs = (x: number, y: number, z: number): IAutoMovieTransform => ({
+const trs: (x: number, y: number, z: number) => IAutoMovieTransform = (x: number, y: number, z: number): IAutoMovieTransform => ({
   translation: { x, y, z },
   rotation: { x: 0, y: 0, z: 0, w: 1 },
   scale: { x: 1, y: 1, z: 1 },
@@ -43,31 +40,36 @@ const trs = (x: number, y: number, z: number): IAutoMovieTransform => ({
  * 1. All flags on: the owner snaps to the parent's full world frame in position,
  *    rotation (90° about Y), and scale (×2), and its child recomposes off the
  *    new frame.
- * 2. All flags off: the owner is left exactly as it was (each component takes its
- *    own value), proving the off-side of every flag.
+ * 2. All flags off: the owner's position stays at (3,4,5). This assertion
+ *    does not separately check retained rotation and scale.
  * 3. Malformed component flags reject before truthy/falsy coercion can change
  *    which parent frame components are inherited.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Applies resolveWorldDrivers parent descriptors and observes inherited world TRS, descendant movement, unchanged owner position with all flags off and malformed/missing-input refusals.
+ * @evidence contracts/testing.md#independent-expectations The parent's authored (10,0,0), quarter-turn Y rotation and uniform scale2 are the copied expectations; all-off position retains (3,4,5). The child assertion detects movement but does not independently calculate its full new world transform.
+ * @evidence contracts/testing.md#distinguishing-cases All-on/all-off flags contrast inheritance with preservation, with non-boolean flags and missing owner/parent negatives; mixed flags and nonuniform-scale shear are not established by these cases.
+ * @evidence contracts/testing.md#execution-ownership The named test_resolve_parent_driver entry executes synchronous CPU driver and matrix semantics directly, using existing portable node records without a live scene host or foreign replacement.
  */
-export const test_resolve_parent_driver = (): void => {
-  const s = Math.SQRT1_2;
-  const parentRot = { x: 0, y: s, z: 0, w: s };
-  const parentScale = { x: 2, y: 2, z: 2 };
+export function test_resolve_parent_driver(): void {
+  const s: number = Math.SQRT1_2;
+  const parentRot: IAutoMovieQuaternion = { x: 0, y: s, z: 0, w: s };
+  const parentScale: IAutoMovieVector3 = { x: 2, y: 2, z: 2 };
 
   // 1. inherit the whole frame, child follows
-  const world = new Map<string, number[]>([
+  const world: Map<string, number[]> = new Map<string, number[]>([
     ["o", W({ x: 0, y: 0, z: 0 })],
     ["c", W({ x: 0, y: 1, z: 0 })],
     ["p", W({ x: 10, y: 0, z: 0 }, parentRot, parentScale)],
   ]);
-  const localById = new Map<string, IAutoMovieTransform>([["c", trs(0, 1, 0)]]);
-  const children = new Map<string, string[]>([["o", ["c"]]]);
+  const localById: Map<string, IAutoMovieTransform> = new Map<string, IAutoMovieTransform>([["c", trs(0, 1, 0)]]);
+  const children: Map<string, string[]> = new Map<string, string[]>([["o", ["c"]]]);
   resolveWorldDrivers(
     [parent({ translation: true, rotation: true, scale: true })],
     world,
     localById,
     children,
   );
-  const own = Matrix4.decompose(world.get("o")!);
+  const own: { position: IAutoMovieVector3; rotation: IAutoMovieQuaternion; scale: IAutoMovieVector3; } = Matrix4.decompose(world.get("o")!);
   TestValidator.predicate(
     "owner inherits parent position",
     vclose(own.position, { x: 10, y: 0, z: 0 }, 1e-5),
@@ -86,7 +88,7 @@ export const test_resolve_parent_driver = (): void => {
   );
 
   // 2. all flags off → owner unchanged
-  const world2 = new Map<string, number[]>([
+  const world2: Map<string, number[]> = new Map<string, number[]>([
     ["o", W({ x: 3, y: 4, z: 5 })],
     ["p", W({ x: 10, y: 0, z: 0 }, parentRot, parentScale)],
   ]);
@@ -99,7 +101,7 @@ export const test_resolve_parent_driver = (): void => {
   TestValidator.predicate(
     "parent driver rejects non-boolean component flag",
     throwsError(
-      () =>
+      (): IAutoMovieDriver[]  =>
         resolveWorldDrivers(
           [
             parent({
@@ -120,7 +122,7 @@ export const test_resolve_parent_driver = (): void => {
   TestValidator.predicate(
     "missing parent-driver owner rejects incomplete world map",
     throwsError(
-      () =>
+      (): IAutoMovieDriver[]  =>
         resolveWorldDrivers(
           [parent({ owner: "missing", translation: true })],
           new Map([["p", W({ x: 10, y: 0, z: 0 })]]),
@@ -133,7 +135,7 @@ export const test_resolve_parent_driver = (): void => {
   TestValidator.predicate(
     "missing parent-driver parent rejects incomplete world map",
     throwsError(
-      () =>
+      (): IAutoMovieDriver[]  =>
         resolveWorldDrivers(
           [parent({ parent: "missing", translation: true })],
           new Map([["o", W({ x: 0, y: 0, z: 0 })]]),
@@ -143,4 +145,4 @@ export const test_resolve_parent_driver = (): void => {
       'world driver parent parent node "missing" was not provided',
     ),
   );
-};
+}

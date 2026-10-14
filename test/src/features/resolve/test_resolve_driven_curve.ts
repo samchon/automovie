@@ -1,13 +1,10 @@
-import { IAutoMovieSampledChannel, evaluateDrivenCurve, resolveDrivers } from "@automovie/engine";
-import {
-  IAutoMovieChannel,
-  IAutoMovieDrivenCurve,
-  IAutoMovieDrivenCurvePoint,
-  IAutoMovieDrivenDriver,
-} from "@automovie/interface";
+import { IAutoMovieSampledChannel } from "../../../../packages/engine/src/resolve/IAutoMovieSampledChannel";
+import { evaluateDrivenCurve } from "../../../../packages/engine/src/resolve/evaluateDrivenCurve";
+import { resolveDrivers } from "../../../../packages/engine/src/resolve/resolveDrivers";
+import { IAutoMovieChannel, IAutoMovieDrivenCurve, IAutoMovieDrivenCurvePoint, IAutoMovieDrivenDriver } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { nclose, throwsError } from "../internal/predicates";
+import { nclose } from "../internal/nclose";
+import { throwsError } from "../internal/throwsError";
 
 const ptr: (p: string) => IAutoMovieChannel = (p: string): IAutoMovieChannel => ({
   kind: "pointer",

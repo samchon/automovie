@@ -1,13 +1,13 @@
-import {
-  composeScene,
-  lowerSkeletonNodes,
-  sceneToNodes,
-} from "@automovie/engine";
-import { AutoMovieAssetOrigin, IAutoMovieModelPart, IAutoMovieSkeleton, IAutoMovieBody, IAutoMovieAffordance, IAutoMovieMaterial, AutoMovieHumanoidBone, IAutoMovieProfile, IAutoMovieNode, IAutoMovieScene } from "@automovie/interface";
+import { composeScene } from "../../../../packages/engine/src/resolve/composeScene";
+import { lowerSkeletonNodes } from "../../../../packages/engine/src/resolve/lowerSkeletonNodes";
+import { sceneToNodes } from "../../../../packages/engine/src/resolve/sceneToNodes";
+import { IAutoMovieNode, IAutoMovieScene, type IAutoMovieModel } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { createModel } from "../internal/fixtures";
-import { namedFacts, qclose, throwsError, vclose } from "../internal/predicates";
+import { createModel } from "../internal/createModel";
+import { namedFacts } from "../internal/namedFacts";
+import { qclose } from "../internal/qclose";
+import { throwsError } from "../internal/throwsError";
+import { vclose } from "../internal/vclose";
 
 const scene: (nodeId: string, modelRef: string) => IAutoMovieScene = (nodeId: string, modelRef: string): IAutoMovieScene => ({
   id: "scene-g",
@@ -56,7 +56,7 @@ const scene: (nodeId: string, modelRef: string) => IAutoMovieScene = (nodeId: st
  * @evidence contracts/testing.md#execution-ownership The exported test_resolve_scene_to_nodes_guards owns portable synchronous bridge/default cases through actual output; it creates no new Human asset or inspection host and replaces no foreign methods.
  */
 export function test_resolve_scene_to_nodes_guards(): void {
-  const model: { id: string; name: string | null; origin: AutoMovieAssetOrigin; parts: IAutoMovieModelPart[]; skeleton: IAutoMovieSkeleton | null; body: IAutoMovieBody | null; affordances?: IAutoMovieAffordance[] | null; materials: IAutoMovieMaterial[]; asset: string | null; imported?: { profile: "gltf-static-v1" | "gltf-humanoid-v1" | "vrm-humanoid-v1"; lod: Array<{ level: "hero" | "near" | "far"; asset: string; digest: string; profile: "gltf-static-v1" | "gltf-humanoid-v1" | "vrm-humanoid-v1"; humanoidBones: Array<{ bone: AutoMovieHumanoidBone; node: number; weighted: boolean; }>; }>; assets: Array<{ path: string; digest: string; }>; humanoidBones: Array<{ bone: AutoMovieHumanoidBone; node: number; weighted: boolean; }>; }; profiles?: IAutoMovieProfile[]; } = { ...createModel(), id: "hero" };
+  const model: IAutoMovieModel = { ...createModel(), id: "hero" };
 
   const bare: IAutoMovieNode[] = sceneToNodes({ scene: scene("actor", "hero") });
   TestValidator.equals(

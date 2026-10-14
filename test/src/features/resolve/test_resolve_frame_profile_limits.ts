@@ -1,15 +1,8 @@
-import { resolveFrame } from "@automovie/engine";
-import {
-  IAutoMovieChannel,
-  IAutoMovieClip,
-  IAutoMovieNode,
-  IAutoMovieProfile,
-  IAutoMovieProfileBinding,
-  IAutoMovieTransform,
-} from "@automovie/interface";
+import { resolveFrame } from "../../../../packages/engine/src/resolve/resolveFrame";
+import { IAutoMovieChannel, IAutoMovieClip, IAutoMovieNode, IAutoMovieProfile, IAutoMovieProfileBinding, IAutoMovieTransform } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { nclose } from "../internal/predicates";
+import { nclose } from "../internal/nclose";
+import { type IAutoMovieResolveOutput } from "../../../../packages/engine/src/resolve/IAutoMovieResolveOutput";
 
 const IDENTITY: IAutoMovieTransform = {
   translation: { x: 0, y: 0, z: 0 },
@@ -17,7 +10,7 @@ const IDENTITY: IAutoMovieTransform = {
   scale: { x: 1, y: 1, z: 1 },
 };
 
-const node = (id: string): IAutoMovieNode => ({
+const node: (id: string) => IAutoMovieNode = (id: string): IAutoMovieNode => ({
   id,
   name: null,
   parent: null,
@@ -29,13 +22,13 @@ const node = (id: string): IAutoMovieNode => ({
   skin: null,
 });
 
-const translation = (id: string): IAutoMovieChannel => ({
+const translation: (id: string) => IAutoMovieChannel = (id: string): IAutoMovieChannel => ({
   kind: "node",
   node: id,
   path: "translation",
 });
 
-const clipTo = (x: number): IAutoMovieClip => ({
+const clipTo: (x: number) => IAutoMovieClip = (x: number): IAutoMovieClip => ({
   id: "clip",
   name: null,
   duration: 1,
@@ -53,7 +46,6 @@ const clipTo = (x: number): IAutoMovieClip => ({
 const PROFILE: IAutoMovieProfile = {
   id: "slider-profile",
   name: "slider",
-  controls: [],
   drivers: [],
   limits: [
     {
@@ -66,12 +58,10 @@ const PROFILE: IAutoMovieProfile = {
 
 const BINDING: IAutoMovieProfileBinding = {
   profile: "slider-profile",
-  root: "slider",
-  instanceName: null,
   boneMap: { knob: "slider" },
 };
 
-const tx = (m: number[]): number => m[12]!;
+const tx: (m: number[]) => number = (m: number[]): number => m[12]!;
 
 /**
  * Profile-declared limits actually constrain in resolveFrame's CONSTRAIN stage:
@@ -90,10 +80,16 @@ const tx = (m: number[]): number => m[12]!;
  *    channel: the value clamps through both (profile first, direct last) to 30,
  *    with two violations in order: the profile-tagged one, then the direct one
  *    carrying no profile tag.
- * 4. Byte-compat: `profiles: []` resolves identically to omitting the field.
+ * 4. Empty and omitted profiles yield the same empty diagnostics and world x
+ *    within the existing numerical predicate; full serialized bytes are not checked.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Runs resolveFrame with semantic profile limits and caller limits, observing concrete world clamps and profile-tagged diagnostics, then compares the empty-profile neighbor with direct resolution.
+ * @evidence contracts/testing.md#independent-expectations Authored intervals project the sampled translations onto their bounds and direct limits apply afterward; literal semantic/concrete ids determine diagnostic provenance. Empty-profile parity compares two product paths rather than supplying an independent numerical oracle.
+ * @evidence contracts/testing.md#distinguishing-cases Mapped over-limit/in-range targets, direct-after-profile clamps and empty versus omitted profiles distinguish binding/order from unconditional changes; node-prefix and malformed binding admission belong to other tests.
+ * @evidence contracts/testing.md#execution-ownership The named test_resolve_frame_profile_limits entry directly executes portable synchronous frame resolution, comparing numerical values with predicates rather than claiming physical pixels.
  */
-export const test_resolve_frame_profile_limits = (): void => {
-  const clamped = resolveFrame({
+export function test_resolve_frame_profile_limits(): void {
+  const clamped: IAutoMovieResolveOutput = resolveFrame({
     nodes: [node("slider")],
     clip: clipTo(100),
     limits: [],
@@ -111,7 +107,7 @@ export const test_resolve_frame_profile_limits = (): void => {
     nclose(tx(clamped.world.get("slider")!), 50),
   );
 
-  const inRange = resolveFrame({
+  const inRange: IAutoMovieResolveOutput = resolveFrame({
     nodes: [node("slider")],
     clip: clipTo(25),
     limits: [],
@@ -124,7 +120,7 @@ export const test_resolve_frame_profile_limits = (): void => {
     nclose(tx(inRange.world.get("slider")!), 25),
   );
 
-  const layered = resolveFrame({
+  const layered: IAutoMovieResolveOutput = resolveFrame({
     nodes: [node("slider")],
     clip: clipTo(100),
     limits: [
@@ -153,14 +149,14 @@ export const test_resolve_frame_profile_limits = (): void => {
     nclose(tx(layered.world.get("slider")!), 30),
   );
 
-  const explicit = resolveFrame({
+  const explicit: IAutoMovieResolveOutput = resolveFrame({
     nodes: [node("slider")],
     clip: clipTo(100),
     limits: [],
     profiles: [],
     seconds: 0,
   });
-  const omitted = resolveFrame({
+  const omitted: IAutoMovieResolveOutput = resolveFrame({
     nodes: [node("slider")],
     clip: clipTo(100),
     limits: [],
@@ -168,11 +164,11 @@ export const test_resolve_frame_profile_limits = (): void => {
   });
   TestValidator.equals(
     "empty profiles === omitted (violations)",
-    explicit.violations,
-    omitted.violations,
+    [explicit.violations.length, omitted.violations.length],
+    [0, 0],
   );
   TestValidator.predicate(
     "empty profiles === omitted (world)",
     nclose(tx(explicit.world.get("slider")!), tx(omitted.world.get("slider")!)),
   );
-};
+}

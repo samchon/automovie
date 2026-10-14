@@ -1,15 +1,13 @@
-import { createSpringState, resolveFrame } from "@automovie/engine";
-import {
-  IAutoMovieIKDriver,
-  IAutoMovieNode,
-  IAutoMovieSpringDriver,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { createSpringState } from "../../../../packages/engine/src/resolve/createSpringState";
+import { resolveFrame } from "../../../../packages/engine/src/resolve/resolveFrame";
+import { IAutoMovieIKDriver, IAutoMovieNode, IAutoMovieSpringDriver, IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
+import { throwsError } from "../internal/throwsError";
+import { vclose } from "../internal/vclose";
+import { type IAutoMovieResolveOutput } from "../../../../packages/engine/src/resolve/IAutoMovieResolveOutput";
+import { type IAutoMovieSpringState } from "../../../../packages/engine/src/resolve/IAutoMovieSpringState";
 
-import { throwsError, vclose } from "../internal/predicates";
-
-const node = (
+const node: (id: string, parent: string | null, translation: IAutoMovieVector3) => IAutoMovieNode = (
   id: string,
   parent: string | null,
   translation: IAutoMovieVector3,
@@ -29,7 +27,7 @@ const node = (
   skin: null,
 });
 
-const nodes = (): IAutoMovieNode[] => [
+const nodes: () => IAutoMovieNode[] = (): IAutoMovieNode[] => [
   node("root", null, { x: 0, y: 0, z: 0 }),
   node("j1", "root", { x: 1, y: 0, z: 0 }),
 ];
@@ -45,12 +43,12 @@ const spring: IAutoMovieSpringDriver = {
   center: null,
 };
 
-const DT = 1 / 60;
+const DT: number = 1 / 60;
 /** Gravity displacement for one step: `gravityPower · dt²`. */
-const H = 9.8 * DT * DT;
+const H: number = 9.8 * DT * DT;
 
-const at = (world: Map<string, number[]>, id: string): IAutoMovieVector3 => {
-  const m = world.get(id)!;
+const at: (world: Map<string, number[]>, id: string) => IAutoMovieVector3 = (world: Map<string, number[]>, id: string): IAutoMovieVector3 => {
+  const m: number[] = world.get(id)!;
   return { x: m[12]!, y: m[13]!, z: m[14]! };
 };
 
@@ -58,8 +56,8 @@ const at = (world: Map<string, number[]>, id: string): IAutoMovieVector3 => {
  * Springs step inside {@link resolveFrame} when the caller threads the
  * cross-frame `springs` input (state + dt + colliders), completing S2: the
  * engine advances the one stateful driver deterministically instead of
- * deferring it to a host pass. Without the input the deferral contract is
- * byte-identical to before.
+ * deferring it to a host pass. Without that input the existing descriptor
+ * count/type assertions check deferral rather than a serialized-byte snapshot.
  *
  * Scenarios:
  *
@@ -78,10 +76,15 @@ const at = (world: Map<string, number[]>, id: string): IAutoMovieVector3 => {
  * 5. A collider naming a missing node rejects loudly.
  * 6. A non-spring driver still deferred by the world pass is untouched by the
  *    spring step: `springs` consumes only springs.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Runs resolveFrame with caller-carried spring history and observes hand-derived first/second-step positions, accumulated sag, deterministic replay, sphere effects and descriptor deferral/refusal.
+ * @evidence contracts/testing.md#independent-expectations From rest, gravity contributes H=9.8*DT squared and unit-length projection divides (1,-H,0) by its norm; the next velocity is first position minus rest, followed by gravity and reprojection. Inflated sphere radius1.25 scales the first unit direction independently of frame output.
+ * @evidence contracts/testing.md#distinguishing-cases Present/absent spring input, carried two-step history versus fresh replay, penetrating/nonpenetrating static spheres, missing collider nodes and a surviving short IK descriptor cover this frame/state seam; moving-center transport and detailed collision order belong to step-spring tests.
+ * @evidence contracts/testing.md#execution-ownership The named test_resolve_frame_spring entry owns synchronous CPU state/frame composition on existing portable fixtures; it starts no Human host and establishes no hair or cloth appearance.
  */
-export const test_resolve_frame_spring = (): void => {
-  // 1. byte-compat: no springs input → deferred
-  const out1 = resolveFrame({
+export function test_resolve_frame_spring(): void {
+  // 1. no springs input → deferred
+  const out1: IAutoMovieResolveOutput = resolveFrame({
     nodes: nodes(),
     clip: null,
     limits: [],
@@ -100,10 +103,10 @@ export const test_resolve_frame_spring = (): void => {
   );
 
   // 2. first-step oracle
-  const len = Math.hypot(1, H);
+  const len: number = Math.hypot(1, H);
   const expected1: IAutoMovieVector3 = { x: 1 / len, y: -H / len, z: 0 };
-  const state2 = createSpringState();
-  const out2 = resolveFrame({
+  const state2: IAutoMovieSpringState = createSpringState();
+  const out2: IAutoMovieResolveOutput = resolveFrame({
     nodes: nodes(),
     clip: null,
     limits: [],
@@ -128,13 +131,13 @@ export const test_resolve_frame_spring = (): void => {
     y: expected1.y + inertia.y - H,
     z: 0,
   };
-  const len2 = Math.hypot(raw2.x, raw2.y);
+  const len2: number = Math.hypot(raw2.x, raw2.y);
   const expected2: IAutoMovieVector3 = {
     x: raw2.x / len2,
     y: raw2.y / len2,
     z: 0,
   };
-  const out3 = resolveFrame({
+  const out3: IAutoMovieResolveOutput = resolveFrame({
     nodes: nodes(),
     clip: null,
     limits: [],
@@ -150,7 +153,7 @@ export const test_resolve_frame_spring = (): void => {
     "sag accumulates across frames",
     at(out3.world, "j1").y < at(out2.world, "j1").y,
   );
-  const replayState = createSpringState();
+  const replayState: IAutoMovieSpringState = createSpringState();
   resolveFrame({
     nodes: nodes(),
     clip: null,
@@ -159,7 +162,7 @@ export const test_resolve_frame_spring = (): void => {
     springs: { state: replayState, dt: DT },
     seconds: 0,
   });
-  const replay2 = resolveFrame({
+  const replay2: IAutoMovieResolveOutput = resolveFrame({
     nodes: nodes(),
     clip: null,
     limits: [],
@@ -173,7 +176,7 @@ export const test_resolve_frame_spring = (): void => {
   );
 
   // 4. collider push-out + no-trigger twin
-  const out4 = resolveFrame({
+  const out4: IAutoMovieResolveOutput = resolveFrame({
     nodes: nodes(),
     clip: null,
     limits: [],
@@ -197,7 +200,7 @@ export const test_resolve_frame_spring = (): void => {
       1e-9,
     ),
   );
-  const out5 = resolveFrame({
+  const out5: IAutoMovieResolveOutput = resolveFrame({
     nodes: nodes(),
     clip: null,
     limits: [],
@@ -218,7 +221,7 @@ export const test_resolve_frame_spring = (): void => {
   TestValidator.predicate(
     "missing collider node rejects",
     throwsError(
-      () =>
+      (): IAutoMovieResolveOutput  =>
         resolveFrame({
           nodes: nodes(),
           clip: null,
@@ -245,7 +248,7 @@ export const test_resolve_frame_spring = (): void => {
     iterations: null,
     influence: 1,
   };
-  const out6 = resolveFrame({
+  const out6: IAutoMovieResolveOutput = resolveFrame({
     nodes: nodes(),
     clip: null,
     limits: [],
@@ -263,4 +266,4 @@ export const test_resolve_frame_spring = (): void => {
     out6.deferredDrivers[0]!.type,
     "ik",
   );
-};
+}
