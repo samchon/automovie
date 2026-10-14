@@ -11,4 +11,3 @@ export { createValidMotion } from "./createValidMotion";
 export { createModel } from "./createModel";
 export { primitivePart } from "./primitivePart";
 export { makeProp } from "./makeProp";
-export { makeFace } from "./makeFace";
