@@ -23,7 +23,8 @@ export function applyHumanSkinFinish(
   materials: readonly IAutoMovieMaterial[],
 ): void {
   const skin: IAutoMovieMaterial | undefined = materials.find(
-    (material: IAutoMovieMaterial): boolean => material.id === HUMAN_SKIN_FINISH.material,
+    (material: IAutoMovieMaterial): boolean =>
+      material.id === HUMAN_SKIN_FINISH.material,
   );
   if (skin !== undefined)
     skin.subsurfaceRadius = { ...HUMAN_SKIN_FINISH.scattering };

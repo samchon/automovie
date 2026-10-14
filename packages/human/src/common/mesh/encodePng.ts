@@ -7,12 +7,15 @@ const SIGNATURE: readonly number[] = [137, 80, 78, 71, 13, 10, 26, 10];
 const DATA_URI: string = "data:image/png;base64,";
 
 /** Byte-wise CRC-32 table of the reflected polynomial 0xedb88320 (PNG annex D). */
-const CRC_TABLE: readonly number[] = Array.from({ length: 256 }, (_value: unknown, byte: number): number => {
-  let crc: number = byte;
-  for (let bit: number = 0; bit < 8; ++bit)
-    crc = (crc >>> 1) ^ ((crc & 1) * 0xedb88320);
-  return crc >>> 0;
-});
+const CRC_TABLE: readonly number[] = Array.from(
+  { length: 256 },
+  (_value: unknown, byte: number): number => {
+    let crc: number = byte;
+    for (let bit: number = 0; bit < 8; ++bit)
+      crc = (crc >>> 1) ^ ((crc & 1) * 0xedb88320);
+    return crc >>> 0;
+  },
+);
 
 /**
  * The PNG encoder for textures that are recoloured by numerical rules.
@@ -59,9 +62,18 @@ export function encodePng(image: IPngImage): string {
     chunk("IEND", new Uint8Array(0)),
   ];
   const bytes: Uint8Array = new Uint8Array(
-    parts.reduce((sum: number, part: Uint8Array): number => sum + part.length, 0),
+    parts.reduce(
+      (sum: number, part: Uint8Array): number => sum + part.length,
+      0,
+    ),
   );
-  parts.reduce((at: number, part: Uint8Array): number => (bytes.set(part, at), at + part.length), 0);
+  parts.reduce(
+    (at: number, part: Uint8Array): number => (
+      bytes.set(part, at),
+      at + part.length
+    ),
+    0,
+  );
   let text: string = "";
   for (let i: number = 0; i < bytes.length; i += 0x8000)
     text += String.fromCharCode(...bytes.subarray(i, i + 0x8000));

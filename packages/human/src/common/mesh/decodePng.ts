@@ -33,15 +33,25 @@ export function decodePng(uri: string): IPngImage {
   if (!uri.startsWith(DATA_URI))
     throw new Error("A texture must be a base64 PNG data URI.");
   const bytes: Uint8Array = base64Bytes(uri.slice(DATA_URI.length));
-  if (SIGNATURE.some((value: number, index: number): boolean => bytes[index] !== value))
+  if (
+    SIGNATURE.some(
+      (value: number, index: number): boolean => bytes[index] !== value,
+    )
+  )
     throw new Error("The texture is not a PNG.");
-  const view: DataView = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+  const view: DataView = new DataView(
+    bytes.buffer,
+    bytes.byteOffset,
+    bytes.byteLength,
+  );
   let offset: number = 8;
   let header: { width: number; height: number; type: number } | null = null;
   const data: Uint8Array[] = [];
   while (offset + 8 <= bytes.length) {
     const length: number = view.getUint32(offset);
-    const name: string = String.fromCharCode(...bytes.subarray(offset + 4, offset + 8));
+    const name: string = String.fromCharCode(
+      ...bytes.subarray(offset + 4, offset + 8),
+    );
     const body: Uint8Array = bytes.subarray(offset + 8, offset + 8 + length);
     if (name === "IHDR") {
       const depth: number = body[8];
@@ -64,9 +74,18 @@ export function decodePng(uri: string): IPngImage {
   const channels: number = { 0: 1, 2: 3, 4: 2, 6: 4 }[header.type]!;
   const stride: number = header.width * channels;
   const joined: Uint8Array = new Uint8Array(
-    data.reduce((sum: number, part: Uint8Array): number => sum + part.length, 0),
+    data.reduce(
+      (sum: number, part: Uint8Array): number => sum + part.length,
+      0,
+    ),
   );
-  data.reduce((at: number, part: Uint8Array): number => (joined.set(part, at), at + part.length), 0);
+  data.reduce(
+    (at: number, part: Uint8Array): number => (
+      joined.set(part, at),
+      at + part.length
+    ),
+    0,
+  );
   const raw: Uint8Array = unzlibSync(joined);
   if (raw.length !== (stride + 1) * header.height)
     throw new Error("The texture PNG data does not match its size.");
@@ -75,7 +94,8 @@ export function decodePng(uri: string): IPngImage {
     const filter: number = raw[y * (stride + 1)];
     if (filter > 4) throw new Error("The texture PNG has an unknown filter.");
     for (let x: number = 0; x < stride; ++x) {
-      const left: number = x >= channels ? pixels[y * stride + x - channels] : 0;
+      const left: number =
+        x >= channels ? pixels[y * stride + x - channels] : 0;
       const up: number = y > 0 ? pixels[(y - 1) * stride + x] : 0;
       const corner: number =
         x >= channels && y > 0 ? pixels[(y - 1) * stride + x - channels] : 0;
@@ -95,7 +115,10 @@ export function decodePng(uri: string): IPngImage {
   }
   const rgba: Uint8Array = new Uint8Array(header.width * header.height * 4);
   for (let i: number = 0; i < header.width * header.height; ++i) {
-    const source: Uint8Array = pixels.subarray(i * channels, i * channels + channels);
+    const source: Uint8Array = pixels.subarray(
+      i * channels,
+      i * channels + channels,
+    );
     const grey: boolean = channels <= 2;
     rgba[4 * i] = source[0];
     rgba[4 * i + 1] = grey ? source[0] : source[1];
@@ -117,6 +140,7 @@ function paeth(left: number, up: number, corner: number): number {
 function base64Bytes(text: string): Uint8Array {
   const binary: string = atob(text);
   const bytes: Uint8Array = new Uint8Array(binary.length);
-  for (let i: number = 0; i < binary.length; ++i) bytes[i] = binary.charCodeAt(i);
+  for (let i: number = 0; i < binary.length; ++i)
+    bytes[i] = binary.charCodeAt(i);
   return bytes;
 }
