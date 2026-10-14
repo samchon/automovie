@@ -36,8 +36,8 @@ const freeSheet: (drag: number) => IAutoMovieSoftBodyDomain = (drag: number): IA
  * 1. Undamped, after 8 steps of `dt = 1/64` under `g = −8`: every velocity is
  *    exactly `−1` and every particle has fallen exactly `72/1024` metres, which
  *    is `g·dt²·n(n+1)/2`.
- * 2. The rigid fall leaves `maxStrain` at exactly zero and `contacts` at zero, so
- *    nothing was corrected or collided on the way down.
+ * 2. The final rigid-fall state reports `maxStrain` exactly zero and zero final
+ *    contacts; these measurements are not a trace of every correction.
  * 3. `maxSpeed` reports the hand-derived speed exactly; this checks the
  *    measurement and does not enforce the separately declared reference speed.
  * 4. Damped with `dt·k = 1`, so `r = 1/2`: after 4 steps the velocity is exactly

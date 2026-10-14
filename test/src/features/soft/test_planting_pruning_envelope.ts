@@ -18,8 +18,8 @@ const clipped: (pruning: IAutoMoviePruningEnvelope) => IAutoMoviePlantingState =
  *    pruned; the child emerging at half height survives and the one emerging at
  *    the tip does not.
  * 3. A sphere of radius `0.75` about the origin produces exactly the same cut
- *    through the quadratic root rather than through a slab, which is what
- *    proves the two envelopes are independent derivations.
+ *    through the quadratic root rather than through a slab, exercising both
+ *    envelope paths against the same hand-computed endpoint.
  * 4. A branch whose own base already lies outside the envelope is not grown at
  *    all, so an envelope that misses the plant entirely yields nothing and
  *    `null` bounds rather than a stub at the origin.

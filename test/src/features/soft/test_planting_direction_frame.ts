@@ -53,8 +53,8 @@ const childAxis: (domain: IAutoMoviePlantingDomain) => { x: number; y: number; z
  * 2. Off a trunk pointing along `−z` — the branch of the frame construction the
  *    vertical case never reaches — the same authored direction lands at its
  *    hand-computed world position.
- * 3. Full positive gravitropism drives every child to exactly `(0, −1, 0)`, and
- *    full negative to exactly `(0, 1, 0)`, whatever was authored.
+ * 3. Full positive gravitropism drives the authored +X child to `(0, −1, 0)`,
+ *    and full negative drives it to `(0, 1, 0)`, within the vector tolerance.
  * 4. A half bias that exactly cancels the authored direction is the degenerate
  *    case: the blend has no length, so the child falls back to its parent's own
  *    axis rather than to a division by zero.

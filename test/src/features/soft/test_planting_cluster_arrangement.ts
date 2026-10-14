@@ -3,7 +3,7 @@ import { growPlanting } from "../../../../packages/engine/src/soft/growPlanting"
 import { plantingBudget } from "../../../../packages/engine/src/soft/plantingBudget";
 import { TestValidator } from "@nestia/e2e";
 import { hasPlantingSpacingOracle } from "../internal/hasPlantingSpacingOracle";
-import { namedFacts, qunit } from "../internal/predicates";
+import { namedFacts, nclose, qunit } from "../internal/predicates";
 import { plantingCluster, plantingRecipe } from "../internal/softFixtures";
 import { IAutoMoviePlantingCluster, IAutoMoviePlantingArrangement, IAutoMoviePlantingPlacement, IAutoMoviePlantingDomain } from "@automovie/interface";
 /** Smallest horizontal distance between any two accepted members. */
@@ -73,7 +73,7 @@ export function test_planting_cluster_arrangement(): void {
             (placement: IAutoMoviePlantingPlacement): boolean =>
               Math.abs(placement.translation.x) <= 2 &&
               Math.abs(placement.translation.z) <= 2 &&
-              placement.translation.y === 0,
+              nclose(placement.translation.y, 0, 0),
           ),
       ],
       ["bounds", (): boolean => arrangement.bounds !== null],
@@ -111,7 +111,7 @@ export function test_planting_cluster_arrangement(): void {
           return (
             packed.placements.length === 12 &&
             packed.rejected === 0 &&
-            closestPair(packed.placements) === 0
+            nclose(closestPair(packed.placements), 0, 0)
           );
         },
       ],
@@ -140,7 +140,7 @@ export function test_planting_cluster_arrangement(): void {
         (): boolean =>
           arrangement.placements.every(
             (placement: IAutoMoviePlantingPlacement): boolean =>
-              placement.rotation.x === 0 && placement.rotation.z === 0,
+              nclose(placement.rotation.x, 0, 0) && nclose(placement.rotation.z, 0, 0),
           ),
       ],
       [
@@ -238,20 +238,20 @@ export function test_planting_cluster_arrangement(): void {
       [
         "onAnchor",
         (): boolean =>
-          lone.placements[0].translation.x === 3 &&
-          lone.placements[0].translation.y === 1 &&
-          lone.placements[0].translation.z === -2,
+          nclose(lone.placements[0].translation.x, 3, 0) &&
+          nclose(lone.placements[0].translation.y, 1, 0) &&
+          nclose(lone.placements[0].translation.z, -2, 0),
       ],
       [
         "identityRotation",
         (): boolean =>
-          lone.placements[0].rotation.w === 1 &&
-          lone.placements[0].rotation.y === 0,
+          nclose(lone.placements[0].rotation.w, 1, 0) &&
+          nclose(lone.placements[0].rotation.y, 0, 0),
       ],
       [
         "fixedScale",
         (): boolean =>
-          lone.placements[0].scale.x === 1 && lone.placements[0].scale.z === 1,
+          nclose(lone.placements[0].scale.x, 1, 0) && nclose(lone.placements[0].scale.z, 1, 0),
       ],
       ["onlyOneFits", (): boolean => crowded.placements.length === 1],
       ["restRefused", (): boolean => crowded.rejected === 3],
@@ -259,7 +259,7 @@ export function test_planting_cluster_arrangement(): void {
         "degenerateBounds",
         (): boolean =>
           crowded.bounds !== null &&
-          crowded.bounds.min.x === crowded.bounds.max.x,
+          nclose(crowded.bounds.min.x, crowded.bounds.max.x, 0),
       ],
     ]),
     {

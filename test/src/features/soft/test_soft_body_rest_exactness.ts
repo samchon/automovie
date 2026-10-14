@@ -2,7 +2,7 @@ import { simulateSoftBody } from "../../../../packages/engine/src/soft/simulateS
 import { softBodyRestConfiguration } from "../../../../packages/engine/src/soft/softBodyRestConfiguration";
 import { softBodyStateDigest } from "../../../../packages/engine/src/soft/softBodyStateDigest";
 import { TestValidator } from "@nestia/e2e";
-import { namedFacts, throwsError } from "../internal/predicates";
+import { namedFacts, nclose, throwsError } from "../internal/predicates";
 import { exactValues, softPanel } from "../internal/softFixtures";
 import { IAutoMovieSoftBodyDomain, IAutoMovieSoftBodyState } from "@automovie/interface";
 /** A panel in free space with no body force and every anchor left where it is. */
@@ -159,8 +159,8 @@ export function test_soft_body_rest_exactness(): void {
         (): boolean =>
           exactValues(softBodyRestConfiguration(gathered), gathered.rest) ===
             false &&
-          softBodyRestConfiguration(gathered)[0] === 2 &&
-          softBodyRestConfiguration(gathered, "drawn")[0] === -3,
+          nclose(softBodyRestConfiguration(gathered)[0], 2, 0) &&
+          nclose(softBodyRestConfiguration(gathered, "drawn")[0], -3, 0),
       ],
       [
         "undeclaredStateThrows",

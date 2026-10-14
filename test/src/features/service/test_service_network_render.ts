@@ -1,5 +1,5 @@
 import { lowerServiceNetwork } from "@automovie/engine";
-import { IAutoMovieMeshGeometry } from "@automovie/interface";
+import { IAutoMovieMeshGeometry, IAutoMovieMesh, IAutoMovieModel, IAutoMovieStageSetPiece, IAutoMovieServiceSegment, IAutoMovieWetZone, IAutoMovieBuiltEnvironment, IAutoMovieServiceNetwork } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import {
@@ -16,9 +16,9 @@ import {
 } from "../internal/serviceFixtures";
 
 /** Extremes of a lowered run's baked triangle mesh, in world metres. */
-const extents = (mesh: number[]) => {
-  const axis = (offset: number) => {
-    const values = mesh.filter((_unused, index) => index % 3 === offset);
+const extents: (mesh: number[]) => Record<"x" | "y" | "z", { min: number; max: number }> = (mesh: number[]): Record<"x" | "y" | "z", { min: number; max: number }> => {
+  const axis: (offset: number) => { min: number; max: number } = (offset: number): { min: number; max: number } => {
+    const values: number[] = mesh.filter((_unused: number, index: number): boolean => index % 3 === offset);
     return { min: Math.min(...values), max: Math.max(...values) };
   };
   return { x: axis(0), y: axis(1), z: axis(2) };
@@ -37,10 +37,9 @@ const extents = (mesh: number[]) => {
  * line the graph was checked against, in world coordinates, with an identity
  * placement that cannot drift from it.
  *
- * It also refuses to draw a network that does not work. Putting a picture of a
- * working installation in front of the reason it does not work is the single
- * failure this whole record exists to prevent, so both validators run first and
- * the first violation is raised by path.
+ * It refuses lowering when structural service or wet-zone validation fails,
+ * raising the first violation by path. Successful lowering produces numerical
+ * mesh records; it does not establish hydraulic operation or a rendered frame.
  *
  * Scenarios:
  *
@@ -55,28 +54,33 @@ const extents = (mesh: number[]) => {
  *    is refused rather than drawn.
  * 5. A graph defect and a wet-zone defect each refuse the drawing, quoting the
  *    path the violation stands at.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls actual service lowering, checks generated model/set records, tube extents and route-ring vertex counts, then verifies invalid section resolution and graph/wet-zone refusals at their owning paths.
+ * @evidence contracts/testing.md#independent-expectations The authored cold run spans x=3.5..8 at y=2.5/z=1 with radius0.025; route points times eight or three section sides fix component counts independently of returned meshes.
+ * @evidence contracts/testing.md#distinguishing-cases Contrasts straight/turning routes, default/coarse section resolution, invalid two-side/fractional requests and graph versus wet-zone failures while checking world-baked identity placement; endpoint ids are sampled, not an exhaustive declaration-order assertion.
+ * @evidence contracts/testing.md#execution-ownership Owns synchronous in-memory bathhouse/network and emitted geometry records through the portable runner; no browser, GPU, screenshot or output file is created, and these numerical mesh checks do not establish visual appearance or live product integration.
  */
-export const test_service_network_render = (): void => {
-  const environment = serviceEnvironment();
-  const network = serviceNetwork();
-  const lowered = lowerServiceNetwork({ network, environment });
+export function test_service_network_render(): void {
+  const environment: IAutoMovieBuiltEnvironment = serviceEnvironment();
+  const network: IAutoMovieServiceNetwork = serviceNetwork();
+  const lowered: ReturnType<typeof lowerServiceNetwork> = lowerServiceNetwork({ network, environment });
 
   TestValidator.equals(
     "every run becomes one generated model and one staged piece",
     namedFacts([
-      ["models", () => (lowered.models ?? []).length === 10],
-      ["pieces", () => (lowered.set ?? []).length === 10],
+      ["models", (): boolean => (lowered.models ?? []).length === 10],
+      ["pieces", (): boolean => (lowered.set ?? []).length === 10],
       [
         "names",
-        () =>
+        (): boolean =>
           (lowered.models ?? [])[0]!.id === "bathhouse-services/cold-run" &&
           (lowered.models ?? [])[9]!.id === "bathhouse-services/air-run",
       ],
       [
         "generated",
-        () =>
+        (): boolean =>
           (lowered.models ?? []).every(
-            (model) =>
+            (model: IAutoMovieModel): boolean =>
               model.origin === "generated" &&
               model.skeleton === null &&
               model.asset === null &&
@@ -86,9 +90,9 @@ export const test_service_network_render = (): void => {
       ],
       [
         "identityPlacement",
-        () =>
+        (): boolean =>
           (lowered.set ?? []).every(
-            (piece) =>
+            (piece: IAutoMovieStageSetPiece): boolean =>
               piece.model === piece.node &&
               vclose(piece.position, { x: 0, y: 0, z: 0 }, 0) &&
               piece.rotation === undefined &&
@@ -106,29 +110,29 @@ export const test_service_network_render = (): void => {
     },
   );
 
-  const coldRun = (
+  const coldRun: IAutoMovieMesh = (
     (lowered.models ?? [])[0]!.parts[0]!.geometry as IAutoMovieMeshGeometry
   ).mesh;
-  const bounds = extents(coldRun.positions);
+  const bounds: ReturnType<typeof extents> = extents(coldRun.positions);
   TestValidator.equals(
     "the swept tube stands on the centre line the graph was checked against",
     namedFacts([
-      ["vertices", () => coldRun.positions.length === 2 * 8 * 3],
-      ["indexed", () => coldRun.indices !== null],
+      ["vertices", (): boolean => coldRun.positions.length === 2 * 8 * 3],
+      ["indexed", (): boolean => coldRun.indices !== null],
       [
         "xSpan",
-        () =>
+        (): boolean =>
           nclose(bounds.x.min, 3.5, 1e-12) && nclose(bounds.x.max, 8, 1e-12),
       ],
       [
         "ySpan",
-        () =>
+        (): boolean =>
           nclose(bounds.y.min, 2.475, 1e-12) &&
           nclose(bounds.y.max, 2.525, 1e-12),
       ],
       [
         "zSpan",
-        () =>
+        (): boolean =>
           nclose(bounds.z.min, 0.975, 1e-12) &&
           nclose(bounds.z.max, 1.025, 1e-12),
       ],
@@ -136,31 +140,31 @@ export const test_service_network_render = (): void => {
     { vertices: true, indexed: true, xSpan: true, ySpan: true, zSpan: true },
   );
 
-  const coldBranch = (
+  const coldBranch: IAutoMovieMesh = (
     (lowered.models ?? [])[1]!.parts[0]!.geometry as IAutoMovieMeshGeometry
   ).mesh;
-  const coarse = lowerServiceNetwork({ network, environment, sides: 3 });
-  const coarseRun = (
+  const coarse: ReturnType<typeof lowerServiceNetwork> = lowerServiceNetwork({ network, environment, sides: 3 });
+  const coarseRun: IAutoMovieMesh = (
     (coarse.models ?? [])[0]!.parts[0]!.geometry as IAutoMovieMeshGeometry
   ).mesh;
   TestValidator.equals(
     "the section rings every route point, at the resolution the caller asked for",
     namedFacts([
-      ["turning", () => coldBranch.positions.length === 3 * 8 * 3],
-      ["coarse", () => coarseRun.positions.length === 2 * 3 * 3],
+      ["turning", (): boolean => coldBranch.positions.length === 3 * 8 * 3],
+      ["coarse", (): boolean => coarseRun.positions.length === 2 * 3 * 3],
       [
         "tooCoarse",
-        () =>
+        (): boolean =>
           throwsError(
-            () => lowerServiceNetwork({ network, environment, sides: 2 }),
+            (): ReturnType<typeof lowerServiceNetwork> => lowerServiceNetwork({ network, environment, sides: 2 }),
             ["needs at least 3 sides"],
           ),
       ],
       [
         "fractional",
-        () =>
+        (): boolean =>
           throwsError(
-            () => lowerServiceNetwork({ network, environment, sides: 4.5 }),
+            (): ReturnType<typeof lowerServiceNetwork> => lowerServiceNetwork({ network, environment, sides: 4.5 }),
             ["needs at least 3 sides"],
           ),
       ],
@@ -173,11 +177,11 @@ export const test_service_network_render = (): void => {
     namedFacts([
       [
         "graphDefect",
-        () =>
+        (): boolean =>
           throwsError(
-            () =>
+            (): ReturnType<typeof lowerServiceNetwork> =>
               lowerServiceNetwork({
-                network: withSegment(network, "cold-run", (run) => ({
+                network: withSegment(network, "cold-run", (run: IAutoMovieServiceSegment): IAutoMovieServiceSegment => ({
                   ...run,
                   penetrations: [],
                 })),
@@ -188,11 +192,11 @@ export const test_service_network_render = (): void => {
       ],
       [
         "zoneDefect",
-        () =>
+        (): boolean =>
           throwsError(
-            () =>
+            (): ReturnType<typeof lowerServiceNetwork> =>
               lowerServiceNetwork({
-                network: withZone(network, "bath-zone", (zone) => ({
+                network: withZone(network, "bath-zone", (zone: IAutoMovieWetZone): IAutoMovieWetZone => ({
                   ...zone,
                   drains: [],
                   slope: 0,
@@ -205,4 +209,4 @@ export const test_service_network_render = (): void => {
     ]),
     { graphDefect: true, zoneDefect: true },
   );
-};
+}

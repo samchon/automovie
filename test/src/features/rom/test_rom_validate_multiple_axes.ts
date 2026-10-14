@@ -5,33 +5,32 @@ import {
 } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
+import { IAutoMovieConstraintViolation } from "@automovie/interface";
 import { joint } from "../internal/fixtures";
 
 /**
- * Each axis is checked independently, so a single joint with several
- * out-of-range axes produces one violation per axis rather than collapsing into
- * one, giving the correction loop a precise, per-axis account of what to fix.
+ * Independent axis faults and a coupled swing fault retain separate correction addresses.
  *
- * Scenario: a shoulder driven to 999° on both flexion and twist files one
- * violation per offending axis. The combined swing cone also fires here, and
- * legitimately so: 999° of flexion composes to 279° of swing, past the
- * shoulder's 180° cone, and a resting abduction axis does not exempt it (#1245:
- * the cone reads a resting axis as the 0 it actually renders). The assertion is
- * on per-axis presence rather than a raw count, so it pins the independence it
- * is about without silently re-encoding the cone's verdict.
+ * Scenarios:
+ * 1. A shoulder at 999-degree flexion and twist produces exactly flexion, swing and twist paths; null abduction contributes zero to the coupled metric, whose periodic representative is 279 degrees.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls actual ROM validation and compares the complete sorted path population, catching collapsed axis faults, an exempted null swing axis or an extra diagnostic.
+ * @evidence contracts/testing.md#independent-expectations Both 999-degree axes exceed the default shoulder intervals; the half-angle cosine representative of 999-degree flexion with zero abduction is 279 degrees, beyond the 180-degree cone. Literal field paths specify the report independently of collector order.
+ * @evidence contracts/testing.md#distinguishing-cases This entry owns simultaneous independent-axis and coupled-cone faults with a resting partner; accepted, single-axis and immobile-zero cases are separate ROM tests.
+ * @evidence contracts/testing.md#execution-ownership The named synchronous entry uses the existing joint fixture and a local collector; no pose renderer, process, native artifact or dynamically registered case participates.
  */
-export const test_rom_validate_multiple_axes = (): void => {
-  const collector = new ViolationCollector();
+export function test_rom_validate_multiple_axes(): void {
+  const collector: ViolationCollector = new ViolationCollector();
   validateJointRom({
     joint: joint("leftUpperArm", { flexion: 999, twist: 999 }),
     constraint: getConstraint("leftUpperArm", null)!,
     path: "$input",
     collector,
   });
-  const paths = collector.items.map((v) => v.path);
+  const paths: string[] = collector.items.map((v: IAutoMovieConstraintViolation): string => v.path);
   TestValidator.equals(
     "each bad axis files its own violation, and the swing cone files its own",
-    [...paths].sort((a, b) => (a < b ? -1 : a > b ? 1 : 0)),
+    [...paths].sort((a: string, b: string): number => (a < b ? -1 : a > b ? 1 : 0)),
     ["$input.flexion", "$input.swing", "$input.twist"],
   );
-};
+}

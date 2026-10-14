@@ -1,7 +1,7 @@
 import { simulateSoftBody } from "../../../../packages/engine/src/soft/simulateSoftBody";
 import { IAutoMovieSoftBodyDomain, IAutoMovieSoftBodyState } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-import { namedFacts } from "../internal/predicates";
+import { namedFacts, nclose } from "../internal/predicates";
 import { softPanel } from "../internal/softFixtures";
 const COLUMNS: number = 5;
 const ROWS: number = 4;
@@ -63,9 +63,9 @@ const reflected: (values: number[]) => boolean = (values: number[]): boolean => 
     for (let column: number = 0; column < COLUMNS; ++column) {
       const here: number = (row * COLUMNS + column) * 3;
       const there: number = (row * COLUMNS + (COLUMNS - 1 - column)) * 3;
-      if (values[there] !== -values[here]) return false;
-      if (values[there + 1] !== values[here + 1]) return false;
-      if (values[there + 2] !== values[here + 2]) return false;
+      if (!nclose(values[there], -values[here], 0)) return false;
+      if (!nclose(values[there + 1], values[here + 1], 0)) return false;
+      if (!nclose(values[there + 2], values[here + 2], 0)) return false;
     }
   return true;
 };
@@ -87,7 +87,7 @@ const reflected: (values: number[]) => boolean = (values: number[]): boolean => 
 
  *
  * @evidence contracts/testing.md#behavioral-verification Mirror partners and the centre column expose changed neighbour/fold ordering; motion and contact facts prevent untouched rest from satisfying the property, while an asymmetric anchor must break it.
- * @evidence contracts/testing.md#independent-expectations Geometric reflection x->-x with equal y/z follows the authored symmetric field independently of computed trajectory values. The finite 128-step witness verifies local arithmetic ordering, not every possible duration or cross-host bit identity.
+ * @evidence contracts/testing.md#independent-expectations Geometric reflection x->-x with equal y/z follows the authored symmetric field independently of computed trajectory values. Zero-tolerance nclose preserves exact finite numeric equality, with Object.is additionally distinguishing centre-column signed zero; this 128-step witness proves neither every duration nor cross-host bit identity.
  * @evidence contracts/testing.md#distinguishing-cases Odd-width centre particles, gravity/drag/gust, paired anchors and symmetric contacts exercise the active fold; the asymmetric-anchor control distinguishes intended preserved symmetry from a forced output mirror.
  * @evidence contracts/testing.md#execution-ownership Portable CPU unit discovered as test_soft_body_mirror_symmetry; the exported test owns both symmetric and broken-symmetry cases and installs no visual/GPU consumer.
  */
@@ -95,7 +95,7 @@ export function test_soft_body_mirror_symmetry(): void {
   const domain: IAutoMovieSoftBodyDomain = symmetric();
   const solved: IAutoMovieSoftBodyState = simulateSoftBody(domain, 128);
   TestValidator.equals(
-    "a symmetric panel stays bit-exactly symmetric",
+    "a symmetric panel stays exactly symmetric",
     namedFacts([
       ["positions", (): boolean => reflected(solved.positions)],
       ["velocities", (): boolean => reflected(solved.velocities)],

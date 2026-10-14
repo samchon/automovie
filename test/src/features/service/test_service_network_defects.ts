@@ -1,11 +1,19 @@
-import { serviceSystemLoad, validateServiceNetwork } from "@automovie/engine";
+import { validateServiceNetwork } from "@automovie/engine";
 import {
   AutoMovieServiceDiscipline,
   AutoMovieServiceMedium,
   AutoMovieServiceUnit,
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieServiceNetwork,
+  IAutoMovieServiceNode,
+  IAutoMovieServicePort,
+  IAutoMovieServiceSystem,
+  IAutoMovieValidation,
+  IAutoMovieConstraintViolation,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { assertServiceNetworkSpatialDefects } from "../internal/assertServiceNetworkSpatialDefects";
 import {
   hasViolation,
   namedFacts,
@@ -22,29 +30,30 @@ import {
   system,
   withNode,
   withPort,
-  withSegment,
   withSystem,
 } from "../internal/serviceFixtures";
 
-const environment = serviceEnvironment();
-const refuse = (network = serviceNetwork()) =>
+const environment: IAutoMovieBuiltEnvironment = serviceEnvironment();
+const refuse: (network?: IAutoMovieServiceNetwork) => IAutoMovieValidation = (network: IAutoMovieServiceNetwork = serviceNetwork()): IAutoMovieValidation =>
   validateServiceNetwork({ network, environment });
 
 /**
- * Every way a distribution graph can be wrong about itself, one property at a
- * time.
+ * Selected header, identity, vocabulary, load and spatial defects report their
+ * owning field rather than an unrelated network property.
  *
- * The clean fixture is the adjacent case for all of it: each network below
- * differs from a validated one by exactly the property under test, so a rule
- * that over-matches shows up as a defect reported where nothing changed, and
- * one that under-matches shows up as silence. That is why the counts are
- * asserted next to the paths — a validator that fires twice for one mistake
- * sends an author looking for a second one that does not exist.
+ * Cases alter the shared bathhouse design, sometimes changing several fields
+ * together. Selected exact counts distinguish secondary accusations from the
+ * intended findings; the topology test owns clean-network admission.
  *
  * Dangling and unreachable are deliberately different findings. A port nothing
  * joins is a stub the author forgot to run; a node the root cannot get to is a
  * branch that was run and then orphaned. Reporting either as the other would
  * point at the wrong end of the mistake.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Runs actual network validation and directional load measurement over selected header, identity, vocabulary, medium/unit, stub, capacity, root, spatial, operating-state and numeric defects; kind/path, selected exact counts and overshoots expose missing or unrelated findings.
+ * @evidence contracts/testing.md#independent-expectations Authored graph references and schema tables supply diagnostic paths; inlet .0002, waste outlet .001 and capacities .01/.0005 yield independent load/overshoot expectations through nclose. Presence-only assertions permit additional findings where no count is asserted.
+ * @evidence contracts/testing.md#distinguishing-cases Preserves all fifteen numbered groups, both data/control tables, supply/drain direction, branch deletion, nonfinite placement without extra room accusation and unmeasurable capacity without load comparison; clean-network admission and detailed run/seal geometry belong to adjacent service tests.
+ * @evidence contracts/testing.md#execution-ownership The named discoverable portable unit owns early cases and calls assertServiceNetworkSpatialDefects for the original later groups with the same clean network and refusal closure; no extra registration, renderer, native host or hydraulic/electrical simulation runs.
  *
  * Scenarios:
  *
@@ -83,10 +92,10 @@ const refuse = (network = serviceNetwork()) =>
  *     a section is required, and a point nobody can read is not additionally
  *     accused of standing in the wrong room.
  */
-export const test_service_network_defects = (): void => {
-  const clean = serviceNetwork();
+export function test_service_network_defects(): void {
+  const clean: IAutoMovieServiceNetwork = serviceNetwork();
 
-  const header = refuse({
+  const header: IAutoMovieValidation = refuse({
     ...clean,
     id: "  ",
     version: 2 as unknown as 1,
@@ -104,11 +113,11 @@ export const test_service_network_defects = (): void => {
     { id: true, version: true, units: true, environment: true },
   );
 
-  const identity = refuse({
+  const identity: IAutoMovieValidation = refuse({
     ...clean,
     systems: [...clean.systems, system({ id: "cold" })],
     nodes: [
-      ...clean.nodes.map((entry) =>
+      ...clean.nodes.map((entry: IAutoMovieServiceNode): IAutoMovieServiceNode =>
         entry.id === "floor-gully"
           ? {
               ...entry,
@@ -158,10 +167,10 @@ export const test_service_network_defects = (): void => {
     },
   );
 
-  const vocabulary = refuse(
+  const vocabulary: IAutoMovieValidation = refuse(
     withPort(
       withNode(
-        withSystem(clean, "cold", (entry) => ({
+        withSystem(clean, "cold", (entry: IAutoMovieServiceSystem): IAutoMovieServiceSystem => ({
           ...entry,
           discipline: "acoustics" as unknown as "plumbing",
           medium: "steam" as unknown as "cold-water",
@@ -169,10 +178,10 @@ export const test_service_network_defects = (): void => {
           capacity: 0,
         })),
         "cold-main",
-        (entry) => ({ ...entry, kind: "gizmo" as unknown as "source" }),
+        (entry: IAutoMovieServiceNode): IAutoMovieServiceNode => ({ ...entry, kind: "gizmo" as unknown as "source" }),
       ),
       "basin-cold",
-      (entry) => ({
+      (entry: IAutoMovieServicePort): IAutoMovieServicePort => ({
         ...entry,
         direction: "sideways" as unknown as "in",
       }),
@@ -218,15 +227,15 @@ export const test_service_network_defects = (): void => {
     },
   );
 
-  const mismatch = refuse(
-    withSystem(clean, "cold", (entry) => ({
+  const mismatch: IAutoMovieValidation = refuse(
+    withSystem(clean, "cold", (entry: IAutoMovieServiceSystem): IAutoMovieServiceSystem => ({
       ...entry,
       medium: "supply-air",
       unit: "watt",
     })),
   );
-  const wrongUnit = refuse(
-    withSystem(clean, "lighting", (entry) => ({
+  const wrongUnit: IAutoMovieValidation = refuse(
+    withSystem(clean, "lighting", (entry: IAutoMovieServiceSystem): IAutoMovieServiceSystem => ({
       ...entry,
       unit: "bit-per-second",
     })),
@@ -259,25 +268,25 @@ export const test_service_network_defects = (): void => {
     },
   );
 
-  const circuit = (
+  const circuit: (discipline: AutoMovieServiceDiscipline, medium: AutoMovieServiceMedium, unit: AutoMovieServiceUnit) => IAutoMovieValidation = (
     discipline: AutoMovieServiceDiscipline,
     medium: AutoMovieServiceMedium,
     unit: AutoMovieServiceUnit,
-  ) =>
+  ): IAutoMovieValidation =>
     refuse(
       withPort(
         withPort(
-          withSystem(clean, "lighting", (entry) => ({
+          withSystem(clean, "lighting", (entry: IAutoMovieServiceSystem): IAutoMovieServiceSystem => ({
             ...entry,
             discipline,
             medium,
             unit,
           })),
           "panel-out",
-          (entry) => ({ ...entry, medium, unit }),
+          (entry: IAutoMovieServicePort): IAutoMovieServicePort => ({ ...entry, medium, unit }),
         ),
         "bath-light-in",
-        (entry) => ({ ...entry, medium, unit }),
+        (entry: IAutoMovieServicePort): IAutoMovieServicePort => ({ ...entry, medium, unit }),
       ),
     );
   TestValidator.equals(
@@ -296,7 +305,7 @@ export const test_service_network_defects = (): void => {
       [
         "dataRefusesAControlSignal",
         () => {
-          const wrong = circuit("data", "control-signal", "dimensionless");
+          const wrong: IAutoMovieValidation = circuit("data", "control-signal", "dimensionless");
           return (
             hasViolation(wrong, "type", "$input.systems[4].medium") &&
             violationCount(wrong) === 1
@@ -306,7 +315,7 @@ export const test_service_network_defects = (): void => {
       [
         "controlRefusesABitRate",
         () => {
-          const wrong = circuit("control", "control-signal", "bit-per-second");
+          const wrong: IAutoMovieValidation = circuit("control", "control-signal", "bit-per-second");
           return (
             hasViolation(wrong, "type", "$input.systems[4].unit") &&
             violationCount(wrong) === 1
@@ -322,14 +331,14 @@ export const test_service_network_defects = (): void => {
     },
   );
 
-  const portMedium = refuse(
-    withPort(clean, "basin-cold", (entry) => ({
+  const portMedium: IAutoMovieValidation = refuse(
+    withPort(clean, "basin-cold", (entry: IAutoMovieServicePort): IAutoMovieServicePort => ({
       ...entry,
       medium: "hot-water",
     })),
   );
-  const portUnit = refuse(
-    withPort(clean, "basin-cold", (entry) => ({ ...entry, unit: "watt" })),
+  const portUnit: IAutoMovieValidation = refuse(
+    withPort(clean, "basin-cold", (entry: IAutoMovieServicePort): IAutoMovieServicePort => ({ ...entry, unit: "watt" })),
   );
   TestValidator.equals(
     "one port disagreeing with its system is caught without accusing the system",
@@ -352,8 +361,8 @@ export const test_service_network_defects = (): void => {
     { medium: true, unit: true },
   );
 
-  const stub = refuse(
-    withNode(clean, "bath-valve", (entry) => ({
+  const stub: IAutoMovieValidation = refuse(
+    withNode(clean, "bath-valve", (entry: IAutoMovieServiceNode): IAutoMovieServiceNode => ({
       ...entry,
       ports: [
         ...entry.ports,
@@ -375,8 +384,8 @@ export const test_service_network_defects = (): void => {
     { stub: true, alone: true },
   );
 
-  const overloaded = refuse(
-    withPort(clean, "basin-cold", (entry) => ({ ...entry, demand: 0.02 })),
+  const overloaded: IAutoMovieValidation = refuse(
+    withPort(clean, "basin-cold", (entry: IAutoMovieServicePort): IAutoMovieServicePort => ({ ...entry, demand: 0.02 })),
   );
   TestValidator.equals(
     "declared demand beyond declared capacity is refused with its overshoot",
@@ -389,7 +398,7 @@ export const test_service_network_defects = (): void => {
         "overshoot",
         () =>
           overloaded.success === false &&
-          overloaded.violations.some((item) =>
+          overloaded.violations.some((item: IAutoMovieConstraintViolation): boolean =>
             nclose(item.overshoot ?? -1, 0.01, 1e-12),
           ),
       ],
@@ -402,363 +411,5 @@ export const test_service_network_defects = (): void => {
     { reported: true, overshoot: true, alone: true },
   );
 
-  const discharging = refuse(
-    withSystem(clean, "waste", (entry) => ({ ...entry, capacity: 0.0005 })),
-  );
-  TestValidator.equals(
-    "a stack is loaded by what discharges into it, not by what it receives",
-    namedFacts([
-      [
-        "supplyReadsItsInlets",
-        () =>
-          nclose(
-            serviceSystemLoad({ network: clean, system: clean.systems[0]! }),
-            0.0002,
-            1e-15,
-          ),
-      ],
-      [
-        "stackReadsItsOutlets",
-        () =>
-          nclose(
-            serviceSystemLoad({ network: clean, system: clean.systems[2]! }),
-            0.001,
-            1e-15,
-          ),
-      ],
-      [
-        "refused",
-        () => hasViolation(discharging, "range", "$input.systems[2].capacity"),
-      ],
-      [
-        "overshoot",
-        () =>
-          discharging.success === false &&
-          discharging.violations.some((item) =>
-            nclose(item.overshoot ?? -1, 0.0005, 1e-15),
-          ),
-      ],
-      ["alone", () => violationCount(discharging) === 1],
-    ]),
-    {
-      supplyReadsItsInlets: true,
-      stackReadsItsOutlets: true,
-      refused: true,
-      overshoot: true,
-      alone: true,
-    },
-  );
-
-  const strayPort = refuse(
-    withSegment(
-      withPort(clean, "bath-light-in", (entry) => ({
-        ...entry,
-        position: { x: 8.2, y: 2.95, z: 3 },
-      })),
-      "lighting-run",
-      (run) => ({
-        ...run,
-        route: [
-          { x: 8.5, y: 2.95, z: 3 },
-          { x: 8.2, y: 2.95, z: 3 },
-        ],
-        penetrations: [],
-      }),
-    ),
-  );
-  TestValidator.equals(
-    "a port may not stand in a room its own fitting is not in",
-    namedFacts([
-      [
-        "refused",
-        () =>
-          hasViolation(strayPort, "type", "$input.nodes[13].ports[0].position"),
-      ],
-      [
-        "named",
-        () =>
-          strayPort.success === false &&
-          strayPort.violations.some((item) =>
-            item.expected.includes(
-              'service port "bath-light-in" of node "bath-light" stands outside logical space "bath"',
-            ),
-          ),
-      ],
-      [
-        "nodeUnaccused",
-        () =>
-          strayPort.success === false &&
-          strayPort.violations.every(
-            (item) => item.path !== "$input.nodes[13].position",
-          ),
-      ],
-      [
-        "onlyDefect",
-        () =>
-          strayPort.success === false &&
-          strayPort.violations.filter((item) => item.severity === "error")
-            .length === 1,
-      ],
-    ]),
-    { refused: true, named: true, nodeUnaccused: true, onlyDefect: true },
-  );
-
-  const orphan = refuse({
-    ...clean,
-    segments: clean.segments.filter((entry) => entry.id !== "cold-branch"),
-  });
-  TestValidator.equals(
-    "deleting one branch leaves two stubs and one orphan, and nothing else",
-    namedFacts([
-      [
-        "emitterStub",
-        () => hasViolation(orphan, "type", "$input.nodes[8].ports[1]"),
-      ],
-      [
-        "consumerStub",
-        () => hasViolation(orphan, "type", "$input.nodes[9].ports[0]"),
-      ],
-      ["orphan", () => hasViolation(orphan, "type", "$input.nodes[9]")],
-      [
-        "exactly",
-        () => orphan.success === false && orphan.violations.length === 3,
-      ],
-    ]),
-    { emitterStub: true, consumerStub: true, orphan: true, exactly: true },
-  );
-
-  const missingRoot = refuse(
-    withSystem(clean, "cold", (entry) => ({ ...entry, root: "nowhere" })),
-  );
-  const foreignRoot = refuse(
-    withSystem(clean, "cold", (entry) => ({ ...entry, root: "floor-gully" })),
-  );
-  const receivingRoot = refuse(
-    withSystem(clean, "cold", (entry) => ({ ...entry, root: "basin" })),
-  );
-  const emittingRoot = refuse(
-    withSystem(clean, "waste", (entry) => ({ ...entry, root: "floor-gully" })),
-  );
-  TestValidator.equals(
-    "a root must exist, belong to its system, and face the way the flow does",
-    namedFacts([
-      [
-        "missing",
-        () => hasViolation(missingRoot, "type", "$input.systems[0].root"),
-      ],
-      [
-        "foreign",
-        () => hasViolation(foreignRoot, "type", "$input.systems[0].root"),
-      ],
-      [
-        "receiving",
-        () => hasViolation(receivingRoot, "type", "$input.systems[0].root"),
-      ],
-      [
-        "emitting",
-        () => hasViolation(emittingRoot, "type", "$input.systems[2].root"),
-      ],
-    ]),
-    { missing: true, foreign: true, receiving: true, emitting: true },
-  );
-
-  const placement = refuse(
-    withNode(clean, "basin", (entry) => ({
-      ...entry,
-      space: "attic",
-      element: "ghost",
-    })),
-  );
-  const outside = refuse(
-    withNode(clean, "basin", (entry) => ({
-      ...entry,
-      position: { x: 9, y: 0.9, z: 1 },
-    })),
-  );
-  TestValidator.equals(
-    "a node must name a real space and element, and stand inside that space",
-    namedFacts([
-      ["space", () => hasViolation(placement, "type", "$input.nodes[9].space")],
-      [
-        "element",
-        () => hasViolation(placement, "type", "$input.nodes[9].element"),
-      ],
-      [
-        "outside",
-        () => hasViolation(outside, "type", "$input.nodes[9].position"),
-      ],
-      [
-        "outsideAlone",
-        () => outside.success === false && outside.violations.length === 1,
-      ],
-    ]),
-    { space: true, element: true, outside: true, outsideAlone: true },
-  );
-
-  const state = refuse(
-    withNode(
-      withNode(clean, "bath-valve", (entry) => ({
-        ...entry,
-        state: { name: "   ", opening: 1.5 },
-      })),
-      "ahu",
-      (entry) => ({
-        ...entry,
-        maintenance: {
-          min: { x: 0, y: 0, z: 0 },
-          max: { x: 0, y: Number.NaN, z: 1 },
-        },
-      }),
-    ),
-  );
-  TestValidator.equals(
-    "operating state and access volumes are range-checked",
-    namedFacts([
-      ["name", () => hasViolation(state, "type", "$input.nodes[8].state.name")],
-      [
-        "opening",
-        () => hasViolation(state, "range", "$input.nodes[8].state.opening"),
-      ],
-      [
-        "collapsed",
-        () => hasViolation(state, "range", "$input.nodes[5].maintenance.max.x"),
-      ],
-      [
-        "nonFinite",
-        () => hasViolation(state, "range", "$input.nodes[5].maintenance.max.y"),
-      ],
-    ]),
-    { name: true, opening: true, collapsed: true, nonFinite: true },
-  );
-
-  const numbers = refuse(
-    withPort(
-      withNode(clean, "basin", (entry) => ({
-        ...entry,
-        position: { x: Number.NaN, y: 0.9, z: 1 },
-      })),
-      "basin-cold",
-      (entry) => ({
-        ...entry,
-        demand: -1,
-        section: 0,
-        position: { x: 1, y: Number.POSITIVE_INFINITY, z: 1 },
-      }),
-    ),
-  );
-  TestValidator.equals(
-    "non-finite and negative numbers are refused wherever a real one is required",
-    namedFacts([
-      [
-        "nodePosition",
-        () => hasViolation(numbers, "range", "$input.nodes[9].position.x"),
-      ],
-      [
-        "demand",
-        () => hasViolation(numbers, "range", "$input.nodes[9].ports[0].demand"),
-      ],
-      [
-        "section",
-        () =>
-          hasViolation(numbers, "range", "$input.nodes[9].ports[0].section"),
-      ],
-      [
-        "portPosition",
-        () =>
-          hasViolation(numbers, "range", "$input.nodes[9].ports[0].position.y"),
-      ],
-      [
-        "nodeNotAlsoEvicted",
-        () => !hasViolation(numbers, "type", "$input.nodes[9].position"),
-      ],
-      [
-        "portNotAlsoEvicted",
-        () =>
-          !hasViolation(numbers, "type", "$input.nodes[9].ports[0].position"),
-      ],
-    ]),
-    {
-      nodePosition: true,
-      demand: true,
-      section: true,
-      portPosition: true,
-      nodeNotAlsoEvicted: true,
-      portNotAlsoEvicted: true,
-    },
-  );
-
-  const orphanPort = refuse(
-    withPort(clean, "basin-cold", (entry) => ({
-      ...entry,
-      id: "   ",
-      system: "steam",
-      demand: Number.NaN,
-    })),
-  );
-  const sleeveShape = refuse({
-    ...clean,
-    penetrations: clean.penetrations.map((entry, index) =>
-      index === 0
-        ? { ...entry, position: { x: Number.NaN, y: 2.5, z: 1 } }
-        : index === 2
-          ? { ...entry, radius: 0 }
-          : entry,
-    ),
-  });
-  const unmeasurable = refuse(
-    withSystem(clean, "cold", (entry) => ({
-      ...entry,
-      capacity: Number.NaN,
-    })),
-  );
-  TestValidator.equals(
-    "a port on no system, a shapeless sleeve and an unmeasurable capacity",
-    namedFacts([
-      [
-        "portSystem",
-        () =>
-          hasViolation(orphanPort, "type", "$input.nodes[9].ports[0].system"),
-      ],
-      [
-        "portId",
-        () => hasViolation(orphanPort, "type", "$input.nodes[9].ports[0].id"),
-      ],
-      [
-        "nonFiniteDemand",
-        () =>
-          hasViolation(orphanPort, "range", "$input.nodes[9].ports[0].demand"),
-      ],
-      [
-        "sleevePosition",
-        () =>
-          hasViolation(
-            sleeveShape,
-            "range",
-            "$input.penetrations[0].position.x",
-          ),
-      ],
-      [
-        "sleeveRadius",
-        () =>
-          hasViolation(sleeveShape, "range", "$input.penetrations[2].radius"),
-      ],
-      [
-        "capacityRefused",
-        () =>
-          hasViolation(unmeasurable, "range", "$input.systems[0].capacity") &&
-          unmeasurable.success === false &&
-          unmeasurable.violations.every(
-            (item) => !item.expected.includes("of declared demand against"),
-          ),
-      ],
-    ]),
-    {
-      portSystem: true,
-      portId: true,
-      nonFiniteDemand: true,
-      sleevePosition: true,
-      sleeveRadius: true,
-      capacityRefused: true,
-    },
-  );
-};
+  assertServiceNetworkSpatialDefects(clean, refuse);
+}

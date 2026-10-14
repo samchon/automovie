@@ -3,6 +3,7 @@ import {
   clampJointRom,
   restRelativeConstraint,
   validateJointRom,
+  IAutoMovieRestFrame,
 } from "@automovie/engine";
 import { IAutoMovieJointConstraint } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -19,57 +20,47 @@ const CLINICAL_SHOULDER: IAutoMovieJointConstraint = {
 };
 
 /** The rig's rest frame: the shoulder sits at 30° abduction, this side +. */
-const FRAME = { abduction: { sign: 1 as const, neutral: 30 } };
+const FRAME: IAutoMovieRestFrame = { abduction: { sign: 1, neutral: 30 } };
 
-const passesCone = (
+const passesCone: (j: ReturnType<typeof joint>, constraint: IAutoMovieJointConstraint) => boolean = (
   j: ReturnType<typeof joint>,
   constraint: IAutoMovieJointConstraint,
 ): boolean => {
-  const collector = new ViolationCollector();
+  const collector: ViolationCollector = new ViolationCollector();
   validateJointRom({ joint: j, constraint, path: "$input", collector });
   return collector.items.length === 0;
 };
 
 /**
- * The swing cone must survive rest-frame reconciliation.
- * `restRelativeConstraint` shifts each per-axis range into the rig's
- * rest-relative space; if it dropped `swingDeg` (the bug), the reconciled
- * ball-joint constraint would carry no cone and
- * `validateJointRom`/`clampJointRom` (which gate the cone on `swingDeg !=
- * null`) would silently stop bounding the corner a per-axis box over-permits.
- * This is exactly the shoulder, the one bone that carries a rest frame.
+ * Preserve the existing rest-relative swing policy through frame reconciliation, then observe its detection and clamp behavior. The unchanged cap is a policy, not proof that clinical swing is invariant under neutral shifts.
  *
- * Scenarios (all on the RECONCILED constraint, not the clinical one):
+ * Scenarios:
  *
- * 1. The cone half-angle carries through the shift unchanged (100°), while the
- *    framed abduction range actually shifts (proving reconciliation ran).
- * 2. A rest-relative corner pose (90°+90° = 120° of swing), inside both shifted
- *    per-axis boxes, is flagged once on the `.swing` path, overshoot 20°. On
- *    the swingDeg-dropping code this pose passed clean.
- * 3. `clampJointRom` against the reconciled constraint pulls the corner straight
- *    back onto the cone (ratio preserved), and the result now validates.
+ * 1. The 100-degree policy survives while framed abduction becomes [-210,150].
+ * 2. A rest-relative 90/90-degree corner lies inside both axis intervals but reports one swing fault with 20-degree overshoot.
+ * 3. Clamping with the reconciled constraint reduces the corner, preserves its one-to-one direction and yields a pose that validates.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Reconciles a framed constraint, detects its corner swing and clamps that same pose, catching a dropped cap or a clamp that leaves this corner outside it.
+ * @evidence contracts/testing.md#independent-expectations Subtracting the 30-degree neutral yields [-210,150]; orthogonal 90-degree half-angle cosines give 120-degree swing and a 20-degree overshoot beyond the 100-degree policy. Equal initial axes and a zero anchor imply a preserved one-to-one direction; post-clamp validation is shared-owner consistency rather than an independent general projection oracle.
+ * @evidence contracts/testing.md#distinguishing-cases The shifted interval, over-cone corner and accepted projected neighbor distinguish missing reconciliation, missing coupling and failed clamp; periodic multi-turn projection and malformed frames are outside this entry.
+ * @evidence contracts/testing.md#execution-ownership The named synchronous unit owns its local constraint, pose and collector and reuses the existing joint fixture; no Human asset, native artifact or renderer is loaded.
  */
-export const test_rom_rest_frame_swing_cone = (): void => {
-  const reconciled = restRelativeConstraint(CLINICAL_SHOULDER, FRAME);
+export function test_rom_rest_frame_swing_cone(): void {
+  const reconciled: IAutoMovieJointConstraint = restRelativeConstraint(CLINICAL_SHOULDER, FRAME);
 
   // 1. cone preserved through the shift; the framed axis genuinely shifted
-  TestValidator.equals(
+  TestValidator.predicate(
     "cone survives reconciliation",
-    reconciled.swingDeg,
-    100,
+    nclose(reconciled.swingDeg!, 100, 0),
   );
-  TestValidator.equals(
+  TestValidator.predicate(
     "abduction shifted by the rest frame",
-    reconciled.abduction,
-    {
-      min: -210,
-      max: 150,
-    },
+    reconciled.abduction !== null && nclose(reconciled.abduction.min, -210, 0) && nclose(reconciled.abduction.max, 150, 0),
   );
 
   // 2. a corner pose past the cone is caught BY the reconciled constraint
-  const corner = joint("leftUpperArm", { flexion: 90, abduction: 90 });
-  const collector = new ViolationCollector();
+  const corner: ReturnType<typeof joint> = joint("leftUpperArm", { flexion: 90, abduction: 90 });
+  const collector: ViolationCollector = new ViolationCollector();
   validateJointRom({
     joint: corner,
     constraint: reconciled,
@@ -91,7 +82,7 @@ export const test_rom_rest_frame_swing_cone = (): void => {
   );
 
   // 3. clamp against the reconciled constraint pulls it back onto the cone
-  const clamped = clampJointRom(corner, reconciled);
+  const clamped: ReturnType<typeof joint> = clampJointRom(corner, reconciled);
   TestValidator.predicate("flexion pulled in below 90", clamped.flexion! < 90);
   TestValidator.predicate(
     "1:1 swing direction preserved",
@@ -101,4 +92,4 @@ export const test_rom_rest_frame_swing_cone = (): void => {
     "clamped pose now passes the reconciled cone",
     passesCone(clamped, reconciled),
   );
-};
+}

@@ -4,11 +4,13 @@ import {
   validateJointRom,
 } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
+import { IAutoMovieConstraintViolation } from "@automovie/interface";
 
 import { joint } from "../internal/fixtures";
+import { nclose } from "../internal/nclose";
 
-const romItems = (axes: Parameters<typeof joint>[1]) => {
-  const collector = new ViolationCollector();
+const romItems: (axes: Parameters<typeof joint>[1]) => IAutoMovieConstraintViolation[] = (axes: Parameters<typeof joint>[1]): IAutoMovieConstraintViolation[] => {
+  const collector: ViolationCollector = new ViolationCollector();
   validateJointRom({
     joint: joint("leftLowerArm", axes),
     constraint: getConstraint("leftLowerArm", null)!,
@@ -19,35 +21,34 @@ const romItems = (axes: Parameters<typeof joint>[1]) => {
 };
 
 /**
- * An angle outside a joint's `[min, max]` is flagged on exactly the offending
- * axis: the verifier catching the "physically impossible" poses raw LLM
- * emission produces, which is the heart of automovie's differentiator.
+ * Report angles outside the default elbow interval on the offending axis with their degree distance from the nearest bound.
  *
  * Scenarios:
  *
- * 1. An elbow at 175° flexion exceeds the 150° maximum: one violation, reported on
- *    the flexion axis.
- * 2. An elbow at −10° flexion falls below the 0° minimum (a hyperextension the
- *    joint cannot do): one violation.
+ * 1. An elbow at 175-degree flexion exceeds the 150-degree maximum and reports one flexion fault.
+ * 2. Negative ten-degree flexion falls below the zero minimum and reports one fault.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls ROM validation above and below the default elbow interval, requiring one located fault and the correct degree distance on each side.
+ * @evidence contracts/testing.md#independent-expectations The declared [0,150] interval gives 175-150=25 and 0-(-10)=10 degree overshoots. These are arithmetic expectations of the conventional default policy, not a population-specific clinical certificate.
+ * @evidence contracts/testing.md#distinguishing-cases Both upper and lower refusals preserve their counts and overshoots; accepted interior and immobile-axis behavior are separate ROM entries.
+ * @evidence contracts/testing.md#execution-ownership The named synchronous unit owns two collector populations through a private helper and the existing joint fixture; no renderer, process or native artifact participates.
  */
-export const test_rom_validate_over_range = (): void => {
-  const over = romItems({ flexion: 175 });
+export function test_rom_validate_over_range(): void {
+  const over: IAutoMovieConstraintViolation[] = romItems({ flexion: 175 });
   TestValidator.equals("one violation for 175° flexion", over.length, 1);
   TestValidator.predicate(
     "flagged on flexion axis",
     over[0]!.path.endsWith(".flexion"),
   );
-  TestValidator.equals(
+  TestValidator.predicate(
     "overshoot is degrees past the max (175 − 150)",
-    over[0]!.overshoot,
-    25,
+    nclose(over[0]!.overshoot!, 25, 0),
   );
 
-  const under = romItems({ flexion: -10 });
+  const under: IAutoMovieConstraintViolation[] = romItems({ flexion: -10 });
   TestValidator.equals("one violation for -10° (below min 0)", under.length, 1);
-  TestValidator.equals(
+  TestValidator.predicate(
     "overshoot is degrees below the min (0 − (−10))",
-    under[0]!.overshoot,
-    10,
+    nclose(under[0]!.overshoot!, 10, 0),
   );
-};
+}

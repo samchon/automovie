@@ -70,7 +70,7 @@ const still: (id: string) => Boundary = (id: string): Boundary => ({
  *
  * @evidence contracts/testing.md#behavioral-verification Actual list admission, moving-boundary declaration and shot selection outputs catch lost order, ambiguous identities, sparse-slot acceptance and static/live contradictions; no cloth solve or host installation is inferred.
  * @evidence contracts/testing.md#independent-expectations Authored list order gives slots 0 and 2 with ceiling3 when ghost is absent from the shot; every selected slot must contain a trimmed string, so holes must refuse at their own index. Expected messages and ids come from declared admission rules.
- * @evidence contracts/testing.md#distinguishing-cases Preserve bound/capsule/static domains, ordered/empty lists, malformed/duplicate ids, absent shot selections and contradictory live declarations, adding whole/trailing holes beside ordinary admitted lists.
+ * @evidence contracts/testing.md#distinguishing-cases Bound/capsule/static domains, ordered/empty lists, malformed/duplicate ids, absent shot selections, contradictory live declarations and whole/trailing holes distinguish declaration admission from ordinary selected slots.
  * @evidence contracts/testing.md#execution-ownership The normal runner discovers test_soft_body_live_wearable_selection as a portable CPU unit; authored metadata and actual selector functions own all assertions. Browser adoption, GPU behavior and cross-OS execution remain unproven here.
  */
 export function test_soft_body_live_wearable_selection(): void {

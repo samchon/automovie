@@ -6,7 +6,7 @@ import {
   serviceSegmentSpanBounds,
   validateServiceNetwork,
 } from "@automovie/engine";
-import { IAutoMoviePropBox } from "@automovie/interface";
+import { IAutoMoviePropBox, IAutoMovieBuiltEnvironment, IAutoMovieServiceNetwork, IAutoMovieServiceNode, IAutoMovieServicePort, IAutoMovieServiceSegment, IAutoMovieServicePenetration, IAutoMovieValidation, IAutoMovieConstraintViolation, IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import {
@@ -26,7 +26,7 @@ import {
   withSleeve,
 } from "../internal/serviceFixtures";
 
-const box = (
+const box: (min: [number, number, number], max: [number, number, number]) => IAutoMoviePropBox = (
   min: [number, number, number],
   max: [number, number, number],
 ): IAutoMoviePropBox => ({
@@ -64,24 +64,29 @@ const box = (
  *    plainly overlap, which is what keeps a tee's three legs quiet.
  * 7. A run crossing an equipment access volume it is not joined to is refused, and
  *    the run feeding that equipment is not.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls actual overall/span/access bounds, obstruction and clash queries, then validates authored lane and maintenance intrusions with exact source paths and single-defect counts.
+ * @evidence contracts/testing.md#independent-expectations Literal route extrema plus radii0.025/0.02 and translated equipment corners supply bounds at 1e-12 tolerance; independent interior/face-contact boxes and authored source ids define obstruction/clash expectations.
+ * @evidence contracts/testing.md#distinguishing-cases Contrasts straight/turning/empty/singleton routes, present/absent access boxes, strict interior versus face contact, one/two/no obstructions, shared-fitting exemption and unrelated runs crossing a maintenance volume.
+ * @evidence contracts/testing.md#execution-ownership Owns synchronous portable bathhouse/network metadata and invokes conservative AABB-based engine checks; no mesh rendering or physical installation is observed, and diagonal circular interference or distant overlap of shared-node runs is not established by these orthogonal cases.
  */
-export const test_service_network_geometry = (): void => {
-  const environment = serviceEnvironment();
-  const network = serviceNetwork();
-  const coldRun = network.segments[0]!;
-  const coldBranch = network.segments[1]!;
+export function test_service_network_geometry(): void {
+  const environment: IAutoMovieBuiltEnvironment = serviceEnvironment();
+  const network: IAutoMovieServiceNetwork = serviceNetwork();
+  const coldRun: IAutoMovieServiceSegment = network.segments[0]!;
+  const coldBranch: IAutoMovieServiceSegment = network.segments[1]!;
 
-  const overall = serviceSegmentBounds(coldRun);
+  const overall: IAutoMoviePropBox = serviceSegmentBounds(coldRun);
   TestValidator.equals(
     "a run's overall bound is its extremes grown by its radius",
     namedFacts([
       [
         "min",
-        () => vclose(overall.min, { x: 3.475, y: 2.475, z: 0.975 }, 1e-12),
+        (): boolean => vclose(overall.min, { x: 3.475, y: 2.475, z: 0.975 }, 1e-12),
       ],
       [
         "max",
-        () => vclose(overall.max, { x: 8.025, y: 2.525, z: 1.025 }, 1e-12),
+        (): boolean => vclose(overall.max, { x: 8.025, y: 2.525, z: 1.025 }, 1e-12),
       ],
     ]),
     { min: true, max: true },
@@ -89,35 +94,35 @@ export const test_service_network_geometry = (): void => {
   TestValidator.predicate(
     "a run with no route has no bound to give",
     throwsError(
-      () => serviceSegmentBounds(segment({ id: "ghost", route: [] })),
+      (): IAutoMoviePropBox => serviceSegmentBounds(segment({ id: "ghost", route: [] })),
       ['"ghost" has no route'],
     ),
   );
 
-  const spans = serviceSegmentSpanBounds(coldBranch);
+  const spans: IAutoMoviePropBox[] = serviceSegmentSpanBounds(coldBranch);
   TestValidator.equals(
     "each leg of a turning run carries its own volume",
     namedFacts([
-      ["legCount", () => spans.length === 2],
+      ["legCount", (): boolean => spans.length === 2],
       [
         "firstMin",
-        () => vclose(spans[0]!.min, { x: 0.98, y: 2.48, z: 0.98 }, 1e-12),
+        (): boolean => vclose(spans[0]!.min, { x: 0.98, y: 2.48, z: 0.98 }, 1e-12),
       ],
       [
         "firstMax",
-        () => vclose(spans[0]!.max, { x: 3.52, y: 2.52, z: 1.02 }, 1e-12),
+        (): boolean => vclose(spans[0]!.max, { x: 3.52, y: 2.52, z: 1.02 }, 1e-12),
       ],
       [
         "secondMin",
-        () => vclose(spans[1]!.min, { x: 0.98, y: 0.88, z: 0.98 }, 1e-12),
+        (): boolean => vclose(spans[1]!.min, { x: 0.98, y: 0.88, z: 0.98 }, 1e-12),
       ],
       [
         "secondMax",
-        () => vclose(spans[1]!.max, { x: 1.02, y: 2.52, z: 1.02 }, 1e-12),
+        (): boolean => vclose(spans[1]!.max, { x: 1.02, y: 2.52, z: 1.02 }, 1e-12),
       ],
       [
         "singleVertexHasNoLeg",
-        () =>
+        (): boolean =>
           serviceSegmentSpanBounds(segment({ route: [{ x: 1, y: 2, z: 3 }] }))
             .length === 0,
       ],
@@ -132,22 +137,22 @@ export const test_service_network_geometry = (): void => {
     },
   );
 
-  const ahu = serviceMaintenanceBounds(network.nodes[5]!);
+  const ahu: IAutoMoviePropBox | null = serviceMaintenanceBounds(network.nodes[5]!);
   TestValidator.equals(
     "an access volume travels with the equipment that needs it",
     namedFacts([
-      ["present", () => ahu !== null],
+      ["present", (): boolean => ahu !== null],
       [
         "min",
-        () => ahu !== null && vclose(ahu.min, { x: 7.5, y: 0.2, z: 4 }, 1e-12),
+        (): boolean => ahu !== null && vclose(ahu.min, { x: 7.5, y: 0.2, z: 4 }, 1e-12),
       ],
       [
         "max",
-        () => ahu !== null && vclose(ahu.max, { x: 8.5, y: 3, z: 5 }, 1e-12),
+        (): boolean => ahu !== null && vclose(ahu.max, { x: 8.5, y: 3, z: 5 }, 1e-12),
       ],
       [
         "absentWhereUnneeded",
-        () => serviceMaintenanceBounds(network.nodes[9]!) === null,
+        (): boolean => serviceMaintenanceBounds(network.nodes[9]!) === null,
       ],
     ]),
     { present: true, min: true, max: true, absentWhereUnneeded: true },
@@ -158,7 +163,7 @@ export const test_service_network_geometry = (): void => {
     namedFacts([
       [
         "inside",
-        () =>
+        (): boolean =>
           serviceEnvelopeObstructions({
             network,
             bounds: box([8, 1, 4.2], [8.2, 2, 4.4]),
@@ -166,7 +171,7 @@ export const test_service_network_geometry = (): void => {
       ],
       [
         "panel",
-        () =>
+        (): boolean =>
           serviceEnvelopeObstructions({
             network,
             bounds: box([8.2, 1, 2.5], [8.4, 2, 2.8]),
@@ -174,7 +179,7 @@ export const test_service_network_geometry = (): void => {
       ],
       [
         "face",
-        () =>
+        (): boolean =>
           serviceEnvelopeObstructions({
             network,
             bounds: box([8.5, 1, 4.2], [9, 2, 4.4]),
@@ -182,7 +187,7 @@ export const test_service_network_geometry = (): void => {
       ],
       [
         "both",
-        () =>
+        (): boolean =>
           serviceEnvelopeObstructions({
             network,
             bounds: box([8.2, 1, 2.5], [8.6, 2, 4.2]),
@@ -190,7 +195,7 @@ export const test_service_network_geometry = (): void => {
       ],
       [
         "away",
-        () =>
+        (): boolean =>
           serviceEnvelopeObstructions({
             network,
             bounds: box([0, 0, 0], [0.5, 0.5, 0.5]),
@@ -200,20 +205,20 @@ export const test_service_network_geometry = (): void => {
     { inside: true, panel: true, face: true, both: true, away: true },
   );
 
-  const lane = { x: 8, y: 2.5, z: 1 };
-  const crossed = withSleeve(
+  const lane: IAutoMovieVector3 = { x: 8, y: 2.5, z: 1 };
+  const crossed: IAutoMovieServiceNetwork = withSleeve(
     withSleeve(
       withSegment(
         withPort(
-          withPort(network, "hot-main-out", (port) => ({
+          withPort(network, "hot-main-out", (port: IAutoMovieServicePort): IAutoMovieServicePort => ({
             ...port,
             position: lane,
           })),
           "basin-hot",
-          (port) => ({ ...port, position: { x: 1, y: 0.9, z: 1 } }),
+          (port: IAutoMovieServicePort): IAutoMovieServicePort => ({ ...port, position: { x: 1, y: 0.9, z: 1 } }),
         ),
         "hot-run",
-        (run) => ({
+        (run: IAutoMovieServiceSegment): IAutoMovieServiceSegment => ({
           ...run,
           route: [
             { x: 8, y: 2.5, z: 1 },
@@ -223,31 +228,31 @@ export const test_service_network_geometry = (): void => {
         }),
       ),
       "hot-plant-hall",
-      (sleeve) => ({ ...sleeve, position: { x: 7, y: 2.5, z: 1 } }),
+      (sleeve: IAutoMovieServicePenetration): IAutoMovieServicePenetration => ({ ...sleeve, position: { x: 7, y: 2.5, z: 1 } }),
     ),
     "hot-bath-hall",
-    (sleeve) => ({ ...sleeve, position: { x: 4, y: 2.5, z: 1 } }),
+    (sleeve: IAutoMovieServicePenetration): IAutoMovieServicePenetration => ({ ...sleeve, position: { x: 4, y: 2.5, z: 1 } }),
   );
-  const clashed = validateServiceNetwork({ network: crossed, environment });
+  const clashed: IAutoMovieValidation = validateServiceNetwork({ network: crossed, environment });
   TestValidator.equals(
     "sharing a lane clashes, sharing a fitting does not",
     namedFacts([
-      ["clean", () => serviceSegmentClashes(network).length === 0],
+      ["clean", (): boolean => serviceSegmentClashes(network).length === 0],
       [
         "onePair",
-        () =>
+        (): boolean =>
           serviceSegmentClashes(crossed)
-            .map((clash) => `${clash.left}/${clash.right}`)
+            .map((clash: ReturnType<typeof serviceSegmentClashes>[number]): string => `${clash.left}/${clash.right}`)
             .join() === "cold-run/hot-run",
       ],
       [
         "reported",
-        () => hasViolation(clashed, "physics", "$input.segments[0].route"),
+        (): boolean => hasViolation(clashed, "physics", "$input.segments[0].route"),
       ],
-      ["onlyDefect", () => violationCount(clashed) === 1],
+      ["onlyDefect", (): boolean => violationCount(clashed) === 1],
       [
         "degenerateRouteIgnored",
-        () =>
+        (): boolean =>
           serviceSegmentClashes({
             ...network,
             segments: [
@@ -266,30 +271,30 @@ export const test_service_network_geometry = (): void => {
     },
   );
 
-  const blocked = withNode(network, "ahu", (node) => ({
+  const blocked: IAutoMovieServiceNetwork = withNode(network, "ahu", (node: IAutoMovieServiceNode): IAutoMovieServiceNode => ({
     ...node,
     maintenance: {
       min: { x: -0.5, y: -2.5, z: -2 },
       max: { x: 0.5, y: 0.3, z: 0.5 },
     },
   }));
-  const obstruction = validateServiceNetwork({ network: blocked, environment });
+  const obstruction: IAutoMovieValidation = validateServiceNetwork({ network: blocked, environment });
   TestValidator.equals(
     "a run crossing an access volume it does not feed is refused",
     namedFacts([
       [
         "reported",
-        () =>
+        (): boolean =>
           hasViolation(obstruction, "physics", "$input.nodes[5].maintenance"),
       ],
-      ["onlyDefect", () => violationCount(obstruction) === 1],
+      ["onlyDefect", (): boolean => violationCount(obstruction) === 1],
       [
         "ownFeedExempt",
-        () =>
+        (): boolean =>
           obstruction.success === false &&
-          obstruction.violations.every((item) => item.value !== "air-run"),
+          obstruction.violations.every((item: IAutoMovieConstraintViolation): boolean => item.value !== "air-run"),
       ],
     ]),
     { reported: true, onlyDefect: true, ownFeedExempt: true },
   );
-};
+}
