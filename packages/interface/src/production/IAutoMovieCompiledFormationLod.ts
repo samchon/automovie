@@ -1,4 +1,3 @@
-
 /**
  * One camera-selected runtime representation for a compiled population. A resolvable canonically encodable recipe digest covers geometry and palette parameters; missing or unencodable recipes instead hash an explicit identity marker.
  *
