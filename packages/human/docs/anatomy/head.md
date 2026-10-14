@@ -102,6 +102,10 @@ Under age 3 no face norms were found; only head circumference (WHO) covers infan
 - Brow ridge, zygomatic prominence and mandibular angle are bony landmarks that should show through the skin at sites of thin soft tissue (face width has the thinnest cover per Farkas 2004).
 - Age acts on bone (orbit, maxilla, piriform, mandibular angle) and on fat compartments separately; a single "age" morph cannot express both.
 
+## Reuse of published numbers
+
+Individual means, SDs and landmark definitions are facts and may become named constants in code with a citation to the primary source. A whole published table is a compilation that may carry the publisher's copyright, so code takes the few values a formula needs, not a transcription of a table. FaceBase summary data are open under its Terms of Use with attribution; its individual-level data and surfaces are controlled and are not used. Farkas's 1994 and 2005 tables were not accessible; values quoted from them in other papers (Virdi 2019) are recorded as relayed.
+
 ## Open questions
 
 - No East Asian or African 3D norms with landmark distances were found open; Size Korea was not accessed, and the Chinese survey is caliper-based.
