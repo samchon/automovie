@@ -1,3 +1,8 @@
+import type { IHumanFacePeriocularMaterialEdgePoint } from "./structures/IHumanFacePeriocularMaterialEdgePoint";
+import type { IHumanFaceSkinSeat } from "../skin/IHumanFaceSkinSeat";
+import type { IHumanFaceConformingPolygon } from "./structures/IHumanFaceConformingPolygon";
+import type { IHumanFaceConformingMaterialTriangle } from "./structures/IHumanFaceConformingMaterialTriangle";
+
 import { HumanFaceConformingMaterialArithmetic as Arithmetic } from "./HumanFaceConformingMaterialArithmetic";
 import { HumanFaceConformingPolygon as Polygon } from "./HumanFaceConformingPolygon";
 import { HumanFaceConformingRefinement as Refinement } from "./HumanFaceConformingRefinement";
@@ -44,44 +49,52 @@ type MaterialArea = ReturnType<typeof Arithmetic.addArea>;
  * A declared native-edge grid point retains its original endpoints and affine
  * fraction through the exact overlay. Its rounded UV is diagnostic, not a
  * second independent point that may fall off that same source edge.
+ *
+ * @evidence contracts/common.md#principled-implementation Exact dyadic homogeneous predicates overlay the complete admitted simple material boundary with native host triangles and verify complete rational area coverage.
+ * @evidence contracts/common.md#clear-and-simple-design Canonical arithmetic, polygon and refinement owners preserve shared original-edge cut identity; this assembler owns final host seats and ordered boundary incidence.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Unregistered coincidences, missing exact coverage or invalid manifold/oriented incidence refuse instead of welding, tolerance clipping or deleting cuts.
+ * @evidence contracts/common.md#meaningful-documentation The prose distinguishes exact predicates from rounded readers, source embedding prerequisites and downstream metric/physiological admission.
+ * @evidence contracts/performance.md#efficient-algorithms For B outline cuts, T hosts and D divisions, exact ear clipping can be O(B cubed) and overlay considers O(BD squared T) candidate pairs with BigInt-width costs.
+ * @evidence contracts/performance.md#reuse-equivalent-work Compile-local resident keys reuse shared cuts, declared endpoint aliases reuse native identities and admitted boxes skip only disjoint pairs.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Returned vertices/incidence own the complete overlay; key/alias/grid/source maps expire, with output growth driven by refinement and no independent D cap.
  */
 export function createHumanFaceConformingSheet(
   input: IHumanFaceConformingSheetInput,
 ): IHumanFaceConformingSheet {
-  const { chart, samples, boundary: outlineIds, refinement } = input;
+  const { chart, samples, boundary: outlineIds, refinement }: IHumanFaceConformingSheetInput = input;
   if (!Number.isSafeInteger(refinement) || refinement < 1)
     throw new Error("A material domain needs a positive integer refinement.");
-  const unitFactor = BigInt(refinement);
-  const gridIds = [...outlineIds];
-  const gridUV = gridIds.map((id) => {
-    const point = samples[id]?.materialPoint;
+  const unitFactor: bigint = BigInt(refinement);
+  const gridIds: number[] = [...outlineIds];
+  const gridUV: [number, number][] = gridIds.map((id: number): [number, number]  => {
+    const point: [number, number] | undefined = samples[id]?.materialPoint;
     if (point === undefined || !point.every(Number.isFinite))
       throw new Error(
         "A conforming sheet needs every original material sample.",
       );
     return point;
   });
-  const allUV = [...chart.coordinates, ...gridUV.flat()];
-  const binary = allUV.map(Arithmetic.dyadic);
-  const fractionPowers = gridIds.flatMap((id) => {
-    const edge = samples[id].materialEdge;
+  const allUV: number[] = [...chart.coordinates, ...gridUV.flat()];
+  const binary: [bigint, number][] = allUV.map(Arithmetic.dyadic);
+  const fractionPowers: number[] = gridIds.flatMap((id: number): number[]  => {
+    const edge: IHumanFacePeriocularMaterialEdgePoint | undefined = samples[id].materialEdge;
     if (edge === undefined) return [];
     if (!Number.isFinite(edge.fraction) || edge.fraction < 0 || edge.fraction > 1)
       throw new Error("A material edge point needs a finite fraction in its parent edge.");
-    const [n, power] = Arithmetic.dyadic(edge.fraction);
+    const [n, power]: [bigint, number] = Arithmetic.dyadic(edge.fraction);
     return n === 0n ? [] : [power];
   });
-  const exponent = Math.min(
-    ...binary.filter(([n]) => n !== 0n).map(([, e]) => e),
+  const exponent: number = Math.min(
+    ...binary.filter(([n]: [bigint, number]): boolean  => n !== 0n).map(([, e]: [bigint, number]): number  => e),
   ) + Math.min(0, ...fractionPowers);
   if (!Number.isFinite(exponent))
     throw new Error("A conforming chart needs nonzero material extent.");
-  const integers = binary.map(([n, e]) => (n << BigInt(e - exponent)) * unitFactor);
-  const hostPoints = chart.vertices.map(
-    (_, at): MaterialPoint => [integers[2 * at], integers[2 * at + 1], 1n],
+  const integers: bigint[] = binary.map(([n, e]: [bigint, number]): bigint  => (n << BigInt(e - exponent)) * unitFactor);
+  const hostPoints: [bigint, bigint, bigint][] = chart.vertices.map(
+    (_: number, at: number): MaterialPoint => [integers[2 * at], integers[2 * at + 1], 1n],
   );
-  const gridPoints = new Map(
-    gridIds.map((id, at): [number, MaterialPoint] => [
+  const gridPoints: Map<number, [bigint, bigint, bigint]> = new Map(
+    gridIds.map((id: number, at: number): [number, MaterialPoint] => [
       id,
       [
         integers[chart.coordinates.length + 2 * at],
@@ -90,35 +103,35 @@ export function createHumanFaceConformingSheet(
       ],
     ]),
   );
-  const hostOrdinal = new Map(chart.sourceTriangles.map((id, at) => [id, at]));
-  const hostVertex = new Map(chart.vertices.map((vertex, at) => [vertex, at]));
-  const nativeEdge = new Set<string>();
-  for (let at = 0; at < chart.indices.length; at += 3)
-    for (let corner = 0; corner < 3; corner++)
+  const hostOrdinal: Map<number, number> = new Map(chart.sourceTriangles.map((id: number, at: number): [number, number]  => [id, at]));
+  const hostVertex: Map<number, number> = new Map(chart.vertices.map((vertex: number, at: number): [number, number]  => [vertex, at]));
+  const nativeEdge: Set<string> = new Set<string>();
+  for (let at: number = 0; at < chart.indices.length; at += 3)
+    for (let corner: number = 0; corner < 3; corner++)
       nativeEdge.add(Polygon.edge(
         chart.vertices[chart.indices[at + corner]],
         chart.vertices[chart.indices[at + (corner + 1) % 3]],
       ));
   for (const id of gridIds) {
-    const edge = samples[id].materialEdge;
+    const edge: IHumanFacePeriocularMaterialEdgePoint | undefined = samples[id].materialEdge;
     if (edge === undefined) continue;
-    const [a, b] = edge.vertices;
-    const first = hostVertex.get(a), last = hostVertex.get(b);
-    const fraction = edge.fraction;
-    const seat = samples[id].seat, triangle = hostOrdinal.get(seat.triangle);
+    const [a, b]: [number, number] = edge.vertices;
+    const first: number | undefined = hostVertex.get(a), last: number | undefined = hostVertex.get(b);
+    const fraction: number = edge.fraction;
+    const seat: IHumanFaceSkinSeat = samples[id].seat, triangle: number | undefined = hostOrdinal.get(seat.triangle);
     if (first === undefined || last === undefined || a === b ||
       !nativeEdge.has(Polygon.edge(a, b)) || triangle === undefined ||
       !Number.isFinite(fraction) || fraction < 0 || fraction > 1 ||
       !chart.indices.slice(3 * triangle, 3 * triangle + 3).includes(first) ||
       !chart.indices.slice(3 * triangle, 3 * triangle + 3).includes(last) ||
-      seat.weights.some((weight, corner) => {
-        const vertex = chart.vertices[chart.indices[3 * triangle + corner]];
+      seat.weights.some((weight: number, corner: number): boolean  => {
+        const vertex: number = chart.vertices[chart.indices[3 * triangle + corner]];
         return weight !== (vertex === a ? 1 - fraction : vertex === b ? fraction : 0);
       }))
       throw new Error("A material edge point needs its exact native parent and affine seat.");
-    const [significand, power] = Arithmetic.dyadic(fraction);
-    const denominator = power < 0 ? 1n << BigInt(-power) : 1n;
-    const numerator = power > 0 ? significand << BigInt(power) : significand;
+    const [significand, power]: [bigint, number] = Arithmetic.dyadic(fraction);
+    const denominator: bigint = power < 0 ? 1n << BigInt(-power) : 1n;
+    const numerator: bigint = power > 0 ? significand << BigInt(power) : significand;
     // The common unit includes every fraction's binary exponent, so both
     // parent coordinates are divisible by this denominator exactly.
     gridPoints.set(id, [
@@ -127,49 +140,49 @@ export function createHumanFaceConformingSheet(
       1n,
     ]);
   }
-  const aliases = new Map<number, string>();
+  const aliases: Map<number, string> = new Map<number, string>();
   for (const id of gridIds) {
-    const seat = samples[id].seat;
-    const at = hostOrdinal.get(seat.triangle);
+    const seat: IHumanFaceSkinSeat = samples[id].seat;
+    const at: number | undefined = hostOrdinal.get(seat.triangle);
     if (at === undefined)
       throw new Error(
         "A conforming sample needs its resident source triangle.",
       );
-    const corner = seat.weights.findIndex((weight) => weight === 1);
+    const corner: number = seat.weights.findIndex((weight: number): boolean  => weight === 1);
     if (
       corner < 0 ||
-      seat.weights.some((weight, index) => index !== corner && weight !== 0)
+      seat.weights.some((weight: number, index: number): boolean  => index !== corner && weight !== 0)
     )
       continue;
-    const host = chart.indices[3 * at + corner];
-    const prior = aliases.get(host);
+    const host: number = chart.indices[3 * at + corner];
+    const prior: string | undefined = aliases.get(host);
     if (prior !== undefined && prior !== `g:${id}`)
       throw new Error(
         "Distinct canonical grid vertices cannot name one source endpoint.",
       );
     aliases.set(host, `g:${id}`);
   }
-  const outline = Polygon.outline(
-    gridIds.map((id): MaterialCut => ({
+  const outline: IHumanFaceConformingPolygon = Polygon.outline(
+    gridIds.map((id: number): MaterialCut => ({
       key: "g:" + id,
       point: gridPoints.get(id)!,
     })),
   );
-  const materialTriangles = Polygon.triangulate(outline.cuts).map((indices) => {
-    const corners = indices.map(
-      (corner) => Number(outline.cuts[corner].key.slice(2)),
+  const materialTriangles: IHumanFaceConformingMaterialTriangle[] = Polygon.triangulate(outline.cuts).map((indices: [number, number, number]): IHumanFaceConformingMaterialTriangle  => {
+    const corners: [number, number, number] = indices.map(
+      (corner: number): number  => Number(outline.cuts[corner].key.slice(2)),
     ) as [number, number, number];
     return Refinement.triangle(
       corners,
-      (id) => gridPoints.get(id)!,
-      (id) => "g:" + id,
+      (id: number): [bigint, bigint, bigint]  => gridPoints.get(id)!,
+      (id: number): string  => "g:" + id,
     );
   });
-  const source = chart.sourceTriangles.map((_, at) =>
+  const source: IHumanFaceConformingMaterialTriangle[] = chart.sourceTriangles.map((_: number, at: number): IHumanFaceConformingMaterialTriangle  =>
     Refinement.triangle(
       chart.indices.slice(3 * at, 3 * at + 3) as [number, number, number],
-      (id) => hostPoints[id],
-      (id) => "h:" + chart.vertices[id],
+      (id: number): [bigint, bigint, bigint]  => hostPoints[id],
+      (id: number): string  => "h:" + chart.vertices[id],
     ),
   );
   const result: IHumanFaceConformingSheet = {
@@ -178,31 +191,31 @@ export function createHumanFaceConformingSheet(
     sourceTriangles: [],
     boundaryEdges: [],
   };
-  const resident = new Map<string, number>();
+  const resident: Map<string, number> = new Map<string, number>();
   const gridTriangles: [number, number, number][] = [];
   const gridDirections: number[] = [];
   for (const grid of Refinement.compile(materialTriangles, refinement)) {
-    const corners = grid.originalCorners;
-    const originalPoints = corners.map((id) => gridPoints.get(id)!);
-    const direction = Arithmetic.orientation(...grid.points);
+    const corners: [number, number, number] = grid.originalCorners;
+    const originalPoints: [bigint, bigint, bigint][] = corners.map((id: number): [bigint, bigint, bigint]  => gridPoints.get(id)!);
+    const direction: bigint = Arithmetic.orientation(...grid.points);
     if (direction <= 0n)
       throw new Error(
         "A triangulated material region needs positive nonzero area.",
       );
     let covered: MaterialArea = [0n, 1n];
-    for (let at = 0; at < source.length; at++) {
-      const host = source[at];
+    for (let at: number = 0; at < source.length; at++) {
+      const host: IHumanFaceConformingMaterialTriangle = source[at];
       if (!overlap(grid.bounds, host.bounds)) continue;
-      const polygon = Polygon.intersect(grid, host, aliases, chart.vertices);
+      const polygon: IHumanFaceConformingPolygon = Polygon.intersect(grid, host, aliases, chart.vertices);
       if (polygon.cuts.length < 3) continue;
-      const area = polygon.area;
+      const area: [bigint, bigint] = polygon.area;
       if (area[0] === 0n) continue;
       covered = Arithmetic.addArea(covered, area);
-      const mapCut = (cut: MaterialCut): number => {
-        const prior = resident.get(cut.key);
+      const mapCut: (cut: MaterialCut) => number = (cut: MaterialCut): number => {
+        const prior: number | undefined = resident.get(cut.key);
         if (prior !== undefined) return prior;
-        const index = result.vertices.length;
-        const original = cut.key.startsWith("g:")
+        const index: number = result.vertices.length;
+        const original: IHumanFacePeriocularHostSample | undefined = cut.key.startsWith("g:")
           ? samples[Number(cut.key.slice(2))]
           : undefined;
         const vertex: IHumanFaceConformingSheetVertex = {
@@ -229,20 +242,20 @@ export function createHumanFaceConformingSheet(
         return index;
       };
       for (const piece of Polygon.triangulate(polygon.cuts)) {
-        result.indices.push(...piece.map((corner) => mapCut(polygon.cuts[corner])));
+        result.indices.push(...piece.map((corner: number): number  => mapCut(polygon.cuts[corner])));
         result.sourceTriangles.push(chart.sourceTriangles[at]);
         gridTriangles.push([...corners]);
         gridDirections.push(1);
       }
     }
-    const expected = direction;
+    const expected: bigint = direction;
     if (covered[0] !== expected * covered[1])
       throw new Error(
         "A conforming source disk must cover the complete original material triangle exactly: " +
           JSON.stringify({
             grid: grid.corners,
             gridKeys: grid.keys,
-            gridPoints: grid.points.map((point) => point.map(String)),
+            gridPoints: grid.points.map((point: [bigint, bigint, bigint]): string[]  => point.map(String)),
             originalDomain: corners,
             covered: covered.map(String),
             expected: String(expected),
@@ -272,21 +285,21 @@ function boundary(
   gridDirections: readonly number[],
   samples: readonly IHumanFacePeriocularHostSample[],
 ): [number, number][] {
-  const indices = sheet.indices;
-  const incidence = new Map<string, [number, number, number][]>();
-  const refused = new Set<string>();
+  const indices: number[] = sheet.indices;
+  const incidence: Map<string, [number, number, number][]> = new Map<string, [number, number, number][]>();
+  const refused: Set<string> = new Set<string>();
   let firstError: string | undefined;
-  for (let at = 0; at < indices.length; at += 3) {
-    for (let side = 0; side < 3; side++) {
-      const a = indices[at + side];
-      const b = indices[at + ((side + 1) % 3)];
-      const key = Polygon.edge(a, b);
-      const faces = incidence.get(key) ?? [];
+  for (let at: number = 0; at < indices.length; at += 3) {
+    for (let side: number = 0; side < 3; side++) {
+      const a: number = indices[at + side];
+      const b: number = indices[at + ((side + 1) % 3)];
+      const key: string = Polygon.edge(a, b);
+      const faces: [number, number, number][] = incidence.get(key) ?? [];
       if (faces.length >= 2) {
         refused.add(key);
         firstError ??= "A conforming sheet edge must have at most two incident triangles.";
       } else if (faces.length === 1) {
-        const prior = faces[0];
+        const prior: [number, number, number] = faces[0];
         if (prior[0] !== b || prior[1] !== a) {
           refused.add(key);
           firstError ??= "Conforming interior triangles need opposite shared-edge orientation.";
@@ -297,30 +310,30 @@ function boundary(
     }
   }
   if (firstError !== undefined) {
-    const witnesses: IHumanFaceConformingIncidenceWitness[] = [...refused].map((key): IHumanFaceConformingIncidenceWitness => {
-      const faces = incidence.get(key)!;
-      const [a, b] = faces[0];
+    const witnesses: IHumanFaceConformingIncidenceWitness[] = [...refused].map((key: string): IHumanFaceConformingIncidenceWitness => {
+      const faces: [number, number, number][] = incidence.get(key)!;
+      const [a, b]: [number, number, number] = faces[0];
       const edge: [number, number] = a < b ? [a, b] : [b, a];
-      const triangles = faces.map((face) => face[2]);
+      const triangles: number[] = faces.map((face: [number, number, number]): number  => face[2]);
       return {
         reason: faces.length > 2 ? "nonmanifold" : "orientation",
         edge,
         triangles,
-        directions: faces.map((face) => [face[0], face[1]]),
-        sourceTriangles: triangles.map((triangle) => sheet.sourceTriangles[triangle]),
-        gridTriangles: triangles.map((triangle) => [...gridTriangles[triangle]]),
-        gridDirections: triangles.map((triangle) => gridDirections[triangle]),
-        vertices: edge.map((vertex) => sheet.vertices[vertex]),
-        gridSamples: triangles.map((triangle) => gridTriangles[triangle].map((vertex) => samples[vertex])),
+        directions: faces.map((face: [number, number, number]): [number, number]  => [face[0], face[1]]),
+        sourceTriangles: triangles.map((triangle: number): number  => sheet.sourceTriangles[triangle]),
+        gridTriangles: triangles.map((triangle: number): [number, number, number]  => [...gridTriangles[triangle]]),
+        gridDirections: triangles.map((triangle: number): number  => gridDirections[triangle]),
+        vertices: edge.map((vertex: number): IHumanFaceConformingSheetVertex  => sheet.vertices[vertex]),
+        gridSamples: triangles.map((triangle: number): IHumanFacePeriocularHostSample[]  => gridTriangles[triangle].map((vertex: number): IHumanFacePeriocularHostSample  => samples[vertex])),
       };
     });
     throw new Error(firstError + " incidence:" + JSON.stringify(witnesses));
   }
-  const edges = new Map<string, [number, number]>();
+  const edges: Map<string, [number, number]> = new Map<string, [number, number]>();
   for (const [key, faces] of incidence)
     if (faces.length === 1) edges.set(key, [faces[0][0], faces[0][1]]);
-  const next = new Map<number, number>();
-  const incoming = new Set<number>();
+  const next: Map<number, number> = new Map<number, number>();
+  const incoming: Set<number> = new Set<number>();
   for (const [a, b] of edges.values()) {
     if (next.has(a) || incoming.has(b))
       throw new Error(
@@ -329,13 +342,13 @@ function boundary(
     next.set(a, b);
     incoming.add(b);
   }
-  const first = next.keys().next().value;
+  const first: number | undefined = next.keys().next().value;
   if (first === undefined)
     throw new Error("A conforming sheet needs a nonempty closed boundary.");
   const result: [number, number][] = [];
-  let current = first;
+  let current: number = first;
   do {
-    const target = next.get(current);
+    const target: number | undefined = next.get(current);
     if (target === undefined || result.length >= edges.size)
       throw new Error("A conforming sheet boundary must close exactly once.");
     result.push([current, target]);

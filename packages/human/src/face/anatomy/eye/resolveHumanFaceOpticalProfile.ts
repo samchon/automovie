@@ -21,11 +21,19 @@ import type { IAutoMovieHumanFaceOpticalDimensions } from "../../structures/IAut
  * inverted or intersecting internal surfaces. Curvature inflection alone is
  * not a refusal: the derivative is negative throughout (0,L), because its
  * factor is affine in r² and negative at both ends. No value is clamped.
+ *
+ * @evidence contracts/common.md#principled-implementation The admitted dimensions define one rim-factored quartic with C1 sphere join and requested apex curvature, while strict internal-shell inequalities preserve ordering.
+ * @evidence contracts/common.md#clear-and-simple-design One captured metric profile/evaluator owner is shared by drawing, exact metrics and analytic seating.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Inflection remains supported; authored polynomial shape, axial backing and supplied dimensions are not fitted clinical anatomy or clamped to acceptance.
+ * @evidence contracts/common.md#meaningful-documentation The prose gives millimetre/micrometre conversion, polynomial identities, preserved rim and strict shell/iris placement conditions.
+ * @evidence contracts/performance.md#efficient-algorithms Seven scalar checks and fixed coefficient/rim evaluations require constant work, as do subsequent height/slope queries.
+ * @evidence contracts/performance.md#reuse-equivalent-work Captured metre scalars/rim are reused by both evaluators; all optical consumers receive the same admitted profile.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The returned scalar/evaluator record owns captured numbers for caller lifetime; input dimensions and external resources are not retained.
  */
 export function resolveHumanFaceOpticalProfile(
   input: IAutoMovieHumanFaceOpticalDimensions,
-) {
-  const dimensions = [
+): { radius: number; limbus: number; curvature: number; thickness: number; iris: number; aperture: number; depth: number; rim: number; apex: number; irisZ: number; height: (r: number) => number; slope: (r: number) => number; }  {
+  const dimensions: number[] = [
     input.globeRadiusMm,
     input.limbusRadiusMm,
     input.apexCurvatureRadiusMm,
@@ -34,42 +42,42 @@ export function resolveHumanFaceOpticalProfile(
     input.irisApertureRadiusMm,
     input.irisDepthFromAnteriorSupportMm,
   ];
-  if (dimensions.some((value) => !Number.isFinite(value) || value <= 0))
+  if (dimensions.some((value: number): boolean  => !Number.isFinite(value) || value <= 0))
     throw new Error(
       "Independent optics need seven finite positive dimensions.",
     );
-  const [radius, limbus, curvature] = dimensions
+  const [radius, limbus, curvature]: number[] = dimensions
     .slice(0, 3)
-    .map((v) => v / 1000);
-  const thickness = input.centralThicknessMicrometres / 1000000;
-  const iris = input.irisOuterRadiusMm / 1000;
-  const aperture = input.irisApertureRadiusMm / 1000;
-  const depth = input.irisDepthFromAnteriorSupportMm / 1000;
+    .map((v: number): number  => v / 1000);
+  const thickness: number = input.centralThicknessMicrometres / 1000000;
+  const iris: number = input.irisOuterRadiusMm / 1000;
+  const aperture: number = input.irisApertureRadiusMm / 1000;
+  const depth: number = input.irisDepthFromAnteriorSupportMm / 1000;
   if (
     !(0 < aperture && aperture < iris && iris <= limbus && limbus < radius) ||
     [radius, limbus, curvature, thickness, iris, aperture, depth].some(
-      (v) => v <= 0,
+      (v: number): boolean  => v <= 0,
     )
   )
     throw new Error(
       "Independent optics need aperture < iris <= limbus < globe, in finite metre dimensions.",
     );
-  const rim = Math.sqrt((radius - limbus) * (radius + limbus));
-  const height = (r: number): number => {
-    const q = (r / limbus) ** 2;
+  const rim: number = Math.sqrt((radius - limbus) * (radius + limbus));
+  const height: (r: number) => number = (r: number): number => {
+    const q: number = (r / limbus) ** 2;
     return (
       rim +
       (((limbus - r) * (limbus + r)) / 4) *
         ((1 - q) / curvature + (1 + q) / rim)
     );
   };
-  const slope = (r: number): number => {
-    const q = (r / limbus) ** 2;
+  const slope: (r: number) => number = (r: number): number => {
+    const q: number = (r / limbus) ** 2;
     return -r * ((1 - q) / curvature + q / rim);
   };
-  const a = height(0);
-  const irisZ = a - depth;
-  const posteriorAtIris = -Math.sqrt(radius * radius - iris * iris);
+  const a: number = height(0);
+  const irisZ: number = a - depth;
+  const posteriorAtIris: number = -Math.sqrt(radius * radius - iris * iris);
   if (
     ![rim, a, irisZ, posteriorAtIris, height(iris)].every(Number.isFinite) ||
     !(

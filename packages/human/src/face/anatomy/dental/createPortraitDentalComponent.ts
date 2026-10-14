@@ -1,3 +1,8 @@
+import type { IAutoMovieMesh, IAutoMovieModelPart, IAutoMovieVector3 } from "@automovie/interface";
+import type { IPortraitComponentHost } from "../../surface/structures/IPortraitComponentHost";
+import type { IControlMesh } from "../../mesh/structures/IControlMesh";
+import type { IPortraitInterior } from "../../surface/structures/IPortraitInterior";
+
 import { millimetrePoint as p } from "../../mesh/millimetrePoint";
 import { createPortraitInteriorFinisher } from "../../surface/createPortraitInteriorFinisher";
 import type { IPortraitComponent } from "../../surface/structures/IPortraitComponent";
@@ -14,6 +19,14 @@ import { type IPortraitDentalRow } from "./structures/IPortraitDentalRow";
  * independent controls. All offsets and local geometry use millimetres.
  * Observed-maxilla attachment instead captures the host before performance,
  * so a facial expression cannot translate or tilt the upper arch with a lip.
+ *
+ * @evidence contracts/common.md#principled-implementation One prebuilt enamel row is rigidly placed by actual oral anchors, or by the explicitly selected observed-maxillary frame captured before performance.
+ * @evidence contracts/common.md#clear-and-simple-design The component supplies no skin cuts/constraints and shares one native interior producer with its compatibility finisher.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Observed-maxilla captures the host so moving lips cannot move the complete upper arch; this remains an authored maxillary approximation without gingiva or occlusion simulation.
+ * @evidence contracts/common.md#meaningful-documentation The prose states attachment modes, subject-owned socket IDs, millimetre controls and native/metric consumer ownership.
+ * @evidence contracts/performance.md#efficient-algorithms Construction includes full row preparation/separation; fitting validates three socket IDs and clones V host points only for observed-maxilla, while each interior read copies/transforms row geometry.
+ * @evidence contracts/performance.md#reuse-equivalent-work The prepared row is shared across the component's fits and the same native producer serves both consumers; a captured observed host deliberately differs from refined-oral placement.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The caller-owned component retains its copied socket/placement and prepared row; observed host snapshots belong to returned fit closures and fresh interior meshes belong to consumers.
  */
 export function createPortraitDentalComponent(
   inputSocket: {
@@ -29,17 +42,17 @@ export function createPortraitDentalComponent(
     throw new Error(
       "Upper dentition attachment must name the refined oral or observed maxillary frame.",
     );
-  const socket = structuredClone(inputSocket),
-    placement = structuredClone(inputPlacement),
-    row = preparePortraitDentalRow(inputRow);
+  const socket: { rightCorner: number; leftCorner: number; upperLipMiddle: number; } = structuredClone(inputSocket),
+    placement: { lift: number; recess: number; } = structuredClone(inputPlacement),
+    row: { mesh: IAutoMovieMesh; cervical: number[][]; } = preparePortraitDentalRow(inputRow);
   if (![placement.lift, placement.recess].every(Number.isFinite))
     throw new Error("Dental component placement must be finite millimetres.");
   return {
     id: "upper-dentition",
-    fit: (host) => {
+    fit: (host: IPortraitComponentHost): { constraints: never[]; cutFaces: never[]; attach: () => { prepareInteriors: (refined: IControlMesh) => IPortraitInterior[]; finish: (refined: IControlMesh) => IAutoMovieModelPart[]; openings: never[]; }; }  => {
       if (
         Object.values(socket).some(
-          (id) =>
+          (id: number): boolean  =>
             !Number.isInteger(id) || id < 0 || id >= host.positions.length,
         )
       )
@@ -49,18 +62,18 @@ export function createPortraitDentalComponent(
       // Capture before performance. The observed frame is a subject-authored
       // maxillary approximation; subsequent lip and jaw movement cannot carry
       // its entire upper arch along with the moving oral opening.
-      const maxilla =
+      const maxilla: number[][] | undefined =
         attachment === "observed-maxilla"
           ? structuredClone(host.positions)
           : undefined;
       return {
         constraints: [],
         cutFaces: [],
-        attach: () => ({
+        attach: (): { prepareInteriors: (refined: IControlMesh) => IPortraitInterior[]; finish: (refined: IControlMesh) => IAutoMovieModelPart[]; openings: never[]; }  => ({
           openings: [],
-          ...createPortraitInteriorFinisher((refined) => {
-            const source = maxilla ?? refined.positions;
-            const point = (id: number) =>
+          ...createPortraitInteriorFinisher((refined: IControlMesh): { id: string; mesh: IAutoMovieMesh; material: string; loops: { name: string; vertices: number[]; }[]; }[]  => {
+            const source: number[][] = maxilla ?? refined.positions;
+            const point: (id: number) => IAutoMovieVector3 = (id: number): IAutoMovieVector3  =>
               p(source[id][0], source[id][1], source[id][2]);
             return [
               {
@@ -73,7 +86,7 @@ export function createPortraitDentalComponent(
                   ...placement,
                 }),
                 material: "teeth",
-                loops: row.cervical.map((vertices, tooth) => ({
+                loops: row.cervical.map((vertices: number[], tooth: number): { name: string; vertices: number[]; }  => ({
                   name: `cervical-${tooth}`,
                   vertices: [...vertices],
                 })),

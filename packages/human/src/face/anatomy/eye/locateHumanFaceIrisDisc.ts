@@ -1,13 +1,13 @@
 import type { IHumanFaceIrisDisc } from "./structures/IHumanFaceIrisDisc";
 
 /** Population horizontal visible iris diameter, millimetres. */
-const HUMAN_FACE_LIMBAL_DIAMETER_MM = 11.71;
+const HUMAN_FACE_LIMBAL_DIAMETER_MM: number = 11.71 as const;
 
 /** Population transverse globe diameter, millimetres. */
-const HUMAN_FACE_GLOBE_DIAMETER_MM = 24.2;
+const HUMAN_FACE_GLOBE_DIAMETER_MM: number = 24.2 as const;
 
 /** Fixed pupil painting diameter convention, millimetres. */
-const HUMAN_FACE_PUPIL_DIAMETER_MM = 3.5;
+const HUMAN_FACE_PUPIL_DIAMETER_MM: number = 3.5 as const;
 
 /**
  * Anatomical iris disc of one textured globe, found from its geometry alone.
@@ -62,29 +62,37 @@ const HUMAN_FACE_PUPIL_DIAMETER_MM = 3.5;
  * globe of the population is 24.2 mm across, so a globe fitted larger than
  * that carries the same absolute iris on a larger sphere and the iris then
  * covers a smaller angle.
+ *
+ * @evidence contracts/common.md#principled-implementation Two geometry-only sphere fits separate a compact corneal protrusion from approximately spherical sclera, then declared absolute iris/pupil sizes define angles.
+ * @evidence contracts/common.md#clear-and-simple-design Neutral metric geometry owns the fitted axis/radius while pigment and texture preparation remain separate consumers.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Population constants and fixed pupil painting do not infer personal anatomy; fit thresholds and compact-protrusion/spherical-sclera premises remain explicit limitations.
+ * @evidence contracts/common.md#meaningful-documentation The prose gives metre geometry, radian chart, population provenance, painting convention and oversized-globe interpretation.
+ * @evidence contracts/performance.md#efficient-algorithms Fixed four-variable normal equations and two protrusion scans require O(V) work/storage for neutral globe vertices.
+ * @evidence contracts/performance.md#reuse-equivalent-work Each fitted sphere and axis is reused for its classification/angles, and texture preparation compiles the disc once per selected eye.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Only a small owned disc record escapes; mean-centred point/fit/classification arrays expire without resources.
  */
 export function locateHumanFaceIrisDisc(
   positions: readonly (readonly [number, number, number])[],
 ): IHumanFaceIrisDisc {
   if (positions.length < 8)
     throw new Error("An iris disc needs at least eight globe vertices.");
-  const first = fitSphere(positions);
-  const firstAxis = protrusionAxis(positions, first);
-  const sclera = positions.filter(
-    (point) =>
+  const first: { centre: [number, number, number]; radius: number; } = fitSphere(positions);
+  const firstAxis: [number, number, number] = protrusionAxis(positions, first);
+  const sclera: (readonly [number, number, number])[] = positions.filter(
+    (point: readonly [number, number, number]): boolean  =>
       dot(unit(sub(point, first.centre)), firstAxis) < Math.cos(Math.PI / 4),
   );
   if (sclera.length < 4)
     throw new Error("An iris disc needs sclera vertices behind the cornea.");
-  const sphere = fitSphere(sclera);
+  const sphere: { centre: [number, number, number]; radius: number; } = fitSphere(sclera);
   if (2 * sphere.radius < HUMAN_FACE_LIMBAL_DIAMETER_MM / 1000)
     throw new Error(
       "The globe diameter cannot be smaller than the absolute iris diameter.",
     );
-  const axis = protrusionAxis(positions, sphere);
+  const axis: [number, number, number] = protrusionAxis(positions, sphere);
   const up: [number, number, number] =
     Math.abs(axis[1]) > 0.999 ? [1, 0, 0] : [0, 1, 0];
-  const reference = unit(sub(up, scale(axis, dot(up, axis))));
+  const reference: [number, number, number] = unit(sub(up, scale(axis, dot(up, axis))));
   return {
     centre: sphere.centre,
     radius: sphere.radius,
@@ -106,40 +114,40 @@ function fitSphere(points: readonly (readonly [number, number, number])[]): {
 } {
   // |p|^2 = 2 c.p + k with k = r^2 - |c|^2 is linear in (c, k); solve the
   // 4x4 normal equations by Gaussian elimination with partial pivoting. The
-  // points are first taken about their mean, which keeps the equations well
-  // conditioned when the globe sits far from the origin.
-  const mean = scale(
+  // Mean centering reduces coordinate-origin contributions; conditioning
+  // still depends on the actual sampled geometry.
+  const mean: [number, number, number] = scale(
     points.reduce<[number, number, number]>(
-      (sum, point) => add(sum, point),
+      (sum: [number, number, number], point: readonly [number, number, number]): [number, number, number]  => add(sum, point),
       [0, 0, 0],
     ),
     1 / points.length,
   );
-  const matrix = Array.from({ length: 4 }, () => [0, 0, 0, 0, 0]);
-  for (const [x, y, z] of points.map((point) => sub(point, mean))) {
-    const row = [2 * x, 2 * y, 2 * z, 1];
-    const value = x * x + y * y + z * z;
-    for (let i = 0; i < 4; ++i) {
-      for (let j = 0; j < 4; ++j) matrix[i][j] += row[i] * row[j];
+  const matrix: number[][] = Array.from({ length: 4 }, (): number[]  => [0, 0, 0, 0, 0]);
+  for (const [x, y, z] of points.map((point: readonly [number, number, number]): [number, number, number]  => sub(point, mean))) {
+    const row: number[] = [2 * x, 2 * y, 2 * z, 1];
+    const value: number = x * x + y * y + z * z;
+    for (let i: number = 0; i < 4; ++i) {
+      for (let j: number = 0; j < 4; ++j) matrix[i][j] += row[i] * row[j];
       matrix[i][4] += row[i] * value;
     }
   }
-  for (let column = 0; column < 4; ++column) {
-    let pivot = column;
-    for (let row = column + 1; row < 4; ++row)
+  for (let column: number = 0; column < 4; ++column) {
+    let pivot: number = column;
+    for (let row: number = column + 1; row < 4; ++row)
       if (Math.abs(matrix[row][column]) > Math.abs(matrix[pivot][column]))
         pivot = row;
     if (Math.abs(matrix[pivot][column]) < 1e-18)
       throw new Error("The globe vertices do not determine a sphere.");
     [matrix[column], matrix[pivot]] = [matrix[pivot], matrix[column]];
-    for (let row = 0; row < 4; ++row) {
+    for (let row: number = 0; row < 4; ++row) {
       if (row === column) continue;
-      const factor = matrix[row][column] / matrix[column][column];
-      for (let k = column; k < 5; ++k)
+      const factor: number = matrix[row][column] / matrix[column][column];
+      for (let k: number = column; k < 5; ++k)
         matrix[row][k] -= factor * matrix[column][k];
     }
   }
-  const solution = matrix.map((row, index) => row[4] / row[index]);
+  const solution: number[] = matrix.map((row: number[], index: number): number  => row[4] / row[index]);
   const local: [number, number, number] = [
     solution[0],
     solution[1],
@@ -158,10 +166,10 @@ function protrusionAxis(
   sphere: { centre: [number, number, number]; radius: number },
 ): [number, number, number] {
   let sum: [number, number, number] = [0, 0, 0];
-  let largest = 0;
+  let largest: number = 0;
   for (const point of points) {
-    const offset = sub(point, sphere.centre);
-    const excess = Math.hypot(...offset) - sphere.radius;
+    const offset: [number, number, number] = sub(point, sphere.centre);
+    const excess: number = Math.hypot(...offset) - sphere.radius;
     largest = Math.max(largest, excess);
     if (excess > 0) sum = add(sum, scale(unit(offset), excess));
   }
@@ -196,6 +204,6 @@ function dot(a: readonly number[], b: readonly number[]): number {
 }
 
 function unit(a: readonly number[]): [number, number, number] {
-  const length = Math.hypot(a[0], a[1], a[2]);
+  const length: number = Math.hypot(a[0], a[1], a[2]);
   return [a[0] / length, a[1] / length, a[2] / length];
 }

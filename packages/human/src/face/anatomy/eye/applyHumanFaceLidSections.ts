@@ -1,3 +1,9 @@
+import type { IAutoMovieHumanFaceLidSections } from "../../structures/IAutoMovieHumanFaceLidSections";
+import type { IAutoMovieHumanFacePeriocularCage } from "../../structures/IAutoMovieHumanFacePeriocularCage";
+import type { IAutoMovieHumanFaceBasisSurface } from "../../structures/IAutoMovieHumanFaceBasisSurface";
+import type { IAutoMovieHumanFaceLidSectionDisplacement } from "../../structures/IAutoMovieHumanFaceLidSectionDisplacement";
+import type { IAutoMovieHumanFacePeriocularStation } from "../../structures/IAutoMovieHumanFacePeriocularStation";
+
 import { assertHumanFacePeriocularCage } from "../../basis/assertHumanFacePeriocularCage";
 import type { AutoMovieHumanFacePeriocularStationRole } from "../../structures/AutoMovieHumanFacePeriocularStationRole";
 import type { IAutoMovieHumanFaceBasis } from "../../structures/IAutoMovieHumanFaceBasis";
@@ -12,6 +18,14 @@ import type { IAutoMovieHumanFaceEyelids } from "../../structures/IAutoMovieHuma
  * These are independent rest identity controls, not wrinkle grades or measured
  * anatomy. Source pose residuals then carry blink, squint and gaze once, and
  * actual assembled space/contact admission judges the resulting geometry.
+ *
+ * @evidence contracts/common.md#principled-implementation Named section elevation/projection controls shift registered rows along head Y/Z by a normalized canthal-zero sine envelope, preserving each source sample's seam aliases.
+ * @evidence contracts/common.md#clear-and-simple-design Each supplied side keeps its own admitted cage/profile and applies the same source-sample displacement to every seam alias.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing roles, invalid dimensions or Float32 overflow refuse instead of deleting stations or manufacturing a fitted section.
+ * @evidence contracts/common.md#meaningful-documentation The prose states metre positions, millimetre controls, unchanged canthi, omitted identity and authored rest-section meaning.
+ * @evidence contracts/performance.md#efficient-algorithms Cage/source alias admission and affected station columns dominate; work grows with live host buffers and station incidence.
+ * @evidence contracts/performance.md#reuse-equivalent-work One side's canonical-source alias map serves all supplied sections; each section resolves its station once before walking columns. Omitted input reuses the original position map.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Only changed owned position buffers are retained by the result; lookup/copy temporaries expire without handles or tasks.
  */
 export function applyHumanFaceLidSections(
   basis: IAutoMovieHumanFaceBasis,
@@ -19,29 +33,29 @@ export function applyHumanFaceLidSections(
   input: IAutoMovieHumanFaceEyelids | undefined,
 ): ReadonlyMap<string, readonly number[]> {
   if (input === undefined) return positions;
-  const result = new Map(positions);
+  const result: Map<string, readonly number[]> = new Map(positions);
   for (const side of ["left", "right"] as const) {
-    const profiles = input[side];
+    const profiles: IAutoMovieHumanFaceLidSections | undefined = input[side];
     if (profiles === undefined || Object.keys(profiles).length === 0) continue;
-    const cage = basis.periocular?.[side].cage;
+    const cage: IAutoMovieHumanFacePeriocularCage | undefined = basis.periocular?.[side].cage;
     if (cage === undefined)
       throw new Error("Lid section source cage unavailable: " + side);
     assertHumanFacePeriocularCage(basis, cage);
-    const host = basis.surfaces.find((surface) => surface.id === cage.surface);
-    const source = result.get(cage.surface);
+    const host: IAutoMovieHumanFaceBasisSurface | undefined = basis.surfaces.find((surface: IAutoMovieHumanFaceBasisSurface): boolean  => surface.id === cage.surface);
+    const source: readonly number[] | undefined = result.get(cage.surface);
     if (source === undefined || source.length !== host!.positions.length)
       throw new Error(
         "Lid section needs its complete actual host buffer: " + side,
       );
-    const changed = [...source];
-    const aliases = new Map<number, number[]>();
-    host!.sourcePartition!.samples.forEach((sample, vertex) => {
-      const group = aliases.get(sample) ?? [];
+    const changed: number[] = [...source];
+    const aliases: Map<number, number[]> = new Map<number, number[]>();
+    host!.sourcePartition!.samples.forEach((sample: number, vertex: number): void  => {
+      const group: number[] = aliases.get(sample) ?? [];
       group.push(vertex);
       aliases.set(sample, group);
     });
     for (const name of Object.keys(profiles) as (keyof typeof profiles)[]) {
-      const profile = profiles[name];
+      const profile: IAutoMovieHumanFaceLidSectionDisplacement | undefined = profiles[name];
       if (profile === undefined) continue;
       if (![profile.elevationMm, profile.projectionMm].every(Number.isFinite))
         throw new Error(
@@ -59,8 +73,8 @@ export function applyHumanFaceLidSections(
           : name.endsWith("Hood")
             ? "hood"
             : "preseptal";
-      const station = cage.stations.find((station) => station.role === role);
-      const columns = name.startsWith("upper")
+      const station: IAutoMovieHumanFacePeriocularStation | undefined = cage.stations.find((station: IAutoMovieHumanFacePeriocularStation): boolean  => station.role === role);
+      const columns: number[] = name.startsWith("upper")
         ? cage.upperColumns
         : cage.lowerColumns;
       if (
@@ -72,15 +86,15 @@ export function applyHumanFaceLidSections(
         throw new Error(
           "Lid section requires its complete source row: " + side + ":" + name,
         );
-      for (let index = 1; index + 1 < columns.length; index++) {
-        const vertex = station.vertices[columns[index]];
+      for (let index: number = 1; index + 1 < columns.length; index++) {
+        const vertex: number = station.vertices[columns[index]];
         if (
           !Number.isSafeInteger(vertex) ||
           vertex < 0 ||
           3 * vertex + 2 >= changed.length
         )
           throw new Error("Lid section source column is outside its host.");
-        const envelope =
+        const envelope: number =
           Math.sin((Math.PI * index) / (columns.length - 1)) /
           Math.sin(
             (Math.PI * Math.floor(columns.length / 2)) / (columns.length - 1),
@@ -95,7 +109,7 @@ export function applyHumanFaceLidSections(
     }
     if (
       !changed.every(
-        (value) =>
+        (value: number): boolean  =>
           Number.isFinite(value) && Number.isFinite(Math.fround(value)),
       )
     )

@@ -17,7 +17,7 @@ import { IPortraitEyePerformance } from "./structures/IPortraitEyePerformance";
  * is open work. The same ratio applies to every aperture, so a taller fissure
  * moves its lower lid proportionally more.
  */
-const LOWER_MARGIN_CLOSURE_SHARE = 0.1;
+const LOWER_MARGIN_CLOSURE_SHARE: number = 0.1 as const;
 
 /**
  * Move paired lid margins towards one shared seam without changing their
@@ -38,6 +38,14 @@ const LOWER_MARGIN_CLOSURE_SHARE = 0.1;
  * a result that overflows finite coordinates all throw, and the caller's
  * curves are never modified. Equal current and observed closure returns owned
  * copies of the inputs.
+ *
+ * @evidence contracts/common.md#principled-implementation Paired margins move along chords toward one shared closure seam with the declared 0.1 lower travel convention.
+ * @evidence contracts/common.md#clear-and-simple-design The canonical performance admission owns motion ranges; the component separately projects these chords to fixed optical identity.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The vertical share is authored and its anatomical source remains unresolved; pose does not refit the sphere or independently prove tissue clearance.
+ * @evidence contracts/common.md#meaningful-documentation The prose states construction units, closure ratio, reopening extrapolation, copied equality branch and convention provenance.
+ * @evidence contracts/performance.md#efficient-algorithms Paired curve admission, seam generation and two motion scans require O(N) time/space.
+ * @evidence contracts/performance.md#reuse-equivalent-work Each station's shared seam serves both lid trajectories; equal current/observed closure preserves values through owned copies.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Returned curves own vectors; temporary seam/validation arrays expire with no retained inputs or resources.
  */
 export function posePortraitLidCurves(
   upper: readonly IAutoMovieVector3[],
@@ -49,7 +57,7 @@ export function posePortraitLidCurves(
     upper.length < 3 ||
     lower.length !== upper.length ||
     [...upper, ...lower].some(
-      (point) => ![point.x, point.y, point.z].every(Number.isFinite),
+      (point: IAutoMovieVector3): boolean  => ![point.x, point.y, point.z].every(Number.isFinite),
     )
   )
     throw new Error(
@@ -60,24 +68,24 @@ export function posePortraitLidCurves(
       upper: structuredClone([...upper]),
       lower: structuredClone([...lower]),
     };
-  const ratio = (1 - performance.blink) / (1 - performance.observedBlink);
-  const seam = upper.map((point, i) =>
+  const ratio: number = (1 - performance.blink) / (1 - performance.observedBlink);
+  const seam: IAutoMovieVector3[] = upper.map((point: IAutoMovieVector3, i: number): IAutoMovieVector3  =>
     Vector3.add(
       Vector3.scale(point, LOWER_MARGIN_CLOSURE_SHARE),
       Vector3.scale(lower[i], 1 - LOWER_MARGIN_CLOSURE_SHARE),
     ),
   );
-  const move = (points: readonly IAutoMovieVector3[]) =>
-    points.map((point, i) =>
+  const move: (points: readonly IAutoMovieVector3[]) => IAutoMovieVector3[] = (points: readonly IAutoMovieVector3[]): IAutoMovieVector3[]  =>
+    points.map((point: IAutoMovieVector3, i: number): IAutoMovieVector3  =>
       Vector3.add(
         seam[i],
         Vector3.scale(Vector3.subtract(point, seam[i]), ratio),
       ),
     );
-  const result = { upper: move(upper), lower: move(lower) };
+  const result: { upper: IAutoMovieVector3[]; lower: IAutoMovieVector3[]; } = { upper: move(upper), lower: move(lower) };
   if (
     [...result.upper, ...result.lower].some(
-      (point) => ![point.x, point.y, point.z].every(Number.isFinite),
+      (point: IAutoMovieVector3): boolean  => ![point.x, point.y, point.z].every(Number.isFinite),
     )
   )
     throw new Error(

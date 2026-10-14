@@ -1,3 +1,6 @@
+import type { IAutoMovieHumanFaceBasisSurface } from "../../structures/IAutoMovieHumanFaceBasisSurface";
+import type { IAutoMovieHumanFaceContactCollider } from "../../structures/IAutoMovieHumanFaceContactCollider";
+
 import type { IAutoMovieMesh } from "@automovie/interface";
 
 import type { IAutoMovieHumanFaceBasis } from "../../structures/IAutoMovieHumanFaceBasis";
@@ -12,6 +15,14 @@ import type { IHumanFaceOpticalAssembly } from "./structures/IHumanFaceOpticalAs
  * closed by its source collider fan, at the supplied positions. Three owners
  * restated this choice; periocular shells, visible ocular surfaces and the
  * assembly census now ask one function, so they always read the same surface.
+ *
+ * @evidence contracts/common.md#principled-implementation Independent optics return their exact requested-state hull; legacy optics combine registered live globe incidence with its actual collider closure.
+ * @evidence contracts/common.md#clear-and-simple-design One surface-choice owner is shared by tissue, visible-sheet and assembly readers.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Absent legacy source/collider/position ownership returns undefined rather than guessing an analytic proxy.
+ * @evidence contracts/common.md#meaningful-documentation The prose identifies generated state selection and registered source closure.
+ * @evidence contracts/performance.md#efficient-algorithms Owner lookups scan actual optics/source/collider populations; the legacy branch copies live coordinates and closure incidence.
+ * @evidence contracts/performance.md#reuse-equivalent-work Generated collider meshes are shared unchanged; each legacy reading owns a fresh same-source position/incidence copy.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Borrowed generated hull or owned legacy mesh is returned; lookup temporaries expire without handles or tasks.
  */
 export function readHumanFaceOpticalExterior(
   basis: IAutoMovieHumanFaceBasis,
@@ -20,15 +31,15 @@ export function readHumanFaceOpticalExterior(
   side: "left" | "right",
   state: "rest" | "performed",
 ): IAutoMovieMesh | undefined {
-  const eye = optics?.find((candidate) => candidate.side === side);
+  const eye: IHumanFaceOpticalAssembly | undefined = optics?.find((candidate: IHumanFaceOpticalAssembly): boolean  => candidate.side === side);
   if (eye !== undefined)
     return eye.collider[state === "rest" ? "rest" : "posed"];
-  const id = basis.periocular?.[side].globe.surface;
-  const surface = basis.surfaces.find((candidate) => candidate.id === id);
-  const collider = basis.contact?.colliders.find(
-    (candidate) => candidate.surface === id,
+  const id: string | undefined = basis.periocular?.[side].globe.surface;
+  const surface: IAutoMovieHumanFaceBasisSurface | undefined = basis.surfaces.find((candidate: IAutoMovieHumanFaceBasisSurface): boolean  => candidate.id === id);
+  const collider: IAutoMovieHumanFaceContactCollider | undefined = basis.contact?.colliders.find(
+    (candidate: IAutoMovieHumanFaceContactCollider): boolean  => candidate.surface === id,
   );
-  const points = id === undefined ? undefined : positions.get(id);
+  const points: readonly number[] | undefined = id === undefined ? undefined : positions.get(id);
   if (surface === undefined || collider === undefined || points === undefined)
     return undefined;
   return {

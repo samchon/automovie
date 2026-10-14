@@ -19,6 +19,14 @@ import { IPortraitIrisPigment } from "./structures/IPortraitIrisPigment";
  * that is blank or padded, a triple that is not three finite numbers, and an
  * endpoint (base, or base plus variation) outside [0,1] on any channel all
  * throw, and the input pigment is left unchanged.
+ *
+ * @evidence contracts/common.md#principled-implementation Eight linear-RGB bands use convex interpolation of admitted base and base-plus-variation endpoints.
+ * @evidence contracts/common.md#clear-and-simple-design One pigment palette owner is shared by portrait and connected/generated optical consumers; geometry owns band membership.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Roughness and opaque double-sided finishes are authored conventions, not acquired optical properties.
+ * @evidence contracts/common.md#meaningful-documentation The prose states linear colour, stable trimmed prefix, endpoint admission and fresh colour ownership.
+ * @evidence contracts/performance.md#efficient-algorithms Fixed eight-band/three-channel work requires constant time and allocation.
+ * @evidence contracts/performance.md#reuse-equivalent-work Both eye families reuse the same interpolation and admission law while each result owns mutable colours.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Only eight owned material records escape; no pigment array, texture, cache or resource is retained.
  */
 export function createPortraitIrisMaterials(
   prefix: string,
@@ -29,9 +37,9 @@ export function createPortraitIrisMaterials(
     prefix !== prefix.trim() ||
     pigment.base.length !== 3 ||
     pigment.variation.length !== 3 ||
-    [...pigment.base, ...pigment.variation].some((v) => !Number.isFinite(v)) ||
+    [...pigment.base, ...pigment.variation].some((v: number): boolean  => !Number.isFinite(v)) ||
     pigment.base.some(
-      (v, i) =>
+      (v: number, i: number): boolean  =>
         v < 0 ||
         v > 1 ||
         v + pigment.variation[i] < 0 ||
@@ -41,11 +49,11 @@ export function createPortraitIrisMaterials(
     throw new Error(
       "Iris pigmentation needs a material prefix and finite unit-range RGB endpoints.",
     );
-  return Array.from({ length: 8 }, (_, i) => {
-    const rgb = pigment.base.map(
-      (value, axis) => value + pigment.variation[axis] * (i / 7),
+  return Array.from({ length: 8 }, (_: unknown, i: number): { id: string; name: string; baseColor: { r: number; g: number; b: number; a: number; hex: null; }; roughness: number; metallic: number; opacity: number; emissive: null; baseColorTexture: null; doubleSided: true; }  => {
+    const rgb: number[] = pigment.base.map(
+      (value: number, axis: number): number  => value + pigment.variation[axis] * (i / 7),
     );
-    const id = `${prefix}-${i}`;
+    const id: string = `${prefix}-${i}`;
     return {
       id,
       name: id,

@@ -1,4 +1,10 @@
-import type { IAutoMovieModelPart } from "@automovie/interface";
+import type { IPortraitComponentPlan } from "../../surface/structures/IPortraitComponentPlan";
+import type { IControlMesh } from "../../mesh/structures/IControlMesh";
+
+
+import type { IPortraitInterior } from "../../surface/structures/IPortraitInterior";
+
+import type { IAutoMovieModelPart, IAutoMovieMesh } from "@automovie/interface";
 
 import { areaWeightedNormals } from "../../../common/mesh/areaWeightedNormals";
 import { createMetricMeshPart } from "../../mesh/createMetricMeshPart";
@@ -10,8 +16,6 @@ import type { IPortraitComponentHost } from "../../surface/structures/IPortraitC
 import type { IPortraitSurfaceLayer } from "../../surface/structures/IPortraitSurfaceLayer";
 import { preparePortraitHead } from "./preparePortraitHead";
 import { type IPortraitHeadFormation } from "./structures/IPortraitHeadFormation";
-
-export type { IPortraitHeadPerformance } from "./structures/IPortraitHeadPerformance";
 
 /**
  * Materialize a connected head and its dependent anatomical interiors.
@@ -29,6 +33,14 @@ export type { IPortraitHeadPerformance } from "./structures/IPortraitHeadPerform
  * Linear skin colours use per-corner values when contact welding preserved
  * distinct material samples. Independent interiors receive no stale normals.
  * The caller's host is retained and each call constructs new output arrays.
+ *
+ * @evidence contracts/common.md#principled-implementation Declared coincident contacts are sealed before native interior admission, one shared area-normal field and per-material region packing consume the final skin.
+ * @evidence contracts/common.md#clear-and-simple-design PreparePortraitHead owns fitting/refinement/layers; this consumer owns seam sealing, interior choice and model-metre packing through the canonical producers.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Native prepareInteriors replaces compatibility finish for that component rather than generating it twice; explicit join/cycle admission reads actual resident geometry.
+ * @evidence contracts/common.md#meaningful-documentation The prose states millimetre-to-model conversion, resident identity retention, per-corner colour handling and final-surface normal ownership.
+ * @evidence contracts/performance.md#efficient-algorithms Preparation/refinement and seam/interior owners contribute their actual mesh-dependent cost; packing scans all T triangle labels per R regions, so region selection is O(R*T) plus output and one O(V+T) shared normal pass.
+ * @evidence contracts/performance.md#reuse-equivalent-work Native/legacy consumers share the same sealed surface and normal field; neither stale pre-seal normals nor a second native producer is reused across changed geometry.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Each result owns newly constructed parts/refined arrays and source positions; attachment closures and interim selections are call-local, with no globally retained host or task.
  */
 export function buildPortraitHead(
   host: IPortraitComponentHost,
@@ -36,38 +48,38 @@ export function buildPortraitHead(
   rounds: number,
   surfaceLayers: readonly IPortraitSurfaceLayer[] = [],
   anatomy: IPortraitHeadFormation = {},
-) {
-  const { surface, regions, finishers, source } = preparePortraitHead(
+): { parts: IAutoMovieModelPart[]; refined: IControlMesh & { cornerColors?: number[][]; }; source: number[][]; }  {
+  const { surface, regions, finishers, source }: ReturnType<typeof preparePortraitHead> = preparePortraitHead(
     host,
     components,
     rounds,
     surfaceLayers,
     anatomy,
   );
-  const refined = sealPortraitContactSeams(
+  const refined: IControlMesh & { cornerColors?: number[][]; } = sealPortraitContactSeams(
     surface,
-    finishers.flatMap((attached) => attached.closures ?? []),
+    finishers.flatMap((attached: ReturnType<IPortraitComponentPlan["attach"]>): readonly number[]  => attached.closures ?? []),
   );
   // Preserve each producer's native units and indices until every selected
   // interior is available. This is a preparation boundary, not a joint solve;
   // providers read the sealed skin and must not modify it or one another.
-  const interiors = finishers.map((attached) =>
+  const interiors: (IPortraitInterior[] | undefined)[] = finishers.map((attached: ReturnType<IPortraitComponentPlan["attach"]>): IPortraitInterior[] | undefined  =>
     attached.prepareInteriors?.(refined),
   );
   assertPortraitInteriorBindings(
     refined,
-    interiors.flatMap((parts) => parts ?? []),
+    interiors.flatMap((parts: IPortraitInterior[] | undefined): IPortraitInterior[]  => parts ?? []),
   );
-  const packed = refined.positions.flat(),
-    normals = areaWeightedNormals(packed, refined.indices);
+  const packed: number[] = refined.positions.flat(),
+    normals: number[] = areaWeightedNormals(packed, refined.indices);
   const parts: IAutoMovieModelPart[] = [];
-  for (let group = 0; group < regions.length; group++) {
+  for (let group: number = 0; group < regions.length; group++) {
     const selected: number[] = [];
     const colors: number[][] | undefined =
       refined.colors === undefined || regions[group].material !== "skin"
         ? undefined
         : [];
-    for (let i = 0; i < refined.groups.length; i++)
+    for (let i: number = 0; i < refined.groups.length; i++)
       if (refined.groups[i] === group) {
         selected.push(...refined.indices.slice(i * 3, i * 3 + 3));
         if (colors !== undefined)
@@ -75,7 +87,7 @@ export function buildPortraitHead(
             ...(refined.cornerColors === undefined
               ? refined.indices
                   .slice(i * 3, i * 3 + 3)
-                  .map((id) => refined.colors![id])
+                  .map((id: number): number[]  => refined.colors![id])
               : refined.cornerColors.slice(i * 3, i * 3 + 3)),
           );
       }
@@ -88,12 +100,12 @@ export function buildPortraitHead(
         ),
       );
   }
-  for (let i = 0; i < finishers.length; ++i) {
-    const native = interiors[i];
+  for (let i: number = 0; i < finishers.length; ++i) {
+    const native: IPortraitInterior[] | undefined = interiors[i];
     parts.push(
       ...(native === undefined
         ? finishers[i].finish(refined)
-        : native.map(({ id, mesh, material }) =>
+        : native.map(({ id, mesh, material }: IPortraitInterior): IAutoMovieModelPart & { geometry: { type: "mesh"; mesh: IAutoMovieMesh; }; }  =>
             createMetricMeshPart(id, mesh, material),
           )),
     );

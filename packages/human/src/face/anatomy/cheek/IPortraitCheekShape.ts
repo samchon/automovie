@@ -10,6 +10,15 @@ import { IPortraitCheekVolume } from "./IPortraitCheekVolume";
  * or a freely authored cheek section. Directional contour requirements need
  * an explicitly authored support profile and rendered verification.
  *
+ *
+ * @evidence contracts/common.md#principled-implementation Four independent compact support envelopes and a separate groove describe explicitly authored cheek/perioral relief on one skin.
+ * @evidence contracts/common.md#clear-and-simple-design Support masses are not conflated with the adjacent nasolabial groove and all remain inputs to the shared surface layer.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Axis-aligned envelopes do not reconstruct a fat compartment or validate a three-dimensional smile; directional support requires authored data and visual review.
+ * @evidence contracts/common.md#meaningful-documentation The prose states current host correspondence and limitations while groove members specify positive support and nonnegative millimetre depth.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms IPortraitCheekShape is a TypeScript-only schema and executes no guide, surface or field algorithm.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work IPortraitCheekShape declares inputs or results; copying and equivalence belong to its concrete producer/consumer.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources IPortraitCheekShape acquires no runtime state or handle; array, map and callback lifetimes remain with their owning operations.
+ *
  * @author Samchon
  */
 export interface IPortraitCheekShape {

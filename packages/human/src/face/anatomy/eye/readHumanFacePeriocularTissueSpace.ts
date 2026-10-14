@@ -1,3 +1,5 @@
+import type { IAutoMovieHumanFaceBasisSurface } from "../../structures/IAutoMovieHumanFaceBasisSurface";
+
 import type { IAutoMovieMesh, IAutoMovieTransform } from "@automovie/interface";
 
 import type { IAutoMovieHumanConstructionClearanceReading } from "../../../common/structures/IAutoMovieHumanConstructionClearanceReading";
@@ -27,6 +29,14 @@ import type { IHumanFacePeriocularTissuePart } from "./structures/IHumanFacePeri
  * that every shell and every pair is measured and reported, where the
  * admission used to stop at the first one. The source tolerance absorbs
  * position rounding only.
+ *
+ * @evidence contracts/common.md#principled-implementation Every shell records unchanged requested room, beneath-skin clearance, optical clearance and both directed pair containments in the same rest/performed frame.
+ * @evidence contracts/common.md#clear-and-simple-design Canonical local publication/exterior/clearance instruments own geometry queries; this owner enumerates the complete tissue relation population.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Rest penetration grants no allowance; coplanar authored contact remains supported and reverse pair containment intentionally omits the already symmetric crossing census.
+ * @evidence contracts/common.md#meaningful-documentation The prose states source tolerance, preserved dimensions, complete reporting and forbidden-side meaning.
+ * @evidence contracts/performance.md#efficient-algorithms For K shells, O(K squared) pair relations plus skin/optical queries dominate actual vertex/signed/crossing geometry costs.
+ * @evidence contracts/performance.md#reuse-equivalent-work One side skin/optical reference and one publication transform per shell are reused; reverse relations reuse the first symmetric crossing decision.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Returned readings own observations; per-call references/transforms expire and the canonical weak query cache follows immutable mesh lifetime.
  */
 export function readHumanFacePeriocularTissueSpace(
   basis: IAutoMovieHumanFaceBasis,
@@ -36,25 +46,25 @@ export function readHumanFacePeriocularTissueSpace(
   state: "rest" | "performed",
 ): IAutoMovieHumanConstructionClearanceReading[] {
   if (parts.length === 0) return [];
-  const tolerance = basis.contact?.toleranceMetres;
+  const tolerance: number | undefined = basis.contact?.toleranceMetres;
   if (tolerance === undefined || !Number.isFinite(tolerance) || tolerance < 0)
     throw new Error(
       "Periocular tissue space needs its source contact tolerance.",
     );
-  const owner = "periocular-" + state;
-  const transforms = new Map<IHumanFacePeriocularTissuePart, IAutoMovieTransform>(
-    parts.map((part) => [part, {
+  const owner: string = "periocular-" + state;
+  const transforms: Map<IHumanFacePeriocularTissuePart, IAutoMovieTransform> = new Map<IHumanFacePeriocularTissuePart, IAutoMovieTransform>(
+    parts.map((part: IHumanFacePeriocularTissuePart): [IHumanFacePeriocularTissuePart, IAutoMovieTransform] => [part, {
       translation: part.publication.origin,
       rotation: { x: 0, y: 0, z: 0, w: 1 },
       scale: { x: 1, y: 1, z: 1 },
     }]),
   );
   const readings: IAutoMovieHumanConstructionClearanceReading[] = [];
-  const skins = new Map<"left" | "right", IAutoMovieMesh>();
+  const skins: Map<"left" | "right", IAutoMovieMesh> = new Map<"left" | "right", IAutoMovieMesh>();
   for (const side of ["left", "right"] as const) {
-    const selected = parts.filter((part) => part.side === side);
+    const selected: IHumanFacePeriocularTissuePart[] = parts.filter((part: IHumanFacePeriocularTissuePart): boolean  => part.side === side);
     if (selected.length === 0) continue;
-    const optical = readHumanFaceOpticalExterior(
+    const optical: IAutoMovieMesh | undefined = readHumanFaceOpticalExterior(
       basis,
       positions,
       optics,
@@ -65,7 +75,7 @@ export function readHumanFacePeriocularTissueSpace(
       throw new Error(
         "Periocular tissue space needs its registered optical proxy: " + side,
       );
-    const id = (part: IHumanFacePeriocularTissuePart): string =>
+    const id: (part: IHumanFacePeriocularTissuePart) => string = (part: IHumanFacePeriocularTissuePart): string =>
       "periocular:" + side + ":" + part.tissue;
     for (const part of selected)
       readings.push({
@@ -90,9 +100,9 @@ export function readHumanFacePeriocularTissueSpace(
     // Lid tissue lies beneath the lid skin: the skin is the lid's outermost
     // layer (Ferreira et al. 2020), so no shell vertex may be in front of
     // the skin sheet and no shell face may cross it.
-    const skinId = basis.periocular?.[side].cage?.surface;
-    const host = basis.surfaces.find((surface) => surface.id === skinId);
-    const skinPoints = skinId === undefined ? undefined : positions.get(skinId);
+    const skinId: string | undefined = basis.periocular?.[side].cage?.surface;
+    const host: IAutoMovieHumanFaceBasisSurface | undefined = basis.surfaces.find((surface: IAutoMovieHumanFaceBasisSurface): boolean  => surface.id === skinId);
+    const skinPoints: readonly number[] | undefined = skinId === undefined ? undefined : positions.get(skinId);
     if (host === undefined || skinPoints === undefined)
       throw new Error(
         "Periocular tissue space needs the lid skin of its cage: " + side,
@@ -123,7 +133,7 @@ export function readHumanFacePeriocularTissueSpace(
           toleranceMetres: tolerance,
         }),
       );
-    for (let at = 0; at < selected.length; at++) {
+    for (let at: number = 0; at < selected.length; at++) {
       readings.push(
         measureHumanFaceClearance({
           owner,
@@ -138,7 +148,7 @@ export function readHumanFacePeriocularTissueSpace(
           toleranceMetres: tolerance,
         }),
       );
-      for (let other = 0; other < at; other++) {
+      for (let other: number = 0; other < at; other++) {
         // The crossing census is symmetric, so the second direction reads
         // containment only.
         readings.push(

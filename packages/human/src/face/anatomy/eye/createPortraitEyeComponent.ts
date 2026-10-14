@@ -1,3 +1,17 @@
+import type { IPortraitComponentPlan } from "../../surface/structures/IPortraitComponentPlan";
+
+
+
+
+
+
+
+
+import type { IPortraitComponentHost } from "../../surface/structures/IPortraitComponentHost";
+import type { IControlMesh } from "../../mesh/structures/IControlMesh";
+
+
+
 /**
  * Orchestrate the replaceable eye's fit, attachment and refined finish.
  * Inputs describe an observed aperture in head millimetres (+Z anterior).
@@ -9,7 +23,7 @@
  * invalidates every downstream contact and interior; no stage certifies likeness.
  */
 import { Vector3, createAutoMovieMeshDepthSampler } from "@automovie/engine";
-import type { IAutoMovieVector3 as Point } from "@automovie/interface";
+import type { IAutoMovieVector3 as Point, IAutoMovieModelPart } from "@automovie/interface";
 
 import { catmullRomPoint as interpolate } from "../../mesh/catmullRomPoint";
 import { createMetricMeshPart } from "../../mesh/createMetricMeshPart";
@@ -44,13 +58,21 @@ export { appendPortraitEyeMargins } from "./appendPortraitEyeMargins";
 export { buildPortraitEye } from "./buildPortraitEye";
 /**
  * Fit one replaceable eye and expose its actual outer lid as the skin seam.
+ *
+ * @evidence contracts/common.md#principled-implementation Observed aperture shaping precedes fixed optical identity, performed lid contact, source skin attachment and refined metric emission.
+ * @evidence contracts/common.md#clear-and-simple-design Fit/attach/finalSurface/finish expose the shared component phases; one admitted socket/shape and actual support drive every phase.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Gaze never refits identity or changes the outer seam; reserved bridge admission precedes cage mutation and likeness remains unproven.
+ * @evidence contracts/common.md#meaningful-documentation The prose states construction millimetres, host/cage ownership, phase invalidation and drawing/contact identity.
+ * @evidence contracts/performance.md#efficient-algorithms Host copying, optical hull/query construction, source patch reservation/refinement and requested emitted optics/fibres dominate; delegated work is included.
+ * @evidence contracts/performance.md#reuse-equivalent-work One fit shares identity support, actual skin sampler, owned profile samplers and margin correspondence across attachment/contact/finish.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The component retains copied inputs; fit plans retain their host support until release, while attach mutates the caller-owned cage and creates no background task.
  */
 export function createPortraitEyeComponent(
   inputSocket: IPortraitEyeSocket,
   inputShape: IPortraitEyeShape,
   inputPerformance?: IPortraitEyePerformance,
 ): IPortraitComponent {
-  const { performance, socket, shape, tissues, lowerProfile, upperProfile } =
+  const { performance, socket, shape, tissues, lowerProfile, upperProfile }: ReturnType<typeof resolvePortraitEyeInputs> =
     resolvePortraitEyeInputs(inputSocket, inputShape, inputPerformance);
   return {
     id: socket.name + "-eye",
@@ -71,36 +93,36 @@ export function createPortraitEyeComponent(
             shape.irisPigment,
           )),
     ],
-    fit: (host) => {
-      const loop = portraitEyeLoop(socket);
-      const points = loop.map((id) => host.positions[id]);
-      const left = Math.min(...points.map((p) => p[0])),
-        right = Math.max(...points.map((p) => p[0]));
-      const middleX = (left + right) / 2;
-      const middleY =
-        (Math.min(...points.map((p) => p[1])) +
-          Math.max(...points.map((p) => p[1]))) /
+    fit: (host: IPortraitComponentHost): ReturnType<IPortraitComponent["fit"]>  => {
+      const loop: number[] = portraitEyeLoop(socket);
+      const points: number[][] = loop.map((id: number): number[]  => host.positions[id]);
+      const left: number = Math.min(...points.map((p: number[]): number  => p[0])),
+        right: number = Math.max(...points.map((p: number[]): number  => p[0]));
+      const middleX: number = (left + right) / 2;
+      const middleY: number =
+        (Math.min(...points.map((p: number[]): number  => p[1])) +
+          Math.max(...points.map((p: number[]): number  => p[1]))) /
         2;
-      const aperture = host.positions.map((point) => [...point]);
+      const aperture: number[][] = host.positions.map((point: number[]): number[]  => [...point]);
       for (const id of loop) {
-        const point = host.positions[id],
-          u = (point[0] - left) / (right - left);
-        const outer = socket.name === "left" ? u : 1 - u;
+        const point: number[] = host.positions[id],
+          u: number = (point[0] - left) / (right - left);
+        const outer: number = socket.name === "left" ? u : 1 - u;
         aperture[id] = [
           middleX + (point[0] - middleX) * shape.widthScale,
           middleY +
             (point[1] - middleY) * shape.openingScale +
             shape.outerCornerLift * outer,
           point[2],
-        ].map((value, axis) => value + shape.socketLift * host.viewRay[axis]);
+        ].map((value: number, axis: number): number  => value + shape.socketLift * host.viewRay[axis]);
       }
       aperture[socket.iris] = host.positions[socket.iris].map(
-        (value, axis) => value + shape.socketLift * host.viewRay[axis],
+        (value: number, axis: number): number  => value + shape.socketLift * host.viewRay[axis],
       );
-      const direction = p(host.viewRay[0], host.viewRay[1], host.viewRay[2]);
-      const pointAt = (id: number): Point =>
+      const direction: Point = p(host.viewRay[0], host.viewRay[1], host.viewRay[2]);
+      const pointAt: (id: number) => Point = (id: number): Point =>
         p(aperture[id][0], aperture[id][1], aperture[id][2]);
-      const { sphere, fittedSphere, shifted, canthal, intersect } =
+      const { sphere, fittedSphere, shifted, canthal, intersect }: ReturnType<typeof createPortraitEyeSupport> =
         createPortraitEyeSupport(
           socket.top.map(pointAt),
           socket.bottom.map(pointAt),
@@ -111,35 +133,35 @@ export function createPortraitEyeComponent(
       // Keep its reference sphere while moving the complete optical body along
       // the observation ray. This preserves image coordinates without lifting
       // the brow-side attachment by the same amount.
-      const identityGuide =
+      const identityGuide: number[][] | undefined =
         performance === undefined
           ? undefined
-          : aperture.map((point) => [...point]);
+          : aperture.map((point: number[]): number[]  => [...point]);
       // Transport from the observed aperture on this same optical sphere.
       // Contact/refinement still owns the final root; neither gaze nor a second
       // assembled reference face is needed to carry the strand's direction.
-      const lashReference =
+      const lashReference: Point[] | undefined =
         shape.upperLashProfile === undefined ||
         performance === undefined ||
         performance.blink === performance.observedBlink
           ? undefined
-          : socket.top.map((id) => intersect(pointAt(id)));
+          : socket.top.map((id: number): Point  => intersect(pointAt(id)));
       if (performance !== undefined) {
-        const posed = posePortraitLidCurves(
+        const posed: { upper: Point[]; lower: Point[]; } = posePortraitLidCurves(
           socket.top.map(pointAt),
           socket.bottom.map(pointAt),
           performance,
         );
         for (const band of ["top", "bottom"] as const)
-          socket[band].forEach((id, i) => {
-            const point = posed[band === "top" ? "upper" : "lower"][i];
+          socket[band].forEach((id: number, i: number): void  => {
+            const point: Point = posed[band === "top" ? "upper" : "lower"][i];
             aperture[id] = [point.x, point.y, point.z];
           });
       }
-      const lashCurrent =
+      const lashCurrent: Point[] | undefined =
         lashReference === undefined
           ? undefined
-          : socket.top.map((id) => intersect(pointAt(id)));
+          : socket.top.map((id: number): Point  => intersect(pointAt(id)));
       // The lid section starts at its actual ocular contact, not at a lower
       // globe surface that will later be pushed through a raised cornea. A
       // post-refinement collision correction alone leaves a local platform:
@@ -147,7 +169,7 @@ export function createPortraitEyeComponent(
       // Use the same resident optical builder and recorded projection ray as
       // the final contact check. Section thickness is added by the lid rows,
       // so this boundary query uses zero extra clearance, avoiding two copies.
-      const contactBoundary =
+      const contactBoundary: ((point: Point) => Point) | undefined =
         shape.lidContact !== "cornea"
           ? undefined
           : createPortraitDirectionalContact(
@@ -173,18 +195,18 @@ export function createPortraitEyeComponent(
       // Legacy support uses its reference sphere projection; separate canthal
       // support retains the observed anchors. Fade performed inner movement
       // to zero across either identity's tissue bridge.
-      const apertureGuide =
+      const apertureGuide: number[][] | undefined =
         identityGuide ??
         (canthal === undefined
           ? undefined
-          : aperture.map((point) => [...point])) ??
+          : aperture.map((point: number[]): number[]  => [...point])) ??
         (contactBoundary === undefined && !shifted
           ? undefined
-          : aperture.map((point) => [...point]));
+          : aperture.map((point: number[]): number[]  => [...point]));
       for (const id of loop) {
-        const contact = intersect(pointAt(id));
+        const contact: Point = intersect(pointAt(id));
         if (apertureGuide !== undefined) {
-          const guideContact =
+          const guideContact: Point =
             canthal !== undefined
               ? p(
                   ...((identityGuide ?? aperture)[id] as [
@@ -211,12 +233,12 @@ export function createPortraitEyeComponent(
         if (contactBoundary === undefined)
           aperture[id] = [contact.x, contact.y, contact.z];
         else {
-          const metric = p(
+          const metric: Point = p(
             contact.x / 1000,
             contact.y / 1000,
             contact.z / 1000,
           );
-          const boundary = contactBoundary(metric);
+          const boundary: Point = contactBoundary(metric);
           // A missed/clear sample keeps the original double coordinates
           // exactly, rather than introducing an unnecessary unit round trip.
           aperture[id] =
@@ -228,7 +250,7 @@ export function createPortraitEyeComponent(
       // The outer eyelid attaches to the actual supporting skin. Its section
       // bridges that depth to the fitted ocular contact instead of extruding a flat
       // annulus from the aperture. The two boundaries keep distinct ownership.
-      const support = createAutoMovieMeshDepthSampler(
+      const support: (u: number, v: number) => { minimum: number; maximum: number; } | null = createAutoMovieMeshDepthSampler(
         createMetricMeshPart(
           "orbital-support-basis",
           {
@@ -242,7 +264,7 @@ export function createPortraitEyeComponent(
         ).geometry.mesh,
         "z",
       );
-      const outerConstraints = portraitEyeLidRows(
+      const outerConstraints: { vertex: number; target: number[]; reach: number; }[] = portraitEyeLidRows(
         aperture,
         socket,
         shape,
@@ -250,8 +272,8 @@ export function createPortraitEyeComponent(
         lowerProfile,
         apertureGuide,
         upperProfile,
-      ).map((row) => {
-        const hit = support(row.outer[0] / 1000, row.outer[1] / 1000);
+      ).map((row: { id: number; outer: number[]; hoodUpper: number[]; hoodEdge: number[]; creaseOuter: number[]; creaseInner: number[]; tarsal: number[]; ridge: number[]; inner: number[]; }): { vertex: number; target: number[]; reach: number; }  => {
+        const hit: { minimum: number; maximum: number; } | null = support(row.outer[0] / 1000, row.outer[1] / 1000);
         if (hit === null)
           throw new Error(
             "An eyelid's outer attachment must remain on supporting skin.",
@@ -266,14 +288,14 @@ export function createPortraitEyeComponent(
           reach: shape.blendReach,
         };
       });
-      const cutFaces = selectHostFacesInsideLoop(host, loop);
-      const reservation =
+      const cutFaces: number[] = selectHostFacesInsideLoop(host, loop);
+      const reservation: { faces: number[]; boundary: number[]; } | undefined =
         shape.skinAttachment === undefined
           ? undefined
           : reservePortraitSkin(
               host,
               loop,
-              outerConstraints.map((constraint) => constraint.target),
+              outerConstraints.map((constraint: { vertex: number; target: number[]; reach: number; }): number[]  => constraint.target),
             );
       return {
         constraints: [
@@ -282,14 +304,14 @@ export function createPortraitEyeComponent(
           // omitting them would hide a contradictory target from another part.
           ...(reservation === undefined
             ? outerConstraints
-            : outerConstraints.map((constraint) => ({
+            : outerConstraints.map((constraint: { vertex: number; target: number[]; reach: number; }): { reach: number; vertex: number; target: number[]; }  => ({
                 ...constraint,
                 reach: 0,
               }))),
           { vertex: socket.iris, target: aperture[socket.iris], reach: 0 },
         ],
         cutFaces: reservation?.faces ?? cutFaces,
-        attach: (cage, _adapted, region) => {
+        attach: (cage: IControlMesh, _adapted: number[][], region: (id: string, material: string) => number): ReturnType<IPortraitComponentPlan["attach"]>  => {
           let bridge: number[] = [];
           let bridgePositions: number[][] = [];
           if (reservation !== undefined) {
@@ -297,23 +319,23 @@ export function createPortraitEyeComponent(
             // Moving them cannot drag a remaining host triangle across the new
             // seam. Admit the actual post-adaptation annulus before mutating the
             // cage: another component may have moved its outer boundary.
-            const targets = new Map(
-              outerConstraints.map((constraint) => [
+            const targets: Map<number, number[]> = new Map(
+              outerConstraints.map((constraint: { vertex: number; target: number[]; reach: number; }): [number, number[]]  => [
                 constraint.vertex,
                 constraint.target,
               ]),
             );
             bridge = portraitSkinAnnulus(
-              cage.positions.map((point, id) => targets.get(id) ?? point),
+              cage.positions.map((point: number[], id: number): number[]  => targets.get(id) ?? point),
               reservation.boundary,
               loop,
             );
             if (shape.skinBridge === "sampled") {
-              const refined = refinePortraitSkinBridge(
-                cage.positions.map((point, id) => targets.get(id) ?? point),
+              const refined: { positions: number[][]; indices: number[]; } = refinePortraitSkinBridge(
+                cage.positions.map((point: number[], id: number): number[]  => targets.get(id) ?? point),
                 bridge,
-                (x, y) => {
-                  const hit = support(x / 1000, y / 1000);
+                (x: number, y: number): number  => {
+                  const hit: { minimum: number; maximum: number; } | null = support(x / 1000, y / 1000);
                   if (hit === null)
                     throw new Error(
                       "Reserved orbital bridge must stay over its original skin support.",
@@ -328,11 +350,11 @@ export function createPortraitEyeComponent(
               cage.positions[vertex] = [...target];
           }
           cage.positions.push(...bridgePositions);
-          const lidGroup =
+          const lidGroup: number =
             shape.lidContact === "cornea"
               ? region(socket.name + "-eyelids", "skin")
               : 0;
-          const margins = appendPortraitEyeMargins(
+          const margins: Map<number, number> = appendPortraitEyeMargins(
             cage,
             aperture,
             socket,
@@ -342,12 +364,12 @@ export function createPortraitEyeComponent(
             apertureGuide,
             upperProfile,
           );
-          for (let i = 0; i < bridge.length; i += 3) {
+          for (let i: number = 0; i < bridge.length; i += 3) {
             cage.indices.push(...bridge.slice(i, i + 3));
             cage.groups.push(0);
           }
           return {
-            openings: [portraitEyeLoop(socket).map((id) => margins.get(id)!)],
+            openings: [portraitEyeLoop(socket).map((id: number): number  => margins.get(id)!)],
             closures:
               performance?.blink === 1 ? [margins.get(loop[0])!] : undefined,
             finalSurface:
@@ -362,7 +384,7 @@ export function createPortraitEyeComponent(
                     performance,
                     canthal: canthal?.surface,
                   }),
-            finish: (refined) =>
+            finish: (refined: IControlMesh): IAutoMovieModelPart[]  =>
               buildPortraitEye(
                 refined.positions,
                 refined,
@@ -375,7 +397,7 @@ export function createPortraitEyeComponent(
                 performance,
                 lashReference === undefined
                   ? undefined
-                  : (at) => ({
+                  : (at: number): { from: Point; to: Point; }  => ({
                       from: Vector3.subtract(
                         interpolate(lashReference, at),
                         sphere.center,

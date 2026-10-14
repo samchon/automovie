@@ -1,10 +1,19 @@
 import type { IPortraitEyebrowFlowPattern } from "./IPortraitEyebrowFlowPattern";
-import { IPortraitEyebrowFlowProfile } from "./IPortraitEyebrowFlowProfile";
+import type { IPortraitEyebrowFlowProfile } from "./IPortraitEyebrowFlowProfile";
 
 /**
  * Fibre dimensions on the final forehead surface. Lengths use millimetres;
  * clearance is measured beyond the fibre radius along the local surface normal.
  * The width and location of the brow belong to its separate boundary binding.
+ *
+ *
+ * @evidence contracts/common.md#principled-implementation Finite shaft dimensions and source-band placement parameters define deterministic tube/ribbon construction with separately admitted contact.
+ * @evidence contracts/common.md#clear-and-simple-design Dimensions, count-independent flow, thinning seed and named/legacy spellings retain their own meanings before centralized placement resolution.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts An emergence control is authored and used only by the connected native builder; the procedural height-field builder does not claim to measure it.
+ * @evidence contracts/common.md#meaningful-documentation Members document millimetres, segment bounds, root/fade defaults, spelling conflicts, replay-preserving seed omission and analytic emergence limits.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms IPortraitEyebrowProfile is a TypeScript-only schema and executes no guide, surface or field algorithm.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work IPortraitEyebrowProfile declares inputs or results; copying and equivalence belong to its concrete producer/consumer.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources IPortraitEyebrowProfile acquires no runtime state or handle; array, map and callback lifetimes remain with their owning operations.
  *
  * @author Samchon
  */

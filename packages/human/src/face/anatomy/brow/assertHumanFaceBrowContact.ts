@@ -1,7 +1,4 @@
-import {
-  createAutoMovieSignedMeshQuery,
-  measureAutoMovieMeshCrossings,
-} from "@automovie/engine";
+import { createAutoMovieSignedMeshQuery, measureAutoMovieMeshCrossings, type IAutoMovieSignedMeshQueryHit, type IAutoMovieMeshCrossing } from "@automovie/engine";
 import type { IAutoMovieMesh } from "@automovie/interface";
 
 /**
@@ -12,6 +9,14 @@ import type { IAutoMovieMesh } from "@automovie/interface";
  * admits contact on the skin boundary within the existing source tolerance;
  * no source depth, profile or tolerance is modified to make a shaft fit.
  * Inter-shaft interaction and follicle histology remain distinct acquisitions.
+ *
+ * @evidence contracts/common.md#principled-implementation Locally Float32-published shaft vertices and noncoplanar triangles are tested against the same open host skin with the existing source tolerance.
+ * @evidence contracts/common.md#clear-and-simple-design One signed host query serves the shaft population, followed by one combined-mesh crossing census and shaft-ordinal ownership lookup.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Open-rim queries and excessive inward distance refuse; tolerance/profile/source geometry are never enlarged to manufacture contact acceptance.
+ * @evidence contracts/common.md#meaningful-documentation The prose separates actual produced contact from tangent-plane lift and leaves inter-shaft interaction and follicle acquisition unresolved.
+ * @evidence contracts/performance.md#efficient-algorithms Each distinct indexed shaft vertex is queried once per shaft; combined triangle census uses the shared crossing instrument, whose spatial candidate work depends on both actual meshes.
+ * @evidence contracts/performance.md#reuse-equivalent-work Host query acceleration is built once and all shaft triangles share one host crossing census rather than rebuilding the host for each shaft.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Float32 copies, combined positions/indices and triangle-to-shaft owners grow with supplied geometry and are call-local; success or refusal retains no mesh/query handle.
  */
 export function assertHumanFaceBrowContact(
   skin: IAutoMovieMesh,
@@ -21,8 +26,8 @@ export function assertHumanFaceBrowContact(
   if (!Number.isFinite(toleranceMetres) || toleranceMetres < 0)
     throw new Error("Brow attachment needs its source contact tolerance.");
   if (shafts.length === 0) return;
-  const host = { ...skin, positions: skin.positions.map(Math.fround) };
-  const query = createAutoMovieSignedMeshQuery(host, { boundary: "open" });
+  const host: IAutoMovieMesh = { ...skin, positions: skin.positions.map(Math.fround) };
+  const query: (point: readonly number[]) => IAutoMovieSignedMeshQueryHit = createAutoMovieSignedMeshQuery(host, { boundary: "open" });
   const combined: IAutoMovieMesh = {
     positions: [],
     indices: [],
@@ -31,13 +36,13 @@ export function assertHumanFaceBrowContact(
     skin: null,
   };
   const owners: number[] = [];
-  for (let shaft = 0; shaft < shafts.length; shaft++) {
-    const mesh = {
+  for (let shaft: number = 0; shaft < shafts.length; shaft++) {
+    const mesh: IAutoMovieMesh = {
       ...shafts[shaft],
       positions: shafts[shaft].positions.map(Math.fround),
     };
     for (const vertex of new Set(mesh.indices ?? [])) {
-      const hit = query(mesh.positions.slice(3 * vertex, 3 * vertex + 3));
+      const hit: IAutoMovieSignedMeshQueryHit = query(mesh.positions.slice(3 * vertex, 3 * vertex + 3));
       if (hit.boundary || hit.signedDistance < -toleranceMetres)
         throw new Error(
           "Brow shaft skin clearance unavailable at shaft " +
@@ -46,15 +51,15 @@ export function assertHumanFaceBrowContact(
             vertex,
         );
     }
-    const offset = combined.positions.length / 3;
+    const offset: number = combined.positions.length / 3;
     combined.positions.push(...mesh.positions);
-    combined.indices!.push(...mesh.indices!.map((vertex) => vertex + offset));
-    for (let triangle = 0; triangle < mesh.indices!.length / 3; triangle++)
+    combined.indices!.push(...mesh.indices!.map((vertex: number): number  => vertex + offset));
+    for (let triangle: number = 0; triangle < mesh.indices!.length / 3; triangle++)
       owners.push(shaft);
   }
   // One census indexes the host once for the complete requested population.
-  const crossing = measureAutoMovieMeshCrossings(combined, host).find(
-    (crossing) => !crossing.coplanar,
+  const crossing: IAutoMovieMeshCrossing | undefined = measureAutoMovieMeshCrossings(combined, host).find(
+    (crossing: IAutoMovieMeshCrossing): boolean  => !crossing.coplanar,
   );
   if (crossing !== undefined)
     throw new Error(

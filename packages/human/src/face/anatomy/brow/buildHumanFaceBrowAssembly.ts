@@ -1,4 +1,11 @@
-import type { IAutoMovieMaterial, IAutoMovieMesh } from "@automovie/interface";
+import type { IAutoMovieHumanFaceBrowPopulation } from "../../structures/IAutoMovieHumanFaceBrowPopulation";
+import type { IAutoMovieHumanFacePeriocularBrowBand } from "../../structures/IAutoMovieHumanFacePeriocularBrowBand";
+import type { IAutoMovieHumanFaceBasisSurface } from "../../structures/IAutoMovieHumanFaceBasisSurface";
+import type { IHumanFaceSkinHost } from "../skin/IHumanFaceSkinHost";
+import type { IHumanFaceSkinChart } from "../skin/IHumanFaceSkinChart";
+import type { IAutoMovieHumanConstructionClearanceReading } from "../../../common/structures/IAutoMovieHumanConstructionClearanceReading";
+
+import type { IAutoMovieMaterial, IAutoMovieMesh, IAutoMovieModelPart } from "@automovie/interface";
 
 import type { IHumanConstructionCheck } from "../../../common/basis/IHumanConstructionCheck";
 import { float32MeshBuffers } from "../../../common/mesh/float32MeshBuffers";
@@ -31,6 +38,14 @@ import { readHumanFaceBrowClearance } from "./readHumanFaceBrowClearance";
  * Each side also states, as gains on the skin vertices of its band, the share
  * of the band its shafts cover, which is how the brow reads where a view
  * cannot resolve a shaft; the builder multiplies those gains into the skin.
+ *
+ * @evidence contracts/common.md#principled-implementation Each side builds shafts through the registered same-generation band and current skin chart, then keeps original clearance checks on the emitted population.
+ * @evidence contracts/common.md#clear-and-simple-design Chart seating, shaft construction, tinting, clearance reading and Float32 publication remain separate owners linked by actual band identities.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing generation/material/tolerance or unexpected non-mesh shafts refuse; replaced vertices follow exact source sets rather than names.
+ * @evidence contracts/common.md#meaningful-documentation The description distinguishes rest/performed skin, named native band authority, source pigment/density and the three clearance relations.
+ * @evidence contracts/performance.md#efficient-algorithms At most two sides build skin/chart acceleration and their requested shafts; dominant work includes native guide registration/walks, shaft sampling, tint seats and output-precision mesh checks.
+ * @evidence contracts/performance.md#reuse-equivalent-work Each side reuses one current host/chart across its fibres and retains one check closure for later original clearance reads; immutable source changes require a new assembly.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Returned parts/materials, tint arrays, replacement sets and checks are assembly-owned and scale with represented geometry; retained checks capture their actual skin/shaft population for that assembly lifetime.
  */
 export function buildHumanFaceBrowAssembly(
   basis: IAutoMovieHumanFaceBasis,
@@ -40,9 +55,9 @@ export function buildHumanFaceBrowAssembly(
   state: "rest" | "performed",
   reference: ReadonlyMap<string, readonly number[]>,
 ): IHumanFaceBrowAssembly {
-  const replacements = new Map<string, Set<number>>();
+  const replacements: Map<string, Set<number>> = new Map<string, Set<number>>();
   const checks: IHumanConstructionCheck[] = [];
-  const tints = new Map<string, number[]>();
+  const tints: Map<string, number[]> = new Map<string, number[]>();
   const result: IHumanFaceBrowAssembly = {
     parts: [],
     materials: [],
@@ -51,15 +66,15 @@ export function buildHumanFaceBrowAssembly(
     tints,
   };
   for (const side of ["left", "right"] as const) {
-    const input = document.brows?.[side];
+    const input: IAutoMovieHumanFaceBrowPopulation | undefined = document.brows?.[side];
     if (input === undefined) continue;
-    const band = basis.periocular?.[side].browBand;
+    const band: IAutoMovieHumanFacePeriocularBrowBand | undefined = basis.periocular?.[side].browBand;
     if (band === undefined)
       throw new Error("Brow implantation band unavailable: " + side);
-    const surface = basis.surfaces.find(
-      (surface) => surface.id === band.surface,
+    const surface: IAutoMovieHumanFaceBasisSurface | undefined = basis.surfaces.find(
+      (surface: IAutoMovieHumanFaceBasisSurface): boolean  => surface.id === band.surface,
     );
-    const points = positions.get(band.surface);
+    const points: readonly number[] | undefined = positions.get(band.surface);
     if (
       surface === undefined ||
       points === undefined ||
@@ -70,23 +85,23 @@ export function buildHumanFaceBrowAssembly(
       throw new Error(
         "Brow implantation needs the actual same-generation skin host: " + side,
       );
-    const source = materials.find((material) => material.id === band.material);
+    const source: IAutoMovieMaterial | undefined = materials.find((material: IAutoMovieMaterial): boolean  => material.id === band.material);
     if (source === undefined)
       throw new Error(
         "Brow population needs its registered source finish: " + side,
       );
-    const owned = replacements.get(band.replaceSurface) ?? new Set<number>();
-    band.replaceVertices.forEach((vertex) => owned.add(vertex));
+    const owned: Set<number> = replacements.get(band.replaceSurface) ?? new Set<number>();
+    band.replaceVertices.forEach((vertex: number): Set<number>  => owned.add(vertex));
     replacements.set(band.replaceSurface, owned);
-    const host = createHumanFaceSkinHost(surface.indices, points);
-    const chart = createHumanFaceSkinChart({
+    const host: IHumanFaceSkinHost = createHumanFaceSkinHost(surface.indices, points);
+    const chart: IHumanFaceSkinChart = createHumanFaceSkinChart({
       surface,
       referencePositions: reference.get(surface.id) ?? [],
       domain: side === "left" ? "browLeft" : "browRight",
       host,
       supportVertices: [...band.upper, ...band.lower],
     });
-    const parts = buildHumanFaceBrowShafts({
+    const parts: IAutoMovieModelPart[] = buildHumanFaceBrowShafts({
       chart,
       referencePositions: reference.get(surface.id) ?? [],
       binding: { side, upper: band.upper, lower: band.lower },
@@ -99,7 +114,7 @@ export function buildHumanFaceBrowAssembly(
         throw new Error("Brow generator must emit actual shaft meshes.");
       shaftMeshes.push(part.geometry.mesh);
     }
-    const tolerance = basis.contact?.toleranceMetres;
+    const tolerance: number | undefined = basis.contact?.toleranceMetres;
     if (tolerance === undefined)
       throw new Error("Brow population needs the source attachment tolerance.");
     const skin: IAutoMovieMesh = {
@@ -113,7 +128,7 @@ export function buildHumanFaceBrowAssembly(
       createHumanFaceClearanceCheck(
         "brow-" + side,
         "Brow shaft penetrates or crosses its host skin",
-        () =>
+        (): IAutoMovieHumanConstructionClearanceReading[]  =>
           readHumanFaceBrowClearance({
             side,
             state,
@@ -126,18 +141,18 @@ export function buildHumanFaceBrowAssembly(
       ),
     );
     if (parts.length === 0) continue;
-    const pigment =
+    const pigment: number[] =
       document.materials?.[band.material]?.pigment ??
       readHumanFaceFibrePigment(source);
-    const id = "brows:" + side;
-    const opacity =
+    const id: string = "brows:" + side;
+    const opacity: number =
       source.opacity *
       Math.min(1, document.materials?.[band.material]?.density ?? 1);
-    const skinFinish = materials.find(
-      (material) => material.id === HUMAN_SKIN_FINISH.material,
+    const skinFinish: IAutoMovieMaterial | undefined = materials.find(
+      (material: IAutoMovieMaterial): boolean  => material.id === HUMAN_SKIN_FINISH.material,
     );
     if (skinFinish !== undefined) {
-      let gains = tints.get(band.surface);
+      let gains: number[] | undefined = tints.get(band.surface);
       if (gains === undefined)
         tints.set(
           band.surface,

@@ -1,4 +1,8 @@
-import { measureAutoMovieMeshCrossings } from "@automovie/engine";
+import type { IHumanFacePeriocularTopology } from "./structures/IHumanFacePeriocularTopology";
+import type { IHumanFaceSkinFrame } from "../skin/IHumanFaceSkinFrame";
+import type { IHumanFaceSkinSeat } from "../skin/IHumanFaceSkinSeat";
+
+import { measureAutoMovieMeshCrossings, type IAutoMovieMeshCrossing } from "@automovie/engine";
 import type { IAutoMovieMesh, IAutoMovieVector3 } from "@automovie/interface";
 
 import { readHumanLocalMeshWorld } from "../../../common/mesh/readHumanLocalMeshWorld";
@@ -16,15 +20,25 @@ import type { IHumanFacePeriocularMappingReading } from "./structures/IHumanFace
  * Signed UV areas read Float64 material construction; spatial crossings read
  * local Float32 buffers restored by the same publication origin, with the
  * existing engine instrument used by part census.
- * These observations add no condition or tolerance to physical admission.
+ * Crossing counts retain at most one transverse witness per first sheet
+ * triangle under the default instrument; they do not count all intersecting
+ * face pairs. These observations add no condition or tolerance to physical admission.
  * Missing legacy UV coordinates stay unknown rather than reading as zero folds.
  * Original offset crossing witnesses retain their producer attachments; no
  * second query or reconstructed sheet is introduced to locate their causes.
+ *
+ * @evidence contracts/common.md#principled-implementation Actual conforming incidence or canonical structured quotient separately measures material orientation, sampled skin and published offset sheet crossings.
+ * @evidence contracts/common.md#clear-and-simple-design The existing local-world publication and crossing owners read the same geometry as shell/part census; witness provenance stays original.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing legacy material stays unknown and observational mapping results add no new physical tolerance/admission rule.
+ * @evidence contracts/common.md#meaningful-documentation The prose distinguishes Float64 material areas, local Float32/TRS spatial crossings and source witness ownership.
+ * @evidence contracts/performance.md#efficient-algorithms Completed source/offset crossing scans dominate, including engine broad-phase candidate pairs; witness collection grows with actual hits.
+ * @evidence contracts/performance.md#reuse-equivalent-work A prior same-band source reading reuses unchanged material/skin results while current outer/inner/between crossings remain actual queries.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Returned readings own counts/witness arrays and may borrow supplied frame/seat records; per-call mesh/hit tables expire without retained tasks.
  */
 export function readHumanFacePeriocularMapping(
   input: IHumanFacePeriocularMappingInput,
 ): IHumanFacePeriocularMappingReading {
-  const topology = createHumanFacePeriocularTopology(input);
+  const topology: IHumanFacePeriocularTopology = createHumanFacePeriocularTopology(input);
   const indices: number[] =
     input.indices === undefined ? [] : [...input.indices];
   if (input.indices === undefined)
@@ -34,9 +48,9 @@ export function readHumanFacePeriocularMapping(
         [a, c, d],
       ])
         if (new Set(corners).size === 3) indices.push(...corners);
-  const sheet = (positions: number[], origin?: IAutoMovieVector3): IAutoMovieMesh => readHumanLocalMeshWorld({
+  const sheet: (positions: number[], origin?: IAutoMovieVector3) => IAutoMovieMesh = (positions: number[], origin?: IAutoMovieVector3): IAutoMovieMesh => readHumanLocalMeshWorld({
     positions: origin === undefined ? positions : positions.map(
-      (value, at) => value - [origin.x, origin.y, origin.z][at % 3],
+      (value: number, at: number): number  => value - [origin.x, origin.y, origin.z][at % 3],
     ),
     indices,
     normals: null,
@@ -47,16 +61,16 @@ export function readHumanFacePeriocularMapping(
     rotation: { x: 0, y: 0, z: 0, w: 1 },
     scale: { x: 1, y: 1, z: 1 },
   });
-  const skin =
+  const skin: IAutoMovieMesh | undefined =
     input.sourceReading === undefined ? sheet(input.skin) : undefined;
-  const outer = sheet(input.outer, input.publicationOrigin),
-    inner = sheet(input.inner, input.publicationOrigin);
-  const crossings = (a: IAutoMovieMesh, b: IAutoMovieMesh) =>
-    measureAutoMovieMeshCrossings(a, b).filter((hit) => !hit.coplanar);
-  const outerHits = crossings(outer, outer),
-    innerHits = crossings(inner, inner);
-  const betweenHits = crossings(outer, inner);
-  const witness = (
+  const outer: IAutoMovieMesh = sheet(input.outer, input.publicationOrigin),
+    inner: IAutoMovieMesh = sheet(input.inner, input.publicationOrigin);
+  const crossings: (a: IAutoMovieMesh, b: IAutoMovieMesh) => IAutoMovieMeshCrossing[] = (a: IAutoMovieMesh, b: IAutoMovieMesh): IAutoMovieMeshCrossing[]  =>
+    measureAutoMovieMeshCrossings(a, b).filter((hit: IAutoMovieMeshCrossing): boolean  => !hit.coplanar);
+  const outerHits: IAutoMovieMeshCrossing[] = crossings(outer, outer),
+    innerHits: IAutoMovieMeshCrossing[] = crossings(inner, inner);
+  const betweenHits: IAutoMovieMeshCrossing[] = crossings(outer, inner);
+  const witness: (hit: IAutoMovieMeshCrossing) => IHumanFacePeriocularCrossingWitness = (
     hit: (typeof outerHits)[number],
   ): IHumanFacePeriocularCrossingWitness => ({
     triangle: hit.triangle,
@@ -66,22 +80,22 @@ export function readHumanFacePeriocularMapping(
     corners: indices.slice(3 * hit.triangle, 3 * hit.triangle + 3),
     otherCorners: indices.slice(3 * hit.other, 3 * hit.other + 3),
   });
-  const outerWitnesses = outerHits.map(witness),
-    innerWitnesses = innerHits.map(witness);
-  const betweenWitnesses = betweenHits.map(witness);
-  const used = new Set(
+  const outerWitnesses: IHumanFacePeriocularCrossingWitness[] = outerHits.map(witness),
+    innerWitnesses: IHumanFacePeriocularCrossingWitness[] = innerHits.map(witness);
+  const betweenWitnesses: IHumanFacePeriocularCrossingWitness[] = betweenHits.map(witness);
+  const used: Set<number> = new Set(
     [...outerWitnesses, ...innerWitnesses, ...betweenWitnesses].flatMap(
-      (hit) => [...hit.corners, ...hit.otherCorners],
+      (hit: IHumanFacePeriocularCrossingWitness): number[]  => [...hit.corners, ...hit.otherCorners],
     ),
   );
-  let positive = 0,
-    negative = 0,
-    zero = 0;
+  let positive: number = 0,
+    negative: number = 0,
+    zero: number = 0;
   if (input.material !== undefined && input.sourceReading === undefined)
-    for (let at = 0; at < indices.length; at += 3) {
-      const [a, b, c] = indices.slice(at, at + 3),
-        uv = input.material;
-      const area =
+    for (let at: number = 0; at < indices.length; at += 3) {
+      const [a, b, c]: number[] = indices.slice(at, at + 3),
+        uv: number[] = input.material;
+      const area: number =
         (uv[2 * b] - uv[2 * a]) * (uv[2 * c + 1] - uv[2 * a + 1]) -
         (uv[2 * b + 1] - uv[2 * a + 1]) * (uv[2 * c] - uv[2 * a]);
       if (area > 0) positive++;
@@ -115,7 +129,7 @@ export function readHumanFacePeriocularMapping(
     betweenSheetCrossings: betweenHits.length,
     sampledSourceTriangles:
       input.sourceReading?.sampledSourceTriangles ??
-      [...new Set(input.sourceTriangles)].sort((a, b) => a - b),
+      [...new Set(input.sourceTriangles)].sort((a: number, b: number): number  => a - b),
     ...(input.frames === undefined || input.seats === undefined
       ? {}
       : {
@@ -126,8 +140,8 @@ export function readHumanFacePeriocularMapping(
             inner: innerWitnesses,
             between: betweenWitnesses,
             vertices: [...used]
-              .sort((a, b) => a - b)
-              .map((vertex) => ({
+              .sort((a: number, b: number): number  => a - b)
+              .map((vertex: number): { vertex: number; frame: IHumanFaceSkinFrame; seat: IHumanFaceSkinSeat; }  => ({
                 vertex,
                 frame: input.frames![vertex],
                 seat: input.seats![vertex],

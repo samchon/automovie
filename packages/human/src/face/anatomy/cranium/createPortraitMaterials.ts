@@ -7,10 +7,18 @@ import { createPortraitIrisMaterials } from "../eye/createPortraitIrisMaterials"
  * from the photograph, and the reference photo is not used as a skin texture.
  * Keep IDs stable: the anatomical builders bind their parts to these names.
  * Diagnostic clay views replace finishes while keeping these same mesh buffers.
+ *
+ * @evidence contracts/common.md#principled-implementation Stable named linear-RGB PBR records bind the anatomical builders' actual material identities, with optical pigment construction delegated to its owner.
+ * @evidence contracts/common.md#clear-and-simple-design One local material builder supplies common defaults while skin clearcoat and tissue-specific values remain explicit appearance settings.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Values are provisional authored fits rather than photograph pixels, a baked shadow mask or a measured physiological reflectance/scattering model.
+ * @evidence contracts/common.md#meaningful-documentation The description and material comments state stable IDs, linear colour meaning, separate optical surface roles and appearance limitations.
+ * @evidence contracts/performance.md#efficient-algorithms The fixed material population and fixed iris palette take constant work relative to any head mesh; no image or vertex population is scanned.
+ * @evidence contracts/performance.md#reuse-equivalent-work The optical pigment owner is reused; each invocation deliberately returns fresh mutable material records rather than sharing another person's edits.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Only the returned material array and its owned records survive; no texture buffers, renderer handles or cached material state are acquired.
  */
 export function createPortraitMaterials(): IAutoMovieMaterial[] {
   const materials: IAutoMovieMaterial[] = [];
-  const material = (id: string, rgb: number[], roughness: number): string => {
+  const material: (id: string, rgb: number[], roughness: number) => string = (id: string, rgb: number[], roughness: number): string => {
     materials.push({
       id,
       name: id,
@@ -29,7 +37,7 @@ export function createPortraitMaterials(): IAutoMovieMaterial[] {
   material("skin", [0.58, 0.34, 0.3], 0.52);
   // Clearcoat remains a small separate specular lobe; it does not simulate
   // subsurface scattering or imply a measured tissue thickness.
-  const skin = materials[materials.length - 1]!;
+  const skin: IAutoMovieMaterial = materials[materials.length - 1]!;
   skin.clearcoat = 0.09;
   // A rosy vermilion finish remains independent of the lip section and oral
   // contact. Its broad lobe is an appearance fit, not photographic texture.

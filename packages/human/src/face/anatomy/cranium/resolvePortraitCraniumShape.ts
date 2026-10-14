@@ -17,8 +17,9 @@ import type { IPortraitCranialStation } from "./structures/IPortraitCranialStati
  * 180 mm, 7% under that mean and two millimetres above the female fifth
  * percentile (178 mm). The
  * anterior section and the widths are unchanged: the widest section already
- * gives the same release's pooled head breadth (151 mm, both sex means 147.8 mm
- * and 154.3 mm). The depth behind the anterior station was scaled by 1.144.
+ * gives the recorded equal-weight mean of that release's two sex means,
+ * rounded to 151 mm (147.8 mm and 154.3 mm). This is not a subject-count-weighted
+ * pooled estimate. The depth behind the anterior station was scaled by 1.144.
  *
  * The host's actual chin, chinY, is added only to the floor of a station
  * marked chinRelative, so a lower envelope can follow the face it continues.
@@ -26,12 +27,20 @@ import type { IPortraitCranialStation } from "./structures/IPortraitCranialStati
  * 64 stations, Z that does not strictly descend, a crown Z posterior to its
  * station Z, a nonpositive width, a crown at or below its floor, a negative cap
  * depth, a transition outside (0,1) or a nonpositive angular frame.
+ *
+ * @evidence contracts/common.md#principled-implementation Ordered sagittal section envelopes, an angular frame and cap controls are copied/admitted before continuation, with chin-relative floors resolved against the current host datum.
+ * @evidence contracts/common.md#clear-and-simple-design The resolver owns defaults and finite/order/dimension admission while the cage assembler owns all subsequent geometry mutation.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Invalid section counts/order/radii/heights/frame/transition refuse rather than clipping; authored default provenance is not a personal cranial reconstruction.
+ * @evidence contracts/common.md#meaningful-documentation The prose states head-millimetre axes, owned station copies, chin-relative floor meaning, default provenance and all supported refusal conditions.
+ * @evidence contracts/performance.md#efficient-algorithms Copying, floor resolution and admission scan R sections, bounded from five through 64; fixed default rings add only constant work.
+ * @evidence contracts/performance.md#reuse-equivalent-work Each build receives its own resolved settings while the immutable default values are defined in this one owner rather than repeated across assemblers.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns returned station/frame copies and cap scalars; input arrays remain unmodified and no generation cache or resource survives.
  */
 export function resolvePortraitCraniumShape(
   chinY: number,
   input: IPortraitCraniumShape = {},
-) {
-  const stations = structuredClone<readonly IPortraitCranialStation[]>(
+): { stations: { floor: number; z: number; crownZ: number; width: number; crown: number; }[]; capDepth: number; transition: number; frame: { width: number; height: number; centerY: number; }; }  {
+  const stations: { floor: number; z: number; crownZ: number; width: number; crown: number; }[] = structuredClone<readonly IPortraitCranialStation[]>(
     input.stations ?? [
       {
         z: -18,
@@ -48,7 +57,7 @@ export function resolvePortraitCraniumShape(
         [-124.4, 35],
         [-128.9, 26],
         [-131.3, 21],
-      ].map(([z, width]) => ({
+      ].map(([z, width]: number[]): { z: number; crownZ: number; width: number; crown: number; floor: number; }  => ({
         z,
         crownZ: z,
         width,
@@ -56,13 +65,13 @@ export function resolvePortraitCraniumShape(
         floor: 26.5 - 1.4 * width,
       })),
     ],
-  ).map(({ chinRelative, ...station }) => ({
+  ).map(({ chinRelative, ...station }: IPortraitCranialStation): { floor: number; z: number; crownZ: number; width: number; crown: number; }  => ({
     ...station,
     floor: station.floor + (chinRelative ? chinY : 0),
   }));
-  const capDepth = input.capDepth ?? 4;
-  const transition = input.transition ?? 0.3;
-  const frame = { ...(input.frame ?? { width: 71, height: 79, centerY: 5 }) };
+  const capDepth: number = input.capDepth ?? 4;
+  const transition: number = input.transition ?? 0.3;
+  const frame: { width: number; height: number; centerY: number; } = { ...(input.frame ?? { width: 71, height: 79, centerY: 5 }) };
   if (
     ![
       chinY,
@@ -80,7 +89,7 @@ export function resolvePortraitCraniumShape(
     stations.length < 5 ||
     stations.length > 64 ||
     stations.some(
-      (station, index) =>
+      (station: { floor: number; z: number; crownZ: number; width: number; crown: number; }, index: number): boolean  =>
         ![
           station.z,
           station.crownZ,

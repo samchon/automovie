@@ -1,5 +1,9 @@
+import type { IPortraitComponentHost } from "../../surface/structures/IPortraitComponentHost";
+import type { IControlMesh } from "../../mesh/structures/IControlMesh";
+import type { IPortraitInterior } from "../../surface/structures/IPortraitInterior";
+
 import { Quaternion } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type { IAutoMovieVector3, IAutoMovieMesh, IAutoMovieModelPart, IAutoMovieQuaternion } from "@automovie/interface";
 
 import { millimetrePoint } from "../../mesh/millimetrePoint";
 import { createPortraitInteriorFinisher } from "../../surface/createPortraitInteriorFinisher";
@@ -18,6 +22,14 @@ import { type IPortraitDentalRow } from "./structures/IPortraitDentalRow";
  * Fit owns the observed-relative pose in head millimetres; native preparation
  * returns a fresh copy without applying that rotation again. The compatibility
  * finisher packs the same producer's mesh through the shared metric boundary.
+ *
+ * @evidence contracts/common.md#principled-implementation Independently authored lower crowns reflect the cervical axis with normals/winding, rigidly attach to observed lower oral anchors and undergo exactly one observed-relative jaw rotation.
+ * @evidence contracts/common.md#clear-and-simple-design Native row preparation owns crown geometry and cervical cycles; the component owns lower-axis orientation, placement and jaw-only performance before exposing one interior producer.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Upper profiles are not silently reused, lip/smile/pucker cannot carry the row, and no gingiva/tongue/occlusion solver is implied.
+ * @evidence contracts/common.md#meaningful-documentation The prose states inferior cervical/superior incisal orientation, millimetres, jaw-only movement and no second rotation during native preparation.
+ * @evidence contracts/performance.md#efficient-algorithms Preparation includes crown separation/merge; orientation and each fit's placement/position-normal rotation scan V row vertices and its T indices, followed by fresh output cloning.
+ * @evidence contracts/performance.md#reuse-equivalent-work The component reuses its prepared reflected row across fits and clones the already-posed result in native preparation instead of rotating again.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The component owns copied controls and the reflected row; each fit closure owns its placed mesh until released, and returned interior copies retain no host/task/resource.
  */
 export function createPortraitMandibularDentition(
   inputSocket: {
@@ -29,9 +41,9 @@ export function createPortraitMandibularDentition(
   inputPlacement: { drop: number; recess: number },
   inputJaw: { hinge: IAutoMovieVector3; observed: number; current: number },
 ): IPortraitComponent {
-  const socket = structuredClone(inputSocket),
-    placement = structuredClone(inputPlacement),
-    jaw = structuredClone(inputJaw);
+  const socket: { rightCorner: number; leftCorner: number; lowerLipMiddle: number; } = structuredClone(inputSocket),
+    placement: { drop: number; recess: number; } = structuredClone(inputPlacement),
+    jaw: { hinge: IAutoMovieVector3; observed: number; current: number; } = structuredClone(inputJaw);
   if (
     ![placement.drop, placement.recess, jaw.observed, jaw.current].every(
       Number.isFinite,
@@ -47,30 +59,30 @@ export function createPortraitMandibularDentition(
       "Mandibular dentition requires nonnegative finite offsets and jaw angles in [0,25] degrees.",
     );
   posePortraitJawPoint(jaw.hinge, jaw.hinge, 0, 1);
-  const prepared = preparePortraitDentalRow(inputRow);
-  const row = prepared.mesh;
+  const prepared: { mesh: IAutoMovieMesh; cervical: number[][]; } = preparePortraitDentalRow(inputRow);
+  const row: IAutoMovieMesh = prepared.mesh;
   // Reflect the cervical-to-incisal axis, including normals and handedness.
-  for (let i = 1; i < row.positions.length; i += 3) {
+  for (let i: number = 1; i < row.positions.length; i += 3) {
     row.positions[i] = -row.positions[i];
     row.normals![i] = -row.normals![i];
   }
   // Native row preparation always returns indexed, normal-bearing crowns.
-  const indices = row.indices!;
-  for (let i = 0; i < indices.length; i += 3)
+  const indices: number[] = row.indices!;
+  for (let i: number = 0; i < indices.length; i += 3)
     [indices[i + 1], indices[i + 2]] = [indices[i + 2], indices[i + 1]];
   return {
     id: "lower-dentition",
-    fit: (host) => {
+    fit: (host: IPortraitComponentHost): { constraints: never[]; cutFaces: never[]; attach: () => { prepareInteriors: (refined: IControlMesh) => IPortraitInterior[]; finish: (refined: IControlMesh) => IAutoMovieModelPart[]; openings: never[]; }; }  => {
       if (
         Object.values(socket).some(
-          (id) =>
+          (id: number): boolean  =>
             !Number.isInteger(id) || id < 0 || id >= host.positions.length,
         )
       )
         throw new Error("Mandibular sockets must name resident host vertices.");
-      const point = (id: number) =>
+      const point: (id: number) => IAutoMovieVector3 = (id: number): IAutoMovieVector3  =>
         millimetrePoint(...(host.positions[id] as [number, number, number]));
-      const placed = attachPortraitDentalRow(row, {
+      const placed: IAutoMovieMesh = attachPortraitDentalRow(row, {
         rightCorner: point(socket.rightCorner),
         leftCorner: point(socket.leftCorner),
         upperLipMiddle: point(socket.lowerLipMiddle),
@@ -78,10 +90,10 @@ export function createPortraitMandibularDentition(
         lift: -placement.drop,
         recess: placement.recess,
       });
-      const angle = jaw.current - jaw.observed,
-        rotation = Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, angle);
-      for (let i = 0; i < placed.positions.length; i += 3) {
-        const p = posePortraitJawPoint(
+      const angle: number = jaw.current - jaw.observed,
+        rotation: IAutoMovieQuaternion = Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, angle);
+      for (let i: number = 0; i < placed.positions.length; i += 3) {
+        const p: IAutoMovieVector3 = posePortraitJawPoint(
           {
             x: placed.positions[i],
             y: placed.positions[i + 1],
@@ -91,7 +103,7 @@ export function createPortraitMandibularDentition(
           angle,
           1,
         );
-        const n = Quaternion.rotateVector(rotation, {
+        const n: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
           x: placed.normals![i],
           y: placed.normals![i + 1],
           z: placed.normals![i + 2],
@@ -102,16 +114,16 @@ export function createPortraitMandibularDentition(
       return {
         constraints: [],
         cutFaces: [],
-        attach: () => ({
+        attach: (): { prepareInteriors: (refined: IControlMesh) => IPortraitInterior[]; finish: (refined: IControlMesh) => IAutoMovieModelPart[]; openings: never[]; }  => ({
           openings: [],
-          ...createPortraitInteriorFinisher(() => [
+          ...createPortraitInteriorFinisher((): IPortraitInterior[] => [
             {
               id: "tooth-lower-arch",
               mesh: structuredClone(placed),
               material: "teeth",
               // Reflection reverses the cap's winding along with its faces.
               // Reverse the owned cycle as well; its vertex set stays intact.
-              loops: prepared.cervical.map((vertices, tooth) => ({
+              loops: prepared.cervical.map((vertices: number[], tooth: number): { name: string; vertices: number[]; }  => ({
                 name: `cervical-${tooth}`,
                 vertices: [...vertices].reverse(),
               })),

@@ -21,35 +21,43 @@ import { humanHeadEar } from "./humanHeadEar";
  * Triangle exclusion removes the declared ear's lateral extent even above
  * the area height bound. The height condition separately excludes lower
  * non-ear scalp; both predicates retain their own source-derived population.
+ *
+ * @evidence contracts/common.md#principled-implementation Ear-touching triangles are excluded, and each side's lateral maximum is searched at/above its own ear top using both vertices and exact linear height crossings. Source ear registration supplies the exclusion; no clinical ear-boundary accuracy is implied.
+ * @evidence contracts/common.md#clear-and-simple-design humanHeadEar owns membership/top, while this reader owns the two side-specific height predicates and X extent.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Triangle exclusion and height bounds retain distinct source populations, without target breadths, fixture triangles or a vertex-snapped replacement for an edge crossing.
+ * @evidence contracts/common.md#meaningful-documentation The prose explains exclusion, side/height semantics, linear crossing interpolation and refusal when a side has no admitted point.
+ * @evidence contracts/performance.md#efficient-algorithms For T triangles and R ear memberships, two ear reads plus one face/edge walk use O(T+R) expected work and ear-set space; only two candidate extrema are retained beyond those sets.
+ * @evidence contracts/performance.md#reuse-equivalent-work Each ear result is reused for exclusion/top checks and both euryons share the same edge walk; no cross-shape cache assumes identical source names mean unchanged geometry.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Ear Sets and candidates are call-local, and the two selected vectors/distance transfer without retaining the skin or owning native handles/tasks.
  */
 export function readHumanHeadBreadth(
   head: IAutoMovieHumanHeadSkin,
   rule: IAutoMovieHumanHeadBreadthMeasurement,
 ): IAutoMovieHumanHeadReading {
-  const right = humanHeadEar(head, rule.rightEar);
-  const left = humanHeadEar(head, rule.leftEar);
-  const p = head.positions;
+  const right: ReturnType<typeof humanHeadEar> = humanHeadEar(head, rule.rightEar);
+  const left: ReturnType<typeof humanHeadEar> = humanHeadEar(head, rule.leftEar);
+  const p: number[] = head.positions;
   let euryonRight: IAutoMovieVector3 | undefined;
   let euryonLeft: IAutoMovieVector3 | undefined;
-  const consider = (x: number, y: number, z: number): void => {
+  const consider: (x: number, y: number, z: number) => void = (x: number, y: number, z: number): void => {
     if (x < 0) {
       if (y >= right.top && (euryonRight === undefined || x < euryonRight.x))
         euryonRight = { x, y, z };
     } else if (y >= left.top && (euryonLeft === undefined || x > euryonLeft.x))
       euryonLeft = { x, y, z };
   };
-  for (let t = 0; t < head.indices.length / 3; t++) {
+  for (let t: number = 0; t < head.indices.length / 3; t++) {
     if (right.triangles.has(t) || left.triangles.has(t)) continue;
-    for (let k = 0; k < 3; k++) {
-      const a = head.indices[t * 3 + k];
-      const b = head.indices[t * 3 + ((k + 1) % 3)];
+    for (let k: number = 0; k < 3; k++) {
+      const a: number = head.indices[t * 3 + k];
+      const b: number = head.indices[t * 3 + ((k + 1) % 3)];
       consider(p[a * 3], p[a * 3 + 1], p[a * 3 + 2]);
       // the crossing of the bound height on this edge, for the side the edge lies on
-      const bound = p[a * 3] < 0 ? right.top : left.top;
-      const da = p[a * 3 + 1] - bound;
-      const db = p[b * 3 + 1] - bound;
+      const bound: number = p[a * 3] < 0 ? right.top : left.top;
+      const da: number = p[a * 3 + 1] - bound;
+      const db: number = p[b * 3 + 1] - bound;
       if (da >= 0 === db >= 0) continue;
-      const s = da / (da - db);
+      const s: number = da / (da - db);
       consider(
         p[a * 3] + s * (p[b * 3] - p[a * 3]),
         bound,

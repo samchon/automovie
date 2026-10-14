@@ -14,6 +14,15 @@ import type { IHumanGltfTextureReference } from "./IHumanGltfTextureReference";
  * radians counter-clockwise), because tiling cannot be shown without it; an
  * identity transform adds nothing, so untransformed bytes are unchanged.
  *
+ *
+ * @evidence contracts/common.md#principled-implementation Maps declared wrap/filter modes to glTF enums and writes nonidentity UV transforms as required KHR_texture_transform, converting degrees to radians.
+ * @evidence contracts/common.md#clear-and-simple-design One helper applies sampling consistently to base-colour, normal and occlusion texture infos while image embedding remains in createGltfDocument.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The clamp legacy default and identity-transform omission express supported binding semantics; no slot or consumer gets a corrective shader path.
+ * @evidence contracts/common.md#meaningful-documentation Documents sampler defaults, required transform extension, radians and identity omission.
+ * @evidence contracts/performance.md#efficient-algorithms Fixed mode maps and a single transform check use O(1) work per binding; no image bytes or texels are traversed.
+ * @evidence contracts/performance.md#reuse-equivalent-work The caller's Document shares its extension registry, while each TextureInfo gets its own sampler/transform intent even when image bytes share a texture.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The Document owns any created transform extension; the helper retains no reference or cache after return and opens no IO task.
+ *
  * @author Samchon
  */
 export function applyHumanGltfTextureSampling(
@@ -21,23 +30,23 @@ export function applyHumanGltfTextureSampling(
   info: TextureInfo,
   reference: IHumanGltfTextureReference,
 ): void {
-  const sampler = reference.sampler;
+  const sampler: IHumanGltfTextureReference["sampler"] = reference.sampler;
   if (sampler === null || sampler === undefined)
     info
       .setWrapS(TextureInfo.WrapMode.CLAMP_TO_EDGE)
       .setWrapT(TextureInfo.WrapMode.CLAMP_TO_EDGE);
   else {
-    const wrap = {
+    const wrap: Readonly<Record<NonNullable<IHumanGltfTextureReference["sampler"]>["wrapS"], ReturnType<TextureInfo["getWrapS"]>>> = {
       clamp: TextureInfo.WrapMode.CLAMP_TO_EDGE,
       repeat: TextureInfo.WrapMode.REPEAT,
       mirror: TextureInfo.WrapMode.MIRRORED_REPEAT,
-    } as const;
-    const minFilter = {
+    };
+    const minFilter: Readonly<Record<NonNullable<IHumanGltfTextureReference["sampler"]>["minFilter"], NonNullable<ReturnType<TextureInfo["getMinFilter"]>>>> = {
       nearest: TextureInfo.MinFilter.NEAREST,
       linear: TextureInfo.MinFilter.LINEAR,
       nearestMipmapLinear: TextureInfo.MinFilter.NEAREST_MIPMAP_LINEAR,
       linearMipmapLinear: TextureInfo.MinFilter.LINEAR_MIPMAP_LINEAR,
-    } as const;
+    };
     info
       .setWrapS(wrap[sampler.wrapS])
       .setWrapT(wrap[sampler.wrapT])
@@ -48,7 +57,7 @@ export function applyHumanGltfTextureSampling(
           : TextureInfo.MagFilter.LINEAR,
       );
   }
-  const transform = reference.transform;
+  const transform: IHumanGltfTextureReference["transform"] = reference.transform;
   if (
     transform === null ||
     transform === undefined ||

@@ -7,6 +7,15 @@
  * scales and projection, nonnegative embedding and integer tessellation inside
  * its budget. It does not encode the range of a living pinna.
  *
+ *
+ * @evidence contracts/common.md#principled-implementation Source pinna outline scales and placement use head millimetres and declared anatomical axes independently of the current host shape.
+ * @evidence contracts/common.md#clear-and-simple-design Anatomical dimensions and optional angular/radial tessellation are separate fields admitted by resolvePortraitEarSampling.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Finite positive dimensions and sampling bounds are drawable premises, not encoded living-pinna ranges or personal hidden-ear acquisition.
+ * @evidence contracts/common.md#meaningful-documentation Members state centres, outline scales, posterior projection, root embedding and omitted sampling counts/bounds.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms IPortraitEarShape is an erased TypeScript contract and performs no geometry or numeric algorithm.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work IPortraitEarShape declares source inputs/results; concrete producing/consuming operations own copying and equivalence.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources IPortraitEarShape acquires no runtime task, state or handle; actual array and callback lifetimes stay with their owners.
+ *
  * @author Samchon
  */
 export interface IPortraitEarShape {

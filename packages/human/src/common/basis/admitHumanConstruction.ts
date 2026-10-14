@@ -14,6 +14,14 @@ import type { IHumanConstructionCheck } from "./IHumanConstructionCheck";
  * assert, reading and census finish. It sees no geometry, changes no verdict,
  * and an observer exception propagates to the caller outside the refusal
  * collection. Omission preserves the prior execution path.
+ *
+ * @evidence contracts/common.md#principled-implementation Runs each original assertion followed by optional readings/census, keeps its first refusal, and propagates observer exceptions outside anatomical refusals.
+ * @evidence contracts/common.md#clear-and-simple-design One aggregate report owns admission results; createHumanFaceConstructionEntries owns publication and rejection of the constructed geometry.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Refusals retain actual causes; ordinary authoring uses the same assertions while inspection adds actual measured rows.
+ * @evidence contracts/common.md#meaningful-documentation Documents callback order, optional result fields and the distinct observer failure effect.
+ * @evidence contracts/performance.md#efficient-algorithms For C checks and R reading/P census rows, aggregation is O(C+R+P) plus callback costs; the full check pass prevents an early refusal hiding later owners.
+ * @evidence contracts/performance.md#reuse-equivalent-work Uses the supplied captured callbacks once without rebuilding geometry; mutable checks and observer effects are not memoized across requests.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Local report arrays grow with this check population and transfer on return; observer failure abandons those arrays and no handle is opened.
  */
 export function admitHumanConstruction(
   checks: readonly IHumanConstructionCheck[],
@@ -22,15 +30,15 @@ export function admitHumanConstruction(
   const failures: IAutoMovieHumanConstructionAdmission["failures"] = [];
   const clearances: IAutoMovieHumanConstructionClearanceReading[] = [];
   const parts: IAutoMovieHumanConstructionPartReading[] = [];
-  const report = (owner: string, error: unknown): void => {
+  const report: (owner: string, error: unknown) => void = (owner: string, error: unknown): void => {
     failures.push({
       owner,
       cause: error instanceof Error ? error.message : String(error),
     });
   };
   for (const check of checks) {
-    const priorFailures = failures.length;
-    let refused = false;
+    const priorFailures: number = failures.length;
+    let refused: boolean = false;
     try {
       check.assert();
     } catch (error) {

@@ -16,20 +16,28 @@ import type { IPortraitEyebrowFlowProfile } from "./IPortraitEyebrowFlowProfile"
  * witness list can state patterns the four numbers cannot.
  *
  * A fraction outside [0,1] or a non-finite sweep refuses.
+ *
+ * @evidence contracts/common.md#principled-implementation Three witnesses expand the four authored grain values into a medial fan and shared body/tail convergence at stations zero, 0.3 and one.
+ * @evidence contracts/common.md#clear-and-simple-design This single forward conversion hands complete witnesses to the flow interpolation owner; it does not implement an inverse for unrestricted profiles.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Out-of-range fractions and non-finite sweeps refuse; the three-tenths split is an explicit construction convention rather than an observed direction field.
+ * @evidence contracts/common.md#meaningful-documentation The prose explains upper/lower tips, sweep ownership, complete stations and the noninvertible representation boundary.
+ * @evidence contracts/performance.md#efficient-algorithms A fixed number of scalar validations and three witness records require constant time and output space.
+ * @evidence contracts/performance.md#reuse-equivalent-work Placement resolution reuses this canonical grain expansion before the shared flow sampler copies/adopts it.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Only the returned three-section profile survives; shared local body directions alias within that result and no external state or resource is retained.
  */
 export function resolvePortraitEyebrowFlowPattern(
   pattern: IPortraitEyebrowFlowPattern,
 ): IPortraitEyebrowFlowProfile {
   if (
     ![pattern.headTip, pattern.convergence].every(
-      (value) => Number.isFinite(value) && value >= 0 && value <= 1,
+      (value: number): boolean  => Number.isFinite(value) && value >= 0 && value <= 1,
     ) ||
     ![pattern.headSweepMm, pattern.sweepMm].every(Number.isFinite)
   )
     throw new Error(
       "Eyebrow grain needs tip fractions in [0,1] and finite sweeps.",
     );
-  const body = {
+  const body: { lower: { tip: number; outwardBend: number; }; upper: { tip: number; outwardBend: number; }; } = {
     lower: { tip: pattern.convergence, outwardBend: pattern.sweepMm },
     upper: { tip: pattern.convergence, outwardBend: pattern.sweepMm },
   };

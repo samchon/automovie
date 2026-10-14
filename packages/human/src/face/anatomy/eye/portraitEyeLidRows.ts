@@ -1,3 +1,5 @@
+import type { IPortraitAegyoSalShape } from "./createPortraitEyeComponent";
+
 import { linearInterpolate as mix } from "../../mesh/linearInterpolate";
 import type { createPortraitLowerLidProfile } from "./createPortraitLowerLidProfile";
 import type { createPortraitUpperLidProfile } from "./createPortraitUpperLidProfile";
@@ -11,10 +13,16 @@ import type { IPortraitUpperLidSection } from "./structures/IPortraitUpperLidSec
  * One numerical section calculation supplies both the skin constraint and lid rings.
  * Coordinates and offsets are millimetres; an optional fixed guide owns the
  * outer seam while posed contact fades across the same transverse section.
+ *
+ * @evidence contracts/common.md#principled-implementation One source-owned planar rim normal and fixed guide distribute posed contact across named millimetre tissue sections with canthal fade.
+ * @evidence contracts/common.md#clear-and-simple-design The same section owner supplies skin boundary constraints and emitted lid rings; detailed profiles and explicit lower-roll controls retain separate ownership.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Authored basic offsets/roll envelopes are construction conventions; valid nondegenerate ordered aperture and guide remain caller premises.
+ * @evidence contracts/common.md#meaningful-documentation The prose states millimetres, gaze-independent outer seam and shared numerical section responsibility.
+ * @evidence contracts/performance.md#efficient-algorithms N rim rows perform fixed section work plus current top/bottom membership scans; current implementation can be quadratic in rim identity counts.
+ * @evidence contracts/performance.md#reuse-equivalent-work Each row reuses its frame/progress/normal and profile readings for all section points; fit and attachment call the same section law.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Returned row records own arrays; temporary loop/profile readings expire and no source mesh or handle is retained.
  */
-// One calculation supplies both the part boundary constraint and its lid rows.
-// The host and the component therefore cannot disagree about the seam position.
-export const portraitEyeLidRows = (
+export const portraitEyeLidRows: (source: number[][], socket: IPortraitEyeSocket, shape: IPortraitEyeShape, outerDepths?: ReadonlyMap<number, number>, lowerProfile?: ReturnType<typeof createPortraitLowerLidProfile>, guide?: readonly (readonly number[])[], upperProfile?: ReturnType<typeof createPortraitUpperLidProfile>) => { id: number; outer: number[]; hoodUpper: number[]; hoodEdge: number[]; creaseOuter: number[]; creaseInner: number[]; tarsal: number[]; ridge: number[]; inner: number[]; }[] = (
   source: number[][],
   socket: IPortraitEyeSocket,
   shape: IPortraitEyeShape,
@@ -22,37 +30,37 @@ export const portraitEyeLidRows = (
   lowerProfile?: ReturnType<typeof createPortraitLowerLidProfile>,
   guide?: readonly (readonly number[])[],
   upperProfile?: ReturnType<typeof createPortraitUpperLidProfile>,
-) => {
-  const loop = portraitEyeLoop(socket);
-  const frame = guide ?? source;
-  const left = Math.min(...loop.map((id) => frame[id][0]));
-  const right = Math.max(...loop.map((id) => frame[id][0]));
-  return loop.map((id, index) => {
-    const point = source[id];
-    const nominal = frame[id];
+): { id: number; outer: number[]; hoodUpper: number[]; hoodEdge: number[]; creaseOuter: number[]; creaseInner: number[]; tarsal: number[]; ridge: number[]; inner: number[]; }[]  => {
+  const loop: number[] = portraitEyeLoop(socket);
+  const frame: readonly (readonly number[])[] = guide ?? source;
+  const left: number = Math.min(...loop.map((id: number): number  => frame[id][0]));
+  const right: number = Math.max(...loop.map((id: number): number  => frame[id][0]));
+  return loop.map((id: number, index: number): { id: number; outer: number[]; hoodUpper: number[]; hoodEdge: number[]; creaseOuter: number[]; creaseInner: number[]; tarsal: number[]; ridge: number[]; inner: number[]; }  => {
+    const point: number[] = source[id];
+    const nominal: readonly number[] = frame[id];
     // The rim expands along its own planar normal, independently of gaze.
     // Counterclockwise boundary order gives the outward normal directly; the
     // iris marker does not participate in the surrounding skin's shape.
-    const before = frame[loop[(index + loop.length - 1) % loop.length]];
-    const after = frame[loop[(index + 1) % loop.length]];
-    const nx = after[1] - before[1];
-    const ny = before[0] - after[0];
-    const distance = Math.hypot(nx, ny);
-    const weight = socket.top.includes(id)
+    const before: readonly number[] = frame[loop[(index + loop.length - 1) % loop.length]];
+    const after: readonly number[] = frame[loop[(index + 1) % loop.length]];
+    const nx: number = after[1] - before[1];
+    const ny: number = before[0] - after[0];
+    const distance: number = Math.hypot(nx, ny);
+    const weight: number = socket.top.includes(id)
       ? Math.sin((pi * (nominal[0] - left)) / (right - left))
       : 0;
-    const progress = (nominal[0] - left) / (right - left);
-    const anatomicalProgress = socket.name === "left" ? progress : 1 - progress;
+    const progress: number = (nominal[0] - left) / (right - left);
+    const anatomicalProgress: number = socket.name === "left" ? progress : 1 - progress;
     // Pretarsal lower fullness cannot replace upper fold or canthal sections.
-    const lowerRoll = socket.top.includes(id) ? undefined : shape.aegyoSal;
-    const detail = socket.top.includes(id)
+    const lowerRoll: IPortraitAegyoSalShape | undefined = socket.top.includes(id) ? undefined : shape.aegyoSal;
+    const detail: IPortraitLowerLidSection | undefined = socket.top.includes(id)
       ? undefined
       : lowerProfile?.(anatomicalProgress);
-    const upperDetail =
+    const upperDetail: IPortraitUpperLidSection | undefined =
       socket.top.includes(id) && !socket.bottom.includes(id)
         ? upperProfile?.(anatomicalProgress)
         : undefined;
-    const at = (
+    const at: (offset: number, depth: number, role?: Exclude<keyof IPortraitLowerLidSection, "attachment">, upperRole?: Exclude<keyof IPortraitUpperLidSection, "attachment">) => number[] = (
       offset: number,
       depth: number,
       role?: Exclude<keyof IPortraitLowerLidSection, "attachment">,
@@ -80,13 +88,13 @@ export const portraitEyeLidRows = (
       // close render. Replace those lower rows with a single crest and one
       // rapidly fading shoulder, then let the host resume at preseptal skin.
       if (role !== undefined && lowerRoll !== undefined) {
-        const roll = lowerRoll;
-        const smoothDecay = (at: number): number => {
-          const t = Math.max(0, Math.min(1, at));
-          const smooth = t * t * (3 - 2 * t);
+        const roll: IPortraitAegyoSalShape = lowerRoll;
+        const smoothDecay: (at: number) => number = (at: number): number => {
+          const t: number = Math.max(0, Math.min(1, at));
+          const smooth: number = t * t * (3 - 2 * t);
           return 1 - smooth;
         };
-        const section = {
+        const section: { offset: number; projection: number; decay: number; } = {
           pretarsalCrest: {
             offset: roll.offset,
             projection: roll.projection,
@@ -117,10 +125,10 @@ export const portraitEyeLidRows = (
         // The optional longitudinal weights are the roll's medial-to-lateral
         // fullness witnesses. They modulate one cross-section; they must not
         // reintroduce the old detailed profile as a second set of ridges.
-        const weights = roll.weights;
-        const position = Math.max(0, Math.min(1, anatomicalProgress)) * 6;
-        const index = Math.min(5, Math.floor(position));
-        const weight =
+        const weights: readonly number[] | undefined = roll.weights;
+        const position: number = Math.max(0, Math.min(1, anatomicalProgress)) * 6;
+        const index: number = Math.min(5, Math.floor(position));
+        const weight: number =
           weights === undefined
             ? 1
             : weights[index] * (1 - (position - index)) +
@@ -130,15 +138,15 @@ export const portraitEyeLidRows = (
         // Each gates the roll toward the canthi by its own smoothstep
         // envelope and the two envelopes multiply, so the shorter length
         // bounds the fully raised region.
-        const lateral = Math.abs(progress - 0.5) * 2;
-        const span = Math.max(right - left, 1e-6);
-        const envelope = (range: number): number => {
-          const fraction = Math.max(0, Math.min(1, range / span));
+        const lateral: number = Math.abs(progress - 0.5) * 2;
+        const span: number = Math.max(right - left, 1e-6);
+        const envelope: (range: number) => number = (range: number): number => {
+          const fraction: number = Math.max(0, Math.min(1, range / span));
           if (fraction >= 1 || lateral <= fraction) return 1;
-          const t = (lateral - fraction) / (1 - fraction);
+          const t: number = (lateral - fraction) / (1 - fraction);
           return 1 - t * t * (3 - 2 * t);
         };
-        const rollWeight =
+        const rollWeight: number =
           lowerWeight * weight * envelope(roll.width) * envelope(roll.reach);
         // A supplied roll owns its complete section. Blending offsets back to
         // the basic envelope at the canthi leaves the old shell's attachment
@@ -147,8 +155,8 @@ export const portraitEyeLidRows = (
         offset = section.offset;
         depth = roll.projection * section.decay * rollWeight;
       }
-      const t = Math.min(1, offset / outerWidth),
-        blend = t * t * (3 - 2 * t);
+      const t: number = Math.min(1, offset / outerWidth),
+        blend: number = t * t * (3 - 2 * t);
       return [
         guide === undefined
           ? point[0] + (offset * nx) / distance
@@ -167,9 +175,9 @@ export const portraitEyeLidRows = (
     // Loop subdivision and retain its depth between the tarsal ridge and hood.
     // The hood sits above the recessed fold and produces a real cast shadow.
     // Weight fades the fold at both canthi and leaves the lower lid uncreased.
-    const fold = shape.foldWidth * weight;
-    const depth = shape.foldDepth * weight;
-    const lowerWeight = socket.top.includes(id)
+    const fold: number = shape.foldWidth * weight;
+    const depth: number = shape.foldDepth * weight;
+    const lowerWeight: number = socket.top.includes(id)
       ? 0
       : Math.sin((pi * (nominal[0] - left)) / (right - left));
     // This basic lower branch is only a two-control envelope. Its shared row
@@ -178,10 +186,10 @@ export const portraitEyeLidRows = (
     // section. In particular, corneal clearance added later is contact data,
     // not the anatomical definition of the lower roll. An optional detailed
     // lower-lid profile supplies those independently authored section controls.
-    const lowerWidth = shape.lowerLidWidth * lowerWeight;
-    const lowerVolume = shape.lowerLidVolume * lowerWeight;
-    const basicWidth = 1.2 + (shape.foldWidth + 2.2) * weight + lowerWidth;
-    const outerWidth =
+    const lowerWidth: number = shape.lowerLidWidth * lowerWeight;
+    const lowerVolume: number = shape.lowerLidVolume * lowerWeight;
+    const basicWidth: number = 1.2 + (shape.foldWidth + 2.2) * weight + lowerWidth;
+    const outerWidth: number =
       upperDetail !== undefined
         ? basicWidth * (1 - weight) + upperDetail.attachment * weight
         : detail === undefined
@@ -231,4 +239,4 @@ export const portraitEyeLidRows = (
     };
   });
 };
-const pi = Math.PI;
+const pi: number = Math.PI;
