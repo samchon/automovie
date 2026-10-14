@@ -1,4 +1,8 @@
-import type { ITtscLintConfig } from "@ttsc/lint";
+import type {
+  ITtscLintBoundariesElement,
+  ITtscLintBoundariesElementTypesRule,
+  ITtscLintConfig,
+} from "@ttsc/lint";
 
 import shared from "../../config/lint.config";
 
@@ -19,11 +23,121 @@ const READERS: string[] = [
 ];
 
 /**
+ * Skin parts, one module each under `src/parts/<part>`, matching the
+ * `AutoMovieHumanPart` union. A part directory missing here classifies as the
+ * catch-all `part` element, which may import nothing, so it fails until it is
+ * declared.
+ */
+const PARTS: string[] = [
+  "trunk",
+  "neck",
+  "head",
+  "ear",
+  "arm",
+  "hand",
+  "leg",
+  "foot",
+];
+
+/**
+ * Modules below the composition, each with the modules it may import besides
+ * itself. Generation runs one way, from input documents to geometry: no module
+ * imports `human`, a skin part imports no other part, and the junction knows
+ * no part, so parts meet only through the rings it joins. `parts` is the
+ * contract every part implements, the files directly under `src/parts`.
+ */
+const LAYERS: Array<[string, string[]]> = [
+  ["structures", []],
+  ["measure", ["structures"]],
+  ["skeleton", ["structures", "measure"]],
+  ["junction", ["structures", "measure", "skeleton"]],
+  ["parts", ["structures", "measure", "skeleton", "junction"]],
+  ["rig", ["structures", "measure", "skeleton", "junction"]],
+  ["appearance", ["structures", "measure", "skeleton", "junction"]],
+  [
+    "garment",
+    ["structures", "measure", "skeleton", "junction", "rig", "appearance"],
+  ],
+  [
+    "export",
+    [
+      "structures",
+      "measure",
+      "skeleton",
+      "junction",
+      "rig",
+      "appearance",
+      "garment",
+    ],
+  ],
+];
+
+/** Classification of every Human source module for the boundary rule. */
+const ELEMENTS: ITtscLintBoundariesElement[] = [
+  ...LAYERS.filter(([type]: [string, string[]]): boolean => type !== "parts").map(
+    ([type]: [string, string[]]): ITtscLintBoundariesElement => ({
+      type,
+      pattern: `src/${type}/**`,
+    }),
+  ),
+  { type: "parts", pattern: "src/parts/*.ts" },
+  ...PARTS.map(
+    (part: string): ITtscLintBoundariesElement => ({
+      type: `part:${part}`,
+      pattern: `src/parts/${part}/**`,
+    }),
+  ),
+  { type: "part", pattern: "src/parts/*/**" },
+  { type: "human", pattern: "src/human/**" },
+];
+
+/** Allowed imports of every classified module; anything else is refused. */
+const POLICIES: ITtscLintBoundariesElementTypesRule[] = [
+  ...LAYERS.map(
+    ([type, below]: [string, string[]]): ITtscLintBoundariesElementTypesRule => ({
+      from: type,
+      allow: [type, ...below],
+    }),
+  ),
+  ...PARTS.map(
+    (part: string): ITtscLintBoundariesElementTypesRule => ({
+      from: `part:${part}`,
+      allow: [
+        `part:${part}`,
+        "parts",
+        "structures",
+        "measure",
+        "skeleton",
+        "junction",
+      ],
+      message:
+        "A skin part imports only its own module and the layers below; parts meet through the junction, never each other.",
+    }),
+  ),
+  {
+    from: "part",
+    disallow: ["*"],
+    message:
+      "Declare this part directory in PARTS of packages/human/lint.config.ts before it imports anything.",
+  },
+  {
+    from: "human",
+    allow: [
+      ...LAYERS.map(([type]: [string, string[]]): string => type),
+      "part:*",
+      "human",
+    ],
+  },
+];
+
+/**
  * Shared correctness guards, plus the refusal of any route by which external
  * data could become the person: Human source generates every figure from
  * typed parameters by code, so it never imports a reader, loads a module at
  * run time or fetches. The rules cover `src`, the only program this
  * configuration compiles; the build guard runs without lint plugins.
+ *
+ * Module boundaries keep Human's layers one-way: see `LAYERS` and `PARTS`.
  *
  * Evidence declarations are suspended until the rebuild declares completion.
  */
@@ -34,6 +148,10 @@ export default {
     "evidence/documented": "off",
     "evidence/singular": "off",
     "evidence/todo": "off",
+    "boundaries/element-types": [
+      "error",
+      { elements: ELEMENTS, default: "disallow", rules: POLICIES },
+    ],
     "no-restricted-imports": [
       "error",
       {
