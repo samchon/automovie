@@ -1,10 +1,7 @@
 /**
  * What a quantity report answers for.
  *
- * A closed list, and every subject appears in every report. A take-off that
- * printed only the subjects it found something for would read as a building
- * with no openings whenever somebody forgot to author one, so a subject with
- * nothing to measure reports a zero total over zero owners.
+ * Every subject appears in every report. No attributed measurement yields zero over zero owners, while authored zero or rounded-to-zero contributions can yield zero with owners present. Unmeasured records can also be counted in gaps; a zero finding alone does not prove absence or complete authorship.
  *
  * - `space-floor-area` (`m2`): plan area of each support surface, holes
  *   subtracted, summed per space.

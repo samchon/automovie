@@ -6,17 +6,13 @@ import { IAutoMovieQuantityContributor } from "./IAutoMovieQuantityContributor";
 /**
  * Everything the design says about one measured subject.
  *
- * The total covers every owner. The named owners are bounded by the
- * measurement's contributor bound, which defaults to the engine's
- * `AUTOMOVIE_QUANTITY_MAX_CONTRIBUTORS`, and what the bound left out is counted
- * and summed rather than dropped, so a take-off over a tower is the same size
- * as one over a room and still reconciles.
+ * The total covers all owners that contributed to the numeric tally, including owners omitted from the bounded named prefix. The contributor bound limits returned owner records, not gap text, prior measurement work or missing geometry; gaps can identify records that never contributed a value.
  *
  * The basis is decided per subject: `space-volume` is always `approximate`,
  * because a volume stated as overlapping cells is summed rather than unioned,
  * and every other subject is `exact`.
  *
- * @evidence contracts/common.md#principled-implementation `measureAutoMovieQuantities` rounds each owner's sum, sorts owners by value descending then id with `compareAutoMovieRenderIds`, totals every rounded value before slicing off the first `maxContributors`, and sums the rest into `omittedValue`, so `total` equals the named values plus `omittedValue` up to the final rounding.
+ * @evidence contracts/common.md#principled-implementation Owner accumulations round to six decimals, sort by value descending then id, and feed total and omitted suffix sums before final rounding. The contributor limit does not change the total; binary64 summation and rounding mean reconciliation is numerical rather than exact algebra, with overflow refused later by canonical encoding.
  * @evidence contracts/common.md#clear-and-simple-design One finding per subject carries the unit, basis and approximation once, with a bounded owner list and two remainder fields, so a reader reconciles a subject without another lookup.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The basis is fixed per subject by the measurement and the approximation text is the constant `AUTOMOVIE_QUANTITY_CELL_UNION_APPROXIMATION`, rather than a hedge chosen per design, and an owner beyond the bound is counted instead of discarded.
  * @evidence contracts/common.md#meaningful-documentation States the total's coverage, the contributor bound and its remainder, and the per-subject basis; members give the unit's scope, the owner count, when `approximation` is `null`, the contributor order and tiebreak, and what the two remainder fields count.
@@ -26,7 +22,7 @@ export interface IAutoMovieQuantityFinding {
   /** Subject this finding answers for. */
   subject: AutoMovieQuantitySubject;
 
-  /** Unit of every number in this finding. */
+  /** Unit of measured values; owner counts remain dimensionless. */
   unit: AutoMovieQuantityUnit;
 
   /**
@@ -38,7 +34,7 @@ export interface IAutoMovieQuantityFinding {
   /** How many distinct owners contributed. */
   owners: number;
 
-  /** Whether the total is the design's own arithmetic or an approximation. */
+  /** Fixed per-subject method label; not a numerical accuracy certificate. */
   basis: AutoMovieQuantityBasis;
 
   /**

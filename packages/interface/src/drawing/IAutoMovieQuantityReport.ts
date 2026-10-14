@@ -2,15 +2,15 @@ import { IAutoMovieDrawingGap } from "./IAutoMovieDrawingGap";
 import { IAutoMovieQuantityFinding } from "./IAutoMovieQuantityFinding";
 
 /**
- * Every quantity the design can currently answer for, and every one it cannot.
+ * The current seven measured quantity subjects and their declared gaps.
  *
- * Quantities are arithmetic over the authored design, not a bill somebody typed: an area is the area of an authored footprint and a length is the length of an authored route, so a change to the design is a change to the quantity. `measureAutoMovieQuantities` validates the design first and throws for an invalid one or a contributor bound that is not a positive safe integer.
+ * Quantities are recomputed from authored footprints, volumes, voids, routes and counts on each call; edits outside those measurements need not change a quantity. measureAutoMovieQuantities throws for an invalid environment or a contributor bound that is not a positive safe integer.
  *
- * What the design cannot answer is stated as a gap rather than omitted or defaulted to zero. Material take-off and pattern cut waste need material assemblies and surface patterns, which are separate records the measurement is not handed, so a report never reads as a building that needs no material.
+ * Known omitted measurements are stated as gaps. Material take-off and pattern cut waste need separate records this measurement is not handed; an unmeasurable cell or void-less opening is omitted from its numeric tally and counted in a gap. A zero total alone therefore does not prove the corresponding physical quantity is absent.
  *
- * @evidence contracts/common.md#principled-implementation `measureAutoMovieQuantities` sums support-surface footprint areas net of holes, shell volumes and convex cell volumes, closed-form opening areas and route polyline lengths, counts elements, openings and model occurrences, finishes each subject in `AUTOMOVIE_QUANTITY_SUBJECTS` order, and digests the record with SHA-256 over `canonicalizeAutoMovieJson`.
+ * @evidence contracts/common.md#principled-implementation The producer sums footprint areas net of holes, shell/cell formulas, arc-corrected void areas and route lengths, plus element/opening/model-reference counts. Overlapping support patches and cells are added rather than unioned; fixed subject coverage does not establish complete authored geometry. Canonical JSON hashing identifies produced metadata without a source/execution-authenticity guarantee.
  * @evidence contracts/common.md#clear-and-simple-design The report holds one finding per subject plus the gap list and identity fields; units, bounds and approximations stay on the findings that own them, and gaps reuse the drawing's gap record so one reader handles all three derivations.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Every subject is always present, so an absent quantity is a stated zero, and every quantity outside the measurement's reach, such as `material-quantity` and `pattern-cut-waste`, is a declared gap rather than an estimate.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Every subject is present, including zero totals when no owner contributes; known unavailable inputs and unsupported work use named gaps. The fixed gap list is not an exhaustive discovery of every quantity, modelling defect or numerical failure, and canonical encoding can refuse non-finite computed output.
  * @evidence contracts/common.md#meaningful-documentation States where quantities come from, the refusals, and why unmeasurable quantities are gaps; members give the fixed subject order and completeness, the gap order, and the digest's coverage.
  * @author Samchon
  */
