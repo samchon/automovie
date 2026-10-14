@@ -1,8 +1,12 @@
-import { ViolationCollector } from "../../../../packages/engine/src/validation/ViolationCollector";
+import {
+  IAutoMovieJointConstraint,
+  type IAutoMovieJointPose,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
 import { clampJointRom } from "../../../../packages/engine/src/rom/clampJointRom";
 import { validateJointRom } from "../../../../packages/engine/src/rom/validateJointRom";
-import { IAutoMovieJointConstraint, type IAutoMovieJointPose } from "@automovie/interface";
-import { TestValidator } from "@nestia/e2e";
+import { ViolationCollector } from "../../../../packages/engine/src/validation/ViolationCollector";
 import { joint } from "../internal/joint";
 import { namedFacts } from "../internal/namedFacts";
 import { nclose } from "../internal/nclose";
@@ -15,7 +19,9 @@ const CONE: IAutoMovieJointConstraint = {
   swingDeg: 100,
 };
 
-const passesCone: (j: ReturnType<typeof joint>) => boolean = (j: ReturnType<typeof joint>): boolean => {
+const passesCone: (j: ReturnType<typeof joint>) => boolean = (
+  j: ReturnType<typeof joint>,
+): boolean => {
   const collector: ViolationCollector = new ViolationCollector();
   validateJointRom({ joint: j, constraint: CONE, path: "$input", collector });
   return collector.items.length === 0;
@@ -45,7 +51,10 @@ const passesCone: (j: ReturnType<typeof joint>) => boolean = (j: ReturnType<type
  */
 export function test_rom_clamp_swing_cone(): void {
   // 1. past the cone → scaled back onto it, ratio preserved, now valid
-  const before: IAutoMovieJointPose = joint("leftUpperArm", { flexion: 90, abduction: 90 });
+  const before: IAutoMovieJointPose = joint("leftUpperArm", {
+    flexion: 90,
+    abduction: 90,
+  });
   TestValidator.predicate(
     "corner pose is over the cone first",
     !passesCone(before),
@@ -65,7 +74,10 @@ export function test_rom_clamp_swing_cone(): void {
   );
 
   // 2. already inside → untouched
-  const inside: IAutoMovieJointPose = joint("leftUpperArm", { flexion: 30, abduction: 30 });
+  const inside: IAutoMovieJointPose = joint("leftUpperArm", {
+    flexion: 30,
+    abduction: 30,
+  });
   const keptSame: IAutoMovieJointPose = clampJointRom(inside, CONE);
   TestValidator.predicate(
     "inside-cone flexion is unchanged",
@@ -78,13 +90,19 @@ export function test_rom_clamp_swing_cone(): void {
 
   // 3. a resting axis stays null and contributes 0: inside the cone it passes
   // through; past the cone it is pulled back like its explicit-0 twin.
-  const oneAxis: IAutoMovieJointPose = clampJointRom(joint("leftUpperArm", { abduction: 50 }), CONE);
+  const oneAxis: IAutoMovieJointPose = clampJointRom(
+    joint("leftUpperArm", { abduction: 50 }),
+    CONE,
+  );
   TestValidator.equals("rest flexion stays null", oneAxis.flexion, null);
   TestValidator.predicate(
     "lone abduction inside the cone passes through",
     nclose(oneAxis.abduction!, 50),
   );
-  const oneAxisF: IAutoMovieJointPose = clampJointRom(joint("leftUpperArm", { flexion: 50 }), CONE);
+  const oneAxisF: IAutoMovieJointPose = clampJointRom(
+    joint("leftUpperArm", { flexion: 50 }),
+    CONE,
+  );
   TestValidator.equals("rest abduction stays null", oneAxisF.abduction, null);
   TestValidator.predicate(
     "lone flexion inside the cone passes through",
@@ -102,8 +120,11 @@ export function test_rom_clamp_swing_cone(): void {
   TestValidator.equals(
     "a resting axis does not exempt the clamp: flexion is pulled onto the cone",
     namedFacts([
-      ["ncloseRestingPastFlexion", (): boolean  => nclose(restingPast.flexion!, 100)],
-      ["passesConeRestingPast", (): boolean  => passesCone(restingPast)],
+      [
+        "ncloseRestingPastFlexion",
+        (): boolean => nclose(restingPast.flexion!, 100),
+      ],
+      ["passesConeRestingPast", (): boolean => passesCone(restingPast)],
     ]),
     { ncloseRestingPastFlexion: true, passesConeRestingPast: true },
   );

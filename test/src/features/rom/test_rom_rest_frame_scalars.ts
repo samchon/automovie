@@ -56,7 +56,8 @@ export function test_rom_rest_frame_scalars(): void {
   TestValidator.predicate(
     "restRelativeConstraint rejects invalid sign",
     throwsError(
-      (): IAutoMovieJointConstraint => restRelativeConstraint(CLINICAL, { abduction: badSign }),
+      (): IAutoMovieJointConstraint =>
+        restRelativeConstraint(CLINICAL, { abduction: badSign }),
       ["rest frame abduction sign", "1 or -1", "0"],
     ),
   );
@@ -64,12 +65,16 @@ export function test_rom_rest_frame_scalars(): void {
   TestValidator.predicate(
     "restRelativeConstraint rejects non-finite neutral",
     throwsError(
-      (): IAutoMovieJointConstraint => restRelativeConstraint(CLINICAL, { flexion: badNeutral }),
+      (): IAutoMovieJointConstraint =>
+        restRelativeConstraint(CLINICAL, { flexion: badNeutral }),
       ["rest frame flexion neutral", "finite", "NaN"],
     ),
   );
 
-  TestValidator.predicate("no frame is identity", nclose(toRigAngle(12, undefined)!, 12, 0));
+  TestValidator.predicate(
+    "no frame is identity",
+    nclose(toRigAngle(12, undefined)!, 12, 0),
+  );
   TestValidator.equals(
     "null angle is identity",
     toClinicalAngle(null, { sign: -1, neutral: 90 }),

@@ -1,30 +1,40 @@
-import { Matrix4 } from "../../../../packages/engine/src/math/Matrix4";
-import { forgeCast } from "../../../../packages/engine/src/film/forgeCast";
-import { motionToClip } from "../../../../packages/engine/src/motion/motionToClip";
-import { performShot } from "../../../../packages/engine/src/film/performShot";
-import { resolveFrame } from "../../../../packages/engine/src/resolve/resolveFrame";
-import { resolvePose } from "../../../../packages/engine/src/kinematics/resolvePose";
-import { sampleMotion } from "../../../../packages/engine/src/motion/sampleMotion";
-import { sceneToNodes } from "../../../../packages/engine/src/resolve/sceneToNodes";
-import { stageScene } from "../../../../packages/engine/src/film/stageScene";
-import { IAutoMovieClip, IAutoMovieModel, type IAutoMovieScript, type IAutoMovieSkeleton, type IAutoMovieNode, type IAutoMovieTrack, type IAutoMovieTransform, type IAutoMovieSceneNode } from "@automovie/interface";
+import {
+  IAutoMovieClip,
+  IAutoMovieModel,
+  type IAutoMovieNode,
+  type IAutoMovieSceneNode,
+  type IAutoMovieScript,
+  type IAutoMovieSkeleton,
+  type IAutoMovieTrack,
+  type IAutoMovieTransform,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
+
+import { type IAutoMovieForgedCast } from "../../../../packages/engine/src/film/IAutoMovieForgedCast";
+import { type IAutoMoviePerformedShot } from "../../../../packages/engine/src/film/IAutoMoviePerformedShot";
+import { type IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
+import { forgeCast } from "../../../../packages/engine/src/film/forgeCast";
+import { performShot } from "../../../../packages/engine/src/film/performShot";
+import { stageScene } from "../../../../packages/engine/src/film/stageScene";
+import { type IAutoMovieResolvedBone } from "../../../../packages/engine/src/kinematics/IAutoMovieResolvedBone";
+import { resolvePose } from "../../../../packages/engine/src/kinematics/resolvePose";
+import { Matrix4 } from "../../../../packages/engine/src/math/Matrix4";
+import { motionToClip } from "../../../../packages/engine/src/motion/motionToClip";
+import { sampleMotion } from "../../../../packages/engine/src/motion/sampleMotion";
+import { resolveFrame } from "../../../../packages/engine/src/resolve/resolveFrame";
+import { sceneToNodes } from "../../../../packages/engine/src/resolve/sceneToNodes";
 import { bakeTimes } from "../internal/bakeTimes";
+import { createModel } from "../internal/createModel";
+import { createSkeleton } from "../internal/createSkeleton";
 import { forgeEntry } from "../internal/forgeEntry";
 import { makePerformanceWrite } from "../internal/makePerformanceWrite";
 import { makeScriptWrite } from "../internal/makeScriptWrite";
 import { makeStagingWrite } from "../internal/makeStagingWrite";
-import { validSynthesizer } from "../internal/validSynthesizer";
-import { createModel } from "../internal/createModel";
-import { createSkeleton } from "../internal/createSkeleton";
 import { namedFacts } from "../internal/namedFacts";
-import { qclose } from "../internal/qclose";
 import { nclose } from "../internal/nclose";
+import { qclose } from "../internal/qclose";
+import { validSynthesizer } from "../internal/validSynthesizer";
 import { vclose } from "../internal/vclose";
-import { type IAutoMovieForgedCast } from "../../../../packages/engine/src/film/IAutoMovieForgedCast";
-import { type IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
-import { type IAutoMoviePerformedShot } from "../../../../packages/engine/src/film/IAutoMoviePerformedShot";
-import { type IAutoMovieResolvedBone } from "../../../../packages/engine/src/kinematics/IAutoMovieResolvedBone";
 
 /**
  * The existing duel fixture runs forge/stage/perform, merges both actors' prefixed motion tracks into one clip and compares its resolved bones with specialized motion/FK under each placement at bake-clock times. Agreement uses the stated numerical predicates and shared product math.
@@ -61,7 +71,7 @@ export function test_resolve_scene_clip_parity(): void {
     staged,
     performance: makePerformanceWrite(),
     synthesize: validSynthesizer,
-    skeleton: (): IAutoMovieSkeleton  => createSkeleton(),
+    skeleton: (): IAutoMovieSkeleton => createSkeleton(),
   });
   if (performed.success !== true) throw new Error("perform must succeed");
 
@@ -72,24 +82,30 @@ export function test_resolve_scene_clip_parity(): void {
   };
   const nodes: IAutoMovieNode[] = sceneToNodes({ scene: staged.scene, models });
 
-  const actors: readonly ["knightA", "knightB"] = ["knightA", "knightB"] as const;
+  const actors: readonly ["knightA", "knightB"] = [
+    "knightA",
+    "knightB",
+  ] as const;
   TestValidator.equals(
     "every motion fits the shot and one spans it (a shorter one holds)",
     namedFacts([
       [
         "actorsEveryNode",
-        (): boolean  =>
+        (): boolean =>
           actors.every(
-            (node: "knightA" | "knightB"): boolean  =>
+            (node: "knightA" | "knightB"): boolean =>
               performed.motions[node]!.duration <= performed.shot.duration,
           ),
       ],
       [
         "actorsSomeNode",
-        (): boolean  =>
-          actors.some(
-            (node: "knightA" | "knightB"): boolean  =>
-              nclose(performed.motions[node]!.duration, performed.shot.duration, 0),
+        (): boolean =>
+          actors.some((node: "knightA" | "knightB"): boolean =>
+            nclose(
+              performed.motions[node]!.duration,
+              performed.shot.duration,
+              0,
+            ),
           ),
       ],
     ]),
@@ -102,7 +118,7 @@ export function test_resolve_scene_clip_parity(): void {
     duration: performed.shot.duration,
     loop: false,
     tracks: actors.flatMap(
-      (node: "knightA" | "knightB"): IAutoMovieTrack[]  =>
+      (node: "knightA" | "knightB"): IAutoMovieTrack[] =>
         motionToClip({
           motion: performed.motions[node]!,
           skeleton,
@@ -123,7 +139,7 @@ export function test_resolve_scene_clip_parity(): void {
     }).world;
     for (const node of actors) {
       const placement: IAutoMovieTransform = staged.scene.nodes.find(
-        (n: IAutoMovieSceneNode): boolean  => n.id === node,
+        (n: IAutoMovieSceneNode): boolean => n.id === node,
       )!.transform;
       const placementMatrix: number[] = Matrix4.compose(
         placement.translation,

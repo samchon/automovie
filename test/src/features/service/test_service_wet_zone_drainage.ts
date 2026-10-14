@@ -1,7 +1,15 @@
 import { validateWetZones } from "@automovie/engine";
-import type { IAutoMovieBuiltEnvironment, IAutoMovieFluidDomain, IAutoMovieServiceNetwork, IAutoMovieValidation, IAutoMovieWetZone, IAutoMovieConstraintViolation } from "@automovie/interface";
+import type {
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieConstraintViolation,
+  IAutoMovieFluidDomain,
+  IAutoMovieServiceNetwork,
+  IAutoMovieValidation,
+  IAutoMovieWetZone,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { assertWetZoneDrainageLowering } from "../internal/assertWetZoneDrainageLowering";
 import {
   hasViolation,
   namedFacts,
@@ -13,14 +21,16 @@ import {
   wetZone,
   withZone,
 } from "../internal/serviceFixtures";
-import { assertWetZoneDrainageLowering } from "../internal/assertWetZoneDrainageLowering";
 
 const environment: IAutoMovieBuiltEnvironment = serviceEnvironment();
-const refuse: (network?: IAutoMovieServiceNetwork) => IAutoMovieValidation = (network: IAutoMovieServiceNetwork = serviceNetwork()): IAutoMovieValidation =>
-  validateWetZones({ network, environment });
+const refuse: (network?: IAutoMovieServiceNetwork) => IAutoMovieValidation = (
+  network: IAutoMovieServiceNetwork = serviceNetwork(),
+): IAutoMovieValidation => validateWetZones({ network, environment });
 
 /** A lattice over the bath floor: four columns of `x`, five rows of `z`. */
-const bathFloor: (overrides?: Partial<IAutoMovieFluidDomain>) => IAutoMovieFluidDomain = (
+const bathFloor: (
+  overrides?: Partial<IAutoMovieFluidDomain>,
+) => IAutoMovieFluidDomain = (
   overrides: Partial<IAutoMovieFluidDomain> = {},
 ): IAutoMovieFluidDomain => {
   const bed: number[] = new Array(20).fill(0);
@@ -191,7 +201,14 @@ export function test_service_wet_zone_drainage(): void {
   );
 
   const nowhere: IAutoMovieValidation = refuse(
-    withZone(clean, "bath-zone", (zone: IAutoMovieWetZone): IAutoMovieWetZone => ({ ...zone, space: "attic" })),
+    withZone(
+      clean,
+      "bath-zone",
+      (zone: IAutoMovieWetZone): IAutoMovieWetZone => ({
+        ...zone,
+        space: "attic",
+      }),
+    ),
   );
   TestValidator.equals(
     "a zone on a space that does not resolve stops there",
@@ -203,11 +220,21 @@ export function test_service_wet_zone_drainage(): void {
   );
 
   const citations: IAutoMovieValidation = refuse(
-    withZone(clean, "bath-zone", (zone: IAutoMovieWetZone): IAutoMovieWetZone => ({
-      ...zone,
-      membrane: ["ghost", "bath-hall", "bath-hall", "bath-shell", "hall-plant"],
-      thresholds: ["bath-hall", "plant-shell"],
-    })),
+    withZone(
+      clean,
+      "bath-zone",
+      (zone: IAutoMovieWetZone): IAutoMovieWetZone => ({
+        ...zone,
+        membrane: [
+          "ghost",
+          "bath-hall",
+          "bath-hall",
+          "bath-shell",
+          "hall-plant",
+        ],
+        thresholds: ["bath-hall", "plant-shell"],
+      }),
+    ),
   );
   TestValidator.equals(
     "membrane and threshold citations must resolve, not repeat, and bound the space",
@@ -238,20 +265,35 @@ export function test_service_wet_zone_drainage(): void {
   );
 
   const uncovered: IAutoMovieValidation = refuse(
-    withZone(clean, "bath-zone", (zone: IAutoMovieWetZone): IAutoMovieWetZone => ({
-      ...zone,
-      membrane: ["bath-hall"],
-    })),
+    withZone(
+      clean,
+      "bath-zone",
+      (zone: IAutoMovieWetZone): IAutoMovieWetZone => ({
+        ...zone,
+        membrane: ["bath-hall"],
+      }),
+    ),
   );
   const unbridged: IAutoMovieValidation = refuse(
-    withZone(clean, "bath-zone", (zone: IAutoMovieWetZone): IAutoMovieWetZone => ({ ...zone, thresholds: [] })),
+    withZone(
+      clean,
+      "bath-zone",
+      (zone: IAutoMovieWetZone): IAutoMovieWetZone => ({
+        ...zone,
+        thresholds: [],
+      }),
+    ),
   );
   const evenGrade: IAutoMovieValidation = refuse(
-    withZone(clean, "plant-zone", (zone: IAutoMovieWetZone): IAutoMovieWetZone => ({
-      ...zone,
-      grade: "dry",
-      thresholds: [],
-    })),
+    withZone(
+      clean,
+      "plant-zone",
+      (zone: IAutoMovieWetZone): IAutoMovieWetZone => ({
+        ...zone,
+        grade: "dry",
+        thresholds: [],
+      }),
+    ),
   );
   TestValidator.equals(
     "a tanked room is covered everywhere and declares every handover",
@@ -261,8 +303,9 @@ export function test_service_wet_zone_drainage(): void {
         () =>
           hasViolation(uncovered, "coverage", "$input.zones[0].membrane") &&
           uncovered.success === false &&
-          uncovered.violations.some((item: IAutoMovieConstraintViolation): boolean =>
-            item.expected.includes('"bath-shell" is uncovered'),
+          uncovered.violations.some(
+            (item: IAutoMovieConstraintViolation): boolean =>
+              item.expected.includes('"bath-shell" is uncovered'),
           ),
       ],
       ["uncoveredAlone", () => violationCount(uncovered) === 1],
@@ -282,10 +325,14 @@ export function test_service_wet_zone_drainage(): void {
     },
   );
 
-  const basin: IAutoMovieServiceNetwork = withZone(clean, "bath-zone", (zone: IAutoMovieWetZone): IAutoMovieWetZone => ({
-    ...zone,
-    grade: "immersed",
-  }));
+  const basin: IAutoMovieServiceNetwork = withZone(
+    clean,
+    "bath-zone",
+    (zone: IAutoMovieWetZone): IAutoMovieWetZone => ({
+      ...zone,
+      grade: "immersed",
+    }),
+  );
   const tiered: IAutoMovieValidation = refuse({
     ...clean,
     zones: [
@@ -323,7 +370,8 @@ export function test_service_wet_zone_drainage(): void {
         () =>
           tiered.success === false &&
           tiered.violations.every(
-            (item: IAutoMovieConstraintViolation): boolean => item.path !== "$input.zones[1].thresholds",
+            (item: IAutoMovieConstraintViolation): boolean =>
+              item.path !== "$input.zones[1].thresholds",
           ),
       ],
       [
@@ -342,11 +390,15 @@ export function test_service_wet_zone_drainage(): void {
   );
 
   const flat: IAutoMovieValidation = refuse(
-    withZone(clean, "bath-zone", (zone: IAutoMovieWetZone): IAutoMovieWetZone => ({
-      ...zone,
-      slope: 0,
-      drains: [],
-    })),
+    withZone(
+      clean,
+      "bath-zone",
+      (zone: IAutoMovieWetZone): IAutoMovieWetZone => ({
+        ...zone,
+        slope: 0,
+        drains: [],
+      }),
+    ),
   );
   TestValidator.equals(
     "a tanked room must fall, and must fall to something",
@@ -362,16 +414,20 @@ export function test_service_wet_zone_drainage(): void {
   );
 
   const drains: IAutoMovieValidation = refuse(
-    withZone(clean, "bath-zone", (zone: IAutoMovieWetZone): IAutoMovieWetZone => ({
-      ...zone,
-      drains: [
-        "ghost",
-        "hall-diffuser",
-        "bath-valve",
-        "floor-gully",
-        "floor-gully",
-      ],
-    })),
+    withZone(
+      clean,
+      "bath-zone",
+      (zone: IAutoMovieWetZone): IAutoMovieWetZone => ({
+        ...zone,
+        drains: [
+          "ghost",
+          "hall-diffuser",
+          "bath-valve",
+          "floor-gully",
+          "floor-gully",
+        ],
+      }),
+    ),
   );
   TestValidator.equals(
     "a drain must exist, stand in the room, and really discharge",

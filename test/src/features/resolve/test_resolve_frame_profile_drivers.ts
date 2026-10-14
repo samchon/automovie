@@ -1,9 +1,17 @@
-import { resolveFrame } from "../../../../packages/engine/src/resolve/resolveFrame";
-import { IAutoMovieClip, IAutoMovieNode, IAutoMovieProfile, IAutoMovieProfileBinding, IAutoMovieTransform, type IAutoMovieVector3 } from "@automovie/interface";
+import {
+  IAutoMovieClip,
+  IAutoMovieNode,
+  IAutoMovieProfile,
+  IAutoMovieProfileBinding,
+  IAutoMovieTransform,
+  type IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
+
+import { type IAutoMovieResolveOutput } from "../../../../packages/engine/src/resolve/IAutoMovieResolveOutput";
+import { resolveFrame } from "../../../../packages/engine/src/resolve/resolveFrame";
 import { namedFacts } from "../internal/namedFacts";
 import { nclose } from "../internal/nclose";
-import { type IAutoMovieResolveOutput } from "../../../../packages/engine/src/resolve/IAutoMovieResolveOutput";
 
 const IDENTITY: IAutoMovieTransform = {
   translation: { x: 0, y: 0, z: 0 },
@@ -87,7 +95,9 @@ const AIM_BINDING: IAutoMovieProfileBinding = {
 };
 
 /** X-basis column of a column-major world matrix. */
-const basisX: (m: number[]) => [number, number, number] = (m: number[]): [number, number, number] => [m[0]!, m[1]!, m[2]!];
+const basisX: (m: number[]) => [number, number, number] = (
+  m: number[],
+): [number, number, number] => [m[0]!, m[1]!, m[2]!];
 
 /**
  * Bound profile drivers reach prefixed node channels, and directly supplied world drivers apply after profile drivers on the same owner.
@@ -123,23 +133,27 @@ export function test_resolve_frame_profile_drivers(): void {
     ],
     seconds: 0,
   });
-  const hingeX: [number, number, number] = basisX(driven.world.get("actor/hinge")!);
-  const handleX: [number, number, number] = basisX(driven.world.get("actor/handle")!);
+  const hingeX: [number, number, number] = basisX(
+    driven.world.get("actor/hinge")!,
+  );
+  const handleX: [number, number, number] = basisX(
+    driven.world.get("actor/handle")!,
+  );
   TestValidator.equals(
     "hinge rotated 90° about Y",
     namedFacts([
-      ["ncloseHingeX", (): boolean  => nclose(hingeX[0], 0)],
-      ["ncloseHingeX2", (): boolean  => nclose(hingeX[1], 0)],
-      ["ncloseHingeX3", (): boolean  => nclose(hingeX[2], -1)],
+      ["ncloseHingeX", (): boolean => nclose(hingeX[0], 0)],
+      ["ncloseHingeX2", (): boolean => nclose(hingeX[1], 0)],
+      ["ncloseHingeX3", (): boolean => nclose(hingeX[2], -1)],
     ]),
     { ncloseHingeX: true, ncloseHingeX2: true, ncloseHingeX3: true },
   );
   TestValidator.equals(
     "profile copy drove the handle",
     namedFacts([
-      ["ncloseHandleX", (): boolean  => nclose(handleX[0], 0)],
-      ["ncloseHandleX2", (): boolean  => nclose(handleX[1], 0)],
-      ["ncloseHandleX3", (): boolean  => nclose(handleX[2], -1)],
+      ["ncloseHandleX", (): boolean => nclose(handleX[0], 0)],
+      ["ncloseHandleX2", (): boolean => nclose(handleX[1], 0)],
+      ["ncloseHandleX3", (): boolean => nclose(handleX[2], -1)],
     ]),
     { ncloseHandleX: true, ncloseHandleX2: true, ncloseHandleX3: true },
   );
@@ -150,12 +164,14 @@ export function test_resolve_frame_profile_drivers(): void {
     limits: [],
     seconds: 0,
   });
-  const bareHandleX: [number, number, number] = basisX(bare.world.get("actor/handle")!);
+  const bareHandleX: [number, number, number] = basisX(
+    bare.world.get("actor/handle")!,
+  );
   TestValidator.equals(
     "without the profile the handle rests",
     namedFacts([
-      ["ncloseBareHandleX0", (): boolean  => nclose(bareHandleX[0], 1)],
-      ["ncloseBareHandleX2", (): boolean  => nclose(bareHandleX[2], 0)],
+      ["ncloseBareHandleX0", (): boolean => nclose(bareHandleX[0], 1)],
+      ["ncloseBareHandleX2", (): boolean => nclose(bareHandleX[2], 0)],
     ]),
     { ncloseBareHandleX0: true, ncloseBareHandleX2: true },
   );
@@ -183,12 +199,14 @@ export function test_resolve_frame_profile_drivers(): void {
     profiles: [{ profile: AIM_PROFILE, binding: AIM_BINDING }],
     seconds: 0,
   });
-  const contestedX: [number, number, number] = basisX(contested.world.get("eye")!);
+  const contestedX: [number, number, number] = basisX(
+    contested.world.get("eye")!,
+  );
   TestValidator.equals(
     "direct aim applies after the profile's and wins",
     namedFacts([
-      ["ncloseContestedX0", (): boolean  => nclose(contestedX[0], -1)],
-      ["ncloseContestedX2", (): boolean  => nclose(contestedX[2], 0)],
+      ["ncloseContestedX0", (): boolean => nclose(contestedX[0], -1)],
+      ["ncloseContestedX2", (): boolean => nclose(contestedX[2], 0)],
     ]),
     { ncloseContestedX0: true, ncloseContestedX2: true },
   );
@@ -200,12 +218,14 @@ export function test_resolve_frame_profile_drivers(): void {
     profiles: [{ profile: AIM_PROFILE, binding: AIM_BINDING }],
     seconds: 0,
   });
-  const profileOnlyX: [number, number, number] = basisX(profileOnly.world.get("eye")!);
+  const profileOnlyX: [number, number, number] = basisX(
+    profileOnly.world.get("eye")!,
+  );
   TestValidator.equals(
     "profile aim alone points at +X",
     namedFacts([
-      ["ncloseProfileOnlyX0", (): boolean  => nclose(profileOnlyX[0], 1)],
-      ["ncloseProfileOnlyX2", (): boolean  => nclose(profileOnlyX[2], 0)],
+      ["ncloseProfileOnlyX0", (): boolean => nclose(profileOnlyX[0], 1)],
+      ["ncloseProfileOnlyX2", (): boolean => nclose(profileOnlyX[2], 0)],
     ]),
     { ncloseProfileOnlyX0: true, ncloseProfileOnlyX2: true },
   );

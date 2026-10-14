@@ -1,9 +1,15 @@
-import { Matrix4 } from "../../../../packages/engine/src/math/Matrix4";
 import { TestValidator } from "@nestia/e2e";
+
+import { Matrix4 } from "../../../../packages/engine/src/math/Matrix4";
 import { nclose } from "../internal/nclose";
 
-const close: (a: number[], b: number[], eps?: number) => boolean = (a: number[], b: number[], eps: number = 1e-6): boolean =>
-  a.length === b.length && a.every((v: number, i: number): boolean  => nclose(v, b[i]!, eps));
+const close: (a: number[], b: number[], eps?: number) => boolean = (
+  a: number[],
+  b: number[],
+  eps: number = 1e-6,
+): boolean =>
+  a.length === b.length &&
+  a.every((v: number, i: number): boolean => nclose(v, b[i]!, eps));
 
 /**
  * Column-major matrix algebra supplies identity, TRS composition and ordered matrix multiplication.

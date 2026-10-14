@@ -1,9 +1,9 @@
 import {
+  IAutoMovieRestFrame,
   ViolationCollector,
   clampJointRom,
   restRelativeConstraint,
   validateJointRom,
-  IAutoMovieRestFrame,
 } from "@automovie/engine";
 import { IAutoMovieJointConstraint } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -22,7 +22,10 @@ const CLINICAL_SHOULDER: IAutoMovieJointConstraint = {
 /** The rig's rest frame: the shoulder sits at 30° abduction, this side +. */
 const FRAME: IAutoMovieRestFrame = { abduction: { sign: 1, neutral: 30 } };
 
-const passesCone: (j: ReturnType<typeof joint>, constraint: IAutoMovieJointConstraint) => boolean = (
+const passesCone: (
+  j: ReturnType<typeof joint>,
+  constraint: IAutoMovieJointConstraint,
+) => boolean = (
   j: ReturnType<typeof joint>,
   constraint: IAutoMovieJointConstraint,
 ): boolean => {
@@ -46,7 +49,10 @@ const passesCone: (j: ReturnType<typeof joint>, constraint: IAutoMovieJointConst
  * @evidence contracts/testing.md#execution-ownership The named synchronous unit owns its local constraint, pose and collector and reuses the existing joint fixture; no Human asset, native artifact or renderer is loaded.
  */
 export function test_rom_rest_frame_swing_cone(): void {
-  const reconciled: IAutoMovieJointConstraint = restRelativeConstraint(CLINICAL_SHOULDER, FRAME);
+  const reconciled: IAutoMovieJointConstraint = restRelativeConstraint(
+    CLINICAL_SHOULDER,
+    FRAME,
+  );
 
   // 1. cone preserved through the shift; the framed axis genuinely shifted
   TestValidator.predicate(
@@ -55,11 +61,16 @@ export function test_rom_rest_frame_swing_cone(): void {
   );
   TestValidator.predicate(
     "abduction shifted by the rest frame",
-    reconciled.abduction !== null && nclose(reconciled.abduction.min, -210, 0) && nclose(reconciled.abduction.max, 150, 0),
+    reconciled.abduction !== null &&
+      nclose(reconciled.abduction.min, -210, 0) &&
+      nclose(reconciled.abduction.max, 150, 0),
   );
 
   // 2. a corner pose past the cone is caught BY the reconciled constraint
-  const corner: ReturnType<typeof joint> = joint("leftUpperArm", { flexion: 90, abduction: 90 });
+  const corner: ReturnType<typeof joint> = joint("leftUpperArm", {
+    flexion: 90,
+    abduction: 90,
+  });
   const collector: ViolationCollector = new ViolationCollector();
   validateJointRom({
     joint: corner,

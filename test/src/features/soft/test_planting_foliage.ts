@@ -1,12 +1,19 @@
 import { growPlanting } from "@automovie/engine";
-import type { IAutoMoviePlantingFoliage, IAutoMoviePlantingState, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMoviePlantingFoliage,
+  IAutoMoviePlantingState,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts, nclose, qunit, vclose } from "../internal/predicates";
 import { plantingRecipe } from "../internal/softFixtures";
 
 /** The same recipe wearing one foliage rule. */
-const leafed: (foliage: IAutoMoviePlantingFoliage | null, axis?: IAutoMovieVector3) => IAutoMoviePlantingState = (
+const leafed: (
+  foliage: IAutoMoviePlantingFoliage | null,
+  axis?: IAutoMovieVector3,
+) => IAutoMoviePlantingState = (
   foliage: IAutoMoviePlantingFoliage | null,
   axis: IAutoMovieVector3 = { x: 0, y: 1, z: 0 },
 ): IAutoMoviePlantingState =>
@@ -74,13 +81,18 @@ export function test_planting_foliage(): void {
       [
         "firstOrder",
         () =>
-          plain.leaves.filter((leaf: IAutoMoviePlantingState["leaves"][number]): boolean => leaf.branch === "trunk/a").length === 2,
+          plain.leaves.filter(
+            (leaf: IAutoMoviePlantingState["leaves"][number]): boolean =>
+              leaf.branch === "trunk/a",
+          ).length === 2,
       ],
       [
         "secondOrder",
         () =>
-          plain.leaves.filter((leaf: IAutoMoviePlantingState["leaves"][number]): boolean => leaf.branch === "trunk/a/a").length ===
-          1,
+          plain.leaves.filter(
+            (leaf: IAutoMoviePlantingState["leaves"][number]): boolean =>
+              leaf.branch === "trunk/a/a",
+          ).length === 1,
       ],
     ]),
     { bare: true, total: true, firstOrder: true, secondOrder: true },
@@ -92,12 +104,19 @@ export function test_planting_foliage(): void {
     namedFacts([
       [
         "trunkBare",
-        () => plain.leaves.every((leaf: IAutoMoviePlantingState["leaves"][number]): boolean => leaf.branch !== "trunk"),
+        () =>
+          plain.leaves.every(
+            (leaf: IAutoMoviePlantingState["leaves"][number]): boolean =>
+              leaf.branch !== "trunk",
+          ),
       ],
       [
         "trunkBears",
         () =>
-          lowered.leaves.filter((leaf: IAutoMoviePlantingState["leaves"][number]): boolean => leaf.branch === "trunk").length === 4,
+          lowered.leaves.filter(
+            (leaf: IAutoMoviePlantingState["leaves"][number]): boolean =>
+              leaf.branch === "trunk",
+          ).length === 4,
       ],
     ]),
     { trunkBare: true, trunkBears: true },
@@ -145,22 +164,39 @@ export function test_planting_foliage(): void {
   TestValidator.equals(
     "every emitted rotation is a unit quaternion",
     namedFacts([
-      ["plain", () => plain.leaves.every((leaf: IAutoMoviePlantingState["leaves"][number]): boolean => qunit(leaf.rotation))],
+      [
+        "plain",
+        () =>
+          plain.leaves.every(
+            (leaf: IAutoMoviePlantingState["leaves"][number]): boolean =>
+              qunit(leaf.rotation),
+          ),
+      ],
       [
         "named",
         () =>
-          plain.leaves.every((leaf: IAutoMoviePlantingState["leaves"][number]): boolean =>
-            plain.branches.some((branch: IAutoMoviePlantingState["branches"][number]): boolean => branch.id === leaf.branch),
+          plain.leaves.every(
+            (leaf: IAutoMoviePlantingState["leaves"][number]): boolean =>
+              plain.branches.some(
+                (
+                  branch: IAutoMoviePlantingState["branches"][number],
+                ): boolean => branch.id === leaf.branch,
+              ),
           ),
       ],
     ]),
     { plain: true, named: true },
   );
 
-  const inverted: IAutoMoviePlantingState = leafed({ ...PLAIN, minLevel: 0 }, { x: 0, y: -1, z: 0 });
-  const trunkLeaf: IAutoMoviePlantingState["leaves"][number] = inverted.leaves.filter(
-    (leaf: IAutoMoviePlantingState["leaves"][number]): boolean => leaf.branch === "trunk",
-  )[0];
+  const inverted: IAutoMoviePlantingState = leafed(
+    { ...PLAIN, minLevel: 0 },
+    { x: 0, y: -1, z: 0 },
+  );
+  const trunkLeaf: IAutoMoviePlantingState["leaves"][number] =
+    inverted.leaves.filter(
+      (leaf: IAutoMoviePlantingState["leaves"][number]): boolean =>
+        leaf.branch === "trunk",
+    )[0];
   TestValidator.equals(
     "an exactly antiparallel branch takes the stated half turn",
     namedFacts([
@@ -182,26 +218,50 @@ export function test_planting_foliage(): void {
     { rotation: true, w: true, unit: true },
   );
 
-  const varied: IAutoMoviePlantingState = leafed({ ...PLAIN, scaleJitter: 0.5, rollJitter: 1 });
+  const varied: IAutoMoviePlantingState = leafed({
+    ...PLAIN,
+    scaleJitter: 0.5,
+    rollJitter: 1,
+  });
   TestValidator.equals(
     "seeded scale and roll vary the blades inside their declared jitter",
     namedFacts([
       [
         "scaleVaries",
-        () => new Set(varied.leaves.map((leaf: IAutoMoviePlantingState["leaves"][number]): number => leaf.scale.y)).size > 1,
+        () =>
+          new Set(
+            varied.leaves.map(
+              (leaf: IAutoMoviePlantingState["leaves"][number]): number =>
+                leaf.scale.y,
+            ),
+          ).size > 1,
       ],
       [
         "scaleBounded",
         () =>
           varied.leaves.every(
-            (leaf: IAutoMoviePlantingState["leaves"][number]): boolean => leaf.scale.y >= 0.05 && leaf.scale.y <= 0.15,
+            (leaf: IAutoMoviePlantingState["leaves"][number]): boolean =>
+              leaf.scale.y >= 0.05 && leaf.scale.y <= 0.15,
           ),
       ],
       [
         "rollVaries",
-        () => new Set(varied.leaves.map((leaf: IAutoMoviePlantingState["leaves"][number]): number => leaf.rotation.w)).size > 1,
+        () =>
+          new Set(
+            varied.leaves.map(
+              (leaf: IAutoMoviePlantingState["leaves"][number]): number =>
+                leaf.rotation.w,
+            ),
+          ).size > 1,
       ],
-      ["unit", () => varied.leaves.every((leaf: IAutoMoviePlantingState["leaves"][number]): boolean => qunit(leaf.rotation))],
+      [
+        "unit",
+        () =>
+          varied.leaves.every(
+            (leaf: IAutoMoviePlantingState["leaves"][number]): boolean =>
+              qunit(leaf.rotation),
+          ),
+      ],
     ]),
     {
       scaleVaries: true,

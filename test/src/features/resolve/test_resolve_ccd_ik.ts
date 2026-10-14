@@ -1,5 +1,9 @@
 import { Matrix4, resolveWorldDrivers } from "@automovie/engine";
-import { IAutoMovieDriver, IAutoMovieIKDriver, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  IAutoMovieDriver,
+  IAutoMovieIKDriver,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import {
@@ -9,10 +13,14 @@ import {
   vclose,
 } from "../internal/predicates";
 
-const W: (p: IAutoMovieVector3) => number[] = (p: IAutoMovieVector3): number[] =>
+const W: (p: IAutoMovieVector3) => number[] = (
+  p: IAutoMovieVector3,
+): number[] =>
   Matrix4.compose(p, { x: 0, y: 0, z: 0, w: 1 }, { x: 1, y: 1, z: 1 });
 
-const ccd: (over: Partial<IAutoMovieIKDriver>) => IAutoMovieIKDriver = (over: Partial<IAutoMovieIKDriver>): IAutoMovieIKDriver => ({
+const ccd: (over: Partial<IAutoMovieIKDriver>) => IAutoMovieIKDriver = (
+  over: Partial<IAutoMovieIKDriver>,
+): IAutoMovieIKDriver => ({
   type: "ik",
   chain: ["r", "m", "t"],
   goal: "g",
@@ -24,7 +32,9 @@ const ccd: (over: Partial<IAutoMovieIKDriver>) => IAutoMovieIKDriver = (over: Pa
 });
 
 /** A bent two-segment chain (lengths 1, 1) plus the goal, ready to solve. */
-const bentWorld: (goal: IAutoMovieVector3) => Map<string, number[]> = (goal: IAutoMovieVector3): Map<string, number[]> =>
+const bentWorld: (goal: IAutoMovieVector3) => Map<string, number[]> = (
+  goal: IAutoMovieVector3,
+): Map<string, number[]> =>
   new Map([
     ["r", W({ x: 0, y: 0, z: 0 })],
     ["m", W({ x: 1, y: 0, z: 0 })],
@@ -32,11 +42,15 @@ const bentWorld: (goal: IAutoMovieVector3) => Map<string, number[]> = (goal: IAu
     ["g", W(goal)],
   ]);
 
-const at: (world: Map<string, number[]>, id: string) => IAutoMovieVector3 = (world: Map<string, number[]>, id: string): IAutoMovieVector3 =>
-  Matrix4.position(world.get(id)!);
+const at: (world: Map<string, number[]>, id: string) => IAutoMovieVector3 = (
+  world: Map<string, number[]>,
+  id: string,
+): IAutoMovieVector3 => Matrix4.position(world.get(id)!);
 
-const dist: (a: IAutoMovieVector3, b: IAutoMovieVector3) => number = (a: IAutoMovieVector3, b: IAutoMovieVector3): number =>
-  Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z);
+const dist: (a: IAutoMovieVector3, b: IAutoMovieVector3) => number = (
+  a: IAutoMovieVector3,
+  b: IAutoMovieVector3,
+): number => Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z);
 
 /**
  * The CCD iterative IK solver runs inside the engine's world pass (S2 of the
@@ -70,9 +84,19 @@ const dist: (a: IAutoMovieVector3, b: IAutoMovieVector3) => number = (a: IAutoMo
  * @evidence contracts/testing.md#execution-ownership The discoverable synchronous test_resolve_ccd_ik calls portable engine numerics and owns these cases directly without processes, native builds, a renderer or dynamic registration.
  */
 export function test_resolve_ccd_ik(): void {
-  TestValidator.predicate("unsafe iteration count rejects before an already-satisfied solve", throwsError(() : IAutoMovieDriver[] => resolveWorldDrivers([
-    ccd({ iterations: Number.MAX_SAFE_INTEGER + 1 }),
-  ], bentWorld({ x: 1, y: 1, z: 0 }), new Map(), new Map()), "safe-integer range"));
+  TestValidator.predicate(
+    "unsafe iteration count rejects before an already-satisfied solve",
+    throwsError(
+      (): IAutoMovieDriver[] =>
+        resolveWorldDrivers(
+          [ccd({ iterations: Number.MAX_SAFE_INTEGER + 1 })],
+          bentWorld({ x: 1, y: 1, z: 0 }),
+          new Map(),
+          new Map(),
+        ),
+      "safe-integer range",
+    ),
+  );
   // 1. reachable goal converges, lengths preserved
   const w1: Map<string, number[]> = bentWorld({ x: 1.2, y: 0.5, z: 0 });
   resolveWorldDrivers([ccd({})], w1, new Map(), new Map());
@@ -111,8 +135,14 @@ export function test_resolve_ccd_ik(): void {
   TestValidator.equals(
     "extension keeps segment lengths",
     namedFacts([
-      ["ncloseDistAt", () : boolean => nclose(dist(at(w3, "r"), at(w3, "m")), 1, 1e-9)],
-      ["ncloseDistAt2", () : boolean => nclose(dist(at(w3, "m"), at(w3, "t")), 1, 1e-9)],
+      [
+        "ncloseDistAt",
+        (): boolean => nclose(dist(at(w3, "r"), at(w3, "m")), 1, 1e-9),
+      ],
+      [
+        "ncloseDistAt2",
+        (): boolean => nclose(dist(at(w3, "m"), at(w3, "t")), 1, 1e-9),
+      ],
     ]),
     { ncloseDistAt: true, ncloseDistAt2: true },
   );
@@ -148,14 +178,25 @@ export function test_resolve_ccd_ik(): void {
   TestValidator.equals(
     "converged input early-outs unchanged",
     namedFacts([
-      ["vcloseAtW6", () : boolean => vclose(at(w6, "m"), { x: 1, y: 0, z: 0 }, 0)],
-      ["vcloseAtW62", () : boolean => vclose(at(w6, "t"), { x: 1, y: 1, z: 0 }, 0)],
+      [
+        "vcloseAtW6",
+        (): boolean => vclose(at(w6, "m"), { x: 1, y: 0, z: 0 }, 0),
+      ],
+      [
+        "vcloseAtW62",
+        (): boolean => vclose(at(w6, "t"), { x: 1, y: 1, z: 0 }, 0),
+      ],
     ]),
     { vcloseAtW6: true, vcloseAtW62: true },
   );
 
   // 7. guards
-  const guard: (title: string, over: Partial<IAutoMovieIKDriver>, world: Map<string, number[]>, expected: string | string[]) => void = (
+  const guard: (
+    title: string,
+    over: Partial<IAutoMovieIKDriver>,
+    world: Map<string, number[]>,
+    expected: string | string[],
+  ) => void = (
     title: string,
     over: Partial<IAutoMovieIKDriver>,
     world: Map<string, number[]>,
@@ -164,7 +205,8 @@ export function test_resolve_ccd_ik(): void {
     TestValidator.predicate(
       title,
       throwsError(
-        () : IAutoMovieDriver[] => resolveWorldDrivers([ccd(over)], world, new Map(), new Map()),
+        (): IAutoMovieDriver[] =>
+          resolveWorldDrivers([ccd(over)], world, new Map(), new Map()),
         expected,
       ),
     );

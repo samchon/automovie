@@ -1,15 +1,25 @@
+import {
+  type IAutoMovieDriver,
+  IAutoMovieIKDriver,
+  IAutoMovieSpringDriver,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
 import { Matrix4 } from "../../../../packages/engine/src/math/Matrix4";
 import { resolveWorldDrivers } from "../../../../packages/engine/src/resolve/resolveWorldDrivers";
-import { IAutoMovieIKDriver, IAutoMovieSpringDriver, IAutoMovieVector3, type IAutoMovieDriver } from "@automovie/interface";
-import { TestValidator } from "@nestia/e2e";
 import { nclose } from "../internal/nclose";
 import { throwsError } from "../internal/throwsError";
 import { vclose } from "../internal/vclose";
 
-const W: (p: IAutoMovieVector3) => number[] = (p: IAutoMovieVector3): number[] =>
+const W: (p: IAutoMovieVector3) => number[] = (
+  p: IAutoMovieVector3,
+): number[] =>
   Matrix4.compose(p, { x: 0, y: 0, z: 0, w: 1 }, { x: 1, y: 1, z: 1 });
 
-const ik: (over: Partial<IAutoMovieIKDriver>) => IAutoMovieIKDriver = (over: Partial<IAutoMovieIKDriver>): IAutoMovieIKDriver => ({
+const ik: (over: Partial<IAutoMovieIKDriver>) => IAutoMovieIKDriver = (
+  over: Partial<IAutoMovieIKDriver>,
+): IAutoMovieIKDriver => ({
   type: "ik",
   chain: ["r", "m", "t"],
   goal: "g",
@@ -20,10 +30,19 @@ const ik: (over: Partial<IAutoMovieIKDriver>) => IAutoMovieIKDriver = (over: Par
   ...over,
 });
 
-const dist: (a: IAutoMovieVector3, b: IAutoMovieVector3) => number = (a: IAutoMovieVector3, b: IAutoMovieVector3): number =>
-  Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z);
+const dist: (a: IAutoMovieVector3, b: IAutoMovieVector3) => number = (
+  a: IAutoMovieVector3,
+  b: IAutoMovieVector3,
+): number => Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z);
 
-const solve: (d: IAutoMovieIKDriver, root: IAutoMovieVector3, mid: IAutoMovieVector3, tip: IAutoMovieVector3, goal: IAutoMovieVector3, pole?: IAutoMovieVector3) => Map<string, number[]> = (
+const solve: (
+  d: IAutoMovieIKDriver,
+  root: IAutoMovieVector3,
+  mid: IAutoMovieVector3,
+  tip: IAutoMovieVector3,
+  goal: IAutoMovieVector3,
+  pole?: IAutoMovieVector3,
+) => Map<string, number[]> = (
   d: IAutoMovieIKDriver,
   root: IAutoMovieVector3,
   mid: IAutoMovieVector3,
@@ -42,8 +61,10 @@ const solve: (d: IAutoMovieIKDriver, root: IAutoMovieVector3, mid: IAutoMovieVec
   return world;
 };
 
-const at: (world: Map<string, number[]>, id: string) => IAutoMovieVector3 = (world: Map<string, number[]>, id: string): IAutoMovieVector3 =>
-  Matrix4.position(world.get(id)!);
+const at: (world: Map<string, number[]>, id: string) => IAutoMovieVector3 = (
+  world: Map<string, number[]>,
+  id: string,
+): IAutoMovieVector3 => Matrix4.position(world.get(id)!);
 
 /**
  * Analytic two-bone IK places a root/mid/tip chain toward its goal, preserving link lengths and using the pole to select its bend plane.
@@ -191,13 +212,15 @@ export function test_resolve_ik_driver(): void {
   TestValidator.equals("only short + spring deferred", deferred.length, 2);
   TestValidator.predicate(
     "ccd is no longer among the deferred",
-    deferred.every((x: IAutoMovieDriver): boolean  => x.type !== "ik" || x.solver !== "ccd"),
+    deferred.every(
+      (x: IAutoMovieDriver): boolean => x.type !== "ik" || x.solver !== "ccd",
+    ),
   );
 
   TestValidator.predicate(
     "two-bone IK rejects NaN influence",
     throwsError(
-      (): IAutoMovieDriver[]  =>
+      (): IAutoMovieDriver[] =>
         resolveWorldDrivers(
           [ik({ influence: Number.NaN })],
           new Map(),
@@ -210,7 +233,7 @@ export function test_resolve_ik_driver(): void {
   TestValidator.predicate(
     "two-bone IK rejects negative influence",
     throwsError(
-      (): IAutoMovieDriver[]  =>
+      (): IAutoMovieDriver[] =>
         resolveWorldDrivers(
           [ik({ influence: -0.1 })],
           new Map(),
@@ -223,7 +246,7 @@ export function test_resolve_ik_driver(): void {
   TestValidator.predicate(
     "two-bone IK rejects influence above one",
     throwsError(
-      (): IAutoMovieDriver[]  =>
+      (): IAutoMovieDriver[] =>
         resolveWorldDrivers(
           [ik({ influence: 1.1 })],
           new Map(),
@@ -236,7 +259,7 @@ export function test_resolve_ik_driver(): void {
   TestValidator.predicate(
     "two-bone IK rejects NaN pole angle",
     throwsError(
-      (): IAutoMovieDriver[]  =>
+      (): IAutoMovieDriver[] =>
         resolveWorldDrivers(
           [ik({ pole: { node: null, angle: Number.NaN } })],
           new Map(),
@@ -249,7 +272,7 @@ export function test_resolve_ik_driver(): void {
   TestValidator.predicate(
     "two-bone IK rejects zero upper segment length",
     throwsError(
-      (): IAutoMovieDriver[]  =>
+      (): IAutoMovieDriver[] =>
         resolveWorldDrivers(
           [ik({})],
           new Map([
@@ -267,7 +290,7 @@ export function test_resolve_ik_driver(): void {
   TestValidator.predicate(
     "two-bone IK rejects zero lower segment length",
     throwsError(
-      (): IAutoMovieDriver[]  =>
+      (): IAutoMovieDriver[] =>
         resolveWorldDrivers(
           [ik({})],
           new Map([
@@ -286,7 +309,7 @@ export function test_resolve_ik_driver(): void {
   TestValidator.predicate(
     "missing IK root rejects incomplete world map",
     throwsError(
-      (): IAutoMovieDriver[]  =>
+      (): IAutoMovieDriver[] =>
         resolveWorldDrivers(
           [ik({ chain: ["missing", "m", "t"] })],
           new Map([
@@ -303,7 +326,7 @@ export function test_resolve_ik_driver(): void {
   TestValidator.predicate(
     "missing IK mid rejects incomplete world map",
     throwsError(
-      (): IAutoMovieDriver[]  =>
+      (): IAutoMovieDriver[] =>
         resolveWorldDrivers(
           [ik({ chain: ["r", "missing", "t"] })],
           new Map([
@@ -320,7 +343,7 @@ export function test_resolve_ik_driver(): void {
   TestValidator.predicate(
     "missing IK tip rejects incomplete world map",
     throwsError(
-      (): IAutoMovieDriver[]  =>
+      (): IAutoMovieDriver[] =>
         resolveWorldDrivers(
           [ik({ chain: ["r", "m", "missing"] })],
           new Map([
@@ -337,7 +360,7 @@ export function test_resolve_ik_driver(): void {
   TestValidator.predicate(
     "missing IK goal rejects incomplete world map",
     throwsError(
-      (): IAutoMovieDriver[]  =>
+      (): IAutoMovieDriver[] =>
         resolveWorldDrivers(
           [ik({ goal: "missing" })],
           new Map([
@@ -354,7 +377,7 @@ export function test_resolve_ik_driver(): void {
   TestValidator.predicate(
     "missing IK pole rejects incomplete world map",
     throwsError(
-      (): IAutoMovieDriver[]  =>
+      (): IAutoMovieDriver[] =>
         resolveWorldDrivers(
           [ik({ pole: { node: "missing", angle: 0 } })],
           new Map([

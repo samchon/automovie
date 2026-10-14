@@ -1,9 +1,17 @@
+import {
+  IAutoMovieAimDriver,
+  type IAutoMovieDriver,
+  IAutoMovieIKDriver,
+  IAutoMovieNode,
+  IAutoMovieTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
 import { Matrix4 } from "../../../../packages/engine/src/math/Matrix4";
 import { Quaternion } from "../../../../packages/engine/src/math/Quaternion";
 import { childrenIndex } from "../../../../packages/engine/src/resolve/childrenIndex";
 import { resolveWorldDrivers } from "../../../../packages/engine/src/resolve/resolveWorldDrivers";
-import { IAutoMovieAimDriver, IAutoMovieIKDriver, IAutoMovieNode, IAutoMovieTransform, IAutoMovieVector3, type IAutoMovieDriver } from "@automovie/interface";
-import { TestValidator } from "@nestia/e2e";
 import { throwsError } from "../internal/throwsError";
 import { vclose } from "../internal/vclose";
 
@@ -13,14 +21,20 @@ const IDENTITY: IAutoMovieTransform = {
   scale: { x: 1, y: 1, z: 1 },
 };
 
-const W: (x: number, y: number, z: number) => number[] = (x: number, y: number, z: number): number[] =>
+const W: (x: number, y: number, z: number) => number[] = (
+  x: number,
+  y: number,
+  z: number,
+): number[] =>
   Matrix4.compose(
     { x, y, z },
     { x: 0, y: 0, z: 0, w: 1 },
     { x: 1, y: 1, z: 1 },
   );
 
-const aim: (over: Partial<IAutoMovieAimDriver>) => IAutoMovieAimDriver = (over: Partial<IAutoMovieAimDriver>): IAutoMovieAimDriver => ({
+const aim: (over: Partial<IAutoMovieAimDriver>) => IAutoMovieAimDriver = (
+  over: Partial<IAutoMovieAimDriver>,
+): IAutoMovieAimDriver => ({
   type: "aim",
   owner: "o",
   target: "t",
@@ -32,13 +46,20 @@ const aim: (over: Partial<IAutoMovieAimDriver>) => IAutoMovieAimDriver = (over: 
 });
 
 /** Where the owner's aim axis points after the driver runs. */
-const aimedDir: (world: Map<string, number[]>, aimAxis: IAutoMovieVector3) => IAutoMovieVector3 = (
+const aimedDir: (
+  world: Map<string, number[]>,
+  aimAxis: IAutoMovieVector3,
+) => IAutoMovieVector3 = (
   world: Map<string, number[]>,
   aimAxis: IAutoMovieVector3,
 ): IAutoMovieVector3 =>
   Quaternion.rotateVector(Matrix4.decompose(world.get("o")!).rotation, aimAxis);
 
-const runAim: (d: IAutoMovieAimDriver, ownerPos: IAutoMovieVector3, targetPos: IAutoMovieVector3) => Map<string, number[]> = (
+const runAim: (
+  d: IAutoMovieAimDriver,
+  ownerPos: IAutoMovieVector3,
+  targetPos: IAutoMovieVector3,
+) => Map<string, number[]> = (
   d: IAutoMovieAimDriver,
   ownerPos: IAutoMovieVector3,
   targetPos: IAutoMovieVector3,
@@ -79,7 +100,11 @@ const runAim: (d: IAutoMovieAimDriver, ownerPos: IAutoMovieVector3, targetPos: I
  */
 export function test_resolve_world_drivers(): void {
   // 1. aim −Z at +X: aim axis → +X, up stays up
-  const w1: Map<string, number[]> = runAim(aim({}), { x: 0, y: 0, z: 0 }, { x: 5, y: 0, z: 0 });
+  const w1: Map<string, number[]> = runAim(
+    aim({}),
+    { x: 0, y: 0, z: 0 },
+    { x: 5, y: 0, z: 0 },
+  );
   TestValidator.predicate(
     "aim points at +X",
     vclose(aimedDir(w1, { x: 0, y: 0, z: -1 }), { x: 1, y: 0, z: 0 }, 1e-5),
@@ -91,7 +116,11 @@ export function test_resolve_world_drivers(): void {
   TestValidator.predicate("up stays generally up", up1.y > 0.5);
 
   // 2. target straight up → roll skipped (desired up projects to zero)
-  const w2: Map<string, number[]> = runAim(aim({}), { x: 0, y: 0, z: 0 }, { x: 0, y: 5, z: 0 });
+  const w2: Map<string, number[]> = runAim(
+    aim({}),
+    { x: 0, y: 0, z: 0 },
+    { x: 0, y: 5, z: 0 },
+  );
   TestValidator.predicate(
     "aim points up with roll skipped",
     vclose(aimedDir(w2, { x: 0, y: 0, z: -1 }), { x: 0, y: 1, z: 0 }, 1e-5),
@@ -120,12 +149,20 @@ export function test_resolve_world_drivers(): void {
   );
 
   // 5. parallel + antiparallel (two axis choices)
-  const wPar: Map<string, number[]> = runAim(aim({}), { x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: -5 });
+  const wPar: Map<string, number[]> = runAim(
+    aim({}),
+    { x: 0, y: 0, z: 0 },
+    { x: 0, y: 0, z: -5 },
+  );
   TestValidator.predicate(
     "parallel aim unchanged",
     vclose(aimedDir(wPar, { x: 0, y: 0, z: -1 }), { x: 0, y: 0, z: -1 }, 1e-5),
   );
-  const wAntiZ: Map<string, number[]> = runAim(aim({}), { x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 5 });
+  const wAntiZ: Map<string, number[]> = runAim(
+    aim({}),
+    { x: 0, y: 0, z: 0 },
+    { x: 0, y: 0, z: 5 },
+  );
   TestValidator.predicate(
     "antiparallel (aim x small) flips to +Z",
     vclose(aimedDir(wAntiZ, { x: 0, y: 0, z: -1 }), { x: 0, y: 0, z: 1 }, 1e-5),
@@ -152,7 +189,10 @@ export function test_resolve_world_drivers(): void {
     ["c", W(0, 2, 0)],
     ["t", W(0, 5, 0)],
   ]);
-  const localById: Map<string, IAutoMovieTransform> = new Map<string, IAutoMovieTransform>([["c", trs(0, 2, 0)]]);
+  const localById: Map<string, IAutoMovieTransform> = new Map<
+    string,
+    IAutoMovieTransform
+  >([["c", trs(0, 2, 0)]]);
   resolveWorldDrivers([aim({})], world, localById, childrenIndex(nodes));
   const childPos: IAutoMovieVector3 = Matrix4.position(world.get("c")!);
   TestValidator.predicate(
@@ -185,7 +225,7 @@ export function test_resolve_world_drivers(): void {
   TestValidator.predicate(
     "aim rejects NaN influence",
     throwsError(
-      (): IAutoMovieDriver[]  =>
+      (): IAutoMovieDriver[] =>
         resolveWorldDrivers(
           [aim({ influence: Number.NaN })],
           new Map(),
@@ -198,7 +238,7 @@ export function test_resolve_world_drivers(): void {
   TestValidator.predicate(
     "aim rejects negative influence",
     throwsError(
-      (): IAutoMovieDriver[]  =>
+      (): IAutoMovieDriver[] =>
         resolveWorldDrivers(
           [aim({ influence: -0.1 })],
           new Map(),
@@ -211,7 +251,7 @@ export function test_resolve_world_drivers(): void {
   TestValidator.predicate(
     "aim rejects influence above one",
     throwsError(
-      (): IAutoMovieDriver[]  =>
+      (): IAutoMovieDriver[] =>
         resolveWorldDrivers(
           [aim({ influence: 1.1 })],
           new Map(),
@@ -224,7 +264,7 @@ export function test_resolve_world_drivers(): void {
   TestValidator.predicate(
     "aim rejects non-finite aim axis",
     throwsError(
-      (): IAutoMovieDriver[]  =>
+      (): IAutoMovieDriver[] =>
         resolveWorldDrivers(
           [aim({ aimAxis: { x: Number.NaN, y: 0, z: -1 } })],
           new Map(),
@@ -237,7 +277,7 @@ export function test_resolve_world_drivers(): void {
   TestValidator.predicate(
     "aim rejects zero aim axis",
     throwsError(
-      (): IAutoMovieDriver[]  =>
+      (): IAutoMovieDriver[] =>
         resolveWorldDrivers(
           [aim({ aimAxis: { x: 0, y: 0, z: 0 } })],
           new Map(),
@@ -250,7 +290,7 @@ export function test_resolve_world_drivers(): void {
   TestValidator.predicate(
     "aim rejects zero up axis",
     throwsError(
-      (): IAutoMovieDriver[]  =>
+      (): IAutoMovieDriver[] =>
         resolveWorldDrivers(
           [aim({ upAxis: { x: 0, y: 0, z: 0 } })],
           new Map(),
@@ -263,7 +303,7 @@ export function test_resolve_world_drivers(): void {
   TestValidator.predicate(
     "aim rejects zero world up",
     throwsError(
-      (): IAutoMovieDriver[]  =>
+      (): IAutoMovieDriver[] =>
         resolveWorldDrivers(
           [aim({ worldUp: { x: 0, y: 0, z: 0 } })],
           new Map(),
@@ -289,7 +329,7 @@ export function test_resolve_world_drivers(): void {
   TestValidator.predicate(
     "missing aim owner rejects incomplete world map",
     throwsError(
-      (): IAutoMovieDriver[]  =>
+      (): IAutoMovieDriver[] =>
         resolveWorldDrivers(
           [aim({ owner: "missing" })],
           new Map([["t", W(1, 0, 0)]]),
@@ -302,7 +342,7 @@ export function test_resolve_world_drivers(): void {
   TestValidator.predicate(
     "missing aim target rejects incomplete world map",
     throwsError(
-      (): IAutoMovieDriver[]  =>
+      (): IAutoMovieDriver[] =>
         resolveWorldDrivers(
           [aim({ target: "missing" })],
           new Map([["o", W(0, 0, 0)]]),
@@ -315,7 +355,7 @@ export function test_resolve_world_drivers(): void {
   TestValidator.predicate(
     "missing child local rejects incomplete recomposition map",
     throwsError(
-      (): IAutoMovieDriver[]  =>
+      (): IAutoMovieDriver[] =>
         resolveWorldDrivers(
           [aim({})],
           new Map([
@@ -342,7 +382,11 @@ const node: (id: string) => IAutoMovieNode = (id: string): IAutoMovieNode => ({
   skin: null,
 });
 
-const trs: (x: number, y: number, z: number) => IAutoMovieTransform = (x: number, y: number, z: number): IAutoMovieTransform => ({
+const trs: (x: number, y: number, z: number) => IAutoMovieTransform = (
+  x: number,
+  y: number,
+  z: number,
+): IAutoMovieTransform => ({
   translation: { x, y, z },
   rotation: { x: 0, y: 0, z: 0, w: 1 },
   scale: { x: 1, y: 1, z: 1 },

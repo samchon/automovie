@@ -1,8 +1,16 @@
-import { resolveFrame } from "../../../../packages/engine/src/resolve/resolveFrame";
-import { IAutoMovieChannel, IAutoMovieClip, IAutoMovieNode, IAutoMovieProfile, IAutoMovieProfileBinding, IAutoMovieTransform } from "@automovie/interface";
+import {
+  IAutoMovieChannel,
+  IAutoMovieClip,
+  IAutoMovieNode,
+  IAutoMovieProfile,
+  IAutoMovieProfileBinding,
+  IAutoMovieTransform,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-import { nclose } from "../internal/nclose";
+
 import { type IAutoMovieResolveOutput } from "../../../../packages/engine/src/resolve/IAutoMovieResolveOutput";
+import { resolveFrame } from "../../../../packages/engine/src/resolve/resolveFrame";
+import { nclose } from "../internal/nclose";
 
 const IDENTITY: IAutoMovieTransform = {
   translation: { x: 0, y: 0, z: 0 },
@@ -22,7 +30,9 @@ const node: (id: string) => IAutoMovieNode = (id: string): IAutoMovieNode => ({
   skin: null,
 });
 
-const translation: (id: string) => IAutoMovieChannel = (id: string): IAutoMovieChannel => ({
+const translation: (id: string) => IAutoMovieChannel = (
+  id: string,
+): IAutoMovieChannel => ({
   kind: "node",
   node: id,
   path: "translation",

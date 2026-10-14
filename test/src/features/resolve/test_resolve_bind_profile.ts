@@ -1,16 +1,24 @@
-import type { IAutoMovieBoundProfile } from "./../../../../packages/engine/src/resolve/IAutoMovieBoundProfile";
 import { bindProfile } from "@automovie/engine";
-import { IAutoMovieCopyDriver, IAutoMovieAimDriver, IAutoMovieIKDriver, IAutoMovieParentDriver, IAutoMovieDrivenDriver, IAutoMovieSpringDriver,
+import {
+  IAutoMovieAimDriver,
   IAutoMovieChannel,
+  IAutoMovieCopyDriver,
+  IAutoMovieDrivenDriver,
   IAutoMovieDriver,
+  IAutoMovieIKDriver,
+  IAutoMovieParentDriver,
   IAutoMovieProfile,
   IAutoMovieProfileBinding,
+  IAutoMovieSpringDriver,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../internal/predicates";
+import type { IAutoMovieBoundProfile } from "./../../../../packages/engine/src/resolve/IAutoMovieBoundProfile";
 
-const nodeChannel: (id: string) => IAutoMovieChannel = (id: string): IAutoMovieChannel => ({
+const nodeChannel: (id: string) => IAutoMovieChannel = (
+  id: string,
+): IAutoMovieChannel => ({
   kind: "node",
   node: id,
   path: "rotation",
@@ -106,7 +114,9 @@ const DRIVERS: IAutoMovieDriver[] = [
   },
 ];
 
-const makeProfile: (drivers: IAutoMovieDriver[]) => IAutoMovieProfile = (drivers: IAutoMovieDriver[]): IAutoMovieProfile => ({
+const makeProfile: (drivers: IAutoMovieDriver[]) => IAutoMovieProfile = (
+  drivers: IAutoMovieDriver[],
+): IAutoMovieProfile => ({
   id: "rig",
   name: "rig",
   drivers,
@@ -124,7 +134,9 @@ const MAP: Record<string, string> = {
   p: "P",
 };
 
-const makeBinding: (boneMap: Record<string, string>) => IAutoMovieProfileBinding = (
+const makeBinding: (
+  boneMap: Record<string, string>,
+) => IAutoMovieProfileBinding = (
   boneMap: Record<string, string>,
 ): IAutoMovieProfileBinding => ({
   profile: "rig",
@@ -174,7 +186,17 @@ export function test_resolve_bind_profile(): void {
     driven,
     spring,
     springNull,
-  ]: [IAutoMovieCopyDriver, IAutoMovieAimDriver, IAutoMovieIKDriver, IAutoMovieIKDriver, IAutoMovieIKDriver, IAutoMovieParentDriver, IAutoMovieDrivenDriver, IAutoMovieSpringDriver, IAutoMovieSpringDriver] = bound.drivers as [
+  ]: [
+    IAutoMovieCopyDriver,
+    IAutoMovieAimDriver,
+    IAutoMovieIKDriver,
+    IAutoMovieIKDriver,
+    IAutoMovieIKDriver,
+    IAutoMovieParentDriver,
+    IAutoMovieDrivenDriver,
+    IAutoMovieSpringDriver,
+    IAutoMovieSpringDriver,
+  ] = bound.drivers as [
     Extract<IAutoMovieDriver, { type: "copy" }>,
     Extract<IAutoMovieDriver, { type: "aim" }>,
     Extract<IAutoMovieDriver, { type: "ik" }>,
@@ -243,10 +265,30 @@ export function test_resolve_bind_profile(): void {
     binding: makeBinding(MAP),
   });
   for (const key of ["constructor", "__proto__", "toString"]) {
-    const profile: IAutoMovieProfile = { ...makeProfile([]), limits: [{ channel: nodeChannel(key), min: null, max: null }] };
-    TestValidator.predicate("inherited property is not an authored profile mapping", throwsError(() : IAutoMovieBoundProfile => bindProfile({ profile, binding: makeBinding({}) }), `has no boneMap entry for "${key}"`));
-    const own: ReturnType<typeof bindProfile> = bindProfile({ profile, binding: makeBinding(Object.fromEntries([[key, "joint"]])), nodePrefix: "actor/" });
-    TestValidator.equals("own reserved spelling binds exactly", own.limits[0]!.channel.kind === "node" ? own.limits[0]!.channel.node : null, "actor/joint");
+    const profile: IAutoMovieProfile = {
+      ...makeProfile([]),
+      limits: [{ channel: nodeChannel(key), min: null, max: null }],
+    };
+    TestValidator.predicate(
+      "inherited property is not an authored profile mapping",
+      throwsError(
+        (): IAutoMovieBoundProfile =>
+          bindProfile({ profile, binding: makeBinding({}) }),
+        `has no boneMap entry for "${key}"`,
+      ),
+    );
+    const own: ReturnType<typeof bindProfile> = bindProfile({
+      profile,
+      binding: makeBinding(Object.fromEntries([[key, "joint"]])),
+      nodePrefix: "actor/",
+    });
+    TestValidator.equals(
+      "own reserved spelling binds exactly",
+      own.limits[0]!.channel.kind === "node"
+        ? own.limits[0]!.channel.node
+        : null,
+      "actor/joint",
+    );
   }
   TestValidator.equals(
     "no prefix uses bare boneMap value",
@@ -259,7 +301,7 @@ export function test_resolve_bind_profile(): void {
   TestValidator.predicate(
     "unmapped key throws",
     throwsError(
-      () : IAutoMovieBoundProfile =>
+      (): IAutoMovieBoundProfile =>
         bindProfile({
           profile: makeProfile([]),
           binding: makeBinding({}),
@@ -270,7 +312,7 @@ export function test_resolve_bind_profile(): void {
   TestValidator.predicate(
     "empty mapped id throws",
     throwsError(
-      () : IAutoMovieBoundProfile =>
+      (): IAutoMovieBoundProfile =>
         bindProfile({
           profile: makeProfile([]),
           binding: makeBinding({ ...MAP, a: "  " }),
@@ -281,7 +323,7 @@ export function test_resolve_bind_profile(): void {
   TestValidator.predicate(
     "binding/profile id mismatch throws",
     throwsError(
-      () : IAutoMovieBoundProfile =>
+      (): IAutoMovieBoundProfile =>
         bindProfile({
           profile: makeProfile([]),
           binding: { ...makeBinding(MAP), profile: "other" },
@@ -292,7 +334,7 @@ export function test_resolve_bind_profile(): void {
   TestValidator.predicate(
     "unknown driver type throws",
     throwsError(
-      () : IAutoMovieBoundProfile =>
+      (): IAutoMovieBoundProfile =>
         bindProfile({
           profile: makeProfile([
             { type: "warp" } as unknown as IAutoMovieDriver,

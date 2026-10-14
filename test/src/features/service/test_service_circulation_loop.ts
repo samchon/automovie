@@ -7,13 +7,13 @@ import {
 } from "@automovie/engine";
 import {
   AutoMovieServiceFlow,
-  IAutoMovieServiceNetwork,
   IAutoMovieBuiltEnvironment,
-  IAutoMovieServicePort,
-  IAutoMovieServiceSystem,
-  IAutoMovieServiceSegment,
-  IAutoMovieValidation,
   IAutoMovieConstraintViolation,
+  IAutoMovieServiceNetwork,
+  IAutoMovieServicePort,
+  IAutoMovieServiceSegment,
+  IAutoMovieServiceSystem,
+  IAutoMovieValidation,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -46,7 +46,9 @@ const environment: IAutoMovieBuiltEnvironment = serviceEnvironment();
  * not the sleeve, and a fixture that needed both would not tell which one
  * failed.
  */
-const circulation: (overrides?: Partial<IAutoMovieServiceNetwork>) => IAutoMovieServiceNetwork = (
+const circulation: (
+  overrides?: Partial<IAutoMovieServiceNetwork>,
+) => IAutoMovieServiceNetwork = (
   overrides: Partial<IAutoMovieServiceNetwork> = {},
 ): IAutoMovieServiceNetwork => ({
   version: 1,
@@ -186,9 +188,16 @@ const circulation: (overrides?: Partial<IAutoMovieServiceNetwork>) => IAutoMovie
 });
 
 /** The same loop declared to be traversed in one named direction. */
-const flowing: (flow: AutoMovieServiceFlow) => IAutoMovieServiceNetwork = (flow: AutoMovieServiceFlow): IAutoMovieServiceNetwork =>
+const flowing: (flow: AutoMovieServiceFlow) => IAutoMovieServiceNetwork = (
+  flow: AutoMovieServiceFlow,
+): IAutoMovieServiceNetwork =>
   circulation({
-    systems: circulation().systems.map((entry: IAutoMovieServiceSystem): IAutoMovieServiceSystem => ({ ...entry, flow })),
+    systems: circulation().systems.map(
+      (entry: IAutoMovieServiceSystem): IAutoMovieServiceSystem => ({
+        ...entry,
+        flow,
+      }),
+    ),
   });
 
 /**
@@ -306,16 +315,24 @@ export function test_service_circulation_loop(): void {
   );
 
   const consumingRing: IAutoMovieValidation = validateServiceNetwork({
-    network: withPort(loop, "riser-ring", (entry: IAutoMovieServicePort): IAutoMovieServicePort => ({
-      ...entry,
-      direction: "in",
-    })),
+    network: withPort(
+      loop,
+      "riser-ring",
+      (entry: IAutoMovieServicePort): IAutoMovieServicePort => ({
+        ...entry,
+        direction: "in",
+      }),
+    ),
     environment,
   });
-  const ringConsumer: IAutoMovieServiceNetwork = withPort(loop, "tap-draw", (entry: IAutoMovieServicePort): IAutoMovieServicePort => ({
-    ...entry,
-    direction: "bidirectional",
-  }));
+  const ringConsumer: IAutoMovieServiceNetwork = withPort(
+    loop,
+    "tap-draw",
+    (entry: IAutoMovieServicePort): IAutoMovieServicePort => ({
+      ...entry,
+      direction: "bidirectional",
+    }),
+  );
   TestValidator.equals(
     "a ring fitting is a port a run may leave and a port a run may enter",
     namedFacts([
@@ -353,10 +370,12 @@ export function test_service_circulation_loop(): void {
 
   const starved: IAutoMovieValidation = validateServiceNetwork({
     network: circulation({
-      systems: circulation().systems.map((entry: IAutoMovieServiceSystem): IAutoMovieServiceSystem => ({
-        ...entry,
-        capacity: 0.0004,
-      })),
+      systems: circulation().systems.map(
+        (entry: IAutoMovieServiceSystem): IAutoMovieServiceSystem => ({
+          ...entry,
+          capacity: 0.0004,
+        }),
+      ),
     }),
     environment,
   });
@@ -374,14 +393,16 @@ export function test_service_circulation_loop(): void {
       ],
       [
         "refused",
-        (): boolean => hasViolation(starved, "range", "$input.systems[0].capacity"),
+        (): boolean =>
+          hasViolation(starved, "range", "$input.systems[0].capacity"),
       ],
       [
         "overshoot",
         (): boolean =>
           starved.success === false &&
-          starved.violations.some((item: IAutoMovieConstraintViolation): boolean =>
-            nclose(item.overshoot ?? -1, 0.0003, 1e-15),
+          starved.violations.some(
+            (item: IAutoMovieConstraintViolation): boolean =>
+              nclose(item.overshoot ?? -1, 0.0003, 1e-15),
           ),
       ],
       ["alone", (): boolean => violationCount(starved) === 1],
@@ -389,21 +410,24 @@ export function test_service_circulation_loop(): void {
     { load: true, refused: true, overshoot: true, alone: true },
   );
 
-  const schematic: ReturnType<typeof serviceNetworkSchematic> = serviceNetworkSchematic({ network: loop, system: "loop" });
+  const schematic: ReturnType<typeof serviceNetworkSchematic> =
+    serviceNetworkSchematic({ network: loop, system: "loop" });
   TestValidator.equals(
     "the ring draws as a ring, with its own hand-computed totals",
     namedFacts([
       [
         "nodes",
         (): boolean =>
-          schematic.nodes.map((entry: typeof schematic.nodes[number]): string => entry.id).join() ===
-          "heater,riser-tee,loop-tap",
+          schematic.nodes
+            .map((entry: (typeof schematic.nodes)[number]): string => entry.id)
+            .join() === "heater,riser-tee,loop-tap",
       ],
       [
         "edges",
         (): boolean =>
-          schematic.edges.map((edge: typeof schematic.edges[number]): string => edge.id).join() ===
-          "flow-riser,flow-branch,return-leg",
+          schematic.edges
+            .map((edge: (typeof schematic.edges)[number]): string => edge.id)
+            .join() === "flow-riser,flow-branch,return-leg",
       ],
       [
         "closes",
@@ -412,7 +436,10 @@ export function test_service_circulation_loop(): void {
           schematic.edges[2]!.to === "heater",
       ],
       ["totalLength", (): boolean => nclose(schematic.totalLength, 6, 1e-12)],
-      ["totalDemand", (): boolean => nclose(schematic.totalDemand, 0.0007, 1e-15)],
+      [
+        "totalDemand",
+        (): boolean => nclose(schematic.totalDemand, 0.0007, 1e-15),
+      ],
       ["unreachable", (): boolean => schematic.unreachable.length === 0],
     ]),
     {
@@ -430,7 +457,10 @@ export function test_service_circulation_loop(): void {
       (entry: IAutoMovieServiceSegment): boolean => entry.id !== "return-leg",
     ),
   });
-  const broken: IAutoMovieValidation = validateServiceNetwork({ network: opened, environment });
+  const broken: IAutoMovieValidation = validateServiceNetwork({
+    network: opened,
+    environment,
+  });
   TestValidator.equals(
     "breaking the return leaves stubs, not orphans, because the walk still arrives",
     namedFacts([
@@ -453,8 +483,13 @@ export function test_service_circulation_loop(): void {
     { heaterStub: true, tapStub: true, exactly: true, stillReached: true },
   );
 
-  const spanning: (network: IAutoMovieServiceNetwork, id: string) => boolean = (network: IAutoMovieServiceNetwork, id: string): boolean =>
-    network.segments.filter((run: IAutoMovieServiceSegment): boolean => run.system === id).length ===
+  const spanning: (network: IAutoMovieServiceNetwork, id: string) => boolean = (
+    network: IAutoMovieServiceNetwork,
+    id: string,
+  ): boolean =>
+    network.segments.filter(
+      (run: IAutoMovieServiceSegment): boolean => run.system === id,
+    ).length ===
     serviceSystemReach({ network, system: id }).length - 1;
   TestValidator.equals(
     "the tree this suite is otherwise built on could not have stood in for a ring",
@@ -462,8 +497,9 @@ export function test_service_circulation_loop(): void {
       [
         "bathhouseIsATree",
         (): boolean =>
-          serviceNetwork().systems.every((entry: IAutoMovieServiceSystem): boolean =>
-            spanning(serviceNetwork(), entry.id),
+          serviceNetwork().systems.every(
+            (entry: IAutoMovieServiceSystem): boolean =>
+              spanning(serviceNetwork(), entry.id),
           ),
       ],
       ["ringIsNot", (): boolean => !spanning(loop, "loop")],

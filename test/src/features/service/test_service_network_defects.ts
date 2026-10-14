@@ -4,12 +4,12 @@ import {
   AutoMovieServiceMedium,
   AutoMovieServiceUnit,
   IAutoMovieBuiltEnvironment,
+  IAutoMovieConstraintViolation,
   IAutoMovieServiceNetwork,
   IAutoMovieServiceNode,
   IAutoMovieServicePort,
   IAutoMovieServiceSystem,
   IAutoMovieValidation,
-  IAutoMovieConstraintViolation,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -34,8 +34,9 @@ import {
 } from "../internal/serviceFixtures";
 
 const environment: IAutoMovieBuiltEnvironment = serviceEnvironment();
-const refuse: (network?: IAutoMovieServiceNetwork) => IAutoMovieValidation = (network: IAutoMovieServiceNetwork = serviceNetwork()): IAutoMovieValidation =>
-  validateServiceNetwork({ network, environment });
+const refuse: (network?: IAutoMovieServiceNetwork) => IAutoMovieValidation = (
+  network: IAutoMovieServiceNetwork = serviceNetwork(),
+): IAutoMovieValidation => validateServiceNetwork({ network, environment });
 
 /**
  * Selected header, identity, vocabulary, load and spatial defects report their
@@ -117,20 +118,21 @@ export function test_service_network_defects(): void {
     ...clean,
     systems: [...clean.systems, system({ id: "cold" })],
     nodes: [
-      ...clean.nodes.map((entry: IAutoMovieServiceNode): IAutoMovieServiceNode =>
-        entry.id === "floor-gully"
-          ? {
-              ...entry,
-              ports: [
-                ...entry.ports,
-                port({
-                  id: "basin-cold",
-                  system: "cold",
-                  position: { x: 2.5, y: 0.1, z: 3 },
-                }),
-              ],
-            }
-          : entry,
+      ...clean.nodes.map(
+        (entry: IAutoMovieServiceNode): IAutoMovieServiceNode =>
+          entry.id === "floor-gully"
+            ? {
+                ...entry,
+                ports: [
+                  ...entry.ports,
+                  port({
+                    id: "basin-cold",
+                    system: "cold",
+                    position: { x: 2.5, y: 0.1, z: 3 },
+                  }),
+                ],
+              }
+            : entry,
       ),
       node({ id: "basin", position: { x: 1, y: 1, z: 1 } }),
       node({ id: "  ", position: { x: 1, y: 1, z: 1 } }),
@@ -170,15 +172,22 @@ export function test_service_network_defects(): void {
   const vocabulary: IAutoMovieValidation = refuse(
     withPort(
       withNode(
-        withSystem(clean, "cold", (entry: IAutoMovieServiceSystem): IAutoMovieServiceSystem => ({
-          ...entry,
-          discipline: "acoustics" as unknown as "plumbing",
-          medium: "steam" as unknown as "cold-water",
-          flow: "sideways" as unknown as "from-root",
-          capacity: 0,
-        })),
+        withSystem(
+          clean,
+          "cold",
+          (entry: IAutoMovieServiceSystem): IAutoMovieServiceSystem => ({
+            ...entry,
+            discipline: "acoustics" as unknown as "plumbing",
+            medium: "steam" as unknown as "cold-water",
+            flow: "sideways" as unknown as "from-root",
+            capacity: 0,
+          }),
+        ),
         "cold-main",
-        (entry: IAutoMovieServiceNode): IAutoMovieServiceNode => ({ ...entry, kind: "gizmo" as unknown as "source" }),
+        (entry: IAutoMovieServiceNode): IAutoMovieServiceNode => ({
+          ...entry,
+          kind: "gizmo" as unknown as "source",
+        }),
       ),
       "basin-cold",
       (entry: IAutoMovieServicePort): IAutoMovieServicePort => ({
@@ -228,17 +237,25 @@ export function test_service_network_defects(): void {
   );
 
   const mismatch: IAutoMovieValidation = refuse(
-    withSystem(clean, "cold", (entry: IAutoMovieServiceSystem): IAutoMovieServiceSystem => ({
-      ...entry,
-      medium: "supply-air",
-      unit: "watt",
-    })),
+    withSystem(
+      clean,
+      "cold",
+      (entry: IAutoMovieServiceSystem): IAutoMovieServiceSystem => ({
+        ...entry,
+        medium: "supply-air",
+        unit: "watt",
+      }),
+    ),
   );
   const wrongUnit: IAutoMovieValidation = refuse(
-    withSystem(clean, "lighting", (entry: IAutoMovieServiceSystem): IAutoMovieServiceSystem => ({
-      ...entry,
-      unit: "bit-per-second",
-    })),
+    withSystem(
+      clean,
+      "lighting",
+      (entry: IAutoMovieServiceSystem): IAutoMovieServiceSystem => ({
+        ...entry,
+        unit: "bit-per-second",
+      }),
+    ),
   );
   TestValidator.equals(
     "a discipline refuses a medium, a medium refuses a unit, and ports repeat both",
@@ -268,7 +285,11 @@ export function test_service_network_defects(): void {
     },
   );
 
-  const circuit: (discipline: AutoMovieServiceDiscipline, medium: AutoMovieServiceMedium, unit: AutoMovieServiceUnit) => IAutoMovieValidation = (
+  const circuit: (
+    discipline: AutoMovieServiceDiscipline,
+    medium: AutoMovieServiceMedium,
+    unit: AutoMovieServiceUnit,
+  ) => IAutoMovieValidation = (
     discipline: AutoMovieServiceDiscipline,
     medium: AutoMovieServiceMedium,
     unit: AutoMovieServiceUnit,
@@ -276,17 +297,29 @@ export function test_service_network_defects(): void {
     refuse(
       withPort(
         withPort(
-          withSystem(clean, "lighting", (entry: IAutoMovieServiceSystem): IAutoMovieServiceSystem => ({
+          withSystem(
+            clean,
+            "lighting",
+            (entry: IAutoMovieServiceSystem): IAutoMovieServiceSystem => ({
+              ...entry,
+              discipline,
+              medium,
+              unit,
+            }),
+          ),
+          "panel-out",
+          (entry: IAutoMovieServicePort): IAutoMovieServicePort => ({
             ...entry,
-            discipline,
             medium,
             unit,
-          })),
-          "panel-out",
-          (entry: IAutoMovieServicePort): IAutoMovieServicePort => ({ ...entry, medium, unit }),
+          }),
         ),
         "bath-light-in",
-        (entry: IAutoMovieServicePort): IAutoMovieServicePort => ({ ...entry, medium, unit }),
+        (entry: IAutoMovieServicePort): IAutoMovieServicePort => ({
+          ...entry,
+          medium,
+          unit,
+        }),
       ),
     );
   TestValidator.equals(
@@ -305,7 +338,11 @@ export function test_service_network_defects(): void {
       [
         "dataRefusesAControlSignal",
         () => {
-          const wrong: IAutoMovieValidation = circuit("data", "control-signal", "dimensionless");
+          const wrong: IAutoMovieValidation = circuit(
+            "data",
+            "control-signal",
+            "dimensionless",
+          );
           return (
             hasViolation(wrong, "type", "$input.systems[4].medium") &&
             violationCount(wrong) === 1
@@ -315,7 +352,11 @@ export function test_service_network_defects(): void {
       [
         "controlRefusesABitRate",
         () => {
-          const wrong: IAutoMovieValidation = circuit("control", "control-signal", "bit-per-second");
+          const wrong: IAutoMovieValidation = circuit(
+            "control",
+            "control-signal",
+            "bit-per-second",
+          );
           return (
             hasViolation(wrong, "type", "$input.systems[4].unit") &&
             violationCount(wrong) === 1
@@ -332,13 +373,24 @@ export function test_service_network_defects(): void {
   );
 
   const portMedium: IAutoMovieValidation = refuse(
-    withPort(clean, "basin-cold", (entry: IAutoMovieServicePort): IAutoMovieServicePort => ({
-      ...entry,
-      medium: "hot-water",
-    })),
+    withPort(
+      clean,
+      "basin-cold",
+      (entry: IAutoMovieServicePort): IAutoMovieServicePort => ({
+        ...entry,
+        medium: "hot-water",
+      }),
+    ),
   );
   const portUnit: IAutoMovieValidation = refuse(
-    withPort(clean, "basin-cold", (entry: IAutoMovieServicePort): IAutoMovieServicePort => ({ ...entry, unit: "watt" })),
+    withPort(
+      clean,
+      "basin-cold",
+      (entry: IAutoMovieServicePort): IAutoMovieServicePort => ({
+        ...entry,
+        unit: "watt",
+      }),
+    ),
   );
   TestValidator.equals(
     "one port disagreeing with its system is caught without accusing the system",
@@ -362,18 +414,22 @@ export function test_service_network_defects(): void {
   );
 
   const stub: IAutoMovieValidation = refuse(
-    withNode(clean, "bath-valve", (entry: IAutoMovieServiceNode): IAutoMovieServiceNode => ({
-      ...entry,
-      ports: [
-        ...entry.ports,
-        port({
-          id: "bath-valve-drain",
-          system: "cold",
-          direction: "out",
-          position: { x: 3.5, y: 2.5, z: 1 },
-        }),
-      ],
-    })),
+    withNode(
+      clean,
+      "bath-valve",
+      (entry: IAutoMovieServiceNode): IAutoMovieServiceNode => ({
+        ...entry,
+        ports: [
+          ...entry.ports,
+          port({
+            id: "bath-valve-drain",
+            system: "cold",
+            direction: "out",
+            position: { x: 3.5, y: 2.5, z: 1 },
+          }),
+        ],
+      }),
+    ),
   );
   TestValidator.equals(
     "a port no run joins is a stub, and the only finding",
@@ -385,7 +441,14 @@ export function test_service_network_defects(): void {
   );
 
   const overloaded: IAutoMovieValidation = refuse(
-    withPort(clean, "basin-cold", (entry: IAutoMovieServicePort): IAutoMovieServicePort => ({ ...entry, demand: 0.02 })),
+    withPort(
+      clean,
+      "basin-cold",
+      (entry: IAutoMovieServicePort): IAutoMovieServicePort => ({
+        ...entry,
+        demand: 0.02,
+      }),
+    ),
   );
   TestValidator.equals(
     "declared demand beyond declared capacity is refused with its overshoot",
@@ -398,8 +461,9 @@ export function test_service_network_defects(): void {
         "overshoot",
         () =>
           overloaded.success === false &&
-          overloaded.violations.some((item: IAutoMovieConstraintViolation): boolean =>
-            nclose(item.overshoot ?? -1, 0.01, 1e-12),
+          overloaded.violations.some(
+            (item: IAutoMovieConstraintViolation): boolean =>
+              nclose(item.overshoot ?? -1, 0.01, 1e-12),
           ),
       ],
       [

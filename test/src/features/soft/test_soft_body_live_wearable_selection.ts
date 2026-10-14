@@ -1,9 +1,11 @@
+import { IAutoMovieSoftBodyDomain } from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
 import { productionSoftBodyUsesMovingBoundary } from "../../../../packages/engine/src/soft/productionSoftBodyUsesMovingBoundary";
 import { readProductionLiveWearableSoftBodies } from "../../../../packages/engine/src/soft/readProductionLiveWearableSoftBodies";
 import { selectProductionLiveWearableSoftBodies } from "../../../../packages/engine/src/soft/selectProductionLiveWearableSoftBodies";
-import { IAutoMovieSoftBodyDomain } from "@automovie/interface";
-import { TestValidator } from "@nestia/e2e";
 import { throwsError } from "../internal/predicates";
+
 type Boundary = Pick<IAutoMovieSoftBodyDomain, "id" | "anchors" | "colliders">;
 
 const staticAnchor: IAutoMovieSoftBodyDomain["anchors"][number] = {
@@ -135,10 +137,20 @@ export function test_soft_body_live_wearable_selection(): void {
   const emptySlots: string[] = new Array<string>(2);
   const trailingSlot: string[] = new Array<string>(2);
   trailingSlot[0] = "coat";
-  TestValidator.equals("missing list slots cannot become phantom budget entries", {
-    empty: throwsError((): string[] => readProductionLiveWearableSoftBodies(emptySlots), "simulation.liveWearableSoftBodies[0] must be a non-blank trimmed string."),
-    trailing: throwsError((): string[] => readProductionLiveWearableSoftBodies(trailingSlot), "simulation.liveWearableSoftBodies[1] must be a non-blank trimmed string."),
-  }, { empty: true, trailing: true });
+  TestValidator.equals(
+    "missing list slots cannot become phantom budget entries",
+    {
+      empty: throwsError(
+        (): string[] => readProductionLiveWearableSoftBodies(emptySlots),
+        "simulation.liveWearableSoftBodies[0] must be a non-blank trimmed string.",
+      ),
+      trailing: throwsError(
+        (): string[] => readProductionLiveWearableSoftBodies(trailingSlot),
+        "simulation.liveWearableSoftBodies[1] must be a non-blank trimmed string.",
+      ),
+    },
+    { empty: true, trailing: true },
+  );
 
   const domains: Boundary[] = [bound("cape"), capsule("coat"), still("flag")];
   TestValidator.equals(
@@ -148,7 +160,17 @@ export function test_soft_body_live_wearable_selection(): void {
         "coat",
         "ghost",
         "cape",
-      ]).map((item: { domain: Boundary; subjectIndex: number; maxSubjects: number; }): (string | number)[] => [item.domain.id, item.subjectIndex, item.maxSubjects]),
+      ]).map(
+        (item: {
+          domain: Boundary;
+          subjectIndex: number;
+          maxSubjects: number;
+        }): (string | number)[] => [
+          item.domain.id,
+          item.subjectIndex,
+          item.maxSubjects,
+        ],
+      ),
       none: selectProductionLiveWearableSoftBodies([still("flag")], []),
     },
     {
@@ -163,15 +185,17 @@ export function test_soft_body_live_wearable_selection(): void {
     "ambiguous domains and live or static contradictions are refused",
     {
       blank: throwsError(
-        (): { domain: Boundary; subjectIndex: number; maxSubjects: number; }[] => selectProductionLiveWearableSoftBodies([still(" ")], []),
+        (): { domain: Boundary; subjectIndex: number; maxSubjects: number }[] =>
+          selectProductionLiveWearableSoftBodies([still(" ")], []),
         "Compiled soft-body domain ids must be non-blank, trimmed, and unique.",
       ),
       untrimmed: throwsError(
-        (): { domain: Boundary; subjectIndex: number; maxSubjects: number; }[] => selectProductionLiveWearableSoftBodies([still("flag ")], []),
+        (): { domain: Boundary; subjectIndex: number; maxSubjects: number }[] =>
+          selectProductionLiveWearableSoftBodies([still("flag ")], []),
         "Compiled soft-body domain ids must be non-blank, trimmed, and unique.",
       ),
       repeated: throwsError(
-        (): { domain: Boundary; subjectIndex: number; maxSubjects: number; }[] =>
+        (): { domain: Boundary; subjectIndex: number; maxSubjects: number }[] =>
           selectProductionLiveWearableSoftBodies(
             [still("flag"), still("flag")],
             [],
@@ -179,11 +203,12 @@ export function test_soft_body_live_wearable_selection(): void {
         "Compiled soft-body domain ids must be non-blank, trimmed, and unique.",
       ),
       unselectedMoving: throwsError(
-        (): { domain: Boundary; subjectIndex: number; maxSubjects: number; }[] => selectProductionLiveWearableSoftBodies(domains, ["coat"]),
+        (): { domain: Boundary; subjectIndex: number; maxSubjects: number }[] =>
+          selectProductionLiveWearableSoftBodies(domains, ["coat"]),
         'Live wearable soft body "cape" declares a moving boundary but simulation.liveWearableSoftBodies does not select it.',
       ),
       selectedStatic: throwsError(
-        (): { domain: Boundary; subjectIndex: number; maxSubjects: number; }[] =>
+        (): { domain: Boundary; subjectIndex: number; maxSubjects: number }[] =>
           selectProductionLiveWearableSoftBodies(domains, [
             "coat",
             "cape",

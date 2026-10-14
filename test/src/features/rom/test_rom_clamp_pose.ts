@@ -1,7 +1,15 @@
+import {
+  IAutoMovieBone,
+  IAutoMovieJointConstraint,
+  type IAutoMovieJointPose,
+  IAutoMoviePose,
+  IAutoMovieSkeleton,
+  type IAutoMovieTransform,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
 import { clampJointRom } from "../../../../packages/engine/src/rom/clampJointRom";
 import { clampPose } from "../../../../packages/engine/src/rom/clampPose";
-import { IAutoMovieBone, IAutoMovieJointConstraint, IAutoMoviePose, IAutoMovieSkeleton, type IAutoMovieJointPose, type IAutoMovieTransform } from "@automovie/interface";
-import { TestValidator } from "@nestia/e2e";
 import { namedFacts } from "../internal/namedFacts";
 import { nclose } from "../internal/nclose";
 import { vclose } from "../internal/vclose";
@@ -11,7 +19,10 @@ const REST: IAutoMovieTransform = {
   rotation: { x: 0, y: 0, z: 0, w: 1 },
   scale: { x: 1, y: 1, z: 1 },
 };
-const bone: (name: IAutoMovieBone["bone"], constraint: IAutoMovieJointConstraint | null) => IAutoMovieBone = (
+const bone: (
+  name: IAutoMovieBone["bone"],
+  constraint: IAutoMovieJointConstraint | null,
+) => IAutoMovieBone = (
   name: IAutoMovieBone["bone"],
   constraint: IAutoMovieJointConstraint | null,
 ): IAutoMovieBone => ({ bone: name, parent: null, rest: REST, constraint });
@@ -64,7 +75,10 @@ export function test_rom_clamp_pose(): void {
     ],
   };
   const out: IAutoMoviePose = clampPose(pose, SKELETON);
-  const byBone: (b: string) => IAutoMovieJointPose = (b: string): IAutoMovieJointPose  => out.joints.find((j: IAutoMovieJointPose): boolean  => j.bone === b)!;
+  const byBone: (b: string) => IAutoMovieJointPose = (
+    b: string,
+  ): IAutoMovieJointPose =>
+    out.joints.find((j: IAutoMovieJointPose): boolean => j.bone === b)!;
 
   // 1. override
   TestValidator.predicate(
@@ -102,8 +116,16 @@ export function test_rom_clamp_pose(): void {
     "unconstrained passes through",
     nclose(byBone("hips").flexion!, 999, 0),
   );
-  TestValidator.predicate("root preserved", out.root !== null && vclose(out.root.translation, REST.translation, 0) && vclose(out.root.scale, REST.scale, 0) &&
-    nclose(out.root.rotation.x, REST.rotation.x, 0) && nclose(out.root.rotation.y, REST.rotation.y, 0) && nclose(out.root.rotation.z, REST.rotation.z, 0) && nclose(out.root.rotation.w, REST.rotation.w, 0));
+  TestValidator.predicate(
+    "root preserved",
+    out.root !== null &&
+      vclose(out.root.translation, REST.translation, 0) &&
+      vclose(out.root.scale, REST.scale, 0) &&
+      nclose(out.root.rotation.x, REST.rotation.x, 0) &&
+      nclose(out.root.rotation.y, REST.rotation.y, 0) &&
+      nclose(out.root.rotation.z, REST.rotation.z, 0) &&
+      nclose(out.root.rotation.w, REST.rotation.w, 0),
+  );
 
   // 5. non-finite constrained axes are sanitized before clamping
   const sanitizedJoint: IAutoMovieJointPose = clampJointRom(
@@ -149,13 +171,16 @@ export function test_rom_clamp_pose(): void {
     namedFacts([
       [
         "isFiniteSanitizedArmFlexion",
-        (): boolean  => Number.isFinite(sanitizedArm.flexion),
+        (): boolean => Number.isFinite(sanitizedArm.flexion),
       ],
       [
         "isFiniteSanitizedArmAbduction",
-        (): boolean  => Number.isFinite(sanitizedArm.abduction),
+        (): boolean => Number.isFinite(sanitizedArm.abduction),
       ],
-      ["isFiniteSanitizedArmTwist", (): boolean  => Number.isFinite(sanitizedArm.twist)],
+      [
+        "isFiniteSanitizedArmTwist",
+        (): boolean => Number.isFinite(sanitizedArm.twist),
+      ],
     ]),
     {
       isFiniteSanitizedArmFlexion: true,

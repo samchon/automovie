@@ -1,5 +1,14 @@
 import { lowerServiceNetwork } from "@automovie/engine";
-import { IAutoMovieMeshGeometry, IAutoMovieMesh, IAutoMovieModel, IAutoMovieStageSetPiece, IAutoMovieServiceSegment, IAutoMovieWetZone, IAutoMovieBuiltEnvironment, IAutoMovieServiceNetwork } from "@automovie/interface";
+import {
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieMesh,
+  IAutoMovieMeshGeometry,
+  IAutoMovieModel,
+  IAutoMovieServiceNetwork,
+  IAutoMovieServiceSegment,
+  IAutoMovieStageSetPiece,
+  IAutoMovieWetZone,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import {
@@ -16,9 +25,17 @@ import {
 } from "../internal/serviceFixtures";
 
 /** Extremes of a lowered run's baked triangle mesh, in world metres. */
-const extents: (mesh: number[]) => Record<"x" | "y" | "z", { min: number; max: number }> = (mesh: number[]): Record<"x" | "y" | "z", { min: number; max: number }> => {
-  const axis: (offset: number) => { min: number; max: number } = (offset: number): { min: number; max: number } => {
-    const values: number[] = mesh.filter((_unused: number, index: number): boolean => index % 3 === offset);
+const extents: (
+  mesh: number[],
+) => Record<"x" | "y" | "z", { min: number; max: number }> = (
+  mesh: number[],
+): Record<"x" | "y" | "z", { min: number; max: number }> => {
+  const axis: (offset: number) => { min: number; max: number } = (
+    offset: number,
+  ): { min: number; max: number } => {
+    const values: number[] = mesh.filter(
+      (_unused: number, index: number): boolean => index % 3 === offset,
+    );
     return { min: Math.min(...values), max: Math.max(...values) };
   };
   return { x: axis(0), y: axis(1), z: axis(2) };
@@ -63,7 +80,10 @@ const extents: (mesh: number[]) => Record<"x" | "y" | "z", { min: number; max: n
 export function test_service_network_render(): void {
   const environment: IAutoMovieBuiltEnvironment = serviceEnvironment();
   const network: IAutoMovieServiceNetwork = serviceNetwork();
-  const lowered: ReturnType<typeof lowerServiceNetwork> = lowerServiceNetwork({ network, environment });
+  const lowered: ReturnType<typeof lowerServiceNetwork> = lowerServiceNetwork({
+    network,
+    environment,
+  });
 
   TestValidator.equals(
     "every run becomes one generated model and one staged piece",
@@ -143,7 +163,11 @@ export function test_service_network_render(): void {
   const coldBranch: IAutoMovieMesh = (
     (lowered.models ?? [])[1]!.parts[0]!.geometry as IAutoMovieMeshGeometry
   ).mesh;
-  const coarse: ReturnType<typeof lowerServiceNetwork> = lowerServiceNetwork({ network, environment, sides: 3 });
+  const coarse: ReturnType<typeof lowerServiceNetwork> = lowerServiceNetwork({
+    network,
+    environment,
+    sides: 3,
+  });
   const coarseRun: IAutoMovieMesh = (
     (coarse.models ?? [])[0]!.parts[0]!.geometry as IAutoMovieMeshGeometry
   ).mesh;
@@ -156,7 +180,8 @@ export function test_service_network_render(): void {
         "tooCoarse",
         (): boolean =>
           throwsError(
-            (): ReturnType<typeof lowerServiceNetwork> => lowerServiceNetwork({ network, environment, sides: 2 }),
+            (): ReturnType<typeof lowerServiceNetwork> =>
+              lowerServiceNetwork({ network, environment, sides: 2 }),
             ["needs at least 3 sides"],
           ),
       ],
@@ -164,7 +189,8 @@ export function test_service_network_render(): void {
         "fractional",
         (): boolean =>
           throwsError(
-            (): ReturnType<typeof lowerServiceNetwork> => lowerServiceNetwork({ network, environment, sides: 4.5 }),
+            (): ReturnType<typeof lowerServiceNetwork> =>
+              lowerServiceNetwork({ network, environment, sides: 4.5 }),
             ["needs at least 3 sides"],
           ),
       ],
@@ -181,10 +207,16 @@ export function test_service_network_render(): void {
           throwsError(
             (): ReturnType<typeof lowerServiceNetwork> =>
               lowerServiceNetwork({
-                network: withSegment(network, "cold-run", (run: IAutoMovieServiceSegment): IAutoMovieServiceSegment => ({
-                  ...run,
-                  penetrations: [],
-                })),
+                network: withSegment(
+                  network,
+                  "cold-run",
+                  (
+                    run: IAutoMovieServiceSegment,
+                  ): IAutoMovieServiceSegment => ({
+                    ...run,
+                    penetrations: [],
+                  }),
+                ),
                 environment,
               }),
             ["is invalid at $input.segments[0].penetrations"],
@@ -196,11 +228,15 @@ export function test_service_network_render(): void {
           throwsError(
             (): ReturnType<typeof lowerServiceNetwork> =>
               lowerServiceNetwork({
-                network: withZone(network, "bath-zone", (zone: IAutoMovieWetZone): IAutoMovieWetZone => ({
-                  ...zone,
-                  drains: [],
-                  slope: 0,
-                })),
+                network: withZone(
+                  network,
+                  "bath-zone",
+                  (zone: IAutoMovieWetZone): IAutoMovieWetZone => ({
+                    ...zone,
+                    drains: [],
+                    slope: 0,
+                  }),
+                ),
                 environment,
               }),
             ["is invalid at $input.zones[0].drains"],

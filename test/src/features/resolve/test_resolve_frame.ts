@@ -1,9 +1,18 @@
-import { resolveFrame } from "../../../../packages/engine/src/resolve/resolveFrame";
-import { IAutoMovieChannel, IAutoMovieChannelLimit, IAutoMovieClip, IAutoMovieDrivenDriver, IAutoMovieNode, IAutoMovieTrack, IAutoMovieTransform } from "@automovie/interface";
+import {
+  IAutoMovieChannel,
+  IAutoMovieChannelLimit,
+  IAutoMovieClip,
+  IAutoMovieDrivenDriver,
+  IAutoMovieNode,
+  IAutoMovieTrack,
+  IAutoMovieTransform,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
+
+import { type IAutoMovieResolveOutput } from "../../../../packages/engine/src/resolve/IAutoMovieResolveOutput";
+import { resolveFrame } from "../../../../packages/engine/src/resolve/resolveFrame";
 import { nclose } from "../internal/nclose";
 import { throwsError } from "../internal/throwsError";
-import { type IAutoMovieResolveOutput } from "../../../../packages/engine/src/resolve/IAutoMovieResolveOutput";
 
 const IDENTITY: IAutoMovieTransform = {
   translation: { x: 0, y: 0, z: 0 },
@@ -23,12 +32,19 @@ const node: (id: string) => IAutoMovieNode = (id: string): IAutoMovieNode => ({
   skin: null,
 });
 
-const nodeChannel: (id: string, path: "translation" | "rotation" | "scale" | "weights") => IAutoMovieChannel = (
+const nodeChannel: (
+  id: string,
+  path: "translation" | "rotation" | "scale" | "weights",
+) => IAutoMovieChannel = (
   id: string,
   path: "translation" | "rotation" | "scale" | "weights",
 ): IAutoMovieChannel => ({ kind: "node", node: id, path });
 
-const track: (channel: IAutoMovieChannel, times: number[], values: number[]) => IAutoMovieTrack = (
+const track: (
+  channel: IAutoMovieChannel,
+  times: number[],
+  values: number[],
+) => IAutoMovieTrack = (
   channel: IAutoMovieChannel,
   times: number[],
   values: number[],
@@ -98,7 +114,12 @@ export function test_resolve_frame(): void {
   ];
 
   // 1. null clip → rest pose
-  const rest: IAutoMovieResolveOutput = resolveFrame({ nodes, clip: null, limits, seconds: 1 });
+  const rest: IAutoMovieResolveOutput = resolveFrame({
+    nodes,
+    clip: null,
+    limits,
+    seconds: 1,
+  });
   TestValidator.predicate(
     "null clip leaves node at rest",
     nclose(tx(rest.world.get("trs")!), 0),
@@ -107,7 +128,12 @@ export function test_resolve_frame(): void {
   TestValidator.equals("null clip: no violations", rest.violations.length, 0);
 
   // 2-5. resolve the animated frame
-  const out: IAutoMovieResolveOutput = resolveFrame({ nodes, clip, limits, seconds: 1 });
+  const out: IAutoMovieResolveOutput = resolveFrame({
+    nodes,
+    clip,
+    limits,
+    seconds: 1,
+  });
 
   // 3. translation clamped to 50 and surfaced as one violation
   TestValidator.predicate(
@@ -116,7 +142,15 @@ export function test_resolve_frame(): void {
   );
   TestValidator.equals(
     "one violation, tagged with the channel",
-    out.violations.map((entry: typeof out.violations[number]): { channel: string; component: number; bound: "min" | "max" } => ({ channel: entry.channel, component: entry.component, bound: entry.bound })),
+    out.violations.map(
+      (
+        entry: (typeof out.violations)[number],
+      ): { channel: string; component: number; bound: "min" | "max" } => ({
+        channel: entry.channel,
+        component: entry.component,
+        bound: entry.bound,
+      }),
+    ),
     [
       {
         channel: "node:trs:translation",
@@ -125,8 +159,18 @@ export function test_resolve_frame(): void {
       },
     ],
   );
-  TestValidator.predicate("violation preserves limit and original overshoot", nclose(out.violations[0]!.limit, 50, 0) && nclose(out.violations[0]!.actual, 100, 0));
-  TestValidator.equals("violation has only the expected output fields", Object.keys(out.violations[0]!).sort((a: string, b: string): number => a < b ? -1 : a > b ? 1 : 0), ["actual", "bound", "channel", "component", "limit"]);
+  TestValidator.predicate(
+    "violation preserves limit and original overshoot",
+    nclose(out.violations[0]!.limit, 50, 0) &&
+      nclose(out.violations[0]!.actual, 100, 0),
+  );
+  TestValidator.equals(
+    "violation has only the expected output fields",
+    Object.keys(out.violations[0]!).sort((a: string, b: string): number =>
+      a < b ? -1 : a > b ? 1 : 0,
+    ),
+    ["actual", "bound", "channel", "component", "limit"],
+  );
 
   // 2. scale-only node animates scale, keeps rest translation/rotation
   TestValidator.predicate(
@@ -145,7 +189,11 @@ export function test_resolve_frame(): void {
   );
 
   // 5. weights map carries the morph node only
-  TestValidator.predicate("morph weights captured", out.weights.get("morph")?.length === 1 && nclose(out.weights.get("morph")![0]!, 1, 0));
+  TestValidator.predicate(
+    "morph weights captured",
+    out.weights.get("morph")?.length === 1 &&
+      nclose(out.weights.get("morph")![0]!, 1, 0),
+  );
   TestValidator.equals(
     "trs node not in weights",
     out.weights.has("trs"),
@@ -166,7 +214,8 @@ export function test_resolve_frame(): void {
   TestValidator.predicate(
     "clip channel rejects missing resolve node",
     throwsError(
-      (): IAutoMovieResolveOutput  => resolveFrame({ nodes, clip: ghostClip, limits: [], seconds: 0 }),
+      (): IAutoMovieResolveOutput =>
+        resolveFrame({ nodes, clip: ghostClip, limits: [], seconds: 0 }),
       ['sampled channel "node:ghost:translation"', 'missing node "ghost"'],
     ),
   );
@@ -185,7 +234,7 @@ export function test_resolve_frame(): void {
   TestValidator.predicate(
     "driver output rejects a node channel as non-scalar",
     throwsError(
-      (): IAutoMovieResolveOutput  =>
+      (): IAutoMovieResolveOutput =>
         resolveFrame({
           nodes,
           clip: null,

@@ -5,7 +5,11 @@ import {
   softBodyTravelNumber,
   validateSoftBodyDomain,
 } from "@automovie/engine";
-import type { IAutoMovieSoftBodyDomain, IAutoMovieValidation, IAutoMovieConstraintViolation } from "@automovie/interface";
+import type {
+  IAutoMovieConstraintViolation,
+  IAutoMovieSoftBodyDomain,
+  IAutoMovieValidation,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { hasViolation, namedFacts, nclose } from "../internal/predicates";
@@ -57,7 +61,11 @@ import { softPanel } from "../internal/softFixtures";
  *    defects. This case observes results, not an iteration count.
  */
 export function test_soft_body_budget_report(): void {
-  const domain: IAutoMovieSoftBodyDomain = softPanel({ columns: 5, rows: 4, overrides: { id: "drape" } });
+  const domain: IAutoMovieSoftBodyDomain = softPanel({
+    columns: 5,
+    rows: 4,
+    overrides: { id: "drape" },
+  });
   const budget: ReturnType<typeof softBodyBudget> = softBodyBudget(domain);
   TestValidator.equals(
     "every cost is the hand computation over the lattice",
@@ -87,10 +95,11 @@ export function test_soft_body_budget_report(): void {
     },
   );
 
-  const drawn: ReturnType<typeof softBodySurfaceGeometry> = softBodySurfaceGeometry({
-    domain,
-    state: simulateSoftBody(domain, 0),
-  });
+  const drawn: ReturnType<typeof softBodySurfaceGeometry> =
+    softBodySurfaceGeometry({
+      domain,
+      state: simulateSoftBody(domain, 0),
+    });
   TestValidator.equals(
     "the declared triangle count is what the surface actually draws",
     namedFacts([
@@ -178,10 +187,15 @@ export function test_soft_body_budget_report(): void {
       [
         "overshoot",
         () => {
-          const validation: IAutoMovieValidation = validateSoftBodyDomain({ domain: hasty });
+          const validation: IAutoMovieValidation = validateSoftBodyDomain({
+            domain: hasty,
+          });
           return (
             validation.success === false &&
-            validation.violations.some((item: IAutoMovieConstraintViolation): boolean => nclose(item.overshoot ?? 0, 3))
+            validation.violations.some(
+              (item: IAutoMovieConstraintViolation): boolean =>
+                nclose(item.overshoot ?? 0, 3),
+            )
           );
         },
       ],
@@ -221,7 +235,11 @@ export function test_soft_body_budget_report(): void {
     { travel: true, budget: true, refused: true, lengthNamed: true },
   );
 
-  const lone: IAutoMovieSoftBodyDomain = softPanel({ columns: 1, rows: 1, overrides: { id: "lone" } });
+  const lone: IAutoMovieSoftBodyDomain = softPanel({
+    columns: 1,
+    rows: 1,
+    overrides: { id: "lone" },
+  });
   TestValidator.equals(
     "a single particle has no constraint to cross, and is refused for it",
     namedFacts([

@@ -1,15 +1,26 @@
+import {
+  IAutoMovieSpringDriver,
+  IAutoMovieTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
 import { Matrix4 } from "../../../../packages/engine/src/math/Matrix4";
 import { createSpringState } from "../../../../packages/engine/src/resolve/createSpringState";
 import { stepSpring } from "../../../../packages/engine/src/resolve/stepSpring";
-import { IAutoMovieSpringDriver, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
-import { TestValidator } from "@nestia/e2e";
 import { throwsError } from "../internal/throwsError";
 import { vclose } from "../internal/vclose";
 
-const W: (p: IAutoMovieVector3) => number[] = (p: IAutoMovieVector3): number[] =>
+const W: (p: IAutoMovieVector3) => number[] = (
+  p: IAutoMovieVector3,
+): number[] =>
   Matrix4.compose(p, { x: 0, y: 0, z: 0, w: 1 }, { x: 1, y: 1, z: 1 });
 
-const trs: (x: number, y: number, z: number) => IAutoMovieTransform = (x: number, y: number, z: number): IAutoMovieTransform => ({
+const trs: (x: number, y: number, z: number) => IAutoMovieTransform = (
+  x: number,
+  y: number,
+  z: number,
+): IAutoMovieTransform => ({
   translation: { x, y, z },
   rotation: { x: 0, y: 0, z: 0, w: 1 },
   scale: { x: 1, y: 1, z: 1 },
@@ -27,7 +38,10 @@ const still: IAutoMovieSpringDriver = {
   center: null,
 };
 
-const local: Map<string, IAutoMovieTransform> = new Map<string, IAutoMovieTransform>([["j1", trs(1, 0, 0)]]);
+const local: Map<string, IAutoMovieTransform> = new Map<
+  string,
+  IAutoMovieTransform
+>([["j1", trs(1, 0, 0)]]);
 
 const world: () => Map<string, number[]> = (): Map<string, number[]> =>
   new Map([
@@ -35,8 +49,10 @@ const world: () => Map<string, number[]> = (): Map<string, number[]> =>
     ["j1", W({ x: 1, y: 0, z: 0 })],
   ]);
 
-const at: (w: Map<string, number[]>, id: string) => IAutoMovieVector3 = (w: Map<string, number[]>, id: string): IAutoMovieVector3 =>
-  Matrix4.position(w.get(id)!);
+const at: (w: Map<string, number[]>, id: string) => IAutoMovieVector3 = (
+  w: Map<string, number[]>,
+  id: string,
+): IAutoMovieVector3 => Matrix4.position(w.get(id)!);
 
 /**
  * After the length constraint, spring sphere collisions push each joint to sphere radius plus hitRadius in array order, using an upward fallback at a coincident center.
@@ -101,7 +117,11 @@ export function test_resolve_spring_collision(): void {
   );
 
   // 5. guards
-  const invalid: (title: string, collider: { center: IAutoMovieVector3; radius: number; }, expected: string | string[]) => void = (
+  const invalid: (
+    title: string,
+    collider: { center: IAutoMovieVector3; radius: number },
+    expected: string | string[],
+  ) => void = (
     title: string,
     collider: { center: IAutoMovieVector3; radius: number },
     expected: string | string[],
@@ -109,7 +129,7 @@ export function test_resolve_spring_collision(): void {
     TestValidator.predicate(
       title,
       throwsError(
-        (): void  =>
+        (): void =>
           stepSpring(still, world(), createSpringState(), 1 / 60, local, [
             collider,
           ]),

@@ -1,18 +1,31 @@
+import {
+  type IAutoMovieDriver,
+  IAutoMovieParentDriver,
+  IAutoMovieQuaternion,
+  IAutoMovieTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
 import { Matrix4 } from "../../../../packages/engine/src/math/Matrix4";
 import { resolveWorldDrivers } from "../../../../packages/engine/src/resolve/resolveWorldDrivers";
-import { IAutoMovieParentDriver, IAutoMovieQuaternion, IAutoMovieTransform, IAutoMovieVector3, type IAutoMovieDriver } from "@automovie/interface";
-import { TestValidator } from "@nestia/e2e";
 import { qclose } from "../internal/qclose";
 import { throwsError } from "../internal/throwsError";
 import { vclose } from "../internal/vclose";
 
-const W: (pos: IAutoMovieVector3, rot?: IAutoMovieQuaternion, scl?: IAutoMovieVector3) => number[] = (
+const W: (
+  pos: IAutoMovieVector3,
+  rot?: IAutoMovieQuaternion,
+  scl?: IAutoMovieVector3,
+) => number[] = (
   pos: IAutoMovieVector3,
   rot: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 },
   scl: IAutoMovieVector3 = { x: 1, y: 1, z: 1 },
 ): number[] => Matrix4.compose(pos, rot, scl);
 
-const parent: (over: Partial<IAutoMovieParentDriver>) => IAutoMovieParentDriver = (
+const parent: (
+  over: Partial<IAutoMovieParentDriver>,
+) => IAutoMovieParentDriver = (
   over: Partial<IAutoMovieParentDriver>,
 ): IAutoMovieParentDriver => ({
   type: "parent",
@@ -24,7 +37,11 @@ const parent: (over: Partial<IAutoMovieParentDriver>) => IAutoMovieParentDriver 
   ...over,
 });
 
-const trs: (x: number, y: number, z: number) => IAutoMovieTransform = (x: number, y: number, z: number): IAutoMovieTransform => ({
+const trs: (x: number, y: number, z: number) => IAutoMovieTransform = (
+  x: number,
+  y: number,
+  z: number,
+): IAutoMovieTransform => ({
   translation: { x, y, z },
   rotation: { x: 0, y: 0, z: 0, w: 1 },
   scale: { x: 1, y: 1, z: 1 },
@@ -59,15 +76,24 @@ export function test_resolve_parent_driver(): void {
     ["c", W({ x: 0, y: 1, z: 0 })],
     ["p", W({ x: 10, y: 0, z: 0 }, parentRot, parentScale)],
   ]);
-  const localById: Map<string, IAutoMovieTransform> = new Map<string, IAutoMovieTransform>([["c", trs(0, 1, 0)]]);
-  const children: Map<string, string[]> = new Map<string, string[]>([["o", ["c"]]]);
+  const localById: Map<string, IAutoMovieTransform> = new Map<
+    string,
+    IAutoMovieTransform
+  >([["c", trs(0, 1, 0)]]);
+  const children: Map<string, string[]> = new Map<string, string[]>([
+    ["o", ["c"]],
+  ]);
   resolveWorldDrivers(
     [parent({ translation: true, rotation: true, scale: true })],
     world,
     localById,
     children,
   );
-  const own: { position: IAutoMovieVector3; rotation: IAutoMovieQuaternion; scale: IAutoMovieVector3; } = Matrix4.decompose(world.get("o")!);
+  const own: {
+    position: IAutoMovieVector3;
+    rotation: IAutoMovieQuaternion;
+    scale: IAutoMovieVector3;
+  } = Matrix4.decompose(world.get("o")!);
   TestValidator.predicate(
     "owner inherits parent position",
     vclose(own.position, { x: 10, y: 0, z: 0 }, 1e-5),
@@ -99,7 +125,7 @@ export function test_resolve_parent_driver(): void {
   TestValidator.predicate(
     "parent driver rejects non-boolean component flag",
     throwsError(
-      (): IAutoMovieDriver[]  =>
+      (): IAutoMovieDriver[] =>
         resolveWorldDrivers(
           [
             parent({
@@ -120,7 +146,7 @@ export function test_resolve_parent_driver(): void {
   TestValidator.predicate(
     "missing parent-driver owner rejects incomplete world map",
     throwsError(
-      (): IAutoMovieDriver[]  =>
+      (): IAutoMovieDriver[] =>
         resolveWorldDrivers(
           [parent({ owner: "missing", translation: true })],
           new Map([["p", W({ x: 10, y: 0, z: 0 })]]),
@@ -133,7 +159,7 @@ export function test_resolve_parent_driver(): void {
   TestValidator.predicate(
     "missing parent-driver parent rejects incomplete world map",
     throwsError(
-      (): IAutoMovieDriver[]  =>
+      (): IAutoMovieDriver[] =>
         resolveWorldDrivers(
           [parent({ parent: "missing", translation: true })],
           new Map([["o", W({ x: 0, y: 0, z: 0 })]]),

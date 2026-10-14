@@ -1,10 +1,18 @@
-import { resolveFrame } from "../../../../packages/engine/src/resolve/resolveFrame";
-import { IAutoMovieCopyDriver, IAutoMovieIKDriver, IAutoMovieNode } from "@automovie/interface";
+import {
+  IAutoMovieCopyDriver,
+  IAutoMovieIKDriver,
+  IAutoMovieNode,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-import { nclose } from "../internal/nclose";
-import { type IAutoMovieResolveOutput } from "../../../../packages/engine/src/resolve/IAutoMovieResolveOutput";
 
-const node: (id: string, x: number) => IAutoMovieNode = (id: string, x: number): IAutoMovieNode => ({
+import { type IAutoMovieResolveOutput } from "../../../../packages/engine/src/resolve/IAutoMovieResolveOutput";
+import { resolveFrame } from "../../../../packages/engine/src/resolve/resolveFrame";
+import { nclose } from "../internal/nclose";
+
+const node: (id: string, x: number) => IAutoMovieNode = (
+  id: string,
+  x: number,
+): IAutoMovieNode => ({
   id,
   name: null,
   parent: null,

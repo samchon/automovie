@@ -1,20 +1,31 @@
+import {
+  IAutoMoviePlantingArrangement,
+  IAutoMoviePlantingCluster,
+  IAutoMoviePlantingDomain,
+  IAutoMoviePlantingPlacement,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
 import { arrangePlantingCluster } from "../../../../packages/engine/src/soft/arrangePlantingCluster";
 import { growPlanting } from "../../../../packages/engine/src/soft/growPlanting";
 import { plantingBudget } from "../../../../packages/engine/src/soft/plantingBudget";
-import { TestValidator } from "@nestia/e2e";
 import { hasPlantingSpacingOracle } from "../internal/hasPlantingSpacingOracle";
 import { namedFacts, nclose, qunit } from "../internal/predicates";
 import { plantingCluster, plantingRecipe } from "../internal/softFixtures";
-import { IAutoMoviePlantingCluster, IAutoMoviePlantingArrangement, IAutoMoviePlantingPlacement, IAutoMoviePlantingDomain } from "@automovie/interface";
+
 /** Smallest horizontal distance between any two accepted members. */
-const closestPair: (placements: readonly { translation: { x: number; z: number; }; }[]) => number = (
+const closestPair: (
+  placements: readonly { translation: { x: number; z: number } }[],
+) => number = (
   placements: ReadonlyArray<{ translation: { x: number; z: number } }>,
 ): number => {
   let closest: number = Infinity;
   for (let a: number = 0; a < placements.length; ++a)
     for (let b: number = a + 1; b < placements.length; ++b) {
-      const dx: number = placements[a].translation.x - placements[b].translation.x;
-      const dz: number = placements[a].translation.z - placements[b].translation.z;
+      const dx: number =
+        placements[a].translation.x - placements[b].translation.x;
+      const dz: number =
+        placements[a].translation.z - placements[b].translation.z;
       closest = Math.min(closest, Math.sqrt(dx * dx + dz * dz));
     }
   return closest;
@@ -58,7 +69,8 @@ const closestPair: (placements: readonly { translation: { x: number; z: number; 
  */
 export function test_planting_cluster_arrangement(): void {
   const cluster: IAutoMoviePlantingCluster = plantingCluster();
-  const arrangement: IAutoMoviePlantingArrangement = arrangePlantingCluster(cluster);
+  const arrangement: IAutoMoviePlantingArrangement =
+    arrangePlantingCluster(cluster);
   TestValidator.equals(
     "an ordinary cluster places every member inside its rectangle",
     namedFacts([
@@ -96,7 +108,10 @@ export function test_planting_cluster_arrangement(): void {
     namedFacts([
       ["spacing", (): boolean => closestPair(arrangement.placements) >= 0.5],
       ["tightSpacing", (): boolean => closestPair(tight.placements) >= 3],
-      ["refused", (): boolean => tight.rejected === 8 - tight.placements.length],
+      [
+        "refused",
+        (): boolean => tight.rejected === 8 - tight.placements.length,
+      ],
       ["someRefused", (): boolean => tight.rejected > 0],
       [
         "noRuleRefusesNothing",
@@ -131,8 +146,9 @@ export function test_planting_cluster_arrangement(): void {
       [
         "unit",
         (): boolean =>
-          arrangement.placements.every((placement: IAutoMoviePlantingPlacement): boolean =>
-            qunit(placement.rotation),
+          arrangement.placements.every(
+            (placement: IAutoMoviePlantingPlacement): boolean =>
+              qunit(placement.rotation),
           ),
       ],
       [
@@ -140,7 +156,8 @@ export function test_planting_cluster_arrangement(): void {
         (): boolean =>
           arrangement.placements.every(
             (placement: IAutoMoviePlantingPlacement): boolean =>
-              nclose(placement.rotation.x, 0, 0) && nclose(placement.rotation.z, 0, 0),
+              nclose(placement.rotation.x, 0, 0) &&
+              nclose(placement.rotation.z, 0, 0),
           ),
       ],
       [
@@ -167,7 +184,12 @@ export function test_planting_cluster_arrangement(): void {
       ],
       [
         "turned",
-        (): boolean => new Set(arrangement.placements.map((p: IAutoMoviePlantingPlacement): number => p.rotation.y)).size > 1,
+        (): boolean =>
+          new Set(
+            arrangement.placements.map(
+              (p: IAutoMoviePlantingPlacement): number => p.rotation.y,
+            ),
+          ).size > 1,
       ],
     ]),
     {
@@ -251,7 +273,8 @@ export function test_planting_cluster_arrangement(): void {
       [
         "fixedScale",
         (): boolean =>
-          nclose(lone.placements[0].scale.x, 1, 0) && nclose(lone.placements[0].scale.z, 1, 0),
+          nclose(lone.placements[0].scale.x, 1, 0) &&
+          nclose(lone.placements[0].scale.z, 1, 0),
       ],
       ["onlyOneFits", (): boolean => crowded.placements.length === 1],
       ["restRefused", (): boolean => crowded.rejected === 3],
@@ -288,7 +311,10 @@ export function test_planting_cluster_arrangement(): void {
     "the declared member budget is bounded work, not a quarter-trillion tests",
     namedFacts([
       ["placed", (): boolean => crowd.placements.length > 3_000],
-      ["accounted", (): boolean => crowd.placements.length + crowd.rejected === 4_000],
+      [
+        "accounted",
+        (): boolean => crowd.placements.length + crowd.rejected === 4_000,
+      ],
       ["spacing", (): boolean => hasPlantingSpacingOracle(crowd.placements, 1)],
       [
         "reproducible",
@@ -304,11 +330,15 @@ export function test_planting_cluster_arrangement(): void {
           );
           return (
             again.rejected === crowd.rejected &&
-            again.placements.every((placement: IAutoMoviePlantingPlacement, index: number): boolean =>
-              Object.is(
-                placement.translation.x,
-                crowd.placements[index].translation.x,
-              ),
+            again.placements.every(
+              (
+                placement: IAutoMoviePlantingPlacement,
+                index: number,
+              ): boolean =>
+                Object.is(
+                  placement.translation.x,
+                  crowd.placements[index].translation.x,
+                ),
             )
           );
         },

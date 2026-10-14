@@ -1,27 +1,44 @@
-import { sceneToNodes } from "../../../../packages/engine/src/resolve/sceneToNodes";
-import { IAutoMovieScene, type IAutoMoviePropSpec, type IAutoMovieNode, type IAutoMovieTransform, type IAutoMovieModel } from "@automovie/interface";
+import {
+  type IAutoMovieModel,
+  type IAutoMovieNode,
+  type IAutoMoviePropSpec,
+  IAutoMovieScene,
+  type IAutoMovieTransform,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
+
+import { sceneToNodes } from "../../../../packages/engine/src/resolve/sceneToNodes";
 import { createDoorPropSpec } from "../internal/createDoorPropSpec";
 import { createModel } from "../internal/createModel";
 import { namedFacts } from "../internal/namedFacts";
 import { throwsError } from "../internal/throwsError";
 
-const scene: (placements: ReadonlyArray<readonly [string, string]>) => IAutoMovieScene = (
+const scene: (
+  placements: ReadonlyArray<readonly [string, string]>,
+) => IAutoMovieScene = (
   placements: ReadonlyArray<readonly [string, string]>,
 ): IAutoMovieScene => ({
   id: "scene-pg",
   name: null,
-  nodes: placements.map(([id, model]: readonly [string, string]): { id: string; model: string; transform: IAutoMovieTransform; motion: null; pose: null; }  => ({
-    id,
-    model,
-    transform: {
-      translation: { x: 0, y: 0, z: 0 },
-      rotation: { x: 0, y: 0, z: 0, w: 1 },
-      scale: { x: 1, y: 1, z: 1 },
-    },
-    motion: null,
-    pose: null,
-  })),
+  nodes: placements.map(
+    ([id, model]: readonly [string, string]): {
+      id: string;
+      model: string;
+      transform: IAutoMovieTransform;
+      motion: null;
+      pose: null;
+    } => ({
+      id,
+      model,
+      transform: {
+        translation: { x: 0, y: 0, z: 0 },
+        rotation: { x: 0, y: 0, z: 0, w: 1 },
+        scale: { x: 1, y: 1, z: 1 },
+      },
+      motion: null,
+      pose: null,
+    }),
+  ),
   cameras: [],
   lights: [],
 });
@@ -61,9 +78,18 @@ export function test_resolve_scene_prop_guards(): void {
     namedFacts([
       [
         "mixedSomeNode",
-        (): boolean  => mixed.some((node: IAutoMovieNode): boolean  => node.id === "frontDoor/hinge"),
+        (): boolean =>
+          mixed.some(
+            (node: IAutoMovieNode): boolean => node.id === "frontDoor/hinge",
+          ),
       ],
-      ["mixedSomeNode2", (): boolean  => mixed.some((node: IAutoMovieNode): boolean  => node.id === "knight/hips")],
+      [
+        "mixedSomeNode2",
+        (): boolean =>
+          mixed.some(
+            (node: IAutoMovieNode): boolean => node.id === "knight/hips",
+          ),
+      ],
     ]),
     { mixedSomeNode: true, mixedSomeNode2: true },
   );
@@ -71,7 +97,7 @@ export function test_resolve_scene_prop_guards(): void {
   TestValidator.predicate(
     "an id in both registries throws the contradiction",
     throwsError(
-      (): IAutoMovieNode[]  =>
+      (): IAutoMovieNode[] =>
         sceneToNodes({
           scene: scene([["frontDoor", "door"]]),
           props: { door },
@@ -84,7 +110,7 @@ export function test_resolve_scene_prop_guards(): void {
   TestValidator.predicate(
     "a placement outside the union throws",
     throwsError(
-      (): IAutoMovieNode[]  =>
+      (): IAutoMovieNode[] =>
         sceneToNodes({
           scene: scene([
             ["frontDoor", "door"],

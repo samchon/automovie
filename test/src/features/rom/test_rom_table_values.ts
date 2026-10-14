@@ -1,6 +1,6 @@
 import { DEFAULT_HUMANOID_ROM, swingConeAngle } from "@automovie/engine";
-import { TestValidator } from "@nestia/e2e";
 import { IAutoMovieJointConstraint } from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts, nclose } from "../internal/predicates";
 
@@ -21,21 +21,34 @@ import { namedFacts, nclose } from "../internal/predicates";
  */
 export function test_rom_table_values(): void {
   const elbow: IAutoMovieJointConstraint = DEFAULT_HUMANOID_ROM.leftLowerArm!;
-  TestValidator.predicate("elbow flexion min", nclose(elbow.flexion!.min, 0, 0));
-  TestValidator.predicate("elbow flexion max", nclose(elbow.flexion!.max, 150, 0));
+  TestValidator.predicate(
+    "elbow flexion min",
+    nclose(elbow.flexion!.min, 0, 0),
+  );
+  TestValidator.predicate(
+    "elbow flexion max",
+    nclose(elbow.flexion!.max, 150, 0),
+  );
   TestValidator.equals("elbow does not abduct", elbow.abduction, null);
 
   const knee: IAutoMovieJointConstraint = DEFAULT_HUMANOID_ROM.leftLowerLeg!;
-  TestValidator.predicate("knee no hyperextension", nclose(knee.flexion!.min, 0, 0));
+  TestValidator.predicate(
+    "knee no hyperextension",
+    nclose(knee.flexion!.min, 0, 0),
+  );
   TestValidator.equals("knee no abduction", knee.abduction, null);
   TestValidator.equals("knee no twist", knee.twist, null);
 
-  const shoulder: IAutoMovieJointConstraint = DEFAULT_HUMANOID_ROM.leftUpperArm!;
+  const shoulder: IAutoMovieJointConstraint =
+    DEFAULT_HUMANOID_ROM.leftUpperArm!;
   TestValidator.predicate(
     "shoulder is a ball joint",
     shoulder.abduction !== null,
   );
-  TestValidator.predicate("left shoulder swing cone", nclose(shoulder.swingDeg!, 180, 0));
+  TestValidator.predicate(
+    "left shoulder swing cone",
+    nclose(shoulder.swingDeg!, 180, 0),
+  );
   TestValidator.predicate(
     "right shoulder swing cone",
     nclose(DEFAULT_HUMANOID_ROM.rightUpperArm!.swingDeg!, 180, 0),

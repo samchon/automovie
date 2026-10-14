@@ -3,13 +3,17 @@ import {
   getConstraint,
   validateJointRom,
 } from "@automovie/engine";
-import { TestValidator } from "@nestia/e2e";
 import { IAutoMovieConstraintViolation } from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
 
 import { joint } from "../internal/fixtures";
 import { nclose } from "../internal/nclose";
 
-const romItems: (axes: Parameters<typeof joint>[1]) => IAutoMovieConstraintViolation[] = (axes: Parameters<typeof joint>[1]): IAutoMovieConstraintViolation[] => {
+const romItems: (
+  axes: Parameters<typeof joint>[1],
+) => IAutoMovieConstraintViolation[] = (
+  axes: Parameters<typeof joint>[1],
+): IAutoMovieConstraintViolation[] => {
   const collector: ViolationCollector = new ViolationCollector();
   validateJointRom({
     joint: joint("leftLowerArm", axes),

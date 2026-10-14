@@ -1,15 +1,20 @@
-import { Matrix4 } from "../../../../packages/engine/src/math/Matrix4";
-import { resolveWorldDrivers } from "../../../../packages/engine/src/resolve/resolveWorldDrivers";
 import { IAutoMovieIKDriver, IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
+
+import { Matrix4 } from "../../../../packages/engine/src/math/Matrix4";
+import { resolveWorldDrivers } from "../../../../packages/engine/src/resolve/resolveWorldDrivers";
 import { namedFacts } from "../internal/namedFacts";
 import { nclose } from "../internal/nclose";
 import { vclose } from "../internal/vclose";
 
-const W: (p: IAutoMovieVector3) => number[] = (p: IAutoMovieVector3): number[] =>
+const W: (p: IAutoMovieVector3) => number[] = (
+  p: IAutoMovieVector3,
+): number[] =>
   Matrix4.compose(p, { x: 0, y: 0, z: 0, w: 1 }, { x: 1, y: 1, z: 1 });
 
-const fabrik: (over: Partial<IAutoMovieIKDriver>) => IAutoMovieIKDriver = (over: Partial<IAutoMovieIKDriver>): IAutoMovieIKDriver => ({
+const fabrik: (over: Partial<IAutoMovieIKDriver>) => IAutoMovieIKDriver = (
+  over: Partial<IAutoMovieIKDriver>,
+): IAutoMovieIKDriver => ({
   type: "ik",
   chain: ["r", "m", "t"],
   goal: "g",
@@ -20,7 +25,9 @@ const fabrik: (over: Partial<IAutoMovieIKDriver>) => IAutoMovieIKDriver = (over:
   ...over,
 });
 
-const bentWorld: (goal: IAutoMovieVector3) => Map<string, number[]> = (goal: IAutoMovieVector3): Map<string, number[]> =>
+const bentWorld: (goal: IAutoMovieVector3) => Map<string, number[]> = (
+  goal: IAutoMovieVector3,
+): Map<string, number[]> =>
   new Map([
     ["r", W({ x: 0, y: 0, z: 0 })],
     ["m", W({ x: 1, y: 0, z: 0 })],
@@ -28,11 +35,15 @@ const bentWorld: (goal: IAutoMovieVector3) => Map<string, number[]> = (goal: IAu
     ["g", W(goal)],
   ]);
 
-const at: (world: Map<string, number[]>, id: string) => IAutoMovieVector3 = (world: Map<string, number[]>, id: string): IAutoMovieVector3 =>
-  Matrix4.position(world.get(id)!);
+const at: (world: Map<string, number[]>, id: string) => IAutoMovieVector3 = (
+  world: Map<string, number[]>,
+  id: string,
+): IAutoMovieVector3 => Matrix4.position(world.get(id)!);
 
-const dist: (a: IAutoMovieVector3, b: IAutoMovieVector3) => number = (a: IAutoMovieVector3, b: IAutoMovieVector3): number =>
-  Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z);
+const dist: (a: IAutoMovieVector3, b: IAutoMovieVector3) => number = (
+  a: IAutoMovieVector3,
+  b: IAutoMovieVector3,
+): number => Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z);
 
 /**
  * FABRIK uses backward/forward position passes within a fixed iteration budget, preserving segment lengths at full influence and fully extending toward unreachable goals.
@@ -68,8 +79,14 @@ export function test_resolve_fabrik_ik(): void {
   TestValidator.equals(
     "segment lengths exact",
     namedFacts([
-      ["ncloseDistAt", (): boolean  => nclose(dist(at(w1, "r"), at(w1, "m")), 1, 1e-9)],
-      ["ncloseDistAt2", (): boolean  => nclose(dist(at(w1, "m"), at(w1, "t")), 1, 1e-9)],
+      [
+        "ncloseDistAt",
+        (): boolean => nclose(dist(at(w1, "r"), at(w1, "m")), 1, 1e-9),
+      ],
+      [
+        "ncloseDistAt2",
+        (): boolean => nclose(dist(at(w1, "m"), at(w1, "t")), 1, 1e-9),
+      ],
     ]),
     { ncloseDistAt: true, ncloseDistAt2: true },
   );
@@ -107,9 +124,18 @@ export function test_resolve_fabrik_ik(): void {
   TestValidator.equals(
     "long chain keeps every segment length",
     namedFacts([
-      ["ncloseDistAt", (): boolean  => nclose(dist(at(w3, "a"), at(w3, "b")), 1, 1e-9)],
-      ["ncloseDistAt2", (): boolean  => nclose(dist(at(w3, "b"), at(w3, "c")), 1, 1e-9)],
-      ["ncloseDistAt3", (): boolean  => nclose(dist(at(w3, "c"), at(w3, "d")), 1, 1e-9)],
+      [
+        "ncloseDistAt",
+        (): boolean => nclose(dist(at(w3, "a"), at(w3, "b")), 1, 1e-9),
+      ],
+      [
+        "ncloseDistAt2",
+        (): boolean => nclose(dist(at(w3, "b"), at(w3, "c")), 1, 1e-9),
+      ],
+      [
+        "ncloseDistAt3",
+        (): boolean => nclose(dist(at(w3, "c"), at(w3, "d")), 1, 1e-9),
+      ],
     ]),
     { ncloseDistAt: true, ncloseDistAt2: true, ncloseDistAt3: true },
   );
@@ -125,8 +151,14 @@ export function test_resolve_fabrik_ik(): void {
   TestValidator.equals(
     "degenerate fold terminates with exact lengths",
     namedFacts([
-      ["ncloseDistAt", (): boolean  => nclose(dist(at(w4, "r"), at(w4, "m")), 1, 1e-9)],
-      ["ncloseDistAt2", (): boolean  => nclose(dist(at(w4, "m"), at(w4, "t")), 1, 1e-9)],
+      [
+        "ncloseDistAt",
+        (): boolean => nclose(dist(at(w4, "r"), at(w4, "m")), 1, 1e-9),
+      ],
+      [
+        "ncloseDistAt2",
+        (): boolean => nclose(dist(at(w4, "m"), at(w4, "t")), 1, 1e-9),
+      ],
     ]),
     { ncloseDistAt: true, ncloseDistAt2: true },
   );
@@ -137,8 +169,8 @@ export function test_resolve_fabrik_ik(): void {
   TestValidator.equals(
     "deterministic replay",
     namedFacts([
-      ["vcloseAtW5", (): boolean  => vclose(at(w5, "m"), at(w1, "m"), 0)],
-      ["vcloseAtW52", (): boolean  => vclose(at(w5, "t"), at(w1, "t"), 0)],
+      ["vcloseAtW5", (): boolean => vclose(at(w5, "m"), at(w1, "m"), 0)],
+      ["vcloseAtW52", (): boolean => vclose(at(w5, "t"), at(w1, "t"), 0)],
     ]),
     { vcloseAtW5: true, vcloseAtW52: true },
   );

@@ -17,7 +17,9 @@ import {
 } from "../internal/softFixtures";
 
 /** A pond with 1.5 metres of depth above a flat bed at world Y=-1. */
-const pond: (overrides?: Partial<IAutoMovieFluidDomain>) => IAutoMovieFluidDomain = (
+const pond: (
+  overrides?: Partial<IAutoMovieFluidDomain>,
+) => IAutoMovieFluidDomain = (
   overrides: Partial<IAutoMovieFluidDomain> = {},
 ): IAutoMovieFluidDomain => ({
   version: 1,
@@ -48,7 +50,9 @@ const pond: (overrides?: Partial<IAutoMovieFluidDomain>) => IAutoMovieFluidDomai
   ...overrides,
 });
 
-const check: Parameters<typeof assertPlantingInstallationGeometry>[0] = (props: {
+const check: Parameters<
+  typeof assertPlantingInstallationGeometry
+>[0] = (props: {
   installations?: IAutoMoviePlantingInstallation[];
   clusters?: IAutoMoviePlantingCluster[];
   domains?: IAutoMoviePlantingDomain[];

@@ -46,17 +46,21 @@ export function test_planting_canopy_clearance(): void {
     radius: number,
     width: number | null,
     stage: number = 1,
-  ): IAutoMoviePlantingDomain => plantingRecipe({
-    structure: { ...base.structure, levels: 1, radius },
-    growth: { stage, onset: 0 },
-    foliage: width === null ? null : {
-      density: 2,
-      minLevel: 0,
-      size: { x: width, y: 1 / 8, z: 1 / 16 },
-      scaleJitter: 0,
-      rollJitter: 0,
-    },
-  });
+  ): IAutoMoviePlantingDomain =>
+    plantingRecipe({
+      structure: { ...base.structure, levels: 1, radius },
+      growth: { stage, onset: 0 },
+      foliage:
+        width === null
+          ? null
+          : {
+              density: 2,
+              minLevel: 0,
+              size: { x: width, y: 1 / 8, z: 1 / 16 },
+              scaleJitter: 0,
+              rollJitter: 0,
+            },
+    });
 
   /** Validate one fixed-origin member against an independently authored box. */
   const check: (
@@ -85,11 +89,44 @@ export function test_planting_canopy_clearance(): void {
       domains: [recipe],
     });
   };
-  TestValidator.predicate("stem radial extent crosses its room wall", hasViolation(check(domain(1 / 4, null)), "type", "installations[0].cluster"));
-  TestValidator.predicate("adjacent narrower stem fits", check(domain(1 / 8, null)).success);
-  TestValidator.predicate("leaf card crosses wall despite inside centreline", hasViolation(check(domain(1 / 16, 1 / 2)), "type", "installations[0].cluster"));
-  TestValidator.predicate("adjacent narrower leaf card fits", check(domain(1 / 16, 1 / 4)).success);
-  TestValidator.predicate("per-axis X scale applies to visible card extent", hasViolation(check(domain(1 / 16, 1 / 4), 2), "type", "installations[0].cluster"));
-  TestValidator.predicate("zero growth emits no canopy volume", check(domain(1 / 4, 1 / 2, 0)).success);
-  TestValidator.predicate("semantic-only room does not invent containment", check(domain(1 / 4, 1 / 2), 1, true).success);
+  TestValidator.predicate(
+    "stem radial extent crosses its room wall",
+    hasViolation(
+      check(domain(1 / 4, null)),
+      "type",
+      "installations[0].cluster",
+    ),
+  );
+  TestValidator.predicate(
+    "adjacent narrower stem fits",
+    check(domain(1 / 8, null)).success,
+  );
+  TestValidator.predicate(
+    "leaf card crosses wall despite inside centreline",
+    hasViolation(
+      check(domain(1 / 16, 1 / 2)),
+      "type",
+      "installations[0].cluster",
+    ),
+  );
+  TestValidator.predicate(
+    "adjacent narrower leaf card fits",
+    check(domain(1 / 16, 1 / 4)).success,
+  );
+  TestValidator.predicate(
+    "per-axis X scale applies to visible card extent",
+    hasViolation(
+      check(domain(1 / 16, 1 / 4), 2),
+      "type",
+      "installations[0].cluster",
+    ),
+  );
+  TestValidator.predicate(
+    "zero growth emits no canopy volume",
+    check(domain(1 / 4, 1 / 2, 0)).success,
+  );
+  TestValidator.predicate(
+    "semantic-only room does not invent containment",
+    check(domain(1 / 4, 1 / 2), 1, true).success,
+  );
 }

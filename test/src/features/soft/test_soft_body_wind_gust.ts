@@ -1,10 +1,21 @@
-import { simulateSoftBody } from "../../../../packages/engine/src/soft/simulateSoftBody";
-import { IAutoMovieVector3, IAutoMovieSoftBodyDomain, IAutoMovieSoftBodyState } from "@automovie/interface";
+import {
+  IAutoMovieSoftBodyDomain,
+  IAutoMovieSoftBodyState,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
+
+import { simulateSoftBody } from "../../../../packages/engine/src/soft/simulateSoftBody";
 import { namedFacts } from "../internal/predicates";
 import { softPanel } from "../internal/softFixtures";
+
 /** A weightless two-particle strip pushed only by the declared draught. */
-const breeze: (props: { direction: IAutoMovieVector3; acceleration: number; gustAcceleration: number; gustHz: number; }) => IAutoMovieSoftBodyDomain = (props: {
+const breeze: (props: {
+  direction: IAutoMovieVector3;
+  acceleration: number;
+  gustAcceleration: number;
+  gustHz: number;
+}) => IAutoMovieSoftBodyDomain = (props: {
   direction: IAutoMovieVector3;
   acceleration: number;
   gustAcceleration: number;
@@ -100,7 +111,10 @@ export function test_soft_body_wind_gust(): void {
     "a non-unit draught direction is normalized, not amplified",
     namedFacts([
       ["velocity", (): boolean => Object.is(scaled.velocities[0], 5 / 64)],
-      ["position", (): boolean => Object.is(scaled.positions[0], blown.positions[0])],
+      [
+        "position",
+        (): boolean => Object.is(scaled.positions[0], blown.positions[0]),
+      ],
     ]),
     { velocity: true, position: true },
   );

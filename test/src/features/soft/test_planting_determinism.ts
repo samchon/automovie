@@ -1,12 +1,17 @@
 import { growPlanting, plantingStateDigest } from "@automovie/engine";
-import type { IAutoMoviePlantingDomain, IAutoMoviePlantingState } from "@automovie/interface";
+import type {
+  IAutoMoviePlantingDomain,
+  IAutoMoviePlantingState,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts, throwsError } from "../internal/predicates";
 import { plantingRecipe } from "../internal/softFixtures";
 
 /** A jittered recipe, where every seeded decision is live. */
-const jittered: (seed: number) => IAutoMoviePlantingDomain = (seed: number): IAutoMoviePlantingDomain =>
+const jittered: (seed: number) => IAutoMoviePlantingDomain = (
+  seed: number,
+): IAutoMoviePlantingDomain =>
   plantingRecipe({
     seed,
     structure: {
@@ -70,36 +75,53 @@ export function test_planting_determinism(): void {
       [
         "branches",
         () =>
-          once.branches.every((branch: IAutoMoviePlantingState["branches"][number], index: number): boolean =>
-            (["x", "y", "z"] as const).every(
-              (axis: "x" | "y" | "z"): boolean =>
-                Object.is(branch.end[axis], twice.branches[index].end[axis]) &&
-                Object.is(
-                  branch.start[axis],
-                  twice.branches[index].start[axis],
-                ),
-            ),
+          once.branches.every(
+            (
+              branch: IAutoMoviePlantingState["branches"][number],
+              index: number,
+            ): boolean =>
+              (["x", "y", "z"] as const).every(
+                (axis: "x" | "y" | "z"): boolean =>
+                  Object.is(
+                    branch.end[axis],
+                    twice.branches[index].end[axis],
+                  ) &&
+                  Object.is(
+                    branch.start[axis],
+                    twice.branches[index].start[axis],
+                  ),
+              ),
           ),
       ],
       [
         "leaves",
         () =>
-          once.leaves.every((leaf: IAutoMoviePlantingState["leaves"][number], index: number): boolean =>
-            (["x", "y", "z", "w"] as const).every((axis: "x" | "y" | "z" | "w"): boolean =>
-              Object.is(
-                leaf.rotation[axis],
-                twice.leaves[index].rotation[axis],
+          once.leaves.every(
+            (
+              leaf: IAutoMoviePlantingState["leaves"][number],
+              index: number,
+            ): boolean =>
+              (["x", "y", "z", "w"] as const).every(
+                (axis: "x" | "y" | "z" | "w"): boolean =>
+                  Object.is(
+                    leaf.rotation[axis],
+                    twice.leaves[index].rotation[axis],
+                  ),
               ),
-            ),
           ),
       ],
       [
         "scales",
         () =>
-          once.leaves.every((leaf: IAutoMoviePlantingState["leaves"][number], index: number): boolean =>
-            (["x", "y", "z"] as const).every((axis: "x" | "y" | "z"): boolean =>
-              Object.is(leaf.scale[axis], twice.leaves[index].scale[axis]),
-            ),
+          once.leaves.every(
+            (
+              leaf: IAutoMoviePlantingState["leaves"][number],
+              index: number,
+            ): boolean =>
+              (["x", "y", "z"] as const).every(
+                (axis: "x" | "y" | "z"): boolean =>
+                  Object.is(leaf.scale[axis], twice.leaves[index].scale[axis]),
+              ),
           ),
       ],
       [
@@ -138,9 +160,15 @@ export function test_planting_determinism(): void {
   );
 
   const plain: IAutoMoviePlantingState = growPlanting(plantingRecipe());
-  const lengths: (state: IAutoMoviePlantingState, level: number) => number[] = (state: IAutoMoviePlantingState, level: number): number[] =>
+  const lengths: (state: IAutoMoviePlantingState, level: number) => number[] = (
+    state: IAutoMoviePlantingState,
+    level: number,
+  ): number[] =>
     state.branches
-      .filter((branch: IAutoMoviePlantingState["branches"][number]): boolean => branch.level === level)
+      .filter(
+        (branch: IAutoMoviePlantingState["branches"][number]): boolean =>
+          branch.level === level,
+      )
       .map((branch: IAutoMoviePlantingState["branches"][number]): number =>
         Math.sqrt(
           (branch.end.x - branch.start.x) ** 2 +
@@ -154,13 +182,16 @@ export function test_planting_determinism(): void {
       [
         "uniform",
         () =>
-          new Set(lengths(plain, 1).map((value: number): string => value.toFixed(12))).size ===
-          1,
+          new Set(
+            lengths(plain, 1).map((value: number): string => value.toFixed(12)),
+          ).size === 1,
       ],
       [
         "spread",
         () =>
-          new Set(lengths(once, 1).map((value: number): string => value.toFixed(12))).size > 1,
+          new Set(
+            lengths(once, 1).map((value: number): string => value.toFixed(12)),
+          ).size > 1,
       ],
     ]),
     { uniform: true, spread: true },

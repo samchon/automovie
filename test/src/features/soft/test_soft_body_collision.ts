@@ -1,11 +1,21 @@
+import {
+  IAutoMovieSoftBodyDomain,
+  IAutoMovieSoftBodyState,
+  IAutoMovieSoftCollider,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
 import { simulateSoftBody } from "../../../../packages/engine/src/soft/simulateSoftBody";
 import { validateSoftBodyDomain } from "../../../../packages/engine/src/soft/validateSoftBodyDomain";
-import { IAutoMovieSoftCollider, IAutoMovieSoftBodyDomain, IAutoMovieSoftBodyState } from "@automovie/interface";
-import { TestValidator } from "@nestia/e2e";
 import { hasViolation, namedFacts, nclose } from "../internal/predicates";
 import { softPanel } from "../internal/softFixtures";
+
 /** An unanchored strip dropped straight onto the declared colliders. */
-const dropped: (colliders: IAutoMovieSoftCollider[]) => IAutoMovieSoftBodyDomain = (colliders: IAutoMovieSoftCollider[]): IAutoMovieSoftBodyDomain =>
+const dropped: (
+  colliders: IAutoMovieSoftCollider[],
+) => IAutoMovieSoftBodyDomain = (
+  colliders: IAutoMovieSoftCollider[],
+): IAutoMovieSoftBodyDomain =>
   softPanel({
     columns: 1,
     rows: 2,
@@ -86,7 +96,8 @@ export function test_soft_body_collision(): void {
     namedFacts([
       [
         "onPlane",
-        (): boolean => nclose(unit * ramp.positions[0] + unit * ramp.positions[1], -0.5),
+        (): boolean =>
+          nclose(unit * ramp.positions[0] + unit * ramp.positions[1], -0.5),
       ],
       ["slidX", (): boolean => ramp.positions[0] > 0],
       ["fell", (): boolean => ramp.positions[1] < 0],

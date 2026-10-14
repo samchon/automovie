@@ -69,7 +69,8 @@ import {
  * @evidence contracts/testing.md#execution-ownership This named synchronous portable unit calls maintained Engine source through the existing service fixture and locally declared cases, acquiring no browser, renderer, process, native artifact or dynamic test registry.
  */
 export function test_service_network_topology(): void {
-  const environment: ReturnType<typeof serviceEnvironment> = serviceEnvironment();
+  const environment: ReturnType<typeof serviceEnvironment> =
+    serviceEnvironment();
   const network: ReturnType<typeof serviceNetwork> = serviceNetwork();
 
   TestValidator.predicate(
@@ -97,10 +98,12 @@ export function test_service_network_topology(): void {
   TestValidator.equals(
     "each system reaches exactly the nodes carrying its ports",
     Object.fromEntries(
-      network.systems.map((system: (typeof network.systems)[number]): [string, string[]] => [
-        system.id,
-        serviceSystemReach({ network, system: system.id }),
-      ]),
+      network.systems.map(
+        (system: (typeof network.systems)[number]): [string, string[]] => [
+          system.id,
+          serviceSystemReach({ network, system: system.id }),
+        ],
+      ),
     ),
     {
       cold: ["cold-main", "bath-valve", "basin"],
@@ -113,15 +116,27 @@ export function test_service_network_topology(): void {
     },
   );
 
-  const ring: typeof network = withSystem(network, "hot", (system: (typeof network.systems)[number]): (typeof network.systems)[number] => ({
-    ...system,
-    flow: "undirected",
-    root: "basin",
-  }));
-  const backwards: typeof network = withSystem(network, "hot", (system: (typeof network.systems)[number]): (typeof network.systems)[number] => ({
-    ...system,
-    root: "basin",
-  }));
+  const ring: typeof network = withSystem(
+    network,
+    "hot",
+    (
+      system: (typeof network.systems)[number],
+    ): (typeof network.systems)[number] => ({
+      ...system,
+      flow: "undirected",
+      root: "basin",
+    }),
+  );
+  const backwards: typeof network = withSystem(
+    network,
+    "hot",
+    (
+      system: (typeof network.systems)[number],
+    ): (typeof network.systems)[number] => ({
+      ...system,
+      root: "basin",
+    }),
+  );
   TestValidator.equals(
     "an undirected system walks a run either way, a directed one does not",
     namedFacts([
@@ -141,16 +156,21 @@ export function test_service_network_topology(): void {
     { ring: true, directed: true },
   );
 
-  const shut: typeof network = withNode(network, "bath-valve", (node: (typeof network.nodes)[number]): (typeof network.nodes)[number] => ({
-    ...node,
-    state: { name: "closed", opening: 0 },
-  }));
+  const shut: typeof network = withNode(
+    network,
+    "bath-valve",
+    (node: (typeof network.nodes)[number]): (typeof network.nodes)[number] => ({
+      ...node,
+      state: { name: "closed", opening: 0 },
+    }),
+  );
   TestValidator.equals(
     "a shut valve is a design fact by default and an isolation on request",
     namedFacts([
       [
         "stillValid",
-        (): boolean => validateServiceNetwork({ network: shut, environment }).success,
+        (): boolean =>
+          validateServiceNetwork({ network: shut, environment }).success,
       ],
       [
         "designReach",
@@ -185,10 +205,14 @@ export function test_service_network_topology(): void {
     },
   );
 
-  const deEnergised: typeof network = withNode(network, "panel", (node: (typeof network.nodes)[number]): (typeof network.nodes)[number] => ({
-    ...node,
-    state: { name: "off", opening: 0 },
-  }));
+  const deEnergised: typeof network = withNode(
+    network,
+    "panel",
+    (node: (typeof network.nodes)[number]): (typeof network.nodes)[number] => ({
+      ...node,
+      state: { name: "off", opening: 0 },
+    }),
+  );
   TestValidator.equals(
     "a device isolates the same way whatever medium it holds back",
     namedFacts([
@@ -232,10 +256,16 @@ export function test_service_network_topology(): void {
     },
   );
 
-  const rootless: typeof network = withSystem(network, "cold", (system: (typeof network.systems)[number]): (typeof network.systems)[number] => ({
-    ...system,
-    root: "no-such-node",
-  }));
+  const rootless: typeof network = withSystem(
+    network,
+    "cold",
+    (
+      system: (typeof network.systems)[number],
+    ): (typeof network.systems)[number] => ({
+      ...system,
+      root: "no-such-node",
+    }),
+  );
   TestValidator.equals(
     "an unresolved root reaches nothing and an unknown system is refused",
     namedFacts([
@@ -249,7 +279,8 @@ export function test_service_network_topology(): void {
         "reachRefuses",
         (): boolean =>
           throwsError(
-            (): ReturnType<typeof serviceSystemReach> => serviceSystemReach({ network, system: "steam" }),
+            (): ReturnType<typeof serviceSystemReach> =>
+              serviceSystemReach({ network, system: "steam" }),
             ['has no system "steam"'],
           ),
       ],
@@ -257,7 +288,8 @@ export function test_service_network_topology(): void {
         "schematicRefuses",
         (): boolean =>
           throwsError(
-            (): ReturnType<typeof serviceNetworkSchematic> => serviceNetworkSchematic({ network, system: "steam" }),
+            (): ReturnType<typeof serviceNetworkSchematic> =>
+              serviceNetworkSchematic({ network, system: "steam" }),
             ['has no system "steam"'],
           ),
       ],
@@ -265,7 +297,8 @@ export function test_service_network_topology(): void {
     { rootless: true, reachRefuses: true, schematicRefuses: true },
   );
 
-  const schematic: ReturnType<typeof serviceNetworkSchematic> = serviceNetworkSchematic({ network, system: "cold" });
+  const schematic: ReturnType<typeof serviceNetworkSchematic> =
+    serviceNetworkSchematic({ network, system: "cold" });
   TestValidator.equals(
     "the cold schematic is the same graph in plan, with its own totals",
     namedFacts([
@@ -275,8 +308,9 @@ export function test_service_network_topology(): void {
       [
         "nodes",
         (): boolean =>
-          schematic.nodes.map((entry: (typeof schematic.nodes)[number]): string => entry.id).join() ===
-          "cold-main,bath-valve,basin",
+          schematic.nodes
+            .map((entry: (typeof schematic.nodes)[number]): string => entry.id)
+            .join() === "cold-main,bath-valve,basin",
       ],
       [
         "plan",
@@ -288,8 +322,9 @@ export function test_service_network_topology(): void {
       [
         "edges",
         (): boolean =>
-          schematic.edges.map((edge: (typeof schematic.edges)[number]): string => edge.id).join() ===
-          "cold-run,cold-branch",
+          schematic.edges
+            .map((edge: (typeof schematic.edges)[number]): string => edge.id)
+            .join() === "cold-run,cold-branch",
       ],
       [
         "endpoints",
@@ -298,10 +333,19 @@ export function test_service_network_topology(): void {
           schematic.edges[1]!.to === "basin",
       ],
       ["projected", (): boolean => schematic.edges[1]!.points.length === 3],
-      ["runLength", (): boolean => nclose(schematic.edges[0]!.length, 4.5, 1e-12)],
-      ["branchLength", (): boolean => nclose(schematic.edges[1]!.length, 4.1, 1e-12)],
+      [
+        "runLength",
+        (): boolean => nclose(schematic.edges[0]!.length, 4.5, 1e-12),
+      ],
+      [
+        "branchLength",
+        (): boolean => nclose(schematic.edges[1]!.length, 4.1, 1e-12),
+      ],
       ["totalLength", (): boolean => nclose(schematic.totalLength, 8.6, 1e-12)],
-      ["totalDemand", (): boolean => nclose(schematic.totalDemand, 0.0002, 1e-15)],
+      [
+        "totalDemand",
+        (): boolean => nclose(schematic.totalDemand, 0.0002, 1e-15),
+      ],
       ["unreachable", (): boolean => schematic.unreachable.length === 0],
     ]),
     {
@@ -321,21 +365,24 @@ export function test_service_network_topology(): void {
     },
   );
 
-  const stack: ReturnType<typeof serviceNetworkSchematic> = serviceNetworkSchematic({ network, system: "waste" });
+  const stack: ReturnType<typeof serviceNetworkSchematic> =
+    serviceNetworkSchematic({ network, system: "waste" });
   TestValidator.equals(
     "a stack's schematic reports what discharges into it",
     namedFacts([
       [
         "nodes",
         (): boolean =>
-          stack.nodes.map((entry: (typeof stack.nodes)[number]): string => entry.id).join() ===
-          "stack,basin,waste-tee,floor-gully",
+          stack.nodes
+            .map((entry: (typeof stack.nodes)[number]): string => entry.id)
+            .join() === "stack,basin,waste-tee,floor-gully",
       ],
       [
         "edges",
         (): boolean =>
-          stack.edges.map((edge: (typeof stack.edges)[number]): string => edge.id).join() ===
-          "waste-basin,waste-gully,waste-main",
+          stack.edges
+            .map((edge: (typeof stack.edges)[number]): string => edge.id)
+            .join() === "waste-basin,waste-gully,waste-main",
       ],
       ["totalLength", (): boolean => nclose(stack.totalLength, 11, 1e-12)],
       ["totalDemand", (): boolean => nclose(stack.totalDemand, 0.001, 1e-15)],
@@ -350,28 +397,36 @@ export function test_service_network_topology(): void {
     },
   );
 
-  const broken: ReturnType<typeof serviceNetworkSchematic> = serviceNetworkSchematic({
-    network: {
-      ...network,
-      segments: network.segments.map((entry: (typeof network.segments)[number]): (typeof network.segments)[number] =>
-        entry.id === "cold-run"
-          ? { ...entry, from: "ghost", to: "phantom" }
-          : entry,
-      ),
-    },
-    system: "cold",
-  });
+  const broken: ReturnType<typeof serviceNetworkSchematic> =
+    serviceNetworkSchematic({
+      network: {
+        ...network,
+        segments: network.segments.map(
+          (
+            entry: (typeof network.segments)[number],
+          ): (typeof network.segments)[number] =>
+            entry.id === "cold-run"
+              ? { ...entry, from: "ghost", to: "phantom" }
+              : entry,
+        ),
+      },
+      system: "cold",
+    });
   TestValidator.equals(
     "a schematic over a broken graph names the port it could not resolve",
     namedFacts([
       ["from", (): boolean => broken.edges[0]!.from === "ghost"],
       ["to", (): boolean => broken.edges[0]!.to === "phantom"],
-      ["orphaned", (): boolean => broken.unreachable.join() === "bath-valve,basin"],
+      [
+        "orphaned",
+        (): boolean => broken.unreachable.join() === "bath-valve,basin",
+      ],
     ]),
     { from: true, to: true, orphaned: true },
   );
 
-  const support: ReturnType<typeof serviceAnalysisSupport> = serviceAnalysisSupport({ network, environment });
+  const support: ReturnType<typeof serviceAnalysisSupport> =
+    serviceAnalysisSupport({ network, environment });
   TestValidator.equals(
     "what cannot be answered is named rather than implied",
     namedFacts([
@@ -380,7 +435,10 @@ export function test_service_network_topology(): void {
         "structural",
         (): boolean =>
           support
-            .filter((entry: (typeof support)[number]): boolean => entry.status === "supported")
+            .filter(
+              (entry: (typeof support)[number]): boolean =>
+                entry.status === "supported",
+            )
             .map((entry: (typeof support)[number]): string => entry.check)
             .join() ===
           "port-connectivity,medium-direction-unit,segment-clash,maintenance-envelope,node-placement,boundary-penetration,penetration-on-boundary-face,waterproof-coverage",
@@ -392,13 +450,20 @@ export function test_service_network_topology(): void {
             network,
             environment: {
               ...environment,
-              spaces: environment.spaces.map((space: (typeof environment.spaces)[number]): (typeof environment.spaces)[number] => ({
-                ...space,
-                cells: [],
-              })),
+              spaces: environment.spaces.map(
+                (
+                  space: (typeof environment.spaces)[number],
+                ): (typeof environment.spaces)[number] => ({
+                  ...space,
+                  cells: [],
+                }),
+              ),
             },
           })
-            .filter((entry: (typeof support)[number]): boolean => entry.status === "unsupported")
+            .filter(
+              (entry: (typeof support)[number]): boolean =>
+                entry.status === "unsupported",
+            )
             .map((entry: (typeof support)[number]): string => entry.check)
             .join()
             .startsWith("node-placement,boundary-penetration"),
@@ -418,10 +483,13 @@ export function test_service_network_topology(): void {
           serviceAnalysisSupport({
             network: {
               ...network,
-              penetrations: network.penetrations.map((sleeve: (typeof network.penetrations)[number]): (typeof network.penetrations)[number] =>
-                sleeve.id === "cold-bath-hall"
-                  ? { ...sleeve, boundary: "bath-shell" }
-                  : sleeve,
+              penetrations: network.penetrations.map(
+                (
+                  sleeve: (typeof network.penetrations)[number],
+                ): (typeof network.penetrations)[number] =>
+                  sleeve.id === "cold-bath-hall"
+                    ? { ...sleeve, boundary: "bath-shell" }
+                    : sleeve,
               ),
             },
             environment,
@@ -438,10 +506,13 @@ export function test_service_network_topology(): void {
           serviceAnalysisSupport({
             network: {
               ...network,
-              penetrations: network.penetrations.map((sleeve: (typeof network.penetrations)[number]): (typeof network.penetrations)[number] =>
-                sleeve.id === "cold-bath-hall"
-                  ? { ...sleeve, boundary: "nowhere" }
-                  : sleeve,
+              penetrations: network.penetrations.map(
+                (
+                  sleeve: (typeof network.penetrations)[number],
+                ): (typeof network.penetrations)[number] =>
+                  sleeve.id === "cold-bath-hall"
+                    ? { ...sleeve, boundary: "nowhere" }
+                    : sleeve,
               ),
             },
             environment,
@@ -456,7 +527,9 @@ export function test_service_network_topology(): void {
         "perDiscipline",
         (): boolean =>
           support
-            .filter((entry: (typeof support)[number]): boolean => entry.check.endsWith("-performance"))
+            .filter((entry: (typeof support)[number]): boolean =>
+              entry.check.endsWith("-performance"),
+            )
             .map((entry: (typeof support)[number]): string => entry.check)
             .join() ===
           "plumbing-performance,drainage-performance,electrical-performance,hvac-performance,fire-performance",
@@ -465,8 +538,13 @@ export function test_service_network_topology(): void {
         "noSolver",
         (): boolean =>
           support
-            .filter((entry: (typeof support)[number]): boolean => entry.check.endsWith("-performance"))
-            .every((entry: (typeof support)[number]): boolean => entry.status === "unsupported"),
+            .filter((entry: (typeof support)[number]): boolean =>
+              entry.check.endsWith("-performance"),
+            )
+            .every(
+              (entry: (typeof support)[number]): boolean =>
+                entry.status === "unsupported",
+            ),
       ],
     ]),
     {

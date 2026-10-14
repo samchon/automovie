@@ -1,6 +1,15 @@
-import { sceneToNodes } from "../../../../packages/engine/src/resolve/sceneToNodes";
-import { IAutoMovieScene, type IAutoMoviePropSpec, type IAutoMovieNode, type IAutoMovieProfile, type IAutoMovieProfileBinding, type IAutoMovieModel, type IAutoMoviePropPlacement } from "@automovie/interface";
+import {
+  type IAutoMovieModel,
+  type IAutoMovieNode,
+  type IAutoMovieProfile,
+  type IAutoMovieProfileBinding,
+  type IAutoMoviePropPlacement,
+  type IAutoMoviePropSpec,
+  IAutoMovieScene,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
+
+import { sceneToNodes } from "../../../../packages/engine/src/resolve/sceneToNodes";
 import { createDoorPropSpec } from "../internal/createDoorPropSpec";
 import { vclose } from "../internal/vclose";
 
@@ -46,20 +55,31 @@ export function test_resolve_scene_prop_lowering(): void {
   const base: IAutoMoviePropSpec = createDoorPropSpec();
   // Give the hinge a distinctive local translation so "verbatim" is provable
   // (the fixture's joints are all identity, which any zeroing bug would mimic).
-  const spec: { articulation: { nodes: IAutoMovieNode[]; profile: IAutoMovieProfile; binding: IAutoMovieProfileBinding; }; node: string; model: IAutoMovieModel; placement?: IAutoMoviePropPlacement; modelRef?: string | null; } = {
+  const spec: {
+    articulation: {
+      nodes: IAutoMovieNode[];
+      profile: IAutoMovieProfile;
+      binding: IAutoMovieProfileBinding;
+    };
+    node: string;
+    model: IAutoMovieModel;
+    placement?: IAutoMoviePropPlacement;
+    modelRef?: string | null;
+  } = {
     ...base,
     articulation: {
       ...base.articulation!,
-      nodes: base.articulation!.nodes.map((node: IAutoMovieNode): IAutoMovieNode  =>
-        node.id === "hinge"
-          ? {
-              ...node,
-              transform: {
-                ...node.transform,
-                translation: { x: 0, y: 1, z: 0 },
-              },
-            }
-          : node,
+      nodes: base.articulation!.nodes.map(
+        (node: IAutoMovieNode): IAutoMovieNode =>
+          node.id === "hinge"
+            ? {
+                ...node,
+                transform: {
+                  ...node.transform,
+                  translation: { x: 0, y: 1, z: 0 },
+                },
+              }
+            : node,
       ),
     },
   };
@@ -68,7 +88,12 @@ export function test_resolve_scene_prop_lowering(): void {
     props: { door: spec },
   });
 
-  const byId: Map<string, IAutoMovieNode> = new Map(nodes.map((node: IAutoMovieNode): [string, IAutoMovieNode]  => [node.id, node]));
+  const byId: Map<string, IAutoMovieNode> = new Map(
+    nodes.map((node: IAutoMovieNode): [string, IAutoMovieNode] => [
+      node.id,
+      node,
+    ]),
+  );
   TestValidator.equals(
     "prop root seats under the placement group",
     byId.get("frontDoor/root")?.parent,

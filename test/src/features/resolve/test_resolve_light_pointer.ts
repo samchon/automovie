@@ -1,12 +1,15 @@
+import { TestValidator } from "@nestia/e2e";
+
+import { type IAutoMovieLightPointer } from "../../../../packages/engine/src/resolve/IAutoMovieLightPointer";
 import { LIGHT_CHANNEL_PROPERTIES } from "../../../../packages/engine/src/resolve/constants/LIGHT_CHANNEL_PROPERTIES";
 import { formatLightPointer } from "../../../../packages/engine/src/resolve/formatLightPointer";
 import { isLightProperty } from "../../../../packages/engine/src/resolve/isLightProperty";
 import { parseLightPointer } from "../../../../packages/engine/src/resolve/parseLightPointer";
-import { TestValidator } from "@nestia/e2e";
-import { type IAutoMovieLightPointer } from "../../../../packages/engine/src/resolve/IAutoMovieLightPointer";
 
 /** `parse` reduced to a comparable shape: `"<light>|<property>"` or `null`. */
-const parsed: (pointer: unknown) => string | null = (pointer: unknown): string | null => {
+const parsed: (pointer: unknown) => string | null = (
+  pointer: unknown,
+): string | null => {
   const target: IAutoMovieLightPointer | null = parseLightPointer(pointer);
   return target === null ? null : `${target.light}|${target.property}`;
 };
@@ -43,7 +46,14 @@ const parsed: (pointer: unknown) => string | null = (pointer: unknown): string |
  */
 export function test_resolve_light_pointer(): void {
   // 1. every property in the table, and the round trip.
-  const PROPERTIES: readonly ["intensity", "color", "range", "coneAngle", "position", "rotation"] = [
+  const PROPERTIES: readonly [
+    "intensity",
+    "color",
+    "range",
+    "coneAngle",
+    "position",
+    "rotation",
+  ] = [
     "intensity",
     "color",
     "range",
@@ -58,14 +68,34 @@ export function test_resolve_light_pointer(): void {
   );
   TestValidator.equals(
     "each one parses, and formatting returns the pointer it came from",
-    PROPERTIES.map((property: "rotation" | "intensity" | "color" | "range" | "coneAngle" | "position"): (string | null)[]  => [
-      parsed(`/lights/candleGlow/${property}`),
-      formatLightPointer("candleGlow", property),
-    ]),
-    PROPERTIES.map((property: "rotation" | "intensity" | "color" | "range" | "coneAngle" | "position"): string[]  => [
-      `candleGlow|${property}`,
-      `/lights/candleGlow/${property}`,
-    ]),
+    PROPERTIES.map(
+      (
+        property:
+          | "rotation"
+          | "intensity"
+          | "color"
+          | "range"
+          | "coneAngle"
+          | "position",
+      ): (string | null)[] => [
+        parsed(`/lights/candleGlow/${property}`),
+        formatLightPointer("candleGlow", property),
+      ],
+    ),
+    PROPERTIES.map(
+      (
+        property:
+          | "rotation"
+          | "intensity"
+          | "color"
+          | "range"
+          | "coneAngle"
+          | "position",
+      ): string[] => [
+        `candleGlow|${property}`,
+        `/lights/candleGlow/${property}`,
+      ],
+    ),
   );
 
   // 2. RFC-6901 escaping, both directions.

@@ -1,5 +1,8 @@
 import { ViolationCollector, validateJointRom } from "@automovie/engine";
-import { IAutoMovieConstraintViolation, IAutoMovieJointConstraint } from "@automovie/interface";
+import {
+  IAutoMovieConstraintViolation,
+  IAutoMovieJointConstraint,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { joint } from "../internal/fixtures";
@@ -13,7 +16,11 @@ const CONE: IAutoMovieJointConstraint = {
   swingDeg: 100,
 };
 
-const coneItems: (axes: Parameters<typeof joint>[1]) => IAutoMovieConstraintViolation[] = (axes: Parameters<typeof joint>[1]): IAutoMovieConstraintViolation[] => {
+const coneItems: (
+  axes: Parameters<typeof joint>[1],
+) => IAutoMovieConstraintViolation[] = (
+  axes: Parameters<typeof joint>[1],
+): IAutoMovieConstraintViolation[] => {
   const collector: ViolationCollector = new ViolationCollector();
   validateJointRom({
     joint: joint("leftUpperArm", axes),
@@ -40,7 +47,10 @@ const coneItems: (axes: Parameters<typeof joint>[1]) => IAutoMovieConstraintViol
  */
 export function test_rom_validate_swing_cone(): void {
   // 1. past the cone
-  const over: IAutoMovieConstraintViolation[] = coneItems({ flexion: 90, abduction: 90 });
+  const over: IAutoMovieConstraintViolation[] = coneItems({
+    flexion: 90,
+    abduction: 90,
+  });
   TestValidator.equals("corner pose flagged once", over.length, 1);
   TestValidator.predicate(
     "flagged on the swing path",
@@ -72,8 +82,13 @@ export function test_rom_validate_swing_cone(): void {
   );
   // Past the cone: swingConeAngle(150, 0) = 150 > 100 → flagged, and a resting
   // axis must read identically to an explicit 0 (the same rendered rotation).
-  const restingPastCone: IAutoMovieConstraintViolation[] = coneItems({ flexion: 150 });
-  const zeroPastCone: IAutoMovieConstraintViolation[] = coneItems({ flexion: 150, abduction: 0 });
+  const restingPastCone: IAutoMovieConstraintViolation[] = coneItems({
+    flexion: 150,
+  });
+  const zeroPastCone: IAutoMovieConstraintViolation[] = coneItems({
+    flexion: 150,
+    abduction: 0,
+  });
   TestValidator.equals(
     "a resting axis does not exempt a pose past the cone",
     restingPastCone.length,
@@ -81,6 +96,11 @@ export function test_rom_validate_swing_cone(): void {
   );
   TestValidator.predicate(
     "a resting axis and an explicit 0 give the identical cone verdict",
-    restingPastCone.length === zeroPastCone.length && restingPastCone.every((item: IAutoMovieConstraintViolation, index: number): boolean => item.path === zeroPastCone[index]!.path && nclose(item.overshoot!, zeroPastCone[index]!.overshoot!, 0)),
+    restingPastCone.length === zeroPastCone.length &&
+      restingPastCone.every(
+        (item: IAutoMovieConstraintViolation, index: number): boolean =>
+          item.path === zeroPastCone[index]!.path &&
+          nclose(item.overshoot!, zeroPastCone[index]!.overshoot!, 0),
+      ),
   );
 }

@@ -1,11 +1,17 @@
+import {
+  IAutoMovieChannel,
+  IAutoMovieDrivenDriver,
+  type IAutoMovieDriver,
+  IAutoMovieNode,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
+import { type IAutoMovieResolveOutput } from "../../../../packages/engine/src/resolve/IAutoMovieResolveOutput";
 import { IAutoMovieSampledChannel } from "../../../../packages/engine/src/resolve/IAutoMovieSampledChannel";
 import { resolveDrivers } from "../../../../packages/engine/src/resolve/resolveDrivers";
 import { resolveFrame } from "../../../../packages/engine/src/resolve/resolveFrame";
-import { IAutoMovieChannel, IAutoMovieDrivenDriver, IAutoMovieNode, type IAutoMovieDriver } from "@automovie/interface";
-import { TestValidator } from "@nestia/e2e";
-import { throwsError } from "../internal/throwsError";
 import { nclose } from "../internal/nclose";
-import { type IAutoMovieResolveOutput } from "../../../../packages/engine/src/resolve/IAutoMovieResolveOutput";
+import { throwsError } from "../internal/throwsError";
 
 const node: (id: string) => IAutoMovieNode = (id: string): IAutoMovieNode => ({
   id,
@@ -23,13 +29,17 @@ const node: (id: string) => IAutoMovieNode = (id: string): IAutoMovieNode => ({
   skin: null,
 });
 
-const weightsChannel: (id: string) => IAutoMovieChannel = (id: string): IAutoMovieChannel => ({
+const weightsChannel: (id: string) => IAutoMovieChannel = (
+  id: string,
+): IAutoMovieChannel => ({
   kind: "node",
   node: id,
   path: "weights",
 });
 
-const driven: (over: Partial<IAutoMovieDrivenDriver>) => IAutoMovieDrivenDriver = (
+const driven: (
+  over: Partial<IAutoMovieDrivenDriver>,
+) => IAutoMovieDrivenDriver = (
   over: Partial<IAutoMovieDrivenDriver>,
 ): IAutoMovieDrivenDriver => ({
   type: "driven",
@@ -72,27 +82,34 @@ export function test_resolve_driver_weights(): void {
   });
   TestValidator.predicate(
     "a driven weights output folds into resolveFrame's weights",
-    out.weights.get("k")?.length === 1 && nclose(out.weights.get("k")![0]!, 0.6, 0),
+    out.weights.get("k")?.length === 1 &&
+      nclose(out.weights.get("k")![0]!, 0.6, 0),
   );
 
   // 2. sampled width-1 weights are overwritten in place
-  const single: Map<string, IAutoMovieSampledChannel> = new Map<string, IAutoMovieSampledChannel>([
-    ["node:k:weights", { channel: weightsChannel("k"), value: [0.2] }],
-  ]);
+  const single: Map<string, IAutoMovieSampledChannel> = new Map<
+    string,
+    IAutoMovieSampledChannel
+  >([["node:k:weights", { channel: weightsChannel("k"), value: [0.2] }]]);
   resolveDrivers([driven({})], single, new Map([["k", node("k")]]));
   TestValidator.predicate(
     "a width-1 sampled weights channel takes the driven value",
-    single.get("node:k:weights")!.value.length === 1 && nclose(single.get("node:k:weights")!.value[0]!, 0.6, 0),
+    single.get("node:k:weights")!.value.length === 1 &&
+      nclose(single.get("node:k:weights")!.value[0]!, 0.6, 0),
   );
 
   // 3. negative twin: multi-morph weights refuse the narrowing write
-  const multi: Map<string, IAutoMovieSampledChannel> = new Map<string, IAutoMovieSampledChannel>([
+  const multi: Map<string, IAutoMovieSampledChannel> = new Map<
+    string,
+    IAutoMovieSampledChannel
+  >([
     ["node:k:weights", { channel: weightsChannel("k"), value: [0.2, 0.5, 1] }],
   ]);
   TestValidator.predicate(
     "multi-morph sampled weights refuse a scalar driven write",
     throwsError(
-      (): IAutoMovieDriver[]  => resolveDrivers([driven({})], multi, new Map([["k", node("k")]])),
+      (): IAutoMovieDriver[] =>
+        resolveDrivers([driven({})], multi, new Map([["k", node("k")]])),
       ["node:k:weights", "3 morph targets", "narrow"],
     ),
   );
@@ -101,7 +118,7 @@ export function test_resolve_driver_weights(): void {
   TestValidator.predicate(
     "a TRS output still rejects as non-scalar",
     throwsError(
-      (): IAutoMovieDriver[]  =>
+      (): IAutoMovieDriver[] =>
         resolveDrivers(
           [driven({ output: { kind: "node", node: "k", path: "scale" } })],
           new Map(),

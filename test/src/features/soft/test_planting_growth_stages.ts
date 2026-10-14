@@ -1,16 +1,24 @@
 import { growPlanting } from "@automovie/engine";
-import type { IAutoMoviePlantingState, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMoviePlantingState,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts, nclose, vclose } from "../internal/predicates";
 import { plantingRecipe } from "../internal/softFixtures";
 
 /** The same recipe at one stage of growth. */
-const at: (stage: number) => IAutoMoviePlantingState = (stage: number): IAutoMoviePlantingState =>
+const at: (stage: number) => IAutoMoviePlantingState = (
+  stage: number,
+): IAutoMoviePlantingState =>
   growPlanting(plantingRecipe({ growth: { stage, onset: 0.25 } }));
 
 /** Length of one derived branch. */
-const span: (start: IAutoMovieVector3, end: IAutoMovieVector3) => number = (start: IAutoMovieVector3, end: IAutoMovieVector3): number =>
+const span: (start: IAutoMovieVector3, end: IAutoMovieVector3) => number = (
+  start: IAutoMovieVector3,
+  end: IAutoMovieVector3,
+): number =>
   Math.sqrt(
     (end.x - start.x) ** 2 + (end.y - start.y) ** 2 + (end.z - start.z) ** 2,
   );
@@ -117,7 +125,11 @@ export function test_planting_growth_stages(): void {
       ],
       [
         "noSecondOrder",
-        () => half.branches.every((branch: IAutoMoviePlantingState["branches"][number]): boolean => branch.level < 2),
+        () =>
+          half.branches.every(
+            (branch: IAutoMoviePlantingState["branches"][number]): boolean =>
+              branch.level < 2,
+          ),
       ],
     ]),
     {
@@ -150,7 +162,10 @@ export function test_planting_growth_stages(): void {
       [
         "depth",
         () =>
-          grown.branches.filter((branch: IAutoMoviePlantingState["branches"][number]): boolean => branch.level === 2).length === 4,
+          grown.branches.filter(
+            (branch: IAutoMoviePlantingState["branches"][number]): boolean =>
+              branch.level === 2,
+          ).length === 4,
       ],
     ]),
     {
@@ -165,7 +180,10 @@ export function test_planting_growth_stages(): void {
     },
   );
 
-  const stages: IAutoMoviePlantingState[] = Array.from({ length: 11 }, (_: unknown, index: number): IAutoMoviePlantingState => at(index / 10));
+  const stages: IAutoMoviePlantingState[] = Array.from(
+    { length: 11 },
+    (_: unknown, index: number): IAutoMoviePlantingState => at(index / 10),
+  );
   TestValidator.equals(
     "growth never runs backwards",
     namedFacts([
@@ -181,15 +199,22 @@ export function test_planting_growth_stages(): void {
       [
         "trunkLength",
         () =>
-          stages.every((state: IAutoMoviePlantingState, index: number): boolean => {
-            if (index === 0 || state.branches.length === 0) return true;
-            const previous: IAutoMoviePlantingState["branches"][number] | undefined = stages[index - 1].branches[0];
-            const length: number = span(state.branches[0].start, state.branches[0].end);
-            return (
-              previous === undefined ||
-              length >= span(previous.start, previous.end)
-            );
-          }),
+          stages.every(
+            (state: IAutoMoviePlantingState, index: number): boolean => {
+              if (index === 0 || state.branches.length === 0) return true;
+              const previous:
+                | IAutoMoviePlantingState["branches"][number]
+                | undefined = stages[index - 1].branches[0];
+              const length: number = span(
+                state.branches[0].start,
+                state.branches[0].end,
+              );
+              return (
+                previous === undefined ||
+                length >= span(previous.start, previous.end)
+              );
+            },
+          ),
       ],
       ["reachesSeven", () => stages[10].branches.length === 7],
     ]),

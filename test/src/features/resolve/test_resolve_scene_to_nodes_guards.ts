@@ -1,15 +1,23 @@
+import {
+  type IAutoMovieModel,
+  IAutoMovieNode,
+  IAutoMovieScene,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
 import { composeScene } from "../../../../packages/engine/src/resolve/composeScene";
 import { lowerSkeletonNodes } from "../../../../packages/engine/src/resolve/lowerSkeletonNodes";
 import { sceneToNodes } from "../../../../packages/engine/src/resolve/sceneToNodes";
-import { IAutoMovieNode, IAutoMovieScene, type IAutoMovieModel } from "@automovie/interface";
-import { TestValidator } from "@nestia/e2e";
 import { createModel } from "../internal/createModel";
 import { namedFacts } from "../internal/namedFacts";
 import { qclose } from "../internal/qclose";
 import { throwsError } from "../internal/throwsError";
 import { vclose } from "../internal/vclose";
 
-const scene: (nodeId: string, modelRef: string) => IAutoMovieScene = (nodeId: string, modelRef: string): IAutoMovieScene => ({
+const scene: (nodeId: string, modelRef: string) => IAutoMovieScene = (
+  nodeId: string,
+  modelRef: string,
+): IAutoMovieScene => ({
   id: "scene-g",
   name: null,
   nodes: [
@@ -55,7 +63,9 @@ const scene: (nodeId: string, modelRef: string) => IAutoMovieScene = (nodeId: st
 export function test_resolve_scene_to_nodes_guards(): void {
   const model: IAutoMovieModel = { ...createModel(), id: "hero" };
 
-  const bare: IAutoMovieNode[] = sceneToNodes({ scene: scene("actor", "hero") });
+  const bare: IAutoMovieNode[] = sceneToNodes({
+    scene: scene("actor", "hero"),
+  });
   TestValidator.equals(
     "registry omitted lowers placements only",
     bare.length,
@@ -68,13 +78,13 @@ export function test_resolve_scene_to_nodes_guards(): void {
   });
   TestValidator.predicate(
     "resolving ref lowers the subtree",
-    lowered.some((node: IAutoMovieNode) : boolean => node.id === "actor/hips"),
+    lowered.some((node: IAutoMovieNode): boolean => node.id === "actor/hips"),
   );
 
   TestValidator.predicate(
     "missing model ref throws",
     throwsError(
-      () : IAutoMovieNode[] =>
+      (): IAutoMovieNode[] =>
         sceneToNodes({
           scene: scene("actor", "ghost"),
           models: { hero: model },
@@ -91,31 +101,59 @@ export function test_resolve_scene_to_nodes_guards(): void {
       ...scene("actor/hips", "hero").nodes,
     ],
   };
-  const nodes: IAutoMovieNode[] = sceneToNodes({ scene: colliding, models: { hero: model } });
+  const nodes: IAutoMovieNode[] = sceneToNodes({
+    scene: colliding,
+    models: { hero: model },
+  });
   TestValidator.predicate(
     "id collisions are rejected downstream by composeScene",
-    throwsError(() : Map<string, number[]> => composeScene(nodes), ["duplicated"]),
+    throwsError(
+      (): Map<string, number[]> => composeScene(nodes),
+      ["duplicated"],
+    ),
   );
 
-  const defaults: IAutoMovieNode[] = lowerSkeletonNodes({ skeleton: model.skeleton! });
+  const defaults: IAutoMovieNode[] = lowerSkeletonNodes({
+    skeleton: model.skeleton!,
+  });
   TestValidator.equals(
     "lowerSkeletonNodes defaults to bare names and a graph root",
     namedFacts([
       [
         "defaultsSomeNode",
-        () : boolean =>
-          defaults.some((node: IAutoMovieNode) : boolean => node.id === "root" && node.parent === null),
+        (): boolean =>
+          defaults.some(
+            (node: IAutoMovieNode): boolean =>
+              node.id === "root" && node.parent === null,
+          ),
       ],
-      ["defaultsSomeNode2", () : boolean => defaults.some((node: IAutoMovieNode) : boolean => node.id === "hips")],
+      [
+        "defaultsSomeNode2",
+        (): boolean =>
+          defaults.some((node: IAutoMovieNode): boolean => node.id === "hips"),
+      ],
     ]),
     { defaultsSomeNode: true, defaultsSomeNode2: true },
   );
-  const independent: ReturnType<typeof lowerSkeletonNodes> = lowerSkeletonNodes({ skeleton: model.skeleton! });
+  const independent: ReturnType<typeof lowerSkeletonNodes> = lowerSkeletonNodes(
+    { skeleton: model.skeleton! },
+  );
   defaults[0]!.transform.translation.x = 9;
   defaults[0]!.transform.rotation.w = 0;
   defaults[0]!.transform.scale.y = 7;
-  for (const loweredRoots of [independent, lowerSkeletonNodes({ skeleton: model.skeleton! })]) {
-    TestValidator.predicate("root vectors belong to one lowering result", vclose(loweredRoots[0]!.transform.translation, { x: 0, y: 0, z: 0 }, 0) &&
-      qclose(loweredRoots[0]!.transform.rotation, { x: 0, y: 0, z: 0, w: 1 }, 0) && vclose(loweredRoots[0]!.transform.scale, { x: 1, y: 1, z: 1 }, 0));
+  for (const loweredRoots of [
+    independent,
+    lowerSkeletonNodes({ skeleton: model.skeleton! }),
+  ]) {
+    TestValidator.predicate(
+      "root vectors belong to one lowering result",
+      vclose(loweredRoots[0]!.transform.translation, { x: 0, y: 0, z: 0 }, 0) &&
+        qclose(
+          loweredRoots[0]!.transform.rotation,
+          { x: 0, y: 0, z: 0, w: 1 },
+          0,
+        ) &&
+        vclose(loweredRoots[0]!.transform.scale, { x: 1, y: 1, z: 1 }, 0),
+    );
   }
 }

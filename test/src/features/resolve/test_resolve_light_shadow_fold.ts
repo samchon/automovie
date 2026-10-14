@@ -1,6 +1,7 @@
-import { applyLightOverride } from "../../../../packages/engine/src/resolve/applyLightOverride";
 import { IAutoMovieLight, IAutoMovieLightShadow } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
+
+import { applyLightOverride } from "../../../../packages/engine/src/resolve/applyLightOverride";
 import { namedFacts } from "../internal/namedFacts";
 import { nclose } from "../internal/nclose";
 import { vclose } from "../internal/vclose";
@@ -60,11 +61,15 @@ export function test_resolve_light_shadow_fold(): void {
   TestValidator.equals(
     "an animated key keeps casting exactly the shadow it was staged with",
     namedFacts([
-      ["dimmed", (): boolean  => nclose(dimmed.intensity, 2, 0)],
-      ["casts", (): boolean  => dimmed.castShadow === true],
-      ["sameSettings", (): boolean  => dimmed.shadow === SHADOW],
-      ["stillSpot", (): boolean  => dimmed.type === "spot"],
-      ["coneKept", (): boolean  => dimmed.type === "spot" && nclose(dimmed.coneAngle, 35, 0)],
+      ["dimmed", (): boolean => nclose(dimmed.intensity, 2, 0)],
+      ["casts", (): boolean => dimmed.castShadow === true],
+      ["sameSettings", (): boolean => dimmed.shadow === SHADOW],
+      ["stillSpot", (): boolean => dimmed.type === "spot"],
+      [
+        "coneKept",
+        (): boolean =>
+          dimmed.type === "spot" && nclose(dimmed.coneAngle, 35, 0),
+      ],
     ]),
     {
       dimmed: true,
@@ -89,21 +94,71 @@ export function test_resolve_light_shadow_fold(): void {
     Object.keys(folded).sort(fieldOrder),
     ["color", "id", "intensity", "range", "transform", "type"],
   );
-  TestValidator.predicate("legacy range override applies", folded.type === "point" && nclose(folded.range, 9, 0));
+  TestValidator.predicate(
+    "legacy range override applies",
+    folded.type === "point" && nclose(folded.range, 9, 0),
+  );
 
   const empty: IAutoMovieLight = applyLightOverride(KEY, {});
   TestValidator.equals(
     "empty override retains staged discrete fields and keys",
-    [empty.id, empty.type, empty.castShadow, empty.color.a, empty.color.hex, Object.keys(empty).sort(fieldOrder), Object.keys(empty.transform).sort(fieldOrder), Object.keys(empty.color).sort(fieldOrder), Object.keys(empty.shadow ?? {}).sort(fieldOrder), empty.shadow?.mapSize],
-    [KEY.id, KEY.type, KEY.castShadow, KEY.color.a, KEY.color.hex, Object.keys(KEY).sort(fieldOrder), Object.keys(KEY.transform).sort(fieldOrder), Object.keys(KEY.color).sort(fieldOrder), Object.keys(SHADOW).sort(fieldOrder), SHADOW.mapSize],
+    [
+      empty.id,
+      empty.type,
+      empty.castShadow,
+      empty.color.a,
+      empty.color.hex,
+      Object.keys(empty).sort(fieldOrder),
+      Object.keys(empty.transform).sort(fieldOrder),
+      Object.keys(empty.color).sort(fieldOrder),
+      Object.keys(empty.shadow ?? {}).sort(fieldOrder),
+      empty.shadow?.mapSize,
+    ],
+    [
+      KEY.id,
+      KEY.type,
+      KEY.castShadow,
+      KEY.color.a,
+      KEY.color.hex,
+      Object.keys(KEY).sort(fieldOrder),
+      Object.keys(KEY.transform).sort(fieldOrder),
+      Object.keys(KEY.color).sort(fieldOrder),
+      Object.keys(SHADOW).sort(fieldOrder),
+      SHADOW.mapSize,
+    ],
   );
-  TestValidator.equals("empty override retains transform component keys", [Object.keys(empty.transform.translation).sort(fieldOrder), Object.keys(empty.transform.rotation).sort(fieldOrder), Object.keys(empty.transform.scale).sort(fieldOrder)], [Object.keys(KEY.transform.translation).sort(fieldOrder), Object.keys(KEY.transform.rotation).sort(fieldOrder), Object.keys(KEY.transform.scale).sort(fieldOrder)]);
-  TestValidator.predicate("empty override retains all staged numerical fields", empty.type === "spot" &&
-    vclose(empty.transform.translation, KEY.transform.translation, 0) && vclose(empty.transform.scale, KEY.transform.scale, 0) &&
-    nclose(empty.transform.rotation.x, KEY.transform.rotation.x, 0) && nclose(empty.transform.rotation.y, KEY.transform.rotation.y, 0) &&
-    nclose(empty.transform.rotation.z, KEY.transform.rotation.z, 0) && nclose(empty.transform.rotation.w, KEY.transform.rotation.w, 0) &&
-    nclose(empty.color.r, KEY.color.r, 0) && nclose(empty.color.g, KEY.color.g, 0) && nclose(empty.color.b, KEY.color.b, 0) &&
-    nclose(empty.intensity, 8, 0) && nclose(empty.range, 0, 0) && nclose(empty.coneAngle, 35, 0) && empty.shadow !== undefined &&
-    nclose(empty.shadow.bias!, SHADOW.bias!, 0) && nclose(empty.shadow.normalBias!, SHADOW.normalBias!, 0) &&
-    nclose(empty.shadow.near!, SHADOW.near!, 0) && nclose(empty.shadow.far!, SHADOW.far!, 0));
+  TestValidator.equals(
+    "empty override retains transform component keys",
+    [
+      Object.keys(empty.transform.translation).sort(fieldOrder),
+      Object.keys(empty.transform.rotation).sort(fieldOrder),
+      Object.keys(empty.transform.scale).sort(fieldOrder),
+    ],
+    [
+      Object.keys(KEY.transform.translation).sort(fieldOrder),
+      Object.keys(KEY.transform.rotation).sort(fieldOrder),
+      Object.keys(KEY.transform.scale).sort(fieldOrder),
+    ],
+  );
+  TestValidator.predicate(
+    "empty override retains all staged numerical fields",
+    empty.type === "spot" &&
+      vclose(empty.transform.translation, KEY.transform.translation, 0) &&
+      vclose(empty.transform.scale, KEY.transform.scale, 0) &&
+      nclose(empty.transform.rotation.x, KEY.transform.rotation.x, 0) &&
+      nclose(empty.transform.rotation.y, KEY.transform.rotation.y, 0) &&
+      nclose(empty.transform.rotation.z, KEY.transform.rotation.z, 0) &&
+      nclose(empty.transform.rotation.w, KEY.transform.rotation.w, 0) &&
+      nclose(empty.color.r, KEY.color.r, 0) &&
+      nclose(empty.color.g, KEY.color.g, 0) &&
+      nclose(empty.color.b, KEY.color.b, 0) &&
+      nclose(empty.intensity, 8, 0) &&
+      nclose(empty.range, 0, 0) &&
+      nclose(empty.coneAngle, 35, 0) &&
+      empty.shadow !== undefined &&
+      nclose(empty.shadow.bias!, SHADOW.bias!, 0) &&
+      nclose(empty.shadow.normalBias!, SHADOW.normalBias!, 0) &&
+      nclose(empty.shadow.near!, SHADOW.near!, 0) &&
+      nclose(empty.shadow.far!, SHADOW.far!, 0),
+  );
 }

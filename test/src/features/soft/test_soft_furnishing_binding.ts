@@ -1,17 +1,15 @@
+import { validateSoftFurnishings } from "@automovie/engine";
 import {
-  validateSoftFurnishings,
-} from "@automovie/engine";
-import {
+  IAutoMovieConstraintViolation,
   IAutoMovieSoftBodyDomain,
   IAutoMovieSoftFurnishing,
-  IAutoMovieConstraintViolation,
   IAutoMovieValidation,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { hasViolation, namedFacts } from "../internal/predicates";
 import { assertSoftFurnishingOwnershipAndLowering } from "../internal/assertSoftFurnishingOwnershipAndLowering";
+import { hasViolation, namedFacts } from "../internal/predicates";
 import {
   roomEnvironment,
   softFurnishing,
@@ -19,7 +17,9 @@ import {
 } from "../internal/softFixtures";
 
 /** A curtain small enough to hang well inside the room's convex cell. */
-const panel: (overrides?: Partial<IAutoMovieSoftBodyDomain>) => IAutoMovieSoftBodyDomain = (
+const panel: (
+  overrides?: Partial<IAutoMovieSoftBodyDomain>,
+) => IAutoMovieSoftBodyDomain = (
   overrides: Partial<IAutoMovieSoftBodyDomain> = {},
 ): IAutoMovieSoftBodyDomain =>
   softPanel({
@@ -37,7 +37,11 @@ const panel: (overrides?: Partial<IAutoMovieSoftBodyDomain>) => IAutoMovieSoftBo
     },
   });
 
-const check: (props: { furnishings?: IAutoMovieSoftFurnishing[]; domains?: IAutoMovieSoftBodyDomain[]; semantic?: boolean }) => IAutoMovieValidation = (props: {
+const check: (props: {
+  furnishings?: IAutoMovieSoftFurnishing[];
+  domains?: IAutoMovieSoftBodyDomain[];
+  semantic?: boolean;
+}) => IAutoMovieValidation = (props: {
   furnishings?: IAutoMovieSoftFurnishing[];
   domains?: IAutoMovieSoftBodyDomain[];
   semantic?: boolean;
@@ -276,7 +280,8 @@ export function test_soft_furnishing_binding(): void {
       ],
       [
         "semantic",
-        (): boolean => check({ domains: [outside], semantic: true }).success === true,
+        (): boolean =>
+          check({ domains: [outside], semantic: true }).success === true,
       ],
       [
         "unmeasurable",
@@ -290,11 +295,14 @@ export function test_soft_furnishing_binding(): void {
       [
         "notAlsoGuessed",
         (): boolean => {
-          const validation: IAutoMovieValidation = check({ domains: [panel({ rest: [0, 0, 0] })] });
+          const validation: IAutoMovieValidation = check({
+            domains: [panel({ rest: [0, 0, 0] })],
+          });
           return (
             validation.success === false &&
             validation.violations.every(
-              (item: IAutoMovieConstraintViolation): boolean => item.path.includes("furnishings[0].domain") === false,
+              (item: IAutoMovieConstraintViolation): boolean =>
+                item.path.includes("furnishings[0].domain") === false,
             )
           );
         },
@@ -352,7 +360,8 @@ export function test_soft_furnishing_binding(): void {
           return (
             validation.success === false &&
             validation.violations.every(
-              (item: IAutoMovieConstraintViolation): boolean => item.path.includes("furnishings[0].domain") === false,
+              (item: IAutoMovieConstraintViolation): boolean =>
+                item.path.includes("furnishings[0].domain") === false,
             )
           );
         },

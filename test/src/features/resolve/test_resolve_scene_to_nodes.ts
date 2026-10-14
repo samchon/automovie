@@ -1,11 +1,22 @@
-import { Matrix4 } from "../../../../packages/engine/src/math/Matrix4";
-import { composeScene } from "../../../../packages/engine/src/resolve/composeScene";
-import { motionToClip } from "../../../../packages/engine/src/motion/motionToClip";
-import { resolveFrame } from "../../../../packages/engine/src/resolve/resolveFrame";
-import { resolvePose } from "../../../../packages/engine/src/kinematics/resolvePose";
-import { sceneToNodes } from "../../../../packages/engine/src/resolve/sceneToNodes";
-import { IAutoMovieModel, IAutoMovieScene, IAutoMovieTransform, type IAutoMovieSkeleton, type IAutoMovieNode, type IAutoMoviePose, type IAutoMovieMotion } from "@automovie/interface";
+import {
+  IAutoMovieModel,
+  type IAutoMovieMotion,
+  type IAutoMovieNode,
+  type IAutoMoviePose,
+  IAutoMovieScene,
+  type IAutoMovieSkeleton,
+  IAutoMovieTransform,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
+
+import { type IAutoMovieResolvedBone } from "../../../../packages/engine/src/kinematics/IAutoMovieResolvedBone";
+import { resolvePose } from "../../../../packages/engine/src/kinematics/resolvePose";
+import { Matrix4 } from "../../../../packages/engine/src/math/Matrix4";
+import { type IAutoMovieMotionClipBridge } from "../../../../packages/engine/src/motion/IAutoMovieMotionClipBridge";
+import { motionToClip } from "../../../../packages/engine/src/motion/motionToClip";
+import { composeScene } from "../../../../packages/engine/src/resolve/composeScene";
+import { resolveFrame } from "../../../../packages/engine/src/resolve/resolveFrame";
+import { sceneToNodes } from "../../../../packages/engine/src/resolve/sceneToNodes";
 import { createModel } from "../internal/createModel";
 import { createSkeleton } from "../internal/createSkeleton";
 import { joint } from "../internal/joint";
@@ -15,10 +26,13 @@ import { makePose } from "../internal/makePose";
 import { namedFacts } from "../internal/namedFacts";
 import { qclose } from "../internal/qclose";
 import { vclose } from "../internal/vclose";
-import { type IAutoMovieMotionClipBridge } from "../../../../packages/engine/src/motion/IAutoMovieMotionClipBridge";
-import { type IAutoMovieResolvedBone } from "../../../../packages/engine/src/kinematics/IAutoMovieResolvedBone";
 
-const T: (x: number, y: number, z: number, rotY?: { y: number; w: number; }) => IAutoMovieTransform = (
+const T: (
+  x: number,
+  y: number,
+  z: number,
+  rotY?: { y: number; w: number },
+) => IAutoMovieTransform = (
   x: number,
   y: number,
   z: number,
@@ -98,7 +112,10 @@ export function test_resolve_scene_to_nodes(): void {
       },
     ],
   };
-  const models: { hero: IAutoMovieModel; crate: IAutoMovieModel; } = { hero: actorModel, crate: propModel };
+  const models: { hero: IAutoMovieModel; crate: IAutoMovieModel } = {
+    hero: actorModel,
+    crate: propModel,
+  };
   const nodes: IAutoMovieNode[] = sceneToNodes({ scene, models });
 
   // 1. rest structure worlds ≡ declared transforms
@@ -114,12 +131,12 @@ export function test_resolve_scene_to_nodes(): void {
     namedFacts([
       [
         "vcloseMatrix4Position",
-        (): boolean  =>
+        (): boolean =>
           vclose(Matrix4.position(rest.get("actor")!), placement.translation),
       ],
       [
         "qcloseMatrix4Decompose",
-        (): boolean  =>
+        (): boolean =>
           qclose(
             Matrix4.decompose(rest.get("actor")!).rotation,
             placement.rotation,
@@ -140,14 +157,27 @@ export function test_resolve_scene_to_nodes(): void {
   // 2. the prop lowers no subtree
   TestValidator.equals(
     "skeleton-less prop lowers only its group node",
-    nodes.filter((node: IAutoMovieNode): boolean  => node.id.startsWith("box")).length,
+    nodes.filter((node: IAutoMovieNode): boolean => node.id.startsWith("box"))
+      .length,
     1,
   );
   TestValidator.equals(
     "the actor lowers its bone subtree under the placement",
     namedFacts([
-      ["nodesSomeNode", (): boolean  => nodes.some((node: IAutoMovieNode): boolean  => node.id === "actor/hips")],
-      ["nodesSomeNode2", (): boolean  => nodes.some((node: IAutoMovieNode): boolean  => node.id === "actor/root")],
+      [
+        "nodesSomeNode",
+        (): boolean =>
+          nodes.some(
+            (node: IAutoMovieNode): boolean => node.id === "actor/hips",
+          ),
+      ],
+      [
+        "nodesSomeNode2",
+        (): boolean =>
+          nodes.some(
+            (node: IAutoMovieNode): boolean => node.id === "actor/root",
+          ),
+      ],
     ]),
     { nodesSomeNode: true, nodesSomeNode2: true },
   );
@@ -160,7 +190,10 @@ export function test_resolve_scene_to_nodes(): void {
     ],
     T(0.5, 0, 0, { y: Math.SQRT1_2, w: Math.SQRT1_2 }),
   );
-  const held: IAutoMovieMotion = makeMotion([keyframe(0, pose), keyframe(1, pose)], 1);
+  const held: IAutoMovieMotion = makeMotion(
+    [keyframe(0, pose), keyframe(1, pose)],
+    1,
+  );
   const bridge: IAutoMovieMotionClipBridge = motionToClip({
     motion: held,
     skeleton,

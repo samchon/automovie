@@ -1,8 +1,13 @@
-import { simulateSoftBody } from "../../../../packages/engine/src/soft/simulateSoftBody";
-import { IAutoMovieSoftBodyDomain, IAutoMovieSoftBodyState } from "@automovie/interface";
+import {
+  IAutoMovieSoftBodyDomain,
+  IAutoMovieSoftBodyState,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
+
+import { simulateSoftBody } from "../../../../packages/engine/src/soft/simulateSoftBody";
 import { namedFacts, nclose } from "../internal/predicates";
 import { softPanel } from "../internal/softFixtures";
+
 const COLUMNS: number = 5;
 const ROWS: number = 4;
 
@@ -14,51 +19,54 @@ const ROWS: number = 4;
  * the strictest case: its own left and right corrections must cancel to exactly
  * zero rather than to an ulp.
  */
-const symmetric: () => IAutoMovieSoftBodyDomain = (): IAutoMovieSoftBodyDomain =>
-  softPanel({
-    columns: COLUMNS,
-    rows: ROWS,
-    origin: { x: -0.5, y: 0, z: 0 },
-    overrides: {
-      id: "mirror",
-      solver: {
-        fixedStepSeconds: 0.015625,
-        gravity: { x: 0, y: -8, z: 0 },
-        drag: 0.5,
-        iterations: 3,
-        stiffness: { structural: 1, shear: 0.5, bend: 0.25 },
-        referenceSpeed: 4,
-        maxSteps: 512,
-      },
-      anchors: [
-        { id: "hook-left", particle: 0, position: null },
-        { id: "hook-right", particle: COLUMNS - 1, position: null },
-      ],
-      colliders: [
-        {
-          kind: "plane",
-          id: "floor",
-          normal: { x: 0, y: 2, z: 0 },
-          offset: -0.78125,
+const symmetric: () => IAutoMovieSoftBodyDomain =
+  (): IAutoMovieSoftBodyDomain =>
+    softPanel({
+      columns: COLUMNS,
+      rows: ROWS,
+      origin: { x: -0.5, y: 0, z: 0 },
+      overrides: {
+        id: "mirror",
+        solver: {
+          fixedStepSeconds: 0.015625,
+          gravity: { x: 0, y: -8, z: 0 },
+          drag: 0.5,
+          iterations: 3,
+          stiffness: { structural: 1, shear: 0.5, bend: 0.25 },
+          referenceSpeed: 4,
+          maxSteps: 512,
         },
-        {
-          kind: "sphere",
-          id: "bolster",
-          center: { x: 0, y: -1, z: 0 },
-          radius: 0.25,
+        anchors: [
+          { id: "hook-left", particle: 0, position: null },
+          { id: "hook-right", particle: COLUMNS - 1, position: null },
+        ],
+        colliders: [
+          {
+            kind: "plane",
+            id: "floor",
+            normal: { x: 0, y: 2, z: 0 },
+            offset: -0.78125,
+          },
+          {
+            kind: "sphere",
+            id: "bolster",
+            center: { x: 0, y: -1, z: 0 },
+            radius: 0.25,
+          },
+        ],
+        wind: {
+          direction: { x: 0, y: 0, z: 1 },
+          acceleration: 0.5,
+          gustAcceleration: 2,
+          gustHz: 4,
         },
-      ],
-      wind: {
-        direction: { x: 0, y: 0, z: 1 },
-        acceleration: 0.5,
-        gustAcceleration: 2,
-        gustHz: 4,
       },
-    },
-  });
+    });
 
 /** True when the two mirror partners of every particle are exact reflections. */
-const reflected: (values: number[]) => boolean = (values: number[]): boolean => {
+const reflected: (values: number[]) => boolean = (
+  values: number[],
+): boolean => {
   for (let row: number = 0; row < ROWS; ++row)
     for (let column: number = 0; column < COLUMNS; ++column) {
       const here: number = (row * COLUMNS + column) * 3;

@@ -1,13 +1,22 @@
-import { applyChannelLimit } from "../../../../packages/engine/src/resolve/applyChannelLimit";
-import { IAutoMovieChannel, IAutoMovieChannelLimit } from "@automovie/interface";
+import {
+  IAutoMovieChannel,
+  IAutoMovieChannelLimit,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-import { throwsError } from "../internal/throwsError";
-import { nclose } from "../internal/nclose";
+
 import { type IAutoMovieClampOutcome } from "../../../../packages/engine/src/resolve/IAutoMovieClampOutcome";
+import { applyChannelLimit } from "../../../../packages/engine/src/resolve/applyChannelLimit";
+import { nclose } from "../internal/nclose";
+import { throwsError } from "../internal/throwsError";
 
 /** Compare array length and finite scalar values with zero absolute tolerance. */
 function sameValues(actual: number[], expected: number[]): boolean {
-  return actual.length === expected.length && actual.every((value: number, index: number): boolean => nclose(value, expected[index]!, 0));
+  return (
+    actual.length === expected.length &&
+    actual.every((value: number, index: number): boolean =>
+      nclose(value, expected[index]!, 0),
+    )
+  );
 }
 
 const CHANNEL: IAutoMovieChannel = {
@@ -16,7 +25,10 @@ const CHANNEL: IAutoMovieChannel = {
   path: "translation",
 };
 
-const limit: (min: (number | null)[] | null, max: (number | null)[] | null) => IAutoMovieChannelLimit = (
+const limit: (
+  min: (number | null)[] | null,
+  max: (number | null)[] | null,
+) => IAutoMovieChannelLimit = (
   min: (number | null)[] | null,
   max: (number | null)[] | null,
 ): IAutoMovieChannelLimit => ({ channel: CHANNEL, min, max });
@@ -47,8 +59,14 @@ const limit: (min: (number | null)[] | null, max: (number | null)[] | null) => I
  */
 export function test_resolve_channel_limit(): void {
   // 1. both sides null → untouched
-  const free: IAutoMovieClampOutcome = applyChannelLimit([1, 2, 3], limit(null, null));
-  TestValidator.predicate("null limit keeps value", sameValues(free.value, [1, 2, 3]));
+  const free: IAutoMovieClampOutcome = applyChannelLimit(
+    [1, 2, 3],
+    limit(null, null),
+  );
+  TestValidator.predicate(
+    "null limit keeps value",
+    sameValues(free.value, [1, 2, 3]),
+  );
   TestValidator.equals(
     "null limit has no violations",
     free.violations.length,
@@ -60,16 +78,54 @@ export function test_resolve_channel_limit(): void {
     [-3, 99, 100],
     limit([0, null, -5], [10, null, 50]),
   );
-  TestValidator.predicate("mixed clamp value", sameValues(mixed.value, [0, 99, 50]));
-  TestValidator.equals("mixed clamp violation addresses", mixed.violations.map((entry: typeof mixed.violations[number]): { component: number; bound: "min" | "max" } => ({ component: entry.component, bound: entry.bound })), [
-    { component: 0, bound: "min" }, { component: 2, bound: "max" },
-  ]);
-  TestValidator.predicate("mixed clamp violation numbers", nclose(mixed.violations[0]!.limit, 0, 0) && nclose(mixed.violations[0]!.actual, -3, 0) && nclose(mixed.violations[1]!.limit, 50, 0) && nclose(mixed.violations[1]!.actual, 100, 0));
-  TestValidator.equals("mixed clamp violation output fields", mixed.violations.map((entry: typeof mixed.violations[number]): string[] => Object.keys(entry).sort((a: string, b: string): number => a < b ? -1 : a > b ? 1 : 0)), [["actual", "bound", "component", "limit"], ["actual", "bound", "component", "limit"]]);
+  TestValidator.predicate(
+    "mixed clamp value",
+    sameValues(mixed.value, [0, 99, 50]),
+  );
+  TestValidator.equals(
+    "mixed clamp violation addresses",
+    mixed.violations.map(
+      (
+        entry: (typeof mixed.violations)[number],
+      ): { component: number; bound: "min" | "max" } => ({
+        component: entry.component,
+        bound: entry.bound,
+      }),
+    ),
+    [
+      { component: 0, bound: "min" },
+      { component: 2, bound: "max" },
+    ],
+  );
+  TestValidator.predicate(
+    "mixed clamp violation numbers",
+    nclose(mixed.violations[0]!.limit, 0, 0) &&
+      nclose(mixed.violations[0]!.actual, -3, 0) &&
+      nclose(mixed.violations[1]!.limit, 50, 0) &&
+      nclose(mixed.violations[1]!.actual, 100, 0),
+  );
+  TestValidator.equals(
+    "mixed clamp violation output fields",
+    mixed.violations.map((entry: (typeof mixed.violations)[number]): string[] =>
+      Object.keys(entry).sort((a: string, b: string): number =>
+        a < b ? -1 : a > b ? 1 : 0,
+      ),
+    ),
+    [
+      ["actual", "bound", "component", "limit"],
+      ["actual", "bound", "component", "limit"],
+    ],
+  );
 
   // 3. within range → untouched, both comparisons take the "not crossed" side
-  const inside: IAutoMovieClampOutcome = applyChannelLimit([5, 5, 5], limit([0, 0, 0], [10, 10, 10]));
-  TestValidator.predicate("in-range keeps value", sameValues(inside.value, [5, 5, 5]));
+  const inside: IAutoMovieClampOutcome = applyChannelLimit(
+    [5, 5, 5],
+    limit([0, 0, 0], [10, 10, 10]),
+  );
+  TestValidator.predicate(
+    "in-range keeps value",
+    sameValues(inside.value, [5, 5, 5]),
+  );
   TestValidator.equals(
     "in-range has no violations",
     inside.violations.length,
@@ -79,7 +135,8 @@ export function test_resolve_channel_limit(): void {
   TestValidator.predicate(
     "non-finite channel value rejects",
     throwsError(
-      (): IAutoMovieClampOutcome  => applyChannelLimit([1, Number.NaN, 3], limit(null, null)),
+      (): IAutoMovieClampOutcome =>
+        applyChannelLimit([1, Number.NaN, 3], limit(null, null)),
       ["node:n:translation", "value[1]", "finite", "NaN"],
     ),
   );
@@ -87,7 +144,8 @@ export function test_resolve_channel_limit(): void {
   TestValidator.predicate(
     "non-finite min bound rejects",
     throwsError(
-      (): IAutoMovieClampOutcome  => applyChannelLimit([1, 2, 3], limit([0, Infinity, null], null)),
+      (): IAutoMovieClampOutcome =>
+        applyChannelLimit([1, 2, 3], limit([0, Infinity, null], null)),
       ["node:n:translation", "min[1]", "finite", "Infinity"],
     ),
   );
@@ -95,7 +153,8 @@ export function test_resolve_channel_limit(): void {
   TestValidator.predicate(
     "non-finite max bound rejects",
     throwsError(
-      (): IAutoMovieClampOutcome  => applyChannelLimit([1, 2, 3], limit(null, [10, Number.NaN, null])),
+      (): IAutoMovieClampOutcome =>
+        applyChannelLimit([1, 2, 3], limit(null, [10, Number.NaN, null])),
       ["node:n:translation", "max[1]", "finite", "NaN"],
     ),
   );
@@ -103,7 +162,7 @@ export function test_resolve_channel_limit(): void {
   TestValidator.predicate(
     "inverted component range rejects",
     throwsError(
-      (): IAutoMovieClampOutcome  =>
+      (): IAutoMovieClampOutcome =>
         applyChannelLimit([7, 2, 3], limit([10, null, null], [5, null, null])),
       ["node:n:translation", "min[0]", "10", "max[0]", "5"],
     ),
@@ -112,7 +171,8 @@ export function test_resolve_channel_limit(): void {
   TestValidator.predicate(
     "extra min component rejects",
     throwsError(
-      (): IAutoMovieClampOutcome  => applyChannelLimit([5], limit([0, 10], null)),
+      (): IAutoMovieClampOutcome =>
+        applyChannelLimit([5], limit([0, 10], null)),
       ["node:n:translation", "min[1]", "value width", "1", "10"],
     ),
   );
@@ -120,7 +180,8 @@ export function test_resolve_channel_limit(): void {
   TestValidator.predicate(
     "extra max component rejects",
     throwsError(
-      (): IAutoMovieClampOutcome  => applyChannelLimit([5], limit(null, [10, 20])),
+      (): IAutoMovieClampOutcome =>
+        applyChannelLimit([5], limit(null, [10, 20])),
       ["node:n:translation", "max[1]", "value width", "1", "20"],
     ),
   );

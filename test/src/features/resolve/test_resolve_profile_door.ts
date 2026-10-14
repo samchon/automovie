@@ -1,9 +1,16 @@
-import { resolveFrame } from "../../../../packages/engine/src/resolve/resolveFrame";
-import { IAutoMovieClip, IAutoMovieNode, IAutoMovieProfile, IAutoMovieProfileBinding, IAutoMovieTransform } from "@automovie/interface";
+import {
+  IAutoMovieClip,
+  IAutoMovieNode,
+  IAutoMovieProfile,
+  IAutoMovieProfileBinding,
+  IAutoMovieTransform,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
+
+import { type IAutoMovieResolveOutput } from "../../../../packages/engine/src/resolve/IAutoMovieResolveOutput";
+import { resolveFrame } from "../../../../packages/engine/src/resolve/resolveFrame";
 import { namedFacts } from "../internal/namedFacts";
 import { nclose } from "../internal/nclose";
-import { type IAutoMovieResolveOutput } from "../../../../packages/engine/src/resolve/IAutoMovieResolveOutput";
 
 const IDENTITY: IAutoMovieTransform = {
   translation: { x: 0, y: 0, z: 0 },
@@ -11,7 +18,10 @@ const IDENTITY: IAutoMovieTransform = {
   scale: { x: 1, y: 1, z: 1 },
 };
 
-const node: (id: string, parent?: string | null) => IAutoMovieNode = (id: string, parent: string | null = null): IAutoMovieNode => ({
+const node: (id: string, parent?: string | null) => IAutoMovieNode = (
+  id: string,
+  parent: string | null = null,
+): IAutoMovieNode => ({
   id,
   name: null,
   parent,
@@ -26,15 +36,23 @@ const node: (id: string, parent?: string | null) => IAutoMovieNode = (id: string
   skin: null,
 });
 
-const DOOR_NODES: IAutoMovieNode[] = [node("door"), node("hinge", "door"), node("handleMirror")];
+const DOOR_NODES: IAutoMovieNode[] = [
+  node("door"),
+  node("hinge", "door"),
+  node("handleMirror"),
+];
 
 /** Quat for a rotation of `deg` about +Y. */
-const yQuat: (deg: number) => [number, number, number, number] = (deg: number): [number, number, number, number] => {
+const yQuat: (deg: number) => [number, number, number, number] = (
+  deg: number,
+): [number, number, number, number] => {
   const half: number = (deg * Math.PI) / 360;
   return [0, Math.sin(half), 0, Math.cos(half)];
 };
 
-const doorClip: (deg: number) => IAutoMovieClip = (deg: number): IAutoMovieClip => ({
+const doorClip: (deg: number) => IAutoMovieClip = (
+  deg: number,
+): IAutoMovieClip => ({
   id: "swing",
   name: null,
   duration: 1,
@@ -83,7 +101,9 @@ const DOOR_BINDING: IAutoMovieProfileBinding = {
   boneMap: { pivot: "hinge", mirror: "handleMirror" },
 };
 
-const basisX: (m: number[]) => [number, number, number] = (m: number[]): [number, number, number] => [m[0]!, m[1]!, m[2]!];
+const basisX: (m: number[]) => [number, number, number] = (
+  m: number[],
+): [number, number, number] => [m[0]!, m[1]!, m[2]!];
 
 /**
  * Resolve a conventional door profile's admitted and excessive swings, checking bound remapping, profile diagnostics and the copy driver's in-range result. This does not prove that the copied node receives the hinge's later clamp.
@@ -117,18 +137,20 @@ export function test_resolve_profile_door(): void {
   TestValidator.equals(
     "hinge world rotated 90°",
     namedFacts([
-      ["ncloseOpenX", (): boolean  => nclose(openX[0], 0)],
-      ["ncloseOpenX2", (): boolean  => nclose(openX[1], 0)],
-      ["ncloseOpenX3", (): boolean  => nclose(openX[2], -1)],
+      ["ncloseOpenX", (): boolean => nclose(openX[0], 0)],
+      ["ncloseOpenX2", (): boolean => nclose(openX[1], 0)],
+      ["ncloseOpenX3", (): boolean => nclose(openX[2], -1)],
     ]),
     { ncloseOpenX: true, ncloseOpenX2: true, ncloseOpenX3: true },
   );
-  const mirrorX: [number, number, number] = basisX(open.world.get("handleMirror")!);
+  const mirrorX: [number, number, number] = basisX(
+    open.world.get("handleMirror")!,
+  );
   TestValidator.equals(
     "profile driver mirrors the hinge",
     namedFacts([
-      ["ncloseMirrorX0", (): boolean  => nclose(mirrorX[0], 0)],
-      ["ncloseMirrorX2", (): boolean  => nclose(mirrorX[2], -1)],
+      ["ncloseMirrorX0", (): boolean => nclose(mirrorX[0], 0)],
+      ["ncloseMirrorX2", (): boolean => nclose(mirrorX[2], -1)],
     ]),
     { ncloseMirrorX0: true, ncloseMirrorX2: true },
   );
@@ -159,13 +181,15 @@ export function test_resolve_profile_door(): void {
   }
   const cos110: number = Math.cos((110 * Math.PI) / 180);
   const sin110: number = Math.sin((110 * Math.PI) / 180);
-  const slammedX: [number, number, number] = basisX(slammed.world.get("hinge")!);
+  const slammedX: [number, number, number] = basisX(
+    slammed.world.get("hinge")!,
+  );
   TestValidator.equals(
     "over-swing clamps to exactly 110°",
     namedFacts([
-      ["ncloseSlammedXCos110", (): boolean  => nclose(slammedX[0], cos110)],
-      ["ncloseSlammedX", (): boolean  => nclose(slammedX[1], 0)],
-      ["ncloseSlammedXSin110", (): boolean  => nclose(slammedX[2], -sin110)],
+      ["ncloseSlammedXCos110", (): boolean => nclose(slammedX[0], cos110)],
+      ["ncloseSlammedX", (): boolean => nclose(slammedX[1], 0)],
+      ["ncloseSlammedXSin110", (): boolean => nclose(slammedX[2], -sin110)],
     ]),
     {
       ncloseSlammedXCos110: true,

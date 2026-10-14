@@ -1,8 +1,14 @@
-import { IAutoMovieSoftBodyDomain, IAutoMovieValidation, IAutoMovieConstraintViolation } from "@automovie/interface";
+import {
+  IAutoMovieConstraintViolation,
+  IAutoMovieSoftBodyDomain,
+  IAutoMovieValidation,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
+
 import { validateSoftBodyDomain } from "../../../../packages/engine/src/soft/validateSoftBodyDomain";
 import { hasViolation } from "../internal/hasViolation";
 import { softPanel } from "../internal/softFixtures";
+
 /**
  * Finite timestep inputs cannot bypass the authored travel limit by overflowing its ratio.
  *
@@ -18,23 +24,58 @@ import { softPanel } from "../internal/softFixtures";
  * @evidence contracts/testing.md#execution-ownership Portable CPU unit discovered as test_soft_body_travel_admission, using the existing softPanel authored-record fixture and actual validator without simulation history, a viewer or a host process.
  */
 export function test_soft_body_travel_admission(): void {
-  const base: IAutoMovieSoftBodyDomain = softPanel({ columns: 2, rows: 1, spacing: { u: 1 / 4, v: 1 / 4 } });
+  const base: IAutoMovieSoftBodyDomain = softPanel({
+    columns: 2,
+    rows: 1,
+    spacing: { u: 1 / 4, v: 1 / 4 },
+  });
   const check: (step: number, speed?: number) => IAutoMovieValidation = (
     step: number,
     speed: number = 1,
-  ): IAutoMovieValidation => validateSoftBodyDomain({
-    domain: { ...base, solver: { ...base.solver, fixedStepSeconds: step, referenceSpeed: speed } },
-  });
-  TestValidator.equals("below the declared travel limit is admitted", check(1 / 8).success, true);
-  TestValidator.equals("exact travel boundary is admitted", check(1 / 4).success, true);
+  ): IAutoMovieValidation =>
+    validateSoftBodyDomain({
+      domain: {
+        ...base,
+        solver: {
+          ...base.solver,
+          fixedStepSeconds: step,
+          referenceSpeed: speed,
+        },
+      },
+    });
+  TestValidator.equals(
+    "below the declared travel limit is admitted",
+    check(1 / 8).success,
+    true,
+  );
+  TestValidator.equals(
+    "exact travel boundary is admitted",
+    check(1 / 4).success,
+    true,
+  );
   for (const [name, step, speed] of [
     ["finite overshoot", 1 / 2, 1],
     ["division overflow", Number.MAX_VALUE, 1],
     ["product overflow", Number.MAX_VALUE, Number.MAX_VALUE],
   ] as const) {
     const result: IAutoMovieValidation = check(step, speed);
-    TestValidator.equals(name + " refuses the timestep path", hasViolation(result, "range", "solver.fixedStepSeconds"), true);
+    TestValidator.equals(
+      name + " refuses the timestep path",
+      hasViolation(result, "range", "solver.fixedStepSeconds"),
+      true,
+    );
     if (name !== "finite overshoot" && result.success === false)
-      TestValidator.equals(name + " does not invent a finite overshoot", result.violations.filter((item: IAutoMovieConstraintViolation): boolean => item.path.includes("solver.fixedStepSeconds")).every((item: IAutoMovieConstraintViolation): boolean => item.overshoot === undefined), true);
+      TestValidator.equals(
+        name + " does not invent a finite overshoot",
+        result.violations
+          .filter((item: IAutoMovieConstraintViolation): boolean =>
+            item.path.includes("solver.fixedStepSeconds"),
+          )
+          .every(
+            (item: IAutoMovieConstraintViolation): boolean =>
+              item.overshoot === undefined,
+          ),
+        true,
+      );
   }
 }

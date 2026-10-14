@@ -1,8 +1,13 @@
-import { simulateSoftBody } from "../../../../packages/engine/src/soft/simulateSoftBody";
+import {
+  IAutoMovieSoftBodyDomain,
+  IAutoMovieSoftBodyState,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
+
+import { simulateSoftBody } from "../../../../packages/engine/src/soft/simulateSoftBody";
 import { namedFacts } from "../internal/predicates";
 import { softPanel } from "../internal/softFixtures";
-import { IAutoMovieSoftBodyDomain, IAutoMovieSoftBodyState } from "@automovie/interface";
+
 /**
  * A panel with no anchor and no collider translates rigidly under gravity, so
  * every distance constraint stays exactly satisfied and the integrator is
@@ -11,7 +16,9 @@ import { IAutoMovieSoftBodyDomain, IAutoMovieSoftBodyState } from "@automovie/in
  * Every number below is a dyadic rational, so the expectations are exact
  * equalities rather than tolerances.
  */
-const freeSheet: (drag: number) => IAutoMovieSoftBodyDomain = (drag: number): IAutoMovieSoftBodyDomain =>
+const freeSheet: (drag: number) => IAutoMovieSoftBodyDomain = (
+  drag: number,
+): IAutoMovieSoftBodyDomain =>
   softPanel({
     columns: 3,
     rows: 3,
@@ -97,7 +104,10 @@ export function test_soft_body_free_fall_hand_math(): void {
   TestValidator.equals(
     "implicit linear drag matches its own closed form exactly",
     namedFacts([
-      ["velocity", (): boolean => Object.is(settled.velocities[1], -dampedSpeed)],
+      [
+        "velocity",
+        (): boolean => Object.is(settled.velocities[1], -dampedSpeed),
+      ],
       [
         "positions",
         (): boolean =>

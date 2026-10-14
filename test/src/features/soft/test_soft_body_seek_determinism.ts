@@ -3,7 +3,10 @@ import {
   simulateSoftBody,
   softBodyStateDigest,
 } from "@automovie/engine";
-import { IAutoMovieSoftBodyDomain, IAutoMovieSoftBodyState } from "@automovie/interface";
+import {
+  IAutoMovieSoftBodyDomain,
+  IAutoMovieSoftBodyState,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts, throwsError } from "../internal/predicates";
@@ -90,10 +93,14 @@ const seekable: () => IAutoMovieSoftBodyDomain = (): IAutoMovieSoftBodyDomain =>
  */
 export function test_soft_body_seek_determinism(): void {
   const domain: IAutoMovieSoftBodyDomain = seekable();
-  const ascending: string[] = Array.from({ length: 17 }, (_: unknown, step: number): string =>
-    softBodyStateDigest(simulateSoftBody(domain, step)),
+  const ascending: string[] = Array.from(
+    { length: 17 },
+    (_: unknown, step: number): string =>
+      softBodyStateDigest(simulateSoftBody(domain, step)),
   );
-  const scrambled: number[] = [13, 0, 7, 16, 2, 11, 4, 9, 15, 1, 6, 12, 3, 10, 5, 8, 14];
+  const scrambled: number[] = [
+    13, 0, 7, 16, 2, 11, 4, 9, 15, 1, 6, 12, 3, 10, 5, 8, 14,
+  ];
   TestValidator.equals(
     "an absolute seek does not care what was sampled before it",
     namedFacts([
@@ -106,7 +113,10 @@ export function test_soft_body_seek_determinism(): void {
               ascending[step],
           ),
       ],
-      ["digestsMove", (): boolean => new Set(ascending).size === ascending.length],
+      [
+        "digestsMove",
+        (): boolean => new Set(ascending).size === ascending.length,
+      ],
     ]),
     { digestsMatch: true, digestsMove: true },
   );
@@ -116,8 +126,14 @@ export function test_soft_body_seek_determinism(): void {
   TestValidator.equals(
     "the same seek twice is bit-identical",
     namedFacts([
-      ["positions", (): boolean => exactValues(once.positions, twice.positions)],
-      ["velocities", (): boolean => exactValues(once.velocities, twice.velocities)],
+      [
+        "positions",
+        (): boolean => exactValues(once.positions, twice.positions),
+      ],
+      [
+        "velocities",
+        (): boolean => exactValues(once.velocities, twice.velocities),
+      ],
       ["speed", (): boolean => Object.is(once.maxSpeed, twice.maxSpeed)],
       ["strain", (): boolean => Object.is(once.maxStrain, twice.maxStrain)],
       ["contacts", (): boolean => once.contacts === twice.contacts],
@@ -136,13 +152,18 @@ export function test_soft_body_seek_determinism(): void {
     },
   );
 
-  const gathered: IAutoMovieSoftBodyState = simulateSoftBody(domain, 48, "gathered");
+  const gathered: IAutoMovieSoftBodyState = simulateSoftBody(
+    domain,
+    48,
+    "gathered",
+  );
   TestValidator.equals(
     "a named state is part of the identity of a solved state",
     namedFacts([
       [
         "differs",
-        (): boolean => softBodyStateDigest(gathered) !== softBodyStateDigest(once),
+        (): boolean =>
+          softBodyStateDigest(gathered) !== softBodyStateDigest(once),
       ],
       [
         "stable",
@@ -172,7 +193,8 @@ export function test_soft_body_seek_determinism(): void {
       ],
       [
         "namedSample",
-        (): boolean => sampleSoftBody(domain, dt * 3, "gathered").state === "gathered",
+        (): boolean =>
+          sampleSoftBody(domain, dt * 3, "gathered").state === "gathered",
       ],
     ]),
     {

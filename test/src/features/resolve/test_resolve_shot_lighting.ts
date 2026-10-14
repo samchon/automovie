@@ -1,12 +1,24 @@
-import { resolveShotLighting } from "../../../../packages/engine/src/resolve/resolveShotLighting";
-import { AutoMovieChannelValueType, IAutoMovieChannel, IAutoMovieClip, IAutoMovieLight } from "@automovie/interface";
+import {
+  AutoMovieChannelValueType,
+  IAutoMovieChannel,
+  IAutoMovieClip,
+  IAutoMovieLight,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
+
+import { resolveShotLighting } from "../../../../packages/engine/src/resolve/resolveShotLighting";
 import { IDENTITY_TRANSFORM } from "../internal/IDENTITY_TRANSFORM";
 import { namedFacts } from "../internal/namedFacts";
 import { nclose } from "../internal/nclose";
 import { throwsError } from "../internal/throwsError";
 
-const WARM: { r: number; g: number; b: number; a: null; hex: string; } = { r: 1, g: 0.8, b: 0.5, a: null, hex: "#ffcc80" };
+const WARM: { r: number; g: number; b: number; a: null; hex: string } = {
+  r: 1,
+  g: 0.8,
+  b: 0.5,
+  a: null,
+  hex: "#ffcc80",
+};
 
 const candle: IAutoMovieLight = {
   id: "candleGlow",
@@ -38,7 +50,13 @@ const lamp: IAutoMovieLight = {
 const LIGHTS: IAutoMovieLight[] = [candle, sun, lamp];
 
 /** A one-track light clip over `channel`, on the beat's three-second clock. */
-const clip: (id: string, channel: IAutoMovieChannel, times: number[], values: number[], interpolation?: "step" | "linear") => IAutoMovieClip = (
+const clip: (
+  id: string,
+  channel: IAutoMovieChannel,
+  times: number[],
+  values: number[],
+  interpolation?: "step" | "linear",
+) => IAutoMovieClip = (
   id: string,
   channel: IAutoMovieChannel,
   times: number[],
@@ -52,18 +70,24 @@ const clip: (id: string, channel: IAutoMovieChannel, times: number[], values: nu
   tracks: [{ channel, times, values, interpolation }],
 });
 
-const pointer: (target: string, valueType: AutoMovieChannelValueType) => IAutoMovieChannel = (
+const pointer: (
+  target: string,
+  valueType: AutoMovieChannelValueType,
+) => IAutoMovieChannel = (
   target: string,
   valueType: AutoMovieChannelValueType,
 ): IAutoMovieChannel => ({ kind: "pointer", pointer: target, valueType });
 
 /** A resolved light's falloff range, or `-1` when its kind carries none. */
-const rangeOf: (light: IAutoMovieLight) => number = (light: IAutoMovieLight): number =>
+const rangeOf: (light: IAutoMovieLight) => number = (
+  light: IAutoMovieLight,
+): number =>
   light.type === "point" || light.type === "spot" ? light.range : -1;
 
 /** A resolved light's cone half-angle, or `-1` when it is not a spot. */
-const coneOf: (light: IAutoMovieLight) => number = (light: IAutoMovieLight): number =>
-  light.type === "spot" ? light.coneAngle : -1;
+const coneOf: (light: IAutoMovieLight) => number = (
+  light: IAutoMovieLight,
+): number => (light.type === "spot" ? light.coneAngle : -1);
 
 /** The candle blowout S-03 asked for: warm, then near-black at the cue. */
 const BLOWOUT: IAutoMovieClip = clip(
@@ -74,8 +98,11 @@ const BLOWOUT: IAutoMovieClip = clip(
 );
 
 /** Intensity of one light in a resolved set, by id. */
-const intensityOf: (lights: IAutoMovieLight[], id: string) => number = (lights: IAutoMovieLight[], id: string): number =>
-  lights.find((light: IAutoMovieLight): boolean  => light.id === id)!.intensity;
+const intensityOf: (lights: IAutoMovieLight[], id: string) => number = (
+  lights: IAutoMovieLight[],
+  id: string,
+): number =>
+  lights.find((light: IAutoMovieLight): boolean => light.id === id)!.intensity;
 
 /**
  * Shot-lighting resolution applies authored cue values and preserves unaddressed staged light references.
@@ -125,7 +152,10 @@ export function test_resolve_shot_lighting(): void {
     );
   TestValidator.predicate(
     "the candle holds warm, then reads dark from the cue instant onward",
-    sameValues([at(0), at(1.55), at(38 / 24), at(1.6), at(39 / 24), at(3)], [1.4, 1.4, 1.4, 0.04, 0.04, 0.04]),
+    sameValues(
+      [at(0), at(1.55), at(38 / 24), at(1.6), at(39 / 24), at(3)],
+      [1.4, 1.4, 1.4, 0.04, 0.04, 0.04],
+    ),
   );
 
   // The hold the guide tells an author to write when a light must STAY changed
@@ -138,12 +168,15 @@ export function test_resolve_shot_lighting(): void {
   );
   TestValidator.predicate(
     "a one-keyframe track holds its value for the whole beat",
-    sameValues([0, 1.7, 3].map((seconds: number): number  =>
-      intensityOf(
-        resolveShotLighting({ lights: LIGHTS, clips: [held], seconds }),
-        "candleGlow",
+    sameValues(
+      [0, 1.7, 3].map((seconds: number): number =>
+        intensityOf(
+          resolveShotLighting({ lights: LIGHTS, clips: [held], seconds }),
+          "candleGlow",
+        ),
       ),
-    ), [0.04, 0.04, 0.04]),
+      [0.04, 0.04, 0.04],
+    ),
   );
 
   // 2. the negative twin: untouched lights are the SAME objects.
@@ -155,16 +188,16 @@ export function test_resolve_shot_lighting(): void {
   TestValidator.equals(
     "a light no clip addresses comes back by identity",
     namedFacts([
-      ["resolvedSun", (): boolean  => resolved[1] === sun],
-      ["resolvedLamp", (): boolean  => resolved[2] === lamp],
-      ["resolvedCandle", (): boolean  => resolved[0] !== candle],
+      ["resolvedSun", (): boolean => resolved[1] === sun],
+      ["resolvedLamp", (): boolean => resolved[2] === lamp],
+      ["resolvedCandle", (): boolean => resolved[0] !== candle],
     ]),
     { resolvedSun: true, resolvedLamp: true, resolvedCandle: true },
   );
   TestValidator.predicate(
     "and a shot with no light clips changes nothing at all",
     resolveShotLighting({ lights: LIGHTS, clips: [], seconds: 1.7 }).every(
-      (light: IAutoMovieLight, i: number): boolean  => light === LIGHTS[i],
+      (light: IAutoMovieLight, i: number): boolean => light === LIGHTS[i],
     ),
   );
 
@@ -185,10 +218,10 @@ export function test_resolve_shot_lighting(): void {
   TestValidator.equals(
     "a linear colour ramp reads its midpoint, and drops the stale hex label",
     namedFacts([
-      ["ncloseRampColor", (): boolean  => nclose(ramp.color.r, 0.5)],
-      ["ncloseRampColor2", (): boolean  => nclose(ramp.color.g, 0.4)],
-      ["ncloseRampColor3", (): boolean  => nclose(ramp.color.b, 0.25)],
-      ["rampColorHex", (): boolean  => ramp.color.hex === null],
+      ["ncloseRampColor", (): boolean => nclose(ramp.color.r, 0.5)],
+      ["ncloseRampColor2", (): boolean => nclose(ramp.color.g, 0.4)],
+      ["ncloseRampColor3", (): boolean => nclose(ramp.color.b, 0.25)],
+      ["rampColorHex", (): boolean => ramp.color.hex === null],
     ]),
     {
       ncloseRampColor: true,
@@ -246,13 +279,16 @@ export function test_resolve_shot_lighting(): void {
   });
   TestValidator.predicate(
     "a directional and a spot rebuild with the parameters their kinds carry",
-    sameValues([
-      dusk[1]!.intensity,
-      rangeOf(dusk[1]!),
-      dusk[2]!.intensity,
-      rangeOf(dusk[2]!),
-      coneOf(dusk[2]!),
-    ], [0.5, -1, 1, 10, 40]),
+    sameValues(
+      [
+        dusk[1]!.intensity,
+        rangeOf(dusk[1]!),
+        dusk[2]!.intensity,
+        rangeOf(dusk[2]!),
+        coneOf(dusk[2]!),
+      ],
+      [0.5, -1, 1, 10, 40],
+    ),
   );
 
   // 4. two tracks, one light.
@@ -276,9 +312,13 @@ export function test_resolve_shot_lighting(): void {
   );
 
   // 5. every way to address what the pass cannot write, refused loudly.
-  const throwsOn: (clips: IAutoMovieClip[], fragment: string) => boolean = (clips: IAutoMovieClip[], fragment: string): boolean =>
+  const throwsOn: (clips: IAutoMovieClip[], fragment: string) => boolean = (
+    clips: IAutoMovieClip[],
+    fragment: string,
+  ): boolean =>
     throwsError(
-      (): IAutoMovieLight[]  => resolveShotLighting({ lights: LIGHTS, clips, seconds: 1 }),
+      (): IAutoMovieLight[] =>
+        resolveShotLighting({ lights: LIGHTS, clips, seconds: 1 }),
       [fragment],
     );
   TestValidator.equals(
@@ -286,7 +326,7 @@ export function test_resolve_shot_lighting(): void {
     namedFacts([
       [
         "throwsOnClipNodeTrack",
-        (): boolean  =>
+        (): boolean =>
           throwsOn(
             [
               clip(
@@ -301,7 +341,7 @@ export function test_resolve_shot_lighting(): void {
       ],
       [
         "throwsOnClipMaterialTrack",
-        (): boolean  =>
+        (): boolean =>
           throwsOn(
             [
               clip(
@@ -316,7 +356,7 @@ export function test_resolve_shot_lighting(): void {
       ],
       [
         "throwsOnClipGhostTrack",
-        (): boolean  =>
+        (): boolean =>
           throwsOn(
             [
               clip(
@@ -331,7 +371,7 @@ export function test_resolve_shot_lighting(): void {
       ],
       [
         "throwsOnClipSunRange",
-        (): boolean  =>
+        (): boolean =>
           throwsOn(
             [
               clip(
@@ -356,5 +396,10 @@ export function test_resolve_shot_lighting(): void {
 
 /** Compare array length and finite scalar values with zero absolute tolerance. */
 function sameValues(actual: number[], expected: number[]): boolean {
-  return actual.length === expected.length && actual.every((value: number, index: number): boolean => nclose(value, expected[index]!, 0));
+  return (
+    actual.length === expected.length &&
+    actual.every((value: number, index: number): boolean =>
+      nclose(value, expected[index]!, 0),
+    )
+  );
 }

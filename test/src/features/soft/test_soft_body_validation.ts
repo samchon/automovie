@@ -6,12 +6,14 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { assertSoftBodyBoundaryRefusals } from "../internal/assertSoftBodyBoundaryRefusals";
 import { hasViolation, namedFacts } from "../internal/predicates";
 import { softPanel } from "../internal/softFixtures";
-import { assertSoftBodyBoundaryRefusals } from "../internal/assertSoftBodyBoundaryRefusals";
 
 /** A valid 3×3 panel every negative below is one property away from. */
-const sound: (overrides?: Partial<IAutoMovieSoftBodyDomain>) => IAutoMovieSoftBodyDomain = (
+const sound: (
+  overrides?: Partial<IAutoMovieSoftBodyDomain>,
+) => IAutoMovieSoftBodyDomain = (
   overrides: Partial<IAutoMovieSoftBodyDomain> = {},
 ): IAutoMovieSoftBodyDomain =>
   softPanel({
@@ -56,7 +58,11 @@ const sound: (overrides?: Partial<IAutoMovieSoftBodyDomain>) => IAutoMovieSoftBo
   });
 
 /** True when the changed domain includes a refusal of the named kind at the requested path. */
-const refuses: (overrides: Partial<IAutoMovieSoftBodyDomain>, kind: AutoMovieViolationKind, path: string) => boolean = (
+const refuses: (
+  overrides: Partial<IAutoMovieSoftBodyDomain>,
+  kind: AutoMovieViolationKind,
+  path: string,
+) => boolean = (
   overrides: Partial<IAutoMovieSoftBodyDomain>,
   kind: AutoMovieViolationKind,
   path: string,
@@ -127,7 +133,8 @@ export function test_soft_body_validation(): void {
       ["blankId", (): boolean => refuses({ id: "  " }, "type", "$input.id")],
       [
         "version",
-        (): boolean => refuses({ version: 2 as unknown as 1 }, "type", "$input.version"),
+        (): boolean =>
+          refuses({ version: 2 as unknown as 1 }, "type", "$input.version"),
       ],
       [
         "units",
@@ -183,8 +190,14 @@ export function test_soft_body_validation(): void {
             "$input.lattice",
           ),
       ],
-      ["restLength", (): boolean => refuses({ rest: [0, 0, 0] }, "type", "$input.rest")],
-      ["massLength", (): boolean => refuses({ mass: [1] }, "type", "$input.mass")],
+      [
+        "restLength",
+        (): boolean => refuses({ rest: [0, 0, 0] }, "type", "$input.rest"),
+      ],
+      [
+        "massLength",
+        (): boolean => refuses({ mass: [1] }, "type", "$input.mass"),
+      ],
       [
         "restValue",
         (): boolean => {
@@ -214,7 +227,9 @@ export function test_soft_body_validation(): void {
     },
   );
 
-  const solver: (patch: Partial<IAutoMovieSoftBodyDomain["solver"]>) => Partial<IAutoMovieSoftBodyDomain> = (
+  const solver: (
+    patch: Partial<IAutoMovieSoftBodyDomain["solver"]>,
+  ) => Partial<IAutoMovieSoftBodyDomain> = (
     patch: Partial<IAutoMovieSoftBodyDomain["solver"]>,
   ): Partial<IAutoMovieSoftBodyDomain> => ({
     solver: { ...sound().solver, ...patch },
@@ -240,14 +255,19 @@ export function test_soft_body_validation(): void {
             "solver.gravity.y",
           ),
       ],
-      ["drag", (): boolean => refuses(solver({ drag: -1 }), "range", "solver.drag")],
+      [
+        "drag",
+        (): boolean => refuses(solver({ drag: -1 }), "range", "solver.drag"),
+      ],
       [
         "iterations",
-        (): boolean => refuses(solver({ iterations: 0 }), "type", "solver.iterations"),
+        (): boolean =>
+          refuses(solver({ iterations: 0 }), "type", "solver.iterations"),
       ],
       [
         "iterationBudget",
-        (): boolean => refuses(solver({ iterations: 65 }), "type", "solver.iterations"),
+        (): boolean =>
+          refuses(solver({ iterations: 65 }), "type", "solver.iterations"),
       ],
       [
         "stiffness",
@@ -269,7 +289,8 @@ export function test_soft_body_validation(): void {
       ],
       [
         "maxSteps",
-        (): boolean => refuses(solver({ maxSteps: 100_001 }), "type", "solver.maxSteps"),
+        (): boolean =>
+          refuses(solver({ maxSteps: 100_001 }), "type", "solver.maxSteps"),
       ],
     ]),
     {
@@ -284,13 +305,14 @@ export function test_soft_body_validation(): void {
     },
   );
 
-  const stacked: () => IAutoMovieSoftBodyDomain = (): IAutoMovieSoftBodyDomain => {
-    const rest: number[] = sound().rest.slice();
-    rest[3] = rest[0];
-    rest[4] = rest[1];
-    rest[5] = rest[2];
-    return sound({ rest, anchors: [], states: [], colliders: [] });
-  };
+  const stacked: () => IAutoMovieSoftBodyDomain =
+    (): IAutoMovieSoftBodyDomain => {
+      const rest: number[] = sound().rest.slice();
+      rest[3] = rest[0];
+      rest[4] = rest[1];
+      rest[5] = rest[2];
+      return sound({ rest, anchors: [], states: [], colliders: [] });
+    };
   TestValidator.equals(
     "coincident rest particles are named on both lattice axes",
     namedFacts([
@@ -299,8 +321,9 @@ export function test_soft_body_validation(): void {
         (): boolean => {
           const state: IAutoMovieSoftBodyState = simulateSoftBody(stacked(), 2);
           return (
-            state.positions.every((value: number): boolean => Number.isFinite(value)) &&
-            Object.is(state.positions[0], state.positions[3])
+            state.positions.every((value: number): boolean =>
+              Number.isFinite(value),
+            ) && Object.is(state.positions[0], state.positions[3])
           );
         },
       ],

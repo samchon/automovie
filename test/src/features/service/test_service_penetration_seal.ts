@@ -1,5 +1,13 @@
 import { validateServiceNetwork } from "@automovie/engine";
-import type { IAutoMovieBuiltEnvironment, IAutoMovieBuiltSpace, IAutoMovieConstraintViolation, IAutoMovieServiceNetwork, IAutoMovieServicePenetration, IAutoMovieServiceSegment, IAutoMovieValidation } from "@automovie/interface";
+import type {
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieBuiltSpace,
+  IAutoMovieConstraintViolation,
+  IAutoMovieServiceNetwork,
+  IAutoMovieServicePenetration,
+  IAutoMovieServiceSegment,
+  IAutoMovieValidation,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import {
@@ -19,17 +27,24 @@ import {
 } from "../internal/serviceFixtures";
 
 const environment: IAutoMovieBuiltEnvironment = serviceEnvironment();
-const refuse: (network?: IAutoMovieServiceNetwork) => IAutoMovieValidation = (network: IAutoMovieServiceNetwork = serviceNetwork()): IAutoMovieValidation =>
-  validateServiceNetwork({ network, environment });
+const refuse: (network?: IAutoMovieServiceNetwork) => IAutoMovieValidation = (
+  network: IAutoMovieServiceNetwork = serviceNetwork(),
+): IAutoMovieValidation => validateServiceNetwork({ network, environment });
 
 /** The same building with every room reduced to a name and no volume. */
-const semantic: () => IAutoMovieBuiltEnvironment = (): IAutoMovieBuiltEnvironment => {
-  const built: IAutoMovieBuiltEnvironment = serviceEnvironment();
-  return {
-    ...built,
-    spaces: built.spaces.map((space: IAutoMovieBuiltSpace): IAutoMovieBuiltSpace => ({ ...space, cells: [] })),
+const semantic: () => IAutoMovieBuiltEnvironment =
+  (): IAutoMovieBuiltEnvironment => {
+    const built: IAutoMovieBuiltEnvironment = serviceEnvironment();
+    return {
+      ...built,
+      spaces: built.spaces.map(
+        (space: IAutoMovieBuiltSpace): IAutoMovieBuiltSpace => ({
+          ...space,
+          cells: [],
+        }),
+      ),
+    };
   };
-};
 
 /**
  * A run that leaves the room it started in has been through a wall, and the
@@ -84,14 +99,22 @@ export function test_service_penetration_seal(): void {
   const clean: IAutoMovieServiceNetwork = serviceNetwork();
 
   const bare: IAutoMovieValidation = refuse(
-    withSegment(clean, "cold-run", (run: IAutoMovieServiceSegment): IAutoMovieServiceSegment => ({ ...run, penetrations: [] })),
+    withSegment(
+      clean,
+      "cold-run",
+      (run: IAutoMovieServiceSegment): IAutoMovieServiceSegment => ({
+        ...run,
+        penetrations: [],
+      }),
+    ),
   );
   TestValidator.equals(
     "a run that leaves its room without a sleeve is refused",
     namedFacts([
       [
         "crossing",
-        (): boolean => hasViolation(bare, "type", "$input.segments[0].penetrations"),
+        (): boolean =>
+          hasViolation(bare, "type", "$input.segments[0].penetrations"),
       ],
       [
         "message",
@@ -156,24 +179,30 @@ export function test_service_penetration_seal(): void {
   );
 
   const tight: IAutoMovieValidation = refuse(
-    withSleeve(clean, "cold-bath-hall", (entry: IAutoMovieServicePenetration): IAutoMovieServicePenetration => ({
-      ...entry,
-      radius: 0.01,
-    })),
+    withSleeve(
+      clean,
+      "cold-bath-hall",
+      (entry: IAutoMovieServicePenetration): IAutoMovieServicePenetration => ({
+        ...entry,
+        radius: 0.01,
+      }),
+    ),
   );
   TestValidator.equals(
     "a run does not pass through a sleeve narrower than itself",
     namedFacts([
       [
         "refused",
-        (): boolean => hasViolation(tight, "range", "$input.segments[0].radius"),
+        (): boolean =>
+          hasViolation(tight, "range", "$input.segments[0].radius"),
       ],
       [
         "overshoot",
         (): boolean =>
           tight.success === false &&
-          tight.violations.some((item: IAutoMovieConstraintViolation): boolean =>
-            nclose(item.overshoot ?? -1, 0.015, 1e-12),
+          tight.violations.some(
+            (item: IAutoMovieConstraintViolation): boolean =>
+              nclose(item.overshoot ?? -1, 0.015, 1e-12),
           ),
       ],
       ["alone", (): boolean => violationCount(tight) === 1],
@@ -182,22 +211,34 @@ export function test_service_penetration_seal(): void {
   );
 
   const adrift: IAutoMovieValidation = refuse(
-    withSleeve(clean, "cold-bath-hall", (entry: IAutoMovieServicePenetration): IAutoMovieServicePenetration => ({
-      ...entry,
-      position: { x: 4, y: 1, z: 1 },
-    })),
+    withSleeve(
+      clean,
+      "cold-bath-hall",
+      (entry: IAutoMovieServicePenetration): IAutoMovieServicePenetration => ({
+        ...entry,
+        position: { x: 4, y: 1, z: 1 },
+      }),
+    ),
   );
   const unknown: IAutoMovieValidation = refuse(
-    withSegment(clean, "cold-run", (run: IAutoMovieServiceSegment): IAutoMovieServiceSegment => ({
-      ...run,
-      penetrations: ["ghost", "cold-plant-hall", "cold-bath-hall"],
-    })),
+    withSegment(
+      clean,
+      "cold-run",
+      (run: IAutoMovieServiceSegment): IAutoMovieServiceSegment => ({
+        ...run,
+        penetrations: ["ghost", "cold-plant-hall", "cold-bath-hall"],
+      }),
+    ),
   );
   const twice: IAutoMovieValidation = refuse(
-    withSegment(clean, "cold-run", (run: IAutoMovieServiceSegment): IAutoMovieServiceSegment => ({
-      ...run,
-      penetrations: ["cold-plant-hall", "cold-plant-hall", "cold-bath-hall"],
-    })),
+    withSegment(
+      clean,
+      "cold-run",
+      (run: IAutoMovieServiceSegment): IAutoMovieServiceSegment => ({
+        ...run,
+        penetrations: ["cold-plant-hall", "cold-plant-hall", "cold-bath-hall"],
+      }),
+    ),
   );
   TestValidator.equals(
     "a citation is checked as a citation, not as the sleeve it names",
@@ -225,17 +266,22 @@ export function test_service_penetration_seal(): void {
   );
 
   const homeless: IAutoMovieValidation = refuse(
-    withSleeve(clean, "cold-bath-hall", (entry: IAutoMovieServicePenetration): IAutoMovieServicePenetration => ({
-      ...entry,
-      boundary: "nowhere",
-    })),
+    withSleeve(
+      clean,
+      "cold-bath-hall",
+      (entry: IAutoMovieServicePenetration): IAutoMovieServicePenetration => ({
+        ...entry,
+        boundary: "nowhere",
+      }),
+    ),
   );
   TestValidator.equals(
     "a sleeve on a boundary that does not exist is refused exactly once",
     namedFacts([
       [
         "refused",
-        (): boolean => hasViolation(homeless, "type", "$input.penetrations[1].boundary"),
+        (): boolean =>
+          hasViolation(homeless, "type", "$input.penetrations[1].boundary"),
       ],
       ["alone", (): boolean => violationCount(homeless) === 1],
     ]),
@@ -243,16 +289,24 @@ export function test_service_penetration_seal(): void {
   );
 
   const ghostOpening: IAutoMovieValidation = refuse(
-    withSleeve(clean, "waste-bath-hall", (entry: IAutoMovieServicePenetration): IAutoMovieServicePenetration => ({
-      ...entry,
-      opening: "no-such-opening",
-    })),
+    withSleeve(
+      clean,
+      "waste-bath-hall",
+      (entry: IAutoMovieServicePenetration): IAutoMovieServicePenetration => ({
+        ...entry,
+        opening: "no-such-opening",
+      }),
+    ),
   );
   const wrongOpening: IAutoMovieValidation = refuse(
-    withSleeve(clean, "waste-bath-hall", (entry: IAutoMovieServicePenetration): IAutoMovieServicePenetration => ({
-      ...entry,
-      opening: "plant-hatch",
-    })),
+    withSleeve(
+      clean,
+      "waste-bath-hall",
+      (entry: IAutoMovieServicePenetration): IAutoMovieServicePenetration => ({
+        ...entry,
+        opening: "plant-hatch",
+      }),
+    ),
   );
   TestValidator.equals(
     "a sleeve may only cite an opening cut through its own boundary",
@@ -280,53 +334,82 @@ export function test_service_penetration_seal(): void {
   );
 
   const leaking: IAutoMovieValidation = refuse(
-    withSleeve(clean, "cold-bath-hall", (entry: IAutoMovieServicePenetration): IAutoMovieServicePenetration => ({
-      ...entry,
-      sealed: false,
-    })),
+    withSleeve(
+      clean,
+      "cold-bath-hall",
+      (entry: IAutoMovieServicePenetration): IAutoMovieServicePenetration => ({
+        ...entry,
+        sealed: false,
+      }),
+    ),
   );
   TestValidator.equals(
     "waterproofing is only waterproof where the sleeves through it were made good",
     namedFacts([
       [
         "refused",
-        (): boolean => hasViolation(leaking, "type", "$input.penetrations[1].sealed"),
+        (): boolean =>
+          hasViolation(leaking, "type", "$input.penetrations[1].sealed"),
       ],
       ["alone", (): boolean => violationCount(leaking) === 1],
       [
         "untankedBoundaryUnaffected",
-        (): boolean => clean.penetrations[12]!.sealed === false && refuse().success,
+        (): boolean =>
+          clean.penetrations[12]!.sealed === false && refuse().success,
       ],
     ]),
     { refused: true, alone: true, untankedBoundaryUnaffected: true },
   );
 
   const offPlane: IAutoMovieValidation = refuse(
-    withSleeve(clean, "cold-bath-hall", (entry: IAutoMovieServicePenetration): IAutoMovieServicePenetration => ({
-      ...entry,
-      position: { x: 4.5, y: 2.5, z: 1 },
-    })),
+    withSleeve(
+      clean,
+      "cold-bath-hall",
+      (entry: IAutoMovieServicePenetration): IAutoMovieServicePenetration => ({
+        ...entry,
+        position: { x: 4.5, y: 2.5, z: 1 },
+      }),
+    ),
   );
   const oversize: IAutoMovieValidation = refuse(
-    withSleeve(clean, "cold-bath-hall", (entry: IAutoMovieServicePenetration): IAutoMovieServicePenetration => ({ ...entry, radius: 3 })),
+    withSleeve(
+      clean,
+      "cold-bath-hall",
+      (entry: IAutoMovieServicePenetration): IAutoMovieServicePenetration => ({
+        ...entry,
+        radius: 3,
+      }),
+    ),
   );
   const offVoid: IAutoMovieValidation = refuse(
-    withSleeve(clean, "waste-bath-hall", (entry: IAutoMovieServicePenetration): IAutoMovieServicePenetration => ({
-      ...entry,
-      position: { x: 4, y: 1.5, z: 1 },
-    })),
+    withSleeve(
+      clean,
+      "waste-bath-hall",
+      (entry: IAutoMovieServicePenetration): IAutoMovieServicePenetration => ({
+        ...entry,
+        position: { x: 4, y: 1.5, z: 1 },
+      }),
+    ),
   );
   const faceless: IAutoMovieValidation = refuse(
-    withSleeve(clean, "cold-bath-hall", (entry: IAutoMovieServicePenetration): IAutoMovieServicePenetration => ({
-      ...entry,
-      boundary: "bath-shell",
-    })),
+    withSleeve(
+      clean,
+      "cold-bath-hall",
+      (entry: IAutoMovieServicePenetration): IAutoMovieServicePenetration => ({
+        ...entry,
+        boundary: "bath-shell",
+      }),
+    ),
   );
   const plainHatch: IAutoMovieValidation = refuse(
-    withSleeve(clean, "air-hall-plant", (entry: IAutoMovieServicePenetration): IAutoMovieServicePenetration => ({
-      ...entry,
-      opening: "plant-hatch",
-    })),
+    withSleeve(
+      clean,
+      "air-hall-plant",
+      (entry: IAutoMovieServicePenetration): IAutoMovieServicePenetration => ({
+        ...entry,
+        opening: "plant-hatch",
+      }),
+    ),
   );
   TestValidator.equals(
     "a sleeve is held inside the face it pierces, and inside the void it cites",
@@ -336,8 +419,9 @@ export function test_service_penetration_seal(): void {
         (): boolean =>
           hasViolation(offPlane, "range", "$input.penetrations[1].position") &&
           offPlane.success === false &&
-          offPlane.violations.some((item: IAutoMovieConstraintViolation): boolean =>
-            nclose(item.overshoot ?? -1, 0.4, 1e-12),
+          offPlane.violations.some(
+            (item: IAutoMovieConstraintViolation): boolean =>
+              nclose(item.overshoot ?? -1, 0.4, 1e-12),
           ) &&
           violationCount(offPlane) === 1,
       ],
@@ -349,7 +433,8 @@ export function test_service_penetration_seal(): void {
       ],
       [
         "offVoid",
-        (): boolean => hasViolation(offVoid, "type", "$input.penetrations[5].opening"),
+        (): boolean =>
+          hasViolation(offVoid, "type", "$input.penetrations[5].opening"),
       ],
       [
         "offVoidLeftItsRunToo",
@@ -370,10 +455,14 @@ export function test_service_penetration_seal(): void {
   );
 
   const nowhere: IAutoMovieValidation = validateServiceNetwork({
-    network: withSegment(clean, "cold-run", (run: IAutoMovieServiceSegment): IAutoMovieServiceSegment => ({
-      ...run,
-      penetrations: [],
-    })),
+    network: withSegment(
+      clean,
+      "cold-run",
+      (run: IAutoMovieServiceSegment): IAutoMovieServiceSegment => ({
+        ...run,
+        penetrations: [],
+      }),
+    ),
     environment: semantic(),
   });
   TestValidator.equals(

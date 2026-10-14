@@ -6,7 +6,18 @@ import {
   serviceSegmentSpanBounds,
   validateServiceNetwork,
 } from "@automovie/engine";
-import { IAutoMoviePropBox, IAutoMovieBuiltEnvironment, IAutoMovieServiceNetwork, IAutoMovieServiceNode, IAutoMovieServicePort, IAutoMovieServiceSegment, IAutoMovieServicePenetration, IAutoMovieValidation, IAutoMovieConstraintViolation, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieConstraintViolation,
+  IAutoMoviePropBox,
+  IAutoMovieServiceNetwork,
+  IAutoMovieServiceNode,
+  IAutoMovieServicePenetration,
+  IAutoMovieServicePort,
+  IAutoMovieServiceSegment,
+  IAutoMovieValidation,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import {
@@ -26,7 +37,10 @@ import {
   withSleeve,
 } from "../internal/serviceFixtures";
 
-const box: (min: [number, number, number], max: [number, number, number]) => IAutoMoviePropBox = (
+const box: (
+  min: [number, number, number],
+  max: [number, number, number],
+) => IAutoMoviePropBox = (
   min: [number, number, number],
   max: [number, number, number],
 ): IAutoMoviePropBox => ({
@@ -82,11 +96,13 @@ export function test_service_network_geometry(): void {
     namedFacts([
       [
         "min",
-        (): boolean => vclose(overall.min, { x: 3.475, y: 2.475, z: 0.975 }, 1e-12),
+        (): boolean =>
+          vclose(overall.min, { x: 3.475, y: 2.475, z: 0.975 }, 1e-12),
       ],
       [
         "max",
-        (): boolean => vclose(overall.max, { x: 8.025, y: 2.525, z: 1.025 }, 1e-12),
+        (): boolean =>
+          vclose(overall.max, { x: 8.025, y: 2.525, z: 1.025 }, 1e-12),
       ],
     ]),
     { min: true, max: true },
@@ -94,7 +110,8 @@ export function test_service_network_geometry(): void {
   TestValidator.predicate(
     "a run with no route has no bound to give",
     throwsError(
-      (): IAutoMoviePropBox => serviceSegmentBounds(segment({ id: "ghost", route: [] })),
+      (): IAutoMoviePropBox =>
+        serviceSegmentBounds(segment({ id: "ghost", route: [] })),
       ['"ghost" has no route'],
     ),
   );
@@ -106,19 +123,23 @@ export function test_service_network_geometry(): void {
       ["legCount", (): boolean => spans.length === 2],
       [
         "firstMin",
-        (): boolean => vclose(spans[0]!.min, { x: 0.98, y: 2.48, z: 0.98 }, 1e-12),
+        (): boolean =>
+          vclose(spans[0]!.min, { x: 0.98, y: 2.48, z: 0.98 }, 1e-12),
       ],
       [
         "firstMax",
-        (): boolean => vclose(spans[0]!.max, { x: 3.52, y: 2.52, z: 1.02 }, 1e-12),
+        (): boolean =>
+          vclose(spans[0]!.max, { x: 3.52, y: 2.52, z: 1.02 }, 1e-12),
       ],
       [
         "secondMin",
-        (): boolean => vclose(spans[1]!.min, { x: 0.98, y: 0.88, z: 0.98 }, 1e-12),
+        (): boolean =>
+          vclose(spans[1]!.min, { x: 0.98, y: 0.88, z: 0.98 }, 1e-12),
       ],
       [
         "secondMax",
-        (): boolean => vclose(spans[1]!.max, { x: 1.02, y: 2.52, z: 1.02 }, 1e-12),
+        (): boolean =>
+          vclose(spans[1]!.max, { x: 1.02, y: 2.52, z: 1.02 }, 1e-12),
       ],
       [
         "singleVertexHasNoLeg",
@@ -137,18 +158,22 @@ export function test_service_network_geometry(): void {
     },
   );
 
-  const ahu: IAutoMoviePropBox | null = serviceMaintenanceBounds(network.nodes[5]!);
+  const ahu: IAutoMoviePropBox | null = serviceMaintenanceBounds(
+    network.nodes[5]!,
+  );
   TestValidator.equals(
     "an access volume travels with the equipment that needs it",
     namedFacts([
       ["present", (): boolean => ahu !== null],
       [
         "min",
-        (): boolean => ahu !== null && vclose(ahu.min, { x: 7.5, y: 0.2, z: 4 }, 1e-12),
+        (): boolean =>
+          ahu !== null && vclose(ahu.min, { x: 7.5, y: 0.2, z: 4 }, 1e-12),
       ],
       [
         "max",
-        (): boolean => ahu !== null && vclose(ahu.max, { x: 8.5, y: 3, z: 5 }, 1e-12),
+        (): boolean =>
+          ahu !== null && vclose(ahu.max, { x: 8.5, y: 3, z: 5 }, 1e-12),
       ],
       [
         "absentWhereUnneeded",
@@ -210,12 +235,19 @@ export function test_service_network_geometry(): void {
     withSleeve(
       withSegment(
         withPort(
-          withPort(network, "hot-main-out", (port: IAutoMovieServicePort): IAutoMovieServicePort => ({
-            ...port,
-            position: lane,
-          })),
+          withPort(
+            network,
+            "hot-main-out",
+            (port: IAutoMovieServicePort): IAutoMovieServicePort => ({
+              ...port,
+              position: lane,
+            }),
+          ),
           "basin-hot",
-          (port: IAutoMovieServicePort): IAutoMovieServicePort => ({ ...port, position: { x: 1, y: 0.9, z: 1 } }),
+          (port: IAutoMovieServicePort): IAutoMovieServicePort => ({
+            ...port,
+            position: { x: 1, y: 0.9, z: 1 },
+          }),
         ),
         "hot-run",
         (run: IAutoMovieServiceSegment): IAutoMovieServiceSegment => ({
@@ -228,12 +260,21 @@ export function test_service_network_geometry(): void {
         }),
       ),
       "hot-plant-hall",
-      (sleeve: IAutoMovieServicePenetration): IAutoMovieServicePenetration => ({ ...sleeve, position: { x: 7, y: 2.5, z: 1 } }),
+      (sleeve: IAutoMovieServicePenetration): IAutoMovieServicePenetration => ({
+        ...sleeve,
+        position: { x: 7, y: 2.5, z: 1 },
+      }),
     ),
     "hot-bath-hall",
-    (sleeve: IAutoMovieServicePenetration): IAutoMovieServicePenetration => ({ ...sleeve, position: { x: 4, y: 2.5, z: 1 } }),
+    (sleeve: IAutoMovieServicePenetration): IAutoMovieServicePenetration => ({
+      ...sleeve,
+      position: { x: 4, y: 2.5, z: 1 },
+    }),
   );
-  const clashed: IAutoMovieValidation = validateServiceNetwork({ network: crossed, environment });
+  const clashed: IAutoMovieValidation = validateServiceNetwork({
+    network: crossed,
+    environment,
+  });
   TestValidator.equals(
     "sharing a lane clashes, sharing a fitting does not",
     namedFacts([
@@ -242,12 +283,17 @@ export function test_service_network_geometry(): void {
         "onePair",
         (): boolean =>
           serviceSegmentClashes(crossed)
-            .map((clash: ReturnType<typeof serviceSegmentClashes>[number]): string => `${clash.left}/${clash.right}`)
+            .map(
+              (
+                clash: ReturnType<typeof serviceSegmentClashes>[number],
+              ): string => `${clash.left}/${clash.right}`,
+            )
             .join() === "cold-run/hot-run",
       ],
       [
         "reported",
-        (): boolean => hasViolation(clashed, "physics", "$input.segments[0].route"),
+        (): boolean =>
+          hasViolation(clashed, "physics", "$input.segments[0].route"),
       ],
       ["onlyDefect", (): boolean => violationCount(clashed) === 1],
       [
@@ -271,14 +317,21 @@ export function test_service_network_geometry(): void {
     },
   );
 
-  const blocked: IAutoMovieServiceNetwork = withNode(network, "ahu", (node: IAutoMovieServiceNode): IAutoMovieServiceNode => ({
-    ...node,
-    maintenance: {
-      min: { x: -0.5, y: -2.5, z: -2 },
-      max: { x: 0.5, y: 0.3, z: 0.5 },
-    },
-  }));
-  const obstruction: IAutoMovieValidation = validateServiceNetwork({ network: blocked, environment });
+  const blocked: IAutoMovieServiceNetwork = withNode(
+    network,
+    "ahu",
+    (node: IAutoMovieServiceNode): IAutoMovieServiceNode => ({
+      ...node,
+      maintenance: {
+        min: { x: -0.5, y: -2.5, z: -2 },
+        max: { x: 0.5, y: 0.3, z: 0.5 },
+      },
+    }),
+  );
+  const obstruction: IAutoMovieValidation = validateServiceNetwork({
+    network: blocked,
+    environment,
+  });
   TestValidator.equals(
     "a run crossing an access volume it does not feed is refused",
     namedFacts([
@@ -292,7 +345,10 @@ export function test_service_network_geometry(): void {
         "ownFeedExempt",
         (): boolean =>
           obstruction.success === false &&
-          obstruction.violations.every((item: IAutoMovieConstraintViolation): boolean => item.value !== "air-run"),
+          obstruction.violations.every(
+            (item: IAutoMovieConstraintViolation): boolean =>
+              item.value !== "air-run",
+          ),
       ],
     ]),
     { reported: true, onlyDefect: true, ownFeedExempt: true },

@@ -1,10 +1,21 @@
-import { growPlanting } from "../../../../packages/engine/src/soft/growPlanting";
-import { IAutoMoviePlantingDomain, IAutoMoviePlantingBranch, IAutoMoviePlantingState } from "@automovie/interface";
+import {
+  IAutoMoviePlantingBranch,
+  IAutoMoviePlantingDomain,
+  IAutoMoviePlantingState,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
+
+import { growPlanting } from "../../../../packages/engine/src/soft/growPlanting";
 import { namedFacts, vclose } from "../internal/predicates";
 import { plantingRecipe } from "../internal/softFixtures";
+
 /** A two-level recipe with a single child, so one branch answers for the law. */
-const oriented: (props: { axis?: { x: number; y: number; z: number; } | undefined; direction?: { x: number; y: number; z: number; } | undefined; gravitropism?: number | undefined; directionJitter?: number | undefined; }) => IAutoMoviePlantingDomain = (props: {
+const oriented: (props: {
+  axis?: { x: number; y: number; z: number } | undefined;
+  direction?: { x: number; y: number; z: number } | undefined;
+  gravitropism?: number | undefined;
+  directionJitter?: number | undefined;
+}) => IAutoMoviePlantingDomain = (props: {
   axis?: { x: number; y: number; z: number };
   direction?: { x: number; y: number; z: number };
   gravitropism?: number;
@@ -29,7 +40,11 @@ const oriented: (props: { axis?: { x: number; y: number; z: number; } | undefine
   });
 
 /** The world direction the single child grew along. */
-const childAxis: (domain: IAutoMoviePlantingDomain) => { x: number; y: number; z: number; } = (domain: IAutoMoviePlantingDomain): { x: number; y: number; z: number; } => {
+const childAxis: (domain: IAutoMoviePlantingDomain) => {
+  x: number;
+  y: number;
+  z: number;
+} = (domain: IAutoMoviePlantingDomain): { x: number; y: number; z: number } => {
   const child: IAutoMoviePlantingBranch = growPlanting(domain).branches[1];
   const length: number = Math.sqrt(
     (child.end.x - child.start.x) ** 2 +
@@ -71,7 +86,10 @@ export function test_planting_direction_frame(): void {
   TestValidator.equals(
     "an authored direction is read in the parent's own frame",
     namedFacts([
-      ["axial", (): boolean => vclose(childAxis(oriented({})), { x: 1, y: 0, z: 0 })],
+      [
+        "axial",
+        (): boolean => vclose(childAxis(oriented({})), { x: 1, y: 0, z: 0 }),
+      ],
       [
         "diagonal",
         (): boolean =>
@@ -85,11 +103,16 @@ export function test_planting_direction_frame(): void {
     { axial: true, diagonal: true },
   );
 
-  const lying: IAutoMoviePlantingState = growPlanting(oriented({ axis: { x: 0, y: 0, z: -1 } }));
+  const lying: IAutoMoviePlantingState = growPlanting(
+    oriented({ axis: { x: 0, y: 0, z: -1 } }),
+  );
   TestValidator.equals(
     "a trunk along −z takes the other branch of the frame construction",
     namedFacts([
-      ["trunk", (): boolean => vclose(lying.branches[0].end, { x: 0, y: 0, z: -1 })],
+      [
+        "trunk",
+        (): boolean => vclose(lying.branches[0].end, { x: 0, y: 0, z: -1 }),
+      ],
       [
         "childBase",
         (): boolean => vclose(lying.branches[1].start, { x: 0, y: 0, z: -0.5 }),
@@ -144,13 +167,16 @@ export function test_planting_direction_frame(): void {
     namedFacts([
       [
         "moved",
-        (): boolean => vclose(childAxis(spread), { x: 1, y: 0, z: 0 }, 1e-3) === false,
+        (): boolean =>
+          vclose(childAxis(spread), { x: 1, y: 0, z: 0 }, 1e-3) === false,
       ],
       [
         "stable",
         (): boolean => {
-          const first: { x: number; y: number; z: number; } = childAxis(spread);
-          const second: { x: number; y: number; z: number; } = childAxis(oriented({ directionJitter: 0.5 }));
+          const first: { x: number; y: number; z: number } = childAxis(spread);
+          const second: { x: number; y: number; z: number } = childAxis(
+            oriented({ directionJitter: 0.5 }),
+          );
           return (
             Object.is(first.x, second.x) &&
             Object.is(first.y, second.y) &&
@@ -158,7 +184,10 @@ export function test_planting_direction_frame(): void {
           );
         },
       ],
-      ["unspread", (): boolean => vclose(childAxis(oriented({})), { x: 1, y: 0, z: 0 })],
+      [
+        "unspread",
+        (): boolean => vclose(childAxis(oriented({})), { x: 1, y: 0, z: 0 }),
+      ],
     ]),
     { moved: true, stable: true, unspread: true },
   );

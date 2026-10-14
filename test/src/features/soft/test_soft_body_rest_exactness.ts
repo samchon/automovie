@@ -1,32 +1,38 @@
+import {
+  IAutoMovieSoftBodyDomain,
+  IAutoMovieSoftBodyState,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
 import { simulateSoftBody } from "../../../../packages/engine/src/soft/simulateSoftBody";
 import { softBodyRestConfiguration } from "../../../../packages/engine/src/soft/softBodyRestConfiguration";
 import { softBodyStateDigest } from "../../../../packages/engine/src/soft/softBodyStateDigest";
-import { TestValidator } from "@nestia/e2e";
 import { namedFacts, nclose, throwsError } from "../internal/predicates";
 import { exactValues, softPanel } from "../internal/softFixtures";
-import { IAutoMovieSoftBodyDomain, IAutoMovieSoftBodyState } from "@automovie/interface";
+
 /** A panel in free space with no body force and every anchor left where it is. */
-const undisturbed: () => IAutoMovieSoftBodyDomain = (): IAutoMovieSoftBodyDomain =>
-  softPanel({
-    columns: 4,
-    rows: 3,
-    overrides: {
-      id: "still",
-      solver: {
-        fixedStepSeconds: 0.015625,
-        gravity: { x: 0, y: 0, z: 0 },
-        drag: 0,
-        iterations: 4,
-        stiffness: { structural: 1, shear: 1, bend: 1 },
-        referenceSpeed: 4,
-        maxSteps: 512,
+const undisturbed: () => IAutoMovieSoftBodyDomain =
+  (): IAutoMovieSoftBodyDomain =>
+    softPanel({
+      columns: 4,
+      rows: 3,
+      overrides: {
+        id: "still",
+        solver: {
+          fixedStepSeconds: 0.015625,
+          gravity: { x: 0, y: 0, z: 0 },
+          drag: 0,
+          iterations: 4,
+          stiffness: { structural: 1, shear: 1, bend: 1 },
+          referenceSpeed: 4,
+          maxSteps: 512,
+        },
+        anchors: [
+          { id: "left", particle: 0, position: null },
+          { id: "right", particle: 3, position: null },
+        ],
       },
-      anchors: [
-        { id: "left", particle: 0, position: null },
-        { id: "right", particle: 3, position: null },
-      ],
-    },
-  });
+    });
 
 /** Verify the anchored rest configuration and an undisturbed cloth replay, with gravity as a control that must change the result.
  *
@@ -60,7 +66,10 @@ export function test_soft_body_rest_exactness(): void {
       ["positions", (): boolean => exactValues(settled.positions, domain.rest)],
       [
         "velocities",
-        (): boolean => settled.velocities.every((value: number): boolean => Object.is(value, 0)),
+        (): boolean =>
+          settled.velocities.every((value: number): boolean =>
+            Object.is(value, 0),
+          ),
       ],
       ["strain", (): boolean => Object.is(settled.maxStrain, 0)],
       ["speed", (): boolean => Object.is(settled.maxSpeed, 0)],

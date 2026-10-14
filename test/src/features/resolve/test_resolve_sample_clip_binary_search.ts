@@ -1,9 +1,14 @@
-import { sampleClip } from "../../../../packages/engine/src/resolve/sampleClip";
-import { IAutoMovieChannel, IAutoMovieClip, IAutoMovieTrack } from "@automovie/interface";
+import {
+  IAutoMovieChannel,
+  IAutoMovieClip,
+  IAutoMovieTrack,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
+
+import { type IAutoMovieSampledChannel } from "../../../../packages/engine/src/resolve/IAutoMovieSampledChannel";
+import { sampleClip } from "../../../../packages/engine/src/resolve/sampleClip";
 import { namedFacts } from "../internal/namedFacts";
 import { nclose } from "../internal/nclose";
-import { type IAutoMovieSampledChannel } from "../../../../packages/engine/src/resolve/IAutoMovieSampledChannel";
 
 /**
  * A 240-key linear translation ramp supplies the closed-form x=time/DT expectation for midpoint, exact-key and off-grid queries. Numerical agreement does not prove the segment-search algorithm or its complexity.
@@ -48,7 +53,10 @@ const rampClip: () => IAutoMovieClip = (): IAutoMovieClip => {
 };
 
 const xAt: (t: number) => number[] = (t: number): number[] => {
-  const hit: IAutoMovieSampledChannel | undefined = sampleClip(rampClip(), t).get(KEY);
+  const hit: IAutoMovieSampledChannel | undefined = sampleClip(
+    rampClip(),
+    t,
+  ).get(KEY);
   if (hit === undefined) throw new Error(`${KEY} missing`);
   return hit.value;
 };
@@ -72,9 +80,9 @@ export function test_resolve_sample_clip_binary_search(): void {
     TestValidator.equals(
       `translation.x ramp is exact at t=${t.toFixed(4)}`,
       namedFacts([
-        ["ncloseVT", (): boolean  => nclose(v[0]!, t / DT, 1e-9)],
-        ["v", (): boolean  => nclose(v[1]!, 0, 0)],
-        ["v2", (): boolean  => nclose(v[2]!, 0, 0)],
+        ["ncloseVT", (): boolean => nclose(v[0]!, t / DT, 1e-9)],
+        ["v", (): boolean => nclose(v[1]!, 0, 0)],
+        ["v2", (): boolean => nclose(v[2]!, 0, 0)],
       ]),
       { ncloseVT: true, v: true, v2: true },
     );
@@ -93,5 +101,10 @@ export function test_resolve_sample_clip_binary_search(): void {
 
 /** Compare array length and finite scalar values with zero absolute tolerance. */
 function sameValues(actual: number[], expected: number[]): boolean {
-  return actual.length === expected.length && actual.every((value: number, index: number): boolean => nclose(value, expected[index]!, 0));
+  return (
+    actual.length === expected.length &&
+    actual.every((value: number, index: number): boolean =>
+      nclose(value, expected[index]!, 0),
+    )
+  );
 }

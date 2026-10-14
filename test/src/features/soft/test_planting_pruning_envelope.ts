@@ -1,12 +1,21 @@
+import {
+  IAutoMoviePlantingBranch,
+  IAutoMoviePlantingState,
+  IAutoMoviePruningEnvelope,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
 import { growPlanting } from "../../../../packages/engine/src/soft/growPlanting";
 import { plantingStateDigest } from "../../../../packages/engine/src/soft/plantingStateDigest";
-import { IAutoMoviePruningEnvelope, IAutoMoviePlantingState, IAutoMoviePlantingBranch } from "@automovie/interface";
-import { TestValidator } from "@nestia/e2e";
 import { namedFacts, vclose } from "../internal/predicates";
 import { plantingRecipe } from "../internal/softFixtures";
+
 /** A vertical trunk of unit length under one pruning envelope. */
-const clipped: (pruning: IAutoMoviePruningEnvelope) => IAutoMoviePlantingState = (pruning: IAutoMoviePruningEnvelope): IAutoMoviePlantingState =>
-  growPlanting(plantingRecipe({ pruning }));
+const clipped: (
+  pruning: IAutoMoviePruningEnvelope,
+) => IAutoMoviePlantingState = (
+  pruning: IAutoMoviePruningEnvelope,
+): IAutoMoviePlantingState => growPlanting(plantingRecipe({ pruning }));
 
 /** Verify analytic box/sphere pruning and child survival through emitted branch endpoints and ids.
  *
@@ -42,8 +51,18 @@ export function test_planting_pruning_envelope(): void {
   TestValidator.equals(
     "an unpruned structure reaches its full length",
     namedFacts([
-      ["end", (): boolean => vclose(free.branches[0].end, { x: 0, y: 1, z: 0 })],
-      ["flag", (): boolean => free.branches.every((branch: IAutoMoviePlantingBranch): boolean => branch.pruned === false)],
+      [
+        "end",
+        (): boolean => vclose(free.branches[0].end, { x: 0, y: 1, z: 0 }),
+      ],
+      [
+        "flag",
+        (): boolean =>
+          free.branches.every(
+            (branch: IAutoMoviePlantingBranch): boolean =>
+              branch.pruned === false,
+          ),
+      ],
       ["count", (): boolean => free.branches.length === 7],
     ]),
     { end: true, flag: true, count: true },
@@ -57,21 +76,35 @@ export function test_planting_pruning_envelope(): void {
   TestValidator.equals(
     "a box cuts the trunk at its slab crossing and drops what grows past it",
     namedFacts([
-      ["end", (): boolean => vclose(boxed.branches[0].end, { x: 0, y: 0.75, z: 0 })],
+      [
+        "end",
+        (): boolean => vclose(boxed.branches[0].end, { x: 0, y: 0.75, z: 0 }),
+      ],
       ["pruned", (): boolean => boxed.branches[0].pruned === true],
       [
         "survivor",
-        (): boolean => boxed.branches.some((branch: IAutoMoviePlantingBranch): boolean => branch.id === "trunk/a"),
+        (): boolean =>
+          boxed.branches.some(
+            (branch: IAutoMoviePlantingBranch): boolean =>
+              branch.id === "trunk/a",
+          ),
       ],
       [
         "dropped",
-        (): boolean => boxed.branches.every((branch: IAutoMoviePlantingBranch): boolean => branch.id !== "trunk/b"),
+        (): boolean =>
+          boxed.branches.every(
+            (branch: IAutoMoviePlantingBranch): boolean =>
+              branch.id !== "trunk/b",
+          ),
       ],
       [
         "survivorBase",
         (): boolean =>
           vclose(
-            boxed.branches.filter((branch: IAutoMoviePlantingBranch): boolean => branch.id === "trunk/a")[0].start,
+            boxed.branches.filter(
+              (branch: IAutoMoviePlantingBranch): boolean =>
+                branch.id === "trunk/a",
+            )[0].start,
             { x: 0, y: 0.5, z: 0 },
           ),
       ],
@@ -93,11 +126,18 @@ export function test_planting_pruning_envelope(): void {
   TestValidator.equals(
     "a sphere cuts at the quadratic root, to the same place",
     namedFacts([
-      ["end", (): boolean => vclose(balled.branches[0].end, { x: 0, y: 0.75, z: 0 })],
+      [
+        "end",
+        (): boolean => vclose(balled.branches[0].end, { x: 0, y: 0.75, z: 0 }),
+      ],
       ["pruned", (): boolean => balled.branches[0].pruned === true],
       [
         "dropped",
-        (): boolean => balled.branches.every((branch: IAutoMoviePlantingBranch): boolean => branch.id !== "trunk/b"),
+        (): boolean =>
+          balled.branches.every(
+            (branch: IAutoMoviePlantingBranch): boolean =>
+              branch.id !== "trunk/b",
+          ),
       ],
     ]),
     { end: true, pruned: true, dropped: true },
@@ -116,10 +156,14 @@ export function test_planting_pruning_envelope(): void {
   TestValidator.equals(
     "a base outside the envelope grows nothing at all",
     namedFacts([
-      ["box", (): boolean => missed.branches.length === 0 && missed.bounds === null],
+      [
+        "box",
+        (): boolean => missed.branches.length === 0 && missed.bounds === null,
+      ],
       [
         "sphere",
-        (): boolean => elsewhere.branches.length === 0 && elsewhere.bounds === null,
+        (): boolean =>
+          elsewhere.branches.length === 0 && elsewhere.bounds === null,
       ],
     ]),
     { box: true, sphere: true },
@@ -139,10 +183,26 @@ export function test_planting_pruning_envelope(): void {
     "an envelope the plant fits inside cuts nothing",
     namedFacts([
       ["count", (): boolean => roomy.branches.length === 7],
-      ["flag", (): boolean => roomy.branches.every((branch: IAutoMoviePlantingBranch): boolean => branch.pruned === false)],
-      ["end", (): boolean => vclose(roomy.branches[0].end, { x: 0, y: 1, z: 0 })],
+      [
+        "flag",
+        (): boolean =>
+          roomy.branches.every(
+            (branch: IAutoMoviePlantingBranch): boolean =>
+              branch.pruned === false,
+          ),
+      ],
+      [
+        "end",
+        (): boolean => vclose(roomy.branches[0].end, { x: 0, y: 1, z: 0 }),
+      ],
       ["sphereCount", (): boolean => wide.branches.length === 7],
-      ["sphereFlag", (): boolean => wide.branches.every((branch: IAutoMoviePlantingBranch): boolean => !branch.pruned)],
+      [
+        "sphereFlag",
+        (): boolean =>
+          wide.branches.every(
+            (branch: IAutoMoviePlantingBranch): boolean => !branch.pruned,
+          ),
+      ],
       [
         "sameAsUnpruned",
         (): boolean => plantingStateDigest(wide) === plantingStateDigest(free),

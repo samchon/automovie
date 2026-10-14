@@ -1,12 +1,18 @@
 import { simulateSoftBody, softBodySurfaceGeometry } from "@automovie/engine";
-import { IAutoMovieSoftBodyDomain, IAutoMovieSoftBodySurface } from "@automovie/interface";
+import {
+  IAutoMovieSoftBodyDomain,
+  IAutoMovieSoftBodySurface,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts, nclose } from "../internal/predicates";
 import { exactValues, softPanel } from "../internal/softFixtures";
 
 /** A flat rug lying in the world `xz` plane. */
-const rug: (columns: number, rows: number) => IAutoMovieSoftBodyDomain = (columns: number, rows: number): IAutoMovieSoftBodyDomain =>
+const rug: (columns: number, rows: number) => IAutoMovieSoftBodyDomain = (
+  columns: number,
+  rows: number,
+): IAutoMovieSoftBodyDomain =>
   softPanel({
     columns,
     rows,
@@ -64,7 +70,10 @@ export function test_soft_body_surface_geometry(): void {
     namedFacts([
       ["vertices", (): boolean => surface.mesh.positions.length === 27],
       ["indices", (): boolean => (surface.mesh.indices ?? []).length === 24],
-      ["positions", (): boolean => exactValues(surface.mesh.positions, flat.rest)],
+      [
+        "positions",
+        (): boolean => exactValues(surface.mesh.positions, flat.rest),
+      ],
       ["step", (): boolean => surface.step === 0],
       ["domain", (): boolean => surface.domain === "rug"],
       ["skinless", (): boolean => surface.mesh.skin === null],
@@ -81,16 +90,24 @@ export function test_soft_body_surface_geometry(): void {
 
   TestValidator.predicate(
     "a flat rug faces exactly +y",
-    (surface.mesh.normals ?? []).every((value: number, index: number): boolean =>
-      nclose(value, index % 3 === 1 ? 1 : 0, 0) && Object.is(value, index % 3 === 1 ? 1 : 0),
+    (surface.mesh.normals ?? []).every(
+      (value: number, index: number): boolean =>
+        nclose(value, index % 3 === 1 ? 1 : 0, 0) &&
+        Object.is(value, index % 3 === 1 ? 1 : 0),
     ),
   );
 
   TestValidator.equals(
     "UVs are the normalized lattice coordinates",
     namedFacts([
-      ["origin", (): boolean => nclose((surface.mesh.uvs ?? [])[0] ?? NaN, 0, 0)],
-      ["centre", (): boolean => nclose((surface.mesh.uvs ?? [])[8] ?? NaN, 0.5, 0)],
+      [
+        "origin",
+        (): boolean => nclose((surface.mesh.uvs ?? [])[0] ?? NaN, 0, 0),
+      ],
+      [
+        "centre",
+        (): boolean => nclose((surface.mesh.uvs ?? [])[8] ?? NaN, 0.5, 0),
+      ],
       ["far", (): boolean => nclose((surface.mesh.uvs ?? [])[17] ?? NaN, 1, 0)],
       ["count", (): boolean => (surface.mesh.uvs ?? []).length === 18],
     ]),
@@ -116,15 +133,21 @@ export function test_soft_body_surface_geometry(): void {
       [
         "normals",
         (): boolean =>
-          (hanging.mesh.normals ?? []).every((value: number, index: number): boolean =>
-            nclose(value, index % 3 === 2 ? 1 : 0, 0) && Object.is(value, index % 3 === 2 ? 1 : 0),
+          (hanging.mesh.normals ?? []).every(
+            (value: number, index: number): boolean =>
+              nclose(value, index % 3 === 2 ? 1 : 0, 0) &&
+              Object.is(value, index % 3 === 2 ? 1 : 0),
           ),
       ],
     ]),
     { minX: true, maxX: true, minY: true, maxY: true, normals: true },
   );
 
-  const cord: IAutoMovieSoftBodyDomain = softPanel({ columns: 1, rows: 4, overrides: { id: "cord" } });
+  const cord: IAutoMovieSoftBodyDomain = softPanel({
+    columns: 1,
+    rows: 4,
+    overrides: { id: "cord" },
+  });
   const thread: IAutoMovieSoftBodySurface = softBodySurfaceGeometry({
     domain: cord,
     state: simulateSoftBody(cord, 0),
@@ -138,8 +161,10 @@ export function test_soft_body_surface_geometry(): void {
       [
         "normals",
         (): boolean =>
-          (thread.mesh.normals ?? []).every((value: number, index: number): boolean =>
-            nclose(value, index % 3 === 1 ? 1 : 0, 0) && Object.is(value, index % 3 === 1 ? 1 : 0),
+          (thread.mesh.normals ?? []).every(
+            (value: number, index: number): boolean =>
+              nclose(value, index % 3 === 1 ? 1 : 0, 0) &&
+              Object.is(value, index % 3 === 1 ? 1 : 0),
           ),
       ],
       ["uvs", (): boolean => nclose((thread.mesh.uvs ?? [])[0] ?? NaN, 0, 0)],
@@ -166,7 +191,8 @@ export function test_soft_body_surface_geometry(): void {
         "v",
         (): boolean =>
           (rail.mesh.uvs ?? []).every(
-            (value: number, index: number): boolean => index % 2 === 0 || nclose(value, 0, 0),
+            (value: number, index: number): boolean =>
+              index % 2 === 0 || nclose(value, 0, 0),
           ),
       ],
     ]),

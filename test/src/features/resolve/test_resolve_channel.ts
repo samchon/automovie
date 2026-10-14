@@ -1,15 +1,22 @@
-import { channelIsRotation } from "../../../../packages/engine/src/resolve/channelIsRotation";
-import { channelKey } from "../../../../packages/engine/src/resolve/channelKey";
 import { IAutoMovieChannel } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
+
+import { channelIsRotation } from "../../../../packages/engine/src/resolve/channelIsRotation";
+import { channelKey } from "../../../../packages/engine/src/resolve/channelKey";
 import { throwsError } from "../internal/throwsError";
 
-const node: (id: string, path: "translation" | "rotation" | "scale" | "weights") => IAutoMovieChannel = (
+const node: (
+  id: string,
+  path: "translation" | "rotation" | "scale" | "weights",
+) => IAutoMovieChannel = (
   id: string,
   path: "translation" | "rotation" | "scale" | "weights",
 ): IAutoMovieChannel => ({ kind: "node", node: id, path });
 
-const pointer: (ptr: string, valueType: "scalar" | "vec2" | "vec3" | "vec4" | "quaternion" | "weights") => IAutoMovieChannel = (
+const pointer: (
+  ptr: string,
+  valueType: "scalar" | "vec2" | "vec3" | "vec4" | "quaternion" | "weights",
+) => IAutoMovieChannel = (
   ptr: string,
   valueType: "scalar" | "vec2" | "vec3" | "vec4" | "quaternion" | "weights",
 ): IAutoMovieChannel => ({ kind: "pointer", pointer: ptr, valueType });
@@ -77,11 +84,14 @@ export function test_resolve_channel(): void {
   } as unknown as IAutoMovieChannel;
   TestValidator.predicate(
     "unknown channel kind rejects keying",
-    throwsError((): string  => channelKey(forged), ["channel kind", "bone"]),
+    throwsError((): string => channelKey(forged), ["channel kind", "bone"]),
   );
   TestValidator.predicate(
     "unknown channel kind rejects rotation check",
-    throwsError((): boolean  => channelIsRotation(forged), ["channel kind", "bone"]),
+    throwsError(
+      (): boolean => channelIsRotation(forged),
+      ["channel kind", "bone"],
+    ),
   );
 
   const forgedPath: IAutoMovieChannel = {
@@ -91,12 +101,15 @@ export function test_resolve_channel(): void {
   } as unknown as IAutoMovieChannel;
   TestValidator.predicate(
     "unknown node path rejects keying",
-    throwsError((): string  => channelKey(forgedPath), ["channel path", "visibility"]),
+    throwsError(
+      (): string => channelKey(forgedPath),
+      ["channel path", "visibility"],
+    ),
   );
   TestValidator.predicate(
     "unknown node path rejects rotation check",
     throwsError(
-      (): boolean  => channelIsRotation(forgedPath),
+      (): boolean => channelIsRotation(forgedPath),
       ["channel path", "visibility"],
     ),
   );
@@ -109,14 +122,14 @@ export function test_resolve_channel(): void {
   TestValidator.predicate(
     "unknown pointer value type rejects keying",
     throwsError(
-      (): string  => channelKey(forgedValueType),
+      (): string => channelKey(forgedValueType),
       ["channel valueType", "matrix"],
     ),
   );
   TestValidator.predicate(
     "unknown pointer value type rejects rotation check",
     throwsError(
-      (): boolean  => channelIsRotation(forgedValueType),
+      (): boolean => channelIsRotation(forgedValueType),
       ["channel valueType", "matrix"],
     ),
   );

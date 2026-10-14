@@ -9,8 +9,8 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { hasViolation, namedFacts } from "../internal/predicates";
 import { assertPlantingValidationLimits } from "../internal/assertPlantingValidationLimits";
+import { hasViolation, namedFacts } from "../internal/predicates";
 import { plantingCluster, plantingRecipe } from "../internal/softFixtures";
 
 /** Whether the changed recipe reports the requested kind/path; other findings may coexist. */
@@ -38,7 +38,9 @@ const refusesCluster: Parameters<typeof assertPlantingValidationLimits>[1] = (
   );
 
 /** A structure patch that keeps the rest of the branching law intact. */
-const structure: (patch: Partial<IAutoMoviePlantingDomain["structure"]>) => Partial<IAutoMoviePlantingDomain> = (
+const structure: (
+  patch: Partial<IAutoMoviePlantingDomain["structure"]>,
+) => Partial<IAutoMoviePlantingDomain> = (
   patch: Partial<IAutoMoviePlantingDomain["structure"]>,
 ): Partial<IAutoMoviePlantingDomain> => ({
   structure: { ...plantingRecipe().structure, ...patch },
@@ -223,11 +225,17 @@ export function test_planting_validation(): void {
         () =>
           refuses(
             structure({
-              children: Array.from({ length: 17 }, (_: unknown, index: number): IAutoMoviePlantingDomain["structure"]["children"][number] => ({
-                id: `c${index}`,
-                direction: { x: 1, y: 1, z: 0 },
-                offset: 0.5,
-              })),
+              children: Array.from(
+                { length: 17 },
+                (
+                  _: unknown,
+                  index: number,
+                ): IAutoMoviePlantingDomain["structure"]["children"][number] => ({
+                  id: `c${index}`,
+                  direction: { x: 1, y: 1, z: 0 },
+                  offset: 0.5,
+                }),
+              ),
             }),
             "range",
             "structure.children",

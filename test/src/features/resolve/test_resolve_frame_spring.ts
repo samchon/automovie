@@ -1,13 +1,23 @@
-import { createSpringState } from "../../../../packages/engine/src/resolve/createSpringState";
-import { resolveFrame } from "../../../../packages/engine/src/resolve/resolveFrame";
-import { IAutoMovieIKDriver, IAutoMovieNode, IAutoMovieSpringDriver, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  IAutoMovieIKDriver,
+  IAutoMovieNode,
+  IAutoMovieSpringDriver,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-import { throwsError } from "../internal/throwsError";
-import { vclose } from "../internal/vclose";
+
 import { type IAutoMovieResolveOutput } from "../../../../packages/engine/src/resolve/IAutoMovieResolveOutput";
 import { type IAutoMovieSpringState } from "../../../../packages/engine/src/resolve/IAutoMovieSpringState";
+import { createSpringState } from "../../../../packages/engine/src/resolve/createSpringState";
+import { resolveFrame } from "../../../../packages/engine/src/resolve/resolveFrame";
+import { throwsError } from "../internal/throwsError";
+import { vclose } from "../internal/vclose";
 
-const node: (id: string, parent: string | null, translation: IAutoMovieVector3) => IAutoMovieNode = (
+const node: (
+  id: string,
+  parent: string | null,
+  translation: IAutoMovieVector3,
+) => IAutoMovieNode = (
   id: string,
   parent: string | null,
   translation: IAutoMovieVector3,
@@ -47,7 +57,10 @@ const DT: number = 1 / 60;
 /** Gravity displacement for one step: `gravityPower · dt²`. */
 const H: number = 9.8 * DT * DT;
 
-const at: (world: Map<string, number[]>, id: string) => IAutoMovieVector3 = (world: Map<string, number[]>, id: string): IAutoMovieVector3 => {
+const at: (world: Map<string, number[]>, id: string) => IAutoMovieVector3 = (
+  world: Map<string, number[]>,
+  id: string,
+): IAutoMovieVector3 => {
   const m: number[] = world.get(id)!;
   return { x: m[12]!, y: m[13]!, z: m[14]! };
 };
@@ -217,7 +230,7 @@ export function test_resolve_frame_spring(): void {
   TestValidator.predicate(
     "missing collider node rejects",
     throwsError(
-      (): IAutoMovieResolveOutput  =>
+      (): IAutoMovieResolveOutput =>
         resolveFrame({
           nodes: nodes(),
           clip: null,

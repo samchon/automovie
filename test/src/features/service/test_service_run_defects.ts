@@ -1,5 +1,12 @@
 import { validateServiceNetwork } from "@automovie/engine";
-import type { IAutoMovieBuiltEnvironment, IAutoMovieConstraintViolation, IAutoMovieServiceNetwork, IAutoMovieServicePort, IAutoMovieServiceSegment, IAutoMovieValidation } from "@automovie/interface";
+import type {
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieConstraintViolation,
+  IAutoMovieServiceNetwork,
+  IAutoMovieServicePort,
+  IAutoMovieServiceSegment,
+  IAutoMovieValidation,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import {
@@ -16,8 +23,9 @@ import {
 } from "../internal/serviceFixtures";
 
 const environment: IAutoMovieBuiltEnvironment = serviceEnvironment();
-const refuse: (network?: IAutoMovieServiceNetwork) => IAutoMovieValidation = (network: IAutoMovieServiceNetwork = serviceNetwork()): IAutoMovieValidation =>
-  validateServiceNetwork({ network, environment });
+const refuse: (network?: IAutoMovieServiceNetwork) => IAutoMovieValidation = (
+  network: IAutoMovieServiceNetwork = serviceNetwork(),
+): IAutoMovieValidation => validateServiceNetwork({ network, environment });
 
 /**
  * What a run is allowed to be: two real ports on its own system, joined the way
@@ -63,22 +71,32 @@ export function test_service_run_defects(): void {
   const clean: IAutoMovieServiceNetwork = serviceNetwork();
 
   const foreignSystem: IAutoMovieValidation = refuse(
-    withSegment(clean, "cold-run", (run: IAutoMovieServiceSegment): IAutoMovieServiceSegment => ({ ...run, system: "steam" })),
+    withSegment(
+      clean,
+      "cold-run",
+      (run: IAutoMovieServiceSegment): IAutoMovieServiceSegment => ({
+        ...run,
+        system: "steam",
+      }),
+    ),
   );
   TestValidator.equals(
     "a run on an unknown system takes its ports down with it",
     namedFacts([
       [
         "system",
-        (): boolean => hasViolation(foreignSystem, "type", "$input.segments[0].system"),
+        (): boolean =>
+          hasViolation(foreignSystem, "type", "$input.segments[0].system"),
       ],
       [
         "from",
-        (): boolean => hasViolation(foreignSystem, "type", "$input.segments[0].from"),
+        (): boolean =>
+          hasViolation(foreignSystem, "type", "$input.segments[0].from"),
       ],
       [
         "to",
-        (): boolean => hasViolation(foreignSystem, "type", "$input.segments[0].to"),
+        (): boolean =>
+          hasViolation(foreignSystem, "type", "$input.segments[0].to"),
       ],
       [
         "valveOrphaned",
@@ -101,81 +119,121 @@ export function test_service_run_defects(): void {
   );
 
   const ghostPorts: IAutoMovieValidation = refuse(
-    withSegment(clean, "cold-run", (run: IAutoMovieServiceSegment): IAutoMovieServiceSegment => ({
-      ...run,
-      from: "ghost",
-      to: "phantom",
-    })),
+    withSegment(
+      clean,
+      "cold-run",
+      (run: IAutoMovieServiceSegment): IAutoMovieServiceSegment => ({
+        ...run,
+        from: "ghost",
+        to: "phantom",
+      }),
+    ),
   );
   TestValidator.equals(
     "ports that do not resolve are refused, and their fittings become stubs",
     namedFacts([
       [
         "from",
-        (): boolean => hasViolation(ghostPorts, "type", "$input.segments[0].from"),
+        (): boolean =>
+          hasViolation(ghostPorts, "type", "$input.segments[0].from"),
       ],
-      ["to", (): boolean => hasViolation(ghostPorts, "type", "$input.segments[0].to")],
+      [
+        "to",
+        (): boolean =>
+          hasViolation(ghostPorts, "type", "$input.segments[0].to"),
+      ],
       [
         "emitterStub",
-        (): boolean => hasViolation(ghostPorts, "type", "$input.nodes[0].ports[0]"),
+        (): boolean =>
+          hasViolation(ghostPorts, "type", "$input.nodes[0].ports[0]"),
       ],
       [
         "consumerStub",
-        (): boolean => hasViolation(ghostPorts, "type", "$input.nodes[8].ports[0]"),
+        (): boolean =>
+          hasViolation(ghostPorts, "type", "$input.nodes[8].ports[0]"),
       ],
     ]),
     { from: true, to: true, emitterStub: true, consumerStub: true },
   );
 
   const loop: IAutoMovieValidation = refuse(
-    withSegment(clean, "cold-run", (run: IAutoMovieServiceSegment): IAutoMovieServiceSegment => ({
-      ...run,
-      to: "cold-main-out",
-    })),
+    withSegment(
+      clean,
+      "cold-run",
+      (run: IAutoMovieServiceSegment): IAutoMovieServiceSegment => ({
+        ...run,
+        to: "cold-main-out",
+      }),
+    ),
   );
   const foreignPort: IAutoMovieValidation = refuse(
-    withSegment(clean, "cold-branch", (run: IAutoMovieServiceSegment): IAutoMovieServiceSegment => ({ ...run, to: "basin-hot" })),
+    withSegment(
+      clean,
+      "cold-branch",
+      (run: IAutoMovieServiceSegment): IAutoMovieServiceSegment => ({
+        ...run,
+        to: "basin-hot",
+      }),
+    ),
   );
   TestValidator.equals(
     "a run joins two different ports of its own system",
     namedFacts([
-      ["loop", (): boolean => hasViolation(loop, "type", "$input.segments[0].to")],
+      [
+        "loop",
+        (): boolean => hasViolation(loop, "type", "$input.segments[0].to"),
+      ],
       [
         "foreign",
-        (): boolean => hasViolation(foreignPort, "type", "$input.segments[1].to"),
+        (): boolean =>
+          hasViolation(foreignPort, "type", "$input.segments[1].to"),
       ],
     ]),
     { loop: true, foreign: true },
   );
 
   const reversedEmitter: IAutoMovieValidation = refuse(
-    withPort(clean, "cold-main-out", (entry: IAutoMovieServicePort): IAutoMovieServicePort => ({
-      ...entry,
-      direction: "in",
-    })),
+    withPort(
+      clean,
+      "cold-main-out",
+      (entry: IAutoMovieServicePort): IAutoMovieServicePort => ({
+        ...entry,
+        direction: "in",
+      }),
+    ),
   );
   const reversedConsumer: IAutoMovieValidation = refuse(
-    withPort(clean, "bath-valve-in", (entry: IAutoMovieServicePort): IAutoMovieServicePort => ({
-      ...entry,
-      direction: "out",
-    })),
+    withPort(
+      clean,
+      "bath-valve-in",
+      (entry: IAutoMovieServicePort): IAutoMovieServicePort => ({
+        ...entry,
+        direction: "out",
+      }),
+    ),
   );
   const ringTap: IAutoMovieValidation = refuse(
-    withPort(clean, "bath-valve-in", (entry: IAutoMovieServicePort): IAutoMovieServicePort => ({
-      ...entry,
-      direction: "bidirectional",
-    })),
+    withPort(
+      clean,
+      "bath-valve-in",
+      (entry: IAutoMovieServicePort): IAutoMovieServicePort => ({
+        ...entry,
+        direction: "bidirectional",
+      }),
+    ),
   );
   TestValidator.equals(
     "a run leaves an emitter and arrives at a consumer, and a ring tap is both",
     namedFacts([
       [
         "emitter",
-        (): boolean => hasViolation(reversedEmitter, "type", "$input.segments[0].from"),
+        (): boolean =>
+          hasViolation(reversedEmitter, "type", "$input.segments[0].from"),
       ],
       [
         "rootToo",
-        (): boolean => hasViolation(reversedEmitter, "type", "$input.systems[0].root"),
+        (): boolean =>
+          hasViolation(reversedEmitter, "type", "$input.systems[0].root"),
       ],
       [
         "consumer",
@@ -189,27 +247,37 @@ export function test_service_run_defects(): void {
   );
 
   const section: IAutoMovieValidation = refuse(
-    withSegment(clean, "cold-run", (run: IAutoMovieServiceSegment): IAutoMovieServiceSegment => ({ ...run, section: 0.003 })),
+    withSegment(
+      clean,
+      "cold-run",
+      (run: IAutoMovieServiceSegment): IAutoMovieServiceSegment => ({
+        ...run,
+        section: 0.003,
+      }),
+    ),
   );
   TestValidator.equals(
     "a run's section answers to every port that states one",
     namedFacts([
       [
         "refused",
-        (): boolean => hasViolation(section, "range", "$input.segments[0].section"),
+        (): boolean =>
+          hasViolation(section, "range", "$input.segments[0].section"),
       ],
       ["bothEnds", (): boolean => violationCount(section) === 2],
       [
         "difference",
         (): boolean =>
           section.success === false &&
-          section.violations.every((item: IAutoMovieConstraintViolation): boolean =>
-            nclose(item.overshoot ?? -1, 0.001, 1e-12),
+          section.violations.every(
+            (item: IAutoMovieConstraintViolation): boolean =>
+              nclose(item.overshoot ?? -1, 0.001, 1e-12),
           ),
       ],
       [
         "sectionlessPortImposesNothing",
-        (): boolean => clean.nodes[9]!.ports[3]!.section === null && refuse().success,
+        (): boolean =>
+          clean.nodes[9]!.ports[3]!.section === null && refuse().success,
       ],
     ]),
     {
@@ -221,13 +289,24 @@ export function test_service_run_defects(): void {
   );
 
   const empty: IAutoMovieValidation = refuse(
-    withSegment(clean, "cold-run", (run: IAutoMovieServiceSegment): IAutoMovieServiceSegment => ({ ...run, route: [] })),
+    withSegment(
+      clean,
+      "cold-run",
+      (run: IAutoMovieServiceSegment): IAutoMovieServiceSegment => ({
+        ...run,
+        route: [],
+      }),
+    ),
   );
   const single: IAutoMovieValidation = refuse(
-    withSegment(clean, "cold-run", (run: IAutoMovieServiceSegment): IAutoMovieServiceSegment => ({
-      ...run,
-      route: [{ x: 8, y: 2.5, z: 1 }],
-    })),
+    withSegment(
+      clean,
+      "cold-run",
+      (run: IAutoMovieServiceSegment): IAutoMovieServiceSegment => ({
+        ...run,
+        route: [{ x: 8, y: 2.5, z: 1 }],
+      }),
+    ),
   );
   TestValidator.equals(
     "a route needs two points before it can be a line at all",
@@ -240,11 +319,13 @@ export function test_service_run_defects(): void {
       ],
       [
         "singleLength",
-        (): boolean => hasViolation(single, "range", "$input.segments[0].route"),
+        (): boolean =>
+          hasViolation(single, "range", "$input.segments[0].route"),
       ],
       [
         "singleGap",
-        (): boolean => hasViolation(single, "range", "$input.segments[0].route[0]"),
+        (): boolean =>
+          hasViolation(single, "range", "$input.segments[0].route[0]"),
       ],
       ["singleExactly", (): boolean => violationCount(single) === 2],
     ]),
@@ -257,24 +338,32 @@ export function test_service_run_defects(): void {
   );
 
   const repeated: IAutoMovieValidation = refuse(
-    withSegment(clean, "cold-run", (run: IAutoMovieServiceSegment): IAutoMovieServiceSegment => ({
-      ...run,
-      route: [
-        { x: 8, y: 2.5, z: 1 },
-        { x: 8, y: 2.5, z: 1 },
-        { x: 3.5, y: 2.5, z: 1 },
-      ],
-    })),
+    withSegment(
+      clean,
+      "cold-run",
+      (run: IAutoMovieServiceSegment): IAutoMovieServiceSegment => ({
+        ...run,
+        route: [
+          { x: 8, y: 2.5, z: 1 },
+          { x: 8, y: 2.5, z: 1 },
+          { x: 3.5, y: 2.5, z: 1 },
+        ],
+      }),
+    ),
   );
   const infinite: IAutoMovieValidation = refuse(
-    withSegment(clean, "cold-run", (run: IAutoMovieServiceSegment): IAutoMovieServiceSegment => ({
-      ...run,
-      route: [
-        { x: 8, y: 2.5, z: 1 },
-        { x: Number.NaN, y: 2.5, z: 1 },
-        { x: 3.5, y: 2.5, z: 1 },
-      ],
-    })),
+    withSegment(
+      clean,
+      "cold-run",
+      (run: IAutoMovieServiceSegment): IAutoMovieServiceSegment => ({
+        ...run,
+        route: [
+          { x: 8, y: 2.5, z: 1 },
+          { x: Number.NaN, y: 2.5, z: 1 },
+          { x: 3.5, y: 2.5, z: 1 },
+        ],
+      }),
+    ),
   );
   TestValidator.equals(
     "repeated and non-finite route points are refused where they stand",
@@ -296,42 +385,54 @@ export function test_service_run_defects(): void {
   );
 
   const shapeless: IAutoMovieValidation = refuse(
-    withSegment(clean, "cold-run", (run: IAutoMovieServiceSegment): IAutoMovieServiceSegment => ({
-      ...run,
-      radius: 0,
-      section: Number.NaN,
-    })),
+    withSegment(
+      clean,
+      "cold-run",
+      (run: IAutoMovieServiceSegment): IAutoMovieServiceSegment => ({
+        ...run,
+        radius: 0,
+        section: Number.NaN,
+      }),
+    ),
   );
   const drifted: IAutoMovieValidation = refuse(
-    withSegment(clean, "cold-run", (run: IAutoMovieServiceSegment): IAutoMovieServiceSegment => ({
-      ...run,
-      route: [
-        { x: 8, y: 2.5, z: 1 },
-        { x: 3.5, y: 2.5, z: 1.25 },
-      ],
-    })),
+    withSegment(
+      clean,
+      "cold-run",
+      (run: IAutoMovieServiceSegment): IAutoMovieServiceSegment => ({
+        ...run,
+        route: [
+          { x: 8, y: 2.5, z: 1 },
+          { x: 3.5, y: 2.5, z: 1.25 },
+        ],
+      }),
+    ),
   );
   TestValidator.equals(
     "a run states a real radius and section, and ends where it says it does",
     namedFacts([
       [
         "radius",
-        (): boolean => hasViolation(shapeless, "range", "$input.segments[0].radius"),
+        (): boolean =>
+          hasViolation(shapeless, "range", "$input.segments[0].radius"),
       ],
       [
         "section",
-        (): boolean => hasViolation(shapeless, "range", "$input.segments[0].section"),
+        (): boolean =>
+          hasViolation(shapeless, "range", "$input.segments[0].section"),
       ],
       [
         "gap",
-        (): boolean => hasViolation(drifted, "range", "$input.segments[0].route[1]"),
+        (): boolean =>
+          hasViolation(drifted, "range", "$input.segments[0].route[1]"),
       ],
       [
         "gapMeasured",
         (): boolean =>
           drifted.success === false &&
-          drifted.violations.some((item: IAutoMovieConstraintViolation): boolean =>
-            nclose(item.overshoot ?? -1, 0.25, 1e-12),
+          drifted.violations.some(
+            (item: IAutoMovieConstraintViolation): boolean =>
+              nclose(item.overshoot ?? -1, 0.25, 1e-12),
           ),
       ],
     ]),

@@ -3,9 +3,9 @@ import {
   getConstraint,
   validateJointRom,
 } from "@automovie/engine";
+import { IAutoMovieConstraintViolation } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { IAutoMovieConstraintViolation } from "@automovie/interface";
 import { joint } from "../internal/fixtures";
 
 /**
@@ -27,10 +27,14 @@ export function test_rom_validate_multiple_axes(): void {
     path: "$input",
     collector,
   });
-  const paths: string[] = collector.items.map((v: IAutoMovieConstraintViolation): string => v.path);
+  const paths: string[] = collector.items.map(
+    (v: IAutoMovieConstraintViolation): string => v.path,
+  );
   TestValidator.equals(
     "each bad axis files its own violation, and the swing cone files its own",
-    [...paths].sort((a: string, b: string): number => (a < b ? -1 : a > b ? 1 : 0)),
+    [...paths].sort((a: string, b: string): number =>
+      a < b ? -1 : a > b ? 1 : 0,
+    ),
     ["$input.flexion", "$input.swing", "$input.twist"],
   );
 }

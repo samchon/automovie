@@ -1,9 +1,13 @@
-import { profileSemanticKeys } from "../../../../packages/engine/src/resolve/profileSemanticKeys";
 import { IAutoMovieDriver, IAutoMovieProfile } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
+
+import { profileSemanticKeys } from "../../../../packages/engine/src/resolve/profileSemanticKeys";
 import { throwsError } from "../internal/throwsError";
 
-const profileWith: (drivers: IAutoMovieDriver[], limits?: IAutoMovieProfile["limits"]) => IAutoMovieProfile = (
+const profileWith: (
+  drivers: IAutoMovieDriver[],
+  limits?: IAutoMovieProfile["limits"],
+) => IAutoMovieProfile = (
   drivers: IAutoMovieDriver[],
   limits: IAutoMovieProfile["limits"] = [],
 ): IAutoMovieProfile => ({
@@ -158,7 +162,7 @@ export function test_resolve_profile_keys(): void {
   TestValidator.predicate(
     "unknown driver type throws",
     throwsError(
-      (): string[]  =>
+      (): string[] =>
         profileSemanticKeys(
           profileWith([{ type: "warp" } as unknown as IAutoMovieDriver]),
         ),

@@ -1,13 +1,19 @@
-import { clampPose } from "../../../../packages/engine/src/rom/clampPose";
-import { AutoMovieHumanoidBone, IAutoMovieJointPose, type IAutoMoviePose, type IAutoMovieSkeleton } from "@automovie/interface";
+import {
+  AutoMovieHumanoidBone,
+  IAutoMovieJointPose,
+  type IAutoMoviePose,
+  type IAutoMovieSkeleton,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
+
+import { clampPose } from "../../../../packages/engine/src/rom/clampPose";
 import { createSkeleton } from "../internal/createSkeleton";
 import { createValidPose } from "../internal/createValidPose";
 import { joint } from "../internal/joint";
 import { makePose } from "../internal/makePose";
 import { makeRng } from "../internal/makeRng";
-import { uniform } from "../internal/uniform";
 import { nclose } from "../internal/nclose";
+import { uniform } from "../internal/uniform";
 import { vclose } from "../internal/vclose";
 
 const skeleton: IAutoMovieSkeleton = createSkeleton();
@@ -23,13 +29,16 @@ const ARTICULATED: AutoMovieHumanoidBone[] = [
 ];
 
 /** Existing eight-joint angle triples sampled from [-200,200), including in-range values. */
-const wildPose: (rng: () => number) => IAutoMovieJointPose[] = (rng: () => number): IAutoMovieJointPose[] =>
-  ARTICULATED.map((bone: AutoMovieHumanoidBone): IAutoMovieJointPose  =>
-    joint(bone, {
-      flexion: uniform(rng, -200, 200),
-      abduction: uniform(rng, -200, 200),
-      twist: uniform(rng, -200, 200),
-    }),
+const wildPose: (rng: () => number) => IAutoMovieJointPose[] = (
+  rng: () => number,
+): IAutoMovieJointPose[] =>
+  ARTICULATED.map(
+    (bone: AutoMovieHumanoidBone): IAutoMovieJointPose =>
+      joint(bone, {
+        flexion: uniform(rng, -200, 200),
+        abduction: uniform(rng, -200, 200),
+        twist: uniform(rng, -200, 200),
+      }),
   );
 
 /**
@@ -70,22 +79,45 @@ export function test_rom_clamp_idempotence(): void {
 
 /** Preserve null versus finite scalar values, with zero numeric tolerance. */
 function sameAxis(actual: number | null, expected: number | null): boolean {
-  return actual === null || expected === null ? actual === expected : nclose(actual, expected, 0);
+  return actual === null || expected === null
+    ? actual === expected
+    : nclose(actual, expected, 0);
 }
 
 /** Compare supported joint fields in their existing order, without an external bound oracle. */
-function sameJoints(actual: IAutoMovieJointPose[], expected: IAutoMovieJointPose[]): boolean {
-  return actual.length === expected.length && actual.every((entry: IAutoMovieJointPose, index: number): boolean => {
-    const other: IAutoMovieJointPose = expected[index]!;
-    return entry.bone === other.bone && sameAxis(entry.flexion, other.flexion) && sameAxis(entry.abduction, other.abduction) && sameAxis(entry.twist, other.twist);
-  });
+function sameJoints(
+  actual: IAutoMovieJointPose[],
+  expected: IAutoMovieJointPose[],
+): boolean {
+  return (
+    actual.length === expected.length &&
+    actual.every((entry: IAutoMovieJointPose, index: number): boolean => {
+      const other: IAutoMovieJointPose = expected[index]!;
+      return (
+        entry.bone === other.bone &&
+        sameAxis(entry.flexion, other.flexion) &&
+        sameAxis(entry.abduction, other.abduction) &&
+        sameAxis(entry.twist, other.twist)
+      );
+    })
+  );
 }
 
 /** Compare supported pose fields; root quaternion components retain their authored signs. */
 function samePose(actual: IAutoMoviePose, expected: IAutoMoviePose): boolean {
-  if (actual.skeleton !== expected.skeleton || !sameJoints(actual.joints, expected.joints)) return false;
-  if (actual.root === null || expected.root === null) return actual.root === expected.root;
-  return vclose(actual.root.translation, expected.root.translation, 0) && vclose(actual.root.scale, expected.root.scale, 0) &&
-    nclose(actual.root.rotation.x, expected.root.rotation.x, 0) && nclose(actual.root.rotation.y, expected.root.rotation.y, 0) &&
-    nclose(actual.root.rotation.z, expected.root.rotation.z, 0) && nclose(actual.root.rotation.w, expected.root.rotation.w, 0);
+  if (
+    actual.skeleton !== expected.skeleton ||
+    !sameJoints(actual.joints, expected.joints)
+  )
+    return false;
+  if (actual.root === null || expected.root === null)
+    return actual.root === expected.root;
+  return (
+    vclose(actual.root.translation, expected.root.translation, 0) &&
+    vclose(actual.root.scale, expected.root.scale, 0) &&
+    nclose(actual.root.rotation.x, expected.root.rotation.x, 0) &&
+    nclose(actual.root.rotation.y, expected.root.rotation.y, 0) &&
+    nclose(actual.root.rotation.z, expected.root.rotation.z, 0) &&
+    nclose(actual.root.rotation.w, expected.root.rotation.w, 0)
+  );
 }

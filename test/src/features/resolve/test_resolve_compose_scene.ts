@@ -1,6 +1,7 @@
-import { composeScene } from "../../../../packages/engine/src/resolve/composeScene";
 import { IAutoMovieNode, IAutoMovieTransform } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
+
+import { composeScene } from "../../../../packages/engine/src/resolve/composeScene";
 import { nclose } from "../internal/nclose";
 import { throwsError } from "../internal/throwsError";
 
@@ -10,7 +11,11 @@ const IDENTITY: IAutoMovieTransform = {
   scale: { x: 1, y: 1, z: 1 },
 };
 
-const node: (id: string, parent: string | null, tx: number) => IAutoMovieNode = (
+const node: (
+  id: string,
+  parent: string | null,
+  tx: number,
+) => IAutoMovieNode = (
   id: string,
   parent: string | null,
   tx: number,
@@ -56,9 +61,10 @@ export function test_resolve_compose_scene(): void {
   );
 
   // 2. child-before-parent ordering + override on child only
-  const overrides: Map<string, IAutoMovieTransform> = new Map<string, IAutoMovieTransform>([
-    ["c", { ...IDENTITY, translation: { x: 2, y: 0, z: 0 } }],
-  ]);
+  const overrides: Map<string, IAutoMovieTransform> = new Map<
+    string,
+    IAutoMovieTransform
+  >([["c", { ...IDENTITY, translation: { x: 2, y: 0, z: 0 } }]]);
   const world: Map<string, number[]> = composeScene(
     [node("c", "p", 1), node("p", null, 10)],
     overrides,
@@ -74,21 +80,23 @@ export function test_resolve_compose_scene(): void {
   TestValidator.predicate(
     "duplicate node ids reject ambiguous graph",
     throwsError(
-      (): Map<string, number[]>  => composeScene([node("dup", null, 1), node("dup", null, 2)]),
+      (): Map<string, number[]> =>
+        composeScene([node("dup", null, 1), node("dup", null, 2)]),
       ['node id "dup"', "nodes[1].id"],
     ),
   );
   TestValidator.predicate(
     "missing parent rejects dangling graph",
     throwsError(
-      (): Map<string, number[]>  => composeScene([node("child", "missing", 1)]),
+      (): Map<string, number[]> => composeScene([node("child", "missing", 1)]),
       ['node "child" references missing parent "missing"', "nodes[0].parent"],
     ),
   );
   TestValidator.predicate(
     "parent cycle rejects recursive graph",
     throwsError(
-      (): Map<string, number[]>  => composeScene([node("a", "b", 1), node("b", "a", 2)]),
+      (): Map<string, number[]> =>
+        composeScene([node("a", "b", 1), node("b", "a", 2)]),
       'node parent cycle includes "a"',
     ),
   );
