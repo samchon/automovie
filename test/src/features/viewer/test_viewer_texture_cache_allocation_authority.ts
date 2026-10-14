@@ -14,7 +14,7 @@ import {
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
-import { AutoMovieResourceRetirementScope } from "../../../../packages/viewer/src/AutoMovieResourceRetirementScope";
+import { AutoMovieResourceRetirementScope } from "@automovie/viewer/AutoMovieResourceRetirementScope";
 import { compiledShotFixture } from "../internal/renderBudgetFixtures";
 import { boxModel, material, sceneFixture } from "../internal/renderFixtures";
 

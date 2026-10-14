@@ -2,7 +2,7 @@ import { TestValidator } from "@nestia/e2e";
 import assert from "node:assert/strict";
 import * as THREE from "three";
 
-import type { IViewerCameraStateSnapshot } from "../../../../packages/viewer/src/IViewerCameraStateSnapshot";
+import type { IViewerCameraStateSnapshot } from "@automovie/viewer/IViewerCameraStateSnapshot";
 import { createViewerCameraState } from "@automovie/viewer";
 import { nclose } from "../internal/predicates";
 

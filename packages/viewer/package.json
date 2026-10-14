@@ -20,7 +20,18 @@
     "./human/inspection/serveHumanViewerCapture": "./src/human/inspection/serveHumanViewerCapture.ts",
     "./human/inspection/serveHumanViewerData": "./src/human/inspection/serveHumanViewerData.ts",
     "./human/inspection/serveHumanViewerReference": "./src/human/inspection/serveHumanViewerReference.ts",
-    "./human/inspection/startHumanViewerServer": "./src/human/inspection/startHumanViewerServer.ts"
+    "./human/inspection/startHumanViewerServer": "./src/human/inspection/startHumanViewerServer.ts",
+    "./AutoMovieResourceRetirementScope": "./src/AutoMovieResourceRetirementScope.ts",
+    "./IViewerCameraStateSnapshot": "./src/IViewerCameraStateSnapshot.ts",
+    "./constructAutoMovieOwnedResources": "./src/constructAutoMovieOwnedResources.ts",
+    "./createViewerDisplayClock": "./src/createViewerDisplayClock.ts",
+    "./createViewerDisplayPublication": "./src/createViewerDisplayPublication.ts",
+    "./process/internal/IProcessOwnershipHost": "./src/process/internal/IProcessOwnershipHost.ts",
+    "./process/internal/ProcessOwnershipController": "./src/process/internal/ProcessOwnershipController.ts",
+    "./process/internal/decodeWindowsProcessResult": "./src/process/internal/decodeWindowsProcessResult.ts",
+    "./process/internal/decodePosixProcessIdentity": "./src/process/internal/decodePosixProcessIdentity.ts",
+    "./process/internal/decodeLinuxProcessIdentity": "./src/process/internal/decodeLinuxProcessIdentity.ts",
+    "./process/internal/resolveProcessIdentityReadError": "./src/process/internal/resolveProcessIdentityReadError.ts"
   },
   "files": [
     "lib",
@@ -98,6 +109,50 @@
       "./human/inspection/startHumanViewerServer": {
         "types": "./lib/human/inspection/startHumanViewerServer.d.ts",
         "default": "./lib/human/inspection/startHumanViewerServer.js"
+      },
+      "./AutoMovieResourceRetirementScope": {
+        "types": "./lib/AutoMovieResourceRetirementScope.d.ts",
+        "default": "./lib/AutoMovieResourceRetirementScope.js"
+      },
+      "./IViewerCameraStateSnapshot": {
+        "types": "./lib/IViewerCameraStateSnapshot.d.ts",
+        "default": "./lib/IViewerCameraStateSnapshot.js"
+      },
+      "./constructAutoMovieOwnedResources": {
+        "types": "./lib/constructAutoMovieOwnedResources.d.ts",
+        "default": "./lib/constructAutoMovieOwnedResources.js"
+      },
+      "./createViewerDisplayClock": {
+        "types": "./lib/createViewerDisplayClock.d.ts",
+        "default": "./lib/createViewerDisplayClock.js"
+      },
+      "./createViewerDisplayPublication": {
+        "types": "./lib/createViewerDisplayPublication.d.ts",
+        "default": "./lib/createViewerDisplayPublication.js"
+      },
+      "./process/internal/IProcessOwnershipHost": {
+        "types": "./lib/process/internal/IProcessOwnershipHost.d.ts",
+        "default": "./lib/process/internal/IProcessOwnershipHost.js"
+      },
+      "./process/internal/ProcessOwnershipController": {
+        "types": "./lib/process/internal/ProcessOwnershipController.d.ts",
+        "default": "./lib/process/internal/ProcessOwnershipController.js"
+      },
+      "./process/internal/decodeWindowsProcessResult": {
+        "types": "./lib/process/internal/decodeWindowsProcessResult.d.ts",
+        "default": "./lib/process/internal/decodeWindowsProcessResult.js"
+      },
+      "./process/internal/decodePosixProcessIdentity": {
+        "types": "./lib/process/internal/decodePosixProcessIdentity.d.ts",
+        "default": "./lib/process/internal/decodePosixProcessIdentity.js"
+      },
+      "./process/internal/decodeLinuxProcessIdentity": {
+        "types": "./lib/process/internal/decodeLinuxProcessIdentity.d.ts",
+        "default": "./lib/process/internal/decodeLinuxProcessIdentity.js"
+      },
+      "./process/internal/resolveProcessIdentityReadError": {
+        "types": "./lib/process/internal/resolveProcessIdentityReadError.d.ts",
+        "default": "./lib/process/internal/resolveProcessIdentityReadError.js"
       }
     }
   },

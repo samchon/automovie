@@ -1,6 +1,6 @@
 import { TestValidator } from "@nestia/e2e";
 
-import { createViewerDisplayPublication } from "../../../../packages/viewer/src/createViewerDisplayPublication";
+import { createViewerDisplayPublication } from "@automovie/viewer/createViewerDisplayPublication";
 
 /**
  * A staged candidate cannot start a newer-generation save before activation. The publication lifecycle is exercised through supplied bitmap ports without producing pixels or publishing files.

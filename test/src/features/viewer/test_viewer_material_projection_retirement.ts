@@ -11,7 +11,7 @@ import {
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
-import { constructAutoMovieOwnedResources } from "../../../../packages/viewer/src/constructAutoMovieOwnedResources";
+import { constructAutoMovieOwnedResources } from "@automovie/viewer/constructAutoMovieOwnedResources";
 import { createHumanObservationAlbedoMaterial } from "@automovie/viewer/human/common/observation/createHumanObservationAlbedoMaterial";
 import { createHumanObservationAlbedoPass } from "@automovie/viewer/human/common/observation/createHumanObservationAlbedoPass";
 import {

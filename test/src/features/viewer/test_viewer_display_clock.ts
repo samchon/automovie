@@ -1,6 +1,6 @@
 import { TestValidator } from "@nestia/e2e";
 
-import { createViewerDisplayClock } from "../../../../packages/viewer/src/createViewerDisplayClock";
+import { createViewerDisplayClock } from "@automovie/viewer/createViewerDisplayClock";
 import { nclose } from "../internal/predicates";
 
 /**
