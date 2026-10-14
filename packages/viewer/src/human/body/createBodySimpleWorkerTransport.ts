@@ -2,7 +2,7 @@ import type { IHumanPendingResult } from "@automovie/viewer/human/common/IHumanP
 import { humanWorkerErrorMessage } from "@automovie/viewer/human/common/humanWorkerErrorMessage";
 
 import type { IBodySimpleReply } from "@automovie/human/body/runtime/IBodySimpleReply";
-import type { IBodySimpleWorkerTransport } from "./IBodySimpleWorkerTransport";
+import type { IBodySimpleWorkerTransport } from "@automovie/viewer/human/body/IBodySimpleWorkerTransport";
 import type { IConnectedBodyProgress } from "@automovie/viewer/human/body/IConnectedBodyProgress";
 
 /**

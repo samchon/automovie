@@ -3,7 +3,7 @@ import type { IAutoMovieHumanBodyAnatomicalAssembly } from "@automovie/human/bod
 import { createConnectedBodyBrowserViewport } from "@automovie/viewer/human/body/createConnectedBodyBrowserViewport";
 
 import { createHumanWorker } from "@automovie/viewer/human/common/createHumanWorker";
-import { createConnectedBodyPort } from "./createConnectedBodyPort";
+import { createConnectedBodyPort } from "@automovie/viewer/human/body/createConnectedBodyPort";
 
 /**
  * Mount a body page's Viewer-owned browser viewport with the page's numerical worker role and serialization authority. `serialize` overrides the body-document encoder and `worker` overrides the default body role. The returned `close` retires its resident numerical connection and owned browser resources; the mounting page must invoke it on retirement.

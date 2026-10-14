@@ -26,23 +26,23 @@ import { createConnectedBodyBrowserViewport } from "@automovie/viewer/human/body
 import type { HumanResidentPort } from "@automovie/viewer/human/common/HumanResidentPort";
 
 import type { IConnectedBodyMeasurement } from "./human/body/IConnectedBodyMeasurement";
-import { createBodySimpleWorkerTransport } from "./human/body/createBodySimpleWorkerTransport";
-import { createConnectedBodyPort } from "./human/body/createConnectedBodyPort";
+import { createBodySimpleWorkerTransport } from "@automovie/viewer/human/body/createBodySimpleWorkerTransport";
+import { createConnectedBodyPort } from "@automovie/viewer/human/body/createConnectedBodyPort";
 import { readConnectedBodyView } from "@automovie/viewer/human/body/readConnectedBodyView";
 import { readConnectedHeadView } from "@automovie/viewer/human/body/readConnectedHeadView";
 import { createHumanWorker } from "@automovie/viewer/human/common/createHumanWorker";
 import { downloadConnectedFile } from "./human/common/downloadConnectedFile";
-import type { ConnectedPersonWorkerEnd } from "./human/person/ConnectedPersonWorkerEnd";
+import type { ConnectedPersonWorkerEnd } from "@automovie/viewer/human/person/ConnectedPersonWorkerEnd";
 import type { IConnectedPersonFaceSolution } from "./human/person/IConnectedPersonFaceSolution";
 import type { IConnectedPersonHeadSolution } from "@automovie/human/human/runtime/IConnectedPersonHeadSolution";
 import type { IConnectedPersonMeasuredSolution } from "@automovie/human/human/runtime/IConnectedPersonMeasuredSolution";
 import type { IConnectedPersonSourceUrls } from "@automovie/viewer/human/person/IConnectedPersonSourceUrls";
-import type { IConnectedPersonWorkerShare } from "./human/person/IConnectedPersonWorkerShare";
+import type { IConnectedPersonWorkerShare } from "@automovie/viewer/human/person/IConnectedPersonWorkerShare";
 import { connectedPersonExpressionPresets } from "./human/person/connectedPersonExpressionPresets";
 import { connectedPersonPosePresets } from "./human/person/connectedPersonPosePresets";
 import { connectedPersonSourceWorkerName } from "./human/person/connectedPersonSourceWorkerName";
 import { connectedPersonStandardDocument } from "./human/person/connectedPersonStandardDocument";
-import { createConnectedPersonWorkerShare } from "./human/person/createConnectedPersonWorkerShare";
+import { createConnectedPersonWorkerShare } from "@automovie/viewer/human/person/createConnectedPersonWorkerShare";
 import { mountConnectedPersonPanel } from "./human/person/mountConnectedPersonPanel";
 import { mountConnectedPersonSourceSelection } from "./human/person/mountConnectedPersonSourceSelection";
 import { readConnectedPersonSourceUrls } from "@automovie/viewer/human/person/readConnectedPersonSourceUrls";

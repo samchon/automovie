@@ -3,10 +3,10 @@ import type { IAutoMovieHumanBodySimpleShape } from "@automovie/human";
 import { createHumanWorker } from "@automovie/viewer/human/common/createHumanWorker";
 import { CONNECTED_BODY_WHOLE_SOURCE } from "./CONNECTED_BODY_WHOLE_SOURCE";
 import type { IBodySimpleBody } from "./IBodySimpleBody";
-import type { IBodySimpleWorkerTransport } from "./IBodySimpleWorkerTransport";
+import type { IBodySimpleWorkerTransport } from "@automovie/viewer/human/body/IBodySimpleWorkerTransport";
 import type { IConnectedBodyMeasurement } from "./IConnectedBodyMeasurement";
 import type { IConnectedBodySimpleSolvers } from "./IConnectedBodySimpleSolvers";
-import { createBodySimpleWorkerTransport } from "./createBodySimpleWorkerTransport";
+import { createBodySimpleWorkerTransport } from "@automovie/viewer/human/body/createBodySimpleWorkerTransport";
 
 /**
  * The body editor's simple tier and measurement inverse, each request sent to the simple-tier worker so its dozens of shape evaluations stay off the page's thread. Its stature and mass are read on the whole person with the standard face (`CONNECTED_BODY_WHOLE_SOURCE`). The mounting page owns this service and must close it when retiring; close rejects unfinished asks and prevents a new worker from being allocated.

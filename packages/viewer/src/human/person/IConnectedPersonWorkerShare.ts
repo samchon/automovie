@@ -1,4 +1,4 @@
-import type { ConnectedPersonWorkerEnd } from "./ConnectedPersonWorkerEnd";
+import type { ConnectedPersonWorkerEnd } from "@automovie/viewer/human/person/ConnectedPersonWorkerEnd";
 
 /**
  * The two ends of the one resident person worker: the preview transport's and

@@ -3,8 +3,8 @@ import type { IAutoMovieHumanFaceBasisDocument } from "@automovie/human";
 import type { IConnectedFaceControlEntry } from "./IConnectedFaceControlEntry";
 import type { IConnectedFaceControlMetric } from "./IConnectedFaceControlMetric";
 import type { ICreateConnectedFaceChannelControlProps } from "./ICreateConnectedFaceChannelControlProps";
-import { connectedFaceArticulationDegrees } from "./anatomy/connectedFaceArticulationDegrees";
-import { connectedFaceJawExcursionMillimetres } from "./anatomy/connectedFaceJawExcursionMillimetres";
+import { connectedFaceArticulationDegrees } from "@automovie/human/face/runtime/connectedFaceArticulationDegrees";
+import { connectedFaceJawExcursionMillimetres } from "@automovie/human/face/runtime/connectedFaceJawExcursionMillimetres";
 import { describeConnectedFaceControlScale } from "./describeConnectedFaceControlScale";
 
 /**
