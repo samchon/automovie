@@ -15,9 +15,9 @@ import { createAutoMovieCatalogVersionResolver } from "./createAutoMovieCatalogV
  * @evidence contracts/common.md#clear-and-simple-design The function owns only the mapping from token names to catalog entries; YAML reading belongs to `createAutoMovieCatalogVersionResolver`, and file access to the build script.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The exact-version rule applies to the three named runtime packages by their catalog names because their graphs need one version, and no value is hard-coded; every version comes from the inputs.
  * @evidence contracts/common.md#meaningful-documentation The comment states which catalog owns each group, which entries become exact and how, the keys of the result, and what throws.
- * @evidence contracts/performance.md#efficient-algorithms The manifest is parsed once; each of eighteen lookups scans the direct keys of the root, catalogs mapping and requested catalog, including alias resolution where needed. The fixed lookup count keeps total work linear in manifest size, with one parsed document and thirty result strings.
+ * @evidence contracts/performance.md#efficient-algorithms The manifest is parsed once; each of eighteen lookups scans the direct keys of the root, catalogs mapping and requested catalog, including alias resolution where needed. The fixed lookup count keeps total work linear in manifest size, with one parsed document and twenty-eight result strings.
  * @evidence contracts/performance.md#reuse-equivalent-work All eighteen lookups share one resolver and therefore one parsed document of `props.workspace`, the only input they depend on; nothing outlives the call, so no invalidation is needed.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The resolver and its parsed document are released when the function returns; only the result table, thirty strings, is retained by the caller.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The resolver and its parsed document are released when the function returns; only the result table, twenty-eight strings, is retained by the caller.
  */
 export const resolveAutoMovieTemplateDependencyVersions: (props: IAutoMovieTemplateDependencyVersionsProps) => Record<string, string> = (
   props: IAutoMovieTemplateDependencyVersionsProps,
@@ -30,11 +30,9 @@ export const resolveAutoMovieTemplateDependencyVersions: (props: IAutoMovieTempl
     archetypes: props.packages.archetypes,
     cli: props.packages.cli,
     engine: props.packages.engine,
-    evidence: props.packages.evidence,
     human: props.packages.human,
     ingest: props.packages.ingest,
     interface: props.packages.interface,
-    mcp: props.packages.mcp,
     production: props.packages.production,
     render: props.packages.render,
     template: props.packages.template,
