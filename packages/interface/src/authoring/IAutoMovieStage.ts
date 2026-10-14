@@ -10,10 +10,7 @@ import { IAutoMovieStageSetPiece } from "./IAutoMovieStageSetPiece";
 /**
  * The coding-agent-owned set before a shot is performed.
  *
- * This is an engine input, not an LLM application payload. Positions and
- * couplings stay declarative so `stageScene` can validate every identity and
- * lower the set into deterministic scene data. Node ids must be non-blank and
- * unique across actors, set pieces, cameras and lights.
+ * This is an engine input. Positions and couplings stay declarative so `stageScene` can validate identities and lower the set into deterministic scene data. Node ids must be non-blank and unique across actors, set pieces, cameras and lights.
  *
  * @evidence contracts/common.md#principled-implementation `stageScene` checks referential integrity and finite ranges, not craft: every cast member placed exactly once and every placement a cast member, unique non-blank ids across the four node lists, camera and mount targets that resolve, and the space, fog and environment through their own validators; it then lowers actors and set pieces to scene nodes, cameras to resolved scene cameras and lights to scene lights.
  * @evidence contracts/common.md#clear-and-simple-design The set is one record of typed lists, one per kind of placement, plus optional world members lowered verbatim; each list's rules live on its element type, and the cross-list id uniqueness is stated once here.
@@ -23,20 +20,17 @@ import { IAutoMovieStageSetPiece } from "./IAutoMovieStageSetPiece";
  */
 export interface IAutoMovieStage {
   /**
-   * Stable scene identity, with a non-blank id, cited by every registered shot
-   * that uses this set.
+   * Stable scene identity, with a non-blank id, cited by every registered shot that uses this set.
    */
   scene: IAutoMovieNamedId;
 
   /**
-   * Human-readable geometric rationale retained beside the authored values;
-   * `stageScene` does not read it.
+   * Human-readable geometric rationale retained beside the authored values; `stageScene` does not read it.
    */
   plan: string;
 
   /**
-   * Exactly one placement for every script cast member and none for any other
-   * node.
+   * Exactly one placement for every script cast member and none for any other node.
    */
   actors: IAutoMovieStageActor[];
 
@@ -44,30 +38,22 @@ export interface IAutoMovieStage {
   set?: IAutoMovieStageSetPiece[];
 
   /**
-   * Walkable surfaces whose geometry drives grounding and locomotion checks,
-   * checked by `validateSpace` and lowered verbatim. Omitted lowers to
-   * `space: null`, the scalar ground plane.
+   * Walkable surfaces whose geometry drives grounding and locomotion checks, checked by `validateSpace` and lowered verbatim. Omitted lowers to `space: null`, the scalar ground plane.
    */
   space?: IAutoMovieSpace;
 
   /**
-   * The set's atmosphere, range-checked and lowered verbatim onto the composed
-   * scene's `fog`. Omitted composes a scene with no `fog` member, which renders
-   * without atmosphere.
+   * The set's atmosphere, range-checked and lowered verbatim onto the composed scene's `fog`. Omitted composes a scene with no `fog` member, which renders without atmosphere.
    */
   fog?: IAutoMovieFog;
 
   /**
-   * Image lighting, exposure, tone mapping and shadow policy, checked against
-   * these lights by `validateSceneEnvironment` and lowered verbatim. Omitted
-   * leaves those decisions to the host renderer.
+   * Image lighting, exposure, tone mapping and shadow policy, checked against these lights by `validateSceneEnvironment` and lowered verbatim. Omitted leaves those decisions to the host renderer.
    */
   environment?: IAutoMovieSceneEnvironment;
 
   /**
-   * Cameras available to the shot and its coverage takes. Staging accepts an
-   * empty list, but `performShot` refuses a shot whose staged scene has no
-   * camera to frame it.
+   * Cameras available to the shot and its coverage takes. Staging accepts an empty list, but `performShot` refuses a shot whose staged scene has no camera to frame it.
    */
   cameras: IAutoMovieStageCamera[];
 

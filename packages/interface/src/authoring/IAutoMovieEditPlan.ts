@@ -4,8 +4,7 @@ import { IAutoMovieEditEntry } from "./IAutoMovieEditEntry";
 /**
  * Coding-agent-owned edit over shot artifacts that were already built.
  *
- * `cutSequence` folds it into an `IAutoMovieSequence` and reports its runtime;
- * `pacing` and `continuity` are review prose with no deterministic verifier.
+ * cutSequence folds it into an IAutoMovieSequence and reports its accumulated runtime in seconds; pacing and continuity are review prose with no deterministic verifier. Referenced shot and edit-span scalars are checked, and an otherwise valid plan whose accumulated runtime is non-finite is refused.
  *
  * @evidence contracts/common.md#principled-implementation `cutSequence` checks the plan as editorial arithmetic: a non-blank sequence id, a finite positive frame rate, at least one entry, and each entry's trim and transition bounds; the runtime is the sum of played spans minus each accepted transition's overlap.
  * @evidence contracts/common.md#clear-and-simple-design The plan is the sequence identity, frame rate, ordered entries and two prose fields; the output sequence keeps the same entries, so the plan adds only the rationale the sequence does not carry.
@@ -15,8 +14,7 @@ import { IAutoMovieEditEntry } from "./IAutoMovieEditEntry";
  */
 export interface IAutoMovieEditPlan {
   /**
-   * Stable finished-film identity and display name; only the id is checked,
-   * and it must be non-blank.
+   * Stable finished-film identity and display name; only the id is checked, and it must be non-blank.
    */
   sequence: IAutoMovieNamedId;
 
@@ -30,8 +28,7 @@ export interface IAutoMovieEditPlan {
   pacing: string;
 
   /**
-   * How the end state of each shot connects to the opening of the next across
-   * each cut; never read.
+   * How the end state of each shot connects to the opening of the next across each cut; never read.
    */
   continuity: string;
 }

@@ -3,8 +3,7 @@ import { IAutoMovieForgeEntry } from "./IAutoMovieForgeEntry";
 /**
  * Coding-agent-authored stand-in model inventory for a script cast.
  *
- * `forgeCast` accepts it as a map from cast node to model, or returns every
- * casting and model violation together.
+ * forgeCast accepts it as a map from cast node to the original model references, or returns the casting and model findings collected by that pass. An entry with an unknown cast node returns before its model is inspected.
  *
  * @evidence contracts/common.md#principled-implementation `forgeCast` indexes the cast once, checks each entry, then walks the cast again to report every member with a `null` `modelRef` that no entry forged, so the plan must be an exact cover of the stand-in members.
  * @evidence contracts/common.md#clear-and-simple-design One entry list is the whole plan; the cast and its `modelRef` choices stay on the script, so the plan states only the models it supplies.
@@ -14,8 +13,7 @@ import { IAutoMovieForgeEntry } from "./IAutoMovieForgeEntry";
  */
 export interface IAutoMovieForgePlan {
   /**
-   * Exactly one generated stand-in for every cast member whose `modelRef` is
-   * `null`, and none for a member whose `modelRef` names an imported asset.
+   * Exactly one generated stand-in for every cast member whose modelRef is null, and none for a member whose modelRef names an imported asset.
    */
   entries: IAutoMovieForgeEntry[];
 }

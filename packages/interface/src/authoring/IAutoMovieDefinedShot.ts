@@ -3,11 +3,7 @@ import { IAutoMovieShotDefinition } from "./IAutoMovieShotDefinition";
 /**
  * One source-level shot registration, as `defineShot` returns it.
  *
- * The export is the artifact: id, staged scene, measurable contract and
- * deterministic builder travel together, so a repository builder binds module
- * path, export name and artifact identity without a second manifest claiming
- * what the source contains. `compileDefinedShot` validates it and turns a
- * blank id, scene or contract beat into a `registration-invalid` diagnostic.
+ * Id, staged scene, measurable contract and builder travel together, so the source boundary can bind module path, export name and artifact identity. compileDefinedShot turns a blank id, scene or contract beat into a registration-invalid diagnostic without invoking the builder.
  *
  * @evidence contracts/common.md#principled-implementation Identity is the registration id: `compileDefinedShot` refuses a blank id, scene or contract beat, publishes the shot under this id, and restores the contract's `id` and synthetic `<defineShot:id>` source from it before measuring, while the production source build requires the export's id and canonical contract bytes to equal the design's.
  * @evidence contracts/common.md#clear-and-simple-design Extends `IAutoMovieShotDefinition` with only `id`, the field `defineShot` adds, so scene, contract and builder are declared once and the registration is exactly the definition plus its address.
@@ -18,8 +14,7 @@ import { IAutoMovieShotDefinition } from "./IAutoMovieShotDefinition";
 export interface IAutoMovieDefinedShot<Context = undefined>
   extends IAutoMovieShotDefinition<Context> {
   /**
-   * Non-blank stable shot id; the compiled shot and its contract receive this
-   * exact identity.
+   * Non-blank stable shot id; the compiled shot and its contract receive this exact identity.
    */
   id: string;
 }
