@@ -10,12 +10,7 @@ import { ViolationCollector } from "../validation/ViolationCollector";
  * Refuse a prop that transitively rests on, plugs into, or hangs from itself
  * through `prop-affordance` relations.
  *
- * Only props whose node is declared once take part, and a relation citing an
- * unresolved, ambiguous or self-same prop is skipped, because
- * `validatePropPlacements` already refuses those by name. Each cycle is
- * reported once, at the relation that closes it, under
- * `$input.props[i].placement.relations[j].target.prop`, visiting props in
- * declaration order.
+ * Only props whose node is declared once take part, and a relation citing an unresolved, ambiguous or self-same prop is skipped, because `validatePropPlacements` already refuses those by name. Each encountered DFS back edge is reported at its closing relation under `$input.props[i].placement.relations[j].target.prop`, visiting props in declaration order.
  *
  * @param props The prop registry in declaration order.
  * @param out Collector the violations are appended to.
@@ -24,11 +19,14 @@ import { ViolationCollector } from "../validation/ViolationCollector";
  * @evidence contracts/common.md#clear-and-simple-design One graph check apart from the registry and geometry gates, indexing only the uniquely declared nodes it can follow, so `validatePropPlacements` composes it as one line.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Ambiguous, missing and self-citing targets are skipped because another rule names them, not to hide a cycle, and no prop or affordance is special-cased.
  * @evidence contracts/common.md#meaningful-documentation States which props and relations take part, why the others are skipped, where and how often a cycle is reported, and the visiting order.
- * @evidence contracts/performance.md#efficient-algorithms Linear in props plus contact relations: each uniquely declared prop is entered once and each of its relations followed once, with constant-time set and map lookups; recursion depth is bounded by the longest contact chain.
+ * @evidence contracts/performance.md#efficient-algorithms Linear in props plus all relations of uniquely declared props: each such prop is entered once and each relation is inspected once, following only prop-affordance targets, with constant-time set and map lookups; recursion depth is bounded by the longest contact chain.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work One search per validation call; nothing is kept across calls.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the node index and the two sets die with the call.
  */
-export const validatePropSupportCycles = (
+export const validatePropSupportCycles: (
+  props: readonly IAutoMoviePropSpec[],
+  out: ViolationCollector,
+) => void = (
   props: readonly IAutoMoviePropSpec[],
   out: ViolationCollector,
 ): void => {
@@ -41,7 +39,7 @@ export const validatePropSupportCycles = (
   });
   const visiting: Set<string> = new Set<string>();
   const visited: Set<string> = new Set<string>();
-  const visit = (index: number): void => {
+  const visit: (index: number) => void = (index: number): void => {
     const prop: IAutoMoviePropSpec = props[index]!;
     if (visited.has(prop.node)) return;
     visiting.add(prop.node);

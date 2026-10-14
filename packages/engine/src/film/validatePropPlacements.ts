@@ -13,13 +13,20 @@ import { ViolationCollector } from "../validation/ViolationCollector";
 import { IAutoMovieForgedProp } from "./IAutoMovieForgedProp";
 import { forgeProp } from "./forgeProp";
 import { propBoxAxisIsSound } from "./propBoxAxisIsSound";
-import { validatePropPlacementGeometry } from "./validatePropPlacementGeometry";
 import { validatePropAffordanceTarget } from "./validatePropAffordanceTarget";
+import { validatePropPlacementGeometry } from "./validatePropPlacementGeometry";
 import { validatePropSupportCycles } from "./validatePropSupportCycles";
 
-/** A registry record and its index in the list that declared it. */
+/**
+ * A borrowed registry record and its original authored diagnostic position.
+ *
+ * @author Samchon
+ */
 interface IIndexed<Value> {
+  /** Borrowed record from the registry bucket. */
   value: Value;
+
+  /** Original declaration position named by duplicate and relation findings. */
   index: number;
 }
 
@@ -65,51 +72,36 @@ const BUILDING_TARGET_LABELS: Readonly<Record<BuildingTarget["kind"], string>> =
   };
 
 /**
- * Validate a source-owned prop registry, its unique staged join, its typed
- * building relations, its support graph, the bearing of every prop on the face
- * it says holds it up, and every transformed volume it claims.
+ * Validate a source-owned prop registry, its unique staged join, its typed building relations, its support graph, the bearing of every prop on the face it says holds it up, and every transformed volume it claims.
  *
- * Registry construction is deliberately a separate first pass. A lamp may cite
- * a table declared later without changing the result, while duplicate prop,
- * set-piece, or building-environment identities stay explicit rather than
- * being hidden by `Map`'s last-write-wins behavior. Each prop is forged with
- * `forgeProp`, whose violations are re-rooted at the prop's path, and must be
- * staged by exactly one set piece drawing its model.
+ * Registry construction is deliberately a separate first pass. A lamp may cite a table declared later without changing the result, while duplicate prop, set-piece, or building-environment identities stay explicit rather than being hidden by `Map`'s last-write-wins behavior. Each prop is forged with `forgeProp`, whose violations are re-rooted at the prop's path, and must be staged by exactly one set piece drawing its model.
  *
- * A relation must cite a target kind its relation kind accepts, a target that
- * resolves, and, for a prop affordance, a different, uniquely declared prop
- * whose affordance has the kind the relation needs: `stack-top` to rest on,
- * `socket` to attach, `hook` to hang. A prop occupies at most one space and
- * fills at most one opening, every building relation stays in the occupied
- * space's environment, a supporting prop stays there too, and contact
- * relations may not form a cycle. Footprints and clearances need finite,
- * positive extents and clearance ids are non-blank and unique per prop.
+ * A relation must cite a target kind its relation kind accepts, a target that resolves, and, for a prop affordance, a different, uniquely declared prop whose affordance has the kind the relation needs: `stack-top` to rest on, `socket` to attach, `hook` to hang. A prop occupies at most one space and fills at most one opening, every building relation stays in the occupied space's environment, a supporting prop stays there too, and contact relations may not form a cycle. Footprints and clearances need finite, positive extents and clearance ids are non-blank and unique per prop.
  *
- * Two silences are contractual. A prop that omits `placement` claims no
- * relation and is claimed by none, so it takes part in no containment, overlap
- * or passage judgment of its own. And a geometric judgment, delegated to
- * `validatePropPlacementGeometry`, is only made where the record can answer
- * it, so a cell-less logical space, an opening whose fill has no model, and a
- * prop whose staged join is missing or ambiguous are reported as what they are
- * rather than silently failing a spatial test they cannot be measured against.
+ * A prop omitting placement makes no relation, containment, overlap or passage claim of its own, but its staged occupancy can obstruct another prop's clearance and its model affordances can support another prop. Geometry delegates to validatePropPlacementGeometry: a space subtree with neither cells nor shells imposes no containment restriction, shell-only spaces are measured, and model-less fills or ambiguous staging joins cannot supply the corresponding bounds.
  *
- * Where a prop's appearance came from changes nothing here. A prop drawing an
- * external asset (`IAutoMoviePropSpec.modelRef`) forges like any other, so it
- * is contained, borne, cleared, and judged against passages through exactly
- * these rules, read off the deterministic proxy `propOccupancyBounds` measures
- * and the affordances its own spec declares.
+ * Where a prop's appearance came from changes nothing here. A prop drawing an external asset (`IAutoMoviePropSpec.modelRef`) forges like any other, so it is contained, borne, cleared, and judged against passages through exactly these rules, read off the deterministic proxy `propOccupancyBounds` measures and the affordances its own spec declares.
  *
  * @evidence contracts/common.md#principled-implementation Indexes every registry by id into lists before judging, so references resolve independent of declaration order and duplicates stay visible; relation targets are checked against a closed kind table, support cycles by `validatePropSupportCycles`' depth-first search, and geometry only for props whose forging, staging and footprint are sound.
  * @evidence contracts/common.md#clear-and-simple-design This file owns the registry, the staged join and the relation graph; volume judgments live in `validatePropPlacementGeometry`, prop-to-prop contact in `validatePropAffordanceTarget`, cycles in `validatePropSupportCycles`, forging in `forgeProp`, and the box-axis rule in `propBoxAxisIsSound`, so each rule has one owner and this gate reads as the list of checks.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Duplicates and ambiguous references are reported rather than resolved by last-write-wins, unsound props are excluded from geometry so one fault is reported once, and no prop, model, building or relation kind is special-cased beyond the closed kind and affordance tables.
- * @evidence contracts/common.md#meaningful-documentation States every registry, join, relation, cycle and box rule, the two contractual silences, the delegation of geometry, and that external appearances are judged by the same rules.
- * @evidence contracts/performance.md#efficient-algorithms Linear indexing of props, set pieces and environments, then per-relation constant-time map lookups plus linear scans of one environment's id lists, a support-cycle search in `validatePropSupportCycles` linear in props and contact relations, and the geometry pass's `O(S²)` box tests over the tens of props a shot stages.
+ * @evidence contracts/common.md#meaningful-documentation States every registry, join, relation, cycle and box rule, the limited claims of a placementless prop and its remaining occupancy and support roles, the delegation of geometry, and that external appearances are judged by the same rules.
+ * @evidence contracts/performance.md#efficient-algorithms Indexes props, set pieces and environments linearly, then delegates forging for every prop. Relations use map joins plus scans of referenced environment ids or model affordances; cycle search visits props and scans their relations linearly. The geometry pass adds pairwise/clearance box tests and delegated footprint/part measurements. Cost includes those nested model, relation and geometry populations without assuming a small shot.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work One validation per call; production runs it once per shot compile and every index is rebuilt from that shot's registry.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the indexes and collector die with the call and the returned violations belong to the caller.
  */
-export const validatePropPlacements = (props: {
+export const validatePropPlacements: (props: {
   props: readonly IAutoMoviePropSpec[];
   set: readonly IAutoMovieStageSetPiece[];
+  builtEnvironments: readonly IAutoMovieBuiltEnvironment[];
+}) => IAutoMovieValidation = (props: {
+  /** Source-owned registry whose exact node and target identities are retained. */
+  props: readonly IAutoMoviePropSpec[];
+
+  /** Staged set pieces joining each declared prop to its model and world placement. */
+  set: readonly IAutoMovieStageSetPiece[];
+
+  /** Built environments that relation targets may reference. */
   builtEnvironments: readonly IAutoMovieBuiltEnvironment[];
 }): IAutoMovieValidation => {
   const out: ViolationCollector = new ViolationCollector();
@@ -120,7 +112,10 @@ export const validatePropPlacements = (props: {
   const setByNode: ReadonlyMap<
     string,
     readonly IIndexed<IAutoMovieStageSetPiece>[]
-  > = indexBy(props.set, (piece: IAutoMovieStageSetPiece): string => piece.node);
+  > = indexBy(
+    props.set,
+    (piece: IAutoMovieStageSetPiece): string => piece.node,
+  );
   const environments: Environments = indexBy(
     props.builtEnvironments,
     (environment: IAutoMovieBuiltEnvironment): string => environment.id,
@@ -179,7 +174,13 @@ export const validatePropPlacements = (props: {
 
   props.props.forEach((prop: IAutoMoviePropSpec, index: number): void => {
     if (prop.placement !== undefined)
-      validatePlacement({ value: prop, index }, environments, unique, byNode, out);
+      validatePlacement(
+        { value: prop, index },
+        environments,
+        unique,
+        byNode,
+        out,
+      );
   });
   validatePropSupportCycles(props.props, out);
   validatePropPlacementGeometry({ entries, environments: unique, out });
@@ -187,7 +188,10 @@ export const validatePropPlacements = (props: {
 };
 
 /** The environment a prop's `in-space` relation names, when declared exactly once. */
-const locatedEnvironment = (
+const locatedEnvironment: (
+  prop: IAutoMoviePropSpec,
+  unique: ReadonlyMap<string, IAutoMovieBuiltEnvironment>,
+) => IAutoMovieBuiltEnvironment | null = (
   prop: IAutoMoviePropSpec,
   unique: ReadonlyMap<string, IAutoMovieBuiltEnvironment>,
 ): IAutoMovieBuiltEnvironment | null => {
@@ -198,7 +202,13 @@ const locatedEnvironment = (
 };
 
 /** The relation, box and clearance-id rules of one placement. */
-const validatePlacement = (
+const validatePlacement: (
+  entry: IIndexed<IAutoMoviePropSpec>,
+  environments: Environments,
+  unique: ReadonlyMap<string, IAutoMovieBuiltEnvironment>,
+  props: Props,
+  out: ViolationCollector,
+) => void = (
   entry: IIndexed<IAutoMoviePropSpec>,
   environments: Environments,
   unique: ReadonlyMap<string, IAutoMovieBuiltEnvironment>,
@@ -271,8 +281,10 @@ const validatePlacement = (
         out,
       );
       if (matches.length !== 1 || located === null) return;
-      const supporting: IAutoMovieBuiltEnvironment | null =
-        locatedEnvironment(matches[0]!.value, unique);
+      const supporting: IAutoMovieBuiltEnvironment | null = locatedEnvironment(
+        matches[0]!.value,
+        unique,
+      );
       if (supporting !== null && supporting.id !== located.id)
         out.push(
           "type",
@@ -304,7 +316,12 @@ const validatePlacement = (
 };
 
 /** Gate a relation that cites the architecture graph. */
-const validateBuildingTarget = (
+const validateBuildingTarget: (
+  target: BuildingTarget,
+  rp: string,
+  environments: Environments,
+  out: ViolationCollector,
+) => void = (
   target: BuildingTarget,
   rp: string,
   environments: Environments,
@@ -362,17 +379,21 @@ const validateBuildingTarget = (
     );
 };
 
-/** One key per relation kind and exact target, for duplicate detection. */
-const relationKey = (relation: IAutoMoviePropRelation): string => {
+/** JSON-encode the relation kind and its closed target fields without delimiter ambiguity in authored string identities. */
+const relationKey: (relation: IAutoMoviePropRelation) => string = (
+  relation: IAutoMoviePropRelation,
+): string => {
   const target: IAutoMoviePropRelationTarget = relation.target;
-  const tail: string =
+  return JSON.stringify(
     target.kind === "prop-affordance"
-      ? `${target.prop}\0${target.affordance}`
-      : `${target.environment}\0${targetId(target)}`;
-  return `${relation.kind}\0${target.kind}\0${tail}`;
+      ? [relation.kind, target.kind, target.prop, target.affordance]
+      : [relation.kind, target.kind, target.environment, targetId(target)],
+  );
 };
 
-const targetId = (target: BuildingTarget): string => {
+const targetId: (target: BuildingTarget) => string = (
+  target: BuildingTarget,
+): string => {
   switch (target.kind) {
     case "space":
       return target.space;
@@ -388,7 +409,11 @@ const targetId = (target: BuildingTarget): string => {
 };
 
 /** Report every axis of a declared box that is not a finite positive extent. */
-const validateBox = (
+const validateBox: (
+  box: IAutoMoviePropBox,
+  path: string,
+  out: ViolationCollector,
+) => void = (
   box: IAutoMoviePropBox,
   path: string,
   out: ViolationCollector,
@@ -404,7 +429,10 @@ const validateBox = (
 };
 
 /** Group values by key, keeping each value's declaration index. */
-const indexBy = <Value>(
+const indexBy: <Value>(
+  values: readonly Value[],
+  key: (value: Value) => string,
+) => Map<string, IIndexed<Value>[]> = <Value>(
   values: readonly Value[],
   key: (value: Value) => string,
 ): Map<string, IIndexed<Value>[]> => {
@@ -419,7 +447,13 @@ const indexBy = <Value>(
 };
 
 /** Report every declaration of an id after its first. */
-const reportDuplicates = <Value>(
+const reportDuplicates: <Value>(
+  indexed: ReadonlyMap<string, readonly IIndexed<Value>[]>,
+  path: string,
+  field: string,
+  label: string,
+  out: ViolationCollector,
+) => void = <Value>(
   indexed: ReadonlyMap<string, readonly IIndexed<Value>[]>,
   path: string,
   field: string,
