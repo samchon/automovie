@@ -1,4 +1,3 @@
-
 /**
  * The selected-repaint lane of one delivered occurrence, bound to one immutable successful attempt.
  *

@@ -1,4 +1,3 @@
-
 /**
  * Exact deterministic or selected-repaint member of one sequence observation.
  *

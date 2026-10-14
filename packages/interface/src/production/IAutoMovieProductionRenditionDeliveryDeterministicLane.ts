@@ -1,4 +1,3 @@
-
 /**
  * The deterministic renderer lane of one delivered occurrence.
  *

@@ -1,4 +1,3 @@
-
 /**
  * Authored policy naming every adjacent crossing between unlike visual lanes and the current aggregate sequence observation.
  *
