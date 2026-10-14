@@ -30,25 +30,37 @@ export function humanPersonBodyReach(
   );
   const limits: Map<string, string[]> = new Map<string, string[]>();
   const channels: typeof body.channels = body.channels
-    .filter((channel: (typeof body.channels)[number]): boolean => !missing.includes(channel))
-    .map((channel: (typeof body.channels)[number]): (typeof body.channels)[number] => {
-      const reach: ReturnType<typeof humanBodyChannelReach> = humanBodyChannelReach(body, channel);
-      if (
-        !Number.isFinite(reach.minimum) ||
-        !Number.isFinite(reach.maximum) ||
-        reach.minimum > 0 ||
-        reach.maximum < 0
-      )
-        throw new Error(
-          "A person solve needs finite neutral-containing body support: " +
-            channel.id +
-            ".",
-        );
-      if (reach.limits.length !== 0) limits.set(channel.id, [...reach.limits]);
-      return { ...channel, minimum: reach.minimum, maximum: reach.maximum };
-    });
+    .filter(
+      (channel: (typeof body.channels)[number]): boolean =>
+        !missing.includes(channel),
+    )
+    .map(
+      (
+        channel: (typeof body.channels)[number],
+      ): (typeof body.channels)[number] => {
+        const reach: ReturnType<typeof humanBodyChannelReach> =
+          humanBodyChannelReach(body, channel);
+        if (
+          !Number.isFinite(reach.minimum) ||
+          !Number.isFinite(reach.maximum) ||
+          reach.minimum > 0 ||
+          reach.maximum < 0
+        )
+          throw new Error(
+            "A person solve needs finite neutral-containing body support: " +
+              channel.id +
+              ".",
+          );
+        if (reach.limits.length !== 0)
+          limits.set(channel.id, [...reach.limits]);
+        return { ...channel, minimum: reach.minimum, maximum: reach.maximum };
+      },
+    );
   for (const driver of generation.drivers ?? []) {
-    const head: (typeof face.channels)[number] | undefined = face.channels.find((channel: (typeof face.channels)[number]): boolean => channel.id === driver.channel);
+    const head: (typeof face.channels)[number] | undefined = face.channels.find(
+      (channel: (typeof face.channels)[number]): boolean =>
+        channel.id === driver.channel,
+    );
     if (
       head === undefined ||
       head.kind !== "shape" ||
@@ -68,8 +80,11 @@ export function humanPersonBodyReach(
         channel.positive === driver.endpoint ||
         channel.negative === driver.endpoint,
     );
-    const correctives: NonNullable<typeof body.correctives> = (body.correctives ?? []).filter(
-      (corrective: NonNullable<typeof body.correctives>[number]): boolean => corrective.target === driver.endpoint,
+    const correctives: NonNullable<typeof body.correctives> = (
+      body.correctives ?? []
+    ).filter(
+      (corrective: NonNullable<typeof body.correctives>[number]): boolean =>
+        corrective.target === driver.endpoint,
     );
     if (
       correctives.some(
@@ -86,10 +101,18 @@ export function humanPersonBodyReach(
       );
     if (
       owners.length > 1 ||
-      owners.some((channel: (typeof body.channels)[number]): boolean => channel.positive === channel.negative) ||
+      owners.some(
+        (channel: (typeof body.channels)[number]): boolean =>
+          channel.positive === channel.negative,
+      ) ||
       (owners.length !== 0 && correctives.length !== 0) ||
-      correctives.reduce((sum: number, corrective: NonNullable<typeof body.correctives>[number]): number => sum + corrective.weight, 0) >
-        head.maximum
+      correctives.reduce(
+        (
+          sum: number,
+          corrective: NonNullable<typeof body.correctives>[number],
+        ): number => sum + corrective.weight,
+        0,
+      ) > head.maximum
     )
       throw new Error(
         "The person endpoint " +

@@ -1,7 +1,7 @@
 import type { IAutoMovieModel } from "@automovie/interface";
 
-import type { IHumanFaceOralMeasurementRegistration } from "../../face/anatomy/oral/IHumanFaceOralMeasurementRegistration";
 import type { IHumanFaceHairContactLayout } from "../../face/anatomy/hair/IHumanFaceHairContactLayout";
+import type { IHumanFaceOralMeasurementRegistration } from "../../face/anatomy/oral/IHumanFaceOralMeasurementRegistration";
 import type { IHumanFaceMaterialAttachment } from "../../face/structures/IHumanFaceMaterialAttachment";
 
 /**
@@ -28,7 +28,10 @@ export interface IAutoMovieHumanPersonFaceBuild {
   hairContactLayouts: ReadonlyMap<string, IHumanFaceHairContactLayout>;
 
   /** This emission's exact material seats, keyed by physical domain and ID. */
-  materialAttachments: ReadonlyMap<string, ReadonlyMap<number, IHumanFaceMaterialAttachment>>;
+  materialAttachments: ReadonlyMap<
+    string,
+    ReadonlyMap<number, IHumanFaceMaterialAttachment>
+  >;
 
   /** Owned source-neutral reference snapshot, when requested and available. */
   reference?: ReadonlyMap<string, readonly number[]>;

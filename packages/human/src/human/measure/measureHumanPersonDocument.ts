@@ -19,9 +19,10 @@ import { restHumanPersonDocument } from "./restHumanPersonDocument";
 export function measureHumanPersonDocument(
   props: IAutoMovieHumanPersonDocumentMeasurementProps,
 ): IAutoMovieHumanPersonMeasurementReading {
-  const rule: (typeof HUMAN_PERSON_MEASUREMENTS)[string] | undefined = Object.hasOwn(HUMAN_PERSON_MEASUREMENTS, props.channel)
-    ? HUMAN_PERSON_MEASUREMENTS[props.channel]
-    : undefined;
+  const rule: (typeof HUMAN_PERSON_MEASUREMENTS)[string] | undefined =
+    Object.hasOwn(HUMAN_PERSON_MEASUREMENTS, props.channel)
+      ? HUMAN_PERSON_MEASUREMENTS[props.channel]
+      : undefined;
   if (rule === undefined)
     throw new Error(
       "No person measurement is named by the body channel " +
@@ -32,7 +33,9 @@ export function measureHumanPersonDocument(
     return {
       metres: readHumanPersonRest(props.compiled, props.document).statureMetres,
     };
-  const built: ReturnType<typeof props.build> = props.build(restHumanPersonDocument(props.document));
+  const built: ReturnType<typeof props.build> = props.build(
+    restHumanPersonDocument(props.document),
+  );
   const reading: ReturnType<typeof readHumanPersonGirth> = readHumanPersonGirth(
     built.model,
     built.body.landmarks,

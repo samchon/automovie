@@ -20,10 +20,17 @@ export function readHumanPersonRest(
   compiled: IAutoMovieHumanPersonCompiledGeneration,
   document: IAutoMovieHumanPersonDocument,
 ): IAutoMovieHumanPersonRestReading {
-  const rest: ReturnType<typeof evaluateHumanPersonRestSkin> = evaluateHumanPersonRestSkin(compiled, document);
-  const faceSkin: (typeof compiled.generation.face.surfaces)[number] = compiled.generation.face.surfaces[compiled.faceProducerSkin];
-  const bodySkin: (typeof compiled.generation.body.surfaces)[number] = compiled.generation.body.surfaces[compiled.bodyIndex];
-  const halves: { indices: readonly number[]; samples: readonly number[]; positions: readonly number[] }[] = [
+  const rest: ReturnType<typeof evaluateHumanPersonRestSkin> =
+    evaluateHumanPersonRestSkin(compiled, document);
+  const faceSkin: (typeof compiled.generation.face.surfaces)[number] =
+    compiled.generation.face.surfaces[compiled.faceProducerSkin];
+  const bodySkin: (typeof compiled.generation.body.surfaces)[number] =
+    compiled.generation.body.surfaces[compiled.bodyIndex];
+  const halves: {
+    indices: readonly number[];
+    samples: readonly number[];
+    positions: readonly number[];
+  }[] = [
     {
       indices: faceSkin.indices,
       samples: compiled.faceSource.samples,
@@ -51,14 +58,18 @@ export function readHumanPersonRest(
   let volume: number = 0;
   for (const half of halves)
     for (let t: number = 0; t < half.indices.length; t += 3) {
-      const ids: number[] = [0, 1, 2].map((k: number): number => half.samples[half.indices[t + k]]);
+      const ids: number[] = [0, 1, 2].map(
+        (k: number): number => half.samples[half.indices[t + k]],
+      );
       for (let k: number = 0; k < 3; k++) {
         const a: number = ids[k];
         const b: number = ids[(k + 1) % 3];
         const key: string = a < b ? `${a}:${b}` : `${b}:${a}`;
         edges.set(key, (edges.get(key) ?? 0) + 1);
       }
-      const [p, q, r]: number[][] = ids.map((id: number): number[] => at.get(id)!);
+      const [p, q, r]: number[][] = ids.map(
+        (id: number): number[] => at.get(id)!,
+      );
       volume +=
         (p[0] * (q[1] * r[2] - q[2] * r[1]) -
           p[1] * (q[0] * r[2] - q[2] * r[0]) +

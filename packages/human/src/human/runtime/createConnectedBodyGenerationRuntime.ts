@@ -1,11 +1,10 @@
+import { createConnectedBodyRuntime } from "../../body/runtime/createConnectedBodyRuntime";
 import type {
   IAutoMovieHumanPersonBodyView,
   IAutoMovieHumanPersonHeadView,
 } from "../../index";
 import { createHumanPersonBodyEndpointSource } from "../build/createHumanPersonBodyEndpointSource";
 import { joinHumanPersonGeneration } from "../build/joinHumanPersonGeneration";
-
-import { createConnectedBodyRuntime } from "../../body/runtime/createConnectedBodyRuntime";
 import { createConnectedBodySimpleWhole } from "./createConnectedBodySimpleWhole";
 
 /**
@@ -26,7 +25,8 @@ export function createConnectedBodyGenerationRuntime(
   body: IAutoMovieHumanPersonBodyView,
   progress?: (stage: string) => void,
 ): ReturnType<typeof createConnectedBodyRuntime> {
-  const generation: ReturnType<typeof joinHumanPersonGeneration> = joinHumanPersonGeneration(head, body);
+  const generation: ReturnType<typeof joinHumanPersonGeneration> =
+    joinHumanPersonGeneration(head, body);
   return createConnectedBodyRuntime(
     body.body,
     createConnectedBodySimpleWhole(head, body),

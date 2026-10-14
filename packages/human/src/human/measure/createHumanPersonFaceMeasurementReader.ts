@@ -31,7 +31,11 @@ export function createHumanPersonFaceMeasurementReader(
 ) => AutoMovieHumanFaceMeasurementReading[] {
   const basis: typeof compiled.generation.face = compiled.generation.face;
   const surfaces: Map<string, (typeof basis.surfaces)[number]> = new Map(
-    basis.surfaces.map((surface: (typeof basis.surfaces)[number]): [string, (typeof basis.surfaces)[number]] => [surface.id, surface]),
+    basis.surfaces.map(
+      (
+        surface: (typeof basis.surfaces)[number],
+      ): [string, (typeof basis.surfaces)[number]] => [surface.id, surface],
+    ),
   );
   return ({
     model,
@@ -46,38 +50,56 @@ export function createHumanPersonFaceMeasurementReader(
       throw new Error(
         "Person face measurements need the model and document of the compiled generation's evaluation.",
       );
-    const inverse: ReturnType<typeof Quaternion.inverse> = Quaternion.inverse(head.rotation);
-    const origin: ReturnType<typeof head.point> = head.point({ x: 0, y: 0, z: 0 });
-    const parts: Map<string, (typeof model.parts)[number]> = new Map(model.parts.map((part: (typeof model.parts)[number]): [string, (typeof model.parts)[number]] => [part.id, part]));
-    const canonicalPositions: (world: readonly number[]) => number[] = (world: readonly number[]): number[] => {
+    const inverse: ReturnType<typeof Quaternion.inverse> = Quaternion.inverse(
+      head.rotation,
+    );
+    const origin: ReturnType<typeof head.point> = head.point({
+      x: 0,
+      y: 0,
+      z: 0,
+    });
+    const parts: Map<string, (typeof model.parts)[number]> = new Map(
+      model.parts.map(
+        (
+          part: (typeof model.parts)[number],
+        ): [string, (typeof model.parts)[number]] => [part.id, part],
+      ),
+    );
+    const canonicalPositions: (world: readonly number[]) => number[] = (
+      world: readonly number[],
+    ): number[] => {
       const output: number[] = new Array<number>(world.length);
       for (let at: number = 0; at < world.length; at += 3) {
-        const local: ReturnType<typeof Quaternion.rotateVector> = Quaternion.rotateVector(
-          inverse,
-          Vector3.subtract(
-            {
-              x: Math.fround(world[at]),
-              y: Math.fround(world[at + 1]),
-              z: Math.fround(world[at + 2]),
-            },
-            origin,
-          ),
-        );
+        const local: ReturnType<typeof Quaternion.rotateVector> =
+          Quaternion.rotateVector(
+            inverse,
+            Vector3.subtract(
+              {
+                x: Math.fround(world[at]),
+                y: Math.fround(world[at + 1]),
+                z: Math.fround(world[at + 2]),
+              },
+              origin,
+            ),
+          );
         output[at] = Math.fround(local.x);
         output[at + 1] = Math.fround(local.y);
         output[at + 2] = Math.fround(local.z);
       }
       return output;
     };
-    const canonicalMesh: (mesh: IAutoMovieMesh) => IAutoMovieMesh = (mesh: IAutoMovieMesh): IAutoMovieMesh => {
+    const canonicalMesh: (mesh: IAutoMovieMesh) => IAutoMovieMesh = (
+      mesh: IAutoMovieMesh,
+    ): IAutoMovieMesh => {
       const normals: number[] | null = mesh.normals?.slice() ?? null;
       if (normals !== null)
         for (let at: number = 0; at < normals.length; at += 3) {
-          const local: ReturnType<typeof Quaternion.rotateVector> = Quaternion.rotateVector(inverse, {
-            x: Math.fround(normals[at]),
-            y: Math.fround(normals[at + 1]),
-            z: Math.fround(normals[at + 2]),
-          });
+          const local: ReturnType<typeof Quaternion.rotateVector> =
+            Quaternion.rotateVector(inverse, {
+              x: Math.fround(normals[at]),
+              y: Math.fround(normals[at + 1]),
+              z: Math.fround(normals[at + 2]),
+            });
           normals[at] = Math.fround(local.x);
           normals[at + 1] = Math.fround(local.y);
           normals[at + 2] = Math.fround(local.z);
@@ -96,11 +118,18 @@ export function createHumanPersonFaceMeasurementReader(
       );
     const seen: Set<string> = new Set<string>();
     for (const region of sourceRegions) {
-      const surface: (typeof basis.surfaces)[number] | undefined = surfaces.get(region.surface);
-      const part: (typeof model.parts)[number] | undefined = parts.get("face:" + region.part);
+      const surface: (typeof basis.surfaces)[number] | undefined = surfaces.get(
+        region.surface,
+      );
+      const part: (typeof model.parts)[number] | undefined = parts.get(
+        "face:" + region.part,
+      );
       if (
         surface === undefined ||
-        !surface.regions.some((one: (typeof surface.regions)[number]): boolean => one.id === region.part) ||
+        !surface.regions.some(
+          (one: (typeof surface.regions)[number]): boolean =>
+            one.id === region.part,
+        ) ||
         part === undefined ||
         seen.has(region.part)
       )
@@ -135,9 +164,11 @@ export function createHumanPersonFaceMeasurementReader(
       });
     }
     if (oral !== undefined) {
-      const surface: (typeof basis.surfaces)[number] | undefined = basis.surfaces.find(
-        (one: (typeof basis.surfaces)[number]): boolean => one.id === oral.dentalSurface,
-      );
+      const surface: (typeof basis.surfaces)[number] | undefined =
+        basis.surfaces.find(
+          (one: (typeof basis.surfaces)[number]): boolean =>
+            one.id === oral.dentalSurface,
+        );
       if (surface === undefined)
         throw new Error(
           "Final oral correspondence names an absent basis dental surface: " +
@@ -155,20 +186,26 @@ export function createHumanPersonFaceMeasurementReader(
         ),
       );
     }
-    const context: ReturnType<typeof createHumanFaceMeasurementContext> = createHumanFaceMeasurementContext(basis, posed, {
-      oral,
-      brows: { replacements: browReplacements },
-      reference:
-        reference === undefined
-          ? undefined
-          : new Map(
-              [...reference].map(([id, positions]: [string, readonly number[]]): [string, number[]] => [
-                id,
-                canonicalPositions(positions),
-              ]),
-            ),
-    });
-    context.opticalMesh = (side: Parameters<NonNullable<typeof context.opticalMesh>>[0], role: Parameters<NonNullable<typeof context.opticalMesh>>[1]): ReturnType<NonNullable<typeof context.opticalMesh>> => {
+    const context: ReturnType<typeof createHumanFaceMeasurementContext> =
+      createHumanFaceMeasurementContext(basis, posed, {
+        oral,
+        brows: { replacements: browReplacements },
+        reference:
+          reference === undefined
+            ? undefined
+            : new Map(
+                [...reference].map(
+                  ([id, positions]: [string, readonly number[]]): [
+                    string,
+                    number[],
+                  ] => [id, canonicalPositions(positions)],
+                ),
+              ),
+      });
+    context.opticalMesh = (
+      side: Parameters<NonNullable<typeof context.opticalMesh>>[0],
+      role: Parameters<NonNullable<typeof context.opticalMesh>>[1],
+    ): ReturnType<NonNullable<typeof context.opticalMesh>> => {
       const id: string = "face:" + humanFaceOpticalPartId(side, role);
       const part: (typeof model.parts)[number] | undefined = parts.get(id);
       if (part === undefined) {
@@ -180,8 +217,15 @@ export function createHumanPersonFaceMeasurementReader(
       }
       return canonicalMesh(meshOfHumanPart(part));
     };
-    context.lashMesh = (side: Parameters<NonNullable<typeof context.lashMesh>>[0], row: Parameters<NonNullable<typeof context.lashMesh>>[1]): ReturnType<NonNullable<typeof context.lashMesh>> => {
-      const profile: NonNullable<NonNullable<typeof document.face.lashes>[typeof row]>[typeof side] | undefined = document.face.lashes?.[row]?.[side];
+    context.lashMesh = (
+      side: Parameters<NonNullable<typeof context.lashMesh>>[0],
+      row: Parameters<NonNullable<typeof context.lashMesh>>[1],
+    ): ReturnType<NonNullable<typeof context.lashMesh>> => {
+      const profile:
+        | NonNullable<
+            NonNullable<typeof document.face.lashes>[typeof row]
+          >[typeof side]
+        | undefined = document.face.lashes?.[row]?.[side];
       if (profile === undefined) return null;
       const id: string = "face:" + humanFaceLashPartId(side, row);
       const part: (typeof model.parts)[number] | undefined = parts.get(id);
@@ -190,7 +234,9 @@ export function createHumanPersonFaceMeasurementReader(
         throw new Error(
           `The final person omits requested generated lash part ${id}.`,
         );
-      const registration: NonNullable<typeof basis.periocular>[typeof side]["lashes"] | undefined = basis.periocular?.[side].lashes;
+      const registration:
+        | NonNullable<typeof basis.periocular>[typeof side]["lashes"]
+        | undefined = basis.periocular?.[side].lashes;
       if (registration === undefined)
         throw new Error(
           `The zero lash population ${id} has no source-row registration.`,

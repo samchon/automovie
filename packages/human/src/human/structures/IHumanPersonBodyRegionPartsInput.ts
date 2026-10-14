@@ -47,5 +47,8 @@ export interface IHumanPersonBodyRegionPartsInput {
   place: (mesh: IAutoMovieMesh, sources: readonly number[]) => IAutoMovieMesh;
 
   /** Existing shared metre-frame neck boundary, face normals and physical registration. */
-  stitch: Omit<IAutoMovieHumanPersonBoundaryStitchProps, "mesh" | "sources" | "side">;
+  stitch: Omit<
+    IAutoMovieHumanPersonBoundaryStitchProps,
+    "mesh" | "sources" | "side"
+  >;
 }

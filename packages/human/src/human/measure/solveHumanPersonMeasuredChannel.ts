@@ -24,14 +24,22 @@ import { measureHumanPersonDocument } from "./measureHumanPersonDocument";
 export function solveHumanPersonMeasuredChannel(
   props: IAutoMovieHumanPersonMeasuredChannelProps,
 ): IAutoMovieHumanPersonMeasuredChannelSolution {
-  const { compiled, document, channel: id, targetMetres }: IAutoMovieHumanPersonMeasuredChannelProps = props;
+  const {
+    compiled,
+    document,
+    channel: id,
+    targetMetres,
+  }: IAutoMovieHumanPersonMeasuredChannelProps = props;
   const generation: typeof compiled.generation = compiled.generation;
-  const rule: (typeof HUMAN_PERSON_MEASUREMENTS)[string] | undefined = Object.hasOwn(HUMAN_PERSON_MEASUREMENTS, id)
-    ? HUMAN_PERSON_MEASUREMENTS[id]
-    : undefined;
-  const channel: (typeof generation.body.channels)[number] | undefined = humanPersonBodyReach(generation).basis.channels.find(
-    (one: (typeof generation.body.channels)[number]): boolean => one.id === id,
-  );
+  const rule: (typeof HUMAN_PERSON_MEASUREMENTS)[string] | undefined =
+    Object.hasOwn(HUMAN_PERSON_MEASUREMENTS, id)
+      ? HUMAN_PERSON_MEASUREMENTS[id]
+      : undefined;
+  const channel: (typeof generation.body.channels)[number] | undefined =
+    humanPersonBodyReach(generation).basis.channels.find(
+      (one: (typeof generation.body.channels)[number]): boolean =>
+        one.id === id,
+    );
   // one instrument per channel: a channel the body rule table measures is the body's
   if (
     rule === undefined ||
@@ -45,31 +53,39 @@ export function solveHumanPersonMeasuredChannel(
   for (const endpoint of [channel.positive, channel.negative])
     if (
       endpoint !== null &&
-      !(generation.drivers ?? []).some((driver: NonNullable<typeof generation.drivers>[number]): boolean => driver.endpoint === endpoint)
+      !(generation.drivers ?? []).some(
+        (driver: NonNullable<typeof generation.drivers>[number]): boolean =>
+          driver.endpoint === endpoint,
+      )
     )
       throw new Error(
         `The generation ${generation.id} carries no head-partition rows of ${endpoint}, so ${id} would move only the body side of the measured site.`,
       );
-  const worn: (weight: number) => IAutoMovieHumanPersonDocument = (weight: number): IAutoMovieHumanPersonDocument => {
+  const worn: (weight: number) => IAutoMovieHumanPersonDocument = (
+    weight: number,
+  ): IAutoMovieHumanPersonDocument => {
     const next: IAutoMovieHumanPersonDocument = structuredClone(document);
     if (weight === 0) delete next.body.shape[id];
     else next.body.shape[id] = weight;
     return next;
   };
-  const read: (weight: number) => IAutoMovieHumanPersonMeasurementReading = (weight: number): IAutoMovieHumanPersonMeasurementReading =>
+  const read: (weight: number) => IAutoMovieHumanPersonMeasurementReading = (
+    weight: number,
+  ): IAutoMovieHumanPersonMeasurementReading =>
     measureHumanPersonDocument({
       compiled,
       build: props.build,
       document: worn(weight),
       channel: id,
     });
-  const solved: ReturnType<typeof invertHumanMeasurement> = invertHumanMeasurement({
-    range: [channel.minimum, channel.maximum],
-    current: document.body.shape[id] ?? 0,
-    targetMetres,
-    read: (weight: number): number => read(weight).metres,
-    label: id,
-  });
+  const solved: ReturnType<typeof invertHumanMeasurement> =
+    invertHumanMeasurement({
+      range: [channel.minimum, channel.maximum],
+      current: document.body.shape[id] ?? 0,
+      targetMetres,
+      read: (weight: number): number => read(weight).metres,
+      label: id,
+    });
   return {
     document: worn(solved.weight),
     reading: read(solved.weight),

@@ -29,19 +29,33 @@ export function readHumanPersonGirth(
   const from: IAutoMovieVector3 | undefined = landmarks[rule.from];
   const to: IAutoMovieVector3 | undefined = landmarks[rule.to];
   if (from === undefined || to === undefined) return null;
-  const point: ReturnType<typeof humanSkinLandmark> = humanSkinLandmark(body, rule.landmark);
+  const point: ReturnType<typeof humanSkinLandmark> = humanSkinLandmark(
+    body,
+    rule.landmark,
+  );
   const sample: number | undefined =
     body.surfaces[point.surface].sourcePartition?.samples[point.vertex];
   if (sample === undefined)
     throw new Error(
       `The body view ${body.id} places ${rule.landmark} on no source sample of the generation.`,
     );
-  const skin: ReturnType<typeof joinHumanPersonSkin> = joinHumanPersonSkin(model, sample);
+  const skin: ReturnType<typeof joinHumanPersonSkin> = joinHumanPersonSkin(
+    model,
+    sample,
+  );
   if (skin === null) return null;
-  const axis: IAutoMovieVector3 = { x: to.x - from.x, y: to.y - from.y, z: to.z - from.z };
+  const axis: IAutoMovieVector3 = {
+    x: to.x - from.x,
+    y: to.y - from.y,
+    z: to.z - from.z,
+  };
   const length: number = Math.hypot(axis.x, axis.y, axis.z);
   if (!(length > 0)) return null;
-  const normal: IAutoMovieVector3 = { x: axis.x / length, y: axis.y / length, z: axis.z / length };
+  const normal: IAutoMovieVector3 = {
+    x: axis.x / length,
+    y: axis.y / length,
+    z: axis.z / length,
+  };
   // the segment point on the plane seeds the loop choice
   const { anchor }: typeof skin = skin;
   const along: number =
@@ -53,7 +67,10 @@ export function readHumanPersonGirth(
     y: from.y + normal.y * along,
     z: from.z + normal.z * along,
   };
-  const plane: Parameters<typeof measureHumanSection>[2] = { point: anchor, normal };
+  const plane: Parameters<typeof measureHumanSection>[2] = {
+    point: anchor,
+    normal,
+  };
   const section: ReturnType<typeof measureHumanSection> = measureHumanSection(
     skin.positions,
     skin.indices,

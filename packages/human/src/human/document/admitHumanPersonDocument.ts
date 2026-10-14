@@ -24,7 +24,8 @@ export function admitHumanPersonDocument(
   input: unknown,
   bodySource?: IAutoMovieHumanBodyAnatomicalAssembly,
 ): IAutoMovieHumanPersonDocument {
-  const document: IAutoMovieHumanPersonDocument = typia.assertEquals<IAutoMovieHumanPersonDocument>(input);
+  const document: IAutoMovieHumanPersonDocument =
+    typia.assertEquals<IAutoMovieHumanPersonDocument>(input);
   admitHumanFaceBasisDocument(document.face);
   admitHumanBodyBasisDocument(document.body, bodySource);
   if (
@@ -32,7 +33,17 @@ export function admitHumanPersonDocument(
     (Object.keys(document.face.expression).length !== 0 ||
       document.face.oral?.performance !== undefined ||
       Object.values(document.face.skinRelief?.regions ?? {}).some(
-        (region: NonNullable<NonNullable<IAutoMovieHumanPersonDocument["face"]["skinRelief"]>["regions"]>[keyof NonNullable<NonNullable<IAutoMovieHumanPersonDocument["face"]["skinRelief"]>["regions"]>]): boolean => region?.performance !== undefined,
+        (
+          region: NonNullable<
+            NonNullable<
+              IAutoMovieHumanPersonDocument["face"]["skinRelief"]
+            >["regions"]
+          >[keyof NonNullable<
+            NonNullable<
+              IAutoMovieHumanPersonDocument["face"]["skinRelief"]
+            >["regions"]
+          >],
+        ): boolean => region?.performance !== undefined,
       ))
   )
     throw new Error(
@@ -43,7 +54,9 @@ export function admitHumanPersonDocument(
       throw new Error(
         "A saved head numerical field must be finite: " + id + ".",
       );
-  if ([document.id, document.name].some((id: string): boolean => id.trim() === ""))
+  if (
+    [document.id, document.name].some((id: string): boolean => id.trim() === "")
+  )
     throw new Error("A person needs nonempty identities.");
   return document;
 }

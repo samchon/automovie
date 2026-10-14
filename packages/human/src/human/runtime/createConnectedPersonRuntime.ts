@@ -1,3 +1,18 @@
+import { createHumanBodyAssemblyExportQualification } from "../../body/export/createHumanBodyAssemblyExportQualification";
+import { createHumanBodyAtlasExportQualification } from "../../body/export/createHumanBodyAtlasExportQualification";
+import { createHumanBodySegmenter } from "../../body/measure/createHumanBodySegmenter";
+import { measureHumanBodyGroundSupport } from "../../body/measure/measureHumanBodyGroundSupport";
+import type { ConnectedBodyRequest } from "../../body/runtime/ConnectedBodyRequest";
+import type { ConnectedBodyResult } from "../../body/runtime/ConnectedBodyResult";
+import type { IConnectedBodyPreviewResult } from "../../body/runtime/IConnectedBodyPreviewResult";
+import { describeConnectedBodyConstructionProgress } from "../../body/runtime/describeConnectedBodyConstructionProgress";
+import { packConnectedBodyModel } from "../../body/runtime/packConnectedBodyModel";
+import { readConnectedBodyContacts } from "../../body/runtime/readConnectedBodyContacts";
+import { readConnectedBodyHumeralHeads } from "../../body/runtime/readConnectedBodyHumeralHeads";
+import { readConnectedBodyRigReading } from "../../body/runtime/readConnectedBodyRigReading";
+import type { IHumanBodyConstructionProgress } from "../../body/structures/IHumanBodyConstructionProgress";
+import { createHumanFaceOralExportQualification } from "../../face/export/createHumanFaceOralExportQualification";
+import type { IAutoMovieHumanFaceConstructionProgress } from "../../face/structures/IAutoMovieHumanFaceConstructionProgress";
 import type {
   IAutoMovieHumanFaceBasisDocument,
   IAutoMovieHumanPersonBodyView,
@@ -5,13 +20,6 @@ import type {
   IAutoMovieHumanPersonGenerationBuild,
   IAutoMovieHumanPersonHeadView,
 } from "../../index";
-import { createHumanBodyAssemblyExportQualification } from "../../body/export/createHumanBodyAssemblyExportQualification";
-import { createHumanBodyAtlasExportQualification } from "../../body/export/createHumanBodyAtlasExportQualification";
-import { createHumanBodySegmenter } from "../../body/measure/createHumanBodySegmenter";
-import { measureHumanBodyGroundSupport } from "../../body/measure/measureHumanBodyGroundSupport";
-import type { IHumanBodyConstructionProgress } from "../../body/structures/IHumanBodyConstructionProgress";
-import { createHumanFaceOralExportQualification } from "../../face/export/createHumanFaceOralExportQualification";
-import type { IAutoMovieHumanFaceConstructionProgress } from "../../face/structures/IAutoMovieHumanFaceConstructionProgress";
 import { compileHumanPersonGeneration } from "../build/compileHumanPersonGeneration";
 import { createHumanPersonBuilder } from "../build/createHumanPersonBuilder";
 import { createHumanPersonGenerationBuilder } from "../build/createHumanPersonGenerationBuilder";
@@ -20,15 +28,6 @@ import { parseHumanPersonDocument } from "../document/parseHumanPersonDocument";
 import { exportHumanPerson } from "../export/exportHumanPerson";
 import { createHumanPersonSimpleWhole } from "../measure/createHumanPersonSimpleWhole";
 import type { IAutoMovieHumanPersonConstruction } from "../structures/IAutoMovieHumanPersonConstruction";
-
-import type { ConnectedBodyRequest } from "../../body/runtime/ConnectedBodyRequest";
-import type { ConnectedBodyResult } from "../../body/runtime/ConnectedBodyResult";
-import type { IConnectedBodyPreviewResult } from "../../body/runtime/IConnectedBodyPreviewResult";
-import { packConnectedBodyModel } from "../../body/runtime/packConnectedBodyModel";
-import { describeConnectedBodyConstructionProgress } from "../../body/runtime/describeConnectedBodyConstructionProgress";
-import { readConnectedBodyContacts } from "../../body/runtime/readConnectedBodyContacts";
-import { readConnectedBodyHumeralHeads } from "../../body/runtime/readConnectedBodyHumeralHeads";
-import { readConnectedBodyRigReading } from "../../body/runtime/readConnectedBodyRigReading";
 import type { IConnectedPersonRuntimeOptions } from "./IConnectedPersonRuntimeOptions";
 import { describeConnectedPersonFaceProgress } from "./describeConnectedPersonFaceProgress";
 
@@ -53,18 +52,27 @@ export function createConnectedPersonRuntime(
     | Pick<IAutoMovieHumanPersonGeneration, "face" | "body">
     | [IAutoMovieHumanPersonHeadView, IAutoMovieHumanPersonBodyView],
   options: IConnectedPersonRuntimeOptions = {},
-): (request: ConnectedBodyRequest, progress?: (stage: string) => void) => Promise<ConnectedBodyResult> {
+): (
+  request: ConnectedBodyRequest,
+  progress?: (stage: string) => void,
+) => Promise<ConnectedBodyResult> {
   // the evaluation in progress reports its stages to the request that asked for it
-  let stage: (name: string) => void = options.progress ?? ((): void => undefined);
+  let stage: (name: string) => void =
+    options.progress ?? ((): void => undefined);
   const census: boolean = options.census === true;
-  const observeStage: (name: string) => void = (name: string): void => stage(name);
-  const observeFaceConstructionProgress: (progress: IAutoMovieHumanFaceConstructionProgress) => void = (
+  const observeStage: (name: string) => void = (name: string): void =>
+    stage(name);
+  const observeFaceConstructionProgress: (
     progress: IAutoMovieHumanFaceConstructionProgress,
-  ): void => stage(describeConnectedPersonFaceProgress(progress));
-  const observeBodyConstructionProgress: (progress: IHumanBodyConstructionProgress) => void = (
+  ) => void = (progress: IAutoMovieHumanFaceConstructionProgress): void =>
+    stage(describeConnectedPersonFaceProgress(progress));
+  const observeBodyConstructionProgress: (
     progress: IHumanBodyConstructionProgress,
-  ): void => stage(describeConnectedBodyConstructionProgress(progress));
-  const evaluate: ReturnType<typeof createHumanPersonGenerationBuilder> | ReturnType<typeof createHumanPersonBuilder> = Array.isArray(source)
+  ) => void = (progress: IHumanBodyConstructionProgress): void =>
+    stage(describeConnectedBodyConstructionProgress(progress));
+  const evaluate:
+    | ReturnType<typeof createHumanPersonGenerationBuilder>
+    | ReturnType<typeof createHumanPersonBuilder> = Array.isArray(source)
     ? createHumanPersonGenerationBuilder({
         generation: joinHumanPersonGeneration(source[0], source[1]),
         census,
@@ -81,10 +89,20 @@ export function createConnectedPersonRuntime(
           observeBodyConstructionProgress,
         })
       : createHumanPersonBuilder(source);
-  const bodyBasis: IAutoMovieHumanPersonGeneration["body"] = Array.isArray(source) ? source[1].body : source.body;
-  const faceBasis: IAutoMovieHumanPersonGeneration["face"] = Array.isArray(source) ? source[0].face : source.face;
+  const bodyBasis: IAutoMovieHumanPersonGeneration["body"] = Array.isArray(
+    source,
+  )
+    ? source[1].body
+    : source.body;
+  const faceBasis: IAutoMovieHumanPersonGeneration["face"] = Array.isArray(
+    source,
+  )
+    ? source[0].face
+    : source.face;
   // the generation the humeral-head reading compiles, joined again only then
-  const generationOf: () => IAutoMovieHumanPersonGeneration | undefined = (): IAutoMovieHumanPersonGeneration | undefined =>
+  const generationOf: () => IAutoMovieHumanPersonGeneration | undefined = ():
+    | IAutoMovieHumanPersonGeneration
+    | undefined =>
     Array.isArray(source)
       ? joinHumanPersonGeneration(source[0], source[1])
       : "headSkin" in source
@@ -103,25 +121,35 @@ export function createConnectedPersonRuntime(
     lastConstructionDocument = undefined;
     lastConstruction = undefined;
   };
-  const encode: (built: Pick<IAutoMovieHumanPersonGenerationBuild, "model" | "body">, face: IAutoMovieHumanFaceBasisDocument, progress: (stage: string) => void) => Promise<Uint8Array<ArrayBuffer>> = async (
+  const encode: (
+    built: Pick<IAutoMovieHumanPersonGenerationBuild, "model" | "body">,
+    face: IAutoMovieHumanFaceBasisDocument,
+    progress: (stage: string) => void,
+  ) => Promise<Uint8Array<ArrayBuffer>> = async (
     built: Pick<IAutoMovieHumanPersonGenerationBuild, "model" | "body">,
     face: IAutoMovieHumanFaceBasisDocument,
     progress: (stage: string) => void,
   ): Promise<Uint8Array<ArrayBuffer>> => {
-    const atlas: Awaited<ReturnType<typeof createHumanBodyAtlasExportQualification>> = await createHumanBodyAtlasExportQualification(
+    const atlas: Awaited<
+      ReturnType<typeof createHumanBodyAtlasExportQualification>
+    > = await createHumanBodyAtlasExportQualification(
       bodyBasis,
       built.body.evaluatedDocument,
       "body:",
     );
     progress("atlas-qualified");
-    const assembly: Awaited<ReturnType<typeof createHumanBodyAssemblyExportQualification>> = await createHumanBodyAssemblyExportQualification(
+    const assembly: Awaited<
+      ReturnType<typeof createHumanBodyAssemblyExportQualification>
+    > = await createHumanBodyAssemblyExportQualification(
       bodyBasis,
       built.body.evaluatedDocument,
       "body:",
       built.body.layerObservations,
     );
     progress("assembly-qualified");
-    const oral: Awaited<ReturnType<typeof createHumanFaceOralExportQualification>> = await createHumanFaceOralExportQualification(
+    const oral: Awaited<
+      ReturnType<typeof createHumanFaceOralExportQualification>
+    > = await createHumanFaceOralExportQualification(
       faceBasis,
       face,
       built.model,
@@ -137,10 +165,8 @@ export function createConnectedPersonRuntime(
     stage = progress;
     if (request.operation === "armsDown")
       throw new Error("A person has no arms-down solve.");
-    const document: ReturnType<typeof parseHumanPersonDocument> = parseHumanPersonDocument(
-      request.document,
-      bodyBasis.anatomicalAssembly,
-    );
+    const document: ReturnType<typeof parseHumanPersonDocument> =
+      parseHumanPersonDocument(request.document, bodyBasis.anatomicalAssembly);
     if (
       request.operation === "construct" ||
       request.operation === "exportConstruction"
@@ -150,7 +176,8 @@ export function createConnectedPersonRuntime(
           "Construction drafts require the registered person generation owner.",
         );
       if (lastConstructionDocument !== request.document) release();
-      const constructed: IAutoMovieHumanPersonConstruction = lastConstruction ?? evaluate.construct(document);
+      const constructed: IAutoMovieHumanPersonConstruction =
+        lastConstruction ?? evaluate.construct(document);
       lastConstructionDocument = request.document;
       lastConstruction = constructed;
       // only an accepted construction may answer the admitted preview and export
@@ -176,7 +203,11 @@ export function createConnectedPersonRuntime(
           bones: constructed.bones,
           landmarks: constructed.body.landmarks,
         },
-        rigReading: readConnectedBodyRigReading(constructed.body, constructed.model.id, constructed.bones),
+        rigReading: readConnectedBodyRigReading(
+          constructed.body,
+          constructed.model.id,
+          constructed.bones,
+        ),
       };
     }
     if (lastDocument !== request.document) release();
@@ -188,22 +219,29 @@ export function createConnectedPersonRuntime(
         operation: "export",
         glb: await encode(built, document.face, progress),
       };
-    const crossings: Awaited<ReturnType<typeof readConnectedBodyContacts>> | null =
+    const crossings: Awaited<
+      ReturnType<typeof readConnectedBodyContacts>
+    > | null =
       request.measure || request.anatomy
         ? await readConnectedBodyContacts({
             model: (segment ??= createHumanBodySegmenter(bodyBasis))(built.body)
               .model,
             sliceMs: 25,
             yieldThread: (): Promise<undefined> =>
-              new Promise<undefined>((resolve: (value: undefined | PromiseLike<undefined>) => void): void => {
-                setTimeout((): void => resolve(undefined), 0);
-              }),
+              new Promise<undefined>(
+                (
+                  resolve: (value: undefined | PromiseLike<undefined>) => void,
+                ): void => {
+                  setTimeout((): void => resolve(undefined), 0);
+                },
+              ),
             superseded: (): boolean => false,
           })
         : null;
     let anatomy: IConnectedBodyPreviewResult["anatomy"] = null;
     if (request.anatomy && crossings !== null) {
-      const generation: IAutoMovieHumanPersonGeneration | undefined = compiled?.generation ?? generationOf();
+      const generation: IAutoMovieHumanPersonGeneration | undefined =
+        compiled?.generation ?? generationOf();
       if (generation === undefined)
         throw new Error(
           "A humeral-head reading needs the published person generation.",
@@ -227,7 +265,10 @@ export function createConnectedPersonRuntime(
       groundSupport: request.anatomy
         ? measureHumanBodyGroundSupport(
             bodyBasis,
-            built.body.posedSurfaces.map((surface: (typeof built.body.posedSurfaces)[number]): number[] => surface.positions),
+            built.body.posedSurfaces.map(
+              (surface: (typeof built.body.posedSurfaces)[number]): number[] =>
+                surface.positions,
+            ),
             built.body.landmarks,
             built.body.groundPlaneHeightMetres,
           )

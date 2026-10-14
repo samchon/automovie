@@ -20,12 +20,16 @@ export function readHumanPersonRestHead(
   compiled: IAutoMovieHumanPersonCompiledGeneration,
   document: IAutoMovieHumanPersonDocument,
 ): IAutoMovieHumanHeadSkin {
-  const face: IAutoMovieHumanPersonCompiledGeneration["generation"]["face"] = compiled.generation.face;
-  const rest: ReturnType<typeof evaluateHumanPersonRestSkin> = evaluateHumanPersonRestSkin(compiled, document);
+  const face: IAutoMovieHumanPersonCompiledGeneration["generation"]["face"] =
+    compiled.generation.face;
+  const rest: ReturnType<typeof evaluateHumanPersonRestSkin> =
+    evaluateHumanPersonRestSkin(compiled, document);
   return {
     id: face.id,
     surface: compiled.faceProducerSkin,
-    positions: rest.facePosed.map((value: number): number => Math.fround(value)),
+    positions: rest.facePosed.map((value: number): number =>
+      Math.fround(value),
+    ),
     indices: face.surfaces[compiled.faceProducerSkin].indices,
     skinLandmarks: face.skinLandmarks,
     skinRegions: face.skinRegions,

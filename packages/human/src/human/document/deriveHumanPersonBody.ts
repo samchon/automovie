@@ -25,25 +25,33 @@ export function deriveHumanPersonBody(
     throw new Error(
       "A person's skin colour is the face's: the body document must not state its own skinColour.",
     );
-  const skin: IDeriveHumanPersonBodyProps["faceMaterials"][number] | undefined = faceMaterials.find(
-    (material: IDeriveHumanPersonBodyProps["faceMaterials"][number]): boolean => material.id === HUMAN_PERSON_SEAM.skinMaterial,
-  );
+  const skin: IDeriveHumanPersonBodyProps["faceMaterials"][number] | undefined =
+    faceMaterials.find(
+      (
+        material: IDeriveHumanPersonBodyProps["faceMaterials"][number],
+      ): boolean => material.id === HUMAN_PERSON_SEAM.skinMaterial,
+    );
   if (skin === undefined)
     throw new Error(
       "The face basis has no material '" +
         HUMAN_PERSON_SEAM.skinMaterial +
         "' to take the person's skin colour from.",
     );
-  const override: NonNullable<IAutoMovieHumanBodyBasisDocument["skinColour"]>["cheek"] | undefined =
+  const override:
+    | NonNullable<IAutoMovieHumanBodyBasisDocument["skinColour"]>["cheek"]
+    | undefined =
     document.face.materials?.[HUMAN_PERSON_SEAM.skinMaterial]?.color;
-  const cheek: NonNullable<IAutoMovieHumanBodyBasisDocument["skinColour"]>["cheek"] = {
+  const cheek: NonNullable<
+    IAutoMovieHumanBodyBasisDocument["skinColour"]
+  >["cheek"] = {
     r: override?.r ?? skin.baseColor.r,
     g: override?.g ?? skin.baseColor.g,
     b: override?.b ?? skin.baseColor.b,
   };
   if (
     [cheek.r, cheek.g, cheek.b].some(
-      (channel: number): boolean => !Number.isFinite(channel) || channel <= 0 || channel > 1,
+      (channel: number): boolean =>
+        !Number.isFinite(channel) || channel <= 0 || channel > 1,
     )
   )
     throw new Error(

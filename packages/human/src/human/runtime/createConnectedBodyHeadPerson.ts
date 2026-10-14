@@ -1,9 +1,8 @@
-import type { IAutoMovieHumanPersonHeadView } from "../../index";
 import type { IAutoMovieHumanBodyAnatomicalAssembly } from "../../body/anatomy/assembly/IAutoMovieHumanBodyAnatomicalAssembly";
 import { parseHumanBodyBasisDocument } from "../../body/document/parseHumanBodyBasisDocument";
+import type { IAutoMovieHumanPersonHeadView } from "../../index";
 import { HUMAN_PERSON_SEAM } from "../constants/HUMAN_PERSON_SEAM";
 import { serializeHumanPersonDocument } from "../document/serializeHumanPersonDocument";
-
 import { createConnectedBodyDefaultFace } from "./createConnectedBodyDefaultFace";
 
 /**
@@ -24,7 +23,11 @@ export function createConnectedBodyHeadPerson(
   document: string,
   source?: IAutoMovieHumanBodyAnatomicalAssembly,
 ): string {
-  const { skinColour, ...body }: ReturnType<typeof parseHumanBodyBasisDocument> = parseHumanBodyBasisDocument(document, source);
+  const {
+    skinColour,
+    ...body
+  }: ReturnType<typeof parseHumanBodyBasisDocument> =
+    parseHumanBodyBasisDocument(document, source);
   return serializeHumanPersonDocument(
     {
       id: "body-editor-person",

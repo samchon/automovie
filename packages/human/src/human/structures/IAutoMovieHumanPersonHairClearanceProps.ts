@@ -1,7 +1,7 @@
 import type { IAutoMovieModel } from "@automovie/interface";
 
-import type { IAutoMovieHumanFaceHair } from "../../face/structures/IAutoMovieHumanFaceHair";
 import type { IHumanFaceHairContactLayout } from "../../face/anatomy/hair/IHumanFaceHairContactLayout";
+import type { IAutoMovieHumanFaceHair } from "../../face/structures/IAutoMovieHumanFaceHair";
 import type { IHumanPersonHairContactProps } from "./IHumanPersonHairContactProps";
 
 /**

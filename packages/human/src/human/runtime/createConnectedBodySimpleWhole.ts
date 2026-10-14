@@ -6,7 +6,6 @@ import type {
 import { compileHumanPersonGeneration } from "../build/compileHumanPersonGeneration";
 import { joinHumanPersonGeneration } from "../build/joinHumanPersonGeneration";
 import { createHumanPersonSimpleWhole } from "../measure/createHumanPersonSimpleWhole";
-
 import { createConnectedBodyDefaultFace } from "./createConnectedBodyDefaultFace";
 
 /**

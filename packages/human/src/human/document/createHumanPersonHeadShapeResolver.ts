@@ -23,7 +23,8 @@ import { humanPersonHeadShapeFieldUnit } from "./humanPersonHeadShapeFieldUnit";
 export function createHumanPersonHeadShapeResolver(
   generation: IAutoMovieHumanPersonGeneration,
 ): (document: IAutoMovieHumanPersonDocument) => IAutoMovieHumanPersonDocument {
-  const source: IAutoMovieHumanPersonGeneration["headShapeSource"] = generation.headShapeSource;
+  const source: IAutoMovieHumanPersonGeneration["headShapeSource"] =
+    generation.headShapeSource;
   if (source !== undefined) {
     typia.assertEquals<IAutoMovieHumanPersonHeadShapeSource>(source);
     if (source.generation !== generation.id)
@@ -31,14 +32,28 @@ export function createHumanPersonHeadShapeResolver(
         "Head numerical source registration belongs to a different generation.",
       );
   }
-  const fields: Map<IAutoMovieHumanPersonHeadShapeSource["fields"][number]["id"], IAutoMovieHumanPersonHeadShapeSource["fields"][number]> = new Map(source?.fields.map((field: IAutoMovieHumanPersonHeadShapeSource["fields"][number]): [typeof field.id, typeof field] => [field.id, field]));
+  const fields: Map<
+    IAutoMovieHumanPersonHeadShapeSource["fields"][number]["id"],
+    IAutoMovieHumanPersonHeadShapeSource["fields"][number]
+  > = new Map(
+    source?.fields.map(
+      (
+        field: IAutoMovieHumanPersonHeadShapeSource["fields"][number],
+      ): [typeof field.id, typeof field] => [field.id, field],
+    ),
+  );
   if (fields.size !== (source?.fields.length ?? 0))
     throw new Error(
       "Head numerical source registration repeats a trait identity.",
     );
   if (
-    new Set([...fields.values()].map((field: IAutoMovieHumanPersonHeadShapeSource["fields"][number]): string => field.bodyChannel)).size !==
-    fields.size
+    new Set(
+      [...fields.values()].map(
+        (
+          field: IAutoMovieHumanPersonHeadShapeSource["fields"][number],
+        ): string => field.bodyChannel,
+      ),
+    ).size !== fields.size
   )
     throw new Error(
       "Head numerical source traits must have distinct body-channel owners.",
@@ -68,8 +83,12 @@ export function createHumanPersonHeadShapeResolver(
           field.id +
           ".",
       );
-    const channel: IAutoMovieHumanPersonGeneration["body"]["channels"][number] | undefined = generation.body.channels.find(
-      (channel: IAutoMovieHumanPersonGeneration["body"]["channels"][number]): boolean => channel.id === field.bodyChannel,
+    const channel:
+      | IAutoMovieHumanPersonGeneration["body"]["channels"][number]
+      | undefined = generation.body.channels.find(
+      (
+        channel: IAutoMovieHumanPersonGeneration["body"]["channels"][number],
+      ): boolean => channel.id === field.bodyChannel,
     );
     if (
       channel === undefined ||
@@ -98,15 +117,25 @@ export function createHumanPersonHeadShapeResolver(
           ".",
       );
   }
-  return (document: IAutoMovieHumanPersonDocument): IAutoMovieHumanPersonDocument => {
+  return (
+    document: IAutoMovieHumanPersonDocument,
+  ): IAutoMovieHumanPersonDocument => {
     if (
       document.headShape === undefined ||
       Object.keys(document.headShape).length === 0
     )
       return document;
-    const shape: IAutoMovieHumanPersonDocument["body"]["shape"] = { ...document.body.shape };
+    const shape: IAutoMovieHumanPersonDocument["body"]["shape"] = {
+      ...document.body.shape,
+    };
     for (const [id, units] of Object.entries(document.headShape)) {
-      const field: IAutoMovieHumanPersonHeadShapeSource["fields"][number] | undefined = source?.fields.find((field: IAutoMovieHumanPersonHeadShapeSource["fields"][number]): boolean => field.id === id);
+      const field:
+        | IAutoMovieHumanPersonHeadShapeSource["fields"][number]
+        | undefined = source?.fields.find(
+        (
+          field: IAutoMovieHumanPersonHeadShapeSource["fields"][number],
+        ): boolean => field.id === id,
+      );
       if (field === undefined)
         throw new Error(
           "Head numerical field unavailable in this source generation: " +
@@ -138,7 +167,10 @@ export function createHumanPersonHeadShapeResolver(
           ? field.negativeUnitsPerWeight
           : field.positiveUnitsPerWeight);
     }
-    const { headShape: _resolved, ...effective }: IAutoMovieHumanPersonDocument = document;
+    const {
+      headShape: _resolved,
+      ...effective
+    }: IAutoMovieHumanPersonDocument = document;
     return { ...effective, body: { ...document.body, shape } };
   };
 }

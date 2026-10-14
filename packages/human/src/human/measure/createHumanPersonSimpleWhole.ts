@@ -25,7 +25,9 @@ export function createHumanPersonSimpleWhole(
   let lastKey: string | undefined;
   let last: IAutoMovieHumanPersonRestReading | undefined;
   let bodyReach: IAutoMovieHumanBodySimpleWhole["bodyReach"];
-  const read: (shape: Readonly<Record<string, number>>) => IAutoMovieHumanPersonRestReading = (
+  const read: (
+    shape: Readonly<Record<string, number>>,
+  ) => IAutoMovieHumanPersonRestReading = (
     shape: Readonly<Record<string, number>>,
   ): IAutoMovieHumanPersonRestReading => {
     const key: string = JSON.stringify(shape);
@@ -42,7 +44,9 @@ export function createHumanPersonSimpleWhole(
     get bodyReach(): IAutoMovieHumanBodySimpleWhole["bodyReach"] {
       return (bodyReach ??= humanPersonBodyReach(compiled.generation).basis);
     },
-    stature: (shape: Readonly<Record<string, number>>): number => read(shape).statureMetres,
-    volume: (shape: Readonly<Record<string, number>>): number => read(shape).volumeCubicMetres,
+    stature: (shape: Readonly<Record<string, number>>): number =>
+      read(shape).statureMetres,
+    volume: (shape: Readonly<Record<string, number>>): number =>
+      read(shape).volumeCubicMetres,
   };
 }

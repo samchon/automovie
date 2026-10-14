@@ -20,7 +20,8 @@ export function measureHumanPersonHead(
   compiled: IAutoMovieHumanPersonCompiledGeneration,
   document: IAutoMovieHumanPersonDocument,
 ): Record<string, IAutoMovieHumanHeadReading> {
-  const head: ReturnType<typeof readHumanPersonRestHead> = readHumanPersonRestHead(compiled, document);
+  const head: ReturnType<typeof readHumanPersonRestHead> =
+    readHumanPersonRestHead(compiled, document);
   const readings: Record<string, IAutoMovieHumanHeadReading> = {};
   for (const [name, rule] of Object.entries(HUMAN_HEAD_MEASUREMENTS))
     readings[name] = readHumanHeadMeasurement(head, rule);

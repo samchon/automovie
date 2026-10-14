@@ -21,8 +21,12 @@ export function deriveHumanPersonFace(
   document: IAutoMovieHumanPersonDocument,
 ): IAutoMovieHumanFaceBasisDocument {
   if (document.population !== "linked") return document.face;
-  const { ageChannel, sexChannel, bodyChildNode, faceChildNode }: typeof HUMAN_PERSON_POPULATION =
-    HUMAN_PERSON_POPULATION;
+  const {
+    ageChannel,
+    sexChannel,
+    bodyChildNode,
+    faceChildNode,
+  }: typeof HUMAN_PERSON_POPULATION = HUMAN_PERSON_POPULATION;
   for (const channel of [ageChannel.face, sexChannel.face])
     if (Object.hasOwn(document.face.shape, channel))
       throw new Error(
@@ -31,7 +35,8 @@ export function deriveHumanPersonFace(
           ".",
       );
   const age: number = document.body.shape[ageChannel.body] ?? 0;
-  const macro: number = age < 0 ? 0.5 + age * (0.5 - bodyChildNode) : 0.5 + age * 0.5;
+  const macro: number =
+    age < 0 ? 0.5 + age * (0.5 - bodyChildNode) : 0.5 + age * 0.5;
   const face: number =
     macro < 0.5 ? Math.max(-1, (macro - 0.5) / (0.5 - faceChildNode)) : age;
   return {

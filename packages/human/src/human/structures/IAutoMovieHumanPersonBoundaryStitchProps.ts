@@ -54,5 +54,9 @@ export interface IAutoMovieHumanPersonBoundaryStitchProps {
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work Sharing an actual append stencil is producer behavior, not cached work in this signature.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The signature acquires no buffer or task; caller observers own retained scalar fields/receipts and effect lifetime.
    */
-  appendSourceScalar?: (vertex: number, parents: readonly number[], weights: readonly number[]) => void;
+  appendSourceScalar?: (
+    vertex: number,
+    parents: readonly number[],
+    weights: readonly number[],
+  ) => void;
 }

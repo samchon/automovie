@@ -24,5 +24,8 @@ export interface IHumanPersonUnderwearPartsInput {
   garment?: IAutoMovieHumanBodyUnderwearParts;
 
   /** Exact final part ids supplied by the owning Body composition loop. */
-  regions: ReadonlyMap<string, Pick<IHumanBodyUnderwearRegion, "field" | "sources">>;
+  regions: ReadonlyMap<
+    string,
+    Pick<IHumanBodyUnderwearRegion, "field" | "sources">
+  >;
 }

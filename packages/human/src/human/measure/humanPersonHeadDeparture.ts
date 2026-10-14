@@ -19,7 +19,9 @@ export function humanPersonHeadDeparture(
   weights: readonly number[],
 ): number[] {
   return channels.map((id: string, j: number): number => {
-    const scale: IAutoMovieHumanFaceChannelScale | undefined = scales.find((one: IAutoMovieHumanFaceChannelScale): boolean => one.id === id);
+    const scale: IAutoMovieHumanFaceChannelScale | undefined = scales.find(
+      (one: IAutoMovieHumanFaceChannelScale): boolean => one.id === id,
+    );
     if (scale === undefined)
       throw new Error(`The head view measures no channel ${id}.`);
     const positive: number = scale.positive.displacement;

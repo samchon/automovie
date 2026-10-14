@@ -34,40 +34,57 @@ export async function exportHumanPerson(
   assembly?: IAutoMovieHumanBodyAssemblyQualification,
   oral?: IAutoMovieHumanFaceOralExportQualification,
 ): Promise<IAutoMovieHumanGltfExport> {
-  if (assembly?.nativeSubcutaneous === undefined &&
-      model.parts.some((part: IAutoMovieModel["parts"][number]): boolean => part.id.startsWith("body:native-subcutaneous:")))
-    throw new Error("Person native subcutaneous export needs its actual field/exterior/member qualification.");
+  if (
+    assembly?.nativeSubcutaneous === undefined &&
+    model.parts.some((part: IAutoMovieModel["parts"][number]): boolean =>
+      part.id.startsWith("body:native-subcutaneous:"),
+    )
+  )
+    throw new Error(
+      "Person native subcutaneous export needs its actual field/exterior/member qualification.",
+    );
   if (
     atlas === undefined &&
-    model.parts.some((part: IAutoMovieModel["parts"][number]): boolean => /^body:anatomical-atlas:/.test(part.id))
+    model.parts.some((part: IAutoMovieModel["parts"][number]): boolean =>
+      /^body:anatomical-atlas:/.test(part.id),
+    )
   )
     throw new Error(
       "Person atlas inspection export needs its source rights and reference qualification.",
     );
   if (
     assembly === undefined &&
-    model.parts.some((part: IAutoMovieModel["parts"][number]): boolean => /^body:anatomical-source:/.test(part.id))
+    model.parts.some((part: IAutoMovieModel["parts"][number]): boolean =>
+      /^body:anatomical-source:/.test(part.id),
+    )
   )
     throw new Error(
       "Person coarse anatomical export needs its source rights and shared registration qualification.",
     );
   if (
     oral === undefined &&
-    model.parts.some((part: IAutoMovieModel["parts"][number]): boolean => /^face:oral:/.test(part.id))
+    model.parts.some((part: IAutoMovieModel["parts"][number]): boolean =>
+      /^face:oral:/.test(part.id),
+    )
   )
     throw new Error(
       "Person oral export needs its licensed source and clinical-gap qualification.",
     );
-  const document: ReturnType<typeof createGltfDocument> = createGltfDocument(model, {
-    sourcePartIdentity:
-      atlas !== undefined || assembly !== undefined || oral !== undefined,
-  });
+  const document: ReturnType<typeof createGltfDocument> = createGltfDocument(
+    model,
+    {
+      sourcePartIdentity:
+        atlas !== undefined || assembly !== undefined || oral !== undefined,
+    },
+  );
   if (atlas !== undefined) writeHumanBodyAtlasQualification(document, atlas);
   if (assembly !== undefined)
     writeHumanBodyAssemblyQualification(document, assembly);
   if (oral !== undefined) writeHumanFaceOralExportQualification(document, oral);
   const writer: WebIO = new WebIO().registerExtensions(gltfMaterialExtensions);
-  const glb: IAutoMovieHumanGltfExport["glb"] = await writer.writeBinary(document);
-  const gltf: IAutoMovieHumanGltfExport["gltf"] = await writer.writeJSON(document);
+  const glb: IAutoMovieHumanGltfExport["glb"] =
+    await writer.writeBinary(document);
+  const gltf: IAutoMovieHumanGltfExport["gltf"] =
+    await writer.writeJSON(document);
   return { glb, gltf };
 }

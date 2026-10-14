@@ -20,5 +20,8 @@ export interface IHumanPersonBodyRegionParts {
   parts: IAutoMovieModel["parts"];
 
   /** Rest coverage and source ordinals in each final mesh's retained vertex order. */
-  garmentFields: ReadonlyMap<string, Pick<IHumanBodyUnderwearRegion, "field" | "sources">>;
+  garmentFields: ReadonlyMap<
+    string,
+    Pick<IHumanBodyUnderwearRegion, "field" | "sources">
+  >;
 }

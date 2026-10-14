@@ -1,6 +1,6 @@
 import type {
-  IAutoMovieMeshPhysicalSource,
   IAutoMovieMesh,
+  IAutoMovieMeshPhysicalSource,
   IAutoMovieModel,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -27,10 +27,17 @@ export function joinHumanPersonSkin(
 ): IAutoMovieHumanPersonJoinedSkin | null {
   const meshes: IAutoMovieMesh[] = model.parts
     .map(meshOfHumanPart)
-    .filter((mesh: IAutoMovieMesh): boolean => mesh.physicalVertices !== undefined);
+    .filter(
+      (mesh: IAutoMovieMesh): boolean => mesh.physicalVertices !== undefined,
+    );
   const domain: string | undefined = meshes
-    .flatMap((mesh: IAutoMovieMesh): IAutoMovieMeshPhysicalSource[] => mesh.physicalVertices!.sources)
-    .find((source: IAutoMovieMeshPhysicalSource): boolean => source.id === sample)?.domain;
+    .flatMap(
+      (mesh: IAutoMovieMesh): IAutoMovieMeshPhysicalSource[] =>
+        mesh.physicalVertices!.sources,
+    )
+    .find(
+      (source: IAutoMovieMeshPhysicalSource): boolean => source.id === sample,
+    )?.domain;
   if (domain === undefined) return null;
   const positions: number[] = [];
   const indices: number[] = [];
@@ -38,32 +45,44 @@ export function joinHumanPersonSkin(
   const vertices: (number | null)[] = [];
   let anchor: IAutoMovieVector3 | undefined;
   for (const mesh of meshes) {
-    const physical: NonNullable<IAutoMovieMesh["physicalVertices"]> = mesh.physicalVertices!;
-    if (!physical.sources.some((source: IAutoMovieMeshPhysicalSource): boolean => source.domain === domain)) continue;
+    const physical: NonNullable<IAutoMovieMesh["physicalVertices"]> =
+      mesh.physicalVertices!;
+    if (
+      !physical.sources.some(
+        (source: IAutoMovieMeshPhysicalSource): boolean =>
+          source.domain === domain,
+      )
+    )
+      continue;
     const vertexOffset: number = positions.length / 3;
     const sourceOffset: number = sources.length;
     for (const value of mesh.positions) positions.push(Math.fround(value));
     // an unindexed mesh lists its triangles' vertices in order
     const order: number[] =
       mesh.indices ??
-      Array.from({ length: mesh.positions.length / 3 }, (_: unknown, vertex: number): number => vertex);
+      Array.from(
+        { length: mesh.positions.length / 3 },
+        (_: unknown, vertex: number): number => vertex,
+      );
     for (const index of order) indices.push(index + vertexOffset);
     sources.push(...physical.sources);
-    physical.vertices.forEach((reference: number | null, vertex: number): void => {
-      vertices.push(reference === null ? null : reference + sourceOffset);
-      const source: IAutoMovieMeshPhysicalSource | undefined =
-        reference === null ? undefined : physical.sources[reference];
-      if (
-        anchor === undefined &&
-        source?.domain === domain &&
-        source.id === sample
-      )
-        anchor = {
-          x: positions[(vertexOffset + vertex) * 3],
-          y: positions[(vertexOffset + vertex) * 3 + 1],
-          z: positions[(vertexOffset + vertex) * 3 + 2],
-        };
-    });
+    physical.vertices.forEach(
+      (reference: number | null, vertex: number): void => {
+        vertices.push(reference === null ? null : reference + sourceOffset);
+        const source: IAutoMovieMeshPhysicalSource | undefined =
+          reference === null ? undefined : physical.sources[reference];
+        if (
+          anchor === undefined &&
+          source?.domain === domain &&
+          source.id === sample
+        )
+          anchor = {
+            x: positions[(vertexOffset + vertex) * 3],
+            y: positions[(vertexOffset + vertex) * 3 + 1],
+            z: positions[(vertexOffset + vertex) * 3 + 2],
+          };
+      },
+    );
   }
   return anchor === undefined
     ? null

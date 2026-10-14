@@ -1,4 +1,8 @@
-import type { IAutoMovieMesh, IAutoMovieMeshPhysicalSource, IAutoMovieModel } from "@automovie/interface";
+import type {
+  IAutoMovieMesh,
+  IAutoMovieMeshPhysicalSource,
+  IAutoMovieModel,
+} from "@automovie/interface";
 
 import type { IHumanFaceOralMeasurementRegistration } from "../../face/anatomy/oral/IHumanFaceOralMeasurementRegistration";
 import { humanFaceOralDentalDomain } from "../../face/anatomy/oral/humanFaceOralDentalDomain";
@@ -34,7 +38,10 @@ export function readHumanPersonOralDentalPositions(
     const physical: IAutoMovieMesh["physicalVertices"] = mesh.physicalVertices;
     if (
       physical === undefined ||
-      !physical.sources.some((source: IAutoMovieMeshPhysicalSource): boolean => source.domain === domain)
+      !physical.sources.some(
+        (source: IAutoMovieMeshPhysicalSource): boolean =>
+          source.domain === domain,
+      )
     )
       continue;
     const used: Set<number> =
@@ -50,7 +57,8 @@ export function readHumanPersonOralDentalPositions(
     for (const vertex of used) {
       const index: number | null | undefined = physical.vertices[vertex];
       if (index === null || index === undefined) continue;
-      const source: IAutoMovieMeshPhysicalSource | undefined = physical.sources[index];
+      const source: IAutoMovieMeshPhysicalSource | undefined =
+        physical.sources[index];
       if (
         source === undefined ||
         source.domain !== domain ||

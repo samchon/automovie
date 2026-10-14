@@ -33,7 +33,10 @@ export interface IAutoMovieHumanPersonMixedSourceMeshProps {
   surface?: string;
 
   /** Geometry-owned physical domain and ID to original triangle seat. */
-  materialAttachments?: ReadonlyMap<string, ReadonlyMap<number, IHumanFaceMaterialAttachment>>;
+  materialAttachments?: ReadonlyMap<
+    string,
+    ReadonlyMap<number, IHumanFaceMaterialAttachment>
+  >;
 
   /** Native skin physical domain of the actual face-producing instance. */
   origin: string;
