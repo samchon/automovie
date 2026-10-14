@@ -5,11 +5,11 @@ import { IAutoMovieAnalysisSolver } from "./IAutoMovieAnalysisSolver";
 /**
  * One analysis run: what was asked, of which design revision, by which solver, and what came back.
  *
- * {@link inputRevision} makes a result perishable. A run that read revision `r7` is evidence about `r7` only, so a report assembled at `r8` counts it as stale rather than as an answer. {@link digest} seals the record, so a run whose outcome was edited after sealing fails validation instead of passing as a measurement.
+ * {@link inputRevision} makes a result perishable. A run that names revision `r7` is counted stale by a report for `r8`; the producing owner must establish which inputs were actually read. The digest binds covered canonical fields, not solver execution or scientific accuracy: changed encoded fields generally break the seal, while extra unencoded fields and signed-zero changes do not, and hash collisions remain possible.
  *
  * @evidence contracts/common.md#principled-implementation `sealAutoMovieAnalysisRun` digests the settings text, checks the record with the contents rules `validateAutoMovieAnalysisRun` also applies, throws on the first violation, and only then digests the record; the validator recomputes that digest, so the stored seal is checked against the same canonical text that produced it.
- * @evidence contracts/common.md#clear-and-simple-design The settings are stored only as a digest because a run must prove what it was configured with, not replay it; the solver and outcome stay nested records the digest reads in fixed order.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The canonical digest text writes every line as one JSON array, so a newline or `|` inside a field is escaped and cannot move across a field boundary without changing the digest; no character is forbidden to make the text unambiguous.
+ * @evidence contracts/common.md#clear-and-simple-design Only the supplied canonical settings text's digest is stored; complete settings acquisition belongs to the producer. Solver and outcome stay nested records read in fixed order and are retained by reference by sealing, so later mutation requires resealing or renewed validation.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts JSON-array lines escape embedded separators without banning characters. Admission visits missing metric/sample/warning slots, but other nested containers and ordinary data fields remain typed premises and malformed host records can throw before returning violations; sealing is neither an exact-key schema check nor independent execution provenance.
  * @evidence contracts/common.md#meaningful-documentation States why the input revision makes a result stale, what the digest seals and that validation recomputes it, the digest text form, and the id uniqueness a report enforces.
  * @author Samchon
  */

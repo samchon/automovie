@@ -3,8 +3,7 @@ import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 /**
  * The reference ground as one plane.
  *
- * The plane is the datum an analysis measures the horizon against, and not a
- * terrain: landscape, roads and natural water are outside the building scope.
+ * This analysis datum defines the horizon; it does not represent landscape, roads or water surfaces, whose authored geometry belongs to their own scene and domain records.
  *
  * The current solvers read only {@link up}. The daylight solver counts a ray as
  * seeing ground when its direction has a non-positive dot product with the
@@ -12,7 +11,7 @@ import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
  * compares a sample's position with {@link elevation}.
  *
  * @evidence contracts/common.md#principled-implementation A plane in normal-offset form; `autoMovieSkyward` tests `dot(direction, normalize(up)) > 0`, and `validateAutoMovieEnvironmentContext` requires a finite `up` longer than `1e-12` and a finite elevation.
- * @evidence contracts/common.md#clear-and-simple-design One direction and one offset; terrain, slopes and materials are excluded because the building scope ends at the reference datum.
+ * @evidence contracts/common.md#clear-and-simple-design One direction and one offset define the analysis reference; terrain geometry and materials stay with their scene owners instead of being duplicated here.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The horizon is taken through each sample point rather than at the stated elevation, which the documentation names as the current limitation instead of implying a height test that no solver performs.
  * @evidence contracts/common.md#meaningful-documentation States the plane's role, the scope exclusion, which field the solvers read, the exact ground-ray test, the elevation equation and unit, and that elevation is not yet evaluated.
  * @author Samchon
