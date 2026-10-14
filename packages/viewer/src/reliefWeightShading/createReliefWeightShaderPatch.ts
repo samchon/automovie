@@ -38,7 +38,12 @@ export const createReliefWeightShaderPatch: () => {
   ) => void;
 } => ({
   key: "automovie-relief-weights",
-  apply: (shader: Pick<THREE.WebGLProgramParametersWithUniforms, "vertexShader" | "fragmentShader" | "uniforms">) : void => {
+  apply: (
+    shader: Pick<
+      THREE.WebGLProgramParametersWithUniforms,
+      "vertexShader" | "fragmentShader" | "uniforms"
+    >,
+  ): void => {
     shader.vertexShader = reliefWeightVertex(shader.vertexShader);
     shader.fragmentShader = reliefWeightFragment(shader.fragmentShader);
   },

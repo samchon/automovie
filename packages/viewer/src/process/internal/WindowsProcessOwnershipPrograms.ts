@@ -8,7 +8,11 @@
  * The fixed programs contain no interpolated variable shell source, executable
  * name selection, recursive taskkill expansion or age-based termination path.
  */
-export const WindowsProcessOwnershipPrograms: Readonly<{ identity: string; snapshot: string; stop: string }> = {
+export const WindowsProcessOwnershipPrograms: Readonly<{
+  identity: string;
+  snapshot: string;
+  stop: string;
+}> = {
   identity: `
 try { $owned = [System.Diagnostics.Process]::GetProcessById([int]$request.pid) }
 catch [System.ArgumentException] { 'null'; exit 0 }

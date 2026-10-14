@@ -1,4 +1,7 @@
-import type { IAutoMovieSemanticMask, IAutoMovieSemanticMaskEntry } from "@automovie/interface";
+import type {
+  IAutoMovieSemanticMask,
+  IAutoMovieSemanticMaskEntry,
+} from "@automovie/interface";
 import type * as THREE from "three";
 
 /**
@@ -12,7 +15,10 @@ import type * as THREE from "three";
  * @evidence contracts/performance.md#reuse-equivalent-work Resolved-id membership is shared for one filtering call, while changed roots/palette requires reevaluation and no cross-call memo exists.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only call-local id Set and returned id list are owned; no scene object, material or native resource is acquired.
  */
-export const unresolvedOf: (mask: IAutoMovieSemanticMask, roots: ReadonlyMap<THREE.Object3D, IAutoMovieSemanticMaskEntry>) => string[] = (
+export const unresolvedOf: (
+  mask: IAutoMovieSemanticMask,
+  roots: ReadonlyMap<THREE.Object3D, IAutoMovieSemanticMaskEntry>,
+) => string[] = (
   mask: IAutoMovieSemanticMask,
   roots: ReadonlyMap<THREE.Object3D, IAutoMovieSemanticMaskEntry>,
 ): string[] => {
@@ -20,9 +26,9 @@ export const unresolvedOf: (mask: IAutoMovieSemanticMask, roots: ReadonlyMap<THR
   for (const entry of roots.values()) resolved.add(entry.id);
   return mask.entries
     .filter(
-      (entry: IAutoMovieSemanticMaskEntry) : boolean =>
+      (entry: IAutoMovieSemanticMaskEntry): boolean =>
         (entry.nodes.length !== 0 || entry.kind === "instance-set") &&
         !resolved.has(entry.id),
     )
-    .map((entry: IAutoMovieSemanticMaskEntry) : string => entry.id);
+    .map((entry: IAutoMovieSemanticMaskEntry): string => entry.id);
 };

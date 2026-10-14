@@ -12,8 +12,11 @@
 export function decodeLinuxProcessIdentity(boot: string, stat: string): string {
   const bootId: string = boot.trim();
   const closing: number = stat.lastIndexOf(")");
-  const start: string | undefined = closing === -1 ? undefined : stat.slice(closing + 2).split(" ")[19];
+  const start: string | undefined =
+    closing === -1 ? undefined : stat.slice(closing + 2).split(" ")[19];
   if (bootId === "" || start === undefined || !/^\d+$/.test(start))
-    throw new Error("The native Linux process record has no boot/start identity.");
+    throw new Error(
+      "The native Linux process record has no boot/start identity.",
+    );
   return bootId + ":" + start;
 }

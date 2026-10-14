@@ -23,54 +23,94 @@ export function createViewerDiskSource(props: {
   /** Configuration, HTML or other inputs outside those trees. */
   files: readonly string[] | (() => readonly string[]);
 }): {
-  current: () => { revision: string; inputs: Record<string, string>; error?: string };
+  current: () => {
+    revision: string;
+    inputs: Record<string, string>;
+    error?: string;
+  };
   refresh: () => boolean;
   watched: string[];
 } {
-  const roots: string[] = props.directories.map((file: string): string => path.resolve(file));
-  const explicit: () => string[] = (): string[] => (typeof props.files === "function" ? props.files() : props.files)
-    .map((file: string): string => path.resolve(file));
-  let current: { revision: string; inputs: Record<string, string>; error?: string } | undefined;
+  const roots: string[] = props.directories.map((file: string): string =>
+    path.resolve(file),
+  );
+  const explicit: () => string[] = (): string[] =>
+    (typeof props.files === "function" ? props.files() : props.files).map(
+      (file: string): string => path.resolve(file),
+    );
+  let current:
+    | { revision: string; inputs: Record<string, string>; error?: string }
+    | undefined;
   const refresh: () => boolean = (): boolean => {
     try {
       const files: Set<string> = new Set(explicit());
       const visited: Set<string> = new Set();
       const missing: Set<string> = new Set();
       const walk: (directory: string) => void = (directory: string): void => {
-        if (!fs.existsSync(directory)) { missing.add(directory); return; }
+        if (!fs.existsSync(directory)) {
+          missing.add(directory);
+          return;
+        }
         const real: string = fs.realpathSync(directory);
         if (visited.has(real)) return;
         visited.add(real);
-        for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
+        for (const entry of fs.readdirSync(directory, {
+          withFileTypes: true,
+        })) {
           const file: string = path.join(directory, entry.name);
-          const stat: fs.Dirent | fs.Stats = entry.isSymbolicLink() ? fs.statSync(file) : entry;
+          const stat: fs.Dirent | fs.Stats = entry.isSymbolicLink()
+            ? fs.statSync(file)
+            : entry;
           if (stat.isDirectory()) walk(file);
           else if (stat.isFile()) files.add(file);
         }
       };
       roots.forEach(walk);
-      const inputs: Record<string, string> = Object.create(null) as Record<string, string>;
-      for (const file of [...files, ...missing].sort((left: string, right: string): number => left < right ? -1 : left > right ? 1 : 0)) {
-        const name: string = path.relative(props.root, file).replaceAll("\\", "/");
-        inputs[name] = fs.existsSync(file) && fs.statSync(file).isFile()
-          ? createHash("sha256").update(fs.readFileSync(file)).digest("hex")
-          : "missing";
+      const inputs: Record<string, string> = Object.create(null) as Record<
+        string,
+        string
+      >;
+      for (const file of [...files, ...missing].sort(
+        (left: string, right: string): number =>
+          left < right ? -1 : left > right ? 1 : 0,
+      )) {
+        const name: string = path
+          .relative(props.root, file)
+          .replaceAll("\\", "/");
+        inputs[name] =
+          fs.existsSync(file) && fs.statSync(file).isFile()
+            ? createHash("sha256").update(fs.readFileSync(file)).digest("hex")
+            : "missing";
       }
-      const revision: string = createHash("sha256").update(JSON.stringify(inputs)).digest("hex");
-      const changed: boolean = current === undefined || current.revision !== revision || current.error !== undefined;
+      const revision: string = createHash("sha256")
+        .update(JSON.stringify(inputs))
+        .digest("hex");
+      const changed: boolean =
+        current === undefined ||
+        current.revision !== revision ||
+        current.error !== undefined;
       current = { revision, inputs };
       return changed;
     } catch (cause) {
-      const error: string = cause instanceof Error ? cause.message : String(cause);
+      const error: string =
+        cause instanceof Error ? cause.message : String(cause);
       const changed: boolean = current === undefined || current.error !== error;
-      current = { revision: current?.revision ?? "", inputs: current?.inputs ?? {}, error };
+      current = {
+        revision: current?.revision ?? "",
+        inputs: current?.inputs ?? {},
+        error,
+      };
       return changed;
     }
   };
   refresh();
   return {
     /** Current declared disk receipt; an error refuses a new candidate. */
-    current: (): { revision: string; inputs: Record<string, string>; error?: string } => current!,
+    current: (): {
+      revision: string;
+      inputs: Record<string, string>;
+      error?: string;
+    } => current!,
     /** Refresh current membership and bytes; true requests a source notification. */
     refresh,
     /** Exact watcher roots and explicit paths owned by this source witness. */

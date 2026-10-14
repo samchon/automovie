@@ -12,7 +12,9 @@ import type { IAutoMovieViewerViewpoint } from "./IAutoMovieViewerViewpoint.js";
  * @evidence contracts/performance.md#reuse-equivalent-work Each invocation generates fresh records deterministically from its options; a caller can retain an unchanged plan but no render result is reused.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The temporary uniqueness Set leaves scope after return; consumer retention grows with E*A and there is no configured plan-size cap or native handle.
  */
-export function autoMovieViewerTurntableViewpoints(options: IAutoMovieViewerTurntableOptions): IAutoMovieViewerViewpoint[] {
+export function autoMovieViewerTurntableViewpoints(
+  options: IAutoMovieViewerTurntableOptions,
+): IAutoMovieViewerViewpoint[] {
   if (
     Number.isInteger(options.azimuthCount) === false ||
     options.azimuthCount < 1

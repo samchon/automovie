@@ -1,4 +1,7 @@
-import type { IAutoMovieScene, IAutoMovieSemanticMask } from "@automovie/interface";
+import type {
+  IAutoMovieScene,
+  IAutoMovieSemanticMask,
+} from "@automovie/interface";
 
 /**
  * A built scene and the palette its structural mask pass must paint it with.

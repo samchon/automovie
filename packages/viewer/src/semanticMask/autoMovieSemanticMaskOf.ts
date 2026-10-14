@@ -1,4 +1,5 @@
 import type * as THREE from "three";
+
 import type { IAutoMovieSemanticMaskBinding } from "./IAutoMovieSemanticMaskBinding.js";
 import { SCENE_MASK_KEY } from "./SCENE_MASK_KEY.js";
 
@@ -13,7 +14,9 @@ import { SCENE_MASK_KEY } from "./SCENE_MASK_KEY.js";
  * @evidence contracts/performance.md#reuse-equivalent-work The current scene reference is read every time so binding replacement is observed; no stale memo survives scene userData mutation.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The returned binding is borrowed from the scene and no additional retained state, material or native handle is acquired.
  */
-export const autoMovieSemanticMaskOf: (scene: THREE.Scene) => IAutoMovieSemanticMaskBinding | null = (
+export const autoMovieSemanticMaskOf: (
+  scene: THREE.Scene,
+) => IAutoMovieSemanticMaskBinding | null = (
   scene: THREE.Scene,
 ): IAutoMovieSemanticMaskBinding | null =>
   (scene.userData[SCENE_MASK_KEY] as

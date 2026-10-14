@@ -17,6 +17,8 @@ export function decodeWindowsProcessResult(result: {
 }): unknown {
   if (result.error) throw result.error;
   if (result.status !== 0)
-    throw new Error("Process ownership operation failed: " + result.stderr.trim());
+    throw new Error(
+      "Process ownership operation failed: " + result.stderr.trim(),
+    );
   return JSON.parse(result.stdout.trim());
 }

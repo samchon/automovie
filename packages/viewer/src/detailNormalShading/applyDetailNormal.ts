@@ -1,4 +1,5 @@
 import type * as THREE from "three";
+
 import { addMaterialShaderPatch } from "../addMaterialShaderPatch.js";
 import { createDetailNormalShaderPatch } from "./createDetailNormalShaderPatch.js";
 
@@ -18,12 +19,24 @@ import { createDetailNormalShaderPatch } from "./createDetailNormalShaderPatch.j
  * @evidence contracts/performance.md#reuse-equivalent-work Reuses caller-owned detail texture and the material's existing base map, with one captured matrix/uniform set per registration; changing texture transform later requires a new patch rather than silently mutating the captured uniform.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Material metadata/patch closure retain the borrowed texture and captured scale/matrix through material lifetime; this feature acquires no independent GPU texture or task, and resolver/material owners must retire their respective resources.
  */
-export const applyDetailNormal: (material: THREE.MeshPhysicalMaterial, texture: THREE.Texture, scale: number) => void = (
+export const applyDetailNormal: (
+  material: THREE.MeshPhysicalMaterial,
+  texture: THREE.Texture,
+  scale: number,
+) => void = (
   material: THREE.MeshPhysicalMaterial,
   texture: THREE.Texture,
   scale: number,
 ): void => {
-  const patch: { key: string; apply: (shader: Pick<THREE.WebGLProgramParametersWithUniforms, "vertexShader" | "fragmentShader" | "uniforms">) => void; } = createDetailNormalShaderPatch(texture, scale);
+  const patch: {
+    key: string;
+    apply: (
+      shader: Pick<
+        THREE.WebGLProgramParametersWithUniforms,
+        "vertexShader" | "fragmentShader" | "uniforms"
+      >,
+    ) => void;
+  } = createDetailNormalShaderPatch(texture, scale);
   material.userData.detailNormal = { texture, scale };
   addMaterialShaderPatch(material, patch);
 };

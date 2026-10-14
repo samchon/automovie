@@ -35,4 +35,3 @@ export interface IMaterialOverlayShading {
   /** Factor on the coverage and the slopes, `[0, 1]`. */
   strength: number;
 }
-

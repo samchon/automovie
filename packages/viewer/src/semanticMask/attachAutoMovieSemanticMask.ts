@@ -1,4 +1,5 @@
 import type * as THREE from "three";
+
 import type { IAutoMovieSemanticMaskBinding } from "./IAutoMovieSemanticMaskBinding.js";
 import { SCENE_MASK_KEY } from "./SCENE_MASK_KEY.js";
 
@@ -15,7 +16,10 @@ import { SCENE_MASK_KEY } from "./SCENE_MASK_KEY.js";
  * @evidence contracts/performance.md#reuse-equivalent-work The same actual binding can serve subsequent passes until scene/production replacement; replacement overwrites the reference and identity text alone does not preserve semantic validity.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only one binding reference is retained on the caller-owned scene; no geometry/material/renderer is acquired and scene/binding owner controls withdrawal or replacement.
  */
-export const attachAutoMovieSemanticMask: (scene: THREE.Scene, binding: IAutoMovieSemanticMaskBinding) => void = (
+export const attachAutoMovieSemanticMask: (
+  scene: THREE.Scene,
+  binding: IAutoMovieSemanticMaskBinding,
+) => void = (
   scene: THREE.Scene,
   binding: IAutoMovieSemanticMaskBinding,
 ): void => {

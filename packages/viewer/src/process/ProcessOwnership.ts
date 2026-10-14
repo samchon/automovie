@@ -1,7 +1,7 @@
 import type { ChildProcess } from "node:child_process";
 
-import { createNodeProcessOwnershipHost } from "./internal/createNodeProcessOwnershipHost.ts";
 import { ProcessOwnershipController } from "./internal/ProcessOwnershipController.ts";
+import { createNodeProcessOwnershipHost } from "./internal/createNodeProcessOwnershipHost.ts";
 import { selectProcessOwnershipTree } from "./internal/selectProcessOwnershipTree.ts";
 
 /**
@@ -18,7 +18,8 @@ import { selectProcessOwnershipTree } from "./internal/selectProcessOwnershipTre
  * @evidence contracts/performance.md#bound-retention-and-release-resources Static state contains a controller with weak child keys, not a strong OS-process registry; each native operation owns and retires its transient transport/handles and native stop uncertainty remains reported.
  */
 export class ProcessOwnership {
-  private static readonly controller: ProcessOwnershipController = new ProcessOwnershipController(createNodeProcessOwnershipHost());
+  private static readonly controller: ProcessOwnershipController =
+    new ProcessOwnershipController(createNodeProcessOwnershipHost());
 
   /**
    * Retain a freshly spawned child's identity without mutating its handle. An already exited or unidentifiable child receives no stop authority.
@@ -77,7 +78,11 @@ export class ProcessOwnership {
    * @evidence contracts/performance.md#bound-retention-and-release-resources The returned pid/stamp copies own no native handles and this pure facade call acquires or terminates no process.
    */
   public static tree(
-    snapshot: ReadonlyArray<{ pid: number; parentPid: number; createdAt: string }>,
+    snapshot: ReadonlyArray<{
+      pid: number;
+      parentPid: number;
+      createdAt: string;
+    }>,
     root: { pid: number; createdAt: string },
   ): Array<{ pid: number; createdAt: string }> {
     return selectProcessOwnershipTree(snapshot, root);

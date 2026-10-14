@@ -19,7 +19,18 @@ import { detailNormalVertex } from "./detailNormalVertex.js";
  * @evidence contracts/performance.md#reuse-equivalent-work Every invocation of this registered operation reuses its captured texture/matrix/scale cells; Three may share its structural program key across differing uniform bindings, while operation effects run on each actual shader compile.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Returned callback retains a borrowed texture and owned small matrix/uniform records until its material/list is released; no texture disposal, decoder, renderer or task is acquired here.
  */
-export const createDetailNormalShaderPatch: (texture: THREE.Texture, scale: number) => { key: string; apply: (shader: Pick<THREE.WebGLProgramParametersWithUniforms, "vertexShader" | "fragmentShader" | "uniforms">) => void; } = (
+export const createDetailNormalShaderPatch: (
+  texture: THREE.Texture,
+  scale: number,
+) => {
+  key: string;
+  apply: (
+    shader: Pick<
+      THREE.WebGLProgramParametersWithUniforms,
+      "vertexShader" | "fragmentShader" | "uniforms"
+    >,
+  ) => void;
+} = (
   texture: THREE.Texture,
   scale: number,
 ): {
@@ -35,14 +46,23 @@ export const createDetailNormalShaderPatch: (texture: THREE.Texture, scale: numb
   ) => void;
 } => {
   texture.updateMatrix();
-  const uniforms: { detailNormalMap: { value: THREE.Texture<unknown, THREE.TextureEventMap>; }; detailNormalScale: { value: number; }; detailNormalTransform: { value: THREE.Matrix3; }; } = {
+  const uniforms: {
+    detailNormalMap: { value: THREE.Texture<unknown, THREE.TextureEventMap> };
+    detailNormalScale: { value: number };
+    detailNormalTransform: { value: THREE.Matrix3 };
+  } = {
     detailNormalMap: { value: texture },
     detailNormalScale: { value: scale },
     detailNormalTransform: { value: texture.matrix.clone() },
   };
   return {
     key: "automovie-detail-normal",
-    apply: (shader: Pick<THREE.WebGLProgramParametersWithUniforms, "vertexShader" | "fragmentShader" | "uniforms">): void => {
+    apply: (
+      shader: Pick<
+        THREE.WebGLProgramParametersWithUniforms,
+        "vertexShader" | "fragmentShader" | "uniforms"
+      >,
+    ): void => {
       Object.assign(shader.uniforms, uniforms);
       shader.vertexShader = detailNormalVertex(shader.vertexShader);
       shader.fragmentShader = detailNormalFragment(shader.fragmentShader);

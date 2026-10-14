@@ -12,7 +12,10 @@ import type { IMaterialOverlayShape } from "./IMaterialOverlayShape.js";
  * @evidence contracts/performance.md#reuse-equivalent-work Equal ordered shapes generate equivalent fragment structure and the material patch key permits native program reuse; image/scalar uniforms are not baked into a shared source cache here.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Temporary declarations/statements and the returned shader string contain no program or texture handle; compilation and native shader lifetime belong to Three/material ownership.
  */
-export const materialOverlayFragment: (fragmentShader: string, shapes: readonly IMaterialOverlayShape[]) => string = (
+export const materialOverlayFragment: (
+  fragmentShader: string,
+  shapes: readonly IMaterialOverlayShape[],
+) => string = (
   fragmentShader: string,
   shapes: readonly IMaterialOverlayShape[],
 ): string => {

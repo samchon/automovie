@@ -1,4 +1,5 @@
 import * as THREE from "three";
+
 import { RELIEF_WEIGHT_TARGET } from "./RELIEF_WEIGHT_TARGET.js";
 
 /**
@@ -12,8 +13,12 @@ import { RELIEF_WEIGHT_TARGET } from "./RELIEF_WEIGHT_TARGET.js";
  * @evidence contracts/performance.md#reuse-equivalent-work Equivalent source/installed native chunk gives equivalent text, while native program reuse belongs to the material stable-key chain rather than a mutable local cache.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only temporary and returned strings exist; no GPU shader/program or material lifetime is acquired by this helper.
  */
-export const reliefWeightFragment: (fragmentShader: string) => string = (fragmentShader: string): string => {
-  const expanded: string = fragmentShader.includes("#include <normal_fragment_maps>")
+export const reliefWeightFragment: (fragmentShader: string) => string = (
+  fragmentShader: string,
+): string => {
+  const expanded: string = fragmentShader.includes(
+    "#include <normal_fragment_maps>",
+  )
     ? fragmentShader.replace(
         "#include <normal_fragment_maps>",
         THREE.ShaderChunk.normal_fragment_maps,

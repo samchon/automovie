@@ -15,7 +15,8 @@ import { selectProcessOwnershipTree } from "./selectProcessOwnershipTree.ts";
  * @evidence contracts/performance.md#bound-retention-and-release-resources Weak child keys avoid a global strong child population, the host reference lasts with the controller and concrete host operations own/retire transient handles.
  */
 export class ProcessOwnershipController {
-  private readonly children: WeakMap<IProcessChildObservation, string> = new WeakMap();
+  private readonly children: WeakMap<IProcessChildObservation, string> =
+    new WeakMap();
   private readonly host: IProcessOwnershipHost;
 
   /**
@@ -39,7 +40,13 @@ export class ProcessOwnershipController {
    * @evidence contracts/performance.md#bound-retention-and-release-resources Only a weak child key and stamp value are retained; actual child ownership stays with its caller and the native query's temporary resources stay with the host.
    */
   public own(child: IProcessChildObservation): void {
-    if (this.children.has(child) || child.pid === undefined || child.exitCode !== null || child.signalCode !== null) return;
+    if (
+      this.children.has(child) ||
+      child.pid === undefined ||
+      child.exitCode !== null ||
+      child.signalCode !== null
+    )
+      return;
     const createdAt: string | null = this.read(child.pid);
     if (createdAt !== null) this.children.set(child, createdAt);
   }
@@ -56,7 +63,11 @@ export class ProcessOwnershipController {
    * @evidence contracts/performance.md#bound-retention-and-release-resources The original observation is borrowed and no new strong child record or persistent process handle is added.
    */
   public stopChild(child: IProcessChildObservation): void {
-    if (child.exitCode !== null || child.signalCode !== null || child.pid === undefined)
+    if (
+      child.exitCode !== null ||
+      child.signalCode !== null ||
+      child.pid === undefined
+    )
       return;
     const createdAt: string | undefined = this.children.get(child);
     if (createdAt === undefined)
@@ -95,9 +106,17 @@ export class ProcessOwnershipController {
     requireProcessId(pid);
     if (!createdAt) throw new Error("A process creation identity is required");
     if (this.host.windows) {
-      const snapshot: ReturnType<IProcessOwnershipHost["snapshot"]> = this.host.snapshot();
-      if (!snapshot.some((entry: (typeof snapshot)[number]): boolean => entry.pid === pid)) return;
-      this.host.terminateWindows(selectProcessOwnershipTree(snapshot, { pid, createdAt }));
+      const snapshot: ReturnType<IProcessOwnershipHost["snapshot"]> =
+        this.host.snapshot();
+      if (
+        !snapshot.some(
+          (entry: (typeof snapshot)[number]): boolean => entry.pid === pid,
+        )
+      )
+        return;
+      this.host.terminateWindows(
+        selectProcessOwnershipTree(snapshot, { pid, createdAt }),
+      );
       return;
     }
     const current: string | null = this.read(pid);

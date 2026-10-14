@@ -1,6 +1,6 @@
 import { captureViewerSnapshot } from "../captureViewerSnapshot.js";
-import type { IAutoMovieViewerSubjectViewRequest } from "./IAutoMovieViewerSubjectViewRequest.js";
 import type { IAutoMovieViewerSubjectView } from "./IAutoMovieViewerSubjectView.js";
+import type { IAutoMovieViewerSubjectViewRequest } from "./IAutoMovieViewerSubjectViewRequest.js";
 import { applyAutoMovieViewerSubjectPose } from "./applyAutoMovieViewerSubjectPose.js";
 
 /**
@@ -14,7 +14,9 @@ import { applyAutoMovieViewerSubjectPose } from "./applyAutoMovieViewerSubjectPo
  * @evidence contracts/performance.md#reuse-equivalent-work Every request executes its own mutable resolution/draw; equivalent subject/pose text cannot replace current scene, source, renderer and callback effects.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Borrows scene/camera/renderer and transfers the encoded string to its caller; no browser/worker is acquired and the owner retains/retires all native resources.
  */
-export function captureAutoMovieViewerSubjectView(request: IAutoMovieViewerSubjectViewRequest): IAutoMovieViewerSubjectView {
+export function captureAutoMovieViewerSubjectView(
+  request: IAutoMovieViewerSubjectViewRequest,
+): IAutoMovieViewerSubjectView {
   applyAutoMovieViewerSubjectPose(request.camera, request.pose);
   request.resolveForCamera(request.camera, request.renderer.domElement.height);
   return {

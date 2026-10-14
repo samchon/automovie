@@ -12,7 +12,10 @@ import type * as THREE from "three";
  * @evidence contracts/performance.md#reuse-equivalent-work The caller map is reused while walking this current chain; cached ancestry would be invalid after reparenting and none is retained here.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Object/map remain borrowed and only a borrowed entry or undefined escapes, with no resource or persistent reference acquired.
  */
-export const nearest: (object: THREE.Object3D, roots: ReadonlyMap<THREE.Object3D, IAutoMovieSemanticMaskEntry>) => IAutoMovieSemanticMaskEntry | undefined = (
+export const nearest: (
+  object: THREE.Object3D,
+  roots: ReadonlyMap<THREE.Object3D, IAutoMovieSemanticMaskEntry>,
+) => IAutoMovieSemanticMaskEntry | undefined = (
   object: THREE.Object3D,
   roots: ReadonlyMap<THREE.Object3D, IAutoMovieSemanticMaskEntry>,
 ): IAutoMovieSemanticMaskEntry | undefined => {

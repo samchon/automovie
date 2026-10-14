@@ -9,7 +9,9 @@
  * @evidence contracts/performance.md#reuse-equivalent-work The unchanged source operation contributes stable program structure while actual attributes vary per mesh; no source cache or runtime attribute memo exists here.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only shader strings escape and no attribute buffer, material, shader or native program is acquired.
  */
-export const reliefWeightVertex: (vertexShader: string) => string = (vertexShader: string): string =>
+export const reliefWeightVertex: (vertexShader: string) => string = (
+  vertexShader: string,
+): string =>
   vertexShader
     .replace(
       "#include <common>",

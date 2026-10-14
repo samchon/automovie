@@ -21,5 +21,3 @@ export interface IMaterialOverlayShape {
   /** Whether the overlay carries a normal map. */
   normal: boolean;
 }
-
-

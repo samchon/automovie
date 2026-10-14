@@ -1,4 +1,5 @@
 import type * as THREE from "three";
+
 import type { IAutoMovieViewerSubjectPose } from "./IAutoMovieViewerSubjectPose.js";
 
 /**
@@ -12,7 +13,10 @@ import type { IAutoMovieViewerSubjectPose } from "./IAutoMovieViewerSubjectPose.
  * @evidence contracts/performance.md#reuse-equivalent-work Each call applies the requested effect to current camera state; no previous pose result substitutes for matrix updates.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Acquires no renderer or buffer; the caller owns camera lifetime and keeps the applied state after return or downstream failure.
  */
-export function applyAutoMovieViewerSubjectPose(camera: THREE.PerspectiveCamera, pose: IAutoMovieViewerSubjectPose): void {
+export function applyAutoMovieViewerSubjectPose(
+  camera: THREE.PerspectiveCamera,
+  pose: IAutoMovieViewerSubjectPose,
+): void {
   camera.position.set(pose.position.x, pose.position.y, pose.position.z);
   camera.fov = pose.lens.fovDeg;
   camera.aspect = pose.lens.aspect;

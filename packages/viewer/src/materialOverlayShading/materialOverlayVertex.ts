@@ -11,7 +11,10 @@ import type { IMaterialOverlayShape } from "./IMaterialOverlayShape.js";
  * @evidence contracts/performance.md#reuse-equivalent-work Ordered structural shapes govern program-source equivalence while actual texture transforms remain per-material uniforms; this function maintains no mutable source cache.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only temporary source arrays and the returned string are retained by their consumer; the function acquires no geometry, attribute buffer or shader program.
  */
-export const materialOverlayVertex: (vertexShader: string, shapes: readonly IMaterialOverlayShape[]) => string = (
+export const materialOverlayVertex: (
+  vertexShader: string,
+  shapes: readonly IMaterialOverlayShape[],
+) => string = (
   vertexShader: string,
   shapes: readonly IMaterialOverlayShape[],
 ): string => {
@@ -45,4 +48,3 @@ export const materialOverlayVertex: (vertexShader: string, shapes: readonly IMat
       ["#include <uv_vertex>", ...assignments].join("\n\t"),
     );
 };
-

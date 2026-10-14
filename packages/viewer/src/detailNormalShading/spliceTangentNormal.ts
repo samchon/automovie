@@ -1,4 +1,5 @@
 import * as THREE from "three";
+
 import { DETAIL_NORMAL_TARGET } from "./DETAIL_NORMAL_TARGET.js";
 
 /**
@@ -15,11 +16,13 @@ import { DETAIL_NORMAL_TARGET } from "./DETAIL_NORMAL_TARGET.js";
  * @evidence contracts/performance.md#reuse-equivalent-work Detects and reuses prior native chunk expansion while retaining the target marker so successive distinct patches compose once in registration order; repeated identical patch insertion is not deduplicated by this primitive.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Acquires no native shader/program/texture handle and retains no caller input; returned text owns only source bytes, with temporary expansion strings released after the call.
  */
-export const spliceTangentNormal: (fragmentShader: string, code: string) => string = (
+export const spliceTangentNormal: (
   fragmentShader: string,
   code: string,
-): string => {
-  const expanded: string = fragmentShader.includes("#include <normal_fragment_maps>")
+) => string = (fragmentShader: string, code: string): string => {
+  const expanded: string = fragmentShader.includes(
+    "#include <normal_fragment_maps>",
+  )
     ? fragmentShader.replace(
         "#include <normal_fragment_maps>",
         THREE.ShaderChunk.normal_fragment_maps,

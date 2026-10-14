@@ -39,7 +39,11 @@ export interface IProcessOwnershipHost {
    * @evidence contracts/performance.md#reuse-equivalent-work A call consumes one snapshot consistently, but later stop operations cannot reuse it as current allocation truth without handle checks.
    * @evidence contracts/performance.md#bound-retention-and-release-resources The host returns value records rather than retained Process handles; its discovery subprocess/transport must end before returning.
    */
-  snapshot(): ReadonlyArray<{ pid: number; parentPid: number; createdAt: string }>;
+  snapshot(): ReadonlyArray<{
+    pid: number;
+    parentPid: number;
+    createdAt: string;
+  }>;
 
   /**
    * Pin and verify the complete admitted set before its first termination. Targets arrive in parent-first order from the controller. Native failures propagate; a later termination failure can leave a partially stopped set.
@@ -52,7 +56,9 @@ export interface IProcessOwnershipHost {
    * @evidence contracts/performance.md#reuse-equivalent-work Pinned handles retain allocation identity within this effect; an earlier snapshot alone does not replace checking each supplied expected stamp.
    * @evidence contracts/performance.md#bound-retention-and-release-resources All acquired handles are disposed in the concrete host's finally, including admission/termination failures; completion must not be inferred from merely enumerating targets.
    */
-  terminateWindows(targets: ReadonlyArray<{ pid: number; createdAt: string }>): void;
+  terminateWindows(
+    targets: ReadonlyArray<{ pid: number; createdAt: string }>,
+  ): void;
 
   /**
    * Request SIGTERM for the checked POSIX root; native PID reuse can still race. The controller checks creation immediately before this PID-based effect. Descendants are not recursively signalled by this boundary.

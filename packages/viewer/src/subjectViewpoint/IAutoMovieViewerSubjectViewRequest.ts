@@ -1,4 +1,5 @@
 import type * as THREE from "three";
+
 import type { IAutoMovieViewerSnapshotOptions } from "../IAutoMovieViewerSnapshotOptions.js";
 import type { IAutoMovieViewerSnapshotRenderer } from "../IAutoMovieViewerSnapshotRenderer.js";
 import type { IAutoMovieViewerSubject } from "./IAutoMovieViewerSubject.js";

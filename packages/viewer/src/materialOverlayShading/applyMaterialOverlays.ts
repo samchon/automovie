@@ -1,10 +1,11 @@
 import * as THREE from "three";
+
 import { addMaterialShaderPatch } from "../addMaterialShaderPatch.js";
 import type { IMaterialOverlayShading } from "./IMaterialOverlayShading.js";
 import type { IMaterialOverlayShape } from "./IMaterialOverlayShape.js";
 import { getOverlayFlatNormal } from "./getOverlayFlatNormal.js";
-import { materialOverlayVertex } from "./materialOverlayVertex.js";
 import { materialOverlayFragment } from "./materialOverlayFragment.js";
+import { materialOverlayVertex } from "./materialOverlayVertex.js";
 
 /**
  * Compose overlays in order, with coverage equal to image alpha times strength. Linear colour factors modify each image before multiply tint or replacement of the base colour; optional roughness mixes by the same coverage.
@@ -19,12 +20,18 @@ import { materialOverlayFragment } from "./materialOverlayFragment.js";
  * @evidence contracts/performance.md#reuse-equivalent-work Ordered blend/roughness/normal shapes identify program-source equivalence while colour/normal texture transforms and scalar uniforms remain distinct per material.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The material and its patch closure retain O(L) overlay/uniform references until material release; textures are borrowed, the flat normal is one module singleton and this helper has no layer-count cap or unregister API.
  */
-export const applyMaterialOverlays: (material: THREE.MeshPhysicalMaterial, overlays: readonly IMaterialOverlayShading[]) => void = (
+export const applyMaterialOverlays: (
+  material: THREE.MeshPhysicalMaterial,
+  overlays: readonly IMaterialOverlayShading[],
+) => void = (
   material: THREE.MeshPhysicalMaterial,
   overlays: readonly IMaterialOverlayShading[],
 ): void => {
   if (overlays.length === 0) return;
-  if (material.normalMap === null && overlays.some((o: IMaterialOverlayShading): boolean => o.normal !== null)) {
+  if (
+    material.normalMap === null &&
+    overlays.some((o: IMaterialOverlayShading): boolean => o.normal !== null)
+  ) {
     material.normalMap = getOverlayFlatNormal();
     material.userData.autoMovieOverlayFlatNormal = material.normalMap;
   }
@@ -55,11 +62,13 @@ export const applyMaterialOverlays: (material: THREE.MeshPhysicalMaterial, overl
     }
   });
   material.userData.overlays = overlays;
-  const shapes: IMaterialOverlayShape[] = overlays.map((overlay: IMaterialOverlayShading): IMaterialOverlayShape => ({
-    blend: overlay.blend,
-    roughness: overlay.roughness !== null,
-    normal: overlay.normal !== null,
-  }));
+  const shapes: IMaterialOverlayShape[] = overlays.map(
+    (overlay: IMaterialOverlayShading): IMaterialOverlayShape => ({
+      blend: overlay.blend,
+      roughness: overlay.roughness !== null,
+      normal: overlay.normal !== null,
+    }),
+  );
   addMaterialShaderPatch(material, {
     key: `automovie-overlays-${shapes
       .map(
@@ -77,4 +86,3 @@ export const applyMaterialOverlays: (material: THREE.MeshPhysicalMaterial, overl
     },
   });
 };
-

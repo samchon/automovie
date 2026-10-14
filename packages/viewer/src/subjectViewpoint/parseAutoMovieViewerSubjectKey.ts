@@ -12,7 +12,9 @@ import type { IAutoMovieViewerSubject } from "./IAutoMovieViewerSubject.js";
  * @evidence contracts/performance.md#reuse-equivalent-work The static category Set is reused; parsed subject records are fresh and no scene identity result is cached.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only a fixed category Set is retained by the module; returned strings/record belong to the caller, with no native handles or registry growth.
  */
-export function parseAutoMovieViewerSubjectKey(key: string): IAutoMovieViewerSubject {
+export function parseAutoMovieViewerSubjectKey(
+  key: string,
+): IAutoMovieViewerSubject {
   const separator: number = key.indexOf(":");
   if (separator === -1)
     throw new Error(
@@ -30,7 +32,8 @@ export function parseAutoMovieViewerSubjectKey(key: string): IAutoMovieViewerSub
   // the trailing revision is split off.
   const revisionAt: number = rest.lastIndexOf("@");
   const id: string = revisionAt === -1 ? rest : rest.slice(0, revisionAt);
-  const revision: string | null = revisionAt === -1 ? null : rest.slice(revisionAt + 1);
+  const revision: string | null =
+    revisionAt === -1 ? null : rest.slice(revisionAt + 1);
   if (id.length === 0)
     throw new Error(`subject key "${key}" names no id after its kind`);
   if (revision !== null && revision.length === 0)

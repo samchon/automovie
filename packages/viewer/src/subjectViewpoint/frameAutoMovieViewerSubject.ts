@@ -1,8 +1,9 @@
 import * as THREE from "three";
+
 import type { IAutoMovieViewerSubjectBounds } from "./IAutoMovieViewerSubjectBounds.js";
-import type { IAutoMovieViewerViewpoint } from "./IAutoMovieViewerViewpoint.js";
 import type { IAutoMovieViewerSubjectLens } from "./IAutoMovieViewerSubjectLens.js";
 import type { IAutoMovieViewerSubjectPose } from "./IAutoMovieViewerSubjectPose.js";
+import type { IAutoMovieViewerViewpoint } from "./IAutoMovieViewerViewpoint.js";
 
 /**
  * Frame a finite ordered world-space box using its half-diagonal sphere, floored at 0.5 metres, and the narrower perspective field. Factor at least one is needed for the angular full-sphere fit; the near-clip floor can still crop its near edge with very wide lenses. Valid finite angles/lens/bounds and arithmetic range remain caller premises.
@@ -15,7 +16,11 @@ import type { IAutoMovieViewerSubjectPose } from "./IAutoMovieViewerSubjectPose.
  * @evidence contracts/performance.md#reuse-equivalent-work Each call uses its current bounds, direction and lens without caching; returned lens reference is borrowed and later mutation changes metadata.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Owns only small returned value records and retains no scene or native handle; the caller owns subsequent camera and image resources.
  */
-export function frameAutoMovieViewerSubject(bounds: IAutoMovieViewerSubjectBounds, viewpoint: IAutoMovieViewerViewpoint, lens: IAutoMovieViewerSubjectLens): IAutoMovieViewerSubjectPose {
+export function frameAutoMovieViewerSubject(
+  bounds: IAutoMovieViewerSubjectBounds,
+  viewpoint: IAutoMovieViewerViewpoint,
+  lens: IAutoMovieViewerSubjectLens,
+): IAutoMovieViewerSubjectPose {
   if (lens.fovDeg <= 0 || lens.fovDeg >= 180)
     throw new RangeError(
       `inspection lens field of view must be within (0, 180) degrees, not ${lens.fovDeg}`,
@@ -40,7 +45,9 @@ export function frameAutoMovieViewerSubject(bounds: IAutoMovieViewerSubjectBound
   );
   const verticalHalf: number = THREE.MathUtils.degToRad(lens.fovDeg) / 2;
   // The horizontal field follows the aspect; fit the narrower field so the other field cannot crop the bounding sphere.
-  const horizontalHalf: number = Math.atan(Math.tan(verticalHalf) * lens.aspect);
+  const horizontalHalf: number = Math.atan(
+    Math.tan(verticalHalf) * lens.aspect,
+  );
   const distance: number =
     (radius / Math.sin(Math.min(verticalHalf, horizontalHalf))) *
     viewpoint.distanceFactor;

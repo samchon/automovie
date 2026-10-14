@@ -17,6 +17,8 @@ export function decodePosixProcessIdentity(result: {
 }): string | null {
   if (result.error) throw result.error;
   if (result.status !== 0 && result.status !== 1)
-    throw new Error("Could not read the process creation date: " + result.stderr);
+    throw new Error(
+      "Could not read the process creation date: " + result.stderr,
+    );
   return result.stdout.trim() || null;
 }

@@ -1,4 +1,5 @@
 import * as THREE from "three";
+
 import type { IAutoMovieViewerSubjectLens } from "./IAutoMovieViewerSubjectLens.js";
 import type { IAutoMovieViewerSubjectPose } from "./IAutoMovieViewerSubjectPose.js";
 
@@ -13,7 +14,12 @@ import type { IAutoMovieViewerSubjectPose } from "./IAutoMovieViewerSubjectPose.
  * @evidence contracts/performance.md#reuse-equivalent-work Each call computes fresh target coordinates; shared position/lens references do not cache camera or scene effects.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Owns only returned small records and borrows input references; it acquires no native resource or background task.
  */
-export function autoMovieViewerPoseFromHeading(position: { x: number; y: number; z: number }, headingDeg: { yaw: number; pitch: number }, lens: IAutoMovieViewerSubjectLens, clip: { near: number; far: number }): IAutoMovieViewerSubjectPose {
+export function autoMovieViewerPoseFromHeading(
+  position: { x: number; y: number; z: number },
+  headingDeg: { yaw: number; pitch: number },
+  lens: IAutoMovieViewerSubjectLens,
+  clip: { near: number; far: number },
+): IAutoMovieViewerSubjectPose {
   if (clip.near <= 0 || clip.far <= clip.near)
     throw new RangeError(
       `inspection clip range must satisfy 0 < near < far, not near=${clip.near} far=${clip.far}`,

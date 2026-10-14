@@ -11,6 +11,10 @@ import type { IAutoMovieViewerSubject } from "./IAutoMovieViewerSubject.js";
  * @evidence contracts/performance.md#reuse-equivalent-work Repeated inputs produce equal text without caching; text equality alone cannot certify current source or revision content.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The returned string is caller owned and retains no scene, renderer or identity registry.
  */
-export function autoMovieViewerSubjectKey(subject: IAutoMovieViewerSubject): string { return subject.revision === null
+export function autoMovieViewerSubjectKey(
+  subject: IAutoMovieViewerSubject,
+): string {
+  return subject.revision === null
     ? `${subject.kind}:${subject.id}`
-    : `${subject.kind}:${subject.id}@${subject.revision}`; }
+    : `${subject.kind}:${subject.id}@${subject.revision}`;
+}

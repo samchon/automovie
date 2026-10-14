@@ -1,4 +1,5 @@
 import * as THREE from "three";
+
 import { addMaterialShaderPatch } from "../addMaterialShaderPatch.js";
 import { getSubsurfaceTexture } from "./getSubsurfaceTexture.js";
 import { subsurfaceFragment } from "./subsurfaceFragment.js";
@@ -14,11 +15,16 @@ import { subsurfaceFragment } from "./subsurfaceFragment.js";
  * @evidence contracts/performance.md#reuse-equivalent-work All materials borrow the same immutable lookup wrapper while each radius uniform stays independent; Three program reuse depends on the structural patch key, not equality of captured radius values.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Material hooks/userData retain radius and the borrowed texture until material references disappear; lookup storage has module lifetime with no explicit retirement API, and this helper acquires no program itself.
  */
-export function applySubsurfaceShading(material: THREE.MeshPhysicalMaterial, radius: { r: number; g: number; b: number }): void {
+export function applySubsurfaceShading(
+  material: THREE.MeshPhysicalMaterial,
+  radius: { r: number; g: number; b: number },
+): void {
   const radiusUniform: { value: THREE.Vector3 } = {
     value: new THREE.Vector3(radius.r, radius.g, radius.b),
   };
-  const tableUniform: { value: THREE.DataTexture } = { value: getSubsurfaceTexture() };
+  const tableUniform: { value: THREE.DataTexture } = {
+    value: getSubsurfaceTexture(),
+  };
   material.userData.autoMovieSubsurfaceTexture = tableUniform.value;
   material.userData.subsurfaceRadius = { ...radius };
   addMaterialShaderPatch(material, {

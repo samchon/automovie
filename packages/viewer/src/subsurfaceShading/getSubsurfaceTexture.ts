@@ -1,8 +1,11 @@
 import * as THREE from "three";
+
 import { AutoMovieEnvironmentTextureOwnership } from "../AutoMovieEnvironmentTextureOwnership.js";
-import { subsurfaceTable } from "./subsurfaceTable.js";
 import { SUBSURFACE_TEXTURE_SIZE } from "./SUBSURFACE_TEXTURE_SIZE.js";
-const { cosines: COSINES, blurs: BLURS }: typeof SUBSURFACE_TEXTURE_SIZE = SUBSURFACE_TEXTURE_SIZE;
+import { subsurfaceTable } from "./subsurfaceTable.js";
+
+const { cosines: COSINES, blurs: BLURS }: typeof SUBSURFACE_TEXTURE_SIZE =
+  SUBSURFACE_TEXTURE_SIZE;
 
 let shared: THREE.DataTexture | null = null;
 /**

@@ -1,6 +1,6 @@
+import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
-import { execFileSync } from "node:child_process";
 
 /**
  * Read maintained files in declared checkout source roots from Git's cached and nonignored working-tree membership. Runtime SDK caches are not source; explicit data and emitted-library roots retain separate filesystem owners. Added/unlinked authored files are observed each time, without a fixed census. The returned paths are absolute and ordered; no file bytes are read here. A selected path resolving outside the actual checkout refuses the receipt.
@@ -13,28 +13,52 @@ import { execFileSync } from "node:child_process";
  * @evidence contracts/performance.md#reuse-equivalent-work Each call reads current maintained membership; disk-source ownership separately shares unchanged byte receipts and no stale filename list is cached here.
  * @evidence contracts/performance.md#bound-retention-and-release-resources execFileSync joins the Git subprocess and filesystem checks are synchronous; only the returned path array escapes, with no retained child, watcher or open file handle.
  */
-export function readViewerMaintainedSourceFiles(root: string, directories: readonly string[]): string[] {
+export function readViewerMaintainedSourceFiles(
+  root: string,
+  directories: readonly string[],
+): string[] {
   const actualRoot: string = fs.realpathSync.native(root);
   const inside: (file: string) => boolean = (file: string): boolean => {
     const relative: string = path.relative(actualRoot, file);
-    return relative !== ".." && !relative.startsWith(".." + path.sep) && !path.isAbsolute(relative);
+    return (
+      relative !== ".." &&
+      !relative.startsWith(".." + path.sep) &&
+      !path.isAbsolute(relative)
+    );
   };
   const scopes: string[] = directories.map((directory: string): string => {
     const resolved: string = path.resolve(directory);
-    if (!inside(resolved)) throw new Error("A maintained source root must remain within the checkout: " + resolved);
+    if (!inside(resolved))
+      throw new Error(
+        "A maintained source root must remain within the checkout: " + resolved,
+      );
     return resolved + path.sep;
   });
-  const inventory: string = execFileSync("git", ["ls-files", "--cached", "--others", "--exclude-standard", "-z"], {
-    cwd: root, encoding: "utf8", windowsHide: true,
-  });
+  const inventory: string = execFileSync(
+    "git",
+    ["ls-files", "--cached", "--others", "--exclude-standard", "-z"],
+    {
+      cwd: root,
+      encoding: "utf8",
+      windowsHide: true,
+    },
+  );
   const selected: Set<string> = new Set();
   for (const relative of inventory.split("\0")) {
     if (relative === "") continue;
     const file: string = path.resolve(root, relative);
-    if (!scopes.some((scope: string): boolean => file.startsWith(scope)) || !fs.existsSync(file)) continue;
+    if (
+      !scopes.some((scope: string): boolean => file.startsWith(scope)) ||
+      !fs.existsSync(file)
+    )
+      continue;
     if (!inside(fs.realpathSync.native(file)))
-      throw new Error("A maintained source file resolves outside the checkout: " + file);
+      throw new Error(
+        "A maintained source file resolves outside the checkout: " + file,
+      );
     selected.add(file);
   }
-  return [...selected].sort((left: string, right: string): number => left < right ? -1 : left > right ? 1 : 0);
+  return [...selected].sort((left: string, right: string): number =>
+    left < right ? -1 : left > right ? 1 : 0,
+  );
 }

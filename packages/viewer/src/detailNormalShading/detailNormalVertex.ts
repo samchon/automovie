@@ -10,7 +10,9 @@
  * @evidence contracts/performance.md#reuse-equivalent-work Reuses native UV production and the registered transform uniform without recomputing texture transforms per vertex on CPU; this source transform caches no mutable shader result.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Borrows one source string and transfers the edited string, retaining no geometry, texture or task; memory is input-sized plus fixed declaration/projection text.
  */
-export const detailNormalVertex: (vertexShader: string) => string = (vertexShader: string): string =>
+export const detailNormalVertex: (vertexShader: string) => string = (
+  vertexShader: string,
+): string =>
   vertexShader
     .replace(
       "#include <common>",

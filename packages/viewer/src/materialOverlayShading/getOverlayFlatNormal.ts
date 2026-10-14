@@ -1,6 +1,6 @@
 import * as THREE from "three";
-import { AutoMovieEnvironmentTextureOwnership } from "../AutoMovieEnvironmentTextureOwnership.js";
 
+import { AutoMovieEnvironmentTextureOwnership } from "../AutoMovieEnvironmentTextureOwnership.js";
 
 let flat: THREE.DataTexture | null = null;
 /**
@@ -14,12 +14,12 @@ let flat: THREE.DataTexture | null = null;
  * @evidence contracts/performance.md#reuse-equivalent-work All overlay users share the same fixed immutable texel wrapper; they must not mutate it as if it were a private normal map.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The module strongly retains exactly one DataTexture until module/application lifetime ends, with no explicit reset API; material/native renderer disposal belongs to borrowers and ownership registration is weak metadata rather than cleanup.
  */
-export const getOverlayFlatNormal: () => THREE.DataTexture = (): THREE.DataTexture => {
-  if (flat !== null) return flat;
-  flat = new THREE.DataTexture(new Uint8Array([128, 128, 255, 255]), 1, 1);
-  flat.colorSpace = THREE.NoColorSpace;
-  flat.needsUpdate = true;
-  AutoMovieEnvironmentTextureOwnership.material(flat);
-  return flat;
-};
-
+export const getOverlayFlatNormal: () => THREE.DataTexture =
+  (): THREE.DataTexture => {
+    if (flat !== null) return flat;
+    flat = new THREE.DataTexture(new Uint8Array([128, 128, 255, 255]), 1, 1);
+    flat.colorSpace = THREE.NoColorSpace;
+    flat.needsUpdate = true;
+    AutoMovieEnvironmentTextureOwnership.material(flat);
+    return flat;
+  };

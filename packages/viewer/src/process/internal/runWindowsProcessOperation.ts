@@ -13,16 +13,29 @@ import { decodeWindowsProcessResult } from "./decodeWindowsProcessResult.ts";
  * @evidence contracts/performance.md#reuse-equivalent-work Fixed program strings are supplied by one immutable owner, while each actual identity/snapshot/stop still requires a fresh process operation.
  * @evidence contracts/performance.md#bound-retention-and-release-resources spawnSync completes its child/pipe scope before return, while the selected native script owns process-handle disposal; returned parsed values retain no command process.
  */
-export function runWindowsProcessOperation(program: string, input: unknown): unknown {
-  const script: string = "$ErrorActionPreference = 'Stop'\n" +
-    "$request = [Console]::In.ReadToEnd() | ConvertFrom-Json\n" + program;
-  return decodeWindowsProcessResult(spawnSync("powershell.exe", [
-    "-NoProfile", "-NonInteractive", "-EncodedCommand",
-    Buffer.from(script, "utf16le").toString("base64"),
-  ], {
-    windowsHide: true,
-    encoding: "utf8",
-    input: JSON.stringify(input),
-    maxBuffer: 4 * 1024 * 1024,
-  }));
+export function runWindowsProcessOperation(
+  program: string,
+  input: unknown,
+): unknown {
+  const script: string =
+    "$ErrorActionPreference = 'Stop'\n" +
+    "$request = [Console]::In.ReadToEnd() | ConvertFrom-Json\n" +
+    program;
+  return decodeWindowsProcessResult(
+    spawnSync(
+      "powershell.exe",
+      [
+        "-NoProfile",
+        "-NonInteractive",
+        "-EncodedCommand",
+        Buffer.from(script, "utf16le").toString("base64"),
+      ],
+      {
+        windowsHide: true,
+        encoding: "utf8",
+        input: JSON.stringify(input),
+        maxBuffer: 4 * 1024 * 1024,
+      },
+    ),
+  );
 }

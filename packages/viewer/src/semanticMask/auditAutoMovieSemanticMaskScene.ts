@@ -1,5 +1,10 @@
-import type { IAutoMovieSemanticMaskCoverage as AutoMovieSemanticMaskCoverage, IAutoMovieScene, IAutoMovieSemanticMask } from "@automovie/interface";
+import type {
+  IAutoMovieSemanticMaskCoverage as AutoMovieSemanticMaskCoverage,
+  IAutoMovieScene,
+  IAutoMovieSemanticMask,
+} from "@automovie/interface";
 import type * as THREE from "three";
+
 import { maskRoots } from "./maskRoots.js";
 import { nearest } from "./nearest.js";
 import { unresolvedOf } from "./unresolvedOf.js";
@@ -36,7 +41,7 @@ export const auditAutoMovieSemanticMaskScene: (props: {
 }): AutoMovieSemanticMaskCoverage => {
   const roots: ReturnType<typeof maskRoots> = maskRoots(props);
   let unaddressed: number = 0;
-  props.scene.traverse((object: THREE.Object3D) : void => {
+  props.scene.traverse((object: THREE.Object3D): void => {
     const mesh: THREE.Mesh = object as THREE.Mesh;
     if (mesh.isMesh !== true) return;
     if (nearest(mesh, roots) === undefined) ++unaddressed;

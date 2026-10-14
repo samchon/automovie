@@ -1,5 +1,9 @@
 import { autoMovieSemanticMaskNodeIndex } from "@automovie/engine";
-import type { IAutoMovieScene, IAutoMovieSemanticMask, IAutoMovieSemanticMaskEntry } from "@automovie/interface";
+import type {
+  IAutoMovieScene,
+  IAutoMovieSemanticMask,
+  IAutoMovieSemanticMaskEntry,
+} from "@automovie/interface";
 import type * as THREE from "three";
 
 /**
@@ -39,14 +43,24 @@ export const maskRoots: (props: {
     throw new Error(
       `semantic mask cannot resolve staged nodes: the scene holds ${scene.children.length} top-level children for ${design.nodes.length} designed nodes`,
     );
-  const byNode: ReturnType<typeof autoMovieSemanticMaskNodeIndex> = autoMovieSemanticMaskNodeIndex(mask);
-  const roots: Map<THREE.Object3D, IAutoMovieSemanticMaskEntry> = new Map<THREE.Object3D, IAutoMovieSemanticMaskEntry>();
-  design.nodes.forEach((node: IAutoMovieScene["nodes"][number], index: number) : void => {
-    const entry: IAutoMovieSemanticMaskEntry | undefined = byNode.get(node.id);
-    if (entry !== undefined) roots.set(scene.children[index]!, entry);
-  });
-  scene.traverse((object: THREE.Object3D) : void => {
-    const entry: IAutoMovieSemanticMaskEntry | undefined = byNode.get(object.name);
+  const byNode: ReturnType<typeof autoMovieSemanticMaskNodeIndex> =
+    autoMovieSemanticMaskNodeIndex(mask);
+  const roots: Map<THREE.Object3D, IAutoMovieSemanticMaskEntry> = new Map<
+    THREE.Object3D,
+    IAutoMovieSemanticMaskEntry
+  >();
+  design.nodes.forEach(
+    (node: IAutoMovieScene["nodes"][number], index: number): void => {
+      const entry: IAutoMovieSemanticMaskEntry | undefined = byNode.get(
+        node.id,
+      );
+      if (entry !== undefined) roots.set(scene.children[index]!, entry);
+    },
+  );
+  scene.traverse((object: THREE.Object3D): void => {
+    const entry: IAutoMovieSemanticMaskEntry | undefined = byNode.get(
+      object.name,
+    );
     if (entry !== undefined) roots.set(object, entry);
   });
   return roots;

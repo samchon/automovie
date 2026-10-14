@@ -13,7 +13,9 @@ import { spliceTangentNormal } from "./spliceTangentNormal.js";
  * @evidence contracts/performance.md#reuse-equivalent-work Reuses the shared normal projection splice and an already-expanded native chunk when prior patches installed it; this pure source transformation retains no compiled program or cross-source cache.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Returns a new shader source string and retains no input/texture/renderer handle; transient string bytes are bounded by input source plus fixed injected/native chunk lengths.
  */
-export const detailNormalFragment: (fragmentShader: string) => string = (fragmentShader: string): string =>
+export const detailNormalFragment: (fragmentShader: string) => string = (
+  fragmentShader: string,
+): string =>
   spliceTangentNormal(
     fragmentShader.replace(
       "#include <common>",

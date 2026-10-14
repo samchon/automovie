@@ -1,4 +1,5 @@
 import type * as THREE from "three";
+
 import { addMaterialShaderPatch } from "../addMaterialShaderPatch.js";
 import { createReliefWeightShaderPatch } from "./createReliefWeightShaderPatch.js";
 
@@ -13,6 +14,8 @@ import { createReliefWeightShaderPatch } from "./createReliefWeightShaderPatch.j
  * @evidence contracts/performance.md#reuse-equivalent-work The stable patch key contributes to native program equivalence while per-mesh attributes remain live inputs; no compiled program is cached independently here.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The material compile owner retains the registered descriptor with that material, whose caller owns disposal; no geometry, texture or WebGL program is acquired by registration.
  */
-export const applyReliefWeights: (material: THREE.Material) => void = (material: THREE.Material): void => {
+export const applyReliefWeights: (material: THREE.Material) => void = (
+  material: THREE.Material,
+): void => {
   addMaterialShaderPatch(material, createReliefWeightShaderPatch());
 };
