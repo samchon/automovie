@@ -53,6 +53,6 @@ export interface IPortraitNoseShape {
   /** Cavity floor offset in host XYZ millimetres, three finite values, rotated with the nostril tilt. */
   cavityOffset: number[];
 
-  /** Nonnegative reach of adjacent skin adaptation along the original mesh, in mm; zero disables the adaptation. */
+  /** Nonnegative Euclidean reach of adjacent skin adaptation in the original host frame, in mm; zero disables the adaptation. */
   blendReach: number;
 }

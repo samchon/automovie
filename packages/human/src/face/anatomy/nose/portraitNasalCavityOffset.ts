@@ -1,7 +1,7 @@
 import { IPortraitNoseShape } from "./structures/IPortraitNoseShape";
 
 /**
- * Rotate the authored vestibular displacement with the aperture's X tilt. The component's envelope path and legacy lining use this same frame so an opening edit cannot leave its interior travelling along a stale direction. Input and output are head-frame millimetres; tilt is in degrees.
+ * Rotate the authored vestibular displacement with the aperture's X tilt. The nostril lining uses this rotated offset after fitting its rim. Input and output are head-frame millimetres; tilt is in degrees.
  *
  * @evidence contracts/common.md#principled-implementation Authored vestibular displacement rotates its Y/Z components by the same aperture X tilt.
  * @evidence contracts/common.md#clear-and-simple-design Legacy nostril attachment reuses this field after the aperture's fitted rim is established.

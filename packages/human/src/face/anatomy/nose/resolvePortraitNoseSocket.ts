@@ -8,7 +8,7 @@ import { IPortraitNoseSocket } from "./structures/IPortraitNoseSocket";
  * Nothing is mutated, and the copy aliases none of the caller's arrays or the radius pair, so a later edit of the caller's socket cannot move a nose that was already built. These checks say the socket is constructible, not that it lies on a living nose.
  *
  * @evidence contracts/common.md#principled-implementation Finite chart centres, positive influence radii and nonnegative alar offset admit a copied nasal registration.
- * @evidence contracts/common.md#clear-and-simple-design Host-dependent resident vertex/triangle checks remain with the component's actual host stage.
+ * @evidence contracts/common.md#clear-and-simple-design This resolver owns scalar admission and copying; surface and cut ordinals remain unchecked registration inputs, while the component checks only support-plane residency.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Numeric admission does not prove living anatomy or a valid registered cut population; ordinals are copied without residency validation here.
  * @evidence contracts/common.md#meaningful-documentation All source distances use head millimetres and retained arrays/radius pair are independent copies.
  * @evidence contracts/performance.md#efficient-algorithms Scalar admission is fixed work and copying scales with surface, opening and support-id populations.
