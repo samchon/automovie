@@ -1,9 +1,9 @@
 /**
- * Explicit collision primitive admitted for an external model and materialized as its engine proxy geometry.
+ * Explicit intended collision primitive retained in external-model provenance.
  *
- * @evidence contracts/common.md#principled-implementation Recipe discrimination binds capsule radius and cylindrical height or box full extents to the exact primitive parameters; productionAssetInventory requires finite positive dimensions rather than inferring collision from appearance bytes.
+ * @evidence contracts/common.md#principled-implementation Recipe discrimination describes capsule radius/cylindrical height or box full extents as explicit provenance metadata. Finite positive dimensions remain caller premises; the production asset-inventory validator and proxy materializer are retired, so this record creates no engine collision geometry.
  * @evidence contracts/common.md#clear-and-simple-design Two closed recipe arms carry only the dimensions their primitive consumes, and external asset resolution and runtime model materialization remain outside this data contract.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Registered collision geometry is the explicit engine proxy; no missing proxy falls back to a guessed visual-mesh envelope. Capsule tessellation currently uses a cylinder, a separate documented geometry limitation.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The record declares no visual-mesh inference or substitute proxy. Its presence establishes neither materialization nor physical collision correctness; an explicit host must construct and validate any geometry it adopts.
  * @evidence contracts/common.md#meaningful-documentation Defines explicit proxy ownership, supported recipes, meter units, full box extents and the capsule's cylindrical-body height.
  * @author Samchon
  */

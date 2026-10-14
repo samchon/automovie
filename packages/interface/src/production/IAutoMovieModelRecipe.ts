@@ -5,9 +5,9 @@ import { IAutoMovieModelLodRecipe } from "./IAutoMovieModelLodRecipe";
 /**
  * A bounded registered-archetype recipe compiled into deterministic model data, with an optional adopted external appearance.
  *
- * @evidence contracts/common.md#principled-implementation The registered archetype admits its own parameter and capability vocabulary and builds deterministic geometry and supported bones; production validation additionally checks recipe identity, external asset use, one sRGB palette color, LOD edges and attachment sockets.
+ * @evidence contracts/common.md#principled-implementation Engine population compilation reads LOD references and hashes the complete canonical recipe, while worldBlock can author a primitive box recipe. Archetype definitions own parameter/build semantics, but the production recipe validator and materializer are retired; no surviving whole-recipe gate establishes palette, asset, capability or socket admission automatically.
  * @evidence contracts/common.md#clear-and-simple-design Recipe data owns reusable construction and semantic declarations, while archetype implementations own parameter meaning and source authors own actual motion and scene attachment instances.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Unregistered archetypes, unsupported parameters or capabilities and multiple palette materials refuse; external appearance requires an exact model-recipe ledger use and does not infer collision or rig semantics.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Registry membership, supported parameters/capabilities, one valid palette entry and asset/socket consistency are host premises. Population compilation hashes missing/unencodable references as explicit markers instead of constructing or admitting missing geometry; external appearance metadata confers no collision or rig semantics.
  * @evidence contracts/common.md#meaningful-documentation Defines portable identity, archetype ownership, adopted asset selection, palette encoding, LOD ordering, attachment limits and optional declarative profiles.
  * @author Samchon
  */
@@ -21,7 +21,7 @@ export interface IAutoMovieModelRecipe {
   /**
    * Non-blank id of the registered archetype that builds this recipe.
    *
-   * The builder resolves this identifier against the archetype catalogue the production registers and refuses a recipe naming nothing registered. It is opaque here on purpose: which archetypes exist is a decision of that catalogue, not of this contract.
+   * A host resolves this opaque identifier against its registered archetype definitions. This contract and the Engine population compiler do not perform registry lookup or instantiate its geometry.
    */
   archetype: string;
 
@@ -33,14 +33,14 @@ export interface IAutoMovieModelRecipe {
   /**
    * Exact archetype-specific parameter map.
    *
-   * The registered archetype owns this contract: which keys are required, which are accepted at all, and the value kind and range of each. Read `MODEL_RECIPE`, then the definition itself; an unsupported key is refused rather than stored.
+   * The registered archetype owns required/accepted keys and each value kind/range. Hosts must read its parameter schema and plan before calling build; the retired production gate no longer refuses unsupported keys automatically.
    */
   parameters: Record<string, number | string | boolean>;
 
   /**
-   * Exactly one named six-digit `#RRGGBB` material color in the foundation builder. Multiple semantic part materials remain unsupported and are refused instead of silently discarded.
+   * Intended foundation palette of one named six-digit `#RRGGBB` color. The production materializer that enforced cardinality is retired; hosts own color admission and material construction.
    *
-   * The value is an sRGB swatch, and the builder decodes it with `srgbHexToLinearColor` on its way into the material's linear `baseColor`. The same swatch written here and in `IAutoMovieInstanceVariation.palette` therefore renders one color, which is the whole reason both go through one decode.
+   * The value is an sRGB swatch. A host constructing linear material baseColor must decode it with `srgbHexToLinearColor`, matching instance variation palette decoding; storing this recipe alone performs no conversion.
    */
   palette: Record<string, string>;
 
@@ -52,14 +52,14 @@ export interface IAutoMovieModelRecipe {
   /**
    * Semantic abilities visible to source and review, unique within the recipe.
    *
-   * The registered archetype decides which labels are meaningful and the builder refuses any other; declaring one it does implement still leaves source to author the motion that earns it.
+   * The registered archetype decides which labels are meaningful. No surviving recipe gate checks membership here; source still authors the motion and hosts own capability admission.
    */
   capabilities: string[];
 
   /**
    * Unique semantic bone sockets.
    *
-   * A bone is accepted only when the registered archetype's builder actually materializes it, so an archetype without a builder-owned skeleton accepts none. The materializer does not create attached scene nodes automatically.
+   * The intended socket must exist in the host-built skeleton; a skeletonless archetype provides none. This recipe field performs no bone admission or attached-node creation after production materializer retirement.
    */
   attachments: Array<{
     /** Non-blank attachment id, unique within the recipe. */
@@ -70,7 +70,7 @@ export interface IAutoMovieModelRecipe {
   }>;
 
   /**
-   * Declarative capability profiles copied onto the builder-owned runtime model. Omitted means that trait-gated engine verbs such as mounting are unavailable.
+   * Declarative capability profiles intended for an explicitly constructed runtime model. This recipe field no longer has an automatic production copying host; engine verbs inspect the runtime model's actual profiles.
    */
   profiles?: IAutoMovieProfile[];
 }
