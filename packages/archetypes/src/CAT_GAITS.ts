@@ -1,5 +1,7 @@
 import { IAutoMovieGait } from "@automovie/interface";
+
 import { createQuadrupedGaitLimb } from "./createQuadrupedGaitLimb";
+
 /**
  * Two conventional tail channels for one finger-named catalogue bone: phase-bearing abduction and phase-zero flexion about the supplied degree neutral. Phase is in turns and amplitude in degrees; the flexion oscillation is fifteen percent with a one-degree minimum. Each call allocates two new rows with shared easeInOut halves and retains no state.
  */
@@ -8,27 +10,29 @@ function tail(
   phase: number,
   neutral: number,
   amplitude: number,
-): IAutoMovieGait["limbs"][number][] { return [
-  {
-    bone,
-    axis: "abduction",
-    phase,
-    duty: 0.5,
-    neutral: 0,
-    amplitude,
-    swingEasing: "easeInOut",
-    stanceEasing: "easeInOut",
-  },
-  {
-    bone,
-    phase: 0,
-    duty: 0.5,
-    neutral,
-    amplitude: Math.max(1, amplitude * 0.15),
-    swingEasing: "easeInOut",
-    stanceEasing: "easeInOut",
-  },
-]; }
+): IAutoMovieGait["limbs"][number][] {
+  return [
+    {
+      bone,
+      axis: "abduction",
+      phase,
+      duty: 0.5,
+      neutral: 0,
+      amplitude,
+      swingEasing: "easeInOut",
+      stanceEasing: "easeInOut",
+    },
+    {
+      bone,
+      phase: 0,
+      duty: 0.5,
+      neutral,
+      amplitude: Math.max(1, amplitude * 0.15),
+      swingEasing: "easeInOut",
+      stanceEasing: "easeInOut",
+    },
+  ];
+}
 
 /**
  * The canonical cat gait library: walk/leap/stalk as reusable profile data for

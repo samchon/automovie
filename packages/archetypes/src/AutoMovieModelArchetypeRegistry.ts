@@ -1,4 +1,5 @@
 import { IAutoMovieModelArchetype } from "./IAutoMovieModelArchetype";
+
 /**
  * Every archetype one host may build, keyed by the id a recipe names.
  *

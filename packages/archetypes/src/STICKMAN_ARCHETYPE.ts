@@ -1,12 +1,18 @@
 import { Quaternion } from "@automovie/engine/math/Quaternion";
-import { IAutoMovieModel, IAutoMovieModelPart, IAutoMovieTransform } from "@automovie/interface";
+import {
+  IAutoMovieModel,
+  IAutoMovieModelPart,
+  IAutoMovieTransform,
+} from "@automovie/interface";
+
+import { AutoMovieArchetypeParameters } from "./AutoMovieArchetypeParameters";
 import { IAutoMovieArchetypeBuildInput } from "./IAutoMovieArchetypeBuildInput";
 import { IAutoMovieArchetypeGeometry } from "./IAutoMovieArchetypeGeometry";
 import { IAutoMovieArchetypeParameterPlan } from "./IAutoMovieArchetypeParameterPlan";
-import { AutoMovieArchetypeParameters } from "./AutoMovieArchetypeParameters";
 import { IAutoMovieModelArchetype } from "./IAutoMovieModelArchetype";
 import { numberOf } from "./numberOf";
 import { numberParameter } from "./numberParameter";
+
 /**
  * The catalogue's articulated figure: one height-driven primitive rig.
  *
@@ -44,8 +50,10 @@ export const STICKMAN_ARCHETYPE: IAutoMovieModelArchetype = {
     accepted: null,
     refusals: [],
   }),
-  projectionRadius: (parameters: AutoMovieArchetypeParameters): number => projectionRadius(parameters),
-  build: (input: IAutoMovieArchetypeBuildInput): IAutoMovieArchetypeGeometry => build(input),
+  projectionRadius: (parameters: AutoMovieArchetypeParameters): number =>
+    projectionRadius(parameters),
+  build: (input: IAutoMovieArchetypeBuildInput): IAutoMovieArchetypeGeometry =>
+    build(input),
 };
 
 /**
@@ -53,7 +61,9 @@ export const STICKMAN_ARCHETYPE: IAutoMovieModelArchetype = {
  *
  * Missing or nonfinite ungated parameters read as zero; out-of-range arithmetic is only a placeholder. Two thirteen-row scans and one fixed-size build allocate fresh temporary records with no cache or persistent geometry.
  */
-const projectionRadius: (parameters: AutoMovieArchetypeParameters) => number = (parameters: AutoMovieArchetypeParameters): number => {
+const projectionRadius: (parameters: AutoMovieArchetypeParameters) => number = (
+  parameters: AutoMovieArchetypeParameters,
+): number => {
   const geometry: IAutoMovieArchetypeGeometry = build({
     parameters: {
       height: numberOf(parameters, "height"),
@@ -67,27 +77,48 @@ const projectionRadius: (parameters: AutoMovieArchetypeParameters) => number = (
   const reach: Map<string, number> = new Map();
   for (const bone of geometry.skeleton!.bones) {
     const offset: IAutoMovieTransform["translation"] = bone.rest.translation;
-    reach.set(bone.bone, (bone.parent === null ? 0 : reach.get(bone.parent)!) + Math.hypot(offset.x, offset.y, offset.z));
+    reach.set(
+      bone.bone,
+      (bone.parent === null ? 0 : reach.get(bone.parent)!) +
+        Math.hypot(offset.x, offset.y, offset.z),
+    );
   }
   let radius: number = 0;
   for (const part of geometry.parts) {
     if (part.geometry.type !== "primitive")
-      throw new Error("Stickman radius requires its generated primitive geometry.");
-    const shape: Extract<IAutoMovieModelPart["geometry"], { type: "primitive" }>["shape"] = part.geometry.shape;
+      throw new Error(
+        "Stickman radius requires its generated primitive geometry.",
+      );
+    const shape: Extract<
+      IAutoMovieModelPart["geometry"],
+      { type: "primitive" }
+    >["shape"] = part.geometry.shape;
     let primitiveRadius: number;
-    if (shape.type === "box") primitiveRadius = Math.hypot(shape.width, shape.height, shape.depth) / 2;
+    if (shape.type === "box")
+      primitiveRadius = Math.hypot(shape.width, shape.height, shape.depth) / 2;
     else if (shape.type === "sphere") primitiveRadius = shape.radius;
-    else if (shape.type === "capsule") primitiveRadius = shape.radius + shape.height / 2;
-    else throw new Error(`Stickman radius has no enclosing bound for ${shape.type}.`);
-    const offset: IAutoMovieTransform["translation"] | undefined = part.transform?.translation;
-    const offsetRadius: number = offset === undefined ? 0 : Math.hypot(offset.x, offset.y, offset.z);
-    radius = Math.max(radius, reach.get(part.attachedBone!)! + offsetRadius + primitiveRadius);
+    else if (shape.type === "capsule")
+      primitiveRadius = shape.radius + shape.height / 2;
+    else
+      throw new Error(
+        `Stickman radius has no enclosing bound for ${shape.type}.`,
+      );
+    const offset: IAutoMovieTransform["translation"] | undefined =
+      part.transform?.translation;
+    const offsetRadius: number =
+      offset === undefined ? 0 : Math.hypot(offset.x, offset.y, offset.z);
+    radius = Math.max(
+      radius,
+      reach.get(part.attachedBone!)! + offsetRadius + primitiveRadius,
+    );
   }
   return radius;
 };
 
 /** Assemble conventional height-derived parts from an admitted map and compiler-owned ids. The local part factory shares this call's material; none of its fresh records retain the parameter map. */
-const build: (input: IAutoMovieArchetypeBuildInput) => IAutoMovieArchetypeGeometry = (
+const build: (
+  input: IAutoMovieArchetypeBuildInput,
+) => IAutoMovieArchetypeGeometry = (
   input: IAutoMovieArchetypeBuildInput,
 ): IAutoMovieArchetypeGeometry => {
   const height: number = numberParameter(input.parameters, "height");
@@ -97,7 +128,10 @@ const build: (input: IAutoMovieArchetypeBuildInput) => IAutoMovieArchetypeGeomet
   const part: (
     id: string,
     bone: IAutoMovieModelPart["attachedBone"],
-    shape: Extract<IAutoMovieModelPart["geometry"], { type: "primitive" }>["shape"],
+    shape: Extract<
+      IAutoMovieModelPart["geometry"],
+      { type: "primitive" }
+    >["shape"],
     local: IAutoMovieModelPart["transform"],
   ) => IAutoMovieModelPart = (
     id: string,
@@ -144,63 +178,68 @@ const build: (input: IAutoMovieArchetypeBuildInput) => IAutoMovieArchetypeGeomet
         transform(0, torsoHeight * 0.22, 0),
       ),
       part("head", "head", { type: "sphere", radius: headRadius }, null),
-      ...(["left", "right"] as const).flatMap((side: "left" | "right"): IAutoMovieModelPart[] => {
-        const sign: number = side === "left" ? 1 : -1;
-        return [
-          part(
-            `${side}-upper-arm`,
-            `${side}UpperArm`,
-            {
-              type: "capsule",
-              radius: limbRadius,
-              height: upperLimb,
-            },
-            horizontal(sign * upperLimb * 0.55),
-          ),
-          part(
-            `${side}-lower-arm`,
-            `${side}LowerArm`,
-            {
-              type: "capsule",
-              radius: limbRadius * 0.85,
-              height: lowerLimb,
-            },
-            horizontal(sign * lowerLimb * 0.55),
-          ),
-          part(
-            `${side}-hand`,
-            `${side}Hand`,
-            { type: "sphere", radius: limbRadius * 1.05 },
-            null,
-          ),
-          part(
-            `${side}-thigh`,
-            `${side}UpperLeg`,
-            {
-              type: "capsule",
-              radius: limbRadius * 1.15,
-              height: height * 0.19,
-            },
-            transform(0, -height * 0.105, 0),
-          ),
-          part(
-            `${side}-shin`,
-            `${side}LowerLeg`,
-            {
-              type: "capsule",
-              radius: limbRadius,
-              height: height * 0.19,
-            },
-            transform(0, -height * 0.105, 0),
-          ),
-        ];
-      }),
+      ...(["left", "right"] as const).flatMap(
+        (side: "left" | "right"): IAutoMovieModelPart[] => {
+          const sign: number = side === "left" ? 1 : -1;
+          return [
+            part(
+              `${side}-upper-arm`,
+              `${side}UpperArm`,
+              {
+                type: "capsule",
+                radius: limbRadius,
+                height: upperLimb,
+              },
+              horizontal(sign * upperLimb * 0.55),
+            ),
+            part(
+              `${side}-lower-arm`,
+              `${side}LowerArm`,
+              {
+                type: "capsule",
+                radius: limbRadius * 0.85,
+                height: lowerLimb,
+              },
+              horizontal(sign * lowerLimb * 0.55),
+            ),
+            part(
+              `${side}-hand`,
+              `${side}Hand`,
+              { type: "sphere", radius: limbRadius * 1.05 },
+              null,
+            ),
+            part(
+              `${side}-thigh`,
+              `${side}UpperLeg`,
+              {
+                type: "capsule",
+                radius: limbRadius * 1.15,
+                height: height * 0.19,
+              },
+              transform(0, -height * 0.105, 0),
+            ),
+            part(
+              `${side}-shin`,
+              `${side}LowerLeg`,
+              {
+                type: "capsule",
+                radius: limbRadius,
+                height: height * 0.19,
+              },
+              transform(0, -height * 0.105, 0),
+            ),
+          ];
+        },
+      ),
     ],
   };
 };
 
 /** Construct the thirteen-bone conventional rest tree in metres, with symmetric X offsets and no ROM constraints; the caller owns every bone and transform. */
-const skeletonOf: (id: string, height: number) => NonNullable<IAutoMovieModel["skeleton"]> = (
+const skeletonOf: (
+  id: string,
+  height: number,
+) => NonNullable<IAutoMovieModel["skeleton"]> = (
   id: string,
   height: number,
 ): NonNullable<IAutoMovieModel["skeleton"]> => {
@@ -244,7 +283,12 @@ const skeletonOf: (id: string, height: number) => NonNullable<IAutoMovieModel["s
 };
 
 /** Create a unit-scale placement with a fresh translation and scale; an explicitly supplied quaternion is retained by reference within this build. */
-const transform: (x: number, y: number, z: number, rotation?: IAutoMovieTransform["rotation"]) => IAutoMovieTransform = (
+const transform: (
+  x: number,
+  y: number,
+  z: number,
+  rotation?: IAutoMovieTransform["rotation"],
+) => IAutoMovieTransform = (
   x: number,
   y: number,
   z: number,
@@ -256,11 +300,17 @@ const transform: (x: number, y: number, z: number, rotation?: IAutoMovieTransfor
 });
 
 /** Place a capsule along its side's horizontal arm axis, selecting the signed quarter-turn from its X offset. */
-const horizontal: (x: number) => IAutoMovieTransform = (x: number): IAutoMovieTransform =>
-  rotateZ(x < 0 ? 90 : -90, x, 0, 0);
+const horizontal: (x: number) => IAutoMovieTransform = (
+  x: number,
+): IAutoMovieTransform => rotateZ(x < 0 ? 90 : -90, x, 0, 0);
 
 /** Construct a right-handed Z-axis degree turn and a translated unit-scale placement in constant space. */
-const rotateZ: (degrees: number, x: number, y: number, z: number) => IAutoMovieTransform = (
+const rotateZ: (
+  degrees: number,
+  x: number,
+  y: number,
+  z: number,
+) => IAutoMovieTransform = (
   degrees: number,
   x: number,
   y: number,

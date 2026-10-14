@@ -1,9 +1,11 @@
 import { AutoMovieHumanoidBone } from "@automovie/interface";
+
 import { AutoMovieArchetypeParameters } from "./AutoMovieArchetypeParameters";
 import { IAutoMovieArchetypeBuildInput } from "./IAutoMovieArchetypeBuildInput";
 import { IAutoMovieArchetypeGeometry } from "./IAutoMovieArchetypeGeometry";
 import { IAutoMovieArchetypeParameter } from "./IAutoMovieArchetypeParameter";
 import { IAutoMovieArchetypeParameterPlan } from "./IAutoMovieArchetypeParameterPlan";
+
 /**
  * One registered model archetype: its parameter contract and its builder.
  *

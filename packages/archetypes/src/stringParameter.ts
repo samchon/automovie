@@ -1,4 +1,5 @@
 import { AutoMovieArchetypeParameters } from "./AutoMovieArchetypeParameters";
+
 /**
  * Read one parameter as the string the design gate already accepted.
  *
@@ -18,7 +19,8 @@ import { AutoMovieArchetypeParameters } from "./AutoMovieArchetypeParameters";
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The function returns the stored string and keeps no state, handle or task between calls.
  * @author Samchon
  */
-export const stringParameter: (parameters: Readonly<Record<string, string | number | boolean>>, key: string) => string = (
-  parameters: AutoMovieArchetypeParameters,
+export const stringParameter: (
+  parameters: Readonly<Record<string, string | number | boolean>>,
   key: string,
-): string => parameters[key] as string;
+) => string = (parameters: AutoMovieArchetypeParameters, key: string): string =>
+  parameters[key] as string;

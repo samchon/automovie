@@ -1,4 +1,5 @@
 import { IAutoMovieGait } from "@automovie/interface";
+
 /**
  * The five canonical humanoid gaits, the locomotion the `locomote` verb's
  * `gait` enum names (`walk`/`run`/`sprint`/`sneak`/`march`), as ready

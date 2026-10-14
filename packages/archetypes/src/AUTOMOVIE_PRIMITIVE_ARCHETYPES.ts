@@ -1,6 +1,7 @@
 import { IAutoMovieModelArchetype } from "./IAutoMovieModelArchetype";
 import { PRIMITIVE_PROP_ARCHETYPE } from "./PRIMITIVE_PROP_ARCHETYPE";
 import { STICKMAN_ARCHETYPE } from "./STICKMAN_ARCHETYPE";
+
 /**
  * The primitive archetypes this package ships, in registration order.
  *

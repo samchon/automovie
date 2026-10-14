@@ -1,4 +1,5 @@
 import { AutoMovieArchetypeParameters } from "./AutoMovieArchetypeParameters";
+
 /**
  * Read one parameter as a finite number, or zero when it is neither.
  *
@@ -23,7 +24,10 @@ import { AutoMovieArchetypeParameters } from "./AutoMovieArchetypeParameters";
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The guard returns a primitive and holds nothing after it returns.
  * @author Samchon
  */
-export const numberOf: (parameters: Readonly<Record<string, string | number | boolean>>, key: string) => number = (
+export const numberOf: (
+  parameters: Readonly<Record<string, string | number | boolean>>,
+  key: string,
+) => number = (
   parameters: AutoMovieArchetypeParameters,
   key: string,
 ): number => {

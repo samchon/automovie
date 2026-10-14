@@ -1,5 +1,7 @@
 import { IAutoMovieProfile } from "@automovie/interface";
+
 import { CAT_GAITS } from "./CAT_GAITS";
+
 /**
  * The reusable cat profile fixture. It packages the cat's core named movement
  * vocabulary so a host can bind it onto cat-like quadruped skeletons without

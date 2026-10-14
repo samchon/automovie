@@ -1,4 +1,3 @@
-
 /**
  * A catalogue of primitive model archetypes, behind one registration seam.
  *

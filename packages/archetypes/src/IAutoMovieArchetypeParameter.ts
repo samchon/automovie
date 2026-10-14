@@ -1,4 +1,3 @@
-
 /**
  * One archetype parameter's accepted value kind and inclusive bounds.
  *

@@ -1,5 +1,7 @@
 import { IAutoMovieProfile } from "@automovie/interface";
+
 import { HORSE_GAITS } from "./HORSE_GAITS";
+
 /**
  * The reusable horse profile fixture. It packages the mount's named movement
  * vocabulary so a host can bind it onto horse-like skeletons without importing

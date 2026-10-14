@@ -1,5 +1,6 @@
 import { AutoMovieModelArchetypeRegistry } from "./AutoMovieModelArchetypeRegistry";
 import { IAutoMovieModelArchetype } from "./IAutoMovieModelArchetype";
+
 /**
  * Register one closed catalogue of archetypes for a host to build from.
  *
@@ -23,7 +24,9 @@ import { IAutoMovieModelArchetype } from "./IAutoMovieModelArchetype";
  * @evidence contracts/performance.md#bound-retention-and-release-resources The new map transfers to the caller with one borrowed definition per registered id and no fixed catalogue cap. A refusal leaves no retained partial map; for-of closes a generator on abrupt exit, while any iterable-owned external cleanup remains that iterable's responsibility.
  * @author Samchon
  */
-export const createAutoMovieArchetypeRegistry: (archetypes: Iterable<IAutoMovieModelArchetype>) => AutoMovieModelArchetypeRegistry = (
+export const createAutoMovieArchetypeRegistry: (
+  archetypes: Iterable<IAutoMovieModelArchetype>,
+) => AutoMovieModelArchetypeRegistry = (
   archetypes: Iterable<IAutoMovieModelArchetype>,
 ): AutoMovieModelArchetypeRegistry => {
   const registry: Map<string, IAutoMovieModelArchetype> = new Map<

@@ -1,5 +1,7 @@
 import { IAutoMovieProfile } from "@automovie/interface";
+
 import { HUMANOID_GAITS } from "./HUMANOID_GAITS";
+
 /**
  * The canonical humanoid profile fixture: the same locomotion vocabulary as
  * {@link HUMANOID_GAITS}, packaged as reusable profile data so a host can bind

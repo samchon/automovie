@@ -1,5 +1,7 @@
 import { IAutoMovieGait } from "@automovie/interface";
+
 import { createQuadrupedGaitLimb } from "./createQuadrupedGaitLimb";
+
 /**
  * The canonical horse gait library: the playground mount's walk/trot/gallop
  * vocabulary, plus a compact rear beat, expressed as profile data. The arm

@@ -1,4 +1,5 @@
 import { IAutoMovieGaitLimb } from "@automovie/interface";
+
 /**
  * Build one catalogue limb with eased swing and stance intervals. Phase is in
  * turns, duty is the stance fraction, and amplitude and optional neutral are
