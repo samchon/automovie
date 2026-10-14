@@ -1,5 +1,6 @@
 import type { AutoMovieGuidePass } from "@automovie/interface";
 import { isGuidePass } from "@automovie/render";
+
 import { registerPlaygroundViewerApplication } from "./registerPlaygroundViewerApplication";
 
 /**
@@ -23,50 +24,78 @@ export function registerFilmViewerApplication(props: {
   shots: ReadonlySet<string>;
 
   /** Draw the admitted shot/blend and guide pass through the original film owner; null draws the current scene without a sequence sample. */
-  restore: (frame: {
-    /** The incoming shot's known identity. */
-    shot: string;
-
-    /** Finite nonnegative local time in the incoming shot, in seconds. */
-    shotTimeSeconds: number;
-
-    /** Optional outgoing shot sample; null means no transition layer. */
-    blend: {
-      /** The outgoing shot's known identity. */
+  restore: (
+    frame: {
+      /** The incoming shot's known identity. */
       shot: string;
 
-      /** Finite nonnegative local time in the outgoing shot, in seconds. */
+      /** Finite nonnegative local time in the incoming shot, in seconds. */
       shotTimeSeconds: number;
 
-      /** Incoming-layer weight in [0,1]; the outgoing layer receives one minus this value. */
-      alpha: number
-    } | null
-  } | null,
-    pass: AutoMovieGuidePass) => void;
+      /** Optional outgoing shot sample; null means no transition layer. */
+      blend: {
+        /** The outgoing shot's known identity. */
+        shot: string;
+
+        /** Finite nonnegative local time in the outgoing shot, in seconds. */
+        shotTimeSeconds: number;
+
+        /** Incoming-layer weight in [0,1]; the outgoing layer receives one minus this value. */
+        alpha: number;
+      } | null;
+    } | null,
+    pass: AutoMovieGuidePass,
+  ) => void;
 }): void {
-  const shot: (state: unknown) => { shot: string; shotTimeSeconds: number } = (state: unknown): { shot: string; shotTimeSeconds: number } => {
-    if (state === null || typeof state !== "object") throw new Error("Film transfer has no shot sample.");
-    const id: unknown = Reflect.get(state, "shot"), time: unknown = Reflect.get(state, "shotTimeSeconds");
-    if (typeof id !== "string" || !props.shots.has(id) || typeof time !== "number" || !Number.isFinite(time) || time < 0)
+  const shot: (state: unknown) => { shot: string; shotTimeSeconds: number } = (
+    state: unknown,
+  ): { shot: string; shotTimeSeconds: number } => {
+    if (state === null || typeof state !== "object")
+      throw new Error("Film transfer has no shot sample.");
+    const id: unknown = Reflect.get(state, "shot"),
+      time: unknown = Reflect.get(state, "shotTimeSeconds");
+    if (
+      typeof id !== "string" ||
+      !props.shots.has(id) ||
+      typeof time !== "number" ||
+      !Number.isFinite(time) ||
+      time < 0
+    )
       throw new Error("Film transfer has no known finite shot sample.");
     return { shot: id, shotTimeSeconds: time };
   };
   registerPlaygroundViewerApplication({
-    ready: Promise.resolve(), capture: props.capture,
+    ready: Promise.resolve(),
+    capture: props.capture,
     restore: async (state: unknown): Promise<void> => {
-      if (state === null || typeof state !== "object") throw new Error("Film transfer has no sample.");
-      const frame: unknown = Reflect.get(state, "frame"), pass: unknown = Reflect.get(state, "pass");
+      if (state === null || typeof state !== "object")
+        throw new Error("Film transfer has no sample.");
+      const frame: unknown = Reflect.get(state, "frame"),
+        pass: unknown = Reflect.get(state, "pass");
       if (typeof pass !== "string" || !isGuidePass(pass))
         throw new Error("Film transfer has an unsupported guide pass.");
-      if (frame === null) { props.restore(null, pass); return; }
-      if (typeof frame !== "object") throw new Error("Film transfer has no shot sample.");
+      if (frame === null) {
+        props.restore(null, pass);
+        return;
+      }
+      if (typeof frame !== "object")
+        throw new Error("Film transfer has no shot sample.");
       const sample: ReturnType<typeof shot> = shot(frame);
       const blend: unknown = Reflect.get(frame, "blend");
-      if (blend === null) { props.restore({ ...sample, blend: null }, pass); return; }
-      if (typeof blend !== "object") throw new Error("Film transfer has no shot sample.");
+      if (blend === null) {
+        props.restore({ ...sample, blend: null }, pass);
+        return;
+      }
+      if (typeof blend !== "object")
+        throw new Error("Film transfer has no shot sample.");
       const outgoing: ReturnType<typeof shot> = shot(blend);
       const alpha: unknown = Reflect.get(blend, "alpha");
-      if (typeof alpha !== "number" || !Number.isFinite(alpha) || alpha < 0 || alpha > 1)
+      if (
+        typeof alpha !== "number" ||
+        !Number.isFinite(alpha) ||
+        alpha < 0 ||
+        alpha > 1
+      )
         throw new Error("Film transfer has no valid blend alpha.");
       props.restore({ ...sample, blend: { ...outgoing, alpha } }, pass);
     },

@@ -1,7 +1,8 @@
 import type { IAutoMovieMotion, IAutoMoviePose } from "@automovie/interface";
+
 import { createStickmanMotionJoint as j } from "./createStickmanMotionJoint";
-import { createStickmanMotionPose as pose } from "./createStickmanMotionPose";
 import { createStickmanMotionKeyframe as key } from "./createStickmanMotionKeyframe";
+import { createStickmanMotionPose as pose } from "./createStickmanMotionPose";
 
 /**
  * Authored one-second in-place jumping-jack loop with three frames: closed, open and closed. Joint angles are degrees interpreted by the page's humanoid axes/rest-frame mapping. The open pose retains the existing 185-degree upper-arm abduction; optional page clamping may change it, and this producer proves neither clinical capacity nor observed motion health.
@@ -16,7 +17,9 @@ import { createStickmanMotionKeyframe as key } from "./createStickmanMotionKeyfr
  *
  * @author Samchon
  */
-export const jumpingJack: (sk: string) => IAutoMovieMotion = (sk: string): IAutoMovieMotion => {
+export const jumpingJack: (sk: string) => IAutoMovieMotion = (
+  sk: string,
+): IAutoMovieMotion => {
   const closed: IAutoMoviePose = pose(sk, [
     j("leftUpperArm", { abduction: 18 }),
     j("rightUpperArm", { abduction: 18 }),

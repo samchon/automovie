@@ -1,7 +1,12 @@
-import type { IAutoMovieJointPose, IAutoMovieMotion, IAutoMoviePose } from "@automovie/interface";
+import type {
+  IAutoMovieJointPose,
+  IAutoMovieMotion,
+  IAutoMoviePose,
+} from "@automovie/interface";
+
 import { createStickmanMotionJoint as j } from "./createStickmanMotionJoint";
-import { createStickmanMotionPose as pose } from "./createStickmanMotionPose";
 import { createStickmanMotionKeyframe as key } from "./createStickmanMotionKeyframe";
+import { createStickmanMotionPose as pose } from "./createStickmanMotionPose";
 
 /**
  * Authored 0.9-second right-arm wave loop with three frames and a fixed opposite-arm stance. Forearm abduction alternates 28/-22/28 degrees while upper-arm abduction retains the existing 240-degree display overshoot. The page's axes/rest-frame and optional clamp decide playback; the values are choreography, not measured shoulder or elbow capability.
@@ -16,7 +21,9 @@ import { createStickmanMotionKeyframe as key } from "./createStickmanMotionKeyfr
  *
  * @author Samchon
  */
-export const wave: (sk: string) => IAutoMovieMotion = (sk: string): IAutoMovieMotion => {
+export const wave: (sk: string) => IAutoMovieMotion = (
+  sk: string,
+): IAutoMovieMotion => {
   const stanceArm: IAutoMovieJointPose = j("leftUpperArm", { abduction: 26 });
   const up: (fore: number) => IAutoMoviePose = (fore: number): IAutoMoviePose =>
     pose(sk, [

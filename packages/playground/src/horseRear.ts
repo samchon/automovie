@@ -1,11 +1,24 @@
-import { Quaternion, bindProfileGaits, sequenceMotion, travelMotion } from "@automovie/engine";
-import type { AutoMovieHumanoidBone, IAutoMovieJointPose, IAutoMovieKeyframe, IAutoMovieMotion, IAutoMoviePose, IAutoMovieTransform } from "@automovie/interface";
-import { createStickmanMotionJoint as j } from "./createStickmanMotionJoint";
-import { createStickmanMotionPose as pose } from "./createStickmanMotionPose";
-import { createStickmanMotionKeyframe as key } from "./createStickmanMotionKeyframe";
 import { HORSE_PROFILE } from "@automovie/archetypes";
-import { createHorseMotionTail as tail } from "./createHorseMotionTail";
+import {
+  Quaternion,
+  bindProfileGaits,
+  sequenceMotion,
+  travelMotion,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieJointPose,
+  IAutoMovieKeyframe,
+  IAutoMovieMotion,
+  IAutoMoviePose,
+  IAutoMovieTransform,
+} from "@automovie/interface";
+
 import { createHorseMotionRoot as root } from "./createHorseMotionRoot";
+import { createHorseMotionTail as tail } from "./createHorseMotionTail";
+import { createStickmanMotionJoint as j } from "./createStickmanMotionJoint";
+import { createStickmanMotionKeyframe as key } from "./createStickmanMotionKeyframe";
+import { createStickmanMotionPose as pose } from "./createStickmanMotionPose";
 
 /**
  * Return the existing 2.6-second non-looping eight-key stand/coil/rear/toss/recover sequence. Rear root Y is +0.06 metres and pitch is -0.5 degrees about +X, while spine/chest/neck use -46/-28/-52 degrees; the root value is not radians or a verified physical balance. Seconds, metre translations and degree joint angles are authored demo data. The existing horse page consumes these clips in raw quadruped rig space: humanoid arm slots are front legs and little-finger slots are the tail.
@@ -20,8 +33,14 @@ import { createHorseMotionRoot as root } from "./createHorseMotionRoot";
  *
  * @author Samchon
  */
-export const horseRear: (sk: string) => IAutoMovieMotion = (sk: string): IAutoMovieMotion => {
-  const stand: IAutoMoviePose = pose(sk, [...tail(-0.5), j("neck", { flexion: 4 })], root(0));
+export const horseRear: (sk: string) => IAutoMovieMotion = (
+  sk: string,
+): IAutoMovieMotion => {
+  const stand: IAutoMoviePose = pose(
+    sk,
+    [...tail(-0.5), j("neck", { flexion: 4 })],
+    root(0),
+  );
   const coil: IAutoMoviePose = pose(
     sk,
     [
@@ -36,7 +55,9 @@ export const horseRear: (sk: string) => IAutoMovieMotion = (sk: string): IAutoMo
     ],
     root(-0.04),
   );
-  const rearUp: (toss: number) => IAutoMoviePose = (toss: number): IAutoMoviePose =>
+  const rearUp: (toss: number) => IAutoMoviePose = (
+    toss: number,
+  ): IAutoMoviePose =>
     pose(
       sk,
       [

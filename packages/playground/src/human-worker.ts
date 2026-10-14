@@ -19,7 +19,8 @@
  * arrival order once it is installed. An unknown role answers every request
  * with a failure instead of staying silent.
  */
-const scope: DedicatedWorkerGlobalScope = self as unknown as DedicatedWorkerGlobalScope;
+const scope: DedicatedWorkerGlobalScope =
+  self as unknown as DedicatedWorkerGlobalScope;
 const role: string | null = new URLSearchParams(scope.name).get("worker");
 const held: MessageEvent[] = [];
 const hold: (event: MessageEvent) => void = (event: MessageEvent): void => {
@@ -50,8 +51,11 @@ void load()
     for (const event of held.splice(0)) handler.call(scope, event);
   })
   .catch((error: unknown): void => {
-    const message: string = error instanceof Error ? error.message : String(error);
-    const refuse: (event: MessageEvent) => void = (event: MessageEvent): void => {
+    const message: string =
+      error instanceof Error ? error.message : String(error);
+    const refuse: (event: MessageEvent) => void = (
+      event: MessageEvent,
+    ): void => {
       scope.postMessage({ id: event.data?.id, success: false, error: message });
     };
     scope.onmessage = refuse;

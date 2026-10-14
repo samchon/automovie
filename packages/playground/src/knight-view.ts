@@ -11,18 +11,26 @@ import {
   IAutoMovieMotion,
   IAutoMoviePose,
 } from "@automovie/interface";
-import { AutoMoviePlayer, buildModel, mountViewer, guardAutoMovieRenderModeRetirement, guardAutoMovieSceneShadowRetirement } from "@automovie/viewer";
+import {
+  AutoMoviePlayer,
+  buildModel,
+  guardAutoMovieRenderModeRetirement,
+  guardAutoMovieSceneShadowRetirement,
+  mountViewer,
+} from "@automovie/viewer";
 import * as THREE from "three";
-import { registerViewerSelection } from "./viewer/registerViewerSelection";
 
 import { DEFAULT_HORSE } from "./DEFAULT_HORSE";
-import { buildHorse } from "./buildHorse";
 import { HORSE_CLIPS } from "./HORSE_CLIPS";
-import { buildKnight } from "./buildKnight";
 import { QUADRUPED_JOINT_AXES } from "./QUADRUPED_JOINT_AXES";
 import { QUADRUPED_REST_FRAME } from "./QUADRUPED_REST_FRAME";
+import { buildHorse } from "./buildHorse";
+import { buildKnight } from "./buildKnight";
+import { registerViewerSelection } from "./viewer/registerViewerSelection";
 
-const params: InstanceType<typeof URLSearchParams> = new URLSearchParams(location.search);
+const params: InstanceType<typeof URLSearchParams> = new URLSearchParams(
+  location.search,
+);
 
 // ── build the horse (mount) and the knight (rider) ──────────────────────────
 const horse: ReturnType<typeof buildHorse> = buildHorse(DEFAULT_HORSE);
@@ -30,7 +38,9 @@ const knight: ReturnType<typeof buildKnight> = buildKnight();
 const horseObj: ReturnType<typeof buildModel> = buildModel(horse.model);
 const knightObj: ReturnType<typeof buildModel> = buildModel(knight.model);
 
-const horseClips: Record<string, IAutoMovieMotion> = HORSE_CLIPS(horse.skeleton.id);
+const horseClips: Record<string, IAutoMovieMotion> = HORSE_CLIPS(
+  horse.skeleton.id,
+);
 const clipName: string =
   params.get("clip") !== null && Object.hasOwn(horseClips, params.get("clip")!)
     ? params.get("clip")!
@@ -57,7 +67,10 @@ const horsePlayer: AutoMoviePlayer = new AutoMoviePlayer(
 );
 
 // ── the rider's body pose: sitting astride, lance couched, shield up ────────
-const j: (bone: AutoMovieHumanoidBone, a: { flexion?: number; abduction?: number; twist?: number; }) => IAutoMovieJointPose = (
+const j: (
+  bone: AutoMovieHumanoidBone,
+  a: { flexion?: number; abduction?: number; twist?: number },
+) => IAutoMovieJointPose = (
   bone: AutoMovieHumanoidBone,
   a: { flexion?: number; abduction?: number; twist?: number },
 ): IAutoMovieJointPose => ({
@@ -66,7 +79,9 @@ const j: (bone: AutoMovieHumanoidBone, a: { flexion?: number; abduction?: number
   abduction: a.abduction ?? 0,
   twist: a.twist ?? 0,
 });
-const ridePose: (lean: number) => IAutoMoviePose = (lean: number): IAutoMoviePose => ({
+const ridePose: (lean: number) => IAutoMoviePose = (
+  lean: number,
+): IAutoMoviePose => ({
   skeleton: knight.skeleton.id,
   root: null,
   joints: [
@@ -142,7 +157,11 @@ const attachment: IAutoMovieAttachment = {
 };
 const placeRider: (seconds: number) => void = (seconds: number): void => {
   const horsePose: IAutoMoviePose = sampleMotion(horseClip, seconds).pose;
-  const seat: ReturnType<typeof resolveAttachment> = resolveAttachment(horsePose, horse.skeleton, attachment);
+  const seat: ReturnType<typeof resolveAttachment> = resolveAttachment(
+    horsePose,
+    horse.skeleton,
+    attachment,
+  );
   knightObj.object.position.set(
     seat.translation.x,
     seat.translation.y,
@@ -162,16 +181,30 @@ scene.background = new THREE.Color(0xeef1f6);
 scene.add(horseObj.object);
 scene.add(knightObj.object);
 
-const grid: THREE.GridHelper = new THREE.GridHelper(60, 120, 0xb8c0cc, 0xd5dbe4);
+const grid: THREE.GridHelper = new THREE.GridHelper(
+  60,
+  120,
+  0xb8c0cc,
+  0xd5dbe4,
+);
 scene.add(grid);
 
-const hemi: THREE.HemisphereLight = new THREE.HemisphereLight(0xffffff, 0x9aa3b2, 1.1);
+const hemi: THREE.HemisphereLight = new THREE.HemisphereLight(
+  0xffffff,
+  0x9aa3b2,
+  1.1,
+);
 scene.add(hemi);
 const sun: THREE.DirectionalLight = new THREE.DirectionalLight(0xffffff, 1.4);
 sun.position.set(3, 5, 4);
 scene.add(sun);
 
-const camera: THREE.PerspectiveCamera = new THREE.PerspectiveCamera(42, 1, 0.05, 200);
+const camera: THREE.PerspectiveCamera = new THREE.PerspectiveCamera(
+  42,
+  1,
+  0.05,
+  200,
+);
 const az: number = (Number(params.get("az") ?? 35) * Math.PI) / 180;
 const target: number = 1.2;
 const dist: number = Number(params.get("dist") ?? 5.2);
@@ -197,12 +230,18 @@ const step: (elapsed: number) => void = (elapsed: number): void => {
 };
 if (freezeAt !== null && Number.isFinite(freezeAt)) step(freezeAt);
 
-const canvas: HTMLCanvasElement = document.querySelector<HTMLCanvasElement>("#view")!;
+const canvas: HTMLCanvasElement =
+  document.querySelector<HTMLCanvasElement>("#view")!;
 // `?cap=1` lets a recorder drive frame timing via window.__afSeek.
 const capMode: boolean = params.get("cap") === "1";
-const handle: ReturnType<typeof mountViewer> = mountViewer(canvas, scene, camera, (elapsed: number): void => {
-  if (!capMode && freezeAt === null) step(elapsed);
-});
+const handle: ReturnType<typeof mountViewer> = mountViewer(
+  canvas,
+  scene,
+  camera,
+  (elapsed: number): void => {
+    if (!capMode && freezeAt === null) step(elapsed);
+  },
+);
 (window as unknown as { __afSeek: (t: number) => void }).__afSeek = (
   t: number,
 ): void => {
@@ -214,13 +253,16 @@ const handle: ReturnType<typeof mountViewer> = mountViewer(canvas, scene, camera
 };
 
 // ── clip selector ────────────────────────────────────────────────────────────
-const bar: HTMLDivElement | null = document.querySelector<HTMLDivElement>("#clips");
+const bar: HTMLDivElement | null =
+  document.querySelector<HTMLDivElement>("#clips");
 let selectedClip: string = clipName;
 const selectClip: (name: string) => void = (name: string): void => {
   horseClip = horseClips[name]!;
   horsePlayer.setMotion(horseClip);
   selectedClip = name;
-  if (bar !== null) for (const el of bar.children) el.className = el.textContent === name ? "on" : "";
+  if (bar !== null)
+    for (const el of bar.children)
+      el.className = el.textContent === name ? "on" : "";
 };
 if (bar !== null) {
   for (const name of Object.keys(horseClips)) {
@@ -233,7 +275,11 @@ if (bar !== null) {
     bar.appendChild(b);
   }
 }
-registerViewerSelection({ names: Object.keys(horseClips), read: (): string => selectedClip, select: selectClip });
+registerViewerSelection({
+  names: Object.keys(horseClips),
+  read: (): string => selectedClip,
+  select: selectClip,
+});
 
 (window as unknown as { __automovie: unknown }).__automovie = {
   ready: true,

@@ -14,7 +14,13 @@ import {
   IAutoMoviePose,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { applyPose, buildModel, mountViewer, guardAutoMovieRenderModeRetirement, guardAutoMovieSceneShadowRetirement } from "@automovie/viewer";
+import {
+  applyPose,
+  buildModel,
+  guardAutoMovieRenderModeRetirement,
+  guardAutoMovieSceneShadowRetirement,
+  mountViewer,
+} from "@automovie/viewer";
 import * as THREE from "three";
 
 import { DEFAULT_STICKMAN } from "./DEFAULT_STICKMAN";
@@ -26,8 +32,15 @@ import { buildStickman } from "./buildStickman";
 // plus an authored root stagger scaled from the full impulse magnitude. The
 // root motion is not a measurement of momentum left over after joint recoil.
 const params: URLSearchParams = new URLSearchParams(location.search);
-const v: (x: number, y: number, z: number) => IAutoMovieVector3 = (x: number, y: number, z: number): IAutoMovieVector3 => ({ x, y, z });
-const j: (bone: AutoMovieHumanoidBone, a: { flexion?: number; abduction?: number; twist?: number; }) => IAutoMovieJointPose = (
+const v: (x: number, y: number, z: number) => IAutoMovieVector3 = (
+  x: number,
+  y: number,
+  z: number,
+): IAutoMovieVector3 => ({ x, y, z });
+const j: (
+  bone: AutoMovieHumanoidBone,
+  a: { flexion?: number; abduction?: number; twist?: number },
+) => IAutoMovieJointPose = (
   bone: AutoMovieHumanoidBone,
   a: { flexion?: number; abduction?: number; twist?: number },
 ): IAutoMovieJointPose => ({
@@ -37,7 +50,8 @@ const j: (bone: AutoMovieHumanoidBone, a: { flexion?: number; abduction?: number
   twist: a.twist ?? 0,
 });
 
-const { skeleton, model }: ReturnType<typeof buildStickman> = buildStickman(DEFAULT_STICKMAN);
+const { skeleton, model }: ReturnType<typeof buildStickman> =
+  buildStickman(DEFAULT_STICKMAN);
 const object: ReturnType<typeof buildModel> = buildModel(model);
 
 // a braced stance: knees soft, hands up to take the hit
@@ -56,7 +70,10 @@ const BRACE: IAutoMovieJointPose[] = [
 
 // torso target (world; the figure stands at the origin facing +Z, hits come
 // from +Z flying −Z into the chest)
-const torso: { center: IAutoMovieVector3; radius: number; } = { center: v(0, 1.28, 0), radius: 0.34 };
+const torso: { center: IAutoMovieVector3; radius: number } = {
+  center: v(0, 1.28, 0),
+  radius: 0.34,
+};
 const bodyMass: number = 72;
 const recoilChain: AutoMovieHumanoidBone[] = ["spine", "chest", "neck", "head"];
 
@@ -128,61 +145,112 @@ interface Resolved {
   impact: IAutoMovieImpact;
   hitPoint: IAutoMovieVector3;
 }
-const resolved: Resolved[] = SHOTS.map((shot: Shot): { shot: Shot; hitT: number; impact: IAutoMovieImpact; hitPoint: IAutoMovieVector3; } => {
-  const proj: { origin: IAutoMovieVector3; velocity: IAutoMovieVector3; gravity: IAutoMovieVector3; } = {
-    origin: shot.origin,
-    velocity: shot.velocity,
-    gravity: shot.gravity,
-  };
-  const hit: ReturnType<typeof projectileSphereHit> = projectileSphereHit(proj, torso, 1.2);
-  const flightT: number = hit ? hit.time : 0.3;
-  const ballVel: IAutoMovieVector3 = projectileAt(proj, flightT).velocity;
-  const normal: IAutoMovieVector3 = v(0, 0, -1); // ball (front) → body
-  const impact: IAutoMovieImpact = resolveImpact(
-    { ...shot.ball, velocity: ballVel },
-    { ...shot.body, mass: bodyMass, velocity: v(0, 0, 0) },
-    normal,
-  );
-  return {
-    shot,
-    hitT: shot.t0 + flightT,
-    impact,
-    hitPoint: hit ? hit.point : torso.center,
-  };
-});
+const resolved: Resolved[] = SHOTS.map(
+  (
+    shot: Shot,
+  ): {
+    shot: Shot;
+    hitT: number;
+    impact: IAutoMovieImpact;
+    hitPoint: IAutoMovieVector3;
+  } => {
+    const proj: {
+      origin: IAutoMovieVector3;
+      velocity: IAutoMovieVector3;
+      gravity: IAutoMovieVector3;
+    } = {
+      origin: shot.origin,
+      velocity: shot.velocity,
+      gravity: shot.gravity,
+    };
+    const hit: ReturnType<typeof projectileSphereHit> = projectileSphereHit(
+      proj,
+      torso,
+      1.2,
+    );
+    const flightT: number = hit ? hit.time : 0.3;
+    const ballVel: IAutoMovieVector3 = projectileAt(proj, flightT).velocity;
+    const normal: IAutoMovieVector3 = v(0, 0, -1); // ball (front) → body
+    const impact: IAutoMovieImpact = resolveImpact(
+      { ...shot.ball, velocity: ballVel },
+      { ...shot.body, mass: bodyMass, velocity: v(0, 0, 0) },
+      normal,
+    );
+    return {
+      shot,
+      hitT: shot.t0 + flightT,
+      impact,
+      hitPoint: hit ? hit.point : torso.center,
+    };
+  },
+);
 console.log(
   "[impact]",
-  resolved.map((r: Resolved): string => `${r.shot.label}:${r.impact.kind}`).join(" "),
+  resolved
+    .map((r: Resolved): string => `${r.shot.label}:${r.impact.kind}`)
+    .join(" "),
 );
 
 // ball meshes
-const balls: THREE.Mesh<THREE.SphereGeometry, THREE.MeshStandardMaterial, THREE.Object3DEventMap>[] = SHOTS.map((s: Shot): THREE.Mesh<THREE.SphereGeometry, THREE.MeshStandardMaterial, THREE.Object3DEventMap> => {
-  const m: THREE.Mesh<THREE.SphereGeometry, THREE.MeshStandardMaterial, THREE.Object3DEventMap> = new THREE.Mesh(
-    new THREE.SphereGeometry(s.radius, 16, 12),
-    new THREE.MeshStandardMaterial({ color: s.color, metalness: 0.2 }),
-  );
-  m.visible = false;
-  return m;
-});
+const balls: THREE.Mesh<
+  THREE.SphereGeometry,
+  THREE.MeshStandardMaterial,
+  THREE.Object3DEventMap
+>[] = SHOTS.map(
+  (
+    s: Shot,
+  ): THREE.Mesh<
+    THREE.SphereGeometry,
+    THREE.MeshStandardMaterial,
+    THREE.Object3DEventMap
+  > => {
+    const m: THREE.Mesh<
+      THREE.SphereGeometry,
+      THREE.MeshStandardMaterial,
+      THREE.Object3DEventMap
+    > = new THREE.Mesh(
+      new THREE.SphereGeometry(s.radius, 16, 12),
+      new THREE.MeshStandardMaterial({ color: s.color, metalness: 0.2 }),
+    );
+    m.visible = false;
+    return m;
+  },
+);
 
 const scene: THREE.Scene<THREE.Object3DEventMap> = new THREE.Scene();
 scene.background = new THREE.Color(0xf2f4f8);
 scene.add(object.object);
-balls.forEach((b: THREE.Mesh<THREE.SphereGeometry, THREE.MeshStandardMaterial, THREE.Object3DEventMap>): THREE.Scene<THREE.Object3DEventMap> => scene.add(b));
+balls.forEach(
+  (
+    b: THREE.Mesh<
+      THREE.SphereGeometry,
+      THREE.MeshStandardMaterial,
+      THREE.Object3DEventMap
+    >,
+  ): THREE.Scene<THREE.Object3DEventMap> => scene.add(b),
+);
 scene.add(new THREE.GridHelper(8, 16, 0xb8c0cc, 0xd5dbe4));
 scene.add(new THREE.HemisphereLight(0xffffff, 0x9aa3b2, 1.1));
 const sun: THREE.DirectionalLight = new THREE.DirectionalLight(0xffffff, 1.4);
 sun.position.set(2, 4, 3);
 scene.add(sun);
 
-const camera: THREE.PerspectiveCamera = new THREE.PerspectiveCamera(42, 1, 0.05, 100);
+const camera: THREE.PerspectiveCamera = new THREE.PerspectiveCamera(
+  42,
+  1,
+  0.05,
+  100,
+);
 const az: number = (Number(params.get("az") ?? 62) * Math.PI) / 180;
 const dist: number = Number(params.get("dist") ?? 4.6);
 camera.position.set(dist * Math.sin(az), 1.25, dist * Math.cos(az));
 camera.lookAt(0, 0.95, 0);
 
 // recoil envelope: 0 before the hit, snaps to 1, decays back over ~0.9s
-const envelope: (t: number, hitT: number) => number = (t: number, hitT: number): number => {
+const envelope: (t: number, hitT: number) => number = (
+  t: number,
+  hitT: number,
+): number => {
   if (t < hitT) return 0;
   const dt: number = t - hitT;
   const rise: number = Math.min(dt / 0.1, 1);
@@ -218,7 +286,10 @@ const step: (t: number) => void = (t: number): void => {
     staggerDip -= Math.min(mag * 0.004, 0.12) * env;
   }
 
-  const joints: Map<AutoMovieHumanoidBone, IAutoMovieJointPose> = new Map<AutoMovieHumanoidBone, IAutoMovieJointPose>();
+  const joints: Map<AutoMovieHumanoidBone, IAutoMovieJointPose> = new Map<
+    AutoMovieHumanoidBone,
+    IAutoMovieJointPose
+  >();
   for (const b of BRACE) joints.set(b.bone, b);
   for (const f of flinch) joints.set(f.bone, f);
   const pose: IAutoMoviePose = {
@@ -234,7 +305,11 @@ const step: (t: number) => void = (t: number): void => {
 
   // balls
   resolved.forEach((r: Resolved, i: number): void => {
-    const mesh: THREE.Mesh<THREE.SphereGeometry, THREE.MeshStandardMaterial, THREE.Object3DEventMap> = balls[i]!;
+    const mesh: THREE.Mesh<
+      THREE.SphereGeometry,
+      THREE.MeshStandardMaterial,
+      THREE.Object3DEventMap
+    > = balls[i]!;
     const s: Shot = r.shot;
     if (t < s.t0 || t > r.hitT + 1.4) {
       mesh.visible = false;
@@ -285,11 +360,17 @@ const frozen: string | null = params.get("t");
 const freezeAt: number | null = frozen !== null ? Number(frozen) : null;
 if (freezeAt !== null && Number.isFinite(freezeAt)) step(freezeAt);
 
-const canvas: HTMLCanvasElement = document.querySelector<HTMLCanvasElement>("#view")!;
+const canvas: HTMLCanvasElement =
+  document.querySelector<HTMLCanvasElement>("#view")!;
 const capMode: boolean = params.get("cap") === "1";
-const handle: ReturnType<typeof mountViewer> = mountViewer(canvas, scene, camera, (elapsed: number): void => {
-  if (!capMode && freezeAt === null) step(elapsed % DUR);
-});
+const handle: ReturnType<typeof mountViewer> = mountViewer(
+  canvas,
+  scene,
+  camera,
+  (elapsed: number): void => {
+    if (!capMode && freezeAt === null) step(elapsed % DUR);
+  },
+);
 (window as unknown as { __afSeek: (t: number) => void }).__afSeek = (
   t: number,
 ): void => {
@@ -302,6 +383,8 @@ const handle: ReturnType<typeof mountViewer> = mountViewer(canvas, scene, camera
 
 (window as unknown as { __automovie: unknown }).__automovie = {
   ready: true,
-  kinds: resolved.map((r: Resolved): Resolved["impact"]["kind"] => r.impact.kind),
+  kinds: resolved.map(
+    (r: Resolved): Resolved["impact"]["kind"] => r.impact.kind,
+  ),
   duration: DUR,
 };

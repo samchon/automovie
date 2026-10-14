@@ -1,5 +1,5 @@
-import { createPlaygroundViewerPage } from "./createPlaygroundViewerPage";
 import type { IPlaygroundViewerPage } from "./IPlaygroundViewerPage";
+import { createPlaygroundViewerPage } from "./createPlaygroundViewerPage";
 
 /**
  * Browser process entry injected before application modules by the owned host.
@@ -19,5 +19,9 @@ declare global {
 
 window.__playgroundViewerPage = createPlaygroundViewerPage();
 const bootstrap: unknown = Reflect.get(window, "__playgroundViewerBootstrap");
-if (window.__playgroundViewerPage !== undefined && bootstrap !== null && typeof bootstrap === "object")
+if (
+  window.__playgroundViewerPage !== undefined &&
+  bootstrap !== null &&
+  typeof bootstrap === "object"
+)
   Reflect.set(bootstrap, "installed", true);

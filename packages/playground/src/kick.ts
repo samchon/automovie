@@ -1,7 +1,8 @@
 import type { IAutoMovieMotion, IAutoMoviePose } from "@automovie/interface";
+
 import { createStickmanMotionJoint as j } from "./createStickmanMotionJoint";
-import { createStickmanMotionPose as pose } from "./createStickmanMotionPose";
 import { createStickmanMotionKeyframe as key } from "./createStickmanMotionKeyframe";
+import { createStickmanMotionPose as pose } from "./createStickmanMotionPose";
 
 /**
  * Authored one-second right-leg kick loop with stand/windup/strike/windup/stand keys. Signed degree inputs and balancing arms are interpreted by the page's humanoid mapping; the strike is choreography rather than measured kick height, opponent contact or clinical capacity.
@@ -16,7 +17,9 @@ import { createStickmanMotionKeyframe as key } from "./createStickmanMotionKeyfr
  *
  * @author Samchon
  */
-export const kick: (sk: string) => IAutoMovieMotion = (sk: string): IAutoMovieMotion => {
+export const kick: (sk: string) => IAutoMovieMotion = (
+  sk: string,
+): IAutoMovieMotion => {
   const stand: IAutoMoviePose = pose(sk, [
     j("leftUpperArm", { abduction: 30 }),
     j("rightUpperArm", { abduction: 30 }),

@@ -1,8 +1,8 @@
+import { createViewerDiskSource } from "@automovie/viewer/inspection/createViewerDiskSource";
+import { readViewerMaintainedSourceFiles } from "@automovie/viewer/inspection/readViewerMaintainedSourceFiles";
 import fs from "node:fs";
 import path from "node:path";
 
-import { createViewerDiskSource } from "@automovie/viewer/inspection/createViewerDiskSource";
-import { readViewerMaintainedSourceFiles } from "@automovie/viewer/inspection/readViewerMaintainedSourceFiles";
 import { readPlaygroundViewerPublishedSource } from "./readPlaygroundViewerPublishedSource.js";
 
 /**
@@ -20,35 +20,73 @@ import { readPlaygroundViewerPublishedSource } from "./readPlaygroundViewerPubli
  *
  * @author Samchon
  */
-export function createPlaygroundViewerSource(root: string): ReturnType<typeof createViewerDiskSource> {
+export function createPlaygroundViewerSource(
+  root: string,
+): ReturnType<typeof createViewerDiskSource> {
   const playground: string = path.join(root, "packages/playground");
-  const packages: readonly string[] = ["human", "engine", "interface", "viewer", "archetypes", "render"];
+  const packages: readonly string[] = [
+    "human",
+    "engine",
+    "interface",
+    "viewer",
+    "archetypes",
+    "render",
+  ];
   const lockInput: string = "packages/human/.human-build.lock";
   const publicationLock: string = path.join(root, lockInput);
-  const sourceRoots: string[] = [path.join(playground, "src"), ...packages.map((name: string): string => path.join(root, "packages", name, "src"))];
-  const source: ReturnType<typeof createViewerDiskSource> = createViewerDiskSource({
-    root,
-    directories: [
-      path.join(playground, "public"),
-      ...packages.flatMap((name: string): string[] => ["lib", "assets"].map((lane: string): string => path.join(root, "packages", name, lane))),
-    ],
-    files: (): string[] => [...readViewerMaintainedSourceFiles(root, sourceRoots), ...[
-      "pnpm-lock.yaml", "pnpm-workspace.yaml", "config/tsconfig.json",
-      lockInput,
-      "packages/playground/package.json", "packages/playground/tsconfig.json",
-      "packages/playground/lint.config.ts", "packages/playground/vite.config.ts",
-      ...packages.flatMap((name: string): string[] => ["package.json", "tsconfig.json"].map((file: string): string => `packages/${name}/${file}`)),
-      ...fs.readdirSync(playground).filter((name: string): boolean => name.endsWith(".html")).map((name: string): string => `packages/playground/${name}`),
-    ].map((file: string): string => path.resolve(root, file))],
-  });
+  const sourceRoots: string[] = [
+    path.join(playground, "src"),
+    ...packages.map((name: string): string =>
+      path.join(root, "packages", name, "src"),
+    ),
+  ];
+  const source: ReturnType<typeof createViewerDiskSource> =
+    createViewerDiskSource({
+      root,
+      directories: [
+        path.join(playground, "public"),
+        ...packages.flatMap((name: string): string[] =>
+          ["lib", "assets"].map((lane: string): string =>
+            path.join(root, "packages", name, lane),
+          ),
+        ),
+      ],
+      files: (): string[] => [
+        ...readViewerMaintainedSourceFiles(root, sourceRoots),
+        ...[
+          "pnpm-lock.yaml",
+          "pnpm-workspace.yaml",
+          "config/tsconfig.json",
+          lockInput,
+          "packages/playground/package.json",
+          "packages/playground/tsconfig.json",
+          "packages/playground/lint.config.ts",
+          "packages/playground/vite.config.ts",
+          ...packages.flatMap((name: string): string[] =>
+            ["package.json", "tsconfig.json"].map(
+              (file: string): string => `packages/${name}/${file}`,
+            ),
+          ),
+          ...fs
+            .readdirSync(playground)
+            .filter((name: string): boolean => name.endsWith(".html"))
+            .map((name: string): string => `packages/playground/${name}`),
+        ].map((file: string): string => path.resolve(root, file)),
+      ],
+    });
   // Watching roots admits new members; the source owner rereads membership
   // before publishing their bytes, rather than watching only today's list.
   return {
     ...source,
-    current: (): ReturnType<typeof source.current> => readPlaygroundViewerPublishedSource({
-      current: source.current, locked: (): boolean => fs.existsSync(publicationLock),
-      refresh: (): void => { source.refresh(); }, lockInput,
-    }),
+    current: (): ReturnType<typeof source.current> =>
+      readPlaygroundViewerPublishedSource({
+        current: source.current,
+        locked: (): boolean => fs.existsSync(publicationLock),
+        refresh: (): void => {
+          source.refresh();
+        },
+        lockInput,
+      }),
     watched: [...source.watched, ...sourceRoots],
   };
 }

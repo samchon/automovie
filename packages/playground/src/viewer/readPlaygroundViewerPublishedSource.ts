@@ -13,22 +13,32 @@ import type { IPlaygroundViewerPublicationReader } from "./IPlaygroundViewerPubl
  *
  * @author Samchon
  */
-export function readPlaygroundViewerPublishedSource<T extends {
-  /**
-   * Declared disk-input keys mapped to their retained byte digest or the literal missing sentinel.
-   */
-  inputs: Record<string, string>;
+export function readPlaygroundViewerPublishedSource<
+  T extends {
+    /**
+     * Declared disk-input keys mapped to their retained byte digest or the literal missing sentinel.
+     */
+    inputs: Record<string, string>;
 
-  /**
-   * A source-owner failure that refuses candidate admission; omission means no recorded read failure.
-   */
-  error?: string
-}>(props: IPlaygroundViewerPublicationReader<T>): T {
+    /**
+     * A source-owner failure that refuses candidate admission; omission means no recorded read failure.
+     */
+    error?: string;
+  },
+>(props: IPlaygroundViewerPublicationReader<T>): T {
   const current: T = props.current();
   if (props.locked())
-    return { ...current, error: "Human runtime publication is pending or requires recovery; the last displayed model remains held." };
+    return {
+      ...current,
+      error:
+        "Human runtime publication is pending or requires recovery; the last displayed model remains held.",
+    };
   if (current.inputs[props.lockInput] !== "missing") props.refresh();
   if (props.locked())
-    return { ...props.current(), error: "Human runtime publication is pending or requires recovery; the last displayed model remains held." };
+    return {
+      ...props.current(),
+      error:
+        "Human runtime publication is pending or requires recovery; the last displayed model remains held.",
+    };
   return props.current();
 }

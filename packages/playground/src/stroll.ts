@@ -1,5 +1,6 @@
-import type { IAutoMovieMotion } from "@automovie/interface";
 import { travelMotion } from "@automovie/engine";
+import type { IAutoMovieMotion } from "@automovie/interface";
+
 import { walk } from "./walk";
 
 /**
@@ -15,5 +16,7 @@ import { walk } from "./walk";
  *
  * @author Samchon
  */
-export const stroll: (sk: string) => IAutoMovieMotion = (sk: string): IAutoMovieMotion =>
+export const stroll: (sk: string) => IAutoMovieMotion = (
+  sk: string,
+): IAutoMovieMotion =>
   travelMotion("stroll", walk(sk), 6, { x: 0, y: 0, z: 0.62 });

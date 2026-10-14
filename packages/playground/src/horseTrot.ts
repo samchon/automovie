@@ -1,10 +1,23 @@
-import { Quaternion, bindProfileGaits, sequenceMotion, travelMotion } from "@automovie/engine";
-import type { AutoMovieHumanoidBone, IAutoMovieJointPose, IAutoMovieKeyframe, IAutoMovieMotion, IAutoMoviePose, IAutoMovieTransform } from "@automovie/interface";
-import { createStickmanMotionJoint as j } from "./createStickmanMotionJoint";
-import { createStickmanMotionPose as pose } from "./createStickmanMotionPose";
-import { createStickmanMotionKeyframe as key } from "./createStickmanMotionKeyframe";
 import { HORSE_PROFILE } from "@automovie/archetypes";
+import {
+  Quaternion,
+  bindProfileGaits,
+  sequenceMotion,
+  travelMotion,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieJointPose,
+  IAutoMovieKeyframe,
+  IAutoMovieMotion,
+  IAutoMoviePose,
+  IAutoMovieTransform,
+} from "@automovie/interface";
+
 import { createHorseProfileMotion as profileClip } from "./createHorseProfileMotion";
+import { createStickmanMotionJoint as j } from "./createStickmanMotionJoint";
+import { createStickmanMotionKeyframe as key } from "./createStickmanMotionKeyframe";
+import { createStickmanMotionPose as pose } from "./createStickmanMotionPose";
 
 /**
  * Select the authored 0.72-second HORSE_PROFILE trot. Its table uses lateral upper-limb phase pairing and 0.46 duty, so this label does not establish a measured equine trot. Seconds, metre translations and degree joint angles are authored demo data. The existing horse page consumes these clips in raw quadruped rig space: humanoid arm slots are front legs and little-finger slots are the tail.
@@ -19,5 +32,6 @@ import { createHorseProfileMotion as profileClip } from "./createHorseProfileMot
  *
  * @author Samchon
  */
-export const horseTrot: (sk: string) => IAutoMovieMotion = (sk: string): IAutoMovieMotion =>
-  profileClip(sk, "trot");
+export const horseTrot: (sk: string) => IAutoMovieMotion = (
+  sk: string,
+): IAutoMovieMotion => profileClip(sk, "trot");

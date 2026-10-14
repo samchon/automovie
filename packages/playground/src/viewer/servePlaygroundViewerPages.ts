@@ -27,33 +27,46 @@ export function servePlaygroundViewerPages(props: {
     revision: string;
 
     /** An unresolved source failure that refuses new children; omission leaves revision admission available. */
-    error?: string
+    error?: string;
   };
 }): (request: IncomingMessage, response: ServerResponse) => boolean {
   return (request: IncomingMessage, response: ServerResponse): boolean => {
     if (request.method !== "GET") return false;
     const url: URL = new URL(request.url ?? "/", "http://127.0.0.1");
-    const pathname: string = url.pathname === "/" ? "/index.html" : url.pathname;
+    const pathname: string =
+      url.pathname === "/" ? "/index.html" : url.pathname;
     if (!/^\/[A-Za-z0-9_-]+\.html$/.test(pathname)) return false;
     const file: string = path.join(props.directory, pathname.slice(1));
     if (!fs.existsSync(file)) return false;
     const source: ReturnType<typeof props.source> = props.source();
     const token: string | null = url.searchParams.get("__viewer_page");
     const child: boolean = token !== null;
-    const generation: number = Number(url.searchParams.get("__viewer_generation"));
-    if (token !== null && (!/^[0-9a-f-]{36}$/.test(token) ||
-        !Number.isSafeInteger(generation) || generation < 1 ||
-        url.searchParams.get("__viewer_revision") !== source.revision || source.error !== undefined)) {
+    const generation: number = Number(
+      url.searchParams.get("__viewer_generation"),
+    );
+    if (
+      token !== null &&
+      (!/^[0-9a-f-]{36}$/.test(token) ||
+        !Number.isSafeInteger(generation) ||
+        generation < 1 ||
+        url.searchParams.get("__viewer_revision") !== source.revision ||
+        source.error !== undefined)
+    ) {
       response.statusCode = 409;
-      response.end("The Playground candidate does not name a current readable source receipt.");
+      response.end(
+        "The Playground candidate does not name a current readable source receipt.",
+      );
       return true;
     }
     response.setHeader("Content-Type", "text/html; charset=utf-8");
     const meta: string = `<meta name="automovie-viewer-source" content="${source.revision}">`;
     try {
-      const html: string = child || url.searchParams.get("cap") === "1" ? fs.readFileSync(file, "utf8") :
-        '<!doctype html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>automovie viewer</title></head><body><div id="app"></div><script type="module" src="/src/viewer/host.ts"></script></body></html>';
-      const bootstrap: string = child ? `<script>
+      const html: string =
+        child || url.searchParams.get("cap") === "1"
+          ? fs.readFileSync(file, "utf8")
+          : '<!doctype html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>automovie viewer</title></head><body><div id="app"></div><script type="module" src="/src/viewer/host.ts"></script></body></html>';
+      const bootstrap: string = child
+        ? `<script>
 (() => {
   const token = new URL(location.href).searchParams.get("__viewer_page");
   const revision = document.querySelector('meta[name="automovie-viewer-source"]')?.content;
@@ -73,9 +86,17 @@ export function servePlaygroundViewerPages(props: {
     report(event.reason instanceof Error ? event.reason.message : String(event.reason));
   });
 })();
-</script>` : "";
-      const bridge: string = child ? '<script type="module" src="/src/viewer/page.ts"></script>' : "";
-      response.end(html.replace(/<head(?:\s[^>]*)?>/i, (head: string): string => head + meta + bootstrap + bridge));
+</script>`
+        : "";
+      const bridge: string = child
+        ? '<script type="module" src="/src/viewer/page.ts"></script>'
+        : "";
+      response.end(
+        html.replace(
+          /<head(?:\s[^>]*)?>/i,
+          (head: string): string => head + meta + bootstrap + bridge,
+        ),
+      );
     } catch (cause) {
       response.statusCode = 500;
       response.end("The Playground entry could not be read: " + String(cause));

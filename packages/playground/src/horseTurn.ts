@@ -1,11 +1,24 @@
-import { Quaternion, bindProfileGaits, sequenceMotion, travelMotion } from "@automovie/engine";
-import type { AutoMovieHumanoidBone, IAutoMovieJointPose, IAutoMovieKeyframe, IAutoMovieMotion, IAutoMoviePose, IAutoMovieTransform } from "@automovie/interface";
-import { createStickmanMotionJoint as j } from "./createStickmanMotionJoint";
-import { createStickmanMotionPose as pose } from "./createStickmanMotionPose";
-import { createStickmanMotionKeyframe as key } from "./createStickmanMotionKeyframe";
 import { HORSE_PROFILE } from "@automovie/archetypes";
-import { createHorseMotionTail as tail } from "./createHorseMotionTail";
+import {
+  Quaternion,
+  bindProfileGaits,
+  sequenceMotion,
+  travelMotion,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieJointPose,
+  IAutoMovieKeyframe,
+  IAutoMovieMotion,
+  IAutoMoviePose,
+  IAutoMovieTransform,
+} from "@automovie/interface";
+
 import { createHorseMotionRootYaw as rootYaw } from "./createHorseMotionRootYaw";
+import { createHorseMotionTail as tail } from "./createHorseMotionTail";
+import { createStickmanMotionJoint as j } from "./createStickmanMotionJoint";
+import { createStickmanMotionKeyframe as key } from "./createStickmanMotionKeyframe";
+import { createStickmanMotionPose as pose } from "./createStickmanMotionPose";
 
 /**
  * Return a 2.2-second looping five-key alternating prance, with +Y root yaw -28/-8/0/24/-28 degrees and root Y +0.02 metres. Head twist and tail sway follow the existing yaw-sign branch. Seconds, metre translations and degree joint angles are authored demo data. The existing horse page consumes these clips in raw quadruped rig space: humanoid arm slots are front legs and little-finger slots are the tail.
@@ -20,8 +33,13 @@ import { createHorseMotionRootYaw as rootYaw } from "./createHorseMotionRootYaw"
  *
  * @author Samchon
  */
-export const horseTurn: (sk: string) => IAutoMovieMotion = (sk: string): IAutoMovieMotion => {
-  const prance: (yaw: number, lift: "left" | "right") => IAutoMoviePose = (yaw: number, lift: "left" | "right"): IAutoMoviePose =>
+export const horseTurn: (sk: string) => IAutoMovieMotion = (
+  sk: string,
+): IAutoMovieMotion => {
+  const prance: (yaw: number, lift: "left" | "right") => IAutoMoviePose = (
+    yaw: number,
+    lift: "left" | "right",
+  ): IAutoMoviePose =>
     pose(
       sk,
       [

@@ -1,8 +1,13 @@
-import type { IAutoMovieJointPose, IAutoMovieMotion, IAutoMoviePose } from "@automovie/interface";
+import type {
+  IAutoMovieJointPose,
+  IAutoMovieMotion,
+  IAutoMoviePose,
+} from "@automovie/interface";
+
 import { createStickmanMotionJoint as j } from "./createStickmanMotionJoint";
-import { createStickmanMotionRoot as root } from "./createStickmanMotionRoot";
-import { createStickmanMotionPose as pose } from "./createStickmanMotionPose";
 import { createStickmanMotionKeyframe as key } from "./createStickmanMotionKeyframe";
+import { createStickmanMotionPose as pose } from "./createStickmanMotionPose";
+import { createStickmanMotionRoot as root } from "./createStickmanMotionRoot";
 
 /**
  * Authored 0.6-second in-place run loop with five keys alternating contact and flight poses. Metre root heights are -0.03/+0.14; named flight/contact states are choreographic labels, not verified airborne phases, force integration or physiological gait. The receiving page supplies joint axes/rest frames and optional constraint clamping.
@@ -17,17 +22,26 @@ import { createStickmanMotionKeyframe as key } from "./createStickmanMotionKeyfr
  *
  * @author Samchon
  */
-export const run: (sk: string) => IAutoMovieMotion = (sk: string): IAutoMovieMotion => {
-  const lean: IAutoMovieJointPose[] = [j("spine", { flexion: 14 }), j("chest", { flexion: 8 })];
+export const run: (sk: string) => IAutoMovieMotion = (
+  sk: string,
+): IAutoMovieMotion => {
+  const lean: IAutoMovieJointPose[] = [
+    j("spine", { flexion: 14 }),
+    j("chest", { flexion: 8 }),
+  ];
   // a runner pumps with the elbows held bent ~90° (forearms up), swinging
   // fore/aft from the shoulder, not straight arms windmilling
-  const arms: (s: number) => IAutoMovieJointPose[] = (s: number): IAutoMovieJointPose[] => [
+  const arms: (s: number) => IAutoMovieJointPose[] = (
+    s: number,
+  ): IAutoMovieJointPose[] => [
     j("leftUpperArm", { abduction: 48, flexion: 48 * s }),
     j("leftLowerArm", { flexion: -88 }),
     j("rightUpperArm", { abduction: 48, flexion: 48 * s }),
     j("rightLowerArm", { flexion: 88 }),
   ];
-  const contact: (lead: "left" | "right") => IAutoMoviePose = (lead: "left" | "right"): IAutoMoviePose => {
+  const contact: (lead: "left" | "right") => IAutoMoviePose = (
+    lead: "left" | "right",
+  ): IAutoMoviePose => {
     const s: number = lead === "left" ? 1 : -1;
     return pose(
       sk,
@@ -42,7 +56,9 @@ export const run: (sk: string) => IAutoMovieMotion = (sk: string): IAutoMovieMot
       root(0, -0.03, 0, 0),
     );
   };
-  const flight: (swing: "left" | "right") => IAutoMoviePose = (swing: "left" | "right"): IAutoMoviePose =>
+  const flight: (swing: "left" | "right") => IAutoMoviePose = (
+    swing: "left" | "right",
+  ): IAutoMoviePose =>
     pose(
       sk,
       [

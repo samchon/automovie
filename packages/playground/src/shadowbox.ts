@@ -1,9 +1,16 @@
-import type { AutoMovieHumanoidBone, IAutoMovieJointPose, IAutoMovieKeyframe, IAutoMovieMotion, IAutoMoviePose } from "@automovie/interface";
-import { createStickmanMotionJoint as j } from "./createStickmanMotionJoint";
-import { createStickmanMotionRoot as root } from "./createStickmanMotionRoot";
-import { createStickmanMotionPose as pose } from "./createStickmanMotionPose";
-import { createStickmanMotionKeyframe as key } from "./createStickmanMotionKeyframe";
 import { sequenceMotion } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieJointPose,
+  IAutoMovieKeyframe,
+  IAutoMovieMotion,
+  IAutoMoviePose,
+} from "@automovie/interface";
+
+import { createStickmanMotionJoint as j } from "./createStickmanMotionJoint";
+import { createStickmanMotionKeyframe as key } from "./createStickmanMotionKeyframe";
+import { createStickmanMotionPose as pose } from "./createStickmanMotionPose";
+import { createStickmanMotionRoot as root } from "./createStickmanMotionRoot";
 
 const GUARD: IAutoMovieJointPose[] = [
   j("spine", { flexion: 9 }),
@@ -31,20 +38,37 @@ const GUARD: IAutoMovieJointPose[] = [
  *
  * @author Samchon
  */
-export const shadowbox: (sk: string) => IAutoMovieMotion = (sk: string): IAutoMovieMotion => {
-  const merge: (over: IAutoMovieJointPose[]) => IAutoMoviePose = (over: IAutoMovieJointPose[]): IAutoMoviePose => {
-    const m: Map<AutoMovieHumanoidBone, IAutoMovieJointPose> = new Map(GUARD.map((x: IAutoMovieJointPose): readonly [AutoMovieHumanoidBone, IAutoMovieJointPose] => [x.bone, x]));
+export const shadowbox: (sk: string) => IAutoMovieMotion = (
+  sk: string,
+): IAutoMovieMotion => {
+  const merge: (over: IAutoMovieJointPose[]) => IAutoMoviePose = (
+    over: IAutoMovieJointPose[],
+  ): IAutoMoviePose => {
+    const m: Map<AutoMovieHumanoidBone, IAutoMovieJointPose> = new Map(
+      GUARD.map(
+        (
+          x: IAutoMovieJointPose,
+        ): readonly [AutoMovieHumanoidBone, IAutoMovieJointPose] => [x.bone, x],
+      ),
+    );
     for (const o of over) m.set(o.bone, o);
     return pose(sk, [...m.values()]);
   };
   const guard: IAutoMoviePose = merge([]);
   // a step: the same pose carried on a translated root (footwork)
-  const at: (p: IAutoMoviePose, x: number, z: number) => IAutoMoviePose = (p: IAutoMoviePose, x: number, z: number): IAutoMoviePose => ({
+  const at: (p: IAutoMoviePose, x: number, z: number) => IAutoMoviePose = (
+    p: IAutoMoviePose,
+    x: number,
+    z: number,
+  ): IAutoMoviePose => ({
     ...p,
     root: root(x, 0, z, 0),
   });
 
-  const beat: (dur: number, frames: [number, IAutoMoviePose][]) => IAutoMovieMotion = (
+  const beat: (
+    dur: number,
+    frames: [number, IAutoMoviePose][],
+  ) => IAutoMovieMotion = (
     dur: number,
     frames: [number, IAutoMoviePose][],
   ): IAutoMovieMotion => ({
@@ -52,7 +76,9 @@ export const shadowbox: (sk: string) => IAutoMovieMotion = (sk: string): IAutoMo
     skeleton: sk,
     duration: dur,
     loop: false,
-    keyframes: frames.map(([t, p]: [number, IAutoMoviePose]): IAutoMovieKeyframe => key(t, p)),
+    keyframes: frames.map(
+      ([t, p]: [number, IAutoMoviePose]): IAutoMovieKeyframe => key(t, p),
+    ),
   });
 
   // ── hands ──────────────────────────────────────────────────────────────
@@ -196,7 +222,11 @@ export const shadowbox: (sk: string) => IAutoMovieMotion = (sk: string): IAutoMo
   ]);
 
   // ── beat builders ────────────────────────────────────────────────────────
-  const punch: (dur: number, p: IAutoMoviePose, hit?: number) => IAutoMovieMotion = (
+  const punch: (
+    dur: number,
+    p: IAutoMoviePose,
+    hit?: number,
+  ) => IAutoMovieMotion = (
     dur: number,
     p: IAutoMoviePose,
     hit: number = dur * 0.42,
@@ -206,7 +236,11 @@ export const shadowbox: (sk: string) => IAutoMovieMotion = (sk: string): IAutoMo
       [hit, p],
       [dur, guard],
     ]);
-  const combo2: (dur: number, a: IAutoMoviePose, b: IAutoMoviePose) => IAutoMovieMotion = (
+  const combo2: (
+    dur: number,
+    a: IAutoMoviePose,
+    b: IAutoMoviePose,
+  ) => IAutoMovieMotion = (
     dur: number,
     a: IAutoMoviePose,
     b: IAutoMoviePose,
@@ -217,13 +251,20 @@ export const shadowbox: (sk: string) => IAutoMovieMotion = (sk: string): IAutoMo
       [dur * 0.6, b],
       [dur, guard],
     ]);
-  const defend: (dur: number, p: IAutoMoviePose) => IAutoMovieMotion = (dur: number, p: IAutoMoviePose): IAutoMovieMotion =>
+  const defend: (dur: number, p: IAutoMoviePose) => IAutoMovieMotion = (
+    dur: number,
+    p: IAutoMoviePose,
+  ): IAutoMovieMotion =>
     beat(dur, [
       [0, guard],
       [dur * 0.5, p],
       [dur, guard],
     ]);
-  const kick: (dur: number, chamber: IAutoMoviePose, strike: IAutoMoviePose) => IAutoMovieMotion = (
+  const kick: (
+    dur: number,
+    chamber: IAutoMoviePose,
+    strike: IAutoMoviePose,
+  ) => IAutoMovieMotion = (
     dur: number,
     chamber: IAutoMoviePose,
     strike: IAutoMoviePose,
@@ -236,7 +277,12 @@ export const shadowbox: (sk: string) => IAutoMovieMotion = (sk: string): IAutoMo
       [dur, guard],
     ]);
   // a strike thrown while stepping in, then footing back to centre
-  const stepStrike: (dur: number, p: IAutoMoviePose, x: number, z: number) => IAutoMovieMotion = (
+  const stepStrike: (
+    dur: number,
+    p: IAutoMoviePose,
+    x: number,
+    z: number,
+  ) => IAutoMovieMotion = (
     dur: number,
     p: IAutoMoviePose,
     x: number,
@@ -248,7 +294,11 @@ export const shadowbox: (sk: string) => IAutoMovieMotion = (sk: string): IAutoMo
       [dur, guard],
     ]);
   // light footwork: shift the stance out and back
-  const stepStep: (dur: number, x: number, z: number) => IAutoMovieMotion = (dur: number, x: number, z: number): IAutoMovieMotion =>
+  const stepStep: (dur: number, x: number, z: number) => IAutoMovieMotion = (
+    dur: number,
+    x: number,
+    z: number,
+  ): IAutoMovieMotion =>
     beat(dur, [
       [0, guard],
       [dur * 0.5, at(guard, x, z)],

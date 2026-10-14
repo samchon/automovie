@@ -14,6 +14,8 @@ import type {} from "./IPlaygroundViewerPage";
  *
  * @author Samchon
  */
-export function registerPlaygroundViewerApplication(application: IPlaygroundViewerApplication): void {
+export function registerPlaygroundViewerApplication(
+  application: IPlaygroundViewerApplication,
+): void {
   window.__playgroundViewerPage?.register(application);
 }

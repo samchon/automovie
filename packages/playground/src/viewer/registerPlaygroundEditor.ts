@@ -36,33 +36,53 @@ export function registerPlaygroundEditor(props: {
 }): void {
   const canonical: (value: unknown) => string = (value: unknown): string => {
     if (Array.isArray(value)) return "[" + value.map(canonical).join(",") + "]";
-    if (value !== null && typeof value === "object") return "{" + Object.keys(value).sort((left: string, right: string): number =>
-      left < right ? -1 : left > right ? 1 : 0).map((key: string): string =>
-      JSON.stringify(key) + ":" + canonical(Reflect.get(value, key)),
-    ).join(",") + "}";
+    if (value !== null && typeof value === "object")
+      return (
+        "{" +
+        Object.keys(value)
+          .sort((left: string, right: string): number =>
+            left < right ? -1 : left > right ? 1 : 0,
+          )
+          .map(
+            (key: string): string =>
+              JSON.stringify(key) + ":" + canonical(Reflect.get(value, key)),
+          )
+          .join(",") +
+        "}"
+      );
     return JSON.stringify(value) ?? "undefined";
   };
   registerPlaygroundViewerApplication({
     ready: props.ready,
     empty: props.empty,
-    capture: (): { document: object; facts: object | undefined } | undefined => {
+    capture: ():
+      | { document: object; facts: object | undefined }
+      | undefined => {
       const document: object | undefined = props.document();
-      return document === undefined ? undefined : { document, facts: props.facts?.() };
+      return document === undefined
+        ? undefined
+        : { document, facts: props.facts?.() };
     },
     restore: async (state: unknown): Promise<void> => {
       if (state === undefined && props.empty) return;
-      if (state === null || typeof state !== "object") throw new Error("Editor transfer has no committed document.");
+      if (state === null || typeof state !== "object")
+        throw new Error("Editor transfer has no committed document.");
       const document: unknown = Reflect.get(state, "document");
-      if (document === null || typeof document !== "object") throw new Error("Editor transfer has no document object.");
+      if (document === null || typeof document !== "object")
+        throw new Error("Editor transfer has no document object.");
       await props.load(JSON.stringify(document));
-      if (canonical(props.document()) !== canonical(document)) throw new Error("The candidate did not commit the transferred document.");
+      if (canonical(props.document()) !== canonical(document))
+        throw new Error(
+          "The candidate did not commit the transferred document.",
+        );
     },
     reflectView: (state: unknown): void => {
       if (state === null || typeof state !== "object") return;
       for (const name of ["clay", "shadows"] as const) {
         const value: unknown = Reflect.get(state, name);
         if (typeof value !== "boolean") continue;
-        const control: HTMLInputElement | null = props.controls.querySelector<HTMLInputElement>("#" + name);
+        const control: HTMLInputElement | null =
+          props.controls.querySelector<HTMLInputElement>("#" + name);
         if (control !== null) control.checked = value;
       }
     },

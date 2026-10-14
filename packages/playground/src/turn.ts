@@ -1,8 +1,9 @@
 import type { IAutoMovieMotion, IAutoMoviePose } from "@automovie/interface";
+
 import { createStickmanMotionJoint as j } from "./createStickmanMotionJoint";
-import { createStickmanMotionRoot as root } from "./createStickmanMotionRoot";
-import { createStickmanMotionPose as pose } from "./createStickmanMotionPose";
 import { createStickmanMotionKeyframe as key } from "./createStickmanMotionKeyframe";
+import { createStickmanMotionPose as pose } from "./createStickmanMotionPose";
+import { createStickmanMotionRoot as root } from "./createStickmanMotionRoot";
 
 /**
  * Authored 1.6-second root-yaw loop at -70/+70/-70 degrees about +Y, with fixed arm poses and three keys. Root orientation turns the whole actor in its local frame, not a cervical anatomical measurement or simulated torque.
@@ -17,7 +18,9 @@ import { createStickmanMotionKeyframe as key } from "./createStickmanMotionKeyfr
  *
  * @author Samchon
  */
-export const turn: (sk: string) => IAutoMovieMotion = (sk: string): IAutoMovieMotion => {
+export const turn: (sk: string) => IAutoMovieMotion = (
+  sk: string,
+): IAutoMovieMotion => {
   const at: (yaw: number) => IAutoMoviePose = (yaw: number): IAutoMoviePose =>
     pose(
       sk,

@@ -10,7 +10,13 @@ import {
   IAutoMoviePose,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { applyPose, buildModel, mountViewer, guardAutoMovieRenderModeRetirement, guardAutoMovieSceneShadowRetirement } from "@automovie/viewer";
+import {
+  applyPose,
+  buildModel,
+  guardAutoMovieRenderModeRetirement,
+  guardAutoMovieSceneShadowRetirement,
+  mountViewer,
+} from "@automovie/viewer";
 import * as THREE from "three";
 
 import { DEFAULT_STICKMAN } from "./DEFAULT_STICKMAN";
@@ -21,8 +27,15 @@ import { buildStickman } from "./buildStickman";
 // again, tucking at the apex, extending to land. The bounce heights come from
 // the physics, not a hand-keyed sine. ─────────────────────────────────────────
 const params: URLSearchParams = new URLSearchParams(location.search);
-const v: (x: number, y: number, z: number) => IAutoMovieVector3 = (x: number, y: number, z: number): IAutoMovieVector3 => ({ x, y, z });
-const j: (bone: AutoMovieHumanoidBone, a: { flexion?: number; abduction?: number; twist?: number; }) => IAutoMovieJointPose = (
+const v: (x: number, y: number, z: number) => IAutoMovieVector3 = (
+  x: number,
+  y: number,
+  z: number,
+): IAutoMovieVector3 => ({ x, y, z });
+const j: (
+  bone: AutoMovieHumanoidBone,
+  a: { flexion?: number; abduction?: number; twist?: number },
+) => IAutoMovieJointPose = (
   bone: AutoMovieHumanoidBone,
   a: { flexion?: number; abduction?: number; twist?: number },
 ): IAutoMovieJointPose => ({
@@ -32,7 +45,8 @@ const j: (bone: AutoMovieHumanoidBone, a: { flexion?: number; abduction?: number
   twist: a.twist ?? 0,
 });
 
-const { skeleton, model }: ReturnType<typeof buildStickman> = buildStickman(DEFAULT_STICKMAN);
+const { skeleton, model }: ReturnType<typeof buildStickman> =
+  buildStickman(DEFAULT_STICKMAN);
 const object: ReturnType<typeof buildModel> = buildModel(model);
 
 const SURFACE: number = 0.32; // trampoline bed height; the figure's feet ride here
@@ -81,9 +95,12 @@ const arcs: Arc[] = [];
   }
 }
 
-const arcAt: (t: number) => { y: number; phase: number; } = (t: number): { y: number; phase: number } => {
+const arcAt: (t: number) => { y: number; phase: number } = (
+  t: number,
+): { y: number; phase: number } => {
   const a: Arc =
-    arcs.find((s: Arc): boolean => t >= s.start && t < s.end) ?? arcs[arcs.length - 1];
+    arcs.find((s: Arc): boolean => t >= s.start && t < s.end) ??
+    arcs[arcs.length - 1];
   const dt: number = Math.min(Math.max(t - a.start, 0), a.end - a.start);
   const y: number = a.v0 * dt + 0.5 * G * dt * dt; // height above the bed
   const phase: number = a.end - a.start > 0 ? dt / (a.end - a.start) : 0; // 0 launch → 1 land
@@ -92,7 +109,10 @@ const arcAt: (t: number) => { y: number; phase: number; } = (t: number): { y: nu
 
 // pose: tuck the knees and throw the arms up near the apex, extend to land,
 // and squash slightly at the bed
-const poseAt: (phase: number, y: number) => IAutoMovieJointPose[] = (phase: number, y: number): IAutoMovieJointPose[] => {
+const poseAt: (phase: number, y: number) => IAutoMovieJointPose[] = (
+  phase: number,
+  y: number,
+): IAutoMovieJointPose[] => {
   const air: number = Math.sin(Math.PI * phase); // 0 at bed, 1 at apex
   const squash: number = y < 0.12 ? 1 - y / 0.12 : 0; // compress when near the bed
   const tuck: number = 60 * air;
@@ -131,13 +151,21 @@ const step: (t: number) => void = (t: number): void => {
 const scene: THREE.Scene<THREE.Object3DEventMap> = new THREE.Scene();
 scene.background = new THREE.Color(0xf2f4f8);
 scene.add(object.object);
-const bed: THREE.Mesh<THREE.CylinderGeometry, THREE.MeshStandardMaterial, THREE.Object3DEventMap> = new THREE.Mesh(
+const bed: THREE.Mesh<
+  THREE.CylinderGeometry,
+  THREE.MeshStandardMaterial,
+  THREE.Object3DEventMap
+> = new THREE.Mesh(
   new THREE.CylinderGeometry(0.7, 0.7, 0.05, 28),
   new THREE.MeshStandardMaterial({ color: 0x2f6fd6 }),
 );
 bed.position.set(0, SURFACE, 0);
 scene.add(bed);
-const rim: THREE.Mesh<THREE.TorusGeometry, THREE.MeshStandardMaterial, THREE.Object3DEventMap> = new THREE.Mesh(
+const rim: THREE.Mesh<
+  THREE.TorusGeometry,
+  THREE.MeshStandardMaterial,
+  THREE.Object3DEventMap
+> = new THREE.Mesh(
   new THREE.TorusGeometry(0.7, 0.04, 8, 28),
   new THREE.MeshStandardMaterial({ color: 0x9aa3b2 }),
 );
@@ -150,7 +178,11 @@ for (const [dx, dz] of [
   [-0.5, 0.5],
   [-0.5, -0.5],
 ]) {
-  const leg: THREE.Mesh<THREE.CylinderGeometry, THREE.MeshStandardMaterial, THREE.Object3DEventMap> = new THREE.Mesh(
+  const leg: THREE.Mesh<
+    THREE.CylinderGeometry,
+    THREE.MeshStandardMaterial,
+    THREE.Object3DEventMap
+  > = new THREE.Mesh(
     new THREE.CylinderGeometry(0.025, 0.025, SURFACE, 8),
     new THREE.MeshStandardMaterial({ color: 0x9aa3b2 }),
   );
@@ -163,7 +195,12 @@ const sun: THREE.DirectionalLight = new THREE.DirectionalLight(0xffffff, 1.4);
 sun.position.set(2, 5, 3);
 scene.add(sun);
 
-const camera: THREE.PerspectiveCamera = new THREE.PerspectiveCamera(45, 1, 0.05, 100);
+const camera: THREE.PerspectiveCamera = new THREE.PerspectiveCamera(
+  45,
+  1,
+  0.05,
+  100,
+);
 const az: number = (Number(params.get("az") ?? 30) * Math.PI) / 180;
 const dist: number = Number(params.get("dist") ?? 6.2);
 camera.position.set(dist * Math.sin(az), 2.0, dist * Math.cos(az));
@@ -173,11 +210,17 @@ const frozen: string | null = params.get("t");
 const freezeAt: number | null = frozen !== null ? Number(frozen) : null;
 if (freezeAt !== null && Number.isFinite(freezeAt)) step(freezeAt);
 
-const canvas: HTMLCanvasElement = document.querySelector<HTMLCanvasElement>("#view")!;
+const canvas: HTMLCanvasElement =
+  document.querySelector<HTMLCanvasElement>("#view")!;
 const capMode: boolean = params.get("cap") === "1";
-const handle: ReturnType<typeof mountViewer> = mountViewer(canvas, scene, camera, (elapsed: number): void => {
-  if (!capMode && freezeAt === null) step(elapsed % DUR);
-});
+const handle: ReturnType<typeof mountViewer> = mountViewer(
+  canvas,
+  scene,
+  camera,
+  (elapsed: number): void => {
+    if (!capMode && freezeAt === null) step(elapsed % DUR);
+  },
+);
 (window as unknown as { __afSeek: (t: number) => void }).__afSeek = (
   t: number,
 ): void => {

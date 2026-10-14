@@ -1,7 +1,12 @@
-import type { IAutoMovieJointPose, IAutoMovieMotion, IAutoMoviePose } from "@automovie/interface";
+import type {
+  IAutoMovieJointPose,
+  IAutoMovieMotion,
+  IAutoMoviePose,
+} from "@automovie/interface";
+
 import { createStickmanMotionJoint as j } from "./createStickmanMotionJoint";
-import { createStickmanMotionPose as pose } from "./createStickmanMotionPose";
 import { createStickmanMotionKeyframe as key } from "./createStickmanMotionKeyframe";
+import { createStickmanMotionPose as pose } from "./createStickmanMotionPose";
 
 /**
  * Authored one-second in-place walking loop with five quarter-second keys alternating contact and passing poses. Angles are conventional degree inputs under the page's humanoid mapping, and absent roots imply no baked travel. Named contact poses are choreography labels rather than measured foot-ground contact or validated gait physiology.
@@ -16,19 +21,25 @@ import { createStickmanMotionKeyframe as key } from "./createStickmanMotionKeyfr
  *
  * @author Samchon
  */
-export const walk: (sk: string) => IAutoMovieMotion = (sk: string): IAutoMovieMotion => {
+export const walk: (sk: string) => IAutoMovieMotion = (
+  sk: string,
+): IAutoMovieMotion => {
   // Arms hang down-and-out (abduction) and swing fore/aft via `flexion` (the
   // anatomical sagittal axis under HUMANOID_JOINT_AXES); `s` is the swing phase
   // in [−1, 1] (+1 = left arm back, right arm forward, opposing the legs).
   // HUMANOID_REST_FRAME recovers the mirrored rig signs at render time.
   // Specified in EVERY keyframe so they swing smoothly instead of snapping back
   // to the rest T-pose.
-  const arms: (s: number) => IAutoMovieJointPose[] = (s: number): IAutoMovieJointPose[] => [
+  const arms: (s: number) => IAutoMovieJointPose[] = (
+    s: number,
+  ): IAutoMovieJointPose[] => [
     j("leftUpperArm", { abduction: 32, flexion: 30 * s }),
     j("rightUpperArm", { abduction: 32, flexion: 30 * s }),
   ];
   // contact: `lead` leg forward (flexion −), `trail` leg back (flexion +).
-  const contact: (lead: "left" | "right") => IAutoMoviePose = (lead: "left" | "right"): IAutoMoviePose => {
+  const contact: (lead: "left" | "right") => IAutoMoviePose = (
+    lead: "left" | "right",
+  ): IAutoMoviePose => {
     const s: number = lead === "left" ? 1 : -1;
     return pose(sk, [
       j("leftUpperLeg", { flexion: -30 * s }),
@@ -39,7 +50,9 @@ export const walk: (sk: string) => IAutoMovieMotion = (sk: string): IAutoMovieMo
     ]);
   };
   // passing: the swinging leg lifts (knee up) as it crosses under the body.
-  const passing: (swing: "left" | "right") => IAutoMoviePose = (swing: "left" | "right"): IAutoMoviePose =>
+  const passing: (swing: "left" | "right") => IAutoMoviePose = (
+    swing: "left" | "right",
+  ): IAutoMoviePose =>
     pose(sk, [
       j("leftUpperLeg", { flexion: swing === "left" ? -16 : -2 }),
       j("rightUpperLeg", { flexion: swing === "right" ? -16 : -2 }),

@@ -1,5 +1,6 @@
-import type { IAutoMovieMotion } from "@automovie/interface";
 import { travelMotion } from "@automovie/engine";
+import type { IAutoMovieMotion } from "@automovie/interface";
+
 import { run } from "./run";
 
 /**
@@ -15,5 +16,7 @@ import { run } from "./run";
  *
  * @author Samchon
  */
-export const sprint: (sk: string) => IAutoMovieMotion = (sk: string): IAutoMovieMotion =>
+export const sprint: (sk: string) => IAutoMovieMotion = (
+  sk: string,
+): IAutoMovieMotion =>
   travelMotion("sprint", run(sk), 9, { x: 0, y: 0, z: 2.0 });

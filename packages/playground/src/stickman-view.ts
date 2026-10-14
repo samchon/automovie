@@ -22,18 +22,20 @@ import {
   mountViewer,
 } from "@automovie/viewer";
 import * as THREE from "three";
-import { registerViewerSelection } from "./viewer/registerViewerSelection";
 
-import { DEFAULT_CAT } from "./DEFAULT_CAT";
-import { buildCat } from "./buildCat";
 import { CAT_CLIPS } from "./CAT_CLIPS";
+import { DEFAULT_CAT } from "./DEFAULT_CAT";
+import { DEFAULT_STICKMAN } from "./DEFAULT_STICKMAN";
 import { QUADRUPED_JOINT_AXES } from "./QUADRUPED_JOINT_AXES";
 import { QUADRUPED_REST_FRAME } from "./QUADRUPED_REST_FRAME";
-import { DEFAULT_STICKMAN } from "./DEFAULT_STICKMAN";
-import { buildStickman } from "./buildStickman";
 import { STICKMAN_CLIPS } from "./STICKMAN_CLIPS";
+import { buildCat } from "./buildCat";
+import { buildStickman } from "./buildStickman";
+import { registerViewerSelection } from "./viewer/registerViewerSelection";
 
-const params: InstanceType<typeof URLSearchParams> = new URLSearchParams(location.search);
+const params: InstanceType<typeof URLSearchParams> = new URLSearchParams(
+  location.search,
+);
 const isCat: boolean = params.get("char") === "cat";
 // `?rom=1` freezes the figure at rest and draws each joint's flexion gamut.
 const showRom: boolean = params.get("rom") === "1";
@@ -45,18 +47,24 @@ const { model, skeleton }: ReturnType<typeof buildCat> = isCat
   ? buildCat(DEFAULT_CAT)
   : buildStickman(DEFAULT_STICKMAN);
 const object: ReturnType<typeof buildModel> = buildModel(model);
-const clips: Record<string, IAutoMovieMotion> = isCat ? CAT_CLIPS(skeleton.id) : STICKMAN_CLIPS(skeleton.id);
-const jointAxes: typeof HUMANOID_JOINT_AXES | typeof QUADRUPED_JOINT_AXES = isCat ? QUADRUPED_JOINT_AXES : HUMANOID_JOINT_AXES;
+const clips: Record<string, IAutoMovieMotion> = isCat
+  ? CAT_CLIPS(skeleton.id)
+  : STICKMAN_CLIPS(skeleton.id);
+const jointAxes: typeof HUMANOID_JOINT_AXES | typeof QUADRUPED_JOINT_AXES =
+  isCat ? QUADRUPED_JOINT_AXES : HUMANOID_JOINT_AXES;
 const defaultClip: "idle" | "jumpingJack" = isCat ? "idle" : "jumpingJack";
 
 const clipName: string =
   params.get("clip") !== null && Object.hasOwn(clips, params.get("clip")!)
     ? params.get("clip")!
     : defaultClip;
-const restFrames: typeof HUMANOID_REST_FRAME | typeof QUADRUPED_REST_FRAME = isCat ? QUADRUPED_REST_FRAME : HUMANOID_REST_FRAME;
+const restFrames: typeof HUMANOID_REST_FRAME | typeof QUADRUPED_REST_FRAME =
+  isCat ? QUADRUPED_REST_FRAME : HUMANOID_REST_FRAME;
 // `?clamp=1` enforces ROM; the cat's tail gets spring follow-through so it
 // trails and overshoots the body instead of snapping (turn off with ?spring=0).
-const catTailSpring: { joints: AutoMovieHumanoidBone[]; stiffness: number; damping: number; } | undefined =
+const catTailSpring:
+  | { joints: AutoMovieHumanoidBone[]; stiffness: number; damping: number }
+  | undefined =
   isCat && params.get("spring") !== "0"
     ? {
         joints: [
@@ -95,7 +103,11 @@ scene.add(object.object);
 const grid: THREE.GridHelper = new THREE.GridHelper(40, 80, 0xb8c0cc, 0xd5dbe4);
 scene.add(grid);
 
-const hemi: THREE.HemisphereLight = new THREE.HemisphereLight(0xffffff, 0x9aa3b2, 1.1);
+const hemi: THREE.HemisphereLight = new THREE.HemisphereLight(
+  0xffffff,
+  0x9aa3b2,
+  1.1,
+);
 scene.add(hemi);
 const sun: THREE.DirectionalLight = new THREE.DirectionalLight(0xffffff, 1.4);
 sun.position.set(2, 4, 3);
@@ -103,7 +115,12 @@ scene.add(sun);
 
 // `?az=<deg>` orbits the camera (0 = front, 90 = right side) so sagittal clips
 // like walk/hop can be inspected from the side.
-const camera: THREE.PerspectiveCamera = new THREE.PerspectiveCamera(40, 1, 0.05, 100);
+const camera: THREE.PerspectiveCamera = new THREE.PerspectiveCamera(
+  40,
+  1,
+  0.05,
+  100,
+);
 const az: number = (Number(params.get("az") ?? 0) * Math.PI) / 180;
 const target: 0.26 | 0.92 = isCat ? 0.26 : 0.92;
 const dist: 3.8 | 1.7 = isCat ? 1.7 : 3.8;
@@ -141,10 +158,14 @@ const buildRomFans: () => void = (): void => {
   const quat: THREE.Quaternion = new THREE.Quaternion();
   const scl: THREE.Vector3 = new THREE.Vector3();
   for (const b of skeleton.bones) {
-    const flex: { min: number; max: number } | null | undefined = b.constraint?.flexion;
+    const flex: { min: number; max: number } | null | undefined =
+      b.constraint?.flexion;
     if (flex === null || flex === undefined) continue;
-    const child: ReturnType<typeof skeleton.bones.find> = skeleton.bones.find((x: IAutoMovieBone): boolean => x.parent === b.bone);
-    const tb: THREE.Object3D<THREE.Object3DEventMap> | undefined = object.bones.get(b.bone);
+    const child: ReturnType<typeof skeleton.bones.find> = skeleton.bones.find(
+      (x: IAutoMovieBone): boolean => x.parent === b.bone,
+    );
+    const tb: THREE.Object3D<THREE.Object3DEventMap> | undefined =
+      object.bones.get(b.bone);
     if (child === undefined || tb === undefined) continue;
     tb.matrixWorld.decompose(pos, quat, scl);
     const childDir: THREE.Vector3 = new THREE.Vector3(
@@ -152,7 +173,11 @@ const buildRomFans: () => void = (): void => {
       child.rest.translation.y,
       child.rest.translation.z,
     );
-    const a: IAutoMovieVector3 = jointAxes?.[b.bone]?.flexion ?? { x: 1, y: 0, z: 0 };
+    const a: IAutoMovieVector3 = jointAxes?.[b.bone]?.flexion ?? {
+      x: 1,
+      y: 0,
+      z: 0,
+    };
     const axis: THREE.Vector3 = new THREE.Vector3(a.x, a.y, a.z);
     const arc: THREE.Vector3[] = [];
     const N: number = 28;
@@ -188,7 +213,8 @@ if (showRom) buildRomFans();
 // of the face: each frame compute the world look direction and convert it to the
 // head bone's local rotation via the engine's aimRotation.
 const lookMode: boolean = params.get("look") === "1";
-const headBone: THREE.Object3D<THREE.Object3DEventMap> | undefined = object.bones.get("head");
+const headBone: THREE.Object3D<THREE.Object3DEventMap> | undefined =
+  object.bones.get("head");
 const aimHead: (elapsed: number) => void = (elapsed: number): void => {
   if (headBone === undefined) return;
   scene.updateMatrixWorld(true);
@@ -200,7 +226,10 @@ const aimHead: (elapsed: number) => void = (elapsed: number): void => {
     0.45 * Math.sin(elapsed * 1.5),
     0.9,
   ).normalize();
-  const a: ReturnType<typeof aimRotation> = aimRotation({ x: 0, y: 0, z: 1 }, { x: dir.x, y: dir.y, z: dir.z });
+  const a: ReturnType<typeof aimRotation> = aimRotation(
+    { x: 0, y: 0, z: 1 },
+    { x: dir.x, y: dir.y, z: dir.z },
+  );
   const world: THREE.Quaternion = new THREE.Quaternion(a.x, a.y, a.z, a.w);
   headBone.quaternion.copy(parentQ.invert().multiply(world));
 };
@@ -211,26 +240,45 @@ const aimHead: (elapsed: number) => void = (elapsed: number): void => {
 //, the hand lands on the target, the elbow bending as it moves in and out.
 const reachMode: boolean = params.get("reach") === "1";
 const segLen: (b: string) => number = (b: string): number => {
-  const t: IAutoMovieVector3 | undefined = skeleton.bones.find((x: IAutoMovieBone): boolean => x.bone === b)?.rest.translation;
+  const t: IAutoMovieVector3 | undefined = skeleton.bones.find(
+    (x: IAutoMovieBone): boolean => x.bone === b,
+  )?.rest.translation;
   return t ? Math.hypot(t.x, t.y, t.z) : 0.25;
 };
 const L1: number = segLen("rightLowerArm"); // shoulder → elbow
 const L2: number = segLen("rightHand"); // elbow → wrist
-const reachTarget: THREE.Mesh<THREE.SphereGeometry, THREE.MeshStandardMaterial, THREE.Object3DEventMap> = new THREE.Mesh(
+const reachTarget: THREE.Mesh<
+  THREE.SphereGeometry,
+  THREE.MeshStandardMaterial,
+  THREE.Object3DEventMap
+> = new THREE.Mesh(
   new THREE.SphereGeometry(0.04, 16, 12),
   new THREE.MeshStandardMaterial({ color: 0xe5484d }),
 );
 if (reachMode) scene.add(reachTarget);
-const FWD: { x: number; y: number; z: number; } = { x: -1, y: 0, z: 0 }; // right-arm rest points down its −X local axis
-const toThree: (q: { x: number; y: number; z: number; w: number; }) => THREE.Quaternion = (q: { x: number; y: number; z: number; w: number }): THREE.Quaternion =>
-  new THREE.Quaternion(q.x, q.y, q.z, q.w);
+const FWD: { x: number; y: number; z: number } = { x: -1, y: 0, z: 0 }; // right-arm rest points down its −X local axis
+const toThree: (q: {
+  x: number;
+  y: number;
+  z: number;
+  w: number;
+}) => THREE.Quaternion = (q: {
+  x: number;
+  y: number;
+  z: number;
+  w: number;
+}): THREE.Quaternion => new THREE.Quaternion(q.x, q.y, q.z, q.w);
 
 const reach: (elapsed: number) => void = (elapsed: number): void => {
-  const upper: THREE.Object3D<THREE.Object3DEventMap> | undefined = object.bones.get("rightUpperArm");
-  const lower: THREE.Object3D<THREE.Object3DEventMap> | undefined = object.bones.get("rightLowerArm");
+  const upper: THREE.Object3D<THREE.Object3DEventMap> | undefined =
+    object.bones.get("rightUpperArm");
+  const lower: THREE.Object3D<THREE.Object3DEventMap> | undefined =
+    object.bones.get("rightLowerArm");
   if (upper === undefined || lower === undefined) return;
   scene.updateMatrixWorld(true);
-  const root: THREE.Vector3 = new THREE.Vector3().setFromMatrixPosition(upper.matrixWorld);
+  const root: THREE.Vector3 = new THREE.Vector3().setFromMatrixPosition(
+    upper.matrixWorld,
+  );
   // target circles in front of and beside the right shoulder, in and out
   const goal: THREE.Vector3 = root
     .clone()
@@ -245,15 +293,23 @@ const reach: (elapsed: number) => void = (elapsed: number): void => {
 
   const toGoal: THREE.Vector3 = goal.clone().sub(root);
   const dir: THREE.Vector3 = toGoal.clone().normalize();
-  const { lift }: ReturnType<typeof solveTwoBoneIK> = solveTwoBoneIK(L1, L2, toGoal.length());
+  const { lift }: ReturnType<typeof solveTwoBoneIK> = solveTwoBoneIK(
+    L1,
+    L2,
+    toGoal.length(),
+  );
   const pole: THREE.Vector3 = new THREE.Vector3(0, -1, -0.4).normalize();
-  const bendAxis: THREE.Vector3 = new THREE.Vector3().crossVectors(dir, pole).normalize();
+  const bendAxis: THREE.Vector3 = new THREE.Vector3()
+    .crossVectors(dir, pole)
+    .normalize();
   const upperDir: THREE.Vector3 = dir
     .clone()
     .applyQuaternion(
       new THREE.Quaternion().setFromAxisAngle(bendAxis, (lift * Math.PI) / 180),
     );
-  const elbow: THREE.Vector3 = root.clone().add(upperDir.clone().multiplyScalar(L1));
+  const elbow: THREE.Vector3 = root
+    .clone()
+    .add(upperDir.clone().multiplyScalar(L1));
   const handDir: THREE.Vector3 = goal.clone().sub(elbow).normalize();
 
   const parentQ: THREE.Quaternion = new THREE.Quaternion();
@@ -280,7 +336,8 @@ const frame: (elapsed: number) => void = (elapsed: number): void => {
   }
 };
 
-const canvas: HTMLCanvasElement = document.querySelector<HTMLCanvasElement>("#view")!;
+const canvas: HTMLCanvasElement =
+  document.querySelector<HTMLCanvasElement>("#view")!;
 // `?cap=1` hands frame timing to the capturer (window.__afSeek) instead of the
 // wall clock, so a recorder can step through deterministically in one session.
 const capMode: boolean = params.get("cap") === "1";
@@ -303,8 +360,14 @@ const handle: ReturnType<typeof mountViewer> = mountViewer(
   // Capture renders with AA off and a pinned pixel ratio (#1169) so structural
   // guide passes avoid antialiasing and device-pixel-ratio variation. These
   // settings do not establish identical native pixels across browser/GPU hosts.
-  { ...(capMode ? { antialias: false, pixelRatio: 1 } : {}),
-    completedFrame: (): { scene: THREE.Scene<THREE.Object3DEventMap>; camera: THREE.PerspectiveCamera; pass: AutoMovieGuidePass; } => ({ scene, camera, pass: observedPass }) },
+  {
+    ...(capMode ? { antialias: false, pixelRatio: 1 } : {}),
+    completedFrame: (): {
+      scene: THREE.Scene<THREE.Object3DEventMap>;
+      camera: THREE.PerspectiveCamera;
+      pass: AutoMovieGuidePass;
+    } => ({ scene, camera, pass: observedPass }),
+  },
 );
 (window as unknown as { __afSeek: (t: number) => void }).__afSeek = (
   t: number,
@@ -335,12 +398,15 @@ let passHandle: IAutoMovieRenderModeHandle | null = null;
 };
 
 // ── clip selector (live switching) ──────────────────────────────────────────
-const bar: HTMLDivElement | null = document.querySelector<HTMLDivElement>("#clips");
+const bar: HTMLDivElement | null =
+  document.querySelector<HTMLDivElement>("#clips");
 let activeClip: string = clipName;
 const selectClip: (name: string) => void = (name: string): void => {
   activeClip = name;
   player.setMotion(clips[name]!);
-  if (bar !== null) for (const el of bar.children) el.className = el.textContent === name ? "on" : "";
+  if (bar !== null)
+    for (const el of bar.children)
+      el.className = el.textContent === name ? "on" : "";
 };
 if (bar !== null) {
   for (const name of Object.keys(clips)) {
@@ -353,10 +419,19 @@ if (bar !== null) {
     bar.appendChild(b);
   }
 }
-registerViewerSelection({ names: Object.keys(clips), read: (): string => activeClip, select: selectClip,
-  pass: { read: (): AutoMovieGuidePass => observedPass, restore: (pass: AutoMovieGuidePass): void => {
-    passHandle?.restore(); passHandle = applyRenderMode(scene, pass); observedPass = pass;
-  } } });
+registerViewerSelection({
+  names: Object.keys(clips),
+  read: (): string => activeClip,
+  select: selectClip,
+  pass: {
+    read: (): AutoMovieGuidePass => observedPass,
+    restore: (pass: AutoMovieGuidePass): void => {
+      passHandle?.restore();
+      passHandle = applyRenderMode(scene, pass);
+      observedPass = pass;
+    },
+  },
+});
 
 // expose for headless verification (the screenshot harness reads this)
 (window as unknown as { __automovie: unknown }).__automovie = {

@@ -1,6 +1,7 @@
-import { registerPlaygroundViewerApplication } from "./registerPlaygroundViewerApplication";
 import type { AutoMovieGuidePass } from "@automovie/interface";
 import { isGuidePass } from "@automovie/render";
+
+import { registerPlaygroundViewerApplication } from "./registerPlaygroundViewerApplication";
 
 /**
  * Restore a product's supported named selection through its original setter, then restore an optional admitted guide pass and check actual selection equality. Unsupported choices refuse the candidate. Setter/equality failure can leave that candidate changed; this adapter supplies no atomic rollback and the host still retains the prior completed page.
@@ -31,22 +32,36 @@ export function registerViewerSelection(props: {
     read: () => AutoMovieGuidePass;
 
     /** Apply an admitted guide pass through its original product owner. */
-    restore: (pass: AutoMovieGuidePass) => void
+    restore: (pass: AutoMovieGuidePass) => void;
   };
 }): void {
   registerPlaygroundViewerApplication({
-    ready: Promise.resolve(), capture: (): { selection: string; pass: AutoMovieGuidePass | undefined } => ({ selection: props.read(), pass: props.pass?.read() }),
+    ready: Promise.resolve(),
+    capture: (): {
+      selection: string;
+      pass: AutoMovieGuidePass | undefined;
+    } => ({ selection: props.read(), pass: props.pass?.read() }),
     restore: async (state: unknown): Promise<void> => {
-      if (state === null || typeof state !== "object") throw new Error("The product selection has no state.");
+      if (state === null || typeof state !== "object")
+        throw new Error("The product selection has no state.");
       const value: unknown = Reflect.get(state, "selection");
-      if (typeof value !== "string" || !props.names.includes(value)) throw new Error("The product selection is unavailable.");
+      if (typeof value !== "string" || !props.names.includes(value))
+        throw new Error("The product selection is unavailable.");
       const pass: unknown = Reflect.get(state, "pass");
-      if (props.pass !== undefined && (typeof pass !== "string" || !isGuidePass(pass)))
+      if (
+        props.pass !== undefined &&
+        (typeof pass !== "string" || !isGuidePass(pass))
+      )
         throw new Error("The product guide pass is unavailable.");
       props.select(value);
-      if (props.pass !== undefined && typeof pass === "string" && isGuidePass(pass))
+      if (
+        props.pass !== undefined &&
+        typeof pass === "string" &&
+        isGuidePass(pass)
+      )
         props.pass.restore(pass);
-      if (props.read() !== value) throw new Error("The product did not restore its selection.");
+      if (props.read() !== value)
+        throw new Error("The product did not restore its selection.");
     },
   });
 }
