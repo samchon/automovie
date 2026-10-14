@@ -1,4 +1,5 @@
 import type { TourData } from "@automovie/website/tour-data";
+
 import { tourView } from "./tourView";
 
 /** Supplies two independently specified camera records and an empty native payload for website logic cases; it is not a production scene artifact. */

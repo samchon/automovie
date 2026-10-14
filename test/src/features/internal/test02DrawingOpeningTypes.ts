@@ -10,7 +10,9 @@ import type { IAutoMovieBuiltEnvironment } from "@automovie/interface";
  * of every other on the same 6 x 3 face, because two voids that touch are one
  * void authored twice.
  */
-export const test02DrawingOpeningTypes: (environment: IAutoMovieBuiltEnvironment) => IAutoMovieBuiltEnvironment = (
+export const test02DrawingOpeningTypes: (
+  environment: IAutoMovieBuiltEnvironment,
+) => IAutoMovieBuiltEnvironment = (
   environment: IAutoMovieBuiltEnvironment,
 ): IAutoMovieBuiltEnvironment => ({
   ...environment,
@@ -25,14 +27,33 @@ export const test02DrawingOpeningTypes: (environment: IAutoMovieBuiltEnvironment
 });
 
 /** One rectangular void on the north face, placed by its own lower-left corner. */
-const void_: (id: string, kind: string, x: number, y: number, width: number, height: number) => { id: string; kind: string; boundary: string; fill: null; profile: { outline: { x: number; y: number; }[]; }; } = (
+const void_: (
   id: string,
   kind: string,
   x: number,
   y: number,
   width: number,
   height: number,
-) : { id: string; kind: string; boundary: string; fill: null; profile: { outline: { x: number; y: number; }[]; }; } => ({
+) => {
+  id: string;
+  kind: string;
+  boundary: string;
+  fill: null;
+  profile: { outline: { x: number; y: number }[] };
+} = (
+  id: string,
+  kind: string,
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+): {
+  id: string;
+  kind: string;
+  boundary: string;
+  fill: null;
+  profile: { outline: { x: number; y: number }[] };
+} => ({
   id,
   kind,
   boundary: "north",

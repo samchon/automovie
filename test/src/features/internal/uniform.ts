@@ -6,6 +6,9 @@
  * rounding or overflow for other inputs is not an independently checked
  * distribution or physical range. It owns no random state or retained result.
  */
-export const uniform: (rng: () => number, min: number, max: number) => number =
-  (rng: () => number, min: number, max: number): number =>
-    min + (max - min) * rng();
+export const uniform: (
+  rng: () => number,
+  min: number,
+  max: number,
+) => number = (rng: () => number, min: number, max: number): number =>
+  min + (max - min) * rng();

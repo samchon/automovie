@@ -1,9 +1,14 @@
-import { type IAutoMovieResolvedBone, type IAutoMovieWearableSoftFrame, simulateAutoMovieWearableSoftBody } from "@automovie/engine";
+import {
+  type IAutoMovieResolvedBone,
+  type IAutoMovieWearableSoftFrame,
+  simulateAutoMovieWearableSoftBody,
+} from "@automovie/engine";
 import type { IAutoMovieSoftBodyDomain } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
+
 import { throwsError } from "./predicates";
-import { wearableSoftBodyTestDomain as domain } from "./wearableSoftBodyTestDomain";
 import { wearableSoftBodyTestActorFrame as actorFrame } from "./wearableSoftBodyTestActorFrame";
+import { wearableSoftBodyTestDomain as domain } from "./wearableSoftBodyTestDomain";
 
 /**
  * Preserve original wearable Scenario 7 admission refusals after the earlier accepted cases.
@@ -13,7 +18,12 @@ import { wearableSoftBodyTestActorFrame as actorFrame } from "./wearableSoftBody
  * @evidence contracts/testing.md#distinguishing-cases Keeps every original Scenario 7 case, input value, error and assertion order; supplied static/node/capsule domains retain their main-unit identities. Accepted motion and lower-boundary admission remain separately owned original blocks.
  * @evidence contracts/testing.md#execution-ownership The main test directly invokes this synchronous assertion owner with borrowed existing records; fresh malformed frames stay local, and no file, renderer, browser, GPU, native host or foreign-method replacement is used.
  */
-export function wearableSoftBodyTestAdmission(staticDomain: IAutoMovieSoftBodyDomain, nodeDomain: IAutoMovieSoftBodyDomain, capsuleOnly: IAutoMovieSoftBodyDomain, nodeFrame: IAutoMovieWearableSoftFrame): void {
+export function wearableSoftBodyTestAdmission(
+  staticDomain: IAutoMovieSoftBodyDomain,
+  nodeDomain: IAutoMovieSoftBodyDomain,
+  capsuleOnly: IAutoMovieSoftBodyDomain,
+  nodeFrame: IAutoMovieWearableSoftFrame,
+): void {
   TestValidator.equals(
     "wearable admission, frame identity, lookup, and transform failures are closed",
     {
@@ -121,7 +131,8 @@ export function wearableSoftBodyTestAdmission(staticDomain: IAutoMovieSoftBodyDo
                 {
                   actor: "actor",
                   bones: frame.actors[0]!.bones.filter(
-                    (entry: IAutoMovieResolvedBone): boolean => entry.bone !== "leftShoulder",
+                    (entry: IAutoMovieResolvedBone): boolean =>
+                      entry.bone !== "leftShoulder",
                   ),
                 },
               ],

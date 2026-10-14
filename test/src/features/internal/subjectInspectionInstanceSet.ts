@@ -1,6 +1,5 @@
 import { IAutoMovieCompiledInstanceSet } from "@automovie/interface";
 
-
 /** Compact compiled set fixture with enough facts for exact slot regeneration. */
 export const subjectInspectionInstanceSet: (props: {
   id: string;

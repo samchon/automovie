@@ -1,5 +1,6 @@
 import type { TourData } from "@automovie/website/tour-data";
 import { JSDOM } from "jsdom";
+
 import { tourData } from "./tourData";
 
 /** Supplies the existing tour controls through JSDOM for event and text assertions. The caller owns the window; this fixture provides no browser layout, pointer lock or WebGL observations. */
@@ -16,8 +17,10 @@ export function tourFixture(): {
     { url: "https://example.org/mounted/tour/" },
   );
   const document: Document = dom.window.document;
-  const element: <T extends HTMLElement>(selector: string) => T =
-    <T extends HTMLElement>(selector: string): T =>
-      document.querySelector<T>(selector)!;
+  const element: <T extends HTMLElement>(selector: string) => T = <
+    T extends HTMLElement,
+  >(
+    selector: string,
+  ): T => document.querySelector<T>(selector)!;
   return { dom, document, element, data: tourData() };
 }

@@ -1,6 +1,5 @@
 import { IAutoMovieModel, IAutoMovieVector3 } from "@automovie/interface";
 
-
 /** Minimal mesh-backed model whose resident positions state one exact box. */
 export const subjectInspectionModel: (props: {
   id: string;

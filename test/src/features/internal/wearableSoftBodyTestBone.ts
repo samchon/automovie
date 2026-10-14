@@ -14,10 +14,10 @@ export function wearableSoftBodyTestBone(
   x: number,
   y: number,
 ): IAutoMovieResolvedBone {
-  return ({
-  bone: name,
-  localRotation: { x: 0, y: 0, z: 0, w: 1 },
-  worldPosition: { x, y, z: 0 },
-  worldRotation: { x: 0, y: 0, z: 0, w: 1 },
-});
+  return {
+    bone: name,
+    localRotation: { x: 0, y: 0, z: 0, w: 1 },
+    worldPosition: { x, y, z: 0 },
+    worldRotation: { x: 0, y: 0, z: 0, w: 1 },
+  };
 }

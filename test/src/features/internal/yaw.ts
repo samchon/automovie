@@ -5,7 +5,9 @@ import { IAutoMovieQuaternion } from "@automovie/interface";
  *
  * Constant scalar work returns a fresh quaternion with no retained angle, cache or resource; the parent observes resulting placement and volume rather than independently certifying every quaternion component.
  */
-export const yaw: (radians: number) => IAutoMovieQuaternion = (radians: number): IAutoMovieQuaternion => ({
+export const yaw: (radians: number) => IAutoMovieQuaternion = (
+  radians: number,
+): IAutoMovieQuaternion => ({
   x: 0,
   y: Math.sin(radians / 2),
   z: 0,

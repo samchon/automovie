@@ -1,5 +1,13 @@
-import { autoMovieDrawingToSvg, deriveAutoMovieDrawing } from "@automovie/engine";
-import type { IAutoMovieBuiltElement, IAutoMovieBuiltEnvironment, IAutoMovieDrawing, IAutoMovieDrawingView } from "@automovie/interface";
+import {
+  autoMovieDrawingToSvg,
+  deriveAutoMovieDrawing,
+} from "@automovie/engine";
+import type {
+  IAutoMovieBuiltElement,
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieDrawing,
+  IAutoMovieDrawingView,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { drawingView } from "./drawingFixtures";
@@ -30,19 +38,39 @@ export function test02DrawingSvgExtents(
       blank.startsWith(
         '<svg xmlns="http://www.w3.org/2000/svg" width="20.000mm" height="20.000mm"',
       ),
-      blank.split("\n").filter((line: string) : boolean => line.includes("automovie-line"))
+      blank
+        .split("\n")
+        .filter((line: string): boolean => line.includes("automovie-line"))
         .length,
     ],
     [true, 0],
   );
 
   // A sheet whose only content is its own annotation is still that sheet's size.
-  const slabFeature: (kind: "vertex" | "centroid", index: number, element: string) => { readonly element: string; readonly part: null; readonly kind: "vertex" | "centroid"; readonly index: number; readonly count: null; } = (
+  const slabFeature: (
     kind: "vertex" | "centroid",
     index: number,
     element: string,
-  ) : { readonly element: string; readonly part: null; readonly kind: "vertex" | "centroid"; readonly index: number; readonly count: null; } => ({ element, part: null, kind, index, count: null }) as const;
-  const noteOnly: (element: string) => IAutoMovieDrawingView = (element: string): IAutoMovieDrawingView =>
+  ) => {
+    readonly element: string;
+    readonly part: null;
+    readonly kind: "vertex" | "centroid";
+    readonly index: number;
+    readonly count: null;
+  } = (
+    kind: "vertex" | "centroid",
+    index: number,
+    element: string,
+  ): {
+    readonly element: string;
+    readonly part: null;
+    readonly kind: "vertex" | "centroid";
+    readonly index: number;
+    readonly count: null;
+  } => ({ element, part: null, kind, index, count: null }) as const;
+  const noteOnly: (element: string) => IAutoMovieDrawingView = (
+    element: string,
+  ): IAutoMovieDrawingView =>
     drawingView({
       id: "note-only",
       // Nothing is drafted and no cell is sectioned, so the linework and the
@@ -66,7 +94,9 @@ export function test02DrawingSvgExtents(
         },
       ],
     });
-  const noteOnlySheet: (element: string) => string[] = (element: string): string[] =>
+  const noteOnlySheet: (element: string) => string[] = (
+    element: string,
+  ): string[] =>
     autoMovieDrawingToSvg({
       drawing: deriveAutoMovieDrawing({
         environment,
@@ -80,7 +110,7 @@ export function test02DrawingSvgExtents(
     namedFacts([
       [
         "the page is the annotated span at 1:50 plus a margin on every side",
-        () : boolean =>
+        (): boolean =>
           annotated[0]!.startsWith(
             '<svg xmlns="http://www.w3.org/2000/svg" width="220.000mm" height="140.000mm" viewBox="0 0 220.000 140.000"',
           ),
@@ -91,9 +121,9 @@ export function test02DrawingSvgExtents(
         // the sheet's own diagonal and its middle. These assertions place the
         // dimension ends and note anchor, without measuring the glyph bounds.
         "the dimension runs corner to corner of the page it sized",
-        () : boolean =>
+        (): boolean =>
           annotated.some(
-            (line: string) : boolean =>
+            (line: string): boolean =>
               line.includes('data-id="slab-diagonal"') &&
               line.includes(
                 'x1="10.000" y1="10.000" x2="210.000" y2="130.000"',
@@ -102,16 +132,16 @@ export function test02DrawingSvgExtents(
       ],
       [
         "the note sits at the middle of that page",
-        () : boolean =>
+        (): boolean =>
           annotated.some(
-            (line: string) : boolean =>
+            (line: string): boolean =>
               line.includes('data-id="slab-note"') &&
               line.includes('x="110.000" y="70.000"'),
           ),
       ],
       [
         "a target that resolves to nothing sizes nothing, so the sheet is margins",
-        () : boolean =>
+        (): boolean =>
           noteOnlySheet("no-such-slab")[0]!.startsWith(
             '<svg xmlns="http://www.w3.org/2000/svg" width="20.000mm" height="20.000mm"',
           ),
@@ -130,7 +160,7 @@ export function test02DrawingSvgExtents(
     namedFacts([
       [
         "a ceiling region names no finish and says so with an empty attribute",
-        () : boolean => {
+        (): boolean => {
           const ceilingView: IAutoMovieDrawingView = drawingView({
             id: "ceiling",
             projection: "reflected-ceiling-plan",
@@ -151,16 +181,17 @@ export function test02DrawingSvgExtents(
       ],
       [
         "a line whose element belongs to no space carries an empty space",
-        () : boolean => {
+        (): boolean => {
           const plainView: IAutoMovieDrawingView = drawingView({ id: "plain" });
           return autoMovieDrawingToSvg({
             drawing: deriveAutoMovieDrawing({
               environment: {
                 ...environment,
-                elements: environment.elements.map((element: IAutoMovieBuiltElement) : IAutoMovieBuiltElement =>
-                  element.id === "floor-slab"
-                    ? { ...element, space: null }
-                    : element,
+                elements: environment.elements.map(
+                  (element: IAutoMovieBuiltElement): IAutoMovieBuiltElement =>
+                    element.id === "floor-slab"
+                      ? { ...element, space: null }
+                      : element,
                 ),
               },
               view: plainView,
@@ -183,7 +214,7 @@ export function test02DrawingSvgExtents(
     namedFacts([
       [
         "a hand-built stale dimension and note serialize without a reason",
-        () : boolean => {
+        (): boolean => {
           const emitted: string = autoMovieDrawingToSvg({
             drawing: {
               ...drawing,

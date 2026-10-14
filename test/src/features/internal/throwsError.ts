@@ -11,7 +11,9 @@ export function throwsError(
   } catch (error) {
     return (
       error instanceof Error &&
-      fragments.every((fragment: string): boolean => error.message.includes(fragment))
+      fragments.every((fragment: string): boolean =>
+        error.message.includes(fragment),
+      )
     );
   }
 }

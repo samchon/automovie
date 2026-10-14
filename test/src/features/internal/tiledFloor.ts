@@ -1,15 +1,22 @@
+import { type IAutoMovieMesh } from "@automovie/interface";
+
 import { IAutoMovieMeshAssembly } from "../../../../packages/engine/src/geometry/IAutoMovieMeshAssembly";
 import { IAutoMovieMeshPart } from "../../../../packages/engine/src/geometry/IAutoMovieMeshPart";
 import { mergeAutoMovieMeshParts } from "../../../../packages/engine/src/geometry/mergeAutoMovieMeshParts";
 import { slab } from "./slab";
-import { type IAutoMovieMesh } from "@automovie/interface";
 
 /**
  * Place one centred slab per authored row/column at pitch tile+joint, with one merge group per tile and outer extents count*pitch-joint. Distances are metres; the parent supplies positive integral counts, positive tile/thickness and nonnegative joint width.
  *
  * The slab input is shared across placements, while merge emits caller-owned geometry. O(rows*columns) member work/output preserves gaps rather than filling them or estimating installation waste; there is no cross-call mesh cache or real renderer.
  */
-export const tiledFloor: (props: { rows: number; columns: number; tile: number; joint: number; thickness: number; }) => IAutoMovieMeshAssembly = (props: {
+export const tiledFloor: (props: {
+  rows: number;
+  columns: number;
+  tile: number;
+  joint: number;
+  thickness: number;
+}) => IAutoMovieMeshAssembly = (props: {
   rows: number;
   columns: number;
   tile: number;

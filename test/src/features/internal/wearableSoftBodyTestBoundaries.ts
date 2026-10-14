@@ -1,6 +1,10 @@
-import { type IAutoMovieSoftBodyBoundarySample, simulateSoftBodyWithBoundaries } from "@automovie/engine";
+import {
+  type IAutoMovieSoftBodyBoundarySample,
+  simulateSoftBodyWithBoundaries,
+} from "@automovie/engine";
 import type { IAutoMovieSoftBodyDomain } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
+
 import { throwsError } from "./predicates";
 import { wearableSoftBodyTestDomain as domain } from "./wearableSoftBodyTestDomain";
 
@@ -12,25 +16,29 @@ import { wearableSoftBodyTestDomain as domain } from "./wearableSoftBodyTestDoma
  * @evidence contracts/testing.md#distinguishing-cases Retains every original Scenario 8 input/error/order, including static-anchor override, zero radius and both nonfinite capsule endpoints. The existing valid boundary only arranges negative twins and supplies no oracle values.
  * @evidence contracts/testing.md#execution-ownership The main unit directly invokes this synchronous assertion owner and lends its original static-domain identity; all temporary boundary rows stay local, with no host, file, renderer, browser/GPU or foreign-method replacement.
  */
-export function wearableSoftBodyTestBoundaries(staticDomain: IAutoMovieSoftBodyDomain): void {
+export function wearableSoftBodyTestBoundaries(
+  staticDomain: IAutoMovieSoftBodyDomain,
+): void {
   /** Construct the original complete boundary as the unchanged negative-twin base. */
-  const validBoundary: () => IAutoMovieSoftBodyBoundarySample = (): IAutoMovieSoftBodyBoundarySample => ({
-    step: 0,
-    anchors: [{ particle: 0, position: { x: 0, y: 1, z: 0 } }],
-    capsules: [
-      {
-        id: "torso",
-        from: { x: 0, y: 0, z: 0 },
-        to: { x: 0, y: 1, z: 0 },
-        radius: 0.25,
-      },
-    ],
-  });
+  const validBoundary: () => IAutoMovieSoftBodyBoundarySample =
+    (): IAutoMovieSoftBodyBoundarySample => ({
+      step: 0,
+      anchors: [{ particle: 0, position: { x: 0, y: 1, z: 0 } }],
+      capsules: [
+        {
+          id: "torso",
+          from: { x: 0, y: 0, z: 0 },
+          to: { x: 0, y: 1, z: 0 },
+          radius: 0.25,
+        },
+      ],
+    });
   TestValidator.equals(
     "the lower moving-boundary solver refuses incomplete and foreign records",
     {
       missingSequence: throwsError(
-        (): ReturnType<typeof simulateSoftBodyWithBoundaries> => simulateSoftBodyWithBoundaries(domain(), 0, []),
+        (): ReturnType<typeof simulateSoftBodyWithBoundaries> =>
+          simulateSoftBodyWithBoundaries(domain(), 0, []),
         "one moving boundary",
       ),
       wrongBoundaryStep: throwsError(

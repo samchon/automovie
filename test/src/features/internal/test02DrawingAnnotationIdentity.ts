@@ -1,5 +1,9 @@
 import { deriveAutoMovieDrawing } from "@automovie/engine";
-import type { IAutoMovieBuiltEnvironment, IAutoMovieDrawing, IAutoMovieDrawingFeature } from "@automovie/interface";
+import type {
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieDrawing,
+  IAutoMovieDrawingFeature,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { drawingView } from "./drawingFixtures";
@@ -9,10 +13,14 @@ import { test12ValuesClose } from "./test12ValuesClose";
 /** Original annotation scenarios 9 and 10 retain their digest and duplicate-id inputs. */
 export function test02DrawingAnnotationIdentity(
   environment: IAutoMovieBuiltEnvironment,
-  feature: (overrides: Partial<IAutoMovieDrawingFeature>) => IAutoMovieDrawingFeature,
+  feature: (
+    overrides: Partial<IAutoMovieDrawingFeature>,
+  ) => IAutoMovieDrawingFeature,
 ): void {
   // 9. Selected endpoint and text-boundary changes distinguish these digests.
-  const facade: (overrides: Partial<Parameters<typeof drawingView>[0]>) => ReturnType<typeof deriveAutoMovieDrawing> = (
+  const facade: (
+    overrides: Partial<Parameters<typeof drawingView>[0]>,
+  ) => ReturnType<typeof deriveAutoMovieDrawing> = (
     overrides: Partial<Parameters<typeof drawingView>[0]>,
   ): ReturnType<typeof deriveAutoMovieDrawing> =>
     deriveAutoMovieDrawing({
@@ -65,7 +73,11 @@ export function test02DrawingAnnotationIdentity(
         // the page points they stand between.
         footLength.dimensions[0]!.value,
         headLength.dimensions[0]!.value,
-        nclose(footLength.dimensions[0]!.from!.y, headLength.dimensions[0]!.from!.y, 0),
+        nclose(
+          footLength.dimensions[0]!.from!.y,
+          headLength.dimensions[0]!.from!.y,
+          0,
+        ),
         footLength.digest === headLength.digest,
         splitBefore.digest === splitAfter.digest,
       ],
@@ -74,19 +86,25 @@ export function test02DrawingAnnotationIdentity(
   );
 
   // 10. Ids address entries, so one view cannot spend an id twice.
-  const twice: (overrides: Partial<Parameters<typeof drawingView>[0]>) => (() => unknown) = (
+  const twice: (
     overrides: Partial<Parameters<typeof drawingView>[0]>,
-  ): (() => unknown) => () : IAutoMovieDrawing =>
-    deriveAutoMovieDrawing({
-      environment,
-      view: drawingView({ id: "twice", ...overrides }),
-    });
-  const spec: { from: IAutoMovieDrawingFeature; to: IAutoMovieDrawingFeature; measure: "world"; } = {
+  ) => () => unknown =
+    (overrides: Partial<Parameters<typeof drawingView>[0]>): (() => unknown) =>
+    (): IAutoMovieDrawing =>
+      deriveAutoMovieDrawing({
+        environment,
+        view: drawingView({ id: "twice", ...overrides }),
+      });
+  const spec: {
+    from: IAutoMovieDrawingFeature;
+    to: IAutoMovieDrawingFeature;
+    measure: "world";
+  } = {
     from: feature({ kind: "vertex", index: 0 }),
     to: feature({ kind: "vertex", index: 4 }),
     measure: "world" as const,
   };
-  const note: { text: string; target: IAutoMovieDrawingFeature; } = {
+  const note: { text: string; target: IAutoMovieDrawingFeature } = {
     text: "repeated",
     target: feature({ kind: "vertex", index: 0 }),
   };
@@ -95,7 +113,7 @@ export function test02DrawingAnnotationIdentity(
     namedFacts([
       [
         "two dimensions with one id",
-        () : boolean =>
+        (): boolean =>
           throwsError(
             twice({
               dimensions: [
@@ -108,7 +126,7 @@ export function test02DrawingAnnotationIdentity(
       ],
       [
         "two notes with one id",
-        () : boolean =>
+        (): boolean =>
           throwsError(
             twice({
               annotations: [
@@ -121,7 +139,7 @@ export function test02DrawingAnnotationIdentity(
       ],
       [
         "a dimension and a note may share an id",
-        () : boolean =>
+        (): boolean =>
           !throwsError(
             twice({
               dimensions: [{ id: "shared", ...spec }],

@@ -6,7 +6,10 @@ export function tourSceneFixture(): {
   urls: string[];
   textures: THREE.Texture[];
   root: THREE.Group;
-  mesh: THREE.Mesh<THREE.BoxGeometry, (THREE.MeshStandardMaterial | THREE.MeshBasicMaterial)[]>;
+  mesh: THREE.Mesh<
+    THREE.BoxGeometry,
+    (THREE.MeshStandardMaterial | THREE.MeshBasicMaterial)[]
+  >;
   sky: THREE.DataTexture;
   renderer: Parameters<typeof loadTourScene>[1];
   dependencies: Parameters<typeof loadTourScene>[3];
@@ -15,15 +18,27 @@ export function tourSceneFixture(): {
   const urls: string[] = [];
   const textures: THREE.Texture[] = [];
   const root: THREE.Group = new THREE.Group();
-  const material: THREE.MeshStandardMaterial = new THREE.MeshStandardMaterial({ map: new THREE.Texture() });
-  const mesh: THREE.Mesh<THREE.BoxGeometry, (THREE.MeshStandardMaterial | THREE.MeshBasicMaterial)[]> = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), [
+  const material: THREE.MeshStandardMaterial = new THREE.MeshStandardMaterial({
+    map: new THREE.Texture(),
+  });
+  const mesh: THREE.Mesh<
+    THREE.BoxGeometry,
+    (THREE.MeshStandardMaterial | THREE.MeshBasicMaterial)[]
+  > = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), [
     material,
     new THREE.MeshBasicMaterial(),
   ]);
   mesh.customDepthMaterial = new THREE.MeshDepthMaterial();
   root.add(mesh, new THREE.PointLight());
-  const sky: THREE.DataTexture = new THREE.DataTexture(new Uint8Array([255, 255, 255, 255]), 1, 1);
-  const environment: THREE.WebGLRenderTarget = new THREE.WebGLRenderTarget(1, 1);
+  const sky: THREE.DataTexture = new THREE.DataTexture(
+    new Uint8Array([255, 255, 255, 255]),
+    1,
+    1,
+  );
+  const environment: THREE.WebGLRenderTarget = new THREE.WebGLRenderTarget(
+    1,
+    1,
+  );
   let extraDisposed: number = 0;
   const dependencies: Parameters<typeof loadTourScene>[3] = {
     load: async (url: string): Promise<THREE.Texture> => {
@@ -32,14 +47,20 @@ export function tourSceneFixture(): {
       textures.push(texture);
       return texture;
     },
-    createTempleDaylight: (): ReturnType<Parameters<typeof loadTourScene>[3]["createTempleDaylight"]> => ({
+    createTempleDaylight: (): ReturnType<
+      Parameters<typeof loadTourScene>[3]["createTempleDaylight"]
+    > => ({
       sky,
       hemisphere: new THREE.HemisphereLight(),
       sun: new THREE.DirectionalLight(),
     }),
-    uploadTemple: (): ReturnType<Parameters<typeof loadTourScene>[3]["uploadTemple"]> => ({ root }),
+    uploadTemple: (): ReturnType<
+      Parameters<typeof loadTourScene>[3]["uploadTemple"]
+    > => ({ root }),
     uploadHouse: (): THREE.Group => root,
-    daylight: (): ReturnType<Parameters<typeof loadTourScene>[3]["daylight"]> => ({
+    daylight: (): ReturnType<
+      Parameters<typeof loadTourScene>[3]["daylight"]
+    > => ({
       sky,
       environment,
       dispose: (): void => {

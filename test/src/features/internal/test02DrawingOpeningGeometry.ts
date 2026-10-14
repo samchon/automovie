@@ -11,7 +11,13 @@ import {
   deriveAutoMovieDrawingSchedule,
   triangulateAutoMoviePolygon,
 } from "@automovie/engine";
-import type { IAutoMovieBuiltEnvironment, IAutoMovieDrawingGap, IAutoMovieDrawingSchedule, IAutoMovieOpeningProfile, IAutoMoviePlanarPoint } from "@automovie/interface";
+import type {
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieDrawingGap,
+  IAutoMovieDrawingSchedule,
+  IAutoMovieOpeningProfile,
+  IAutoMoviePlanarPoint,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { drawingView } from "./drawingFixtures";
@@ -19,7 +25,9 @@ import { namedFacts, nclose, throwsError, vclose } from "./predicates";
 import { test12ValuesClose } from "./test12ValuesClose";
 
 /** Original opening-schedule scenarios 5 through 7 with unchanged authored geometry cases. */
-export function test02DrawingOpeningGeometry(environment: IAutoMovieBuiltEnvironment): void {
+export function test02DrawingOpeningGeometry(
+  environment: IAutoMovieBuiltEnvironment,
+): void {
   // 5. Connectors.
   const connectors: IAutoMovieDrawingSchedule = deriveAutoMovieDrawingSchedule({
     environment,
@@ -72,7 +80,10 @@ export function test02DrawingOpeningGeometry(environment: IAutoMovieBuiltEnviron
   );
   TestValidator.equals(
     "a connector schedule refuses to read a scheduled stair as a climbable one",
-    connectors.gaps.map((gap: IAutoMovieDrawingGap) : string[] => [gap.subject, gap.status]),
+    connectors.gaps.map((gap: IAutoMovieDrawingGap): string[] => [
+      gap.subject,
+      gap.status,
+    ]),
     [
       // `connector-location` used to sit here. A connector row now states the
       // regions its declared stops stand in, so there is no gap to declare.
@@ -88,35 +99,38 @@ export function test02DrawingOpeningGeometry(environment: IAutoMovieBuiltEnviron
     namedFacts([
       [
         "a rectangular void is 0.9 by 2.1 and 1.89 square metres",
-        () : boolean =>
+        (): boolean =>
           nclose(autoMovieOpeningExtent(door).width, 0.9, 0) &&
           nclose(autoMovieOpeningExtent(door).height, 2.1, 0) &&
           nclose(autoMovieOpeningArea(door), 1.89, 0),
       ],
       [
         "a circular void of radius 0.3 is 0.6 across and pi times 0.09 in area",
-        () : boolean =>
+        (): boolean =>
           nclose(autoMovieOpeningExtent(oculus).width, 0.6, 0) &&
           nclose(autoMovieOpeningArea(oculus), Math.PI * 0.09),
       ],
       [
         "a rectangle is drafted through its own four corners and no more",
-        () : boolean => autoMovieOpeningOutlinePoints(door).length === 4,
+        (): boolean => autoMovieOpeningOutlinePoints(door).length === 4,
       ],
       [
         "a half-turn arc is drafted as sixteen chords at the fixed density",
-        () : boolean => autoMovieOpeningOutlinePoints(oculus).length === 32,
+        (): boolean => autoMovieOpeningOutlinePoints(oculus).length === 32,
       ],
       [
         "the first arc leans to the left of its own edge, as the hull does",
-        () : boolean =>
+        (): boolean =>
           autoMovieOpeningOutlinePoints(oculus)
             .slice(1, 16)
-            .every((point: IAutoMoviePlanarPoint) : boolean => point.y > 2 && !nclose(point.y, 2)),
+            .every(
+              (point: IAutoMoviePlanarPoint): boolean =>
+                point.y > 2 && !nclose(point.y, 2),
+            ),
       ],
       [
         "an arc too shallow to need a chord is drafted as its own endpoints",
-        () : boolean =>
+        (): boolean =>
           autoMovieOpeningOutlinePoints({
             outline: [
               { x: 0, y: 0 },
@@ -128,7 +142,7 @@ export function test02DrawingOpeningGeometry(environment: IAutoMovieBuiltEnviron
       ],
       [
         "a zero-length edge carries no arc at all",
-        () : boolean =>
+        (): boolean =>
           autoMovieOpeningOutlinePoints({
             outline: [
               { x: 0, y: 0 },
@@ -140,14 +154,14 @@ export function test02DrawingOpeningGeometry(environment: IAutoMovieBuiltEnviron
       ],
       [
         "a profile that states no bulge and one that states only zeros are straight",
-        () : boolean =>
+        (): boolean =>
           autoMovieOpeningHasArc(door) === false &&
           autoMovieOpeningHasArc({ ...door, bulges: [0, 0, 0, 0] }) === false &&
           autoMovieOpeningHasArc(oculus) === true,
       ],
       [
         "an inward left bulge encloses less than the chord's own polygon",
-        () : boolean => {
+        (): boolean => {
           const area: number = autoMovieOpeningArea({
             outline: [
               { x: 0, y: 0 },
@@ -162,15 +176,23 @@ export function test02DrawingOpeningGeometry(environment: IAutoMovieBuiltEnviron
       ],
       [
         "a leaf lying on its side is described as the wide, thin thing it is",
-        () : boolean =>
-          nclose(autoMovieOpeningFillExtent([
-            { x: 0, y: 0, z: 0 },
-            { x: 2, y: 0.1, z: 0.5 },
-          ]).width, 2, 0) &&
-          nclose(autoMovieOpeningFillExtent([
-            { x: 0, y: 0, z: 0 },
-            { x: 2, y: 0.1, z: 0.5 },
-          ]).height, 0.1, 0),
+        (): boolean =>
+          nclose(
+            autoMovieOpeningFillExtent([
+              { x: 0, y: 0, z: 0 },
+              { x: 2, y: 0.1, z: 0.5 },
+            ]).width,
+            2,
+            0,
+          ) &&
+          nclose(
+            autoMovieOpeningFillExtent([
+              { x: 0, y: 0, z: 0 },
+              { x: 2, y: 0.1, z: 0.5 },
+            ]).height,
+            0.1,
+            0,
+          ),
       ],
     ]),
     {
@@ -189,12 +211,12 @@ export function test02DrawingOpeningGeometry(environment: IAutoMovieBuiltEnviron
   TestValidator.equals(
     "a drawing with an arced void says its linework is chorded",
     deriveAutoMovieDrawing({ environment, view: drawingView() }).gaps.find(
-      (gap: IAutoMovieDrawingGap) : boolean => gap.subject === "curved-linework",
+      (gap: IAutoMovieDrawingGap): boolean => gap.subject === "curved-linework",
     )?.status,
     "unsupported",
   );
 
-  const square: { x: number; y: number; }[] = [
+  const square: { x: number; y: number }[] = [
     { x: 0, y: 0 },
     { x: 2, y: 0 },
     { x: 2, y: 2 },
@@ -205,26 +227,28 @@ export function test02DrawingOpeningGeometry(environment: IAutoMovieBuiltEnviron
     namedFacts([
       [
         "a counter-clockwise square and its clockwise twin each yield twelve triangles",
-        () : boolean => {
-          const forward: IAutoMovieDrawingTriangle[] = autoMovieBoundaryShellTriangles({
-            origin: { x: 0, y: 0, z: 0 },
-            rotation: { x: 0, y: 0, z: 0, w: 1 },
-            outline: square,
-            thickness: 0.5,
-          });
-          const reversed: IAutoMovieDrawingTriangle[] = autoMovieBoundaryShellTriangles({
-            origin: { x: 0, y: 0, z: 0 },
-            rotation: { x: 0, y: 0, z: 0, w: 1 },
-            outline: [...square].reverse(),
-            thickness: 0.5,
-          });
+        (): boolean => {
+          const forward: IAutoMovieDrawingTriangle[] =
+            autoMovieBoundaryShellTriangles({
+              origin: { x: 0, y: 0, z: 0 },
+              rotation: { x: 0, y: 0, z: 0, w: 1 },
+              outline: square,
+              thickness: 0.5,
+            });
+          const reversed: IAutoMovieDrawingTriangle[] =
+            autoMovieBoundaryShellTriangles({
+              origin: { x: 0, y: 0, z: 0 },
+              rotation: { x: 0, y: 0, z: 0, w: 1 },
+              outline: [...square].reverse(),
+              thickness: 0.5,
+            });
           // Four side quads of two triangles, plus two caps of two each.
           return forward.length === 12 && reversed.length === 12;
         },
       ],
       [
         "a face point walks the frame's own outward normal by the depth asked for",
-        () : boolean =>
+        (): boolean =>
           vclose(
             autoMovieBoundaryFacePoint(
               {
@@ -253,7 +277,7 @@ export function test02DrawingOpeningGeometry(environment: IAutoMovieBuiltEnviron
       ],
       [
         "a triangle is already a triangulation",
-        () : boolean =>
+        (): boolean =>
           triangulateAutoMoviePolygon([
             { x: 0, y: 0 },
             { x: 1, y: 0 },
@@ -262,20 +286,21 @@ export function test02DrawingOpeningGeometry(environment: IAutoMovieBuiltEnviron
       ],
       [
         "a square is two triangles",
-        () : boolean => triangulateAutoMoviePolygon(square).length === 2,
+        (): boolean => triangulateAutoMoviePolygon(square).length === 2,
       ],
       [
         "fewer than three corners is refused, not returned as an empty face",
-        () : boolean =>
+        (): boolean =>
           throwsError(
-            () : [number, number, number][] => triangulateAutoMoviePolygon(square.slice(0, 2)),
+            (): [number, number, number][] =>
+              triangulateAutoMoviePolygon(square.slice(0, 2)),
             "a polygon needs at least 3 corners to triangulate, but had 2",
           ),
       ],
       [
         "a concave outline yields four triangles with summed area five",
-        () : boolean => {
-          const ell: { x: number; y: number; }[] = [
+        (): boolean => {
+          const ell: { x: number; y: number }[] = [
             { x: 0, y: 0 },
             { x: 3, y: 0 },
             { x: 3, y: 1 },
@@ -289,10 +314,13 @@ export function test02DrawingOpeningGeometry(environment: IAutoMovieBuiltEnviron
           // and the summed area is the L's own 5 square metres. This does not
           // separately check overlap or containment of every triangle.
           const area: number = triangles.reduce(
-            (sum: number, [first, second, third]: [number, number, number]) : number => {
-              const a: { x: number; y: number; } = ell[first]!;
-              const b: { x: number; y: number; } = ell[second]!;
-              const c: { x: number; y: number; } = ell[third]!;
+            (
+              sum: number,
+              [first, second, third]: [number, number, number],
+            ): number => {
+              const a: { x: number; y: number } = ell[first]!;
+              const b: { x: number; y: number } = ell[second]!;
+              const c: { x: number; y: number } = ell[third]!;
               return (
                 sum +
                 Math.abs(

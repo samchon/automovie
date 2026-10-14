@@ -1,4 +1,7 @@
-import { type IAutoMovieSoftBodyBoundarySample, simulateSoftBodyWithBoundaries } from "@automovie/engine";
+import {
+  type IAutoMovieSoftBodyBoundarySample,
+  simulateSoftBodyWithBoundaries,
+} from "@automovie/engine";
 import type { IAutoMovieSoftBodyDomain } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -10,9 +13,14 @@ import { TestValidator } from "@nestia/e2e";
  * @evidence contracts/testing.md#distinguishing-cases Keeps all three original orientations, rest coordinates, .25 radius and two absolute boundary rows in their original order; no new case or expected position is introduced.
  * @evidence contracts/testing.md#execution-ownership The main test lends the same mutable capsule-only domain, whose rest array is reassigned in the existing order for each case; returned state is local and no file/native/render host or foreign method is used.
  */
-export function wearableSoftBodyTestCapsuleEscape(capsuleOnly: IAutoMovieSoftBodyDomain): void {
+export function wearableSoftBodyTestCapsuleEscape(
+  capsuleOnly: IAutoMovieSoftBodyDomain,
+): void {
   /** Replay the original capsule-only object and preserve its sequential rest mutation. */
-  const capsuleEscape: (from: { x: number; y: number; z: number }, to: { x: number; y: number; z: number }) => number[] = (
+  const capsuleEscape: (
+    from: { x: number; y: number; z: number },
+    to: { x: number; y: number; z: number },
+  ) => number[] = (
     from: { x: number; y: number; z: number },
     to: { x: number; y: number; z: number },
   ): number[] => {

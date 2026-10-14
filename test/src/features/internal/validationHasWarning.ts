@@ -1,7 +1,11 @@
-import { type AutoMovieViolationKind, type IAutoMovieValidation } from "@automovie/interface";
+import {
+  type AutoMovieViolationKind,
+  type IAutoMovieValidation,
+} from "@automovie/interface";
 
-import { reportValidation } from "./reportValidation";
 import { hasWarning } from "./hasWarning";
+import { reportValidation } from "./reportValidation";
+
 /** Preserve the complete observed validation when an expected warning is absent. */
 export function validationHasWarning(
   context: string,

@@ -1,6 +1,7 @@
 import { type IAutoMovieValidation } from "@automovie/interface";
 
 import { reportValidation } from "./reportValidation";
+
 /** Preserve validation evidence when its warning count differs from the expectation. */
 export function validationHasWarningCount(
   context: string,

@@ -1,5 +1,10 @@
-import type { AutoMovieExternalMotionAdoptionDecision, IAutoMovieExternalMotionNativeDecision, IAutoMovieExternalMotionRetargetDecision } from "@automovie/ingest";
+import type {
+  AutoMovieExternalMotionAdoptionDecision,
+  IAutoMovieExternalMotionNativeDecision,
+  IAutoMovieExternalMotionRetargetDecision,
+} from "@automovie/ingest";
 import type { IAutoMovieSkeleton } from "@automovie/interface";
+
 import { test12MotionInspect } from "./test12MotionInspect";
 
 /**
@@ -27,8 +32,15 @@ export interface ITest12MotionAdoptionContext {
   retargetDecision: IAutoMovieExternalMotionRetargetDecision;
 
   /** Invoke actual adoption and observe the requested source/decision refusal. */
-  rejectsAdoption: (source: ITest12MotionAdoptionContext["source"], decision: AutoMovieExternalMotionAdoptionDecision, message: string) => boolean;
+  rejectsAdoption: (
+    source: ITest12MotionAdoptionContext["source"],
+    decision: AutoMovieExternalMotionAdoptionDecision,
+    message: string,
+  ) => boolean;
 
   /** Invoke the owning test's retarget refusal observer with the shared source. */
-  rejectsRetarget: (decision: IAutoMovieExternalMotionRetargetDecision, message: string) => boolean;
+  rejectsRetarget: (
+    decision: IAutoMovieExternalMotionRetargetDecision,
+    message: string,
+  ) => boolean;
 }

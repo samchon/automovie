@@ -1,16 +1,13 @@
 import type { IAutoMovieActionSynthesizer } from "../../../../packages/engine/src/perform/IAutoMovieActionSynthesizer";
-
-import { joint, keyframe, makeMotion, makePose } from "./fixtures";
-
 import { FIXTURE_BONE } from "./FIXTURE_BONE";
-
 import { fixtureRegionDrivesBone } from "./fixtureRegionDrivesBone";
+import { joint, keyframe, makeMotion, makePose } from "./fixtures";
 
 /**
  * The existing film assembly fixture synthesizer emits one-second 0-to-120-degree elbow keys when the action owns that region and otherwise joint-empty keys. It retains the three-argument synthesizer contract while using only action, assumes the canonical fixture rig and delegates retiming/masking/admission to the real pipeline.
  */
 export const validSynthesizer: IAutoMovieActionSynthesizer = (
-  action: Parameters<IAutoMovieActionSynthesizer>[0]
+  action: Parameters<IAutoMovieActionSynthesizer>[0],
 ): ReturnType<IAutoMovieActionSynthesizer> => {
   return makeMotion(
     fixtureRegionDrivesBone(action)

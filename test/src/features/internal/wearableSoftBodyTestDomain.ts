@@ -10,45 +10,45 @@ import type { IAutoMovieSoftBodyDomain } from "@automovie/interface";
  * Each call transfers fresh domain records to its caller and acquires no file, actor host, solver result cache or foreign resource.
  */
 export function wearableSoftBodyTestDomain(): IAutoMovieSoftBodyDomain {
-  return ({
-  version: 1,
-  id: "cape",
-  units: "meter",
-  lattice: { columns: 1, rows: 2 },
-  solver: {
-    fixedStepSeconds: 0.125,
-    gravity: { x: 0, y: 0, z: 0 },
-    drag: 0,
-    iterations: 1,
-    stiffness: { structural: 0, shear: 0, bend: 0 },
-    referenceSpeed: 1,
-    maxSteps: 4,
-  },
-  rest: [0, 1, 0, 0, 0.5, 0],
-  mass: [1, 1],
-  anchors: [
-    {
-      id: "shoulder",
-      particle: 0,
-      position: null,
-      binding: {
-        kind: "actor-bone",
-        actor: "actor",
-        bone: "leftShoulder",
-        offset: { x: 0, y: 0, z: 0 },
+  return {
+    version: 1,
+    id: "cape",
+    units: "meter",
+    lattice: { columns: 1, rows: 2 },
+    solver: {
+      fixedStepSeconds: 0.125,
+      gravity: { x: 0, y: 0, z: 0 },
+      drag: 0,
+      iterations: 1,
+      stiffness: { structural: 0, shear: 0, bend: 0 },
+      referenceSpeed: 1,
+      maxSteps: 4,
+    },
+    rest: [0, 1, 0, 0, 0.5, 0],
+    mass: [1, 1],
+    anchors: [
+      {
+        id: "shoulder",
+        particle: 0,
+        position: null,
+        binding: {
+          kind: "actor-bone",
+          actor: "actor",
+          bone: "leftShoulder",
+          offset: { x: 0, y: 0, z: 0 },
+        },
       },
-    },
-  ],
-  states: [],
-  colliders: [
-    {
-      kind: "body-capsule",
-      id: "torso",
-      actor: "actor",
-      capsule: { from: "hips", to: "head", radius: 0.25 },
-    },
-  ],
-  wind: null,
-  selfCollision: false,
-});
+    ],
+    states: [],
+    colliders: [
+      {
+        kind: "body-capsule",
+        id: "torso",
+        actor: "actor",
+        capsule: { from: "hips", to: "head", radius: 0.25 },
+      },
+    ],
+    wind: null,
+    selfCollision: false,
+  };
 }
