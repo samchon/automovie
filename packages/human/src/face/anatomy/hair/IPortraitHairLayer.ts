@@ -16,6 +16,7 @@ import { IPortraitHairShape } from "./IPortraitHairShape";
 export interface IPortraitHairLayer {
   /** Nonblank identity, unique among additional layers, including empty ones. */
   id: string;
+
   /** Complete guide and finish profile; empty cards emit neither mesh nor material. */
   profile: IPortraitHairShape;
 }

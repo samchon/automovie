@@ -14,8 +14,10 @@
 export interface IPortraitHairCard {
   /** Two through 32 ordered root-to-tip centreline witnesses, in mm. */
   guide: readonly (readonly [number, number, number])[];
+
   /** Width directions paired with guide stations, independent of view direction. */
   across: readonly (readonly [number, number, number])[];
+
   /** Positive full root width in mm, no greater than 40. */
   width: number;
 }
