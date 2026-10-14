@@ -1,3 +1,4 @@
+import { test12ValuesClose } from "../internal/test12ValuesClose";
 import { ingestDocument } from "@automovie/ingest";
 import { IAutoMovieNode } from "@automovie/interface";
 import { Document } from "@gltf-transform/core";
@@ -5,131 +6,115 @@ import { TestValidator } from "@nestia/e2e";
 
 import { nclose, throwsError } from "../internal/predicates";
 
-const byName = (nodes: IAutoMovieNode[], name: string): IAutoMovieNode => {
-  const n = nodes.find((x) => x.name === name);
+const byName: (nodes: IAutoMovieNode[], name: string) => IAutoMovieNode = (nodes: IAutoMovieNode[], name: string): IAutoMovieNode => {
+  const n: IAutoMovieNode | undefined = nodes.find((x: IAutoMovieNode): boolean => x.name === name);
   if (n === undefined) throw new Error(`node "${name}" missing`);
   return n;
 };
 
-const makeAnimatedDoc = () => {
-  const doc = new Document();
-  const node = doc.createNode("target");
+const makeAnimatedDoc: () => { doc: Document; node: import("@gltf-transform/core").Node; time: import("@gltf-transform/core").Accessor; values: import("@gltf-transform/core").Accessor; sampler: import("@gltf-transform/core").AnimationSampler; channel: import("@gltf-transform/core").AnimationChannel; } = (): { doc: Document; node: import("@gltf-transform/core").Node; time: import("@gltf-transform/core").Accessor; values: import("@gltf-transform/core").Accessor; sampler: import("@gltf-transform/core").AnimationSampler; channel: import("@gltf-transform/core").AnimationChannel; } => {
+  const doc: Document = new Document();
+  const node: import("@gltf-transform/core").Node = doc.createNode("target");
   doc.createScene().addChild(node);
-  const time = doc
+  const time: import("@gltf-transform/core").Accessor = doc
     .createAccessor()
     .setType("SCALAR")
     .setArray(new Float32Array([0, 1]));
-  const values = doc
+  const values: import("@gltf-transform/core").Accessor = doc
     .createAccessor()
     .setType("VEC3")
     .setArray(new Float32Array([0, 0, 0, 1, 1, 1]));
-  const sampler = doc.createAnimationSampler();
-  const channel = doc.createAnimationChannel().setTargetPath("translation");
+  const sampler: import("@gltf-transform/core").AnimationSampler = doc.createAnimationSampler();
+  const channel: import("@gltf-transform/core").AnimationChannel = doc.createAnimationChannel().setTargetPath("translation");
   doc.createAnimation("bad").addSampler(sampler).addChannel(channel);
   return { doc, node, time, values, sampler, channel };
 };
 
 /**
- * Ingest a hand-built glTF {@link Document} into the core node graph + clips,
- * exercising every node kind, every cross-reference, and every interpolation
- * mode the structural mapper distinguishes.
+ * Ingest a hand-built glTF {@link Document} into the core node graph + clips, exercising every node kind, every cross-reference, and every interpolation mode the structural mapper distinguishes.
  *
- * The document: a `root` group with a `meshNode` (mesh) and `camNode` (camera)
- * child, plus a `bone` (skin joint), a `skinned` mesh+skin node, and an unnamed
- * node, all under the scene. One named animation drives three channels
- * (translation LINEAR, rotation STEP, scale CUBICSPLINE) and a second, unnamed,
- * empty animation.
+ * The document: a `root` group with a `meshNode` (mesh) and `camNode` (camera) child, plus a `bone` (skin joint), a `skinned` mesh+skin node, and an unnamed node, all under the scene. One named animation drives three channels (translation LINEAR, rotation STEP, scale CUBICSPLINE) and a second, unnamed, empty animation.
  *
  * Scenarios:
  *
- * 1. Every glTF node maps to a core node (six in, six out); each keeps a stable
- *    index id and resolves its `parent` by reference (the mesh/camera nodes
- *    name `root`; `root` and the scene-level nodes are parentless).
- * 2. Kind inference covers all four reachable kinds: a skin joint → `bone` (even
- *    though a mesh would otherwise win), a mesh node → `mesh`, a camera node →
- *    `camera`, everything else → `group`.
- * 3. The mesh / camera / skin id fields are populated when present and `null` when
- *    absent; an unnamed glTF node yields `name: null`; TRS is carried through
- *    verbatim.
- * 4. Each glTF animation becomes a clip; its channels become tracks whose channel
- *    targets the node by id with the right path, and whose interpolation maps
- *    LINEAR→linear, STEP→step, CUBICSPLINE→cubicspline. Clip duration is the
- *    latest keyframe time; the empty unnamed animation yields a null-named,
- *    zero-duration, trackless clip.
- * 5. A channel the sample pass could not replay is refused by its fault: a
- *    missing target, sampler, input or output, empty data, an output length
- *    off the path's arity, no target path, an interpolation outside glTF's
- *    three, keyframe times that do not strictly increase, and a non-finite
- *    output value.
- * 6. A normalized 16-bit rotation output decodes to the unit quaternion it
- *    means rather than its raw integers.
+ * 1. Every glTF node maps to a core node (six in, six out); each keeps a stable index id and resolves its `parent` by reference (the mesh/camera nodes name `root`; `root` and the scene-level nodes are parentless).
+ * 2. Kind inference covers all four reachable kinds: a skin joint → `bone` (even though a mesh would otherwise win), a mesh node → `mesh`, a camera node → `camera`, everything else → `group`.
+ * 3. The mesh / camera / skin id fields are populated when present and `null` when absent; an unnamed glTF node yields `name: null`; TRS is carried through verbatim.
+ * 4. Each glTF animation becomes a clip; its channels become tracks whose channel targets the node by id with the right path, and whose interpolation maps LINEAR→linear, STEP→step, CUBICSPLINE→cubicspline. Clip duration is the latest keyframe time; the empty unnamed animation yields a null-named, zero-duration, trackless clip.
+ * 5. A channel the sample pass could not replay is refused by its fault: a missing target, sampler, input or output, empty data, an output length off the path's arity, no target path, an interpolation outside glTF's three, keyframe times that do not strictly increase, and a non-finite output value.
+ * 6. A normalized 16-bit rotation output decodes to the unit quaternion it means rather than its raw integers.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls Document ingestion and observes node references, kind precedence, channel interpolation and decoded samples, then checks field-specific refusals for unreplayable channels.
+ * @evidence contracts/testing.md#independent-expectations The authored node graph and accessor values define ids, parent links, interpolation vocabulary and sample arity independently; normalized signed integers define exact decoded zero/one quaternion components.
+ * @evidence contracts/testing.md#distinguishing-cases All four reachable node kinds, named/unnamed and empty clips, translation/rotation/scale/weights, missing channel storage, empty arrays, wrong arity, absent path, unknown interpolation, backward times and nonfinite values are retained; raw container/profile admission belongs to byte-inspector units.
+ * @evidence contracts/testing.md#execution-ownership The discoverable test_ingest_document entry owns these synchronous portable ingestion cases and registered local facts; resident Document or byte fixtures require no external files, host process, editor or GPU.
  */
-export const test_ingest_document = (): void => {
-  const doc = new Document();
-  const scene = doc.createScene();
+export function test_ingest_document(): void {
+  const doc: Document = new Document();
+  const scene: import("@gltf-transform/core").Scene = doc.createScene();
 
-  const mesh = doc.createMesh("m");
-  const cam = doc.createCamera("c").setType("perspective");
+  const mesh: import("@gltf-transform/core").Mesh = doc.createMesh("m");
+  const cam: import("@gltf-transform/core").Camera = doc.createCamera("c").setType("perspective");
 
-  const meshNode = doc
+  const meshNode: import("@gltf-transform/core").Node = doc
     .createNode("meshNode")
     .setMesh(mesh)
     .setTranslation([1, 2, 3]);
-  const camNode = doc.createNode("camNode").setCamera(cam);
-  const bone = doc.createNode("bone");
-  const skin = doc.createSkin("skin").addJoint(bone);
-  const skinned = doc.createNode("skinned").setMesh(mesh).setSkin(skin);
-  const unnamed = doc.createNode();
-  const root = doc.createNode("root").addChild(meshNode).addChild(camNode);
+  const camNode: import("@gltf-transform/core").Node = doc.createNode("camNode").setCamera(cam);
+  const bone: import("@gltf-transform/core").Node = doc.createNode("bone").setMesh(mesh);
+  const skin: import("@gltf-transform/core").Skin = doc.createSkin("skin").addJoint(bone);
+  const skinned: import("@gltf-transform/core").Node = doc.createNode("skinned").setMesh(mesh).setSkin(skin);
+  const unnamed: import("@gltf-transform/core").Node = doc.createNode();
+  const root: import("@gltf-transform/core").Node = doc.createNode("root").addChild(meshNode).addChild(camNode);
   scene.addChild(root);
   scene.addChild(bone);
   scene.addChild(skinned);
   scene.addChild(unnamed);
 
   // animation: T linear, R step, S cubicspline
-  const time = doc
+  const time: import("@gltf-transform/core").Accessor = doc
     .createAccessor()
     .setType("SCALAR")
     .setArray(new Float32Array([0, 1]));
-  const trans = doc
+  const trans: import("@gltf-transform/core").Accessor = doc
     .createAccessor()
     .setType("VEC3")
     .setArray(new Float32Array([0, 0, 0, 10, 0, 0]));
-  const rot = doc
+  const rot: import("@gltf-transform/core").Accessor = doc
     .createAccessor()
     .setType("VEC4")
     .setArray(new Float32Array([0, 0, 0, 1, 0, 0, 0, 1]));
-  const scl = doc
+  const scl: import("@gltf-transform/core").Accessor = doc
     .createAccessor()
     .setType("VEC3")
     .setArray(new Float32Array(new Array(18).fill(1)));
 
-  const sT = doc
+  const sT: import("@gltf-transform/core").AnimationSampler = doc
     .createAnimationSampler()
     .setInput(time)
     .setOutput(trans)
     .setInterpolation("LINEAR");
-  const sR = doc
+  const sR: import("@gltf-transform/core").AnimationSampler = doc
     .createAnimationSampler()
     .setInput(time)
     .setOutput(rot)
     .setInterpolation("STEP");
-  const sS = doc
+  const sS: import("@gltf-transform/core").AnimationSampler = doc
     .createAnimationSampler()
     .setInput(time)
     .setOutput(scl)
     .setInterpolation("CUBICSPLINE");
-  const cT = doc
+  const cT: import("@gltf-transform/core").AnimationChannel = doc
     .createAnimationChannel()
     .setTargetNode(meshNode)
     .setTargetPath("translation")
     .setSampler(sT);
-  const cR = doc
+  const cR: import("@gltf-transform/core").AnimationChannel = doc
     .createAnimationChannel()
     .setTargetNode(meshNode)
     .setTargetPath("rotation")
     .setSampler(sR);
-  const cS = doc
+  const cS: import("@gltf-transform/core").AnimationChannel = doc
     .createAnimationChannel()
     .setTargetNode(meshNode)
     .setTargetPath("scale")
@@ -144,98 +129,50 @@ export const test_ingest_document = (): void => {
     .addChannel(cS);
   doc.createAnimation(); // unnamed, empty
 
-  const { nodes, clips } = ingestDocument(doc);
+  const { nodes, clips }: import("../../../../packages/ingest/src/IAutoMovieIngestResult").IAutoMovieIngestResult = ingestDocument(doc);
 
   // 1. node count + parent references
-  TestValidator.equals("node count", nodes.length, 6);
-  const rootId = byName(nodes, "root").id;
-  TestValidator.equals(
-    "mesh node parents root",
-    byName(nodes, "meshNode").parent,
-    rootId,
-  );
-  TestValidator.equals(
-    "camera node parents root",
-    byName(nodes, "camNode").parent,
-    rootId,
-  );
-  TestValidator.equals(
-    "root is parentless",
-    byName(nodes, "root").parent,
-    null,
-  );
+  TestValidator.predicate("node count", test12ValuesClose(nodes.length, 6));
+  const rootId: string = byName(nodes, "root").id;
+  TestValidator.predicate("mesh node parents root", test12ValuesClose(byName(nodes, "meshNode").parent, rootId));
+  TestValidator.predicate("camera node parents root", test12ValuesClose(byName(nodes, "camNode").parent, rootId));
+  TestValidator.predicate("root is parentless", test12ValuesClose(byName(nodes, "root").parent, null));
 
   // 2. kind inference (all four)
-  TestValidator.equals("joint is bone", byName(nodes, "bone").kind, "bone");
-  TestValidator.equals(
-    "mesh node is mesh",
-    byName(nodes, "meshNode").kind,
-    "mesh",
-  );
-  TestValidator.equals(
-    "camera node is camera",
-    byName(nodes, "camNode").kind,
-    "camera",
-  );
-  TestValidator.equals("root is group", byName(nodes, "root").kind, "group");
+  TestValidator.predicate("joint is bone", test12ValuesClose(byName(nodes, "bone").kind, "bone"));
+  TestValidator.predicate("mesh node is mesh", test12ValuesClose(byName(nodes, "meshNode").kind, "mesh"));
+  TestValidator.predicate("camera node is camera", test12ValuesClose(byName(nodes, "camNode").kind, "camera"));
+  TestValidator.predicate("root is group", test12ValuesClose(byName(nodes, "root").kind, "group"));
 
   // 3. payload ids, unnamed → null, TRS carried
-  const mn = byName(nodes, "meshNode");
-  TestValidator.equals("mesh id present", mn.mesh !== null, true);
-  TestValidator.equals("mesh node has no camera", mn.camera, null);
-  TestValidator.equals("mesh node has no skin", mn.skin, null);
-  TestValidator.equals(
-    "camera id present",
-    byName(nodes, "camNode").camera !== null,
-    true,
-  );
-  TestValidator.equals(
-    "skinned has skin id",
-    byName(nodes, "skinned").skin !== null,
-    true,
-  );
-  TestValidator.equals(
-    "unnamed node name is null",
-    nodes.find((n) => n.name === null) !== undefined,
-    true,
-  );
+  const mn: IAutoMovieNode = byName(nodes, "meshNode");
+  TestValidator.predicate("mesh id present", test12ValuesClose(mn.mesh !== null, true));
+  TestValidator.predicate("mesh node has no camera", test12ValuesClose(mn.camera, null));
+  TestValidator.predicate("mesh node has no skin", test12ValuesClose(mn.skin, null));
+  TestValidator.predicate("camera id present", test12ValuesClose(byName(nodes, "camNode").camera !== null, true));
+  TestValidator.predicate("skinned has skin id", test12ValuesClose(byName(nodes, "skinned").skin !== null, true));
+  TestValidator.predicate("unnamed node name is null", test12ValuesClose(nodes.find((n: IAutoMovieNode): boolean => n.name === null) !== undefined, true));
   TestValidator.predicate(
     "translation carried",
     nclose(mn.transform.translation.x, 1),
   );
 
   // 4. clips, tracks, interpolation mapping, duration
-  TestValidator.equals("clip count", clips.length, 2);
-  const walk = clips.find((c) => c.name === "walk")!;
-  TestValidator.equals("walk track count", walk.tracks.length, 3);
+  TestValidator.predicate("clip count", test12ValuesClose(clips.length, 2));
+  const walk: import("@automovie/interface").IAutoMovieClip = clips.find((c: import("@automovie/interface").IAutoMovieClip): boolean => c.name === "walk")!;
+  TestValidator.predicate("walk track count", test12ValuesClose(walk.tracks.length, 3));
   TestValidator.predicate("walk duration", nclose(walk.duration, 1));
-  const path = (p: string) =>
-    walk.tracks.find((t) => t.channel.kind === "node" && t.channel.path === p)!;
-  TestValidator.equals(
-    "translation linear",
-    path("translation").interpolation,
-    "linear",
-  );
-  TestValidator.equals("rotation step", path("rotation").interpolation, "step");
-  TestValidator.equals(
-    "scale cubicspline",
-    path("scale").interpolation,
-    "cubicspline",
-  );
-  const translationChannel = path("translation").channel;
-  TestValidator.equals(
-    "track targets node by id",
-    translationChannel.kind === "node" && translationChannel.node,
-    mn.id,
-  );
-  TestValidator.equals(
-    "translation values",
-    path("translation").values,
-    [0, 0, 0, 10, 0, 0],
-  );
+  const path: (p: string) => import("@automovie/interface").IAutoMovieTrack = (p: string): import("@automovie/interface").IAutoMovieTrack =>
+    walk.tracks.find((t: import("@automovie/interface").IAutoMovieTrack): boolean => t.channel.kind === "node" && t.channel.path === p)!;
+  TestValidator.predicate("translation linear", test12ValuesClose(path("translation").interpolation, "linear"));
+  TestValidator.predicate("rotation step", test12ValuesClose(path("rotation").interpolation, "step"));
+  TestValidator.predicate("scale cubicspline", test12ValuesClose(path("scale").interpolation, "cubicspline"));
+  const translationChannel: import("@automovie/interface").IAutoMovieChannel = path("translation").channel;
+  TestValidator.predicate("track targets node by id", test12ValuesClose(translationChannel.kind === "node" && translationChannel.node, mn.id));
+  TestValidator.predicate("translation values", test12ValuesClose(path("translation").values, [0, 0, 0, 10, 0, 0]));
 
-  const weightsDoc = makeAnimatedDoc();
-  const weightValues = weightsDoc.doc
+  const weightsDoc: ReturnType<typeof makeAnimatedDoc> = makeAnimatedDoc();
+  const weightValues: import("@gltf-transform/core").Accessor = weightsDoc.doc
     .createAccessor()
     .setType("SCALAR")
     .setArray(new Float32Array([0, 0.5, 1, 0.25]));
@@ -244,19 +181,15 @@ export const test_ingest_document = (): void => {
     .setTargetNode(weightsDoc.node)
     .setTargetPath("weights")
     .setSampler(weightsDoc.sampler);
-  const weightsClip = ingestDocument(weightsDoc.doc).clips[0]!;
-  TestValidator.equals("weights track count", weightsClip.tracks.length, 1);
-  TestValidator.equals(
-    "weights values keep per-key width",
-    weightsClip.tracks[0]!.values,
-    [0, 0.5, 1, 0.25],
-  );
+  const weightsClip: import("@automovie/interface").IAutoMovieClip = ingestDocument(weightsDoc.doc).clips[0]!;
+  TestValidator.predicate("weights track count", test12ValuesClose(weightsClip.tracks.length, 1));
+  TestValidator.predicate("weights values keep per-key width", test12ValuesClose(weightsClip.tracks[0]!.values, [0, 0.5, 1, 0.25]));
 
-  const empty = clips.find((c) => c.name === null)!;
-  TestValidator.equals("empty clip has no tracks", empty.tracks.length, 0);
-  TestValidator.equals("empty clip zero duration", empty.duration, 0);
+  const empty: import("@automovie/interface").IAutoMovieClip = clips.find((c: import("@automovie/interface").IAutoMovieClip): boolean => c.name === null)!;
+  TestValidator.predicate("empty clip has no tracks", test12ValuesClose(empty.tracks.length, 0));
+  TestValidator.predicate("empty clip zero duration", test12ValuesClose(empty.duration, 0));
 
-  const missingTarget = makeAnimatedDoc();
+  const missingTarget: ReturnType<typeof makeAnimatedDoc> = makeAnimatedDoc();
   missingTarget.sampler
     .setInput(missingTarget.time)
     .setOutput(missingTarget.values);
@@ -264,22 +197,22 @@ export const test_ingest_document = (): void => {
   TestValidator.predicate(
     "animation channel without target rejects",
     throwsError(
-      () => ingestDocument(missingTarget.doc),
+      (): import("../../../../packages/ingest/src/IAutoMovieIngestResult").IAutoMovieIngestResult => ingestDocument(missingTarget.doc),
       "animation channel must target a node",
     ),
   );
 
-  const missingSampler = makeAnimatedDoc();
+  const missingSampler: ReturnType<typeof makeAnimatedDoc> = makeAnimatedDoc();
   missingSampler.channel.setTargetNode(missingSampler.node);
   TestValidator.predicate(
     "animation channel without sampler rejects",
     throwsError(
-      () => ingestDocument(missingSampler.doc),
+      (): import("../../../../packages/ingest/src/IAutoMovieIngestResult").IAutoMovieIngestResult => ingestDocument(missingSampler.doc),
       'animation channel for node "node_0" must have a sampler',
     ),
   );
 
-  const missingInput = makeAnimatedDoc();
+  const missingInput: ReturnType<typeof makeAnimatedDoc> = makeAnimatedDoc();
   missingInput.sampler.setOutput(missingInput.values);
   missingInput.channel
     .setTargetNode(missingInput.node)
@@ -287,12 +220,12 @@ export const test_ingest_document = (): void => {
   TestValidator.predicate(
     "animation sampler without input rejects",
     throwsError(
-      () => ingestDocument(missingInput.doc),
+      (): import("../../../../packages/ingest/src/IAutoMovieIngestResult").IAutoMovieIngestResult => ingestDocument(missingInput.doc),
       'animation channel for node "node_0" must have input times',
     ),
   );
 
-  const missingOutput = makeAnimatedDoc();
+  const missingOutput: ReturnType<typeof makeAnimatedDoc> = makeAnimatedDoc();
   missingOutput.sampler.setInput(missingOutput.time);
   missingOutput.channel
     .setTargetNode(missingOutput.node)
@@ -300,12 +233,12 @@ export const test_ingest_document = (): void => {
   TestValidator.predicate(
     "animation sampler without output rejects",
     throwsError(
-      () => ingestDocument(missingOutput.doc),
+      (): import("../../../../packages/ingest/src/IAutoMovieIngestResult").IAutoMovieIngestResult => ingestDocument(missingOutput.doc),
       'animation channel for node "node_0" must have output values',
     ),
   );
 
-  const emptyInput = makeAnimatedDoc();
+  const emptyInput: ReturnType<typeof makeAnimatedDoc> = makeAnimatedDoc();
   emptyInput.sampler
     .setInput(emptyInput.doc.createAccessor().setType("SCALAR"))
     .setOutput(emptyInput.values);
@@ -315,12 +248,12 @@ export const test_ingest_document = (): void => {
   TestValidator.predicate(
     "animation input accessor without data rejects",
     throwsError(
-      () => ingestDocument(emptyInput.doc),
+      (): import("../../../../packages/ingest/src/IAutoMovieIngestResult").IAutoMovieIngestResult => ingestDocument(emptyInput.doc),
       'animation channel for node "node_0" input times must have data',
     ),
   );
 
-  const emptyOutput = makeAnimatedDoc();
+  const emptyOutput: ReturnType<typeof makeAnimatedDoc> = makeAnimatedDoc();
   emptyOutput.sampler
     .setInput(emptyOutput.time)
     .setOutput(emptyOutput.doc.createAccessor().setType("VEC3"));
@@ -330,12 +263,12 @@ export const test_ingest_document = (): void => {
   TestValidator.predicate(
     "animation output accessor without data rejects",
     throwsError(
-      () => ingestDocument(emptyOutput.doc),
+      (): import("../../../../packages/ingest/src/IAutoMovieIngestResult").IAutoMovieIngestResult => ingestDocument(emptyOutput.doc),
       'animation channel for node "node_0" output values must have data',
     ),
   );
 
-  const emptyInputArray = makeAnimatedDoc();
+  const emptyInputArray: ReturnType<typeof makeAnimatedDoc> = makeAnimatedDoc();
   emptyInputArray.sampler
     .setInput(
       emptyInputArray.doc
@@ -350,12 +283,12 @@ export const test_ingest_document = (): void => {
   TestValidator.predicate(
     "animation input accessor with empty data rejects",
     throwsError(
-      () => ingestDocument(emptyInputArray.doc),
+      (): import("../../../../packages/ingest/src/IAutoMovieIngestResult").IAutoMovieIngestResult => ingestDocument(emptyInputArray.doc),
       'animation channel for node "node_0" input times must not be empty',
     ),
   );
 
-  const emptyOutputArray = makeAnimatedDoc();
+  const emptyOutputArray: ReturnType<typeof makeAnimatedDoc> = makeAnimatedDoc();
   emptyOutputArray.sampler
     .setInput(emptyOutputArray.time)
     .setOutput(
@@ -370,12 +303,12 @@ export const test_ingest_document = (): void => {
   TestValidator.predicate(
     "animation output accessor with empty data rejects",
     throwsError(
-      () => ingestDocument(emptyOutputArray.doc),
+      (): import("../../../../packages/ingest/src/IAutoMovieIngestResult").IAutoMovieIngestResult => ingestDocument(emptyOutputArray.doc),
       'animation channel for node "node_0" output values must not be empty',
     ),
   );
 
-  const shortTranslationOutput = makeAnimatedDoc();
+  const shortTranslationOutput: ReturnType<typeof makeAnimatedDoc> = makeAnimatedDoc();
   shortTranslationOutput.sampler
     .setInput(shortTranslationOutput.time)
     .setOutput(
@@ -390,12 +323,12 @@ export const test_ingest_document = (): void => {
   TestValidator.predicate(
     "translation output arity rejects",
     throwsError(
-      () => ingestDocument(shortTranslationOutput.doc),
+      (): import("../../../../packages/ingest/src/IAutoMovieIngestResult").IAutoMovieIngestResult => ingestDocument(shortTranslationOutput.doc),
       ["translation output values length", "6", "5"],
     ),
   );
 
-  const shortCubicOutput = makeAnimatedDoc();
+  const shortCubicOutput: ReturnType<typeof makeAnimatedDoc> = makeAnimatedDoc();
   shortCubicOutput.sampler
     .setInput(shortCubicOutput.time)
     .setOutput(
@@ -412,12 +345,12 @@ export const test_ingest_document = (): void => {
   TestValidator.predicate(
     "cubic output arity rejects",
     throwsError(
-      () => ingestDocument(shortCubicOutput.doc),
+      (): import("../../../../packages/ingest/src/IAutoMovieIngestResult").IAutoMovieIngestResult => ingestDocument(shortCubicOutput.doc),
       ["scale output values length", "18", "6"],
     ),
   );
 
-  const unevenWeightsOutput = makeAnimatedDoc();
+  const unevenWeightsOutput: ReturnType<typeof makeAnimatedDoc> = makeAnimatedDoc();
   unevenWeightsOutput.sampler.setInput(unevenWeightsOutput.time).setOutput(
     unevenWeightsOutput.doc
       .createAccessor()
@@ -431,12 +364,12 @@ export const test_ingest_document = (): void => {
   TestValidator.predicate(
     "weights output arity rejects",
     throwsError(
-      () => ingestDocument(unevenWeightsOutput.doc),
+      (): import("../../../../packages/ingest/src/IAutoMovieIngestResult").IAutoMovieIngestResult => ingestDocument(unevenWeightsOutput.doc),
       ["weights output values length", "multiple of 2", "3"],
     ),
   );
 
-  const replayable = (): ReturnType<typeof makeAnimatedDoc> => {
+  const replayable: () => ReturnType<typeof makeAnimatedDoc> = (): ReturnType<typeof makeAnimatedDoc> => {
     const fixture: ReturnType<typeof makeAnimatedDoc> = makeAnimatedDoc();
     fixture.sampler.setInput(fixture.time).setOutput(fixture.values);
     fixture.channel.setTargetNode(fixture.node).setSampler(fixture.sampler);
@@ -448,7 +381,7 @@ export const test_ingest_document = (): void => {
   TestValidator.predicate(
     "animation channel without a target path rejects",
     throwsError(
-      () => ingestDocument(noPath.doc),
+      (): import("../../../../packages/ingest/src/IAutoMovieIngestResult").IAutoMovieIngestResult => ingestDocument(noPath.doc),
       'animation channel for node "node_0" target path must be translation, rotation, scale, or weights, but was null',
     ),
   );
@@ -461,7 +394,7 @@ export const test_ingest_document = (): void => {
   TestValidator.predicate(
     "unknown interpolation rejects instead of reading as linear",
     throwsError(
-      () => ingestDocument(unknownInterpolation.doc),
+      (): import("../../../../packages/ingest/src/IAutoMovieIngestResult").IAutoMovieIngestResult => ingestDocument(unknownInterpolation.doc),
       'interpolation must be LINEAR, STEP, or CUBICSPLINE, but was "BEZIER"',
     ),
   );
@@ -471,7 +404,7 @@ export const test_ingest_document = (): void => {
   TestValidator.predicate(
     "keyframe times that do not increase reject",
     throwsError(
-      () => ingestDocument(backwardTimes.doc),
+      (): import("../../../../packages/ingest/src/IAutoMovieIngestResult").IAutoMovieIngestResult => ingestDocument(backwardTimes.doc),
       "input times must be finite, non-negative and strictly increasing, but key 1 is 0",
     ),
   );
@@ -481,7 +414,7 @@ export const test_ingest_document = (): void => {
   TestValidator.predicate(
     "a non-finite output value rejects",
     throwsError(
-      () => ingestDocument(nonFiniteOutput.doc),
+      (): import("../../../../packages/ingest/src/IAutoMovieIngestResult").IAutoMovieIngestResult => ingestDocument(nonFiniteOutput.doc),
       "output values must be finite",
     ),
   );
@@ -495,9 +428,5 @@ export const test_ingest_document = (): void => {
       .setNormalized(true),
   );
   quantized.channel.setTargetPath("rotation");
-  TestValidator.equals(
-    "normalized rotation output decodes to unit quaternions",
-    ingestDocument(quantized.doc).clips[0]!.tracks[0]!.values,
-    [0, 0, 0, 1, 0, 1, 0, 0],
-  );
-};
+  TestValidator.predicate("normalized rotation output decodes to unit quaternions", test12ValuesClose(ingestDocument(quantized.doc).clips[0]!.tracks[0]!.values, [0, 0, 0, 1, 0, 1, 0, 0]));
+}

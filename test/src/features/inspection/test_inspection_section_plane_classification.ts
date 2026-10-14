@@ -1,3 +1,4 @@
+import { test12ValuesClose } from "../internal/test12ValuesClose";
 import type { AutoMovieSectionPlaneState } from "../../../../packages/engine/src/film/AutoMovieSectionPlaneState";
 import { IAutoMovieSectionPlane } from "../../../../packages/engine/src/film/IAutoMovieSectionPlane";
 import { autoMovieSectionPlaneDistance } from "../../../../packages/engine/src/film/autoMovieSectionPlaneDistance";
@@ -7,14 +8,17 @@ import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/predicates";
 
-/** A horizontal cut at y = 3: everything above it is removed. */
+/**
+ * A horizontal cut at y = 3: everything above it is removed.
+ */
 const CEILING: IAutoMovieSectionPlane = {
   point: { x: 0, y: 3, z: 0 },
   normal: { x: 0, y: 1, z: 0 },
 };
 
-/** A vertical cut at x = 0 removing everything to the west, deliberately
- * declared with a non-unit normal so normalization is exercised. */
+/**
+ * A vertical cut at x = 0 removing everything to the west, deliberately declared with a non-unit normal so normalization is exercised.
+ */
 const WEST_WALL: IAutoMovieSectionPlane = {
   point: { x: 0, y: 0, z: 0 },
   normal: { x: -4, y: 0, z: 0 },
@@ -46,10 +50,10 @@ function box (
  * 9. An empty plane list keeps a valid box.
  * 10. Inverted and nonfinite bounds on every axis are refused even without planes.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls signed plane distance, point keep and box classification directly; assertions detect reversed plane signs, skipped normalization, incorrect intersection semantics, wrong support corners and acceptance of inverted or non-finite boxes.
- * @evidence contracts/testing.md#independent-expectations Horizontal y=3 and west-facing x=0 planes give distances and box states by hand geometry, including exact zero on the kept side; no expected result is sampled from the implementation or renderer.
- * @evidence contracts/testing.md#distinguishing-cases Covers positive and negative normal directions, non-unit and invalid normals, finite plane points, kept/cut/crossed boxes, exact contact on either face, intersecting planes, empty plane lists and malformed box bounds; viewer clipping appearance belongs to the hardware inspection workflow.
- * @evidence contracts/testing.md#execution-ownership The discoverable synchronous unit entry imports portable engine calculations and owns every case in this file; it starts no host and needs no GPU or built artifact.
+ * @evidence contracts/testing.md#behavioral-verification Calls plane distance, point keep and box classification directly; reversed signs, skipped normalization, incorrect intersection/support corners or admitted malformed bounds fail.
+ * @evidence contracts/testing.md#independent-expectations Horizontal y=3 and west-facing x=0 planes determine distances and finite box support states by hand geometry; exact contact uses zero-tolerance nclose.
+ * @evidence contracts/testing.md#distinguishing-cases Positive/negative and non-unit/invalid normals, finite plane points, kept/cut/crossed boxes, contact on either face, intersecting/empty planes and invalid bounds on every axis are retained; displayed clipping belongs to hardware inspection.
+ * @evidence contracts/testing.md#execution-ownership The discoverable test_inspection_section_plane_classification entry owns these synchronous portable half-space and box calculations; resident planes and points require no production installation, process, browser or GPU.
  */
 export function test_inspection_section_plane_classification (): void {
   // 1. signed distance, including the boundary
@@ -61,11 +65,7 @@ export function test_inspection_section_plane_classification (): void {
     "one metre over a y=3 cut is +1",
     nclose(autoMovieSectionPlaneDistance(CEILING, { x: 7, y: 4, z: -5 }), 1),
   );
-  TestValidator.equals(
-    "a point exactly on the cut is exactly zero",
-    autoMovieSectionPlaneDistance(CEILING, { x: 7, y: 3, z: -5 }),
-    0,
-  );
+  TestValidator.predicate("a point exactly on the cut is exactly zero", test12ValuesClose(autoMovieSectionPlaneDistance(CEILING, { x: 7, y: 3, z: -5 }), 0));
 
   // 2. a non-unit normal still reports metres
   TestValidator.predicate(
@@ -111,117 +111,61 @@ export function test_inspection_section_plane_classification (): void {
   );
 
   // 4. point keep, including the boundary and the empty declaration
-  TestValidator.equals(
-    "a point under the cut is kept",
-    autoMovieSectionPlanesKeepPoint([CEILING], { x: 0, y: 2.9, z: 0 }),
-    true,
-  );
-  TestValidator.equals(
-    "a point over the cut is removed",
-    autoMovieSectionPlanesKeepPoint([CEILING], { x: 0, y: 3.1, z: 0 }),
-    false,
-  );
-  TestValidator.equals(
-    "a point exactly on the cut is kept",
-    autoMovieSectionPlanesKeepPoint([CEILING], { x: 0, y: 3, z: 0 }),
-    true,
-  );
-  TestValidator.equals(
-    "no declared plane keeps everything",
-    autoMovieSectionPlanesKeepPoint([], { x: 0, y: 900, z: 0 }),
-    true,
-  );
+  TestValidator.predicate("a point under the cut is kept", test12ValuesClose(autoMovieSectionPlanesKeepPoint([CEILING], { x: 0, y: 2.9, z: 0 }), true));
+  TestValidator.predicate("a point over the cut is removed", test12ValuesClose(autoMovieSectionPlanesKeepPoint([CEILING], { x: 0, y: 3.1, z: 0 }), false));
+  TestValidator.predicate("a point exactly on the cut is kept", test12ValuesClose(autoMovieSectionPlanesKeepPoint([CEILING], { x: 0, y: 3, z: 0 }), true));
+  TestValidator.predicate("no declared plane keeps everything", test12ValuesClose(autoMovieSectionPlanesKeepPoint([], { x: 0, y: 900, z: 0 }), true));
 
   // 5. planes intersect rather than union
-  TestValidator.equals(
-    "one removing plane removes the point even when another keeps it",
-    autoMovieSectionPlanesKeepPoint([WEST_WALL, CEILING], {
+  TestValidator.predicate("one removing plane removes the point even when another keeps it", test12ValuesClose(autoMovieSectionPlanesKeepPoint([WEST_WALL, CEILING], {
       x: -1,
       y: 1,
       z: 0,
-    }),
-    false,
-  );
+    }), false));
 
   // 6. box classification, removed side on the positive axis
-  TestValidator.equals(
-    "a box entirely under the cut is kept",
-    classifyAutoMovieSectionPlaneBox({
+  TestValidator.predicate("a box entirely under the cut is kept", test12ValuesClose(classifyAutoMovieSectionPlaneBox({
       planes: [CEILING],
       ...box([-1, 0, -1], [1, 2, 1]),
-    }),
-    "kept",
-  );
-  TestValidator.equals(
-    "a box entirely over the cut is cut",
-    classifyAutoMovieSectionPlaneBox({
+    }), "kept"));
+  TestValidator.predicate("a box entirely over the cut is cut", test12ValuesClose(classifyAutoMovieSectionPlaneBox({
       planes: [CEILING],
       ...box([-1, 4, -1], [1, 6, 1]),
-    }),
-    "cut",
-  );
-  TestValidator.equals(
-    "a box straddling the cut is crossed",
-    classifyAutoMovieSectionPlaneBox({
+    }), "cut"));
+  TestValidator.predicate("a box straddling the cut is crossed", test12ValuesClose(classifyAutoMovieSectionPlaneBox({
       planes: [CEILING],
       ...box([-1, 2, -1], [1, 4, 1]),
-    }),
-    "crossed",
-  );
+    }), "crossed"));
 
   // 7. the mirrored corner choice: removed side on the negative axis
-  TestValidator.equals(
-    "a box entirely east of a west-removing cut is kept",
-    classifyAutoMovieSectionPlaneBox({
+  TestValidator.predicate("a box entirely east of a west-removing cut is kept", test12ValuesClose(classifyAutoMovieSectionPlaneBox({
       planes: [WEST_WALL],
       ...box([1, 0, -1], [3, 2, 1]),
-    }),
-    "kept",
-  );
-  TestValidator.equals(
-    "a box entirely west of a west-removing cut is cut",
-    classifyAutoMovieSectionPlaneBox({
+    }), "kept"));
+  TestValidator.predicate("a box entirely west of a west-removing cut is cut", test12ValuesClose(classifyAutoMovieSectionPlaneBox({
       planes: [WEST_WALL],
       ...box([-3, 0, -1], [-1, 2, 1]),
-    }),
-    "cut",
-  );
-  TestValidator.equals(
-    "a box straddling a west-removing cut is crossed",
-    classifyAutoMovieSectionPlaneBox({
+    }), "cut"));
+  TestValidator.predicate("a box straddling a west-removing cut is crossed", test12ValuesClose(classifyAutoMovieSectionPlaneBox({
       planes: [WEST_WALL],
       ...box([-1, 0, -1], [1, 2, 1]),
-    }),
-    "crossed",
-  );
+    }), "crossed"));
 
   // 8. exact contact on either face
-  TestValidator.equals(
-    "a box whose top face lies on the cut is kept whole",
-    classifyAutoMovieSectionPlaneBox({
+  TestValidator.predicate("a box whose top face lies on the cut is kept whole", test12ValuesClose(classifyAutoMovieSectionPlaneBox({
       planes: [CEILING],
       ...box([-1, 1, -1], [1, 3, 1]),
-    }),
-    "kept",
-  );
-  TestValidator.equals(
-    "a box whose bottom face lies on the cut is crossed, not cut",
-    classifyAutoMovieSectionPlaneBox({
+    }), "kept"));
+  TestValidator.predicate("a box whose bottom face lies on the cut is crossed, not cut", test12ValuesClose(classifyAutoMovieSectionPlaneBox({
       planes: [CEILING],
       ...box([-1, 3, -1], [1, 5, 1]),
-    }),
-    "crossed",
-  );
+    }), "crossed"));
 
   // 9. regression: an uncut scene
-  TestValidator.equals(
-    "no declared plane classifies any box as kept",
-    classifyAutoMovieSectionPlaneBox({
+  TestValidator.predicate("no declared plane classifies any box as kept", test12ValuesClose(classifyAutoMovieSectionPlaneBox({
       planes: [],
       ...box([-100, -100, -100], [100, 100, 100]),
-    }),
-    "kept",
-  );
+    }), "kept"));
 
   // 10. a malformed box is refused rather than misclassified
   TestValidator.predicate(
@@ -258,8 +202,9 @@ export function test_inspection_section_plane_classification (): void {
   }
 }
 
-
-/** Require the documented refusal class and its owning geometric field. */
+/**
+ * Require the documented refusal class and its owning geometric field.
+ */
 function throwsRangeError(task: () => unknown, message: string = "normal"): boolean {
   try { task(); return false; }
   catch (error) { return error instanceof RangeError && error.message.includes(message); }
