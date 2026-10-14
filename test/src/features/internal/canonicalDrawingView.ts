@@ -1,8 +1,11 @@
 import { IAutoMovieDrawingView } from "@automovie/interface";
+
 import { canonicalDrawingStyle as drawingStyle } from "./canonicalDrawingStyle";
 
 /** A complete downward plan view at 1.2 metres, followed by caller overrides. */
-export const canonicalDrawingView: (overrides?: Partial<IAutoMovieDrawingView>) => IAutoMovieDrawingView = (
+export const canonicalDrawingView: (
+  overrides?: Partial<IAutoMovieDrawingView>,
+) => IAutoMovieDrawingView = (
   overrides: Partial<IAutoMovieDrawingView> = {},
 ): IAutoMovieDrawingView => ({
   id: "plan-ground",

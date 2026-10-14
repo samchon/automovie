@@ -1,12 +1,13 @@
-import { productionRuntimeModelId } from "../../../../packages/engine/src/productionRuntimeModelId";
 import type { IAutoMovieModel } from "@automovie/interface";
+
+import { productionRuntimeModelId } from "../../../../packages/engine/src/productionRuntimeModelId";
 
 /**
  * Build the formation-framing unit's 0.4-metre-wide/deep member box, translated upward by half the supplied metre height so its floor is zero. The owning entry derives expected extent and lens standoff from this authored shape and varies presence of the model; this unchanged input constructor is not an extent oracle or rendered observation.
  */
-export const createFilmFormationMemberModel: (MEMBER_HEIGHT: number) => IAutoMovieModel = (
+export const createFilmFormationMemberModel: (
   MEMBER_HEIGHT: number,
-): IAutoMovieModel => ({
+) => IAutoMovieModel = (MEMBER_HEIGHT: number): IAutoMovieModel => ({
   id: productionRuntimeModelId("member"),
   name: null,
   origin: "generated",

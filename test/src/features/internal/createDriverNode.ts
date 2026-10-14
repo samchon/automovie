@@ -1,4 +1,7 @@
-import { type IAutoMovieNode, type IAutoMovieTransform } from "@automovie/interface";
+import {
+  type IAutoMovieNode,
+  type IAutoMovieTransform,
+} from "@automovie/interface";
 
 const IDENTITY: IAutoMovieTransform = {
   translation: { x: 0, y: 0, z: 0 },

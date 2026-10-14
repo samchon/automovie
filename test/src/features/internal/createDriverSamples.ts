@@ -6,5 +6,12 @@ import { type IAutoMovieSampledChannel } from "../../../../packages/engine/src/r
 export function createDriverSamples(
   entries: [string, IAutoMovieChannel, number[]][],
 ): Map<string, IAutoMovieSampledChannel> {
-  return new Map(entries.map(([key, channel, value]: [string, IAutoMovieChannel, number[]]): [string, IAutoMovieSampledChannel] => [key, { channel, value }]));
+  return new Map(
+    entries.map(
+      ([key, channel, value]: [string, IAutoMovieChannel, number[]]): [
+        string,
+        IAutoMovieSampledChannel,
+      ] => [key, { channel, value }],
+    ),
+  );
 }

@@ -1,14 +1,24 @@
+import {
+  type IAutoMovieMesh,
+  type IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { IAutoMovieMeshAssembly } from "../../../../packages/engine/src/geometry/IAutoMovieMeshAssembly";
 import { mergeAutoMovieMeshParts } from "../../../../packages/engine/src/geometry/mergeAutoMovieMeshParts";
 import { revolveAutoMovieProfile } from "../../../../packages/engine/src/geometry/revolveAutoMovieProfile";
-import { type IAutoMovieMesh, type IAutoMovieVector3 } from "@automovie/interface";
 
 /**
  * Build the architecture test's centred X row of faceted shafts, using one metre-based revolve profile and placements spaced by the authored distance. Callers supply positive integral count, positive radius/height/spacing and a supported segment count; production revolve/merge own their refusals.
  *
  * The same shaft mesh is reused as input for every placement, while the final merge owns its emitted buffers/groups. Cost/output scale with count times shaft tessellation, and no shaft cache survives this call. This fixture constructs inputs rather than providing an independent revolve oracle; the parent asserts literal n-gon volume and bounds.
  */
-export const colonnade: (props: { count: number; spacing: number; radius: number; height: number; segments: number; }) => IAutoMovieMeshAssembly = (props: {
+export const colonnade: (props: {
+  count: number;
+  spacing: number;
+  radius: number;
+  height: number;
+  segments: number;
+}) => IAutoMovieMeshAssembly = (props: {
   count: number;
   spacing: number;
   radius: number;
@@ -26,12 +36,22 @@ export const colonnade: (props: { count: number; spacing: number; radius: number
   });
   const span: number = (props.count - 1) * props.spacing;
   return mergeAutoMovieMeshParts(
-    Array.from({ length: props.count }, (_: unknown, index: number): { id: string; mesh: IAutoMovieMesh; transform: { translation: IAutoMovieVector3; }; }  => ({
-      id: `column-${index + 1}`,
-      mesh: shaft,
-      transform: {
-        translation: { x: index * props.spacing - span / 2, y: 0, z: 0 },
-      },
-    })),
+    Array.from(
+      { length: props.count },
+      (
+        _: unknown,
+        index: number,
+      ): {
+        id: string;
+        mesh: IAutoMovieMesh;
+        transform: { translation: IAutoMovieVector3 };
+      } => ({
+        id: `column-${index + 1}`,
+        mesh: shaft,
+        transform: {
+          translation: { x: index * props.spacing - span / 2, y: 0, z: 0 },
+        },
+      }),
+    ),
   );
 };

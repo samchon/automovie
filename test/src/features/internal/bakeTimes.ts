@@ -10,7 +10,9 @@ export const bakeTimes: (duration: number, sampleRate?: number) => number[] = (
   sampleRate: number = 24,
 ): number[] => {
   const frames: number = Math.max(1, Math.ceil(duration * sampleRate));
-  return Array.from({ length: frames + 1 }, (_: unknown, index: number): number =>
-    Math.min(duration, index / sampleRate),
+  return Array.from(
+    { length: frames + 1 },
+    (_: unknown, index: number): number =>
+      Math.min(duration, index / sampleRate),
   );
 };

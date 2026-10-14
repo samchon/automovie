@@ -1,4 +1,8 @@
-import type { AutoMovieHumanoidBone, IAutoMovieMotion, IAutoMovieSkeleton } from "@automovie/interface";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotion,
+  IAutoMovieSkeleton,
+} from "@automovie/interface";
 
 import type { IAutoMovieJointAxes } from "../../../../packages/engine/src/kinematics/IAutoMovieJointAxes";
 import type { IAutoMovieResolvedBone } from "../../../../packages/engine/src/kinematics/IAutoMovieResolvedBone";
@@ -66,7 +70,8 @@ export const clipWorldParity: (props: {
     for (const bone of expected) {
       const matrix: number[] | undefined = world.get(bone.bone);
       if (matrix === undefined) return false;
-      const decomposed: ReturnType<typeof Matrix4.decompose> = Matrix4.decompose(matrix);
+      const decomposed: ReturnType<typeof Matrix4.decompose> =
+        Matrix4.decompose(matrix);
       if (
         !vclose(
           Matrix4.position(matrix),

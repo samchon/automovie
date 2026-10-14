@@ -8,7 +8,7 @@ import { modelsFixture, sceneFixture } from "./renderFixtures";
 export function compiledShotFixture(
   overrides: Partial<IAutoMovieCompiledShotSource> = {},
 ): IAutoMovieCompiledShotSource {
-  return ({
+  return {
     eventSamples: [],
     scene: sceneFixture(),
     motions: [],
@@ -20,5 +20,5 @@ export function compiledShotFixture(
     effects: [],
     shot: {},
     ...overrides,
-  }) as unknown as IAutoMovieCompiledShotSource;
+  } as unknown as IAutoMovieCompiledShotSource;
 }

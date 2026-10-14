@@ -1,7 +1,14 @@
-import { IAutoMovieBuiltEnvironment, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /** Six authored half-spaces defining the supplied drawing-space box. */
-export const canonicalDrawingCell: (id: string, min: IAutoMovieVector3, max: IAutoMovieVector3) => IAutoMovieBuiltEnvironment["spaces"][number]["cells"][number] = (
+export const canonicalDrawingCell: (
+  id: string,
+  min: IAutoMovieVector3,
+  max: IAutoMovieVector3,
+) => IAutoMovieBuiltEnvironment["spaces"][number]["cells"][number] = (
   id: string,
   min: IAutoMovieVector3,
   max: IAutoMovieVector3,

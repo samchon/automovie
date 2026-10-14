@@ -14,7 +14,9 @@ import { pattern, rectangle, zone } from "./patternFixtures";
 import { namedFacts, nclose } from "./predicates";
 
 /** One slab per lattice column, flipped on the odd ones: a book match. */
-const slabs: (flipOdd: boolean) => IAutoMovieSurfacePatternZone = (flipOdd: boolean): IAutoMovieSurfacePatternZone =>
+const slabs: (flipOdd: boolean) => IAutoMovieSurfacePatternZone = (
+  flipOdd: boolean,
+): IAutoMovieSurfacePatternZone =>
   zone({
     id: "slab",
     region: rectangle(0, 0, 1.2, 1),
@@ -22,7 +24,23 @@ const slabs: (flipOdd: boolean) => IAutoMovieSurfacePatternZone = (flipOdd: bool
     period: { u: 0.6, v: 2 },
     reach: { u: 0.61, v: 1.01 },
     material: "stone",
-    generate: ({ column, row, origin }: { column: number; row: number; origin: IAutoMoviePatternPoint; period: { u: number; v: number } }): { id: string; center: { u: number; v: number }; size: { u: number; v: number }; rotationDeg: number; grainDeg: number; mirror: boolean }[] =>
+    generate: ({
+      column,
+      row,
+      origin,
+    }: {
+      column: number;
+      row: number;
+      origin: IAutoMoviePatternPoint;
+      period: { u: number; v: number };
+    }): {
+      id: string;
+      center: { u: number; v: number };
+      size: { u: number; v: number };
+      rotationDeg: number;
+      grainDeg: number;
+      mirror: boolean;
+    }[] =>
       row !== 0
         ? []
         : [
@@ -39,17 +57,26 @@ const slabs: (flipOdd: boolean) => IAutoMovieSurfacePatternZone = (flipOdd: bool
 
 /** Original texture scenarios 6 and 7, using the caller's independent UV oracle. */
 export function assertPatternTextureBookMatch(
-  sample: (transform: { offset: { x: number; y: number }; scale: { x: number; y: number }; rotationDeg: number }, u: number, v: number) => { x: number; y: number },
+  sample: (
+    transform: {
+      offset: { x: number; y: number };
+      scale: { x: number; y: number };
+      rotationDeg: number;
+    },
+    u: number,
+    v: number,
+  ) => { x: number; y: number },
 ): void {
-  const matched: IAutoMovieSurfacePatternResult = generateAutoMovieSurfacePattern({
-    pattern: pattern({
-      id: "book-match",
-      zones: [slabs(true)],
-      minimumPiece: 1,
-      grainToleranceDeg: 0,
-      adjacency: 0.01,
-    }),
-  });
+  const matched: IAutoMovieSurfacePatternResult =
+    generateAutoMovieSurfacePattern({
+      pattern: pattern({
+        id: "book-match",
+        zones: [slabs(true)],
+        minimumPiece: 1,
+        grainToleranceDeg: 0,
+        adjacency: 0.01,
+      }),
+    });
   const book: IAutoMoviePatternTexturing = autoMoviePatternTextureTransforms({
     result: matched,
     tile: { u: 0.6, v: 1 },
@@ -73,12 +100,17 @@ export function assertPatternTextureBookMatch(
     namedFacts([
       [
         "laid",
-        (): boolean => matched.placements.map((one: IAutoMoviePatternPlacement): string => one.module).join() === "s0,s1",
+        (): boolean =>
+          matched.placements
+            .map((one: IAutoMoviePatternPlacement): string => one.module)
+            .join() === "s0,s1",
       ],
       [
         "flagged",
         (): boolean =>
-          matched.placements.map((one: IAutoMoviePatternPlacement): boolean => one.mirror).join() === "false,true",
+          matched.placements
+            .map((one: IAutoMoviePatternPlacement): boolean => one.mirror)
+            .join() === "false,true",
       ],
       [
         "left",
@@ -95,8 +127,16 @@ export function assertPatternTextureBookMatch(
       [
         "reversed",
         (): boolean => {
-          const near: { x: number; y: number } = sample(book.transforms[1]!, 0, 0.5);
-          const far: { x: number; y: number } = sample(book.transforms[1]!, 1, 0.5);
+          const near: { x: number; y: number } = sample(
+            book.transforms[1]!,
+            0,
+            0.5,
+          );
+          const far: { x: number; y: number } = sample(
+            book.transforms[1]!,
+            1,
+            0.5,
+          );
           return nclose(near.x, 1, 1e-12) && nclose(far.x, 0, 1e-12);
         },
       ],

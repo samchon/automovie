@@ -1,8 +1,19 @@
 import { lowerPlantingInstallation } from "@automovie/engine";
-import type { IAutoMovieFluidDomain, IAutoMoviePlantingCluster, IAutoMoviePlantingDomain, IAutoMoviePlantingInstallation, IAutoMovieValidation } from "@automovie/interface";
+import type {
+  IAutoMovieFluidDomain,
+  IAutoMoviePlantingCluster,
+  IAutoMoviePlantingDomain,
+  IAutoMoviePlantingInstallation,
+  IAutoMovieValidation,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
+
 import { hasViolation, namedFacts } from "./predicates";
-import { plantingCluster, plantingInstallation, plantingRecipe } from "./softFixtures";
+import {
+  plantingCluster,
+  plantingInstallation,
+  plantingRecipe,
+} from "./softFixtures";
 
 /** Run the original aquatic, canopy, lowering and unique-placement cases for test_planting_installation_binding, in their original order. The supplied callbacks preserve the original room/pond constructors; this helper owns no separately registered test or host. */
 export function assertPlantingInstallationGeometry(
@@ -16,7 +27,15 @@ export function assertPlantingInstallationGeometry(
   }) => IAutoMovieValidation,
   pond: (overrides?: Partial<IAutoMovieFluidDomain>) => IAutoMovieFluidDomain,
 ): void {
-  const aquatic: (anchor: { x: number; y: number; z: number }) => Parameters<typeof check>[0] = (anchor: { x: number; y: number; z: number }): Parameters<typeof check>[0] => ({
+  const aquatic: (anchor: {
+    x: number;
+    y: number;
+    z: number;
+  }) => Parameters<typeof check>[0] = (anchor: {
+    x: number;
+    y: number;
+    z: number;
+  }): Parameters<typeof check>[0] => ({
     installations: [
       plantingInstallation({
         kind: "aquatic" as const,
@@ -179,12 +198,15 @@ export function assertPlantingInstallationGeometry(
     },
     budget: { maxBranches: 64, maxLeaves: 2 },
   });
-  const brokenCluster: IAutoMoviePlantingCluster = plantingCluster({ count: 0 });
-  const derived: ReturnType<typeof lowerPlantingInstallation> = lowerPlantingInstallation({
-    installation: plantingInstallation(),
-    cluster: plantingCluster(),
-    domain: plantingRecipe(),
+  const brokenCluster: IAutoMoviePlantingCluster = plantingCluster({
+    count: 0,
   });
+  const derived: ReturnType<typeof lowerPlantingInstallation> =
+    lowerPlantingInstallation({
+      installation: plantingInstallation(),
+      cluster: plantingCluster(),
+      domain: plantingRecipe(),
+    });
   TestValidator.equals(
     "a nested refusal is re-pathed, and the lowering reports what it derived",
     namedFacts([
@@ -227,11 +249,12 @@ export function assertPlantingInstallationGeometry(
       [
         "notRunRecipe",
         () => {
-          const frame: ReturnType<typeof lowerPlantingInstallation> = lowerPlantingInstallation({
-            installation: plantingInstallation(),
-            cluster: plantingCluster(),
-            domain: brokenRecipe,
-          });
+          const frame: ReturnType<typeof lowerPlantingInstallation> =
+            lowerPlantingInstallation({
+              installation: plantingInstallation(),
+              cluster: plantingCluster(),
+              domain: brokenRecipe,
+            });
           return (
             frame.analysis.status === "not-run" &&
             frame.plant === null &&
@@ -243,22 +266,24 @@ export function assertPlantingInstallationGeometry(
       [
         "notRunCluster",
         () => {
-          const frame: ReturnType<typeof lowerPlantingInstallation> = lowerPlantingInstallation({
-            installation: plantingInstallation(),
-            cluster: brokenCluster,
-            domain: plantingRecipe(),
-          });
+          const frame: ReturnType<typeof lowerPlantingInstallation> =
+            lowerPlantingInstallation({
+              installation: plantingInstallation(),
+              cluster: brokenCluster,
+              domain: plantingRecipe(),
+            });
           return frame.analysis.status === "not-run" && frame.plant === null;
         },
       ],
       [
         "notRunMismatch",
         () => {
-          const frame: ReturnType<typeof lowerPlantingInstallation> = lowerPlantingInstallation({
-            installation: plantingInstallation(),
-            cluster: plantingCluster({ domain: "ivy" }),
-            domain: plantingRecipe(),
-          });
+          const frame: ReturnType<typeof lowerPlantingInstallation> =
+            lowerPlantingInstallation({
+              installation: plantingInstallation(),
+              cluster: plantingCluster({ domain: "ivy" }),
+              domain: plantingRecipe(),
+            });
           return (
             frame.analysis.status === "not-run" &&
             frame.plant === null &&
@@ -270,11 +295,12 @@ export function assertPlantingInstallationGeometry(
       [
         "notRunUnplaced",
         () => {
-          const frame: ReturnType<typeof lowerPlantingInstallation> = lowerPlantingInstallation({
-            installation: plantingInstallation({ cluster: "roof-bed" }),
-            cluster: plantingCluster(),
-            domain: plantingRecipe(),
-          });
+          const frame: ReturnType<typeof lowerPlantingInstallation> =
+            lowerPlantingInstallation({
+              installation: plantingInstallation({ cluster: "roof-bed" }),
+              cluster: plantingCluster(),
+              domain: plantingRecipe(),
+            });
           return (
             frame.analysis.status === "not-run" &&
             frame.plant === null &&

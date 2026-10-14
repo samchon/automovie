@@ -1,5 +1,9 @@
 import { validateBuiltEnvironment } from "@automovie/engine";
-import type { IAutoMovieBuiltEnvironment, IAutoMovieValidation, IAutoMovieConstraintViolation } from "@automovie/interface";
+import type {
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieConstraintViolation,
+  IAutoMovieValidation,
+} from "@automovie/interface";
 
 import { builtConnectorTestLevels as levels } from "./builtConnectorTestLevels";
 
@@ -10,13 +14,19 @@ import { builtConnectorTestLevels as levels } from "./builtConnectorTestLevels";
  * @param mutate Existing case mutation applied once to a fresh authored levels graph.
  * @returns All emitted paths, or an empty array on success.
  */
-export const builtConnectorTestRefusalPaths: (mutate: (value: IAutoMovieBuiltEnvironment) => void) => string[] = (
+export const builtConnectorTestRefusalPaths: (
+  mutate: (value: IAutoMovieBuiltEnvironment) => void,
+) => string[] = (
   mutate: (value: IAutoMovieBuiltEnvironment) => void,
 ): string[] => {
   const value: IAutoMovieBuiltEnvironment = levels();
   mutate(value);
-  const validation: IAutoMovieValidation = validateBuiltEnvironment({ environment: value });
+  const validation: IAutoMovieValidation = validateBuiltEnvironment({
+    environment: value,
+  });
   return validation.success === true
     ? []
-    : validation.violations.map((violation: IAutoMovieConstraintViolation): string => violation.path);
+    : validation.violations.map(
+        (violation: IAutoMovieConstraintViolation): string => violation.path,
+      );
 };

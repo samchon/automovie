@@ -1,6 +1,7 @@
 import { validateSpace } from "@automovie/engine";
 import { IAutoMovieHeightRule } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
+
 import { hasViolation, namedFacts } from "./predicates";
 import { validationSpaceFixtures } from "./validationSpaceFixtures";
 import { withoutArraySlot } from "./withoutArraySlot";
@@ -23,8 +24,11 @@ import { withoutArraySlot } from "./withoutArraySlot";
  * @evidence contracts/testing.md#execution-ownership Portable engine admission runs through assertValidationSpaceHeights; the discoverable test_validation_space entry owns every synchronous case without a browser or native renderer.
  */
 export function assertValidationSpaceHeights(): void {
-  const { withSurface, withHeight, lattice }: ReturnType<typeof validationSpaceFixtures> = validationSpaceFixtures();
-
+  const {
+    withSurface,
+    withHeight,
+    lattice,
+  }: ReturnType<typeof validationSpaceFixtures> = validationSpaceFixtures();
 
   TestValidator.equals(
     "a surface states its ground exactly once",
@@ -97,7 +101,8 @@ export function assertValidationSpaceHeights(): void {
       ],
       [
         "heightfield",
-        (): boolean => validateSpace({ space: withHeight(lattice()) }).success === true,
+        (): boolean =>
+          validateSpace({ space: withHeight(lattice()) }).success === true,
       ],
     ]),
     { constant: true, plane: true, heightfield: true },
@@ -276,5 +281,16 @@ export function assertValidationSpaceHeights(): void {
       ".height.kind",
     ),
   );
-  TestValidator.predicate("a missing lattice sample is located", hasViolation(validateSpace({ space: withHeight(lattice({ samples: withoutArraySlot([0, 1, 0, 1], 2) })) }), "range", ".height.samples[2]"));
+  TestValidator.predicate(
+    "a missing lattice sample is located",
+    hasViolation(
+      validateSpace({
+        space: withHeight(
+          lattice({ samples: withoutArraySlot([0, 1, 0, 1], 2) }),
+        ),
+      }),
+      "range",
+      ".height.samples[2]",
+    ),
+  );
 }

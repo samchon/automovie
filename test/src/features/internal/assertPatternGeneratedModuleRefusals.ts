@@ -1,4 +1,8 @@
-import type { AutoMovieSurfacePatternGenerator, IAutoMoviePatternCandidate, IAutoMovieSurfacePattern } from "@automovie/engine";
+import type {
+  AutoMovieSurfacePatternGenerator,
+  IAutoMoviePatternCandidate,
+  IAutoMovieSurfacePattern,
+} from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { stackBond, zone } from "./patternFixtures";
@@ -9,7 +13,10 @@ import { stackBond, zone } from "./patternFixtures";
  * The shared half-metre generator supplies authored input, with one original invalid candidate field overridden per row; no laid output supplies expectations. The borrowed refusal callback invokes the actual pattern generator and checks Error causes. Reach remains its separate original lattice-policy case, and this helper registers no test or host.
  */
 export function assertPatternGeneratedModuleRefusals(
-  refuses: (overrides: Partial<IAutoMovieSurfacePattern>, message: string | readonly string[]) => boolean,
+  refuses: (
+    overrides: Partial<IAutoMovieSurfacePattern>,
+    message: string | readonly string[],
+  ) => boolean,
 ): void {
   const cases: readonly {
     label: string;
@@ -56,17 +63,34 @@ export function assertPatternGeneratedModuleRefusals(
   for (const { label, changes, message } of cases)
     TestValidator.predicate(
       `a generated module refuses ${label}`,
-      refuses({
-        zones: [zone({
-          generate: (context: Parameters<AutoMovieSurfacePatternGenerator>[0]): IAutoMoviePatternCandidate[] =>
-            baseline(context).map((candidate: IAutoMoviePatternCandidate): IAutoMoviePatternCandidate => ({ ...candidate, ...changes })),
-        })],
-      }, message),
+      refuses(
+        {
+          zones: [
+            zone({
+              generate: (
+                context: Parameters<AutoMovieSurfacePatternGenerator>[0],
+              ): IAutoMoviePatternCandidate[] =>
+                baseline(context).map(
+                  (
+                    candidate: IAutoMoviePatternCandidate,
+                  ): IAutoMoviePatternCandidate => ({
+                    ...candidate,
+                    ...changes,
+                  }),
+                ),
+            }),
+          ],
+        },
+        message,
+      ),
     );
   TestValidator.predicate(
     "a generated module stays within its declared reach",
-    refuses({
-      zones: [zone({ generate: stackBond(0.5), reach: { u: 0.4, v: 0.5 } })],
-    }, "reaches beyond the declared reach of its cell origin"),
+    refuses(
+      {
+        zones: [zone({ generate: stackBond(0.5), reach: { u: 0.4, v: 0.5 } })],
+      },
+      "reaches beyond the declared reach of its cell origin",
+    ),
   );
 }

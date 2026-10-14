@@ -1,4 +1,8 @@
-import type { IAutoMovieBuiltBoundary, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieBuiltBoundary,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /** One rectangular separation with its face frame written out in full.
  *
@@ -6,7 +10,15 @@ import type { IAutoMovieBuiltBoundary, IAutoMovieQuaternion, IAutoMovieVector3 }
  *
  * Single-room exterior faces and shared storey separation use the same input shape; consumers own assertions, and constructing this fixture supplies no wall-builder output oracle or behavior proof. This synchronous portable declaration is reached through explicit imports or the compatibility barrel, registers no dynamic case, installs no consumer and starts no process, browser, native artifact build or GPU.
  */
-export const canonicalWall: (props: { id: string; kind: string; space: string | readonly string[]; origin: IAutoMovieVector3; rotation: IAutoMovieQuaternion; width: number; height: number; }) => IAutoMovieBuiltBoundary = (props: {
+export const canonicalWall: (props: {
+  id: string;
+  kind: string;
+  space: string | readonly string[];
+  origin: IAutoMovieVector3;
+  rotation: IAutoMovieQuaternion;
+  width: number;
+  height: number;
+}) => IAutoMovieBuiltBoundary = (props: {
   id: string;
   kind: string;
   /** The one space this encloses, or the two it separates. */

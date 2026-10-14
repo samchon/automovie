@@ -1,7 +1,13 @@
 import type { IAutoMovieBuiltEnvironment } from "@automovie/interface";
 
 /** Build the original one-space basin environment and six bounding halfspaces. Optional metre extents and identities retain their defaults; this source-data fixture creates fresh records without validating geometry or installing a water renderer. */
-export const basinEnvironment: (props?: { id?: string; space?: string; half?: number; floor?: number; ceiling?: number }) => IAutoMovieBuiltEnvironment = (
+export const basinEnvironment: (props?: {
+  id?: string;
+  space?: string;
+  half?: number;
+  floor?: number;
+  ceiling?: number;
+}) => IAutoMovieBuiltEnvironment = (
   props: {
     id?: string;
     space?: string;

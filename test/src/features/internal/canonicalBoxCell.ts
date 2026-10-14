@@ -1,4 +1,7 @@
-import type { IAutoMovieConvexSpaceCell, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieConvexSpaceCell,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /** The six half-spaces cutting one axis-aligned box out of world space.
  *
@@ -6,7 +9,11 @@ import type { IAutoMovieConvexSpaceCell, IAutoMovieVector3 } from "@automovie/in
  *
  * Consumers own inside/outside/boundary points, singleton cells and unions; inverted bounds are not repaired or admitted by this input builder. This synchronous portable internal declaration is reached through explicit imports or the compatibility barrel, registers no dynamic case, installs no consumer and starts no process, browser, native artifact build or GPU.
  */
-export const canonicalBoxCell: (id: string, min: IAutoMovieVector3, max: IAutoMovieVector3) => IAutoMovieConvexSpaceCell = (
+export const canonicalBoxCell: (
+  id: string,
+  min: IAutoMovieVector3,
+  max: IAutoMovieVector3,
+) => IAutoMovieConvexSpaceCell = (
   id: string,
   min: IAutoMovieVector3,
   max: IAutoMovieVector3,

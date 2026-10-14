@@ -8,7 +8,11 @@ import type { IAutoMovieBuiltEnvironment } from "@automovie/interface";
  * @evidence contracts/testing.md#distinguishing-cases Returns all six planes unchanged for any numeric input, including reversed or malformed bounds; it performs no geometry admission or repair, leaving refusal semantics to consumers.
  * @evidence contracts/testing.md#execution-ownership Numerical fixture construction only, with fresh plane objects and no native mesh, host, file or discovered test registration.
  */
-export const boxCell: (props: { id: string; min: [number, number, number]; max: [number, number, number]; }) => IAutoMovieBuiltEnvironment["spaces"][number]["cells"][number] = (props: {
+export const boxCell: (props: {
+  id: string;
+  min: [number, number, number];
+  max: [number, number, number];
+}) => IAutoMovieBuiltEnvironment["spaces"][number]["cells"][number] = (props: {
   id: string;
   min: [number, number, number];
   max: [number, number, number];

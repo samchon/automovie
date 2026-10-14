@@ -7,9 +7,9 @@ import type { IAutoMovieQuaternion } from "@automovie/interface";
  * @param radians Right-handed Y-axis angle in radians.
  * @returns The sine/cosine quaternion without additional normalization.
  */
-export const builtConnectorTestYaw: (radians: number) => IAutoMovieQuaternion = (
+export const builtConnectorTestYaw: (
   radians: number,
-): IAutoMovieQuaternion => ({
+) => IAutoMovieQuaternion = (radians: number): IAutoMovieQuaternion => ({
   x: 0,
   y: Math.sin(radians / 2),
   z: 0,

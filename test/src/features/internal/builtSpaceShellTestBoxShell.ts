@@ -9,7 +9,11 @@ import type {
  * The literal corner combinations and hand-listed outward facets define an axis-aligned box; reversing each triangle's last two indices changes only orientation.
  * Outward and inward cubes distinguish signed orientation, and consumers mutate vertices/indices for refusing twins. This builder does not triangulate arbitrary shells or prove closure itself.
  */
-export const builtSpaceShellTestBoxShell: (min: IAutoMovieVector3, max: IAutoMovieVector3, outward?: boolean) => IAutoMovieSpaceShell = (
+export const builtSpaceShellTestBoxShell: (
+  min: IAutoMovieVector3,
+  max: IAutoMovieVector3,
+  outward?: boolean,
+) => IAutoMovieSpaceShell = (
   min: IAutoMovieVector3,
   max: IAutoMovieVector3,
   outward: boolean = true,

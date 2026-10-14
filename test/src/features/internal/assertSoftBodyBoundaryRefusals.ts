@@ -1,13 +1,22 @@
 import { validateSoftBodyDomain } from "@automovie/engine";
-import { AutoMovieViolationKind, IAutoMovieSoftBodyDomain } from "@automovie/interface";
+import {
+  AutoMovieViolationKind,
+  IAutoMovieSoftBodyDomain,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts } from "./predicates";
 
 /** Run the original anchor/state, collider and wind refusal blocks after the owning test's geometry cases. The caller supplies the same sound/refuses function objects, preserving fixture construction, assertion order and every original oracle. */
 export function assertSoftBodyBoundaryRefusals(
-  sound: (overrides?: Partial<IAutoMovieSoftBodyDomain>) => IAutoMovieSoftBodyDomain,
-  refuses: (overrides: Partial<IAutoMovieSoftBodyDomain>, kind: AutoMovieViolationKind, path: string) => boolean,
+  sound: (
+    overrides?: Partial<IAutoMovieSoftBodyDomain>,
+  ) => IAutoMovieSoftBodyDomain,
+  refuses: (
+    overrides: Partial<IAutoMovieSoftBodyDomain>,
+    kind: AutoMovieViolationKind,
+    path: string,
+  ) => boolean,
 ): void {
   TestValidator.equals(
     "anchors and named states are named",
@@ -123,10 +132,16 @@ export function assertSoftBodyBoundaryRefusals(
         (): boolean =>
           refuses(
             {
-              states: Array.from({ length: 33 }, (_: unknown, index: number): IAutoMovieSoftBodyDomain["states"][number] => ({
-                id: `state-${index}`,
-                anchors: [],
-              })),
+              states: Array.from(
+                { length: 33 },
+                (
+                  _: unknown,
+                  index: number,
+                ): IAutoMovieSoftBodyDomain["states"][number] => ({
+                  id: `state-${index}`,
+                  anchors: [],
+                }),
+              ),
             },
             "range",
             "$input.states",
@@ -326,12 +341,18 @@ export function assertSoftBodyBoundaryRefusals(
         (): boolean =>
           refuses(
             {
-              colliders: Array.from({ length: 65 }, (_: unknown, index: number): IAutoMovieSoftBodyDomain["colliders"][number] => ({
-                kind: "plane" as const,
-                id: `plane-${index}`,
-                normal: { x: 0, y: 1, z: 0 },
-                offset: -4,
-              })),
+              colliders: Array.from(
+                { length: 65 },
+                (
+                  _: unknown,
+                  index: number,
+                ): IAutoMovieSoftBodyDomain["colliders"][number] => ({
+                  kind: "plane" as const,
+                  id: `plane-${index}`,
+                  normal: { x: 0, y: 1, z: 0 },
+                  offset: -4,
+                }),
+              ),
             },
             "range",
             "$input.colliders",
@@ -357,7 +378,9 @@ export function assertSoftBodyBoundaryRefusals(
     gustAcceleration: 1,
     gustHz: 2,
   };
-  const wind: (patch: Partial<NonNullable<IAutoMovieSoftBodyDomain["wind"]>>) => Partial<IAutoMovieSoftBodyDomain> = (
+  const wind: (
+    patch: Partial<NonNullable<IAutoMovieSoftBodyDomain["wind"]>>,
+  ) => Partial<IAutoMovieSoftBodyDomain> = (
     patch: Partial<NonNullable<IAutoMovieSoftBodyDomain["wind"]>>,
   ): Partial<IAutoMovieSoftBodyDomain> => ({
     wind: { ...still, ...patch },
@@ -392,7 +415,10 @@ export function assertSoftBodyBoundaryRefusals(
             "wind.gustAcceleration",
           ),
       ],
-      ["hz", (): boolean => refuses(wind({ gustHz: -1 }), "range", "wind.gustHz")],
+      [
+        "hz",
+        (): boolean => refuses(wind({ gustHz: -1 }), "range", "wind.gustHz"),
+      ],
       [
         "absent",
         (): boolean =>

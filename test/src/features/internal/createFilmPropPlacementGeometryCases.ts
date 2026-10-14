@@ -1,7 +1,13 @@
-import type { IAutoMoviePropSpec, IAutoMovieStageSetPiece, IAutoMovieBuiltEnvironment, IAutoMoviePropRelationTarget } from "@automovie/interface";
-import { inSpace, propEnvironment } from "./propPlacementFixtures";
+import type {
+  IAutoMovieBuiltEnvironment,
+  IAutoMoviePropRelationTarget,
+  IAutoMoviePropSpec,
+  IAutoMovieStageSetPiece,
+} from "@automovie/interface";
+
 import type { IFilmPropPlacementCaseInputs } from "./IFilmPropPlacementCaseInputs";
 import type { namedFacts } from "./predicates";
+import { inSpace, propEnvironment } from "./propPlacementFixtures";
 
 /**
  * Preserve the original multiplicity, bounds and geometric refusal predicate order.
@@ -14,8 +20,16 @@ import type { namedFacts } from "./predicates";
 export function createFilmPropPlacementGeometryCases(
   input: IFilmPropPlacementCaseInputs,
 ): Parameters<typeof namedFacts>[0] {
-  const { violated, TABLE, LAMP, SCONCE, CHARGER, PENDANT, CABINET, DOOR }: IFilmPropPlacementCaseInputs =
-    input;
+  const {
+    violated,
+    TABLE,
+    LAMP,
+    SCONCE,
+    CHARGER,
+    PENDANT,
+    CABINET,
+    DOOR,
+  }: IFilmPropPlacementCaseInputs = input;
   return [
     // 4. relation multiplicity and the support graph.
     [
@@ -34,7 +48,8 @@ export function createFilmPropPlacementGeometryCases(
       "secondOccupiedSpace",
       (): boolean =>
         violated(
-          (props: IAutoMoviePropSpec[]): number => props[SCONCE]!.placement!.relations.push(inSpace("annex")),
+          (props: IAutoMoviePropSpec[]): number =>
+            props[SCONCE]!.placement!.relations.push(inSpace("annex")),
           "$input.props[2].placement.relations[2].kind",
           "at most one logical space",
         ),
@@ -60,9 +75,14 @@ export function createFilmPropPlacementGeometryCases(
       "filledOpeningInAnotherEnvironment",
       (): boolean =>
         violated(
-          (props: IAutoMoviePropSpec[], _set: IAutoMovieStageSetPiece[], environments: IAutoMovieBuiltEnvironment[]): void => {
+          (
+            props: IAutoMoviePropSpec[],
+            _set: IAutoMovieStageSetPiece[],
+            environments: IAutoMovieBuiltEnvironment[],
+          ): void => {
             environments.push(propEnvironment("annexe"));
-            const target: IAutoMoviePropRelationTarget = props[DOOR]!.placement!.relations[1]!.target;
+            const target: IAutoMoviePropRelationTarget =
+              props[DOOR]!.placement!.relations[1]!.target;
             if (target.kind === "opening") target.environment = "annexe";
           },
           "$input.props[7].placement.relations[1].target.environment",
@@ -92,7 +112,8 @@ export function createFilmPropPlacementGeometryCases(
       "footprintAxis",
       (): boolean =>
         violated(
-          (props: IAutoMoviePropSpec[]): number => (props[CABINET]!.placement!.footprint!.max.x = -1),
+          (props: IAutoMoviePropSpec[]): number =>
+            (props[CABINET]!.placement!.footprint!.max.x = -1),
           "$input.props[6].placement.footprint.x",
           "min < max",
         ),
@@ -101,7 +122,8 @@ export function createFilmPropPlacementGeometryCases(
       "blankClearanceId",
       (): boolean =>
         violated(
-          (props: IAutoMoviePropSpec[]): string => (props[LAMP]!.placement!.clearance[0]!.id = " "),
+          (props: IAutoMoviePropSpec[]): string =>
+            (props[LAMP]!.placement!.clearance[0]!.id = " "),
           "$input.props[1].placement.clearance[0].id",
           "non-empty",
         ),
@@ -122,7 +144,8 @@ export function createFilmPropPlacementGeometryCases(
       "clearanceXOrder",
       (): boolean =>
         violated(
-          (props: IAutoMoviePropSpec[]): number => (props[LAMP]!.placement!.clearance[0]!.max.x = -1),
+          (props: IAutoMoviePropSpec[]): number =>
+            (props[LAMP]!.placement!.clearance[0]!.max.x = -1),
           "$input.props[1].placement.clearance[0].x",
         ),
     ],
@@ -130,7 +153,8 @@ export function createFilmPropPlacementGeometryCases(
       "clearanceYNotFinite",
       (): boolean =>
         violated(
-          (props: IAutoMoviePropSpec[]): number => (props[LAMP]!.placement!.clearance[0]!.min.y = NaN),
+          (props: IAutoMoviePropSpec[]): number =>
+            (props[LAMP]!.placement!.clearance[0]!.min.y = NaN),
           "$input.props[1].placement.clearance[0].y",
         ),
     ],
@@ -138,7 +162,8 @@ export function createFilmPropPlacementGeometryCases(
       "clearanceZInfinite",
       (): boolean =>
         violated(
-          (props: IAutoMoviePropSpec[]): number => (props[LAMP]!.placement!.clearance[0]!.max.z = Infinity),
+          (props: IAutoMoviePropSpec[]): number =>
+            (props[LAMP]!.placement!.clearance[0]!.max.z = Infinity),
           "$input.props[1].placement.clearance[0].z",
         ),
     ],
@@ -147,7 +172,11 @@ export function createFilmPropPlacementGeometryCases(
       "leavesOccupiedSpace",
       (): boolean =>
         violated(
-          (_props: IAutoMoviePropSpec[], set: IAutoMovieStageSetPiece[]): { x: number; y: number; z: number; } => (set[PENDANT]!.position = { x: 0, y: 3, z: 12 }),
+          (
+            _props: IAutoMoviePropSpec[],
+            set: IAutoMovieStageSetPiece[],
+          ): { x: number; y: number; z: number } =>
+            (set[PENDANT]!.position = { x: 0, y: 3, z: 12 }),
           "$input.props[4].placement.relations[0].target.space",
           "leaves logical space",
         ),
@@ -156,7 +185,10 @@ export function createFilmPropPlacementGeometryCases(
       "doorDoesNotFitOpening",
       (): boolean =>
         violated(
-          (_props: IAutoMoviePropSpec[], set: IAutoMovieStageSetPiece[]): number => (set[DOOR]!.scale = 3),
+          (
+            _props: IAutoMoviePropSpec[],
+            set: IAutoMovieStageSetPiece[],
+          ): number => (set[DOOR]!.scale = 3),
           "$input.props[7].placement.relations[1].target.opening",
           "does not fit the fill element",
         ),
@@ -165,7 +197,10 @@ export function createFilmPropPlacementGeometryCases(
       "spacelessLeafIsStillMeasured",
       (): boolean =>
         violated(
-          (props: IAutoMoviePropSpec[], set: IAutoMovieStageSetPiece[]): void => {
+          (
+            props: IAutoMoviePropSpec[],
+            set: IAutoMovieStageSetPiece[],
+          ): void => {
             props[DOOR]!.placement!.relations.splice(0, 1);
             set[DOOR]!.scale = 3;
           },
@@ -177,7 +212,11 @@ export function createFilmPropPlacementGeometryCases(
       "declaredFootprintWidensWhatIsRefused",
       (): boolean =>
         violated(
-          (_props: IAutoMoviePropSpec[], set: IAutoMovieStageSetPiece[]): { x: number; y: number; z: number; } => (set[SCONCE]!.position = { x: -4, y: 0.3, z: 3.8 }),
+          (
+            _props: IAutoMoviePropSpec[],
+            set: IAutoMovieStageSetPiece[],
+          ): { x: number; y: number; z: number } =>
+            (set[SCONCE]!.position = { x: -4, y: 0.3, z: 3.8 }),
           "$input.props[6].placement.footprint",
           'overlaps prop "sconce"',
         ),
@@ -186,7 +225,11 @@ export function createFilmPropPlacementGeometryCases(
       "occupancyOverlapsUndeclaredProp",
       (): boolean =>
         violated(
-          (_props: IAutoMoviePropSpec[], set: IAutoMovieStageSetPiece[]): { x: number; y: number; z: number; } => (set[PENDANT]!.position = { x: 0, y: 2, z: -2 }),
+          (
+            _props: IAutoMoviePropSpec[],
+            set: IAutoMovieStageSetPiece[],
+          ): { x: number; y: number; z: number } =>
+            (set[PENDANT]!.position = { x: 0, y: 2, z: -2 }),
           "$input.props[5].placement.footprint",
           "declares no contact with it",
         ),
@@ -195,7 +238,11 @@ export function createFilmPropPlacementGeometryCases(
       "clearanceIntersectsProp",
       (): boolean =>
         violated(
-          (_props: IAutoMoviePropSpec[], set: IAutoMovieStageSetPiece[]): { x: number; y: number; z: number; } => (set[CHARGER]!.position = { x: 1.5, y: 0.9, z: 0 }),
+          (
+            _props: IAutoMoviePropSpec[],
+            set: IAutoMovieStageSetPiece[],
+          ): { x: number; y: number; z: number } =>
+            (set[CHARGER]!.position = { x: 1.5, y: 0.9, z: 0 }),
           "$input.props[1].placement.clearance[0]",
           "intersects staged prop",
         ),
@@ -204,7 +251,11 @@ export function createFilmPropPlacementGeometryCases(
       "blocksOpening",
       (): boolean =>
         violated(
-          (_props: IAutoMoviePropSpec[], set: IAutoMovieStageSetPiece[]): { x: number; y: number; z: number; } => (set[SCONCE]!.position = { x: 3.9, y: 1, z: 0 }),
+          (
+            _props: IAutoMoviePropSpec[],
+            set: IAutoMovieStageSetPiece[],
+          ): { x: number; y: number; z: number } =>
+            (set[SCONCE]!.position = { x: 3.9, y: 1, z: 0 }),
           "$input.props[2].placement",
           'blocks opening "doorway"',
         ),
@@ -213,7 +264,11 @@ export function createFilmPropPlacementGeometryCases(
       "blocksConnector",
       (): boolean =>
         violated(
-          (_props: IAutoMoviePropSpec[], set: IAutoMovieStageSetPiece[]): { x: number; y: number; z: number; } => (set[SCONCE]!.position = { x: -4.5, y: 1, z: -3 }),
+          (
+            _props: IAutoMoviePropSpec[],
+            set: IAutoMovieStageSetPiece[],
+          ): { x: number; y: number; z: number } =>
+            (set[SCONCE]!.position = { x: -4.5, y: 1, z: -3 }),
           "$input.props[2].placement",
           'blocks connector "stair"',
         ),
@@ -223,7 +278,10 @@ export function createFilmPropPlacementGeometryCases(
       "floatsAboveItsPatch",
       (): boolean =>
         violated(
-          (_props: IAutoMoviePropSpec[], set: IAutoMovieStageSetPiece[]): number => (set[CABINET]!.position.y = 0.5),
+          (
+            _props: IAutoMoviePropSpec[],
+            set: IAutoMovieStageSetPiece[],
+          ): number => (set[CABINET]!.position.y = 0.5),
           "$input.props[6].placement.relations[2].target.surface",
           'floats above support surface "floor"',
         ),
@@ -232,7 +290,10 @@ export function createFilmPropPlacementGeometryCases(
       "sinksIntoItsPatch",
       (): boolean =>
         violated(
-          (_props: IAutoMoviePropSpec[], set: IAutoMovieStageSetPiece[]): number => (set[CABINET]!.position.y = 0.1),
+          (
+            _props: IAutoMoviePropSpec[],
+            set: IAutoMovieStageSetPiece[],
+          ): number => (set[CABINET]!.position.y = 0.1),
           "$input.props[6].placement.relations[2].target.surface",
           'sinks into support surface "floor"',
         ),
@@ -242,7 +303,8 @@ export function createFilmPropPlacementGeometryCases(
       (): boolean =>
         violated(
           (props: IAutoMoviePropSpec[]): void => {
-            const target: IAutoMoviePropRelationTarget = props[CABINET]!.placement!.relations[2]!.target;
+            const target: IAutoMoviePropRelationTarget =
+              props[CABINET]!.placement!.relations[2]!.target;
             if (target.kind === "surface") target.surface = "annex-floor";
           },
           "$input.props[6].placement.relations[2].target.surface",
@@ -270,7 +332,10 @@ export function createFilmPropPlacementGeometryCases(
       "floatsAboveItsHostTop",
       (): boolean =>
         violated(
-          (_props: IAutoMoviePropSpec[], set: IAutoMovieStageSetPiece[]): number => (set[LAMP]!.position.y = 1.2),
+          (
+            _props: IAutoMoviePropSpec[],
+            set: IAutoMovieStageSetPiece[],
+          ): number => (set[LAMP]!.position.y = 1.2),
           "$input.props[1].placement.relations[1].target.affordance",
           'floats above prop "table" affordance "top"',
         ),
@@ -279,7 +344,10 @@ export function createFilmPropPlacementGeometryCases(
       "sinksIntoItsHostTop",
       (): boolean =>
         violated(
-          (_props: IAutoMoviePropSpec[], set: IAutoMovieStageSetPiece[]): number => (set[LAMP]!.position.y = 0.8),
+          (
+            _props: IAutoMoviePropSpec[],
+            set: IAutoMovieStageSetPiece[],
+          ): number => (set[LAMP]!.position.y = 0.8),
           "$input.props[1].placement.relations[1].target.affordance",
           'sinks into prop "table" affordance "top"',
         ),
@@ -288,7 +356,11 @@ export function createFilmPropPlacementGeometryCases(
       "standsOffItsHostTop",
       (): boolean =>
         violated(
-          (_props: IAutoMoviePropSpec[], set: IAutoMovieStageSetPiece[]): { x: number; y: number; z: number; } => (set[LAMP]!.position = { x: 0, y: 0.96, z: 3 }),
+          (
+            _props: IAutoMoviePropSpec[],
+            set: IAutoMovieStageSetPiece[],
+          ): { x: number; y: number; z: number } =>
+            (set[LAMP]!.position = { x: 0, y: 0.96, z: 3 }),
           "$input.props[1].placement.relations[1].target.affordance",
           'does not stand over prop "table" affordance "top"',
         ),

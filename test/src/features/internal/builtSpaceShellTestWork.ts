@@ -12,7 +12,9 @@ import { createModel } from "./fixtures";
  * The literal identity placement and authored hall shell establish the input geometry; createModel supplies the original ordinary model record without generating expected containment results.
  * Consumers override shell/cells to distinguish either spelling, absent volume and malformed meshes. Each call creates mutable top-level records while retaining the module-owned hall shell reference.
  */
-export const builtSpaceShellTestWork: (space: Partial<IAutoMovieBuiltSpace>) => IAutoMovieBuiltEnvironment = (
+export const builtSpaceShellTestWork: (
+  space: Partial<IAutoMovieBuiltSpace>,
+) => IAutoMovieBuiltEnvironment = (
   space: Partial<IAutoMovieBuiltSpace>,
 ): IAutoMovieBuiltEnvironment => ({
   version: 1,

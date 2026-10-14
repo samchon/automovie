@@ -1,7 +1,3 @@
-import type { IAutoMoviePerformedShot } from "../../../../packages/engine/src/film/IAutoMoviePerformedShot";
-import type { IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
-import { performShot } from "../../../../packages/engine/src/film/performShot";
-import { stageScene } from "../../../../packages/engine/src/film/stageScene";
 import type {
   IAutoMovieActionCall,
   IAutoMovieScript,
@@ -11,6 +7,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import type { IAutoMoviePerformedShot } from "../../../../packages/engine/src/film/IAutoMoviePerformedShot";
+import type { IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
+import { performShot } from "../../../../packages/engine/src/film/performShot";
+import { stageScene } from "../../../../packages/engine/src/film/stageScene";
 import {
   makePerformanceWrite,
   makeScriptWrite,
@@ -69,10 +69,11 @@ export const createFilmPositionalTargetPerformer: (
       ? staging
       : {
           ...staging,
-          actors: staging.actors.map((actor: IAutoMovieStageActor): IAutoMovieStageActor =>
-            actor.node === "knightA"
-              ? { ...actor, position: actorPosition }
-              : actor,
+          actors: staging.actors.map(
+            (actor: IAutoMovieStageActor): IAutoMovieStageActor =>
+              actor.node === "knightA"
+                ? { ...actor, position: actorPosition }
+                : actor,
           ),
         },
   );

@@ -10,12 +10,20 @@ import { hasViolation, namedFacts } from "./predicates";
  * Closed texture roles, first-UV support, finite sampler/transform values and the supported alpha/physical ranges define literal refusal paths; hasViolation reads actual diagnostics rather than a repository manifest or source pattern.
  * Preserves blank/non-record bindings, unsupported UV/color/sampler/coordinate choices, nonfinite transforms and physical/alpha contradictions; the caller separately retains valid one-away and legacy twins.
  */
-export const assertViewerPbrDeclarationRefusals: (validateMaterial: (patch: Record<string, unknown>) => ReturnType<typeof validateModel>) => void = (
+export const assertViewerPbrDeclarationRefusals: (
+  validateMaterial: (
+    patch: Record<string, unknown>,
+  ) => ReturnType<typeof validateModel>,
+) => void = (
   validateMaterial: (
     patch: Record<string, unknown>,
   ) => ReturnType<typeof validateModel>,
 ): void => {
-  const materialRefusedAt: (patch: Record<string, unknown>, kind: "type" | "range", path: string) => boolean = (
+  const materialRefusedAt: (
+    patch: Record<string, unknown>,
+    kind: "type" | "range",
+    path: string,
+  ) => boolean = (
     patch: Record<string, unknown>,
     kind: "type" | "range",
     path: string,
@@ -325,24 +333,29 @@ export const assertViewerPbrDeclarationRefusals: (validateMaterial: (patch: Reco
       ],
       [
         "transmission",
-        (): boolean => materialRefusedAt({ transmission: -1 }, "range", ".transmission"),
+        (): boolean =>
+          materialRefusedAt({ transmission: -1 }, "range", ".transmission"),
       ],
       ["ior", (): boolean => materialRefusedAt({ ior: 0.99 }, "range", ".ior")],
       [
         "thickness",
-        (): boolean => materialRefusedAt({ thickness: -1 }, "range", ".thickness"),
+        (): boolean =>
+          materialRefusedAt({ thickness: -1 }, "range", ".thickness"),
       ],
       [
         "clearcoat",
-        (): boolean => materialRefusedAt({ clearcoat: 2 }, "range", ".clearcoat"),
+        (): boolean =>
+          materialRefusedAt({ clearcoat: 2 }, "range", ".clearcoat"),
       ],
       [
         "doubleSided",
-        (): boolean => materialRefusedAt({ doubleSided: "yes" }, "type", ".doubleSided"),
+        (): boolean =>
+          materialRefusedAt({ doubleSided: "yes" }, "type", ".doubleSided"),
       ],
       [
         "alphaMode",
-        (): boolean => materialRefusedAt({ alphaMode: "hash" }, "type", ".alphaMode"),
+        (): boolean =>
+          materialRefusedAt({ alphaMode: "hash" }, "type", ".alphaMode"),
       ],
       [
         "alphaCutoffRange",

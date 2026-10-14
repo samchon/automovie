@@ -8,7 +8,11 @@ import type { IAutoMovieMaterial, IAutoMovieModel } from "@automovie/interface";
  * @evidence contracts/testing.md#distinguishing-cases Omitted parts selects one; supplied counts retain Array.from length semantics, missing per-part material selects null, and the supplied materials array is borrowed rather than cloned or admitted.
  * @evidence contracts/testing.md#execution-ownership Pure fixture construction for existing unit entries, with fresh part records and no renderer, filesystem, native artifact or case registration.
  */
-export const boxModel: (props: { id: string; parts?: number; materials?: IAutoMovieMaterial[]; }) => IAutoMovieModel = (props: {
+export const boxModel: (props: {
+  id: string;
+  parts?: number;
+  materials?: IAutoMovieMaterial[];
+}) => IAutoMovieModel = (props: {
   id: string;
   parts?: number;
   materials?: IAutoMovieMaterial[];
@@ -16,17 +20,20 @@ export const boxModel: (props: { id: string; parts?: number; materials?: IAutoMo
   id: props.id,
   name: null,
   origin: "generated",
-  parts: Array.from({ length: props.parts ?? 1 }, (_: unknown, index: number) : IAutoMovieModel["parts"][number] => ({
-    id: `${props.id}-part-${index}`,
-    name: null,
-    geometry: {
-      type: "primitive" as const,
-      shape: { type: "box" as const, width: 1, height: 1, depth: 1 },
-    },
-    material: (props.materials ?? [])[index]?.id ?? null,
-    attachedBone: null,
-    transform: null,
-  })),
+  parts: Array.from(
+    { length: props.parts ?? 1 },
+    (_: unknown, index: number): IAutoMovieModel["parts"][number] => ({
+      id: `${props.id}-part-${index}`,
+      name: null,
+      geometry: {
+        type: "primitive" as const,
+        shape: { type: "box" as const, width: 1, height: 1, depth: 1 },
+      },
+      material: (props.materials ?? [])[index]?.id ?? null,
+      attachedBone: null,
+      transform: null,
+    }),
+  ),
   skeleton: null,
   body: null,
   materials: props.materials ?? [],

@@ -1,5 +1,14 @@
-import { lowerSoftFurnishing, validateAutoMovieSoftFurnishingDomainOwnership, validateSoftFurnishings } from "@automovie/engine";
-import { IAutoMovieSoftBodyDomain, IAutoMovieSoftFurnishing, IAutoMovieValidation, IAutoMovieConstraintViolation } from "@automovie/interface";
+import {
+  lowerSoftFurnishing,
+  validateAutoMovieSoftFurnishingDomainOwnership,
+  validateSoftFurnishings,
+} from "@automovie/engine";
+import {
+  IAutoMovieConstraintViolation,
+  IAutoMovieSoftBodyDomain,
+  IAutoMovieSoftFurnishing,
+  IAutoMovieValidation,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts } from "./predicates";
@@ -7,7 +16,9 @@ import { roomEnvironment, softFurnishing } from "./softFixtures";
 
 /** Run the original global ownership, lowering capability and time-budget cases after the owning test's local binding checks. The original panel function object and shared fixture exports preserve every input, evaluation order and assertion. */
 export function assertSoftFurnishingOwnershipAndLowering(
-  panel: (overrides?: Partial<IAutoMovieSoftBodyDomain>) => IAutoMovieSoftBodyDomain,
+  panel: (
+    overrides?: Partial<IAutoMovieSoftBodyDomain>,
+  ) => IAutoMovieSoftBodyDomain,
 ): void {
   const duplicateDomains: IAutoMovieSoftFurnishing[] = [
     softFurnishing({
@@ -29,15 +40,21 @@ export function assertSoftFurnishingOwnershipAndLowering(
       domain: "a-domain",
     }),
   ];
-  const ownershipFacts: (furnishings: IAutoMovieSoftFurnishing[]) => [unknown, string][] = (furnishings: IAutoMovieSoftFurnishing[]): [unknown, string][] => {
+  const ownershipFacts: (
+    furnishings: IAutoMovieSoftFurnishing[],
+  ) => [unknown, string][] = (
+    furnishings: IAutoMovieSoftFurnishing[],
+  ): [unknown, string][] => {
     const validation: IAutoMovieValidation =
       validateAutoMovieSoftFurnishingDomainOwnership(furnishings);
     return validation.success === true
       ? []
-      : validation.violations.map((violation: IAutoMovieConstraintViolation): [unknown, string] => [
-          violation.value,
-          violation.expected,
-        ]);
+      : validation.violations.map(
+          (violation: IAutoMovieConstraintViolation): [unknown, string] => [
+            violation.value,
+            violation.expected,
+          ],
+        );
   };
   const expectedOwnershipFacts: [string, string][] = [
     [
@@ -111,15 +128,34 @@ export function assertSoftFurnishingOwnershipAndLowering(
     },
   );
 
-  const frame: (furnishing: IAutoMovieSoftFurnishing, domain: IAutoMovieSoftBodyDomain) => ReturnType<typeof lowerSoftFurnishing> = (
+  const frame: (
     furnishing: IAutoMovieSoftFurnishing,
     domain: IAutoMovieSoftBodyDomain,
-  ): ReturnType<typeof lowerSoftFurnishing> => lowerSoftFurnishing({ furnishing, domain, time: 0.5 });
-  const notRun: ReturnType<typeof lowerSoftFurnishing> = frame(softFurnishing(), panel({ mass: [1] }));
-  const unnamed: ReturnType<typeof lowerSoftFurnishing> = frame(softFurnishing({ state: "shut" }), panel());
-  const unsupported: ReturnType<typeof lowerSoftFurnishing> = frame(softFurnishing(), panel({ selfCollision: true }));
-  const resting: ReturnType<typeof lowerSoftFurnishing> = frame(softFurnishing({ mode: "rest" }), panel());
-  const solved: ReturnType<typeof lowerSoftFurnishing> = frame(softFurnishing({ state: "open" }), panel());
+  ) => ReturnType<typeof lowerSoftFurnishing> = (
+    furnishing: IAutoMovieSoftFurnishing,
+    domain: IAutoMovieSoftBodyDomain,
+  ): ReturnType<typeof lowerSoftFurnishing> =>
+    lowerSoftFurnishing({ furnishing, domain, time: 0.5 });
+  const notRun: ReturnType<typeof lowerSoftFurnishing> = frame(
+    softFurnishing(),
+    panel({ mass: [1] }),
+  );
+  const unnamed: ReturnType<typeof lowerSoftFurnishing> = frame(
+    softFurnishing({ state: "shut" }),
+    panel(),
+  );
+  const unsupported: ReturnType<typeof lowerSoftFurnishing> = frame(
+    softFurnishing(),
+    panel({ selfCollision: true }),
+  );
+  const resting: ReturnType<typeof lowerSoftFurnishing> = frame(
+    softFurnishing({ mode: "rest" }),
+    panel(),
+  );
+  const solved: ReturnType<typeof lowerSoftFurnishing> = frame(
+    softFurnishing({ state: "open" }),
+    panel(),
+  );
   TestValidator.equals(
     "the capability matrix reports what was computed and what was not",
     namedFacts([
@@ -133,7 +169,8 @@ export function assertSoftFurnishingOwnershipAndLowering(
       ],
       [
         "unnamedState",
-        (): boolean => unnamed.analysis.status === "not-run" && unnamed.state === null,
+        (): boolean =>
+          unnamed.analysis.status === "not-run" && unnamed.state === null,
       ],
       [
         "unsupported",
@@ -175,7 +212,10 @@ export function assertSoftFurnishingOwnershipAndLowering(
       [
         "mismatchedDomain",
         (): boolean => {
-          const odd: ReturnType<typeof lowerSoftFurnishing> = frame(softFurnishing({ domain: "other" }), panel());
+          const odd: ReturnType<typeof lowerSoftFurnishing> = frame(
+            softFurnishing({ domain: "other" }),
+            panel(),
+          );
           return (
             odd.analysis.status === "not-run" &&
             odd.state === null &&
@@ -232,11 +272,12 @@ export function assertSoftFurnishingOwnershipAndLowering(
       [
         "notReal",
         (): boolean => {
-          const odd: ReturnType<typeof lowerSoftFurnishing> = lowerSoftFurnishing({
-            furnishing: softFurnishing(),
-            domain: panel(),
-            time: Number.NaN,
-          });
+          const odd: ReturnType<typeof lowerSoftFurnishing> =
+            lowerSoftFurnishing({
+              furnishing: softFurnishing(),
+              domain: panel(),
+              time: Number.NaN,
+            });
           return odd.analysis.status === "not-run" && odd.state === null;
         },
       ],

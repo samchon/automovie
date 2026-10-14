@@ -1,4 +1,8 @@
-import type { IAutoMovieMaterialAssembly, IAutoMovieMaterialLayer, IAutoMovieValidation } from "@automovie/interface";
+import type {
+  IAutoMovieMaterialAssembly,
+  IAutoMovieMaterialLayer,
+  IAutoMovieValidation,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { assembly, layer } from "./materialFixtures";
@@ -12,17 +16,25 @@ import { namedFacts } from "./predicates";
 export function assertMaterialAssemblyFinishDefects(
   judge: (one: IAutoMovieMaterialAssembly) => IAutoMovieValidation,
 ): void {
-  const three: (finishes: readonly boolean[], faces: IAutoMovieMaterialAssembly["faces"]) => IAutoMovieMaterialAssembly = (
+  const three: (
+    finishes: readonly boolean[],
+    faces: IAutoMovieMaterialAssembly["faces"],
+  ) => IAutoMovieMaterialAssembly = (
     finishes: readonly boolean[],
     faces: IAutoMovieMaterialAssembly["faces"],
   ): IAutoMovieMaterialAssembly =>
     assembly(
-      ["outer", "middle", "inner"].map((id: string, index: number): IAutoMovieMaterialLayer =>
-        layer(id, 0.05, { finish: finishes[index] }),
+      ["outer", "middle", "inner"].map(
+        (id: string, index: number): IAutoMovieMaterialLayer =>
+          layer(id, 0.05, { finish: finishes[index] }),
       ),
       { faces },
     );
-  const solitary: (one: IAutoMovieValidation, path: string, fragment: string) => boolean = (
+  const solitary: (
+    one: IAutoMovieValidation,
+    path: string,
+    fragment: string,
+  ) => boolean = (
     one: IAutoMovieValidation,
     path: string,
     fragment: string,
@@ -107,7 +119,10 @@ export function assertMaterialAssemblyFinishDefects(
     },
   );
 
-  const single: (finish: boolean, faces: IAutoMovieMaterialAssembly["faces"]) => IAutoMovieMaterialAssembly = (
+  const single: (
+    finish: boolean,
+    faces: IAutoMovieMaterialAssembly["faces"],
+  ) => IAutoMovieMaterialAssembly = (
     finish: boolean,
     faces: IAutoMovieMaterialAssembly["faces"],
   ): IAutoMovieMaterialAssembly =>

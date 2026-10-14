@@ -1,13 +1,28 @@
 import { growPlanting, validatePlantingDomain } from "@automovie/engine";
-import type { AutoMovieViolationKind, IAutoMoviePlantingCluster, IAutoMoviePlantingDomain, IAutoMovieValidation, IAutoMovieConstraintViolation } from "@automovie/interface";
+import type {
+  AutoMovieViolationKind,
+  IAutoMovieConstraintViolation,
+  IAutoMoviePlantingCluster,
+  IAutoMoviePlantingDomain,
+  IAutoMovieValidation,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
+
 import { namedFacts, throwsError } from "./predicates";
 import { plantingRecipe } from "./softFixtures";
 
 /** Run the original pruning, foliage, budget and cluster admission cases for test_planting_validation in order, using its unchanged refusal callbacks. This helper creates no independently registered test or host. */
 export function assertPlantingValidationLimits(
-  refuses: (overrides: Partial<IAutoMoviePlantingDomain>, kind: AutoMovieViolationKind, path: string) => boolean,
-  refusesCluster: (overrides: Partial<IAutoMoviePlantingCluster>, kind: AutoMovieViolationKind, path: string) => boolean,
+  refuses: (
+    overrides: Partial<IAutoMoviePlantingDomain>,
+    kind: AutoMovieViolationKind,
+    path: string,
+  ) => boolean,
+  refusesCluster: (
+    overrides: Partial<IAutoMoviePlantingCluster>,
+    kind: AutoMovieViolationKind,
+    path: string,
+  ) => boolean,
 ): void {
   TestValidator.equals(
     "the pruning envelope and the foliage rule are named",
@@ -262,7 +277,10 @@ export function assertPlantingValidationLimits(
           });
           return (
             validation.success === false &&
-            validation.violations.every((item: IAutoMovieConstraintViolation): boolean => item.kind !== "range")
+            validation.violations.every(
+              (item: IAutoMovieConstraintViolation): boolean =>
+                item.kind !== "range",
+            )
           );
         },
       ],

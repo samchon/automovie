@@ -1,6 +1,16 @@
 import { serviceSystemLoad } from "@automovie/engine";
-import type { IAutoMovieServiceNetwork, IAutoMovieValidation, IAutoMovieServiceNode, IAutoMovieServicePort, IAutoMovieServiceSegment, IAutoMovieServiceSystem, IAutoMovieServicePenetration, IAutoMovieConstraintViolation } from "@automovie/interface";
+import type {
+  IAutoMovieConstraintViolation,
+  IAutoMovieServiceNetwork,
+  IAutoMovieServiceNode,
+  IAutoMovieServicePenetration,
+  IAutoMovieServicePort,
+  IAutoMovieServiceSegment,
+  IAutoMovieServiceSystem,
+  IAutoMovieValidation,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
+
 import { hasViolation, namedFacts, nclose, violationCount } from "./predicates";
 import { withNode, withPort, withSegment, withSystem } from "./serviceFixtures";
 
@@ -10,7 +20,14 @@ export function assertServiceNetworkSpatialDefects(
   refuse: (network?: IAutoMovieServiceNetwork) => IAutoMovieValidation,
 ): void {
   const discharging: IAutoMovieValidation = refuse(
-    withSystem(clean, "waste", (entry: IAutoMovieServiceSystem): IAutoMovieServiceSystem => ({ ...entry, capacity: 0.0005 })),
+    withSystem(
+      clean,
+      "waste",
+      (entry: IAutoMovieServiceSystem): IAutoMovieServiceSystem => ({
+        ...entry,
+        capacity: 0.0005,
+      }),
+    ),
   );
   TestValidator.equals(
     "a stack is loaded by what discharges into it, not by what it receives",
@@ -41,8 +58,9 @@ export function assertServiceNetworkSpatialDefects(
         "overshoot",
         () =>
           discharging.success === false &&
-          discharging.violations.some((item: IAutoMovieConstraintViolation): boolean =>
-            nclose(item.overshoot ?? -1, 0.0005, 1e-15),
+          discharging.violations.some(
+            (item: IAutoMovieConstraintViolation): boolean =>
+              nclose(item.overshoot ?? -1, 0.0005, 1e-15),
           ),
       ],
       ["alone", () => violationCount(discharging) === 1],
@@ -58,10 +76,14 @@ export function assertServiceNetworkSpatialDefects(
 
   const strayPort: IAutoMovieValidation = refuse(
     withSegment(
-      withPort(clean, "bath-light-in", (entry: IAutoMovieServicePort): IAutoMovieServicePort => ({
-        ...entry,
-        position: { x: 8.2, y: 2.95, z: 3 },
-      })),
+      withPort(
+        clean,
+        "bath-light-in",
+        (entry: IAutoMovieServicePort): IAutoMovieServicePort => ({
+          ...entry,
+          position: { x: 8.2, y: 2.95, z: 3 },
+        }),
+      ),
       "lighting-run",
       (run: IAutoMovieServiceSegment): IAutoMovieServiceSegment => ({
         ...run,
@@ -85,10 +107,11 @@ export function assertServiceNetworkSpatialDefects(
         "named",
         () =>
           strayPort.success === false &&
-          strayPort.violations.some((item: IAutoMovieConstraintViolation): boolean =>
-            item.expected.includes(
-              'service port "bath-light-in" of node "bath-light" stands outside logical space "bath"',
-            ),
+          strayPort.violations.some(
+            (item: IAutoMovieConstraintViolation): boolean =>
+              item.expected.includes(
+                'service port "bath-light-in" of node "bath-light" stands outside logical space "bath"',
+              ),
           ),
       ],
       [
@@ -96,15 +119,18 @@ export function assertServiceNetworkSpatialDefects(
         () =>
           strayPort.success === false &&
           strayPort.violations.every(
-            (item: IAutoMovieConstraintViolation): boolean => item.path !== "$input.nodes[13].position",
+            (item: IAutoMovieConstraintViolation): boolean =>
+              item.path !== "$input.nodes[13].position",
           ),
       ],
       [
         "onlyDefect",
         () =>
           strayPort.success === false &&
-          strayPort.violations.filter((item: IAutoMovieConstraintViolation): boolean => item.severity === "error")
-            .length === 1,
+          strayPort.violations.filter(
+            (item: IAutoMovieConstraintViolation): boolean =>
+              item.severity === "error",
+          ).length === 1,
       ],
     ]),
     { refused: true, named: true, nodeUnaccused: true, onlyDefect: true },
@@ -112,7 +138,9 @@ export function assertServiceNetworkSpatialDefects(
 
   const orphan: IAutoMovieValidation = refuse({
     ...clean,
-    segments: clean.segments.filter((entry: IAutoMovieServiceSegment): boolean => entry.id !== "cold-branch"),
+    segments: clean.segments.filter(
+      (entry: IAutoMovieServiceSegment): boolean => entry.id !== "cold-branch",
+    ),
   });
   TestValidator.equals(
     "deleting one branch leaves two stubs and one orphan, and nothing else",
@@ -135,16 +163,44 @@ export function assertServiceNetworkSpatialDefects(
   );
 
   const missingRoot: IAutoMovieValidation = refuse(
-    withSystem(clean, "cold", (entry: IAutoMovieServiceSystem): IAutoMovieServiceSystem => ({ ...entry, root: "nowhere" })),
+    withSystem(
+      clean,
+      "cold",
+      (entry: IAutoMovieServiceSystem): IAutoMovieServiceSystem => ({
+        ...entry,
+        root: "nowhere",
+      }),
+    ),
   );
   const foreignRoot: IAutoMovieValidation = refuse(
-    withSystem(clean, "cold", (entry: IAutoMovieServiceSystem): IAutoMovieServiceSystem => ({ ...entry, root: "floor-gully" })),
+    withSystem(
+      clean,
+      "cold",
+      (entry: IAutoMovieServiceSystem): IAutoMovieServiceSystem => ({
+        ...entry,
+        root: "floor-gully",
+      }),
+    ),
   );
   const receivingRoot: IAutoMovieValidation = refuse(
-    withSystem(clean, "cold", (entry: IAutoMovieServiceSystem): IAutoMovieServiceSystem => ({ ...entry, root: "basin" })),
+    withSystem(
+      clean,
+      "cold",
+      (entry: IAutoMovieServiceSystem): IAutoMovieServiceSystem => ({
+        ...entry,
+        root: "basin",
+      }),
+    ),
   );
   const emittingRoot: IAutoMovieValidation = refuse(
-    withSystem(clean, "waste", (entry: IAutoMovieServiceSystem): IAutoMovieServiceSystem => ({ ...entry, root: "floor-gully" })),
+    withSystem(
+      clean,
+      "waste",
+      (entry: IAutoMovieServiceSystem): IAutoMovieServiceSystem => ({
+        ...entry,
+        root: "floor-gully",
+      }),
+    ),
   );
   TestValidator.equals(
     "a root must exist, belong to its system, and face the way the flow does",
@@ -170,17 +226,25 @@ export function assertServiceNetworkSpatialDefects(
   );
 
   const placement: IAutoMovieValidation = refuse(
-    withNode(clean, "basin", (entry: IAutoMovieServiceNode): IAutoMovieServiceNode => ({
-      ...entry,
-      space: "attic",
-      element: "ghost",
-    })),
+    withNode(
+      clean,
+      "basin",
+      (entry: IAutoMovieServiceNode): IAutoMovieServiceNode => ({
+        ...entry,
+        space: "attic",
+        element: "ghost",
+      }),
+    ),
   );
   const outside: IAutoMovieValidation = refuse(
-    withNode(clean, "basin", (entry: IAutoMovieServiceNode): IAutoMovieServiceNode => ({
-      ...entry,
-      position: { x: 9, y: 0.9, z: 1 },
-    })),
+    withNode(
+      clean,
+      "basin",
+      (entry: IAutoMovieServiceNode): IAutoMovieServiceNode => ({
+        ...entry,
+        position: { x: 9, y: 0.9, z: 1 },
+      }),
+    ),
   );
   TestValidator.equals(
     "a node must name a real space and element, and stand inside that space",
@@ -204,10 +268,14 @@ export function assertServiceNetworkSpatialDefects(
 
   const state: IAutoMovieValidation = refuse(
     withNode(
-      withNode(clean, "bath-valve", (entry: IAutoMovieServiceNode): IAutoMovieServiceNode => ({
-        ...entry,
-        state: { name: "   ", opening: 1.5 },
-      })),
+      withNode(
+        clean,
+        "bath-valve",
+        (entry: IAutoMovieServiceNode): IAutoMovieServiceNode => ({
+          ...entry,
+          state: { name: "   ", opening: 1.5 },
+        }),
+      ),
       "ahu",
       (entry: IAutoMovieServiceNode): IAutoMovieServiceNode => ({
         ...entry,
@@ -240,10 +308,14 @@ export function assertServiceNetworkSpatialDefects(
 
   const numbers: IAutoMovieValidation = refuse(
     withPort(
-      withNode(clean, "basin", (entry: IAutoMovieServiceNode): IAutoMovieServiceNode => ({
-        ...entry,
-        position: { x: Number.NaN, y: 0.9, z: 1 },
-      })),
+      withNode(
+        clean,
+        "basin",
+        (entry: IAutoMovieServiceNode): IAutoMovieServiceNode => ({
+          ...entry,
+          position: { x: Number.NaN, y: 0.9, z: 1 },
+        }),
+      ),
       "basin-cold",
       (entry: IAutoMovieServicePort): IAutoMovieServicePort => ({
         ...entry,
@@ -295,28 +367,40 @@ export function assertServiceNetworkSpatialDefects(
   );
 
   const orphanPort: IAutoMovieValidation = refuse(
-    withPort(clean, "basin-cold", (entry: IAutoMovieServicePort): IAutoMovieServicePort => ({
-      ...entry,
-      id: "   ",
-      system: "steam",
-      demand: Number.NaN,
-    })),
+    withPort(
+      clean,
+      "basin-cold",
+      (entry: IAutoMovieServicePort): IAutoMovieServicePort => ({
+        ...entry,
+        id: "   ",
+        system: "steam",
+        demand: Number.NaN,
+      }),
+    ),
   );
   const sleeveShape: IAutoMovieValidation = refuse({
     ...clean,
-    penetrations: clean.penetrations.map((entry: IAutoMovieServicePenetration, index: number): IAutoMovieServicePenetration =>
-      index === 0
-        ? { ...entry, position: { x: Number.NaN, y: 2.5, z: 1 } }
-        : index === 2
-          ? { ...entry, radius: 0 }
-          : entry,
+    penetrations: clean.penetrations.map(
+      (
+        entry: IAutoMovieServicePenetration,
+        index: number,
+      ): IAutoMovieServicePenetration =>
+        index === 0
+          ? { ...entry, position: { x: Number.NaN, y: 2.5, z: 1 } }
+          : index === 2
+            ? { ...entry, radius: 0 }
+            : entry,
     ),
   });
   const unmeasurable: IAutoMovieValidation = refuse(
-    withSystem(clean, "cold", (entry: IAutoMovieServiceSystem): IAutoMovieServiceSystem => ({
-      ...entry,
-      capacity: Number.NaN,
-    })),
+    withSystem(
+      clean,
+      "cold",
+      (entry: IAutoMovieServiceSystem): IAutoMovieServiceSystem => ({
+        ...entry,
+        capacity: Number.NaN,
+      }),
+    ),
   );
   TestValidator.equals(
     "a port on no system, a shapeless sleeve and an unmeasurable capacity",
@@ -355,7 +439,8 @@ export function assertServiceNetworkSpatialDefects(
           hasViolation(unmeasurable, "range", "$input.systems[0].capacity") &&
           unmeasurable.success === false &&
           unmeasurable.violations.every(
-            (item: IAutoMovieConstraintViolation): boolean => !item.expected.includes("of declared demand against"),
+            (item: IAutoMovieConstraintViolation): boolean =>
+              !item.expected.includes("of declared demand against"),
           ),
       ],
     ]),

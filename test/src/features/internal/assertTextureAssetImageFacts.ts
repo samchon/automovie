@@ -31,7 +31,9 @@ export function assertTextureAssetImageFacts(
         (): boolean =>
           hasViolation(
             closure({
-              facts: (asset: string): IAutoMovieTextureImageFacts | undefined =>
+              facts: (
+                asset: string,
+              ): IAutoMovieTextureImageFacts | undefined =>
                 asset === "public/textures/tile-base.png"
                   ? { mediaType: "image/vnd.radiance", width: 8, height: 8 }
                   : facts(asset),
@@ -55,7 +57,9 @@ export function assertTextureAssetImageFacts(
         (): boolean =>
           hasViolation(
             closure({
-              facts: (asset: string): IAutoMovieTextureImageFacts | undefined =>
+              facts: (
+                asset: string,
+              ): IAutoMovieTextureImageFacts | undefined =>
                 asset === "public/textures/tile-base.png"
                   ? { mediaType: "image/png", width: 0, height: 16 }
                   : facts(asset),
@@ -69,7 +73,9 @@ export function assertTextureAssetImageFacts(
         (): boolean =>
           hasViolation(
             closure({
-              facts: (asset: string): IAutoMovieTextureImageFacts | undefined =>
+              facts: (
+                asset: string,
+              ): IAutoMovieTextureImageFacts | undefined =>
                 asset === "public/textures/tile-base.png"
                   ? { mediaType: "image/png", width: 16, height: 16.5 }
                   : facts(asset),
@@ -83,7 +89,9 @@ export function assertTextureAssetImageFacts(
         (): boolean =>
           hasViolation(
             closure({
-              facts: (asset: string): IAutoMovieTextureImageFacts | undefined =>
+              facts: (
+                asset: string,
+              ): IAutoMovieTextureImageFacts | undefined =>
                 asset === "public/textures/tile-base.png"
                   ? { mediaType: "image/png", width: 8193, height: 16 }
                   : facts(asset),

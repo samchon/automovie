@@ -8,7 +8,15 @@ import { slab } from "./slab";
  *
  * Crossings remain separate overlapping members, so this fixture does not compute a boolean union or its material take-off. Work/output grow with rows+columns through slab generation and merge; the caller owns the new assembly and no input or generated cache is retained.
  */
-export const cofferedCeiling: (props: { width: number; depth: number; rows: number; columns: number; beam: number; drop: number; panel: number; }) => IAutoMovieMeshAssembly = (props: {
+export const cofferedCeiling: (props: {
+  width: number;
+  depth: number;
+  rows: number;
+  columns: number;
+  beam: number;
+  drop: number;
+  panel: number;
+}) => IAutoMovieMeshAssembly = (props: {
   width: number;
   depth: number;
   rows: number;
@@ -17,8 +25,11 @@ export const cofferedCeiling: (props: { width: number; depth: number; rows: numb
   drop: number;
   panel: number;
 }): IAutoMovieMeshAssembly => {
-  const across: (index: number, count: number, span: number) => number = (index: number, count: number, span: number): number =>
-    (index / count) * (span - props.beam) - (span - props.beam) / 2;
+  const across: (index: number, count: number, span: number) => number = (
+    index: number,
+    count: number,
+    span: number,
+  ): number => (index / count) * (span - props.beam) - (span - props.beam) / 2;
   const parts: IAutoMovieMeshPart[] = [
     {
       id: "panel",

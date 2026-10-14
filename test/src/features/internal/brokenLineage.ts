@@ -1,4 +1,5 @@
 import type { IAutoMovieDesignLineage } from "@automovie/interface";
+
 import { renovationLineage } from "./renovationLineage";
 
 /**
@@ -14,7 +15,9 @@ import { renovationLineage } from "./renovationLineage";
  * @evidence contracts/testing.md#distinguishing-cases Consumer edits isolate missing identities, malformed references, cycles, conflicting change keys and stale artifact metadata without mutating the next case's fixture.
  * @evidence contracts/testing.md#execution-ownership This portable internal leaf is reached through lineageFixtures and the existing unit consumers; it registers no case and loads no provider, external asset, process, browser or GPU.
  */
-export const brokenLineage: (edit: (draft: IAutoMovieDesignLineage) => void) => IAutoMovieDesignLineage = (
+export const brokenLineage: (
+  edit: (draft: IAutoMovieDesignLineage) => void,
+) => IAutoMovieDesignLineage = (
   edit: (draft: IAutoMovieDesignLineage) => void,
 ): IAutoMovieDesignLineage => {
   const lineage: IAutoMovieDesignLineage = renovationLineage();

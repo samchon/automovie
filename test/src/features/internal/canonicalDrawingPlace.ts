@@ -1,4 +1,5 @@
 import type { IAutoMovieTransform } from "@automovie/interface";
+
 import { DRAWING_FIXTURE_NO_ROTATION as NO_ROTATION } from "./DRAWING_FIXTURE_NO_ROTATION";
 
 /**
@@ -17,7 +18,11 @@ import { DRAWING_FIXTURE_NO_ROTATION as NO_ROTATION } from "./DRAWING_FIXTURE_NO
  */
 
 /** A translation-only transform borrowing the fixture's shared identity rotation. */
-export const canonicalDrawingPlace: (x: number, y: number, z: number) => IAutoMovieTransform = (
+export const canonicalDrawingPlace: (
+  x: number,
+  y: number,
+  z: number,
+) => IAutoMovieTransform = (
   x: number,
   y: number,
   z: number,
