@@ -21,10 +21,10 @@ import { applyMaterialShaderPatches } from "./applyMaterialShaderPatches.js";
  * @evidence contracts/performance.md#reuse-equivalent-work Reuses prior registered operations and lets Three reuse programs by ordered joined structural keys; equivalent uniform values alone do not justify sharing effectful source edits, and callers own key correctness.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Material userData and installed closures retain the patch list/captured patch state until material references are released; there is no unregister API or population cap, and this helper acquires no shader program or texture itself.
  */
-export const addMaterialShaderPatch: (material: THREE.Material, patch: IMaterialShaderPatch) => void = (
+export const addMaterialShaderPatch: (
   material: THREE.Material,
   patch: IMaterialShaderPatch,
-): void => {
+) => void = (material: THREE.Material, patch: IMaterialShaderPatch): void => {
   const patches: IMaterialShaderPatch[] = [
     ...((material.userData.shaderPatches as
       | IMaterialShaderPatch[]
@@ -32,7 +32,9 @@ export const addMaterialShaderPatch: (material: THREE.Material, patch: IMaterial
     patch,
   ];
   material.userData.shaderPatches = patches;
-  material.onBeforeCompile = (shader: THREE.WebGLProgramParametersWithUniforms): void => {
+  material.onBeforeCompile = (
+    shader: THREE.WebGLProgramParametersWithUniforms,
+  ): void => {
     applyMaterialShaderPatches(patches, shader);
   };
   material.customProgramCacheKey = (): string =>

@@ -34,7 +34,9 @@ export interface IMountViewerOptions {
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work Record identity suppresses idle ordinary publication in mount but is not by itself canonical pixel/source equivalence.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The hook borrows producer state; the mounted owner retains its callback for that mount's lifetime.
    */
-  completedFrame?: () => Omit<IAutoMovieViewerCompletedFrame, "control"> | undefined;
+  completedFrame?: () =>
+    | Omit<IAutoMovieViewerCompletedFrame, "control">
+    | undefined;
 
   /**
    * Redraw the current handled frame through its original producer and complete that draw synchronously.

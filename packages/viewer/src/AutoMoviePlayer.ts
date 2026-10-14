@@ -63,7 +63,10 @@ interface IAxisSprings {
  */
 export class AutoMoviePlayer {
   private lastSample: IAutoMovieMotionSample | null = null;
-  private readonly springs: Map<AutoMovieHumanoidBone, IAxisSprings> = new Map<AutoMovieHumanoidBone, IAxisSprings>();
+  private readonly springs: Map<AutoMovieHumanoidBone, IAxisSprings> = new Map<
+    AutoMovieHumanoidBone,
+    IAxisSprings
+  >();
   private lastSeconds: number | null = null;
   private lastUpdateSeconds: number | null = null;
 
@@ -169,9 +172,15 @@ export class AutoMoviePlayer {
         : Math.min(Math.max(seconds - this.lastSeconds, 0), 1 / 15);
     this.lastSeconds = seconds;
     const targets: Set<AutoMovieHumanoidBone> = new Set(cfg.joints);
-    const params: Parameters<typeof dampedSpring>[3] = { stiffness: cfg.stiffness, damping: cfg.damping };
+    const params: Parameters<typeof dampedSpring>[3] = {
+      stiffness: cfg.stiffness,
+      damping: cfg.damping,
+    };
 
-    const axis: (state: ISpringStep | undefined, target: number | null) => IAutoMovieSpringAxisSettlement = (
+    const axis: (
+      state: ISpringStep | undefined,
+      target: number | null,
+    ) => IAutoMovieSpringAxisSettlement = (
       state: ISpringStep | undefined,
       target: number | null,
     ): IAutoMovieSpringAxisSettlement => {
@@ -189,24 +198,48 @@ export class AutoMoviePlayer {
         if (state === undefined)
           return { angle: null, next: { value: 0, velocity: 0 } };
         if (dt === 0) return { angle: state.value, next: state };
-        const r: ISpringStep = dampedSpring(state.value, state.velocity, 0, params, dt);
+        const r: ISpringStep = dampedSpring(
+          state.value,
+          state.velocity,
+          0,
+          params,
+          dt,
+        );
         return { angle: r.value, next: r };
       }
       if (state === undefined)
         return { angle: target, next: { value: target, velocity: 0 } };
       if (dt === 0) return { angle: state.value, next: state };
-      const r: ISpringStep = dampedSpring(state.value, state.velocity, target, params, dt);
+      const r: ISpringStep = dampedSpring(
+        state.value,
+        state.velocity,
+        target,
+        params,
+        dt,
+      );
       return { angle: r.value, next: r };
     };
 
-    const springJoint: (bone: AutoMovieHumanoidBone, j: IAutoMovieJointPose | null) => IAutoMovieJointPose = (
+    const springJoint: (
+      bone: AutoMovieHumanoidBone,
+      j: IAutoMovieJointPose | null,
+    ) => IAutoMovieJointPose = (
       bone: AutoMovieHumanoidBone,
       j: IAutoMovieJointPose | null,
     ): IAutoMovieJointPose => {
       const prev: IAxisSprings | undefined = this.springs.get(bone);
-      const f: IAutoMovieSpringAxisSettlement = axis(prev?.flexion, j?.flexion ?? null);
-      const a: IAutoMovieSpringAxisSettlement = axis(prev?.abduction, j?.abduction ?? null);
-      const t: IAutoMovieSpringAxisSettlement = axis(prev?.twist, j?.twist ?? null);
+      const f: IAutoMovieSpringAxisSettlement = axis(
+        prev?.flexion,
+        j?.flexion ?? null,
+      );
+      const a: IAutoMovieSpringAxisSettlement = axis(
+        prev?.abduction,
+        j?.abduction ?? null,
+      );
+      const t: IAutoMovieSpringAxisSettlement = axis(
+        prev?.twist,
+        j?.twist ?? null,
+      );
       this.springs.set(bone, {
         flexion: f.next,
         abduction: a.next,
@@ -215,13 +248,18 @@ export class AutoMoviePlayer {
       return { bone, flexion: f.angle, abduction: a.angle, twist: t.angle };
     };
 
-    const joints: IAutoMovieJointPose[] = pose.joints.map((j: IAutoMovieJointPose): IAutoMovieJointPose =>
-      targets.has(j.bone) ? springJoint(j.bone, j) : j,
+    const joints: IAutoMovieJointPose[] = pose.joints.map(
+      (j: IAutoMovieJointPose): IAutoMovieJointPose =>
+        targets.has(j.bone) ? springJoint(j.bone, j) : j,
     );
     // A configured joint ABSENT from the pose still decays its follow-through
     // (#1048): the spring keeps integrating toward neutral instead of the
     // joint vanishing mid-swing.
-    const present: Set<AutoMovieHumanoidBone> = new Set(pose.joints.map((j: IAutoMovieJointPose): AutoMovieHumanoidBone => j.bone));
+    const present: Set<AutoMovieHumanoidBone> = new Set(
+      pose.joints.map(
+        (j: IAutoMovieJointPose): AutoMovieHumanoidBone => j.bone,
+      ),
+    );
     for (const bone of cfg.joints) {
       if (present.has(bone) || !this.springs.has(bone)) continue;
       const decayed: IAutoMovieJointPose = springJoint(bone, null);

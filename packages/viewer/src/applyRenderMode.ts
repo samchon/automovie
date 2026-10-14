@@ -1,21 +1,27 @@
-import {restoreAutoMovieRenderModeState} from "./restoreAutoMovieRenderModeState.js";
+import type { AutoMovieGuidePass } from "@automovie/interface";
 import * as THREE from "three";
-import type {AutoMovieGuidePass} from "@automovie/interface";
-import type {IAutoMovieRenderModeHandle} from "./IAutoMovieRenderModeHandle.js";
-import {applyDepthMode} from "./applyDepthMode.js";
-import {DEPTH_NORMALIZATION_RANGE} from "./DEPTH_NORMALIZATION_RANGE.js";
-import {overrideAutoMovieRenderModeMaterials} from "./overrideAutoMovieRenderModeMaterials.js";
-import {applyEdgeMode} from "./applyEdgeMode.js";
-import {EDGE_WIDTH} from "./EDGE_WIDTH.js";
-import {autoMovieSemanticMaskOf, type IAutoMovieSemanticMaskBinding} from "./semanticMask/index.js";
-import {applyMaskMode} from "./applyMaskMode.js";
-import {applySemanticMaskMode} from "./applySemanticMaskMode.js";
-import {applyPoseMode} from "./applyPoseMode.js";
-import {restoreAutoMovieRenderModeOnce} from "./restoreAutoMovieRenderModeOnce.js";
-import {guardAutoMovieRenderModeRetirement} from "./guardAutoMovieRenderModeRetirement.js";
+
+import { DEPTH_NORMALIZATION_RANGE } from "./DEPTH_NORMALIZATION_RANGE.js";
+import { EDGE_WIDTH } from "./EDGE_WIDTH.js";
+import type { IAutoMovieRenderModeHandle } from "./IAutoMovieRenderModeHandle.js";
+import { applyDepthMode } from "./applyDepthMode.js";
+import { applyEdgeMode } from "./applyEdgeMode.js";
+import { applyMaskMode } from "./applyMaskMode.js";
+import { applyPoseMode } from "./applyPoseMode.js";
+import { applySemanticMaskMode } from "./applySemanticMaskMode.js";
+import { guardAutoMovieRenderModeRetirement } from "./guardAutoMovieRenderModeRetirement.js";
+import { overrideAutoMovieRenderModeMaterials } from "./overrideAutoMovieRenderModeMaterials.js";
+import { restoreAutoMovieRenderModeOnce } from "./restoreAutoMovieRenderModeOnce.js";
+import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
+import {
+  type IAutoMovieSemanticMaskBinding,
+  autoMovieSemanticMaskOf,
+} from "./semanticMask/index.js";
 
 /** A renderable that is NOT a mesh: a line/grid/helper, points, or a sprite. */
-const isNonMeshRenderable: (object: THREE.Object3D) => boolean = (object: THREE.Object3D): boolean =>
+const isNonMeshRenderable: (object: THREE.Object3D) => boolean = (
+  object: THREE.Object3D,
+): boolean =>
   (object as THREE.Line).isLine === true ||
   (object as THREE.Points).isPoints === true ||
   (object as THREE.Sprite).isSprite === true;
@@ -31,7 +37,9 @@ const isNonMeshRenderable: (object: THREE.Object3D) => boolean = (object: THREE.
  * own overlay (the pose skeleton is itself `LineSegments`), so that overlay,
  * added afterward, stays visible.
  */
-const hideNonMeshRenderables: (scene: THREE.Scene) => (() => void) = (scene: THREE.Scene): (() => void) => {
+const hideNonMeshRenderables: (scene: THREE.Scene) => () => void = (
+  scene: THREE.Scene,
+): (() => void) => {
   const hidden: THREE.Object3D[] = [];
   scene.traverse((object: THREE.Object3D<THREE.Object3DEventMap>): void => {
     if (isNonMeshRenderable(object) && object.visible) {
@@ -86,7 +94,11 @@ const hideNonMeshRenderables: (scene: THREE.Scene) => (() => void) = (scene: THR
  * @evidence contracts/performance.md#reuse-equivalent-work Uses the same mode builders for embedded/capture paths and builder-local equivalent materials; independent installs require separate original-state snapshots, so no scene/mode-only cached restoration is shared.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Three boundary callbacks retain helper visibility, fog and environment/background snapshots; builders nest their own background transitions and own pass resources. Failed returned-handle restoration retains the complete boundary callback and cause under the scene guard. Builder throw still independently restores boundary snapshots with its primary error, while partial acquisition depends on that builder's rollback capability.
  */
-export const applyRenderMode: (scene: THREE.Scene, mode: AutoMovieGuidePass, options?: { depthRange?: number; edgeWidth?: number; }) => IAutoMovieRenderModeHandle = (
+export const applyRenderMode: (
+  scene: THREE.Scene,
+  mode: AutoMovieGuidePass,
+  options?: { depthRange?: number; edgeWidth?: number },
+) => IAutoMovieRenderModeHandle = (
   scene: THREE.Scene,
   mode: AutoMovieGuidePass,
   options?: {
@@ -104,34 +116,43 @@ export const applyRenderMode: (scene: THREE.Scene, mode: AutoMovieGuidePass, opt
   },
 ): IAutoMovieRenderModeHandle => {
   guardAutoMovieRenderModeRetirement(scene);
-  if (mode === "beauty") return { mode, semantic: null, restore: (): void => {} };
+  if (mode === "beauty")
+    return { mode, semantic: null, restore: (): void => {} };
   // Resolve (and validate) the structural pass builder BEFORE touching the
   // scene, so an unknown mode throws without leaving anything hidden.
-  const build: () => IAutoMovieRenderModeHandle = ((): (() => IAutoMovieRenderModeHandle) => {
-    switch (mode) {
-      case "depth":
-        return (): IAutoMovieRenderModeHandle =>
-          applyDepthMode(
-            scene,
-            options?.depthRange ?? DEPTH_NORMALIZATION_RANGE,
-          );
-      case "normal":
-        return (): IAutoMovieRenderModeHandle =>
-          overrideAutoMovieRenderModeMaterials(scene, mode, (): THREE.MeshNormalMaterial => new THREE.MeshNormalMaterial());
-      case "outline":
-        return (): IAutoMovieRenderModeHandle => applyEdgeMode(scene, options?.edgeWidth ?? EDGE_WIDTH);
-      case "mask": {
-        const semantic: IAutoMovieSemanticMaskBinding | null = autoMovieSemanticMaskOf(scene);
-        return semantic === null
-          ? (): IAutoMovieRenderModeHandle => applyMaskMode(scene)
-          : (): IAutoMovieRenderModeHandle => applySemanticMaskMode(scene, semantic);
+  const build: () => IAutoMovieRenderModeHandle =
+    ((): (() => IAutoMovieRenderModeHandle) => {
+      switch (mode) {
+        case "depth":
+          return (): IAutoMovieRenderModeHandle =>
+            applyDepthMode(
+              scene,
+              options?.depthRange ?? DEPTH_NORMALIZATION_RANGE,
+            );
+        case "normal":
+          return (): IAutoMovieRenderModeHandle =>
+            overrideAutoMovieRenderModeMaterials(
+              scene,
+              mode,
+              (): THREE.MeshNormalMaterial => new THREE.MeshNormalMaterial(),
+            );
+        case "outline":
+          return (): IAutoMovieRenderModeHandle =>
+            applyEdgeMode(scene, options?.edgeWidth ?? EDGE_WIDTH);
+        case "mask": {
+          const semantic: IAutoMovieSemanticMaskBinding | null =
+            autoMovieSemanticMaskOf(scene);
+          return semantic === null
+            ? (): IAutoMovieRenderModeHandle => applyMaskMode(scene)
+            : (): IAutoMovieRenderModeHandle =>
+                applySemanticMaskMode(scene, semantic);
+        }
+        case "pose":
+          return (): IAutoMovieRenderModeHandle => applyPoseMode(scene);
+        default:
+          throw new Error(`unknown render mode "${String(mode)}"`);
       }
-      case "pose":
-        return (): IAutoMovieRenderModeHandle => applyPoseMode(scene);
-      default:
-        throw new Error(`unknown render mode "${String(mode)}"`);
-    }
-  })();
+    })();
   // A structural pass renders only the subject mesh geometry: hide every
   // non-mesh renderable first (#1226), suspend the scene's atmosphere and
   // image lighting, then build the pass (whose own overlay, if any, is added
@@ -151,15 +172,25 @@ export const applyRenderMode: (scene: THREE.Scene, mode: AutoMovieGuidePass, opt
   try {
     handle = build();
   } catch (error) {
-    restoreAutoMovieRenderModeState([restoreEnvironment,restoreFog,restoreRenderables],{error});
+    restoreAutoMovieRenderModeState(
+      [restoreEnvironment, restoreFog, restoreRenderables],
+      { error },
+    );
   }
   return {
     mode,
     semantic: handle.semantic,
     restore: restoreAutoMovieRenderModeOnce((): void => {
-      guardAutoMovieRenderModeRetirement(scene, { run: (): void => {
-        restoreAutoMovieRenderModeState([handle.restore,restoreEnvironment,restoreFog,restoreRenderables]);
-      } });
+      guardAutoMovieRenderModeRetirement(scene, {
+        run: (): void => {
+          restoreAutoMovieRenderModeState([
+            handle.restore,
+            restoreEnvironment,
+            restoreFog,
+            restoreRenderables,
+          ]);
+        },
+      });
     }),
   };
 };
@@ -182,7 +213,9 @@ export const applyRenderMode: (scene: THREE.Scene, mode: AutoMovieGuidePass, opt
  * The beauty pass is deliberately NOT covered: that one IS the film, and it
  * must carry the atmosphere the scene declares.
  */
-const suspendFog: (scene: THREE.Scene) => (() => void) = (scene: THREE.Scene): (() => void) => {
+const suspendFog: (scene: THREE.Scene) => () => void = (
+  scene: THREE.Scene,
+): (() => void) => {
   const fog: THREE.Fog | THREE.FogExp2 | null = scene.fog;
   scene.fog = null;
   return (): void => {
@@ -198,9 +231,15 @@ const suspendFog: (scene: THREE.Scene) => (() => void) = (scene: THREE.Scene): (
  * black background themselves; central suspension makes that invariant belong
  * to the pass boundary instead of to each material implementation.
  */
-const suspendEnvironment: (scene: THREE.Scene) => (() => void) = (scene: THREE.Scene): (() => void) => {
-  const environment: THREE.Texture<unknown, THREE.TextureEventMap> | null = scene.environment;
-  const background: THREE.Color | THREE.Texture<unknown, THREE.TextureEventMap> | null = scene.background;
+const suspendEnvironment: (scene: THREE.Scene) => () => void = (
+  scene: THREE.Scene,
+): (() => void) => {
+  const environment: THREE.Texture<unknown, THREE.TextureEventMap> | null =
+    scene.environment;
+  const background:
+    | THREE.Color
+    | THREE.Texture<unknown, THREE.TextureEventMap>
+    | null = scene.background;
   scene.environment = null;
   scene.background = new THREE.Color(0x000000);
   return (): void => {

@@ -21,7 +21,10 @@ import type * as THREE from "three";
  * @evidence contracts/performance.md#reuse-equivalent-work Reuses the engine resolver; camera projection is recomputed because aspect/fov/clip planes can change independently of an unchanged crop, so no crop-only cache is valid.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Borrows and mutates one camera without retaining it, acquiring GPU state or scheduling work; Three owns its persistent view-offset record.
  */
-export const applyAutoMovieDeliveryCrop: (camera: THREE.PerspectiveCamera, crop: IAutoMovieDeliveryCrop | undefined) => void = (
+export const applyAutoMovieDeliveryCrop: (
+  camera: THREE.PerspectiveCamera,
+  crop: IAutoMovieDeliveryCrop | undefined,
+) => void = (
   camera: THREE.PerspectiveCamera,
   crop: IAutoMovieDeliveryCrop | undefined,
 ): void => {

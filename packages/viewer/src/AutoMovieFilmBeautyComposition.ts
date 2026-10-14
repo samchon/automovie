@@ -25,4 +25,3 @@ export type AutoMovieFilmBeautyComposition<
       incoming: Layer;
       alpha: number;
     };
-

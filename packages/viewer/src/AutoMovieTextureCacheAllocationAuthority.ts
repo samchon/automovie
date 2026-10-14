@@ -1,15 +1,48 @@
 import * as THREE from "three";
 
-type Inputs = { source: THREE.Texture["source"]; capacity: unknown[]; fixed: unknown[]; sampling: unknown[]; state: unknown[]; copied: unknown[]; version: number };
-type Claim = { owner: object; texture: THREE.Texture; initialSource: THREE.Texture["source"]; baseline?: Inputs; issued: Set<Wrapper>; known: boolean; active: boolean; detached: boolean };
-type Wrapper = { texture: THREE.Texture; claim: Claim; inputs: Inputs; known: boolean; detached: boolean; closed: boolean };
+type Inputs = {
+  source: THREE.Texture["source"];
+  capacity: unknown[];
+  fixed: unknown[];
+  sampling: unknown[];
+  state: unknown[];
+  copied: unknown[];
+  version: number;
+};
+type Claim = {
+  owner: object;
+  texture: THREE.Texture;
+  initialSource: THREE.Texture["source"];
+  baseline?: Inputs;
+  issued: Set<Wrapper>;
+  known: boolean;
+  active: boolean;
+  detached: boolean;
+};
+type Wrapper = {
+  texture: THREE.Texture;
+  claim: Claim;
+  inputs: Inputs;
+  known: boolean;
+  detached: boolean;
+  closed: boolean;
+};
 type BindingReceipt = { wrapper: Wrapper; before: Inputs; clean: boolean };
-type EnvironmentReceipt = { wrapper: Wrapper; before: Inputs; permitted: boolean };
+type EnvironmentReceipt = {
+  wrapper: Wrapper;
+  before: Inputs;
+  permitted: boolean;
+};
 type IssueReceipt = { claim: Claim; before: Inputs; clean: boolean };
-type BindingWrites = { colorSpace: THREE.ColorSpace; sampler?: {
-  wrapS: THREE.Wrapping; wrapT: THREE.Wrapping;
-  minFilter: THREE.MinificationTextureFilter; magFilter: THREE.MagnificationTextureFilter;
-} };
+type BindingWrites = {
+  colorSpace: THREE.ColorSpace;
+  sampler?: {
+    wrapS: THREE.Wrapping;
+    wrapT: THREE.Wrapping;
+    minFilter: THREE.MinificationTextureFilter;
+    magFilter: THREE.MagnificationTextureFilter;
+  };
+};
 
 /**
  * Own the factual creation inputs of cache originals and issued wrappers.
@@ -40,8 +73,10 @@ type BindingWrites = { colorSpace: THREE.ColorSpace; sampler?: {
  * @evidence contracts/performance.md#bound-retention-and-release-resources Weak registry keys alone do not retain textures, but each live original claim strongly owns its issued-wrapper Set until finishRetirement clears it; clone population has no numeric bound within the owning cache lifetime.
  */
 export class AutoMovieTextureCacheAllocationAuthority {
-  private static readonly originals: WeakMap<THREE.Texture, Claim> = new WeakMap<THREE.Texture, Claim>();
-  private static readonly wrappers: WeakMap<THREE.Texture, Wrapper> = new WeakMap<THREE.Texture, Wrapper>();
+  private static readonly originals: WeakMap<THREE.Texture, Claim> =
+    new WeakMap<THREE.Texture, Claim>();
+  private static readonly wrappers: WeakMap<THREE.Texture, Wrapper> =
+    new WeakMap<THREE.Texture, Wrapper>();
 
   /**
    * Transfer a returned original once, before a decode becomes cache-owned.
@@ -57,18 +92,31 @@ export class AutoMovieTextureCacheAllocationAuthority {
   public static claim(owner: object, texture: THREE.Texture): void {
     const issued: Wrapper | undefined = this.wrappers.get(texture);
     if (issued !== undefined)
-      throw new Error("An issued binding wrapper cannot become a decoded cache original; return an owned decoder original or fresh wrapper.");
+      throw new Error(
+        "An issued binding wrapper cannot become a decoded cache original; return an owned decoder original or fresh wrapper.",
+      );
     const previous: Claim | undefined = this.originals.get(texture);
     if (previous !== undefined) {
       if (previous.owner !== owner)
-        throw new Error("Decoded texture wrapper already belongs to another or closed cache; return a fresh owned wrapper.");
+        throw new Error(
+          "Decoded texture wrapper already belongs to another or closed cache; return a fresh owned wrapper.",
+        );
       return;
     }
-    const claim: Claim = { owner, texture, initialSource: texture.source, issued: new Set(), known: true, active: true, detached: false };
+    const claim: Claim = {
+      owner,
+      texture,
+      initialSource: texture.source,
+      issued: new Set(),
+      known: true,
+      active: true,
+      detached: false,
+    };
     this.originals.set(texture, claim);
     texture.addEventListener("dispose", (): void => {
       claim.known = false;
-      if (texture.source !== (claim.baseline?.source ?? claim.initialSource)) claim.detached = true;
+      if (texture.source !== (claim.baseline?.source ?? claim.initialSource))
+        claim.detached = true;
     });
   }
 
@@ -101,14 +149,23 @@ export class AutoMovieTextureCacheAllocationAuthority {
    * @evidence contracts/performance.md#reuse-equivalent-work Shares the pre-copy receipt with original/clone completion checks; each issued wrapper receives its own baseline because later sampler writes are independent.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Successful issuance adds one wrapper to its original claim's Set and a weak registry entry; finishRetirement clears the Set when the original cache closes.
    */
-  public static finishIssue(receipt: IssueReceipt, texture?: THREE.Texture): void {
+  public static finishIssue(
+    receipt: IssueReceipt,
+    texture?: THREE.Texture,
+  ): void {
     const { claim, before }: IssueReceipt = receipt;
     const originalKnown: boolean = this.originalCurrent(claim);
     if (texture === undefined) return;
     const copied: Inputs = inputs(texture);
     const copiedKnown: boolean = same(before.copied, copied.copied);
-    const wrapper: Wrapper = { texture, claim, inputs: copied,
-      known: receipt.clean && originalKnown && copiedKnown, detached: false, closed: false };
+    const wrapper: Wrapper = {
+      texture,
+      claim,
+      inputs: copied,
+      known: receipt.clean && originalKnown && copiedKnown,
+      detached: false,
+      closed: false,
+    };
     claim.issued.add(wrapper);
     this.wrappers.set(texture, wrapper);
     texture.addEventListener("dispose", (): void => {
@@ -168,9 +225,17 @@ export class AutoMovieTextureCacheAllocationAuthority {
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each binding transition needs its own pre-write receipt because texture version and sampling may differ between operations.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The returned receipt temporarily borrows an existing wrapper claim and acquires no GPU allocation.
    */
-  public static beginBinding(texture: THREE.Texture): BindingReceipt | undefined {
+  public static beginBinding(
+    texture: THREE.Texture,
+  ): BindingReceipt | undefined {
     const wrapper: Wrapper | undefined = this.wrappers.get(texture);
-    return wrapper === undefined ? undefined : { wrapper, before: inputs(texture), clean: this.wrapperCurrent(wrapper) };
+    return wrapper === undefined
+      ? undefined
+      : {
+          wrapper,
+          before: inputs(texture),
+          clean: this.wrapperCurrent(wrapper),
+        };
   }
 
   /**
@@ -184,14 +249,32 @@ export class AutoMovieTextureCacheAllocationAuthority {
    * @evidence contracts/performance.md#reuse-equivalent-work Successful completion refreshes this wrapper's accepted baseline for subsequent stable observations; failures preserve the prior history as unknown.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Replaces one wrapper input tuple on success and retains no receipt afterward; the existing cache owner still owns wrapper retirement.
    */
-  public static finishBinding(receipt: BindingReceipt | undefined, writes: BindingWrites): void {
+  public static finishBinding(
+    receipt: BindingReceipt | undefined,
+    writes: BindingWrites,
+  ): void {
     if (receipt === undefined) return;
     const { wrapper, before }: BindingReceipt = receipt;
     const after: Inputs = inputs(wrapper.texture);
-    const expectedSampling: unknown[] = [writes.colorSpace, ...(writes.sampler === undefined ? before.sampling.slice(1) :
-      [writes.sampler.wrapS, writes.sampler.wrapT, writes.sampler.minFilter, writes.sampler.magFilter])];
-    if (!receipt.clean || !wrapper.known || !this.originalCurrent(wrapper.claim) ||
-        !same(before.fixed, after.fixed) || !same(expectedSampling, after.sampling) || after.version !== before.version + 1) {
+    const expectedSampling: unknown[] = [
+      writes.colorSpace,
+      ...(writes.sampler === undefined
+        ? before.sampling.slice(1)
+        : [
+            writes.sampler.wrapS,
+            writes.sampler.wrapT,
+            writes.sampler.minFilter,
+            writes.sampler.magFilter,
+          ]),
+    ];
+    if (
+      !receipt.clean ||
+      !wrapper.known ||
+      !this.originalCurrent(wrapper.claim) ||
+      !same(before.fixed, after.fixed) ||
+      !same(expectedSampling, after.sampling) ||
+      after.version !== before.version + 1
+    ) {
       wrapper.known = false;
       if (after.source !== wrapper.inputs.source) wrapper.detached = true;
       return;
@@ -210,13 +293,18 @@ export class AutoMovieTextureCacheAllocationAuthority {
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each retirement attempt gets a pre-transition receipt because current Source and version determine eligibility.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Beginning environment retirement creates only a caller-held receipt and does not allocate or dispose native storage itself.
    */
-  public static beginEnvironment(texture: THREE.Texture): EnvironmentReceipt | undefined {
+  public static beginEnvironment(
+    texture: THREE.Texture,
+  ): EnvironmentReceipt | undefined {
     const wrapper: Wrapper | undefined = this.wrappers.get(texture);
     if (wrapper === undefined) return undefined;
     const before: Inputs = inputs(texture);
     if (before.source !== wrapper.inputs.source) wrapper.detached = true;
-    const permitted: boolean = !wrapper.closed && !wrapper.detached &&
-      same(wrapper.inputs.capacity, before.capacity) && this.originalCurrent(wrapper.claim);
+    const permitted: boolean =
+      !wrapper.closed &&
+      !wrapper.detached &&
+      same(wrapper.inputs.capacity, before.capacity) &&
+      this.originalCurrent(wrapper.claim);
     wrapper.known = false;
     return { wrapper, before, permitted };
   }
@@ -232,13 +320,20 @@ export class AutoMovieTextureCacheAllocationAuthority {
    * @evidence contracts/performance.md#reuse-equivalent-work An accepted environment baseline enables later stable conversion reuse; rejected receipts leave authority unknown rather than caching success.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Replaces one retained wrapper tuple and ends the receipt's role; physical conversion lifetime remains with the scene owner that performed disposal.
    */
-  public static finishEnvironment(receipt: EnvironmentReceipt | undefined): boolean {
+  public static finishEnvironment(
+    receipt: EnvironmentReceipt | undefined,
+  ): boolean {
     if (receipt === undefined) return true;
     const { wrapper, before }: EnvironmentReceipt = receipt;
     const after: Inputs = inputs(wrapper.texture);
     if (after.source !== wrapper.inputs.source) wrapper.detached = true;
-    if (!receipt.permitted || wrapper.detached || !this.originalCurrent(wrapper.claim) ||
-        !same(before.capacity, after.capacity) || after.version !== before.version + 1)
+    if (
+      !receipt.permitted ||
+      wrapper.detached ||
+      !this.originalCurrent(wrapper.claim) ||
+      !same(before.capacity, after.capacity) ||
+      after.version !== before.version + 1
+    )
       return false;
     wrapper.inputs = after;
     wrapper.known = true;
@@ -259,7 +354,10 @@ export class AutoMovieTextureCacheAllocationAuthority {
   public static beginRetirement(texture: THREE.Texture): void {
     const original: Claim | undefined = this.originals.get(texture);
     if (original !== undefined) {
-      if (texture.source !== (original.baseline?.source ?? original.initialSource)) original.detached = true;
+      if (
+        texture.source !== (original.baseline?.source ?? original.initialSource)
+      )
+        original.detached = true;
       original.known = false;
     }
     const wrapper: Wrapper | undefined = this.wrappers.get(texture);
@@ -283,34 +381,49 @@ export class AutoMovieTextureCacheAllocationAuthority {
   public static finishRetirement(texture: THREE.Texture): Error | undefined {
     const original: Claim | undefined = this.originals.get(texture);
     if (original !== undefined) {
-      if (texture.source !== (original.baseline?.source ?? original.initialSource)) original.detached = true;
+      if (
+        texture.source !== (original.baseline?.source ?? original.initialSource)
+      )
+        original.detached = true;
       original.active = false;
       original.issued.clear();
       if (original.detached)
-        return new Error("Texture cache cannot certify retirement after its original Source was detached; retain the unknown footprint until context release.");
+        return new Error(
+          "Texture cache cannot certify retirement after its original Source was detached; retain the unknown footprint until context release.",
+        );
     }
     const wrapper: Wrapper | undefined = this.wrappers.get(texture);
     if (wrapper !== undefined) {
       if (texture.source !== wrapper.inputs.source) wrapper.detached = true;
       wrapper.closed = true;
       if (wrapper.detached)
-        return new Error("Texture cache cannot certify retirement after an issued Source was detached; retain the unknown footprint until context release.");
+        return new Error(
+          "Texture cache cannot certify retirement after an issued Source was detached; retain the unknown footprint until context release.",
+        );
     }
     return undefined;
   }
 
   private static originalCurrent(claim: Claim): boolean {
     if (!claim.active) return false;
-    if (claim.texture.source !== (claim.baseline?.source ?? claim.initialSource)) {
+    if (
+      claim.texture.source !== (claim.baseline?.source ?? claim.initialSource)
+    ) {
       claim.detached = true;
       claim.known = false;
     }
-    if (claim.baseline !== undefined && !equivalent(claim.baseline, inputs(claim.texture))) claim.known = false;
+    if (
+      claim.baseline !== undefined &&
+      !equivalent(claim.baseline, inputs(claim.texture))
+    )
+      claim.known = false;
     return claim.known;
   }
 
   private static wrapperCurrent(wrapper: Wrapper): boolean {
-    return this.wrapperOwnCurrent(wrapper) && this.originalCurrent(wrapper.claim);
+    return (
+      this.wrapperOwnCurrent(wrapper) && this.originalCurrent(wrapper.claim)
+    );
   }
 
   private static wrapperOwnCurrent(wrapper: Wrapper): boolean {
@@ -322,33 +435,85 @@ export class AutoMovieTextureCacheAllocationAuthority {
 }
 
 /** Actual owned fields; image references are observed without hashing pixels. */
-const inputs: (texture: THREE.Texture) => Inputs = (texture: THREE.Texture): Inputs => {
+const inputs: (texture: THREE.Texture) => Inputs = (
+  texture: THREE.Texture,
+): Inputs => {
   const image: unknown = texture.image;
-  const record: object | undefined = typeof image === "object" && image !== null ? image : undefined;
-  const width: unknown = record !== undefined && "width" in record ? record.width : undefined;
-  const height: unknown = record !== undefined && "height" in record ? record.height : undefined;
-  const data: unknown = record !== undefined && "data" in record ? record.data : undefined;
+  const record: object | undefined =
+    typeof image === "object" && image !== null ? image : undefined;
+  const width: unknown =
+    record !== undefined && "width" in record ? record.width : undefined;
+  const height: unknown =
+    record !== undefined && "height" in record ? record.height : undefined;
+  const data: unknown =
+    record !== undefined && "data" in record ? record.data : undefined;
   const mipmaps: unknown = texture.mipmaps;
-  const capacity: unknown[] = [texture.source, width, height, texture.type, texture.format, texture.internalFormat];
-  const fixed: unknown[] = [...capacity, image, data, texture.generateMipmaps, mipmaps,
-    Array.isArray(mipmaps) ? mipmaps.length : undefined, texture.flipY,
-    texture.premultiplyAlpha, texture.unpackAlignment, texture.anisotropy, texture.mapping,
-    "wrapR" in texture ? texture.wrapR || 0 : 0];
-  const sampling: unknown[] = [texture.colorSpace, texture.wrapS, texture.wrapT, texture.minFilter, texture.magFilter];
-  const copied: unknown[] = [...capacity, image, data, texture.generateMipmaps,
+  const capacity: unknown[] = [
+    texture.source,
+    width,
+    height,
+    texture.type,
+    texture.format,
+    texture.internalFormat,
+  ];
+  const fixed: unknown[] = [
+    ...capacity,
+    image,
+    data,
+    texture.generateMipmaps,
+    mipmaps,
     Array.isArray(mipmaps) ? mipmaps.length : undefined,
-    ...(Array.isArray(mipmaps) ? mipmaps : []), texture.flipY, texture.premultiplyAlpha,
-    texture.unpackAlignment, texture.anisotropy, texture.mapping,
-    "wrapR" in texture ? texture.wrapR || 0 : 0, ...sampling];
-  return { source: texture.source, capacity, fixed, sampling, copied,
+    texture.flipY,
+    texture.premultiplyAlpha,
+    texture.unpackAlignment,
+    texture.anisotropy,
+    texture.mapping,
+    "wrapR" in texture ? texture.wrapR || 0 : 0,
+  ];
+  const sampling: unknown[] = [
+    texture.colorSpace,
+    texture.wrapS,
+    texture.wrapT,
+    texture.minFilter,
+    texture.magFilter,
+  ];
+  const copied: unknown[] = [
+    ...capacity,
+    image,
+    data,
+    texture.generateMipmaps,
+    Array.isArray(mipmaps) ? mipmaps.length : undefined,
+    ...(Array.isArray(mipmaps) ? mipmaps : []),
+    texture.flipY,
+    texture.premultiplyAlpha,
+    texture.unpackAlignment,
+    texture.anisotropy,
+    texture.mapping,
+    "wrapR" in texture ? texture.wrapR || 0 : 0,
+    ...sampling,
+  ];
+  return {
+    source: texture.source,
+    capacity,
+    fixed,
+    sampling,
+    copied,
     state: [...fixed, ...sampling],
-    version: texture.version };
+    version: texture.version,
+  };
 };
 
 /** Object.is distinguishes numeric flags without inventing a native cache key. */
-const same: (left: readonly unknown[], right: readonly unknown[]) => boolean = (left: readonly unknown[], right: readonly unknown[]): boolean =>
-  left.every((value: unknown, index: number): boolean => Object.is(value, right[index]));
+const same: (left: readonly unknown[], right: readonly unknown[]) => boolean = (
+  left: readonly unknown[],
+  right: readonly unknown[],
+): boolean =>
+  left.every((value: unknown, index: number): boolean =>
+    Object.is(value, right[index]),
+  );
 
 /** Shared Source.version is absent; each original/wrapper has its own version. */
-const equivalent: (left: Inputs, right: Inputs) => boolean = (left: Inputs, right: Inputs): boolean =>
-  left.version === right.version && same(left.state, right.state);
+const equivalent: (left: Inputs, right: Inputs) => boolean = (
+  left: Inputs,
+  right: Inputs,
+): boolean => left.version === right.version && same(left.state, right.state);

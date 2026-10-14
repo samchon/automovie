@@ -1,6 +1,7 @@
-import type { IAutoMovieTransform } from "@automovie/interface";
 import type { IAutoMovieRenderTextureResidency } from "@automovie/engine";
+import type { IAutoMovieTransform } from "@automovie/interface";
 import type * as THREE from "three";
+
 import type { IAutoMovieFormationViewerStats } from "./IAutoMovieFormationViewerStats.js";
 
 /**
@@ -38,7 +39,9 @@ export interface IAutoMovieFormationViewerObject {
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work Current texture fields and cleared ownership maps are reobserved because mutation or teardown can invalidate earlier facts.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Fact observation acquires no GPU texture and retains no additional table ownership after return.
    */
-  describeTextureSources(): NonNullable<IAutoMovieRenderTextureResidency["runtimeTextures"]>;
+  describeTextureSources(): NonNullable<
+    IAutoMovieRenderTextureResidency["runtimeTextures"]
+  >;
 
   /**
    * Detach this formation and release its instance, tier, shadow and gait
@@ -74,4 +77,3 @@ export interface IAutoMovieFormationViewerObject {
     heroSources?: ReadonlyMap<string, IAutoMovieTransform>,
   ): void;
 }
-

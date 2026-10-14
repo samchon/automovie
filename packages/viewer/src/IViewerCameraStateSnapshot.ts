@@ -41,6 +41,25 @@ export interface IViewerCameraStateSnapshot {
 
   /** Native lens scalars: degree fov, metre clip/focus, millimetre film fields. */
   lens:
-    | { kind: "perspective"; fov: number; aspect: number; near: number; far: number; zoom: number; filmGauge: number; filmOffset: number; focus: number }
-    | { kind: "orthographic"; left: number; right: number; top: number; bottom: number; near: number; far: number; zoom: number };
+    | {
+        kind: "perspective";
+        fov: number;
+        aspect: number;
+        near: number;
+        far: number;
+        zoom: number;
+        filmGauge: number;
+        filmOffset: number;
+        focus: number;
+      }
+    | {
+        kind: "orthographic";
+        left: number;
+        right: number;
+        top: number;
+        bottom: number;
+        near: number;
+        far: number;
+        zoom: number;
+      };
 }

@@ -1,10 +1,10 @@
 import { AutoMovieTextureBinding } from "@automovie/interface";
 import * as THREE from "three";
 
-import { IAutoMovieTextureLoader } from "./IAutoMovieTextureLoader.js";
-import { textureBindingAsset } from "./textureBindingAsset.js";
-import { readAutoMovieTextureSource } from "./readAutoMovieTextureSource.js";
 import { AutoMovieTextureCacheAllocationAuthority } from "./AutoMovieTextureCacheAllocationAuthority.js";
+import { IAutoMovieTextureLoader } from "./IAutoMovieTextureLoader.js";
+import { readAutoMovieTextureSource } from "./readAutoMovieTextureSource.js";
+import { textureBindingAsset } from "./textureBindingAsset.js";
 
 /**
  * One shot's decoded texture assets: loaded once, handed out per binding, and
@@ -46,11 +46,18 @@ import { AutoMovieTextureCacheAllocationAuthority } from "./AutoMovieTextureCach
  * @evidence contracts/performance.md#bound-retention-and-release-resources The shot owner must dispose the cache; issued wrappers can grow without a numeric bound until then. Teardown waits for loader settlement, clears bookkeeping, attempts distinct textures once and retains failed or indeterminate wrappers with the failed completion.
  */
 export class AutoMovieTextureCache {
-  private readonly pending: Map<string, Promise<THREE.Texture>> = new Map<string, Promise<THREE.Texture>>();
-  private readonly sources: Map<string, THREE.Texture> = new Map<string, THREE.Texture>();
+  private readonly pending: Map<string, Promise<THREE.Texture>> = new Map<
+    string,
+    Promise<THREE.Texture>
+  >();
+  private readonly sources: Map<string, THREE.Texture> = new Map<
+    string,
+    THREE.Texture
+  >();
   private readonly issued: THREE.Texture[] = [];
   /** Actual failed or indeterminate wrappers retained after public bookkeeping closes. */
-  private readonly uncertainRetirements: Set<THREE.Texture> = new Set<THREE.Texture>();
+  private readonly uncertainRetirements: Set<THREE.Texture> =
+    new Set<THREE.Texture>();
   private readonly allocationOwner: object = {};
   private disposed: boolean = false;
   /** One completion outcome, including a failure, shared by every close caller. */
@@ -66,10 +73,13 @@ export class AutoMovieTextureCache {
         throw new Error(
           `Texture asset "${asset}" was never primed into this shot cache.`,
         );
-      const allocation: ReturnType<typeof AutoMovieTextureCacheAllocationAuthority.beginIssue> = AutoMovieTextureCacheAllocationAuthority.beginIssue(source);
+      const allocation: ReturnType<
+        typeof AutoMovieTextureCacheAllocationAuthority.beginIssue
+      > = AutoMovieTextureCacheAllocationAuthority.beginIssue(source);
       let clone: THREE.Texture;
-      try { clone = source.clone(); }
-      catch (error) {
+      try {
+        clone = source.clone();
+      } catch (error) {
         AutoMovieTextureCacheAllocationAuthority.finishIssue(allocation);
         throw error;
       }
@@ -103,11 +113,15 @@ export class AutoMovieTextureCache {
     for (const binding of bindings)
       if (binding !== null && binding !== undefined)
         assets.add(textureBindingAsset(binding));
-    const settled: PromiseSettledResult<THREE.Texture>[] = await Promise.allSettled(
-      [...assets].map((asset: string): Promise<THREE.Texture> => this.decodeOnce(asset)),
-    );
+    const settled: PromiseSettledResult<THREE.Texture>[] =
+      await Promise.allSettled(
+        [...assets].map(
+          (asset: string): Promise<THREE.Texture> => this.decodeOnce(asset),
+        ),
+      );
     const failed: string[] = [...assets].filter(
-      (_asset: string, index: number): boolean => settled[index]!.status === "rejected",
+      (_asset: string, index: number): boolean =>
+        settled[index]!.status === "rejected",
     );
     if (failed.length !== 0)
       throw new Error(
@@ -161,8 +175,11 @@ export class AutoMovieTextureCache {
    */
   public describeSources(): ReturnType<typeof readAutoMovieTextureSource>[] {
     this.assertLive();
-    return [...this.sources].map(([asset, texture]: [string, THREE.Texture]): ReturnType<typeof readAutoMovieTextureSource> =>
-      readAutoMovieTextureSource(asset, texture));
+    return [...this.sources].map(
+      ([asset, texture]: [string, THREE.Texture]): ReturnType<
+        typeof readAutoMovieTextureSource
+      > => readAutoMovieTextureSource(asset, texture),
+    );
   }
 
   /**
@@ -198,7 +215,8 @@ export class AutoMovieTextureCache {
 
   /** Drain settled ownership without allowing one native event to skip another. */
   private async release(): Promise<void> {
-    const settled: PromiseSettledResult<THREE.Texture>[] = await Promise.allSettled(this.pending.values());
+    const settled: PromiseSettledResult<THREE.Texture>[] =
+      await Promise.allSettled(this.pending.values());
     const textures: Set<THREE.Texture> = new Set(this.issued);
     for (const result of settled)
       if (result.status === "fulfilled") textures.add(result.value);
@@ -210,13 +228,18 @@ export class AutoMovieTextureCache {
       this.uncertainRetirements.add(texture);
       AutoMovieTextureCacheAllocationAuthority.beginRetirement(texture);
       let failed: boolean = false;
-      try { texture.dispose(); } catch (error) {
+      try {
+        texture.dispose();
+      } catch (error) {
         failed = true;
         failures.push(error);
       }
-      const uncertain: ReturnType<typeof AutoMovieTextureCacheAllocationAuthority.finishRetirement> = AutoMovieTextureCacheAllocationAuthority.finishRetirement(texture);
+      const uncertain: ReturnType<
+        typeof AutoMovieTextureCacheAllocationAuthority.finishRetirement
+      > = AutoMovieTextureCacheAllocationAuthority.finishRetirement(texture);
       if (uncertain !== undefined) failures.push(uncertain);
-      if (!failed && uncertain === undefined) this.uncertainRetirements.delete(texture);
+      if (!failed && uncertain === undefined)
+        this.uncertainRetirements.delete(texture);
     }
     if (failures.length === 1) throw failures[0];
     if (failures.length > 1)
@@ -224,14 +247,20 @@ export class AutoMovieTextureCache {
   }
 
   private decodeOnce(asset: string): Promise<THREE.Texture> {
-    const existing: Promise<THREE.Texture> | undefined = this.pending.get(asset);
+    const existing: Promise<THREE.Texture> | undefined =
+      this.pending.get(asset);
     if (existing !== undefined) return existing;
     // Register ownership before a host loader can synchronously request close.
-    const decoding: Promise<THREE.Texture> = Promise.resolve().then((): Promise<THREE.Texture> => this.load(asset)).then((texture: THREE.Texture): THREE.Texture => {
-      AutoMovieTextureCacheAllocationAuthority.claim(this.allocationOwner, texture);
-      this.sources.set(asset, texture);
-      return texture;
-    });
+    const decoding: Promise<THREE.Texture> = Promise.resolve()
+      .then((): Promise<THREE.Texture> => this.load(asset))
+      .then((texture: THREE.Texture): THREE.Texture => {
+        AutoMovieTextureCacheAllocationAuthority.claim(
+          this.allocationOwner,
+          texture,
+        );
+        this.sources.set(asset, texture);
+        return texture;
+      });
     this.pending.set(asset, decoding);
     return decoding;
   }

@@ -30,11 +30,16 @@ import type { IAutoMovieFormationCycle } from "./IAutoMovieFormationCycle.js";
  * @evidence contracts/performance.md#reuse-equivalent-work All materials of a tier borrow the same mutable cycle uniform cells/textures and the fixed structural program key allows Three program reuse; changing cadence uniforms avoids recompilation, while installing injection marks needsUpdate.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Material compile closure retains the borrowed cycle/uniforms until material references are released; owns no texture or task itself, and tier bake/runtime disposal must retire the shared textures after borrowers are closed.
  */
-export const applyFormationCycleMaterial: (material: THREE.Material, cycle: IAutoMovieFormationCycle) => void = (
+export const applyFormationCycleMaterial: (
+  material: THREE.Material,
+  cycle: IAutoMovieFormationCycle,
+) => void = (
   material: THREE.Material,
   cycle: IAutoMovieFormationCycle,
 ): void => {
-  material.onBeforeCompile = (shader: THREE.WebGLProgramParametersWithUniforms): void => {
+  material.onBeforeCompile = (
+    shader: THREE.WebGLProgramParametersWithUniforms,
+  ): void => {
     Object.assign(shader.uniforms, cycle.uniforms);
     shader.vertexShader = shader.vertexShader
       .replace("#include <common>", `#include <common>\n${CYCLE_PARS}`)

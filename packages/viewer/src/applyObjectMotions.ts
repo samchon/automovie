@@ -1,6 +1,7 @@
 import { sampleClipSequence } from "@automovie/engine";
 import type { IAutoMovieClip } from "@automovie/interface";
 import type * as THREE from "three";
+
 import { applySampledObjectMotion } from "./applySampledObjectMotion.js";
 
 /**

@@ -1,7 +1,8 @@
 import type * as THREE from "three";
-import type { IAutoMovieViewerSnapshotRenderer } from "./IAutoMovieViewerSnapshotRenderer.js";
-import type { IAutoMovieViewerSnapshotOptions } from "./IAutoMovieViewerSnapshotOptions.js";
+
 import type { IAutoMovieViewerSnapshot } from "./IAutoMovieViewerSnapshot.js";
+import type { IAutoMovieViewerSnapshotOptions } from "./IAutoMovieViewerSnapshotOptions.js";
+import type { IAutoMovieViewerSnapshotRenderer } from "./IAutoMovieViewerSnapshotRenderer.js";
 
 /**
  * Render synchronously through the supplied original host and immediately encode its canvas as an inline image. PNG is the default request; actual canvas fallback, taint and empty-canvas behavior remain native. This low-level readout does not independently establish native renderer identity, current-source hardware readiness or valid nonblank pixels.
@@ -14,7 +15,12 @@ import type { IAutoMovieViewerSnapshot } from "./IAutoMovieViewerSnapshot.js";
  * @evidence contracts/performance.md#reuse-equivalent-work Every requested snapshot executes its own original draw/encode effect; equal scene/camera/options do not establish unchanged pixels.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The renderer/scene/camera remain borrowed and no browser/context is acquired; returned string belongs to the consumer, while native host shutdown stays with its original owner.
  */
-export const captureViewerSnapshot: (renderer: IAutoMovieViewerSnapshotRenderer, scene: THREE.Scene, camera: THREE.Camera, options?: IAutoMovieViewerSnapshotOptions) => IAutoMovieViewerSnapshot = (
+export const captureViewerSnapshot: (
+  renderer: IAutoMovieViewerSnapshotRenderer,
+  scene: THREE.Scene,
+  camera: THREE.Camera,
+  options?: IAutoMovieViewerSnapshotOptions,
+) => IAutoMovieViewerSnapshot = (
   renderer: IAutoMovieViewerSnapshotRenderer,
   scene: THREE.Scene,
   camera: THREE.Camera,

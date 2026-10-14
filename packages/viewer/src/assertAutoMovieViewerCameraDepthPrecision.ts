@@ -1,5 +1,5 @@
-import { evaluateAutoMovieViewerCameraDepthPrecision } from "./evaluateAutoMovieViewerCameraDepthPrecision.js";
 import type { IAutoMovieViewerCameraDepthPrecisionReport } from "./IAutoMovieViewerCameraDepthPrecisionReport.js";
+import { evaluateAutoMovieViewerCameraDepthPrecision } from "./evaluateAutoMovieViewerCameraDepthPrecision.js";
 
 /**
  * Refuse a viewer whose observed clips, projection mode or depth bits fail the
@@ -16,10 +16,13 @@ import type { IAutoMovieViewerCameraDepthPrecisionReport } from "./IAutoMovieVie
  * @evidence contracts/performance.md#reuse-equivalent-work Calls the evaluator once and reuses that report for either return or diagnostics; it does not repeat the driver query or store a stale capability cache.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Retains no renderer or camera after return/throw and acquires no resource/task; the passing scalar report transfers to the caller and failure is a normal Error value.
  */
-export const assertAutoMovieViewerCameraDepthPrecision: (props: Parameters<typeof evaluateAutoMovieViewerCameraDepthPrecision>[0]) => IAutoMovieViewerCameraDepthPrecisionReport = (
+export const assertAutoMovieViewerCameraDepthPrecision: (
+  props: Parameters<typeof evaluateAutoMovieViewerCameraDepthPrecision>[0],
+) => IAutoMovieViewerCameraDepthPrecisionReport = (
   props: Parameters<typeof evaluateAutoMovieViewerCameraDepthPrecision>[0],
 ): IAutoMovieViewerCameraDepthPrecisionReport => {
-  const report: IAutoMovieViewerCameraDepthPrecisionReport = evaluateAutoMovieViewerCameraDepthPrecision(props);
+  const report: IAutoMovieViewerCameraDepthPrecisionReport =
+    evaluateAutoMovieViewerCameraDepthPrecision(props);
   if (report.passed === false)
     throw new Error(
       `Camera depth precision refused "${report.camera}": ${report.status}; ` +

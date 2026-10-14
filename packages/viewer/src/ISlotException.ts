@@ -1,4 +1,5 @@
 import type { IAutoMovieFormationSlot } from "@automovie/interface";
+
 import type { IChunkObject } from "./IChunkObject.js";
 
 /**
@@ -32,4 +33,3 @@ export interface ISlotException {
   /** This member's designed placement, kept so it can be re-derived cheaply. */
   designed: IAutoMovieFormationSlot;
 }
-

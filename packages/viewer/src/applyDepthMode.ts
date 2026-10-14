@@ -1,9 +1,10 @@
-import {restoreAutoMovieRenderModeState} from "./restoreAutoMovieRenderModeState.js";
 import * as THREE from "three";
-import type {IAutoMovieRenderModeHandle} from "./IAutoMovieRenderModeHandle.js";
-import {overrideAutoMovieRenderModeMaterials} from "./overrideAutoMovieRenderModeMaterials.js";
-import {restoreAutoMovieRenderModeOnce} from "./restoreAutoMovieRenderModeOnce.js";
-import {guardAutoMovieRenderModeRetirement} from "./guardAutoMovieRenderModeRetirement.js";
+
+import type { IAutoMovieRenderModeHandle } from "./IAutoMovieRenderModeHandle.js";
+import { guardAutoMovieRenderModeRetirement } from "./guardAutoMovieRenderModeRetirement.js";
+import { overrideAutoMovieRenderModeMaterials } from "./overrideAutoMovieRenderModeMaterials.js";
+import { restoreAutoMovieRenderModeOnce } from "./restoreAutoMovieRenderModeOnce.js";
+import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
 
 /**
  * A depth material normalized on a scene-stable metric range instead of the
@@ -12,7 +13,9 @@ import {guardAutoMovieRenderModeRetirement} from "./guardAutoMovieRenderModeReti
  * the depth of a posed skinned character is the deformed surface's, not the
  * bind pose's.
  */
-const makeNormalizedDepthMaterial: (range: number) => THREE.ShaderMaterial = (range: number): THREE.ShaderMaterial =>
+const makeNormalizedDepthMaterial: (range: number) => THREE.ShaderMaterial = (
+  range: number,
+): THREE.ShaderMaterial =>
   new THREE.ShaderMaterial({
     uniforms: { depthRange: { value: range } },
     vertexShader: `
@@ -57,23 +60,39 @@ const makeNormalizedDepthMaterial: (range: number) => THREE.ShaderMaterial = (ra
  * @evidence contracts/performance.md#reuse-equivalent-work Each mesh receives its own override and borrows its actual cycle uniforms through the shared patcher; Three may share equivalent programs, but material objects and separate pass restoration remain independent.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Temporarily borrows original materials/background, owns override shader materials until memoized restore, and restores background even when another restore operation throws; installation failure after background change still lacks an outer rollback here.
  */
-export const applyDepthMode: (scene: THREE.Scene, range: number) => IAutoMovieRenderModeHandle = (
+export const applyDepthMode: (
+  scene: THREE.Scene,
+  range: number,
+) => IAutoMovieRenderModeHandle = (
   scene: THREE.Scene,
   range: number,
 ): IAutoMovieRenderModeHandle => {
   guardAutoMovieRenderModeRetirement(scene);
-  const background: THREE.Color | THREE.Texture<unknown, THREE.TextureEventMap> | null = scene.background;
+  const background:
+    | THREE.Color
+    | THREE.Texture<unknown, THREE.TextureEventMap>
+    | null = scene.background;
   scene.background = new THREE.Color(0x000000);
-  const materials: IAutoMovieRenderModeHandle = overrideAutoMovieRenderModeMaterials(scene, "depth", (): THREE.ShaderMaterial =>
-    makeNormalizedDepthMaterial(range),
-  );
+  const materials: IAutoMovieRenderModeHandle =
+    overrideAutoMovieRenderModeMaterials(
+      scene,
+      "depth",
+      (): THREE.ShaderMaterial => makeNormalizedDepthMaterial(range),
+    );
   return {
     mode: "depth",
     semantic: null,
     restore: restoreAutoMovieRenderModeOnce((): void => {
-      guardAutoMovieRenderModeRetirement(scene, { run: (): void => {
-        restoreAutoMovieRenderModeState([materials.restore,(): void=>{scene.background=background;}]);
-      } });
+      guardAutoMovieRenderModeRetirement(scene, {
+        run: (): void => {
+          restoreAutoMovieRenderModeState([
+            materials.restore,
+            (): void => {
+              scene.background = background;
+            },
+          ]);
+        },
+      });
     }),
   };
 };

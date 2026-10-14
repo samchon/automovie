@@ -17,21 +17,46 @@ import type { IFormationTierRepresentation } from "./IFormationTierRepresentatio
  * @evidence contracts/performance.md#reuse-equivalent-work Meshes of one tier borrow the same cycle/shadow pair and palette identity table; temporary guide overrides do not create duplicate shadow program identities.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Mesh callback/metadata retain borrowed tier resources through mesh lifetime; tier construction/runtime disposal owns physical materials/textures, and this binder allocates no separate GPU handle or task.
  */
-export const bindFormationTierCycle: (mesh: THREE.InstancedMesh, representation: IFormationTierRepresentation) => void = (
+export const bindFormationTierCycle: (
+  mesh: THREE.InstancedMesh,
+  representation: IFormationTierRepresentation,
+) => void = (
   mesh: THREE.InstancedMesh,
   representation: IFormationTierRepresentation,
 ): void => {
   if (representation.cycle !== null)
     mesh.userData.automovieFormationCycle = representation.cycle;
-  const shadows: { depth: THREE.MeshDepthMaterial; distance: THREE.MeshDistanceMaterial; beforeDraw: (material: THREE.Material, paletteMaterial: THREE.Material) => void; dispose: () => void; } | null = representation.shadows;
+  const shadows: {
+    depth: THREE.MeshDepthMaterial;
+    distance: THREE.MeshDistanceMaterial;
+    beforeDraw: (
+      material: THREE.Material,
+      paletteMaterial: THREE.Material,
+    ) => void;
+    dispose: () => void;
+  } | null = representation.shadows;
   if (shadows === null) return;
   mesh.customDepthMaterial = shadows.depth;
   mesh.customDistanceMaterial = shadows.distance;
-  mesh.onBeforeShadow = (_renderer: THREE.WebGLRenderer, _object: THREE.Scene<THREE.Object3DEventMap>, _camera: THREE.Camera, _shadowCamera: THREE.Camera, _geometry: THREE.BufferGeometry<THREE.NormalBufferAttributes, THREE.BufferGeometryEventMap>, material: THREE.Material<THREE.MaterialEventMap>, group: THREE.Group<THREE.Object3DEventMap>): void => {
+  mesh.onBeforeShadow = (
+    _renderer: THREE.WebGLRenderer,
+    _object: THREE.Scene<THREE.Object3DEventMap>,
+    _camera: THREE.Camera,
+    _shadowCamera: THREE.Camera,
+    _geometry: THREE.BufferGeometry<
+      THREE.NormalBufferAttributes,
+      THREE.BufferGeometryEventMap
+    >,
+    material: THREE.Material<THREE.MaterialEventMap>,
+    group: THREE.Group<THREE.Object3DEventMap>,
+  ): void => {
     // Three r186 dispatches a geometry group. The installed Object3D
     // declaration currently names the scene-graph Group at this boundary.
-    const drawGroup: THREE.GeometryGroup | null = group as unknown as THREE.BufferGeometry["groups"][number] | null;
-    const palette: THREE.Material<THREE.MaterialEventMap> = representation.materials[drawGroup?.materialIndex ?? 0]!;
+    const drawGroup: THREE.GeometryGroup | null = group as unknown as
+      | THREE.BufferGeometry["groups"][number]
+      | null;
+    const palette: THREE.Material<THREE.MaterialEventMap> =
+      representation.materials[drawGroup?.materialIndex ?? 0]!;
     shadows.beforeDraw(material, palette);
   };
 };

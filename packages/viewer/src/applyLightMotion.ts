@@ -40,7 +40,12 @@ import { applyLightState } from "./applyLightState.js";
  * @evidence contracts/performance.md#reuse-equivalent-work Shares one engine resolver and concrete state writer between builds/frames; clips/time/rest source determine resolution and target mutation is effectful, so no cached final write is reused across arbitrary hosts.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Borrows declarations/clips/targets and retains no frame collection after return; owns no light, shadow map, renderer or task and transfers only field updates to the host.
  */
-export const applyLightMotion: (lights: readonly IAutoMovieLight[], clips: readonly IAutoMovieClip[], seconds: number, resolve: (light: string) => THREE.Light | undefined) => void = (
+export const applyLightMotion: (
+  lights: readonly IAutoMovieLight[],
+  clips: readonly IAutoMovieClip[],
+  seconds: number,
+  resolve: (light: string) => THREE.Light | undefined,
+) => void = (
   lights: readonly IAutoMovieLight[],
   clips: readonly IAutoMovieClip[],
   seconds: number,

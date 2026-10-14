@@ -1,4 +1,8 @@
-import type { IAutoMovieCompiledFormation, IAutoMovieCompiledFormationLod, IAutoMovieFormationSlot } from "@automovie/interface";
+import type {
+  IAutoMovieCompiledFormation,
+  IAutoMovieCompiledFormationLod,
+  IAutoMovieFormationSlot,
+} from "@automovie/interface";
 import type * as THREE from "three";
 
 /**
@@ -40,4 +44,3 @@ export interface IChunkObject {
   /** Members of this chunk a cue has taken out at the current time. */
   removed: number;
 }
-

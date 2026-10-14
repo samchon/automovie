@@ -39,10 +39,10 @@ import { applyTransform } from "./applyTransform.js";
  * @evidence contracts/performance.md#reuse-equivalent-work Reuses the same conversion for static construction and motion; it writes current absolute values each call because an unchanged declaration does not prove a mutable target still holds them.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Borrows target/declaration and allocates no light, material, shadow map or task; no references survive the call beyond fields already owned by the target.
  */
-export const applyLightState: (target: THREE.Light, light: IAutoMovieLight) => void = (
+export const applyLightState: (
   target: THREE.Light,
   light: IAutoMovieLight,
-): void => {
+) => void = (target: THREE.Light, light: IAutoMovieLight): void => {
   applyTransform(target, light.transform);
   target.color.setRGB(light.color.r, light.color.g, light.color.b);
   target.intensity = light.intensity;

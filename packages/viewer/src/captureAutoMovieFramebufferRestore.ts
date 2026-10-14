@@ -1,6 +1,6 @@
 import * as THREE from "three";
 
-import {restoreAutoMovieRenderModeState} from "./restoreAutoMovieRenderModeState.js";
+import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
 
 /**
  * Capture the public framebuffer selection and raster rectangle state.
@@ -18,26 +18,67 @@ import {restoreAutoMovieRenderModeState} from "./restoreAutoMovieRenderModeState
  * @evidence contracts/performance.md#reuse-equivalent-work The returned closer reuses one captured state for its owner scope; each actual snapshot requires fresh target/rectangle observations and repeated restore is not memoized by this primitive.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Holds borrowed renderer/target plus four-vector/scalar snapshot state through closer lifetime and acquires no render target itself; target/renderer owners must keep resources alive until restore and then release the closer.
  */
-export const captureAutoMovieFramebufferRestore: (renderer: THREE.WebGLRenderer) => () => void=(renderer:THREE.WebGLRenderer):()=>void=>{
-  const target: THREE.WebGLRenderTarget<THREE.Texture<unknown, THREE.TextureEventMap>> | null=renderer.getRenderTarget(),face: number=renderer.getActiveCubeFace(),mip: number=renderer.getActiveMipmapLevel();
-  const viewport: THREE.Vector4=renderer.getViewport(new THREE.Vector4()),scissor: THREE.Vector4=renderer.getScissor(new THREE.Vector4()),test: boolean=renderer.getScissorTest();
-  const effectiveViewport: THREE.Vector4=renderer.getCurrentViewport(new THREE.Vector4());
-  const gl: WebGLRenderingContext | WebGL2RenderingContext=renderer.getContext();
-  const effectiveScissor: THREE.Vector4=new THREE.Vector4().fromArray(gl.getParameter(gl.SCISSOR_BOX) as Int32Array);
-  const effectiveTest: boolean=gl.isEnabled(gl.SCISSOR_TEST);
-  return (): void=>restoreAutoMovieRenderModeState([
-    (): void=>{renderer.setViewport(viewport);},
-    (): void=>{renderer.setScissor(scissor);},
-    (): void=>{renderer.setScissorTest(test);},
-    (): void=>{
-      if(target===null){renderer.setRenderTarget(null,face,mip);return;}
-      const priorViewport: THREE.Vector4=target.viewport.clone(),priorScissor: THREE.Vector4=target.scissor.clone(),priorTest: boolean=target.scissorTest;
-      target.viewport.copy(effectiveViewport);target.scissor.copy(effectiveScissor);target.scissorTest=effectiveTest;
-      let failure:{error:unknown}|undefined;
-      try{renderer.setRenderTarget(target,face,mip);}catch(error){failure={error};}
-      const restore: (() => void)[]=[(): void=>{target.viewport.copy(priorViewport);},(): void=>{target.scissor.copy(priorScissor);},(): void=>{target.scissorTest=priorTest;}];
-      if(failure===undefined)restoreAutoMovieRenderModeState(restore);
-      else restoreAutoMovieRenderModeState(restore,failure);
-    },
-  ]);
+export const captureAutoMovieFramebufferRestore: (
+  renderer: THREE.WebGLRenderer,
+) => () => void = (renderer: THREE.WebGLRenderer): (() => void) => {
+  const target: THREE.WebGLRenderTarget<
+      THREE.Texture<unknown, THREE.TextureEventMap>
+    > | null = renderer.getRenderTarget(),
+    face: number = renderer.getActiveCubeFace(),
+    mip: number = renderer.getActiveMipmapLevel();
+  const viewport: THREE.Vector4 = renderer.getViewport(new THREE.Vector4()),
+    scissor: THREE.Vector4 = renderer.getScissor(new THREE.Vector4()),
+    test: boolean = renderer.getScissorTest();
+  const effectiveViewport: THREE.Vector4 = renderer.getCurrentViewport(
+    new THREE.Vector4(),
+  );
+  const gl: WebGLRenderingContext | WebGL2RenderingContext =
+    renderer.getContext();
+  const effectiveScissor: THREE.Vector4 = new THREE.Vector4().fromArray(
+    gl.getParameter(gl.SCISSOR_BOX) as Int32Array,
+  );
+  const effectiveTest: boolean = gl.isEnabled(gl.SCISSOR_TEST);
+  return (): void =>
+    restoreAutoMovieRenderModeState([
+      (): void => {
+        renderer.setViewport(viewport);
+      },
+      (): void => {
+        renderer.setScissor(scissor);
+      },
+      (): void => {
+        renderer.setScissorTest(test);
+      },
+      (): void => {
+        if (target === null) {
+          renderer.setRenderTarget(null, face, mip);
+          return;
+        }
+        const priorViewport: THREE.Vector4 = target.viewport.clone(),
+          priorScissor: THREE.Vector4 = target.scissor.clone(),
+          priorTest: boolean = target.scissorTest;
+        target.viewport.copy(effectiveViewport);
+        target.scissor.copy(effectiveScissor);
+        target.scissorTest = effectiveTest;
+        let failure: { error: unknown } | undefined;
+        try {
+          renderer.setRenderTarget(target, face, mip);
+        } catch (error) {
+          failure = { error };
+        }
+        const restore: (() => void)[] = [
+          (): void => {
+            target.viewport.copy(priorViewport);
+          },
+          (): void => {
+            target.scissor.copy(priorScissor);
+          },
+          (): void => {
+            target.scissorTest = priorTest;
+          },
+        ];
+        if (failure === undefined) restoreAutoMovieRenderModeState(restore);
+        else restoreAutoMovieRenderModeState(restore, failure);
+      },
+    ]);
 };

@@ -14,10 +14,10 @@ import type * as THREE from "three";
  * @evidence contracts/performance.md#reuse-equivalent-work Reuses existing target vector/quaternion cells and the common conversion; mutable target values are overwritten each call rather than skipped from a stale source-only comparison.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Borrows object/transform for the call and retains neither; owns no geometry/material/renderer or task and leaves field state with the host object.
  */
-export const applyTransform: (obj: THREE.Object3D, t: IAutoMovieTransform) => void = (
+export const applyTransform: (
   obj: THREE.Object3D,
   t: IAutoMovieTransform,
-): void => {
+) => void = (obj: THREE.Object3D, t: IAutoMovieTransform): void => {
   obj.position.set(t.translation.x, t.translation.y, t.translation.z);
   obj.quaternion.set(t.rotation.x, t.rotation.y, t.rotation.z, t.rotation.w);
   obj.scale.set(t.scale.x, t.scale.y, t.scale.z);

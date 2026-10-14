@@ -44,7 +44,13 @@ import { applyTransform } from "./applyTransform.js";
  * @evidence contracts/performance.md#reuse-equivalent-work Reuses the model's existing Bone objects and one engine FK implementation; different pose/skeleton/axes/rest frames require fresh resolution and target state is rewritten rather than cached.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Borrows model/skeleton/pose and retains no solver or bone collection after return; skipped ids transfer to the caller and no GPU allocation or task is acquired.
  */
-export const applyPose: (target: IAutoMovieModelObject, pose: IAutoMoviePose, skeleton: IAutoMovieSkeleton, jointAxes?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>, restFrames?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>) => AutoMovieHumanoidBone[] = (
+export const applyPose: (
+  target: IAutoMovieModelObject,
+  pose: IAutoMoviePose,
+  skeleton: IAutoMovieSkeleton,
+  jointAxes?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>,
+  restFrames?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>,
+) => AutoMovieHumanoidBone[] = (
   target: IAutoMovieModelObject,
   pose: IAutoMoviePose,
   skeleton: IAutoMovieSkeleton,
@@ -77,8 +83,12 @@ export const applyPose: (target: IAutoMovieModelObject, pose: IAutoMoviePose, sk
   return skipped;
 };
 
-const UNIT_SCALE: { x: number; y: number; z: number; } = { x: 1, y: 1, z: 1 };
-const IDENTITY_ROOT: { translation: { x: number; y: number; z: number; }; rotation: { x: number; y: number; z: number; w: number; }; scale: { x: number; y: number; z: number; }; } = {
+const UNIT_SCALE: { x: number; y: number; z: number } = { x: 1, y: 1, z: 1 };
+const IDENTITY_ROOT: {
+  translation: { x: number; y: number; z: number };
+  rotation: { x: number; y: number; z: number; w: number };
+  scale: { x: number; y: number; z: number };
+} = {
   translation: { x: 0, y: 0, z: 0 },
   rotation: { x: 0, y: 0, z: 0, w: 1 },
   scale: UNIT_SCALE,

@@ -1,6 +1,7 @@
-import { tessellateSurface, type ITessellation } from "@automovie/engine";
+import { type ITessellation, tessellateSurface } from "@automovie/engine";
 import type { IAutoMovieSpace, IAutoMovieSurface } from "@automovie/interface";
 import * as THREE from "three";
+
 import { SPACE_GROUP_NAME } from "./SPACE_GROUP_NAME.js";
 
 /**
@@ -44,13 +45,25 @@ import { SPACE_GROUP_NAME } from "./SPACE_GROUP_NAME.js";
  * @evidence contracts/performance.md#reuse-equivalent-work Reuses the engine tessellation implementation but creates fresh scene-owned Three resources per build; mutable support surfaces have no immutable revision key here, so no cross-scene geometry cache is assumed.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Transfers new geometries/materials to the returned group and retains no separate registry; population is bounded by this space's nondegenerate surfaces and tessellation output. No disposer or partial-build rollback is exposed here, so scene-host retirement and construction-failure cleanup remain a gap rather than guaranteed release.
  */
-export const buildSpaceObject: (space: IAutoMovieSpace) => THREE.Group = (space: IAutoMovieSpace): THREE.Group => {
+export const buildSpaceObject: (space: IAutoMovieSpace) => THREE.Group = (
+  space: IAutoMovieSpace,
+): THREE.Group => {
   const group: THREE.Group<THREE.Object3DEventMap> = new THREE.Group();
   group.name = SPACE_GROUP_NAME;
   for (const surface of space.surfaces) {
-    const geometry: THREE.BufferGeometry<THREE.NormalBufferAttributes, THREE.BufferGeometryEventMap> | null = buildSurfaceGeometry(surface);
+    const geometry: THREE.BufferGeometry<
+      THREE.NormalBufferAttributes,
+      THREE.BufferGeometryEventMap
+    > | null = buildSurfaceGeometry(surface);
     if (geometry === null) continue;
-    const mesh: THREE.Mesh<THREE.BufferGeometry<THREE.NormalBufferAttributes, THREE.BufferGeometryEventMap>, THREE.MeshBasicMaterial, THREE.Object3DEventMap> = new THREE.Mesh(
+    const mesh: THREE.Mesh<
+      THREE.BufferGeometry<
+        THREE.NormalBufferAttributes,
+        THREE.BufferGeometryEventMap
+      >,
+      THREE.MeshBasicMaterial,
+      THREE.Object3DEventMap
+    > = new THREE.Mesh(
       geometry,
       new THREE.MeshBasicMaterial({ colorWrite: false, depthWrite: false }),
     );
@@ -64,12 +77,17 @@ export const buildSpaceObject: (space: IAutoMovieSpace) => THREE.Group = (space:
  * One surface footprint as a triangulated planar patch, or `null` when the
  * footprint encloses no area.
  */
-const buildSurfaceGeometry: (surface: IAutoMovieSurface) => THREE.BufferGeometry | null = (
+const buildSurfaceGeometry: (
+  surface: IAutoMovieSurface,
+) => THREE.BufferGeometry | null = (
   surface: IAutoMovieSurface,
 ): THREE.BufferGeometry | null => {
   const mesh: ITessellation | null = tessellateSurface(surface);
   if (mesh === null) return null;
-  const geometry: THREE.BufferGeometry<THREE.NormalBufferAttributes, THREE.BufferGeometryEventMap> = new THREE.BufferGeometry();
+  const geometry: THREE.BufferGeometry<
+    THREE.NormalBufferAttributes,
+    THREE.BufferGeometryEventMap
+  > = new THREE.BufferGeometry();
   geometry.setAttribute(
     "position",
     new THREE.Float32BufferAttribute(mesh.positions, 3),

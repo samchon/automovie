@@ -180,7 +180,10 @@ const PRESET_CHANNELS: Partial<
  * @evidence contracts/performance.md#reuse-equivalent-work Shares preset/channel tables and the expanded weights between all meshes/sinks in one call; morph dictionaries may mutate, so folded lookups are rebuilt rather than cached without an invalidation key.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Borrows model/morph arrays/sinks and creates request-local maps only; owns no texture, geometry, animation task or worker, and channel writes remain in host-owned targets until the next supported-channel reset.
  */
-export const applyExpression: (target: IAutoMovieModelObject, expression: IAutoMovieExpression | null) => void = (
+export const applyExpression: (
+  target: IAutoMovieModelObject,
+  expression: IAutoMovieExpression | null,
+) => void = (
   target: IAutoMovieModelObject,
   expression: IAutoMovieExpression | null,
 ): void => {
@@ -193,7 +196,9 @@ export const applyExpression: (target: IAutoMovieModelObject, expression: IAutoM
 };
 
 /** Convert a semantic expression into direct channel weights. */
-const expressionWeights: (expression: IAutoMovieExpression | null) => ReadonlyMap<string, number> = (
+const expressionWeights: (
+  expression: IAutoMovieExpression | null,
+) => ReadonlyMap<string, number> = (
   expression: IAutoMovieExpression | null,
 ): ReadonlyMap<string, number> => {
   const weights: Map<string, number> = new Map<string, number>();
@@ -210,12 +215,23 @@ const expressionWeights: (expression: IAutoMovieExpression | null) => ReadonlyMa
   return weights;
 };
 
-const applyMorphTargets: (root: THREE.Object3D, weights: ReadonlyMap<string, number>) => void = (
+const applyMorphTargets: (
+  root: THREE.Object3D,
+  weights: ReadonlyMap<string, number>,
+) => void = (
   root: THREE.Object3D,
   weights: ReadonlyMap<string, number>,
 ): void => {
   root.traverse((object: THREE.Object3D<THREE.Object3DEventMap>): void => {
-    const mesh: THREE.Mesh<THREE.BufferGeometry<THREE.NormalBufferAttributes, THREE.BufferGeometryEventMap>, THREE.Material<THREE.MaterialEventMap> | THREE.Material<THREE.MaterialEventMap>[], THREE.Object3DEventMap> = object as THREE.Mesh;
+    const mesh: THREE.Mesh<
+      THREE.BufferGeometry<
+        THREE.NormalBufferAttributes,
+        THREE.BufferGeometryEventMap
+      >,
+      | THREE.Material<THREE.MaterialEventMap>
+      | THREE.Material<THREE.MaterialEventMap>[],
+      THREE.Object3DEventMap
+    > = object as THREE.Mesh;
     if (
       mesh.isMesh !== true ||
       mesh.morphTargetDictionary === undefined ||
@@ -223,16 +239,22 @@ const applyMorphTargets: (root: THREE.Object3D, weights: ReadonlyMap<string, num
     )
       return;
 
-    const dictionary: { [key: string]: number; } = mesh.morphTargetDictionary;
+    const dictionary: { [key: string]: number } = mesh.morphTargetDictionary;
     const influences: number[] = mesh.morphTargetInfluences;
     const folded: Map<string, number> = new Map(
-      Object.entries(dictionary).map(([name, index]: [string, number]): [string, number] => [
-        name.toLowerCase(),
-        index,
-      ]),
+      Object.entries(dictionary).map(
+        ([name, index]: [string, number]): [string, number] => [
+          name.toLowerCase(),
+          index,
+        ],
+      ),
     );
-    const setInfluence: (name: string, weight: number) => void = (name: string, weight: number): void => {
-      const index: number | undefined = dictionary[name] ?? folded.get(name.toLowerCase());
+    const setInfluence: (name: string, weight: number) => void = (
+      name: string,
+      weight: number,
+    ): void => {
+      const index: number | undefined =
+        dictionary[name] ?? folded.get(name.toLowerCase());
       if (index !== undefined && index < influences.length)
         influences[index] = weight;
     };
@@ -242,7 +264,15 @@ const applyMorphTargets: (root: THREE.Object3D, weights: ReadonlyMap<string, num
   });
 };
 
-const setMax: (weights: Map<string, number>, name: string, weight: number) => void = (weights: Map<string, number>, name: string, weight: number): void => {
+const setMax: (
+  weights: Map<string, number>,
+  name: string,
+  weight: number,
+) => void = (
+  weights: Map<string, number>,
+  name: string,
+  weight: number,
+): void => {
   weights.set(name, Math.max(weights.get(name) ?? 0, clamp01(weight)));
 };
 

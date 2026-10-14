@@ -48,4 +48,3 @@ export interface IAutoMovieViewerHandle {
    */
   stop: () => void;
 }
-

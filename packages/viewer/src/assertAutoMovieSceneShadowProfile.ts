@@ -1,7 +1,11 @@
-import {resolveAutoMovieShadowProfile} from "@automovie/engine";
-import type {IAutoMovieLight,IAutoMovieSceneEnvironment} from "@automovie/interface";
+import { resolveAutoMovieShadowProfile } from "@automovie/engine";
+import type {
+  IAutoMovieLight,
+  IAutoMovieSceneEnvironment,
+} from "@automovie/interface";
 import type * as THREE from "three";
-import {readAutoMovieShadowLightSource} from "./readAutoMovieShadowLightSource.js";
+
+import { readAutoMovieShadowLightSource } from "./readAutoMovieShadowLightSource.js";
 
 /**
  * Admit an actual scene's punctual shadow casters through the Engine profile.
@@ -19,12 +23,23 @@ import {readAutoMovieShadowLightSource} from "./readAutoMovieShadowLightSource.j
  * @evidence contracts/performance.md#reuse-equivalent-work Reuses the engine profile validator instead of duplicating the policy; scene lights/policy can mutate and hidden lights can become active, so no visibility-only cached admission is assumed.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Borrows scene/shadow declaration and retains only request-local descriptors/results; creates no shadow map or task, and throws before callers acquire their downstream products.
  */
-export const assertAutoMovieSceneShadowProfile: (scene: THREE.Scene, shadows: IAutoMovieSceneEnvironment["shadows"]) => void=(scene:THREE.Scene,shadows:IAutoMovieSceneEnvironment["shadows"]):void=>{
-  const lights:Pick<IAutoMovieLight,"id"|"type"|"castShadow">[]=[];
+export const assertAutoMovieSceneShadowProfile: (
+  scene: THREE.Scene,
+  shadows: IAutoMovieSceneEnvironment["shadows"],
+) => void = (
+  scene: THREE.Scene,
+  shadows: IAutoMovieSceneEnvironment["shadows"],
+): void => {
+  const lights: Pick<IAutoMovieLight, "id" | "type" | "castShadow">[] = [];
   scene.traverse((object: THREE.Object3D): void => {
-    const light: Pick<IAutoMovieLight, "type" | "id" | "castShadow"> | null=readAutoMovieShadowLightSource(object.name||object.uuid,object);
-    if(light!==null)lights.push(light);
+    const light: Pick<IAutoMovieLight, "type" | "id" | "castShadow"> | null =
+      readAutoMovieShadowLightSource(object.name || object.uuid, object);
+    if (light !== null) lights.push(light);
   });
-  const profile: ReturnType<typeof resolveAutoMovieShadowProfile> = resolveAutoMovieShadowProfile({lights,shadows});
-  if(!profile.success)throw new Error("Unsupported shadow profile: "+JSON.stringify(profile.violations));
+  const profile: ReturnType<typeof resolveAutoMovieShadowProfile> =
+    resolveAutoMovieShadowProfile({ lights, shadows });
+  if (!profile.success)
+    throw new Error(
+      "Unsupported shadow profile: " + JSON.stringify(profile.violations),
+    );
 };

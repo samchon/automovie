@@ -32,7 +32,9 @@ import { applyLightState } from "./applyLightState.js";
  * @evidence contracts/performance.md#reuse-equivalent-work Static builds and light-motion frames use one field writer; all area lights share process/module lookup tables via the installed flag, with no per-light texture rebuild.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Transfers returned light/child target to the scene host; no render loop or worker is created. Native area LUT global state persists for the module lifetime without a local release API, and actual rendered shadow maps must be retired by their renderer/light owner.
  */
-export const buildLight: (light: IAutoMovieLight) => THREE.Light = (light: IAutoMovieLight): THREE.Light => {
+export const buildLight: (light: IAutoMovieLight) => THREE.Light = (
+  light: IAutoMovieLight,
+): THREE.Light => {
   if (light.type === "point") {
     const built: THREE.PointLight = new THREE.PointLight();
     applyLightState(built, light);
@@ -76,10 +78,16 @@ const initRectAreaLightUniforms: () => void = (): void => {
   RectAreaLightUniformsLib.init();
 };
 
-const applyShadow: (built: THREE.Light, light: IAutoMovieLight) => void = (built: THREE.Light, light: IAutoMovieLight): void => {
+const applyShadow: (built: THREE.Light, light: IAutoMovieLight) => void = (
+  built: THREE.Light,
+  light: IAutoMovieLight,
+): void => {
   built.castShadow = light.castShadow ?? false;
   if (light.shadow === undefined || !("shadow" in built)) return;
-  const shadow: THREE.SpotLightShadow | THREE.DirectionalLightShadow | THREE.PointLightShadow = (
+  const shadow:
+    | THREE.SpotLightShadow
+    | THREE.DirectionalLightShadow
+    | THREE.PointLightShadow = (
     built as THREE.PointLight | THREE.SpotLight | THREE.DirectionalLight
   ).shadow;
   shadow.mapSize.set(light.shadow.mapSize, light.shadow.mapSize);
@@ -110,7 +118,9 @@ const applyShadow: (built: THREE.Light, light: IAutoMovieLight) => void = (built
  * no second field can drift from it. `three.js` only reads a target that is in
  * the scene graph, and a child of the light always is.
  */
-const aimLight: <Light extends THREE.DirectionalLight | THREE.SpotLight>(light: Light) => Light = <Light extends THREE.DirectionalLight | THREE.SpotLight>(
+const aimLight: <Light extends THREE.DirectionalLight | THREE.SpotLight>(
+  light: Light,
+) => Light = <Light extends THREE.DirectionalLight | THREE.SpotLight>(
   light: Light,
 ): Light => {
   light.target.position.set(0, 0, -1);

@@ -1,5 +1,10 @@
-import type { AutoMovieWaterFeatureMode, IAutoMovieFluidSurface, IAutoMovieFluidSurfaceBounds } from "@automovie/interface";
+import type {
+  AutoMovieWaterFeatureMode,
+  IAutoMovieFluidSurface,
+  IAutoMovieFluidSurfaceBounds,
+} from "@automovie/interface";
 import * as THREE from "three";
+
 import type { IAutoMovieFluidSurfaceObject } from "./IAutoMovieFluidSurfaceObject.js";
 import { reportAutoMovieResourceRetirement } from "./reportAutoMovieResourceRetirement.js";
 
@@ -20,14 +25,21 @@ import { reportAutoMovieResourceRetirement } from "./reportAutoMovieResourceReti
  *
  * @author Samchon
  */
-export const buildFluidSurfaceObject: (props: { surface: IAutoMovieFluidSurface; material?: THREE.Material; mode?: AutoMovieWaterFeatureMode; }) => IAutoMovieFluidSurfaceObject = (props: {
+export const buildFluidSurfaceObject: (props: {
+  surface: IAutoMovieFluidSurface;
+  material?: THREE.Material;
+  mode?: AutoMovieWaterFeatureMode;
+}) => IAutoMovieFluidSurfaceObject = (props: {
   surface: IAutoMovieFluidSurface;
   /** Water material; a translucent default is created when absent. */
   material?: THREE.Material;
   /** Feature mode recorded as flowing metadata; a supplied shader may consume it. */
   mode?: AutoMovieWaterFeatureMode;
 }): IAutoMovieFluidSurfaceObject => {
-  const geometry: THREE.BufferGeometry<THREE.NormalBufferAttributes, THREE.BufferGeometryEventMap> = new THREE.BufferGeometry();
+  const geometry: THREE.BufferGeometry<
+    THREE.NormalBufferAttributes,
+    THREE.BufferGeometryEventMap
+  > = new THREE.BufferGeometry();
   const owned: boolean = props.material === undefined;
   const material: THREE.Material<THREE.MaterialEventMap> =
     props.material ??
@@ -39,10 +51,19 @@ export const buildFluidSurfaceObject: (props: { surface: IAutoMovieFluidSurface;
       opacity: 0.8,
       side: THREE.DoubleSide,
     });
-  const mesh: THREE.Mesh<THREE.BufferGeometry<THREE.NormalBufferAttributes, THREE.BufferGeometryEventMap>, THREE.Material<THREE.MaterialEventMap>, THREE.Object3DEventMap> = new THREE.Mesh(geometry, material);
+  const mesh: THREE.Mesh<
+    THREE.BufferGeometry<
+      THREE.NormalBufferAttributes,
+      THREE.BufferGeometryEventMap
+    >,
+    THREE.Material<THREE.MaterialEventMap>,
+    THREE.Object3DEventMap
+  > = new THREE.Mesh(geometry, material);
   const domain: string = props.surface.domain;
   mesh.name = `water:${domain}`;
-  const upload: (surface: IAutoMovieFluidSurface) => void = (surface: IAutoMovieFluidSurface): void => {
+  const upload: (surface: IAutoMovieFluidSurface) => void = (
+    surface: IAutoMovieFluidSurface,
+  ): void => {
     if (surface.domain !== domain)
       throw new Error(
         `water surface object of "${domain}" cannot upload a surface of "${surface.domain}"`,
@@ -70,8 +91,16 @@ export const buildFluidSurfaceObject: (props: { surface: IAutoMovieFluidSurface;
       geometry.boundingSphere = new THREE.Sphere(new THREE.Vector3(), 0);
       mesh.visible = false;
     } else {
-      const min: THREE.Vector3 = new THREE.Vector3(bounds.min.x, bounds.min.y, bounds.min.z);
-      const max: THREE.Vector3 = new THREE.Vector3(bounds.max.x, bounds.max.y, bounds.max.z);
+      const min: THREE.Vector3 = new THREE.Vector3(
+        bounds.min.x,
+        bounds.min.y,
+        bounds.min.z,
+      );
+      const max: THREE.Vector3 = new THREE.Vector3(
+        bounds.max.x,
+        bounds.max.y,
+        bounds.max.z,
+      );
       geometry.boundingSphere = new THREE.Sphere(
         min.clone().add(max).multiplyScalar(0.5),
         min.distanceTo(max) / 2,
@@ -88,8 +117,12 @@ export const buildFluidSurfaceObject: (props: { surface: IAutoMovieFluidSurface;
     update: upload,
     dispose: (): void => {
       reportAutoMovieResourceRetirement([
-        (): void => { geometry.dispose(); },
-        (): void => { if (owned) material.dispose(); },
+        (): void => {
+          geometry.dispose();
+        },
+        (): void => {
+          if (owned) material.dispose();
+        },
       ]);
     },
   };

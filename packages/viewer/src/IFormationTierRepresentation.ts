@@ -14,8 +14,7 @@ import type { createFormationCycleShadowMaterials } from "./createFormationCycle
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Tier construction and binding own sharing across anonymous chunks; the record coordinates no repeated effect itself.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Actual visible/shadow resource acquisition and release are owned by create/disposeFormationRepresentations, not this interface declaration.
  */
-export interface IFormationTierRepresentation
-  extends IAutoMovieInstancedModelRepresentation {
+export interface IFormationTierRepresentation extends IAutoMovieInstancedModelRepresentation {
   /**
    * Null for a static tier; otherwise its shared directional/spot and point projections.
    */

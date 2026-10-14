@@ -32,7 +32,10 @@ import * as THREE from "three";
  * @evidence contracts/performance.md#reuse-equivalent-work Reuses Three's native fog implementation and the shared adapter; changed fog can replace the scalar object cheaply, with no geometry/cache rebuild or cross-scene state sharing.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Transfers one scalar/color fog object to the scene and releases its previous reference on assignment/clear; no GPU handle, observer or task is owned here.
  */
-export const applySceneFog: (scene: THREE.Scene, fog: IAutoMovieFog | null | undefined) => void = (
+export const applySceneFog: (
+  scene: THREE.Scene,
+  fog: IAutoMovieFog | null | undefined,
+) => void = (
   scene: THREE.Scene,
   fog: IAutoMovieFog | null | undefined,
 ): void => {

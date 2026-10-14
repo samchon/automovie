@@ -1,4 +1,7 @@
-import type { AutoMovieSoftAnalysisStatus, IAutoMovieSoftBodySurface } from "@automovie/interface";
+import type {
+  AutoMovieSoftAnalysisStatus,
+  IAutoMovieSoftBodySurface,
+} from "@automovie/interface";
 import type * as THREE from "three";
 
 /**

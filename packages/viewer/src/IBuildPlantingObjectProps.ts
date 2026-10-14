@@ -1,4 +1,7 @@
-import type { IAutoMoviePlantingArrangement, IAutoMoviePlantingState } from "@automovie/interface";
+import type {
+  IAutoMoviePlantingArrangement,
+  IAutoMoviePlantingState,
+} from "@automovie/interface";
 import type * as THREE from "three";
 
 /**

@@ -65,9 +65,13 @@ export const applySampledObjectMotion: (
  * model must not throw when a host swaps in another, the same tolerance the
  * unresolved-node case above already has.
  */
-const applyMorphWeights: (object: THREE.Object3D, value: number[]) => void = (object: THREE.Object3D, value: number[]): void => {
+const applyMorphWeights: (object: THREE.Object3D, value: number[]) => void = (
+  object: THREE.Object3D,
+  value: number[],
+): void => {
   object.traverse((child: THREE.Object3D): void => {
-    const influences: number[] | undefined = (child as THREE.Mesh).morphTargetInfluences;
+    const influences: number[] | undefined = (child as THREE.Mesh)
+      .morphTargetInfluences;
     if (influences === undefined) return;
     const count: number = Math.min(influences.length, value.length);
     for (let i: number = 0; i < count; ++i) influences[i] = value[i]!;

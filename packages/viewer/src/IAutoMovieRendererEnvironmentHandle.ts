@@ -25,4 +25,3 @@ export interface IAutoMovieRendererEnvironmentHandle {
    */
   restore: () => void;
 }
-

@@ -1,8 +1,13 @@
-import { sampleCompiledEffect, type IAutoMovieEffectSample, type IAutoMovieEffectParticle } from "@automovie/engine";
+import {
+  type IAutoMovieEffectParticle,
+  type IAutoMovieEffectSample,
+  sampleCompiledEffect,
+} from "@automovie/engine";
 import type { IAutoMovieCompiledEffect } from "@automovie/interface";
 import * as THREE from "three";
-import type { IAutoMovieEffectViewerStats } from "./IAutoMovieEffectViewerStats.js";
+
 import type { IAutoMovieEffectViewerObject } from "./IAutoMovieEffectViewerObject.js";
+import type { IAutoMovieEffectViewerStats } from "./IAutoMovieEffectViewerStats.js";
 
 /**
  * Build a compiled effect as fixed-capacity camera-facing billboard instances.
@@ -19,14 +24,17 @@ import type { IAutoMovieEffectViewerObject } from "./IAutoMovieEffectViewerObjec
  * @evidence contracts/performance.md#reuse-equivalent-work Reuses one plane/material/instance buffer and working matrix/scale/camera quaternion across frames; absolute-time sampling recomputes live particles, since matching object identity is not an immutable recipe/time/distance equivalence key.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Returned mesh owns one geometry/material/native instance stream and retains the compiled effect through update, with bytes proportional to cap; no disposer/constructor rollback is returned, so callers must retire all three actual native roles and discard the handle. No worker or decoder is acquired.
  */
-export const buildInstancedEffect: (effect: IAutoMovieCompiledEffect) => IAutoMovieEffectViewerObject = (
+export const buildInstancedEffect: (
+  effect: IAutoMovieCompiledEffect,
+) => IAutoMovieEffectViewerObject = (
   effect: IAutoMovieCompiledEffect,
 ): IAutoMovieEffectViewerObject => {
   const geometry: THREE.PlaneGeometry = new THREE.PlaneGeometry(1, 1);
-  const opacity: THREE.InstancedBufferAttribute = new THREE.InstancedBufferAttribute(
-    new Float32Array(effect.recipe.budget.maxParticles),
-    1,
-  );
+  const opacity: THREE.InstancedBufferAttribute =
+    new THREE.InstancedBufferAttribute(
+      new Float32Array(effect.recipe.budget.maxParticles),
+      1,
+    );
   geometry.setAttribute("automovieOpacity", opacity);
   const material: THREE.ShaderMaterial = new THREE.ShaderMaterial({
     uniforms: {
@@ -57,7 +65,11 @@ export const buildInstancedEffect: (effect: IAutoMovieCompiledEffect) => IAutoMo
       }
     `,
   });
-  const mesh: THREE.InstancedMesh<THREE.PlaneGeometry, THREE.ShaderMaterial, THREE.Object3DEventMap> = new THREE.InstancedMesh(
+  const mesh: THREE.InstancedMesh<
+    THREE.PlaneGeometry,
+    THREE.ShaderMaterial,
+    THREE.Object3DEventMap
+  > = new THREE.InstancedMesh(
     geometry,
     material,
     effect.recipe.budget.maxParticles,
@@ -97,20 +109,22 @@ export const buildInstancedEffect: (effect: IAutoMovieCompiledEffect) => IAutoMo
         time,
         cameraPosition.distanceTo(center),
       );
-      sample.particles.forEach((particle: IAutoMovieEffectParticle, index: number): void => {
-        scale.set(particle.size, particle.size, particle.size);
-        matrix.compose(
-          new THREE.Vector3(
-            particle.position.x,
-            particle.position.y,
-            particle.position.z,
-          ),
-          cameraQuaternion,
-          scale,
-        );
-        mesh.setMatrixAt(index, matrix);
-        opacity.setX(index, particle.opacity);
-      });
+      sample.particles.forEach(
+        (particle: IAutoMovieEffectParticle, index: number): void => {
+          scale.set(particle.size, particle.size, particle.size);
+          matrix.compose(
+            new THREE.Vector3(
+              particle.position.x,
+              particle.position.y,
+              particle.position.z,
+            ),
+            cameraQuaternion,
+            scale,
+          );
+          mesh.setMatrixAt(index, matrix);
+          opacity.setX(index, particle.opacity);
+        },
+      );
       mesh.count = sample.particles.length;
       mesh.visible = sample.active && mesh.count > 0;
       mesh.instanceMatrix.needsUpdate = true;

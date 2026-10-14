@@ -1,7 +1,8 @@
-import type {IAutoMovieSceneEnvironment} from "@automovie/interface";
+import type { IAutoMovieSceneEnvironment } from "@automovie/interface";
 import * as THREE from "three";
-import { readAutoMovieEnvironmentColorSpace } from "./readAutoMovieEnvironmentColorSpace.js";
+
 import { AutoMovieEnvironmentTextureOwnership } from "./AutoMovieEnvironmentTextureOwnership.js";
+import { readAutoMovieEnvironmentColorSpace } from "./readAutoMovieEnvironmentColorSpace.js";
 
 /**
  * Apply image lighting and background without adding scene-graph children.
@@ -16,7 +17,11 @@ import { AutoMovieEnvironmentTextureOwnership } from "./AutoMovieEnvironmentText
  * @evidence contracts/performance.md#reuse-equivalent-work Stable texture/source/content-generation/sampling tuples reuse native conversion state; changed valid tuple is retired through the ownership helper, while scene scalar changes do not manufacture new decoded image data.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Scene holds the supplied environment/background texture and the exclusive ownership registry tracks it; clearing scene fields does not retire that texture or remove its ownership record, so the host must invoke its supported release boundary. The adapter owns no worker or render loop.
  */
-export const applySceneEnvironment: (scene: THREE.Scene, environment: IAutoMovieSceneEnvironment | null | undefined, texture?: THREE.Texture) => void = (
+export const applySceneEnvironment: (
+  scene: THREE.Scene,
+  environment: IAutoMovieSceneEnvironment | null | undefined,
+  texture?: THREE.Texture,
+) => void = (
   scene: THREE.Scene,
   environment: IAutoMovieSceneEnvironment | null | undefined,
   texture?: THREE.Texture,
@@ -27,7 +32,11 @@ export const applySceneEnvironment: (scene: THREE.Scene, environment: IAutoMovie
     return;
   }
   if (environment.image !== null && texture !== undefined) {
-    AutoMovieEnvironmentTextureOwnership.prepare(scene, texture, environmentColorSpace(texture));
+    AutoMovieEnvironmentTextureOwnership.prepare(
+      scene,
+      texture,
+      environmentColorSpace(texture),
+    );
     scene.environment = texture;
     scene.background = texture;
   } else {
@@ -55,8 +64,9 @@ export const applySceneEnvironment: (scene: THREE.Scene, environment: IAutoMovie
  *
  * Unsigned-byte textures are treated as sRGB; all other component types are treated as linear. The decoder must supply data consistent with that convention. Storage type alone does not establish an image's color profile, transfer function or physical radiance, and this helper inspects none of those properties. Material bindings have their own color-space role.
  */
-const environmentColorSpace: (texture: THREE.Texture) => THREE.ColorSpace = (texture: THREE.Texture): THREE.ColorSpace =>
+const environmentColorSpace: (texture: THREE.Texture) => THREE.ColorSpace = (
+  texture: THREE.Texture,
+): THREE.ColorSpace =>
   readAutoMovieEnvironmentColorSpace(texture) === "srgb"
     ? THREE.SRGBColorSpace
     : THREE.LinearSRGBColorSpace;
-

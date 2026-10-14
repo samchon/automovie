@@ -1,8 +1,12 @@
 import * as THREE from "three";
-import {type IAutoMovieSemanticMaskBinding, type IAutoMovieSemanticMaskHandle, applyAutoMovieSemanticMask} from "./semanticMask/index.js";
-import type {IAutoMovieRenderModeHandle} from "./IAutoMovieRenderModeHandle.js";
 
-import {restoreAutoMovieRenderModeOnce} from "./restoreAutoMovieRenderModeOnce.js";
+import type { IAutoMovieRenderModeHandle } from "./IAutoMovieRenderModeHandle.js";
+import { restoreAutoMovieRenderModeOnce } from "./restoreAutoMovieRenderModeOnce.js";
+import {
+  type IAutoMovieSemanticMaskBinding,
+  type IAutoMovieSemanticMaskHandle,
+  applyAutoMovieSemanticMask,
+} from "./semanticMask/index.js";
 
 /**
  * Mask pass over the stable semantic palette the scene was handed.
@@ -22,7 +26,10 @@ import {restoreAutoMovieRenderModeOnce} from "./restoreAutoMovieRenderModeOnce.j
  * @evidence contracts/performance.md#reuse-equivalent-work Reuses canonical semantic mapping and one mapper restore completion per install; nested snapshot scopes keep independent prior states and cannot share a cached restoration by scene identity alone.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Borrows scene/binding and forwards the mapper-owned reversible resources through a memoized closer; no independent renderer, texture or task is acquired by this adapter, and actual native retirement remains the mapper/host boundary.
  */
-export const applySemanticMaskMode: (scene: THREE.Scene, binding: IAutoMovieSemanticMaskBinding) => IAutoMovieRenderModeHandle = (
+export const applySemanticMaskMode: (
+  scene: THREE.Scene,
+  binding: IAutoMovieSemanticMaskBinding,
+) => IAutoMovieRenderModeHandle = (
   scene: THREE.Scene,
   binding: IAutoMovieSemanticMaskBinding,
 ): IAutoMovieRenderModeHandle => {

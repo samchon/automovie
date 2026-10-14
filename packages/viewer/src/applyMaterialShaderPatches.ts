@@ -17,7 +17,10 @@
  * @evidence contracts/performance.md#reuse-equivalent-work Reuses the captured ordered list and same input object during one compilation; mutable shader effects are rerun for a new compile rather than sharing an already-edited foreign shader.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Borrows the list and shader only during the call, retains neither and launches no task; material/patch owners govern any resources captured by supplied operations.
  */
-export const applyMaterialShaderPatches: <Shader>(patches: readonly { apply: (shader: Shader) => void }[], shader: Shader) => void = <Shader>(
+export const applyMaterialShaderPatches: <Shader>(
+  patches: readonly { apply: (shader: Shader) => void }[],
+  shader: Shader,
+) => void = <Shader>(
   patches: readonly { apply: (shader: Shader) => void }[],
   shader: Shader,
 ): void => {

@@ -1,5 +1,5 @@
-import * as THREE from "three";
 import type { IAutoMovieSectionPlane } from "@automovie/engine";
+import * as THREE from "three";
 
 import type { IApplyAutoMovieSectionPlanesProps } from "./IApplyAutoMovieSectionPlanesProps.js";
 
@@ -24,32 +24,50 @@ import type { IApplyAutoMovieSectionPlanesProps } from "./IApplyAutoMovieSection
  * @evidence contracts/performance.md#reuse-equivalent-work All material slots share the built planes for this call. Value-only movement can reuse a program when plane/intersection counts and other program inputs remain unchanged; Three controls that reuse, while current scene and plane values prevent a retained root-only result cache.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Borrows root/renderer/materials and transfers P plane references to materials and the caller; next assignment/empty release removes those references, with no geometry/GPU allocation, observer or task owned here.
  */
-export const applyAutoMovieSectionPlanes: (props: IApplyAutoMovieSectionPlanesProps) => THREE.Plane[] = (
+export const applyAutoMovieSectionPlanes: (
+  props: IApplyAutoMovieSectionPlanesProps,
+) => THREE.Plane[] = (
   props: IApplyAutoMovieSectionPlanesProps,
 ): THREE.Plane[] => {
-  const built: THREE.Plane[] = props.planes.map((plane: IAutoMovieSectionPlane): THREE.Plane =>
-    new THREE.Plane().setFromNormalAndCoplanarPoint(
-      new THREE.Vector3(
-        -plane.normal.x,
-        -plane.normal.y,
-        -plane.normal.z,
-      ).normalize(),
-      new THREE.Vector3(plane.point.x, plane.point.y, plane.point.z),
-    ),
+  const built: THREE.Plane[] = props.planes.map(
+    (plane: IAutoMovieSectionPlane): THREE.Plane =>
+      new THREE.Plane().setFromNormalAndCoplanarPoint(
+        new THREE.Vector3(
+          -plane.normal.x,
+          -plane.normal.y,
+          -plane.normal.z,
+        ).normalize(),
+        new THREE.Vector3(plane.point.x, plane.point.y, plane.point.z),
+      ),
   );
   props.renderer.localClippingEnabled = built.length !== 0;
   const assigned: THREE.Plane[] | null = built.length === 0 ? null : built;
-  props.root.traverse((object: THREE.Object3D<THREE.Object3DEventMap>): void => {
-    const holder: Partial<Pick<THREE.Mesh<THREE.BufferGeometry<THREE.NormalBufferAttributes, THREE.BufferGeometryEventMap>, THREE.Material<THREE.MaterialEventMap> | THREE.Material<THREE.MaterialEventMap>[], THREE.Object3DEventMap>, "material">> = object as Partial<Pick<THREE.Mesh, "material">>;
-    if (holder.material === undefined) return;
-    for (const material of Array.isArray(holder.material)
-      ? holder.material
-      : [holder.material]) {
-      if ((material.clippingPlanes?.length ?? 0) !== built.length)
-        material.needsUpdate = true;
-      material.clippingPlanes = assigned;
-      material.clipIntersection = false;
-    }
-  });
+  props.root.traverse(
+    (object: THREE.Object3D<THREE.Object3DEventMap>): void => {
+      const holder: Partial<
+        Pick<
+          THREE.Mesh<
+            THREE.BufferGeometry<
+              THREE.NormalBufferAttributes,
+              THREE.BufferGeometryEventMap
+            >,
+            | THREE.Material<THREE.MaterialEventMap>
+            | THREE.Material<THREE.MaterialEventMap>[],
+            THREE.Object3DEventMap
+          >,
+          "material"
+        >
+      > = object as Partial<Pick<THREE.Mesh, "material">>;
+      if (holder.material === undefined) return;
+      for (const material of Array.isArray(holder.material)
+        ? holder.material
+        : [holder.material]) {
+        if ((material.clippingPlanes?.length ?? 0) !== built.length)
+          material.needsUpdate = true;
+        material.clippingPlanes = assigned;
+        material.clipIntersection = false;
+      }
+    },
+  );
   return built;
 };

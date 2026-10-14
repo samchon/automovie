@@ -1,4 +1,4 @@
-import type {AutoMovieGuidePass} from "@automovie/interface";
+import type { AutoMovieGuidePass } from "@automovie/interface";
 
 /**
  * A reversible render-mode override. Successful `restore()` puts every touched material, visibility flag, background, and overlay back as it was, so the same built scene can be captured pass after pass without rebuilding: the deterministic engine result is never mutated, only its projection.

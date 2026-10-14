@@ -40,8 +40,12 @@ export class AutoMovieGeometryPhysicalVertices {
       geometry.userData,
       "automovieMeshPhysicalVertices",
     );
-    const wire: boolean = Object.hasOwn(geometry.userData, "automoviePhysicalVertices");
-    const attribute: ReturnType<THREE.BufferGeometry["getAttribute"]> = geometry.getAttribute("_automovie_physical_source");
+    const wire: boolean = Object.hasOwn(
+      geometry.userData,
+      "automoviePhysicalVertices",
+    );
+    const attribute: ReturnType<THREE.BufferGeometry["getAttribute"]> =
+      geometry.getAttribute("_automovie_physical_source");
     if (!raw && !wire) {
       if (attribute !== undefined)
         throw new Error("Orphan physical source attribute.");
@@ -77,7 +81,8 @@ export class AutoMovieGeometryPhysicalVertices {
       }
       input = { sources: record.sources, vertices };
     }
-    const result: NonNullable<IAutoMovieMesh["physicalVertices"]> = this.copy(input);
+    const result: NonNullable<IAutoMovieMesh["physicalVertices"]> =
+      this.copy(input);
     this.validate(geometry, result);
     return result;
   }
@@ -86,7 +91,8 @@ export class AutoMovieGeometryPhysicalVertices {
     geometry: THREE.BufferGeometry,
     result: NonNullable<IAutoMovieMesh["physicalVertices"]>,
   ): void {
-    const position: ReturnType<THREE.BufferGeometry["getAttribute"]> = geometry.getAttribute("position");
+    const position: ReturnType<THREE.BufferGeometry["getAttribute"]> =
+      geometry.getAttribute("position");
     if (
       position === undefined ||
       position.itemSize !== 3 ||
@@ -135,7 +141,8 @@ export class AutoMovieGeometryPhysicalVertices {
     if (metadata === undefined)
       delete geometry.userData.automovieMeshPhysicalVertices;
     else {
-      const result: NonNullable<IAutoMovieMesh["physicalVertices"]> = this.copy(metadata);
+      const result: NonNullable<IAutoMovieMesh["physicalVertices"]> =
+        this.copy(metadata);
       this.validate(geometry, result);
       geometry.userData.automovieMeshPhysicalVertices = result;
     }
@@ -155,23 +162,30 @@ export class AutoMovieGeometryPhysicalVertices {
       throw new Error(
         "Physical source correspondence needs source and vertex arrays.",
       );
-    const sources: NonNullable<IAutoMovieMesh["physicalVertices"]>["sources"] = input.sources.map((source: unknown): NonNullable<IAutoMovieMesh["physicalVertices"]>["sources"][number] => {
-      if (
-        source === null ||
-        typeof source !== "object" ||
-        !("domain" in source) ||
-        typeof source.domain !== "string" ||
-        source.domain.trim().length === 0 ||
-        !("id" in source) ||
-        typeof source.id !== "number" ||
-        !Number.isSafeInteger(source.id) ||
-        source.id < 0
-      )
-        throw new Error(
-          "Physical sources need nonblank domains and safe nonnegative IDs.",
-        );
-      return { domain: source.domain, id: source.id };
-    });
+    const sources: NonNullable<IAutoMovieMesh["physicalVertices"]>["sources"] =
+      input.sources.map(
+        (
+          source: unknown,
+        ): NonNullable<
+          IAutoMovieMesh["physicalVertices"]
+        >["sources"][number] => {
+          if (
+            source === null ||
+            typeof source !== "object" ||
+            !("domain" in source) ||
+            typeof source.domain !== "string" ||
+            source.domain.trim().length === 0 ||
+            !("id" in source) ||
+            typeof source.id !== "number" ||
+            !Number.isSafeInteger(source.id) ||
+            source.id < 0
+          )
+            throw new Error(
+              "Physical sources need nonblank domains and safe nonnegative IDs.",
+            );
+          return { domain: source.domain, id: source.id };
+        },
+      );
     return { sources, vertices: input.vertices.slice() as (number | null)[] };
   }
 }

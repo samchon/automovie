@@ -1,5 +1,6 @@
 import type { IAutoMovieSoftBodySurface } from "@automovie/interface";
 import * as THREE from "three";
+
 import type { IAutoMovieSoftBodyObject } from "./IAutoMovieSoftBodyObject.js";
 import type { IBuildSoftBodyObjectProps } from "./IBuildSoftBodyObjectProps.js";
 import { restoreAutoMovieRenderModeOnce } from "./restoreAutoMovieRenderModeOnce.js";
@@ -16,7 +17,11 @@ import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeSta
  * @evidence contracts/performance.md#reuse-equivalent-work Reuse requires identical Float32 component lengths and index constructor/count; different surface values still overwrite the live arrays and source status, while changed shape/width acquires a new geometry rather than losing prior native attributes.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Acquired geometry/default material roll back independently on construction failure; changed geometry retires its predecessor once, a failed predecessor/cause is retained with further updates refused, and final close attempts current/default owners independently. Public retirement remains unverified native/kernel settlement.
  */
-export const buildSoftBodyObject: (props: IBuildSoftBodyObjectProps) => IAutoMovieSoftBodyObject = (props: IBuildSoftBodyObjectProps): IAutoMovieSoftBodyObject => {
+export const buildSoftBodyObject: (
+  props: IBuildSoftBodyObjectProps,
+) => IAutoMovieSoftBodyObject = (
+  props: IBuildSoftBodyObjectProps,
+): IAutoMovieSoftBodyObject => {
   let geometry: THREE.BufferGeometry = new THREE.BufferGeometry();
   let retire: () => void = retirement(geometry);
   let failedRetirement: (() => void) | undefined;
@@ -29,24 +34,37 @@ export const buildSoftBodyObject: (props: IBuildSoftBodyObjectProps) => IAutoMov
     restoreAutoMovieRenderModeState([
       ...(failedRetirement === undefined ? [] : [failedRetirement]),
       retire,
-      (): void => { if (owned && material !== undefined) material.dispose(); },
+      (): void => {
+        if (owned && material !== undefined) material.dispose();
+      },
     ]);
   });
   try {
     fill(geometry, props.surface);
-    material = props.material ?? new THREE.MeshStandardMaterial({
-      color: 0xd8cfc0, roughness: 0.85, metalness: 0, side: THREE.DoubleSide,
-    });
+    material =
+      props.material ??
+      new THREE.MeshStandardMaterial({
+        color: 0xd8cfc0,
+        roughness: 0.85,
+        metalness: 0,
+        side: THREE.DoubleSide,
+      });
     const mesh: THREE.Mesh = new THREE.Mesh(geometry, material);
     mesh.name = `soft:${props.surface.domain}`;
-    const metadata: (frame: Parameters<IAutoMovieSoftBodyObject["update"]>[0]) => void = (frame: Parameters<IAutoMovieSoftBodyObject["update"]>[0]): void => {
+    const metadata: (
+      frame: Parameters<IAutoMovieSoftBodyObject["update"]>[0],
+    ) => void = (
+      frame: Parameters<IAutoMovieSoftBodyObject["update"]>[0],
+    ): void => {
       mesh.visible = frame.surface.bounds !== null;
       mesh.userData.domain = frame.surface.domain;
       mesh.userData.step = frame.surface.step;
       mesh.userData.status = frame.status;
     };
     metadata({ surface: props.surface, status: props.status });
-    const upload: IAutoMovieSoftBodyObject["update"] = (frame: Parameters<IAutoMovieSoftBodyObject["update"]>[0]): void => {
+    const upload: IAutoMovieSoftBodyObject["update"] = (
+      frame: Parameters<IAutoMovieSoftBodyObject["update"]>[0],
+    ): void => {
       if (closed) throw new Error("The cloth projection is closed.");
       if (failure !== undefined) throw failure.error;
       const surface: IAutoMovieSoftBodySurface = frame.surface;
@@ -58,17 +76,40 @@ export const buildSoftBodyObject: (props: IBuildSoftBodyObjectProps) => IAutoMov
         candidate.setIndex(surface.mesh.indices ?? []);
         const index: THREE.BufferAttribute = candidate.getIndex()!;
         const previousIndex: THREE.BufferAttribute | null = geometry.getIndex();
-        const position: THREE.BufferAttribute | THREE.InterleavedBufferAttribute | undefined = geometry.getAttribute("position");
-        const normal: THREE.BufferAttribute | THREE.InterleavedBufferAttribute | undefined = geometry.getAttribute("normal");
-        const uv: THREE.BufferAttribute | THREE.InterleavedBufferAttribute | undefined = geometry.getAttribute("uv");
-        if (position instanceof THREE.BufferAttribute && position.array instanceof Float32Array && position.array.length === surface.mesh.positions.length &&
-            normal instanceof THREE.BufferAttribute && normal.array instanceof Float32Array && normal.array.length === (surface.mesh.normals ?? []).length &&
-            uv instanceof THREE.BufferAttribute && uv.array instanceof Float32Array && uv.array.length === (surface.mesh.uvs ?? []).length &&
-            previousIndex !== null && previousIndex.array.length === index.array.length && previousIndex.array.constructor === index.array.constructor) {
-          position.array.set(surface.mesh.positions); position.needsUpdate = true;
-          normal.array.set(surface.mesh.normals ?? []); normal.needsUpdate = true;
-          uv.array.set(surface.mesh.uvs ?? []); uv.needsUpdate = true;
-          previousIndex.array.set(index.array); previousIndex.needsUpdate = true;
+        const position:
+          | THREE.BufferAttribute
+          | THREE.InterleavedBufferAttribute
+          | undefined = geometry.getAttribute("position");
+        const normal:
+          | THREE.BufferAttribute
+          | THREE.InterleavedBufferAttribute
+          | undefined = geometry.getAttribute("normal");
+        const uv:
+          | THREE.BufferAttribute
+          | THREE.InterleavedBufferAttribute
+          | undefined = geometry.getAttribute("uv");
+        if (
+          position instanceof THREE.BufferAttribute &&
+          position.array instanceof Float32Array &&
+          position.array.length === surface.mesh.positions.length &&
+          normal instanceof THREE.BufferAttribute &&
+          normal.array instanceof Float32Array &&
+          normal.array.length === (surface.mesh.normals ?? []).length &&
+          uv instanceof THREE.BufferAttribute &&
+          uv.array instanceof Float32Array &&
+          uv.array.length === (surface.mesh.uvs ?? []).length &&
+          previousIndex !== null &&
+          previousIndex.array.length === index.array.length &&
+          previousIndex.array.constructor === index.array.constructor
+        ) {
+          position.array.set(surface.mesh.positions);
+          position.needsUpdate = true;
+          normal.array.set(surface.mesh.normals ?? []);
+          normal.needsUpdate = true;
+          uv.array.set(surface.mesh.uvs ?? []);
+          uv.needsUpdate = true;
+          previousIndex.array.set(index.array);
+          previousIndex.needsUpdate = true;
           geometry.boundingSphere = sphere(surface);
           candidateRetire();
         } else {
@@ -78,13 +119,19 @@ export const buildSoftBodyObject: (props: IBuildSoftBodyObjectProps) => IAutoMov
           mesh.geometry = candidate;
           retire = candidateRetire;
           transferred = true;
-          try { previousRetire(); }
-          catch (error) { failedRetirement = previousRetire; failure = { error }; throw error; }
+          try {
+            previousRetire();
+          } catch (error) {
+            failedRetirement = previousRetire;
+            failure = { error };
+            throw error;
+          }
         }
         metadata(frame);
       } catch (error) {
         if (failure === undefined) failure = { error };
-        if (!transferred) restoreAutoMovieRenderModeState([candidateRetire], { error });
+        if (!transferred)
+          restoreAutoMovieRenderModeState([candidateRetire], { error });
         throw error;
       }
     };
@@ -96,14 +143,29 @@ export const buildSoftBodyObject: (props: IBuildSoftBodyObjectProps) => IAutoMov
 
 /** A geometry incarnation shares one original public-disposal attempt. */
 function retirement(geometry: THREE.BufferGeometry): () => void {
-  return restoreAutoMovieRenderModeOnce((): void => { geometry.dispose(); });
+  return restoreAutoMovieRenderModeOnce((): void => {
+    geometry.dispose();
+  });
 }
 
 /** Copy canonical buffers; index representation remains the installed SDK's. */
-function fill(geometry: THREE.BufferGeometry, surface: IAutoMovieSoftBodySurface, index?: THREE.BufferAttribute): void {
-  geometry.setAttribute("position", new THREE.Float32BufferAttribute(surface.mesh.positions, 3));
-  geometry.setAttribute("normal", new THREE.Float32BufferAttribute(surface.mesh.normals ?? [], 3));
-  geometry.setAttribute("uv", new THREE.Float32BufferAttribute(surface.mesh.uvs ?? [], 2));
+function fill(
+  geometry: THREE.BufferGeometry,
+  surface: IAutoMovieSoftBodySurface,
+  index?: THREE.BufferAttribute,
+): void {
+  geometry.setAttribute(
+    "position",
+    new THREE.Float32BufferAttribute(surface.mesh.positions, 3),
+  );
+  geometry.setAttribute(
+    "normal",
+    new THREE.Float32BufferAttribute(surface.mesh.normals ?? [], 3),
+  );
+  geometry.setAttribute(
+    "uv",
+    new THREE.Float32BufferAttribute(surface.mesh.uvs ?? [], 2),
+  );
   geometry.setIndex(index ?? surface.mesh.indices ?? []);
   geometry.boundingSphere = sphere(surface);
 }
@@ -112,7 +174,18 @@ function fill(geometry: THREE.BufferGeometry, surface: IAutoMovieSoftBodySurface
 function sphere(surface: IAutoMovieSoftBodySurface): THREE.Sphere {
   const bounds: IAutoMovieSoftBodySurface["bounds"] = surface.bounds;
   if (bounds === null) return new THREE.Sphere(new THREE.Vector3(), 0);
-  const min: THREE.Vector3 = new THREE.Vector3(bounds.min.x, bounds.min.y, bounds.min.z);
-  const max: THREE.Vector3 = new THREE.Vector3(bounds.max.x, bounds.max.y, bounds.max.z);
-  return new THREE.Sphere(min.clone().add(max).multiplyScalar(0.5), min.distanceTo(max) / 2);
+  const min: THREE.Vector3 = new THREE.Vector3(
+    bounds.min.x,
+    bounds.min.y,
+    bounds.min.z,
+  );
+  const max: THREE.Vector3 = new THREE.Vector3(
+    bounds.max.x,
+    bounds.max.y,
+    bounds.max.z,
+  );
+  return new THREE.Sphere(
+    min.clone().add(max).multiplyScalar(0.5),
+    min.distanceTo(max) / 2,
+  );
 }

@@ -1,4 +1,3 @@
-
 /**
  * Observable viewer capability result for one resolved production camera.
  *

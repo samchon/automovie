@@ -1,5 +1,8 @@
 import { placementChildNode } from "@automovie/engine";
-import type { IAutoMoviePropSpec, IAutoMoviePropArticulation } from "@automovie/interface";
+import type {
+  IAutoMoviePropArticulation,
+  IAutoMoviePropSpec,
+} from "@automovie/interface";
 import * as THREE from "three";
 
 import type { IAutoMovieBuiltPropArticulation } from "./IAutoMovieBuiltPropArticulation.js";
@@ -79,14 +82,22 @@ interface IJointRest {
  * @evidence contracts/performance.md#reuse-equivalent-work Reuses already-built model parts and canonical lowered names, and captures rest TRS once for repeated restore; mutable parenting/playback makes independent lowering effectful rather than a cacheable scene-id lookup.
  * @evidence contracts/performance.md#bound-retention-and-release-resources New joint groups own no GPU buffers and borrow/reparent existing parts; returned registry/rest closures retain J groups and rest clones until host lifetime ends. There is no detach or partial-failure rollback API, and actual model geometry/material ownership remains with the model/scene host.
  */
-export const buildPropArticulation: (props: IBuildPropArticulationProps) => IAutoMovieBuiltPropArticulation = (
+export const buildPropArticulation: (
+  props: IBuildPropArticulationProps,
+) => IAutoMovieBuiltPropArticulation = (
   props: IBuildPropArticulationProps,
 ): IAutoMovieBuiltPropArticulation => {
-  const registry: Map<string, IAutoMoviePropSpec> = new Map<string, IAutoMoviePropSpec>();
+  const registry: Map<string, IAutoMoviePropSpec> = new Map<
+    string,
+    IAutoMoviePropSpec
+  >();
   for (const spec of props.props)
     if (!registry.has(spec.node)) registry.set(spec.node, spec);
 
-  const joints: Map<string, THREE.Object3D<THREE.Object3DEventMap>> = new Map<string, THREE.Object3D>();
+  const joints: Map<string, THREE.Object3D<THREE.Object3DEventMap>> = new Map<
+    string,
+    THREE.Object3D
+  >();
   const rests: IJointRest[] = [];
   for (const placement of props.scene.nodes) {
     const spec: IAutoMoviePropSpec | undefined = registry.get(placement.model);
@@ -94,8 +105,11 @@ export const buildPropArticulation: (props: IBuildPropArticulationProps) => IAut
     // rigid prop declares no joints; both stand exactly as the host built them.
     if (spec === undefined || spec.articulation === null) continue;
     const articulation: IAutoMoviePropArticulation = spec.articulation;
-    const group: THREE.Object3D<THREE.Object3DEventMap> | undefined = props.nodeObjects.get(placement.id);
-    const built: IAutoMovieModelObject | undefined = props.modelObjects.get(placement.id);
+    const group: THREE.Object3D<THREE.Object3DEventMap> | undefined =
+      props.nodeObjects.get(placement.id);
+    const built: IAutoMovieModelObject | undefined = props.modelObjects.get(
+      placement.id,
+    );
     if (group === undefined || built === undefined)
       throw new Error(
         `prop "${placement.model}" is placed at scene node "${placement.id}", which the host built no object for`,
@@ -103,7 +117,10 @@ export const buildPropArticulation: (props: IBuildPropArticulationProps) => IAut
 
     // Every frame first, then the parenting: a joint may declare its parent
     // after itself, which `forgeProp` allows and a single pass would drop.
-    const local: Map<string, THREE.Object3D<THREE.Object3DEventMap>> = new Map<string, THREE.Object3D>();
+    const local: Map<string, THREE.Object3D<THREE.Object3DEventMap>> = new Map<
+      string,
+      THREE.Object3D
+    >();
     for (const joint of articulation.nodes) {
       const object: THREE.Group<THREE.Object3DEventMap> = new THREE.Group();
       object.name = placementChildNode(placement.id, joint.id);
@@ -118,12 +135,15 @@ export const buildPropArticulation: (props: IBuildPropArticulationProps) => IAut
       });
     }
     for (const joint of articulation.nodes) {
-      const object: THREE.Object3D<THREE.Object3DEventMap> = local.get(joint.id)!;
+      const object: THREE.Object3D<THREE.Object3DEventMap> = local.get(
+        joint.id,
+      )!;
       if (joint.parent === null) {
         group.add(object);
         continue;
       }
-      const parent: THREE.Object3D<THREE.Object3DEventMap> | undefined = local.get(joint.parent);
+      const parent: THREE.Object3D<THREE.Object3DEventMap> | undefined =
+        local.get(joint.parent);
       if (parent === undefined)
         throw new Error(
           `prop joint "${object.name}" declares parent "${joint.parent}", which this prop does not declare`,
@@ -134,7 +154,8 @@ export const buildPropArticulation: (props: IBuildPropArticulationProps) => IAut
     group.updateMatrixWorld(true);
     for (const joint of articulation.nodes) {
       if (joint.mesh === null) continue;
-      const part: THREE.Object3D<THREE.Object3DEventMap> | undefined = built.parts.get(joint.mesh);
+      const part: THREE.Object3D<THREE.Object3DEventMap> | undefined =
+        built.parts.get(joint.mesh);
       if (part === undefined)
         throw new Error(
           `prop joint "${placementChildNode(placement.id, joint.id)}" drives part "${joint.mesh}", which its built model does not carry`,

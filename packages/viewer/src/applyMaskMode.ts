@@ -1,14 +1,17 @@
-import {restoreAutoMovieRenderModeState} from "./restoreAutoMovieRenderModeState.js";
 import * as THREE from "three";
-import type {IAutoMovieRenderModeHandle} from "./IAutoMovieRenderModeHandle.js";
-import type {AutoMovieRenderModeMesh} from "./AutoMovieRenderModeMesh.js";
-import {collectAutoMovieRenderModeMeshes} from "./collectAutoMovieRenderModeMeshes.js";
-import {type IAutoMovieFormationCycle, formationCycleOf, applyFormationCycleMaterial} from "./formationCycle/index.js";
 
-import {maskColor} from "./maskColor.js";
-
-import {restoreAutoMovieRenderModeOnce} from "./restoreAutoMovieRenderModeOnce.js";
-import {guardAutoMovieRenderModeRetirement} from "./guardAutoMovieRenderModeRetirement.js";
+import type { AutoMovieRenderModeMesh } from "./AutoMovieRenderModeMesh.js";
+import type { IAutoMovieRenderModeHandle } from "./IAutoMovieRenderModeHandle.js";
+import { collectAutoMovieRenderModeMeshes } from "./collectAutoMovieRenderModeMeshes.js";
+import {
+  type IAutoMovieFormationCycle,
+  applyFormationCycleMaterial,
+  formationCycleOf,
+} from "./formationCycle/index.js";
+import { guardAutoMovieRenderModeRetirement } from "./guardAutoMovieRenderModeRetirement.js";
+import { maskColor } from "./maskColor.js";
+import { restoreAutoMovieRenderModeOnce } from "./restoreAutoMovieRenderModeOnce.js";
+import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
 
 /**
  * Per-top-level-node flat colors on a black background.
@@ -27,53 +30,84 @@ import {guardAutoMovieRenderModeRetirement} from "./guardAutoMovieRenderModeReti
  * @evidence contracts/performance.md#reuse-equivalent-work Shares a material among meshes under the same child and exact cycle identity, because child color and cycle uniforms jointly determine equivalence; different children/pass installs keep independent colors/restoration.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Borrows original materials/background and owns temporary override materials until memoized restore, which independently restores references and disposes all overrides; construction failure partway through assignment has no outer rollback here.
  */
-export const applyMaskMode: (scene: THREE.Scene) => IAutoMovieRenderModeHandle = (scene: THREE.Scene): IAutoMovieRenderModeHandle => {
+export const applyMaskMode: (
+  scene: THREE.Scene,
+) => IAutoMovieRenderModeHandle = (
+  scene: THREE.Scene,
+): IAutoMovieRenderModeHandle => {
   guardAutoMovieRenderModeRetirement(scene);
-  const background: THREE.Color | THREE.Texture<unknown, THREE.TextureEventMap> | null = scene.background;
+  const background:
+    | THREE.Color
+    | THREE.Texture<unknown, THREE.TextureEventMap>
+    | null = scene.background;
   scene.background = new THREE.Color(0x000000);
   const originals: Array<{
     mesh: AutoMovieRenderModeMesh;
     material: THREE.Material | THREE.Material[];
   }> = [];
   const created: THREE.Material[] = [];
-  scene.children.forEach((child: THREE.Object3D<THREE.Object3DEventMap>, index: number): void => {
-    const meshes: AutoMovieRenderModeMesh[] = collectAutoMovieRenderModeMeshes(child);
-    // Create only for mesh-bearing children (a camera/light child would leak
-    // an unassigned material); the palette index stays the CHILD index, so the
-    // deterministic node→color mapping is unchanged.
-    if (meshes.length === 0) return;
-    // One child can hold several formation tiers, each deforming by its own
-    // baked table, so the flat color is shared by cycle rather than by child.
-    // The color is still the child's: a segmentation pass keeps naming nodes,
-    // and only the vertex stage differs between the materials under one node.
-    const materials: Map<IAutoMovieFormationCycle | null, THREE.Material<THREE.MaterialEventMap>> = new Map<
-      IAutoMovieFormationCycle | null,
-      THREE.Material
-    >();
-    for (const mesh of meshes) {
-      const cycle: IAutoMovieFormationCycle | null = formationCycleOf(mesh);
-      let material: THREE.Material<THREE.MaterialEventMap> | undefined = materials.get(cycle);
-      if (material === undefined) {
-        material = new THREE.MeshBasicMaterial({ color: maskColor(index) });
-        if (cycle !== null) applyFormationCycleMaterial(material, cycle);
-        materials.set(cycle, material);
-        created.push(material);
+  scene.children.forEach(
+    (child: THREE.Object3D<THREE.Object3DEventMap>, index: number): void => {
+      const meshes: AutoMovieRenderModeMesh[] =
+        collectAutoMovieRenderModeMeshes(child);
+      // Create only for mesh-bearing children (a camera/light child would leak
+      // an unassigned material); the palette index stays the CHILD index, so the
+      // deterministic node→color mapping is unchanged.
+      if (meshes.length === 0) return;
+      // One child can hold several formation tiers, each deforming by its own
+      // baked table, so the flat color is shared by cycle rather than by child.
+      // The color is still the child's: a segmentation pass keeps naming nodes,
+      // and only the vertex stage differs between the materials under one node.
+      const materials: Map<
+        IAutoMovieFormationCycle | null,
+        THREE.Material<THREE.MaterialEventMap>
+      > = new Map<IAutoMovieFormationCycle | null, THREE.Material>();
+      for (const mesh of meshes) {
+        const cycle: IAutoMovieFormationCycle | null = formationCycleOf(mesh);
+        let material: THREE.Material<THREE.MaterialEventMap> | undefined =
+          materials.get(cycle);
+        if (material === undefined) {
+          material = new THREE.MeshBasicMaterial({ color: maskColor(index) });
+          if (cycle !== null) applyFormationCycleMaterial(material, cycle);
+          materials.set(cycle, material);
+          created.push(material);
+        }
+        originals.push({ mesh, material: mesh.material });
+        mesh.material = material;
       }
-      originals.push({ mesh, material: mesh.material });
-      mesh.material = material;
-    }
-  });
+    },
+  );
   return {
     mode: "mask",
     semantic: null,
     restore: restoreAutoMovieRenderModeOnce((): void => {
-      guardAutoMovieRenderModeRetirement(scene, { run: (): void => {
-      restoreAutoMovieRenderModeState([
-        ...originals.map(({mesh,material}: { mesh: AutoMovieRenderModeMesh; material: THREE.Material | THREE.Material[]; }): () => void=>(): void=>{mesh.material=material;}),
-        ...created.map((material: THREE.Material): (() => void) => (): void=>{material.dispose();}),
-        (): void=>{scene.background=background;},
-      ]);
-      } });
+      guardAutoMovieRenderModeRetirement(scene, {
+        run: (): void => {
+          restoreAutoMovieRenderModeState([
+            ...originals.map(
+              ({
+                mesh,
+                material,
+              }: {
+                mesh: AutoMovieRenderModeMesh;
+                material: THREE.Material | THREE.Material[];
+              }): (() => void) =>
+                (): void => {
+                  mesh.material = material;
+                },
+            ),
+            ...created.map(
+              (material: THREE.Material): (() => void) =>
+                (): void => {
+                  material.dispose();
+                },
+            ),
+            (): void => {
+              scene.background = background;
+            },
+          ]);
+        },
+      });
     }),
   };
 };

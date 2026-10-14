@@ -1,8 +1,8 @@
 import * as THREE from "three";
 
-import {captureAutoMovieFramebufferRestore} from "./captureAutoMovieFramebufferRestore.js";
-import {readAutoMovieDisplayDestinationEncoding} from "./readAutoMovieDisplayDestinationEncoding.js";
-import {restoreAutoMovieRenderModeState} from "./restoreAutoMovieRenderModeState.js";
+import { captureAutoMovieFramebufferRestore } from "./captureAutoMovieFramebufferRestore.js";
+import { readAutoMovieDisplayDestinationEncoding } from "./readAutoMovieDisplayDestinationEncoding.js";
+import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
 
 /**
  * GPU composition of the same display bytes a direct canvas capture reads.
@@ -34,24 +34,38 @@ export class AutoMovieDisplayCompositor {
   private readonly sources: THREE.FramebufferTexture[];
   private readonly backing: THREE.FramebufferTexture;
   private readonly material: THREE.RawShaderMaterial;
-  private readonly geometry: THREE.PlaneGeometry = new THREE.PlaneGeometry(2, 2);
+  private readonly geometry: THREE.PlaneGeometry = new THREE.PlaneGeometry(
+    2,
+    2,
+  );
   private readonly scene: THREE.Scene = new THREE.Scene();
-  private readonly camera: THREE.OrthographicCamera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+  private readonly camera: THREE.OrthographicCamera =
+    new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
   private disposed: boolean = false;
   private disposalFailure: { error: unknown } | undefined;
   /** Disposal callbacks cannot allocate a replacement while old-copy retirement runs. */
   private resizing: Error | undefined;
 
-  public constructor(private width: number, private height: number) {
+  public constructor(
+    private width: number,
+    private height: number,
+  ) {
     this.admitSize(width, height);
-    this.sources = [new THREE.FramebufferTexture(width, height), new THREE.FramebufferTexture(width, height)];
+    this.sources = [
+      new THREE.FramebufferTexture(width, height),
+      new THREE.FramebufferTexture(width, height),
+    ];
     this.backing = new THREE.FramebufferTexture(width, height);
     this.material = new THREE.RawShaderMaterial({
       uniforms: {
-        outgoing: { value: this.sources[0] }, incoming: { value: this.sources[1] },
-        alpha: { value: 0 }, fade: { value: false }, copyBacking: { value: false },
-        sourcePremultiplied: { value: false }, outputPremultiplied: { value: false },
-        outputSRGB: {value:false},
+        outgoing: { value: this.sources[0] },
+        incoming: { value: this.sources[1] },
+        alpha: { value: 0 },
+        fade: { value: false },
+        copyBacking: { value: false },
+        sourcePremultiplied: { value: false },
+        outputPremultiplied: { value: false },
+        outputSRGB: { value: false },
       },
       vertexShader: `precision highp float;
         uniform mat4 projectionMatrix; uniform mat4 modelViewMatrix;
@@ -78,7 +92,10 @@ export class AutoMovieDisplayCompositor {
           if (outputSRGB) result = sRGBTransferEOTF(result);
           gl_FragColor = result;
         }`,
-      depthTest: false, depthWrite: false, toneMapped: false, blending: THREE.NoBlending,
+      depthTest: false,
+      depthWrite: false,
+      toneMapped: false,
+      blending: THREE.NoBlending,
     });
     this.scene.add(new THREE.Mesh(this.geometry, this.material));
   }
@@ -105,20 +122,36 @@ export class AutoMovieDisplayCompositor {
     try {
       const failures: unknown[] = [];
       for (const texture of [...this.sources, this.backing]) {
-        try { texture.dispose(); } catch (error) { failures.push(error); }
+        try {
+          texture.dispose();
+        } catch (error) {
+          failures.push(error);
+        }
       }
       if (failures.length !== 0) {
         this.disposed = true;
         for (const resource of [this.geometry, this.material]) {
-          try { resource.dispose(); } catch (error) { failures.push(error); }
+          try {
+            resource.dispose();
+          } catch (error) {
+            failures.push(error);
+          }
         }
-        const error: unknown = failures.length === 1 ? failures[0] : new AggregateError(failures, "Display-copy resize disposal failed.");
+        const error: unknown =
+          failures.length === 1
+            ? failures[0]
+            : new AggregateError(
+                failures,
+                "Display-copy resize disposal failed.",
+              );
         this.disposalFailure = { error };
         throw error;
       }
-      this.width = width; this.height = height;
+      this.width = width;
+      this.height = height;
       for (const texture of [...this.sources, this.backing]) {
-        texture.image = { width, height }; texture.needsUpdate = true;
+        texture.image = { width, height };
+        texture.needsUpdate = true;
       }
     } finally {
       this.resizing = undefined;
@@ -138,18 +171,30 @@ export class AutoMovieDisplayCompositor {
    * @evidence contracts/performance.md#reuse-equivalent-work Uses the instance's persistent copies and shader for every frame; each callback is invoked because its effects and newly sampled pixels cannot be shared merely by matching alpha.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Borrows renderer and destination without disposing them and retains the instance's three copies. Independently attempts target, viewport, scissor, clear and tone restoration after success or failure; a restoration failure remains visible and may leave partial host state.
    */
-  public render(renderer: THREE.WebGLRenderer, outgoing: () => void, incoming: (() => void) | null, alpha: number): void {
+  public render(
+    renderer: THREE.WebGLRenderer,
+    outgoing: () => void,
+    incoming: (() => void) | null,
+    alpha: number,
+  ): void {
     this.assertOpen();
-    const target: ReturnType<THREE.WebGLRenderer["getRenderTarget"]> = renderer.getRenderTarget();
-    const restoreFramebuffer: () => void = captureAutoMovieFramebufferRestore(renderer);
-    const destinationSRGB: boolean = target !== null && readAutoMovieDisplayDestinationEncoding(renderer) === "srgb";
+    const target: ReturnType<THREE.WebGLRenderer["getRenderTarget"]> =
+      renderer.getRenderTarget();
+    const restoreFramebuffer: () => void =
+      captureAutoMovieFramebufferRestore(renderer);
+    const destinationSRGB: boolean =
+      target !== null &&
+      readAutoMovieDisplayDestinationEncoding(renderer) === "srgb";
     const autoClear: boolean = renderer.autoClear;
-    const clearColor: THREE.Color = renderer.getClearColor(new THREE.Color()).clone();
+    const clearColor: THREE.Color = renderer
+      .getClearColor(new THREE.Color())
+      .clone();
     const clearAlpha: number = renderer.getClearAlpha();
     const toneMapping: THREE.ToneMapping = renderer.toneMapping;
     const exposure: number = renderer.toneMappingExposure;
-    const premultiplied: boolean = renderer.getContextAttributes()?.premultipliedAlpha === true;
-    let primary: {error:unknown} | undefined;
+    const premultiplied: boolean =
+      renderer.getContextAttributes()?.premultipliedAlpha === true;
+    let primary: { error: unknown } | undefined;
     let backingSaved: boolean = false;
     try {
       renderer.setRenderTarget(null);
@@ -172,7 +217,8 @@ export class AutoMovieDisplayCompositor {
       // The display source already resolved its view, including float-output hosts.
       renderer.toneMapping = THREE.NoToneMapping;
       renderer.toneMappingExposure = 1;
-      const uniforms: THREE.RawShaderMaterial["uniforms"] = this.material.uniforms;
+      const uniforms: THREE.RawShaderMaterial["uniforms"] =
+        this.material.uniforms;
       uniforms.outgoing!.value = this.sources[0];
       uniforms.incoming!.value = this.sources[1];
       uniforms.alpha!.value = alpha;
@@ -182,14 +228,20 @@ export class AutoMovieDisplayCompositor {
       uniforms.outputPremultiplied!.value = target === null && premultiplied;
       uniforms.outputSRGB!.value = destinationSRGB;
       renderer.render(this.scene, this.camera);
-    } catch (error) { primary = {error}; }
+    } catch (error) {
+      primary = { error };
+    }
     const operations: (() => void)[] = [
       (): void => {
         if (!backingSaved || (target === null && primary === undefined)) return;
         renderer.setRenderTarget(null);
         // Restore the complete saved canvas, even when the source or destination
         // used only a scissored viewport. Public setters use logical pixel units.
-        renderer.setViewport(new THREE.Vector4(0, 0, this.width, this.height).divideScalar(renderer.getPixelRatio()));
+        renderer.setViewport(
+          new THREE.Vector4(0, 0, this.width, this.height).divideScalar(
+            renderer.getPixelRatio(),
+          ),
+        );
         renderer.setScissorTest(false);
         renderer.autoClear = false;
         renderer.toneMapping = THREE.NoToneMapping;
@@ -198,22 +250,39 @@ export class AutoMovieDisplayCompositor {
         this.material.uniforms.copyBacking!.value = true;
         renderer.render(this.scene, this.camera);
       },
-      (): void => { renderer.autoClear = autoClear; },
-      (): void => { renderer.setClearColor(clearColor, clearAlpha); },
+      (): void => {
+        renderer.autoClear = autoClear;
+      },
+      (): void => {
+        renderer.setClearColor(clearColor, clearAlpha);
+      },
       restoreFramebuffer,
-      (): void => { renderer.toneMapping = toneMapping; },
-      (): void => { renderer.toneMappingExposure = exposure; },
+      (): void => {
+        renderer.toneMapping = toneMapping;
+      },
+      (): void => {
+        renderer.toneMappingExposure = exposure;
+      },
     ];
     if (primary === undefined) restoreAutoMovieRenderModeState(operations);
     else restoreAutoMovieRenderModeState(operations, primary);
   }
 
-  private capture(renderer: THREE.WebGLRenderer, texture: THREE.FramebufferTexture): void {
-    if (renderer.getRenderTarget() !== null) throw new Error("A display source callback must leave the default framebuffer selected.");
+  private capture(
+    renderer: THREE.WebGLRenderer,
+    texture: THREE.FramebufferTexture,
+  ): void {
+    if (renderer.getRenderTarget() !== null)
+      throw new Error(
+        "A display source callback must leave the default framebuffer selected.",
+      );
     this.copyDisplay(renderer, texture);
   }
 
-  private copyDisplay(renderer: THREE.WebGLRenderer, texture: THREE.FramebufferTexture): void {
+  private copyDisplay(
+    renderer: THREE.WebGLRenderer,
+    texture: THREE.FramebufferTexture,
+  ): void {
     // The copy API operates on the active native texture unit. In Three r186,
     // a cached unit-zero binding can leave a different unit active after target
     // allocation. Reset through the public context-sharing boundary before the
@@ -245,11 +314,26 @@ export class AutoMovieDisplayCompositor {
     }
     this.disposed = true;
     const failures: unknown[] = [];
-    for (const resource of [...this.sources, this.backing, this.geometry, this.material]) {
-      try { resource.dispose(); } catch (error) { failures.push(error); }
+    for (const resource of [
+      ...this.sources,
+      this.backing,
+      this.geometry,
+      this.material,
+    ]) {
+      try {
+        resource.dispose();
+      } catch (error) {
+        failures.push(error);
+      }
     }
     if (failures.length !== 0) {
-      const error: unknown = failures.length === 1 ? failures[0] : new AggregateError(failures, "Display compositor resource disposal failed.");
+      const error: unknown =
+        failures.length === 1
+          ? failures[0]
+          : new AggregateError(
+              failures,
+              "Display compositor resource disposal failed.",
+            );
       this.disposalFailure = { error };
       throw error;
     }
@@ -264,8 +348,15 @@ export class AutoMovieDisplayCompositor {
   }
 
   private admitSize(width: number, height: number): void {
-    if (!Number.isSafeInteger(width) || !Number.isSafeInteger(height) || width <= 0 || height <= 0)
-      throw new Error("Display composition requires positive integer drawing-buffer dimensions.");
+    if (
+      !Number.isSafeInteger(width) ||
+      !Number.isSafeInteger(height) ||
+      width <= 0 ||
+      height <= 0
+    )
+      throw new Error(
+        "Display composition requires positive integer drawing-buffer dimensions.",
+      );
   }
 
   /**
@@ -281,7 +372,11 @@ export class AutoMovieDisplayCompositor {
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work These mutable extent facts are read directly and no repeated computation is coordinated.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The returned residency record owns no handles and retains no source textures.
    */
-  public describeTextureResidency(): {width:number;height:number;copies:3} {
-    return {width:this.width,height:this.height,copies:3};
+  public describeTextureResidency(): {
+    width: number;
+    height: number;
+    copies: 3;
+  } {
+    return { width: this.width, height: this.height, copies: 3 };
   }
 }

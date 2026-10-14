@@ -43,16 +43,21 @@ import { SPACE_GROUP_NAME } from "./buildSpace.js";
  * @evidence contracts/performance.md#reuse-equivalent-work Reuses the reserved shared naming contract and one ground Set within a call; scene hierarchy/roles can change, so no cross-call participation cache is retained.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Borrows scene objects, retains only temporary group/ground collections and acquires no shadow map or task; persistent boolean flags remain with each host-owned object.
  */
-export const applyAutoMovieShadowParticipation: (root: THREE.Object3D) => void = (
+export const applyAutoMovieShadowParticipation: (
   root: THREE.Object3D,
-): void => {
+) => void = (root: THREE.Object3D): void => {
   const groups: THREE.Object3D[] = [];
   root.traverse((object: THREE.Object3D<THREE.Object3DEventMap>): void => {
     if (object.name === SPACE_GROUP_NAME) groups.push(object);
   });
-  const ground: Set<THREE.Object3D<THREE.Object3DEventMap>> = new Set<THREE.Object3D>();
+  const ground: Set<THREE.Object3D<THREE.Object3DEventMap>> =
+    new Set<THREE.Object3D>();
   for (const group of groups)
-    group.traverse((descendant: THREE.Object3D<THREE.Object3DEventMap>): Set<THREE.Object3D<THREE.Object3DEventMap>> => ground.add(descendant));
+    group.traverse(
+      (
+        descendant: THREE.Object3D<THREE.Object3DEventMap>,
+      ): Set<THREE.Object3D<THREE.Object3DEventMap>> => ground.add(descendant),
+    );
   root.traverse((object: THREE.Object3D<THREE.Object3DEventMap>): void => {
     // `isMesh` covers `SkinnedMesh` and `InstancedMesh`, which is what makes a
     // compact population of several thousand members participate as one object

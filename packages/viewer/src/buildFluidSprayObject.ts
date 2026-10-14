@@ -1,5 +1,6 @@
 import type { IAutoMovieFluidSpraySample } from "@automovie/interface";
 import * as THREE from "three";
+
 import type { IAutoMovieFluidSprayObject } from "./IAutoMovieFluidSprayObject.js";
 import { reportAutoMovieResourceRetirement } from "./reportAutoMovieResourceRetirement.js";
 
@@ -20,12 +21,18 @@ import { reportAutoMovieResourceRetirement } from "./reportAutoMovieResourceReti
  *
  * @author Samchon
  */
-export const buildFluidSprayObject: (props: { sample: IAutoMovieFluidSpraySample; material?: THREE.PointsMaterial; }) => IAutoMovieFluidSprayObject = (props: {
+export const buildFluidSprayObject: (props: {
+  sample: IAutoMovieFluidSpraySample;
+  material?: THREE.PointsMaterial;
+}) => IAutoMovieFluidSprayObject = (props: {
   sample: IAutoMovieFluidSpraySample;
   /** Borrowed spray material; a normal-blending default is owned when absent. */
   material?: THREE.PointsMaterial;
 }): IAutoMovieFluidSprayObject => {
-  const geometry: THREE.BufferGeometry<THREE.NormalBufferAttributes, THREE.BufferGeometryEventMap> = new THREE.BufferGeometry();
+  const geometry: THREE.BufferGeometry<
+    THREE.NormalBufferAttributes,
+    THREE.BufferGeometryEventMap
+  > = new THREE.BufferGeometry();
   const owned: boolean = props.material === undefined;
   const material: THREE.PointsMaterial =
     props.material ??
@@ -36,10 +43,19 @@ export const buildFluidSprayObject: (props: { sample: IAutoMovieFluidSpraySample
       sizeAttenuation: true,
       size: 0.05,
     });
-  const points: THREE.Points<THREE.BufferGeometry<THREE.NormalBufferAttributes, THREE.BufferGeometryEventMap>, THREE.PointsMaterial, THREE.Object3DEventMap> = new THREE.Points(geometry, material);
+  const points: THREE.Points<
+    THREE.BufferGeometry<
+      THREE.NormalBufferAttributes,
+      THREE.BufferGeometryEventMap
+    >,
+    THREE.PointsMaterial,
+    THREE.Object3DEventMap
+  > = new THREE.Points(geometry, material);
   points.name = "water-spray";
   let count: number = 0;
-  const upload: (sample: IAutoMovieFluidSpraySample) => void = (sample: IAutoMovieFluidSpraySample): void => {
+  const upload: (sample: IAutoMovieFluidSpraySample) => void = (
+    sample: IAutoMovieFluidSpraySample,
+  ): void => {
     const positions: number[] = [];
     const sizes: number[] = [];
     const ages: number[] = [];
@@ -69,8 +85,12 @@ export const buildFluidSprayObject: (props: { sample: IAutoMovieFluidSpraySample
     update: upload,
     dispose: (): void => {
       reportAutoMovieResourceRetirement([
-        (): void => { geometry.dispose(); },
-        (): void => { if (owned) material.dispose(); },
+        (): void => {
+          geometry.dispose();
+        },
+        (): void => {
+          if (owned) material.dispose();
+        },
       ]);
     },
     count: (): number => count,

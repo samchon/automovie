@@ -41,4 +41,3 @@ export interface IAutoMovieFormationViewerStats {
   /** Named heroes kept outside instance batches. */
   heroes: number;
 }
-

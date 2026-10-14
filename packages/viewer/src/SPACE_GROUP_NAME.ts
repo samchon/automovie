@@ -1,4 +1,3 @@
-
 /**
  * Reserved scene-group name used by buildSpaceObject and buildScene's lookup.
  *

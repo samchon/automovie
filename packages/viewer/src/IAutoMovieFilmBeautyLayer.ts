@@ -15,4 +15,3 @@ export interface IAutoMovieFilmBeautyLayer {
   /** Sampled contribution in `[0, 1]`, applied to source display bytes. */
   weight: number;
 }
-

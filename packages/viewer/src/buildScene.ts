@@ -1,14 +1,19 @@
-import type { IAutoMovieCamera, IAutoMovieScene, IAutoMovieSpace } from "@automovie/interface";
+import { resolveAutoMovieShadowProfile } from "@automovie/engine";
+import type {
+  IAutoMovieCamera,
+  IAutoMovieScene,
+  IAutoMovieSpace,
+} from "@automovie/interface";
 import * as THREE from "three";
 
 import type { IAutoMovieModelObject } from "./IAutoMovieModelObject.js";
 import type { IAutoMovieSceneObject } from "./IAutoMovieSceneObject.js";
 import { applyAutoMovieShadowParticipation } from "./applyAutoMovieShadowParticipation.js";
+import { applySceneEnvironment } from "./applySceneEnvironment.js";
 import { applySceneFog } from "./applySceneFog.js";
 import { applyTransform } from "./applyTransform.js";
 import { buildLight } from "./buildLight.js";
 import { buildSpaceObject } from "./buildSpace.js";
-import { applySceneEnvironment } from "./applySceneEnvironment.js";
 
 /**
  * Build a `three.js` scene from an {@link IAutoMovieScene}.
@@ -50,16 +55,24 @@ import { applySceneEnvironment } from "./applySceneEnvironment.js";
  * @evidence contracts/performance.md#reuse-equivalent-work Reuses canonical transform/light/fog/environment/space adapters and maps lights by semantic id; model object reuse across placements is invalid because native parenting is exclusive, and scene-level effectful construction is not cached.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Transfers new scene/group/light/camera/support references and adopts resolver model objects into the result; environment texture handoff has its separate exclusive owner. No universal scene disposer or late-refusal rollback is returned, so callers must own both retirement and partially assembled graph recovery rather than assuming this wrapper frees them.
  */
-export const buildScene: (scene: IAutoMovieScene, getModelObject: (modelId: string) => IAutoMovieModelObject | undefined, environmentTexture?: THREE.Texture) => IAutoMovieSceneObject = (
+export const buildScene: (
+  scene: IAutoMovieScene,
+  getModelObject: (modelId: string) => IAutoMovieModelObject | undefined,
+  environmentTexture?: THREE.Texture,
+) => IAutoMovieSceneObject = (
   scene: IAutoMovieScene,
   getModelObject: (modelId: string) => IAutoMovieModelObject | undefined,
   environmentTexture?: THREE.Texture,
 ): IAutoMovieSceneObject => {
-  const shadowProfile: ReturnType<typeof resolveAutoMovieShadowProfile> = resolveAutoMovieShadowProfile({
-    lights: scene.lights, shadows: scene.environment?.shadows,
-  });
+  const shadowProfile: ReturnType<typeof resolveAutoMovieShadowProfile> =
+    resolveAutoMovieShadowProfile({
+      lights: scene.lights,
+      shadows: scene.environment?.shadows,
+    });
   if (!shadowProfile.success)
-    throw new Error("Unsupported shadow profile: " + JSON.stringify(shadowProfile.violations));
+    throw new Error(
+      "Unsupported shadow profile: " + JSON.stringify(shadowProfile.violations),
+    );
   const root: THREE.Scene<THREE.Object3DEventMap> = new THREE.Scene();
 
   for (const node of scene.nodes) {
@@ -110,9 +123,15 @@ export const buildScene: (scene: IAutoMovieScene, getModelObject: (modelId: stri
   return { scene: root, cameras, lights };
 };
 
-const buildCamera: (cam: IAutoMovieCamera) => THREE.PerspectiveCamera = (cam: IAutoMovieCamera): THREE.PerspectiveCamera => {
-  const camera: THREE.PerspectiveCamera = new THREE.PerspectiveCamera(cam.fovY, 1, cam.near, cam.far);
+const buildCamera: (cam: IAutoMovieCamera) => THREE.PerspectiveCamera = (
+  cam: IAutoMovieCamera,
+): THREE.PerspectiveCamera => {
+  const camera: THREE.PerspectiveCamera = new THREE.PerspectiveCamera(
+    cam.fovY,
+    1,
+    cam.near,
+    cam.far,
+  );
   applyTransform(camera, cam.transform);
   return camera;
 };
-import { resolveAutoMovieShadowProfile } from "@automovie/engine";

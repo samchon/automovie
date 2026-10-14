@@ -1,4 +1,3 @@
-
 /**
  * Set a capture canvas's CSS width and height to the supplied finite positive dimensions. Invalid dimensions leave both current styles unchanged, allowing an untouched interactive canvas to keep its responsive CSS. This adapter does not set the backing raster, device pixel ratio, screenshot bounds or encoded video size; the rendering and capture hosts own their agreement with these CSS dimensions.
  *
@@ -11,7 +10,11 @@
  * @evidence contracts/performance.md#reuse-equivalent-work Creates no derived raster or cache; repeated writes target the same mutable DOM style and have no stored equivalence key.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Borrows the canvas during the call and retains no DOM reference, observer, renderer or task; installed CSS values remain owned by the host element.
  */
-export const applyCaptureCanvasSize: (canvas: HTMLCanvasElement, width: number, height: number) => void = (
+export const applyCaptureCanvasSize: (
+  canvas: HTMLCanvasElement,
+  width: number,
+  height: number,
+) => void = (
   canvas: HTMLCanvasElement,
   width: number,
   height: number,

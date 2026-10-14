@@ -1,4 +1,3 @@
-
 /**
  * Current bounded numerical summary for one deterministic effect cue.
  *

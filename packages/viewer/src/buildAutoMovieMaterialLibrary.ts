@@ -4,8 +4,8 @@ import type { IAutoMovieMaterial } from "@automovie/interface";
 import type { IAutoMovieMaterialLibrary } from "./IAutoMovieMaterialLibrary.js";
 import type { IBuildAutoMovieMaterialLibraryProps } from "./IBuildAutoMovieMaterialLibraryProps.js";
 import { buildMaterial } from "./buildMaterial.js";
-import { materialTextureBindings } from "./materialTextureBindings.js";
 import { constructAutoMovieOwnedResources } from "./constructAutoMovieOwnedResources.js";
+import { materialTextureBindings } from "./materialTextureBindings.js";
 import { reportAutoMovieResourceRetirement } from "./reportAutoMovieResourceRetirement.js";
 
 /**
@@ -36,7 +36,9 @@ import { reportAutoMovieResourceRetirement } from "./reportAutoMovieResourceReti
  *
  * @author Samchon
  */
-export const buildAutoMovieMaterialLibrary: (props: IBuildAutoMovieMaterialLibraryProps) => Promise<IAutoMovieMaterialLibrary> = async (
+export const buildAutoMovieMaterialLibrary: (
+  props: IBuildAutoMovieMaterialLibraryProps,
+) => Promise<IAutoMovieMaterialLibrary> = async (
   props: IBuildAutoMovieMaterialLibraryProps,
 ): Promise<IAutoMovieMaterialLibrary> => {
   const requested: Set<string> = new Set<string>();
@@ -47,36 +49,60 @@ export const buildAutoMovieMaterialLibrary: (props: IBuildAutoMovieMaterialLibra
     requested.add(id);
   }
 
-  const definitions: Map<string, IAutoMovieMaterial> = new Map<string, IAutoMovieMaterial>(
+  const definitions: Map<string, IAutoMovieMaterial> = new Map<
+    string,
+    IAutoMovieMaterial
+  >(
     [...requested].map((id: string): [string, IAutoMovieMaterial] => [
       id,
       resolveAutoMovieMaterial({ models: props.models, material: id }),
     ]),
   );
 
-  const bindings: ReturnType<typeof materialTextureBindings> = [...definitions.values()].flatMap(materialTextureBindings);
+  const bindings: ReturnType<typeof materialTextureBindings> = [
+    ...definitions.values(),
+  ].flatMap(materialTextureBindings);
   if (bindings.length !== 0 && props.textures === undefined)
     throw new Error(
       "Requested materials bind texture assets but no shot texture cache was supplied.",
     );
   await props.textures?.prime(bindings);
 
-  const materials: Map<string, ReturnType<typeof buildMaterial>> = constructAutoMovieOwnedResources((own: <Resource extends { dispose(): void }>(resource: Resource) => Resource): Map<string, ReturnType<typeof buildMaterial>> => new Map(
-    [...definitions].map(
-      ([id, material]: [string, IAutoMovieMaterial]): readonly [string, ReturnType<typeof buildMaterial>] =>
-        [id, own(buildMaterial(material, props.textures?.resolve))] as const,
-    ),
-  ));
+  const materials: Map<
+    string,
+    ReturnType<typeof buildMaterial>
+  > = constructAutoMovieOwnedResources(
+    (
+      own: <Resource extends { dispose(): void }>(
+        resource: Resource,
+      ) => Resource,
+    ): Map<string, ReturnType<typeof buildMaterial>> =>
+      new Map(
+        [...definitions].map(
+          ([id, material]: [string, IAutoMovieMaterial]): readonly [
+            string,
+            ReturnType<typeof buildMaterial>,
+          ] =>
+            [
+              id,
+              own(buildMaterial(material, props.textures?.resolve)),
+            ] as const,
+        ),
+      ),
+  );
   let disposed: boolean = false;
   let disposalFailure: { error: unknown } | undefined;
   return {
-    resolve: (id: string | null): ReturnType<typeof buildMaterial> | undefined => {
+    resolve: (
+      id: string | null,
+    ): ReturnType<typeof buildMaterial> | undefined => {
       if (disposed)
         throw new Error(
           "This shot material library has already been disposed.",
         );
       if (id === null) return undefined;
-      const material: ReturnType<typeof buildMaterial> | undefined = materials.get(id);
+      const material: ReturnType<typeof buildMaterial> | undefined =
+        materials.get(id);
       if (material === undefined)
         throw new Error(`Material "${id}" was not requested by this library.`);
       return material;
@@ -89,10 +115,16 @@ export const buildAutoMovieMaterialLibrary: (props: IBuildAutoMovieMaterialLibra
       disposed = true;
       try {
         reportAutoMovieResourceRetirement(
-          [...materials].map(([id, material]: [string, ReturnType<typeof buildMaterial>]): (() => void) => (): void => {
-            material.dispose();
-            materials.delete(id);
-          }),
+          [...materials].map(
+            ([id, material]: [
+              string,
+              ReturnType<typeof buildMaterial>,
+            ]): (() => void) =>
+              (): void => {
+                material.dispose();
+                materials.delete(id);
+              },
+          ),
         );
       } catch (error) {
         disposalFailure = { error };

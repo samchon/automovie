@@ -22,8 +22,14 @@ import { reportAutoMovieResourceRetirement } from "./reportAutoMovieResourceReti
 export class AutoMovieResourceRetirementScope {
   private closed: boolean = false;
   private closing: Promise<void> | undefined;
-  private readonly owned: Map<object, () => Promise<void>> = new Map<object, () => Promise<void>>();
-  private readonly entries: Map<() => Promise<void>, Promise<{ success: true } | { success: false; error: unknown }>> = new Map<
+  private readonly owned: Map<object, () => Promise<void>> = new Map<
+    object,
+    () => Promise<void>
+  >();
+  private readonly entries: Map<
+    () => Promise<void>,
+    Promise<{ success: true } | { success: false; error: unknown }>
+  > = new Map<
     () => Promise<void>,
     Promise<{ success: true } | { success: false; error: unknown }>
   >();
@@ -114,9 +120,15 @@ export class AutoMovieResourceRetirementScope {
    */
   public track(retire: () => Promise<void>): void {
     if (this.entries.has(retire)) return;
-    const outcome: Promise<{ success: true } | { success: false; error: unknown }> = Promise.resolve().then(retire)
+    const outcome: Promise<
+      { success: true } | { success: false; error: unknown }
+    > = Promise.resolve()
+      .then(retire)
       .then((): { success: true } => ({ success: true }))
-      .catch((error: unknown): { success: false; error: unknown } => ({ success: false, error }));
+      .catch((error: unknown): { success: false; error: unknown } => ({
+        success: false,
+        error,
+      }));
     this.entries.set(retire, outcome);
   }
 
@@ -135,12 +147,32 @@ export class AutoMovieResourceRetirementScope {
     const failures: unknown[] = [];
     const observed: Set<() => Promise<void>> = new Set<() => Promise<void>>();
     while (true) {
-      const next: [() => Promise<void>, Promise<{ success: true } | { success: false; error: unknown }>] [] = [...this.entries].filter(([retire]: [() => Promise<void>, Promise<{ success: true } | { success: false; error: unknown }>] ): boolean => !observed.has(retire));
+      const next: [
+        () => Promise<void>,
+        Promise<{ success: true } | { success: false; error: unknown }>,
+      ][] = [...this.entries].filter(
+        ([retire]: [
+          () => Promise<void>,
+          Promise<{ success: true } | { success: false; error: unknown }>,
+        ]): boolean => !observed.has(retire),
+      );
       if (next.length === 0) break;
-      const outcomes: ({ success: true } | { success: false; error: unknown })[] = await Promise.all(next.map(([, outcome]: [() => Promise<void>, Promise<{ success: true } | { success: false; error: unknown }>] ): Promise<{ success: true } | { success: false; error: unknown }> => outcome));
+      const outcomes: (
+        | { success: true }
+        | { success: false; error: unknown }
+      )[] = await Promise.all(
+        next.map(
+          ([, outcome]: [
+            () => Promise<void>,
+            Promise<{ success: true } | { success: false; error: unknown }>,
+          ]): Promise<{ success: true } | { success: false; error: unknown }> =>
+            outcome,
+        ),
+      );
       for (const [index, [retire]] of next.entries()) {
         observed.add(retire);
-        const outcome: { success: true } | { success: false; error: unknown } = outcomes[index]!;
+        const outcome: { success: true } | { success: false; error: unknown } =
+          outcomes[index]!;
         if (outcome.success) this.entries.delete(retire);
         else failures.push(outcome.error);
       }

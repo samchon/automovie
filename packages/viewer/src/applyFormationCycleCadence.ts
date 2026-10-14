@@ -20,11 +20,17 @@ import { formationCycleCadence } from "./formationCycleCadence.js";
  * @evidence contracts/performance.md#reuse-equivalent-work Reuses the cycle's baked take textures and existing uniform cells across frames; changed segment motion/time requires fresh absolute integration and no prior-frame clock is cached.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Borrows the cycle/segments and switches references among cycle-owned take textures without allocating another GPU texture or task; bake/runtime retirement still owns those textures.
  */
-export const applyFormationCycleCadence: (cycle: IAutoMovieFormationCycle, segments: readonly IAutoMovieFormationCadenceSegment[]) => IAutoMovieFormationCadence = (
+export const applyFormationCycleCadence: (
+  cycle: IAutoMovieFormationCycle,
+  segments: readonly IAutoMovieFormationCadenceSegment[],
+) => IAutoMovieFormationCadence = (
   cycle: IAutoMovieFormationCycle,
   segments: readonly IAutoMovieFormationCadenceSegment[],
 ): IAutoMovieFormationCadence => {
-  const cadence: IAutoMovieFormationCadence = formationCycleCadence(cycle, segments);
+  const cadence: IAutoMovieFormationCadence = formationCycleCadence(
+    cycle,
+    segments,
+  );
   cycle.active = cadence.take;
   cycle.uniforms.automovieCycleTexture.value = cadence.take.texture;
   cycle.uniforms.automovieCycleAdvance.value = cadence.advance;
