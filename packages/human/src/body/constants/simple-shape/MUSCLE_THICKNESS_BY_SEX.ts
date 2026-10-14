@@ -20,13 +20,10 @@ type Term = IAutoMovieHumanBodySimpleShapeTable["terms"][number];
  * visible relief, not a universal thickness field: subcutaneous tissue,
  * individual muscle shape and site-specific anatomy remain separate.
  */
-export const MUSCLE_THICKNESS_BY_SEX: {
-  readonly parameter: "sex";
-  readonly points: readonly [readonly [-1, 0.84], readonly [1, 1]];
-} = {
+export const MUSCLE_THICKNESS_BY_SEX: Term["curves"][number] = {
   parameter: "sex",
   points: [
     [-1, 0.84],
     [1, 1],
   ],
-} as const satisfies Term["curves"][number];
+};
