@@ -15,12 +15,12 @@ export interface IAutoMovieStorySyncPoint {
   event: string;
 
   /**
-   * Compiler-realized shot-local time in seconds, or null when the owning shot has no current realization for the event.
+   * Supplied realized shot-local time in seconds, or null when absent or nonfinite. The production adapter selects the first matching event id in the current supplied realization.
    */
   localSeconds: number | null;
 
   /**
-   * Story-clock time in seconds, or null when the local time is unavailable or the owning shot carries no story-clock pin.
+   * Story-clock time in seconds, or null when the local time or pin is unavailable or the affine result is nonfinite, including overflow.
    */
   storySeconds: number | null;
 }
