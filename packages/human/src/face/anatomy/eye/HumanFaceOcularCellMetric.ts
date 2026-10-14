@@ -73,7 +73,7 @@ export class HumanFaceOcularCellMetric {
    * @evidence contracts/common.md#clear-and-simple-design Cap/sphere branch, frame values and actual corner coordinates remain explicit query inputs rather than an orthonormal-frame identity assumption.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts All represented values enter the appropriate exact arithmetic and reuse keys; no patch-distance bound is relabelled physical contact clearance.
    * @evidence contracts/common.md#meaningful-documentation The method and class describe triangle cardinality, metre result, cache equivalence and one-way facet-to-patch meaning.
-   * @evidence contracts/performance.md#efficient-algorithms Each triangle needs fixed-size derivative/rational operations plus up to three uncached exact trig/placement evaluations; operand widths determine numeric cost.
+   * @evidence contracts/performance.md#efficient-algorithms Each triangle processes three corner errors with fixed-size rational interval arithmetic. Uncached cap corners need azimuth enclosures; sphere corners also need meridian-angle enclosures, so up to six distinct angles can be evaluated. Exact operand widths determine numeric cost, and a changed frame adds its nine-component norm calculation.
    * @evidence contracts/performance.md#reuse-equivalent-work Complete corner-value keys reuse prior errors and matching copied frame-vector values reuse the exact upper Frobenius norm.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Successful angle/corner results grow instance maps by distinct query values without an independent public-query cap; failed evaluations do not publish that corner result.
    */
