@@ -112,15 +112,15 @@ const riderPosAt: (clip: IAutoMovieClip, t: number) => IAutoMovieVector3 = (
  * Scenarios:
  * 1. Bake moving rider translation/rotation, distinguish the staged decoy and compare shared attachment FK at the end.
  * 2. Emit no grab/attach/detach/release events for a persistent mount.
- * 3. Read baked beat-end position, trailing velocity and mount binding; retain the legacy zero-velocity offset case and custom clinical-basis contrast.
+ * 3. Read baked beat-end position, trailing velocity and mount binding; distinguish empty, future and short active performance windows and custom clinical bases.
  * 4. Recompile the same staged beat without restating attachTo.
  * 5. Let explicit attachTo replace the persistent mount's clip.
  * 6. Produce no follow when staging has no mount.
  * 7. Refuse a rigless parent or absent mount bone.
  *
  * @evidence contracts/testing.md#behavioral-verification Performs staged mounts, samples baked rider follow and beat-end state, and checks velocity, clinical basis propagation, repeated compilation, explicit override and rig/bone failures.
- * @evidence contracts/testing.md#independent-expectations The airborne staged rider must move and the two-second horse travel requires X velocity above .5 with Y/Z below 1e-6 in magnitude. The 1e-9 attachment reference reuses product FK, so it checks handoff consistency rather than independent FK arithmetic. The preserved 3b zero-velocity expectation conflicts with the current baked shot-clock snapshot contract and awaits a narrow execution; it is not established evidence of an empty baked window.
- * @evidence contracts/testing.md#distinguishing-cases Retains moving follow, absent handoff events, the pending offset/velocity contract disagreement, clinical/fallback contrast, recompilation, explicit override, mountless, rigless and missing-bone neighbours. Recompilation uses beat-1 again and does not execute a distinct resumed second beat; override checks clip population rather than independently sampling the requested chest endpoint.
+ * @evidence contracts/testing.md#independent-expectations The airborne staged rider must move and the authored two-metre horse travel over two seconds gives one metre per second. A performance at or before its start has no trailing history; a five-millisecond active window retains that same slope. The 1e-9 attachment reference reuses product FK, so it checks handoff consistency rather than independent FK arithmetic.
+ * @evidence contracts/testing.md#distinguishing-cases Covers moving follow, absent handoff events, exact-start and future-start zero velocity, a short positive window, clinical/fallback contrast, recompilation, explicit override, mountless, rigless and missing-bone neighbours. Recompilation uses beat-1 again and does not execute a distinct resumed second beat; override checks clip population rather than independently sampling the requested chest endpoint.
  * @evidence contracts/testing.md#execution-ownership The discoverable synchronous test_film_perform_shot_mount unit entry owns its assertions and delegated helpers through portable source functions; it opens no process, browser, GPU or installed consumer.
  */
 export function test_film_perform_shot_mount(): void {
@@ -243,19 +243,11 @@ export function test_film_perform_shot_mount(): void {
     bone: "spine",
   });
 
-  // 3b. Preserve the legacy zero-velocity expectation at pose-local time zero.
-  // The current snapshot reads baked velocity on the shot clock, so this case
-  // has a pending contract disagreement rather than a proven empty window.
-  const endStart: IAutoMovieBeatEndState = resolveBeatEnd({
+  // 3b. A performance cannot inherit velocity from before its own start.
+  const offsetSnapshot: Parameters<typeof resolveBeatEnd>[0] = {
     beat: "beat-1",
     scene: staged.scene,
-    shot: {
-      ...ok.shot,
-      performances: [
-        ...ok.shot.performances,
-        { node: "rider", motion: "horse-walk", startOffset: 2 },
-      ],
-    },
+    shot: ok.shot,
     motions: [
       ...Object.entries(ok.motions).map(
         ([, m]: [string, IAutoMovieMotion]): IAutoMovieMotion => m,
@@ -263,13 +255,42 @@ export function test_film_perform_shot_mount(): void {
       { ...horseWalk, id: "horse-walk" },
     ],
     mounts: staged.mounts,
-  });
+  };
+  function endAtOffset(startOffset: number): IAutoMovieBeatEndState {
+    return resolveBeatEnd({
+      ...offsetSnapshot,
+      shot: {
+        ...offsetSnapshot.shot,
+        performances: [
+          ...offsetSnapshot.shot.performances,
+          { node: "rider", motion: "horse-walk", startOffset },
+        ],
+      },
+    });
+  }
+  const endStart: IAutoMovieBeatEndState = endAtOffset(2);
   const riderAtStart: IAutoMovieBeatEndActorState = endStart.actors.find(
     (a: IAutoMovieBeatEndActorState): boolean => a.node === "rider",
   )!;
   TestValidator.predicate(
     "a rider mounted at local time 0 has an empty velocity window (zero)",
     vclose(riderAtStart.rootVelocity!, { x: 0, y: 0, z: 0 }),
+  );
+  const riderBeforeStart: IAutoMovieBeatEndActorState =
+    endAtOffset(3).actors.find(
+      (actor: IAutoMovieBeatEndActorState): boolean => actor.node === "rider",
+    )!;
+  TestValidator.predicate(
+    "a rider's future performance also has no velocity history",
+    vclose(riderBeforeStart.rootVelocity!, { x: 0, y: 0, z: 0 }),
+  );
+  const riderJustStarted: IAutoMovieBeatEndActorState =
+    endAtOffset(1.995).actors.find(
+      (actor: IAutoMovieBeatEndActorState): boolean => actor.node === "rider",
+    )!;
+  TestValidator.predicate(
+    "a short active window retains the carrier's one-metre-per-second velocity",
+    vclose(riderJustStarted.rootVelocity!, { x: 1, y: 0, z: 0 }, 1e-6),
   );
 
   // 3c. a mount whose parent clip is authored in clinical space threads the

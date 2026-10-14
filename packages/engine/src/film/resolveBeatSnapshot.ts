@@ -36,7 +36,7 @@ const ZERO: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
 /**
  * Every scene actor's resumable state at one shot-local instant, the one body behind {@link resolveBeatOpening} (`instant = 0`) and {@link resolveBeatEnd} (`instant = shot.duration`).
  *
- * Each node of `props.scene` yields one actor state, in scene order. A node with a performance plays that performance's motion from its `startOffset`, so its clip-local time is `max(0, instant - startOffset)`; any other node plays its own `motion` at `instant`, or holds its staged pose when it has none. The pose root is folded into the staged transform unless the shot's object motions bake both a translation and a rotation for the node at that time: a mounted rider, a grabbed prop, or a launched one then takes the baked world transform and the baked trailing velocity instead, because the shot left it in a hand or where it landed rather than at its staged spot. The persistent mount binding and ground-IK plants are carried through. Plant intervals are currently selected on the pose-local clock; the production performer writes startOffset zero, where that clock agrees with the shot. A supplied nonzero offset therefore shifts plant selection, while baked object transforms and velocities still use instant on the shot clock.
+ * Each node of `props.scene` yields one actor state, in scene order. A node with a performance plays that performance's motion from its `startOffset`, so its clip-local time is `max(0, instant - startOffset)`; any other node plays its own `motion` at `instant`, or holds its staged pose when it has none. The pose root is folded into the staged transform unless the shot's object motions bake both a translation and a rotation for the node at that time: a mounted rider, a grabbed prop, or a launched one then takes the baked world transform and the baked trailing velocity instead, because the shot left it in a hand or where it landed rather than at its staged spot. Baked samples use the shot clock, but their velocity window begins no earlier than the actor's performance start: a newly starting performance has no trailing velocity history. Nodes without a performance use the shot's zero boundary. The persistent mount binding and ground-IK plants are carried through. Plant intervals are currently selected on the pose-local clock; the production performer writes startOffset zero, where that clock agrees with the shot. A supplied nonzero offset therefore shifts plant selection without shifting baked object transforms.
  *
  * Throws when two motions share an id, two performances share a node, two mounts or two plant entries name the same node, or a node or performance names a motion that `props.motions` does not supply, because a snapshot built from an ambiguous or missing input would hand the next beat a state no shot produced.
  *
@@ -48,9 +48,9 @@ const ZERO: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
  * @evidence contracts/common.md#clear-and-simple-design One snapshot body with the instant as its only free parameter replaces two identical copies in the opening and end resolvers, so the two boundaries of a beat cannot drift apart; the per-call indexes are gathered into one context the per-node step reads.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No node, motion or prop is special-cased: baked authority wins only when the shot's own clips write both channels at the instant, and duplicates or missing motions throw instead of picking one.
  * @evidence contracts/common.md#meaningful-documentation States the two callers and their instants, the clip-local time rule, when baked authority overrides the folded root, what is carried through, every throw and why, and each parameter's role and unit.
- * @evidence contracts/performance.md#efficient-algorithms Builds four identity indexes and a translated-node set once, then samples the complete object-clip sequence at most once at each of two exact instants, current and trailing, when baked nodes need it. Sequence work includes track/key validation and sampled component widths. Per-node motion, root-velocity, gait and plant reads add their delegated key/joint populations; identity lookup itself is constant.
+ * @evidence contracts/performance.md#efficient-algorithms Builds four identity indexes and a translated-node set once, then samples object channels once per distinct required instant. Most baked actors share the current and trailing instant; recently started performances may each need their own start instant, at most one extra per actor. Sequence work includes track/key validation and sampled widths; per-node motion, velocity, gait and plants add delegated key/joint costs.
  * @evidence contracts/performance.md#reuse-equivalent-work Shares indexes, translated-node membership and lazy channel maps across nodes only during this synchronous call. IResolveBeatProps supplies ordinary admitted DTOs and no synthesizer or actor callbacks; sampleMotion and state assembly read them without mutation. Getter/proxy mutation during reads is outside this equivalence premise, and nothing is reused across calls.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Indexes, context and at most two complete sampled-channel maps live for one call and are released on return or throw; the returned state owns one fresh actor record per scene node. A non-null pose is shallow-copied with root cleared and its joint array borrowed; selected plants and mount bindings are borrowed, while transform ownership follows the sampled or staged branch.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Indexes, context and sampled-channel maps live for one call and are released on return or throw; unique current/trailing instants number at most one plus the baked actor count. The returned state owns one fresh record per scene node. A non-null pose is shallow-copied with root cleared and joints borrowed; plants and mount bindings are borrowed, while transform ownership follows the sampled or staged branch.
  */
 export function resolveBeatSnapshot(
   props: IResolveBeatProps,
@@ -233,6 +233,7 @@ function actorAt(
             context.channelsAt,
             node.id,
             context.instant,
+            Math.max(0, performed?.performance.startOffset ?? 0),
           ),
         };
   const motion: { motion: IAutoMovieMotion; index: number } | undefined =
@@ -257,16 +258,17 @@ function actorAt(
 }
 
 /**
- * Trailing world velocity of the baked object-authority sequence at `t`, differenced over the last {@link VELOCITY_DT}. Each end of the window reads the translation authority active there. Zero at `t <= 0`, or when the earlier end has no translation sample because the authority has only just begun.
+ * Trailing world velocity of the baked object-authority sequence at `t`, differenced over the last {@link VELOCITY_DT} without crossing the actor's performance start. Each end reads shot-clock translation authority. Zero before or at that start, or when the earlier end has no translation sample because authority has only just begun.
  */
 function bakedVelocity(
   channelsAt: (time: number) => ReadonlyMap<string, IAutoMovieSampledChannel>,
   node: string,
   t: number,
+  start: number,
 ): IAutoMovieVector3 {
-  if (t <= 0) return ZERO;
+  if (t <= start) return ZERO;
   const key: string = channelKey({ kind: "node", node, path: "translation" });
-  const t0: number = Math.max(0, t - VELOCITY_DT);
+  const t0: number = Math.max(start, t - VELOCITY_DT);
   const p1: IAutoMovieSampledChannel | undefined = channelsAt(t).get(key);
   const p0: IAutoMovieSampledChannel | undefined = channelsAt(t0).get(key);
   if (p1 === undefined || p0 === undefined) return ZERO;
@@ -310,8 +312,8 @@ function actorState(props: {
       props.motion === null
         ? null
         : gaitPhaseOf(props.motion.clip, props.localTime),
-    // A baked child moves with what carries it even while it holds its own
-    // pose; any other actor's velocity is its clip root's.
+    // A baked child reads its carrier's world motion over its own active
+    // performance window; any other actor's velocity is its clip root's.
     rootVelocity:
       props.world !== null
         ? props.world.rootVelocity
