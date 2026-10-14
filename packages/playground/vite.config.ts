@@ -1,7 +1,11 @@
+import ttsc from "@ttsc/unplugin/vite";
 import { resolve } from "path";
 import { defineConfig } from "vite";
 
 export default defineConfig({
+  // `@automovie/human` is consumed as TypeScript source whose admission calls
+  // typia; only ttsc applies typia's transform, so Vite must run it too.
+  plugins: [ttsc({ project: resolve(__dirname, "../human/tsconfig.json") })],
   server: {
     host: "127.0.0.1",
     port: 5173,
@@ -23,6 +27,7 @@ export default defineConfig({
         showcase: resolve(__dirname, "showcase.html"),
         impact: resolve(__dirname, "impact.html"),
         trampoline: resolve(__dirname, "trampoline.html"),
+        human: resolve(__dirname, "human.html"),
       },
     },
   },
