@@ -54,4 +54,4 @@ Segment mass fractions, centres of mass and radii of gyration for physics output
 
 ## Limits
 
-Young, lean, athletic Russian sample; 15 women only. Mass fractions do not follow adiposity or age; a heavier abdomen or an infant's large head needs another source (see `anatomy/body-composition.md` and `anatomy/growth.md`). Hip joint vertical offset from trochanterion is small but its mediolateral position is not given here; use the pelvic regressions in `hara-2016.md`.
+Young, lean, athletic Russian sample; 15 women only. Mass fractions do not follow adiposity or age; a heavier abdomen or an infant's large head needs another source (see `../anatomy/body-composition.md` and `../anatomy/growth.md`). Hip joint vertical offset from trochanterion is small but its mediolateral position is not given here; use the pelvic regressions in `hara-2016.md`.
