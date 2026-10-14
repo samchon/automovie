@@ -11,7 +11,10 @@ import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../internal/predicates";
 
-const shot: (id: string, duration: number) => IAutoMovieShot = (id: string, duration: number): IAutoMovieShot => ({
+const shot: (id: string, duration: number) => IAutoMovieShot = (
+  id: string,
+  duration: number,
+): IAutoMovieShot => ({
   id,
   name: null,
   scene: "scene-duel",
@@ -83,17 +86,26 @@ export function test_render_chunk_guide_passes(): void {
     shots: SHOTS,
     spec: SPEC,
   });
-  const chunked: ReturnType<typeof planChunkedSequenceRender> = planChunkedSequenceRender({
-    plan: whole,
-    spec: SPEC,
-    chunkFrames: 3,
-    passes: ["depth", "beauty", "depth"],
-  });
+  const chunked: ReturnType<typeof planChunkedSequenceRender> =
+    planChunkedSequenceRender({
+      plan: whole,
+      spec: SPEC,
+      chunkFrames: 3,
+      passes: ["depth", "beauty", "depth"],
+    });
 
   // 1. dedup + per-chunk order
   TestValidator.equals(
     "every chunk plans [depth, beauty]",
-    chunked.chunks.map((c: typeof chunked.chunks[number]): NonNullable<typeof c.passOutputs>[number]["pass"][] => c.passOutputs!.map((o: NonNullable<typeof c.passOutputs>[number]): typeof o.pass => o.pass)),
+    chunked.chunks.map(
+      (
+        c: (typeof chunked.chunks)[number],
+      ): NonNullable<typeof c.passOutputs>[number]["pass"][] =>
+        c.passOutputs!.map(
+          (o: NonNullable<typeof c.passOutputs>[number]): typeof o.pass =>
+            o.pass,
+        ),
+    ),
     [
       ["depth", "beauty"],
       ["depth", "beauty"],
@@ -103,7 +115,9 @@ export function test_render_chunk_guide_passes(): void {
   );
 
   // 2. hand oracles
-  const depth1: NonNullable<typeof chunked.chunks[number]["passOutputs"]>[number] = chunked.chunks[1]!.passOutputs![0]!;
+  const depth1: NonNullable<
+    (typeof chunked.chunks)[number]["passOutputs"]
+  >[number] = chunked.chunks[1]!.passOutputs![0]!;
   TestValidator.equals(
     "chunk 1 depth first frame",
     depth1.firstFrame,
@@ -153,10 +167,14 @@ export function test_render_chunk_guide_passes(): void {
   // 4. manifests
   TestValidator.equals(
     "manifest passes in dedup order",
-    chunked.passManifests!.map((m: NonNullable<typeof chunked.passManifests>[number]): typeof m.pass => m.pass),
+    chunked.passManifests!.map(
+      (m: NonNullable<typeof chunked.passManifests>[number]): typeof m.pass =>
+        m.pass,
+    ),
     ["depth", "beauty"],
   );
-  const depthManifest: NonNullable<typeof chunked.passManifests>[number] = chunked.passManifests![0]!;
+  const depthManifest: NonNullable<typeof chunked.passManifests>[number] =
+    chunked.passManifests![0]!;
   TestValidator.equals(
     "depth manifest walks all chunks in order",
     depthManifest.chunkFrameDirs,
@@ -184,7 +202,11 @@ export function test_render_chunk_guide_passes(): void {
   );
   TestValidator.equals(
     "union of chunk pass frames equals the manifest count",
-    chunked.chunks.reduce((sum: number, c: typeof chunked.chunks[number]): number => sum + c.frameCount, 0),
+    chunked.chunks.reduce(
+      (sum: number, c: (typeof chunked.chunks)[number]): number =>
+        sum + c.frameCount,
+      0,
+    ),
     depthManifest.frameCount,
   );
 
@@ -204,15 +226,18 @@ export function test_render_chunk_guide_passes(): void {
   );
 
   // 6. empty list plans empty sets
-  const empty: ReturnType<typeof planChunkedSequenceRender> = planChunkedSequenceRender({
-    plan: whole,
-    spec: SPEC,
-    chunkFrames: 3,
-    passes: [],
-  });
+  const empty: ReturnType<typeof planChunkedSequenceRender> =
+    planChunkedSequenceRender({
+      plan: whole,
+      spec: SPEC,
+      chunkFrames: 3,
+      passes: [],
+    });
   TestValidator.equals(
     "empty passes yield empty per-chunk outputs",
-    empty.chunks.map((c: typeof empty.chunks[number]): typeof c.passOutputs => c.passOutputs),
+    empty.chunks.map(
+      (c: (typeof empty.chunks)[number]): typeof c.passOutputs => c.passOutputs,
+    ),
     [[], [], [], []],
   );
   TestValidator.equals(

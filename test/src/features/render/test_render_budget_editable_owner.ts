@@ -6,13 +6,17 @@ import type {
 import { TestValidator } from "@nestia/e2e";
 
 import { flatBasin } from "../internal/fluidFixtures";
-import {
-  BOX_TRIANGLES,
-  instanceSetFixture,
-} from "../internal/renderFixtures";
 import { renderBudgetEditableOwnerFixtures } from "../internal/renderBudgetEditableOwnerFixtures";
+import { BOX_TRIANGLES, instanceSetFixture } from "../internal/renderFixtures";
 
-const { pose, models, staged, staging, report, shape }: Pick<
+const {
+  pose,
+  models,
+  staged,
+  staging,
+  report,
+  shape,
+}: Pick<
   typeof renderBudgetEditableOwnerFixtures,
   "pose" | "models" | "staged" | "staging" | "report" | "shape"
 > = renderBudgetEditableOwnerFixtures;
@@ -214,22 +218,35 @@ export function test_render_budget_editable_owner(): void {
     },
   );
 
-  const sun: () => IAutoMovieScene["lights"][number] = (): IAutoMovieScene["lights"][number] => ({
-    id: "sun",
-    type: "directional",
-    transform: pose(),
-    color: { r: 1, g: 1, b: 1, a: 1, hex: null },
-    intensity: 1,
-    castShadow: true,
-    shadow: { mapSize: 512, bias: 0, normalBias: 0, near: 0.1, far: 20 },
-  });
+  const sun: () => IAutoMovieScene["lights"][number] =
+    (): IAutoMovieScene["lights"][number] => ({
+      id: "sun",
+      type: "directional",
+      transform: pose(),
+      color: { r: 1, g: 1, b: 1, a: 1, hex: null },
+      intensity: 1,
+      castShadow: true,
+      shadow: { mapSize: 512, bias: 0, normalBias: 0, near: 0.1, far: 20 },
+    });
   const lit: IAutoMovieRenderSubject = staging({
     nodes: [staged("hall"), staged("stool")],
     lights: [sun()],
   });
-  const caster: IAutoMovieRenderReport["findings"][number] = report({ subject: lit, metric: "triangles", limit: 50 });
-  const maps: IAutoMovieRenderReport["findings"][number] = report({ subject: lit, metric: "shadowMaps", limit: 0 });
-  const sources: IAutoMovieRenderReport["findings"][number] = report({ subject: lit, metric: "lights", limit: 0 });
+  const caster: IAutoMovieRenderReport["findings"][number] = report({
+    subject: lit,
+    metric: "triangles",
+    limit: 50,
+  });
+  const maps: IAutoMovieRenderReport["findings"][number] = report({
+    subject: lit,
+    metric: "shadowMaps",
+    limit: 0,
+  });
+  const sources: IAutoMovieRenderReport["findings"][number] = report({
+    subject: lit,
+    metric: "lights",
+    limit: 0,
+  });
   TestValidator.equals(
     "a shadow caster is stated as a pass, and still ranked for its own cost",
     {
@@ -295,22 +312,25 @@ export function test_render_budget_editable_owner(): void {
   // Regression. A resident cost is allocated once and reused by every pass, so
   // no pass row competes with the drawable that owns it and these two rankings
   // were never wrong. They must not move.
-  const resident: () => IAutoMovieRenderSubject = (): IAutoMovieRenderSubject => ({
-    scene: staging({ nodes: [], lights: [] }).scene,
-    models: models(),
-    instanceSets: [instanceSetFixture({ id: "windows", count: 12, chunks: 3 })],
-    waterBodies: [
-      {
-        id: "pool",
-        owner: null,
-        nodes: [],
-        domain: null,
-        cells: 4096,
-        particles: 0,
-        material: null,
-      },
-    ],
-  });
+  const resident: () => IAutoMovieRenderSubject =
+    (): IAutoMovieRenderSubject => ({
+      scene: staging({ nodes: [], lights: [] }).scene,
+      models: models(),
+      instanceSets: [
+        instanceSetFixture({ id: "windows", count: 12, chunks: 3 }),
+      ],
+      waterBodies: [
+        {
+          id: "pool",
+          owner: null,
+          nodes: [],
+          domain: null,
+          cells: 4096,
+          particles: 0,
+          material: null,
+        },
+      ],
+    });
   TestValidator.equals(
     "the metrics no pass multiplies rank exactly as before",
     {

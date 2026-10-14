@@ -1,7 +1,15 @@
-import { deriveAutoMovieSemanticMask, measureAutoMovieRenderInventory } from "@automovie/engine";
+import {
+  deriveAutoMovieSemanticMask,
+  measureAutoMovieRenderInventory,
+} from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
-import { BOX_TRIANGLES, modelsFixture, sceneFixture } from "../internal/renderFixtures";
+
 import { renderBudgetSubjectFixture } from "../internal/renderBudgetSubjectFixture";
+import {
+  BOX_TRIANGLES,
+  modelsFixture,
+  sceneFixture,
+} from "../internal/renderFixtures";
 
 /**
  * An incomplete semantic palette cannot erase a staged node's resource cost.
@@ -18,10 +26,11 @@ import { renderBudgetSubjectFixture } from "../internal/renderBudgetSubjectFixtu
 export function test_render_budget_partial_mask(): void {
   const subject: typeof renderBudgetSubjectFixture = renderBudgetSubjectFixture;
 
-  const partial: ReturnType<typeof deriveAutoMovieSemanticMask> = deriveAutoMovieSemanticMask({
-    scene: { ...sceneFixture(), nodes: [sceneFixture().nodes[4]!] },
-    models: modelsFixture(),
-  });
+  const partial: ReturnType<typeof deriveAutoMovieSemanticMask> =
+    deriveAutoMovieSemanticMask({
+      scene: { ...sceneFixture(), nodes: [sceneFixture().nodes[4]!] },
+      models: modelsFixture(),
+    });
 
   TestValidator.equals(
     "a mask that does not cover a staged node still attributes its cost",
@@ -29,7 +38,11 @@ export function test_render_budget_partial_mask(): void {
       subject: subject(),
       mask: partial,
     }).owners.filter(
-      (entry: ReturnType<typeof measureAutoMovieRenderInventory>["owners"][number]): boolean =>
+      (
+        entry: ReturnType<
+          typeof measureAutoMovieRenderInventory
+        >["owners"][number],
+      ): boolean =>
         entry.metric === "triangles" && entry.owner.includes("hall-wall"),
     ),
     [

@@ -1,14 +1,39 @@
-import { filmEffectValuesClose } from "../internal/filmEffectValuesClose";
+import {
+  IAutoMovieDeliveryCrop,
+  IAutoMovieMotion,
+  IAutoMoviePoseKeypoint,
+  IAutoMovieScene,
+  IAutoMovieSequence,
+  IAutoMovieShot,
+  IAutoMovieSkeleton,
+  IAutoMovieTransform,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
 import { IAutoMoviePoseKeypointFrame } from "../../../../packages/render/src/IAutoMoviePoseKeypointFrame";
 import { IAutoMoviePoseKeypointSidecar } from "../../../../packages/render/src/IAutoMoviePoseKeypointSidecar";
-import { IAutoMovieSkeleton, IAutoMoviePoseKeypoint, IAutoMovieDeliveryCrop, IAutoMovieMotion, IAutoMovieScene, IAutoMovieSequence, IAutoMovieShot, IAutoMovieTransform } from "@automovie/interface";
 import { planPoseKeypointSidecar } from "../../../../packages/render/src/planPoseKeypointSidecar";
 import { renderPoseKeypointSidecar } from "../../../../packages/render/src/renderPoseKeypointSidecar";
-import { TestValidator } from "@nestia/e2e";
-import { createSkeleton, keyframe, makeMotion, makePose } from "../internal/fixtures";
+import { filmEffectValuesClose } from "../internal/filmEffectValuesClose";
+import {
+  createSkeleton,
+  keyframe,
+  makeMotion,
+  makePose,
+} from "../internal/fixtures";
 import { namedFacts, nclose, throwsError } from "../internal/predicates";
-const IDENTITY_Q: { x: number; y: number; z: number; w: number; } = { x: 0, y: 0, z: 0, w: 1 };
-const t3: (x: number, y: number, z: number) => IAutoMovieTransform = (x: number, y: number, z: number): IAutoMovieTransform => ({
+
+const IDENTITY_Q: { x: number; y: number; z: number; w: number } = {
+  x: 0,
+  y: 0,
+  z: 0,
+  w: 1,
+};
+const t3: (x: number, y: number, z: number) => IAutoMovieTransform = (
+  x: number,
+  y: number,
+  z: number,
+): IAutoMovieTransform => ({
   translation: { x, y, z },
   rotation: IDENTITY_Q,
   scale: { x: 1, y: 1, z: 1 },
@@ -17,7 +42,10 @@ const t3: (x: number, y: number, z: number) => IAutoMovieTransform = (x: number,
 const skeleton: IAutoMovieSkeleton = createSkeleton();
 
 /** A 1 s clip whose root travels from (x0,0,−5) to (x1,0,−5). */
-const travel: (x0: number, x1: number) => IAutoMovieMotion = (x0: number, x1: number): IAutoMovieMotion => ({
+const travel: (x0: number, x1: number) => IAutoMovieMotion = (
+  x0: number,
+  x1: number,
+): IAutoMovieMotion => ({
   ...makeMotion(
     [
       keyframe(0, makePose([], t3(x0, 0, -5))),
@@ -53,7 +81,9 @@ const scene: IAutoMovieScene = {
   lights: [],
 };
 
-const shot: (over?: Partial<IAutoMovieShot>) => IAutoMovieShot = (over: Partial<IAutoMovieShot> = {}): IAutoMovieShot => ({
+const shot: (over?: Partial<IAutoMovieShot>) => IAutoMovieShot = (
+  over: Partial<IAutoMovieShot> = {},
+): IAutoMovieShot => ({
   id: "shot:b1",
   name: null,
   scene: "scene-1",
@@ -72,7 +102,15 @@ const sequence: IAutoMovieSequence = {
   shots: [{ shot: "shot:b1", trim: null, transition: null }],
 };
 
-const plan: (over: { shots?: IAutoMovieShot[] | undefined; motion?: IAutoMovieMotion | undefined; scenes?: IAutoMovieScene[] | undefined; skeletons?: IAutoMovieSkeleton[] | undefined; fps?: number | undefined; sequence?: IAutoMovieSequence | undefined; crop?: IAutoMovieDeliveryCrop | undefined; }) => IAutoMoviePoseKeypointSidecar = (over: {
+const plan: (over: {
+  shots?: IAutoMovieShot[] | undefined;
+  motion?: IAutoMovieMotion | undefined;
+  scenes?: IAutoMovieScene[] | undefined;
+  skeletons?: IAutoMovieSkeleton[] | undefined;
+  fps?: number | undefined;
+  sequence?: IAutoMovieSequence | undefined;
+  crop?: IAutoMovieDeliveryCrop | undefined;
+}) => IAutoMoviePoseKeypointSidecar = (over: {
   shots?: IAutoMovieShot[];
   motion?: IAutoMovieMotion;
   scenes?: IAutoMovieScene[];
@@ -91,8 +129,16 @@ const plan: (over: { shots?: IAutoMovieShot[] | undefined; motion?: IAutoMovieMo
     crop: over.crop,
   });
 
-const hipsX: (frames: IAutoMoviePoseKeypointFrame[], frame: number) => number = (frames: ReturnType<typeof plan>["frames"], frame: number): number =>
-  frames[frame]!.actors[0]!.keypoints.find((k: IAutoMoviePoseKeypoint): boolean => k.bone === "hips")!.x;
+const hipsX: (
+  frames: IAutoMoviePoseKeypointFrame[],
+  frame: number,
+) => number = (
+  frames: ReturnType<typeof plan>["frames"],
+  frame: number,
+): number =>
+  frames[frame]!.actors[0]!.keypoints.find(
+    (k: IAutoMoviePoseKeypoint): boolean => k.bone === "hips",
+  )!.x;
 
 /**
  * `planPoseKeypointSidecar` (#1168) resolves a live shot and projects supported performing actors' named joints on each output frame. The selected moving actor changes between the two sampled frames, while the still actor stays centered; caption output uses run-length spans.
@@ -118,7 +164,11 @@ export function test_render_pose_keypoint_sidecar(): void {
   TestValidator.equals("frame count 2", still.frameCount, 2);
   TestValidator.equals(
     "both frames name beat b1 with one actor",
-    still.frames.map((f: IAutoMoviePoseKeypointFrame): (string | number)[] => [f.frame, f.beat, f.actors.length]),
+    still.frames.map((f: IAutoMoviePoseKeypointFrame): (string | number)[] => [
+      f.frame,
+      f.beat,
+      f.actors.length,
+    ]),
     [
       [0, "b1", 1],
       [1, "b1", 1],
@@ -142,26 +192,47 @@ export function test_render_pose_keypoint_sidecar(): void {
   });
   const croppedHips: IAutoMoviePoseKeypoint[] = cropped.frames.map(
     (frame: IAutoMoviePoseKeypointFrame): IAutoMoviePoseKeypoint =>
-      frame.actors[0]!.keypoints.find((keypoint: IAutoMoviePoseKeypoint): boolean => keypoint.bone === "hips")!,
+      frame.actors[0]!.keypoints.find(
+        (keypoint: IAutoMoviePoseKeypoint): boolean => keypoint.bone === "hips",
+      )!,
   );
   TestValidator.equals(
     "the sidecar preserves crop projection and exact boundary inclusion",
     namedFacts([
-      ["leftEdge", (): boolean => croppedHips.every((hips: IAutoMoviePoseKeypoint): boolean => nclose(hips.x, 0))],
+      [
+        "leftEdge",
+        (): boolean =>
+          croppedHips.every((hips: IAutoMoviePoseKeypoint): boolean =>
+            nclose(hips.x, 0),
+          ),
+      ],
       [
         "verticalParity",
         (): boolean =>
-          cropped.frames.every((frame: IAutoMoviePoseKeypointFrame, index: number): boolean => {
-            const hips: IAutoMoviePoseKeypoint = frame.actors[0]!.keypoints.find(
-              (keypoint: IAutoMoviePoseKeypoint): boolean => keypoint.bone === "hips",
-            )!;
-            const wholeHips: IAutoMoviePoseKeypoint = still.frames[index]!.actors[0]!.keypoints.find(
-              (keypoint: IAutoMoviePoseKeypoint): boolean => keypoint.bone === "hips",
-            )!;
-            return nclose(hips.y, wholeHips.y);
-          }),
+          cropped.frames.every(
+            (frame: IAutoMoviePoseKeypointFrame, index: number): boolean => {
+              const hips: IAutoMoviePoseKeypoint =
+                frame.actors[0]!.keypoints.find(
+                  (keypoint: IAutoMoviePoseKeypoint): boolean =>
+                    keypoint.bone === "hips",
+                )!;
+              const wholeHips: IAutoMoviePoseKeypoint = still.frames[
+                index
+              ]!.actors[0]!.keypoints.find(
+                (keypoint: IAutoMoviePoseKeypoint): boolean =>
+                  keypoint.bone === "hips",
+              )!;
+              return nclose(hips.y, wholeHips.y);
+            },
+          ),
       ],
-      ["inFrame", (): boolean => croppedHips.every((hips: IAutoMoviePoseKeypoint): boolean => hips.inFrame)],
+      [
+        "inFrame",
+        (): boolean =>
+          croppedHips.every(
+            (hips: IAutoMoviePoseKeypoint): boolean => hips.inFrame,
+          ),
+      ],
     ]),
     { leftEdge: true, verticalParity: true, inFrame: true },
   );
@@ -171,7 +242,10 @@ export function test_render_pose_keypoint_sidecar(): void {
   TestValidator.equals(
     "a travelling hips is centered on frame 0 and right of center on frame 1",
     namedFacts([
-      ["ncloseHipsXMoving", (): boolean => nclose(hipsX(moving.frames, 0), 0.5)],
+      [
+        "ncloseHipsXMoving",
+        (): boolean => nclose(hipsX(moving.frames, 0), 0.5),
+      ],
       ["hipsXMovingFrames", (): boolean => hipsX(moving.frames, 1) > 0.55],
     ]),
     { ncloseHipsXMoving: true, hipsXMovingFrames: true },
@@ -258,7 +332,10 @@ export function test_render_pose_keypoint_sidecar(): void {
     renderPoseKeypointSidecar(still),
     text,
   );
-  TestValidator.predicate("serialization round-trips", filmEffectValuesClose(JSON.parse(text), still));
+  TestValidator.predicate(
+    "serialization round-trips",
+    filmEffectValuesClose(JSON.parse(text), still),
+  );
 
   // 7. guard throws, aligned with the render/caption planners.
   TestValidator.predicate(
@@ -267,7 +344,10 @@ export function test_render_pose_keypoint_sidecar(): void {
   );
   TestValidator.predicate(
     "non-finite fps throws",
-    throwsError((): IAutoMoviePoseKeypointSidecar => plan({ fps: Number.NaN }), "fps"),
+    throwsError(
+      (): IAutoMoviePoseKeypointSidecar => plan({ fps: Number.NaN }),
+      "fps",
+    ),
   );
   TestValidator.predicate(
     "zero output frames throws",

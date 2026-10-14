@@ -1,17 +1,20 @@
 import { IAutoMovieScript } from "@automovie/interface";
-import { IAutoMovieCaptionEntry, IAutoMovieCaptionSidecar } from "@automovie/render";
-import { planCaptionSidecar } from "../../../../packages/render/src/planCaptionSidecar";
-import { renderCaptionSidecar } from "../../../../packages/render/src/renderCaptionSidecar";
+import {
+  IAutoMovieCaptionEntry,
+  IAutoMovieCaptionSidecar,
+} from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
-import { throwsError } from "../internal/predicates";
-import { TREE_SCRIPT } from "../internal/TREE_SCRIPT";
-import { screenplayBeat } from "../internal/screenplayBeat";
-import { screenplayNode } from "../internal/screenplayNode";
+import { planCaptionSidecar } from "../../../../packages/render/src/planCaptionSidecar";
+import { renderCaptionSidecar } from "../../../../packages/render/src/renderCaptionSidecar";
 import { CAPTION_SEQUENCE } from "../internal/CAPTION_SEQUENCE";
 import { CAPTION_SHOTS } from "../internal/CAPTION_SHOTS";
+import { TREE_SCRIPT } from "../internal/TREE_SCRIPT";
 import { createCaptionShot as shot } from "../internal/createCaptionShot";
 import { nclose } from "../internal/nclose";
+import { throwsError } from "../internal/predicates";
+import { screenplayBeat } from "../internal/screenplayBeat";
+import { screenplayNode } from "../internal/screenplayNode";
 
 /**
  * The caption sidecar: the cut lands on the frame-atomic output clock, each
@@ -72,7 +75,13 @@ export function test_render_caption_sidecar(): void {
   });
   TestValidator.equals(
     "treeless spans null caption and slug",
-    treeless.entries.map((e: IAutoMovieCaptionEntry): Array<string | null> => [e.beat, e.caption, e.slug]),
+    treeless.entries.map(
+      (e: IAutoMovieCaptionEntry): Array<string | null> => [
+        e.beat,
+        e.caption,
+        e.slug,
+      ],
+    ),
     [
       ["duel", null, null],
       ["aftermath", null, null],
@@ -95,7 +104,9 @@ export function test_render_caption_sidecar(): void {
   });
   TestValidator.equals(
     "an empty tree (no root to walk) captions null",
-    emptyTree.entries.map((e: IAutoMovieCaptionEntry): Array<string | null> => [e.caption, e.slug]),
+    emptyTree.entries.map(
+      (e: IAutoMovieCaptionEntry): Array<string | null> => [e.caption, e.slug],
+    ),
     [
       [null, null],
       [null, null],
@@ -104,7 +115,9 @@ export function test_render_caption_sidecar(): void {
 
   TestValidator.equals(
     "absent tree (legacy shape) behaves as treeless",
-    absent.entries.map((e: IAutoMovieCaptionEntry): Array<string | null> => [e.caption, e.slug]),
+    absent.entries.map(
+      (e: IAutoMovieCaptionEntry): Array<string | null> => [e.caption, e.slug],
+    ),
     [
       [null, null],
       [null, null],
@@ -171,9 +184,18 @@ export function test_render_caption_sidecar(): void {
     renderCaptionSidecar(sidecar),
     text,
   );
-  const decoded: IAutoMovieCaptionSidecar = JSON.parse(text) as IAutoMovieCaptionSidecar;
-  TestValidator.equals("serialization round-trips", { ...decoded, fps: sidecar.fps }, sidecar);
-  TestValidator.predicate("serialized clock round-trips", nclose(decoded.fps, sidecar.fps));
+  const decoded: IAutoMovieCaptionSidecar = JSON.parse(
+    text,
+  ) as IAutoMovieCaptionSidecar;
+  TestValidator.equals(
+    "serialization round-trips",
+    { ...decoded, fps: sidecar.fps },
+    sidecar,
+  );
+  TestValidator.predicate(
+    "serialized clock round-trips",
+    nclose(decoded.fps, sidecar.fps),
+  );
 
   TestValidator.predicate(
     "zero fps throws",

@@ -1,13 +1,16 @@
-import { IAutoMovieCaptionEntry, IAutoMovieCaptionSidecar } from "@automovie/render";
-import { planCaptionSidecar } from "../../../../packages/render/src/planCaptionSidecar";
-import { sliceCaptionSidecar } from "../../../../packages/render/src/sliceCaptionSidecar";
+import {
+  IAutoMovieCaptionEntry,
+  IAutoMovieCaptionSidecar,
+} from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
-import { throwsError } from "../internal/predicates";
+import { planCaptionSidecar } from "../../../../packages/render/src/planCaptionSidecar";
+import { sliceCaptionSidecar } from "../../../../packages/render/src/sliceCaptionSidecar";
 import { CAPTION_SEQUENCE } from "../internal/CAPTION_SEQUENCE";
 import { CAPTION_SHOTS } from "../internal/CAPTION_SHOTS";
 import { TREE_SCRIPT } from "../internal/TREE_SCRIPT";
 import { nclose } from "../internal/nclose";
+import { throwsError } from "../internal/predicates";
 
 const whole: () => IAutoMovieCaptionSidecar = (): IAutoMovieCaptionSidecar =>
   planCaptionSidecar({
@@ -42,30 +45,44 @@ export function test_render_caption_slice(): void {
   const sidecar: IAutoMovieCaptionSidecar = whole();
 
   const middle: IAutoMovieCaptionSidecar = sliceCaptionSidecar(sidecar, 1, 5);
-  TestValidator.equals("middle window re-bases", { ...middle, fps: 4 }, {
-    target: "seq:duel",
-    fps: 4,
-    frameCount: 4,
-    entries: [
-      {
-        frameStart: 0,
-        frameEnd: 1,
-        beat: "duel",
-        caption: "two knights clash at dawn",
-        slug: "EXT. CASTLE COURTYARD - DAWN",
-      },
-      {
-        frameStart: 1,
-        frameEnd: 4,
-        beat: "aftermath",
-        caption: null,
-        slug: "EXT. CASTLE COURTYARD - DAWN",
-      },
-    ],
-  });
+  TestValidator.equals(
+    "middle window re-bases",
+    { ...middle, fps: 4 },
+    {
+      target: "seq:duel",
+      fps: 4,
+      frameCount: 4,
+      entries: [
+        {
+          frameStart: 0,
+          frameEnd: 1,
+          beat: "duel",
+          caption: "two knights clash at dawn",
+          slug: "EXT. CASTLE COURTYARD - DAWN",
+        },
+        {
+          frameStart: 1,
+          frameEnd: 4,
+          beat: "aftermath",
+          caption: null,
+          slug: "EXT. CASTLE COURTYARD - DAWN",
+        },
+      ],
+    },
+  );
   TestValidator.predicate("middle clock", nclose(middle.fps, 4));
   TestValidator.equals("middle frame count", middle.frameCount, 4);
-  TestValidator.equals("middle exact intervals", middle.entries.map((entry: IAutoMovieCaptionEntry): [number, number] => [entry.frameStart, entry.frameEnd]), [[0, 1], [1, 4]]);
+  TestValidator.equals(
+    "middle exact intervals",
+    middle.entries.map((entry: IAutoMovieCaptionEntry): [number, number] => [
+      entry.frameStart,
+      entry.frameEnd,
+    ]),
+    [
+      [0, 1],
+      [1, 4],
+    ],
+  );
 
   const full: IAutoMovieCaptionSidecar = sliceCaptionSidecar(sidecar, 0, 10);
   TestValidator.equals(
@@ -79,7 +96,13 @@ export function test_render_caption_slice(): void {
   TestValidator.equals("clamps to frameCount", beyond.frameCount, 2);
   TestValidator.equals(
     "clamped entries re-based",
-    beyond.entries.map((e: IAutoMovieCaptionEntry): [number, number, string] => [e.frameStart, e.frameEnd, e.beat]),
+    beyond.entries.map(
+      (e: IAutoMovieCaptionEntry): [number, number, string] => [
+        e.frameStart,
+        e.frameEnd,
+        e.beat,
+      ],
+    ),
     [[0, 2, "aftermath"]],
   );
 
@@ -92,19 +115,31 @@ export function test_render_caption_slice(): void {
 
   TestValidator.predicate(
     "non-integer frameStart throws",
-    throwsError((): IAutoMovieCaptionSidecar => sliceCaptionSidecar(sidecar, 0.5, 5), "frameStart"),
+    throwsError(
+      (): IAutoMovieCaptionSidecar => sliceCaptionSidecar(sidecar, 0.5, 5),
+      "frameStart",
+    ),
   );
   TestValidator.predicate(
     "negative frameStart throws",
-    throwsError((): IAutoMovieCaptionSidecar => sliceCaptionSidecar(sidecar, -1, 5), "frameStart"),
+    throwsError(
+      (): IAutoMovieCaptionSidecar => sliceCaptionSidecar(sidecar, -1, 5),
+      "frameStart",
+    ),
   );
   TestValidator.predicate(
     "inverted window throws",
-    throwsError((): IAutoMovieCaptionSidecar => sliceCaptionSidecar(sidecar, 5, 5), "frameEnd"),
+    throwsError(
+      (): IAutoMovieCaptionSidecar => sliceCaptionSidecar(sidecar, 5, 5),
+      "frameEnd",
+    ),
   );
   TestValidator.predicate(
     "non-integer frameEnd throws",
-    throwsError((): IAutoMovieCaptionSidecar => sliceCaptionSidecar(sidecar, 1, 5.5), "frameEnd"),
+    throwsError(
+      (): IAutoMovieCaptionSidecar => sliceCaptionSidecar(sidecar, 1, 5.5),
+      "frameEnd",
+    ),
   );
   // A window whose start is AT the coverage end (frameStart == frameCount) or
   // beyond it asks for frames the sidecar does not have: the render/caption

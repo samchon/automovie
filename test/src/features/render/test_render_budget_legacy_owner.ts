@@ -1,9 +1,10 @@
 import { TestValidator } from "@nestia/e2e";
-import { renderBudgetTargetFixture } from "../internal/renderBudgetTargetFixture";
-import { renderBudgetSubjectFixture } from "../internal/renderBudgetSubjectFixture";
-import { renderReportBudgetFixture } from "../internal/renderReportBudgetFixture";
-import { measureRenderBudgetSubject as measure } from "../internal/measureRenderBudgetSubject";
+
 import { evaluateRenderBudgetFixture as report } from "../internal/evaluateRenderBudgetFixture";
+import { measureRenderBudgetSubject as measure } from "../internal/measureRenderBudgetSubject";
+import { renderBudgetSubjectFixture } from "../internal/renderBudgetSubjectFixture";
+import { renderBudgetTargetFixture } from "../internal/renderBudgetTargetFixture";
+import { renderReportBudgetFixture } from "../internal/renderReportBudgetFixture";
 
 /**
  * Legacy and explicit own rows retain additive editable-owner accounting.
@@ -18,9 +19,11 @@ import { evaluateRenderBudgetFixture as report } from "../internal/evaluateRende
  * @evidence contracts/testing.md#execution-ownership The named test_render_budget_legacy_owner owns one portable CPU report case over caller-built inventory rows and acquires no renderer, file or native host.
  */
 export function test_render_budget_legacy_owner(): void {
-  const target: ReturnType<typeof renderBudgetTargetFixture> = renderBudgetTargetFixture();
+  const target: ReturnType<typeof renderBudgetTargetFixture> =
+    renderBudgetTargetFixture();
   const subject: typeof renderBudgetSubjectFixture = renderBudgetSubjectFixture;
-  const budget: ReturnType<typeof renderReportBudgetFixture> = renderReportBudgetFixture();
+  const budget: ReturnType<typeof renderReportBudgetFixture> =
+    renderReportBudgetFixture();
 
   const inventory: ReturnType<typeof measure> = measure(subject());
 
@@ -47,7 +50,10 @@ export function test_render_budget_legacy_owner(): void {
       },
       { ...budget, limits: { triangles: 1 } },
       target,
-    ).findings.find((finding: ReturnType<typeof report>["findings"][number]): boolean => finding.metric === "triangles")!.contributors,
+    ).findings.find(
+      (finding: ReturnType<typeof report>["findings"][number]): boolean =>
+        finding.metric === "triangles",
+    )!.contributors,
     [{ owner: "node:lantern", source: 'scene.nodes["lantern"]', cost: 12 }],
   );
 }

@@ -1,9 +1,27 @@
-import { TypedArray, Document, Material, Primitive, Accessor, GLTF, NodeIO } from "@gltf-transform/core";
-import { IAutoMovieVector3, IAutoMovieMaterial, IAutoMovieModel } from "@automovie/interface";
-import { exportModelToGLB } from "../../../../packages/render/src/node/exportModelToGLB";
+import {
+  IAutoMovieMaterial,
+  IAutoMovieModel,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  Accessor,
+  Document,
+  GLTF,
+  Material,
+  NodeIO,
+  Primitive,
+  TypedArray,
+} from "@gltf-transform/core";
 import { TestValidator } from "@nestia/e2e";
+
+import { exportModelToGLB } from "../../../../packages/render/src/node/exportModelToGLB";
 import { nclose, vclose } from "../internal/predicates";
-const material: (id: string, opacity: number, a: number | null) => IAutoMovieMaterial = (
+
+const material: (
+  id: string,
+  opacity: number,
+  a: number | null,
+) => IAutoMovieMaterial = (
   id: string,
   opacity: number,
   a: number | null,
@@ -18,7 +36,9 @@ const material: (id: string, opacity: number, a: number | null) => IAutoMovieMat
   baseColorTexture: null,
 });
 
-const model: (over: Partial<IAutoMovieModel>) => IAutoMovieModel = (over: Partial<IAutoMovieModel>): IAutoMovieModel => ({
+const model: (over: Partial<IAutoMovieModel>) => IAutoMovieModel = (
+  over: Partial<IAutoMovieModel>,
+): IAutoMovieModel => ({
   id: "fidelity",
   name: null,
   origin: "generated",
@@ -61,7 +81,10 @@ export async function test_render_export_viewer_fidelity(): Promise<void> {
     doc
       .getRoot()
       .listMaterials()
-      .map((m: Material): [string, number] => [m.getName(), m.getBaseColorFactor()[3]]),
+      .map((m: Material): [string, number] => [
+        m.getName(),
+        m.getBaseColorFactor()[3],
+      ]),
   );
   TestValidator.predicate(
     "a null-alpha translucent material exports its opacity",
@@ -102,18 +125,25 @@ export async function test_render_export_viewer_fidelity(): Promise<void> {
     }),
   );
   const smoothDoc: Document = await new NodeIO().readBinary(smooth);
-  const prim: Primitive = smoothDoc.getRoot().listMeshes()[0]!.listPrimitives()[0]!;
+  const prim: Primitive = smoothDoc
+    .getRoot()
+    .listMeshes()[0]!
+    .listPrimitives()[0]!;
   const normals: Accessor | null = prim.getAttribute("NORMAL");
   if (normals === null) throw new Error("indexed mesh must export NORMAL");
   const array: TypedArray = normals.getArray()!;
-  const normalAt: (v: number) => IAutoMovieVector3 = (v: number): IAutoMovieVector3 => ({
+  const normalAt: (v: number) => IAutoMovieVector3 = (
+    v: number,
+  ): IAutoMovieVector3 => ({
     x: array[v * 3]!,
     y: array[v * 3 + 1]!,
     z: array[v * 3 + 2]!,
   });
   TestValidator.predicate(
     "every referenced vertex carries the smooth +Z normal",
-    [0, 1, 2, 3].every((v: number): boolean => vclose(normalAt(v), { x: 0, y: 0, z: 1 })),
+    [0, 1, 2, 3].every((v: number): boolean =>
+      vclose(normalAt(v), { x: 0, y: 0, z: 1 }),
+    ),
   );
   TestValidator.predicate(
     "an unreferenced vertex keeps the zero normal, never NaN",
@@ -160,7 +190,11 @@ export async function test_render_export_viewer_fidelity(): Promise<void> {
     await exportModelToGLB(
       model({
         materials: [
-          { ...material("cutout", 1, null), alphaMode: "mask", alphaCutoff: 0.3 },
+          {
+            ...material("cutout", 1, null),
+            alphaMode: "mask",
+            alphaCutoff: 0.3,
+          },
           { ...material("defaultCutout", 1, null), alphaMode: "mask" },
           { ...material("forcedOpaque", 0.5, null), alphaMode: "opaque" },
           material("legacyBlend", 0.5, null),
@@ -179,10 +213,15 @@ export async function test_render_export_viewer_fidelity(): Promise<void> {
   TestValidator.equals(
     "alpha mode and sidedness match the viewer's material rule",
     Object.fromEntries(
-      [...exported].map(([name, m]: [string, Material]): [string, { alphaMode: GLTF.MaterialAlphaMode; doubleSided: boolean; }] => [
-        name,
-        { alphaMode: m.getAlphaMode(), doubleSided: m.getDoubleSided() },
-      ]),
+      [...exported].map(
+        ([name, m]: [string, Material]): [
+          string,
+          { alphaMode: GLTF.MaterialAlphaMode; doubleSided: boolean },
+        ] => [
+          name,
+          { alphaMode: m.getAlphaMode(), doubleSided: m.getDoubleSided() },
+        ],
+      ),
     ),
     {
       cutout: { alphaMode: "MASK", doubleSided: false },

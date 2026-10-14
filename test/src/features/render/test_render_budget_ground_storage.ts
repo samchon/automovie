@@ -1,6 +1,7 @@
 import { TestValidator } from "@nestia/e2e";
-import { modelsFixture, sceneFixture } from "../internal/renderFixtures";
+
 import { measureRenderBudgetSubject as measure } from "../internal/measureRenderBudgetSubject";
+import { modelsFixture, sceneFixture } from "../internal/renderFixtures";
 
 /**
  * Standable ground pays for its tessellated geometry while a zero-area footprint emits none.
@@ -63,7 +64,8 @@ export function test_render_budget_ground_storage(): void {
       geometryBytes: grounded.totals.geometryBytes,
       nodes: grounded.totals.nodes,
       owner: grounded.owners.find(
-        (entry: ReturnType<typeof measure>["owners"][number]): boolean => entry.metric === "triangles" && entry.owner === "node:yard",
+        (entry: ReturnType<typeof measure>["owners"][number]): boolean =>
+          entry.metric === "triangles" && entry.owner === "node:yard",
       )?.source,
     },
     {

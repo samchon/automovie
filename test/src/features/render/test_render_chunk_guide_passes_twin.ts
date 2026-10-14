@@ -11,7 +11,10 @@ import { TestValidator } from "@nestia/e2e";
 
 import { filmEffectValuesClose } from "../internal/filmEffectValuesClose";
 
-const shot: (id: string, duration: number) => IAutoMovieShot = (id: string, duration: number): IAutoMovieShot => ({
+const shot: (id: string, duration: number) => IAutoMovieShot = (
+  id: string,
+  duration: number,
+): IAutoMovieShot => ({
   id,
   name: null,
   scene: "scene-duel",
@@ -63,17 +66,19 @@ export function test_render_chunk_guide_passes_twin(): void {
     shots: SHOTS,
     spec: SPEC,
   });
-  const bare: ReturnType<typeof planChunkedSequenceRender> = planChunkedSequenceRender({
-    plan: whole,
-    spec: SPEC,
-    chunkFrames: 3,
-  });
-  const explicit: ReturnType<typeof planChunkedSequenceRender> = planChunkedSequenceRender({
-    plan: whole,
-    spec: SPEC,
-    chunkFrames: 3,
-    passes: undefined,
-  });
+  const bare: ReturnType<typeof planChunkedSequenceRender> =
+    planChunkedSequenceRender({
+      plan: whole,
+      spec: SPEC,
+      chunkFrames: 3,
+    });
+  const explicit: ReturnType<typeof planChunkedSequenceRender> =
+    planChunkedSequenceRender({
+      plan: whole,
+      spec: SPEC,
+      chunkFrames: 3,
+      passes: undefined,
+    });
 
   TestValidator.predicate(
     "undefined passes deep-equals the bare plan",
@@ -81,18 +86,45 @@ export function test_render_chunk_guide_passes_twin(): void {
   );
   TestValidator.equals(
     "undefined passes preserve exact frame counts and indices",
-    [explicit.frameCount, explicit.chunkFrames, explicit.chunkCount,
-      ...explicit.chunks.flatMap((chunk: typeof explicit.chunks[number]): number[] =>
-        [chunk.index, chunk.frameStart, chunk.frameEnd, chunk.frameCount,
-          ...chunk.frames.map((frame: typeof chunk.frames[number]): number => frame.index)])],
-    [bare.frameCount, bare.chunkFrames, bare.chunkCount,
-      ...bare.chunks.flatMap((chunk: typeof bare.chunks[number]): number[] =>
-        [chunk.index, chunk.frameStart, chunk.frameEnd, chunk.frameCount,
-          ...chunk.frames.map((frame: typeof chunk.frames[number]): number => frame.index)])],
+    [
+      explicit.frameCount,
+      explicit.chunkFrames,
+      explicit.chunkCount,
+      ...explicit.chunks.flatMap(
+        (chunk: (typeof explicit.chunks)[number]): number[] => [
+          chunk.index,
+          chunk.frameStart,
+          chunk.frameEnd,
+          chunk.frameCount,
+          ...chunk.frames.map(
+            (frame: (typeof chunk.frames)[number]): number => frame.index,
+          ),
+        ],
+      ),
+    ],
+    [
+      bare.frameCount,
+      bare.chunkFrames,
+      bare.chunkCount,
+      ...bare.chunks.flatMap(
+        (chunk: (typeof bare.chunks)[number]): number[] => [
+          chunk.index,
+          chunk.frameStart,
+          chunk.frameEnd,
+          chunk.frameCount,
+          ...chunk.frames.map(
+            (frame: (typeof chunk.frames)[number]): number => frame.index,
+          ),
+        ],
+      ),
+    ],
   );
   TestValidator.equals(
     "no chunk carries the passOutputs key",
-    bare.chunks.every((chunk: typeof bare.chunks[number]): boolean => !("passOutputs" in chunk)),
+    bare.chunks.every(
+      (chunk: (typeof bare.chunks)[number]): boolean =>
+        !("passOutputs" in chunk),
+    ),
     true,
   );
   TestValidator.equals(

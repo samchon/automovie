@@ -4,8 +4,9 @@ import {
   IAutoMovieRenderAndSeeRequest,
   IAutoMovieRenderAndSeeResult,
 } from "@automovie/render";
-import { renderAndSee } from "../../../../packages/render/src/renderAndSee";
 import { TestValidator } from "@nestia/e2e";
+
+import { renderAndSee } from "../../../../packages/render/src/renderAndSee";
 import { filmEffectValuesClose } from "../internal/filmEffectValuesClose";
 import { nclose } from "../internal/nclose";
 
@@ -37,7 +38,11 @@ export async function test_render_and_see(): Promise<void> {
     [];
   const encoded: Array<{ args: string[]; outputPath: string }> = [];
   const adapters: IAutoMovieRenderAdapters = {
-    captureFrame: async (timeSeconds: number, index: number, dir: string): Promise<string> => {
+    captureFrame: async (
+      timeSeconds: number,
+      index: number,
+      dir: string,
+    ): Promise<string> => {
       captured.push({ timeSeconds, index, dir });
       return `${dir}/frame-${index}.png`;
     },
@@ -55,29 +60,61 @@ export async function test_render_and_see(): Promise<void> {
   };
   const result: IAutoMovieRenderAndSeeResult = await renderAndSee(request);
 
-  TestValidator.predicate("spec snapshot", filmEffectValuesClose(result.spec, SPEC));
-  TestValidator.predicate("duration reported", nclose(result.durationSeconds, 0.5));
+  TestValidator.predicate(
+    "spec snapshot",
+    filmEffectValuesClose(result.spec, SPEC),
+  );
+  TestValidator.predicate(
+    "duration reported",
+    nclose(result.durationSeconds, 0.5),
+  );
   TestValidator.equals("output path", result.output, "out/shot-1.mp4");
   TestValidator.equals("frame count", result.frameCount, 2);
-  TestValidator.predicate("sample times", filmEffectValuesClose(result.times, [0, 0.25]));
-  TestValidator.predicate("captured calls", filmEffectValuesClose(captured, [
-    { timeSeconds: 0, index: 0, dir: "frames/shot-1" },
-    { timeSeconds: 0.25, index: 1, dir: "frames/shot-1" },
-  ]));
-  TestValidator.equals("capture indices and directories", captured.map((call: (typeof captured)[number]): [number, string] => [call.index, call.dir]), [[0, "frames/shot-1"], [1, "frames/shot-1"]]);
-  TestValidator.predicate("frame artifacts", filmEffectValuesClose(result.frames, [
-    {
-      index: 0,
-      timeSeconds: 0,
-      path: "frames/shot-1/frame-0.png",
-    },
-    {
-      index: 1,
-      timeSeconds: 0.25,
-      path: "frames/shot-1/frame-1.png",
-    },
-  ]));
-  TestValidator.equals("frame indices", result.frames.map((frame: IAutoMovieRenderAndSeeResult["frames"][number]): number => frame.index), [0, 1]);
+  TestValidator.predicate(
+    "sample times",
+    filmEffectValuesClose(result.times, [0, 0.25]),
+  );
+  TestValidator.predicate(
+    "captured calls",
+    filmEffectValuesClose(captured, [
+      { timeSeconds: 0, index: 0, dir: "frames/shot-1" },
+      { timeSeconds: 0.25, index: 1, dir: "frames/shot-1" },
+    ]),
+  );
+  TestValidator.equals(
+    "capture indices and directories",
+    captured.map((call: (typeof captured)[number]): [number, string] => [
+      call.index,
+      call.dir,
+    ]),
+    [
+      [0, "frames/shot-1"],
+      [1, "frames/shot-1"],
+    ],
+  );
+  TestValidator.predicate(
+    "frame artifacts",
+    filmEffectValuesClose(result.frames, [
+      {
+        index: 0,
+        timeSeconds: 0,
+        path: "frames/shot-1/frame-0.png",
+      },
+      {
+        index: 1,
+        timeSeconds: 0.25,
+        path: "frames/shot-1/frame-1.png",
+      },
+    ]),
+  );
+  TestValidator.equals(
+    "frame indices",
+    result.frames.map(
+      (frame: IAutoMovieRenderAndSeeResult["frames"][number]): number =>
+        frame.index,
+    ),
+    [0, 1],
+  );
   TestValidator.equals(
     "input pattern",
     result.inputPattern,
@@ -91,6 +128,9 @@ export async function test_render_and_see(): Promise<void> {
   );
   TestValidator.predicate(
     "json artifact round trip",
-    filmEffectValuesClose(JSON.parse(JSON.stringify(result)) as unknown, result),
+    filmEffectValuesClose(
+      JSON.parse(JSON.stringify(result)) as unknown,
+      result,
+    ),
   );
 }

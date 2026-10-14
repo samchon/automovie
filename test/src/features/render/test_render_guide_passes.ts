@@ -1,12 +1,14 @@
 import { AutoMovieGuidePass } from "@automovie/interface";
-import { IAutoMovieGuidePassOutput } from "../../../../packages/render/src/IAutoMovieGuidePassOutput";
+import { TestValidator } from "@nestia/e2e";
+
 import { AUTOMOVIE_GUIDE_PASSES } from "../../../../packages/render/src/AUTOMOVIE_GUIDE_PASSES";
+import { IAutoMovieGuidePassOutput } from "../../../../packages/render/src/IAutoMovieGuidePassOutput";
 import { guidePassFrameName } from "../../../../packages/render/src/guidePassFrameName";
 import { guidePassFramePattern } from "../../../../packages/render/src/guidePassFramePattern";
 import { isGuidePass } from "../../../../packages/render/src/isGuidePass";
 import { planGuidePassOutputs } from "../../../../packages/render/src/planGuidePassOutputs";
-import { TestValidator } from "@nestia/e2e";
 import { throwsError } from "../internal/predicates";
+
 /**
  * Guide passes make one deterministic frame schedule yield several diffusion-conditioning outputs: the beauty pass keeps the plain frame name so a single-pass render stays byte-compatible with every existing plan, and any other pass tags the filename before the extension, so pass outputs coexist in one frame directory and compose unchanged with chunking (#609).
  *
@@ -65,7 +67,9 @@ export function test_render_guide_passes(): void {
   });
   TestValidator.equals(
     "duplicates fold, first occurrence wins the order",
-    outputs.map((output: IAutoMovieGuidePassOutput): AutoMovieGuidePass => output.pass),
+    outputs.map(
+      (output: IAutoMovieGuidePassOutput): AutoMovieGuidePass => output.pass,
+    ),
     ["depth", "beauty", "pose"],
   );
   TestValidator.equals(
@@ -104,7 +108,8 @@ export function test_render_guide_passes(): void {
   TestValidator.predicate(
     "zero frame count throws",
     throwsError(
-      (): IAutoMovieGuidePassOutput[] => planGuidePassOutputs({ frameDir: "d", frameCount: 0, passes: [] }),
+      (): IAutoMovieGuidePassOutput[] =>
+        planGuidePassOutputs({ frameDir: "d", frameCount: 0, passes: [] }),
       "positive integer",
     ),
   );

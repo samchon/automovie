@@ -1,14 +1,32 @@
-import { Document, Root, Node, Mesh, Primitive, Material, NodeIO } from "@gltf-transform/core";
-import { IAutoMovieBone, IAutoMovieModelPart, IAutoMovieModel, IAutoMovieTransform } from "@automovie/interface";
-import { exportModelToGLB } from "../../../../packages/render/src/node/exportModelToGLB";
+import {
+  IAutoMovieBone,
+  IAutoMovieModel,
+  IAutoMovieModelPart,
+  IAutoMovieTransform,
+} from "@automovie/interface";
+import {
+  Document,
+  Material,
+  Mesh,
+  Node,
+  NodeIO,
+  Primitive,
+  Root,
+} from "@gltf-transform/core";
 import { TestValidator } from "@nestia/e2e";
+
+import { exportModelToGLB } from "../../../../packages/render/src/node/exportModelToGLB";
+
 const T: () => IAutoMovieTransform = (): IAutoMovieTransform => ({
   translation: { x: 0, y: 1, z: 0 },
   rotation: { x: 0, y: 0, z: 0, w: 1 },
   scale: { x: 1, y: 1, z: 1 },
 });
 
-const rejectsError: (task: () => Promise<unknown>, messageIncludes: string) => Promise<boolean> = async (
+const rejectsError: (
+  task: () => Promise<unknown>,
+  messageIncludes: string,
+) => Promise<boolean> = async (
   task: () => Promise<unknown>,
   messageIncludes: string,
 ): Promise<boolean> => {
@@ -173,12 +191,16 @@ export async function test_render_export_glb(): Promise<void> {
     charRoot.listMaterials().length,
     1,
   );
-  const hips: Node = charRoot.listNodes().find((n: Node): boolean => n.getName() === "hips")!;
+  const hips: Node = charRoot
+    .listNodes()
+    .find((n: Node): boolean => n.getName() === "hips")!;
   TestValidator.predicate(
     "spine is parented under hips",
     hips.listChildren().some((c: Node): boolean => c.getName() === "spine"),
   );
-  const headMesh: Mesh = charRoot.listMeshes().find((m: Mesh): boolean => m.getName() === "head")!;
+  const headMesh: Mesh = charRoot
+    .listMeshes()
+    .find((m: Mesh): boolean => m.getName() === "head")!;
   const headPrim: Primitive = headMesh.listPrimitives()[0]!;
   TestValidator.predicate(
     "head primitive has POSITION",
@@ -205,7 +227,9 @@ export async function test_render_export_glb(): Promise<void> {
     objRoot.listNodes().length,
     2,
   );
-  const triMesh: Mesh = objRoot.listMeshes().find((m: Mesh): boolean => m.getName() === "tri")!;
+  const triMesh: Mesh = objRoot
+    .listMeshes()
+    .find((m: Mesh): boolean => m.getName() === "tri")!;
   const tri: Primitive = triMesh.listPrimitives()[0]!;
   TestValidator.predicate(
     "raw mesh has POSITION",
@@ -237,8 +261,9 @@ export async function test_render_export_glb(): Promise<void> {
           ...CHARACTER,
           skeleton: {
             ...CHARACTER.skeleton!,
-            bones: CHARACTER.skeleton!.bones.map((bone: IAutoMovieBone): IAutoMovieBone =>
-              bone.bone === "spine" ? { ...bone, parent: "leftHand" } : bone,
+            bones: CHARACTER.skeleton!.bones.map(
+              (bone: IAutoMovieBone): IAutoMovieBone =>
+                bone.bone === "spine" ? { ...bone, parent: "leftHand" } : bone,
             ),
           },
         }),
@@ -252,8 +277,9 @@ export async function test_render_export_glb(): Promise<void> {
       (): Promise<Uint8Array<ArrayBufferLike>> =>
         exportModelToGLB({
           ...CHARACTER,
-          parts: CHARACTER.parts.map((part: IAutoMovieModelPart): IAutoMovieModelPart =>
-            part.id === "head" ? { ...part, attachedBone: "leftHand" } : part,
+          parts: CHARACTER.parts.map(
+            (part: IAutoMovieModelPart): IAutoMovieModelPart =>
+              part.id === "head" ? { ...part, attachedBone: "leftHand" } : part,
           ),
         }),
       'part "head" references missing attachedBone "leftHand"',
@@ -266,8 +292,9 @@ export async function test_render_export_glb(): Promise<void> {
       (): Promise<Uint8Array<ArrayBufferLike>> =>
         exportModelToGLB({
           ...CHARACTER,
-          parts: CHARACTER.parts.map((part: IAutoMovieModelPart): IAutoMovieModelPart =>
-            part.id === "head" ? { ...part, material: "missing" } : part,
+          parts: CHARACTER.parts.map(
+            (part: IAutoMovieModelPart): IAutoMovieModelPart =>
+              part.id === "head" ? { ...part, material: "missing" } : part,
           ),
         }),
       'part "head" references missing material "missing"',

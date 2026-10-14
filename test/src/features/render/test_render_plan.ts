@@ -1,11 +1,13 @@
 import { IAutoMovieRenderSpec } from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
 import { ffmpegArgs } from "../../../../packages/render/src/ffmpegArgs";
 import { frameName } from "../../../../packages/render/src/frameName";
 import { framePattern } from "../../../../packages/render/src/framePattern";
 import { frameTimes } from "../../../../packages/render/src/frameTimes";
 import { renderPathStem } from "../../../../packages/render/src/renderPathStem";
-import { TestValidator } from "@nestia/e2e";
 import { nclose } from "../internal/predicates";
+
 const SPEC: IAutoMovieRenderSpec = {
   target: "shot-1",
   frameFormat: { fps: 30, width: 1920, height: 1080 },

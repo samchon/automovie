@@ -1,8 +1,10 @@
-import { IAutoMovieModel, IAutoMovieMaterial } from "@automovie/interface";
-import { resolveAutoMovieMaterial } from "../../../../packages/engine/src/render/resolveAutoMovieMaterial";
+import { IAutoMovieMaterial, IAutoMovieModel } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
+
+import { resolveAutoMovieMaterial } from "../../../../packages/engine/src/render/resolveAutoMovieMaterial";
 import { throwsError } from "../internal/predicates";
 import { boxModel, material } from "../internal/renderFixtures";
+
 /**
  * A cross-model material id resolves to one definition, never to model order.
  *
@@ -69,7 +71,10 @@ export function test_render_material_resolution(): void {
     id: "alpha",
     materials: [fabric, material("irrelevant")],
   });
-  const zeta: IAutoMovieModel = boxModel({ id: "zeta", materials: [reordered] });
+  const zeta: IAutoMovieModel = boxModel({
+    id: "zeta",
+    materials: [reordered],
+  });
 
   TestValidator.predicate(
     "one declaration and structurally equal repeats resolve identically",
@@ -89,7 +94,8 @@ export function test_render_material_resolution(): void {
     "blank and absent ids are explicit refusals",
     [
       throwsError(
-        (): IAutoMovieMaterial => resolveAutoMovieMaterial({ models: [alpha], material: "  " }),
+        (): IAutoMovieMaterial =>
+          resolveAutoMovieMaterial({ models: [alpha], material: "  " }),
         "must not be blank",
       ),
       throwsError(

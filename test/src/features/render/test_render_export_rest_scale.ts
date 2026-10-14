@@ -1,8 +1,10 @@
-import { filmEffectValuesClose } from "../internal/filmEffectValuesClose";
-import { Document, Node, NodeIO } from "@gltf-transform/core";
 import { IAutoMovieModel } from "@automovie/interface";
-import { exportModelToGLB } from "../../../../packages/render/src/node/exportModelToGLB";
+import { Document, Node, NodeIO } from "@gltf-transform/core";
 import { TestValidator } from "@nestia/e2e";
+
+import { exportModelToGLB } from "../../../../packages/render/src/node/exportModelToGLB";
+import { filmEffectValuesClose } from "../internal/filmEffectValuesClose";
+
 /** A rig whose hips rest carries a non-unit scale (a common VRM import). */
 const MODEL: IAutoMovieModel = {
   id: "scaled",
@@ -67,12 +69,27 @@ export async function test_render_export_rest_scale(): Promise<void> {
 
   // 1. the bone node drops rest scale, keeps rotation + translation
   const hips: Node = nodes.get("hips")!;
-  TestValidator.predicate("the exported bone carries unit scale", filmEffectValuesClose([...hips.getScale()], [1, 1, 1]));
-  TestValidator.predicate("the bone rest translation survives", filmEffectValuesClose([...hips.getTranslation()], [0, 1, 0]));
-  TestValidator.predicate("the bone rest rotation survives", filmEffectValuesClose([...hips.getRotation()], [0, 0, 0, 1]));
+  TestValidator.predicate(
+    "the exported bone carries unit scale",
+    filmEffectValuesClose([...hips.getScale()], [1, 1, 1]),
+  );
+  TestValidator.predicate(
+    "the bone rest translation survives",
+    filmEffectValuesClose([...hips.getTranslation()], [0, 1, 0]),
+  );
+  TestValidator.predicate(
+    "the bone rest rotation survives",
+    filmEffectValuesClose([...hips.getRotation()], [0, 0, 0, 1]),
+  );
 
   // 2. negative twin: the part node's scale is first-class
   const lamp: Node = nodes.get("lamp")!;
-  TestValidator.predicate("the attached part keeps its authored scale", filmEffectValuesClose([...lamp.getScale()], [2, 3, 4]));
-  TestValidator.predicate("the part translation survives", filmEffectValuesClose([...lamp.getTranslation()], [0, 0.2, 0]));
+  TestValidator.predicate(
+    "the attached part keeps its authored scale",
+    filmEffectValuesClose([...lamp.getScale()], [2, 3, 4]),
+  );
+  TestValidator.predicate(
+    "the part translation survives",
+    filmEffectValuesClose([...lamp.getTranslation()], [0, 0.2, 0]),
+  );
 }

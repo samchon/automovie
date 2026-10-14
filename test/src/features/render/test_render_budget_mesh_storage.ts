@@ -1,7 +1,13 @@
 import { TestValidator } from "@nestia/e2e";
-import { BOX_GEOMETRY_BYTES, instanceSetFixture, modelsFixture, sceneFixture } from "../internal/renderFixtures";
+
 import { measureRenderBudgetSubject as measure } from "../internal/measureRenderBudgetSubject";
 import { rawMeshModelFixture as rawMesh } from "../internal/rawMeshModelFixture";
+import {
+  BOX_GEOMETRY_BYTES,
+  instanceSetFixture,
+  modelsFixture,
+  sceneFixture,
+} from "../internal/renderFixtures";
 import { skinnedMeshModelFixture as skinnedMesh } from "../internal/skinnedMeshModelFixture";
 
 /**
@@ -65,10 +71,18 @@ export function test_render_budget_mesh_storage(): void {
   TestValidator.equals(
     "raw and skinned mesh geometry cost what the documented byte model says",
     {
-      raw: meshed.models.find((cost: typeof meshed.models[number]): boolean => cost.model === "raw-mesh"),
-      skinned: meshed.models.find((cost: typeof meshed.models[number]): boolean => cost.model === "skinned-mesh"),
-      sharedTier: meshed.models.find((cost: typeof meshed.models[number]): boolean => cost.model === "prop-model")
-        ?.tier,
+      raw: meshed.models.find(
+        (cost: (typeof meshed.models)[number]): boolean =>
+          cost.model === "raw-mesh",
+      ),
+      skinned: meshed.models.find(
+        (cost: (typeof meshed.models)[number]): boolean =>
+          cost.model === "skinned-mesh",
+      ),
+      sharedTier: meshed.models.find(
+        (cost: (typeof meshed.models)[number]): boolean =>
+          cost.model === "prop-model",
+      )?.tier,
       // The same model behind a staged node AND a level-of-detail tier has no
       // single tier to report, so the row reports none rather than the last
       // citation to win the race.
@@ -83,7 +97,10 @@ export function test_render_budget_mesh_storage(): void {
             model: "prop-model",
           }),
         ],
-      }).models.find((cost: typeof meshed.models[number]): boolean => cost.model === "prop-model")?.tier,
+      }).models.find(
+        (cost: (typeof meshed.models)[number]): boolean =>
+          cost.model === "prop-model",
+      )?.tier,
     },
     {
       raw: {

@@ -1,12 +1,17 @@
 import { AUTOMOVIE_RENDER_REPORT_MAX_CONTRIBUTORS } from "@automovie/engine";
 import type { IAutoMovieSceneNode } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-import { throwsError } from "../internal/predicates";
-import { BOX_TRIANGLES, modelsFixture, sceneFixture } from "../internal/renderFixtures";
-import { renderBudgetTargetFixture } from "../internal/renderBudgetTargetFixture";
-import { renderReportBudgetFixture } from "../internal/renderReportBudgetFixture";
-import { measureRenderBudgetSubject as measure } from "../internal/measureRenderBudgetSubject";
+
 import { evaluateRenderBudgetFixture as report } from "../internal/evaluateRenderBudgetFixture";
+import { measureRenderBudgetSubject as measure } from "../internal/measureRenderBudgetSubject";
+import { throwsError } from "../internal/predicates";
+import { renderBudgetTargetFixture } from "../internal/renderBudgetTargetFixture";
+import {
+  BOX_TRIANGLES,
+  modelsFixture,
+  sceneFixture,
+} from "../internal/renderFixtures";
+import { renderReportBudgetFixture } from "../internal/renderReportBudgetFixture";
 
 /**
  * Contributor limits retain the complete measured cost without treating ordinary nodes as instances.
@@ -21,23 +26,28 @@ import { evaluateRenderBudgetFixture as report } from "../internal/evaluateRende
  * @evidence contracts/testing.md#execution-ownership The named test_render_budget_contributor_bounds owns these portable inventory/report calls through existing fixtures; the fifty authored records expand no native scene or GPU instance buffer.
  */
 export function test_render_budget_contributor_bounds(): void {
-  const target: ReturnType<typeof renderBudgetTargetFixture> = renderBudgetTargetFixture();
-  const budget: ReturnType<typeof renderReportBudgetFixture> = renderReportBudgetFixture();
+  const target: ReturnType<typeof renderBudgetTargetFixture> =
+    renderBudgetTargetFixture();
+  const budget: ReturnType<typeof renderReportBudgetFixture> =
+    renderReportBudgetFixture();
 
   const crowd: ReturnType<typeof measure> = measure({
     scene: {
       ...sceneFixture(),
-      nodes: Array.from({ length: 50 }, (_: unknown, index: number): IAutoMovieSceneNode => ({
-        id: `prop-${index}`,
-        model: "prop-model",
-        transform: {
-          translation: { x: 0, y: 0, z: 0 },
-          rotation: { x: 0, y: 0, z: 0, w: 1 },
-          scale: { x: 1, y: 1, z: 1 },
-        },
-        motion: null,
-        pose: null,
-      })),
+      nodes: Array.from(
+        { length: 50 },
+        (_: unknown, index: number): IAutoMovieSceneNode => ({
+          id: `prop-${index}`,
+          model: "prop-model",
+          transform: {
+            translation: { x: 0, y: 0, z: 0 },
+            rotation: { x: 0, y: 0, z: 0, w: 1 },
+            scale: { x: 1, y: 1, z: 1 },
+          },
+          motion: null,
+          pose: null,
+        }),
+      ),
     },
     models: modelsFixture(),
   });
@@ -46,7 +56,10 @@ export function test_render_budget_contributor_bounds(): void {
     crowd,
     { ...budget, limits: { triangles: 1 } },
     target,
-  ).findings.find((finding: ReturnType<typeof report>["findings"][number]): boolean => finding.metric === "triangles")!;
+  ).findings.find(
+    (finding: ReturnType<typeof report>["findings"][number]): boolean =>
+      finding.metric === "triangles",
+  )!;
 
   TestValidator.equals(
     "fifty owners produce a bounded finding with a counted remainder",
@@ -55,11 +68,17 @@ export function test_render_budget_contributor_bounds(): void {
       omittedContributors: bounded.omittedContributors,
       omittedCost: bounded.omittedCost,
       accounted:
-        bounded.contributors.reduce((sum: number, entry: typeof bounded.contributors[number]): number => sum + entry.cost, 0) +
-        bounded.omittedCost,
+        bounded.contributors.reduce(
+          (sum: number, entry: (typeof bounded.contributors)[number]): number =>
+            sum + entry.cost,
+          0,
+        ) + bounded.omittedCost,
       measured: bounded.measured,
       ordered: bounded.contributors.every(
-        (entry: typeof bounded.contributors[number], index: number): boolean =>
+        (
+          entry: (typeof bounded.contributors)[number],
+          index: number,
+        ): boolean =>
           index === 0 ||
           bounded.contributors[index - 1]!.cost > entry.cost ||
           (bounded.contributors[index - 1]!.cost === entry.cost &&
@@ -97,7 +116,8 @@ export function test_render_budget_contributor_bounds(): void {
     "the contributor bound is caller-tunable and validated",
     {
       tight: report(crowd, budget, target, 2).findings.find(
-        (finding: ReturnType<typeof report>["findings"][number]): boolean => finding.metric === "triangles",
+        (finding: ReturnType<typeof report>["findings"][number]): boolean =>
+          finding.metric === "triangles",
       )!.contributors.length,
       zero: throwsError(
         (): ReturnType<typeof report> => report(crowd, budget, target, 0),

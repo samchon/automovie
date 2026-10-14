@@ -1,9 +1,10 @@
 import { TestValidator } from "@nestia/e2e";
-import { BOX_TRIANGLES } from "../internal/renderFixtures";
-import { renderBudgetTargetFixture } from "../internal/renderBudgetTargetFixture";
-import { renderBudgetSubjectFixture } from "../internal/renderBudgetSubjectFixture";
-import { measureRenderBudgetSubject as measure } from "../internal/measureRenderBudgetSubject";
+
 import { evaluateRenderBudgetFixture as report } from "../internal/evaluateRenderBudgetFixture";
+import { measureRenderBudgetSubject as measure } from "../internal/measureRenderBudgetSubject";
+import { renderBudgetSubjectFixture } from "../internal/renderBudgetSubjectFixture";
+import { renderBudgetTargetFixture } from "../internal/renderBudgetTargetFixture";
+import { BOX_TRIANGLES } from "../internal/renderFixtures";
 
 /**
  * A production without declared limits still reports its measured resources.
@@ -18,7 +19,8 @@ import { evaluateRenderBudgetFixture as report } from "../internal/evaluateRende
  * @evidence contracts/testing.md#execution-ownership The named test_render_budget_unbudgeted owns one portable inventory/report case through existing fixtures with no drawing, capture, file write or GPU allocation.
  */
 export function test_render_budget_unbudgeted(): void {
-  const target: ReturnType<typeof renderBudgetTargetFixture> = renderBudgetTargetFixture();
+  const target: ReturnType<typeof renderBudgetTargetFixture> =
+    renderBudgetTargetFixture();
   const subject: typeof renderBudgetSubjectFixture = renderBudgetSubjectFixture;
 
   const inventory: ReturnType<typeof measure> = measure(subject());
@@ -30,10 +32,26 @@ export function test_render_budget_unbudgeted(): void {
     {
       tier: legacy.tier,
       status: legacy.status,
-      statuses: [...new Set(legacy.findings.map((finding: typeof legacy.findings[number]): typeof finding.status => finding.status))],
-      limits: [...new Set(legacy.findings.map((finding: typeof legacy.findings[number]): number | null => finding.limit))],
+      statuses: [
+        ...new Set(
+          legacy.findings.map(
+            (
+              finding: (typeof legacy.findings)[number],
+            ): typeof finding.status => finding.status,
+          ),
+        ),
+      ],
+      limits: [
+        ...new Set(
+          legacy.findings.map(
+            (finding: (typeof legacy.findings)[number]): number | null =>
+              finding.limit,
+          ),
+        ),
+      ],
       measured: legacy.findings.find(
-        (finding: typeof legacy.findings[number]): boolean => finding.metric === "triangles",
+        (finding: (typeof legacy.findings)[number]): boolean =>
+          finding.metric === "triangles",
       )!.measured,
     },
     {

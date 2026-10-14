@@ -1,7 +1,14 @@
-import { IAutoMovieRoomVisibility, IAutoMovieBuiltSpace, IAutoMovieBuiltConnector, IAutoMovieBuiltEnvironment } from "@automovie/interface";
-import { autoMovieRoomVisibility } from "../../../../packages/engine/src/render/autoMovieRoomVisibility";
+import {
+  IAutoMovieBuiltConnector,
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieBuiltSpace,
+  IAutoMovieRoomVisibility,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
+
+import { autoMovieRoomVisibility } from "../../../../packages/engine/src/render/autoMovieRoomVisibility";
 import { boxCell, buildingFixture } from "../internal/renderFixtures";
+
 /**
  * Cell-and-portal culling excludes graph-unreachable rooms in the selected environment graphs and retains the containers of kept rooms.
  *
@@ -93,7 +100,9 @@ export function test_render_room_visibility(): void {
 
   const overlapping: IAutoMovieBuiltEnvironment = buildingFixture();
   overlapping.spaces
-    .find((space: IAutoMovieBuiltSpace): boolean => space.id === "ground-vault")!
+    .find(
+      (space: IAutoMovieBuiltSpace): boolean => space.id === "ground-vault",
+    )!
     .cells.push(boxCell({ id: "spill", min: [0, 0, 0], max: [16, 3, 10] }));
   const ambiguous: IAutoMovieRoomVisibility = autoMovieRoomVisibility({
     environment: overlapping,
@@ -112,7 +121,9 @@ export function test_render_room_visibility(): void {
   );
 
   const cellless: IAutoMovieBuiltEnvironment = buildingFixture();
-  cellless.spaces.find((space: IAutoMovieBuiltSpace): boolean => space.id === "upper-loft")!.cells = [];
+  cellless.spaces.find(
+    (space: IAutoMovieBuiltSpace): boolean => space.id === "upper-loft",
+  )!.cells = [];
   const unknown: IAutoMovieRoomVisibility = autoMovieRoomVisibility({
     environment: cellless,
     camera: { x: 5, y: 1, z: 5 },
@@ -195,7 +206,8 @@ export function test_render_room_visibility(): void {
   const served: IAutoMovieBuiltEnvironment = liftFixture();
   const unserved: IAutoMovieBuiltEnvironment = liftFixture();
   delete unserved.connectors.find(
-    (connector: IAutoMovieBuiltConnector): boolean => connector.id === "service-lift",
+    (connector: IAutoMovieBuiltConnector): boolean =>
+      connector.id === "service-lift",
   )!.landings;
   TestValidator.equals(
     "the storeys a shaft stops at in between are portals, and only its landings make them so",
@@ -226,7 +238,8 @@ export function test_render_room_visibility(): void {
 
   const undeclared: IAutoMovieBuiltEnvironment = liftFixture();
   undeclared.connectors.find(
-    (connector: IAutoMovieBuiltConnector): boolean => connector.id === "service-lift",
+    (connector: IAutoMovieBuiltConnector): boolean =>
+      connector.id === "service-lift",
   )!.landings = [{ space: "plant-room", at: 0.9 }];
   const strayStop: IAutoMovieRoomVisibility = autoMovieRoomVisibility({
     environment: undeclared,
@@ -254,7 +267,8 @@ export function test_render_room_visibility(): void {
 
   const boarded: IAutoMovieBuiltEnvironment = liftFixture();
   boarded.connectors.find(
-    (connector: IAutoMovieBuiltConnector): boolean => connector.id === "service-lift",
+    (connector: IAutoMovieBuiltConnector): boolean =>
+      connector.id === "service-lift",
   )!.bidirectional = false;
   const fromLanding: IAutoMovieRoomVisibility = autoMovieRoomVisibility({
     environment: boarded,
@@ -290,58 +304,62 @@ export function test_render_room_visibility(): void {
  *
  * The shaft centre line lies on the party wall at `x = 10` between the room columns. Each stop names the room entered at that station, allowing this shaft to serve rooms on both sides.
  */
-const liftFixture: () => IAutoMovieBuiltEnvironment = (): IAutoMovieBuiltEnvironment => {
-  const environment: IAutoMovieBuiltEnvironment = buildingFixture();
-  environment.spaces.push(
-    { id: "middle", kind: "storey", parent: "site", cells: [] },
-    {
-      id: "middle-mezzanine",
-      kind: "room",
-      parent: "middle",
-      cells: [boxCell({ id: "mezzanine", min: [10, 3, 0], max: [16, 6, 10] })],
-    },
-    {
-      id: "middle-gallery",
-      kind: "room",
-      parent: "middle",
-      cells: [boxCell({ id: "gallery", min: [10, 6, 0], max: [16, 9, 10] })],
-    },
-  );
-  environment.connectors.push({
-    id: "service-lift",
-    kind: "lift",
-    from: "ground-hall",
-    to: "upper-loft",
-    bidirectional: true,
-    landings: [
-      { space: "middle-mezzanine", at: 0.4 },
-      { space: "middle-gallery", at: 0.7 },
-    ],
-    route: [
-      { x: 10, y: 0, z: 5 },
-      { x: 10, y: 9, z: 5 },
-    ],
-    width: 1.6,
-    clearHeight: 2.3,
-    elements: [],
-  });
-  return environment;
-};
+const liftFixture: () => IAutoMovieBuiltEnvironment =
+  (): IAutoMovieBuiltEnvironment => {
+    const environment: IAutoMovieBuiltEnvironment = buildingFixture();
+    environment.spaces.push(
+      { id: "middle", kind: "storey", parent: "site", cells: [] },
+      {
+        id: "middle-mezzanine",
+        kind: "room",
+        parent: "middle",
+        cells: [
+          boxCell({ id: "mezzanine", min: [10, 3, 0], max: [16, 6, 10] }),
+        ],
+      },
+      {
+        id: "middle-gallery",
+        kind: "room",
+        parent: "middle",
+        cells: [boxCell({ id: "gallery", min: [10, 6, 0], max: [16, 9, 10] })],
+      },
+    );
+    environment.connectors.push({
+      id: "service-lift",
+      kind: "lift",
+      from: "ground-hall",
+      to: "upper-loft",
+      bidirectional: true,
+      landings: [
+        { space: "middle-mezzanine", at: 0.4 },
+        { space: "middle-gallery", at: 0.7 },
+      ],
+      route: [
+        { x: 10, y: 0, z: 5 },
+        { x: 10, y: 9, z: 5 },
+      ],
+      width: 1.6,
+      clearHeight: 2.3,
+      elements: [],
+    });
+    return environment;
+  };
 
 /** Two rooms with no shared portal, each with its own exterior window. */
-const twoWindowedRooms: () => IAutoMovieBuiltEnvironment = (): IAutoMovieBuiltEnvironment => {
-  const environment: IAutoMovieBuiltEnvironment = buildingFixture();
-  environment.boundaries.push({
-    id: "vault-facade",
-    kind: "wall",
-    spaces: ["ground-vault"],
-    elements: [],
-  });
-  environment.openings.push({
-    id: "vault-window",
-    kind: "window",
-    boundary: "vault-facade",
-    fill: null,
-  });
-  return environment;
-};
+const twoWindowedRooms: () => IAutoMovieBuiltEnvironment =
+  (): IAutoMovieBuiltEnvironment => {
+    const environment: IAutoMovieBuiltEnvironment = buildingFixture();
+    environment.boundaries.push({
+      id: "vault-facade",
+      kind: "wall",
+      spaces: ["ground-vault"],
+      elements: [],
+    });
+    environment.openings.push({
+      id: "vault-window",
+      kind: "window",
+      boundary: "vault-facade",
+      fill: null,
+    });
+    return environment;
+  };

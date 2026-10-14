@@ -1,14 +1,16 @@
-import { filmEffectValuesClose } from "../internal/filmEffectValuesClose";
-import { IAutoMovieHeadlessCaptureSession } from "../../../../packages/render/src/headlessCapture/IAutoMovieHeadlessCaptureSession";
-import { AutoMovieHeadlessCaptureErrorCode } from "../../../../packages/render/src/headlessCapture/AutoMovieHeadlessCaptureErrorCode";
-import { createContext, type Context } from "node:vm";
-import { runHeadlessPageCallback } from "../internal/runHeadlessPageCallback";
+import { TestValidator } from "@nestia/e2e";
+import { type Context, createContext } from "node:vm";
+
 import { AutoMovieHeadlessCaptureError } from "../../../../packages/render/src/headlessCapture/AutoMovieHeadlessCaptureError";
+import { AutoMovieHeadlessCaptureErrorCode } from "../../../../packages/render/src/headlessCapture/AutoMovieHeadlessCaptureErrorCode";
 import { IAutoMovieHeadlessCaptureOptions } from "../../../../packages/render/src/headlessCapture/IAutoMovieHeadlessCaptureOptions";
+import { IAutoMovieHeadlessCaptureSession } from "../../../../packages/render/src/headlessCapture/IAutoMovieHeadlessCaptureSession";
 import { IAutoMovieHeadlessLocator } from "../../../../packages/render/src/headlessCapture/IAutoMovieHeadlessLocator";
 import { IAutoMovieHeadlessPage } from "../../../../packages/render/src/headlessCapture/IAutoMovieHeadlessPage";
 import { createHeadlessCaptureAdapter } from "../../../../packages/render/src/headlessCapture/createHeadlessCaptureAdapter";
-import { TestValidator } from "@nestia/e2e";
+import { filmEffectValuesClose } from "../internal/filmEffectValuesClose";
+import { runHeadlessPageCallback } from "../internal/runHeadlessPageCallback";
+
 type Failure = "goto" | "wait" | "style" | "evaluate" | "screenshot" | null;
 
 class FakeLocator implements IAutoMovieHeadlessLocator {
@@ -42,7 +44,8 @@ class FakePage implements IAutoMovieHeadlessPage {
     arg: T,
   ): Promise<void> {
     if (this.fail === "wait") throw new Error("wait failed");
-    if (!runHeadlessPageCallback(this.context, predicate, arg)) throw new Error("predicate false");
+    if (!runHeadlessPageCallback(this.context, predicate, arg))
+      throw new Error("predicate false");
   }
 
   public async addStyleTag(options: { content: string }): Promise<void> {
@@ -65,7 +68,12 @@ class FakePage implements IAutoMovieHeadlessPage {
   }
 }
 
-const withSeek: <T>(page: FakePage, name: string, seek: (time: number) => void, task: () => Promise<T>) => Promise<T> = async <T>(
+const withSeek: <T>(
+  page: FakePage,
+  name: string,
+  seek: (time: number) => void,
+  task: () => Promise<T>,
+) => Promise<T> = async <T>(
   page: FakePage,
   name: string,
   seek: (time: number) => void,
@@ -75,7 +83,9 @@ const withSeek: <T>(page: FakePage, name: string, seek: (time: number) => void, 
   return task();
 };
 
-const rejectsCapture: (task: () => Promise<unknown>) => Promise<AutoMovieHeadlessCaptureErrorCode | null> = async (
+const rejectsCapture: (
+  task: () => Promise<unknown>,
+) => Promise<AutoMovieHeadlessCaptureErrorCode | null> = async (
   task: () => Promise<unknown>,
 ): Promise<AutoMovieHeadlessCaptureError["code"] | null> => {
   try {
@@ -90,7 +100,10 @@ const rejectsCapture: (task: () => Promise<unknown>) => Promise<AutoMovieHeadles
   }
 };
 
-const open: (page: FakePage, options?: Partial<IAutoMovieHeadlessCaptureOptions>) => Promise<IAutoMovieHeadlessCaptureSession> = async (
+const open: (
+  page: FakePage,
+  options?: Partial<IAutoMovieHeadlessCaptureOptions>,
+) => Promise<IAutoMovieHeadlessCaptureSession> = async (
   page: FakePage,
   options: Partial<IAutoMovieHeadlessCaptureOptions> = {},
 ): Promise<IAutoMovieHeadlessCaptureSession> =>
@@ -130,7 +143,11 @@ export async function test_render_headless_capture(): Promise<void> {
     (time: number): number => seeks.push(time),
     async (): Promise<void> => {
       const session: IAutoMovieHeadlessCaptureSession = await open(page, {
-        writeFrame: async (path: string, bytes: Uint8Array<ArrayBufferLike>, metadata: { timeSeconds: number; index: number; }): Promise<void> => {
+        writeFrame: async (
+          path: string,
+          bytes: Uint8Array<ArrayBufferLike>,
+          metadata: { timeSeconds: number; index: number },
+        ): Promise<void> => {
           writes.push({
             path,
             bytes: [...bytes],
@@ -152,14 +169,17 @@ export async function test_render_headless_capture(): Promise<void> {
   ]);
   TestValidator.equals("default selector", page.selectors, ["#view"]);
   TestValidator.predicate("seek called", filmEffectValuesClose(seeks, [0.5]));
-  TestValidator.predicate("frame written", filmEffectValuesClose(writes, [
-    {
-      path: "out/frames/frame_00002.png",
-      bytes: [1, 2, 3],
-      timeSeconds: 0.5,
-      index: 2,
-    },
-  ]));
+  TestValidator.predicate(
+    "frame written",
+    filmEffectValuesClose(writes, [
+      {
+        path: "out/frames/frame_00002.png",
+        bytes: [1, 2, 3],
+        timeSeconds: 0.5,
+        index: 2,
+      },
+    ]),
+  );
   TestValidator.equals("page closed", page.closed.length, 1);
 
   const custom: FakePage = new FakePage();
@@ -187,20 +207,27 @@ export async function test_render_headless_capture(): Promise<void> {
   ]);
   TestValidator.equals("hide disabled", custom.styles, []);
   TestValidator.equals("custom selector", custom.selectors, ["#canvas"]);
-  TestValidator.predicate("custom seek", filmEffectValuesClose(customSeeks, [0.25]));
+  TestValidator.predicate(
+    "custom seek",
+    filmEffectValuesClose(customSeeks, [0.25]),
+  );
 
   const routeFailure: FakePage = new FakePage();
   routeFailure.fail = "goto";
   TestValidator.equals(
     "route failure code",
-    await rejectsCapture((): Promise<IAutoMovieHeadlessCaptureSession> => open(routeFailure)),
+    await rejectsCapture(
+      (): Promise<IAutoMovieHeadlessCaptureSession> => open(routeFailure),
+    ),
     "route",
   );
 
   const waitFailure: FakePage = new FakePage();
   TestValidator.equals(
     "seek-hook wait failure code",
-    await rejectsCapture((): Promise<IAutoMovieHeadlessCaptureSession> => open(waitFailure)),
+    await rejectsCapture(
+      (): Promise<IAutoMovieHeadlessCaptureSession> => open(waitFailure),
+    ),
     "seek-hook",
   );
 
@@ -213,7 +240,9 @@ export async function test_render_headless_capture(): Promise<void> {
     async (): Promise<void> =>
       TestValidator.equals(
         "style failure code",
-        await rejectsCapture((): Promise<IAutoMovieHeadlessCaptureSession> => open(styleFailure)),
+        await rejectsCapture(
+          (): Promise<IAutoMovieHeadlessCaptureSession> => open(styleFailure),
+        ),
         "capture",
       ),
   );
@@ -224,11 +253,14 @@ export async function test_render_headless_capture(): Promise<void> {
     "__afSeek",
     (): undefined => undefined,
     async (): Promise<void> => {
-      const session: IAutoMovieHeadlessCaptureSession = await open(evaluateFailure);
+      const session: IAutoMovieHeadlessCaptureSession =
+        await open(evaluateFailure);
       evaluateFailure.fail = "evaluate";
       TestValidator.equals(
         "seek evaluate failure code",
-        await rejectsCapture((): Promise<string> => session.captureFrame(0, 0, "frames")),
+        await rejectsCapture(
+          (): Promise<string> => session.captureFrame(0, 0, "frames"),
+        ),
         "seek-hook",
       );
     },
@@ -240,11 +272,14 @@ export async function test_render_headless_capture(): Promise<void> {
     "__afSeek",
     (): undefined => undefined,
     async (): Promise<void> => {
-      const session: IAutoMovieHeadlessCaptureSession = await open(screenshotFailure);
+      const session: IAutoMovieHeadlessCaptureSession =
+        await open(screenshotFailure);
       screenshotFailure.fail = "screenshot";
       TestValidator.equals(
         "screenshot failure code",
-        await rejectsCapture((): Promise<string> => session.captureFrame(0, 0, "frames")),
+        await rejectsCapture(
+          (): Promise<string> => session.captureFrame(0, 0, "frames"),
+        ),
         "capture",
       );
     },
@@ -260,7 +295,9 @@ export async function test_render_headless_capture(): Promise<void> {
       const session: IAutoMovieHeadlessCaptureSession = await open(emptyFrame);
       TestValidator.equals(
         "empty frame failure code",
-        await rejectsCapture((): Promise<string> => session.captureFrame(0, 0, "frames")),
+        await rejectsCapture(
+          (): Promise<string> => session.captureFrame(0, 0, "frames"),
+        ),
         "empty-frame",
       );
     },

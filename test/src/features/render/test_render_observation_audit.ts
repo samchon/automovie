@@ -1,6 +1,12 @@
-import { AutoMovieRenderMetric, IAutoMovieRenderObservation, IAutoMovieRenderReport } from "@automovie/interface";
-import { auditAutoMovieRenderObservation } from "../../../../packages/render/src/auditAutoMovieRenderObservation";
+import {
+  AutoMovieRenderMetric,
+  IAutoMovieRenderObservation,
+  IAutoMovieRenderReport,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
+
+import { auditAutoMovieRenderObservation } from "../../../../packages/render/src/auditAutoMovieRenderObservation";
+
 const METRICS: readonly AutoMovieRenderMetric[] = [
   "triangles",
   "vertices",
@@ -19,27 +25,45 @@ const METRICS: readonly AutoMovieRenderMetric[] = [
   "fluidParticles",
 ];
 
-const report: (measured?: Partial<Record<AutoMovieRenderMetric, number | null>>) => IAutoMovieRenderReport = (
+const report: (
+  measured?: Partial<Record<AutoMovieRenderMetric, number | null>>,
+) => IAutoMovieRenderReport = (
   measured: Partial<Record<AutoMovieRenderMetric, number | null>> = {},
 ): IAutoMovieRenderReport => ({
   version: 1,
   protocol: "automovie.render-report.v1",
   tier: "evidence",
-  status: Object.values(measured).some((value: number | null): value is null => value === null)
+  status: Object.values(measured).some(
+    (value: number | null): value is null => value === null,
+  )
     ? "incomplete"
     : "within",
-  findings: METRICS.map((metric: AutoMovieRenderMetric): { metric: AutoMovieRenderMetric; status: "not-run" | "unbudgeted"; measured: number | null; limit: null; excess: number; contributors: never[]; omittedContributors: number; omittedCost: number; recovery: string | null; } => ({
-    metric,
-    status: measured[metric] === null ? "not-run" : "unbudgeted",
-    measured: measured[metric] === undefined ? 10 : measured[metric],
-    limit: null,
-    excess: 0,
-    contributors: [],
-    omittedContributors: 0,
-    omittedCost: 0,
-    recovery:
-      measured[metric] === null ? `measure ${metric} before capture` : null,
-  })),
+  findings: METRICS.map(
+    (
+      metric: AutoMovieRenderMetric,
+    ): {
+      metric: AutoMovieRenderMetric;
+      status: "not-run" | "unbudgeted";
+      measured: number | null;
+      limit: null;
+      excess: number;
+      contributors: never[];
+      omittedContributors: number;
+      omittedCost: number;
+      recovery: string | null;
+    } => ({
+      metric,
+      status: measured[metric] === null ? "not-run" : "unbudgeted",
+      measured: measured[metric] === undefined ? 10 : measured[metric],
+      limit: null,
+      excess: 0,
+      contributors: [],
+      omittedContributors: 0,
+      omittedCost: 0,
+      recovery:
+        measured[metric] === null ? `measure ${metric} before capture` : null,
+    }),
+  ),
   mask: "sha256:mask",
   target: {
     protocol: "automovie.render-target.v1",
@@ -59,7 +83,9 @@ const report: (measured?: Partial<Record<AutoMovieRenderMetric, number | null>>)
   digest: "sha256:report",
 });
 
-const observation: (override?: Partial<IAutoMovieRenderObservation>) => IAutoMovieRenderObservation = (
+const observation: (
+  override?: Partial<IAutoMovieRenderObservation>,
+) => IAutoMovieRenderObservation = (
   override: Partial<IAutoMovieRenderObservation> = {},
 ): IAutoMovieRenderObservation => ({
   meshes: 3,

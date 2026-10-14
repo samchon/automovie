@@ -1,3 +1,5 @@
+import { TestValidator } from "@nestia/e2e";
+
 import type { IAutoMovieRenderBudgetAssessment } from "../../../../packages/render/src/renderBudgetPreflight/IAutoMovieRenderBudgetAssessment";
 import { assessAutoMovieRenderBudget } from "../../../../packages/render/src/renderBudgetPreflight/assessAutoMovieRenderBudget";
 import { autoMovieRenderBudgetEvidence } from "../../../../packages/render/src/renderBudgetPreflight/autoMovieRenderBudgetEvidence";
@@ -5,8 +7,6 @@ import { autoMovieRenderBudgetRefusal } from "../../../../packages/render/src/re
 import { autoMovieRenderTargetRendererOfGraphics } from "../../../../packages/render/src/renderBudgetPreflight/autoMovieRenderTargetRendererOfGraphics";
 import { autoMovieRenderTargetSettingsOfShot } from "../../../../packages/render/src/renderBudgetPreflight/autoMovieRenderTargetSettingsOfShot";
 import { selectAutoMovieRenderBudget } from "../../../../packages/render/src/renderBudgetPreflight/selectAutoMovieRenderBudget";
-import { TestValidator } from "@nestia/e2e";
-
 import {
   GRAPHICS_FIXTURE,
   RENDER_BUDGET_ASSETS,
@@ -87,16 +87,25 @@ export function test_render_budget_preflight_evidence(): void {
     budget: Parameters<typeof assessAutoMovieRenderBudget>[0]["budget"];
     shot?: string;
     textures?: boolean;
-}) => IAutoMovieRenderBudgetAssessment = (props: {
+  }) => IAutoMovieRenderBudgetAssessment = (props: {
     budget: Parameters<typeof assessAutoMovieRenderBudget>[0]["budget"];
     shot?: string;
     textures?: boolean;
   }): IAutoMovieRenderBudgetAssessment => {
-    const compiled: ReturnType<typeof compiledShotFixture> = compiledShotFixture();
-    compiled.scene = { ...compiled.scene, environment: sceneEnvironmentFixture() };
+    const compiled: ReturnType<typeof compiledShotFixture> =
+      compiledShotFixture();
+    compiled.scene = {
+      ...compiled.scene,
+      environment: sceneEnvironmentFixture(),
+    };
     return assessAutoMovieRenderBudget({
-      textureResidency: { owner: "current", residents: [], dfgRetained: false, pmremRetained: null,
-        renderTargets: [renderShadowTargetFixture()] },
+      textureResidency: {
+        owner: "current",
+        residents: [],
+        dfgRetained: false,
+        pmremRetained: null,
+        renderTargets: [renderShadowTargetFixture()],
+      },
       compiled,
       shot: props.shot ?? "opening",
       budget: props.budget,
@@ -111,7 +120,8 @@ export function test_render_budget_preflight_evidence(): void {
       assets: RENDER_BUDGET_ASSETS,
       textures: props.textures
         ? [
-            { format: "rgba8" as const,
+            {
+              format: "rgba8" as const,
               asset: "textures/stone.png",
               width: 512,
               height: 512,
@@ -146,9 +156,21 @@ export function test_render_budget_preflight_evidence(): void {
     }),
     textures: true,
   });
-  const triangles: (assessment: IAutoMovieRenderBudgetAssessment) => NonNullable<IAutoMovieRenderBudgetAssessment["report"]>["findings"][number] = (assessment: IAutoMovieRenderBudgetAssessment): NonNullable<IAutoMovieRenderBudgetAssessment["report"]>["findings"][number] =>
+  const triangles: (
+    assessment: IAutoMovieRenderBudgetAssessment,
+  ) => NonNullable<
+    IAutoMovieRenderBudgetAssessment["report"]
+  >["findings"][number] = (
+    assessment: IAutoMovieRenderBudgetAssessment,
+  ): NonNullable<
+    IAutoMovieRenderBudgetAssessment["report"]
+  >["findings"][number] =>
     assessment.report!.findings.find(
-      (finding: NonNullable<IAutoMovieRenderBudgetAssessment["report"]>["findings"][number]): boolean => finding.metric === "triangles",
+      (
+        finding: NonNullable<
+          IAutoMovieRenderBudgetAssessment["report"]
+        >["findings"][number],
+      ): boolean => finding.metric === "triangles",
     )!;
   TestValidator.equals(
     "a limit the shot fits inside clears it, and one triangle less does not",
@@ -200,7 +222,11 @@ export function test_render_budget_preflight_evidence(): void {
     {
       status: unmeasured.status,
       textureBytes: unmeasured.report!.findings.find(
-        (finding: NonNullable<IAutoMovieRenderBudgetAssessment["report"]>["findings"][number]): boolean => finding.metric === "textureBytes",
+        (
+          finding: NonNullable<
+            IAutoMovieRenderBudgetAssessment["report"]
+          >["findings"][number],
+        ): boolean => finding.metric === "textureBytes",
       )!.status,
       refusal: autoMovieRenderBudgetRefusal(
         autoMovieRenderBudgetEvidence({
@@ -213,7 +239,10 @@ export function test_render_budget_preflight_evidence(): void {
     { status: "incomplete", textureBytes: "not-run", refusal: true },
   );
 
-  const shot: (name: string, status: IAutoMovieRenderBudgetAssessment["status"]) => IAutoMovieRenderBudgetAssessment = (
+  const shot: (
+    name: string,
+    status: IAutoMovieRenderBudgetAssessment["status"],
+  ) => IAutoMovieRenderBudgetAssessment = (
     name: string,
     status: IAutoMovieRenderBudgetAssessment["status"],
   ): IAutoMovieRenderBudgetAssessment => ({
@@ -224,14 +253,19 @@ export function test_render_budget_preflight_evidence(): void {
     status,
     reason: status === "not-run" ? "no graphics identity" : null,
   });
-  const worst: (statuses: readonly IAutoMovieRenderBudgetAssessment["status"][]) => IAutoMovieRenderBudgetAssessment["status"] = (
+  const worst: (
+    statuses: readonly IAutoMovieRenderBudgetAssessment["status"][],
+  ) => IAutoMovieRenderBudgetAssessment["status"] = (
     statuses: readonly IAutoMovieRenderBudgetAssessment["status"][],
   ): IAutoMovieRenderBudgetAssessment["status"] =>
     autoMovieRenderBudgetEvidence({
       tier: "review",
       budgets: [review, delivery],
-      assessments: statuses.map((status: IAutoMovieRenderBudgetAssessment["status"], index: number): IAutoMovieRenderBudgetAssessment =>
-        shot(`shot-${index}`, status),
+      assessments: statuses.map(
+        (
+          status: IAutoMovieRenderBudgetAssessment["status"],
+          index: number,
+        ): IAutoMovieRenderBudgetAssessment => shot(`shot-${index}`, status),
       ),
     }).status;
   TestValidator.equals(
@@ -256,21 +290,36 @@ export function test_render_budget_preflight_evidence(): void {
     },
   );
 
-  const evidence: (order: readonly IAutoMovieRenderBudgetAssessment[]) => ReturnType<typeof autoMovieRenderBudgetEvidence> = (order: readonly IAutoMovieRenderBudgetAssessment[]): ReturnType<typeof autoMovieRenderBudgetEvidence> =>
+  const evidence: (
+    order: readonly IAutoMovieRenderBudgetAssessment[],
+  ) => ReturnType<typeof autoMovieRenderBudgetEvidence> = (
+    order: readonly IAutoMovieRenderBudgetAssessment[],
+  ): ReturnType<typeof autoMovieRenderBudgetEvidence> =>
     autoMovieRenderBudgetEvidence({
       tier: "review",
       budgets: [review, delivery, shadow],
       assessments: order,
     });
-  const declared: ReturnType<typeof evidence> = evidence([shot("b", "within"), shot("a", "within")]);
-  const reversed: ReturnType<typeof evidence> = evidence([shot("a", "within"), shot("b", "within")]);
-  const changed: ReturnType<typeof evidence> = evidence([shot("b", "within"), shot("a", "not-run")]);
+  const declared: ReturnType<typeof evidence> = evidence([
+    shot("b", "within"),
+    shot("a", "within"),
+  ]);
+  const reversed: ReturnType<typeof evidence> = evidence([
+    shot("a", "within"),
+    shot("b", "within"),
+  ]);
+  const changed: ReturnType<typeof evidence> = evidence([
+    shot("b", "within"),
+    shot("a", "not-run"),
+  ]);
   TestValidator.equals(
     "the digest is a property of the verdicts, never of shot order",
     {
       stable: declared.digest === reversed.digest,
       changes: declared.digest !== changed.digest,
-      ordered: declared.shots.map((entry: IAutoMovieRenderBudgetAssessment): string => entry.shot),
+      ordered: declared.shots.map(
+        (entry: IAutoMovieRenderBudgetAssessment): string => entry.shot,
+      ),
       tiers: declared.declaredTiers,
       budgeted: declared.budgeted,
       protocol: declared.protocol,
@@ -296,7 +345,10 @@ export function test_render_budget_preflight_evidence(): void {
   const twoTiers: ReturnType<typeof autoMovieRenderBudgetEvidence> =
     autoMovieRenderBudgetEvidence({
       tier: "review",
-      budgets: [renderBudgetFixture({ tier: "a", limits: {} }), renderBudgetFixture({ tier: "b", limits: {} })],
+      budgets: [
+        renderBudgetFixture({ tier: "a", limits: {} }),
+        renderBudgetFixture({ tier: "b", limits: {} }),
+      ],
       assessments: [],
     });
   TestValidator.notEquals(
@@ -305,16 +357,18 @@ export function test_render_budget_preflight_evidence(): void {
     twoTiers.digest,
   );
 
-  const unbudgeted: ReturnType<typeof autoMovieRenderBudgetEvidence> = autoMovieRenderBudgetEvidence({
-    tier: "review",
-    budgets: [delivery],
-    assessments: [assess({ budget: null, textures: true })],
-  });
-  const undeclared: ReturnType<typeof autoMovieRenderBudgetEvidence> = autoMovieRenderBudgetEvidence({
-    tier: "review",
-    budgets: undefined,
-    assessments: [assess({ budget: null, textures: true })],
-  });
+  const unbudgeted: ReturnType<typeof autoMovieRenderBudgetEvidence> =
+    autoMovieRenderBudgetEvidence({
+      tier: "review",
+      budgets: [delivery],
+      assessments: [assess({ budget: null, textures: true })],
+    });
+  const undeclared: ReturnType<typeof autoMovieRenderBudgetEvidence> =
+    autoMovieRenderBudgetEvidence({
+      tier: "review",
+      budgets: undefined,
+      assessments: [assess({ budget: null, textures: true })],
+    });
   TestValidator.equals(
     "a tier nobody budgeted is reported as such, with the declared tiers named",
     {
@@ -322,7 +376,11 @@ export function test_render_budget_preflight_evidence(): void {
       tiers: unbudgeted.declaredTiers,
       tier: unbudgeted.shots[0]!.report!.tier,
       triangles: unbudgeted.shots[0]!.report!.findings.find(
-        (finding: NonNullable<IAutoMovieRenderBudgetAssessment["report"]>["findings"][number]): boolean => finding.metric === "triangles",
+        (
+          finding: NonNullable<
+            IAutoMovieRenderBudgetAssessment["report"]
+          >["findings"][number],
+        ): boolean => finding.metric === "triangles",
       )!.status,
       status: unbudgeted.status,
       // A production that declared nothing at all is not the same record as one

@@ -1,8 +1,9 @@
+import { TestValidator } from "@nestia/e2e";
+
 import {
   autoMovieCaptionLanguageComparisonKey,
   parseAutoMovieCaptionLanguage,
 } from "../../../../packages/render/src/caption";
-import { TestValidator } from "@nestia/e2e";
 
 /**
  * Caption language tags follow RFC 5646's grammar, not a registry lookup.
@@ -42,10 +43,13 @@ import { TestValidator } from "@nestia/e2e";
  * @evidence contracts/testing.md#execution-ownership The discoverable test_render_caption_language_tag_grammar owns these synchronous portable string cases; it installs no runtime, contacts no registry, opens no file and starts no host process.
  */
 export function test_render_caption_language_tag_grammar(): void {
-  const parsed: (value: string) => string | null = (value: string): string | null =>
+  const parsed: (value: string) => string | null = (
+    value: string,
+  ): string | null =>
     parseAutoMovieCaptionLanguage(value)?.comparisonKey ?? null;
-  const display: (value: string) => string | null = (value: string): string | null =>
-    parseAutoMovieCaptionLanguage(value)?.display ?? null;
+  const display: (value: string) => string | null = (
+    value: string,
+  ): string | null => parseAutoMovieCaptionLanguage(value)?.display ?? null;
 
   TestValidator.equals(
     "a grandfathered production is admitted case-insensitively",

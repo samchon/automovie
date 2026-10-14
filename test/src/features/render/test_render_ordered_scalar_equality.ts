@@ -1,8 +1,13 @@
-import { equalOrderedScalars } from "../../../../packages/render/src/film/equalOrderedScalars";
 import { TestValidator } from "@nestia/e2e";
+
+import { equalOrderedScalars } from "../../../../packages/render/src/film/equalOrderedScalars";
+
 /** The two shapes the planned audio identity actually compares. */
 const MONO_SPEAKERS: readonly ["front-center"] = ["front-center"] as const;
-const STEREO_SPEAKERS: readonly ["front-left", "front-right"] = ["front-left", "front-right"] as const;
+const STEREO_SPEAKERS: readonly ["front-left", "front-right"] = [
+  "front-left",
+  "front-right",
+] as const;
 const MONO_MATRIX: readonly [readonly [1]] = [[1]] as const;
 const STEREO_MATRIX: readonly [readonly [0.5, 0.5]] = [[0.5, 0.5]] as const;
 
@@ -26,14 +31,15 @@ const STEREO_MATRIX: readonly [readonly [0.5, 0.5]] = [[0.5, 0.5]] as const;
  * @evidence contracts/testing.md#execution-ownership The exported test_render_ordered_scalar_equality owns its cases. Portable direct-source scalar comparison, without loading WAVE assets or installing an audio consumer.
  */
 export function test_render_ordered_scalar_equality(): void {
-
-  TestValidator.predicate("the real comparands agree with themselves", (): boolean =>
-    [
-      equalOrderedScalars(MONO_SPEAKERS, ["front-center"]),
-      equalOrderedScalars(STEREO_SPEAKERS, ["front-left", "front-right"]),
-      equalOrderedScalars(MONO_MATRIX, [[1]]),
-      equalOrderedScalars(STEREO_MATRIX, [[0.5, 0.5]]),
-    ].every((held: boolean): boolean => held),
+  TestValidator.predicate(
+    "the real comparands agree with themselves",
+    (): boolean =>
+      [
+        equalOrderedScalars(MONO_SPEAKERS, ["front-center"]),
+        equalOrderedScalars(STEREO_SPEAKERS, ["front-left", "front-right"]),
+        equalOrderedScalars(MONO_MATRIX, [[1]]),
+        equalOrderedScalars(STEREO_MATRIX, [[0.5, 0.5]]),
+      ].every((held: boolean): boolean => held),
   );
 
   // Twin 1: array order. The same two labels in the other order is a different
@@ -70,8 +76,14 @@ export function test_render_ordered_scalar_equality(): void {
   // Twin 5: key order, which is out of the domain. The replaced predicate would
   // have compared these as objects; this one refuses a non-array outright, so
   // the pair cannot compare equal by both lacking a length.
-  const keyed: readonly number[] = { a: 1, b: 2 } as unknown as readonly number[];
-  const reordered: readonly number[] = { b: 2, a: 1 } as unknown as readonly number[];
+  const keyed: readonly number[] = {
+    a: 1,
+    b: 2,
+  } as unknown as readonly number[];
+  const reordered: readonly number[] = {
+    b: 2,
+    a: 1,
+  } as unknown as readonly number[];
   TestValidator.predicate(
     "records are refused rather than compared",
     (): boolean =>

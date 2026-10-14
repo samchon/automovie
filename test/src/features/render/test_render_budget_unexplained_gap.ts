@@ -1,11 +1,20 @@
-import type { IAutoMovieRenderSubject } from "./../../../../packages/engine/src/render/IAutoMovieRenderSubject";
-import { IAutoMovieRenderTarget, IAutoMovieRenderBudget, IAutoMovieRenderOwnerCost, IAutoMovieRenderReport, IAutoMovieRenderFinding, AutoMovieRenderMetric, IAutoMovieRenderInventory } from "@automovie/interface";
+import {
+  AutoMovieRenderMetric,
+  IAutoMovieRenderBudget,
+  IAutoMovieRenderFinding,
+  IAutoMovieRenderInventory,
+  IAutoMovieRenderOwnerCost,
+  IAutoMovieRenderReport,
+  IAutoMovieRenderTarget,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-import { renderBudgetTargetFixture } from "../internal/renderBudgetTargetFixture";
-import { renderBudgetSubjectFixture } from "../internal/renderBudgetSubjectFixture";
-import { renderReportBudgetFixture } from "../internal/renderReportBudgetFixture";
-import { measureRenderBudgetSubject as measure } from "../internal/measureRenderBudgetSubject";
+
 import { evaluateRenderBudgetFixture as report } from "../internal/evaluateRenderBudgetFixture";
+import { measureRenderBudgetSubject as measure } from "../internal/measureRenderBudgetSubject";
+import { renderBudgetSubjectFixture } from "../internal/renderBudgetSubjectFixture";
+import { renderBudgetTargetFixture } from "../internal/renderBudgetTargetFixture";
+import { renderReportBudgetFixture } from "../internal/renderReportBudgetFixture";
+import type { IAutoMovieRenderSubject } from "./../../../../packages/engine/src/render/IAutoMovieRenderSubject";
 
 /**
  * An absent measurement reason and an unowned overrun cannot become a cleared report.
@@ -30,7 +39,10 @@ export function test_render_budget_unexplained_gap(): void {
   const silent: IAutoMovieRenderInventory = {
     ...inventory,
     totals: { ...inventory.totals, vertices: null },
-    owners: inventory.owners.filter((entry: IAutoMovieRenderOwnerCost) : boolean => entry.metric !== "materials"),
+    owners: inventory.owners.filter(
+      (entry: IAutoMovieRenderOwnerCost): boolean =>
+        entry.metric !== "materials",
+    ),
     gaps: [],
   };
 
@@ -44,18 +56,24 @@ export function test_render_budget_unexplained_gap(): void {
     "a value with no reason is not-run, and an unowned overrun still says what to do",
     {
       vertices: silentReport.findings.find(
-        (finding: IAutoMovieRenderFinding) : boolean => finding.metric === "vertices",
+        (finding: IAutoMovieRenderFinding): boolean =>
+          finding.metric === "vertices",
       )!.status,
       reason: (
-        silentReport.findings.find((finding: IAutoMovieRenderFinding) : boolean => finding.metric === "vertices")!
-          .recovery ?? ""
+        silentReport.findings.find(
+          (finding: IAutoMovieRenderFinding): boolean =>
+            finding.metric === "vertices",
+        )!.recovery ?? ""
       ).includes("declared no reason"),
       materials: silentReport.findings.find(
-        (finding: IAutoMovieRenderFinding) : boolean => finding.metric === "materials",
+        (finding: IAutoMovieRenderFinding): boolean =>
+          finding.metric === "materials",
       )!.contributors.length,
       unowned: (
-        silentReport.findings.find((finding: IAutoMovieRenderFinding) : boolean => finding.metric === "materials")!
-          .recovery ?? ""
+        silentReport.findings.find(
+          (finding: IAutoMovieRenderFinding): boolean =>
+            finding.metric === "materials",
+        )!.recovery ?? ""
       ).includes("attributed none of it to an editable owner"),
       status: silentReport.status,
     },
@@ -68,19 +86,77 @@ export function test_render_budget_unexplained_gap(): void {
     },
   );
   const identity: ReturnType<typeof report> = report(inventory, budget, target);
-  const movedSource: ReturnType<typeof report> = report({ ...inventory,
-    owners: inventory.owners.map((entry: IAutoMovieRenderOwnerCost) : { source: string; owner: string; metric: AutoMovieRenderMetric; kind?: "own" | "pass" | "runtime"; cost: number; } => ({ ...entry, source: `${entry.source}\nother|source=1` })),
-  }, budget, target);
-  TestValidator.predicate("identical cost does not erase contributor source identity", () : boolean => identity.digest !== movedSource.digest);
-  TestValidator.equals("unchanged full findings repeat identity", report(inventory, budget, target).digest, identity.digest);
-  const gapInventory: IAutoMovieRenderInventory = { ...silent, gaps: [{
-    metric: "vertices", status: "not-run", reason: "missing decoded fact", remedy: "supply the fact",
-  }] };
-  const explained: ReturnType<typeof report> = report(gapInventory, budget, target);
-  TestValidator.predicate("gap reason participates in report identity", () : boolean => explained.digest !== report({
-    ...gapInventory, gaps: [{ ...gapInventory.gaps[0]!, reason: "different missing fact" }],
-  }, budget, target).digest);
-  TestValidator.predicate("gap remedy participates in report identity", () : boolean => explained.digest !== report({
-    ...gapInventory, gaps: [{ ...gapInventory.gaps[0]!, remedy: "different recovery action" }],
-  }, budget, target).digest);
+  const movedSource: ReturnType<typeof report> = report(
+    {
+      ...inventory,
+      owners: inventory.owners.map(
+        (
+          entry: IAutoMovieRenderOwnerCost,
+        ): {
+          source: string;
+          owner: string;
+          metric: AutoMovieRenderMetric;
+          kind?: "own" | "pass" | "runtime";
+          cost: number;
+        } => ({ ...entry, source: `${entry.source}\nother|source=1` }),
+      ),
+    },
+    budget,
+    target,
+  );
+  TestValidator.predicate(
+    "identical cost does not erase contributor source identity",
+    (): boolean => identity.digest !== movedSource.digest,
+  );
+  TestValidator.equals(
+    "unchanged full findings repeat identity",
+    report(inventory, budget, target).digest,
+    identity.digest,
+  );
+  const gapInventory: IAutoMovieRenderInventory = {
+    ...silent,
+    gaps: [
+      {
+        metric: "vertices",
+        status: "not-run",
+        reason: "missing decoded fact",
+        remedy: "supply the fact",
+      },
+    ],
+  };
+  const explained: ReturnType<typeof report> = report(
+    gapInventory,
+    budget,
+    target,
+  );
+  TestValidator.predicate(
+    "gap reason participates in report identity",
+    (): boolean =>
+      explained.digest !==
+      report(
+        {
+          ...gapInventory,
+          gaps: [
+            { ...gapInventory.gaps[0]!, reason: "different missing fact" },
+          ],
+        },
+        budget,
+        target,
+      ).digest,
+  );
+  TestValidator.predicate(
+    "gap remedy participates in report identity",
+    (): boolean =>
+      explained.digest !==
+      report(
+        {
+          ...gapInventory,
+          gaps: [
+            { ...gapInventory.gaps[0]!, remedy: "different recovery action" },
+          ],
+        },
+        budget,
+        target,
+      ).digest,
+  );
 }

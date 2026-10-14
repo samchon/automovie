@@ -1,8 +1,10 @@
-import { autoMovieRenderDigest } from "../../../../packages/engine/src/render/autoMovieRenderDigest";
-import { canonicalizeAutoMovieJson } from "../../../../packages/engine/src/text/canonicalizeAutoMovieJson";
 import { TestValidator } from "@nestia/e2e";
 import { createHash } from "node:crypto";
+
+import { autoMovieRenderDigest } from "../../../../packages/engine/src/render/autoMovieRenderDigest";
+import { canonicalizeAutoMovieJson } from "../../../../packages/engine/src/text/canonicalizeAutoMovieJson";
 import { namedFacts, throwsError } from "../internal/predicates";
+
 /** Recompute the identity digest without the engine primitive under test. */
 const oracle: (value: unknown) => string = (value: unknown): string =>
   `sha256:${createHash("sha256")
@@ -10,7 +12,9 @@ const oracle: (value: unknown) => string = (value: unknown): string =>
     .digest("hex")}`;
 
 /** One chunk identity shaped exactly as the planner builds it. */
-const identity: (overrides?: Record<string, unknown>) => Record<string, unknown> = (
+const identity: (
+  overrides?: Record<string, unknown>,
+) => Record<string, unknown> = (
   overrides: Record<string, unknown> = {},
 ): Record<string, unknown> => ({
   protocol: "automovie.production-render-chunk.v4",
@@ -84,7 +88,12 @@ export function test_render_plan_chunk_digest_parity(): void {
     oracle(complete),
   );
 
-  const variants: { range: Record<string, unknown>; pass: Record<string, unknown>; tier: Record<string, unknown>; source: Record<string, unknown>; } = {
+  const variants: {
+    range: Record<string, unknown>;
+    pass: Record<string, unknown>;
+    tier: Record<string, unknown>;
+    source: Record<string, unknown>;
+  } = {
     range: identity({ frameStart: 48, frameEndExclusive: 96 }),
     pass: identity({ kind: "guide-pass", pass: "pose" }),
     tier: identity({
@@ -101,7 +110,9 @@ export function test_render_plan_chunk_digest_parity(): void {
       oracle(value),
     );
 
-  const ids: string[] = [complete, ...Object.values(variants)].map(engineDigest);
+  const ids: string[] = [complete, ...Object.values(variants)].map(
+    engineDigest,
+  );
   TestValidator.predicate(
     "every deciding field changes the id",
     (): boolean => new Set(ids).size === ids.length,
@@ -109,7 +120,10 @@ export function test_render_plan_chunk_digest_parity(): void {
 
   // The canonicalizer orders properties, so the same identity written in another
   // order is the same bytes and therefore the same id.
-  const reordered: { sources: { digest: string; shot: string; }[]; protocol: string; } = {
+  const reordered: {
+    sources: { digest: string; shot: string }[];
+    protocol: string;
+  } = {
     sources: [{ digest: `sha256:${"e".repeat(64)}`, shot: "shot-1" }],
     protocol: "automovie.production-render-chunk.v4",
     ...identity(),
@@ -120,17 +134,21 @@ export function test_render_plan_chunk_digest_parity(): void {
     engineDigest(complete),
   );
 
-  const lone: Record<string, unknown> = identity({ deliverable: "feature\uD800" });
+  const lone: Record<string, unknown> = identity({
+    deliverable: "feature\uD800",
+  });
   TestValidator.equals(
     "a lone surrogate is refused, not digested",
     namedFacts([
       [
         "engineRefuses",
-        (): boolean => throwsError((): string => engineDigest(lone), "invalid-unicode"),
+        (): boolean =>
+          throwsError((): string => engineDigest(lone), "invalid-unicode"),
       ],
       [
         "oracleRefuses",
-        (): boolean => throwsError((): string => oracle(lone), "invalid-unicode"),
+        (): boolean =>
+          throwsError((): string => oracle(lone), "invalid-unicode"),
       ],
     ]),
     { engineRefuses: true, oracleRefuses: true },

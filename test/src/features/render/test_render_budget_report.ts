@@ -1,11 +1,16 @@
 import { TestValidator } from "@nestia/e2e";
-import { BOX_GEOMETRY_BYTES, BOX_TRIANGLES, BOX_VERTICES } from "../internal/renderFixtures";
-import { renderBudgetTargetFixture } from "../internal/renderBudgetTargetFixture";
-import { renderBudgetSubjectFixture } from "../internal/renderBudgetSubjectFixture";
-import { renderReportBudgetFixture } from "../internal/renderReportBudgetFixture";
-import { measureRenderBudgetSubject as measure } from "../internal/measureRenderBudgetSubject";
+
 import { evaluateRenderBudgetFixture as report } from "../internal/evaluateRenderBudgetFixture";
+import { measureRenderBudgetSubject as measure } from "../internal/measureRenderBudgetSubject";
 import { renderBudgetFindingShape } from "../internal/renderBudgetFindingShape";
+import { renderBudgetSubjectFixture } from "../internal/renderBudgetSubjectFixture";
+import { renderBudgetTargetFixture } from "../internal/renderBudgetTargetFixture";
+import {
+  BOX_GEOMETRY_BYTES,
+  BOX_TRIANGLES,
+  BOX_VERTICES,
+} from "../internal/renderFixtures";
+import { renderReportBudgetFixture } from "../internal/renderReportBudgetFixture";
 
 /**
  * The staged inventory and its admitted budget preserve independent box, instance and mip arithmetic.
@@ -20,9 +25,11 @@ import { renderBudgetFindingShape } from "../internal/renderBudgetFindingShape";
  * @evidence contracts/testing.md#execution-ownership The named test_render_budget_report owns portable synchronous inventory/report semantics via shared fixtures; these byte/count estimates allocate no native renderer resources and do not measure actual GPU residency or frame time.
  */
 export function test_render_budget_report(): void {
-  const target: ReturnType<typeof renderBudgetTargetFixture> = renderBudgetTargetFixture();
+  const target: ReturnType<typeof renderBudgetTargetFixture> =
+    renderBudgetTargetFixture();
   const subject: typeof renderBudgetSubjectFixture = renderBudgetSubjectFixture;
-  const budget: ReturnType<typeof renderReportBudgetFixture> = renderReportBudgetFixture();
+  const budget: ReturnType<typeof renderReportBudgetFixture> =
+    renderReportBudgetFixture();
 
   const inventory: ReturnType<typeof measure> = measure(subject());
 
@@ -68,7 +75,11 @@ export function test_render_budget_report(): void {
 
   TestValidator.equals(
     "a model cited only by one level-of-detail tier reports that tier",
-    inventory.models.map((cost: ReturnType<typeof measure>["models"][number]): [string, typeof cost.tier] => [cost.model, cost.tier]),
+    inventory.models.map(
+      (
+        cost: ReturnType<typeof measure>["models"][number],
+      ): [string, typeof cost.tier] => [cost.model, cost.tier],
+    ),
     [
       ["door-model", null],
       ["prop-model", null],
@@ -79,19 +90,44 @@ export function test_render_budget_report(): void {
   );
 
   const clear: ReturnType<typeof report> = report(inventory, budget, target);
-  TestValidator.equals("within findings have no overrun recovery", renderBudgetFindingShape(
-    clear.findings.find((finding: ReturnType<typeof report>["findings"][number]): boolean => finding.metric === "textureBytes")!,
-  ).recovers, false);
+  TestValidator.equals(
+    "within findings have no overrun recovery",
+    renderBudgetFindingShape(
+      clear.findings.find(
+        (finding: ReturnType<typeof report>["findings"][number]): boolean =>
+          finding.metric === "textureBytes",
+      )!,
+    ).recovers,
+    false,
+  );
 
   TestValidator.equals(
     "an artifact inside its budget clears with one finding per metric",
     {
       status: clear.status,
       tier: clear.tier,
-      metrics: clear.findings.map((finding: ReturnType<typeof report>["findings"][number]): typeof finding.metric => finding.metric),
-      statuses: [...new Set(clear.findings.map((finding: ReturnType<typeof report>["findings"][number]): typeof finding.status => finding.status))],
-      excess: clear.findings.every((finding: ReturnType<typeof report>["findings"][number]): boolean => finding.excess === 0),
-      recovery: clear.findings.every((finding: ReturnType<typeof report>["findings"][number]): boolean => finding.recovery === null),
+      metrics: clear.findings.map(
+        (
+          finding: ReturnType<typeof report>["findings"][number],
+        ): typeof finding.metric => finding.metric,
+      ),
+      statuses: [
+        ...new Set(
+          clear.findings.map(
+            (
+              finding: ReturnType<typeof report>["findings"][number],
+            ): typeof finding.status => finding.status,
+          ),
+        ),
+      ],
+      excess: clear.findings.every(
+        (finding: ReturnType<typeof report>["findings"][number]): boolean =>
+          finding.excess === 0,
+      ),
+      recovery: clear.findings.every(
+        (finding: ReturnType<typeof report>["findings"][number]): boolean =>
+          finding.recovery === null,
+      ),
     },
     {
       status: "within",

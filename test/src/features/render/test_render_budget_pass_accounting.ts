@@ -1,10 +1,11 @@
 import { TestValidator } from "@nestia/e2e";
-import { BOX_TRIANGLES } from "../internal/renderFixtures";
-import { renderBudgetTargetFixture } from "../internal/renderBudgetTargetFixture";
-import { renderBudgetSubjectFixture } from "../internal/renderBudgetSubjectFixture";
-import { renderReportBudgetFixture } from "../internal/renderReportBudgetFixture";
-import { measureRenderBudgetSubject as measure } from "../internal/measureRenderBudgetSubject";
+
 import { evaluateRenderBudgetFixture as report } from "../internal/evaluateRenderBudgetFixture";
+import { measureRenderBudgetSubject as measure } from "../internal/measureRenderBudgetSubject";
+import { renderBudgetSubjectFixture } from "../internal/renderBudgetSubjectFixture";
+import { renderBudgetTargetFixture } from "../internal/renderBudgetTargetFixture";
+import { BOX_TRIANGLES } from "../internal/renderFixtures";
+import { renderReportBudgetFixture } from "../internal/renderReportBudgetFixture";
 
 /**
  * A pass-only public inventory retains its cost without inventing an editable resource.
@@ -19,9 +20,11 @@ import { evaluateRenderBudgetFixture as report } from "../internal/evaluateRende
  * @evidence contracts/testing.md#execution-ownership The named test_render_budget_pass_accounting owns synchronous portable report evaluation through the shared fixture seam; the outline pass is accounting data and no graphical pass or native host executes.
  */
 export function test_render_budget_pass_accounting(): void {
-  const target: ReturnType<typeof renderBudgetTargetFixture> = renderBudgetTargetFixture();
+  const target: ReturnType<typeof renderBudgetTargetFixture> =
+    renderBudgetTargetFixture();
   const subject: typeof renderBudgetSubjectFixture = renderBudgetSubjectFixture;
-  const budget: ReturnType<typeof renderReportBudgetFixture> = renderReportBudgetFixture();
+  const budget: ReturnType<typeof renderReportBudgetFixture> =
+    renderReportBudgetFixture();
 
   const inventory: ReturnType<typeof measure> = measure(subject());
 
@@ -42,7 +45,10 @@ export function test_render_budget_pass_accounting(): void {
     },
     { ...budget, limits: { ...budget.limits, triangles: 0 } },
     target,
-  ).findings.find((finding: ReturnType<typeof report>["findings"][number]): boolean => finding.metric === "triangles")!;
+  ).findings.find(
+    (finding: ReturnType<typeof report>["findings"][number]): boolean =>
+      finding.metric === "triangles",
+  )!;
 
   TestValidator.equals(
     "a pass-only boundary has accounting but no false edit destination",

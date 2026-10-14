@@ -1,8 +1,18 @@
 import { autoMovieRenderSubjectOfShot } from "@automovie/engine";
 import { IAutoMovieCompiledShotSource } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-import { buildingFixture, instanceSetFixture, modelsFixture, sceneFixture } from "../internal/renderFixtures";
-import { plantingCluster, plantingRecipe, softPanel } from "../internal/softFixtures";
+
+import {
+  buildingFixture,
+  instanceSetFixture,
+  modelsFixture,
+  sceneFixture,
+} from "../internal/renderFixtures";
+import {
+  plantingCluster,
+  plantingRecipe,
+  softPanel,
+} from "../internal/softFixtures";
 
 /**
  * The compiled shot conversion preserves every supplied simulated and decoded resource.
@@ -59,14 +69,21 @@ export function test_render_budget_subject_conversion(): void {
             },
           ],
           textures: [
-            { format: "rgba8" as const,
+            {
+              format: "rgba8" as const,
               asset: "textures/stone.png",
               width: 2,
               height: 2,
               mipmapped: false,
             },
           ],
-        }).environments?.map((environment: NonNullable<ReturnType<typeof autoMovieRenderSubjectOfShot>["environments"]>[number]): string => environment.id),
+        }).environments?.map(
+          (
+            environment: NonNullable<
+              ReturnType<typeof autoMovieRenderSubjectOfShot>["environments"]
+            >[number],
+          ): string => environment.id,
+        ),
         water: autoMovieRenderSubjectOfShot({
           compiled,
           waterBodies: [
@@ -80,18 +97,31 @@ export function test_render_budget_subject_conversion(): void {
               material: null,
             },
           ],
-        }).waterBodies?.map((body: NonNullable<ReturnType<typeof autoMovieRenderSubjectOfShot>["waterBodies"]>[number]): string => body.id),
+        }).waterBodies?.map(
+          (
+            body: NonNullable<
+              ReturnType<typeof autoMovieRenderSubjectOfShot>["waterBodies"]
+            >[number],
+          ): string => body.id,
+        ),
         textures: autoMovieRenderSubjectOfShot({
           compiled,
           textures: [
-            { format: "rgba8" as const,
+            {
+              format: "rgba8" as const,
               asset: "textures/stone.png",
               width: 2,
               height: 2,
               mipmapped: false,
             },
           ],
-        }).textures?.map((texture: NonNullable<ReturnType<typeof autoMovieRenderSubjectOfShot>["textures"]>[number]): string => texture.asset),
+        }).textures?.map(
+          (
+            texture: NonNullable<
+              ReturnType<typeof autoMovieRenderSubjectOfShot>["textures"]
+            >[number],
+          ): string => texture.asset,
+        ),
         // Cloth and planting reach the subject the same way water does: the
         // compiled shot does not carry them, so a conversion that dropped them
         // would produce a report that reads complete over an unfurnished room.
@@ -104,7 +134,13 @@ export function test_render_budget_subject_conversion(): void {
               material: null,
             },
           ],
-        }).softBodies?.map((body: NonNullable<ReturnType<typeof autoMovieRenderSubjectOfShot>["softBodies"]>[number]): string => body.domain.id),
+        }).softBodies?.map(
+          (
+            body: NonNullable<
+              ReturnType<typeof autoMovieRenderSubjectOfShot>["softBodies"]
+            >[number],
+          ): string => body.domain.id,
+        ),
         plantings: autoMovieRenderSubjectOfShot({
           compiled,
           plantings: [
@@ -118,7 +154,13 @@ export function test_render_budget_subject_conversion(): void {
               leaf: null,
             },
           ],
-        }).plantings?.map((planting: NonNullable<ReturnType<typeof autoMovieRenderSubjectOfShot>["plantings"]>[number]): string => planting.cluster.id),
+        }).plantings?.map(
+          (
+            planting: NonNullable<
+              ReturnType<typeof autoMovieRenderSubjectOfShot>["plantings"]
+            >[number],
+          ): string => planting.cluster.id,
+        ),
       },
     },
     {

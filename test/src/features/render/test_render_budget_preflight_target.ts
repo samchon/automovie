@@ -96,12 +96,16 @@ export function test_render_budget_preflight_target(): void {
       delivery: props.delivery,
     });
   const stagedSettings: ReturnType<typeof settings> = settings({
-    environment: sceneEnvironmentFixture(), delivery: "none",
+    environment: sceneEnvironmentFixture(),
+    delivery: "none",
   });
-  const bareSettings: ReturnType<typeof settings> = settings({ delivery: "acesFilmic" });
+  const bareSettings: ReturnType<typeof settings> = settings({
+    delivery: "acesFilmic",
+  });
   TestValidator.predicate(
     "environment/default exposure and pixel ratio match authored policy",
-    (): boolean => nclose(stagedSettings.exposure, 1.5, 1e-12) &&
+    (): boolean =>
+      nclose(stagedSettings.exposure, 1.5, 1e-12) &&
       nclose(bareSettings.exposure, 1, 1e-12) &&
       nclose(stagedSettings.pixelRatio, 1, 1e-12) &&
       nclose(bareSettings.pixelRatio, 1, 1e-12),
@@ -158,14 +162,15 @@ export function test_render_budget_preflight_target(): void {
     },
   );
 
-  const unprobed: ReturnType<typeof assessAutoMovieRenderBudget> = assessAutoMovieRenderBudget({
-    compiled: compiledShotFixture(),
-    shot: "opening",
-    budget: null,
-    renderer: null,
-    settings: settings({ delivery: "none" }),
-    assets: RENDER_BUDGET_ASSETS,
-  });
+  const unprobed: ReturnType<typeof assessAutoMovieRenderBudget> =
+    assessAutoMovieRenderBudget({
+      compiled: compiledShotFixture(),
+      shot: "opening",
+      budget: null,
+      renderer: null,
+      settings: settings({ delivery: "none" }),
+      assets: RENDER_BUDGET_ASSETS,
+    });
   TestValidator.equals(
     "a job that never learned its renderer reports `not-run`, not a verdict",
     {
@@ -188,7 +193,11 @@ export function test_render_budget_preflight_target(): void {
     },
   );
 
-  const under: (delivery: "none" | "acesFilmic") => ReturnType<typeof assessAutoMovieRenderBudget> = (delivery: "none" | "acesFilmic"): ReturnType<typeof assessAutoMovieRenderBudget> =>
+  const under: (
+    delivery: "none" | "acesFilmic",
+  ) => ReturnType<typeof assessAutoMovieRenderBudget> = (
+    delivery: "none" | "acesFilmic",
+  ): ReturnType<typeof assessAutoMovieRenderBudget> =>
     assessAutoMovieRenderBudget({
       compiled: compiledShotFixture(),
       shot: "opening",

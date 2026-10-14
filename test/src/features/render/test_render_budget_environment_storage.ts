@@ -1,10 +1,11 @@
 import { IAutoMovieRenderInventory } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
+
 import { measureRenderBudgetSubject as measure } from "../internal/measureRenderBudgetSubject";
 import { renderBudgetPoseFixture as pose } from "../internal/renderBudgetPoseFixture";
 import { renderBudgetStagedFixture as staged } from "../internal/renderBudgetStagedFixture";
-import { sharedTextureModelFixture as sharedTexture } from "../internal/sharedTextureModelFixture";
 import { renderShadowTargetFixture } from "../internal/renderShadowTargetFixture";
+import { sharedTextureModelFixture as sharedTexture } from "../internal/sharedTextureModelFixture";
 
 /**
  * Environment image derivatives and material uploads retain separate physical storage and shadow policy.
@@ -19,13 +20,41 @@ import { renderShadowTargetFixture } from "../internal/renderShadowTargetFixture
  * @evidence contracts/testing.md#execution-ownership The named test_render_budget_environment_storage owns the portable measurement calls through the existing fixture; repeated calls remeasure supplied records without creating a renderer, PMREM target, shadow map or GPU context.
  */
 export function test_render_budget_environment_storage(): void {
-  const costBag: (rows: readonly { asset: string | null; materials: string[]; bytes: number | null }[]) => string[] = (rows: readonly { asset: string | null; materials: string[]; bytes: number | null }[]): string[] =>
-    rows.map((row: { asset: string | null; materials: string[]; bytes: number | null }): string => JSON.stringify(row)).sort((left: string, right: string): number => left.localeCompare(right, "en"));
+  const costBag: (
+    rows: readonly {
+      asset: string | null;
+      materials: string[];
+      bytes: number | null;
+    }[],
+  ) => string[] = (
+    rows: readonly {
+      asset: string | null;
+      materials: string[];
+      bytes: number | null;
+    }[],
+  ): string[] =>
+    rows
+      .map(
+        (row: {
+          asset: string | null;
+          materials: string[];
+          bytes: number | null;
+        }): string => JSON.stringify(row),
+      )
+      .sort((left: string, right: string): number =>
+        left.localeCompare(right, "en"),
+      );
   // A declared environment owns the shadow policy and adds one background
   // draw; an area light rasterizes no shadow camera however it is flagged; a
   // texture bound by two materials is one texture; an unmipmapped texture is
   // its base level exactly.
-  const lit: (shadows: boolean, knownEnvironment?: boolean) => IAutoMovieRenderInventory = (shadows: boolean, knownEnvironment: boolean = true): IAutoMovieRenderInventory =>
+  const lit: (
+    shadows: boolean,
+    knownEnvironment?: boolean,
+  ) => IAutoMovieRenderInventory = (
+    shadows: boolean,
+    knownEnvironment: boolean = true,
+  ): IAutoMovieRenderInventory =>
     measure({
       scene: {
         id: "lit",
@@ -73,12 +102,34 @@ export function test_render_budget_environment_storage(): void {
         sharedTexture("left", "left-mat", "shared"),
         sharedTexture("right", "right-mat", "reference"),
       ],
-      textureResidency: { owner: "current", residents: [], dfgRetained: false, pmremRetained: null,
+      textureResidency: {
+        owner: "current",
+        residents: [],
+        dfgRetained: false,
+        pmremRetained: null,
         renderTargets: shadows ? [renderShadowTargetFixture()] : [],
-        runtimeTextures: (["area-ltc-1", "area-ltc-2"] as const).map((purpose: "area-ltc-1" | "area-ltc-2"): NonNullable<NonNullable<Parameters<typeof measure>[0]["textureResidency"]>["runtimeTextures"]>[number] => ({ owner: purpose, purpose, residents: ["current"],
-          texture: { width: 64, height: 64, format: "rgba32f", colorSpace: "linear", mipmapped: false,
-            sourceIdentity: purpose, uploadState: "native-float-ltc" },
-        })),
+        runtimeTextures: (["area-ltc-1", "area-ltc-2"] as const).map(
+          (
+            purpose: "area-ltc-1" | "area-ltc-2",
+          ): NonNullable<
+            NonNullable<
+              Parameters<typeof measure>[0]["textureResidency"]
+            >["runtimeTextures"]
+          >[number] => ({
+            owner: purpose,
+            purpose,
+            residents: ["current"],
+            texture: {
+              width: 64,
+              height: 64,
+              format: "rgba32f",
+              colorSpace: "linear",
+              mipmapped: false,
+              sourceIdentity: purpose,
+              uploadState: "native-float-ltc",
+            },
+          }),
+        ),
       },
       waterBodies: [
         {
@@ -92,11 +143,38 @@ export function test_render_budget_environment_storage(): void {
         },
       ],
       textures: [
-        { format: "rgba8" as const, asset: "textures/shared.png", width: 4, height: 4, mipmapped: false },
-        { format: "rgba8" as const, asset: "textures/normal.png", width: 2, height: 2, mipmapped: false },
-        ...(knownEnvironment ? [{ format: "rgba16f" as const, environmentBackgroundFormat: "rgba16f" as const, asset: "env/sky.hdr",
-          width: 512, height: 256, mipmapped: false,
-          sampler: { wrapS: "clamp" as const, wrapT: "clamp" as const, minFilter: "linear" as const, magFilter: "linear" as const } }] : []),
+        {
+          format: "rgba8" as const,
+          asset: "textures/shared.png",
+          width: 4,
+          height: 4,
+          mipmapped: false,
+        },
+        {
+          format: "rgba8" as const,
+          asset: "textures/normal.png",
+          width: 2,
+          height: 2,
+          mipmapped: false,
+        },
+        ...(knownEnvironment
+          ? [
+              {
+                format: "rgba16f" as const,
+                environmentBackgroundFormat: "rgba16f" as const,
+                asset: "env/sky.hdr",
+                width: 512,
+                height: 256,
+                mipmapped: false,
+                sampler: {
+                  wrapS: "clamp" as const,
+                  wrapT: "clamp" as const,
+                  minFilter: "linear" as const,
+                  magFilter: "linear" as const,
+                },
+              },
+            ]
+          : []),
       ],
     });
 
@@ -112,11 +190,21 @@ export function test_render_budget_environment_storage(): void {
         shadowMaps: lit(true).totals.shadowMaps,
       },
       lights: lit(true).totals.lights,
-      textures: costBag(lit(true).textures.map((texture: IAutoMovieRenderInventory["textures"][number]): { asset: string | null; materials: string[]; bytes: number | null } => ({
-        asset: texture.asset,
-        materials: texture.materials,
-        bytes: texture.bytes,
-      }))),
+      textures: costBag(
+        lit(true).textures.map(
+          (
+            texture: IAutoMovieRenderInventory["textures"][number],
+          ): {
+            asset: string | null;
+            materials: string[];
+            bytes: number | null;
+          } => ({
+            asset: texture.asset,
+            materials: texture.materials,
+            bytes: texture.bytes,
+          }),
+        ),
+      ),
       textureBytes: lit(true).totals.textureBytes,
       fluid: [lit(true).totals.fluidCells, lit(true).totals.fluidParticles],
     },
@@ -135,7 +223,11 @@ export function test_render_budget_environment_storage(): void {
         { asset: null, materials: [], bytes: 384 * 512 * 8 },
         { asset: null, materials: [], bytes: 512 * 512 * (4 + 4) },
         { asset: "env/sky.hdr", materials: [], bytes: 512 * 256 * 8 },
-        { asset: "env/sky.hdr", materials: [], bytes: 6 * (256 * 256 * 8 + 256 * 256 * 4) },
+        {
+          asset: "env/sky.hdr",
+          materials: [],
+          bytes: 6 * (256 * 256 * 8 + 256 * 256 * 4),
+        },
         { asset: "env/sky.hdr", materials: [], bytes: 384 * 512 * 8 },
         {
           asset: "textures/normal.png",
@@ -148,11 +240,22 @@ export function test_render_budget_environment_storage(): void {
           bytes: 4 * 4 * 4,
         },
       ]),
-      textureBytes: 2 * 2 * 4 + 4 * 4 * 4 + 1024 + 512 * 256 * 8 +
-        6 * 256 * 256 * (8 + 4) + 2 * 384 * 512 * 8 + 512 * 512 * (4 + 4) + 2 * 64 * 64 * 4 * 4,
+      textureBytes:
+        2 * 2 * 4 +
+        4 * 4 * 4 +
+        1024 +
+        512 * 256 * 8 +
+        6 * 256 * 256 * (8 + 4) +
+        2 * 384 * 512 * 8 +
+        512 * 512 * (4 + 4) +
+        2 * 64 * 64 * 4 * 4,
       fluid: [10, 0],
     },
   );
 
-  TestValidator.equals("missing declared environment facts keep total unbounded", lit(true, false).totals.textureBytes, null);
+  TestValidator.equals(
+    "missing declared environment facts keep total unbounded",
+    lit(true, false).totals.textureBytes,
+    null,
+  );
 }

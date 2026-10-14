@@ -1,13 +1,15 @@
-import { filmEffectValuesClose } from "../internal/filmEffectValuesClose";
-import { IAutoMovieHeadlessCaptureSession } from "../../../../packages/render/src/headlessCapture/IAutoMovieHeadlessCaptureSession";
-import { createContext, type Context } from "node:vm";
-import { runHeadlessPageCallback } from "../internal/runHeadlessPageCallback";
+import { TestValidator } from "@nestia/e2e";
+import { type Context, createContext } from "node:vm";
+
 import { AutoMovieHeadlessCaptureError } from "../../../../packages/render/src/headlessCapture/AutoMovieHeadlessCaptureError";
 import { IAutoMovieHeadlessCaptureOptions } from "../../../../packages/render/src/headlessCapture/IAutoMovieHeadlessCaptureOptions";
+import { IAutoMovieHeadlessCaptureSession } from "../../../../packages/render/src/headlessCapture/IAutoMovieHeadlessCaptureSession";
 import { IAutoMovieHeadlessLocator } from "../../../../packages/render/src/headlessCapture/IAutoMovieHeadlessLocator";
 import { IAutoMovieHeadlessPage } from "../../../../packages/render/src/headlessCapture/IAutoMovieHeadlessPage";
 import { createHeadlessCaptureAdapter } from "../../../../packages/render/src/headlessCapture/createHeadlessCaptureAdapter";
-import { TestValidator } from "@nestia/e2e";
+import { filmEffectValuesClose } from "../internal/filmEffectValuesClose";
+import { runHeadlessPageCallback } from "../internal/runHeadlessPageCallback";
+
 class FakeLocator implements IAutoMovieHeadlessLocator {
   public async screenshot(): Promise<Uint8Array> {
     return new Uint8Array([1, 2, 3]);
@@ -25,7 +27,8 @@ class FakePage implements IAutoMovieHeadlessPage {
     arg: T,
   ): Promise<void> {
     this.waited.push(arg);
-    if (!runHeadlessPageCallback(this.context, predicate, arg)) throw new Error("predicate false");
+    if (!runHeadlessPageCallback(this.context, predicate, arg))
+      throw new Error("predicate false");
   }
 
   public async addStyleTag(): Promise<void> {}
@@ -42,12 +45,19 @@ class FakePage implements IAutoMovieHeadlessPage {
 }
 
 /** Supply only this case's page context; Node globals are never installed or restored. */
-const withHooks: <T>(hooks: Record<string, unknown>, task: (context: Context) => Promise<T>) => Promise<T> = async <T>(
+const withHooks: <T>(
+  hooks: Record<string, unknown>,
+  task: (context: Context) => Promise<T>,
+) => Promise<T> = async <T>(
   hooks: Record<string, unknown>,
   task: (context: Context) => Promise<T>,
 ): Promise<T> => task(createContext(hooks));
 
-const open: (page: FakePage, options: Partial<IAutoMovieHeadlessCaptureOptions>, writes: string[]) => Promise<IAutoMovieHeadlessCaptureSession> = (
+const open: (
+  page: FakePage,
+  options: Partial<IAutoMovieHeadlessCaptureOptions>,
+  writes: string[],
+) => Promise<IAutoMovieHeadlessCaptureSession> = (
   page: FakePage,
   options: Partial<IAutoMovieHeadlessCaptureOptions>,
   writes: string[],
@@ -61,7 +71,9 @@ const open: (page: FakePage, options: Partial<IAutoMovieHeadlessCaptureOptions>,
     ...options,
   });
 
-const codeOf: (task: () => Promise<unknown>) => Promise<string | null> = async (task: () => Promise<unknown>): Promise<string | null> => {
+const codeOf: (task: () => Promise<unknown>) => Promise<string | null> = async (
+  task: () => Promise<unknown>,
+): Promise<string | null> => {
   try {
     await task();
     return null;
@@ -114,7 +126,10 @@ export async function test_render_headless_capture_passes(): Promise<void> {
         );
       },
     );
-    TestValidator.predicate("one seek per frame", filmEffectValuesClose(seeks, [0.5]));
+    TestValidator.predicate(
+      "one seek per frame",
+      filmEffectValuesClose(seeks, [0.5]),
+    );
     TestValidator.equals("passes switch in order", passes, [
       "beauty",
       "depth",
@@ -131,7 +146,10 @@ export async function test_render_headless_capture_passes(): Promise<void> {
   {
     const writes: string[] = [];
     await withHooks(
-      { __afSeek: (): undefined => undefined, __afPass: (): undefined => undefined },
+      {
+        __afSeek: (): undefined => undefined,
+        __afPass: (): undefined => undefined,
+      },
       async (context: Context): Promise<void> => {
         const session: IAutoMovieHeadlessCaptureSession = await open(
           new FakePage(context),
@@ -160,7 +178,11 @@ export async function test_render_headless_capture_passes(): Promise<void> {
         __afPass: (pass: string): number => passes.push(pass),
       },
       async (context: Context): Promise<void> => {
-        const session: IAutoMovieHeadlessCaptureSession = await open(new FakePage(context), options, writes);
+        const session: IAutoMovieHeadlessCaptureSession = await open(
+          new FakePage(context),
+          options,
+          writes,
+        );
         TestValidator.equals(
           "legacy beauty path unchanged",
           await session.captureFrame(0, 3, "out"),
@@ -177,8 +199,13 @@ export async function test_render_headless_capture_passes(): Promise<void> {
   // 4. failure shapes.
   TestValidator.equals(
     "guide passes without a page pass hook fail as pass-hook",
-    await withHooks({ __afSeek: (): undefined => undefined }, (context: Context): Promise<string | null> =>
-      codeOf((): Promise<IAutoMovieHeadlessCaptureSession> => open(new FakePage(context), { passes: ["depth"] }, [])),
+    await withHooks(
+      { __afSeek: (): undefined => undefined },
+      (context: Context): Promise<string | null> =>
+        codeOf(
+          (): Promise<IAutoMovieHeadlessCaptureSession> =>
+            open(new FakePage(context), { passes: ["depth"] }, []),
+        ),
     ),
     "pass-hook",
   );
@@ -192,7 +219,11 @@ export async function test_render_headless_capture_passes(): Promise<void> {
         },
       },
       async (context: Context): Promise<string | null> => {
-        const session: IAutoMovieHeadlessCaptureSession = await open(new FakePage(context), { passes: ["depth"] }, []);
+        const session: IAutoMovieHeadlessCaptureSession = await open(
+          new FakePage(context),
+          { passes: ["depth"] },
+          [],
+        );
         return codeOf((): Promise<string> => session.captureFrame(0, 0, "out"));
       },
     ),
@@ -200,7 +231,10 @@ export async function test_render_headless_capture_passes(): Promise<void> {
   );
   TestValidator.equals(
     "an empty pass list is refused at creation",
-    await codeOf((): Promise<IAutoMovieHeadlessCaptureSession> => open(new FakePage(), { passes: [] }, [])),
+    await codeOf(
+      (): Promise<IAutoMovieHeadlessCaptureSession> =>
+        open(new FakePage(), { passes: [] }, []),
+    ),
     "pass-hook",
   );
 

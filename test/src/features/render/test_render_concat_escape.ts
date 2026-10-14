@@ -1,8 +1,14 @@
+import {
+  IAutoMovieRenderSpec,
+  IAutoMovieSequence,
+  IAutoMovieShot,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
 import { IAutoMovieRenderChunkPlan } from "../../../../packages/render/src/IAutoMovieRenderChunkPlan";
-import { IAutoMovieRenderSpec, IAutoMovieSequence, IAutoMovieShot } from "@automovie/interface";
 import { planChunkedSequenceRender } from "../../../../packages/render/src/planChunkedSequenceRender";
 import { planSequenceRender } from "../../../../packages/render/src/planSequenceRender";
-import { TestValidator } from "@nestia/e2e";
+
 const shot: IAutoMovieShot = {
   id: "shot:a",
   name: null,
@@ -30,7 +36,9 @@ const spec: IAutoMovieRenderSpec = {
   crf: 20,
 };
 
-const planWith: (outputPath: string) => IAutoMovieRenderChunkPlan = (outputPath: string): IAutoMovieRenderChunkPlan =>
+const planWith: (outputPath: string) => IAutoMovieRenderChunkPlan = (
+  outputPath: string,
+): IAutoMovieRenderChunkPlan =>
   planChunkedSequenceRender({
     plan: planSequenceRender({
       sequence,

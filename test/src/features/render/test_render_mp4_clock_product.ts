@@ -1,6 +1,8 @@
-import { exactProductionClockProduct } from "../../../../packages/render/src/node/exactProductionClockProduct";
-import { equalRational } from "../../../../packages/render/src/node/equalRational";
 import { TestValidator } from "@nestia/e2e";
+
+import { equalRational } from "../../../../packages/render/src/node/equalRational";
+import { exactProductionClockProduct } from "../../../../packages/render/src/node/exactProductionClockProduct";
+
 /**
  * Two MP4 tracks are compared by an exact cross-product, never by division.
  *
@@ -26,7 +28,10 @@ export function test_render_mp4_clock_product(): void {
   const videoTimescale: number = 12_288;
   const audioDuration: number = 90 * 60 * 48_000;
   const audioTimescale: number = 48_000;
-  const left: bigint = exactProductionClockProduct(videoDuration, audioTimescale);
+  const left: bigint = exactProductionClockProduct(
+    videoDuration,
+    audioTimescale,
+  );
   const right: bigint = exactProductionClockProduct(
     audioDuration,
     videoTimescale,
@@ -46,8 +51,7 @@ export function test_render_mp4_clock_product(): void {
   );
   TestValidator.predicate(
     "one audio tick more is a different runtime, not a rounding difference",
-    exactProductionClockProduct(audioDuration + 1, videoTimescale) !==
-      left,
+    exactProductionClockProduct(audioDuration + 1, videoTimescale) !== left,
   );
 
   // Past the safe-integer range a `number` product rounds to the nearest double,
@@ -55,14 +59,16 @@ export function test_render_mp4_clock_product(): void {
   TestValidator.equals(
     "a product past the safe-integer range keeps every digit",
     {
-      exact: exactProductionClockProduct(Number.MAX_SAFE_INTEGER, 3)
-        .toString(),
+      exact: exactProductionClockProduct(Number.MAX_SAFE_INTEGER, 3).toString(),
       rounded: (Number.MAX_SAFE_INTEGER * 3).toString(),
     },
     { exact: "27021597764222973", rounded: "27021597764222972" },
   );
 
-  const refused: (left: number, right: number) => boolean = (left: number, right: number): boolean => {
+  const refused: (left: number, right: number) => boolean = (
+    left: number,
+    right: number,
+  ): boolean => {
     try {
       exactProductionClockProduct(left, right);
       return false;

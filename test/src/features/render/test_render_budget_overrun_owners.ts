@@ -1,12 +1,17 @@
-import { AutoMovieRenderMetric, IAutoMovieRenderInventory, IAutoMovieRenderReport } from "@automovie/interface";
+import {
+  AutoMovieRenderMetric,
+  IAutoMovieRenderInventory,
+  IAutoMovieRenderReport,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-import { BOX_TRIANGLES } from "../internal/renderFixtures";
-import { renderBudgetTargetFixture } from "../internal/renderBudgetTargetFixture";
-import { renderBudgetSubjectFixture } from "../internal/renderBudgetSubjectFixture";
-import { renderReportBudgetFixture } from "../internal/renderReportBudgetFixture";
-import { measureRenderBudgetSubject as measure } from "../internal/measureRenderBudgetSubject";
+
 import { evaluateRenderBudgetFixture as report } from "../internal/evaluateRenderBudgetFixture";
+import { measureRenderBudgetSubject as measure } from "../internal/measureRenderBudgetSubject";
 import { renderBudgetFindingShape as shape } from "../internal/renderBudgetFindingShape";
+import { renderBudgetSubjectFixture } from "../internal/renderBudgetSubjectFixture";
+import { renderBudgetTargetFixture } from "../internal/renderBudgetTargetFixture";
+import { BOX_TRIANGLES } from "../internal/renderFixtures";
+import { renderReportBudgetFixture } from "../internal/renderReportBudgetFixture";
 
 /**
  * Over-limit twins identify the dominant editable resource while retaining repeated pass cost.
@@ -21,15 +26,21 @@ import { renderBudgetFindingShape as shape } from "../internal/renderBudgetFindi
  * @evidence contracts/testing.md#execution-ownership The named test_render_budget_overrun_owners owns the six portable CPU inventory/report twins through existing fixtures and shape projection; no renderer, texture allocation, fluid host or GPU is started.
  */
 export function test_render_budget_overrun_owners(): void {
-  const target: ReturnType<typeof renderBudgetTargetFixture> = renderBudgetTargetFixture();
+  const target: ReturnType<typeof renderBudgetTargetFixture> =
+    renderBudgetTargetFixture();
   const subject: typeof renderBudgetSubjectFixture = renderBudgetSubjectFixture;
-  const budget: ReturnType<typeof renderReportBudgetFixture> = renderReportBudgetFixture();
+  const budget: ReturnType<typeof renderReportBudgetFixture> =
+    renderReportBudgetFixture();
 
   const inventory: ReturnType<typeof measure> = measure(subject());
 
   // Over-limit twins: one metric at a time, every other limit untouched, so a
   // failure names the metric that actually broke.
-  const twin: (metric: AutoMovieRenderMetric, over: IAutoMovieRenderInventory, limit: number) => IAutoMovieRenderReport["findings"][number] = (
+  const twin: (
+    metric: AutoMovieRenderMetric,
+    over: IAutoMovieRenderInventory,
+    limit: number,
+  ) => IAutoMovieRenderReport["findings"][number] = (
     metric: AutoMovieRenderMetric,
     over: IAutoMovieRenderInventory,
     limit: number,
@@ -38,7 +49,10 @@ export function test_render_budget_overrun_owners(): void {
       over,
       { ...budget, limits: { ...budget.limits, [metric]: limit } },
       target,
-    ).findings.find((finding: IAutoMovieRenderReport["findings"][number]): boolean => finding.metric === metric)!;
+    ).findings.find(
+      (finding: IAutoMovieRenderReport["findings"][number]): boolean =>
+        finding.metric === metric,
+    )!;
 
   const fluid: ReturnType<typeof measure> = measure({
     ...subject(),

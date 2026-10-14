@@ -1,12 +1,17 @@
 import { IAutoMovieCompiledEffect } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-import { namedFacts, throwsError } from "../internal/predicates";
-import { instanceSetFixture, modelsFixture, sceneFixture } from "../internal/renderFixtures";
-import { renderBudgetTargetFixture } from "../internal/renderBudgetTargetFixture";
-import { renderBudgetSubjectFixture } from "../internal/renderBudgetSubjectFixture";
-import { renderReportBudgetFixture } from "../internal/renderReportBudgetFixture";
-import { measureRenderBudgetSubject as measure } from "../internal/measureRenderBudgetSubject";
+
 import { evaluateRenderBudgetFixture as report } from "../internal/evaluateRenderBudgetFixture";
+import { measureRenderBudgetSubject as measure } from "../internal/measureRenderBudgetSubject";
+import { namedFacts, throwsError } from "../internal/predicates";
+import { renderBudgetSubjectFixture } from "../internal/renderBudgetSubjectFixture";
+import { renderBudgetTargetFixture } from "../internal/renderBudgetTargetFixture";
+import {
+  instanceSetFixture,
+  modelsFixture,
+  sceneFixture,
+} from "../internal/renderFixtures";
+import { renderReportBudgetFixture } from "../internal/renderReportBudgetFixture";
 
 /**
  * Malformed budget and population records refuse at their actual violated boundary.
@@ -21,9 +26,11 @@ import { evaluateRenderBudgetFixture as report } from "../internal/evaluateRende
  * @evidence contracts/testing.md#execution-ownership The named test_render_budget_invalid_inputs owns six portable synchronous refusal cases through shared measurement/evaluation fixtures, with no actual renderer, allocation, browser or process.
  */
 export function test_render_budget_invalid_inputs(): void {
-  const target: ReturnType<typeof renderBudgetTargetFixture> = renderBudgetTargetFixture();
+  const target: ReturnType<typeof renderBudgetTargetFixture> =
+    renderBudgetTargetFixture();
   const subject: typeof renderBudgetSubjectFixture = renderBudgetSubjectFixture;
-  const budget: ReturnType<typeof renderReportBudgetFixture> = renderReportBudgetFixture();
+  const budget: ReturnType<typeof renderReportBudgetFixture> =
+    renderReportBudgetFixture();
 
   const inventory: ReturnType<typeof measure> = measure(subject());
 
@@ -65,7 +72,8 @@ export function test_render_budget_invalid_inputs(): void {
         "absent model",
         (): boolean =>
           throwsError(
-            (): ReturnType<typeof measure> => measure({ scene: sceneFixture(), models: [] }),
+            (): ReturnType<typeof measure> =>
+              measure({ scene: sceneFixture(), models: [] }),
             'model "wall-model" is absent',
           ),
       ],
@@ -73,11 +81,12 @@ export function test_render_budget_invalid_inputs(): void {
         "prototype without level of detail",
         (): boolean =>
           throwsError((): ReturnType<typeof measure> => {
-            const set: ReturnType<typeof instanceSetFixture> = instanceSetFixture({
-              id: "windows",
-              count: 1,
-              chunks: 1,
-            });
+            const set: ReturnType<typeof instanceSetFixture> =
+              instanceSetFixture({
+                id: "windows",
+                count: 1,
+                chunks: 1,
+              });
             set.prototypes = [
               {
                 id: "bare",

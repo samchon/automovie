@@ -1,8 +1,22 @@
-import { IAutoMovieRenderInventory, IAutoMovieRenderModelCost, IAutoMovieCompiledEffect, IAutoMovieCompiledFormation } from "@automovie/interface";
+import {
+  IAutoMovieCompiledEffect,
+  IAutoMovieCompiledFormation,
+  IAutoMovieRenderInventory,
+  IAutoMovieRenderModelCost,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-import { throwsError } from "../internal/predicates";
-import { BOX_GEOMETRY_BYTES, BOX_TRIANGLES, BOX_VERTICES, boxModel, instanceSetFixture, modelsFixture, sceneFixture } from "../internal/renderFixtures";
+
 import { measureRenderBudgetSubject as measure } from "../internal/measureRenderBudgetSubject";
+import { throwsError } from "../internal/predicates";
+import {
+  BOX_GEOMETRY_BYTES,
+  BOX_TRIANGLES,
+  BOX_VERTICES,
+  boxModel,
+  instanceSetFixture,
+  modelsFixture,
+  sceneFixture,
+} from "../internal/renderFixtures";
 
 /**
  * Compact formations and particle effects pay their conservative instance and frame-pass bound.
@@ -62,7 +76,7 @@ export function test_render_budget_compact_population(): void {
   TestValidator.equals(
     "a formation without a representation is not priced as zero",
     throwsError(
-      () : IAutoMovieRenderInventory =>
+      (): IAutoMovieRenderInventory =>
         measure({
           scene: { ...sceneFixture(), nodes: [], lights: [] },
           models: modelsFixture(),
@@ -72,26 +86,54 @@ export function test_render_budget_compact_population(): void {
     ),
     true,
   );
-  const set: ReturnType<typeof instanceSetFixture> = instanceSetFixture({ id: "nonmonotone", count: 2, chunks: 1, model: "near-small" });
+  const set: ReturnType<typeof instanceSetFixture> = instanceSetFixture({
+    id: "nonmonotone",
+    count: 2,
+    chunks: 1,
+    model: "near-small",
+  });
   set.lod = [
     { ...set.lod[0]!, maxDistance: 10 },
     { ...set.lod[0]!, tier: "far", maxDistance: null, model: "far-heavy" },
   ];
   const population: ReturnType<typeof measure> = measure({
     scene: { ...sceneFixture(), nodes: [], lights: [] },
-    models: [boxModel({ id: "near-small" }), boxModel({ id: "far-heavy", parts: 2 })],
+    models: [
+      boxModel({ id: "near-small" }),
+      boxModel({ id: "far-heavy", parts: 2 }),
+    ],
     instanceSets: [set],
   });
-  TestValidator.equals("all applicable tiers determine the actual conservative frame bound", {
-    triangles: population.totals.triangles,
-    vertices: population.totals.vertices,
-    drawCalls: population.totals.drawCalls,
-    geometryBytes: population.totals.geometryBytes,
-    models: population.models.map((model: IAutoMovieRenderModelCost) : string => model.model),
-  }, { triangles: 8 * BOX_TRIANGLES, vertices: 4 * BOX_VERTICES, drawCalls: 4,
-    geometryBytes: 3 * BOX_GEOMETRY_BYTES, models: ["far-heavy", "near-small"] });
-  TestValidator.predicate("an unresolved later tier cannot be silently ignored", () : boolean => throwsError(() : IAutoMovieRenderInventory => measure({
-    scene: { ...sceneFixture(), nodes: [], lights: [] },
-    models: [boxModel({ id: "near-small" })], instanceSets: [set],
-  }), 'model "far-heavy" is absent'));
+  TestValidator.equals(
+    "all applicable tiers determine the actual conservative frame bound",
+    {
+      triangles: population.totals.triangles,
+      vertices: population.totals.vertices,
+      drawCalls: population.totals.drawCalls,
+      geometryBytes: population.totals.geometryBytes,
+      models: population.models.map(
+        (model: IAutoMovieRenderModelCost): string => model.model,
+      ),
+    },
+    {
+      triangles: 8 * BOX_TRIANGLES,
+      vertices: 4 * BOX_VERTICES,
+      drawCalls: 4,
+      geometryBytes: 3 * BOX_GEOMETRY_BYTES,
+      models: ["far-heavy", "near-small"],
+    },
+  );
+  TestValidator.predicate(
+    "an unresolved later tier cannot be silently ignored",
+    (): boolean =>
+      throwsError(
+        (): IAutoMovieRenderInventory =>
+          measure({
+            scene: { ...sceneFixture(), nodes: [], lights: [] },
+            models: [boxModel({ id: "near-small" })],
+            instanceSets: [set],
+          }),
+        'model "far-heavy" is absent',
+      ),
+  );
 }
