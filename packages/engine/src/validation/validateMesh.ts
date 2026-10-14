@@ -10,7 +10,7 @@ import { appendMeshTopology } from "./appendMeshTopology";
 /**
  * Admit tuple/cardinality buffers, dense finite numeric elements, vertex references, skin bindings and shared welded topology.
  *
- * @evidence contracts/common.md#principled-implementation Walk IAutoMovieMesh's typed buffer containers for tuple/cardinality, dense finite numeric elements, vertex references, skin bindings and shared welded topology; the array/null and skin-record container structure is a precondition rather than an unknown-payload schema check.
+ * @evidence contracts/common.md#principled-implementation Walk IAutoMovieMesh's typed buffer containers for tuple/cardinality, dense finite numeric elements, vertex references, skin bindings and methods, and shared welded topology; the array/null and skin-record container structure is a precondition rather than an unknown-payload schema check.
  * @evidence contracts/common.md#clear-and-simple-design Attribute and skin checks stay with the mesh, while appendMeshTopology owns topology admission and analysis.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Indexed walks inspect resident holes as undefined and malformed numeric coordinates cannot escape through weld analysis. Malformed containers such as positions:null can still throw at length access; skin normalization uses a 1e-6 tolerance.
  * @evidence contracts/common.md#meaningful-documentation States the typed-container premise, one/two/three/four component arities, located numeric/cardinality errors and the separate welded-topology responsibility.
@@ -222,7 +222,7 @@ const validateBufferLength: (
 };
 
 /**
- * Require four references/weights per vertex, declared unique joints, dense bounded weights/references and finite weight sums within1e-6 of one.
+ * Require a known blend method, four references/weights per vertex, declared unique joints, dense bounded weights/references and finite weight sums within1e-6 of one.
  *
  * Shared length/range owners supply scalar diagnostics while this helper owns skin packing.
  *
@@ -249,6 +249,17 @@ const validateMeshSkin: (
   boneNames: ReadonlySet<string>,
   collector: ViolationCollector,
 ): void => {
+  if (
+    skin.method !== undefined &&
+    skin.method !== "linear" &&
+    skin.method !== "dual-quaternion"
+  )
+    collector.push(
+      "type",
+      `${path}.method`,
+      `skinning method must be "linear" or "dual-quaternion", but was ${JSON.stringify(skin.method)}`,
+      skin.method,
+    );
   const expectedInfluences: number = vertexCount * 4;
   validateBufferLength(
     skin.boneIndices,

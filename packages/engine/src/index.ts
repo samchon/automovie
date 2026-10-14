@@ -57,6 +57,7 @@ export * from "./sampleFormationSlotMotion";
 export * from "./scene";
 export * from "./selectFormationLod";
 export * from "./service";
+export * from "./skinning";
 export * from "./soft";
 export * from "./sound";
 export * from "./space";

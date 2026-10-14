@@ -13,6 +13,7 @@ import { buildGeometry } from "./buildGeometry.js";
 import { buildMaterial } from "./buildMaterial.js";
 import { constructAutoMovieOwnedResources } from "./constructAutoMovieOwnedResources.js";
 import { defaultMaterial } from "./defaultMaterial.js";
+import { applyDualQuaternionSkinning } from "./dualQuaternionSkinning/index.js";
 import { applyReliefWeights } from "./reliefWeightShading/index.js";
 
 /**
@@ -26,6 +27,10 @@ import { applyReliefWeights } from "./reliefWeightShading/index.js";
  * skeleton does not carry throws, the same class as a skin referencing a
  * missing bone (#1106): a silently root-parented prop renders frozen at the
  * origin while everything else looks right.
+ *
+ * A skin whose `method` is `"dual-quaternion"` takes a material variant with
+ * the dual quaternion vertex patch, and its mesh casts shadows through its own
+ * patched depth and distance materials, so the shadow deforms like the surface.
  *
  * The returned `bones` map is what {@link applyPose} drives.
  *
@@ -46,13 +51,13 @@ import { applyReliefWeights } from "./reliefWeightShading/index.js";
  * the resolver's owner. A nested producer retires its own failed allocation.
  *
  * @author Samchon
- * @evidence contracts/common.md#principled-implementation Builds admitted semantic bone rest TR and part TRS, binds skin joints or rigid attached bones, and realizes geometry/PBR through their canonical owners; attachedBone intentionally takes precedence over skin, bone rest scale is unit by engine convention and complete finite/unique hierarchy/material admission remains upstream.
- * @evidence contracts/common.md#clear-and-simple-design Owns one model graph plus semantic bone/part registries and shares material variants by definition id with vertex-color/relief flags; geometry, physical-vertex mapping, material shading and imported appearances remain separate producers.
+ * @evidence contracts/common.md#principled-implementation Builds admitted semantic bone rest TR and part TRS, binds skin joints or rigid attached bones, selects linear or dual quaternion skinning per skin through the material shader patch and matching shadow materials, and realizes geometry/PBR through their canonical owners; attachedBone intentionally takes precedence over skin, bone rest scale is unit by engine convention and complete finite/unique hierarchy/material admission remains upstream.
+ * @evidence contracts/common.md#clear-and-simple-design Owns one model graph plus semantic bone/part registries and shares material variants by definition id with vertex-color/relief/skinning-method flags and one patched shadow pair per dual quaternion mesh; geometry, physical-vertex mapping, material shading and imported appearances remain separate producers.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing referenced skin/attached bones throw rather than producing frozen geometry; missing material definitions currently select the ordinary default material, so this producer is not a substitute for complete source admission. No anatomical fixture names, patched Three methods or extra UV channels choose output.
- * @evidence contracts/common.md#meaningful-documentation Documents rigid-versus-skin precedence, bone lookup, texture resolver/binding-private ownership, first-acquisition rollback and result transfer; comments give the shared engine unit bone-scale convention.
- * @evidence contracts/performance.md#efficient-algorithms Builds B bones and P parts with id maps, one geometry per part and one material per encountered definition/colored/weighted variant; typed buffer work scales with vertices/indices, and skin binding updates the graph for each skinned part, so repeated skin parts may add repeated hierarchy work.
+ * @evidence contracts/common.md#meaningful-documentation Documents rigid-versus-skin precedence, the dual quaternion material and shadow variants, bone lookup, texture resolver/binding-private ownership, first-acquisition rollback and result transfer; comments give the shared engine unit bone-scale convention.
+ * @evidence contracts/performance.md#efficient-algorithms Builds B bones and P parts with id maps, one geometry per part and one material per encountered definition/colored/weighted/skinning-method variant plus two shadow materials per dual quaternion skinned part; typed buffer work scales with vertices/indices, and skin binding updates the graph for each skinned part, so repeated skin parts may add repeated hierarchy work.
  * @evidence contracts/performance.md#reuse-equivalent-work Shares existing material variants across matching part flags and borrows primed texture bindings; each bone/part graph is independent because Object3D parent/pose state cannot be reused across placements without explicit clone ownership.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Registers created geometry/material/skeleton immediately within construction rollback and transfers the complete model graph/registries on success; resolver textures stay externally owned. The returned record provides no universal disposer, so its scene/runtime owner must enumerate physical resources including skin skeleton state when retiring it.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Registers created geometry/material/shadow material/skeleton immediately within construction rollback and transfers the complete model graph/registries on success; resolver textures stay externally owned. The returned record provides no universal disposer, so its scene/runtime owner must enumerate physical resources including skin skeleton state when retiring it.
  */
 export const buildModel: (
   model: IAutoMovieModel,
@@ -128,12 +133,18 @@ export const buildModel: (
         // a mesh with relief weights takes its own variant, whose normal map's
         // slopes they scale; one without keeps the material as authored
         const weighted: boolean = geo.hasAttribute("reliefWeight");
+        const skin: IAutoMovieMeshSkin | null =
+          part.attachedBone === null && part.geometry.type === "mesh"
+            ? part.geometry.mesh.skin
+            : null;
+        const dualQuaternion: boolean = skin?.method === "dual-quaternion";
         const definition: IAutoMovieMaterial | undefined =
           part.material === null ? undefined : definitions.get(part.material);
         let mat: THREE.MeshStandardMaterial;
         if (definition === undefined) {
           mat = own(defaultMaterial());
           mat.vertexColors = colored;
+          if (dualQuaternion) applyDualQuaternionSkinning(mat);
         } else {
           let variants: Map<string, THREE.MeshStandardMaterial> | undefined =
             materials.get(definition.id);
@@ -141,20 +152,17 @@ export const buildModel: (
             variants = new Map();
             materials.set(definition.id, variants);
           }
-          const key: string = `${colored}:${weighted}`;
+          const key: string = `${colored}:${weighted}:${dualQuaternion}`;
           const cached: THREE.MeshStandardMaterial | undefined =
             variants.get(key);
           if (cached === undefined) {
             mat = own(buildMaterial(definition, resolveTexture));
             mat.vertexColors = colored;
             if (weighted && mat.normalMap !== null) applyReliefWeights(mat);
+            if (dualQuaternion) applyDualQuaternionSkinning(mat);
             variants.set(key, mat);
           } else mat = cached;
         }
-        const skin: IAutoMovieMeshSkin | null =
-          part.attachedBone === null && part.geometry.type === "mesh"
-            ? part.geometry.mesh.skin
-            : null;
         const mesh: THREE.Mesh<
           THREE.BufferGeometry<
             THREE.NormalBufferAttributes,
@@ -188,6 +196,22 @@ export const buildModel: (
           group.updateMatrixWorld(true);
           mesh.bind(own(new THREE.Skeleton(jointBones)));
           mesh.normalizeSkinWeights();
+          if (dualQuaternion) {
+            // The depth and distance passes would otherwise draw this skin
+            // linearly blended. Three copies the beauty material's alpha, side
+            // and clipping onto a custom shadow material before each draw, so
+            // each mesh keeps its own pair rather than toggling a shared one.
+            const depth: THREE.MeshDepthMaterial = own(
+              new THREE.MeshDepthMaterial(),
+            );
+            const distance: THREE.MeshDistanceMaterial = own(
+              new THREE.MeshDistanceMaterial(),
+            );
+            applyDualQuaternionSkinning(depth);
+            applyDualQuaternionSkinning(distance);
+            mesh.customDepthMaterial = depth;
+            mesh.customDistanceMaterial = distance;
+          }
         } else if (part.attachedBone !== null) {
           // An unknown attachedBone must throw like the skin path above (#1106):
           // the silent fallback parented a hand-held prop to the model root,

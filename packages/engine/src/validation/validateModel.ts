@@ -42,7 +42,7 @@ import { validateUniqueValues } from "./validateUniqueValues";
  * Assemble id/reference, primitive/mesh, skeleton, transform, body/profile/affordance and material checks in stable order.
  *
  * @author Samchon
- * @evidence contracts/common.md#principled-implementation Assemble id/reference, primitive/mesh, skeleton, transform, body/profile/affordance and material checks in stable order.
+ * @evidence contracts/common.md#principled-implementation Assemble id/reference, primitive/mesh, skeleton, transform (uniform scale under a dual-quaternion skin), body/profile/affordance and material checks in stable order.
  * @evidence contracts/common.md#clear-and-simple-design Leaf owners append to one local collector; model orchestration owns cross-reference sets.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Typed record/list shape is a premise; scalar/reference success does not certify visual quality or repair bad geometry.
  * @evidence contracts/common.md#meaningful-documentation Empty parts, null optional metadata and exact field diagnostics are stated.
@@ -194,6 +194,26 @@ export const validateModel: (props: {
         label: "model part transform",
         collector,
       });
+    if (
+      part.transform !== null &&
+      part.attachedBone === null &&
+      part.geometry.type === "mesh" &&
+      part.geometry.mesh.skin?.method === "dual-quaternion"
+    ) {
+      // The shader conjugates each joint transform by the part transform, which
+      // stays rigid only under a uniform scale.
+      const { x, y, z }: { x: number; y: number; z: number } =
+        part.transform.scale;
+      const tolerance: number =
+        1e-9 * Math.max(Math.abs(x), Math.abs(y), Math.abs(z));
+      if (Math.abs(x - y) > tolerance || Math.abs(x - z) > tolerance)
+        collector.push(
+          "range",
+          `${pp}.transform.scale`,
+          "a dual-quaternion skinned part must scale uniformly",
+          part.transform.scale,
+        );
+    }
   });
 
   model.skeleton?.bones.forEach((bone: IAutoMovieBone, i: number): void => {
