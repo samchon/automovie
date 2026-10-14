@@ -1,4 +1,14 @@
 import {
+  type IAutoMovieArchetypeGeometry,
+  STICKMAN_ARCHETYPE,
+} from "@automovie/archetypes";
+import {
+  type IAutoMovieResolvedBone,
+  Quaternion,
+  Vector3,
+  resolvePose,
+} from "@automovie/engine";
+import {
   AutoMovieHumanoidBone,
   AutoMoviePrimitiveShape,
   type IAutoMovieBone,
@@ -8,12 +18,6 @@ import {
   type IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { type IAutoMovieArchetypeGeometry, STICKMAN_ARCHETYPE } from "@automovie/archetypes";
-
-import { type IAutoMovieResolvedBone, resolvePose, Quaternion, Vector3 } from "@automovie/engine";
-
-
 
 import { namedFacts, nclose, vclose } from "../internal/predicates";
 

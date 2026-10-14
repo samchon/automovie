@@ -1,3 +1,8 @@
+import {
+  AUTOMOVIE_SABINE_CONSTANT,
+  type IAutoMovieAcousticRequest,
+  analyzeAutoMovieAcoustics,
+} from "@automovie/engine";
 import type {
   AutoMovieAnalysisDomain,
   IAutoMovieAnalysisMetric,
@@ -5,9 +10,6 @@ import type {
   IAutoMovieAnalysisSample,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { type IAutoMovieAcousticRequest, analyzeAutoMovieAcoustics, AUTOMOVIE_SABINE_CONSTANT } from "@automovie/engine";
-
 
 import { namedFacts, nclose } from "./predicates";
 

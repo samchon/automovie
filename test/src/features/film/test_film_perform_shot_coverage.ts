@@ -1,4 +1,10 @@
 import {
+  IAutoMoviePerformedShot,
+  IAutoMovieStagedSet,
+  performShot,
+  stageScene,
+} from "@automovie/engine";
+import {
   IAutoMovieBlockingCoverage,
   IAutoMovieCameraIntent,
   IAutoMovieClip,
@@ -7,10 +13,6 @@ import {
   IAutoMovieTrack,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { IAutoMoviePerformedShot, IAutoMovieStagedSet, performShot, stageScene } from "@automovie/engine";
-
-
 
 import { filmEffectValuesClose } from "../internal/filmEffectValuesClose";
 import {

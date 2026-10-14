@@ -1,13 +1,15 @@
+import {
+  designLineageCompare,
+  designLineageDecisionComparisons,
+  designLineageDigest,
+  validateDesignLineage,
+} from "@automovie/engine";
 import type {
   IAutoMovieDesignComparison,
   IAutoMovieDesignDifference,
   IAutoMovieDesignLineage,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { designLineageCompare, designLineageDecisionComparisons, designLineageDigest, validateDesignLineage } from "@automovie/engine";
-
-
 
 import { brokenLineage, renovationLineage } from "../internal/lineageFixtures";
 import { throwsError } from "../internal/predicates";

@@ -1,10 +1,9 @@
+import type { materializeCompiledFormation } from "@automovie/engine";
 import type {
   IAutoMovieActionCall,
   IAutoMovieFormationMotion,
   IAutoMovieModel,
 } from "@automovie/interface";
-
-import type { materializeCompiledFormation } from "@automovie/engine";
 
 /**
  * Inputs to the formation-framing unit's real performShot call. The owning entry varies authored group action, compact formations, member geometry and motion cues to compare explicit extent arithmetic; this record adds no admission, rendering observation or independently discovered assertion.

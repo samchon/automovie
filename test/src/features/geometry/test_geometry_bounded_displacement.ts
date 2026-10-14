@@ -1,6 +1,8 @@
+import {
+  type IAutoMovieQuadraticRow,
+  solveAutoMovieBoundedDisplacement,
+} from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
-
-import { type IAutoMovieQuadraticRow, solveAutoMovieBoundedDisplacement } from "@automovie/engine";
 
 import { nclose } from "../internal/nclose";
 import { throwsError } from "../internal/throwsError";

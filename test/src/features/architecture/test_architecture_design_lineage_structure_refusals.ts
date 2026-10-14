@@ -1,11 +1,13 @@
+import {
+  validateDesignLineage,
+  validateDesignLineageBinding,
+} from "@automovie/engine";
 import type {
   IAutoMovieDesignLifecycle,
   IAutoMovieDesignLineage,
   IAutoMovieDesignSubject,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { validateDesignLineage, validateDesignLineageBinding } from "@automovie/engine";
 
 import {
   lineageDigest,

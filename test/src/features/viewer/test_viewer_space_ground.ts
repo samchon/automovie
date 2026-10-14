@@ -111,18 +111,17 @@ const faceNormal: (triangle: THREE.Vector3[]) => THREE.Vector3 = (
  */
 export function test_viewer_space_ground(): void {
   // 1. the group, its placement, and its naming.
-  const floor: import("@automovie/viewer").IAutoMovieSceneObject =
-    sceneOf(
-      spaceOf([
-        {
-          id: "floor",
-          kind: "floor",
-          polygon: FLOOR_POLYGON,
-          anchor: { x: 0, y: 0.5, z: 0 },
-          rampTo: null,
-        },
-      ]),
-    );
+  const floor: import("@automovie/viewer").IAutoMovieSceneObject = sceneOf(
+    spaceOf([
+      {
+        id: "floor",
+        kind: "floor",
+        polygon: FLOOR_POLYGON,
+        anchor: { x: 0, y: 0.5, z: 0 },
+        rampTo: null,
+      },
+    ]),
+  );
   // A node group carries its own scene id, so this checks both child ordering and name-based addressability.
   TestValidator.equals(
     "the space group is appended after the nodes and lights",
@@ -158,23 +157,22 @@ export function test_viewer_space_ground(): void {
   );
 
   // 3. the ramp: height interpolated per vertex, one plane normal.
-  const ramp: import("@automovie/viewer").IAutoMovieSceneObject =
-    sceneOf(
-      spaceOf([
-        {
-          id: "ramp",
-          kind: "ramp",
-          polygon: [
-            { x: 0, y: 0, z: 0 },
-            { x: 2, y: 0, z: 0 },
-            { x: 2, y: 0, z: 2 },
-            { x: 0, y: 0, z: 2 },
-          ],
-          anchor: { x: 0, y: 0, z: 0 },
-          rampTo: { x: 2, y: 1, z: 0 },
-        },
-      ]),
-    );
+  const ramp: import("@automovie/viewer").IAutoMovieSceneObject = sceneOf(
+    spaceOf([
+      {
+        id: "ramp",
+        kind: "ramp",
+        polygon: [
+          { x: 0, y: 0, z: 0 },
+          { x: 2, y: 0, z: 0 },
+          { x: 2, y: 0, z: 2 },
+          { x: 0, y: 0, z: 2 },
+        ],
+        anchor: { x: 0, y: 0, z: 0 },
+        rampTo: { x: 2, y: 1, z: 0 },
+      },
+    ]),
+  );
   const rampTriangles: THREE.Vector3[][] = trianglesOf(
     ramp.scene.children[2]!.children[0] as THREE.Mesh,
   );
@@ -200,31 +198,30 @@ export function test_viewer_space_ground(): void {
   );
 
   // 4. heightfield relief reaches an internal viewer vertex.
-  const relief: import("@automovie/viewer").IAutoMovieSceneObject =
-    sceneOf(
-      spaceOf([
-        {
-          id: "relief",
-          kind: "floor",
-          polygon: [
-            { x: 0, y: 0, z: 0 },
-            { x: 2, y: 0, z: 0 },
-            { x: 2, y: 0, z: 2 },
-            { x: 0, y: 0, z: 2 },
-          ],
-          height: {
-            kind: "heightfield",
-            originX: 0,
-            originZ: 0,
-            spacingX: 1,
-            spacingZ: 1,
-            columns: 3,
-            rows: 3,
-            samples: [0, 0, 0, 0, 2, 0, 0, 0, 0],
-          },
+  const relief: import("@automovie/viewer").IAutoMovieSceneObject = sceneOf(
+    spaceOf([
+      {
+        id: "relief",
+        kind: "floor",
+        polygon: [
+          { x: 0, y: 0, z: 0 },
+          { x: 2, y: 0, z: 0 },
+          { x: 2, y: 0, z: 2 },
+          { x: 0, y: 0, z: 2 },
+        ],
+        height: {
+          kind: "heightfield",
+          originX: 0,
+          originZ: 0,
+          spacingX: 1,
+          spacingZ: 1,
+          columns: 3,
+          rows: 3,
+          samples: [0, 0, 0, 0, 2, 0, 0, 0, 0],
         },
-      ]),
-    );
+      },
+    ]),
+  );
   const reliefPosition:
     | THREE.BufferAttribute<THREE.BufferAttributeEventMap>
     | THREE.InterleavedBufferAttribute = (
@@ -244,22 +241,21 @@ export function test_viewer_space_ground(): void {
   );
 
   // 5. a degenerate footprint contributes nothing.
-  const collinear: import("@automovie/viewer").IAutoMovieSceneObject =
-    sceneOf(
-      spaceOf([
-        {
-          id: "line",
-          kind: "platform",
-          polygon: [
-            { x: 0, y: 0, z: 0 },
-            { x: 1, y: 0, z: 0 },
-            { x: 2, y: 0, z: 0 },
-          ],
-          anchor: { x: 0, y: 0, z: 0 },
-          rampTo: null,
-        },
-      ]),
-    );
+  const collinear: import("@automovie/viewer").IAutoMovieSceneObject = sceneOf(
+    spaceOf([
+      {
+        id: "line",
+        kind: "platform",
+        polygon: [
+          { x: 0, y: 0, z: 0 },
+          { x: 1, y: 0, z: 0 },
+          { x: 2, y: 0, z: 0 },
+        ],
+        anchor: { x: 0, y: 0, z: 0 },
+        rampTo: null,
+      },
+    ]),
+  );
   TestValidator.equals(
     "a zero-area footprint builds no mesh",
     collinear.scene.children[2]!.children.length,

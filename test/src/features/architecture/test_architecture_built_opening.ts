@@ -1,3 +1,17 @@
+import {
+  type IAutoMovieBoundaryWallCut,
+  type IAutoMovieMeshTopology,
+  type IAutoMovieOpeningPanelPlacement,
+  type IAutoMovieOpeningSweep,
+  type IAutoMovieWallOpening,
+  buildAutoMovieWall,
+  builtBoundaryWallCut,
+  builtOpeningPanelPlacements,
+  builtOpeningSweepEnvelope,
+  inspectAutoMovieMeshTopology,
+  lowerBuiltEnvironment,
+  validateBuiltEnvironment,
+} from "@automovie/engine";
 import type {
   IAutoMovieBuiltEnvironment,
   IAutoMovieBuiltOpening,
@@ -5,18 +19,6 @@ import type {
   IAutoMovieStageSetPiece,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { type IAutoMovieBoundaryWallCut, type IAutoMovieOpeningPanelPlacement, type IAutoMovieOpeningSweep, builtBoundaryWallCut, builtOpeningPanelPlacements, builtOpeningSweepEnvelope, lowerBuiltEnvironment, validateBuiltEnvironment, type IAutoMovieMeshTopology, type IAutoMovieWallOpening, buildAutoMovieWall, inspectAutoMovieMeshTopology } from "@automovie/engine";
-
-
-
-
-
-
-
-
-
-
 
 import { BUILT_OPENING_TEST_NO_ROTATION as NO_ROTATION } from "../internal/BUILT_OPENING_TEST_NO_ROTATION";
 import { assertBuiltOpeningTestRefusals } from "../internal/assertBuiltOpeningTestRefusals";

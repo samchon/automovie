@@ -1,7 +1,9 @@
+import {
+  type IAutoMovieMeshCrossing,
+  measureAutoMovieMeshCrossings,
+} from "@automovie/engine";
 import { type IAutoMovieMesh } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { type IAutoMovieMeshCrossing, measureAutoMovieMeshCrossings } from "@automovie/engine";
 
 import { equalGeometryTestValues } from "../internal/equalGeometryTestValues";
 import { throwsError } from "../internal/throwsError";

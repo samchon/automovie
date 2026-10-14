@@ -1,6 +1,5 @@
-import type { IAutoMovieAnalysisRun } from "@automovie/interface";
-
 import { autoMovieAnalysisRunDigest } from "@automovie/engine";
+import type { IAutoMovieAnalysisRun } from "@automovie/interface";
 
 /**
  * Seal a hand-authored run without asking the engine builder to approve it.

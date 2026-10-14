@@ -1,3 +1,15 @@
+import {
+  type IAutoMovieSubjectContribution,
+  builtEnvironmentAdjacentSpaces,
+  builtEnvironmentBuildingOfSpace,
+  builtEnvironmentContainsPoint,
+  builtEnvironmentSpaceConnectors,
+  builtEnvironmentSpaceNodes,
+  builtEnvironmentSpaceSurfaces,
+  lowerBuiltEnvironment,
+  mergeAutoMovieSpaces,
+  validateBuiltEnvironment,
+} from "@automovie/engine";
 import type {
   IAutoMovieBuiltConnector,
   IAutoMovieBuiltEnvironment,
@@ -9,16 +21,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { type IAutoMovieSubjectContribution, builtEnvironmentAdjacentSpaces, builtEnvironmentBuildingOfSpace, builtEnvironmentContainsPoint, builtEnvironmentSpaceConnectors, builtEnvironmentSpaceNodes, builtEnvironmentSpaceSurfaces, lowerBuiltEnvironment, mergeAutoMovieSpaces, validateBuiltEnvironment } from "@automovie/engine";
-
-
-
-
-
-
-
-
 
 import { assertBuiltEnvironmentTestRefusals } from "../internal/assertBuiltEnvironmentTestRefusals";
 import { builtEnvironmentTestBuilding as building } from "../internal/builtEnvironmentTestBuilding";

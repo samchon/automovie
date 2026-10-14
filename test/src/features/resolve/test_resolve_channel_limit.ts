@@ -1,10 +1,12 @@
 import {
+  type IAutoMovieClampOutcome,
+  applyChannelLimit,
+} from "@automovie/engine";
+import {
   IAutoMovieChannel,
   IAutoMovieChannelLimit,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { type IAutoMovieClampOutcome, applyChannelLimit } from "@automovie/engine";
 
 import { nclose } from "../internal/nclose";
 import { throwsError } from "../internal/throwsError";

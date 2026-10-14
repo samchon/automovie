@@ -1,3 +1,4 @@
+import { compileDefinedShot, defineShot } from "@automovie/engine";
 import type {
   IAutoMovieActionCall,
   IAutoMovieBeatEndState,
@@ -5,8 +6,6 @@ import type {
   IAutoMovieShotProgram,
   IAutoMovieSkeleton,
 } from "@automovie/interface";
-
-import { compileDefinedShot, defineShot } from "@automovie/engine";
 
 import { DOOR_CONTRACT } from "./DOOR_CONTRACT";
 import { IDoorShotProps } from "./IDoorShotProps";

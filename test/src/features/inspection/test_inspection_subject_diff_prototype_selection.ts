@@ -1,10 +1,17 @@
-import { IAutoMovieCompiledInstanceSet, IAutoMovieSubjectDiff, type IAutoMovieModel, type IAutoMovieSubjectArtifact, type IAutoMovieSubjectChange } from "@automovie/interface";
+import {
+  diffAutoMovieSubjects,
+  instanceSlot,
+  materializeCompiledInstanceSet,
+  productionRuntimeModelId,
+} from "@automovie/engine";
+import {
+  IAutoMovieCompiledInstanceSet,
+  type IAutoMovieModel,
+  type IAutoMovieSubjectArtifact,
+  type IAutoMovieSubjectChange,
+  IAutoMovieSubjectDiff,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { diffAutoMovieSubjects, instanceSlot, materializeCompiledInstanceSet, productionRuntimeModelId } from "@automovie/engine";
-
-
-
 
 import { namedFacts } from "../internal/namedFacts";
 import { nclose } from "../internal/nclose";

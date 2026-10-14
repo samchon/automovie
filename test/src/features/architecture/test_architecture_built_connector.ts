@@ -1,16 +1,18 @@
+import {
+  type IAutoMovieConnectorGeometry,
+  type IAutoMovieConnectorSectionAt,
+  type IAutoMovieConnectorStation,
+  builtConnectorGeometry,
+  builtConnectorSectionAt,
+  lowerBuiltEnvironment,
+  validateBuiltEnvironment,
+} from "@automovie/engine";
 import type {
   IAutoMovieBuiltEnvironment,
   IAutoMovieQuaternion,
   IAutoMovieStageSetPiece,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { type IAutoMovieConnectorGeometry, type IAutoMovieConnectorSectionAt, type IAutoMovieConnectorStation, builtConnectorGeometry, builtConnectorSectionAt, lowerBuiltEnvironment, validateBuiltEnvironment } from "@automovie/engine";
-
-
-
-
-
 
 import { BUILT_CONNECTOR_TEST_HELIX_RADIUS as HELIX_RADIUS } from "../internal/BUILT_CONNECTOR_TEST_HELIX_RADIUS";
 import { BUILT_CONNECTOR_TEST_HELIX_RISE as HELIX_RISE } from "../internal/BUILT_CONNECTOR_TEST_HELIX_RISE";

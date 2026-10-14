@@ -1,3 +1,8 @@
+import {
+  type IAutoMoviePassageBlockage,
+  propBlockedPassages,
+  validateBuiltEnvironment,
+} from "@automovie/engine";
 import type {
   IAutoMovieBuiltEnvironment,
   IAutoMovieConstraintViolation,
@@ -5,9 +10,6 @@ import type {
   IAutoMovieValidation,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { validateBuiltEnvironment, type IAutoMoviePassageBlockage, propBlockedPassages } from "@automovie/engine";
-
 
 import { namedFacts } from "../internal/predicates";
 

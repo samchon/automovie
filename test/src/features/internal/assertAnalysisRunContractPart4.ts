@@ -1,3 +1,7 @@
+import {
+  AUTOMOVIE_ANALYSIS_MAX_SAMPLES,
+  autoMovieAnalysisMetric,
+} from "@automovie/engine";
 import type {
   IAutoMovieAnalysisMetric,
   IAutoMovieAnalysisSample,
@@ -5,8 +9,6 @@ import type {
   IAutoMovieValidation,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { autoMovieAnalysisMetric, AUTOMOVIE_ANALYSIS_MAX_SAMPLES } from "@automovie/engine";
 
 import { hasViolation, namedFacts } from "./predicates";
 

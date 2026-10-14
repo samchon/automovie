@@ -1,13 +1,15 @@
 import {
+  IAutoMovieSampledChannel,
+  evaluateDrivenCurve,
+  resolveDrivers,
+} from "@automovie/engine";
+import {
   IAutoMovieChannel,
   IAutoMovieDrivenCurve,
   IAutoMovieDrivenCurvePoint,
   IAutoMovieDrivenDriver,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { IAutoMovieSampledChannel, evaluateDrivenCurve, resolveDrivers } from "@automovie/engine";
-
 
 import { nclose } from "../internal/nclose";
 import { throwsError } from "../internal/throwsError";

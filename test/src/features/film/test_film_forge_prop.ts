@@ -1,7 +1,6 @@
+import { IAutoMovieForgedProp, forgeProp } from "@automovie/engine";
 import { IAutoMoviePropSpec } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { IAutoMovieForgedProp, forgeProp } from "@automovie/engine";
 
 import { createDoorPropSpec } from "../internal/createDoorPropSpec";
 

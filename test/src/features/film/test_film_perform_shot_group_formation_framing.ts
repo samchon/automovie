@@ -1,4 +1,11 @@
 import {
+  IAutoMoviePerformedShot,
+  IAutoMovieStagedSet,
+  materializeCompiledFormation,
+  performShot,
+  stageScene,
+} from "@automovie/engine";
+import {
   IAutoMovieActionCall,
   IAutoMovieCompiledFormation,
   IAutoMovieFormationMotion,
@@ -7,11 +14,6 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { IAutoMoviePerformedShot, IAutoMovieStagedSet, performShot, stageScene, materializeCompiledFormation } from "@automovie/engine";
-
-
-
 
 import type { IFilmFormationFrameInput } from "../internal/IFilmFormationFrameInput";
 import type { IFilmFormationPerformanceInput } from "../internal/IFilmFormationPerformanceInput";

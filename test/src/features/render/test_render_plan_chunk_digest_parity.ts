@@ -1,7 +1,9 @@
+import {
+  autoMovieRenderDigest,
+  canonicalizeAutoMovieJson,
+} from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 import { createHash } from "node:crypto";
-
-import { autoMovieRenderDigest, canonicalizeAutoMovieJson } from "@automovie/engine";
 
 import { namedFacts, throwsError } from "../internal/predicates";
 

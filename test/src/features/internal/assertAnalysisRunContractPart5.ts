@@ -1,3 +1,8 @@
+import {
+  assertAutoMovieAnalysisTargets,
+  autoMovieAnalysisMetric,
+  summarizeAutoMovieAnalysis,
+} from "@automovie/engine";
 import type {
   IAutoMovieAnalysisMetric,
   IAutoMovieAnalysisReport,
@@ -5,9 +10,6 @@ import type {
   IAutoMovieAnalysisWarning,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { assertAutoMovieAnalysisTargets, autoMovieAnalysisMetric, summarizeAutoMovieAnalysis } from "@automovie/engine";
-
 
 import { sealedAnalysisRun } from "./analysisFixtures";
 import { namedFacts, throwsError } from "./predicates";

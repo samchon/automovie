@@ -1,3 +1,4 @@
+import { Quaternion, inheritProductionLighting } from "@automovie/engine";
 import {
   AutoMovieChannelValueType,
   IAutoMovieChannel,
@@ -8,8 +9,6 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { inheritProductionLighting, Quaternion } from "@automovie/engine";
 
 import { IDENTITY_TRANSFORM } from "../internal/fixtures";
 import { namedFacts, nclose, vclose } from "../internal/predicates";

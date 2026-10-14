@@ -1,3 +1,13 @@
+import {
+  type IAutoMovieConnectorCarriagePlacement,
+  type IAutoMovieConnectorGeometry,
+  builtConnectorCarriagePlacements,
+  builtConnectorGeometry,
+  builtEnvironmentAdjacentSpaces,
+  builtEnvironmentSpaceConnectors,
+  lowerBuiltEnvironment,
+  validateBuiltEnvironment,
+} from "@automovie/engine";
 import type {
   IAutoMovieBuiltConnector,
   IAutoMovieBuiltElement,
@@ -5,14 +15,6 @@ import type {
   IAutoMovieStageSetPiece,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { type IAutoMovieConnectorCarriagePlacement, type IAutoMovieConnectorGeometry, builtConnectorCarriagePlacements, builtConnectorGeometry, builtEnvironmentAdjacentSpaces, builtEnvironmentSpaceConnectors, lowerBuiltEnvironment, validateBuiltEnvironment } from "@automovie/engine";
-
-
-
-
-
-
 
 import { BUILT_CONNECTOR_OPERATION_TEST_CAR_REST as CAR_REST } from "../internal/BUILT_CONNECTOR_OPERATION_TEST_CAR_REST";
 import { BUILT_CONNECTOR_OPERATION_TEST_NO_ROTATION as NO_ROTATION } from "../internal/BUILT_CONNECTOR_OPERATION_TEST_NO_ROTATION";

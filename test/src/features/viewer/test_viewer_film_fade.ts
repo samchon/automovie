@@ -1,9 +1,11 @@
+import {
+  type AutoMovieFilmBeautyComposition,
+  disposeFadeToBlack,
+  renderFadeToBlackFrame,
+  resolveAutoMovieFilmBeautyComposition,
+} from "@automovie/viewer";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
-
-import { type AutoMovieFilmBeautyComposition, disposeFadeToBlack, renderFadeToBlackFrame, resolveAutoMovieFilmBeautyComposition } from "@automovie/viewer";
-
-
 
 import { createDisplayCompositionRenderer } from "../internal/createDisplayCompositionRenderer";
 import { namedFacts, nclose } from "../internal/predicates";

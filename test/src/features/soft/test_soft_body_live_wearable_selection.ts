@@ -1,8 +1,10 @@
+import {
+  productionSoftBodyUsesMovingBoundary,
+  readProductionLiveWearableSoftBodies,
+  selectProductionLiveWearableSoftBodies,
+} from "@automovie/engine";
 import { IAutoMovieSoftBodyDomain } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { productionSoftBodyUsesMovingBoundary, readProductionLiveWearableSoftBodies, selectProductionLiveWearableSoftBodies } from "@automovie/engine";
-
 
 import { throwsError } from "../internal/predicates";
 

@@ -1,3 +1,4 @@
+import { summarizeAutoMovieAnalysis } from "@automovie/engine";
 import {
   AutoMovieAnalysisDomain,
   type IAutoMovieAnalysisDomainRollup,
@@ -8,7 +9,6 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { summarizeAutoMovieAnalysis } from "@automovie/engine";
 import { nclose } from "./nclose";
 
 /** Execute the next ordered assertions of test_analysis_run_contract.

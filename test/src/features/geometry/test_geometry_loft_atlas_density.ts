@@ -1,11 +1,13 @@
 import {
+  buildAutoMoviePolyhedron,
+  extrudeAutoMovieRegion,
+  loftAutoMovieSections,
+} from "@automovie/engine";
+import {
   type IAutoMovieMesh,
   type IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { buildAutoMoviePolyhedron, extrudeAutoMovieRegion, loftAutoMovieSections } from "@automovie/engine";
-
 
 import { type IAtlasDensityRange } from "../internal/IAtlasDensityRange";
 import { atlasDensityRange } from "../internal/atlasDensityRange";

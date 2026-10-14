@@ -1,10 +1,19 @@
-import type { IAutoMovieBuiltEnvironment, IAutoMovieSubjectArtifact, IAutoMovieBuiltElement, IAutoMovieBuiltSpace, IAutoMovieModel, IAutoMovieSubjectDescription, IAutoMovieTransform } from "@automovie/interface";
+import {
+  builtEnvironmentUnclaimedElements,
+  describeAutoMovieSubject,
+  describeAutoMovieSubjects,
+  validateBuiltEnvironment,
+} from "@automovie/engine";
+import type {
+  IAutoMovieBuiltElement,
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieBuiltSpace,
+  IAutoMovieModel,
+  IAutoMovieSubjectArtifact,
+  IAutoMovieSubjectDescription,
+  IAutoMovieTransform,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { builtEnvironmentUnclaimedElements, validateBuiltEnvironment, describeAutoMovieSubject, describeAutoMovieSubjects } from "@automovie/engine";
-
-
-
 
 import { makeProp } from "../internal/makeProp";
 import { namedFacts } from "../internal/namedFacts";

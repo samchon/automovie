@@ -1,3 +1,4 @@
+import { resolveBeatEnd } from "@automovie/engine";
 import {
   IAutoMovieBeatEndActorState,
   IAutoMovieClip,
@@ -7,7 +8,6 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { resolveBeatEnd } from "@automovie/engine";
 import { IDENTITY_TRANSFORM } from "../internal/fixtures";
 import { namedFacts, nclose, vclose } from "../internal/predicates";
 

@@ -1,11 +1,13 @@
-import { TestValidator } from "@nestia/e2e";
-import * as THREE from "three";
-
-import { AutoMovieTextureCache, createAutoMovieResourceRetirement } from "@automovie/viewer";
-
+import {
+  AutoMovieTextureCache,
+  createAutoMovieResourceRetirement,
+} from "@automovie/viewer";
 import type { HumanResidentPort } from "@automovie/viewer/human/common/HumanResidentPort";
 import type { IHumanResidentRequest } from "@automovie/viewer/human/common/IHumanResidentRequest";
 import { createHumanResidentWorker } from "@automovie/viewer/human/common/createHumanResidentWorker";
+import { TestValidator } from "@nestia/e2e";
+import * as THREE from "three";
+
 import { throwsError } from "../internal/predicates";
 
 /**

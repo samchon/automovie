@@ -1,3 +1,4 @@
+import { autoMovieRoomVisibility } from "@automovie/engine";
 import {
   IAutoMovieBuiltConnector,
   IAutoMovieBuiltEnvironment,
@@ -6,7 +7,6 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { autoMovieRoomVisibility } from "@automovie/engine";
 import { boxCell, buildingFixture } from "../internal/renderFixtures";
 
 /**

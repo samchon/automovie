@@ -1,12 +1,14 @@
 import {
+  type IAutoMovieArchetypeGeometry,
+  type IAutoMovieArchetypeParameterPlan,
+  type IAutoMovieArchetypeRefusal,
+  PRIMITIVE_PROP_ARCHETYPE,
+} from "@automovie/archetypes";
+import {
   AutoMoviePrimitiveShape,
   type IAutoMovieModelPart,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { type IAutoMovieArchetypeGeometry, type IAutoMovieArchetypeParameterPlan, type IAutoMovieArchetypeRefusal, PRIMITIVE_PROP_ARCHETYPE } from "@automovie/archetypes";
-
-
 
 import { namedFacts, nclose } from "../internal/predicates";
 

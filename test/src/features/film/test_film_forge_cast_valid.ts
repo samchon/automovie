@@ -1,12 +1,14 @@
+import {
+  type IAutoMovieForgedCast,
+  type IAutoMovieStagedSet,
+  forgeCast,
+  stageScene,
+} from "@automovie/engine";
 import type {
   IAutoMovieSceneNode,
   IAutoMovieScript,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { type IAutoMovieForgedCast, type IAutoMovieStagedSet, forgeCast, stageScene } from "@automovie/engine";
-
-
 
 import {
   forgeEntry,

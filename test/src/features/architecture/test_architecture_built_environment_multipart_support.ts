@@ -1,3 +1,12 @@
+import {
+  builtEnvironmentElementPartBounds,
+  builtEnvironmentPlacementBounds,
+  builtEnvironmentPlacementOverlap,
+  builtEnvironmentPlacementOverlapSweep,
+  builtEnvironmentSupportStatus,
+  builtEnvironmentSupportSweep,
+  validateBuiltEnvironment,
+} from "@automovie/engine";
 import type {
   IAutoMovieBuiltElement,
   IAutoMovieBuiltEnvironment,
@@ -11,13 +20,6 @@ import type {
   IAutoMovieTransform,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { builtEnvironmentElementPartBounds, builtEnvironmentPlacementBounds, builtEnvironmentPlacementOverlap, builtEnvironmentPlacementOverlapSweep, builtEnvironmentSupportStatus, builtEnvironmentSupportSweep, validateBuiltEnvironment } from "@automovie/engine";
-
-
-
-
-
 
 import { makeProp, primitivePart } from "../internal/fixtures";
 import { namedFacts, nclose } from "../internal/predicates";

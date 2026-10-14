@@ -1,3 +1,4 @@
+import { builtInstanceSetPlacementBounds } from "@automovie/engine";
 import type {
   IAutoMovieInstanceSetDesign,
   IAutoMovieSubjectBox,
@@ -5,7 +6,6 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { builtInstanceSetPlacementBounds } from "@automovie/engine";
 import { namedFacts, throwsError, vclose } from "../internal/predicates";
 
 const set: (

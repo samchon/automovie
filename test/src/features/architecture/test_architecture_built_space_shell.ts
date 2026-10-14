@@ -1,3 +1,14 @@
+import {
+  builtEnvironmentContainsPoint,
+  builtEnvironmentSpaceFidelity,
+  builtSpaceContainsPoint,
+  builtSpaceIsConvex,
+  builtSpaceShellVolume,
+  builtSpaceStatesVolume,
+  deriveAutoMovieDrawing,
+  measureAutoMovieQuantities,
+  validateBuiltEnvironment,
+} from "@automovie/engine";
 import type {
   IAutoMovieBuiltEnvironment,
   IAutoMovieBuiltSpace,
@@ -8,15 +19,6 @@ import type {
   IAutoMovieSpaceShell,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { builtEnvironmentContainsPoint, builtEnvironmentSpaceFidelity, builtSpaceContainsPoint, builtSpaceIsConvex, builtSpaceShellVolume, builtSpaceStatesVolume, validateBuiltEnvironment, deriveAutoMovieDrawing, measureAutoMovieQuantities } from "@automovie/engine";
-
-
-
-
-
-
-
 
 import { BUILT_SPACE_SHELL_TEST_HALL as HALL } from "../internal/BUILT_SPACE_SHELL_TEST_HALL";
 import { assertBuiltSpaceShellTestRefusals } from "../internal/assertBuiltSpaceShellTestRefusals";

@@ -1,3 +1,12 @@
+import { HUMANOID_GAITS } from "@automovie/archetypes";
+import {
+  type IAutoMovieActorContext,
+  type IAutoMoviePerformedShot,
+  type IAutoMovieStagedSet,
+  makeActorSynthesizer,
+  performShot,
+  stageScene,
+} from "@automovie/engine";
 import {
   IAutoMovieActionCall,
   IAutoMovieCameraAction,
@@ -11,13 +20,6 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { HUMANOID_GAITS } from "@automovie/archetypes";
-import { type IAutoMoviePerformedShot, type IAutoMovieStagedSet, performShot, stageScene, type IAutoMovieActorContext, makeActorSynthesizer } from "@automovie/engine";
-
-
-
-
 
 import {
   makePerformanceWrite,

@@ -1,11 +1,10 @@
+import { validateModel, validateProfileCapabilities } from "@automovie/engine";
 import type {
   IAutoMovieConstraintViolation,
   IAutoMovieProfile,
   IAutoMovieValidation,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { validateModel, validateProfileCapabilities } from "@automovie/engine";
 
 import { createModel } from "../internal/createModel";
 import { namedFacts } from "../internal/namedFacts";

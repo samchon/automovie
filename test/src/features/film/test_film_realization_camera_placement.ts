@@ -1,3 +1,10 @@
+import {
+  type IAutoMovieCompiledDefinedShot,
+  type IAutoMovieResolvedCamera,
+  compileDefinedShot,
+  defineShot,
+  resolveCameraAt,
+} from "@automovie/engine";
 import type {
   IAutoMovieActionCall,
   IAutoMovieBlocking,
@@ -10,11 +17,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { type IAutoMovieCompiledDefinedShot, type IAutoMovieResolvedCamera, compileDefinedShot, defineShot, resolveCameraAt } from "@automovie/engine";
-
-
-
 
 import {
   makeBlockingWrite,

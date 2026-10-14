@@ -1,4 +1,11 @@
 import {
+  IAutoMovieActionSynthesizer,
+  IAutoMoviePerformedShot,
+  IAutoMovieStagedSet,
+  performShot,
+  stageScene,
+} from "@automovie/engine";
+import {
   IAutoMovieActionCall,
   IAutoMovieActionTarget,
   IAutoMovieBlocking,
@@ -14,11 +21,6 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { IAutoMoviePerformedShot, IAutoMovieStagedSet, performShot, stageScene, IAutoMovieActionSynthesizer } from "@automovie/engine";
-
-
-
 
 import {
   FIXTURE_BONE,

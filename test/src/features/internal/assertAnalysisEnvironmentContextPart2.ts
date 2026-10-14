@@ -1,12 +1,14 @@
+import {
+  assertAutoMovieAnalysisSolids,
+  autoMovieSolidBlocks,
+  validateAutoMovieEnvironmentContext,
+} from "@automovie/engine";
 import type {
   IAutoMovieEnvironmentContext,
   IAutoMovieHalfSpacePlane,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { assertAutoMovieAnalysisSolids, autoMovieSolidBlocks, validateAutoMovieEnvironmentContext } from "@automovie/engine";
-
 
 import { boxSolid } from "./analysisFixtures";
 import { hasViolation, namedFacts, throwsError } from "./predicates";

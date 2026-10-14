@@ -3,9 +3,8 @@ import {
   IAutoMovieRenderObservation,
   IAutoMovieRenderReport,
 } from "@automovie/interface";
-import { TestValidator } from "@nestia/e2e";
-
 import { auditAutoMovieRenderObservation } from "@automovie/render";
+import { TestValidator } from "@nestia/e2e";
 
 const METRICS: readonly AutoMovieRenderMetric[] = [
   "triangles",

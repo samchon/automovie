@@ -1,14 +1,16 @@
 import {
+  type IAutoMovieResolveOutput,
+  IAutoMovieSampledChannel,
+  resolveDrivers,
+  resolveFrame,
+} from "@automovie/engine";
+import {
   IAutoMovieChannel,
   IAutoMovieDrivenDriver,
   type IAutoMovieDriver,
   IAutoMovieNode,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { type IAutoMovieResolveOutput, IAutoMovieSampledChannel, resolveDrivers, resolveFrame } from "@automovie/engine";
-
-
 
 import { nclose } from "../internal/nclose";
 import { throwsError } from "../internal/throwsError";

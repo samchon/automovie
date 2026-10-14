@@ -1,11 +1,13 @@
+import {
+  builtEnvironmentSpacePopulations,
+  validateBuiltEnvironment,
+} from "@automovie/engine";
 import type {
   IAutoMovieBuiltEnvironment,
   IAutoMovieBuiltPopulation,
   IAutoMovieInstanceSetDesign,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { builtEnvironmentSpacePopulations, validateBuiltEnvironment } from "@automovie/engine";
 
 import { namedFacts, throwsError } from "./predicates";
 

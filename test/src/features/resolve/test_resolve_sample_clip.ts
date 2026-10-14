@@ -1,12 +1,14 @@
 import {
+  type IAutoMovieSampledChannel,
+  sampleClip,
+  sampleClipSequence,
+} from "@automovie/engine";
+import {
   IAutoMovieChannel,
   IAutoMovieClip,
   IAutoMovieTrack,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { type IAutoMovieSampledChannel, sampleClip, sampleClipSequence } from "@automovie/engine";
-
 
 import { namedFacts } from "../internal/namedFacts";
 import { nclose } from "../internal/nclose";

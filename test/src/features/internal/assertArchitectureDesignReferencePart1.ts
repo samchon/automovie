@@ -1,3 +1,8 @@
+import {
+  validateDesignEvidence,
+  validateDesignReference,
+  validateGeneratedAcquisition,
+} from "@automovie/engine";
 import type {
   IAutoMovieConstraintViolation,
   IAutoMovieDesignEvidence,
@@ -6,9 +11,6 @@ import type {
   IAutoMovieValidation,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { validateDesignEvidence, validateDesignReference, validateGeneratedAcquisition } from "@automovie/engine";
-
 
 import {
   hasViolation,

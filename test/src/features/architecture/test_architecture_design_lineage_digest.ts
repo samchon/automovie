@@ -1,10 +1,12 @@
+import {
+  designLineageDigest,
+  designLineageViewDigest,
+} from "@automovie/engine";
 import type {
   IAutoMovieDesignLineage,
   IAutoMovieDesignSubject,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { designLineageDigest, designLineageViewDigest } from "@automovie/engine";
 
 import {
   brokenLineage,

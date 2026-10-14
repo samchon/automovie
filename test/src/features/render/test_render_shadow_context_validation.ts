@@ -1,3 +1,4 @@
+import { stageScene, validateSceneEnvironment } from "@automovie/engine";
 import {
   IAutoMovieColor,
   IAutoMovieLight,
@@ -7,8 +8,6 @@ import {
   IAutoMovieValidation,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { stageScene, validateSceneEnvironment } from "@automovie/engine";
 
 import { makeScriptWrite, makeStagingWrite } from "../internal/filmFixtures";
 import { hasViolation } from "../internal/predicates";

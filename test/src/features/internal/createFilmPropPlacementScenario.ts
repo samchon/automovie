@@ -1,3 +1,4 @@
+import { validatePropPlacements } from "@automovie/engine";
 import type {
   IAutoMovieBuiltEnvironment,
   IAutoMovieConstraintViolation,
@@ -6,7 +7,6 @@ import type {
   IAutoMovieValidation,
 } from "@automovie/interface";
 
-import { validatePropPlacements } from "@automovie/engine";
 import {
   propEnvironment,
   propRegistry,

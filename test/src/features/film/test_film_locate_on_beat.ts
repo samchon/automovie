@@ -1,10 +1,10 @@
+import { locateOnBeat } from "@automovie/engine";
 import {
   IAutoMovieConstraintViolation,
   IAutoMovieScriptNode,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { locateOnBeat } from "@automovie/engine";
 import { createScriptTree } from "../internal/createScriptTree";
 
 const sample: () => IAutoMovieConstraintViolation[] =

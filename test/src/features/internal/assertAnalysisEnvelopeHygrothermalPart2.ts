@@ -1,3 +1,8 @@
+import {
+  type IAutoMovieEnvelopeRequest,
+  type IAutoMovieSpaceAirRequest,
+  analyzeAutoMovieSpaceAir,
+} from "@automovie/engine";
 import type {
   AutoMovieAnalysisDomain,
   IAutoMovieAnalysisMetric,
@@ -6,9 +11,6 @@ import type {
   IAutoMovieAnalysisWarning,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { type IAutoMovieEnvelopeRequest, type IAutoMovieSpaceAirRequest, analyzeAutoMovieSpaceAir } from "@automovie/engine";
-
 
 import { nclose } from "./predicates";
 

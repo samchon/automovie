@@ -1,3 +1,10 @@
+import {
+  autoMovieAnalysisMetric,
+  autoMovieAnalysisRunDigest,
+  sealAutoMovieAnalysisRun,
+  summarizeAutoMovieAnalysis,
+  validateAutoMovieAnalysisRun,
+} from "@automovie/engine";
 import type {
   AutoMovieAnalysisComparison,
   IAutoMovieAnalysisMetric,
@@ -8,11 +15,6 @@ import type {
   IAutoMovieValidation,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { autoMovieAnalysisMetric, autoMovieAnalysisRunDigest, sealAutoMovieAnalysisRun, summarizeAutoMovieAnalysis, validateAutoMovieAnalysisRun } from "@automovie/engine";
-
-
-
 
 import { assertAnalysisRunContractPart1 } from "../internal/assertAnalysisRunContractPart1";
 import { assertAnalysisRunContractPart2 } from "../internal/assertAnalysisRunContractPart2";

@@ -1,3 +1,9 @@
+import {
+  AutoMovieSubject,
+  AutoMovieSubjectGroup,
+  type IAutoMovieSubjectContribution,
+  lowerBuiltEnvironment,
+} from "@automovie/engine";
 import type {
   IAutoMovieBuiltEnvironment,
   IAutoMovieBuiltSpace,
@@ -8,10 +14,6 @@ import type {
   IAutoMovieTransform,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { AutoMovieSubject, AutoMovieSubjectGroup, type IAutoMovieSubjectContribution, lowerBuiltEnvironment } from "@automovie/engine";
-
-
 
 import { createModel } from "../internal/fixtures";
 import { nclose } from "../internal/nclose";

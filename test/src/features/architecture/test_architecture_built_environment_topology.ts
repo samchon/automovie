@@ -1,15 +1,17 @@
+import {
+  builtEnvironmentAdjacentSpaces,
+  builtEnvironmentBuildingOfSpace,
+  builtEnvironmentContainsPoint,
+  builtEnvironmentSpaceNodes,
+  lowerBuiltEnvironment,
+  validateBuiltEnvironment,
+} from "@automovie/engine";
 import type {
   IAutoMovieBuiltConnector,
   IAutoMovieBuiltEnvironment,
   IAutoMovieStageSetPiece,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { builtEnvironmentAdjacentSpaces, builtEnvironmentBuildingOfSpace, builtEnvironmentContainsPoint, builtEnvironmentSpaceNodes, lowerBuiltEnvironment, validateBuiltEnvironment } from "@automovie/engine";
-
-
-
-
 
 import { BUILT_TOPOLOGY_TEST_ANNEX_TILT as ANNEX_TILT } from "../internal/BUILT_TOPOLOGY_TEST_ANNEX_TILT";
 import { BUILT_TOPOLOGY_TEST_WING_YAW as WING_YAW } from "../internal/BUILT_TOPOLOGY_TEST_WING_YAW";

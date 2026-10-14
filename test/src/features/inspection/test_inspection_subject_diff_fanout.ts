@@ -1,7 +1,14 @@
-import { IAutoMovieCompiledInstanceSet, type IAutoMovieCompiledInstancePrototype, type IAutoMovieModel, type IAutoMovieSubjectArtifact, type IAutoMovieSubjectChange, type IAutoMovieSubjectDiff, type IAutoMovieSubjectDiffFanout } from "@automovie/interface";
-import { TestValidator } from "@nestia/e2e";
-
 import { diffAutoMovieSubjects } from "@automovie/engine";
+import {
+  type IAutoMovieCompiledInstancePrototype,
+  IAutoMovieCompiledInstanceSet,
+  type IAutoMovieModel,
+  type IAutoMovieSubjectArtifact,
+  type IAutoMovieSubjectChange,
+  type IAutoMovieSubjectDiff,
+  type IAutoMovieSubjectDiffFanout,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
 
 import { subjectInspectionArtifact } from "../internal/subjectInspectionArtifact";
 import { subjectInspectionInstanceSet } from "../internal/subjectInspectionInstanceSet";

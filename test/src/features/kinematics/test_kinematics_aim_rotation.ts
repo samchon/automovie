@@ -1,7 +1,6 @@
+import { Quaternion, aimRotation } from "@automovie/engine";
 import { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { aimRotation, Quaternion } from "@automovie/engine";
 
 import { nclose } from "../internal/nclose";
 import { qclose } from "../internal/qclose";

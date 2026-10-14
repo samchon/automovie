@@ -1,3 +1,4 @@
+import { validatePoseResult } from "@automovie/engine";
 import type {
   IAutoMovieBone,
   IAutoMovieSkeleton,
@@ -5,7 +6,6 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { validatePoseResult } from "@automovie/engine";
 import { createSkeleton } from "../internal/createSkeleton";
 import { joint } from "../internal/joint";
 import { makePose } from "../internal/makePose";

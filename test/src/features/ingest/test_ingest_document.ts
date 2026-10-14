@@ -165,10 +165,7 @@ export function test_ingest_document(): void {
     .addChannel(cS);
   doc.createAnimation(); // unnamed, empty
 
-  const {
-    nodes,
-    clips,
-  }: import("@automovie/ingest").IAutoMovieIngestResult =
+  const { nodes, clips }: import("@automovie/ingest").IAutoMovieIngestResult =
     ingestDocument(doc);
 
   // 1. node count + parent references

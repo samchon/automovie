@@ -1,6 +1,5 @@
-import { tessellate, type ITessellation } from "@automovie/engine";
+import { type ITessellation, tessellate } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
-
 
 import { throwsError } from "../internal/predicates";
 

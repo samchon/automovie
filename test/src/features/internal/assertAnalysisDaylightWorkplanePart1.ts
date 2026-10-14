@@ -1,3 +1,8 @@
+import {
+  type IAutoMovieAnalysisWorkplane,
+  type IAutoMovieDaylightRequest,
+  analyzeAutoMovieDaylight,
+} from "@automovie/engine";
 import type {
   AutoMovieAnalysisDomain,
   IAutoMovieAnalysisMetric,
@@ -8,9 +13,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { type IAutoMovieAnalysisWorkplane, type IAutoMovieDaylightRequest, analyzeAutoMovieDaylight } from "@automovie/engine";
-
 
 import { analysisContext, boxSolid } from "./analysisFixtures";
 import { nclose } from "./predicates";

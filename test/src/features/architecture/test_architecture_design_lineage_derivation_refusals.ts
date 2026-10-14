@@ -1,7 +1,7 @@
+import { validateDesignLineage } from "@automovie/engine";
 import type { IAutoMovieDesignLineage } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { validateDesignLineage } from "@automovie/engine";
 import {
   RENOVATION_TEXTURE_DIGEST,
   brokenLineage,

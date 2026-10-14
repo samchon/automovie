@@ -1,3 +1,4 @@
+import { sceneFogTransmittance } from "@automovie/engine";
 import {
   IAutoMovieFog,
   IAutoMovieMotion,
@@ -7,17 +8,20 @@ import {
   IAutoMovieSkeleton,
   IAutoMovieTransform,
 } from "@automovie/interface";
+import {
+  IAutoMoviePoseKeypointActor,
+  IAutoMoviePoseKeypointFrame,
+  IAutoMoviePoseKeypointSidecar,
+  planPoseKeypointSidecar,
+  renderPoseKeypointSidecar,
+} from "@automovie/render";
+import {
+  IAutoMovieModelObject,
+  buildModel,
+  buildScene,
+} from "@automovie/viewer";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
-
-import { sceneFogTransmittance } from "@automovie/engine";
-import { IAutoMoviePoseKeypointActor, IAutoMoviePoseKeypointFrame, IAutoMoviePoseKeypointSidecar, planPoseKeypointSidecar, renderPoseKeypointSidecar } from "@automovie/render";
-
-
-
-
-import { IAutoMovieModelObject, buildModel, buildScene } from "@automovie/viewer";
-
 
 import {
   createModel,

@@ -1,3 +1,8 @@
+import {
+  type IAutoMovieSupportResult,
+  affordanceSupportContacts,
+  detectSupportToppling,
+} from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieQuaternion,
@@ -5,9 +10,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { affordanceSupportContacts, type IAutoMovieSupportResult, detectSupportToppling } from "@automovie/engine";
-
 
 import {
   namedFacts,

@@ -1,10 +1,12 @@
+import {
+  builtConvexCellVertices,
+  builtSpaceVolumeBounds,
+} from "@automovie/engine";
 import type {
   IAutoMovieSubjectBox,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { builtConvexCellVertices, builtSpaceVolumeBounds } from "@automovie/engine";
 
 import { boxCell } from "../internal/envelopeFixtures";
 import { nclose } from "../internal/nclose";

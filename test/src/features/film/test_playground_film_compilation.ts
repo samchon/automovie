@@ -5,18 +5,17 @@ import type {
   IAutoMovieSequenceEntry,
   IAutoMovieShot,
 } from "@automovie/interface";
+import type { ICompilePursuitFilm } from "@automovie/playground/film/ICompilePursuitFilm";
+import { compilePursuitFilm } from "@automovie/playground/film/compilePursuitFilm";
 import { TestValidator } from "@nestia/e2e";
 
-import type { ICompilePursuitFilm } from "@automovie/playground/film/ICompilePursuitFilm";
 import {
   makeBlockingWrite,
   makePerformanceWrite,
   makeScriptWrite,
   makeStagingWrite,
 } from "../internal/filmFixtures";
-import { compilePursuitFilm } from "@automovie/playground/film/compilePursuitFilm";
 import { nclose } from "../internal/predicates";
-
 
 /**
  * Exercise the example's portable compilation boundary with two short static holds, not a rendered pursuit or a Human anatomical/geometry observation. Original engine refusals retain their named compilation boundary; own rig keys and exact blocking/performance pairing prevent inherited object names or incomplete arrays from becoming usable input.

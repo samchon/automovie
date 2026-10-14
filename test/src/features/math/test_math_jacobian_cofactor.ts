@@ -1,6 +1,8 @@
-import { cofactorAutoMovieJacobian, type IAutoMovieJacobianCofactor } from "@automovie/engine";
+import {
+  type IAutoMovieJacobianCofactor,
+  cofactorAutoMovieJacobian,
+} from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
-
 
 import { equalGeometryTestValues } from "../internal/equalGeometryTestValues";
 import { nclose } from "../internal/nclose";

@@ -1,4 +1,12 @@
 import {
+  IAutoMovieActionSynthesizer,
+  IAutoMoviePerformedShot,
+  IAutoMovieStagedSet,
+  performShot,
+  sampleClip,
+  stageScene,
+} from "@automovie/engine";
+import {
   AutoMovieInteractionEventKind,
   IAutoMovieActionCall,
   IAutoMovieActionTarget,
@@ -14,12 +22,6 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { IAutoMoviePerformedShot, IAutoMovieStagedSet, performShot, stageScene, IAutoMovieActionSynthesizer, sampleClip } from "@automovie/engine";
-
-
-
-
 
 import type { FilmLaunchPerformer } from "../internal/FilmLaunchPerformer";
 import { assertFilmLaunchAdmission } from "../internal/assertFilmLaunchAdmission";

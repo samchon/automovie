@@ -1,7 +1,7 @@
-import { TestValidator } from "@nestia/e2e";
-
 import { jointToQuaternion } from "@automovie/engine";
 import { type IAutoMovieQuaternion } from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
 import { qclose } from "../internal/qclose";
 import { throwsError } from "../internal/throwsError";
 

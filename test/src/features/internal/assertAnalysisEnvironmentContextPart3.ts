@@ -1,13 +1,15 @@
+import {
+  autoMovieHemisphereDirections,
+  autoMovieRayObstructed,
+  autoMovieSkyward,
+  autoMovieSolidBlocks,
+} from "@automovie/engine";
 import type {
   IAutoMovieEnvironmentContext,
   IAutoMovieHalfSpacePlane,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { autoMovieHemisphereDirections, autoMovieRayObstructed, autoMovieSkyward, autoMovieSolidBlocks } from "@automovie/engine";
-
-
 
 import { namedFacts, nclose, throwsError } from "./predicates";
 

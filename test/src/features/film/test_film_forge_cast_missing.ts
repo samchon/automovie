@@ -1,7 +1,6 @@
+import { IAutoMovieForgedCast, forgeCast } from "@automovie/engine";
 import { IAutoMovieConstraintViolation } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { IAutoMovieForgedCast, forgeCast } from "@automovie/engine";
 
 import { makeScriptWrite } from "../internal/filmFixtures";
 import { hasViolation, namedFacts } from "../internal/predicates";

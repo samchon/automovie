@@ -1,9 +1,11 @@
+import {
+  IAutoMovieMeshAssembly,
+  buildAutoMovieWall,
+  inspectAutoMovieMeshTopology,
+  mergeAutoMovieMeshParts,
+} from "@automovie/engine";
 import { IAutoMovieMesh } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { IAutoMovieMeshAssembly, buildAutoMovieWall, inspectAutoMovieMeshTopology, mergeAutoMovieMeshParts } from "@automovie/engine";
-
-
 
 import { arch } from "../internal/arch";
 import { bounds } from "../internal/bounds";

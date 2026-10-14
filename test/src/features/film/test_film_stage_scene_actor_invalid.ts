@@ -1,6 +1,5 @@
-import { TestValidator } from "@nestia/e2e";
-
 import { type IAutoMovieStagedSet, stageScene } from "@automovie/engine";
+import { TestValidator } from "@nestia/e2e";
 
 import { makeScriptWrite, makeStagingWrite } from "../internal/filmFixtures";
 import { hasViolation, namedFacts } from "../internal/predicates";

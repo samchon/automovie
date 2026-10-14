@@ -1,7 +1,7 @@
+import { Quaternion } from "@automovie/engine";
 import { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { Quaternion } from "@automovie/engine";
 import { vclose } from "../internal/predicates";
 
 /**

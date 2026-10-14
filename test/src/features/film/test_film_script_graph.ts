@@ -1,7 +1,6 @@
+import { beatNodeOf, scriptAncestors } from "@automovie/engine";
 import type { IAutoMovieScriptNode } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { beatNodeOf, scriptAncestors } from "@automovie/engine";
 
 import { createScriptTree } from "../internal/createScriptTree";
 import { throwsError } from "../internal/predicates";

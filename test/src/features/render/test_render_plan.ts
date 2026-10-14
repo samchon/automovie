@@ -1,10 +1,12 @@
 import { IAutoMovieRenderSpec } from "@automovie/interface";
+import {
+  ffmpegArgs,
+  frameName,
+  framePattern,
+  frameTimes,
+  renderPathStem,
+} from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
-
-import { ffmpegArgs, frameName, framePattern, frameTimes, renderPathStem } from "@automovie/render";
-
-
-
 
 import { nclose } from "../internal/predicates";
 

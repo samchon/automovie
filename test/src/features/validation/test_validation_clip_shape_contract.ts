@@ -1,12 +1,14 @@
 import {
+  IAutoMovieSampledChannel,
+  sampleClip,
+  validateClipArtifact,
+} from "@automovie/engine";
+import { channelValueWidth } from "@automovie/engine/validation/channelValueWidth";
+import {
   IAutoMovieClip,
   IAutoMovieConstraintViolation,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { IAutoMovieSampledChannel, sampleClip, validateClipArtifact } from "@automovie/engine";
-
-import { channelValueWidth } from "@automovie/engine/validation/channelValueWidth";
 
 import { namedFacts, throwsError } from "../internal/predicates";
 import { withoutArraySlot } from "../internal/withoutArraySlot";

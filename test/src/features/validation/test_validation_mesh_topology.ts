@@ -1,11 +1,10 @@
+import { tessellateToMesh, validateMeshTopology } from "@automovie/engine";
 import {
   IAutoMovieConstraintViolation,
   IAutoMovieMesh,
   IAutoMovieValidation,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { tessellateToMesh, validateMeshTopology } from "@automovie/engine";
 
 import {
   hasViolation,

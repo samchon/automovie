@@ -1,12 +1,14 @@
 import {
+  composeScene,
+  lowerSkeletonNodes,
+  sceneToNodes,
+} from "@automovie/engine";
+import {
   type IAutoMovieModel,
   IAutoMovieNode,
   IAutoMovieScene,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { composeScene, lowerSkeletonNodes, sceneToNodes } from "@automovie/engine";
-
 
 import { createModel } from "../internal/createModel";
 import { namedFacts } from "../internal/namedFacts";

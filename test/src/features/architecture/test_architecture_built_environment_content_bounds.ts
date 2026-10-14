@@ -1,3 +1,9 @@
+import {
+  builtEnvironmentContainsPoint,
+  builtEnvironmentSpaceContentBounds,
+  builtEnvironmentSpaceNodes,
+  validateBuiltEnvironment,
+} from "@automovie/engine";
 import type {
   IAutoMovieBuiltEnvironment,
   IAutoMovieConvexSpaceCell,
@@ -8,10 +14,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { builtEnvironmentContainsPoint, builtEnvironmentSpaceContentBounds, builtEnvironmentSpaceNodes, validateBuiltEnvironment } from "@automovie/engine";
-
-
 
 import { makeProp, primitivePart } from "../internal/fixtures";
 import { namedFacts, throwsError, vclose } from "../internal/predicates";

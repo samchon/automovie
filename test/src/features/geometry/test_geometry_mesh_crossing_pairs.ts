@@ -1,8 +1,9 @@
+import {
+  type IAutoMovieMeshCrossing,
+  measureAutoMovieMeshCrossings,
+} from "@automovie/engine";
 import { type IAutoMovieMesh } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { type IAutoMovieMeshCrossing, measureAutoMovieMeshCrossings } from "@automovie/engine";
-
 
 /** Two separate blades pierce one hand-typed planar triangle. */
 const surface: IAutoMovieMesh = {

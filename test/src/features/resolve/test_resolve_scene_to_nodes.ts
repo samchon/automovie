@@ -1,4 +1,14 @@
 import {
+  type IAutoMovieMotionClipBridge,
+  type IAutoMovieResolvedBone,
+  Matrix4,
+  composeScene,
+  motionToClip,
+  resolveFrame,
+  resolvePose,
+  sceneToNodes,
+} from "@automovie/engine";
+import {
   IAutoMovieModel,
   type IAutoMovieMotion,
   type IAutoMovieNode,
@@ -8,14 +18,6 @@ import {
   IAutoMovieTransform,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { type IAutoMovieResolvedBone, resolvePose, Matrix4, type IAutoMovieMotionClipBridge, motionToClip, composeScene, resolveFrame, sceneToNodes } from "@automovie/engine";
-
-
-
-
-
-
 
 import { createModel } from "../internal/createModel";
 import { createSkeleton } from "../internal/createSkeleton";

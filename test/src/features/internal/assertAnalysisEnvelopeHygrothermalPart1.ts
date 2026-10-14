@@ -1,3 +1,8 @@
+import {
+  type IAutoMovieEnvelopeAssembly,
+  type IAutoMovieEnvelopeRequest,
+  analyzeAutoMovieEnvelope,
+} from "@automovie/engine";
 import type {
   AutoMovieAnalysisDomain,
   IAutoMovieAnalysisMetric,
@@ -7,9 +12,6 @@ import type {
   IAutoMovieEnvironmentContext,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { type IAutoMovieEnvelopeAssembly, type IAutoMovieEnvelopeRequest, analyzeAutoMovieEnvelope } from "@automovie/engine";
-
 
 import { analysisContext } from "./analysisFixtures";
 import { namedFacts, nclose } from "./predicates";

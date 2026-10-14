@@ -1,13 +1,15 @@
+import {
+  designLineagePhaseOrder,
+  designLineagePhaseSnapshot,
+  designLineageProject,
+  validateDesignLineage,
+} from "@automovie/engine";
 import type {
   IAutoMovieDesignLineage,
   IAutoMovieDesignPhaseSnapshot,
   IAutoMovieDesignPhaseState,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { designLineagePhaseOrder, designLineagePhaseSnapshot, designLineageProject, validateDesignLineage } from "@automovie/engine";
-
-
 
 import { emptyLineage, renovationLineage } from "../internal/lineageFixtures";
 import { throwsError } from "../internal/predicates";

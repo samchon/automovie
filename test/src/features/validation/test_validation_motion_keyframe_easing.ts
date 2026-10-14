@@ -1,3 +1,4 @@
+import { validateMotion } from "@automovie/engine";
 import type {
   AutoMovieEasing,
   IAutoMovieKeyframe,
@@ -6,7 +7,6 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { validateMotion } from "@automovie/engine";
 import { createSkeleton } from "../internal/createSkeleton";
 import { createValidMotion } from "../internal/createValidMotion";
 import { hasViolation } from "../internal/hasViolation";

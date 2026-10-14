@@ -3,11 +3,13 @@ import {
   IAutoMovieSequence,
   IAutoMovieShot,
 } from "@automovie/interface";
+import {
+  IAutoMovieSequenceRenderAdapters,
+  IAutoMovieSequenceRenderAndSeeResult,
+  IAutoMovieSequenceRenderFrame,
+  renderSequenceAndSee,
+} from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
-
-import { IAutoMovieSequenceRenderAdapters, IAutoMovieSequenceRenderAndSeeResult, IAutoMovieSequenceRenderFrame, renderSequenceAndSee } from "@automovie/render";
-
-
 
 import { filmEffectValuesClose } from "../internal/filmEffectValuesClose";
 import { namedFacts, nclose } from "../internal/predicates";

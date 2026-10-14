@@ -1,4 +1,12 @@
 import {
+  AUTOMOVIE_RENDER_METRICS,
+  autoMovieSemanticMaskVerificationFailure,
+  digestAutoMovieSemanticMask,
+  evaluateAutoMovieRenderBudget,
+  renderAutoMovieSemanticMaskSidecar,
+  verifyAutoMovieSemanticMask,
+} from "@automovie/engine";
+import {
   AutoMovieRenderMetric,
   AutoMovieSemanticKind,
   IAutoMovieRenderInventory,
@@ -11,12 +19,6 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 import { createHash } from "node:crypto";
-
-import { autoMovieSemanticMaskVerificationFailure, AUTOMOVIE_RENDER_METRICS, digestAutoMovieSemanticMask, evaluateAutoMovieRenderBudget, renderAutoMovieSemanticMaskSidecar, verifyAutoMovieSemanticMask } from "@automovie/engine";
-
-
-
-
 
 import { malformedCurrentSemanticMasks } from "../internal/malformedCurrentSemanticMasks";
 import { malformedSemanticMaskShapes } from "../internal/malformedSemanticMaskShapes";

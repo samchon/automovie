@@ -1,3 +1,4 @@
+import { type IAutoMovieResolveOutput, resolveFrame } from "@automovie/engine";
 import {
   IAutoMovieChannel,
   IAutoMovieClip,
@@ -7,8 +8,6 @@ import {
   IAutoMovieTransform,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { type IAutoMovieResolveOutput, resolveFrame } from "@automovie/engine";
 
 import { nclose } from "../internal/nclose";
 

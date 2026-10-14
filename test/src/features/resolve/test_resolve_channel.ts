@@ -1,7 +1,6 @@
+import { channelIsRotation, channelKey } from "@automovie/engine";
 import { IAutoMovieChannel } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { channelIsRotation, channelKey } from "@automovie/engine";
 
 import { throwsError } from "../internal/throwsError";
 

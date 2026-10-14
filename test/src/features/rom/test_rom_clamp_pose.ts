@@ -1,3 +1,4 @@
+import { clampJointRom, clampPose } from "@automovie/engine";
 import {
   IAutoMovieBone,
   IAutoMovieJointConstraint,
@@ -7,8 +8,6 @@ import {
   type IAutoMovieTransform,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { clampJointRom, clampPose } from "@automovie/engine";
 
 import { namedFacts } from "../internal/namedFacts";
 import { nclose } from "../internal/nclose";

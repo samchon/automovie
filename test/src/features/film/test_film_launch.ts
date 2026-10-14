@@ -1,4 +1,9 @@
 import {
+  IAutoMovieLaunchResult,
+  compileLaunch,
+  projectileAt,
+} from "@automovie/engine";
+import {
   AutoMovieInteractionEventKind,
   IAutoMovieInteractionEvent,
   IAutoMovieLaunchAction,
@@ -6,9 +11,6 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { IAutoMovieLaunchResult, compileLaunch, projectileAt } from "@automovie/engine";
-
 
 import {
   namedFacts,

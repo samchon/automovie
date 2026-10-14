@@ -1,12 +1,10 @@
+import { footprintConvexPieces, surfaceFootprint } from "@automovie/engine";
 import {
   IAutoMovieBuiltEnvironment,
   IAutoMovieSpace,
   IAutoMovieSurface,
   IAutoMovieVector3,
 } from "@automovie/interface";
-
-import { footprintConvexPieces, surfaceFootprint } from "@automovie/engine";
-
 
 /**
  * Original authored region inputs and numeric helpers shared with the owning footprint test's geometric and downstream-consumer assertions.

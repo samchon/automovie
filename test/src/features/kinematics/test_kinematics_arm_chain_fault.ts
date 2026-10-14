@@ -1,16 +1,18 @@
 import {
+  HUMANOID_JOINT_AXES,
+  IAutoMovieArmChainFault,
+  IAutoMovieResolvedBone,
+  armChainFault,
+  reachPose,
+  resolvePose,
+} from "@automovie/engine";
+import {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
   IAutoMovieSkeleton,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { IAutoMovieArmChainFault, IAutoMovieResolvedBone, armChainFault, HUMANOID_JOINT_AXES, reachPose, resolvePose } from "@automovie/engine";
-
-
-
-
 
 import { namedFacts } from "../internal/namedFacts";
 import { nclose } from "../internal/nclose";

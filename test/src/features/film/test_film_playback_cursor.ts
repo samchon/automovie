@@ -1,12 +1,14 @@
+import {
+  IAutoMoviePlaybackEntry,
+  IAutoMoviePlaybackSample,
+  IAutoMoviePlaybackTimeline,
+  cutSequence,
+  playbackCursor,
+  resolveFromTimeline,
+  sequenceTimeline,
+} from "@automovie/engine";
 import { IAutoMovieSequence, IAutoMovieShot } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { IAutoMoviePlaybackEntry, IAutoMoviePlaybackSample, IAutoMoviePlaybackTimeline, cutSequence, playbackCursor, resolveFromTimeline, sequenceTimeline } from "@automovie/engine";
-
-
-
-
-
 
 import { nclose } from "../internal/predicates";
 

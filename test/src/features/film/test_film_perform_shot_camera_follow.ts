@@ -1,4 +1,10 @@
 import {
+  IAutoMoviePerformedShot,
+  IAutoMovieStagedSet,
+  performShot,
+  stageScene,
+} from "@automovie/engine";
+import {
   IAutoMovieCameraAction,
   IAutoMovieMotion,
   IAutoMoviePerformance,
@@ -6,10 +12,6 @@ import {
   IAutoMovieTrack,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { IAutoMoviePerformedShot, IAutoMovieStagedSet, performShot, stageScene } from "@automovie/engine";
-
-
 
 import {
   makePerformanceWrite,

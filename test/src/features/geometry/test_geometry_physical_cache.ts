@@ -1,8 +1,10 @@
+import {
+  createMeshPhysicalPartitionMatcher,
+  validateMeshTopology,
+  weldedDegenerateTriangles,
+} from "@automovie/engine";
 import { IAutoMovieMesh } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { weldedDegenerateTriangles, createMeshPhysicalPartitionMatcher, validateMeshTopology } from "@automovie/engine";
-
 
 import { createPhysicalMesh } from "../internal/createPhysicalMesh";
 import { throwsError } from "../internal/throwsError";

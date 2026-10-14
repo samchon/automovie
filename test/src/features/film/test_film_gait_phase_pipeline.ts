@@ -1,4 +1,12 @@
 import {
+  IAutoMovieActionSynthesizer,
+  IAutoMovieActorContext,
+  compilePerformance,
+  makeActorSynthesizer,
+  resolveBeatEnd,
+  sampleMotion,
+} from "@automovie/engine";
+import {
   IAutoMovieActionCall,
   IAutoMovieBeatEndActorState,
   IAutoMovieBeatEndState,
@@ -11,12 +19,6 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { resolveBeatEnd, sampleMotion, IAutoMovieActionSynthesizer, IAutoMovieActorContext, compilePerformance, makeActorSynthesizer } from "@automovie/engine";
-
-
-
-
 
 import { IDENTITY_TRANSFORM, joint, makePose } from "../internal/fixtures";
 import { nclose } from "../internal/predicates";

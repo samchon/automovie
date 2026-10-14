@@ -1,15 +1,14 @@
-import {
-  IAutoMovieOpeningProfile,
-  IAutoMoviePlanarPoint,
-} from "@automovie/interface";
-import { TestValidator } from "@nestia/e2e";
-
+import { ViolationCollector } from "@automovie/engine";
 import { appendBuiltRegionDefects } from "@automovie/engine/architecture/appendBuiltRegionDefects";
 import { builtOutlineIsClosed } from "@automovie/engine/architecture/builtOutlineIsClosed";
 import { outlineHull } from "@automovie/engine/architecture/outlineHull";
 import { pointInPolygon } from "@automovie/engine/architecture/pointInPolygon";
 import { polygonInside } from "@automovie/engine/architecture/polygonInside";
-import { ViolationCollector } from "@automovie/engine";
+import {
+  IAutoMovieOpeningProfile,
+  IAutoMoviePlanarPoint,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
 
 /**
  * Containment includes boundary contact but refuses an edge leaving through

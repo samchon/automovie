@@ -1,9 +1,11 @@
+import {
+  type IAutoMovieHingedArticulation,
+  clinicalDeviation,
+  hingedArmArticulation,
+  jointRomOvershoot,
+} from "@automovie/engine";
 import { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { type IAutoMovieHingedArticulation, clinicalDeviation, hingedArmArticulation, jointRomOvershoot } from "@automovie/engine";
-
-
 
 import { namedFacts } from "../internal/namedFacts";
 import { nclose } from "../internal/nclose";

@@ -1,15 +1,17 @@
 import {
+  type IAutoMovieRenderTextureResidency,
+  IAutoMovieRenderTextureSource,
+  autoMovieRenderTextureDigest,
+  measureAutoMovieRenderTextureClosure,
+} from "@automovie/engine";
+import {
   IAutoMovieMaterial,
   IAutoMovieRenderTextureCost,
 } from "@automovie/interface";
+import { readAutoMovieTextureSource } from "@automovie/viewer";
 import { TestValidator } from "@nestia/e2e";
 import { DataTexture } from "three";
 
-import { type IAutoMovieRenderTextureResidency, IAutoMovieRenderTextureSource, autoMovieRenderTextureDigest, measureAutoMovieRenderTextureClosure } from "@automovie/engine";
-
-
-
-import { readAutoMovieTextureSource } from "@automovie/viewer";
 import { throwsError } from "../internal/predicates";
 import { material } from "../internal/renderFixtures";
 

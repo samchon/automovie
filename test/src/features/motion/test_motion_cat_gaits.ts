@@ -1,3 +1,9 @@
+import { CAT_GAITS, CAT_PROFILE } from "@automovie/archetypes";
+import {
+  bindProfileGaits,
+  gaitMotion,
+  validateMotion,
+} from "@automovie/engine";
 import {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
@@ -10,11 +16,6 @@ import {
   IAutoMovieSkeleton,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { CAT_GAITS, CAT_PROFILE } from "@automovie/archetypes";
-
-import { bindProfileGaits, gaitMotion, validateMotion } from "@automovie/engine";
-
 
 import { namedFacts, nclose } from "../internal/predicates";
 

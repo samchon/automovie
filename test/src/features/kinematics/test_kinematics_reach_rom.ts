@@ -1,12 +1,22 @@
-import { IAutoMovieJointConstraint, IAutoMovieSkeleton, IAutoMovieVector3, type IAutoMovieBone, type IAutoMovieConstraintViolation, type IAutoMovieJointPose, type IAutoMoviePose, type IAutoMovieValidation } from "@automovie/interface";
+import {
+  HUMANOID_JOINT_AXES,
+  HUMANOID_REST_FRAME,
+  type IAutoMovieResolvedBone,
+  reachPose,
+  resolvePose,
+  validatePoseResult,
+} from "@automovie/engine";
+import {
+  type IAutoMovieBone,
+  type IAutoMovieConstraintViolation,
+  IAutoMovieJointConstraint,
+  type IAutoMovieJointPose,
+  type IAutoMoviePose,
+  IAutoMovieSkeleton,
+  type IAutoMovieValidation,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { type IAutoMovieResolvedBone, HUMANOID_JOINT_AXES, reachPose, resolvePose, HUMANOID_REST_FRAME, validatePoseResult } from "@automovie/engine";
-
-
-
-
-
 
 import { createSkeleton } from "../internal/createSkeleton";
 import { namedFacts } from "../internal/namedFacts";

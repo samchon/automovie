@@ -1,4 +1,12 @@
 import {
+  HUMANOID_JOINT_AXES,
+  HUMANOID_REST_FRAME,
+  IAutoMovieResolvedBone,
+  Quaternion,
+  resolveAttachment,
+  resolvePose,
+} from "@automovie/engine";
+import {
   IAutoMovieAttachment,
   IAutoMoviePose,
   IAutoMovieQuaternion,
@@ -6,12 +14,6 @@ import {
   IAutoMovieTransform,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { IAutoMovieResolvedBone, HUMANOID_JOINT_AXES, resolveAttachment, resolvePose, Quaternion, HUMANOID_REST_FRAME } from "@automovie/engine";
-
-
-
-
 
 import { createSkeleton } from "../internal/createSkeleton";
 import { joint } from "../internal/joint";

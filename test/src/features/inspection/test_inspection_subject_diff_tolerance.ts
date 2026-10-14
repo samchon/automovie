@@ -1,5 +1,3 @@
-import { TestValidator } from "@nestia/e2e";
-
 import { diffAutoMovieSubjects } from "@automovie/engine";
 import {
   type IAutoMovieModel,
@@ -7,6 +5,8 @@ import {
   type IAutoMovieSubjectChange,
   type IAutoMovieSubjectDiff,
 } from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
 import { subjectInspectionArtifact } from "../internal/subjectInspectionArtifact";
 import { subjectInspectionIdentityTransform } from "../internal/subjectInspectionIdentityTransform";
 import { subjectInspectionModel } from "../internal/subjectInspectionModel";

@@ -1,16 +1,18 @@
 import {
+  IAutoMovieLoftSection,
+  type IAutoMovieMeshTopology,
+  inspectAutoMovieMeshTopology,
+  loftAutoMovieSections,
+  sweepAutoMovieProfile,
+  validateMeshTopology,
+  validateModel,
+} from "@automovie/engine";
+import {
   IAutoMovieMesh,
   IAutoMovieModel,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { IAutoMovieLoftSection, type IAutoMovieMeshTopology, inspectAutoMovieMeshTopology, loftAutoMovieSections, sweepAutoMovieProfile, validateMeshTopology, validateModel } from "@automovie/engine";
-
-
-
-
-
 
 import { equalGeometryTestValues } from "../internal/equalGeometryTestValues";
 import { makeProp } from "../internal/makeProp";

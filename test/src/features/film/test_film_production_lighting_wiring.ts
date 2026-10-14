@@ -1,4 +1,10 @@
 import {
+  IAutoMovieCompiledDefinedShot,
+  compileDefinedShot,
+  defineShot,
+  inheritProductionLighting,
+} from "@automovie/engine";
+import {
   IAutoMovieBlocking,
   IAutoMovieClip,
   IAutoMovieLight,
@@ -12,10 +18,6 @@ import {
   IAutoMovieSkeleton,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { IAutoMovieCompiledDefinedShot, compileDefinedShot, defineShot, inheritProductionLighting } from "@automovie/engine";
-
-
 
 import {
   makeBlockingWrite,

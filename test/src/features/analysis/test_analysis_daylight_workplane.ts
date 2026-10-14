@@ -1,9 +1,11 @@
 import type {
+  IAutoMovieAnalysisWorkplane,
+  IAutoMovieDaylightRequest,
+} from "@automovie/engine";
+import type {
   IAutoMovieAnalysisMetric,
   IAutoMovieAnalysisRun,
 } from "@automovie/interface";
-
-import type { IAutoMovieAnalysisWorkplane, IAutoMovieDaylightRequest } from "@automovie/engine";
 
 import { assertAnalysisDaylightWorkplanePart1 } from "../internal/assertAnalysisDaylightWorkplanePart1";
 import { assertAnalysisDaylightWorkplanePart2 } from "../internal/assertAnalysisDaylightWorkplanePart2";

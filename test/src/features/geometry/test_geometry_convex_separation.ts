@@ -1,7 +1,9 @@
+import {
+  boundAutoMovieConvexSeparation,
+  boundAutoMovieProjectionSeparation,
+} from "@automovie/engine";
 import { type IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { boundAutoMovieConvexSeparation, boundAutoMovieProjectionSeparation } from "@automovie/engine";
 
 import { nclose } from "../internal/nclose";
 

@@ -1,9 +1,8 @@
-import { TestValidator } from "@nestia/e2e";
-
 import {
   autoMovieCaptionLanguageComparisonKey,
   parseAutoMovieCaptionLanguage,
 } from "@automovie/render";
+import { TestValidator } from "@nestia/e2e";
 
 /**
  * Caption language tags follow RFC 5646's grammar, not a registry lookup.

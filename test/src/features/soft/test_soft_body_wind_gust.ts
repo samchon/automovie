@@ -1,3 +1,4 @@
+import { simulateSoftBody } from "@automovie/engine";
 import {
   IAutoMovieSoftBodyDomain,
   IAutoMovieSoftBodyState,
@@ -5,7 +6,6 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { simulateSoftBody } from "@automovie/engine";
 import { namedFacts } from "../internal/predicates";
 import { softPanel } from "../internal/softFixtures";
 

@@ -1,11 +1,10 @@
+import { growPlanting, plantingStateDigest } from "@automovie/engine";
 import {
   IAutoMoviePlantingBranch,
   IAutoMoviePlantingState,
   IAutoMoviePruningEnvelope,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { growPlanting, plantingStateDigest } from "@automovie/engine";
 
 import { namedFacts, vclose } from "../internal/predicates";
 import { plantingRecipe } from "../internal/softFixtures";

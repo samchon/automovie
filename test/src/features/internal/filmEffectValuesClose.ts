@@ -1,4 +1,5 @@
 import { compareCodeUnits } from "@automovie/engine";
+
 import { nclose } from "./nclose";
 
 /** Compare the film tests' dense effect, camera-intent and camera-clip records while checking every finite numeric leaf with nclose at 1e-12 absolute tolerance. Array length/order and object key sets remain exact, so omitted fields, extra fields and reordered entries cannot be hidden by numeric closeness. This does not compare prototypes, object identity, cyclic graphs or unadmitted nonfinite numbers. */

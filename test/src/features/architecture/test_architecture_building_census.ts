@@ -1,9 +1,11 @@
+import {
+  type IAutoMovieBuildingObservationCensus,
+  type IAutoMovieBuiltEnvelopeCorner,
+  type IAutoMovieBuiltEnvelopeFace,
+  builtEnvironmentBuildingCensus,
+} from "@automovie/engine";
 import type { IAutoMovieBuiltEnvironment } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { type IAutoMovieBuildingObservationCensus, type IAutoMovieBuiltEnvelopeCorner, type IAutoMovieBuiltEnvelopeFace, builtEnvironmentBuildingCensus } from "@automovie/engine";
-
-
 
 import {
   FACE_ROTATION,

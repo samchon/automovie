@@ -1,6 +1,8 @@
-import { solveAutoMovieQuadraticProgram, type IAutoMovieQuadraticRow } from "@automovie/engine";
+import {
+  type IAutoMovieQuadraticRow,
+  solveAutoMovieQuadraticProgram,
+} from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
-
 
 import { equalGeometryTestValues } from "../internal/equalGeometryTestValues";
 import { nclose } from "../internal/nclose";

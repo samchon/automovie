@@ -1,9 +1,9 @@
+import { materializeProductionFilmEffects } from "@automovie/engine";
 import {
   IAutoMovieCompiledFilmEffect,
   IAutoMovieFilmTimeline,
 } from "@automovie/interface";
 
-import { materializeProductionFilmEffects } from "@automovie/engine";
 import { filmEffectIdentity } from "./filmEffectIdentity";
 import { filmEffectWorld } from "./filmEffectWorld";
 

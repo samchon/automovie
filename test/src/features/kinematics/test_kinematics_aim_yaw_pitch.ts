@@ -1,7 +1,7 @@
+import { aimYawPitch } from "@automovie/engine";
 import { IAutoMovieVector3, IAutoMovieYawPitch } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { aimYawPitch } from "@automovie/engine";
 import { namedFacts } from "../internal/namedFacts";
 import { nclose } from "../internal/nclose";
 import { throwsError } from "../internal/throwsError";

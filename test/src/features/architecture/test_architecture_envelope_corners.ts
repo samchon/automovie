@@ -1,3 +1,8 @@
+import {
+  type IAutoMovieBuiltEnvelopeCorner,
+  builtEnvironmentEnvelopeCorners,
+  validateBuiltEnvironment,
+} from "@automovie/engine";
 import type {
   IAutoMovieBuiltBoundary,
   IAutoMovieBuiltEnvironment,
@@ -5,9 +10,6 @@ import type {
   IAutoMovieTransform,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { type IAutoMovieBuiltEnvelopeCorner, builtEnvironmentEnvelopeCorners, validateBuiltEnvironment } from "@automovie/engine";
-
 
 import {
   FACE_ROTATION,

@@ -1,10 +1,12 @@
+import {
+  builtEnvironmentAdjacentSpaces,
+  builtEnvironmentSpaceBoundaries,
+} from "@automovie/engine";
 import type {
   IAutoMovieBuiltBoundary,
   IAutoMovieBuiltEnvironment,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { builtEnvironmentAdjacentSpaces, builtEnvironmentSpaceBoundaries } from "@automovie/engine";
 
 import { drawingEnvironment } from "../internal/drawingFixtures";
 import { namedFacts, throwsError } from "../internal/predicates";
