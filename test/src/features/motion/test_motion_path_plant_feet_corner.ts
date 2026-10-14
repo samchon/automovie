@@ -23,7 +23,11 @@ import {
   validationHasWarnings,
 } from "../internal/predicates";
 
-const t: (x: number, y: number, z: number) => IAutoMovieTransform = (x: number, y: number, z: number): IAutoMovieTransform => ({
+const t: (x: number, y: number, z: number) => IAutoMovieTransform = (
+  x: number,
+  y: number,
+  z: number,
+): IAutoMovieTransform => ({
   translation: { x, y, z },
   rotation: { x: 0, y: 0, z: 0, w: 1 },
   scale: { x: 1, y: 1, z: 1 },
@@ -57,7 +61,9 @@ const legSkeleton: IAutoMovieSkeleton = {
   ],
 };
 const KNEE_REST_FLEXION: number = (2 * Math.atan2(0.15, 0.4) * 180) / Math.PI;
-const REST_FRAMES: NonNullable<Parameters<typeof plantStanceFeet>[0]["restFrames"]> = {
+const REST_FRAMES: NonNullable<
+  Parameters<typeof plantStanceFeet>[0]["restFrames"]
+> = {
   leftLowerLeg: {
     flexion: { sign: 1 as const, neutral: KNEE_REST_FLEXION },
   },
@@ -68,7 +74,9 @@ const REST_FRAMES: NonNullable<Parameters<typeof plantStanceFeet>[0]["restFrames
 // re-solve's leg-strip filters now see non-thigh joints (the shin is stripped
 // with the thigh, the foot is carried through) instead of only ever matching
 // the first `bone !== upper` test.
-const flex: (deg: number) => IAutoMovieJointPose[] = (deg: number): IAutoMovieJointPose[] => [
+const flex: (deg: number) => IAutoMovieJointPose[] = (
+  deg: number,
+): IAutoMovieJointPose[] => [
   { bone: "leftUpperLeg", flexion: deg, abduction: null, twist: null },
   {
     bone: "leftLowerLeg",
@@ -79,7 +87,10 @@ const flex: (deg: number) => IAutoMovieJointPose[] = (deg: number): IAutoMovieJo
   { bone: "leftFoot", flexion: 0, abduction: null, twist: null },
 ];
 
-const kf: (time: number, deg: number) => IAutoMovieKeyframe = (time: number, deg: number): IAutoMovieKeyframe => ({
+const kf: (time: number, deg: number) => IAutoMovieKeyframe = (
+  time: number,
+  deg: number,
+): IAutoMovieKeyframe => ({
   time,
   pose: { skeleton: "leg", root: null, joints: flex(deg) },
   expression: null,
@@ -98,11 +109,12 @@ const liftGait: IAutoMovieMotion = {
   keyframes: [kf(0, 0), kf(0.4, 0), kf(0.5, 20), kf(0.6, 0), kf(1, 0)],
 };
 
-const LEG: NonNullable<Parameters<typeof plantStanceFeet>[0]["legs"]>[number] = {
-  foot: "leftFoot",
-  upper: "leftUpperLeg",
-  lower: "leftLowerLeg",
-} as const;
+const LEG: NonNullable<Parameters<typeof plantStanceFeet>[0]["legs"]>[number] =
+  {
+    foot: "leftFoot",
+    upper: "leftUpperLeg",
+    lower: "leftLowerLeg",
+  } as const;
 
 // Stance runs land at R1 = [0, 10/24], R2 = [14/24, 1+10/24] (straddling the
 // t=1 apex), R3 = [1+14/24, 2]; the declared windows sit safely inside them.
@@ -112,16 +124,25 @@ const contacts: Parameters<typeof validateFootSkate>[0]["contacts"] = [
   { bone: "leftFoot", start: 1.62, end: 1.95 },
 ] as const;
 
-const footAt: (motion: IAutoMovieMotion, time: number) => IAutoMovieVector3 = (motion: IAutoMovieMotion, time: number): IAutoMovieVector3 =>
+const footAt: (motion: IAutoMovieMotion, time: number) => IAutoMovieVector3 = (
+  motion: IAutoMovieMotion,
+  time: number,
+): IAutoMovieVector3 =>
   resolvePose(
     sampleMotion(motion, time).pose,
     legSkeleton,
     undefined,
     REST_FRAMES,
-  ).find((b: ReturnType<typeof resolvePose>[number]): boolean => b.bone === "leftFoot")!.worldPosition;
+  ).find(
+    (b: ReturnType<typeof resolvePose>[number]): boolean =>
+      b.bone === "leftFoot",
+  )!.worldPosition;
 
 /** Run the same existing corner assertions for one heading window; this helper registers no separate test. */
-const plantAndAssert: (turnWindow: number, label: string) => void = (turnWindow: number, label: string): void => {
+const plantAndAssert: (turnWindow: number, label: string) => void = (
+  turnWindow: number,
+  label: string,
+): void => {
   const path: ReturnType<typeof followPathMotion> = followPathMotion({
     id: `corner-${label}`,
     gait: liftGait,
@@ -190,7 +211,8 @@ const plantAndAssert: (turnWindow: number, label: string) => void = (turnWindow:
     planted.plants.length,
     3,
   );
-  const straddle: ReturnType<typeof plantStanceFeet>["plants"][number] = planted.plants[1]!;
+  const straddle: ReturnType<typeof plantStanceFeet>["plants"][number] =
+    planted.plants[1]!;
   TestValidator.equals(
     `${label}: the middle run straddles the corner at t=1`,
     namedFacts([

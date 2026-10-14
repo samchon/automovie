@@ -21,7 +21,11 @@ import {
   validationHasWarnings,
 } from "../internal/predicates";
 
-const t: (x: number, y: number, z: number) => IAutoMovieTransform = (x: number, y: number, z: number): IAutoMovieTransform => ({
+const t: (x: number, y: number, z: number) => IAutoMovieTransform = (
+  x: number,
+  y: number,
+  z: number,
+): IAutoMovieTransform => ({
   translation: { x, y, z },
   rotation: { x: 0, y: 0, z: 0, w: 1 },
   scale: { x: 1, y: 1, z: 1 },
@@ -80,32 +84,43 @@ const skating: IAutoMovieMotion = {
   ],
 };
 
-const LEG: NonNullable<Parameters<typeof plantStanceFeet>[0]["legs"]>[number] = {
-  foot: "leftFoot",
-  upper: "leftUpperLeg",
-  lower: "leftLowerLeg",
-} as const;
+const LEG: NonNullable<Parameters<typeof plantStanceFeet>[0]["legs"]>[number] =
+  {
+    foot: "leftFoot",
+    upper: "leftUpperLeg",
+    lower: "leftLowerLeg",
+  } as const;
 const KNEE_REST_FLEXION: number = (2 * Math.atan2(0.15, 0.4) * 180) / Math.PI;
-const JOINT_AXES: NonNullable<Parameters<typeof plantStanceFeet>[0]["jointAxes"]> = {
+const JOINT_AXES: NonNullable<
+  Parameters<typeof plantStanceFeet>[0]["jointAxes"]
+> = {
   leftLowerLeg: {
     flexion: { x: -1, y: 0, z: 0 },
     abduction: { x: 0, y: 0, z: 1 },
     twist: { x: 0, y: -1, z: 0 },
   },
 };
-const REST_FRAMES: NonNullable<Parameters<typeof plantStanceFeet>[0]["restFrames"]> = {
+const REST_FRAMES: NonNullable<
+  Parameters<typeof plantStanceFeet>[0]["restFrames"]
+> = {
   leftLowerLeg: {
     flexion: { sign: -1 as const, neutral: KNEE_REST_FLEXION },
   },
 };
 
-const footAt: (motion: IAutoMovieMotion, time: number) => IAutoMovieVector3 = (motion: IAutoMovieMotion, time: number): IAutoMovieVector3 =>
+const footAt: (motion: IAutoMovieMotion, time: number) => IAutoMovieVector3 = (
+  motion: IAutoMovieMotion,
+  time: number,
+): IAutoMovieVector3 =>
   resolvePose(
     sampleMotion(motion, time).pose,
     legSkeleton,
     JOINT_AXES,
     REST_FRAMES,
-  ).find((b: ReturnType<typeof resolvePose>[number]): boolean => b.bone === "leftFoot")!.worldPosition;
+  ).find(
+    (b: ReturnType<typeof resolvePose>[number]): boolean =>
+      b.bone === "leftFoot",
+  )!.worldPosition;
 
 /**
  * Observe stance correction with mirrored knee axes and a non-neutral clinical rest frame. Literal sampled foot coordinates and compact run metadata supplement warning-based consumer checks; only the raw skate warning is asserted, and neither rendered nor continuous-time contact is observed.
@@ -129,7 +144,9 @@ const footAt: (motion: IAutoMovieMotion, time: number) => IAutoMovieVector3 = (m
  * @evidence contracts/testing.md#execution-ownership This named synchronous unit owns planting, sampling, FK and validator calls with its local rig and contacts. The private foot reader registers no additional case and no viewer, solver host or native artifact is started.
  */
 export function test_motion_plant_feet(): void {
-  const contacts: Parameters<typeof validateFootSkate>[0]["contacts"] = [{ bone: "leftFoot", start: 0, end: 1 } as const];
+  const contacts: Parameters<typeof validateFootSkate>[0]["contacts"] = [
+    { bone: "leftFoot", start: 0, end: 1 } as const,
+  ];
 
   const raw: ReturnType<typeof validateFootSkate> = validateFootSkate({
     motion: skating,
@@ -203,10 +220,22 @@ export function test_motion_plant_feet(): void {
   TestValidator.equals(
     "run spans the clip pinned to ground",
     namedFacts([
-      ["plantedPlantsFoot", (): boolean => planted.plants[0]!.foot === "leftFoot"],
-      ["nclosePlantedPlants", (): boolean => nclose(planted.plants[0]!.start, 0)],
-      ["nclosePlantedPlants2", (): boolean => nclose(planted.plants[0]!.end, 1)],
-      ["nclosePlantedPlants3", (): boolean => nclose(planted.plants[0]!.position.y, 0)],
+      [
+        "plantedPlantsFoot",
+        (): boolean => planted.plants[0]!.foot === "leftFoot",
+      ],
+      [
+        "nclosePlantedPlants",
+        (): boolean => nclose(planted.plants[0]!.start, 0),
+      ],
+      [
+        "nclosePlantedPlants2",
+        (): boolean => nclose(planted.plants[0]!.end, 1),
+      ],
+      [
+        "nclosePlantedPlants3",
+        (): boolean => nclose(planted.plants[0]!.position.y, 0),
+      ],
     ]),
     {
       plantedPlantsFoot: true,

@@ -1,10 +1,16 @@
 import { followPathMotion } from "@automovie/engine";
-import { IAutoMovieKeyframe, IAutoMovieMotion, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  IAutoMovieKeyframe,
+  IAutoMovieMotion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose, throwsError } from "../internal/predicates";
 
-const kf: (time: number) => IAutoMovieKeyframe = (time: number): IAutoMovieKeyframe => ({
+const kf: (time: number) => IAutoMovieKeyframe = (
+  time: number,
+): IAutoMovieKeyframe => ({
   time,
   pose: { skeleton: "s", root: null, joints: [] },
   expression: null,
@@ -53,7 +59,7 @@ export function test_motion_path_guards(): void {
   TestValidator.predicate(
     "one waypoint rejected",
     throwsError(
-      () : ReturnType<typeof followPathMotion> =>
+      (): ReturnType<typeof followPathMotion> =>
         followPathMotion({
           id: "p",
           gait,
@@ -66,7 +72,7 @@ export function test_motion_path_guards(): void {
   TestValidator.predicate(
     "coincident waypoints rejected even when y differs",
     throwsError(
-      () : ReturnType<typeof followPathMotion> =>
+      (): ReturnType<typeof followPathMotion> =>
         followPathMotion({
           id: "p",
           gait,
@@ -82,7 +88,7 @@ export function test_motion_path_guards(): void {
   TestValidator.predicate(
     "non-finite waypoint x rejected by index",
     throwsError(
-      () : ReturnType<typeof followPathMotion> =>
+      (): ReturnType<typeof followPathMotion> =>
         followPathMotion({
           id: "p",
           gait,
@@ -98,7 +104,7 @@ export function test_motion_path_guards(): void {
   TestValidator.predicate(
     "non-finite waypoint z rejected by index",
     throwsError(
-      () : ReturnType<typeof followPathMotion> =>
+      (): ReturnType<typeof followPathMotion> =>
         followPathMotion({
           id: "p",
           gait,
@@ -115,14 +121,15 @@ export function test_motion_path_guards(): void {
     TestValidator.predicate(
       `speed ${speed} rejected`,
       throwsError(
-        () : ReturnType<typeof followPathMotion> => followPathMotion({ id: "p", gait, waypoints: LINE, speed }),
+        (): ReturnType<typeof followPathMotion> =>
+          followPathMotion({ id: "p", gait, waypoints: LINE, speed }),
         "path speed",
       ),
     );
   TestValidator.predicate(
     "non-positive gait duration rejected",
     throwsError(
-      () : ReturnType<typeof followPathMotion> =>
+      (): ReturnType<typeof followPathMotion> =>
         followPathMotion({
           id: "p",
           gait: { ...gait, duration: 0 },
@@ -136,7 +143,7 @@ export function test_motion_path_guards(): void {
     TestValidator.predicate(
       `turn window ${turnWindow} rejected`,
       throwsError(
-        () : ReturnType<typeof followPathMotion> =>
+        (): ReturnType<typeof followPathMotion> =>
           followPathMotion({
             id: "p",
             gait,
@@ -150,7 +157,7 @@ export function test_motion_path_guards(): void {
   TestValidator.predicate(
     "non-finite scalar ground rejected up front",
     throwsError(
-      () : ReturnType<typeof followPathMotion> =>
+      (): ReturnType<typeof followPathMotion> =>
         followPathMotion({
           id: "p",
           gait,
@@ -164,13 +171,13 @@ export function test_motion_path_guards(): void {
   TestValidator.predicate(
     "non-finite callback ground rejected at evaluation",
     throwsError(
-      () : ReturnType<typeof followPathMotion> =>
+      (): ReturnType<typeof followPathMotion> =>
         followPathMotion({
           id: "p",
           gait,
           waypoints: LINE,
           speed: 1,
-          ground: () : number => Number.NaN,
+          ground: (): number => Number.NaN,
         }),
       "ground height at",
     ),
@@ -183,18 +190,71 @@ export function test_motion_path_guards(): void {
     speed: 100,
   });
   TestValidator.equals("at least one cycle", sprint.cycles, 1);
-  TestValidator.predicate("effective speed snapped to the path", nclose(sprint.speed, 1, 0));
-  TestValidator.predicate("finite waypoint difference cannot overflow", throwsError((): ReturnType<typeof followPathMotion> => followPathMotion({
-    id: "overflow-stretch", gait: { ...gait, duration: 1e308 }, speed: 1e308,
-    waypoints: [{ x: -1e308, y: 0, z: 0 }, { x: 1e308, y: 0, z: 0 }],
-  }), "finite XZ length"));
-  TestValidator.predicate("finite stretches cannot overflow cumulative arc", throwsError((): ReturnType<typeof followPathMotion> => followPathMotion({
-    id: "overflow-arc", gait: { ...gait, duration: 1e308 }, speed: 1e308,
-    waypoints: [{ x: 0, y: 0, z: 0 }, { x: 1e308, y: 0, z: 0 }, { x: 0, y: 0, z: 0 }],
-  }), "advance a finite arc length"));
-  TestValidator.predicate("each stretch advances represented arc", throwsError((): ReturnType<typeof followPathMotion> => followPathMotion({
-    id: "lost-arc", gait, speed: 1e308,
-    waypoints: [{ x: 0, y: 0, z: 0 }, { x: 1e16, y: 0, z: 0 }, { x: 1e16, y: 0, z: 1 }],
-  }), "advance a finite arc length"));
-  TestValidator.predicate("cycle count admission precedes repetition", throwsError((): ReturnType<typeof followPathMotion> => followPathMotion({ id: "huge-cycles", gait, speed: Number.MIN_VALUE, waypoints: LINE }), "safe positive integer"));
+  TestValidator.predicate(
+    "effective speed snapped to the path",
+    nclose(sprint.speed, 1, 0),
+  );
+  TestValidator.predicate(
+    "finite waypoint difference cannot overflow",
+    throwsError(
+      (): ReturnType<typeof followPathMotion> =>
+        followPathMotion({
+          id: "overflow-stretch",
+          gait: { ...gait, duration: 1e308 },
+          speed: 1e308,
+          waypoints: [
+            { x: -1e308, y: 0, z: 0 },
+            { x: 1e308, y: 0, z: 0 },
+          ],
+        }),
+      "finite XZ length",
+    ),
+  );
+  TestValidator.predicate(
+    "finite stretches cannot overflow cumulative arc",
+    throwsError(
+      (): ReturnType<typeof followPathMotion> =>
+        followPathMotion({
+          id: "overflow-arc",
+          gait: { ...gait, duration: 1e308 },
+          speed: 1e308,
+          waypoints: [
+            { x: 0, y: 0, z: 0 },
+            { x: 1e308, y: 0, z: 0 },
+            { x: 0, y: 0, z: 0 },
+          ],
+        }),
+      "advance a finite arc length",
+    ),
+  );
+  TestValidator.predicate(
+    "each stretch advances represented arc",
+    throwsError(
+      (): ReturnType<typeof followPathMotion> =>
+        followPathMotion({
+          id: "lost-arc",
+          gait,
+          speed: 1e308,
+          waypoints: [
+            { x: 0, y: 0, z: 0 },
+            { x: 1e16, y: 0, z: 0 },
+            { x: 1e16, y: 0, z: 1 },
+          ],
+        }),
+      "advance a finite arc length",
+    ),
+  );
+  TestValidator.predicate(
+    "cycle count admission precedes repetition",
+    throwsError(
+      (): ReturnType<typeof followPathMotion> =>
+        followPathMotion({
+          id: "huge-cycles",
+          gait,
+          speed: Number.MIN_VALUE,
+          waypoints: LINE,
+        }),
+      "safe positive integer",
+    ),
+  );
 }

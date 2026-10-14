@@ -6,7 +6,11 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-const t: (x: number, y: number, z: number) => IAutoMovieTransform = (x: number, y: number, z: number): IAutoMovieTransform => ({
+const t: (x: number, y: number, z: number) => IAutoMovieTransform = (
+  x: number,
+  y: number,
+  z: number,
+): IAutoMovieTransform => ({
   translation: { x, y, z },
   rotation: { x: 0, y: 0, z: 0, w: 1 },
   scale: { x: 1, y: 1, z: 1 },
@@ -75,7 +79,10 @@ const skating: IAutoMovieMotion = {
  * @evidence contracts/testing.md#execution-ownership This named synchronous unit owns its direct planting call with local in-memory rig and motion; the transform helper registers no cases and no renderer, viewer or native artifact is started.
  */
 export function test_motion_plant_feet_defaults(): void {
-  const planted: ReturnType<typeof plantStanceFeet> = plantStanceFeet({ skeleton, motion: skating });
+  const planted: ReturnType<typeof plantStanceFeet> = plantStanceFeet({
+    skeleton,
+    motion: skating,
+  });
   TestValidator.equals(
     "only the left foot is planted",
     planted.plants.length,

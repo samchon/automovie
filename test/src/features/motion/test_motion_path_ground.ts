@@ -2,8 +2,8 @@ import { followPathMotion } from "@automovie/engine";
 import {
   IAutoMovieKeyframe,
   IAutoMovieMotion,
-  IAutoMovieVector3,
   IAutoMovieTransform,
+  IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -11,7 +11,9 @@ import { namedFacts, nclose } from "../internal/predicates";
 
 const BOB: number = 0.05;
 
-const kf: (time: number) => IAutoMovieKeyframe = (time: number): IAutoMovieKeyframe => ({
+const kf: (time: number) => IAutoMovieKeyframe = (
+  time: number,
+): IAutoMovieKeyframe => ({
   time,
   pose: {
     skeleton: "s",
@@ -42,8 +44,16 @@ const RAMP: IAutoMovieVector3[] = [
   { x: 4, y: 7, z: 0 },
 ];
 
-const rootAt: (motion: IAutoMovieMotion, time: number) => IAutoMovieTransform = (motion: IAutoMovieMotion, time: number): IAutoMovieTransform =>
-  motion.keyframes.find((k: IAutoMovieKeyframe): boolean => nclose(k.time, time))!.pose.root!;
+const rootAt: (
+  motion: IAutoMovieMotion,
+  time: number,
+) => IAutoMovieTransform = (
+  motion: IAutoMovieMotion,
+  time: number,
+): IAutoMovieTransform =>
+  motion.keyframes.find((k: IAutoMovieKeyframe): boolean =>
+    nclose(k.time, time),
+  )!.pose.root!;
 
 /**
  * Observe ground-source height and carried gait bob separately: waypoint Y is ignored, the root adds its existing bob to the supplied ground, and the frame sidecar reports the bare path height.
@@ -81,7 +91,13 @@ export function test_motion_path_ground(): void {
   );
   TestValidator.predicate(
     "frame carries bare ground height",
-    nclose(slope.frames.find((f: ReturnType<typeof followPathMotion>["frames"][number]): boolean => nclose(f.time, 1))!.position.y, 0.5),
+    nclose(
+      slope.frames.find(
+        (f: ReturnType<typeof followPathMotion>["frames"][number]): boolean =>
+          nclose(f.time, 1),
+      )!.position.y,
+      0.5,
+    ),
   );
 
   const plane: ReturnType<typeof followPathMotion> = followPathMotion({

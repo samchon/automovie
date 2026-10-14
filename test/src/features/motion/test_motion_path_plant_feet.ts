@@ -17,7 +17,11 @@ import {
   validationHasWarnings,
 } from "../internal/predicates";
 
-const t: (x: number, y: number, z: number) => IAutoMovieTransform = (x: number, y: number, z: number): IAutoMovieTransform => ({
+const t: (x: number, y: number, z: number) => IAutoMovieTransform = (
+  x: number,
+  y: number,
+  z: number,
+): IAutoMovieTransform => ({
   translation: { x, y, z },
   rotation: { x: 0, y: 0, z: 0, w: 1 },
   scale: { x: 1, y: 1, z: 1 },
@@ -51,7 +55,9 @@ const legSkeleton: IAutoMovieSkeleton = {
   ],
 };
 
-const kf: (time: number) => IAutoMovieKeyframe = (time: number): IAutoMovieKeyframe => ({
+const kf: (time: number) => IAutoMovieKeyframe = (
+  time: number,
+): IAutoMovieKeyframe => ({
   time,
   pose: { skeleton: "leg", root: null, joints: [] },
   expression: null,
@@ -68,13 +74,16 @@ const gait: IAutoMovieMotion = {
   keyframes: [kf(0), kf(1)],
 };
 
-const LEG: NonNullable<Parameters<typeof plantStanceFeet>[0]["legs"]>[number] = {
-  foot: "leftFoot",
-  upper: "leftUpperLeg",
-  lower: "leftLowerLeg",
-} as const;
+const LEG: NonNullable<Parameters<typeof plantStanceFeet>[0]["legs"]>[number] =
+  {
+    foot: "leftFoot",
+    upper: "leftUpperLeg",
+    lower: "leftLowerLeg",
+  } as const;
 const KNEE_REST_FLEXION: number = (2 * Math.atan2(0.15, 0.4) * 180) / Math.PI;
-const REST_FRAMES: NonNullable<Parameters<typeof plantStanceFeet>[0]["restFrames"]> = {
+const REST_FRAMES: NonNullable<
+  Parameters<typeof plantStanceFeet>[0]["restFrames"]
+> = {
   leftLowerLeg: {
     flexion: { sign: 1 as const, neutral: KNEE_REST_FLEXION },
   },
@@ -107,7 +116,9 @@ export function test_motion_path_plant_feet(): void {
     ],
     speed: 0.2,
   });
-  const contacts: Parameters<typeof validateFootSkate>[0]["contacts"] = [{ bone: "leftFoot", start: 0, end: 1 } as const];
+  const contacts: Parameters<typeof validateFootSkate>[0]["contacts"] = [
+    { bone: "leftFoot", start: 0, end: 1 } as const,
+  ];
 
   TestValidator.predicate(
     "raw path bake skates the foot (warns)",

@@ -1,10 +1,17 @@
 import { followPathMotion, sampleMotion } from "@automovie/engine";
-import { IAutoMovieJointPose, IAutoMovieKeyframe, IAutoMovieMotion } from "@automovie/interface";
+import {
+  IAutoMovieJointPose,
+  IAutoMovieKeyframe,
+  IAutoMovieMotion,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/predicates";
 
-const kf: (time: number, flexion: number) => IAutoMovieKeyframe = (time: number, flexion: number): IAutoMovieKeyframe => ({
+const kf: (time: number, flexion: number) => IAutoMovieKeyframe = (
+  time: number,
+  flexion: number,
+): IAutoMovieKeyframe => ({
   time,
   pose: {
     skeleton: "s",
@@ -25,9 +32,13 @@ const gait: IAutoMovieMotion = {
   keyframes: [kf(0, 0), kf(0.5, 120), kf(1, 0)],
 };
 
-const flexionAt: (motion: IAutoMovieMotion, time: number) => number = (motion: IAutoMovieMotion, time: number): number =>
-  sampleMotion(motion, time).pose.joints.find((j: IAutoMovieJointPose): boolean => j.bone === "leftLowerArm")!
-    .flexion!;
+const flexionAt: (motion: IAutoMovieMotion, time: number) => number = (
+  motion: IAutoMovieMotion,
+  time: number,
+): number =>
+  sampleMotion(motion, time).pose.joints.find(
+    (j: IAutoMovieJointPose): boolean => j.bone === "leftLowerArm",
+  )!.flexion!;
 
 /**
  * Observe retained limb phase across an L-path corner by sampling an authored triangular flexion cycle before and after the turn. This samples the numerical bake through sampleMotion; it does not establish rendered continuity or every intermediate time.

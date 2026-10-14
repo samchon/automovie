@@ -6,7 +6,11 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-const t: (x: number, y: number, z: number) => IAutoMovieTransform = (x: number, y: number, z: number): IAutoMovieTransform => ({
+const t: (x: number, y: number, z: number) => IAutoMovieTransform = (
+  x: number,
+  y: number,
+  z: number,
+): IAutoMovieTransform => ({
   translation: { x, y, z },
   rotation: { x: 0, y: 0, z: 0, w: 1 },
   scale: { x: 1, y: 1, z: 1 },
@@ -37,13 +41,16 @@ const skeleton: IAutoMovieSkeleton = {
   ],
 };
 
-const LEG: NonNullable<Parameters<typeof plantStanceFeet>[0]["legs"]>[number] = {
-  foot: "leftFoot",
-  upper: "leftUpperLeg",
-  lower: "leftLowerLeg",
-} as const;
+const LEG: NonNullable<Parameters<typeof plantStanceFeet>[0]["legs"]>[number] =
+  {
+    foot: "leftFoot",
+    upper: "leftUpperLeg",
+    lower: "leftLowerLeg",
+  } as const;
 
-const motion: (peakY: number) => IAutoMovieMotion = (peakY: number): IAutoMovieMotion => ({
+const motion: (peakY: number) => IAutoMovieMotion = (
+  peakY: number,
+): IAutoMovieMotion => ({
   id: "bob",
   skeleton: "leg",
   duration: 1,

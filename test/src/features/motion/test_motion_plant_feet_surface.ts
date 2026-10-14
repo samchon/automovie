@@ -9,7 +9,11 @@ import { TestValidator } from "@nestia/e2e";
 
 import { nclose, vclose } from "../internal/predicates";
 
-const t: (x: number, y: number, z: number) => IAutoMovieTransform = (x: number, y: number, z: number): IAutoMovieTransform => ({
+const t: (x: number, y: number, z: number) => IAutoMovieTransform = (
+  x: number,
+  y: number,
+  z: number,
+): IAutoMovieTransform => ({
   translation: { x, y, z },
   rotation: { x: 0, y: 0, z: 0, w: 1 },
   scale: { x: 1, y: 1, z: 1 },
@@ -42,13 +46,16 @@ const legSkeleton: IAutoMovieSkeleton = {
   ],
 };
 
-const LEG: NonNullable<Parameters<typeof plantStanceFeet>[0]["legs"]>[number] = {
-  foot: "leftFoot",
-  upper: "leftUpperLeg",
-  lower: "leftLowerLeg",
-} as const;
+const LEG: NonNullable<Parameters<typeof plantStanceFeet>[0]["legs"]>[number] =
+  {
+    foot: "leftFoot",
+    upper: "leftUpperLeg",
+    lower: "leftLowerLeg",
+  } as const;
 
-const still: (rootX: number) => IAutoMovieMotion = (rootX: number): IAutoMovieMotion => ({
+const still: (rootX: number) => IAutoMovieMotion = (
+  rootX: number,
+): IAutoMovieMotion => ({
   id: "still",
   skeleton: "leg",
   duration: 0.5,
@@ -113,9 +120,21 @@ export function test_motion_plant_feet_surface(): void {
   });
   TestValidator.predicate(
     "constant callback plants exactly as the scalar",
-    constant.plants.length === scalar.plants.length && constant.plants.every((plant: ReturnType<typeof plantStanceFeet>["plants"][number], index: number): boolean => {
-      const expected: ReturnType<typeof plantStanceFeet>["plants"][number] = scalar.plants[index]!;
-      return plant.foot === expected.foot && nclose(plant.start, expected.start, 0) && nclose(plant.end, expected.end, 0) && vclose(plant.position, expected.position, 0);
-    }),
+    constant.plants.length === scalar.plants.length &&
+      constant.plants.every(
+        (
+          plant: ReturnType<typeof plantStanceFeet>["plants"][number],
+          index: number,
+        ): boolean => {
+          const expected: ReturnType<typeof plantStanceFeet>["plants"][number] =
+            scalar.plants[index]!;
+          return (
+            plant.foot === expected.foot &&
+            nclose(plant.start, expected.start, 0) &&
+            nclose(plant.end, expected.end, 0) &&
+            vclose(plant.position, expected.position, 0)
+          );
+        },
+      ),
   );
 }

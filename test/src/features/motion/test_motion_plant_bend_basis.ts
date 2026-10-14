@@ -6,11 +6,11 @@ import {
   resolvePose,
 } from "@automovie/engine";
 import {
+  AutoMovieHumanoidBone,
   IAutoMovieJointConstraint,
   IAutoMovieJointPose,
   IAutoMoviePose,
   IAutoMovieQuaternion,
-  AutoMovieHumanoidBone,
   IAutoMovieSkeleton,
   IAutoMovieTransform,
   IAutoMovieVector3,
@@ -19,7 +19,9 @@ import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts, nclose } from "../internal/predicates";
 
-const transform: (translation: IAutoMovieVector3) => IAutoMovieTransform = (translation: IAutoMovieVector3): IAutoMovieTransform => ({
+const transform: (translation: IAutoMovieVector3) => IAutoMovieTransform = (
+  translation: IAutoMovieVector3,
+): IAutoMovieTransform => ({
   translation,
   rotation: { x: 0, y: 0, z: 0, w: 1 },
   scale: { x: 1, y: 1, z: 1 },
@@ -42,7 +44,11 @@ const CHAIN: IAutoMoviePlantChain = {
   lower: "leftLowerLeg",
 };
 
-const skeleton: (id: string, lower: IAutoMovieVector3, foot: IAutoMovieVector3) => IAutoMovieSkeleton = (
+const skeleton: (
+  id: string,
+  lower: IAutoMovieVector3,
+  foot: IAutoMovieVector3,
+) => IAutoMovieSkeleton = (
   id: string,
   lower: IAutoMovieVector3,
   foot: IAutoMovieVector3,
@@ -76,36 +82,47 @@ const skeleton: (id: string, lower: IAutoMovieVector3, foot: IAutoMovieVector3) 
   ],
 });
 
-const distance: (a: IAutoMovieVector3, b: IAutoMovieVector3) => number = (a: IAutoMovieVector3, b: IAutoMovieVector3): number =>
-  Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z);
+const distance: (a: IAutoMovieVector3, b: IAutoMovieVector3) => number = (
+  a: IAutoMovieVector3,
+  b: IAutoMovieVector3,
+): number => Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z);
 
-const rotationDistance: (pose: IAutoMoviePose, reference: IAutoMoviePose) => number = (
+const rotationDistance: (
   pose: IAutoMoviePose,
   reference: IAutoMoviePose,
-): number => {
-  const joints: Map<AutoMovieHumanoidBone, IAutoMovieJointPose> = new Map(pose.joints.map((joint: IAutoMovieJointPose): [AutoMovieHumanoidBone, IAutoMovieJointPose] => [joint.bone, joint]));
-  return reference.joints.reduce((total: number, prior: IAutoMovieJointPose): number => {
-    const candidate: IAutoMovieQuaternion = jointToQuaternion(
-      joints.get(prior.bone) ?? {
-        bone: prior.bone,
-        flexion: null,
-        abduction: null,
-        twist: null,
-      },
-    );
-    const expected: IAutoMovieQuaternion = jointToQuaternion(prior);
-    const dot: number = Math.min(
-      1,
-      Math.abs(
-        candidate.x * expected.x +
-          candidate.y * expected.y +
-          candidate.z * expected.z +
-          candidate.w * expected.w,
-      ),
-    );
-    const angle: number = 2 * Math.acos(dot);
-    return total + angle * angle;
-  }, 0);
+) => number = (pose: IAutoMoviePose, reference: IAutoMoviePose): number => {
+  const joints: Map<AutoMovieHumanoidBone, IAutoMovieJointPose> = new Map(
+    pose.joints.map(
+      (
+        joint: IAutoMovieJointPose,
+      ): [AutoMovieHumanoidBone, IAutoMovieJointPose] => [joint.bone, joint],
+    ),
+  );
+  return reference.joints.reduce(
+    (total: number, prior: IAutoMovieJointPose): number => {
+      const candidate: IAutoMovieQuaternion = jointToQuaternion(
+        joints.get(prior.bone) ?? {
+          bone: prior.bone,
+          flexion: null,
+          abduction: null,
+          twist: null,
+        },
+      );
+      const expected: IAutoMovieQuaternion = jointToQuaternion(prior);
+      const dot: number = Math.min(
+        1,
+        Math.abs(
+          candidate.x * expected.x +
+            candidate.y * expected.y +
+            candidate.z * expected.z +
+            candidate.w * expected.w,
+        ),
+      );
+      const angle: number = 2 * Math.acos(dot);
+      return total + angle * angle;
+    },
+    0,
+  );
 };
 
 /**
@@ -130,7 +147,12 @@ const rotationDistance: (pose: IAutoMoviePose, reference: IAutoMoviePose) => num
  * @evidence contracts/testing.md#execution-ownership This named synchronous unit owns all fits and FK observations with local rigs and authored poses. Private fixture and distance helpers register no extra cases and start no viewer, renderer or native artifact.
  */
 export function test_motion_plant_bend_basis(): void {
-  const cases: ReadonlyArray<Pick<Parameters<typeof fitChainToTarget>[0], "skeleton" | "target" | "jointAxes" | "restFrames">> = [
+  const cases: ReadonlyArray<
+    Pick<
+      Parameters<typeof fitChainToTarget>[0],
+      "skeleton" | "target" | "jointAxes" | "restFrames"
+    >
+  > = [
     {
       skeleton: skeleton(
         "parallel-horizontal",
@@ -167,15 +189,21 @@ export function test_motion_plant_bend_basis(): void {
       root: transform({ x: 0, y: 0, z: 0 }),
       joints: [],
     };
-    const topology: ReturnType<typeof indexSkeletonTopology> = indexSkeletonTopology(entry.skeleton);
-    const position: (candidate: IAutoMoviePose) => IAutoMovieVector3 = (candidate: IAutoMoviePose): IAutoMovieVector3 =>
+    const topology: ReturnType<typeof indexSkeletonTopology> =
+      indexSkeletonTopology(entry.skeleton);
+    const position: (candidate: IAutoMoviePose) => IAutoMovieVector3 = (
+      candidate: IAutoMoviePose,
+    ): IAutoMovieVector3 =>
       resolvePose(
         candidate,
         entry.skeleton,
         entry.jointAxes,
         entry.restFrames,
         topology,
-      ).find((bone: ReturnType<typeof resolvePose>[number]): boolean => bone.bone === CHAIN.effector)!.worldPosition;
+      ).find(
+        (bone: ReturnType<typeof resolvePose>[number]): boolean =>
+          bone.bone === CHAIN.effector,
+      )!.worldPosition;
     const before: number = distance(position(pose), entry.target);
     const fitted: IAutoMoviePose = fitChainToTarget({
       skeleton: entry.skeleton,
@@ -191,9 +219,18 @@ export function test_motion_plant_bend_basis(): void {
     TestValidator.equals(
       `${entry.skeleton.id} bend basis stays finite and non-destructive`,
       namedFacts([
-        ["isFiniteAfterPositionX", (): boolean => Number.isFinite(afterPosition.x)],
-        ["isFiniteAfterPositionY", (): boolean => Number.isFinite(afterPosition.y)],
-        ["isFiniteAfterPositionZ", (): boolean => Number.isFinite(afterPosition.z)],
+        [
+          "isFiniteAfterPositionX",
+          (): boolean => Number.isFinite(afterPosition.x),
+        ],
+        [
+          "isFiniteAfterPositionY",
+          (): boolean => Number.isFinite(afterPosition.y),
+        ],
+        [
+          "isFiniteAfterPositionZ",
+          (): boolean => Number.isFinite(afterPosition.z),
+        ],
         ["fittedPose", (): boolean => fitted !== pose],
         ["afterBeforeE", (): boolean => after < before - 1e-9],
       ]),
@@ -236,7 +273,8 @@ export function test_motion_plant_bend_basis(): void {
     ],
   };
   const exactTarget: IAutoMovieVector3 = { x: 0, y: -1.5, z: 0 };
-  const exactTopology: ReturnType<typeof indexSkeletonTopology> = indexSkeletonTopology(exactSkeleton);
+  const exactTopology: ReturnType<typeof indexSkeletonTopology> =
+    indexSkeletonTopology(exactSkeleton);
   const pole: IAutoMoviePose = fitChainToTarget({
     skeleton: exactSkeleton,
     pose: exactPose,
@@ -260,8 +298,12 @@ export function test_motion_plant_bend_basis(): void {
     topology: exactTopology,
     referencePose: reference,
   });
-  const resolved: IAutoMovieVector3 = resolvePose(continuous, exactSkeleton).find(
-    (bone: ReturnType<typeof resolvePose>[number]): boolean => bone.bone === CHAIN.effector,
+  const resolved: IAutoMovieVector3 = resolvePose(
+    continuous,
+    exactSkeleton,
+  ).find(
+    (bone: ReturnType<typeof resolvePose>[number]): boolean =>
+      bone.bone === CHAIN.effector,
   )!.worldPosition;
   TestValidator.equals(
     "equal-residual exact pin preserves the prior quaternion branch",
@@ -272,7 +314,8 @@ export function test_motion_plant_bend_basis(): void {
       ],
       [
         "rotationDistanceContinuousReference",
-        (): boolean => nclose(rotationDistance(continuous, reference), 0, 1e-12),
+        (): boolean =>
+          nclose(rotationDistance(continuous, reference), 0, 1e-12),
       ],
       [
         "rotationDistanceContinuousReference2",
@@ -282,7 +325,8 @@ export function test_motion_plant_bend_basis(): void {
       ],
       [
         "rotationDistanceAuthoredExactReference",
-        (): boolean => nclose(rotationDistance(authoredExact, reference), 0, 1e-12),
+        (): boolean =>
+          nclose(rotationDistance(authoredExact, reference), 0, 1e-12),
       ],
     ]),
     {

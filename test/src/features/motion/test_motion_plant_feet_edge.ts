@@ -1,17 +1,26 @@
-import { plantStanceFeet, resolvePose, sampleMotion, IAutoMovieFootLeg } from "@automovie/engine";
 import {
+  IAutoMovieFootLeg,
+  plantStanceFeet,
+  resolvePose,
+  sampleMotion,
+} from "@automovie/engine";
+import {
+  AutoMovieHumanoidBone,
+  IAutoMovieJointPose,
+  IAutoMovieKeyframe,
   IAutoMovieMotion,
   IAutoMovieSkeleton,
   IAutoMovieTransform,
-  AutoMovieHumanoidBone,
-  IAutoMovieKeyframe,
-  IAutoMovieJointPose,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts, throwsError } from "../internal/predicates";
 
-const t: (x: number, y: number, z: number) => IAutoMovieTransform = (x: number, y: number, z: number): IAutoMovieTransform => ({
+const t: (x: number, y: number, z: number) => IAutoMovieTransform = (
+  x: number,
+  y: number,
+  z: number,
+): IAutoMovieTransform => ({
   translation: { x, y, z },
   rotation: { x: 0, y: 0, z: 0, w: 1 },
   scale: { x: 1, y: 1, z: 1 },
@@ -23,7 +32,13 @@ const LEG: IAutoMovieFootLeg = {
   lower: "leftLowerLeg",
 };
 
-const staticMotion: (skeletonId: string, travelX?: number) => IAutoMovieMotion = (skeletonId: string, travelX: number = 0): IAutoMovieMotion => ({
+const staticMotion: (
+  skeletonId: string,
+  travelX?: number,
+) => IAutoMovieMotion = (
+  skeletonId: string,
+  travelX: number = 0,
+): IAutoMovieMotion => ({
   id: "m",
   skeleton: skeletonId,
   duration: 1,
@@ -46,7 +61,15 @@ const staticMotion: (skeletonId: string, travelX?: number) => IAutoMovieMotion =
   ],
 });
 
-const bone: (name: AutoMovieHumanoidBone, parent: AutoMovieHumanoidBone | null, rest: IAutoMovieTransform) => IAutoMovieSkeleton [ "bones" ] [ number ] = (name: AutoMovieHumanoidBone, parent: AutoMovieHumanoidBone | null, rest: IAutoMovieTransform): IAutoMovieSkeleton["bones"][number] =>
+const bone: (
+  name: AutoMovieHumanoidBone,
+  parent: AutoMovieHumanoidBone | null,
+  rest: IAutoMovieTransform,
+) => IAutoMovieSkeleton["bones"][number] = (
+  name: AutoMovieHumanoidBone,
+  parent: AutoMovieHumanoidBone | null,
+  rest: IAutoMovieTransform,
+): IAutoMovieSkeleton["bones"][number] =>
   ({
     bone: name,
     parent,
@@ -191,15 +214,17 @@ export function test_motion_plant_feet_edge(): void {
     legs: [LEG],
     sampleRate: 8,
   });
-  const foot: ReturnType<typeof resolvePose>[number]["worldPosition"] = resolvePose(sampleMotion(far.motion, 1).pose, reachLeg).find(
-    (b: ReturnType<typeof resolvePose>[number]) : boolean => b.bone === "leftFoot",
-  )!.worldPosition;
+  const foot: ReturnType<typeof resolvePose>[number]["worldPosition"] =
+    resolvePose(sampleMotion(far.motion, 1).pose, reachLeg).find(
+      (b: ReturnType<typeof resolvePose>[number]): boolean =>
+        b.bone === "leftFoot",
+    )!.worldPosition;
   TestValidator.equals(
     "unreachable pin extends the leg without NaN",
     namedFacts([
-      ["isFiniteFootX", () : boolean => Number.isFinite(foot.x)],
-      ["isFiniteFootY", () : boolean => Number.isFinite(foot.y)],
-      ["isFiniteFootZ", () : boolean => Number.isFinite(foot.z)],
+      ["isFiniteFootX", (): boolean => Number.isFinite(foot.x)],
+      ["isFiniteFootY", (): boolean => Number.isFinite(foot.y)],
+      ["isFiniteFootZ", (): boolean => Number.isFinite(foot.z)],
     ]),
     { isFiniteFootX: true, isFiniteFootY: true, isFiniteFootZ: true },
   );
@@ -213,15 +238,17 @@ export function test_motion_plant_feet_edge(): void {
   TestValidator.equals(
     "branched pseudo-chain stays unchanged",
     namedFacts([
-      ["branchedPlantsLength", () : boolean => branched.plants.length === 1],
+      ["branchedPlantsLength", (): boolean => branched.plants.length === 1],
       [
         "branchedMotionKeyframes",
-        () : boolean =>
+        (): boolean =>
           branched.plants.length === 1 &&
-          branched.motion.keyframes.every((keyframe: IAutoMovieKeyframe) : boolean =>
-            keyframe.pose.joints.every(
-              (joint: IAutoMovieJointPose) : boolean => joint.bone !== LEG.upper && joint.bone !== LEG.lower,
-            ),
+          branched.motion.keyframes.every(
+            (keyframe: IAutoMovieKeyframe): boolean =>
+              keyframe.pose.joints.every(
+                (joint: IAutoMovieJointPose): boolean =>
+                  joint.bone !== LEG.upper && joint.bone !== LEG.lower,
+              ),
           ),
       ],
     ]),
@@ -242,24 +269,28 @@ export function test_motion_plant_feet_edge(): void {
   TestValidator.equals(
     "both ancestry edges are enforced without rejecting indirect descendants",
     namedFacts([
-      ["splitPlants", () : boolean => split.plants.length === 1],
+      ["splitPlants", (): boolean => split.plants.length === 1],
       [
         "splitMotionKeyframes",
-        () : boolean =>
-          split.motion.keyframes.every((keyframe: IAutoMovieKeyframe) : boolean =>
-            keyframe.pose.joints.every(
-              (joint: IAutoMovieJointPose) : boolean => joint.bone !== LEG.upper && joint.bone !== LEG.lower,
-            ),
+        (): boolean =>
+          split.motion.keyframes.every(
+            (keyframe: IAutoMovieKeyframe): boolean =>
+              keyframe.pose.joints.every(
+                (joint: IAutoMovieJointPose): boolean =>
+                  joint.bone !== LEG.upper && joint.bone !== LEG.lower,
+              ),
           ),
       ],
-      ["indirectPlants", () : boolean => indirect.plants.length === 1],
+      ["indirectPlants", (): boolean => indirect.plants.length === 1],
       [
         "indirectMotionKeyframes",
-        () : boolean =>
-          indirect.motion.keyframes.some((keyframe: IAutoMovieKeyframe) : boolean =>
-            keyframe.pose.joints.some(
-              (joint: IAutoMovieJointPose) : boolean => joint.bone === LEG.upper || joint.bone === LEG.lower,
-            ),
+        (): boolean =>
+          indirect.motion.keyframes.some(
+            (keyframe: IAutoMovieKeyframe): boolean =>
+              keyframe.pose.joints.some(
+                (joint: IAutoMovieJointPose): boolean =>
+                  joint.bone === LEG.upper || joint.bone === LEG.lower,
+              ),
           ),
       ],
     ]),
@@ -273,19 +304,79 @@ export function test_motion_plant_feet_edge(): void {
 
   TestValidator.predicate(
     "non-positive sample rate throws",
-    throwsError(() : ReturnType<typeof plantStanceFeet> =>
-      plantStanceFeet({
-        skeleton: reachLeg,
-        motion: staticMotion("reach"),
-        sampleRate: 0,
-      }),
+    throwsError(
+      (): ReturnType<typeof plantStanceFeet> =>
+        plantStanceFeet({
+          skeleton: reachLeg,
+          motion: staticMotion("reach"),
+          sampleRate: 0,
+        }),
     ),
   );
   for (const tolerance of [-0.01, Number.NaN, Number.POSITIVE_INFINITY])
-    TestValidator.predicate("invalid tolerance cannot hide stance", throwsError((): ReturnType<typeof plantStanceFeet> => plantStanceFeet({ skeleton: noSegments, motion: staticMotion(noSegments.id), legs: [LEG], tolerance }), "finite and non-negative"));
+    TestValidator.predicate(
+      "invalid tolerance cannot hide stance",
+      throwsError(
+        (): ReturnType<typeof plantStanceFeet> =>
+          plantStanceFeet({
+            skeleton: noSegments,
+            motion: staticMotion(noSegments.id),
+            legs: [LEG],
+            tolerance,
+          }),
+        "finite and non-negative",
+      ),
+    );
   for (const groundY of [Number.NaN, Number.NEGATIVE_INFINITY])
-    TestValidator.predicate("nonfinite scalar ground refuses", throwsError((): ReturnType<typeof plantStanceFeet> => plantStanceFeet({ skeleton: noSegments, motion: staticMotion(noSegments.id), legs: [LEG], groundY }), "ground height must be finite"));
-  TestValidator.predicate("nonfinite sampled ground refuses", throwsError((): ReturnType<typeof plantStanceFeet> => plantStanceFeet({ skeleton: noSegments, motion: staticMotion(noSegments.id), legs: [LEG], groundY: (): number => Number.NaN }), "contact ground height"));
-  TestValidator.predicate("nonfinite opening pin refuses", throwsError((): ReturnType<typeof plantStanceFeet> => plantStanceFeet({ skeleton: noSegments, motion: staticMotion(noSegments.id), legs: [LEG], openingPlants: [{ foot: LEG.foot, position: { x: 0, y: Number.NaN, z: 0 } }] }), "stance target"));
-  TestValidator.equals("zero tolerance retains exact ground contact", plantStanceFeet({ skeleton: noSegments, motion: staticMotion(noSegments.id), legs: [LEG], tolerance: 0 }).plants.length, 1);
+    TestValidator.predicate(
+      "nonfinite scalar ground refuses",
+      throwsError(
+        (): ReturnType<typeof plantStanceFeet> =>
+          plantStanceFeet({
+            skeleton: noSegments,
+            motion: staticMotion(noSegments.id),
+            legs: [LEG],
+            groundY,
+          }),
+        "ground height must be finite",
+      ),
+    );
+  TestValidator.predicate(
+    "nonfinite sampled ground refuses",
+    throwsError(
+      (): ReturnType<typeof plantStanceFeet> =>
+        plantStanceFeet({
+          skeleton: noSegments,
+          motion: staticMotion(noSegments.id),
+          legs: [LEG],
+          groundY: (): number => Number.NaN,
+        }),
+      "contact ground height",
+    ),
+  );
+  TestValidator.predicate(
+    "nonfinite opening pin refuses",
+    throwsError(
+      (): ReturnType<typeof plantStanceFeet> =>
+        plantStanceFeet({
+          skeleton: noSegments,
+          motion: staticMotion(noSegments.id),
+          legs: [LEG],
+          openingPlants: [
+            { foot: LEG.foot, position: { x: 0, y: Number.NaN, z: 0 } },
+          ],
+        }),
+      "stance target",
+    ),
+  );
+  TestValidator.equals(
+    "zero tolerance retains exact ground contact",
+    plantStanceFeet({
+      skeleton: noSegments,
+      motion: staticMotion(noSegments.id),
+      legs: [LEG],
+      tolerance: 0,
+    }).plants.length,
+    1,
+  );
 }
