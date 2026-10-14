@@ -33,40 +33,81 @@ export function registerHumanFaceLipPhysicalSources(
 ): IHumanFaceLipPhysicalSources {
   const domain: string = humanPhysicalSourceDomain(instance, generation);
   const materialDomain: string = domain + ":material-skin";
-  const sources: Map<string, IAutoMovieMeshPhysicalSource> = new Map<string, IAutoMovieMeshPhysicalSource>();
-  const material: Map<string, IHumanFaceMaterialAttachment> = new Map<string, IHumanFaceMaterialAttachment>();
+  const sources: Map<string, IAutoMovieMeshPhysicalSource> = new Map<
+    string,
+    IAutoMovieMeshPhysicalSource
+  >();
+  const material: Map<string, IHumanFaceMaterialAttachment> = new Map<
+    string,
+    IHumanFaceMaterialAttachment
+  >();
   for (const point of [...points.upper, ...points.lower]) {
     if (point.nativeVertex !== null) {
-      const id: number = surface.sourcePartition?.samples[point.nativeVertex] ?? point.nativeVertex;
+      const id: number =
+        surface.sourcePartition?.samples[point.nativeVertex] ??
+        point.nativeVertex;
       if (!Number.isSafeInteger(id) || id < 0)
-        throw new Error("Native lip physical source has no canonical sample ID.");
+        throw new Error(
+          "Native lip physical source has no canonical sample ID.",
+        );
       sources.set(point.identity, { domain, id });
       continue;
     }
-    if (surface.sourcePartition?.generation !== generation ||
-        point.vertices.length !== 3 || point.weights.length !== 3)
-      throw new Error("Material lip physical source needs its same-generation native triangle.");
+    if (
+      surface.sourcePartition?.generation !== generation ||
+      point.vertices.length !== 3 ||
+      point.weights.length !== 3
+    )
+      throw new Error(
+        "Material lip physical source needs its same-generation native triangle.",
+      );
     const parents: [number, number, number] = [
       surface.sourcePartition.samples[point.vertices[0]],
       surface.sourcePartition.samples[point.vertices[1]],
       surface.sourcePartition.samples[point.vertices[2]],
     ];
-    const weights: [number, number, number] = [point.weights[0], point.weights[1], point.weights[2]];
-    if (parents.some((id: number): boolean  => !Number.isSafeInteger(id) || id < 0) ||
-        weights.some((weight: number): boolean  => !Number.isFinite(weight) || weight < 0))
-      throw new Error("Material lip physical source has invalid native support.");
+    const weights: [number, number, number] = [
+      point.weights[0],
+      point.weights[1],
+      point.weights[2],
+    ];
+    if (
+      parents.some(
+        (id: number): boolean => !Number.isSafeInteger(id) || id < 0,
+      ) ||
+      weights.some(
+        (weight: number): boolean => !Number.isFinite(weight) || weight < 0,
+      )
+    )
+      throw new Error(
+        "Material lip physical source has invalid native support.",
+      );
     if (!material.has(point.identity))
-      material.set(point.identity, { surface: surface.id, parents, weights, identity: point.identity });
+      material.set(point.identity, {
+        surface: surface.id,
+        parents,
+        weights,
+        identity: point.identity,
+      });
   }
-  const attachments: Map<number, IHumanFaceMaterialAttachment> = new Map<number, IHumanFaceMaterialAttachment>();
-  const identities: string[] = [...material.keys()].sort((a: string, b: string): 0 | 1 | -1  => a < b ? -1 : a > b ? 1 : 0);
-  identities.forEach((identity: string, id: number): void  => {
-    if (sources.has(identity)) throw new Error("Native and material lip physical identities collide.");
+  const attachments: Map<number, IHumanFaceMaterialAttachment> = new Map<
+    number,
+    IHumanFaceMaterialAttachment
+  >();
+  const identities: string[] = [...material.keys()].sort(
+    (a: string, b: string): 0 | 1 | -1 => (a < b ? -1 : a > b ? 1 : 0),
+  );
+  identities.forEach((identity: string, id: number): void => {
+    if (sources.has(identity))
+      throw new Error("Native and material lip physical identities collide.");
     sources.set(identity, { domain: materialDomain, id });
     attachments.set(id, material.get(identity)!);
   });
   return {
     sources,
-    materialAttachments: attachments.size === 0 ? new Map() : new Map([[materialDomain, attachments]]),
+    materialAttachments:
+      attachments.size === 0
+        ? new Map()
+        : new Map([[materialDomain, attachments]]),
   };
 }

@@ -1,10 +1,13 @@
+import type {
+  IAutoMovieHumanFaceBasisChannel as IAutoMovieHumanFaceBasisChannelImported,
+  IAutoMovieHumanFaceEyelidPhenotype as IAutoMovieHumanFaceEyelidPhenotypeImported,
+  IAutoMovieHumanFaceHair as IAutoMovieHumanFaceHairImported,
+} from "../../index";
 import { resolveHumanFaceBrows } from "../anatomy/brow/resolveHumanFaceBrows";
 import { expandHumanFaceHairTraits } from "../anatomy/hair/expandHumanFaceHairTraits";
 import { expandHumanFaceScalpHair } from "../anatomy/hair/expandHumanFaceScalpHair";
 import type { IAutoMovieHumanFaceBasis } from "../structures/IAutoMovieHumanFaceBasis";
 import type { IAutoMovieHumanFaceBasisDocument } from "../structures/IAutoMovieHumanFaceBasisDocument";
-import type { IAutoMovieHumanFaceEyelidPhenotype as IAutoMovieHumanFaceEyelidPhenotypeImported, IAutoMovieHumanFaceBasisChannel as IAutoMovieHumanFaceBasisChannelImported, IAutoMovieHumanFaceHair as IAutoMovieHumanFaceHairImported } from "../../index";
-
 
 /**
  * Resolve named appearance authoring into the established connected consumer.
@@ -31,9 +34,10 @@ export function resolveHumanFaceAppearanceDocument(
     throw new Error(
       "Named scalp styling and a complete legacy hairstyle are alternative inputs.",
     );
-  const shape: { [x: string]: number; } = { ...input.shape };
+  const shape: { [x: string]: number } = { ...input.shape };
   for (const side of ["left", "right"] as const) {
-    const profile: IAutoMovieHumanFaceEyelidPhenotypeImported | undefined = input.eyelidPhenotypes?.[side];
+    const profile: IAutoMovieHumanFaceEyelidPhenotypeImported | undefined =
+      input.eyelidPhenotypes?.[side];
     if (profile === undefined) continue;
     if (input.eyelids?.[side] !== undefined)
       throw new Error(
@@ -47,9 +51,11 @@ export function resolveHumanFaceAppearanceDocument(
           "Named epicanthal morphology and its raw source channel duplicate one authoring trait: " +
             id,
         );
-      const channel: IAutoMovieHumanFaceBasisChannelImported | undefined = basis.channels.find(
-        (entry: IAutoMovieHumanFaceBasisChannelImported): boolean  => entry.id === id && entry.kind === "shape",
-      );
+      const channel: IAutoMovieHumanFaceBasisChannelImported | undefined =
+        basis.channels.find(
+          (entry: IAutoMovieHumanFaceBasisChannelImported): boolean =>
+            entry.id === id && entry.kind === "shape",
+        );
       if (channel === undefined)
         throw new Error(
           "Named epicanthal morphology needs its source endpoint: " + side,

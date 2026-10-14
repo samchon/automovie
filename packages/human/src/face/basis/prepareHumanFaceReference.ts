@@ -1,19 +1,22 @@
+import type { IAutoMovieVector3 as IAutoMovieVector3Imported } from "@automovie/interface";
+
+import type {
+  IAutoMovieHumanFaceBasisChannel as IAutoMovieHumanFaceBasisChannelImported,
+  IAutoMovieHumanFaceBasisSurface as IAutoMovieHumanFaceBasisSurfaceImported,
+} from "../../index";
 import { buildHumanFaceOpticalAssembly } from "../anatomy/eye/buildHumanFaceOpticalAssembly";
 import { seatHumanFaceLidCage } from "../anatomy/eye/seatHumanFaceLidCage";
+import type { IHumanFaceOpticalAssembly as IHumanFaceOpticalAssemblyImported } from "../anatomy/eye/structures/IHumanFaceOpticalAssembly";
 import { applyHumanFaceNasolabialRelief } from "../anatomy/skin/applyHumanFaceNasolabialRelief";
 import { applyHumanFaceRegionalRelief } from "../anatomy/skin/applyHumanFaceRegionalRelief";
 import { humanFaceSkinReliefIdentity } from "../anatomy/skin/humanFaceSkinReliefIdentity";
+import type { IAutoMovieHumanFacePeriocularCage as IAutoMovieHumanFacePeriocularCageImported } from "../structures/IAutoMovieHumanFacePeriocularCage";
+import type { IHumanFaceNativePose as IHumanFaceNativePoseImported } from "./IHumanFaceNativePose";
 import type { IHumanFaceReferencePreparation } from "./IHumanFaceReferencePreparation";
 import type { IHumanFaceReferencePreparationInput } from "./IHumanFaceReferencePreparationInput";
 import { assertHumanFacePeriocularCage } from "./assertHumanFacePeriocularCage";
 import { createHumanFaceNativePose } from "./createHumanFaceNativePose";
 import { replayHumanFaceSourceRefinements } from "./replayHumanFaceSourceRefinements";
-import type { IHumanFaceNativePose as IHumanFaceNativePoseImported } from "./IHumanFaceNativePose";
-import type { IAutoMovieVector3 as IAutoMovieVector3Imported } from "@automovie/interface";
-import type { IHumanFaceOpticalAssembly as IHumanFaceOpticalAssemblyImported } from "../anatomy/eye/structures/IHumanFaceOpticalAssembly";
-import type { IAutoMovieHumanFacePeriocularCage as IAutoMovieHumanFacePeriocularCageImported } from "../structures/IAutoMovieHumanFacePeriocularCage";
-import type { IAutoMovieHumanFaceBasisSurface as IAutoMovieHumanFaceBasisSurfaceImported, IAutoMovieHumanFaceBasisChannel as IAutoMovieHumanFaceBasisChannelImported } from "../../index";
-
 
 /**
  * Prepare the one shape-only skin reference shared by normal assembly and
@@ -45,18 +48,31 @@ export function prepareHumanFaceReference(
 ): IHumanFaceReferencePreparation {
   const { basis, state, geometry }: IHumanFaceReferencePreparationInput = input;
   const native: IHumanFaceNativePoseImported =
-    input.native ?? createHumanFaceNativePose(basis)(state, geometry, input.progress);
-  const shaped: { surfaces: number[][]; landmarks: Record<string, IAutoMovieVector3Imported>; } | undefined = native.shaped;
+    input.native ??
+    createHumanFaceNativePose(basis)(state, geometry, input.progress);
+  const shaped:
+    | {
+        surfaces: number[][];
+        landmarks: Record<string, IAutoMovieVector3Imported>;
+      }
+    | undefined = native.shaped;
   const optics: IHumanFaceOpticalAssemblyImported[] | undefined =
     geometry?.eyes === undefined
       ? undefined
-      : buildHumanFaceOpticalAssembly(basis, state, geometry.eyes, input.progress);
+      : buildHumanFaceOpticalAssembly(
+          basis,
+          state,
+          geometry.eyes,
+          input.progress,
+        );
   for (const eye of optics ?? []) {
-    const cage: IAutoMovieHumanFacePeriocularCageImported | undefined = basis.periocular?.[eye.side].cage;
+    const cage: IAutoMovieHumanFacePeriocularCageImported | undefined =
+      basis.periocular?.[eye.side].cage;
     if (cage === undefined || shaped === undefined) continue;
     assertHumanFacePeriocularCage(basis, cage);
     const host: number = basis.surfaces.findIndex(
-      (surface: IAutoMovieHumanFaceBasisSurfaceImported): boolean  => surface.id === cage.surface,
+      (surface: IAutoMovieHumanFaceBasisSurfaceImported): boolean =>
+        surface.id === cage.surface,
     );
     shaped.surfaces[host] = seatHumanFaceLidCage(
       cage,
@@ -69,63 +85,91 @@ export function prepareHumanFaceReference(
   }
   let completed: boolean = false;
   let reference: Map<string, number[]> | undefined;
-  const materialReference: Map<string, number[]> | undefined = shaped === undefined ? undefined : new Map(
-    basis.surfaces.map((surface: IAutoMovieHumanFaceBasisSurfaceImported, at: number): [string, number[]]  => [surface.id, [...shaped.surfaces[at]]]),
-  );
+  const materialReference: Map<string, number[]> | undefined =
+    shaped === undefined
+      ? undefined
+      : new Map(
+          basis.surfaces.map(
+            (
+              surface: IAutoMovieHumanFaceBasisSurfaceImported,
+              at: number,
+            ): [string, number[]] => [surface.id, [...shaped.surfaces[at]]],
+          ),
+        );
   return {
     optics,
     shaped,
     materialReference,
-    complete: (): Map<string, number[]> | undefined  => {
+    complete: (): Map<string, number[]> | undefined => {
       if (completed) return reference;
       if (shaped !== undefined) {
         let candidate: number[][] = shaped.surfaces;
         if (geometry?.skinRelief !== undefined) {
           if (materialReference === undefined)
-            throw new Error("Skin relief needs its same shape-only material reference.");
+            throw new Error(
+              "Skin relief needs its same shape-only material reference.",
+            );
           const shapeChannels: Set<string> = new Set(
             basis.channels
-              .filter((channel: IAutoMovieHumanFaceBasisChannelImported): boolean  => channel.kind === "shape")
-              .map((channel: IAutoMovieHumanFaceBasisChannelImported): string  => channel.id),
+              .filter(
+                (channel: IAutoMovieHumanFaceBasisChannelImported): boolean =>
+                  channel.kind === "shape",
+              )
+              .map(
+                (channel: IAutoMovieHumanFaceBasisChannelImported): string =>
+                  channel.id,
+              ),
           );
-          const relieved: ReadonlyMap<string, readonly number[]> = applyHumanFaceRegionalRelief(
-            basis,
-            applyHumanFaceNasolabialRelief(
+          const relieved: ReadonlyMap<string, readonly number[]> =
+            applyHumanFaceRegionalRelief(
               basis,
-              new Map(
-                basis.surfaces.map((surface: IAutoMovieHumanFaceBasisSurfaceImported, at: number): [string, number[]]  => [
-                  surface.id,
-                  shaped.surfaces[at],
-                ]),
+              applyHumanFaceNasolabialRelief(
+                basis,
+                new Map(
+                  basis.surfaces.map(
+                    (
+                      surface: IAutoMovieHumanFaceBasisSurfaceImported,
+                      at: number,
+                    ): [string, number[]] => [surface.id, shaped.surfaces[at]],
+                  ),
+                ),
+                new Map(
+                  [...state.weights].filter(([id]: [string, number]): boolean =>
+                    shapeChannels.has(id),
+                  ),
+                ),
+                geometry.skinRelief,
+                materialReference,
               ),
-              new Map(
-                [...state.weights].filter(([id]: [string, number]): boolean  => shapeChannels.has(id)),
-              ),
-              geometry.skinRelief,
+              humanFaceSkinReliefIdentity(geometry.skinRelief),
               materialReference,
-            ),
-            humanFaceSkinReliefIdentity(geometry.skinRelief),
-            materialReference,
+            );
+          candidate = basis.surfaces.map(
+            (surface: IAutoMovieHumanFaceBasisSurfaceImported): number[] => [
+              ...relieved.get(surface.id)!,
+            ],
           );
-          candidate = basis.surfaces.map((surface: IAutoMovieHumanFaceBasisSurfaceImported): number[]  => [
-            ...relieved.get(surface.id)!,
-          ]);
           input.progress?.("reference:identity-relief");
         }
         const replayed: Map<string, number[]> = new Map(
-          basis.surfaces.map((surface: IAutoMovieHumanFaceBasisSurfaceImported, at: number): readonly [string, number[]]  => {
-            const positions: number[] = replayHumanFaceSourceRefinements(
-              surface.sourcePosePlan,
-              candidate[at],
-            );
-            input.progress?.("reference:replay:" + surface.id);
-            return [surface.id, positions] as const;
-          }),
+          basis.surfaces.map(
+            (
+              surface: IAutoMovieHumanFaceBasisSurfaceImported,
+              at: number,
+            ): readonly [string, number[]] => {
+              const positions: number[] = replayHumanFaceSourceRefinements(
+                surface.sourcePosePlan,
+                candidate[at],
+              );
+              input.progress?.("reference:replay:" + surface.id);
+              return [surface.id, positions] as const;
+            },
+          ),
         );
         input.progress?.("reference:computed");
         // A failed replay leaves the exposed native shape unchanged, so a
         // later completion cannot apply persistent relief to it a second time.
-        candidate.forEach((positions: number[], at: number): void  => {
+        candidate.forEach((positions: number[], at: number): void => {
           shaped.surfaces[at] = positions;
         });
         reference = replayed;

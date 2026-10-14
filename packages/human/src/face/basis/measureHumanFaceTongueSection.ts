@@ -59,8 +59,10 @@ export function measureHumanFaceTongueSection(
   };
   for (let at: number = 0; at < indices.length; at += 3) {
     for (let corner: number = 0; corner < 3; corner++) {
-      const first: { forward: number; height: number; } = projected[indices[at + corner]];
-      const second: { forward: number; height: number; } = projected[indices[at + ((corner + 1) % 3)]];
+      const first: { forward: number; height: number } =
+        projected[indices[at + corner]];
+      const second: { forward: number; height: number } =
+        projected[indices[at + ((corner + 1) % 3)]];
       protrudingMetres = Math.max(protrudingMetres, first.forward);
       if (Math.abs(first.forward) <= frame.slabMetres) include(first.height);
       for (const plane of [-frame.slabMetres, frame.slabMetres]) {

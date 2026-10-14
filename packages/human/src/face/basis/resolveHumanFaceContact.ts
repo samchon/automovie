@@ -1,9 +1,14 @@
-import { readHumanFaceContactGradient } from "./readHumanFaceContactGradient";
-import { solveHumanFaceContactCorrection } from "./solveHumanFaceContactCorrection";
-import { solveHumanFaceContactProjection } from "./solveHumanFaceContactProjection";
-import { createAutoMovieSignedMeshQuery, type IAutoMovieSignedMeshQueryHit as IAutoMovieSignedMeshQueryHitImported } from "@automovie/engine";
+import {
+  type IAutoMovieSignedMeshQueryHit as IAutoMovieSignedMeshQueryHitImported,
+  createAutoMovieSignedMeshQuery,
+} from "@automovie/engine";
 import type { IAutoMovieMesh } from "@automovie/interface";
 
+import type {
+  IAutoMovieHumanFaceBasisSurface as IAutoMovieHumanFaceBasisSurfaceImported,
+  IAutoMovieHumanFaceContactCollider as IAutoMovieHumanFaceContactColliderImported,
+  IAutoMovieHumanFaceContactSoftSurface as IAutoMovieHumanFaceContactSoftSurfaceImported,
+} from "../../index";
 import type { IAutoMovieHumanFaceBasis } from "../structures/IAutoMovieHumanFaceBasis";
 import type { IAutoMovieHumanFaceContactSummary } from "../structures/IAutoMovieHumanFaceContactSummary";
 import type { IHumanFaceContactBounds } from "./IHumanFaceContactBounds";
@@ -12,9 +17,9 @@ import type { IHumanFaceContactFloor } from "./IHumanFaceContactFloor";
 import type { IHumanFaceContactGeometry } from "./IHumanFaceContactGeometry";
 import type { IHumanFaceContactWitness } from "./IHumanFaceContactWitness";
 import type { IHumanFaceDynamicCollider } from "./IHumanFaceDynamicCollider";
-import type { IAutoMovieHumanFaceBasisSurface as IAutoMovieHumanFaceBasisSurfaceImported, IAutoMovieHumanFaceContactCollider as IAutoMovieHumanFaceContactColliderImported, IAutoMovieHumanFaceContactSoftSurface as IAutoMovieHumanFaceContactSoftSurfaceImported } from "../../index";
-
-
+import { readHumanFaceContactGradient } from "./readHumanFaceContactGradient";
+import { solveHumanFaceContactCorrection } from "./solveHumanFaceContactCorrection";
+import { solveHumanFaceContactProjection } from "./solveHumanFaceContactProjection";
 
 type Contact = NonNullable<IAutoMovieHumanFaceBasis["contact"]>;
 
@@ -92,10 +97,25 @@ export function resolveHumanFaceContact(
   shaped: ReadonlyMap<string, readonly number[]>,
   generated?: ReadonlyMap<string, readonly IHumanFaceDynamicCollider[]>,
 ): IAutoMovieHumanFaceContactSummary["resolved"] {
-  const surfaces: Map<string, IAutoMovieHumanFaceBasisSurfaceImported> = new Map(
-    basis.surfaces.map((surface: IAutoMovieHumanFaceBasisSurfaceImported): [string, IAutoMovieHumanFaceBasisSurfaceImported]  => [surface.id, surface]),
-  );
-  const compile: (id: string, closure: readonly number[], positions: readonly number[], mesh?: IAutoMovieMesh, label?: string, pointIds?: readonly string[]) => IHumanFaceContactGeometry = (
+  const surfaces: Map<string, IAutoMovieHumanFaceBasisSurfaceImported> =
+    new Map(
+      basis.surfaces.map(
+        (
+          surface: IAutoMovieHumanFaceBasisSurfaceImported,
+        ): [string, IAutoMovieHumanFaceBasisSurfaceImported] => [
+          surface.id,
+          surface,
+        ],
+      ),
+    );
+  const compile: (
+    id: string,
+    closure: readonly number[],
+    positions: readonly number[],
+    mesh?: IAutoMovieMesh,
+    label?: string,
+    pointIds?: readonly string[],
+  ) => IHumanFaceContactGeometry = (
     id: string,
     closure: readonly number[],
     positions: readonly number[],
@@ -124,7 +144,7 @@ export function resolveHumanFaceContact(
       let changedCoordinates: number = 0,
         maximumChangeMetres: number = 0;
       if (original !== undefined && original.length === positions.length)
-        positions.forEach((value: number, at: number): void  => {
+        positions.forEach((value: number, at: number): void => {
           if (value !== original[at]) changedCoordinates++;
           maximumChangeMetres = Math.max(
             maximumChangeMetres,
@@ -159,33 +179,50 @@ export function resolveHumanFaceContact(
     return { query, low, high };
   };
   const colliders: IHumanFaceContactColliderState[] = contact.colliders.flatMap(
-    (collider: IAutoMovieHumanFaceContactColliderImported): { reach: number; cover: number; now: IHumanFaceContactGeometry; rest: IHumanFaceContactGeometry; }[]  => {
-      const replacements: readonly IHumanFaceDynamicCollider[] | undefined = generated?.get(collider.surface);
+    (
+      collider: IAutoMovieHumanFaceContactColliderImported,
+    ): {
+      reach: number;
+      cover: number;
+      now: IHumanFaceContactGeometry;
+      rest: IHumanFaceContactGeometry;
+    }[] => {
+      const replacements: readonly IHumanFaceDynamicCollider[] | undefined =
+        generated?.get(collider.surface);
       if (replacements !== undefined) {
         if (replacements.length === 0)
           throw new Error(
             "Generated contact replacement must retain at least one exterior.",
           );
-        return replacements.map((replacement: IHumanFaceDynamicCollider): { reach: number; cover: number; now: IHumanFaceContactGeometry; rest: IHumanFaceContactGeometry; }  => ({
-          reach: collider.reachMetres,
-          cover: collider.coverMetres ?? 0,
-          now: compile(
-            collider.surface,
-            [],
-            replacement.posed.positions,
-            replacement.posed,
-            (replacement.id ?? collider.surface) + ":performed",
-            replacement.pointIds,
-          ),
-          rest: compile(
-            collider.surface,
-            [],
-            replacement.rest.positions,
-            replacement.rest,
-            (replacement.id ?? collider.surface) + ":rest",
-            replacement.pointIds,
-          ),
-        }));
+        return replacements.map(
+          (
+            replacement: IHumanFaceDynamicCollider,
+          ): {
+            reach: number;
+            cover: number;
+            now: IHumanFaceContactGeometry;
+            rest: IHumanFaceContactGeometry;
+          } => ({
+            reach: collider.reachMetres,
+            cover: collider.coverMetres ?? 0,
+            now: compile(
+              collider.surface,
+              [],
+              replacement.posed.positions,
+              replacement.posed,
+              (replacement.id ?? collider.surface) + ":performed",
+              replacement.pointIds,
+            ),
+            rest: compile(
+              collider.surface,
+              [],
+              replacement.rest.positions,
+              replacement.rest,
+              (replacement.id ?? collider.surface) + ":rest",
+              replacement.pointIds,
+            ),
+          }),
+        );
       }
       return [
         {
@@ -209,193 +246,255 @@ export function resolveHumanFaceContact(
       ];
     },
   );
-  const near: (box: IHumanFaceContactBounds, reach: number, p: readonly number[]) => boolean = (
+  const near: (
+    box: IHumanFaceContactBounds,
+    reach: number,
+    p: readonly number[],
+  ) => boolean = (
     box: IHumanFaceContactBounds,
     reach: number,
     p: readonly number[],
   ): boolean =>
     [0, 1, 2].every(
-      (axis: number): boolean  =>
+      (axis: number): boolean =>
         p[axis] >= box.low[axis] - reach && p[axis] <= box.high[axis] + reach,
     );
-  const mm: (metres: number) => string = (metres: number): string => (metres * 1000).toFixed(2);
+  const mm: (metres: number) => string = (metres: number): string =>
+    (metres * 1000).toFixed(2);
   const staged: Map<string, number[]> = new Map<string, number[]>();
-  const resolved: { surface: string; vertices: number; maxDepthMetres: number; }[] = contact.soft.map((soft: IAutoMovieHumanFaceContactSoftSurfaceImported): { surface: string; vertices: number; maxDepthMetres: number; }  => {
-    const surface: IAutoMovieHumanFaceBasisSurfaceImported = surfaces.get(soft.surface)!;
-    const original: number[] = posed.get(soft.surface)!;
-    const positions: number[] = [...original];
-    const rest: readonly number[] = shaped.get(soft.surface)!;
-    // Coincident posed copies move together, but their distinct shaped points
-    // retain every original rest floor. Posed coincidence does not establish
-    // equal clearance before the pose.
-    const groups: Map<string, number[]> = new Map<string, number[]>();
-    const groupOf: Int32Array<ArrayBuffer> = new Int32Array(positions.length / 3);
-    for (let vertex: number = 0; vertex * 3 < positions.length; vertex++) {
-      const key: string = positions.slice(3 * vertex, 3 * vertex + 3).join(",");
-      let members: number[] | undefined = groups.get(key);
-      if (members === undefined) {
-        members = [];
-        groups.set(key, members);
-      }
-      groupOf[vertex] = members.length === 0 ? vertex : members[0];
-      members.push(vertex);
-    }
-    const pushes: Map<number, number[]> = new Map<number, number[]>();
-    const floors: Map<number, IHumanFaceContactWitness[]> = new Map<number, IHumanFaceContactWitness[]>();
-    const rowsOf: Map<number, IHumanFaceContactFloor[]> = new Map<number, IHumanFaceContactFloor[]>();
-    // The first refusal reading of one welded point, or null when every
-    // original floor holds there within the declared tolerance and the net
-    // budget. A directly corrected point refuses on it; a spread-only
-    // neighbour that has one keeps its original place instead.
-    const fault: (vertex: number) => string | null = (vertex: number): string | null => {
-      const point: number[] = positions.slice(3 * vertex, 3 * vertex + 3);
-      const travel: number = Math.hypot(
-        ...point.map((value: number, axis: number): number  => value - original[3 * vertex + axis]),
+  const resolved: {
+    surface: string;
+    vertices: number;
+    maxDepthMetres: number;
+  }[] = contact.soft.map(
+    (
+      soft: IAutoMovieHumanFaceContactSoftSurfaceImported,
+    ): { surface: string; vertices: number; maxDepthMetres: number } => {
+      const surface: IAutoMovieHumanFaceBasisSurfaceImported = surfaces.get(
+        soft.surface,
+      )!;
+      const original: number[] = posed.get(soft.surface)!;
+      const positions: number[] = [...original];
+      const rest: readonly number[] = shaped.get(soft.surface)!;
+      // Coincident posed copies move together, but their distinct shaped points
+      // retain every original rest floor. Posed coincidence does not establish
+      // equal clearance before the pose.
+      const groups: Map<string, number[]> = new Map<string, number[]>();
+      const groupOf: Int32Array<ArrayBuffer> = new Int32Array(
+        positions.length / 3,
       );
-      if (!Number.isFinite(travel) || travel > soft.budgetMetres)
-        return `${soft.surface} has an unverified net contact move of ${mm(travel)} mm at vertex ${vertex}, past its ${mm(soft.budgetMetres)} mm tissue budget.`;
-      for (const witness of floors.get(vertex)!) {
-        const hit: IAutoMovieSignedMeshQueryHitImported = witness.collider.now.query(point);
-        if (
-          !near(witness.collider.now, witness.collider.reach, point) ||
-          hit.boundary ||
-          hit.distance > witness.collider.reach
-        ) {
-          // The sheet reads no side here, but the distance to a surface is
-          // 1-Lipschitz: a move shorter than the original outside reading
-          // cannot cross the surface, and clearance cannot fall by more than
-          // the move. That bound proves the floor without the side reading.
+      for (let vertex: number = 0; vertex * 3 < positions.length; vertex++) {
+        const key: string = positions
+          .slice(3 * vertex, 3 * vertex + 3)
+          .join(",");
+        let members: number[] | undefined = groups.get(key);
+        if (members === undefined) {
+          members = [];
+          groups.set(key, members);
+        }
+        groupOf[vertex] = members.length === 0 ? vertex : members[0];
+        members.push(vertex);
+      }
+      const pushes: Map<number, number[]> = new Map<number, number[]>();
+      const floors: Map<number, IHumanFaceContactWitness[]> = new Map<
+        number,
+        IHumanFaceContactWitness[]
+      >();
+      const rowsOf: Map<number, IHumanFaceContactFloor[]> = new Map<
+        number,
+        IHumanFaceContactFloor[]
+      >();
+      // The first refusal reading of one welded point, or null when every
+      // original floor holds there within the declared tolerance and the net
+      // budget. A directly corrected point refuses on it; a spread-only
+      // neighbour that has one keeps its original place instead.
+      const fault: (vertex: number) => string | null = (
+        vertex: number,
+      ): string | null => {
+        const point: number[] = positions.slice(3 * vertex, 3 * vertex + 3);
+        const travel: number = Math.hypot(
+          ...point.map(
+            (value: number, axis: number): number =>
+              value - original[3 * vertex + axis],
+          ),
+        );
+        if (!Number.isFinite(travel) || travel > soft.budgetMetres)
+          return `${soft.surface} has an unverified net contact move of ${mm(travel)} mm at vertex ${vertex}, past its ${mm(soft.budgetMetres)} mm tissue budget.`;
+        for (const witness of floors.get(vertex)!) {
+          const hit: IAutoMovieSignedMeshQueryHitImported =
+            witness.collider.now.query(point);
           if (
-            witness.signed > travel &&
-            witness.floor - (witness.signed - travel) <= contact.toleranceMetres
-          )
-            continue;
-          return `${soft.surface} contact floor cannot be verified at vertex ${vertex}: the corrected point leaves the oriented sheet's reach or meets its rim.`;
+            !near(witness.collider.now, witness.collider.reach, point) ||
+            hit.boundary ||
+            hit.distance > witness.collider.reach
+          ) {
+            // The sheet reads no side here, but the distance to a surface is
+            // 1-Lipschitz: a move shorter than the original outside reading
+            // cannot cross the surface, and clearance cannot fall by more than
+            // the move. That bound proves the floor without the side reading.
+            if (
+              witness.signed > travel &&
+              witness.floor - (witness.signed - travel) <=
+                contact.toleranceMetres
+            )
+              continue;
+            return `${soft.surface} contact floor cannot be verified at vertex ${vertex}: the corrected point leaves the oriented sheet's reach or meets its rim.`;
+          }
+          if (witness.floor - hit.signedDistance > contact.toleranceMetres)
+            return `${soft.surface} violates an original contact floor at vertex ${vertex} after correction by ${mm(witness.floor - hit.signedDistance)} mm.`;
         }
-        if (witness.floor - hit.signedDistance > contact.toleranceMetres)
-          return `${soft.surface} violates an original contact floor at vertex ${vertex} after correction by ${mm(witness.floor - hit.signedDistance)} mm.`;
-      }
-      return null;
-    };
-    const verify: (vertex: number) => void = (vertex: number): void => {
-      const message: string | null = fault(vertex);
-      if (message !== null) throw new Error(message);
-    };
-    let deepest: number = 0;
-    for (const members of groups.values()) {
-      const vertex: number = members[0];
-      const p: number[] = positions.slice(3 * vertex, 3 * vertex + 3);
-      const known: IHumanFaceContactWitness[] = [];
-      const rows: IHumanFaceContactFloor[] = [];
-      for (const collider of colliders) {
-        if (!near(collider.now, collider.reach, p)) continue;
-        const hit: IAutoMovieSignedMeshQueryHitImported = collider.now.query(p);
-        if (hit.distance > collider.reach || hit.boundary) continue;
-        // The floor is only known where the rest reading is one the sheet
-        // can give: within reach and off its rim. Elsewhere the vertex has no
-        // floor and is left alone rather than pushed from an assumed zero.
-        for (const member of members) {
-          const r: number[] = rest.slice(3 * member, 3 * member + 3);
-          if (!near(collider.rest, collider.reach, r)) continue;
-          const before: IAutoMovieSignedMeshQueryHitImported = collider.rest.query(r);
-          if (before.boundary || before.distance > collider.reach) continue;
-          const floor: number = Math.min(before.signedDistance, collider.cover);
-          const excess: number = floor - hit.signedDistance;
-          known.push({ collider, floor, signed: hit.signedDistance });
-          rows.push({ normal: readHumanFaceContactGradient(hit, p), minimum: excess });
-          if (excess <= contact.toleranceMetres) continue;
-          if (excess > soft.budgetMetres)
-            throw new Error(
-              `${soft.surface} penetrates a rigid surface by ${mm(excess)} mm at vertex ${vertex}, past its ${mm(soft.budgetMetres)} mm tissue budget.`,
-            );
-          deepest = Math.max(deepest, excess);
-        }
-      }
-      floors.set(vertex, known);
-      rowsOf.set(vertex, rows);
-      if (!rows.some((row: IHumanFaceContactFloor): boolean  => row.minimum > contact.toleranceMetres)) continue;
-      let push: number[];
-      try {
-        push = solveHumanFaceContactCorrection(
-          rows,
-          soft.budgetMetres,
-          contact.toleranceMetres,
-        );
-      } catch (error) {
-        throw new Error(
-          `${soft.surface} contact correction at vertex ${vertex} has no verified witness within its ${mm(soft.budgetMetres)} mm net tissue budget: ${String(error)}`,
-        );
-      }
-      pushes.set(vertex, push);
-      for (const member of members)
-        for (let axis: number = 0; axis < 3; axis++)
-          positions[3 * member + axis] = p[axis] + push[axis];
-      verify(vertex);
-    }
-    if (pushes.size > 0) {
-      const neighbours: Map<number, Set<number>> = new Map<number, Set<number>>();
-      const link: (a: number, b: number) => void = (a: number, b: number): void => {
-        if (a === b) return;
-        let set: Set<number> | undefined = neighbours.get(a);
-        if (set === undefined) {
-          set = new Set();
-          neighbours.set(a, set);
-        }
-        set.add(b);
+        return null;
       };
-      for (let at: number = 0; at < surface.indices.length; at += 3)
-        for (let corner: number = 0; corner < 3; corner++) {
-          const a: number = groupOf[surface.indices[at + corner]];
-          const b: number = groupOf[surface.indices[at + ((corner + 1) % 3)]];
-          link(a, b);
-          link(b, a);
+      const verify: (vertex: number) => void = (vertex: number): void => {
+        const message: string | null = fault(vertex);
+        if (message !== null) throw new Error(message);
+      };
+      let deepest: number = 0;
+      for (const members of groups.values()) {
+        const vertex: number = members[0];
+        const p: number[] = positions.slice(3 * vertex, 3 * vertex + 3);
+        const known: IHumanFaceContactWitness[] = [];
+        const rows: IHumanFaceContactFloor[] = [];
+        for (const collider of colliders) {
+          if (!near(collider.now, collider.reach, p)) continue;
+          const hit: IAutoMovieSignedMeshQueryHitImported =
+            collider.now.query(p);
+          if (hit.distance > collider.reach || hit.boundary) continue;
+          // The floor is only known where the rest reading is one the sheet
+          // can give: within reach and off its rim. Elsewhere the vertex has no
+          // floor and is left alone rather than pushed from an assumed zero.
+          for (const member of members) {
+            const r: number[] = rest.slice(3 * member, 3 * member + 3);
+            if (!near(collider.rest, collider.reach, r)) continue;
+            const before: IAutoMovieSignedMeshQueryHitImported =
+              collider.rest.query(r);
+            if (before.boundary || before.distance > collider.reach) continue;
+            const floor: number = Math.min(
+              before.signedDistance,
+              collider.cover,
+            );
+            const excess: number = floor - hit.signedDistance;
+            known.push({ collider, floor, signed: hit.signedDistance });
+            rows.push({
+              normal: readHumanFaceContactGradient(hit, p),
+              minimum: excess,
+            });
+            if (excess <= contact.toleranceMetres) continue;
+            if (excess > soft.budgetMetres)
+              throw new Error(
+                `${soft.surface} penetrates a rigid surface by ${mm(excess)} mm at vertex ${vertex}, past its ${mm(soft.budgetMetres)} mm tissue budget.`,
+              );
+            deepest = Math.max(deepest, excess);
+          }
         }
-      const spread: Map<number, number[]> = new Map<number, number[]>();
-      for (const vertex of pushes.keys())
-        for (const other of neighbours.get(vertex) ?? []) {
-          if (pushes.has(other)) continue;
-          const total: number[] = spread.get(other) ?? [0, 0, 0, 0];
-          const push: number[] = pushes.get(vertex)!;
-          for (let axis: number = 0; axis < 3; axis++) total[axis] += push[axis];
-          total[3]++;
-          spread.set(other, total);
+        floors.set(vertex, known);
+        rowsOf.set(vertex, rows);
+        if (
+          !rows.some(
+            (row: IHumanFaceContactFloor): boolean =>
+              row.minimum > contact.toleranceMetres,
+          )
+        )
+          continue;
+        let push: number[];
+        try {
+          push = solveHumanFaceContactCorrection(
+            rows,
+            soft.budgetMetres,
+            contact.toleranceMetres,
+          );
+        } catch (error) {
+          throw new Error(
+            `${soft.surface} contact correction at vertex ${vertex} has no verified witness within its ${mm(soft.budgetMetres)} mm net tissue budget: ${String(error)}`,
+          );
         }
-      for (const [vertex, total] of spread) {
-        const key: string = positions.slice(3 * vertex, 3 * vertex + 3).join(",");
-        const members: number[] = groups.get(key)!;
-        const move: number[] | null = solveHumanFaceContactProjection(
-          rowsOf.get(vertex)!,
-          [0, 1, 2].map((axis: number): number  => (0.5 * total[axis]) / total[3]),
-          soft.budgetMetres,
-          contact.toleranceMetres,
-          rowsOf.get(vertex)!.map((row: IHumanFaceContactFloor): number  => Math.min(row.minimum, 0)),
-        );
+        pushes.set(vertex, push);
         for (const member of members)
           for (let axis: number = 0; axis < 3; axis++)
-            positions[3 * member + axis] += move?.[axis] ?? 0;
-        // The smoothing is a preference. A neighbour that needed no correction
-        // is valid where it stands, so a move its own floors, reach or budget
-        // do not verify is not made, and no floor is lost by it.
-        if (move !== null && fault(vertex) === null) continue;
-        for (const member of members)
-          for (let axis: number = 0; axis < 3; axis++)
-            positions[3 * member + axis] = original[3 * member + axis];
-        // Standing is valid only where the original itself reads clean: a
-        // supplied nonfinite point has no verified place and refuses.
+            positions[3 * member + axis] = p[axis] + push[axis];
         verify(vertex);
       }
-    }
-    staged.set(soft.surface, positions);
-    return {
-      surface: soft.surface,
-      vertices: pushes.size,
-      maxDepthMetres: deepest,
-    };
-  });
+      if (pushes.size > 0) {
+        const neighbours: Map<number, Set<number>> = new Map<
+          number,
+          Set<number>
+        >();
+        const link: (a: number, b: number) => void = (
+          a: number,
+          b: number,
+        ): void => {
+          if (a === b) return;
+          let set: Set<number> | undefined = neighbours.get(a);
+          if (set === undefined) {
+            set = new Set();
+            neighbours.set(a, set);
+          }
+          set.add(b);
+        };
+        for (let at: number = 0; at < surface.indices.length; at += 3)
+          for (let corner: number = 0; corner < 3; corner++) {
+            const a: number = groupOf[surface.indices[at + corner]];
+            const b: number = groupOf[surface.indices[at + ((corner + 1) % 3)]];
+            link(a, b);
+            link(b, a);
+          }
+        const spread: Map<number, number[]> = new Map<number, number[]>();
+        for (const vertex of pushes.keys())
+          for (const other of neighbours.get(vertex) ?? []) {
+            if (pushes.has(other)) continue;
+            const total: number[] = spread.get(other) ?? [0, 0, 0, 0];
+            const push: number[] = pushes.get(vertex)!;
+            for (let axis: number = 0; axis < 3; axis++)
+              total[axis] += push[axis];
+            total[3]++;
+            spread.set(other, total);
+          }
+        for (const [vertex, total] of spread) {
+          const key: string = positions
+            .slice(3 * vertex, 3 * vertex + 3)
+            .join(",");
+          const members: number[] = groups.get(key)!;
+          const move: number[] | null = solveHumanFaceContactProjection(
+            rowsOf.get(vertex)!,
+            [0, 1, 2].map(
+              (axis: number): number => (0.5 * total[axis]) / total[3],
+            ),
+            soft.budgetMetres,
+            contact.toleranceMetres,
+            rowsOf
+              .get(vertex)!
+              .map((row: IHumanFaceContactFloor): number =>
+                Math.min(row.minimum, 0),
+              ),
+          );
+          for (const member of members)
+            for (let axis: number = 0; axis < 3; axis++)
+              positions[3 * member + axis] += move?.[axis] ?? 0;
+          // The smoothing is a preference. A neighbour that needed no correction
+          // is valid where it stands, so a move its own floors, reach or budget
+          // do not verify is not made, and no floor is lost by it.
+          if (move !== null && fault(vertex) === null) continue;
+          for (const member of members)
+            for (let axis: number = 0; axis < 3; axis++)
+              positions[3 * member + axis] = original[3 * member + axis];
+          // Standing is valid only where the original itself reads clean: a
+          // supplied nonfinite point has no verified place and refuses.
+          verify(vertex);
+        }
+      }
+      staged.set(soft.surface, positions);
+      return {
+        surface: soft.surface,
+        vertices: pushes.size,
+        maxDepthMetres: deepest,
+      };
+    },
+  );
   // No supplied pose buffer is changed until every soft surface has a witness.
   for (const [surface, positions] of staged) {
     const output: number[] = posed.get(surface)!;
-    for (let at: number = 0; at < positions.length; at++) output[at] = positions[at];
+    for (let at: number = 0; at < positions.length; at++)
+      output[at] = positions[at];
   }
   return resolved;
 }

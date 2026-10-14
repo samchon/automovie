@@ -4,7 +4,6 @@ import { srgbByteToLinear } from "../../common/colour/srgbByteToLinear";
 import { decodePng } from "../../common/mesh/decodePng";
 import type { IPngImage as IPngImageImported } from "../../index";
 
-
 /**
  * Read licensed card foreground painting for texture-free generated shafts.
  * Alpha weights actual foreground texels without interpreting coverage as a
@@ -41,5 +40,5 @@ export function readHumanFaceFibrePigment(
     throw new Error(
       "Numerical fibres have no source foreground pigment: " + material.id,
     );
-  return sum.map((value: number): number  => value / weight);
+  return sum.map((value: number): number => value / weight);
 }

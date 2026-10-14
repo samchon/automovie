@@ -19,8 +19,12 @@ export function isHumanFaceContactFloorSatisfied(
   slack: number,
 ): boolean {
   return rows.every(
-    (row: IHumanFaceContactFloor): boolean  =>
-      row.normal.reduce((sum: number, value: number, axis: number): number  => sum + value * vector[axis], 0) >=
+    (row: IHumanFaceContactFloor): boolean =>
+      row.normal.reduce(
+        (sum: number, value: number, axis: number): number =>
+          sum + value * vector[axis],
+        0,
+      ) >=
       row.minimum - slack,
   );
 }

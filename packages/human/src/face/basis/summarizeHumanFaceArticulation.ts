@@ -1,13 +1,15 @@
 import { Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieQuaternion as IAutoMovieQuaternionImported,
+  IAutoMovieVector3 as IAutoMovieVector3Imported,
+} from "@automovie/interface";
 
+import type { IAutoMovieHumanFaceRigidMotion as IAutoMovieHumanFaceRigidMotionImported } from "../../index";
 import type { IAutoMovieHumanFaceBasis } from "../structures/IAutoMovieHumanFaceBasis";
 import type { IAutoMovieHumanFaceBasisDocument } from "../structures/IAutoMovieHumanFaceBasisDocument";
 import { evaluateHumanFaceRest } from "./evaluateHumanFaceRest";
 import { humanFaceBasisWeights } from "./humanFaceBasisWeights";
 import { resolveHumanFaceArticulation } from "./resolveHumanFaceArticulation";
-import type { IAutoMovieVector3 as IAutoMovieVector3Imported, IAutoMovieQuaternion as IAutoMovieQuaternionImported } from "@automovie/interface";
-import type { IAutoMovieHumanFaceRigidMotion as IAutoMovieHumanFaceRigidMotionImported } from "../../index";
-
 
 /**
  * State the joint motion one document asks of an articulated basis, in the
@@ -45,9 +47,30 @@ export function summarizeHumanFaceArticulation(
   eyes: { id: string; degrees: number; translationMetres: number }[];
 } | null {
   if (basis.articulation === undefined) return null;
-  const state: { weights: Map<string, number>; activations: { target: string; activation: number; shapeOnly: boolean; }[]; } = humanFaceBasisWeights(basis, document);
-  const { landmarks }: { surfaces: number[][]; landmarks: Record<string, IAutoMovieVector3Imported>; } = evaluateHumanFaceRest(basis, state);
-  const resolved: { motions: Map<string, IAutoMovieHumanFaceRigidMotionImported>; jaw: { degrees: number; translation: IAutoMovieVector3Imported; pivot: IAutoMovieVector3Imported; }; eyes: { id: string; rotation: IAutoMovieQuaternionImported; center: IAutoMovieVector3Imported; translation: IAutoMovieVector3Imported; }[]; } = resolveHumanFaceArticulation(
+  const state: {
+    weights: Map<string, number>;
+    activations: { target: string; activation: number; shapeOnly: boolean }[];
+  } = humanFaceBasisWeights(basis, document);
+  const {
+    landmarks,
+  }: {
+    surfaces: number[][];
+    landmarks: Record<string, IAutoMovieVector3Imported>;
+  } = evaluateHumanFaceRest(basis, state);
+  const resolved: {
+    motions: Map<string, IAutoMovieHumanFaceRigidMotionImported>;
+    jaw: {
+      degrees: number;
+      translation: IAutoMovieVector3Imported;
+      pivot: IAutoMovieVector3Imported;
+    };
+    eyes: {
+      id: string;
+      rotation: IAutoMovieQuaternionImported;
+      center: IAutoMovieVector3Imported;
+      translation: IAutoMovieVector3Imported;
+    }[];
+  } = resolveHumanFaceArticulation(
     basis.articulation,
     state.weights,
     landmarks,
@@ -59,17 +82,24 @@ export function summarizeHumanFaceArticulation(
       budgetMetres: basis.articulation.jaw.translationLimitMetres,
       pivot: [resolved.jaw.pivot.x, resolved.jaw.pivot.y, resolved.jaw.pivot.z],
     },
-    eyes: resolved.eyes.map((eye: { id: string; rotation: IAutoMovieQuaternionImported; center: IAutoMovieVector3Imported; translation: IAutoMovieVector3Imported; }): { id: string; degrees: number; translationMetres: number; }  => ({
-      id: eye.id,
-      degrees:
-        (2 *
-          Math.atan2(
-            Math.hypot(eye.rotation.x, eye.rotation.y, eye.rotation.z),
-            Math.abs(eye.rotation.w),
-          ) *
-          180) /
-        Math.PI,
-      translationMetres: Vector3.length(eye.translation),
-    })),
+    eyes: resolved.eyes.map(
+      (eye: {
+        id: string;
+        rotation: IAutoMovieQuaternionImported;
+        center: IAutoMovieVector3Imported;
+        translation: IAutoMovieVector3Imported;
+      }): { id: string; degrees: number; translationMetres: number } => ({
+        id: eye.id,
+        degrees:
+          (2 *
+            Math.atan2(
+              Math.hypot(eye.rotation.x, eye.rotation.y, eye.rotation.z),
+              Math.abs(eye.rotation.w),
+            ) *
+            180) /
+          Math.PI,
+        translationMetres: Vector3.length(eye.translation),
+      }),
+    ),
   };
 }

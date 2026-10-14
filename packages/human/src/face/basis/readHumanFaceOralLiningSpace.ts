@@ -1,9 +1,11 @@
 import type { IAutoMovieHumanConstructionClearanceReading } from "../../common/structures/IAutoMovieHumanConstructionClearanceReading";
+import type {
+  IAutoMovieHumanFaceContactCollider as IAutoMovieHumanFaceContactColliderImported,
+  IHumanFaceOralAssembly as IHumanFaceOralAssemblyImported,
+} from "../../index";
 import type { IHumanFaceAssemblyCensusInput } from "./IHumanFaceAssemblyCensusInput";
-import { measureHumanFaceClearance } from "./measureHumanFaceClearance";
-import type { IHumanFaceOralAssembly as IHumanFaceOralAssemblyImported, IAutoMovieHumanFaceContactCollider as IAutoMovieHumanFaceContactColliderImported } from "../../index";
 import type { IHumanFaceDynamicCollider as IHumanFaceDynamicColliderImported } from "./IHumanFaceDynamicCollider";
-
+import { measureHumanFaceClearance } from "./measureHumanFaceClearance";
 
 /**
  * Measure the generated oral lining against every dental crown collider, and
@@ -52,64 +54,112 @@ export function readHumanFaceOralLiningSpace(
     if (tolerance === undefined || !Number.isFinite(tolerance) || tolerance < 0)
       throw new Error("Oral lining space needs its source contact tolerance.");
     const reachMetres: number | undefined = basis.contact?.colliders.find(
-      (collider: IAutoMovieHumanFaceContactColliderImported): boolean  => collider.surface === oral.dentalSurface,
+      (collider: IAutoMovieHumanFaceContactColliderImported): boolean =>
+        collider.surface === oral.dentalSurface,
     )?.reachMetres;
-    const ids: readonly ("11" | "12" | "13" | "14" | "15" | "16" | "17" | "18" | "21" | "22" | "23" | "24" | "25" | "26" | "27" | "28" | "31" | "32" | "33" | "34" | "35" | "36" | "37" | "38" | "41" | "42" | "43" | "44" | "45" | "46" | "47" | "48")[] | undefined = oral.dentalColliderIds;
-    const colliders: readonly IHumanFaceDynamicColliderImported[] = oral.dentalColliders ?? [];
+    const ids:
+      | readonly (
+          | "11"
+          | "12"
+          | "13"
+          | "14"
+          | "15"
+          | "16"
+          | "17"
+          | "18"
+          | "21"
+          | "22"
+          | "23"
+          | "24"
+          | "25"
+          | "26"
+          | "27"
+          | "28"
+          | "31"
+          | "32"
+          | "33"
+          | "34"
+          | "35"
+          | "36"
+          | "37"
+          | "38"
+          | "41"
+          | "42"
+          | "43"
+          | "44"
+          | "45"
+          | "46"
+          | "47"
+          | "48"
+        )[]
+      | undefined = oral.dentalColliderIds;
+    const colliders: readonly IHumanFaceDynamicColliderImported[] =
+      oral.dentalColliders ?? [];
     // Crowns of one arch against the crowns of the opposing arch: a
     // report-only reading of where the two performed dentitions stand. The
     // first digit of an ISO tooth number is its quadrant; 1 and 2 are
     // maxillary, 3 and 4 mandibular.
     if (ids !== undefined && ids.length === colliders.length)
-      colliders.forEach((subject: IHumanFaceDynamicColliderImported, at: number): void  => {
-        colliders.forEach((exterior: IHumanFaceDynamicColliderImported, other: number): void  => {
-          const upper: boolean = Number(String(ids[at])[0]) <= 2;
-          if (upper === Number(String(ids[other])[0]) <= 2) return;
+      colliders.forEach(
+        (subject: IHumanFaceDynamicColliderImported, at: number): void => {
+          colliders.forEach(
+            (
+              exterior: IHumanFaceDynamicColliderImported,
+              other: number,
+            ): void => {
+              const upper: boolean = Number(String(ids[at])[0]) <= 2;
+              if (upper === Number(String(ids[other])[0]) <= 2) return;
+              readings.push(
+                measureHumanFaceClearance({
+                  owner,
+                  state: "performed",
+                  subject: "oral-dental-collider:" + ids[at],
+                  against: "oral-dental-collider:" + ids[other],
+                  judged: false,
+                  mesh: subject.posed,
+                  exterior: exterior.posed,
+                  boundary: "open",
+                  toleranceMetres: tolerance,
+                  ...(reachMetres === undefined ? {} : { reachMetres }),
+                }),
+              );
+            },
+          );
+        },
+      );
+    (oral.dentalColliders ?? []).forEach(
+      (collider: IHumanFaceDynamicColliderImported, at: number): void => {
+        for (const part of model.parts) {
+          if (
+            part.geometry.type !== "mesh" ||
+            !part.id.startsWith("oral:") ||
+            part.id.startsWith("oral:tooth-") ||
+            part.id.includes("labial-vestibule")
+          )
+            continue;
           readings.push(
             measureHumanFaceClearance({
               owner,
               state: "performed",
-              subject: "oral-dental-collider:" + ids[at],
-              against: "oral-dental-collider:" + ids[other],
-              judged: false,
-              mesh: subject.posed,
-              exterior: exterior.posed,
+              subject: part.id,
+              against: "oral-dental-collider:" + (ids?.[at] ?? at),
+              judged: true,
+              mesh: part.geometry.mesh,
+              exterior: collider.posed,
               boundary: "open",
               toleranceMetres: tolerance,
               ...(reachMetres === undefined ? {} : { reachMetres }),
             }),
           );
-        });
-      });
-    (oral.dentalColliders ?? []).forEach((collider: IHumanFaceDynamicColliderImported, at: number): void  => {
-      for (const part of model.parts) {
-        if (
-          part.geometry.type !== "mesh" ||
-          !part.id.startsWith("oral:") ||
-          part.id.startsWith("oral:tooth-") ||
-          part.id.includes("labial-vestibule")
-        )
-          continue;
-        readings.push(
-          measureHumanFaceClearance({
-            owner,
-            state: "performed",
-            subject: part.id,
-            against: "oral-dental-collider:" + (ids?.[at] ?? at),
-            judged: true,
-            mesh: part.geometry.mesh,
-            exterior: collider.posed,
-            boundary: "open",
-            toleranceMetres: tolerance,
-            ...(reachMetres === undefined ? {} : { reachMetres }),
-          }),
-        );
-      }
-    });
+        }
+      },
+    );
   }
   const gaps: number[] | undefined = pose.summary?.marginInterlabialMetres;
   if (gaps !== undefined && gaps.length > 0) {
-    const sorted: number[] = [...gaps].sort((a: number, b: number): number  => a - b);
+    const sorted: number[] = [...gaps].sort(
+      (a: number, b: number): number => a - b,
+    );
     readings.push({
       owner,
       state: "performed",
@@ -119,8 +169,8 @@ export function readHumanFaceOralLiningSpace(
       refused: false,
       toleranceMetres: 0,
       vertices: sorted.length,
-      insideVertices: sorted.filter((gap: number): boolean  => gap < 0).length,
-      outsideVertices: sorted.filter((gap: number): boolean  => gap > 0).length,
+      insideVertices: sorted.filter((gap: number): boolean => gap < 0).length,
+      outsideVertices: sorted.filter((gap: number): boolean => gap > 0).length,
       boundaryVertices: 0,
       minimumSignedMetres: sorted[0],
       maximumSignedMetres: sorted[sorted.length - 1],

@@ -1,4 +1,10 @@
-import { createAutoMovieSignedMeshQuery, measureAutoMovieMeshCrossings, triangleIndicesOf, type IAutoMovieSignedMeshQueryHit as IAutoMovieSignedMeshQueryHitImported, type IAutoMovieMeshCrossing as IAutoMovieMeshCrossingImported } from "@automovie/engine";
+import {
+  type IAutoMovieMeshCrossing as IAutoMovieMeshCrossingImported,
+  type IAutoMovieSignedMeshQueryHit as IAutoMovieSignedMeshQueryHitImported,
+  createAutoMovieSignedMeshQuery,
+  measureAutoMovieMeshCrossings,
+  triangleIndicesOf,
+} from "@automovie/engine";
 import type { IAutoMovieMesh, IAutoMovieTransform } from "@automovie/interface";
 
 import { readHumanLocalMeshWorld } from "../../common/mesh/readHumanLocalMeshWorld";
@@ -6,9 +12,8 @@ import type { IAutoMovieHumanConstructionClearanceReading } from "../../common/s
 import type { IHumanFaceClearanceReference } from "./IHumanFaceClearanceReference";
 import type { IHumanFaceClearanceRequest } from "./IHumanFaceClearanceRequest";
 
-
-
-const references: WeakMap<IAutoMovieMesh, IHumanFaceClearanceReference> = new WeakMap<IAutoMovieMesh, IHumanFaceClearanceReference>();
+const references: WeakMap<IAutoMovieMesh, IHumanFaceClearanceReference> =
+  new WeakMap<IAutoMovieMesh, IHumanFaceClearanceReference>();
 
 /**
  * Read one subject against one reference surface and report the whole result.
@@ -87,36 +92,58 @@ export function measureHumanFaceClearance(
     crossings: null,
     unavailable: null,
   };
-  const precise: (mesh: IAutoMovieMesh, transform?: IAutoMovieTransform | null) => IAutoMovieMesh = (mesh: IAutoMovieMesh, transform?: IAutoMovieTransform | null): IAutoMovieMesh => {
+  const precise: (
+    mesh: IAutoMovieMesh,
+    transform?: IAutoMovieTransform | null,
+  ) => IAutoMovieMesh = (
+    mesh: IAutoMovieMesh,
+    transform?: IAutoMovieTransform | null,
+  ): IAutoMovieMesh => {
     const placed: IAutoMovieMesh = readHumanLocalMeshWorld(mesh, transform);
     return { ...placed, indices: triangleIndicesOf(placed, "Face clearance") };
   };
   try {
     if (!Number.isFinite(tolerance) || tolerance < 0)
       throw new Error("clearance needs a finite nonnegative tolerance");
-    const subject: IAutoMovieMesh = precise(request.mesh, request.meshTransform);
+    const subject: IAutoMovieMesh = precise(
+      request.mesh,
+      request.meshTransform,
+    );
     // One construction reads many subjects against the same few references,
     // so the rounded reference and its compiled query are kept per mesh
     // object. A reference mesh is never modified after it is first read.
-    let compiled: IHumanFaceClearanceReference | undefined = references.get(request.exterior);
+    let compiled: IHumanFaceClearanceReference | undefined = references.get(
+      request.exterior,
+    );
     const transform: string = JSON.stringify(request.exteriorTransform ?? null);
     if (compiled === undefined || compiled.transform !== transform) {
-      compiled = { mesh: precise(request.exterior, request.exteriorTransform), transform, queries: new Map() };
+      compiled = {
+        mesh: precise(request.exterior, request.exteriorTransform),
+        transform,
+        queries: new Map(),
+      };
       references.set(request.exterior, compiled);
     }
     const exterior: IAutoMovieMesh = compiled.mesh;
-    let query: ((point: readonly number[]) => IAutoMovieSignedMeshQueryHitImported) | undefined = compiled.queries.get(request.boundary);
+    let query:
+      | ((point: readonly number[]) => IAutoMovieSignedMeshQueryHitImported)
+      | undefined = compiled.queries.get(request.boundary);
     if (query === undefined) {
       query = createAutoMovieSignedMeshQuery(exterior, {
         boundary: request.boundary,
       });
       compiled.queries.set(request.boundary, query);
     }
-    const selected: readonly number[] = request.vertices ?? [...new Set(subject.indices ?? [])];
+    const selected: readonly number[] = request.vertices ?? [
+      ...new Set(subject.indices ?? []),
+    ];
     if (request.reachMetres !== undefined) reading.unreachedVertices = 0;
     const distances: number[] = [];
     for (const vertex of selected) {
-      const point: number[] = subject.positions.slice(3 * vertex, 3 * vertex + 3);
+      const point: number[] = subject.positions.slice(
+        3 * vertex,
+        3 * vertex + 3,
+      );
       const hit: IAutoMovieSignedMeshQueryHitImported = query(point);
       reading.vertices++;
       if (hit.boundary) {
@@ -152,7 +179,7 @@ export function measureHumanFaceClearance(
       }
     }
     if (distances.length > 0) {
-      distances.sort((a: number, b: number): number  => a - b);
+      distances.sort((a: number, b: number): number => a - b);
       const rank: (fraction: number) => number = (fraction: number): number =>
         distances[
           Math.min(
@@ -173,12 +200,17 @@ export function measureHumanFaceClearance(
           ? []
           : measureAutoMovieMeshCrossings(faces, exterior, {
               acceptTransversePoint: request.acceptTransversePoint,
-            }).filter((hit: IAutoMovieMeshCrossingImported): boolean  => !hit.coplanar);
+            }).filter(
+              (hit: IAutoMovieMeshCrossingImported): boolean => !hit.coplanar,
+            );
       reading.crossings = hits.length;
-      const corners: (mesh: IAutoMovieMesh, triangle: number) => number[] = (mesh: IAutoMovieMesh, triangle: number): number[] =>
+      const corners: (mesh: IAutoMovieMesh, triangle: number) => number[] = (
+        mesh: IAutoMovieMesh,
+        triangle: number,
+      ): number[] =>
         (mesh.indices ?? [])
           .slice(3 * triangle, 3 * triangle + 3)
-          .flatMap((vertex: number): number[]  =>
+          .flatMap((vertex: number): number[] =>
             mesh.positions.slice(3 * vertex, 3 * vertex + 3),
           );
       reading.crossingWitness =

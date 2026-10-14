@@ -1,16 +1,23 @@
-import type { IAutoMovieMesh, IAutoMovieModelPart as IAutoMovieModelPartImported, IAutoMovieTransform as IAutoMovieTransformImported } from "@automovie/interface";
+import type {
+  IAutoMovieMesh,
+  IAutoMovieModelPart as IAutoMovieModelPartImported,
+  IAutoMovieTransform as IAutoMovieTransformImported,
+} from "@automovie/interface";
 
 import type { IAutoMovieHumanConstructionClearanceReading } from "../../common/structures/IAutoMovieHumanConstructionClearanceReading";
+import type {
+  IAutoMovieHumanFaceBasisRegion as IAutoMovieHumanFaceBasisRegionImported,
+  IAutoMovieHumanFaceBasisSurface as IAutoMovieHumanFaceBasisSurfaceImported,
+  IAutoMovieHumanFaceContactCollider as IAutoMovieHumanFaceContactColliderImported,
+  IHumanFaceOralAssembly as IHumanFaceOralAssemblyImported,
+} from "../../index";
 import { readHumanFaceOpticalExterior } from "../anatomy/eye/readHumanFaceOpticalExterior";
 import { readHumanFaceSkinRegionRelations } from "../anatomy/skin/readHumanFaceSkinRegionRelations";
+import type { IAutoMovieHumanFacePeriocularCage as IAutoMovieHumanFacePeriocularCageImported } from "../structures/IAutoMovieHumanFacePeriocularCage";
 import type { IHumanFaceAssemblyCensusInput } from "./IHumanFaceAssemblyCensusInput";
 import type { IHumanFaceClearanceRequest } from "./IHumanFaceClearanceRequest";
-import { measureHumanFaceClearance } from "./measureHumanFaceClearance";
-import type { IAutoMovieHumanFaceBasisSurface as IAutoMovieHumanFaceBasisSurfaceImported, IAutoMovieHumanFaceBasisRegion as IAutoMovieHumanFaceBasisRegionImported, IHumanFaceOralAssembly as IHumanFaceOralAssemblyImported, IAutoMovieHumanFaceContactCollider as IAutoMovieHumanFaceContactColliderImported } from "../../index";
-import type { IAutoMovieHumanFacePeriocularCage as IAutoMovieHumanFacePeriocularCageImported } from "../structures/IAutoMovieHumanFacePeriocularCage";
-
 import type { IHumanFaceDynamicCollider as IHumanFaceDynamicColliderImported } from "./IHumanFaceDynamicCollider";
-
+import { measureHumanFaceClearance } from "./measureHumanFaceClearance";
 
 /**
  * Observe the spatial relations of the whole constructed face that no
@@ -61,7 +68,21 @@ export function readHumanFaceAssemblyClearances(
   const { basis, pose, model }: IHumanFaceAssemblyCensusInput = input;
   const tolerance: number = basis.contact?.toleranceMetres ?? 0;
   const readings: IAutoMovieHumanConstructionClearanceReading[] = [];
-  const read: (request: Pick<IHumanFaceClearanceRequest, "subject" | "against" | "mesh" | "meshTransform" | "exterior" | "exteriorTransform" | "boundary" | "vertices" | "crossingIndices" | "reachMetres">) => void = (
+  const read: (
+    request: Pick<
+      IHumanFaceClearanceRequest,
+      | "subject"
+      | "against"
+      | "mesh"
+      | "meshTransform"
+      | "exterior"
+      | "exteriorTransform"
+      | "boundary"
+      | "vertices"
+      | "crossingIndices"
+      | "reachMetres"
+    >,
+  ) => void = (
     request: Pick<
       IHumanFaceClearanceRequest,
       | "subject"
@@ -86,8 +107,14 @@ export function readHumanFaceAssemblyClearances(
       }),
     );
   };
-  const surfaceMesh: (id: string) => IAutoMovieMesh | undefined = (id: string): IAutoMovieMesh | undefined => {
-    const surface: IAutoMovieHumanFaceBasisSurfaceImported | undefined = basis.surfaces.find((candidate: IAutoMovieHumanFaceBasisSurfaceImported): boolean  => candidate.id === id);
+  const surfaceMesh: (id: string) => IAutoMovieMesh | undefined = (
+    id: string,
+  ): IAutoMovieMesh | undefined => {
+    const surface: IAutoMovieHumanFaceBasisSurfaceImported | undefined =
+      basis.surfaces.find(
+        (candidate: IAutoMovieHumanFaceBasisSurfaceImported): boolean =>
+          candidate.id === id,
+      );
     const points: readonly number[] | undefined = pose.positions.get(id);
     return surface === undefined || points === undefined
       ? undefined
@@ -101,7 +128,8 @@ export function readHumanFaceAssemblyClearances(
   };
   const skinId: string | undefined =
     basis.periocular?.left.margins.surface ?? basis.contact?.lips.surface;
-  const skin: IAutoMovieMesh | undefined = skinId === undefined ? undefined : surfaceMesh(skinId);
+  const skin: IAutoMovieMesh | undefined =
+    skinId === undefined ? undefined : surfaceMesh(skinId);
 
   // 1. Lid skin against the optical exteriors.
   if (skin !== undefined && skinId !== undefined)
@@ -121,7 +149,8 @@ export function readHumanFaceAssemblyClearances(
         exterior,
         boundary: "closed",
       });
-      const cage: IAutoMovieHumanFacePeriocularCageImported | undefined = basis.periocular?.[side].cage;
+      const cage: IAutoMovieHumanFacePeriocularCageImported | undefined =
+        basis.periocular?.[side].cage;
       if (cage === undefined || cage.surface !== skinId) continue;
       for (const station of cage.stations)
         read({
@@ -137,13 +166,16 @@ export function readHumanFaceAssemblyClearances(
 
   // 2. Generated parts against the skin sheet.
   const regions: Set<string> = new Set(
-    basis.surfaces.flatMap((surface: IAutoMovieHumanFaceBasisSurfaceImported): string[]  =>
-      surface.regions.map((region: IAutoMovieHumanFaceBasisRegionImported): string  => region.id),
+    basis.surfaces.flatMap(
+      (surface: IAutoMovieHumanFaceBasisSurfaceImported): string[] =>
+        surface.regions.map(
+          (region: IAutoMovieHumanFaceBasisRegionImported): string => region.id,
+        ),
     ),
   );
   // Brow shafts are read per side by their own owner.
   const generated: IAutoMovieModelPartImported[] = model.parts.filter(
-    (part: IAutoMovieModelPartImported): boolean  =>
+    (part: IAutoMovieModelPartImported): boolean =>
       part.geometry.type === "mesh" &&
       !regions.has(part.id) &&
       !part.id.startsWith("brows:"),
@@ -170,26 +202,35 @@ export function readHumanFaceAssemblyClearances(
     // The source contact owner states how far its dental sheets tell their
     // sides apart; the generated colliders replace those sheets one for one.
     const reachMetres: number | undefined = basis.contact?.colliders.find(
-      (collider: IAutoMovieHumanFaceContactColliderImported): boolean  => collider.surface === oral.dentalSurface,
+      (collider: IAutoMovieHumanFaceContactColliderImported): boolean =>
+        collider.surface === oral.dentalSurface,
     )?.reachMetres;
-    (oral.colliders ?? []).forEach((collider: IHumanFaceDynamicColliderImported, at: number): void  => {
-      for (const soft of basis.contact?.soft ?? []) {
-        const mesh: IAutoMovieMesh | undefined = surfaceMesh(soft.surface);
-        if (mesh === undefined) continue;
-        read({
-          subject: soft.surface,
-          against: "oral-collider:" + at,
-          mesh,
-          exterior: collider.posed,
-          boundary: "open",
-          ...(reachMetres === undefined ? {} : { reachMetres }),
-        });
-      }
-    });
+    (oral.colliders ?? []).forEach(
+      (collider: IHumanFaceDynamicColliderImported, at: number): void => {
+        for (const soft of basis.contact?.soft ?? []) {
+          const mesh: IAutoMovieMesh | undefined = surfaceMesh(soft.surface);
+          if (mesh === undefined) continue;
+          read({
+            subject: soft.surface,
+            against: "oral-collider:" + at,
+            mesh,
+            exterior: collider.posed,
+            boundary: "open",
+            ...(reachMetres === undefined ? {} : { reachMetres }),
+          });
+        }
+      },
+    );
   }
 
   // 4. Left parts against their mirrored right twins.
-  const twins: Map<string, IAutoMovieModelPartImported> = new Map(generated.map((part: IAutoMovieModelPartImported): [string, IAutoMovieModelPartImported]  => [part.id, part]));
+  const twins: Map<string, IAutoMovieModelPartImported> = new Map(
+    generated.map(
+      (
+        part: IAutoMovieModelPartImported,
+      ): [string, IAutoMovieModelPartImported] => [part.id, part],
+    ),
+  );
   for (const part of generated) {
     if (part.geometry.type !== "mesh") continue;
     const twinId: string | undefined = part.id.includes(":left:")
@@ -197,7 +238,8 @@ export function readHumanFaceAssemblyClearances(
       : part.id.includes(":left-")
         ? part.id.replace(":left-", ":right-")
         : undefined;
-    const twin: IAutoMovieModelPartImported | undefined = twinId === undefined ? undefined : twins.get(twinId);
+    const twin: IAutoMovieModelPartImported | undefined =
+      twinId === undefined ? undefined : twins.get(twinId);
     if (twin === undefined || twin.geometry.type !== "mesh") continue;
     const transform: IAutoMovieTransformImported = twin.transform ?? {
       translation: { x: 0, y: 0, z: 0 },

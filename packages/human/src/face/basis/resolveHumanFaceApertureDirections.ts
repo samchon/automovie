@@ -1,8 +1,7 @@
 import { Vector3 } from "@automovie/engine";
-
-import type { IHumanFaceApertureDirections } from "./IHumanFaceApertureDirections";
 import type { IAutoMovieVector3 as IAutoMovieVector3Imported } from "@automovie/interface";
 
+import type { IHumanFaceApertureDirections } from "./IHumanFaceApertureDirections";
 
 /**
  * Resolve the one canonical oral measurement frame from the admitted jaw axis.
@@ -29,14 +28,22 @@ import type { IAutoMovieVector3 as IAutoMovieVector3Imported } from "@automovie/
 export function resolveHumanFaceApertureDirections(
   sourceAxis: readonly [number, number, number],
 ): IHumanFaceApertureDirections {
-  const axis: IAutoMovieVector3Imported = Vector3.normalize(Vector3.create(...sourceAxis));
-  const side: IAutoMovieVector3Imported = Vector3.normalize(Vector3.cross(Vector3.create(0, 1, 0), axis));
+  const axis: IAutoMovieVector3Imported = Vector3.normalize(
+    Vector3.create(...sourceAxis),
+  );
+  const side: IAutoMovieVector3Imported = Vector3.normalize(
+    Vector3.cross(Vector3.create(0, 1, 0), axis),
+  );
   const length: number = Vector3.length(side);
   if (!(length > 0) || !Number.isFinite(length))
     throw new Error(
       "The mandibular axis cannot be the vertical of the basis frame.",
     );
-  const up: IAutoMovieVector3Imported = Vector3.normalize(Vector3.cross(axis, side));
-  const forward: IAutoMovieVector3Imported = Vector3.normalize(Vector3.cross(axis, up));
+  const up: IAutoMovieVector3Imported = Vector3.normalize(
+    Vector3.cross(axis, side),
+  );
+  const forward: IAutoMovieVector3Imported = Vector3.normalize(
+    Vector3.cross(axis, up),
+  );
   return { axis, up, forward };
 }

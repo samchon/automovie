@@ -1,13 +1,15 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
+import type {
+  IAutoMovieHumanFaceBasisChannel as IAutoMovieHumanFaceBasisChannelImported,
+  IAutoMovieHumanFaceBasisSurface as IAutoMovieHumanFaceBasisSurfaceImported,
+} from "../../index";
 import type { IAutoMovieHumanFaceBasis } from "../structures/IAutoMovieHumanFaceBasis";
 import type { IAutoMovieHumanFaceBasisContact } from "../structures/IAutoMovieHumanFaceBasisContact";
 import type { IAutoMovieHumanFaceMidlinePair } from "../structures/IAutoMovieHumanFaceMidlinePair";
 import type { IAutoMovieHumanFaceRigidMotion } from "../structures/IAutoMovieHumanFaceRigidMotion";
 import { measureHumanFaceApertureGap } from "./measureHumanFaceApertureGap";
 import { poseHumanFaceVertex } from "./poseHumanFaceVertex";
-import type { IAutoMovieHumanFaceBasisSurface as IAutoMovieHumanFaceBasisSurfaceImported, IAutoMovieHumanFaceBasisChannel as IAutoMovieHumanFaceBasisChannelImported } from "../../index";
-
 
 /**
  * The closure gain per unit closure weight that brings one vermilion pair of
@@ -43,15 +45,21 @@ export function measureHumanFaceClosureRatio(
   pair: IAutoMovieHumanFaceMidlinePair,
 ): number {
   const index: number = basis.surfaces.findIndex(
-    (surface: IAutoMovieHumanFaceBasisSurfaceImported): boolean  => surface.id === contact.lips.surface,
+    (surface: IAutoMovieHumanFaceBasisSurfaceImported): boolean =>
+      surface.id === contact.lips.surface,
   );
-  const surface: IAutoMovieHumanFaceBasisSurfaceImported = basis.surfaces[index];
+  const surface: IAutoMovieHumanFaceBasisSurfaceImported =
+    basis.surfaces[index];
   const positions: readonly number[] = rest[index];
   const endpoint: string = basis.channels.find(
-    (channel: IAutoMovieHumanFaceBasisChannelImported): boolean  => channel.id === contact.closure.channel,
+    (channel: IAutoMovieHumanFaceBasisChannelImported): boolean =>
+      channel.id === contact.closure.channel,
   )!.positive;
   const rows: number[] = surface.targets[endpoint] ?? [];
-  const at: (vertex: number, gain: number) => IAutoMovieVector3 = (vertex: number, gain: number): IAutoMovieVector3  => {
+  const at: (vertex: number, gain: number) => IAutoMovieVector3 = (
+    vertex: number,
+    gain: number,
+  ): IAutoMovieVector3 => {
     const local: number[] = positions.slice(3 * vertex, 3 * vertex + 3);
     if (gain !== 0)
       for (let i: number = 0; i < rows.length; i += 4)
@@ -60,7 +68,7 @@ export function measureHumanFaceClosureRatio(
             local[axis] += gain * rows[i + axis + 1];
     return poseHumanFaceVertex(surface, vertex, local, motions);
   };
-  const aperture: (gain: number) => number = (gain: number): number  =>
+  const aperture: (gain: number) => number = (gain: number): number =>
     measureHumanFaceApertureGap(at(pair.upper, gain), at(pair.lower, gain), up);
   const current: number = aperture(0);
   if (!(current > 0)) return 0;

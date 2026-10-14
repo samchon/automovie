@@ -1,7 +1,6 @@
+import type { IAutoMovieHumanBasisSourceChartPoint as IAutoMovieHumanBasisSourceChartPointImported } from "../../common/basis/IAutoMovieHumanBasisSourceChartPoint";
 import { interpolateHumanBasisSourceTriangle } from "../../common/basis/interpolateHumanBasisSourceTriangle";
 import type { IAutoMovieHumanFaceSourcePosePlan } from "../structures/IAutoMovieHumanFaceSourcePosePlan";
-import type { IAutoMovieHumanBasisSourceChartPoint as IAutoMovieHumanBasisSourceChartPointImported } from "../../common/basis/IAutoMovieHumanBasisSourceChartPoint";
-
 
 /**
  * Replay compiled face refinement samples after the original vertices pose.
@@ -58,7 +57,8 @@ export function replayHumanFaceSourceRefinements(
     ];
     if (
       ids.some(
-        (v: number): boolean  => !Number.isSafeInteger(v) || v < 0 || v >= plan.nativeVertices,
+        (v: number): boolean =>
+          !Number.isSafeInteger(v) || v < 0 || v >= plan.nativeVertices,
       ) ||
       new Set(ids).size !== 3
     )
@@ -72,7 +72,8 @@ export function replayHumanFaceSourceRefinements(
         "Face source pose inputs need finite corner and derived coordinates.",
       );
   for (let index: number = 0; index < plan.samples.length; index++) {
-    const sample: IAutoMovieHumanBasisSourceChartPointImported = plan.samples[index];
+    const sample: IAutoMovieHumanBasisSourceChartPointImported =
+      plan.samples[index];
     if (
       sample === undefined ||
       !Number.isSafeInteger(sample.parent) ||
@@ -84,7 +85,7 @@ export function replayHumanFaceSourceRefinements(
       sample.parent * 3,
       sample.parent * 3 + 3,
     );
-    const point: number[] = [0, 1, 2].map((axis: number): number  =>
+    const point: number[] = [0, 1, 2].map((axis: number): number =>
       interpolateHumanBasisSourceTriangle(
         [
           positions[ids[0] * 3 + axis],
@@ -106,7 +107,10 @@ export function replayHumanFaceSourceRefinements(
     const vertex: number = plan.nativeVertices + index;
     if (
       corner !== undefined &&
-      point.some((one: number, axis: number): boolean  => one !== positions[vertex * 3 + axis])
+      point.some(
+        (one: number, axis: number): boolean =>
+          one !== positions[vertex * 3 + axis],
+      )
     )
       throw new Error("Face source alias disagrees after native posing.");
     for (let axis: number = 0; axis < 3; axis++)

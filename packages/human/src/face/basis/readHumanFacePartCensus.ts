@@ -1,11 +1,16 @@
-import { inspectAutoMovieMeshTopology, measureAutoMovieMeshCrossings, type IAutoMovieMeshTopology as IAutoMovieMeshTopologyImported, type IAutoMovieMeshCrossing as IAutoMovieMeshCrossingImported } from "@automovie/engine";
-import type { IAutoMovieModel, IAutoMovieMesh as IAutoMovieMeshImported } from "@automovie/interface";
+import {
+  type IAutoMovieMeshCrossing as IAutoMovieMeshCrossingImported,
+  type IAutoMovieMeshTopology as IAutoMovieMeshTopologyImported,
+  inspectAutoMovieMeshTopology,
+  measureAutoMovieMeshCrossings,
+} from "@automovie/engine";
+import type {
+  IAutoMovieMesh as IAutoMovieMeshImported,
+  IAutoMovieModel,
+} from "@automovie/interface";
 
 import { readHumanLocalMeshWorld } from "../../common/mesh/readHumanLocalMeshWorld";
 import type { IAutoMovieHumanConstructionPartReading } from "../../common/structures/IAutoMovieHumanConstructionPartReading";
-
-
-
 
 /**
  * Take the census of every mesh part of a constructed face model.
@@ -38,7 +43,10 @@ export function readHumanFacePartCensus(
   const readings: IAutoMovieHumanConstructionPartReading[] = [];
   for (const part of model.parts) {
     if (part.geometry.type !== "mesh") continue;
-    const mesh: IAutoMovieMeshImported = readHumanLocalMeshWorld(part.geometry.mesh, part.transform);
+    const mesh: IAutoMovieMeshImported = readHumanLocalMeshWorld(
+      part.geometry.mesh,
+      part.transform,
+    );
     const positions: number[] = mesh.positions;
     const minimum: number[] = [Infinity, Infinity, Infinity];
     const maximum: number[] = [-Infinity, -Infinity, -Infinity];
@@ -47,7 +55,8 @@ export function readHumanFacePartCensus(
         minimum[axis] = Math.min(minimum[axis], positions[at + axis]);
         maximum[axis] = Math.max(maximum[axis], positions[at + axis]);
       }
-    const topology: IAutoMovieMeshTopologyImported = inspectAutoMovieMeshTopology(mesh);
+    const topology: IAutoMovieMeshTopologyImported =
+      inspectAutoMovieMeshTopology(mesh);
     readings.push({
       subject: part.id,
       material: part.material,
@@ -60,7 +69,7 @@ export function readHumanFacePartCensus(
       degenerateTriangles: topology.degenerate,
       signedVolumeCubicMetres: topology.volume,
       selfCrossings: measureAutoMovieMeshCrossings(mesh, mesh).filter(
-        (hit: IAutoMovieMeshCrossingImported): boolean  => !hit.coplanar,
+        (hit: IAutoMovieMeshCrossingImported): boolean => !hit.coplanar,
       ).length,
     });
   }

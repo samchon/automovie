@@ -1,4 +1,5 @@
 import { solveAutoMovieQuadraticProgram } from "@automovie/engine";
+
 import type { IHumanFaceContactFloor } from "./IHumanFaceContactFloor";
 import { isHumanFaceContactFloorSatisfied } from "./isHumanFaceContactFloorSatisfied";
 
@@ -28,27 +29,51 @@ export function solveHumanFaceContactProjection(
 ): number[] | null {
   // A smoothing target is half a mean of pushes that each fit the budget.
   if (rows.length === 0) return [...target];
-  const result: { status: number; iterations: number; primalResidual: number; dualResidual: number; objective: number; dualObjective: number; primal: number[]; dual: number[]; } & { maximumViolation: number; stationarityResidual: number; } = solveAutoMovieQuadraticProgram({
-    diagonal: [1, 1, 1],
-    linear: target.map((value: number): number  => -value / budget),
-    rows: rows.flatMap((row: IHumanFaceContactFloor, at: number): { indices: number[]; weights: number[]; lower: number; upper: null; }[]  =>
-      lowers[at] > -budget
-        ? [
-            {
-              indices: [0, 1, 2],
-              weights: [...row.normal],
-              lower: lowers[at] / budget,
-              upper: null,
-            },
-          ]
-        : [],
-    ),
-  });
+  const result: {
+    status: number;
+    iterations: number;
+    primalResidual: number;
+    dualResidual: number;
+    objective: number;
+    dualObjective: number;
+    primal: number[];
+    dual: number[];
+  } & { maximumViolation: number; stationarityResidual: number } =
+    solveAutoMovieQuadraticProgram({
+      diagonal: [1, 1, 1],
+      linear: target.map((value: number): number => -value / budget),
+      rows: rows.flatMap(
+        (
+          row: IHumanFaceContactFloor,
+          at: number,
+        ): {
+          indices: number[];
+          weights: number[];
+          lower: number;
+          upper: null;
+        }[] =>
+          lowers[at] > -budget
+            ? [
+                {
+                  indices: [0, 1, 2],
+                  weights: [...row.normal],
+                  lower: lowers[at] / budget,
+                  upper: null,
+                },
+              ]
+            : [],
+      ),
+    });
   if (result.status !== 1) return null;
-  const vector: number[] = result.primal.map((value: number): number  => value * budget);
+  const vector: number[] = result.primal.map(
+    (value: number): number => value * budget,
+  );
   // NaN cannot satisfy an affine comparison; an infinite norm exceeds the
   // admitted finite budget. These checks also reject nonfinite native output.
-  if (!isHumanFaceContactFloorSatisfied(rows, vector, tolerance) || !(Math.hypot(...vector) <= budget))
+  if (
+    !isHumanFaceContactFloorSatisfied(rows, vector, tolerance) ||
+    !(Math.hypot(...vector) <= budget)
+  )
     return null;
   return vector;
 }

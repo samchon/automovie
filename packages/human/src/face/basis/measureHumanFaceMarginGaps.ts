@@ -1,13 +1,12 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import type { IAutoMovieHumanFaceLipMargin } from "../structures/IAutoMovieHumanFaceLipMargin";
 import type { IAutoMovieHumanFaceBasisSurface } from "../structures/IAutoMovieHumanFaceBasisSurface";
-import { readHumanFaceLipMarginPoints } from "./readHumanFaceLipMarginPoints";
-import { readHumanFaceMarginGraphViolations } from "./readHumanFaceMarginGraphViolations";
+import type { IAutoMovieHumanFaceLipMargin } from "../structures/IAutoMovieHumanFaceLipMargin";
+import type { IHumanFaceLipMarginPoint as IHumanFaceLipMarginPointImported } from "./IHumanFaceLipMarginPoint";
 import type { IHumanFaceLipMarginPoints as IHumanFaceLipMarginPointsImported } from "./IHumanFaceLipMarginPoints";
 import type { IHumanFaceMarginGraphViolation as IHumanFaceMarginGraphViolationImported } from "./IHumanFaceMarginGraphViolation";
-import type { IHumanFaceLipMarginPoint as IHumanFaceLipMarginPointImported } from "./IHumanFaceLipMarginPoint";
-
+import { readHumanFaceLipMarginPoints } from "./readHumanFaceLipMarginPoints";
+import { readHumanFaceMarginGraphViolations } from "./readHumanFaceMarginGraphViolations";
 
 /**
  * The signed aperture at every legacy vertex or native material course knot
@@ -37,49 +36,76 @@ export function measureHumanFaceMarginGaps(
   if (margin.kind === "material") {
     if (surface === undefined)
       throw new Error("Material lip aperture needs its actual source surface.");
-    const points: IHumanFaceLipMarginPointsImported = readHumanFaceLipMarginPoints(surface, margin, positions);
+    const points: IHumanFaceLipMarginPointsImported =
+      readHumanFaceLipMarginPoints(surface, margin, positions);
     // On a monotone height graph, the union of both courses' knots contains
     // every extremum of the piecewise-affine gap, including end extensions.
-    const violations: IHumanFaceMarginGraphViolationImported[] = readHumanFaceMarginGraphViolations(points, axis, up);
+    const violations: IHumanFaceMarginGraphViolationImported[] =
+      readHumanFaceMarginGraphViolations(points, axis, up);
     if (violations.length !== 0)
-      throw new Error("Lip aperture course is not a single-valued monotone height graph: " + JSON.stringify(violations));
+      throw new Error(
+        "Lip aperture course is not a single-valued monotone height graph: " +
+          JSON.stringify(violations),
+      );
     const nativePositions: number[] = [];
-    const chain: (items: IHumanFaceLipMarginPointImported[]) => number[] = (items: typeof points.upper): number[] => items.map(({ point }: IHumanFaceLipMarginPointImported): number  => {
-      const vertex: number = nativePositions.length / 3;
-      nativePositions.push(point.x, point.y, point.z);
-      return vertex;
-    });
-    return measureHumanFaceMarginGaps(nativePositions,
-      { upper: chain(points.upper), lower: chain(points.lower) }, axis, up);
+    const chain: (items: IHumanFaceLipMarginPointImported[]) => number[] = (
+      items: typeof points.upper,
+    ): number[] =>
+      items.map(({ point }: IHumanFaceLipMarginPointImported): number => {
+        const vertex: number = nativePositions.length / 3;
+        nativePositions.push(point.x, point.y, point.z);
+        return vertex;
+      });
+    return measureHumanFaceMarginGaps(
+      nativePositions,
+      { upper: chain(points.upper), lower: chain(points.lower) },
+      axis,
+      up,
+    );
   }
-  const along: (v: number) => number = (v: number): number  =>
+  const along: (v: number) => number = (v: number): number =>
     positions[3 * v] * axis[0] +
     positions[3 * v + 1] * axis[1] +
     positions[3 * v + 2] * axis[2];
-  const height: (v: number) => number = (v: number): number  =>
+  const height: (v: number) => number = (v: number): number =>
     positions[3 * v] * up.x +
     positions[3 * v + 1] * up.y +
     positions[3 * v + 2] * up.z;
   for (const course of [margin.upper, margin.lower]) {
-    const direction: number = Math.sign(along(course[course.length - 1]) - along(course[0]));
+    const direction: number = Math.sign(
+      along(course[course.length - 1]) - along(course[0]),
+    );
     if (course.length < 2 || !Number.isFinite(direction) || direction === 0)
       throw new Error("Lip aperture course needs a finite directed axis span.");
     for (let ordinal: number = 0; ordinal < course.length; ordinal++) {
       const current: number = course[ordinal];
       if (!Number.isFinite(along(current)) || !Number.isFinite(height(current)))
-        throw new Error("Lip aperture course needs finite performed coordinates.");
+        throw new Error(
+          "Lip aperture course needs finite performed coordinates.",
+        );
       if (ordinal === 0) continue;
       const previous: number = course[ordinal - 1];
       const difference: number = along(current) - along(previous);
-      if (direction * difference < 0 || (difference === 0 && height(current) !== height(previous)))
-        throw new Error("Lip aperture course is not a single-valued monotone height graph.");
+      if (
+        direction * difference < 0 ||
+        (difference === 0 && height(current) !== height(previous))
+      )
+        throw new Error(
+          "Lip aperture course is not a single-valued monotone height graph.",
+        );
     }
   }
-  const across: (chain: readonly number[], at: number) => number = (chain: readonly number[], at: number): number => {
+  const across: (chain: readonly number[], at: number) => number = (
+    chain: readonly number[],
+    at: number,
+  ): number => {
     const first: number = chain[0];
     const last: number = chain[chain.length - 1];
     const ascending: boolean = along(last) >= along(first);
-    const before: (a: number, b: number) => boolean = (a: number, b: number): boolean  => (ascending ? a <= b : a >= b);
+    const before: (a: number, b: number) => boolean = (
+      a: number,
+      b: number,
+    ): boolean => (ascending ? a <= b : a >= b);
     if (before(at, along(first))) return height(first);
     if (before(along(last), at)) return height(last);
     for (let j: number = 0; j + 1 < chain.length; j++) {
@@ -95,7 +121,11 @@ export function measureHumanFaceMarginGaps(
     return height(last);
   };
   return [
-    ...margin.upper.map((v: number): number  => height(v) - across(margin.lower, along(v))),
-    ...margin.lower.map((v: number): number  => across(margin.upper, along(v)) - height(v)),
+    ...margin.upper.map(
+      (v: number): number => height(v) - across(margin.lower, along(v)),
+    ),
+    ...margin.lower.map(
+      (v: number): number => across(margin.upper, along(v)) - height(v),
+    ),
   ];
 }

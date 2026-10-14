@@ -1,11 +1,10 @@
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
+import type { IAutoMovieHumanFaceSurfaceAttachment as IAutoMovieHumanFaceSurfaceAttachmentImported } from "../../index";
 import type { IAutoMovieHumanFaceBasisSurface } from "../structures/IAutoMovieHumanFaceBasisSurface";
 import type { IAutoMovieHumanFaceRigidMotion } from "../structures/IAutoMovieHumanFaceRigidMotion";
 import { poseHumanFaceSurface } from "./poseHumanFaceSurface";
-import type { IAutoMovieHumanFaceSurfaceAttachment as IAutoMovieHumanFaceSurfaceAttachmentImported } from "../../index";
-
 
 /**
  * Pose one resident vertex of a basis surface from a given rest position by
@@ -33,12 +32,20 @@ export function poseHumanFaceVertex(
   local: readonly number[],
   motions: ReadonlyMap<string, IAutoMovieHumanFaceRigidMotion>,
 ): IAutoMovieVector3 {
-  const rows: { owner: string; rows: number[]; }[] = (surface.attachments ?? []).flatMap((attachment: IAutoMovieHumanFaceSurfaceAttachmentImported): { owner: string; rows: number[]; }[]  => {
-    for (let i: number = 0; i < attachment.rows.length; i += 2)
-      if (attachment.rows[i] === vertex)
-        return [{ owner: attachment.owner, rows: [0, attachment.rows[i + 1]] }];
-    return [];
-  });
+  const rows: { owner: string; rows: number[] }[] = (
+    surface.attachments ?? []
+  ).flatMap(
+    (
+      attachment: IAutoMovieHumanFaceSurfaceAttachmentImported,
+    ): { owner: string; rows: number[] }[] => {
+      for (let i: number = 0; i < attachment.rows.length; i += 2)
+        if (attachment.rows[i] === vertex)
+          return [
+            { owner: attachment.owner, rows: [0, attachment.rows[i + 1]] },
+          ];
+      return [];
+    },
+  );
   const posed: readonly number[] =
     rows.length === 0 ? local : poseHumanFaceSurface(local, rows, motions);
   return Vector3.create(posed[0], posed[1], posed[2]);

@@ -26,6 +26,7 @@ export function resolveHumanFaceHairLayers(
   return [
     ...(document.hair?.layers ?? []),
     ...(document.facialHair === undefined || document.facialHair === null
-      ? [] : resolveHumanFaceFacialHair(document.facialHair, basis).layers),
+      ? []
+      : resolveHumanFaceFacialHair(document.facialHair, basis).layers),
   ];
 }

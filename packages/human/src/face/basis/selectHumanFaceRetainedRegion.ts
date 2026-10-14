@@ -25,7 +25,9 @@ export function selectHumanFaceRetainedRegion(
     uvs: number[] | null = region.uvs === null ? null : [];
   for (let corner: number = 0; corner < region.indices.length; corner += 3) {
     const triangle: number[] = region.indices.slice(corner, corner + 3),
-      owned: number = triangle.filter((vertex: number): boolean  => replaced.has(vertex)).length;
+      owned: number = triangle.filter((vertex: number): boolean =>
+        replaced.has(vertex),
+      ).length;
     if (owned === 3) continue;
     if (owned !== 0)
       throw new Error(

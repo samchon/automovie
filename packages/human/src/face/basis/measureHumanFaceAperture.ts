@@ -1,16 +1,16 @@
+import type { IAutoMovieVector3 as IAutoMovieVector3Imported } from "@automovie/interface";
+
+import type { IAutoMovieHumanFaceBasisSurface as IAutoMovieHumanFaceBasisSurfaceImported } from "../../index";
 import type { IAutoMovieHumanFaceBasis } from "../structures/IAutoMovieHumanFaceBasis";
 import type { IAutoMovieHumanFaceBasisContact } from "../structures/IAutoMovieHumanFaceBasisContact";
 import type { IAutoMovieHumanFaceMidlinePair } from "../structures/IAutoMovieHumanFaceMidlinePair";
 import type { IAutoMovieHumanFaceRigidMotion } from "../structures/IAutoMovieHumanFaceRigidMotion";
+import type { IHumanFaceApertureDirections as IHumanFaceApertureDirectionsImported } from "./IHumanFaceApertureDirections";
 import type { IHumanFaceApertureFrame } from "./IHumanFaceApertureFrame";
 import type { IHumanFaceAperturePair } from "./IHumanFaceAperturePair";
 import { measureHumanFaceApertureGap } from "./measureHumanFaceApertureGap";
 import { poseHumanFaceVertex } from "./poseHumanFaceVertex";
 import { resolveHumanFaceApertureDirections } from "./resolveHumanFaceApertureDirections";
-import type { IHumanFaceApertureDirections as IHumanFaceApertureDirectionsImported } from "./IHumanFaceApertureDirections";
-import type { IAutoMovieHumanFaceBasisSurface as IAutoMovieHumanFaceBasisSurfaceImported } from "../../index";
-import type { IAutoMovieVector3 as IAutoMovieVector3Imported } from "@automovie/interface";
-
 
 /**
  * Measure the oral apertures of one state the way the closure and passage
@@ -47,17 +47,22 @@ export function measureHumanFaceAperture(
   rest: readonly (readonly number[])[],
   motions: ReadonlyMap<string, IAutoMovieHumanFaceRigidMotion>,
 ): IHumanFaceApertureFrame {
-  const { up, forward }: IHumanFaceApertureDirectionsImported = resolveHumanFaceApertureDirections(
-    basis.articulation!.jaw.axis,
-  );
-  const pair: (entry: IAutoMovieHumanFaceMidlinePair) => IHumanFaceAperturePair = (
+  const { up, forward }: IHumanFaceApertureDirectionsImported =
+    resolveHumanFaceApertureDirections(basis.articulation!.jaw.axis);
+  const pair: (
+    entry: IAutoMovieHumanFaceMidlinePair,
+  ) => IHumanFaceAperturePair = (
     entry: IAutoMovieHumanFaceMidlinePair,
   ): IHumanFaceAperturePair => {
     const index: number = basis.surfaces.findIndex(
-      (surface: IAutoMovieHumanFaceBasisSurfaceImported): boolean  => surface.id === entry.surface,
+      (surface: IAutoMovieHumanFaceBasisSurfaceImported): boolean =>
+        surface.id === entry.surface,
     );
-    const surface: IAutoMovieHumanFaceBasisSurfaceImported = basis.surfaces[index];
-    const at: (vertex: number) => IAutoMovieVector3Imported = (vertex: number): IAutoMovieVector3Imported  =>
+    const surface: IAutoMovieHumanFaceBasisSurfaceImported =
+      basis.surfaces[index];
+    const at: (vertex: number) => IAutoMovieVector3Imported = (
+      vertex: number,
+    ): IAutoMovieVector3Imported =>
       poseHumanFaceVertex(
         surface,
         vertex,

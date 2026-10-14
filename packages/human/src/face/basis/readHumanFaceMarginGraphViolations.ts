@@ -1,4 +1,5 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
+
 import type { IHumanFaceLipMarginPoint } from "./IHumanFaceLipMarginPoint";
 import type { IHumanFaceLipMarginPoints } from "./IHumanFaceLipMarginPoints";
 import type { IHumanFaceMarginGraphViolation } from "./IHumanFaceMarginGraphViolation";
@@ -24,28 +25,66 @@ export function readHumanFaceMarginGraphViolations(
   axis: readonly [number, number, number],
   up: IAutoMovieVector3,
 ): IHumanFaceMarginGraphViolation[] {
-  const along: (point: IHumanFaceLipMarginPoint) => number = (point: IHumanFaceLipMarginPoint): number  =>
+  const along: (point: IHumanFaceLipMarginPoint) => number = (
+    point: IHumanFaceLipMarginPoint,
+  ): number =>
     point.point.x * axis[0] + point.point.y * axis[1] + point.point.z * axis[2];
-  const height: (point: IHumanFaceLipMarginPoint) => number = (point: IHumanFaceLipMarginPoint): number  =>
+  const height: (point: IHumanFaceLipMarginPoint) => number = (
+    point: IHumanFaceLipMarginPoint,
+  ): number =>
     point.point.x * up.x + point.point.y * up.y + point.point.z * up.z;
-  return [points.upper, points.lower].flatMap((course: IHumanFaceLipMarginPoint[], side: number): IHumanFaceMarginGraphViolation[]  => {
-    const direction: number = Math.sign(along(course[course.length - 1]) - along(course[0]));
-    const describe: (first: IHumanFaceLipMarginPoint, second: IHumanFaceLipMarginPoint, ordinal: number, reason: IHumanFaceMarginGraphViolation["reason"]) => IHumanFaceMarginGraphViolation = (first: IHumanFaceLipMarginPoint, second: IHumanFaceLipMarginPoint,
-      ordinal: number, reason: IHumanFaceMarginGraphViolation["reason"]): IHumanFaceMarginGraphViolation => ({
-        course: side === 0 ? "upper" : "lower", ordinal, reason, direction,
-        first, second, firstAlongMetres: along(first), secondAlongMetres: along(second),
-        firstHeightMetres: height(first), secondHeightMetres: height(second),
+  return [points.upper, points.lower].flatMap(
+    (
+      course: IHumanFaceLipMarginPoint[],
+      side: number,
+    ): IHumanFaceMarginGraphViolation[] => {
+      const direction: number = Math.sign(
+        along(course[course.length - 1]) - along(course[0]),
+      );
+      const describe: (
+        first: IHumanFaceLipMarginPoint,
+        second: IHumanFaceLipMarginPoint,
+        ordinal: number,
+        reason: IHumanFaceMarginGraphViolation["reason"],
+      ) => IHumanFaceMarginGraphViolation = (
+        first: IHumanFaceLipMarginPoint,
+        second: IHumanFaceLipMarginPoint,
+        ordinal: number,
+        reason: IHumanFaceMarginGraphViolation["reason"],
+      ): IHumanFaceMarginGraphViolation => ({
+        course: side === 0 ? "upper" : "lower",
+        ordinal,
+        reason,
+        direction,
+        first,
+        second,
+        firstAlongMetres: along(first),
+        secondAlongMetres: along(second),
+        firstHeightMetres: height(first),
+        secondHeightMetres: height(second),
       });
-    const segments: IHumanFaceMarginGraphViolation[] = course.slice(1).flatMap((second: IHumanFaceLipMarginPoint, ordinal: number): IHumanFaceMarginGraphViolation[]  => {
-      const first: IHumanFaceLipMarginPoint = course[ordinal];
-      const difference: number = along(second) - along(first);
-      return direction * difference < 0
-        ? [describe(first, second, ordinal, "reversed-axis")]
-        : difference === 0 && height(second) !== height(first)
-          ? [describe(first, second, ordinal, "multiple-heights")] : [];
-    });
-    return direction === 0
-      ? [describe(course[0], course[course.length - 1], -1, "no-axis-span"), ...segments]
-      : segments;
-  });
+      const segments: IHumanFaceMarginGraphViolation[] = course
+        .slice(1)
+        .flatMap(
+          (
+            second: IHumanFaceLipMarginPoint,
+            ordinal: number,
+          ): IHumanFaceMarginGraphViolation[] => {
+            const first: IHumanFaceLipMarginPoint = course[ordinal];
+            const difference: number = along(second) - along(first);
+            return direction * difference < 0
+              ? [describe(first, second, ordinal, "reversed-axis")]
+              : difference === 0 && height(second) !== height(first)
+                ? [describe(first, second, ordinal, "multiple-heights")]
+                : [];
+          },
+        );
+      return direction === 0
+        ? [
+            describe(course[0], course[course.length - 1], -1, "no-axis-span"),
+            ...segments,
+          ]
+        : segments;
+    },
+  );
 }

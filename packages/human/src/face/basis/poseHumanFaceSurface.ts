@@ -1,9 +1,8 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
+import type { IAutoMovieVector3 as IAutoMovieVector3Imported } from "@automovie/interface";
 
 import type { IAutoMovieHumanFaceBasis } from "../structures/IAutoMovieHumanFaceBasis";
 import type { IAutoMovieHumanFaceRigidMotion } from "../structures/IAutoMovieHumanFaceRigidMotion";
-import type { IAutoMovieVector3 as IAutoMovieVector3Imported } from "@automovie/interface";
-
 
 type Attachments = NonNullable<
   IAutoMovieHumanFaceBasis["surfaces"][number]["attachments"]
@@ -41,7 +40,9 @@ export function poseHumanFaceSurface(
 ): number[] {
   const output: number[] = positions.slice();
   for (const attachment of attachments) {
-    const motion: IAutoMovieHumanFaceRigidMotion | undefined = motions.get(attachment.owner);
+    const motion: IAutoMovieHumanFaceRigidMotion | undefined = motions.get(
+      attachment.owner,
+    );
     if (motion === undefined)
       throw new Error(
         "Facial attachment names an owner without motion: " + attachment.owner,

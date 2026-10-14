@@ -4,10 +4,12 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import type {
+  IAutoMovieHumanFaceBasisArticulation as IAutoMovieHumanFaceBasisArticulationImported,
+  IAutoMovieHumanFaceBasisEye as IAutoMovieHumanFaceBasisEyeImported,
+} from "../../index";
 import type { IAutoMovieHumanFaceBasis } from "../structures/IAutoMovieHumanFaceBasis";
 import type { IAutoMovieHumanFaceRigidMotion } from "../structures/IAutoMovieHumanFaceRigidMotion";
-import type { IAutoMovieHumanFaceBasisArticulation as IAutoMovieHumanFaceBasisArticulationImported, IAutoMovieHumanFaceBasisEye as IAutoMovieHumanFaceBasisEyeImported } from "../../index";
-
 
 /**
  * Turn expression weights into the rigid motions of the mandible and globes.
@@ -72,7 +74,8 @@ export function resolveHumanFaceArticulation(
     translation: IAutoMovieVector3;
   }[];
 } {
-  const weight: (channel: string) => number = (channel: string): number => weights.get(channel) ?? 0;
+  const weight: (channel: string) => number = (channel: string): number =>
+    weights.get(channel) ?? 0;
   const { jaw }: IAutoMovieHumanFaceBasisArticulationImported = articulation;
   const opening: number = weight(jaw.opening.channel);
   const protrusion: number = weight(jaw.protrusion.channel);
@@ -105,33 +108,50 @@ export function resolveHumanFaceArticulation(
     landmarks[jaw.pivot],
     Vector3.create(...jaw.axisOffset),
   );
-  const motions: Map<string, IAutoMovieHumanFaceRigidMotion> = new Map<string, IAutoMovieHumanFaceRigidMotion>();
+  const motions: Map<string, IAutoMovieHumanFaceRigidMotion> = new Map<
+    string,
+    IAutoMovieHumanFaceRigidMotion
+  >();
   motions.set("jaw", {
     rotation: Quaternion.fromAxisAngle(Vector3.create(...jaw.axis), degrees),
     pivot,
     translation,
   });
-  const eyes: { id: string; rotation: IAutoMovieQuaternion; center: IAutoMovieVector3; translation: IAutoMovieVector3; }[] = articulation.eyes.map((eye: IAutoMovieHumanFaceBasisEyeImported): { id: string; rotation: IAutoMovieQuaternion; center: IAutoMovieVector3; translation: IAutoMovieVector3; }  => {
-    let rotation: IAutoMovieQuaternion = Quaternion.identity();
-    let shift: IAutoMovieVector3 = Vector3.create();
-    for (const gaze of eye.gaze) {
-      const w: number = weight(gaze.channel);
-      if (w === 0) continue;
-      rotation = Quaternion.multiply(
-        Quaternion.fromAxisAngle(
-          Vector3.create(...gaze.axis),
-          gaze.degrees * w,
-        ),
-        rotation,
-      );
-      shift = Vector3.add(
-        shift,
-        Vector3.scale(Vector3.create(...gaze.translation), w),
-      );
-    }
-    const center: IAutoMovieVector3 = landmarks[eye.center];
-    motions.set(eye.id, { rotation, pivot: center, translation: shift });
-    return { id: eye.id, rotation, center, translation: shift };
-  });
+  const eyes: {
+    id: string;
+    rotation: IAutoMovieQuaternion;
+    center: IAutoMovieVector3;
+    translation: IAutoMovieVector3;
+  }[] = articulation.eyes.map(
+    (
+      eye: IAutoMovieHumanFaceBasisEyeImported,
+    ): {
+      id: string;
+      rotation: IAutoMovieQuaternion;
+      center: IAutoMovieVector3;
+      translation: IAutoMovieVector3;
+    } => {
+      let rotation: IAutoMovieQuaternion = Quaternion.identity();
+      let shift: IAutoMovieVector3 = Vector3.create();
+      for (const gaze of eye.gaze) {
+        const w: number = weight(gaze.channel);
+        if (w === 0) continue;
+        rotation = Quaternion.multiply(
+          Quaternion.fromAxisAngle(
+            Vector3.create(...gaze.axis),
+            gaze.degrees * w,
+          ),
+          rotation,
+        );
+        shift = Vector3.add(
+          shift,
+          Vector3.scale(Vector3.create(...gaze.translation), w),
+        );
+      }
+      const center: IAutoMovieVector3 = landmarks[eye.center];
+      motions.set(eye.id, { rotation, pivot: center, translation: shift });
+      return { id: eye.id, rotation, center, translation: shift };
+    },
+  );
   return { motions, jaw: { degrees, translation, pivot }, eyes };
 }

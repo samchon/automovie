@@ -25,6 +25,7 @@ export function readHumanFaceContactGradient(
   if (hit.feature === "face" || !(hit.distance > 0)) return hit.normal;
   const side: number = hit.signedDistance < 0 ? -1 : 1;
   return query.map(
-    (value: number, axis: number): number  => (side * (value - hit.point[axis])) / hit.distance,
+    (value: number, axis: number): number =>
+      (side * (value - hit.point[axis])) / hit.distance,
   );
 }

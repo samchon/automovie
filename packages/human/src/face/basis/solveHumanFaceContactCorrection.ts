@@ -32,10 +32,23 @@ export function solveHumanFaceContactCorrection(
   budget: number,
   tolerance: number,
 ): number[] {
-  const needed: IHumanFaceContactFloor[] = rows.filter((row: IHumanFaceContactFloor): boolean  => row.minimum > tolerance);
-  const largest: IHumanFaceContactFloor = needed.reduce((a: IHumanFaceContactFloor, b: IHumanFaceContactFloor): IHumanFaceContactFloor  => (a.minimum >= b.minimum ? a : b));
-  const direct: number[] = largest.normal.map((value: number): number  => value * largest.minimum);
-  if (Math.hypot(...direct) <= budget && isHumanFaceContactFloorSatisfied(rows, direct, 0)) return direct;
+  const needed: IHumanFaceContactFloor[] = rows.filter(
+    (row: IHumanFaceContactFloor): boolean => row.minimum > tolerance,
+  );
+  const largest: IHumanFaceContactFloor = needed.reduce(
+    (
+      a: IHumanFaceContactFloor,
+      b: IHumanFaceContactFloor,
+    ): IHumanFaceContactFloor => (a.minimum >= b.minimum ? a : b),
+  );
+  const direct: number[] = largest.normal.map(
+    (value: number): number => value * largest.minimum,
+  );
+  if (
+    Math.hypot(...direct) <= budget &&
+    isHumanFaceContactFloorSatisfied(rows, direct, 0)
+  )
+    return direct;
   // A required positive displacement with zero budget already refused above.
   const vector: number[] | null =
     solveHumanFaceContactProjection(
@@ -43,14 +56,16 @@ export function solveHumanFaceContactCorrection(
       [0, 0, 0],
       budget,
       tolerance,
-      rows.map((row: IHumanFaceContactFloor): number  => row.minimum),
+      rows.map((row: IHumanFaceContactFloor): number => row.minimum),
     ) ??
     solveHumanFaceContactProjection(
       rows,
       [0, 0, 0],
       budget,
       tolerance,
-      rows.map((row: IHumanFaceContactFloor): number  => row.minimum - tolerance / 2),
+      rows.map(
+        (row: IHumanFaceContactFloor): number => row.minimum - tolerance / 2,
+      ),
     );
   if (vector === null)
     throw new Error(

@@ -1,8 +1,9 @@
-import type { IAutoMovieMaterial, IAutoMovieMesh as IAutoMovieMeshImported } from "@automovie/interface";
+import type {
+  IAutoMovieMaterial,
+  IAutoMovieMesh as IAutoMovieMeshImported,
+} from "@automovie/interface";
 
 import type { IHumanFaceColourPart } from "./IHumanFaceColourPart";
-
-
 
 /**
  * Fold vertex colours above one into their materials' base colours.
@@ -42,17 +43,17 @@ export function liftHumanFaceColours(
     lifts.set(part.material, lift);
   }
   for (const [id, lift] of lifts) {
-    if (lift.every((value: number): boolean  => value <= 1)) continue;
+    if (lift.every((value: number): boolean => value <= 1)) continue;
     const material: IAutoMovieMaterial = materials.get(id)!;
     const base: number[] = [
       material.baseColor.r,
       material.baseColor.g,
       material.baseColor.b,
-    ].map((value: number, channel: number): number  => value * lift[channel]!);
-    if (base.some((value: number): boolean  => value > 1))
+    ].map((value: number, channel: number): number => value * lift[channel]!);
+    if (base.some((value: number): boolean => value > 1))
       throw new Error(
         `A colour field lifts material ${id}'s albedo above one: ${base
-          .map((value: number): string  => value.toFixed(4))
+          .map((value: number): string => value.toFixed(4))
           .join(", ")}.`,
       );
     material.baseColor = {
@@ -69,9 +70,11 @@ export function liftHumanFaceColours(
         mesh.colors === undefined
           ? Array.from(
               { length: mesh.positions.length },
-              (_v: unknown, i: number): number  => 1 / lift[i % 3]!,
+              (_v: unknown, i: number): number => 1 / lift[i % 3]!,
             )
-          : mesh.colors.map((value: number, i: number): number  => value / lift[i % 3]!);
+          : mesh.colors.map(
+              (value: number, i: number): number => value / lift[i % 3]!,
+            );
     }
   }
 }

@@ -9,12 +9,23 @@ type Attachments = NonNullable<
 >;
 
 /** The 3x3 matrix of a unit quaternion, row major, read by rotating the axes. */
-const matrixOf: (rotation: IAutoMovieHumanFaceRigidMotion["rotation"]) => number[] = (
+const matrixOf: (
+  rotation: IAutoMovieHumanFaceRigidMotion["rotation"],
+) => number[] = (
   rotation: IAutoMovieHumanFaceRigidMotion["rotation"],
 ): number[] => {
-  const x: IAutoMovieVector3 = Quaternion.rotateVector(rotation, Vector3.create(1, 0, 0));
-  const y: IAutoMovieVector3 = Quaternion.rotateVector(rotation, Vector3.create(0, 1, 0));
-  const z: IAutoMovieVector3 = Quaternion.rotateVector(rotation, Vector3.create(0, 0, 1));
+  const x: IAutoMovieVector3 = Quaternion.rotateVector(
+    rotation,
+    Vector3.create(1, 0, 0),
+  );
+  const y: IAutoMovieVector3 = Quaternion.rotateVector(
+    rotation,
+    Vector3.create(0, 1, 0),
+  );
+  const z: IAutoMovieVector3 = Quaternion.rotateVector(
+    rotation,
+    Vector3.create(0, 0, 1),
+  );
   return [x.x, y.x, z.x, x.y, y.y, z.y, x.z, y.z, z.z];
 };
 
@@ -47,9 +58,14 @@ export function unposeHumanFaceSurface(
 ): number[] {
   const count: number = posed.length / 3;
   const linear: Map<number, number[]> = new Map<number, number[]>();
-  const offset: Map<number, IAutoMovieVector3> = new Map<number, IAutoMovieVector3>();
+  const offset: Map<number, IAutoMovieVector3> = new Map<
+    number,
+    IAutoMovieVector3
+  >();
   for (const attachment of attachments) {
-    const motion: IAutoMovieHumanFaceRigidMotion | undefined = motions.get(attachment.owner);
+    const motion: IAutoMovieHumanFaceRigidMotion | undefined = motions.get(
+      attachment.owner,
+    );
     if (motion === undefined)
       throw new Error(
         "Facial attachment names an owner without motion: " + attachment.owner,
