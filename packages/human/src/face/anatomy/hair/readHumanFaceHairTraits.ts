@@ -1,9 +1,13 @@
-import type { IHumanFaceHairLayerGather as ImportedIHumanFaceHairLayerGather } from "../../structures/IHumanFaceHairLayerGather";
-import type { IHumanFaceHairLayerPart as ImportedIHumanFaceHairLayerPart } from "../../structures/IHumanFaceHairLayerPart";
-import type { IAutoMovieHumanFaceHairDomain as ImportedIAutoMovieHumanFaceHairDomain, IAutoMovieHumanFaceBasisSurface as ImportedIAutoMovieHumanFaceBasisSurface } from "@automovie/human";
+import type {
+  IAutoMovieHumanFaceBasisSurface as ImportedIAutoMovieHumanFaceBasisSurface,
+  IAutoMovieHumanFaceHairDomain as ImportedIAutoMovieHumanFaceHairDomain,
+} from "@automovie/human";
+
 import type { IAutoMovieHumanFaceBasis } from "../../structures/IAutoMovieHumanFaceBasis";
 import type { IAutoMovieHumanFaceHair } from "../../structures/IAutoMovieHumanFaceHair";
 import type { IAutoMovieHumanFaceHairTraits } from "../../structures/IAutoMovieHumanFaceHairTraits";
+import type { IHumanFaceHairLayerGather as ImportedIHumanFaceHairLayerGather } from "../../structures/IHumanFaceHairLayerGather";
+import type { IHumanFaceHairLayerPart as ImportedIHumanFaceHairLayerPart } from "../../structures/IHumanFaceHairLayerPart";
 
 /**
  * Read named editable styling from an existing numerical population. This is a view of current traits, not a replacement document: unsuited legacy comb vectors remain absent rather than rounded to a closed direction. A part is read only when its normalized plane points along +X and its source chart is available. Private bias, root envelope and guides remain compatibility data outside this view. Editing one displayed trait preserves that data.
@@ -55,7 +59,13 @@ export function readHumanFaceHairTraits(
   if (layer.gather === undefined) result.gather = null;
   else {
     const gather: ImportedIHumanFaceHairLayerGather = layer.gather;
-    const tailDirection: "left" | "right" | "back" | "front" | "down" | undefined = choice(gather.tail.direction);
+    const tailDirection:
+      | "left"
+      | "right"
+      | "back"
+      | "front"
+      | "down"
+      | undefined = choice(gather.tail.direction);
     if (tailDirection !== undefined)
       result.gather = {
         polarDegrees: (gather.anchor.polar * 180) / Math.PI,
@@ -76,9 +86,16 @@ export function readHumanFaceHairTraits(
   const part: ImportedIHumanFaceHairLayerPart | undefined = layer.part;
   if (part === undefined) result.part = null;
   else {
-    const domain: ImportedIAutoMovieHumanFaceHairDomain | undefined = basis.surfaces
-      .find((surface: ImportedIAutoMovieHumanFaceBasisSurface): boolean => surface.id === layer.surface)
-      ?.hairDomains?.find((candidate: ImportedIAutoMovieHumanFaceHairDomain): boolean => candidate.id === layer.domain);
+    const domain: ImportedIAutoMovieHumanFaceHairDomain | undefined =
+      basis.surfaces
+        .find(
+          (surface: ImportedIAutoMovieHumanFaceBasisSurface): boolean =>
+            surface.id === layer.surface,
+        )
+        ?.hairDomains?.find(
+          (candidate: ImportedIAutoMovieHumanFaceHairDomain): boolean =>
+            candidate.id === layer.domain,
+        );
     if (
       domain !== undefined &&
       part.normal[0] > 0 &&

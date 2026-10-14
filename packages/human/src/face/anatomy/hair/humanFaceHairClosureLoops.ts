@@ -25,9 +25,13 @@ export function humanFaceHairClosureLoops(
       count.set(key, (count.get(key) ?? 0) + 1);
     }
   const rim: [number, number][] = directed.filter(
-    ([a, b]: [number, number]): boolean => count.get(a < b ? `${a},${b}` : `${b},${a}`) === 1,
+    ([a, b]: [number, number]): boolean =>
+      count.get(a < b ? `${a},${b}` : `${b},${a}`) === 1,
   );
-  const next: Map<number, [number, number]> = new Map<number, [number, number]>();
+  const next: Map<number, [number, number]> = new Map<
+    number,
+    [number, number]
+  >();
   for (const edge of rim) {
     if (next.has(edge[0]))
       throw new Error("A hair contact closure rim branches at a vertex.");

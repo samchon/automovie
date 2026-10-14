@@ -35,7 +35,9 @@ export function humanFaceHairlineCoverage(
   const distance: number = Math.hypot(direction.x, direction.y, direction.z);
   if (!(distance > 0))
     throw new Error("A hairline coverage needs a nonsingular chart direction.");
-  const polar: number = Math.acos(Math.max(-1, Math.min(1, direction.y / distance)));
+  const polar: number = Math.acos(
+    Math.max(-1, Math.min(1, direction.y / distance)),
+  );
   const inside: number =
     ((humanFaceHairlineBoundary(direction, hairline) - polar) * distance) /
     TRANSITION_METRES;

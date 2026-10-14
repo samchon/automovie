@@ -1,4 +1,7 @@
-import type { createAutoMovieSignedMeshQuery as ImportedcreateAutoMovieSignedMeshQuery, IAutoMovieSignedMeshQueryHit as ImportedIAutoMovieSignedMeshQueryHit } from "@automovie/engine";
+import type {
+  IAutoMovieSignedMeshQueryHit as ImportedIAutoMovieSignedMeshQueryHit,
+  createAutoMovieSignedMeshQuery as ImportedcreateAutoMovieSignedMeshQuery,
+} from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { IHumanFaceHairLaunch } from "./IHumanFaceHairLaunch";
@@ -22,22 +25,48 @@ import { humanFaceHairFrame } from "./humanFaceHairFrame";
 export function launchHumanFaceHairCurve(
   props: IHumanFaceHairLaunch,
 ): IHumanFaceHairStationStep {
-  const direction: IAutoMovieVector3 = humanFaceHairFrame.direction(props.exitDirection);
-  const { clearance, epsilon, sample }: { clearance: number; sample: (p: IAutoMovieVector3) => ReturnType<ReturnType<typeof ImportedcreateAutoMovieSignedMeshQuery>>; epsilon: number; } = props.contact;
-  const { low, bound, rootHit, pointAt, spend }: { low: number; bound: number; bounded: boolean; rootHit: ImportedIAutoMovieSignedMeshQueryHit; pointAt: (travel: number) => IAutoMovieVector3; spend: () => void; } =
-    createHumanFaceHairExteriorInterval({
-      root: props.root,
-      direction,
-      maximum: props.length,
-      originOnSkin: true,
-      contact: props.contact,
-      raycaster: props.raycaster,
-      rootBoundary: props.rootBoundary,
-      budget: props.budget,
-    });
+  const direction: IAutoMovieVector3 = humanFaceHairFrame.direction(
+    props.exitDirection,
+  );
+  const {
+    clearance,
+    epsilon,
+    sample,
+  }: {
+    clearance: number;
+    sample: (
+      p: IAutoMovieVector3,
+    ) => ReturnType<ReturnType<typeof ImportedcreateAutoMovieSignedMeshQuery>>;
+    epsilon: number;
+  } = props.contact;
+  const {
+    low,
+    bound,
+    rootHit,
+    pointAt,
+    spend,
+  }: {
+    low: number;
+    bound: number;
+    bounded: boolean;
+    rootHit: ImportedIAutoMovieSignedMeshQueryHit;
+    pointAt: (travel: number) => IAutoMovieVector3;
+    spend: () => void;
+  } = createHumanFaceHairExteriorInterval({
+    root: props.root,
+    direction,
+    maximum: props.length,
+    originOnSkin: true,
+    contact: props.contact,
+    raycaster: props.raycaster,
+    rootBoundary: props.rootBoundary,
+    budget: props.budget,
+  });
   const before: IAutoMovieVector3 = pointAt(low);
-  const distinct: (a: IAutoMovieVector3, b: IAutoMovieVector3) => boolean = (a: IAutoMovieVector3, b: IAutoMovieVector3): boolean =>
-    a.x !== b.x || a.y !== b.y || a.z !== b.z;
+  const distinct: (a: IAutoMovieVector3, b: IAutoMovieVector3) => boolean = (
+    a: IAutoMovieVector3,
+    b: IAutoMovieVector3,
+  ): boolean => a.x !== b.x || a.y !== b.y || a.z !== b.z;
   const target: number = clearance - epsilon;
   let travel: number = low;
   let distance: number = rootHit.signedDistance;
@@ -58,8 +87,12 @@ export function launchHumanFaceHairCurve(
         throw new Error(
           "Hair length or surface reentry leaves no distinct clearance point.",
         );
-      const floating: Float64Array<ArrayBuffer> = new Float64Array([Math.max(0, next)]);
-      const integer: BigUint64Array<ArrayBuffer> = new BigUint64Array(floating.buffer);
+      const floating: Float64Array<ArrayBuffer> = new Float64Array([
+        Math.max(0, next),
+      ]);
+      const integer: BigUint64Array<ArrayBuffer> = new BigUint64Array(
+        floating.buffer,
+      );
       let left: bigint = integer[0];
       floating[0] = bound;
       let right: bigint = integer[0];

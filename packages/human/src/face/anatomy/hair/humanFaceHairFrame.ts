@@ -27,7 +27,11 @@ export const humanFaceHairFrame = {
   ): IAutoMovieVector3 {
     let across: IAutoMovieVector3 = Vector3.cross(reference, axis);
     if (Vector3.length(across) <= 64 * Number.EPSILON) {
-      const magnitudes: number[] = [Math.abs(axis.x), Math.abs(axis.y), Math.abs(axis.z)];
+      const magnitudes: number[] = [
+        Math.abs(axis.x),
+        Math.abs(axis.y),
+        Math.abs(axis.z),
+      ];
       const index: number = magnitudes.indexOf(Math.min(...magnitudes));
       const guide: number[] = [0, 0, 0];
       guide[index] = 1;

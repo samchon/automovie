@@ -1,9 +1,9 @@
-import type { IHumanFaceHairEmergenceRange as ImportedIHumanFaceHairEmergenceRange } from "./IHumanFaceHairEmergenceRange";
 import { Vector3 } from "@automovie/engine";
 
 import { HumanFaceHairRootRefusalError } from "./HumanFaceHairRootRefusalError";
 import { HumanFaceHairStemRefusalError } from "./HumanFaceHairStemRefusalError";
 import type { IAutoMovieHumanFaceHairCurve } from "./IAutoMovieHumanFaceHairCurve";
+import type { IHumanFaceHairEmergenceRange as ImportedIHumanFaceHairEmergenceRange } from "./IHumanFaceHairEmergenceRange";
 import type { IHumanFaceHairIntegration } from "./IHumanFaceHairIntegration";
 import type { IHumanFaceHairMetric } from "./IHumanFaceHairMetric";
 import { humanFaceHairContact } from "./humanFaceHairContact";
@@ -46,12 +46,15 @@ export function integrateHumanFaceHairCurve(
   };
   if (layer.emergenceAngleDegrees !== undefined)
     return walkHumanFaceHairCurve(props, metric, layer.emergenceAngleDegrees);
-  const range: ImportedIHumanFaceHairEmergenceRange = humanFaceHairEmergenceRange(
-    layer.hairline,
-    Vector3.subtract(props.reference, props.origin),
-  );
+  const range: ImportedIHumanFaceHairEmergenceRange =
+    humanFaceHairEmergenceRange(
+      layer.hairline,
+      Vector3.subtract(props.reference, props.origin),
+    );
   const tried: number[] = [];
-  const attempt: (degrees: number) => IAutoMovieHumanFaceHairCurve | HumanFaceHairStemRefusalError = (
+  const attempt: (
+    degrees: number,
+  ) => IAutoMovieHumanFaceHairCurve | HumanFaceHairStemRefusalError = (
     degrees: number,
   ): IAutoMovieHumanFaceHairCurve | HumanFaceHairStemRefusalError => {
     tried.push(degrees);
@@ -62,9 +65,12 @@ export function integrateHumanFaceHairCurve(
       throw error;
     }
   };
-  const convention: IAutoMovieHumanFaceHairCurve | HumanFaceHairStemRefusalError = attempt(range.lowest);
+  const convention:
+    | IAutoMovieHumanFaceHairCurve
+    | HumanFaceHairStemRefusalError = attempt(range.lowest);
   if (!(convention instanceof HumanFaceHairStemRefusalError)) return convention;
-  const steepest: IAutoMovieHumanFaceHairCurve | HumanFaceHairStemRefusalError = attempt(range.highest);
+  const steepest: IAutoMovieHumanFaceHairCurve | HumanFaceHairStemRefusalError =
+    attempt(range.highest);
   if (steepest instanceof HumanFaceHairStemRefusalError)
     throw new HumanFaceHairRootRefusalError(
       "A hair root at (" +
@@ -88,7 +94,8 @@ export function integrateHumanFaceHairCurve(
   while (true) {
     const middle: number = low / 2 + high / 2;
     if (middle === low || middle === high) break;
-    const result: IAutoMovieHumanFaceHairCurve | HumanFaceHairStemRefusalError = attempt(middle);
+    const result: IAutoMovieHumanFaceHairCurve | HumanFaceHairStemRefusalError =
+      attempt(middle);
     if (result instanceof HumanFaceHairStemRefusalError) low = middle;
     else {
       high = middle;

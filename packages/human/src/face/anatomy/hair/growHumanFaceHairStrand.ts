@@ -49,7 +49,9 @@ export function growHumanFaceHairStrand(
     throw new Error(
       "Hair strand placement requires valid canonical rooted transition metadata.",
     );
-  const points: IAutoMovieVector3[] = rooted.points.map((point: IAutoMovieVector3): IAutoMovieVector3 => ({ ...point }));
+  const points: IAutoMovieVector3[] = rooted.points.map(
+    (point: IAutoMovieVector3): IAutoMovieVector3 => ({ ...point }),
+  );
   let placed: boolean = true;
   let original: number = 0;
   try {

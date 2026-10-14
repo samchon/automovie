@@ -1,9 +1,15 @@
-import type { Layer as ImportedLayer } from "../../structures/IAutoMovieHumanFaceHair/Layer";
-import type { IAutoMovieHumanFaceHairLengths as ImportedIAutoMovieHumanFaceHairLengths, IAutoMovieHumanFaceHairlineAngles as ImportedIAutoMovieHumanFaceHairlineAngles, IAutoMovieHumanFaceHairPart as ImportedIAutoMovieHumanFaceHairPart, IAutoMovieHumanFaceHairDomain as ImportedIAutoMovieHumanFaceHairDomain, IAutoMovieHumanFaceBasisSurface as ImportedIAutoMovieHumanFaceBasisSurface } from "@automovie/human";
+import type {
+  IAutoMovieHumanFaceBasisSurface as ImportedIAutoMovieHumanFaceBasisSurface,
+  IAutoMovieHumanFaceHairDomain as ImportedIAutoMovieHumanFaceHairDomain,
+  IAutoMovieHumanFaceHairLengths as ImportedIAutoMovieHumanFaceHairLengths,
+  IAutoMovieHumanFaceHairPart as ImportedIAutoMovieHumanFaceHairPart,
+  IAutoMovieHumanFaceHairlineAngles as ImportedIAutoMovieHumanFaceHairlineAngles,
+} from "@automovie/human";
 import typia from "typia";
 
 import type { IAutoMovieHumanFaceBasis } from "../../structures/IAutoMovieHumanFaceBasis";
 import type { IAutoMovieHumanFaceHair } from "../../structures/IAutoMovieHumanFaceHair";
+import type { Layer as ImportedLayer } from "../../structures/IAutoMovieHumanFaceHair/Layer";
 import type { IAutoMovieHumanFaceHairTraits } from "../../structures/IAutoMovieHumanFaceHairTraits";
 import { assertHumanFaceHair } from "./assertHumanFaceHair";
 import { expandHumanFaceHairGather } from "./expandHumanFaceHairGather";
@@ -24,17 +30,19 @@ export function expandHumanFaceHairTraits(
   input: IAutoMovieHumanFaceHair | null | undefined,
   edits: Record<string, IAutoMovieHumanFaceHairTraits>,
 ): IAutoMovieHumanFaceHair {
-  const traits: { [x: string]: IAutoMovieHumanFaceHairTraits; } =
+  const traits: { [x: string]: IAutoMovieHumanFaceHairTraits } =
     typia.assertEquals<Record<string, IAutoMovieHumanFaceHairTraits>>(edits);
   if (input === undefined || input === null)
     throw new Error(
       "Named hair traits require an existing numerical hairstyle.",
     );
   const result: IAutoMovieHumanFaceHair = structuredClone(input);
-  for (const id of Object.keys(traits).sort((a: string, b: string): 0 | 1 | -1 =>
-    a < b ? -1 : a > b ? 1 : 0,
+  for (const id of Object.keys(traits).sort(
+    (a: string, b: string): 0 | 1 | -1 => (a < b ? -1 : a > b ? 1 : 0),
   )) {
-    const layer: ImportedLayer | undefined = result.layers.find((candidate: ImportedLayer): boolean => candidate.id === id);
+    const layer: ImportedLayer | undefined = result.layers.find(
+      (candidate: ImportedLayer): boolean => candidate.id === id,
+    );
     if (layer === undefined)
       throw new Error("Named hair traits require a resident population: " + id);
     const value: IAutoMovieHumanFaceHairTraits = traits[id];
@@ -82,9 +90,16 @@ export function expandHumanFaceHairTraits(
     if (value.part === null) delete layer.part;
     else if (value.part !== undefined) {
       const p: ImportedIAutoMovieHumanFaceHairPart = value.part;
-      const domain: ImportedIAutoMovieHumanFaceHairDomain | undefined = basis.surfaces
-        .find((s: ImportedIAutoMovieHumanFaceBasisSurface): boolean => s.id === layer.surface)
-        ?.hairDomains?.find((d: ImportedIAutoMovieHumanFaceHairDomain): boolean => d.id === layer.domain);
+      const domain: ImportedIAutoMovieHumanFaceHairDomain | undefined =
+        basis.surfaces
+          .find(
+            (s: ImportedIAutoMovieHumanFaceBasisSurface): boolean =>
+              s.id === layer.surface,
+          )
+          ?.hairDomains?.find(
+            (d: ImportedIAutoMovieHumanFaceHairDomain): boolean =>
+              d.id === layer.domain,
+          );
       if (domain === undefined)
         throw new Error(
           "Named hair part requires its shared growth chart: " + id,

@@ -1,6 +1,6 @@
-import type { IAutoMovieVector3 as ImportedIAutoMovieVector3 } from "@automovie/interface";
-import type { IHumanFaceHairRetraction as ImportedIHumanFaceHairRetraction } from "@automovie/human";
 import { Vector3 } from "@automovie/engine";
+import type { IHumanFaceHairRetraction as ImportedIHumanFaceHairRetraction } from "@automovie/human";
+import type { IAutoMovieVector3 as ImportedIAutoMovieVector3 } from "@automovie/interface";
 
 import type { IHumanFaceHairGatherTransport } from "./IHumanFaceHairGatherTransport";
 import type { IHumanFaceHairGatherTransportState } from "./IHumanFaceHairGatherTransportState";
@@ -64,7 +64,11 @@ export function transportHumanFaceHairGatherStep(
       ),
       normalIntent: intent,
     };
-  const retracted: ImportedIHumanFaceHairRetraction = props.contact.retract(raw, props.offset, props.budget);
+  const retracted: ImportedIHumanFaceHairRetraction = props.contact.retract(
+    raw,
+    props.offset,
+    props.budget,
+  );
   const v: ImportedIAutoMovieVector3 = Vector3.subtract(
     Vector3.add(
       raw,

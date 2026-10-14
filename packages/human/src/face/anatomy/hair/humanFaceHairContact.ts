@@ -1,4 +1,8 @@
-import { type IAutoMovieMeshQueryBudget, Vector3, type IAutoMovieSignedMeshQueryHit as ImportedIAutoMovieSignedMeshQueryHit } from "@automovie/engine";
+import {
+  type IAutoMovieMeshQueryBudget,
+  type IAutoMovieSignedMeshQueryHit as ImportedIAutoMovieSignedMeshQueryHit,
+  Vector3,
+} from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { IHumanFaceHairContact } from "./IHumanFaceHairContact";
@@ -9,7 +13,8 @@ import type { IHumanFaceHairRetraction } from "./IHumanFaceHairRetraction";
 import { humanFaceHairFrame } from "./humanFaceHairFrame";
 import { humanFaceHairFreeDistanceBound } from "./humanFaceHairFreeDistanceBound";
 
-const requireDirection: (value: IAutoMovieVector3) => IAutoMovieVector3 = humanFaceHairFrame.direction;
+const requireDirection: (value: IAutoMovieVector3) => IAutoMovieVector3 =
+  humanFaceHairFrame.direction;
 
 /**
  * Supply one hair curve's station threshold: half a sampling step and the requested gap, plus terminal-shaft radius when present and twice a rounding allowance scaled to the root, length and step. Projection admits a point at or beyond that threshold within the allowance; otherwise it repeats nearest-feature offset proposals, refusing after 64 unsuccessful steps. Admission does not promise equality with an offset surface. Guides and interpolated strands share this contact rule. Consecutive equal coordinates reuse the last signed sample. A separately copied free witness belongs to this contact's collider; its 1-Lipschitz lower bound can admit a later candidate without another query, returning that input by identity.
@@ -43,13 +48,21 @@ export function humanFaceHairContact(
       layer.clearance,
       (layer.terminalShaftDiameter ?? 0) / 2,
     );
-  const clearance: number = h / 2 + layer.clearance + (layer.terminalShaftDiameter ?? 0) / 2 + 2 * epsilon;
+  const clearance: number =
+    h / 2 +
+    layer.clearance +
+    (layer.terminalShaftDiameter ?? 0) / 2 +
+    2 * epsilon;
   // The projection of a step returns the very point the integrator samples
   // next, so the last query is kept: the same coordinates give the same hit,
   // because the query is deterministic in its point. The hit is shared and
   // read only.
   let sampled: IHumanFaceHairContactSample | undefined;
-  const sample: (p: IAutoMovieVector3) => ReturnType<(point: readonly number[]) => ImportedIAutoMovieSignedMeshQueryHit> = (p: IAutoMovieVector3): ReturnType<typeof query> => {
+  const sample: (
+    p: IAutoMovieVector3,
+  ) => ReturnType<
+    (point: readonly number[]) => ImportedIAutoMovieSignedMeshQueryHit
+  > = (p: IAutoMovieVector3): ReturnType<typeof query> => {
     if (
       sampled !== undefined &&
       sampled.point.x === p.x &&
@@ -61,7 +74,19 @@ export function humanFaceHairContact(
     sampled = { point: { x: p.x, y: p.y, z: p.z }, hit };
     return hit;
   };
-  const outward: (p: IAutoMovieVector3, hit: ReturnType<(p: IAutoMovieVector3) => ReturnType<(point: readonly number[]) => ImportedIAutoMovieSignedMeshQueryHit>>) => IAutoMovieVector3 = (p: IAutoMovieVector3, hit: ReturnType<typeof sample>): IAutoMovieVector3 =>
+  const outward: (
+    p: IAutoMovieVector3,
+    hit: ReturnType<
+      (
+        p: IAutoMovieVector3,
+      ) => ReturnType<
+        (point: readonly number[]) => ImportedIAutoMovieSignedMeshQueryHit
+      >
+    >,
+  ) => IAutoMovieVector3 = (
+    p: IAutoMovieVector3,
+    hit: ReturnType<typeof sample>,
+  ): IAutoMovieVector3 =>
     hit.distance === 0
       ? Vector3.create(hit.normal[0], hit.normal[1], hit.normal[2])
       : requireDirection(
@@ -74,7 +99,9 @@ export function humanFaceHairContact(
           ),
         );
   let witness: IHumanFaceHairFreeWitness | undefined;
-  const project: (input: IAutoMovieVector3) => IAutoMovieVector3 = (input: IAutoMovieVector3): IAutoMovieVector3 => {
+  const project: (input: IAutoMovieVector3) => IAutoMovieVector3 = (
+    input: IAutoMovieVector3,
+  ): IAutoMovieVector3 => {
     if (
       witness !== undefined &&
       humanFaceHairFreeDistanceBound({
@@ -102,7 +129,11 @@ export function humanFaceHairContact(
       "Numerical hair contact did not converge on the closed surface.",
     );
   };
-  const retract: (input: IAutoMovieVector3, offset: number, budget: IAutoMovieMeshQueryBudget) => IHumanFaceHairRetraction = (
+  const retract: (
+    input: IAutoMovieVector3,
+    offset: number,
+    budget: IAutoMovieMeshQueryBudget,
+  ) => IHumanFaceHairRetraction = (
     input: IAutoMovieVector3,
     offset: number,
     budget: IAutoMovieMeshQueryBudget,
@@ -120,7 +151,15 @@ export function humanFaceHairContact(
       throw new Error(
         "Hair offset retraction requires its safe-integer shared budget.",
       );
-    const read: (point: IAutoMovieVector3) => ReturnType<(p: IAutoMovieVector3) => ReturnType<(point: readonly number[]) => ImportedIAutoMovieSignedMeshQueryHit>> = (point: IAutoMovieVector3): ReturnType<typeof sample> => {
+    const read: (
+      point: IAutoMovieVector3,
+    ) => ReturnType<
+      (
+        p: IAutoMovieVector3,
+      ) => ReturnType<
+        (point: readonly number[]) => ImportedIAutoMovieSignedMeshQueryHit
+      >
+    > = (point: IAutoMovieVector3): ReturnType<typeof sample> => {
       if (budget.remaining === 0)
         throw new Error(
           "Hair offset retraction exhausted its shared geometry budget.",

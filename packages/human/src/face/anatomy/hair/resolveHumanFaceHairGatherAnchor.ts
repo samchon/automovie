@@ -23,7 +23,10 @@ export function resolveHumanFaceHairGatherAnchor(
     Math.cos(props.polar),
     Math.sin(props.polar) * Math.cos(props.azimuth),
   );
-  const at: (source: readonly number[], id: number) => IAutoMovieVector3 = (source: readonly number[], id: number): IAutoMovieVector3 =>
+  const at: (source: readonly number[], id: number) => IAutoMovieVector3 = (
+    source: readonly number[],
+    id: number,
+  ): IAutoMovieVector3 =>
     Vector3.create(source[3 * id], source[3 * id + 1], source[3 * id + 2]);
   let nearest: number = Infinity;
   let chosen: number = -1;
@@ -31,11 +34,18 @@ export function resolveHumanFaceHairGatherAnchor(
   for (const triangle of props.triangles) {
     const ids: number[] = props.indices.slice(3 * triangle, 3 * triangle + 3);
     const a: IAutoMovieVector3 = at(props.positions, ids[0]);
-    const ab: IAutoMovieVector3 = Vector3.subtract(at(props.positions, ids[1]), a);
-    const ac: IAutoMovieVector3 = Vector3.subtract(at(props.positions, ids[2]), a);
+    const ab: IAutoMovieVector3 = Vector3.subtract(
+      at(props.positions, ids[1]),
+      a,
+    );
+    const ac: IAutoMovieVector3 = Vector3.subtract(
+      at(props.positions, ids[2]),
+      a,
+    );
     const cross: IAutoMovieVector3 = Vector3.cross(direction, ac);
     const determinant: number = Vector3.dot(ab, cross);
-    const roundoff: number = Number.EPSILON * Vector3.length(ab) * Vector3.length(ac);
+    const roundoff: number =
+      Number.EPSILON * Vector3.length(ab) * Vector3.length(ac);
     if (Math.abs(determinant) <= roundoff) continue;
     const relative: IAutoMovieVector3 = Vector3.subtract(props.origin, a);
     const u: number = Vector3.dot(relative, cross) / determinant;

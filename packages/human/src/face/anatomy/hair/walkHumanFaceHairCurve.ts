@@ -1,11 +1,15 @@
-import type { IHumanFaceHairContact as ImportedIHumanFaceHairContact } from "./IHumanFaceHairContact";
-import type { IHumanFaceHairRootedStemOutcome as ImportedIHumanFaceHairRootedStemOutcome } from "./IHumanFaceHairRootedStemOutcome";
-import { Vector3, type IAutoMovieMeshQueryBudget as ImportedIAutoMovieMeshQueryBudget, type IAutoMovieSignedMeshQueryHit as ImportedIAutoMovieSignedMeshQueryHit } from "@automovie/engine";
+import {
+  type IAutoMovieMeshQueryBudget as ImportedIAutoMovieMeshQueryBudget,
+  type IAutoMovieSignedMeshQueryHit as ImportedIAutoMovieSignedMeshQueryHit,
+  Vector3,
+} from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { IAutoMovieHumanFaceHairCurve } from "./IAutoMovieHumanFaceHairCurve";
+import type { IHumanFaceHairContact as ImportedIHumanFaceHairContact } from "./IHumanFaceHairContact";
 import type { IHumanFaceHairIntegration } from "./IHumanFaceHairIntegration";
 import type { IHumanFaceHairMetric } from "./IHumanFaceHairMetric";
+import type { IHumanFaceHairRootedStemOutcome as ImportedIHumanFaceHairRootedStemOutcome } from "./IHumanFaceHairRootedStemOutcome";
 import type { IHumanFaceHairStationStep } from "./IHumanFaceHairStationStep";
 import { createHumanFaceHairCurveStart } from "./createHumanFaceHairCurveStart";
 import { createHumanFaceHairExteriorInterval } from "./createHumanFaceHairExteriorInterval";
@@ -15,7 +19,8 @@ import { limitHumanFaceHairTurn } from "./limitHumanFaceHairTurn";
 import { stepHumanFaceHairRootedStem } from "./stepHumanFaceHairRootedStem";
 import { transportHumanFaceHairGatherStep } from "./transportHumanFaceHairGatherStep";
 
-const requireDirection: (value: IAutoMovieVector3) => IAutoMovieVector3 = humanFaceHairFrame.direction;
+const requireDirection: (value: IAutoMovieVector3) => IAutoMovieVector3 =
+  humanFaceHairFrame.direction;
 
 /**
  * Walk one metric lock from its root at one emergence elevation, with an explicit curved surface-boundary stem. The initial discrete chord retains the root owner's desired tangent at the caller's exit elevation `degrees` (integrateHumanFaceHairCurve chooses it). Each stem station's chord is chosen by stepHumanFaceHairRootedStem until full free clearance: per-station construction turn, look-ahead, strict-progress admission of clipped chords and a named HumanFaceHairStemRefusalError when the stem cannot leave its skin. Every stem station remains in the emitted curve; freeFrom identifies the first full-clearance one. This surface proxy is not buried follicle anatomy.
@@ -48,14 +53,40 @@ export function walkHumanFaceHairCurve(
     contact: rule,
     budget,
     direction: initialDirection,
-  }: { stage: { pending: () => boolean; direction(point: IAutoMovieVector3, normal: IAutoMovieVector3, distance: number): IAutoMovieVector3; observe(point: IAutoMovieVector3, distance: number): void; crossing(from: IAutoMovieVector3, to: IAutoMovieVector3): number | undefined; enter: (point: IAutoMovieVector3, distance: number) => void; assertTied(last: IAutoMovieVector3): void; }; length: number; contact: ImportedIHumanFaceHairContact; budget: ImportedIAutoMovieMeshQueryBudget; direction: IAutoMovieVector3; } = createHumanFaceHairCurveStart(props, metric, degrees);
+  }: {
+    stage: {
+      pending: () => boolean;
+      direction(
+        point: IAutoMovieVector3,
+        normal: IAutoMovieVector3,
+        distance: number,
+      ): IAutoMovieVector3;
+      observe(point: IAutoMovieVector3, distance: number): void;
+      crossing(
+        from: IAutoMovieVector3,
+        to: IAutoMovieVector3,
+      ): number | undefined;
+      enter: (point: IAutoMovieVector3, distance: number) => void;
+      assertTied(last: IAutoMovieVector3): void;
+    };
+    length: number;
+    contact: ImportedIHumanFaceHairContact;
+    budget: ImportedIAutoMovieMeshQueryBudget;
+    direction: IAutoMovieVector3;
+  } = createHumanFaceHairCurveStart(props, metric, degrees);
   const h: number = layer.samplingStep;
-  const { clearance, epsilon, sample, outward, project: contact }: ImportedIHumanFaceHairContact = rule;
-  const points: { x: number; y: number; z: number; }[] = [{ ...props.root }];
+  const {
+    clearance,
+    epsilon,
+    sample,
+    outward,
+    project: contact,
+  }: ImportedIHumanFaceHairContact = rule;
+  const points: { x: number; y: number; z: number }[] = [{ ...props.root }];
   let cumulative: number = 0;
   let freeFrom: number | undefined;
   let gatherOffset: number | undefined;
-  let p: { x: number; y: number; z: number; } = points[0];
+  let p: { x: number; y: number; z: number } = points[0];
   while (cumulative < length && budget.remaining > 0) {
     budget.remaining--;
     const hit: ImportedIAutoMovieSignedMeshQueryHit = sample(p);
@@ -96,12 +127,20 @@ export function walkHumanFaceHairCurve(
     // One step along a direction: the contact's own projection of a full
     // step, bisected back when that projection lands farther than the step,
     // which is the chord bound the clearance argument rests on.
-    const advance: (along: IAutoMovieVector3) => IHumanFaceHairStationStep = (along: IAutoMovieVector3): IHumanFaceHairStationStep => {
+    const advance: (along: IAutoMovieVector3) => IHumanFaceHairStationStep = (
+      along: IAutoMovieVector3,
+    ): IHumanFaceHairStationStep => {
       // A pending free lock acquired its datum at its only rooted-to-free
       // transition. Tie state never returns from the tail to pending.
-      const transported: boolean = stage.pending() && layer.gather!.strength > 0;
-      const candidate: IAutoMovieVector3 = Vector3.add(p, Vector3.scale(along, h));
-      const move: (parameter: number) => IAutoMovieVector3 = (parameter: number): IAutoMovieVector3 =>
+      const transported: boolean =
+        stage.pending() && layer.gather!.strength > 0;
+      const candidate: IAutoMovieVector3 = Vector3.add(
+        p,
+        Vector3.scale(along, h),
+      );
+      const move: (parameter: number) => IAutoMovieVector3 = (
+        parameter: number,
+      ): IAutoMovieVector3 =>
         transported
           ? transportHumanFaceHairGatherStep({
               point: p,
@@ -148,20 +187,21 @@ export function walkHumanFaceHairCurve(
       | undefined;
     let taken: IHumanFaceHairStationStep;
     if (rooted) {
-      const outcome: ImportedIHumanFaceHairRootedStemOutcome = stepHumanFaceHairRootedStem({
-        points,
-        initial: initialDirection,
-        normal,
-        rootNormal: props.normal,
-        hit,
-        step: h,
-        length,
-        travelled: cumulative,
-        contact: rule,
-        raycaster: props.raycaster,
-        rootBoundary: props.rootBoundary,
-        budget,
-      });
+      const outcome: ImportedIHumanFaceHairRootedStemOutcome =
+        stepHumanFaceHairRootedStem({
+          points,
+          initial: initialDirection,
+          normal,
+          rootNormal: props.normal,
+          hit,
+          step: h,
+          length,
+          travelled: cumulative,
+          contact: rule,
+          raycaster: props.raycaster,
+          rootBoundary: props.rootBoundary,
+          budget,
+        });
       taken = outcome.taken;
       interval = outcome.interval;
     } else taken = advance(direction);
@@ -178,7 +218,9 @@ export function walkHumanFaceHairCurve(
           " mm lock (clearance " +
           (1000 * hit.signedDistance).toFixed(2) +
           " mm, surface normal " +
-          [normal.x, normal.y, normal.z].map((v: number): string => v.toFixed(2)).join(", ") +
+          [normal.x, normal.y, normal.z]
+            .map((v: number): string => v.toFixed(2))
+            .join(", ") +
           ", combed " +
           [direction.x, direction.y, direction.z]
             .map((v: number): string => v.toFixed(2))
@@ -231,7 +273,13 @@ export function walkHumanFaceHairCurve(
       props.place !== undefined
     ) {
       const placed: IAutoMovieHumanFaceHairCurve | undefined = props.place({
-        points: points.map((point: { x: number; y: number; z: number; }): { x: number; y: number; z: number; } => ({ ...point })),
+        points: points.map(
+          (point: {
+            x: number;
+            y: number;
+            z: number;
+          }): { x: number; y: number; z: number } => ({ ...point }),
+        ),
         freeFrom,
         travelled: cumulative,
         targetLength: length,

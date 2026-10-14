@@ -1,8 +1,11 @@
+import {
+  type IAutoMovieSignedMeshQueryHit as ImportedIAutoMovieSignedMeshQueryHit,
+  Vector3,
+} from "@automovie/engine";
 import type { IAutoMovieVector3 as ImportedIAutoMovieVector3 } from "@automovie/interface";
-import type { IHumanFaceHairRootedLookaheadDecision as ImportedIHumanFaceHairRootedLookaheadDecision } from "./IHumanFaceHairRootedLookaheadDecision";
-import { Vector3, type IAutoMovieSignedMeshQueryHit as ImportedIAutoMovieSignedMeshQueryHit } from "@automovie/engine";
 
 import { HumanFaceHairStemRefusalError } from "./HumanFaceHairStemRefusalError";
+import type { IHumanFaceHairRootedLookaheadDecision as ImportedIHumanFaceHairRootedLookaheadDecision } from "./IHumanFaceHairRootedLookaheadDecision";
 import type { IHumanFaceHairRootedStemOutcome } from "./IHumanFaceHairRootedStemOutcome";
 import type { IHumanFaceHairRootedStemStep } from "./IHumanFaceHairRootedStemStep";
 import type { IHumanFaceHairStemTrial } from "./IHumanFaceHairStemTrial";
@@ -31,7 +34,8 @@ import { steerHumanFaceHairRootedStep } from "./steerHumanFaceHairRootedStep";
 export function stepHumanFaceHairRootedStem(
   props: IHumanFaceHairRootedStemStep,
 ): IHumanFaceHairRootedStemOutcome {
-  const { points, normal, hit, contact, budget }: IHumanFaceHairRootedStemStep = props;
+  const { points, normal, hit, contact, budget }: IHumanFaceHairRootedStemStep =
+    props;
   const p: ImportedIAutoMovieVector3 = points[points.length - 1];
   const first: boolean = points.length === 1;
   const step: number = Math.min(props.step, props.length - props.travelled);
@@ -40,29 +44,38 @@ export function stepHumanFaceHairRootedStem(
     : humanFaceHairFrame.direction(
         Vector3.subtract(p, points[points.length - 2]),
       );
-  const lookahead: ImportedIHumanFaceHairRootedLookaheadDecision | undefined = first
-    ? undefined
-    : anticipateHumanFaceHairRootedStem({
-        point: p,
-        heading: steerHumanFaceHairRootedStep({
+  const lookahead: ImportedIHumanFaceHairRootedLookaheadDecision | undefined =
+    first
+      ? undefined
+      : anticipateHumanFaceHairRootedStem({
           point: p,
+          heading: steerHumanFaceHairRootedStep({
+            point: p,
+            before,
+            normal,
+            step,
+            contact,
+            budget,
+          }),
           before,
           normal,
           step,
+          raycaster: props.raycaster,
           contact,
           budget,
-        }),
-        before,
-        normal,
-        step,
-        raycaster: props.raycaster,
-        contact,
-        budget,
-      });
-  let along: ImportedIAutoMovieVector3 = lookahead === undefined ? props.initial : lookahead.direction;
+        });
+  let along: ImportedIAutoMovieVector3 =
+    lookahead === undefined ? props.initial : lookahead.direction;
   let trials: IHumanFaceHairStemTrial[] | undefined;
   while (true) {
-    const interval: { low: number; bound: number; bounded: boolean; rootHit: ImportedIAutoMovieSignedMeshQueryHit; pointAt: (travel: number) => ImportedIAutoMovieVector3; spend: () => void; } = createHumanFaceHairExteriorInterval({
+    const interval: {
+      low: number;
+      bound: number;
+      bounded: boolean;
+      rootHit: ImportedIAutoMovieSignedMeshQueryHit;
+      pointAt: (travel: number) => ImportedIAutoMovieVector3;
+      spend: () => void;
+    } = createHumanFaceHairExteriorInterval({
       root: p,
       direction: along,
       maximum: step,
@@ -78,8 +91,12 @@ export function stepHumanFaceHairRootedStem(
     if (interval.bounded && !first) {
       const reached: ImportedIAutoMovieVector3 = interval.pointAt(travel);
       interval.spend();
-      const blocked: ImportedIAutoMovieSignedMeshQueryHit = contact.sample(reached);
-      const blocking: ImportedIAutoMovieVector3 = contact.outward(reached, blocked);
+      const blocked: ImportedIAutoMovieSignedMeshQueryHit =
+        contact.sample(reached);
+      const blocking: ImportedIAutoMovieVector3 = contact.outward(
+        reached,
+        blocked,
+      );
       (trials ??= []).push({
         direction: along,
         bound: interval.bound,
@@ -110,7 +127,9 @@ export function stepHumanFaceHairRootedStem(
             " and " +
             blocked.triangle +
             " within its construction turn at (" +
-            [p.x, p.y, p.z].map((v: number): string => v.toFixed(4)).join(", ") +
+            [p.x, p.y, p.z]
+              .map((v: number): string => v.toFixed(4))
+              .join(", ") +
             ") m, clearance " +
             hit.signedDistance.toExponential(2) +
             " m.",

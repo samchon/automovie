@@ -1,4 +1,7 @@
-import { Vector3, type IAutoMovieSignedMeshQueryHit as ImportedIAutoMovieSignedMeshQueryHit } from "@automovie/engine";
+import {
+  type IAutoMovieSignedMeshQueryHit as ImportedIAutoMovieSignedMeshQueryHit,
+  Vector3,
+} from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { IHumanFaceHairRootedSteering } from "./IHumanFaceHairRootedSteering";
@@ -45,7 +48,10 @@ export function steerHumanFaceHairRootedStep(
   if (props.budget.remaining === 0)
     throw new Error("Rooted steering exhausted its shared geometry budget.");
   props.budget.remaining--;
-  const trial: IAutoMovieVector3 = Vector3.add(props.point, Vector3.scale(direction, props.step));
+  const trial: IAutoMovieVector3 = Vector3.add(
+    props.point,
+    Vector3.scale(direction, props.step),
+  );
   const hit: ImportedIAutoMovieSignedMeshQueryHit = props.contact.sample(trial);
   if (hit.signedDistance >= props.contact.clearance - props.contact.epsilon)
     return direction;

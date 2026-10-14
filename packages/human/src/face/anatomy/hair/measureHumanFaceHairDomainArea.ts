@@ -1,5 +1,5 @@
-import type { IAutoMovieVector3 as ImportedIAutoMovieVector3 } from "@automovie/interface";
 import { Vector3 } from "@automovie/engine";
+import type { IAutoMovieVector3 as ImportedIAutoMovieVector3 } from "@automovie/interface";
 
 /**
  * A current-domain area proxy for a hair population: its neutral acceptance share times the domain's triangles measured on the current positions. Under uniform area scaling this carries the mask's area fraction to the current shape. Under nonuniform deformation it does not integrate the accepted patch's local area scales; the neutral share is a construction approximation. It is the fallback that `humanFaceHairDensity` reads when a population is too small to measure its own neighbourhoods.
@@ -20,18 +20,27 @@ export function measureHumanFaceHairDomainArea(props: {
   indices: readonly number[];
   current: readonly number[];
 }): number {
-  const { indices, current }: { share: number; triangles: readonly number[]; indices: readonly number[]; current: readonly number[]; } = props;
+  const {
+    indices,
+    current,
+  }: {
+    share: number;
+    triangles: readonly number[];
+    indices: readonly number[];
+    current: readonly number[];
+  } = props;
   return (
     props.share *
     props.triangles.reduce((total: number, triangle: number): number => {
       const points: ImportedIAutoMovieVector3[] = indices
         .slice(3 * triangle, 3 * triangle + 3)
-        .map((id: number): ImportedIAutoMovieVector3 =>
-          Vector3.create(
-            current[id * 3],
-            current[id * 3 + 1],
-            current[id * 3 + 2],
-          ),
+        .map(
+          (id: number): ImportedIAutoMovieVector3 =>
+            Vector3.create(
+              current[id * 3],
+              current[id * 3 + 1],
+              current[id * 3 + 2],
+            ),
         );
       return (
         total +

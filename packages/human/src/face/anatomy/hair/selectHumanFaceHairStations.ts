@@ -20,8 +20,14 @@ export function selectHumanFaceHairStations(props: {
   points: readonly IAutoMovieVector3[];
   tolerance: (from: number, to: number) => number;
 }): number[] {
-  const { points }: { points: readonly IAutoMovieVector3[]; tolerance: (from: number, to: number) => number; } = props;
-  if (points.length <= 2) return points.map((_: IAutoMovieVector3, at: number): number => at);
+  const {
+    points,
+  }: {
+    points: readonly IAutoMovieVector3[];
+    tolerance: (from: number, to: number) => number;
+  } = props;
+  if (points.length <= 2)
+    return points.map((_: IAutoMovieVector3, at: number): number => at);
   const kept: Set<number> = new Set<number>([0, points.length - 1]);
   const pending: [number, number][] = [[0, points.length - 1]];
   while (pending.length !== 0) {
@@ -33,7 +39,10 @@ export function selectHumanFaceHairStations(props: {
     let worst: number = 0,
       at: number = -1;
     for (let i: number = from + 1; i < to; i++) {
-      const offset: IAutoMovieVector3 = Vector3.subtract(points[i], points[from]);
+      const offset: IAutoMovieVector3 = Vector3.subtract(
+        points[i],
+        points[from],
+      );
       const along: number =
         span === 0
           ? 0

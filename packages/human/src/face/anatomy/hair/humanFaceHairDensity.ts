@@ -33,23 +33,31 @@ export function humanFaceHairDensity(props: {
     throw new Error("A hair population needs a finite positive growth area.");
   if (props.roots.length === 0) return [];
   if (props.roots.length <= NEIGHBOURS)
-    return props.roots.map((): number => Math.sqrt(props.area / props.roots.length));
-  const widths: number[] = props.roots.map((root: IAutoMovieVector3): number => {
-    const nearest: number[] = [];
-    for (const other of props.roots) {
-      if (other === root) continue;
-      const distance: number = Vector3.length(Vector3.subtract(other, root));
-      if (nearest.length < NEIGHBOURS) {
-        nearest.push(distance);
-        nearest.sort((a: number, b: number): number => a - b);
-      } else if (distance < nearest[NEIGHBOURS - 1]) {
-        nearest[NEIGHBOURS - 1] = distance;
-        nearest.sort((a: number, b: number): number => a - b);
+    return props.roots.map((): number =>
+      Math.sqrt(props.area / props.roots.length),
+    );
+  const widths: number[] = props.roots.map(
+    (root: IAutoMovieVector3): number => {
+      const nearest: number[] = [];
+      for (const other of props.roots) {
+        if (other === root) continue;
+        const distance: number = Vector3.length(Vector3.subtract(other, root));
+        if (nearest.length < NEIGHBOURS) {
+          nearest.push(distance);
+          nearest.sort((a: number, b: number): number => a - b);
+        } else if (distance < nearest[NEIGHBOURS - 1]) {
+          nearest[NEIGHBOURS - 1] = distance;
+          nearest.sort((a: number, b: number): number => a - b);
+        }
       }
-    }
-    return nearest[NEIGHBOURS - 1] * Math.sqrt(Math.PI / (NEIGHBOURS - 1));
-  });
-  if (!widths.every((width: number): boolean => Number.isFinite(width) && width > 0))
+      return nearest[NEIGHBOURS - 1] * Math.sqrt(Math.PI / (NEIGHBOURS - 1));
+    },
+  );
+  if (
+    !widths.every(
+      (width: number): boolean => Number.isFinite(width) && width > 0,
+    )
+  )
     throw new Error(
       "Hair roots must be distinct enough to measure their own density.",
     );

@@ -1,8 +1,12 @@
-import type { IAutoMovieHumanFaceBasisSurface as ImportedIAutoMovieHumanFaceBasisSurface, IAutoMovieHumanFaceHairDomain as ImportedIAutoMovieHumanFaceHairDomain } from "@automovie/human";
-import type { Layer as ImportedLayer } from "../../structures/IAutoMovieHumanFaceHair/Layer";
+import type {
+  IAutoMovieHumanFaceBasisSurface as ImportedIAutoMovieHumanFaceBasisSurface,
+  IAutoMovieHumanFaceHairDomain as ImportedIAutoMovieHumanFaceHairDomain,
+} from "@automovie/human";
+
 import type { IAutoMovieHumanFaceBasis } from "../../structures/IAutoMovieHumanFaceBasis";
 import type { IAutoMovieHumanFaceFacialHair } from "../../structures/IAutoMovieHumanFaceFacialHair";
 import type { IAutoMovieHumanFaceHair } from "../../structures/IAutoMovieHumanFaceHair";
+import type { Layer as ImportedLayer } from "../../structures/IAutoMovieHumanFaceHair/Layer";
 import { assertHumanFaceFacialHair } from "./assertHumanFaceFacialHair";
 import { assertHumanFaceHair } from "./assertHumanFaceHair";
 
@@ -26,25 +30,61 @@ export function resolveHumanFaceFacialHair(
   assertHumanFaceFacialHair(input);
   const layers: IAutoMovieHumanFaceHair.Layer[] = [];
   for (const [site, profile] of Object.entries(input.sites)) {
-    if (profile === undefined || profile.count === 0 || profile.lengthMm === 0) continue;
-    const matches: { surface: ImportedIAutoMovieHumanFaceBasisSurface; domain: ImportedIAutoMovieHumanFaceHairDomain; }[] = basis.surfaces.flatMap((surface: ImportedIAutoMovieHumanFaceBasisSurface): { surface: ImportedIAutoMovieHumanFaceBasisSurface; domain: ImportedIAutoMovieHumanFaceHairDomain; }[] =>
-      (surface.hairDomains ?? []).filter((domain: ImportedIAutoMovieHumanFaceHairDomain): boolean => domain.facialHairSite === site)
-        .map((domain: ImportedIAutoMovieHumanFaceHairDomain): { surface: ImportedIAutoMovieHumanFaceBasisSurface; domain: ImportedIAutoMovieHumanFaceHairDomain; } => ({ surface, domain })),
+    if (profile === undefined || profile.count === 0 || profile.lengthMm === 0)
+      continue;
+    const matches: {
+      surface: ImportedIAutoMovieHumanFaceBasisSurface;
+      domain: ImportedIAutoMovieHumanFaceHairDomain;
+    }[] = basis.surfaces.flatMap(
+      (
+        surface: ImportedIAutoMovieHumanFaceBasisSurface,
+      ): {
+        surface: ImportedIAutoMovieHumanFaceBasisSurface;
+        domain: ImportedIAutoMovieHumanFaceHairDomain;
+      }[] =>
+        (surface.hairDomains ?? [])
+          .filter(
+            (domain: ImportedIAutoMovieHumanFaceHairDomain): boolean =>
+              domain.facialHairSite === site,
+          )
+          .map(
+            (
+              domain: ImportedIAutoMovieHumanFaceHairDomain,
+            ): {
+              surface: ImportedIAutoMovieHumanFaceBasisSurface;
+              domain: ImportedIAutoMovieHumanFaceHairDomain;
+            } => ({ surface, domain }),
+          ),
     );
     if (matches.length !== 1)
-      throw new Error("Facial terminal shafts require exactly one registered native growth domain for " + site + ".");
-    const { surface, domain }: { surface: ImportedIAutoMovieHumanFaceBasisSurface; domain: ImportedIAutoMovieHumanFaceHairDomain; } = matches[0];
+      throw new Error(
+        "Facial terminal shafts require exactly one registered native growth domain for " +
+          site +
+          ".",
+      );
+    const {
+      surface,
+      domain,
+    }: {
+      surface: ImportedIAutoMovieHumanFaceBasisSurface;
+      domain: ImportedIAutoMovieHumanFaceHairDomain;
+    } = matches[0];
     const length: number = profile.lengthMm * 0.001;
     const step: number = profile.samplingStepMm * 0.001;
     const diameter: number = profile.diameterMicrometres * 0.000001;
-    const angle: number = profile.flowAngleDegrees * Math.PI / 180;
+    const angle: number = (profile.flowAngleDegrees * Math.PI) / 180;
     layers.push({
       id: "facial-hair:" + site,
       surface: surface.id,
       domain: domain.id,
       count: profile.count,
       seed: profile.seed,
-      hairline: { front: Math.PI, back: Math.PI, left: Math.PI, right: Math.PI },
+      hairline: {
+        front: Math.PI,
+        back: Math.PI,
+        left: Math.PI,
+        right: Math.PI,
+      },
       lengthAxes: [length, length, length, length, length, length],
       lengthVariation: 0,
       samplingStep: step,
@@ -58,11 +98,14 @@ export function resolveHumanFaceFacialHair(
       finish: {
         color: [profile.finish.red, profile.finish.green, profile.finish.blue],
         roughness: profile.finish.roughness,
-        fibres: 1, coverage: 1, normal: 0, shade: 0,
+        fibres: 1,
+        coverage: 1,
+        normal: 0,
+        shade: 0,
       },
     });
   }
-  const result: { layers: ImportedLayer[]; } = { layers };
+  const result: { layers: ImportedLayer[] } = { layers };
   assertHumanFaceHair(result);
   return result;
 }

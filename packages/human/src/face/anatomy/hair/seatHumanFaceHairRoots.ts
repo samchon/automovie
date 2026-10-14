@@ -1,8 +1,8 @@
-import type { IHumanFaceSkinHost as ImportedIHumanFaceSkinHost } from "../skin/IHumanFaceSkinHost";
-import type { IAutoMovieVector3 as ImportedIAutoMovieVector3 } from "@automovie/interface";
-import type { IHumanFaceSkinFrame as ImportedIHumanFaceSkinFrame } from "../skin/IHumanFaceSkinFrame";
 import { Vector3, interpolateAutoMovieTrianglePoint } from "@automovie/engine";
+import type { IAutoMovieVector3 as ImportedIAutoMovieVector3 } from "@automovie/interface";
 
+import type { IHumanFaceSkinFrame as ImportedIHumanFaceSkinFrame } from "../skin/IHumanFaceSkinFrame";
+import type { IHumanFaceSkinHost as ImportedIHumanFaceSkinHost } from "../skin/IHumanFaceSkinHost";
 import { createHumanFaceSkinHost } from "../skin/createHumanFaceSkinHost";
 import type { IHumanFaceHairRootReference } from "./IHumanFaceHairRootReference";
 import type { IHumanFaceHairRootSeat } from "./IHumanFaceHairRootSeat";
@@ -26,28 +26,40 @@ export function seatHumanFaceHairRoots<T extends IHumanFaceHairRootReference>(
 ): IHumanFaceHairRootSeat<T>[] {
   const { indices, current }: IHumanFaceHairRootSeatsProps<T> = props;
   if (props.roots.length === 0) return [];
-  const host: ImportedIHumanFaceSkinHost = createHumanFaceSkinHost(indices, current);
-  return props.roots.map((root: T): { root: T; seated: ImportedIAutoMovieVector3; normal: ImportedIAutoMovieVector3; } => {
-    const frame: ImportedIHumanFaceSkinFrame = host.frame({
-      triangle: root.triangle,
-      weights: [root.weights[0], root.weights[1], root.weights[2]],
-    });
-    const seated: ImportedIAutoMovieVector3 = interpolateAutoMovieTrianglePoint(
-      [0, 1, 2].map((corner: number): ImportedIAutoMovieVector3 => {
-        const vertex: number = indices[3 * root.triangle + corner];
-        return Vector3.create(
-          current[3 * vertex],
-          current[3 * vertex + 1],
-          current[3 * vertex + 2],
+  const host: ImportedIHumanFaceSkinHost = createHumanFaceSkinHost(
+    indices,
+    current,
+  );
+  return props.roots.map(
+    (
+      root: T,
+    ): {
+      root: T;
+      seated: ImportedIAutoMovieVector3;
+      normal: ImportedIAutoMovieVector3;
+    } => {
+      const frame: ImportedIHumanFaceSkinFrame = host.frame({
+        triangle: root.triangle,
+        weights: [root.weights[0], root.weights[1], root.weights[2]],
+      });
+      const seated: ImportedIAutoMovieVector3 =
+        interpolateAutoMovieTrianglePoint(
+          [0, 1, 2].map((corner: number): ImportedIAutoMovieVector3 => {
+            const vertex: number = indices[3 * root.triangle + corner];
+            return Vector3.create(
+              current[3 * vertex],
+              current[3 * vertex + 1],
+              current[3 * vertex + 2],
+            );
+          }),
+          root.weights,
         );
-      }),
-      root.weights,
-    );
-    const normal: ImportedIAutoMovieVector3 = Vector3.create(
-      frame.normal[0],
-      frame.normal[1],
-      frame.normal[2],
-    );
-    return { root, seated, normal };
-  });
+      const normal: ImportedIAutoMovieVector3 = Vector3.create(
+        frame.normal[0],
+        frame.normal[1],
+        frame.normal[2],
+      );
+      return { root, seated, normal };
+    },
+  );
 }

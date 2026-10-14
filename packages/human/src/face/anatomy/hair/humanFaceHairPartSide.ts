@@ -21,7 +21,9 @@ export function humanFaceHairPartSide(
     "normal" | "offset" | "transitionWidth"
   >,
 ): number {
-  const axis: IAutoMovieVector3 = Vector3.normalize(Vector3.create(...part.normal));
+  const axis: IAutoMovieVector3 = Vector3.normalize(
+    Vector3.create(...part.normal),
+  );
   return Math.tanh(
     (Vector3.dot(point, axis) - part.offset) / part.transitionWidth,
   );

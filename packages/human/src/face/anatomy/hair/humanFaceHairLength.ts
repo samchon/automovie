@@ -26,7 +26,10 @@ export function humanFaceHairLength(
 ): number {
   const radial: IAutoMovieVector3 = Vector3.subtract(reference, origin);
   const axes: number[] = [radial.x, radial.y, radial.z];
-  const sum: number = axes.reduce((total: number, value: number): number => total + Math.abs(value), 0);
+  const sum: number = axes.reduce(
+    (total: number, value: number): number => total + Math.abs(value),
+    0,
+  );
   if (!Number.isFinite(sum) || sum === 0)
     throw new Error("Hair length needs a nonsingular neutral chart direction.");
   const regional: number = axes.reduce(

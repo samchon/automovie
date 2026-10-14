@@ -1,4 +1,8 @@
-import { type IAutoMovieMeshSeparationAttachment, Vector3, type IAutoMovieMeshQueryBudget as ImportedIAutoMovieMeshQueryBudget } from "@automovie/engine";
+import {
+  type IAutoMovieMeshSeparationAttachment,
+  type IAutoMovieMeshQueryBudget as ImportedIAutoMovieMeshQueryBudget,
+  Vector3,
+} from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { IHumanFaceHairRibbonFitContext } from "./IHumanFaceHairRibbonFitContext";
@@ -44,9 +48,14 @@ export function fitHumanFaceHairRibbonRows(
     throw new Error(
       "Hair coverage requires source and represented resident separation readers.",
     );
-  const corner: (row: Row, side: number) => IAutoMovieVector3 = (row: Row, side: number): IAutoMovieVector3 =>
+  const corner: (row: Row, side: number) => IAutoMovieVector3 = (
+    row: Row,
+    side: number,
+  ): IAutoMovieVector3 =>
     Vector3.add(row.point, Vector3.scale(row.across, side * row.radius));
-  const represented: (p: IAutoMovieVector3) => IAutoMovieVector3 = (p: IAutoMovieVector3): IAutoMovieVector3 => ({
+  const represented: (p: IAutoMovieVector3) => IAutoMovieVector3 = (
+    p: IAutoMovieVector3,
+  ): IAutoMovieVector3 => ({
     x: Math.fround(p.x),
     y: Math.fround(p.y),
     z: Math.fround(p.z),
@@ -54,7 +63,11 @@ export function fitHumanFaceHairRibbonRows(
   // Exact query identity: every coordinate's shortest round-trip text, with
   // negative zero kept apart. Within one call the registration is either the
   // curve's attachment or absent, so its presence completes the identity.
-  const identity: (run: readonly IAutoMovieVector3[], clearance: number, attachment: IAutoMovieMeshSeparationAttachment | undefined) => string = (
+  const identity: (
+    run: readonly IAutoMovieVector3[],
+    clearance: number,
+    attachment: IAutoMovieMeshSeparationAttachment | undefined,
+  ) => string = (
     run: readonly IAutoMovieVector3[],
     clearance: number,
     attachment: IAutoMovieMeshSeparationAttachment | undefined,
@@ -64,16 +77,26 @@ export function fitHumanFaceHairRibbonRows(
       attachment === undefined ? 0 : 1,
       ...run.flatMap((p: IAutoMovieVector3): number[] => [p.x, p.y, p.z]),
     ]
-      .map((value: number): string => (Object.is(value, -0) ? "-0" : String(value)))
+      .map((value: number): string =>
+        Object.is(value, -0) ? "-0" : String(value),
+      )
       .join(",");
   const sourceVerdicts: Map<string, boolean> = new Map<string, boolean>();
   const representedVerdicts: Map<string, boolean> = new Map<string, boolean>();
-  const certified: (vertices: readonly IAutoMovieVector3[], clearance: number, attachment?: IAutoMovieMeshSeparationAttachment) => boolean = (
+  const certified: (
+    vertices: readonly IAutoMovieVector3[],
+    clearance: number,
+    attachment?: IAutoMovieMeshSeparationAttachment,
+  ) => boolean = (
     vertices: readonly IAutoMovieVector3[],
     clearance: number,
     attachment?: IAutoMovieMeshSeparationAttachment,
   ): boolean => {
-    const options: { clearance: number; budget: ImportedIAutoMovieMeshQueryBudget; attachment: IAutoMovieMeshSeparationAttachment | undefined; } = { clearance, budget: props.budget, attachment };
+    const options: {
+      clearance: number;
+      budget: ImportedIAutoMovieMeshQueryBudget;
+      attachment: IAutoMovieMeshSeparationAttachment | undefined;
+    } = { clearance, budget: props.budget, attachment };
     const exact: string = identity(vertices, clearance, attachment);
     let proved: boolean | undefined = sourceVerdicts.get(exact);
     if (proved === undefined) {
@@ -101,8 +124,12 @@ export function fitHumanFaceHairRibbonRows(
       row.radius > row.nominal
     )
       throw new Error("Hair free row needs positive coverage radii.");
-    const segment: (radius: number) => IAutoMovieVector3[] = (radius: number): IAutoMovieVector3[] =>
-      [-1, 1].map((side: number): IAutoMovieVector3 => corner({ ...row, radius }, side));
+    const segment: (radius: number) => IAutoMovieVector3[] = (
+      radius: number,
+    ): IAutoMovieVector3[] =>
+      [-1, 1].map(
+        (side: number): IAutoMovieVector3 => corner({ ...row, radius }, side),
+      );
     const positive: (radius: number) => boolean = (radius: number): boolean => {
       const pair: IAutoMovieVector3[] = segment(radius).map(represented);
       return Vector3.length(Vector3.subtract(pair[0], pair[1])) > 0;
@@ -165,16 +192,22 @@ export function fitHumanFaceHairRibbonRows(
         "Hair coverage requires valid derived root/stem/free region and canonical attachment metadata.",
       );
   }
-  const output: Row[] = rows.map((row: Row): Row =>
-    fit({ ...row, point: { ...row.point }, across: { ...row.across } }),
+  const output: Row[] = rows.map(
+    (row: Row): Row =>
+      fit({ ...row, point: { ...row.point }, across: { ...row.across } }),
   );
   const width: (row: Row) => number = (row: Row): number => {
-    const pair: IAutoMovieVector3[] = [-1, 1].map((side: number): IAutoMovieVector3 => represented(corner(row, side)));
+    const pair: IAutoMovieVector3[] = [-1, 1].map(
+      (side: number): IAutoMovieVector3 => represented(corner(row, side)),
+    );
     return Vector3.length(Vector3.subtract(pair[0], pair[1]));
   };
   // Centres stay in the convex cell. Width changes are rechecked in the actual
   // represented coordinates; mathematical nesting does not excuse F32 rounding.
-  const patch: (a: Row, b: Row) => IAutoMovieVector3[] = (a: Row, b: Row): IAutoMovieVector3[] => [
+  const patch: (a: Row, b: Row) => IAutoMovieVector3[] = (
+    a: Row,
+    b: Row,
+  ): IAutoMovieVector3[] => [
     a.point,
     b.point,
     corner(a, -1),
@@ -189,8 +222,13 @@ export function fitHumanFaceHairRibbonRows(
     const rooted: boolean = before.region === "root";
     const clearance: number =
       before.region === "free" && after.region === "free" ? props.clearance : 0;
-    const attachment: IAutoMovieMeshSeparationAttachment | undefined = rooted ? props.attachment : undefined;
-    const shape: (a: Row, b: Row) => IAutoMovieVector3[] = (a: Row, b: Row): IAutoMovieVector3[] =>
+    const attachment: IAutoMovieMeshSeparationAttachment | undefined = rooted
+      ? props.attachment
+      : undefined;
+    const shape: (a: Row, b: Row) => IAutoMovieVector3[] = (
+      a: Row,
+      b: Row,
+    ): IAutoMovieVector3[] =>
       rooted ? [a.point, corner(b, -1), corner(b, 1)] : patch(a, b);
     if (certified(shape(before, after), clearance, attachment)) {
       at++;
@@ -205,7 +243,10 @@ export function fitHumanFaceHairRibbonRows(
       );
     let low: number = 0,
       high: number = 1;
-    const scaled: (row: Row, fraction: number) => Row = (row: Row, fraction: number): Row => ({
+    const scaled: (row: Row, fraction: number) => Row = (
+      row: Row,
+      fraction: number,
+    ): Row => ({
       ...row,
       radius: row.radius * fraction,
     });
