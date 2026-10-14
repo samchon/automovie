@@ -25,7 +25,7 @@ export interface IAutoMovieSoftSolver {
   drag: number;
 
   /**
-   * Constraint relaxation sweeps per step; an integer of at least 1. More sweeps make the panel less stretchy at a linear cost, which is the honest trade a position-based solver offers instead of a spring constant.
+   * Constraint relaxation sweeps per step; an integer of at least 1. Each sweep repeats the simultaneous weighted distance correction at linear cost; a larger count does not establish monotonic strain reduction or exact inextensibility.
    */
   iterations: number;
 
@@ -33,7 +33,7 @@ export interface IAutoMovieSoftSolver {
   stiffness: IAutoMovieSoftStiffness;
 
   /**
-   * The fastest particle motion this panel is designed for, in m/s, strictly positive. It is the speed the travel condition is checked against: a step that could displace a particle further than the shortest constraint would tunnel through a collider and project a constraint the wrong way.
+   * Declared design speed in m/s, strictly positive, used in the travel estimate `dt * referenceSpeed / shortestStructuralRestLength`. The solver does not clamp observed speed to this value, and lattice spacing does not establish that a discrete step cannot tunnel through a thinner collider.
    */
   referenceSpeed: number;
 

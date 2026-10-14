@@ -4,7 +4,7 @@ import { IAutoMovieSoftBounds } from "./IAutoMovieSoftBounds";
 /**
  * The derived drawable geometry of one soft-body state.
  *
- * The engine owns this derivation so the renderer stays a projection: the mesh a viewer uploads and the particle field the solver produced are one statement, not two that can disagree.
+ * The engine owns this derivation. The viewer projection copies the derived positions, normals and UVs into Float32 attributes rather than solving cloth independently; that conversion does not preserve every binary64 value exactly or certify native appearance.
  *
  * @evidence contracts/common.md#principled-implementation softBodySurfaceGeometry emits two triangles per lattice quad, sums unnormalized incident cross products for area-weighted normals and maps UVs from normalized row/column coordinates.
  * @evidence contracts/common.md#clear-and-simple-design The surface references its solved domain and step and keeps vertex indices identical to particle indices; the viewer consumes this engine-derived mesh.

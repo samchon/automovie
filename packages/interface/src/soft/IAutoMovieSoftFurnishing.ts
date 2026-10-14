@@ -8,7 +8,7 @@ import { AutoMovieSoftFurnishingMode } from "./AutoMovieSoftFurnishingMode";
  *
  * Nothing here re-states geometry. The room's extent is the architecture's logical space, the panel's extent is the domain's rest mesh, and the engine checks that the binding actually resolves rather than trusting a name.
  *
- * @evidence contracts/common.md#principled-implementation validateSoftFurnishings resolves environment, logical space, independent domain and support elements; lowerSoftFurnishing validates the supplied pair and chooses rest or fixed-step evaluation.
+ * @evidence contracts/common.md#principled-implementation validateSoftFurnishings resolves environment, logical space, independent domain and support elements and checks held rest particles against declared room volume; it does not certify whole triangles or future cloth containment. lowerSoftFurnishing validates the supplied pair and chooses rest or fixed-step evaluation.
  * @evidence contracts/common.md#clear-and-simple-design The building-owned binding holds room and support references while the domain retains all cloth computation inputs.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The semantic kind selects no solver template. Referencing supports records dependencies but does not itself animate anchors from those element transforms.
  * @evidence contracts/common.md#meaningful-documentation Members distinguish mode, selected named state, dependency ids and nullable material; unsupported or unexecuted lowering is reported separately.
@@ -46,7 +46,7 @@ export interface IAutoMovieSoftFurnishing {
   /**
    * Ids of the environment's elements the panel is fixed to: a curtain track, a pelmet, a wall hook, the bed the linen lies on. May be empty for a panel held only by its own anchors.
    *
-   * The list is a stated dependency, not a source of geometry: moving a track invalidates the panel bound to it, which is exactly what a change-impact pass needs and what a silently duplicated coordinate could never give.
+   * Validation checks that these dependencies resolve and are not duplicated. The current solver does not read their element transforms, and this list alone neither moves anchors nor installs automatic change-impact invalidation.
    */
   supports: string[];
 

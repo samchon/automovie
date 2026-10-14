@@ -4,11 +4,11 @@ import type { IAutoMovieCapsuleProxy } from "../validation/IAutoMovieCapsuleProx
 /**
  * One volume the panel is kept out of.
  *
- * Colliders are stated in world space beside the rest mesh rather than pulled from the building graph, so the same rug drapes over the same step whether or not a building owns the frame. A binding may of course place both.
+ * Static colliders are stated in world space beside the rest mesh rather than pulled from the building graph. The body-capsule arm instead names actor-local bone endpoints that the wearable resolver places from supplied world poses.
  *
  * @evidence contracts/common.md#principled-implementation simulateSoftBody projects predicted particles out of static half-spaces, spheres and boxes; boundary-aware wearable evaluation resolves actor capsules before capsule projection.
  * @evidence contracts/common.md#clear-and-simple-design The union distinguishes authored static geometry from actor-local moving capsule references without importing building geometry into the solver.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Projection occurs once per collider in authored order and has no friction or continuous sweep; overlapping volumes can leave an earlier collider unsatisfied after a later projection.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Each unanchored particle visits static colliders in authored order, then resolved moving capsules in boundary order; this is not one interleaved union order. There is no friction or continuous sweep, and a later projection can leave an earlier collider unsatisfied.
  * @evidence contracts/common.md#meaningful-documentation Each arm states its frame and geometry parameters; body capsules require evaluated actor boundaries rather than static solver inference.
  * @author Samchon
  */
@@ -44,7 +44,7 @@ export namespace IAutoMovieSoftCollider {
   /**
    * Static spherical exclusion volume.
    *
-   * @evidence contracts/common.md#principled-implementation Sphere projection compares squared centre distance and moves an interior particle radially to the positive radius; an exact-centre point uses a deterministic axis because its radial direction is undefined.
+   * @evidence contracts/common.md#principled-implementation Sphere projection compares a direct-square Euclidean centre distance with the radius and moves an interior particle radially to the boundary; an exact-centre point moves along positive world Y because its radial direction is undefined.
    * @evidence contracts/common.md#clear-and-simple-design Centre and radius are sufficient for the sphere contact calculation; id preserves the authored collider identity.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The exact-centre tie-break is a geometric degeneracy rule, not a fixture path; discrete projection does not detect passage through the ball between steps.
    * @evidence contracts/common.md#meaningful-documentation Fields state world centre, positive metre radius and domain-local identity.

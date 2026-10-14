@@ -14,7 +14,7 @@ import { IAutoMovieSoftWind } from "./IAutoMovieSoftWind";
  *
  * Particle arrays use row-major index `row * lattice.columns + column`. World-space rest positions supply orientation; lattice axes are not fixed to world axes.
  *
- * Constraint rest lengths come from the authored rest coordinates. With no forces or moved anchors, distance corrections remain zero because the same coordinates define both measured and rest lengths.
+ * Constraint rest lengths come from the authored rest coordinates. Starting from those coordinates with no forces, changed anchor targets or collider projections gives zero distance residual in representable arithmetic; a collider can displace an otherwise unforced rest shape.
  *
  * @evidence contracts/common.md#principled-implementation simulateSoftBody uses fixed-step position prediction and Jacobi distance projection on an authored lattice, with rest lengths measured from rest coordinates and zero inverse mass at anchors.
  * @evidence contracts/common.md#clear-and-simple-design The independent domain owns solver inputs; architecture furnishing references it rather than changing the cloth algorithm according to its room.

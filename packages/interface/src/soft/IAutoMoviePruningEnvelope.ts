@@ -3,7 +3,7 @@ import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 /**
  * The volume a plant is kept inside.
  *
- * A branch whose base is already outside is not grown at all; a branch that crosses the boundary is cut exactly at the crossing, and only the children that emerge before the cut survive. That is pruning, not clipping in the renderer: what the envelope removes is gone from the derived structure every reader of the plant works from. The installation binding's canopy collision check reads that structure today. A quantity take-off would read the same one, and none measures planting yet.
+ * A branch whose base is outside is not grown; an analytic exit before its endpoint cuts the centreline, and children whose emergence lies beyond that cut are omitted. Direct-square and quadratic arithmetic retain binary64 overflow and cancellation limits. This changes the shared derived structure rather than applying renderer-only clipping. Installation admission reads its canopy bounds; quantity take-off currently does not measure planting.
  *
  * @evidence contracts/common.md#principled-implementation growPlanting tests branch bases and computes box slab exits or sphere quadratic exits in the recipe frame; children beyond the clipped branch length are omitted.
  * @evidence contracts/common.md#clear-and-simple-design The union exposes the two implemented analytic clipping volumes and an explicit unpruned arm.

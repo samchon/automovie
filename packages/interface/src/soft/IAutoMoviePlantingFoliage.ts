@@ -7,7 +7,7 @@ import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
  *
  * @evidence contracts/common.md#principled-implementation Bearing branch length and positive density determine leaf count above minLevel, with seeded scale and roll perturbations yielding unit-quaternion full-TRS occurrences.
  * @evidence contracts/common.md#clear-and-simple-design The foliage law stays separate from branch recursion and material binding so one recipe can become bare without another growth implementation.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Positive size and jitter below one preserve non-collapsed leaves; output retains every local axis instead of substituting uniform scale or yaw-only orientation.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Positive size and jitter below one target positive scales in representable arithmetic; very small products can underflow without a generated-scale gate. Output retains every local axis instead of substituting uniform scale or yaw-only orientation, while the viewer's planar XY leaf card has no thickness from local Z scale.
  * @evidence contracts/common.md#meaningful-documentation Defines leaves-per-meter density, minimum bearing level, local-meter prototype size and bounded seeded jitter.
  * @author Samchon
  */
@@ -23,11 +23,11 @@ export interface IAutoMoviePlantingFoliage {
    */
   size: IAutoMovieVector3;
 
-  /** Seeded relative perturbation of leaf size, in `[0, 1)`. */
+  /** Seeded relative size perturbation in `[0, 1)`; one factor multiplies all three prototype axes, preserving their proportions in representable arithmetic. */
   scaleJitter: number;
 
   /**
-   * Seeded roll about the bearing branch, in `[0, 1]`. `0` leaves every blade in the branch's own frame; `1` spins each one anywhere around it.
+   * Seeded roll about the bearing branch, in `[0, 1]`. `0` leaves every blade in the branch's own frame; `1` allows a complete turn. Rational-circle samples are blended toward identity by normalized quaternion interpolation; the angular distribution is not uniform.
    */
   rollJitter: number;
 }

@@ -19,13 +19,13 @@ export interface IAutoMoviePlantingStructure {
    */
   axis: IAutoMovieVector3;
 
-  /** Trunk length in metres at full growth; strictly positive. */
+  /** Baseline full-growth trunk length in metres before seeded length jitter; strictly positive. */
   length: number;
 
   /** Trunk radius in metres at its base; strictly positive. */
   radius: number;
 
-  /** Child length divided by parent length; in `(0, 1]`. */
+  /** Baseline child full-growth length factor applied to the parent's full length before the child's own jitter; in `(0, 1]`. */
   lengthRatio: number;
 
   /** Child radius divided by parent radius; in `(0, 1]`. */
@@ -37,15 +37,15 @@ export interface IAutoMoviePlantingStructure {
   children: IAutoMoviePlantingChild[];
 
   /**
-   * Seeded perturbation of each child's direction, in `[0, 1]`. `0` grows a perfectly regular lattice of a plant; `1` fully randomizes the offset before the direction is renormalized.
+   * Seeded additive perturbation of each child direction component, in `[0, 1]`. Each component receives this amount times a sample in `[-1, 1)` before renormalization; it is not a uniform angular distribution. `0` adds no directional jitter.
    */
   directionJitter: number;
 
-  /** Seeded relative perturbation of each child's length, in `[0, 1)`. */
+  /** Seeded relative length perturbation of the trunk and each child, in `[0, 1)`. */
   lengthJitter: number;
 
   /**
-   * Bias of every child direction toward recipe-frame vertical, in `[-1, 1]`. Positive droops toward `-y` (a weeping habit, a hanging basket); negative lifts toward `+y` (a columnar habit); `0` follows the authored direction exactly.
+   * Bias of every child direction toward recipe-frame vertical, in `[-1, 1]`. Positive pulls toward `-y`; negative pulls toward `+y`. `0` leaves the transformed authored direction unchanged before directional jitter. This does not bias the trunk axis.
    */
   gravitropism: number;
 }

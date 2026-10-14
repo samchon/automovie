@@ -3,7 +3,7 @@
  *
  * Every arm cites an existing stable id of the built environment rather than restating geometry: the building graph owns spaces, elements, boundaries and support patches. The binding validator resolves these references; this record does not itself reposition a planting when support geometry changes.
  *
- * @evidence contracts/common.md#principled-implementation validatePlantingInstallations discriminates the support kind and resolves the corresponding environment collection; placement and canopy checks read the referenced geometry separately.
+ * @evidence contracts/common.md#principled-implementation validatePlantingInstallations resolves the support id in the corresponding environment collection; separate placement/canopy checks use the installation's logical room volume, not the support shape or a derived load-bearing contact.
  * @evidence contracts/common.md#clear-and-simple-design Each arm carries one stable reference instead of copying an architecture shape into planting authoring.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A missing support is a binding violation, not a fabricated floor or an automatic relocation.
  * @evidence contracts/common.md#meaningful-documentation Arm comments identify the referenced collection and the separation between dependency resolution and geometry placement.

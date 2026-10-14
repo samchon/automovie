@@ -3,7 +3,7 @@
  *
  * Every field is derived from the domain record alone, so a production can be refused for an unaffordable panel before a single step is integrated.
  *
- * @evidence contracts/common.md#principled-implementation softBodyBudget counts row/column, diagonal and second-neighbour constraints from lattice dimensions, then derives two gathers per constraint per iteration and step; travel uses the shortest authored rest constraint.
+ * @evidence contracts/common.md#principled-implementation softBodyBudget counts row/column, diagonal and second-neighbour constraints from lattice dimensions, then derives two gathers per constraint per iteration and step; travel uses the shortest authored structural rest edge, excluding diagonal and second-neighbour lengths.
  * @evidence contracts/common.md#clear-and-simple-design The report separates raster triangles, solver constraints and declared seek work so equal counts do not imply equal responsibilities.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts stateBytes counts six Float64 components per particle only; it excludes working buffers, JavaScript array overhead and device allocations and is not total process memory.
  * @evidence contracts/common.md#meaningful-documentation Fields identify counts, bytes, maximum absolute step and the dimensionless travel admission estimate.
@@ -49,7 +49,7 @@ export interface IAutoMovieSoftBodyBudget {
   worstCaseGathers: number;
 
   /**
-   * Travel number `dt · referenceSpeed / shortestRestLength`. At most `1`, or a particle can cross a constraint or a collider inside one step.
+   * Authored travel estimate `dt · referenceSpeed / shortestStructuralRestLength`, required to be at most `1` by domain admission. The shortest-edge Infinity sentinel yields `0`, including no-edge lattices and direct-square distance overflow. It uses declared speed and lattice spacing rather than observed motion or collider thickness, so an admitted ratio does not certify continuous collision avoidance.
    */
   travel: number;
 }

@@ -7,7 +7,7 @@ import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
  *
  * The draught is uniform over the panel and does not resolve the local surface normal, so it billows a hanging curtain rather than modelling lift. That is the bounded first tier, stated here instead of implied by a coefficient.
  *
- * @evidence contracts/common.md#principled-implementation windAxis normalizes the declared nonzero direction and windAcceleration adds a triangular wave, 4 * abs(fract(gustHz * time) - 0.5) - 1, to the steady acceleration.
+ * @evidence contracts/common.md#principled-implementation windAxis divides the declared direction by its direct-square Euclidean length, and windAcceleration adds the triangular wave 4 * abs(fract(gustHz * time) - 0.5) - 1 times gustAcceleration to the steady acceleration; finite nonzero normalization and phase intermediates remain numerical premises.
  * @evidence contracts/common.md#clear-and-simple-design One uniform acceleration vector and scalar wave parameters express the implemented draught without introducing a spatial fluid field.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The force is not normal-dependent lift or drag; zero frequency holds the positive gust peak rather than silently disabling its amplitude.
  * @evidence contracts/common.md#meaningful-documentation Members state normalized-direction input, acceleration units, nonnegative gust amplitude/frequency and the zero-frequency behavior.

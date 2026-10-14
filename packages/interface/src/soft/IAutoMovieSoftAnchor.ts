@@ -6,7 +6,7 @@ import { IAutoMovieSoftAnchorBinding } from "./IAutoMovieSoftAnchorBinding";
  *
  * @evidence contracts/common.md#principled-implementation The solver sets anchor inverse mass to zero and rewrites its target each fixed step; restConfiguration resolves named overrides before static positions or the particle's rest coordinate.
  * @evidence contracts/common.md#clear-and-simple-design Identity, particle index and target describe the static condition; optional binding identifies a moving owner resolved by the boundary-aware path.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Validation requires binding and static position to be mutually exclusive; the static solver does not resolve scene or actor motion by guesswork.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Validation requires binding and static position to be mutually exclusive. The static solver currently ignores binding metadata and uses static/rest targets; following the moving owner requires complete resolved boundaries, not an inferred scene or actor pose.
  * @evidence contracts/common.md#meaningful-documentation Comments state row-major indexing, world metres, null rest targets and the moving-frame exclusivity rule.
  * @author Samchon
  */

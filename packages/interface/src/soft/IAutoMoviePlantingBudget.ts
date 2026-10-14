@@ -13,11 +13,11 @@ export interface IAutoMoviePlantingBudget {
   /** Identity of the measured recipe. */
   domain: string;
 
-  /** Branch segments a fully grown, unpruned structure would emit. */
+  /** Full-tree branch-count upper bound before growth-stage or pruning omissions. */
   worstCaseBranches: number;
 
   /**
-   * Leaf occurrences a fully grown, unpruned structure would emit, or `0` for a recipe with no foliage rule.
+   * Leaf-count upper bound from the full unpruned tree and maximum length jitter, or `0` for a recipe with no foliage rule; this is not the exact count for one seed.
    *
    * Derived from the density rule and the branching law rather than read off {@link maxLeaves}: a cap is what the recipe promises not to exceed, not what it costs, and a bare winter branch that reported its cap would hand a render budget a bill for foliage nobody grows.
    */

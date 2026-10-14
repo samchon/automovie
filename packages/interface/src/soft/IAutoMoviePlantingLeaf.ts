@@ -2,12 +2,12 @@ import { IAutoMovieQuaternion } from "../geometry/IAutoMovieQuaternion";
 import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 
 /**
- * One leaf occurrence, as a lossless full-TRS instance.
+ * One leaf occurrence retaining its complete generated TRS fields.
  *
- * Translation, a unit quaternion and a per-axis scale, which is exactly what GPU instancing consumes. A leaf is never reduced to a yaw or to one uniform number, because a reduction is a fact about the plant that nobody authored.
+ * The CPU record retains translation, quaternion rotation and per-axis scale without reducing orientation to yaw or scale to one number. The viewer composes them into instance matrices whose Float32 storage can round binary64 inputs; its prototype is a planar XY card, so local Z scale does not create leaf thickness.
  *
- * @evidence contracts/common.md#principled-implementation Growth derives stable leaf identity and bearing branch with recipe-frame translation, unit quaternion and positive per-axis scale, matching the full affine instance transform consumed by rendering.
- * @evidence contracts/common.md#clear-and-simple-design A lossless occurrence projection exposes generated placement without embedding the branch recipe or renderer instance object.
+ * @evidence contracts/common.md#principled-implementation Growth derives stable leaf identity and bearing branch with recipe-frame translation, composed roll/alignment quaternion and a common jitter factor applied to all prototype scale axes; finite normalization and representable positive products are premises rather than separately gated generated results.
+ * @evidence contracts/common.md#clear-and-simple-design An occurrence exposes the complete generated placement fields without embedding the branch recipe or renderer instance object.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Leaf orientation and anisotropic scale are preserved instead of silently reduced to yaw or one scale; identity names the actual derived bearing branch.
  * @evidence contracts/common.md#meaningful-documentation Defines stable leaf/branch identity, recipe-meter origin, glTF quaternion order and positive prototype-axis scale.
  * @author Samchon

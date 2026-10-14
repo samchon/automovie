@@ -38,7 +38,7 @@ export interface IAutoMoviePlantingDomain {
   /** How far along that law this plant has actually grown. */
   growth: IAutoMoviePlantingGrowth;
 
-  /** The volume the plant is kept inside: a clipped hedge, a trained wall. */
+  /** Recipe-frame centreline pruning envelope; it does not clip stem thickness or leaf cards. */
   pruning: IAutoMoviePruningEnvelope;
 
   /** The leaf rule, or `null` for a bare structure such as a winter branch. */

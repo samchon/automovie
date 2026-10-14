@@ -7,7 +7,7 @@
  *
  * @evidence contracts/common.md#principled-implementation The solver restarts from the selected rest configuration and integrates to an absolute integer step, returning flat position/velocity arrays plus speed, structural strain and last-step projection counts.
  * @evidence contracts/common.md#clear-and-simple-design The result retains its domain and named state with the fixed-clock time, allowing independently sought frames to be compared without hidden accumulated state.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts maxSpeed is observed rather than capped to referenceSpeed; contacts counts applied projections, not unique contacts or proof that all overlapping colliders are satisfied.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts maxSpeed is computed rather than capped to referenceSpeed; contacts counts applied projections, not unique contacts or proof that all overlapping colliders are satisfied. Integrated arrays receive a finite check, but final time/speed/strain arithmetic has no separate result check and is not an all-finite-input measurement guarantee.
  * @evidence contracts/common.md#meaningful-documentation Comments give row-major component indexing, world units, exact step-time relation and the zero-step meaning of contacts.
  * @author Samchon
  */
@@ -18,7 +18,7 @@ export interface IAutoMovieSoftBodyState {
   /** Named state whose anchor poses were applied, or `null` for the default. */
   state: string | null;
 
-  /** Absolute integer step index; `0` includes static and named anchor overrides of the rest mesh. */
+  /** Absolute integer step index; `0` includes static/named anchor overrides and any supplied boundary-zero targets of the rest mesh. */
   step: number;
 
   /** Absolute domain-clock second, exactly `step * solver.fixedStepSeconds`. */
@@ -31,16 +31,16 @@ export interface IAutoMovieSoftBodyState {
   velocities: number[];
 
   /**
-   * Fastest particle speed in this state, in m/s.
+   * Maximum of direct-square particle speed calculations in this state, in m/s; finite velocity components can still overflow that norm.
    *
    * Measured evidence against {@link IAutoMovieSoftSolver.referenceSpeed}: the declared budget is what the travel condition was checked against, and this is what actually happened, so a reviewer can see whether the declaration held instead of taking it on trust.
    */
   maxSpeed: number;
 
   /**
-   * Largest relative stretch of any structural constraint, `|d − L| / L`.
+   * Maximum accumulated structural strain, computed as `|d − L| / L` from direct-square particle distances.
    *
-   * `0` is inextensible. It is the honest measure of what the declared stiffness and iteration count bought, since a position-based solver approaches inextensibility rather than enforcing it.
+   * With finite representable distance and strain arithmetic, `0` means the structural distances equal their authored rest lengths in this state. There is no separate finite-result gate here: a NaN comparison does not update the initially zero maximum. This field does not establish material inextensibility, measure diagonal/bend strain or certify a later state.
    */
   maxStrain: number;
 
