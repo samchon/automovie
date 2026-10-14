@@ -38,7 +38,7 @@ export function buildPortraitEyeContactBasis(
   extents: number[],
   performance?: IPortraitEyePerformance,
   canthal?: IAutoMovieMesh,
-): IAutoMovieMesh  {
+): IAutoMovieMesh {
   const cornea: IAutoMovieMesh = buildPortraitEyeCornea(
     center,
     sphere,

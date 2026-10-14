@@ -1,8 +1,9 @@
-import type { IHumanFaceIrisGlobe } from "./structures/IHumanFaceIrisGlobe";
-import type { IHumanFaceIrisPreparedTexture } from "./structures/IHumanFaceIrisPreparedTexture";
-import type { IHumanFaceIrisPaintedEye } from "./structures/IHumanFaceIrisPaintedEye";
-
-import type { IAutoMovieMaterial, IAutoMovieModel, IAutoMovieMesh, IAutoMovieColor } from "@automovie/interface";
+import type {
+  IAutoMovieColor,
+  IAutoMovieMaterial,
+  IAutoMovieMesh,
+  IAutoMovieModel,
+} from "@automovie/interface";
 
 import { humanPhysicalSourceDomain } from "../../../common/basis/humanPhysicalSourceDomain";
 import { srgbByteToLinear } from "../../../common/colour/srgbByteToLinear";
@@ -15,6 +16,9 @@ import { findHumanFaceIrisGlobe } from "./findHumanFaceIrisGlobe";
 import { humanFaceOpticalPartId } from "./humanFaceOpticalPartId";
 import { prepareHumanFaceIrisTextures } from "./prepareHumanFaceIrisTextures";
 import { resolveHumanFaceOpticalProfile } from "./resolveHumanFaceOpticalProfile";
+import type { IHumanFaceIrisGlobe } from "./structures/IHumanFaceIrisGlobe";
+import type { IHumanFaceIrisPaintedEye } from "./structures/IHumanFaceIrisPaintedEye";
+import type { IHumanFaceIrisPreparedTexture } from "./structures/IHumanFaceIrisPreparedTexture";
 import type { IHumanFaceOpticalAssembly } from "./structures/IHumanFaceOpticalAssembly";
 
 /**
@@ -42,60 +46,92 @@ import type { IHumanFaceOpticalAssembly } from "./structures/IHumanFaceOpticalAs
  * @evidence contracts/performance.md#reuse-equivalent-work Prepared textures and neutral 9-by-64 pigments are shared across documents; requested document pigments and generated part identity are recomputed.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The builder-held closure retains neutral source/prepared/pigment records until release; returned parts/materials own their copies and no handle or task is retained.
  */
-export function createHumanFaceOpticalFinish(basis: IAutoMovieHumanFaceBasis): (document: IAutoMovieHumanFaceBasisDocument, optics: readonly IHumanFaceOpticalAssembly[], materials: readonly IAutoMovieMaterial[]) => Pick<IAutoMovieModel, "parts" | "materials">  {
+export function createHumanFaceOpticalFinish(
+  basis: IAutoMovieHumanFaceBasis,
+): (
+  document: IAutoMovieHumanFaceBasisDocument,
+  optics: readonly IHumanFaceOpticalAssembly[],
+  materials: readonly IAutoMovieMaterial[],
+) => Pick<IAutoMovieModel, "parts" | "materials"> {
   const sources: Map<"left" | "right", IHumanFaceIrisGlobe | null> = new Map(
-    (["left", "right"] as const).map((side: "left" | "right"): readonly ["left" | "right", IHumanFaceIrisGlobe | null]  => {
-      const globe: IHumanFaceIrisGlobe | null = findHumanFaceIrisGlobe(
-        basis,
-        side === "left" ? "leftEye" : "rightEye",
-      );
-      return [side, globe] as const;
-    }),
+    (["left", "right"] as const).map(
+      (
+        side: "left" | "right",
+      ): readonly ["left" | "right", IHumanFaceIrisGlobe | null] => {
+        const globe: IHumanFaceIrisGlobe | null = findHumanFaceIrisGlobe(
+          basis,
+          side === "left" ? "leftEye" : "rightEye",
+        );
+        return [side, globe] as const;
+      },
+    ),
   );
-  const prepared: Map<"left" | "right", IHumanFaceIrisPreparedTexture | undefined> = new Map(
-    (["left", "right"] as const).map((side: "left" | "right"): readonly ["left" | "right", IHumanFaceIrisPreparedTexture | undefined]  => {
-      const globe: IHumanFaceIrisGlobe | null | undefined = sources.get(side);
-      return [
-        side,
-        globe === null || globe === undefined
-          ? undefined
-          : prepareHumanFaceIrisTextures([globe]).get(globe.material),
-      ] as const;
-    }),
+  const prepared: Map<
+    "left" | "right",
+    IHumanFaceIrisPreparedTexture | undefined
+  > = new Map(
+    (["left", "right"] as const).map(
+      (
+        side: "left" | "right",
+      ): readonly [
+        "left" | "right",
+        IHumanFaceIrisPreparedTexture | undefined,
+      ] => {
+        const globe: IHumanFaceIrisGlobe | null | undefined = sources.get(side);
+        return [
+          side,
+          globe === null || globe === undefined
+            ? undefined
+            : prepareHumanFaceIrisTextures([globe]).get(globe.material),
+        ] as const;
+      },
+    ),
   );
   const pigments: Map<"left" | "right", number[] | undefined> = new Map(
-    (["left", "right"] as const).map((side: "left" | "right"): readonly ["left" | "right", undefined] | readonly ["left" | "right", number[]]  => {
-      const texture: IHumanFaceIrisPreparedTexture | undefined = prepared.get(side);
-      if (texture === undefined) return [side, undefined] as const;
-      const eye: IHumanFaceIrisPaintedEye = texture.eyes[0];
-      const colors: number[] = Array.from({ length: 9 * 64 }, (_: unknown, index: number): number[]  => {
-        const row: number = Math.floor(index / 64),
-          column: number = index % 64;
-        const theta: number =
-          eye.disc.pupil + ((eye.disc.limbus - eye.disc.pupil) * row) / 8;
-        const phi: number = (column * 2 * Math.PI) / 64;
-        let nearest: number = -1,
-          error: number = Infinity;
-        for (let at: number = 0; at < eye.texels.index.length; at++) {
-          const distance: number =
-            (eye.texels.theta[at] - theta) ** 2 +
-            (2 * Math.sin((eye.texels.phi[at] - phi) / 2) * Math.sin(theta)) **
-              2;
-          if (distance < error) {
-            error = distance;
-            nearest = eye.texels.index[at];
-          }
-        }
-        if (nearest < 0)
-          throw new Error(
-            "Independent iris needs a readable source pigment chart.",
-          );
-        return [0, 1, 2].map((c: number): number  =>
-          srgbByteToLinear(texture.rgba[4 * nearest + c]),
-        );
-      }).flat();
-      return [side, colors] as const;
-    }),
+    (["left", "right"] as const).map(
+      (
+        side: "left" | "right",
+      ):
+        | readonly ["left" | "right", undefined]
+        | readonly ["left" | "right", number[]] => {
+        const texture: IHumanFaceIrisPreparedTexture | undefined =
+          prepared.get(side);
+        if (texture === undefined) return [side, undefined] as const;
+        const eye: IHumanFaceIrisPaintedEye = texture.eyes[0];
+        const colors: number[] = Array.from(
+          { length: 9 * 64 },
+          (_: unknown, index: number): number[] => {
+            const row: number = Math.floor(index / 64),
+              column: number = index % 64;
+            const theta: number =
+              eye.disc.pupil + ((eye.disc.limbus - eye.disc.pupil) * row) / 8;
+            const phi: number = (column * 2 * Math.PI) / 64;
+            let nearest: number = -1,
+              error: number = Infinity;
+            for (let at: number = 0; at < eye.texels.index.length; at++) {
+              const distance: number =
+                (eye.texels.theta[at] - theta) ** 2 +
+                (2 *
+                  Math.sin((eye.texels.phi[at] - phi) / 2) *
+                  Math.sin(theta)) **
+                  2;
+              if (distance < error) {
+                error = distance;
+                nearest = eye.texels.index[at];
+              }
+            }
+            if (nearest < 0)
+              throw new Error(
+                "Independent iris needs a readable source pigment chart.",
+              );
+            return [0, 1, 2].map((c: number): number =>
+              srgbByteToLinear(texture.rgba[4 * nearest + c]),
+            );
+          },
+        ).flat();
+        return [side, colors] as const;
+      },
+    ),
   );
   return (
     document: IAutoMovieHumanFaceBasisDocument,
@@ -107,17 +143,27 @@ export function createHumanFaceOpticalFinish(basis: IAutoMovieHumanFaceBasis): (
       materials: [],
     };
     for (const eye of optics) {
-      const source: IHumanFaceIrisGlobe | null | undefined = sources.get(eye.side);
-      const texture: IHumanFaceIrisPreparedTexture | undefined = prepared.get(eye.side);
+      const source: IHumanFaceIrisGlobe | null | undefined = sources.get(
+        eye.side,
+      );
+      const texture: IHumanFaceIrisPreparedTexture | undefined = prepared.get(
+        eye.side,
+      );
       if (source === null || source === undefined || texture === undefined)
         throw new Error(
           "Independent optical finish needs the registered source iris painting for " +
             eye.side +
             ".",
         );
-      const sourceMaterial: IAutoMovieMaterial = materials.find((m: IAutoMovieMaterial): boolean  => m.id === source.material)!;
+      const sourceMaterial: IAutoMovieMaterial = materials.find(
+        (m: IAutoMovieMaterial): boolean => m.id === source.material,
+      )!;
       const id: string = "optics:" + eye.side;
-      const make: (name: AutoMovieHumanFaceOpticalSurface, rgb: readonly number[], roughness: number) => IAutoMovieMaterial = (
+      const make: (
+        name: AutoMovieHumanFaceOpticalSurface,
+        rgb: readonly number[],
+        roughness: number,
+      ) => IAutoMovieMaterial = (
         name: AutoMovieHumanFaceOpticalSurface,
         rgb: readonly number[],
         roughness: number,
@@ -138,7 +184,9 @@ export function createHumanFaceOpticalFinish(basis: IAutoMovieHumanFaceBasis): (
         sourceMaterial.baseColor.g,
         sourceMaterial.baseColor.b,
       ];
-      const sclera: number[] = texture.eyes[0].sclera.map((v: number, at: number): number  => v * gain[at]);
+      const sclera: number[] = texture.eyes[0].sclera.map(
+        (v: number, at: number): number => v * gain[at],
+      );
       result.materials.push(
         make("sclera", sclera, sourceMaterial.roughness),
         make("cornea", [1, 1, 1], 0.05),
@@ -152,20 +200,34 @@ export function createHumanFaceOpticalFinish(basis: IAutoMovieHumanFaceBasis): (
               id + ":pigment",
               document.iris[eye.side],
             );
-      const profile: { radius: number; limbus: number; curvature: number; thickness: number; iris: number; aperture: number; depth: number; rim: number; apex: number; irisZ: number; height: (r: number) => number; slope: (r: number) => number; } = resolveHumanFaceOpticalProfile(document.eyes![eye.side]);
+      const profile: {
+        radius: number;
+        limbus: number;
+        curvature: number;
+        thickness: number;
+        iris: number;
+        aperture: number;
+        depth: number;
+        rim: number;
+        apex: number;
+        irisZ: number;
+        height: (r: number) => number;
+        slope: (r: number) => number;
+      } = resolveHumanFaceOpticalProfile(document.eyes![eye.side]);
       for (const name of [
         "sclera",
         "cornea",
         "iris",
         "apertureBacking",
       ] as const) {
-        const generated: { mesh: IAutoMovieMesh; physicalPoints: number[]; } = eye.geometry.parts[name];
+        const generated: { mesh: IAutoMovieMesh; physicalPoints: number[] } =
+          eye.geometry.parts[name];
         const mesh: IAutoMovieMesh = structuredClone(generated.mesh);
         float32MeshBuffers(mesh, humanFaceOpticalPartId(eye.side, name));
         if (name === "iris") {
           mesh.colors = Array.from(
             { length: mesh.positions.length / 3 },
-            (_: unknown, vertex: number): number[]  => {
+            (_: unknown, vertex: number): number[] => {
               const x: number = 2 * mesh.uvs![2 * vertex] - 1,
                 y: number = 2 * mesh.uvs![2 * vertex + 1] - 1;
               const progress: number =
@@ -190,11 +252,15 @@ export function createHumanFaceOpticalFinish(basis: IAutoMovieHumanFaceBasis): (
         const domain: string =
           humanPhysicalSourceDomain(document.id, eye.generation) + ":" + id;
         mesh.physicalVertices = {
-          sources: generated.physicalPoints.map((point: number): { domain: string; id: number; }  => ({
-            domain,
-            id: point,
-          })),
-          vertices: generated.physicalPoints.map((_: number, at: number): number  => at),
+          sources: generated.physicalPoints.map(
+            (point: number): { domain: string; id: number } => ({
+              domain,
+              id: point,
+            }),
+          ),
+          vertices: generated.physicalPoints.map(
+            (_: number, at: number): number => at,
+          ),
         };
         const partId: string = humanFaceOpticalPartId(eye.side, name);
         result.parts.push({

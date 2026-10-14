@@ -1,17 +1,16 @@
-import type { IHumanFacePeriocularMaterialEdgePoint } from "./structures/IHumanFacePeriocularMaterialEdgePoint";
 import type { IHumanFaceSkinSeat } from "../skin/IHumanFaceSkinSeat";
-import type { IHumanFaceConformingPolygon } from "./structures/IHumanFaceConformingPolygon";
-import type { IHumanFaceConformingMaterialTriangle } from "./structures/IHumanFaceConformingMaterialTriangle";
-
 import { HumanFaceConformingMaterialArithmetic as Arithmetic } from "./HumanFaceConformingMaterialArithmetic";
 import { HumanFaceConformingPolygon as Polygon } from "./HumanFaceConformingPolygon";
 import { HumanFaceConformingRefinement as Refinement } from "./HumanFaceConformingRefinement";
-import type { IHumanFaceConformingMaterialCut as MaterialCut } from "./structures/IHumanFaceConformingMaterialCut";
 import type { IHumanFaceConformingIncidenceWitness } from "./structures/IHumanFaceConformingIncidenceWitness";
-import type { IHumanFacePeriocularHostSample } from "./structures/IHumanFacePeriocularHostSample";
+import type { IHumanFaceConformingMaterialCut as MaterialCut } from "./structures/IHumanFaceConformingMaterialCut";
+import type { IHumanFaceConformingMaterialTriangle } from "./structures/IHumanFaceConformingMaterialTriangle";
+import type { IHumanFaceConformingPolygon } from "./structures/IHumanFaceConformingPolygon";
 import type { IHumanFaceConformingSheet } from "./structures/IHumanFaceConformingSheet";
 import type { IHumanFaceConformingSheetInput } from "./structures/IHumanFaceConformingSheetInput";
 import type { IHumanFaceConformingSheetVertex } from "./structures/IHumanFaceConformingSheetVertex";
+import type { IHumanFacePeriocularHostSample } from "./structures/IHumanFacePeriocularHostSample";
+import type { IHumanFacePeriocularMaterialEdgePoint } from "./structures/IHumanFacePeriocularMaterialEdgePoint";
 
 /**
  * Homogeneous material coordinates with a positive denominator; scale cancels from incidence predicates.
@@ -61,37 +60,61 @@ type MaterialArea = ReturnType<typeof Arithmetic.addArea>;
 export function createHumanFaceConformingSheet(
   input: IHumanFaceConformingSheetInput,
 ): IHumanFaceConformingSheet {
-  const { chart, samples, boundary: outlineIds, refinement }: IHumanFaceConformingSheetInput = input;
+  const {
+    chart,
+    samples,
+    boundary: outlineIds,
+    refinement,
+  }: IHumanFaceConformingSheetInput = input;
   if (!Number.isSafeInteger(refinement) || refinement < 1)
     throw new Error("A material domain needs a positive integer refinement.");
   const unitFactor: bigint = BigInt(refinement);
   const gridIds: number[] = [...outlineIds];
-  const gridUV: [number, number][] = gridIds.map((id: number): [number, number]  => {
-    const point: [number, number] | undefined = samples[id]?.materialPoint;
-    if (point === undefined || !point.every(Number.isFinite))
-      throw new Error(
-        "A conforming sheet needs every original material sample.",
-      );
-    return point;
-  });
+  const gridUV: [number, number][] = gridIds.map(
+    (id: number): [number, number] => {
+      const point: [number, number] | undefined = samples[id]?.materialPoint;
+      if (point === undefined || !point.every(Number.isFinite))
+        throw new Error(
+          "A conforming sheet needs every original material sample.",
+        );
+      return point;
+    },
+  );
   const allUV: number[] = [...chart.coordinates, ...gridUV.flat()];
   const binary: [bigint, number][] = allUV.map(Arithmetic.dyadic);
-  const fractionPowers: number[] = gridIds.flatMap((id: number): number[]  => {
-    const edge: IHumanFacePeriocularMaterialEdgePoint | undefined = samples[id].materialEdge;
+  const fractionPowers: number[] = gridIds.flatMap((id: number): number[] => {
+    const edge: IHumanFacePeriocularMaterialEdgePoint | undefined =
+      samples[id].materialEdge;
     if (edge === undefined) return [];
-    if (!Number.isFinite(edge.fraction) || edge.fraction < 0 || edge.fraction > 1)
-      throw new Error("A material edge point needs a finite fraction in its parent edge.");
+    if (
+      !Number.isFinite(edge.fraction) ||
+      edge.fraction < 0 ||
+      edge.fraction > 1
+    )
+      throw new Error(
+        "A material edge point needs a finite fraction in its parent edge.",
+      );
     const [n, power]: [bigint, number] = Arithmetic.dyadic(edge.fraction);
     return n === 0n ? [] : [power];
   });
-  const exponent: number = Math.min(
-    ...binary.filter(([n]: [bigint, number]): boolean  => n !== 0n).map(([, e]: [bigint, number]): number  => e),
-  ) + Math.min(0, ...fractionPowers);
+  const exponent: number =
+    Math.min(
+      ...binary
+        .filter(([n]: [bigint, number]): boolean => n !== 0n)
+        .map(([, e]: [bigint, number]): number => e),
+    ) + Math.min(0, ...fractionPowers);
   if (!Number.isFinite(exponent))
     throw new Error("A conforming chart needs nonzero material extent.");
-  const integers: bigint[] = binary.map(([n, e]: [bigint, number]): bigint  => (n << BigInt(e - exponent)) * unitFactor);
+  const integers: bigint[] = binary.map(
+    ([n, e]: [bigint, number]): bigint =>
+      (n << BigInt(e - exponent)) * unitFactor,
+  );
   const hostPoints: [bigint, bigint, bigint][] = chart.vertices.map(
-    (_: number, at: number): MaterialPoint => [integers[2 * at], integers[2 * at + 1], 1n],
+    (_: number, at: number): MaterialPoint => [
+      integers[2 * at],
+      integers[2 * at + 1],
+      1n,
+    ],
   );
   const gridPoints: Map<number, [bigint, bigint, bigint]> = new Map(
     gridIds.map((id: number, at: number): [number, MaterialPoint] => [
@@ -103,40 +126,72 @@ export function createHumanFaceConformingSheet(
       ],
     ]),
   );
-  const hostOrdinal: Map<number, number> = new Map(chart.sourceTriangles.map((id: number, at: number): [number, number]  => [id, at]));
-  const hostVertex: Map<number, number> = new Map(chart.vertices.map((vertex: number, at: number): [number, number]  => [vertex, at]));
+  const hostOrdinal: Map<number, number> = new Map(
+    chart.sourceTriangles.map((id: number, at: number): [number, number] => [
+      id,
+      at,
+    ]),
+  );
+  const hostVertex: Map<number, number> = new Map(
+    chart.vertices.map((vertex: number, at: number): [number, number] => [
+      vertex,
+      at,
+    ]),
+  );
   const nativeEdge: Set<string> = new Set<string>();
   for (let at: number = 0; at < chart.indices.length; at += 3)
     for (let corner: number = 0; corner < 3; corner++)
-      nativeEdge.add(Polygon.edge(
-        chart.vertices[chart.indices[at + corner]],
-        chart.vertices[chart.indices[at + (corner + 1) % 3]],
-      ));
+      nativeEdge.add(
+        Polygon.edge(
+          chart.vertices[chart.indices[at + corner]],
+          chart.vertices[chart.indices[at + ((corner + 1) % 3)]],
+        ),
+      );
   for (const id of gridIds) {
-    const edge: IHumanFacePeriocularMaterialEdgePoint | undefined = samples[id].materialEdge;
+    const edge: IHumanFacePeriocularMaterialEdgePoint | undefined =
+      samples[id].materialEdge;
     if (edge === undefined) continue;
     const [a, b]: [number, number] = edge.vertices;
-    const first: number | undefined = hostVertex.get(a), last: number | undefined = hostVertex.get(b);
+    const first: number | undefined = hostVertex.get(a),
+      last: number | undefined = hostVertex.get(b);
     const fraction: number = edge.fraction;
-    const seat: IHumanFaceSkinSeat = samples[id].seat, triangle: number | undefined = hostOrdinal.get(seat.triangle);
-    if (first === undefined || last === undefined || a === b ||
-      !nativeEdge.has(Polygon.edge(a, b)) || triangle === undefined ||
-      !Number.isFinite(fraction) || fraction < 0 || fraction > 1 ||
+    const seat: IHumanFaceSkinSeat = samples[id].seat,
+      triangle: number | undefined = hostOrdinal.get(seat.triangle);
+    if (
+      first === undefined ||
+      last === undefined ||
+      a === b ||
+      !nativeEdge.has(Polygon.edge(a, b)) ||
+      triangle === undefined ||
+      !Number.isFinite(fraction) ||
+      fraction < 0 ||
+      fraction > 1 ||
       !chart.indices.slice(3 * triangle, 3 * triangle + 3).includes(first) ||
       !chart.indices.slice(3 * triangle, 3 * triangle + 3).includes(last) ||
-      seat.weights.some((weight: number, corner: number): boolean  => {
-        const vertex: number = chart.vertices[chart.indices[3 * triangle + corner]];
-        return weight !== (vertex === a ? 1 - fraction : vertex === b ? fraction : 0);
-      }))
-      throw new Error("A material edge point needs its exact native parent and affine seat.");
+      seat.weights.some((weight: number, corner: number): boolean => {
+        const vertex: number =
+          chart.vertices[chart.indices[3 * triangle + corner]];
+        return (
+          weight !== (vertex === a ? 1 - fraction : vertex === b ? fraction : 0)
+        );
+      })
+    )
+      throw new Error(
+        "A material edge point needs its exact native parent and affine seat.",
+      );
     const [significand, power]: [bigint, number] = Arithmetic.dyadic(fraction);
     const denominator: bigint = power < 0 ? 1n << BigInt(-power) : 1n;
-    const numerator: bigint = power > 0 ? significand << BigInt(power) : significand;
+    const numerator: bigint =
+      power > 0 ? significand << BigInt(power) : significand;
     // The common unit includes every fraction's binary exponent, so both
     // parent coordinates are divisible by this denominator exactly.
     gridPoints.set(id, [
-      (hostPoints[first][0] * (denominator - numerator) + hostPoints[last][0] * numerator) / denominator,
-      (hostPoints[first][1] * (denominator - numerator) + hostPoints[last][1] * numerator) / denominator,
+      (hostPoints[first][0] * (denominator - numerator) +
+        hostPoints[last][0] * numerator) /
+        denominator,
+      (hostPoints[first][1] * (denominator - numerator) +
+        hostPoints[last][1] * numerator) /
+        denominator,
       1n,
     ]);
   }
@@ -148,10 +203,15 @@ export function createHumanFaceConformingSheet(
       throw new Error(
         "A conforming sample needs its resident source triangle.",
       );
-    const corner: number = seat.weights.findIndex((weight: number): boolean  => weight === 1);
+    const corner: number = seat.weights.findIndex(
+      (weight: number): boolean => weight === 1,
+    );
     if (
       corner < 0 ||
-      seat.weights.some((weight: number, index: number): boolean  => index !== corner && weight !== 0)
+      seat.weights.some(
+        (weight: number, index: number): boolean =>
+          index !== corner && weight !== 0,
+      )
     )
       continue;
     const host: number = chart.indices[3 * at + corner];
@@ -163,28 +223,37 @@ export function createHumanFaceConformingSheet(
     aliases.set(host, `g:${id}`);
   }
   const outline: IHumanFaceConformingPolygon = Polygon.outline(
-    gridIds.map((id: number): MaterialCut => ({
-      key: "g:" + id,
-      point: gridPoints.get(id)!,
-    })),
-  );
-  const materialTriangles: IHumanFaceConformingMaterialTriangle[] = Polygon.triangulate(outline.cuts).map((indices: [number, number, number]): IHumanFaceConformingMaterialTriangle  => {
-    const corners: [number, number, number] = indices.map(
-      (corner: number): number  => Number(outline.cuts[corner].key.slice(2)),
-    ) as [number, number, number];
-    return Refinement.triangle(
-      corners,
-      (id: number): [bigint, bigint, bigint]  => gridPoints.get(id)!,
-      (id: number): string  => "g:" + id,
-    );
-  });
-  const source: IHumanFaceConformingMaterialTriangle[] = chart.sourceTriangles.map((_: number, at: number): IHumanFaceConformingMaterialTriangle  =>
-    Refinement.triangle(
-      chart.indices.slice(3 * at, 3 * at + 3) as [number, number, number],
-      (id: number): [bigint, bigint, bigint]  => hostPoints[id],
-      (id: number): string  => "h:" + chart.vertices[id],
+    gridIds.map(
+      (id: number): MaterialCut => ({
+        key: "g:" + id,
+        point: gridPoints.get(id)!,
+      }),
     ),
   );
+  const materialTriangles: IHumanFaceConformingMaterialTriangle[] =
+    Polygon.triangulate(outline.cuts).map(
+      (
+        indices: [number, number, number],
+      ): IHumanFaceConformingMaterialTriangle => {
+        const corners: [number, number, number] = indices.map(
+          (corner: number): number => Number(outline.cuts[corner].key.slice(2)),
+        ) as [number, number, number];
+        return Refinement.triangle(
+          corners,
+          (id: number): [bigint, bigint, bigint] => gridPoints.get(id)!,
+          (id: number): string => "g:" + id,
+        );
+      },
+    );
+  const source: IHumanFaceConformingMaterialTriangle[] =
+    chart.sourceTriangles.map(
+      (_: number, at: number): IHumanFaceConformingMaterialTriangle =>
+        Refinement.triangle(
+          chart.indices.slice(3 * at, 3 * at + 3) as [number, number, number],
+          (id: number): [bigint, bigint, bigint] => hostPoints[id],
+          (id: number): string => "h:" + chart.vertices[id],
+        ),
+    );
   const result: IHumanFaceConformingSheet = {
     vertices: [],
     indices: [],
@@ -196,7 +265,9 @@ export function createHumanFaceConformingSheet(
   const gridDirections: number[] = [];
   for (const grid of Refinement.compile(materialTriangles, refinement)) {
     const corners: [number, number, number] = grid.originalCorners;
-    const originalPoints: [bigint, bigint, bigint][] = corners.map((id: number): [bigint, bigint, bigint]  => gridPoints.get(id)!);
+    const originalPoints: [bigint, bigint, bigint][] = corners.map(
+      (id: number): [bigint, bigint, bigint] => gridPoints.get(id)!,
+    );
     const direction: bigint = Arithmetic.orientation(...grid.points);
     if (direction <= 0n)
       throw new Error(
@@ -206,23 +277,39 @@ export function createHumanFaceConformingSheet(
     for (let at: number = 0; at < source.length; at++) {
       const host: IHumanFaceConformingMaterialTriangle = source[at];
       if (!overlap(grid.bounds, host.bounds)) continue;
-      const polygon: IHumanFaceConformingPolygon = Polygon.intersect(grid, host, aliases, chart.vertices);
+      const polygon: IHumanFaceConformingPolygon = Polygon.intersect(
+        grid,
+        host,
+        aliases,
+        chart.vertices,
+      );
       if (polygon.cuts.length < 3) continue;
       const area: [bigint, bigint] = polygon.area;
       if (area[0] === 0n) continue;
       covered = Arithmetic.addArea(covered, area);
-      const mapCut: (cut: MaterialCut) => number = (cut: MaterialCut): number => {
+      const mapCut: (cut: MaterialCut) => number = (
+        cut: MaterialCut,
+      ): number => {
         const prior: number | undefined = resident.get(cut.key);
         if (prior !== undefined) return prior;
         const index: number = result.vertices.length;
-        const original: IHumanFacePeriocularHostSample | undefined = cut.key.startsWith("g:")
-          ? samples[Number(cut.key.slice(2))]
-          : undefined;
+        const original: IHumanFacePeriocularHostSample | undefined =
+          cut.key.startsWith("g:")
+            ? samples[Number(cut.key.slice(2))]
+            : undefined;
         const vertex: IHumanFaceConformingSheetVertex = {
           provenance: cut.key,
           materialPoint: [
-            Arithmetic.numberAt(cut.point[0], cut.point[2] * unitFactor, exponent),
-            Arithmetic.numberAt(cut.point[1], cut.point[2] * unitFactor, exponent),
+            Arithmetic.numberAt(
+              cut.point[0],
+              cut.point[2] * unitFactor,
+              exponent,
+            ),
+            Arithmetic.numberAt(
+              cut.point[1],
+              cut.point[2] * unitFactor,
+              exponent,
+            ),
           ],
           seat:
             original === undefined
@@ -242,7 +329,11 @@ export function createHumanFaceConformingSheet(
         return index;
       };
       for (const piece of Polygon.triangulate(polygon.cuts)) {
-        result.indices.push(...piece.map((corner: number): number  => mapCut(polygon.cuts[corner])));
+        result.indices.push(
+          ...piece.map((corner: number): number =>
+            mapCut(polygon.cuts[corner]),
+          ),
+        );
         result.sourceTriangles.push(chart.sourceTriangles[at]);
         gridTriangles.push([...corners]);
         gridDirections.push(1);
@@ -255,14 +346,21 @@ export function createHumanFaceConformingSheet(
           JSON.stringify({
             grid: grid.corners,
             gridKeys: grid.keys,
-            gridPoints: grid.points.map((point: [bigint, bigint, bigint]): string[]  => point.map(String)),
+            gridPoints: grid.points.map(
+              (point: [bigint, bigint, bigint]): string[] => point.map(String),
+            ),
             originalDomain: corners,
             covered: covered.map(String),
             expected: String(expected),
           }),
       );
   }
-  result.boundaryEdges = boundary(result, gridTriangles, gridDirections, samples);
+  result.boundaryEdges = boundary(
+    result,
+    gridTriangles,
+    gridDirections,
+    samples,
+  );
   return result;
 }
 
@@ -286,7 +384,10 @@ function boundary(
   samples: readonly IHumanFacePeriocularHostSample[],
 ): [number, number][] {
   const indices: number[] = sheet.indices;
-  const incidence: Map<string, [number, number, number][]> = new Map<string, [number, number, number][]>();
+  const incidence: Map<string, [number, number, number][]> = new Map<
+    string,
+    [number, number, number][]
+  >();
   const refused: Set<string> = new Set<string>();
   let firstError: string | undefined;
   for (let at: number = 0; at < indices.length; at += 3) {
@@ -297,12 +398,14 @@ function boundary(
       const faces: [number, number, number][] = incidence.get(key) ?? [];
       if (faces.length >= 2) {
         refused.add(key);
-        firstError ??= "A conforming sheet edge must have at most two incident triangles.";
+        firstError ??=
+          "A conforming sheet edge must have at most two incident triangles.";
       } else if (faces.length === 1) {
         const prior: [number, number, number] = faces[0];
         if (prior[0] !== b || prior[1] !== a) {
           refused.add(key);
-          firstError ??= "Conforming interior triangles need opposite shared-edge orientation.";
+          firstError ??=
+            "Conforming interior triangles need opposite shared-edge orientation.";
         }
       }
       faces.push([a, b, at / 3]);
@@ -310,26 +413,55 @@ function boundary(
     }
   }
   if (firstError !== undefined) {
-    const witnesses: IHumanFaceConformingIncidenceWitness[] = [...refused].map((key: string): IHumanFaceConformingIncidenceWitness => {
-      const faces: [number, number, number][] = incidence.get(key)!;
-      const [a, b]: [number, number, number] = faces[0];
-      const edge: [number, number] = a < b ? [a, b] : [b, a];
-      const triangles: number[] = faces.map((face: [number, number, number]): number  => face[2]);
-      return {
-        reason: faces.length > 2 ? "nonmanifold" : "orientation",
-        edge,
-        triangles,
-        directions: faces.map((face: [number, number, number]): [number, number]  => [face[0], face[1]]),
-        sourceTriangles: triangles.map((triangle: number): number  => sheet.sourceTriangles[triangle]),
-        gridTriangles: triangles.map((triangle: number): [number, number, number]  => [...gridTriangles[triangle]]),
-        gridDirections: triangles.map((triangle: number): number  => gridDirections[triangle]),
-        vertices: edge.map((vertex: number): IHumanFaceConformingSheetVertex  => sheet.vertices[vertex]),
-        gridSamples: triangles.map((triangle: number): IHumanFacePeriocularHostSample[]  => gridTriangles[triangle].map((vertex: number): IHumanFacePeriocularHostSample  => samples[vertex])),
-      };
-    });
+    const witnesses: IHumanFaceConformingIncidenceWitness[] = [...refused].map(
+      (key: string): IHumanFaceConformingIncidenceWitness => {
+        const faces: [number, number, number][] = incidence.get(key)!;
+        const [a, b]: [number, number, number] = faces[0];
+        const edge: [number, number] = a < b ? [a, b] : [b, a];
+        const triangles: number[] = faces.map(
+          (face: [number, number, number]): number => face[2],
+        );
+        return {
+          reason: faces.length > 2 ? "nonmanifold" : "orientation",
+          edge,
+          triangles,
+          directions: faces.map(
+            (face: [number, number, number]): [number, number] => [
+              face[0],
+              face[1],
+            ],
+          ),
+          sourceTriangles: triangles.map(
+            (triangle: number): number => sheet.sourceTriangles[triangle],
+          ),
+          gridTriangles: triangles.map(
+            (triangle: number): [number, number, number] => [
+              ...gridTriangles[triangle],
+            ],
+          ),
+          gridDirections: triangles.map(
+            (triangle: number): number => gridDirections[triangle],
+          ),
+          vertices: edge.map(
+            (vertex: number): IHumanFaceConformingSheetVertex =>
+              sheet.vertices[vertex],
+          ),
+          gridSamples: triangles.map(
+            (triangle: number): IHumanFacePeriocularHostSample[] =>
+              gridTriangles[triangle].map(
+                (vertex: number): IHumanFacePeriocularHostSample =>
+                  samples[vertex],
+              ),
+          ),
+        };
+      },
+    );
     throw new Error(firstError + " incidence:" + JSON.stringify(witnesses));
   }
-  const edges: Map<string, [number, number]> = new Map<string, [number, number]>();
+  const edges: Map<string, [number, number]> = new Map<
+    string,
+    [number, number]
+  >();
   for (const [key, faces] of incidence)
     if (faces.length === 1) edges.set(key, [faces[0][0], faces[0][1]]);
   const next: Map<number, number> = new Map<number, number>();

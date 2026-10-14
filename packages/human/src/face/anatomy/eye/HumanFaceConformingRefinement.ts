@@ -28,14 +28,16 @@ export class HumanFaceConformingRefinement {
    * @evidence contracts/performance.md#efficient-algorithms Three callback lookups and four extrema over three points require bounded work, with exact integer comparison cost determined by bit widths.
    * @evidence contracts/performance.md#reuse-equivalent-work The same exact points and original corner copy serve later bounds, predicates and parent correspondence without rereading geometry.
    * @evidence contracts/performance.md#bound-retention-and-release-resources The result owns its key, original-corner copy, point container and bounds arrays; corners and callback-supplied exact point tuples remain borrowed. No callback lookup state or live resource is retained.
- */
+   */
   static triangle(
     corners: [number, number, number],
     point: (id: number) => MaterialCut["point"],
     key: (id: number) => string,
   ): MaterialTriangle {
     const points: MaterialTriangle["points"] = [
-      point(corners[0]), point(corners[1]), point(corners[2]),
+      point(corners[0]),
+      point(corners[1]),
+      point(corners[2]),
     ];
     return {
       corners,
@@ -59,32 +61,59 @@ export class HumanFaceConformingRefinement {
    * @evidence contracts/performance.md#efficient-algorithms T parents at D divisions produce T*D squared triangles and proportional key/ordinal work; exact integer arithmetic adds operand-bit-width cost.
    * @evidence contracts/performance.md#reuse-equivalent-work One compile-local canonical-key map reuses shared edge residents across parents and each parent's supplied points are reused for its lattice.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Result triangles are caller-owned; ordinal maps and per-parent cuts expire while output memory grows with actual requested refinement, without an independent D cap.
- */
-  static compile(domain: readonly MaterialTriangle[], divisions: number): MaterialTriangle[] {
+   */
+  static compile(
+    domain: readonly MaterialTriangle[],
+    divisions: number,
+  ): MaterialTriangle[] {
     const ordinals: Map<string, number> = new Map<string, number>();
     for (const triangle of domain)
-      triangle.keys.forEach((key: string, at: number): Map<string, number>  => ordinals.set(key, triangle.corners[at]));
+      triangle.keys.forEach(
+        (key: string, at: number): Map<string, number> =>
+          ordinals.set(key, triangle.corners[at]),
+      );
     let next: number = Math.max(-1, ...ordinals.values()) + 1;
     const result: MaterialTriangle[] = [];
     for (const parent of domain) {
-      const original: [MaterialCut, MaterialCut, MaterialCut] = parent.keys.map((key: string, at: number): MaterialCut => ({
-        key, point: parent.points[at],
-      })) as [MaterialCut, MaterialCut, MaterialCut];
-      for (const cuts of this.refine(original, divisions, JSON.stringify(parent.originalCorners))) {
-        const corners: [number, number, number] = cuts.map((cut: MaterialCut): number  => {
-          let ordinal: number | undefined = ordinals.get(cut.key);
-          if (ordinal === undefined) ordinals.set(cut.key, (ordinal = next++));
-          return ordinal;
-        }) as [number, number, number];
-        const points: [[bigint, bigint, bigint], [bigint, bigint, bigint], [bigint, bigint, bigint]] = cuts.map((cut: MaterialCut): MaterialCut["point"] => {
+      const original: [MaterialCut, MaterialCut, MaterialCut] = parent.keys.map(
+        (key: string, at: number): MaterialCut => ({
+          key,
+          point: parent.points[at],
+        }),
+      ) as [MaterialCut, MaterialCut, MaterialCut];
+      for (const cuts of this.refine(
+        original,
+        divisions,
+        JSON.stringify(parent.originalCorners),
+      )) {
+        const corners: [number, number, number] = cuts.map(
+          (cut: MaterialCut): number => {
+            let ordinal: number | undefined = ordinals.get(cut.key);
+            if (ordinal === undefined)
+              ordinals.set(cut.key, (ordinal = next++));
+            return ordinal;
+          },
+        ) as [number, number, number];
+        const points: [
+          [bigint, bigint, bigint],
+          [bigint, bigint, bigint],
+          [bigint, bigint, bigint],
+        ] = cuts.map((cut: MaterialCut): MaterialCut["point"] => {
           const [x, y, denominator]: [bigint, bigint, bigint] = cut.point;
           if (x % denominator !== 0n || y % denominator !== 0n)
-            throw new Error("Material refinement needs its exact common integer unit.");
+            throw new Error(
+              "Material refinement needs its exact common integer unit.",
+            );
           return [x / denominator, y / denominator, 1n];
         }) as MaterialTriangle["points"];
         result.push({
-          corners, points,
-          keys: cuts.map((cut: MaterialCut): string  => cut.key) as [string, string, string],
+          corners,
+          points,
+          keys: cuts.map((cut: MaterialCut): string => cut.key) as [
+            string,
+            string,
+            string,
+          ],
           originalCorners: [...parent.originalCorners],
           bounds: this.bounds(points),
         });
@@ -99,14 +128,31 @@ export class HumanFaceConformingRefinement {
    * Three unit-denominator points supply exact minima/maxima before intersection predicates; a non-unit denominator refuses. The box rejects disjoint candidates without certifying overlap or rounding the exact points.
    *
    * Four three-coordinate scans have fixed BigInt comparison count. The triangle retains their four-extrema tuple for source/grid candidates; this helper retains no point array or resource.
- */
-  private static bounds(points: MaterialTriangle["points"]): MaterialTriangle["bounds"] {
-    if (points.some((point: [bigint, bigint, bigint]): boolean  => point[2] !== 1n))
-      throw new Error("Material triangle bounds need the exact common integer unit.");
-    const axis: (at: number, minimum: boolean) => bigint = (at: number, minimum: boolean): bigint =>
-      points.reduce((value: bigint, point: [bigint, bigint, bigint]): bigint  =>
-        minimum ? (point[at] < value ? point[at] : value) :
-          (point[at] > value ? point[at] : value), points[0][at]);
+   */
+  private static bounds(
+    points: MaterialTriangle["points"],
+  ): MaterialTriangle["bounds"] {
+    if (
+      points.some((point: [bigint, bigint, bigint]): boolean => point[2] !== 1n)
+    )
+      throw new Error(
+        "Material triangle bounds need the exact common integer unit.",
+      );
+    const axis: (at: number, minimum: boolean) => bigint = (
+      at: number,
+      minimum: boolean,
+    ): bigint =>
+      points.reduce(
+        (value: bigint, point: [bigint, bigint, bigint]): bigint =>
+          minimum
+            ? point[at] < value
+              ? point[at]
+              : value
+            : point[at] > value
+              ? point[at]
+              : value,
+        points[0][at],
+      );
     return [axis(0, true), axis(1, true), axis(0, false), axis(1, false)];
   }
 
@@ -121,7 +167,7 @@ export class HumanFaceConformingRefinement {
    * @evidence contracts/performance.md#efficient-algorithms D squared child triangles and O(D squared) lattice points dominate time/space; BigInt interpolation cost depends on coordinate/denominator sizes and no independent D upper cap is enforced here.
    * @evidence contracts/performance.md#reuse-equivalent-work The address-keyed point map reuses each barycentric station for all child cells that reference it, including original corner identity reuse.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Returned cut triples share their caller-owned point records; the local map expires and no source/refinement cache or handle survives.
- */
+   */
   static refine(
     triangle: [MaterialCut, MaterialCut, MaterialCut],
     divisions: number,
@@ -130,36 +176,61 @@ export class HumanFaceConformingRefinement {
     if (!Number.isSafeInteger(divisions) || divisions < 1)
       throw new Error("Material refinement needs a positive integer density.");
     if (
-      triangle.some((cut: MaterialCut): boolean  => cut.point[2] <= 0n) ||
-      Arithmetic.orientation(triangle[0].point, triangle[1].point, triangle[2].point) <= 0n
+      triangle.some((cut: MaterialCut): boolean => cut.point[2] <= 0n) ||
+      Arithmetic.orientation(
+        triangle[0].point,
+        triangle[1].point,
+        triangle[2].point,
+      ) <= 0n
     )
       throw new Error("Material refinement needs one positive exact triangle.");
     const points: Map<string, MaterialCut> = new Map<string, MaterialCut>();
-    const point: (i: number, j: number) => MaterialCut = (i: number, j: number): MaterialCut => {
+    const point: (i: number, j: number) => MaterialCut = (
+      i: number,
+      j: number,
+    ): MaterialCut => {
       const address: string = i + ":" + j;
       const prior: MaterialCut | undefined = points.get(address);
       if (prior !== undefined) return prior;
       const weights: number[] = [divisions - i - j, i, j];
-      const unit: number = weights.findIndex((weight: number): boolean  => weight === divisions);
+      const unit: number = weights.findIndex(
+        (weight: number): boolean => weight === divisions,
+      );
       if (unit >= 0) return triangle[unit];
-      const zero: number = weights.findIndex((weight: number): boolean  => weight === 0);
+      const zero: number = weights.findIndex(
+        (weight: number): boolean => weight === 0,
+      );
       let key: string;
       if (zero >= 0) {
-        const a: number = (zero + 1) % 3, b: number = (zero + 2) % 3;
+        const a: number = (zero + 1) % 3,
+          b: number = (zero + 2) % 3;
         const forward: boolean = triangle[a].key < triangle[b].key;
-        key = "r:e:" + JSON.stringify([
-          triangle[forward ? a : b].key, triangle[forward ? b : a].key,
-          weights[forward ? b : a], divisions,
-        ]);
+        key =
+          "r:e:" +
+          JSON.stringify([
+            triangle[forward ? a : b].key,
+            triangle[forward ? b : a].key,
+            weights[forward ? b : a],
+            divisions,
+          ]);
       } else key = "r:t:" + JSON.stringify([identity, i, j, divisions]);
-      const [a, b, c]: [bigint, bigint, bigint][] = triangle.map((cut: MaterialCut): [bigint, bigint, bigint]  => cut.point);
-      const homogeneous: MaterialCut["point"] = [0n, 0n, BigInt(divisions) * a[2] * b[2] * c[2]];
+      const [a, b, c]: [bigint, bigint, bigint][] = triangle.map(
+        (cut: MaterialCut): [bigint, bigint, bigint] => cut.point,
+      );
+      const homogeneous: MaterialCut["point"] = [
+        0n,
+        0n,
+        BigInt(divisions) * a[2] * b[2] * c[2],
+      ];
       for (const axis of [0, 1])
         homogeneous[axis] =
           BigInt(weights[0]) * a[axis] * b[2] * c[2] +
           BigInt(weights[1]) * b[axis] * a[2] * c[2] +
           BigInt(weights[2]) * c[axis] * a[2] * b[2];
-      const cut: { key: string; point: [bigint, bigint, bigint]; } = { key, point: homogeneous };
+      const cut: { key: string; point: [bigint, bigint, bigint] } = {
+        key,
+        point: homogeneous,
+      };
       points.set(address, cut);
       return cut;
     };
@@ -172,5 +243,4 @@ export class HumanFaceConformingRefinement {
       }
     return result;
   }
-
 }

@@ -57,11 +57,20 @@ export class HumanFaceOcularCapMetric {
     };
     this.profile = profile;
     this.length = Fraction.from(profile.limbus);
-    const square: IHumanExactFraction = Fraction.multiply(this.length, this.length);
+    const square: IHumanExactFraction = Fraction.multiply(
+      this.length,
+      this.length,
+    );
     const curvature: IHumanExactFraction = Fraction.from(profile.curvature),
       rim: IHumanExactFraction = Fraction.from(profile.rim);
-    const inverseCurvature: IHumanExactFraction = Fraction.divide(Fraction.create(1n), curvature);
-    const inverseRim: IHumanExactFraction = Fraction.divide(Fraction.create(1n), rim);
+    const inverseCurvature: IHumanExactFraction = Fraction.divide(
+      Fraction.create(1n),
+      curvature,
+    );
+    const inverseRim: IHumanExactFraction = Fraction.divide(
+      Fraction.create(1n),
+      rim,
+    );
     this.a = Fraction.add(
       rim,
       Fraction.multiply(
@@ -90,7 +99,7 @@ export class HumanFaceOcularCapMetric {
    * @evidence contracts/performance.md#efficient-algorithms One rational division and fixed quartic evaluation have arithmetic cost driven by operand bit widths.
    * @evidence contracts/performance.md#reuse-equivalent-work Captured coefficients are reused and the same parameter evaluator serves derivative/nearest-point bound consumers.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Only one returned fraction survives; temporaries expire and no radius/height cache or resource is retained.
- */
+   */
   heightAtRadius(radius: IHumanExactFraction): IHumanExactFraction {
     return this.heightAtParameter(Fraction.divide(radius, this.length));
   }
@@ -104,9 +113,12 @@ export class HumanFaceOcularCapMetric {
    * @evidence contracts/performance.md#efficient-algorithms A fixed number of rational squares/products/divisions is evaluated per radius; cost depends on integer operand widths.
    * @evidence contracts/performance.md#reuse-equivalent-work One captured L/B/C set supplies every derivative query and the cell metric selects its actual interval extrema.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Returned derivative fractions are caller-owned; no queried-radius population or live resource is retained.
- */
+   */
   secondDerivativeAtRadius(radius: IHumanExactFraction): IHumanExactFraction {
-    const square: IHumanExactFraction = Fraction.multiply(this.length, this.length);
+    const square: IHumanExactFraction = Fraction.multiply(
+      this.length,
+      this.length,
+    );
     return Fraction.add(
       Fraction.divide(Fraction.multiply(Fraction.create(2n), this.b), square),
       Fraction.divide(
@@ -128,13 +140,16 @@ export class HumanFaceOcularCapMetric {
    * @evidence contracts/performance.md#efficient-algorithms The degree-at-most-seven polynomial bounds candidate count; dominant work is exact Sturm refinement and rational interval/cost/square-root arithmetic, not a fixed sampling grid.
    * @evidence contracts/performance.md#reuse-equivalent-work Captured profile coefficients are reused, but query-dependent stationary roots and costs are recomputed for actual rho/zeta values.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Returned radius/bounds/error are scalars; polynomial fractions, isolated intervals and candidate arrays expire on return/refusal with no retained query cache or task.
- */
+   */
   foot(rho: number, zeta: number): IHumanFaceOcularCapFoot {
     const zero: IHumanExactFraction = Fraction.create(0n),
       two: IHumanExactFraction = Fraction.create(2n);
     const four: IHumanExactFraction = Fraction.create(4n),
       six: IHumanExactFraction = Fraction.create(6n);
-    const axial: IHumanExactFraction = Fraction.add(this.a, Fraction.negate(Fraction.from(zeta)));
+    const axial: IHumanExactFraction = Fraction.add(
+      this.a,
+      Fraction.negate(Fraction.from(zeta)),
+    );
     const polynomial: IHumanExactFraction[] = [
       Fraction.negate(Fraction.multiply(this.length, Fraction.from(rho))),
       Fraction.add(
@@ -151,7 +166,9 @@ export class HumanFaceOcularCapMetric {
       zero,
       Fraction.multiply(four, Fraction.multiply(this.c, this.c)),
     ];
-    const endpoint: (value: number) => IHumanPolynomialRoot = (value: number): IHumanPolynomialRoot => ({
+    const endpoint: (value: number) => IHumanPolynomialRoot = (
+      value: number,
+    ): IHumanPolynomialRoot => ({
       lower: Fraction.from(value),
       upper: Fraction.from(value),
       parameter: value,
@@ -160,10 +177,17 @@ export class HumanFaceOcularCapMetric {
       endpoint(0),
       ...isolateHumanPolynomialRoots(polynomial),
       endpoint(1),
-    ].sort((a: IHumanPolynomialRoot, b: IHumanPolynomialRoot): number  => a.parameter - b.parameter);
-    const height: (t: IHumanExactFraction) => IHumanExactFraction = (t: IHumanExactFraction): IHumanExactFraction =>
-      this.heightAtParameter(t);
-    const squaredInterval: (a: IHumanExactFraction, b: IHumanExactFraction) => [IHumanExactFraction, IHumanExactFraction] = (
+    ].sort(
+      (a: IHumanPolynomialRoot, b: IHumanPolynomialRoot): number =>
+        a.parameter - b.parameter,
+    );
+    const height: (t: IHumanExactFraction) => IHumanExactFraction = (
+      t: IHumanExactFraction,
+    ): IHumanExactFraction => this.heightAtParameter(t);
+    const squaredInterval: (
+      a: IHumanExactFraction,
+      b: IHumanExactFraction,
+    ) => [IHumanExactFraction, IHumanExactFraction] = (
       a: IHumanExactFraction,
       b: IHumanExactFraction,
     ): [IHumanExactFraction, IHumanExactFraction] => {
@@ -186,31 +210,48 @@ export class HumanFaceOcularCapMetric {
     for (const candidate of candidates) {
       const parameter: number = candidate.parameter;
       const radius: number = parameter * this.profile.limbus;
-      const radialBounds: [IHumanExactFraction, IHumanExactFraction] = squaredInterval(
-        Fraction.add(
-          Fraction.multiply(this.length, candidate.lower),
-          Fraction.negate(radial),
-        ),
-        Fraction.add(
-          Fraction.multiply(this.length, candidate.upper),
-          Fraction.negate(radial),
-        ),
+      const radialBounds: [IHumanExactFraction, IHumanExactFraction] =
+        squaredInterval(
+          Fraction.add(
+            Fraction.multiply(this.length, candidate.lower),
+            Fraction.negate(radial),
+          ),
+          Fraction.add(
+            Fraction.multiply(this.length, candidate.upper),
+            Fraction.negate(radial),
+          ),
+        );
+      const axialBounds: [IHumanExactFraction, IHumanExactFraction] =
+        squaredInterval(
+          Fraction.add(
+            height(candidate.upper),
+            Fraction.negate(axialCoordinate),
+          ),
+          Fraction.add(
+            height(candidate.lower),
+            Fraction.negate(axialCoordinate),
+          ),
+        );
+      const ownLower: IHumanExactFraction = Fraction.add(
+        radialBounds[0],
+        axialBounds[0],
       );
-      const axialBounds: [IHumanExactFraction, IHumanExactFraction] = squaredInterval(
-        Fraction.add(height(candidate.upper), Fraction.negate(axialCoordinate)),
-        Fraction.add(height(candidate.lower), Fraction.negate(axialCoordinate)),
-      );
-      const ownLower: IHumanExactFraction = Fraction.add(radialBounds[0], axialBounds[0]);
       if (lower === undefined || Fraction.compare(ownLower, lower) < 0)
         lower = ownLower;
       // A represented radius remains a feasible point of the same real cap.
       // Its factored output rounding is recorded separately, not relabelled
       // an exact-surface minimum or used to alter the profile.
-      const r: IHumanExactFraction = Fraction.add(Fraction.from(radius), Fraction.negate(radial));
+      const r: IHumanExactFraction = Fraction.add(
+        Fraction.from(radius),
+        Fraction.negate(radial),
+      );
       const exactHeight: IHumanExactFraction = height(
         Fraction.divide(Fraction.from(radius), this.length),
       );
-      const z: IHumanExactFraction = Fraction.add(exactHeight, Fraction.negate(axialCoordinate));
+      const z: IHumanExactFraction = Fraction.add(
+        exactHeight,
+        Fraction.negate(axialCoordinate),
+      );
       const ownUpper: IHumanExactFraction = Fraction.add(
         Fraction.multiply(r, r),
         Fraction.multiply(z, z),
@@ -241,7 +282,7 @@ export class HumanFaceOcularCapMetric {
    * The exact fraction expression a+B*t squared+C*t fourth is shared by radial-height and foot interval/cost calculations, without output rounding or sample correction.
    *
    * One parameter square serves both terms in a fixed number of bit-width-dependent fraction products/sums. Only the returned fraction escapes; temporary fractions expire without retained state or resources.
- */
+   */
   private heightAtParameter(t: IHumanExactFraction): IHumanExactFraction {
     const q: IHumanExactFraction = Fraction.multiply(t, t);
     return Fraction.add(

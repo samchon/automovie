@@ -55,7 +55,8 @@ export function buildPortraitCornea(input: IPortraitCornea): IAutoMovieMesh {
     input.rimLift <= input.thickness ||
     input.extents.length < 3 ||
     input.extents.some(
-      (value: number): boolean  => !Number.isFinite(value) || value <= 0 || value > input.radius,
+      (value: number): boolean =>
+        !Number.isFinite(value) || value <= 0 || value > input.radius,
     ) ||
     !Number.isInteger(input.radialSamples) ||
     input.radialSamples < 1
@@ -66,9 +67,16 @@ export function buildPortraitCornea(input: IPortraitCornea): IAutoMovieMesh {
   const columns: number = input.extents.length,
     positions: number[] = [],
     indices: number[] = [];
-  const cornealRim: number = Math.sqrt(input.curvature ** 2 - input.radius ** 2);
-  const globeRim: number = Math.sqrt(input.globeRadius ** 2 - input.radius ** 2);
-  const point: (radius: number, angle: number) => void = (radius: number, angle: number): void => {
+  const cornealRim: number = Math.sqrt(
+    input.curvature ** 2 - input.radius ** 2,
+  );
+  const globeRim: number = Math.sqrt(
+    input.globeRadius ** 2 - input.radius ** 2,
+  );
+  const point: (radius: number, angle: number) => void = (
+    radius: number,
+    angle: number,
+  ): void => {
     const x: number = input.center.x + radius * Math.cos(angle),
       y: number = input.center.y - radius * Math.sin(angle);
     const sag: number =
@@ -115,7 +123,8 @@ export function buildPortraitCornea(input: IPortraitCornea): IAutoMovieMesh {
     );
   for (let column: number = 0; column < columns; column++) {
     const a: number = 1 + (input.radialSamples - 1) * columns + column,
-      b: number = 1 + (input.radialSamples - 1) * columns + ((column + 1) % columns);
+      b: number =
+        1 + (input.radialSamples - 1) * columns + ((column + 1) % columns);
     indices.push(a, b, a + frontCount, b, b + frontCount, a + frontCount);
   }
   return {

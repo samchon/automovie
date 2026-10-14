@@ -32,7 +32,7 @@ export class HumanFaceConformingMaterialArithmetic {
    * @evidence contracts/performance.md#efficient-algorithms Binary64 decomposition reads a fixed eight-byte representation and creates bounded integer/exponent output.
    * @evidence contracts/performance.md#reuse-equivalent-work Every material input uses HumanBinary64Arithmetic.dyadic; this single-value adapter coordinates no cache or in-flight work.
    * @evidence contracts/performance.md#bound-retention-and-release-resources The returned pair is owned and no source array, handle or mutable arithmetic buffer survives the delegated call.
- */
+   */
   static dyadic(value: number): [bigint, number] {
     return HumanBinary64Arithmetic.dyadic(value);
   }
@@ -47,7 +47,7 @@ export class HumanFaceConformingMaterialArithmetic {
    * @evidence contracts/performance.md#efficient-algorithms The determinant uses a fixed number of BigInt multiplications/additions whose cost depends on represented integer bit widths.
    * @evidence contracts/performance.md#reuse-equivalent-work All overlay consumers share the same determinant implementation, while each current triple is evaluated without a stale point-identity cache.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Only one BigInt result escapes and no point population or resource is retained by the stateless method.
- */
+   */
   static orientation(
     a: MaterialPoint,
     b: MaterialPoint,
@@ -70,7 +70,7 @@ export class HumanFaceConformingMaterialArithmetic {
    * @evidence contracts/performance.md#efficient-algorithms Two cross-products and a Euclidean remainder loop dominate; both time and temporary integer size depend on numerator/denominator bit widths.
    * @evidence contracts/performance.md#reuse-equivalent-work Each caller reuses the returned reduced sum for its next fan/coverage term; this operation has no cross-request mutable cache.
    * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the reduced pair and all multiplication/GCD temporaries expire, acquiring no task or handle.
- */
+   */
   static addArea(a: MaterialArea, b: MaterialArea): MaterialArea {
     const numerator: bigint = a[0] * b[1] + b[0] * a[1],
       denominator: bigint = a[1] * b[1];
@@ -90,7 +90,7 @@ export class HumanFaceConformingMaterialArithmetic {
    * @evidence contracts/performance.md#efficient-algorithms Cost includes operand-bit-length analysis, integer shifts/division and bounded final IEEE packing; it is not assumed constant for arbitrary BigInt inputs.
    * @evidence contracts/performance.md#reuse-equivalent-work Material UV and barycentric output share the same common conversion owner without retaining changed-rational results.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Only the returned number survives; rational input remains caller-owned and no numeric buffer/resource is retained.
- */
+   */
   static numberAt(
     numerator: bigint,
     denominator: bigint,
@@ -109,7 +109,7 @@ export class HumanFaceConformingMaterialArithmetic {
    * @evidence contracts/performance.md#efficient-algorithms One area and three subdeterminants/conversions use fixed operation counts with cost driven by BigInt bit widths.
    * @evidence contracts/performance.md#reuse-equivalent-work One original area/denominator is reused for all three weights and the shared arithmetic owner performs every output conversion.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Three returned numbers are owned; exact determinant/fraction temporaries expire without retaining the triangle or query.
- */
+   */
   static barycentric(
     triangle: readonly MaterialPoint[],
     point: MaterialPoint,
@@ -121,7 +121,7 @@ export class HumanFaceConformingMaterialArithmetic {
     );
     const denominator: bigint = area * point[2];
     const sign: 1n | -1n = denominator < 0n ? -1n : 1n;
-    return [0, 1, 2].map((at: number): number  =>
+    return [0, 1, 2].map((at: number): number =>
       HumanFaceConformingMaterialArithmetic.numberAt(
         sign *
           HumanFaceConformingMaterialArithmetic.orientation(

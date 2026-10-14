@@ -1,14 +1,13 @@
-import type { IHumanExactFraction } from "../../../common/measure/IHumanExactFraction";
-import type { IHumanFaceOcularCapFoot } from "./structures/IHumanFaceOcularCapFoot";
-
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanBinary64Arithmetic } from "../../../common/measure/HumanBinary64Arithmetic";
 import { HumanExactFraction as Fraction } from "../../../common/measure/HumanExactFraction";
+import type { IHumanExactFraction } from "../../../common/measure/IHumanExactFraction";
 import { HumanFaceOcularCapMetric } from "./HumanFaceOcularCapMetric";
 import { integrateHumanFaceOcularMeridian } from "./integrateHumanFaceOcularMeridian";
 import type { resolveHumanFaceOpticalProfile } from "./resolveHumanFaceOpticalProfile";
+import type { IHumanFaceOcularCapFoot } from "./structures/IHumanFaceOcularCapFoot";
 import type { IHumanFaceOcularSurface } from "./structures/IHumanFaceOcularSurface";
 
 /**
@@ -96,14 +95,37 @@ export function createHumanFaceOcularSurface(
     throw new Error(
       "An ocular surface needs its qualified optical axis and radial frame.",
     );
-  const { radius, limbus }: { radius: number; limbus: number; curvature: number; thickness: number; iris: number; aperture: number; depth: number; rim: number; apex: number; irisZ: number; height: (r: number) => number; slope: (r: number) => number; } = profile;
+  const {
+    radius,
+    limbus,
+  }: {
+    radius: number;
+    limbus: number;
+    curvature: number;
+    thickness: number;
+    iris: number;
+    aperture: number;
+    depth: number;
+    rim: number;
+    apex: number;
+    irisZ: number;
+    height: (r: number) => number;
+    slope: (r: number) => number;
+  } = profile;
   const capArc: number = integrateHumanFaceOcularMeridian(profile, limbus);
   const limbusAngle: number = Math.atan2(limbus, profile.rim);
-  const underCap: (rho: number, zeta: number) => boolean = (rho: number, zeta: number): boolean =>
-    rho < limbus && zeta > 0;
-  const capMetric: HumanFaceOcularCapMetric = new HumanFaceOcularCapMetric(profile);
+  const underCap: (rho: number, zeta: number) => boolean = (
+    rho: number,
+    zeta: number,
+  ): boolean => rho < limbus && zeta > 0;
+  const capMetric: HumanFaceOcularCapMetric = new HumanFaceOcularCapMetric(
+    profile,
+  );
   const radiusFraction: IHumanExactFraction = Fraction.from(radius);
-  const radiusSquare: IHumanExactFraction = Fraction.multiply(radiusFraction, radiusFraction);
+  const radiusSquare: IHumanExactFraction = Fraction.multiply(
+    radiusFraction,
+    radiusFraction,
+  );
   const limbusSquare: IHumanExactFraction = Fraction.multiply(
     Fraction.from(limbus),
     Fraction.from(limbus),
@@ -121,7 +143,7 @@ export function createHumanFaceOcularSurface(
     center: { ...center },
     axis: { ...axis },
     hullDeviationMetres,
-    meridianArc: (point: IAutoMovieVector3): number  => {
+    meridianArc: (point: IAutoMovieVector3): number => {
       const offset: IAutoMovieVector3 = Vector3.subtract(point, center);
       const zeta: number = Vector3.dot(offset, axis);
       const rho: number = Vector3.length(
@@ -131,24 +153,42 @@ export function createHumanFaceOcularSurface(
         ? integrateHumanFaceOcularMeridian(profile, rho)
         : capArc + radius * (Math.atan2(rho, zeta) - limbusAngle);
     },
-    project: (point: IAutoMovieVector3): { point: IAutoMovieVector3; normal: IAutoMovieVector3; signedDistance: number; distanceErrorMetres: number; }  => {
+    project: (
+      point: IAutoMovieVector3,
+    ): {
+      point: IAutoMovieVector3;
+      normal: IAutoMovieVector3;
+      signedDistance: number;
+      distanceErrorMetres: number;
+    } => {
       const offset: IAutoMovieVector3 = Vector3.subtract(point, center);
       const zeta: number = Vector3.dot(offset, axis);
-      const radial: IAutoMovieVector3 = Vector3.subtract(offset, Vector3.scale(axis, zeta));
+      const radial: IAutoMovieVector3 = Vector3.subtract(
+        offset,
+        Vector3.scale(axis, zeta),
+      );
       const rho: number = Vector3.length(radial);
       const outward: IAutoMovieVector3 =
         rho === 0 ? lateral : Vector3.normalize(radial);
-      const place: (r: number, z: number) => IAutoMovieVector3 = (r: number, z: number): IAutoMovieVector3 =>
+      const place: (r: number, z: number) => IAutoMovieVector3 = (
+        r: number,
+        z: number,
+      ): IAutoMovieVector3 =>
         Vector3.add(
           center,
           Vector3.add(Vector3.scale(outward, r), Vector3.scale(axis, z)),
         );
-      const direction: (r: number, z: number) => IAutoMovieVector3 = (r: number, z: number): IAutoMovieVector3 =>
+      const direction: (r: number, z: number) => IAutoMovieVector3 = (
+        r: number,
+        z: number,
+      ): IAutoMovieVector3 =>
         Vector3.normalize(
           Vector3.add(Vector3.scale(outward, r), Vector3.scale(axis, z)),
         );
       const length: number = Math.hypot(rho, zeta);
-      const meridianDirection: IAutoMovieVector3 = Vector3.normalize(Vector3.create(rho, 0, zeta));
+      const meridianDirection: IAutoMovieVector3 = Vector3.normalize(
+        Vector3.create(rho, 0, zeta),
+      );
       const majorInput: number = Math.max(rho, Math.abs(zeta));
       const majorDirection: number =
         rho >= Math.abs(zeta)
@@ -164,7 +204,9 @@ export function createHumanFaceOcularSurface(
               Fraction.multiply(radiusFraction, Fraction.from(majorDirection)),
               Fraction.from(majorInput),
             );
-      const sphereComponent: (component: number) => number = (component: number): number =>
+      const sphereComponent: (component: number) => number = (
+        component: number,
+      ): number =>
         Fraction.number(
           Fraction.multiply(sphereFactor, Fraction.from(component)),
         );
@@ -229,13 +271,17 @@ export function createHumanFaceOcularSurface(
             )[1];
       const sphereHeight: number =
         rho < radius ? Math.sqrt((radius - rho) * (radius + rho)) : 0;
-      const upperHeight: number = rho < limbus ? profile.height(rho) : sphereHeight;
-      const inside: boolean = rho < radius && zeta > -sphereHeight && zeta < upperHeight;
+      const upperHeight: number =
+        rho < limbus ? profile.height(rho) : sphereHeight;
+      const inside: boolean =
+        rho < radius && zeta > -sphereHeight && zeta < upperHeight;
       // Compare feasible upper distances; overlapping enclosures retain the
       // selected represented point and expose the meridian/profile uncertainty;
       // frame reduction and world placement roundoff are separate.
       const useCap: boolean = capFoot.upperDistanceMetres < sphereUpper;
-      const foot: IAutoMovieVector3 = useCap ? place(capR, capZ) : place(sphereRho, sphereZeta);
+      const foot: IAutoMovieVector3 = useCap
+        ? place(capR, capZ)
+        : place(sphereRho, sphereZeta);
       const distance: number = Vector3.length(Vector3.subtract(point, foot));
       // Retain derived rim roundoff at the exact circle/cap interface.
       const lowerDistance: number = Math.max(

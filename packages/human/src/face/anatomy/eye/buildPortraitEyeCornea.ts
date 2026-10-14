@@ -1,6 +1,8 @@
+import {
+  type IAutoMovieMeshTransform,
+  transformAutoMovieMesh,
+} from "@automovie/engine";
 import type { IAutoMovieMesh } from "@automovie/interface";
-
-import { transformAutoMovieMesh, type IAutoMovieMeshTransform } from "@automovie/engine";
 
 import { Point } from "../../mesh/structures/Point";
 import { portraitEyeSphereHeight } from "../../surface/portraitEyeSphereHeight";
@@ -41,8 +43,10 @@ export function buildPortraitEyeCornea(
   shape: IPortraitEyeShape,
   extents: number[],
   performance?: IPortraitEyePerformance,
-): IAutoMovieMesh  {
-  const radial: { sphere: IPortraitEyeSphere; transform: IAutoMovieMeshTransform; } | undefined =
+): IAutoMovieMesh {
+  const radial:
+    | { sphere: IPortraitEyeSphere; transform: IAutoMovieMeshTransform }
+    | undefined =
     shape.opticalFrame === "radial"
       ? createPortraitOpticalFrame(sphere, center)
       : undefined;
@@ -59,7 +63,8 @@ export function buildPortraitEyeCornea(
         ? new Array(shape.sampling.irisColumns).fill(shape.irisRadius)
         : extents,
     radialSamples: shape.sampling.irisRows,
-    surface: (x: number, y: number): number  => portraitEyeSphereHeight(support, x, y),
+    surface: (x: number, y: number): number =>
+      portraitEyeSphereHeight(support, x, y),
   });
   if (radial !== undefined)
     mesh = transformAutoMovieMesh(mesh, radial.transform);

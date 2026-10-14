@@ -33,10 +33,14 @@ export function createPortraitCanthalIntersection(
   mesh: IAutoMovieMesh,
   direction: Point,
 ): (point: Point) => Point {
-  const metric: IAutoMovieMesh = createMetricMeshPart("canthal-support", mesh, "skin").geometry
-    .mesh;
-  const intersect: (point: Point) => Point | null = createPortraitDirectionalIntersection(metric, direction);
-  return (point: Point): Point  => {
+  const metric: IAutoMovieMesh = createMetricMeshPart(
+    "canthal-support",
+    mesh,
+    "skin",
+  ).geometry.mesh;
+  const intersect: (point: Point) => Point | null =
+    createPortraitDirectionalIntersection(metric, direction);
+  return (point: Point): Point => {
     // Match createMetricMeshPart's uniform engine scale exactly. Dividing by 1000
     // instead can round an apex one ulp outside its transformed footprint.
     const hit: Point | null = intersect(Vector3.scale(point, 0.001));

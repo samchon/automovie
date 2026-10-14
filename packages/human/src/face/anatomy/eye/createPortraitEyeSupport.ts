@@ -1,10 +1,12 @@
-import type { IPortraitEyeSphere } from "../../surface/structures/IPortraitEyeSphere";
-
 import { Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 as Point, IAutoMovieMesh } from "@automovie/interface";
+import type {
+  IAutoMovieMesh,
+  IAutoMovieVector3 as Point,
+} from "@automovie/interface";
 
 import { fitPortraitEyeSphere } from "../../surface/fitPortraitEyeSphere";
 import { portraitEyeSphereIntersection } from "../../surface/portraitEyeSphereIntersection";
+import type { IPortraitEyeSphere } from "../../surface/structures/IPortraitEyeSphere";
 import { buildPortraitCanthalMesh } from "./buildPortraitCanthalMesh";
 import { createPortraitCanthalIntersection } from "./createPortraitCanthalIntersection";
 import { fitPortraitCanthalSphere } from "./fitPortraitCanthalSphere";
@@ -45,7 +47,26 @@ export function createPortraitEyeSupport(
   lower: readonly Point[],
   direction: Point,
   shape: IPortraitEyeShape,
-): { sphere: IPortraitEyeSphere; fittedSphere: IPortraitEyeSphere; shifted: boolean; canthal: { globe: IAutoMovieMesh; exposed: IAutoMovieMesh; extension: IAutoMovieMesh; surface: IAutoMovieMesh; }; intersect: (point: Point) => Point; } | { sphere: IPortraitEyeSphere; fittedSphere: IPortraitEyeSphere; shifted: boolean; canthal: undefined; intersect: (point: Point) => Point; }  {
+):
+  | {
+      sphere: IPortraitEyeSphere;
+      fittedSphere: IPortraitEyeSphere;
+      shifted: boolean;
+      canthal: {
+        globe: IAutoMovieMesh;
+        exposed: IAutoMovieMesh;
+        extension: IAutoMovieMesh;
+        surface: IAutoMovieMesh;
+      };
+      intersect: (point: Point) => Point;
+    }
+  | {
+      sphere: IPortraitEyeSphere;
+      fittedSphere: IPortraitEyeSphere;
+      shifted: boolean;
+      canthal: undefined;
+      intersect: (point: Point) => Point;
+    } {
   if (shape.canthalSupport === "tangent") {
     const sphere: IPortraitEyeSphere = fitPortraitCanthalSphere(
       upper,
@@ -54,7 +75,12 @@ export function createPortraitEyeSupport(
       shape.surfaceRadius,
       shape.globeLift,
     );
-    const canthal: { globe: IAutoMovieMesh; exposed: IAutoMovieMesh; extension: IAutoMovieMesh; surface: IAutoMovieMesh; } = buildPortraitCanthalMesh(
+    const canthal: {
+      globe: IAutoMovieMesh;
+      exposed: IAutoMovieMesh;
+      extension: IAutoMovieMesh;
+      surface: IAutoMovieMesh;
+    } = buildPortraitCanthalMesh(
       sphere,
       [upper[0], upper[upper.length - 1]],
       Math.max(3, shape.sampling.eyeColumns),
@@ -75,7 +101,8 @@ export function createPortraitEyeSupport(
     shape.surfaceRadius,
     shape.sphereFit,
   );
-  const shifted: boolean = shape.globeLift !== undefined && shape.globeLift !== 0;
+  const shifted: boolean =
+    shape.globeLift !== undefined && shape.globeLift !== 0;
   const sphere: IPortraitEyeSphere = shifted
     ? {
         ...fittedSphere,
@@ -90,7 +117,7 @@ export function createPortraitEyeSupport(
     fittedSphere,
     shifted,
     canthal: undefined,
-    intersect: (point: Point): Point  =>
+    intersect: (point: Point): Point =>
       portraitEyeSphereIntersection(sphere, point, direction),
   };
 }

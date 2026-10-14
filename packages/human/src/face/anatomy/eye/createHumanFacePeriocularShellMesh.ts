@@ -1,11 +1,10 @@
-import type { IHumanFacePeriocularTopology } from "./structures/IHumanFacePeriocularTopology";
-
 import { inspectAutoMovieMeshTopology } from "@automovie/engine";
 import type { IAutoMovieMesh } from "@automovie/interface";
 
 import { areaWeightedNormals } from "../../../common/mesh/areaWeightedNormals";
 import { createHumanFacePeriocularTopology } from "./createHumanFacePeriocularTopology";
 import type { IHumanFacePeriocularShellInput } from "./structures/IHumanFacePeriocularShellInput";
+import type { IHumanFacePeriocularTopology } from "./structures/IHumanFacePeriocularTopology";
 
 /**
  * Form a closed indexed shell over a structured anatomical support. A declared
@@ -33,13 +32,23 @@ export function createHumanFacePeriocularShellMesh(
   const { stride, height }: IHumanFacePeriocularShellInput = input;
   const n: number = stride * height;
   const coordinates: number[] = [...input.outer, ...input.inner];
-  const topology: IHumanFacePeriocularTopology = createHumanFacePeriocularTopology(input);
+  const topology: IHumanFacePeriocularTopology =
+    createHumanFacePeriocularTopology(input);
   const sourceIndices: number[] = [];
-  const triangle: (a: number, b: number, c: number) => void = (a: number, b: number, c: number): void => {
+  const triangle: (a: number, b: number, c: number) => void = (
+    a: number,
+    b: number,
+    c: number,
+  ): void => {
     const corners: number[] = [a, b, c];
     if (new Set(corners).size === 3) sourceIndices.push(...corners);
   };
-  const quad: (a: number, b: number, c: number, d: number) => void = (a: number, b: number, c: number, d: number): void => {
+  const quad: (a: number, b: number, c: number, d: number) => void = (
+    a: number,
+    b: number,
+    c: number,
+    d: number,
+  ): void => {
     triangle(a, b, c);
     triangle(a, c, d);
   };
@@ -54,11 +63,18 @@ export function createHumanFacePeriocularShellMesh(
     quad(a, n + a, n + b, b);
   }
   const vertices: number[] = [...new Set(sourceIndices)];
-  const remap: Map<number, number> = new Map(vertices.map((vertex: number, index: number): [number, number]  => [vertex, index]));
-  const positions: number[] = vertices.flatMap((vertex: number): number[]  =>
+  const remap: Map<number, number> = new Map(
+    vertices.map((vertex: number, index: number): [number, number] => [
+      vertex,
+      index,
+    ]),
+  );
+  const positions: number[] = vertices.flatMap((vertex: number): number[] =>
     coordinates.slice(3 * vertex, 3 * vertex + 3),
   );
-  const indices: number[] = sourceIndices.map((vertex: number): number  => remap.get(vertex)!);
+  const indices: number[] = sourceIndices.map(
+    (vertex: number): number => remap.get(vertex)!,
+  );
   if (
     inspectAutoMovieMeshTopology({
       positions,

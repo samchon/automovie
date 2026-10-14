@@ -1,5 +1,3 @@
-import type { IAutoMovieHumanFaceBasisEye } from "../../structures/IAutoMovieHumanFaceBasisEye";
-
 import { clampAutoMovieUnitInterval } from "@automovie/engine/math/clampAutoMovieUnitInterval";
 import type { IAutoMovieMaterial } from "@automovie/interface";
 
@@ -8,6 +6,7 @@ import { materialBaseColourRgb } from "../../../common/colour/materialBaseColour
 import { srgbByteToLinear } from "../../../common/colour/srgbByteToLinear";
 import { encodePng } from "../../../common/mesh/encodePng";
 import type { IAutoMovieHumanFaceBasis } from "../../structures/IAutoMovieHumanFaceBasis";
+import type { IAutoMovieHumanFaceBasisEye } from "../../structures/IAutoMovieHumanFaceBasisEye";
 import type { IAutoMovieHumanFaceIris } from "../../structures/IAutoMovieHumanFaceIris";
 import { HUMAN_FACE_IRIS_EDGE } from "./HUMAN_FACE_IRIS_EDGE";
 import { createPortraitIrisMaterials } from "./createPortraitIrisMaterials";
@@ -81,14 +80,24 @@ export function createHumanFaceIrisPigment(
   materials: IAutoMovieMaterial[],
   excludedOwners?: ReadonlySet<string>,
 ) => void {
-  const globes: { eye: string; globe: IHumanFaceIrisGlobe | null; }[] = (basis.articulation?.eyes ?? []).map((eye: IAutoMovieHumanFaceBasisEye): { eye: string; globe: IHumanFaceIrisGlobe | null; }  => ({
-    eye: eye.id,
-    globe: findHumanFaceIrisGlobe(basis, eye.id),
-  }));
+  const globes: { eye: string; globe: IHumanFaceIrisGlobe | null }[] = (
+    basis.articulation?.eyes ?? []
+  ).map(
+    (
+      eye: IAutoMovieHumanFaceBasisEye,
+    ): { eye: string; globe: IHumanFaceIrisGlobe | null } => ({
+      eye: eye.id,
+      globe: findHumanFaceIrisGlobe(basis, eye.id),
+    }),
+  );
   let prepared: Map<string, IHumanFaceIrisPreparedTexture> | undefined;
   let preparedOwners: string | undefined;
   let cache: { key: string; textures: Map<string, string> } | undefined;
-  return (iris: IAutoMovieHumanFaceIris | null | undefined, materials: IAutoMovieMaterial[], excludedOwners: ReadonlySet<string> | undefined): void  => {
+  return (
+    iris: IAutoMovieHumanFaceIris | null | undefined,
+    materials: IAutoMovieMaterial[],
+    excludedOwners: ReadonlySet<string> | undefined,
+  ): void => {
     if (iris === undefined || iris === null) return;
     const bands: Record<string, [number, number, number][]> = {
       leftEye: createPortraitIrisMaterials("iris", iris.left).map(
@@ -100,17 +109,40 @@ export function createHumanFaceIrisPigment(
     };
     if (globes.length === 0)
       throw new Error("Iris pigment needs a basis with articulated eyes.");
-    const selected: { eye: string; globe: IHumanFaceIrisGlobe | null; }[] = globes.filter(({ eye }: { eye: string; globe: IHumanFaceIrisGlobe | null; }): boolean  => !excludedOwners?.has(eye));
-    const paintable: IHumanFaceIrisGlobe[] = selected.map(({ eye, globe }: { eye: string; globe: IHumanFaceIrisGlobe | null; }): IHumanFaceIrisGlobe  => {
-      if (bands[eye] === undefined)
-        throw new Error(
-          "Iris pigment names leftEye and rightEye only, not " + eye + ".",
-        );
-      if (globe === null)
-        throw new Error("Iris pigment needs a textured globe for " + eye + ".");
-      return globe;
-    });
-    const owners: string = JSON.stringify(selected.map(({ eye }: { eye: string; globe: IHumanFaceIrisGlobe | null; }): string  => eye));
+    const selected: { eye: string; globe: IHumanFaceIrisGlobe | null }[] =
+      globes.filter(
+        ({
+          eye,
+        }: {
+          eye: string;
+          globe: IHumanFaceIrisGlobe | null;
+        }): boolean => !excludedOwners?.has(eye),
+      );
+    const paintable: IHumanFaceIrisGlobe[] = selected.map(
+      ({
+        eye,
+        globe,
+      }: {
+        eye: string;
+        globe: IHumanFaceIrisGlobe | null;
+      }): IHumanFaceIrisGlobe => {
+        if (bands[eye] === undefined)
+          throw new Error(
+            "Iris pigment names leftEye and rightEye only, not " + eye + ".",
+          );
+        if (globe === null)
+          throw new Error(
+            "Iris pigment needs a textured globe for " + eye + ".",
+          );
+        return globe;
+      },
+    );
+    const owners: string = JSON.stringify(
+      selected.map(
+        ({ eye }: { eye: string; globe: IHumanFaceIrisGlobe | null }): string =>
+          eye,
+      ),
+    );
     const key: string = JSON.stringify([owners, iris.left, iris.right]);
     if (cache?.key !== key) {
       if (preparedOwners !== owners) {
@@ -121,9 +153,9 @@ export function createHumanFaceIrisPigment(
       for (const [material, texture] of prepared!) {
         const rgba: Uint8Array<ArrayBuffer> = texture.rgba.slice();
         for (const { eye, disc, texels, sclera } of texture.eyes)
-          texels.index.forEach((index: number, at: number): void  => {
+          texels.index.forEach((index: number, at: number): void => {
             const theta: number = texels.theta[at];
-            const painted: number[] = [0, 1, 2].map((c: number): number  =>
+            const painted: number[] = [0, 1, 2].map((c: number): number =>
               srgbByteToLinear(texture.rgba[4 * index + c]),
             );
             // Under an anatomical disc smaller than the texture's painted
@@ -137,7 +169,8 @@ export function createHumanFaceIrisPigment(
                   )
                 : 0;
             const original: number[] = painted.map(
-              (value: number, c: number): number  => value + (sclera[c] - value) * cover,
+              (value: number, c: number): number =>
+                value + (sclera[c] - value) * cover,
             );
             const colour: [number, number, number] = humanFaceIrisTexelColour({
               theta,
@@ -163,6 +196,8 @@ export function createHumanFaceIrisPigment(
       cache = { key, textures };
     }
     for (const [id, uri] of cache.textures)
-      materials.find((one: IAutoMovieMaterial): boolean  => one.id === id)!.baseColorTexture = uri;
+      materials.find(
+        (one: IAutoMovieMaterial): boolean => one.id === id,
+      )!.baseColorTexture = uri;
   };
 }

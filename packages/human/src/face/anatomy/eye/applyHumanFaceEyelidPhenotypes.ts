@@ -1,13 +1,12 @@
-import type { IAutoMovieHumanFaceEyelidPhenotype } from "../../structures/IAutoMovieHumanFaceEyelidPhenotype";
-import type { IAutoMovieHumanFacePeriocularCage } from "../../structures/IAutoMovieHumanFacePeriocularCage";
-import type { IAutoMovieHumanFaceOpticalSupport } from "../../structures/IAutoMovieHumanFaceOpticalSupport";
-import type { IAutoMovieHumanFaceBasisSurface } from "../../structures/IAutoMovieHumanFaceBasisSurface";
-import type { IAutoMovieHumanFacePeriocularStation } from "../../structures/IAutoMovieHumanFacePeriocularStation";
-import type { IAutoMovieHumanFaceOpticalSupportAnterior } from "../../structures/IAutoMovieHumanFaceOpticalSupportAnterior";
-
 import { assertHumanFacePeriocularCage } from "../../basis/assertHumanFacePeriocularCage";
 import type { IAutoMovieHumanFaceBasis } from "../../structures/IAutoMovieHumanFaceBasis";
+import type { IAutoMovieHumanFaceBasisSurface } from "../../structures/IAutoMovieHumanFaceBasisSurface";
+import type { IAutoMovieHumanFaceEyelidPhenotype } from "../../structures/IAutoMovieHumanFaceEyelidPhenotype";
 import type { IAutoMovieHumanFaceEyelidPhenotypes } from "../../structures/IAutoMovieHumanFaceEyelidPhenotypes";
+import type { IAutoMovieHumanFaceOpticalSupport } from "../../structures/IAutoMovieHumanFaceOpticalSupport";
+import type { IAutoMovieHumanFaceOpticalSupportAnterior } from "../../structures/IAutoMovieHumanFaceOpticalSupportAnterior";
+import type { IAutoMovieHumanFacePeriocularCage } from "../../structures/IAutoMovieHumanFacePeriocularCage";
+import type { IAutoMovieHumanFacePeriocularStation } from "../../structures/IAutoMovieHumanFacePeriocularStation";
 
 /**
  * Convert resting visible crease and hood traits on the actual source skin.
@@ -59,17 +58,24 @@ export function applyHumanFaceEyelidPhenotypes(
       );
     if (profile.crease === "inset" && profile.hoodOverlapMm === undefined)
       throw new Error("Inset creasing needs its explicit hood overlap.");
-    const cage: IAutoMovieHumanFacePeriocularCage | undefined = basis.periocular?.[side].cage;
-    const support: IAutoMovieHumanFaceOpticalSupport | undefined = basis.opticalSupport?.find(
-      (entry: IAutoMovieHumanFaceOpticalSupport): boolean  => entry.owner === (side === "left" ? "leftEye" : "rightEye"),
-    );
-    const skin: readonly number[] | undefined = cage === undefined ? undefined : result.get(cage.surface);
+    const cage: IAutoMovieHumanFacePeriocularCage | undefined =
+      basis.periocular?.[side].cage;
+    const support: IAutoMovieHumanFaceOpticalSupport | undefined =
+      basis.opticalSupport?.find(
+        (entry: IAutoMovieHumanFaceOpticalSupport): boolean =>
+          entry.owner === (side === "left" ? "leftEye" : "rightEye"),
+      );
+    const skin: readonly number[] | undefined =
+      cage === undefined ? undefined : result.get(cage.surface);
     const optical: readonly number[] | undefined =
       support === undefined ? undefined : result.get(support.surface);
     const host: IAutoMovieHumanFaceBasisSurface | undefined =
       cage === undefined
         ? undefined
-        : basis.surfaces.find((surface: IAutoMovieHumanFaceBasisSurface): boolean  => surface.id === cage.surface);
+        : basis.surfaces.find(
+            (surface: IAutoMovieHumanFaceBasisSurface): boolean =>
+              surface.id === cage.surface,
+          );
     if (
       cage === undefined ||
       support === undefined ||
@@ -82,21 +88,31 @@ export function applyHumanFaceEyelidPhenotypes(
           side,
       );
     assertHumanFacePeriocularCage(basis, cage);
-    const row: (role: string) => readonly number[] = (role: string): readonly number[] => {
-      const value: IAutoMovieHumanFacePeriocularStation | undefined = cage.stations.find((station: IAutoMovieHumanFacePeriocularStation): boolean  => station.role === role);
+    const row: (role: string) => readonly number[] = (
+      role: string,
+    ): readonly number[] => {
+      const value: IAutoMovieHumanFacePeriocularStation | undefined =
+        cage.stations.find(
+          (station: IAutoMovieHumanFacePeriocularStation): boolean =>
+            station.role === role,
+        );
       if (value === undefined)
         throw new Error("Lid morphology needs its source row: " + role);
       return value.vertices;
     };
     const chart: IAutoMovieHumanFaceOpticalSupportAnterior = support.anterior;
     const x: number = chart.triangle.reduce(
-      (sum: number, vertex: number, at: number): number  =>
+      (sum: number, vertex: number, at: number): number =>
         sum +
         optical[3 * vertex] * [1 - chart.u - chart.v, chart.u, chart.v][at],
       0,
     );
-    const height: (vertices: readonly number[]) => number = (vertices: readonly number[]): number => {
-      const chain: number[] = cage.upperColumns.map((column: number): number  => vertices[column]);
+    const height: (vertices: readonly number[]) => number = (
+      vertices: readonly number[],
+    ): number => {
+      const chain: number[] = cage.upperColumns.map(
+        (column: number): number => vertices[column],
+      );
       for (let at: number = 1; at < chain.length; at++) {
         const a: number = chain[at - 1],
           b: number = chain[at];
@@ -119,7 +135,9 @@ export function applyHumanFaceEyelidPhenotypes(
     const currentHeight: number = height(crease) - marginHeight;
     let chartFade: number = 0,
       hoodChartFade: number = 0;
-    const fadeAt: (vertices: readonly number[]) => number = (vertices: readonly number[]): number => {
+    const fadeAt: (vertices: readonly number[]) => number = (
+      vertices: readonly number[],
+    ): number => {
       const columns: number[] = cage.upperColumns;
       for (let at: number = 1; at < columns.length; at++) {
         const xa: number = skin[3 * vertices[columns[at - 1]]],
@@ -159,16 +177,21 @@ export function applyHumanFaceEyelidPhenotypes(
         "Lid morphology exceeds its actual source row spacing: " + side,
       );
     const aliases: Map<number, number[]> = new Map<number, number[]>();
-    host.sourcePartition.samples.forEach((sample: number, vertex: number): void  => {
-      const group: number[] = aliases.get(sample) ?? [];
-      group.push(vertex);
-      aliases.set(sample, group);
-    });
+    host.sourcePartition.samples.forEach(
+      (sample: number, vertex: number): void => {
+        const group: number[] = aliases.get(sample) ?? [];
+        group.push(vertex);
+        aliases.set(sample, group);
+      },
+    );
     const changed: number[] = [...skin];
-    const hoodShift: number = marginHeight + requestedHeight - overlap - height(hood);
+    const hoodShift: number =
+      marginHeight + requestedHeight - overlap - height(hood);
     for (let at: number = 1; at + 1 < cage.upperColumns.length; at++) {
       const column: number = cage.upperColumns[at];
-      const fade: number = Math.sin((Math.PI * at) / (cage.upperColumns.length - 1));
+      const fade: number = Math.sin(
+        (Math.PI * at) / (cage.upperColumns.length - 1),
+      );
       const vertex: number = crease[column];
       let anteriorShift: number = 0;
       if (profile.crease === "single") {
@@ -179,7 +202,8 @@ export function applyHumanFaceEyelidPhenotypes(
           throw new Error(
             "Single crease morphology needs ordered pretarsal and hood source heights.",
           );
-        const fraction: number = (skin[3 * vertex + 1] - skin[3 * lower + 1]) / span;
+        const fraction: number =
+          (skin[3 * vertex + 1] - skin[3 * lower + 1]) / span;
         anteriorShift =
           skin[3 * lower + 2] +
           fraction * (skin[3 * upper + 2] - skin[3 * lower + 2]) -
@@ -196,7 +220,11 @@ export function applyHumanFaceEyelidPhenotypes(
         )!)
           changed[3 * alias + 1] += (hoodShift * fade) / hoodChartFade;
     }
-    if (!changed.every((value: number): boolean  => Number.isFinite(Math.fround(value))))
+    if (
+      !changed.every((value: number): boolean =>
+        Number.isFinite(Math.fround(value)),
+      )
+    )
       throw new Error(
         "Lid morphology exceeds finite Float32 source coordinates.",
       );

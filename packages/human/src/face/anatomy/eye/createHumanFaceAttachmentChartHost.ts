@@ -35,7 +35,8 @@ export function createHumanFaceAttachmentChartHost(
   const coordinates: number[] = [...chart.coordinates];
   const indices: number[] = [...chart.indices];
   const sourceTriangles: number[] = [...chart.sourceTriangles];
-  const samples: readonly number[] | undefined = surface.sourcePartition?.samples;
+  const samples: readonly number[] | undefined =
+    surface.sourcePartition?.samples;
   if (
     samples === undefined ||
     chart.surface !== surface.id ||
@@ -45,19 +46,37 @@ export function createHumanFaceAttachmentChartHost(
     coordinates.length !== 2 * vertices.length ||
     chart.sourceVertices.length !== vertices.length ||
     indices.length !== 3 * sourceTriangles.length ||
-    coordinates.some((value: number): boolean  => !Number.isFinite(value)) ||
+    coordinates.some((value: number): boolean => !Number.isFinite(value)) ||
     new Set(vertices).size !== vertices.length ||
-    vertices.some((vertex: number, at: number): boolean  => samples[vertex] !== chart.sourceVertices[at])
+    vertices.some(
+      (vertex: number, at: number): boolean =>
+        samples[vertex] !== chart.sourceVertices[at],
+    )
   )
     throw new Error(
       "A material attachment chart needs exact same-generation host samples.",
     );
-  const ordinal: Map<number, number> = new Map(vertices.map((vertex: number, at: number): [number, number]  => [vertex, at]));
-  const hostOrdinal: Map<number, number> = new Map(
-    sourceTriangles.map((triangle: number, at: number): [number, number]  => [triangle, at]),
+  const ordinal: Map<number, number> = new Map(
+    vertices.map((vertex: number, at: number): [number, number] => [
+      vertex,
+      at,
+    ]),
   );
-  const vertexSeats: Map<number, IHumanFaceSkinSeat> = new Map<number, IHumanFaceSkinSeat>();
-  for (let triangle: number = 0; triangle < sourceTriangles.length; triangle++) {
+  const hostOrdinal: Map<number, number> = new Map(
+    sourceTriangles.map((triangle: number, at: number): [number, number] => [
+      triangle,
+      at,
+    ]),
+  );
+  const vertexSeats: Map<number, IHumanFaceSkinSeat> = new Map<
+    number,
+    IHumanFaceSkinSeat
+  >();
+  for (
+    let triangle: number = 0;
+    triangle < sourceTriangles.length;
+    triangle++
+  ) {
     const hostTriangle: number = sourceTriangles[triangle];
     if (
       !Number.isSafeInteger(hostTriangle) ||
@@ -95,7 +114,9 @@ export function createHumanFaceAttachmentChartHost(
         "A material attachment chart triangle must have positive area.",
       );
   }
-  const coordinate: (vertex: number) => [number, number] = (vertex: number): [number, number] => {
+  const coordinate: (vertex: number) => [number, number] = (
+    vertex: number,
+  ): [number, number] => {
     const at: number | undefined = ordinal.get(vertex);
     if (at === undefined)
       throw new Error(
@@ -103,15 +124,21 @@ export function createHumanFaceAttachmentChartHost(
       );
     return [coordinates[2 * at], coordinates[2 * at + 1]];
   };
-  const sourceSeat: (point: IAutoMovieHumanFaceAttachmentPoint) => IHumanFaceSkinSeat = (
+  const sourceSeat: (
+    point: IAutoMovieHumanFaceAttachmentPoint,
+  ) => IHumanFaceSkinSeat = (
     point: IAutoMovieHumanFaceAttachmentPoint,
   ): IHumanFaceSkinSeat => {
-    const sum: number = point.weights.reduce((total: number, weight: number): number  => total + weight, 0);
+    const sum: number = point.weights.reduce(
+      (total: number, weight: number): number => total + weight,
+      0,
+    );
     if (
       !hostOrdinal.has(point.triangle) ||
       point.weights.length !== 3 ||
       [point.weights[0], point.weights[1], point.weights[2]].some(
-        (weight: number): boolean  => !Number.isFinite(weight) || weight < 0 || weight > 1,
+        (weight: number): boolean =>
+          !Number.isFinite(weight) || weight < 0 || weight > 1,
       ) ||
       Math.abs(sum - 1) > 8 * Number.EPSILON
     )
@@ -123,7 +150,10 @@ export function createHumanFaceAttachmentChartHost(
       weights: [point.weights[0], point.weights[1], point.weights[2]],
     };
   };
-  const barycentricAt: (triangle: number, point: readonly number[]) => [number, number, number] = (
+  const barycentricAt: (
+    triangle: number,
+    point: readonly number[],
+  ) => [number, number, number] = (
     triangle: number,
     point: readonly number[],
   ): [number, number, number] => {
@@ -143,7 +173,9 @@ export function createHumanFaceAttachmentChartHost(
   };
   return {
     coordinate,
-    vertexSeat: (vertex: number): { triangle: number; weights: [number, number, number]; }  => {
+    vertexSeat: (
+      vertex: number,
+    ): { triangle: number; weights: [number, number, number] } => {
       const seat: IHumanFaceSkinSeat | undefined = vertexSeats.get(vertex);
       if (seat === undefined)
         throw new Error(
@@ -152,7 +184,9 @@ export function createHumanFaceAttachmentChartHost(
       return { triangle: seat.triangle, weights: [...seat.weights] };
     },
     sourceSeat,
-    coordinateAt: (point: IAutoMovieHumanFaceAttachmentPoint): [number, number]  => {
+    coordinateAt: (
+      point: IAutoMovieHumanFaceAttachmentPoint,
+    ): [number, number] => {
       sourceSeat(point);
       const triangle: number | undefined = hostOrdinal.get(point.triangle);
       // Three bounded additions may round the unit sum; this arithmetic bound
@@ -165,13 +199,22 @@ export function createHumanFaceAttachmentChartHost(
       }
       return uv;
     },
-    seat: (point: readonly number[]): { triangle: number; weights: [number, number, number]; }  => {
+    seat: (
+      point: readonly number[],
+    ): { triangle: number; weights: [number, number, number] } => {
       if (point.length !== 2 || !point.every(Number.isFinite))
         throw new Error(
           "A material attachment location needs finite u,v coordinates.",
         );
-      for (let triangle: number = 0; triangle < sourceTriangles.length; triangle++) {
-        const [a, b, c]: number[] = indices.slice(3 * triangle, 3 * triangle + 3);
+      for (
+        let triangle: number = 0;
+        triangle < sourceTriangles.length;
+        triangle++
+      ) {
+        const [a, b, c]: number[] = indices.slice(
+          3 * triangle,
+          3 * triangle + 3,
+        );
         const ax: number = coordinates[2 * a],
           ay: number = coordinates[2 * a + 1];
         const bx: number = coordinates[2 * b],
@@ -185,7 +228,10 @@ export function createHumanFaceAttachmentChartHost(
           point[1] > Math.max(ay, by, cy)
         )
           continue;
-        const [w, u, v]: [number, number, number] = barycentricAt(triangle, point);
+        const [w, u, v]: [number, number, number] = barycentricAt(
+          triangle,
+          point,
+        );
         if (u >= 0 && v >= 0 && w >= 0)
           return { triangle: sourceTriangles[triangle], weights: [w, u, v] };
       }
@@ -194,8 +240,15 @@ export function createHumanFaceAttachmentChartHost(
       let witness: number = -1,
         minimumWeight: number = -Infinity;
       let weights: number[] = [];
-      for (let triangle: number = 0; triangle < sourceTriangles.length; triangle++) {
-        const candidate: [number, number, number] = barycentricAt(triangle, point),
+      for (
+        let triangle: number = 0;
+        triangle < sourceTriangles.length;
+        triangle++
+      ) {
+        const candidate: [number, number, number] = barycentricAt(
+            triangle,
+            point,
+          ),
           minimum: number = Math.min(...candidate);
         if (minimum > minimumWeight) {
           witness = triangle;
@@ -212,7 +265,7 @@ export function createHumanFaceAttachmentChartHost(
             weights,
             vertices: indices
               .slice(3 * witness, 3 * witness + 3)
-              .map((vertex: number): { host: number; uv: number[]; }  => ({
+              .map((vertex: number): { host: number; uv: number[] } => ({
                 host: vertices[vertex],
                 uv: coordinates.slice(2 * vertex, 2 * vertex + 2),
               })),

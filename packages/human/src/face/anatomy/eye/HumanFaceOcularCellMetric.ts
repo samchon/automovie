@@ -44,8 +44,14 @@ type Interval = readonly [IHumanExactFraction, IHumanExactFraction];
  */
 export class HumanFaceOcularCellMetric {
   private readonly cap: HumanFaceOcularCapMetric;
-  private readonly angles: Map<number, IHumanTrigonometricBounds> = new Map<number, IHumanTrigonometricBounds>();
-  private readonly cornerErrors: Map<string, IHumanExactFraction> = new Map<string, IHumanExactFraction>();
+  private readonly angles: Map<number, IHumanTrigonometricBounds> = new Map<
+    number,
+    IHumanTrigonometricBounds
+  >();
+  private readonly cornerErrors: Map<string, IHumanExactFraction> = new Map<
+    string,
+    IHumanExactFraction
+  >();
 
   /** Owned last vector values; frame identity alone cannot admit reuse. */
   private frameNormValues: readonly number[] | undefined;
@@ -88,22 +94,43 @@ export class HumanFaceOcularCellMetric {
       );
     const zero: IHumanExactFraction = Fraction.create(0n);
     const uMin: IHumanExactFraction = Fraction.from(
-      Math.min(...corners.map((c: IHumanFaceOcularCellCorner): number  => c.meridianParameter)),
+      Math.min(
+        ...corners.map(
+          (c: IHumanFaceOcularCellCorner): number => c.meridianParameter,
+        ),
+      ),
     );
     const uMax: IHumanExactFraction = Fraction.from(
-      Math.max(...corners.map((c: IHumanFaceOcularCellCorner): number  => c.meridianParameter)),
+      Math.max(
+        ...corners.map(
+          (c: IHumanFaceOcularCellCorner): number => c.meridianParameter,
+        ),
+      ),
     );
     const vMin: IHumanExactFraction = Fraction.from(
-      Math.min(...corners.map((c: IHumanFaceOcularCellCorner): number  => c.azimuthParameter)),
+      Math.min(
+        ...corners.map(
+          (c: IHumanFaceOcularCellCorner): number => c.azimuthParameter,
+        ),
+      ),
     );
     const vMax: IHumanExactFraction = Fraction.from(
-      Math.max(...corners.map((c: IHumanFaceOcularCellCorner): number  => c.azimuthParameter)),
+      Math.max(
+        ...corners.map(
+          (c: IHumanFaceOcularCellCorner): number => c.azimuthParameter,
+        ),
+      ),
     );
     const du: IHumanExactFraction = Fraction.add(uMax, Fraction.negate(uMin));
     const dv: IHumanExactFraction = Fraction.add(vMax, Fraction.negate(vMin));
-    const absolute: (value: IHumanExactFraction) => IHumanExactFraction = (value: IHumanExactFraction): IHumanExactFraction =>
+    const absolute: (value: IHumanExactFraction) => IHumanExactFraction = (
+      value: IHumanExactFraction,
+    ): IHumanExactFraction =>
       value.numerator < 0n ? Fraction.negate(value) : value;
-    const maximum: (a: IHumanExactFraction, b: IHumanExactFraction) => IHumanExactFraction = (
+    const maximum: (
+      a: IHumanExactFraction,
+      b: IHumanExactFraction,
+    ) => IHumanExactFraction = (
       a: IHumanExactFraction,
       b: IHumanExactFraction,
     ): IHumanExactFraction => (Fraction.compare(a, b) >= 0 ? a : b);
@@ -115,7 +142,8 @@ export class HumanFaceOcularCellMetric {
             absolute(this.cap.secondDerivativeAtRadius(uMin)),
             absolute(this.cap.secondDerivativeAtRadius(uMax)),
           );
-    const m12: IHumanExactFraction = branch === "sphere" ? radius : Fraction.create(1n);
+    const m12: IHumanExactFraction =
+      branch === "sphere" ? radius : Fraction.create(1n);
     const m22: IHumanExactFraction = branch === "sphere" ? radius : uMax;
     const remainder: IHumanExactFraction = Fraction.divide(
       Fraction.add(
@@ -131,10 +159,15 @@ export class HumanFaceOcularCellMetric {
       Fraction.create(8n),
     );
     const vectors: IAutoMovieVector3[] = [frame.lateral, frame.up, frame.axis];
-    const frameValues: number[] = vectors.flatMap((vector: IAutoMovieVector3): number[]  => [vector.x, vector.y, vector.z]);
+    const frameValues: number[] = vectors.flatMap(
+      (vector: IAutoMovieVector3): number[] => [vector.x, vector.y, vector.z],
+    );
     if (
       this.frameNorm === undefined ||
-      frameValues.some((value: number, at: number): boolean  => !Object.is(value, this.frameNormValues?.[at]))
+      frameValues.some(
+        (value: number, at: number): boolean =>
+          !Object.is(value, this.frameNormValues?.[at]),
+      )
     ) {
       let frameSquared: IHumanExactFraction = zero;
       for (const value of frameValues)
@@ -142,7 +175,9 @@ export class HumanFaceOcularCellMetric {
           frameSquared,
           Fraction.multiply(Fraction.from(value), Fraction.from(value)),
         );
-      const norm: IHumanExactFraction = Fraction.from(Fraction.sqrtBounds(frameSquared)[1]);
+      const norm: IHumanExactFraction = Fraction.from(
+        Fraction.sqrtBounds(frameSquared)[1],
+      );
       this.frameNormValues = frameValues;
       this.frameNorm = norm;
     }
@@ -153,18 +188,25 @@ export class HumanFaceOcularCellMetric {
         frame.center.x,
         frame.center.y,
         frame.center.z,
-        ...vectors.flatMap((vector: IAutoMovieVector3): number[]  => [vector.x, vector.y, vector.z]),
+        ...vectors.flatMap((vector: IAutoMovieVector3): number[] => [
+          vector.x,
+          vector.y,
+          vector.z,
+        ]),
         corner.meridianParameter,
         corner.azimuthParameter,
         ...corner.position,
         branch,
       ].join(",");
-      const cached: IHumanExactFraction | undefined = this.cornerErrors.get(key);
+      const cached: IHumanExactFraction | undefined =
+        this.cornerErrors.get(key);
       if (cached !== undefined) {
         cornerError = maximum(cornerError, cached);
         continue;
       }
-      const phi: IHumanTrigonometricBounds = this.angle(corner.azimuthParameter);
+      const phi: IHumanTrigonometricBounds = this.angle(
+        corner.azimuthParameter,
+      );
       const u: IHumanExactFraction = Fraction.from(corner.meridianParameter);
       const r: Interval =
         branch === "cap"
@@ -206,7 +248,9 @@ export class HumanFaceOcularCellMetric {
           Fraction.multiply(error, error),
         );
       }
-      const error: IHumanExactFraction = Fraction.from(Fraction.sqrtBounds(squaredError)[1]);
+      const error: IHumanExactFraction = Fraction.from(
+        Fraction.sqrtBounds(squaredError)[1],
+      );
       this.cornerErrors.set(key, error);
       cornerError = maximum(cornerError, error);
     }

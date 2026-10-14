@@ -72,7 +72,8 @@ export function buildPortraitPerformanceGlobe(
   }
   const center: number[] = [sphere.center.x, sphere.center.y, sphere.center.z];
   const positions: number[] = normals.map(
-    (value: number, axis: number): number  => center[axis % 3] + sphere.radius * value,
+    (value: number, axis: number): number =>
+      center[axis % 3] + sphere.radius * value,
   );
   if (!positions.every(Number.isFinite))
     throw new Error(

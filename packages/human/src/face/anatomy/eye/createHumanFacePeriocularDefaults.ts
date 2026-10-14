@@ -1,8 +1,7 @@
-import type { IAutoMovieHumanFacePeriocularTissueDescriptor } from "../../structures/IAutoMovieHumanFacePeriocularTissueDescriptor";
-import type { AutoMovieHumanFacePeriocularTissue } from "../../structures/AutoMovieHumanFacePeriocularTissue";
-
 import type { IHumanFacePoseGeometry } from "../../basis/IHumanFacePoseGeometry";
+import type { AutoMovieHumanFacePeriocularTissue } from "../../structures/AutoMovieHumanFacePeriocularTissue";
 import type { IAutoMovieHumanFaceBasis } from "../../structures/IAutoMovieHumanFaceBasis";
+import type { IAutoMovieHumanFacePeriocularTissueDescriptor } from "../../structures/IAutoMovieHumanFacePeriocularTissueDescriptor";
 import type { IAutoMovieHumanFacePeriocularTissues } from "../../structures/IAutoMovieHumanFacePeriocularTissues";
 import { HUMAN_FACE_PERIOCULAR_TISSUE_DESCRIPTORS } from "./HUMAN_FACE_PERIOCULAR_TISSUE_DESCRIPTORS";
 
@@ -34,13 +33,20 @@ export function createHumanFacePeriocularDefaults(
   for (const side of ["left", "right"] as const) {
     if (basis.periocular?.[side].cage === undefined) continue;
     result[side] = Object.fromEntries(
-      HUMAN_FACE_PERIOCULAR_TISSUE_DESCRIPTORS.map((descriptor: IAutoMovieHumanFacePeriocularTissueDescriptor): [AutoMovieHumanFacePeriocularTissue, { inwardOffsetMm: number; thicknessMm: number; }]  => [
-        descriptor.tissue,
-        {
-          inwardOffsetMm: descriptor.inwardOffset.defaultMm,
-          thicknessMm: descriptor.thickness.defaultMm,
-        },
-      ]),
+      HUMAN_FACE_PERIOCULAR_TISSUE_DESCRIPTORS.map(
+        (
+          descriptor: IAutoMovieHumanFacePeriocularTissueDescriptor,
+        ): [
+          AutoMovieHumanFacePeriocularTissue,
+          { inwardOffsetMm: number; thicknessMm: number },
+        ] => [
+          descriptor.tissue,
+          {
+            inwardOffsetMm: descriptor.inwardOffset.defaultMm,
+            thicknessMm: descriptor.thickness.defaultMm,
+          },
+        ],
+      ),
     );
   }
   return Object.keys(result).length === 0 ? undefined : result;

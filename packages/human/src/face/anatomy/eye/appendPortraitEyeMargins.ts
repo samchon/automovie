@@ -1,6 +1,3 @@
-import type { IPortraitLowerLidSection } from "./structures/IPortraitLowerLidSection";
-import type { IPortraitUpperLidSection } from "./structures/IPortraitUpperLidSection";
-
 import type { IControlMesh } from "../../mesh/structures/IControlMesh";
 import { createPortraitLowerLidProfile } from "./createPortraitLowerLidProfile";
 import { createPortraitUpperLidProfile } from "./createPortraitUpperLidProfile";
@@ -8,6 +5,8 @@ import { portraitEyeLidRows } from "./portraitEyeLidRows";
 import { portraitEyeLoop } from "./portraitEyeLoop";
 import type { IPortraitEyeShape } from "./structures/IPortraitEyeShape";
 import type { IPortraitEyeSocket } from "./structures/IPortraitEyeSocket";
+import type { IPortraitLowerLidSection } from "./structures/IPortraitLowerLidSection";
+import type { IPortraitUpperLidSection } from "./structures/IPortraitUpperLidSection";
 
 /**
  * Attach the lid rows to the already fitted shared outer rim. New inner vertex
@@ -41,25 +40,58 @@ export function appendPortraitEyeMargins(
   socket: IPortraitEyeSocket,
   shape: IPortraitEyeShape,
   group: number = 0,
-  lowerProfile: ((at: number) => IPortraitLowerLidSection) | undefined = shape.lowerLidProfile === undefined
+  lowerProfile:
+    | ((at: number) => IPortraitLowerLidSection)
+    | undefined = shape.lowerLidProfile === undefined
     ? undefined
     : createPortraitLowerLidProfile(shape.lowerLidProfile),
   guide?: readonly (readonly number[])[],
-  upperProfile: ((at: number) => IPortraitUpperLidSection) | undefined = shape.upperLidProfile === undefined
+  upperProfile:
+    | ((at: number) => IPortraitUpperLidSection)
+    | undefined = shape.upperLidProfile === undefined
     ? undefined
     : createPortraitUpperLidProfile(shape.upperLidProfile),
 ): Map<number, number> {
-  const rows: { id: number; outer: number[]; hoodUpper: number[]; hoodEdge: number[]; creaseOuter: number[]; creaseInner: number[]; tarsal: number[]; ridge: number[]; inner: number[]; }[] = portraitEyeLidRows(
+  const rows: {
+    id: number;
+    outer: number[];
+    hoodUpper: number[];
+    hoodEdge: number[];
+    creaseOuter: number[];
+    creaseInner: number[];
+    tarsal: number[];
+    ridge: number[];
+    inner: number[];
+  }[] = portraitEyeLidRows(
     aperture,
     socket,
     shape,
-    new Map(portraitEyeLoop(socket).map((id: number): [number, number]  => [id, cage.positions[id][2]])),
+    new Map(
+      portraitEyeLoop(socket).map((id: number): [number, number] => [
+        id,
+        cage.positions[id][2],
+      ]),
+    ),
     lowerProfile,
     guide,
     upperProfile,
   );
   const margins: Map<number, number> = new Map<number, number>();
-  const rings: number[][] = [rows.map((row: { id: number; outer: number[]; hoodUpper: number[]; hoodEdge: number[]; creaseOuter: number[]; creaseInner: number[]; tarsal: number[]; ridge: number[]; inner: number[]; }): number  => row.id)];
+  const rings: number[][] = [
+    rows.map(
+      (row: {
+        id: number;
+        outer: number[];
+        hoodUpper: number[];
+        hoodEdge: number[];
+        creaseOuter: number[];
+        creaseInner: number[];
+        tarsal: number[];
+        ridge: number[];
+        inner: number[];
+      }): number => row.id,
+    ),
+  ];
   for (const name of [
     "hoodUpper",
     "hoodEdge",
@@ -69,7 +101,21 @@ export function appendPortraitEyeMargins(
     "ridge",
     "inner",
   ] as const)
-    rings.push(rows.map((row: { id: number; outer: number[]; hoodUpper: number[]; hoodEdge: number[]; creaseOuter: number[]; creaseInner: number[]; tarsal: number[]; ridge: number[]; inner: number[]; }): number  => cage.positions.push(row[name]) - 1));
+    rings.push(
+      rows.map(
+        (row: {
+          id: number;
+          outer: number[];
+          hoodUpper: number[];
+          hoodEdge: number[];
+          creaseOuter: number[];
+          creaseInner: number[];
+          tarsal: number[];
+          ridge: number[];
+          inner: number[];
+        }): number => cage.positions.push(row[name]) - 1,
+      ),
+    );
   for (let i: number = 0; i < rows.length; i++)
     margins.set(rows[i].id, rings[rings.length - 1][i]);
   for (let ring: number = 0; ring < rings.length - 1; ring++)

@@ -1,17 +1,16 @@
-import type { IAutoMovieHumanFacePeriocularStation } from "../../structures/IAutoMovieHumanFacePeriocularStation";
-import type { IAutoMovieHumanFaceAttachmentChart } from "../../structures/IAutoMovieHumanFaceAttachmentChart";
-import type { IHumanFaceAttachmentChartHost } from "./structures/IHumanFaceAttachmentChartHost";
-import type { IAutoMovieHumanFaceAttachmentContinuation } from "../../structures/IAutoMovieHumanFaceAttachmentContinuation";
-import type { IHumanFaceSkinSeat } from "../skin/IHumanFaceSkinSeat";
-
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
+import type { IAutoMovieHumanFaceAttachmentChart } from "../../structures/IAutoMovieHumanFaceAttachmentChart";
+import type { IAutoMovieHumanFaceAttachmentContinuation } from "../../structures/IAutoMovieHumanFaceAttachmentContinuation";
+import type { IAutoMovieHumanFacePeriocularStation } from "../../structures/IAutoMovieHumanFacePeriocularStation";
 import type { IHumanFaceSkinFrame } from "../skin/IHumanFaceSkinFrame";
+import type { IHumanFaceSkinSeat } from "../skin/IHumanFaceSkinSeat";
 import { HUMAN_FACE_LID_SEAT } from "./HUMAN_FACE_LID_SEAT";
 import { createHumanFaceAttachmentChartHost } from "./createHumanFaceAttachmentChartHost";
 import { locateHumanFacePeriocularArc } from "./locateHumanFacePeriocularArc";
 import { readHumanFacePeriocularStationBoundary } from "./readHumanFacePeriocularStationBoundary";
+import type { IHumanFaceAttachmentChartHost } from "./structures/IHumanFaceAttachmentChartHost";
 import type { IHumanFacePeriocularArcLocation } from "./structures/IHumanFacePeriocularArcLocation";
 import type { IHumanFacePeriocularBand } from "./structures/IHumanFacePeriocularBand";
 import type { IHumanFacePeriocularBandInput } from "./structures/IHumanFacePeriocularBandInput";
@@ -45,17 +44,32 @@ import type { IHumanFacePeriocularHostSample } from "./structures/IHumanFacePeri
 export function buildHumanFacePeriocularBand(
   input: IHumanFacePeriocularBandInput,
 ): IHumanFacePeriocularBand {
-  const { cage, host, points, skinHost, surface, upper, side, tissue }: IHumanFacePeriocularBandInput = input;
+  const {
+    cage,
+    host,
+    points,
+    skinHost,
+    surface,
+    upper,
+    side,
+    tissue,
+  }: IHumanFacePeriocularBandInput = input;
   const columns: number[] = upper ? cage.upperColumns : cage.lowerColumns;
   const tear: number = HUMAN_FACE_LID_SEAT.tearFilmMetres;
-  const read: (rows: readonly number[], vertex: number) => IAutoMovieVector3 = (rows: readonly number[], vertex: number): IAutoMovieVector3 =>
+  const read: (rows: readonly number[], vertex: number) => IAutoMovieVector3 = (
+    rows: readonly number[],
+    vertex: number,
+  ): IAutoMovieVector3 =>
     Vector3.create(
       rows[3 * vertex],
       rows[3 * vertex + 1],
       rows[3 * vertex + 2],
     );
   const station: (role: string) => number = (role: string): number => {
-    const found: number = cage.stations.findIndex((entry: IAutoMovieHumanFacePeriocularStation): boolean  => entry.role === role);
+    const found: number = cage.stations.findIndex(
+      (entry: IAutoMovieHumanFacePeriocularStation): boolean =>
+        entry.role === role,
+    );
     if (found < 0)
       throw new Error(
         "Periocular tissue needs its station row: " + side + ":" + role,
@@ -75,9 +89,12 @@ export function buildHumanFacePeriocularBand(
   // The band lies where lid skin covers the globe: it starts under the
   // anterior margin, where the lid has its thickness, and its columns
   // stop short of the medial bed, where the margin leaves the globe.
-  const anterior: IAutoMovieHumanFacePeriocularStation = cage.stations[station("anteriorMargin")];
+  const anterior: IAutoMovieHumanFacePeriocularStation =
+    cage.stations[station("anteriorMargin")];
   if (anterior.boundary !== undefined && attachment === undefined)
-    throw new Error("A published anterior native boundary needs its registered material disk.");
+    throw new Error(
+      "A published anterior native boundary needs its registered material disk.",
+    );
   const margin: number[] = anterior.vertices,
     crease: number[] = cage.stations[station("crease")].vertices,
     rim: number[] = cage.stations[station("posteriorMargin")].vertices;
@@ -90,19 +107,23 @@ export function buildHumanFacePeriocularBand(
     (upper ? cage.medialBed?.upperColumns : cage.medialBed?.lowerColumns) ??
     undefined;
   let arc: number = 0;
-  let interior: number[] = columns.slice(1, -1).filter((column: number, at: number): boolean  => {
-    arc += Vector3.length(
-      Vector3.subtract(
-        read(points, rim[column]),
-        read(points, rim[columns[at]]),
-      ),
-    );
-    return bed === undefined
-      ? arc >= HUMAN_FACE_LID_SEAT.medialBedMetres
-      : at + 1 >= bed;
-  });
+  let interior: number[] = columns
+    .slice(1, -1)
+    .filter((column: number, at: number): boolean => {
+      arc += Vector3.length(
+        Vector3.subtract(
+          read(points, rim[column]),
+          read(points, rim[columns[at]]),
+        ),
+      );
+      return bed === undefined
+        ? arc >= HUMAN_FACE_LID_SEAT.medialBedMetres
+        : at + 1 >= bed;
+    });
   if (arcs !== undefined) {
-    const active: boolean[] = interior.map((column: number): boolean  => arcs[columns.indexOf(column)] > 0);
+    const active: boolean[] = interior.map(
+      (column: number): boolean => arcs[columns.indexOf(column)] > 0,
+    );
     const first: number = active.indexOf(true),
       last: number = active.lastIndexOf(true);
     if (first < 0)
@@ -126,25 +147,34 @@ export function buildHumanFacePeriocularBand(
         ":" +
         tissue,
     );
-  const nativeSegments: number[][] | undefined = attachment === undefined
-    ? undefined
-    : readHumanFacePeriocularStationBoundary(
-        anterior, host, interior.map((column: number): number  => margin[column]),
-      );
-  if (attachment !== undefined && nativeSegments === undefined)
-    throw new Error("Registered periocular tissue needs its published anterior native boundary.");
-  const near: IAutoMovieVector3[] = interior.map((column: number): IAutoMovieVector3  => read(points, margin[column]));
-  const far: IAutoMovieVector3[] = interior.map((column: number, at: number): IAutoMovieVector3  => {
-    const end: IAutoMovieVector3 = read(points, crease[column]);
-    const span: IAutoMovieVector3 = Vector3.subtract(end, near[at]);
-    const length: number = Vector3.length(span);
-    return arcs === undefined || length === 0
-      ? end
-      : Vector3.add(
-          near[at],
-          Vector3.scale(span, arcs[columns.indexOf(interior[at])] / length),
+  const nativeSegments: number[][] | undefined =
+    attachment === undefined
+      ? undefined
+      : readHumanFacePeriocularStationBoundary(
+          anterior,
+          host,
+          interior.map((column: number): number => margin[column]),
         );
-  });
+  if (attachment !== undefined && nativeSegments === undefined)
+    throw new Error(
+      "Registered periocular tissue needs its published anterior native boundary.",
+    );
+  const near: IAutoMovieVector3[] = interior.map(
+    (column: number): IAutoMovieVector3 => read(points, margin[column]),
+  );
+  const far: IAutoMovieVector3[] = interior.map(
+    (column: number, at: number): IAutoMovieVector3 => {
+      const end: IAutoMovieVector3 = read(points, crease[column]);
+      const span: IAutoMovieVector3 = Vector3.subtract(end, near[at]);
+      const length: number = Vector3.length(span);
+      return arcs === undefined || length === 0
+        ? end
+        : Vector3.add(
+            near[at],
+            Vector3.scale(span, arcs[columns.indexOf(interior[at])] / length),
+          );
+    },
+  );
   const farLocations: IHumanFacePeriocularArcLocation[] | undefined =
     attachment === undefined
       ? undefined
@@ -159,10 +189,15 @@ export function buildHumanFacePeriocularBand(
                   attachment,
                   skinHost,
                   surface,
-                  cage.stations.map((row: IAutoMovieHumanFacePeriocularStation): number  => row.vertices[column]),
+                  cage.stations.map(
+                    (row: IAutoMovieHumanFacePeriocularStation): number =>
+                      row.vertices[column],
+                  ),
                   arcs[columns.indexOf(column)],
                   sourceChart!.continuations?.find(
-                    (continuation: IAutoMovieHumanFaceAttachmentContinuation): boolean  => continuation.column === column,
+                    (
+                      continuation: IAutoMovieHumanFaceAttachmentContinuation,
+                    ): boolean => continuation.column === column,
                   )?.points,
                 );
           } catch (error) {
@@ -178,43 +213,74 @@ export function buildHumanFacePeriocularBand(
   const boundarySamples: IHumanFacePeriocularHostSample[] | undefined =
     nativeSegments === undefined ? undefined : [];
   if (nativeSegments !== undefined) {
-    const edgeKey: (a: number, b: number) => string = (a: number, b: number): string => a < b ? a + ":" + b : b + ":" + a;
+    const edgeKey: (a: number, b: number) => string = (
+      a: number,
+      b: number,
+    ): string => (a < b ? a + ":" + b : b + ":" + a);
     const edgeTriangles: Map<string, number> = new Map<string, number>();
     for (let at: number = 0; at < sourceChart!.indices.length; at += 3)
       for (let corner: number = 0; corner < 3; corner++) {
-        const a: number = sourceChart!.vertices[sourceChart!.indices[at + corner]],
-          b: number = sourceChart!.vertices[sourceChart!.indices[at + (corner + 1) % 3]];
+        const a: number =
+            sourceChart!.vertices[sourceChart!.indices[at + corner]],
+          b: number =
+            sourceChart!.vertices[
+              sourceChart!.indices[at + ((corner + 1) % 3)]
+            ];
         const key: string = edgeKey(a, b);
-        if (!edgeTriangles.has(key)) edgeTriangles.set(key, sourceChart!.sourceTriangles[at / 3]);
+        if (!edgeTriangles.has(key))
+          edgeTriangles.set(key, sourceChart!.sourceTriangles[at / 3]);
       }
     for (let segment: number = 0; segment < nativeSegments.length; segment++) {
       const path: number[] = nativeSegments[segment];
-      const lengths: number[] = path.slice(1).map((vertex: number, at: number): number  => Vector3.length(
-        Vector3.subtract(read(host.positions, vertex), read(host.positions, path[at])),
-      ));
-      const total: number = lengths.reduce((sum: number, length: number): number  => sum + length, 0);
-      if (!(total > 0) || !Number.isFinite(total) || lengths.some((length: number): boolean  => !(length > 0)))
-        throw new Error("An anterior native course needs positive finite reference edge lengths.");
+      const lengths: number[] = path
+        .slice(1)
+        .map((vertex: number, at: number): number =>
+          Vector3.length(
+            Vector3.subtract(
+              read(host.positions, vertex),
+              read(host.positions, path[at]),
+            ),
+          ),
+        );
+      const total: number = lengths.reduce(
+        (sum: number, length: number): number => sum + length,
+        0,
+      );
+      if (
+        !(total > 0) ||
+        !Number.isFinite(total) ||
+        lengths.some((length: number): boolean => !(length > 0))
+      )
+        throw new Error(
+          "An anterior native course needs positive finite reference edge lengths.",
+        );
       let preceding: number = 0;
       for (let edge: number = 0; edge < lengths.length; edge++) {
-        const a: number = path[edge], b: number = path[edge + 1];
+        const a: number = path[edge],
+          b: number = path[edge + 1];
         const triangle: number | undefined = edgeTriangles.get(edgeKey(a, b));
         if (triangle === undefined)
-          throw new Error("An anterior native edge is outside its registered material disk.");
+          throw new Error(
+            "An anterior native edge is outside its registered material disk.",
+          );
         const corners: number[] = skinHost.corners(triangle);
-        const last: boolean = segment === nativeSegments.length - 1 && edge === lengths.length - 1;
+        const last: boolean =
+          segment === nativeSegments.length - 1 && edge === lengths.length - 1;
         for (let part: number = 0; part < cells + (last ? 1 : 0); part++) {
           const fraction: number = part / cells;
           const weights: [number, number, number] = [0, 0, 0];
           weights[corners.indexOf(a)] = 1 - fraction;
           weights[corners.indexOf(b)] = fraction;
-          const seat: { triangle: number; weights: [number, number, number]; } = { triangle, weights };
+          const seat: { triangle: number; weights: [number, number, number] } =
+            { triangle, weights };
           const frame: IHumanFaceSkinFrame = skinHost.frame(seat);
           boundarySamples!.push({
             row: 0,
             column: boundarySamples!.length,
-            sourceColumn: part === cells ? segment + 1 :
-              segment + (preceding + lengths[edge] * fraction) / total,
+            sourceColumn:
+              part === cells
+                ? segment + 1
+                : segment + (preceding + lengths[edge] * fraction) / total,
             point: [...frame.point],
             materialPoint: attachment!.coordinateAt(seat),
             materialEdge: { vertices: [a, b], fraction },
@@ -225,19 +291,28 @@ export function buildHumanFacePeriocularBand(
       }
     }
   }
-  const stride: number = boundarySamples?.length ?? cells * (interior.length - 1) + 1;
+  const stride: number =
+    boundarySamples?.length ?? cells * (interior.length - 1) + 1;
   const height: number = bands + 1;
   if (attachment === undefined && arcs !== undefined)
     for (let at: number = 0; at < stride; at++) {
-      const sourceColumn: number = boundarySamples?.[at].sourceColumn ?? at / cells;
-      const column: number = Math.min(interior.length - 2, Math.floor(sourceColumn));
+      const sourceColumn: number =
+        boundarySamples?.[at].sourceColumn ?? at / cells;
+      const column: number = Math.min(
+        interior.length - 2,
+        Math.floor(sourceColumn),
+      );
       const t: number = sourceColumn - column;
       const a: number = arcs[columns.indexOf(interior[column])],
         b: number = arcs[columns.indexOf(interior[column + 1])];
       if (a + (b - a) * t === 0) collapsedColumns.add(at);
     }
   const floor: number = tear;
-  const mix: (a: IAutoMovieVector3, b: IAutoMovieVector3, t: number) => IAutoMovieVector3 = (
+  const mix: (
+    a: IAutoMovieVector3,
+    b: IAutoMovieVector3,
+    t: number,
+  ) => IAutoMovieVector3 = (
     a: IAutoMovieVector3,
     b: IAutoMovieVector3,
     t: number,
@@ -249,13 +324,23 @@ export function buildHumanFacePeriocularBand(
     // whose straight cross-sections may overlap on a concave boundary.
     const boundary: number[] = [];
     const canonical: Map<number, number> = new Map<number, number>();
-    const append: (sample: IHumanFacePeriocularHostSample) => void = (sample: IHumanFacePeriocularHostSample): void => {
+    const append: (sample: IHumanFacePeriocularHostSample) => void = (
+      sample: IHumanFacePeriocularHostSample,
+    ): void => {
       const corners: number[] = skinHost.corners(sample.seat.triangle);
-      const corner: number = sample.seat.weights.findIndex((weight: number): boolean  => weight === 1);
-      const vertex: number | undefined = corner >= 0 && sample.seat.weights.every(
-        (weight: number, index: number): boolean  => index === corner || weight === 0,
-      ) ? corners[corner] : undefined;
-      let index: number | undefined = vertex === undefined ? undefined : canonical.get(vertex);
+      const corner: number = sample.seat.weights.findIndex(
+        (weight: number): boolean => weight === 1,
+      );
+      const vertex: number | undefined =
+        corner >= 0 &&
+        sample.seat.weights.every(
+          (weight: number, index: number): boolean =>
+            index === corner || weight === 0,
+        )
+          ? corners[corner]
+          : undefined;
+      let index: number | undefined =
+        vertex === undefined ? undefined : canonical.get(vertex);
       if (index === undefined) {
         index = hostSamples.length;
         hostSamples.push(sample);
@@ -264,9 +349,12 @@ export function buildHumanFacePeriocularBand(
       }
       if (boundary[boundary.length - 1] !== index) boundary.push(index);
     };
-    const farSample: (column: number) => IHumanFacePeriocularHostSample = (column: number): IHumanFacePeriocularHostSample => {
+    const farSample: (column: number) => IHumanFacePeriocularHostSample = (
+      column: number,
+    ): IHumanFacePeriocularHostSample => {
       const sourceColumn: number = boundarySamples[column].sourceColumn!;
-      const location: IHumanFacePeriocularArcLocation = farLocations![sourceColumn];
+      const location: IHumanFacePeriocularArcLocation =
+        farLocations![sourceColumn];
       return {
         row: bands,
         column,
@@ -276,7 +364,8 @@ export function buildHumanFacePeriocularBand(
         seat: location.seat,
       };
     };
-    for (let column: number = 0; column < stride; column++) append(boundarySamples[column]);
+    for (let column: number = 0; column < stride; column++)
+      append(boundarySamples[column]);
     // Far coarse targets and the two end edges are the original straight
     // material segments. Their eight-way subdivision belongs to the exact
     // refinement owner; rounded intermediate UVs cannot redefine the edge.
@@ -285,10 +374,17 @@ export function buildHumanFacePeriocularBand(
         append(farSample(column));
     if (boundary[0] === boundary[boundary.length - 1]) boundary.pop();
     return {
-      frames, samples: hostSamples, stride, height, collapsedColumns, floor,
-      chart: sourceChart, sourceColumns: [...interior],
-      nearBoundary: interior.map((column: number): number  => margin[column]),
-      farBoundary: farLocations, boundary,
+      frames,
+      samples: hostSamples,
+      stride,
+      height,
+      collapsedColumns,
+      floor,
+      chart: sourceChart,
+      sourceColumns: [...interior],
+      nearBoundary: interior.map((column: number): number => margin[column]),
+      farBoundary: farLocations,
+      boundary,
     };
   }
   // Legacy spatial seating retains its original sampled ruled strip.
@@ -296,7 +392,10 @@ export function buildHumanFacePeriocularBand(
   for (let band: number = 0; band <= bands; band++)
     for (let at: number = 0; at < stride; at++) {
       const sourceColumn: number = at / cells;
-      const column: number = Math.min(interior.length - 2, Math.floor(sourceColumn));
+      const column: number = Math.min(
+        interior.length - 2,
+        Math.floor(sourceColumn),
+      );
       const t: number = sourceColumn - column;
       const sample: IAutoMovieVector3 = mix(
         mix(near[column], near[column + 1], t),
@@ -324,7 +423,7 @@ export function buildHumanFacePeriocularBand(
     floor,
     chart: sourceChart,
     sourceColumns: [...interior],
-    nearBoundary: interior.map((column: number): number  => margin[column]),
+    nearBoundary: interior.map((column: number): number => margin[column]),
     farBoundary: farLocations,
   };
 }

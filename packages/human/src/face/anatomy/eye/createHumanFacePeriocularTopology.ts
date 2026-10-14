@@ -32,10 +32,19 @@ export function createHumanFacePeriocularTopology(
     }
   const n: number = stride * height;
   const perimeter: number[] = [
-    ...Array.from({ length: stride }, (_: unknown, c: number): number  => c),
-    ...Array.from({ length: height - 1 }, (_: unknown, r: number): number  => (r + 2) * stride - 1),
-    ...Array.from({ length: stride - 1 }, (_: unknown, c: number): number  => n - 2 - c),
-    ...Array.from({ length: height - 2 }, (_: unknown, r: number): number  => (height - 2 - r) * stride),
+    ...Array.from({ length: stride }, (_: unknown, c: number): number => c),
+    ...Array.from(
+      { length: height - 1 },
+      (_: unknown, r: number): number => (r + 2) * stride - 1,
+    ),
+    ...Array.from(
+      { length: stride - 1 },
+      (_: unknown, c: number): number => n - 2 - c,
+    ),
+    ...Array.from(
+      { length: height - 2 },
+      (_: unknown, r: number): number => (height - 2 - r) * stride,
+    ),
   ].map(canonical);
   return { cells, perimeter };
 }

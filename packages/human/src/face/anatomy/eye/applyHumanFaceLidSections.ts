@@ -1,13 +1,12 @@
-import type { IAutoMovieHumanFaceLidSections } from "../../structures/IAutoMovieHumanFaceLidSections";
-import type { IAutoMovieHumanFacePeriocularCage } from "../../structures/IAutoMovieHumanFacePeriocularCage";
-import type { IAutoMovieHumanFaceBasisSurface } from "../../structures/IAutoMovieHumanFaceBasisSurface";
-import type { IAutoMovieHumanFaceLidSectionDisplacement } from "../../structures/IAutoMovieHumanFaceLidSectionDisplacement";
-import type { IAutoMovieHumanFacePeriocularStation } from "../../structures/IAutoMovieHumanFacePeriocularStation";
-
 import { assertHumanFacePeriocularCage } from "../../basis/assertHumanFacePeriocularCage";
 import type { AutoMovieHumanFacePeriocularStationRole } from "../../structures/AutoMovieHumanFacePeriocularStationRole";
 import type { IAutoMovieHumanFaceBasis } from "../../structures/IAutoMovieHumanFaceBasis";
+import type { IAutoMovieHumanFaceBasisSurface } from "../../structures/IAutoMovieHumanFaceBasisSurface";
 import type { IAutoMovieHumanFaceEyelids } from "../../structures/IAutoMovieHumanFaceEyelids";
+import type { IAutoMovieHumanFaceLidSectionDisplacement } from "../../structures/IAutoMovieHumanFaceLidSectionDisplacement";
+import type { IAutoMovieHumanFaceLidSections } from "../../structures/IAutoMovieHumanFaceLidSections";
+import type { IAutoMovieHumanFacePeriocularCage } from "../../structures/IAutoMovieHumanFacePeriocularCage";
+import type { IAutoMovieHumanFacePeriocularStation } from "../../structures/IAutoMovieHumanFacePeriocularStation";
 
 /**
  * Author full coarse lid sections on the shared native skin, before posing.
@@ -37,11 +36,16 @@ export function applyHumanFaceLidSections(
   for (const side of ["left", "right"] as const) {
     const profiles: IAutoMovieHumanFaceLidSections | undefined = input[side];
     if (profiles === undefined || Object.keys(profiles).length === 0) continue;
-    const cage: IAutoMovieHumanFacePeriocularCage | undefined = basis.periocular?.[side].cage;
+    const cage: IAutoMovieHumanFacePeriocularCage | undefined =
+      basis.periocular?.[side].cage;
     if (cage === undefined)
       throw new Error("Lid section source cage unavailable: " + side);
     assertHumanFacePeriocularCage(basis, cage);
-    const host: IAutoMovieHumanFaceBasisSurface | undefined = basis.surfaces.find((surface: IAutoMovieHumanFaceBasisSurface): boolean  => surface.id === cage.surface);
+    const host: IAutoMovieHumanFaceBasisSurface | undefined =
+      basis.surfaces.find(
+        (surface: IAutoMovieHumanFaceBasisSurface): boolean =>
+          surface.id === cage.surface,
+      );
     const source: readonly number[] | undefined = result.get(cage.surface);
     if (source === undefined || source.length !== host!.positions.length)
       throw new Error(
@@ -49,13 +53,16 @@ export function applyHumanFaceLidSections(
       );
     const changed: number[] = [...source];
     const aliases: Map<number, number[]> = new Map<number, number[]>();
-    host!.sourcePartition!.samples.forEach((sample: number, vertex: number): void  => {
-      const group: number[] = aliases.get(sample) ?? [];
-      group.push(vertex);
-      aliases.set(sample, group);
-    });
+    host!.sourcePartition!.samples.forEach(
+      (sample: number, vertex: number): void => {
+        const group: number[] = aliases.get(sample) ?? [];
+        group.push(vertex);
+        aliases.set(sample, group);
+      },
+    );
     for (const name of Object.keys(profiles) as (keyof typeof profiles)[]) {
-      const profile: IAutoMovieHumanFaceLidSectionDisplacement | undefined = profiles[name];
+      const profile: IAutoMovieHumanFaceLidSectionDisplacement | undefined =
+        profiles[name];
       if (profile === undefined) continue;
       if (![profile.elevationMm, profile.projectionMm].every(Number.isFinite))
         throw new Error(
@@ -73,7 +80,11 @@ export function applyHumanFaceLidSections(
           : name.endsWith("Hood")
             ? "hood"
             : "preseptal";
-      const station: IAutoMovieHumanFacePeriocularStation | undefined = cage.stations.find((station: IAutoMovieHumanFacePeriocularStation): boolean  => station.role === role);
+      const station: IAutoMovieHumanFacePeriocularStation | undefined =
+        cage.stations.find(
+          (station: IAutoMovieHumanFacePeriocularStation): boolean =>
+            station.role === role,
+        );
       const columns: number[] = name.startsWith("upper")
         ? cage.upperColumns
         : cage.lowerColumns;
@@ -109,7 +120,7 @@ export function applyHumanFaceLidSections(
     }
     if (
       !changed.every(
-        (value: number): boolean  =>
+        (value: number): boolean =>
           Number.isFinite(value) && Number.isFinite(Math.fround(value)),
       )
     )

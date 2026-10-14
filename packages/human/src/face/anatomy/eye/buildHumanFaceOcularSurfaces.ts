@@ -1,9 +1,3 @@
-import type { IAutoMovieHumanFaceOcularSurfaceShape } from "../../structures/IAutoMovieHumanFaceOcularSurfaceShape";
-import type { IAutoMovieHumanFacePeriocularCage } from "../../structures/IAutoMovieHumanFacePeriocularCage";
-import type { IHumanFaceOcularSurface } from "./structures/IHumanFaceOcularSurface";
-import type { IAutoMovieHumanFacePeriocularStation } from "../../structures/IAutoMovieHumanFacePeriocularStation";
-import type { IHumanFaceOcularSurfaceHit } from "./structures/IHumanFaceOcularSurfaceHit";
-
 import { Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieMaterial,
@@ -17,8 +11,13 @@ import { float32MeshBuffers } from "../../../common/mesh/float32MeshBuffers";
 import { assertHumanFacePeriocularCage } from "../../basis/assertHumanFacePeriocularCage";
 import type { IAutoMovieHumanFaceBasis } from "../../structures/IAutoMovieHumanFaceBasis";
 import type { IAutoMovieHumanFaceBasisDocument } from "../../structures/IAutoMovieHumanFaceBasisDocument";
+import type { IAutoMovieHumanFaceOcularSurfaceShape } from "../../structures/IAutoMovieHumanFaceOcularSurfaceShape";
+import type { IAutoMovieHumanFacePeriocularCage } from "../../structures/IAutoMovieHumanFacePeriocularCage";
+import type { IAutoMovieHumanFacePeriocularStation } from "../../structures/IAutoMovieHumanFacePeriocularStation";
 import { HUMAN_FACE_LID_SEAT } from "./HUMAN_FACE_LID_SEAT";
 import { buildHumanFaceMedialBedSurface } from "./buildHumanFaceMedialBedSurface";
+import type { IHumanFaceOcularSurface } from "./structures/IHumanFaceOcularSurface";
+import type { IHumanFaceOcularSurfaceHit } from "./structures/IHumanFaceOcularSurfaceHit";
 import type { IHumanFaceOpticalAssembly } from "./structures/IHumanFaceOpticalAssembly";
 
 /**
@@ -90,12 +89,14 @@ export function buildHumanFaceOcularSurfaces(
   };
   const tear: number = HUMAN_FACE_LID_SEAT.tearFilmMetres;
   for (const side of ["left", "right"] as const) {
-    const profile: IAutoMovieHumanFaceOcularSurfaceShape | undefined = document.ocularSurfaces?.[side];
+    const profile: IAutoMovieHumanFaceOcularSurfaceShape | undefined =
+      document.ocularSurfaces?.[side];
     if (profile === undefined) continue;
-    const cage: IAutoMovieHumanFacePeriocularCage | undefined = basis.periocular?.[side].cage;
-    const surface: IHumanFaceOcularSurface | undefined = optics?.find((eye: IHumanFaceOpticalAssembly): boolean  => eye.side === side)?.exterior[
-      state === "rest" ? "rest" : "posed"
-    ];
+    const cage: IAutoMovieHumanFacePeriocularCage | undefined =
+      basis.periocular?.[side].cage;
+    const surface: IHumanFaceOcularSurface | undefined = optics?.find(
+      (eye: IHumanFaceOpticalAssembly): boolean => eye.side === side,
+    )?.exterior[state === "rest" ? "rest" : "posed"];
     if (cage === undefined || surface === undefined)
       throw new Error(
         "Ocular visible surfaces need the source lid cage and generated ocular exterior of their eye: " +
@@ -103,9 +104,11 @@ export function buildHumanFaceOcularSurfaces(
       );
     assertHumanFacePeriocularCage(basis, cage);
     const values: readonly number[] | undefined = positions.get(cage.surface);
-    const margin: IAutoMovieHumanFacePeriocularStation | undefined = cage.stations.find(
-      (station: IAutoMovieHumanFacePeriocularStation): boolean  => station.role === "posteriorMargin",
-    );
+    const margin: IAutoMovieHumanFacePeriocularStation | undefined =
+      cage.stations.find(
+        (station: IAutoMovieHumanFacePeriocularStation): boolean =>
+          station.role === "posteriorMargin",
+      );
     const dimensions: number[] = [
       profile.cornerLength,
       profile.caruncleProjection,
@@ -118,7 +121,9 @@ export function buildHumanFaceOcularSurfaces(
     if (
       values === undefined ||
       margin === undefined ||
-      dimensions.some((value: number): boolean  => !Number.isFinite(value) || value < 0) ||
+      dimensions.some(
+        (value: number): boolean => !Number.isFinite(value) || value < 0,
+      ) ||
       (profile.upperMarginWidth === undefined) !==
         (profile.upperMarginLift === undefined)
     )
@@ -126,39 +131,60 @@ export function buildHumanFaceOcularSurfaces(
         "Ocular visible surfaces need their seated margin row and finite nonnegative dimensions, with upper width and lift supplied together: " +
           side,
       );
-    const chain: (columns: readonly number[]) => { length: number; at: (distance: number) => IAutoMovieVector3; } = (columns: readonly number[]): { length: number; at: (distance: number) => IAutoMovieVector3; }  => {
-      const anchors: number[] = columns.map((column: number): number  => margin.vertices[column]);
-      const boundary: number[] | undefined = cage.displacementPatch?.posteriorBoundary;
+    const chain: (columns: readonly number[]) => {
+      length: number;
+      at: (distance: number) => IAutoMovieVector3;
+    } = (
+      columns: readonly number[],
+    ): { length: number; at: (distance: number) => IAutoMovieVector3 } => {
+      const anchors: number[] = columns.map(
+        (column: number): number => margin.vertices[column],
+      );
+      const boundary: number[] | undefined =
+        cage.displacementPatch?.posteriorBoundary;
       let vertices: number[] = anchors;
       if (boundary !== undefined) {
         const start: number = boundary.indexOf(anchors[0]);
         const end: number = anchors[anchors.length - 1];
         const stations: Set<number> = new Set(margin.vertices);
-        const paths: number[][] = [1, -1].map((direction: number): number[]  => {
-          const path: number[] = [];
-          for (let at: number = 0; at < boundary.length; at++) {
-            const vertex: number = boundary[
-              (start + direction * at + boundary.length) % boundary.length
-            ];
-            path.push(vertex);
-            if (vertex === end) break;
-          }
-          return path;
-        }).filter((path: number[]): boolean  => {
-          const ordered: number[] = path.filter((vertex: number): boolean  => stations.has(vertex));
-          return start >= 0 && ordered.length === anchors.length &&
-            ordered.every((vertex: number, at: number): boolean  => vertex === anchors[at]);
-        });
+        const paths: number[][] = [1, -1]
+          .map((direction: number): number[] => {
+            const path: number[] = [];
+            for (let at: number = 0; at < boundary.length; at++) {
+              const vertex: number =
+                boundary[
+                  (start + direction * at + boundary.length) % boundary.length
+                ];
+              path.push(vertex);
+              if (vertex === end) break;
+            }
+            return path;
+          })
+          .filter((path: number[]): boolean => {
+            const ordered: number[] = path.filter((vertex: number): boolean =>
+              stations.has(vertex),
+            );
+            return (
+              start >= 0 &&
+              ordered.length === anchors.length &&
+              ordered.every(
+                (vertex: number, at: number): boolean => vertex === anchors[at],
+              )
+            );
+          });
         if (paths.length !== 1)
           throw new Error(
-            "Ocular margin needs one actual native posterior path through its ordered cage anchors: " + side,
+            "Ocular margin needs one actual native posterior path through its ordered cage anchors: " +
+              side,
           );
         vertices = paths[0];
       }
-      const points: IAutoMovieVector3[] = vertices.map((vertex: number): IAutoMovieVector3  => {
-        const at: number = 3 * vertex;
-        return Vector3.create(values[at], values[at + 1], values[at + 2]);
-      });
+      const points: IAutoMovieVector3[] = vertices.map(
+        (vertex: number): IAutoMovieVector3 => {
+          const at: number = 3 * vertex;
+          return Vector3.create(values[at], values[at + 1], values[at + 2]);
+        },
+      );
       const arc: number[] = [0];
       for (let at: number = 1; at < points.length; at++)
         arc.push(
@@ -167,7 +193,9 @@ export function buildHumanFaceOcularSurfaces(
         );
       const length: number = arc[arc.length - 1];
       // Point at an arc distance from the medial join.
-      const at: (distance: number) => IAutoMovieVector3 = (distance: number): IAutoMovieVector3 => {
+      const at: (distance: number) => IAutoMovieVector3 = (
+        distance: number,
+      ): IAutoMovieVector3 => {
         const target: number = Math.min(length, Math.max(0, distance));
         if (target === 0) return points[0];
         if (target === length) return points[points.length - 1];
@@ -186,15 +214,23 @@ export function buildHumanFaceOcularSurfaces(
       };
       return { length, at };
     };
-    const upper: { length: number; at: (distance: number) => IAutoMovieVector3; } = chain(cage.upperColumns),
-      lower: { length: number; at: (distance: number) => IAutoMovieVector3; } = chain(cage.lowerColumns);
+    const upper: {
+        length: number;
+        at: (distance: number) => IAutoMovieVector3;
+      } = chain(cage.upperColumns),
+      lower: { length: number; at: (distance: number) => IAutoMovieVector3 } =
+        chain(cage.lowerColumns);
     const corner: number = profile.cornerLength / 1000;
     if (corner > Math.min(upper.length, lower.length))
       throw new Error(
         "Ocular medial sheet needs a corner length within both lid margins: " +
           side,
       );
-    const lattice: (columns: number, rows: number, place: (u: number, v: number) => IAutoMovieVector3) => IAutoMovieMesh | null = (
+    const lattice: (
+      columns: number,
+      rows: number,
+      place: (u: number, v: number) => IAutoMovieVector3,
+    ) => IAutoMovieMesh | null = (
       columns: number,
       rows: number,
       place: (u: number, v: number) => IAutoMovieVector3,
@@ -214,7 +250,9 @@ export function buildHumanFaceOcularSurfaces(
           }
           grid.push(id);
         }
-      const corner3: (id: number) => IAutoMovieVector3 = (id: number): IAutoMovieVector3 =>
+      const corner3: (id: number) => IAutoMovieVector3 = (
+        id: number,
+      ): IAutoMovieVector3 =>
         Vector3.create(
           coordinates[3 * id],
           coordinates[3 * id + 1],
@@ -222,7 +260,11 @@ export function buildHumanFaceOcularSurfaces(
         );
       const indices: number[] = [];
       let facing: number = 0;
-      const triangle: (a: number, b: number, c: number) => void = (a: number, b: number, c: number): void => {
+      const triangle: (a: number, b: number, c: number) => void = (
+        a: number,
+        b: number,
+        c: number,
+      ): void => {
         const normal: IAutoMovieVector3 = Vector3.cross(
           Vector3.subtract(corner3(b), corner3(a)),
           Vector3.subtract(corner3(c), corner3(a)),
@@ -258,11 +300,32 @@ export function buildHumanFaceOcularSurfaces(
         skin: null,
       };
     };
-    const raised: (base: IAutoMovieVector3, height: number) => IAutoMovieVector3 = (base: IAutoMovieVector3, height: number): IAutoMovieVector3  => {
+    const raised: (
+      base: IAutoMovieVector3,
+      height: number,
+    ) => IAutoMovieVector3 = (
+      base: IAutoMovieVector3,
+      height: number,
+    ): IAutoMovieVector3 => {
       const hit: IHumanFaceOcularSurfaceHit = surface.project(base);
       return Vector3.add(hit.point, Vector3.scale(hit.normal, height));
     };
-    const wet: (own: ReturnType<(columns: readonly number[]) => { length: number; at: (distance: number) => IAutoMovieVector3; }>, other: ReturnType<(columns: readonly number[]) => { length: number; at: (distance: number) => IAutoMovieVector3; }>, width: number, lift: number) => IAutoMovieMesh | null = (
+    const wet: (
+      own: ReturnType<
+        (columns: readonly number[]) => {
+          length: number;
+          at: (distance: number) => IAutoMovieVector3;
+        }
+      >,
+      other: ReturnType<
+        (columns: readonly number[]) => {
+          length: number;
+          at: (distance: number) => IAutoMovieVector3;
+        }
+      >,
+      width: number,
+      lift: number,
+    ) => IAutoMovieMesh | null = (
       own: ReturnType<typeof chain>,
       other: ReturnType<typeof chain>,
       width: number,
@@ -270,9 +333,12 @@ export function buildHumanFaceOcularSurfaces(
     ): IAutoMovieMesh | null =>
       width === 0
         ? null
-        : lattice(80, 4, (u: number, v: number): IAutoMovieVector3  => {
+        : lattice(80, 4, (u: number, v: number): IAutoMovieVector3 => {
             const start: IAutoMovieVector3 = own.at(own.length * u);
-            const across: IAutoMovieVector3 = Vector3.subtract(other.at(other.length * u), start);
+            const across: IAutoMovieVector3 = Vector3.subtract(
+              other.at(other.length * u),
+              start,
+            );
             const gap: number = Vector3.length(across);
             const fade: number = Math.sin(Math.PI * u);
             const reach: number = Math.min(width * fade, gap / 2);
@@ -293,7 +359,7 @@ export function buildHumanFaceOcularSurfaces(
         ? null
         : cage.medialBed !== undefined
           ? buildHumanFaceMedialBedSurface(basis, cage, values, profile)
-          : lattice(32, 12, (u: number, v: number): IAutoMovieVector3  => {
+          : lattice(32, 12, (u: number, v: number): IAutoMovieVector3 => {
               const low: IAutoMovieVector3 = lower.at(corner * u),
                 high: IAutoMovieVector3 = upper.at(corner * u);
               const base: IAutoMovieVector3 = Vector3.add(
@@ -341,7 +407,9 @@ export function buildHumanFaceOcularSurfaces(
           (profile.upperMarginLift ?? 0) / 1000,
         ),
       ]);
-    const finish: IAutoMovieMaterial | undefined = materials.find((material: IAutoMovieMaterial): boolean  => material.id === cage.material);
+    const finish: IAutoMovieMaterial | undefined = materials.find(
+      (material: IAutoMovieMaterial): boolean => material.id === cage.material,
+    );
     if (finish === undefined)
       throw new Error(
         "Ocular visible surfaces need their registered source display finish.",

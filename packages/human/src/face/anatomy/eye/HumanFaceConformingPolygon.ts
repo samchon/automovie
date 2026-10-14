@@ -39,7 +39,7 @@ export class HumanFaceConformingPolygon {
    * @evidence contracts/performance.md#efficient-algorithms Two triangles contribute six corner tests and nine edge pairs, then a bounded cut hull/area calculation; BigInt bit widths drive each exact predicate.
    * @evidence contracts/performance.md#reuse-equivalent-work One local key map merges repeated occurrences of the same declared feature, and the shared arithmetic/edge naming rules serve every pair.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Returned cuts/area are caller-owned; enumeration and hull temporaries expire without retaining host/chart arrays.
- */
+   */
   static intersect(
     grid: MaterialTriangle,
     host: MaterialTriangle,
@@ -64,29 +64,30 @@ export class HumanFaceConformingPolygon {
    * @evidence contracts/performance.md#efficient-algorithms K outline vertices require O(K squared) exact nonadjacent-edge tests and O(K) area accumulation; the full scan is the current complete simplicity check.
    * @evidence contracts/performance.md#reuse-equivalent-work The admitted ordered cuts and computed area feed later ear triangulation; source identity and exact arithmetic are shared rather than rederived from coordinates.
    * @evidence contracts/performance.md#bound-retention-and-release-resources The returned owned cut array borrows its immutable cut records; temporary edge/area work expires and no outline cache or resource is retained.
- */
+   */
   static outline(cuts: MaterialCut[]): IHumanFaceConformingPolygon {
     if (
       cuts.length < 3 ||
-      new Set(cuts.map((cut: MaterialCut): string  => cut.key)).size !== cuts.length
+      new Set(cuts.map((cut: MaterialCut): string => cut.key)).size !==
+        cuts.length
     )
       throw new Error(
         "A material outline needs distinct ordered boundary identities.",
       );
-    const between: (a: MaterialPoint, b: MaterialPoint, p: MaterialPoint) => boolean = (
+    const between: (
+      a: MaterialPoint,
+      b: MaterialPoint,
+      p: MaterialPoint,
+    ) => boolean = (
       a: MaterialPoint,
       b: MaterialPoint,
       p: MaterialPoint,
     ): boolean =>
       Arithmetic.orientation(a, b, p) === 0n &&
-      [0, 1].every((axis: number): boolean  => {
+      [0, 1].every((axis: number): boolean => {
         const fromA: bigint = p[axis] * a[2] - a[axis] * p[2];
         const fromB: bigint = p[axis] * b[2] - b[axis] * p[2];
-        return (
-          fromA === 0n ||
-          fromB === 0n ||
-          (fromA < 0n) !== (fromB < 0n)
-        );
+        return fromA === 0n || fromB === 0n || fromA < 0n !== fromB < 0n;
       });
     for (let i: number = 0; i < cuts.length; i++) {
       const a: [bigint, bigint, bigint] = cuts[i].point;
@@ -103,10 +104,16 @@ export class HumanFaceConformingPolygon {
         const cdA: bigint = Arithmetic.orientation(c, d, a);
         const cdB: bigint = Arithmetic.orientation(c, d, b);
         if (
-          between(a, b, c) || between(a, b, d) ||
-          between(c, d, a) || between(c, d, b) ||
-          (abC !== 0n && abD !== 0n && cdA !== 0n && cdB !== 0n &&
-            (abC < 0n) !== (abD < 0n) && (cdA < 0n) !== (cdB < 0n))
+          between(a, b, c) ||
+          between(a, b, d) ||
+          between(c, d, a) ||
+          between(c, d, b) ||
+          (abC !== 0n &&
+            abD !== 0n &&
+            cdA !== 0n &&
+            cdB !== 0n &&
+            abC < 0n !== abD < 0n &&
+            cdA < 0n !== cdB < 0n)
         )
           throw new Error(
             "A material outline needs a simple noncrossing boundary.",
@@ -131,7 +138,7 @@ export class HumanFaceConformingPolygon {
    * @evidence contracts/performance.md#efficient-algorithms Two scalar comparisons and one short key allocation use constant work per edge.
    * @evidence contracts/performance.md#reuse-equivalent-work All consumers share the same endpoint-order convention; the helper retains no mapping across changed incidence.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Only the returned key survives and no source vertex/edge population or resource is retained.
- */
+   */
   static edge(a: number, b: number): string {
     return a < b ? `${a}:${b}` : `${b}:${a}`;
   }
@@ -146,9 +153,11 @@ export class HumanFaceConformingPolygon {
    * @evidence contracts/performance.md#efficient-algorithms For K cuts, scanning candidate ears and all remaining points across removals has O(K cubed) worst-case work; pair-intersection polygons are small, while whole-outline calls have no explicit size cap.
    * @evidence contracts/performance.md#reuse-equivalent-work Original cut points and shared exact orientation are reused throughout ear decisions; emitted triangles retain original polygon ordinals.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Only K-2 output triples escape on success; the remaining list and per-ear point/corner arrays expire on success or refusal without retained state.
- */
+   */
   static triangulate(polygon: MaterialCut[]): [number, number, number][] {
-    const remaining: number[] = polygon.map((_: MaterialCut, at: number): number  => at);
+    const remaining: number[] = polygon.map(
+      (_: MaterialCut, at: number): number => at,
+    );
     const indices: [number, number, number][] = [];
     while (remaining.length > 3) {
       let removed: boolean = false;
@@ -158,15 +167,17 @@ export class HumanFaceConformingPolygon {
           remaining[at],
           remaining[(at + 1) % remaining.length],
         ];
-        const points: [bigint, bigint, bigint][] = corners.map((id: number): [bigint, bigint, bigint]  => polygon[id].point);
+        const points: [bigint, bigint, bigint][] = corners.map(
+          (id: number): [bigint, bigint, bigint] => polygon[id].point,
+        );
         if (Arithmetic.orientation(points[0], points[1], points[2]) <= 0n)
           continue;
         if (
           remaining.some(
-            (id: number): boolean  =>
+            (id: number): boolean =>
               !corners.includes(id) &&
               points.every(
-                (point: [bigint, bigint, bigint], side: number): boolean  =>
+                (point: [bigint, bigint, bigint], side: number): boolean =>
                   Arithmetic.orientation(
                     point,
                     points[(side + 1) % 3],
@@ -188,11 +199,9 @@ export class HumanFaceConformingPolygon {
     }
     if (
       Arithmetic.orientation(
-        ...(remaining.map((id: number): [bigint, bigint, bigint]  => polygon[id].point) as [
-          MaterialPoint,
-          MaterialPoint,
-          MaterialPoint,
-        ]),
+        ...(remaining.map(
+          (id: number): [bigint, bigint, bigint] => polygon[id].point,
+        ) as [MaterialPoint, MaterialPoint, MaterialPoint]),
       ) <= 0n
     )
       throw new Error(
@@ -207,9 +216,10 @@ export class HumanFaceConformingPolygon {
  * Classify a point by the three exact oriented half-planes of a nondegenerate triangle.
  */
 function inside(point: MaterialPoint, triangle: MaterialTriangle): boolean {
-  const sign: 1n | -1n = Arithmetic.orientation(...triangle.points) > 0n ? 1n : -1n;
+  const sign: 1n | -1n =
+    Arithmetic.orientation(...triangle.points) > 0n ? 1n : -1n;
   return triangle.points.every(
-    (a: [bigint, bigint, bigint], at: number): boolean  =>
+    (a: [bigint, bigint, bigint], at: number): boolean =>
       sign * Arithmetic.orientation(a, triangle.points[(at + 1) % 3], point) >=
       0n,
   );
@@ -227,13 +237,16 @@ function intersect(
   const cuts: Map<string, MaterialCut> = new Map<string, MaterialCut>();
   const sourceKey: (id: number) => string = (id: number): string =>
     aliases.get(id) ?? `h:${hostIds[id]}`;
-  const insert: (key: string, point: MaterialPoint) => void = (key: string, point: MaterialPoint): void => {
+  const insert: (key: string, point: MaterialPoint) => void = (
+    key: string,
+    point: MaterialPoint,
+  ): void => {
     if (!cuts.has(key)) cuts.set(key, { key, point });
   };
-  grid.points.forEach((point: [bigint, bigint, bigint], at: number): void  => {
+  grid.points.forEach((point: [bigint, bigint, bigint], at: number): void => {
     if (inside(point, host)) insert(grid.keys[at], point);
   });
-  host.points.forEach((point: [bigint, bigint, bigint], at: number): void  => {
+  host.points.forEach((point: [bigint, bigint, bigint], at: number): void => {
     if (inside(point, grid)) insert(sourceKey(host.corners[at]), point);
   });
   for (let i: number = 0; i < 3; i++) {
@@ -266,9 +279,12 @@ function intersect(
               ? sourceKey(host.corners[j])
               : u === denominator
                 ? sourceKey(host.corners[(j + 1) % 3])
-                : `x:m:${JSON.stringify([
-                    grid.keys[i], grid.keys[(i + 1) % 3],
-                  ].sort((a: string, b: string): 0 | 1 | -1  => a < b ? -1 : a > b ? 1 : 0))}:h:${HumanFaceConformingPolygon.edge(
+                : `x:m:${JSON.stringify(
+                    [grid.keys[i], grid.keys[(i + 1) % 3]].sort(
+                      (a: string, b: string): 0 | 1 | -1 =>
+                        a < b ? -1 : a > b ? 1 : 0,
+                    ),
+                  )}:h:${HumanFaceConformingPolygon.edge(
                     hostIds[host.corners[j]],
                     hostIds[host.corners[(j + 1) % 3]],
                   )}`;
@@ -286,7 +302,10 @@ function intersect(
  * Order convex intersection points while retaining every collinear boundary cut.
  */
 function hull(cuts: MaterialCut[]): MaterialCut[] {
-  const compare: (a: MaterialCut, b: MaterialCut) => number = (a: MaterialCut, b: MaterialCut): number => {
+  const compare: (a: MaterialCut, b: MaterialCut) => number = (
+    a: MaterialCut,
+    b: MaterialCut,
+  ): number => {
     const x: bigint = a.point[0] * b.point[2] - b.point[0] * a.point[2];
     const y: bigint = a.point[1] * b.point[2] - b.point[1] * a.point[2];
     return x < 0n ? -1 : x > 0n ? 1 : y < 0n ? -1 : y > 0n ? 1 : 0;
@@ -297,13 +316,21 @@ function hull(cuts: MaterialCut[]): MaterialCut[] {
       throw new Error(
         "Coincident material features need a declared source endpoint identity: " +
           JSON.stringify(
-            sorted.slice(at - 1, at + 1).map((cut: MaterialCut): { provenance: string; homogeneous: string[]; }  => ({
-              provenance: cut.key,
-              homogeneous: cut.point.map(String),
-            })),
+            sorted
+              .slice(at - 1, at + 1)
+              .map(
+                (
+                  cut: MaterialCut,
+                ): { provenance: string; homogeneous: string[] } => ({
+                  provenance: cut.key,
+                  homogeneous: cut.point.map(String),
+                }),
+              ),
           ),
       );
-  const half: (points: MaterialCut[]) => MaterialCut[] = (points: MaterialCut[]): MaterialCut[] => {
+  const half: (points: MaterialCut[]) => MaterialCut[] = (
+    points: MaterialCut[],
+  ): MaterialCut[] => {
     const chain: MaterialCut[] = [];
     for (const point of points) {
       while (

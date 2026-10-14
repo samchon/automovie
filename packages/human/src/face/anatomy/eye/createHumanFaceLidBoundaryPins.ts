@@ -33,11 +33,18 @@ import type { IHumanFaceLidBoundaryPinsInput } from "./structures/IHumanFaceLidB
 export function createHumanFaceLidBoundaryPins(
   input: IHumanFaceLidBoundaryPinsInput,
 ): Map<number, IAutoMovieVector3> {
-  const { positions, samples, boundaryVertices, pins }: IHumanFaceLidBoundaryPinsInput = input;
+  const {
+    positions,
+    samples,
+    boundaryVertices,
+    pins,
+  }: IHumanFaceLidBoundaryPinsInput = input;
   if (
     positions.length !== 3 * samples.length ||
     !positions.every(Number.isFinite) ||
-    !samples.every((sample: number): boolean  => Number.isSafeInteger(sample) && sample >= 0) ||
+    !samples.every(
+      (sample: number): boolean => Number.isSafeInteger(sample) && sample >= 0,
+    ) ||
     boundaryVertices.length < 3
   )
     throw new Error(
@@ -51,7 +58,10 @@ export function createHumanFaceLidBoundaryPins(
   const cycleSamples: number[] = boundaryVertices.map(sampleAt);
   if (new Set(cycleSamples).size !== boundaryVertices.length)
     throw new Error("Lid boundary pins need a simple canonical-source cycle.");
-  const fixed: Map<number, IAutoMovieVector3> = new Map<number, IAutoMovieVector3>();
+  const fixed: Map<number, IAutoMovieVector3> = new Map<
+    number,
+    IAutoMovieVector3
+  >();
   for (const [vertex, delta] of pins) {
     const sample: number = sampleAt(vertex);
     if (![delta.x, delta.y, delta.z].every(Number.isFinite))
@@ -68,25 +78,30 @@ export function createHumanFaceLidBoundaryPins(
       );
     fixed.set(sample, { x: delta.x, y: delta.y, z: delta.z });
   }
-  const lengths: number[] = boundaryVertices.map((vertex: number, at: number): number  => {
-    const next: number = boundaryVertices[(at + 1) % boundaryVertices.length];
-    const length: number = Math.hypot(
-      positions[3 * next] - positions[3 * vertex],
-      positions[3 * next + 1] - positions[3 * vertex + 1],
-      positions[3 * next + 2] - positions[3 * vertex + 2],
-    );
-    if (!(length > 0 && Number.isFinite(length)))
-      throw new Error(
-        "Lid boundary pins need finite positive native-edge lengths.",
+  const lengths: number[] = boundaryVertices.map(
+    (vertex: number, at: number): number => {
+      const next: number = boundaryVertices[(at + 1) % boundaryVertices.length];
+      const length: number = Math.hypot(
+        positions[3 * next] - positions[3 * vertex],
+        positions[3 * next + 1] - positions[3 * vertex + 1],
+        positions[3 * next + 2] - positions[3 * vertex + 2],
       );
-    return length;
-  });
-  const anchors: number[] = cycleSamples.flatMap((sample: number, at: number): number[]  =>
-    fixed.has(sample) ? [at] : [],
+      if (!(length > 0 && Number.isFinite(length)))
+        throw new Error(
+          "Lid boundary pins need finite positive native-edge lengths.",
+        );
+      return length;
+    },
+  );
+  const anchors: number[] = cycleSamples.flatMap(
+    (sample: number, at: number): number[] => (fixed.has(sample) ? [at] : []),
   );
   if (anchors.length === 0)
     throw new Error("Lid boundary pins need at least one pinned cycle sample.");
-  const result: Map<number, IAutoMovieVector3> = new Map<number, IAutoMovieVector3>();
+  const result: Map<number, IAutoMovieVector3> = new Map<
+    number,
+    IAutoMovieVector3
+  >();
   if (anchors.length === 1) {
     const delta: IAutoMovieVector3 = fixed.get(cycleSamples[anchors[0]])!;
     for (const vertex of boundaryVertices)
@@ -110,7 +125,7 @@ export function createHumanFaceLidBoundaryPins(
     for (let step: number = 0; step < count; step++) {
       const at: number = (start + step) % boundaryVertices.length;
       const t: number = travelled / total;
-      const delta: { x: number; y: number; z: number; } =
+      const delta: { x: number; y: number; z: number } =
         step === 0
           ? { x: left.x, y: left.y, z: left.z }
           : {

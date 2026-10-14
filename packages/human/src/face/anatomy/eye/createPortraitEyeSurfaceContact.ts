@@ -1,5 +1,3 @@
-import type { IPortraitFinalSurfaceHost } from "../../surface/structures/IPortraitFinalSurfaceHost";
-
 import type { IAutoMovieMesh, IAutoMovieVector3 } from "@automovie/interface";
 
 import { createMetricMeshPart } from "../../mesh/createMetricMeshPart";
@@ -8,6 +6,7 @@ import { portraitEyeSphereIntersection } from "../../surface/portraitEyeSphereIn
 import { portraitMinimumDirectionalSurfaceTargets } from "../../surface/portraitMinimumDirectionalSurfaceTargets";
 import { type IPortraitEyeSphere } from "../../surface/structures/IPortraitEyeSphere";
 import type { IPortraitFinalSurface } from "../../surface/structures/IPortraitFinalSurface";
+import type { IPortraitFinalSurfaceHost } from "../../surface/structures/IPortraitFinalSurfaceHost";
 import { blendPortraitSkin } from "../skin/blendPortraitSkin";
 import { buildPortraitEyeContactBasis } from "./buildPortraitEyeContactBasis";
 import type { IPortraitEyePerformance } from "./structures/IPortraitEyePerformance";
@@ -59,7 +58,9 @@ export function createPortraitEyeSurfaceContact({
   performance?: IPortraitEyePerformance;
   canthal?: IAutoMovieMesh;
 }): IPortraitFinalSurface {
-  return (final: IPortraitFinalSurfaceHost): { vertex: number; target: number[]; }[]  => {
+  return (
+    final: IPortraitFinalSurfaceHost,
+  ): { vertex: number; target: number[] }[] => {
     const gaze: readonly number[] = final.positions[iris];
     const center: IAutoMovieVector3 = portraitEyeSphereIntersection(
       sphere,
@@ -85,36 +86,48 @@ export function createPortraitEyeSurfaceContact({
         ((performance !== undefined || shape.opticalFrame === "radial") &&
           final.indices
             .slice(3 * i, 3 * i + 3)
-            .some((id: number): boolean  => final.positions[id][2] > sphere.center.z))
+            .some(
+              (id: number): boolean => final.positions[id][2] > sphere.center.z,
+            ))
       )
         indices.push(...final.indices.slice(3 * i, 3 * i + 3));
     // Full triangle overlap catches an optical bulge between
     // clear lid vertices. Retain host IDs so all neighbouring
     // skin receives one shared contact target and normal field.
-    const constraints: { vertex: number; reach: number; target: number[]; }[] = portraitMinimumDirectionalSurfaceTargets(
-      {
-        positions: final.positions.flatMap((point: readonly number[]): number[]  =>
-          point.map((v: number): number  => v / 1000),
-        ),
-        indices,
-        normals: null,
-        uvs: null,
-        skin: null,
-      },
-      optical,
-      direction,
-      shape.lidThickness / 1000,
-    ).map(({ vertex, target }: { vertex: number; target: IAutoMovieVector3; }): { vertex: number; reach: number; target: number[]; }  => ({
-      vertex,
-      reach: shape.lidContactReach ?? 3,
-      target: [target.x * 1000, target.y * 1000, target.z * 1000],
-    }));
+    const constraints: { vertex: number; reach: number; target: number[] }[] =
+      portraitMinimumDirectionalSurfaceTargets(
+        {
+          positions: final.positions.flatMap(
+            (point: readonly number[]): number[] =>
+              point.map((v: number): number => v / 1000),
+          ),
+          indices,
+          normals: null,
+          uvs: null,
+          skin: null,
+        },
+        optical,
+        direction,
+        shape.lidThickness / 1000,
+      ).map(
+        ({
+          vertex,
+          target,
+        }: {
+          vertex: number;
+          target: IAutoMovieVector3;
+        }): { vertex: number; reach: number; target: number[] } => ({
+          vertex,
+          reach: shape.lidContactReach ?? 3,
+          target: [target.x * 1000, target.y * 1000, target.z * 1000],
+        }),
+      );
     // Contact fixes the required points; the same geodesic skin
     // adapter used by initial component fitting carries their
     // movement into surrounding tissue. A pointwise clamp alone
     // leaves a hard platform at the optical footprint boundary.
     const adapted: number[][] = blendPortraitSkin(
-      final.positions.map((point: readonly number[]): number[]  => [...point]),
+      final.positions.map((point: readonly number[]): number[] => [...point]),
       [...final.indices],
       constraints,
     );
@@ -129,26 +142,33 @@ export function createPortraitEyeSurfaceContact({
         if (final.groups[i] === lidGroup)
           final.indices
             .slice(3 * i, 3 * i + 3)
-            .forEach((id: number): Set<number>  => vertices.add(id));
+            .forEach((id: number): Set<number> => vertices.add(id));
       for (const id of vertices) {
         const key: string = final.positions[id].join("/");
         pairs.set(key, [...(pairs.get(key) ?? []), id]);
       }
       for (const ids of pairs.values()) {
-        const depth: (id: number) => number = (id: number): number  =>
+        const depth: (id: number) => number = (id: number): number =>
           adapted[id][0] * direction.x +
           adapted[id][1] * direction.y +
           adapted[id][2] * direction.z;
-        const winner: number = ids.reduce((best: number, id: number): number  =>
+        const winner: number = ids.reduce((best: number, id: number): number =>
           depth(id) > depth(best) ? id : best,
         );
         for (const id of ids) adapted[id] = [...adapted[winner]];
       }
     }
-    return adapted.flatMap((target: number[], vertex: number): { vertex: number; target: number[]; }[]  =>
-      target.some((value: number, axis: number): boolean  => value !== final.positions[vertex][axis])
-        ? [{ vertex, target }]
-        : [],
+    return adapted.flatMap(
+      (
+        target: number[],
+        vertex: number,
+      ): { vertex: number; target: number[] }[] =>
+        target.some(
+          (value: number, axis: number): boolean =>
+            value !== final.positions[vertex][axis],
+        )
+          ? [{ vertex, target }]
+          : [],
     );
   };
 }
