@@ -3,12 +3,9 @@ import type { IAutoMovieBlocking, IAutoMoviePerformance, IAutoMovieShotProgram, 
 import { makeBlockingWrite, makePerformanceWrite, makeScriptWrite, makeStagingWrite } from "./filmFixtures";
 
 /**
- * The duel fixture, plus everything an authored object clip is measured
- * against: a door prop whose hinge is lowered, a wall panel standing on its own
- * as a building element would, and a torch the engine bakes a follow clip for.
+ * The duel fixture, plus everything an authored object clip is measured against: a door prop whose hinge is lowered, a wall panel standing on its own as a building element would, and a torch the engine bakes a follow clip for.
  *
- * `extraSet` adds one more staged piece, so a scenario can put a scene node
- * exactly where a prop joint lowers and watch the collision be named.
+ * `extraSet` adds one more staged piece, so a scenario can put a scene node exactly where a prop joint lowers and watch the collision be named.
  */
 export function doorProgram (
   extraSet: IAutoMovieStage["set"] = [],

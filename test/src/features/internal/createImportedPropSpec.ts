@@ -7,9 +7,7 @@ const HERO_BYTES: string = FILM_IMPORTED_PROP_BYTES.hero;
 const SIDECAR_BYTES: string = FILM_IMPORTED_PROP_BYTES.sidecar;
 
 /**
- * Fresh imported chair metadata and its authored collision proxy, body and
- * stack-top affordance. Symbolic asset paths and repeated-character digests
- * exercise declared closure admission without loading or hashing actual assets.
+ * Fresh imported chair metadata and its authored collision proxy, body and stack-top affordance. Symbolic asset paths and repeated-character digests exercise declared closure admission without loading or hashing actual assets.
  */
 export function createImportedPropSpec (): IAutoMoviePropSpec { return ({
   node: "chair",
