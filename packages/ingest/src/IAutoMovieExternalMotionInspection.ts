@@ -7,7 +7,7 @@ import type { IAutoMovieClip } from "@automovie/interface";
  *
  * @evidence contracts/common.md#principled-implementation Takes are rewritten from FLOAT accessors to node tracks with exact copied keyframes under one declared spatial interpretation, so motion data is reproducible from the bytes alone.
  * @evidence contracts/common.md#clear-and-simple-design `nodeIds` duplicates the node ids as a plain list because mapping authors and the inventory consume the list without the transforms.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The interpretation is a single literal type, so a consumer cannot receive motion under an unannounced axis or unit convention.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The literal constrains typed producers to one declared convention; the inspector emits it and adoption checks it at runtime, while this erased interface alone cannot authenticate externally supplied transforms or their units.
  * @evidence contracts/common.md#meaningful-documentation The comments state that the path and length repeat for adoption checks, the length excludes sidecars, and how takes are ordered, named, timed and flagged as non-looping.
  * @evidenceExclude contracts/performance.md#efficient-algorithms The motion record is a result type with no code.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Motion facts are a data shape; the inspector shares decoded accessors while building them.

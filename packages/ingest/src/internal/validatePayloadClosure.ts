@@ -4,6 +4,8 @@ import { decodeDataUri } from "./decodeDataUri";
 /**
  * Bind every declared glTF buffer and image to its exact resident payload.
  *
+ * The caller has admitted declared counts, lengths, views and URI shapes. Only buffer zero in a GLB/VRM container may borrow BIN, with at most three pad bytes; URI buffers require exact declared lengths, and views must fit declared and resident extents. Each external URI entry invokes the caller resolver independently, without network access here; data URIs decode locally and URI images need nonempty bytes. Returned buffer references live with the synchronous inspector, while image formats and sparse contents remain uninspected.
+ *
  * @evidence contracts/common.md#principled-implementation GLB buffer zero owns BIN with at most three pad bytes; URI buffers require exact lengths and views fit declared and resident bounds.
  * @evidence contracts/common.md#clear-and-simple-design One payload owner sequences buffer binding, orphan-BIN checks, view bounds and image presence before profile decoding.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing sidecars throw; resolver effects occur per declared entry and are not silently deduplicated or replaced.

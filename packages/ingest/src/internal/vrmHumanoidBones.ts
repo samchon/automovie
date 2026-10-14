@@ -9,6 +9,8 @@ import { requiredArray } from "./requiredArray";
 /**
  * Read declared VRM humanoid mappings using version-specific thumb migration.
  *
+ * VRMC_vrm takes precedence when both metadata families exist and emits recognized bone keys in code-unit order; VRM 0.x retains array order, migrates thumb names and rejects duplicate slots. Unknown names and invalid node indices throw, and absent metadata returns an empty list. VRMC_vrm is interpreted with 1.0 thumb names even for 1.0-beta declarations; this pass does not validate a complete VRM schema, unique target nodes or skin weights.
+ *
  * @evidence contracts/common.md#principled-implementation VRMC_vrm uses named 1.0 slots and valid node indices; VRM 0.x maps renamed thumb slots and rejects duplicates.
  * @evidence contracts/common.md#clear-and-simple-design Version branching, thumb migration and the closed humanoid vocabulary stay with this metadata owner.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Unknown or dangling mappings throw; VRMC_vrm beta thumb conventions remain an explicit unresolved interpretation limit.

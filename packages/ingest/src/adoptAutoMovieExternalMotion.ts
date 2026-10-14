@@ -19,27 +19,39 @@ import type { IAutoMovieExternalMotionRetargetHandoff } from "./IAutoMovieExtern
  *
  * The inspection must come from the `gltf-motion-v1` profile under the glTF meter, right-handed, Y-up interpretation, and the source must repeat its path and byte length with a lowercase SHA-256 digest. Every track of the selected take must target a mapped node, translation only on the node mapped to `hips`, and never scale or weights, because humanoid motion carries neither. Each mapped bone's parent and rest in the declared source rig must equal what the inspected hierarchy implies: the nearest mapped ancestor and the node's local TRS composed through every unmapped helper between them. The comparison is exact, so an author computes the rest from the inspected transforms rather than retyping rounded values. The first violation throws with the field it concerns.
  *
+ * The caller supplies an unmodified inspector result and binds the digest to the resident bytes; adoption checks digest spelling, not a hash. Rig admission here requires a non-blank id, unique bone names and `hips`, but basis comparisons cover only mapped bones and do not validate constraints or unmapped rests. Helper TRS composition follows fixed floating-point arithmetic and drops shear when a helper's non-uniform scale does not commute with a child rotation; exact agreement proves agreement with that representation, not exact affine geometry.
+ *
  * @param props.inspection Inspection of the exact source bytes.
  * @param props.source Manifest identity of those bytes.
  * @param props.decision The author's use of one take.
  * @returns A receipt that shares no objects with its inputs.
  *
- * @evidence contracts/common.md#principled-implementation Each check compares the decision with inspected facts: identity fields by equality, mapping uniqueness with sets, and each mapped bone's basis by walking to the nearest mapped ancestor and composing helper TRS with the shared `composeLocalTransform`, whose fixed arithmetic order makes the exact equality comparison reproducible.
+ * @evidence contracts/common.md#principled-implementation Path and byte length compare with caller-supplied inspected facts, while the digest is checked only for spelling. Sets establish mapping uniqueness, and each mapped basis is recomputed by nearest-mapped-ancestor walks and fixed-order `composeLocalTransform` arithmetic; binary64 rounding and discarded shear remain, and constraints and unmapped rests receive no basis check.
  * @evidence contracts/common.md#clear-and-simple-design Identity/selection, rig binding and retarget-only fields have separate local owners; humanoid import shares transform composition and the engine validation owner supplies the common SHA-256 spelling predicate.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No take, rig, bone or path is special-cased; the runtime mode check exists for untyped callers, and the digest regular expression is the manifest's documented `sha256:` format rather than a fixture value.
- * @evidence contracts/common.md#meaningful-documentation The documentation lists every requirement in checking order, the translation-only-on-hips and no-scale-or-weights rules with their reason, the exact basis comparison and how an author satisfies it, and that the receipt shares nothing with its inputs.
+ * @evidence contracts/common.md#meaningful-documentation The documentation distinguishes digest spelling from byte authentication, mapped-basis checks from complete rig admission, and exact arithmetic agreement from affine exactness; it also gives supported channels, first-refusal behavior and ownership of receipt copies.
  * @evidence contracts/performance.md#efficient-algorithms Copy cost follows the selected take's tracks/keyframes and source-rig size; hash-map setup follows the mapping and node counts. Mapping size M adds O(M log M) prefix-scanning node-id comparisons plus text-dependent identity/hash work; mapped bones times helper-chain lengths drive basis walks, and take lookup scans the declared take inventory without an assumed population bound.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Adoption validates one decision against one inspection per call and shares no work across calls; the inspection it reads is already the caller's reused result.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The temporary maps and sets die with the call; the receipt retains copies of the take, rig and mapping proportional to their size and is owned by the caller, with no handle or task.
  * @author Samchon
  */
 export const adoptAutoMovieExternalMotion: (props: {
+  /** Unmodified result of inspecting the source's exact resident bytes. */
   inspection: IAutoMovieExternalModelInspection;
+
+  /** Manifest identity whose digest-to-byte binding the caller establishes. */
   source: IAutoMovieExternalMotionSource;
+
+  /** Explicit take, rig and mapping, with retarget fields in retarget mode. */
   decision: AutoMovieExternalMotionAdoptionDecision;
 }) => IAutoMovieExternalMotionAdoption = (props: {
+  /** Unmodified result of inspecting the source's exact resident bytes. */
   inspection: IAutoMovieExternalModelInspection;
+
+  /** Manifest identity whose digest-to-byte binding the caller establishes. */
   source: IAutoMovieExternalMotionSource;
+
+  /** Explicit take, rig and mapping, with retarget fields in retarget mode. */
   decision: AutoMovieExternalMotionAdoptionDecision;
 }): IAutoMovieExternalMotionAdoption => {
   if (props.inspection.profile !== "gltf-motion-v1")

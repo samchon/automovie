@@ -26,12 +26,22 @@ import type { IAutoMovieDecodedProductionAudioAsset } from "./IAutoMovieDecodedP
  * @author Samchon
  */
 export const decodeProductionAudioAsset: (props: {
+  /** Diagnostic identity only; the decoder opens no file. */
   path: string;
+
+  /** Complete resident RIFF/WAVE bytes, borrowed without mutation. */
   bytes: Uint8Array;
+
+  /** Positive safe-integer output samples per second. */
   sampleRate: number;
 }) => IAutoMovieDecodedProductionAudioAsset = (props: {
+  /** Diagnostic identity only; the decoder opens no file. */
   path: string;
+
+  /** Complete resident RIFF/WAVE bytes, borrowed without mutation. */
   bytes: Uint8Array;
+
+  /** Positive safe-integer output samples per second. */
   sampleRate: number;
 }): IAutoMovieDecodedProductionAudioAsset => {
   if (Number.isSafeInteger(props.sampleRate) === false || props.sampleRate <= 0)

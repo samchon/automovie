@@ -11,7 +11,7 @@ const INGEST_PROFILE_REGISTRY: Readonly<
 };
 
 /**
- * Every supported ingest profile literal, frozen in declaration order. The complete Record over the closed union supplies exactly four own keys; the frozen list is reused by guards and command surfaces and retains a bounded four-entry inventory for module lifetime.
+ * Every supported ingest profile literal, frozen in declaration order. The complete Record over the closed union supplies exactly four own keys; the profile guard reuses this bounded module-lifetime inventory without deriving another list.
  *
  * @author Samchon
  */

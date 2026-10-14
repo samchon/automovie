@@ -1,7 +1,7 @@
 /**
  * The deterministic conversion `decodeProductionAudioAsset` applied to turn a WAVE source into mono mixer input, recorded so a render plan can check it against the source format it claims.
  *
- * @evidence contracts/common.md#principled-implementation The lineage records exactly the two operations the decoder performs, a fixed-coefficient downmix and a rate change, so a plan reproduces the conversion from `kind`, `matrix` and `outputSampleRate` without trusting the samples.
+ * @evidence contracts/common.md#principled-implementation Stage kind, downmix coefficients and requested output rate let the render identity validator compare declared processing with source channels and rate; the record does not prove sample contents or specify a general resampling algorithm independently of the decoder.
  * @evidence contracts/common.md#clear-and-simple-design One flat record names the stage combination and its parameters; the render package's wave identity validator reads these four fields and nothing else.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Literal channel and stage vocabulary constrain names, but independent fields and numeric arrays do not enforce stage/rate/matrix correlation; the decoder produces those relations and the render wave-identity validator checks them.
  * @evidence contracts/common.md#meaningful-documentation The comments give the stage order, the output channel and rate meaning, and the row-by-column orientation and only values of the downmix matrix.

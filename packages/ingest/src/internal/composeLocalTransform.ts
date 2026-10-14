@@ -11,7 +11,7 @@ import type { IAutoMovieTransform } from "@automovie/interface";
  * @param child Transform expressed in `parent`'s space.
  * @returns A new transform expressing `child` in the space `parent` lives in.
  *
- * @evidence contracts/common.md#principled-implementation The translation applies the parent's scale, then its unit-quaternion rotation through `v + w t + q x t` with `t = 2 q x v`, then its offset; the rotation is the Hamilton product and the scale is component-wise, which is exact whenever the parent scale commutes with the child rotation, as the documentation states.
+ * @evidence contracts/common.md#principled-implementation Translation applies parent scale, unit-quaternion rotation through `v + w t + q x t` with `t = 2 q x v`, then offset; rotation uses the Hamilton product and scale is component-wise. In real arithmetic this represents the affine product when parent scale commutes with child rotation; binary64 rounding remains, and other products discard shear.
  * @evidence contracts/common.md#clear-and-simple-design Humanoid import and motion adoption share one composition function, with callers responsible for the unit-quaternion premise.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The fixed scalar arithmetic permits exact recomputation of an inspected basis within this pipeline; it neither normalizes quaternions nor repairs shear or non-finite inputs.
  * @evidence contracts/common.md#meaningful-documentation The documentation states why helpers are folded, the formula, when it is exact and what it drops, the unit-rotation premise, and that fixed arithmetic order makes exact comparison reproducible.

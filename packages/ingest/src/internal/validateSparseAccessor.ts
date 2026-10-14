@@ -8,6 +8,8 @@ import { nonNegativeInteger } from "./nonNegativeInteger";
 /**
  * Admit sparse accessor byte ranges within validated glTF buffer views.
  *
+ * Absent sparse metadata does nothing. Present metadata needs a positive count no greater than accessor count, valid index/value views, unsigned byte/short/int indices and nonnegative zero-default offsets. Both tightly packed extents must fit their views; index ordering, index values and sparse payload values are not decoded, and skin/motion readers reject sparse accessors separately.
+ *
  * @evidence contracts/common.md#principled-implementation Sparse count cannot exceed accessor count; unsigned index widths and padded matrix element sizes determine both payload ranges.
  * @evidence contracts/common.md#clear-and-simple-design The sparse gate owns count, index format and subview range checks while shared element sizing owns matrix padding.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Sparse layout is checked structurally but skin/motion consumers explicitly refuse sparse reading rather than inventing dense values.
