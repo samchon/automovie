@@ -1,4 +1,7 @@
-import { IAutoMovieFormationBounds, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  IAutoMovieFormationBounds,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { createCompiledSlotSummary } from "./createCompiledSlotSummary";
 
@@ -22,22 +25,41 @@ export function summarizeCompiledSlotChunks(
   position: (slot: number) => IAutoMovieVector3,
 ): {
   /** Caller-owned chunk records in ascending start order. */
-  chunks: Array<{ index: number; start: number; count: number; bounds: IAutoMovieFormationBounds; centroid: IAutoMovieVector3 }>;
+  chunks: Array<{
+    index: number;
+    start: number;
+    count: number;
+    bounds: IAutoMovieFormationBounds;
+    centroid: IAutoMovieVector3;
+  }>;
 
   /** Caller-owned bounds and centroid over every placement point. */
   summary: { bounds: IAutoMovieFormationBounds; centroid: IAutoMovieVector3 };
 } {
-  const whole: ReturnType<typeof createCompiledSlotSummary> = createCompiledSlotSummary();
-  const chunks: Array<{ index: number; start: number; count: number; bounds: IAutoMovieFormationBounds; centroid: IAutoMovieVector3 }> = [];
+  const whole: ReturnType<typeof createCompiledSlotSummary> =
+    createCompiledSlotSummary();
+  const chunks: Array<{
+    index: number;
+    start: number;
+    count: number;
+    bounds: IAutoMovieFormationBounds;
+    centroid: IAutoMovieVector3;
+  }> = [];
   for (let start: number = 0; start < count; start += chunkSize) {
     const size: number = Math.min(chunkSize, count - start);
-    const chunk: ReturnType<typeof createCompiledSlotSummary> = createCompiledSlotSummary();
+    const chunk: ReturnType<typeof createCompiledSlotSummary> =
+      createCompiledSlotSummary();
     for (let slot: number = start; slot < start + size; ++slot) {
       const point: IAutoMovieVector3 = position(slot);
       chunk.add(point);
       whole.add(point);
     }
-    chunks.push({ index: chunks.length, start, count: size, ...chunk.finish() });
+    chunks.push({
+      index: chunks.length,
+      start,
+      count: size,
+      ...chunk.finish(),
+    });
   }
   return { chunks, summary: whole.finish() };
 }

@@ -1,5 +1,8 @@
-import type { IAutoMovieCompiledFormationHero, IAutoMovieCompiledFormation, IAutoMovieFormationSlot } from "@automovie/interface";
-
+import type {
+  IAutoMovieCompiledFormation,
+  IAutoMovieCompiledFormationHero,
+  IAutoMovieFormationSlot,
+} from "@automovie/interface";
 
 import { formationSlotPosition } from "../formationSlotPosition";
 import { formationSlotRecord } from "../formationSlotRecord";
@@ -30,11 +33,17 @@ import { formationSlotRecord } from "../formationSlotRecord";
  * @evidence contracts/performance.md#reuse-equivalent-work Position and record owners are reused by all formation consumers; no result cache survives mutable compiled terrain or hero overrides.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only one caller-owned member record escapes; the borrowed formation and terrain snapshot are not copied or retained by a registry.
  */
-export const compiledFormationSlot: (formation: IAutoMovieCompiledFormation, slot: number) => IAutoMovieFormationSlot = (
+export const compiledFormationSlot: (
+  formation: IAutoMovieCompiledFormation,
+  slot: number,
+) => IAutoMovieFormationSlot = (
   formation: IAutoMovieCompiledFormation,
   slot: number,
 ): IAutoMovieFormationSlot =>
   formationSlotRecord(formation, slot, {
-    actor: formation.heroes.find((hero: IAutoMovieCompiledFormationHero) : boolean => hero.slot === slot)?.actor ?? null,
+    actor:
+      formation.heroes.find(
+        (hero: IAutoMovieCompiledFormationHero): boolean => hero.slot === slot,
+      )?.actor ?? null,
     position: formationSlotPosition(formation, slot),
   });

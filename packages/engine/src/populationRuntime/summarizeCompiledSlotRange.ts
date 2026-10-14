@@ -26,12 +26,17 @@ import { createCompiledSlotSummary } from "./createCompiledSlotSummary";
  * @evidence contracts/performance.md#reuse-equivalent-work Both range and combined summaries share the accumulator implementation; each call recomputes from its ordered current points rather than caching mutable placements.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only the summary vectors transfer to the caller; no point history, callback reference, task or resource survives completion or failure.
  */
-export const summarizeCompiledSlotRange: (start: number, count: number, position: ( slot : number ) => IAutoMovieVector3) => { bounds : IAutoMovieFormationBounds ; centroid : IAutoMovieVector3 } = (
+export const summarizeCompiledSlotRange: (
+  start: number,
+  count: number,
+  position: (slot: number) => IAutoMovieVector3,
+) => { bounds: IAutoMovieFormationBounds; centroid: IAutoMovieVector3 } = (
   start: number,
   count: number,
   position: (slot: number) => IAutoMovieVector3,
 ): { bounds: IAutoMovieFormationBounds; centroid: IAutoMovieVector3 } => {
-  const summary: ReturnType<typeof createCompiledSlotSummary> = createCompiledSlotSummary();
+  const summary: ReturnType<typeof createCompiledSlotSummary> =
+    createCompiledSlotSummary();
   for (let slot: number = start; slot < start + count; ++slot) {
     const point: IAutoMovieVector3 = position(slot);
     summary.add(point);

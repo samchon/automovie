@@ -28,7 +28,26 @@ import { instancePrototypeChoices } from "./instancePrototypeChoices";
  * @evidence contracts/performance.md#reuse-equivalent-work Regeneration and diff reuse this canonical selection law; the returned entry is borrowed, and changed weights/seed/slot require a new selection.
  * @evidence contracts/performance.md#bound-retention-and-release-resources No choice history or prefix copy is retained; the input table stays caller-owned and only the selected borrowed entry escapes.
  */
-export const selectInstancePrototype: <Choice extends Pick < IAutoMovieCompiledInstancePrototype , "id" | "modelRecipe" | "weight" >>(instanceSet: { id : string ; seed : number ; modelRecipe : string ; prototypes ? : readonly Choice [ ] ; }, slot: number, explicit: string | undefined) => | Choice | Pick < IAutoMovieCompiledInstancePrototype , "id" | "modelRecipe" | "weight" > = <
+export const selectInstancePrototype: <
+  Choice extends Pick<
+    IAutoMovieCompiledInstancePrototype,
+    "id" | "modelRecipe" | "weight"
+  >,
+>(
+  instanceSet: {
+    id: string;
+    seed: number;
+    modelRecipe: string;
+    prototypes?: readonly Choice[];
+  },
+  slot: number,
+  explicit: string | undefined,
+) =>
+  | Choice
+  | Pick<
+      IAutoMovieCompiledInstancePrototype,
+      "id" | "modelRecipe" | "weight"
+    > = <
   Choice extends Pick<
     IAutoMovieCompiledInstancePrototype,
     "id" | "modelRecipe" | "weight"
@@ -53,17 +72,43 @@ export const selectInstancePrototype: <Choice extends Pick < IAutoMovieCompiledI
     | Pick<IAutoMovieCompiledInstancePrototype, "id" | "modelRecipe" | "weight">
   )[] = instancePrototypeChoices(instanceSet);
   if (explicit !== undefined) {
-    const selected: Pick<IAutoMovieCompiledInstancePrototype, "id" | "modelRecipe" | "weight"> | Choice | undefined = choices.find((choice: Pick<IAutoMovieCompiledInstancePrototype, "id" | "modelRecipe" | "weight"> | Choice) : boolean => choice.id === explicit);
+    const selected:
+      | Pick<
+          IAutoMovieCompiledInstancePrototype,
+          "id" | "modelRecipe" | "weight"
+        >
+      | Choice
+      | undefined = choices.find(
+      (
+        choice:
+          | Pick<
+              IAutoMovieCompiledInstancePrototype,
+              "id" | "modelRecipe" | "weight"
+            >
+          | Choice,
+      ): boolean => choice.id === explicit,
+    );
     if (selected === undefined)
       throw new Error(
         `Instance set "${instanceSet.id}" slot ${slot} references missing prototype "${explicit}".`,
       );
     return selected;
   }
-  const total: number = choices.reduce((sum: number, choice: Pick<IAutoMovieCompiledInstancePrototype, "id" | "modelRecipe" | "weight"> | Choice) : number => sum + choice.weight, 0);
+  const total: number = choices.reduce(
+    (
+      sum: number,
+      choice:
+        | Pick<
+            IAutoMovieCompiledInstancePrototype,
+            "id" | "modelRecipe" | "weight"
+          >
+        | Choice,
+    ): number => sum + choice.weight,
+    0,
+  );
   let sample: number = seededValue(instanceSet.seed, slot, 0x70726f74) * total;
   for (let index: number = 0; index < choices.length - 1; ++index) {
-    const choice: typeof choices[number] = choices[index]!;
+    const choice: (typeof choices)[number] = choices[index]!;
     if (sample < choice.weight) return choice;
     sample -= choice.weight;
   }

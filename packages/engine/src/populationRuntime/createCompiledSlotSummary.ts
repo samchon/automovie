@@ -1,4 +1,7 @@
-import { IAutoMovieFormationBounds, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  IAutoMovieFormationBounds,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /**
  * Create a call-owned bounds and running-mean fold for ascending slot points.
@@ -16,7 +19,10 @@ export function createCompiledSlotSummary(): {
   add: (point: IAutoMovieVector3) => void;
 
   /** Transfer the current vectors; the caller stops adding after this call. */
-  finish: () => { bounds: IAutoMovieFormationBounds; centroid: IAutoMovieVector3 };
+  finish: () => {
+    bounds: IAutoMovieFormationBounds;
+    centroid: IAutoMovieVector3;
+  };
 } {
   const min: IAutoMovieVector3 = { x: Infinity, y: Infinity, z: Infinity };
   const max: IAutoMovieVector3 = { x: -Infinity, y: -Infinity, z: -Infinity };
@@ -35,7 +41,10 @@ export function createCompiledSlotSummary(): {
       centroid.y = centroid.y * ((seen - 1) / seen) + point.y / seen;
       centroid.z = centroid.z * ((seen - 1) / seen) + point.z / seen;
     },
-    finish: (): { bounds: IAutoMovieFormationBounds; centroid: IAutoMovieVector3 } => ({
+    finish: (): {
+      bounds: IAutoMovieFormationBounds;
+      centroid: IAutoMovieVector3;
+    } => ({
       bounds: { min, max },
       centroid,
     }),
