@@ -19,15 +19,7 @@ export class AutoMovieLegacyImportPlanError extends Error {
     public readonly code: ReturnType<() => "automovie-legacy-import-plan-invalid"> = "automovie-legacy-import-plan-invalid" as const;
 
     /**
-     * A native Error formats the admission detail and preserves the stable legacy-plan code/name. Schema, inventory, baseline and fingerprint guards share one refusal class.
-     *
-     * No malformed plan is repaired or treated as an empty import by this constructor.
-     *
-     * Documents stable machine identity and caller-owned explanation.
-     *
-     * Message formatting and native stack allocation dominate fixed-argument construction. Each refusal creates its own current explanation and stack.
-     *
-     * The catching caller owns the error; no plan, byte array or handle is retained.
+     * Format the admission-supplied detail in a native Error and set the stable class name; this constructor does not inspect a plan or acquire a resource.
      */
     public constructor(detail: string) {
         super(`Invalid AutoMovie legacy import plan: ${detail}`);

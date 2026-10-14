@@ -9,9 +9,9 @@ import { fingerprintAutoMovieLegacyImportPlan } from "./fingerprintAutoMovieLega
  * Admit the full plan shape, runtime refinements, baseline and fingerprint.
  *
  * @evidence contracts/common.md#principled-implementation Exact typia shape admission precedes revision, ordered inventory, three canonical baselines and semantic fingerprint checks.
- * @evidence contracts/common.md#clear-and-simple-design Apply and reopen share one assertion returning the original admitted object.
+ * @evidence contracts/common.md#clear-and-simple-design This public assertion returns the original admitted object and its boolean companion delegates to the same complete refinements; the resident importer currently uses the separate narrower legacyImporterValidatePlan boundary.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Digest spelling and plan identity do not authenticate resident inventory bytes; stale plans are refused rather than repaired.
- * @evidence contracts/common.md#meaningful-documentation States safe revision, src/generated/renders order, original-object ownership and typed refusals.
+ * @evidence contracts/common.md#meaningful-documentation States safe revision, src/generated/renders order, original-object ownership and typed explicit refusals; typia/reflection/canonical-encoding host failures can also propagate, while the boolean companion catches them.
  * @evidence contracts/performance.md#efficient-algorithms Scans all inventory/baseline entries and canonically encodes the whole plan; sets and encoded text scale with plan size.
  * @evidence contracts/performance.md#reuse-equivalent-work Validated data feeds semantic checks without a second materialization or mutable-plan verdict cache.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller retains its plan; temporary validation/sets/encoding expire on success or throw.

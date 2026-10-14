@@ -9,7 +9,7 @@ import { legacyImporterIsCanonicalBaselinePath } from "./legacyImporterIsCanonic
  * @evidence contracts/common.md#clear-and-simple-design Uses a shared descendant-path predicate and one pass over each sorted population without owning hashing or filesystem reads.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not claim digest spelling, case-folded cross-kind uniqueness or current byte existence beyond its actual checks; those stronger properties are not added as a compatibility shortcut.
  * @evidence contracts/common.md#meaningful-documentation Documents root/order/absence and supported file refinements, with record-versus-live-state limits.
- * @evidence contracts/performance.md#efficient-algorithms For D directories and F files, one pass plus path/previous-string comparisons costs their total character lengths and O(1) auxiliary previous-path references.
+ * @evidence contracts/performance.md#efficient-algorithms For D directories and F files, one pass pays total path-text validation and adjacent comparison work. Previous-path references are constant-sized, but each descendant predicate additionally allocates split-string storage following that path's length; no file bytes are read.
  * @evidence contracts/performance.md#reuse-equivalent-work Reuses expected root and path comparator across entries; prior validation of a mutable baseline is not cached.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Retains only current/previous path references during the call and acquires no descriptor or baseline byte buffer.
  */
