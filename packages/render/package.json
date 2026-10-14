@@ -6,7 +6,10 @@
   "exports": {
     ".": "./src/index.ts",
     "./node": "./src/node/index.ts",
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./film/equalOrderedScalars": "./src/film/equalOrderedScalars.ts",
+    "./node/equalRational": "./src/node/equalRational.ts",
+    "./node/exactProductionClockProduct": "./src/node/exactProductionClockProduct.ts"
   },
   "scripts": {
     "build": "rimraf lib && ttsc",
@@ -39,7 +42,19 @@
         "types": "./lib/node/index.d.ts",
         "default": "./lib/node/index.js"
       },
-      "./package.json": "./package.json"
+      "./package.json": "./package.json",
+      "./film/equalOrderedScalars": {
+        "types": "./lib/film/equalOrderedScalars.d.ts",
+        "default": "./lib/film/equalOrderedScalars.js"
+      },
+      "./node/equalRational": {
+        "types": "./lib/node/equalRational.d.ts",
+        "default": "./lib/node/equalRational.js"
+      },
+      "./node/exactProductionClockProduct": {
+        "types": "./lib/node/exactProductionClockProduct.d.ts",
+        "default": "./lib/node/exactProductionClockProduct.js"
+      }
     }
   },
   "dependencies": {

@@ -1,6 +1,6 @@
 import { TestValidator } from "@nestia/e2e";
 
-import { equalOrderedScalars } from "../../../../packages/render/src/film/equalOrderedScalars";
+import { equalOrderedScalars } from "@automovie/render/film/equalOrderedScalars";
 
 /** The two shapes the planned audio identity actually compares. */
 const MONO_SPEAKERS: readonly ["front-center"] = ["front-center"] as const;
