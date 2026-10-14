@@ -27,7 +27,9 @@ export function encloseHumanTrigonometricAngle(
     );
   const x: IHumanExactFraction = Fraction.from(angle);
   const square: IHumanExactFraction = Fraction.multiply(x, x);
-  const series: (sine: boolean) => readonly [IHumanExactFraction, IHumanExactFraction] = (
+  const series: (
+    sine: boolean,
+  ) => readonly [IHumanExactFraction, IHumanExactFraction] = (
     sine: boolean,
   ): readonly [IHumanExactFraction, IHumanExactFraction] => {
     let term: IHumanExactFraction = sine ? x : Fraction.create(1n);
@@ -35,13 +37,19 @@ export function encloseHumanTrigonometricAngle(
     let degree: bigint = sine ? 1n : 0n;
     if (angle === 0) return [sum, sum];
     for (;;) {
-      const divisor: IHumanExactFraction = Fraction.create((degree + 1n) * (degree + 2n));
+      const divisor: IHumanExactFraction = Fraction.create(
+        (degree + 1n) * (degree + 2n),
+      );
       const next: IHumanExactFraction = Fraction.negate(
         Fraction.divide(Fraction.multiply(term, square), divisor),
       );
-      const magnitude: IHumanExactFraction = next.numerator < 0n ? Fraction.negate(next) : next;
+      const magnitude: IHumanExactFraction =
+        next.numerator < 0n ? Fraction.negate(next) : next;
       if (Fraction.compare(square, divisor) < 0) {
-        const lower: IHumanExactFraction = Fraction.add(sum, Fraction.negate(magnitude));
+        const lower: IHumanExactFraction = Fraction.add(
+          sum,
+          Fraction.negate(magnitude),
+        );
         const upper: IHumanExactFraction = Fraction.add(sum, magnitude);
         if (Fraction.number(lower) === Fraction.number(upper))
           return [lower, upper];

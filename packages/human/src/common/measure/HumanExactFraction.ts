@@ -24,7 +24,10 @@ export class HumanExactFraction {
    * @evidence contracts/performance.md#reuse-equivalent-work The GCD helper is reused by normalization, while no equivalent-output cache retains mutable caller records or changes failure effects.
    * @evidence contracts/performance.md#bound-retention-and-release-resources GCD intermediates are local, and a two-BigInt result transfers to the caller; failures retain no record, buffer, task or handle.
    */
-  static create(numerator: bigint, denominator: bigint = 1n): IHumanExactFraction {
+  static create(
+    numerator: bigint,
+    denominator: bigint = 1n,
+  ): IHumanExactFraction {
     if (denominator === 0n)
       throw new Error("An exact fraction needs a nonzero denominator.");
     if (denominator < 0n) {
@@ -232,8 +235,9 @@ export class HumanExactFraction {
     let lower: number = Math.sqrt(this.number(reduced)) * 2 ** power;
     if (!Number.isFinite(lower))
       throw new Error("Metric magnitude exceeds binary64 coordinates.");
-    const square: (value: number) => IHumanExactFraction = (value: number): IHumanExactFraction =>
-      this.multiply(this.from(value), this.from(value));
+    const square: (value: number) => IHumanExactFraction = (
+      value: number,
+    ): IHumanExactFraction => this.multiply(this.from(value), this.from(value));
     while (this.compare(square(lower), a) > 0)
       lower = HumanBinary64Arithmetic.nextDown(lower);
     let upper: number = HumanBinary64Arithmetic.nextUp(lower);

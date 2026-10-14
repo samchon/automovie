@@ -29,8 +29,14 @@ export class HumanExactFractionJson {
    * @evidence contracts/performance.md#bound-retention-and-release-resources The reduced record is temporary and two decimal strings transfer in the returned JSON record, with no retained file, buffer or asynchronous task.
    */
   static encode(value: IHumanExactFraction): IHumanExactFractionJson {
-    const reduced: IHumanExactFraction = HumanExactFraction.create(value.numerator, value.denominator);
-    return { numerator: reduced.numerator.toString(), denominator: reduced.denominator.toString() };
+    const reduced: IHumanExactFraction = HumanExactFraction.create(
+      value.numerator,
+      value.denominator,
+    );
+    return {
+      numerator: reduced.numerator.toString(),
+      denominator: reduced.denominator.toString(),
+    };
   }
 
   /**
@@ -45,13 +51,28 @@ export class HumanExactFractionJson {
    * @evidence contracts/performance.md#bound-retention-and-release-resources Parsed BigInts and round-trip strings are local; a normalized fraction transfers only after admission, and refusals acquire no persistent storage, handle or task.
    */
   static decode(value: IHumanExactFractionJson): IHumanExactFraction {
-    if (value === undefined || value === null || typeof value.numerator !== "string" ||
-        typeof value.denominator !== "string" || !/^-?(0|[1-9]\d*)$/.test(value.numerator) ||
-        !/^[1-9]\d*$/.test(value.denominator))
-      throw new Error("Exact fraction JSON needs canonical decimal integers and a positive denominator.");
-    const reduced: IHumanExactFraction = HumanExactFraction.create(BigInt(value.numerator), BigInt(value.denominator));
-    if (reduced.numerator.toString() !== value.numerator || reduced.denominator.toString() !== value.denominator)
-      throw new Error("Exact fraction JSON must retain its canonical reduced identity.");
+    if (
+      value === undefined ||
+      value === null ||
+      typeof value.numerator !== "string" ||
+      typeof value.denominator !== "string" ||
+      !/^-?(0|[1-9]\d*)$/.test(value.numerator) ||
+      !/^[1-9]\d*$/.test(value.denominator)
+    )
+      throw new Error(
+        "Exact fraction JSON needs canonical decimal integers and a positive denominator.",
+      );
+    const reduced: IHumanExactFraction = HumanExactFraction.create(
+      BigInt(value.numerator),
+      BigInt(value.denominator),
+    );
+    if (
+      reduced.numerator.toString() !== value.numerator ||
+      reduced.denominator.toString() !== value.denominator
+    )
+      throw new Error(
+        "Exact fraction JSON must retain its canonical reduced identity.",
+      );
     return reduced;
   }
 }

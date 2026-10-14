@@ -60,7 +60,9 @@ export function measureHumanSection(
   physicalVertices?: IAutoMovieMesh["physicalVertices"],
 ): IAutoMovieHumanSectionReading | null {
   const count: number = positions.length / 3;
-  const physical: ReturnType<typeof resolveAutoMovieMeshPhysicalVertices> | undefined =
+  const physical:
+    | ReturnType<typeof resolveAutoMovieMeshPhysicalVertices>
+    | undefined =
     physicalVertices === undefined
       ? undefined
       : resolveAutoMovieMeshPhysicalVertices({ positions, physicalVertices });
@@ -73,16 +75,24 @@ export function measureHumanSection(
   };
   // only the vertices a walked triangle reads are measured; the rest of the
   // buffer stays zero and is never read
-  if (triangles === undefined) for (let v: number = 0; v < count; v++) measure(v);
+  if (triangles === undefined)
+    for (let v: number = 0; v < count; v++) measure(v);
   else
     for (const t of triangles)
       for (let k: number = 0; k < 3; k++) measure(indices[t * 3 + k]);
-  const points: Map<string, [number, number, number]> = new Map<string, [number, number, number]>();
+  const points: Map<string, [number, number, number]> = new Map<
+    string,
+    [number, number, number]
+  >();
   const adjacency: Map<string, string[]> = new Map<string, string[]>();
-  const crossing: (a: number, b: number) => string = (a: number, b: number): string => {
+  const crossing: (a: number, b: number) => string = (
+    a: number,
+    b: number,
+  ): string => {
     const first: number = physical?.vertices[a] ?? a;
     const second: number = physical?.vertices[b] ?? b;
-    const key: string = first < second ? first + "/" + second : second + "/" + first;
+    const key: string =
+      first < second ? first + "/" + second : second + "/" + first;
     if (!points.has(key)) {
       const t: number = distance[a] / (distance[a] - distance[b]);
       points.set(key, [
@@ -132,7 +142,9 @@ export function measureHumanSection(
     while (!visited.has(current)) {
       visited.add(current);
       loop.push(current);
-      const next: string | undefined = adjacency.get(current)!.find((key: string): boolean => key !== previous);
+      const next: string | undefined = adjacency
+        .get(current)!
+        .find((key: string): boolean => key !== previous);
       if (next === undefined) break;
       previous = current;
       current = next;
@@ -149,7 +161,9 @@ export function measureHumanSection(
     let cz: number = 0;
     for (let i: number = 0; i < loop.length; i++) {
       const p: [number, number, number] = points.get(loop[i])!;
-      const q: [number, number, number] = points.get(loop[(i + 1) % loop.length])!;
+      const q: [number, number, number] = points.get(
+        loop[(i + 1) % loop.length],
+      )!;
       perimeter += Math.hypot(q[0] - p[0], q[1] - p[1], q[2] - p[2]);
       minX = Math.min(minX, p[0]);
       maxX = Math.max(maxX, p[0]);

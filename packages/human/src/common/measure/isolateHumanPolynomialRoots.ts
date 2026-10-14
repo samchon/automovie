@@ -62,11 +62,11 @@ export function isolateHumanPolynomialRoots(
     if (remainder.length === 0) break;
     sequence.push(remainder);
   }
-  const variation: (numerator: bigint, power: number, side: 1 | -1) => number = (
+  const variation: (
     numerator: bigint,
     power: number,
     side: 1 | -1,
-  ): number => {
+  ) => number = (numerator: bigint, power: number, side: 1 | -1): number => {
     let previous: number = 0;
     let changes: number = 0;
     for (const member of sequence) {
@@ -90,7 +90,10 @@ export function isolateHumanPolynomialRoots(
     return changes;
   };
   const output: IHumanPolynomialRoot[] = [];
-  const exact: (numerator: bigint, denominator: bigint) => IHumanPolynomialRoot = (
+  const exact: (
+    numerator: bigint,
+    denominator: bigint,
+  ) => IHumanPolynomialRoot = (
     numerator: bigint,
     denominator: bigint,
   ): IHumanPolynomialRoot => ({
@@ -135,7 +138,10 @@ export function isolateHumanPolynomialRoots(
       { low: a, high: middle, power, roots: left },
     );
   }
-  return output.sort((a: IHumanPolynomialRoot, b: IHumanPolynomialRoot): number => a.parameter - b.parameter);
+  return output.sort(
+    (a: IHumanPolynomialRoot, b: IHumanPolynomialRoot): number =>
+      a.parameter - b.parameter,
+  );
 }
 
 /** Positive integer content normalization preserves all polynomial signs.
@@ -151,14 +157,20 @@ function primitive(values: readonly bigint[]): bigint[] {
     while (b !== 0n) [a, b] = [b, a % b];
     content = a;
   }
-  return content === 0n ? [] : result.map((value: bigint): bigint => value / content);
+  return content === 0n
+    ? []
+    : result.map((value: bigint): bigint => value / content);
 }
 
 /** The formal derivative lowers degree; positive content reduction preserves its exact signs and roots.
  *
  */
 function derivative(values: readonly bigint[]): bigint[] {
-  return primitive(values.slice(1).map((value: bigint, at: number): bigint => value * BigInt(at + 1)));
+  return primitive(
+    values
+      .slice(1)
+      .map((value: bigint, at: number): bigint => value * BigInt(at + 1)),
+  );
 }
 
 /** Multiply each division step by a positive leading magnitude.
@@ -172,7 +184,8 @@ function pseudoRemainder(a: readonly bigint[], b: readonly bigint[]): bigint[] {
     const shift: number = result.length - b.length;
     const factor: bigint = result.at(-1)! * (leading < 0n ? -1n : 1n);
     result = result.map((value: bigint): bigint => magnitude * value);
-    for (let at: number = 0; at < b.length; at++) result[at + shift] -= factor * b[at];
+    for (let at: number = 0; at < b.length; at++)
+      result[at + shift] -= factor * b[at];
     result = primitive(result);
   }
   return result;

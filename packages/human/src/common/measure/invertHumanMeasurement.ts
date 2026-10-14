@@ -38,7 +38,8 @@ const HALF_READOUT_METRES: number = 0.00005;
 export function invertHumanMeasurement(
   input: IHumanMeasurementInverseInput,
 ): IHumanMeasurementInverseResult {
-  const { range, current, targetMetres, label }: IHumanMeasurementInverseInput = input;
+  const { range, current, targetMetres, label }: IHumanMeasurementInverseInput =
+    input;
   if (
     !Number.isFinite(range[0]) ||
     !Number.isFinite(range[1]) ||
@@ -87,7 +88,8 @@ export function invertHumanMeasurement(
     const candidate: number =
       useSecant && estimate > low && estimate < high ? estimate : middle;
     useSecant = !useSecant;
-    const atCandidate: number = candidate === current ? original : read(candidate);
+    const atCandidate: number =
+      candidate === current ? original : read(candidate);
     if (
       atCandidate < Math.min(atLow, atHigh) - HALF_READOUT_METRES ||
       atCandidate > Math.max(atLow, atHigh) + HALF_READOUT_METRES

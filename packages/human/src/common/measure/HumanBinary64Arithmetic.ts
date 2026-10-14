@@ -100,7 +100,8 @@ export class HumanBinary64Arithmetic {
     const power: number = Math.max(-1074, exponent + binade - 52);
     const shift: number = exponent - power;
     const dividend: bigint = shift >= 0 ? n << BigInt(shift) : n;
-    const divisor: bigint = shift >= 0 ? denominator : denominator << BigInt(-shift);
+    const divisor: bigint =
+      shift >= 0 ? denominator : denominator << BigInt(-shift);
     const quotient: bigint = dividend / divisor;
     const remainder: bigint = dividend % divisor;
     const twice: bigint = 2n * remainder;
