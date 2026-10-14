@@ -1,9 +1,3 @@
-export * from "./IAutoMovieLibraryBuildContext";
-export * from "./IAutoMovieLibraryContribution";
-export * from "./IAutoMovieLibraryDerivedSourceOwner";
-export * from "./IAutoMovieLibrarySourceOwner";
-export * from "./IAutoMovieMaterializedLibrary";
-export * from "./IAutoMovieMaterializedLibraryOwner";
 export * from "./AutoMovieDiagnosticCode";
 export * from "./AutoMovieFilmTime";
 export * from "./AutoMovieProductionPngColor";
@@ -52,7 +46,6 @@ export * from "./IAutoMovieGeneratedFile";
 export * from "./IAutoMovieGeneratedManifest";
 export * from "./IAutoMovieInstanceChunk";
 export * from "./IAutoMovieInstanceSlot";
-export * from "./IAutoMovieMaterializedFile";
 export * from "./IAutoMovieProductionAudioProbe";
 export * from "./IAutoMovieProductionDeliverableFile";
 export * from "./IAutoMovieProductionDesignInventory";
