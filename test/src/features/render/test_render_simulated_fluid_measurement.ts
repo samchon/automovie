@@ -1,4 +1,5 @@
 import { TestValidator } from "@nestia/e2e";
+import type { IAutoMovieRenderAnalysisGap, IAutoMovieRenderInventory, IAutoMovieRenderTarget } from "@automovie/interface";
 import { simulatedRenderTargetFixture } from "../internal/simulatedRenderTargetFixture";
 import { simulatedRenderSubjectFixture } from "../internal/simulatedRenderSubjectFixture";
 import { measureRenderBudgetSubject as measure } from "../internal/measureRenderBudgetSubject";
@@ -11,10 +12,15 @@ import { simulatedRenderBudgetFixture as budget } from "../internal/simulatedRen
  * Scenarios:
  *
  * 1. A domain measures cells, an unbound pool remains unsupported, and host counts remain honoured without invented surface draws.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Measures bound, unbound and explicitly counted water records and evaluates the unbound report, asserting cell/particle totals, unsupported gaps, incomplete status and unchanged nonwater draws; this catches unknown fluid counted as zero or manual counts fabricating a surface.
+ * @evidence contracts/testing.md#independent-expectations The bound grid is authored as three columns by two rows with no spray; the counted record supplies 2048 cells and 64 particles directly. A domainless and count-free record has no measured fluid authority, while two remaining drawable batches submitted twice explain the counted draw total. No simulated fluid output supplies an expectation.
+ * @evidence contracts/testing.md#distinguishing-cases The three records distinguish domain-derived counts, explicit host counts and absent authority, including zero bound particles and the incomplete report's two fluid gaps. Actual surface topology and malformed material or prototype admission belong to the other simulated tests.
+ * @evidence contracts/testing.md#execution-ownership The exported test_render_simulated_fluid_measurement entry uses synchronous engine inventory and report operations over caller records, without integrating a fluid frame, reading a host counter, creating a renderer or installing a consumer.
  */
-export const test_render_simulated_fluid_measurement = (): void => {
-  const target = simulatedRenderTargetFixture();
-  const subject = simulatedRenderSubjectFixture;
+export function test_render_simulated_fluid_measurement(): void {
+  const target: IAutoMovieRenderTarget = simulatedRenderTargetFixture();
+  const subject: typeof simulatedRenderSubjectFixture = simulatedRenderSubjectFixture;
 
   // Opaque geometry is submitted more than once in a frame, and the inventory
   // reports the conservative one-frame peak rather than the beauty pass alone.
@@ -23,13 +29,13 @@ export const test_render_simulated_fluid_measurement = (): void => {
   // complete pass over every opaque draw. Resident cost is not multiplied,
   // because vertices, memory, nodes and instance slots are allocated once and
   // reused by each pass.
-  const PASSES = 2;
+  const PASSES: 2 = 2;
 
-  const inventory = measure(subject());
+  const inventory: IAutoMovieRenderInventory = measure(subject());
 
   // Fluid was permanently `unsupported` while the only way to state a cost was
   // to copy one in by hand. A bound domain states it from the record.
-  const unbound = measure({
+  const unbound: IAutoMovieRenderInventory = measure({
     ...subject(),
     waterBodies: [
       {
@@ -44,7 +50,7 @@ export const test_render_simulated_fluid_measurement = (): void => {
     ],
   });
 
-  const counted = measure({
+  const counted: IAutoMovieRenderInventory = measure({
     ...subject(),
     waterBodies: [
       {
@@ -66,7 +72,7 @@ export const test_render_simulated_fluid_measurement = (): void => {
       unbound: [
         unbound.totals.fluidCells,
         unbound.totals.fluidParticles,
-        unbound.gaps.map((gap) => [gap.metric, gap.status]),
+        unbound.gaps.map((gap: IAutoMovieRenderAnalysisGap): string[] => [gap.metric, gap.status]),
         report(unbound, budget(), target).status,
       ],
       counted: [counted.totals.fluidCells, counted.totals.fluidParticles],
@@ -91,4 +97,4 @@ export const test_render_simulated_fluid_measurement = (): void => {
       countedDraws: PASSES * 2,
     },
   );
-};
+}

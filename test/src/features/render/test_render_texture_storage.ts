@@ -12,8 +12,13 @@ import { TestValidator } from "@nestia/e2e";
  *    a 1-by-8 chain has 8+4+2+1, including its clamped narrow axis.
  * 3. Zero, fractional and nonfinite dimensions or texel widths refuse, as do
  *    unknown formats and overflow; a one-texel chain ends at its base level.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls measureAutoMovieTextureStorage and compares uncompressed base or mip bytes and null refusals, catching a missing final mip, a square-image assumption, an unclamped narrow axis or invalid and unsafe facts converted into a numeric bound.
+ * @evidence contracts/testing.md#independent-expectations Explicit base component widths multiply sixteen texels; independently listed integer-halved mip populations are 16+4+1, 15+2+1 and 8+4+2+1. The one-texel chain has one level, and positive safe integer dimension/width requirements exclude every malformed input without reading output.
+ * @evidence contracts/testing.md#distinguishing-cases Covers three component widths, square, nonsquare non-power-of-two and one-wide chains, a single texel, each invalid value in every numerical field, absent representation and multiplication overflow. Face, depth and multisample attachment expansion belong to test_render_texture_target_storage.
+ * @evidence contracts/testing.md#execution-ownership The discoverable exported test_render_texture_storage entry runs pure scalar engine arithmetic in-process; its loops own the representation and refusal cases without allocating pixels, creating native textures or starting a host or installed consumer.
  */
-export const test_render_texture_storage = (): void => {
+export function test_render_texture_storage(): void {
   for (const [bytesPerTexel, expected] of [[4, 64], [8, 128], [16, 256]])
     TestValidator.equals("base representation", measureAutoMovieTextureStorage({ width: 4, height: 4, bytesPerTexel, mipmapped: false }), expected);
   TestValidator.equals("square mip chain", measureAutoMovieTextureStorage({ width: 4, height: 4, bytesPerTexel: 4, mipmapped: true }), (16 + 4 + 1) * 4);
@@ -26,4 +31,4 @@ export const test_render_texture_storage = (): void => {
   }
   TestValidator.equals("unknown representation", measureAutoMovieTextureStorage({ width: 4, height: 4, bytesPerTexel: null, mipmapped: false }), null);
   TestValidator.equals("overflow", measureAutoMovieTextureStorage({ width: Number.MAX_SAFE_INTEGER, height: 2, bytesPerTexel: 16, mipmapped: false }), null);
-};
+}

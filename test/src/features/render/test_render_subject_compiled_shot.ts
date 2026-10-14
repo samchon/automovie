@@ -8,6 +8,8 @@ import {
   IAutoMovieSemanticMask,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
+import type { IAutoMovieCompiledEffect, IAutoMovieCompiledFormation, IAutoMovieCompiledInstanceSet, IAutoMovieSemanticMaskEntry, IAutoMovieWaterFeature } from "@automovie/interface";
+import type { IAutoMovieRenderPlanting, IAutoMovieRenderSoftPanel, IAutoMovieRenderSubject, IAutoMovieRenderTextureSource, IAutoMovieRenderWaterBody } from "@automovie/engine";
 
 import { flatBasin, waterFeature } from "../internal/fluidFixtures";
 import { throwsError } from "../internal/predicates";
@@ -51,9 +53,14 @@ import {
  * 5. Texture dimensions pass through when supplied and become empty when not.
  * 6. The palette derived from that subject serializes as the sidecar the pixels
  *    travel with: pretty JSON, one trailing newline, round-tripping exactly.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Converts supplied compiled records through the real subject adapter, checks simulation ownership/material projections and missing-recipe refusal, then derives and serializes the semantic palette.
+ * @evidence contracts/testing.md#independent-expectations Literal empty lists, two bound/unbound rows per simulation kind, space identities and null unproved costs state expected projection independently. Sidecar formatting is checked directly, while round-trip digest/color expectations deliberately reuse the originating mask and do not independently prove palette assignment.
+ * @evidence contracts/testing.md#distinguishing-cases Preserves empty supplemental records, bound/unbound twins, ascending/descending contested bindings, missing planting recipe and supplied/omitted textures; the absent building list is checked as empty, not as a nonempty building pass-through case.
+ * @evidence contracts/testing.md#execution-ownership Owns synchronous portable fixtures with deliberately partial compiled shot/population records; the runner executes conversion and in-memory serialization without running simulations, Viewer rendering or writing pixel/sidecar files.
  */
-export const test_render_subject_compiled_shot = (): void => {
-  const bare = {
+export function test_render_subject_compiled_shot(): void {
+  const bare: IAutoMovieCompiledShotSource = {
     scene: sceneFixture(),
     models: modelsFixture(),
     motions: [],
@@ -66,16 +73,16 @@ export const test_render_subject_compiled_shot = (): void => {
     shot: {},
   } as unknown as IAutoMovieCompiledShotSource;
 
-  const empty = autoMovieRenderSubjectOfCompiledShot({ compiled: bare });
+  const empty: IAutoMovieRenderSubject = autoMovieRenderSubjectOfCompiledShot({ compiled: bare });
   TestValidator.equals(
     "a shot declaring no simulated domain converts to empty drawable lists",
     {
       scene: empty.scene.id,
       models: empty.models.length,
       environments: empty.environments,
-      sets: empty.instanceSets?.map((set) => set.id),
-      formations: empty.formations?.map((formation) => formation.id),
-      effects: empty.effects?.map((effect) => effect.id),
+      sets: empty.instanceSets?.map((set: IAutoMovieCompiledInstanceSet): string => set.id),
+      formations: empty.formations?.map((formation: IAutoMovieCompiledFormation): string => formation.id),
+      effects: empty.effects?.map((effect: IAutoMovieCompiledEffect): string => effect.id),
       water: empty.waterBodies,
       panels: empty.softBodies,
       plantings: empty.plantings,
@@ -97,7 +104,7 @@ export const test_render_subject_compiled_shot = (): void => {
 
   // One bound drawable of each kind and one unbound twin, so the difference the
   // binding makes is visible rather than asserted.
-  const furnished = {
+  const furnished: IAutoMovieCompiledShotSource = {
     ...bare,
     fluidDomains: [
       flatBasin({ columns: 2, rows: 2, depth: 1 }),
@@ -126,7 +133,7 @@ export const test_render_subject_compiled_shot = (): void => {
       }),
     ],
   } as unknown as IAutoMovieCompiledShotSource;
-  const subject = autoMovieRenderSubjectOfCompiledShot({
+  const subject: IAutoMovieRenderSubject = autoMovieRenderSubjectOfCompiledShot({
     compiled: furnished,
     textures: [
       { format: "rgba8" as const, asset: "textures/stone.png", width: 2, height: 2, mipmapped: false },
@@ -135,7 +142,7 @@ export const test_render_subject_compiled_shot = (): void => {
   TestValidator.equals(
     "every declared domain is one drawable, and only a bound one names a room",
     {
-      water: subject.waterBodies?.map((body) => ({
+      water: subject.waterBodies?.map((body: IAutoMovieRenderWaterBody): { id: string; owner: string | null; material: string | null; cells: number | null; nodes: number; proved: Array<number | null> } => ({
         id: body.id,
         owner: body.owner,
         material: body.material,
@@ -143,12 +150,12 @@ export const test_render_subject_compiled_shot = (): void => {
         nodes: body.nodes.length,
         proved: [body.cells, body.particles],
       })),
-      panels: subject.softBodies?.map((panel) => ({
+      panels: subject.softBodies?.map((panel: IAutoMovieRenderSoftPanel): { id: string; owner: string | null; material: string | null } => ({
         id: panel.domain.id,
         owner: panel.owner,
         material: panel.material,
       })),
-      plantings: subject.plantings?.map((planting) => ({
+      plantings: subject.plantings?.map((planting: IAutoMovieRenderPlanting): { id: string; recipe: string; owner: string | null; branchMaterial: string | null; leafMaterial: string | null; cost: Array<IAutoMovieRenderPlanting["branch"]> } => ({
         id: planting.cluster.id,
         recipe: planting.domain.id,
         owner: planting.owner,
@@ -158,7 +165,7 @@ export const test_render_subject_compiled_shot = (): void => {
         // so an invented cost here would be the number a budget approves.
         cost: [planting.branch, planting.leaf],
       })),
-      textures: subject.textures?.map((texture) => texture.asset),
+      textures: subject.textures?.map((texture: IAutoMovieRenderTextureSource): string => texture.asset),
     },
     {
       water: [
@@ -212,8 +219,8 @@ export const test_render_subject_compiled_shot = (): void => {
   // Two bindings on one drawable is an authoring contradiction, but the subject
   // still has to be a function of the design: whichever order the array holds
   // them in, the smaller binding id owns the pond.
-  const contested = (order: "ascending" | "descending"): string | null => {
-    const bindings = [
+  const contested: (order: "ascending" | "descending") => string | null = (order: "ascending" | "descending"): string | null => {
+    const bindings: IAutoMovieWaterFeature[] = [
       waterFeature({ id: "a-feature", environment: "north", space: "pool" }),
       waterFeature({ id: "b-feature", environment: "south", space: "tank" }),
     ];
@@ -237,7 +244,7 @@ export const test_render_subject_compiled_shot = (): void => {
   TestValidator.equals(
     "a cluster whose recipe the shot omits is refused, never staged",
     throwsError(
-      () =>
+      (): IAutoMovieRenderSubject =>
         autoMovieRenderSubjectOfCompiledShot({
           compiled: {
             ...bare,
@@ -250,8 +257,8 @@ export const test_render_subject_compiled_shot = (): void => {
     true,
   );
 
-  const mask = deriveAutoMovieSemanticMask(subject);
-  const sidecar = renderAutoMovieSemanticMaskSidecar(mask);
+  const mask: IAutoMovieSemanticMask = deriveAutoMovieSemanticMask(subject);
+  const sidecar: string = renderAutoMovieSemanticMaskSidecar(mask);
   TestValidator.equals(
     "the sidecar is deterministic bytes that round-trip to the same palette",
     {
@@ -260,7 +267,7 @@ export const test_render_subject_compiled_shot = (): void => {
       stable: sidecar === renderAutoMovieSemanticMaskSidecar(mask),
       digest: (JSON.parse(sidecar) as IAutoMovieSemanticMask).digest,
       pond: (JSON.parse(sidecar) as IAutoMovieSemanticMask).entries.find(
-        (entry) => entry.id === "water-body:basin",
+        (entry: IAutoMovieSemanticMaskEntry): boolean => entry.id === "water-body:basin",
       )?.color,
     },
     {
@@ -268,8 +275,8 @@ export const test_render_subject_compiled_shot = (): void => {
       indented: true,
       stable: true,
       digest: mask.digest,
-      pond: mask.entries.find((entry) => entry.id === "water-body:basin")
+      pond: mask.entries.find((entry: IAutoMovieSemanticMaskEntry): boolean => entry.id === "water-body:basin")
         ?.color,
     },
   );
-};
+}

@@ -1,4 +1,5 @@
 import { TestValidator } from "@nestia/e2e";
+import type { IAutoMovieRenderInventory, IAutoMovieRenderOwnerCost } from "@automovie/interface";
 import { simulatedRenderSubjectFixture } from "../internal/simulatedRenderSubjectFixture";
 import { measureRenderBudgetSubject as measure } from "../internal/measureRenderBudgetSubject";
 
@@ -8,34 +9,39 @@ import { measureRenderBudgetSubject as measure } from "../internal/measureRender
  * Scenarios:
  *
  * 1. The complete simulated inventory and semantic owner rows report lattice, branch and water arithmetic.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Measures the composed cloth, planting and water subject through the actual engine inventory seam and checks every total plus nonzero triangle owner rows, catching omission of a simulated drawable, per-member branch draws, duplicated prototype buffers or lost outline attribution.
+ * @evidence contracts/testing.md#independent-expectations A 4-by-3 panel gives twelve vertices and twelve triangles; a 3-by-2 water grid gives six vertices and four triangles. The authored two-child three-level recipe gives seven branches per each of six members, and supplied branch counts and declared attribute/index widths determine storage. Two frame passes multiply submitted work while resident bytes and slots remain single allocations.
+ * @evidence contracts/testing.md#distinguishing-cases The combined subject distinguishes three drawable kinds, a named fabric from unnamed materials, shared branch prototype storage from forty-two displayed instances, and editable triangle owners from the outline pass. One-site axes, missing prototypes, shared materials and fluid admission have separate simulated tests.
+ * @evidence contracts/testing.md#execution-ownership The exported test_render_simulated_budget entry measures numerical domain and prototype records synchronously without solving a frame, creating native geometry, installing a consumer or starting a renderer; it owns the two complete-result assertions.
  */
-export const test_render_simulated_budget = (): void => {
-  const subject = simulatedRenderSubjectFixture;
+export function test_render_simulated_budget(): void {
+  const subject: typeof simulatedRenderSubjectFixture = simulatedRenderSubjectFixture;
 
   // A 4 x 3 curtain: 12 particles, 3 x 2 quads, two triangles each.
-  const PANEL_VERTICES = 12;
+  const PANEL_VERTICES: 12 = 12;
 
-  const PANEL_TRIANGLES = 12;
+  const PANEL_TRIANGLES: 12 = 12;
 
-  const PANEL_BYTES = PANEL_VERTICES * (12 + 12 + 8) + PANEL_TRIANGLES * 3 * 4;
+  const PANEL_BYTES: number = PANEL_VERTICES * (12 + 12 + 8) + PANEL_TRIANGLES * 3 * 4;
 
   // A 3 x 2 basin: 6 cells, 2 x 1 quads, two triangles each; a water vertex
   // carries the flow vector a ripple scrolls along beside position, normal and
   // texture coordinate.
-  const WATER_VERTICES = 6;
+  const WATER_VERTICES: 6 = 6;
 
-  const WATER_TRIANGLES = 4;
+  const WATER_TRIANGLES: 4 = 4;
 
-  const WATER_BYTES =
+  const WATER_BYTES: number =
     WATER_VERTICES * (12 + 12 + 8 + 8) + WATER_TRIANGLES * 3 * 4;
 
   // A complete two-child tree of three levels is 1 + 2 + 4 branches, and the
   // cluster places six members of it.
-  const BRANCH_INSTANCES = 7 * 6;
+  const BRANCH_INSTANCES: number = 7 * 6;
 
-  const BRANCH = { vertices: 40, triangles: 24 };
+  const BRANCH: { vertices: number; triangles: number } = { vertices: 40, triangles: 24 };
 
-  const BRANCH_BYTES =
+  const BRANCH_BYTES: number =
     BRANCH.vertices * (12 + 12 + 8) + BRANCH.triangles * 3 * 4;
 
   // Opaque geometry is submitted more than once in a frame, and the inventory
@@ -45,9 +51,9 @@ export const test_render_simulated_budget = (): void => {
   // complete pass over every opaque draw. Resident cost is not multiplied,
   // because vertices, memory, nodes and instance slots are allocated once and
   // reused by each pass.
-  const PASSES = 2;
+  const PASSES: 2 = 2;
 
-  const inventory = measure(subject());
+  const inventory: IAutoMovieRenderInventory = measure(subject());
 
   TestValidator.equals(
     "cloth, planting and water are measured beside the staged world",
@@ -84,8 +90,8 @@ export const test_render_simulated_budget = (): void => {
   TestValidator.equals(
     "every simulated cost is attributed and only the repeated pass is classified as pass work",
     inventory.owners
-      .filter((entry) => entry.metric === "triangles" && entry.cost !== 0)
-      .map((entry) => [entry.owner, entry.source, entry.cost, entry.kind]),
+      .filter((entry: IAutoMovieRenderOwnerCost): boolean => entry.metric === "triangles" && entry.cost !== 0)
+      .map((entry: IAutoMovieRenderOwnerCost): unknown[] => [entry.owner, entry.source, entry.cost, entry.kind]),
     [
       [
         "planting:atrium-bed",
@@ -111,4 +117,4 @@ export const test_render_simulated_budget = (): void => {
       ],
     ],
   );
-};
+}
