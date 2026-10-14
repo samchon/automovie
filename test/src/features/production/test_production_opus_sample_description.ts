@@ -5,20 +5,33 @@ import {
 } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
-const box = () => ({
-  type: "dOps",
-  Version: 0,
-  OutputChannelCount: 2,
-  PreSkip: 312,
-  InputSampleRate: 48_000,
-  OutputGain: 0,
-  ChannelMappingFamily: 0,
-  StreamCount: 1,
-  CoupledCount: 1,
-  ChannelMapping: [] as number[],
-});
+function box(): {
+  type: string;
+  Version: number;
+  OutputChannelCount: number;
+  PreSkip: number;
+  InputSampleRate: number;
+  OutputGain: number;
+  ChannelMappingFamily: number;
+  StreamCount: number;
+  CoupledCount: number;
+  ChannelMapping: number[];
+} {
+  return {
+    type: "dOps",
+    Version: 0,
+    OutputChannelCount: 2,
+    PreSkip: 312,
+    InputSampleRate: 48_000,
+    OutputGain: 0,
+    ChannelMappingFamily: 0,
+    StreamCount: 1,
+    CoupledCount: 1,
+    ChannelMapping: [],
+  };
+}
 
-const audio = (): IAutoMovieProductionAudioProbe => ({
+const audio: () => IAutoMovieProductionAudioProbe = (): IAutoMovieProductionAudioProbe => ({
   kind: "audio",
   container: "mp4",
   codec: "opus",
@@ -48,7 +61,7 @@ const audio = (): IAutoMovieProductionAudioProbe => ({
   }),
 });
 
-const refused = (closure: () => unknown, message: string): boolean => {
+const refused: (closure: () => unknown, message: string) => boolean = (closure: () => unknown, message: string): boolean => {
   try {
     closure();
     return false;
@@ -72,19 +85,24 @@ const refused = (closure: () => unknown, message: string): boolean => {
  *    outputs fewer channels than the streams decode. Relations it forbids are
  *    refused: a family 1 box above eight channels and more than 255 decoded
  *    channels, each beside its accepted boundary twin.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls the actual Opus sample-description parser and delivery-profile checker over authored records, observing normalized family-zero facts, exact nonzero mappings, structural refusals and each named profile mismatch.
+ * @evidence contracts/testing.md#independent-expectations Literal dOps bit-width/family relations, mapping orders and profile substitutions supply expectations independently of the parser. These record cases establish metadata admission and profile comparison without encoded packet parsing, audible sound or decoder interoperability.
+ * @evidence contracts/testing.md#distinguishing-cases Contrasts mono/stereo and mapped families, missing/duplicate/malformed descriptions and one-field profile twins; accepted informational rates and 8/9-family-one or 255/256-decoded-channel boundaries prevent conflating structural legality with the narrower delivery profile.
+ * @evidence contracts/testing.md#execution-ownership This named synchronous unit owns local records, cloned negative twins and refusal callbacks only; it opens no file, codec process, renderer, browser or GPU and replaces no foreign method or production consumer.
  */
-export const test_production_opus_sample_description = (): void => {
-  const current = audio();
+export function test_production_opus_sample_description(): void {
+  const current: IAutoMovieProductionAudioProbe = audio();
   assertProductionOpusProfile(current);
-  const absentFamilyZeroTail = box();
+  const absentFamilyZeroTail: ReturnType<typeof box> = box();
   delete (absentFamilyZeroTail as Partial<ReturnType<typeof box>>)
     .ChannelMapping;
-  const mono = productionOpusDescription({
+  const mono: ReturnType<typeof productionOpusDescription> = productionOpusDescription({
     boxes: [{ ...absentFamilyZeroTail, OutputChannelCount: 1 }],
     codec: "opus.0",
     trackChannels: 1,
   });
-  const familyOne = productionOpusDescription({
+  const familyOne: ReturnType<typeof productionOpusDescription> = productionOpusDescription({
     boxes: [
       {
         ...box(),
@@ -128,11 +146,11 @@ export const test_production_opus_sample_description = (): void => {
       },
     },
   );
-  const malformed = (mutate: (value: ReturnType<typeof box>) => void) => {
-    const value = box();
+  const malformed: (mutate: (value: ReturnType<typeof box>) => void) => boolean = (mutate: (value: ReturnType<typeof box>) => void): boolean => {
+    const value: ReturnType<typeof box> = box();
     mutate(value);
     return refused(
-      () =>
+      (): ReturnType<typeof productionOpusDescription> =>
         productionOpusDescription({
           boxes: [value],
           codec: "opus",
@@ -145,7 +163,7 @@ export const test_production_opus_sample_description = (): void => {
     "invalid sample descriptions fail structurally and by exact relation",
     {
       codec: refused(
-        () =>
+        (): ReturnType<typeof productionOpusDescription> =>
           productionOpusDescription({
             boxes: [box()],
             codec: "mp4a",
@@ -154,7 +172,7 @@ export const test_production_opus_sample_description = (): void => {
         "sampleEntry",
       ),
       missing: refused(
-        () =>
+        (): ReturnType<typeof productionOpusDescription> =>
           productionOpusDescription({
             boxes: undefined,
             codec: "opus",
@@ -163,7 +181,7 @@ export const test_production_opus_sample_description = (): void => {
         "observed 0",
       ),
       duplicate: refused(
-        () =>
+        (): ReturnType<typeof productionOpusDescription> =>
           productionOpusDescription({
             boxes: [box(), box()],
             codec: "opus",
@@ -171,22 +189,22 @@ export const test_production_opus_sample_description = (): void => {
           }),
         "observed 2",
       ),
-      version: malformed((value) => (value.Version = 256)),
-      channelCount: malformed((value) => (value.OutputChannelCount = 0)),
-      preSkip: malformed((value) => (value.PreSkip = -1)),
-      sampleRate: malformed((value) => (value.InputSampleRate = 0)),
-      gain: malformed((value) => (value.OutputGain = 32_768)),
-      family: malformed((value) => (value.ChannelMappingFamily = 256)),
-      reservedFamily: malformed((value) => {
+      version: malformed((value: ReturnType<typeof box>): number => (value.Version = 256)),
+      channelCount: malformed((value: ReturnType<typeof box>): number => (value.OutputChannelCount = 0)),
+      preSkip: malformed((value: ReturnType<typeof box>): number => (value.PreSkip = -1)),
+      sampleRate: malformed((value: ReturnType<typeof box>): number => (value.InputSampleRate = 0)),
+      gain: malformed((value: ReturnType<typeof box>): number => (value.OutputGain = 32_768)),
+      family: malformed((value: ReturnType<typeof box>): number => (value.ChannelMappingFamily = 256)),
+      reservedFamily: malformed((value: ReturnType<typeof box>): void => {
         value.ChannelMappingFamily = 2;
       }),
       mappingArray: malformed(
-        (value) => (value.ChannelMapping = null as unknown as number[]),
+        (value: ReturnType<typeof box>): number[] => (value.ChannelMapping = null as unknown as number[]),
       ),
-      mappingValue: malformed((value) => (value.ChannelMapping = [-1])),
-      trackMismatch: malformed((value) => (value.OutputChannelCount = 1)),
+      mappingValue: malformed((value: ReturnType<typeof box>): number[] => (value.ChannelMapping = [-1])),
+      trackMismatch: malformed((value: ReturnType<typeof box>): number => (value.OutputChannelCount = 1)),
       familyZeroCount: refused(
-        () =>
+        (): ReturnType<typeof productionOpusDescription> =>
           productionOpusDescription({
             boxes: [{ ...box(), OutputChannelCount: 3 }],
             codec: "opus",
@@ -194,26 +212,26 @@ export const test_production_opus_sample_description = (): void => {
           }),
         "family 0 supports mono or stereo",
       ),
-      familyZeroMap: malformed((value) => (value.ChannelMapping = [0, 1])),
-      streamCount: malformed((value) => {
+      familyZeroMap: malformed((value: ReturnType<typeof box>): number[] => (value.ChannelMapping = [0, 1])),
+      streamCount: malformed((value: ReturnType<typeof box>): void => {
         value.ChannelMappingFamily = 1;
         value.StreamCount = 0;
       }),
-      coupledCount: malformed((value) => {
+      coupledCount: malformed((value: ReturnType<typeof box>): void => {
         value.ChannelMappingFamily = 1;
         value.CoupledCount = -1;
       }),
-      impossibleCounts: malformed((value) => {
+      impossibleCounts: malformed((value: ReturnType<typeof box>): void => {
         value.ChannelMappingFamily = 1;
         value.StreamCount = 1;
         value.CoupledCount = 2;
         value.ChannelMapping = [0, 1];
       }),
-      wrongMapLength: malformed((value) => {
+      wrongMapLength: malformed((value: ReturnType<typeof box>): void => {
         value.ChannelMappingFamily = 1;
         value.ChannelMapping = [0];
       }),
-      outOfRangeMap: malformed((value) => {
+      outOfRangeMap: malformed((value: ReturnType<typeof box>): void => {
         value.ChannelMappingFamily = 1;
         value.ChannelMapping = [0, 2];
       }),
@@ -241,12 +259,12 @@ export const test_production_opus_sample_description = (): void => {
       outOfRangeMap: true,
     },
   );
-  const rfcRelations = (
+  const rfcRelations: (patch: Partial<ReturnType<typeof box>>, trackChannels: number) => string = (
     patch: Partial<ReturnType<typeof box>>,
     trackChannels: number,
   ): string => {
     try {
-      const parsed = productionOpusDescription({
+      const parsed: ReturnType<typeof productionOpusDescription> = productionOpusDescription({
         boxes: [{ ...box(), ...patch }],
         codec: "Opus",
         trackChannels,
@@ -325,88 +343,88 @@ export const test_production_opus_sample_description = (): void => {
   const substitutions: Array<
     [string, (value: IAutoMovieProductionAudioProbe) => void]
   > = [
-    ["codec", (value) => (value.codec = "mp4a")],
-    ["channels", (value) => (value.channels = 1)],
-    ["sampleRate", (value) => (value.sampleRate = 44_100)],
-    ["sampleCount", (value) => (value.sampleCount = 0)],
-    ["dOps.version", (value) => (value.sampleEntry.version = 1)],
+    ["codec", (value: IAutoMovieProductionAudioProbe): string => (value.codec = "mp4a")],
+    ["channels", (value: IAutoMovieProductionAudioProbe): number => (value.channels = 1)],
+    ["sampleRate", (value: IAutoMovieProductionAudioProbe): number => (value.sampleRate = 44_100)],
+    ["sampleCount", (value: IAutoMovieProductionAudioProbe): number => (value.sampleCount = 0)],
+    ["dOps.version", (value: IAutoMovieProductionAudioProbe): number => (value.sampleEntry.version = 1)],
     [
       "dOps.outputChannelCount",
-      (value) => (value.sampleEntry.outputChannelCount = 1),
+      (value: IAutoMovieProductionAudioProbe): number => (value.sampleEntry.outputChannelCount = 1),
     ],
     [
       "dOps.inputSampleRate",
-      (value) => (value.sampleEntry.inputSampleRate = 44_100),
+      (value: IAutoMovieProductionAudioProbe): number => (value.sampleEntry.inputSampleRate = 44_100),
     ],
     [
       "dOps.outputGainQ7_8",
-      (value) => (value.sampleEntry.outputGainQ7_8 = 256),
+      (value: IAutoMovieProductionAudioProbe): number => (value.sampleEntry.outputGainQ7_8 = 256),
     ],
     [
       "dOps.channelMappingFamily",
-      (value) => (value.sampleEntry.channelMapping.family = 255),
+      (value: IAutoMovieProductionAudioProbe): number => (value.sampleEntry.channelMapping.family = 255),
     ],
     [
       "dOps.streamCount",
-      (value) => (value.sampleEntry.channelMapping.streamCount = 1),
+      (value: IAutoMovieProductionAudioProbe): number => (value.sampleEntry.channelMapping.streamCount = 1),
     ],
     [
       "dOps.coupledCount",
-      (value) => (value.sampleEntry.channelMapping.coupledCount = 1),
+      (value: IAutoMovieProductionAudioProbe): number => (value.sampleEntry.channelMapping.coupledCount = 1),
     ],
     [
       "dOps.mapping",
-      (value) => (value.sampleEntry.channelMapping.mapping = [0, 1]),
+      (value: IAutoMovieProductionAudioProbe): number[] => (value.sampleEntry.channelMapping.mapping = [0, 1]),
     ],
     [
       "dOps.channelOrder",
-      (value) =>
+      (value: IAutoMovieProductionAudioProbe): NonNullable<IAutoMovieProductionAudioProbe["sampleEntry"]["channelMapping"]["channelOrder"]> =>
         (value.sampleEntry.channelMapping.channelOrder = [
           "front-right",
           "front-left",
         ]),
     ],
-    ["dOps.preSkip", (value) => (value.sampleEntry.preSkip = 0)],
-    ["timebase.movieTimescale", (value) => (value.timebase.movieTimescale = 0)],
+    ["dOps.preSkip", (value: IAutoMovieProductionAudioProbe): number => (value.sampleEntry.preSkip = 0)],
+    ["timebase.movieTimescale", (value: IAutoMovieProductionAudioProbe): number => (value.timebase.movieTimescale = 0)],
     [
       "timebase.mediaTimescale",
-      (value) => (value.timebase.mediaTimescale = 44_100),
+      (value: IAutoMovieProductionAudioProbe): number => (value.timebase.mediaTimescale = 44_100),
     ],
-    ["timebase.movieDuration", (value) => (value.timebase.movieDuration = 0)],
-    ["timebase.mediaDuration", (value) => (value.timebase.mediaDuration = 0)],
-    ["timebase.edits.length", (value) => (value.timebase.edits = [])],
+    ["timebase.movieDuration", (value: IAutoMovieProductionAudioProbe): number => (value.timebase.movieDuration = 0)],
+    ["timebase.mediaDuration", (value: IAutoMovieProductionAudioProbe): number => (value.timebase.mediaDuration = 0)],
+    ["timebase.edits.length", (value: IAutoMovieProductionAudioProbe): IAutoMovieProductionAudioProbe["timebase"]["edits"] => (value.timebase.edits = [])],
     [
       "timebase.edit.segmentDuration",
-      (value) => (value.timebase.edits[0]!.segmentDuration -= 1),
+      (value: IAutoMovieProductionAudioProbe): number => (value.timebase.edits[0]!.segmentDuration -= 1),
     ],
     [
       "timebase.edit.mediaTime",
-      (value) => (value.timebase.edits[0]!.mediaTime = 0),
+      (value: IAutoMovieProductionAudioProbe): number => (value.timebase.edits[0]!.mediaTime = 0),
     ],
     [
       "timebase.edit.mediaRateInteger",
-      (value) => (value.timebase.edits[0]!.mediaRateInteger = 0),
+      (value: IAutoMovieProductionAudioProbe): number => (value.timebase.edits[0]!.mediaRateInteger = 0),
     ],
     [
       "timebase.edit.mediaRateFraction",
-      (value) => (value.timebase.edits[0]!.mediaRateFraction = 1),
+      (value: IAutoMovieProductionAudioProbe): number => (value.timebase.edits[0]!.mediaRateFraction = 1),
     ],
     [
       "timebase.presentationSamples",
-      (value) => (value.timebase.movieTimescale = 47_999),
+      (value: IAutoMovieProductionAudioProbe): number => (value.timebase.movieTimescale = 47_999),
     ],
     [
       "timebase.codedCoverage",
-      (value) => (value.timebase.mediaDuration = 48_311),
+      (value: IAutoMovieProductionAudioProbe): number => (value.timebase.mediaDuration = 48_311),
     ],
-    ["runtimeSeconds", (value) => (value.runtimeSeconds = 2)],
+    ["runtimeSeconds", (value: IAutoMovieProductionAudioProbe): number => (value.runtimeSeconds = 2)],
   ];
   TestValidator.predicate(
     "every profile field has a one-field refusing twin",
-    substitutions.every(([field, mutate]) => {
-      const value = structuredClone(current);
+    substitutions.every(([field, mutate]: [string, (value: IAutoMovieProductionAudioProbe) => void]): boolean => {
+      const value: IAutoMovieProductionAudioProbe = structuredClone(current);
       mutate(value);
-      return refused(() => assertProductionOpusProfile(value), field);
+      return refused((): void => assertProductionOpusProfile(value), field);
     }),
   );
-};
+}

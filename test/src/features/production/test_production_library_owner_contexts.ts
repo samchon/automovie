@@ -1,27 +1,8 @@
-import type { IAutoMovieProductionEvidence } from "@automovie/evidence";
 import type { IAutoMovieLibraryBuildContext } from "@automovie/interface";
+import { createAutoMovieLibraryOwnerContexts } from "../../../../packages/production/src/production/createAutoMovieLibraryOwnerContexts";
 import { TestValidator } from "@nestia/e2e";
-import path from "node:path";
 
 import { createLibraryOwnerPopulation } from "../internal/createLibraryOwnerPopulation";
-import { loadSourceModule } from "../internal/loadSourceModule";
-
-const { createAutoMovieLibraryOwnerContexts } = loadSourceModule<{
-  createAutoMovieLibraryOwnerContexts(props: {
-    production: string;
-    owners: IAutoMovieProductionEvidence["designOwners"];
-    execution: ReturnType<typeof createLibraryOwnerPopulation>["execution"];
-    derivedArtifacts: IAutoMovieLibraryBuildContext["derivedArtifacts"];
-  }): {
-    contexts: ReadonlyMap<string, IAutoMovieLibraryBuildContext>;
-    sourceBranches: ReadonlyMap<string, string>;
-  };
-}>(
-  path.resolve(
-    __dirname,
-    "../../../../packages/production/src/production/createAutoMovieLibraryOwnerContexts.ts",
-  ),
-);
 
 /**
  * Source evaluation resolves only the attempt's exact acquired owner addresses.
@@ -31,12 +12,17 @@ const { createAutoMovieLibraryOwnerContexts } = loadSourceModule<{
  *    null bindings have no source branch and settings carry their own address.
  * 2. Non-settings exports cannot manufacture additional design contexts.
  * 3. An empty acquired population creates no contexts or source branches.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Builds actual attempt owner contexts from acquired design/execution rows, asserting exact address order, namespace/address reconstruction, shared derivation identity, source-branch choices, unchanged inputs and refusal to invent non-settings owners from execution alone.
+ * @evidence contracts/testing.md#independent-expectations The fixture declares six literal owner addresses in order and their model/space/settings branches. Literal harbor namespace, empty branch for an unstarted owner and zero empty/unrelated context counts are independent routing expectations; identity checks test sharing rather than derived-byte admission.
+ * @evidence contracts/testing.md#distinguishing-cases Retains multiple anchors in one design, different design paths, unstarted/null source binding, settings-only context, unrelated non-settings execution, empty populations and input immutability. Source-stage enforcement and contribution admission are owned by execution/evaluation tests.
+ * @evidence contracts/testing.md#execution-ownership The named test_production_library_owner_contexts owns portable synchronous map construction and every loop assertion over its resident fixture. It executes no source export and creates no project, generated artifact or native host.
  */
-export const test_production_library_owner_contexts = (): void => {
-  const population = createLibraryOwnerPopulation();
-  const before = JSON.stringify(population);
-  const derivedArtifacts = {};
-  const value = createAutoMovieLibraryOwnerContexts({
+export function test_production_library_owner_contexts(): void {
+  const population: ReturnType<typeof createLibraryOwnerPopulation> = createLibraryOwnerPopulation();
+  const before: string = JSON.stringify(population);
+  const derivedArtifacts: IAutoMovieLibraryBuildContext["derivedArtifacts"] = {};
+  const value: ReturnType<typeof createAutoMovieLibraryOwnerContexts> = createAutoMovieLibraryOwnerContexts({
     ...population,
     production: "harbor",
     derivedArtifacts,
@@ -94,7 +80,7 @@ export const test_production_library_owner_contexts = (): void => {
     JSON.stringify(population),
     before,
   );
-  const unrelated = createAutoMovieLibraryOwnerContexts({
+  const unrelated: ReturnType<typeof createAutoMovieLibraryOwnerContexts> = createAutoMovieLibraryOwnerContexts({
     owners: [],
     execution: {
       ...population.execution,
@@ -108,7 +94,7 @@ export const test_production_library_owner_contexts = (): void => {
     unrelated.contexts.size,
     0,
   );
-  const empty = createAutoMovieLibraryOwnerContexts({
+  const empty: ReturnType<typeof createAutoMovieLibraryOwnerContexts> = createAutoMovieLibraryOwnerContexts({
     owners: [],
     execution: { entries: [], sources: [], problems: [] },
     production: "harbor",
@@ -119,4 +105,4 @@ export const test_production_library_owner_contexts = (): void => {
     [empty.contexts.size, empty.sourceBranches.size],
     [0, 0],
   );
-};
+}

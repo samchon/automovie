@@ -8,7 +8,7 @@ import {
 import { isProductionFrameTime } from "@automovie/production";
 import { TestValidator } from "@nestia/e2e";
 
-const refused = (closure: () => unknown, message: string): boolean => {
+const refused: (closure: () => unknown, message: string) => boolean = (closure: () => unknown, message: string): boolean => {
   try {
     closure();
     return false;
@@ -26,9 +26,14 @@ const refused = (closure: () => unknown, message: string): boolean => {
  * 2. Common fractional rates map frame boundaries to exact sample and WebVTT
  *    ticks with the named nonnegative nearest-half-up policy.
  * 3. Floor, ceiling, zero, overflow, invalid domains, and destination-grid
- *    interval collapse exercise every refusal and boundary branch.
+ *    interval collapse exercise the listed refusals and boundaries.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls the actual rational rate resolvers, frame/grid conversions and exact frame-membership predicate, observing canonical ratios, boolean membership, integer destination ticks and refusal categories.
+ * @evidence contracts/testing.md#independent-expectations Literal reduced ratios and sample/millisecond ticks follow integer arithmetic for the authored 30000/1001 and 24000/1001 clocks, without calling another mapper for the oracle. Fractional seconds are inputs to boolean membership, not floating outputs compared with exact equality.
+ * @evidence contracts/testing.md#distinguishing-cases Covers integer/reducible/equivalent/distinct rates, fractional sample/caption boundaries, zero and half-up/floor/ceiling rounding, positive intervals, ambiguous/invalid/unsafe clocks, reversed/collapsed intervals and off-grid/non-finite time; it does not claim exhaustive arithmetic-domain coverage.
+ * @evidence contracts/testing.md#execution-ownership This named synchronous entry owns only portable scalar/BigInt clock operations and local refusal callbacks; it opens no file, native codec, renderer, browser or GPU and replaces no foreign method.
  */
-export const test_production_media_timebase_join = (): void => {
+export function test_production_media_timebase_join(): void {
   TestValidator.equals(
     "integer and equivalent rational rates have one canonical identity",
     {
@@ -163,24 +168,24 @@ export const test_production_media_timebase_join = (): void => {
     "invalid, ambiguous, unsafe, and collapsed clocks fail closed",
     {
       fractionalScalar: refused(
-        () => canonicalProductionFrameRate(29.97),
+        (): ReturnType<typeof canonicalProductionFrameRate> => canonicalProductionFrameRate(29.97),
         "exact numerator and denominator",
       ),
       zeroNumerator: refused(
-        () => canonicalProductionFrameRate({ numerator: 0, denominator: 1 }),
+        (): ReturnType<typeof canonicalProductionFrameRate> => canonicalProductionFrameRate({ numerator: 0, denominator: 1 }),
         "positive safe-integer terms",
       ),
       negativeDenominator: refused(
-        () => canonicalProductionFrameRate({ numerator: 24, denominator: -1 }),
+        (): ReturnType<typeof canonicalProductionFrameRate> => canonicalProductionFrameRate({ numerator: 24, denominator: -1 }),
         "positive safe-integer terms",
       ),
       nonIntegerNumerator: refused(
-        () =>
+        (): ReturnType<typeof canonicalProductionFrameRate> =>
           canonicalProductionFrameRate({ numerator: 23.98, denominator: 1 }),
         "positive safe-integer terms",
       ),
       mismatchedDisplay: refused(
-        () =>
+        (): ReturnType<typeof resolveProductionFrameRate> =>
           resolveProductionFrameRate({
             fps: 29.97,
             frameRate: { numerator: 30_000, denominator: 1_001 },
@@ -188,7 +193,7 @@ export const test_production_media_timebase_join = (): void => {
         "does not equal",
       ),
       negativeFrame: refused(
-        () =>
+        (): number =>
           productionFrameBoundaryToGridTick({
             frame: -1,
             frameRate: { numerator: 24, denominator: 1 },
@@ -198,7 +203,7 @@ export const test_production_media_timebase_join = (): void => {
         "nonnegative safe integer",
       ),
       zeroClock: refused(
-        () =>
+        (): number =>
           productionFrameBoundaryToGridTick({
             frame: 1,
             frameRate: { numerator: 24, denominator: 1 },
@@ -208,7 +213,7 @@ export const test_production_media_timebase_join = (): void => {
         "positive safe integer",
       ),
       overflow: refused(
-        () =>
+        (): number =>
           productionFrameBoundaryToGridTick({
             frame: Number.MAX_SAFE_INTEGER,
             frameRate: { numerator: 1, denominator: 1 },
@@ -218,7 +223,7 @@ export const test_production_media_timebase_join = (): void => {
         "exceeds the safe",
       ),
       reversed: refused(
-        () =>
+        (): ReturnType<typeof productionFrameIntervalToGridTicks> =>
           productionFrameIntervalToGridTicks({
             startFrame: 2,
             endFrame: 1,
@@ -229,7 +234,7 @@ export const test_production_media_timebase_join = (): void => {
         "positive frame duration",
       ),
       collapsed: refused(
-        () =>
+        (): ReturnType<typeof productionFrameIntervalToGridTicks> =>
           productionFrameIntervalToGridTicks({
             startFrame: 0,
             endFrame: 1,
@@ -262,4 +267,4 @@ export const test_production_media_timebase_join = (): void => {
       invalidTimeRate: false,
     },
   );
-};
+}

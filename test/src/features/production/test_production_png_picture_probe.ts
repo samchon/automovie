@@ -97,7 +97,7 @@ function message(task: () => unknown): string {
  *    marker, and Adam7 interlace each surface in the picture, while a
  *    malformed sRGB, gAMA, cHRM, iCCP, or pHYs chunk, contradictory color
  *    declarations, a repeated chunk, a chunk type with high-bit bytes, and
- *    every datastream framing defect are refused by name.
+ *    the listed datastream framing defects are refused by name.
  * 5. A one-bit CRC change refuses both observed sRGB metadata and an unknown
  *    ancillary chunk, while their unmodified adjacent inputs still admit.
  *

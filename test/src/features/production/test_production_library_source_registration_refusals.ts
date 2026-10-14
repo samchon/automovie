@@ -86,7 +86,7 @@ const failures: (result: ReturnType<typeof collect>) => string[] = (result: Retu
     .map((diagnostic: IAutoMovieDiagnostic): string => diagnostic.message);
 
 /**
- * One evaluated library module yields exactly the owners it registers, and every way an export can fail to become one is refused at that export.
+ * One evaluated library module yields its admitted owners and attributes the covered discovery, admission and evaluation refusals to their export or module.
  *
  * The builder cannot know an owner's export name in advance, so the collector discovers owners by shape. A value that is not an object naming a string `design`, or one that names a design with neither `build` nor `derivedArtifact`, is a helper rather than an owner and must stay silent. An owner the authoring declaration does not know, an owner edge the graph did not select, and an asynchronous result are each refused before anything is registered. Evaluation or a build that throws abandons every registration from that module, because a partially evaluated module is not a result, while refusals already recorded stay visible beside the failure.
  *
@@ -112,7 +112,7 @@ const failures: (result: ReturnType<typeof collect>) => string[] = (result: Retu
  *    does not exist is refused as a module evaluation failure.
  *
  * @evidence contracts/testing.md#behavioral-verification Collects evaluated exports and checks exact registrations, normalization and per-export refusals, catching helpers registered as owners or partial registrations surviving evaluation failure.
- * @evidence contracts/testing.md#independent-expectations Literal accepted export names, refusal codes and target paths derive from owner shape, graph admission and synchronous contribution requirements; substring checks limit the oracle for full failure wording.
+ * @evidence contracts/testing.md#independent-expectations Literal accepted export names, refusal codes and target paths derive from owner shape, graph admission and synchronous contribution requirements; substring checks limit the oracle for full failure wording. The represented thrown Error/string/plain-object values do not cover thrown values whose own string conversion fails.
  * @evidence contracts/testing.md#distinguishing-cases Covers helper shapes, malformed artifact selection, unknown and unbound owners, Promise results, omitted and empty contexts, thrown Error/string/object values, a real module with no owners and an absent module path; derived JSON duplication belongs to its adjacent test.
  * @evidence contracts/testing.md#execution-ownership This named unit entry owns all collector callbacks and an in-process Node module evaluation of its own fixture plus a missing path; it installs no consumer, builds no native artifact and starts no separate host.
  */

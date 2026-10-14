@@ -1,27 +1,6 @@
 import { TestValidator } from "@nestia/e2e";
-import path from "node:path";
-
-import { loadSourceModule } from "../internal/loadSourceModule";
-
-const { runProductionMutation, cleanupProductionAtomic } = loadSourceModule<{
-  runProductionMutation: <File, Result>(props: {
-    files: readonly File[];
-    guard: () => void;
-    apply: (file: File, published: () => void) => void;
-    restore: (file: File) => void;
-    complete: (committed: () => void) => Result;
-  }) => Result;
-  cleanupProductionAtomic: (
-    temporary: string,
-    failure: { error: unknown } | undefined,
-    remove: () => void,
-  ) => void;
-}>(
-  path.resolve(
-    __dirname,
-    "../../../../packages/production/src/production/productionMutation.ts",
-  ),
-);
+import { runProductionMutation } from "../../../../packages/production/src/production/runProductionMutation";
+import { cleanupProductionAtomic } from "../../../../packages/production/src/production/cleanupProductionAtomic";
 
 /**
  * A publication notification, not a normal return, determines rollback scope.
@@ -30,46 +9,51 @@ const { runProductionMutation, cleanupProductionAtomic } = loadSourceModule<{
  * 1. Successful and empty transactions preserve their result and never restore.
  * 2. Pre-publication failure omits the current write; post-publication cleanup
  *    failure restores it and earlier writes, including deletion, in reverse order.
- * 3. A final guard failure restores the whole candidate, while a published
+ * 3. A completion failure restores the whole candidate, while a published
  *    revision retains it and reports the lost acknowledgement without rollback.
  * 4. A replaced namespace is never restored, and rollback failures preserve the
  *    original error while still attempting the remaining owned writes.
  * 5. Cleanup preserves a primary failure, including a thrown undefined value,
  *    and distinguishes cleanup after a successful operation from no publication.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls the actual synchronous mutation coordinator and cleanup owner with explicit publication/commit notifications, observing reverse restoration, resident previous values, returned results and original/aggregate error identity and order.
+ * @evidence contracts/testing.md#independent-expectations Independently authored previous/next rows and failure objects define expected rollback scope at each notification boundary. Caller-owned map effects exercise the declared adapter protocol without replacing foreign filesystem methods or pretending to prove real atomic writes.
+ * @evidence contracts/testing.md#distinguishing-cases Covers failure before/after each publication, commit acknowledgement loss, initial/during-recovery namespace replacement, restoration failure with continued attempts, empty/successful/no-commit completion and cleanup with no/ordinary/undefined primary cause; physical locking and rename races remain separate transaction tests.
+ * @evidence contracts/testing.md#execution-ownership This named portable entry directly imports the canonical owners and owns only rows, maps and synchronous callbacks. It opens no file, process, renderer, browser or GPU and retains no global mutation or dynamic test registration.
  */
-export const test_production_mutation_accounting = (): void => {
-  const files = [
+export function test_production_mutation_accounting(): void {
+  const files: Array<{ id: string; previous: string | null; next: string | null }> = [
     { id: "new-payload", previous: null, next: "new" },
     { id: "manifest", previous: "old", next: "new" },
     { id: "removed", previous: "old", next: null },
   ];
-  const primary = new Error("synthetic operation failure");
-  const cleanup = new Error("synthetic cleanup failure");
-  const identity = new Error("synthetic namespace replacement");
-  const recovery = new Error("synthetic rollback failure");
+  const primary: Error = new Error("synthetic operation failure");
+  const cleanup: Error = new Error("synthetic cleanup failure");
+  const identity: Error = new Error("synthetic namespace replacement");
+  const recovery: Error = new Error("synthetic rollback failure");
   for (const stage of ["before", "after"] as const)
     for (const stop of files.keys()) {
-      const resident = new Map(files.map((file) => [file.id, file.previous]));
+      const resident: Map<string, string | null> = new Map(files.map((file: (typeof files)[number]): [string, string | null] => [file.id, file.previous]));
       const restored: string[] = [];
       let caught: unknown;
       try {
         runProductionMutation({
           files,
-          guard: () => undefined,
-          apply: (file, published) => {
+          guard: (): void => undefined,
+          apply: (file: (typeof files)[number], published: () => void): void => {
             if (file === files[stop] && stage === "before") throw primary;
             resident.set(file.id, file.next);
             published();
             if (file === files[stop] && stage === "after")
-              cleanupProductionAtomic("candidate.tmp", undefined, () => {
+              cleanupProductionAtomic("candidate.tmp", undefined, (): void => {
                 throw cleanup;
               });
           },
-          restore: (file) => {
+          restore: (file: (typeof files)[number]): void => {
             restored.push(file.id);
             resident.set(file.id, file.previous);
           },
-          complete: () => {
+          complete: (): never => {
             throw new Error("failure must prevent completion");
           },
         });
@@ -82,12 +66,12 @@ export const test_production_mutation_accounting = (): void => {
         files
           .slice(0, stop + Number(stage === "after"))
           .reverse()
-          .map((file) => file.id),
+          .map((file: (typeof files)[number]): string => file.id),
       );
       TestValidator.equals(
         `previous state ${stage} ${stop}`,
         [...resident],
-        files.map((file) => [file.id, file.previous]),
+        files.map((file: (typeof files)[number]): [string, string | null] => [file.id, file.previous]),
       );
       TestValidator.predicate(
         `original failure ${stage} ${stop}`,
@@ -103,12 +87,12 @@ export const test_production_mutation_accounting = (): void => {
     try {
       runProductionMutation({
         files,
-        guard: () => undefined,
-        apply: (_file, published) => published(),
-        restore: (file) => {
+        guard: (): void => undefined,
+        apply: (_file: (typeof files)[number], published: () => void): void => published(),
+        restore: (file: (typeof files)[number]): void => {
           restored.push(file.id);
         },
-        complete: (committed) => {
+        complete: (committed: () => void): never => {
           if (commit) committed();
           throw primary;
         },
@@ -119,7 +103,7 @@ export const test_production_mutation_accounting = (): void => {
     TestValidator.equals(
       `revision boundary ${commit}`,
       restored,
-      commit ? [] : [...files].reverse().map((file) => file.id),
+      commit ? [] : [...files].reverse().map((file: (typeof files)[number]): string => file.id),
     );
     TestValidator.predicate(
       `committed state is explicit ${commit}`,
@@ -132,24 +116,24 @@ export const test_production_mutation_accounting = (): void => {
   }
 
   for (const replace of [true, false]) {
-    let owned = true;
+    let owned: boolean = true;
     const restored: string[] = [];
     let caught: unknown;
     try {
       runProductionMutation({
         files,
-        guard: () => {
+        guard: (): void => {
           if (!owned) throw identity;
         },
-        apply: (file, published) => {
+        apply: (file: (typeof files)[number], published: () => void): void => {
           if (replace && file === files[1]) owned = false;
           published();
         },
-        restore: (file) => {
+        restore: (file: (typeof files)[number]): void => {
           restored.push(file.id);
           if (file === files[1]) throw recovery;
         },
-        complete: () => {
+        complete: (): never => {
           throw primary;
         },
       });
@@ -159,7 +143,7 @@ export const test_production_mutation_accounting = (): void => {
     TestValidator.equals(
       "replacement or incomplete rollback",
       restored,
-      replace ? [] : [...files].reverse().map((file) => file.id),
+      replace ? [] : [...files].reverse().map((file: (typeof files)[number]): string => file.id),
     );
     TestValidator.predicate(
       "failure ordering is preserved",
@@ -170,21 +154,21 @@ export const test_production_mutation_accounting = (): void => {
     );
   }
 
-  let owned = true;
+  let owned: boolean = true;
   const restores: string[] = [];
   let namespaceDuringRecovery: unknown;
   try {
     runProductionMutation({
       files,
-      guard: () => {
+      guard: (): void => {
         if (!owned) throw identity;
       },
-      apply: (_file, published) => published(),
-      restore: (file) => {
+      apply: (_file: (typeof files)[number], published: () => void): void => published(),
+      restore: (file: (typeof files)[number]): void => {
         restores.push(file.id);
         owned = false;
       },
-      complete: () => {
+      complete: (): never => {
         throw primary;
       },
     });
@@ -200,23 +184,23 @@ export const test_production_mutation_accounting = (): void => {
       namespaceDuringRecovery.errors[0] === primary &&
       namespaceDuringRecovery.errors
         .slice(1)
-        .every((error) => error === identity),
+        .every((error: unknown): boolean => error === identity),
   );
 
   for (const values of [[], files]) {
     const published: string[] = [];
-    let restored = false;
-    const result = runProductionMutation({
+    let restored: boolean = false;
+    const result: string = runProductionMutation({
       files: values,
-      guard: () => undefined,
-      apply: (file, notify) => {
+      guard: (): void => undefined,
+      apply: (file: (typeof files)[number], notify: () => void): void => {
         published.push(file.id);
         notify();
       },
-      restore: () => {
+      restore: (): void => {
         restored = true;
       },
-      complete: (committed) => {
+      complete: (committed: () => void): string => {
         committed();
         return "committed-result";
       },
@@ -225,7 +209,7 @@ export const test_production_mutation_accounting = (): void => {
     TestValidator.equals(
       "each write published once",
       published,
-      values.map((file) => file.id),
+      values.map((file: (typeof files)[number]): string => file.id),
     );
     TestValidator.predicate("success never restores", !restored);
   }
@@ -233,23 +217,23 @@ export const test_production_mutation_accounting = (): void => {
     "unchanged completion needs no commit marker",
     runProductionMutation({
       files: [],
-      guard: () => undefined,
-      apply: () => undefined,
-      restore: () => undefined,
-      complete: () => "unchanged",
+      guard: (): void => undefined,
+      apply: (): void => undefined,
+      restore: (): void => undefined,
+      complete: (): string => "unchanged",
     }),
     "unchanged",
   );
 
   for (const failure of [undefined, { error: primary }, { error: undefined }]) {
-    let removed = false;
-    cleanupProductionAtomic("candidate.tmp", failure, () => {
+    let removed: boolean = false;
+    cleanupProductionAtomic("candidate.tmp", failure, (): void => {
       removed = true;
     });
     TestValidator.predicate("successful cleanup stays silent", removed);
     let caught: unknown;
     try {
-      cleanupProductionAtomic("candidate.tmp", failure, () => {
+      cleanupProductionAtomic("candidate.tmp", failure, (): void => {
         throw cleanup;
       });
     } catch (error) {
@@ -267,4 +251,4 @@ export const test_production_mutation_accounting = (): void => {
             caught.errors[1] === cleanup),
     );
   }
-};
+}

@@ -97,7 +97,7 @@ const derivedOwner: (owner: IOwner) => { lantern: { design: string; derivedArtif
 });
 
 /**
- * A library compile's derived owner reaches the shared duplicate-aware JSON ingress, and every refusal it earns names the artifact whose generator has to change.
+ * Derived library contributions reach duplicate-aware JSON ingress, with ingress, schema and branch refusals attributed to the selected artifact; conflicting contribution forms remain source refusals.
  *
  * A declarative owner selects a precomputed contribution instead of returning one, so a host parser that keeps the last of two same-named members would turn an ambiguous artifact into an accepted one, and a schema or branch refusal that told the author to fix a returned value would send them to a source file that returned nothing. An executed owner is the twin: its value never passes through JSON admission, a plain text artifact reaches it verbatim, and its refusals keep pointing at its own source.
  *

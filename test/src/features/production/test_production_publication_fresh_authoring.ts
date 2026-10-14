@@ -4,44 +4,11 @@ import type {
 } from "@automovie/interface";
 import { digestAutoMovieBytes } from "@automovie/production";
 import { TestValidator } from "@nestia/e2e";
-import path from "node:path";
-
-import { loadSourceModule } from "../internal/loadSourceModule";
+import { readProductionPublicationInputFingerprint } from "../../../../packages/production/src/production/readProductionPublicationInputFingerprint";
 import { throwsError } from "../internal/predicates";
 
-const runtime: {
-  readProductionPublicationInputFingerprint: <Authoring>(props: {
-    snapshot: Readonly<Record<string, unknown>>;
-    currentAuthoringEvidence?: () => Authoring;
-    compile: (
-      authoring: Authoring | undefined,
-      current: (() => Authoring) | undefined,
-    ) => Pick<
-      IAutoMovieBuildProjectOutput,
-      "success" | "builder" | "diagnostics"
-    >;
-  }) => string;
-} = loadSourceModule<{
-  readProductionPublicationInputFingerprint: <Authoring>(props: {
-    snapshot: Readonly<Record<string, unknown>>;
-    currentAuthoringEvidence?: () => Authoring;
-    compile: (
-      authoring: Authoring | undefined,
-      current: (() => Authoring) | undefined,
-    ) => Pick<
-      IAutoMovieBuildProjectOutput,
-      "success" | "builder" | "diagnostics"
-    >;
-  }) => string;
-}>(
-  path.resolve(
-    __dirname,
-    "../../../../packages/production/src/production/productionPublicationSnapshot.ts",
-  ),
-);
-
 /**
- * Terminal snapshots reopen current authoring even when source bytes stay fixed.
+ * The publication identity utility reopens current authoring even when supplied source identity stays fixed.
  *
  * Scenarios:
  *
@@ -53,7 +20,7 @@ const runtime: {
  * 4. An omitted reader remains omitted at the timed compile seam, while a
  *    throwing reader prevents compilation and preserves the actual error.
  *
- * @evidence contracts/testing.md#behavioral-verification Publication identity reopens the supplied current authoring reader and compiles with its current owner address; identity inequality and forwarded observations catch a retained stale authoring snapshot.
+ * @evidence contracts/testing.md#behavioral-verification The actual publication identity utility reopens the supplied current authoring reader and forwards its current owner address to the declared compile callback; identity inequality and forwarded observations catch a retained stale authoring snapshot. This utility currently has no maintained production commit consumer, so the test proves callback order and identity binding rather than terminal admission wiring.
  * @evidence contracts/testing.md#independent-expectations Independently named hall and annex owner paths distinguish changed authored identity while the source byte string stays fixed; repeated identical inputs must keep equal identity. The test compares identity changes rather than verifying the digest algorithm independently.
  * @evidence contracts/testing.md#distinguishing-cases Fixed inputs, target-only and source-only edits, source refusal, absent reader and thrown reader failures separate freshness from compile and error boundaries; physical acquisition belongs to source-snapshot tests.
  * @evidence contracts/testing.md#execution-ownership This portable unit uses the publication helper's existing reader and compile ports without opening files, launching processes or installing a consumer; the function owns each scenario directly.
@@ -103,7 +70,7 @@ export function test_production_publication_fresh_authoring(): void {
     };
   };
   const read: () => string = (): string =>
-    runtime.readProductionPublicationInputFingerprint({
+    readProductionPublicationInputFingerprint({
       snapshot: { generated: "same compiled bytes" },
       currentAuthoringEvidence,
       compile,
@@ -136,7 +103,7 @@ export function test_production_publication_fresh_authoring(): void {
     true,
   );
   fail = false;
-  runtime.readProductionPublicationInputFingerprint({ snapshot: {}, compile });
+  readProductionPublicationInputFingerprint({ snapshot: {}, compile });
   TestValidator.equals(
     "timed builder missing reader retains its fallback input",
     seen.at(-1),
@@ -147,7 +114,7 @@ export function test_production_publication_fresh_authoring(): void {
     "reader failure propagates",
     throwsError(
       (): string =>
-        runtime.readProductionPublicationInputFingerprint({
+        readProductionPublicationInputFingerprint({
           snapshot: {},
           currentAuthoringEvidence: (): never => {
             throw new Error("target unavailable");

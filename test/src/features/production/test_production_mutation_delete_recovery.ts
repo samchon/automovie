@@ -1,48 +1,36 @@
 import { TestValidator } from "@nestia/e2e";
-import path from "node:path";
-
-import { loadSourceModule } from "../internal/loadSourceModule";
-
-const { recoverProductionAtomicDelete } = loadSourceModule<{
-  recoverProductionAtomicDelete: (props: {
-    file: string;
-    error: unknown;
-    guard: () => void;
-    quarantined: () => boolean;
-    occupied: () => boolean;
-    restore: () => void;
-  }) => never;
-}>(
-  path.resolve(
-    __dirname,
-    "../../../../packages/production/src/production/productionMutation.ts",
-  ),
-);
+import { recoverProductionAtomicDelete } from "../../../../packages/production/src/production/recoverProductionAtomicDelete";
 
 /**
  * Recovery never turns a failed deletion into a write in another namespace.
  *
  * Scenarios:
  * 1. Only a retained quarantine and an unoccupied target permit restoration.
- * 2. Each guard boundary can refuse without a later restore being attempted.
+ * 2. Guards before observation and restoration prevent the restore; the final
+ *    guard can refuse after the restore already happened.
  * 3. Recovery failures follow the original failure, while successful recovery
  *    still reports that original failure, including a thrown undefined value.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls the real atomic-delete recovery coordinator through its declared callbacks, observing restoration only for retained/unoccupied targets, all three guard boundaries and original/aggregate failure identity and order.
+ * @evidence contracts/testing.md#independent-expectations Authored boolean residency/occupancy pairs, a chosen guard ordinal and distinct error objects determine outcomes independently of the helper. Callback observations do not establish physical namespace reservations or filesystem race safety.
+ * @evidence contracts/testing.md#distinguishing-cases Covers all quarantine/occupancy pairs, guard refusal before observation/before restoration/after restoration, restoration failure and both aggregated and directly rethrown undefined primary failures; actual rename and quarantine lifetime remain with filesystem transaction tests.
+ * @evidence contracts/testing.md#execution-ownership This named synchronous unit directly imports the canonical recovery owner and owns local flags/counters/callbacks only; it opens no filesystem, process, renderer, browser or GPU and replaces no foreign method or production consumer.
  */
-export const test_production_mutation_delete_recovery = (): void => {
-  const primary = new Error("delete failure");
-  const recovery = new Error("recovery failure");
+export function test_production_mutation_delete_recovery(): void {
+  const primary: Error = new Error("delete failure");
+  const recovery: Error = new Error("recovery failure");
   for (const quarantined of [false, true])
     for (const occupied of [false, true]) {
-      let restored = false;
+      let restored: boolean = false;
       let caught: unknown;
       try {
         recoverProductionAtomicDelete({
           file: "owned-target",
           error: primary,
-          guard: () => undefined,
-          quarantined: () => quarantined,
-          occupied: () => occupied,
-          restore: () => {
+          guard: (): void => undefined,
+          quarantined: (): boolean => quarantined,
+          occupied: (): boolean => occupied,
+          restore: (): void => {
             restored = true;
           },
         });
@@ -60,19 +48,19 @@ export const test_production_mutation_delete_recovery = (): void => {
       );
     }
   for (const stop of [1, 2, 3]) {
-    let guards = 0;
-    let restored = false;
+    let guards: number = 0;
+    let restored: boolean = false;
     let caught: unknown;
     try {
       recoverProductionAtomicDelete({
         file: "owned-target",
         error: primary,
-        guard: () => {
+        guard: (): void => {
           if (++guards === stop) throw recovery;
         },
-        quarantined: () => true,
-        occupied: () => false,
-        restore: () => {
+        quarantined: (): boolean => true,
+        occupied: (): boolean => false,
+        restore: (): void => {
           restored = true;
         },
       });
@@ -96,10 +84,10 @@ export const test_production_mutation_delete_recovery = (): void => {
     recoverProductionAtomicDelete({
       file: "owned-target",
       error: undefined,
-      guard: () => undefined,
-      quarantined: () => true,
-      occupied: () => false,
-      restore: () => {
+      guard: (): void => undefined,
+      quarantined: (): boolean => true,
+      occupied: (): boolean => false,
+      restore: (): void => {
         throw recovery;
       },
     });
@@ -112,15 +100,15 @@ export const test_production_mutation_delete_recovery = (): void => {
       caught.errors[0] === undefined &&
       caught.errors[1] === recovery,
   );
-  let threw = false;
+  let threw: boolean = false;
   try {
     recoverProductionAtomicDelete({
       file: "owned-target",
       error: undefined,
-      guard: () => undefined,
-      quarantined: () => false,
-      occupied: () => false,
-      restore: () => undefined,
+      guard: (): void => undefined,
+      quarantined: (): boolean => false,
+      occupied: (): boolean => false,
+      restore: (): void => undefined,
     });
   } catch (error) {
     threw = error === undefined;
@@ -129,4 +117,4 @@ export const test_production_mutation_delete_recovery = (): void => {
     "undefined original is not mistaken for success",
     threw,
   );
-};
+}

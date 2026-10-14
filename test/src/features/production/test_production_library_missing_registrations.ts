@@ -1,24 +1,8 @@
-import type { IAutoMovieProductionEvidence } from "@automovie/evidence";
 import type { IAutoMovieDiagnostic } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-import path from "node:path";
+import { inspectAutoMovieLibraryMissingRegistrations } from "../../../../packages/production/src/production/inspectAutoMovieLibraryMissingRegistrations";
 
 import { createLibraryOwnerPopulation } from "../internal/createLibraryOwnerPopulation";
-import { loadSourceModule } from "../internal/loadSourceModule";
-
-const { inspectAutoMovieLibraryMissingRegistrations } = loadSourceModule<{
-  inspectAutoMovieLibraryMissingRegistrations(props: {
-    owners: IAutoMovieProductionEvidence["designOwners"];
-    execution: ReturnType<typeof createLibraryOwnerPopulation>["execution"];
-    registeredBy: ReadonlyMap<string, string>;
-    requireReviewed: boolean;
-  }): IAutoMovieDiagnostic[];
-}>(
-  path.resolve(
-    __dirname,
-    "../../../../packages/production/src/production/inspectAutoMovieLibraryMissingRegistrations.ts",
-  ),
-);
 
 /**
  * Missing realization is charged only to owners whose source work has started.
@@ -29,22 +13,27 @@ const { inspectAutoMovieLibraryMissingRegistrations } = loadSourceModule<{
  * 2. The same population blocks completion with exact owner attribution.
  * 3. Existing registrations discharge their own addresses only; empty and
  *    fully registered populations emit nothing without mutating the graph.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Inspects the acquired owner population at source and completed scopes, asserting canonical diagnostic attribution/order/severity, exact correction addresses, registration discharge, empty output and unchanged input graph serialization.
+ * @evidence contracts/testing.md#independent-expectations Literal settings/design addresses with started selected sources owe registrations; null/empty source bindings do not. The supplied one registered address and subsequent completed registration map determine which expected missing owners remain, without deriving expected diagnostics from the inspector.
+ * @evidence contracts/testing.md#distinguishing-cases Preserves warning/error scope twins, partially/fully/empty registered selections, null/empty bindings and graph immutability. Payload validation and actual owner execution are covered by adjacent admission/evaluation cases.
+ * @evidence contracts/testing.md#execution-ownership The named test_production_library_missing_registrations owns these synchronous portable graph inspections over resident maps; it neither executes source exports nor installs a project, writes files or starts a host process.
  */
-export const test_production_library_missing_registrations = (): void => {
-  const population = createLibraryOwnerPopulation();
-  const before = JSON.stringify(population);
-  const registeredBy = new Map([
+export function test_production_library_missing_registrations(): void {
+  const population: ReturnType<typeof createLibraryOwnerPopulation> = createLibraryOwnerPopulation();
+  const before: string = JSON.stringify(population);
+  const registeredBy: Map<string, string> = new Map<string, string>([
     ["docs/spaces/z.md#z", "src/spaces/hall.ts#hall"],
   ]);
   for (const requireReviewed of [false, true]) {
-    const diagnostics = inspectAutoMovieLibraryMissingRegistrations({
+    const diagnostics: IAutoMovieDiagnostic[] = inspectAutoMovieLibraryMissingRegistrations({
       ...population,
       registeredBy,
       requireReviewed,
     });
     TestValidator.equals(
       "missing owners retain canonical attribution",
-      diagnostics.map((item) => ({
+      diagnostics.map((item: IAutoMovieDiagnostic): Pick<IAutoMovieDiagnostic, "code" | "category" | "phase" | "target" | "path"> => ({
         code: item.code,
         category: item.category,
         phase: item.phase,
@@ -117,4 +106,4 @@ export const test_production_library_missing_registrations = (): void => {
     JSON.stringify(population),
     before,
   );
-};
+}
