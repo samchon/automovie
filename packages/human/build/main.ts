@@ -16,7 +16,9 @@ import { synchronizeHumanBuild } from "./synchronizeHumanBuild";
  * retained for explicit recovery.
  */
 async function main(): Promise<void> {
-  const directory: string = fs.realpathSync.native(path.resolve(__dirname, ".."));
+  const directory: string = fs.realpathSync.native(
+    path.resolve(__dirname, ".."),
+  );
   const output: string = path.join(directory, "lib");
   const lock: string = path.join(directory, ".human-build.lock");
   const compilerPackage: string = require.resolve("ttsc/package.json", {

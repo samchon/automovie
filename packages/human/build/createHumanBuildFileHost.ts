@@ -39,7 +39,9 @@ export function createHumanBuildFileHost(
       entry = path.dirname(entry)
     )
       if (fs.existsSync(entry) && fs.lstatSync(entry).isSymbolicLink())
-        throw new Error("Human file publication refuses a linked path: " + entry);
+        throw new Error(
+          "Human file publication refuses a linked path: " + entry,
+        );
     return resolved;
   };
   return {
@@ -59,12 +61,17 @@ export function createHumanBuildFileHost(
                 .digest("hex"),
             });
           else
-            throw new Error("Human output contains a non-ordinary file: " + file);
+            throw new Error(
+              "Human output contains a non-ordinary file: " + file,
+            );
         }
       };
       walk(base);
       return files.sort(
-        (left: IHumanBuildFileHost.IEntry, right: IHumanBuildFileHost.IEntry): number =>
+        (
+          left: IHumanBuildFileHost.IEntry,
+          right: IHumanBuildFileHost.IEntry,
+        ): number =>
           left.file < right.file ? -1 : left.file > right.file ? 1 : 0,
       );
     },
