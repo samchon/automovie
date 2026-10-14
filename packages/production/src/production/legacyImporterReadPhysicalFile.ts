@@ -10,7 +10,7 @@ import { legacyImporterLstatOrNull } from "./legacyImporterLstatOrNull";
  * @evidence contracts/common.md#clear-and-simple-design Owns legacy required/optional path admission while descriptor identity and byte reading stay in the canonical production reader.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No linked file is accepted or absent required content fabricated; callers must supply already canonical relative paths because this helper does not independently reject dot or parent segments.
  * @evidence contracts/common.md#meaningful-documentation States required/optional absence, segment link refusal and the canonical-relative-path premise imposed by snapshot and fixed-state callers.
- * @evidence contracts/performance.md#efficient-algorithms For P path segments and B file bytes, admission performs O(P) stats and the owned reader O(B) byte work/storage; no byte-size cap is introduced.
+ * @evidence contracts/performance.md#efficient-algorithms P supplied path segments require P initial lstat observations and cumulative path construction; the owned reader adds complete physical ancestry capture/rechecks and descriptor comparisons before B-byte transfer. Path depth/text and returned bytes drive work and storage, without a byte-size cap.
  * @evidence contracts/performance.md#reuse-equivalent-work Reuses the shared owned-file reader but renews segment/file witnesses per read, because a pathname alone does not establish unchanged content.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Descriptor lifetime belongs to the owned reader and only a byte buffer escapes; its caller owns buffer retention and failed native close remains the reader's reported failure.
  */
