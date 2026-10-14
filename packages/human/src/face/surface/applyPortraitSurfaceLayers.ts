@@ -3,15 +3,19 @@ import {
   compareCodeUnits,
   createAutoMovieMeshDeformer,
 } from "@automovie/engine";
-import type { IAutoMovieMesh, IAutoMovieMeshDeformationField, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMesh,
+  IAutoMovieMeshDeformationField,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { areaWeightedNormals } from "../../common/mesh/areaWeightedNormals";
 import { createMetricMeshPart } from "../mesh/createMetricMeshPart";
 import type { IControlMesh } from "../mesh/structures/IControlMesh";
 import { refinePortraitSurfaceSampling } from "./refinePortraitSurfaceSampling";
 import type { IPortraitSurfaceEdge } from "./structures/IPortraitSurfaceEdge";
-import type { IPortraitSurfaceLayer } from "./structures/IPortraitSurfaceLayer";
 import type { IPortraitSurfaceHost } from "./structures/IPortraitSurfaceHost";
+import type { IPortraitSurfaceLayer } from "./structures/IPortraitSurfaceLayer";
 import type { IPortraitSurfaceNeighbour } from "./structures/IPortraitSurfaceNeighbour";
 
 /**
@@ -54,8 +58,11 @@ export function applyPortraitSurfaceLayers(
       "A surface attachment fade must be a positive millimetre distance.",
     );
   if (
-    layers.some((layer: IPortraitSurfaceLayer): boolean => layer.id.trim().length === 0) ||
-    new Set(layers.map((layer: IPortraitSurfaceLayer): string => layer.id)).size !== layers.length
+    layers.some(
+      (layer: IPortraitSurfaceLayer): boolean => layer.id.trim().length === 0,
+    ) ||
+    new Set(layers.map((layer: IPortraitSurfaceLayer): string => layer.id))
+      .size !== layers.length
   )
     throw new Error("Anatomical surface layer identities must be unique.");
   if (layers.length === 0) return mesh;
@@ -65,12 +72,30 @@ export function applyPortraitSurfaceLayers(
     indices: mesh.indices,
     normals: areaWeightedNormals(packed, mesh.indices),
   };
-  const plans: { layer: IPortraitSurfaceLayer; fields: IAutoMovieMeshDeformationField[] }[] = [...layers]
-    .sort((a: IPortraitSurfaceLayer, b: IPortraitSurfaceLayer): number => compareCodeUnits(a.id, b.id))
-    .map((layer: IPortraitSurfaceLayer): { layer: IPortraitSurfaceLayer; fields: IAutoMovieMeshDeformationField[] } => ({ layer, fields: layer.fields(host) }));
-  const fields: IAutoMovieMeshDeformationField[] = plans.flatMap((plan: { layer: IPortraitSurfaceLayer; fields: IAutoMovieMeshDeformationField[] }): IAutoMovieMeshDeformationField[] => plan.fields);
+  const plans: {
+    layer: IPortraitSurfaceLayer;
+    fields: IAutoMovieMeshDeformationField[];
+  }[] = [...layers]
+    .sort((a: IPortraitSurfaceLayer, b: IPortraitSurfaceLayer): number =>
+      compareCodeUnits(a.id, b.id),
+    )
+    .map(
+      (
+        layer: IPortraitSurfaceLayer,
+      ): {
+        layer: IPortraitSurfaceLayer;
+        fields: IAutoMovieMeshDeformationField[];
+      } => ({ layer, fields: layer.fields(host) }),
+    );
+  const fields: IAutoMovieMeshDeformationField[] = plans.flatMap(
+    (plan: {
+      layer: IPortraitSurfaceLayer;
+      fields: IAutoMovieMeshDeformationField[];
+    }): IAutoMovieMeshDeformationField[] => plan.fields,
+  );
   if (fields.length === 0) return mesh;
-  const deform: ReturnType<typeof createAutoMovieMeshDeformer> = createAutoMovieMeshDeformer(fields);
+  const deform: ReturnType<typeof createAutoMovieMeshDeformer> =
+    createAutoMovieMeshDeformer(fields);
   for (const plan of plans)
     if (plan.layer.sampleSpacing !== undefined && plan.fields.length !== 0)
       mesh = refinePortraitSurfaceSampling(
@@ -94,7 +119,10 @@ export function applyPortraitSurfaceLayers(
   // Count undirected edges on the complete skin, before material separation.
   // A one-face edge is an intentional free rim, so colour seams do not become
   // artificial deformation barriers. Edge lengths use construction millimetres.
-  const edges: Map<string, IPortraitSurfaceEdge> = new Map<string, IPortraitSurfaceEdge>();
+  const edges: Map<string, IPortraitSurfaceEdge> = new Map<
+    string,
+    IPortraitSurfaceEdge
+  >();
   for (let i: number = 0; i < mesh.indices.length; i += 3)
     for (let corner: number = 0; corner < 3; corner++) {
       const a: number = mesh.indices[i + corner],
@@ -109,7 +137,8 @@ export function applyPortraitSurfaceLayers(
           count: 1,
           length: Math.hypot(
             ...mesh.positions[a].map(
-              (value: number, axis: number): number => value - mesh.positions[b][axis],
+              (value: number, axis: number): number =>
+                value - mesh.positions[b][axis],
             ),
           ),
         });
@@ -117,7 +146,9 @@ export function applyPortraitSurfaceLayers(
   const neighbours: IPortraitSurfaceNeighbour[][] = mesh.positions.map(
     (): IPortraitSurfaceNeighbour[] => [],
   );
-  const distances: Float64Array = new Float64Array(mesh.positions.length).fill(Infinity);
+  const distances: Float64Array = new Float64Array(mesh.positions.length).fill(
+    Infinity,
+  );
   const queued: Uint8Array = new Uint8Array(mesh.positions.length),
     queue: number[] = [];
   for (const edge of edges.values()) {
@@ -156,11 +187,15 @@ export function applyPortraitSurfaceLayers(
   const clamped: number[] = Array.from(distances, (distance: number): number =>
     Math.min(attachmentFade, distance),
   );
-  const gradients: IAutoMovieVector3[] = mesh.positions.map((): IAutoMovieVector3 => Vector3.create());
+  const gradients: IAutoMovieVector3[] = mesh.positions.map(
+    (): IAutoMovieVector3 => Vector3.create(),
+  );
   const areas: Float64Array = new Float64Array(mesh.positions.length);
   for (let i: number = 0; i < mesh.indices.length; i += 3) {
     const [a, b, c]: number[] = mesh.indices.slice(i, i + 3);
-    const point: (id: number) => IAutoMovieVector3 = (id: number): IAutoMovieVector3 =>
+    const point: (id: number) => IAutoMovieVector3 = (
+      id: number,
+    ): IAutoMovieVector3 =>
       Vector3.create(
         mesh.positions[id][0],
         mesh.positions[id][1],
@@ -190,23 +225,31 @@ export function applyPortraitSurfaceLayers(
   // Its derivative is 30*t^2*(1-t)^2. Distances/areas above use mm, so multiply
   // the resulting inverse-mm mask gradient by 1000 for the engine's metre frame.
   // Isolated gaze markers receive zero mask; closed regions receive one.
-  const influence: { weight: number; gradient: IAutoMovieVector3 }[] = mesh.positions.map((_point: number[], id: number): { weight: number; gradient: IAutoMovieVector3 } => {
-    const t: number = neighbours[id].length === 0 ? 0 : clamped[id] / attachmentFade;
-    // Evaluate the nearer half and reflect it. The direct polynomial can
-    // round above one just below t=1, contradicting the mask's bounded domain.
-    const half: number = Math.min(t, 1 - t);
-    const value: number = half * half * half * (10 + half * (-15 + 6 * half));
-    const weight: number = t <= 0.5 ? value : 1 - value;
-    const derivative: number = 30 * t * t * (1 - t) ** 2;
-    const gradient: IAutoMovieVector3 =
-      areas[id] === 0
-        ? Vector3.create()
-        : Vector3.scale(
-            gradients[id],
-            (1000 * derivative) / (attachmentFade * areas[id]),
-          );
-    return { weight, gradient };
-  });
+  const influence: { weight: number; gradient: IAutoMovieVector3 }[] =
+    mesh.positions.map(
+      (
+        _point: number[],
+        id: number,
+      ): { weight: number; gradient: IAutoMovieVector3 } => {
+        const t: number =
+          neighbours[id].length === 0 ? 0 : clamped[id] / attachmentFade;
+        // Evaluate the nearer half and reflect it. The direct polynomial can
+        // round above one just below t=1, contradicting the mask's bounded domain.
+        const half: number = Math.min(t, 1 - t);
+        const value: number =
+          half * half * half * (10 + half * (-15 + 6 * half));
+        const weight: number = t <= 0.5 ? value : 1 - value;
+        const derivative: number = 30 * t * t * (1 - t) ** 2;
+        const gradient: IAutoMovieVector3 =
+          areas[id] === 0
+            ? Vector3.create()
+            : Vector3.scale(
+                gradients[id],
+                (1000 * derivative) / (attachmentFade * areas[id]),
+              );
+        return { weight, gradient };
+      },
+    );
   const changed: IAutoMovieMesh = deform(metric, influence);
   return {
     ...mesh,

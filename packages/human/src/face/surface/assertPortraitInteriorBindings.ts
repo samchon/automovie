@@ -25,11 +25,20 @@ export function assertPortraitInteriorBindings(
   skin: Pick<IControlMesh, "positions">,
   interiors: readonly IPortraitInterior[],
 ): void {
-  const byId: Map<string, IPortraitInterior> = new Map(interiors.map((part: IPortraitInterior): [string, IPortraitInterior] => [part.id, part]));
+  const byId: Map<string, IPortraitInterior> = new Map(
+    interiors.map((part: IPortraitInterior): [string, IPortraitInterior] => [
+      part.id,
+      part,
+    ]),
+  );
   if (byId.size !== interiors.length)
     throw new Error("Native interiors require unique part identities.");
-  const point: (part: string | null, vertex: number) => readonly number[] = (part: string | null, vertex: number): readonly number[] => {
-    const owner: IPortraitInterior | undefined = part === null ? undefined : byId.get(part);
+  const point: (part: string | null, vertex: number) => readonly number[] = (
+    part: string | null,
+    vertex: number,
+  ): readonly number[] => {
+    const owner: IPortraitInterior | undefined =
+      part === null ? undefined : byId.get(part);
     if (part !== null && owner === undefined)
       throw new Error(
         "Native attachment target must name a prepared interior.",
@@ -75,7 +84,9 @@ export function assertPortraitInteriorBindings(
           throw new Error(
             "Native loops require at least three distinct vertices.",
           );
-        loop.vertices.forEach((vertex: number): readonly number[] => point(interior.id, vertex));
+        loop.vertices.forEach((vertex: number): readonly number[] =>
+          point(interior.id, vertex),
+        );
         for (let i: number = 0; i < loop.vertices.length; ++i)
           if (
             !edges.has(
@@ -87,8 +98,15 @@ export function assertPortraitInteriorBindings(
     }
     for (const attachment of interior.attachments ?? []) {
       const source: readonly number[] = point(interior.id, attachment.vertex);
-      const target: readonly number[] = point(attachment.target.part, attachment.target.vertex);
-      if (source.some((value: number, axis: number): boolean => value !== target[axis]))
+      const target: readonly number[] = point(
+        attachment.target.part,
+        attachment.target.vertex,
+      );
+      if (
+        source.some(
+          (value: number, axis: number): boolean => value !== target[axis],
+        )
+      )
         throw new Error("Native attachment coordinates must agree exactly.");
     }
   }

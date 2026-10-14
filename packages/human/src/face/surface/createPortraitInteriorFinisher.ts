@@ -26,12 +26,20 @@ import type { IPortraitInterior } from "./structures/IPortraitInterior";
  */
 export function createPortraitInteriorFinisher(
   prepare: (refined: IControlMesh) => IPortraitInterior[],
-): { prepareInteriors: (refined: IControlMesh) => IPortraitInterior[]; finish: (refined: IControlMesh) => IAutoMovieModelPart[] } {
+): {
+  prepareInteriors: (refined: IControlMesh) => IPortraitInterior[];
+  finish: (refined: IControlMesh) => IAutoMovieModelPart[];
+} {
   return {
     prepareInteriors: prepare,
     finish: (refined: IControlMesh): IAutoMovieModelPart[] =>
-      prepare(refined).map(({ id, mesh, material }: IPortraitInterior): ReturnType<typeof createMetricMeshPart> =>
-        createMetricMeshPart(id, mesh, material),
+      prepare(refined).map(
+        ({
+          id,
+          mesh,
+          material,
+        }: IPortraitInterior): ReturnType<typeof createMetricMeshPart> =>
+          createMetricMeshPart(id, mesh, material),
       ),
   };
 }

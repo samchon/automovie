@@ -25,24 +25,36 @@ export function applyPortraitRegionReplacements(
   replacements: readonly IPortraitRegionReplacement[],
 ): IControlMesh {
   if (replacements.length === 0) return mesh;
-  const groups: Set<number> = new Set(replacements.map((r: IPortraitRegionReplacement): number => r.group));
+  const groups: Set<number> = new Set(
+    replacements.map((r: IPortraitRegionReplacement): number => r.group),
+  );
   if (
     groups.size !== replacements.length ||
-    replacements.some((r: IPortraitRegionReplacement): boolean => !Number.isInteger(r.group) || r.group < 0)
+    replacements.some(
+      (r: IPortraitRegionReplacement): boolean =>
+        !Number.isInteger(r.group) || r.group < 0,
+    )
   )
     throw new Error(
       "Deferred portrait regions need distinct nonnegative labels.",
     );
-  const plans: { replacement: IPortraitRegionReplacement; boundary: number[] }[] = replacements.map((replacement: IPortraitRegionReplacement): { replacement: IPortraitRegionReplacement; boundary: number[] } => ({
-    replacement,
-    boundary: orderCutPatchBoundary(
-      mesh.groups.flatMap((group: number, face: number): number[][] =>
-        group === replacement.group
-          ? [mesh.indices.slice(face * 3, face * 3 + 3)]
-          : [],
-      ),
-    ).map((edge: { a: number; b: number }): number => edge.a),
-  }));
+  const plans: {
+    replacement: IPortraitRegionReplacement;
+    boundary: number[];
+  }[] = replacements.map(
+    (
+      replacement: IPortraitRegionReplacement,
+    ): { replacement: IPortraitRegionReplacement; boundary: number[] } => ({
+      replacement,
+      boundary: orderCutPatchBoundary(
+        mesh.groups.flatMap((group: number, face: number): number[][] =>
+          group === replacement.group
+            ? [mesh.indices.slice(face * 3, face * 3 + 3)]
+            : [],
+        ),
+      ).map((edge: { a: number; b: number }): number => edge.a),
+    }),
+  );
   const cage: IControlMesh = {
     positions: mesh.positions.map((p: number[]): number[] => [...p]),
     indices: [],

@@ -33,13 +33,23 @@ export function applyPortraitFinalSurfaces(
 ): IControlMesh {
   if (surfaces.length === 0) return mesh;
   if (
-    surfaces.some((surface: { id: string; propose: IPortraitFinalSurface }): boolean => surface.id.trim().length === 0) ||
-    new Set(surfaces.map((surface: { id: string; propose: IPortraitFinalSurface }): string => surface.id)).size !== surfaces.length
+    surfaces.some(
+      (surface: { id: string; propose: IPortraitFinalSurface }): boolean =>
+        surface.id.trim().length === 0,
+    ) ||
+    new Set(
+      surfaces.map(
+        (surface: { id: string; propose: IPortraitFinalSurface }): string =>
+          surface.id,
+      ),
+    ).size !== surfaces.length
   )
     throw new Error("Final surface providers need unique nonempty identities.");
   const host: IPortraitFinalSurfaceHost = Object.freeze({
     positions: Object.freeze(
-      mesh.positions.map((point: number[]): readonly number[] => Object.freeze([...point])),
+      mesh.positions.map((point: number[]): readonly number[] =>
+        Object.freeze([...point]),
+      ),
     ),
     indices: Object.freeze([...mesh.indices]),
     groups: Object.freeze([...mesh.groups]),
@@ -47,13 +57,35 @@ export function applyPortraitFinalSurfaces(
       areaWeightedNormals(mesh.positions.flat(), mesh.indices),
     ),
   });
-  const proposals: { id: string; vertices: { vertex: number; target: number[] }[] }[] = surfaces.map((surface: { id: string; propose: IPortraitFinalSurface }): { id: string; vertices: { vertex: number; target: number[] }[] } => ({
-    id: surface.id,
-    vertices: surface
-      .propose(host)
-      .map(({ vertex, target }: { vertex: number; target: readonly number[] }): { vertex: number; target: number[] } => ({ vertex, target: [...target] })),
-  }));
-  const targets: Map<number, { owner: string; point: number[] }> = new Map<number, { owner: string; point: number[] }>();
+  const proposals: {
+    id: string;
+    vertices: { vertex: number; target: number[] }[];
+  }[] = surfaces.map(
+    (surface: {
+      id: string;
+      propose: IPortraitFinalSurface;
+    }): { id: string; vertices: { vertex: number; target: number[] }[] } => ({
+      id: surface.id,
+      vertices: surface
+        .propose(host)
+        .map(
+          ({
+            vertex,
+            target,
+          }: {
+            vertex: number;
+            target: readonly number[];
+          }): { vertex: number; target: number[] } => ({
+            vertex,
+            target: [...target],
+          }),
+        ),
+    }),
+  );
+  const targets: Map<number, { owner: string; point: number[] }> = new Map<
+    number,
+    { owner: string; point: number[] }
+  >();
   for (const proposal of proposals)
     for (const { vertex, target } of proposal.vertices) {
       if (
@@ -66,10 +98,13 @@ export function applyPortraitFinalSurfaces(
         throw new Error(
           "A final surface proposal needs a resident vertex and finite XYZ.",
         );
-      const previous: { owner: string; point: number[] } | undefined = targets.get(vertex);
+      const previous: { owner: string; point: number[] } | undefined =
+        targets.get(vertex);
       if (
         previous !== undefined &&
-        previous.point.some((value: number, axis: number): boolean => value !== target[axis])
+        previous.point.some(
+          (value: number, axis: number): boolean => value !== target[axis],
+        )
       )
         throw new Error(
           `Incompatible final surface ownership at vertex ${vertex}: ${previous.owner}/${proposal.id}.`,
@@ -80,7 +115,8 @@ export function applyPortraitFinalSurfaces(
   return {
     ...mesh,
     positions: mesh.positions.map(
-      (point: number[], id: number): number[] => targets.get(id)?.point ?? [...point],
+      (point: number[], id: number): number[] =>
+        targets.get(id)?.point ?? [...point],
     ),
     indices: mesh.indices,
     groups: mesh.groups,

@@ -29,13 +29,17 @@ export function sealPortraitContactSeams(
   seeds: readonly number[],
 ): IControlMesh & { cornerColors?: number[][] } {
   if (seeds.length === 0) return mesh;
-  const edges: Map<string, { a: number; b: number; count: number }> = new Map<string, { a: number; b: number; count: number }>();
+  const edges: Map<string, { a: number; b: number; count: number }> = new Map<
+    string,
+    { a: number; b: number; count: number }
+  >();
   for (let i: number = 0; i < mesh.indices.length; i += 3)
     for (let corner: number = 0; corner < 3; corner++) {
       const a: number = mesh.indices[i + corner],
         b: number = mesh.indices[i + ((corner + 1) % 3)];
       const key: string = a < b ? `${a}/${b}` : `${b}/${a}`;
-      const old: { a: number; b: number; count: number } | undefined = edges.get(key);
+      const old: { a: number; b: number; count: number } | undefined =
+        edges.get(key);
       if (old === undefined) edges.set(key, { a, b, count: 1 });
       else old.count++;
     }
@@ -88,22 +92,32 @@ export function sealPortraitContactSeams(
   const sourceColors: number[][][] | undefined =
     mesh.colors === undefined ? undefined : ([] as number[][][]);
   const groups: number[] = [];
-  const occupied: Map<string, { triangle: number; oriented: string; group: number }> = new Map<
+  const occupied: Map<
     string,
     { triangle: number; oriented: string; group: number }
-  >();
+  > = new Map<string, { triangle: number; oriented: string; group: number }>();
   for (let i: number = 0; i < mesh.indices.length; i += 3) {
     const source: number[] = mesh.indices.slice(i, i + 3);
-    const ids: number[] = source.map((id: number): number => representatives.get(id) ?? id);
+    const ids: number[] = source.map(
+      (id: number): number => representatives.get(id) ?? id,
+    );
     if (new Set(ids).size < 3) continue;
-    const changed: boolean = source.some((id: number): boolean => selected.has(id));
+    const changed: boolean = source.some((id: number): boolean =>
+      selected.has(id),
+    );
     if (changed) {
-      const key: string = [...ids].sort((a: number, b: number): number => a - b).join("/");
+      const key: string = [...ids]
+        .sort((a: number, b: number): number => a - b)
+        .join("/");
       const at: number = ids.indexOf(Math.min(...ids));
-      const oriented: string = [ids[at], ids[(at + 1) % 3], ids[(at + 2) % 3]].join(
-        "/",
-      );
-      const previous: { triangle: number; oriented: string; group: number } | undefined = occupied.get(key);
+      const oriented: string = [
+        ids[at],
+        ids[(at + 1) % 3],
+        ids[(at + 2) % 3],
+      ].join("/");
+      const previous:
+        | { triangle: number; oriented: string; group: number }
+        | undefined = occupied.get(key);
       if (previous !== undefined) {
         if (
           previous.oriented === oriented ||
@@ -123,7 +137,9 @@ export function sealPortraitContactSeams(
       });
     }
     triangles.push(ids);
-    sourceColors?.push(source.map((id: number): number[] => [...mesh.colors![id]]));
+    sourceColors?.push(
+      source.map((id: number): number[] => [...mesh.colors![id]]),
+    );
     groups.push(mesh.groups[i / 3]);
   }
   const output: IControlMesh & { cornerColors?: number[][] } = {
@@ -141,7 +157,10 @@ export function sealPortraitContactSeams(
   });
   // A declaration of closure is stronger than finding at least one pair.
   // Every surviving selected edge must now have two opposite incident faces.
-  const contacts: Map<string, { count: number; direction: number }> = new Map<string, { count: number; direction: number }>();
+  const contacts: Map<string, { count: number; direction: number }> = new Map<
+    string,
+    { count: number; direction: number }
+  >();
   const closed: Set<number> = new Set(
     [...selected].map((id: number): number => representatives.get(id) ?? id),
   );
@@ -151,7 +170,10 @@ export function sealPortraitContactSeams(
         b: number = output.indices[i + ((corner + 1) % 3)];
       if (!closed.has(a) || !closed.has(b)) continue;
       const key: string = a < b ? `${a}/${b}` : `${b}/${a}`;
-      const old: { count: number; direction: number } = contacts.get(key) ?? { count: 0, direction: 0 };
+      const old: { count: number; direction: number } = contacts.get(key) ?? {
+        count: 0,
+        direction: 0,
+      };
       contacts.set(key, {
         count: old.count + 1,
         direction: old.direction + (a < b ? 1 : -1),
@@ -159,7 +181,8 @@ export function sealPortraitContactSeams(
     }
   if (
     [...contacts.values()].some(
-      (edge: { count: number; direction: number }): boolean => edge.count !== 2 || edge.direction !== 0,
+      (edge: { count: number; direction: number }): boolean =>
+        edge.count !== 2 || edge.direction !== 0,
     )
   )
     throw new Error(
