@@ -3,7 +3,7 @@ import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../internal/predicates";
 import { CAPTION_SEQUENCE, CAPTION_SHOTS } from "./test_render_caption_sidecar";
-import { TREE_SCRIPT } from "./test_render_screenplay";
+import { TREE_SCRIPT } from "../internal/TREE_SCRIPT";
 
 const whole = () =>
   planCaptionSidecar({

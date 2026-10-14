@@ -1,37 +1,29 @@
-import { sceneFogTransmittance } from "@automovie/engine";
-import {
-  IAutoMovieFog,
-  IAutoMovieMotion,
-  IAutoMovieScene,
-  IAutoMovieSequence,
-  IAutoMovieShot,
-  IAutoMovieTransform,
-} from "@automovie/interface";
-import {
-  planPoseKeypointSidecar,
-  renderPoseKeypointSidecar,
-} from "@automovie/render";
-import { buildModel, buildScene } from "@automovie/viewer";
+import { IAutoMovieModelObject } from "../../../../packages/viewer/src/IAutoMovieModelObject";
+import { IAutoMoviePoseKeypointFrame } from "../../../../packages/render/src/IAutoMoviePoseKeypointFrame";
+import { IAutoMoviePoseKeypointActor } from "../../../../packages/render/src/IAutoMoviePoseKeypointActor";
+import { IAutoMoviePoseKeypointSidecar } from "../../../../packages/render/src/IAutoMoviePoseKeypointSidecar";
+import { IAutoMovieSkeleton, IAutoMovieFog, IAutoMovieMotion, IAutoMovieScene, IAutoMovieSequence, IAutoMovieShot, IAutoMovieTransform } from "@automovie/interface";
+import { sceneFogTransmittance } from "../../../../packages/engine/src/scene/sceneFogTransmittance";
+import { planPoseKeypointSidecar } from "../../../../packages/render/src/planPoseKeypointSidecar";
+import { renderPoseKeypointSidecar } from "../../../../packages/render/src/renderPoseKeypointSidecar";
+import { buildModel } from "../../../../packages/viewer/src/buildModel";
+import { buildScene } from "../../../../packages/viewer/src/buildScene";
 import { TestValidator } from "@nestia/e2e";
+import { createModel, createSkeleton, keyframe, makeMotion, makePose } from "../internal/fixtures";
+import { namedFacts, nclose } from "../internal/predicates";
 import * as THREE from "three";
 
-import {
-  createModel,
-  createSkeleton,
-  keyframe,
-  makeMotion,
-  makePose,
-} from "../internal/fixtures";
-import { namedFacts, nclose } from "../internal/predicates";
 
-const IDENTITY_Q = { x: 0, y: 0, z: 0, w: 1 };
-const t3 = (x: number, y: number, z: number): IAutoMovieTransform => ({
+
+
+const IDENTITY_Q: { x: number; y: number; z: number; w: number; } = { x: 0, y: 0, z: 0, w: 1 };
+const t3: (x: number, y: number, z: number) => IAutoMovieTransform = (x: number, y: number, z: number): IAutoMovieTransform => ({
   translation: { x, y, z },
   rotation: IDENTITY_Q,
   scale: { x: 1, y: 1, z: 1 },
 });
 
-const skeleton = createSkeleton();
+const skeleton: IAutoMovieSkeleton = createSkeleton();
 
 const FOG: IAutoMovieFog = {
   density: 0.02,
@@ -39,11 +31,11 @@ const FOG: IAutoMovieFog = {
 };
 
 /** Depths the receding actor is at on the two sampled output frames. */
-const NEAR_DEPTH = 5;
-const FAR_DEPTH = 25;
+const NEAR_DEPTH: number = 5;
+const FAR_DEPTH: number = 25;
 
 /** A 1 s clip whose root recedes from 5 m to 45 m down the camera's −Z. */
-const recede = (): IAutoMovieMotion => ({
+const recede: () => IAutoMovieMotion = (): IAutoMovieMotion => ({
   ...makeMotion(
     [
       keyframe(0, makePose([], t3(0, 0, -NEAR_DEPTH))),
@@ -54,7 +46,7 @@ const recede = (): IAutoMovieMotion => ({
   id: "m1",
 });
 
-const sceneOf = (fog: IAutoMovieScene["fog"]): IAutoMovieScene => ({
+const sceneOf: (fog: IAutoMovieFog | null | undefined) => IAutoMovieScene = (fog: IAutoMovieScene["fog"]): IAutoMovieScene => ({
   id: "scene-1",
   name: null,
   nodes: [
@@ -99,7 +91,7 @@ const sequence: IAutoMovieSequence = {
 };
 
 /** Two output frames: the actor at 5 m, then the same actor at 25 m. */
-const sidecarOf = (fog: IAutoMovieScene["fog"]) =>
+const sidecarOf: (fog: IAutoMovieFog | null | undefined) => IAutoMoviePoseKeypointSidecar = (fog: IAutoMovieScene["fog"]): IAutoMoviePoseKeypointSidecar =>
   planPoseKeypointSidecar({
     sequence,
     shots: [shot],
@@ -109,75 +101,65 @@ const sidecarOf = (fog: IAutoMovieScene["fog"]) =>
     fps: 2,
   });
 
-const actorOn = (fog: IAutoMovieScene["fog"], frame: number) =>
+const actorOn: (fog: IAutoMovieFog | null | undefined, frame: number) => IAutoMoviePoseKeypointActor = (fog: IAutoMovieScene["fog"], frame: number): IAutoMoviePoseKeypointActor =>
   sidecarOf(fog).frames[frame]!.actors[0]!;
 
 /**
- * The offline renderer reads the scene's atmosphere from the same declaration
- * the viewer hands the GPU, and derives the same number from it.
+ * The pose sidecar predicts fog transmittance at live actor depths using the same declared density that constructs the viewer's FogExp2 object.
  *
- * A pose-conditioned host drives generation from the sidecar's screen
- * coordinates, and screen coordinates cannot say whether the subject standing
- * there is fully visible or a silhouette half-dissolved into haze. So each
- * actor now carries the transmittance at its own depth, through the engine's
- * one fog law rather than a renderer-local copy of it: a review frame and the
- * artifact beside it must not be able to disagree about the film.
+ * This portable test compares CPU-side prediction, serialized field omission and a JavaScript transcription of the squared-depth expression. It starts no renderer or GPU, so its agreement does not certify actual pixels, shader precision or cross-host byte equality.
  *
  * Scenarios (camera at the origin looking down −Z, one actor receding):
  *
- * 1. A scene declaring no fog omits the field entirely, so its serialized sidecar
- *    is byte-identical to one written before atmospheres existed: the key does
- *    not appear in the JSON at all.
- * 2. A declared fog attenuates the far frame more than the near one, and by the
- *    engine's exact law at each depth — the depth being the actor's live world
- *    root and not its staged placement, since the node sits at the origin for
- *    the whole shot and the clip carries all the travel. A sidecar keyed to the
- *    staged transform would report one atmosphere for both frames, and the
- *    transmittance of depth zero at that.
- * 3. Viewer and renderer agree: the `FogExp2` the viewer builds from this same
- *    scene, evaluated through the shader's own expression at the actor's depth,
- *    is the number the sidecar carries.
+ * 1. Absent or null fog omits the sidecar field and serialized atmosphere key; this checks omission rather than comparison with a historical byte artifact.
+ * 2. Declared fog attenuates the far frame more than the near one using the actor's live root depth. The node stays at the origin while its clip carries the travel, so staged-depth substitution would report depth-zero transmittance on both frames.
+ * 3. The built FogExp2 density and its JavaScript squared-depth expression agree with sidecar predictions at the two selected depths within 1e-12. Actual shader execution is not observed.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Plans real fog-aware sidecars and inspects a built Three FogExp2 object, detecting staged-depth substitution, omitted density or unwanted atmosphere fields.
+ * @evidence contracts/testing.md#independent-expectations The authored root depths five and 25 metres and exp(-(density times depth)^2) give selected CPU expectations within 1e-12. Engine helper agreement is a consistency check; the separate JavaScript expression and object density check do not execute a shader or certify historical/cross-host bytes.
+ * @evidence contracts/testing.md#distinguishing-cases Absent and null fog contrast with near/far receding frames, including omission in JSON and the actual built fog density. Pixel appearance, shader precision and other fog profiles are not asserted.
+ * @evidence contracts/testing.md#execution-ownership The exported test_render_scene_fog owns its cases. Portable Engine sidecar and Three object construction only, with no renderer, browser or GPU.
  */
-export const test_render_scene_fog = (): void => {
-  // 1. no declaration, no field, no byte.
-  const clear = sidecarOf(undefined);
+export function test_render_scene_fog(): void {
+  // 1. An absent declaration omits the field and its serialized key.
+  const clear: IAutoMoviePoseKeypointSidecar = sidecarOf(undefined);
   TestValidator.equals(
     "a scene without fog writes a sidecar without atmosphere",
     namedFacts([
       [
         "fieldAbsent",
-        () => clear.frames.every((f) => !("atmosphere" in f.actors[0]!)),
+        (): boolean => clear.frames.every((f: IAutoMoviePoseKeypointFrame): boolean => !("atmosphere" in f.actors[0]!)),
       ],
       [
         "bytesUnchanged",
-        () => renderPoseKeypointSidecar(clear).includes("atmosphere") === false,
+        (): boolean => renderPoseKeypointSidecar(clear).includes("atmosphere") === false,
       ],
-      ["nullIsAbsentToo", () => !("atmosphere" in actorOn(null, 0))],
+      ["nullIsAbsentToo", (): boolean => !("atmosphere" in actorOn(null, 0))],
     ]),
     { fieldAbsent: true, bytesUnchanged: true, nullIsAbsentToo: true },
   );
 
   // 2. the far frame is the more attenuated one, by the exact law.
-  const near = actorOn(FOG, 0).atmosphere;
-  const far = actorOn(FOG, 1).atmosphere;
+  const near: number | undefined = actorOn(FOG, 0).atmosphere;
+  const far: number | undefined = actorOn(FOG, 1).atmosphere;
   TestValidator.equals(
     "the distant frame keeps less of the actor than the near one",
     namedFacts([
-      ["nearPresent", () => near !== undefined],
-      ["farPresent", () => far !== undefined],
-      ["farIsDimmer", () => far! < near!],
-      // These two depths are the CLIP's, not the node's: the node sits at the
+      ["nearPresent", (): boolean => near !== undefined],
+      ["farPresent", (): boolean => far !== undefined],
+      ["farIsDimmer", (): boolean => far! < near!],
+      // These two depths are the clip's, not the node's: the node sits at the
       // origin for the whole shot and the performance carries all the travel,
       // so a sidecar keyed to the staged transform would report the depth-zero
       // transmittance of exactly one on both frames. Saying separately that the
       // two numbers differ would only restate `farIsDimmer`.
       [
         "nearIsExact",
-        () => nclose(near!, sceneFogTransmittance(FOG, NEAR_DEPTH), 1e-12),
+        (): boolean => nclose(near!, sceneFogTransmittance(FOG, NEAR_DEPTH), 1e-12),
       ],
       [
         "farIsExact",
-        () => nclose(far!, sceneFogTransmittance(FOG, FAR_DEPTH), 1e-12),
+        (): boolean => nclose(far!, sceneFogTransmittance(FOG, FAR_DEPTH), 1e-12),
       ],
     ]),
     {
@@ -189,21 +171,21 @@ export const test_render_scene_fog = (): void => {
     },
   );
 
-  // 3. the viewer's own fog, evaluated the shader's way, is the same number.
-  const viewerFog = buildScene(sceneOf(FOG), () =>
+  // 3. compare the built fog object and a CPU transcription of the expression.
+  const viewerFog: THREE.Fog | THREE.FogExp2 | null = buildScene(sceneOf(FOG), (): IAutoMovieModelObject =>
     buildModel({ ...createModel(), id: "m" }),
   ).scene.fog;
   if (!(viewerFog instanceof THREE.FogExp2))
     throw new Error("the viewer must build an exponential fog for this scene");
-  const shaderAt = (depth: number): number =>
+  const shaderAt: (depth: number) => number = (depth: number): number =>
     1 - (1 - Math.exp(-viewerFog.density * viewerFog.density * depth * depth));
   TestValidator.equals(
     "viewer and renderer derive the same value from the same declaration",
     namedFacts([
-      ["sameDensity", () => viewerFog.density === FOG.density],
-      ["nearAgrees", () => nclose(near!, shaderAt(NEAR_DEPTH), 1e-12)],
-      ["farAgrees", () => nclose(far!, shaderAt(FAR_DEPTH), 1e-12)],
+      ["sameDensity", (): boolean => nclose(viewerFog.density, FOG.density, 1e-12)],
+      ["nearAgrees", (): boolean => nclose(near!, shaderAt(NEAR_DEPTH), 1e-12)],
+      ["farAgrees", (): boolean => nclose(far!, shaderAt(FAR_DEPTH), 1e-12)],
     ]),
     { sameDensity: true, nearAgrees: true, farAgrees: true },
   );
-};
+}

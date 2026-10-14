@@ -1,26 +1,11 @@
-import {
-  IAutoMovieRenderSubject,
-} from "@automovie/engine";
-import {
-  IAutoMovieScene,
-  IAutoMovieSemanticMask,
-} from "@automovie/interface";
-import {
-  buildingFixture,
-  instanceSetFixture,
-  modelsFixture,
-  sceneFixture,
-} from "./renderFixtures";
-
+import { IAutoMovieSceneNode, IAutoMovieScene, IAutoMovieSemanticMask } from "@automovie/interface";
+import { IAutoMovieRenderSubject } from "../../../../packages/engine/src/render/IAutoMovieRenderSubject";
+import { buildingFixture, instanceSetFixture, modelsFixture, sceneFixture } from "./renderFixtures";
 /**
- * Construct the structured subject and typed exceptional lookup masks used by
- * semantic ownership, palette and resolution units. The subject has real
- * building layers and compact instances. The exceptional masks deliberately
- * carry typed dangling or cyclic ownership and unverified digests for the
- * lookup unit; they are not valid sealed production evidence or colour oracles.
+ * Construct the structured subject and typed exceptional lookup masks used by semantic ownership, palette and resolution units. The subject has real building layers and compact instances. The exceptional masks deliberately carry typed dangling or cyclic ownership and unverified digests for the lookup unit; they are not valid sealed production evidence or colour oracles.
  */
-export const createSemanticMaskTestInputs = () => {
-  const subject = (): IAutoMovieRenderSubject => ({
+export const createSemanticMaskTestInputs: () => { subject: () => IAutoMovieRenderSubject; bulk: (semantic: string) => IAutoMovieSceneNode; broken: (owner: string) => IAutoMovieSemanticMask; cyclic: () => IAutoMovieSemanticMask; } = (): { subject: () => IAutoMovieRenderSubject; bulk: (semantic: string) => IAutoMovieSceneNode; broken: (owner: string) => IAutoMovieSemanticMask; cyclic: () => IAutoMovieSemanticMask; } => {
+  const subject: () => IAutoMovieRenderSubject = (): IAutoMovieRenderSubject => ({
       scene: sceneFixture(),
       models: modelsFixture(),
       environments: [buildingFixture()],
@@ -39,7 +24,7 @@ export const createSemanticMaskTestInputs = () => {
     });
 
   /** One staged node whose semantic id is exactly `node:<id>`. */
-  const bulk = (semantic: string): IAutoMovieScene["nodes"][number] => ({
+  const bulk: (semantic: string) => IAutoMovieSceneNode = (semantic: string): IAutoMovieScene["nodes"][number] => ({
     id: semantic.slice("node:".length),
     model: "prop-model",
     transform: {
@@ -52,7 +37,7 @@ export const createSemanticMaskTestInputs = () => {
   });
 
   /** A hand-built mask whose single entry points at an owner that is not there. */
-  const broken = (owner: string): IAutoMovieSemanticMask => ({
+  const broken: (owner: string) => IAutoMovieSemanticMask = (owner: string): IAutoMovieSemanticMask => ({
     version: 2,
     protocol: "automovie.semantic-mask.v2",
     background: "#000000",
@@ -72,8 +57,8 @@ export const createSemanticMaskTestInputs = () => {
   });
 
   /** A hand-built mask whose two entries own one another. */
-  const cyclic = (): IAutoMovieSemanticMask => {
-    const mask = broken("b");
+  const cyclic: () => IAutoMovieSemanticMask = (): IAutoMovieSemanticMask => {
+    const mask: IAutoMovieSemanticMask = broken("b");
     mask.entries.push({
       id: "b",
       kind: "node",

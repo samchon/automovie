@@ -1,15 +1,11 @@
 import { IAutoMovieRenderSpec } from "@automovie/interface";
-import {
-  ffmpegArgs,
-  frameName,
-  framePattern,
-  frameTimes,
-  renderPathStem,
-} from "@automovie/render";
+import { ffmpegArgs } from "../../../../packages/render/src/ffmpegArgs";
+import { frameName } from "../../../../packages/render/src/frameName";
+import { framePattern } from "../../../../packages/render/src/framePattern";
+import { frameTimes } from "../../../../packages/render/src/frameTimes";
+import { renderPathStem } from "../../../../packages/render/src/renderPathStem";
 import { TestValidator } from "@nestia/e2e";
-
 import { nclose } from "../internal/predicates";
-
 const SPEC: IAutoMovieRenderSpec = {
   target: "shot-1",
   frameFormat: { fps: 30, width: 1920, height: 1080 },
@@ -20,24 +16,24 @@ const SPEC: IAutoMovieRenderSpec = {
 };
 
 /**
- * The deterministic render plan: the frame schedule, frame naming, and the
- * pinned ffmpeg argument vector built from a render spec.
+ * The deterministic render plan: the frame schedule, frame naming, and the pinned ffmpeg argument vector built from a render spec.
  *
  * Scenarios:
  *
- * 1. A 2 s clip at 30 fps yields 60 frames sampled at exact rationals `i/30`
- *    (first 0, last 59/30), with no accumulation.
+ * 1. A 2 s clip at 30 fps yields 60 frames; the first, second and last samples agree with `0`, `1/30` and `59/30` within nclose tolerance. The returned times are binary64 numbers, not exact rational objects.
  * 2. A non-positive fps and a non-positive duration each yield zero frames.
- * 3. A non-finite fps or duration also yields zero frames; render planning must
- *    never allocate an unbounded frame array.
- * 4. Frame names zero-pad to the input pattern (`frame_00042.png` and
- *    `frame_%05d.png`), and render path stems are file-safe.
- * 5. `ffmpegArgs` encodes the spec into the pinned H.264 / pixel-format / crf /
- *    output-size (`-s width x height`) / faststart command.
+ * 3. A non-finite fps or duration also yields zero frames; render planning must never allocate an unbounded frame array.
+ * 4. Frame names zero-pad to the input pattern (`frame_00042.png` and `frame_%05d.png`), and render path stems are file-safe.
+ * 5. `ffmpegArgs` encodes the spec into the pinned H.264 / pixel-format / crf / output-size (`-s width x height`) / faststart command.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Checks the real frame count and three selected sample times, naming, safe path stems and encoder arguments, detecting incorrect selected clock values, unsafe components or omitted delivery options.
+ * @evidence contracts/testing.md#independent-expectations Two seconds times 30 gives 60 samples, independently expected at i/30; filename literals, Windows device-name rules and the documented ffmpeg option order supply other expectations. No ffmpeg process validates these strings or encodes frames.
+ * @evidence contracts/testing.md#distinguishing-cases Zero and nonfinite clocks, empty/dot/parent stems, reserved names with extensions, separators and a valid default spec preserve the original guard and naming cases.
+ * @evidence contracts/testing.md#execution-ownership The exported test_render_plan owns its cases. Portable schedule and command construction only; no files, encoder or capture host are opened.
  */
-export const test_render_plan = (): void => {
+export function test_render_plan(): void {
   // 1. schedule
-  const t = frameTimes(30, 2);
+  const t: number[] = frameTimes(30, 2);
   TestValidator.equals("60 frames", t.length, 60);
   TestValidator.predicate("first frame at 0", nclose(t[0]!, 0));
   TestValidator.predicate("second frame at 1/30", nclose(t[1]!, 1 / 30));
@@ -133,4 +129,4 @@ export const test_render_plan = (): void => {
       "out.mp4",
     ],
   );
-};
+}

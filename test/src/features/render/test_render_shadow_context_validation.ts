@@ -1,34 +1,27 @@
-import { stageScene, validateSceneEnvironment } from "@automovie/engine";
-import type {
-  IAutoMovieLight,
-  IAutoMovieScene,
-  IAutoMovieSceneEnvironment,
-  IAutoMovieStageLight,
-} from "@automovie/interface";
+import { IAutoMovieColor, IAutoMovieValidation, IAutoMovieLight, IAutoMovieScene, IAutoMovieSceneEnvironment, IAutoMovieStageLight } from "@automovie/interface";
+import { stageScene } from "../../../../packages/engine/src/film/stageScene";
+import { validateSceneEnvironment } from "../../../../packages/engine/src/validation/validateSceneEnvironment";
 import { TestValidator } from "@nestia/e2e";
-
-import { validateSceneArtifact } from "@automovie/production/validation";
+import { validateSceneArtifact } from "../../../../packages/production/src/validators/artifacts/validateSceneArtifact";
 import { makeScriptWrite, makeStagingWrite } from "../internal/filmFixtures";
 import { hasViolation } from "../internal/predicates";
-
 /**
- * Every scene admission boundary refuses an enabled point VSM shadow before
- * rendering, without moving its diagnostic under the environment or changing
- * the light's original row. Supported neighboring policies remain admissible.
+ * The three exercised scene admission boundaries refuse enabled point VSM shadows at the original light row. Their supported neighboring policies remain admissible.
  *
  * Scenarios:
  *
- * 1. PCF, its legacy alias, and globally disabled VSM accept a point caster
- *    through environment, portable scene and staging admission.
- * 2. Enabled VSM refuses the same point at its original light path through
- *    all three boundaries; a noncasting point remains accepted.
- * 3. An invalid earlier light does not shift a later point's diagnostic, and
- *    an independent environment scalar error is collected beside it.
- * 4. Invalid shadow discriminators and enabled flags produce their addressed
- *    shape errors without invoking the contextual profile with invalid policy.
+ * 1. PCF, its legacy alias, and globally disabled VSM accept a point caster through environment, portable scene and staging admission.
+ * 2. Enabled VSM refuses the same point at its original light path through all three boundaries; a noncasting point remains accepted.
+ * 3. An invalid earlier light does not shift a later point's diagnostic, and an independent environment scalar error is collected beside it.
+ * 4. Invalid shadow discriminators and enabled flags produce their addressed shape errors without invoking the contextual profile with invalid policy.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Runs real environment, portable-scene and staging admission, refusing enabled point VSM at the original light path while collecting independent scalar and shape errors.
+ * @evidence contracts/testing.md#independent-expectations The supported point-shadow policy admits PCF/legacy alias and disabled VSM but rejects enabled point VSM; hand-authored source rows determine exact located paths. Boundary agreement is shared-policy consistency, not an independent native shadow-format oracle.
+ * @evidence contracts/testing.md#distinguishing-cases Supported and enabled-VSM twins, noncasting lights, an earlier malformed row, invalid policy fields and negative environment intensity preserve acceptance, refusal and diagnostic coexistence.
+ * @evidence contracts/testing.md#execution-ownership The exported test_render_shadow_context_validation owns its cases. Portable Engine/Production admission through existing input factories, without shader compilation, framebuffer creation or a real render host.
  */
-export const test_render_shadow_context_validation = (): void => {
-  const shadow = {
+export function test_render_shadow_context_validation(): void {
+  const shadow: { mapSize: number; bias: number; normalBias: number; near: number; far: number; } = {
     mapSize: 256, bias: 0, normalBias: 0, near: 0.1, far: 100,
   };
   const point: IAutoMovieLight = {
@@ -58,7 +51,7 @@ export const test_render_shadow_context_validation = (): void => {
     { enabled: true, type: "pcfSoft" },
     { enabled: false, type: "vsm" },
   ] satisfies IAutoMovieSceneEnvironment["shadows"][]) {
-    const environment = { ...base, shadows: policy };
+    const environment: { shadows: { enabled: true; type: "pcf"; } | { enabled: true; type: "pcfSoft"; } | { enabled: false; type: "vsm"; }; image: string | null; background: IAutoMovieColor | null; intensity: number; rotationDeg: number; exposure: number; toneMapping: "none" | "acesFilmic"; } = { ...base, shadows: policy };
     TestValidator.equals("supported environment policy", validateSceneEnvironment({
       environment, lights: [point],
     }).success, true);
@@ -72,7 +65,7 @@ export const test_render_shadow_context_validation = (): void => {
   const environment: IAutoMovieSceneEnvironment = {
     ...base, shadows: { enabled: true, type: "vsm" },
   };
-  const expected = "$input.lights[0].castShadow";
+  const expected: string = "$input.lights[0].castShadow";
   for (const result of [
     validateSceneEnvironment({ environment, lights: [point] }),
     validateSceneArtifact({ ...scene, environment }, []),
@@ -97,7 +90,7 @@ export const test_render_shadow_context_validation = (): void => {
     lights: [null, { ...point, id: "later" }] as unknown as IAutoMovieLight[],
     environment: { ...environment, intensity: -1 },
   };
-  const collected = validateSceneArtifact(malformed, []);
+  const collected: IAutoMovieValidation = validateSceneArtifact(malformed, []);
   TestValidator.predicate("earlier malformed light remains addressed", hasViolation(
     collected, "type", "$input.lights[0]",
   ));
@@ -111,10 +104,10 @@ export const test_render_shadow_context_validation = (): void => {
     [{ enabled: "yes", type: "vsm" }, "$input.environment.shadows.enabled"],
     [{ enabled: true, type: "unknown" }, "$input.environment.shadows.type"],
   ] as const) {
-    const invalid = { ...base, shadows } as unknown as IAutoMovieSceneEnvironment;
-    const result = validateSceneArtifact({ ...scene, environment: invalid }, []);
+    const invalid: IAutoMovieSceneEnvironment = { ...base, shadows } as unknown as IAutoMovieSceneEnvironment;
+    const result: IAutoMovieValidation = validateSceneArtifact({ ...scene, environment: invalid }, []);
     TestValidator.predicate("invalid policy is refused at its field", hasViolation(
       result, "type", path,
     ));
   }
-};
+}

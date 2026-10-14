@@ -1,26 +1,28 @@
-import {
-  deriveAutoMovieSemanticMask,
-  resolveAutoMovieSemanticMask,
-} from "@automovie/engine";
-import {
-  TestValidator,
-} from "@nestia/e2e";
-
+import { IAutoMovieSemanticMaskResolution } from "../../../../packages/engine/src/render/IAutoMovieSemanticMaskResolution";
+import { IAutoMovieSceneNode, IAutoMovieSemanticMask, IAutoMovieSemanticMaskEntry } from "@automovie/interface";
+import { IAutoMovieRenderSubject } from "../../../../packages/engine/src/render/IAutoMovieRenderSubject";
+import { deriveAutoMovieSemanticMask } from "../../../../packages/engine/src/render/deriveAutoMovieSemanticMask";
+import { resolveAutoMovieSemanticMask } from "../../../../packages/engine/src/render/resolveAutoMovieSemanticMask";
+import { TestValidator } from "@nestia/e2e";
 import { createSemanticMaskTestInputs } from "../internal/createSemanticMaskTestInputs";
-
 /**
- * Stable building layers retain their nearest owner and resolve a door pixel through the declared ownership chain.
+ * Stable building layers retain their nearest owner and resolve a declared door-leaf colour through the ownership chain.
  *
  * Scenarios:
- * 1. The13 named layers retain their expected building, room, boundary, opening, element and slot owners.
+ * 1. The 13 named layers retain their expected building, room, boundary, opening, element and slot owners.
  * 2. A door-leaf colour resolves its node and six declared ancestors with their semantic labels.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Derives actual semantic entries and resolves a declared door-leaf colour, checking tight owner joins, drawing-node identity and the reachable ancestor chain.
+ * @evidence contracts/testing.md#independent-expectations The authored building's unit, spaces, facade, opening and leaf hierarchy supplies thirteen hand-listed owners and six ancestor labels; lookup uses a derived colour as its key, so this is ownership/lookup consistency rather than an independent palette-colour oracle.
+ * @evidence contracts/testing.md#distinguishing-cases Logical containers, orphan-free prop, water body and compact set/slot cover distinct claim classes; dangling/cyclic lookup, collisions and capacity have their own units.
+ * @evidence contracts/testing.md#execution-ownership The exported test_render_semantic_mask owns its cases. Portable semantic metadata derivation and lookup, with no pixel buffer, mask drawing or GPU segmentation.
  */
-export const test_render_semantic_mask = (): void => {
-  const { subject } = createSemanticMaskTestInputs();
+export function test_render_semantic_mask(): void {
+  const { subject }: { subject: () => IAutoMovieRenderSubject; bulk: (semantic: string) => IAutoMovieSceneNode; broken: (owner: string) => IAutoMovieSemanticMask; cyclic: () => IAutoMovieSemanticMask; } = createSemanticMaskTestInputs();
 
-  const mask = deriveAutoMovieSemanticMask(subject());
+  const mask: IAutoMovieSemanticMask = deriveAutoMovieSemanticMask(subject());
 
-  const owners = new Map(mask.entries.map((entry) => [entry.id, entry.owner]));
+  const owners: Map<string, string | null> = new Map(mask.entries.map((entry: IAutoMovieSemanticMaskEntry): [string, string | null] => [entry.id, entry.owner]));
 
   TestValidator.equals(
       "every addressable layer of the building is an entry with the tightest owner",
@@ -56,11 +58,11 @@ export const test_render_semantic_mask = (): void => {
       },
     );
 
-  const leaf = mask.entries.find(
-      (entry) => entry.id === "element:tower/hall-door-leaf",
+  const leaf: IAutoMovieSemanticMaskEntry = mask.entries.find(
+      (entry: IAutoMovieSemanticMaskEntry): boolean => entry.id === "element:tower/hall-door-leaf",
     )!;
 
-  const resolved = resolveAutoMovieSemanticMask(mask, leaf.color)!;
+  const resolved: IAutoMovieSemanticMaskResolution = resolveAutoMovieSemanticMask(mask, leaf.color)!;
 
   TestValidator.equals(
       "a door pixel resolves to the door and everything containing it",
@@ -68,8 +70,8 @@ export const test_render_semantic_mask = (): void => {
         entry: resolved.entry.id,
         label: resolved.entry.label,
         nodes: resolved.entry.nodes,
-        ancestors: resolved.ancestors.map((entry) => entry.id),
-        labels: resolved.ancestors.map((entry) => entry.label),
+        ancestors: resolved.ancestors.map((entry: IAutoMovieSemanticMaskEntry): string => entry.id),
+        labels: resolved.ancestors.map((entry: IAutoMovieSemanticMaskEntry): string | null => entry.label),
       },
       {
         entry: "element:tower/hall-door-leaf",
@@ -86,4 +88,4 @@ export const test_render_semantic_mask = (): void => {
         labels: ["door", "wall", "room", "storey", "building", null],
       },
     );
-};
+}

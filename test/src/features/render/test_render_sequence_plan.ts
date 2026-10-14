@@ -1,14 +1,12 @@
-import {
-  IAutoMovieRenderSpec,
-  IAutoMovieSequence,
-  IAutoMovieShot,
-} from "@automovie/interface";
-import { planSequenceRender } from "@automovie/render";
+import { filmEffectValuesClose } from "../internal/filmEffectValuesClose";
+import { IAutoMovieSequenceRenderFrame } from "../../../../packages/render/src/IAutoMovieSequenceRenderFrame";
+import { IAutoMovieSequenceRenderShotSpan } from "../../../../packages/render/src/IAutoMovieSequenceRenderShotSpan";
+import { IAutoMovieSequenceRenderPlan } from "../../../../packages/render/src/IAutoMovieSequenceRenderPlan";
+import { IAutoMovieTrim, IAutoMovieRenderSpec, IAutoMovieSequence, IAutoMovieShot } from "@automovie/interface";
+import { planSequenceRender } from "../../../../packages/render/src/planSequenceRender";
 import { TestValidator } from "@nestia/e2e";
-
 import { namedFacts, nclose, throwsError } from "../internal/predicates";
-
-const shot = (id: string, duration: number): IAutoMovieShot => ({
+const shot: (id: string, duration: number) => IAutoMovieShot = (id: string, duration: number): IAutoMovieShot => ({
   id,
   name: null,
   scene: "scene-duel",
@@ -19,7 +17,7 @@ const shot = (id: string, duration: number): IAutoMovieShot => ({
   duration,
 });
 
-const SHOTS = [shot("shot:a", 2), shot("shot:b", 3)];
+const SHOTS: IAutoMovieShot[] = [shot("shot:a", 2), shot("shot:b", 3)];
 
 const SEQUENCE: IAutoMovieSequence = {
   id: "seq:duel",
@@ -49,24 +47,23 @@ const SPEC: IAutoMovieRenderSpec = {
 };
 
 /**
- * The sequence render manifest exposes the same cut arithmetic the viewer uses:
- * trim offsets, transition overlap, per-frame live shot samples, blend tails,
- * and encoder paths.
+ * The sequence render manifest exposes the same cut arithmetic the viewer uses: trim offsets, transition overlap, per-frame live shot samples, blend tails, and encoder paths.
  *
  * Scenarios:
  *
- * 1. A two-shot sequence with a 0.5 s dissolve has a 2.5 s runtime and 10 frames
- *    at render fps 4.
- * 2. Shot spans preserve trim offsets; the incoming entry starts at 0.5 s because
- *    the transition overlaps the previous shot tail.
- * 3. Frames inside the dissolve carry both incoming and outgoing shot-local times
- *    plus the incoming alpha.
- * 4. Default frame/output paths sanitize the sequence id and produce pinned ffmpeg
- *    args; custom paths override those defaults.
+ * 1. A two-shot sequence with a 0.5 s dissolve has a 2.5 s runtime and 10 frames at render fps 4.
+ * 2. Shot spans preserve trim offsets; the incoming entry starts at 0.5 s because the transition overlaps the previous shot tail.
+ * 3. Frames inside the dissolve carry both incoming and outgoing shot-local times plus the incoming alpha.
+ * 4. Default frame/output paths sanitize the sequence id and produce pinned ffmpeg args; custom paths override those defaults.
  * 5. Target mismatch and zero-frame schedules reject before capture.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Plans the actual two-shot cut and observes spans, trim offsets, blend samples, paths and target/zero-frame refusals, detecting incorrect overlap or output-clock mapping.
+ * @evidence contracts/testing.md#independent-expectations One plus two seconds minus a half-second dissolve gives 2.5 seconds and ten frames at four fps; incoming start 0.5 and halfway alpha 0.5 follow hand cut arithmetic. Numeric records use nclose, and argument/path checks observe planning rather than encoding.
+ * @evidence contracts/testing.md#distinguishing-cases Boundary entry, midway dissolve and past-dissolve samples, default/custom paths, target mismatch and too-short runtime preserve the original branches; actual capture/encoder delegation belongs to sequence_video.
+ * @evidence contracts/testing.md#execution-ownership The exported test_render_sequence_plan owns its cases. Portable timeline and manifest construction, with no frame capture, ffmpeg process or file output.
  */
-export const test_render_sequence_plan = (): void => {
-  const plan = planSequenceRender({
+export function test_render_sequence_plan(): void {
+  const plan: IAutoMovieSequenceRenderPlan = planSequenceRender({
     sequence: SEQUENCE,
     shots: SHOTS,
     spec: SPEC,
@@ -77,27 +74,24 @@ export const test_render_sequence_plan = (): void => {
     kind: "sequence",
     id: SEQUENCE.id,
   });
-  TestValidator.equals("sequence fps", plan.sequenceFps, 24);
-  TestValidator.equals("render fps", plan.renderFps, 4);
+  TestValidator.predicate("sequence fps", nclose(plan.sequenceFps, 24, 1e-12));
+  TestValidator.predicate("render fps", nclose(plan.renderFps, 4, 1e-12));
   TestValidator.predicate("duration", nclose(plan.durationSeconds, 2.5));
   TestValidator.equals("frame count", plan.frameCount, 10);
   TestValidator.predicate(
     "times ride render fps",
-    plan.times.every((time, i) => nclose(time, i / 4)),
+    plan.times.every((time: number, i: number): boolean => nclose(time, i / 4)),
   );
 
   // 2. shot spans + transition span
-  TestValidator.equals(
-    "shot spans",
-    plan.shots.map((span) => ({
+  TestValidator.predicate("shot spans", filmEffectValuesClose(plan.shots.map((span: IAutoMovieSequenceRenderShotSpan): { shot: string; start: number; end: number; played: number; offset: number; trim: IAutoMovieTrim | null; } => ({
       shot: span.shot,
       start: span.start,
       end: span.end,
       played: span.played,
       offset: span.offset,
       trim: span.trim,
-    })),
-    [
+    })), [
       {
         shot: "shot:a",
         start: 0,
@@ -114,9 +108,8 @@ export const test_render_sequence_plan = (): void => {
         offset: 1,
         trim: { start: 1, duration: 2 },
       },
-    ],
-  );
-  TestValidator.equals("transition span", plan.transitionSpans, [
+    ]));
+  TestValidator.predicate("transition span", filmEffectValuesClose(plan.transitionSpans, [
     {
       entry: 1,
       from: "shot:a",
@@ -126,52 +119,52 @@ export const test_render_sequence_plan = (): void => {
       end: 1,
       duration: 0.5,
     },
-  ]);
+  ]));
 
   // 3. frame samples
-  TestValidator.equals("first frame", plan.frames[0], {
+  TestValidator.predicate("first frame", filmEffectValuesClose(plan.frames[0], {
     index: 0,
     timeSeconds: 0,
     path: "frames/seq_duel/frame_00000.png",
     shot: "shot:a",
     shotTimeSeconds: 0.5,
     blend: null,
-  });
-  TestValidator.equals("dissolve entry frame", plan.frames[2], {
+  }));
+  TestValidator.predicate("dissolve entry frame", filmEffectValuesClose(plan.frames[2], {
     index: 2,
     timeSeconds: 0.5,
     path: "frames/seq_duel/frame_00002.png",
     shot: "shot:b",
     shotTimeSeconds: 1,
     blend: { shot: "shot:a", shotTimeSeconds: 1, alpha: 0 },
-  });
-  const midDissolve = plan.frames[3]!;
+  }));
+  const midDissolve: IAutoMovieSequenceRenderFrame = plan.frames[3]!;
   TestValidator.equals(
     "mid dissolve sample",
     namedFacts([
-      ["midDissolveShotShot", () => midDissolve.shot === "shot:b"],
+      ["midDissolveShotShot", (): boolean => midDissolve.shot === "shot:b"],
       [
         "ncloseMidDissolveTimeSeconds",
-        () => nclose(midDissolve.timeSeconds, 0.75),
+        (): boolean => nclose(midDissolve.timeSeconds, 0.75),
       ],
       [
         "ncloseMidDissolveShotTimeSeconds",
-        () => nclose(midDissolve.shotTimeSeconds, 1.25),
+        (): boolean => nclose(midDissolve.shotTimeSeconds, 1.25),
       ],
-      ["midDissolveBlend", () => midDissolve.blend !== null],
+      ["midDissolveBlend", (): boolean => midDissolve.blend !== null],
       [
         "midDissolveBlendShot",
-        () => midDissolve.blend !== null && midDissolve.blend.shot === "shot:a",
+        (): boolean => midDissolve.blend !== null && midDissolve.blend.shot === "shot:a",
       ],
       [
         "ncloseMidDissolveBlend",
-        () =>
+        (): boolean =>
           midDissolve.blend !== null &&
           nclose(midDissolve.blend.shotTimeSeconds, 1.25),
       ],
       [
         "ncloseMidDissolveBlend2",
-        () =>
+        (): boolean =>
           midDissolve.blend !== null && nclose(midDissolve.blend.alpha, 0.5),
       ],
     ]),
@@ -205,17 +198,17 @@ export const test_render_sequence_plan = (): void => {
     namedFacts([
       [
         "planFfmpegArgsIncludes",
-        () => plan.ffmpegArgs.includes("frames/seq_duel/frame_%05d.png"),
+        (): boolean => plan.ffmpegArgs.includes("frames/seq_duel/frame_%05d.png"),
       ],
       [
         "planFfmpegArgsIncludes2",
-        () => plan.ffmpegArgs.includes("seq_duel.mp4"),
+        (): boolean => plan.ffmpegArgs.includes("seq_duel.mp4"),
       ],
     ]),
     { planFfmpegArgsIncludes: true, planFfmpegArgsIncludes2: true },
   );
 
-  const custom = planSequenceRender({
+  const custom: IAutoMovieSequenceRenderPlan = planSequenceRender({
     sequence: SEQUENCE,
     shots: SHOTS,
     spec: SPEC,
@@ -233,7 +226,7 @@ export const test_render_sequence_plan = (): void => {
   TestValidator.predicate(
     "target mismatch rejects",
     throwsError(
-      () =>
+      (): IAutoMovieSequenceRenderPlan =>
         planSequenceRender({
           sequence: SEQUENCE,
           shots: SHOTS,
@@ -245,7 +238,7 @@ export const test_render_sequence_plan = (): void => {
   TestValidator.predicate(
     "zero-frame schedule rejects",
     throwsError(
-      () =>
+      (): IAutoMovieSequenceRenderPlan =>
         planSequenceRender({
           sequence: {
             ...SEQUENCE,
@@ -266,4 +259,4 @@ export const test_render_sequence_plan = (): void => {
       ["planSequenceRender", "at least one frame", "produced zero frames"],
     ),
   );
-};
+}

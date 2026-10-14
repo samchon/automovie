@@ -1,11 +1,6 @@
-import type {
-  AutoMovieRenderMetric,
-  IAutoMovieRenderObservation,
-  IAutoMovieRenderReport,
-} from "@automovie/interface";
-import { auditAutoMovieRenderObservation } from "@automovie/render";
+import { AutoMovieRenderMetric, IAutoMovieRenderObservation, IAutoMovieRenderReport } from "@automovie/interface";
+import { auditAutoMovieRenderObservation } from "../../../../packages/render/src/auditAutoMovieRenderObservation";
 import { TestValidator } from "@nestia/e2e";
-
 const METRICS: readonly AutoMovieRenderMetric[] = [
   "triangles",
   "vertices",
@@ -24,16 +19,16 @@ const METRICS: readonly AutoMovieRenderMetric[] = [
   "fluidParticles",
 ];
 
-const report = (
+const report: (measured?: Partial<Record<AutoMovieRenderMetric, number | null>>) => IAutoMovieRenderReport = (
   measured: Partial<Record<AutoMovieRenderMetric, number | null>> = {},
 ): IAutoMovieRenderReport => ({
   version: 1,
   protocol: "automovie.render-report.v1",
   tier: "evidence",
-  status: Object.values(measured).some((value) => value === null)
+  status: Object.values(measured).some((value: number | null): value is null => value === null)
     ? "incomplete"
     : "within",
-  findings: METRICS.map((metric) => ({
+  findings: METRICS.map((metric: AutoMovieRenderMetric): { metric: AutoMovieRenderMetric; status: "not-run" | "unbudgeted"; measured: number | null; limit: null; excess: number; contributors: never[]; omittedContributors: number; omittedCost: number; recovery: string | null; } => ({
     metric,
     status: measured[metric] === null ? "not-run" : "unbudgeted",
     measured: measured[metric] === undefined ? 10 : measured[metric],
@@ -64,7 +59,7 @@ const report = (
   digest: "sha256:report",
 });
 
-const observation = (
+const observation: (override?: Partial<IAutoMovieRenderObservation>) => IAutoMovieRenderObservation = (
   override: Partial<IAutoMovieRenderObservation> = {},
 ): IAutoMovieRenderObservation => ({
   meshes: 3,
@@ -79,21 +74,22 @@ const observation = (
 });
 
 /**
- * Actual scene-graph counts never inherit a preflight verdict they did not
- * earn.
+ * Actual scene-graph counts never inherit a preflight verdict they did not earn.
  *
  * Scenarios:
  *
  * 1. Every observed metric at or below its preflight report bound agrees.
  * 2. Values above two bounds return both breaches in canonical metric order.
- * 3. A report finding with no measurement is `unchecked` and refuses agreement
- *    instead of inventing a bound.
- * 4. Metrics the live scene observation does not expose do not masquerade as
- *    runtime checks.
- * 5. Duplicate, non-finite, and negative report or renderer values stay
- *    unchecked instead of passing or manufacturing a breach.
+ * 3. A report finding with no measurement is `unchecked` and refuses agreement instead of inventing a bound.
+ * 4. Metrics the live scene observation does not expose do not masquerade as runtime checks.
+ * 5. Duplicate, non-finite, and negative report or renderer values stay unchecked instead of passing or manufacturing a breach.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Audits real supplied report/observation pairs, distinguishing bounds, breaches and unchecked metrics so missing or malformed evidence cannot become agreement.
+ * @evidence contracts/testing.md#independent-expectations Hand-authored counts 8/9 and 1/2 determine two ordered breaches, and the seven exposed observation roles determine which report fields can be checked. Supplied counts are not an actual renderer observation and no digest authenticity is asserted.
+ * @evidence contracts/testing.md#distinguishing-cases Exact bound, below/above bounds, null or duplicate report rows, negative/nonfinite values and preflight-only metrics cover the audit's classification boundary.
+ * @evidence contracts/testing.md#execution-ownership The exported test_render_observation_audit owns its cases. Portable report classification over resident records, with no scene traversal or native renderer counter read.
  */
-export const test_render_observation_audit = (): void => {
+export function test_render_observation_audit(): void {
   TestValidator.equals(
     "actual counts within every measured preflight bound agree",
     auditAutoMovieRenderObservation({
@@ -137,7 +133,7 @@ export const test_render_observation_audit = (): void => {
     [],
   );
 
-  const base = report();
+  const base: IAutoMovieRenderReport = report();
   TestValidator.equals(
     "duplicate report metrics are ambiguous",
     auditAutoMovieRenderObservation({
@@ -176,4 +172,4 @@ export const test_render_observation_audit = (): void => {
       }).unchecked,
       ["triangles"],
     );
-};
+}

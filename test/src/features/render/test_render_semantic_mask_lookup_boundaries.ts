@@ -1,27 +1,28 @@
-import {
-  deriveAutoMovieSemanticMask,
-  resolveAutoMovieSemanticMask,
-} from "@automovie/engine";
-import {
-  TestValidator,
-} from "@nestia/e2e";
-
+import { IAutoMovieSceneNode, IAutoMovieSemanticMask, IAutoMovieSemanticMaskEntry } from "@automovie/interface";
+import { IAutoMovieRenderSubject } from "../../../../packages/engine/src/render/IAutoMovieRenderSubject";
+import { deriveAutoMovieSemanticMask } from "../../../../packages/engine/src/render/deriveAutoMovieSemanticMask";
+import { resolveAutoMovieSemanticMask } from "../../../../packages/engine/src/render/resolveAutoMovieSemanticMask";
+import { TestValidator } from "@nestia/e2e";
 import { createSemanticMaskTestInputs } from "../internal/createSemanticMaskTestInputs";
-
 /**
- * Unknown pixels and broken ownership chains never fabricate an ancestor or alternate drawable.
+ * Unknown colour keys and broken ownership chains do not fabricate an ancestor or alternate drawable in the selected lookups.
  *
  * Scenarios:
  * 1. An unknown colour returns null and lowercase input resolves the actual door leaf.
  * 2. A dangling owner yields no ancestor; a two-node ownership cycle stops after the one distinct ancestor.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Resolves actual and authored exceptional masks, checking unknown/lowercase colour handling and finite ancestor prefixes for missing owners or cycles.
+ * @evidence contracts/testing.md#independent-expectations The declared absent owner yields zero ancestors and the two-entry a/b cycle yields only b; the actual leaf's lowercase spelling must resolve its declared id. Exceptional masks are deliberately unverified and do not certify digest/schema admission.
+ * @evidence contracts/testing.md#distinguishing-cases Unknown and case-normalized colour, dangling owner and a two-node cycle retain distinct lookup branches; palette derivation and evidence admission belong to other units.
+ * @evidence contracts/testing.md#execution-ownership The exported test_render_semantic_mask_lookup_boundaries owns its cases. Portable direct lookup over resident mask records, with no sampled pixel, renderer or dynamic test registry.
  */
-export const test_render_semantic_mask_lookup_boundaries = (): void => {
-  const { subject, broken, cyclic } = createSemanticMaskTestInputs();
+export function test_render_semantic_mask_lookup_boundaries(): void {
+  const { subject, broken, cyclic }: { subject: () => IAutoMovieRenderSubject; bulk: (semantic: string) => IAutoMovieSceneNode; broken: (owner: string) => IAutoMovieSemanticMask; cyclic: () => IAutoMovieSemanticMask; } = createSemanticMaskTestInputs();
 
-  const mask = deriveAutoMovieSemanticMask(subject());
+  const mask: IAutoMovieSemanticMask = deriveAutoMovieSemanticMask(subject());
 
-  const leaf = mask.entries.find(
-      (entry) => entry.id === "element:tower/hall-door-leaf",
+  const leaf: IAutoMovieSemanticMaskEntry = mask.entries.find(
+      (entry: IAutoMovieSemanticMaskEntry): boolean => entry.id === "element:tower/hall-door-leaf",
     )!;
 
   TestValidator.equals(
@@ -35,7 +36,7 @@ export const test_render_semantic_mask_lookup_boundaries = (): void => {
           "#ABCDEF",
         )!.ancestors.length,
         cyclic: resolveAutoMovieSemanticMask(cyclic(), "#ABCDEF")!.ancestors.map(
-          (entry) => entry.id,
+          (entry: IAutoMovieSemanticMaskEntry): string => entry.id,
         ),
       },
       {
@@ -45,4 +46,4 @@ export const test_render_semantic_mask_lookup_boundaries = (): void => {
         cyclic: ["b"],
       },
     );
-};
+}

@@ -3,11 +3,9 @@ import { planCaptionSidecar, renderCaptionSidecar } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../internal/predicates";
-import {
-  TREE_SCRIPT,
-  screenplayBeat,
-  screenplayNode,
-} from "./test_render_screenplay";
+import { TREE_SCRIPT } from "../internal/TREE_SCRIPT";
+import { screenplayBeat } from "../internal/screenplayBeat";
+import { screenplayNode } from "../internal/screenplayNode";
 
 const shot = (id: string, duration: number): IAutoMovieShot => ({
   id,
