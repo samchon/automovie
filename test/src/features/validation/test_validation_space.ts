@@ -23,7 +23,7 @@ import { assertValidationSpaceHeights } from "../internal/assertValidationSpaceH
  *    to forbid on the query's behalf. 6c. A footprint with a collinear point on
  *    an edge is still allowed. 6d. A self-crossing footprint is refused: it has
  *    no inside for a foot to be on, and its two spellings reach different
- *    checks — a symmetric bowtie's lobes cancel and it is caught as a ring
+ *    checks: a symmetric bowtie's lobes cancel and it is caught as a ring
  *    enclosing no area, while a lopsided one encloses area and is caught as a
  *    ring that crosses itself. 6e. Holes: a well-formed void through a plate
  *    passes; a hole of fewer than three points, a collinear hole, a

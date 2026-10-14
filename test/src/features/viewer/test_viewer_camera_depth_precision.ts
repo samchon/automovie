@@ -83,7 +83,7 @@ const evaluate: (props: EvaluateProps) => ReturnType<typeof evaluateAutoMovieVie
  *
  * Scenarios:
  * 1. Exact source/native clips and supplied 24-bit depth satisfy the declared capability; changed far clip and 23 bits refuse distinctly.
- * 2. Logarithmic/reversed modes and invalid source or capability operands retain their own addressed status.
+ * 2. Logarithmic/reversed modes retain their projection classification; invalid source or capability operands retain their addressed refusal status.
  * 3. Nonfinite observations serialize as null, while the assertion wrapper returns the supported report and throws for insufficient bits.
  *
  * @evidence contracts/testing.md#behavioral-verification Calls the actual depth-capability evaluator/wrapper with native cameras and a supplied query port, checking satisfied, mismatched, insufficient, invalid-source/capability and nonstandard-mode reports. Nonfinite observations must become null and the throwing wrapper must distinguish the passing and refused operands.

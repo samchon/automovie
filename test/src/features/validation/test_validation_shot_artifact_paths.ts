@@ -76,7 +76,7 @@ const intent: (overrides?: Record<string, unknown>) => unknown = (overrides: Rec
 /**
  * A coverage take the validator accepts.
  *
- * Coverage plays ANOTHER angle, so its camera is never the shot's own `cam`.
+ * Coverage plays another angle, so its camera is never the shot's own `cam`.
  */
 const take: (overrides?: Record<string, unknown>) => unknown = (overrides: Record<string, unknown> = {}): unknown => ({
   camera: "wide",
@@ -88,8 +88,7 @@ const take: (overrides?: Record<string, unknown>) => unknown = (overrides: Recor
 /**
  * A light-time clip the validator accepts.
  *
- * The scene stages `key` as a spot light, so `/lights/key/intensity` addresses
- * a property that light actually carries.
+ * The scene stages `key` as a spot light, so `/lights/key/intensity` addresses a property that light actually carries.
  */
 const lightClip: (overrides?: Record<string, unknown>) => unknown = (overrides: Record<string, unknown> = {}): unknown => ({
   id: "key-fade",

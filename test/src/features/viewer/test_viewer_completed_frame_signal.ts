@@ -3,13 +3,13 @@ import { publishViewerCompletedFrame, type IAutoMovieViewerCompletedFrame } from
 import * as THREE from "three";
 
 /**
- * Explicit completed redraws emit a fresh meaningful event even when scene, camera and clock facts are unchanged; ordinary producers retain their classification. The public native-event port is observed without a renderer or Human fixture.
+ * Repeated explicit completed redraws emit meaningful events even when scene, camera and clock facts are unchanged; ordinary producers retain their classification. The public native-event port is observed without a renderer or Human fixture.
  * Scenarios:
  * 1. Repeated explicit completion of the same frame emits meaningful signals.
  * 2. Ordinary idle, eager and changed completions preserve producer authority.
  * 3. Unsubscribed or unavailable event ports perform no delivery.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls the public completed-frame publisher and observes dispatched native events. Explicit completions must emit fresh meaningful records without mutating the producer's frame, while ordinary completion retains its identity and classification.
+ * @evidence contracts/testing.md#behavioral-verification Calls the public completed-frame publisher and observes dispatched native events. Repeated explicit completions must deliver meaningful records without mutating the producer's frame, while ordinary completion retains its identity and classification; distinct explicit detail identities are not asserted.
  * @evidence contracts/testing.md#independent-expectations Authored frame identity and opt-in attribute values define delivery expectations; the listener inspects actual event detail rather than using publisher output to construct an oracle. Scene/camera references are ownership checks, not visual rendering evidence.
  * @evidence contracts/testing.md#distinguishing-cases Exercises repeated explicit completion, ordinary idle/undefined/changed classifications, and absent subscription or dispatch capability. The five admitted events contrast with three non-delivering port shapes; completed bitmap production belongs to renderer consumers.
  * @evidence contracts/testing.md#execution-ownership The named portable unit uses the runtime EventTarget and CustomEvent APIs plus a minimal supplied canvas port. It starts no browser or GPU and owns all listener assertions locally without dynamic test registration.
