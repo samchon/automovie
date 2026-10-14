@@ -1,6 +1,7 @@
 import {
   AutoMovieHumanoidBone,
   IAutoMovieMesh,
+  IAutoMovieMeshMorphTarget,
   IAutoMovieMeshSkin,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
@@ -29,6 +30,11 @@ import { Quaternion } from "../math/Quaternion";
  * result is in the posed bones' frame, so passing bones resolved with a pose
  * root places the vertices by that root as well.
  *
+ * Morph targets named in `morphWeights` displace the rest positions first,
+ * `p + sum(w_t * positions_t)`, as the viewer applies relative morph targets
+ * before skinning; a name the mesh does not carry is ignored, as an expression
+ * ignores a channel a mesh lacks.
+ *
  * Throws when the mesh has no skin or a skin joint is missing from either bone
  * list.
  *
@@ -36,38 +42,44 @@ import { Quaternion } from "../math/Quaternion";
  * @param rest Bones at rest, such as `resolvePose` of a pose with no joints
  *   and a null root.
  * @param posed Bones in the pose to skin into, from `resolvePose`.
+ * @param morphWeights Target weights by name, such as
+ *   `resolveMorphTargetWeights` output merged with expression weights;
+ *   omitted, no target displaces the mesh.
  * @returns Flat skinned positions `[x,y,z,...]` in metres, aligned with
  *   `mesh.positions`.
  *
  * @evidence contracts/common.md#principled-implementation Linear blend skinning and dual quaternion skinning (Kavan et al. 2008) over per-joint rigid transforms `P R^-1`; rigidity holds because resolvePose composes rotations and translations only, and dual quaternion blending premises influences within 180 degrees of the pivot, which is the documented flip limit. Positions are blended in double precision while the shader uses single precision, so the two agree to float rounding, not bit for bit.
  * @evidence contracts/common.md#clear-and-simple-design One function owns both blends so a measurement reads the formula the render uses; the joint transforms are computed once per joint and the method switch is per call, not per vertex.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A missing skin or joint throws instead of leaving vertices at rest, and no joint, mesh or weight pattern is special-cased.
- * @evidence contracts/common.md#meaningful-documentation States both formulas, the pivot rule, the input and output frames, the part-transform premise, the throw conditions and each parameter's source.
- * @evidence contracts/performance.md#efficient-algorithms O(J + V) for J skin joints and V vertices: one transform per joint, then four influences per vertex with constant temporary storage beyond the returned array.
+ * @evidence contracts/common.md#meaningful-documentation States both formulas, the pivot rule, the morph-before-skin order, the input and output frames, the part-transform premise, the throw conditions and each parameter's source.
+ * @evidence contracts/performance.md#efficient-algorithms O(J + T V) for J skin joints, V vertices and T weighted targets: one transform per joint, one delta pass per weighted target, then four influences per vertex with constant temporary storage beyond the returned array.
  * @evidence contracts/performance.md#reuse-equivalent-work Joint transforms are shared by every vertex of the call; a different pose needs a new call, and nothing is cached across calls because bone lists carry no identity key.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Retains nothing; the per-joint tables are local and the returned array, 3V numbers, belongs to the caller.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Retains nothing; the per-joint tables and the morphed rest copy, 3V numbers, are local, and the returned array, 3V numbers, belongs to the caller.
  * @author Samchon
  */
 export const skinAutoMovieMesh: (
   mesh: IAutoMovieMesh,
   rest: readonly IAutoMovieResolvedBone[],
   posed: readonly IAutoMovieResolvedBone[],
+  morphWeights?: ReadonlyMap<string, number>,
 ) => number[] = (
   mesh: IAutoMovieMesh,
   rest: readonly IAutoMovieResolvedBone[],
   posed: readonly IAutoMovieResolvedBone[],
+  morphWeights?: ReadonlyMap<string, number>,
 ): number[] => {
   const skin: IAutoMovieMeshSkin | null = mesh.skin;
   if (skin === null) throw new Error("skinAutoMovieMesh needs a mesh with a skin");
   const joints: IJointTransform[] = jointTransforms(skin.joints, rest, posed);
   const dual: boolean = skin.method === "dual-quaternion";
-  const vertexCount: number = mesh.positions.length / 3;
-  const output: number[] = new Array<number>(mesh.positions.length);
+  const positions: number[] = morphedPositions(mesh, morphWeights);
+  const vertexCount: number = positions.length / 3;
+  const output: number[] = new Array<number>(positions.length);
   for (let v: number = 0; v < vertexCount; ++v) {
     const point: IAutoMovieVector3 = {
-      x: mesh.positions[v * 3]!,
-      y: mesh.positions[v * 3 + 1]!,
-      z: mesh.positions[v * 3 + 2]!,
+      x: positions[v * 3]!,
+      y: positions[v * 3 + 1]!,
+      z: positions[v * 3 + 2]!,
     };
     const moved: IAutoMovieVector3 = dual
       ? blendDualQuaternion(skin, joints, v, point)
@@ -77,6 +89,25 @@ export const skinAutoMovieMesh: (
     output[v * 3 + 2] = moved.z;
   }
   return output;
+};
+
+/** Rest positions displaced by the weighted morph targets the mesh carries. */
+const morphedPositions: (
+  mesh: IAutoMovieMesh,
+  morphWeights: ReadonlyMap<string, number> | undefined,
+) => number[] = (
+  mesh: IAutoMovieMesh,
+  morphWeights: ReadonlyMap<string, number> | undefined,
+): number[] => {
+  const positions: number[] = [...mesh.positions];
+  if (morphWeights === undefined) return positions;
+  for (const target of mesh.targets ?? ([] as IAutoMovieMeshMorphTarget[])) {
+    const weight: number = morphWeights.get(target.name) ?? 0;
+    if (weight === 0) continue;
+    for (let i: number = 0; i < positions.length; ++i)
+      positions[i] = positions[i]! + weight * target.positions[i]!;
+  }
+  return positions;
 };
 
 /** One joint's rigid skinning transform and its unit dual quaternion. */

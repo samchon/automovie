@@ -4,3 +4,5 @@ export * from "./CHANNEL_VALUE_TYPES";
 export * from "./NODE_CHANNEL_PATHS";
 export * from "./TRACK_INTERPOLATIONS";
 export * from "./SHA256_DIGEST_PATTERN";
+export * from "./AUTOMOVIE_ARKIT_CHANNELS";
+export * from "./AUTOMOVIE_EXPRESSION_PRESETS";

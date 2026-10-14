@@ -1,6 +1,7 @@
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMaterial,
+  IAutoMovieMeshMorphTarget,
   IAutoMovieMeshSkin,
   IAutoMovieModel,
 } from "@automovie/interface";
@@ -32,6 +33,10 @@ import { applyReliefWeights } from "./reliefWeightShading/index.js";
  * the dual quaternion vertex patch, and its mesh casts shadows through its own
  * patched depth and distance materials, so the shadow deforms like the surface.
  *
+ * A mesh's morph targets reach `morphTargetDictionary` by name, so
+ * {@link applyExpression} drives them, and its driven targets are recorded on
+ * the mesh for {@link applyPose}.
+ *
  * The returned `bones` map is what {@link applyPose} drives.
  *
  * `resolveTexture` is how a declared PBR finish gets its pixels, and it is the
@@ -54,7 +59,7 @@ import { applyReliefWeights } from "./reliefWeightShading/index.js";
  * @evidence contracts/common.md#principled-implementation Builds admitted semantic bone rest TR and part TRS, binds skin joints or rigid attached bones, selects linear or dual quaternion skinning per skin through the material shader patch and matching shadow materials, and realizes geometry/PBR through their canonical owners; attachedBone intentionally takes precedence over skin, bone rest scale is unit by engine convention and complete finite/unique hierarchy/material admission remains upstream.
  * @evidence contracts/common.md#clear-and-simple-design Owns one model graph plus semantic bone/part registries and shares material variants by definition id with vertex-color/relief/skinning-method flags and one patched shadow pair per dual quaternion mesh; geometry, physical-vertex mapping, material shading and imported appearances remain separate producers.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing referenced skin/attached bones throw rather than producing frozen geometry; missing material definitions currently select the ordinary default material, so this producer is not a substitute for complete source admission. No anatomical fixture names, patched Three methods or extra UV channels choose output.
- * @evidence contracts/common.md#meaningful-documentation Documents rigid-versus-skin precedence, the dual quaternion material and shadow variants, bone lookup, texture resolver/binding-private ownership, first-acquisition rollback and result transfer; comments give the shared engine unit bone-scale convention.
+ * @evidence contracts/common.md#meaningful-documentation Documents rigid-versus-skin precedence, the dual quaternion material and shadow variants, morph target naming and the driven-target record, bone lookup, texture resolver/binding-private ownership, first-acquisition rollback and result transfer; comments give the shared engine unit bone-scale convention.
  * @evidence contracts/performance.md#efficient-algorithms Builds B bones and P parts with id maps, one geometry per part and one material per encountered definition/colored/weighted/skinning-method variant plus two shadow materials per dual quaternion skinned part; typed buffer work scales with vertices/indices, and skin binding updates the graph for each skinned part, so repeated skin parts may add repeated hierarchy work.
  * @evidence contracts/performance.md#reuse-equivalent-work Shares existing material variants across matching part flags and borrows primed texture bindings; each bone/part graph is independent because Object3D parent/pose state cannot be reused across placements without explicit clone ownership.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Registers created geometry/material/shadow material/skeleton immediately within construction rollback and transfers the complete model graph/registries on success; resolver textures stay externally owned. The returned record provides no universal disposer, so its scene/runtime owner must enumerate physical resources including skin skeleton state when retiring it.
@@ -175,6 +180,17 @@ export const buildModel: (
           : new THREE.Mesh(geo, mat);
         mesh.name = part.name ?? part.id;
         parts.set(part.id, mesh);
+        // Three's Mesh constructor ran updateMorphTargets(), so the dictionary
+        // already names each target; applyPose writes the driven ones.
+        const driven: IAutoMovieMeshMorphTarget[] =
+          part.geometry.type === "mesh"
+            ? (part.geometry.mesh.targets ?? []).filter(
+                (target: IAutoMovieMeshMorphTarget): boolean =>
+                  target.driver !== undefined && target.driver !== null,
+              )
+            : [];
+        if (driven.length !== 0)
+          mesh.userData.automovieMorphTargetDrivers = driven;
         if (part.transform !== null) applyTransform(mesh, part.transform);
 
         if (mesh instanceof THREE.SkinnedMesh && skin !== null) {
