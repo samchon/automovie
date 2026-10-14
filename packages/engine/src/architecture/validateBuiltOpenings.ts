@@ -45,7 +45,17 @@ import { validateBuiltOpeningOperation } from "./validateBuiltOpeningOperation";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Called once per building validation; each hull is computed once and reused by the face, overlap and panel-fit checks.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The boundary index is released on return; the caller owns the returned hull map, bounded by the opening count, and `driven` grows by at most one entry per panel.
  */
-export const validateBuiltOpenings: (environment: IAutoMovieBuiltEnvironment, root: string, boundaries: { ids: ReadonlySet<string>; faces: ReadonlyMap<string, IAutoMovieBoundaryFace> }, elementIds: ReadonlySet<string>, driven: Map<string, string>, collector: ViolationCollector) => Map<number, IAutoMoviePlanarPoint[]> = (
+export const validateBuiltOpenings: (
+  environment: IAutoMovieBuiltEnvironment,
+  root: string,
+  boundaries: {
+    ids: ReadonlySet<string>;
+    faces: ReadonlyMap<string, IAutoMovieBoundaryFace>;
+  },
+  elementIds: ReadonlySet<string>,
+  driven: Map<string, string>,
+  collector: ViolationCollector,
+) => Map<number, IAutoMoviePlanarPoint[]> = (
   environment: IAutoMovieBuiltEnvironment,
   root: string,
   boundaries: {
@@ -132,7 +142,13 @@ export const validateBuiltOpenings: (environment: IAutoMovieBuiltEnvironment, ro
  * encloses, and that hull staying on the host face. Returns the hull when the
  * void itself is usable, or null.
  */
-const validateVoid: (opening: IAutoMovieBuiltOpening, path: string, host: IAutoMovieBuiltBoundary | undefined, face: IAutoMovieBoundaryFace | undefined, collector: ViolationCollector) => IAutoMoviePlanarPoint[] | null = (
+const validateVoid: (
+  opening: IAutoMovieBuiltOpening,
+  path: string,
+  host: IAutoMovieBuiltBoundary | undefined,
+  face: IAutoMovieBoundaryFace | undefined,
+  collector: ViolationCollector,
+) => IAutoMoviePlanarPoint[] | null = (
   opening: IAutoMovieBuiltOpening,
   path: string,
   host: IAutoMovieBuiltBoundary | undefined,
@@ -197,4 +213,3 @@ const validateVoid: (opening: IAutoMovieBuiltOpening, path: string, host: IAutoM
     );
   return hull;
 };
-

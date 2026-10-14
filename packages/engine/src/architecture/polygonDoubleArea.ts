@@ -16,9 +16,9 @@ import { IAutoMoviePlanarPoint } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure sum over one ring; validation, opening area and shell triangulation each compute it once per outline they hold.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Keeps a running sum and a loop index and allocates nothing, so nothing outlives the call.
  */
-export const polygonDoubleArea: (polygon: readonly IAutoMoviePlanarPoint [ ]) => number = (
+export const polygonDoubleArea: (
   polygon: readonly IAutoMoviePlanarPoint[],
-): number => {
+) => number = (polygon: readonly IAutoMoviePlanarPoint[]): number => {
   let sum: number = 0;
   for (let index: number = 0; index < polygon.length; ++index) {
     const point: IAutoMoviePlanarPoint = polygon[index]!;

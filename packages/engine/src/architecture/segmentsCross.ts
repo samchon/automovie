@@ -24,7 +24,12 @@ import { planarSide } from "./planarSide";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure predicate over four points; it coordinates no work across requests or consumers.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Reads four points and allocates nothing, so no state, handle or task outlives the call.
  */
-export const segmentsCross: (a: IAutoMoviePlanarPoint, b: IAutoMoviePlanarPoint, c: IAutoMoviePlanarPoint, d: IAutoMoviePlanarPoint) => boolean = (
+export const segmentsCross: (
+  a: IAutoMoviePlanarPoint,
+  b: IAutoMoviePlanarPoint,
+  c: IAutoMoviePlanarPoint,
+  d: IAutoMoviePlanarPoint,
+) => boolean = (
   a: IAutoMoviePlanarPoint,
   b: IAutoMoviePlanarPoint,
   c: IAutoMoviePlanarPoint,

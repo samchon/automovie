@@ -71,7 +71,9 @@ const CONNECTOR_KINDS: readonly IAutoMovieBuiltConnector["kind"][] = [
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Validates the supplied mutable record per call. Lowering and guarded consumers invoke it; low-level queries can instead require an already-valid record and do not all validate independently. No persistent validation cache is maintained.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The id sets, face and hull maps and the work-wide driven-element table are local and released on return, each bounded by its record count; the returned validation holds the findings.
  */
-export const validateBuiltEnvironment: (props: { /** Building record to validate. */ environment : IAutoMovieBuiltEnvironment ; }) => IAutoMovieValidation = (props: {
+export const validateBuiltEnvironment: (props: {
+  /** Building record to validate. */ environment: IAutoMovieBuiltEnvironment;
+}) => IAutoMovieValidation = (props: {
   /** Building record to validate. */
   environment: IAutoMovieBuiltEnvironment;
 }): IAutoMovieValidation => {
@@ -102,11 +104,8 @@ export const validateBuiltEnvironment: (props: { /** Building record to validate
     collector,
   );
   environment.models.forEach((model: IAutoMovieModel, index: number): void =>
-    appendNested(
-      collector,
-      validateModel({ model }),
-      (path: string): string =>
-        path.replace("$input", `${root}.models[${index}]`),
+    appendNested(collector, validateModel({ model }), (path: string): string =>
+      path.replace("$input", `${root}.models[${index}]`),
     ),
   );
   const referencedModelIds: Set<string> = new Set();
@@ -344,7 +343,10 @@ export const validateBuiltEnvironment: (props: { /** Building record to validate
       },
     }),
     (path: string): string =>
-      path.replace(/^\$input\.surfaces\[(\d+)\]/, "$input.surfaces[$1].surface"),
+      path.replace(
+        /^\$input\.surfaces\[(\d+)\]/,
+        "$input.surfaces[$1].surface",
+      ),
   );
 
   if (
@@ -353,7 +355,13 @@ export const validateBuiltEnvironment: (props: { /** Building record to validate
         item.severity === "error",
     )
   ) {
-    validateBuiltPanelFit(environment, root, boundaries.faces, hulls, collector);
+    validateBuiltPanelFit(
+      environment,
+      root,
+      boundaries.faces,
+      hulls,
+      collector,
+    );
     validateBuiltCarriageService(environment, root, collector);
     validateBuiltStagedConfigurations(environment, root, collector);
   }
@@ -365,7 +373,11 @@ export const validateBuiltEnvironment: (props: { /** Building record to validate
  * Append a nested validation's findings, warnings included, re-rooting each
  * `$input` path onto this record.
  */
-const appendNested: (collector: ViolationCollector, validation: IAutoMovieValidation, reroot: ( path : string ) => string) => void = (
+const appendNested: (
+  collector: ViolationCollector,
+  validation: IAutoMovieValidation,
+  reroot: (path: string) => string,
+) => void = (
   collector: ViolationCollector,
   validation: IAutoMovieValidation,
   reroot: (path: string) => string,

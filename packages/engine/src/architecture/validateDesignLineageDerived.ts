@@ -47,7 +47,14 @@ import { validateDeclaredReferences } from "../validation/validateDeclaredRefere
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Called once per lineage validation and fed the caller's id sets and variant index, so no work is repeated or shared across calls.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The artifact index, subject digest map, per-artifact citation sets and per-decision kind tables are local and released on return, each bounded by its record count; findings go to the caller's collector.
  */
-export const validateDesignLineageDerived: (props: { lineage: IAutoMovieDesignLineage; subjectIds: ReadonlySet<string>; phaseIds: ReadonlySet<string>; variants: ReadonlyMap<string, IAutoMovieDesignVariant>; root: string; out: ViolationCollector }) => void = (props: {
+export const validateDesignLineageDerived: (props: {
+  lineage: IAutoMovieDesignLineage;
+  subjectIds: ReadonlySet<string>;
+  phaseIds: ReadonlySet<string>;
+  variants: ReadonlyMap<string, IAutoMovieDesignVariant>;
+  root: string;
+  out: ViolationCollector;
+}) => void = (props: {
   lineage: IAutoMovieDesignLineage;
   subjectIds: ReadonlySet<string>;
   phaseIds: ReadonlySet<string>;
@@ -55,7 +62,14 @@ export const validateDesignLineageDerived: (props: { lineage: IAutoMovieDesignLi
   root: string;
   out: ViolationCollector;
 }): void => {
-  const { lineage, subjectIds, phaseIds, variants, root, out }: Parameters<typeof validateDesignLineageDerived>[0] = props;
+  const {
+    lineage,
+    subjectIds,
+    phaseIds,
+    variants,
+    root,
+    out,
+  }: Parameters<typeof validateDesignLineageDerived>[0] = props;
   const derivedIds: Set<string> = collectDeclaredIds(
     lineage.derived,
     `${root}.derived`,
@@ -149,7 +163,10 @@ export const validateDesignLineageDerived: (props: { lineage: IAutoMovieDesignLi
       artifact.inputs.forEach((input: string, inputIndex: number): void => {
         const upstream: IAutoMovieDerivedArtifact | undefined =
           derivedById.get(input);
-        if (upstream !== undefined && !sameStamp(upstream.stamp, artifact.stamp))
+        if (
+          upstream !== undefined &&
+          !sameStamp(upstream.stamp, artifact.stamp)
+        )
           out.push(
             "type",
             `${path}.inputs[${inputIndex}]`,
@@ -187,8 +204,9 @@ export const validateDesignLineageDerived: (props: { lineage: IAutoMovieDesignLi
           !options.has(artifact.stamp.variant)
         )
           return;
-        const previous: { configuration: string; phase: string | null } | undefined =
-          seen.get(artifact.kind);
+        const previous:
+          | { configuration: string; phase: string | null }
+          | undefined = seen.get(artifact.kind);
         if (previous === undefined)
           seen.set(artifact.kind, {
             configuration: artifact.stamp.configuration,
@@ -210,7 +228,12 @@ export const validateDesignLineageDerived: (props: { lineage: IAutoMovieDesignLi
 };
 
 /** Report every imported input read without citing its current bytes once. */
-const appendCitationDefects: (artifact: IAutoMovieDerivedArtifact, subjectBytes: ReadonlyMap<string, string>, path: string, out: ViolationCollector) => void = (
+const appendCitationDefects: (
+  artifact: IAutoMovieDerivedArtifact,
+  subjectBytes: ReadonlyMap<string, string>,
+  path: string,
+  out: ViolationCollector,
+) => void = (
   artifact: IAutoMovieDerivedArtifact,
   subjectBytes: ReadonlyMap<string, string>,
   path: string,
@@ -261,10 +284,10 @@ const appendCitationDefects: (artifact: IAutoMovieDerivedArtifact, subjectBytes:
 };
 
 /** Whether two stamps name the same revision, variant, phase and configuration. */
-const sameStamp: (a: IAutoMovieDesignStamp, b: IAutoMovieDesignStamp) => boolean = (
+const sameStamp: (
   a: IAutoMovieDesignStamp,
   b: IAutoMovieDesignStamp,
-): boolean =>
+) => boolean = (a: IAutoMovieDesignStamp, b: IAutoMovieDesignStamp): boolean =>
   a.revision === b.revision &&
   a.variant === b.variant &&
   a.phase === b.phase &&

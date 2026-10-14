@@ -16,7 +16,10 @@ import { IAutoMoviePlanarPoint } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure bounds query over one ring; wall cutting, observation stations and opening extents each ask once per outline, so nothing is coordinated across requests.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Allocates only the two returned corners, which the caller owns; nothing else outlives the call.
  */
-export const polygonBounds: (polygon: readonly IAutoMoviePlanarPoint [ ]) => { min : IAutoMoviePlanarPoint ; max : IAutoMoviePlanarPoint } = (
+export const polygonBounds: (polygon: readonly IAutoMoviePlanarPoint[]) => {
+  min: IAutoMoviePlanarPoint;
+  max: IAutoMoviePlanarPoint;
+} = (
   polygon: readonly IAutoMoviePlanarPoint[],
 ): { min: IAutoMoviePlanarPoint; max: IAutoMoviePlanarPoint } => {
   const min: IAutoMoviePlanarPoint = { x: Infinity, y: Infinity };

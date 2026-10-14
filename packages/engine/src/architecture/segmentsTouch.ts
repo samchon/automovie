@@ -26,7 +26,12 @@ import { segmentsCross } from "./segmentsCross";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure contact predicate over two segments, called per edge pair by the polygon predicates; it shares no work.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Reads two segments, delegates to allocation-free predicates, and retains nothing.
  */
-export const segmentsTouch: (a: IAutoMoviePlanarPoint, b: IAutoMoviePlanarPoint, c: IAutoMoviePlanarPoint, d: IAutoMoviePlanarPoint) => boolean = (
+export const segmentsTouch: (
+  a: IAutoMoviePlanarPoint,
+  b: IAutoMoviePlanarPoint,
+  c: IAutoMoviePlanarPoint,
+  d: IAutoMoviePlanarPoint,
+) => boolean = (
   a: IAutoMoviePlanarPoint,
   b: IAutoMoviePlanarPoint,
   c: IAutoMoviePlanarPoint,

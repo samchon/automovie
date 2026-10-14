@@ -37,7 +37,11 @@ const PLANE_NORMAL_EPSILON: number = 1e-12;
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Called once per building validation; its id set is reused by every later section.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Per-space cell id sets are released after each space; the caller owns the returned id set, bounded by the space count.
  */
-export const validateBuiltSpaces: (environment: IAutoMovieBuiltEnvironment, root: string, collector: ViolationCollector) => Set<string> = (
+export const validateBuiltSpaces: (
+  environment: IAutoMovieBuiltEnvironment,
+  root: string,
+  collector: ViolationCollector,
+) => Set<string> = (
   environment: IAutoMovieBuiltEnvironment,
   root: string,
   collector: ViolationCollector,

@@ -21,7 +21,10 @@ import {
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A single synchronous lookup that coordinates nothing across calls; a caller resolving many ids over one record owns any index it wants to keep.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the returned space is the caller's own record object, not a copy this function holds.
  */
-export const requireBuiltSpace: (environment: IAutoMovieBuiltEnvironment, spaceId: string) => IAutoMovieBuiltSpace = (
+export const requireBuiltSpace: (
+  environment: IAutoMovieBuiltEnvironment,
+  spaceId: string,
+) => IAutoMovieBuiltSpace = (
   environment: IAutoMovieBuiltEnvironment,
   spaceId: string,
 ): IAutoMovieBuiltSpace => {

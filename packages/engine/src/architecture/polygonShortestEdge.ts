@@ -16,14 +16,17 @@ import { IAutoMoviePlanarPoint } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure measurement of one outline, asked once per outline by building validation, with nothing coordinated across calls.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Keeps a running minimum and a loop index and allocates nothing, so nothing outlives the call.
  */
-export const polygonShortestEdge: (polygon: readonly IAutoMoviePlanarPoint [ ]) => number = (
+export const polygonShortestEdge: (
   polygon: readonly IAutoMoviePlanarPoint[],
-): number => {
+) => number = (polygon: readonly IAutoMoviePlanarPoint[]): number => {
   let shortest: number = Infinity;
   for (let index: number = 0; index < polygon.length; ++index) {
     const point: IAutoMoviePlanarPoint = polygon[index]!;
     const next: IAutoMoviePlanarPoint = polygon[(index + 1) % polygon.length]!;
-    shortest = Math.min(shortest, Math.hypot(next.x - point.x, next.y - point.y));
+    shortest = Math.min(
+      shortest,
+      Math.hypot(next.x - point.x, next.y - point.y),
+    );
   }
   return shortest;
 };

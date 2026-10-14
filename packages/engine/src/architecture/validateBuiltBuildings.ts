@@ -31,7 +31,11 @@ import { collectDeclaredIds } from "../validation/collectDeclaredIds";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Called once per building validation; nothing is shared across calls.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The id maps, root sets and per-record visited sets are local and released on return, each bounded by the record count.
  */
-export const validateBuiltBuildings: (environment: IAutoMovieBuiltEnvironment, root: string, collector: ViolationCollector) => void = (
+export const validateBuiltBuildings: (
+  environment: IAutoMovieBuiltEnvironment,
+  root: string,
+  collector: ViolationCollector,
+) => void = (
   environment: IAutoMovieBuiltEnvironment,
   root: string,
   collector: ViolationCollector,
@@ -115,7 +119,9 @@ export const validateBuiltBuildings: (environment: IAutoMovieBuiltEnvironment, r
 };
 
 /** Each record's parent by id; a repeated id keeps its first record. */
-const parentsOf: (records: readonly { id: string; parent: string | null }[]) => Map<string, string | null> = (
+const parentsOf: (
+  records: readonly { id: string; parent: string | null }[],
+) => Map<string, string | null> = (
   records: readonly { id: string; parent: string | null }[],
 ): Map<string, string | null> => {
   const parents: Map<string, string | null> = new Map();
@@ -125,7 +131,13 @@ const parentsOf: (records: readonly { id: string; parent: string | null }[]) => 
 };
 
 /** A unit root must be declared and must have no parent. */
-const checkRoot: (parents: ReadonlyMap<string, string | null>, id: string, path: string, label: string, collector: ViolationCollector) => void = (
+const checkRoot: (
+  parents: ReadonlyMap<string, string | null>,
+  id: string,
+  path: string,
+  label: string,
+  collector: ViolationCollector,
+) => void = (
   parents: ReadonlyMap<string, string | null>,
   id: string,
   path: string,
@@ -139,7 +151,15 @@ const checkRoot: (parents: ReadonlyMap<string, string | null>, id: string, path:
 };
 
 /** Report every record whose topmost ancestor is no unit's root. */
-const appendOwnership: (records: readonly { id: string; parent: string | null }[], parents: ReadonlyMap<string, string | null>, roots: ReadonlySet<string>, path: string, label: string, rootLabel: string, collector: ViolationCollector) => void = (
+const appendOwnership: (
+  records: readonly { id: string; parent: string | null }[],
+  parents: ReadonlyMap<string, string | null>,
+  roots: ReadonlySet<string>,
+  path: string,
+  label: string,
+  rootLabel: string,
+  collector: ViolationCollector,
+) => void = (
   records: readonly { id: string; parent: string | null }[],
   parents: ReadonlyMap<string, string | null>,
   roots: ReadonlySet<string>,

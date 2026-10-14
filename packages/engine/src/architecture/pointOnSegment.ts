@@ -24,7 +24,11 @@ import { planarSide } from "./planarSide";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure point-on-segment predicate that each polygon test calls per edge; nothing is coordinated across calls.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Reads one point and one segment and allocates nothing, so nothing outlives the call.
  */
-export const pointOnSegment: (point: IAutoMoviePlanarPoint, from: IAutoMoviePlanarPoint, to: IAutoMoviePlanarPoint) => boolean = (
+export const pointOnSegment: (
+  point: IAutoMoviePlanarPoint,
+  from: IAutoMoviePlanarPoint,
+  to: IAutoMoviePlanarPoint,
+) => boolean = (
   point: IAutoMoviePlanarPoint,
   from: IAutoMoviePlanarPoint,
   to: IAutoMoviePlanarPoint,

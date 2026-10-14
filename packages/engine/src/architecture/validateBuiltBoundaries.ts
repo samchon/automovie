@@ -36,7 +36,13 @@ import { builtOutlineIsClosed } from "./builtOutlineIsClosed";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Called once per building validation; its id set and face map are reused by every opening.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the returned set and map, each bounded by the boundary count; nothing else is retained.
  */
-export const validateBuiltBoundaries: (environment: IAutoMovieBuiltEnvironment, root: string, spaceIds: ReadonlySet<string>, elementIds: ReadonlySet<string>, collector: ViolationCollector) => { ids: Set<string>; faces: Map<string, IAutoMovieBoundaryFace> } = (
+export const validateBuiltBoundaries: (
+  environment: IAutoMovieBuiltEnvironment,
+  root: string,
+  spaceIds: ReadonlySet<string>,
+  elementIds: ReadonlySet<string>,
+  collector: ViolationCollector,
+) => { ids: Set<string>; faces: Map<string, IAutoMovieBoundaryFace> } = (
   environment: IAutoMovieBuiltEnvironment,
   root: string,
   spaceIds: ReadonlySet<string>,

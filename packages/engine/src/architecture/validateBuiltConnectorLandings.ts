@@ -29,7 +29,12 @@ import { ViolationCollector } from "../validation/ViolationCollector";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A check of one run per call; each connector is checked once per validation.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The seen set is released on return; at most a few violations per landing are appended to the caller's collector.
  */
-export const validateBuiltConnectorLandings: (connector: IAutoMovieBuiltConnector, path: string, spaces: ReadonlySet<string>, collector: ViolationCollector) => void = (
+export const validateBuiltConnectorLandings: (
+  connector: IAutoMovieBuiltConnector,
+  path: string,
+  spaces: ReadonlySet<string>,
+  collector: ViolationCollector,
+) => void = (
   connector: IAutoMovieBuiltConnector,
   path: string,
   spaces: ReadonlySet<string>,
@@ -38,43 +43,45 @@ export const validateBuiltConnectorLandings: (connector: IAutoMovieBuiltConnecto
   const landings: IAutoMovieConnectorLanding[] | undefined = connector.landings;
   if (landings === undefined) return;
   const seen: Set<string> = new Set();
-  landings.forEach((landing: IAutoMovieConnectorLanding, index: number): void => {
-    const landingPath: string = `${path}.landings[${index}]`;
-    if (!spaces.has(landing.space))
-      collector.push(
-        "type",
-        `${landingPath}.space`,
-        `connector landing space "${landing.space}" does not resolve`,
-        landing.space,
-      );
-    if (landing.space === connector.from || landing.space === connector.to)
-      collector.push(
-        "type",
-        `${landingPath}.space`,
-        `connector landing "${landing.space}" restates an endpoint of connector "${connector.id}"`,
-        landing.space,
-      );
-    if (seen.has(landing.space))
-      collector.push(
-        "type",
-        `${landingPath}.space`,
-        `connector landing "${landing.space}" is stated twice`,
-        landing.space,
-      );
-    seen.add(landing.space);
-    if (!Number.isFinite(landing.at) || landing.at <= 0 || landing.at >= 1)
-      collector.push(
-        "range",
-        `${landingPath}.at`,
-        `a connector landing stops between the run's own ends, so its arc-length fraction must be within (0, 1), but was ${landing.at}`,
-        landing.at,
-      );
-    else if (index > 0 && !(landing.at > landings[index - 1]!.at))
-      collector.push(
-        "range",
-        `${landingPath}.at`,
-        `connector landings must strictly increase along the route, but ${landing.at} followed ${landings[index - 1]!.at}`,
-        landing.at,
-      );
-  });
+  landings.forEach(
+    (landing: IAutoMovieConnectorLanding, index: number): void => {
+      const landingPath: string = `${path}.landings[${index}]`;
+      if (!spaces.has(landing.space))
+        collector.push(
+          "type",
+          `${landingPath}.space`,
+          `connector landing space "${landing.space}" does not resolve`,
+          landing.space,
+        );
+      if (landing.space === connector.from || landing.space === connector.to)
+        collector.push(
+          "type",
+          `${landingPath}.space`,
+          `connector landing "${landing.space}" restates an endpoint of connector "${connector.id}"`,
+          landing.space,
+        );
+      if (seen.has(landing.space))
+        collector.push(
+          "type",
+          `${landingPath}.space`,
+          `connector landing "${landing.space}" is stated twice`,
+          landing.space,
+        );
+      seen.add(landing.space);
+      if (!Number.isFinite(landing.at) || landing.at <= 0 || landing.at >= 1)
+        collector.push(
+          "range",
+          `${landingPath}.at`,
+          `a connector landing stops between the run's own ends, so its arc-length fraction must be within (0, 1), but was ${landing.at}`,
+          landing.at,
+        );
+      else if (index > 0 && !(landing.at > landings[index - 1]!.at))
+        collector.push(
+          "range",
+          `${landingPath}.at`,
+          `connector landings must strictly increase along the route, but ${landing.at} followed ${landings[index - 1]!.at}`,
+          landing.at,
+        );
+    },
+  );
 };

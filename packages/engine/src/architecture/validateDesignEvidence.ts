@@ -29,7 +29,10 @@ import { ViolationCollector } from "../validation/ViolationCollector";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A validation of one citation list per call that coordinates no shared work across requests.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Local document entries are bounded by reference records, their sets by reference candidate entries, and seen keys by cited entries. They are released on return; the caller owns findings.
  */
-export const validateDesignEvidence: (props: { /** Observed documents the citations may point at, keyed by their `id`. */ references : readonly IAutoMovieDesignReference [ ] ; /** Authored citations from building subjects to observed candidates. */ evidence : readonly IAutoMovieDesignEvidence [ ] ; }) => IAutoMovieValidation = (props: {
+export const validateDesignEvidence: (props: {
+  /** Observed documents the citations may point at, keyed by their `id`. */ references: readonly IAutoMovieDesignReference[];
+  /** Authored citations from building subjects to observed candidates. */ evidence: readonly IAutoMovieDesignEvidence[];
+}) => IAutoMovieValidation = (props: {
   /** Observed documents the citations may point at, keyed by their `id`. */
   references: readonly IAutoMovieDesignReference[];
 
@@ -45,8 +48,7 @@ export const validateDesignEvidence: (props: { /** Observed documents the citati
       ids = new Set();
       byDocument.set(reference.id, ids);
     }
-    for (const candidate of reference.candidates)
-      ids.add(candidate.id);
+    for (const candidate of reference.candidates) ids.add(candidate.id);
   }
   const seen: Set<string> = new Set();
   props.evidence.forEach(

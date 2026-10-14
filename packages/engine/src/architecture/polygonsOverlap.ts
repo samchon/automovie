@@ -22,7 +22,10 @@ import { segmentsTouch } from "./segmentsTouch";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure overlap answer for one pair of rings; opening and support validation ask once per pair on one boundary.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Holds the edge-pair counters and allocates nothing, so no object outlives the overlap test.
  */
-export const polygonsOverlap: (left: readonly IAutoMoviePlanarPoint [ ], right: readonly IAutoMoviePlanarPoint [ ]) => boolean = (
+export const polygonsOverlap: (
+  left: readonly IAutoMoviePlanarPoint[],
+  right: readonly IAutoMoviePlanarPoint[],
+) => boolean = (
   left: readonly IAutoMoviePlanarPoint[],
   right: readonly IAutoMoviePlanarPoint[],
 ): boolean => {

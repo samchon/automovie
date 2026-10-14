@@ -26,13 +26,21 @@ const FACET_AREA_EPSILON: number = 1e-12;
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A check of one shell per call; each space's shell is checked once per validation.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The local edge map has at most three entries per triangle. Findings include at most one vertex-count and one later structural/volume finding, plus one per non-finite component; the caller owns them.
  */
-export const validateBuiltSpaceShell: (shell: IAutoMovieSpaceShell, path: string, collector: ViolationCollector) => void = (
+export const validateBuiltSpaceShell: (
+  shell: IAutoMovieSpaceShell,
+  path: string,
+  collector: ViolationCollector,
+) => void = (
   shell: IAutoMovieSpaceShell,
   path: string,
   collector: ViolationCollector,
 ): void => {
   shell.vertices.forEach((vertex: IAutoMovieVector3, index: number): void =>
-    collector.finiteVector(`${path}.vertices[${index}]`, vertex, "shell vertex"),
+    collector.finiteVector(
+      `${path}.vertices[${index}]`,
+      vertex,
+      "shell vertex",
+    ),
   );
   if (shell.vertices.length < 4)
     collector.push(
@@ -75,7 +83,9 @@ export const validateBuiltSpaceShell: (shell: IAutoMovieSpaceShell, path: string
     const a: IAutoMovieVector3 = shell.vertices[corners[0]!]!;
     const b: IAutoMovieVector3 = shell.vertices[corners[1]!]!;
     const c: IAutoMovieVector3 = shell.vertices[corners[2]!]!;
-    const area: number = Vector3.length(Vector3.cross(Vector3.subtract(b, a), Vector3.subtract(c, a)));
+    const area: number = Vector3.length(
+      Vector3.cross(Vector3.subtract(b, a), Vector3.subtract(c, a)),
+    );
     if (!Number.isFinite(area) || area <= FACET_AREA_EPSILON) {
       collector.push(
         "range",

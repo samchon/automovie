@@ -49,7 +49,14 @@ const CONNECTOR_DRIVES: readonly IAutoMovieConnectorState["drive"][] = [
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Called once per operated run; the work-wide `driven` table is the state shared across calls, by design.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The subtree, stop set, carriage index and per-state sets are released on return; `driven` grows by at most one entry per carriage and is owned by the caller.
  */
-export const validateBuiltConnectorOperation: (props: { connector: IAutoMovieBuiltConnector; path: string; elements: readonly IAutoMovieBuiltElement[]; elementIds: ReadonlySet<string>; driven: Map<string, string>; collector: ViolationCollector }) => void = (props: {
+export const validateBuiltConnectorOperation: (props: {
+  connector: IAutoMovieBuiltConnector;
+  path: string;
+  elements: readonly IAutoMovieBuiltElement[];
+  elementIds: ReadonlySet<string>;
+  driven: Map<string, string>;
+  collector: ViolationCollector;
+}) => void = (props: {
   connector: IAutoMovieBuiltConnector;
   path: string;
   elements: readonly IAutoMovieBuiltElement[];
@@ -57,7 +64,11 @@ export const validateBuiltConnectorOperation: (props: { connector: IAutoMovieBui
   driven: Map<string, string>;
   collector: ViolationCollector;
 }): void => {
-  const { connector, path, collector }: Parameters<typeof validateBuiltConnectorOperation>[0] = props;
+  const {
+    connector,
+    path,
+    collector,
+  }: Parameters<typeof validateBuiltConnectorOperation>[0] = props;
   const operation: IAutoMovieBuiltConnector["operation"] = connector.operation;
   if (operation === undefined) return;
   const base: string = `${path}.operation`;

@@ -25,7 +25,10 @@ import {
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A single synchronous lookup that coordinates nothing across calls; a caller resolving many ids over one record owns any index it keeps.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the returned opening is the caller's own record object.
  */
-export const requireBuiltOpening: (environment: IAutoMovieBuiltEnvironment, openingId: string) => IAutoMovieBuiltOpening = (
+export const requireBuiltOpening: (
+  environment: IAutoMovieBuiltEnvironment,
+  openingId: string,
+) => IAutoMovieBuiltOpening = (
   environment: IAutoMovieBuiltEnvironment,
   openingId: string,
 ): IAutoMovieBuiltOpening => {

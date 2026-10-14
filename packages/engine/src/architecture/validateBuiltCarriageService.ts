@@ -43,7 +43,11 @@ import { builtSpaceSubtree } from "./builtSpaceSubtree";
  * @evidence contracts/performance.md#reuse-equivalent-work Shares one carriage index across a connector's states and one matrix map across a state's claims. Distinct claiming states stage separately because their displacement differs; nothing is cached across validation calls.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Each staging is released before the next state; one violation per refused claim is appended to the caller's collector.
  */
-export const validateBuiltCarriageService: (environment: IAutoMovieBuiltEnvironment, root: string, collector: ViolationCollector) => void = (
+export const validateBuiltCarriageService: (
+  environment: IAutoMovieBuiltEnvironment,
+  root: string,
+  collector: ViolationCollector,
+) => void = (
   environment: IAutoMovieBuiltEnvironment,
   root: string,
   collector: ViolationCollector,
@@ -84,14 +88,13 @@ export const validateBuiltCarriageService: (environment: IAutoMovieBuiltEnvironm
             },
           );
           if (claims.length === 0) return;
-          const matrices: Map<string, number[]> =
-            builtEnvironmentWorldMatrices(
-              environment,
-              (
-                member: IAutoMovieBuiltOpening | IAutoMovieBuiltConnector,
-              ): string =>
-                member === connector ? state.id : member.operation!.state,
-            );
+          const matrices: Map<string, number[]> = builtEnvironmentWorldMatrices(
+            environment,
+            (
+              member: IAutoMovieBuiltOpening | IAutoMovieBuiltConnector,
+            ): string =>
+              member === connector ? state.id : member.operation!.state,
+          );
           for (const claim of claims) {
             const carriage: IAutoMovieConnectorCarriage = carriages.get(
               claim.carriage,

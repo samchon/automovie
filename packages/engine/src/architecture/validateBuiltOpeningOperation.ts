@@ -42,7 +42,14 @@ import { validateBuiltTravelMotion } from "./validateBuiltTravelMotion";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Called once per operated opening; the work-wide `driven` table is the state shared across calls, by design.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The subtree, panel index and per-state sets are released on return; `driven` grows by at most one entry per panel and is owned by the caller.
  */
-export const validateBuiltOpeningOperation: (props: { opening: IAutoMovieBuiltOpening; path: string; elements: readonly IAutoMovieBuiltElement[]; elementIds: ReadonlySet<string>; driven: Map<string, string>; collector: ViolationCollector }) => void = (props: {
+export const validateBuiltOpeningOperation: (props: {
+  opening: IAutoMovieBuiltOpening;
+  path: string;
+  elements: readonly IAutoMovieBuiltElement[];
+  elementIds: ReadonlySet<string>;
+  driven: Map<string, string>;
+  collector: ViolationCollector;
+}) => void = (props: {
   opening: IAutoMovieBuiltOpening;
   path: string;
   elements: readonly IAutoMovieBuiltElement[];
@@ -50,7 +57,11 @@ export const validateBuiltOpeningOperation: (props: { opening: IAutoMovieBuiltOp
   driven: Map<string, string>;
   collector: ViolationCollector;
 }): void => {
-  const { opening, path, collector }: Parameters<typeof validateBuiltOpeningOperation>[0] = props;
+  const {
+    opening,
+    path,
+    collector,
+  }: Parameters<typeof validateBuiltOpeningOperation>[0] = props;
   const operation: IAutoMovieBuiltOpening["operation"] = opening.operation;
   if (operation === undefined) return;
   const base: string = `${path}.operation`;

@@ -47,7 +47,11 @@ const AXES: readonly ("x" | "y" | "z")[] = ["x", "y", "z"];
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A synchronous check of one population that coordinates no work across calls; each caller validates the record it was handed.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; violations go into the caller's collector, which the caller owns.
  */
-export const validateBuiltPopulation: (population: Pick<IAutoMovieBuiltPopulation, "set" | "prototypeBounds">, path: string, collector: ViolationCollector) => void = (
+export const validateBuiltPopulation: (
+  population: Pick<IAutoMovieBuiltPopulation, "set" | "prototypeBounds">,
+  path: string,
+  collector: ViolationCollector,
+) => void = (
   population: Pick<IAutoMovieBuiltPopulation, "set" | "prototypeBounds">,
   path: string,
   collector: ViolationCollector,
@@ -60,7 +64,11 @@ export const validateBuiltPopulation: (population: Pick<IAutoMovieBuiltPopulatio
   validateSet(population.set, `${path}.set`, collector);
 };
 
-const validatePrototypeBounds: (bounds: IAutoMovieBuiltPopulation["prototypeBounds"], path: string, collector: ViolationCollector) => void = (
+const validatePrototypeBounds: (
+  bounds: IAutoMovieBuiltPopulation["prototypeBounds"],
+  path: string,
+  collector: ViolationCollector,
+) => void = (
   bounds: IAutoMovieBuiltPopulation["prototypeBounds"],
   path: string,
   collector: ViolationCollector,
@@ -87,7 +95,11 @@ const validatePrototypeBounds: (bounds: IAutoMovieBuiltPopulation["prototypeBoun
     );
 };
 
-const validateSet: (set: IAutoMovieInstanceSetDesign, path: string, collector: ViolationCollector) => void = (
+const validateSet: (
+  set: IAutoMovieInstanceSetDesign,
+  path: string,
+  collector: ViolationCollector,
+) => void = (
   set: IAutoMovieInstanceSetDesign,
   path: string,
   collector: ViolationCollector,
@@ -110,7 +122,11 @@ const validateSet: (set: IAutoMovieInstanceSetDesign, path: string, collector: V
   validateLayout(set, `${path}.layout`, collector);
 };
 
-const validateVariation: (variation: IAutoMovieInstanceSetDesign["variation"], path: string, collector: ViolationCollector) => void = (
+const validateVariation: (
+  variation: IAutoMovieInstanceSetDesign["variation"],
+  path: string,
+  collector: ViolationCollector,
+) => void = (
   variation: IAutoMovieInstanceSetDesign["variation"],
   path: string,
   collector: ViolationCollector,
@@ -185,7 +201,11 @@ const validateVariation: (variation: IAutoMovieInstanceSetDesign["variation"], p
     }
 };
 
-const validateLayout: (set: IAutoMovieInstanceSetDesign, path: string, collector: ViolationCollector) => void = (
+const validateLayout: (
+  set: IAutoMovieInstanceSetDesign,
+  path: string,
+  collector: ViolationCollector,
+) => void = (
   set: IAutoMovieInstanceSetDesign,
   path: string,
   collector: ViolationCollector,
@@ -294,7 +314,12 @@ const validateLayout: (set: IAutoMovieInstanceSetDesign, path: string, collector
     );
 };
 
-const positiveInteger: (value: number, path: string, label: string, collector: ViolationCollector) => void = (
+const positiveInteger: (
+  value: number,
+  path: string,
+  label: string,
+  collector: ViolationCollector,
+) => void = (
   value: number,
   path: string,
   label: string,
@@ -309,7 +334,12 @@ const positiveInteger: (value: number, path: string, label: string, collector: V
     );
 };
 
-const finiteNumber: (value: number, path: string, label: string, collector: ViolationCollector) => void = (
+const finiteNumber: (
+  value: number,
+  path: string,
+  label: string,
+  collector: ViolationCollector,
+) => void = (
   value: number,
   path: string,
   label: string,
@@ -324,7 +354,12 @@ const finiteNumber: (value: number, path: string, label: string, collector: Viol
     );
 };
 
-const finiteVector: (value: IAutoMovieVector3, path: string, label: string, collector: ViolationCollector) => void = (
+const finiteVector: (
+  value: IAutoMovieVector3,
+  path: string,
+  label: string,
+  collector: ViolationCollector,
+) => void = (
   value: IAutoMovieVector3,
   path: string,
   label: string,
@@ -335,7 +370,13 @@ const finiteVector: (value: IAutoMovieVector3, path: string, label: string, coll
 };
 
 /** Report a range whose finite minimum lies above its finite maximum. */
-const ordered: (min: number, max: number, path: string, label: string, collector: ViolationCollector) => void = (
+const ordered: (
+  min: number,
+  max: number,
+  path: string,
+  label: string,
+  collector: ViolationCollector,
+) => void = (
   min: number,
   max: number,
   path: string,
@@ -352,7 +393,12 @@ const ordered: (min: number, max: number, path: string, label: string, collector
 };
 
 /** A missing value is reported like a non-positive one, for unvalidated JSON. */
-const positive: (value: number | undefined, path: string, label: string, collector: ViolationCollector) => void = (
+const positive: (
+  value: number | undefined,
+  path: string,
+  label: string,
+  collector: ViolationCollector,
+) => void = (
   value: number | undefined,
   path: string,
   label: string,
@@ -367,7 +413,12 @@ const positive: (value: number | undefined, path: string, label: string, collect
     );
 };
 
-const unitQuaternion: (value: IAutoMovieQuaternion, path: string, label: string, collector: ViolationCollector) => void = (
+const unitQuaternion: (
+  value: IAutoMovieQuaternion,
+  path: string,
+  label: string,
+  collector: ViolationCollector,
+) => void = (
   value: IAutoMovieQuaternion,
   path: string,
   label: string,

@@ -24,7 +24,13 @@ import { builtInstanceSetPlacementBounds } from "./builtInstanceSetPlacementBoun
  * @evidence contracts/performance.md#reuse-equivalent-work The part boxes the caller supplies are reused as the solids and as the input to the union, so each body is measured once per resolution; reuse across bodies is the caller's lookup, such as the sweep's one building-wide part table.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Keeps nothing after returning; the result references the lookup's part boxes and one new union box, both owned by the caller.
  */
-export const resolveBuiltPlacementBody: (props: { environment: IAutoMovieBuiltEnvironment; target: AutoMovieBuiltPlacementBodyLocator; parts: (elementId: string) => readonly IAutoMovieSubjectBox[] | null | undefined; }) => IAutoMovieBuiltPlacementBody | null = (props: {
+export const resolveBuiltPlacementBody: (props: {
+  environment: IAutoMovieBuiltEnvironment;
+  target: AutoMovieBuiltPlacementBodyLocator;
+  parts: (
+    elementId: string,
+  ) => readonly IAutoMovieSubjectBox[] | null | undefined;
+}) => IAutoMovieBuiltPlacementBody | null = (props: {
   environment: IAutoMovieBuiltEnvironment;
   target: AutoMovieBuiltPlacementBodyLocator;
   /** World part boxes of one element id, or null or undefined when it has none. */

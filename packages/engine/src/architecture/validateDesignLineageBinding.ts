@@ -37,7 +37,10 @@ import { ViolationCollector } from "../validation/ViolationCollector";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A check of one lineage against one id list per call that coordinates no shared work.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The published-id set is local and released on return, bounded by the known-id count; the returned validation holds the findings.
  */
-export const validateDesignLineageBinding: (props: { /** Lineage whose subjects and derived ids are checked. */ lineage : IAutoMovieDesignLineage ; /** Every stable id the host graphs publish, in any order, duplicates allowed. */ known : readonly string [ ] ; }) => IAutoMovieValidation = (props: {
+export const validateDesignLineageBinding: (props: {
+  /** Lineage whose subjects and derived ids are checked. */ lineage: IAutoMovieDesignLineage;
+  /** Every stable id the host graphs publish, in any order, duplicates allowed. */ known: readonly string[];
+}) => IAutoMovieValidation = (props: {
   /** Lineage whose subjects and derived ids are checked. */
   lineage: IAutoMovieDesignLineage;
 

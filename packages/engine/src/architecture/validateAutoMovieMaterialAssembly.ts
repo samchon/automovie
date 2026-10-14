@@ -65,7 +65,11 @@ const THICKNESS_EPSILON: number = 1e-9;
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A check of one build-up per call; the resolver calls it once before placing, and no work is shared across calls.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The substance and layer id sets are local and released on return, bounded by their counts; the returned validation holds the findings.
  */
-export const validateAutoMovieMaterialAssembly: (props: { /** Layered build-up to judge. */ assembly : IAutoMovieMaterialAssembly ; /** Substances the layers may cite; omitted skips reference resolution. */ substances ? : readonly IAutoMovieMaterialSubstance [ ] ; /** Host dimension the layers must sum to; omitted skips the comparison. */ host ? : IAutoMovieAssemblyHost ; }) => IAutoMovieValidation = (props: {
+export const validateAutoMovieMaterialAssembly: (props: {
+  /** Layered build-up to judge. */ assembly: IAutoMovieMaterialAssembly;
+  /** Substances the layers may cite; omitted skips reference resolution. */ substances?: readonly IAutoMovieMaterialSubstance[];
+  /** Host dimension the layers must sum to; omitted skips the comparison. */ host?: IAutoMovieAssemblyHost;
+}) => IAutoMovieValidation = (props: {
   /** Layered build-up to judge. */
   assembly: IAutoMovieMaterialAssembly;
 
@@ -194,13 +198,32 @@ export const validateAutoMovieMaterialAssembly: (props: { /** Layered build-up t
   appendFinishDefects(assembly, collector, root);
   appendWrapDefects(layers, collector, root);
 
-  const total: number = layers.reduce((sum: number, layer: IAutoMovieMaterialLayer): number => sum + layer.thickness, 0);
-  if (Number.isFinite(assembly.offset) && layers.every((layer: IAutoMovieMaterialLayer): boolean => Number.isFinite(layer.thickness) && layer.thickness >= 0)) {
+  const total: number = layers.reduce(
+    (sum: number, layer: IAutoMovieMaterialLayer): number =>
+      sum + layer.thickness,
+    0,
+  );
+  if (
+    Number.isFinite(assembly.offset) &&
+    layers.every(
+      (layer: IAutoMovieMaterialLayer): boolean =>
+        Number.isFinite(layer.thickness) && layer.thickness >= 0,
+    )
+  ) {
     const direction: number = assembly.sense === "positive" ? 1 : -1;
     let cursor: number = assembly.offset;
     for (const layer of layers) cursor += direction * layer.thickness;
-    if (!Number.isFinite(total) || !Number.isFinite(cursor) || !Number.isFinite(assembly.offset + direction * total))
-      collector.push("range", `${root}.layers`, "material assembly must produce finite total thickness and signed layer endpoints", total);
+    if (
+      !Number.isFinite(total) ||
+      !Number.isFinite(cursor) ||
+      !Number.isFinite(assembly.offset + direction * total)
+    )
+      collector.push(
+        "range",
+        `${root}.layers`,
+        "material assembly must produce finite total thickness and signed layer endpoints",
+        total,
+      );
   }
 
   if (props.host !== undefined) {
@@ -236,7 +259,11 @@ export const validateAutoMovieMaterialAssembly: (props: { /** Layered build-up t
  * it; both are defects, and naming them apart is what tells the author whether
  * to delete a layer or move it.
  */
-const appendFinishDefects: (assembly: IAutoMovieMaterialAssembly, collector: ViolationCollector, root: string) => void = (
+const appendFinishDefects: (
+  assembly: IAutoMovieMaterialAssembly,
+  collector: ViolationCollector,
+  root: string,
+) => void = (
   assembly: IAutoMovieMaterialAssembly,
   collector: ViolationCollector,
   root: string,
@@ -292,7 +319,11 @@ const appendFinishDefects: (assembly: IAutoMovieMaterialAssembly, collector: Vio
  * buried wrap would otherwise be counted into the finished opening size and
  * quietly narrow a door nothing actually lines.
  */
-const appendWrapDefects: (layers: readonly IAutoMovieMaterialLayer [ ], collector: ViolationCollector, root: string) => void = (
+const appendWrapDefects: (
+  layers: readonly IAutoMovieMaterialLayer[],
+  collector: ViolationCollector,
+  root: string,
+) => void = (
   layers: readonly IAutoMovieMaterialLayer[],
   collector: ViolationCollector,
   root: string,
@@ -318,4 +349,3 @@ const appendWrapDefects: (layers: readonly IAutoMovieMaterialLayer [ ], collecto
     );
   });
 };
-

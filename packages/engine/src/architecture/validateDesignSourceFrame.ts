@@ -38,7 +38,11 @@ const AXIS_EPSILON: number = 1e-12;
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A check of one frame per call; the reference validator calls it once per frame and coordinates no shared work.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The candidate id set is local and released on return; findings are appended to the caller's collector, a constant number per field plus four per scale candidate.
  */
-export const validateDesignSourceFrame: (frame: IAutoMovieDesignSourceFrame, path: string, collector: ViolationCollector) => void = (
+export const validateDesignSourceFrame: (
+  frame: IAutoMovieDesignSourceFrame,
+  path: string,
+  collector: ViolationCollector,
+) => void = (
   frame: IAutoMovieDesignSourceFrame,
   path: string,
   collector: ViolationCollector,
@@ -143,15 +147,40 @@ export const validateDesignSourceFrame: (frame: IAutoMovieDesignSourceFrame, pat
         `frame origin ${axis} must be finite, but was ${frame.origin[axis]}`,
         frame.origin[axis],
       );
-  const axisXLength: number = Math.hypot(frame.axisX.x, frame.axisX.y, frame.axisX.z);
-  const axisYLength: number = Math.hypot(frame.axisY.x, frame.axisY.y, frame.axisY.z);
-  if (!Number.isFinite(axisXLength)) collector.push("range", `${path}.axisX`, "frame x axis must have a finite computed length", frame.axisX);
-  if (!Number.isFinite(axisYLength)) collector.push("range", `${path}.axisY`, "frame y axis must have a finite computed length", frame.axisY);
+  const axisXLength: number = Math.hypot(
+    frame.axisX.x,
+    frame.axisX.y,
+    frame.axisX.z,
+  );
+  const axisYLength: number = Math.hypot(
+    frame.axisY.x,
+    frame.axisY.y,
+    frame.axisY.z,
+  );
+  if (!Number.isFinite(axisXLength))
+    collector.push(
+      "range",
+      `${path}.axisX`,
+      "frame x axis must have a finite computed length",
+      frame.axisX,
+    );
+  if (!Number.isFinite(axisYLength))
+    collector.push(
+      "range",
+      `${path}.axisY`,
+      "frame y axis must have a finite computed length",
+      frame.axisY,
+    );
   if (
-    Number.isFinite(axisXLength) && axisXLength > AXIS_EPSILON &&
-    Number.isFinite(axisYLength) && axisYLength > AXIS_EPSILON &&
+    Number.isFinite(axisXLength) &&
+    axisXLength > AXIS_EPSILON &&
+    Number.isFinite(axisYLength) &&
+    axisYLength > AXIS_EPSILON &&
     Math.abs(
-      Vector3.dot(Vector3.scale(frame.axisX, 1 / axisXLength), Vector3.scale(frame.axisY, 1 / axisYLength)),
+      Vector3.dot(
+        Vector3.scale(frame.axisX, 1 / axisXLength),
+        Vector3.scale(frame.axisY, 1 / axisYLength),
+      ),
     ) >
       1 - AXIS_EPSILON
   )

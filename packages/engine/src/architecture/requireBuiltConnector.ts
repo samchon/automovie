@@ -20,7 +20,10 @@ import {
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work One synchronous lookup per call that coordinates no work across calls or consumers.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Keeps no state; the returned connector is the caller's own record object.
  */
-export const requireBuiltConnector: (environment: IAutoMovieBuiltEnvironment, connectorId: string) => IAutoMovieBuiltConnector = (
+export const requireBuiltConnector: (
+  environment: IAutoMovieBuiltEnvironment,
+  connectorId: string,
+) => IAutoMovieBuiltConnector = (
   environment: IAutoMovieBuiltEnvironment,
   connectorId: string,
 ): IAutoMovieBuiltConnector => {

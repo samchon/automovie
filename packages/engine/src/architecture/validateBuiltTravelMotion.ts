@@ -29,7 +29,12 @@ const AXIS_EPSILON: number = 1e-12;
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A check of one motion per call; each panel and carriage is checked once per validation.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Appends at most a bounded handful of violations to the caller's collector and retains nothing.
  */
-export const validateBuiltTravelMotion: (motion: IAutoMovieTravelMotion, path: string, label: string, collector: ViolationCollector) => void = (
+export const validateBuiltTravelMotion: (
+  motion: IAutoMovieTravelMotion,
+  path: string,
+  label: string,
+  collector: ViolationCollector,
+) => void = (
   motion: IAutoMovieTravelMotion,
   path: string,
   label: string,

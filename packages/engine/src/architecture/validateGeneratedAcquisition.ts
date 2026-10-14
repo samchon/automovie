@@ -27,7 +27,12 @@ import { SHA256_DIGEST_PATTERN } from "../validation/constants/SHA256_DIGEST_PAT
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work One supplied generation record is checked per call; this gate retains no shared result and makes no equivalence assumption about mutable records.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Builds only the returned validation from a local collector, a bounded number of findings per field and one per input path; nothing else outlives the call.
  */
-export const validateGeneratedAcquisition: (props: { /** Generation identity recorded for one set of returned bytes. */ acquisition : IAutoMovieGeneratedAcquisition ; /** Digest the returned bytes must still have, or null when a recorded local transformation has since replaced them. */ digest : string | null ; }) => IAutoMovieValidation = (props: {
+export const validateGeneratedAcquisition: (props: {
+  /** Generation identity recorded for one set of returned bytes. */ acquisition: IAutoMovieGeneratedAcquisition;
+  /** Digest the returned bytes must still have, or null when a recorded local transformation has since replaced them. */ digest:
+    | string
+    | null;
+}) => IAutoMovieValidation = (props: {
   /** Generation identity recorded for one set of returned bytes. */
   acquisition: IAutoMovieGeneratedAcquisition;
 
@@ -64,7 +69,12 @@ export const validateGeneratedAcquisition: (props: { /** Generation identity rec
   for (let index: number = 0; index < acquisition.inputs.length; ++index) {
     const input: string | undefined = acquisition.inputs[index];
     if (input === undefined) {
-      out.push("type", `${root}.inputs[${index}]`, "a resident generator input slot must contain its declared path", input);
+      out.push(
+        "type",
+        `${root}.inputs[${index}]`,
+        "a resident generator input slot must contain its declared path",
+        input,
+      );
       continue;
     }
     out.nonEmpty(

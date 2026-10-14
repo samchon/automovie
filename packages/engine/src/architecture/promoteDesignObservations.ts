@@ -53,7 +53,10 @@ const GEOMETRIC_PRIMITIVES: ReadonlySet<string> = new Set([
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function of one reference and floor that coordinates no work across calls; the reference is the caller's value, so no promotion is cached.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The frame, primitive, issue and producer indexes are local and released on return, each bounded by its record count; the caller owns the returned promotion, whose outlines are bounded by the promoted candidates' points.
  */
-export const promoteDesignObservations: (props: { /** Observed reference whose candidates are judged; validated before use. */ reference : IAutoMovieDesignReference ; /** Inclusive confidence floor in `[0, 1]`. Defaults to `1`, so nothing but a certain reading promotes unless the caller consciously lowers the bar. */ minimumConfidence ? : number ; }) => IAutoMovieDesignPromotion = (props: {
+export const promoteDesignObservations: (props: {
+  /** Observed reference whose candidates are judged; validated before use. */ reference: IAutoMovieDesignReference;
+  /** Inclusive confidence floor in `[0, 1]`. Defaults to `1`, so nothing but a certain reading promotes unless the caller consciously lowers the bar. */ minimumConfidence?: number;
+}) => IAutoMovieDesignPromotion = (props: {
   /** Observed reference whose candidates are judged; validated before use. */
   reference: IAutoMovieDesignReference;
 
@@ -67,8 +70,7 @@ export const promoteDesignObservations: (props: { /** Observed reference whose c
     reference: props.reference,
   });
   if (validated.success === false) {
-    const first: IAutoMovieConstraintViolation =
-      validated.violations[0]!;
+    const first: IAutoMovieConstraintViolation = validated.violations[0]!;
     throw new Error(
       `design reference "${props.reference.id}" is invalid at ${first.path}: ${first.expected}`,
     );
@@ -115,7 +117,8 @@ export const promoteDesignObservations: (props: { /** Observed reference whose c
   };
   for (const analysis of reference.analyses) {
     if (analysis.outcome.status === "observed")
-      for (const candidate of analysis.outcome.candidates) produced.add(candidate);
+      for (const candidate of analysis.outcome.candidates)
+        produced.add(candidate);
     else
       promotion.skipped.push({
         analysis: analysis.id,
@@ -125,7 +128,10 @@ export const promoteDesignObservations: (props: { /** Observed reference whose c
   }
 
   for (const candidate of reference.candidates) {
-    const withhold: (reason: IAutoMovieDesignWithholding [ "reason" ], detail: string) => void = (
+    const withhold: (
+      reason: IAutoMovieDesignWithholding["reason"],
+      detail: string,
+    ) => void = (
       reason: IAutoMovieDesignWithholding["reason"],
       detail: string,
     ): void => {
@@ -145,8 +151,8 @@ export const promoteDesignObservations: (props: { /** Observed reference whose c
       );
       continue;
     }
-    const blocking: string[] = candidate.issues.filter((issue: string): boolean =>
-      openIssues.has(issue),
+    const blocking: string[] = candidate.issues.filter(
+      (issue: string): boolean => openIssues.has(issue),
     );
     if (blocking.length > 0) {
       withhold(
@@ -192,7 +198,9 @@ export const promoteDesignObservations: (props: { /** Observed reference whose c
       semantic: candidate.semantic,
       outlines: marks.map(
         (primitive: IAutoMovieObservedPrimitive): IAutoMovieVector3[] => {
-          const frame: IAutoMovieDesignSourceFrame = frames.get(primitive.frame)!;
+          const frame: IAutoMovieDesignSourceFrame = frames.get(
+            primitive.frame,
+          )!;
           return primitive.points.map(
             (point: IAutoMovieDesignPoint): IAutoMovieVector3 =>
               designReferenceWorldPoint(frame, point),

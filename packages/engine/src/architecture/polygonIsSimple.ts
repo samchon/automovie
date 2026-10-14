@@ -20,9 +20,9 @@ import { segmentsTouch } from "./segmentsTouch";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure simplicity test of one outline; building and support validation each ask once per outline and share nothing.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Holds the two edge indices of the pair scan and allocates nothing, so no state survives the scan.
  */
-export const polygonIsSimple: (polygon: readonly IAutoMoviePlanarPoint [ ]) => boolean = (
+export const polygonIsSimple: (
   polygon: readonly IAutoMoviePlanarPoint[],
-): boolean => {
+) => boolean = (polygon: readonly IAutoMoviePlanarPoint[]): boolean => {
   const count: number = polygon.length;
   for (let left: number = 0; left < count; ++left)
     for (let right: number = left + 1; right < count; ++right) {

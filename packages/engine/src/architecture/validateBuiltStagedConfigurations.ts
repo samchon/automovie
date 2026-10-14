@@ -57,7 +57,11 @@ const SHEAR_ADVICE: string =
  * @evidence contracts/performance.md#reuse-equivalent-work Elements with the same influencing operation indexes share one combination walk and staging per assignment. Assignments differing from current in at most one member reuse the earlier checks by skipping; no staging survives the call because the environment is mutable.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Operation subtrees and element groups are bounded by operation-count times element-count; one matrix map and one state assignment live per combination, with recursion depth bounded by interacting operations. Findings grow with rejected combinations and have no separate cap.
  */
-export const validateBuiltStagedConfigurations: (environment: IAutoMovieBuiltEnvironment, root: string, collector: ViolationCollector) => void = (
+export const validateBuiltStagedConfigurations: (
+  environment: IAutoMovieBuiltEnvironment,
+  root: string,
+  collector: ViolationCollector,
+) => void = (
   environment: IAutoMovieBuiltEnvironment,
   root: string,
   collector: ViolationCollector,
@@ -76,7 +80,12 @@ export const validateBuiltStagedConfigurations: (environment: IAutoMovieBuiltEnv
     },
   );
   /** Report the first element one alternative state shears, if any. */
-  const alternative: (member: IAutoMovieBuiltOpening | IAutoMovieBuiltConnector, state: string, moved: readonly string [ ], path: string) => void = (
+  const alternative: (
+    member: IAutoMovieBuiltOpening | IAutoMovieBuiltConnector,
+    state: string,
+    moved: readonly string[],
+    path: string,
+  ) => void = (
     member: IAutoMovieBuiltOpening | IAutoMovieBuiltConnector,
     state: string,
     moved: readonly string[],
@@ -142,7 +151,11 @@ export const validateBuiltStagedConfigurations: (environment: IAutoMovieBuiltEnv
 };
 
 /** Operations affecting an element share exactly one combination search. */
-const appendCombinedStateDefects: (environment: IAutoMovieBuiltEnvironment, root: string, collector: ViolationCollector) => void = (
+const appendCombinedStateDefects: (
+  environment: IAutoMovieBuiltEnvironment,
+  root: string,
+  collector: ViolationCollector,
+) => void = (
   environment: IAutoMovieBuiltEnvironment,
   root: string,
   collector: ViolationCollector,
@@ -154,47 +167,69 @@ const appendCombinedStateDefects: (environment: IAutoMovieBuiltEnvironment, root
     path: string;
     affected: Set<string>;
   }[] = [];
-  environment.openings.forEach((member: IAutoMovieBuiltOpening, index: number): void => {
-    if (member.operation === undefined) return;
-    operations.push({
-      member,
-      states: member.operation.states,
-      current: member.operation.state,
-      path: `${root}.openings[${index}].operation.states`,
-      affected: builtElementSubtree(environment.elements, member.operation.panels.map(
-        (panel: IAutoMovieMovablePanel): string => panel.element,
-      )),
-    });
-  });
-  environment.connectors.forEach((member: IAutoMovieBuiltConnector, index: number): void => {
-    if (member.operation === undefined) return;
-    operations.push({
-      member,
-      states: member.operation.states,
-      current: member.operation.state,
-      path: `${root}.connectors[${index}].operation.states`,
-      affected: builtElementSubtree(environment.elements, member.operation.carriages.map(
-        (carriage: IAutoMovieConnectorCarriage): string => carriage.element,
-      )),
-    });
-  });
-  const groups: Map<string, { indexes: number[]; elements: string[] }> = new Map();
+  environment.openings.forEach(
+    (member: IAutoMovieBuiltOpening, index: number): void => {
+      if (member.operation === undefined) return;
+      operations.push({
+        member,
+        states: member.operation.states,
+        current: member.operation.state,
+        path: `${root}.openings[${index}].operation.states`,
+        affected: builtElementSubtree(
+          environment.elements,
+          member.operation.panels.map(
+            (panel: IAutoMovieMovablePanel): string => panel.element,
+          ),
+        ),
+      });
+    },
+  );
+  environment.connectors.forEach(
+    (member: IAutoMovieBuiltConnector, index: number): void => {
+      if (member.operation === undefined) return;
+      operations.push({
+        member,
+        states: member.operation.states,
+        current: member.operation.state,
+        path: `${root}.connectors[${index}].operation.states`,
+        affected: builtElementSubtree(
+          environment.elements,
+          member.operation.carriages.map(
+            (carriage: IAutoMovieConnectorCarriage): string => carriage.element,
+          ),
+        ),
+      });
+    },
+  );
+  const groups: Map<string, { indexes: number[]; elements: string[] }> =
+    new Map();
   for (const element of environment.elements) {
     const indexes: number[] = [];
-    operations.forEach((operation: (typeof operations)[number], index: number): void => {
-      if (operation.affected.has(element.id)) indexes.push(index);
-    });
+    operations.forEach(
+      (operation: (typeof operations)[number], index: number): void => {
+        if (operation.affected.has(element.id)) indexes.push(index);
+      },
+    );
     if (indexes.length < 2) continue;
     const key: string = JSON.stringify(indexes);
-    const group: { indexes: number[]; elements: string[] } | undefined = groups.get(key);
-    if (group === undefined) groups.set(key, { indexes, elements: [element.id] });
+    const group: { indexes: number[]; elements: string[] } | undefined =
+      groups.get(key);
+    if (group === undefined)
+      groups.set(key, { indexes, elements: [element.id] });
     else group.elements.push(element.id);
   }
   for (const group of groups.values()) {
-    const selected: Map<IAutoMovieBuiltOpening | IAutoMovieBuiltConnector, string> = new Map();
-    const visit: (depth: number, changed: number) => void = (depth: number, changed: number): void => {
+    const selected: Map<
+      IAutoMovieBuiltOpening | IAutoMovieBuiltConnector,
+      string
+    > = new Map();
+    const visit: (depth: number, changed: number) => void = (
+      depth: number,
+      changed: number,
+    ): void => {
       if (depth < group.indexes.length) {
-        const operation: (typeof operations)[number] = operations[group.indexes[depth]!]!;
+        const operation: (typeof operations)[number] =
+          operations[group.indexes[depth]!]!;
         for (const state of operation.states) {
           selected.set(operation.member, state.id);
           visit(depth + 1, changed + Number(state.id !== operation.current));
@@ -210,12 +245,13 @@ const appendCombinedStateDefects: (environment: IAutoMovieBuiltEnvironment, root
       );
       for (const element of group.elements)
         if (cannotRepresentWorldTrs(matrices.get(element)!)) {
-          const assignment: { member: string; state: string }[] = group.indexes.map(
-            (index: number): { member: string; state: string } => ({
-              member: operations[index]!.member.id,
-              state: selected.get(operations[index]!.member)!,
-            }),
-          );
+          const assignment: { member: string; state: string }[] =
+            group.indexes.map(
+              (index: number): { member: string; state: string } => ({
+                member: operations[index]!.member.id,
+                state: selected.get(operations[index]!.member)!,
+              }),
+            );
           collector.push(
             "type",
             operations[group.indexes[group.indexes.length - 1]!]!.path,
@@ -230,8 +266,11 @@ const appendCombinedStateDefects: (environment: IAutoMovieBuiltEnvironment, root
 };
 
 /** Whether a world matrix carries more than a position, rotation, and scale. */
-const cannotRepresentWorldTrs: (world: number [ ]) => boolean = (world: number[]): boolean => {
-  if (world.some((entry: number): boolean => !Number.isFinite(entry))) return true;
+const cannotRepresentWorldTrs: (world: number[]) => boolean = (
+  world: number[],
+): boolean => {
+  if (world.some((entry: number): boolean => !Number.isFinite(entry)))
+    return true;
   const decomposed: ReturnType<typeof Matrix4.decompose> =
     Matrix4.decompose(world);
   const recomposed: number[] = Matrix4.compose(
@@ -246,7 +285,10 @@ const cannotRepresentWorldTrs: (world: number [ ]) => boolean = (world: number[]
       const index: number = column * 4 + row;
       if (!Number.isFinite(recomposed[index]!)) return true;
       magnitude = Math.max(magnitude, Math.abs(world[index]!));
-      difference = Math.max(difference, Math.abs(world[index]! - recomposed[index]!));
+      difference = Math.max(
+        difference,
+        Math.abs(world[index]! - recomposed[index]!),
+      );
     }
   return difference > magnitude * MATRIX_ROUND_TRIP_EPSILON;
 };

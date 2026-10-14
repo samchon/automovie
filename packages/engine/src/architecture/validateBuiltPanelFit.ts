@@ -52,7 +52,13 @@ import { polygonInside } from "./polygonInside";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Runs once per validation over one staging shared by every panel.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The world matrices are released on return, bounded by the element count; one violation per refused panel is appended to the caller's collector.
  */
-export const validateBuiltPanelFit: (environment: IAutoMovieBuiltEnvironment, root: string, faces: ReadonlyMap<string, IAutoMovieBoundaryFace>, hulls: ReadonlyMap<number, IAutoMoviePlanarPoint[]>, collector: ViolationCollector) => void = (
+export const validateBuiltPanelFit: (
+  environment: IAutoMovieBuiltEnvironment,
+  root: string,
+  faces: ReadonlyMap<string, IAutoMovieBoundaryFace>,
+  hulls: ReadonlyMap<number, IAutoMoviePlanarPoint[]>,
+  collector: ViolationCollector,
+) => void = (
   environment: IAutoMovieBuiltEnvironment,
   root: string,
   faces: ReadonlyMap<string, IAutoMovieBoundaryFace>,

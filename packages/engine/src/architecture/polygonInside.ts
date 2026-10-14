@@ -30,7 +30,10 @@ import { segmentsCross } from "./segmentsCross";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure containment answer for one pair of rings; each validator asks once per void and face pair.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Each edge's contact parameters and midpoint records are local, bounded by the outer corner count, and released before the next edge; nothing is retained across calls.
  */
-export const polygonInside: (inner: readonly IAutoMoviePlanarPoint [ ], outer: readonly IAutoMoviePlanarPoint [ ]) => boolean = (
+export const polygonInside: (
+  inner: readonly IAutoMoviePlanarPoint[],
+  outer: readonly IAutoMoviePlanarPoint[],
+) => boolean = (
   inner: readonly IAutoMoviePlanarPoint[],
   outer: readonly IAutoMoviePlanarPoint[],
 ): boolean => {
@@ -69,10 +72,16 @@ export const polygonInside: (inner: readonly IAutoMoviePlanarPoint [ ], outer: r
       if (contacts[contact] === contacts[contact - 1]) continue;
       const parameter: number =
         (contacts[contact]! + contacts[contact - 1]!) / 2;
-      if (!pointInPolygon({
-        x: from.x + parameter * (to.x - from.x),
-        y: from.y + parameter * (to.y - from.y),
-      }, outer)) return false;
+      if (
+        !pointInPolygon(
+          {
+            x: from.x + parameter * (to.x - from.x),
+            y: from.y + parameter * (to.y - from.y),
+          },
+          outer,
+        )
+      )
+        return false;
     }
   }
   return true;

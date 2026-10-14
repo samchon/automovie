@@ -24,9 +24,9 @@ import { validateDesignLineage } from "./validateDesignLineage";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Validates the record it is handed each call, because the record is the caller's mutable data; a caller answering many questions about one lineage validates once and uses the unvalidated cores such as `compareDesignVariants`.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the validation result is dropped on return.
  */
-export const requireValidDesignLineage: (lineage: IAutoMovieDesignLineage) => void = (
+export const requireValidDesignLineage: (
   lineage: IAutoMovieDesignLineage,
-): void => {
+) => void = (lineage: IAutoMovieDesignLineage): void => {
   const validated: IAutoMovieValidation = validateDesignLineage({ lineage });
   if (validated.success === false) {
     const first: IAutoMovieConstraintViolation = validated.violations[0]!;
