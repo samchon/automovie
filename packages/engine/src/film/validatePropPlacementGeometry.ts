@@ -31,32 +31,17 @@ import { unionSubjectBoxes } from "./unionSubjectBoxes";
 const PLACEMENT_EPSILON: number = 1e-9;
 
 /**
- * Judge every volume the sound part of a prop registry claims: keep-out
- * clearances, pairwise occupancy, support contact, space containment, opening
- * fit and passage intrusion.
+ * Judge every volume the sound part of a prop registry claims: keep-out clearances, pairwise occupancy, support contact, space containment, opening fit and passage intrusion.
  *
- * "Sound" is deliberately narrow: a prop is measured only when it forged, when
- * its node is declared once, when exactly one staged piece places it, and when
- * any footprint it declares is a real volume. Measuring an ambiguous, unforged
- * or degenerate prop would report a second failure caused by the first, and
- * the author would correct the wrong line. Sound props without a `placement`
- * are still measured as occupants others must clear and as hosts others rest
- * on, but claim nothing themselves.
+ * "Sound" is deliberately narrow: a prop is measured only when it forged, when its node is declared once, when exactly one staged piece places it, and when any footprint it declares is a real volume. Measuring an ambiguous, unforged or degenerate prop would report a second failure caused by the first, and the author would correct the wrong line. Sound props without a `placement` are still measured as occupants others must clear and as hosts others rest on, but claim nothing themselves.
  *
- * Two placed props overlapping is refused unless one declares a contact with
- * the other through a prop affordance. A prop is judged against the
- * environment it occupies, or, when it names no space, the one building all
- * its building relations cite; relations spanning two buildings name no single
- * place and are not measured. An opening is fitted through the rest-pose world
- * box of the element filling it, and a passage the prop fills is not reported
- * as one it blocks. Violations go to `out` in prop declaration order within
- * each check.
+ * Pairwise overlap is checked only when both staged props declare `placement`, and is refused unless one declares contact through a prop affordance. A prop is judged against the environment it occupies, or, when it names no space, the one building all its building relations cite; relations spanning two buildings name no single place and are not measured. An opening is fitted through the rest-pose world box of the element filling it, and a passage the prop fills is not reported as one it blocks. Violations go to `out` in prop declaration order within each check.
  *
  * @evidence contracts/common.md#principled-implementation Every judgment is an axis-aligned world-box predicate on the staged occupancy from `propOccupancyBounds`: strict-interior overlap through `propBoundsOverlap`, corner containment through `propSpaceContainsBounds`, the deepest support probe through `propSupportGap` within a nanometre, and opening fit against the fill's rest-pose part boxes from `builtElementRestMatrices` and `builtPlacedPartBoxes`, the same measurement `propBlockedPassages` takes of an opening.
  * @evidence contracts/common.md#clear-and-simple-design Split from `validatePropPlacements` so the registry and relation gate and the geometry judgment each stay one readable owner; private helpers hold clearances, pairwise overlap, supports and per-environment occupancy, each one claim family.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Unsound props, unstateable faces, cell-less spaces and model-less fills are skipped as stated rules so one fault is reported once, and declared contact exempts only the overlap between the two props that declare it; no prop, kind or building is special-cased.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Unsound props, unstateable faces and model-less fills are skipped so one fault is reported once; a space subtree stating neither cells nor a shell adds no containment restriction, while shell-only volumes are measured. Declared contact exempts only the overlap between the two props that declare it; no prop, kind or building is special-cased.
  * @evidence contracts/common.md#meaningful-documentation States what "sound" means and why, which props are measured as occupants only, the overlap exemption, how the judged environment is chosen, how an opening is fitted, the filled-passage exemption, and the report order.
- * @evidence contracts/performance.md#efficient-algorithms Occupancy is computed once per sound prop and reused by every check; clearance and pairwise overlap are `O(S² + S·C)` box tests for `S` sound props and `C` clearances, which suits the tens of props one shot stages, and each support relation and fill-opening relation resolves its face or fill once.
+ * @evidence contracts/performance.md#efficient-algorithms Occupancy is measured once per sound prop; overlap and clearance add O(S² + S·C) box tests for S sound props and C clearances. Support, containment and opening relations add their delegated environment-list, footprint and part traversals, and each judged environment's passage query is prepared once. No small prop or relation count is enforced here.
  * @evidence contracts/performance.md#reuse-equivalent-work Shares each prop's occupancy across its checks and prepares each judged environment's passage bounds once through createPropPassageBlocker, keyed by that environment object during the synchronous validation. Inputs stay unchanged for the call; no closure is reused across later mutable environment revisions.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Owns the sound-prop list and a lazy map of passage queries for at most the judged environments until return; each query retains that environment's measured passage boxes. All temporary lists, maps and queries are released after validation, while violations transfer to the caller's collector.
  */
@@ -124,12 +109,25 @@ export function validatePropPlacementGeometry (props: {
   }
 }
 
-/** A sound prop with the one piece staging it and its world occupancy. */
+/**
+ * A sound prop with the one piece staging it and its measured world occupancy, retained only during this validation call.
+ *
+ * @author Samchon
+ */
 interface IStagedProp {
+  /** Borrowed registry spec whose forging and unique staging join passed. */
   prop: IAutoMoviePropSpec;
+
+  /** Original registry position used to address every geometry finding. */
   index: number;
+
+  /** The unique borrowed set piece placing this spec's model. */
   piece: IAutoMovieStageSetPiece;
+
+  /** Admitted occupied environment, or null when no unique in-space join exists. */
   located: IAutoMovieBuiltEnvironment | null;
+
+  /** World-axis-aligned box in metres, measured once for all geometry checks. */
   occupancy: IAutoMoviePropBox;
 }
 
@@ -192,19 +190,13 @@ function validateOverlaps (
     }
 }
 
-/** The same key for a node pair in either order. */
-function pairKey (left: string, right: string): string { return left < right ? `${left}\0${right}` : `${right}\0${left}`; }
+/** Encode the sorted string pair as JSON, preserving symmetry without delimiter collisions in authored ids. */
+function pairKey (left: string, right: string): string { return JSON.stringify(left < right ? [left, right] : [right, left]); }
 
 /**
  * Judge every `on-support` relation whose face the record can state.
  *
- * Support needs no logical space: a lamp that only says which table top it
- * stands on has named a face, and that face is measurable whether or not the
- * lamp also says which room it is in. Each relation is judged on its own, so a
- * plank across two tables answers for both of them. A relation whose host is
- * not itself soundly staged, one citing a face the record cannot state, and a
- * prop citing itself, which the registry gate already refuses by name, are
- * passed over rather than measured twice or guessed at.
+ * Support needs no logical space: a lamp that only says which table top it stands on has named a face, and that face is measurable whether or not the lamp also says which room it is in. Each relation is judged on its own, so a plank across two tables answers for both of them. A relation whose host is not itself soundly staged, one citing a face the record cannot state, and a prop citing itself, which the registry gate already refuses by name, are passed over rather than measured twice or guessed at.
  */
 function validateSupports (
   staged: readonly IStagedProp[],
@@ -268,11 +260,7 @@ function validateSupports (
 /**
  * The environment a prop's geometry is judged against.
  *
- * The occupied space answers first, because that is the prop's own statement
- * of where it is. A prop that names no space but cites one building anyway (a
- * leaf that only declares which opening it fills) is still judged there:
- * refusing to measure it would let the strongest claim a prop can make, that
- * it fits a passage, go unchecked because a weaker one was left out.
+ * The occupied space answers first, because that is the prop's own statement of where it is. A prop that names no space but cites one building anyway (a leaf that only declares which opening it fills) is still judged there: refusing to measure it would let the strongest claim a prop can make, that it fits a passage, go unchecked because a weaker one was left out.
  */
 function judgedEnvironment (
   entry: IStagedProp,
@@ -352,10 +340,7 @@ function validateOccupancy (
 }
 
 /**
- * Rest-pose world bounds of the element filling an opening, or `null` when the
- * opening is an open cut, its fill draws no model held by the record, or the
- * fill's parent chain is missing or cyclic. First declarations win for
- * duplicate ids, as validation refuses the duplicate on its own path.
+ * Rest-pose world bounds of the element filling an opening, or `null` when the opening is an open cut, its fill draws no model held by the record, or the fill's parent chain is missing or cyclic. First declarations win for duplicate ids, as validation refuses the duplicate on its own path.
  */
 function openingFillBounds (
   environment: IAutoMovieBuiltEnvironment,

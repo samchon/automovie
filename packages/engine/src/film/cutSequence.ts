@@ -8,7 +8,11 @@ import {
 import { ViolationCollector } from "../validation/ViolationCollector";
 import { IAutoMovieCut } from "./IAutoMovieCut";
 
-/** A built shot with the index it was first supplied at. */
+/**
+ * A built shot with the index it was first supplied at.
+ *
+ * @author Samchon
+ */
 interface IBuiltShot {
   /** The first shot supplied under the id. */
   shot: IAutoMovieShot;
@@ -18,25 +22,11 @@ interface IBuiltShot {
 }
 
 /**
- * The ASSEMBLE consumer: fold the editor's cut-list into an
- * {@link IAutoMovieSequence} over the shots the pipeline actually built, or
- * return every violation at once.
+ * The ASSEMBLE consumer: fold the editor's cut-list into an {@link IAutoMovieSequence} over the shots the pipeline actually built, or return every violation at once.
  *
- * The gates are editorial arithmetic. Built shot ids are unique; the sequence
- * id and each entry's shot id are non-blank; the frame rate is finite and
- * positive; there is at least one entry; every entry names a built shot whose
- * duration is finite and positive; a trim has a finite positive duration and a
- * finite start, and lies inside `[0, shot.duration]`; the first entry has no
- * transition; and a transition is finite and positive, no longer than either
- * neighbour's played span, and does not overlap the previous entry's own
- * incoming transition inside that entry. Pacing and continuity stay prose,
- * because they have no deterministic verifier.
+ * The gates are editorial arithmetic. Built shot ids are unique; the sequence id and each entry's shot id are non-blank; the frame rate is finite and positive; there is at least one entry; every entry names a built shot whose duration is finite and positive; a trim has a finite positive duration and a finite start, and lies inside `[0, shot.duration]`; the first entry has no transition; and a transition is finite and positive, no longer than either neighbour's played span, and does not overlap the previous entry's own incoming transition inside that entry. Pacing and continuity stay prose, because they have no deterministic verifier.
  *
- * `runtime` is in seconds: the sum of each entry's played span (its trim's
- * duration, else the whole shot) minus each transition's duration, since a
- * transition overlaps the previous entry's tail. The sequence copies the plan's
- * id, name, frame rate and entries in order, sharing each trim and transition
- * object by reference.
+ * `runtime` is in seconds: the sum of each entry's played span (its trim's duration, else the whole shot) minus each transition's duration, since a transition overlaps the previous entry's tail. A clean plan whose accumulated clock is non-finite is refused at entries instead of publishing an unusable runtime. Outer records and populated entry objects are typed premises; an absent array slot is reported explicitly. The sequence copies the plan's id, name, frame rate and entries in order, sharing each trim and transition object by reference.
  *
  * @evidence contracts/common.md#principled-implementation One ordered pass that carries the previous entry's played span and incoming transition, which is all an OpenTimelineIO-style end-to-end track needs to check overlaps and accumulate runtime; a later check is skipped when an earlier fault leaves its operand undefined, such as an unknown shot or an invalid trim, so one cause is not reported twice.
  * @evidence contracts/common.md#clear-and-simple-design Validates and assembles in one function because every check reads the same running timeline state; per-instant timing is left to `sequenceTimeline`, which derives it from the sequence this returns.
@@ -91,6 +81,14 @@ export function cutSequence (
       "a film must contain at least one shot",
       assemble.entries,
     );
+  for (let index: number = 0; index < assemble.entries.length; index++)
+    if (assemble.entries[index] === undefined)
+      out.push(
+        "type",
+        `$input.entries[${index}]`,
+        "every edit entry must name one built shot; an entry is absent",
+        undefined,
+      );
 
   let runtime: number = 0;
   let previousPlayed: number | null = null;
@@ -216,6 +214,8 @@ export function cutSequence (
     previousIncomingTransition = validPlayedSpan ? incomingTransition : 0;
   });
 
+  if (out.items.length === 0 && !Number.isFinite(runtime))
+    out.push("range", "$input.entries", "the assembled runtime must be finite seconds", runtime);
   if (out.items.length > 0) return { success: false, violations: out.items };
 
   return {

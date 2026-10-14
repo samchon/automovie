@@ -10,18 +10,9 @@ const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 const BACK: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
 
 /**
- * The rotation that points a camera's −Z down `direction` while keeping its
- * horizon level.
+ * The rotation that points a camera's −Z down `direction` while keeping its horizon level.
  *
- * A shortest-arc rotation from −Z rolls the frame on an off-axis aim; this one
- * builds the standard look-at basis instead, with camera `+Z = −direction`,
- * `x = up × z` and `y = z × x`, so the camera's local X stays horizontal. When
- * the aim is within `1e-6` of straight up or down the cross product with up
- * vanishes, so world `+Z` is the reference and the roll is whatever that
- * reference gives. A zero direction states no aim and answers the identity, the
- * camera's rest orientation looking down −Z with a level horizon. The length
- * of `direction` does not matter, and a non-finite component yields a
- * non-finite result. The result is a unit quaternion.
+ * A shortest-arc rotation from −Z rolls the frame on an off-axis aim; this one builds the standard look-at basis instead, with camera `+Z = −direction`, `x = up × z` and `y = z × x`, so the camera's local X stays horizontal. When the normalized aim's cross product with up has length below `1e-6`, world `+Z` is the reference and the roll is whatever that reference gives. A zero direction states no aim and answers the identity, the camera's rest orientation looking down −Z with a level horizon. Finite direction length does not matter; finite inputs yield a unit quaternion up to rounding, while a non-finite component yields a non-finite result.
  *
  * @param direction World-space direction to look along, any non-zero length.
  * @returns The camera's world rotation.
@@ -29,8 +20,8 @@ const BACK: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
  * @evidence contracts/common.md#principled-implementation An orthonormal look-at basis converted to a quaternion by Shepperd's method, which takes the branch with the largest diagonal term so the divisor stays away from zero; the x-major branch is omitted because a horizontal `x` gives `x.x = z.z/h` and `y.y = h`, so `x.x > y.y` forces a positive trace, and the near-vertical fallback keeps `x.x` at about `±1` with the positive case also inside the trace branch.
  * @evidence contracts/common.md#clear-and-simple-design One aim rule shared by every camera move in `compileCameraMove` and by staging's initial aim, so a staged camera and a moving one keep the same horizon convention.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No direction is special-cased except the two degenerate inputs the basis cannot be built from, an up-parallel aim and a zero aim, each answered by a stated rule rather than a tuned value.
- * @evidence contracts/common.md#meaningful-documentation States the axis convention, why the horizon stays level, the up-parallel threshold and its fallback reference, the zero-direction identity, that length is ignored, the non-finite propagation, and that the result is unit length.
- * @evidence contracts/performance.md#efficient-algorithms Constant time: two cross products, two normalizations and one square root on the chosen branch.
+ * @evidence contracts/common.md#meaningful-documentation States the axis convention, horizon rule, normalized cross-product threshold and fallback, zero-direction identity, finite-input unit-length result up to rounding and non-finite propagation.
+ * @evidence contracts/performance.md#efficient-algorithms Fixed-dimensional work normalizes the direction and right axis, forms two basis cross products with one extra cross product near vertical, then converts one branch and normalizes the output quaternion; zero direction returns before basis construction.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function of one vector that coordinates no work across calls; each keyframe aims along its own direction.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Allocates a few temporary vectors and retains nothing; the caller owns the returned quaternion.
  */

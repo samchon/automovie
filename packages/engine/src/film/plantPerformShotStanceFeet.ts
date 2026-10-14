@@ -23,21 +23,9 @@ import { IAutoMoviePerformedShot } from "./IAutoMoviePerformedShot";
 import { IAutoMovieStagedSet } from "./IAutoMovieStagedSet";
 
 /**
- * Pin the stance feet of every gait-bearing or resumed actor clip, replacing
- * the clip in `motions` and returning the world-space plants a later beat can
- * resume.
+ * Pin the stance feet of every gait-bearing or resumed actor clip, replacing the clip in `motions` and returning the world-space plants a later beat can resume.
  *
- * An actor is planted when its clip carries a gait cycle or the previous beat
- * left it opening plants, and it has a rig and a staged node; a static gesture
- * or hold clip keeps its authored key grid. Opening plants are converted from
- * scene world space into the actor's model frame for the solve, and the new
- * plants back into world space, exactly once. With a scene space, its world
- * ground height is carried into the model frame for contact; otherwise the
- * model-space `y = 0` plane is the ground. The conversion assumes the
- * unit-scale, yaw-only actor transform `stageScene` emits. A rig with no
- * recognized foot plants nothing, and its clip is left untouched so a host's
- * own plant measurements are not shadowed. Actors are processed in code-unit
- * order of their ids, which is the order of the returned entries.
+ * An actor is planted when its clip carries a gait cycle or the previous beat left it opening plants, and it has a rig and a staged node; a static gesture or hold clip keeps its authored key grid. Opening plants are converted from scene world space into the actor's model frame for the solve, and the new plants back into world space, exactly once. With a scene space, its world ground height is carried into the model frame for contact; otherwise the model-space `y = 0` plane is the ground. The conversion assumes the unit-scale, yaw-only actor transform `stageScene` emits. A rig with no recognized foot plants nothing, and its clip is left untouched so a host's own plant measurements are not shadowed. Actors are processed in code-unit order of their ids, which is the order of the returned entries.
  *
  * @param props.staged The validated stage result.
  * @param props.motions The compiled clips by node id; planted clips replace theirs.
@@ -51,7 +39,7 @@ import { IAutoMovieStagedSet } from "./IAutoMovieStagedSet";
  * @evidence contracts/common.md#clear-and-simple-design The stance stage of `performShot` in one place; the solve is `plantStanceFeet` and the world ground is `spaceGround`, so this function owns only the frame conversions and the choice of which actors to plant.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Every actor meeting the stated conditions is planted the same way; a rig without recognized feet is left as authored rather than given invented contacts.
  * @evidence contracts/common.md#meaningful-documentation States which actors are planted and which are left alone, the frame conversions and their premise, the ground source, the effect on `motions`, the footless-rig rule and why, and the order of the result.
- * @evidence contracts/performance.md#efficient-algorithms One plant solve per qualifying actor, each linear in its clip's samples; the node lookup is a linear scan of the staged nodes per planted actor, which a beat's handful of actors keeps small.
+ * @evidence contracts/performance.md#efficient-algorithms Sorts A motion entries in O(A log A), scans staged nodes per qualifying actor and runs one delegated plantStanceFeet solve per such actor; that solve's motion sampling, FK and IK costs depend on rig and clip populations, rather than sample count alone.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each actor's clip is planted once per call; the prior plants are indexed once by node.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The prior-plant index is dropped on return; planted clips are stored into the caller's `motions`, and the caller owns the returned entries.
  */

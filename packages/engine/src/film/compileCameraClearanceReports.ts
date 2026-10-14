@@ -36,7 +36,11 @@ type IEvaluation = Parameters<typeof evaluateCameraClearance>[0];
 /** One obstacle's world box at one instant, as the evaluator reads it. */
 type IObstacleState = IEvaluation["samples"][number]["obstacles"][number];
 
-/** A staged node with its measured bound. */
+/**
+ * A staged node with its measured bound.
+ *
+ * @author Samchon
+ */
 interface IMeasuredObstacle {
   /** The staged node. */
   node: IAutoMovieScene["nodes"][number];
@@ -48,7 +52,11 @@ interface IMeasuredObstacle {
   radius: number;
 }
 
-/** One camera that plays in the shot and declares a clearance envelope. */
+/**
+ * One camera that plays in the shot and declares a clearance envelope.
+ *
+ * @author Samchon
+ */
 interface ITake {
   /** The staged camera, with its envelope. */
   camera: IAutoMovieCamera;
@@ -61,33 +69,17 @@ interface ITake {
 }
 
 /**
- * Check that no camera body or parent rig in a performed shot touches a
- * staged node, and return one clear report per envelope-bearing take.
+ * Check that no camera body or parent rig in a performed shot touches a staged node, and return one clear report per envelope-bearing take.
  *
- * The hero take and every coverage take whose staged camera declares
- * `clearance` are inspected; the others are skipped, and a shot with none
- * returns `undefined` without reading `runtime`. Each such take is sampled at
- * {@link cameraClearanceSampleTimes}, and every staged node is an obstacle: a
- * node nothing animates is its rest box through its placement
- * ({@link nodeSubjectBox}), and an animated one is a box around its current
- * root holding {@link cameraClearanceDeformationRadius} scaled by its largest
- * absolute scale component, which stays valid under any rotation or pose.
- * {@link evaluateCameraClearance} then sweeps each interval.
+ * The hero take and every coverage take whose staged camera declares `clearance` are inspected; the others are skipped, and a shot with none returns `undefined` without reading `runtime`. Each such take is sampled at {@link cameraClearanceSampleTimes}, and every staged node is an obstacle: a node nothing animates is its rest box through its placement ({@link nodeSubjectBox}), and an animated one is a box around its current root holding {@link cameraClearanceDeformationRadius} scaled by its largest absolute scale component, which stays valid under any rotation or pose. {@link evaluateCameraClearance} then sweeps each interval.
  *
- * Every refusal is pushed to `out` with an author-facing path, and the result
- * is then `undefined`: a hero or coverage camera the scene does not stage, a missing
- * `runtime`, a sample rate that is not finite and positive, a stale geometry
- * revision (one item per take, before any geometry is read), a morph-weight
- * track, a node whose model is absent, fails `validateModel`, draws nothing or
- * whose bound overflows, a motion the clock cannot bound, and every contact
- * the evaluator finds. Items already in `out` belong to the caller and do not
- * count as refusals here.
+ * Every refusal is pushed to `out` with an author-facing path, and the result is then `undefined`: a hero or coverage camera the scene does not stage, a missing `runtime`, a sample rate that is not finite and positive, a stale geometry revision (one item per take, before any geometry is read), a morph-weight track, a node whose model is absent, fails `validateModel`, draws nothing or whose bound overflows, a motion the clock cannot bound, and every contact the evaluator finds. Items already in `out` belong to the caller and do not count as refusals here.
  *
- * @evidence contracts/common.md#principled-implementation Reduces clearance to a swept-sphere test against boxes that contain each obstacle over a whole sample interval: static nodes keep their exact rest box, and moving nodes use a rotation- and pose-invariant sphere so the evaluator's endpoint-box union holds them while their root moves on one key segment; the premise that roots move linearly or monotonically between instants holds because the clock refines at every key and refuses overshooting interpolation, and morph weights are refused because the portable model states no morph expansion bound.
+ * @evidence contracts/common.md#principled-implementation Builds static boxes and moving root-centred deformation spheres from the validated portable part/proxy representation. Key refinement and interpolation admission supply endpoint-bound premises for represented motion, while morph weights are refused without an expansion bound. External asset bytes and renderer-only deformation are not inspected, and the evaluator's normalized-lerp limitation still applies.
  * @evidence contracts/common.md#clear-and-simple-design This adapter owns reading the shot, measuring obstacles and addressing violations, while the clock, the deformation bound and the interval sweep live in `cameraClearanceSampleTimes`, `cameraClearanceDeformationRadius` and `evaluateCameraClearance`, each a pure function reused by no other path; the split keeps the file under the size limit and each bound testable on its own.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Names no camera, node or model; an absent model, an unmeasurable bound or an unboundable motion is refused rather than skipped or given a stand-in size, and the collector baseline lets a caller pass a collector holding earlier items without them being read as clearance failures.
  * @evidence contracts/common.md#meaningful-documentation States which takes are inspected, when `runtime` is read, how each obstacle is bounded, every refusal and its effect on the return value, and that earlier collector items are the caller's.
- * @evidence contracts/performance.md#efficient-algorithms Time is takes times instants times obstacles for the box construction plus one clip-sequence sample per distinct instant, after one model validation and measurement per node; static boxes are built once, and the evaluator's interval sweep, answered there, dominates for many obstacles.
+ * @evidence contracts/performance.md#efficient-algorithms Validates and measures each staged node's model once, then caches obstacle states per distinct instant. State construction includes object clip-sequence sampling and actor sampleMotion work for animated nodes; each take also samples its camera and delegates the interval/part/obstacle sweep. Total cost includes those sampled track, pose and geometry populations.
  * @evidence contracts/performance.md#reuse-equivalent-work Obstacle states depend only on the shot-local instant, the staged nodes and the shot's motions, which every take shares, so they are cached by exact instant across takes; the actor and object part of the clock is built once per call, and models are measured once per node rather than per take.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The obstacle-state cache and measured obstacles are locals released when the call returns, bounded by distinct instants across takes times staged nodes; returned reports are owned by the caller and hold only their sample times and findings, not the cached boxes.
  */
@@ -287,8 +279,7 @@ export function compileCameraClearanceReports(props: {
 }
 
 /**
- * Validate and bound every staged node once, pushing a refusal for each node
- * whose model is absent, invalid, empty or unboundable.
+ * Validate and bound every staged node once, pushing a refusal for each node whose model is absent, invalid, empty or unboundable.
  */
 function measureObstacles (props: {
   scene: IAutoMovieScene;
@@ -369,8 +360,7 @@ function measureObstacles (props: {
 }
 
 /**
- * The box around a moving node's current root that holds its deformation
- * radius scaled by its largest absolute scale component.
+ * The box around a moving node's current root that holds its deformation radius scaled by its largest absolute scale component.
  */
 function movingBounds (
   obstacle: IMeasuredObstacle,

@@ -8,28 +8,16 @@ import { autoMovieStoryTime } from "./autoMovieStoryTime";
 import { resolveProductionLighting } from "./resolveProductionLighting";
 
 /**
- * One shot's lights at one shot-local instant, with the production's sources
- * inherited at the story moment the shot's pin places that instant at.
+ * One shot's lights at one shot-local instant, with the production's sources inherited at the story moment the shot's pin places that instant at.
  *
- * With no production lighting, or for a shot carrying no story pin, the staged
- * lights come back unchanged in a new array, element by element. A film that
- * says nothing about production light therefore renders the frames it always
- * did, and an unpinned shot is never assigned a story moment it did not claim.
+ * With no production lighting, or for a shot carrying no story pin, the staged lights come back unchanged in a new array, element by element. A film that says nothing about production light therefore renders the frames it always did, and an unpinned shot is never assigned a story moment it did not claim.
  *
- * Otherwise the production is resolved at `autoMovieStoryTime(pin, seconds)`
- * and merged by light id:
+ * Otherwise the production is resolved at `autoMovieStoryTime(pin, seconds)` and merged by light id:
  *
- * - A staged light whose id a production source shares is replaced in place by
- *   that source, so the scene says which of the production's lights it stands
- *   under and the production owns the values.
- * - A production source no staged light names is appended after the staged
- *   lights, in declaration order, so a film states its source once instead of
- *   every scene re-declaring it.
+ * - A staged light whose id a production source shares is replaced in place by that source, so the scene says which of the production's lights it stands under and the production owns the values.
+ * - A production source no staged light names is appended after the staged lights, in declaration order, so a film states its source once instead of every scene re-declaring it.
  *
- * The result composes with a shot's own `lightMotions`: the applier that plays
- * those clips runs over this list, so a lamp switched on inside the beat lands
- * on top of the inherited state. Returned light objects are the staged or
- * resolved objects themselves, not copies.
+ * The current production assembly caller evaluates this helper once at shot time zero. The result is an opening snapshot, not a continuously resampled production-light track; the shot's own lightMotions subsequently animate that snapshot. Returned light objects are staged or resolved objects themselves, not copies.
  *
  * @evidence contracts/common.md#principled-implementation An id-keyed left merge: a map from production id to resolved light replaces staged entries in place and a set of staged ids selects the sources to append, so staged order is preserved and the result is a pure function of lighting, lights, pin and time; it relies on ids being unique within each list, which scene and production validation enforce.
  * @evidence contracts/common.md#clear-and-simple-design Story-clock mapping is `autoMovieStoryTime` and sampling is `resolveProductionLighting`, both shared; this function owns only the merge rule, which is the one decision production shot assembly needs from the engine.

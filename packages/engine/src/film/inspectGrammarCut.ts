@@ -19,34 +19,21 @@ type Framing = IAutoMovieCameraIntent["framing"] | null;
 type Sign = -1 | 0 | 1;
 
 /**
- * Appends every film-grammar finding of one cut to `diagnostics`, filed on
- * the incoming shot, in this order: axis crossing, eyeline, jump cut,
- * displacement re-establishing, screen direction, then entrant re-establishing.
+ * Appends every film-grammar finding of one cut to `diagnostics`, filed on the incoming shot, in this order: axis crossing, eyeline, jump cut, displacement re-establishing, screen direction, then entrant re-establishing.
  *
- * The axis finding needs both shots to state the same action axis, neither to
- * cross it visibly, and the camera to stand on opposite sides at the two
- * boundaries. The eyeline finding needs the incoming primary subject's gaze to
- * reverse or continue the outgoing one, and reads the wrong screen relation.
- * The jump-cut, displacement and screen-direction findings need both shots to
- * share their primary subject: a same measured size with a camera-bearing
- * change below the angle threshold, a subject displacement beyond the
- * distance threshold into a shot that is not wide, or a reversed horizontal
- * screen motion. The entrant finding names the first subject in id order that
- * the outgoing shot did not observe, when the incoming shot is measured and
- * not wide and no displacement finding was filed.
+ * The axis finding needs both shots to state the same action axis, neither to cross it visibly, and the camera to stand on opposite sides at the two boundaries. The eyeline finding needs the incoming primary subject's gaze to reverse or continue the outgoing one, and reads the wrong screen relation. The jump-cut, displacement and screen-direction findings need both shots to share their primary subject: a same measured size with a camera-bearing change below the angle threshold, a subject displacement beyond the distance threshold into a shot that is not wide, or a reversed horizontal screen motion. The entrant finding names the first subject in id order that the outgoing shot did not observe, when the incoming shot is measured and not wide and no displacement finding was filed.
  *
  * @param diagnostics Finding list of the read, appended to in filing order.
  * @param previous Normalized outgoing shot of the cut.
  * @param incoming Normalized incoming shot of the cut.
  * @param sizeOf Measured size of a shot at a boundary; the read memoizes it.
- * @param thresholds Smallest non-jump bearing change in degrees and largest
- *   displacement in metres that needs no wide shot.
+ * @param thresholds Smallest non-jump bearing change in degrees and largest displacement in metres that needs no wide shot.
  *
- * @evidence contracts/common.md#principled-implementation The axis side is the sign of the ground-plane cross product of the axis and the camera offset, the cut angle is the arc cosine of the clamped normalized dot product of the two camera bearings around the subject, and screen relations are signs of `projectToNdc` differences; every sign and degenerate length uses the `GRAMMAR_EPSILON` dead band, so a camera on the axis or at its subject reads as neutral instead of as a sign flipped by rounding.
+ * @evidence contracts/common.md#principled-implementation Axis side uses a ground-plane cross-product sign, cut angle uses the arc cosine of a clamped normalized bearing dot product, and screen relations use projected-coordinate differences. Signs within GRAMMAR_EPSILON are neutral; a bearing length product at or below that threshold instead returns 180 degrees, suppressing an ordinary jump-cut threshold. Finite admitted observations do not by themselves guarantee finite derived cross products, norm products or projections.
  * @evidence contracts/common.md#clear-and-simple-design One entry per cut with one private inspector per finding family, so `readFilmGrammar` orders shots and applies suppression while every cut rule lives here; the displacement and entrant re-establishing checks share one flag because only one re-establishing finding is filed per cut.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No shot, subject or camera is special-cased; the thresholds come from the caller, and a subject that cannot be projected yields no finding rather than a guessed one.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No shot, subject or camera is special-cased and thresholds come from the caller. Screen relations are neutral when either depth is at or below GRAMMAR_EPSILON; other non-finite derived projections are not gated here, so that refusal is not a general projection-validity guarantee.
  * @evidence contracts/common.md#meaningful-documentation States the filing order, the condition of each finding family including the entrant rule, and the role and units of every parameter.
- * @evidence contracts/performance.md#efficient-algorithms Constant work per cut over the prebuilt subject indexes, plus an `O(n)` entrant search over the incoming shot's `n` subjects; at most six projections and four size reads, and no scan of earlier findings.
+ * @evidence contracts/performance.md#efficient-algorithms Constant local work per cut over the prebuilt subject indexes, plus an `O(n)` entrant search over the incoming shot's `n` subjects; eyeline and screen-motion checks together use at most eight projections, and at most two sizeOf calls delegate memoized subject measurement to the caller. No earlier findings are scanned.
  * @evidence contracts/performance.md#reuse-equivalent-work Reads sizes through the caller's memo, so the incoming start size it shares with the shot-size check and the next cut's outgoing end size are measured once per read; subject lookups use the index `normalizeGrammarShot` built.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Appends at most six findings per call to the caller's list and retains nothing else; projected points and relation records are released on return.
  */
@@ -171,8 +158,7 @@ function inspectAxis (
 }
 
 /**
- * Files an eyeline finding when a reverse or a continuation of the outgoing
- * primary subject's gaze reads the wrong way on screen.
+ * Files an eyeline finding when a reverse or a continuation of the outgoing primary subject's gaze reads the wrong way on screen.
  */
 function inspectEyeline (
   diagnostics: IAutoMovieGrammarDiagnostic[],
@@ -285,7 +271,11 @@ function crossesActionAxisOnScreen (
   return start !== 0 && end !== 0 && start !== end;
 }
 
-/** Signed screen offset of a target from a subject, per axis. */
+/**
+ * Signed screen offset of a target from a subject, per axis.
+ *
+ * @author Samchon
+ */
 interface IScreenRelation {
   /** Positive when the target is screen-right of the subject. */
   horizontal: Sign;
@@ -294,7 +284,7 @@ interface IScreenRelation {
   vertical: Sign;
 }
 
-/** Where `target` sits on screen relative to `subject`; neutral off-lens. */
+/** Target offset from the subject; neutral when either depth is at or below GRAMMAR_EPSILON. */
 function relativeScreenDirection (
   camera: IAutoMovieGrammarCameraObservation,
   subject: IAutoMovieVector3,
@@ -346,8 +336,7 @@ function screenMotionDirection (
 }
 
 /**
- * Degrees between the two camera bearings around the subject across a cut;
- * 180 when either camera stands on its subject.
+ * Degrees between camera bearings across a cut; 180 when their length product is at or below GRAMMAR_EPSILON.
  */
 function cameraBearingAngleDegrees (
   previousSubject: IAutoMovieVector3,

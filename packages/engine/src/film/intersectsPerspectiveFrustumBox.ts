@@ -14,10 +14,7 @@ import { localSegmentMeetsPerspectiveFrustum } from "./localSegmentMeetsPerspect
 /**
  * The twelve edges of any eight-corner box, as index pairs.
  *
- * Both corner lists below are built by nesting three two-valued choices, so a
- * corner's index is those three choices read as bits and an edge is a pair
- * differing in exactly one of them. The same twelve pairs therefore name the
- * box's edges and the frustum's.
+ * Both corner lists below are built by nesting three two-valued choices, so a corner's index is those three choices read as bits and an edge is a pair differing in exactly one of them. The same twelve pairs therefore name the box's edges and the frustum's.
  */
 const BOX_EDGES: ReadonlyArray<readonly [number, number]> = [
   [0, 1],
@@ -35,26 +32,11 @@ const BOX_EDGES: ReadonlyArray<readonly [number, number]> = [
 ];
 
 /**
- * Whether a world-space axis-aligned box intersects an exact perspective-camera
- * frustum.
+ * Whether a world-space axis-aligned box intersects a perspective-camera frustum under finite, ordered geometry and a valid lens.
  *
- * Both bodies are convex, and two convex polyhedra meet exactly when an edge of
- * one meets the other: every vertex of the intersection is a vertex of one body
- * lying inside the other, or a crossing of one body's edge with the other's
- * face, and each of those puts some edge of one body inside the other. So the
- * twelve box edges are clipped against the frustum's six half-spaces, and the
- * twelve frustum edges against the box's three slabs. Neither half alone is the
- * answer: a box small enough to sit inside the frame is found only by the
- * first, and a frustum that pierces a mass far wider than itself, a camera
- * standing inside a crowd or above one, only by the second. Touching counts as
- * meeting, and a malformed crop throws the `RangeError` of
- * {@link deliveryCropNdc}.
+ * Both bodies are convex, and two convex polyhedra meet exactly when an edge of one meets the other: every vertex of the intersection is a vertex of one body lying inside the other, or a crossing of one body's edge with the other's face, and each of those puts some edge of one body inside the other. So the twelve box edges are clipped against the frustum's six half-spaces, and the twelve frustum edges against the box's three slabs. Neither half alone is the answer: a box small enough to sit inside the frame is found only by the first, and a frustum that pierces a mass far wider than itself, a camera standing inside a crowd or above one, only by the second. Touching counts as meeting, and a malformed crop throws the `RangeError` of {@link deliveryCropNdc}.
  *
- * This is what a required subject with a real extent is judged against in
- * `realizeShotContract`. A segment through one point cannot answer for a mass:
- * it reports a crowd absent whenever the frame holds its flank instead of its
- * middle, and present whenever that one point is on screen no matter where the
- * rest of the unit stands.
+ * This is what a required subject with a real extent is judged against in `realizeShotContract`. A segment through one point cannot answer for a mass: it reports a crowd absent whenever the frame holds its flank instead of its middle, and present whenever that one point is on screen no matter where the rest of the unit stands.
  *
  * @param props.camera Camera placement, looking down its local −Z.
  * @param props.min Minimum world corner of the box, in metres.
@@ -66,13 +48,13 @@ const BOX_EDGES: ReadonlyArray<readonly [number, number]> = [
  * @param props.crop Delivery crop, or the whole gate when omitted.
  * @returns True when the box and the frustum share at least one point.
  *
- * @evidence contracts/common.md#principled-implementation The edge-crossing criterion for two convex polyhedra: box edges are clipped by Cyrus-Beck against the frustum planes in camera space, and frustum edges by slab clipping against the box in world space, which together are exact for any non-degenerate pair; the premise is an ordered box and a unit camera rotation.
+ * @evidence contracts/common.md#principled-implementation The edge-crossing criterion for two convex polyhedra: box edges are clipped by Cyrus-Beck against the frustum planes in camera space, and frustum edges by slab clipping against the box in world space, which together give the exact-real criterion for a non-degenerate pair. Finite ordered bounds, a valid lens, nearly unit camera rotation and representable intermediates are premises; binary64 rounding at boundaries is not a certified enclosure or rendered-pixel proof.
  * @evidence contracts/common.md#clear-and-simple-design Shares the camera-space clipping core with the segment test and the crop conversion with the projection, keeping only the two edge sweeps and the slab test that belong to a box.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Neither body is sampled at chosen points and no tolerance widens either; both halves of the criterion always run until one finds a crossing.
  * @evidence contracts/common.md#meaningful-documentation States why both edge sweeps are needed, with the case each alone misses, that touching counts, the crop error, who judges against it, and each parameter's frame and units.
  * @evidence contracts/performance.md#efficient-algorithms Constant time: the eight box corners are transformed into camera space once and the crop converted once for all twelve clips, instead of two rotations and a crop validation per edge, then at most twelve slab tests over the eight frustum corners.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure predicate over one box and one camera that coordinates no work across calls; the grader calls it once per sampled instant.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Allocates sixteen corner vectors for the call and retains nothing.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Creates bounded constant-size original, camera-local and frustum corner arrays plus vector arithmetic temporaries, and retains none after return.
  */
 export function intersectsPerspectiveFrustumBox (props: {
   camera: IAutoMovieResolvedCamera;

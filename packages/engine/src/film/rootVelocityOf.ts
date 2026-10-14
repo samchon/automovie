@@ -11,22 +11,11 @@ import { VELOCITY_DT } from "./constants/VELOCITY_DT";
 import { foldRoot } from "./foldRoot";
 
 /**
- * World root velocity of a node playing `clip` at clip-local `localTime`, in
- * metres per second, from a backward difference of the clip's root folded
- * through the node's staged placement.
+ * World root velocity of a node playing `clip` at clip-local `localTime`, in metres per second, from a backward difference of the clip's root folded through the node's staged placement.
  *
- * The window ends at `localTime` and spans {@link VELOCITY_DT} where it can. A
- * looping clip's root jumps back at the seam, so the window never crosses it:
- * within a cycle it is the trailing `VELOCITY_DT`, in the cycle's first instants
- * it shrinks to `[0, phase]`, and exactly on the seam it measures the cycle's
- * closing stretch with the clip sampled unlooped, so reading `duration` does
- * not wrap to the cycle start. A one-shot clip sampled at or before its end
- * uses the same trailing window clamped at zero, and a sample after its end
- * answers zero because the pose is held. A window of zero length, such as a
- * one-shot at time zero, answers zero.
+ * The window ends at `localTime` and spans {@link VELOCITY_DT} where it can. A looping clip's root jumps back at the seam, so the window never crosses it: within a cycle it is the trailing `VELOCITY_DT`, in the cycle's first instants it shrinks to `[0, phase]`, and exactly on the seam it measures the cycle's closing stretch with the clip sampled unlooped, so reading `duration` does not wrap to the cycle start. A one-shot clip sampled at or before its end uses the same trailing window clamped at zero, and a sample after its end answers zero because the pose is held. A window of zero length, such as a one-shot at time zero, answers zero.
  *
- * `resolveBeatSnapshot` stores the result as an actor's `rootVelocity`, the
- * momentum the next beat continues.
+ * `resolveBeatSnapshot` stores the result as an actor's `rootVelocity`, the momentum the next beat continues.
  *
  * @param node Scene node whose staged transform the root is folded through.
  * @param clip Motion the node plays.
@@ -37,7 +26,7 @@ import { foldRoot } from "./foldRoot";
  * @evidence contracts/common.md#clear-and-simple-design One exported rule with two private steps, sampling the folded root and differencing a window, so the seam and end cases choose a window and share the arithmetic.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No clip or gait is special-cased; the unlooped copy at the seam is the clip's own data sampled without wrapping, not a substituted value.
  * @evidence contracts/common.md#meaningful-documentation States the unit, the window in every case including the seam and the held tail, the zero-length answer, which caller stores it, and each parameter's role.
- * @evidence contracts/performance.md#efficient-algorithms Two `sampleMotion` calls and two transform folds per answer, constant in the number of beats; the cost grows only with the clip's per-sample cost.
+ * @evidence contracts/performance.md#efficient-algorithms At most two sampleMotion calls and two transform folds per answer; held tails and empty windows need neither. Local work is constant in beat count, with the nonempty-window cost delegated to the clip's sampler.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Answers one node and one instant, and coordinates no work across calls; the snapshot that calls it asks once per actor.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the unlooped clip copy at the seam is shallow and released on return.
  */

@@ -3,19 +3,9 @@ import { IAutoMovieCameraIntent } from "@automovie/interface";
 import { FRAMING_HEIGHT_FRACTION } from "./constants/FRAMING_HEIGHT_FRACTION";
 
 /**
- * The framing a subject's measured frame occupancy reads as: the framing whose
- * {@link FRAMING_HEIGHT_FRACTION} is nearest, by ratio, to how many subject
- * sizes the frame spans.
+ * The framing a subject's measured frame occupancy reads as: the framing whose {@link FRAMING_HEIGHT_FRACTION} is nearest, by ratio, to how many subject sizes the frame spans.
  *
- * `frameOccupancy` is the subject's share of the frame, in (0, ∞): its height
- * over the frame's height for a subject the frame holds vertically, or its
- * width over the frame's width for one whose width placed the camera. The
- * framing solve applies {@link FRAMING_HEIGHT_FRACTION} to both axes, so the
- * axis that fills more of its own side states the size delivered, and
- * `measureGrammarShotSize` passes the larger of the two. Nearness is measured
- * on a log scale, so `close` at 0.28 and `medium` at 0.62 are separated where
- * their ratio is even; an exact tie keeps the framing listed first, wider
- * before closer. Throws when the occupancy is not finite and positive.
+ * `frameOccupancy` is the subject's share of the frame, in (0, ∞): its height over the frame's height for a subject the frame holds vertically, or its width over the frame's width for one whose width placed the camera. The framing solve applies {@link FRAMING_HEIGHT_FRACTION} to both axes, so the axis that fills more of its own side states the size delivered, and `measureGrammarShotSize` passes the larger of the two. Nearness is measured on a log scale, so `close` at 0.28 and `medium` at 0.62 are separated where their ratio is even; an exact tie keeps the framing listed first, wider before closer. Throws when the occupancy is not finite and positive.
  *
  * @evidence contracts/common.md#principled-implementation Compares `|log(1/occupancy) − log(fraction)|` across the four framings, because framings are a geometric scale of visible subject multiples and the boundary between two neighbours is their geometric mean; the domain check keeps the logarithm defined.
  * @evidence contracts/common.md#clear-and-simple-design Classification only, separate from `measureGrammarShotSize`, which owns projection and axis choice, and reading the same fraction table the framing solve places cameras with, so a requested size and a measured size share one scale.
@@ -30,9 +20,9 @@ export function classifyGrammarShotSize (
 ): IAutoMovieCameraIntent["framing"] {
   if (Number.isFinite(frameOccupancy) === false || frameOccupancy <= 0)
     throw new Error("frameOccupancy must be finite and positive.");
-  const visibleSubjects: number = 1 / frameOccupancy;
+  const logVisibleSubjects: number = -Math.log(frameOccupancy);
   const distance: (fraction: number) => number = (fraction: number): number =>
-    Math.abs(Math.log(visibleSubjects / fraction));
+    Math.abs(logVisibleSubjects - Math.log(fraction));
   let best: IAutoMovieCameraIntent["framing"] | null = null;
   let bestDistance: number = Infinity;
   for (const framing of Object.keys(

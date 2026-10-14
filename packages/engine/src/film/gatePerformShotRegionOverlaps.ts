@@ -13,30 +13,28 @@ import { IPerformShotGateContext } from "./IPerformShotGateContext";
 import { performShotActionSpan } from "./performShotActionSpan";
 import { performShotActors } from "./performShotActors";
 
-/** What one action's clip carries after its region mask. */
+/**
+ * What one action's clip carries after its region mask, cached by action only while that actor's overlap pairs are compared.
+ *
+ * @author Samchon
+ */
 interface ICarriedContent {
+  /** Bones authored by at least one key and retained by the action's region. */
   bones: Set<AutoMovieHumanoidBone>;
+
+  /** Whether a face-region key authors an expression. */
   expression: boolean;
+
+  /** Whether the action's key and layering policy retain a pose root. */
   root: boolean;
 }
 
 /**
- * Refuse two overlapping actions of one actor whose clips, after their region
- * masks, author the same channel.
+ * Refuse two overlapping actions of one actor whose clips, after their region masks, author the same channel.
  *
- * Region names are only mask policy: a `fullBody` gait that authors legs and
- * arms shares nothing with a head-only `lookAt`, but does collide with an arm
- * gesture. So each overlapping pair is compared by the content its synthesized
- * clip actually carries: the bones its region keeps, the root when the actor
- * has a single region or the action is `lowerBody` or `fullBody`, and the
- * expression for a `face` action. Two actions overlap when one starts more than
- * `1e-9` s before the other ends. A shared channel is one `range` violation at
- * the later action's `start`, listing `root`, the shared bones in code-unit
- * order, and `expression`.
+ * Region names are only mask policy: a `fullBody` gait that authors legs and arms shares nothing with a head-only `lookAt`, but does collide with an arm gesture. So each overlapping pair is compared by the content its synthesized clip actually carries: the bones its region keeps, the root when the actor has a single region or the action is `lowerBody` or `fullBody`, and the expression for a `face` action. Two actions overlap when one starts more than `1e-9` s before the other ends. A shared channel is one `range` violation at the later action's `start`, listing `root`, the shared bones in code-unit order, and `expression`.
  *
- * Synthesis only follows a clean input gate, so the check is skipped for every
- * actor once the collector holds a violation: a malformed request must return
- * its located violations rather than reach a throwing synthesizer.
+ * Synthesis only follows a clean input gate, so the check is skipped for every actor once the collector holds a violation: a malformed request must return its located violations rather than reach a throwing synthesizer.
  *
  * @param context The shot's staged tables and collector.
  * @param actions The performing action list; `frame` actions are ignored.
@@ -46,7 +44,7 @@ interface ICarriedContent {
  * @evidence contracts/common.md#clear-and-simple-design A gate of its own because it is the only one that synthesizes; span, actor and region rules are the shared `performShotActionSpan`, `performShotActors` and `actionRegion`.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Every actor and verb is compared by the same content rule; the tolerance is one fixed `1e-9` s against floating start arithmetic, and no pair is exempted by its region names.
  * @evidence contracts/common.md#meaningful-documentation States why content rather than regions is compared, what counts as carried content, the overlap tolerance, the violation's path and listing order, and why the gate is skipped after an earlier violation.
- * @evidence contracts/performance.md#efficient-algorithms Per actor, one sort by start then a pairwise sweep that breaks once a start passes the current end, so only overlapping pairs are compared; each action's content is computed at most once per actor.
+ * @evidence contracts/performance.md#efficient-algorithms Grouping visits action-to-actor membership, then each actor sorts actions by start and sweeps overlapping pairs, quadratic when all overlap. Each action's content is computed once per actor by traversing synthesized keyframes/joints; arbitrary synthesizer work is additional, and shared-channel diagnostic ordering adds sorting and text costs.
  * @evidence contracts/performance.md#reuse-equivalent-work Each action's synthesis comes from the shot's memoized synthesizer, so the clips made here are the clips the performance compile later reuses, and each action's masked content is cached per actor across all its pairs.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The per-actor lists and content caches are dropped on return; synthesized clips stay in the caller's memo for the rest of the call.
  */

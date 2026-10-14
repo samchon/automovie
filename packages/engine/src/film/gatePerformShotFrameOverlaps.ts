@@ -2,15 +2,9 @@ import { IPerformShotFrameJob } from "./IPerformShotFrameJob";
 import { IPerformShotGateContext } from "./IPerformShotGateContext";
 
 /**
- * Sort the live camera's frame moves by start, in place, and refuse moves that
- * double-book the camera.
+ * Sort the live camera's frame moves by start, in place, and refuse moves that double-book the camera.
  *
- * Two moves starting within `1e-9` s of each other are one `range` violation
- * at the later move's `start`, asking for one framing per instant. An explicit
- * duration that runs, clipped to the shot, more than `1e-9` s past the next
- * move's start is another. An `"auto"` duration yields to the next move by
- * definition, so it never overlaps. The sorted order is the one the blocking
- * gate, the camera compile and `cameraIntent` read.
+ * Two moves starting within `1e-9` s of each other are one `range` violation at the later move's `start`, asking for one framing per instant. An explicit duration that runs, clipped to the shot, more than `1e-9` s past the next move's start is another. An `"auto"` duration yields to the next move by definition, so it never overlaps. The sorted order is the one the blocking gate, the camera compile and `cameraIntent` read.
  *
  * @param context The shot's staged tables and collector.
  * @param frames The frame jobs; sorted in place by `action.start`.
@@ -21,7 +15,7 @@ import { IPerformShotGateContext } from "./IPerformShotGateContext";
  * @evidence contracts/common.md#meaningful-documentation States both violations with their tolerance and path, why `"auto"` never overlaps, the in-place sort, and who reads the sorted order.
  * @evidence contracts/performance.md#efficient-algorithms One `O(f log f)` sort of the frame moves and one linear pass over neighbours, instead of comparing every pair.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work One pass over one shot's frame moves; the sorted list itself is the result later stages reuse.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Reorders the caller's list and pushes violations into the shared collector; it allocates and keeps nothing else.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Reorders the caller's list and appends findings to the caller's collector, retaining no state after return. The host's sort may allocate temporary workspace during the call.
  */
 export function gatePerformShotFrameOverlaps (
   context: IPerformShotGateContext,

@@ -43,7 +43,11 @@ const TRUCK_SEGMENTS: number = 8;
 /** Follow moves sample the subject's animated base at this rate, in hertz. */
 const FOLLOW_HZ: number = 4;
 
-/** One camera key: shot-local seconds, world position and world rotation. */
+/**
+ * One camera key: shot-local seconds, world position and world rotation.
+ *
+ * @author Samchon
+ */
 interface IKey {
   /** Shot-local seconds. */
   t: number;
@@ -56,61 +60,32 @@ interface IKey {
 }
 
 /**
- * Compile a camera's `frame` entries into one clip of its world translation and
- * rotation, the deterministic shot grammar.
+ * Compile a camera's `frame` entries into one clip of its world translation and rotation, the deterministic shot grammar.
  *
- * Framing fixes the distance and the aim. The frame must show the framing's
- * {@link FRAMING_HEIGHT_FRACTION} multiple of the subject's height vertically
- * and of its width (twice `radius`) horizontally, each by the pinhole fit
- * `d = (visible / 2) / tan(half-angle)`, and the camera stands at whichever
- * distance is larger. It aims at {@link FRAMING_AIM_FRACTION} of the height
- * above the subject's base. The camera approaches along its staged bearing,
- * the direction from the aim point to the staged camera, so the side staging
- * chose is kept and only the distance is solved; a camera staged on the aim
- * point uses +Z.
+ * Framing fixes the distance and the aim. The frame must show the framing's {@link FRAMING_HEIGHT_FRACTION} multiple of the subject's height vertically and of its width (twice `radius`) horizontally, each by the pinhole fit `d = (visible / 2) / tan(half-angle)`, and the camera stands at whichever distance is larger. It aims at {@link FRAMING_AIM_FRACTION} of the height above the subject's base. The camera approaches along its staged bearing, the direction from the aim point to the staged camera, so the side staging chose is kept and only the distance is solved; a camera staged on the aim point uses +Z.
  *
- * Move picks the path over the span `[start, start + duration]`, clipped to the
- * shot, where an `"auto"` duration runs to the next entry's start or the shot
- * end:
+ * Move picks the path over the span `[start, start + duration]`, clipped to the shot, where an `"auto"` duration runs to the next entry's start or the shot end:
  *
  * - `static` holds one framed key at the start.
- * - `push-in` dollies from 1.25 to 0.8 times the framed distance, eased in
- *   and out over eight segments.
- * - `orbit` swings 45 degrees about world up around the start aim, eased over
- *   eight segments.
- * - `truck` slides one framed distance toward the camera's screen-left while
- *   looking at the subject, eased over eight segments and riding the subject's
- *   animated base when it has one; a camera staged straight above or below
- *   uses world -X as screen-left.
- * - `follow` re-frames against the animated base at 4 Hz, at least two keys,
- *   or holds one framed key when the subject does not move.
- * - `whip` keeps the staged position and turns from the staged rotation onto
- *   the aim within 0.2 seconds, without solving a distance.
+ * - `push-in` dollies from 1.25 to 0.8 times the framed distance, eased in and out over eight segments.
+ * - `orbit` swings 45 degrees about world up around the start aim, eased over eight segments.
+ * - `truck` slides one framed distance toward the camera's screen-left while looking at the subject, eased over eight segments and riding the subject's animated base when it has one; a camera staged straight above or below uses world -X as screen-left.
+ * - `follow` re-frames against the animated base at 4 Hz, at least two keys, or holds one framed key when the subject does not move.
+ * - `whip` keeps the staged position and turns from the staged rotation onto the aim within 0.2 seconds, without solving a distance.
  *
- * Keys are linear, so the gap between two entries plays as a re-frame move,
- * and a key landing within 1e-9 s of the previous one replaces it, the later
- * framing winning. Entries must be sorted by `start` and must not overlap,
- * which `performShot` checks. Returns null for no entries, and throws an
- * `Error` for a framing or move outside the grammar.
+ * Keys are linear, so the gap between two entries plays as a re-frame move, and a key landing within 1e-9 s of the previous one replaces it, the later framing winning. Entries must be sorted by `start` and must not overlap, which `performShot` checks. Returns null for no entries, and throws an `Error` for a framing or move outside the grammar.
  *
  * @param props.clipId - Id the returned clip carries.
- * @param props.camera - The staged camera: its id names the tracks, its
- *   vertical field of view sets the fit, and its transform sets the bearing
- *   and the whip's position.
+ * @param props.camera - The staged camera: its id names the tracks, its vertical field of view sets the fit, and its transform sets the bearing and the whip's position.
  * @param props.entries - Frame actions with their resolved subjects.
  * @param props.shotDuration - Shot length in seconds; the clip's duration.
- * @param props.aspect - Frame width over height for the horizontal fit. A
- *   camera states only its vertical field of view, so without this a subject
- *   with a `radius` cannot be fitted across the frame. Omitted, non-finite or
- *   non-positive, it is 1, a square frame, the narrowest any raster of that
- *   height has, so an unknown aspect pulls back rather than crops. A subject
- *   with no `radius` is unaffected.
+ * @param props.aspect - Frame width over height for the horizontal fit. A camera states only its vertical field of view, so without this a subject with a `radius` cannot be fitted across the delivered frame. Omitted, non-finite or non-positive, it is 1, an assumed square frame; a narrower portrait output requires its actual aspect and is not bounded by that fallback. A subject with no `radius` is unaffected.
  *
  * @evidence contracts/common.md#principled-implementation The distance is the pinhole fit on each axis with the binding axis winning, the aim and path are look-at rotations along the staged bearing, and eased segments are sampled into linear keys; the premises are a valid positive vertical field of view, which scene validation guarantees, and sorted non-overlapping entries, which `performShot` gates, and the limitation is that the linear keys approximate the eased orbit arc between its eight samples.
  * @evidence contracts/common.md#clear-and-simple-design One compiler owns the whole framing grammar and every move's path, keyed into one two-track clip; resolving subjects belongs to `performShot` and the grammar tables to their constants, and coverage takes reuse this function with their own camera.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Names no subject or camera; the +Z bearing and world -X screen-left are stated fallbacks for geometrically undefined directions, and an unknown framing or move throws instead of falling back to a default.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Names no subject or camera; +Z bearing and world -X screen-left are stated geometric-degeneracy fallbacks. Unknown framing/move and a follow key count outside safe-integer representation throw; the count gate prevents nonprogressing enumeration without an arbitrary workload cap.
  * @evidence contracts/common.md#meaningful-documentation States the distance and aim solve, the bearing rule and its fallback, each move's path with its constants, span and auto-duration rules, key merging, the input preconditions, the null and error returns, and each parameter's role, units and default.
- * @evidence contracts/performance.md#efficient-algorithms Linear in entries times keys per move, where every move has at most nine keys except `follow`, which has four per second of its span; each key costs one look rotation, and the two tracks are built in one pass over the keys each.
+ * @evidence contracts/performance.md#efficient-algorithms Local construction is linear in the emitted keys: moves emit at most nine keys except follow, whose count grows with four samples per second. Each key adds a look rotation, while truck and follow also invoke the subject's supplied at callback, whose delegated cost is additional. Both output tracks are built from the same key list.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function of one camera's entries, called once per take; the hero and coverage takes have different cameras and entries, so nothing is shared between calls.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the key list is a local bounded by the keys above, and the returned clip is a fresh value owned by the caller.
  */
@@ -269,6 +244,10 @@ export function compileCameraMove (props: {
           break;
         }
         const steps: number = Math.max(2, Math.ceil((t1 - t0) * FOLLOW_HZ) + 1);
+        if (!Number.isSafeInteger(steps))
+          throw new Error(
+            "camera follow cannot enumerate a key count that is not a safe integer",
+          );
         for (let k: number = 0; k < steps; ++k) {
           const t: number = t0 + ((t1 - t0) * k) / (steps - 1);
           const f: IKey = framedAt(subject.at(t), distance);

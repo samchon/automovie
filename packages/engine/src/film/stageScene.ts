@@ -17,6 +17,7 @@ import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { ViolationCollector } from "../validation/ViolationCollector";
 import { collectNonEmptyId } from "../validation/collectNonEmptyId";
+import { describeInvalidValue } from "../validation/describeInvalidValue";
 import { validateSceneEnvironment } from "../validation/validateSceneEnvironment";
 import { validateSpace } from "../validation/validateSpace";
 import { IAutoMovieStagedSet } from "./IAutoMovieStagedSet";
@@ -42,48 +43,24 @@ const UNIT_QUATERNION_TOLERANCE: number = 1e-6;
 const LOOK_DISTANCE_EPSILON: number = 1e-9;
 
 /**
- * The STAGING consumer: fold the script's cast and the staging write's
- * placements into the {@link IAutoMovieScene} every later stage performs into,
- * or return every violation for the correction round.
+ * The STAGING consumer: fold the script's cast and the staging write's placements into the {@link IAutoMovieScene} every later stage performs into, or return every violation for the correction round.
  *
- * Referential integrity is the core check: every placement names a cast
- * member, every cast member is placed, ids are non-blank and unique across
- * actors, set pieces, cameras and lights, a mount rides another placed actor,
- * and a camera's `lookAt` node is a placed actor, set piece or camera, the same
- * table the performance stage resolves positional targets against. Scalars are
- * range-checked where a later stage could not use them: finite positions and
- * turns, a unit set rotation not combined with `facingDeg`, a positive finite
- * set scale, a field of view in `(0, 180)` degrees, `0 < near < far`, the
- * camera's depth precision and clearance envelope, a non-negative light
- * intensity, each light's shape, and a camera that does not look at its own
- * position. Geometry is converted, not judged: whether 0.7 m is striking range
- * is the reviewer's business.
+ * Referential integrity is the core check: every placement names a cast member, every cast member is placed, ids are non-blank and unique across actors, set pieces, cameras and lights, a mount rides another placed actor, and a camera's `lookAt` node is a placed actor, set piece or camera, the same table the performance stage resolves positional targets against. Scalars are range-checked where a later stage could not use them: finite positions and turns, a unit set rotation not combined with `facingDeg`, a positive finite set scale, a field of view in `(0, 180)` degrees, `0 < near < far`, the camera's depth precision and clearance envelope, a non-negative light intensity, each light's shape, and a finite derived camera look direction that does not collapse to its own position. Geometry is converted, not judged: whether 0.7 m is striking range is the reviewer's business.
  *
- * Conversions: an actor's `facingDeg`, about `+Y` with 0 facing `+Z`, becomes
- * its rotation; a set piece becomes a static node through
- * {@link setPieceTransform}; a camera's `lookAt` resolves to a point and the
- * shortest-arc rotation aims its `-Z` there; a light lowers through
- * {@link lowerLightPlacement} to the scene light its `type` names.
+ * Conversions: an actor's `facingDeg`, about `+Y` with 0 facing `+Z`, becomes its rotation; a set piece becomes a static node through {@link setPieceTransform}; a camera's `lookAt` resolves to a point and the level-horizon look basis aims its `-Z` there; a light lowers through {@link lowerLightPlacement} to the scene light its `type` names.
  *
- * The optional `space`, the ground's walkable meaning, is accepted by
- * {@link validateSpace} with its paths re-rooted under `$input.space`, and is
- * composed as `space: null` when omitted, the scalar ground plane. The optional
- * `fog` is range-checked by {@link validateFogPlacement} and lowered verbatim,
- * and is omitted from the scene when unstaged so scenes that never mention fog
- * keep their bytes. The optional `environment` is checked by
- * {@link validateSceneEnvironment} against the staged lights and lowered
- * verbatim.
+ * The optional `space`, the ground's walkable meaning, is accepted by {@link validateSpace} with its paths re-rooted under `$input.space`, and is composed as `space: null` when omitted, the scalar ground plane. The optional `fog` is range-checked by {@link validateFogPlacement} and lowered verbatim, and is omitted from the scene when unstaged so scenes that never mention fog keep their bytes. The optional `environment` is checked by {@link validateSceneEnvironment} against the staged lights and lowered verbatim.
  *
  * @param script The screenplay whose cast staging must place.
  * @param staging The staging write.
  * @returns The composed scene with its persistent mounts, or every violation.
  *
- * @evidence contracts/common.md#principled-implementation Validates the whole write into one collector before composing, so a correction round sees every fault and composition runs only on accepted input; conversions use the engine's own quaternion axis-angle, shortest-arc look rotation and light lowering, and the camera target table lays cameras down first so a repeated id resolves to the actor, matching `scenePlacements`.
+ * @evidence contracts/common.md#principled-implementation Validates the whole write before composing; conversions use quaternion axis-angle, the level-horizon lookRotation basis and light lowering. The camera target table lays cameras down first so a repeated id resolves to the actor, matching scenePlacements.
  * @evidence contracts/common.md#clear-and-simple-design The rung that owns scene composition delegates each field family to its staging validator and lowering helper, the space, fog and environment gates to their shared validators, and set-piece placement to `setPieceTransform`, so the same rule is never stated twice and the function reads as the list of checks and conversions.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No cast member, model or camera is special-cased; geometry is not judged beyond what a later stage cannot use, and the fog omission is a stated byte-stability rule for every scene rather than a fixture exception.
  * @evidence contracts/common.md#meaningful-documentation States every reference and range check, every conversion with its axis and unit, how space, fog and environment are validated and composed, and what the success and failure branches carry.
- * @evidence contracts/performance.md#efficient-algorithms One pass per input list with constant-time map and set lookups, O(C + A + S + K + L) for cast, actors, set pieces, cameras and lights, plus the delegated validators' cost for space and environment; no list is scanned per element.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work Validates and composes one staging write per call; the script and write change between correction rounds, so nothing is kept across calls.
+ * @evidence contracts/performance.md#efficient-algorithms Local joins visit cast, actor, set-piece, camera and light lists with maps/sets, plus inspected identity/diagnostic text and delegated space, environment, fog, clearance and light-shape validation. Ordinary populated typed records are premises; throwing accessors and nonterminating conversion hooks are outside the located-finding guarantee.
+ * @evidence contracts/performance.md#reuse-equivalent-work Shares placement indexes and admitted camera directions between validation and composition during one unchanged staging write. The script and write may change between correction rounds, so nothing is kept across calls.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The indexes, id set and collector are released on return; a success holds one node per actor and set piece, one camera and one light per placement, and the authored space, fog and environment objects by reference, and a failure holds the violation list.
  */
 export function stageScene (
@@ -101,7 +78,7 @@ export function stageScene (
         out.push(
           "type",
           `$script.cast[${index}].node`,
-          `script cast node "${member.node}" is duplicated; first declared at $script.cast[${existing}].node`,
+          `script cast node "${describeInvalidValue(member.node)}" is duplicated; first declared at $script.cast[${existing}].node`,
           member.node,
         );
         return;
@@ -153,7 +130,7 @@ export function stageScene (
         out.push(
           "type",
           "$input.actors",
-          `cast node "${member.node}" (cast[${i}]) must be placed by staging`,
+          `cast node "${describeInvalidValue(member.node)}" (cast[${i}]) must be placed by staging`,
           member.node,
         );
     },
@@ -163,7 +140,7 @@ export function stageScene (
   function claim (id: string, path: string, label: string): void {
     collectNonEmptyId(id, path, label, out);
     if (ids.has(id))
-      out.push("type", path, `id "${id}" must be unique in the scene`, id);
+      out.push("type", path, `id "${describeInvalidValue(id)}" must be unique in the scene`, id);
     ids.add(id);
   }
 
@@ -174,7 +151,7 @@ export function stageScene (
       out.push(
         "type",
         `${path}.node`,
-        `placement must name a script cast node, but "${actor.node}" is not in the cast`,
+        `placement must name a script cast node, but "${describeInvalidValue(actor.node)}" is not in the cast`,
         actor.node,
       );
     if (!isFiniteStageVector3(actor.position))
@@ -188,7 +165,7 @@ export function stageScene (
       out.push(
         "range",
         `${path}.facingDeg`,
-        `actor facingDeg must be finite, but was ${actor.facingDeg}`,
+        `actor facingDeg must be finite, but was ${describeInvalidValue(actor.facingDeg)}`,
         actor.facingDeg,
       );
     if (actor.attach === undefined) return;
@@ -203,7 +180,7 @@ export function stageScene (
       out.push(
         "type",
         `${path}.attach.parent`,
-        `mount parent "${actor.attach.parent}" must be a placed actor`,
+        `mount parent "${describeInvalidValue(actor.attach.parent)}" must be a placed actor`,
         actor.attach.parent,
       );
   });
@@ -223,7 +200,7 @@ export function stageScene (
       out.push(
         "range",
         `${path}.facingDeg`,
-        `set facingDeg must be finite when present, but was ${piece.facingDeg}`,
+        `set facingDeg must be finite when present, but was ${describeInvalidValue(piece.facingDeg)}`,
         piece.facingDeg,
       );
     if (piece.facingDeg !== undefined && piece.rotation !== undefined)
@@ -253,9 +230,8 @@ export function stageScene (
         );
     }
     if (piece.scale !== undefined) {
-      // Zero collapses the piece to nothing, which draws no pixels; a negative
-      // axis mirrors it, flipping the winding the normal and outline passes
-      // read.
+      // A zero axis collapses volume and can leave planar geometry; a negative
+      // axis mirrors the piece and reverses its orientation.
       const scale: IAutoMovieVector3 = setPieceScale(piece.scale);
       if (
         ![scale.x, scale.y, scale.z].every(
@@ -305,6 +281,7 @@ export function stageScene (
         );
   }
 
+  const cameraDirections: Map<IAutoMovieStageCamera, IAutoMovieVector3> = new Map();
   staging.cameras.forEach((camera: IAutoMovieStageCamera, i: number): void => {
     const path: string = `$input.cameras[${i}]`;
     claim(camera.node, `${path}.node`, "camera node id");
@@ -316,11 +293,11 @@ export function stageScene (
         "camera position must be a finite vector",
         camera.position,
       );
-    if (!(camera.fovDeg > 0 && camera.fovDeg < 180))
+    if (typeof camera.fovDeg !== "number" || !(camera.fovDeg > 0 && camera.fovDeg < 180))
       out.push(
         "range",
         `${path}.fovDeg`,
-        `vertical field of view must be within (0, 180)°, but was ${camera.fovDeg}`,
+        `vertical field of view must be within (0, 180)°, but was ${describeInvalidValue(camera.fovDeg)}`,
         camera.fovDeg,
       );
     if (!Number.isFinite(camera.near) || camera.near <= 0)
@@ -330,7 +307,8 @@ export function stageScene (
         "camera near distance must be finite and greater than zero metres",
         camera.near,
       );
-    if (!Number.isFinite(camera.far) || camera.far <= camera.near)
+    if (!Number.isFinite(camera.far) ||
+        (Number.isFinite(camera.near) && camera.near > 0 && camera.far <= camera.near))
       out.push(
         "range",
         `${path}.far`,
@@ -346,7 +324,7 @@ export function stageScene (
       out.push(
         "type",
         `${path}.lookAt.node`,
-        `camera target "${camera.lookAt.node}" must be a placed actor, set piece, or camera`,
+        `camera target "${describeInvalidValue(camera.lookAt.node)}" must be a placed actor, set piece, or camera`,
         camera.lookAt.node,
       );
     if (
@@ -363,19 +341,14 @@ export function stageScene (
       camera.lookAt.kind === "node"
         ? placedPoints.get(camera.lookAt.node)
         : camera.lookAt.point;
-    if (
-      target !== undefined &&
-      positionFinite &&
-      isFiniteStageVector3(target) &&
-      Vector3.length(Vector3.subtract(target, camera.position)) <
-        LOOK_DISTANCE_EPSILON
-    )
-      out.push(
-        "range",
-        `${path}.lookAt`,
-        "camera lookAt must not equal the camera position",
-        camera.lookAt,
-      );
+    if (target !== undefined && positionFinite && isFiniteStageVector3(target)) {
+      const direction: IAutoMovieVector3 = Vector3.subtract(target, camera.position);
+      if (!isFiniteStageVector3(direction))
+        out.push("range", `${path}.lookAt`, "camera look direction must have finite components", camera.lookAt);
+      else if (Vector3.length(direction) < LOOK_DISTANCE_EPSILON)
+        out.push("range", `${path}.lookAt`, "camera lookAt must not equal the camera position", camera.lookAt);
+      else cameraDirections.set(camera, direction);
+    }
     if (camera.clearance !== undefined)
       validateCameraClearanceEnvelope(
         camera.clearance,
@@ -391,7 +364,7 @@ export function stageScene (
       out.push(
         "range",
         `${path}.intensity`,
-        `intensity must be a finite number >= 0, but was ${light.intensity}`,
+        `intensity must be a finite number >= 0, but was ${describeInvalidValue(light.intensity)}`,
         light.intensity,
       );
     validateLightPlacementShape(light, path, out);
@@ -427,15 +400,11 @@ export function stageScene (
   ];
   const cameras: IAutoMovieCamera[] = staging.cameras.map(
     (camera: IAutoMovieStageCamera): IAutoMovieCamera => {
-      const target: IAutoMovieVector3 =
-        camera.lookAt.kind === "node"
-          ? placedPoints.get(camera.lookAt.node)!
-          : camera.lookAt.point;
       return {
         id: camera.node,
         transform: {
           translation: camera.position,
-          rotation: lookRotation(Vector3.subtract(target, camera.position)),
+          rotation: lookRotation(cameraDirections.get(camera)!),
           scale: { x: 1, y: 1, z: 1 },
         },
         fovY: camera.fovDeg,

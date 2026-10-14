@@ -13,16 +13,10 @@ const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 /**
  * The world transform a staged set piece's node carries.
  *
- * Translation is `position`. Rotation is the authored unit `rotation` when
- * present, else a turn of `facingDeg` degrees about world up, `0` facing `+Z`
- * when that is omitted too. Scale is {@link setPieceScale}'s reading of the
- * optional size multiplier. `stageScene` refuses a piece that states both
- * `rotation` and `facingDeg`, so the precedence only decides input that
- * reaches this helper unvalidated.
+ * Translation is `position`. Rotation is the authored unit `rotation` when present, else a turn of `facingDeg` degrees about world up, `0` facing `+Z` when that is omitted too. Scale is {@link setPieceScale}'s reading of the optional size multiplier. `stageScene` refuses a piece that states both `rotation` and `facingDeg`, so the precedence only decides input that reaches this helper unvalidated.
  *
  * @param piece The staged set piece.
- * @returns A transform that shares `position`, an authored `rotation` and a
- *   vector `scale` with the piece rather than copying them.
+ * @returns A transform that shares `position`, an authored `rotation` and a vector `scale` with the piece rather than copying them.
  *
  * @evidence contracts/common.md#principled-implementation Reads the three authored spellings into the decomposed TRS the scene node stores, using the shared quaternion axis-angle construction for the yaw-only spelling, so every consumer composes `T · R · S` from one reading.
  * @evidence contracts/common.md#clear-and-simple-design The one place a set piece's rotation and scale defaults are decided; `stageScene` writes it onto the node and `setPieceMatrix` composes the matrix every prop query measures under from it, instead of each restating the fallback chain.

@@ -3,16 +3,9 @@ import type { IAutoMovieProductionFrameRate } from "@automovie/interface";
 import { productionFrameBoundaryToGridTick } from "./productionFrameBoundaryToGridTick";
 
 /**
- * Map one positive film-frame interval onto a destination integer clock, and
- * refuse an interval the clock cannot represent.
+ * Map one positive film-frame interval onto a destination integer clock, and refuse an interval the clock cannot represent.
  *
- * Both boundaries go through {@link productionFrameBoundaryToGridTick} with the
- * same rounding, so adjacent intervals share their boundary tick and tile the
- * destination clock without gaps or overlaps. An interval whose end frame is
- * not after its start frame throws an `Error`, and so does one whose two
- * boundaries land on the same tick, because a caption or sound region with no
- * duration on its own clock is not a delivered interval. Every error of the
- * boundary map passes through.
+ * Both boundaries go through {@link productionFrameBoundaryToGridTick} with the same rounding, so adjacent intervals share their boundary tick and tile the destination clock without gaps or overlaps. An interval whose end frame is not after its start frame throws an `Error`, and so does one whose two boundaries land on the same tick, because a caption or sound region with no duration on its own clock is not a delivered interval. Every error of the boundary map passes through.
  *
  * @param props.startFrame First film frame of the interval, inclusive.
  * @param props.endFrame Film frame after the last one, exclusive.

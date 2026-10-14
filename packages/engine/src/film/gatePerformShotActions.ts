@@ -1,5 +1,6 @@
 import { IAutoMovieActionCall, IAutoMovieVector3 } from "@automovie/interface";
 
+import { describeInvalidValue } from "../validation/describeInvalidValue";
 import { withArticle } from "../text/withArticle";
 import { IPerformShotActionPlan } from "./IPerformShotActionPlan";
 import { IPerformShotGateContext } from "./IPerformShotGateContext";
@@ -10,34 +11,24 @@ import { validatePerformShotFraming } from "./validatePerformShotFraming";
 import { validatePerformShotId } from "./validatePerformShotId";
 
 /**
- * Gate every action of a beat's performance against the staged world and sort
- * the list into the plan the later stages of `performShot` read.
+ * Gate every action of a beat's performance against the staged world and sort the list into the plan the later stages of `performShot` read.
  *
  * Each action, at `<base>[i]`, is checked for:
  *
- * - its actor: a non-blank id or a non-empty list of distinct ids, each a
- *   staged node or camera, and a camera only for a `frame` action;
- * - its timing: a start inside `[0, duration]`, a positive finite duration or
- *   `"auto"`, a span inside the shot, an `"auto"` span that is not empty
- *   because it starts at the shot's end, and a positive integer `repeat`.
+ * - its actor: a non-blank id or a non-empty list of distinct ids, each a staged node or camera, and a camera only for a `frame` action;
+ * - its timing: a start inside `[0, duration]`, a positive finite duration or `"auto"`, a span inside the shot, an `"auto"` span that is not empty because it starts at the shot's end, and a positive integer `repeat`.
  *
- * A `frame` action must also state a usable framing and move, name exactly one
- * staged camera, and frame a subject that resolves, with its focus and focal
- * length gated as lens intents. The first camera a `frame` action names
- * becomes the live camera, and a second camera is refused, because a take has
- * one live camera. Every other action joins the stage list and is gated by
- * {@link gatePerformShotStageAction}. Violations go into the context's
- * collector; the plan holds what passed.
+ * A `frame` action must also state a usable framing and move, name exactly one staged camera, and frame a subject that resolves, with its focus and focal length gated as lens intents. The first camera a `frame` action names becomes the live camera, and a second camera is refused, because a take has one live camera. Every other action joins the stage list and is gated by {@link gatePerformShotStageAction}. Violations go into the context's collector; the plan can still contain actions with violations. performShot consumes it only after the collector is clean.
  *
  * @param context The shot's staged tables and collector.
  * @param actions The performing action list, the revise pass's when present.
  * @returns The plan: live camera, stage list and its paths, and the jobs.
  *
- * @evidence contracts/common.md#principled-implementation One pass in input order applying each field's stated domain, so violations come out in authoring order and the first frame action elects the camera deterministically; untyped values are checked before use because the function is reachable in-process without the transport's schema gate.
+ * @evidence contracts/common.md#principled-implementation Visits actions in authoring order, gates actor identities and scalar domains, and elects the first frame camera deterministically. Failed-value text uses describeInvalidValue so ordinary coercion failures do not replace a located finding; throwing property accessors and malformed outer records remain outside this typed action-list boundary.
  * @evidence contracts/common.md#clear-and-simple-design Owns the checks every action shares and the frame election; stage verbs are `gatePerformShotStageAction`'s, targets `resolvePerformShotTarget`'s and the framing vocabulary `validatePerformShotFraming`'s, so each rule has one home.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Every action is checked by the same rules whatever its verb, the zero-span `"auto"` case is refused rather than given a minimum span, and a rival camera is refused rather than silently ignored.
  * @evidence contracts/common.md#meaningful-documentation States the actor and timing rules, the frame action's extra rules, the camera election and its refusal, where stage verbs are gated, and where violations and results go.
- * @evidence contracts/performance.md#efficient-algorithms Linear in the actions plus their actor lists, with set lookups for staged ids and one duplicate set per actor list.
+ * @evidence contracts/performance.md#efficient-algorithms Local traversal is linear in actions and actor-list members with set lookups and per-list duplicate sets. Delegated target/rig/group/stage-verb checks, inspected id lengths and emitted diagnostic text add their own populations; supplied callbacks and conversion hooks have additional cost.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A single pass over one action list; the staged tables it reads are the context's, built once per shot.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The returned plan, bounded by the action count, is owned by `performShot` for the rest of its call; nothing else is retained.
  */
@@ -94,7 +85,7 @@ export function gatePerformShotActions (
       context.out.push(
         "range",
         `${path}.focalLength`,
-        `a focal length must be a finite number > 0 mm, but was ${action.focalLength}`,
+        `a focal length must be a finite number > 0 mm, but was ${describeInvalidValue(action.focalLength)}`,
         action.focalLength,
       );
     if (typeof action.actor !== "string")
@@ -158,7 +149,7 @@ function gateActors (
         context.out.push(
           "type",
           `${path}.actor[${slot}]`,
-          `actor "${actor}" is duplicated in this action's actor list`,
+          `actor "${describeInvalidValue(actor)}" is duplicated in this action's actor list`,
           actor,
         );
       seen.add(actor);
@@ -177,14 +168,14 @@ function gateActors (
       context.out.push(
         "type",
         `${path}.actor`,
-        `actor "${actor}" must be a staged scene node or camera`,
+        `actor "${describeInvalidValue(actor)}" must be a staged scene node or camera`,
         actor,
       );
     else if (action.verb !== "frame" && isCamera)
       context.out.push(
         "type",
         `${path}.actor`,
-        `${withArticle(action.verb)} action's actor must be a staged scene node, but "${actor}" is a camera`,
+        `${withArticle(action.verb)} action's actor must be a staged scene node, but "${describeInvalidValue(actor)}" is a camera`,
         actor,
       );
   }
@@ -202,7 +193,7 @@ function gateTiming (
     context.out.push(
       "range",
       `${path}.start`,
-      `action start must be within [0, ${duration}] (the shot), but was ${action.start}`,
+      `action start must be within [0, ${duration}] (the shot), but was ${describeInvalidValue(action.start)}`,
       action.start,
     );
   if (action.duration === "auto") {
@@ -222,14 +213,14 @@ function gateTiming (
       context.out.push(
         "range",
         `${path}.duration`,
-        `action duration must be a finite number > 0 seconds or "auto", but was ${action.duration}`,
+        `action duration must be a finite number > 0 seconds or "auto", but was ${describeInvalidValue(action.duration)}`,
         action.duration,
       );
     if (finiteStart && finiteDuration && action.start + action.duration > duration)
       context.out.push(
         "range",
         `${path}.duration`,
-        `action span [${action.start}, ${action.start + action.duration}] must lie inside the shot [0, ${duration}]`,
+        `action span [${describeInvalidValue(action.start)}, ${action.start + action.duration}] must lie inside the shot [0, ${duration}]`,
         action.duration,
       );
   }
@@ -240,7 +231,7 @@ function gateTiming (
     context.out.push(
       "range",
       `${path}.repeat`,
-      `action repeat must be a positive integer when present, but was ${action.repeat}`,
+      `action repeat must be a positive integer when present, but was ${describeInvalidValue(action.repeat)}`,
       action.repeat,
     );
 }

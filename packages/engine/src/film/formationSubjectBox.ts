@@ -9,22 +9,11 @@ import { sampleFormationMotion } from "../sampleFormationMotion";
 import { transformFormationBounds } from "../transformFormationBounds";
 
 /**
- * The world-space box, in metres, that one formation's members occupy at a
- * shot-local instant.
+ * The world-space box, in metres, that one formation's members occupy at a shot-local instant.
  *
- * The unit's designed bounds go through {@link transformFormationBounds} under
- * the cue {@link sampleFormationMotion} reports at that instant, so a mass that
- * has marched, wheeled, or closed its ranks is framed where it is. Both reads
- * are the builder's own: the ground gate that refuses a member standing off its
- * staged surface asks the same two functions the same way, so a gate and a
- * camera cannot disagree about where a unit is. A time before 0 reads the unit
- * as it stands at 0.
+ * The unit's designed bounds go through {@link transformFormationBounds} under the cue {@link sampleFormationMotion} reports at that instant, so a mass that has marched, wheeled, or closed its ranks is framed where it is. Both reads are the builder's own: the ground gate that refuses a member standing off its staged surface asks the same two functions the same way, so a gate and a camera cannot disagree about where a unit is. A time before 0 reads the unit as it stands at 0.
  *
- * The transformed slot box is then widened on X and Z by the member radius the
- * compiler derived for LOD projection, ignored when negative, and its Y range
- * raised by the member's own extent, because the box of slot positions is a
- * footprint: the outermost member's body hangs over its edge and its head
- * stands above it.
+ * The transformed slot box is then widened on X and Z by the member radius the compiler derived for LOD projection, ignored when negative, and its Y range raised by the member's own extent, because the box of slot positions is a footprint: the outermost member's body hangs over its edge and its head stands above it.
  *
  * @evidence contracts/common.md#principled-implementation Moves the exact slot bounds by the sampled cue through the builder's corner transform, then takes the Minkowski sum with each member's horizontal radius and vertical extent, which bounds every member whose body stays within that radius of its slot, the radius the compiler derives as representative for the recipe.
  * @evidence contracts/common.md#clear-and-simple-design Composes the builder's `sampleFormationMotion` and `transformFormationBounds` with the member extent its caller measured, so `performShot` and `realizeShotContract` frame and grade a unit from one box.

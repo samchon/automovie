@@ -34,45 +34,24 @@ type ICameraOutcome = IAutoMovieCompiledContractRealization["camera"][number];
 /** One graded opening or closing state of the realization record. */
 type IStateOutcome = IAutoMovieCompiledContractRealization["opening"][number];
 
-/** Largest absolute component difference two transforms may differ by. */
+/** Vector-component and absolute quaternion-dot comparison tolerance; the metrics differ. */
 const TRANSFORM_TOLERANCE: number = 1e-9;
 
 /**
- * Grade a shot contract against the compiled artifacts that claim to realize
- * it, measuring every outcome from the compiled scene, motions, camera and
- * event samples rather than from the contract's own prose.
+ * Grade a shot contract against the compiled artifacts that claim to realize it, measuring every outcome from the compiled scene, motions, camera and event samples rather than from the contract's own prose.
  *
- * Opening states are graded at second 0 and closing states at
- * `durationSeconds`. Each event is graded at its source sample's time and
- * passes only when every declared subject resolves, its sample exists and is
- * finite inside its window, and its predicates pass; the sample list itself
- * must name every contract event exactly once. The camera is sampled at 0,
- * every review frame and `durationSeconds`, deduplicated and ascending, and a
- * sample passes only when every required subject resolves, its box intersects
- * the clipped view frustum of the cropped raster, and the box's depth range
- * satisfies the camera's depth-precision constraint. A formation participant
- * must materialize its designed count in contiguous chunks, and, once a
- * production is supplied, every promoted hero node exactly; an actor
- * participant must be a performed scene node; every builder-reported slot
- * collision fails.
+ * Opening states are graded at second 0 and closing states at `durationSeconds`. Each event is graded at its source sample's time and passes only when every declared subject resolves, its sample exists and is finite inside its window, and its predicates pass; the sample list itself must name every contract event exactly once. The camera is sampled at 0, every review frame and `durationSeconds`, deduplicated and ascending, and a sample passes only when every required subject resolves, its box intersects the clipped view frustum of the cropped raster, and the box's depth range satisfies the camera's depth-precision constraint. A formation participant must materialize its designed count in contiguous chunks, and, once a production is supplied, every promoted hero node exactly; an actor participant must be a performed scene node; every builder-reported slot collision fails.
  *
- * A reference that cannot be resolved, such as an absent node, rig, bone,
- * motion, landmark or formation, makes the predicate or camera subject that
- * named it fail; nothing is substituted for it. A camera sample at a
- * non-finite review time is therefore graded and fails instead of being
- * dropped.
+ * A reference that cannot be resolved, such as an absent node, rig, bone, motion, landmark or formation, makes the predicate or camera subject that named it fail; nothing is substituted for it. Contract clocks must already be admitted. Camera resolution runs outside the per-subject catch, so an invalid review time or malformed moving-camera sample can throw here.
  *
  * @param props The contract, the compiled artifacts, and the design context.
- * @returns The realization record, and one `contract-realization-failed`
- *   diagnostic per slot collision, failing state, mismatched sample list,
- *   failing event, camera sample, formation and actor, in that order; an empty
- *   list means the contract is realized.
+ * @returns The realization record, and one `contract-realization-failed` diagnostic per slot collision, failing state, mismatched sample list, failing event, camera sample, formation and actor, in that order; an empty list means the contract is realized.
  *
- * @evidence contracts/common.md#principled-implementation Every outcome is a measurement of the compiled artifacts through one subject reader: predicates compare the measured scalar with the declared operator and tolerance, the camera grade tests the eight corners of each subject box against the same `intersectsPerspectiveFrustumBox` and `projectToNdc` the render raster uses and derives depth precision from the measured depth range, and the formation grade recomputes chunk starts as a running sum and compares hero transforms within `1e-9`, treating `q` and `-q` as one rotation. An unresolvable reference is caught where it is graded and recorded as failing, which is the stated meaning of "not realized" rather than a recovery.
+ * @evidence contracts/common.md#principled-implementation Reads compiled artifacts through one subject reader and applies declared scalar predicates. Camera grading uses intersectsPerspectiveFrustumBox's geometric overlap test and projects eight box corners to derive depth range; it proves neither full enclosure, occlusion nor rendered pixels. Formation chunks use running starts, hero vector components compare within 1e-9, and rotations use |abs(dot)-1| within 1e-9 so q and -q agree. Unresolvable references become failing outcomes at their grading location.
  * @evidence contracts/common.md#clear-and-simple-design The function owns the grading decisions and the diagnostic wording; where subjects stand is delegated to `createShotContractSubjectReader` and each predicate's measurement to `evaluateShotPredicate`, which the state and event grades share; the camera and formation grades stay private because nothing else grades them.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The failure message tells the author to correct the scene, motion, camera or sample because echoed ids and contract prose are never accepted as evidence; no shot, subject or fixture is special-cased, and the source-stage exemption from hero materialization is the documented `production: null` contract, because heroes are added by the builder after this pass.
  * @evidence contracts/common.md#meaningful-documentation States the instants each part is graded at, every condition a state, event, camera sample, formation and actor must meet, how unresolvable references grade, and the order and meaning of the returned diagnostics.
- * @evidence contracts/performance.md#efficient-algorithms Cost is linear in the contract's predicates, events, camera samples times required subjects, formation chunks and heroes, plus the sampling each of those reads; the subject reader turns every id lookup into a map read, the camera times are deduplicated with a set before sorting, and chunk starts are checked against one running sum, linear in the chunk count.
+ * @evidence contracts/performance.md#efficient-algorithms Traverses predicates, events, camera samples times required subjects, chunks and heroes with delegated sampling and extent costs; sorting T deduplicated camera times adds O(T log T). The subject reader indexes identities and chunk starts use one running sum, while camera lookup still scans scene cameras per sample.
  * @evidence contracts/performance.md#reuse-equivalent-work Builds one subject reader per call and shares it across every predicate, event, camera sample and participant check, so object-motion sampling and subject extents computed for one grade are reused by the others; nothing is shared across calls, because each call grades different artifacts.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The reader and its caches are owned by this call and released on return; the returned record holds fresh outcome objects plus references to the contract's predicates and copies of resolved camera placements, sized by the contract.
  */
@@ -207,7 +186,7 @@ export function realizeShotContract (
     if (outcome.passed === false)
       fail(
         `camera at ${outcome.time}s`,
-        "must resolve every required subject bound inside the current camera frame and clipping range with the declared depth precision",
+        "must resolve every required subject bound intersecting the current camera frustum and satisfying its clipping range and declared depth precision",
       );
 
   const formations: IAutoMovieCompiledContractRealization["formations"] =
@@ -233,7 +212,7 @@ export function realizeShotContract (
         if (passed === false)
           fail(
             `formation "${participant.id}"`,
-            `must materialize one compact ${design?.count ?? 0}-slot runtime with contiguous chunks, designed bounds, and exact promoted hero nodes`,
+            `must materialize one compact ${design?.count ?? 0}-slot runtime with matching anonymous/hero count and contiguous chunks${props.production === null ? "" : ", plus exact promoted hero nodes"}`,
           );
         return [
           {
@@ -273,9 +252,7 @@ export function realizeShotContract (
 }
 
 /**
- * Whether a compiled formation is the one compact runtime its design asks
- * for: the designed count, split between anonymous slots and heroes, and
- * chunks indexed in order that tile `[0, count)` without gaps.
+ * Whether a compiled formation is the one compact runtime its design asks for: the designed count, split between anonymous slots and heroes, and chunks indexed in order that tile `[0, count)` without gaps.
  */
 function compactFormationPasses (
   design: IAutoMovieFormationDesign,
@@ -289,15 +266,14 @@ function compactFormationPasses (
   let start: number = 0;
   for (let index: number = 0; index < formation.chunks.length; ++index) {
     const chunk: IAutoMovieFormationChunk = formation.chunks[index]!;
-    if (chunk.index !== index || chunk.start !== start) return false;
+    if (chunk.index !== index || chunk.start !== start || !Number.isSafeInteger(chunk.count) || chunk.count <= 0) return false;
     start += chunk.count;
   }
   return start === design.count;
 }
 
 /**
- * Whether every promoted hero has a scene node at exactly the hero's
- * transform, built from the design's model recipe.
+ * Whether every promoted hero has a scene node within the declared transform comparison tolerance, built from the design's model recipe.
  */
 function heroesMaterialized (
   reader: IShotContractSubjectReader,
@@ -315,9 +291,7 @@ function heroesMaterialized (
   }); }
 
 /**
- * Grade the live camera at one shot-local second against the contract's
- * required subjects. Without a live camera or a raster the sample fails with
- * a not-a-number depth report.
+ * Grade the live camera at one shot-local second against the contract's required subjects. Without a live camera or a raster the sample fails with a not-a-number depth report.
  */
 function cameraOutcome (
   props: IRealizeShotContractProps,
@@ -402,7 +376,8 @@ function cameraOutcome (
       )
         ++readableSubjects;
     } catch {
-      // An unplaceable subject stays unresolved, which fails the sample.
+      // Placement or boxing failure leaves this subject unreadable. A boxing
+      // failure may occur after its placement incremented resolvedSubjects.
     }
   const depthPrecision: ICameraOutcome["depthPrecision"] =
     evaluateAutoMovieCameraDepthPrecision({
@@ -448,9 +423,7 @@ function vectorClose (
   Math.abs(left.z - right.z) <= TRANSFORM_TOLERANCE; }
 
 /**
- * Whether two unit quaternions name the same rotation within the tolerance;
- * `q` and `-q` are the same rotation, so the absolute dot product is compared
- * with one.
+ * Whether two unit quaternions name the same rotation within the tolerance; `q` and `-q` are the same rotation, so the absolute dot product is compared with one.
  */
 function quaternionClose (
   left: IAutoMovieTransform["rotation"],

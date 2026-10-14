@@ -6,10 +6,7 @@ import { IAutoMoviePlaybackTimeline } from "./IAutoMoviePlaybackTimeline";
 /**
  * Build a playback layout and the shot index its frame and event consumers share.
  *
- * The sequence must have passed cutSequence: trims and overlaps already fit
- * their source spans. This preparation still refuses empty cuts, duplicate
- * supplied shot ids, missing referenced shots and a first-entry transition.
- * Extra supplied shots are indexed but do not add playback entries.
+ * The sequence must have passed cutSequence: trims and overlaps already fit their source spans. This preparation still refuses empty cuts, duplicate supplied shot ids, missing referenced shots and a first-entry transition. Extra supplied shots are indexed but do not add playback entries.
  *
  * @returns The output-clock timeline and its unambiguous supplied-shot index.
  *

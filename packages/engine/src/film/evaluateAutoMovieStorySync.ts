@@ -6,7 +6,11 @@ import {
 
 import { autoMovieStoryTime } from "./autoMovieStoryTime";
 
-/** One addressed event's measurement, with why it has no story time. */
+/**
+ * One addressed event's measurement, with why it has no story time.
+ *
+ * @author Samchon
+ */
 interface IStorySyncEntry {
   /** The event as reported in the outcome. */
   point: IAutoMovieStorySyncPoint;
@@ -18,27 +22,15 @@ interface IStorySyncEntry {
 /**
  * Measure one cross-shot simultaneity claim on the production story clock.
  *
- * Each addressed event is taken at its realized shot-local time, mapped through
- * its own shot's pin by {@link autoMovieStoryTime}, and the widest gap between
- * any two resulting story times is compared against the tolerance, inclusive.
- * Nothing here consults the edit: two shots cut minutes apart pass when their
- * pins put the events together, and two adjacent shots fail when their pins do
- * not.
+ * Each addressed event is taken at its realized shot-local time, mapped through its own shot's pin by {@link autoMovieStoryTime}, and the widest gap between any two resulting story times is compared against the tolerance, inclusive. Nothing here consults the edit: two shots cut minutes apart pass when their pins put the events together, and two adjacent shots fail when their pins do not.
  *
- * The verdict is refusable. An unpinned shot, a missing or non-finite
- * realization, or a story time that is not finite leaves an operand
- * unresolved, and the claim then fails with a summary naming the first such
- * operand and why, because a claim nobody can measure is not a claim that
- * holds. An empty event list fails too. Otherwise the summary names the
- * earliest and latest events, where a tie for latest names the later-listed
- * event so a simultaneous claim quotes two distinct events. Every point is
- * reported in declared order either way.
+ * The verdict is refusable. An unpinned shot, a missing or non-finite realization, or a story time that is not finite leaves an operand unresolved, and the claim then fails with a summary naming the first such operand and why, because a claim nobody can measure is not a claim that holds. An empty event list fails too. Otherwise the summary names the earliest and latest events, where a tie for latest names the later-listed event so a simultaneous claim quotes two distinct events. Every point is reported in declared order either way.
  *
  * @evidence contracts/common.md#principled-implementation Maps every realized time through its shot's pin, then takes the range of the story times in one pass, since the largest pairwise gap of a set of reals is its maximum minus its minimum; unresolved operands fail before any comparison so a missing measurement can never pass.
  * @evidence contracts/common.md#clear-and-simple-design Owns the measurement and verdict only; the story map is `autoMovieStoryTime` and the lookups of pins and realized times are callbacks, so `storySyncDiagnostics` binds them to the production's contracts and realizations without this function knowing their stores.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Names no shot or event; the tolerance is the caller's, unresolved operands fail rather than being skipped, and the tie rule only selects which events the summary quotes.
  * @evidence contracts/common.md#meaningful-documentation States the mapping, the inclusive comparison, the independence from the edit, every refusal case and its summary, the empty-list result, the tie rule, and the order of the reported points.
- * @evidence contracts/performance.md#efficient-algorithms Linear in the addressed events, one callback pair per event and one pass for the extremes, instead of comparing every pair.
+ * @evidence contracts/performance.md#efficient-algorithms Local traversal is linear in addressed events with one callback pair per event and one extreme pass. Supplied callback work is additional and unbounded here; subtracting extreme finite story times can still yield an infinite spread, which fails a finite tolerance.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Evaluates one claim from its callbacks; `storySyncDiagnostics` routes every consumer through one call per claim and owns any reuse of realizations.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the caller owns the outcome and its one point per addressed event.
  */

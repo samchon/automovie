@@ -8,32 +8,15 @@ import { autoMovieSectionPlaneDistance } from "./autoMovieSectionPlaneDistance";
 const AXES: readonly ("x" | "y" | "z")[] = ["x", "y", "z"];
 
 /**
- * Classify a world-space axis-aligned box, in metres, against a set of section
- * planes: `kept` when every plane keeps all of it, `cut` when some plane
- * removes all of it, and `crossed` otherwise. An empty plane list keeps every
- * box.
+ * Classify a world-space axis-aligned box, in metres, against a set of section planes: `kept` when every plane keeps all of it, `cut` when some plane removes all of it, and `crossed` otherwise. An empty plane list keeps every box.
  *
- * Each plane is decided exactly, without walking eight corners: over a box
- * `n̂·(p − p0)` is linear, so its extremes sit at the two corners chosen per
- * axis by the sign of the normal's component. The corner farthest toward the
- * removed side decides whether the box is wholly kept, and the corner farthest
- * toward the kept side whether it is wholly removed. A box merely touching a
- * plane is not removed: the touching face sits at exactly zero, which
- * {@link autoMovieSectionPlaneDistance} keeps, so a wall standing on the cutting
- * level still reads as present.
+ * Each plane uses two support corners rather than eight: over a box n̂·(p − p0) is linear, so its extremes sit at the corners chosen per axis by the normal's sign. The corner farthest toward the removed side decides whether the box is wholly kept, and the opposite corner whether it is wholly removed. A computed zero distance is kept. Binary64 boundary rounding and overflow in the shared distance arithmetic remain; finite box coordinates alone do not certify exact distances.
  *
- * Throws a `RangeError` when a corner coordinate is not finite or `min`
- * exceeds `max` on an axis, because the support corners of such a box are
- * swapped and a box wholly kept would read as cut; a degenerate plane throws as
- * {@link autoMovieSectionPlaneDistance} does.
+ * Throws a `RangeError` when a corner coordinate is not finite or `min` exceeds `max` on an axis, because the support corners of such a box are swapped and a box wholly kept would read as cut; a degenerate plane throws as {@link autoMovieSectionPlaneDistance} does.
  *
- * This tells a reviewer which subjects a section left in view. It is not folded
- * into {@link intersectsPerspectiveFrustumBox}: an authored camera declares no
- * plane, so folding it into delivery acceptance would add a term that is
- * always empty there while making the acceptance of a sliced subject a silent
- * decision.
+ * This tells a reviewer which subjects a section left in view. It is not folded into {@link intersectsPerspectiveFrustumBox}: an authored camera declares no plane, so folding it into delivery acceptance would add a term that is always empty there while making the acceptance of a sliced subject a silent decision.
  *
- * @evidence contracts/common.md#principled-implementation The support-point test for a linear function over a box: per plane, the corner maximizing the signed distance and the one minimizing it bound every point of the box, so two distance evaluations decide containment exactly; the corner choice assumes an ordered finite box, which is now checked.
+ * @evidence contracts/common.md#principled-implementation A linear function's support corners give its exact-real extrema over an ordered box, which this function checks before selecting them. Two shared distance evaluations implement that criterion per plane; their products, sums and boundary comparisons retain binary64 rounding and overflow limits. Crossed means no single plane wholly removes the box and at least one fails to wholly keep it, not proof that the combined kept half-spaces intersect it.
  * @evidence contracts/common.md#clear-and-simple-design The box counterpart of `autoMovieSectionPlanesKeepPoint`, both reading `autoMovieSectionPlaneDistance` for the sign convention and the degenerate-plane refusal, and kept out of frustum acceptance for the stated reason.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Names no subject or plane; the boundary rule is the shared distance's, and a malformed box is refused rather than classified by swapped corners.
  * @evidence contracts/common.md#meaningful-documentation States the frame and unit, the three verdicts and the empty-plane case, the support-corner method, the touching rule with its reason, each throwing case, and why the test stays out of frustum acceptance.

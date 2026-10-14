@@ -13,7 +13,11 @@ import { Vector3 } from "../math/Vector3";
 import { sampleTimes } from "../motion/sampleTimes";
 import { compareCodeUnits } from "../text/compareCodeUnits";
 
-/** An inclusive world-space axis-aligned box, in metres. */
+/**
+ * An inclusive world-space axis-aligned box, in metres.
+ *
+ * @author Samchon
+ */
 interface IBox {
   /** Smallest corner. */
   min: IAutoMovieVector3;
@@ -22,7 +26,11 @@ interface IBox {
   max: IAutoMovieVector3;
 }
 
-/** One current world-space obstacle bound at one fixed-clock instant. */
+/**
+ * One current world-space obstacle bound at one fixed-clock instant.
+ *
+ * @author Samchon
+ */
 interface IAutoMovieCameraClearanceObstacleState {
   /** Stable resolved scene-node identity. */
   node: string;
@@ -31,7 +39,11 @@ interface IAutoMovieCameraClearanceObstacleState {
   bounds: IBox;
 }
 
-/** Camera and obstacle state read at one fixed-clock instant. */
+/**
+ * Camera and obstacle state read at one fixed-clock instant.
+ *
+ * @author Samchon
+ */
 interface IAutoMovieCameraClearanceSample {
   /** Shot-local sample time in seconds. */
   time: number;
@@ -43,7 +55,11 @@ interface IAutoMovieCameraClearanceSample {
   obstacles: IAutoMovieCameraClearanceObstacleState[];
 }
 
-/** Complete deterministic input for one camera take. */
+/**
+ * Complete deterministic input for one camera take.
+ *
+ * @author Samchon
+ */
 interface IAutoMovieCameraClearanceEvaluation {
   /** Resolved camera identity. */
   camera: string;
@@ -98,8 +114,7 @@ function unionBoxes (first: IBox, second: IBox): IBox { return ({
 }); }
 
 /**
- * Grow a box by a radius on every side, the box a sphere centre must enter to
- * touch it; this over-covers the rounded corners, which keeps it conservative.
+ * Grow a box by a radius on every side, the box a sphere centre must enter to touch it; this over-covers the rounded corners, which keeps it conservative.
  */
 function inflateBox (box: IBox, radius: number): IBox { return ({
   min: {
@@ -115,8 +130,7 @@ function inflateBox (box: IBox, radius: number): IBox { return ({
 }); }
 
 /**
- * Inclusive segment/box slab test. Equality is collision: a camera body that
- * merely touches a wall or support has no physical clearance.
+ * Inclusive segment/box slab test. Equality is collision: a camera body that merely touches a wall or support has no physical clearance.
  */
 function segmentIntersectsBox (
   start: IAutoMovieVector3,
@@ -155,10 +169,7 @@ function sphereCenter (
   ); }
 
 /**
- * Extra radius covering the arc a rotated local centre sweeps between two
- * camera states: the sagitta `r(1 - cos(θ/2))` of the shortest-path rotation
- * angle `θ`, which is the largest gap between a constant-speed arc point and
- * the chord point at the same interval fraction.
+ * Extra radius covering the arc a rotated local centre sweeps between two camera states: the sagitta `r(1 - cos(θ/2))` of the shortest-path rotation angle `θ`, which is the largest gap between a constant-speed arc point and the chord point at the same interval fraction.
  */
 function rotationArcMargin (
   first: IAutoMovieTransform,
@@ -213,41 +224,25 @@ function obstaclesByNode (
 }
 
 /**
- * Sweep one camera take's body and optional parent-rig spheres over every
- * adjacent pair of samples and report each contact with each obstacle.
+ * Sweep one camera take's body and optional parent-rig spheres over every adjacent pair of samples and report each contact with each obstacle.
  *
- * For each interval, each sphere's centre travels the segment between its two
- * transformed positions, its radius grows by the camera's largest absolute
- * scale component and by the sagitta of the arc the centre sweeps under the
- * interval's shortest-path rotation, and that capsule is tested against each
- * obstacle's union of its two endpoint boxes. Touching counts as contact. A
- * single sample is tested as a stationary sphere. A revision mismatch returns
- * a `stale` report with no samples before any geometry is read.
+ * For each interval, each sphere's centre travels the segment between its two transformed positions, its radius grows by the camera's largest absolute scale component and by the sagitta of the arc the centre sweeps under the interval's shortest-path rotation, and that capsule is tested against each obstacle's union of its two endpoint boxes. Touching counts as contact. A single sample is tested as a stationary sphere. A revision mismatch returns a `stale` report with no samples before any geometry is read.
  *
- * The bound is conservative when, between adjacent samples, the camera
- * translation is linear, its rotation is a constant-speed slerp, and every
- * obstacle stays inside the union of its endpoint boxes; the clearance
- * compiler arranges all three by sampling at every key. The sampler blends
- * rotations closer than about 3.6 degrees by normalized lerp instead of
- * slerp, which can carry the centre up to about one millionth of its offset
- * outside the capsule; that slack is left unbounded.
+ * The capsule bound assumes linear camera translation, constant camera scale, constant-speed slerp rotation and obstacles contained by their endpoint-box union. The compiler refines keys and keeps staged camera scale, but the sampler uses normalized lerp below about 3.6 degrees; its deviation is not covered by the slerp sagitta. Direct callers must also supply the constant-scale and endpoint-containment premises. Floating geometry remains numerical, without pixel observation.
  *
- * Findings are ordered by interval, then body before parent rig, then obstacle
- * id in UTF-16 code-unit order, so every host reports the same sequence.
+ * Findings are ordered by interval, then body before parent rig, then obstacle id in UTF-16 code-unit order, so every host reports the same sequence.
  *
  * @param input - Complete current-revision camera and obstacle sample plan.
  * @returns The take's report: `clear` with no findings, `blocked` with each
- *   contact's part, obstacle and inclusive interval, or `stale`.
+ * contact's part, obstacle and inclusive interval, or `stale`.
  * @throws Error when the sample rate or duration is invalid, when the samples
- *   omit a fixed-clock instant, leave `[0, duration]` or are not strictly
- *   increasing, or when a box is non-finite or inverted, an obstacle id
- *   repeats within a sample, or the obstacle id set changes between samples.
+ * omit a fixed-clock instant, leave `[0, duration]` or are not strictly increasing, or when a box is non-finite or inverted, an obstacle id repeats within a sample, or the obstacle id set changes between samples.
  *
- * @evidence contracts/common.md#principled-implementation A swept-sphere capsule against an inflated box by the inclusive slab test, with the rotation arc covered by its sagitta `r(1 - cos(θ/2))`, which equals the largest distance between a constant-speed arc point and the same-parameter chord point; the premises of linear translation, slerped rotation and endpoint-contained obstacles are stated and hold for the compiler's key-refined clock, and the normalized-lerp slack below 3.6 degrees is the one unresolved limitation.
+ * @evidence contracts/common.md#principled-implementation Uses an inclusive slab test for a swept-sphere capsule against an inflated box; r(1-cos(theta/2)) bounds a constant-speed rotation arc's chord deviation under fixed camera scale. Linear translation and endpoint-contained obstacles are additional premises. Normalized-lerp deviation and unconstrained direct-call scale changes are not certified by that sagitta.
  * @evidence contracts/common.md#clear-and-simple-design One pure evaluator over an explicit sample plan, with box, slab and arc helpers private to it; reading shots, models and violation paths belongs to `compileCameraClearanceReports`, so this function can be checked on hand-built samples.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Names no camera or obstacle; malformed plans throw instead of being repaired, contact at exact equality blocks rather than being forgiven by a tolerance, and obstacle order uses the shared `compareCodeUnits` rather than the host locale.
  * @evidence contracts/common.md#meaningful-documentation States the sweep, the radius terms, the contact rule, the single-sample and stale cases, the premises and their limitation, the finding order, the report states and every thrown condition.
- * @evidence contracts/performance.md#efficient-algorithms Time is intervals times parts times obstacles with a constant slab test each, after one obstacle-id sort and one map per sample; every interval must be checked because contact anywhere blocks, and no spatial index pays off for the tens of staged nodes a scene holds.
+ * @evidence contracts/performance.md#efficient-algorithms After sorting obstacle ids and building per-sample maps, visits each interval, sphere part and obstacle with one constant-size slab test. This is O(intervals × parts × obstacles) plus indexing/sort costs; no small obstacle population or measured acceleration comparison is assumed.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function of one take's plan; sharing obstacle states across takes is done by the clearance compiler before calling it.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Retains nothing after return; the per-sample obstacle maps, bounded by samples times obstacles, are locals, and the returned report copies the sample times and holds only its findings.
  */

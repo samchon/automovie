@@ -21,30 +21,18 @@ import { setPieceMatrix } from "./staging/setPieceMatrix";
 /**
  * The world frame a placement relation anchors to, or `null` when it has none.
  *
- * This is the relative-transform half of placement: a source that wants twelve
- * chairs around a table asks for the table's `stack-top` frame once and offsets
- * from it in a loop, instead of typing twelve world positions that stop being
- * right the moment the table moves. Each target kind answers as follows:
+ * This is the relative-transform half of placement: a source that wants twelve chairs around a table asks for the table's `stack-top` frame once and offsets from it in a loop, instead of typing twelve world positions that stop being right the moment the table moves. Each target kind answers as follows:
  *
- * - `prop-affordance`: the affordance's frame under the staged piece's
- *   transform; `null` when the prop, its staged piece or the affordance is
- *   missing.
+ * - `prop-affordance`: the affordance's frame under the staged piece's transform; `null` when the prop, its staged piece or the affordance is missing.
  * - `element`: the element's rest-pose world transform.
  * - `boundary`: the rest-pose world transform of its first realizing element.
- * - `opening`: the rest-pose world transform of its filling element; `null` for
- *   an open cut.
- * - `surface`: a point inside the widest convex piece of the patch, at the
- *   patch's height there, with identity rotation and unit scale; `null` for a
- *   patch with no area.
+ * - `opening`: the rest-pose world transform of its filling element; `null` for an open cut.
+ * - `surface`: a point inside the widest convex piece of the patch, at the patch's height there, with identity rotation and unit scale; `null` for a patch with no area.
  * - `space`: always `null`, because a region has no frame.
  *
- * A building target also answers `null` when its environment, element or
- * record is missing or an element's parent chain is missing or cyclic. Rest
- * pose means operating states are ignored: an anchor on a door is where the
- * door hangs, not where it swings to. Lookups take the first record of a given
- * id; two records sharing one id is a contradiction
- * {@link validatePropPlacements} refuses by name, so resolving it a second time
- * here would report the same defect in a worse place.
+ * A building target also answers `null` when its environment, element or record is missing or an element's parent chain is missing or cyclic. Rest pose means operating states are ignored: an anchor on a door is where the door hangs, not where it swings to. Lookups take the first record of a given id; two records sharing one id is a contradiction {@link validatePropPlacements} refuses by name, so resolving it a second time here would report the same defect in a worse place.
+ *
+ * The composed affine matrix is returned as a decomposed TRS with normalized rotation. Rotations combined with nonuniform parent scales can introduce shear that this representation does not preserve; the result is not a general affine anchor matrix. Matrix4.decompose can throw when derived affine arithmetic cannot produce a finite frame; null covers the stated missing/cyclic/absent-face cases, not every numerical failure.
  *
  * @param props.target The relation target to anchor to.
  * @param props.environments The buildings a building target may name.
@@ -52,9 +40,9 @@ import { setPieceMatrix } from "./staging/setPieceMatrix";
  * @param props.set The staged set pieces that place those props.
  * @returns The anchor's world transform with a unit rotation, or `null`.
  *
- * @evidence contracts/common.md#principled-implementation Frames compose as column-major TRS matrices, staged piece times affordance or ancestor chain times element, and are decomposed once with `Matrix4.decompose` and a renormalized rotation; a surface anchor is the mean of the widest convex piece, which lies inside that piece by convexity, lifted onto the surface's own height rule.
+ * @evidence contracts/common.md#principled-implementation Composes staged-piece/affordance or ancestor/element matrices and projects the result through Matrix4.decompose into TRS with normalized rotation; nested nonuniform scales can introduce unrepresented shear. A surface anchor uses the widest convex piece's interior mean, lifted onto its height rule.
  * @evidence contracts/common.md#clear-and-simple-design Element placement is the shared `builtElementRestMatrices`, piece placement the shared `setPieceMatrix`, and the interior point and height rule come from the space module, so this function keeps only the target-kind dispatch.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Every target kind answers by a stated rule, and every missing or unmeasurable record answers `null` rather than a guessed frame; no prop, building or affordance is special-cased.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Every target kind answers by a stated rule, and missing, cyclic or absent-face records answer null rather than a guessed frame; numerical decomposition refusals propagate instead; no prop, building or affordance is special-cased.
  * @evidence contracts/common.md#meaningful-documentation States the purpose with its motivating case, the answer per target kind and each `null` case, that rest pose ignores operating states, the first-record lookup rule and why, and the meaning of each parameter.
  * @evidence contracts/performance.md#efficient-algorithms Linear lookups over the named lists plus, for a building element, one id index and one matrix product per ancestor; a surface anchor costs the convex decomposition of one patch.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Resolves one target per call and coordinates no work across calls; a caller anchoring many props to one building may keep the returned frames.

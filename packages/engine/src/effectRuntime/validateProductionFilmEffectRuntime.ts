@@ -11,25 +11,17 @@ import { AutoMovieFilmEffectRuntimeError } from "./AutoMovieFilmEffectRuntimeErr
 import { productionFilmEffectFrameRate } from "./productionFilmEffectFrameRate";
 
 /**
- * Refuse a persisted runtime whose shape is not the one the materializer writes.
+ * Check semantic integrity of a structurally admitted persisted film-effect runtime.
  *
- * Version, owner, clock, half-open safe-integer interval, reduced frame rate,
- * inner effect id, zone and constant intensity in `[0, 1]`, both content
- * digests, and the exact frame clock of the inner stream (window and step)
- * must all match. A runtime holding a value canonical JSON cannot encode, such
- * as a non-finite number or a lone surrogate, is refused too. Every refusal is
- * `film-effect-runtime-invalid`. Identity currentness is a separate question
- * each consumer answers against the identity it independently established.
+ * Version, owner, clock, half-open safe-integer interval, reduced frame rate, inner effect id, zone and constant intensity in [0,1], both content digests, and the exact frame clock of the inner stream must match. Production's persisted JSON parser owns schema admission first; direct typed callers must supply populated outer/effect/intensity records and string identities. Under that premise the explicit refusals use film-effect-runtime-invalid, including canonical-JSON failures. Malformed host shapes and unexpected accessors can throw outside that named boundary. Identity currentness is checked separately against independently established facts.
  *
- * Both digests are recomputed with the engine's canonical JSON and pure
- * SHA-256, which produce the same bytes and digest as the Node builder path,
- * so a browser and the builder accept or refuse the same persisted runtime.
+ * Both digests are recomputed with the engine's canonical JSON and pure SHA-256, which produce the same bytes and digest as the Node builder path, so a browser and the builder accept or refuse the same persisted runtime.
  *
  * @evidence contracts/common.md#principled-implementation Integrity by recomputation: the digests are rebuilt from the canonical JSON of the record with its own digest member omitted, and the window and step are recomputed from the frames by `productionFrameBoundaryToSeconds` and `denominator / numerator`, the same float expressions the materializer evaluated, so exact equality is the right comparison.
- * @evidence contracts/common.md#clear-and-simple-design Answers only "is this a runtime the writer could have produced", leaving currentness to the sampler and the population verifier, which both call it first; cheap structural checks run before the digests so a malformed record fails without hashing.
+ * @evidence contracts/common.md#clear-and-simple-design Owns semantic runtime integrity after caller schema admission, leaving currentness to the sampler and population verifier. Explicit version/interval/rate checks precede hashing; this typed API is not a second unknown-input schema parser.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No field is repaired or defaulted, and only `AutoMovieCanonicalJsonError` is translated, because a value the canonicalizer refuses is by definition not a written runtime; any other exception still propagates.
  * @evidence contracts/common.md#meaningful-documentation States every property checked, that unencodable values are refused, the one refusal code, that currentness is out of scope, and that browser and builder agree on the digests.
- * @evidence contracts/performance.md#efficient-algorithms Linear in the runtime's serialized size: two canonicalizations and two SHA-256 passes, the inner effect being serialized in both; the rest is constant work plus one logarithmic rate reduction.
+ * @evidence contracts/performance.md#efficient-algorithms Two canonicalizations traverse and serialize the records, sorting each object's K keys with sum(K log K) work, followed by two linear SHA-256 byte passes; the inner effect is serialized twice. The remaining work includes one logarithmic rate reduction.
  * @evidence contracts/performance.md#reuse-equivalent-work Not cached: callers hold mutable runtime records with no version token, so a previous verdict on the same object could be stale; the sampler and the verifier each validate once per entry per call.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Holds the two canonical strings only during the call and retains nothing.
  */

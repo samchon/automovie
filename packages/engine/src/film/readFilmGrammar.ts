@@ -28,24 +28,11 @@ type Framing = IAutoMovieCameraIntent["framing"] | null;
 type ShotSizeOf = Parameters<typeof inspectGrammarCut>[3];
 
 /**
- * Reads an ordered edit mechanically and reports the film-grammar findings no
- * declared exception excepted, together with the declarations that excepted
- * nothing.
+ * Reads an ordered edit mechanically and reports the film-grammar findings no declared exception excepted, together with the declarations that excepted nothing.
  *
- * Every shot is validated and canonicalized by `normalizeGrammarShot`, and the
- * read throws on the first malformed observation, on a duplicate shot id, or on
- * a threshold that is not finite and positive. It then files, in this order, a
- * shot-size finding per shot whose measured size at either boundary differs
- * from its declared size; for each cut, an axis-crossing, an eyeline, a
- * jump-cut, a displacement re-establishing and a screen-direction finding, then
- * an entrant re-establishing finding when the displacement one was not filed;
- * and one advisory pacing finding for a non-empty edit. A finding is excepted
- * when its shot declares the style intent `GRAMMAR_STYLE_SUPPRESSION` maps to
- * its code, and pacing is excepted when any shot declares `rhythmic-pacing`.
+ * Every shot is validated and canonicalized by `normalizeGrammarShot`, and the read throws on the first malformed observation, on a duplicate shot id, or on a threshold that is not finite and positive. It then files, in this order, a shot-size finding per shot whose measured size at either boundary differs from its declared size; for each cut, an axis-crossing, an eyeline, a jump-cut, a displacement re-establishing and a screen-direction finding, then an entrant re-establishing finding when the displacement one was not filed; and one advisory pacing finding for a non-empty edit. A finding is excepted when its shot declares the style intent `GRAMMAR_STYLE_SUPPRESSION` maps to its code, and pacing is excepted when any shot declares `rhythmic-pacing`.
  *
- * Shot order is editorial meaning and is kept. Subject order and action-axis
- * endpoint order are canonicalized, so they cannot change the result, and the
- * read uses no seed, clock, scene mutation or renderer.
+ * Shot order is editorial meaning and is kept. Subject order and action-axis endpoint order are canonicalized, so they cannot change the result, and the read uses no seed, clock, scene mutation or renderer.
  *
  * @param props The edited shots and the jump-cut and re-establish thresholds.
  * @returns The unexcepted findings in filing order and the unexercised claims.
@@ -54,7 +41,7 @@ type ShotSizeOf = Parameters<typeof inspectGrammarCut>[3];
  * @evidence contracts/common.md#clear-and-simple-design This entry validates thresholds and shot ids, orders the checks, files shot-size and pacing findings and applies suppression; per-shot validation lives in `normalizeGrammarShot`, size measurement in `measureGrammarShotSize`, and the cut rules in `inspectGrammarCut`, so each rule has one owner.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No shot, subject, camera or intent is special-cased; the thresholds are the documented input defaults, and malformed input throws instead of being skipped or repaired.
  * @evidence contracts/common.md#meaningful-documentation States what throws, the filing order of every finding family, how suppression applies including the film-wide pacing rule, and which orders can and cannot affect the result.
- * @evidence contracts/performance.md#efficient-algorithms For `S` shots with `n` subjects each, normalization dominates at `O(S · n log n)`; every inspector is constant work per cut over the prebuilt subject index except the entrant search, which is `O(n)`; suppression is one map lookup per finding, so the whole read is `O(S · n log n)` with no scan of the growing finding list.
+ * @evidence contracts/performance.md#efficient-algorithms Visits every shot and normalizes its subjects, adding O(S + sum(n log(n+1))) structural work for S shots and per-shot subject counts n. Cut inspectors use the built indexes, with entrant searches linear in subject count; inspected and emitted text adds its length. Suppression uses one lookup per finding without rescanning the growing finding list.
  * @evidence contracts/performance.md#reuse-equivalent-work A shot's measured size at each boundary is computed once and memoized for the call, keyed by the normalized shot object and the boundary, because the shot-size check, the jump-cut comparison and both re-establishing checks read the same pair; the inputs are immutable for the call, so no invalidation is needed, and nothing is shared across calls.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Retains, for one call, the normalized shots, a shot index, the size memo of at most two entries per shot, the finding list and the claim keys; all are released on return except the returned findings and claims, which the caller owns.
  */
@@ -87,12 +74,19 @@ export function readFilmGrammar (
       reestablishDistance,
     });
   if (shots.length !== 0) {
-    const average: number =
+    const sum: number =
       shots.reduce(
         (sum: number, shot: IAutoMovieNormalizedGrammarShot): number =>
           sum + shot.duration,
         0,
-      ) / shots.length;
+      );
+    const average: number = Number.isFinite(sum)
+      ? sum / shots.length
+      : shots.reduce(
+          (mean: number, shot: IAutoMovieNormalizedGrammarShot, index: number): number =>
+            mean + (shot.duration - mean) / (index + 1),
+          0,
+        );
     diagnostics.push({
       code: "grammar-pacing",
       severity: "advisory",
@@ -161,15 +155,12 @@ export function readFilmGrammar (
 /**
  * Shot and intent as one lookup key.
  *
- * Separated by a character no declared intent carries, so two distinct claims
- * cannot collide however a shot happens to be named.
+ * Separated by a character no declared intent carries, so two distinct claims cannot collide however a shot happens to be named.
  */
 function claimKey (shot: string, intent: AutoMovieGrammarStyleIntent): string { return `${shot}|${intent}`; }
 
 /**
- * A size reader that measures each shot boundary at most once per read; the
- * shot-size check, the jump-cut comparison and both re-establishing checks ask
- * for the same boundaries.
+ * A size reader that measures each shot boundary at most once per read; the shot-size check, the jump-cut comparison and both re-establishing checks ask for the same boundaries.
  */
 function memoizedShotSize (): ShotSizeOf {
   const sizes: Map<

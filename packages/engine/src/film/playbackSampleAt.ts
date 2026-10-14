@@ -9,13 +9,7 @@ import { IAutoMoviePlaybackSample } from "./IAutoMoviePlaybackSample";
 /**
  * Turn one live timeline entry into the on-screen sample at an output instant.
  *
- * The sample is the live shot at `offset + (seconds - start)`. Inside the live
- * entry's incoming transition, that is while `seconds - start` is less than
- * the transition's duration, it also carries the previous entry's tail as
- * `blend`, at that entry's own local time, with the incoming weight
- * `alpha = (seconds - start) / duration`. The caller picks the live entry;
- * a transition on the first entry is refused by `sequenceTimeline`, so the
- * previous entry always exists when a blend is built.
+ * The sample is the live shot at `offset + (seconds - start)`. Inside the live entry's incoming transition, that is while `seconds - start` is less than the transition's duration, it also carries the previous entry's tail as `blend`, at that entry's own local time, with the incoming weight `alpha = (seconds - start) / duration`. The caller picks the live entry; a transition on the first entry is refused by `sequenceTimeline`, so the previous entry always exists when a blend is built.
  *
  * @param sequence The sequence the timeline was built from.
  * @param entries The timeline's entries, in sequence order.

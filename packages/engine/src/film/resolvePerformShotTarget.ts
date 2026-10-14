@@ -147,7 +147,8 @@ function validateTargetIds (
       );
       return false;
     }
-    target.nodes.forEach((node: unknown, index: number): void => {
+    for (let index: number = 0; index < target.nodes.length; index++) {
+      const node: unknown = target.nodes[index];
       validatePerformShotId(
         out,
         node,
@@ -165,7 +166,7 @@ function validateTargetIds (
           `${label} group member "${node}" must name a staged placement; omitting an unplaced member would change the authored group centroid`,
           node,
         );
-    });
+    }
     if (target.formations === undefined) return out.items.length === initial;
     if (!Array.isArray(target.formations)) {
       out.push(
@@ -178,7 +179,8 @@ function validateTargetIds (
     }
     // A formation id must name a unit this shot compiled; otherwise the group
     // would fall back to its nodes and frame one figure instead of the crowd.
-    target.formations.forEach((formation: unknown, index: number): void => {
+    for (let index: number = 0; index < target.formations.length; index++) {
+      const formation: unknown = target.formations[index];
       validatePerformShotId(
         out,
         formation,
@@ -200,7 +202,7 @@ function validateTargetIds (
           })`,
           formation,
         );
-    });
+    }
     return out.items.length === initial;
   }
   return true;

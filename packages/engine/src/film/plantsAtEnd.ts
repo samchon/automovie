@@ -4,22 +4,15 @@ import {
 } from "@automovie/interface";
 
 /**
- * The stance plant each foot holds at `localTime`, the contact the next beat
- * keeps that foot on.
+ * The stance plant each foot holds at `localTime`, the contact the next beat keeps that foot on.
  *
- * A plant is held when `start <= localTime <= end`, both bounds inclusive. When
- * one foot has several held plants, the one with the latest `start` wins, and a
- * later entry wins an equal-start tie. Feet appear in the order their first
- * held plant appears in `plants`, and each returned plant is the input object
- * itself. `undefined` plants, meaning no plant data was supplied, and a cut
- * where no plant is held both answer `null`. `resolveBeatEnd` and
- * `resolveBeatOpening` store the result as an actor's `footPlants`.
+ * For admitted finite times and stance bounds, a plant is held when `start <= localTime <= end`, both bounds inclusive. When one foot has several held plants, the one with the latest `start` wins, and a later entry wins an equal-start tie. Feet appear in the order their first held plant appears in `plants`, and each returned plant is the input object itself. `undefined` plants, meaning no plant data was supplied, and a cut where no plant is held both answer `null`. `resolveBeatEnd` and `resolveBeatOpening` store the result as an actor's `footPlants`. This selector does not itself validate interval values; NaN comparisons do not establish the stated containment rule.
  *
  * @param plants Stance runs on the ended beat's local clock, or `undefined`.
  * @param localTime The cut instant on the same clock, in seconds.
  * @returns At most one plant per foot, or `null` when none is held.
  *
- * @evidence contracts/common.md#principled-implementation A single-pass fold into a per-foot map keeping the held run with the greatest start, which is the most recent contact under inclusive stance bounds; ties keep the later entry because `>=` replaces the held one, and the map's insertion order fixes the output order deterministically.
+ * @evidence contracts/common.md#principled-implementation Under admitted finite interval values, a single-pass per-foot fold keeps the greatest held start, the most recent inclusive contact; >= replaces equal-start ties with the later entry, and map insertion order fixes output order. Numeric admission remains the caller's responsibility.
  * @evidence contracts/common.md#clear-and-simple-design One selection rule shared by both beat-boundary resolvers, so the end of one beat and the opening of the next keep the same foot on the same contact.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Every foot and every run is judged by the same interval and recency rule; no foot or rig is special-cased.
  * @evidence contracts/common.md#meaningful-documentation States the inclusive interval, the recency and tie rules, the output order, that plants are returned by reference, both `null` cases, the clock and unit, and which resolvers store the answer.

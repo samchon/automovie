@@ -6,18 +6,21 @@ import {
 
 import { ViolationCollector } from "./ViolationCollector";
 
-/** The first declaration of a node id, preserving its diagnostic location. */
+/**
+ * The first declaration of a node id, preserving its authored diagnostic location during one tree validation.
+ *
+ * @author Samchon
+ */
 interface IIndexedNode {
+  /** Borrowed node kept by the first-declaration id index. */
   node: IAutoMovieScriptNode;
+
+  /** Its original tree-array position for field-located findings. */
   index: number;
 }
 
 /**
- * Which parent kinds each node kind may refine. The refinement tree is
- * deliberately permissive where the design is silent (a tiny film may go
- * straight `intent → beat`), but never inverted: an act cannot hang under a
- * scene, a beat is always a leaf. `intent` is absent here because it is the
- * root and may have no parent at all.
+ * Which parent kinds each node kind may refine. The refinement tree is deliberately permissive where the design is silent (a tiny film may go straight `intent → beat`), but never inverted: an act cannot hang under a scene, a beat is always a leaf. `intent` is absent here because it is the root and may have no parent at all.
  */
 const ALLOWED_PARENTS: Record<
   Exclude<IAutoMovieScriptNode["kind"], "intent">,
@@ -30,30 +33,20 @@ const ALLOWED_PARENTS: Record<
 };
 
 /**
- * Validate the screenplay refinement tree against its script's flat beats, the
- * structural gate a script with a `tree` must pass before commit.
+ * Validate the screenplay refinement tree against its script's flat beats, the structural gate a script with a `tree` must pass before commit.
  *
  * Checks, all `error` severity:
  *
  * - Node ids are non-empty and unique.
- * - Exactly one root (`parent: null`) exists and it is the `intent`: the tree
- *   refines one film-level thought; a rootless forest or a second root is two
- *   films in one script.
- * - Every `parent` resolves, the refinement axis is acyclic, and each child's
- *   kind may refine its parent's kind ({@link ALLOWED_PARENTS}); a beat is
- *   always a leaf.
- * - `temporal` and every `interactsWith` entry resolve to an existing node and
- *   never to the node itself.
- * - Beat-kind nodes join the flat `beats` 1:1: every beat node names a real beat
- *   id, no two nodes claim one beat, and every beat is claimed: a tree that
- *   forgets a beat silently drops authored structure.
+ * - Exactly one root (`parent: null`) exists and it is the `intent`: the tree refines one film-level thought; a rootless forest or a second root is two films in one script.
+ * - Every `parent` resolves, the refinement axis is acyclic, and each child's kind may refine its parent's kind ({@link ALLOWED_PARENTS}); a beat is always a leaf.
+ * - `temporal` and every `interactsWith` entry resolve to an existing node and never to the node itself.
+ * - Beat-kind nodes join the flat `beats` 1:1: every beat node names a real beat id, no two nodes claim one beat, and every beat is claimed: a tree that forgets a beat silently drops authored structure.
  * - Dialogue anchors are finite and `>= 0` when non-null.
- * - Intent logline and theme are nonblank and exactly match the flat script
- *   header, so screenplay rendering cannot silently replace authored metadata.
+ * - Intent logline and theme are nonblank and exactly match the flat script header, so screenplay rendering cannot silently replace authored metadata.
  * - Group rationales are nonblank prose, rather than empty bracketed headings.
  *
- * The cross-edge semantics (feedback propagation up the refinement chain) are
- * consumed later; this validator only guarantees the graph is well-formed.
+ * The cross-edge semantics (feedback propagation up the refinement chain) are consumed later; this validator only guarantees the graph is well-formed.
  *
  * @evidence contracts/common.md#principled-implementation Indexes the first declaration of each node id, admits parent-kind pairs through the closed refinement table and joins beat ids one to one. Parent edges form a functional graph; iterative path coloring detects cycles and memoizes their first repeated node for each ancestor, preserving one diagnostic per cyclic chain without repeated walks. Intent metadata compares exact strings because renderScreenplay prints them verbatim.
  * @evidence contracts/common.md#clear-and-simple-design Owns graph and payload consistency at the script commit seam; the private cycle pass shares the same id index and collector. Flat logline and theme are explicit inputs rather than inferred from the tree being checked, so the duplicate representation has an independent authority.

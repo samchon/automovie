@@ -41,23 +41,12 @@ const IDENTITY_ROTATION: IAutoMovieTransform["rotation"] = {
 const IDENTITY_SCALE: IAutoMovieVector3 = { x: 1, y: 1, z: 1 };
 
 /**
- * Build the subject reader one {@link realizeShotContract} call grades
- * through.
+ * Build the subject reader one {@link realizeShotContract} call grades through.
  *
- * The compiled scene nodes, models, formations, shot performances, motions and
- * world landmarks are each indexed once by id, keeping the first record of a
- * repeated id. Three results are cached for the life of the reader because the
- * grade asks for them repeatedly with identical inputs: the object-motion
- * channels sampled at one shot-local second, shared by every node placed at
- * that second; a node subject's model-space extent, which walks its model's
- * rest geometry; and a formation's member extent.
- * The caller must keep compiled artifacts, world landmarks and fallback rig
- * lookup answers stable for this one grading call. This reader is not a live
- * view across edits; changed inputs require a new reader.
+ * The compiled scene nodes, models, formations, shot performances, motions and world landmarks are each indexed once by id, keeping the first record of a repeated id. Three results are cached for the life of the reader because the grade asks for them repeatedly with identical inputs: the object-motion channels sampled at one shot-local second, shared by every node placed at that second; a node subject's model-space extent, which walks its model's rest geometry; and a formation's member extent. The caller must keep compiled artifacts, world landmarks and fallback rig lookup answers stable for this one grading call. This reader is not a live view across edits; changed inputs require a new reader.
  *
  * @param props The grading inputs; read, never mutated.
- * @returns A reader over `props` that holds its indexes and caches until the
- *   caller drops it.
+ * @returns A reader over `props` that holds its indexes and caches until the caller drops it.
  *
  * @evidence contracts/common.md#principled-implementation Placement applies sampleClipSequence's per-channel authority through channelKey and folds the sampled pose root through foldRoot with identity root scale, matching engine kinematics and viewer placement. Node boxes share nodeSubjectExtent and nodeSubjectBox with camera framing. Cached values depend on their keys, artifact contents and fallback rig answers; validity requires the caller's documented stable-input premise during the synchronous grade, not merely that this reader avoids mutation.
  * @evidence contracts/common.md#clear-and-simple-design One factory owns the indexes, the caches and the placement rules, so the graders in `realizeShotContract` and `evaluateShotPredicate` receive one reader and hold no lookups of their own.

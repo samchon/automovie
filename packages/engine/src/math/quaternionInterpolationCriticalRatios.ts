@@ -5,10 +5,7 @@ import { QUATERNION_NLERP_DOT_THRESHOLD } from "./constants/QUATERNION_NLERP_DOT
 /**
  * Interior ratios where a component of Quaternion.slerp is stationary.
  *
- * Inputs are admitted finite, nearly unit quaternion keys. A negative endpoint dot
- * negates the second quaternion for the shorter arc. The near-parallel branch
- * shares the sampler's threshold and equality rule. Endpoints and one-sided
- * key boundaries remain the caller's checks; roots have floating precision.
+ * Inputs are admitted finite, nearly unit quaternion keys. A negative endpoint dot negates the second quaternion for the shorter arc. The near-parallel branch shares the sampler's threshold and equality rule. Endpoints and one-sided key boundaries remain the caller's checks; roots have floating precision.
  *
  * @evidence contracts/common.md#principled-implementation Spherical components are A cos(theta*t)+B sin(theta*t), with derivative roots atan2(B,A) modulo pi. Differentiating normalized lerp (a_i+t*d_i)/sqrt(a·a+2t*a·d+t²*d·d) leaves a linear numerator with one root. Finite nearly-unit keys admitted by track validation and shorter-arc negation keep normalization positive; admission tolerances and ordinary floating rounding remain in the curve and roots.
  * @evidence contracts/common.md#clear-and-simple-design Owns stationary ratios for the existing interpolation law; the shared dot threshold matches Quaternion.slerp while film admission owns clocks, clip authority and profiles. No renderer or sampled grid is introduced.

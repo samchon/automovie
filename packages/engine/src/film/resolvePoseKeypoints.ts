@@ -22,29 +22,18 @@ import { resolveCameraAt } from "./resolveCameraAt";
 const DEFAULT_ASPECT: number = 16 / 9;
 
 /**
- * Project one posed actor's joints to normalized 2D frame keypoints, the
- * OpenPose-style conditioning automovie can emit exactly because it knows
- * every bone's 3D position.
+ * Project one posed actor's joints to normalized 2D frame keypoints, the OpenPose-style conditioning automovie can emit exactly because it knows every bone's 3D position.
  *
- * Forward kinematics resolves the pose in rig space, the actor's staged node
- * transform lifts each joint into the scene world as the renderer composes it,
- * and the live camera, sampled at `time`, projects it through an optional
- * delivery crop. `x` grows rightward and `y` downward from the frame's
- * top-left corner, both in `[0, 1]` inside the frame. A joint behind the
- * camera, outside the clip range or outside the frame is still projected, never
- * clamped, because a clamped point reads as a false edge keypoint, and is
- * flagged `inFrame: false`. A requested joint the rig does not have yields no
- * keypoint. The order follows `joints`.
+ * Forward kinematics resolves the pose in rig space, the actor's staged node transform lifts each joint into scene world with the renderer's TRS order, and the live camera, sampled at `time`, projects it through an optional delivery crop. `x` grows rightward and `y` downward from the frame's top-left corner, both in `[0, 1]` inside the frame. A joint behind the camera, outside the clip range or outside the frame is still projected, never clamped, because a clamped point reads as a false edge keypoint, and is flagged `inFrame: false`. A requested joint the rig does not have yields no keypoint. The order follows joints. FK uses default engine joint axes and rest frames; coincidence with a renderer requires those same conventions, and these numerical outputs establish no observed rendered pixels.
  *
- * @param props The pose, rig, staged placement, camera, instant and output
- *   options.
+ * @param props The pose, rig, staged placement, camera, instant and output options.
  * @returns One keypoint per requested joint the rig has.
  *
- * @evidence contracts/common.md#principled-implementation Uses the engine's own forward kinematics, the column-major `T · R · S` node matrix the renderer composes, the shot's sampled camera and the shared pinhole projection with the delivery crop, so a keypoint lands where the rendered joint does; NDC maps to the top-left image frame by `x = (ndcX + 1) / 2` and `y = (1 - ndcY) / 2`.
+ * @evidence contracts/common.md#principled-implementation Composes default engine FK, column-major T·R·S placement, sampled camera and shared cropped pinhole projection; renderer coincidence requires matching joint-axis/rest-frame conventions because no remap enters this function. NDC maps to top-left coordinates by x=(ndcX+1)/2 and y=(1-ndcY)/2, without pixel observation.
  * @evidence contracts/common.md#clear-and-simple-design One pure projection per actor and instant; camera sampling, projection and the joint set are reused from their owners, and the render package's keypoint plan drives it per frame.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No bone or rig is special-cased; out-of-frame joints are reported with a flag instead of being clamped or dropped, and the default aspect is the documented assumption for a camera that states none.
  * @evidence contracts/common.md#meaningful-documentation States the pipeline from pose to frame, the coordinate frame and range, the out-of-frame rule and why nothing is clamped, the missing-joint rule, the order, and each option's default.
- * @evidence contracts/performance.md#efficient-algorithms One forward-kinematics pass over the B rig bones, one camera sample, one node matrix, then constant work per requested joint, O(B + J).
+ * @evidence contracts/performance.md#efficient-algorithms Delegates forward kinematics to resolvePose and track sampling to resolveCameraAt, then builds one bone-position map and node matrix and projects J requested joints. Total cost includes both delegated traversals rather than only the local O(B + J) indexing/projection work.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Projects one actor at one instant per call; the keypoint plan calls it per performing actor per frame, and the inputs carry no identity to key a cache on.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The bone index and node matrix are released on return; the returned keypoints are fresh records owned by the caller.
  */

@@ -5,13 +5,7 @@ import { IAutoMovieGrammarDiagnostic } from "./IAutoMovieGrammarDiagnostic";
 /**
  * File film-grammar findings as visual review notes on one beat.
  *
- * Each diagnostic becomes one `visual`-tier note, in input order, whose `issue`
- * reads `<code>: <fact>; <impact>` and whose `suggestion` is the diagnostic's
- * `recovery`. The note shape has no severity or shot field, so `severity`,
- * `shot` and `previousShot` are not carried: the caller passes the findings of
- * one shot or its incoming cut, so `beat` locates the note, and an `"error"`
- * finding files at the same tier as a `"warning"`. `reviewVisualRead` puts
- * these notes ahead of its own framing, contact and silhouette notes.
+ * Each diagnostic becomes one `visual`-tier note, in input order, whose `issue` reads `<code>: <fact>; <impact>` and whose `suggestion` is the diagnostic's `recovery`. The note shape has no severity or shot field, so `severity`, `shot` and `previousShot` are not carried: the caller passes the findings of one shot or its incoming cut, so `beat` locates the note, and an `"error"` finding files at the same tier as a `"warning"`. `reviewVisualRead` puts these notes ahead of its own framing, contact and silhouette notes.
  *
  * @returns One new note per diagnostic, in the same order.
  *

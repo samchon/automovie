@@ -1,14 +1,9 @@
 import { IAutoMovieScriptNode } from "@automovie/interface";
 
 /**
- * The id of the beat-kind node that claims one flat
- * {@link IAutoMovieScript.beats} entry, or null when there is no tree or no
- * node claims it.
+ * The id of the beat-kind node that claims one flat {@link IAutoMovieScript.beats} entry, or null when there is no tree or no node claims it.
  *
- * This is the join `validateScriptTree` enforces one-to-one on a committed
- * tree, and the lookup a beat-scoped consumer such as `locateOnBeat` uses to
- * place its feedback on the screenplay graph. On a tree that has not passed
- * that validation, the first claiming node in tree order is returned.
+ * This is the join `validateScriptTree` enforces one-to-one on a committed tree, and the lookup a beat-scoped consumer such as `locateOnBeat` uses to place its feedback on the screenplay graph. On a tree that has not passed that validation, the first claiming node in tree order is returned.
  *
  * @evidence contracts/common.md#principled-implementation A linear search for the first node whose kind is `beat` and whose payload names the beat; the one-to-one join that `validateScriptTree` enforces makes the first match the only match on a committed tree.
  * @evidence contracts/common.md#clear-and-simple-design One owner of the beat-to-node join, read by `locateOnBeat` and the tests, so no consumer restates the payload match; absent and null trees are accepted because a script may carry no tree.

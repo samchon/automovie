@@ -26,29 +26,13 @@ const STILL_SPEED: number = 1e-9;
 function firstActor (action: IAutoMovieLaunchAction): string | null { return typeof action.actor === "string" ? action.actor : (action.actor[0] ?? null); }
 
 /**
- * Compose the `launch` verb's engine primitives into one result: the
- * projectile's flight and the struck target's reaction, timed to the
- * engine-computed hit rather than a number the model had to guess.
+ * Compose the `launch` verb's engine primitives into one result: the projectile's flight and the struck target's reaction, timed to the engine-computed hit rather than a number the model had to guess.
  *
- * It {@link solveBallisticLaunch solves the aim} that connects `origin` to
- * `target` at `action.speed`, {@link projectileTrajectory bakes the flight}
- * into the projectile node's clip, and, when the launch carries an `onHit` and
- * strikes a node, schedules that node's `react` at the contact. Pass `targetAt`
- * to lead a moving target: the aim then solves through
- * {@link solveMovingLaunch} against where the mover will be when the
- * projectile arrives, and `target` only names the fallback sightline.
+ * It {@link solveBallisticLaunch solves the aim} that connects `origin` to `target` at `action.speed`, {@link projectileTrajectory bakes the flight} into the projectile node's clip, and, when the launch carries an `onHit` and strikes a node, schedules that node's `react` at the contact. Pass `targetAt` to lead a moving target: the aim then solves through {@link solveMovingLaunch} against where the mover will be when the projectile arrives, and `target` only names the fallback sightline.
  *
- * Times differ by output. The clip is flight-local, keyed over `[0, hitTime]`
- * with id `trajectory:<projectile>`, and the caller shifts it by
- * `action.start` onto the shot clock. The `react` start, the event times, and
- * `targetAt`'s argument are shot-local seconds, so the hit lands at
- * `action.start + hitTime`. The events are a `contact` always, a `hit` when a
- * node is struck, and a `fall` when the react unbalances it; their
- * `actionIndex` is null for the caller to stamp.
+ * Times differ by output. The clip is flight-local, keyed over `[0, hitTime]` with id `trajectory:<projectile>`, and the caller shifts it by `action.start` onto the shot clock. The `react` start, the event times, and `targetAt`'s argument are shot-local seconds, so the hit lands at `action.start + hitTime`. The events are a `contact` always, a `hit` when a node is struck, and a `fall` when the react unbalances it; their `actionIndex` is null for the caller to stamp.
  *
- * Returns null when the target is out of range at that speed. Throws
- * `RangeError` when `onHit` has no non-blank `targetNode`, because no actor
- * can perform that requested reaction.
+ * Returns null when the target is out of range at that speed. Throws `RangeError` when `onHit` has no non-blank `targetNode`, because no actor can perform that requested reaction.
  *
  * @author Samchon
  *
@@ -56,7 +40,7 @@ function firstActor (action: IAutoMovieLaunchAction): string | null { return typ
  * @evidence contracts/common.md#clear-and-simple-design Orchestrates the physics primitives and owns only what joins them into a verb: the react, the events and their ids; shifting the clip onto the shot clock and suffixing repeated flights stay with `performShot`, which owns the shot's object-motion list.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Names no projectile or target; Earth gravity follows world down, the stillness threshold guards a zero direction, and a requested recoil without a struck node is refused instead of silently omitted or assigned to an arbitrary group member.
  * @evidence contracts/common.md#meaningful-documentation States what is solved and baked, when a react is scheduled, the leading behaviour, the time base of every output including `targetAt`, the events emitted and their ids, the clip id, and the null case.
- * @evidence contracts/performance.md#efficient-algorithms Constant work for the static aim or a bounded fixed-point iteration for the lead, plus one flight sample per frame, O(hitTime × fps).
+ * @evidence contracts/performance.md#efficient-algorithms Static aim takes constant local work; leading adds a bounded fixed-point iteration whose targetAt callback cost is delegated. Output construction then grows with the flight's sampled frame count, O(hitTime × fps), and retains each emitted key.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call compiles one launch from its own inputs and coordinates nothing across calls.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the caller owns the returned clip, at most one react and three events.
  */
@@ -71,18 +55,13 @@ export function compileLaunch (props: {
   target: IAutoMovieVector3;
 
   /**
-   * The struck scene node, the emitted `react`'s actor, or null when the aim
-   * is a point or group with no single actor to recoil. A null value supports
-   * flight and contact without `onHit`; requesting `onHit` without a
-   * non-blank target node throws.
-   */
+ * The struck scene node, the emitted `react`'s actor, or null when the aim is a point or group with no single actor to recoil. A null value supports flight and contact without `onHit`; requesting `onHit` without a non-blank target node throws.
+ */
   targetNode: string | null;
 
   /**
-   * The target's world position at shot-local second `t`, when it moves during
-   * the shot. Supplied, the aim leads the mover to the intercept; omitted, the
-   * launch is a static intercept on `target`.
-   */
+ * The target's world position at shot-local second `t`, when it moves during the shot. Supplied, the aim leads the mover to the intercept; omitted, the launch is a static intercept on `target`.
+ */
   targetAt?: (t: number) => IAutoMovieVector3;
 
   /** Constant acceleration in m/s²; defaults to Earth gravity along world −Y. */

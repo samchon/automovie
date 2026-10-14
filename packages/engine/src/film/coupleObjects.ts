@@ -25,7 +25,11 @@ import { handoffEvents } from "./handoffEvents";
 /** A coupled parent's world frame over shot time, null where none moves it. */
 type ParentPath = (t: number) => IAutoMovieTransform | null;
 
-/** The per-node lookups and sinks a follow bake shares within one call. */
+/**
+ * The per-node lookups and sinks a follow bake shares within one call.
+ *
+ * @author Samchon
+ */
 interface ICoupleContext {
   /** Scene nodes by id; every coupling parent is one. */
   nodes: ReadonlyMap<string, IAutoMovieSceneNode>;
@@ -59,39 +63,19 @@ interface ICoupleContext {
 function childrenOf (action: IAutoMovieActionCall): string[] { return typeof action.actor === "string" ? [action.actor] : action.actor; }
 
 /**
- * Bake the object couplings a shot carries, the per-beat `attachTo` handoffs
- * and the persistent staged `mounts` (#674), into follow clips once the
- * parents' poses have compiled.
+ * Bake the object couplings a shot carries, the per-beat `attachTo` handoffs and the persistent staged `mounts` (#674), into follow clips once the parents' poses have compiled.
  *
- * `attachTo`, already validated by `performShot`'s action scan, rides the child
- * on the parent's bone in scene space and emits the grab, attach, detach and
- * release {@link handoffEvents}. Each staged mount descends through the same
- * baker, {@link compileAttach}, spanning the whole shot, so a rider rides every
- * beat without re-issuing `attachTo`; an explicit `attachTo` for the same child
- * this shot replaces its mount, and a mount emits no handoff events because it
- * is standing scene state. A mount's parent rig and bone are validated here,
- * since staging placed the parent without skeletons, and returned as
- * violations.
+ * `attachTo`, already validated by `performShot`'s action scan, rides the child on the parent's bone in scene space and emits the grab, attach, detach and release {@link handoffEvents}. Each staged mount descends through the same baker, {@link compileAttach}, spanning the whole shot, so a rider rides every beat without re-issuing `attachTo`; an explicit `attachTo` for the same child this shot replaces its mount, and a mount emits no handoff events because it is standing scene state. A mount's parent rig and bone are validated here, since staging placed the parent without skeletons, and returned as violations.
  *
- * Couplings chain (#1140): a parent that is itself a coupled child this shot,
- * such as a rider mounted on an animal and carrying a pole, is baked first, and
- * its riders compose onto its baked frame per sample through any depth. That
- * frame is read from all of the parent's baked clips through
- * {@link bakedTransformFromClipsAt}, the channel authority playback uses, so
- * before the parent's first coupling starts its riders follow its staged
- * placement and across a handoff they follow whichever coupling is in effect.
- * A coupling cycle has no world composition, so its members are reported in
- * one violation and never baked.
+ * Couplings chain (#1140): a parent that is itself a coupled child this shot, such as a rider mounted on an animal and carrying a pole, is baked first, and its riders compose onto its baked frame per sample through any depth. That frame is read from all of the parent's baked clips through {@link bakedTransformFromClipsAt}, the channel authority playback uses, so before the parent's first coupling starts its riders follow its staged placement and across a handoff they follow whichever coupling is in effect. A coupling cycle has no world composition, so its members are reported in one violation and never baked.
  *
- * Returns the baked clips in bake order, parents before riders, with a child's
- * attach clips in start order and repeats suffixed `attach:<child>:2`, ...; the
- * handoff events; and the violations.
+ * Returns the baked clips in bake order, parents before riders, with a child's attach clips in start order and repeats suffixed `attach:<child>:2`, ...; the handoff events; and the violations.
  *
  * @evidence contracts/common.md#principled-implementation Builds the child-to-parent coupling graph, orders it by a depth-first post-order so every parent bakes before its riders, and reports a back edge as a cycle; a chained parent's frame is sampled by the same per-channel latest-start authority as playback, which keeps a rider attached to the parent the viewer draws, including before a late coupling and across a handoff.
  * @evidence contracts/common.md#clear-and-simple-design Owns the shot's coupling order, cycle refusal, mount validation and id uniqueness, and delegates each bake to `compileAttach` and each event set to `handoffEvents`; it lives apart from `performShot` because this is the region that function kept growing.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No node, bone or clip id is special-cased; chain selection reads what a clip carries and when it starts rather than its id suffix, and a cycle or rig-less mount is refused instead of baked frozen.
  * @evidence contracts/common.md#meaningful-documentation States both coupling sources and their precedence, which source emits events, where mounts are validated, how a chained parent's frame is read including before and between its couplings, the cycle rule, and the order and ids of what it returns.
- * @evidence contracts/performance.md#efficient-algorithms Graph build, ordering and grouping visit couplings and nodes linearly, plus the length of emitted cycle descriptions; one mutable active path and an index map avoid copying each ancestor chain. Each bake costs O(S · B) over S samples and B rig bones, plus channel-authority sampling of a chained parent's own clips per rider sample; recursion still needs one call frame per coupling depth.
+ * @evidence contracts/performance.md#efficient-algorithms Graph build, topological ordering and grouping visit coupling edges and scene nodes linearly, plus emitted cycle descriptions; each child's J attachment jobs are then sorted by start, adding the sum of O(J log J) costs. One mutable active path and an index map avoid copying ancestor chains. Each bake costs O(S · B) over S samples and B rig bones, plus chained-parent clip sampling per rider sample; recursion needs one call frame per coupling depth.
  * @evidence contracts/performance.md#reuse-equivalent-work Each parent's baked clips are stored once and every rider of that parent reads the same clips, so a chain is baked link by link instead of recomposing the whole ancestry per rider; nothing is shared across calls, because each call bakes one shot's couplings.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The graph, order, grouping maps and per-parent clip lists live for one call and are released on return or throw; the returned arrays hold one clip per coupling, the handoff events of each `attachTo`, and one violation per refusal.
  */
@@ -247,12 +231,7 @@ export function coupleObjects (props: {
 }
 
 /**
- * Bake one child's per-beat `attachTo` follows and their handoff events. A
- * handoff, the same child attached to two parents over disjoint spans, would
- * otherwise bake two clips with one `attach:<child>` id, an uncommittable
- * duplicate (#989). The child's attachments are processed in start order and
- * repeats suffixed (`attach:<child>:2`, ...), so the first keeps the stable
- * id; runtime authority follows track start and producer order, not the suffix.
+ * Bake one child's per-beat `attachTo` follows and their handoff events. A handoff, the same child attached to two parents over disjoint spans, would otherwise bake two clips with one `attach:<child>` id, an uncommittable duplicate (#989). The child's attachments are processed in start order and repeats suffixed (`attach:<child>:2`, ...), so the first keeps the stable id; runtime authority follows track start and producer order, not the suffix.
  */
 function bakeAttachFollows (
   child: string,
@@ -296,9 +275,7 @@ function bakeAttachFollows (
 }
 
 /**
- * Bake one persistent staged mount (#674): the rider descends through
- * {@link compileAttach} over the whole shot. Staging validated that the parent
- * is a placed actor; the parent's rig and the saddle bone are validated here.
+ * Bake one persistent staged mount (#674): the rider descends through {@link compileAttach} over the whole shot. Staging validated that the parent is a placed actor; the parent's rig and the saddle bone are validated here.
  */
 function bakeMountFollow (
   mount: IAutoMovieStagedSet.IMount,

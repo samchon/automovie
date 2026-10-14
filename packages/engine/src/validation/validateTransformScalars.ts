@@ -1,13 +1,11 @@
 import { ViolationCollector } from "./ViolationCollector";
+import { describeInvalidValue } from "./describeInvalidValue";
 import { isRecord } from "./isRecord";
 import { validateObjectArtifact } from "./validateObjectArtifact";
 import { validateVectorArtifact } from "./validateVectorArtifact";
 
 /**
- * Append shape and scalar findings for an unchecked translation/rotation/scale
- * record. Every component must be finite, each scale axis strictly positive,
- * and rotation's quaternion norm within 1e-6 of one. No value is normalized.
- * Malformed nested fields are reported independently at their owning paths.
+ * Append shape and scalar findings for an unchecked translation/rotation/scale record. Every component must be finite, each scale axis strictly positive, and rotation's quaternion norm within 1e-6 of one. No value is normalized. Malformed nested fields are reported independently at their owning paths.
  *
  * @param props.transform The unchecked TRS record.
  * @param props.path Prefix of every structural or scalar finding.
@@ -43,7 +41,7 @@ function validateRotation(rotation: unknown, path: string, label: string, collec
   for (const axis of ["x", "y", "z", "w"] as const)
     if (typeof rotation[axis] !== "number" || !Number.isFinite(rotation[axis])) {
       finite = false;
-      collector.push("range", `${path}.${axis}`, `${label} component must be finite, but was ${String(rotation[axis])}`, rotation[axis]);
+      collector.push("range", `${path}.${axis}`, `${label} component must be finite, but was ${describeInvalidValue(rotation[axis])}`, rotation[axis]);
     }
   if (finite && typeof rotation.x === "number" && typeof rotation.y === "number" && typeof rotation.z === "number" && typeof rotation.w === "number")
     collector.unitQuaternion(path, { x: rotation.x, y: rotation.y, z: rotation.z, w: rotation.w }, label);

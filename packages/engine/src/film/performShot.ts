@@ -29,6 +29,7 @@ import { compareCodeUnits } from "../text/compareCodeUnits";
 import { transformFormationPoint } from "../transformFormationPoint";
 import { ViolationCollector } from "../validation/ViolationCollector";
 import { appendLightMotionsArtifact } from "../validation/appendLightMotionsArtifact";
+import { describeInvalidValue } from "../validation/describeInvalidValue";
 import { validateMotion } from "../validation/validateMotion";
 import { validateShotArtifact } from "../validation/validateShotArtifact";
 import { IAutoMoviePerformedShot } from "./IAutoMoviePerformedShot";
@@ -63,47 +64,24 @@ const EVENT_KIND_ORDER: Record<IAutoMovieInteractionEvent["kind"], number> = {
 };
 
 /**
- * Fold one beat's action calls into an {@link IAutoMovieShot} through
- * {@link compilePerformance}, gating both sides of the seam.
+ * Fold one beat's action calls into an {@link IAutoMovieShot} through {@link compilePerformance}, gating both sides of the seam.
  *
- * The performing list is `revise.final` when the revise pass produced one and
- * `draft` otherwise. The stages run in order, and the first stage group that
- * reports a violation returns every violation of that group and stops:
+ * The performing list is `revise.final` when the revise pass produced one and `draft` otherwise. The stages run in order, and the first stage group that reports a violation returns every violation of that group and stops:
  *
- * 1. Input: unique script beat ids, the shot's `lightMotions` against the
- *    staged lights, a planned beat, a positive duration, every action by
- *    {@link gatePerformShotActions}, the live camera's moves by
- *    {@link gatePerformShotFrameOverlaps}, same-actor content overlaps by
- *    {@link gatePerformShotRegionOverlaps}, the blocking by
- *    {@link gatePerformShotBlocking}, and the cameras by
- *    {@link gatePerformShotCamera}.
- * 2. Launches: each flight is solved and its recoil scheduled by
- *    {@link compilePerformShotLaunches}.
- * 3. Performance: the stage list compiles, stance feet are planted by
- *    {@link plantPerformShotStanceFeet}, every channel a region mask would drop
- *    is reported at the author's `region` (or `onHit`) field, and every clip
- *    must pass `validateMotion` against its rig.
- * 4. Coupling: per-beat `attachTo` handoffs and staged mounts are baked by
- *    {@link coupleObjects}.
+ * 1. Input: unique script beat ids, the shot's `lightMotions` against the staged lights, a planned beat, a positive duration, every action by {@link gatePerformShotActions}, the live camera's moves by {@link gatePerformShotFrameOverlaps}, same-actor content overlaps by {@link gatePerformShotRegionOverlaps}, the blocking by {@link gatePerformShotBlocking}, and the cameras by {@link gatePerformShotCamera}.
+ * 2. Launches: each flight is solved and its recoil scheduled by {@link compilePerformShotLaunches}.
+ * 3. Performance: the stage list compiles, stance feet are planted by {@link plantPerformShotStanceFeet}, every channel a region mask would drop is reported at the author's `region` (or `onHit`) field, and every clip must pass `validateMotion` against its rig.
+ * 4. Coupling: per-beat `attachTo` handoffs and staged mounts are baked by {@link coupleObjects}.
  * 5. Authored object clips are gated by {@link gateAuthoredObjectMotions}.
- * 6. Cameras: the live camera's move and each coverage take compile through
- *    the framing grammar, subjects measured by
- *    {@link createPerformShotSubjectFramer}, and any physical clearance
- *    envelope is checked by {@link compileCameraClearanceReports}.
+ * 6. Cameras: the live camera's move and each coverage take compile through the framing grammar, subjects measured by {@link createPerformShotSubjectFramer}, and any physical clearance envelope is checked by {@link compileCameraClearanceReports}.
  *
- * A shot with no `frame` action is locked off on the scene's first camera.
- * Positional targets resolve against every staged placement, cameras
- * included, so an actor may look down the lens, but a camera performs nothing
- * except `frame`. Only a camera subject may name a formation. The assembled
- * shot is finally checked against the shot artifact contract; every
- * author-reachable failure is refused above with a path, so a failure there is
- * an engine defect and throws an `Error` instead of blaming the author.
+ * A shot with no frame action is locked off on the scene's first camera. Positional targets resolve against every staged placement, cameras included, so an actor may look down the lens, but a camera performs only frame. Only a camera subject may name a formation. The assembled artifact is checked independently and a failure throws as a compilation defect. This does not prove every possible authored failure was located earlier: typed outer containers, generated event-id collisions, mutable callbacks and downstream arithmetic remain distinct exception boundaries.
  *
- * @evidence contracts/common.md#principled-implementation A staged pipeline in which each stage only runs on input the previous stages proved, so synthesis never sees a malformed request and compilers never see an unresolved target; the producer then checks its own output against the same artifact contract the commit gate applies, and throws because reaching a failure there means a missing gate rather than an authoring fault.
+ * @evidence contracts/common.md#principled-implementation Sequences admitted stage groups before compilation and validates its assembled artifact against the commit contract; failed output validation throws as an engine defect. Target admission remains valid only while caller inputs and targetAt callbacks stay stable between gate and compile reads; custom synthesis can still return null.
  * @evidence contracts/common.md#clear-and-simple-design This function owns the stage order, the shared gate context and the assembly; each gate and compile stage lives in its own module with its own contract, so the function reads as a sequence of named stages.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No beat, actor, camera or prop is special-cased; every refusal carries a path into the author's input, and the artifact check throws rather than downgrading an engine defect into an authoring violation.
  * @evidence contracts/common.md#meaningful-documentation States which list performs, every stage in order with its owner, the stop-at-first-failing-group rule, the locked-off fallback, how cameras and formations may be targeted, and when and why it throws; each input field documents its meaning and what omitting it does.
- * @evidence contracts/performance.md#efficient-algorithms Linear in actions and actors for the gates, plus synthesis, the launch solves, stance planting per gait-bearing actor, the camera compiles and one artifact validation; the costly synthesis runs at most once per action and actor.
+ * @evidence contracts/performance.md#efficient-algorithms Gates include pairwise same-actor region overlap checks and sorted frame spans, so their cost is not uniformly linear; delegated launch, planting, camera, clip and artifact checks add their own population costs. Synthesis is invoked at most once per action object and actor within this call.
  * @evidence contracts/performance.md#reuse-equivalent-work Synthesis is memoized per action object and actor, so the overlap gate, the launch probe and the performance compile share one clip per pair; the staged lookup tables are built once into the gate context, and model extents once per node in the subject framer.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The synthesis memo is a `WeakMap` keyed by the caller's action objects and is dropped with the call, as are the gate context and the framer; the caller owns the returned shot, motions and plants.
  */
@@ -196,14 +174,14 @@ export function performShot (props: IPerformShotProps): IAutoMoviePerformedShot 
     out.push(
       "type",
       "$input.beat",
-      `beat "${performance.beat}" must be one of the script's beats`,
+      `beat "${describeInvalidValue(performance.beat)}" must be one of the script's beats`,
       performance.beat,
     );
   if (!Number.isFinite(performance.duration) || !(performance.duration > 0))
     out.push(
       "range",
       "$input.duration",
-      `shot duration must be a finite number > 0 seconds, but was ${performance.duration}`,
+      `shot duration must be a finite number > 0 seconds, but was ${describeInvalidValue(performance.duration)}`,
       performance.duration,
     );
   const actions: IAutoMovieActionCall[] =
@@ -386,8 +364,7 @@ export function performShot (props: IPerformShotProps): IAutoMoviePerformedShot 
 }
 
 /**
- * Refuse duplicate script beat ids and answer the beat the performance names,
- * the first declaration of its id.
+ * Refuse duplicate script beat ids and answer the beat the performance names, the first declaration of its id.
  */
 function gateScript (
   context: IPerformShotGateContext,
@@ -412,8 +389,7 @@ function gateScript (
 }
 
 /**
- * The synthesizer once per action object and actor, with the prior beat state
- * bound, so every stage that needs a clip shares one.
+ * The synthesizer once per action object and actor, with the prior beat state bound, so every stage that needs a clip shares one.
  */
 function memoizeSynthesis (
   synthesize: IAutoMovieActionSynthesizer,

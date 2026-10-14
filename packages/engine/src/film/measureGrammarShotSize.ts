@@ -11,14 +11,9 @@ import { GRAMMAR_EPSILON } from "./constants/GRAMMAR_EPSILON";
 import { projectToNdc } from "./projectToNdc";
 
 /**
- * The framing a shot's primary subject measures as at one edited boundary, or
- * null when the shot has no primary subject, the subject's base or top is not
- * in front of the camera, or it fills no measurable part of the frame.
+ * The framing a shot's primary subject measures as at one edited boundary, or null when the shot has no primary subject, the subject's base or top is not in front of the camera, or its derived occupancy is non-finite or negligible.
  *
- * The subject's frame occupancy is the larger of two fractions: its projected
- * height over the frame height, and its horizontal radius over the half-width
- * the frame spans at the subject's depth. `classifyGrammarShotSize` turns that
- * fraction into the nearest framing.
+ * The subject's frame occupancy is the larger of two fractions: its projected height over the frame height, and its horizontal radius over the half-width the frame spans at the subject's depth. `classifyGrammarShotSize` turns that fraction into the nearest framing.
  *
  * @param shot Normalized shot whose primary subject is measured.
  * @param boundary Which edited boundary's camera and subject point to read.
@@ -61,7 +56,7 @@ export function measureGrammarShotSize (
   const horizontal: number =
     subject.radius / (base.depth * halfY * camera.aspect);
   const occupancy: number = Math.max(vertical, horizontal);
-  return occupancy <= GRAMMAR_EPSILON
+  return !Number.isFinite(occupancy) || occupancy <= GRAMMAR_EPSILON
     ? null
     : classifyGrammarShotSize(occupancy);
 }

@@ -32,32 +32,19 @@ import { validateShotProgramContract } from "./validateShotProgramContract";
 type IPriorActors = ReadonlyMap<string, IAutoMovieBeatEndActorState>;
 
 /**
- * Compile one {@link defineShot} registration into shot source, continuity and
- * a contract realization, or into the diagnostics of the first phase that
- * failed.
+ * Compile one {@link defineShot} registration into shot source, continuity and a contract realization, or into the diagnostics of the first phase that failed.
  *
- * The phases run in order: registration ids, one synchronous `build` call with
- * `context`, the program held to its registration, the runtime's physics
- * advice, staging, blocking against `runtime.previous`, restaging at the
- * resumed placements, performance, contract realization, and continuity
- * sampling. The builder supplies ordinary code; the engine owns referential
- * integrity, blocking coherence, verb composition, range-of-motion and
- * artifact validation, and continuity. A throw from the builder becomes
- * `builder-failed`, and a throw from any other phase becomes `pipeline-failed`
- * named after the phase that was running, so this boundary never throws.
+ * The phases run in order: registration ids, one synchronous `build` call with `context`, the program held to its registration, the runtime's physics advice, staging, blocking against `runtime.previous`, restaging at the resumed placements, performance, contract realization, and continuity sampling. The builder supplies ordinary code; the engine owns referential integrity, blocking coherence, verb composition, range-of-motion and artifact validation, and continuity. A throw from the builder becomes `builder-failed`, and a throw from any other phase becomes `pipeline-failed` named after the phase that was running, so this boundary never throws.
  *
- * When `runtime.previous` is supplied, each actor it names opens at that
- * beat's position, facing, mount and pose, and the opening snapshot keeps its
- * gait phase, root velocity, foot plants and mount. The runtime's foot plants
- * for a node the performance replanted are replaced by the new ones.
+ * When `runtime.previous` is supplied, each actor it names opens at that beat's position, facing, mount and pose, and the opening snapshot keeps its gait phase, root velocity, foot plants and mount. The runtime's foot plants for a node the performance replanted are replaced by the new ones.
  *
  * @evidence contracts/common.md#principled-implementation A fixed phase sequence in which each phase consumes only artifacts the previous one accepted, returning the first failing phase's diagnostics; resuming restages the program with the prior actors' translation, `atan2(x, z)` facing in degrees (the `facingDeg` convention `stageScene` reads, 0 facing +Z) and mount, because blocking must judge the authored stage before the prior state can be applied.
  * @evidence contracts/common.md#clear-and-simple-design Sequences phases and owns only the resume merges; program and advice rules live in `validateShotProgramContract` and `validateShotPhysicsAdvice`, and staging, blocking, performance, realization and continuity sampling stay with their own functions, so this file decides order and diagnostic translation alone.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Names no shot, scene or fixture; the contract handed to realization takes the registration's id and a synthetic `<defineShot:id>` source because a direct compilation has no module path, and a realization failure tells the author to fix output rather than echo it into the contract.
  * @evidence contracts/common.md#meaningful-documentation States the phase order, the single builder call, which diagnostic each kind of throw becomes, and exactly which prior-beat facts open the stage, the scene and the opening snapshot, and how runtime plants merge.
- * @evidence contracts/performance.md#efficient-algorithms Dominated by the phases it calls, performance and realization above all; its own work is linear merges over actors, scene nodes and plant runs, with one prior-actor map and one replanted-node set, while the second `stageScene` call runs only when a previous beat is supplied.
+ * @evidence contracts/performance.md#efficient-algorithms Adds actor/node/plant merges and deep copies of event samples, poses and advice to the delegated build, staging, performance and realization costs. Copy work scales with the nested records and text copied. One prior-actor map and one replanted-node set serve the resume merges; the second stageScene call runs only with a previous beat. Author-supplied builders and runtime callbacks have their own cost.
  * @evidence contracts/performance.md#reuse-equivalent-work Within one call each phase's accepted artifact is handed forward rather than recomputed, the prior-actor map is built once for all three resume merges, and one continuity input feeds both the opening and the closing snapshot; across calls nothing is reused, because the builder is author code whose result the engine cannot prove equal for the same context.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Holds phase artifacts only for the call; the success value owns the staged scene, motions, shot, continuity and realization plus deep clones of the event samples and advice, so no runtime capability or caller object is retained, and every exit path releases the rest.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Holds intermediate phase artifacts for the call; success returns scene, motions, shot, continuity and realization plus deep-cloned event samples and advice. Scene fields and accepted motion objects can retain caller-owned references; the result does not retain the runtime capability container.
  */
 export function compileDefinedShot<Context>(props: {
   /** Registered source export, as {@link defineShot} returned it. */
@@ -438,5 +425,11 @@ function fromViolations (
     }),
   ); }
 
-/** Render a thrown value as `Name: message`, or its string form. */
-function errorText (error: unknown): string { return error instanceof Error ? `${error.name}: ${error.message}` : String(error); }
+/** Render a thrown value, falling back when its inspection or coercion throws. */
+function errorText (error: unknown): string {
+  try {
+    return error instanceof Error ? `${error.name}: ${error.message}` : String(error);
+  } catch {
+    return "an uninspectable thrown value";
+  }
+}

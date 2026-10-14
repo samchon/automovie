@@ -11,15 +11,9 @@ import { Vector3 } from "../math/Vector3";
 /**
  * Every bone's rest-pose frame in model space, composed down the parent chain.
  *
- * A bone's frame is its parent's frame composed with its own rest translation
- * and rotation: `translation = parent.translation + parent.rotation ·
- * rest.translation` and `rotation = parent.rotation ∘ rest.rotation`. Rigs keep
- * unit scale, which Engine FK and the viewer both assume, so translation and
- * rotation are the whole transform. Units are the rig's metres.
+ * A bone's frame is its parent's frame composed with its own rest translation and rotation: `translation = parent.translation + parent.rotation · rest.translation` and `rotation = parent.rotation ∘ rest.rotation`. Rigs keep unit scale, which Engine FK and the viewer both assume, so translation and rotation are the whole transform. Units are the rig's metres.
  *
- * Throws when a bone name is duplicated, a parent is not declared, or the
- * parent links form a cycle, because a rest frame measured from a malformed rig
- * would silently misplace whatever is measured against it.
+ * Throws when a bone name is duplicated, a parent is not declared, or the parent links form a cycle, because a rest frame measured from a malformed rig would silently misplace whatever is measured against it.
  *
  * @evidence contracts/common.md#principled-implementation Composes each rest transform onto its parent's by quaternion rotation and multiplication, the forward-kinematics rule `resolvePose` applies at zero joint angles; the memo map makes each bone's frame depend only on its declared ancestors, and the in-progress set turns a parent cycle into an error rather than unbounded recursion.
  * @evidence contracts/common.md#clear-and-simple-design The one rest-frame walk that `computeModelRestExtent` and `computeRestHeight` both read, so the drawn-geometry extent and the joint span cannot compose a bone differently; `resolvePose` is not reused because it drops unreachable bones where these measurements must refuse them.

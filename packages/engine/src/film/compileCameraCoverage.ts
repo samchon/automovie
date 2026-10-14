@@ -8,17 +8,9 @@ import { IAutoMovieCameraCoverageEntry } from "./IAutoMovieCameraCoverageEntry";
 import { compileCameraMove } from "./compileCameraMove";
 
 /**
- * Compile one coverage take: the alternate angle another staged camera plays
- * over a beat, as an {@link IAutoMovieShotCoverage} record.
+ * Compile one coverage take: the alternate angle another staged camera plays over a beat, as an {@link IAutoMovieShotCoverage} record.
  *
- * The camera clip comes from {@link compileCameraMove} with this camera as its
- * parameter, so the side staging gave it is the side the angle plays from, and
- * `cameraIntent` lists each entry's intent in entry order. The intent is
- * guide metadata for a render host and never feeds the solve. Entries must be
- * sorted by `start` and must not overlap, as for the hero take; an empty list
- * yields a locked-off take with `cameraMotion: null` and no intent spans.
- * Throws whatever {@link compileCameraMove} throws for a framing or move
- * outside the grammar.
+ * The camera clip comes from {@link compileCameraMove} with this camera as its parameter, so the side staging gave it is the side the angle plays from, and `cameraIntent` lists each entry's intent in entry order. The intent is guide metadata for a render host and never feeds the solve. Entries must be sorted by `start` and must not overlap, as for the hero take; an empty list yields a locked-off take with `cameraMotion: null` and no intent spans. Throws whatever {@link compileCameraMove} throws for a framing or move outside the grammar.
  *
  * @evidence contracts/common.md#principled-implementation Reuses the hero take's framing grammar with the covering camera as the parameter, and derives the intent list from the same entries the move compiles, so the clip's spans and the intent records correspond one to one by construction.
  * @evidence contracts/common.md#clear-and-simple-design A thin assembler: `compileCameraMove` owns the path, `performShot` owns building the entries, and this function only pairs the clip with its intents under the covering camera's id, which keeps coverage and hero takes on one solve.

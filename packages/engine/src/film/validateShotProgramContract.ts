@@ -12,17 +12,9 @@ import { IAutoMovieAuthoringDiagnostic } from "./IAutoMovieAuthoringDiagnostic";
 type IEventSample = IAutoMovieShotProgram["eventSamples"][number];
 
 /**
- * Hold a built shot program to its registration before `compileDefinedShot`
- * stages it, returning every `build`-phase `contract-mismatch` diagnostic at
- * once; an empty list means the program may be staged.
+ * Hold a built shot program to its registration before `compileDefinedShot` stages it, returning every `build`-phase `contract-mismatch` diagnostic at once; an empty list means the program may be staged.
  *
- * The staged scene id must equal the registered scene, and blocking and
- * performance must both carry the contract's beat and `durationSeconds`
- * exactly. Each actor program must name a distinct staged actor and a
- * non-blank model, with a finite speed above zero and a finite non-negative eye
- * height; only the first failing fact of an actor is reported. Event samples
- * must cover every contract event exactly once, each finite and inside its
- * inclusive window in shot-local seconds, and may name no undeclared event.
+ * The staged scene id must equal the registered scene, and blocking and performance must both carry the contract's beat and `durationSeconds` exactly. Each actor program must name a distinct staged actor and a non-blank model, with a finite speed above zero and a finite non-negative eye height; only the first failing fact of an actor is reported. Event samples must cover every contract event exactly once, each finite and inside its inclusive window in shot-local seconds, and may name no undeclared event.
  *
  * @evidence contracts/common.md#principled-implementation Compares registration and program fields by strict equality, so a duration must be the identical number rather than a near value, and checks actors and samples in one indexed pass each with first-index maps; a duplicated sample is reported once and the window check reads the later sample, which is moot because the duplicate already fails the program.
  * @evidence contracts/common.md#clear-and-simple-design Split from `compileDefinedShot` as the single owner of the program-to-registration rules, so the compiler sequences phases and this function decides only whether the builder returned the registered artifact.

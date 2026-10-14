@@ -4,14 +4,7 @@ import { isRecord } from "../../validation/isRecord";
 /**
  * Validate one camera-clearance envelope before it reaches the resolved scene.
  *
- * The envelope must be an object with a `body` sphere and an explicit
- * `parentRig` that is a sphere or `null`. A sphere must be an object whose
- * `center` is an object of three finite numbers and whose `radius` is a finite
- * number greater than zero, in metres. Every nested value is read as
- * `unknown`, because generated authoring code reaches `stage` in-process and
- * its static type does not prove the payload is well formed. Violations go to
- * `out` at `<path>`, `<path>.body`, `<path>.parentRig` and their `.center` and
- * `.radius`; a non-object at a level stops the checks below it.
+ * The envelope must be an object with a `body` sphere and an explicit `parentRig` that is a sphere or `null`. A sphere must be an object whose `center` is an object of three finite numbers and whose `radius` is a finite number greater than zero, in metres. Every nested value is read as `unknown`, because generated authoring code reaches `stage` in-process and its static type does not prove the payload is well formed. Violations go to `out` at `<path>`, `<path>.body`, `<path>.parentRig` and their `.center` and `.radius`; a non-object at a level stops the checks below it.
  *
  * @param value The authored envelope, unchecked.
  * @param path Violation path of the envelope.

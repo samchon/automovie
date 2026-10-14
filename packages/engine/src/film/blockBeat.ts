@@ -17,35 +17,23 @@ import { IAutoMovieStagedSet } from "./IAutoMovieStagedSet";
 import { validatePerformShotFraming } from "./validatePerformShotFraming";
 
 /**
- * The blocking gate: check one beat's shot plan before any performance is
- * compiled from it, and report every contradiction at once.
+ * The blocking gate: check one beat's shot plan before any performance is compiled from it, and report every contradiction at once.
  *
  * The checks are coherence, not craft:
  *
  * - the script's beat ids are unique, and the plan's beat is one of them;
  * - the beat duration is finite and positive;
- * - every id the plan names is non-empty;
- * - every actor intent belongs to a staged scene node, and its timing anchors
- *   lie inside `[0, duration]` in the order listed, because the list order is
- *   the causal order ("the loose before the hit");
- * - the camera favours something staged, an actor, a set piece or another
- *   camera, the same table `performShot` resolves a positional target against
- *   (#1294), and names a supported framing and move;
- * - each optional `coverage` camera (#1187) names a staged camera exactly once,
- *   favours something staged, and states a framing and move from the closed
- *   unions, which nothing downstream re-checks for coverage.
+ * - the plan's beat, actor node, coverage camera and node-kind camera target ids are nonblank;
+ * - every actor intent belongs to a staged scene node, and its timing anchors lie inside `[0, duration]` in the order listed, because the list order is the causal order ("the loose before the hit");
+ * - a node-kind hero camera target names a staged actor, set piece or camera (#1294), and the hero intent names a supported framing and move;
+ * - each optional `coverage` camera (#1187) names a staged camera exactly once, checks staged membership for a node-kind target, and states a supported framing and move.
  *
- * When the prior beat's end state is supplied it becomes this beat's initial
- * condition: each carried actor must be a staged scene node listed once, and
- * the validated state is returned on success as `previous` so later stages
- * resume from it rather than resetting the world at the cut; without it
- * `previous` is null. Violation paths are rooted at `$script`, `$input` for
- * the blocking, and `$previous`.
+ * When the prior beat's end state is supplied it becomes this beat's initial condition: each carried actor must be a staged scene node listed once, and the state is returned on success as `previous` so later stages resume from it rather than resetting the world at the cut; without it `previous` is null. This gate assumes typed records and does not validate carried pose values, anchor cue identities or non-node target contents; `performShot` owns later target resolution. Violation paths are rooted at `$script`, `$input` for the blocking, and `$previous`.
  *
- * @evidence contracts/common.md#principled-implementation Validates by set membership against the staged node and camera ids and by a running predecessor for anchor order, collecting every violation in one pass; the closed framing and move unions are read from sets built from records keyed by those unions, so the gate cannot fall out of step with the interface types.
+ * @evidence contracts/common.md#principled-implementation For typed records, validates actor and node-kind target membership against staged ids and compares each finite anchor time with its running predecessor. Shared sets keyed by the closed framing and move unions admit vocabulary; non-node targets and carried pose values are outside this gate's checks.
  * @evidence contracts/common.md#clear-and-simple-design One gate owns the blocking stage's referential and timing coherence and returns the plan untouched; hero and coverage intents use validatePerformShotFraming, the same vocabulary check frame actions consume, while placement membership uses staged ids.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Names no beat, actor or camera and repairs no invalid plan; both hero and coverage vocabulary are refused at blocking time because a blocked plan must be usable before any performance is supplied.
- * @evidence contracts/common.md#meaningful-documentation Lists every check with its reason, the causal reading of anchor order, why coverage unions are gated here, how a prior end state is validated and returned, the null case, and the roots of violation paths.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Names no beat, actor or camera and repairs no invalid plan; both hero and coverage vocabulary are refused at blocking time. Acceptance establishes these coherence checks, while non-node target resolution and performance admission remain later gates.
+ * @evidence contracts/common.md#meaningful-documentation Lists the checked ids, memberships, vocabulary and anchor order, the prior-state identity checks and returned aliases, the typed-record premise, unchecked target and pose contents, the null case and violation roots.
  * @evidence contracts/performance.md#efficient-algorithms Linear in script beats, staged nodes and cameras, actor anchors, coverage entries and carried actors, with hashed id sets for every membership test.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure gate over one plan; the id sets are built once per call and shared by every check, and nothing is coordinated across calls.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing past the call; the success references the caller's plan and end state, and the failure owns one violation per contradiction.

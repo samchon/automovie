@@ -10,17 +10,9 @@ import { IAutoMovieResolvedCamera } from "./IAutoMovieResolvedCamera";
 import { deliveryCropNdc } from "./deliveryCropNdc";
 
 /**
- * Project a world point into the delivered frame's normalized device
- * coordinates.
+ * Project a world point into the delivered frame's normalized device coordinates.
  *
- * The camera looks down its local −Z, as glTF cameras do, so `depth = −localZ`
- * is positive in front of the lens, and NDC is `local / (depth · halfY)`
- * vertically and `local / (depth · halfY · aspect)` horizontally. With a crop,
- * NDC is rescaled so the crop window spans `[−1, 1]` on both axes; without one,
- * the whole gate does. Behind the lens (`depth <= 0`) the NDC is meaningless
- * and at `depth = 0` it is infinite or `NaN`: this never clamps, and the caller
- * reads `depth`, the near and far bounds and the `[−1, 1]` rectangle to
- * decide. A malformed crop throws the `RangeError` of {@link deliveryCropNdc}.
+ * The camera looks down its local −Z, as glTF cameras do, so `depth = −localZ` is positive in front of the lens, and NDC is `local / (depth · halfY)` vertically and `local / (depth · halfY · aspect)` horizontally. With a crop, NDC is rescaled so the crop window spans `[−1, 1]` on both axes; without one, the whole gate does. Behind the lens (`depth <= 0`) the NDC is meaningless and at `depth = 0` it is infinite or `NaN`: this never clamps, and the caller reads `depth`, the near and far bounds and the `[−1, 1]` rectangle to decide. A malformed crop throws the `RangeError` of {@link deliveryCropNdc}.
  *
  * @param camera Camera placement, looking down its local −Z.
  * @param point World point in metres.

@@ -5,13 +5,7 @@ import { canonicalProductionFrameRate } from "./canonicalProductionFrameRate";
 /**
  * Map one non-negative film-frame boundary to seconds on the film clock.
  *
- * The boundary of frame `f` at rate `n/d` lies at `f·d/n` seconds. The rate is
- * reduced to lowest terms first, so two spellings of one rate give the same
- * bits, and the result is the correctly rounded double of that ratio while
- * `f·d` stays within `Number.MAX_SAFE_INTEGER`; beyond it the product itself
- * rounds. Callers that compare a time with a frame boundary read it here, so
- * they all compare against the same double. A frame that is not a
- * non-negative safe integer, and an invalid frame rate, throw an `Error`.
+ * The boundary of frame `f` at rate `n/d` lies at `f·d/n` seconds. The rate is reduced to lowest terms first, so two spellings of one rate give the same bits, and the result is the correctly rounded double of that ratio while `f·d` stays within `Number.MAX_SAFE_INTEGER`; beyond it the product itself rounds. Callers that compare a time with a frame boundary read it here, so they all compare against the same double. A frame that is not a non-negative safe integer, and an invalid frame rate, throw an `Error`.
  *
  * @param props.frame Film-frame boundary index, a non-negative safe integer.
  * @param props.frameRate The film's frame rate as an exact ratio.
@@ -22,7 +16,7 @@ import { canonicalProductionFrameRate } from "./canonicalProductionFrameRate";
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No rate or frame is special-cased and no epsilon is added; callers compare against these exact doubles instead of tolerancing.
  * @evidence contracts/common.md#meaningful-documentation States the formula, the reduction and why it matters, the precision bound, why callers share it, and both thrown conditions.
  * @evidence contracts/performance.md#efficient-algorithms Constant time apart from the frame-rate reduction's Euclidean algorithm, logarithmic in the rate terms.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call answers one boundary independently; the frame-ownership walk calls it per candidate frame, and caching those few doubles would cost more than recomputing them.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call maps one boundary independently and retains no mapping history; callers own reuse of a reduced rate or repeated boundary reads when their traversal needs it.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Allocates the reduced rate record and retains nothing.
  */
 export function productionFrameBoundaryToSeconds (props: {

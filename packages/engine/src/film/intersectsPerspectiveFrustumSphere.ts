@@ -10,20 +10,9 @@ import { IAutoMovieResolvedCamera } from "./IAutoMovieResolvedCamera";
 import { deliveryCropNdc } from "./deliveryCropNdc";
 
 /**
- * Whether a world-space sphere may intersect an exact perspective-camera
- * frustum.
+ * Whether a world-space sphere may intersect a perspective-camera frustum.
  *
- * The sphere's centre is brought into the camera frame and its signed distance
- * to each of the six planes compared with the radius. Each side plane passes
- * through the lens, and its distance is normalized by the plane's own
- * `hypot(1, tangent)`, so callers must not approximate the radius by padding
- * projected NDC coordinates. Like every plane-by-plane sphere test this is
- * conservative near the frustum's edges and corners: a sphere just outside a
- * corner yet within `radius` of both adjacent planes answers true. The error
- * is always toward visible: the viewer's formation culling keeps such a member
- * drawn, and `measureAutoMovieGeometry` counts it as visible. A
- * non-finite or negative radius answers false, and a malformed crop throws the
- * `RangeError` of {@link deliveryCropNdc}.
+ * The sphere's centre is brought into the camera frame and its signed distance to each of the six planes compared with the radius. Each side plane passes through the lens, and its distance is normalized by the plane's own `hypot(1, tangent)`, so callers must not approximate the radius by padding projected NDC coordinates. Like every plane-by-plane sphere test this is conservative near the frustum's edges and corners: a sphere just outside a corner yet within `radius` of both adjacent planes answers true. Under exact-real arithmetic the geometric approximation errs toward visible: the viewer's formation culling keeps such a member drawn, and `measureAutoMovieGeometry` counts it as visible. A non-finite or negative radius answers false. A malformed crop throws the RangeError of deliveryCropNdc only if radius and depth checks reach the side planes; an earlier false result skips that conversion. Finite centres, valid lens scalars, nearly unit camera rotation and representable intermediate products are premises; boundary rounding is not certified.
  *
  * @param props.camera Camera placement, looking down its local −Z.
  * @param props.center Sphere centre in world metres.
@@ -35,11 +24,11 @@ import { deliveryCropNdc } from "./deliveryCropNdc";
  * @param props.crop Delivery crop, or the whole gate when omitted.
  * @returns False only when the sphere is wholly outside some frustum plane.
  *
- * @evidence contracts/common.md#principled-implementation The standard sphere-versus-half-space test against each of the six frustum planes, with each side plane `x - t·d = 0` normalized by `hypot(1, t)` so the comparison is a true Euclidean distance; the method is exact for rejecting a sphere outside one plane and conservative at edges and corners, a limitation the documentation states.
+ * @evidence contracts/common.md#principled-implementation The standard sphere-versus-half-space test against each of the six frustum planes, with each side plane `x - t·d = 0` normalized by `hypot(1, t)` so the comparison is a true Euclidean distance; the exact-real method rejects a sphere outside one plane and is conservative at edges and corners. Floating products and boundary rounding retain the stated numerical limits.
  * @evidence contracts/common.md#clear-and-simple-design The crop conversion is the shared `deliveryCropNdc`; this function keeps only the distance comparisons, serving the geometry measurement and the viewer's formation culling with one rule.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No tolerance pads the radius and no camera or subject is special-cased; the invalid-radius refusal applies to every caller alike.
  * @evidence contracts/common.md#meaningful-documentation States the plane normalization and why NDC padding is wrong, the conservative edge and corner behaviour and what each caller does with it, the invalid-radius answer, the crop error, and each parameter's frame and units.
- * @evidence contracts/performance.md#efficient-algorithms Constant time: one inverse rotation, one crop conversion and six distance comparisons, cheap enough for a per-member culling pass.
+ * @evidence contracts/performance.md#efficient-algorithms Constant local work performs one inverse rotation, at most one crop conversion and six plane comparisons; no performance measurement or frame-time budget is claimed.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure predicate over one sphere and one camera that coordinates no work across calls.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The camera-local centre and the NDC crop are garbage on return, and the predicate keeps no reference to the camera or sphere.
  */

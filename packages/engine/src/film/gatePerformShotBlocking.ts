@@ -13,13 +13,7 @@ import { performShotActors } from "./performShotActors";
 /**
  * Refuse a performance that does not realize the beat's blocking.
  *
- * When the pipeline blocked the beat, the performance must play that plan and
- * not another: the same beat id, a duration within `1e-6` s of the blocked
- * one, every timing anchor covered by a stage action of its actor whose span
- * contains the anchor within `1e-9` s, and the blocked camera intent honoured
- * by the first frame move, its framing and its move. Without a frame move, only
- * a `static` intent is honoured, by the locked-off camera. Each failure is one
- * violation at the field that disagrees.
+ * When the pipeline blocked the beat, the performance must play that plan and not another: the same beat id, a duration within `1e-6` s of the blocked one, every timing anchor covered by a stage action of its actor whose span contains the anchor within `1e-9` s, and the blocked camera intent honoured by the first frame move, its framing and its move. Without a frame move, only a `static` intent is honoured, by the locked-off camera. Each failure is one violation at the field that disagrees.
  *
  * @param context The shot's staged tables and collector.
  * @param blocking The beat's validated blocking.
@@ -30,7 +24,7 @@ import { performShotActors } from "./performShotActors";
  * @evidence contracts/common.md#clear-and-simple-design The coherence check between two pipeline stages in one place, reading spans and actors through the shared helpers so an anchor is judged over the same interval the overlap gate uses.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Every anchor and actor is held to the same rule; a missing frame move is accepted only for a `static` intent, which a locked-off camera does realize, and never for a moving one.
  * @evidence contracts/common.md#meaningful-documentation States each coherence rule with its tolerance, the static-intent exception, which frame move is compared and why the list must be sorted, and where violations land.
- * @evidence contracts/performance.md#efficient-algorithms Linear in anchors times stage actions for coverage, which is small per beat, plus constant work for the beat, duration and camera checks.
+ * @evidence contracts/performance.md#efficient-algorithms Each anchor can scan every stage action and its actor list for coverage, so cost grows with anchors times the total inspected action/member population. Beat, duration and camera comparisons add fixed local work, while diagnostic text scales with represented values.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work One comparison of one blocking with one performance per call.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Pushes violations into the shared collector and retains nothing.
  */

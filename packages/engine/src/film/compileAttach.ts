@@ -25,46 +25,26 @@ const IDENTITY_OFFSET: IAutoMovieTransform = {
 };
 
 /**
- * Bake the `attachTo` verb into the child object's follow clip, the per-frame
- * realisation of a rigid coupling to a parent's bone (a sword in a hand, a prop
- * on a saddle). The child is not a rig, so, like a projectile, it moves by a
- * node clip of translation and rotation tracks, not a pose motion.
+ * Bake the `attachTo` verb into the child object's follow clip, the per-frame realisation of a rigid coupling to a parent's bone (a sword in a hand, a prop on a saddle). The child is not a rig, so, like a projectile, it moves by a node clip of translation and rotation tracks, not a pose motion.
  *
- * Each sample resolves the parent's posed skeleton at that instant through
- * {@link resolveAttachment}, which runs the parent's FK, to find the bone's
- * frame in the parent's model space, then composes that onto the parent's world
- * frame: its staged placement, or, when the parent itself rides a coupling this
- * shot, its ridden frame from `parentTransformAt` (#1140):
+ * Each sample resolves the parent's posed skeleton at that instant through {@link resolveAttachment}, which runs the parent's FK, to find the bone's frame in the parent's model space, then composes that onto the parent's world frame: its staged placement, or, when the parent itself rides a coupling this shot, its ridden frame from `parentTransformAt` (#1140):
  *
  * - `translation = parentPos + parentRot · boneLocal.translation`
  * - `rotation = parentRot ∘ boneLocal.rotation`
  *
- * The parent's scale is not applied, which matches the renderer for the
- * unit-scale actors staging places. Pass the same `jointAxes` the renderer
- * poses the parent with (`HUMANOID_JOINT_AXES`), plus the same `restFrames`
- * when parent clips are authored in clinical space, or the child follows a
- * bone where the renderer does not draw it. A parent with no motion holds its
- * rest pose.
+ * The parent's scale is not applied, which matches the renderer for the unit-scale actors staging places. Pass the same `jointAxes` the renderer poses the parent with (`HUMANOID_JOINT_AXES`), plus the same `restFrames` when parent clips are authored in clinical space, or the child follows a bone where the renderer does not draw it. A parent with no motion holds its rest pose.
  *
- * The clip is shot-local: `round(duration × fps)` evenly spaced samples plus
- * the end, over `[start, start + duration]`, with the clip's duration set to
- * `shotDuration`, the same convention as `cameraMotion`. Read alone through
- * `sampleClip` it clamps to the bone's first frame before `start`; playback
- * reads it through `sampleClipSequence`, where it writes nothing before
- * `start` and holds its last frame after the coupling ends. The clip id is
- * `attach:<child>`; a caller baking several couplings of one child suffixes
- * repeats. Throws a `RangeError` when `duration` is not positive or `fps` is
- * not finite and positive.
+ * The clip is shot-local: N = max(1, round(duration × fps)) equal intervals give N + 1 keys including both ends of [start, start + duration], with duration set to `shotDuration`, the same convention as `cameraMotion`. Read alone through `sampleClip` it clamps to the bone's first frame before `start`; playback reads it through `sampleClipSequence`, where it writes nothing before `start` and holds its last frame after the coupling ends. The clip id is `attach:<child>`; a caller baking several couplings of one child suffixes repeats. Throws a `RangeError` for nonfinite/nonpositive duration or fps, or an unsafe rounded interval count that cannot support an advancing indexed loop. This representability gate is not a workload cap; callers still own feasible memory use and representable distinct key times.
  *
  * @author Samchon
  *
- * @evidence contracts/common.md#principled-implementation Samples the parent's motion at a fixed rate, resolves the bone by the same forward kinematics the renderer poses with, and composes it onto the parent's world translation and rotation, the rigid fixed-joint relation; linear keys between samples are exact for a parent that holds still or translates at constant velocity and approximate other motion to the sample spacing, and a non-positive span or a rate that is not finite and positive is refused because it would emit duplicate, no, or endless keys.
+ * @evidence contracts/common.md#principled-implementation Resolves the parent's bone by forward kinematics at evenly spaced keys and composes its world translation and rotation, the rigid fixed-joint relation. Linear keys are exact for a still or constant-velocity parent and approximate other motion; nonfinite/nonpositive spans and rates and unsafe interval counts are refused; feasible memory use and representable distinct key times remain caller premises.
  * @evidence contracts/common.md#clear-and-simple-design One baker for both per-beat `attachTo` and staged mounts, called by `coupleObjects`, which owns chain order and id uniqueness; the optional `parentTransformAt` is the single seam through which a chained parent's ridden frame enters, so the composition is not duplicated for chains.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Names no bone, rig or prop; the identity offset is the verb's contract that the child's origin sits on the bone, and the unapplied parent scale is stated as a limit rather than compensated.
  * @evidence contracts/common.md#meaningful-documentation States the per-sample composition formula, the parent frame choices, the unapplied scale, which joint tables must match the renderer, the rest-pose case, the clip's time base, sample count, id and both read semantics, and the throw.
- * @evidence contracts/performance.md#efficient-algorithms O(S · B) for S = round(duration × fps) + 1 samples over a parent rig of B bones, one FK per sample; a parent with no motion has one constant bone frame, resolved once instead of per sample.
+ * @evidence contracts/performance.md#efficient-algorithms For S = max(1, round(duration × fps)) + 1 feasible samples, resolves one FK per moving-parent sample plus delegated motion sampling; FK spans B bones. A motionless parent's bone frame is resolved once, while its world callback is still read at each sample.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call bakes one coupling from its own inputs; `coupleObjects` coordinates the shot's couplings and shares a parent's baked clips with its riders.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing after returning; the clip's three arrays, 3 + 3 + 4 numbers per sample, belong to the caller.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing after returning; the two tracks share one time array and own position and rotation arrays, holding 1 + 3 + 4 numbers per sample for the caller.
  */
 export function compileAttach (props: {
   /** The coupled child's scene node: the clip's target. */
@@ -77,11 +57,9 @@ export function compileAttach (props: {
   parentTransform: IAutoMovieTransform;
 
   /**
-   * The parent's world frame at shot-local second `t` when the parent itself
-   * rides a coupling this shot (#1140), so a pole in a mounted rider's hand
-   * rides the mount. It returns null at an instant where no coupling moves the
-   * parent yet, and `parentTransform` is used there. Omit it for a parent that
-   * stands on its staged placement all shot.
+   * The parent's ridden world frame at shot-local second t, or null before its
+   * coupling starts. The staged parentTransform applies when no ridden frame
+   * exists. Omit for a parent that holds its staged placement throughout.
    */
   parentTransformAt?: (t: number) => IAutoMovieTransform | null;
 
@@ -94,7 +72,7 @@ export function compileAttach (props: {
   /** Shot-local second the coupling begins. */
   start: number;
 
-  /** Length of the coupling in seconds; must be positive. */
+  /** Length of the coupling in seconds; must be finite and positive. */
   duration: number;
 
   /** The shot's length in seconds, which the clip's duration spans. */
@@ -113,9 +91,9 @@ export function compileAttach (props: {
   // `performShot` rejects a zero-span coupling before it reaches here; this
   // precondition, the one `projectileTrajectory` enforces, keeps any other
   // caller from baking duplicate key times.
-  if (!(props.duration > 0))
+  if (!Number.isFinite(props.duration) || !(props.duration > 0))
     throw new RangeError(
-      `attach follow duration must be > 0 seconds, but was ${props.duration}`,
+      `attach follow duration must be finite and > 0 seconds, but was ${props.duration}`,
     );
   // A rate that is not finite and positive would bake no key (NaN), one key
   // pair (zero or negative), or never stop sampling (infinity).
@@ -123,6 +101,9 @@ export function compileAttach (props: {
     throw new RangeError(
       `attach follow fps must be a finite number > 0, but was ${fps}`,
     );
+  const count: number = Math.max(1, Math.round(props.duration * fps));
+  if (!Number.isSafeInteger(count))
+    throw new RangeError("attach follow interval count must be a safe integer so sampling can advance");
   const attachment: IAutoMovieAttachment = {
     parentBone: props.bone,
     offset: IDENTITY_OFFSET,
@@ -140,7 +121,6 @@ export function compileAttach (props: {
       ? boneAt({ skeleton: props.parentSkeleton.id, root: null, joints: [] })
       : null;
 
-  const count: number = Math.max(1, Math.round(props.duration * fps));
   const times: number[] = [];
   const pos: number[] = [];
   const rot: number[] = [];

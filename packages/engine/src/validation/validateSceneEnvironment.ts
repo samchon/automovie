@@ -17,16 +17,9 @@ const SHADOW_TYPES: ReadonlySet<string> = new Set(["pcf", "pcfSoft", "vsm"]);
 /**
  * Admit environment image/background, intensity, exposure and shadow policy.
  *
- * Image ids are nonblank or null, and a declared image requires a null flat
- * background. Color delegates to validateColor's linear RGBA and matching sRGB
- * label contract. Intensity is finite and nonnegative, exposure finite and
- * positive, and rotation finite degrees. Tone mapping is none or acesFilmic;
- * shadows require a boolean enabled flag and pcf, pcfSoft or vsm filter.
+ * Image ids are nonblank or null, and a declared image requires a null flat background. Color delegates to validateColor's linear RGBA and matching sRGB label contract. Intensity is finite and nonnegative, exposure finite and positive, and rotation finite degrees. Tone mapping is none or acesFilmic; shadows require a boolean enabled flag and pcf, pcfSoft or vsm filter.
  *
- * Supplying admitted light traits also checks the supported shadow profile,
- * retaining its original scene-light paths on refusal. With no light context,
- * this function admits policy shape only. It collects all independent faults
- * without changing input or requiring a renderer.
+ * Supplying admitted light traits also checks the supported shadow profile, retaining its original scene-light paths on refusal. With no light context, this function admits policy shape only. It collects all independent faults without changing input or requiring a renderer.
  *
  * @evidence contracts/common.md#principled-implementation Reads the environment as unknown until a record guard admits it, then checks the domains its numerical lighting consumers require. Image/background exclusivity prevents two authored background authorities; shared validateColor and resolveAutoMovieShadowProfile own color and contextual filter laws, so this gate does not invent rendering fallbacks.
  * @evidence contracts/common.md#clear-and-simple-design Owns environment scalar and policy admission at staging and production scene seams; delegates complete colors and light-dependent shadow compatibility, with an optional lights argument expressing whether that context is available.

@@ -9,30 +9,17 @@ import { IAutoMovieProductionRenderLayer } from "./IAutoMovieProductionRenderLay
 import { resolveProductionFrameRate } from "./resolveProductionFrameRate";
 
 /**
- * Resolve one film-global frame to the shot frames that compose it, with exact
- * dissolve and fade weights.
+ * Resolve one film-global frame to the shot frames that compose it, with dissolve and fade weights.
  *
- * The active segment is the last one whose `[startFrame, endFrame)` contains
- * the frame; the canonical builder orders segment starts without gaps. Inside
- * an incoming dissolve of `d` frames, at offset `k` into the
- * segment, the outgoing segment's tail frame `sourceOutFrame - d + k` is
- * layered at weight `1 - k / d` under the incoming frame at `k / d`. Otherwise
- * the one layer is weighted by the smaller of an incoming fade's `k / d` and an
- * outgoing fade's `remaining / d`, where `remaining` counts this frame and the
- * ones after it in the segment. The time stamp is the frame's exact rational
- * time at the timeline's rate.
+ * The active segment is the last one whose `[startFrame, endFrame)` contains the frame; the canonical builder orders segment starts without gaps. Inside an incoming dissolve of `d` frames, at offset `k` into the segment, the outgoing segment's tail frame `sourceOutFrame - d + k` is layered at weight `1 - k / d` under the incoming frame at `k / d`. Otherwise the one layer is weighted by the smaller of an incoming fade's `k / d` and an outgoing fade's `remaining / d`, where `remaining` counts this frame and the ones after it in the segment. The timestamp is independently computed binary64 frame time at the reduced rational rate, not an exact rational value.
  *
- * The answer depends only on the timeline and the frame number, so a browser
- * seek, a render chunk and a full render resolve the same layers. Throws when
- * the frame is not a safe integer inside `[0, totalFrames)`, when no segment
- * contains it, when a dissolving segment has no predecessor, or when the
- * timeline's rate fields disagree.
+ * The answer depends only on the timeline and the frame number, so a browser seek, a render chunk and a full render resolve the same layers. Throws when the frame is not a safe integer inside `[0, totalFrames)`, when no segment contains it, when a dissolving segment has no predecessor, or when the timeline's rate fields disagree.
  *
  * @param timeline The canonical film timeline.
  * @param globalFrame Film-global frame index.
  * @returns The frame index, its time in seconds, and its weighted layers.
  *
- * @evidence contracts/common.md#principled-implementation Integer frame offsets give exact linear dissolve and fade ramps, the outgoing tail is addressed by counting back the dissolve length from its exclusive source end, and time is `frame · denominator / numerator` from the reduced exact rate, so no drift accumulates from a decimal fps.
+ * @evidence contracts/common.md#principled-implementation Integer frame offsets address the outgoing tail and define linear ramps whose divisions use binary64 arithmetic. Time is independently frame·denominator/numerator at the reduced rational rate, avoiding accumulated decimal-fps drift; multiplication and division can round, including products beyond safe-integer precision.
  * @evidence contracts/common.md#clear-and-simple-design A pure function of the timeline and one frame, the seam the render planner calls per output frame, with the time stamp in one private step; dissolve and fade stay together because both are read from the same segment offsets.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No shot or segment is special-cased; a missing segment or a dissolve without an outgoing segment throws instead of drawing black or a single layer.
  * @evidence contracts/common.md#meaningful-documentation States the active-segment rule, both weight formulas and what `remaining` counts, the time stamp, the determinism guarantee, and every throw.
@@ -110,7 +97,7 @@ export function sampleProductionRenderFrame (
   ]);
 }
 
-/** Stamp the resolved layers with the frame's exact rational film time. */
+/** Stamp layers with independently computed binary64 time at the rational rate. */
 function frame (
   timeline: IAutoMovieFilmTimeline,
   globalFrame: number,

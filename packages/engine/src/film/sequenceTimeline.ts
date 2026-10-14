@@ -7,17 +7,9 @@ import { IAutoMoviePlaybackTimeline } from "./IAutoMoviePlaybackTimeline";
 import { preparePlaybackTimeline } from "./preparePlaybackTimeline";
 
 /**
- * Lay the cut onto the output clock, the playback mirror of `cutSequence`'s
- * runtime arithmetic: each entry plays its trimmed span, or the whole shot
- * without a trim, and a transition pulls its entry forward to overlap the
- * previous entry's tail by the transition's duration.
+ * Lay the cut onto the output clock, the playback mirror of `cutSequence`'s runtime arithmetic: each entry plays its trimmed span, or the whole shot without a trim, and a transition pulls its entry forward to overlap the previous entry's tail by the transition's duration.
  *
- * Precondition: the sequence passed `cutSequence`, so every trim fits its shot
- * and every transition fits inside the previous entry's played span. The
- * structural faults this layout cannot proceed past still throw, naming the
- * offending position: an empty sequence, a transition on the first entry, a
- * sequence entry whose shot is not supplied, and two supplied shots sharing an
- * id.
+ * Precondition: the sequence passed `cutSequence`, so every trim fits its shot and every transition fits inside the previous entry's played span. The structural faults this layout cannot proceed past still throw, naming the offending position: an empty sequence, a transition on the first entry, a sequence entry whose shot is not supplied, and two supplied shots sharing an id.
  *
  * @param sequence The cut, already accepted by `cutSequence`.
  * @param shots Every shot the cut references; extra shots are allowed.

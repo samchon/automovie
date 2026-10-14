@@ -7,35 +7,18 @@ import {
 function finiteOrNull (value: number): number | null { return Number.isFinite(value) ? value : null; }
 
 /**
- * Measure the largest gap between adjacent representable depths that a
- * camera's standard perspective depth buffer leaves inside one required
- * camera-space range, and judge it against an authored maximum.
+ * Measure the largest gap between adjacent representable depths that a camera's standard perspective depth buffer leaves inside one required camera-space range, and judge it against an authored maximum.
  *
- * With `levels = 2^bits - 1`, a depth `z` lies at `q(z) * levels` in code units,
- * where `q(z) = (1/near - 1/z) / (1/near - 1/far)`, and the
- * code `k` decodes to `1 / (1/near - (k/levels) * (1/near - 1/far))`. The gap
- * between adjacent codes grows with depth, so the widest cell the closed range
- * `[requiredNear, requiredFar]` touches is the one ending at, or containing,
- * `requiredFar`: codes `ceil(q(requiredFar) * levels) - 1` and that ceiling.
- * A range that ends exactly on `near` needs only code 0, which decodes exactly,
- * so it reports codes 0 and 0 and a step of 0.
+ * With `levels = 2^bits - 1`, a depth `z` lies at `q(z) * levels` in code units, where `q(z) = (1/near - 1/z) / (1/near - 1/far)`, and the code `k` decodes to `1 / (1/near - (k/levels) * (1/near - 1/far))`. The gap between adjacent codes grows with depth, so the widest cell the closed range `[requiredNear, requiredFar]` touches is the one ending at, or containing, `requiredFar`: codes `ceil(q(requiredFar) * levels) - 1` and that ceiling. A range that ends exactly on `near` needs only code 0, which decodes exactly, so it reports codes 0 and 0 and a step of 0.
  *
- * The report echoes every input, with a non-finite number as null, and its
- * `status` is `invalid` for a blank camera, a negative or non-finite time, a
- * clip range that is not `0 < near < far` and finite, an inverted or
- * non-finite required range, a bit depth that is not a positive integer whose
- * level count is a safe integer, a maximum step that is not finite and
- * positive, or a step that does not evaluate to a finite non-negative number;
- * `outside-clipping-range` when the required range leaves `[near, far]`; and
- * otherwise `satisfied` when the step is at most the maximum, equality
- * included, else `insufficient-precision`. Only `satisfied` sets `passed`.
+ * The report echoes every input, with a non-finite number as null, and its `status` is `invalid` for a blank camera, a negative or non-finite time, a clip range that is not `0 < near < far` and finite, an inverted or non-finite required range, a bit depth that is not a positive integer whose level count is a safe integer, a maximum step that is not finite and positive, or a step that does not evaluate to a finite non-negative number; `outside-clipping-range` when the required range leaves `[near, far]`; and otherwise `satisfied` when the step is at most the maximum, equality included, else `insufficient-precision`. Only `satisfied` sets `passed`.
  *
- * @evidence contracts/common.md#principled-implementation Uses the standard perspective depth mapping, linear in `1/z`, and its exact inverse at integer codes; monotonic growth of the decoded spacing with depth makes the cell at `requiredFar` the unique worst, and the limitation is that a `q * levels` within rounding of an integer may pick the neighbouring cell, which changes the step by at most one cell's growth.
+ * @evidence contracts/common.md#principled-implementation Uses the standard perspective depth mapping, linear in `1/z`, and the inverse formula at integer codes; monotonic growth of decoded spacing identifies the farthest touched cell under exact-real arithmetic. Binary64 reciprocal/subtraction rounding can select a neighbouring cell or make derived arithmetic invalid; this report is not a certified floating-point error bound.
  * @evidence contracts/common.md#clear-and-simple-design One pure function from a camera's clip range, a required range and a constraint to a serializable report; both depth-precision paths in `realizeShotContract` call it, so the formula and its refusals live in one place.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Names no camera or scene; malformed input becomes an `invalid` report with null measurements rather than a clamped guess, and the degenerate point on `near` reports its exact zero step instead of borrowing the following cell.
  * @evidence contracts/common.md#meaningful-documentation States the depth mapping, the decoding, which cell is measured and why, the degenerate near case, how inputs are echoed, every status and its condition, the inclusive threshold, and metre units through the report's `unit`.
  * @evidence contracts/performance.md#efficient-algorithms Constant time: one normalized depth, one ceiling and two decodes, with no search over codes because monotonic spacing identifies the worst cell directly.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work A constant-time pure function of its arguments; recomputing it per camera sample costs less than any cache lookup.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function of the current camera range and constraint; it coordinates no requests or effects and retains no map across mutable camera samples.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the returned report is a fresh record owned by the caller.
  */
 export function evaluateAutoMovieCameraDepthPrecision (props: {

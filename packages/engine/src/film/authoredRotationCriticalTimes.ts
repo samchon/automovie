@@ -6,12 +6,7 @@ import { quaternionInterpolationCriticalRatios } from "../math/quaternionInterpo
 /**
  * Add analytical rotation extrema and one-sided key samples to shot admission.
  *
- * Clips must have passed transform-track admission. Each loop repeats the same
- * component curve against the same direct limits, so one cycle suffices;
- * sequence authority can only replace an earlier track, never restore it.
- * The owner resolves the complete sequence, so a hidden track gains no authority.
- * Nearest representable neighbours check the values just inside key boundaries,
- * including shortest-arc quaternion sign changes and cross-clip handoffs.
+ * Clips must have passed transform-track admission. Each loop repeats the same component curve against the same direct limits, so one cycle suffices; sequence authority can only replace an earlier track, never restore it. The owner resolves the complete sequence, so a hidden track gains no authority. Nearest representable neighbours check the values just inside key boundaries, including shortest-arc quaternion sign changes and cross-clip handoffs.
  *
  * @evidence contracts/common.md#principled-implementation Every linear quaternion segment contributes derivative roots from quaternionInterpolationCriticalRatios, using the sampler's spherical or normalized-linear law. Affine conversion puts roots on its first-cycle clock; loops repeat the same component curve and direct limits, while latest-start sequence authority never restores a superseded track. Adjacent binary64 key neighbours observe one-sided values, including sign-adjusted arc endpoints, through the actual resolver with ordinary floating clock rounding.
  * @evidence contracts/common.md#clear-and-simple-design Collects clocks only; gateAuthoredObjectMotions resolves shared clip authority, drivers and profile limits at those clocks. Mathematical derivative ownership remains in the quaternion helper, while step/linear boundaries share the existing floating neighbour operation.

@@ -34,44 +34,25 @@ const DEFAULT_CONTACT_RADIUS: number = 1.0;
 const DEFAULT_SILHOUETTE_RADIUS: number = 0.35;
 
 /**
- * Engine-computed visual-read metrics for one compiled shot, filed as advisory
- * `tier: "visual"` review notes after any film-grammar findings passed in.
- * They never fail a gate; they give the review backlog measurable facts about
- * whether the action reads.
+ * Engine-computed visual-read metrics for one compiled shot, filed as advisory `tier: "visual"` review notes after any film-grammar findings passed in. They never fail a gate; they give the review backlog measurable facts about whether the action reads.
  *
- * Every metric reads a performer's world root: its performance's motion
- * sampled at `max(0, t - startOffset)` and folded through its staged node. A
- * performance whose node or motion is missing, or that plays no motion, is
- * skipped.
+ * Every metric reads a performer's world root: its performance's motion sampled at `max(0, t - startOffset)` and folded through its staged node. A performance whose node or motion is missing, or that plays no motion, is skipped.
  *
- * - **Subject in frame**: sampled at `sampleRate` from 0 to the shot's end, a
- *   performer whose root leaves the live camera's frustum, behind the near
- *   plane, past the far plane, or outside the vertical field of view and the
- *   `aspect`-derived horizontal one, gets one note at the first such time.
- * - **Silhouette separation**: at the same times, two performers whose angular
- *   separation from the camera is smaller than the sum of their angular radii,
- *   `atan(silhouetteRadius / distance)` each, get one note at the first such
- *   time; a pair with either root nearer than the near plane at that time is
- *   left to the framing metric.
- * - **Contact connection**: a `hit` or `contact` event with a point and a
- *   target whose performer's root lies farther than `contactRadius` from the
- *   point at the event time gets one note.
+ * - **Subject in frame**: sampled at `sampleRate` from 0 to the shot's end, a performer whose root leaves the live camera's frustum, behind the near plane, past the far plane, or outside the vertical field of view and the `aspect`-derived horizontal one, gets one note at the first such time.
+ * - **Silhouette separation**: at the same times, two performers whose angular separation from the camera is smaller than the sum of their angular radii, `atan(silhouetteRadius / distance)` each, get one note at the first such time; a pair with either root nearer than the near plane at that time is left to the framing metric.
+ * - **Contact connection**: a `hit` or `contact` event with a point and a target whose performer's root lies farther than `contactRadius` from the point at the event time gets one note.
  *
- * The first two metrics need a live camera with a finite field of view in
- * `(0, 180)` degrees and `far > near`; without one they are skipped. A root is
- * a point, so a subject whose body is in frame while its root is not is
- * reported; that approximation holds for all three metrics.
+ * The first two metrics need a live camera with a finite field of view in `(0, 180)` degrees and `far > near`; without one they are skipped. A root is a point, so a subject whose body is in frame while its root is not is reported; that approximation holds for all three metrics.
  *
- * @param props The shot, its scene and motions, the metric parameters, and
- *   the grammar findings to file first.
+ * @param props The shot, its scene and motions, the metric parameters, and the grammar findings to file first.
  * @returns The grammar notes followed by the visual-read notes.
  *
- * @evidence contracts/common.md#principled-implementation Measures with the engine's own sampling and projection, `sampleMotion` folded through `foldRoot` for roots, `resolveCameraAt` for the camera and `projectToNdc` for the frustum, on a fixed `sampleTimes` grid, so a note describes the frames the renderer draws; angular separation is the arccosine of the clamped normalized dot product, and the stated limitation is the root-point subject.
- * @evidence contracts/common.md#clear-and-simple-design One reader computes the camera and every performer root once per sample time and the three metrics read those tables; the grammar findings are filed by `grammarDiagnosticsToReviewNotes`, which owns their wording.
+ * @evidence contracts/common.md#principled-implementation Samples motion roots through foldRoot, live cameras through resolveCameraAt and pinhole framing through projectToNdc on a fixed sampleTimes grid. Angular separation uses the clamped normalized dot product; these sampled root-point proxies do not measure rendered pixels, occlusion or unsampled instants.
+ * @evidence contracts/common.md#clear-and-simple-design The camera reader builds one fixed-clock table of camera placements and performer roots for framing and silhouette checks; contact checks use an indexed performer and query its root at the event's own time. Grammar findings are filed by grammarDiagnosticsToReviewNotes, which owns that record conversion.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No actor, camera or event is special-cased; the thresholds are documented parameters with stated defaults, and a degenerate camera skips the camera metrics instead of producing notes from undefined projections.
  * @evidence contracts/common.md#meaningful-documentation States what each metric measures, when it fires and at which time, which performances are skipped, the camera precondition, the root-point limitation, the defaults and units, and the order of the returned notes.
- * @evidence contracts/performance.md#efficient-algorithms T = ceil(duration · rate) + 1 sample times; the camera is resolved T times and each of P performers sampled T times, O(P · T) motion samples, then the pair metric is O(P² · T) vector arithmetic over those tables; the contact metric is O(E) with constant-time lookups.
- * @evidence contracts/performance.md#reuse-equivalent-work The camera placement and every performer root at each sample time are computed once and shared by the frame and silhouette metrics, so a root is sampled once per time rather than once per pair that includes it; the contact metric samples at event times, which are not on the grid.
+ * @evidence contracts/performance.md#efficient-algorithms T = ceil(duration · rate) + 1 sample times require T camera reads and P·T delegated motion samples; pair comparisons add O(P²·T) vector work. Contact events use indexed target lookup but sample the target motion at each event time, adding up to E delegated samples rather than constant work per event.
+ * @evidence contracts/performance.md#reuse-equivalent-work Shares camera placements and performer roots on the fixed clock between frame and silhouette metrics, so pair comparisons do not resample roots. Contact checks sample the target at each event's own time independently; an event can coincide with the fixed clock, but that repeated sample is not reused here.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The camera and root tables, O(T + P · T) vectors, live for one call and are released on return; the returned notes are fresh records owned by the caller.
  */
 export function reviewVisualRead (props: {
@@ -99,10 +80,7 @@ export function reviewVisualRead (props: {
   /** Silhouette half-width in metres for the merge check. Defaults to 0.35. */
   silhouetteRadius?: number;
 
-  /**
-   * Film-grammar findings for this shot or its incoming cut, computed by the
-   * sequence analyzer and filed here before the visual-read notes.
-   */
+  /** Film-grammar findings for this shot or its incoming cut, filed before visual-read notes. */
   grammarDiagnostics?: readonly IAutoMovieGrammarDiagnostic[];
 }): IAutoMovieReviewNote[] {
   const motionById: Map<string, IAutoMovieMotion> = new Map(
@@ -205,11 +183,22 @@ export function reviewVisualRead (props: {
   return notes;
 }
 
-/** A performance whose node and motion both resolved. */
+/**
+ * A performance whose node and motion both resolved.
+ *
+ * @author Samchon
+ */
 interface IPerformer {
+  /** Scene-node identity used in advisory note text. */
   name: string;
+
+  /** Borrowed staged placement folded with the sampled pose root. */
   node: IAutoMovieSceneNode;
+
+  /** Borrowed compiled motion sampled for this performance. */
   motion: IAutoMovieMotion;
+
+  /** Shot-local seconds subtracted before sampling the pose-local clock. */
   offset: number;
 }
 
@@ -306,8 +295,7 @@ function missNote (
 }); }
 
 /**
- * A performer's world root at shot time `t`: its clip has advanced
- * `max(0, t - startOffset)`, the convention the beat snapshots use.
+ * A performer's world root at shot time `t`: its clip has advanced `max(0, t - startOffset)`, the convention the beat snapshots use.
  */
 function worldRootAt (performer: IPerformer, t: number): IAutoMovieVector3 { return foldRoot(
     performer.node.transform,

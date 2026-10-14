@@ -6,15 +6,9 @@ import { isRecord } from "./isRecord";
 const HEX_COLOR_PATTERN: RegExp = /^#[0-9A-Fa-f]{6}$/;
 
 /**
- * Append every malformed linear RGBA field and contradictory display label.
- * RGB and non-null alpha must be finite within [0,1]. Hex is null or #RRGGBB
- * and, when present, must equal the quantized sRGB encoding of the linear RGB
- * values, ignoring letter case. Alpha does not enter that display swatch.
+ * Append every malformed linear RGBA field and contradictory display label. RGB and non-null alpha must be finite within [0,1]. Hex is null or #RRGGBB and, when present, must equal the quantized sRGB encoding of the linear RGB values, ignoring letter case. Alpha does not enter that display swatch.
  *
- * The check is total over ordinary unknown JSON payloads. It reports a bad
- * object at path and individual fields below it, without mutating or decoding
- * the label into the authoritative numeric channels. A malformed RGB triple
- * skips only the dependent label-consistency check.
+ * The check is total over ordinary unknown JSON payloads. It reports a bad object at path and individual fields below it, without mutating or decoding the label into the authoritative numeric channels. A malformed RGB triple skips only the dependent label-consistency check.
  *
  * @param color The unchecked color record.
  * @param path Prefix used for every field finding.

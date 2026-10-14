@@ -1,14 +1,9 @@
 import type { IAutoMovieProductionFrameRate } from "@automovie/interface";
 
 /**
- * Reduce one positive production frame rate, in frames per second, to its
- * exact integer identity: a numerator and denominator with no common factor.
+ * Reduce one positive production frame rate, in frames per second, to its exact integer identity: a numerator and denominator with no common factor.
  *
- * A scalar is accepted only as a positive safe integer and read as `n/1`.
- * A fractional rate must be stated as a numerator and denominator, because a
- * decimal such as 29.97 does not identify the rate that produced it
- * (30000/1001). Throws when a scalar is not a positive safe integer or a term
- * is not a positive safe integer; the message names the rejected value.
+ * A scalar is accepted only as a positive safe integer and read as `n/1`. A fractional rate must be stated as a numerator and denominator, because a decimal such as 29.97 does not identify the rate that produced it (30000/1001). Throws when a scalar is not a positive safe integer or a term is not a positive safe integer; the message names the rejected value.
  *
  * @evidence contracts/common.md#principled-implementation Divides both terms by their greatest common divisor from Euclid's algorithm, which yields the unique reduced fraction; safe-integer terms keep every remainder and quotient exact in IEEE doubles.
  * @evidence contracts/common.md#clear-and-simple-design The single canonicalizer every frame-rate comparison and boundary conversion reads, including `equalProductionFrameRates`, the frame-boundary converters and the render tier planner, so reduced identity has one definition.

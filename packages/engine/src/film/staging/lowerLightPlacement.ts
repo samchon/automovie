@@ -19,21 +19,9 @@ const DEFAULT_CONE_ANGLE: number = 45;
 /**
  * Lower one accepted light placement into the scene light it describes.
  *
- * The node transform translates to `position`, or the origin for a light
- * without one, and turns by the shortest-arc rotation that puts local `-Z` on
- * `direction`, or the identity for a light without one, such as a point light,
- * which radiates every way. An omitted color is neutral white with `a: null`,
- * the light-slot convention {@link IAutoMovieColor} documents. `castShadow`
- * and `shadow` are copied when present. A point or spot light's omitted
- * `range` becomes `0`, which the light model reads as unlimited range, and a
- * spot's omitted `coneAngle` becomes 45 degrees. An area light takes the
- * `width` and `height` the placement must state: a panel has no default size,
- * because an unstated width is an author who has not decided how big the
- * window is.
+ * The node transform translates to `position`, or the origin for a light without one, and turns by the shortest-arc rotation that puts local `-Z` on `direction`, or the identity for a light without one, such as a point light, which radiates every way. An omitted color is neutral white with `a: null`, the light-slot convention {@link IAutoMovieColor} documents. `castShadow` and `shadow` are copied when present. A point or spot light's omitted `range` becomes `0`, which the light model reads as unlimited range, and a spot's omitted `coneAngle` becomes 45 degrees. An area light takes the `width` and `height` the placement must state: a panel has no default size, because an unstated width is an author who has not decided how big the window is.
  *
- * Precondition: `validateLightPlacementShape` accepted the placement, so its
- * type is supported, an aimed light has a direction, and an area light has
- * both extents. The vectors, color and shadow are the placement's own objects.
+ * Precondition: `validateLightPlacementShape` accepted the placement, so its type is supported, an aimed light has a direction, and an area light has both extents. The vectors, color and shadow are the placement's own objects.
  *
  * @param light The accepted staging light placement.
  * @returns The scene light of the placement's kind.

@@ -12,24 +12,13 @@ import { placeTransformedPoint } from "./placeTransformedPoint";
 import { skeletonRestFrames } from "./skeletonRestFrames";
 
 /**
- * A model's rest-pose box in model space: the axis-aligned range, in metres, of
- * the geometry a renderer draws, on all three axes.
+ * A model's rest-pose box in model space: the axis-aligned range, in metres, of its portable part geometry, on all three axes. External asset bytes are not opened here, so proxy parts do not establish the imported asset's pixel extent.
  *
- * Every vertex is placed the way the renderer places it: by its part's own
- * transform through {@link placeTransformedPoint}, then by the rest frame of
- * the bone the part rides, or left in model space when it rides none.
- * Primitives are measured through {@link tessellate}, the code that produces
- * their vertices, so the extent cannot drift from the picture. A trailing
- * partial `x, y, z` triple in a mesh is ignored.
+ * Every vertex is placed the way the renderer places it: by its part's own transform through {@link placeTransformedPoint}, then by the rest frame of the bone the part rides, or left in model space when it rides none. Primitives are measured through {@link tessellate}, the code that produces their vertices, so measurement follows those portable primitives. A trailing partial `x, y, z` triple in a mesh is ignored.
  *
- * {@link computeModelRestExtentY} is this box read on the vertical axis. The
- * horizontal half is what a subject wider than it is tall is framed and graded
- * from: a 60 m facade authored outward from its element origin has a drawn box
- * of `x 0…60, y 0…24, z −1…1`, where the vertical read alone reports `y 0…24`.
+ * {@link computeModelRestExtentY} is this box read on the vertical axis. The horizontal half is what a subject wider than it is tall is framed and graded from: a 60 m facade authored outward from its element origin has a drawn box of `x 0…60, y 0…24, z −1…1`, where the vertical read alone reports `y 0…24`.
  *
- * Returns null when no part has a vertex, leaving the caller's own fallback in
- * charge rather than inventing an extent. Throws, through
- * {@link skeletonRestFrames}, when the model's skeleton is malformed.
+ * Returns null when no part has a vertex, leaving the caller's own fallback in charge rather than inventing an extent. Throws, through {@link skeletonRestFrames}, when the model's skeleton is malformed.
  *
  * @evidence contracts/common.md#principled-implementation A running axis-aligned min and max over every vertex after the renderer's placement, part TRS then the bone's composed rest frame at unit scale; it relies on model validation having bound every `attachedBone` to a bone of the model's own skeleton, so a part found on no frame is one that rides no bone.
  * @evidence contracts/common.md#clear-and-simple-design Composes the shared pieces, `tessellate` for primitives, `placeTransformedPoint` for the part transform that `nodeSubjectBox` also applies, and `skeletonRestFrames` for the bone frames `computeRestHeight` reads, and owns only the bound accumulation.

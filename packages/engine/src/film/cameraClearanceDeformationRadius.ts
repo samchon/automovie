@@ -1,26 +1,13 @@
 import { IAutoMovieModel, IAutoMovieVector3 } from "@automovie/interface";
 
 /**
- * A pose-independent radius about a model's origin that contains everything
- * the model draws in any pose of its rig, in model-space metres.
+ * A pose-independent radius about a model's origin that contains its supplied portable part geometry in any pose of its rig, in model-space metres. External bytes and renderer-only deformation are outside this bound.
  *
- * `extent` is the model's rest-pose box from {@link computeModelRestExtent}. A
- * rest point `p` bound at a joint whose root-to-joint chain length is `c` lies
- * at most `|p| + c` from that joint; after any joint rotations the joint stays
- * within `c` of the root, so the posed point stays within `|p| + 2c` of the
- * origin. Non-negative normalized skin weights blend such bounded positions
- * convexly, so the same radius holds skinned vertices as well as parts rigidly
- * attached to a bone. `c` is the longest chain that reaches a bone some part
- * rides or some skin influences; bone rest scale is ignored because neither
- * engine forward kinematics nor the viewer applies it. A model with no
- * skeleton answers the farthest rest corner alone.
+ * `extent` is the model's rest-pose box from {@link computeModelRestExtent}. A rest point `p` bound at a joint whose root-to-joint chain length is `c` lies at most `|p| + c` from that joint; after any joint rotations the joint stays within `c` of the root, so the posed point stays within `|p| + 2c` of the origin. Non-negative normalized skin weights blend such bounded positions convexly, so the same radius holds skinned vertices as well as parts rigidly attached to a bone. `c` is the longest chain that reaches a bone some part rides or some skin influences; bone rest scale is ignored because neither engine forward kinematics nor the viewer applies it. A model with no skeleton answers the farthest rest corner alone.
  *
- * The caller must have validated the model with `validateModel`, which
- * guarantees closed parent links, finite rest translations and skin joint
- * names that exist. Throws an `Error` naming the rig or model when an
- * otherwise finite chain or radius overflows to infinity.
+ * The caller must have validated the model with `validateModel`, which guarantees closed parent links, finite rest translations and skin joint names that exist. Throws an `Error` naming the rig or model when an otherwise finite chain or radius overflows to infinity.
  *
- * @evidence contracts/common.md#principled-implementation Bounds posed geometry by the triangle inequality over a rigid joint chain, `|p| + 2c`, and relies on convexity of normalized non-negative skin weights for skinned vertices; the premises, a validated acyclic rig, finite rest translations and ignored bone scale, hold because the clearance compiler runs `validateModel` first and engine kinematics never reads rest scale; the bound is loose for short motions but never smaller than the true reach.
+ * @evidence contracts/common.md#principled-implementation Bounds supplied portable part geometry by the triangle inequality over a rigid joint chain, `|p| + 2c`, and convexity of normalized non-negative skin weights; the clearance compiler validates acyclic links and finite translations first, and engine kinematics ignores bone scale. This loose bound covers those part vertices, while external appearance and renderer-only deformation remain outside its premises.
  * @evidence contracts/common.md#clear-and-simple-design One function the clearance compiler calls per obstacle model, with the farthest-corner and chain-reach steps as private helpers because nothing else reads them; it returns a scalar so the caller decides how to place and scale the sphere.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No bone, rig or model is named; every bone some part or skin uses contributes its own chain length, and overflow throws instead of being clamped to a finite guess.
  * @evidence contracts/common.md#meaningful-documentation States the frame and unit, the derivation of the bound, which bones contribute, why rest scale is ignored, the validation premise, and the overflow error.

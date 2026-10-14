@@ -27,45 +27,19 @@ import { authoredRotationCriticalTimes } from "./authoredRotationCriticalTimes";
 import { forgeProp } from "./forgeProp";
 
 /**
- * Gate the object clips a shot's source authored, so a moving thing that is not
- * a performer can reach a compiled shot.
+ * Gate the object clips a shot's source authored, so a moving thing that is not a performer can reach a compiled shot.
  *
- * {@link builtOpeningPanelPlacements} promises that a door which swings on
- * screen is an `objectMotions` clip over the panel node ids it answers with,
- * and {@link IAutoMoviePropArticulation} promises that a prop's hinge is a
- * lowered joint a clip drives. Both are one thing, a node in the staged graph
- * turned over the shot's own clock: a building's panel is a staged set piece
- * (`<environment>/<element>`) and a prop's leaf is a lowered articulation joint
- * (`<placement>/<joint>`), so one channel serves both.
+ * {@link builtOpeningPanelPlacements} promises that a door which swings on screen is an `objectMotions` clip over the panel node ids it answers with, and {@link IAutoMoviePropArticulation} promises that a prop's hinge is a lowered joint a clip drives. Both are one thing, a node in the staged graph turned over the shot's own clock: a building's panel is a staged set piece (`<environment>/<element>`) and a prop's leaf is a lowered articulation joint (`<placement>/<joint>`), so one channel serves both.
  *
- * Every clip first passes the transform-clip artifact rule with a channel gate
- * that refuses, each with its own path and reason:
+ * Every clip first passes the transform-clip artifact rule with a channel gate that refuses, each with its own path and reason:
  *
- * - a node no shot staged, or a joint no staged prop declares, because a clip
- *   addressing nothing would be stored and rendered as silence;
- * - a node a performance already drives, because a transform clip written over
- *   a rig would fight the pose every frame;
- * - a channel a baked clip already drives, and an id a baked clip or an earlier
- *   authored clip already carries, because each channel and each clip id has
- *   one authority;
+ * - a node no shot staged, or a joint no staged prop declares, because a clip addressing nothing would be stored and rendered as silence;
+ * - a node a performance already drives, because a transform clip written over a rig would fight the pose every frame;
+ * - a channel a baked clip already drives, and an id a baked clip or an earlier authored clip already carries, because each channel and each clip id has one authority;
  * - a key outside `[0, duration]`, which no frame reads;
- * - `cubicspline` interpolation, because a spline's tangents can overshoot a
- *   travel bound between two keys that both satisfy it, and nothing downstream
- *   clamps an object clip.
+ * - `cubicspline` interpolation, because a spline's tangents can overshoot a travel bound between two keys that both satisfy it, and nothing downstream clamps an object clip.
  *
- * A scene whose lowered graph carries one id twice is refused at the gate's
- * path, since no frame can be resolved for it. Only a prop `forgeProp` accepts
- * contributes joints; its own refusals belong to `forgeProp` and the placement
- * gate. When all of that passes and a staged prop binds an articulation
- * profile, the clips resolve through {@link resolveFrame} at time `0`, at every
- * authored key, at analytical quaternion-component extrema and just inside
- * key boundaries. Periodic direct curves share their first-cycle bound.
- * Profiles bind at their placement prefix, and
- * a channel the clips drive past its declared travel is reported once, naming
- * the profile. A channel a clip does not drive is never blamed, even if its
- * rest pose breaches. An empty clip list answers no violations.
- * The critical clock bounds directly interpolated components; it does not
- * derive additional extrema for nonlinear channel-space driver combinations.
+ * A scene whose lowered graph carries one id twice is refused at the gate's path, since no frame can be resolved for it. Only a prop `forgeProp` accepts contributes joints; its own refusals belong to `forgeProp` and the placement gate. When all of that passes and a staged prop binds an articulation profile, the clips resolve through {@link resolveFrame} at time `0`, at every authored key, at analytical quaternion-component extrema and just inside key boundaries. Periodic direct curves share their first-cycle bound. Profiles bind at their placement prefix, and a channel the clips drive past its declared travel is reported once, naming the profile. A channel a clip does not drive is never blamed, even if its rest pose breaches. An empty clip list answers no violations. The critical clock bounds directly interpolated components; it does not derive additional extrema for nonlinear channel-space driver combinations.
  *
  * @param gate The clips, the staged scene and what the shot already drives.
  * @returns The violations, empty when every clip is admitted.
@@ -74,7 +48,7 @@ import { forgeProp } from "./forgeProp";
  * @evidence contracts/common.md#clear-and-simple-design The artifact rule is `validateClipArtifact` with a shot-specific channel gate, channel identity is the sampler's own `channelKey`, the joint lowering is `sceneToNodes`, and the bound is `resolveFrame`, so this function only states which nodes and channels a shot admits.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No door, prop, joint or shot is special-cased; every refusal is a stated rule, the channel key is built from validated fields rather than cast from an unchecked record, and a breach on an undriven channel is left to the prop's own gate instead of being blamed here.
  * @evidence contracts/common.md#meaningful-documentation States the two promises the gate fulfils, every refusal with its reason, the duplicate-id refusal, which props contribute joints, when and how the travel bound is measured, the one-report-per-channel rule, the undriven-channel exemption, and the empty-list answer.
- * @evidence contracts/performance.md#efficient-algorithms Artifact checks are linear in clips, tracks and keys; profiled scenes add at most four rotation roots per segment and one-sided boundaries, then resolve the lowered graph once per distinct instant. Repeated direct loop curves share their first-cycle bound and sets deduplicate clocks and channel membership, without a fixed-rate sampling density.
+ * @evidence contracts/performance.md#efficient-algorithms Typed outer clip/track records are a caller premise before post-validation reads. Artifact checks traverse clips, tracks and key components; forging every registry prop and sceneToNodes lowering add delegated model/graph costs. Profiled scenes add at most four rotation roots per segment and one-sided boundaries, then resolve the lowered graph, including drivers and constraints, once per distinct instant. Repeated direct loop curves share their first-cycle bound and sets deduplicate clocks and channel membership, without a fixed-rate sampling density.
  * @evidence contracts/performance.md#reuse-equivalent-work The lowered graph, the drivable set, the baked channel and id sets and the profile list are each built once per call and shared by every clip and every sampled instant, and distinct key times are deduplicated so one instant is resolved once.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Every set, the lowered graph and the resolved frames are dropped on return; the caller owns the returned violations.
  */
@@ -84,7 +58,7 @@ export function gateAuthoredObjectMotions (
   const out: ViolationCollector = new ViolationCollector();
   if (gate.clips.length === 0) return out.items;
 
-  const registry: Record<string, IAutoMoviePropSpec> = {};
+  const registry: Record<string, IAutoMoviePropSpec> = Object.create(null);
   for (const spec of gate.props ?? [])
     if (registry[spec.node] === undefined && forgeProp(spec).success)
       registry[spec.node] = spec;

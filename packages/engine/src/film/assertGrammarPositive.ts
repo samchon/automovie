@@ -1,16 +1,12 @@
 /**
- * Throws `<path> must be finite and positive.` unless `value` is a finite
- * number greater than zero.
+ * Throws `<path> must be finite and positive.` unless `value` is a finite number greater than zero.
  *
- * The film-grammar read refuses a malformed observation instead of reporting
- * it, so a threshold, a duration, a lens or a subject height that is zero,
- * negative, `NaN` or infinite stops the read before any projection divides by
- * it.
+ * The film-grammar read refuses a malformed observation instead of reporting it, so a threshold, a duration, a lens or a subject height that is zero, negative, `NaN` or infinite stops the read before any projection divides by it.
  *
  * @param value Number that must be finite and greater than zero.
  * @param path Dotted name of the field, used as the message prefix.
  *
- * @evidence contracts/common.md#principled-implementation `Number.isFinite` rejects `NaN` and both infinities in one test, and the strict `<= 0` comparison then rejects zero and negatives, so the only values that pass are the ones a division or a logarithm in the read can take.
+ * @evidence contracts/common.md#principled-implementation Number.isFinite and the strict positive comparison admit the declared domain of grammar durations, thresholds, lenses, aspects and subject heights. This common scalar gate does not establish the field-specific upper bound on a lens or the representability of later projection and logarithm arithmetic.
  * @evidence contracts/common.md#clear-and-simple-design One rule shared by `readFilmGrammar` for its two thresholds and by `normalizeGrammarShot` for durations, lenses, aspects and heights, so every positive field of the grammar input fails with the same wording.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No field or caller is special-cased; the value is never clamped or replaced by a default, only accepted or refused.
  * @evidence contracts/common.md#meaningful-documentation States the exact message, which values pass, why the read throws rather than reports, and each parameter's role.

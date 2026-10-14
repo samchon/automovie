@@ -1,15 +1,8 @@
 
 /**
- * Current identities a film-effect runtime is written under and sampled
- * against.
+ * Current identities a film-effect runtime is written under and sampled against.
  *
- * A consumer establishes these four values from the compile manifest and the
- * timeline it holds, never from the runtime array itself, so a stale artifact
- * cannot vouch for its own currentness. `materializeProductionFilmEffects`
- * stamps exactly these four fields on every runtime it writes, and
- * `sampleProductionFilmEffects` refuses a runtime whose four fields differ.
- * Both first refuse a blank id or a digest that is not `sha256:` plus 64
- * lowercase hex digits.
+ * A consumer establishes these four values from the compile manifest and the timeline it holds, never from the runtime array itself, so a stale artifact cannot vouch for its own currentness. `materializeProductionFilmEffects` stamps exactly these four fields on every runtime it writes, and `sampleProductionFilmEffects` refuses a runtime whose four fields differ. Both first refuse a blank id or a digest that is not `sha256:` plus 64 lowercase hex digits.
  *
  * @evidence contracts/common.md#principled-implementation Currentness is decided by exact string equality of four independently established identities, two ids and two SHA-256 content digests, so a runtime is current only when it was written for this production, film, compile input and normalized edit.
  * @evidence contracts/common.md#clear-and-simple-design One record carries the whole identity the writer stamps and the sampler compares, so neither function takes four loose arguments and both validate it through `validateProductionFilmEffectIdentity`.
@@ -30,9 +23,6 @@ export interface IAutoMovieFilmEffectCurrentIdentity {
   /** Aggregate builder input digest, the timeline's `inputFingerprint`. */
   compileFingerprint: string;
 
-  /**
-   * Normalized edit digest, as `productionFilmEffectEditFingerprint` derives it
-   * from the current timeline.
-   */
+  /** Normalized edit digest derived from the current timeline by productionFilmEffectEditFingerprint. */
   editFingerprint: string;
 }
