@@ -5,7 +5,7 @@ import type { IAutoMovieHumanBodyExteriorTarget } from "./IAutoMovieHumanBodyExt
  * One supplied bound surface target, ready to solve: its table binding, the instrument oriented to the binding's side and the requested metres.
  *
  * @evidence contracts/common.md#principled-implementation The supplied binding, side-oriented measurement rule and absolute meter target preserve the correspondence consumed by coupled surface solving.
- * @evidence contracts/common.md#clear-and-simple-design Collection prepares the rule once; the solver reads this request instead of reconstructing instrument ownership from paths.
+ * @evidence contracts/common.md#clear-and-simple-design Collection prepares the oriented rule for residual readings; sequential inverses use the binding's rule key and side to obtain their own instrument.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Meter targets are numerical conditions, not observed acquisition registration or a proof that the current source can meet them.
  * @evidence contracts/common.md#meaningful-documentation Members state binding ownership, oriented instrument meaning and absolute meter units.
  * @evidenceExclude contracts/performance.md#efficient-algorithms Request typing chooses no coupled inverse or geometric measurement algorithm.

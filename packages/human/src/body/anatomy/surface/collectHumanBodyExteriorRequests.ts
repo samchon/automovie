@@ -18,7 +18,7 @@ import type { IAutoMovieHumanBodyMeasurement } from "../../structures/IAutoMovie
  * @evidence contracts/common.md#clear-and-simple-design This collection boundary owns path traversal and target/rule correspondence, delegating schema admission and mirroring to existing owners.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Unbound paths are not approximated, nonexistent rules fail, and a target is never relabeled as a registered observation.
  * @evidence contracts/common.md#meaningful-documentation The prose states table order, omission, side orientation, observed failure and the caller's responsibility for unbound paths.
- * @evidence contracts/performance.md#efficient-algorithms For B bindings and path depth D, collection costs O(B*D) property lookups plus supplied-value admission and small rule copies; the full table scan finds every supported condition.
+ * @evidence contracts/performance.md#efficient-algorithms For B bindings and path depth D, collection costs O(B*D) property lookups plus supplied-value admission and rule lookup/orientation; the full table scan finds every supported condition.
  * @evidence contracts/performance.md#reuse-equivalent-work Both sides reuse the authored rule table and mirror helper; results are not cached because supplied target subtrees decide request equivalence.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Path arrays and admitted targets are local; at most B request records escape without retaining the full anatomy document or any runtime task.
  * @author Samchon
