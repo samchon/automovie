@@ -1,9 +1,9 @@
 import type { IAutoMovieHumanPersonSkinCandidateRegion } from "./IAutoMovieHumanPersonSkinCandidateRegion";
 
 /**
- * The part of a basis surface that skin selection reads: its ID and its regions.
+ * Structural surface projection for skin selection: regions supply material membership and the original ID remains available on the returned borrowed surface. The selector does not compare surface IDs.
  *
- * @evidence contracts/common.md#principled-implementation A skin candidate exposes the surface ID and material regions that the skin selector actually reads, preserving the original basis object through its generic result.
+ * @evidence contracts/common.md#principled-implementation Region material membership selects the surface while the generic result preserves its original object and identity; surface ID is not a selection predicate.
  * @evidence contracts/common.md#clear-and-simple-design The structural projection keeps skin selection independent of face-specific or body-specific basis details.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Candidates carry caller region metadata; the selector's supported skin-material convention is outside this type rather than an embedded example surface.
  * @evidence contracts/common.md#meaningful-documentation Comments identify surface identity and material-region membership used by selection.

@@ -1,7 +1,7 @@
 /**
- * The part of a basis surface region that skin selection reads: its ID and the material it draws.
+ * Structural region projection for skin selection: material identity determines membership, while region ID remains source metadata and is not compared by the selector.
  *
- * @evidence contracts/common.md#principled-implementation Region ID and material ID provide the exact fields used to identify a skin-drawing surface; geometry remains with the full basis surface.
+ * @evidence contracts/common.md#principled-implementation Material identity selects a skin-drawing surface; region ID stays with the source record and geometry remains with the full basis surface.
  * @evidence contracts/common.md#clear-and-simple-design The region projection avoids importing an entire face or body region schema into generic skin selection.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Material identity is supplied by the source region, without a fixture region list or inferred geometry label.
  * @evidence contracts/common.md#meaningful-documentation The two members distinguish region identity from the material it draws.

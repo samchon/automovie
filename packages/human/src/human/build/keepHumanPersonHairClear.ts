@@ -14,7 +14,7 @@ import type { IHumanPersonHairContactProps } from "../structures/IHumanPersonHai
  * @evidence contracts/common.md#clear-and-simple-design Engine query owns signed nearest geometry, supplied layouts own station identity, and this person relation owns only posed-body pushes; legacy numbering is confined to its fallback helper.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Body crops and guessed native station membership are absent, rim side remains unresolved, and two passes do not claim complete clearance, fixed strand length or clinical contact.
  * @evidence contracts/common.md#meaningful-documentation Prose states metre gaps/frame, actual root/layout admission, sheet reach premises and owned output limitations.
- * @evidence contracts/performance.md#efficient-algorithms One full-body query compilation pays topology/hierarchy costs; two sampled vertex passes use nearest-first queries with O(body triangles) worst-case per point. Layout checks are linear in referenced vertices; legacy component grouping adds per-component vertex sorting.
+ * @evidence contracts/performance.md#efficient-algorithms One full-body query compilation pays topology/hierarchy costs; two sampled vertex passes use nearest-first queries with O(body triangles) worst-case per point. Layout checks visit hair indices and station vertices. Legacy grouping has unbalanced parent-chain walks, with O(T*V) worst-case work for T hair triangles and V referenced vertices, followed by per-component sorting.
  * @evidence contracts/performance.md#reuse-equivalent-work One immutable body query serves all selected hair parts and both passes; station arrays compile once per part and already-clear coordinates retain their bytes.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Copied body/query and station/seen maps are invocation-local; only copied hair position arrays escape, with no persistent query cache, timer or running task.
  */
@@ -102,7 +102,7 @@ export function keepHumanPersonHairClear(
 /**
  * Group legacy ribbon triangles by connected vertex components, sort each component's numeric IDs and interpret its first vertex as root followed by numbered pairs. This is the original legacy numbering premise, not native shaft reconstruction or topology validation; an unmatched last vertex has no station pair.
  *
- * Union/root map operations follow actual triangle links without a global mesh cache; root lookup does not implement full rank balancing. Per-component sorting costs O(V log V) in the largest component. Temporary maps and returned station arrays live only within the contact call, and caller triangles remain unchanged.
+ * Union/root map operations follow actual triangle links without a global mesh cache; root lookup compresses only the queried vertex and does not balance trees. T triangles and V referenced vertices can therefore require O(T*V) parent-chain work before O(V log V) component sorting. Temporary maps and returned station arrays live only within the contact call, and caller triangles remain unchanged.
  */
 function humanRibbonStations(triangles: readonly number[]): number[][][] {
   const parent: Map<number, number> = new Map<number, number>();

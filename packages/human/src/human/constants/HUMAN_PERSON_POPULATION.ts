@@ -29,7 +29,18 @@
  *
  * @author Samchon
  */
-export const HUMAN_PERSON_POPULATION = {
+export const HUMAN_PERSON_POPULATION: {
+  readonly bodyChildNode: 0.1875;
+  readonly faceChildNode: 0.25;
+  readonly ageChannel: {
+    readonly body: "macroAge";
+    readonly face: "globalAgeStructure";
+  };
+  readonly sexChannel: {
+    readonly body: "macroGender";
+    readonly face: "globalSexualDimorphism";
+  };
+} = {
   bodyChildNode: 0.1875,
   faceChildNode: 0.25,
   ageChannel: { body: "macroAge", face: "globalAgeStructure" },

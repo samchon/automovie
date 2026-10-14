@@ -3,7 +3,7 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 import { createHumanLoopAzimuth } from "./createHumanLoopAzimuth";
 
 /**
- * Compile sampled loop height as piecewise-linear angular interpolation around the supplied Y-up vertical axis. Heights use the source metre frame; angles use radians from +Z towards +X. The azimuth owner checks sampled winding and requires finite/radial/distinct angular samples; this facade adds no full geometric or anatomical qualification. Points remain borrowed: changing their Y values affects reads while changing X/Z would invalidate captured correspondence.
+ * Compile sampled loop height as piecewise-linear angular interpolation around the supplied Y-up vertical axis. Heights use the source metre frame; angles use radians from +Z towards +X. The azimuth owner checks sampled winding; finite radial geometry and distinct angular samples remain caller premises, since tied angles are accepted. This facade adds no full geometric or anatomical qualification. Points remain borrowed: changing their Y values affects reads while changing X/Z would invalidate captured correspondence.
  *
  * @evidence contracts/common.md#principled-implementation Actual neighbouring loop Y values and the shared cyclic angular bracket determine the nonplanar cut profile used by seam/face skin consumers.
  * @evidence contracts/common.md#clear-and-simple-design Angular admission/correspondence has one owner; this adapter only linearly reads height through its compiled bracket.

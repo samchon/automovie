@@ -20,9 +20,9 @@ export interface IAutoMovieHumanPersonSourceStarBinding {
   /** The serialized weighted-key list, equal for equal stars. */
   identity: string;
 
-  /** The sample's two chart coordinates in the parent. */
+  /** Dimensionless coordinates in the sample's ordered original/cut/refinement chart. */
   coordinates: readonly [number, number];
 
-  /** The star key of each of the parent's three chart corners. */
+  /** Star keys of the sample chart's three ordered corners; original and cut charts can repeat keys. */
   keys: string[];
 }
