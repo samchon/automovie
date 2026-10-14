@@ -1,15 +1,5 @@
 import type { IPortraitOcularTissueMeshes } from "./structures/IPortraitOcularTissueMeshes";
 
-/**
- * Finish an attached eye after common skin refinement and optical contact.
- * The eye component supplies head-millimetre lid vertices, fixed identity and
- * optional canthal hull. This module reads those inputs and owns emitted parts.
- * Exact canthal endpoints bound the interpolated wet tissue; sclera and the
- * connective region partition one external hull. Iris/pupil/cornea use the
- * optical sphere and rotate together with gaze, independently of that lining.
- * Only createMetricMeshPart crosses to model metres. Changing support or a refined
- * margin invalidates tissue, optics, lashes and brow attachment together.
- */
 import { createAutoMovieMeshDepthSampler, mergeAutoMovieMeshes, transformAutoMovieMesh, type IAutoMovieMeshTransform } from "@automovie/engine";
 import type { IAutoMovieModelPart, IAutoMovieVector3 as Point, IAutoMovieMesh } from "@automovie/interface";
 
@@ -43,6 +33,13 @@ const pi: number = Math.PI,
 
 /**
  * Build the sclera, gaze, iris, lashes and brow against this eye's refined rim.
+ * The component supplies head-millimetre lid vertices, fixed optical identity
+ * and an optional canthal hull after common skin refinement and contact.
+ * Exact canthal endpoints bound interpolated wet tissue; sclera and connective
+ * support partition one external hull. Iris, pupil and cornea rotate together
+ * with gaze. Only createMetricMeshPart crosses to model metres. The caller
+ * retains its source and refined cage; returned parts own published geometry.
+ * A changed support or refined margin requires rebuilding every emitted part.
  *
  * @evidence contracts/common.md#principled-implementation The refined actual lid rim, shared sphere/canthal support and one gaze centre drive emitted optics, wet tissues, lashes and brow attachment.
  * @evidence contracts/common.md#clear-and-simple-design Actual drawing/contact support shares canonical cornea/globe owners; construction millimetres cross to model metres only through createMetricMeshPart.
