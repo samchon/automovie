@@ -1,14 +1,20 @@
 import type { IAutoMovieHumanFacePeriocularScalarDescriptor } from "../../structures/IAutoMovieHumanFacePeriocularScalarDescriptor";
 import type { IAutoMovieHumanFacePeriocularTissueDescriptor } from "../../structures/IAutoMovieHumanFacePeriocularTissueDescriptor";
 
-const SURVE =
+const SURVE: string =
   "Surve et al. 2018, Indian J Ophthalmol 66(3):383 (PMC5859591): 50 MHz ultrasound biomicroscopy, vertical scan through the corneal centre, primary gaze, 19 healthy Indian subjects, upper lid";
-const HWANG =
+const HWANG: string =
   "Hwang, Kim and Hwang 2006, J Craniofac Surg 17(1):54-56 (PMID16432408), abstract read; reported in the read Hwang 2013 review (PMC3713284): left upper eyelids of 10 fresh Korean cadavers (9 male, 1 female), trichrome sections measured microscopically, skin near the ciliary margin 320 +/- 49 micrometres";
-const LOWER =
+const LOWER: string =
   " No read source measures the lower lid; the upper-lid value is reused as an authored extension.";
 
-const scalar = (
+const scalar: (
+  defaultMm: number,
+  minimumMm: number,
+  maximumMm: number,
+  kind: IAutoMovieHumanFacePeriocularScalarDescriptor["kind"],
+  ground: string,
+) => IAutoMovieHumanFacePeriocularScalarDescriptor = (
   defaultMm: number,
   minimumMm: number,
   maximumMm: number,
@@ -56,9 +62,9 @@ const scalar = (
  * constructed lid cannot hold is refused by the lid frame with its shortfall.
  */
 export const HUMAN_FACE_PERIOCULAR_TISSUE_DESCRIPTORS: IAutoMovieHumanFacePeriocularTissueDescriptor[] =
-  (["upper", "lower"] as const).flatMap((lid) => {
-    const note = lid === "upper" ? "" : LOWER;
-    const authored = lid === "upper" ? undefined : "authored";
+  (["upper", "lower"] as const).flatMap((lid: "upper" | "lower"): IAutoMovieHumanFacePeriocularTissueDescriptor[] => {
+    const note: string = lid === "upper" ? "" : LOWER;
+    const authored: "authored" | undefined = lid === "upper" ? undefined : "authored";
     return [
       {
         tissue: `${lid}Orbicularis` as const,
