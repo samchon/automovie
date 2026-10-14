@@ -7,7 +7,6 @@ import { decodeLinuxProcessIdentity } from "@automovie/viewer/process/internal/d
 import { resolveProcessIdentityReadError } from "@automovie/viewer/process/internal/resolveProcessIdentityReadError";
 
 import type { createProcessOwnershipHostFacts } from "./createProcessOwnershipHostFacts";
-import { loadSourceModule } from "./loadSourceModule";
 
 type ChildObservation = Pick<ChildProcess, "pid" | "exitCode" | "signalCode">;
 type Controller = Pick<typeof ProcessOwnership, "read" | "stop"> & {

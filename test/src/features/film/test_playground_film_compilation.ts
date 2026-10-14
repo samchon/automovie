@@ -6,25 +6,17 @@ import type {
   IAutoMovieShot,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-import path from "node:path";
 
-import type { ICompilePursuitFilm } from "../../../../packages/playground/src/film/ICompilePursuitFilm";
+import type { ICompilePursuitFilm } from "@automovie/playground/film/ICompilePursuitFilm";
 import {
   makeBlockingWrite,
   makePerformanceWrite,
   makeScriptWrite,
   makeStagingWrite,
 } from "../internal/filmFixtures";
-import { loadSourceModule } from "../internal/loadSourceModule";
+import { compilePursuitFilm } from "@automovie/playground/film/compilePursuitFilm";
 import { nclose } from "../internal/predicates";
 
-const { compilePursuitFilm }: { compilePursuitFilm: ICompilePursuitFilm } =
-  loadSourceModule<{ compilePursuitFilm: ICompilePursuitFilm }>(
-    path.resolve(
-      __dirname,
-      "../../../../packages/playground/src/film/compilePursuitFilm.ts",
-    ),
-  );
 
 /**
  * Exercise the example's portable compilation boundary with two short static holds, not a rendered pursuit or a Human anatomical/geometry observation. Original engine refusals retain their named compilation boundary; own rig keys and exact blocking/performance pairing prevent inherited object names or incomplete arrays from becoming usable input.
@@ -38,7 +30,7 @@ const { compilePursuitFilm }: { compilePursuitFilm: ICompilePursuitFilm } =
  * @evidence contracts/testing.md#behavioral-verification Calls the actual compilePursuitFilm export and returned rig/model lookup seams, asserting literal authored spans/runtime, ownership and refusals; inherited-key cases fail if an Object prototype member is returned as a rig, while valid known keys remain allowed.
  * @evidence contracts/testing.md#independent-expectations Two 0.7-second input holds and the documented 0.6-second second-entry overlap independently imply 0.8 seconds, checked with nclose; own-key membership and one blocking per performance are the source contract. Existing output-order/runtime-correspondence assertions add consistency checks without serving as the sole numerical oracle.
  * @evidence contracts/testing.md#distinguishing-cases Covers known/unknown/inherited rig keys, missing/extra pair counts, preserved valid pairs, distinct actor ownership, skeletonless set and staging/blocking/perform/cut failures. It does not judge appearance, anatomy, contact, GPU retirement or all engine-stage validation cases, which have separate owners.
- * @evidence contracts/testing.md#execution-ownership The discoverable named test invokes maintained source through the existing loadSourceModule seam using in-memory typed authoring data. It starts no process, browser, native render or new validation driver; the configured test runner owns discovery and execution.
+ * @evidence contracts/testing.md#execution-ownership The discoverable named test invokes maintained source through its supported package subpath using in-memory typed authoring data. It starts no process, browser, native render or new validation driver; the configured test runner owns discovery and execution.
  *
  * @author Samchon
  */

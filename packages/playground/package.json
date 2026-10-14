@@ -49,5 +49,10 @@
     "@ttsc/lint": "catalog:samchon",
     "@wrtnlabs/evidence": "catalog:samchon",
     "@ttsc/evidence": "catalog:samchon"
+  },
+  "exports": {
+    "./film/ICompilePursuitFilm": "./src/film/ICompilePursuitFilm.ts",
+    "./film/compilePursuitFilm": "./src/film/compilePursuitFilm.ts",
+    "./viewer/readPlaygroundViewerPublishedSource": "./src/viewer/readPlaygroundViewerPublishedSource.ts"
   }
 }
