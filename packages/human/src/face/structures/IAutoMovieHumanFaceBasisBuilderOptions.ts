@@ -1,16 +1,17 @@
-import type { IHumanFaceOralMeasurementRegistration } from "../anatomy/oral/IHumanFaceOralMeasurementRegistration";
 import type { IHumanFaceHairContactLayout } from "../anatomy/hair/IHumanFaceHairContactLayout";
-import type { IHumanFaceMaterialAttachment } from "./IHumanFaceMaterialAttachment";
+import type { IHumanFaceOralMeasurementRegistration } from "../anatomy/oral/IHumanFaceOralMeasurementRegistration";
 import type { AutoMovieHumanFaceMeasurementReading } from "./AutoMovieHumanFaceMeasurementReading";
 import type { IAutoMovieHumanFaceConstructionProgress } from "./IAutoMovieHumanFaceConstructionProgress";
 import type { IAutoMovieHumanFaceContactSummary } from "./IAutoMovieHumanFaceContactSummary";
 import type { IAutoMovieHumanFaceOcclusionOptions } from "./IAutoMovieHumanFaceOcclusionOptions";
+import type { IHumanFaceMaterialAttachment } from "./IHumanFaceMaterialAttachment";
 
 /**
  * Optional observers and occlusion baking for `createHumanFaceBasisBuilder`.
  *
- * Result observers receive copies after each admitted model and never alter
- * it. The progress observer instead receives actual completed boundaries,
+ * Result observers receive copied receipts after each admitted model; measurement
+ * readings are borrowed request data and must be treated as read-only. The
+ * progress observer instead receives actual completed boundaries,
  * including refused construction admission, without model access.
  * Omitting `occlusion` leaves materials without a baked occlusion texture.
  *
@@ -105,15 +106,16 @@ export interface IAutoMovieHumanFaceBasisBuilderOptions {
   /**
    * Receive every registered face measurement read on each admitted model's
    * final surface, with the document's target beside each, including the
-   * constructor's neutral check. Failed admission publishes nothing.
+   * constructor's neutral check. The array is borrowed request data and must
+   * be treated as read-only. Failed admission publishes nothing.
    *
    * @evidence contracts/common.md#principled-implementation Receives every registered final-surface reading beside its actual target or named unavailable reason after admission, including neutral compilation.
    * @evidence contracts/common.md#clear-and-simple-design One registry-ordered reading list exposes measured/gap alternatives through their existing discriminated owner.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Targets never replace measured results, unavailable protocols receive no default reading and a refused build publishes no success list.
-   * @evidence contracts/common.md#meaningful-documentation The comment states final-surface, target, neutral and success-only delivery semantics.
+   * @evidence contracts/common.md#meaningful-documentation The comment states final-surface, target, neutral and success-only delivery semantics, with borrowed readings that observers must not mutate.
    * @evidenceExclude contracts/performance.md#efficient-algorithms This signature runs no registry instrument or residual comparison.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work The observer contract owns no measurement cache or repeated-pose coordination.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The fresh readings list is delivered to the observer and is not retained by this declaration; the caller owns callback lifetime.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The publisher passes the request-owned readings array without cloning; this signature retains no subscriber registry and the caller owns callback lifetime.
    */
   observeMeasurements?: (
     readings: AutoMovieHumanFaceMeasurementReading[],

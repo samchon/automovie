@@ -15,7 +15,7 @@
  * @author Samchon
  */
 export interface IAutoMovieHumanFaceBasisRegion {
-  /** Region identity, unique within its surface. */
+  /** Region identity, unique across every surface of the basis. */
   id: string;
 
   /** ID of the resident material this region renders with. */
