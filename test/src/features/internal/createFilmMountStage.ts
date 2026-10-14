@@ -1,7 +1,10 @@
 import { makeStagingWrite } from "./filmFixtures";
+import type { IAutoMovieStage } from "@automovie/interface";
 
-/** Preserve the mount scenario's existing staging input and authored values. */
-export const createFilmMountStage = () =>
+/**
+ * Build the mount unit's existing horse at the origin, rider at (5,5,5) attached to spine, and camera. The displaced rider makes a missing baked follow observable, while the owning unit independently checks movement and documents its shared FK reference limitation; this constructor itself neither admits the stage nor exercises a visual host.
+ */
+export const createFilmMountStage: () => IAutoMovieStage = (): IAutoMovieStage =>
   makeStagingWrite({
     scene: { id: "scene-ride", name: "the ride" },
     actors: [
