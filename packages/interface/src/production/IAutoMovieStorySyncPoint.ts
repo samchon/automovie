@@ -15,7 +15,7 @@ export interface IAutoMovieStorySyncPoint {
   event: string;
 
   /**
-   * Supplied realized shot-local time in seconds, or null when absent or nonfinite. The production adapter selects the first matching event id in the current supplied realization.
+   * Supplied realized shot-local time in seconds, or null when absent or nonfinite. The Engine evaluator reads its host-provided realization callback; the production adapter is retired.
    */
   localSeconds: number | null;
 

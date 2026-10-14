@@ -3,11 +3,11 @@
  *
  * Production terrain (IAutoMovieWorldSurface.height) and scene patches (IAutoMovieSurface.height) share this rule and the engine's surfaceHeightAt evaluator. Their authored records and footprint membership still determine which surface a crowd member or performer queries.
  *
- * Every kind uses stored numbers through surfaceHeightAt. It ignores footprint membership, which the containing surface owns. Scene and production validation check finite fields, positive lattice pitch, at least two lines per axis and exact sample count; finite inputs alone do not prevent overflow in coordinate conversion, differences or interpolation.
+ * Every kind uses stored numbers through surfaceHeightAt. It ignores footprint membership, which the containing surface owns. Engine scene validation checks finite fields, positive lattice pitch, at least two lines per axis and exact sample count; the production world gate is retired. Finite inputs alone do not prevent overflow in coordinate conversion, differences or interpolation.
  *
  * @evidence contracts/common.md#principled-implementation surfaceHeightAt returns a constant, evaluates the authored plane or uses edge-clamped bilinear lattice interpolation. Continuity and sample reproduction describe the admitted mathematical rule; binary64 overflow, rounding and malformed-grid fallback remain numerical limits rather than universally exact output guarantees.
  * @evidence contracts/common.md#clear-and-simple-design Three kinds in one discriminated union, from one number to a sampled lattice, cover level, tilted and relief ground without a mesh, and both the world terrain and the scene patch cite this one type instead of spelling their own.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A query off the lattice clamps to the edge samples rather than extrapolating relief nobody authored; the remaining gap is that the engine and production packages each keep their own copy of the validity checks, so the two refusals can drift.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A query off the lattice clamps to edge samples rather than extrapolating relief nobody authored. Explicit world callers must establish the numeric/grid premises because the retired production validator no longer supplies them automatically.
  * @evidence contracts/common.md#meaningful-documentation Defines containing surfaces, the shared evaluator, separate footprint membership, validator domains, formulas, metre units, row-major lattice layout, clamping and derived-arithmetic limits.
  * @author Samchon
  */
