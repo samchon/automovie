@@ -1,4 +1,5 @@
 import { IAutoMovieConstraintViolation } from "@automovie/interface";
+
 import { CAMERA_FRAMINGS } from "../film/constants/CAMERA_FRAMINGS";
 import { CAMERA_MOVES } from "../film/constants/CAMERA_MOVES";
 import { pushViolation } from "./pushViolation";
@@ -6,6 +7,7 @@ import { validateArrayArtifact } from "./validateArrayArtifact";
 import { validateObjectArtifact } from "./validateObjectArtifact";
 import { validateRange } from "./validateRange";
 import { validateVectorArtifact } from "./validateVectorArtifact";
+
 /** The closed framing union, read as strings for an unvalidated artifact. */
 const FRAMINGS: ReadonlySet<string> = CAMERA_FRAMINGS;
 
@@ -23,7 +25,12 @@ const MOVES: ReadonlySet<string> = CAMERA_MOVES;
  * @evidence contracts/performance.md#reuse-equivalent-work The same sets and field predicates serve primary and coverage intent; changed mutable metadata is inspected afresh without persistent reuse.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only appended findings retain offending fields in the caller's array; borrowed intent rows and module vocabulary sets acquire no camera, animation or renderer task.
  */
-export const appendCameraIntentArtifact: (intents: unknown, path: string, duration: number, violations: IAutoMovieConstraintViolation[]) => void = (
+export const appendCameraIntentArtifact: (
+  intents: unknown,
+  path: string,
+  duration: number,
+  violations: IAutoMovieConstraintViolation[],
+) => void = (
   intents: unknown,
   path: string,
   duration: number,
@@ -46,10 +53,7 @@ export const appendCameraIntentArtifact: (intents: unknown, path: string, durati
       "camera intent start",
       violations,
     );
-    if (
-      typeof intent.framing !== "string" ||
-      !FRAMINGS.has(intent.framing)
-    )
+    if (typeof intent.framing !== "string" || !FRAMINGS.has(intent.framing))
       pushViolation(
         violations,
         "type",
@@ -83,6 +87,5 @@ export const appendCameraIntentArtifact: (intents: unknown, path: string, durati
         violations,
         false,
       );
-
   }
 };

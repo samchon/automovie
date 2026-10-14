@@ -1,7 +1,11 @@
-import { IAutoMovieBeatEndActorState, IAutoMovieBeatEndState } from "@automovie/interface";
+import {
+  IAutoMovieBeatEndActorState,
+  IAutoMovieBeatEndState,
+} from "@automovie/interface";
+
 import { Vector3 } from "../math/Vector3";
-import { ViolationCollector } from "./ViolationCollector";
 import { IAutoMovieContinuityTolerances } from "./IAutoMovieContinuityTolerances";
+import { ViolationCollector } from "./ViolationCollector";
 
 /**
  * Index opening actors by node and compare every prior actor or report its absence.
@@ -14,7 +18,13 @@ import { IAutoMovieContinuityTolerances } from "./IAutoMovieContinuityTolerances
  * @evidence contracts/performance.md#reuse-equivalent-work One local opening index serves every prior actor lookup.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The map releases after the boundary; the collector owns rows and snapshots remain borrowed.
  */
-export const compareContinuityBoundary: (previous: IAutoMovieBeatEndState, opening: IAutoMovieBeatEndState, root: string, tolerances: IAutoMovieContinuityTolerances, collector: ViolationCollector) => void = (
+export const compareContinuityBoundary: (
+  previous: IAutoMovieBeatEndState,
+  opening: IAutoMovieBeatEndState,
+  root: string,
+  tolerances: IAutoMovieContinuityTolerances,
+  collector: ViolationCollector,
+) => void = (
   previous: IAutoMovieBeatEndState,
   opening: IAutoMovieBeatEndState,
   root: string,
@@ -22,10 +32,16 @@ export const compareContinuityBoundary: (previous: IAutoMovieBeatEndState, openi
   collector: ViolationCollector,
 ): void => {
   const openingByNode: Map<string, IAutoMovieBeatEndActorState> = new Map(
-    opening.actors.map((actor: IAutoMovieBeatEndActorState): [string, IAutoMovieBeatEndActorState] => [actor.node, actor]),
+    opening.actors.map(
+      (
+        actor: IAutoMovieBeatEndActorState,
+      ): [string, IAutoMovieBeatEndActorState] => [actor.node, actor],
+    ),
   );
   previous.actors.forEach((prev: IAutoMovieBeatEndActorState): void => {
-    const open: IAutoMovieBeatEndActorState | undefined = openingByNode.get(prev.node);
+    const open: IAutoMovieBeatEndActorState | undefined = openingByNode.get(
+      prev.node,
+    );
     if (open === undefined) {
       collector.warn(
         "physics",
@@ -60,7 +76,13 @@ export const compareContinuityBoundary: (previous: IAutoMovieBeatEndState, openi
  *
  * Only collector warnings remain; snapshots are borrowed without host state.
  */
-const compareActor: (prev: IAutoMovieBeatEndActorState, open: IAutoMovieBeatEndActorState, path: string, tolerances: IAutoMovieContinuityTolerances, collector: ViolationCollector) => void = (
+const compareActor: (
+  prev: IAutoMovieBeatEndActorState,
+  open: IAutoMovieBeatEndActorState,
+  path: string,
+  tolerances: IAutoMovieContinuityTolerances,
+  collector: ViolationCollector,
+) => void = (
   prev: IAutoMovieBeatEndActorState,
   open: IAutoMovieBeatEndActorState,
   path: string,
@@ -113,7 +135,10 @@ const compareActor: (prev: IAutoMovieBeatEndActorState, open: IAutoMovieBeatEndA
  *
  * Only a scalar escapes and no vector/snapshot reference is retained.
  */
-const angleBetweenDeg: (a: IAutoMovieBeatEndActorState["facing"], b: IAutoMovieBeatEndActorState["facing"]) => number = (
+const angleBetweenDeg: (
+  a: IAutoMovieBeatEndActorState["facing"],
+  b: IAutoMovieBeatEndActorState["facing"],
+) => number = (
   a: IAutoMovieBeatEndActorState["facing"],
   b: IAutoMovieBeatEndActorState["facing"],
 ): number => {
@@ -137,7 +162,10 @@ const angleBetweenDeg: (a: IAutoMovieBeatEndActorState["facing"], b: IAutoMovieB
  *
  * Mount records are borrowed and only a boolean escapes.
  */
-const sameMount: (prev: NonNullable<IAutoMovieBeatEndActorState["mount"]>, open: IAutoMovieBeatEndActorState["mount"]) => boolean = (
+const sameMount: (
+  prev: NonNullable<IAutoMovieBeatEndActorState["mount"]>,
+  open: IAutoMovieBeatEndActorState["mount"],
+) => boolean = (
   prev: NonNullable<IAutoMovieBeatEndActorState["mount"]>,
   open: IAutoMovieBeatEndActorState["mount"],
 ): boolean =>

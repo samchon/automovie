@@ -1,7 +1,7 @@
-import type { IAutoMovieClipShapeFault } from "./IAutoMovieClipShapeFault";
 import { IAutoMovieConstraintViolation } from "@automovie/interface";
 
 import { IAutoMovieClipChannelGate } from "./IAutoMovieClipChannelGate";
+import type { IAutoMovieClipShapeFault } from "./IAutoMovieClipShapeFault";
 import { asArray } from "./asArray";
 import { clipLoopFault } from "./clipLoopFault";
 import { clipTrackShapeFaults } from "./clipTrackShapeFaults";
@@ -25,7 +25,12 @@ import { validateUniqueBy } from "./validateUniqueBy";
  * @evidence contracts/performance.md#reuse-equivalent-work Sampler predicates are reused instead of maintaining another stride/menu specification.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns violation rows; clip buffers are borrowed and no playback task or decoder is created.
  */
-export const validateClipArtifact: (clip: unknown, path: string, violations: IAutoMovieConstraintViolation[], channelGate?: IAutoMovieClipChannelGate) => void = (
+export const validateClipArtifact: (
+  clip: unknown,
+  path: string,
+  violations: IAutoMovieConstraintViolation[],
+  channelGate?: IAutoMovieClipChannelGate,
+) => void = (
   clip: unknown,
   path: string,
   violations: IAutoMovieConstraintViolation[],
@@ -64,12 +69,18 @@ export const validateClipArtifact: (clip: unknown, path: string, violations: IAu
   );
   const tracks: unknown[] = asArray(clip.tracks);
   validateUniqueBy(
-    Array.from(tracks, (track: unknown, index: number): { id: string | undefined; path: string; } => ({
-      id: isRecord(track)
-        ? `${String(isRecord(track.channel) ? track.channel.kind : undefined)}:${JSON.stringify(track.channel)}`
-        : undefined,
-      path: `${path}.tracks[${index}].channel`,
-    })),
+    Array.from(
+      tracks,
+      (
+        track: unknown,
+        index: number,
+      ): { id: string | undefined; path: string } => ({
+        id: isRecord(track)
+          ? `${String(isRecord(track.channel) ? track.channel.kind : undefined)}:${JSON.stringify(track.channel)}`
+          : undefined,
+        path: `${path}.tracks[${index}].channel`,
+      }),
+    ),
     "clip track channel",
     violations,
   );

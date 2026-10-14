@@ -1,4 +1,5 @@
 import { IAutoMovieConstraintViolation } from "@automovie/interface";
+
 /**
  * Supply a field-specific channel admission callback to clip artifact validation.
  *

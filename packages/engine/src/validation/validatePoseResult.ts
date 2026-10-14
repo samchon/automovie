@@ -17,7 +17,10 @@ import { validatePose } from "./validatePose";
  * @evidence contracts/performance.md#reuse-equivalent-work The existing pose checker is called directly, preserving the same constraint decisions.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The returned report owns arrays/rows; no pose history or animation resource persists.
  */
-export const validatePoseResult: (pose: IAutoMoviePose, skeleton: IAutoMovieSkeleton) => IAutoMovieValidation = (
+export const validatePoseResult: (
+  pose: IAutoMoviePose,
+  skeleton: IAutoMovieSkeleton,
+) => IAutoMovieValidation = (
   pose: IAutoMoviePose,
   skeleton: IAutoMovieSkeleton,
 ): IAutoMovieValidation => validatePose({ pose, skeleton }).toValidation();

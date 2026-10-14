@@ -1,4 +1,9 @@
-import { IAutoMovieClip, IAutoMovieInteractionEvent, IAutoMovieValidation } from "@automovie/interface";
+import {
+  IAutoMovieClip,
+  IAutoMovieInteractionEvent,
+  IAutoMovieValidation,
+} from "@automovie/interface";
+
 /**
  * Advice, fall events and an optional trajectory returned by detectFreeFall.
  *

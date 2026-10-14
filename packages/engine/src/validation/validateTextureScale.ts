@@ -1,4 +1,5 @@
-import { AutoMovieTextureCoordinateSource,
+import {
+  AutoMovieTextureCoordinateSource,
   IAutoMovieMaterial,
   IAutoMovieModel,
   IAutoMovieModelPart,
@@ -24,34 +25,45 @@ const SCALE_EPSILON: number = 1e-9;
  * @evidence contracts/performance.md#reuse-equivalent-work Each part's UV span serves all bindings and each model's id map serves all parts.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only diagnostics escape; UVs/materials are borrowed and no world-space fit, UV rewrite or texture resource is acquired.
  */
-export const validateTextureScale: (props: { models: readonly IAutoMovieModel[]; }) => IAutoMovieValidation = (props: {
+export const validateTextureScale: (props: {
+  models: readonly IAutoMovieModel[];
+}) => IAutoMovieValidation = (props: {
   /** Borrowed current models whose resident mesh UVs and named material bindings supply scale meaning. */
   models: readonly IAutoMovieModel[];
 }): IAutoMovieValidation => {
   const out: ViolationCollector = new ViolationCollector();
   props.models.forEach((model: IAutoMovieModel, modelIndex: number): void => {
     const materials: Map<string, IAutoMovieMaterial> = new Map(
-      model.materials.map((material: IAutoMovieMaterial): [string, IAutoMovieMaterial] => [material.id, material]),
-    );
-    model.parts.forEach((part: IAutoMovieModelPart, partIndex: number): void => {
-      const span: { u: number; v: number; } | null = surfaceSpan(part);
-      if (span === null) return;
-      if (part.material === null) return;
-      const material: IAutoMovieMaterial | undefined = materials.get(part.material);
-      if (material === undefined) return;
-      for (const { path: slot, binding } of materialTextureSlots(material)) {
-        if (typeof binding === "string") continue;
-        checkBinding({
-          binding,
-          slot: slot.slice(1),
-          span,
-          part,
+      model.materials.map(
+        (material: IAutoMovieMaterial): [string, IAutoMovieMaterial] => [
+          material.id,
           material,
-          path: `$input.models[${modelIndex}].parts[${partIndex}]`,
-          out,
-        });
-      }
-    });
+        ],
+      ),
+    );
+    model.parts.forEach(
+      (part: IAutoMovieModelPart, partIndex: number): void => {
+        const span: { u: number; v: number } | null = surfaceSpan(part);
+        if (span === null) return;
+        if (part.material === null) return;
+        const material: IAutoMovieMaterial | undefined = materials.get(
+          part.material,
+        );
+        if (material === undefined) return;
+        for (const { path: slot, binding } of materialTextureSlots(material)) {
+          if (typeof binding === "string") continue;
+          checkBinding({
+            binding,
+            slot: slot.slice(1),
+            span,
+            part,
+            material,
+            path: `$input.models[${modelIndex}].parts[${partIndex}]`,
+            out,
+          });
+        }
+      },
+    );
   });
   return out.toValidation();
 };
@@ -71,7 +83,9 @@ export const validateTextureScale: (props: { models: readonly IAutoMovieModel[];
  *
  * Only two scalars return; UV buffers remain borrowed.
  */
-const surfaceSpan: (part: IAutoMovieModelPart) => { u: number; v: number; } | null = (
+const surfaceSpan: (
+  part: IAutoMovieModelPart,
+) => { u: number; v: number } | null = (
   part: IAutoMovieModelPart,
 ): { u: number; v: number } | null => {
   if (part.geometry.type !== "mesh") return null;
@@ -110,7 +124,15 @@ const surfaceSpan: (part: IAutoMovieModelPart) => { u: number; v: number; } | nu
  *
  * Only caller-owned diagnostics remain; no UV rewrite or texture resource is acquired.
  */
-const checkBinding: (props: { binding: IAutoMovieTextureReference; slot: string; span: { u: number; v: number; }; part: IAutoMovieModelPart; material: IAutoMovieMaterial; path: string; out: ViolationCollector; }) => void = (props: {
+const checkBinding: (props: {
+  binding: IAutoMovieTextureReference;
+  slot: string;
+  span: { u: number; v: number };
+  part: IAutoMovieModelPart;
+  material: IAutoMovieMaterial;
+  path: string;
+  out: ViolationCollector;
+}) => void = (props: {
   binding: IAutoMovieTextureReference;
 
   /** The slot's path under the material, such as `overlays[0].baseColorTexture`. */
@@ -121,9 +143,23 @@ const checkBinding: (props: { binding: IAutoMovieTextureReference; slot: string;
   path: string;
   out: ViolationCollector;
 }): void => {
-  const source: AutoMovieTextureCoordinateSource | undefined = props.binding.coordinateSource;
+  const source: AutoMovieTextureCoordinateSource | undefined =
+    props.binding.coordinateSource;
   if (source === undefined || source === "source-uv") return;
-  const axes: ({ name: "u"; span: number; scale: number | undefined; wrap: "clamp" | "repeat" | "mirror" | undefined; } | { name: "v"; span: number; scale: number | undefined; wrap: "clamp" | "repeat" | "mirror" | undefined; })[] = [
+  const axes: (
+    | {
+        name: "u";
+        span: number;
+        scale: number | undefined;
+        wrap: "clamp" | "repeat" | "mirror" | undefined;
+      }
+    | {
+        name: "v";
+        span: number;
+        scale: number | undefined;
+        wrap: "clamp" | "repeat" | "mirror" | undefined;
+      }
+  )[] = [
     {
       name: "u" as const,
       span: props.span.u,

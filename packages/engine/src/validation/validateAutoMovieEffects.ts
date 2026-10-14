@@ -1,7 +1,10 @@
-import { IAutoMovieShotEffectCue, IAutoMovieShotEventContract, IAutoMovieCompiledEffect,
+import {
+  IAutoMovieCompiledEffect,
   IAutoMovieCompiledShotSource,
   IAutoMovieDiagnostic,
   IAutoMovieShotContract,
+  IAutoMovieShotEffectCue,
+  IAutoMovieShotEventContract,
 } from "@automovie/interface";
 
 import { compareCodeUnits } from "../text/compareCodeUnits";
@@ -19,22 +22,42 @@ import { engineDiagnostic } from "./engineDiagnostic";
  * @evidence contracts/performance.md#reuse-equivalent-work Event/sample maps are request-local; prior-zone records are shared only within this validation.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Maps, sorted wrappers and diagnostics grow with the supplied shot; only diagnostics return and no native stream is created.
  */
-export const validateAutoMovieEffects: (contract: IAutoMovieShotContract, value: IAutoMovieCompiledShotSource) => IAutoMovieDiagnostic[] = (
+export const validateAutoMovieEffects: (
+  contract: IAutoMovieShotContract,
+  value: IAutoMovieCompiledShotSource,
+) => IAutoMovieDiagnostic[] = (
   contract: IAutoMovieShotContract,
   value: IAutoMovieCompiledShotSource,
 ): IAutoMovieDiagnostic[] => {
   const diagnostics: IAutoMovieDiagnostic[] = [];
-  const fail: (field: string, expectation: string) => void = (field: string, expectation: string): void => {
+  const fail: (field: string, expectation: string) => void = (
+    field: string,
+    expectation: string,
+  ): void => {
     diagnostics.push(engineDiagnostic(contract.id, field, expectation));
   };
   const cues: IAutoMovieShotEffectCue[] = value.effectCues ?? [];
   if (cues.length > 128)
     fail("effectCues", "must contain at most 128 bounded zone activations");
   const ids: Set<string> = new Set<string>();
-  const priorByZone: Map<string, IAutoMovieShotEffectCue> = new Map<string, (typeof cues)[number]>();
-  const events: Map<string, IAutoMovieShotEventContract> = new Map(contract.events.map((event: IAutoMovieShotEventContract): [string, IAutoMovieShotEventContract] => [event.id, event]));
+  const priorByZone: Map<string, IAutoMovieShotEffectCue> = new Map<
+    string,
+    (typeof cues)[number]
+  >();
+  const events: Map<string, IAutoMovieShotEventContract> = new Map(
+    contract.events.map(
+      (
+        event: IAutoMovieShotEventContract,
+      ): [string, IAutoMovieShotEventContract] => [event.id, event],
+    ),
+  );
   const samples: Map<string, number> = new Map(
-    value.eventSamples.map((sample: { id: string; time: number; }): [string, number] => [sample.id, sample.time]),
+    value.eventSamples.map(
+      (sample: { id: string; time: number }): [string, number] => [
+        sample.id,
+        sample.time,
+      ],
+    ),
   );
   for (const cue of [...cues].sort(
     (left: IAutoMovieShotEffectCue, right: IAutoMovieShotEffectCue): number =>
@@ -46,7 +69,9 @@ export const validateAutoMovieEffects: (contract: IAutoMovieShotContract, value:
     if (cue.id.trim().length === 0 || ids.has(cue.id))
       fail(field, "must have one non-blank id unique inside the shot");
     ids.add(cue.id);
-    const compiled: IAutoMovieCompiledEffect | undefined = value.effects.find((effect: IAutoMovieCompiledEffect): boolean => effect.id === cue.id);
+    const compiled: IAutoMovieCompiledEffect | undefined = value.effects.find(
+      (effect: IAutoMovieCompiledEffect): boolean => effect.id === cue.id,
+    );
     if (compiled === undefined || compiled.zone !== cue.zone)
       fail(
         `${field}.zone`,
@@ -73,7 +98,9 @@ export const validateAutoMovieEffects: (contract: IAutoMovieShotContract, value:
     )
       fail(`${field}.intensity`, "must stay inside the bounded 0..1 envelope");
     if (cue.event !== undefined) {
-      const event: IAutoMovieShotEventContract | undefined = events.get(cue.event);
+      const event: IAutoMovieShotEventContract | undefined = events.get(
+        cue.event,
+      );
       const sample: number | undefined = samples.get(cue.event);
       if (
         event === undefined ||
@@ -86,7 +113,9 @@ export const validateAutoMovieEffects: (contract: IAutoMovieShotContract, value:
           `must name one compiled event realized inside [${cue.start}, ${cue.end})`,
         );
     }
-    const prior: IAutoMovieShotEffectCue | undefined = priorByZone.get(cue.zone);
+    const prior: IAutoMovieShotEffectCue | undefined = priorByZone.get(
+      cue.zone,
+    );
     if (prior !== undefined && cue.start < prior.end)
       fail(
         `${field}.start`,
@@ -96,7 +125,10 @@ export const validateAutoMovieEffects: (contract: IAutoMovieShotContract, value:
   }
   if (
     value.effects.length !== cues.length ||
-    value.effects.some((effect: IAutoMovieCompiledEffect): boolean => ids.has(effect.id) === false)
+    value.effects.some(
+      (effect: IAutoMovieCompiledEffect): boolean =>
+        ids.has(effect.id) === false,
+    )
   )
     fail(
       "effects",

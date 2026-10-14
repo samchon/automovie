@@ -13,7 +13,13 @@ import { violation } from "./violation";
  * @evidence contracts/performance.md#reuse-equivalent-work Every call records a distinct validation effect rather than caching equal rows.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller's list owns rows and any referenced actual values until it releases the report.
  */
-export const pushViolation: (violations: IAutoMovieConstraintViolation[], kind: IAutoMovieConstraintViolation["kind"], path: string, expected: string, value: unknown) => void = (
+export const pushViolation: (
+  violations: IAutoMovieConstraintViolation[],
+  kind: IAutoMovieConstraintViolation["kind"],
+  path: string,
+  expected: string,
+  value: unknown,
+) => void = (
   violations: IAutoMovieConstraintViolation[],
   kind: IAutoMovieConstraintViolation["kind"],
   path: string,

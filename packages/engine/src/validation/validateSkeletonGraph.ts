@@ -1,4 +1,8 @@
-import { AutoMovieHumanoidBone, IAutoMovieBone, IAutoMovieSkeleton } from "@automovie/interface";
+import {
+  AutoMovieHumanoidBone,
+  IAutoMovieBone,
+  IAutoMovieSkeleton,
+} from "@automovie/interface";
 
 import { ViolationCollector } from "./ViolationCollector";
 
@@ -13,12 +17,20 @@ import { ViolationCollector } from "./ViolationCollector";
  * @evidence contracts/performance.md#reuse-equivalent-work One local bone/children index serves all root/parent/reachability checks.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller's collector owns faults; no FK pose, skeleton cache or native rig persists.
  */
-export const validateSkeletonGraph: (skeleton: IAutoMovieSkeleton, path: string, collector: ViolationCollector) => void = (
+export const validateSkeletonGraph: (
+  skeleton: IAutoMovieSkeleton,
+  path: string,
+  collector: ViolationCollector,
+) => void = (
   skeleton: IAutoMovieSkeleton,
   path: string,
   collector: ViolationCollector,
 ): void => {
-  const names: Set<AutoMovieHumanoidBone> = new Set(skeleton.bones.map((bone: IAutoMovieBone): AutoMovieHumanoidBone => bone.bone));
+  const names: Set<AutoMovieHumanoidBone> = new Set(
+    skeleton.bones.map(
+      (bone: IAutoMovieBone): AutoMovieHumanoidBone => bone.bone,
+    ),
+  );
   const roots: string[] = [];
   skeleton.bones.forEach((bone: IAutoMovieBone, i: number): void => {
     if (bone.parent === null) roots.push(bone.bone);

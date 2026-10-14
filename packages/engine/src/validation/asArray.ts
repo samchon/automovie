@@ -1,4 +1,3 @@
-
 /**
  * Borrow an actual array or return a fresh empty array after separate shape admission.
  *
@@ -11,5 +10,6 @@
  * @evidence contracts/performance.md#bound-retention-and-release-resources The returned accepted array remains caller-owned; the fallback transfers fresh empty storage and no input object or handle is otherwise retained.
  * @author Samchon
  */
-export const asArray: (value: unknown) => unknown[] = (value: unknown): unknown[] =>
-  Array.isArray(value) ? value : [];
+export const asArray: (value: unknown) => unknown[] = (
+  value: unknown,
+): unknown[] => (Array.isArray(value) ? value : []);

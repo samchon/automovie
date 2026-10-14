@@ -1,5 +1,3 @@
-import type { IAutoMovieFormationSlotPlacement } from "./../IAutoMovieFormationSlotPlacement";
-import type { IAutoMovieSampledFormationMotion } from "./../IAutoMovieSampledFormationMotion";
 import {
   IAutoMovieDiagnostic,
   IAutoMovieFormationMotion,
@@ -18,6 +16,8 @@ import {
   sampleFormationMotion,
   sampleFormationSlotMotion,
 } from "../index";
+import type { IAutoMovieFormationSlotPlacement } from "./../IAutoMovieFormationSlotPlacement";
+import type { IAutoMovieSampledFormationMotion } from "./../IAutoMovieSampledFormationMotion";
 import { engineDiagnostic } from "./engineDiagnostic";
 
 /** Target travel resolution in metres, subject to the capped step count and cue reach/easing estimation limits. */
@@ -27,10 +27,10 @@ const FORMATION_GROUND_SAMPLE_METRES: number = 0.5;
 const FORMATION_GROUND_SUPPORT_DIRECTIONS: number = 16;
 
 /** Memoize member selection only while placement data stays unchanged; a live weak key may retain rows beyond one compile. */
-const formationGroundMemberCache: WeakMap<IAutoMovieFormationPlacement, IFormationGroundMember[]> = new WeakMap<
+const formationGroundMemberCache: WeakMap<
   IAutoMovieFormationPlacement,
   IFormationGroundMember[]
->();
+> = new WeakMap<IAutoMovieFormationPlacement, IFormationGroundMember[]>();
 
 /**
  * Pair a zero-based slot with its designed world-space point.
@@ -72,29 +72,37 @@ interface IFormationGroundMember {
  *
  * Live placement identities retain their cached rows; weak keys allow eventual collection but no explicit compile release exists.
  */
-const formationGroundMembers: (formation: IAutoMovieFormationPlacement) => IFormationGroundMember[] = (
+const formationGroundMembers: (
+  formation: IAutoMovieFormationPlacement,
+) => IFormationGroundMember[] = (
   formation: IAutoMovieFormationPlacement,
 ): IFormationGroundMember[] => {
-  const remembered: IFormationGroundMember[] | undefined = formationGroundMemberCache.get(formation);
+  const remembered: IFormationGroundMember[] | undefined =
+    formationGroundMemberCache.get(formation);
   if (remembered !== undefined) return remembered;
-  const looks: { x: number; z: number; }[] = Array.from(
+  const looks: { x: number; z: number }[] = Array.from(
     { length: FORMATION_GROUND_SUPPORT_DIRECTIONS },
-    (_: unknown, index: number): { x: number; z: number; } => {
+    (_: unknown, index: number): { x: number; z: number } => {
       const radians: number =
         (2 * Math.PI * index) / FORMATION_GROUND_SUPPORT_DIRECTIONS;
       return { x: Math.cos(radians), z: Math.sin(radians) };
     },
   );
   const furthest: number[] = looks.map((): number => Number.NEGATIVE_INFINITY);
-  const outermost: (IFormationGroundMember | null)[] = looks.map((): IFormationGroundMember | null => null);
+  const outermost: (IFormationGroundMember | null)[] = looks.map(
+    (): IFormationGroundMember | null => null,
+  );
   // One record per slot rather than per direction, so a formation of a hundred
   // thousand members is asked for each of them once. A member outermost in
   // several directions is the same object in each, which is what the set below
   // dedupes on.
   for (let slot: number = 0; slot < formation.count; ++slot) {
-    const member: { slot: number; point: IAutoMovieVector3; } = { slot, point: formationSlotPosition(formation, slot) };
+    const member: { slot: number; point: IAutoMovieVector3 } = {
+      slot,
+      point: formationSlotPosition(formation, slot),
+    };
     for (let index: number = 0; index < looks.length; ++index) {
-      const look: { x: number; z: number; } = looks[index]!;
+      const look: { x: number; z: number } = looks[index]!;
       const reach: number = member.point.x * look.x + member.point.z * look.z;
       if (reach <= furthest[index]!) continue;
       furthest[index] = reach;
@@ -107,7 +115,9 @@ const formationGroundMembers: (formation: IAutoMovieFormationPlacement) => IForm
   const members: IFormationGroundMember[] = [
     ...new Set(
       outermost.filter(
-        (member: IFormationGroundMember | null): member is IFormationGroundMember => member !== null,
+        (
+          member: IFormationGroundMember | null,
+        ): member is IFormationGroundMember => member !== null,
       ),
     ),
   ];
@@ -133,7 +143,8 @@ const FORMATION_GROUND_SAMPLE_LIMIT: number = 360;
  *
  * Only a number returns and no sampled state is retained.
  */
-const round: (value: number) => number = (value: number): number => Math.round(value * 1_000) / 1_000;
+const round: (value: number) => number = (value: number): number =>
+  Math.round(value * 1_000) / 1_000;
 
 /**
  * Estimate translation, turn, spacing and reform reach, then choose endpoint-inclusive even-time samples with0.5m target and360-step cap.
@@ -150,7 +161,11 @@ const round: (value: number) => number = (value: number): number => Math.round(v
  *
  * The caller owns the bounded time array; no cue or sampling session is retained.
  */
-const formationGroundSampleTimes: (cue: IAutoMovieFormationMotion, radius: number, reformReach: number) => number[] = (
+const formationGroundSampleTimes: (
+  cue: IAutoMovieFormationMotion,
+  radius: number,
+  reformReach: number,
+) => number[] = (
   cue: IAutoMovieFormationMotion,
   radius: number,
   reformReach: number,
@@ -194,7 +209,8 @@ const formationGroundSampleTimes: (cue: IAutoMovieFormationMotion, radius: numbe
     cue.start,
     ...Array.from(
       { length: Math.max(0, steps - 1) },
-      (_: unknown, index: number): number => cue.start + (span * (index + 1)) / steps,
+      (_: unknown, index: number): number =>
+        cue.start + (span * (index + 1)) / steps,
     ),
     cue.end,
   ];
@@ -215,9 +231,9 @@ const formationGroundSampleTimes: (cue: IAutoMovieFormationMotion, radius: numbe
  *
  * Only a fresh bounded array escapes; no member handle or task remains.
  */
-const formationSlotGroundSampleTimes: (cue: IAutoMovieFormationSlotMotion) => number[] = (
+const formationSlotGroundSampleTimes: (
   cue: IAutoMovieFormationSlotMotion,
-): number[] => {
+) => number[] = (cue: IAutoMovieFormationSlotMotion): number[] => {
   const reach: number = Math.hypot(
     cue.to.offset.x - cue.from.offset.x,
     cue.to.offset.z - cue.from.offset.z,
@@ -231,7 +247,8 @@ const formationSlotGroundSampleTimes: (cue: IAutoMovieFormationSlotMotion) => nu
     cue.start,
     ...Array.from(
       { length: Math.max(0, steps - 1) },
-      (_: unknown, index: number): number => cue.start + (span * (index + 1)) / steps,
+      (_: unknown, index: number): number =>
+        cue.start + (span * (index + 1)) / steps,
     ),
     cue.end,
   ];
@@ -255,7 +272,10 @@ const FORMATION_GROUND_SINK_TOLERANCE_METRES: number = 1e-3;
  *
  * Only a small fault description returns; space and point references are not retained.
  */
-const formationGroundEscape: (space: IAutoMovieSpace, place: IAutoMovieVector3) => { carried: number | null; } | null = (
+const formationGroundEscape: (
+  space: IAutoMovieSpace,
+  place: IAutoMovieVector3,
+) => { carried: number | null } | null = (
   space: IAutoMovieSpace,
   place: IAutoMovieVector3,
 ): { carried: number | null } | null => {
@@ -278,7 +298,15 @@ const formationGroundEscape: (space: IAutoMovieSpace, place: IAutoMovieVector3) 
  * @evidence contracts/performance.md#reuse-equivalent-work Member geometry is shared through a WeakMap keyed by formation identity, without mutation invalidation; this is an explicit premise rather than a compile-lifetime guarantee.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Weak keys permit eventual collection, but live placement objects retain their member rows for module lifetime; working maps/times release after the call.
  */
-export const validateAutoMovieFormationGround: (contract: Pick<IAutoMovieShotContract, "id">, value: { scene: Pick<IAutoMovieScene, "space">; formations: readonly IAutoMovieFormationPlacement[]; formationMotions?: readonly IAutoMovieFormationMotion[]; formationSlotMotions?: readonly IAutoMovieFormationSlotMotion[]; }) => IAutoMovieDiagnostic[] = (
+export const validateAutoMovieFormationGround: (
+  contract: Pick<IAutoMovieShotContract, "id">,
+  value: {
+    scene: Pick<IAutoMovieScene, "space">;
+    formations: readonly IAutoMovieFormationPlacement[];
+    formationMotions?: readonly IAutoMovieFormationMotion[];
+    formationSlotMotions?: readonly IAutoMovieFormationSlotMotion[];
+  },
+) => IAutoMovieDiagnostic[] = (
   contract: Pick<IAutoMovieShotContract, "id">,
   value: {
     scene: Pick<IAutoMovieScene, "space">;
@@ -289,18 +317,31 @@ export const validateAutoMovieFormationGround: (contract: Pick<IAutoMovieShotCon
 ): IAutoMovieDiagnostic[] => {
   const space: IAutoMovieSpace | null | undefined = value.scene.space;
   if (space === undefined || space === null) return [];
-  const cues: readonly IAutoMovieFormationMotion[] = value.formationMotions ?? [];
-  const slotCues: readonly IAutoMovieFormationSlotMotion[] = value.formationSlotMotions ?? [];
+  const cues: readonly IAutoMovieFormationMotion[] =
+    value.formationMotions ?? [];
+  const slotCues: readonly IAutoMovieFormationSlotMotion[] =
+    value.formationSlotMotions ?? [];
   const diagnostics: IAutoMovieDiagnostic[] = [];
   for (const formation of value.formations) {
-    const own: IAutoMovieFormationMotion[] = cues.filter((cue: IAutoMovieFormationMotion): boolean => cue.formation === formation.id);
-    const ownSlots: IAutoMovieFormationSlotMotion[] = slotCues.filter((cue: IAutoMovieFormationSlotMotion): boolean => cue.formation === formation.id);
+    const own: IAutoMovieFormationMotion[] = cues.filter(
+      (cue: IAutoMovieFormationMotion): boolean =>
+        cue.formation === formation.id,
+    );
+    const ownSlots: IAutoMovieFormationSlotMotion[] = slotCues.filter(
+      (cue: IAutoMovieFormationSlotMotion): boolean =>
+        cue.formation === formation.id,
+    );
     // The outermost members, carried as points through the same transform the
     // runtime places them with, plus every member a cue singles out. The
     // outermost set is keyed by slot so a member that is both is measured once,
     // and measured with its own cue rather than without it.
     const members: Map<number, IFormationGroundMember> = new Map(
-      formationGroundMembers(formation).map((member: IFormationGroundMember): [number, IFormationGroundMember] => [member.slot, member]),
+      formationGroundMembers(formation).map(
+        (member: IFormationGroundMember): [number, IFormationGroundMember] => [
+          member.slot,
+          member,
+        ],
+      ),
     );
     for (const cue of ownSlots)
       for (const slot of cue.slots) {
@@ -341,17 +382,19 @@ export const validateAutoMovieFormationGround: (contract: Pick<IAutoMovieShotCon
               ? 0
               : Math.max(
                   0,
-                  ...[...members.values()].map((member: IFormationGroundMember): number => {
-                    const target: IAutoMovieVector3 = formationSlotPosition(
-                      formation,
-                      member.slot,
-                      { layout: cue.layout!, progress: 1 },
-                    );
-                    return Math.hypot(
-                      target.x - member.point.x,
-                      target.z - member.point.z,
-                    );
-                  }),
+                  ...[...members.values()].map(
+                    (member: IFormationGroundMember): number => {
+                      const target: IAutoMovieVector3 = formationSlotPosition(
+                        formation,
+                        member.slot,
+                        { layout: cue.layout!, progress: 1 },
+                      );
+                      return Math.hypot(
+                        target.x - member.point.x,
+                        target.z - member.point.z,
+                      );
+                    },
+                  ),
                 ),
           ),
         ),
@@ -387,7 +430,10 @@ export const validateAutoMovieFormationGround: (contract: Pick<IAutoMovieShotCon
       // the question here is what tells the sampler below that it has a time.
       if (time === null) {
         for (const member of members.values()) {
-          const off: { carried: number | null; } | null = formationGroundEscape(space, member.point);
+          const off: { carried: number | null } | null = formationGroundEscape(
+            space,
+            member.point,
+          );
           if (off === null) continue;
           escape = { time, place: member.point, ...off };
           break;
@@ -395,7 +441,11 @@ export const validateAutoMovieFormationGround: (contract: Pick<IAutoMovieShotCon
         if (escape !== null) break;
         continue;
       }
-      const motion: IAutoMovieSampledFormationMotion = sampleFormationMotion(own, formation.id, time);
+      const motion: IAutoMovieSampledFormationMotion = sampleFormationMotion(
+        own,
+        formation.id,
+        time,
+      );
       for (const member of members.values()) {
         // Re-read where the design puts this member when a cue is re-forming
         // the unit: the arrangement itself is moving, so the point the cached
@@ -423,7 +473,10 @@ export const validateAutoMovieFormationGround: (contract: Pick<IAutoMovieShotCon
         // has to carry it. Refusing a shot for a member nobody can see is the
         // false refusal this gate exists never to make.
         if (placed.present === false) continue;
-        const off: { carried: number | null; } | null = formationGroundEscape(space, placed.position);
+        const off: { carried: number | null } | null = formationGroundEscape(
+          space,
+          placed.position,
+        );
         if (off === null) continue;
         escape = { time, place: placed.position, ...off };
         break;

@@ -13,7 +13,11 @@ import { pushViolation } from "./pushViolation";
  * @evidence contracts/performance.md#reuse-equivalent-work The local set shares first-seen lookup without cross-artifact caching.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The set releases after validation; only caller-owned diagnostics remain.
  */
-export const validateUniqueBy: (entries: { id: unknown; path: string; }[], label: string, violations: IAutoMovieConstraintViolation[]) => void = (
+export const validateUniqueBy: (
+  entries: { id: unknown; path: string }[],
+  label: string,
+  violations: IAutoMovieConstraintViolation[],
+) => void = (
   entries: { id: unknown; path: string }[],
   label: string,
   violations: IAutoMovieConstraintViolation[],

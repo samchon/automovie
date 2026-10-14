@@ -1,4 +1,5 @@
 import { AutoMovieHumanoidBone } from "@automovie/interface";
+
 /**
  * Declare a sampled stance interval and explicit support bones for projected balance checks.
  *

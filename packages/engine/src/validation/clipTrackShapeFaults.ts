@@ -1,7 +1,9 @@
 import { AutoMovieInterpolation } from "@automovie/interface";
+
 import { IAutoMovieClipShapeFault } from "./IAutoMovieClipShapeFault";
 import { channelValueWidth } from "./channelValueWidth";
 import { TRACK_INTERPOLATIONS } from "./constants/TRACK_INTERPOLATIONS";
+
 /**
  * Accumulate ordered interpolation, keyframe-clock, finite-value and stride faults.
  *
@@ -14,7 +16,15 @@ import { TRACK_INTERPOLATIONS } from "./constants/TRACK_INTERPOLATIONS";
  * @evidence contracts/performance.md#bound-retention-and-release-resources Most faults retain scalar values/counts, while empty-array faults retain their original array; no clip cursor, sampled frames or host task survives through the helper.
  * @author Samchon
  */
-export const clipTrackShapeFaults: (track: { times?: unknown; values?: unknown; interpolation?: unknown; channel?: unknown; }, duration: unknown) => IAutoMovieClipShapeFault[] = (
+export const clipTrackShapeFaults: (
+  track: {
+    times?: unknown;
+    values?: unknown;
+    interpolation?: unknown;
+    channel?: unknown;
+  },
+  duration: unknown,
+) => IAutoMovieClipShapeFault[] = (
   /**
    * Structural rather than {@link IAutoMovieTrack}, so both callers pass their
    * own value without a cast and without a re-check: the gate has already
@@ -125,8 +135,9 @@ export const clipTrackShapeFaults: (track: { times?: unknown; values?: unknown; 
   // `cubicspline`, which stores in-tangent / value / out-tangent per keyframe.
   // `undefined` for a `weights` channel, whose width is the model's morph
   // target count and therefore not the track's to state.
-  const perKeyframe: (channelWidth: number) => number = (channelWidth: number): number =>
-    cubic ? channelWidth * 3 : channelWidth;
+  const perKeyframe: (channelWidth: number) => number = (
+    channelWidth: number,
+  ): number => (cubic ? channelWidth * 3 : channelWidth);
   // Every number this fault judges rides the message (#1362). It used to say
   // only the rule ("divide evenly"), and the sibling check that names the width
   // sits below the `return` this fault takes, so the author most lost was the

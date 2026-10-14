@@ -1,5 +1,10 @@
-import { IAutoMovieInteractionEvent, IAutoMovieValidation } from "@automovie/interface";
+import {
+  IAutoMovieInteractionEvent,
+  IAutoMovieValidation,
+} from "@automovie/interface";
+
 import { IAutoMovieToppling } from "./IAutoMovieToppling";
+
 /**
  * Support advice, fall events and a nullable topple from detectSupportToppling.
  *

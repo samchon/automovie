@@ -1,5 +1,7 @@
-import { AutoMovieHumanoidBone, IAutoMovieJointPose,
+import {
   AutoMovieEasing,
+  AutoMovieHumanoidBone,
+  IAutoMovieJointPose,
   IAutoMovieKeyframe,
   IAutoMovieMotion,
   IAutoMovieSkeleton,
@@ -25,7 +27,10 @@ const MAX_ANGULAR_SPEED_DEG_PER_S: number = 900;
  * @evidence contracts/performance.md#reuse-equivalent-work Closed easing vocabularies are shared, while each frame's current values are validated anew.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The collector owns output rows; no sampled pose sequence, animation clip or host task is retained.
  */
-export const validateMotion: (props: { motion: IAutoMovieMotion; skeleton: IAutoMovieSkeleton; }) => IAutoMovieValidation = (props: {
+export const validateMotion: (props: {
+  motion: IAutoMovieMotion;
+  skeleton: IAutoMovieSkeleton;
+}) => IAutoMovieValidation = (props: {
   /** Borrowed clip with second-valued timestamps and degree-valued joints. */
   motion: IAutoMovieMotion;
 
@@ -34,7 +39,10 @@ export const validateMotion: (props: { motion: IAutoMovieMotion; skeleton: IAuto
 }): IAutoMovieValidation => {
   const path: string = "$input";
   const collector: ViolationCollector = new ViolationCollector();
-  const { motion, skeleton }: { motion: IAutoMovieMotion; skeleton: IAutoMovieSkeleton; } = props;
+  const {
+    motion,
+    skeleton,
+  }: { motion: IAutoMovieMotion; skeleton: IAutoMovieSkeleton } = props;
 
   if (motion.id.trim().length === 0)
     collector.push(
@@ -130,7 +138,12 @@ export const validateMotion: (props: { motion: IAutoMovieMotion; skeleton: IAuto
  *
  * The map releases after one pair and only collector rows remain.
  */
-const checkAngularSpeed: (motion: IAutoMovieMotion, i: number, kp: string, collector: ViolationCollector) => void = (
+const checkAngularSpeed: (
+  motion: IAutoMovieMotion,
+  i: number,
+  kp: string,
+  collector: ViolationCollector,
+) => void = (
   motion: IAutoMovieMotion,
   i: number,
   kp: string,
@@ -141,11 +154,21 @@ const checkAngularSpeed: (motion: IAutoMovieMotion, i: number, kp: string, colle
   const dt: number = cur.time - prev.time;
   if (!Number.isFinite(dt) || dt <= 0) return; // ordering/range already reported above
 
-  const prevByBone: Map<AutoMovieHumanoidBone, IAutoMovieJointPose> = new Map(prev.pose.joints.map((j: IAutoMovieJointPose): [AutoMovieHumanoidBone, IAutoMovieJointPose] => [j.bone, j]));
+  const prevByBone: Map<AutoMovieHumanoidBone, IAutoMovieJointPose> = new Map(
+    prev.pose.joints.map(
+      (
+        j: IAutoMovieJointPose,
+      ): [AutoMovieHumanoidBone, IAutoMovieJointPose] => [j.bone, j],
+    ),
+  );
   for (const j of cur.pose.joints) {
     const p: IAutoMovieJointPose | undefined = prevByBone.get(j.bone);
     if (p === undefined) continue;
-    const axes: readonly ["flexion", "abduction", "twist"] = ["flexion", "abduction", "twist"] as const;
+    const axes: readonly ["flexion", "abduction", "twist"] = [
+      "flexion",
+      "abduction",
+      "twist",
+    ] as const;
     for (const axis of axes) {
       const delta: number = Math.abs((j[axis] ?? 0) - (p[axis] ?? 0));
       const speed: number = delta / dt;
@@ -175,7 +198,11 @@ const checkAngularSpeed: (motion: IAutoMovieMotion, i: number, kp: string, colle
  *
  * Only diagnostic rows escape; no easing curve cache or sampler task is retained.
  */
-const validateKeyframeBezier: (kf: IAutoMovieKeyframe, kp: string, collector: ViolationCollector) => void = (
+const validateKeyframeBezier: (
+  kf: IAutoMovieKeyframe,
+  kp: string,
+  collector: ViolationCollector,
+) => void = (
   kf: IAutoMovieKeyframe,
   kp: string,
   collector: ViolationCollector,
@@ -232,7 +259,9 @@ const validateKeyframeBezier: (kf: IAutoMovieKeyframe, kp: string, collector: Vi
  *
  * The array stays borrowed and only boolean narrowing escapes.
  */
-const isFiniteBezierTuple: (value: unknown) => value is [number, number, number, number] = (
+const isFiniteBezierTuple: (
+  value: unknown,
+) => value is [number, number, number, number] = (
   value: unknown,
 ): value is [number, number, number, number] =>
   Array.isArray(value) &&

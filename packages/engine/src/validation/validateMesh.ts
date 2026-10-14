@@ -1,4 +1,8 @@
-import { AutoMovieHumanoidBone, IAutoMovieMesh, IAutoMovieMeshSkin } from "@automovie/interface";
+import {
+  AutoMovieHumanoidBone,
+  IAutoMovieMesh,
+  IAutoMovieMeshSkin,
+} from "@automovie/interface";
 
 import { ViolationCollector } from "./ViolationCollector";
 import { appendMeshTopology } from "./appendMeshTopology";
@@ -14,7 +18,12 @@ import { appendMeshTopology } from "./appendMeshTopology";
  * @evidence contracts/performance.md#reuse-equivalent-work Common tuple/length helpers serve attributes, and the canonical topology owner prevents independent welded rules.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only collector rows remain; local joint sets/weight slices release and no mesh renderer or byte decoder is created.
  */
-export const validateMesh: (mesh: IAutoMovieMesh, path: string, boneNames: ReadonlySet<string>, collector: ViolationCollector) => void = (
+export const validateMesh: (
+  mesh: IAutoMovieMesh,
+  path: string,
+  boneNames: ReadonlySet<string>,
+  collector: ViolationCollector,
+) => void = (
   /** Typed array/null and skin-record structure; this owner admits entries and cardinality without a total unknown-object schema gate. */
   mesh: IAutoMovieMesh,
   path: string,
@@ -144,7 +153,12 @@ export const validateMesh: (mesh: IAutoMovieMesh, path: string, boneNames: Reado
  *
  * Only collector rows remain; numeric buffers stay borrowed and no copy is retained.
  */
-const validateTupleBuffer: (buffer: number[], tupleSize: number, path: string, collector: ViolationCollector) => void = (
+const validateTupleBuffer: (
+  buffer: number[],
+  tupleSize: number,
+  path: string,
+  collector: ViolationCollector,
+) => void = (
   buffer: number[],
   tupleSize: number,
   path: string,
@@ -185,7 +199,13 @@ const validateTupleBuffer: (buffer: number[], tupleSize: number, path: string, c
  *
  * Buffers remain borrowed and only caller-owned diagnostics escape.
  */
-const validateBufferLength: (buffer: number[], expected: number, path: string, message: string, collector: ViolationCollector) => void = (
+const validateBufferLength: (
+  buffer: number[],
+  expected: number,
+  path: string,
+  message: string,
+  collector: ViolationCollector,
+) => void = (
   buffer: number[],
   expected: number,
   path: string,
@@ -216,7 +236,13 @@ const validateBufferLength: (buffer: number[], expected: number, path: string, m
  *
  * Seen/slice storage releases and the collector owns faults; no skeletal renderer or buffer handle remains.
  */
-const validateMeshSkin: (skin: IAutoMovieMeshSkin, vertexCount: number, path: string, boneNames: ReadonlySet<string>, collector: ViolationCollector) => void = (
+const validateMeshSkin: (
+  skin: IAutoMovieMeshSkin,
+  vertexCount: number,
+  path: string,
+  boneNames: ReadonlySet<string>,
+  collector: ViolationCollector,
+) => void = (
   skin: IAutoMovieMeshSkin,
   vertexCount: number,
   path: string,
@@ -285,7 +311,10 @@ const validateMeshSkin: (skin: IAutoMovieMeshSkin, vertexCount: number, path: st
       Number.isFinite(weights[2]) &&
       Number.isFinite(weights[3])
     ) {
-      const sum: number = weights.reduce((a: number, b: number): number => a + b, 0);
+      const sum: number = weights.reduce(
+        (a: number, b: number): number => a + b,
+        0,
+      );
       if (Math.abs(sum - 1) > 1e-6)
         collector.push(
           "range",

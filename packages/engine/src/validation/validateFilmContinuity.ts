@@ -1,11 +1,15 @@
-import { IAutoMovieBeatEndState, IAutoMovieValidation } from "@automovie/interface";
-import { ViolationCollector } from "./ViolationCollector";
-import { IAutoMovieContinuityTolerances } from "./IAutoMovieContinuityTolerances";
-import { readContinuityTolerances } from "./readContinuityTolerances";
-import { compareContinuityBoundary } from "./compareContinuityBoundary";
+import {
+  IAutoMovieBeatEndState,
+  IAutoMovieValidation,
+} from "@automovie/interface";
+
 import { IResolveBeatProps } from "../film/IResolveBeatProps";
 import { resolveBeatEnd } from "../film/resolveBeatEnd";
 import { resolveBeatOpening } from "../film/resolveBeatOpening";
+import { IAutoMovieContinuityTolerances } from "./IAutoMovieContinuityTolerances";
+import { ViolationCollector } from "./ViolationCollector";
+import { compareContinuityBoundary } from "./compareContinuityBoundary";
+import { readContinuityTolerances } from "./readContinuityTolerances";
 
 /**
  * Resolve end/opening states in playback order and compare adjacent beat boundaries for advisory discontinuity.
@@ -18,7 +22,11 @@ import { resolveBeatOpening } from "../film/resolveBeatOpening";
  * @evidence contracts/performance.md#reuse-equivalent-work Middle beat rows supply their opening to the incoming cut and their end to the outgoing cut; first-opening and last-end states are still resolved but unused. No snapshot is cached across mutable film inputs.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Resolution inputs are borrowed; snapshots/maps release after validation while diagnostics transfer to the caller.
  */
-export const validateFilmContinuity: (props: { beats: readonly IResolveBeatProps[]; positionTolerance?: number; facingToleranceDeg?: number; }) => IAutoMovieValidation = (props: {
+export const validateFilmContinuity: (props: {
+  beats: readonly IResolveBeatProps[];
+  positionTolerance?: number;
+  facingToleranceDeg?: number;
+}) => IAutoMovieValidation = (props: {
   /** The film's beats, in playback order. */
   beats: readonly IResolveBeatProps[];
 
@@ -29,18 +37,27 @@ export const validateFilmContinuity: (props: { beats: readonly IResolveBeatProps
   facingToleranceDeg?: number;
 }): IAutoMovieValidation => {
   const collector: ViolationCollector = new ViolationCollector();
-  const tolerances: IAutoMovieContinuityTolerances | null = readContinuityTolerances(
-    props.positionTolerance,
-    props.facingToleranceDeg,
-    "$input",
-    collector,
-  );
-  if (tolerances === null || props.beats.length < 2) return collector.toValidation();
+  const tolerances: IAutoMovieContinuityTolerances | null =
+    readContinuityTolerances(
+      props.positionTolerance,
+      props.facingToleranceDeg,
+      "$input",
+      collector,
+    );
+  if (tolerances === null || props.beats.length < 2)
+    return collector.toValidation();
 
-  const snapshots: { end: IAutoMovieBeatEndState; opening: IAutoMovieBeatEndState; }[] = props.beats.map((beat: IResolveBeatProps): { end: IAutoMovieBeatEndState; opening: IAutoMovieBeatEndState; } => ({
-    end: resolveBeatEnd(beat),
-    opening: resolveBeatOpening(beat),
-  }));
+  const snapshots: {
+    end: IAutoMovieBeatEndState;
+    opening: IAutoMovieBeatEndState;
+  }[] = props.beats.map(
+    (
+      beat: IResolveBeatProps,
+    ): { end: IAutoMovieBeatEndState; opening: IAutoMovieBeatEndState } => ({
+      end: resolveBeatEnd(beat),
+      opening: resolveBeatOpening(beat),
+    }),
+  );
   for (let i: number = 1; i < snapshots.length; ++i)
     compareContinuityBoundary(
       snapshots[i - 1]!.end,

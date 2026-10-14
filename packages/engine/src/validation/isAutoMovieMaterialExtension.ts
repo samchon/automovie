@@ -9,10 +9,14 @@
  * @evidence contracts/performance.md#reuse-equivalent-work A fixed four-word segment set is shared, while each current name is classified anew.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only the fixed vocabulary remains resident; no asset or transcoder is acquired.
  */
-export const isAutoMovieMaterialExtension: (name: string) => boolean = (name: string): boolean =>
+export const isAutoMovieMaterialExtension: (name: string) => boolean = (
+  name: string,
+): boolean =>
   name
     .split("_")
-    .some((segment: string): boolean => MATERIAL_SEGMENTS.has(segment.toLowerCase()));
+    .some((segment: string): boolean =>
+      MATERIAL_SEGMENTS.has(segment.toLowerCase()),
+    );
 
 const MATERIAL_SEGMENTS: ReadonlySet<string> = new Set([
   "material",

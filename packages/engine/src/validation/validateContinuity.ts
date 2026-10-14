@@ -1,8 +1,12 @@
-import { IAutoMovieBeatEndState, IAutoMovieValidation } from "@automovie/interface";
-import { ViolationCollector } from "./ViolationCollector";
+import {
+  IAutoMovieBeatEndState,
+  IAutoMovieValidation,
+} from "@automovie/interface";
+
 import { IAutoMovieContinuityTolerances } from "./IAutoMovieContinuityTolerances";
-import { readContinuityTolerances } from "./readContinuityTolerances";
+import { ViolationCollector } from "./ViolationCollector";
 import { compareContinuityBoundary } from "./compareContinuityBoundary";
+import { readContinuityTolerances } from "./readContinuityTolerances";
 
 /**
  * Compare every prior-end actor to the incoming opening for missing presence, Euclidean drift, facing angle and persistent mount changes.
@@ -15,7 +19,12 @@ import { compareContinuityBoundary } from "./compareContinuityBoundary";
  * @evidence contracts/performance.md#reuse-equivalent-work The opening id map shares lookup work within this boundary, without caching mutable snapshots.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Snapshots are borrowed; only report rows escape and no film playback state is retained.
  */
-export const validateContinuity: (props: { previous: IAutoMovieBeatEndState; opening: IAutoMovieBeatEndState; positionTolerance?: number; facingToleranceDeg?: number; }) => IAutoMovieValidation = (props: {
+export const validateContinuity: (props: {
+  previous: IAutoMovieBeatEndState;
+  opening: IAutoMovieBeatEndState;
+  positionTolerance?: number;
+  facingToleranceDeg?: number;
+}) => IAutoMovieValidation = (props: {
   /** The previous beat's resolved end-state. */
   previous: IAutoMovieBeatEndState;
 
@@ -29,12 +38,13 @@ export const validateContinuity: (props: { previous: IAutoMovieBeatEndState; ope
   facingToleranceDeg?: number;
 }): IAutoMovieValidation => {
   const collector: ViolationCollector = new ViolationCollector();
-  const tolerances: IAutoMovieContinuityTolerances | null = readContinuityTolerances(
-    props.positionTolerance,
-    props.facingToleranceDeg,
-    "$input",
-    collector,
-  );
+  const tolerances: IAutoMovieContinuityTolerances | null =
+    readContinuityTolerances(
+      props.positionTolerance,
+      props.facingToleranceDeg,
+      "$input",
+      collector,
+    );
   if (tolerances === null) return collector.toValidation();
   compareContinuityBoundary(
     props.previous,

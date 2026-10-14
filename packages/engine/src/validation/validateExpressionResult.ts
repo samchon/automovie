@@ -16,6 +16,8 @@ import { validateExpression } from "./validateExpression";
  * @evidence contracts/performance.md#reuse-equivalent-work The existing expression checker and toValidation are called rather than reimplemented.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only the result's diagnostic arrays escape; no expression history or host resource is retained.
  */
-export const validateExpressionResult: (expression: IAutoMovieExpression) => IAutoMovieValidation = (
+export const validateExpressionResult: (
+  expression: IAutoMovieExpression,
+) => IAutoMovieValidation = (
   expression: IAutoMovieExpression,
 ): IAutoMovieValidation => validateExpression({ expression }).toValidation();

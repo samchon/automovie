@@ -1,8 +1,10 @@
 import { IAutoMovieMesh } from "@automovie/interface";
+
 import { createMeshEdgeKey } from "../math/createMeshEdgeKey";
 import { resolveAutoMovieMeshPhysicalVertices } from "../math/resolveAutoMovieMeshPhysicalVertices";
 import { weldMeshVertices } from "../math/weldMeshVertices";
 import { ViolationCollector } from "./ViolationCollector";
+
 /**
  * Append shared welded edge-incidence, winding and optional boundary findings.
  *
@@ -15,7 +17,12 @@ import { ViolationCollector } from "./ViolationCollector";
  * @evidence contracts/performance.md#bound-retention-and-release-resources The supplied collector retains only findings, and call-local weld/maps/directions are discarded; mesh buffers are borrowed without mutation and no native mesh resource is acquired.
  * @author Samchon
  */
-export const appendMeshTopology: (mesh: IAutoMovieMesh, path: string, collector: ViolationCollector, expectClosed: boolean) => void = (
+export const appendMeshTopology: (
+  mesh: IAutoMovieMesh,
+  path: string,
+  collector: ViolationCollector,
+  expectClosed: boolean,
+) => void = (
   mesh: IAutoMovieMesh,
   path: string,
   collector: ViolationCollector,
@@ -39,10 +46,10 @@ export const appendMeshTopology: (mesh: IAutoMovieMesh, path: string, collector:
   }
   const vertexCount: number = mesh.positions.length / 3;
   if (vertexCount === 0 || !Number.isInteger(vertexCount)) return;
-  for (const value of mesh.positions)
-    if (!Number.isFinite(value)) return;
+  for (const value of mesh.positions) if (!Number.isFinite(value)) return;
   const indices: number[] =
-    mesh.indices ?? Array.from({ length: vertexCount }, (_: unknown, i: number): number => i);
+    mesh.indices ??
+    Array.from({ length: vertexCount }, (_: unknown, i: number): number => i);
   if (indices.length % 3 !== 0) return;
   for (const index of indices)
     if (!Number.isInteger(index) || index < 0 || index >= vertexCount) return;
@@ -51,8 +58,11 @@ export const appendMeshTopology: (mesh: IAutoMovieMesh, path: string, collector:
   // Legacy coordinates determine welding on every evaluation. Explicit aliases
   // have already agreed on that grid, while separate contact points stay apart.
   // Coordinate-collapsed triangles remain redundant independently of identity.
-  const coordinate: { labels: string[]; vertices: number[]; } = weldMeshVertices(mesh.positions);
-  const { labels, vertices }: { labels: string[]; vertices: number[]; } = physical ?? coordinate;
+  const coordinate: { labels: string[]; vertices: number[] } = weldMeshVertices(
+    mesh.positions,
+  );
+  const { labels, vertices }: { labels: string[]; vertices: number[] } =
+    physical ?? coordinate;
   interface Direction {
     from: number;
     to: number;
@@ -65,8 +75,12 @@ export const appendMeshTopology: (mesh: IAutoMovieMesh, path: string, collector:
     forward?: Direction;
     reverse?: Direction;
   }
-  const edgeKey: (from: number, to: number) => string | number = createMeshEdgeKey(labels.length);
-  const undirected: Map<string | number, Edge> = new Map<number | string, Edge>();
+  const edgeKey: (from: number, to: number) => string | number =
+    createMeshEdgeKey(labels.length);
+  const undirected: Map<string | number, Edge> = new Map<
+    number | string,
+    Edge
+  >();
   const directed: Direction[] = [];
   for (let i: number = 0; i < indices.length; i += 3) {
     const ga: number = coordinate.vertices[indices[i]!]!,

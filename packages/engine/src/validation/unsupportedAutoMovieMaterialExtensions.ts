@@ -13,9 +13,9 @@ import { isAutoMovieMaterialExtension } from "./isAutoMovieMaterialExtension";
  * @evidence contracts/performance.md#reuse-equivalent-work Repeated names share one set entry; the canonical supported catalog is reused across assets.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only distinct string references return; no loaded asset, decoder or host task is retained.
  */
-export const unsupportedAutoMovieMaterialExtensions: (extensions: readonly string[]) => string[] = (
+export const unsupportedAutoMovieMaterialExtensions: (
   extensions: readonly string[],
-): string[] =>
+) => string[] = (extensions: readonly string[]): string[] =>
   [
     ...new Set(
       extensions.filter(

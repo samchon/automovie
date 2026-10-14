@@ -13,7 +13,9 @@ import { ViolationCollector } from "./ViolationCollector";
  * @evidence contracts/performance.md#reuse-equivalent-work Scalar helpers share finite/range semantics while uniqueness is local to current inputs.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only diagnostics return; no response driver, physics task or mount host is retained.
  */
-export const validateProfileCapabilities: (props: { profiles: readonly IAutoMovieProfile[]; }) => IAutoMovieValidation = (props: {
+export const validateProfileCapabilities: (props: {
+  profiles: readonly IAutoMovieProfile[];
+}) => IAutoMovieValidation = (props: {
   /** Profiles attached to one runtime model or model recipe. */
   profiles: readonly IAutoMovieProfile[];
 }): IAutoMovieValidation => {
@@ -103,7 +105,12 @@ export const validateProfileCapabilities: (props: { profiles: readonly IAutoMovi
  *
  * Only collector rows remain and no name registry is retained.
  */
-const nonBlank: (value: string, path: string, label: string, collector: ViolationCollector) => void = (
+const nonBlank: (
+  value: string,
+  path: string,
+  label: string,
+  collector: ViolationCollector,
+) => void = (
   value: string,
   path: string,
   label: string,
@@ -128,7 +135,13 @@ const nonBlank: (value: string, path: string, label: string, collector: Violatio
  *
  * The caller owns/releases the set and diagnostics; no global registry is created.
  */
-const unique: (seen: Set<string>, value: string, path: string, label: string, collector: ViolationCollector) => void = (
+const unique: (
+  seen: Set<string>,
+  value: string,
+  path: string,
+  label: string,
+  collector: ViolationCollector,
+) => void = (
   seen: Set<string>,
   value: string,
   path: string,
@@ -155,7 +168,12 @@ const unique: (seen: Set<string>, value: string, path: string, label: string, co
  *
  * Only collector rows remain with no simulated response state.
  */
-const positive: (value: number, path: string, label: string, collector: ViolationCollector) => void = (
+const positive: (
+  value: number,
+  path: string,
+  label: string,
+  collector: ViolationCollector,
+) => void = (
   value: number,
   path: string,
   label: string,
@@ -185,7 +203,12 @@ const positive: (value: number, path: string, label: string, collector: Violatio
  *
  * Only diagnostics remain; no impact simulation or native body is acquired.
  */
-const unitPositive: (value: number, path: string, label: string, collector: ViolationCollector) => void = (
+const unitPositive: (
+  value: number,
+  path: string,
+  label: string,
+  collector: ViolationCollector,
+) => void = (
   value: number,
   path: string,
   label: string,
@@ -215,7 +238,14 @@ const unitPositive: (value: number, path: string, label: string, collector: Viol
  *
  * Only caller-owned diagnostics remain and no resource is retained.
  */
-const bounded: (value: number, min: number, max: number, path: string, label: string, collector: ViolationCollector) => void = (
+const bounded: (
+  value: number,
+  min: number,
+  max: number,
+  path: string,
+  label: string,
+  collector: ViolationCollector,
+) => void = (
   value: number,
   min: number,
   max: number,
@@ -239,7 +269,14 @@ const bounded: (value: number, min: number, max: number, path: string, label: st
  *
  * Only collector faults remain; no seating allocation or mount host starts.
  */
-const integer: (value: number, min: number, max: number, path: string, label: string, collector: ViolationCollector) => void = (
+const integer: (
+  value: number,
+  min: number,
+  max: number,
+  path: string,
+  label: string,
+  collector: ViolationCollector,
+) => void = (
   value: number,
   min: number,
   max: number,

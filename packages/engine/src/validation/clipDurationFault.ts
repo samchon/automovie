@@ -1,4 +1,5 @@
 import { IAutoMovieClipShapeFault } from "./IAutoMovieClipShapeFault";
+
 /**
  * Return the first sampler-duration fault or null for finite nonnegative seconds.
  *
@@ -11,7 +12,9 @@ import { IAutoMovieClipShapeFault } from "./IAutoMovieClipShapeFault";
  * @evidence contracts/performance.md#bound-retention-and-release-resources A fresh fault may retain the offending value; accepted input returns null, with no clip buffers, clock cursor or task retained.
  * @author Samchon
  */
-export const clipDurationFault: (duration: unknown) => IAutoMovieClipShapeFault | null = (
+export const clipDurationFault: (
+  duration: unknown,
+) => IAutoMovieClipShapeFault | null = (
   duration: unknown,
 ): IAutoMovieClipShapeFault | null => {
   if (typeof duration !== "number" || !Number.isFinite(duration))

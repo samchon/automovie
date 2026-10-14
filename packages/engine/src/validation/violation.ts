@@ -14,7 +14,14 @@ import {
  * @evidence contracts/performance.md#reuse-equivalent-work pushViolation/collector callers reuse the canonical shape but each call creates its own row.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the row and borrowed value lifetime; no internal list or native resource remains.
  */
-export const violation: (kind: AutoMovieViolationKind, path: string, expected: string, value: unknown, overshoot?: number, severity?: "error" | "warning") => IAutoMovieConstraintViolation = (
+export const violation: (
+  kind: AutoMovieViolationKind,
+  path: string,
+  expected: string,
+  value: unknown,
+  overshoot?: number,
+  severity?: "error" | "warning",
+) => IAutoMovieConstraintViolation = (
   kind: AutoMovieViolationKind,
   path: string,
   expected: string,

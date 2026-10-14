@@ -11,7 +11,13 @@ import { ViolationCollector } from "./ViolationCollector";
  * @evidence contracts/performance.md#reuse-equivalent-work Material validators share this predicate, but each call appends its own effect.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only a failure row is retained by the caller-owned collector; no handle or task is acquired.
  */
-export const finiteMinimum: (value: number, minimum: number, path: string, label: string, collector: ViolationCollector) => void = (
+export const finiteMinimum: (
+  value: number,
+  minimum: number,
+  path: string,
+  label: string,
+  collector: ViolationCollector,
+) => void = (
   value: number,
   minimum: number,
   path: string,

@@ -1,4 +1,5 @@
 import { IAutoMovieConstraintViolation } from "@automovie/interface";
+
 /**
  * Represent a shared clip shape rule failure for sampler and artifact readers.
  *

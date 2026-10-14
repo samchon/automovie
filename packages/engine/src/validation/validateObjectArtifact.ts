@@ -14,7 +14,12 @@ import { pushViolation } from "./pushViolation";
  * @evidence contracts/performance.md#reuse-equivalent-work Canonical isRecord is reused instead of independent null/array menus.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The input remains borrowed and only caller-owned diagnostics escape.
  */
-export const validateObjectArtifact: (value: unknown, path: string, label: string, violations: IAutoMovieConstraintViolation[]) => value is Record<string, unknown> = (
+export const validateObjectArtifact: (
+  value: unknown,
+  path: string,
+  label: string,
+  violations: IAutoMovieConstraintViolation[],
+) => value is Record<string, unknown> = (
   value: unknown,
   path: string,
   label: string,

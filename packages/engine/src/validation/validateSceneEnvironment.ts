@@ -1,13 +1,13 @@
 import {
-  IAutoMovieSceneEnvironment,
   IAutoMovieLight,
+  IAutoMovieSceneEnvironment,
   IAutoMovieValidation,
 } from "@automovie/interface";
 
+import { resolveAutoMovieShadowProfile } from "../render/resolveAutoMovieShadowProfile";
 import { ViolationCollector } from "./ViolationCollector";
 import { isRecord } from "./isRecord";
 import { validateColor } from "./validateColor";
-import { resolveAutoMovieShadowProfile } from "../render/resolveAutoMovieShadowProfile";
 
 /** Renderer tone mappings admitted by the scene environment contract. */
 const TONE_MAPPINGS: ReadonlySet<string> = new Set(["none", "acesFilmic"]);
@@ -64,7 +64,8 @@ export function validateSceneEnvironment(props: {
       "environment background must be null when an image supplies the background",
       value.background,
     );
-  if (value.background !== null) validateColor(value.background, "$input.background", out);
+  if (value.background !== null)
+    validateColor(value.background, "$input.background", out);
   finiteRange(value.intensity, 0, false, "$input.intensity", "intensity", out);
   if (
     typeof value.rotationDeg !== "number" ||
@@ -77,7 +78,10 @@ export function validateSceneEnvironment(props: {
       value.rotationDeg,
     );
   finiteRange(value.exposure, 0, true, "$input.exposure", "exposure", out);
-  if (typeof value.toneMapping !== "string" || !TONE_MAPPINGS.has(value.toneMapping))
+  if (
+    typeof value.toneMapping !== "string" ||
+    !TONE_MAPPINGS.has(value.toneMapping)
+  )
     out.push(
       "type",
       "$input.toneMapping",
@@ -99,19 +103,27 @@ export function validateSceneEnvironment(props: {
         "shadow enabled must be boolean",
         value.shadows.enabled,
       );
-    if (typeof value.shadows.type !== "string" || !SHADOW_TYPES.has(value.shadows.type))
+    if (
+      typeof value.shadows.type !== "string" ||
+      !SHADOW_TYPES.has(value.shadows.type)
+    )
       out.push(
         "type",
         "$input.shadows.type",
         'shadow type must be "pcf", "pcfSoft", or "vsm"',
         value.shadows.type,
       );
-    if (props.lights !== undefined &&
-        typeof value.shadows.enabled === "boolean" &&
-        typeof value.shadows.type === "string" && SHADOW_TYPES.has(value.shadows.type)) {
-      const profile: ReturnType<typeof resolveAutoMovieShadowProfile> = resolveAutoMovieShadowProfile({
-        lights: props.lights, shadows: props.environment.shadows,
-      });
+    if (
+      props.lights !== undefined &&
+      typeof value.shadows.enabled === "boolean" &&
+      typeof value.shadows.type === "string" &&
+      SHADOW_TYPES.has(value.shadows.type)
+    ) {
+      const profile: ReturnType<typeof resolveAutoMovieShadowProfile> =
+        resolveAutoMovieShadowProfile({
+          lights: props.lights,
+          shadows: props.environment.shadows,
+        });
       if (!profile.success) out.items.push(...profile.violations);
     }
   }

@@ -1,6 +1,14 @@
-import { AutoMovieHumanoidBone, IAutoMovieBody, IAutoMovieMotion, IAutoMovieSkeleton, IAutoMovieCapsuleProxy } from "@automovie/interface";
+import {
+  AutoMovieHumanoidBone,
+  IAutoMovieBody,
+  IAutoMovieCapsuleProxy,
+  IAutoMovieMotion,
+  IAutoMovieSkeleton,
+} from "@automovie/interface";
+
 import { IAutoMovieJointAxes } from "../kinematics/IAutoMovieJointAxes";
 import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
+
 /**
  * Supply a rig, motion and capsule proxies for sampled inter-body collision inspection.
  *

@@ -16,7 +16,9 @@ import { appendMeshTopology } from "./appendMeshTopology";
  * @evidence contracts/performance.md#reuse-equivalent-work No duplicate weld/edge implementation is kept in the public result wrapper.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns result rows while analyzer tables release; no native mesh resource is retained.
  */
-export const validateMeshTopology: (props: IAutoMovieMeshTopologyValidationProps) => IAutoMovieValidation = (
+export const validateMeshTopology: (
+  props: IAutoMovieMeshTopologyValidationProps,
+) => IAutoMovieValidation = (
   props: IAutoMovieMeshTopologyValidationProps,
 ): IAutoMovieValidation => {
   const collector: ViolationCollector = new ViolationCollector();

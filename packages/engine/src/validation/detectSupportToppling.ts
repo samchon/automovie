@@ -1,4 +1,9 @@
-import { IAutoMovieInteractionEvent, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  IAutoMovieInteractionEvent,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
+import { IAutoMovieHullEdge } from "../math/IAutoMovieHullEdge";
 import { Vector3 } from "../math/Vector3";
 import { closestPointOnSegmentXZ } from "../math/closestPointOnSegmentXZ";
 import { convexHull2D } from "../math/convexHull2D";
@@ -6,7 +11,7 @@ import { nearestHullEdge } from "../math/nearestHullEdge";
 import { pointHullDistance } from "../math/pointHullDistance";
 import { IAutoMovieSupportResult } from "./IAutoMovieSupportResult";
 import { ViolationCollector } from "./ViolationCollector";
-import { IAutoMovieHullEdge } from "../math/IAutoMovieHullEdge";
+
 const DEFAULT_MARGIN: number = 0.02;
 
 /**
@@ -21,7 +26,14 @@ const DEFAULT_MARGIN: number = 0.02;
  * @evidence contracts/performance.md#bound-retention-and-release-resources Fresh findings/event/direction transfer to the caller while pivot endpoints borrow support records; no support population is otherwise retained and no physics task is acquired.
  * @author Samchon
  */
-export const detectSupportToppling: (props: { node?: string | undefined; centerOfMass: IAutoMovieVector3; support: readonly IAutoMovieVector3[]; margin?: number | undefined; physicsIntent?: string | undefined; path?: string | undefined; }) => IAutoMovieSupportResult = (props: {
+export const detectSupportToppling: (props: {
+  node?: string | undefined;
+  centerOfMass: IAutoMovieVector3;
+  support: readonly IAutoMovieVector3[];
+  margin?: number | undefined;
+  physicsIntent?: string | undefined;
+  path?: string | undefined;
+}) => IAutoMovieSupportResult = (props: {
   /** Object node id, used to label the emitted event. */
   node?: string;
   /** Object center of mass (same frame as `support`; e.g. `bodyCenterOfMass`). */
@@ -37,7 +49,8 @@ export const detectSupportToppling: (props: { node?: string | undefined; centerO
 }): IAutoMovieSupportResult => {
   const collector: ViolationCollector = new ViolationCollector();
   const path: string = props.path ?? "$input";
-  const margin: number = props.margin === undefined ? DEFAULT_MARGIN : props.margin;
+  const margin: number =
+    props.margin === undefined ? DEFAULT_MARGIN : props.margin;
   const node: string | null = props.node ?? null;
 
   if (props.support.length === 0) {
@@ -115,4 +128,5 @@ export const detectSupportToppling: (props: { node?: string | undefined; centerO
   };
 };
 
-const round: (value: number) => number = (value: number): number => Math.round(value * 1_000) / 1_000;
+const round: (value: number) => number = (value: number): number =>
+  Math.round(value * 1_000) / 1_000;

@@ -1,12 +1,16 @@
-import type { IAutoMovieSceneEnvironmentUse } from "./IAutoMovieSceneEnvironmentUse";
-import { IAutoMovieModel, IAutoMovieMaterial, AutoMovieTextureBinding, IAutoMovieAssetUse,
+import {
+  AutoMovieTextureBinding,
   IAutoMovieAssetProvenance,
+  IAutoMovieAssetUse,
+  IAutoMovieMaterial,
+  IAutoMovieModel,
   IAutoMovieTextureReference,
   IAutoMovieValidation,
 } from "@automovie/interface";
 
 import { compareCodeUnits } from "../text/compareCodeUnits";
 import { AutoMovieTextureMediaType } from "./AutoMovieTextureMediaType";
+import type { IAutoMovieSceneEnvironmentUse } from "./IAutoMovieSceneEnvironmentUse";
 import { IAutoMovieTextureClosureInput } from "./IAutoMovieTextureClosureInput";
 import { IAutoMovieTextureImageFacts } from "./IAutoMovieTextureImageFacts";
 import { ViolationCollector } from "./ViolationCollector";
@@ -40,74 +44,98 @@ const ENVIRONMENT_MEDIA: ReadonlySet<AutoMovieTextureMediaType> = new Set([
  * @evidence contracts/performance.md#reuse-equivalent-work Asset records and intent/declared maps are shared within one call; the facts callback may own per-asset reuse outside it.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only report rows escape; assets/models are borrowed and no file, pixel buffer or texture handle is acquired.
  */
-export const validateTextureAssets: (props: IAutoMovieTextureClosureInput) => IAutoMovieValidation = (
+export const validateTextureAssets: (
+  props: IAutoMovieTextureClosureInput,
+) => IAutoMovieValidation = (
   props: IAutoMovieTextureClosureInput,
 ): IAutoMovieValidation => {
   const out: ViolationCollector = new ViolationCollector();
-  const records: Map<string, IAutoMovieAssetProvenance> = new Map(props.assets.map((asset: IAutoMovieAssetProvenance): [string, IAutoMovieAssetProvenance] => [asset.path, asset]));
+  const records: Map<string, IAutoMovieAssetProvenance> = new Map(
+    props.assets.map(
+      (
+        asset: IAutoMovieAssetProvenance,
+      ): [string, IAutoMovieAssetProvenance] => [asset.path, asset],
+    ),
+  );
 
   // What the compiled production actually samples, per consumer.
   const declared: Map<string, Set<string>> = new Map<string, Set<string>>();
-  const claim: (kind: string, id: string, asset: string) => void = (kind: string, id: string, asset: string): void => {
+  const claim: (kind: string, id: string, asset: string) => void = (
+    kind: string,
+    id: string,
+    asset: string,
+  ): void => {
     const key: string = `${kind}\0${id}`;
     const existing: Set<string> | undefined = declared.get(key);
     if (existing === undefined) declared.set(key, new Set([asset]));
     else existing.add(asset);
   };
 
-  const intents: Map<string, Map<string, string>> = new Map<string, Map<string, string>>();
-  const intend: (asset: string, path: string, intent: string) => void = (asset: string, path: string, intent: string): void => {
-    const seen: Map<string, string> = intents.get(asset) ?? new Map<string, string>();
+  const intents: Map<string, Map<string, string>> = new Map<
+    string,
+    Map<string, string>
+  >();
+  const intend: (asset: string, path: string, intent: string) => void = (
+    asset: string,
+    path: string,
+    intent: string,
+  ): void => {
+    const seen: Map<string, string> =
+      intents.get(asset) ?? new Map<string, string>();
     seen.set(path, intent);
     intents.set(asset, seen);
   };
   props.models.forEach((model: IAutoMovieModel, modelIndex: number): void => {
-    model.materials.forEach((material: IAutoMovieMaterial, materialIndex: number): void => {
-      const path: string = `$input.models[${modelIndex}].materials[${materialIndex}]`;
-      for (const slot of materialTextureSlots(material)) {
-        const binding: AutoMovieTextureBinding = slot.binding;
-        const asset: string = bindingAsset(binding);
-        claim("material-texture", model.id, asset);
-        intend(
-          asset,
-          `${path}${slot.path}`,
-          typeof binding === "string" ? slot.colorSpace : binding.colorSpace,
-        );
-        checkAsset({
-          asset,
-          path: `${path}${slot.path}`,
-          consumer: { kind: "material-texture", id: model.id },
-          media: MATERIAL_MEDIA,
-          out,
-          input: props,
-          records,
-        });
-      }
-    });
+    model.materials.forEach(
+      (material: IAutoMovieMaterial, materialIndex: number): void => {
+        const path: string = `$input.models[${modelIndex}].materials[${materialIndex}]`;
+        for (const slot of materialTextureSlots(material)) {
+          const binding: AutoMovieTextureBinding = slot.binding;
+          const asset: string = bindingAsset(binding);
+          claim("material-texture", model.id, asset);
+          intend(
+            asset,
+            `${path}${slot.path}`,
+            typeof binding === "string" ? slot.colorSpace : binding.colorSpace,
+          );
+          checkAsset({
+            asset,
+            path: `${path}${slot.path}`,
+            consumer: { kind: "material-texture", id: model.id },
+            media: MATERIAL_MEDIA,
+            out,
+            input: props,
+            records,
+          });
+        }
+      },
+    );
   });
 
-  props.scenes.forEach((scene: IAutoMovieSceneEnvironmentUse, sceneIndex: number): void => {
-    const image: string | null = scene.environment?.image ?? null;
-    if (image === null) return;
-    const path: string = `$input.scenes[${sceneIndex}].environment.image`;
-    claim("scene-environment", scene.shot, image);
-    checkAsset({
-      asset: image,
-      path,
-      consumer: { kind: "scene-environment", id: scene.shot },
-      media: ENVIRONMENT_MEDIA,
-      out,
-      input: props,
-      records,
-    });
-    // An environment image declares no intent of its own, so the media its own
-    // bytes prove decides one, and that intent joins the same contradiction
-    // rule the material slots answer to. Bytes that read as no image at all are
-    // already reported above; inventing a decoding for them would only add a
-    // second complaint about the same file.
-    const facts: IAutoMovieTextureImageFacts | undefined = props.facts(image);
-    if (facts !== undefined) intend(image, path, environmentIntent(facts));
-  });
+  props.scenes.forEach(
+    (scene: IAutoMovieSceneEnvironmentUse, sceneIndex: number): void => {
+      const image: string | null = scene.environment?.image ?? null;
+      if (image === null) return;
+      const path: string = `$input.scenes[${sceneIndex}].environment.image`;
+      claim("scene-environment", scene.shot, image);
+      checkAsset({
+        asset: image,
+        path,
+        consumer: { kind: "scene-environment", id: scene.shot },
+        media: ENVIRONMENT_MEDIA,
+        out,
+        input: props,
+        records,
+      });
+      // An environment image declares no intent of its own, so the media its own
+      // bytes prove decides one, and that intent joins the same contradiction
+      // rule the material slots answer to. Bytes that read as no image at all are
+      // already reported above; inventing a decoding for them would only add a
+      // second complaint about the same file.
+      const facts: IAutoMovieTextureImageFacts | undefined = props.facts(image);
+      if (facts !== undefined) intend(image, path, environmentIntent(facts));
+    },
+  );
 
   // The same bytes cannot be both a colour and a measurement.
   for (const [asset, slots] of intents) {
@@ -123,24 +151,26 @@ export const validateTextureAssets: (props: IAutoMovieTextureClosureInput) => IA
   }
 
   // A ledger entry for a consumer that no longer samples it.
-  props.assets.forEach((asset: IAutoMovieAssetProvenance, assetIndex: number): void => {
-    asset.uses.forEach((use: IAutoMovieAssetUse, useIndex: number): void => {
-      if (use.production !== props.production) return;
-      if (
-        use.consumer.kind !== "material-texture" &&
-        use.consumer.kind !== "scene-environment"
-      )
-        return;
-      const key: string = `${use.consumer.kind}\0${use.consumer.id}`;
-      if (declared.get(key)?.has(asset.path) === true) return;
-      out.push(
-        "type",
-        `$input.assets[${assetIndex}].uses[${useIndex}]`,
-        `asset "${asset.path}" is authorized as a ${use.consumer.kind} of "${use.consumer.id}", which no longer binds it; drop the stale use`,
-        use.consumer,
-      );
-    });
-  });
+  props.assets.forEach(
+    (asset: IAutoMovieAssetProvenance, assetIndex: number): void => {
+      asset.uses.forEach((use: IAutoMovieAssetUse, useIndex: number): void => {
+        if (use.production !== props.production) return;
+        if (
+          use.consumer.kind !== "material-texture" &&
+          use.consumer.kind !== "scene-environment"
+        )
+          return;
+        const key: string = `${use.consumer.kind}\0${use.consumer.id}`;
+        if (declared.get(key)?.has(asset.path) === true) return;
+        out.push(
+          "type",
+          `$input.assets[${assetIndex}].uses[${useIndex}]`,
+          `asset "${asset.path}" is authorized as a ${use.consumer.kind} of "${use.consumer.id}", which no longer binds it; drop the stale use`,
+          use.consumer,
+        );
+      });
+    },
+  );
 
   return out.toValidation();
 };
@@ -160,8 +190,9 @@ export const validateTextureAssets: (props: IAutoMovieTextureClosureInput) => IA
  *
  * No binding or byte buffer is retained after returning the id.
  */
-const bindingAsset: (binding: string | IAutoMovieTextureReference) => string = (binding: string | IAutoMovieTextureReference): string =>
-  typeof binding === "string" ? binding : binding.asset;
+const bindingAsset: (binding: string | IAutoMovieTextureReference) => string = (
+  binding: string | IAutoMovieTextureReference,
+): string => (typeof binding === "string" ? binding : binding.asset);
 
 /**
  * Map Radiance header media to linear and supported8-bit image media to srgb environment intent.
@@ -178,7 +209,9 @@ const bindingAsset: (binding: string | IAutoMovieTextureReference) => string = (
  *
  * Only a string literal escapes and no image/decoder is retained.
  */
-const environmentIntent: (facts: IAutoMovieTextureImageFacts) => "srgb" | "linear" = (
+const environmentIntent: (
+  facts: IAutoMovieTextureImageFacts,
+) => "srgb" | "linear" = (
   facts: IAutoMovieTextureImageFacts,
 ): "srgb" | "linear" =>
   facts.mediaType === "image/vnd.radiance" ? "linear" : "srgb";
@@ -198,7 +231,15 @@ const environmentIntent: (facts: IAutoMovieTextureImageFacts) => "srgb" | "linea
  *
  * Only caller-owned diagnostics remain; asset/facts references are borrowed without an image load.
  */
-const checkAsset: (props: { asset: string; path: string; consumer: { kind: "material-texture" | "scene-environment"; id: string; }; media: ReadonlySet<AutoMovieTextureMediaType>; out: ViolationCollector; input: IAutoMovieTextureClosureInput; records: ReadonlyMap<string, IAutoMovieAssetProvenance>; }) => void = (props: {
+const checkAsset: (props: {
+  asset: string;
+  path: string;
+  consumer: { kind: "material-texture" | "scene-environment"; id: string };
+  media: ReadonlySet<AutoMovieTextureMediaType>;
+  out: ViolationCollector;
+  input: IAutoMovieTextureClosureInput;
+  records: ReadonlyMap<string, IAutoMovieAssetProvenance>;
+}) => void = (props: {
   asset: string;
   path: string;
   consumer: { kind: "material-texture" | "scene-environment"; id: string };
@@ -207,7 +248,9 @@ const checkAsset: (props: { asset: string; path: string; consumer: { kind: "mate
   input: IAutoMovieTextureClosureInput;
   records: ReadonlyMap<string, IAutoMovieAssetProvenance>;
 }): void => {
-  const record: IAutoMovieAssetProvenance | undefined = props.records.get(props.asset);
+  const record: IAutoMovieAssetProvenance | undefined = props.records.get(
+    props.asset,
+  );
   if (record === undefined) {
     props.out.push(
       "type",
@@ -231,7 +274,9 @@ const checkAsset: (props: { asset: string; path: string; consumer: { kind: "mate
       `asset "${props.asset}" carries no ${props.consumer.kind} use for "${props.consumer.id}" in production "${props.input.production}"; add the exact typed ledger entry`,
       props.consumer.id,
     );
-  const facts: IAutoMovieTextureImageFacts | undefined = props.input.facts(props.asset);
+  const facts: IAutoMovieTextureImageFacts | undefined = props.input.facts(
+    props.asset,
+  );
   if (facts === undefined) {
     props.out.push(
       "type",

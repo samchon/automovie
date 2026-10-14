@@ -13,7 +13,12 @@ import { pushViolation } from "./pushViolation";
  * @evidence contracts/performance.md#reuse-equivalent-work All artifact ids use this predicate, while uniqueness/reference checks remain separate.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only a failure row escapes into the caller list, retaining no registry or request state.
  */
-export const validateNonEmptyId: (id: unknown, path: string, label: string, violations: IAutoMovieConstraintViolation[]) => void = (
+export const validateNonEmptyId: (
+  id: unknown,
+  path: string,
+  label: string,
+  violations: IAutoMovieConstraintViolation[],
+) => void = (
   id: unknown,
   path: string,
   label: string,

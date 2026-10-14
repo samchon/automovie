@@ -13,6 +13,7 @@ import { validateFace } from "./validateFace";
  * @evidence contracts/performance.md#reuse-equivalent-work Existing face rules are reused directly for every current input.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The report owns arrays/rows and the wrapper retains no face object or host task.
  */
-export const validateFaceResult: (face: IAutoMovieFace) => IAutoMovieValidation = (
+export const validateFaceResult: (
   face: IAutoMovieFace,
-): IAutoMovieValidation => validateFace({ face }).toValidation();
+) => IAutoMovieValidation = (face: IAutoMovieFace): IAutoMovieValidation =>
+  validateFace({ face }).toValidation();

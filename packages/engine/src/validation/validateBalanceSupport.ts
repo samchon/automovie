@@ -1,7 +1,6 @@
-import type { IAutoMovieResolvedBone } from "./../kinematics/IAutoMovieResolvedBone";
-import type { IAutoMovieSkeletonTopology } from "./../kinematics/IAutoMovieSkeletonTopology";
-import { IAutoMovieBone,
+import {
   AutoMovieHumanoidBone,
+  IAutoMovieBone,
   IAutoMovieMotion,
   IAutoMovieSkeleton,
   IAutoMovieValidation,
@@ -18,6 +17,8 @@ import { pointHullDistance } from "../math/pointHullDistance";
 import { sampleMotion } from "../motion/sampleMotion";
 import { windowSampleTimes } from "../motion/windowSampleTimes";
 import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
+import type { IAutoMovieResolvedBone } from "./../kinematics/IAutoMovieResolvedBone";
+import type { IAutoMovieSkeletonTopology } from "./../kinematics/IAutoMovieSkeletonTopology";
 import { IAutoMovieBalanceSupportWindow } from "./IAutoMovieBalanceSupportWindow";
 import { ViolationCollector } from "./ViolationCollector";
 import { fkReachableBones } from "./fkReachableBones";
@@ -51,7 +52,8 @@ const SEGMENT_MASS_FRACTION: Partial<Record<AutoMovieHumanoidBone, number>> = {
 /** Mass fraction for a minor bone the table omits (clavicle, toe, eye, finger). */
 const DEFAULT_SEGMENT_MASS_FRACTION: number = 0.2;
 
-const CENTER_BONE_EXPECTED: string = "center bone must exist in the target skeleton";
+const CENTER_BONE_EXPECTED: string =
+  "center bone must exist in the target skeleton";
 
 const CENTER_BONE_REACHABLE: string =
   "center bone is declared but not reachable from a root bone via forward kinematics";
@@ -61,7 +63,8 @@ const MARGIN_EXPECTED: string = "margin must be a finite number >= 0";
 const SUPPORT_BONES_EXPECTED: string =
   "supportBones must contain at least one contact bone";
 
-const SUPPORT_BONE_EXPECTED: string = "support bone must exist in the target skeleton";
+const SUPPORT_BONE_EXPECTED: string =
+  "support bone must exist in the target skeleton";
 
 const SUPPORT_BONE_REACHABLE: string =
   "support bone is declared but not reachable from a root bone via forward kinematics";
@@ -78,7 +81,16 @@ const SUPPORT_BONE_REACHABLE: string =
  * @evidence contracts/performance.md#reuse-equivalent-work Skeleton topology/reachability are computed once per invocation, then reused across windows.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Caller inputs are borrowed; per-sample maps/hulls release, while returned diagnostics grow with sampled failures and acquire no host handle.
  */
-export const validateBalanceSupport: (props: { motion: IAutoMovieMotion; skeleton: IAutoMovieSkeleton; supports: readonly IAutoMovieBalanceSupportWindow[]; sampleRate?: number; path?: string; jointAxes?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>; restFrames?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>; physicsIntent?: string; }) => IAutoMovieValidation = (props: {
+export const validateBalanceSupport: (props: {
+  motion: IAutoMovieMotion;
+  skeleton: IAutoMovieSkeleton;
+  supports: readonly IAutoMovieBalanceSupportWindow[];
+  sampleRate?: number;
+  path?: string;
+  jointAxes?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>;
+  restFrames?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>;
+  physicsIntent?: string;
+}) => IAutoMovieValidation = (props: {
   /** Motion clip to sample. */
   motion: IAutoMovieMotion;
 
@@ -113,9 +125,18 @@ export const validateBalanceSupport: (props: { motion: IAutoMovieMotion; skeleto
     props.sampleRate === undefined ? DEFAULT_SAMPLE_RATE : props.sampleRate;
   const sampleRateValid: boolean = isPositiveFinite(sampleRate);
   const path: string = props.path ?? "$input";
-  const skeletonBones: Set<AutoMovieHumanoidBone> = new Set(props.skeleton.bones.map((bone: IAutoMovieBone): AutoMovieHumanoidBone => bone.bone));
-  const topology: IAutoMovieSkeletonTopology = indexSkeletonTopology(props.skeleton);
-  const reachableBones: Set<AutoMovieHumanoidBone> = fkReachableBones(props.skeleton, topology);
+  const skeletonBones: Set<AutoMovieHumanoidBone> = new Set(
+    props.skeleton.bones.map(
+      (bone: IAutoMovieBone): AutoMovieHumanoidBone => bone.bone,
+    ),
+  );
+  const topology: IAutoMovieSkeletonTopology = indexSkeletonTopology(
+    props.skeleton,
+  );
+  const reachableBones: Set<AutoMovieHumanoidBone> = fkReachableBones(
+    props.skeleton,
+    topology,
+  );
 
   if (!sampleRateValid)
     collector.push(
@@ -214,10 +235,21 @@ export const validateBalanceSupport: (props: { motion: IAutoMovieMotion; skeleto
     // The engine's shared sampling grid (endpoint-inclusive, end-clamped):
     // the same clock footskate/ground/self-intersection step, so the physics
     // validators can never drift onto different frame boundaries.
-    const times: number[] = windowSampleTimes(support.start, support.end, sampleRate);
-    for (let sampleIndex: number = 0; sampleIndex < times.length; sampleIndex++) {
+    const times: number[] = windowSampleTimes(
+      support.start,
+      support.end,
+      sampleRate,
+    );
+    for (
+      let sampleIndex: number = 0;
+      sampleIndex < times.length;
+      sampleIndex++
+    ) {
       const time: number = times[sampleIndex]!;
-      const resolved: Map<AutoMovieHumanoidBone, IAutoMovieVector3> = new Map<AutoMovieHumanoidBone, IAutoMovieVector3>();
+      const resolved: Map<AutoMovieHumanoidBone, IAutoMovieVector3> = new Map<
+        AutoMovieHumanoidBone,
+        IAutoMovieVector3
+      >();
       const pose: IAutoMovieResolvedBone[] = resolvePose(
         sampleMotion(props.motion, time).pose,
         props.skeleton,
@@ -235,7 +267,10 @@ export const validateBalanceSupport: (props: { motion: IAutoMovieMotion; skeleto
       // 1-/2-/many-point cases uniformly (a lone contact or a collinear pair
       // collapses to a point/segment inside the hull query).
       const hull: IAutoMovieVector3[] = convexHull2D(
-        support.supportBones.map((bone: AutoMovieHumanoidBone): IAutoMovieVector3 => resolved.get(bone)!),
+        support.supportBones.map(
+          (bone: AutoMovieHumanoidBone): IAutoMovieVector3 =>
+            resolved.get(bone)!,
+        ),
       );
       const distance: number = pointHullDistance(centerPosition, hull);
       if (distance > margin && !suppressed) {
@@ -268,7 +303,9 @@ export const validateBalanceSupport: (props: { motion: IAutoMovieMotion; skeleto
  *
  * Only a fresh point returns; resolved maps and source rig are not retained.
  */
-const weightedCenterOfMass: (resolved: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieVector3>) => IAutoMovieVector3 = (
+const weightedCenterOfMass: (
+  resolved: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieVector3>,
+) => IAutoMovieVector3 = (
   resolved: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieVector3>,
 ): IAutoMovieVector3 => {
   let mass: number = 0;
@@ -276,7 +313,8 @@ const weightedCenterOfMass: (resolved: ReadonlyMap<AutoMovieHumanoidBone, IAutoM
   let y: number = 0;
   let z: number = 0;
   for (const [bone, position] of resolved) {
-    const weight: number = SEGMENT_MASS_FRACTION[bone] ?? DEFAULT_SEGMENT_MASS_FRACTION;
+    const weight: number =
+      SEGMENT_MASS_FRACTION[bone] ?? DEFAULT_SEGMENT_MASS_FRACTION;
     mass += weight;
     x += weight * position.x;
     y += weight * position.y;
@@ -318,4 +356,5 @@ const isPositiveFinite: (value: number) => boolean = (value: number): boolean =>
  *
  * Only a number returns and no sampled state is retained.
  */
-const round: (value: number) => number = (value: number): number => Math.round(value * 1_000) / 1_000;
+const round: (value: number) => number = (value: number): number =>
+  Math.round(value * 1_000) / 1_000;

@@ -1,6 +1,7 @@
-import { IAutoMovieMaterialOverlay,
+import {
   AutoMovieTextureBinding,
   IAutoMovieMaterial,
+  IAutoMovieMaterialOverlay,
 } from "@automovie/interface";
 
 /**
@@ -66,11 +67,17 @@ const OWN_SLOTS: ReadonlyArray<{
  * @evidence contracts/performance.md#reuse-equivalent-work All texture consumers share this catalog; changed material contents are enumerated anew.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns wrappers while the material owns borrowed bindings; no texture bytes or GPU handles are retained.
  */
-export const materialTextureSlots: (material: IAutoMovieMaterial) => IMaterialTextureSlot[] = (
+export const materialTextureSlots: (
+  material: IAutoMovieMaterial,
+) => IMaterialTextureSlot[] = (
   material: IAutoMovieMaterial,
 ): IMaterialTextureSlot[] => {
   const slots: IMaterialTextureSlot[] = [];
-  const add: (path: string, binding: AutoMovieTextureBinding | null | undefined, colorSpace: "srgb" | "linear") => void = (
+  const add: (
+    path: string,
+    binding: AutoMovieTextureBinding | null | undefined,
+    colorSpace: "srgb" | "linear",
+  ) => void = (
     path: string,
     binding: AutoMovieTextureBinding | null | undefined,
     colorSpace: "srgb" | "linear",
@@ -87,7 +94,10 @@ export const materialTextureSlots: (material: IAutoMovieMaterial) => IMaterialTe
   if (Array.isArray(overlays))
     overlays.forEach((overlay: unknown, index: number): void => {
       if (typeof overlay !== "object" || overlay === null) return;
-      const { baseColorTexture, normalTexture }: Partial<IAutoMovieMaterialOverlay> = overlay as Partial<
+      const {
+        baseColorTexture,
+        normalTexture,
+      }: Partial<IAutoMovieMaterialOverlay> = overlay as Partial<
         NonNullable<IAutoMovieMaterial["overlays"]>[number]
       >;
       add(`.overlays[${index}].baseColorTexture`, baseColorTexture, "srgb");

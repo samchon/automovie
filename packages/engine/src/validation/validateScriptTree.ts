@@ -91,7 +91,10 @@ export function validateScriptTree(props: {
     byId.set(node.id, { node, index: i });
   });
 
-  const roots: IIndexedNode[] = tree.flatMap((node: IAutoMovieScriptNode, index: number): IIndexedNode[] => node.parent === null ? [{ node, index }] : []);
+  const roots: IIndexedNode[] = tree.flatMap(
+    (node: IAutoMovieScriptNode, index: number): IIndexedNode[] =>
+      node.parent === null ? [{ node, index }] : [],
+  );
   if (roots.length !== 1)
     out.push(
       "type",
@@ -112,12 +115,25 @@ export function validateScriptTree(props: {
     const np: string = `${path}[${i}]`;
     if (node.kind === "intent") {
       for (const field of ["logline", "theme"] as const) {
-        out.nonEmpty(`${np}.payload.${field}`, node.payload[field], `intent ${field}`);
+        out.nonEmpty(
+          `${np}.payload.${field}`,
+          node.payload[field],
+          `intent ${field}`,
+        );
         if (node.payload[field] !== props[field])
-          out.push("type", `${np}.payload.${field}`, `intent ${field} must exactly match the script's flat ${field}`, node.payload[field]);
+          out.push(
+            "type",
+            `${np}.payload.${field}`,
+            `intent ${field} must exactly match the script's flat ${field}`,
+            node.payload[field],
+          );
       }
     } else if (node.kind === "group")
-      out.nonEmpty(`${np}.payload.rationale`, node.payload.rationale, "group rationale");
+      out.nonEmpty(
+        `${np}.payload.rationale`,
+        node.payload.rationale,
+        "group rationale",
+      );
     if (node.parent !== null) {
       const parent: IIndexedNode | undefined = byId.get(node.parent);
       if (parent === undefined) {
@@ -180,7 +196,9 @@ export function validateScriptTree(props: {
 
   validateRefinementCycles(byId, out, path);
 
-  const beatIds: Set<string> = new Set(beats.map((beat: IAutoMovieBeat): string => beat.id));
+  const beatIds: Set<string> = new Set(
+    beats.map((beat: IAutoMovieBeat): string => beat.id),
+  );
   const claimed: Map<string, number> = new Map();
   tree.forEach((node: IAutoMovieScriptNode, i: number): void => {
     if (node.kind !== "beat") return;
@@ -203,18 +221,20 @@ export function validateScriptTree(props: {
         );
       else claimed.set(node.payload.beat, i);
     }
-    node.payload.dialogue.forEach((line: typeof node.payload.dialogue[number], j: number): void => {
-      if (
-        line.anchor !== null &&
-        (!Number.isFinite(line.anchor) || line.anchor < 0)
-      )
-        out.push(
-          "range",
-          `${np}.dialogue[${j}].anchor`,
-          `dialogue anchor must be a finite number >= 0 or null, but was ${line.anchor}`,
-          line.anchor,
-        );
-    });
+    node.payload.dialogue.forEach(
+      (line: (typeof node.payload.dialogue)[number], j: number): void => {
+        if (
+          line.anchor !== null &&
+          (!Number.isFinite(line.anchor) || line.anchor < 0)
+        )
+          out.push(
+            "range",
+            `${np}.dialogue[${j}].anchor`,
+            `dialogue anchor must be a finite number >= 0 or null, but was ${line.anchor}`,
+            line.anchor,
+          );
+      },
+    );
   });
   beats.forEach((beat: IAutoMovieBeat, i: number): void => {
     if (!claimed.has(beat.id))
@@ -230,7 +250,11 @@ export function validateScriptTree(props: {
 }
 
 /** Memoize each parent chain's first repeated node, then report in authored id order. */
-function validateRefinementCycles(byId: ReadonlyMap<string, IIndexedNode>, out: ViolationCollector, path: string): void {
+function validateRefinementCycles(
+  byId: ReadonlyMap<string, IIndexedNode>,
+  out: ViolationCollector,
+  path: string,
+): void {
   const completed: Set<string> = new Set();
   const cycleAt: Map<string, string> = new Map();
   for (const id of byId.keys()) {
@@ -238,21 +262,41 @@ function validateRefinementCycles(byId: ReadonlyMap<string, IIndexedNode>, out: 
     const trail: string[] = [];
     const active: Map<string, number> = new Map();
     let cursor: string | null = id;
-    while (cursor !== null && byId.has(cursor) && !completed.has(cursor) && !active.has(cursor)) {
+    while (
+      cursor !== null &&
+      byId.has(cursor) &&
+      !completed.has(cursor) &&
+      !active.has(cursor)
+    ) {
       active.set(cursor, trail.length);
       trail.push(cursor);
       cursor = byId.get(cursor)!.node.parent;
     }
-    const cycleStart: number | undefined = cursor === null ? undefined : active.get(cursor);
-    const repeated: string | undefined = cursor === null ? undefined : cycleStart === undefined ? cycleAt.get(cursor) : cursor;
+    const cycleStart: number | undefined =
+      cursor === null ? undefined : active.get(cursor);
+    const repeated: string | undefined =
+      cursor === null
+        ? undefined
+        : cycleStart === undefined
+          ? cycleAt.get(cursor)
+          : cursor;
     trail.forEach((node: string, index: number): void => {
-      if (repeated !== undefined) cycleAt.set(node, cycleStart !== undefined && index >= cycleStart ? node : repeated);
+      if (repeated !== undefined)
+        cycleAt.set(
+          node,
+          cycleStart !== undefined && index >= cycleStart ? node : repeated,
+        );
       completed.add(node);
     });
   }
   for (const [id, entry] of byId) {
     const repeated: string | undefined = cycleAt.get(id);
     if (repeated !== undefined)
-      out.push("type", `${path}[${entry.index}].parent`, `refinement chain of "${id}" is cyclic at "${repeated}"`, repeated);
+      out.push(
+        "type",
+        `${path}[${entry.index}].parent`,
+        `refinement chain of "${id}" is cyclic at "${repeated}"`,
+        repeated,
+      );
   }
 }

@@ -9,5 +9,7 @@
  * @evidence contracts/performance.md#reuse-equivalent-work Artifact gates share the same shape boundary without identity caching.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The borrowed object is returned only through narrowing; no reference is retained internally.
  */
-export const isRecord: (value: unknown) => value is Record<string, unknown> = (value: unknown): value is Record<string, unknown> =>
+export const isRecord: (value: unknown) => value is Record<string, unknown> = (
+  value: unknown,
+): value is Record<string, unknown> =>
   typeof value === "object" && value !== null && !Array.isArray(value);

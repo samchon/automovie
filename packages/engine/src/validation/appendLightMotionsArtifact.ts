@@ -1,8 +1,12 @@
 import { IAutoMovieConstraintViolation } from "@automovie/interface";
+
 import { cubicHermiteValue } from "../math/cubicHermiteValue";
 import { AutoMovieLightProperty } from "../resolve/AutoMovieLightProperty";
+import { IAutoMovieLightChannelProperty } from "../resolve/IAutoMovieLightChannelProperty";
+import { IAutoMovieLightPointer } from "../resolve/IAutoMovieLightPointer";
 import { LIGHT_CHANNEL_PROPERTIES } from "../resolve/constants/LIGHT_CHANNEL_PROPERTIES";
 import { parseLightPointer } from "../resolve/parseLightPointer";
+import { IAutoMovieClipChannelGate } from "./IAutoMovieClipChannelGate";
 import { asArray } from "./asArray";
 import { channelValueWidth } from "./channelValueWidth";
 import { isRecord } from "./isRecord";
@@ -13,9 +17,7 @@ import { validateClipArtifact } from "./validateClipArtifact";
 import { validateRange } from "./validateRange";
 import { validateUniqueBy } from "./validateUniqueBy";
 import { validateUniqueIds } from "./validateUniqueIds";
-import { IAutoMovieClipChannelGate } from "./IAutoMovieClipChannelGate";
-import { IAutoMovieLightPointer } from "../resolve/IAutoMovieLightPointer";
-import { IAutoMovieLightChannelProperty } from "../resolve/IAutoMovieLightChannelProperty";
+
 /**
  * Append light-clip shape, target, uniqueness and range findings for a shot.
  *
@@ -28,7 +30,12 @@ import { IAutoMovieLightChannelProperty } from "../resolve/IAutoMovieLightChanne
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only appended findings and their offending values persist in the caller array; temporary target rows, slices and roots are local and no lighting/GPU host is acquired.
  * @author Samchon
  */
-export const appendLightMotionsArtifact: (lightMotions: unknown, path: string, stagedLights: ReadonlyMap<string, unknown> | null, violations: IAutoMovieConstraintViolation[]) => void = (
+export const appendLightMotionsArtifact: (
+  lightMotions: unknown,
+  path: string,
+  stagedLights: ReadonlyMap<string, unknown> | null,
+  violations: IAutoMovieConstraintViolation[],
+) => void = (
   lightMotions: unknown,
   path: string,
   /**
@@ -49,27 +56,30 @@ export const appendLightMotionsArtifact: (lightMotions: unknown, path: string, s
   lightMotions.forEach((clip: unknown, i: number): void => {
     const clipPath: string = `${path}[${i}]`;
     validateClipArtifact(clip, clipPath, violations, gate);
-    asArray(isRecord(clip) ? clip.tracks : undefined).forEach((track: unknown, j: number): void => {
-      const trackPath: string = `${clipPath}.tracks[${j}]`;
-      // A track that is not an object addresses nothing; `validateClipArtifact`
-      // has already refused it at its own index. Narrowing here rather than
-      // re-asking further down keeps the bounds pass free of a guard its caller
-      // has already decided, which no input could ever reach.
-      if (!isRecord(track)) {
-        addressed.push({ id: undefined, path: `${trackPath}.channel` });
-        return;
-      }
-      const channel: unknown = track.channel;
-      const target: IAutoMovieLightPointer | null = isRecord(channel)
-        ? parseLightPointer(channel.pointer)
-        : null;
-      addressed.push({
-        id: target === null ? undefined : `${target.light}/${target.property}`,
-        path: `${trackPath}.channel`,
-      });
-      if (target !== null)
-        appendLightValueBounds(track, target.property, trackPath, violations);
-    });
+    asArray(isRecord(clip) ? clip.tracks : undefined).forEach(
+      (track: unknown, j: number): void => {
+        const trackPath: string = `${clipPath}.tracks[${j}]`;
+        // A track that is not an object addresses nothing; `validateClipArtifact`
+        // has already refused it at its own index. Narrowing here rather than
+        // re-asking further down keeps the bounds pass free of a guard its caller
+        // has already decided, which no input could ever reach.
+        if (!isRecord(track)) {
+          addressed.push({ id: undefined, path: `${trackPath}.channel` });
+          return;
+        }
+        const channel: unknown = track.channel;
+        const target: IAutoMovieLightPointer | null = isRecord(channel)
+          ? parseLightPointer(channel.pointer)
+          : null;
+        addressed.push({
+          id:
+            target === null ? undefined : `${target.light}/${target.property}`,
+          path: `${trackPath}.channel`,
+        });
+        if (target !== null)
+          appendLightValueBounds(track, target.property, trackPath, violations);
+      },
+    );
   });
   validateUniqueBy(addressed, "light motion channel", violations);
 };
@@ -86,13 +96,19 @@ export const appendLightMotionsArtifact: (lightMotions: unknown, path: string, s
  * polynomial's derivative, evaluated through the SAME {@link cubicHermiteValue}
  * playback uses (#1371).
  */
-const appendLightValueBounds: (track: Record<string, unknown>, property: AutoMovieLightProperty, path: string, violations: IAutoMovieConstraintViolation[]) => void = (
+const appendLightValueBounds: (
+  track: Record<string, unknown>,
+  property: AutoMovieLightProperty,
+  path: string,
+  violations: IAutoMovieConstraintViolation[],
+) => void = (
   track: Record<string, unknown>,
   property: AutoMovieLightProperty,
   path: string,
   violations: IAutoMovieConstraintViolation[],
 ): void => {
-  const { bounds }: IAutoMovieLightChannelProperty = LIGHT_CHANNEL_PROPERTIES[property];
+  const { bounds }: IAutoMovieLightChannelProperty =
+    LIGHT_CHANNEL_PROPERTIES[property];
   if (track.interpolation === "cubicspline") {
     appendCubicLightValueBounds(track, property, path, violations);
     return;
@@ -125,7 +141,9 @@ const appendLightValueBounds: (track: Record<string, unknown>, property: AutoMov
  * `scalar ? 1 : 3`, a rule that was right only while every non-scalar axis
  * happened to be a `vec3`.
  */
-const lightValueWidth: (property: AutoMovieLightProperty) => number = (property: AutoMovieLightProperty): number =>
+const lightValueWidth: (property: AutoMovieLightProperty) => number = (
+  property: AutoMovieLightProperty,
+): number =>
   channelValueWidth({
     kind: "pointer",
     valueType: LIGHT_CHANNEL_PROPERTIES[property].valueType,
@@ -148,14 +166,21 @@ const lightValueWidth: (property: AutoMovieLightProperty) => number = (property:
  * to judge; the shared shape gate has already refused it, and slicing one out
  * of it anyway would report a fault about a value the author never wrote.
  */
-const appendLightKeyValueFaults: (track: Record<string, unknown>, property: AutoMovieLightProperty, path: string, cubic: boolean, violations: IAutoMovieConstraintViolation[]) => void = (
+const appendLightKeyValueFaults: (
+  track: Record<string, unknown>,
+  property: AutoMovieLightProperty,
+  path: string,
+  cubic: boolean,
+  violations: IAutoMovieConstraintViolation[],
+) => void = (
   track: Record<string, unknown>,
   property: AutoMovieLightProperty,
   path: string,
   cubic: boolean,
   violations: IAutoMovieConstraintViolation[],
 ): void => {
-  const { valueFault }: IAutoMovieLightChannelProperty = LIGHT_CHANNEL_PROPERTIES[property];
+  const { valueFault }: IAutoMovieLightChannelProperty =
+    LIGHT_CHANNEL_PROPERTIES[property];
   if (valueFault === undefined) return;
   const width: number = lightValueWidth(property);
   const stride: number = cubic ? width * 3 : width;
@@ -177,16 +202,25 @@ const appendLightKeyValueFaults: (track: Record<string, unknown>, property: Auto
 };
 
 /** A finite scalar lies inside one light property's documented range. */
-const lightValueInBounds: (value: number, property: AutoMovieLightProperty) => boolean = (
+const lightValueInBounds: (
   value: number,
   property: AutoMovieLightProperty,
-): boolean => {
-  const { min, max, inclusiveMin }: { min: number; max: number; inclusiveMin: boolean; } = LIGHT_CHANNEL_PROPERTIES[property].bounds;
+) => boolean = (value: number, property: AutoMovieLightProperty): boolean => {
+  const {
+    min,
+    max,
+    inclusiveMin,
+  }: { min: number; max: number; inclusiveMin: boolean } =
+    LIGHT_CHANNEL_PROPERTIES[property].bounds;
   return (inclusiveMin ? value >= min : value > min) && value <= max;
 };
 
 /** Normalize finite derivative coefficients before solving, retaining tiny nonzero curves; select roots strictly inside (0,1), with stable paired roots avoiding subtraction cancellation. */
-const interiorQuadraticRoots: (a: number, b: number, c: number) => number[] = (a: number, b: number, c: number): number[] => {
+const interiorQuadraticRoots: (a: number, b: number, c: number) => number[] = (
+  a: number,
+  b: number,
+  c: number,
+): number[] => {
   const scale: number = Math.max(Math.abs(a), Math.abs(b), Math.abs(c));
   if (scale === 0 || !Number.isFinite(scale)) return [];
   const qa: number = a / scale;
@@ -209,7 +243,12 @@ const interiorQuadraticRoots: (a: number, b: number, c: number) => number[] = (a
 };
 
 /** Validate cubic key values and every interior Hermite extremum. */
-const appendCubicLightValueBounds: (track: Record<string, unknown>, property: AutoMovieLightProperty, path: string, violations: IAutoMovieConstraintViolation[]) => void = (
+const appendCubicLightValueBounds: (
+  track: Record<string, unknown>,
+  property: AutoMovieLightProperty,
+  path: string,
+  violations: IAutoMovieConstraintViolation[],
+) => void = (
   track: Record<string, unknown>,
   property: AutoMovieLightProperty,
   path: string,
@@ -262,12 +301,15 @@ const appendCubicLightValueBounds: (track: Record<string, unknown>, property: Au
   if (LIGHT_CHANNEL_PROPERTIES[property].valueType === "quaternion") return;
 
   for (let segment: number = 0; segment + 1 < times.length; ++segment) {
-    const span: number = (times[segment + 1] as number) - (times[segment] as number);
+    const span: number =
+      (times[segment + 1] as number) - (times[segment] as number);
     for (let component: number = 0; component < width; ++component) {
       const leftBase: number = segment * stride;
       const rightBase: number = (segment + 1) * stride;
       const left: number = values[leftBase + width + component] as number;
-      const outTangent: number = values[leftBase + 2 * width + component] as number;
+      const outTangent: number = values[
+        leftBase + 2 * width + component
+      ] as number;
       const right: number = values[rightBase + width + component] as number;
       const inTangent: number = values[rightBase + component] as number;
       // Derivative of the shared Hermite cubic in normalized segment time.

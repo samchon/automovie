@@ -1,7 +1,20 @@
-import { AutoMovieHumanoidBone, IAutoMovieModel, IAutoMovieVector3, IAutoMovieModelPart, IAutoMovieSkeleton, IAutoMovieBone, IAutoMovieTransform, IAutoMovieGeometry, AutoMoviePrimitiveShape, IAutoMovieQuaternion } from "@automovie/interface";
-import { IAutoMovieModelColumn } from "./IAutoMovieModelColumn";
+import {
+  AutoMovieHumanoidBone,
+  AutoMoviePrimitiveShape,
+  IAutoMovieBone,
+  IAutoMovieGeometry,
+  IAutoMovieModel,
+  IAutoMovieModelPart,
+  IAutoMovieQuaternion,
+  IAutoMovieSkeleton,
+  IAutoMovieTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { PRIMITIVE_RADIAL_SEGMENTS } from "../geometry/constants/PRIMITIVE_RADIAL_SEGMENTS";
 import { PRIMITIVE_SPHERE_RINGS } from "../geometry/constants/PRIMITIVE_SPHERE_RINGS";
+import { IAutoMovieModelColumn } from "./IAutoMovieModelColumn";
+
 /**
  * Measure filled rest-axis cores of the engine's tessellated primitive solids.
  *
@@ -14,14 +27,23 @@ import { PRIMITIVE_SPHERE_RINGS } from "../geometry/constants/PRIMITIVE_SPHERE_R
  * @evidence contracts/performance.md#bound-retention-and-release-resources Fresh scalar column rows transfer to the caller; the height map is discarded and no part, skeleton, appearance asset or host handle is retained.
  * @author Samchon
  */
-export const autoMovieModelColumns: (model: Pick<IAutoMovieModel, "parts" | "skeleton">) => IAutoMovieModelColumn[] = (
+export const autoMovieModelColumns: (
+  model: Pick<IAutoMovieModel, "parts" | "skeleton">,
+) => IAutoMovieModelColumn[] = (
   model: Pick<IAutoMovieModel, "parts" | "skeleton">,
 ): IAutoMovieModelColumn[] => {
-  const heights: Map<AutoMovieHumanoidBone, number> = axialBoneHeights(model.skeleton);
-  return model.parts.flatMap((part: IAutoMovieModelPart): IAutoMovieModelColumn[] => {
-    const column: IAutoMovieModelColumn | null = axialPartColumn(part, heights);
-    return column === null ? [] : [column];
-  });
+  const heights: Map<AutoMovieHumanoidBone, number> = axialBoneHeights(
+    model.skeleton,
+  );
+  return model.parts.flatMap(
+    (part: IAutoMovieModelPart): IAutoMovieModelColumn[] => {
+      const column: IAutoMovieModelColumn | null = axialPartColumn(
+        part,
+        heights,
+      );
+      return column === null ? [] : [column];
+    },
+  );
 };
 
 /**
@@ -39,10 +61,15 @@ export const autoMovieModelColumns: (model: Pick<IAutoMovieModel, "parts" | "ske
  * resolves because a parent is missing, off-axis or cyclic simply stops adding
  * heights instead of needing a separate cycle guard.
  */
-const axialBoneHeights: (skeleton: IAutoMovieSkeleton | null) => Map<AutoMovieHumanoidBone, number> = (
+const axialBoneHeights: (
+  skeleton: IAutoMovieSkeleton | null,
+) => Map<AutoMovieHumanoidBone, number> = (
   skeleton: IAutoMovieModel["skeleton"],
 ): Map<AutoMovieHumanoidBone, number> => {
-  const heights: Map<AutoMovieHumanoidBone, number> = new Map<AutoMovieHumanoidBone, number>();
+  const heights: Map<AutoMovieHumanoidBone, number> = new Map<
+    AutoMovieHumanoidBone,
+    number
+  >();
   const axial: IAutoMovieBone[] = (skeleton?.bones ?? []).filter(
     (bone: IAutoMovieBone): boolean =>
       bone.rest.translation.x === 0 &&
@@ -57,7 +84,8 @@ const axialBoneHeights: (skeleton: IAutoMovieSkeleton | null) => Map<AutoMovieHu
     settled = false;
     for (const bone of axial) {
       if (heights.has(bone.bone)) continue;
-      const above: number | undefined = bone.parent === null ? 0 : heights.get(bone.parent);
+      const above: number | undefined =
+        bone.parent === null ? 0 : heights.get(bone.parent);
       if (above === undefined) continue;
       heights.set(bone.bone, above + bone.rest.translation.y);
       settled = true;
@@ -76,22 +104,39 @@ const axialBoneHeights: (skeleton: IAutoMovieSkeleton | null) => Map<AutoMovieHu
  * reading at the end enough: a nonpositive dimension or a scale that erases one
  * arrives here as a column with nothing inside it.
  */
-const axialPartColumn: (part: IAutoMovieModelPart, heights: ReadonlyMap<AutoMovieHumanoidBone, number>) => IAutoMovieModelColumn | null = (
+const axialPartColumn: (
+  part: IAutoMovieModelPart,
+  heights: ReadonlyMap<AutoMovieHumanoidBone, number>,
+) => IAutoMovieModelColumn | null = (
   part: IAutoMovieModel["parts"][number],
   heights: ReadonlyMap<AutoMovieHumanoidBone, number>,
 ): IAutoMovieModelColumn | null => {
-  const solid: { across: number; deep: number; centre: number; half: number; } | null = columnOfShape(part.geometry);
+  const solid: {
+    across: number;
+    deep: number;
+    centre: number;
+    half: number;
+  } | null = columnOfShape(part.geometry);
   if (solid === null) return null;
   const base: number | null = axialPartHeight(part, heights);
   if (base === null) return null;
-  const scale: IAutoMovieVector3 = part.transform === null ? UNIT_SCALE : part.transform.scale;
+  const scale: IAutoMovieVector3 =
+    part.transform === null ? UNIT_SCALE : part.transform.scale;
   const outer: IAutoMovieVector3 | null = primitiveOuterExtents(part.geometry);
   if (outer === null) return null;
-  const outerRadius: number = Math.hypot(outer.x * Math.abs(scale.x), outer.z * Math.abs(scale.z));
+  const outerRadius: number = Math.hypot(
+    outer.x * Math.abs(scale.x),
+    outer.z * Math.abs(scale.z),
+  );
   const outerHalf: number = outer.y * Math.abs(scale.y);
   // The horizontal box diagonal bounds every permitted axial heading. Both
   // translated outer Y ends must remain representable, not merely the smaller core.
-  if (!Number.isFinite(outerRadius) || !Number.isFinite(base - outerHalf) || !Number.isFinite(base + outerHalf)) return null;
+  if (
+    !Number.isFinite(outerRadius) ||
+    !Number.isFinite(base - outerHalf) ||
+    !Number.isFinite(base + outerHalf)
+  )
+    return null;
   const radius: number = Math.min(
     solid.across * Math.abs(scale.x),
     solid.deep * Math.abs(scale.z),
@@ -100,7 +145,10 @@ const axialPartColumn: (part: IAutoMovieModelPart, heights: ReadonlyMap<AutoMovi
   const half: number = solid.half * Math.abs(scale.y);
   const bottom: number = centre - half;
   const top: number = centre + half;
-  return finitePositive(radius) && finitePositive(half) && Number.isFinite(bottom) && Number.isFinite(top)
+  return finitePositive(radius) &&
+    finitePositive(half) &&
+    Number.isFinite(bottom) &&
+    Number.isFinite(top)
     ? { radius, bottom, top }
     : null;
 };
@@ -109,20 +157,29 @@ const axialPartColumn: (part: IAutoMovieModelPart, heights: ReadonlyMap<AutoMovi
 const UNIT_SCALE: IAutoMovieVector3 = { x: 1, y: 1, z: 1 };
 
 /** Half-extents of the actual primitive recipe for scaled-envelope admission; the current capsule producer needs finite H+2R before its cylinder exists. */
-function primitiveOuterExtents(geometry: IAutoMovieGeometry): IAutoMovieVector3 | null {
+function primitiveOuterExtents(
+  geometry: IAutoMovieGeometry,
+): IAutoMovieVector3 | null {
   if (geometry.type !== "primitive") return null;
   const shape: AutoMoviePrimitiveShape = geometry.shape;
   switch (shape.type) {
-    case "box": return { x: shape.width / 2, y: shape.height / 2, z: shape.depth / 2 };
-    case "sphere": return { x: shape.radius, y: shape.radius, z: shape.radius };
+    case "box":
+      return { x: shape.width / 2, y: shape.height / 2, z: shape.depth / 2 };
+    case "sphere":
+      return { x: shape.radius, y: shape.radius, z: shape.radius };
     case "cylinder":
-    case "cone": return { x: shape.radius, y: shape.height / 2, z: shape.radius };
+    case "cone":
+      return { x: shape.radius, y: shape.height / 2, z: shape.radius };
     case "capsule": {
       const totalHeight: number = shape.height + 2 * shape.radius;
-      return Number.isFinite(totalHeight) ? { x: shape.radius, y: totalHeight / 2, z: shape.radius } : null;
+      return Number.isFinite(totalHeight)
+        ? { x: shape.radius, y: totalHeight / 2, z: shape.radius }
+        : null;
     }
-    case "plane": return null;
-    default: return null;
+    case "plane":
+      return null;
+    default:
+      return null;
   }
 }
 
@@ -134,11 +191,15 @@ function primitiveOuterExtents(geometry: IAutoMovieGeometry): IAutoMovieVector3 
  * this gate measures about, and a part it cannot place is a part it does not
  * measure.
  */
-const axialPartHeight: (part: IAutoMovieModelPart, heights: ReadonlyMap<AutoMovieHumanoidBone, number>) => number | null = (
+const axialPartHeight: (
+  part: IAutoMovieModelPart,
+  heights: ReadonlyMap<AutoMovieHumanoidBone, number>,
+) => number | null = (
   part: IAutoMovieModel["parts"][number],
   heights: ReadonlyMap<AutoMovieHumanoidBone, number>,
 ): number | null => {
-  const bone: number | undefined = part.attachedBone === null ? 0 : heights.get(part.attachedBone);
+  const bone: number | undefined =
+    part.attachedBone === null ? 0 : heights.get(part.attachedBone);
   if (bone === undefined) return null;
   const local: IAutoMovieTransform | null = part.transform;
   if (local === null) return bone;
@@ -155,12 +216,18 @@ const axialPartHeight: (part: IAutoMovieModelPart, heights: ReadonlyMap<AutoMovi
  * A displacement with neither is a move straight up or down the axis it already
  * stood on.
  */
-const vertical: (value: { x: number; z: number; }) => boolean = (value: { x: number; z: number }): boolean =>
-  value.x === 0 && value.z === 0;
+const vertical: (value: { x: number; z: number }) => boolean = (value: {
+  x: number;
+  z: number;
+}): boolean => value.x === 0 && value.z === 0;
 
 /** A pure axial TRS matrix preserves horizontal lengths only when hypot(1-2*y*y,2*y*w) is one. Near-unit admission permits shrinkage or expansion, so those frames are omitted without an epsilon or quaternion repair. Binary64 equality can also omit a mathematically unit authored rotation after rounding. */
 function axialIsometry(rotation: IAutoMovieQuaternion): boolean {
-  return vertical(rotation) && Math.hypot(1 - 2 * rotation.y * rotation.y, 2 * rotation.y * rotation.w) === 1;
+  return (
+    vertical(rotation) &&
+    Math.hypot(1 - 2 * rotation.y * rotation.y, 2 * rotation.y * rotation.w) ===
+      1
+  );
 }
 
 /**
@@ -177,7 +244,9 @@ function axialIsometry(rotation: IAutoMovieQuaternion): boolean {
  * thickness, so nothing is ever inside one; a mesh states no dimensions here
  * and is left to the parts that do.
  */
-const columnOfShape: (geometry: IAutoMovieGeometry) => { across: number; deep: number; centre: number; half: number; } | null = (
+const columnOfShape: (
+  geometry: IAutoMovieGeometry,
+) => { across: number; deep: number; centre: number; half: number } | null = (
   geometry: IAutoMovieModel["parts"][number]["geometry"],
 ): { across: number; deep: number; centre: number; half: number } | null => {
   if (geometry.type !== "primitive") return null;
@@ -188,7 +257,11 @@ const columnOfShape: (geometry: IAutoMovieGeometry) => { across: number; deep: n
     // R*cos(epsilon), and its normal length is at most 1/cos(delta).
     // Thus the mesh contains a centered ball of radius rho below; an equal
     // radius/half-height cylinder lies in that ball because r*r + h*h = rho*rho.
-    const core: number = shape.radius * radialApothem * Math.cos(Math.PI / (2 * PRIMITIVE_SPHERE_RINGS)) / Math.SQRT2;
+    const core: number =
+      (shape.radius *
+        radialApothem *
+        Math.cos(Math.PI / (2 * PRIMITIVE_SPHERE_RINGS))) /
+      Math.SQRT2;
     return {
       across: core,
       deep: core,

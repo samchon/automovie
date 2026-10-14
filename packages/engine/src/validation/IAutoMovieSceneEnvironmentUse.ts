@@ -1,4 +1,5 @@
 import { IAutoMovieSceneEnvironment } from "@automovie/interface";
+
 /**
  * One shot identity paired with its optional compiled scene environment.
  *

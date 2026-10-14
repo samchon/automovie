@@ -1,9 +1,16 @@
-import { IAutoMovieBody, IAutoMovieInteractionEvent, IAutoMovieVector3, IAutoMovieClip } from "@automovie/interface";
+import {
+  IAutoMovieBody,
+  IAutoMovieClip,
+  IAutoMovieInteractionEvent,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { convexHull2D } from "../math/convexHull2D";
 import { pointHullDistance } from "../math/pointHullDistance";
 import { projectileTrajectory } from "../physics/projectileTrajectory";
 import { IAutoMovieFreeFallResult } from "./IAutoMovieFreeFallResult";
 import { ViolationCollector } from "./ViolationCollector";
+
 const DEFAULT_MARGIN: number = 0.02;
 
 const DEFAULT_GRAVITY: IAutoMovieVector3 = { x: 0, y: -9.81, z: 0 };
@@ -26,7 +33,21 @@ const DEFAULT_FPS: number = 30;
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns returned clip/findings/events, with the event borrowing the supplied center point; temporary hull storage leaves scope and no simulation cursor or host is acquired.
  * @author Samchon
  */
-export const detectFreeFall: (props: { node?: string | undefined; body: IAutoMovieBody | null; centerOfMass: IAutoMovieVector3; support: readonly IAutoMovieVector3[]; attached: boolean; falling: boolean; margin?: number | undefined; gravity?: IAutoMovieVector3 | undefined; velocity?: IAutoMovieVector3 | undefined; fallDuration?: number | undefined; fps?: number | undefined; physicsIntent?: string | undefined; path?: string | undefined; }) => IAutoMovieFreeFallResult = (props: {
+export const detectFreeFall: (props: {
+  node?: string | undefined;
+  body: IAutoMovieBody | null;
+  centerOfMass: IAutoMovieVector3;
+  support: readonly IAutoMovieVector3[];
+  attached: boolean;
+  falling: boolean;
+  margin?: number | undefined;
+  gravity?: IAutoMovieVector3 | undefined;
+  velocity?: IAutoMovieVector3 | undefined;
+  fallDuration?: number | undefined;
+  fps?: number | undefined;
+  physicsIntent?: string | undefined;
+  path?: string | undefined;
+}) => IAutoMovieFreeFallResult = (props: {
   /** Object node id, used to label the event and the suggested clip. */
   node?: string;
   /** The object's physical body. `null` → no declared physics, never falls. */
@@ -56,7 +77,8 @@ export const detectFreeFall: (props: { node?: string | undefined; body: IAutoMov
 }): IAutoMovieFreeFallResult => {
   const collector: ViolationCollector = new ViolationCollector();
   const path: string = props.path ?? "$input";
-  const margin: number = props.margin === undefined ? DEFAULT_MARGIN : props.margin;
+  const margin: number =
+    props.margin === undefined ? DEFAULT_MARGIN : props.margin;
   const fallDuration: number =
     props.fallDuration === undefined
       ? DEFAULT_FALL_DURATION
@@ -128,7 +150,9 @@ export const detectFreeFall: (props: { node?: string | undefined; body: IAutoMov
   return { validation: collector.toValidation(), events: [event], trajectory };
 };
 
-const empty: (collector: ViolationCollector) => IAutoMovieFreeFallResult = (collector: ViolationCollector): IAutoMovieFreeFallResult => ({
+const empty: (collector: ViolationCollector) => IAutoMovieFreeFallResult = (
+  collector: ViolationCollector,
+): IAutoMovieFreeFallResult => ({
   validation: collector.toValidation(),
   events: [],
   trajectory: null,

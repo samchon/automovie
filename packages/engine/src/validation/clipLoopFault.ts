@@ -1,4 +1,5 @@
 import { IAutoMovieClipShapeFault } from "./IAutoMovieClipShapeFault";
+
 /**
  * Return a loop-shape fault unless the authored flag is boolean.
  *
@@ -11,7 +12,9 @@ import { IAutoMovieClipShapeFault } from "./IAutoMovieClipShapeFault";
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only a fresh fault/value reference or null transfers, with no clip, playback cursor or host resource acquired.
  * @author Samchon
  */
-export const clipLoopFault: (loop: unknown) => IAutoMovieClipShapeFault | null = (
+export const clipLoopFault: (
+  loop: unknown,
+) => IAutoMovieClipShapeFault | null = (
   loop: unknown,
 ): IAutoMovieClipShapeFault | null =>
   typeof loop === "boolean"

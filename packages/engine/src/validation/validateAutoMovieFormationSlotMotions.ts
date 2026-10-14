@@ -1,8 +1,10 @@
-import { IAutoMovieShotParticipant, IAutoMovieCompiledFormationHero,
+import {
   IAutoMovieCompiledFormation,
+  IAutoMovieCompiledFormationHero,
   IAutoMovieDiagnostic,
   IAutoMovieFormationSlotMotion,
   IAutoMovieShotContract,
+  IAutoMovieShotParticipant,
 } from "@automovie/interface";
 
 import { compareCodeUnits } from "../text/compareCodeUnits";
@@ -32,7 +34,19 @@ const FORMATION_SLOT_EXCEPTION_LIMIT: number = 1_024;
  * @evidence contracts/performance.md#reuse-equivalent-work Request-local compiled formation and nested formation/slot prior maps share repeated identity lookup, without joined-string collisions or cross-shot caching.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only diagnostics return; no baked crowd, runtime member handle or cross-request state is retained.
  */
-export const validateAutoMovieFormationSlotMotions: (contract: Pick<IAutoMovieShotContract, "id" | "participants" | "durationSeconds">, value: { formations: readonly Pick<IAutoMovieCompiledFormation, "id" | "count" | "heroes">[]; formationSlotMotions: readonly IAutoMovieFormationSlotMotion[]; }) => IAutoMovieDiagnostic[] = (
+export const validateAutoMovieFormationSlotMotions: (
+  contract: Pick<
+    IAutoMovieShotContract,
+    "id" | "participants" | "durationSeconds"
+  >,
+  value: {
+    formations: readonly Pick<
+      IAutoMovieCompiledFormation,
+      "id" | "count" | "heroes"
+    >[];
+    formationSlotMotions: readonly IAutoMovieFormationSlotMotion[];
+  },
+) => IAutoMovieDiagnostic[] = (
   contract: Pick<
     IAutoMovieShotContract,
     "id" | "participants" | "durationSeconds"
@@ -46,16 +60,24 @@ export const validateAutoMovieFormationSlotMotions: (contract: Pick<IAutoMovieSh
   },
 ): IAutoMovieDiagnostic[] => {
   const diagnostics: IAutoMovieDiagnostic[] = [];
-  const fail: (field: string, expectation: string) => void = (field: string, expectation: string): void => {
+  const fail: (field: string, expectation: string) => void = (
+    field: string,
+    expectation: string,
+  ): void => {
     diagnostics.push(engineDiagnostic(contract.id, field, expectation));
   };
-  const cues: readonly IAutoMovieFormationSlotMotion[] = value.formationSlotMotions;
+  const cues: readonly IAutoMovieFormationSlotMotion[] =
+    value.formationSlotMotions;
   if (cues.length > 256)
     fail(
       "formationSlotMotions",
       "must contain at most 256 sparse per-member cues",
     );
-  const named: number = cues.reduce((sum: number, cue: IAutoMovieFormationSlotMotion): number => sum + cue.slots.length, 0);
+  const named: number = cues.reduce(
+    (sum: number, cue: IAutoMovieFormationSlotMotion): number =>
+      sum + cue.slots.length,
+    0,
+  );
   if (named > FORMATION_SLOT_EXCEPTION_LIMIT)
     fail(
       "formationSlotMotions",
@@ -63,12 +85,23 @@ export const validateAutoMovieFormationSlotMotions: (contract: Pick<IAutoMovieSh
     );
   const ids: Set<string> = new Set<string>();
   const participating: Set<string> = new Set(
-    contract.participants.flatMap((participant: IAutoMovieShotParticipant): string[] =>
-      participant.kind === "formation" ? [participant.id] : [],
+    contract.participants.flatMap(
+      (participant: IAutoMovieShotParticipant): string[] =>
+        participant.kind === "formation" ? [participant.id] : [],
     ),
   );
-  const compiledById: Map<string, Pick<IAutoMovieCompiledFormation, "id" | "count" | "heroes">> = new Map(
-    value.formations.map((formation: Pick<IAutoMovieCompiledFormation, "id" | "count" | "heroes">): [string, Pick<IAutoMovieCompiledFormation, "id" | "count" | "heroes">] => [formation.id, formation]),
+  const compiledById: Map<
+    string,
+    Pick<IAutoMovieCompiledFormation, "id" | "count" | "heroes">
+  > = new Map(
+    value.formations.map(
+      (
+        formation: Pick<IAutoMovieCompiledFormation, "id" | "count" | "heroes">,
+      ): [
+        string,
+        Pick<IAutoMovieCompiledFormation, "id" | "count" | "heroes">,
+      ] => [formation.id, formation],
+    ),
   );
   // Keyed by formation and then by slot rather than by formation alone, because
   // two members of one crowd doing different things at the same second is the
@@ -76,12 +109,15 @@ export const validateAutoMovieFormationSlotMotions: (contract: Pick<IAutoMovieSh
   // Nested rather than joined into one string key, because a formation id is
   // author-chosen text and any separator picked to join them is one an id may
   // legitimately contain.
-  const priorBySlot: Map<string, Map<number, IAutoMovieFormationSlotMotion>> = new Map<
+  const priorBySlot: Map<
     string,
     Map<number, IAutoMovieFormationSlotMotion>
-  >();
+  > = new Map<string, Map<number, IAutoMovieFormationSlotMotion>>();
   for (const cue of [...cues].sort(
-    (left: IAutoMovieFormationSlotMotion, right: IAutoMovieFormationSlotMotion): number =>
+    (
+      left: IAutoMovieFormationSlotMotion,
+      right: IAutoMovieFormationSlotMotion,
+    ): number =>
       compareCodeUnits(left.formation, right.formation) ||
       left.start - right.start ||
       compareCodeUnits(left.id, right.id),
@@ -92,7 +128,9 @@ export const validateAutoMovieFormationSlotMotions: (contract: Pick<IAutoMovieSh
         "must have one non-blank id unique inside the shot",
       );
     ids.add(cue.id);
-    const compiled: Pick<IAutoMovieCompiledFormation, "id" | "count" | "heroes"> | undefined = compiledById.get(cue.formation);
+    const compiled:
+      | Pick<IAutoMovieCompiledFormation, "id" | "count" | "heroes">
+      | undefined = compiledById.get(cue.formation);
     if (participating.has(cue.formation) === false || compiled === undefined)
       fail(
         `formationSlotMotion:${cue.id}.formation`,
@@ -127,14 +165,19 @@ export const validateAutoMovieFormationSlotMotions: (contract: Pick<IAutoMovieSh
     // surface of its own. Letting this channel move one too would give a member
     // two owners writing the same transform, and the frame would show whichever
     // wrote last.
-    const heroes: IAutoMovieCompiledFormationHero[] = (compiled?.heroes ?? []).filter((hero: IAutoMovieCompiledFormationHero): boolean =>
+    const heroes: IAutoMovieCompiledFormationHero[] = (
+      compiled?.heroes ?? []
+    ).filter((hero: IAutoMovieCompiledFormationHero): boolean =>
       cue.slots.includes(hero.slot),
     );
     if (heroes.length !== 0)
       fail(
         `formationSlotMotion:${cue.id}.slots`,
         `must not name slots promoted to named actors (${heroes
-          .map((hero: IAutoMovieCompiledFormationHero): string => `${hero.slot} is "${hero.actor}"`)
+          .map(
+            (hero: IAutoMovieCompiledFormationHero): string =>
+              `${hero.slot} is "${hero.actor}"`,
+          )
           .join(", ")}); author those on the actor instead`,
       );
     for (const [name, state] of [
@@ -160,7 +203,8 @@ export const validateAutoMovieFormationSlotMotions: (contract: Pick<IAutoMovieSh
       new Map<number, IAutoMovieFormationSlotMotion>();
     priorBySlot.set(cue.formation, priorSlots);
     for (const slot of cue.slots) {
-      const prior: IAutoMovieFormationSlotMotion | undefined = priorSlots.get(slot);
+      const prior: IAutoMovieFormationSlotMotion | undefined =
+        priorSlots.get(slot);
       // Never against itself. A cue naming one member twice is a malformed
       // slot list, already refused as one above; reading the second mention as
       // an overlap would refuse the same mistake a second time and name the

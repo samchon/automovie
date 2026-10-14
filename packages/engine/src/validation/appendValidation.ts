@@ -1,4 +1,8 @@
-import { IAutoMovieDiagnostic, IAutoMovieValidation } from "@automovie/interface";
+import {
+  IAutoMovieDiagnostic,
+  IAutoMovieValidation,
+} from "@automovie/interface";
+
 /**
  * Append failed engine validation findings as compile diagnostics for one shot.
  *
@@ -11,7 +15,11 @@ import { IAutoMovieDiagnostic, IAutoMovieValidation } from "@automovie/interface
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller's diagnostic array retains newly allocated rows and strings; no offending input record, model, renderer or validation task is retained by this adapter.
  * @author Samchon
  */
-export const appendValidation: (diagnostics: IAutoMovieDiagnostic[], id: string, validation: IAutoMovieValidation) => void = (
+export const appendValidation: (
+  diagnostics: IAutoMovieDiagnostic[],
+  id: string,
+  validation: IAutoMovieValidation,
+) => void = (
   diagnostics: IAutoMovieDiagnostic[],
   id: string,
   validation: IAutoMovieValidation,

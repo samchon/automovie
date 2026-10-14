@@ -1,10 +1,12 @@
 import { IAutoMovieConstraintViolation } from "@automovie/interface";
+
+import { appendCameraIntentArtifact } from "./appendCameraIntentArtifact";
 import { pushViolation } from "./pushViolation";
 import { validateArrayArtifact } from "./validateArrayArtifact";
 import { validateClipArtifact } from "./validateClipArtifact";
 import { validateNonEmptyId } from "./validateNonEmptyId";
 import { validateObjectArtifact } from "./validateObjectArtifact";
-import { appendCameraIntentArtifact } from "./appendCameraIntentArtifact";
+
 /**
  * Inspect alternate-camera takes, their clips and camera intent metadata.
  *
@@ -16,7 +18,14 @@ import { appendCameraIntentArtifact } from "./appendCameraIntentArtifact";
  * @evidence contracts/performance.md#reuse-equivalent-work One camera-to-first-index map handles all duplicates, and both primary/coverage intents reuse the same extracted validator rather than a second rule implementation.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller retains appended findings and any offending clip references; the temporary camera map is discarded and no take playback or GPU task is acquired.
  */
-export const appendShotCoverageArtifact: (coverage: unknown, path: string, duration: number, heroCamera: unknown, sceneCameras: ReadonlySet<string> | null, violations: IAutoMovieConstraintViolation[]) => void = (
+export const appendShotCoverageArtifact: (
+  coverage: unknown,
+  path: string,
+  duration: number,
+  heroCamera: unknown,
+  sceneCameras: ReadonlySet<string> | null,
+  violations: IAutoMovieConstraintViolation[],
+) => void = (
   coverage: unknown,
   path: string,
   duration: number,
@@ -89,6 +98,5 @@ export const appendShotCoverageArtifact: (coverage: unknown, path: string, durat
       duration,
       violations,
     );
-
   }
 };

@@ -17,7 +17,13 @@ import { ViolationCollector } from "./ViolationCollector";
  * @evidence contracts/performance.md#reuse-equivalent-work Sampling validators reuse precomputed skeleton/reachable sets across their capsules.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Inputs and sets are borrowed; the caller owns diagnostics and the helper retains no resolved body or handle.
  */
-export const validateCapsule: (capsule: IAutoMovieCapsuleProxy, path: string, skeletonBones: ReadonlySet<AutoMovieHumanoidBone>, reachableBones: ReadonlySet<AutoMovieHumanoidBone>, collector: ViolationCollector) => boolean = (
+export const validateCapsule: (
+  capsule: IAutoMovieCapsuleProxy,
+  path: string,
+  skeletonBones: ReadonlySet<AutoMovieHumanoidBone>,
+  reachableBones: ReadonlySet<AutoMovieHumanoidBone>,
+  collector: ViolationCollector,
+) => boolean = (
   capsule: IAutoMovieCapsuleProxy,
   path: string,
   skeletonBones: ReadonlySet<AutoMovieHumanoidBone>,
@@ -25,7 +31,10 @@ export const validateCapsule: (capsule: IAutoMovieCapsuleProxy, path: string, sk
   collector: ViolationCollector,
 ): boolean => {
   let valid: boolean = true;
-  const endpoint: (bone: AutoMovieHumanoidBone, at: string) => void = (bone: AutoMovieHumanoidBone, at: string): void => {
+  const endpoint: (bone: AutoMovieHumanoidBone, at: string) => void = (
+    bone: AutoMovieHumanoidBone,
+    at: string,
+  ): void => {
     if (!skeletonBones.has(bone)) {
       valid = false;
       collector.push(

@@ -13,7 +13,12 @@ import { pushViolation } from "./pushViolation";
  * @evidence contracts/performance.md#reuse-equivalent-work Clip and shot gates share the same boundary, then validate their own elements.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The list is borrowed and only caller-owned diagnostics escape.
  */
-export const validateArrayArtifact: (value: unknown, path: string, label: string, violations: IAutoMovieConstraintViolation[]) => value is unknown[] = (
+export const validateArrayArtifact: (
+  value: unknown,
+  path: string,
+  label: string,
+  violations: IAutoMovieConstraintViolation[],
+) => value is unknown[] = (
   value: unknown,
   path: string,
   label: string,

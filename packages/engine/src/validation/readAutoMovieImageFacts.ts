@@ -12,7 +12,9 @@ import { IAutoMovieTextureImageFacts } from "./IAutoMovieTextureImageFacts";
  * @evidence contracts/performance.md#reuse-equivalent-work One probe result may be cached by the production closure per asset identity, outside this pure reader.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only a small facts record escapes; no byte buffer, decoder, file or host task is retained.
  */
-export const readAutoMovieImageFacts: (bytes: Uint8Array | null | undefined) => IAutoMovieTextureImageFacts | null = (
+export const readAutoMovieImageFacts: (
+  bytes: Uint8Array | null | undefined,
+) => IAutoMovieTextureImageFacts | null = (
   bytes: Uint8Array | null | undefined,
 ): IAutoMovieTextureImageFacts | null => {
   if (bytes === null || bytes === undefined) return null;
@@ -20,7 +22,9 @@ export const readAutoMovieImageFacts: (bytes: Uint8Array | null | undefined) => 
 };
 
 /** `\x89PNG\r\n\x1a\n`, then a 25-byte IHDR whose first two fields are the size. */
-const PNG_SIGNATURE: number[] = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a];
+const PNG_SIGNATURE: number[] = [
+  0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a,
+];
 
 /**
  * Read width/height from the24-byte PNG signature/IHDR prefix.
@@ -37,9 +41,16 @@ const PNG_SIGNATURE: number[] = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]
  *
  * Only scalar facts escape; the source buffer remains borrowed.
  */
-const readPng: (bytes: Uint8Array) => IAutoMovieTextureImageFacts | null = (bytes: Uint8Array): IAutoMovieTextureImageFacts | null => {
+const readPng: (bytes: Uint8Array) => IAutoMovieTextureImageFacts | null = (
+  bytes: Uint8Array,
+): IAutoMovieTextureImageFacts | null => {
   if (bytes.length < 24) return null;
-  if (PNG_SIGNATURE.some((byte: number, index: number): boolean => bytes[index] !== byte)) return null;
+  if (
+    PNG_SIGNATURE.some(
+      (byte: number, index: number): boolean => bytes[index] !== byte,
+    )
+  )
+    return null;
   if (ascii(bytes, 12, 4) !== "IHDR") return null;
   return {
     mediaType: "image/png",
@@ -75,7 +86,9 @@ const SOF_MARKERS: ReadonlySet<number> = new Set([
  *
  * Only a facts row escapes; no decoded pixel or source buffer is retained.
  */
-const readJpeg: (bytes: Uint8Array) => IAutoMovieTextureImageFacts | null = (bytes: Uint8Array): IAutoMovieTextureImageFacts | null => {
+const readJpeg: (bytes: Uint8Array) => IAutoMovieTextureImageFacts | null = (
+  bytes: Uint8Array,
+): IAutoMovieTextureImageFacts | null => {
   if (bytes.length < 4 || bytes[0] !== 0xff || bytes[1] !== 0xd8) return null;
   let cursor: number = 2;
   let restartInterval: number = 0;
@@ -130,7 +143,9 @@ const readJpeg: (bytes: Uint8Array) => IAutoMovieTextureImageFacts | null = (byt
  *
  * No decoder/byte buffer is retained after returning scalar facts.
  */
-const readWebp: (bytes: Uint8Array) => IAutoMovieTextureImageFacts | null = (bytes: Uint8Array): IAutoMovieTextureImageFacts | null => {
+const readWebp: (bytes: Uint8Array) => IAutoMovieTextureImageFacts | null = (
+  bytes: Uint8Array,
+): IAutoMovieTextureImageFacts | null => {
   if (bytes.length < 30) return null;
   if (ascii(bytes, 0, 4) !== "RIFF" || ascii(bytes, 8, 4) !== "WEBP")
     return null;
@@ -178,7 +193,9 @@ const readWebp: (bytes: Uint8Array) => IAutoMovieTextureImageFacts | null = (byt
  *
  * Only width/height facts escape; temporary header text releases without a decoder.
  */
-const readHdr: (bytes: Uint8Array) => IAutoMovieTextureImageFacts | null = (bytes: Uint8Array): IAutoMovieTextureImageFacts | null => {
+const readHdr: (bytes: Uint8Array) => IAutoMovieTextureImageFacts | null = (
+  bytes: Uint8Array,
+): IAutoMovieTextureImageFacts | null => {
   const head: string = ascii(bytes, 0, Math.min(bytes.length, 512));
   if (!head.startsWith("#?RADIANCE\n") && !head.startsWith("#?RGBE\n"))
     return null;
@@ -187,7 +204,9 @@ const readHdr: (bytes: Uint8Array) => IAutoMovieTextureImageFacts | null = (byte
   if (blank < 0) return null;
   const resolution: string = lines[blank + 1];
   if (resolution === undefined) return null;
-  const parsed: RegExpExecArray | null = /^-Y (\d+) \+X (\d+)$/.exec(resolution);
+  const parsed: RegExpExecArray | null = /^-Y (\d+) \+X (\d+)$/.exec(
+    resolution,
+  );
   if (parsed === null) return null;
   return {
     mediaType: "image/vnd.radiance",
@@ -211,8 +230,11 @@ const readHdr: (bytes: Uint8Array) => IAutoMovieTextureImageFacts | null = (byte
  *
  * Only the returned string survives; source bytes remain borrowed.
  */
-const ascii: (bytes: Uint8Array, offset: number, length: number) => string = (bytes: Uint8Array, offset: number, length: number): string =>
-  String.fromCharCode(...bytes.subarray(offset, offset + length));
+const ascii: (bytes: Uint8Array, offset: number, length: number) => string = (
+  bytes: Uint8Array,
+  offset: number,
+  length: number,
+): string => String.fromCharCode(...bytes.subarray(offset, offset + length));
 
 /**
  * Combine four big-endian bytes into an unsigned numeric header field.
@@ -229,7 +251,10 @@ const ascii: (bytes: Uint8Array, offset: number, length: number) => string = (by
  *
  * Only a scalar returns, with no buffer or parser state retained.
  */
-const beUint32: (bytes: Uint8Array, offset: number) => number = (bytes: Uint8Array, offset: number): number =>
+const beUint32: (bytes: Uint8Array, offset: number) => number = (
+  bytes: Uint8Array,
+  offset: number,
+): number =>
   bytes[offset]! * 0x1000000 +
   (bytes[offset + 1]! << 16) +
   (bytes[offset + 2]! << 8) +
@@ -250,8 +275,10 @@ const beUint32: (bytes: Uint8Array, offset: number) => number = (bytes: Uint8Arr
  *
  * The borrowed buffer is not retained and only a scalar escapes.
  */
-const beUint16: (bytes: Uint8Array, offset: number) => number = (bytes: Uint8Array, offset: number): number =>
-  (bytes[offset]! << 8) | bytes[offset + 1]!;
+const beUint16: (bytes: Uint8Array, offset: number) => number = (
+  bytes: Uint8Array,
+  offset: number,
+): number => (bytes[offset]! << 8) | bytes[offset + 1]!;
 
 /**
  * Combine two little-endian bytes for WebP dimension fields.
@@ -268,8 +295,10 @@ const beUint16: (bytes: Uint8Array, offset: number) => number = (bytes: Uint8Arr
  *
  * Only the numeric result escapes; no buffer state remains.
  */
-const leUint16: (bytes: Uint8Array, offset: number) => number = (bytes: Uint8Array, offset: number): number =>
-  bytes[offset]! | (bytes[offset + 1]! << 8);
+const leUint16: (bytes: Uint8Array, offset: number) => number = (
+  bytes: Uint8Array,
+  offset: number,
+): number => bytes[offset]! | (bytes[offset + 1]! << 8);
 
 /**
  * Combine three little-endian bytes for extended WebP canvas fields.
@@ -286,5 +315,8 @@ const leUint16: (bytes: Uint8Array, offset: number) => number = (bytes: Uint8Arr
  *
  * Only a scalar escapes and source bytes remain borrowed.
  */
-const leUint24: (bytes: Uint8Array, offset: number) => number = (bytes: Uint8Array, offset: number): number =>
+const leUint24: (bytes: Uint8Array, offset: number) => number = (
+  bytes: Uint8Array,
+  offset: number,
+): number =>
   bytes[offset]! | (bytes[offset + 1]! << 8) | (bytes[offset + 2]! << 16);

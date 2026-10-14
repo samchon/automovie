@@ -1,4 +1,11 @@
-import { AutoMovieHumanoidBone, IAutoMovieBone, IAutoMovieJointPose, IAutoMovieJointConstraint, IAutoMoviePose, IAutoMovieSkeleton } from "@automovie/interface";
+import {
+  AutoMovieHumanoidBone,
+  IAutoMovieBone,
+  IAutoMovieJointConstraint,
+  IAutoMovieJointPose,
+  IAutoMoviePose,
+  IAutoMovieSkeleton,
+} from "@automovie/interface";
 
 import { getConstraint } from "../rom/getConstraint";
 import { validateJointRom } from "../rom/validateJointRom";
@@ -17,7 +24,12 @@ import { validateTransformScalars } from "./validateTransformScalars";
  * @evidence contracts/performance.md#reuse-equivalent-work The by-bone map is request-local and default constraint/ROM owners are shared.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns diagnostics; temporary map/set storage releases without an FK pose or host resource.
  */
-export const validatePose: (props: { pose: IAutoMoviePose; skeleton: IAutoMovieSkeleton; path?: string; collector?: ViolationCollector; }) => ViolationCollector = (props: {
+export const validatePose: (props: {
+  pose: IAutoMoviePose;
+  skeleton: IAutoMovieSkeleton;
+  path?: string;
+  collector?: ViolationCollector;
+}) => ViolationCollector = (props: {
   /** Borrowed pose; null joint angles mean rest and invalid angles are reported without clamping. */
   pose: IAutoMoviePose;
 
@@ -31,8 +43,16 @@ export const validatePose: (props: { pose: IAutoMoviePose; skeleton: IAutoMovieS
   collector?: ViolationCollector;
 }): ViolationCollector => {
   const path: string = props.path ?? "$input";
-  const collector: ViolationCollector = props.collector ?? new ViolationCollector();
-  const byBone: Map<AutoMovieHumanoidBone, IAutoMovieBone> = new Map(props.skeleton.bones.map((b: IAutoMovieBone): [AutoMovieHumanoidBone, IAutoMovieBone] => [b.bone, b]));
+  const collector: ViolationCollector =
+    props.collector ?? new ViolationCollector();
+  const byBone: Map<AutoMovieHumanoidBone, IAutoMovieBone> = new Map(
+    props.skeleton.bones.map(
+      (b: IAutoMovieBone): [AutoMovieHumanoidBone, IAutoMovieBone] => [
+        b.bone,
+        b,
+      ],
+    ),
+  );
   const seen: Set<string> = new Set<string>();
 
   if (props.pose.skeleton !== props.skeleton.id)
@@ -71,7 +91,10 @@ export const validatePose: (props: { pose: IAutoMoviePose; skeleton: IAutoMovieS
       );
     seen.add(joint.bone);
 
-    const constraint: IAutoMovieJointConstraint | null = getConstraint(joint.bone, bone.constraint);
+    const constraint: IAutoMovieJointConstraint | null = getConstraint(
+      joint.bone,
+      bone.constraint,
+    );
     if (constraint !== null)
       validateJointRom({ joint, constraint, path: jointPath, collector });
   });

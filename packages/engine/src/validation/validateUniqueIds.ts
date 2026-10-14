@@ -15,7 +15,12 @@ import { validateUniqueBy } from "./validateUniqueBy";
  * @evidence contracts/performance.md#reuse-equivalent-work The common uniqueness owner supplies the same duplicate policy for all artifacts.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only diagnostics escape; temporary mapped rows/set storage release without a host registry.
  */
-export const validateUniqueIds: (items: unknown, path: string, label: string, violations: IAutoMovieConstraintViolation[]) => void = (
+export const validateUniqueIds: (
+  items: unknown,
+  path: string,
+  label: string,
+  violations: IAutoMovieConstraintViolation[],
+) => void = (
   items: unknown,
   path: string,
   label: string,
@@ -23,10 +28,13 @@ export const validateUniqueIds: (items: unknown, path: string, label: string, vi
 ): void => {
   if (!validateArrayArtifact(items, path, label, violations)) return;
   validateUniqueBy(
-    Array.from(items, (item: unknown, index: number): { id: unknown; path: string; } => ({
-      id: isRecord(item) ? item.id : undefined,
-      path: `${path}[${index}].id`,
-    })),
+    Array.from(
+      items,
+      (item: unknown, index: number): { id: unknown; path: string } => ({
+        id: isRecord(item) ? item.id : undefined,
+        path: `${path}[${index}].id`,
+      }),
+    ),
     label,
     violations,
   );

@@ -16,7 +16,16 @@ import { pushViolation } from "./pushViolation";
  * @evidence contracts/performance.md#reuse-equivalent-work Clip/shot/camera fields share this predicate without sharing append effects.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only caller-owned violation rows remain; no scalar history or resource is retained.
  */
-export const validateRange: (value: unknown, path: string, min: number, max: number, label: string, violations: IAutoMovieConstraintViolation[], inclusiveMin?: boolean, inclusiveMax?: boolean) => void = (
+export const validateRange: (
+  value: unknown,
+  path: string,
+  min: number,
+  max: number,
+  label: string,
+  violations: IAutoMovieConstraintViolation[],
+  inclusiveMin?: boolean,
+  inclusiveMax?: boolean,
+) => void = (
   value: unknown,
   path: string,
   min: number,
@@ -28,8 +37,8 @@ export const validateRange: (value: unknown, path: string, min: number, max: num
 ): void => {
   const numeric: number = typeof value === "number" ? value : NaN;
   const aboveMin: boolean = inclusiveMin ? numeric >= min : numeric > min;
-  const belowMax: boolean = max === Infinity ? true :
-    inclusiveMax ? numeric <= max : numeric < max;
+  const belowMax: boolean =
+    max === Infinity ? true : inclusiveMax ? numeric <= max : numeric < max;
   if (!Number.isFinite(numeric) || !aboveMin || !belowMax)
     pushViolation(
       violations,

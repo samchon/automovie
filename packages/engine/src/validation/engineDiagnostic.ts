@@ -1,4 +1,5 @@
 import { IAutoMovieDiagnostic } from "@automovie/interface";
+
 /**
  * Create one compile error for a named shot field and expectation.
  *
@@ -11,7 +12,11 @@ import { IAutoMovieDiagnostic } from "@automovie/interface";
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only fresh scalar strings and fixed fields transfer to the caller; no shot, source input object, playback task or renderer is retained.
  * @author Samchon
  */
-export const engineDiagnostic: (id: string, field: string, expectation: string) => IAutoMovieDiagnostic = (
+export const engineDiagnostic: (
+  id: string,
+  field: string,
+  expectation: string,
+) => IAutoMovieDiagnostic = (
   id: string,
   field: string,
   expectation: string,

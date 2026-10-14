@@ -11,7 +11,11 @@ import { ViolationCollector } from "./ViolationCollector";
  * @evidence contracts/performance.md#reuse-equivalent-work All typed identity lists share the same local duplicate policy.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The seen set releases after checking while the caller owns appended rows.
  */
-export const validateUniqueValues: (entries: ReadonlyArray<readonly [string, string]>, label: string, collector: ViolationCollector) => void = (
+export const validateUniqueValues: (
+  entries: ReadonlyArray<readonly [string, string]>,
+  label: string,
+  collector: ViolationCollector,
+) => void = (
   entries: ReadonlyArray<readonly [string, string]>,
   label: string,
   collector: ViolationCollector,

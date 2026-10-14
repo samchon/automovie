@@ -6,7 +6,11 @@ import {
 import { swingConeAngle } from "../rom/swingConeAngle";
 import { ViolationCollector } from "./ViolationCollector";
 
-const CONSTRAINT_AXES: readonly ["flexion", "abduction", "twist"] = ["flexion", "abduction", "twist"] as const;
+const CONSTRAINT_AXES: readonly ["flexion", "abduction", "twist"] = [
+  "flexion",
+  "abduction",
+  "twist",
+] as const;
 
 /**
  * Check finite ordered degree intervals and whether the admitted flexion/abduction box reaches the declared swing cone.
@@ -19,7 +23,11 @@ const CONSTRAINT_AXES: readonly ["flexion", "abduction", "twist"] = ["flexion", 
  * @evidence contracts/performance.md#reuse-equivalent-work The swing formula remains shared with ROM consumers rather than a separate anatomical table.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only collector rows remain; no joint simulation, pose history or native handle is retained.
  */
-export const validateJointConstraint: (constraint: IAutoMovieJointConstraint, path: string, collector: ViolationCollector) => void = (
+export const validateJointConstraint: (
+  constraint: IAutoMovieJointConstraint,
+  path: string,
+  collector: ViolationCollector,
+) => void = (
   constraint: IAutoMovieJointConstraint,
   path: string,
   collector: ViolationCollector,
@@ -39,8 +47,12 @@ export const validateJointConstraint: (constraint: IAutoMovieJointConstraint, pa
         swingDeg,
       );
     else {
-      const flexion: number[] | null = constraintSwingCandidates(constraint.flexion);
-      const abduction: number[] | null = constraintSwingCandidates(constraint.abduction);
+      const flexion: number[] | null = constraintSwingCandidates(
+        constraint.flexion,
+      );
+      const abduction: number[] | null = constraintSwingCandidates(
+        constraint.abduction,
+      );
       if (flexion === null || abduction === null) return;
       let minimumSwing: number = Number.POSITIVE_INFINITY;
       for (const flex of flexion)
@@ -72,13 +84,20 @@ export const validateJointConstraint: (constraint: IAutoMovieJointConstraint, pa
  *
  * Only a bounded candidate array transfers to the current validation call, with no angle history or native joint retained.
  */
-const constraintSwingCandidates: (range: IAutoMovieAngleRange | null) => number[] | null = (
+const constraintSwingCandidates: (
+  range: IAutoMovieAngleRange | null,
+) => number[] | null = (
   range: IAutoMovieAngleRange | null,
 ): number[] | null => {
   if (range === null) return [0];
-  if (!Number.isFinite(range.min) || !Number.isFinite(range.max) || range.min > range.max)
+  if (
+    !Number.isFinite(range.min) ||
+    !Number.isFinite(range.max) ||
+    range.min > range.max
+  )
     return null;
-  const candidates: number[] = range.min === range.max ? [range.min] : [range.min, range.max];
+  const candidates: number[] =
+    range.min === range.max ? [range.min] : [range.min, range.max];
   const fullTurn: number = Math.ceil(range.min / 720) * 720;
   const halfTurn: number = Math.ceil((range.min - 360) / 720) * 720 + 360;
   if (fullTurn > range.min && fullTurn < range.max) candidates.push(fullTurn);
@@ -101,7 +120,11 @@ const constraintSwingCandidates: (range: IAutoMovieAngleRange | null) => number[
  *
  * Only caller-owned fault rows remain; no angle table or pose cache is retained.
  */
-const validateAngleRange: (range: IAutoMovieAngleRange, path: string, collector: ViolationCollector) => void = (
+const validateAngleRange: (
+  range: IAutoMovieAngleRange,
+  path: string,
+  collector: ViolationCollector,
+) => void = (
   range: IAutoMovieAngleRange,
   path: string,
   collector: ViolationCollector,

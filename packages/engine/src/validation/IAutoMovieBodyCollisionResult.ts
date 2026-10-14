@@ -1,5 +1,10 @@
-import { IAutoMovieInteractionEvent, IAutoMovieValidation } from "@automovie/interface";
+import {
+  IAutoMovieInteractionEvent,
+  IAutoMovieValidation,
+} from "@automovie/interface";
+
 import { IAutoMovieCollisionResponse } from "../physics/IAutoMovieCollisionResponse";
+
 /**
  * Return sampled inter-body validation, contact events and an optional suggested response.
  *

@@ -1,8 +1,16 @@
-import { AutoMovieViolationKind, IAutoMovieConstraintViolation, IAutoMovieQuaternion, IAutoMovieValidation, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  AutoMovieViolationKind,
+  IAutoMovieConstraintViolation,
+  IAutoMovieQuaternion,
+  IAutoMovieValidation,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { Vector3 } from "../math/Vector3";
 import { describeInvalidValue } from "./describeInvalidValue";
 import { toValidation } from "./toValidation";
 import { violation } from "./violation";
+
 /** A direction this short or shorter carries no direction at all. */
 const DIRECTION_EPSILON: number = 1e-12;
 

@@ -1,7 +1,6 @@
-import type { IAutoMovieResolvedBone } from "./../kinematics/IAutoMovieResolvedBone";
-import type { IAutoMovieSkeletonTopology } from "./../kinematics/IAutoMovieSkeletonTopology";
-import { IAutoMovieBone,
+import {
   AutoMovieHumanoidBone,
+  IAutoMovieBone,
   IAutoMovieCapsuleProxy,
   IAutoMovieMotion,
   IAutoMovieSkeleton,
@@ -18,6 +17,8 @@ import { segmentSegmentDistance } from "../math/segmentSegmentDistance";
 import { sampleMotion } from "../motion/sampleMotion";
 import { sampleTimes } from "../motion/sampleTimes";
 import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
+import type { IAutoMovieResolvedBone } from "./../kinematics/IAutoMovieResolvedBone";
+import type { IAutoMovieSkeletonTopology } from "./../kinematics/IAutoMovieSkeletonTopology";
 import { IAutoMovieCapsuleProxyPair } from "./IAutoMovieCapsuleProxyPair";
 import { ViolationCollector } from "./ViolationCollector";
 import { fkReachableBones } from "./fkReachableBones";
@@ -37,7 +38,16 @@ const DEFAULT_SAMPLE_RATE: number = 24;
  * @evidence contracts/performance.md#reuse-equivalent-work Skeleton topology/reachability are reused; pair endpoints share the same canonical capsule admission.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Sample-local resolved maps release; returned diagnostics grow with failures and no native collision world persists.
  */
-export const validateSelfIntersection: (props: { motion: IAutoMovieMotion; skeleton: IAutoMovieSkeleton; pairs: readonly IAutoMovieCapsuleProxyPair[]; sampleRate?: number; path?: string; jointAxes?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>; restFrames?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>; physicsIntent?: string; }) => IAutoMovieValidation = (props: {
+export const validateSelfIntersection: (props: {
+  motion: IAutoMovieMotion;
+  skeleton: IAutoMovieSkeleton;
+  pairs: readonly IAutoMovieCapsuleProxyPair[];
+  sampleRate?: number;
+  path?: string;
+  jointAxes?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>;
+  restFrames?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>;
+  physicsIntent?: string;
+}) => IAutoMovieValidation = (props: {
   /** Motion clip to sample. */
   motion: IAutoMovieMotion;
 
@@ -71,64 +81,85 @@ export const validateSelfIntersection: (props: { motion: IAutoMovieMotion; skele
   const sampleRate: number =
     props.sampleRate === undefined ? DEFAULT_SAMPLE_RATE : props.sampleRate;
   const path: string = props.path ?? "$input";
-  const skeletonBones: Set<AutoMovieHumanoidBone> = new Set(props.skeleton.bones.map((bone: IAutoMovieBone): AutoMovieHumanoidBone => bone.bone));
+  const skeletonBones: Set<AutoMovieHumanoidBone> = new Set(
+    props.skeleton.bones.map(
+      (bone: IAutoMovieBone): AutoMovieHumanoidBone => bone.bone,
+    ),
+  );
 
   if (!Number.isFinite(sampleRate))
     return rejectSampleRate(collector, path, sampleRate);
   if (sampleRate <= 0) return rejectSampleRate(collector, path, sampleRate);
 
-  const topology: IAutoMovieSkeletonTopology = indexSkeletonTopology(props.skeleton);
-  const reachableBones: Set<AutoMovieHumanoidBone> = fkReachableBones(props.skeleton, topology);
+  const topology: IAutoMovieSkeletonTopology = indexSkeletonTopology(
+    props.skeleton,
+  );
+  const reachableBones: Set<AutoMovieHumanoidBone> = fkReachableBones(
+    props.skeleton,
+    topology,
+  );
 
-  props.pairs.forEach((pair: IAutoMovieCapsuleProxyPair, pairIndex: number): void => {
-    const pp: string = `${path}.pairs[${pairIndex}]`;
-    const firstValid: boolean = validateCapsule(
-      pair.first,
-      `${pp}.first`,
-      skeletonBones,
-      reachableBones,
-      collector,
-    );
-    const secondValid: boolean = validateCapsule(
-      pair.second,
-      `${pp}.second`,
-      skeletonBones,
-      reachableBones,
-      collector,
-    );
-    if (firstValid && secondValid) {
-      sampleTimes(props.motion.duration, sampleRate).forEach(
-        (time: number, sampleIndex: number): void => {
-          const resolved: Map<AutoMovieHumanoidBone, IAutoMovieVector3> = new Map(
-            resolvePose(
-              sampleMotion(props.motion, time).pose,
-              props.skeleton,
-              props.jointAxes,
-              props.restFrames,
-              topology,
-            ).map((bone: IAutoMovieResolvedBone): [AutoMovieHumanoidBone, IAutoMovieVector3] => [bone.bone, bone.worldPosition]),
-          );
-          const first: { from: IAutoMovieVector3; to: IAutoMovieVector3; } = resolveCapsule(pair.first, resolved);
-          const second: { from: IAutoMovieVector3; to: IAutoMovieVector3; } = resolveCapsule(pair.second, resolved);
-          const distance: number = segmentSegmentDistance(
-            first.from,
-            first.to,
-            second.from,
-            second.to,
-          );
-          const minimum: number = pair.first.radius + pair.second.radius;
-          if (distance < minimum && !suppressed)
-            collector.warn(
-              "physics",
-              `${pp}.samples[${sampleIndex}].distance`,
-              `capsule centerline distance must stay >= ${round(minimum)}m at t=${round(time)}s (body parts may legitimately near-contact in close choreography; mark physicsIntent if it is deliberate)`,
-              distance,
-              minimum - distance,
-            );
-        },
+  props.pairs.forEach(
+    (pair: IAutoMovieCapsuleProxyPair, pairIndex: number): void => {
+      const pp: string = `${path}.pairs[${pairIndex}]`;
+      const firstValid: boolean = validateCapsule(
+        pair.first,
+        `${pp}.first`,
+        skeletonBones,
+        reachableBones,
+        collector,
       );
-    }
-  });
+      const secondValid: boolean = validateCapsule(
+        pair.second,
+        `${pp}.second`,
+        skeletonBones,
+        reachableBones,
+        collector,
+      );
+      if (firstValid && secondValid) {
+        sampleTimes(props.motion.duration, sampleRate).forEach(
+          (time: number, sampleIndex: number): void => {
+            const resolved: Map<AutoMovieHumanoidBone, IAutoMovieVector3> =
+              new Map(
+                resolvePose(
+                  sampleMotion(props.motion, time).pose,
+                  props.skeleton,
+                  props.jointAxes,
+                  props.restFrames,
+                  topology,
+                ).map(
+                  (
+                    bone: IAutoMovieResolvedBone,
+                  ): [AutoMovieHumanoidBone, IAutoMovieVector3] => [
+                    bone.bone,
+                    bone.worldPosition,
+                  ],
+                ),
+              );
+            const first: { from: IAutoMovieVector3; to: IAutoMovieVector3 } =
+              resolveCapsule(pair.first, resolved);
+            const second: { from: IAutoMovieVector3; to: IAutoMovieVector3 } =
+              resolveCapsule(pair.second, resolved);
+            const distance: number = segmentSegmentDistance(
+              first.from,
+              first.to,
+              second.from,
+              second.to,
+            );
+            const minimum: number = pair.first.radius + pair.second.radius;
+            if (distance < minimum && !suppressed)
+              collector.warn(
+                "physics",
+                `${pp}.samples[${sampleIndex}].distance`,
+                `capsule centerline distance must stay >= ${round(minimum)}m at t=${round(time)}s (body parts may legitimately near-contact in close choreography; mark physicsIntent if it is deliberate)`,
+                distance,
+                minimum - distance,
+              );
+          },
+        );
+      }
+    },
+  );
 
   return collector.toValidation();
 };
@@ -148,7 +179,11 @@ export const validateSelfIntersection: (props: { motion: IAutoMovieMotion; skele
  *
  * Only caller-owned diagnostics remain, without a sampler task.
  */
-const rejectSampleRate: (collector: ViolationCollector, path: string, sampleRate: number) => IAutoMovieValidation = (
+const rejectSampleRate: (
+  collector: ViolationCollector,
+  path: string,
+  sampleRate: number,
+) => IAutoMovieValidation = (
   collector: ViolationCollector,
   path: string,
   sampleRate: number,
@@ -177,7 +212,10 @@ const rejectSampleRate: (collector: ViolationCollector, path: string, sampleRate
  *
  * The wrapper is sample-local and no resolved map/body handle is retained.
  */
-const resolveCapsule: (capsule: IAutoMovieCapsuleProxy, resolved: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieVector3>) => { from: IAutoMovieVector3; to: IAutoMovieVector3; } = (
+const resolveCapsule: (
+  capsule: IAutoMovieCapsuleProxy,
+  resolved: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieVector3>,
+) => { from: IAutoMovieVector3; to: IAutoMovieVector3 } = (
   capsule: IAutoMovieCapsuleProxy,
   resolved: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieVector3>,
 ): { from: IAutoMovieVector3; to: IAutoMovieVector3 } => ({
@@ -200,4 +238,5 @@ const resolveCapsule: (capsule: IAutoMovieCapsuleProxy, resolved: ReadonlyMap<Au
  *
  * Only a number returns and no sampled state is retained.
  */
-const round: (value: number) => number = (value: number): number => Math.round(value * 1_000) / 1_000;
+const round: (value: number) => number = (value: number): number =>
+  Math.round(value * 1_000) / 1_000;

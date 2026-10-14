@@ -1,5 +1,7 @@
 import { IAutoMovieChannel } from "@automovie/interface";
+
 import { IAutoMovieNodeChannel } from "./IAutoMovieNodeChannel";
+
 type IAutoMoviePointerChannel = Extract<IAutoMovieChannel, { kind: "pointer" }>;
 
 /**
@@ -37,7 +39,9 @@ const CHANNEL_VALUE_WIDTHS: Partial<
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only a scalar or undefined should transfer; no channel record, model, keyframe array or host handle is retained.
  * @author Samchon
  */
-export const channelValueWidth: (channel: unknown) => number | undefined = (channel: unknown): number | undefined => {
+export const channelValueWidth: (channel: unknown) => number | undefined = (
+  channel: unknown,
+): number | undefined => {
   if (typeof channel !== "object" || channel === null) return undefined;
   const record: Record<string, unknown> = channel as Record<string, unknown>;
   if (record.kind === "node") {

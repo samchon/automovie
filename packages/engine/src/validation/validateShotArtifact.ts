@@ -32,7 +32,11 @@ import { validateUniqueIds } from "./validateUniqueIds";
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only report rows escape; borrowed artifacts/registries remain caller-owned and no playback host is started.
  */
 
-export const validateShotArtifact: (shot: IAutoMovieShot, scene: IAutoMovieScene, motionIds: ReadonlySet<string> | null) => IAutoMovieValidation = (
+export const validateShotArtifact: (
+  shot: IAutoMovieShot,
+  scene: IAutoMovieScene,
+  motionIds: ReadonlySet<string> | null,
+) => IAutoMovieValidation = (
   shot: IAutoMovieShot,
   scene: IAutoMovieScene,
   /**
@@ -57,11 +61,14 @@ export const validateShotArtifact: (shot: IAutoMovieShot, scene: IAutoMovieScene
       `shot scene "${shot.scene}" must match scene "${sceneId}"`,
       shot.scene,
     );
-  const sceneCameras: unknown[] = asArray(isRecord(scene) ? scene.cameras : undefined);
+  const sceneCameras: unknown[] = asArray(
+    isRecord(scene) ? scene.cameras : undefined,
+  );
   if (
     typeof shot.camera === "string" &&
     !sceneCameras.some(
-      (camera: unknown): boolean => isRecord(camera) && camera.id === shot.camera,
+      (camera: unknown): boolean =>
+        isRecord(camera) && camera.id === shot.camera,
     )
   )
     pushViolation(
@@ -89,10 +96,13 @@ export const validateShotArtifact: (shot: IAutoMovieShot, scene: IAutoMovieScene
   );
   const performances: unknown[] = asArray(shot.performances);
   validateUniqueBy(
-    Array.from(performances, (performance: unknown, index: number): { id: unknown; path: string; } => ({
-      id: isRecord(performance) ? performance.node : undefined,
-      path: `$input.performances[${index}].node`,
-    })),
+    Array.from(
+      performances,
+      (performance: unknown, index: number): { id: unknown; path: string } => ({
+        id: isRecord(performance) ? performance.node : undefined,
+        path: `$input.performances[${index}].node`,
+      }),
+    ),
     "shot performance node",
     violations,
   );
@@ -195,7 +205,9 @@ export const validateShotArtifact: (shot: IAutoMovieShot, scene: IAutoMovieScene
     ...asArray(shot.coverage)
       .filter(isRecord)
       .map((take: Record<string, unknown>): unknown => take.camera)
-      .filter((camera: unknown): camera is string => typeof camera === "string"),
+      .filter(
+        (camera: unknown): camera is string => typeof camera === "string",
+      ),
   ]);
   const clearanceCameras: Set<string> = new Set(
     sceneCameras
@@ -220,7 +232,9 @@ export const validateShotArtifact: (shot: IAutoMovieShot, scene: IAutoMovieScene
     asArray(shot.cameraClearance)
       .filter(isRecord)
       .map((report: Record<string, unknown>): unknown => report.camera)
-      .filter((camera: unknown): camera is string => typeof camera === "string"),
+      .filter(
+        (camera: unknown): camera is string => typeof camera === "string",
+      ),
   );
   for (const camera of clearanceCameras)
     if (!reportedCameras.has(camera))
@@ -259,7 +273,9 @@ export const validateShotArtifact: (shot: IAutoMovieShot, scene: IAutoMovieScene
  *
  * The caller owns the map and borrowed kind values, with no staged renderer light acquired.
  */
-const stagedLightKinds: (scene: unknown) => ReadonlyMap<string, unknown> = (scene: unknown): ReadonlyMap<string, unknown> => {
+const stagedLightKinds: (scene: unknown) => ReadonlyMap<string, unknown> = (
+  scene: unknown,
+): ReadonlyMap<string, unknown> => {
   const index: Map<string, unknown> = new Map<string, unknown>();
   for (const light of asArray(isRecord(scene) ? scene.lights : undefined))
     if (isRecord(light) && typeof light.id === "string")

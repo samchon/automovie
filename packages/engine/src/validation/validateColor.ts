@@ -22,7 +22,11 @@ const HEX_COLOR_PATTERN: RegExp = /^#[0-9A-Fa-f]{6}$/;
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Validates the caller's current mutable color once; there is no identity or content revision for safely caching verdicts across later authoring edits.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains no color or conversion result after return; the caller's collector owns at most one object-shape finding or one per invalid scalar/label field.
  */
-export function validateColor(color: unknown, path: string, collector: ViolationCollector): void {
+export function validateColor(
+  color: unknown,
+  path: string,
+  collector: ViolationCollector,
+): void {
   if (!isRecord(color)) {
     collector.push("type", path, "color must be a JSON object", color);
     return;
@@ -34,12 +38,31 @@ export function validateColor(color: unknown, path: string, collector: Violation
   if (color.a !== null) collector.range(`${path}.a`, color.a, 0, 1, "a");
   if (color.hex === null) return;
   if (typeof color.hex !== "string" || !HEX_COLOR_PATTERN.test(color.hex)) {
-    collector.push("type", `${path}.hex`, "hex must be null or a #RRGGBB color label", color.hex);
+    collector.push(
+      "type",
+      `${path}.hex`,
+      "hex must be null or a #RRGGBB color label",
+      color.hex,
+    );
     return;
   }
-  if (validRgb && typeof color.r === "number" && typeof color.g === "number" && typeof color.b === "number") {
-    const expected: string = linearColorToSrgbHex({ r: color.r, g: color.g, b: color.b });
+  if (
+    validRgb &&
+    typeof color.r === "number" &&
+    typeof color.g === "number" &&
+    typeof color.b === "number"
+  ) {
+    const expected: string = linearColorToSrgbHex({
+      r: color.r,
+      g: color.g,
+      b: color.b,
+    });
     if (color.hex.toLowerCase() !== expected)
-      collector.push("type", `${path}.hex`, `hex must match the linear RGB channels encoded as ${expected}, but was "${color.hex}"`, color.hex);
+      collector.push(
+        "type",
+        `${path}.hex`,
+        `hex must match the linear RGB channels encoded as ${expected}, but was "${color.hex}"`,
+        color.hex,
+      );
   }
 }

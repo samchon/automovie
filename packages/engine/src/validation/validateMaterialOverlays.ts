@@ -16,7 +16,11 @@ const MAXIMUM_OVERLAYS: number = 4;
  * @evidence contracts/performance.md#reuse-equivalent-work finiteMinimum and collector ranges share scalar policy; mutable overlays are checked per call.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns diagnostics and borrowed actual values, with no image load or material handle acquired.
  */
-export const validateMaterialOverlays: (overlays: unknown, path: string, collector: ViolationCollector) => void = (
+export const validateMaterialOverlays: (
+  overlays: unknown,
+  path: string,
+  collector: ViolationCollector,
+) => void = (
   overlays: unknown,
   path: string,
   collector: ViolationCollector,

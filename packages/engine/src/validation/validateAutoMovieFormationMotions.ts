@@ -1,7 +1,14 @@
-import { IAutoMovieShotParticipant, IAutoMovieFormationMotion, IAutoMovieModel, IAutoMovieCompiledFormation, IAutoMovieCompiledFormationLod, IAutoMovieGait, IAutoMovieFormationLayout,
+import {
+  IAutoMovieCompiledFormation,
+  IAutoMovieCompiledFormationLod,
   IAutoMovieCompiledShotSource,
   IAutoMovieDiagnostic,
+  IAutoMovieFormationLayout,
+  IAutoMovieFormationMotion,
+  IAutoMovieGait,
+  IAutoMovieModel,
   IAutoMovieShotContract,
+  IAutoMovieShotParticipant,
 } from "@automovie/interface";
 
 import { autoMovieModelGaits } from "../index";
@@ -20,12 +27,18 @@ import { engineDiagnostic } from "./engineDiagnostic";
  * @evidence contracts/performance.md#reuse-equivalent-work The existing gait owner supplies repertoire and maps live only for this shot's current inputs.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only diagnostics escape; local sets/maps borrow compiled records without retaining a host bake or animation task.
  */
-export const validateAutoMovieFormationMotions: (contract: IAutoMovieShotContract, value: IAutoMovieCompiledShotSource) => IAutoMovieDiagnostic[] = (
+export const validateAutoMovieFormationMotions: (
+  contract: IAutoMovieShotContract,
+  value: IAutoMovieCompiledShotSource,
+) => IAutoMovieDiagnostic[] = (
   contract: IAutoMovieShotContract,
   value: IAutoMovieCompiledShotSource,
 ): IAutoMovieDiagnostic[] => {
   const diagnostics: IAutoMovieDiagnostic[] = [];
-  const fail: (field: string, expectation: string) => void = (field: string, expectation: string): void => {
+  const fail: (field: string, expectation: string) => void = (
+    field: string,
+    expectation: string,
+  ): void => {
     diagnostics.push(engineDiagnostic(contract.id, field, expectation));
   };
   if (value.formationMotions.length > 256)
@@ -35,8 +48,9 @@ export const validateAutoMovieFormationMotions: (contract: IAutoMovieShotContrac
     );
   const ids: Set<string> = new Set<string>();
   const participating: Set<string> = new Set(
-    contract.participants.flatMap((participant: IAutoMovieShotParticipant): string[] =>
-      participant.kind === "formation" ? [participant.id] : [],
+    contract.participants.flatMap(
+      (participant: IAutoMovieShotParticipant): string[] =>
+        participant.kind === "formation" ? [participant.id] : [],
     ),
   );
   const priorByFormation: Map<string, IAutoMovieFormationMotion> = new Map<
@@ -48,22 +62,38 @@ export const validateAutoMovieFormationMotions: (contract: IAutoMovieShotContrac
   // viewer's bake accepts too. A unit whose figures declare nothing is a crowd
   // of props and has no repertoire to disagree with, exactly as the bake reads
   // it.
-  const runtimeById: Map<string, IAutoMovieModel> = new Map(value.models.map((model: IAutoMovieModel): [string, IAutoMovieModel] => [model.id, model]));
-  const repertoire: Map<string, Set<string>> = new Map(
-    value.formations.map((formation: IAutoMovieCompiledFormation): [string, Set<string>] => [
-      formation.id,
-      new Set(
-        formation.lod.flatMap((tier: IAutoMovieCompiledFormationLod): string[] => {
-          const model: IAutoMovieModel | undefined = runtimeById.get(tier.model);
-          return model === undefined
-            ? []
-            : autoMovieModelGaits(model).map((gait: IAutoMovieGait): string => gait.name);
-        }),
-      ),
+  const runtimeById: Map<string, IAutoMovieModel> = new Map(
+    value.models.map((model: IAutoMovieModel): [string, IAutoMovieModel] => [
+      model.id,
+      model,
     ]),
   );
+  const repertoire: Map<string, Set<string>> = new Map(
+    value.formations.map(
+      (formation: IAutoMovieCompiledFormation): [string, Set<string>] => [
+        formation.id,
+        new Set(
+          formation.lod.flatMap(
+            (tier: IAutoMovieCompiledFormationLod): string[] => {
+              const model: IAutoMovieModel | undefined = runtimeById.get(
+                tier.model,
+              );
+              return model === undefined
+                ? []
+                : autoMovieModelGaits(model).map(
+                    (gait: IAutoMovieGait): string => gait.name,
+                  );
+            },
+          ),
+        ),
+      ],
+    ),
+  );
   for (const cue of [...value.formationMotions].sort(
-    (left: IAutoMovieFormationMotion, right: IAutoMovieFormationMotion): number =>
+    (
+      left: IAutoMovieFormationMotion,
+      right: IAutoMovieFormationMotion,
+    ): number =>
       compareCodeUnits(left.formation, right.formation) ||
       left.start - right.start ||
       compareCodeUnits(left.id, right.id),
@@ -76,8 +106,10 @@ export const validateAutoMovieFormationMotions: (contract: IAutoMovieShotContrac
     ids.add(cue.id);
     if (
       participating.has(cue.formation) === false ||
-      value.formations.some((formation: IAutoMovieCompiledFormation): boolean => formation.id === cue.formation) ===
-        false
+      value.formations.some(
+        (formation: IAutoMovieCompiledFormation): boolean =>
+          formation.id === cue.formation,
+      ) === false
     )
       fail(
         `formationMotion:${cue.id}.formation`,
@@ -90,10 +122,11 @@ export const validateAutoMovieFormationMotions: (contract: IAutoMovieShotContrac
     // rather than the renderer's to discover.
     const target: IAutoMovieFormationLayout | undefined = cue.layout;
     const unit: IAutoMovieCompiledFormation | undefined = value.formations.find(
-      (formation: IAutoMovieCompiledFormation): boolean => formation.id === cue.formation,
+      (formation: IAutoMovieCompiledFormation): boolean =>
+        formation.id === cue.formation,
     );
     if (target !== undefined && unit !== undefined) {
-      const lattice: { ranks: number; files: number; } | null =
+      const lattice: { ranks: number; files: number } | null =
         target.kind === "line" || target.kind === "column"
           ? { ranks: target.ranks, files: target.files }
           : null;
@@ -162,7 +195,9 @@ export const validateAutoMovieFormationMotions: (contract: IAutoMovieShotContrac
           "must stay inside the bounded 0.25..4 envelope",
         );
     }
-    const prior: IAutoMovieFormationMotion | undefined = priorByFormation.get(cue.formation);
+    const prior: IAutoMovieFormationMotion | undefined = priorByFormation.get(
+      cue.formation,
+    );
     if (prior !== undefined && cue.start < prior.end)
       fail(
         `formationMotion:${cue.id}.start`,

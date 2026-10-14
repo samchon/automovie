@@ -1,4 +1,5 @@
 import { AutoMovieTextureMediaType } from "./AutoMovieTextureMediaType";
+
 /**
  * Media discriminator and dimensions inferred from recognized image headers.
  *

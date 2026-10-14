@@ -1,4 +1,4 @@
-import { IAutoMovieVector3, IAutoMovieBody } from "@automovie/interface";
+import { IAutoMovieBody, IAutoMovieVector3 } from "@automovie/interface";
 
 import { ViolationCollector } from "./ViolationCollector";
 
@@ -13,7 +13,11 @@ import { ViolationCollector } from "./ViolationCollector";
  * @evidence contracts/performance.md#reuse-equivalent-work Collector range semantics are shared, without caching mutable body metadata.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only caller-owned diagnostics remain; no physics body or native geometry is acquired.
  */
-export const validateBody: (body: IAutoMovieBody, path: string, collector: ViolationCollector) => void = (
+export const validateBody: (
+  body: IAutoMovieBody,
+  path: string,
+  collector: ViolationCollector,
+) => void = (
   body: IAutoMovieBody,
   path: string,
   collector: ViolationCollector,

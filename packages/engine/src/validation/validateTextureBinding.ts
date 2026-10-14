@@ -12,7 +12,12 @@ import { collectNonEmptyId } from "./collectNonEmptyId";
  * @evidence contracts/performance.md#reuse-equivalent-work finiteVector2 and enumValue share field admission, without caching mutable binding objects.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only caller-owned faults remain, with no image load, sampler handle or GPU texture acquired.
  */
-export const validateTextureBinding: (binding: unknown, path: string, expectedColorSpace: "srgb" | "linear", collector: ViolationCollector) => void = (
+export const validateTextureBinding: (
+  binding: unknown,
+  path: string,
+  expectedColorSpace: "srgb" | "linear",
+  collector: ViolationCollector,
+) => void = (
   binding: unknown,
   path: string,
   expectedColorSpace: "srgb" | "linear",
@@ -77,7 +82,10 @@ export const validateTextureBinding: (binding: unknown, path: string, expectedCo
         transform,
       );
     else {
-      const record: Record<string, unknown> = transform as Record<string, unknown>;
+      const record: Record<string, unknown> = transform as Record<
+        string,
+        unknown
+      >;
       finiteVector2(
         record.offset,
         `${path}.transform.offset`,
@@ -118,7 +126,10 @@ export const validateTextureBinding: (binding: unknown, path: string, expectedCo
         sampler,
       );
     else {
-      const record: Record<string, unknown> = sampler as Record<string, unknown>;
+      const record: Record<string, unknown> = sampler as Record<
+        string,
+        unknown
+      >;
       enumValue(
         record.wrapS,
         ["clamp", "repeat", "mirror"],
@@ -166,7 +177,13 @@ export const validateTextureBinding: (binding: unknown, path: string, expectedCo
  *
  * Only collector rows remain and no transform or sampler handle is retained.
  */
-const finiteVector2: (value: unknown, path: string, label: string, collector: ViolationCollector, nonZero: boolean) => void = (
+const finiteVector2: (
+  value: unknown,
+  path: string,
+  label: string,
+  collector: ViolationCollector,
+  nonZero: boolean,
+) => void = (
   value: unknown,
   path: string,
   label: string,
@@ -207,7 +224,13 @@ const finiteVector2: (value: unknown, path: string, label: string, collector: Vi
  *
  * Only collector faults remain; no loader/sampler resource is acquired.
  */
-const enumValue: (value: unknown, allowed: readonly string[], path: string, label: string, collector: ViolationCollector) => void = (
+const enumValue: (
+  value: unknown,
+  allowed: readonly string[],
+  path: string,
+  label: string,
+  collector: ViolationCollector,
+) => void = (
   value: unknown,
   allowed: readonly string[],
   path: string,

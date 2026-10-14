@@ -13,7 +13,11 @@ import { ViolationCollector } from "./ViolationCollector";
  * @evidence contracts/performance.md#reuse-equivalent-work Primitive model/affordance gates share these rules instead of their own extents validators.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only collector rows remain with the caller; no mesh tessellation or renderer resource is acquired.
  */
-export const validateExtents: (shape: AutoMoviePrimitiveShape, path: string, collector: ViolationCollector) => void = (
+export const validateExtents: (
+  shape: AutoMoviePrimitiveShape,
+  path: string,
+  collector: ViolationCollector,
+) => void = (
   shape: AutoMoviePrimitiveShape,
   path: string,
   collector: ViolationCollector,
@@ -45,7 +49,7 @@ export const validateExtents: (shape: AutoMoviePrimitiveShape, path: string, col
       ];
       break;
     default: {
-      const unknown: { type: unknown; } = shape as { type: unknown };
+      const unknown: { type: unknown } = shape as { type: unknown };
       collector.push(
         "type",
         `${path}.type`,

@@ -1,4 +1,5 @@
 import { IAutoMovieCapsuleProxy } from "@automovie/interface";
+
 /**
  * Declare one capsule pair to include in a self-intersection check.
  *

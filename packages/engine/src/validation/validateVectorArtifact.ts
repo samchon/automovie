@@ -14,7 +14,12 @@ import { validateObjectArtifact } from "./validateObjectArtifact";
  * @evidence contracts/performance.md#reuse-equivalent-work All vector artifact callers reuse this exact finite-axis rule.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only caller-owned fault rows remain, with no vector cache or native handle.
  */
-export const validateVectorArtifact: (vector: unknown, path: string, label: string, violations: IAutoMovieConstraintViolation[]) => void = (
+export const validateVectorArtifact: (
+  vector: unknown,
+  path: string,
+  label: string,
+  violations: IAutoMovieConstraintViolation[],
+) => void = (
   vector: unknown,
   path: string,
   label: string,

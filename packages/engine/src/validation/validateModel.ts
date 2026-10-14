@@ -8,8 +8,13 @@
  * Moving a leaf must preserve predicate arithmetic, paths and ordering because
  * downstream correction rounds present these diagnostics to the author.
  */
-import type { IAutoMovieBone, IAutoMovieMaterial, AutoMovieHumanoidBone, IAutoMovieModelPart, IAutoMovieAffordance,
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieAffordance,
+  IAutoMovieBone,
+  IAutoMovieMaterial,
   IAutoMovieModel,
+  IAutoMovieModelPart,
   IAutoMovieValidation,
 } from "@automovie/interface";
 
@@ -43,13 +48,15 @@ import { validateUniqueValues } from "./validateUniqueValues";
  * @evidence contracts/performance.md#reuse-equivalent-work Leaf validators and texture slot enumeration are reused within this current model request.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The returned report owns rows; temporary maps/sets release and no model loader, host task or geometry cache remains.
  */
-export const validateModel: (props: { model: IAutoMovieModel; }) => IAutoMovieValidation = (props: {
+export const validateModel: (props: {
+  model: IAutoMovieModel;
+}) => IAutoMovieValidation = (props: {
   /** Borrowed typed model; numeric/reference checks append faults without repairing it. */
   model: IAutoMovieModel;
 }): IAutoMovieValidation => {
   const path: string = "$input";
   const collector: ViolationCollector = new ViolationCollector();
-  const { model }: { model: IAutoMovieModel; } = props;
+  const { model }: { model: IAutoMovieModel } = props;
 
   collectNonEmptyId(model.id, `${path}.id`, "model id", collector);
   if (model.asset !== null)
@@ -83,24 +90,40 @@ export const validateModel: (props: { model: IAutoMovieModel; }) => IAutoMovieVa
     });
   }
 
-  const materialIds: Set<string> = new Set(model.materials.map((m: IAutoMovieMaterial): string => m.id));
-  const boneNames: Set<AutoMovieHumanoidBone> = new Set((model.skeleton?.bones ?? []).map((b: IAutoMovieBone): AutoMovieHumanoidBone => b.bone));
+  const materialIds: Set<string> = new Set(
+    model.materials.map((m: IAutoMovieMaterial): string => m.id),
+  );
+  const boneNames: Set<AutoMovieHumanoidBone> = new Set(
+    (model.skeleton?.bones ?? []).map(
+      (b: IAutoMovieBone): AutoMovieHumanoidBone => b.bone,
+    ),
+  );
 
   validateUniqueValues(
-    model.materials.map((m: IAutoMovieMaterial, i: number): [string, string] => [m.id, `${path}.materials[${i}].id`]),
+    model.materials.map(
+      (m: IAutoMovieMaterial, i: number): [string, string] => [
+        m.id,
+        `${path}.materials[${i}].id`,
+      ],
+    ),
     "material id",
     collector,
   );
   validateUniqueValues(
-    model.parts.map((p: IAutoMovieModelPart, i: number): [string, string] => [p.id, `${path}.parts[${i}].id`]),
+    model.parts.map((p: IAutoMovieModelPart, i: number): [string, string] => [
+      p.id,
+      `${path}.parts[${i}].id`,
+    ]),
     "part id",
     collector,
   );
   validateUniqueValues(
-    (model.skeleton?.bones ?? []).map((b: IAutoMovieBone, i: number): [AutoMovieHumanoidBone, string] => [
-      b.bone,
-      `${path}.skeleton.bones[${i}].bone`,
-    ]),
+    (model.skeleton?.bones ?? []).map(
+      (b: IAutoMovieBone, i: number): [AutoMovieHumanoidBone, string] => [
+        b.bone,
+        `${path}.skeleton.bones[${i}].bone`,
+      ],
+    ),
     "skeleton bone",
     collector,
   );
@@ -152,7 +175,7 @@ export const validateModel: (props: { model: IAutoMovieModel; }) => IAutoMovieVa
         );
         break;
       default: {
-        const unknown: { type: unknown; } = part.geometry as { type: unknown };
+        const unknown: { type: unknown } = part.geometry as { type: unknown };
         collector.push(
           "type",
           `${pp}.geometry.type`,
@@ -197,7 +220,12 @@ export const validateModel: (props: { model: IAutoMovieModel; }) => IAutoMovieVa
   const affordances: IAutoMovieAffordance[] | null = model.affordances ?? null;
   if (affordances !== null) {
     validateUniqueValues(
-      affordances.map((a: IAutoMovieAffordance, i: number): [string, string] => [a.id, `${path}.affordances[${i}].id`]),
+      affordances.map(
+        (a: IAutoMovieAffordance, i: number): [string, string] => [
+          a.id,
+          `${path}.affordances[${i}].id`,
+        ],
+      ),
       "affordance id",
       collector,
     );

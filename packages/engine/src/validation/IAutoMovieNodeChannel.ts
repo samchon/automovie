@@ -1,4 +1,5 @@
 import { IAutoMovieChannel } from "@automovie/interface";
+
 /**
  * The existing node-target arm of IAutoMovieChannel.
  *

@@ -1,4 +1,3 @@
-
 /**
  * Name the image-container media types admitted by texture and environment validation.
  *

@@ -17,7 +17,10 @@ import { IAutoMovieSkeletonTopology, reachableBoneNames } from "../kinematics";
  * @evidence contracts/performance.md#reuse-equivalent-work Physics validators reuse one topology for reachability and pose sampling.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only the caller-owned set escapes; the alias retains no skeleton or host state.
  */
-export const fkReachableBones: (skeleton: IAutoMovieSkeleton, topology?: IAutoMovieSkeletonTopology) => Set<AutoMovieHumanoidBone> = (
+export const fkReachableBones: (
+  skeleton: IAutoMovieSkeleton,
+  topology?: IAutoMovieSkeletonTopology,
+) => Set<AutoMovieHumanoidBone> = (
   skeleton: IAutoMovieSkeleton,
   topology?: IAutoMovieSkeletonTopology,
 ): Set<AutoMovieHumanoidBone> => reachableBoneNames(skeleton, topology);

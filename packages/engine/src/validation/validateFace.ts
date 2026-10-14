@@ -16,7 +16,11 @@ import { FACE_PARAMETER_LIMIT } from "./constants/FACE_PARAMETER_LIMIT";
  * @evidence contracts/performance.md#reuse-equivalent-work The same flattenFace mapping is shared with morphFace instead of a parallel trait traversal.
  * @evidence contracts/performance.md#bound-retention-and-release-resources A supplied/fresh collector owns diagnostics; temporary trait rows release and no mesh/image is retained.
  */
-export const validateFace: (props: { face: IAutoMovieFace; path?: string; collector?: ViolationCollector; }) => ViolationCollector = (props: {
+export const validateFace: (props: {
+  face: IAutoMovieFace;
+  path?: string;
+  collector?: ViolationCollector;
+}) => ViolationCollector = (props: {
   /** Borrowed optional nested traits with signed weights admitted within -2..2. */
   face: IAutoMovieFace;
 
@@ -27,7 +31,8 @@ export const validateFace: (props: { face: IAutoMovieFace; path?: string; collec
   collector?: ViolationCollector;
 }): ViolationCollector => {
   const path: string = props.path ?? "$input";
-  const collector: ViolationCollector = props.collector ?? new ViolationCollector();
+  const collector: ViolationCollector =
+    props.collector ?? new ViolationCollector();
 
   for (const trait of flattenFace(props.face))
     collector.range(

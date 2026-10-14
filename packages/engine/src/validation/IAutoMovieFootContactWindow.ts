@@ -1,4 +1,5 @@
 import { AutoMovieHumanoidBone } from "@automovie/interface";
+
 /**
  * Declare a foot that should remain planted over a sampled motion interval.
  *

@@ -20,29 +20,77 @@ import { validateVectorArtifact } from "./validateVectorArtifact";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Reads one current mutable transform and appends its findings; it coordinates no phases and retains no verdict that could outlive an authored edit.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Owns no long-lived state; only the caller's collector keeps bounded field findings after return, while the temporary quaternion copy is released when its norm check finishes.
  */
-export function validateTransformScalars(props: { transform: unknown; path: string; label: string; collector: ViolationCollector }): void {
+export function validateTransformScalars(props: {
+  transform: unknown;
+  path: string;
+  label: string;
+  collector: ViolationCollector;
+}): void {
   const { transform, path, label, collector }: typeof props = props;
   if (!validateObjectArtifact(transform, path, label, collector.items)) return;
-  validateVectorArtifact(transform.translation, `${path}.translation`, `${label} translation`, collector.items);
-  validateRotation(transform.rotation, `${path}.rotation`, `${label} rotation`, collector);
-  validateVectorArtifact(transform.scale, `${path}.scale`, `${label} scale`, collector.items);
+  validateVectorArtifact(
+    transform.translation,
+    `${path}.translation`,
+    `${label} translation`,
+    collector.items,
+  );
+  validateRotation(
+    transform.rotation,
+    `${path}.rotation`,
+    `${label} rotation`,
+    collector,
+  );
+  validateVectorArtifact(
+    transform.scale,
+    `${path}.scale`,
+    `${label} scale`,
+    collector.items,
+  );
   if (isRecord(transform.scale))
     for (const axis of ["x", "y", "z"] as const) {
       const value: unknown = transform.scale[axis];
       if (typeof value === "number" && value <= 0)
-        collector.push("range", `${path}.scale.${axis}`, `${label} scale component must be > 0, but was ${value}`, value);
+        collector.push(
+          "range",
+          `${path}.scale.${axis}`,
+          `${label} scale component must be > 0, but was ${value}`,
+          value,
+        );
     }
 }
 
 /** Admit a finite quaternion record before using the collector's norm policy. */
-function validateRotation(rotation: unknown, path: string, label: string, collector: ViolationCollector): void {
+function validateRotation(
+  rotation: unknown,
+  path: string,
+  label: string,
+  collector: ViolationCollector,
+): void {
   if (!validateObjectArtifact(rotation, path, label, collector.items)) return;
   let finite: boolean = true;
   for (const axis of ["x", "y", "z", "w"] as const)
-    if (typeof rotation[axis] !== "number" || !Number.isFinite(rotation[axis])) {
+    if (
+      typeof rotation[axis] !== "number" ||
+      !Number.isFinite(rotation[axis])
+    ) {
       finite = false;
-      collector.push("range", `${path}.${axis}`, `${label} component must be finite, but was ${describeInvalidValue(rotation[axis])}`, rotation[axis]);
+      collector.push(
+        "range",
+        `${path}.${axis}`,
+        `${label} component must be finite, but was ${describeInvalidValue(rotation[axis])}`,
+        rotation[axis],
+      );
     }
-  if (finite && typeof rotation.x === "number" && typeof rotation.y === "number" && typeof rotation.z === "number" && typeof rotation.w === "number")
-    collector.unitQuaternion(path, { x: rotation.x, y: rotation.y, z: rotation.z, w: rotation.w }, label);
+  if (
+    finite &&
+    typeof rotation.x === "number" &&
+    typeof rotation.y === "number" &&
+    typeof rotation.z === "number" &&
+    typeof rotation.w === "number"
+  )
+    collector.unitQuaternion(
+      path,
+      { x: rotation.x, y: rotation.y, z: rotation.z, w: rotation.w },
+      label,
+    );
 }

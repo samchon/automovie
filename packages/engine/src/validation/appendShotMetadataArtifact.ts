@@ -1,8 +1,10 @@
 import { IAutoMovieConstraintViolation } from "@automovie/interface";
+
 import { appendCameraClearanceArtifact } from "./appendCameraClearanceArtifact";
-import { appendShotEventsArtifact } from "./appendShotEventsArtifact";
 import { appendCameraIntentArtifact } from "./appendCameraIntentArtifact";
 import { appendShotCoverageArtifact } from "./appendShotCoverageArtifact";
+import { appendShotEventsArtifact } from "./appendShotEventsArtifact";
+
 /**
  * Inspect present shot events, camera intent, coverage and clearance evidence.
  *
@@ -15,7 +17,19 @@ import { appendShotCoverageArtifact } from "./appendShotCoverageArtifact";
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller retains appended violations and offending values; per-field sets/paths/sample grids are local, and no camera, event player or renderer task is acquired.
  * @author Samchon
  */
-export const appendShotMetadataArtifact: (shot: { duration?: unknown; camera?: unknown; events?: unknown; cameraIntent?: unknown; coverage?: unknown; cameraClearance?: unknown; }, path: string, sceneCameras: ReadonlySet<string> | null, violations: IAutoMovieConstraintViolation[]) => void = (
+export const appendShotMetadataArtifact: (
+  shot: {
+    duration?: unknown;
+    camera?: unknown;
+    events?: unknown;
+    cameraIntent?: unknown;
+    coverage?: unknown;
+    cameraClearance?: unknown;
+  },
+  path: string,
+  sceneCameras: ReadonlySet<string> | null,
+  violations: IAutoMovieConstraintViolation[],
+) => void = (
   /**
    * Structural, not `IAutoMovieShot`, so both callers pass their own value
    * without a cast: the submitted artifact arrives already narrowed to a
@@ -33,7 +47,8 @@ export const appendShotMetadataArtifact: (shot: { duration?: unknown; camera?: u
   sceneCameras: ReadonlySet<string> | null,
   violations: IAutoMovieConstraintViolation[],
 ): void => {
-  const duration: number = typeof shot.duration === "number" ? shot.duration : Infinity;
+  const duration: number =
+    typeof shot.duration === "number" ? shot.duration : Infinity;
   if (shot.events !== undefined)
     appendShotEventsArtifact(
       shot.events,

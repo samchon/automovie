@@ -1,4 +1,4 @@
-import { IAutoMovieVector3, IAutoMovieAffordance } from "@automovie/interface";
+import { IAutoMovieAffordance, IAutoMovieVector3 } from "@automovie/interface";
 
 import { convexHull2D } from "../math/convexHull2D";
 import { ViolationCollector } from "./ViolationCollector";
@@ -16,7 +16,11 @@ import { validateTransformScalars } from "./validateTransformScalars";
  * @evidence contracts/performance.md#reuse-equivalent-work Canonical transform and hull owners are shared; changed affordance data is checked anew.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns diagnostic rows, while temporary hull storage releases and no seat/contact solve is created.
  */
-export const validateAffordance: (affordance: IAutoMovieAffordance, path: string, collector: ViolationCollector) => void = (
+export const validateAffordance: (
+  affordance: IAutoMovieAffordance,
+  path: string,
+  collector: ViolationCollector,
+) => void = (
   affordance: IAutoMovieAffordance,
   path: string,
   collector: ViolationCollector,

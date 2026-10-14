@@ -1,4 +1,5 @@
 import { ViolationCollector } from "./ViolationCollector";
+
 /**
  * Append identity findings for nonstrings and whitespace-only strings.
  *
@@ -11,7 +12,12 @@ import { ViolationCollector } from "./ViolationCollector";
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only a refused value and newly allocated finding are retained in the supplied collector; any trim result is temporary and no resource handle is acquired.
  * @author Samchon
  */
-export const collectNonEmptyId: (value: unknown, path: string, label: string, collector: ViolationCollector) => void = (
+export const collectNonEmptyId: (
+  value: unknown,
+  path: string,
+  label: string,
+  collector: ViolationCollector,
+) => void = (
   value: unknown,
   path: string,
   label: string,

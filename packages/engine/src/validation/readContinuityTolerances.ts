@@ -1,5 +1,5 @@
-import { ViolationCollector } from "./ViolationCollector";
 import { IAutoMovieContinuityTolerances } from "./IAutoMovieContinuityTolerances";
+import { ViolationCollector } from "./ViolationCollector";
 
 /** Default world-space position drift tolerated across a cut (metres). */
 const DEFAULT_POSITION_TOLERANCE: number = 0.05;
@@ -18,7 +18,12 @@ const DEFAULT_FACING_TOLERANCE_DEG: number = 5;
  * @evidence contracts/performance.md#reuse-equivalent-work Both continuity entrypoints reuse this exact tolerance policy once per call.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only the tolerance record or caller-owned faults escape; no snapshot state is retained.
  */
-export const readContinuityTolerances: (position: number | undefined, facingDeg: number | undefined, root: string, collector: ViolationCollector) => IAutoMovieContinuityTolerances | null = (
+export const readContinuityTolerances: (
+  position: number | undefined,
+  facingDeg: number | undefined,
+  root: string,
+  collector: ViolationCollector,
+) => IAutoMovieContinuityTolerances | null = (
   position: number | undefined,
   facingDeg: number | undefined,
   root: string,
@@ -27,7 +32,8 @@ export const readContinuityTolerances: (position: number | undefined, facingDeg:
   const pos: number = position ?? DEFAULT_POSITION_TOLERANCE;
   const facing: number = facingDeg ?? DEFAULT_FACING_TOLERANCE_DEG;
   const badPos: boolean = !Number.isFinite(pos) || pos < 0;
-  const badFacing: boolean = !Number.isFinite(facing) || facing < 0 || facing > 180;
+  const badFacing: boolean =
+    !Number.isFinite(facing) || facing < 0 || facing > 180;
   if (badPos)
     collector.push(
       "range",

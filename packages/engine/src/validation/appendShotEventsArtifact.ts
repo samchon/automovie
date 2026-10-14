@@ -1,9 +1,11 @@
 import { IAutoMovieConstraintViolation } from "@automovie/interface";
+
 import { pushViolation } from "./pushViolation";
 import { validateArrayArtifact } from "./validateArrayArtifact";
 import { validateNonEmptyId } from "./validateNonEmptyId";
 import { validateObjectArtifact } from "./validateObjectArtifact";
 import { validateVectorArtifact } from "./validateVectorArtifact";
+
 /** The closed event-kind union, gated the way the engine's compilers emit it. */
 const EVENT_KINDS: Set<string> = new Set([
   "contact",
@@ -41,7 +43,12 @@ const EVENT_SOURCES: Set<string> = new Set([
  * @evidence contracts/performance.md#reuse-equivalent-work All events reuse the same closed vocabulary sets and canonical identity/vector predicates without cached event verdicts.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller retains findings and offending field references; module sets retain only fixed schema strings and no event player, clip cursor or host is acquired.
  */
-export const appendShotEventsArtifact: (events: unknown, path: string, duration: number, violations: IAutoMovieConstraintViolation[]) => void = (
+export const appendShotEventsArtifact: (
+  events: unknown,
+  path: string,
+  duration: number,
+  violations: IAutoMovieConstraintViolation[],
+) => void = (
   events: unknown,
   path: string,
   duration: number,
@@ -120,6 +127,5 @@ export const appendShotEventsArtifact: (events: unknown, path: string, duration:
         `shot event actionIndex must be null or an integer, but was ${String(event.actionIndex)}`,
         event.actionIndex,
       );
-
   }
 };

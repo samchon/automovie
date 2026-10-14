@@ -1,9 +1,10 @@
-import type { IAutoMovieLightChannelProperty } from "./../resolve/IAutoMovieLightChannelProperty";
-import type { IAutoMovieLightPointer } from "./../resolve/IAutoMovieLightPointer";
 import type { IAutoMovieConstraintViolation } from "@automovie/interface";
+
 import { LIGHT_CHANNEL_PROPERTIES } from "../resolve/constants/LIGHT_CHANNEL_PROPERTIES";
 import { parseLightPointer } from "../resolve/parseLightPointer";
 import { withArticle } from "../text/withArticle";
+import type { IAutoMovieLightChannelProperty } from "./../resolve/IAutoMovieLightChannelProperty";
+import type { IAutoMovieLightPointer } from "./../resolve/IAutoMovieLightPointer";
 import { IAutoMovieClipChannelGate } from "./IAutoMovieClipChannelGate";
 import { pushViolation } from "./pushViolation";
 
@@ -18,11 +19,17 @@ import { pushViolation } from "./pushViolation";
  * @evidence contracts/performance.md#reuse-equivalent-work Property definitions are shared with lighting application, and each invocation reads the current borrowed map.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the closure and any captured map lifetime; the gate starts no host task.
  */
-export const lightClipChannelGate: (stagedLights: ReadonlyMap<string, unknown> | null) => IAutoMovieClipChannelGate =
+export const lightClipChannelGate: (
+  stagedLights: ReadonlyMap<string, unknown> | null,
+) => IAutoMovieClipChannelGate =
   (
     stagedLights: ReadonlyMap<string, unknown> | null,
   ): IAutoMovieClipChannelGate =>
-  (channel: Record<string, unknown>, path: string, violations: IAutoMovieConstraintViolation[]): void => {
+  (
+    channel: Record<string, unknown>,
+    path: string,
+    violations: IAutoMovieConstraintViolation[],
+  ): void => {
     if (channel.kind !== "pointer") {
       pushViolation(
         violations,
@@ -33,7 +40,9 @@ export const lightClipChannelGate: (stagedLights: ReadonlyMap<string, unknown> |
       );
       return;
     }
-    const target: IAutoMovieLightPointer | null = parseLightPointer(channel.pointer);
+    const target: IAutoMovieLightPointer | null = parseLightPointer(
+      channel.pointer,
+    );
     if (target === null) {
       pushViolation(
         violations,
@@ -44,7 +53,8 @@ export const lightClipChannelGate: (stagedLights: ReadonlyMap<string, unknown> |
       );
       return;
     }
-    const property: IAutoMovieLightChannelProperty = LIGHT_CHANNEL_PROPERTIES[target.property];
+    const property: IAutoMovieLightChannelProperty =
+      LIGHT_CHANNEL_PROPERTIES[target.property];
     if (channel.valueType !== property.valueType)
       pushViolation(
         violations,

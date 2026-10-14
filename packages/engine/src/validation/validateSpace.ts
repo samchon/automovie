@@ -1,4 +1,3 @@
-import { validateSurfaceHeightRule } from "./validateSurfaceHeightRule";
 import {
   IAutoMovieSpace,
   IAutoMovieSurface,
@@ -13,8 +12,13 @@ import { IAutoMovieFootprintRing } from "../space/IAutoMovieFootprintRing";
 import { footprintRing } from "../space/footprintRing";
 import { footprintRingPlacement } from "../space/footprintRingPlacement";
 import { ViolationCollector } from "./ViolationCollector";
+import { validateSurfaceHeightRule } from "./validateSurfaceHeightRule";
 
-const SURFACE_KINDS: readonly ["floor", "platform", "ramp"] = ["floor", "platform", "ramp"] as const;
+const SURFACE_KINDS: readonly ["floor", "platform", "ramp"] = [
+  "floor",
+  "platform",
+  "ramp",
+] as const;
 const MIN_RAMP_AXIS: number = 1e-9;
 
 /** Absolute double-plan-area admission threshold of 1e-9 square metres; very small nonzero rings are deliberately refused. */
@@ -32,13 +36,15 @@ const MIN_RING_DOUBLE_AREA: number = 1e-9;
  * @evidence contracts/performance.md#reuse-equivalent-work Each admitted ring is built once for its comparisons, sharing canonical polygon/height meanings.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Ring/ids/hole arrays release after the call; the report owns diagnostics and no terrain mesh or GPU state is created.
  */
-export const validateSpace: (props: { space: IAutoMovieSpace; }) => IAutoMovieValidation = (props: {
+export const validateSpace: (props: {
+  space: IAutoMovieSpace;
+}) => IAutoMovieValidation = (props: {
   /** Borrowed surface and walkable metadata; XZ footprint coordinates are checked while polygon Y is ignored. */
   space: IAutoMovieSpace;
 }): IAutoMovieValidation => {
   const path: string = "$input";
   const collector: ViolationCollector = new ViolationCollector();
-  const { space }: { space: IAutoMovieSpace; } = props;
+  const { space }: { space: IAutoMovieSpace } = props;
 
   if (space.id.trim().length === 0)
     collector.push(
@@ -102,7 +108,11 @@ export const validateSpace: (props: { space: IAutoMovieSpace; }) => IAutoMovieVa
  *
  * Only caller-owned diagnostics remain; no terrain mesh is retained.
  */
-const validateSurface: (surface: IAutoMovieSurface, path: string, collector: ViolationCollector) => void = (
+const validateSurface: (
+  surface: IAutoMovieSurface,
+  path: string,
+  collector: ViolationCollector,
+) => void = (
   surface: IAutoMovieSurface,
   path: string,
   collector: ViolationCollector,
@@ -134,7 +144,11 @@ const validateSurface: (surface: IAutoMovieSurface, path: string, collector: Vio
  *
  * Temporary ring/hole arrays release; the collector retains faults and borrowed authored rings.
  */
-const validateSurfaceFootprint: (surface: IAutoMovieSurface, path: string, collector: ViolationCollector) => void = (
+const validateSurfaceFootprint: (
+  surface: IAutoMovieSurface,
+  path: string,
+  collector: ViolationCollector,
+) => void = (
   surface: IAutoMovieSurface,
   path: string,
   collector: ViolationCollector,
@@ -145,8 +159,9 @@ const validateSurfaceFootprint: (surface: IAutoMovieSurface, path: string, colle
     "surface footprint",
     collector,
   );
-  const holes: (IAutoMovieFootprintRing | null)[] = (surface.holes ?? []).map((hole: IAutoMovieVector3[], i: number): IAutoMovieFootprintRing | null =>
-    validateRing(hole, `${path}.holes[${i}]`, "footprint hole", collector),
+  const holes: (IAutoMovieFootprintRing | null)[] = (surface.holes ?? []).map(
+    (hole: IAutoMovieVector3[], i: number): IAutoMovieFootprintRing | null =>
+      validateRing(hole, `${path}.holes[${i}]`, "footprint hole", collector),
   );
   if (outer === null) return;
   holes.forEach((hole: IAutoMovieFootprintRing | null, i: number): void => {
@@ -194,15 +209,20 @@ const validateSurfaceFootprint: (surface: IAutoMovieSurface, path: string, colle
  *
  * Rings are borrowed and only a boolean escapes.
  */
-const ringsTouch: (hole: IAutoMovieFootprintRing, outer: IAutoMovieFootprintRing) => boolean = (
+const ringsTouch: (
+  hole: IAutoMovieFootprintRing,
+  outer: IAutoMovieFootprintRing,
+) => boolean = (
   hole: IAutoMovieFootprintRing,
   outer: IAutoMovieFootprintRing,
 ): boolean =>
   hole.points.some(
-    (point: IAutoMovieVector3): boolean => footprintRingPlacement(outer, point.x, point.z) === "boundary",
+    (point: IAutoMovieVector3): boolean =>
+      footprintRingPlacement(outer, point.x, point.z) === "boundary",
   ) ||
   outer.points.some(
-    (point: IAutoMovieVector3): boolean => footprintRingPlacement(hole, point.x, point.z) === "boundary",
+    (point: IAutoMovieVector3): boolean =>
+      footprintRingPlacement(hole, point.x, point.z) === "boundary",
   );
 
 /**
@@ -220,7 +240,12 @@ const ringsTouch: (hole: IAutoMovieFootprintRing, outer: IAutoMovieFootprintRing
  *
  * Only a ring descriptor returns; points are borrowed and the collector owns faults.
  */
-const validateRing: (points: readonly IAutoMovieVector3[], path: string, label: string, collector: ViolationCollector) => IAutoMovieFootprintRing | null = (
+const validateRing: (
+  points: readonly IAutoMovieVector3[],
+  path: string,
+  label: string,
+  collector: ViolationCollector,
+) => IAutoMovieFootprintRing | null = (
   points: readonly IAutoMovieVector3[],
   path: string,
   label: string,
@@ -286,7 +311,11 @@ const validateRing: (points: readonly IAutoMovieVector3[], path: string, label: 
  *
  * Only collector faults remain; no height sampler/cache or mesh is retained.
  */
-const validateSurfaceGround: (surface: IAutoMovieSurface, path: string, collector: ViolationCollector) => void = (
+const validateSurfaceGround: (
+  surface: IAutoMovieSurface,
+  path: string,
+  collector: ViolationCollector,
+) => void = (
   surface: IAutoMovieSurface,
   path: string,
   collector: ViolationCollector,
@@ -347,7 +376,11 @@ const validateSurfaceGround: (surface: IAutoMovieSurface, path: string, collecto
  *
  * Only caller-owned diagnostics remain; no anchor record is retained internally.
  */
-const validateAnchor: (anchor: IAutoMovieVector3, path: string, collector: ViolationCollector) => void = (
+const validateAnchor: (
+  anchor: IAutoMovieVector3,
+  path: string,
+  collector: ViolationCollector,
+) => void = (
   anchor: IAutoMovieVector3,
   path: string,
   collector: ViolationCollector,

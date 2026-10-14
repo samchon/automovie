@@ -1,4 +1,5 @@
 import { IAutoMovieHeightRule } from "@automovie/interface";
+
 import { ViolationCollector } from "./ViolationCollector";
 
 /**
@@ -12,7 +13,11 @@ import { ViolationCollector } from "./ViolationCollector";
  * @evidence contracts/performance.md#reuse-equivalent-work finiteHeight and positiveSpacing share scalar checks across variants.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only collector rows remain, while samples stay borrowed without a terrain resource.
  */
-export const validateSurfaceHeightRule: (rule: IAutoMovieHeightRule, path: string, collector: ViolationCollector) => void = (
+export const validateSurfaceHeightRule: (
+  rule: IAutoMovieHeightRule,
+  path: string,
+  collector: ViolationCollector,
+) => void = (
   rule: IAutoMovieHeightRule,
   path: string,
   collector: ViolationCollector,
@@ -113,7 +118,12 @@ export const validateSurfaceHeightRule: (rule: IAutoMovieHeightRule, path: strin
  *
  * Only caller-owned diagnostics remain, without a height cache.
  */
-const finiteHeight: (value: number, path: string, label: string, collector: ViolationCollector) => void = (
+const finiteHeight: (
+  value: number,
+  path: string,
+  label: string,
+  collector: ViolationCollector,
+) => void = (
   value: number,
   path: string,
   label: string,
@@ -143,7 +153,12 @@ const finiteHeight: (value: number, path: string, label: string, collector: Viol
  *
  * Only collector faults remain; no grid or native terrain is acquired.
  */
-const positiveSpacing: (value: number, path: string, label: string, collector: ViolationCollector) => void = (
+const positiveSpacing: (
+  value: number,
+  path: string,
+  label: string,
+  collector: ViolationCollector,
+) => void = (
   value: number,
   path: string,
   label: string,

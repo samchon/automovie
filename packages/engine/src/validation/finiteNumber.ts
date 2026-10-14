@@ -11,7 +11,12 @@ import { ViolationCollector } from "./ViolationCollector";
  * @evidence contracts/performance.md#reuse-equivalent-work Callers share the check while reading their current scalar values anew.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The collector owns appended rows; the helper retains no input history.
  */
-export const finiteNumber: (value: number, path: string, label: string, collector: ViolationCollector) => void = (
+export const finiteNumber: (
+  value: number,
+  path: string,
+  label: string,
+  collector: ViolationCollector,
+) => void = (
   value: number,
   path: string,
   label: string,

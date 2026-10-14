@@ -1,4 +1,5 @@
 import { IAutoMovieConstraintViolation } from "@automovie/interface";
+
 import { sampleTimes } from "../motion/sampleTimes";
 import { asArray } from "./asArray";
 import { isRecord } from "./isRecord";
@@ -8,11 +9,12 @@ import { validateNonEmptyId } from "./validateNonEmptyId";
 import { validateObjectArtifact } from "./validateObjectArtifact";
 import { validateRange } from "./validateRange";
 import { validateUniqueBy } from "./validateUniqueBy";
+
 /** Count shared-clock intervals without allocating a hostile-sized grid. */
-const clearanceIntervalCount: (duration: number, sampleRate: number) => number | null = (
+const clearanceIntervalCount: (
   duration: number,
   sampleRate: number,
-): number | null => {
+) => number | null = (duration: number, sampleRate: number): number | null => {
   const frames: number = Math.max(1, Math.ceil(duration * sampleRate));
   if (!Number.isSafeInteger(frames)) return null;
   return Math.min(duration, (frames - 1) / sampleRate) === duration
@@ -32,7 +34,13 @@ const clearanceIntervalCount: (duration: number, sampleRate: number) => number |
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only appended findings and offending values persist in the supplied array; report lookup sets and generated clock arrays are discarded without camera or renderer resources.
  */
 
-export const appendCameraClearanceArtifact: (reports: unknown, path: string, duration: number, sceneCameras: ReadonlySet<string> | null, violations: IAutoMovieConstraintViolation[]) => void = (
+export const appendCameraClearanceArtifact: (
+  reports: unknown,
+  path: string,
+  duration: number,
+  sceneCameras: ReadonlySet<string> | null,
+  violations: IAutoMovieConstraintViolation[],
+) => void = (
   reports: unknown,
   path: string,
   duration: number,
@@ -49,14 +57,21 @@ export const appendCameraClearanceArtifact: (reports: unknown, path: string, dur
   )
     return;
   validateUniqueBy(
-    Array.from(reports, (report: unknown, index: number): { id: unknown; path: string; } => ({
-      id: isRecord(report) ? report.camera : undefined,
-      path: `${path}[${index}].camera`,
-    })),
+    Array.from(
+      reports,
+      (report: unknown, index: number): { id: unknown; path: string } => ({
+        id: isRecord(report) ? report.camera : undefined,
+        path: `${path}[${index}].camera`,
+      }),
+    ),
     "camera clearance report camera",
     violations,
   );
-  for (let index: number = 0, indexLimit: number = reports.length; index < indexLimit; ++index) {
+  for (
+    let index: number = 0, indexLimit: number = reports.length;
+    index < indexLimit;
+    ++index
+  ) {
     const report: unknown = reports[index];
     const reportPath: string = `${path}[${index}]`;
     if (
@@ -122,8 +137,12 @@ export const appendCameraClearanceArtifact: (reports: unknown, path: string, dur
     );
     const reportedSampleTimes: unknown[] = asArray(report.sampleTimes);
     if (validSampleTimes)
-      for (let index: number = 0, indexLimit: number = reportedSampleTimes.length; index < indexLimit; ++index) {
-    const time: unknown = reportedSampleTimes[index];
+      for (
+        let index: number = 0, indexLimit: number = reportedSampleTimes.length;
+        index < indexLimit;
+        ++index
+      ) {
+        const time: unknown = reportedSampleTimes[index];
         const previous: unknown = reportedSampleTimes[index - 1];
         if (
           typeof time !== "number" ||
@@ -151,8 +170,7 @@ export const appendCameraClearanceArtifact: (reports: unknown, path: string, dur
             "clearance sample times must be strictly increasing",
             time,
           );
-
-  }
+      }
     if (
       validSampleTimes &&
       typeof report.intervals === "number" &&
@@ -227,6 +245,5 @@ export const appendCameraClearanceArtifact: (reports: unknown, path: string, dur
         "a published clear report must contain no contact findings",
         report.findings,
       );
-
   }
 };

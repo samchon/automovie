@@ -1,4 +1,3 @@
-
 /**
  * A vertical filled-column claim about a runtime model's rest-axis geometry.
  *

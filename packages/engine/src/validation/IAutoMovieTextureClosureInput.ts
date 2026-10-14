@@ -1,6 +1,11 @@
-import { IAutoMovieAssetProvenance, IAutoMovieModel } from "@automovie/interface";
+import {
+  IAutoMovieAssetProvenance,
+  IAutoMovieModel,
+} from "@automovie/interface";
+
 import { IAutoMovieSceneEnvironmentUse } from "./IAutoMovieSceneEnvironmentUse";
 import { IAutoMovieTextureImageFacts } from "./IAutoMovieTextureImageFacts";
+
 /**
  * All authored uses, ledger rows and supplied image facts for texture closure.
  *
