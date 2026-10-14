@@ -1,6 +1,39 @@
 /**
- * Public entry of `@automovie/human`. It exports nothing until the rebuild
- * adds the parameter types and the generator that turns them into an
- * `IAutoMovieModel`.
+ * Public entry of `@automovie/human`: the person class, its input documents, the converter contract and default, admission, and the part and junction contracts that part generators implement.
  */
-export {};
+export * from "./human/AutoMovieHuman";
+
+export * from "./structures/AutoMovieHumanActionUnit";
+export * from "./structures/AutoMovieHumanHairColor";
+export * from "./structures/AutoMovieHumanIrisColor";
+export * from "./structures/AutoMovieHumanPopulation";
+export * from "./structures/AutoMovieHumanSex";
+export * from "./structures/IAutoMovieHumanAppearance";
+export * from "./structures/IAutoMovieHumanExpression";
+export * from "./structures/IAutoMovieHumanIdentity";
+export * from "./structures/IAutoMovieHumanPose";
+export * from "./structures/IAutoMovieHumanTraits";
+
+export * from "./measure/AutoMovieHumanAdmissionError";
+export * from "./measure/AutoMovieHumanConverter";
+export * from "./measure/IAutoMovieHumanConverter";
+export * from "./measure/IAutoMovieHumanMeasurements";
+export * from "./measure/validateAutoMovieHumanIdentity";
+export * from "./measure/validateAutoMovieHumanTraits";
+
+export * from "./skeleton/IAutoMovieHumanSkeleton";
+
+export * from "./junction/AutoMovieHumanJunctionSite";
+export * from "./junction/AutoMovieHumanPart";
+export * from "./junction/AutoMovieHumanSide";
+export * from "./junction/IAutoMovieHumanCage";
+export * from "./junction/IAutoMovieHumanJunction";
+export * from "./junction/IAutoMovieHumanRing";
+export * from "./junction/IAutoMovieHumanSurfaceCoordinate";
+
+export * from "./parts/IAutoMovieHumanPartGenerator";
+
+export * from "./rig/validateAutoMovieHumanExpression";
+export * from "./rig/validateAutoMovieHumanPose";
+
+export * from "./appearance/validateAutoMovieHumanAppearance";
