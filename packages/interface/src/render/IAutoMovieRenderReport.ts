@@ -10,7 +10,7 @@ import { IAutoMovieRenderTarget } from "./IAutoMovieRenderTarget";
  *
  * @evidence contracts/common.md#principled-implementation Budget evaluation emits one finding per fixed metric, reduces aggregate state by over then incomplete precedence and hashes fixed-position JSON tuples covering every finding field, including contributor sources and recovery, plus mask and target identity.
  * @evidence contracts/common.md#clear-and-simple-design Fixed metrics and caller-selected top-K attribution bound new finding records while omitted counts and costs preserve remaining attribution; borrowed target assets and string bytes still determine full retained or serialized report size.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Aggregate within with all unbudgeted findings is explicitly no agreed budget, not universal clearance; unsupported and not-run cannot become measured success and stale target identity invalidates reuse.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts All-unbudgeted within means no agreed threshold, not universal clearance. Explicit gaps cannot become measured success. Finite inventory values and current mask/target digests are caller premises: evaluation neither remeasures a frame nor independently checks attribution totals or reseals the borrowed target.
  * @evidence contracts/common.md#meaningful-documentation Defines state precedence, unbudgeted aggregate meaning, fixed metric order, bounded attribution and mask/target/digest binding.
  * @author Samchon
  */

@@ -12,7 +12,7 @@ export interface IAutoMovieRenderModelCost {
   model: string;
 
   /**
-   * Level-of-detail tier this row measures, or `null` for a model placed directly by a scene node rather than selected by distance.
+   * Level-of-detail tier of this model citation, or null for direct placement or mixed citations with no single tier. A request-local model-id cache reuses one row and clears its tier when later citations disagree.
    */
   tier: "hero" | "near" | "far" | null;
 

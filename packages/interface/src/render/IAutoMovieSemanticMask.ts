@@ -8,6 +8,8 @@ import { IAutoMovieSemanticMaskGap } from "./IAutoMovieSemanticMaskGap";
  *
  * Entries and bounded gaps describe logical hierarchy and drawable ownership. The canonical payload digest seals those supplied records; it does not establish scene visibility or capture provenance.
  *
+ * Derivation requires admitted subject ids, references and non-negative integer instance counts. Runtime verification checks the current protocol, exact record keys and collection containers before recomputing the digest; it does not independently validate scalar values, uniqueness, ownership links or the palette allocation algorithm. A self-consistent externally supplied payload therefore needs a trusted derivation owner as well as digest verification.
+ *
  * Palette colors are exact RGB24 values with black reserved for background. Actual PNG recovery additionally depends on the rendering pass, color conversion, antialiasing and pixel position; this palette alone guarantees neither exact GPU edges nor byte-identical images across hosts.
  *
  * @evidence contracts/common.md#principled-implementation Semantic palette derives non-background RGB24 colors from stable ids, processes collision claims in code-unit id order with deterministic forward probing and seals the full entries and bounded-gap payload by digest.

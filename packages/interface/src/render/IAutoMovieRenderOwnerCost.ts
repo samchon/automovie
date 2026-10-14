@@ -30,9 +30,9 @@ export interface IAutoMovieRenderOwnerCost {
   /**
    * Whether the row is editable source cost, a further whole-frame pass or shared renderer-owned storage. `runtime` has no author-editable owner; its cost remains in totals and omitted accounting, outside owner ranking.
    *
-   * `own` is what the owner itself puts in the frame. `pass` is a complete further submission of geometry the `own` rows already paid for, such as a shadow map's depth pass or the outline guide pass. It is charged to the light or pass that induced it because a conservative one-frame peak has to include that work and a reader has to distinguish the room's cost from the cost of drawing it again.
+   * `own` is the drawable or resource's own contribution. `pass` attributes further frame work, such as repeated depth geometry and VSM filtering for a shadow caster or an outline submission. These contributions remain in totals and are charged to the inducing light/pass, separate from editable source complexity.
    *
-   * The two are marked rather than mixed because they answer different questions. A `pass` row's cost is the sum of every drawable that preceded it, so it can never lose the top of a cost-descending ranking; ranking it as an owner's own complexity answers "what do I edit" with a constant and, for a renderer-owned guide pass, with a name a production has no field to declare. Only `own` rows participate in that ranking. A pass attribution remains available for a separate explanation, including the shadow light an author could disable deliberately.
+   * Only own rows participate in editable contributor ranking; pass and runtime rows remain in omitted accounting. Pass recovery separately names the inducing work, including a shadow light an author can deliberately disable, rather than treating aggregate redraw/filter cost as one drawable's complexity.
    *
    * An inventory written before this distinction has no `kind`; report evaluation reads that legacy spelling as `own` so the additive field does not invalidate an otherwise valid version-one inventory.
    */

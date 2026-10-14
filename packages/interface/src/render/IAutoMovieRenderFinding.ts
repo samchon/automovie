@@ -37,14 +37,14 @@ export interface IAutoMovieRenderFinding {
   contributors: IAutoMovieRenderContributor[];
 
   /**
-   * Owners the report does not name: those past the bound, and the frame passes that are never ranked.
+   * Distinct own owners beyond the bound plus pass and runtime owners, which are never ranked as editable contributors.
    */
   omittedContributors: number;
 
   /**
    * Total cost carried by the owners the report does not name.
    *
-   * The listed contributors plus this number are the whole of what the inventory attributed to the metric, frame passes included, so a report never leaves a shortfall nothing on it explains.
+   * Listed contributors plus this number partition the supplied owner rows for this metric, including pass and runtime rows. The evaluator does not prove their sum equals the separately supplied measured total; inventory consistency is a caller premise.
    */
   omittedCost: number;
 

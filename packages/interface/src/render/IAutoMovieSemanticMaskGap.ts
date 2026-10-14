@@ -17,6 +17,6 @@ export interface IAutoMovieSemanticMaskGap {
   /** Exactly why they were not allocated. */
   reason: string;
 
-  /** Exactly what would allocate them. */
+  /** How to reduce palette demand or obtain per-slot identity from the compiled runtime instead. */
   remedy: string;
 }

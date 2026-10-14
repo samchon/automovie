@@ -12,7 +12,7 @@ import { IAutoMovieRenderTotals } from "./IAutoMovieRenderTotals";
  *
  * The three per-kind arrays below are not a complete decomposition of the totals. A cloth panel, a planting cluster and a water surface are none of a model, a texture or an instance set, so their cost reaches a reader through {@link totals}, {@link owners} and {@link gaps} alone; summing the arrays would come up short by exactly the things a room is furnished with.
  *
- * @evidence contracts/common.md#principled-implementation Engine inventory measures compiled drawable and resource populations, retaining exact counts, conservative submission/geometry peaks and conservative device-byte estimates with null totals for missing certified input.
+ * @evidence contracts/common.md#principled-implementation Engine inventory counts declared populations, maximizes supported drawable LOD costs and accounts for shadow/outline/background submissions. Texture closure retains represented resident storage bounds and unknown facts as null; geometryBytes covers prototype/surface buffers without certifying native chunk clones or instance streams.
  * @evidence contracts/common.md#clear-and-simple-design Per-kind rows aid inspection while complete totals, attribution and gaps also include simulations and frame-wide renderer work that those rows do not decompose.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Preflight is not observed GPU work and per-kind rows omit simulated costs. The separately available observation-audit helper currently has no repository product caller; this type creates neither runtime comparison nor a measured frame.
  * @evidence contracts/common.md#meaningful-documentation Defines preflight source, each sorted population, complete totals and owner/gap accounting and the distinction from already-drawn frame observations.
@@ -25,7 +25,7 @@ export interface IAutoMovieRenderInventory {
   /** Per-model geometry cost, ascending by model id. */
   models: IAutoMovieRenderModelCost[];
 
-  /** Unique texture assets cited by drawn materials, ascending by asset id. */
+  /** Resident upload variants, environment derivatives and runtime targets/lookups, sorted by asset, variant and owner keys; several rows may share one asset. */
   textures: IAutoMovieRenderTextureCost[];
 
   /** Per-instance-set batching cost, ascending by set id. */

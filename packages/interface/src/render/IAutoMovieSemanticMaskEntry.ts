@@ -35,7 +35,7 @@ export interface IAutoMovieSemanticMaskEntry {
   /**
    * Scene node ids that draw this entity, ascending.
    *
-   * This is the join between the semantic graph and the built scene: the viewer resolves a mesh to its top-level node and finds its colour here, so the mask pass needs no knowledge of architecture.
+   * This joins the semantic graph to the built scene: staged roots match initial design-node order and other roots match names, then each mesh inherits its nearest claimed ancestor's colour. The mask pass needs no architectural geometry rules.
    */
   nodes: string[];
 
