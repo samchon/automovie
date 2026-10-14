@@ -393,6 +393,5 @@ addEventListener(
       (): void => previous?.remove(),
     ]);
   },
-  { once: true },
 );
 void prepare().catch((error: unknown): void => retain(String(error)));
