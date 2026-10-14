@@ -1,12 +1,12 @@
 /**
  * How a generation-change retry waits and how often it tries.
  *
- * @evidence contracts/common.md#principled-implementation Retry policy supplies a drawable-generation wait and a total-attempt budget for generation-change interruptions of idempotent captures.
+ * @evidence contracts/common.md#principled-implementation Retry policy supplies a drawable-generation wait and a total-attempt budget for message-classified interruptions; the caller must make its operation replay-safe and supply a finite positive integer budget because the generic retry owner validates neither premise.
  * @evidence contracts/common.md#clear-and-simple-design The retry owner handles error classification while the host owns waiting for its actual page generation.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Only generation-change errors qualify for retry; unrelated capture failures propagate unchanged rather than being masked.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Only errors matching the maintained generation wording qualify; nonmatching failures propagate, while text recognition does not independently establish cause provenance.
  * @evidence contracts/common.md#meaningful-documentation Comments define settling until drawing resumes and attempts including the first execution with the last refusal preserved.
  * @evidenceExclude contracts/performance.md#efficient-algorithms The retry-props declaration chooses no polling or wait scheduling algorithm.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work This policy reruns an interrupted idempotent capture after authority changes rather than reusing a stale-generation frame.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work This policy requests a fresh operation after settlement rather than reusing a stale-generation frame; replay safety and any earlier effects remain the caller's responsibility.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The policy borrows generation readiness and retains no browser ownership; physical capture settlement remains with queue/lifetime owners.
  *
  * @author Samchon
@@ -26,7 +26,7 @@ export interface IRetryAcrossHumanViewerGenerationProps {
   settle: () => Promise<void>;
 
   /**
-   * Total attempts, the first included; the last refusal is returned after them.
+   * Finite positive integer total attempts including the first; a caller premise, not validated by the retry owner.
    */
   attempts: number;
 }

@@ -1,5 +1,5 @@
 /**
- * Display completion or connection retirement sent to the existing numerical worker. Persistence cannot delay the model reply or start before display.
+ * Display completion or connection retirement sent to the existing numerical worker. Current page callers flush after drawing, and the numerical reply does not await optional persistence. Encoding still occupies that worker's event loop between cooperative yields, so this protocol does not guarantee zero latency for later requests.
  *
  * @evidence contracts/common.md#principled-implementation Carries explicit post-display flush or producing-request discard to the existing optional preview persistence owner.
  * @evidence contracts/common.md#clear-and-simple-design Keeps cache effects separate from original numerical result replies and foreground construction.

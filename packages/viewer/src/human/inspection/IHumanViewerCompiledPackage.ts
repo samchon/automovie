@@ -15,7 +15,7 @@ export interface IHumanViewerCompiledPackage {
   /** Transformed TypeScript by absolute, forward-slash path. */
   files: Record<string, string>;
 
-  /** Every file the compile depends on, as absolute paths to watch. */
+  /** Reported absolute watch paths; exhaustive dependency coverage requires compiler graph metadata. */
   watch: string[];
 
   /** `watch` normalized for comparison: forward slashes, lower case on Windows and preserved case on POSIX. */

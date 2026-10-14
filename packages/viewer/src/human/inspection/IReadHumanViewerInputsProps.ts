@@ -20,7 +20,7 @@ import type { IHumanViewerSidecarFacts } from "./IHumanViewerSidecarFacts.js";
  * @author Samchon
  */
 export interface IReadHumanViewerInputsProps {
-  /** Exact document address; only its owning input file and entry are read. */
+  /** Exact document address; only its owning input file is projected, and only the matching entry reaches admission. The file is parsed in full and projected until refusal, so other array members can still be inspected. */
   selectedDoc?: string;
 
   /** Input directory access. */

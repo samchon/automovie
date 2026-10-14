@@ -99,7 +99,7 @@ export type IHumanViewerHealth = ReturnType<IHumanViewerHealthSources["capture"]
   /** Current document admission counts and waiting identities. */
   admission: ReturnType<IHumanViewerHealthSources["admission"]>;
 
-  /** Renderer/page replacements since this server started. */
+  /** Page replacement attempts initiated after failed-page close since server start; an increment does not prove successful reopening. */
   relaunches: number;
 
   /** Latest heap-driven resident trim decision, or null before one. */

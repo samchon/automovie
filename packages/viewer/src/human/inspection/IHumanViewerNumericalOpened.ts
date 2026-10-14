@@ -1,5 +1,5 @@
 /**
- * One owned Node session, retired when its event transport closes.
+ * One owned Node session whose event-transport closure requests retirement; the token does not prove native process exit.
  *
  * @evidence contracts/common.md#principled-implementation Announces the host-generated session token before checked readiness so posts and retirement target the same owned process.
  * @evidence contracts/common.md#clear-and-simple-design Separates transport opening identity from loaded source authority and numerical result messages.

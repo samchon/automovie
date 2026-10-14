@@ -23,7 +23,7 @@ export interface IHumanViewerRejectedInput {
   reason: string;
 
   /**
-   * True while the input is not yet decided (a sidecar still being read, a document awaiting admission); false for a refusal that stands until the file changes.
+   * True while the input is not yet decided (a sidecar still being read or a document awaiting admission); false for a completed refusal under the current input and source authority.
    */
   pending: boolean;
 

@@ -12,11 +12,11 @@ const CHANGE_MESSAGES: readonly string[] = [
 ];
 
 /**
- * Whether an error only says that the source generation changed while a request ran. The page raises these messages across a process boundary, so they are recognised by their text, kept here as the single list.
+ * Whether error text contains one of the maintained generation/context-change messages. The page transports these refusals across a process boundary as text; substring recognition supports its existing retry policy but cannot independently prove the error's origin or exclude unrelated causes carrying the same wording. Error property access and string conversion can themselves throw.
  *
  * @evidence contracts/common.md#principled-implementation Known cross-process generation/context-replacement messages classify whether the caller may use its existing generation retry policy.
  * @evidence contracts/common.md#clear-and-simple-design One canonical message list and a substring scan adapt errors whose identity crosses a browser process boundary as text.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The predicate matches the listed wording only; it does not label arbitrary numerical, renderer or transport failure as source replacement.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The predicate uses the fixed protocol wording without consumer-specific exceptions; matching substrings do not prove source replacement and unprintable thrown values are not caught here.
  * @evidence contracts/common.md#meaningful-documentation Documentation identifies process-boundary text recognition and the single maintained list of generation refusals.
  * @evidence contracts/performance.md#efficient-algorithms A fixed seven-message list scans the error text linearly with a constant number of comparisons.
  * @evidence contracts/performance.md#reuse-equivalent-work All consumers share the same refusal wording list, but each supplied error is classified independently without replaying a prior result.

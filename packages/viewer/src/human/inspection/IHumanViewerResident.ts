@@ -7,7 +7,7 @@ import type * as THREE from "three";
 /**
  * One document kept drawn-ready in the page: its stage, its group and counted arrays. The page applies a soft selected-byte budget that permits one oversize resident and separately retains pending or failed retirement accounting, rather than counting documents or certifying physical GPU memory.
  *
- * @evidence contracts/common.md#principled-implementation A resident couples the actual displayed group with its viewport, measured retained arrays and optional owner construction readings; drawing does not imply admission.
+ * @evidence contracts/common.md#principled-implementation A resident couples the actual displayed group with its viewport, counted array-byte weight and optional owner construction readings; drawing does not imply admission and the weight is not a measured physical memory bound.
  * @evidence contracts/common.md#clear-and-simple-design One record carries stage operations and construction metadata needed by selection, capture and export, leaving numerical construction with Human.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Admission and periocular readings are forwarded from their owners, and bytes explicitly avoid claiming physical GPU allocation measurements.
  * @evidence contracts/common.md#meaningful-documentation Comments explain optional construction data, counted-array bytes and repeated release sharing its original retirement result and failures.
@@ -76,6 +76,6 @@ export interface IHumanViewerResident<Stage> {
    */
   release: () => Promise<void>;
 
-  /** Bytes of arrays the resident keeps alive, counted when it was built. */
+  /** Counted array-byte weight at build time; plain arrays use eight bytes per element and repeated references count again. */
   bytes: number;
 }

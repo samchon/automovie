@@ -92,12 +92,12 @@ export interface IServeHumanViewerDataProps {
   settleInputs: () => Promise<IHumanViewerCatalogue>;
 
   /**
-   * Read just the requested descriptor, starting only its domain admission.
+   * Select the requested descriptor for domain admission. Owning JSON is still parsed in full, and projection can inspect other array members or source-group inputs before selecting that descriptor or refusing the read.
    *
-   * @evidence contracts/common.md#principled-implementation Exact-document reading narrows discovery and numerical admission to the requested descriptor's owning domain.
-   * @evidence contracts/common.md#clear-and-simple-design The data route borrows selection-aware catalogue reading instead of scanning all candidates itself.
+   * @evidence contracts/common.md#principled-implementation Selection narrows the requested numerical admission; source readers still parse the owning JSON and project their supported input population before filtering or refusal.
+   * @evidence contracts/common.md#clear-and-simple-design The data route borrows selection-aware catalogue reading while file parsing and input projection remain with their existing owners.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts A selected descriptor still receives pending or refused owner outcomes; selection is not an admission bypass.
-   * @evidence contracts/common.md#meaningful-documentation The member states both exact-descriptor reading and domain-limited admission initiation.
+   * @evidence contracts/common.md#meaningful-documentation The member distinguishes selected admission from whole-file parsing and projection, including refusal before a matching array entry is reached.
    * @evidenceExclude contracts/performance.md#efficient-algorithms This selected-read signature defines no filename indexing or per-domain parser algorithm.
    * @evidence contracts/performance.md#reuse-equivalent-work Selected reads may reuse matching stamped file results and document-key admission while leaving unrelated input work untouched.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The catalogue controller owns any started domain work; the route receives metadata without taking numerical session ownership.

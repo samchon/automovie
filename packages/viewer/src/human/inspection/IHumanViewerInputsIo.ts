@@ -26,7 +26,7 @@ export interface IHumanViewerInputsIo {
   names(): string[];
 
   /**
-   * Bytes of one enumerated document or candidate-basis file.
+   * Bytes of one enumerated document file; the separate sidecar provider supplies candidate-basis facts.
    *
    * @evidence contracts/common.md#principled-implementation Returns the enumerated file's actual bytes for JSON parsing and document identity projection.
    * @evidence contracts/common.md#clear-and-simple-design Keeps file acquisition at the host boundary while the reader owns supported-name and basis/document rules.

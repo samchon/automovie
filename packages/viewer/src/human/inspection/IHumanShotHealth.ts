@@ -34,7 +34,7 @@ export interface IHumanShotHealth {
   /** Renderer string of the GPU page. */
   renderer: string;
 
-  /** Whether the server can draw. */
+  /** Whether nonempty ready-revision and renderer strings were reported; not independent drawing proof. */
   ready: boolean;
 
   /** Recent page and source errors. */

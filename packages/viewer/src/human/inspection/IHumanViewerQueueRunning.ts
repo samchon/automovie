@@ -7,7 +7,7 @@
  * @evidence contracts/common.md#meaningful-documentation Documents route/query label and start milliseconds from the queue clock, not wall-clock or job-lease authority.
  * @evidenceExclude contracts/performance.md#efficient-algorithms The record performs no scheduling; fixed three-lane selection and bounded waiting-array operations belong to the queue.
  * @evidence contracts/performance.md#reuse-equivalent-work The running reference is shared only for observation of that same task; equal labels do not merge requests.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Exactly one physically unsettled callback remains with the queue until finally; this scalar record owns no additional page or signal.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Exactly one unsettled task callback remains with the queue until finally; callback settlement is not an independent native GPU retirement observation, and this scalar record owns no additional page or signal.
  *
  * @author Samchon
  */

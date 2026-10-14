@@ -1,7 +1,7 @@
 import type { IHumanViewerPreviewProjection } from "./IHumanViewerPreviewProjection.js";
 
 /**
- * One successful preview retained by its producing numerical worker until the page has drawn it. The immutable catalogue key and frame token are captured with the build, never read from a later page generation.
+ * One successful preview staged by its producing numerical worker for optional post-display persistence. A newer staged preview or retirement can withdraw it before writing. The immutable catalogue key and frame token are captured with the build, never read from a later page generation; the server checks their current write authority at PUT admission.
  *
  * @evidence contracts/common.md#principled-implementation Pins a successful preview with its producing request id, immutable numerical key and frame token before optional display-triggered persistence.
  * @evidence contracts/common.md#clear-and-simple-design Keeps cache-write authority attached to actual produced values instead of rereading a later page generation.
@@ -20,7 +20,7 @@ export interface IHumanViewerPersistenceJob {
   /** Document, source and AO cache identity. */
   key: string;
 
-  /** Proven source generation permitted to write by the server. */
+  /** Captured source-generation token whose current write authority the server checks at PUT admission. */
   token: string;
 
   /**
