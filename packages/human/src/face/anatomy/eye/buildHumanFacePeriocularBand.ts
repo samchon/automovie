@@ -38,7 +38,7 @@ import type { IHumanFacePeriocularHostSample } from "./structures/IHumanFacePeri
  * @evidence contracts/common.md#clear-and-simple-design Chart host and arc locator own actual source seats; this band compiles the domain before tissue offsets or exact overlay refinement.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Absent native incidence or unsupported positive source extent refuses; the legacy nearest-seated strip retains its geometric limitations.
  * @evidence contracts/common.md#meaningful-documentation The prose distinguishes anterior skin boundary, posterior arc origin, zero extent and registered versus legacy construction.
- * @evidence contracts/performance.md#efficient-algorithms Chart/native-edge admission and per-column arc location dominate registered work; legacy sampling uses four cells per interval and eight row intervals.
+ * @evidence contracts/performance.md#efficient-algorithms Complete chart/native-edge admission and per-column arc location include their actual host, projection and integration costs. Repeated column indexOf searches can add quadratic coarse-column work. Registered near boundaries use four cells per native edge; legacy strips use four cells per coarse interval and eight row intervals.
  * @evidence contracts/performance.md#reuse-equivalent-work One attachment reader and edge-to-triangle map serve all native boundary samples; tissue consumers reuse a compiled band per lid.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Returned seats/frames/domain arrays belong to the band; edge maps and path lengths expire without external resources.
  */

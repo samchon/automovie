@@ -26,7 +26,7 @@ import type { IHumanFaceLidBoundaryPinsInput } from "./structures/IHumanFaceLidB
  * @evidence contracts/common.md#clear-and-simple-design The publisher owns actual ordered incidence while this helper validates the simple sample cycle and returns only boundary constraints.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Contradictory seam-alias pins or invalid lengths refuse; interpolation is an authored convention rather than a tissue constitutive law.
  * @evidence contracts/common.md#meaningful-documentation The prose states head-local metres, unchanged exact pins, caller immutability and downstream source-alias expansion.
- * @evidence contracts/performance.md#efficient-algorithms Cycle/sample/pin scans and all disjoint interpolation spans require O(N+P) work and memory for N boundary vertices and P pins.
+ * @evidence contracts/performance.md#efficient-algorithms Complete position/sample admission scans V native vertices before N cycle vertices and P pins are processed. Edge lengths and disjoint interpolation spans add O(N+P) time and storage; returned displacement storage is O(N), with no copy of the full host geometry.
  * @evidence contracts/performance.md#reuse-equivalent-work Each native-edge length is computed once and reused by adjacent interpolation weights; canonical-source pins share one fixed map.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the returned displacement map; fixed/length/anchor tables expire and no geometry or task remains retained.
  */

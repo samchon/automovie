@@ -22,12 +22,10 @@ import type { IHumanFacePeriocularTissuePart } from "./structures/IHumanFacePeri
  * skin is the outermost layer of the lid. Each shell is then read against the optical exterior of its eye, and each pair
  * of shells on one side is read in both directions. Both resting and
  * performed callers take this absolute reading; an intersecting rest shell
- * supplies no permissible penetration floor. The condition is the one this
- * owner always applied: a shell vertex deeper than the source tolerance
+ * supplies no permissible penetration floor. A shell vertex deeper than the source tolerance
  * inside the other surface, or a non-coplanar triangle crossing, refuses.
- * Separate shells may meet on a coplanar authored boundary. What changed is
- * that every shell and every pair is measured and reported, where the
- * admission used to stop at the first one. The source tolerance absorbs
+ * Separate shells may meet on a coplanar authored boundary. Every shell and
+ * every directed pair is measured and reported. The source tolerance absorbs
  * position rounding only.
  *
  * @evidence contracts/common.md#principled-implementation Every shell records unchanged requested room, beneath-skin clearance, optical clearance and both directed pair containments in the same rest/performed frame.

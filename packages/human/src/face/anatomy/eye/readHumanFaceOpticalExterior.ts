@@ -12,9 +12,9 @@ import type { IHumanFaceOpticalAssembly } from "./structures/IHumanFaceOpticalAs
  *
  * With independent optics it is the generated hull of that eye in the
  * requested state. Without them it is the registered source globe surface
- * closed by its source collider fan, at the supplied positions. Three owners
- * restated this choice; periocular shells, visible ocular surfaces and the
- * assembly census now ask one function, so they always read the same surface.
+ * closed by its source collider fan, at the supplied positions. Periocular
+ * shells, visible ocular surfaces and the assembly census share this choice
+ * so their measurements use the same exterior representation.
  *
  * @evidence contracts/common.md#principled-implementation Independent optics return their exact requested-state hull; legacy optics combine registered live globe incidence with its actual collider closure.
  * @evidence contracts/common.md#clear-and-simple-design One surface-choice owner is shared by tissue, visible-sheet and assembly readers.
