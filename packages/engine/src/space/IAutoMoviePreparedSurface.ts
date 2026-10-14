@@ -1,5 +1,7 @@
 import { IAutoMovieSurface } from "@automovie/interface";
+
 import { IAutoMovieFootprint } from "./IAutoMovieFootprint";
+
 /**
  * Prepared footprint for one surface. Build once when checking many points
  * against the same static polygon.

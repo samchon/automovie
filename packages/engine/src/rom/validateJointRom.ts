@@ -7,7 +7,11 @@ import {
 import { ViolationCollector } from "../validation/ViolationCollector";
 import { swingConeAngle } from "./swingConeAngle";
 
-const AXES: readonly ["flexion", "abduction", "twist"] = ["flexion", "abduction", "twist"] as const;
+const AXES: readonly ["flexion", "abduction", "twist"] = [
+  "flexion",
+  "abduction",
+  "twist",
+] as const;
 
 /**
  * Append axis range/ROM violations and a combined swing violation to the caller's collector. Null angles mean rest and contribute zero to swing; immobile axes admit null/zero. Field paths and degree overshoots preserve correction provenance, while constraint admission is separate.
@@ -20,7 +24,12 @@ const AXES: readonly ["flexion", "abduction", "twist"] = ["flexion", "abduction"
  * @evidence contracts/performance.md#reuse-equivalent-work Detector/clamps share admitted constraints/metric, while collector effects are appended anew rather than cached.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns collector rows and release lifetime; joint/constraint references are borrowed and no handle or task is acquired.
  */
-export const validateJointRom: (props: { joint: IAutoMovieJointPose; constraint: IAutoMovieJointConstraint; path: string; collector: ViolationCollector; }) => void = (props: {
+export const validateJointRom: (props: {
+  joint: IAutoMovieJointPose;
+  constraint: IAutoMovieJointConstraint;
+  path: string;
+  collector: ViolationCollector;
+}) => void = (props: {
   /** Borrowed joint angles in the constraint's degree frame; null means rest. */
   joint: IAutoMovieJointPose;
 
@@ -33,7 +42,17 @@ export const validateJointRom: (props: { joint: IAutoMovieJointPose; constraint:
   /** Caller-owned append-only diagnostic sink, advanced by this validation. */
   collector: ViolationCollector;
 }): void => {
-  const { joint, constraint, path, collector }: { joint: IAutoMovieJointPose; constraint: IAutoMovieJointConstraint; path: string; collector: ViolationCollector; } = props;
+  const {
+    joint,
+    constraint,
+    path,
+    collector,
+  }: {
+    joint: IAutoMovieJointPose;
+    constraint: IAutoMovieJointConstraint;
+    path: string;
+    collector: ViolationCollector;
+  } = props;
   for (const axis of AXES) {
     const angle: number | null = joint[axis];
     const allowed: IAutoMovieAngleRange | null = constraint[axis];
@@ -84,7 +103,10 @@ export const validateJointRom: (props: { joint: IAutoMovieJointPose; constraint:
   // identical twin `{flexion:150, abduction:0}` (the same quaternion) failed
   // (#1245).
   if (typeof constraint.swingDeg === "number") {
-    const swing: number = swingConeAngle(joint.flexion ?? 0, joint.abduction ?? 0);
+    const swing: number = swingConeAngle(
+      joint.flexion ?? 0,
+      joint.abduction ?? 0,
+    );
     if (swing > constraint.swingDeg) {
       const overshoot: number = swing - constraint.swingDeg;
       collector.push(

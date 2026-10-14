@@ -1,7 +1,9 @@
 import { IAutoMovieVector3 } from "@automovie/interface";
+
 import { IAutoMovieFootprint } from "./IAutoMovieFootprint";
 import { footprintConvexPieces } from "./footprintConvexPieces";
 import { footprintRing } from "./footprintRing";
+
 /**
  * Choose an anchor from the widest convex piece of a footprint.
  *
@@ -14,7 +16,9 @@ import { footprintRing } from "./footprintRing";
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the fresh scalar point or null; piece populations and temporary sums leave scope, with no source mutation or external resource acquisition.
  * @author Samchon
  */
-export const footprintInteriorPoint: (footprint: IAutoMovieFootprint) => { x: number; z: number; } | null = (
+export const footprintInteriorPoint: (
+  footprint: IAutoMovieFootprint,
+) => { x: number; z: number } | null = (
   footprint: IAutoMovieFootprint,
 ): { x: number; z: number } | null => {
   let best: IAutoMovieVector3[] | null = null;
@@ -27,8 +31,14 @@ export const footprintInteriorPoint: (footprint: IAutoMovieFootprint) => { x: nu
     }
   }
   if (best === null) return null;
-  const sum: { x: number; z: number; } = best.reduce(
-    (total: { x: number; z: number; }, point: IAutoMovieVector3): { x: number; z: number; } => ({ x: total.x + point.x, z: total.z + point.z }),
+  const sum: { x: number; z: number } = best.reduce(
+    (
+      total: { x: number; z: number },
+      point: IAutoMovieVector3,
+    ): { x: number; z: number } => ({
+      x: total.x + point.x,
+      z: total.z + point.z,
+    }),
     { x: 0, z: 0 },
   );
   return { x: sum.x / best.length, z: sum.z / best.length };

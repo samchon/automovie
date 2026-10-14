@@ -1,4 +1,3 @@
-
 /**
  * Planar ring classification, with its tolerance-qualified rim distinguished.
  *

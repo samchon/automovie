@@ -1,4 +1,5 @@
 import { IAutoMoviePlanarPoint, IAutoMovieVector3 } from "@automovie/interface";
+
 /**
  * One closed ring of a footprint, with the plan projection and the signed area
  * the queries read.

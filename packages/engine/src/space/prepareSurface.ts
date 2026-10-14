@@ -1,6 +1,8 @@
 import { IAutoMovieSurface } from "@automovie/interface";
+
 import { IAutoMoviePreparedSurface } from "./IAutoMoviePreparedSurface";
 import { surfaceFootprint } from "./surfaceFootprint";
+
 /**
  * Prepare one borrowed surface and its actual outer-and-hole footprint.
  *
@@ -13,7 +15,9 @@ import { surfaceFootprint } from "./surfaceFootprint";
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the fresh wrapper and projections, retaining the supplied surface and world rings only until the result is discarded.
  * @author Samchon
  */
-export const prepareSurface: (surface: IAutoMovieSurface) => IAutoMoviePreparedSurface = (
+export const prepareSurface: (
+  surface: IAutoMovieSurface,
+) => IAutoMoviePreparedSurface = (
   surface: IAutoMovieSurface,
 ): IAutoMoviePreparedSurface => ({
   surface,

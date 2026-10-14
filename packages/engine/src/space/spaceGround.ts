@@ -1,7 +1,9 @@
 import { IAutoMovieSpace } from "@automovie/interface";
+
+import { IAutoMoviePreparedSpace } from "./IAutoMoviePreparedSpace";
 import { heightAt } from "./heightAt";
 import { prepareSpace } from "./prepareSpace";
-import { IAutoMoviePreparedSpace } from "./IAutoMoviePreparedSpace";
+
 /**
  * Prepare a space once and expose its walking height as a ground callback.
  *
@@ -14,7 +16,10 @@ import { IAutoMoviePreparedSpace } from "./IAutoMoviePreparedSpace";
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the closure retaining space, preparation and fallback until discarded; no watcher, task or renderer resource is acquired.
  * @author Samchon
  */
-export const spaceGround: (space: IAutoMovieSpace, fallback?: number) => (x: number, z: number) => number = (
+export const spaceGround: (
+  space: IAutoMovieSpace,
+  fallback?: number,
+) => (x: number, z: number) => number = (
   space: IAutoMovieSpace,
   fallback: number = 0,
 ): ((x: number, z: number) => number) => {

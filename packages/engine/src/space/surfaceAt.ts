@@ -1,8 +1,10 @@
 import { IAutoMovieSpace, IAutoMovieSurface } from "@automovie/interface";
+
 import { IAutoMoviePreparedSpace } from "./IAutoMoviePreparedSpace";
 import { prepareSpace } from "./prepareSpace";
 import { preparedSurfaceContains } from "./preparedSurfaceContains";
 import { surfaceHeightAt } from "./surfaceHeightAt";
+
 /**
  * Select the topmost surface at an XZ query, including non-walkable surfaces.
  *
@@ -15,7 +17,12 @@ import { surfaceHeightAt } from "./surfaceHeightAt";
  * @evidence contracts/performance.md#bound-retention-and-release-resources The winner is a borrowed source surface; call-local selection state and default preparation acquire no external resources.
  * @author Samchon
  */
-export const surfaceAt: (space: IAutoMovieSpace, x: number, z: number, prepared?: IAutoMoviePreparedSpace) => IAutoMovieSurface | null = (
+export const surfaceAt: (
+  space: IAutoMovieSpace,
+  x: number,
+  z: number,
+  prepared?: IAutoMoviePreparedSpace,
+) => IAutoMovieSurface | null = (
   space: IAutoMovieSpace,
   x: number,
   z: number,

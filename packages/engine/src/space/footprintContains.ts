@@ -1,6 +1,7 @@
 import { IAutoMovieFootprint } from "./IAutoMovieFootprint";
-import { footprintRingPlacement } from "./footprintRingPlacement";
 import { IAutoMovieFootprintRing } from "./IAutoMovieFootprintRing";
+import { footprintRingPlacement } from "./footprintRingPlacement";
+
 /**
  * Is `(x, z)` on the surface the footprint describes?
  *
@@ -21,7 +22,11 @@ import { IAutoMovieFootprintRing } from "./IAutoMovieFootprintRing";
  * @evidence contracts/performance.md#reuse-equivalent-work Ring projections and signed areas are prepared once and reused for repeated queries while authored points remain unchanged; no point-result cache is retained.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The scalar result retains no geometry; probe/witness records belong only to the nested ring/segment calls and prepared input lifetime remains with its caller.
  */
-export const footprintContains: (footprint: IAutoMovieFootprint, x: number, z: number) => boolean = (
+export const footprintContains: (
+  footprint: IAutoMovieFootprint,
+  x: number,
+  z: number,
+) => boolean = (
   footprint: IAutoMovieFootprint,
   x: number,
   z: number,
@@ -29,6 +34,7 @@ export const footprintContains: (footprint: IAutoMovieFootprint, x: number, z: n
   if (footprint.outer.doubleArea === 0) return false;
   if (footprintRingPlacement(footprint.outer, x, z) === "outside") return false;
   return footprint.holes.every(
-    (hole: IAutoMovieFootprintRing): boolean => footprintRingPlacement(hole, x, z) !== "inside",
+    (hole: IAutoMovieFootprintRing): boolean =>
+      footprintRingPlacement(hole, x, z) !== "inside",
   );
 };

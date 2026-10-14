@@ -1,9 +1,11 @@
+import { IAutoMovieVector3 } from "@automovie/interface";
+
 import { pointInPolygon } from "../architecture/pointInPolygon";
 import { closestPointOnSegmentXZ } from "../math/closestPointOnSegmentXZ";
 import { AutoMovieRingPlacement } from "./AutoMovieRingPlacement";
 import { IAutoMovieFootprintRing } from "./IAutoMovieFootprintRing";
 import { FOOTPRINT_EPSILON } from "./constants/FOOTPRINT_EPSILON";
-import { IAutoMovieVector3 } from "@automovie/interface";
+
 /**
  * Classify an XZ query against an authored ring with an explicit rim result.
  *
@@ -16,13 +18,17 @@ import { IAutoMovieVector3 } from "@automovie/interface";
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only the returned literal escapes; the borrowed ring and call-local probe acquire no retained host resources.
  * @author Samchon
  */
-export const footprintRingPlacement: (ring: IAutoMovieFootprintRing, x: number, z: number) => AutoMovieRingPlacement = (
+export const footprintRingPlacement: (
+  ring: IAutoMovieFootprintRing,
+  x: number,
+  z: number,
+) => AutoMovieRingPlacement = (
   ring: IAutoMovieFootprintRing,
   x: number,
   z: number,
 ): AutoMovieRingPlacement => {
   if (ring.points.length < 3) return "outside";
-  const probe: { x: number; y: number; z: number; } = { x, y: 0, z };
+  const probe: { x: number; y: number; z: number } = { x, y: 0, z };
   for (let index: number = 0; index < ring.points.length; ++index) {
     const near: IAutoMovieVector3 = closestPointOnSegmentXZ(
       probe,

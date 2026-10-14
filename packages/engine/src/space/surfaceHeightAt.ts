@@ -1,5 +1,7 @@
 import { IAutoMovieHeightRule, IAutoMovieVector3 } from "@automovie/interface";
+
 import { IAutoMovieHeightSurface } from "./IAutoMovieHeightSurface";
+
 /** Squared XZ ramp span below this square-metre threshold reads as flat. */
 const MIN_RAMP_AXIS: number = 1e-9;
 
@@ -15,7 +17,11 @@ const MIN_RAMP_AXIS: number = 1e-9;
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only a number escapes; local cell records leave scope and the borrowed surface/grid is not retained by the query.
  * @author Samchon
  */
-export const surfaceHeightAt: (surface: IAutoMovieHeightSurface, x: number, z: number) => number = (
+export const surfaceHeightAt: (
+  surface: IAutoMovieHeightSurface,
+  x: number,
+  z: number,
+) => number = (
   surface: IAutoMovieHeightSurface,
   x: number,
   z: number,
@@ -28,8 +34,14 @@ export const surfaceHeightAt: (surface: IAutoMovieHeightSurface, x: number, z: n
   // Bilinear over the cell the point falls in. The lattice coordinate is
   // clamped before the cell is chosen, so a query outside the grid reads its
   // nearest edge instead of extrapolating relief nobody authored.
-  const column: { index: number; fraction: number; } = latticeCell((x - rule.originX) / rule.spacingX, rule.columns);
-  const row: { index: number; fraction: number; } = latticeCell((z - rule.originZ) / rule.spacingZ, rule.rows);
+  const column: { index: number; fraction: number } = latticeCell(
+    (x - rule.originX) / rule.spacingX,
+    rule.columns,
+  );
+  const row: { index: number; fraction: number } = latticeCell(
+    (z - rule.originZ) / rule.spacingZ,
+    rule.rows,
+  );
   const near: number = mix(
     heightfieldSample(rule, column.index, row.index),
     heightfieldSample(rule, column.index + 1, row.index),
@@ -44,7 +56,11 @@ export const surfaceHeightAt: (surface: IAutoMovieHeightSurface, x: number, z: n
 };
 
 /** The two-anchor spelling of a level or single-plane patch. */
-const anchoredHeightAt: (surface: IAutoMovieHeightSurface, x: number, z: number) => number = (
+const anchoredHeightAt: (
+  surface: IAutoMovieHeightSurface,
+  x: number,
+  z: number,
+) => number = (
   surface: IAutoMovieHeightSurface,
   x: number,
   z: number,
@@ -68,12 +84,18 @@ const anchoredHeightAt: (surface: IAutoMovieHeightSurface, x: number, z: number)
  * the edge cell at fraction zero or one rather than an extrapolated one. A
  * lattice of a single line has no cell to cross and reads that line.
  */
-const latticeCell: (coordinate: number, count: number) => { index: number; fraction: number; } = (
+const latticeCell: (
+  coordinate: number,
+  count: number,
+) => { index: number; fraction: number } = (
   coordinate: number,
   count: number,
 ): { index: number; fraction: number } => {
   const last: number = Math.max(0, count - 2);
-  const clamped: number = Math.min(Math.max(coordinate, 0), Math.max(0, count - 1));
+  const clamped: number = Math.min(
+    Math.max(coordinate, 0),
+    Math.max(0, count - 1),
+  );
   const index: number = Math.min(Math.floor(clamped), last);
   return { index, fraction: clamped - index };
 };
@@ -86,7 +108,20 @@ const latticeCell: (coordinate: number, count: number) => { index: number; fract
  * built on a malformed field is wrong in a way a reader can see instead of
  * poisoning every arithmetic downstream of it.
  */
-const heightfieldSample: (rule: { kind: "heightfield"; originX: number; originZ: number; spacingX: number; spacingZ: number; columns: number; rows: number; samples: number[]; }, column: number, row: number) => number = (
+const heightfieldSample: (
+  rule: {
+    kind: "heightfield";
+    originX: number;
+    originZ: number;
+    spacingX: number;
+    spacingZ: number;
+    columns: number;
+    rows: number;
+    samples: number[];
+  },
+  column: number,
+  row: number,
+) => number = (
   rule: Extract<IAutoMovieHeightRule, { kind: "heightfield" }>,
   column: number,
   row: number,
@@ -97,5 +132,8 @@ const heightfieldSample: (rule: { kind: "heightfield"; originX: number; originZ:
   ] ?? 0;
 
 /** Interpolate scalar heights without saturation or finite-result admission. */
-const mix: (from: number, to: number, progress: number) => number = (from: number, to: number, progress: number): number =>
-  from + (to - from) * progress;
+const mix: (from: number, to: number, progress: number) => number = (
+  from: number,
+  to: number,
+  progress: number,
+): number => from + (to - from) * progress;

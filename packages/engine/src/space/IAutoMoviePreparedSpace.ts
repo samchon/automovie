@@ -1,5 +1,7 @@
 import { IAutoMovieSpace } from "@automovie/interface";
+
 import { IAutoMoviePreparedSurface } from "./IAutoMoviePreparedSurface";
+
 /**
  * Prepared footprint index for all surfaces in a space.
  *

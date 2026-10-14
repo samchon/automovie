@@ -1,6 +1,8 @@
 import { IAutoMovieSurface } from "@automovie/interface";
+
 import { IAutoMovieFootprint } from "./IAutoMovieFootprint";
 import { footprintRing } from "./footprintRing";
+
 /**
  * Project a surface's outer ring and optional holes into one footprint record.
  *
@@ -13,7 +15,9 @@ import { footprintRing } from "./footprintRing";
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the fresh footprint and plans retaining authored world rings until discarded; no GPU or host resource is acquired.
  * @author Samchon
  */
-export const surfaceFootprint: (surface: IAutoMovieSurface) => IAutoMovieFootprint = (
+export const surfaceFootprint: (
+  surface: IAutoMovieSurface,
+) => IAutoMovieFootprint = (
   surface: IAutoMovieSurface,
 ): IAutoMovieFootprint => ({
   outer: footprintRing(surface.polygon),

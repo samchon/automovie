@@ -1,4 +1,5 @@
 import { IAutoMovieFootprintRing } from "./IAutoMovieFootprintRing";
+
 /**
  * A surface's plan region: the outer ring, and the holes cut out of it.
  *

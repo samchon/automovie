@@ -1,4 +1,9 @@
-import { IAutoMovieBone, IAutoMovieJointConstraint, IAutoMovieJointPose, IAutoMovieSkeleton } from "@automovie/interface";
+import {
+  IAutoMovieBone,
+  IAutoMovieJointConstraint,
+  IAutoMovieJointPose,
+  IAutoMovieSkeleton,
+} from "@automovie/interface";
 
 import { clampJointRom } from "./clampJointRom";
 import { getConstraint } from "./getConstraint";
@@ -14,11 +19,19 @@ import { getConstraint } from "./getConstraint";
  * @evidence contracts/performance.md#reuse-equivalent-work All consumers share getConstraint precedence; repeated standalone bone lookup remains uncached over mutable skeleton contents.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns new joints and borrows unchanged joints/constraints, with no retained index, handle or task.
  */
-export const clampJointToSkeleton: (joint: IAutoMovieJointPose, skeleton: IAutoMovieSkeleton) => IAutoMovieJointPose = (
+export const clampJointToSkeleton: (
+  joint: IAutoMovieJointPose,
+  skeleton: IAutoMovieSkeleton,
+) => IAutoMovieJointPose = (
   joint: IAutoMovieJointPose,
   skeleton: IAutoMovieSkeleton,
 ): IAutoMovieJointPose => {
-  const bone: IAutoMovieBone | undefined = skeleton.bones.find((b: IAutoMovieBone) : boolean => b.bone === joint.bone);
-  const constraint: IAutoMovieJointConstraint | null = getConstraint(joint.bone, bone?.constraint ?? null);
+  const bone: IAutoMovieBone | undefined = skeleton.bones.find(
+    (b: IAutoMovieBone): boolean => b.bone === joint.bone,
+  );
+  const constraint: IAutoMovieJointConstraint | null = getConstraint(
+    joint.bone,
+    bone?.constraint ?? null,
+  );
   return constraint === null ? joint : clampJointRom(joint, constraint);
 };

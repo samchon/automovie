@@ -1,7 +1,9 @@
 import { IAutoMovieSpace } from "@automovie/interface";
+
 import { IAutoMoviePreparedSpace } from "./IAutoMoviePreparedSpace";
 import { heightAt } from "./heightAt";
 import { prepareSpace } from "./prepareSpace";
+
 /**
  * Answer whether the canonical walking-height query returns a height.
  *
@@ -14,7 +16,12 @@ import { prepareSpace } from "./prepareSpace";
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only a boolean is returned; default preparation is call-local and acquires no renderer, task or external handle.
  * @author Samchon
  */
-export const isWalkable: (space: IAutoMovieSpace, x: number, z: number, prepared?: IAutoMoviePreparedSpace) => boolean = (
+export const isWalkable: (
+  space: IAutoMovieSpace,
+  x: number,
+  z: number,
+  prepared?: IAutoMoviePreparedSpace,
+) => boolean = (
   space: IAutoMovieSpace,
   x: number,
   z: number,

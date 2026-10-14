@@ -1,5 +1,6 @@
 import { AutoMovieCanonicalJsonError } from "./AutoMovieCanonicalJsonError";
 import { compareCodeUnits } from "./compareCodeUnits";
+
 /**
  * Encode a supplied value under automovie.canonical-json.v2 for shared identity consumers.
  *
@@ -12,9 +13,14 @@ import { compareCodeUnits } from "./compareCodeUnits";
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns returned text; the call-local ancestry set removes entered containers in finally on success or failure, and no partial text or host handle is published.
  * @author Samchon
  */
-export const canonicalizeAutoMovieJson: (value: unknown) => string = (value: unknown): string => {
+export const canonicalizeAutoMovieJson: (value: unknown) => string = (
+  value: unknown,
+): string => {
   const active: Set<object> = new Set<object>();
-  const encode: (current: unknown, arrayItem: boolean) => string | undefined = (current: unknown, arrayItem: boolean): string | undefined => {
+  const encode: (current: unknown, arrayItem: boolean) => string | undefined = (
+    current: unknown,
+    arrayItem: boolean,
+  ): string | undefined => {
     if (
       current === undefined ||
       typeof current === "function" ||
@@ -49,7 +55,8 @@ export const canonicalizeAutoMovieJson: (value: unknown) => string = (value: unk
             items.push("null");
             continue;
           }
-          const descriptor: PropertyDescriptor = Object.getOwnPropertyDescriptor(current, index)!;
+          const descriptor: PropertyDescriptor =
+            Object.getOwnPropertyDescriptor(current, index)!;
           if ("value" in descriptor === false)
             throw new AutoMovieCanonicalJsonError(
               "accessor-property",
@@ -72,13 +79,17 @@ export const canonicalizeAutoMovieJson: (value: unknown) => string = (value: unk
         "only plain objects and arrays are admitted",
       );
     enterCanonicalContainer(active, container);
-    const record: Record<string, unknown> = container as Record<string, unknown>;
+    const record: Record<string, unknown> = container as Record<
+      string,
+      unknown
+    >;
     try {
       const entries: string[] = Object.keys(record)
         .sort(compareCodeUnits)
         .flatMap((key: string): string[] => {
           assertScalarString(key, "member name");
-          const descriptor: PropertyDescriptor = Object.getOwnPropertyDescriptor(record, key)!;
+          const descriptor: PropertyDescriptor =
+            Object.getOwnPropertyDescriptor(record, key)!;
           if ("value" in descriptor === false)
             throw new AutoMovieCanonicalJsonError(
               "accessor-property",
@@ -104,7 +115,10 @@ export const canonicalizeAutoMovieJson: (value: unknown) => string = (value: unk
 };
 
 /** Refuse cycles while permitting repeated, non-recursive references. */
-const enterCanonicalContainer: (active: Set<object>, value: object) => void = (active: Set<object>, value: object): void => {
+const enterCanonicalContainer: (active: Set<object>, value: object) => void = (
+  active: Set<object>,
+  value: object,
+): void => {
   if (active.has(value))
     throw new AutoMovieCanonicalJsonError(
       "cyclic-value",
@@ -114,7 +128,10 @@ const enterCanonicalContainer: (active: Set<object>, value: object) => void = (a
 };
 
 /** JSON escape syntax can encode lone surrogates, but this protocol cannot. */
-const assertScalarString: (value: string, role: string) => void = (value: string, role: string): void => {
+const assertScalarString: (value: string, role: string) => void = (
+  value: string,
+  role: string,
+): void => {
   for (let index: number = 0; index < value.length; ++index) {
     const unit: number = value.charCodeAt(index);
     if (unit >= 0xd800 && unit <= 0xdbff) {

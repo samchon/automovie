@@ -1,4 +1,5 @@
 import { IAutoMovieHeightRule, IAutoMovieVector3 } from "@automovie/interface";
+
 /**
  * Structural height input shared by scene, world and prepared support faces.
  *

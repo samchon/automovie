@@ -6,7 +6,10 @@ import {
 
 import { swingConeBlend } from "./swingConeBlend";
 
-const clampAxis: (angle: number | null, allowed: IAutoMovieAngleRange | null) => number | null = (
+const clampAxis: (
+  angle: number | null,
+  allowed: IAutoMovieAngleRange | null,
+) => number | null = (
   angle: number | null,
   allowed: IAutoMovieAngleRange | null,
 ): number | null => {
@@ -31,12 +34,18 @@ const clampAxis: (angle: number | null, allowed: IAutoMovieAngleRange | null) =>
  * @evidence contracts/performance.md#reuse-equivalent-work Targeted/full-pose clamps reuse the same joint owner and borrow constraints; changed angles need new projection.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns a fresh joint record and no pose population, native handle or task is retained.
  */
-export const clampJointRom: (joint: IAutoMovieJointPose, constraint: IAutoMovieJointConstraint) => IAutoMovieJointPose = (
+export const clampJointRom: (
+  joint: IAutoMovieJointPose,
+  constraint: IAutoMovieJointConstraint,
+) => IAutoMovieJointPose = (
   joint: IAutoMovieJointPose,
   constraint: IAutoMovieJointConstraint,
 ): IAutoMovieJointPose => {
   const flexion: number | null = clampAxis(joint.flexion, constraint.flexion);
-  const abduction: number | null = clampAxis(joint.abduction, constraint.abduction);
+  const abduction: number | null = clampAxis(
+    joint.abduction,
+    constraint.abduction,
+  );
   const twist: number | null = clampAxis(joint.twist, constraint.twist);
   // Ball-joint swing cone: pull a corner pose back onto the cone. The cone is a
   // COUPLING between the two axes, not a per-axis check, so a resting (`null`)
@@ -50,12 +59,21 @@ export const clampJointRom: (joint: IAutoMovieJointPose, constraint: IAutoMovieJ
     // Pull toward the box point nearest neutral rather than toward neutral
     // itself: for a box that excludes neutral, shrinking toward the origin
     // leaves the box (#1245). A resting axis anchors at its own rest, 0.
-    const anchorF: number = flexion === null ? 0 : nearestNeutral(constraint.flexion);
+    const anchorF: number =
+      flexion === null ? 0 : nearestNeutral(constraint.flexion);
     const anchorA: number =
       abduction === null ? 0 : nearestNeutral(constraint.abduction);
-    const t: number = swingConeBlend(f, a, anchorF, anchorA, constraint.swingDeg);
-    const blend: (value: number, anchor: number) => number = (value: number, anchor: number): number =>
-      anchor + (value - anchor) * t;
+    const t: number = swingConeBlend(
+      f,
+      a,
+      anchorF,
+      anchorA,
+      constraint.swingDeg,
+    );
+    const blend: (value: number, anchor: number) => number = (
+      value: number,
+      anchor: number,
+    ): number => anchor + (value - anchor) * t;
     return {
       bone: joint.bone,
       // A resting axis stays resting: blending 0 toward its own 0 rest is 0.
@@ -72,7 +90,9 @@ export const clampJointRom: (joint: IAutoMovieJointPose, constraint: IAutoMovieJ
  * brackets it, else the nearer bound. This is the swing cone's pull target: the
  * joint's most-retracted reachable articulation on that axis.
  */
-const nearestNeutral: (allowed: IAutoMovieAngleRange | null) => number = (allowed: IAutoMovieAngleRange | null): number =>
+const nearestNeutral: (allowed: IAutoMovieAngleRange | null) => number = (
+  allowed: IAutoMovieAngleRange | null,
+): number =>
   allowed === null
     ? 0
     : allowed.min > 0

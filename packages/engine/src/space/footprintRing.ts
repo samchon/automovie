@@ -1,5 +1,7 @@
 import { IAutoMovieVector3 } from "@automovie/interface";
+
 import { IAutoMovieFootprintRing } from "./IAutoMovieFootprintRing";
+
 /**
  * Prepare a borrowed world ring and its owned XZ projection for repeated footprint queries.
  *
@@ -12,14 +14,21 @@ import { IAutoMovieFootprintRing } from "./IAutoMovieFootprintRing";
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the fresh wrapper and projection, which retain the supplied points until discarded; there are no tasks or host handles.
  * @author Samchon
  */
-export const footprintRing: (points: readonly IAutoMovieVector3[]) => IAutoMovieFootprintRing = (
+export const footprintRing: (
+  points: readonly IAutoMovieVector3[],
+) => IAutoMovieFootprintRing = (
   points: readonly IAutoMovieVector3[],
 ): IAutoMovieFootprintRing => {
-  const plan: { x: number; y: number; }[] = points.map((point: IAutoMovieVector3): { x: number; y: number; } => ({ x: point.x, y: point.z }));
+  const plan: { x: number; y: number }[] = points.map(
+    (point: IAutoMovieVector3): { x: number; y: number } => ({
+      x: point.x,
+      y: point.z,
+    }),
+  );
   let doubleArea: number = 0;
   for (let index: number = 0; index < plan.length; ++index) {
-    const current: { x: number; y: number; } = plan[index]!;
-    const next: { x: number; y: number; } = plan[(index + 1) % plan.length]!;
+    const current: { x: number; y: number } = plan[index]!;
+    const next: { x: number; y: number } = plan[(index + 1) % plan.length]!;
     doubleArea += current.x * next.y - next.x * current.y;
   }
   return { points, plan, doubleArea };

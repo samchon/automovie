@@ -6,10 +6,10 @@ import {
 import { IAutoMovieAxisFrame } from "./IAutoMovieAxisFrame";
 import { IAutoMovieRestFrame } from "./IAutoMovieRestFrame";
 
-const assertAxisFrame: (label: string, frame: IAutoMovieAxisFrame | undefined) => void = (
+const assertAxisFrame: (
   label: string,
   frame: IAutoMovieAxisFrame | undefined,
-): void => {
+) => void = (label: string, frame: IAutoMovieAxisFrame | undefined): void => {
   if (frame === undefined) return;
   if (frame.sign !== 1 && frame.sign !== -1)
     throw new Error(`${label} sign must be 1 or -1, but was ${frame.sign}`);
@@ -19,7 +19,11 @@ const assertAxisFrame: (label: string, frame: IAutoMovieAxisFrame | undefined) =
     );
 };
 
-const shift: (axis: keyof IAutoMovieRestFrame, range: IAutoMovieAngleRange | null, frame: IAutoMovieAxisFrame | undefined) => IAutoMovieAngleRange | null = (
+const shift: (
+  axis: keyof IAutoMovieRestFrame,
+  range: IAutoMovieAngleRange | null,
+  frame: IAutoMovieAxisFrame | undefined,
+) => IAutoMovieAngleRange | null = (
   axis: keyof IAutoMovieRestFrame,
   range: IAutoMovieAngleRange | null,
   frame: IAutoMovieAxisFrame | undefined,
@@ -44,7 +48,10 @@ const shift: (axis: keyof IAutoMovieRestFrame, range: IAutoMovieAngleRange | nul
  * @evidence contracts/performance.md#reuse-equivalent-work Unchanged ranges/frames remain borrowed; changed bounds or rest convention requires new conversion.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns wrapper/new intervals and borrows unchanged clinical ranges; no registry, handle or task survives.
  */
-export const restRelativeConstraint: (clinical: IAutoMovieJointConstraint, frame: IAutoMovieRestFrame) => IAutoMovieJointConstraint = (
+export const restRelativeConstraint: (
+  clinical: IAutoMovieJointConstraint,
+  frame: IAutoMovieRestFrame,
+) => IAutoMovieJointConstraint = (
   clinical: IAutoMovieJointConstraint,
   frame: IAutoMovieRestFrame,
 ): IAutoMovieJointConstraint => ({

@@ -1,5 +1,6 @@
 import { IAutoMovieFootprint } from "./IAutoMovieFootprint";
 import { IAutoMovieFootprintRing } from "./IAutoMovieFootprintRing";
+
 /**
  * Plan area of the region, in square metres: the outer ring less its holes.
  *
@@ -17,8 +18,11 @@ import { IAutoMovieFootprintRing } from "./IAutoMovieFootprintRing";
  * @evidence contracts/performance.md#reuse-equivalent-work Cached signed areas are reused rather than recomputing vertex cross products; changed source vertices require rebuilding the footprint before quantity measurement.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The returned scalar retains no footprint or temporary collection, and the caller continues to own prepared rings and their source references.
  */
-export const footprintArea: (footprint: IAutoMovieFootprint) => number = (footprint: IAutoMovieFootprint): number =>
+export const footprintArea: (footprint: IAutoMovieFootprint) => number = (
+  footprint: IAutoMovieFootprint,
+): number =>
   footprint.holes.reduce(
-    (area: number, hole: IAutoMovieFootprintRing): number => area - Math.abs(hole.doubleArea) / 2,
+    (area: number, hole: IAutoMovieFootprintRing): number =>
+      area - Math.abs(hole.doubleArea) / 2,
     Math.abs(footprint.outer.doubleArea) / 2,
   );

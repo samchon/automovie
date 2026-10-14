@@ -1,6 +1,8 @@
 import { IAutoMovieSurface } from "@automovie/interface";
+
 import { prepareSurface } from "./prepareSurface";
 import { preparedSurfaceContains } from "./preparedSurfaceContains";
+
 /**
  * Query a surface's actual outer-and-hole footprint in the horizontal plane.
  *
@@ -13,8 +15,9 @@ import { preparedSurfaceContains } from "./preparedSurfaceContains";
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only a boolean escapes; the fresh preparation is released with the call and no retained handle or task is acquired.
  * @author Samchon
  */
-export const surfaceContains: (surface: IAutoMovieSurface, x: number, z: number) => boolean = (
+export const surfaceContains: (
   surface: IAutoMovieSurface,
   x: number,
   z: number,
-): boolean => preparedSurfaceContains(prepareSurface(surface), x, z);
+) => boolean = (surface: IAutoMovieSurface, x: number, z: number): boolean =>
+  preparedSurfaceContains(prepareSurface(surface), x, z);

@@ -16,7 +16,10 @@ import { DEFAULT_HUMANOID_ROM } from "./constants/DEFAULT_HUMANOID_ROM";
  * @evidence contracts/performance.md#reuse-equivalent-work Consumers borrow the same constraint records and new calls observe changed override/table contents without wrapper caching.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only a borrowed record/null returns, with no skeleton, pose, native handle or task retained.
  */
-export const getConstraint: (bone: AutoMovieHumanoidBone, override: IAutoMovieJointConstraint | null) => IAutoMovieJointConstraint | null = (
+export const getConstraint: (
+  bone: AutoMovieHumanoidBone,
+  override: IAutoMovieJointConstraint | null,
+) => IAutoMovieJointConstraint | null = (
   bone: AutoMovieHumanoidBone,
   override: IAutoMovieJointConstraint | null,
 ): IAutoMovieJointConstraint | null =>

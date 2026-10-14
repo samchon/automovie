@@ -1,8 +1,14 @@
-import { IAutoMovieSpace, IAutoMovieVector3, IAutoMovieSurface } from "@automovie/interface";
+import {
+  IAutoMovieSpace,
+  IAutoMovieSurface,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
+import { IAutoMoviePreparedSpace } from "./IAutoMoviePreparedSpace";
 import { prepareSpace } from "./prepareSpace";
 import { surfaceAt } from "./surfaceAt";
 import { surfaceHeightAt } from "./surfaceHeightAt";
-import { IAutoMoviePreparedSpace } from "./IAutoMoviePreparedSpace";
+
 /**
  * Project supplied footprint points onto the topmost authored support surface.
  *
@@ -15,14 +21,22 @@ import { IAutoMoviePreparedSpace } from "./IAutoMoviePreparedSpace";
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the fresh point array; temporary preparations and source references leave scope, without simulation or host resources.
  * @author Samchon
  */
-export const supportContactsFor: (space: IAutoMovieSpace, footprint: readonly IAutoMovieVector3[]) => IAutoMovieVector3[] = (
+export const supportContactsFor: (
+  space: IAutoMovieSpace,
+  footprint: readonly IAutoMovieVector3[],
+) => IAutoMovieVector3[] = (
   space: IAutoMovieSpace,
   footprint: readonly IAutoMovieVector3[],
 ): IAutoMovieVector3[] => {
   const contacts: IAutoMovieVector3[] = [];
   const prepared: IAutoMoviePreparedSpace = prepareSpace(space);
   for (const point of footprint) {
-    const surface: IAutoMovieSurface | null = surfaceAt(space, point.x, point.z, prepared);
+    const surface: IAutoMovieSurface | null = surfaceAt(
+      space,
+      point.x,
+      point.z,
+      prepared,
+    );
     if (surface === null) continue;
     contacts.push({
       x: point.x,

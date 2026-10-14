@@ -1,4 +1,8 @@
-import { IAutoMovieJointPose, IAutoMoviePose, IAutoMovieSkeleton } from "@automovie/interface";
+import {
+  IAutoMovieJointPose,
+  IAutoMoviePose,
+  IAutoMovieSkeleton,
+} from "@automovie/interface";
 
 import { clampJointToSkeleton } from "./clampJointToSkeleton";
 
@@ -13,11 +17,17 @@ import { clampJointToSkeleton } from "./clampJointToSkeleton";
  * @evidence contracts/performance.md#reuse-equivalent-work Canonical joint projection is shared, but repeated bone scans remain a reuse limitation rather than a persistent index.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns wrapper/array/new joints and borrows root/unconstrained joints; no native handle or task is held.
  */
-export const clampPose: (pose: IAutoMoviePose, skeleton: IAutoMovieSkeleton) => IAutoMoviePose = (
+export const clampPose: (
+  pose: IAutoMoviePose,
+  skeleton: IAutoMovieSkeleton,
+) => IAutoMoviePose = (
   pose: IAutoMoviePose,
   skeleton: IAutoMovieSkeleton,
 ): IAutoMoviePose => ({
   skeleton: pose.skeleton,
   root: pose.root,
-  joints: pose.joints.map((joint: IAutoMovieJointPose) : IAutoMovieJointPose => clampJointToSkeleton(joint, skeleton)),
+  joints: pose.joints.map(
+    (joint: IAutoMovieJointPose): IAutoMovieJointPose =>
+      clampJointToSkeleton(joint, skeleton),
+  ),
 });

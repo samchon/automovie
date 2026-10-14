@@ -1,4 +1,3 @@
-
 /**
  * Adapt a scalar ground height or preserve a supplied ground callback.
  *
@@ -11,7 +10,9 @@
  * @evidence contracts/performance.md#bound-retention-and-release-resources The returned closure retains only its scalar, or the caller retains its original function; no geometry, task or host handle is acquired.
  * @author Samchon
  */
-export const groundFunction: (ground: number | ((x: number, z: number) => number)) => (x: number, z: number) => number = (
+export const groundFunction: (
+  ground: number | ((x: number, z: number) => number),
+) => (x: number, z: number) => number = (
   ground: number | ((x: number, z: number) => number),
 ): ((x: number, z: number) => number) =>
   typeof ground === "number" ? (): number => ground : ground;

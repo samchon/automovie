@@ -1,4 +1,5 @@
 import { IAutoMovieFog } from "@automovie/interface";
+
 /**
  * FogExp2 transmittance at axial camera depth in metres:
  * T(d) = exp(-(density * d)^2). Consumers blend subject * T with fog.color *
@@ -23,7 +24,10 @@ import { IAutoMovieFog } from "@automovie/interface";
  *
  * @author Samchon
  */
-export const sceneFogTransmittance: (fog: IAutoMovieFog | null | undefined, depthMeters: number) => number = (
+export const sceneFogTransmittance: (
+  fog: IAutoMovieFog | null | undefined,
+  depthMeters: number,
+) => number = (
   fog: IAutoMovieFog | null | undefined,
   depthMeters: number,
 ): number => {

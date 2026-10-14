@@ -11,7 +11,13 @@ import { swingConeAngle } from "./swingConeAngle";
  * @evidence contracts/performance.md#reuse-equivalent-work Endpoint acceptance reuses its metric; changed angles/anchor/cone require a fresh search without mutable-constraint caching.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only a scalar escapes; closure/temporaries release with the call and no pose population, solver handle or task is held.
  */
-export const swingConeBlend: (flexion: number, abduction: number, anchorFlexion: number, anchorAbduction: number, swingDeg: number) => number = (
+export const swingConeBlend: (
+  flexion: number,
+  abduction: number,
+  anchorFlexion: number,
+  anchorAbduction: number,
+  swingDeg: number,
+) => number = (
   flexion: number,
   abduction: number,
   anchorFlexion: number,

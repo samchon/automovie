@@ -1,8 +1,10 @@
 import { IAutoMovieSpace, IAutoMovieSurface } from "@automovie/interface";
+
 import { IAutoMoviePreparedSpace } from "./IAutoMoviePreparedSpace";
 import { prepareSpace } from "./prepareSpace";
 import { surfaceAt } from "./surfaceAt";
 import { surfaceHeightAt } from "./surfaceHeightAt";
+
 /**
  * Read the topmost walkable surface height, or null over absent or no-go tops.
  *
@@ -15,7 +17,12 @@ import { surfaceHeightAt } from "./surfaceHeightAt";
  * @evidence contracts/performance.md#bound-retention-and-release-resources The result is a scalar or null; only a default call's temporary prepared geometry lives until completion, without host resources.
  * @author Samchon
  */
-export const heightAt: (space: IAutoMovieSpace, x: number, z: number, prepared?: IAutoMoviePreparedSpace) => number | null = (
+export const heightAt: (
+  space: IAutoMovieSpace,
+  x: number,
+  z: number,
+  prepared?: IAutoMoviePreparedSpace,
+) => number | null = (
   space: IAutoMovieSpace,
   x: number,
   z: number,

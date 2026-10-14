@@ -1,6 +1,12 @@
-import { IAutoMovieAffordance, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  IAutoMovieAffordance,
+  IAutoMovieTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
+
 /**
  * The world-space support contacts of a `"stack-top"` affordance: its extent
  * corners carried through the affordance frame and the parent's world
@@ -30,7 +36,10 @@ import { Vector3 } from "../math/Vector3";
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the fresh contact array and points; intermediate points leave scope and neither model, extent nor host handle is retained by the helper.
  * @author Samchon
  */
-export const affordanceSupportContacts: (props: { affordance: IAutoMovieAffordance; parentWorld: IAutoMovieTransform; }) => IAutoMovieVector3[] = (props: {
+export const affordanceSupportContacts: (props: {
+  affordance: IAutoMovieAffordance;
+  parentWorld: IAutoMovieTransform;
+}) => IAutoMovieVector3[] = (props: {
   /** The declared contact face. Must be a `"stack-top"` with an extent. */
   affordance: IAutoMovieAffordance;
 
@@ -48,18 +57,20 @@ export const affordanceSupportContacts: (props: { affordance: IAutoMovieAffordan
     );
 
   const frame: IAutoMovieTransform = affordance.frame;
-  return affordance.extent.map((corner: IAutoMovieVector3): IAutoMovieVector3 => {
-    const inModel: IAutoMovieVector3 = Vector3.add(
-      frame.translation,
-      Quaternion.rotateVector(frame.rotation, {
-        x: corner.x,
-        y: 0,
-        z: corner.z,
-      }),
-    );
-    return Vector3.add(
-      parentWorld.translation,
-      Quaternion.rotateVector(parentWorld.rotation, inModel),
-    );
-  });
+  return affordance.extent.map(
+    (corner: IAutoMovieVector3): IAutoMovieVector3 => {
+      const inModel: IAutoMovieVector3 = Vector3.add(
+        frame.translation,
+        Quaternion.rotateVector(frame.rotation, {
+          x: corner.x,
+          y: 0,
+          z: corner.z,
+        }),
+      );
+      return Vector3.add(
+        parentWorld.translation,
+        Quaternion.rotateVector(parentWorld.rotation, inModel),
+      );
+    },
+  );
 };

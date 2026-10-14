@@ -1,9 +1,9 @@
 import { IAutoMovieAxisFrame } from "./IAutoMovieAxisFrame";
 
-const assertAxisFrame: (label: string, frame: IAutoMovieAxisFrame | undefined) => void = (
+const assertAxisFrame: (
   label: string,
   frame: IAutoMovieAxisFrame | undefined,
-): void => {
+) => void = (label: string, frame: IAutoMovieAxisFrame | undefined): void => {
   if (frame === undefined) return;
   if (frame.sign !== 1 && frame.sign !== -1)
     throw new Error(`${label} sign must be 1 or -1, but was ${frame.sign}`);
@@ -24,7 +24,10 @@ const assertAxisFrame: (label: string, frame: IAutoMovieAxisFrame | undefined) =
  * @evidence contracts/performance.md#reuse-equivalent-work Rig callers reuse unchanged frame definitions while new angles require fresh arithmetic without record-identity caching.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only number/null/error returns, retaining no joint history, handle or task.
  */
-export const toClinicalAngle: (rig: number | null, frame: IAutoMovieAxisFrame | undefined) => number | null = (
+export const toClinicalAngle: (
+  rig: number | null,
+  frame: IAutoMovieAxisFrame | undefined,
+) => number | null = (
   rig: number | null,
   frame: IAutoMovieAxisFrame | undefined,
 ): number | null => {

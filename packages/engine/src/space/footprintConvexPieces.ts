@@ -1,9 +1,11 @@
-import { IAutoMovieVector3, IAutoMoviePlanarPoint } from "@automovie/interface";
+import { IAutoMoviePlanarPoint, IAutoMovieVector3 } from "@automovie/interface";
+
 import { autoMoviePlanarRegionFailure } from "../geometry/autoMoviePlanarRegionFailure";
 import { planarCross } from "../geometry/planarCross";
 import { convexHull2D } from "../math/convexHull2D";
 import { IAutoMovieFootprint } from "./IAutoMovieFootprint";
 import { IAutoMovieFootprintRing } from "./IAutoMovieFootprintRing";
+
 /**
  * Produce convex pieces for the footprint's exact-region contract.
  *
@@ -16,12 +18,17 @@ import { IAutoMovieFootprintRing } from "./IAutoMovieFootprintRing";
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns returned piece arrays; slab points are fresh, while the convex fast path retains original hull point references. Call-local rings, cuts and crossings leave scope without renderer handles.
  * @author Samchon
  */
-export const footprintConvexPieces: (footprint: IAutoMovieFootprint) => IAutoMovieVector3[][] = (
+export const footprintConvexPieces: (
+  footprint: IAutoMovieFootprint,
+) => IAutoMovieVector3[][] = (
   footprint: IAutoMovieFootprint,
 ): IAutoMovieVector3[][] => {
   const failure: string | null = autoMoviePlanarRegionFailure({
     outer: footprint.outer.plan,
-    holes: footprint.holes.map((hole: IAutoMovieFootprintRing): readonly IAutoMoviePlanarPoint[] => hole.plan),
+    holes: footprint.holes.map(
+      (hole: IAutoMovieFootprintRing): readonly IAutoMoviePlanarPoint[] =>
+        hole.plan,
+    ),
     label: "footprint",
   });
   if (failure !== null) return [];
@@ -38,7 +45,11 @@ const isConvexRing: (ring: IAutoMovieFootprintRing) => boolean = (
   ring: IAutoMovieFootprintRing,
 ): boolean => {
   for (let index: number = 0; index < ring.plan.length; ++index) {
-    const turn: number = planarCross(ring.plan[index]!, ring.plan[(index + 1) % ring.plan.length]!, ring.plan[(index + 2) % ring.plan.length]!);
+    const turn: number = planarCross(
+      ring.plan[index]!,
+      ring.plan[(index + 1) % ring.plan.length]!,
+      ring.plan[(index + 2) % ring.plan.length]!,
+    );
     if (ring.doubleArea > 0 ? turn < 0 : turn > 0) return false;
   }
   return true;
@@ -66,10 +77,19 @@ interface ISlabCrossing {
  * no separate treatment: its two rims are simply the crossings that close one
  * band and open the next.
  */
-const slabPieces: (footprint: IAutoMovieFootprint) => IAutoMovieVector3[][] = (footprint: IAutoMovieFootprint): IAutoMovieVector3[][] => {
-  const rings: IAutoMovieFootprintRing[] = [footprint.outer, ...footprint.holes];
+const slabPieces: (footprint: IAutoMovieFootprint) => IAutoMovieVector3[][] = (
+  footprint: IAutoMovieFootprint,
+): IAutoMovieVector3[][] => {
+  const rings: IAutoMovieFootprintRing[] = [
+    footprint.outer,
+    ...footprint.holes,
+  ];
   const cuts: number[] = [
-    ...new Set(rings.flatMap((ring: IAutoMovieFootprintRing): number[] => ring.points.map((point: IAutoMovieVector3): number => point.x))),
+    ...new Set(
+      rings.flatMap((ring: IAutoMovieFootprintRing): number[] =>
+        ring.points.map((point: IAutoMovieVector3): number => point.x),
+      ),
+    ),
   ].sort((left: number, right: number): number => left - right);
   const pieces: IAutoMovieVector3[][] = [];
   for (let index: number = 0; index + 1 < cuts.length; ++index) {
@@ -81,7 +101,8 @@ const slabPieces: (footprint: IAutoMovieFootprint) => IAutoMovieVector3[][] = (f
     for (const ring of rings)
       for (let edge: number = 0; edge < ring.points.length; ++edge) {
         const from: IAutoMovieVector3 = ring.points[edge]!;
-        const to: IAutoMovieVector3 = ring.points[(edge + 1) % ring.points.length]!;
+        const to: IAutoMovieVector3 =
+          ring.points[(edge + 1) % ring.points.length]!;
         if (Math.min(from.x, to.x) >= middle) continue;
         if (Math.max(from.x, to.x) <= middle) continue;
         crossings.push({ z: edgeZAt(from, to, middle), from, to });
@@ -101,11 +122,20 @@ const slabPieces: (footprint: IAutoMovieFootprint) => IAutoMovieVector3[][] = (f
 };
 
 /** Plan z of the edge from its first point to its second at abscissa x, which it spans. */
-const edgeZAt: (from: IAutoMovieVector3, to: IAutoMovieVector3, x: number) => number = (
+const edgeZAt: (
   from: IAutoMovieVector3,
   to: IAutoMovieVector3,
   x: number,
-): number => x === from.x ? from.z : x === to.x ? to.z : from.z + ((x - from.x) / (to.x - from.x)) * (to.z - from.z);
+) => number = (
+  from: IAutoMovieVector3,
+  to: IAutoMovieVector3,
+  x: number,
+): number =>
+  x === from.x
+    ? from.z
+    : x === to.x
+      ? to.z
+      : from.z + ((x - from.x) / (to.x - from.x)) * (to.z - from.z);
 
 /**
  * The trapezoid between two crossings over one slab, wound positively.
@@ -116,28 +146,39 @@ const edgeZAt: (from: IAutoMovieVector3, to: IAutoMovieVector3, x: number) => nu
  * at both ends encloses nothing and comes back as the two points it is, which
  * the sweep drops.
  */
-const slabPiece: (lower: ISlabCrossing, upper: ISlabCrossing, left: number, right: number) => IAutoMovieVector3[] = (
+const slabPiece: (
+  lower: ISlabCrossing,
+  upper: ISlabCrossing,
+  left: number,
+  right: number,
+) => IAutoMovieVector3[] = (
   lower: ISlabCrossing,
   upper: ISlabCrossing,
   left: number,
   right: number,
 ): IAutoMovieVector3[] => {
-  const lowerLeft: { x: number; y: number; z: number; } = { x: left, y: 0, z: edgeZAt(lower.from, lower.to, left) };
-  const lowerRight: { x: number; y: number; z: number; } = {
+  const lowerLeft: { x: number; y: number; z: number } = {
+    x: left,
+    y: 0,
+    z: edgeZAt(lower.from, lower.to, left),
+  };
+  const lowerRight: { x: number; y: number; z: number } = {
     x: right,
     y: 0,
     z: edgeZAt(lower.from, lower.to, right),
   };
-  const upperRight: { x: number; y: number; z: number; } = {
+  const upperRight: { x: number; y: number; z: number } = {
     x: right,
     y: 0,
     z: edgeZAt(upper.from, upper.to, right),
   };
-  const upperLeft: { x: number; y: number; z: number; } = { x: left, y: 0, z: edgeZAt(upper.from, upper.to, left) };
+  const upperLeft: { x: number; y: number; z: number } = {
+    x: left,
+    y: 0,
+    z: edgeZAt(upper.from, upper.to, left),
+  };
   const piece: IAutoMovieVector3[] = [lowerLeft, lowerRight];
-  if (upperRight.z !== lowerRight.z)
-    piece.push(upperRight);
-  if (upperLeft.z !== lowerLeft.z)
-    piece.push(upperLeft);
+  if (upperRight.z !== lowerRight.z) piece.push(upperRight);
+  if (upperLeft.z !== lowerLeft.z) piece.push(upperLeft);
   return piece;
 };

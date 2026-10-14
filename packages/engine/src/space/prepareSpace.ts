@@ -1,6 +1,8 @@
 import { IAutoMovieSpace } from "@automovie/interface";
+
 import { IAutoMoviePreparedSpace } from "./IAutoMoviePreparedSpace";
 import { prepareSurface } from "./prepareSurface";
+
 /**
  * Prepare every authored surface's rings and areas for repeated space queries.
  *
@@ -13,7 +15,11 @@ import { prepareSurface } from "./prepareSurface";
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the result and projected arrays, which retain source space and surfaces until discarded; there are no active tasks or handles.
  * @author Samchon
  */
-export const prepareSpace: (space: IAutoMovieSpace) => IAutoMoviePreparedSpace = (space: IAutoMovieSpace): IAutoMoviePreparedSpace =>
+export const prepareSpace: (
+  space: IAutoMovieSpace,
+) => IAutoMoviePreparedSpace = (
+  space: IAutoMovieSpace,
+): IAutoMoviePreparedSpace =>
   ({
     space,
     surfaces: space.surfaces.map(prepareSurface),

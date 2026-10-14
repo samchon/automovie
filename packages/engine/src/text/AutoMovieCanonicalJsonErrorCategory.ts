@@ -1,4 +1,3 @@
-
 /**
  * Name the five explicit canonical-JSON domain refusal categories.
  *

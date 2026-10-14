@@ -9,7 +9,10 @@
  * @evidence contracts/performance.md#reuse-equivalent-work Clamps/validators reuse the metric but changed angles require new evaluation, with no retained angle table.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only a scalar returns, retaining no angle history, native joint or task.
  */
-export const swingConeAngle: (flexion: number, abduction: number) => number = (flexion: number, abduction: number): number =>
+export const swingConeAngle: (flexion: number, abduction: number) => number = (
+  flexion: number,
+  abduction: number,
+): number =>
   (Math.acos(
     Math.cos((flexion * Math.PI) / 360) * Math.cos((abduction * Math.PI) / 360),
   ) *

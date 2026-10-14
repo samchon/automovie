@@ -1,4 +1,5 @@
 import { AutoMovieCanonicalJsonErrorCategory } from "./AutoMovieCanonicalJsonErrorCategory";
+
 /**
  * Carry a closed canonical-JSON domain refusal without publishing partial identity text.
  *

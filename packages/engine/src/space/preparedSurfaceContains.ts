@@ -1,5 +1,6 @@
 import { IAutoMoviePreparedSurface } from "./IAutoMoviePreparedSurface";
 import { footprintContains } from "./footprintContains";
+
 /**
  * Query membership in an already prepared surface footprint.
  *
@@ -12,7 +13,11 @@ import { footprintContains } from "./footprintContains";
  * @evidence contracts/performance.md#bound-retention-and-release-resources The borrowed preparation is not retained by this call and only a boolean escapes, with no task or host handle.
  * @author Samchon
  */
-export const preparedSurfaceContains: (prepared: IAutoMoviePreparedSurface, x: number, z: number) => boolean = (
+export const preparedSurfaceContains: (
+  prepared: IAutoMoviePreparedSurface,
+  x: number,
+  z: number,
+) => boolean = (
   prepared: IAutoMoviePreparedSurface,
   x: number,
   z: number,

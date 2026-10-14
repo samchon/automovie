@@ -1,4 +1,3 @@
-
 /**
  * Compare strings by locale-independent UTF-16 code-unit order.
  *
@@ -11,5 +10,7 @@
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only -1, 0 or 1 escapes and input strings are not retained; no runtime locale object or external handle is acquired.
  * @author Samchon
  */
-export const compareCodeUnits: (a: string, b: string) => number = (a: string, b: string): number =>
-  a < b ? -1 : a > b ? 1 : 0;
+export const compareCodeUnits: (a: string, b: string) => number = (
+  a: string,
+  b: string,
+): number => (a < b ? -1 : a > b ? 1 : 0);
