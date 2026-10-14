@@ -1,4 +1,7 @@
-import { AutoMoviePrimitiveShape, IAutoMovieMaterial } from "@automovie/interface";
+import {
+  AutoMoviePrimitiveShape,
+  IAutoMovieMaterial,
+} from "@automovie/interface";
 
 /**
  * Typed input of `createAutoMoviePrimitiveProp`: identity, one primitive shape and the material it wears.

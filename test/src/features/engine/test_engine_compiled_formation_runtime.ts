@@ -60,7 +60,9 @@ const column: (
 });
 
 /** One fresh skeletonless box model group carrying the given id. */
-const model: (id: string) => IAutoMovieModel = (id: string): IAutoMovieModel => ({
+const model: (id: string) => IAutoMovieModel = (
+  id: string,
+): IAutoMovieModel => ({
   ...createModel(null),
   id,
 });
@@ -380,12 +382,7 @@ export function test_engine_compiled_formation_runtime(): void {
       ["halfMetre", (): boolean => nclose(radius([]), 0.5, 0)],
       [
         "centimetreFloor",
-        (): boolean =>
-          nclose(
-            radius([["member", 0.001]], []),
-            0.01,
-            0,
-          ),
+        (): boolean => nclose(radius([["member", 0.001]], []), 0.01, 0),
       ],
     ]),
     {

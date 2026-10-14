@@ -105,11 +105,7 @@ const followMode: boolean = params.get("follow") === "1";
 const followCamera: () => void = (): void => {
   const px: number = object.object.position.x;
   const pz: number = object.object.position.z;
-  camera.position.set(
-    px + dist * Math.sin(az),
-    camY,
-    pz + dist * Math.cos(az),
-  );
+  camera.position.set(px + dist * Math.sin(az), camY, pz + dist * Math.cos(az));
   camera.lookAt(px, target, pz);
 };
 camera.position.set(dist * Math.sin(az), camY, dist * Math.cos(az));

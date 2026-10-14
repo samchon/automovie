@@ -164,8 +164,9 @@ export function test_world_kit(): void {
       [
         "buildingModelBox",
         (): boolean => {
-          const part: IAutoMovieWorldBlock["model"]["parts"][number] | undefined =
-            building.model.parts[0];
+          const part:
+            | IAutoMovieWorldBlock["model"]["parts"][number]
+            | undefined = building.model.parts[0];
           return (
             building.model.parts.length === 1 &&
             building.model.skeleton === null &&

@@ -70,9 +70,9 @@ const SHRUB_TIERS: IAutoMovieModelLodRecipe[] = [
 ];
 
 /** The supplied tree model group, hashed into every tier that names it. */
-const models: Map<string, IAutoMovieModel> = new Map<string, IAutoMovieModel>(
-  [["tree", { ...createModel(null), id: "tree" }]],
-);
+const models: Map<string, IAutoMovieModel> = new Map<string, IAutoMovieModel>([
+  ["tree", { ...createModel(null), id: "tree" }],
+]);
 
 const nodeDigest: (value: unknown) => string = (value: unknown): string =>
   `sha256:${createHash("sha256").update(canonicalizeAutoMovieJson(value), "utf8").digest("hex")}`;

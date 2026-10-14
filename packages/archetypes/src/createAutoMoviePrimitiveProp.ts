@@ -22,7 +22,9 @@ import { IAutoMoviePrimitivePropProps } from "./IAutoMoviePrimitivePropProps";
  */
 export const createAutoMoviePrimitiveProp: (
   props: IAutoMoviePrimitivePropProps,
-) => IAutoMovieModel = (props: IAutoMoviePrimitivePropProps): IAutoMovieModel => {
+) => IAutoMovieModel = (
+  props: IAutoMoviePrimitivePropProps,
+): IAutoMovieModel => {
   if (props.id.trim().length === 0)
     throw new Error(
       "A primitive prop model id must contain non-whitespace text. Give the prop the id its scene nodes cite.",

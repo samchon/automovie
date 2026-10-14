@@ -103,82 +103,82 @@ const build: (props: IAutoMovieStickmanProps) => IAutoMovieModelPart[] = (
   const upperLimb: number = Math.max(limbRadius * 2, height * 0.15);
   const lowerLimb: number = Math.max(limbRadius * 2, height * 0.14);
   return [
-      part(
-        "pelvis",
-        "hips",
-        {
-          type: "box",
-          width: height * 0.19,
-          height: height * 0.12,
-          depth: height * 0.11,
-        },
-        transform(0, 0, 0),
-      ),
-      part(
-        "torso",
-        "spine",
-        {
-          type: "box",
-          width: height * 0.25,
-          height: torsoHeight,
-          depth: height * 0.12,
-        },
-        transform(0, torsoHeight * 0.22, 0),
-      ),
-      part("head", "head", { type: "sphere", radius: headRadius }, null),
-      ...(["left", "right"] as const).flatMap(
-        (side: "left" | "right"): IAutoMovieModelPart[] => {
-          const sign: number = side === "left" ? 1 : -1;
-          return [
-            part(
-              `${side}-upper-arm`,
-              `${side}UpperArm`,
-              {
-                type: "capsule",
-                radius: limbRadius,
-                height: upperLimb,
-              },
-              horizontal(sign * upperLimb * 0.55),
-            ),
-            part(
-              `${side}-lower-arm`,
-              `${side}LowerArm`,
-              {
-                type: "capsule",
-                radius: limbRadius * 0.85,
-                height: lowerLimb,
-              },
-              horizontal(sign * lowerLimb * 0.55),
-            ),
-            part(
-              `${side}-hand`,
-              `${side}Hand`,
-              { type: "sphere", radius: limbRadius * 1.05 },
-              null,
-            ),
-            part(
-              `${side}-thigh`,
-              `${side}UpperLeg`,
-              {
-                type: "capsule",
-                radius: limbRadius * 1.15,
-                height: height * 0.19,
-              },
-              transform(0, -height * 0.105, 0),
-            ),
-            part(
-              `${side}-shin`,
-              `${side}LowerLeg`,
-              {
-                type: "capsule",
-                radius: limbRadius,
-                height: height * 0.19,
-              },
-              transform(0, -height * 0.105, 0),
-            ),
-          ];
-        },
-      ),
+    part(
+      "pelvis",
+      "hips",
+      {
+        type: "box",
+        width: height * 0.19,
+        height: height * 0.12,
+        depth: height * 0.11,
+      },
+      transform(0, 0, 0),
+    ),
+    part(
+      "torso",
+      "spine",
+      {
+        type: "box",
+        width: height * 0.25,
+        height: torsoHeight,
+        depth: height * 0.12,
+      },
+      transform(0, torsoHeight * 0.22, 0),
+    ),
+    part("head", "head", { type: "sphere", radius: headRadius }, null),
+    ...(["left", "right"] as const).flatMap(
+      (side: "left" | "right"): IAutoMovieModelPart[] => {
+        const sign: number = side === "left" ? 1 : -1;
+        return [
+          part(
+            `${side}-upper-arm`,
+            `${side}UpperArm`,
+            {
+              type: "capsule",
+              radius: limbRadius,
+              height: upperLimb,
+            },
+            horizontal(sign * upperLimb * 0.55),
+          ),
+          part(
+            `${side}-lower-arm`,
+            `${side}LowerArm`,
+            {
+              type: "capsule",
+              radius: limbRadius * 0.85,
+              height: lowerLimb,
+            },
+            horizontal(sign * lowerLimb * 0.55),
+          ),
+          part(
+            `${side}-hand`,
+            `${side}Hand`,
+            { type: "sphere", radius: limbRadius * 1.05 },
+            null,
+          ),
+          part(
+            `${side}-thigh`,
+            `${side}UpperLeg`,
+            {
+              type: "capsule",
+              radius: limbRadius * 1.15,
+              height: height * 0.19,
+            },
+            transform(0, -height * 0.105, 0),
+          ),
+          part(
+            `${side}-shin`,
+            `${side}LowerLeg`,
+            {
+              type: "capsule",
+              radius: limbRadius,
+              height: height * 0.19,
+            },
+            transform(0, -height * 0.105, 0),
+          ),
+        ];
+      },
+    ),
   ];
 };
 

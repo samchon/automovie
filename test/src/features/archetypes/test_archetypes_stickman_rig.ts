@@ -11,7 +11,12 @@ import {
 import { TestValidator } from "@nestia/e2e";
 
 import { material } from "../internal/material";
-import { namedFacts, nclose, throwsError, vclose } from "../internal/predicates";
+import {
+  namedFacts,
+  nclose,
+  throwsError,
+  vclose,
+} from "../internal/predicates";
 
 /** The figure every case below reads, and the three numbers that shape it. */
 const HEIGHT: number = 2;
