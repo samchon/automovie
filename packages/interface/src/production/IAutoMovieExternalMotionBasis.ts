@@ -3,7 +3,7 @@ import { IAutoMovieExternalMotionBasisNode } from "./IAutoMovieExternalMotionBas
 /**
  * Canonical byte-grounded coordinate and hierarchy basis for external motion.
  *
- * @evidence contracts/common.md#principled-implementation A versioned metre, right-handed, Y-up basis preserves the hierarchy and rest transforms inspected from source bytes; inventory comparison checks those facts before an authored semantic rig can characterize the take.
+ * @evidence contracts/common.md#principled-implementation A versioned metre, right-handed, Y-up record declares inspected hierarchy and rest transforms independently of semantic bone labels. Current-byte inspection and truthful ordering are host premises; the retired production inventory no longer verifies these declarations automatically.
  * @evidence contracts/common.md#clear-and-simple-design Coordinate convention lives once around a stable source-index node list, avoiding per-node unit flags or duplicated source-name mappings.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Authored bone labels cannot replace the inspected source hierarchy or local rest basis, and ingestion does not treat a matching filename as proof of coordinate compatibility.
  * @evidence contracts/common.md#meaningful-documentation Gives the basis protocol, metre units, handedness, vertical axis and stable inspected node ordering that adoption must preserve.
