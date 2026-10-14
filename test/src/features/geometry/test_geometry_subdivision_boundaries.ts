@@ -107,14 +107,16 @@ const flatWithUpNormals: (surface: IAutoMovieSubdivisionSurface) => boolean = (
  * 3. Flat open cages fanned over two to four faces around a boundary vertex,
  *    and the flat grid with its one-face corners, have every limit point in
  *    the plane and every normal exactly +Z.
- * 4. On curved half fans of two, three, four and six faces, the boundary
- *    vertex's limit position and normal are the same at levels 1 to 4, and the
- *    normal is perpendicular to the exact crease tangent; a one-face cage
+ * 4. On curved half fans of two and three faces, the boundary vertex's limit
+ *    position and normal are the same at levels 1 to 4; with four and six
+ *    faces, where the standard rules leave no tangent plane containing the
+ *    boundary, only the stated approximation is pinned: for every fan the
+ *    normal is perpendicular to the exact crease tangent. A one-face cage
  *    corner keeps its normal across levels too.
  *
  * @evidence contracts/testing.md#behavioral-verification Runs `subdivideAutoMovieSurface` on open cages and asserts refined boundary points, limit positions and normals; a smooth rule on the boundary, a kept corner, a non-midpoint boundary edge, or a flipped or tilted boundary normal fails.
- * @evidence contracts/testing.md#independent-expectations The crease rule, midpoint and B-spline limit are the published Hoppe and DeRose boundary rules written in the test from cage or output points; flat cages fix the normal by geometry; curved boundaries use the invariance of the limit under refinement and the exact B-spline crease tangent. The one-face corner is only checked for invariance, because its normal is OpenSubdiv's mask at a degenerate parametrisation, as documented.
- * @evidence contracts/testing.md#distinguishing-cases Covers boundary sides of one, two, three, four and six faces, corners, curved and flat sheets, the exact two-face side and the settled wider sides; interior smooth vertices, creases, UV seams, parameters and refusals are owned by the other `test_geometry_subdivision_*` tests.
+ * @evidence contracts/testing.md#independent-expectations The crease rule, midpoint and B-spline limit are the published Hoppe and DeRose boundary rules written in the test from cage or output points; flat cages fix the normal by geometry; curved boundaries use the invariance of the limit under refinement and the exact B-spline crease tangent. Sides of four or more faces are only checked against the crease tangent and the one-face corner only for invariance, because the documented eigenstructure leaves them no exact normal.
+ * @evidence contracts/testing.md#distinguishing-cases Covers boundary sides of one, two, three, four and six faces, corners, curved and flat sheets, the exact two- and three-face sides and the approximated wider sides; interior smooth vertices, creases, UV seams, parameters and refusals are owned by the other `test_geometry_subdivision_*` tests.
  * @evidence contracts/testing.md#execution-ownership A discoverable unit entry calling the portable engine function on synthetic cages; no consumer, native build, process, browser or GPU.
  */
 export function test_geometry_subdivision_boundaries(): void {
@@ -237,6 +239,7 @@ export function test_geometry_subdivision_boundaries(): void {
     ]);
     TestValidator.predicate(
       `a ${k}-face boundary limit does not depend on the level`,
+      k > 3 ||
       surfaces.every(
         (surface: IAutoMovieSubdivisionSurface): boolean =>
           vclose(subdivisionCornerNormal(surface, 0), normal, 1e-13) &&

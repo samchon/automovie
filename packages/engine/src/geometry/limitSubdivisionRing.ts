@@ -1,5 +1,5 @@
 import { ISubdivisionRing } from "./ISubdivisionRing";
-import { settleSubdivisionRing } from "./settleSubdivisionRing";
+import { subdivisionRingEigenbasis } from "./subdivisionRingEigenbasis";
 
 /**
  * The limit position of a ring's vertex and one limit normal per sector of
@@ -11,19 +11,26 @@ import { settleSubdivisionRing } from "./settleSubdivisionRing";
  * the cosine and sine masks with
  * `A = 1 + cos(2 pi / n) + cos(pi / n) sqrt(2 (9 + cos(2 pi / n)))` on the edges
  * and `cos(2 pi i / n) + cos(2 pi (i + 1) / n)` on the diagonals (Halstead,
- * Kass and DeRose 1993), giving one normal. A dart, with one sharp edge, takes
- * the same masks on its ring settled by `settleSubdivisionRing`, because its
- * sharp edge changes the eigenvectors they assume.
+ * Kass and DeRose 1993), giving one normal. A dart, with one sharp edge, has
+ * another subdivision matrix, so its limit and tangents come from that
+ * matrix's eigenvectors through `subdivisionRingEigenbasis`. An interior vertex
+ * of valence two has no tangent plane and is refused, as is any vanishing or
+ * non-finite normal.
  *
  * With two sharp edges the vertex is on a crease, whose limit is the B-spline
  * point `(A + 4 C + B) / 6` of the crease neighbours. Each side's normal
- * crosses the crease tangent with a cross tangent into that side: for two
- * faces the regular B-spline cross derivative, exact, which is the two-face
- * case of Biermann, Levin and Zorin's (2000) mask; for three or more faces
- * that mask on the settled ring, exact because the ring has converged; for one
- * face, a cage corner under edge-only interpolation whose parametrisation is
- * degenerate at the vertex, OpenSubdiv's mask from the vertex to the mean of
- * its two crease neighbours.
+ * crosses the crease tangent with a cross tangent into that side. For a side of
+ * two faces this is the regular B-spline cross derivative, exact. A side of
+ * three faces refines on its own as a boundary ring whose dominant tangent
+ * eigenvalues, about 0.580 across and 0.5 along the crease, stand clear of the
+ * next, 0.410, so its exact tangents come from `subdivisionRingEigenbasis`.
+ * Other sides take OpenSubdiv's masks, Biermann, Levin and Zorin's (2000) for
+ * four or more faces and the vertex-to-mean-of-crease-neighbours mask for one
+ * face. Those are approximations with no exact replacement: under the standard
+ * crease rules a side of four faces has a tie for its second tangent
+ * eigenvalue and a wider side has two dominant eigenvalues above the crease's
+ * 0.5, while a side of one face has a degenerate parametrisation, so the limit
+ * surface has no tangent plane containing the crease there.
  *
  * With three or more sharp edges the vertex is a corner and stays put; each
  * sector's normal crosses the tangents of its two bounding crease curves,
@@ -36,12 +43,12 @@ import { settleSubdivisionRing } from "./settleSubdivisionRing";
  * @param vertex Vertex index, for the diagnostic.
  * @returns The limit position, the unit normal of each sector, and each ring face's sector.
  *
- * @evidence contracts/common.md#principled-implementation Smooth limit and tangent masks are left eigenvectors of the Catmull-Clark subdivision matrix (Halstead, Kass and DeRose 1993); the crease limit is the cubic B-spline curve point; a two-face crease side is a regular B-spline boundary; rings whose matrix has other eigenvectors are settled first; corner tangents are the end tangents of the crease curves. The one-face side is the stated exception, using OpenSubdiv's mask because the parametrisation there is degenerate.
- * @evidence contracts/common.md#clear-and-simple-design One function per vertex class decision, with sectors found from the sharp edges in fan order so crease and corner vertices share one sector bookkeeping, and settling done at most once per ring.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A vanishing or non-finite normal is refused instead of replaced; the only fallback is the stated collinear corner sector, which has no curve-determined tangent plane.
- * @evidence contracts/common.md#meaningful-documentation States the precondition, each class's limit and normal rule with sources, which rings are settled and why, the one-face exception, the corner orientation and its degenerate case, and the refusal.
- * @evidence contracts/performance.md#efficient-algorithms Linear in the valence: one pass for the limit, one per tangent and one per sector over its faces, plus a constant number of ring steps when the ring is settled.
- * @evidence contracts/performance.md#reuse-equivalent-work A crease ring is settled at most once and shared by every side that needs it.
+ * @evidence contracts/common.md#principled-implementation Smooth limit and tangent masks are left eigenvectors of the Catmull-Clark subdivision matrix (Halstead, Kass and DeRose 1993), and darts and three-face crease sides use the eigenvectors of their own matrices; the crease limit is the cubic B-spline curve point; a two-face crease side is a regular B-spline boundary; corner tangents are the end tangents of the crease curves. Crease sides of one or four or more faces use OpenSubdiv's masks, stated as approximations together with the eigenstructure reason no exact normal exists there.
+ * @evidence contracts/common.md#clear-and-simple-design One function per vertex class decision, with sectors found from the sharp edges in fan order so crease and corner vertices share one sector bookkeeping; the dart eigenvectors are computed in their own function.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A valence-two interior vertex and a vanishing or non-finite normal are refused instead of replaced; the only fallback is the stated collinear corner sector, which has no curve-determined tangent plane.
+ * @evidence contracts/common.md#meaningful-documentation States the precondition, each class's limit and normal rule with sources, which results are exact and which approximate and why, the corner orientation and its degenerate case, and the refusals.
+ * @evidence contracts/performance.md#efficient-algorithms Linear in the valence for every class except darts and three-face crease sides, whose eigenvector search is quadratic in the ring size per iteration.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each ring is evaluated once.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Returns small arrays sized by the valence and retains nothing.
  */
 export const limitSubdivisionRing = (
@@ -54,6 +61,8 @@ export const limitSubdivisionRing = (
   ring.sharpness.forEach((s: number, i: number): void => {
     if (s > 0) sharp.push(i);
   });
+  if (sharp.length <= 1 && edgeCount < 3)
+    throw new Error(`subdivision limit normal at vertex ${vertex} is undefined`);
   if (sharp.length === 0) {
     const smooth: { position: number[]; normal: number[] } = smoothLimit(ring);
     return {
@@ -63,17 +72,17 @@ export const limitSubdivisionRing = (
     };
   }
   if (sharp.length === 1) {
-    const settled: { ring: ISubdivisionRing; origin: number[]; scale: number } =
-      settleSubdivisionRing(ring);
-    const smooth: { position: number[]; normal: number[] } = smoothLimit(
-      settled.ring,
-    );
+    const basis: { limit: number[]; tangents: number[][] } =
+      subdivisionRingEigenbasis(ring);
     return {
-      position: settled.origin.map(
-        (x: number, axis: number): number =>
-          x + smooth.position[axis]! / settled.scale,
-      ),
-      normals: [unit(smooth.normal, vertex)],
+      position: basis.limit,
+      normals: [
+        oriented(
+          cross(basis.tangents[0]!, basis.tangents[1]!),
+          winding(ring, 0, edgeCount),
+          vertex,
+        ),
+      ],
       sectors: new Array<number>(faceCount).fill(0),
     };
   }
@@ -94,39 +103,33 @@ export const limitSubdivisionRing = (
   if (edgeCount === faceCount)
     bounds.push([sharp[sharp.length - 1]!, sharp[0]! + edgeCount]);
   const sectors: number[] = new Array<number>(faceCount).fill(0);
-  let settled: ISubdivisionRing | null = null;
   const normals: number[][] = bounds.map(
     ([lead, trail]: [number, number], sector: number): number[] => {
       for (let i: number = lead; i < trail; ++i) sectors[i % edgeCount] = sector;
-      if (sharp.length === 2) {
-        if (trail - lead > 2) settled ??= settleSubdivisionRing(ring).ring;
-        const source: ISubdivisionRing =
-          trail - lead > 2 ? settled! : ring;
-        return unit(
-          cross(
-            subtract(point(source.edges, lead), point(source.edges, trail)),
-            crossTangent(source, lead, trail),
-          ),
+      const turn: number[] = winding(ring, lead, trail);
+      if (sharp.length === 2 && trail - lead === 3) {
+        const basis: { limit: number[]; tangents: number[][] } =
+          subdivisionRingEigenbasis(side(ring, lead, trail));
+        return oriented(
+          cross(basis.tangents[0]!, basis.tangents[1]!),
+          turn,
           vertex,
         );
       }
-      const winding: number[] = [0, 0, 0];
-      for (let i: number = lead; i < trail; ++i)
-        add(
-          winding,
-          cross(subtract(edge(i), centre), subtract(edge(i + 1), centre)),
+      if (sharp.length === 2)
+        return unit(
+          cross(
+            subtract(edge(lead), edge(trail)),
+            crossTangent(ring, lead, trail),
+          ),
+          vertex,
         );
       const a: number[] = subtract(edge(lead), centre);
       const b: number[] = subtract(edge(trail), centre);
       const normal: number[] = cross(a, b);
       if (length(normal) <= 1e-9 * length(a) * length(b))
-        return unit(winding, vertex);
-      return unit(
-        dot(normal, winding) < 0
-          ? normal.map((x: number): number => -x)
-          : normal,
-        vertex,
-      );
+        return unit(turn, vertex);
+      return oriented(normal, turn, vertex);
     },
   );
   return { position, normals, sectors };
@@ -222,6 +225,56 @@ const crossTangent: (
       );
   }
   return tangent;
+};
+
+/**
+ * The sum of `(E_i - C) x (E_{i+1} - C)` over the ring quads from edge `lead`
+ * to edge `trail`, a vector on the outward side of that sector.
+ */
+const winding: (ring: ISubdivisionRing, lead: number, trail: number) => number[] = (
+  ring: ISubdivisionRing,
+  lead: number,
+  trail: number,
+): number[] => {
+  const turn: number[] = [0, 0, 0];
+  for (let i: number = lead; i < trail; ++i)
+    add(
+      turn,
+      cross(
+        subtract(point(ring.edges, i), ring.centre),
+        subtract(point(ring.edges, i + 1), ring.centre),
+      ),
+    );
+  return turn;
+};
+
+/** The unit vector along `normal`, flipped to the side of `turn`. */
+const oriented: (normal: number[], turn: readonly number[], vertex: number) => number[] = (
+  normal: number[],
+  turn: readonly number[],
+  vertex: number,
+): number[] =>
+  unit(dot(normal, turn) < 0 ? normal.map((x: number): number => -x) : normal, vertex);
+
+/**
+ * The faces from edge `lead` to edge `trail` of a crease ring as a boundary
+ * ring of their own, which refines independently of the other side because
+ * the crease rules read only the crease.
+ */
+const side: (ring: ISubdivisionRing, lead: number, trail: number) => ISubdivisionRing = (
+  ring: ISubdivisionRing,
+  lead: number,
+  trail: number,
+): ISubdivisionRing => {
+  const edges: number[] = [];
+  const diagonals: number[] = [];
+  const sharpness: number[] = [];
+  for (let i: number = lead; i <= trail; ++i) {
+    edges.push(...point(ring.edges, i));
+    sharpness.push(i === lead || i === trail ? 10 : 0);
+    if (i < trail) diagonals.push(...point(ring.diagonals, i));
+  }
+  return { centre: ring.centre.slice(), edges, diagonals, sharpness };
 };
 
 /** Add `b` into `a` in place. */

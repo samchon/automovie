@@ -23,9 +23,10 @@ import { refineSubdivisionLevel } from "./refineSubdivisionLevel";
  * masks, evaluated after any semi-sharp sharpness left at the final level is
  * spent, so they are what infinite refinement gives and do not depend on the
  * level. A vertex on an infinitely sharp crease or boundary gets one normal per
- * side. The one exception is a boundary or crease side of a single face, such
- * as a cage corner under edge-only interpolation, where the surface's
- * parametrisation is degenerate and the normal is OpenSubdiv's mask.
+ * side. The exceptions are boundary or crease sides of one face, such as a cage
+ * corner under edge-only interpolation, or of four or more faces: there the
+ * limit surface has no tangent plane containing the crease, and the normal is
+ * OpenSubdiv's approximating mask, as `limitSubdivisionRing` explains.
  *
  * UVs refine face-varying with every chart boundary pinned, so an authored UV
  * layout keeps its chart outlines exactly. The surface is deterministic: the
@@ -40,10 +41,10 @@ import { refineSubdivisionLevel } from "./refineSubdivisionLevel";
  * @param props.levels Number of refinement steps, an integer of at least 1.
  * @returns The refined quads, limit positions and normals, UVs and cage parameters.
  *
- * @evidence contracts/common.md#principled-implementation Uniform Catmull-Clark refinement with the Hoppe boundary and crease rules and the semi-sharp extension of DeRose, Kass and Truong (1998), limit masks from Halstead, Kass and DeRose (1993) and the crease cross tangent of Biermann, Levin and Zorin (2000), applied to rings refined until those masks hold; every rule is an affine mask evaluated in a fixed order, which is what makes the output deterministic. The one stated approximation is the one-face crease side, whose parametrisation is degenerate.
+ * @evidence contracts/common.md#principled-implementation Uniform Catmull-Clark refinement with the Hoppe boundary and crease rules and the semi-sharp extension of DeRose, Kass and Truong (1998), limit masks from Halstead, Kass and DeRose (1993) and the crease cross tangent of Biermann, Levin and Zorin (2000), and eigenvectors of the local subdivision matrix where those masks do not apply; every rule is an affine mask evaluated in a fixed order, which is what makes the output deterministic. The stated approximations are crease sides of one or of four or more faces, where the standard rules leave no tangent plane containing the crease.
  * @evidence contracts/common.md#clear-and-simple-design Admission, one-level refinement and limit evaluation are separate functions over one level record; this function owns the level loop, the per-vertex parameter choice and the output layout.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No caller-specific rule or tolerance; a vanishing normal is refused rather than replaced, and the cage is never repaired.
- * @evidence contracts/common.md#meaningful-documentation States the rules applied at boundaries, creases and corners, that limit results do not depend on the level and the one exception, the UV and determinism guarantees, every refusal, and the growth per level.
+ * @evidence contracts/common.md#meaningful-documentation States the rules applied at boundaries, creases and corners, that limit results do not depend on the level and the exceptions, the UV and determinism guarantees, every refusal, and the growth per level.
  * @evidence contracts/performance.md#efficient-algorithms For `F` cage corners and `L` levels, each level is linear in its size and the last has about `F * 4^(L - 1)` quads, so time and space are dominated by the final level; the limit adds one point refinement of that level and a bounded ring iteration per vertex.
  * @evidence contracts/performance.md#reuse-equivalent-work Each level is computed once from the previous one, and the limit reuses one shared point refinement for every vertex.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only the current level is held while refining; the returned surface owns arrays linear in the final level and nothing else is retained.
