@@ -18,7 +18,7 @@ import { isRecord } from "../../validation/isRecord";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Checks one camera's envelope per call and coordinates no work across calls.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Retains nothing itself; it appends at most four violations per call to `out`, a centre and a radius for each sphere, to the collector the caller owns.
  */
-export function validateCameraClearanceEnvelope (
+export function validateCameraClearanceEnvelope(
   value: unknown,
   path: string,
   out: ViolationCollector,
@@ -40,7 +40,7 @@ export function validateCameraClearanceEnvelope (
 }
 
 /** One clearance sphere: a finite object centre and a positive radius. */
-function validateSphere (
+function validateSphere(
   sphere: unknown,
   path: string,
   out: ViolationCollector,

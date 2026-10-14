@@ -43,7 +43,7 @@ import { validatePerformShotId } from "./validatePerformShotId";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Gates one target per call; the placement and formation tables it reads are built once per shot in the context and shared by every call.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Pushes violations into the shared collector and retains nothing; the returned point is a staged or resolved vector the caller only reads.
  */
-export function resolvePerformShotTarget (
+export function resolvePerformShotTarget(
   context: IPerformShotGateContext,
   props: {
     target: unknown;
@@ -66,7 +66,10 @@ export function resolvePerformShotTarget (
         "type",
         path,
         `${subject} must resolve to a point (${POSITIONAL_TARGET_SHAPE}), but its group names formation ${named
-          .map((formation: unknown): string => `"${describeInvalidValue(formation)}"`)
+          .map(
+            (formation: unknown): string =>
+              `"${describeInvalidValue(formation)}"`,
+          )
           .join(
             ", ",
           )}: a formation is a mass a camera frames, not one body with one point to aim at; name the staged nodes to aim at instead`,
@@ -79,10 +82,19 @@ export function resolvePerformShotTarget (
   if (
     (target.kind === "node" && !context.nodePositions.has(target.node)) ||
     (target.kind === "point" && !isFiniteStageVector3(target.point)) ||
-    (target.kind === "group" && target.nodes.length + (target.formations?.length ?? 0) === 0) ||
-    (target.kind !== "node" && target.kind !== "bone" && target.kind !== "point" && target.kind !== "group")
+    (target.kind === "group" &&
+      target.nodes.length + (target.formations?.length ?? 0) === 0) ||
+    (target.kind !== "node" &&
+      target.kind !== "bone" &&
+      target.kind !== "point" &&
+      target.kind !== "group")
   ) {
-    context.out.push("type", path, `${subject} must resolve to a point (${POSITIONAL_TARGET_SHAPE}), but ${positionalTargetFault(target)}`, target);
+    context.out.push(
+      "type",
+      path,
+      `${subject} must resolve to a point (${POSITIONAL_TARGET_SHAPE}), but ${positionalTargetFault(target)}`,
+      target,
+    );
     return null;
   }
   const point: IAutoMovieVector3 | null | undefined =
@@ -109,7 +121,7 @@ export function resolvePerformShotTarget (
 /**
  * Check the ids an untyped target carries, answering whether it is a target record resolution may read.
  */
-function validateTargetIds (
+function validateTargetIds(
   context: IPerformShotGateContext,
   target: unknown,
   path: string,
@@ -209,7 +221,7 @@ function validateTargetIds (
 }
 
 /** Check that a bone target names a rigged staged actor carrying the bone. */
-function validateBoneTarget (
+function validateBoneTarget(
   context: IPerformShotGateContext,
   node: string,
   bone: string,

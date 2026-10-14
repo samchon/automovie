@@ -26,11 +26,13 @@ const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Reads one piece per call and coordinates no work across calls.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Retains nothing; the result references the piece's own `position`, `rotation` and vector `scale` objects, so a caller that mutates the result mutates the piece.
  */
-export function setPieceTransform (
+export function setPieceTransform(
   piece: IAutoMovieStageSetPiece,
-): IAutoMovieTransform { return ({
-  translation: piece.position,
-  rotation:
-    piece.rotation ?? Quaternion.fromAxisAngle(UP, piece.facingDeg ?? 0),
-  scale: setPieceScale(piece.scale),
-}); }
+): IAutoMovieTransform {
+  return {
+    translation: piece.position,
+    rotation:
+      piece.rotation ?? Quaternion.fromAxisAngle(UP, piece.facingDeg ?? 0),
+    scale: setPieceScale(piece.scale),
+  };
+}

@@ -18,7 +18,7 @@ import { ViolationCollector } from "../validation/ViolationCollector";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work One check of one value per call with no shared state.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Pushes at most one violation into the caller's collector and keeps nothing itself.
  */
-export function validatePerformShotId (
+export function validatePerformShotId(
   out: ViolationCollector,
   id: unknown,
   path: string,

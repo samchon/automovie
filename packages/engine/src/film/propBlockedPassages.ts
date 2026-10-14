@@ -1,4 +1,8 @@
-import { IAutoMovieBuiltEnvironment, IAutoMoviePropBox } from "@automovie/interface";
+import {
+  IAutoMovieBuiltEnvironment,
+  IAutoMoviePropBox,
+} from "@automovie/interface";
+
 import { IAutoMoviePassageBlockage } from "./IAutoMoviePassageBlockage";
 import { createPropPassageBlocker } from "./createPropPassageBlocker";
 
@@ -23,7 +27,7 @@ import { createPropPassageBlocker } from "./createPropPassageBlocker";
  * @evidence contracts/performance.md#reuse-equivalent-work The preparation shares rest matrices and element/model indexes across openings for this single query; repeated-prop validation calls createPropPassageBlocker directly to reuse prepared bounds for an unchanged environment during that call, without a global stale-data cache.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The lookups and indexes are dropped on return; the caller owns the returned blockages, at most one per opening and connector.
  */
-export function propBlockedPassages (props: {
+export function propBlockedPassages(props: {
   environment: IAutoMovieBuiltEnvironment;
   bounds: IAutoMoviePropBox;
 }): IAutoMoviePassageBlockage[] {

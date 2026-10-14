@@ -29,7 +29,7 @@ import { deliveryCropNdc } from "./deliveryCropNdc";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure projection of one point that coordinates no work across calls.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Allocates a few temporary vectors and retains nothing; the caller owns the returned record.
  */
-export function projectToNdc (
+export function projectToNdc(
   camera: IAutoMovieResolvedCamera,
   point: IAutoMovieVector3,
   halfY: number,

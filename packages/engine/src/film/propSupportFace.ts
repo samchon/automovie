@@ -41,7 +41,7 @@ const EDGE_ON_TOLERANCE: number = 1e-9;
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Resolves one relation per call and caches nothing; the caller measures the face immediately and drops it.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Retains nothing; a patch face references the authored surface record as its height rule, and a prop face owns a fresh ring and plane rule, both released with the caller's measurement.
  */
-export function propSupportFace (props: {
+export function propSupportFace(props: {
   /** The `on-support` relation's target: a patch, or another prop's contact. */
   target:
     | IAutoMoviePropRelationTarget.ISurface
@@ -125,7 +125,7 @@ export function propSupportFace (props: {
  *
  * The face is spanned by the images of local `+X` and `+Z`, so its normal is their cross product and it passes through the transform's own origin. A normal with no vertical component of its own is the vertical face, and a transform that collapses the face to a line or a point answers with the zero normal, which the same comparison catches: in both, the height over `(x, z)` is not a function, so there is no rule to read it by. The test is taken against the normal's own length rather than against a length in metres, so a face states its tilt the same way at whatever size it was staged.
  */
-function facePlane (matrix: number[]): IAutoMovieHeightSurface | null {
+function facePlane(matrix: number[]): IAutoMovieHeightSurface | null {
   const normal: IAutoMovieVector3 = Vector3.cross(
     { x: matrix[0]!, y: matrix[1]!, z: matrix[2]! },
     { x: matrix[8]!, y: matrix[9]!, z: matrix[10]! },

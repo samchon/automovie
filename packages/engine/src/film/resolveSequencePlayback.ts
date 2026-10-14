@@ -23,7 +23,7 @@ import { sequenceTimeline } from "./sequenceTimeline";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Deliberately keeps no timeline between calls: the sequence and shots are plain values with no identity to key a cache on, and a caller that queries repeatedly is pointed at `resolveFromTimeline` with a timeline it owns.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The timeline built per call is released on return; only the returned sample survives, owned by the caller.
  */
-export function resolveSequencePlayback (
+export function resolveSequencePlayback(
   sequence: IAutoMovieSequence,
   shots: IAutoMovieShot[],
   seconds: number,

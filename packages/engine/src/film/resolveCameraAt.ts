@@ -28,7 +28,7 @@ import { IAutoMovieResolvedCamera } from "./IAutoMovieResolvedCamera";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Resolves one instant per call and keeps no cache, because the inputs are plain values with no identity to key one on; a caller that reads the same instant for several measurements, such as `reviewVisualRead` across its metrics, resolves it once and shares the result.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The sampled channel map is released on return; the result references either the base's objects or two fresh vectors and retains nothing else.
  */
-export function resolveCameraAt (
+export function resolveCameraAt(
   base: { translation: IAutoMovieVector3; rotation: IAutoMovieQuaternion },
   cameraMotion: IAutoMovieShot["cameraMotion"],
   cameraId: string,

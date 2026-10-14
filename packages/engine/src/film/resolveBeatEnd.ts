@@ -21,6 +21,8 @@ import { resolveBeatSnapshot } from "./resolveBeatSnapshot";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Computes one shot's closing state per call and caches nothing; `compileDefinedShot` stores it on the compiled result for the runtime to hand the next beat, and `validateFilmContinuity` resolves each beat's end once per check.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing beyond the returned state, whose ownership `resolveBeatSnapshot` answers.
  */
-export function resolveBeatEnd (
+export function resolveBeatEnd(
   props: IResolveBeatProps,
-): IAutoMovieBeatEndState { return resolveBeatSnapshot(props, props.shot.duration); }
+): IAutoMovieBeatEndState {
+  return resolveBeatSnapshot(props, props.shot.duration);
+}

@@ -1,4 +1,7 @@
-import { IAutoMovieActionTarget, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  IAutoMovieActionTarget,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { resolveTargetPoint } from "../perform/resolveTargetPoint";
 import { IPerformShotGateContext } from "./IPerformShotGateContext";
@@ -20,7 +23,7 @@ import { IPerformShotGateContext } from "./IPerformShotGateContext";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work One read per call; the tables it reads are the shared context's.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the returned point may be a staged vector the caller only reads.
  */
-export function resolvedPerformShotPoint (
+export function resolvedPerformShotPoint(
   context: IPerformShotGateContext,
   target: IAutoMovieActionTarget,
 ): IAutoMovieVector3 {

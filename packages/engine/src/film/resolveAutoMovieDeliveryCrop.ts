@@ -25,7 +25,7 @@ const WHOLE_DELIVERY_CROP: IAutoMovieDeliveryCrop = {
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Validates one small record per call; callers that read the crop per frame call it once per frame and the cost is constant.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Allocates one four-field copy owned by the caller and retains nothing.
  */
-export function resolveAutoMovieDeliveryCrop (
+export function resolveAutoMovieDeliveryCrop(
   crop: IAutoMovieDeliveryCrop | undefined,
 ): IAutoMovieDeliveryCrop {
   const resolved: IAutoMovieDeliveryCrop = crop ?? WHOLE_DELIVERY_CROP;

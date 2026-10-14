@@ -63,7 +63,7 @@ const LOOK_DISTANCE_EPSILON: number = 1e-9;
  * @evidence contracts/performance.md#reuse-equivalent-work Shares placement indexes and admitted camera directions between validation and composition during one unchanged staging write. The script and write may change between correction rounds, so nothing is kept across calls.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The indexes, id set and collector are released on return; a success holds one node per actor and set piece, one camera and one light per placement, and the authored space, fog and environment objects by reference, and a failure holds the violation list.
  */
-export function stageScene (
+export function stageScene(
   script: IAutoMovieScript,
   staging: IAutoMovieStage,
 ): IAutoMovieStagedSet {
@@ -137,10 +137,15 @@ export function stageScene (
   );
 
   const ids: Set<string> = new Set();
-  function claim (id: string, path: string, label: string): void {
+  function claim(id: string, path: string, label: string): void {
     collectNonEmptyId(id, path, label, out);
     if (ids.has(id))
-      out.push("type", path, `id "${describeInvalidValue(id)}" must be unique in the scene`, id);
+      out.push(
+        "type",
+        path,
+        `id "${describeInvalidValue(id)}" must be unique in the scene`,
+        id,
+      );
     ids.add(id);
   }
 
@@ -281,7 +286,8 @@ export function stageScene (
         );
   }
 
-  const cameraDirections: Map<IAutoMovieStageCamera, IAutoMovieVector3> = new Map();
+  const cameraDirections: Map<IAutoMovieStageCamera, IAutoMovieVector3> =
+    new Map();
   staging.cameras.forEach((camera: IAutoMovieStageCamera, i: number): void => {
     const path: string = `$input.cameras[${i}]`;
     claim(camera.node, `${path}.node`, "camera node id");
@@ -293,7 +299,10 @@ export function stageScene (
         "camera position must be a finite vector",
         camera.position,
       );
-    if (typeof camera.fovDeg !== "number" || !(camera.fovDeg > 0 && camera.fovDeg < 180))
+    if (
+      typeof camera.fovDeg !== "number" ||
+      !(camera.fovDeg > 0 && camera.fovDeg < 180)
+    )
       out.push(
         "range",
         `${path}.fovDeg`,
@@ -307,8 +316,12 @@ export function stageScene (
         "camera near distance must be finite and greater than zero metres",
         camera.near,
       );
-    if (!Number.isFinite(camera.far) ||
-        (Number.isFinite(camera.near) && camera.near > 0 && camera.far <= camera.near))
+    if (
+      !Number.isFinite(camera.far) ||
+      (Number.isFinite(camera.near) &&
+        camera.near > 0 &&
+        camera.far <= camera.near)
+    )
       out.push(
         "range",
         `${path}.far`,
@@ -341,12 +354,29 @@ export function stageScene (
       camera.lookAt.kind === "node"
         ? placedPoints.get(camera.lookAt.node)
         : camera.lookAt.point;
-    if (target !== undefined && positionFinite && isFiniteStageVector3(target)) {
-      const direction: IAutoMovieVector3 = Vector3.subtract(target, camera.position);
+    if (
+      target !== undefined &&
+      positionFinite &&
+      isFiniteStageVector3(target)
+    ) {
+      const direction: IAutoMovieVector3 = Vector3.subtract(
+        target,
+        camera.position,
+      );
       if (!isFiniteStageVector3(direction))
-        out.push("range", `${path}.lookAt`, "camera look direction must have finite components", camera.lookAt);
+        out.push(
+          "range",
+          `${path}.lookAt`,
+          "camera look direction must have finite components",
+          camera.lookAt,
+        );
       else if (Vector3.length(direction) < LOOK_DISTANCE_EPSILON)
-        out.push("range", `${path}.lookAt`, "camera lookAt must not equal the camera position", camera.lookAt);
+        out.push(
+          "range",
+          `${path}.lookAt`,
+          "camera lookAt must not equal the camera position",
+          camera.lookAt,
+        );
       else cameraDirections.set(camera, direction);
     }
     if (camera.clearance !== undefined)
@@ -449,10 +479,12 @@ export function stageScene (
 }
 
 /** A delegated validator's violation with its `$input` root moved to `root`. */
-function reRooted (
+function reRooted(
   item: IAutoMovieConstraintViolation,
   root: string,
-): IAutoMovieConstraintViolation { return ({
-  ...item,
-  path: item.path.replace("$input", root),
-}); }
+): IAutoMovieConstraintViolation {
+  return {
+    ...item,
+    path: item.path.replace("$input", root),
+  };
+}

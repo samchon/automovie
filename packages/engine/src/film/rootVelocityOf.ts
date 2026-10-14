@@ -30,7 +30,7 @@ import { foldRoot } from "./foldRoot";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Answers one node and one instant, and coordinates no work across calls; the snapshot that calls it asks once per actor.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the unlooped clip copy at the seam is shallow and released on return.
  */
-export function rootVelocityOf (
+export function rootVelocityOf(
   node: IAutoMovieSceneNode,
   clip: IAutoMovieMotion,
   localTime: number,
@@ -54,14 +54,16 @@ export function rootVelocityOf (
 }
 
 /** The clip's root at `t`, folded through the node's staged placement. */
-function worldRootAt (
+function worldRootAt(
   node: IAutoMovieSceneNode,
   clip: IAutoMovieMotion,
   t: number,
-): IAutoMovieVector3 { return foldRoot(node.transform, sampleMotion(clip, t).pose.root).translation; }
+): IAutoMovieVector3 {
+  return foldRoot(node.transform, sampleMotion(clip, t).pose.root).translation;
+}
 
 /** Difference of the world root over `[t0, t1]`; zero for an empty window. */
-function velocityOver (
+function velocityOver(
   node: IAutoMovieSceneNode,
   clip: IAutoMovieMotion,
   t0: number,

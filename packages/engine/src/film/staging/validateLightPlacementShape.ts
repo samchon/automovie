@@ -29,7 +29,11 @@ import { lightTypeOf } from "./lightTypeOf";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Judges one placement per call and coordinates no work across placements or calls.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Retains nothing; it appends at most one violation per checked field to the caller's collector, which owns them.
  */
-export const validateLightPlacementShape: (light: IAutoMovieStageLight, path: string, out: ViolationCollector) => void = (
+export const validateLightPlacementShape: (
+  light: IAutoMovieStageLight,
+  path: string,
+  out: ViolationCollector,
+) => void = (
   light: IAutoMovieStageLight,
   path: string,
   out: ViolationCollector,
@@ -140,7 +144,8 @@ export const validateLightPlacementShape: (light: IAutoMovieStageLight, path: st
   }
 
   validateLightExtent(light, type, path, out);
-  if (light.color !== undefined) validateColor(light.color, `${path}.color`, out);
+  if (light.color !== undefined)
+    validateColor(light.color, `${path}.color`, out);
   validateLightShadow(light, type, path, out);
 };
 
@@ -149,7 +154,12 @@ export const validateLightPlacementShape: (light: IAutoMovieStageLight, path: st
  *
  * Both axes are checked, not just the first missing one, so an author who typed neither is told both rather than being walked through the same placement one recompile at a time. Each axis is read as `unknown`, because an untyped payload may carry anything there.
  */
-const validateLightExtent: (light: IAutoMovieStageLight, type: IAutoMovieLight["type"], path: string, out: ViolationCollector) => void = (
+const validateLightExtent: (
+  light: IAutoMovieStageLight,
+  type: IAutoMovieLight["type"],
+  path: string,
+  out: ViolationCollector,
+) => void = (
   light: IAutoMovieStageLight,
   type: IAutoMovieLight["type"],
   path: string,
@@ -185,7 +195,12 @@ const validateLightExtent: (light: IAutoMovieStageLight, type: IAutoMovieLight["
 /**
  * `castShadow` and `shadow`: a boolean flag, refused on an area light, and settings present exactly when the flag is `true`, each field finite and `far` beyond `near`.
  */
-const validateLightShadow: (light: IAutoMovieStageLight, type: IAutoMovieLight["type"], path: string, out: ViolationCollector) => void = (
+const validateLightShadow: (
+  light: IAutoMovieStageLight,
+  type: IAutoMovieLight["type"],
+  path: string,
+  out: ViolationCollector,
+) => void = (
   light: IAutoMovieStageLight,
   type: IAutoMovieLight["type"],
   path: string,

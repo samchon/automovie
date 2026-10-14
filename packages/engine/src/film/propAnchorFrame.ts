@@ -48,7 +48,7 @@ import { setPieceMatrix } from "./staging/setPieceMatrix";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Resolves one target per call and coordinates no work across calls; a caller anchoring many props to one building may keep the returned frames.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The matrix lookup is dropped on return and nothing is retained; the caller owns the returned transform.
  */
-export function propAnchorFrame (props: {
+export function propAnchorFrame(props: {
   target: IAutoMoviePropRelationTarget;
   environments: readonly IAutoMovieBuiltEnvironment[];
   props?: readonly IAutoMoviePropSpec[];
@@ -137,7 +137,7 @@ export function propAnchorFrame (props: {
 }
 
 /** One element's rest-pose world transform, or `null` when it cannot be placed. */
-function elementFrame (
+function elementFrame(
   environment: IAutoMovieBuiltEnvironment,
   id: string,
 ): IAutoMovieTransform | null {
@@ -146,7 +146,7 @@ function elementFrame (
 }
 
 /** Decompose a world matrix into a transform with a renormalized rotation. */
-function transformOf (matrix: number[]): IAutoMovieTransform {
+function transformOf(matrix: number[]): IAutoMovieTransform {
   const world: ReturnType<typeof Matrix4.decompose> = Matrix4.decompose(matrix);
   return {
     translation: world.position,

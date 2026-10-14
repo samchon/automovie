@@ -27,7 +27,7 @@ import { resolveProductionFrameRate } from "./resolveProductionFrameRate";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Resolves one frame per call and keeps no cursor, so any frame can be sampled in any order; the frame rate is re-reduced per call because it is constant work on two integers.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Allocates the returned frame with at most two layers, owned by the caller, and retains nothing.
  */
-export function sampleProductionRenderFrame (
+export function sampleProductionRenderFrame(
   timeline: IAutoMovieFilmTimeline,
   globalFrame: number,
 ): IAutoMovieProductionRenderFrame {
@@ -98,7 +98,7 @@ export function sampleProductionRenderFrame (
 }
 
 /** Stamp layers with independently computed binary64 time at the rational rate. */
-function frame (
+function frame(
   timeline: IAutoMovieFilmTimeline,
   globalFrame: number,
   layers: IAutoMovieProductionRenderLayer[],

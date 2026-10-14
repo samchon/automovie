@@ -31,11 +31,12 @@ const TIME_EPSILON: number = 1e-9;
  * @evidence contracts/performance.md#reuse-equivalent-work Reuses preparePlaybackTimeline's shot index for every event lookup instead of indexing supplied shots twice; the layout and index refer to the same synchronous inputs. Callers derive events once per film; no cross-call cache exists.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The timeline, shot index and per-shot entry lists are released on return; the result holds one fresh record per emitted play, which grows with plays times events and lives as long as the caller keeps it.
  */
-export function sequenceEventTimeline (
+export function sequenceEventTimeline(
   sequence: IAutoMovieSequence,
   shots: IAutoMovieShot[],
 ): IAutoMoviePlaybackEvent[] {
-  const { timeline, shotById }: ReturnType<typeof preparePlaybackTimeline> = preparePlaybackTimeline(sequence, shots);
+  const { timeline, shotById }: ReturnType<typeof preparePlaybackTimeline> =
+    preparePlaybackTimeline(sequence, shots);
   const entriesByShot: Map<string, IAutoMoviePlaybackEntry[]> = new Map();
   for (const entry of timeline.entries) {
     const list: IAutoMoviePlaybackEntry[] = entriesByShot.get(entry.shot) ?? [];
@@ -53,13 +54,15 @@ export function sequenceEventTimeline (
     // An event exactly on this entry's trim end belongs to the entry that
     // starts there only when that entry also starts at this entry's global
     // end, sharing the on-screen instant; otherwise this entry keeps it.
-    function ownedElsewhere (time: number): boolean { return entriesByShot
+    function ownedElsewhere(time: number): boolean {
+      return entriesByShot
         .get(entry.shot)!
         .some(
           (other: IAutoMoviePlaybackEntry): boolean =>
             Math.abs(other.offset - time) <= TIME_EPSILON &&
             Math.abs(other.start - globalEnd) <= TIME_EPSILON,
-        ); }
+        );
+    }
     for (const event of shot.events ?? []) {
       if (event.time < from - TIME_EPSILON) continue;
       if (
@@ -82,13 +85,15 @@ export function sequenceEventTimeline (
 }
 
 /** One play of `event` by `entry`, stamped with its output time. */
-function placed (
+function placed(
   event: IAutoMovieInteractionEvent,
   entry: IAutoMoviePlaybackEntry,
-): IAutoMoviePlaybackEvent { return ({
-  ...event,
-  entry: entry.entry,
-  shot: entry.shot,
-  shotTime: event.time,
-  globalTime: entry.start + (event.time - entry.offset),
-}); }
+): IAutoMoviePlaybackEvent {
+  return {
+    ...event,
+    entry: entry.entry,
+    shot: entry.shot,
+    shotTime: event.time,
+    globalTime: entry.start + (event.time - entry.offset),
+  };
+}

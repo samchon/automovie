@@ -23,7 +23,7 @@ import { Vector3 } from "../math/Vector3";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function of one skeleton; it memoizes within the call, and a caller measuring one rig repeatedly owns any cross-call reuse.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Holds its name index and in-progress set only for the call; the returned map, one frame per bone, belongs to the caller.
  */
-export function skeletonRestFrames (
+export function skeletonRestFrames(
   skeleton: IAutoMovieSkeleton,
 ): ReadonlyMap<
   AutoMovieHumanoidBone,
@@ -47,11 +47,12 @@ export function skeletonRestFrames (
     Pick<IAutoMovieTransform, "translation" | "rotation">
   > = new Map();
   const resolving: Set<AutoMovieHumanoidBone> = new Set();
-  function resolve (
+  function resolve(
     name: AutoMovieHumanoidBone,
   ): Pick<IAutoMovieTransform, "translation" | "rotation"> {
-    const cached: Pick<IAutoMovieTransform, "translation" | "rotation"> | undefined =
-      frames.get(name);
+    const cached:
+      | Pick<IAutoMovieTransform, "translation" | "rotation">
+      | undefined = frames.get(name);
     if (cached !== undefined) return cached;
     if (resolving.has(name))
       throw new Error(

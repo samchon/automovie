@@ -29,7 +29,7 @@ export function validateShotProgramContract<Context>(
   program: IAutoMovieShotProgram,
 ): IAutoMovieAuthoringDiagnostic[] {
   const diagnostics: IAutoMovieAuthoringDiagnostic[] = [];
-  function mismatch (
+  function mismatch(
     path: string,
     actual: unknown,
     expected: unknown,
@@ -78,7 +78,9 @@ export function validateShotProgramContract<Context>(
   );
 
   const stagedActors: Set<string> = new Set(
-    program.stage.actors.map((actor: IAutoMovieStageActor): string => actor.node),
+    program.stage.actors.map(
+      (actor: IAutoMovieStageActor): string => actor.node,
+    ),
   );
   const actorFacts: Map<string, number> = new Map();
   program.actors.forEach(

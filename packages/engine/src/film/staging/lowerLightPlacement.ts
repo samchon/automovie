@@ -34,7 +34,7 @@ const DEFAULT_CONE_ANGLE: number = 45;
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Lowers one placement per call; `stageScene` lowers each placement once per accepted write.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Retains nothing; the light references the placement's position, color and shadow objects and owns a fresh rotation and scale.
  */
-export function lowerLightPlacement (
+export function lowerLightPlacement(
   light: IAutoMovieStageLight,
 ): IAutoMovieLight {
   const transform: IAutoMovieTransform = {
@@ -60,7 +60,8 @@ export function lowerLightPlacement (
     ...(light.castShadow === undefined ? {} : { castShadow: light.castShadow }),
     ...(light.shadow === undefined ? {} : { shadow: light.shadow }),
   };
-  if (light.type === "point") return { ...base, type: light.type, range: light.range ?? 0 };
+  if (light.type === "point")
+    return { ...base, type: light.type, range: light.range ?? 0 };
   if (light.type === "spot")
     return {
       ...base,
@@ -69,14 +70,21 @@ export function lowerLightPlacement (
       coneAngle: light.coneAngle ?? DEFAULT_CONE_ANGLE,
     };
   if (light.type === "area")
-    return { ...base, type: light.type, width: light.width, height: light.height };
+    return {
+      ...base,
+      type: light.type,
+      width: light.width,
+      height: light.height,
+    };
   return { ...base, type: "directional" };
 }
 
 /** A fresh identity rotation, so no two lights share one object. */
-function identityRotation (): IAutoMovieQuaternion { return ({
-  x: 0,
-  y: 0,
-  z: 0,
-  w: 1,
-}); }
+function identityRotation(): IAutoMovieQuaternion {
+  return {
+    x: 0,
+    y: 0,
+    z: 0,
+    w: 1,
+  };
+}

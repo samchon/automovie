@@ -55,7 +55,7 @@ const DEFAULT_SILHOUETTE_RADIUS: number = 0.35;
  * @evidence contracts/performance.md#reuse-equivalent-work Shares camera placements and performer roots on the fixed clock between frame and silhouette metrics, so pair comparisons do not resample roots. Contact checks sample the target at each event's own time independently; an event can coincide with the fixed clock, but that repeated sample is not reused here.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The camera and root tables, O(T + P · T) vectors, live for one call and are released on return; the returned notes are fresh records owned by the caller.
  */
-export function reviewVisualRead (props: {
+export function reviewVisualRead(props: {
   /** Beat id the notes are filed against. */
   beat: string;
 
@@ -99,7 +99,7 @@ export function reviewVisualRead (props: {
       ],
     ),
   );
-  function performerOf (
+  function performerOf(
     performance: IAutoMovieShotPerformance,
   ): IPerformer | null {
     const node: IAutoMovieSceneNode | undefined = nodeById.get(
@@ -203,7 +203,7 @@ interface IPerformer {
 }
 
 /** The framing and silhouette notes, from one table of cameras and roots. */
-function cameraNotes (props: {
+function cameraNotes(props: {
   beat: string;
   shot: IAutoMovieShot;
   camera: IAutoMovieCamera;
@@ -282,28 +282,32 @@ function cameraNotes (props: {
 }
 
 /** The note for a contact event that lands outside its target's body radius. */
-function missNote (
+function missNote(
   beat: string,
   event: IAutoMovieInteractionEvent,
   distance: number,
   contactRadius: number,
-): IAutoMovieReviewNote { return ({
-  beat,
-  tier: "visual",
-  issue: `the ${event.kind} at t=${roundToThousandths(event.time)}s lands ${roundToThousandths(distance)}m from "${event.target}", past the ${contactRadius}m body radius, it reads as a miss`,
-  suggestion: `align the ${event.kind} with "${event.target}"'s body, retime the reaction or reposition the actor so the contact point meets it`,
-}); }
+): IAutoMovieReviewNote {
+  return {
+    beat,
+    tier: "visual",
+    issue: `the ${event.kind} at t=${roundToThousandths(event.time)}s lands ${roundToThousandths(distance)}m from "${event.target}", past the ${contactRadius}m body radius, it reads as a miss`,
+    suggestion: `align the ${event.kind} with "${event.target}"'s body, retime the reaction or reposition the actor so the contact point meets it`,
+  };
+}
 
 /**
  * A performer's world root at shot time `t`: its clip has advanced `max(0, t - startOffset)`, the convention the beat snapshots use.
  */
-function worldRootAt (performer: IPerformer, t: number): IAutoMovieVector3 { return foldRoot(
+function worldRootAt(performer: IPerformer, t: number): IAutoMovieVector3 {
+  return foldRoot(
     performer.node.transform,
     sampleMotion(performer.motion, Math.max(0, t - performer.offset)).pose.root,
-  ).translation; }
+  ).translation;
+}
 
 /** Whether `point` is inside the camera's frustum, near and far included. */
-function inFrame (
+function inFrame(
   resolved: IAutoMovieResolvedCamera,
   point: IAutoMovieVector3,
   camera: IAutoMovieCamera,
@@ -320,4 +324,3 @@ function inFrame (
     return false;
   return Math.abs(projected.ndcX) <= 1 && Math.abs(projected.ndcY) <= 1;
 }
-

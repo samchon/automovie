@@ -14,9 +14,9 @@ import {
 import { builtElementRestMatrices } from "../architecture/builtElementRestMatrices";
 import { builtPlacedPartBoxes } from "../architecture/builtPlacedPartBoxes";
 import { ViolationCollector } from "../validation/ViolationCollector";
+import { IAutoMoviePassageBlockage } from "./IAutoMoviePassageBlockage";
 import { IAutoMoviePropClearanceBounds } from "./IAutoMoviePropClearanceBounds";
 import { IAutoMoviePropSupportFace } from "./IAutoMoviePropSupportFace";
-import { IAutoMoviePassageBlockage } from "./IAutoMoviePassageBlockage";
 import { createPropPassageBlocker } from "./createPropPassageBlocker";
 import { propBoundsOverlap } from "./propBoundsOverlap";
 import { propBoxAxisIsSound } from "./propBoxAxisIsSound";
@@ -45,7 +45,7 @@ const PLACEMENT_EPSILON: number = 1e-9;
  * @evidence contracts/performance.md#reuse-equivalent-work Shares each prop's occupancy across its checks and prepares each judged environment's passage bounds once through createPropPassageBlocker, keyed by that environment object during the synchronous validation. Inputs stay unchanged for the call; no closure is reused across later mutable environment revisions.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Owns the sound-prop list and a lazy map of passage queries for at most the judged environments until return; each query retains that environment's measured passage boxes. All temporary lists, maps and queries are released after validation, while violations transfer to the caller's collector.
  */
-export function validatePropPlacementGeometry (props: {
+export function validatePropPlacementGeometry(props: {
   /** Every registry entry in declaration order, with what the registry gate resolved for it. */
   entries: readonly {
     /** The registry's prop. */
@@ -90,7 +90,10 @@ export function validatePropPlacementGeometry (props: {
   validateClearances(staged, props.out);
   validateOverlaps(staged, props.out);
   validateSupports(staged, props.environments, props.out);
-  const passageQueries: Map<IAutoMovieBuiltEnvironment, (bounds: IAutoMoviePropBox) => IAutoMoviePassageBlockage[]> = new Map();
+  const passageQueries: Map<
+    IAutoMovieBuiltEnvironment,
+    (bounds: IAutoMoviePropBox) => IAutoMoviePassageBlockage[]
+  > = new Map();
   for (const entry of staged) {
     if (entry.prop.placement === undefined) continue;
     const environment: IAutoMovieBuiltEnvironment | null = judgedEnvironment(
@@ -99,7 +102,9 @@ export function validatePropPlacementGeometry (props: {
       props.environments,
     );
     if (environment !== null) {
-      let blocked: ((bounds: IAutoMoviePropBox) => IAutoMoviePassageBlockage[]) | undefined = passageQueries.get(environment);
+      let blocked:
+        | ((bounds: IAutoMoviePropBox) => IAutoMoviePassageBlockage[])
+        | undefined = passageQueries.get(environment);
       if (blocked === undefined) {
         blocked = createPropPassageBlocker(environment);
         passageQueries.set(environment, blocked);
@@ -131,12 +136,16 @@ interface IStagedProp {
   occupancy: IAutoMoviePropBox;
 }
 
-function soundBox (box: IAutoMoviePropBox): boolean { return propBoxAxisIsSound(box, "x") &&
-  propBoxAxisIsSound(box, "y") &&
-  propBoxAxisIsSound(box, "z"); }
+function soundBox(box: IAutoMoviePropBox): boolean {
+  return (
+    propBoxAxisIsSound(box, "x") &&
+    propBoxAxisIsSound(box, "y") &&
+    propBoxAxisIsSound(box, "z")
+  );
+}
 
 /** Refuse every declared keep-out volume another staged prop's occupancy enters. */
-function validateClearances (
+function validateClearances(
   staged: readonly IStagedProp[],
   out: ViolationCollector,
 ): void {
@@ -164,7 +173,7 @@ function validateClearances (
 }
 
 /** Refuse two placed props sharing interior volume without a declared contact. */
-function validateOverlaps (
+function validateOverlaps(
   staged: readonly IStagedProp[],
   out: ViolationCollector,
 ): void {
@@ -191,14 +200,16 @@ function validateOverlaps (
 }
 
 /** Encode the sorted string pair as JSON, preserving symmetry without delimiter collisions in authored ids. */
-function pairKey (left: string, right: string): string { return JSON.stringify(left < right ? [left, right] : [right, left]); }
+function pairKey(left: string, right: string): string {
+  return JSON.stringify(left < right ? [left, right] : [right, left]);
+}
 
 /**
  * Judge every `on-support` relation whose face the record can state.
  *
  * Support needs no logical space: a lamp that only says which table top it stands on has named a face, and that face is measurable whether or not the lamp also says which room it is in. Each relation is judged on its own, so a plank across two tables answers for both of them. A relation whose host is not itself soundly staged, one citing a face the record cannot state, and a prop citing itself, which the registry gate already refuses by name, are passed over rather than measured twice or guessed at.
  */
-function validateSupports (
+function validateSupports(
   staged: readonly IStagedProp[],
   environments: ReadonlyMap<string, IAutoMovieBuiltEnvironment>,
   out: ViolationCollector,
@@ -216,10 +227,15 @@ function validateSupports (
         if (relation.kind !== "on-support") return;
         if (target.kind !== "surface" && target.kind !== "prop-affordance")
           return;
-        if (target.kind === "prop-affordance" && target.prop === entry.prop.node)
+        if (
+          target.kind === "prop-affordance" &&
+          target.prop === entry.prop.node
+        )
           return;
         const host: IStagedProp | undefined =
-          target.kind === "prop-affordance" ? hosts.get(target.prop) : undefined;
+          target.kind === "prop-affordance"
+            ? hosts.get(target.prop)
+            : undefined;
         const environment: IAutoMovieBuiltEnvironment | undefined =
           target.kind === "surface"
             ? environments.get(target.environment)
@@ -252,7 +268,12 @@ function validateSupports (
         else if (gap < -PLACEMENT_EPSILON)
           out.push("range", path, `staged occupancy sinks into ${label}`, gap);
         else if (gap > PLACEMENT_EPSILON)
-          out.push("range", path, `staged occupancy floats above ${label}`, gap);
+          out.push(
+            "range",
+            path,
+            `staged occupancy floats above ${label}`,
+            gap,
+          );
       },
     );
 }
@@ -262,7 +283,7 @@ function validateSupports (
  *
  * The occupied space answers first, because that is the prop's own statement of where it is. A prop that names no space but cites one building anyway (a leaf that only declares which opening it fills) is still judged there: refusing to measure it would let the strongest claim a prop can make, that it fits a passage, go unchecked because a weaker one was left out.
  */
-function judgedEnvironment (
+function judgedEnvironment(
   entry: IStagedProp,
   relations: readonly IAutoMoviePropRelation[],
   environments: ReadonlyMap<string, IAutoMovieBuiltEnvironment>,
@@ -277,7 +298,7 @@ function judgedEnvironment (
 }
 
 /** Containment, opening fit, and passage intrusion for one located prop. */
-function validateOccupancy (
+function validateOccupancy(
   entry: IStagedProp,
   environment: IAutoMovieBuiltEnvironment,
   out: ViolationCollector,
@@ -342,7 +363,7 @@ function validateOccupancy (
 /**
  * Rest-pose world bounds of the element filling an opening, or `null` when the opening is an open cut, its fill draws no model held by the record, or the fill's parent chain is missing or cyclic. First declarations win for duplicate ids, as validation refuses the duplicate on its own path.
  */
-function openingFillBounds (
+function openingFillBounds(
   environment: IAutoMovieBuiltEnvironment,
   id: string,
 ): IAutoMoviePropBox | null {
@@ -368,11 +389,13 @@ function openingFillBounds (
     : unionSubjectBoxes(builtPlacedPartBoxes(model, matrix));
 }
 
-function boxContains (
+function boxContains(
   outer: IAutoMoviePropBox,
   inner: IAutoMoviePropBox,
-): boolean { return (["x", "y", "z"] as const).every(
+): boolean {
+  return (["x", "y", "z"] as const).every(
     (axis: "x" | "y" | "z"): boolean =>
       inner.min[axis] >= outer.min[axis] - PLACEMENT_EPSILON &&
       inner.max[axis] <= outer.max[axis] + PLACEMENT_EPSILON,
-  ); }
+  );
+}

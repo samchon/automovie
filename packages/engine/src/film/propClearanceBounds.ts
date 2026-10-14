@@ -25,7 +25,7 @@ import { setPieceMatrix } from "./staging/setPieceMatrix";
  * @evidence contracts/performance.md#reuse-equivalent-work The staged matrix is composed once and reused for every clearance box of the prop instead of once per box.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the caller owns the returned boxes, one per declared clearance.
  */
-export function propClearanceBounds (props: {
+export function propClearanceBounds(props: {
   prop: IAutoMoviePropSpec;
   piece: IAutoMovieStageSetPiece;
 }): IAutoMoviePropClearanceBounds[] {

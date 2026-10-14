@@ -22,7 +22,7 @@ import { validateColor } from "../../validation/validateColor";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Checks one staged fog per call and coordinates no work across calls.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Retains nothing itself; the caller's collector owns at most one density finding and five color-field findings, or the corresponding object-shape refusals.
  */
-export function validateFogPlacement (
+export function validateFogPlacement(
   fog: unknown,
   path: string,
   out: ViolationCollector,

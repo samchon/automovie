@@ -52,7 +52,7 @@ const ZERO: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
  * @evidence contracts/performance.md#reuse-equivalent-work Shares indexes, translated-node membership and lazy channel maps across nodes only during this synchronous call. IResolveBeatProps supplies ordinary admitted DTOs and no synthesizer or actor callbacks; sampleMotion and state assembly read them without mutation. Getter/proxy mutation during reads is outside this equivalence premise, and nothing is reused across calls.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Indexes, context and at most two complete sampled-channel maps live for one call and are released on return or throw; the returned state owns one fresh actor record per scene node. A non-null pose is shallow-copied with root cleared and its joint array borrowed; selected plants and mount bindings are borrowed, while transform ownership follows the sampled or staged branch.
  */
-export function resolveBeatSnapshot (
+export function resolveBeatSnapshot(
   props: IResolveBeatProps,
   instant: number,
 ): IAutoMovieBeatEndState {
@@ -108,9 +108,15 @@ export function resolveBeatSnapshot (
     },
   );
 
-  const channelsByTime: Map<number, Map<string, IAutoMovieSampledChannel>> = new Map();
-  function channelsAt(time: number): ReadonlyMap<string, IAutoMovieSampledChannel> {
-    let channels: Map<string, IAutoMovieSampledChannel> | undefined = channelsByTime.get(time);
+  const channelsByTime: Map<
+    number,
+    Map<string, IAutoMovieSampledChannel>
+  > = new Map();
+  function channelsAt(
+    time: number,
+  ): ReadonlyMap<string, IAutoMovieSampledChannel> {
+    let channels: Map<string, IAutoMovieSampledChannel> | undefined =
+      channelsByTime.get(time);
     if (channels === undefined) {
       channels = sampleClipSequence(props.shot.objectMotions, time);
       channelsByTime.set(time, channels);
@@ -191,7 +197,7 @@ interface IWorldOverride {
 }
 
 /** Ids of every node an object-motion track translates. */
-function translatedNodes (clips: readonly IAutoMovieClip[]): Set<string> {
+function translatedNodes(clips: readonly IAutoMovieClip[]): Set<string> {
   const nodes: Set<string> = new Set();
   for (const clip of clips)
     for (const track of clip.tracks)
@@ -201,7 +207,7 @@ function translatedNodes (clips: readonly IAutoMovieClip[]): Set<string> {
 }
 
 /** One scene actor's state: sampled when it plays a motion, held otherwise. */
-function actorAt (
+function actorAt(
   context: IResolveContext,
   node: IAutoMovieSceneNode,
 ): IAutoMovieBeatEndActorState {
@@ -253,7 +259,7 @@ function actorAt (
 /**
  * Trailing world velocity of the baked object-authority sequence at `t`, differenced over the last {@link VELOCITY_DT}. Each end of the window reads the translation authority active there. Zero at `t <= 0`, or when the earlier end has no translation sample because the authority has only just begun.
  */
-function bakedVelocity (
+function bakedVelocity(
   channelsAt: (time: number) => ReadonlyMap<string, IAutoMovieSampledChannel>,
   node: string,
   t: number,
@@ -271,14 +277,16 @@ function bakedVelocity (
 }
 
 /** A sampled translation channel's value as a vector. */
-function vectorOf (value: readonly number[]): IAutoMovieVector3 { return ({
-  x: value[0]!,
-  y: value[1]!,
-  z: value[2]!,
-}); }
+function vectorOf(value: readonly number[]): IAutoMovieVector3 {
+  return {
+    x: value[0]!,
+    y: value[1]!,
+    z: value[2]!,
+  };
+}
 
 /** Assemble one actor's state from what {@link actorAt} resolved. */
-function actorState (props: {
+function actorState(props: {
   node: IAutoMovieSceneNode;
   motion: { id: string; clip: IAutoMovieMotion } | null;
   localTime: number;

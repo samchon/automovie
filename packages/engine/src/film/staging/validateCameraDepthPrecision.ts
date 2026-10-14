@@ -18,7 +18,7 @@ import { isRecord } from "../../validation/isRecord";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Checks one camera's requirement per call and coordinates no work across calls.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Retains nothing itself; it appends at most two violations per call to `out`, which the caller owns.
  */
-export function validateCameraDepthPrecision (
+export function validateCameraDepthPrecision(
   value: unknown,
   path: string,
   out: ViolationCollector,

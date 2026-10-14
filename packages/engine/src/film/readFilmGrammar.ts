@@ -45,7 +45,7 @@ type ShotSizeOf = Parameters<typeof inspectGrammarCut>[3];
  * @evidence contracts/performance.md#reuse-equivalent-work A shot's measured size at each boundary is computed once and memoized for the call, keyed by the normalized shot object and the boundary, because the shot-size check, the jump-cut comparison and both re-establishing checks read the same pair; the inputs are immutable for the call, so no invalidation is needed, and nothing is shared across calls.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Retains, for one call, the normalized shots, a shot index, the size memo of at most two entries per shot, the finding list and the claim keys; all are released on return except the returned findings and claims, which the caller owns.
  */
-export function readFilmGrammar (
+export function readFilmGrammar(
   props: IAutoMovieGrammarInput,
 ): IAutoMovieGrammarReading {
   const minimumCutAngleDegrees: number =
@@ -55,8 +55,9 @@ export function readFilmGrammar (
   assertGrammarPositive(minimumCutAngleDegrees, "minimumCutAngleDegrees");
   assertGrammarPositive(reestablishDistance, "reestablishDistance");
   const shots: IAutoMovieNormalizedGrammarShot[] = props.shots.map(
-    (shot: IAutoMovieGrammarInput["shots"][number]): IAutoMovieNormalizedGrammarShot =>
-      normalizeGrammarShot(shot),
+    (
+      shot: IAutoMovieGrammarInput["shots"][number],
+    ): IAutoMovieNormalizedGrammarShot => normalizeGrammarShot(shot),
   );
   const shotById: Map<string, IAutoMovieNormalizedGrammarShot> = new Map();
   for (const shot of shots) {
@@ -74,17 +75,19 @@ export function readFilmGrammar (
       reestablishDistance,
     });
   if (shots.length !== 0) {
-    const sum: number =
-      shots.reduce(
-        (sum: number, shot: IAutoMovieNormalizedGrammarShot): number =>
-          sum + shot.duration,
-        0,
-      );
+    const sum: number = shots.reduce(
+      (sum: number, shot: IAutoMovieNormalizedGrammarShot): number =>
+        sum + shot.duration,
+      0,
+    );
     const average: number = Number.isFinite(sum)
       ? sum / shots.length
       : shots.reduce(
-          (mean: number, shot: IAutoMovieNormalizedGrammarShot, index: number): number =>
-            mean + (shot.duration - mean) / (index + 1),
+          (
+            mean: number,
+            shot: IAutoMovieNormalizedGrammarShot,
+            index: number,
+          ): number => mean + (shot.duration - mean) / (index + 1),
           0,
         );
     diagnostics.push({
@@ -93,8 +96,9 @@ export function readFilmGrammar (
       shot: shots[shots.length - 1]!.id,
       previousShot: null,
       fact: `edited durations are [${shots
-        .map((shot: IAutoMovieNormalizedGrammarShot): string =>
-          `${roundToThousandths(shot.duration)}s`,
+        .map(
+          (shot: IAutoMovieNormalizedGrammarShot): string =>
+            `${roundToThousandths(shot.duration)}s`,
         )
         .join(", ")}], average shot length ${roundToThousandths(average)}s`,
       impact:
@@ -157,12 +161,14 @@ export function readFilmGrammar (
  *
  * Separated by a character no declared intent carries, so two distinct claims cannot collide however a shot happens to be named.
  */
-function claimKey (shot: string, intent: AutoMovieGrammarStyleIntent): string { return `${shot}|${intent}`; }
+function claimKey(shot: string, intent: AutoMovieGrammarStyleIntent): string {
+  return `${shot}|${intent}`;
+}
 
 /**
  * A size reader that measures each shot boundary at most once per read; the shot-size check, the jump-cut comparison and both re-establishing checks ask for the same boundaries.
  */
-function memoizedShotSize (): ShotSizeOf {
+function memoizedShotSize(): ShotSizeOf {
   const sizes: Map<
     IAutoMovieNormalizedGrammarShot,
     Partial<Record<"start" | "end", Framing>>
@@ -186,7 +192,7 @@ function memoizedShotSize (): ShotSizeOf {
 }
 
 /** Files a shot-size finding when either boundary misses the declared size. */
-function inspectShotSize (
+function inspectShotSize(
   diagnostics: IAutoMovieGrammarDiagnostic[],
   shot: IAutoMovieNormalizedGrammarShot,
   sizeOf: ShotSizeOf,

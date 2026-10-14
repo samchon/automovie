@@ -23,7 +23,7 @@ import { IAutoMoviePropSupportFace } from "./IAutoMoviePropSupportFace";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Measures one prop against one face per call and coordinates no work across calls.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the probe arrays are released on return.
  */
-export function propSupportGap (props: {
+export function propSupportGap(props: {
   /** The face the prop claims to rest on. */
   face: IAutoMoviePropSupportFace;
 
@@ -40,8 +40,7 @@ export function propSupportGap (props: {
       ...props.face.polygon.holes.flatMap(
         (
           hole: IAutoMoviePropSupportFace["polygon"]["holes"][number],
-        ): readonly IAutoMovieVector3[] =>
-          hole.points,
+        ): readonly IAutoMovieVector3[] => hole.points,
       ),
     ].filter((corner: IAutoMovieVector3): boolean =>
       underFootprint(corner, bounds),
@@ -57,23 +56,29 @@ export function propSupportGap (props: {
 }
 
 /** Whether a ground-plan point stands under a staged prop's own footprint. */
-function underFootprint (
+function underFootprint(
   point: IAutoMovieVector3,
   bounds: IAutoMoviePropBox,
-): boolean { return point.x >= bounds.min.x &&
-  point.x <= bounds.max.x &&
-  point.z >= bounds.min.z &&
-  point.z <= bounds.max.z; }
+): boolean {
+  return (
+    point.x >= bounds.min.x &&
+    point.x <= bounds.max.x &&
+    point.z >= bounds.min.z &&
+    point.z <= bounds.max.z
+  );
+}
 
 /** The five ground-plan points a footprint is judged to bear on. */
-function footprintProbes (bounds: IAutoMoviePropBox): IAutoMovieVector3[] { return [
-  { x: bounds.min.x, y: 0, z: bounds.min.z },
-  { x: bounds.max.x, y: 0, z: bounds.min.z },
-  { x: bounds.max.x, y: 0, z: bounds.max.z },
-  { x: bounds.min.x, y: 0, z: bounds.max.z },
-  {
-    x: midpoint(bounds.min.x, bounds.max.x),
-    y: 0,
-    z: midpoint(bounds.min.z, bounds.max.z),
-  },
-]; }
+function footprintProbes(bounds: IAutoMoviePropBox): IAutoMovieVector3[] {
+  return [
+    { x: bounds.min.x, y: 0, z: bounds.min.z },
+    { x: bounds.max.x, y: 0, z: bounds.min.z },
+    { x: bounds.max.x, y: 0, z: bounds.max.z },
+    { x: bounds.min.x, y: 0, z: bounds.max.z },
+    {
+      x: midpoint(bounds.min.x, bounds.max.x),
+      y: 0,
+      z: midpoint(bounds.min.z, bounds.max.z),
+    },
+  ];
+}

@@ -1,7 +1,4 @@
-import {
-  IAutoMovieSequence,
-  IAutoMovieShot,
-} from "@automovie/interface";
+import { IAutoMovieSequence, IAutoMovieShot } from "@automovie/interface";
 
 import { IAutoMoviePlaybackTimeline } from "./IAutoMoviePlaybackTimeline";
 import { preparePlaybackTimeline } from "./preparePlaybackTimeline";
@@ -23,7 +20,7 @@ import { preparePlaybackTimeline } from "./preparePlaybackTimeline";
  * @evidence contracts/performance.md#reuse-equivalent-work Delegates the index and layout to preparePlaybackTimeline, also consumed by sequenceEventTimeline without rebuilding the shot index; frame callers reuse the returned timeline across queries, with no cross-call cache.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The shot index is released on return; the result owns one entry record per sequence entry, which lives as long as the caller keeps the timeline.
  */
-export function sequenceTimeline (
+export function sequenceTimeline(
   sequence: IAutoMovieSequence,
   shots: IAutoMovieShot[],
 ): IAutoMoviePlaybackTimeline {
