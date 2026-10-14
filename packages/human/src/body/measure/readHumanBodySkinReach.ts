@@ -25,9 +25,17 @@ export function readHumanBodySkinReach(
   to: IAutoMovieVector3,
   rule: IAutoMovieHumanBodySkinReach,
 ): number | null {
-  const axis: IAutoMovieVector3 = { x: to.x - from.x, y: to.y - from.y, z: to.z - from.z };
+  const axis: IAutoMovieVector3 = {
+    x: to.x - from.x,
+    y: to.y - from.y,
+    z: to.z - from.z,
+  };
   const length: number = Math.hypot(axis.x, axis.y, axis.z);
-  const origin: IAutoMovieVector3 | null = readHumanBodySkinPoint(basis, surfaces, rule.origin);
+  const origin: IAutoMovieVector3 | null = readHumanBodySkinPoint(
+    basis,
+    surfaces,
+    rule.origin,
+  );
   if (!Number.isFinite(length) || length < 1e-9 || origin === null) return null;
   let farthest: number = -Infinity;
   for (const [index, surface] of basis.surfaces.entries()) {

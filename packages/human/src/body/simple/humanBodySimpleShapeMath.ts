@@ -21,17 +21,35 @@ export const humanBodySimpleShapeMath: {
   /** Endpoint-clamped inverse of the supplied increasing curve. */
   invertCurve(points: [number, number][], y: number): number;
   /** Age-conditioned table estimate and essential-fat excess. */
-  fat(simple: Pick<IAutoMovieHumanBodySimpleShape, "sex" | "ageYears">, bodyMassIndex: number): IHumanBodySimpleShapeFatReading;
+  fat(
+    simple: Pick<IAutoMovieHumanBodySimpleShape, "sex" | "ageYears">,
+    bodyMassIndex: number,
+  ): IHumanBodySimpleShapeFatReading;
   /** Authored age-conditioned training ramp. */
-  maturity(simple: Pick<IAutoMovieHumanBodySimpleShape, "sex" | "ageYears">): number;
+  maturity(
+    simple: Pick<IAutoMovieHumanBodySimpleShape, "sex" | "ageYears">,
+  ): number;
   /** Requested muscle control scaled by the training ramp. */
-  developedMuscle(simple: Pick<IAutoMovieHumanBodySimpleShape, "sex" | "ageYears" | "muscle">): number;
+  developedMuscle(
+    simple: Pick<IAutoMovieHumanBodySimpleShape, "sex" | "ageYears" | "muscle">,
+  ): number;
   /** Definition-gate excess after the authored muscle contribution. */
-  visibleFat(simple: Pick<IAutoMovieHumanBodySimpleShape, "sex" | "ageYears" | "muscle">, bodyMassIndex: number): number;
+  visibleFat(
+    simple: Pick<IAutoMovieHumanBodySimpleShape, "sex" | "ageYears" | "muscle">,
+    bodyMassIndex: number,
+  ): number;
   /** Derived scalar parameters consumed by term rows. */
-  parameters(simple: Pick<IAutoMovieHumanBodySimpleShape, "sex" | "ageYears" | "statureMetres" | "massKilograms" | "muscle">): Record<AutoMovieHumanBodySimpleParameter, number>;
+  parameters(
+    simple: Pick<
+      IAutoMovieHumanBodySimpleShape,
+      "sex" | "ageYears" | "statureMetres" | "massKilograms" | "muscle"
+    >,
+  ): Record<AutoMovieHumanBodySimpleParameter, number>;
   /** Gain multiplied by all supplied row curves. */
-  term(row: (typeof HUMAN_BODY_SIMPLE_SHAPE)["terms"][number], parameters: Record<AutoMovieHumanBodySimpleParameter, number>): number;
+  term(
+    row: (typeof HUMAN_BODY_SIMPLE_SHAPE)["terms"][number],
+    parameters: Record<AutoMovieHumanBodySimpleParameter, number>,
+  ): number;
   /** Table-bounded Siri density in kilograms per litre. */
   density(fatPercent: number): number;
 } = {
@@ -79,8 +97,11 @@ export const humanBodySimpleShapeMath: {
     simple: Pick<IAutoMovieHumanBodySimpleShape, "sex" | "ageYears">,
     bodyMassIndex: number,
   ): IHumanBodySimpleShapeFatReading {
-    const table: typeof HUMAN_BODY_SIMPLE_SHAPE.fat = HUMAN_BODY_SIMPLE_SHAPE.fat;
-    const estimate: (model: typeof table.pediatric) => number = (model: typeof table.pediatric): number =>
+    const table: typeof HUMAN_BODY_SIMPLE_SHAPE.fat =
+      HUMAN_BODY_SIMPLE_SHAPE.fat;
+    const estimate: (model: typeof table.pediatric) => number = (
+      model: typeof table.pediatric,
+    ): number =>
       model.bodyMassIndex * bodyMassIndex +
       model.ageYears * simple.ageYears +
       (model.male * (simple.sex + 1)) / 2 +
@@ -110,12 +131,16 @@ export const humanBodySimpleShapeMath: {
   maturity(
     simple: Pick<IAutoMovieHumanBodySimpleShape, "sex" | "ageYears">,
   ): number {
-    const table: typeof HUMAN_BODY_SIMPLE_SHAPE.maturity = HUMAN_BODY_SIMPLE_SHAPE.maturity;
+    const table: typeof HUMAN_BODY_SIMPLE_SHAPE.maturity =
+      HUMAN_BODY_SIMPLE_SHAPE.maturity;
     const start: number = humanBodySimpleShapeMath.curve(
       table.startAgeYears,
       simple.sex,
     );
-    const end: number = humanBodySimpleShapeMath.curve(table.endAgeYears, simple.sex);
+    const end: number = humanBodySimpleShapeMath.curve(
+      table.endAgeYears,
+      simple.sex,
+    );
     return Math.min(1, Math.max(0, (simple.ageYears - start) / (end - start)));
   },
 
@@ -137,7 +162,8 @@ export const humanBodySimpleShapeMath: {
     simple: Pick<IAutoMovieHumanBodySimpleShape, "sex" | "ageYears" | "muscle">,
     bodyMassIndex: number,
   ): number {
-    const { excess }: IHumanBodySimpleShapeFatReading = humanBodySimpleShapeMath.fat(simple, bodyMassIndex);
+    const { excess }: IHumanBodySimpleShapeFatReading =
+      humanBodySimpleShapeMath.fat(simple, bodyMassIndex);
     const added: number =
       humanBodySimpleShapeMath.developedMuscle(simple) *
       humanBodySimpleShapeMath.curve(
@@ -187,7 +213,8 @@ export const humanBodySimpleShapeMath: {
 
   /** Siri's density, kg/L, at a fat fraction held inside the model's trusted band. */
   density(fatPercent: number): number {
-    const table: typeof HUMAN_BODY_SIMPLE_SHAPE.mass = HUMAN_BODY_SIMPLE_SHAPE.mass;
+    const table: typeof HUMAN_BODY_SIMPLE_SHAPE.mass =
+      HUMAN_BODY_SIMPLE_SHAPE.mass;
     const fat: number = Math.min(
       table.fatFraction[1],
       Math.max(table.fatFraction[0], fatPercent / 100),

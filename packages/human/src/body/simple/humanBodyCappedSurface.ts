@@ -53,7 +53,9 @@ export function humanBodyCappedSurface(
       capIndices.push(loop[(i + 1) % loop.length], loop[i], centre);
   }
   closedIndices.push(...capIndices);
-  const mesh: (triangles: number[]) => IAutoMovieMesh = (triangles: number[]): IAutoMovieMesh => ({
+  const mesh: (triangles: number[]) => IAutoMovieMesh = (
+    triangles: number[],
+  ): IAutoMovieMesh => ({
     positions: closedPositions,
     indices: triangles,
     normals: null,
@@ -61,7 +63,8 @@ export function humanBodyCappedSurface(
     skin: null,
   });
   const closed: IAutoMovieMesh = mesh(closedIndices);
-  const at: (v: number) => number[] = (v: number): number[] => closedPositions.slice(v * 3, v * 3 + 3);
+  const at: (v: number) => number[] = (v: number): number[] =>
+    closedPositions.slice(v * 3, v * 3 + 3);
   let signedVolume: number = 0;
   // The oriented tetrahedron sum V = Σ a · (b × c) / 6. Read each corner
   // from the resident arrays: inverse mass projection repeats this exact
@@ -94,10 +97,14 @@ export function humanBodyCappedSurface(
       const normal: number[] = cross(subtract(b, a), subtract(c, a));
       const length: number = Math.hypot(...normal);
       if (length === 0) continue;
-      const centre: number[] = a.map((value: number, axis: number): number => (value + b[axis] + c[axis]) / 3);
+      const centre: number[] = a.map(
+        (value: number, axis: number): number =>
+          (value + b[axis] + c[axis]) / 3,
+      );
       for (const sign of [-1, 1]) {
         const candidate: number[] = centre.map(
-          (value: number, axis: number): number => value + (sign * epsilon * normal[axis]) / length,
+          (value: number, axis: number): number =>
+            value + (sign * epsilon * normal[axis]) / length,
         );
         if (inside(closed, candidate)) return candidate;
       }
@@ -206,7 +213,9 @@ function cross(a: number[], b: number[]): number[] {
 
 function diagonal(positions: number[]): number {
   const { low, high }: { low: number[]; high: number[] } = bounds(positions);
-  return Math.hypot(...low.map((value: number, axis: number): number => high[axis] - value));
+  return Math.hypot(
+    ...low.map((value: number, axis: number): number => high[axis] - value),
+  );
 }
 
 function boundsOverlap(first: number[], second: number[]): boolean {
@@ -238,7 +247,9 @@ function triangleNormal(mesh: IAutoMovieMesh, triangle: number): number[] {
 function trianglePoints(mesh: IAutoMovieMesh, triangle: number): number[][] {
   return mesh
     .indices!.slice(triangle * 3, triangle * 3 + 3)
-    .map((vertex: number): number[] => mesh.positions.slice(vertex * 3, vertex * 3 + 3));
+    .map((vertex: number): number[] =>
+      mesh.positions.slice(vertex * 3, vertex * 3 + 3),
+    );
 }
 
 function transverseInteriorCrossing(
@@ -250,14 +261,18 @@ function transverseInteriorCrossing(
 ): boolean {
   const a: number[][] = trianglePoints(first, firstTriangle);
   const b: number[][] = trianglePoints(second, secondTriangle);
-  const straddles: (here: number[][], there: number[][]) => boolean = (here: number[][], there: number[][]): boolean => {
+  const straddles: (here: number[][], there: number[][]) => boolean = (
+    here: number[][],
+    there: number[][],
+  ): boolean => {
     const normal: number[] = cross(
       subtract(here[1], here[0]),
       subtract(here[2], here[0]),
     );
     const length: number = Math.hypot(...normal);
     const distances: number[] = there.map(
-      (point: number[]): number => dot(subtract(point, here[0]), normal) / length,
+      (point: number[]): number =>
+        dot(subtract(point, here[0]), normal) / length,
     );
     return Math.min(...distances) < -margin && Math.max(...distances) > margin;
   };
@@ -276,12 +291,19 @@ function coplanarOverlapArea(
   const drop: number = [0, 1, 2].reduce((best: number, axis: number): number =>
     Math.abs(normal[axis]) > Math.abs(normal[best]) ? axis : best,
   );
-  const project: (points: number[][]) => number[][] = (points: number[][]): number[][] =>
-    points.map((point: number[]): number[] => point.filter((_: number, axis: number): boolean => axis !== drop));
+  const project: (points: number[][]) => number[][] = (
+    points: number[][],
+  ): number[][] =>
+    points.map((point: number[]): number[] =>
+      point.filter((_: number, axis: number): boolean => axis !== drop),
+    );
   const clip: number[][] = project(b);
   let polygon: number[][] = project(a);
-  const side: (p: number[], q: number[], r: number[]) => number = (p: number[], q: number[], r: number[]): number =>
-    (q[0] - p[0]) * (r[1] - p[1]) - (q[1] - p[1]) * (r[0] - p[0]);
+  const side: (p: number[], q: number[], r: number[]) => number = (
+    p: number[],
+    q: number[],
+    r: number[],
+  ): number => (q[0] - p[0]) * (r[1] - p[1]) - (q[1] - p[1]) * (r[0] - p[0]);
   const orientation: number = Math.sign(side(clip[0], clip[1], clip[2]));
   for (let i: number = 0; i < 3; i++) {
     const from: number[] = clip[i];
@@ -297,7 +319,10 @@ function coplanarOverlapArea(
       if ((here < 0 && there > 0) || (here > 0 && there < 0)) {
         const fraction: number = here / (here - there);
         polygon.push(
-          current.map((value: number, axis: number): number => value + fraction * (next[axis] - value)),
+          current.map(
+            (value: number, axis: number): number =>
+              value + fraction * (next[axis] - value),
+          ),
         );
       }
     }
@@ -386,7 +411,9 @@ function inside(mesh: IAutoMovieMesh, point: number[]): boolean {
       .map((vertex: number): number[] =>
         subtract(mesh.positions.slice(vertex * 3, vertex * 3 + 3), point),
       );
-    const lengths: number[] = [a, b, c].map((vector: number[]): number => Math.hypot(...vector));
+    const lengths: number[] = [a, b, c].map((vector: number[]): number =>
+      Math.hypot(...vector),
+    );
     const denominator: number =
       lengths[0] * lengths[1] * lengths[2] +
       dot(a, b) * lengths[2] +
@@ -409,7 +436,10 @@ function connected(indices: number[]): boolean {
       if (pair === undefined) edges.set(key, [t]);
       else pair.push(t);
     }
-  const neighbours: number[][] = Array.from({ length: count }, (): number[] => []);
+  const neighbours: number[][] = Array.from(
+    { length: count },
+    (): number[] => [],
+  );
   for (const triangles of edges.values())
     if (triangles.length === 2) {
       neighbours[triangles[0]].push(triangles[1]);

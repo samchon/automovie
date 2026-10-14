@@ -18,7 +18,8 @@ export function humanBodySimpleChannel(
   reader: ReturnType<typeof createHumanBodyMeasurementReader>,
   channel: string,
 ): number | null {
-  const rule: ReturnType<typeof humanBodyMeasurementRule> = humanBodyMeasurementRule(channel);
+  const rule: ReturnType<typeof humanBodyMeasurementRule> =
+    humanBodyMeasurementRule(channel);
   if (rule === undefined)
     throw new Error("No body measurement rule for " + channel + ".");
   return reader.read(rule);

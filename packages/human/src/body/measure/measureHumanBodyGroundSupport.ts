@@ -37,7 +37,9 @@ export function measureHumanBodyGroundSupport(
     return null;
   const floor: number = groundPlaneHeightMetres ?? ground!.y;
   if (!Number.isFinite(floor))
-    throw new Error("Body ground reading needs a finite fixed or landmark plane height.");
+    throw new Error(
+      "Body ground reading needs a finite fixed or landmark plane height.",
+    );
   return (["left", "right"] as const).flatMap(
     (side: "left" | "right"): IAutoMovieHumanBodyFootSupport[] => {
       let lowest: IAutoMovieVector3 | undefined;

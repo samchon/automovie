@@ -39,7 +39,10 @@ export function humanBodySurfaceBoundary(
     : [...new Set(loops.flat())].sort((x: number, y: number): number => x - y);
 }
 
-const cache: WeakMap<number[], number[][]> = new WeakMap<number[], number[][]>();
+const cache: WeakMap<number[], number[][]> = new WeakMap<
+  number[],
+  number[][]
+>();
 
 function walk(indices: number[]): number[][] {
   const directed: Set<string> = new Set<string>();

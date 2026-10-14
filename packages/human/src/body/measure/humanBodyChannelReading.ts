@@ -21,14 +21,17 @@ export function humanBodyChannelReading(
   channel: string,
 ): IAutoMovieHumanBodyMeasuredChannelReading | undefined {
   if (humanBodyMeasurementRule(channel) !== undefined) return { rule: channel };
-  const bound: typeof HUMAN_BODY_EXTERIOR_TARGETS[number][] = HUMAN_BODY_EXTERIOR_TARGETS.filter(
-    (target: typeof HUMAN_BODY_EXTERIOR_TARGETS[number]): boolean => target.channel === channel,
-  );
-  const first: typeof bound[number] | undefined = bound[0];
+  const bound: (typeof HUMAN_BODY_EXTERIOR_TARGETS)[number][] =
+    HUMAN_BODY_EXTERIOR_TARGETS.filter(
+      (target: (typeof HUMAN_BODY_EXTERIOR_TARGETS)[number]): boolean =>
+        target.channel === channel,
+    );
+  const first: (typeof bound)[number] | undefined = bound[0];
   if (first === undefined) return undefined;
   if (
     bound.some(
-      (target: typeof bound[number]): boolean => target.rule !== first.rule || target.side !== first.side,
+      (target: (typeof bound)[number]): boolean =>
+        target.rule !== first.rule || target.side !== first.side,
     )
   )
     throw new Error(

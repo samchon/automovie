@@ -23,7 +23,9 @@ export function humanBodyDominantVertices(
 ): number[] {
   const { joints, boneIndices, weights }: typeof surface.skin = surface.skin;
   const wanted: Set<number> = new Set(
-    joints.flatMap((joint: AutoMovieHumanoidBone, slot: number): number[] => (bones.includes(joint) ? [slot] : [])),
+    joints.flatMap((joint: AutoMovieHumanoidBone, slot: number): number[] =>
+      bones.includes(joint) ? [slot] : [],
+    ),
   );
   const vertices: number[] = [];
   if (wanted.size === 0) return vertices;

@@ -32,7 +32,9 @@ export function indexHumanBodySectionTriangles(
     return lists;
   }
   if (points.length === 0) return lists;
-  const distance: Float64Array<ArrayBuffer> = new Float64Array(positions.length / 3);
+  const distance: Float64Array<ArrayBuffer> = new Float64Array(
+    positions.length / 3,
+  );
   for (let station: number = 0; station < points.length; station++) {
     const point: IAutoMovieVector3 = points[station];
     for (let vertex: number = 0; vertex < distance.length; vertex++)

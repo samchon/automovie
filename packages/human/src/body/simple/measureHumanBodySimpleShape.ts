@@ -16,7 +16,11 @@ export const measureHumanBodySimpleShape: {
   /** Cubic-metre volume at kilogram-per-litre density, converted to kilograms. */
   mass(volume: number, density: number): number;
   /** One named metre measurement on the supplied rest shape. */
-  channel(basis: IAutoMovieHumanBodyBasis, shape: Record<string, number>, channel: string): number | null;
+  channel(
+    basis: IAutoMovieHumanBodyBasis,
+    shape: Record<string, number>,
+    channel: string,
+  ): number | null;
 } = {
   /** Whole-body mass in kilograms from the whole person's closed skin volume at a density. */
   mass(volume: number, density: number): number {

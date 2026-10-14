@@ -34,7 +34,9 @@ export function humanBodySimpleCouplingRange(
   let maximum: number = Infinity;
   for (const component of direction) {
     if (component.coefficient === 0) continue;
-    const channel: (typeof channels)[number] | undefined = channels.find((one: (typeof channels)[number]): boolean => one.id === component.channel);
+    const channel: (typeof channels)[number] | undefined = channels.find(
+      (one: (typeof channels)[number]): boolean => one.id === component.channel,
+    );
     if (channel === undefined)
       throw new Error(
         "A coupled solve needs channel " + component.channel + ".",

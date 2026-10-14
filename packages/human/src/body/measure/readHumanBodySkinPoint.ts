@@ -21,8 +21,12 @@ export function readHumanBodySkinPoint(
   surfaces: readonly (readonly number[])[],
   name: string,
 ): IAutoMovieVector3 | null {
-  const point: ReturnType<typeof findHumanSkinLandmark> = findHumanSkinLandmark(basis, name);
-  const positions: readonly number[] | undefined = point === undefined ? undefined : surfaces[point.surface];
+  const point: ReturnType<typeof findHumanSkinLandmark> = findHumanSkinLandmark(
+    basis,
+    name,
+  );
+  const positions: readonly number[] | undefined =
+    point === undefined ? undefined : surfaces[point.surface];
   if (
     point === undefined ||
     positions === undefined ||

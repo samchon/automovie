@@ -21,7 +21,9 @@ export function humanBodyChannelReach(
 ): IAutoMovieHumanBodyChannelReach {
   const unavailable: Set<string> = new Set(basis.unavailableTargets ?? []);
   const limits: string[] = [];
-  const onset: (side: "positive" | "negative") => number = (side: "positive" | "negative"): number => {
+  const onset: (side: "positive" | "negative") => number = (
+    side: "positive" | "negative",
+  ): number => {
     let limit: number = Infinity;
     for (const corrective of basis.correctives ?? [])
       if (unavailable.has(corrective.target))

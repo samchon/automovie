@@ -39,8 +39,16 @@ export function readHumanBodyShapedMeasurement(
 ): number | null {
   // two registered skin points, read before the joint landmarks the other kinds name
   if (rule.kind === "skin-distance") {
-    const a: IAutoMovieVector3 | null = readHumanBodySkinPoint(basis, shaped.surfaces, rule.from);
-    const b: IAutoMovieVector3 | null = readHumanBodySkinPoint(basis, shaped.surfaces, rule.to);
+    const a: IAutoMovieVector3 | null = readHumanBodySkinPoint(
+      basis,
+      shaped.surfaces,
+      rule.from,
+    );
+    const b: IAutoMovieVector3 | null = readHumanBodySkinPoint(
+      basis,
+      shaped.surfaces,
+      rule.to,
+    );
     if (a === null || b === null) return null;
     const distance: number = Vector3.length(Vector3.subtract(b, a));
     return Number.isFinite(distance) ? distance : null;
@@ -48,7 +56,11 @@ export function readHumanBodyShapedMeasurement(
   // a registered skin point's height above the ground landmark's plane
   if (rule.kind === "skin-height") {
     const ground: IAutoMovieVector3 | undefined = shaped.landmarks[rule.from];
-    const point: IAutoMovieVector3 | null = readHumanBodySkinPoint(basis, shaped.surfaces, rule.to);
+    const point: IAutoMovieVector3 | null = readHumanBodySkinPoint(
+      basis,
+      shaped.surfaces,
+      rule.to,
+    );
     if (ground === undefined || point === null) return null;
     const height: number = point.y - ground.y;
     return Number.isFinite(height) ? height : null;
@@ -66,13 +78,15 @@ export function readHumanBodyShapedMeasurement(
     return readHumanBodySkinReach(basis, shaped.surfaces, from, to, rule);
   const axis: IAutoMovieVector3 = Vector3.subtract(to, from);
   const length: number = Vector3.length(axis);
-  if (!Number.isFinite(length) || (!rule.horizontal && length <= 0)) return null;
+  if (!Number.isFinite(length) || (!rule.horizontal && length <= 0))
+    return null;
   const normal: IAutoMovieVector3 = rule.horizontal
     ? Vector3.create(0, 1, 0)
     : Vector3.normalize(axis);
   let fractions: number[];
   if ("level" in rule) {
-    const point: ReturnType<typeof findHumanSkinLandmark> = findHumanSkinLandmark(basis, rule.level);
+    const point: ReturnType<typeof findHumanSkinLandmark> =
+      findHumanSkinLandmark(basis, rule.level);
     const positions: number[] | undefined =
       point === undefined ? undefined : shaped.surfaces[point.surface];
     if (
@@ -100,13 +114,25 @@ export function readHumanBodyShapedMeasurement(
           : (step * (rule.range[1] - rule.range[0])) / (rule.steps - 1)),
     );
   const pick: "max" | "min" | "rearmost" = "level" in rule ? "max" : rule.pick;
-  const points: IAutoMovieVector3[] = fractions.map((fraction: number): IAutoMovieVector3 =>
-    Vector3.add(from, Vector3.scale(axis, fraction)),
+  const points: IAutoMovieVector3[] = fractions.map(
+    (fraction: number): IAutoMovieVector3 =>
+      Vector3.add(from, Vector3.scale(axis, fraction)),
   );
   // a stack of stations shares one normal, so each surface is indexed once
   // for all of them; a lone station is cheaper walked whole
-  const levels: number[] = points.map((point: IAutoMovieVector3): number => Vector3.dot(point, normal));
-  if (points.some((point: IAutoMovieVector3): boolean => !Number.isFinite(point.x) || !Number.isFinite(point.y) || !Number.isFinite(point.z)) || levels.some((level: number): boolean => !Number.isFinite(level))) return null;
+  const levels: number[] = points.map((point: IAutoMovieVector3): number =>
+    Vector3.dot(point, normal),
+  );
+  if (
+    points.some(
+      (point: IAutoMovieVector3): boolean =>
+        !Number.isFinite(point.x) ||
+        !Number.isFinite(point.y) ||
+        !Number.isFinite(point.z),
+    ) ||
+    levels.some((level: number): boolean => !Number.isFinite(level))
+  )
+    return null;
   const near: number[][][] | undefined =
     points.length > 1
       ? shaped.surfaces.map((positions: number[], index: number): number[][] =>
@@ -122,19 +148,33 @@ export function readHumanBodyShapedMeasurement(
   let chosen: number | null = null;
   let rearmost: number = Infinity;
   for (const [station, point] of points.entries()) {
-    const section: NonNullable<ReturnType<typeof measureHumanSection>> | undefined = shaped.surfaces
-      .map((positions: number[], index: number): ReturnType<typeof measureHumanSection> =>
-        measureHumanSection(
-          positions,
-          basis.surfaces[index].indices,
-          { point, normal },
-          point,
-          near?.[index][station],
-        ),
+    const section:
+      | NonNullable<ReturnType<typeof measureHumanSection>>
+      | undefined = shaped.surfaces
+      .map(
+        (
+          positions: number[],
+          index: number,
+        ): ReturnType<typeof measureHumanSection> =>
+          measureHumanSection(
+            positions,
+            basis.surfaces[index].indices,
+            { point, normal },
+            point,
+            near?.[index][station],
+          ),
       )
-      .filter((value: ReturnType<typeof measureHumanSection>): value is NonNullable<ReturnType<typeof measureHumanSection>> => value !== null)
+      .filter(
+        (
+          value: ReturnType<typeof measureHumanSection>,
+        ): value is NonNullable<ReturnType<typeof measureHumanSection>> =>
+          value !== null,
+      )
       .sort(
-        (a: NonNullable<ReturnType<typeof measureHumanSection>>, b: NonNullable<ReturnType<typeof measureHumanSection>>): number =>
+        (
+          a: NonNullable<ReturnType<typeof measureHumanSection>>,
+          b: NonNullable<ReturnType<typeof measureHumanSection>>,
+        ): number =>
           Vector3.length(Vector3.subtract(a.centroid, point)) -
           Vector3.length(Vector3.subtract(b.centroid, point)),
       )[0];
@@ -144,7 +184,8 @@ export function readHumanBodyShapedMeasurement(
       normal: { ...normal },
       seed: { ...point },
     });
-    const value: number = rule.kind === "breadth" ? section.breadth : section.girth;
+    const value: number =
+      rule.kind === "breadth" ? section.breadth : section.girth;
     if (!Number.isFinite(value)) return null;
     if (pick === "rearmost") {
       if (section.back < rearmost) {

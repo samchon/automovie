@@ -47,7 +47,9 @@ export function solveHumanBodySimpleCoupling(
     throw new Error(
       "A coupled body solve needs positive finite targets and nonnegative finite tolerances.",
     );
-  const wear: (t: readonly number[]) => Record<string, number> = (t: readonly number[]): Record<string, number> => {
+  const wear: (t: readonly number[]) => Record<string, number> = (
+    t: readonly number[],
+  ): Record<string, number> => {
     let trial: Record<string, number> = shape;
     unknowns.forEach((unknown: IHumanBodySimpleUnknown, j: number): void => {
       if (t[j] !== 0)
@@ -55,9 +57,12 @@ export function solveHumanBodySimpleCoupling(
     });
     return trial;
   };
-  const evaluate: (t: readonly number[]) => number[] | null = (t: readonly number[]): number[] | null => {
+  const evaluate: (t: readonly number[]) => number[] | null = (
+    t: readonly number[],
+  ): number[] | null => {
     const trial: Record<string, number> = wear(t);
-    const reader: ReturnType<typeof createHumanBodyMeasurementReader> = createHumanBodyMeasurementReader(basis, trial);
+    const reader: ReturnType<typeof createHumanBodyMeasurementReader> =
+      createHumanBodyMeasurementReader(basis, trial);
     const residual: number[] = [];
     for (const unknown of unknowns) {
       const value: number | null = unknown.read(reader, trial);
@@ -79,11 +84,13 @@ export function solveHumanBodySimpleCoupling(
     if (range === null) return null;
     ranges.push(range);
   }
-  const solved: ReturnType<typeof solveHumanBodySimpleOffsets> = solveHumanBodySimpleOffsets({
-    ranges,
-    initial,
-    evaluate,
-    met: (residual: readonly number[]): boolean => humanBodySimpleResidualsMet(residual, unknowns),
-  });
+  const solved: ReturnType<typeof solveHumanBodySimpleOffsets> =
+    solveHumanBodySimpleOffsets({
+      ranges,
+      initial,
+      evaluate,
+      met: (residual: readonly number[]): boolean =>
+        humanBodySimpleResidualsMet(residual, unknowns),
+    });
   return solved === null ? null : wear(solved);
 }

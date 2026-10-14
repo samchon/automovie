@@ -24,11 +24,13 @@ export function humanBodyMeasurementSide(
     rule.kind === "extent" || rule.kind === "skin-reach" ? rule.bones : [];
   const left: boolean =
     names.some(
-      (name: string): boolean => name.startsWith("joint-l-") || name.endsWith("-left"),
+      (name: string): boolean =>
+        name.startsWith("joint-l-") || name.endsWith("-left"),
     ) || bones.some((bone: string): boolean => bone.startsWith("left"));
   const right: boolean =
     names.some(
-      (name: string): boolean => name.startsWith("joint-r-") || name.endsWith("-right"),
+      (name: string): boolean =>
+        name.startsWith("joint-r-") || name.endsWith("-right"),
     ) || bones.some((bone: string): boolean => bone.startsWith("right"));
   return left && right
     ? "bilateral"

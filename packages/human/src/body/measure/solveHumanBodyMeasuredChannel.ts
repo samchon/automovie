@@ -26,13 +26,23 @@ import { orientHumanBodyMeasurement } from "./orientHumanBodyMeasurement";
 export function solveHumanBodyMeasuredChannel(
   input: IAutoMovieHumanBodyMeasuredChannelProps,
 ): IAutoMovieHumanBodyMeasuredChannelSolution {
-  const { basis, shape, channel: id, targetMetres }: IAutoMovieHumanBodyMeasuredChannelProps = input;
-  const channel: typeof basis.channels[number] | undefined = basis.channels.find((one: typeof basis.channels[number]): boolean => one.id === id);
+  const {
+    basis,
+    shape,
+    channel: id,
+    targetMetres,
+  }: IAutoMovieHumanBodyMeasuredChannelProps = input;
+  const channel: (typeof basis.channels)[number] | undefined =
+    basis.channels.find(
+      (one: (typeof basis.channels)[number]): boolean => one.id === id,
+    );
   // an omitted reading is the channel's own rule, or the rule and side the
   // exterior target table binds a one-sided channel to
-  const measurement: IAutoMovieHumanBodyMeasuredChannelProps["measurement"] = input.measurement ?? humanBodyChannelReading(id);
+  const measurement: IAutoMovieHumanBodyMeasuredChannelProps["measurement"] =
+    input.measurement ?? humanBodyChannelReading(id);
   const reading: string = measurement?.rule ?? id;
-  const authored: ReturnType<typeof humanBodyMeasurementRule> = humanBodyMeasurementRule(reading);
+  const authored: ReturnType<typeof humanBodyMeasurementRule> =
+    humanBodyMeasurementRule(reading);
   if (channel === undefined || authored === undefined)
     throw new Error(
       "A detailed body measurement needs a named measured channel: " +
@@ -49,26 +59,36 @@ export function solveHumanBodyMeasuredChannel(
   // that does not declare it, rather than as an unmeasurable body
   if (rule.kind !== "distance" && "level" in rule)
     humanSkinLandmark(basis, rule.level);
-  const worn: (weight: number) => Record<string, number> = (weight: number): Record<string, number> => {
+  const worn: (weight: number) => Record<string, number> = (
+    weight: number,
+  ): Record<string, number> => {
     const trial: Record<string, number> = { ...shape };
     if (weight === 0) delete trial[id];
     else trial[id] = weight;
     return trial;
   };
   const read: (weight: number) => number = (weight: number): number => {
-    const value: number | null = evaluateHumanBodyMeasurement(basis, worn(weight), rule);
+    const value: number | null = evaluateHumanBodyMeasurement(
+      basis,
+      worn(weight),
+      rule,
+    );
     if (value === null)
       throw new Error("The current body cannot measure " + label + ".");
     return value;
   };
   // the envelope cut where the basis lacks a target the channel would drive
-  const reach: ReturnType<typeof humanBodyChannelReach> = humanBodyChannelReach(basis, channel);
-  const result: ReturnType<typeof invertHumanMeasurement> = invertHumanMeasurement({
-    range: [reach.minimum, reach.maximum],
-    current: shape[id] ?? 0,
-    targetMetres,
-    read,
-    label,
-  });
+  const reach: ReturnType<typeof humanBodyChannelReach> = humanBodyChannelReach(
+    basis,
+    channel,
+  );
+  const result: ReturnType<typeof invertHumanMeasurement> =
+    invertHumanMeasurement({
+      range: [reach.minimum, reach.maximum],
+      current: shape[id] ?? 0,
+      targetMetres,
+      read,
+      label,
+    });
   return { shape: worn(result.weight), actualMetres: result.actualMetres };
 }

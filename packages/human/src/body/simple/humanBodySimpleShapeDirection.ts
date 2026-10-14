@@ -36,17 +36,59 @@ const TOLERANCE: number = 1e-6;
  */
 export const humanBodySimpleShapeDirection: {
   /** One admitted channel's direction and source envelope. */
-  alone(basis: IAutoMovieHumanBodyBasis, channel: string): { direction: { channel: string; coefficient: number }[]; range: [number, number] };
+  alone(
+    basis: IAutoMovieHumanBodyBasis,
+    channel: string,
+  ): {
+    direction: { channel: string; coefficient: number }[];
+    range: [number, number];
+  };
   /** Table-authored mass direction within the source weight envelope. */
-  mass(basis: IAutoMovieHumanBodyBasis, parameters: Record<AutoMovieHumanBodySimpleParameter, number>): { direction: { channel: string; coefficient: number }[]; range: [number, number] };
+  mass(
+    basis: IAutoMovieHumanBodyBasis,
+    parameters: Record<AutoMovieHumanBodySimpleParameter, number>,
+  ): {
+    direction: { channel: string; coefficient: number }[];
+    range: [number, number];
+  };
   /** A copied shape with the scalar direction applied inside each channel's bounds. */
-  worn(basis: IAutoMovieHumanBodyBasis, shape: Record<string, number>, direction: { channel: string; coefficient: number }[], t: number): Record<string, number>;
+  worn(
+    basis: IAutoMovieHumanBodyBasis,
+    shape: Record<string, number>,
+    direction: { channel: string; coefficient: number }[],
+    t: number,
+  ): Record<string, number>;
   /** Five source-envelope samples of the caller's numerical reading. */
-  samples(basis: IAutoMovieHumanBodyBasis, shape: Record<string, number>, along: { direction: { channel: string; coefficient: number }[]; range: [number, number] }, read: (trial: Record<string, number>) => number | null, what: string): [number, number][];
+  samples(
+    basis: IAutoMovieHumanBodyBasis,
+    shape: Record<string, number>,
+    along: {
+      direction: { channel: string; coefficient: number }[];
+      range: [number, number];
+    },
+    read: (trial: Record<string, number>) => number | null,
+    what: string,
+  ): [number, number][];
   /** Bounded Illinois refinement of an already bracketed estimate. */
-  refine(samples: [number, number][], target: number, t: number, read: (scalar: number) => number): number;
+  refine(
+    samples: [number, number][],
+    target: number,
+    t: number,
+    read: (scalar: number) => number,
+  ): number;
   /** Refined solve with optional intermediate endpoint saturation. */
-  solve(basis: IAutoMovieHumanBodyBasis, shape: Record<string, number>, along: { direction: { channel: string; coefficient: number }[]; range: [number, number] }, target: number, read: (trial: Record<string, number>) => number | null, what: string, saturate?: boolean): Record<string, number>;
+  solve(
+    basis: IAutoMovieHumanBodyBasis,
+    shape: Record<string, number>,
+    along: {
+      direction: { channel: string; coefficient: number }[];
+      range: [number, number];
+    },
+    target: number,
+    read: (trial: Record<string, number>) => number | null,
+    what: string,
+    saturate?: boolean,
+  ): Record<string, number>;
 } = {
   /** A channel alone over its envelope. */
   alone(
@@ -56,7 +98,11 @@ export const humanBodySimpleShapeDirection: {
     direction: { channel: string; coefficient: number }[];
     range: [number, number];
   } {
-    const found: IAutoMovieHumanBodyBasis["channels"][number] | undefined = basis.channels.find((one: IAutoMovieHumanBodyBasis["channels"][number]): boolean => one.id === channel);
+    const found: IAutoMovieHumanBodyBasis["channels"][number] | undefined =
+      basis.channels.find(
+        (one: IAutoMovieHumanBodyBasis["channels"][number]): boolean =>
+          one.id === channel,
+      );
     if (found === undefined)
       throw new Error("A simple body shape needs the channel " + channel);
     return {
@@ -73,10 +119,17 @@ export const humanBodySimpleShapeDirection: {
     direction: { channel: string; coefficient: number }[];
     range: [number, number];
   } {
-    const ids: Set<string> = new Set(basis.channels.map((channel: IAutoMovieHumanBodyBasis["channels"][number]): string => channel.id));
-    const range: IAutoMovieHumanBodyBasis["channels"][number] | undefined = basis.channels.find(
-      (one: IAutoMovieHumanBodyBasis["channels"][number]): boolean => one.id === HUMAN_BODY_SIMPLE_SHAPE.solved.mass.range,
+    const ids: Set<string> = new Set(
+      basis.channels.map(
+        (channel: IAutoMovieHumanBodyBasis["channels"][number]): string =>
+          channel.id,
+      ),
     );
+    const range: IAutoMovieHumanBodyBasis["channels"][number] | undefined =
+      basis.channels.find(
+        (one: IAutoMovieHumanBodyBasis["channels"][number]): boolean =>
+          one.id === HUMAN_BODY_SIMPLE_SHAPE.solved.mass.range,
+      );
     if (range === undefined)
       throw new Error(
         "A simple body shape needs the channel " +
@@ -84,11 +137,19 @@ export const humanBodySimpleShapeDirection: {
       );
     return {
       direction: HUMAN_BODY_SIMPLE_SHAPE.solved.mass.direction
-        .filter((row: (typeof HUMAN_BODY_SIMPLE_SHAPE.solved.mass.direction)[number]): boolean => ids.has(row.channel))
-        .map((row: (typeof HUMAN_BODY_SIMPLE_SHAPE.solved.mass.direction)[number]): { channel: string; coefficient: number } => ({
-          channel: row.channel,
-          coefficient: math.term(row, parameters),
-        })),
+        .filter(
+          (
+            row: (typeof HUMAN_BODY_SIMPLE_SHAPE.solved.mass.direction)[number],
+          ): boolean => ids.has(row.channel),
+        )
+        .map(
+          (
+            row: (typeof HUMAN_BODY_SIMPLE_SHAPE.solved.mass.direction)[number],
+          ): { channel: string; coefficient: number } => ({
+            channel: row.channel,
+            coefficient: math.term(row, parameters),
+          }),
+        ),
       range: [range.minimum, range.maximum],
     };
   },
@@ -102,7 +163,11 @@ export const humanBodySimpleShapeDirection: {
   ): Record<string, number> {
     const trial: Record<string, number> = { ...shape };
     for (const { channel, coefficient } of direction) {
-      const envelope: IAutoMovieHumanBodyBasis["channels"][number] = basis.channels.find((one: IAutoMovieHumanBodyBasis["channels"][number]): boolean => one.id === channel)!;
+      const envelope: IAutoMovieHumanBodyBasis["channels"][number] =
+        basis.channels.find(
+          (one: IAutoMovieHumanBodyBasis["channels"][number]): boolean =>
+            one.id === channel,
+        )!;
       trial[channel] = Math.min(
         envelope.maximum,
         Math.max(envelope.minimum, (shape[channel] ?? 0) + t * coefficient),

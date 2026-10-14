@@ -30,17 +30,22 @@ export function measureHumanBodyBasisChannels(
   options: IAutoMovieHumanBodyChannelScaleOptions = {},
 ): IAutoMovieHumanBodyChannelScale[] {
   const resident: number = basis.surfaces.reduce(
-    (total: number, surface: typeof basis.surfaces[number]): number => total + surface.positions.length / 3,
+    (total: number, surface: (typeof basis.surfaces)[number]): number =>
+      total + surface.positions.length / 3,
     0,
   );
   if (resident === 0)
     throw new Error("A body basis needs resident vertices to measure.");
-  const scale: (name: string) => IAutoMovieHumanEndpointScale = (name: string): IAutoMovieHumanEndpointScale => {
+  const scale: (name: string) => IAutoMovieHumanEndpointScale = (
+    name: string,
+  ): IAutoMovieHumanEndpointScale => {
     let sumOfSquares: number = 0;
     let largestSquare: number = 0;
     let rowCount: number = 0;
     for (const surface of basis.surfaces) {
-      const rows: number[] | undefined = Object.hasOwn(surface.targets, name) ? surface.targets[name] : undefined;
+      const rows: number[] | undefined = Object.hasOwn(surface.targets, name)
+        ? surface.targets[name]
+        : undefined;
       if (rows === undefined) continue;
       for (let i: number = 0; i < rows.length; i += 4) {
         const square: number =
@@ -58,52 +63,68 @@ export function measureHumanBodyBasisChannels(
       vertices: rowCount,
     };
   };
-  const evaluateRule: (rule: IAutoMovieHumanBodyMeasurement, shape: Record<string, number>) => number | null = (
+  const evaluateRule: (
+    rule: IAutoMovieHumanBodyMeasurement,
+    shape: Record<string, number>,
+  ) => number | null = (
     rule: IAutoMovieHumanBodyMeasurement,
     shape: Record<string, number>,
   ): number | null => evaluateHumanBodyMeasurement(basis, shape, rule);
   let neutralReader:
     | ReturnType<typeof createHumanBodyMeasurementReader>
     | undefined;
-  const neutralRule: (rule: IAutoMovieHumanBodyMeasurement) => number | null = (rule: IAutoMovieHumanBodyMeasurement): number | null =>
+  const neutralRule: (rule: IAutoMovieHumanBodyMeasurement) => number | null = (
+    rule: IAutoMovieHumanBodyMeasurement,
+  ): number | null =>
     (neutralReader ??= createHumanBodyMeasurementReader(basis, {})).read(rule);
   return basis.channels
     .filter(
-      (channel: typeof basis.channels[number]): boolean =>
+      (channel: (typeof basis.channels)[number]): boolean =>
         options.measuredOnly !== true ||
         humanBodyChannelReading(channel.id) !== undefined,
     )
-    .map((channel: typeof basis.channels[number]): IAutoMovieHumanBodyChannelScale => {
-      const reading: ReturnType<typeof humanBodyChannelReading> = humanBodyChannelReading(channel.id);
-      const authored: ReturnType<typeof humanBodyMeasurementRule> =
-        reading === undefined
-          ? undefined
-          : humanBodyMeasurementRule(reading.rule);
-      const rule: IAutoMovieHumanBodyMeasurement | undefined =
-        reading === undefined || authored === undefined
-          ? undefined
-          : reading.side === undefined
-            ? authored
-            : orientHumanBodyMeasurement(reading.rule, authored, reading.side);
-      return {
-        id: channel.id,
-        group: channel.group,
-        positive: scale(channel.positive),
-        negative: channel.negative === null ? null : scale(channel.negative),
-        measurement:
-          rule === undefined || reading === undefined
-            ? null
-            : {
-                id: reading.rule,
-                ...(reading.side === undefined ? {} : { side: reading.side }),
-                kind: rule.kind,
-                neutral: neutralRule(rule),
-                positive: evaluateRule(rule, { [channel.id]: channel.maximum }),
-                negative:
-                  channel.negative === null
-                    ? null
-                    : evaluateRule(rule, { [channel.id]: channel.minimum }),
-              },
-      };
-    });
+    .map(
+      (
+        channel: (typeof basis.channels)[number],
+      ): IAutoMovieHumanBodyChannelScale => {
+        const reading: ReturnType<typeof humanBodyChannelReading> =
+          humanBodyChannelReading(channel.id);
+        const authored: ReturnType<typeof humanBodyMeasurementRule> =
+          reading === undefined
+            ? undefined
+            : humanBodyMeasurementRule(reading.rule);
+        const rule: IAutoMovieHumanBodyMeasurement | undefined =
+          reading === undefined || authored === undefined
+            ? undefined
+            : reading.side === undefined
+              ? authored
+              : orientHumanBodyMeasurement(
+                  reading.rule,
+                  authored,
+                  reading.side,
+                );
+        return {
+          id: channel.id,
+          group: channel.group,
+          positive: scale(channel.positive),
+          negative: channel.negative === null ? null : scale(channel.negative),
+          measurement:
+            rule === undefined || reading === undefined
+              ? null
+              : {
+                  id: reading.rule,
+                  ...(reading.side === undefined ? {} : { side: reading.side }),
+                  kind: rule.kind,
+                  neutral: neutralRule(rule),
+                  positive: evaluateRule(rule, {
+                    [channel.id]: channel.maximum,
+                  }),
+                  negative:
+                    channel.negative === null
+                      ? null
+                      : evaluateRule(rule, { [channel.id]: channel.minimum }),
+                },
+        };
+      },
+    );
 }

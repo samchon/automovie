@@ -33,23 +33,35 @@ export function humanBodySimplePosture(
     (humanBodySimpleShapeMath.curve(table.kyphosis.oldDegrees, simple.sex) -
       table.kyphosis.youngDegrees);
   if (added <= 0) return [];
-  const joint: (bone: string) => IAutoMovieHumanBodyBasis["joints"][number] = (bone: string): IAutoMovieHumanBodyBasis["joints"][number] => {
-    const found: IAutoMovieHumanBodyBasis["joints"][number] | undefined = basis.joints.find((one: IAutoMovieHumanBodyBasis["joints"][number]): boolean => one.bone === bone);
+  const joint: (bone: string) => IAutoMovieHumanBodyBasis["joints"][number] = (
+    bone: string,
+  ): IAutoMovieHumanBodyBasis["joints"][number] => {
+    const found: IAutoMovieHumanBodyBasis["joints"][number] | undefined =
+      basis.joints.find(
+        (one: IAutoMovieHumanBodyBasis["joints"][number]): boolean =>
+          one.bone === bone,
+      );
     if (found === undefined)
       throw new Error("Body posture names a joint the basis lacks: " + bone);
     return found;
   };
-  const row: (bone: string, flexion: number) => IAutoMovieJointPose = (bone: string, flexion: number): IAutoMovieJointPose => ({
+  const row: (bone: string, flexion: number) => IAutoMovieJointPose = (
+    bone: string,
+    flexion: number,
+  ): IAutoMovieJointPose => ({
     bone: bone as IAutoMovieJointPose["bone"],
     flexion,
     abduction: null,
     twist: null,
   });
-  const compensation: IAutoMovieHumanBodyBasis["joints"][number] = joint(table.compensation);
+  const compensation: IAutoMovieHumanBodyBasis["joints"][number] = joint(
+    table.compensation,
+  );
   const floor: number = compensation.constraint?.flexion?.min ?? -Infinity;
   return [
-    ...table.thoracic.map(([bone, share]: [string, number]): IAutoMovieJointPose =>
-      row(bone, joint(bone).neutral.flexion + added * share),
+    ...table.thoracic.map(
+      ([bone, share]: [string, number]): IAutoMovieJointPose =>
+        row(bone, joint(bone).neutral.flexion + added * share),
     ),
     row(
       table.compensation,

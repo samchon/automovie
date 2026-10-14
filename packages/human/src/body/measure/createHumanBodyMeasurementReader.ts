@@ -27,12 +27,18 @@ export function createHumanBodyMeasurementReader(
   shaped: ReturnType<typeof evaluateHumanBodyShape>;
   read: (rule: IAutoMovieHumanBodyMeasurement) => number | null;
 } {
-  const shaped: ReturnType<typeof evaluateHumanBodyShape> = evaluateHumanBodyShape(
-    basis,
-    humanBodyBasisWeights(basis, { shape }, resolveHumanBodyShapeShoulderRest(basis, shape)),
-  );
+  const shaped: ReturnType<typeof evaluateHumanBodyShape> =
+    evaluateHumanBodyShape(
+      basis,
+      humanBodyBasisWeights(
+        basis,
+        { shape },
+        resolveHumanBodyShapeShoulderRest(basis, shape),
+      ),
+    );
   return {
     shaped,
-    read: (rule: IAutoMovieHumanBodyMeasurement): number | null => readHumanBodyShapedMeasurement(basis, shaped, rule),
+    read: (rule: IAutoMovieHumanBodyMeasurement): number | null =>
+      readHumanBodyShapedMeasurement(basis, shaped, rule),
   };
 }

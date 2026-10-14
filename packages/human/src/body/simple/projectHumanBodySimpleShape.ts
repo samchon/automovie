@@ -44,16 +44,32 @@ export function projectHumanBodySimpleShape(
   whole: IAutoMovieHumanBodySimpleWhole,
   shape: Record<string, number>,
   measurements: readonly (typeof HUMAN_BODY_SIMPLE_SHAPE)["measurements"][number]["parameter"][] = HUMAN_BODY_SIMPLE_SHAPE.measurements.map(
-    (entry: (typeof HUMAN_BODY_SIMPLE_SHAPE)["measurements"][number]): (typeof HUMAN_BODY_SIMPLE_SHAPE)["measurements"][number]["parameter"] => entry.parameter,
+    (
+      entry: (typeof HUMAN_BODY_SIMPLE_SHAPE)["measurements"][number],
+    ): (typeof HUMAN_BODY_SIMPLE_SHAPE)["measurements"][number]["parameter"] =>
+      entry.parameter,
   ),
 ): IAutoMovieHumanBodySimpleShape {
   const table: typeof HUMAN_BODY_SIMPLE_SHAPE = HUMAN_BODY_SIMPLE_SHAPE;
-  const channels: Set<string> = new Set(basis.channels.map((channel: IAutoMovieHumanBodyBasis["channels"][number]): string => channel.id));
+  const channels: Set<string> = new Set(
+    basis.channels.map(
+      (channel: IAutoMovieHumanBodyBasis["channels"][number]): string =>
+        channel.id,
+    ),
+  );
   const weight: (channel: string) => number = (channel: string): number =>
     channels.has(channel) ? (shape[channel] ?? 0) : 0;
-  const firstRow: (channel: string) => (typeof HUMAN_BODY_SIMPLE_SHAPE)["terms"][number] = (channel: string): (typeof HUMAN_BODY_SIMPLE_SHAPE)["terms"][number] =>
-    table.terms.find((row: (typeof HUMAN_BODY_SIMPLE_SHAPE)["terms"][number]): boolean => row.channel === channel)!;
-  const reader: ReturnType<typeof createHumanBodyMeasurementReader> = createHumanBodyMeasurementReader(basis, shape);
+  const firstRow: (
+    channel: string,
+  ) => (typeof HUMAN_BODY_SIMPLE_SHAPE)["terms"][number] = (
+    channel: string,
+  ): (typeof HUMAN_BODY_SIMPLE_SHAPE)["terms"][number] =>
+    table.terms.find(
+      (row: (typeof HUMAN_BODY_SIMPLE_SHAPE)["terms"][number]): boolean =>
+        row.channel === channel,
+    )!;
+  const reader: ReturnType<typeof createHumanBodyMeasurementReader> =
+    createHumanBodyMeasurementReader(basis, shape);
   const statureMetres: number = whole.stature(shape);
   const sex: number = math.invertCurve(
     firstRow(table.identity.sex).curves[0].points,
@@ -70,14 +86,17 @@ export function projectHumanBodySimpleShape(
     math.density(table.mass.fatFraction[0] * 100),
   );
   for (let step: number = 0; step < MASS_ITERATIONS; step++) {
-    const bodyMassIndex: number = massKilograms / (statureMetres * statureMetres);
+    const bodyMassIndex: number =
+      massKilograms / (statureMetres * statureMetres);
     massKilograms = measure.mass(
       volume,
       math.density(math.fat({ sex, ageYears }, bodyMassIndex).percent),
     );
   }
   // the muscle channel carries rows that are not the muscle itself
-  const muscleRow: (typeof HUMAN_BODY_SIMPLE_SHAPE)["terms"][number] = firstRow(table.identity.muscle);
+  const muscleRow: (typeof HUMAN_BODY_SIMPLE_SHAPE)["terms"][number] = firstRow(
+    table.identity.muscle,
+  );
   const muscleFree: ReturnType<typeof math.parameters> = math.parameters({
     sex,
     ageYears,
@@ -86,8 +105,17 @@ export function projectHumanBodySimpleShape(
     muscle: 0,
   });
   const others: number = table.terms
-    .filter((row: (typeof HUMAN_BODY_SIMPLE_SHAPE)["terms"][number]): boolean => row.channel === table.identity.muscle && row !== muscleRow)
-    .reduce((sum: number, row: (typeof HUMAN_BODY_SIMPLE_SHAPE)["terms"][number]): number => sum + math.term(row, muscleFree), 0);
+    .filter(
+      (row: (typeof HUMAN_BODY_SIMPLE_SHAPE)["terms"][number]): boolean =>
+        row.channel === table.identity.muscle && row !== muscleRow,
+    )
+    .reduce(
+      (
+        sum: number,
+        row: (typeof HUMAN_BODY_SIMPLE_SHAPE)["terms"][number],
+      ): number => sum + math.term(row, muscleFree),
+      0,
+    );
   const muscle: number = math.invertCurve(
     muscleRow.curves[0].points,
     (weight(table.identity.muscle) - others) / muscleRow.gain,

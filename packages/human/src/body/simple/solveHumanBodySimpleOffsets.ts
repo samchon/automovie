@@ -75,26 +75,40 @@ export function solveHumanBodySimpleOffsets(
   const size: number = input.ranges.length;
   const trailing: number = input.secondary ?? 0;
   const count: number = input.initial.length - trailing;
-  const primary: (values: readonly number[]) => number[] = (values: readonly number[]): number[] =>
-    values.slice(0, count);
-  const secondary: (values: readonly number[]) => number[] = (values: readonly number[]): number[] =>
-    values.slice(count);
-  const met: (values: readonly number[]) => boolean = (values: readonly number[]): boolean =>
-    input.met(primary(values));
+  const primary: (values: readonly number[]) => number[] = (
+    values: readonly number[],
+  ): number[] => values.slice(0, count);
+  const secondary: (values: readonly number[]) => number[] = (
+    values: readonly number[],
+  ): number[] => values.slice(count);
+  const met: (values: readonly number[]) => boolean = (
+    values: readonly number[],
+  ): boolean => input.met(primary(values));
   let t: number[] = input.ranges.map((): number => 0);
   let residual: number[] = [...input.initial];
   if (trailing === 0 && met(residual)) return t;
-  const merit: (values: readonly number[]) => number = (values: readonly number[]): number =>
-    values.reduce((sum: number, value: number): number => sum + value * value, 0);
+  const merit: (values: readonly number[]) => number = (
+    values: readonly number[],
+  ): number =>
+    values.reduce(
+      (sum: number, value: number): number => sum + value * value,
+      0,
+    );
   // the primary residuals first; once they are met, the secondary ones while the primary stay met
-  const better: (next: readonly number[], current: readonly number[]) => boolean = (
+  const better: (
+    next: readonly number[],
+    current: readonly number[],
+  ) => boolean = (
     next: readonly number[],
     current: readonly number[],
   ): boolean =>
     met(current)
       ? met(next) && merit(secondary(next)) < merit(secondary(current))
       : merit(primary(next)) < merit(primary(current));
-  const differences: (from: readonly number[], at: readonly number[]) => number[][] | null = (
+  const differences: (
+    from: readonly number[],
+    at: readonly number[],
+  ) => number[][] | null = (
     from: readonly number[],
     at: readonly number[],
   ): number[][] | null => {
@@ -103,13 +117,18 @@ export function solveHumanBodySimpleOffsets(
       const [low, high]: readonly [number, number] = input.ranges[j];
       const amount: number = STEP * (high - low);
       const step: number = from[j] + amount > high ? -amount : amount;
-      const stepped: number[] = from.map((value: number, k: number): number => (k === j ? value + step : value));
+      const stepped: number[] = from.map((value: number, k: number): number =>
+        k === j ? value + step : value,
+      );
       const moved: number[] | null = input.evaluate(stepped);
       if (moved === null) return null;
       // Divide by the scalar actually representable after floating addition,
       // not the requested amount; preserve the original finite-difference map.
       columns.push(
-        moved.map((value: number, i: number): number => (value - at[i]) / (stepped[j] - from[j])),
+        moved.map(
+          (value: number, i: number): number =>
+            (value - at[i]) / (stepped[j] - from[j]),
+        ),
       );
     }
     return columns;
@@ -137,13 +156,17 @@ export function solveHumanBodySimpleOffsets(
       });
       const reading: number[] | null = input.evaluate(next);
       if (reading === null || !better(reading, residual)) continue;
-      const change: number[] = next.map((value: number, j: number): number => value - t[j]);
+      const change: number[] = next.map(
+        (value: number, j: number): number => value - t[j],
+      );
       const previous: number[] = residual;
       // Strict reduction of deterministic readings implies a nonzero step.
       jacobian = updateHumanBodySimpleJacobian(
         jacobian,
         change,
-        reading.map((value: number, index: number): number => value - previous[index]),
+        reading.map(
+          (value: number, index: number): number => value - previous[index],
+        ),
       );
       t = next;
       residual = reading;
@@ -178,51 +201,81 @@ function leastDepartureStep(
 ): number[] | null {
   const goal: number[] = residual.map(
     (value: number, i: number): number =>
-      columns.reduce((sum: number, column: readonly number[], j: number): number => sum + column[i] * t[j], 0) - value,
+      columns.reduce(
+        (sum: number, column: readonly number[], j: number): number =>
+          sum + column[i] * t[j],
+        0,
+      ) - value,
   );
-  const dot: (a: readonly number[], b: readonly number[]) => number = (a: readonly number[], b: readonly number[]): number =>
-    a.reduce((sum: number, value: number, k: number): number => sum + value * b[k], 0);
+  const dot: (a: readonly number[], b: readonly number[]) => number = (
+    a: readonly number[],
+    b: readonly number[],
+  ): number =>
+    a.reduce(
+      (sum: number, value: number, k: number): number => sum + value * b[k],
+      0,
+    );
   const fixed: Map<number, number> = new Map<number, number>();
   let x: number[] = [...t];
   for (let pass: number = 0; pass <= columns.length; pass++) {
     // a common factor leaves the least-departure solution unchanged, so the scales are divided by their largest
-    const raw: readonly number[] = input.departure?.(x) ?? columns.map((): number => 1);
+    const raw: readonly number[] =
+      input.departure?.(x) ?? columns.map((): number => 1);
     const largest: number = Math.max(...raw);
     const scale: number[] = raw.map((value: number): number => value / largest);
-    const free: number[] = columns.map((_: readonly number[], j: number): number => j).filter((j: number): boolean => !fixed.has(j));
+    const free: number[] = columns
+      .map((_: readonly number[], j: number): number => j)
+      .filter((j: number): boolean => !fixed.has(j));
     const right: number[] = goal.map((value: number, i: number): number =>
       [...fixed].reduce(
-        (sum: number, [j, bound]: [number, number]): number => sum - columns[j][i] * bound,
+        (sum: number, [j, bound]: [number, number]): number =>
+          sum - columns[j][i] * bound,
         value,
       ),
     );
     // the free columns in scaled offsets u_j = scale_j x_j; row(i) is residual i's row over them
-    const scaled: number[][] = free.map((j: number): number[] => columns[j].map((value: number): number => value / scale[j]));
-    const row: (i: number) => number[] = (i: number): number[] => scaled.map((column: number[]): number => column[i]);
+    const scaled: number[][] = free.map((j: number): number[] =>
+      columns[j].map((value: number): number => value / scale[j]),
+    );
+    const row: (i: number) => number[] = (i: number): number[] =>
+      scaled.map((column: number[]): number => column[i]);
     // a primary residual no free offset reads is left where the fixed offsets put it
     const reached: number[] = right
       .map((_: number, i: number): number => i)
-      .filter((i: number): boolean => i < count && scaled.some((column: number[]): boolean => column[i] !== 0));
+      .filter(
+        (i: number): boolean =>
+          i < count &&
+          scaled.some((column: number[]): boolean => column[i] !== 0),
+      );
     const later: number[] = pursue
-      ? right.map((_: number, i: number): number => i).filter((i: number): boolean => i >= count)
+      ? right
+          .map((_: number, i: number): number => i)
+          .filter((i: number): boolean => i >= count)
       : [];
     let u: number[] | null;
     if (free.length > reached.length) {
       // minimum norm over the reached primary rows: u = A1^T y with (A1 A1^T) y = right1
       const first: number[][] = reached.map(row);
-      const gram: number[][] = first.map((a: number[]): number[] => first.map((b: number[]): number => dot(a, b)));
+      const gram: number[][] = first.map((a: number[]): number[] =>
+        first.map((b: number[]): number => dot(a, b)),
+      );
       const y: number[] | null = solveLinear(
         gram,
         reached.map((i: number): number => right[i]),
       );
       if (y === null) return null;
       const particular: number[] = free.map((_: number, k: number): number =>
-        first.reduce((sum: number, a: number[], r: number): number => sum + a[k] * y[r], 0),
+        first.reduce(
+          (sum: number, a: number[], r: number): number => sum + a[k] * y[r],
+          0,
+        ),
       );
       u = particular;
       if (later.length > 0) {
         // the secondary rows within the null space of the primary ones: P v = v - A1^T (A1 A1^T)^-1 A1 v
-        const project: (v: readonly number[]) => number[] | null = (v: readonly number[]): number[] | null => {
+        const project: (v: readonly number[]) => number[] | null = (
+          v: readonly number[],
+        ): number[] | null => {
           const weights: number[] | null = solveLinear(
             gram,
             first.map((a: number[]): number => dot(a, v)),
@@ -232,30 +285,49 @@ function leastDepartureStep(
             : v.map(
                 (value: number, k: number): number =>
                   value -
-                  first.reduce((sum: number, a: number[], r: number): number => sum + a[k] * weights[r], 0),
+                  first.reduce(
+                    (sum: number, a: number[], r: number): number =>
+                      sum + a[k] * weights[r],
+                    0,
+                  ),
               );
         };
-        const projected: (number[] | null)[] = later.map((i: number): number[] | null => project(row(i)));
+        const projected: (number[] | null)[] = later.map(
+          (i: number): number[] | null => project(row(i)),
+        );
         if (projected.every((v: number[] | null): boolean => v !== null)) {
           const rows: number[][] = projected as number[][];
-          const miss: number[] = later.map((i: number): number => right[i] - dot(row(i), particular));
+          const miss: number[] = later.map(
+            (i: number): number => right[i] - dot(row(i), particular),
+          );
           const z: number[] | null = solveLinear(
-            rows.map((a: number[]): number[] => rows.map((b: number[]): number => dot(a, b))),
+            rows.map((a: number[]): number[] =>
+              rows.map((b: number[]): number => dot(a, b)),
+            ),
             miss,
           );
           // a secondary row the primary rows leave no room for is not pursued
           if (z !== null)
             u = particular.map(
               (value: number, k: number): number =>
-                value + rows.reduce((sum: number, a: number[], r: number): number => sum + a[k] * z[r], 0),
+                value +
+                rows.reduce(
+                  (sum: number, a: number[], r: number): number =>
+                    sum + a[k] * z[r],
+                  0,
+                ),
             );
         }
       }
     } else {
       // least squares over the primary rows: (A1^T A1) u = A1^T right1
-      const rows: number[] = right.map((_: number, i: number): number => i).filter((i: number): boolean => i < count);
+      const rows: number[] = right
+        .map((_: number, i: number): number => i)
+        .filter((i: number): boolean => i < count);
       const gram: number[][] = scaled.map((a: number[]): number[] =>
-        scaled.map((b: number[]): number => rows.reduce((sum: number, i: number): number => sum + a[i] * b[i], 0)),
+        scaled.map((b: number[]): number =>
+          rows.reduce((sum: number, i: number): number => sum + a[i] * b[i], 0),
+        ),
       );
       u =
         free.length === 0
@@ -263,14 +335,19 @@ function leastDepartureStep(
           : solveLinear(
               gram,
               scaled.map((column: number[]): number =>
-                rows.reduce((sum: number, i: number): number => sum + column[i] * right[i], 0),
+                rows.reduce(
+                  (sum: number, i: number): number =>
+                    sum + column[i] * right[i],
+                  0,
+                ),
               ),
             );
     }
     if (u === null) return null;
     const solved: number[] = u;
     x = columns.map(
-      (_: readonly number[], j: number): number => fixed.get(j) ?? solved[free.indexOf(j)] / scale[j],
+      (_: readonly number[], j: number): number =>
+        fixed.get(j) ?? solved[free.indexOf(j)] / scale[j],
     );
     let crossed: boolean = false;
     for (const j of free) {

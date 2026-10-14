@@ -25,7 +25,11 @@ export function solveHumanBodyArmsDown(
   ) => IAutoMovieHumanBodyBuild,
   document: IAutoMovieHumanBodyBasisDocument,
 ): Pick<IAutoMovieHumanBodyBasisDocument, "pose" | "shoulders"> {
-  const steps: ReturnType<typeof stepHumanBodyArmsDown> = stepHumanBodyArmsDown(basis, build, document);
+  const steps: ReturnType<typeof stepHumanBodyArmsDown> = stepHumanBodyArmsDown(
+    basis,
+    build,
+    document,
+  );
   for (;;) {
     const next: ReturnType<typeof steps.next> = steps.next();
     if (next.done === true) return next.value;

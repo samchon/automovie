@@ -42,14 +42,27 @@ export function* stepHumanBodyArmsDown(
   Pick<IAutoMovieHumanBodyBasisDocument, "pose" | "shoulders">,
   undefined
 > {
-  const parent: Map<AutoMovieHumanoidBone, AutoMovieHumanoidBone | null> = new Map(
-    basis.joints.map((joint: typeof basis.joints[number]): [AutoMovieHumanoidBone, AutoMovieHumanoidBone | null] => [joint.bone, joint.parent]),
-  );
-  const chainOf: (side: typeof SIDES[number]) => Set<string> = (side: typeof SIDES[number]): Set<string> => {
+  const parent: Map<AutoMovieHumanoidBone, AutoMovieHumanoidBone | null> =
+    new Map(
+      basis.joints.map(
+        (
+          joint: (typeof basis.joints)[number],
+        ): [AutoMovieHumanoidBone, AutoMovieHumanoidBone | null] => [
+          joint.bone,
+          joint.parent,
+        ],
+      ),
+    );
+  const chainOf: (side: (typeof SIDES)[number]) => Set<string> = (
+    side: (typeof SIDES)[number],
+  ): Set<string> => {
     const root: AutoMovieHumanoidBone = `${side}UpperArm`;
     return new Set(
       basis.joints
-        .map((joint: typeof basis.joints[number]): AutoMovieHumanoidBone => joint.bone)
+        .map(
+          (joint: (typeof basis.joints)[number]): AutoMovieHumanoidBone =>
+            joint.bone,
+        )
         .filter((bone: AutoMovieHumanoidBone): boolean => {
           let at: AutoMovieHumanoidBone | null | undefined = bone;
           while (at !== null && at !== undefined && at !== root)
@@ -59,10 +72,12 @@ export function* stepHumanBodyArmsDown(
     );
   };
   const chains: Set<string>[] = SIDES.map(chainOf);
-  const rest: number[] = SIDES.map((side: typeof SIDES[number]): number => {
-    const shoulder: typeof basis.joints[number]["shoulder"] = basis.joints.find(
-      (joint: typeof basis.joints[number]): boolean => joint.bone === `${side}UpperArm`,
-    )?.shoulder;
+  const rest: number[] = SIDES.map((side: (typeof SIDES)[number]): number => {
+    const shoulder: (typeof basis.joints)[number]["shoulder"] =
+      basis.joints.find(
+        (joint: (typeof basis.joints)[number]): boolean =>
+          joint.bone === `${side}UpperArm`,
+      )?.shoulder;
     if (shoulder === undefined)
       throw new Error("Arms down needs thorax-tt shoulder coordinates.");
     return shoulder.neutral.elevation;
@@ -72,41 +87,68 @@ export function* stepHumanBodyArmsDown(
       (joint: IAutoMovieJointPose): boolean =>
         joint.bone !== "leftLowerArm" && joint.bone !== "rightLowerArm",
     ),
-    ...SIDES.map((side: typeof SIDES[number]): IAutoMovieJointPose => ({
-      bone: `${side}LowerArm`,
-      flexion: 0,
-      abduction: null,
-      twist: null,
-    })),
+    ...SIDES.map(
+      (side: (typeof SIDES)[number]): IAutoMovieJointPose => ({
+        bone: `${side}LowerArm`,
+        flexion: 0,
+        abduction: null,
+        twist: null,
+      }),
+    ),
   ];
-  const goals: (elevations: number[]) => IAutoMovieHumanBodyShoulderPose[] = (elevations: number[]): IAutoMovieHumanBodyShoulderPose[] =>
-    SIDES.map((side: typeof SIDES[number], k: number): IAutoMovieHumanBodyShoulderPose => ({
-      bone: `${side}UpperArm` as const,
-      plane: 0,
-      elevation: elevations[k],
-      axialRotation: 0,
-    }));
+  const goals: (elevations: number[]) => IAutoMovieHumanBodyShoulderPose[] = (
+    elevations: number[],
+  ): IAutoMovieHumanBodyShoulderPose[] =>
+    SIDES.map(
+      (
+        side: (typeof SIDES)[number],
+        k: number,
+      ): IAutoMovieHumanBodyShoulderPose => ({
+        bone: `${side}UpperArm` as const,
+        plane: 0,
+        elevation: elevations[k],
+        axialRotation: 0,
+      }),
+    );
   /** Each chain's self and outside crossings, optionally deferring cross-arm pairs. */
-  const contacts: (elevations: number[], omitOppositeArm?: boolean) => Map<string, number>[] = (
+  const contacts: (
+    elevations: number[],
+    omitOppositeArm?: boolean,
+  ) => Map<string, number>[] = (
     elevations: number[],
     omitOppositeArm: boolean = false,
   ): Map<string, number>[] => {
     const parts: { bone: string; id: string; mesh: IAutoMovieMesh }[] = segment(
       build({ ...document, pose, shoulders: goals(elevations) }),
-    ).model.parts.map((part: ReturnType<typeof segment>["model"]["parts"][number]): typeof parts[number] => {
-      if (part.geometry.type !== "mesh")
-        throw new Error("Arms-down contact requires the segmenter's resident skin meshes.");
-      return { bone: part.id.split("/")[0], id: part.id, mesh: part.geometry.mesh };
-    });
+    ).model.parts.map(
+      (
+        part: ReturnType<typeof segment>["model"]["parts"][number],
+      ): (typeof parts)[number] => {
+        if (part.geometry.type !== "mesh")
+          throw new Error(
+            "Arms-down contact requires the segmenter's resident skin meshes.",
+          );
+        return {
+          bone: part.id.split("/")[0],
+          id: part.id,
+          mesh: part.geometry.mesh,
+        };
+      },
+    );
     return chains.map((chain: Set<string>, k: number): Map<string, number> => {
       const found: Map<string, number> = new Map<string, number>();
-      for (const own of parts.filter((part: typeof parts[number]): boolean => chain.has(part.bone))) {
+      for (const own of parts.filter((part: (typeof parts)[number]): boolean =>
+        chain.has(part.bone),
+      )) {
         // the chain's own segment folding through itself (the armpit skin
         // the upper arm carries) is contact too
-        const folded: number = measureAutoMovieMeshCrossings(own.mesh, own.mesh).length;
+        const folded: number = measureAutoMovieMeshCrossings(
+          own.mesh,
+          own.mesh,
+        ).length;
         if (folded > 0) found.set(`${own.id}|${own.id}`, folded);
         for (const other of parts.filter(
-          (part: typeof parts[number]): boolean =>
+          (part: (typeof parts)[number]): boolean =>
             !chain.has(part.bone) &&
             (!omitOppositeArm || !chains[1 - k].has(part.bone)),
         )) {
@@ -119,14 +161,19 @@ export function* stepHumanBodyArmsDown(
   };
   const baseline: Map<string, number>[] = contacts(rest);
   yield;
-  const clean: (reading: Map<string, number>, k: number) => boolean = (reading: Map<string, number>, k: number): boolean =>
+  const clean: (reading: Map<string, number>, k: number) => boolean = (
+    reading: Map<string, number>,
+    k: number,
+  ): boolean =>
     [...reading].every(
-      ([pair, count]: [string, number]): boolean => count <= (baseline[k].get(pair) ?? 0),
+      ([pair, count]: [string, number]): boolean =>
+        count <= (baseline[k].get(pair) ?? 0),
     );
   const solved: (number | null)[] = [null, null];
   for (let elevation: number = 0; elevation < Math.max(...rest); elevation++) {
     const trial: number[] = SIDES.map(
-      (_: typeof SIDES[number], k: number): number => solved[k] ?? Math.min(elevation, rest[k]),
+      (_: (typeof SIDES)[number], k: number): number =>
+        solved[k] ?? Math.min(elevation, rest[k]),
     );
     const reading: Map<string, number>[] = contacts(trial, true);
     yield;
@@ -134,10 +181,16 @@ export function* stepHumanBodyArmsDown(
       if (solved[k] === null && clean(reading[k], k)) solved[k] = trial[k];
     if (solved.every((value: number | null): boolean => value !== null)) break;
   }
-  const goalsAt: number[] = SIDES.map((_: typeof SIDES[number], k: number): number => solved[k] ?? rest[k]);
+  const goalsAt: number[] = SIDES.map(
+    (_: (typeof SIDES)[number], k: number): number => solved[k] ?? rest[k],
+  );
   const combined: Map<string, number>[] = contacts(goalsAt);
   yield;
-  if (SIDES.some((_: typeof SIDES[number], k: number): boolean => !clean(combined[k], k)))
+  if (
+    SIDES.some(
+      (_: (typeof SIDES)[number], k: number): boolean => !clean(combined[k], k),
+    )
+  )
     throw new Error(
       "Arms down cannot combine both selected goals without increasing sampled per-pair skin crossing counts.",
     );
@@ -146,7 +199,9 @@ export function* stepHumanBodyArmsDown(
 
 /** Triangles of either mesh the other crosses, after a bounds rejection. */
 function crossings(a: IAutoMovieMesh, b: IAutoMovieMesh): number {
-  const bounds: (mesh: IAutoMovieMesh) => { low: number[]; high: number[] } = (mesh: IAutoMovieMesh): { low: number[]; high: number[] } => {
+  const bounds: (mesh: IAutoMovieMesh) => { low: number[]; high: number[] } = (
+    mesh: IAutoMovieMesh,
+  ): { low: number[]; high: number[] } => {
     const low: number[] = [Infinity, Infinity, Infinity];
     const high: number[] = [-Infinity, -Infinity, -Infinity];
     for (let at: number = 0; at < mesh.positions.length; at += 3)
@@ -160,7 +215,8 @@ function crossings(a: IAutoMovieMesh, b: IAutoMovieMesh): number {
   const q: ReturnType<typeof bounds> = bounds(b);
   if (
     [0, 1, 2].some(
-      (axis: number): boolean => p.high[axis] < q.low[axis] || p.low[axis] > q.high[axis],
+      (axis: number): boolean =>
+        p.high[axis] < q.low[axis] || p.low[axis] > q.high[axis],
     )
   )
     return 0;

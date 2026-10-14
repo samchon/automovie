@@ -24,7 +24,8 @@ export function orientHumanBodyMeasurement(
   rule: IAutoMovieHumanBodyMeasurement,
   side: AutoMovieHumanBodySide,
 ): IAutoMovieHumanBodyMeasurement {
-  const own: ReturnType<typeof humanBodyMeasurementSide> = humanBodyMeasurementSide(rule);
+  const own: ReturnType<typeof humanBodyMeasurementSide> =
+    humanBodyMeasurementSide(rule);
   if (own === side) return rule;
   if (own === "midline" || own === "bilateral")
     throw new Error(`The ${own} measurement ${label} has no ${side} side.`);
@@ -39,7 +40,9 @@ export function orientHumanBodyMeasurement(
             ? name.slice(0, -"-right".length) + "-left"
             : name;
   // humanoid bones pair by a left/right prefix (leftFoot, rightFoot)
-  const mirrorBone: (bone: AutoMovieHumanoidBone) => AutoMovieHumanoidBone = (bone: AutoMovieHumanoidBone): AutoMovieHumanoidBone =>
+  const mirrorBone: (bone: AutoMovieHumanoidBone) => AutoMovieHumanoidBone = (
+    bone: AutoMovieHumanoidBone,
+  ): AutoMovieHumanoidBone =>
     (bone.startsWith("left")
       ? "right" + bone.slice("left".length)
       : bone.startsWith("right")

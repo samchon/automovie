@@ -42,21 +42,33 @@ export function updateHumanBodySimpleJacobian(
   step: readonly number[],
   delta: readonly number[],
 ): number[][] {
-  const length: number = step.reduce((sum: number, value: number): number => sum + value * value, 0);
+  const length: number = step.reduce(
+    (sum: number, value: number): number => sum + value * value,
+    0,
+  );
   const rescale: boolean = length < MINIMUM_NORMAL || !Number.isFinite(length);
   if (rescale) {
     const largest: number = step.reduce(
-      (maximum: number, value: number): number => Math.max(maximum, Math.abs(value)),
+      (maximum: number, value: number): number =>
+        Math.max(maximum, Math.abs(value)),
       0,
     );
     if (largest === 0)
       throw new Error("A Jacobian secant update needs a nonzero step.");
   }
   const rows: number[][] = delta.map((value: number, row: number): number[] => {
-    const products: number[] = columns.map((column: readonly number[], index: number): number => column[row] * step[index]);
-    const predicted: number = products.reduce((sum: number, product: number): number => sum + product, 0);
+    const products: number[] = columns.map(
+      (column: readonly number[], index: number): number =>
+        column[row] * step[index],
+    );
+    const predicted: number = products.reduce(
+      (sum: number, product: number): number => sum + product,
+      0,
+    );
     const error: number = value - predicted;
-    const corrections: number[] = step.map((component: number): number => (error * component) / length);
+    const corrections: number[] = step.map(
+      (component: number): number => (error * component) / length,
+    );
     const exceptional: boolean =
       rescale ||
       !Number.isFinite(error) ||
@@ -77,9 +89,14 @@ export function updateHumanBodySimpleJacobian(
       );
     return exceptional
       ? exactSecantRow(columns, step, value, row)
-      : columns.map((column: readonly number[], index: number): number => column[row] + corrections[index]);
+      : columns.map(
+          (column: readonly number[], index: number): number =>
+            column[row] + corrections[index],
+        );
   });
-  return columns.map((_column: readonly number[], index: number): number[] => rows.map((row: number[]): number => row[index]));
+  return columns.map((_column: readonly number[], index: number): number[] =>
+    rows.map((row: number[]): number => row[index]),
+  );
 }
 
 /**
@@ -96,20 +113,34 @@ function exactSecantRow(
   row: number,
 ): number[] {
   const direction: bigint[] = step.map(binaryInteger);
-  const norm: bigint = direction.reduce((sum: bigint, value: bigint): bigint => sum + value * value, 0n);
-  const previous: bigint[] = columns.map((column: readonly number[]): bigint => binaryInteger(column[row]));
+  const norm: bigint = direction.reduce(
+    (sum: bigint, value: bigint): bigint => sum + value * value,
+    0n,
+  );
+  const previous: bigint[] = columns.map((column: readonly number[]): bigint =>
+    binaryInteger(column[row]),
+  );
   const error: bigint =
     (binaryInteger(delta) << 1074n) -
-    previous.reduce((sum: bigint, value: bigint, index: number): bigint => sum + value * direction[index], 0n);
+    previous.reduce(
+      (sum: bigint, value: bigint, index: number): bigint =>
+        sum + value * direction[index],
+      0n,
+    );
   return previous.map((value: bigint, index: number): number =>
     direction[index] === 0n
       ? columns[index][row]
-      : HumanBinary64Arithmetic.numberAt(value * norm + error * direction[index], norm, -1074),
+      : HumanBinary64Arithmetic.numberAt(
+          value * norm + error * direction[index],
+          norm,
+          -1074,
+        ),
   );
 }
 
 /** Read a finite binary64 value as its exact signed integer multiple of 2^-1074. */
 function binaryInteger(value: number): bigint {
-  const [mantissa, exponent]: [bigint, number] = HumanBinary64Arithmetic.dyadic(value);
+  const [mantissa, exponent]: [bigint, number] =
+    HumanBinary64Arithmetic.dyadic(value);
   return mantissa << BigInt(exponent + 1074);
 }

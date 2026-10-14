@@ -28,18 +28,21 @@ export function assertHumanBodySimpleValues(
   shape: Record<string, number>,
   unknowns: IHumanBodySimpleUnknown[],
 ): void {
-  const reader: ReturnType<typeof createHumanBodyMeasurementReader> = createHumanBodyMeasurementReader(basis, shape);
-  const misses: string[] = unknowns.flatMap((unknown: IHumanBodySimpleUnknown): string[] => {
-    const value: number | null = unknown.read(reader, shape);
-    return value !== null &&
-      Math.abs(value - unknown.target) <= unknown.tolerance
-      ? []
-      : [
-          `${unknown.name} ${unknown.target} reads ${
-            value === null ? "nothing" : value.toFixed(4)
-          }`,
-        ];
-  });
+  const reader: ReturnType<typeof createHumanBodyMeasurementReader> =
+    createHumanBodyMeasurementReader(basis, shape);
+  const misses: string[] = unknowns.flatMap(
+    (unknown: IHumanBodySimpleUnknown): string[] => {
+      const value: number | null = unknown.read(reader, shape);
+      return value !== null &&
+        Math.abs(value - unknown.target) <= unknown.tolerance
+        ? []
+        : [
+            `${unknown.name} ${unknown.target} reads ${
+              value === null ? "nothing" : value.toFixed(4)
+            }`,
+          ];
+    },
+  );
   if (misses.length > 0)
     throw new Error(
       `These simple values cannot hold together on this basis: ${misses.join(", ")}.`,

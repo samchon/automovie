@@ -120,10 +120,14 @@ export function expandHumanBodySimpleShape(
   }
   const targetChannels: Set<string> = new Set(
     collectHumanBodyExteriorRequests(anatomy).map(
-      (request: ReturnType<typeof collectHumanBodyExteriorRequests>[number]): string => request.binding.channel,
+      (
+        request: ReturnType<typeof collectHumanBodyExteriorRequests>[number],
+      ): string => request.binding.channel,
     ),
   );
-  const effectiveTrial: (trial: Record<string, number>) => Record<string, number> = (
+  const effectiveTrial: (
+    trial: Record<string, number>,
+  ) => Record<string, number> = (
     trial: Record<string, number>,
   ): Record<string, number> => {
     if (anatomy === undefined) return trial;
@@ -152,10 +156,19 @@ export function expandHumanBodySimpleShape(
   ] as const)
     if (simple[name] === undefined)
       throw new Error(`A simple body needs its ${name}.`);
-  const channels: Map<string, IAutoMovieHumanBodyBasis["channels"][number]> = new Map(
-    basis.channels.map((channel: IAutoMovieHumanBodyBasis["channels"][number]): [string, IAutoMovieHumanBodyBasis["channels"][number]] => [channel.id, channel]),
-  );
-  const parameters: ReturnType<typeof math.parameters> = math.parameters(simple);
+  const channels: Map<string, IAutoMovieHumanBodyBasis["channels"][number]> =
+    new Map(
+      basis.channels.map(
+        (
+          channel: IAutoMovieHumanBodyBasis["channels"][number],
+        ): [string, IAutoMovieHumanBodyBasis["channels"][number]] => [
+          channel.id,
+          channel,
+        ],
+      ),
+    );
+  const parameters: ReturnType<typeof math.parameters> =
+    math.parameters(simple);
   // the rows naming a channel are summed first and the sum saturated once:
   // saturating after each row would let a row past the envelope lose the
   // part a later row on the same channel takes back, and the projection
@@ -170,7 +183,8 @@ export function expandHumanBodySimpleShape(
       );
   const shape: Record<string, number> = {};
   for (const [id, sum] of sums) {
-    const channel: IAutoMovieHumanBodyBasis["channels"][number] = channels.get(id)!;
+    const channel: IAutoMovieHumanBodyBasis["channels"][number] =
+      channels.get(id)!;
     if (
       wholeBasis !== undefined &&
       Object.values(table.identity).includes(id) &&
@@ -181,7 +195,13 @@ export function expandHumanBodySimpleShape(
       );
     shape[id] = Math.min(channel.maximum, Math.max(channel.minimum, sum));
   }
-  const solve: (along: ReturnType<typeof direction.alone>, target: number, read: (trial: Record<string, number>) => number | null, what: string, saturate?: boolean) => void = (
+  const solve: (
+    along: ReturnType<typeof direction.alone>,
+    target: number,
+    read: (trial: Record<string, number>) => number | null,
+    what: string,
+    saturate?: boolean,
+  ) => void = (
     along: ReturnType<typeof direction.alone>,
     target: number,
     read: (trial: Record<string, number>) => number | null,
@@ -194,12 +214,16 @@ export function expandHumanBodySimpleShape(
     );
   };
   const stature: string = table.solved.stature;
-  const statureChannel: IAutoMovieHumanBodyBasis["channels"][number] | undefined = channels.get(stature);
+  const statureChannel:
+    | IAutoMovieHumanBodyBasis["channels"][number]
+    | undefined = channels.get(stature);
   if (statureChannel === undefined)
     throw new Error("A simple body needs the stature channel " + stature + ".");
   // the stature channel inverted against the whole person's actual stature
   const matchStature: () => void = (): void => {
-    const worn: (weight: number) => Record<string, number> = (weight: number): Record<string, number> => {
+    const worn: (weight: number) => Record<string, number> = (
+      weight: number,
+    ): Record<string, number> => {
       const trial: Record<string, number> = { ...shape };
       if (weight === 0) delete trial[stature];
       else trial[stature] = weight;
@@ -209,7 +233,8 @@ export function expandHumanBodySimpleShape(
       range: [statureChannel.minimum, statureChannel.maximum],
       current: shape[stature] ?? 0,
       targetMetres: simple.statureMetres,
-      read: (weight: number): number => whole.stature(effectiveTrial(worn(weight))),
+      read: (weight: number): number =>
+        whole.stature(effectiveTrial(worn(weight))),
       label: "stature",
     }).weight;
     if (shape[stature] === 0) delete shape[stature];
@@ -222,7 +247,10 @@ export function expandHumanBodySimpleShape(
   // saturate a target outside that transient body's reach; the pass after
   // convergence is strict, and the final stature reading is inverted on the
   // body after its mass and tape weights have settled.
-  const statureAlong: ReturnType<typeof direction.alone> = direction.alone(basis, stature);
+  const statureAlong: ReturnType<typeof direction.alone> = direction.alone(
+    basis,
+    stature,
+  );
   const pass: (saturate: boolean) => number = (saturate: boolean): number => {
     const before: Record<string, number> = { ...shape };
     for (const entry of table.measurements) {
@@ -231,7 +259,8 @@ export function expandHumanBodySimpleShape(
       solve(
         direction.alone(basis, entry.channel),
         target,
-        (trial: Record<string, number>): number | null => measure.channel(basis, effectiveTrial(trial), entry.channel),
+        (trial: Record<string, number>): number | null =>
+          measure.channel(basis, effectiveTrial(trial), entry.channel),
         entry.parameter,
         saturate,
       );
@@ -239,14 +268,16 @@ export function expandHumanBodySimpleShape(
     solve(
       direction.mass(basis, parameters),
       simple.massKilograms,
-      (trial: Record<string, number>): number => measure.mass(whole.volume(effectiveTrial(trial)), density),
+      (trial: Record<string, number>): number =>
+        measure.mass(whole.volume(effectiveTrial(trial)), density),
       "mass",
       saturate,
     );
     solve(
       statureAlong,
       simple.statureMetres,
-      (trial: Record<string, number>): number => whole.stature(effectiveTrial(trial)),
+      (trial: Record<string, number>): number =>
+        whole.stature(effectiveTrial(trial)),
       "stature",
       saturate,
     );
@@ -259,27 +290,34 @@ export function expandHumanBodySimpleShape(
   let round: number = 0;
   for (; round < ROUNDS; round++) if (pass(true) < CONVERGENCE) break;
   const unknowns: IHumanBodySimpleUnknown[] = [
-    ...table.measurements.flatMap((entry: (typeof table.measurements)[number]): IHumanBodySimpleUnknown[] => {
-      const target: number | undefined = simple[entry.parameter];
-      return target === undefined
-        ? []
-        : [
-            {
-              name: entry.parameter,
-              tolerance: TAPE_TOLERANCE_METRES,
-              along: direction.alone(basis, entry.channel),
-              target,
-              read: (reader: Reader, trial: Record<string, number>): number | null =>
-                anatomy === undefined
-                  ? humanBodySimpleChannel(reader, entry.channel)
-                  : measure.channel(
-                      basis,
-                      effectiveTrial(trial),
-                      entry.channel,
-                    ),
-            },
-          ];
-    }),
+    ...table.measurements.flatMap(
+      (
+        entry: (typeof table.measurements)[number],
+      ): IHumanBodySimpleUnknown[] => {
+        const target: number | undefined = simple[entry.parameter];
+        return target === undefined
+          ? []
+          : [
+              {
+                name: entry.parameter,
+                tolerance: TAPE_TOLERANCE_METRES,
+                along: direction.alone(basis, entry.channel),
+                target,
+                read: (
+                  reader: Reader,
+                  trial: Record<string, number>,
+                ): number | null =>
+                  anatomy === undefined
+                    ? humanBodySimpleChannel(reader, entry.channel)
+                    : measure.channel(
+                        basis,
+                        effectiveTrial(trial),
+                        entry.channel,
+                      ),
+              },
+            ];
+      },
+    ),
     {
       name: "massKilograms",
       tolerance: MASS_TOLERANCE_KILOGRAMS,
@@ -297,14 +335,20 @@ export function expandHumanBodySimpleShape(
         whole.stature(effectiveTrial(trial)),
     },
   ];
-  const together: Record<string, number> | null = solveHumanBodySimpleCoupling(basis, shape, unknowns);
+  const together: Record<string, number> | null = solveHumanBodySimpleCoupling(
+    basis,
+    shape,
+    unknowns,
+  );
   if (together === null) {
     for (; round < PASSES; round++) if (pass(true) < CONVERGENCE) break;
     pass(false);
   } else Object.assign(shape, together);
   matchStature();
   assertHumanBodySimpleValues(basis, shape, unknowns);
-  const canonical: (effective: Record<string, number>) => Record<string, number> = (
+  const canonical: (
+    effective: Record<string, number>,
+  ) => Record<string, number> = (
     effective: Record<string, number>,
   ): Record<string, number> => {
     if (anatomy === undefined) return effective;
@@ -325,13 +369,23 @@ export function expandHumanBodySimpleShape(
       whole,
       over,
       table.measurements
-        .map((entry: (typeof table.measurements)[number]): (typeof table.measurements)[number]["parameter"] => entry.parameter)
-        .filter((parameter: (typeof table.measurements)[number]["parameter"]): boolean => simple[parameter] !== undefined),
+        .map(
+          (
+            entry: (typeof table.measurements)[number],
+          ): (typeof table.measurements)[number]["parameter"] =>
+            entry.parameter,
+        )
+        .filter(
+          (
+            parameter: (typeof table.measurements)[number]["parameter"],
+          ): boolean => simple[parameter] !== undefined,
+        ),
     ),
   );
   const result: Record<string, number> = { ...over };
   for (const id of new Set([...Object.keys(shape), ...Object.keys(origin)])) {
-    const channel: IAutoMovieHumanBodyBasis["channels"][number] = channels.get(id)!;
+    const channel: IAutoMovieHumanBodyBasis["channels"][number] =
+      channels.get(id)!;
     const value: number = Math.min(
       channel.maximum,
       Math.max(
@@ -349,7 +403,8 @@ export function expandHumanBodySimpleShape(
   // kept, a body already inside its budgets is returned unchanged, and a
   // request the residue makes unreachable is refused rather than answered
   // with a compromise.
-  const final: Record<string, number> = solveHumanBodySimpleCoupling(basis, result, unknowns) ?? result;
+  const final: Record<string, number> =
+    solveHumanBodySimpleCoupling(basis, result, unknowns) ?? result;
   assertHumanBodySimpleValues(basis, final, unknowns);
   return canonical(final);
 }
