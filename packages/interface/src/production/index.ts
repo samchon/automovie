@@ -32,8 +32,6 @@ export * from "./IAutoMovieFormationMotionState";
 export * from "./IAutoMovieFormationSlot";
 export * from "./IAutoMovieFormationSlotMotion";
 export * from "./IAutoMovieFormationSlotState";
-export * from "./IAutoMovieGeneratedFile";
-export * from "./IAutoMovieGeneratedManifest";
 export * from "./IAutoMovieInstanceChunk";
 export * from "./IAutoMovieInstanceSlot";
 export * from "./IAutoMovieProductionAudioProbe";
