@@ -5,10 +5,7 @@
  * serving four floors states four. Stops are matched exactly rather than
  * through containment, the rule the environment's own connector query follows.
  *
- * The stops are the connector's `from`, every landing space and `to`,
- * deduplicated and sorted by `compareAutoMovieRenderIds`. `building` is the one
- * building unit those stops resolve to: stops that resolve to no unit are
- * ignored, and stops in two different units give `null`.
+ * Stops are from, every landing space and to, deduplicated and sorted by compareAutoMovieRenderIds. Validated spaces each resolve to a building; exactly one distinct unit yields that id and multiple units yield null. The ownership query throws for undeclared or unowned spaces rather than ignoring them, and the stop list does not prove route traversal or point containment.
  *
  * @evidence contracts/common.md#principled-implementation `deriveAutoMovieDrawingSchedule` collects `from`, the landing spaces and `to` into a set, sorts it, and resolves each stop with `builtEnvironmentBuildingOfSpace`, answering a unit only when exactly one distinct unit remains.
  * @evidence contracts/common.md#clear-and-simple-design The place is one arm of the schedule's place union, discriminated by `kind`, and holds only the stop list and the derived unit, so a connector row needs no geometry to say where it is.
@@ -21,8 +18,7 @@ export interface IAutoMovieDrawingConnectorPlace {
   kind: "connector";
 
   /**
-   * Building unit that owns the stops, or `null` when none resolves to a unit
-   * or they resolve to two different units.
+   * The single building unit owning all stops, or null when stops span different units. The validated nonempty stop set has no unowned-space fallback.
    */
   building: string | null;
 
