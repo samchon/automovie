@@ -6,11 +6,11 @@ import path from "node:path";
 import { readPlaygroundViewerPublishedSource } from "./readPlaygroundViewerPublishedSource.js";
 
 /**
- * Bind the normal Playground's source witness to this checkout's maintained source, package outputs/assets, public files, HTML entries and configuration. Maintained membership follows tracked/untracked Git files outside ignored output; emitted/data roots are separately walked. Source edits do not prove linked emitted output was rebuilt.
+ * Bind the normal Playground's source witness to this checkout's maintained source, Human browser output, package assets, public files, HTML entries and configuration. Workspace exports consume maintained source except Human's browser condition, which consumes lib/browser. Maintained membership follows tracked/untracked Git files outside ignored output; consumed emitted/data roots are separately walked. Source edits do not prove Human browser output was rebuilt.
  *
  * Human's publication lock is an explicit watched input and refuses new candidates while the host retains its current page. Manifests/lockfile identify declared dependencies, not every installed SDK file. External caller-owned source-URL payloads and transformed browser responses lie outside this disk scope; hardware frame acceptance is separate and this receipt proves no model health.
  *
- * @evidence contracts/common.md#principled-implementation Canonical maintained-file discovery and disk byte/membership reading cover the actual declared source/output/data lanes, while the existing publication guard excludes supported Human publication transactions.
+ * @evidence contracts/common.md#principled-implementation Canonical maintained-file discovery and disk byte/membership reading cover workspace source exports, Human browser exports and declared assets, while the existing publication guard excludes supported Human publication transactions.
  * @evidence contracts/common.md#clear-and-simple-design One witness supplies current/refresh/watched paths to the retained host; producer lock ownership, Vite watching and completed-page admission remain separate owners.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Git ignores do not hide separately declared emitted/data roots, source freshness does not certify rebuilt output and outside-scope SDK/network/transformed response bytes remain unclaimed.
  * @evidence contracts/common.md#meaningful-documentation The comment names membership provenance, declared lanes, publication exclusion and the limits of checkout-disk certification.
@@ -45,10 +45,9 @@ export function createPlaygroundViewerSource(
       root,
       directories: [
         path.join(playground, "public"),
-        ...packages.flatMap((name: string): string[] =>
-          ["lib", "assets"].map((lane: string): string =>
-            path.join(root, "packages", name, lane),
-          ),
+        path.join(root, "packages/human/lib/browser"),
+        ...packages.map((name: string): string =>
+          path.join(root, "packages", name, "assets"),
         ),
       ],
       files: (): string[] => [
