@@ -3,9 +3,9 @@ import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
 import { nclose, throwsError } from "../internal/predicates";
+import { test12ValuesClose } from "../internal/test12ValuesClose";
 import { tourData } from "../internal/websiteTourFixture";
 import { tourSceneFixture } from "../internal/websiteTourSceneFixture";
-import { test12ValuesClose } from "../internal/test12ValuesClose";
 
 /**
  * Native temple images keep their declared transforms beneath any site mount.
@@ -57,11 +57,13 @@ export async function test_website_tour_temple_scene(): Promise<void> {
   ]);
   TestValidator.predicate(
     "authored transform",
-    test12ValuesClose([f.textures[1]!.offset.toArray(), f.textures[1]!.repeat.toArray()],
-    [
-      [0.2, 0.3],
-      [2, 3],
-    ]),
+    test12ValuesClose(
+      [f.textures[1]!.offset.toArray(), f.textures[1]!.repeat.toArray()],
+      [
+        [0.2, 0.3],
+        [2, 3],
+      ],
+    ),
   );
   TestValidator.predicate(
     "rotation converted to radians",
@@ -76,8 +78,12 @@ export async function test_website_tour_temple_scene(): Promise<void> {
   );
   let geometryDisposed: number = 0,
     textureDisposed: number = 0;
-  f.mesh.geometry.addEventListener("dispose", (): void => { geometryDisposed++; });
-  f.textures[0]!.addEventListener("dispose", (): void => { textureDisposed++; });
+  f.mesh.geometry.addEventListener("dispose", (): void => {
+    geometryDisposed++;
+  });
+  f.textures[0]!.addEventListener("dispose", (): void => {
+    textureDisposed++;
+  });
   loaded.dispose();
   TestValidator.equals(
     "owned resources released",
@@ -96,6 +102,9 @@ export async function test_website_tour_temple_scene(): Promise<void> {
   ])
     TestValidator.predicate(
       "invalid asset namespace",
-      throwsError((): string => textureUrl(invalid, "https://example.org/"), "Invalid production texture:"),
+      throwsError(
+        (): string => textureUrl(invalid, "https://example.org/"),
+        "Invalid production texture:",
+      ),
     );
 }

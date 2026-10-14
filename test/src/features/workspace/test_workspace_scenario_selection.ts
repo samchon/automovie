@@ -83,7 +83,11 @@ export async function test_workspace_scenario_selection(): Promise<void> {
     );
   }
 
-  const names: string[] = ["test_alpha.ts", "test_alpha_slow.ts", "test_beta.ts"];
+  const names: string[] = [
+    "test_alpha.ts",
+    "test_alpha_slow.ts",
+    "test_beta.ts",
+  ];
   TestValidator.equals(
     "default retains all",
     [...selectScenarioNames(parseScenarioSelection([]), names)],
@@ -123,12 +127,13 @@ export async function test_workspace_scenario_selection(): Promise<void> {
     );
   }
   const admitted: boolean[] = [];
-  const filter: Awaited<ReturnType<typeof prepareScenarioFilter>> = await prepareScenarioFilter(
-    ["--include=alpha", "--exclude=slow"],
-    async (probe: (name: string) => boolean): Promise<void> => {
-      for (const name of names) admitted.push(probe(name));
-    },
-  );
+  const filter: Awaited<ReturnType<typeof prepareScenarioFilter>> =
+    await prepareScenarioFilter(
+      ["--include=alpha", "--exclude=slow"],
+      async (probe: (name: string) => boolean): Promise<void> => {
+        for (const name of names) admitted.push(probe(name));
+      },
+    );
   TestValidator.equals(
     "discovery admits no module",
     admitted,

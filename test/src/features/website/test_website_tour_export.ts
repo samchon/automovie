@@ -1,3 +1,4 @@
+import type { TourView } from "@automovie/website/tour-data";
 import {
   type AncientSource,
   type FutureSource,
@@ -8,7 +9,6 @@ import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../internal/predicates";
 import { test12ValuesClose } from "../internal/test12ValuesClose";
-import type { TourView } from "@automovie/website/tour-data";
 
 /**
  * Public camera choices come from native poses, preserving their lens and metres.
@@ -41,40 +41,53 @@ export function test_website_tour_export(): void {
       { id: "section", group: "space", position: p, target: t, view: {} },
     ],
   };
-  const temple: ReturnType<typeof exportTourData> = exportTourData({ building: "ancient", native: ancient });
+  const temple: ReturnType<typeof exportTourData> = exportTourData({
+    building: "ancient",
+    native: ancient,
+  });
   TestValidator.predicate(
     "temple native eyes",
-    test12ValuesClose(temple.views.map((v: TourView): [string, string, TourView["position"], TourView["target"], number, number, number] => [
-      v.id,
-      v.group,
-      v.position,
-      v.target,
-      v.fov,
-      v.near,
-      v.far,
-    ]),
-    [
-      ["exterior.setting", "Exterior", [1, 2, 3], [4, 5, 6], 50, 0.05, 400],
-      ["room.center", "Reading Room", [1, 2, 3], [4, 5, 6], 50, 0.05, 400],
-    ]),
+    test12ValuesClose(
+      temple.views.map(
+        (
+          v: TourView,
+        ): [
+          string,
+          string,
+          TourView["position"],
+          TourView["target"],
+          number,
+          number,
+          number,
+        ] => [v.id, v.group, v.position, v.target, v.fov, v.near, v.far],
+      ),
+      [
+        ["exterior.setting", "Exterior", [1, 2, 3], [4, 5, 6], 50, 0.05, 400],
+        ["room.center", "Reading Room", [1, 2, 3], [4, 5, 6], 50, 0.05, 400],
+      ],
+    ),
   );
   TestValidator.predicate("native source kept", temple.native === ancient);
   TestValidator.predicate(
     "missing authored default refuses export",
-    throwsError((): ReturnType<typeof exportTourData> =>
-      exportTourData({
-        building: "ancient",
-        native: { ...ancient, observations: [] },
-      }), "The building's 3D data is incomplete",
+    throwsError(
+      (): ReturnType<typeof exportTourData> =>
+        exportTourData({
+          building: "ancient",
+          native: { ...ancient, observations: [] },
+        }),
+      "The building's 3D data is incomplete",
     ),
   );
   TestValidator.predicate(
     "usable room without authored default refuses export",
-    throwsError((): ReturnType<typeof exportTourData> =>
-      exportTourData({
-        building: "ancient",
-        native: { ...ancient, observations: [ancient.observations[0]!] },
-      }), "The building's 3D data is incomplete",
+    throwsError(
+      (): ReturnType<typeof exportTourData> =>
+        exportTourData({
+          building: "ancient",
+          native: { ...ancient, observations: [ancient.observations[0]!] },
+        }),
+      "The building's 3D data is incomplete",
     ),
   );
   const modern: ModernSource = {
@@ -95,20 +108,39 @@ export function test_website_tour_export(): void {
       }),
     ),
   };
-  const house: ReturnType<typeof exportTourData> = exportTourData({ building: "modern", native: modern });
+  const house: ReturnType<typeof exportTourData> = exportTourData({
+    building: "modern",
+    native: modern,
+  });
   TestValidator.predicate(
     "native modern lens",
-    test12ValuesClose(house.views.map((v: TourView): [string, TourView["position"], number, number, number] => [v.id, v.position, v.fov, v.near, v.far]),
-    [
-      ["exterior", [7, 8, 9], 45, 0.1, 300],
-      ...["lounge.center", "living-room/center-x-minus", "door"].map((id: string): [string, TourView["position"], number, number, number] => [
-        id,
-        [2, 3, 4] as [number, number, number],
-        60,
-        0.05,
-        300,
-      ]),
-    ]),
+    test12ValuesClose(
+      house.views.map(
+        (
+          v: TourView,
+        ): [string, TourView["position"], number, number, number] => [
+          v.id,
+          v.position,
+          v.fov,
+          v.near,
+          v.far,
+        ],
+      ),
+      [
+        ["exterior", [7, 8, 9], 45, 0.1, 300],
+        ...["lounge.center", "living-room/center-x-minus", "door"].map(
+          (
+            id: string,
+          ): [string, TourView["position"], number, number, number] => [
+            id,
+            [2, 3, 4] as [number, number, number],
+            60,
+            0.05,
+            300,
+          ],
+        ),
+      ],
+    ),
   );
   TestValidator.equals(
     "room namespaces",
@@ -146,13 +178,14 @@ export function test_website_tour_export(): void {
   };
   TestValidator.predicate(
     "future usable native poses",
-    test12ValuesClose(exportTourData({ building: "future", native: future }).views.map((v: TourView): [string, number] => [
-      v.id,
-      v.fov,
-    ]),
-    [
-      ["references/01-exterior", 50],
-      ["common-room/center", 55],
-    ]),
+    test12ValuesClose(
+      exportTourData({ building: "future", native: future }).views.map(
+        (v: TourView): [string, number] => [v.id, v.fov],
+      ),
+      [
+        ["references/01-exterior", 50],
+        ["common-room/center", 55],
+      ],
+    ),
   );
 }

@@ -27,8 +27,11 @@ export function test_workspace_scenario_execution_budget(): void {
         started_at: "2026-09-07T00:00:00.000Z",
         completed_at: new Date(Date.UTC(2026, 8, 7) + elapsedMs).toISOString(),
       };
-      const snapshot: Parameters<typeof assessScenarioExecution>[0] = { ...execution };
-      const result: ReturnType<typeof assessScenarioExecution> = assessScenarioExecution(execution);
+      const snapshot: Parameters<typeof assessScenarioExecution>[0] = {
+        ...execution,
+      };
+      const result: ReturnType<typeof assessScenarioExecution> =
+        assessScenarioExecution(execution);
       const title: string = `${elapsedMs} ms with ${error === null ? "success" : "an assertion failure"}`;
       TestValidator.equals(`${title}: elapsed`, result.elapsedMs, elapsedMs);
       TestValidator.equals(
@@ -54,12 +57,13 @@ export function test_workspace_scenario_execution_budget(): void {
       );
       TestValidator.equals(`${title}: input is unchanged`, execution, snapshot);
     }
-  const offset: ReturnType<typeof assessScenarioExecution> = assessScenarioExecution({
-    name: "test_equal_instants",
-    error: null,
-    started_at: "2026-09-07T00:00:00.000Z",
-    completed_at: "2026-09-07T09:00:00.000+09:00",
-  });
+  const offset: ReturnType<typeof assessScenarioExecution> =
+    assessScenarioExecution({
+      name: "test_equal_instants",
+      error: null,
+      started_at: "2026-09-07T00:00:00.000Z",
+      completed_at: "2026-09-07T09:00:00.000+09:00",
+    });
   TestValidator.equals(
     "equivalent instants do not invent elapsed time",
     [offset.elapsedMs, offset.timingLabel, offset.timingFailure, offset.passed],

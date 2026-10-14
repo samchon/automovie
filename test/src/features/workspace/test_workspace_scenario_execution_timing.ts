@@ -37,7 +37,8 @@ export function test_workspace_scenario_execution_timing(): void {
         started_at,
         completed_at,
       };
-      const result: ReturnType<typeof assessScenarioExecution> = assessScenarioExecution(execution);
+      const result: ReturnType<typeof assessScenarioExecution> =
+        assessScenarioExecution(execution);
       const title: string = `${JSON.stringify(started_at)} -> ${JSON.stringify(completed_at)}`;
       TestValidator.equals(
         `${title}: refuses acceptance`,

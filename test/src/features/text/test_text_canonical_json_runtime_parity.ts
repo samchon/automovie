@@ -41,7 +41,9 @@ import { createHash } from "node:crypto";
  * @evidence contracts/testing.md#execution-ownership Owns synchronous Node-side portable values, Buffers and crypto operations through the runner; the engine and Node hash paths are compared in one runtime, without launching a browser or proving every runtime independently.
  */
 export function test_text_canonical_json_runtime_parity(): void {
-  const nodeDigest: (text: string) => `sha256:${string}` = (text: string): `sha256:${string}` =>
+  const nodeDigest: (text: string) => `sha256:${string}` = (
+    text: string,
+  ): `sha256:${string}` =>
     `sha256:${createHash("sha256").update(Buffer.from(text, "utf8")).digest("hex")}`;
 
   TestValidator.equals(
@@ -93,20 +95,24 @@ export function test_text_canonical_json_runtime_parity(): void {
   ];
   TestValidator.equals(
     "every case is arranged at its intended UTF-8 byte length",
-    cases.map((item: typeof cases[number]): number => Buffer.byteLength(item.text, "utf8")),
-    cases.map((item: typeof cases[number]): number => item.bytes),
+    cases.map((item: (typeof cases)[number]): number =>
+      Buffer.byteLength(item.text, "utf8"),
+    ),
+    cases.map((item: (typeof cases)[number]): number => item.bytes),
   );
   TestValidator.equals(
     "the engine text is the hand-written canonical text",
-    cases.map((item: typeof cases[number]): string => canonicalizeAutoMovieJson(item.value)),
-    cases.map((item: typeof cases[number]): string => item.text),
+    cases.map((item: (typeof cases)[number]): string =>
+      canonicalizeAutoMovieJson(item.value),
+    ),
+    cases.map((item: (typeof cases)[number]): string => item.text),
   );
   TestValidator.equals(
     "the pure engine digest equals node:crypto over the hand-written bytes",
-    cases.map((item: typeof cases[number]): string =>
+    cases.map((item: (typeof cases)[number]): string =>
       autoMovieRenderDigest(canonicalizeAutoMovieJson(item.value)),
     ),
-    cases.map((item: typeof cases[number]): string => nodeDigest(item.text)),
+    cases.map((item: (typeof cases)[number]): string => nodeDigest(item.text)),
   );
 
   TestValidator.equals(
@@ -124,7 +130,9 @@ export function test_text_canonical_json_runtime_parity(): void {
     { text: '{"B":1,"Z":3,"a":2,"ä":4}', omitted: true, changed: false },
   );
 
-  const refusal: (task: () => unknown) => unknown = (task: () => unknown): unknown => {
+  const refusal: (task: () => unknown) => unknown = (
+    task: () => unknown,
+  ): unknown => {
     try {
       task();
       return null;
@@ -132,7 +140,9 @@ export function test_text_canonical_json_runtime_parity(): void {
       return error;
     }
   };
-  const engineRefusal: unknown = refusal((): string => canonicalizeAutoMovieJson(new Date(0)));
+  const engineRefusal: unknown = refusal((): string =>
+    canonicalizeAutoMovieJson(new Date(0)),
+  );
   const scalarRefusal: unknown = refusal((): string =>
     canonicalizeAutoMovieJson(Number.NaN),
   );

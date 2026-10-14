@@ -2,8 +2,8 @@ import { TestValidator } from "@nestia/e2e";
 import { buildScene } from "modern-suburban-house/viewer/scene";
 import * as THREE from "three";
 
-import { modernPayload } from "../internal/websiteTourFixture";
 import { nclose, vclose } from "../internal/predicates";
+import { modernPayload } from "../internal/websiteTourFixture";
 
 /**
  * Extracting the shared native uploader preserves the inspector's calibration rig.
@@ -20,26 +20,44 @@ export function test_website_tour_calibration_lighting(): void {
   const payload: ReturnType<typeof modernPayload> = modernPayload();
   delete payload.physicalLighting;
   const renderer: Parameters<typeof buildScene>[2] = { toneMappingExposure: 0 };
-  const scene: THREE.Scene = buildScene(payload, new Map<string, THREE.Texture>(), renderer);
+  const scene: THREE.Scene = buildScene(
+    payload,
+    new Map<string, THREE.Texture>(),
+    renderer,
+  );
   const sun: THREE.DirectionalLight = scene.children.find(
     (o: THREE.Object3D): boolean => o instanceof THREE.DirectionalLight,
   ) as THREE.DirectionalLight;
   TestValidator.predicate(
     "calibration key distance",
-    nclose(sun.position.distanceTo(
-      new THREE.Vector3(0, Math.SQRT1_2 * 20, Math.SQRT1_2 * 20),
-    ), 0, 1e-10) && sun.position.distanceTo(
-      new THREE.Vector3(0, Math.SQRT1_2 * 20, Math.SQRT1_2 * 20),
-    ) < 1e-10,
+    nclose(
+      sun.position.distanceTo(
+        new THREE.Vector3(0, Math.SQRT1_2 * 20, Math.SQRT1_2 * 20),
+      ),
+      0,
+      1e-10,
+    ) &&
+      sun.position.distanceTo(
+        new THREE.Vector3(0, Math.SQRT1_2 * 20, Math.SQRT1_2 * 20),
+      ) < 1e-10,
   );
-  TestValidator.predicate("calibration exposure", nclose(renderer.toneMappingExposure, 1, 0));
+  TestValidator.predicate(
+    "calibration exposure",
+    nclose(renderer.toneMappingExposure, 1, 0),
+  );
   TestValidator.predicate(
     "hemisphere retained",
-    scene.children.some((o: THREE.Object3D): boolean => o instanceof THREE.HemisphereLight),
+    scene.children.some(
+      (o: THREE.Object3D): boolean => o instanceof THREE.HemisphereLight,
+    ),
   );
   payload.lighting.shadowHalfExtent = 12;
   payload.lighting.keyTarget = [3, 4, 5];
-  const shifted: THREE.DirectionalLight = buildScene(payload, new Map<string, THREE.Texture>(), renderer).children.find(
+  const shifted: THREE.DirectionalLight = buildScene(
+    payload,
+    new Map<string, THREE.Texture>(),
+    renderer,
+  ).children.find(
     (o: THREE.Object3D): boolean => o instanceof THREE.DirectionalLight,
   ) as THREE.DirectionalLight;
   TestValidator.predicate(
@@ -49,6 +67,7 @@ export function test_website_tour_calibration_lighting(): void {
   TestValidator.predicate(
     "explicit extent normalises key",
     nclose(shifted.position.distanceTo(shifted.target.position), 28, 1e-10) &&
-      Math.abs(shifted.position.distanceTo(shifted.target.position) - 28) < 1e-10,
+      Math.abs(shifted.position.distanceTo(shifted.target.position) - 28) <
+        1e-10,
   );
 }

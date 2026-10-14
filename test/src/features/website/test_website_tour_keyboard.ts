@@ -37,11 +37,13 @@ export function test_website_tour_keyboard(): void {
   f.element("#view-search").remove();
   TestValidator.predicate(
     "required page boundary",
-    throwsError((): ReturnType<typeof mountTourUi> =>
-      mountTourUi(f.document, f.data, {
-        collapsed: false,
-        select: (): void => {},
-      }), "Missing tour control: #view-search",
+    throwsError(
+      (): ReturnType<typeof mountTourUi> =>
+        mountTourUi(f.document, f.data, {
+          collapsed: false,
+          select: (): void => {},
+        }),
+      "Missing tour control: #view-search",
     ),
   );
   f.dom.window.close();

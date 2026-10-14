@@ -76,6 +76,14 @@ export function test_template_posix_constants(): void {
       ),
     );
   }
-  TestValidator.equals("fallback preserves the caller's native bag", supplied, original);
-  TestValidator.equals("provider input remains unchanged", provided, expectedProvided);
+  TestValidator.equals(
+    "fallback preserves the caller's native bag",
+    supplied,
+    original,
+  );
+  TestValidator.equals(
+    "provider input remains unchanged",
+    provided,
+    expectedProvided,
+  );
 }

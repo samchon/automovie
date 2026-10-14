@@ -19,7 +19,11 @@ import { nclose, vclose } from "../internal/predicates";
 export function test_website_spectator_translation(): void {
   const camera: THREE.PerspectiveCamera = new THREE.PerspectiveCamera(),
     target: THREE.Vector3 = new THREE.Vector3(0, 0, -10);
-  const axes: Parameters<typeof moveSpectatorCamera>[2] = { forward: 1, right: 0, up: 0 };
+  const axes: Parameters<typeof moveSpectatorCamera>[2] = {
+    forward: 1,
+    right: 0,
+    up: 0,
+  };
   TestValidator.predicate(
     "fast movement",
     moveSpectatorCamera(camera, target, axes, 0.1, false),

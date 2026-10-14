@@ -19,14 +19,19 @@ async function main(): Promise<void> {
     parameters: (): [] => [],
     extension: "ts",
   };
-  const filter: (name: string) => boolean = await prepareScenarioFilter(process.argv.slice(2), (filter: (name: string) => boolean): Promise<DynamicExecutor.IReport> =>
-    DynamicExecutor.validate({ ...discovery, filter }),
+  const filter: (name: string) => boolean = await prepareScenarioFilter(
+    process.argv.slice(2),
+    (filter: (name: string) => boolean): Promise<DynamicExecutor.IReport> =>
+      DynamicExecutor.validate({ ...discovery, filter }),
   );
   const report: DynamicExecutor.IReport = await DynamicExecutor.validate({
     ...discovery,
     onComplete: (exec: DynamicExecutor.IExecution): void => {
-      const result: IScenarioExecutionAssessment = assessScenarioExecution(exec);
-      const mark: string = result.passed ? chalk.green("  ✓") : chalk.red("  ✗");
+      const result: IScenarioExecutionAssessment =
+        assessScenarioExecution(exec);
+      const mark: string = result.passed
+        ? chalk.green("  ✓")
+        : chalk.red("  ✗");
       console.log(
         `${mark} ${exec.name} ${chalk.gray(`(${result.timingLabel})`)}`,
       );
@@ -39,7 +44,10 @@ async function main(): Promise<void> {
 
   const failures: IScenarioExecutionAssessment[] = report.executions
     .map(assessScenarioExecution)
-    .filter((result: IScenarioExecutionAssessment): boolean => result.passed === false);
+    .filter(
+      (result: IScenarioExecutionAssessment): boolean =>
+        result.passed === false,
+    );
   const passed: number = report.executions.length - failures.length;
   console.log("---------------------------------------------------");
   console.log(

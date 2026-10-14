@@ -65,7 +65,8 @@ export function test_text_compare_code_units(): void {
       ["nfcCafeNfdCafe", (): boolean => nfcCafe !== nfdCafe],
       [
         "compareCodeUnitsNfcCafeNfdCafe",
-        (): boolean => nfcCafe !== nfdCafe && compareCodeUnits(nfcCafe, nfdCafe) !== 0,
+        (): boolean =>
+          nfcCafe !== nfdCafe && compareCodeUnits(nfcCafe, nfdCafe) !== 0,
       ],
     ]),
     { nfcCafeNfdCafe: true, compareCodeUnitsNfcCafeNfdCafe: true },

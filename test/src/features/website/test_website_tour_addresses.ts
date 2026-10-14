@@ -35,7 +35,10 @@ export function test_website_tour_addresses(): void {
   ])
     TestValidator.predicate(
       "invalid destination",
-      throwsError((): ReturnType<typeof buildingFromQuery> => buildingFromQuery(query), "Choose a building from the collection"),
+      throwsError(
+        (): ReturnType<typeof buildingFromQuery> => buildingFromQuery(query),
+        "Choose a building from the collection",
+      ),
     );
   const data: ReturnType<typeof tourData> = tourData();
   TestValidator.predicate(
@@ -52,7 +55,10 @@ export function test_website_tour_addresses(): void {
   ])
     TestValidator.predicate(
       "incomplete transport",
-      throwsError((): ReturnType<typeof readTourData> => readTourData(value, "ancient"), "The building's 3D data is incomplete"),
+      throwsError(
+        (): ReturnType<typeof readTourData> => readTourData(value, "ancient"),
+        "The building's 3D data is incomplete",
+      ),
     );
   TestValidator.equals(
     "readable label",

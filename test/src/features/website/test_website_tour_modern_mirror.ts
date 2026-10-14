@@ -3,8 +3,8 @@ import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 import { Reflector } from "three/addons/objects/Reflector.js";
 
-import { modernItem } from "../internal/websiteTourFixture";
 import { nclose } from "../internal/predicates";
+import { modernItem } from "../internal/websiteTourFixture";
 
 /**
  * Mirror rebasing keeps the actual emitted surface in world metres.
@@ -22,10 +22,14 @@ export function test_website_tour_modern_mirror(): void {
   item.faceId = "mirror";
   item.positions = [1, 0, 0, 1, 1, 0, 1, 0, 1];
   item.normals = [1, 0, 0, 1, 0, 0, 1, 0, 0];
-  const mirror: ReturnType<typeof modernMesh> = modernMesh(item, new Map<string, THREE.Texture>());
+  const mirror: ReturnType<typeof modernMesh> = modernMesh(
+    item,
+    new Map<string, THREE.Texture>(),
+  );
   TestValidator.predicate("native mirror", mirror instanceof Reflector);
   mirror.updateMatrixWorld(true);
-  const vertices: THREE.BufferAttribute | THREE.InterleavedBufferAttribute = mirror.geometry.getAttribute("position");
+  const vertices: THREE.BufferAttribute | THREE.InterleavedBufferAttribute =
+    mirror.geometry.getAttribute("position");
   for (let i: number = 0; i < 3; i++) {
     const world: THREE.Vector3 = new THREE.Vector3()
       .fromBufferAttribute(vertices, i)
@@ -35,7 +39,8 @@ export function test_website_tour_modern_mirror(): void {
     ).add(new THREE.Vector3(...item.position));
     TestValidator.predicate(
       "world vertex preserved",
-      nclose(world.distanceTo(expected), 0, 1e-6) && world.distanceTo(expected) < 1e-6,
+      nclose(world.distanceTo(expected), 0, 1e-6) &&
+        world.distanceTo(expected) < 1e-6,
     );
   }
   item.inspectionFace = true;

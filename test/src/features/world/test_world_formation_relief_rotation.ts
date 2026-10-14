@@ -4,7 +4,10 @@ import {
   worldHeightfield,
   worldSurfaceHeight,
 } from "@automovie/engine";
-import { IAutoMovieVector3, IAutoMovieWorldSurface } from "@automovie/interface";
+import {
+  IAutoMovieVector3,
+  IAutoMovieWorldSurface,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts, nclose } from "../internal/predicates";
@@ -34,7 +37,9 @@ const bank: () => IAutoMovieWorldSurface = (): IAutoMovieWorldSurface => ({
 });
 
 /** One rank of three on the origin, turned by a stated heading. */
-const rank: (facingDeg: number) => IAutoMovieFormationPlacement = (facingDeg: number): IAutoMovieFormationPlacement => ({
+const rank: (facingDeg: number) => IAutoMovieFormationPlacement = (
+  facingDeg: number,
+): IAutoMovieFormationPlacement => ({
   id: "rank",
   count: FILES,
   layout: {
@@ -50,10 +55,14 @@ const rank: (facingDeg: number) => IAutoMovieFormationPlacement = (facingDeg: nu
 });
 
 /** Every member's placed position, in slot order. */
-const placed: (facingDeg: number) => IAutoMovieVector3[] = (facingDeg: number): IAutoMovieVector3[] => {
+const placed: (facingDeg: number) => IAutoMovieVector3[] = (
+  facingDeg: number,
+): IAutoMovieVector3[] => {
   const unit: IAutoMovieFormationPlacement = rank(facingDeg);
-  return Array.from({ length: FILES }, (_unused: unknown, slot: number): IAutoMovieVector3 =>
-    formationSlotPosition(unit, slot),
+  return Array.from(
+    { length: FILES },
+    (_unused: unknown, slot: number): IAutoMovieVector3 =>
+      formationSlotPosition(unit, slot),
   );
 };
 
@@ -80,7 +89,8 @@ const slope: () => IAutoMovieWorldSurface = (): IAutoMovieWorldSurface =>
     spacing: { x: LATTICE_PITCH, z: LATTICE_PITCH },
     columns: 2,
     rows: 2,
-    height: (point: { x: number; z: number }): number => point.x * 0.1 + point.z * 0.4 + point.x * point.z * 0.05,
+    height: (point: { x: number; z: number }): number =>
+      point.x * 0.1 + point.z * 0.4 + point.x * point.z * 0.05,
     walkable: true,
   });
 
@@ -90,8 +100,10 @@ const NEAR_RIGHT: number = 1;
 const FAR_LEFT: number = 4;
 const FAR_RIGHT: number = 10;
 
-const heightOf: (x: number, z: number) => number = (x: number, z: number): number =>
-  worldSurfaceHeight(slope(), { x, z });
+const heightOf: (x: number, z: number) => number = (
+  x: number,
+  z: number,
+): number => worldSurfaceHeight(slope(), { x, z });
 
 /**
  * Relief is read where a member really stands, and read across both axes of the
@@ -182,18 +194,22 @@ export function test_world_formation_relief_rotation(): void {
         "nearRight",
         (): boolean => nclose(heightOf(LATTICE_PITCH, 0), NEAR_RIGHT, 1e-12),
       ],
-      ["farLeft", (): boolean => nclose(heightOf(0, LATTICE_PITCH), FAR_LEFT, 1e-12)],
+      [
+        "farLeft",
+        (): boolean => nclose(heightOf(0, LATTICE_PITCH), FAR_LEFT, 1e-12),
+      ],
       [
         "farRight",
-        (): boolean => nclose(heightOf(LATTICE_PITCH, LATTICE_PITCH), FAR_RIGHT, 1e-12),
+        (): boolean =>
+          nclose(heightOf(LATTICE_PITCH, LATTICE_PITCH), FAR_RIGHT, 1e-12),
       ],
       // No two corners agree and the two rows differ, which is what makes the
       // three readings below distinguishable at all.
       [
         "noPalindrome",
         (): boolean =>
-          new Set<number>([NEAR_LEFT, NEAR_RIGHT, FAR_LEFT, FAR_RIGHT]).size === 4 &&
-          NEAR_LEFT + NEAR_RIGHT !== FAR_LEFT + FAR_RIGHT,
+          new Set<number>([NEAR_LEFT, NEAR_RIGHT, FAR_LEFT, FAR_RIGHT]).size ===
+            4 && NEAR_LEFT + NEAR_RIGHT !== FAR_LEFT + FAR_RIGHT,
       ],
       // Bilinear at the centre of the one cell: the near row reads 0.5, the far
       // row reads 7, and the answer is the mean of those.
@@ -255,7 +271,10 @@ export function test_world_formation_relief_rotation(): void {
   TestValidator.equals(
     "a query outside the lattice reads its nearest edge rather than an invention",
     namedFacts([
-      ["beforeBoth", (): boolean => nclose(heightOf(-15, -15), NEAR_LEFT, 1e-12)],
+      [
+        "beforeBoth",
+        (): boolean => nclose(heightOf(-15, -15), NEAR_LEFT, 1e-12),
+      ],
       ["pastBoth", (): boolean => nclose(heightOf(25, 25), FAR_RIGHT, 1e-12)],
       // One axis at a time: clamped in `x`, still interpolated in `z`.
       [

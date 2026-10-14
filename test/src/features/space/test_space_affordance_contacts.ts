@@ -2,8 +2,8 @@ import { Quaternion, affordanceSupportContacts } from "@automovie/engine";
 import {
   IAutoMovieAffordance,
   IAutoMovieQuaternion,
-  IAutoMovieVector3,
   IAutoMovieTransform,
+  IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 

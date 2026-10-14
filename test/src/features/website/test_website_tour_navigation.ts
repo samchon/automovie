@@ -20,7 +20,9 @@ export function test_website_tour_navigation(): void {
     calls: string[] = [];
   const ui: ReturnType<typeof mountTourUi> = mountTourUi(f.document, f.data, {
     collapsed: true,
-    select: (id: string): void => { calls.push(id); },
+    select: (id: string): void => {
+      calls.push(id);
+    },
   });
   TestValidator.predicate(
     "mobile canvas stays open",

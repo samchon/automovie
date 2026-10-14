@@ -1,3 +1,13 @@
+import {
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieSpace,
+  IAutoMovieSurface,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
+import { autoMoviePlanarRegionFailure } from "../../../../packages/engine/src/geometry/autoMoviePlanarRegionFailure";
+import { IAutoMovieFootprint } from "../../../../packages/engine/src/space/IAutoMovieFootprint";
 import { footprintArea } from "../../../../packages/engine/src/space/footprintArea";
 import { footprintContains } from "../../../../packages/engine/src/space/footprintContains";
 import { footprintConvexPieces } from "../../../../packages/engine/src/space/footprintConvexPieces";
@@ -10,14 +20,19 @@ import { spaceGround } from "../../../../packages/engine/src/space/spaceGround";
 import { supportContactsFor } from "../../../../packages/engine/src/space/supportContactsFor";
 import { surfaceContains } from "../../../../packages/engine/src/space/surfaceContains";
 import { surfaceFootprint } from "../../../../packages/engine/src/space/surfaceFootprint";
-import { IAutoMovieBuiltEnvironment, IAutoMovieSpace, IAutoMovieSurface, IAutoMovieVector3 } from "@automovie/interface";
-import { TestValidator } from "@nestia/e2e";
-import { autoMoviePlanarRegionFailure } from "../../../../packages/engine/src/geometry/autoMoviePlanarRegionFailure";
 import { assertFootprintVoidGeometry } from "../internal/assertFootprintVoidGeometry";
 import { createModel } from "../internal/fixtures";
 import { namedFacts, nclose } from "../internal/predicates";
-import { IAutoMovieFootprint } from "../../../../packages/engine/src/space/IAutoMovieFootprint";
-const v: (x: number, z: number, y?: number) => { x: number; y: number; z: number; } = (x: number, z: number, y: number = 0): { x: number; y: number; z: number; } => ({ x, y, z });
+
+const v: (
+  x: number,
+  z: number,
+  y?: number,
+) => { x: number; y: number; z: number } = (
+  x: number,
+  z: number,
+  y: number = 0,
+): { x: number; y: number; z: number } => ({ x, y, z });
 
 /** An 8x8 floor plate with a 4x4 atrium void cut through the middle of it. */
 const plate: IAutoMovieSurface = {
@@ -79,36 +94,39 @@ const relief: IAutoMovieSurface = {
 };
 
 /** A one-room building whose only support patch is the holed plate. */
-const gallery: () => IAutoMovieBuiltEnvironment = (): IAutoMovieBuiltEnvironment => ({
-  version: 1,
-  id: "gallery",
-  units: "meter",
-  buildings: [{ id: "block", element: "root", space: "hall" }],
-  models: [{ ...createModel(null), id: "stone" }],
-  modelReferences: [],
-  elements: [
-    {
-      id: "root",
-      kind: "building",
-      parent: null,
-      transform: {
-        translation: { x: 0, y: 0, z: 0 },
-        rotation: { x: 0, y: 0, z: 0, w: 1 },
-        scale: { x: 1, y: 1, z: 1 },
+const gallery: () => IAutoMovieBuiltEnvironment =
+  (): IAutoMovieBuiltEnvironment => ({
+    version: 1,
+    id: "gallery",
+    units: "meter",
+    buildings: [{ id: "block", element: "root", space: "hall" }],
+    models: [{ ...createModel(null), id: "stone" }],
+    modelReferences: [],
+    elements: [
+      {
+        id: "root",
+        kind: "building",
+        parent: null,
+        transform: {
+          translation: { x: 0, y: 0, z: 0 },
+          rotation: { x: 0, y: 0, z: 0, w: 1 },
+          scale: { x: 1, y: 1, z: 1 },
+        },
+        model: "stone",
+        space: "hall",
       },
-      model: "stone",
-      space: "hall",
-    },
-  ],
-  spaces: [{ id: "hall", kind: "room", parent: null, cells: [] }],
-  boundaries: [],
-  openings: [],
-  connectors: [],
-  surfaces: [{ space: "hall", surface: plate }],
-  walkable: [plate.id],
-});
+    ],
+    spaces: [{ id: "hall", kind: "room", parent: null, cells: [] }],
+    boundaries: [],
+    openings: [],
+    connectors: [],
+    surfaces: [{ space: "hall", surface: plate }],
+    walkable: [plate.id],
+  });
 
-const spaceOf: (surface: IAutoMovieSurface) => IAutoMovieSpace = (surface: IAutoMovieSurface): IAutoMovieSpace => ({
+const spaceOf: (surface: IAutoMovieSurface) => IAutoMovieSpace = (
+  surface: IAutoMovieSurface,
+): IAutoMovieSpace => ({
   id: "set",
   surfaces: [surface],
   walkable: [surface.id],
@@ -118,7 +136,13 @@ const spaceOf: (surface: IAutoMovieSurface) => IAutoMovieSpace = (surface: IAuto
 const pieceArea: (piece: readonly IAutoMovieVector3[]) => number = (
   piece: readonly IAutoMovieVector3[],
 ): number =>
-  Math.abs(footprintRing(piece.map((p: IAutoMovieVector3): { x: number; y: number; z: number; } => v(p.x, p.z))).doubleArea) / 2;
+  Math.abs(
+    footprintRing(
+      piece.map((p: IAutoMovieVector3): { x: number; y: number; z: number } =>
+        v(p.x, p.z),
+      ),
+    ).doubleArea,
+  ) / 2;
 
 /**
  * A support patch is the region its own rings describe, notch and void
@@ -182,10 +206,31 @@ export function test_space_footprint_voids(): void {
   // An admitted dyadic L is three width-by-one rectangles. Normalize its area
   // by width so a broad absolute tolerance cannot hide the positive feature.
   const width: number = 2 ** -32;
-  const thin: IAutoMovieFootprint = surfaceFootprint({ ...ell, polygon: [v(0, 0), v(width, 0), v(width, 1), v(2 * width, 1), v(2 * width, 2), v(0, 2)] });
-  TestValidator.equals("thin positive L is admitted by canonical region hygiene", autoMoviePlanarRegionFailure({ outer: thin.outer.plan }), null);
-  const thinArea: number = footprintConvexPieces(thin).reduce((sum: number, piece: readonly IAutoMovieVector3[]): number => sum + pieceArea(piece), 0);
-  TestValidator.predicate(`convex pieces preserve the independently authored thin L area: measured ${thinArea / width}, expected 3`, nclose(thinArea / width, 3, 1e-12));
+  const thin: IAutoMovieFootprint = surfaceFootprint({
+    ...ell,
+    polygon: [
+      v(0, 0),
+      v(width, 0),
+      v(width, 1),
+      v(2 * width, 1),
+      v(2 * width, 2),
+      v(0, 2),
+    ],
+  });
+  TestValidator.equals(
+    "thin positive L is admitted by canonical region hygiene",
+    autoMoviePlanarRegionFailure({ outer: thin.outer.plan }),
+    null,
+  );
+  const thinArea: number = footprintConvexPieces(thin).reduce(
+    (sum: number, piece: readonly IAutoMovieVector3[]): number =>
+      sum + pieceArea(piece),
+    0,
+  );
+  TestValidator.predicate(
+    `convex pieces preserve the independently authored thin L area: measured ${thinArea / width}, expected 3`,
+    nclose(thinArea / width, 3, 1e-12),
+  );
   const holed: IAutoMovieFootprint = surfaceFootprint(plate);
   const filled: IAutoMovieFootprint = surfaceFootprint(solid);
 
@@ -277,18 +322,30 @@ export function test_space_footprint_voids(): void {
   TestValidator.equals(
     "every query built on containment reads the void as nothing",
     namedFacts([
-      ["heightOverTheArm", (): boolean => nclose(heightAt(holedSpace, 4, 1) ?? NaN, 3, 0)],
+      [
+        "heightOverTheArm",
+        (): boolean => nclose(heightAt(holedSpace, 4, 1) ?? NaN, 3, 0),
+      ],
       ["heightOverTheVoid", (): boolean => heightAt(holedSpace, 4, 4) === null],
       ["walkableOverTheArm", (): boolean => isWalkable(holedSpace, 4, 1)],
-      ["walkableOverTheVoid", (): boolean => isWalkable(holedSpace, 4, 4) === false],
+      [
+        "walkableOverTheVoid",
+        (): boolean => isWalkable(holedSpace, 4, 4) === false,
+      ],
       [
         "onlyTheArmCornersSupport",
         (): boolean =>
           supportContactsFor(holedSpace, [v(4, 1), v(4, 4), v(4, 7)]).length ===
           2,
       ],
-      ["groundOverTheArm", (): boolean => nclose(spaceGround(holedSpace)(4, 1), 3, 0)],
-      ["groundOverTheVoid", (): boolean => nclose(spaceGround(holedSpace, -1)(4, 4), -1, 0)],
+      [
+        "groundOverTheArm",
+        (): boolean => nclose(spaceGround(holedSpace)(4, 1), 3, 0),
+      ],
+      [
+        "groundOverTheVoid",
+        (): boolean => nclose(spaceGround(holedSpace, -1)(4, 4), -1, 0),
+      ],
     ]),
     {
       heightOverTheArm: true,
@@ -311,7 +368,9 @@ export function test_space_footprint_voids(): void {
   );
 
   const holedPieces: IAutoMovieVector3[][] = footprintConvexPieces(holed);
-  const ellPieces: IAutoMovieVector3[][] = footprintConvexPieces(surfaceFootprint(ell));
+  const ellPieces: IAutoMovieVector3[][] = footprintConvexPieces(
+    surfaceFootprint(ell),
+  );
   TestValidator.equals(
     "the convex decomposition is exactly the region, no more and no less",
     namedFacts([
@@ -319,7 +378,11 @@ export function test_space_footprint_voids(): void {
         "holedPiecesSumToTheHoledArea",
         (): boolean =>
           nclose(
-            holedPieces.reduce((sum: number, piece: IAutoMovieVector3[]): number => sum + pieceArea(piece), 0),
+            holedPieces.reduce(
+              (sum: number, piece: IAutoMovieVector3[]): number =>
+                sum + pieceArea(piece),
+              0,
+            ),
             48,
           ),
       ],
@@ -327,7 +390,11 @@ export function test_space_footprint_voids(): void {
         "ellPiecesSumToTheEllArea",
         (): boolean =>
           nclose(
-            ellPieces.reduce((sum: number, piece: IAutoMovieVector3[]): number => sum + pieceArea(piece), 0),
+            ellPieces.reduce(
+              (sum: number, piece: IAutoMovieVector3[]): number =>
+                sum + pieceArea(piece),
+              0,
+            ),
             4 * 2 + 2 * 2,
           ),
       ],
@@ -338,8 +405,16 @@ export function test_space_footprint_voids(): void {
             (piece: IAutoMovieVector3[]): boolean =>
               footprintContains(
                 holed,
-                piece.reduce((sum: number, point: IAutoMovieVector3): number => sum + point.x, 0) / piece.length,
-                piece.reduce((sum: number, point: IAutoMovieVector3): number => sum + point.z, 0) / piece.length,
+                piece.reduce(
+                  (sum: number, point: IAutoMovieVector3): number =>
+                    sum + point.x,
+                  0,
+                ) / piece.length,
+                piece.reduce(
+                  (sum: number, point: IAutoMovieVector3): number =>
+                    sum + point.z,
+                  0,
+                ) / piece.length,
               ) === true,
           ),
       ],
@@ -362,7 +437,8 @@ export function test_space_footprint_voids(): void {
       [
         "holedAnchorIsOnTheSlab",
         (): boolean => {
-          const anchor: { x: number; z: number; } | null = footprintInteriorPoint(holed);
+          const anchor: { x: number; z: number } | null =
+            footprintInteriorPoint(holed);
           return (
             anchor !== null && footprintContains(holed, anchor.x, anchor.z)
           );
@@ -371,7 +447,8 @@ export function test_space_footprint_voids(): void {
       [
         "ellAnchorIsOutOfTheNotch",
         (): boolean => {
-          const anchor: { x: number; z: number; } | null = footprintInteriorPoint(surfaceFootprint(ell));
+          const anchor: { x: number; z: number } | null =
+            footprintInteriorPoint(surfaceFootprint(ell));
           return (
             anchor !== null &&
             footprintContains(surfaceFootprint(ell), anchor.x, anchor.z)
@@ -381,7 +458,8 @@ export function test_space_footprint_voids(): void {
       [
         "aConvexPatchKeepsItsOwnCentre",
         (): boolean => {
-          const anchor: { x: number; z: number; } | null = footprintInteriorPoint(filled);
+          const anchor: { x: number; z: number } | null =
+            footprintInteriorPoint(filled);
           return anchor !== null && nclose(anchor.x, 4) && nclose(anchor.z, 4);
         },
       ],
@@ -414,4 +492,4 @@ export function test_space_footprint_voids(): void {
     spaceOf,
     pieceArea,
   });
-};
+}

@@ -9,7 +9,11 @@ import {
   vclose,
 } from "../internal/predicates";
 
-const v: (x: number, z: number, y?: number) => IAutoMovieVector3 = (x: number, z: number, y: number = 0): IAutoMovieVector3 => ({ x, y, z });
+const v: (x: number, z: number, y?: number) => IAutoMovieVector3 = (
+  x: number,
+  z: number,
+  y: number = 0,
+): IAutoMovieVector3 => ({ x, y, z });
 
 /** A lone 2×2 table top at height 1 over void: nothing else to rest on. */
 const space: IAutoMovieSpace = {
@@ -68,14 +72,19 @@ export function test_space_support_contacts(): void {
   TestValidator.equals("centered box has four contacts", centered.length, 4);
   TestValidator.predicate(
     "contacts sit at the table height",
-    centered.every((contact: IAutoMovieVector3): boolean => nclose(contact.y, 1)),
+    centered.every((contact: IAutoMovieVector3): boolean =>
+      nclose(contact.y, 1),
+    ),
   );
   TestValidator.predicate(
     "contact keeps its plan position",
     vclose(centered[0]!, { x: 0.5, y: 1, z: 0.5 }),
   );
 
-  const onRamp: IAutoMovieVector3[] = supportContactsFor(space, [v(11, 1), v(13, 1)]);
+  const onRamp: IAutoMovieVector3[] = supportContactsFor(space, [
+    v(11, 1),
+    v(13, 1),
+  ]);
   TestValidator.equals(
     "ramp contacts interpolate",
     namedFacts([
@@ -85,11 +94,12 @@ export function test_space_support_contacts(): void {
     { ncloseOnRamp0: true, ncloseOnRamp1: true },
   );
 
-  const stable: ReturnType<typeof detectSupportToppling> = detectSupportToppling({
-    node: "crate",
-    centerOfMass: { x: 1, y: 1.2, z: 1 },
-    support: centered,
-  });
+  const stable: ReturnType<typeof detectSupportToppling> =
+    detectSupportToppling({
+      node: "crate",
+      centerOfMass: { x: 1, y: 1.2, z: 1 },
+      support: centered,
+    });
   TestValidator.equals("centered box is stable", stable.toppling, null);
   TestValidator.equals("stable box validates", stable.validation.success, true);
 
@@ -100,24 +110,29 @@ export function test_space_support_contacts(): void {
     v(1.5, 1.5),
   ]);
   TestValidator.equals("overhanging corners skipped", halfOff.length, 2);
-  const toppling: ReturnType<typeof detectSupportToppling> = detectSupportToppling({
-    node: "crate",
-    centerOfMass: { x: 2, y: 1.2, z: 1 },
-    support: halfOff,
-  });
+  const toppling: ReturnType<typeof detectSupportToppling> =
+    detectSupportToppling({
+      node: "crate",
+      centerOfMass: { x: 2, y: 1.2, z: 1 },
+      support: halfOff,
+    });
   TestValidator.equals(
     "half-off box topples",
     namedFacts([
       ["topplingToppling", (): boolean => toppling.toppling !== null],
       [
         "topplingTopplingOvershoot",
-        (): boolean => toppling.toppling !== null && toppling.toppling.overshoot > 0,
+        (): boolean =>
+          toppling.toppling !== null && toppling.toppling.overshoot > 0,
       ],
     ]),
     { topplingToppling: true, topplingTopplingOvershoot: true },
   );
 
-  const overVoid: IAutoMovieVector3[] = supportContactsFor(space, [v(50, 50), v(51, 50)]);
+  const overVoid: IAutoMovieVector3[] = supportContactsFor(space, [
+    v(50, 50),
+    v(51, 50),
+  ]);
   TestValidator.equals("void footprint has no contacts", overVoid.length, 0);
   TestValidator.predicate(
     "empty support rejected by the topple judge",

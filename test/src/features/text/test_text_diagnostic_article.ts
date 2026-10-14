@@ -6,8 +6,8 @@ import {
   summarizeAutoMovieAnalysis,
 } from "@automovie/engine";
 import {
-  IAutoMovieActionCall,
   AutoMovieAnalysisDomain,
+  IAutoMovieActionCall,
   IAutoMovieAnalysisGap,
   IAutoMovieConstraintViolation,
   IAutoMovieLight,
@@ -70,27 +70,35 @@ export function test_text_diagnostic_article(): void {
         "the table covers the union",
         (): boolean =>
           [...AUTO_MOVIE_LIGHT_TYPES].every(
-            (type: IAutoMovieLight["type"]): boolean => LIGHT_ARTICLE[type] !== undefined,
+            (type: IAutoMovieLight["type"]): boolean =>
+              LIGHT_ARTICLE[type] !== undefined,
           ) &&
           Object.keys(LIGHT_ARTICLE).length === AUTO_MOVIE_LIGHT_TYPES.size,
       ],
-      ...[...AUTO_MOVIE_LIGHT_TYPES].map((type: IAutoMovieLight["type"]): [string, () => boolean] => [
-        lightFact(type),
-        (): boolean => {
-          const messages: string[] = lightMessages(type);
-          return (
-            messages.length > 0 &&
-            messages.every((message: string): boolean =>
-              message.includes(`${LIGHT_ARTICLE[type]} light`),
-            )
-          );
-        },
-      ]),
+      ...[...AUTO_MOVIE_LIGHT_TYPES].map(
+        (type: IAutoMovieLight["type"]): [string, () => boolean] => [
+          lightFact(type),
+          (): boolean => {
+            const messages: string[] = lightMessages(type);
+            return (
+              messages.length > 0 &&
+              messages.every((message: string): boolean =>
+                message.includes(`${LIGHT_ARTICLE[type]} light`),
+              )
+            );
+          },
+        ],
+      ),
     ]),
     {
       "the table covers the union": true,
       ...Object.fromEntries(
-        [...AUTO_MOVIE_LIGHT_TYPES].map((type: IAutoMovieLight["type"]): [string, boolean] => [lightFact(type), true]),
+        [...AUTO_MOVIE_LIGHT_TYPES].map(
+          (type: IAutoMovieLight["type"]): [string, boolean] => [
+            lightFact(type),
+            true,
+          ],
+        ),
       ),
     },
   );
@@ -102,33 +110,45 @@ export function test_text_diagnostic_article(): void {
         "the table covers the union",
         (): boolean =>
           AUTOMOVIE_ANALYSIS_DOMAINS.every(
-            (domain: AutoMovieAnalysisDomain): boolean => DOMAIN_ARTICLE[domain] !== undefined,
+            (domain: AutoMovieAnalysisDomain): boolean =>
+              DOMAIN_ARTICLE[domain] !== undefined,
           ) &&
           Object.keys(DOMAIN_ARTICLE).length ===
             AUTOMOVIE_ANALYSIS_DOMAINS.length,
       ],
-      ...AUTOMOVIE_ANALYSIS_DOMAINS.map((domain: AutoMovieAnalysisDomain): [string, () => boolean] => [
-        domainFact(domain),
-        (): boolean => {
-          const gap: IAutoMovieAnalysisGap | undefined = summarizeAutoMovieAnalysis({
-            runs: [],
-            revision: "revision-1",
-            required: [domain],
-          }).gaps.find((entry: IAutoMovieAnalysisGap): boolean => entry.domain === domain);
-          return (
-            gap !== undefined &&
-            gap.reason.includes(
-              `the production requires ${DOMAIN_ARTICLE[domain]} answer`,
-            ) &&
-            gap.remedy.includes(`run ${DOMAIN_ARTICLE[domain]} analysis`)
-          );
-        },
-      ]),
+      ...AUTOMOVIE_ANALYSIS_DOMAINS.map(
+        (domain: AutoMovieAnalysisDomain): [string, () => boolean] => [
+          domainFact(domain),
+          (): boolean => {
+            const gap: IAutoMovieAnalysisGap | undefined =
+              summarizeAutoMovieAnalysis({
+                runs: [],
+                revision: "revision-1",
+                required: [domain],
+              }).gaps.find(
+                (entry: IAutoMovieAnalysisGap): boolean =>
+                  entry.domain === domain,
+              );
+            return (
+              gap !== undefined &&
+              gap.reason.includes(
+                `the production requires ${DOMAIN_ARTICLE[domain]} answer`,
+              ) &&
+              gap.remedy.includes(`run ${DOMAIN_ARTICLE[domain]} analysis`)
+            );
+          },
+        ],
+      ),
     ]),
     {
       "the table covers the union": true,
       ...Object.fromEntries(
-        AUTOMOVIE_ANALYSIS_DOMAINS.map((domain: AutoMovieAnalysisDomain): [string, boolean] => [domainFact(domain), true]),
+        AUTOMOVIE_ANALYSIS_DOMAINS.map(
+          (domain: AutoMovieAnalysisDomain): [string, boolean] => [
+            domainFact(domain),
+            true,
+          ],
+        ),
       ),
     },
   );
@@ -213,13 +233,20 @@ const lightMessages: (type: string) => string[] = (type: string): string[] => {
   });
   if (staged.success === true) return [];
   return staged.violations
-    .map((violation: IAutoMovieConstraintViolation): string => violation.expected)
+    .map(
+      (violation: IAutoMovieConstraintViolation): string => violation.expected,
+    )
     .filter((message: string): boolean => message.includes(` ${type} light`));
 };
 
 /** The refusal an action draws for naming a camera as its actor. */
-const cameraActorRefusal: (action: IAutoMovieActionCall) => string | null = (action: IAutoMovieActionCall): string | null => {
-  const staged: ReturnType<typeof stageScene> = stageScene(makeScriptWrite(), makeStagingWrite());
+const cameraActorRefusal: (action: IAutoMovieActionCall) => string | null = (
+  action: IAutoMovieActionCall,
+): string | null => {
+  const staged: ReturnType<typeof stageScene> = stageScene(
+    makeScriptWrite(),
+    makeStagingWrite(),
+  );
   if (staged.success !== true)
     throw new Error("the staging fixture must succeed");
   const performed: ReturnType<typeof performShot> = performShot({
@@ -231,8 +258,9 @@ const cameraActorRefusal: (action: IAutoMovieActionCall) => string | null = (act
   });
   if (performed.success === true) return null;
   return (
-    performed.violations.find((violation: IAutoMovieConstraintViolation): boolean =>
-      violation.expected.includes("is a camera"),
+    performed.violations.find(
+      (violation: IAutoMovieConstraintViolation): boolean =>
+        violation.expected.includes("is a camera"),
     )?.expected ?? null
   );
 };

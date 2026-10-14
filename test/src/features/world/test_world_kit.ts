@@ -1,3 +1,10 @@
+import {
+  IAutoMovieInstanceSetDesign,
+  IAutoMovieWorldSurface,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
+import { IAutoMovieWorldBlock } from "../../../../packages/engine/src/IAutoMovieWorldBlock";
 import { assertWorldPlacements } from "../../../../packages/engine/src/assertWorldPlacements";
 import { worldAlongRoute } from "../../../../packages/engine/src/worldAlongRoute";
 import { worldBlock } from "../../../../packages/engine/src/worldBlock";
@@ -6,11 +13,12 @@ import { worldRamp } from "../../../../packages/engine/src/worldRamp";
 import { worldScatter } from "../../../../packages/engine/src/worldScatter";
 import { worldSurfaceHeight } from "../../../../packages/engine/src/worldSurfaceHeight";
 import { worldTerrain } from "../../../../packages/engine/src/worldTerrain";
-import { IAutoMovieInstanceSetDesign, IAutoMovieWorldSurface } from "@automovie/interface";
-import { TestValidator } from "@nestia/e2e";
 import { namedFacts, nclose, throwsError } from "../internal/predicates";
-import { IAutoMovieWorldBlock } from "../../../../packages/engine/src/IAutoMovieWorldBlock";
-const instanceBase: () => Omit<IAutoMovieInstanceSetDesign, "layout"> = (): Omit<IAutoMovieInstanceSetDesign, "layout"> => ({
+
+const instanceBase: () => Omit<
+  IAutoMovieInstanceSetDesign,
+  "layout"
+> = (): Omit<IAutoMovieInstanceSetDesign, "layout"> => ({
   id: "trees",
   modelRecipe: "tree",
   count: 12,
@@ -78,7 +86,11 @@ export function test_world_kit(): void {
     // names it here; the default is the shipped one.
     archetype: "registered-block",
   });
-  const route: { id: string; waypoints: { x: number; z: number; }[]; allowedFormationWidth: number; } = {
+  const route: {
+    id: string;
+    waypoints: { x: number; z: number }[];
+    allowedFormationWidth: number;
+  } = {
     id: "road",
     waypoints: [
       { x: -15, z: -10 },
@@ -87,7 +99,12 @@ export function test_world_kit(): void {
     ],
     allowedFormationWidth: 2,
   };
-  const landmark: { id: string; position: { x: number; y: number; z: number; }; radius: number; meaning: string; } = {
+  const landmark: {
+    id: string;
+    position: { x: number; y: number; z: number };
+    radius: number;
+    meaning: string;
+  } = {
     id: "square",
     position: { x: 0, y: 0, z: 0 },
     radius: 2,
@@ -134,11 +151,14 @@ export function test_world_kit(): void {
     kind: "scatter",
     radius: 10,
   });
-  const alongRoute: IAutoMovieInstanceSetDesign = worldAlongRoute(instanceBase(), {
-    kind: "along-route",
-    route: route.id,
-    lateralJitter: 0.5,
-  });
+  const alongRoute: IAutoMovieInstanceSetDesign = worldAlongRoute(
+    instanceBase(),
+    {
+      kind: "along-route",
+      route: route.id,
+      lateralJitter: 0.5,
+    },
+  );
   TestValidator.equals(
     "terrain, ramp, blocks, and compact placement helpers retain exact facts",
     namedFacts([
@@ -146,7 +166,10 @@ export function test_world_kit(): void {
         "buildingRecipeParameters",
         (): boolean => building.recipe.parameters.shape === "box",
       ],
-      ["buildingNodeModel", (): boolean => building.node.model.endsWith(":house")],
+      [
+        "buildingNodeModel",
+        (): boolean => building.node.model.endsWith(":house"),
+      ],
       ["buildingBoundsMin", (): boolean => nclose(building.bounds.min.y, 0, 0)],
       [
         "worldSurfaceHeightGroundX",
@@ -158,7 +181,10 @@ export function test_world_kit(): void {
       ],
       ["gridLayoutKind", (): boolean => grid.layout.kind === "grid"],
       ["scatterLayoutKind", (): boolean => scatter.layout.kind === "scatter"],
-      ["alongRouteLayoutKind", (): boolean => alongRoute.layout.kind === "along-route"],
+      [
+        "alongRouteLayoutKind",
+        (): boolean => alongRoute.layout.kind === "along-route",
+      ],
       ["gridInstanceBase", (): boolean => grid !== gridBase],
     ]),
     {
@@ -174,7 +200,12 @@ export function test_world_kit(): void {
     },
   );
 
-  const routeLandmark: { id: string; position: { x: number; y: number; z: number; }; radius: number; meaning: string; } = {
+  const routeLandmark: {
+    id: string;
+    position: { x: number; y: number; z: number };
+    radius: number;
+    meaning: string;
+  } = {
     ...landmark,
     id: "route-only",
     position: { x: 0, y: 0, z: -10 },
@@ -328,15 +359,15 @@ export function test_world_kit(): void {
   ];
   const refusalMessages: readonly string[] = [
     "must contain non-whitespace text",
-    'size.x must be positive',
-    'base must be finite',
-    'color must be #RRGGBB',
-    'requires finite distinct endpoints',
-    'overlap',
-    'floats or lacks a supporting surface',
-    'floats or lacks a supporting surface',
-    'is blocked by',
-    'is unreachable from walkable terrain',
+    "size.x must be positive",
+    "base must be finite",
+    "color must be #RRGGBB",
+    "requires finite distinct endpoints",
+    "overlap",
+    "floats or lacks a supporting surface",
+    "floats or lacks a supporting surface",
+    "is blocked by",
+    "is unreachable from walkable terrain",
   ];
   rejected.forEach((callback: () => void, index: number): void =>
     TestValidator.predicate(
@@ -344,4 +375,4 @@ export function test_world_kit(): void {
       throwsError(callback, refusalMessages[index]!),
     ),
   );
-};
+}

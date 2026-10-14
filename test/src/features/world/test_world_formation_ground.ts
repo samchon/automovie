@@ -28,7 +28,10 @@ const COUNT: number = FILES * RANKS;
  * member of it sits somewhere different on the ground plan and a surface that
  * varies in either axis moves them apart.
  */
-const block: (props: { ground?: readonly IAutoMovieWorldSurface[]; anchor?: IAutoMovieVector3 }) => IAutoMovieFormationPlacement = (props: {
+const block: (props: {
+  ground?: readonly IAutoMovieWorldSurface[];
+  anchor?: IAutoMovieVector3;
+}) => IAutoMovieFormationPlacement = (props: {
   ground?: readonly IAutoMovieWorldSurface[];
   anchor?: { x: number; y: number; z: number };
 }): IAutoMovieFormationPlacement => ({
@@ -47,7 +50,9 @@ const block: (props: { ground?: readonly IAutoMovieWorldSurface[]; anchor?: IAut
 });
 
 /** A wide level floor the whole block stands inside. */
-const floor: (height: number) => IAutoMovieWorldSurface = (height: number): IAutoMovieWorldSurface =>
+const floor: (height: number) => IAutoMovieWorldSurface = (
+  height: number,
+): IAutoMovieWorldSurface =>
   worldTerrain({
     id: "floor",
     polygon: [
@@ -86,18 +91,24 @@ const ridge: () => IAutoMovieWorldSurface = (): IAutoMovieWorldSurface =>
     spacing: { x: 4, z: 40 },
     columns: 11,
     rows: 2,
-    height: (point: { x: number; z: number }): number => 5 - Math.abs(point.x) * 0.25,
+    height: (point: { x: number; z: number }): number =>
+      5 - Math.abs(point.x) * 0.25,
     walkable: true,
   });
 
 /** Every member's placed position on stated terrain, in slot order. */
-const placed: (ground?: readonly IAutoMovieWorldSurface[], anchor?: IAutoMovieVector3) => IAutoMovieVector3[] = (
+const placed: (
+  ground?: readonly IAutoMovieWorldSurface[],
+  anchor?: IAutoMovieVector3,
+) => IAutoMovieVector3[] = (
   ground?: readonly IAutoMovieWorldSurface[],
   anchor?: { x: number; y: number; z: number },
 ): Array<{ x: number; y: number; z: number }> => {
   const formation: IAutoMovieFormationPlacement = block({ ground, anchor });
-  return Array.from({ length: COUNT }, (_unused: unknown, slot: number): IAutoMovieVector3 =>
-    formationSlotPosition(formation, slot),
+  return Array.from(
+    { length: COUNT },
+    (_unused: unknown, slot: number): IAutoMovieVector3 =>
+      formationSlotPosition(formation, slot),
   );
 };
 
@@ -150,15 +161,17 @@ export function test_world_formation_ground(): void {
       [
         "atZero",
         (): boolean =>
-          placed([floor(0)]).every((point: IAutoMovieVector3, index: number): boolean =>
-            nclose(point.y, bare[index]!.y, 1e-12),
+          placed([floor(0)]).every(
+            (point: IAutoMovieVector3, index: number): boolean =>
+              nclose(point.y, bare[index]!.y, 1e-12),
           ),
       ],
       [
         "raised",
         (): boolean =>
-          placed([floor(7.25)]).every((point: IAutoMovieVector3, index: number): boolean =>
-            nclose(point.y, bare[index]!.y, 1e-12),
+          placed([floor(7.25)]).every(
+            (point: IAutoMovieVector3, index: number): boolean =>
+              nclose(point.y, bare[index]!.y, 1e-12),
           ),
       ],
       [
@@ -182,7 +195,11 @@ export function test_world_formation_ground(): void {
   // member's height is readable straight off the surface record.
   const hillside: IAutoMovieWorldSurface = slope();
   const anchorHeight: number = worldSurfaceHeight(hillside, { x: 0, z: 0 });
-  const climbed: IAutoMovieVector3[] = placed([hillside], { x: 0, y: anchorHeight, z: 0 });
+  const climbed: IAutoMovieVector3[] = placed([hillside], {
+    x: 0,
+    y: anchorHeight,
+    z: 0,
+  });
   TestValidator.predicate(
     "on a slope every member stands on the slope under itself",
     climbed.every((point: IAutoMovieVector3): boolean =>
@@ -197,7 +214,8 @@ export function test_world_formation_ground(): void {
       // per rank on a slope that climbs half a metre per metre.
       [
         "differ",
-        (): boolean => nclose(climbed[0]!.y, climbed[COUNT - FILES]!.y, 1e-9) === false,
+        (): boolean =>
+          nclose(climbed[0]!.y, climbed[COUNT - FILES]!.y, 1e-9) === false,
       ],
       [
         "byTheTerrain",
@@ -212,12 +230,19 @@ export function test_world_formation_ground(): void {
       [
         "fourHeights",
         (): boolean =>
-          new Set<number>(climbed.map((point: IAutoMovieVector3): number => Math.round(point.y * 1e6) / 1e6))
-            .size === RANKS,
+          new Set<number>(
+            climbed.map(
+              (point: IAutoMovieVector3): number =>
+                Math.round(point.y * 1e6) / 1e6,
+            ),
+          ).size === RANKS,
       ],
       // Across a rank the slope is level, so the files share a height and the
       // difference above really is the terrain rather than slot index noise.
-      ["acrossARank", (): boolean => nclose(climbed[0]!.y, climbed[FILES - 1]!.y, 1e-9)],
+      [
+        "acrossARank",
+        (): boolean => nclose(climbed[0]!.y, climbed[FILES - 1]!.y, 1e-9),
+      ],
     ]),
     { differ: true, byTheTerrain: true, fourHeights: true, acrossARank: true },
   );
@@ -268,7 +293,8 @@ export function test_world_formation_ground(): void {
   TestValidator.predicate(
     "an anchor staged above its terrain keeps that clearance everywhere",
     placed([hillside], { x: 0, y: anchorHeight + 2.5, z: 0 }).every(
-      (point: IAutoMovieVector3, index: number): boolean => nclose(point.y, climbed[index]!.y + 2.5, 1e-9),
+      (point: IAutoMovieVector3, index: number): boolean =>
+        nclose(point.y, climbed[index]!.y + 2.5, 1e-9),
     ),
   );
 
@@ -287,7 +313,11 @@ export function test_world_formation_ground(): void {
     height: { kind: "plane", originHeight: 0, slopeX: 0, slopeZ: 0.5 },
     walkable: true,
   };
-  const partial: IAutoMovieVector3[] = placed([nearSlope], { x: 0, y: 0, z: 0 });
+  const partial: IAutoMovieVector3[] = placed([nearSlope], {
+    x: 0,
+    y: 0,
+    z: 0,
+  });
   const offset: IAutoMovieWorldSurface = worldTerrain({
     id: "offset",
     polygon: [
@@ -309,13 +339,20 @@ export function test_world_formation_ground(): void {
         (): boolean =>
           partial
             .slice(FILES, 2 * FILES)
-            .every((point: IAutoMovieVector3): boolean => nclose(point.y, 1.5, 1e-9)),
+            .every((point: IAutoMovieVector3): boolean =>
+              nclose(point.y, 1.5, 1e-9),
+            ),
       ],
       // The ranks past the footprint keep the height the unit was staged at
       // rather than the 3 and 4.5 the rule would extrapolate to.
       [
         "uncoveredStaged",
-        (): boolean => partial.slice(2 * FILES).every((point: IAutoMovieVector3): boolean => nclose(point.y, 0, 0)),
+        (): boolean =>
+          partial
+            .slice(2 * FILES)
+            .every((point: IAutoMovieVector3): boolean =>
+              nclose(point.y, 0, 0),
+            ),
       ],
       // The anchor at the origin is over nothing here, so the unit has no datum
       // to measure a rise from and keeps the height it was staged at, even
@@ -363,7 +400,10 @@ export function test_world_formation_ground(): void {
   };
   TestValidator.predicate(
     "the whole slot carries the relief, not only the position query",
-    Array.from({ length: COUNT }, (_unused: unknown, slot: number): number => slot).every((slot: number): boolean =>
+    Array.from(
+      { length: COUNT },
+      (_unused: unknown, slot: number): number => slot,
+    ).every((slot: number): boolean =>
       nclose(formationSlot(design, slot).position.y, climbed[slot]!.y, 1e-12),
     ),
   );

@@ -2,8 +2,8 @@ import { modernMesh } from "@automovie/website/modern-scene";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
-import { modernItem } from "../internal/websiteTourFixture";
 import { test12ValuesClose } from "../internal/test12ValuesClose";
+import { modernItem } from "../internal/websiteTourFixture";
 
 /**
  * Native mesh finishes retain world placement, UVs, tint and physical glass.
@@ -21,22 +21,27 @@ export function test_website_tour_modern_finishes(): void {
   const item: ReturnType<typeof modernItem> = modernItem(),
     textures: Map<string, THREE.Texture> = new Map<string, THREE.Texture>();
   const plain: ReturnType<typeof modernMesh> = modernMesh(item, textures);
-  const material: THREE.MeshStandardMaterial = plain.material as THREE.MeshStandardMaterial;
+  const material: THREE.MeshStandardMaterial =
+    plain.material as THREE.MeshStandardMaterial;
   TestValidator.predicate(
     "world position and flags",
-    test12ValuesClose([plain.position.toArray(), plain.castShadow, plain.receiveShadow],
-    [[2, 3, 4], true, false]),
+    test12ValuesClose(
+      [plain.position.toArray(), plain.castShadow, plain.receiveShadow],
+      [[2, 3, 4], true, false],
+    ),
   );
   TestValidator.predicate(
     "fallback finish",
-    test12ValuesClose([
-      material.color.getHex(),
-      material.roughness,
-      material.metalness,
-      material.opacity,
-      material.side,
-    ],
-    [0x803020, 0.8, 0, 1, THREE.FrontSide]),
+    test12ValuesClose(
+      [
+        material.color.getHex(),
+        material.roughness,
+        material.metalness,
+        material.opacity,
+        material.side,
+      ],
+      [0x803020, 0.8, 0, 1, THREE.FrontSide],
+    ),
   );
   item.texture = "/textures/finish.png";
   item.uvs = [0, 0, 1, 0, 0, 1];
@@ -62,20 +67,23 @@ export function test_website_tour_modern_finishes(): void {
   item.ior = 1.4;
   item.thickness = 0.02;
   const glass: ReturnType<typeof modernMesh> = modernMesh(item, textures),
-    physical: THREE.MeshPhysicalMaterial = glass.material as THREE.MeshPhysicalMaterial;
+    physical: THREE.MeshPhysicalMaterial =
+      glass.material as THREE.MeshPhysicalMaterial;
   TestValidator.predicate(
     "native glass",
-    test12ValuesClose([
-      physical.color.getHex(),
-      physical.opacity,
-      physical.transparent,
-      physical.depthWrite,
-      physical.side,
-      physical.transmission,
-      physical.ior,
-      physical.thickness,
-    ],
-    [0x803020, 0.4, true, false, THREE.DoubleSide, 0.8, 1.4, 0.02]),
+    test12ValuesClose(
+      [
+        physical.color.getHex(),
+        physical.opacity,
+        physical.transparent,
+        physical.depthWrite,
+        physical.side,
+        physical.transmission,
+        physical.ior,
+        physical.thickness,
+      ],
+      [0x803020, 0.4, true, false, THREE.DoubleSide, 0.8, 1.4, 0.02],
+    ),
   );
   delete item.ior;
   delete item.thickness;
@@ -83,8 +91,7 @@ export function test_website_tour_modern_finishes(): void {
     .material as THREE.MeshPhysicalMaterial;
   TestValidator.predicate(
     "glass defaults",
-    test12ValuesClose([defaults.ior, defaults.thickness],
-    [1.5, 0]),
+    test12ValuesClose([defaults.ior, defaults.thickness], [1.5, 0]),
   );
   item.transmission = 0;
   item.opacity = 1;

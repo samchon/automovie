@@ -4,8 +4,8 @@ import * as THREE from "three";
 
 import { IDENTITY_TRANSFORM } from "../internal/fixtures";
 import { throwsError } from "../internal/predicates";
-import { modernPayload } from "../internal/websiteTourFixture";
 import { test12ValuesClose } from "../internal/test12ValuesClose";
+import { modernPayload } from "../internal/websiteTourFixture";
 
 /**
  * The website draws the native physical light records rather than a new wash.
@@ -55,7 +55,10 @@ export function test_website_tour_modern_lighting(): void {
       range: 0,
     },
   ];
-  const scene: THREE.Scene = modernScene(payload, new Map<string, THREE.Texture>());
+  const scene: THREE.Scene = modernScene(
+    payload,
+    new Map<string, THREE.Texture>(),
+  );
   const sun: THREE.DirectionalLight = scene.children.find(
     (o: THREE.Object3D): boolean => o instanceof THREE.DirectionalLight,
   ) as THREE.DirectionalLight;
@@ -64,34 +67,40 @@ export function test_website_tour_modern_lighting(): void {
   ) as THREE.PointLight[];
   TestValidator.predicate(
     "sun direction from source quaternion",
-    test12ValuesClose([
-      sun.position.toArray(),
-      sun.target.position.toArray(),
-      sun.intensity,
-      sun.castShadow,
-    ],
-    [[3, 0, 47], [3, 0, -5], 3, true]),
+    test12ValuesClose(
+      [
+        sun.position.toArray(),
+        sun.target.position.toArray(),
+        sun.intensity,
+        sun.castShadow,
+      ],
+      [[3, 0, 47], [3, 0, -5], 3, true],
+    ),
   );
   TestValidator.predicate(
     "lamp source",
-    test12ValuesClose([
-      lamps[0]!.position.toArray(),
-      lamps[0]!.intensity,
-      lamps[0]!.distance,
-      lamps[1]!.castShadow,
-    ],
-    [[4, 5, 6], 2, 8, false]),
+    test12ValuesClose(
+      [
+        lamps[0]!.position.toArray(),
+        lamps[0]!.intensity,
+        lamps[0]!.distance,
+        lamps[1]!.castShadow,
+      ],
+      [[4, 5, 6], 2, 8, false],
+    ),
   );
   TestValidator.predicate(
     "authored shadow settings",
-    test12ValuesClose([
-      sun.shadow.mapSize.toArray(),
-      sun.shadow.bias,
-      sun.shadow.normalBias,
-      sun.shadow.camera.near,
-      sun.shadow.camera.far,
-    ],
-    [[512, 512], -0.001, 0.01, 0.1, 100]),
+    test12ValuesClose(
+      [
+        sun.shadow.mapSize.toArray(),
+        sun.shadow.bias,
+        sun.shadow.normalBias,
+        sun.shadow.camera.near,
+        sun.shadow.camera.far,
+      ],
+      [[512, 512], -0.001, 0.01, 0.1, 100],
+    ),
   );
   payload.physicalLighting!.environment.background = null;
   TestValidator.equals(
@@ -109,11 +118,17 @@ export function test_website_tour_modern_lighting(): void {
   ];
   TestValidator.predicate(
     "unsupported source stays explicit",
-    throwsError((): THREE.Scene => modernScene(payload, new Map<string, THREE.Texture>()), "unsupported house light sun"),
+    throwsError(
+      (): THREE.Scene => modernScene(payload, new Map<string, THREE.Texture>()),
+      "unsupported house light sun",
+    ),
   );
   delete payload.physicalLighting;
   TestValidator.predicate(
     "missing source rig",
-    throwsError((): THREE.Scene => modernScene(payload, new Map<string, THREE.Texture>()), "The modern house is missing its authored lighting"),
+    throwsError(
+      (): THREE.Scene => modernScene(payload, new Map<string, THREE.Texture>()),
+      "The modern house is missing its authored lighting",
+    ),
   );
 }

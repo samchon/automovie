@@ -22,7 +22,9 @@ export async function test_website_tour_scene_recovery(): Promise<void> {
   const fixture: ReturnType<typeof tourSceneFixture> = tourSceneFixture();
   const data: ReturnType<typeof tourData> = tourData();
   data.native = {
-    models: [{ materials: [{ id: "stone", baseColorTexture: "textures/stone.png" }] }],
+    models: [
+      { materials: [{ id: "stone", baseColorTexture: "textures/stone.png" }] },
+    ],
   };
   let imagesDisposed: number = 0;
   let skyDisposed: number = 0;
@@ -30,77 +32,193 @@ export async function test_website_tour_scene_recovery(): Promise<void> {
   const templeDependencies: Parameters<typeof loadTourScene>[3] = {
     ...fixture.dependencies,
     load: async (url: string): Promise<import("three").Texture> => {
-      const texture: import("three").Texture = await fixture.dependencies.load(url);
-      texture.addEventListener("dispose", (): void => { imagesDisposed++; });
+      const texture: import("three").Texture =
+        await fixture.dependencies.load(url);
+      texture.addEventListener("dispose", (): void => {
+        imagesDisposed++;
+      });
       return texture;
     },
-    uploadTemple: (): never => { throw templeFailure; },
+    uploadTemple: (): never => {
+      throw templeFailure;
+    },
   };
-  fixture.sky.addEventListener("dispose", (): void => { skyDisposed++; });
+  fixture.sky.addEventListener("dispose", (): void => {
+    skyDisposed++;
+  });
   let reported: unknown;
-  try { await loadTourScene(data, fixture.renderer, "https://example.org/", templeDependencies); }
-  catch (error) { reported = error; }
-  TestValidator.predicate("temple upload cause retained", reported === templeFailure);
-  TestValidator.equals("partial temple resources attempted", [imagesDisposed, skyDisposed], [1, 1]);
+  try {
+    await loadTourScene(
+      data,
+      fixture.renderer,
+      "https://example.org/",
+      templeDependencies,
+    );
+  } catch (error) {
+    reported = error;
+  }
+  TestValidator.predicate(
+    "temple upload cause retained",
+    reported === templeFailure,
+  );
+  TestValidator.equals(
+    "partial temple resources attempted",
+    [imagesDisposed, skyDisposed],
+    [1, 1],
+  );
 
   data.building = "future";
   const futureFailure: Error = new Error("invalid house mesh");
   const futureDependencies: Parameters<typeof loadTourScene>[3] = {
     ...fixture.dependencies,
-    uploadHouse: (): never => { throw futureFailure; },
+    uploadHouse: (): never => {
+      throw futureFailure;
+    },
   };
   reported = null;
-  try { await loadTourScene(data, fixture.renderer, "https://example.org/", futureDependencies); }
-  catch (error) { reported = error; }
-  TestValidator.predicate("future upload cause retained", reported === futureFailure);
-  TestValidator.equals("partial future environment attempted", fixture.extraDisposed(), 1);
+  try {
+    await loadTourScene(
+      data,
+      fixture.renderer,
+      "https://example.org/",
+      futureDependencies,
+    );
+  } catch (error) {
+    reported = error;
+  }
+  TestValidator.predicate(
+    "future upload cause retained",
+    reported === futureFailure,
+  );
+  TestValidator.equals(
+    "partial future environment attempted",
+    fixture.extraDisposed(),
+    1,
+  );
 
-  const rollbackFixture: ReturnType<typeof tourSceneFixture> = tourSceneFixture();
+  const rollbackFixture: ReturnType<typeof tourSceneFixture> =
+    tourSceneFixture();
   const rollbackData: ReturnType<typeof tourData> = tourData();
-  rollbackData.native = { models: [{ materials: [{ id: "stone", baseColorTexture: "textures/stone.png" }] }] };
+  rollbackData.native = {
+    models: [
+      { materials: [{ id: "stone", baseColorTexture: "textures/stone.png" }] },
+    ],
+  };
   const loadingFailure: Error = new Error("Upload refused after decoding.");
   const textureFailure: Error = new Error("Texture disposal listener failed.");
   const rollbackAttempts: string[] = [];
-  rollbackFixture.sky.addEventListener("dispose", (): void => { rollbackAttempts.push("sky"); });
+  rollbackFixture.sky.addEventListener("dispose", (): void => {
+    rollbackAttempts.push("sky");
+  });
   const rollbackDependencies: Parameters<typeof loadTourScene>[3] = {
     ...rollbackFixture.dependencies,
     load: async (url: string): Promise<import("three").Texture> => {
-      const texture: import("three").Texture = await rollbackFixture.dependencies.load(url);
+      const texture: import("three").Texture =
+        await rollbackFixture.dependencies.load(url);
       texture.addEventListener("dispose", (): never => {
         rollbackAttempts.push("texture");
         throw textureFailure;
       });
       return texture;
     },
-    uploadTemple: (): never => { throw loadingFailure; },
+    uploadTemple: (): never => {
+      throw loadingFailure;
+    },
   };
   let rollback: unknown;
-  try { await loadTourScene(rollbackData, rollbackFixture.renderer, "https://example.org/", rollbackDependencies); }
-  catch (error) { rollback = error; }
-  TestValidator.predicate("rollback retains upload then cleanup causes", rollback instanceof AggregateError && rollback.errors.length === 2 && rollback.errors[0] === loadingFailure && rollback.errors[1] === textureFailure);
-  TestValidator.equals("failed texture does not skip sky", rollbackAttempts, ["texture", "sky"]);
+  try {
+    await loadTourScene(
+      rollbackData,
+      rollbackFixture.renderer,
+      "https://example.org/",
+      rollbackDependencies,
+    );
+  } catch (error) {
+    rollback = error;
+  }
+  TestValidator.predicate(
+    "rollback retains upload then cleanup causes",
+    rollback instanceof AggregateError &&
+      rollback.errors.length === 2 &&
+      rollback.errors[0] === loadingFailure &&
+      rollback.errors[1] === textureFailure,
+  );
+  TestValidator.equals("failed texture does not skip sky", rollbackAttempts, [
+    "texture",
+    "sky",
+  ]);
 
-  const cleanupFixture: ReturnType<typeof tourSceneFixture> = tourSceneFixture();
+  const cleanupFixture: ReturnType<typeof tourSceneFixture> =
+    tourSceneFixture();
   const cleanupData: ReturnType<typeof tourData> = tourData();
   cleanupData.native = rollbackData.native;
-  const loaded: Awaited<ReturnType<typeof loadTourScene>> = await loadTourScene(cleanupData, cleanupFixture.renderer, "https://example.org/", cleanupFixture.dependencies);
-  const geometryFailure: Error = new Error("Geometry disposal listener failed.");
+  const loaded: Awaited<ReturnType<typeof loadTourScene>> = await loadTourScene(
+    cleanupData,
+    cleanupFixture.renderer,
+    "https://example.org/",
+    cleanupFixture.dependencies,
+  );
+  const geometryFailure: Error = new Error(
+    "Geometry disposal listener failed.",
+  );
   const attempts: string[] = [];
-  cleanupFixture.mesh.geometry.addEventListener("dispose", (): never => { attempts.push("geometry"); throw geometryFailure; });
-  cleanupFixture.mesh.material[0].addEventListener("dispose", (): void => { attempts.push("material-0"); });
-  cleanupFixture.mesh.material[1].addEventListener("dispose", (): void => { attempts.push("material-1"); });
-  cleanupFixture.mesh.customDepthMaterial!.addEventListener("dispose", (): void => { attempts.push("depth"); });
-  cleanupFixture.textures[0].addEventListener("dispose", (): void => { attempts.push("loaded-texture"); });
-  cleanupFixture.mesh.material[0].map!.addEventListener("dispose", (): void => { attempts.push("material-texture"); });
-  cleanupFixture.sky.addEventListener("dispose", (): void => { attempts.push("sky"); });
+  cleanupFixture.mesh.geometry.addEventListener("dispose", (): never => {
+    attempts.push("geometry");
+    throw geometryFailure;
+  });
+  cleanupFixture.mesh.material[0].addEventListener("dispose", (): void => {
+    attempts.push("material-0");
+  });
+  cleanupFixture.mesh.material[1].addEventListener("dispose", (): void => {
+    attempts.push("material-1");
+  });
+  cleanupFixture.mesh.customDepthMaterial!.addEventListener(
+    "dispose",
+    (): void => {
+      attempts.push("depth");
+    },
+  );
+  cleanupFixture.textures[0].addEventListener("dispose", (): void => {
+    attempts.push("loaded-texture");
+  });
+  cleanupFixture.mesh.material[0].map!.addEventListener("dispose", (): void => {
+    attempts.push("material-texture");
+  });
+  cleanupFixture.sky.addEventListener("dispose", (): void => {
+    attempts.push("sky");
+  });
   let receipt: unknown;
-  try { loaded.dispose(); }
-  catch (error) { receipt = error; }
-  TestValidator.predicate("final cleanup keeps geometry cause", receipt === geometryFailure);
-  TestValidator.equals("early failure does not skip later owners", attempts, ["geometry", "material-0", "material-1", "depth", "loaded-texture", "material-texture", "sky"]);
+  try {
+    loaded.dispose();
+  } catch (error) {
+    receipt = error;
+  }
+  TestValidator.predicate(
+    "final cleanup keeps geometry cause",
+    receipt === geometryFailure,
+  );
+  TestValidator.equals("early failure does not skip later owners", attempts, [
+    "geometry",
+    "material-0",
+    "material-1",
+    "depth",
+    "loaded-texture",
+    "material-texture",
+    "sky",
+  ]);
   let repeated: unknown;
-  try { loaded.dispose(); }
-  catch (error) { repeated = error; }
-  TestValidator.predicate("repeated cleanup reports saved cause", repeated === receipt);
-  TestValidator.equals("every cleanup event attempted once", attempts.length, 7);
+  try {
+    loaded.dispose();
+  } catch (error) {
+    repeated = error;
+  }
+  TestValidator.predicate(
+    "repeated cleanup reports saved cause",
+    repeated === receipt,
+  );
+  TestValidator.equals(
+    "every cleanup event attempted once",
+    attempts.length,
+    7,
+  );
 }

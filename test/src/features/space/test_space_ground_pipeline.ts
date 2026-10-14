@@ -22,12 +22,20 @@ import {
   validationHasWarnings,
 } from "../internal/predicates";
 
-const t: (x: number, y: number, z: number) => IAutoMovieTransform = (x: number, y: number, z: number): IAutoMovieTransform => ({
+const t: (x: number, y: number, z: number) => IAutoMovieTransform = (
+  x: number,
+  y: number,
+  z: number,
+): IAutoMovieTransform => ({
   translation: { x, y, z },
   rotation: { x: 0, y: 0, z: 0, w: 1 },
   scale: { x: 1, y: 1, z: 1 },
 });
-const v: (x: number, z: number, y?: number) => IAutoMovieVector3 = (x: number, z: number, y: number = 0): IAutoMovieVector3 => ({ x, y, z });
+const v: (x: number, z: number, y?: number) => IAutoMovieVector3 = (
+  x: number,
+  z: number,
+  y: number = 0,
+): IAutoMovieVector3 => ({ x, y, z });
 
 /** A ramp rising 0 → 0.4 over x=0..2, wide enough for the whole path. */
 const space: IAutoMovieSpace = {
@@ -78,7 +86,9 @@ const REST_FRAMES: Parameters<typeof plantStanceFeet>[0]["restFrames"] = {
   },
 };
 
-const kf: (time: number) => IAutoMovieKeyframe = (time: number): IAutoMovieKeyframe => ({
+const kf: (time: number) => IAutoMovieKeyframe = (
+  time: number,
+): IAutoMovieKeyframe => ({
   time,
   pose: { skeleton: "leg", root: null, joints: [] },
   expression: null,
@@ -127,7 +137,9 @@ export function test_space_ground_pipeline(): void {
     speed: 0.15,
     ground,
   });
-  const mid: (typeof path.frames)[number] | undefined = path.frames.find((frame: (typeof path.frames)[number]): boolean => nclose(frame.time, 0.5));
+  const mid: (typeof path.frames)[number] | undefined = path.frames.find(
+    (frame: (typeof path.frames)[number]): boolean => nclose(frame.time, 0.5),
+  );
   TestValidator.equals(
     "mid-path frame follows the ramp height",
     namedFacts([
@@ -146,7 +158,9 @@ export function test_space_ground_pipeline(): void {
     nclose(spaceGround(space, 7)(50, 50), 7),
   );
 
-  const contacts: Parameters<typeof validateFootSkate>[0]["contacts"] = [{ bone: "leftFoot", start: 0, end: 1 } as const];
+  const contacts: Parameters<typeof validateFootSkate>[0]["contacts"] = [
+    { bone: "leftFoot", start: 0, end: 1 } as const,
+  ];
   TestValidator.predicate(
     "raw ramp bake skates the foot (warns)",
     validationHasWarnings(

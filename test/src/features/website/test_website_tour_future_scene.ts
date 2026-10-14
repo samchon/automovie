@@ -2,9 +2,9 @@ import { loadTourScene } from "@automovie/website/tour-scene";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
+import { test12ValuesClose } from "../internal/test12ValuesClose";
 import { tourData } from "../internal/websiteTourFixture";
 import { tourSceneFixture } from "../internal/websiteTourSceneFixture";
-import { test12ValuesClose } from "../internal/test12ValuesClose";
 
 /**
  * The future route forwards its native payload and selects its preview daylight rig.
@@ -45,8 +45,10 @@ export async function test_website_tour_future_scene(): Promise<void> {
   ) as THREE.DirectionalLight;
   TestValidator.predicate(
     "native key",
-    test12ValuesClose([sun.position.toArray(), sun.intensity, sun.shadow.mapSize.toArray()],
-    [[-12, 18, -8], 3, [4096, 4096]]),
+    test12ValuesClose(
+      [sun.position.toArray(), sun.intensity, sun.shadow.mapSize.toArray()],
+      [[-12, 18, -8], 3, [4096, 4096]],
+    ),
   );
   TestValidator.equals(
     "native shadow filter",

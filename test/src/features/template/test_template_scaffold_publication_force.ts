@@ -65,14 +65,21 @@ export function test_template_scaffold_publication_force(): void {
     );
     TestValidator.equals(
       "refusals wrote nothing",
-      [fs.existsSync(path.join(temporary, "src")), fs.readFileSync(readme, "utf8")],
+      [
+        fs.existsSync(path.join(temporary, "src")),
+        fs.readFileSync(readme, "utf8"),
+      ],
       [false, "old"],
     );
 
     const forced: IScaffoldPublicationReceipt = publishFiles(temporary, files, {
       force: true,
     });
-    TestValidator.equals("forced publication completes", forced.status, "completed");
+    TestValidator.equals(
+      "forced publication completes",
+      forced.status,
+      "completed",
+    );
     TestValidator.equals(
       "existing file replaced, unrelated file kept",
       [fs.readFileSync(readme, "utf8"), fs.readFileSync(keep, "utf8")],

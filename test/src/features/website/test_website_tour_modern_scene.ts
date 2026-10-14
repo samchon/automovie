@@ -1,15 +1,15 @@
 import { loadTourScene } from "@automovie/website/tour-scene";
 import { TestValidator } from "@nestia/e2e";
-import { Reflector } from "three/addons/objects/Reflector.js";
 import type * as THREE from "three";
+import { Reflector } from "three/addons/objects/Reflector.js";
 
+import { test12ValuesClose } from "../internal/test12ValuesClose";
 import {
   modernItem,
   modernPayload,
   tourData,
 } from "../internal/websiteTourFixture";
 import { tourSceneFixture } from "../internal/websiteTourSceneFixture";
-import { test12ValuesClose } from "../internal/test12ValuesClose";
 
 /**
  * Modern scene upload waits for deduplicated image resources and retains exposure.
@@ -49,14 +49,18 @@ export async function test_website_tour_modern_scene(): Promise<void> {
   ]);
   TestValidator.predicate(
     "supported anisotropy and exposure",
-    test12ValuesClose([f.textures[0]!.anisotropy, f.renderer.toneMappingExposure],
-    [4, 1.25]),
+    test12ValuesClose(
+      [f.textures[0]!.anisotropy, f.renderer.toneMappingExposure],
+      [4, 1.25],
+    ),
   );
   const mirror: Reflector = loaded.scene.children.find(
     (o: THREE.Object3D): boolean => o instanceof Reflector,
   ) as Reflector;
   let targetDisposed: number = 0;
-  mirror.getRenderTarget().addEventListener("dispose", (): void => { targetDisposed++; });
+  mirror.getRenderTarget().addEventListener("dispose", (): void => {
+    targetDisposed++;
+  });
   loaded.dispose();
   TestValidator.equals("mirror target released", targetDisposed, 1);
   const imageFailure: Error = new Error("missing image");
@@ -65,9 +69,17 @@ export async function test_website_tour_modern_scene(): Promise<void> {
   };
   let observedFailure: unknown;
   try {
-    await loadTourScene(data, f.renderer, "https://example.org/", f.dependencies);
+    await loadTourScene(
+      data,
+      f.renderer,
+      "https://example.org/",
+      f.dependencies,
+    );
   } catch (error) {
     observedFailure = error;
   }
-  TestValidator.predicate("decode failure reaches host", observedFailure === imageFailure);
+  TestValidator.predicate(
+    "decode failure reaches host",
+    observedFailure === imageFailure,
+  );
 }

@@ -1,8 +1,8 @@
 import { TestValidator } from "@nestia/e2e";
 
+import { GalleryImageLifecycle } from "../../../../website/src/gallery/GalleryImageLifecycle";
 import { deriveGallerySelection } from "../../../../website/src/gallery/deriveGallerySelection";
 import { createGalleryContent } from "../internal/createGalleryContent";
-import { GalleryImageLifecycle } from "../../../../website/src/gallery/GalleryImageLifecycle";
 
 /**
  * Image replacement transfers failure authority and attempts the prior binding's release once. A late error cannot replace the current picture; direct capture URLs remain authored data. Native error text and rendering require browser observation.
@@ -23,54 +23,118 @@ export function test_website_gallery_image_recovery(): void {
   const guards: ((effect: () => void) => void)[] = [];
   const released: number[] = [];
   let picture: string = "image";
-  const attach: (whenCurrent: (effect: () => void) => void) => () => void = (whenCurrent: (effect: () => void) => void): () => void => {
+  const attach: (whenCurrent: (effect: () => void) => void) => () => void = (
+    whenCurrent: (effect: () => void) => void,
+  ): (() => void) => {
     const index: number = guards.push(whenCurrent) - 1;
     picture = "image";
-    return (): void => { released.push(index); };
+    return (): void => {
+      released.push(index);
+    };
   };
-  const content: ReturnType<typeof createGalleryContent> = createGalleryContent();
+  const content: ReturnType<typeof createGalleryContent> =
+    createGalleryContent();
   lifecycle.replace(attach);
-  guards[0]((): void => { picture = "failure"; });
-  TestValidator.equals("failed exterior retains direct capture", [picture, deriveGallerySelection(content, 0, 0).image.src], ["failure", "https://example.org/AutoMovie/shots/place-1.png"]);
+  guards[0]((): void => {
+    picture = "failure";
+  });
+  TestValidator.equals(
+    "failed exterior retains direct capture",
+    [picture, deriveGallerySelection(content, 0, 0).image.src],
+    ["failure", "https://example.org/AutoMovie/shots/place-1.png"],
+  );
   lifecycle.replace(attach);
-  guards[0]((): void => { picture = "old-exterior-failure"; });
-  TestValidator.equals("room replacement releases exterior", [picture, released], ["image", [0]]);
-  TestValidator.equals("room is authored replacement", deriveGallerySelection(content, 0, 1).image.alt, "Place 1 room 1");
+  guards[0]((): void => {
+    picture = "old-exterior-failure";
+  });
+  TestValidator.equals(
+    "room replacement releases exterior",
+    [picture, released],
+    ["image", [0]],
+  );
+  TestValidator.equals(
+    "room is authored replacement",
+    deriveGallerySelection(content, 0, 1).image.alt,
+    "Place 1 room 1",
+  );
   lifecycle.replace(attach);
-  guards[1]((): void => { picture = "old-room-failure"; });
-  TestValidator.equals("late room error cannot replace current picture", [picture, released], ["image", [0, 1]]);
+  guards[1]((): void => {
+    picture = "old-room-failure";
+  });
+  TestValidator.equals(
+    "late room error cannot replace current picture",
+    [picture, released],
+    ["image", [0, 1]],
+  );
   let currentEffects: number = 0;
-  guards[2]((): void => { currentEffects++; });
-  TestValidator.equals("current replacement retains authority", currentEffects, 1);
+  guards[2]((): void => {
+    currentEffects++;
+  });
+  TestValidator.equals(
+    "current replacement retains authority",
+    currentEffects,
+    1,
+  );
   lifecycle.dispose();
   lifecycle.dispose();
-  for (const guard of guards) guard((): void => { currentEffects++; });
-  TestValidator.equals("disposal invalidates callbacks and releases once", [currentEffects, released], [1, [0, 1, 2]]);
+  for (const guard of guards)
+    guard((): void => {
+      currentEffects++;
+    });
+  TestValidator.equals(
+    "disposal invalidates callbacks and releases once",
+    [currentEffects, released],
+    [1, [0, 1, 2]],
+  );
   const failing: GalleryImageLifecycle = new GalleryImageLifecycle();
   const releaseFailure: Error = new Error("Image listener release failed.");
   let oldGuard: (effect: () => void) => void = (): void => {};
   let failedReleases: number = 0;
   let retiredEffects: number = 0;
-  failing.replace((guard: (effect: () => void) => void): () => void => {
+  failing.replace((guard: (effect: () => void) => void): (() => void) => {
     oldGuard = guard;
     return (): void => {
       failedReleases++;
-      oldGuard((): void => { retiredEffects++; });
+      oldGuard((): void => {
+        retiredEffects++;
+      });
       throw releaseFailure;
     };
   });
   const attachments: number = guards.length;
   let reported: unknown;
-  try { failing.replace(attach); }
-  catch (error) { reported = error; }
-  TestValidator.predicate("transfer reports original release failure", reported === releaseFailure);
-  TestValidator.equals("failed transfer retires authority before release and admits no replacement", [failedReleases, retiredEffects, guards.length], [1, 0, attachments]);
+  try {
+    failing.replace(attach);
+  } catch (error) {
+    reported = error;
+  }
+  TestValidator.predicate(
+    "transfer reports original release failure",
+    reported === releaseFailure,
+  );
+  TestValidator.equals(
+    "failed transfer retires authority before release and admits no replacement",
+    [failedReleases, retiredEffects, guards.length],
+    [1, 0, attachments],
+  );
   for (const attempt of [0, 1]) {
     reported = null;
-    try { failing.dispose(); }
-    catch (error) { reported = error; }
-    TestValidator.predicate(`failed disposal receipt ${attempt}`, reported === releaseFailure);
+    try {
+      failing.dispose();
+    } catch (error) {
+      reported = error;
+    }
+    TestValidator.predicate(
+      `failed disposal receipt ${attempt}`,
+      reported === releaseFailure,
+    );
   }
-  oldGuard((): void => { retiredEffects++; });
-  TestValidator.equals("failed release is never retried and old guard stays retired", [failedReleases, retiredEffects], [1, 0]);
+  oldGuard((): void => {
+    retiredEffects++;
+  });
+  TestValidator.equals(
+    "failed release is never retried and old guard stays retired",
+    [failedReleases, retiredEffects],
+    [1, 0],
+  );
 }

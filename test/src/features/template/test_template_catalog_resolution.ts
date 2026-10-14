@@ -20,13 +20,19 @@ import { TestValidator } from "@nestia/e2e";
  * @evidence contracts/testing.md#execution-ownership The exported test_template_catalog_resolution entry runs the package's synchronous YAML lookup in-process with literal inputs; its local recording helper owns all refusals and starts no filesystem publication, installed consumer or native host.
  */
 export function test_template_catalog_resolution(): void {
-  const resolve: (workspace: string, catalog?: string, dependency?: string) => string = (
+  const resolve: (
+    workspace: string,
+    catalog?: string,
+    dependency?: string,
+  ) => string = (
     workspace: string,
     catalog: string = "media",
     dependency: string = "lib",
   ): string =>
     resolveAutoMovieCatalogVersion({ catalog, dependency, workspace });
-  const refusal: (workspace: string) => string = (workspace: string): string => {
+  const refusal: (workspace: string) => string = (
+    workspace: string,
+  ): string => {
     try {
       resolve(workspace);
       return "accepted";

@@ -9,12 +9,20 @@ import {
   surfaceHeightAt,
   validateSpace,
 } from "@automovie/engine";
-import { IAutoMovieSpace, IAutoMovieSurface, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  IAutoMovieSpace,
+  IAutoMovieSurface,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts, nclose } from "../internal/predicates";
 
-const v: (x: number, z: number, y?: number) => IAutoMovieVector3 = (x: number, z: number, y: number = 0): IAutoMovieVector3 => ({ x, y, z });
+const v: (x: number, z: number, y?: number) => IAutoMovieVector3 = (
+  x: number,
+  z: number,
+  y: number = 0,
+): IAutoMovieVector3 => ({ x, y, z });
 
 const floor: IAutoMovieSurface = {
   id: "floor",
@@ -185,7 +193,8 @@ export function test_space_height_queries(): void {
   );
 
   const snapshot: IAutoMovieSurface = { ...floor };
-  const preparedSnapshot: ReturnType<typeof prepareSurface> = prepareSurface(snapshot);
+  const preparedSnapshot: ReturnType<typeof prepareSurface> =
+    prepareSurface(snapshot);
   snapshot.polygon = [v(0, 0), v(1, 0), v(1, 1), v(0, 1)];
   TestValidator.equals(
     "default surfaceContains rebuilds after surface mutation",
@@ -216,8 +225,14 @@ export function test_space_height_queries(): void {
   TestValidator.equals(
     "a lattice missing its own samples reads zero rather than NaN",
     namedFacts([
-      ["theStoredSample", (): boolean => nclose(surfaceHeightAt(short, 0, 0), 1, 0)],
-      ["theMissingOnes", (): boolean => nclose(surfaceHeightAt(short, 10, 10), 0, 0)],
+      [
+        "theStoredSample",
+        (): boolean => nclose(surfaceHeightAt(short, 0, 0), 1, 0),
+      ],
+      [
+        "theMissingOnes",
+        (): boolean => nclose(surfaceHeightAt(short, 10, 10), 0, 0),
+      ],
       [
         "andTheValidatorRefusesIt",
         (): boolean =>

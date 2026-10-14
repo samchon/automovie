@@ -60,14 +60,22 @@ class Bannered extends Plain {
   }
 }
 
-const actor: (node: string) => NonNullable<IAutoMovieSubjectContribution["actors"]>[number] = (node: string): NonNullable<IAutoMovieSubjectContribution["actors"]>[number] => ({
+const actor: (
+  node: string,
+) => NonNullable<IAutoMovieSubjectContribution["actors"]>[number] = (
+  node: string,
+): NonNullable<IAutoMovieSubjectContribution["actors"]>[number] => ({
   node,
   model: node,
   speed: 1,
   eyeHeight: 1.6,
 });
 
-const landmark: (id: string) => NonNullable<IAutoMovieSubjectContribution["landmarks"]>[number] = (id: string): NonNullable<IAutoMovieSubjectContribution["landmarks"]>[number] => ({
+const landmark: (
+  id: string,
+) => NonNullable<IAutoMovieSubjectContribution["landmarks"]>[number] = (
+  id: string,
+): NonNullable<IAutoMovieSubjectContribution["landmarks"]>[number] => ({
   id,
   position: { x: 0, y: 0, z: 0 },
   radius: 1,
@@ -115,31 +123,33 @@ const context: IAutoMovieShotBuildContext = {} as IAutoMovieShotBuildContext;
 export function test_world_subject_contribution(): void {
   TestValidator.predicate(
     "merging concatenates the exercised keys in the order given",
-    test12ValuesClose(mergeAutoMovieSubjectContributions([
+    test12ValuesClose(
+      mergeAutoMovieSubjectContributions([
+        {
+          models: [{ id: "model" }] as never,
+          set: [{ node: "set" }] as never,
+          actors: [actor("a")],
+          landmarks: [landmark("one")],
+        },
+        {
+          spaces: [{ id: "space" }] as never,
+          actors: [actor("b")],
+          surfaces: [],
+        },
+        {
+          builtEnvironments: [{ id: "building" }] as never,
+          landmarks: [landmark("two")],
+        },
+      ]),
       {
         models: [{ id: "model" }] as never,
         set: [{ node: "set" }] as never,
-        actors: [actor("a")],
-        landmarks: [landmark("one")],
-      },
-      {
         spaces: [{ id: "space" }] as never,
-        actors: [actor("b")],
-        surfaces: [],
-      },
-      {
         builtEnvironments: [{ id: "building" }] as never,
-        landmarks: [landmark("two")],
+        actors: [actor("a"), actor("b")],
+        landmarks: [landmark("one"), landmark("two")],
       },
-    ]),
-    {
-      models: [{ id: "model" }] as never,
-      set: [{ node: "set" }] as never,
-      spaces: [{ id: "space" }] as never,
-      builtEnvironments: [{ id: "building" }] as never,
-      actors: [actor("a"), actor("b")],
-      landmarks: [landmark("one"), landmark("two")],
-    }),
+    ),
   );
 
   TestValidator.equals(
@@ -150,11 +160,13 @@ export function test_world_subject_contribution(): void {
 
   TestValidator.predicate(
     "two subjects claiming one identity both survive",
-    test12ValuesClose(mergeAutoMovieSubjectContributions([
-      { landmarks: [landmark("same")] },
-      { landmarks: [landmark("same")] },
-    ]),
-    { landmarks: [landmark("same"), landmark("same")]}),
+    test12ValuesClose(
+      mergeAutoMovieSubjectContributions([
+        { landmarks: [landmark("same")] },
+        { landmarks: [landmark("same")] },
+      ]),
+      { landmarks: [landmark("same"), landmark("same")] },
+    ),
   );
 
   const left: Leaf = new Leaf("left", { actors: [actor("left")] });
@@ -164,8 +176,7 @@ export function test_world_subject_contribution(): void {
   const squadron: Plain = new Plain("squadron", [left, right]);
   TestValidator.predicate(
     "a group renders the merge of its members",
-    test12ValuesClose(squadron.render(context),
-    {
+    test12ValuesClose(squadron.render(context), {
       actors: [actor("left")],
       clips: [{ id: "right-clip" }] as never,
     }),
@@ -177,29 +188,28 @@ export function test_world_subject_contribution(): void {
     {},
   );
 
-  const regiment: AutoMovieSubjectGroup<{ id: string }, Plain> = new (class extends AutoMovieSubjectGroup<
-    { id: string },
-    Plain
-  > {
-    public readonly id: string = "regiment";
-    public members(): readonly Plain[] {
-      return [squadron, new Plain("second", [new Leaf("far", {})])];
-    }
-    public design(): { id: string } {
-      return { id: this.id };
-    }
-  })();
+  const regiment: AutoMovieSubjectGroup<{ id: string }, Plain> =
+    new (class extends AutoMovieSubjectGroup<{ id: string }, Plain> {
+      public readonly id: string = "regiment";
+      public members(): readonly Plain[] {
+        return [squadron, new Plain("second", [new Leaf("far", {})])];
+      }
+      public design(): { id: string } {
+        return { id: this.id };
+      }
+    })();
   TestValidator.predicate(
     "a group of groups equals the merge of its leaves",
-    test12ValuesClose(regiment.render(context),
-    squadron.render(context)),
+    test12ValuesClose(regiment.render(context), squadron.render(context)),
   );
 
   const bannered: Bannered = new Bannered("bannered", [left]);
   TestValidator.predicate(
     "a group that adds its own keeps what its members said",
-    test12ValuesClose(bannered.render(context),
-    { actors: [actor("left")], landmarks: [landmark("banner")]}),
+    test12ValuesClose(bannered.render(context), {
+      actors: [actor("left")],
+      landmarks: [landmark("banner")],
+    }),
   );
 
   // A population is one compact record whatever its count, and composing it
@@ -223,7 +233,9 @@ export function test_world_subject_contribution(): void {
   TestValidator.equals(
     "a population reaches the record as one compact entry, not ten thousand",
     (new Plain("wood", [forest]).render(context).instanceSets ?? []).map(
-      (set: NonNullable<IAutoMovieSubjectContribution["instanceSets"]>[number]): { id: string; count: number } => ({ id: set.id, count: set.count }),
+      (
+        set: NonNullable<IAutoMovieSubjectContribution["instanceSets"]>[number],
+      ): { id: string; count: number } => ({ id: set.id, count: set.count }),
     ),
     [{ id: "forest", count: 10_000 }],
   );

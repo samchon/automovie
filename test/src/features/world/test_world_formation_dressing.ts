@@ -8,7 +8,10 @@ const RANKS: number = 4;
 const FILES: number = 25;
 const COUNT: number = RANKS * FILES;
 
-const line: (props: { seed: number; dressing?: { lateral: number; depth: number } }) => IAutoMovieFormationDesign = (props: {
+const line: (props: {
+  seed: number;
+  dressing?: { lateral: number; depth: number };
+}) => IAutoMovieFormationDesign = (props: {
   seed: number;
   dressing?: { lateral: number; depth: number };
 }): IAutoMovieFormationDesign => ({
@@ -29,15 +32,24 @@ const line: (props: { seed: number; dressing?: { lateral: number; depth: number 
   heroOverrides: [],
 });
 
-const positions: (formation: IAutoMovieFormationDesign) => { x: number; z: number }[] = (
+const positions: (
+  formation: IAutoMovieFormationDesign,
+) => { x: number; z: number }[] = (
   formation: IAutoMovieFormationDesign,
 ): { x: number; z: number }[] =>
-  Array.from({ length: COUNT }, (_unused: unknown, slot: number): { x: number; z: number } => {
-    const placed: import("@automovie/interface").IAutoMovieVector3 = formationSlot(formation, slot).position;
-    return { x: placed.x, z: placed.z };
-  });
+  Array.from(
+    { length: COUNT },
+    (_unused: unknown, slot: number): { x: number; z: number } => {
+      const placed: import("@automovie/interface").IAutoMovieVector3 =
+        formationSlot(formation, slot).position;
+      return { x: placed.x, z: placed.z };
+    },
+  );
 
-const same: (left: { x: number; z: number }[], right: { x: number; z: number }[]) => boolean = (
+const same: (
+  left: { x: number; z: number }[],
+  right: { x: number; z: number }[],
+) => boolean = (
   left: { x: number; z: number }[],
   right: { x: number; z: number }[],
 ): boolean =>
@@ -84,10 +96,13 @@ const same: (left: { x: number; z: number }[], right: { x: number; z: number }[]
  */
 export function test_world_formation_dressing(): void {
   const exact: ReturnType<typeof positions> = positions(line({ seed: 7 }));
-  const lattice: ReturnType<typeof positions> = Array.from({ length: COUNT }, (_unused: unknown, slot: number): { x: number; z: number } => ({
-    x: ((slot % FILES) - (FILES - 1) / 2) * 0.7,
-    z: Math.floor(slot / FILES) * 1.2,
-  }));
+  const lattice: ReturnType<typeof positions> = Array.from(
+    { length: COUNT },
+    (_unused: unknown, slot: number): { x: number; z: number } => ({
+      x: ((slot % FILES) - (FILES - 1) / 2) * 0.7,
+      z: Math.floor(slot / FILES) * 1.2,
+    }),
+  );
   TestValidator.predicate(
     "an undressed layout sits on exact lattice geometry",
     same(exact, lattice),
@@ -120,14 +135,16 @@ export function test_world_formation_dressing(): void {
         "withinLateralBound",
         (): boolean =>
           dressed.every(
-            (point: { x: number; z: number }, index: number): boolean => Math.abs(point.x - exact[index]!.x) <= 0.25,
+            (point: { x: number; z: number }, index: number): boolean =>
+              Math.abs(point.x - exact[index]!.x) <= 0.25,
           ),
       ],
       [
         "withinDepthBound",
         (): boolean =>
           dressed.every(
-            (point: { x: number; z: number }, index: number): boolean => Math.abs(point.z - exact[index]!.z) <= 0.4,
+            (point: { x: number; z: number }, index: number): boolean =>
+              Math.abs(point.z - exact[index]!.z) <= 0.4,
           ),
       ],
     ]),
@@ -175,15 +192,17 @@ export function test_world_formation_dressing(): void {
       [
         "depthStaysExact",
         (): boolean =>
-          lateralOnly.every((point: { x: number; z: number }, index: number): boolean =>
-            nclose(point.z, exact[index]!.z, 1e-12),
+          lateralOnly.every(
+            (point: { x: number; z: number }, index: number): boolean =>
+              nclose(point.z, exact[index]!.z, 1e-12),
           ),
       ],
       [
         "lateralStillMoves",
         (): boolean =>
           lateralOnly.some(
-            (point: { x: number; z: number }, index: number): boolean => nclose(point.x, exact[index]!.x, 1e-12) === false,
+            (point: { x: number; z: number }, index: number): boolean =>
+              nclose(point.x, exact[index]!.x, 1e-12) === false,
           ),
       ],
     ]),

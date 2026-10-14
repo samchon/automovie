@@ -164,7 +164,10 @@ export function test_template_scaffold_publication_candidate(): void {
     "completed list is the planned list",
     all.receipt.completed.length === 3 &&
       all.receipt.completed.every(
-        (completed: IScaffoldPublicationReceipt["completed"][number], index: number): boolean =>
+        (
+          completed: IScaffoldPublicationReceipt["completed"][number],
+          index: number,
+        ): boolean =>
           completed.entry === all.receipt.planned[index] &&
           completed.parentIdentity === "1:2",
       ),
@@ -185,19 +188,32 @@ export function test_template_scaffold_publication_candidate(): void {
   );
 
   const second: IRecordedPublication = publish(three, [done, refused]);
-  TestValidator.equals("refusal after completion", second.receipt.status, "partial");
+  TestValidator.equals(
+    "refusal after completion",
+    second.receipt.status,
+    "partial",
+  );
   TestValidator.equals("stops at the second entry", second.calls, 2);
   TestValidator.equals("one completed", second.receipt.completed.length, 1);
 
   const partial: IRecordedPublication = publish(three, [
     { bytesWritten: 1, error: cause, parentIdentity: "1:2", status: "partial" },
   ]);
-  TestValidator.equals("first-entry partial", partial.receipt.status, "partial");
+  TestValidator.equals(
+    "first-entry partial",
+    partial.receipt.status,
+    "partial",
+  );
   TestValidator.equals(
     "byte count at the entry length is admitted",
     publish(three, [
       done,
-      { bytesWritten: 2, error: cause, parentIdentity: "1:2", status: "partial" },
+      {
+        bytesWritten: 2,
+        error: cause,
+        parentIdentity: "1:2",
+        status: "partial",
+      },
     ]).receipt.status,
     "partial",
   );
@@ -242,19 +258,37 @@ export function test_template_scaffold_publication_candidate(): void {
     ],
     [
       "partial past the entry",
-      { bytesWritten: 2, error: cause, parentIdentity: "1:2", status: "partial" },
+      {
+        bytesWritten: 2,
+        error: cause,
+        parentIdentity: "1:2",
+        status: "partial",
+      },
     ],
     [
       "negative partial",
-      { bytesWritten: -1, error: cause, parentIdentity: "1:2", status: "partial" },
+      {
+        bytesWritten: -1,
+        error: cause,
+        parentIdentity: "1:2",
+        status: "partial",
+      },
     ],
     [
       "fractional partial",
-      { bytesWritten: 0.5, error: cause, parentIdentity: "1:2", status: "partial" },
+      {
+        bytesWritten: 0.5,
+        error: cause,
+        parentIdentity: "1:2",
+        status: "partial",
+      },
     ],
     [
       "unknown status",
-      { parentIdentity: "1:2", status: "pending" } as unknown as ScaffoldFilePublicationOutcome,
+      {
+        parentIdentity: "1:2",
+        status: "pending",
+      } as unknown as ScaffoldFilePublicationOutcome,
     ],
   ];
   for (const [title, outcome] of invalid)

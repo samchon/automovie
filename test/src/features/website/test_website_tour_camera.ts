@@ -2,8 +2,8 @@ import { applyTourView } from "@automovie/website/tour-camera";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
-import { tourView } from "../internal/websiteTourFixture";
 import { nclose, vclose } from "../internal/predicates";
+import { tourView } from "../internal/websiteTourFixture";
 
 /**
  * Entering an authored view applies its exact world eye, aim and lens.
@@ -23,7 +23,8 @@ export function test_website_tour_camera(): void {
     "authored pose",
     vclose(camera.position, { x: 0, y: 2, z: 10 }, 0) &&
       vclose(target, { x: 0, y: 2, z: 0 }, 0) &&
-      nclose(camera.fov, 45, 0) && nclose(camera.near, 0.1, 0) &&
+      nclose(camera.fov, 45, 0) &&
+      nclose(camera.near, 0.1, 0) &&
       nclose(camera.far, 100, 0),
   );
 }

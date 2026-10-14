@@ -39,7 +39,10 @@ export function test_website_spectator_look(): void {
   for (const sign of [1, -1]) {
     camera.rotation.set(0, 0, 0.4, "YXZ");
     lookSpectatorCamera(camera, target, 0, sign * 100000);
-    const euler: THREE.Euler = new THREE.Euler().setFromQuaternion(camera.quaternion, "YXZ");
+    const euler: THREE.Euler = new THREE.Euler().setFromQuaternion(
+      camera.quaternion,
+      "YXZ",
+    );
     TestValidator.predicate(
       "pitch bounded",
       nclose(euler.x, (-sign * 89 * Math.PI) / 180),

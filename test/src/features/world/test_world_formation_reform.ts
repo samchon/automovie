@@ -1,16 +1,17 @@
-import type { IAutoMovieSampledFormationMotion } from "./../../../../packages/engine/src/IAutoMovieSampledFormationMotion";
 import {
   IAutoMovieFormationPlacement,
   formationSlotPosition,
   sampleFormationMotion,
 } from "@automovie/engine";
-import { IAutoMovieVector3,
+import {
   IAutoMovieFormationDesign,
   IAutoMovieFormationMotion,
+  IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts, nclose, vclose } from "../internal/predicates";
+import type { IAutoMovieSampledFormationMotion } from "./../../../../packages/engine/src/IAutoMovieSampledFormationMotion";
 
 const FILES: number = 4;
 const RANKS: number = 3;
@@ -32,14 +33,17 @@ const line: Extract<IAutoMovieFormationDesign["layout"], { kind: "line" }> = {
  * same arrangement at another spacing, which is what makes the midpoints below
  * readings of the blend rather than of a scale.
  */
-const column: Extract<IAutoMovieFormationDesign["layout"], { kind: "column" }> = {
-  kind: "column",
-  ranks: FILES,
-  files: RANKS,
-  spacing: { lateral: 2, depth: 3 },
-};
+const column: Extract<IAutoMovieFormationDesign["layout"], { kind: "column" }> =
+  {
+    kind: "column",
+    ranks: FILES,
+    files: RANKS,
+    spacing: { lateral: 2, depth: 3 },
+  };
 
-const unit: (facingDeg?: number) => IAutoMovieFormationPlacement = (facingDeg: number = 0): IAutoMovieFormationPlacement => ({
+const unit: (facingDeg?: number) => IAutoMovieFormationPlacement = (
+  facingDeg: number = 0,
+): IAutoMovieFormationPlacement => ({
   id: "block",
   count: COUNT,
   layout: line,
@@ -49,10 +53,16 @@ const unit: (facingDeg?: number) => IAutoMovieFormationPlacement = (facingDeg: n
 });
 
 /** One cue re-forming the unit across its whole window. */
-const reform: (layout: IAutoMovieFormationDesign["layout"]) => IAutoMovieFormationMotion = (
+const reform: (
+  layout: IAutoMovieFormationDesign["layout"],
+) => IAutoMovieFormationMotion = (
   layout: IAutoMovieFormationDesign["layout"],
 ): IAutoMovieFormationMotion => {
-  const still: { translation: { x: number; y: number; z: number; }; facingOffsetDeg: number; spacingScale: { lateral: number; depth: number; }; } = {
+  const still: {
+    translation: { x: number; y: number; z: number };
+    facingOffsetDeg: number;
+    spacingScale: { lateral: number; depth: number };
+  } = {
     translation: { x: 0, y: 0, z: 0 },
     facingOffsetDeg: 0,
     spacingScale: { lateral: 1, depth: 1 },
@@ -102,22 +112,34 @@ const reform: (layout: IAutoMovieFormationDesign["layout"]) => IAutoMovieFormati
  */
 export function test_world_formation_reform(): void {
   const cues: IAutoMovieFormationMotion[] = [reform(column)];
-  const at: (time: number) => IAutoMovieSampledFormationMotion = (time: number) : IAutoMovieSampledFormationMotion => sampleFormationMotion(cues, "block", time);
-  const placed: (formation: IAutoMovieFormationPlacement, slot: number, time: number) => IAutoMovieVector3 = (
+  const at: (time: number) => IAutoMovieSampledFormationMotion = (
+    time: number,
+  ): IAutoMovieSampledFormationMotion =>
+    sampleFormationMotion(cues, "block", time);
+  const placed: (
     formation: IAutoMovieFormationPlacement,
     slot: number,
     time: number,
-  ) : IAutoMovieVector3 => formationSlotPosition(formation, slot, at(time).reform);
+  ) => IAutoMovieVector3 = (
+    formation: IAutoMovieFormationPlacement,
+    slot: number,
+    time: number,
+  ): IAutoMovieVector3 =>
+    formationSlotPosition(formation, slot, at(time).reform);
 
   const straight: IAutoMovieFormationPlacement = unit();
-  const designed: (slot: number) => IAutoMovieVector3 = (slot: number) : IAutoMovieVector3 => formationSlotPosition(straight, slot);
-  const target: (slot: number) => IAutoMovieVector3 = (slot: number) : IAutoMovieVector3 =>
+  const designed: (slot: number) => IAutoMovieVector3 = (
+    slot: number,
+  ): IAutoMovieVector3 => formationSlotPosition(straight, slot);
+  const target: (slot: number) => IAutoMovieVector3 = (
+    slot: number,
+  ): IAutoMovieVector3 =>
     formationSlotPosition({ ...straight, layout: column }, slot);
 
   // A member whose two places differ in both axes, so neither a lateral nor a
   // depth blend alone can produce the midpoint below.
   const SLOT: number = 6;
-  const midpoint: { x: number; y: number; z: number; } = {
+  const midpoint: { x: number; y: number; z: number } = {
     x: (designed(SLOT).x + target(SLOT).x) / 2,
     y: (designed(SLOT).y + target(SLOT).y) / 2,
     z: (designed(SLOT).z + target(SLOT).z) / 2,
@@ -128,34 +150,37 @@ export function test_world_formation_reform(): void {
     namedFacts([
       [
         "theTwoArrangementsPutItSomewhereElse",
-        () : boolean =>
+        (): boolean =>
           nclose(designed(SLOT).x, target(SLOT).x) === false &&
           nclose(designed(SLOT).z, target(SLOT).z) === false,
       ],
       [
         "beforeTheCueItStandsWhereItWasDesigned",
-        () : boolean => vclose(placed(straight, SLOT, 0.5), designed(SLOT)),
+        (): boolean => vclose(placed(straight, SLOT, 0.5), designed(SLOT)),
       ],
       [
         "halfwayItStandsAtTheMidpointOfItsTwoPlaces",
-        () : boolean => vclose(placed(straight, SLOT, 2), midpoint),
+        (): boolean => vclose(placed(straight, SLOT, 2), midpoint),
       ],
       [
         "atTheEndItStandsWhereTheTargetPutsIt",
-        () : boolean => vclose(placed(straight, SLOT, 3), target(SLOT)),
+        (): boolean => vclose(placed(straight, SLOT, 3), target(SLOT)),
       ],
       // Held rather than released: a unit that re-formed has re-formed, and a
       // cue closing is not the unit walking back to its design.
       [
         "afterTheCueItStaysThere",
-        () : boolean => vclose(placed(straight, SLOT, 9), target(SLOT)),
+        (): boolean => vclose(placed(straight, SLOT, 9), target(SLOT)),
       ],
       // Every member, not the one read above: a blend that moved one member and
       // left the rest is not a re-form.
       [
         "everyMemberArrivesInTheTargetArrangement",
-        () : boolean =>
-          Array.from({ length: COUNT }, (_: unknown, slot: number) : number => slot).every((slot: number) : boolean =>
+        (): boolean =>
+          Array.from(
+            { length: COUNT },
+            (_: unknown, slot: number): number => slot,
+          ).every((slot: number): boolean =>
             vclose(placed(straight, slot, 3), target(slot)),
           ),
       ],
@@ -177,7 +202,7 @@ export function test_world_formation_reform(): void {
   // reading that separates the two frames needs a cue that turns the unit as it
   // re-forms, which is applied a layer up in `placeFormationSlot`.
   const turned: IAutoMovieFormationPlacement = unit(90);
-  const turnedMidpoint: { x: number; y: number; z: number; } = {
+  const turnedMidpoint: { x: number; y: number; z: number } = {
     x: midpoint.z,
     y: midpoint.y,
     z: -midpoint.x,
@@ -187,11 +212,11 @@ export function test_world_formation_reform(): void {
     namedFacts([
       [
         "aTurnedUnitReFormsAboutItsOwnAxes",
-        () : boolean => vclose(placed(turned, SLOT, 2), turnedMidpoint),
+        (): boolean => vclose(placed(turned, SLOT, 2), turnedMidpoint),
       ],
       [
         "andItsEndsAreTheTurnedArrangement",
-        () : boolean =>
+        (): boolean =>
           vclose(
             placed(turned, SLOT, 3),
             formationSlotPosition({ ...turned, layout: column }, SLOT),
@@ -212,7 +237,9 @@ export function test_world_formation_reform(): void {
     dressing: { lateral: 0.4, depth: 0.6 },
   };
   const dressedCues: IAutoMovieFormationMotion[] = [reform(dressedColumn)];
-  const dressedEnd: (slot: number) => IAutoMovieVector3 = (slot: number) : IAutoMovieVector3 =>
+  const dressedEnd: (slot: number) => IAutoMovieVector3 = (
+    slot: number,
+  ): IAutoMovieVector3 =>
     formationSlotPosition(
       straight,
       slot,
@@ -223,8 +250,11 @@ export function test_world_formation_reform(): void {
     namedFacts([
       [
         "everyMemberEndsOnItsDressedTargetPlace",
-        () : boolean =>
-          Array.from({ length: COUNT }, (_: unknown, slot: number) : number => slot).every((slot: number) : boolean =>
+        (): boolean =>
+          Array.from(
+            { length: COUNT },
+            (_: unknown, slot: number): number => slot,
+          ).every((slot: number): boolean =>
             vclose(
               dressedEnd(slot),
               formationSlotPosition(
@@ -236,9 +266,13 @@ export function test_world_formation_reform(): void {
       ],
       [
         "theDressingMovesMembersOffTheExactTarget",
-        () : boolean =>
-          Array.from({ length: COUNT }, (_: unknown, slot: number) : number => slot).some(
-            (slot: number) : boolean => vclose(dressedEnd(slot), target(slot)) === false,
+        (): boolean =>
+          Array.from(
+            { length: COUNT },
+            (_: unknown, slot: number): number => slot,
+          ).some(
+            (slot: number): boolean =>
+              vclose(dressedEnd(slot), target(slot)) === false,
           ),
       ],
     ]),
@@ -247,14 +281,50 @@ export function test_world_formation_reform(): void {
       theDressingMovesMembersOffTheExactTarget: true,
     },
   );
-  const finalLayout: IAutoMovieFormationDesign["layout"] = { ...line, spacing: { lateral: 4, depth: 1 } };
-  const secondCue: IAutoMovieFormationMotion = { ...reform(finalLayout), id: "second", start: 4, end: 6 };
-  const holdCue: IAutoMovieFormationMotion = { ...reform(column), id: "hold-after", start: 7, end: 8 };
+  const finalLayout: IAutoMovieFormationDesign["layout"] = {
+    ...line,
+    spacing: { lateral: 4, depth: 1 },
+  };
+  const secondCue: IAutoMovieFormationMotion = {
+    ...reform(finalLayout),
+    id: "second",
+    start: 4,
+    end: 6,
+  };
+  const holdCue: IAutoMovieFormationMotion = {
+    ...reform(column),
+    id: "hold-after",
+    start: 7,
+    end: 8,
+  };
   delete holdCue.layout;
-  const sequential: IAutoMovieFormationMotion[] = [reform(column), secondCue, holdCue];
-  const sequentialPosition: (time: number) => { x: number; y: number; z: number } = (time: number): { x: number; y: number; z: number } =>
-    formationSlotPosition(straight, 6, sampleFormationMotion(sequential, "block", time).reform);
-  for (const time of [3.5, 4]) TestValidator.predicate("gap and second-cue start hold the completed column", vclose(sequentialPosition(time), { x: 0, y: 0, z: 6 }, 1e-12));
-  TestValidator.predicate("second cue interpolates from the completed layout", vclose(sequentialPosition(5), { x: 1, y: 0, z: 3.5 }, 1e-12));
-  for (const time of [6, 7.5, 9]) TestValidator.predicate("second target survives completion and layout-free cues", vclose(sequentialPosition(time), { x: 2, y: 0, z: 1 }, 1e-12));
+  const sequential: IAutoMovieFormationMotion[] = [
+    reform(column),
+    secondCue,
+    holdCue,
+  ];
+  const sequentialPosition: (time: number) => {
+    x: number;
+    y: number;
+    z: number;
+  } = (time: number): { x: number; y: number; z: number } =>
+    formationSlotPosition(
+      straight,
+      6,
+      sampleFormationMotion(sequential, "block", time).reform,
+    );
+  for (const time of [3.5, 4])
+    TestValidator.predicate(
+      "gap and second-cue start hold the completed column",
+      vclose(sequentialPosition(time), { x: 0, y: 0, z: 6 }, 1e-12),
+    );
+  TestValidator.predicate(
+    "second cue interpolates from the completed layout",
+    vclose(sequentialPosition(5), { x: 1, y: 0, z: 3.5 }, 1e-12),
+  );
+  for (const time of [6, 7.5, 9])
+    TestValidator.predicate(
+      "second target survives completion and layout-free cues",
+      vclose(sequentialPosition(time), { x: 2, y: 0, z: 1 }, 1e-12),
+    );
 }

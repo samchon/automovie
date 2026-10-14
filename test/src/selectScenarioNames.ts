@@ -22,8 +22,12 @@ export function selectScenarioNames(
     names.filter(
       (name: string): boolean =>
         (selection.include.length === 0 ||
-          selection.include.some((term: string): boolean => name.includes(term))) &&
-        selection.exclude.every((term: string): boolean => !name.includes(term)),
+          selection.include.some((term: string): boolean =>
+            name.includes(term),
+          )) &&
+        selection.exclude.every(
+          (term: string): boolean => !name.includes(term),
+        ),
     ),
   );
   if (selected.size === 0)
