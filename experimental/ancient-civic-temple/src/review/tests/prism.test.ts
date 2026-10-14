@@ -1,9 +1,11 @@
 /**
- * src/geometry/prism.ts `prismFaces`: 볼록 평면 다각형 위 수직 프리즘.
- * fixture: 볼록 사각형(수평/경사 상단), 삼각형, 얇은 두께(1mm), 수치 한계 근처 높이,
- * 오목 다각형(거부되는 경우), 결정성. 구멍은 이 연산의 정의역 밖이다(한 고리만 받는다;
- * 구멍 있는 벽은 wall-solids의 기둥 분해, 구멍 있는 평면은 planar-domain 분할이 맡는다).
- * 열린 경계도 정의역 밖이다(항상 닫힌 면 목록을 낸다).
+ * src/geometry/prism.ts prismFaces: vertical prisms over convex planar polygons.
+ * Fixtures: convex quadrilaterals with level or sloped tops, triangles, thin
+ * thickness (1mm), heights near the numeric limit, concave polygons (refused),
+ * and determinism. Holes are outside the domain, which takes one ring only;
+ * wall-solids column decomposition owns walls with holes and planar-domain
+ * partition owns planes with holes. Open boundaries are also outside the
+ * domain; the operation always emits a closed face list.
  */
 import assert from "node:assert/strict";
 import test from "node:test";
@@ -45,12 +47,12 @@ void test("thin prism (1 mm) stays closed with exact volume", () => {
 
 void test("near-tolerance heights: 2e-9 m accepted by prismFaces, 5e-10 m refused", () => {
   assert.equal(prismFaces(square, levelPlane(0), levelPlane(2e-9)).length, 6);
-  assert.throws(() => prismFaces(square, levelPlane(0), levelPlane(5e-10)), /높지 않습니다/);
-  assert.throws(() => prismFaces(square, levelPlane(1), levelPlane(0)), /높지 않습니다/);
+  assert.throws(() => prismFaces(square, levelPlane(0), levelPlane(5e-10)), /not higher/);
+  assert.throws(() => prismFaces(square, levelPlane(1), levelPlane(0)), /not higher/);
 });
 
 void test("refused inputs: fewer than three corners, concave base (engine refuses the reflex top face)", () => {
-  assert.throws(() => prismFaces([{ x: 0, z: 0 }, { x: 1, z: 0 }], levelPlane(0), levelPlane(1)), /세 꼭짓점/);
+  assert.throws(() => prismFaces([{ x: 0, z: 0 }, { x: 1, z: 0 }], levelPlane(0), levelPlane(1)), /at least three vertices/);
   const concave = [{ x: 0, z: 0 }, { x: 2, z: 0 }, { x: 2, z: 1 }, { x: 1, z: 1 }, { x: 1, z: 2 }, { x: 0, z: 2 }];
   const faces = prismFaces(concave, levelPlane(0), levelPlane(1));
   assert.equal(faces.length, 8, "prismFaces itself does not test convexity");

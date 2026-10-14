@@ -1,9 +1,11 @@
 /**
- * 관찰·측정 기록이 함께 적는 source 식별자(`.agents/skills/source-authoring/compilation.md`).
- * basis는 source·public 및 설정·공간·모델·재료·배치·작업 계약 입력 bytes의
- * sha256 앞 16자로, 뷰어 화면과 자가검사가 같은 값을 보인다. revision은 production 경로의
- * Git에서 이 production 경로를 마지막으로 바꾼 커밋과 작업 트리 변경 여부다.
- * 커밋되지 않은 변경이 있으면 dirty이며 그 결과는 기록된 커밋의 결과가 아니다.
+ * Source identity recorded with observations and measurements
+ * (`.agents/skills/source-authoring/compilation.md`). The basis is the first 16
+ * sha256 characters of source, public, settings, space, model, material, instance
+ * and work-contract input bytes; viewer and self-check display the same value.
+ * Revision gives the last Git commit changing this production path and whether
+ * its working tree changed. Uncommitted changes mean dirty; their result does
+ * not belong to the recorded commit.
  */
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
@@ -48,7 +50,7 @@ export interface SourceRevision {
   dirty: boolean;
 }
 
-/** Git을 읽을 수 없으면 null이다(값을 지어내지 않는다). */
+/** Returns null when Git is unreadable, without inventing a value. */
 export const sourceRevision = (): SourceRevision | null => {
   try {
     const git = (...args: string[]) => execFileSync("git", args, { cwd: productionRoot, encoding: "utf8", windowsHide: true }).trim();

@@ -1,8 +1,9 @@
 /**
- * src/geometry/planar-domain.ts: 사각형·반평면 clip·볼록 분할·정리.
- * fixture: 볼록(사각형), 오목(L자 subject를 한 반평면으로 clip), 구멍(가운데 cutter로
- * 나눈 바깥 조각), 얇은(1mm 폭), 수치 한계 근처(꼭짓점을 지나는 clip, 0.1mm 중복점,
- * 1mm² 경계의 조각), 거부(뒤집힌·비유한 사각형), 결정성.
+ * src/geometry/planar-domain.ts: rectangles, half-plane clipping, convex partition and cleanup.
+ * Fixtures: convex rectangles, concavity (an L-shaped subject clipped by one
+ * half-plane), holes (outer pieces split by a central cutter), thin width (1mm),
+ * near-limit cases (clipping through a vertex, 0.1mm duplicate points and pieces
+ * at the 1mm² boundary), refusals (inverted or non-finite rectangles), and determinism.
  */
 import assert from "node:assert/strict";
 import test from "node:test";

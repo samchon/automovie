@@ -1,7 +1,8 @@
 /**
- * 기하 연산 pure test의 공용 fixture. 면 목록을 engine polyhedron으로 만들어 mesh-ledger로
- * 재고, 닫힌 실체의 기대값(열린 모서리·비다양체·감김·퇴화 0, 기대 체적)을 확인한다.
- * 기대 체적은 연산 코드가 아니라 fixture의 입력 치수로 따로 계산한 값이다.
+ * Shared fixtures for pure geometry tests. Builds an engine polyhedron from
+ * face lists, measures it through mesh-ledger, and checks closed-solid expectations:
+ * 0 open edges, non-manifold edges, winding errors and degeneracy, plus expected volume.
+ * Expected volume is calculated independently from fixture input dimensions, not operation code.
  */
 import assert from "node:assert/strict";
 import { buildAutoMoviePolyhedron } from "@automovie/engine";
@@ -17,7 +18,7 @@ export const near = (actual: number, expected: number, tolerance = 1e-9, what = 
   assert.ok(Math.abs(actual - expected) <= tolerance, `${what}: ${actual} ≠ ${expected} (±${tolerance})`);
 };
 
-/** 닫힌 실체의 결산 조건. T 접합은 허용하되 해소 뒤 틈은 없어야 한다. */
+/** Closed-solid ledger conditions: T-junctions are allowed, but no gap may remain after resolution. */
 export const assertClosed = (account: MeshAccount, volume: number, components = 1): void => {
   assert.equal(account.degenerate, 0, `${account.id}: degenerate`);
   assert.equal(account.nonFinite, 0, `${account.id}: non-finite`);
@@ -29,7 +30,7 @@ export const assertClosed = (account: MeshAccount, volume: number, components = 
   near(account.volume, volume, 1e-9, `${account.id}: volume`);
 };
 
-/** 축 정렬 상자의 바깥 감김 면 여섯(engine polyhedron 순서). */
+/** Six outward-wound faces of an axis-aligned box, in engine polyhedron order. */
 export const boxFaces = (b: { west: number; east: number; bottom: number; top: number; north: number; south: number }) => {
   const { west: x0, east: x1, bottom: y0, top: y1, north: z0, south: z1 } = b;
   return [
@@ -42,7 +43,7 @@ export const boxFaces = (b: { west: number; east: number; bottom: number; top: n
   ].map((corners) => ({ surface: "surface.test.box", corners }));
 };
 
-/** 볼록 평면 다각형의 면적(3D, m²). */
+/** Area of a convex planar polygon in 3D, m². */
 export const faceArea = (corners: readonly IAutoMovieVector3[]): number => {
   let x = 0, y = 0, z = 0;
   for (let i = 1; i + 1 < corners.length; ++i) {
@@ -55,7 +56,7 @@ export const faceArea = (corners: readonly IAutoMovieVector3[]): number => {
   return Math.hypot(x, y, z) / 2;
 };
 
-/** XZ 다각형 부호 면적(m², CCW 양수). */
+/** Signed area of an XZ polygon, m², positive for CCW. */
 export const planArea = (polygon: ReadonlyArray<{ x: number; z: number }>): number => polygon.reduce((sum, a, i) => {
   const b = polygon[(i + 1) % polygon.length]!;
   return sum + a.x * b.z - b.x * a.z;

@@ -42,7 +42,7 @@ const spacesStage = "evidence" as const;
 export const productionEvidence = {
   ...createBlankAutoMovieProductionEvidence(
     __dirname,
-    "korean" as AutoMovieProductionLanguage,
+    "english" as AutoMovieProductionLanguage,
   ),
   kind: "library",
   settings: settingsStage,

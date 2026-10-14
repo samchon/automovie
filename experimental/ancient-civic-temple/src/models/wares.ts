@@ -94,7 +94,7 @@ export class TempleWares {
   storageJar(): IAutoMovieModel {
     return jar(
       "ware.storage-jar",
-      "큰 저장 항아리",
+      "Large storage jar",
       [
         [0, 0.1],
         [0.4, 0.24],
@@ -124,7 +124,7 @@ export class TempleWares {
   carryJar(): IAutoMovieModel {
     return jar(
       "ware.carry-jar",
-      "운반 항아리",
+      "Carrying jar",
       [
         [0, 0.07],
         [0.28, 0.15],
@@ -154,7 +154,7 @@ export class TempleWares {
   smallVessel(): IAutoMovieModel {
     return jar(
       "ware.small-vessel",
-      "작은 탁상 용기",
+      "Small table vessel",
       [
         [0, 0.05],
         [0.1, 0.08],
@@ -197,7 +197,7 @@ export class TempleWares {
       ],
       24,
     );
-    return m.model("ware.offering-bowl", "얕은 봉헌 그릇");
+    return m.model("ware.offering-bowl", "Shallow offering bowl");
   }
 
   /**
@@ -228,7 +228,7 @@ export class TempleWares {
       const y = 0.02 + (i + 0.5) * (0.285 / 10);
       m.loop("wall", 0, y, 0, 0.2 + (i % 2 === 0 ? 0.004 : 0), 0.008, "xz", 24);
     }
-    return m.model("ware.basket", "운반 바구니");
+    return m.model("ware.basket", "Carrying basket");
   }
 
   /**
@@ -271,6 +271,6 @@ export class TempleWares {
       if (state === "rolled") m.loop("tie", 0, 0, 0, 0.0325, 0.0025, "yz", 16);
       else bundleTie(m);
     }
-    return m.model(`ware.scroll.${state}`, `두루마리 ${state}`);
+    return m.model(`ware.scroll.${state}`, `Scroll ${state}`);
   }
 }

@@ -1,14 +1,17 @@
 /**
- * 실제 렌더에 가는 model mesh의 topology 결산(`.agents/skills/source-authoring/geometry.md`
- * Consequence ledger). 한 model의 part mesh를 engine `mergeAutoMovieMeshes`로 이어
- * `inspectAutoMovieMeshTopology`(삼각형·퇴화·비유한·열린/비다양체 모서리·부호 체적)와
- * `validateMeshTopology`(감김 일관성)를 그대로 읽고, 엔진이 세지 않는 두 값을 더한다.
- * (1) T 접합 해소 뒤의 열린 모서리: 인접 볼록 조각의 면 분할은 한 면의 변 위에 다른 면의
- * 꼭짓점을 남겨 용접 기준의 열린 모서리를 만들지만 틈은 아니다. 각 변을 그 위에 놓인
- * 꼭짓점에서 나눈 뒤 방향 있는 부분 변이 양방향으로 짝을 이루지 않는 것만 실제 틈으로 센다.
- * (2) 연결 성분: 삼각형과 T 접합으로 이어진 꼭짓점의 합집합 수.
- * 용접은 engine과 같은 나노미터 격자, 변 위 판정은 1e-6 m다. 결산은 기하 사실이며
- * 외관이나 설계 적합의 판정이 아니다.
+ * Topology ledger for model meshes sent to the actual renderer
+ * (`.agents/skills/source-authoring/geometry.md`, Consequence ledger). Joins one
+ * model's part meshes through engine mergeAutoMovieMeshes, reads
+ * inspectAutoMovieMeshTopology (triangles, degeneracy, non-finite components,
+ * open/non-manifold edges and signed volume) and validateMeshTopology (winding
+ * consistency) unchanged, and adds two quantities the engine does not count.
+ * (1) Open edges after T-junction resolution: splitting adjacent convex faces
+ * can leave a face vertex on another face's edge, producing welded open edges
+ * without a gap. Splits each edge at such vertices and counts only directed
+ * subedges without an opposite partner as actual gaps.
+ * (2) Connected components: unions of vertices joined by triangles and T-junctions.
+ * Welding uses the engine's nanometre grid; the on-edge tolerance is 1e-6 m.
+ * Ledger values are geometric facts, without judging appearance or design fit.
  */
 import { inspectAutoMovieMeshTopology, mergeAutoMovieMeshes, tessellateToMesh, validateMeshTopology } from "@automovie/engine";
 import type { IAutoMovieBuiltEnvironment, IAutoMovieMesh, IAutoMovieModel, IAutoMovieVector3 } from "@automovie/interface";
@@ -16,24 +19,24 @@ import type { IAutoMovieBuiltEnvironment, IAutoMovieMesh, IAutoMovieModel, IAuto
 export interface MeshAccount {
   id: string;
   parts: number;
-  /** 버퍼의 꼭짓점 수(용접 전)와 용접 뒤 수. */
+  /** Vertex counts in the buffer before welding and after welding. */
   vertices: number;
   weldedVertices: number;
   triangles: number;
   degenerate: number;
   nonFinite: number;
-  /** 용접 기준 열린 모서리(engine). T 접합도 여기에 들어간다. */
+  /** Welded open edges reported by the engine, including T-junctions. */
   boundaryEdges: number;
   nonManifoldEdges: number;
-  /** 인접 삼각형이 공유 변을 같은 방향으로 도는 경우(engine validateMeshTopology). */
+  /** Adjacent triangles traversing their shared edge in the same direction (engine validateMeshTopology). */
   windingErrors: number;
-  /** T 접합을 해소한 뒤에도 짝이 없는 부분 변 = 실제 틈. */
+  /** Unpaired subedges after T-junction resolution, representing actual gaps. */
   openEdges: number;
-  /** 해소 뒤 세 번 이상 쓰인 부분 변. */
+  /** Subedges used at least three times after resolution. */
   resolvedNonManifold: number;
-  /** 틈·비다양체 부분 변의 중점(앞의 8개). 위치를 찾아 관찰하기 위한 값이다. */
+  /** Midpoints of the first 8 open or non-manifold subedges, for locating observations. */
   defectSamples: Array<{ kind: "open" | "non-manifold"; at: [number, number, number] }>;
-  /** 다른 면의 변 위에 놓인 꼭짓점 수. */
+  /** Vertices lying on edges of other faces. */
   tJunctionVertices: number;
   components: number;
   watertight: boolean;
@@ -46,9 +49,9 @@ export interface MeshAccount {
 const weldScale = 1e9;
 const onEdge = 1e-6;
 
-/** 여러 mesh(한 model의 part들)를 한 결산으로 잰다. 입력 배열은 바꾸지 않는다. */
+/** Measures several meshes, such as one model's parts, as one account without mutating input arrays. */
 export const accountMeshes = (id: string, meshes: readonly IAutoMovieMesh[]): MeshAccount => {
-  if (meshes.length === 0) throw new Error(`${id}: 결산할 mesh가 없습니다.`);
+  if (meshes.length === 0) throw new Error(`${id}: no meshes to account.`);
   const merged = mergeAutoMovieMeshes(meshes);
   const topology = inspectAutoMovieMeshTopology(merged);
   const validation = validateMeshTopology({ mesh: merged });
@@ -76,29 +79,34 @@ export const accountMeshes = (id: string, meshes: readonly IAutoMovieMesh[]): Me
   };
 };
 
-/** model의 part geometry를 mesh로(primitive는 공개 tessellation). */
+/** Converts model part geometry to meshes, using public tessellation for primitives. */
 const partMeshes = (model: IAutoMovieModel): IAutoMovieMesh[] => model.parts.map((part) =>
   part.geometry.type === "mesh" ? part.geometry.mesh : tessellateToMesh(part.geometry.shape));
 
-/** model 하나의 part geometry를 결산한다. */
+/** Accounts for the part geometry of one model. */
 export const accountModel = (model: IAutoMovieModel): MeshAccount => accountMeshes(model.id, partMeshes(model));
 
-/** 한 generation의 environment가 가진 모든 model을 선언 순서대로 결산한다. */
+/** Accounts for every model in one environment generation in declaration order. */
 export const accountEnvironment = (environment: IAutoMovieBuiltEnvironment): MeshAccount[] =>
   environment.models.map(accountModel);
 
 /**
- * 신전 model의 닫힘 계약. docs/spaces/site.md의 흙·포장·이웃 바닥과 먼 능선은 윗면만
- * 있는 열린 표면이다(src/spaces/site/ground.ts, ridge.ts). 날개 지붕 세 owner는 함께
- * culling돼 서로 맞닿은 옆면이 이웃 slab 안에 숨으므로(src/geometry/roof-solids.ts) owner별
- * model은 그 접면에서 열려 있고, 세 model의 합이 닫힌 실체다. 나머지 model은 각각 닫힌
- * 실체다. 닫힌 실체는 T 접합 해소 뒤 열린 모서리 0, 비다양체 0, 감김 오류 0, 양의 체적이다.
+ * Temple model closure contract. The soil, paving, neighbor floors and distant
+ * ridge in docs/spaces/site.md are open top-only surfaces
+ * (src/spaces/site/ground.ts and ridge.ts). The three wing-roof owners are culled
+ * together: their touching side faces hide inside adjacent slabs
+ * (src/geometry/roof-solids.ts), so each owner model is open at those interfaces
+ * and the union of all three is a closed solid. Every other model is individually
+ * closed. After T-junction resolution, a closed solid has 0 open edges,
+ * 0 non-manifold edges, 0 winding errors and positive volume.
  */
 export const templeOpenSurfaceModels: ReadonlySet<string> = new Set(["model.site-ground", "model.site-distant"]);
 /**
- * docs/models 부재 중 기와(둥근기와 껍질·평기와 판)는 slab 위에 얹힌 열린 껍질이고, 기둥·보·문틀·
- * 문짝·창틀·서까래·트러스·천장 보·수반은 맞닿은 닫힌 부재의 모음(부울 합이 아닌 assembly)이다.
- * assembly는 퇴화·비유한 0과 양의 체적(뒤집힌 부재 없음)만 계약으로 본다.
+ * Among docs/models members, tile shells and tegula boards are open shells laid
+ * on slabs. Columns, beams, door frames, leaves, window frames, rafters, trusses,
+ * ceiling joists and basins are assemblies of touching closed members, without
+ * a Boolean union. Assemblies require only 0 degeneracy/non-finite components
+ * and positive volume, ruling out inverted members.
  */
 export const templeContractOf = (id: string): LedgerRow["contract"] =>
   templeOpenSurfaceModels.has(id) || id.startsWith("model.cladding-") ? "open-surface"
@@ -108,9 +116,10 @@ export const templeCompositeSolids: ReadonlyArray<{ id: string; models: readonly
 ];
 
 /**
- * 명명된 접면: 날개 지붕의 높이 차이 막음(docs/spaces/junctions.md#gable-closures "날개 단위 안의
- * 높이 차이")은 두께 없는 양면 판이다. 합성 실체 결산은 이 판의 삼각형을 빼고 닫힘을 재며,
- * 판 자체는 따로 앞·뒷면 수로 보고한다.
+ * Named interface: wing-roof step closures (docs/spaces/junctions.md#gable-closures,
+ * "height differences within a wing unit") are zero-thickness double-sided sheets.
+ * The composite-solid ledger excludes their triangles before measuring closure
+ * and reports the sheets' front and back face counts separately.
  */
 export interface NamedSheet { id: string; corners: readonly IAutoMovieVector3[] }
 
@@ -118,10 +127,10 @@ const onSheet = (sheets: readonly NamedSheet[], points: ReadonlyArray<readonly [
   points.every((point) => sheet.corners.some((corner) =>
     Math.hypot(point[0] - corner.x, point[1] - corner.y, point[2] - corner.z) < 1e-6)));
 
-/** 선택된 삼각형이 실제로 참조하는 꼭짓점과 모든 정적 속성만 남긴 계측용 mesh. */
+/** Measurement mesh retaining only vertices referenced by selected triangles and all their static attributes. */
 const selectTriangles = (mesh: IAutoMovieMesh, triangles: readonly number[]): IAutoMovieMesh | null => {
   if (triangles.length === 0) return null;
-  if (mesh.skin !== null) throw new Error("명명된 막음 판 결산은 rigid mesh만 받습니다.");
+  if (mesh.skin !== null) throw new Error("Named closure-sheet accounts require rigid meshes.");
   const oldToNew = new Map<number, number>();
   const positions: number[] = [];
   const normals: number[] | null = mesh.normals === null ? null : [];
@@ -142,7 +151,7 @@ const selectTriangles = (mesh: IAutoMovieMesh, triangles: readonly number[]): IA
   return { positions, normals, uvs, ...(colors === undefined ? {} : { colors }), indices, skin: null };
 };
 
-/** 실제 mesh의 삼각형을 명명된 양면 판과 나머지로 나눠 각각의 속성·범위를 결산한다. */
+/** Separates actual mesh triangles into named double-sided sheets and the remainder, preserving their attributes and bounds. */
 export const partitionNamedSheetTriangles = (
   mesh: IAutoMovieMesh, sheets: readonly NamedSheet[],
 ): { body: IAutoMovieMesh | null; sheet: IAutoMovieMesh | null; removed: number } => {
@@ -164,23 +173,23 @@ export interface LedgerRow {
   findings: string[];
 }
 
-/** environment의 모든 model과 합성 실체를 계약과 함께 결산한다. */
+/** Accounts for every environment model and composite solid with its contract. */
 export const templeTopologyLedger = (environment: IAutoMovieBuiltEnvironment, sheets: readonly NamedSheet[] = []): LedgerRow[] => {
   const members = new Set(templeCompositeSolids.flatMap((c) => c.models));
   const rows: LedgerRow[] = environment.models.map((model) => {
     const account = accountModel(model);
     const contract = members.has(model.id) ? "composite-member" : templeContractOf(model.id);
     const findings = contract === "solid-assembly"
-      ? [...account.degenerate > 0 ? [`퇴화 삼각형 ${account.degenerate}`] : [], ...account.nonFinite > 0 ? [`비유한 성분 ${account.nonFinite}`] : [],
-        ...account.volume > 0 ? [] : [`부호 체적 ${account.volume}(뒤집힌 부재)`]]
-      : contract === "open-surface" || contract === "composite-member" ? [...account.degenerate > 0 ? [`퇴화 삼각형 ${account.degenerate}`] : [], ...account.nonFinite > 0 ? [`비유한 성분 ${account.nonFinite}`] : []]
+      ? [...account.degenerate > 0 ? [`degenerate triangles ${account.degenerate}`] : [], ...account.nonFinite > 0 ? [`non-finite components ${account.nonFinite}`] : [],
+        ...account.volume > 0 ? [] : [`signed volume ${account.volume} (inverted member)`]]
+      : contract === "open-surface" || contract === "composite-member" ? [...account.degenerate > 0 ? [`degenerate triangles ${account.degenerate}`] : [], ...account.nonFinite > 0 ? [`non-finite components ${account.nonFinite}`] : []]
       : closureFindings(account, contract === "closed");
     return { account, contract, findings };
   });
   for (const composite of templeCompositeSolids) {
     const models = composite.models.map((id) => {
       const model = environment.models.find((m) => m.id === id);
-      if (model === undefined) throw new Error(`${composite.id}: model ${id}가 없습니다.`);
+      if (model === undefined) throw new Error(`${composite.id}: model ${id} is missing.`);
       return model;
     });
     const stripped = models.flatMap(partMeshes).map((mesh) => partitionNamedSheetTriangles(mesh, sheets));
@@ -191,31 +200,31 @@ export const templeTopologyLedger = (environment: IAutoMovieBuiltEnvironment, sh
       const expected = sheets.reduce((sum, sheet) => sum + 2 * (sheet.corners.length - 2), 0);
       const faces = removed;
       const sheetMeshes = stripped.flatMap((s) => s.sheet === null ? [] : [s.sheet]);
-      if (sheetMeshes.length === 0) throw new Error(`${composite.id}: 명명된 막음 판 삼각형이 없습니다.`);
+      if (sheetMeshes.length === 0) throw new Error(`${composite.id}: named closure-sheet triangles are missing.`);
       const sheetAccount = accountMeshes(`${composite.id}.named-sheets`, sheetMeshes);
       rows.push({
         account: sheetAccount,
         contract: "open-surface",
         findings: [...closureFindings(sheetAccount, false).filter((finding) =>
-          finding.startsWith("퇴화") || finding.startsWith("비유한")),
-        ...(faces === expected ? [] : [`명명된 막음 판 ${sheets.length}장의 앞·뒷면 삼각형 ${expected} 중 ${faces}`])],
+          finding.startsWith("degenerate") || finding.startsWith("non-finite")),
+        ...(faces === expected ? [] : [`${faces} of ${expected} front/back triangles for ${sheets.length} named closure sheets`])],
       });
     }
   }
   return rows;
 };
 
-/** 결산이 닫힘 계약을 어긴 이유 목록(빈 배열이면 계약 충족). */
+/** Reasons the account violates its closure contract; an empty array satisfies it. */
 export const closureFindings = (account: MeshAccount, closed: boolean): string[] => {
   const findings: string[] = [];
-  if (account.degenerate > 0) findings.push(`퇴화 삼각형 ${account.degenerate}`);
-  if (account.nonFinite > 0) findings.push(`비유한 성분 ${account.nonFinite}`);
+  if (account.degenerate > 0) findings.push(`degenerate triangles ${account.degenerate}`);
+  if (account.nonFinite > 0) findings.push(`non-finite components ${account.nonFinite}`);
   if (account.nonManifoldEdges > 0 || account.resolvedNonManifold > 0) {
-    findings.push(`비다양체 모서리 ${account.nonManifoldEdges}/${account.resolvedNonManifold}`);
+    findings.push(`non-manifold edges ${account.nonManifoldEdges}/${account.resolvedNonManifold}`);
   }
-  if (account.windingErrors > 0) findings.push(`감김 오류 ${account.windingErrors}`);
-  if (closed && account.openEdges > 0) findings.push(`T 접합 해소 뒤 열린 모서리 ${account.openEdges}`);
-  if (closed && !(account.volume > 0)) findings.push(`닫힌 실체의 부호 체적 ${account.volume}`);
+  if (account.windingErrors > 0) findings.push(`winding errors ${account.windingErrors}`);
+  if (closed && account.openEdges > 0) findings.push(`open edges after T-junction resolution ${account.openEdges}`);
+  if (closed && !(account.volume > 0)) findings.push(`signed volume of closed solid ${account.volume}`);
   return findings;
 };
 
@@ -228,7 +237,7 @@ interface Resolution {
   components: number;
 }
 
-/** 용접·T 접합 해소·짝 검사·연결 성분. */
+/** Welding, T-junction resolution, directed pairing and connected components. */
 const resolveTJunctions = (mesh: IAutoMovieMesh): Resolution => {
   const p = mesh.positions;
   const index = new Map<string, number>();

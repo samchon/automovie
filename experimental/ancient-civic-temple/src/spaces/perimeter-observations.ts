@@ -43,13 +43,13 @@ export const openingFacingEye = (
 };
 
 /**
- * 개구부 ID와 실제 host profile에 결속된 방 안쪽 시점. 엔진 threshold의 도착 방향을
- * 창을 향한 시선으로 오인하지 않는다.
- * @evidence spaces/observations.md 실제 개구부 관찰 전집합에 방 안쪽 시점을 더한다.
- * @evidence spaces/observations.md#geometry-observations 16개 개구부마다 해당 profile을 향하는 방 안 pose를 별도 관찰로 만든다.
- * @evidence principles/core/source-units.md#source-scope-preservation 공간·경계·개구부에서 시점만 유도하고 벽·창·문 geometry는 추가하지 않는다.
- * @evidence principles/core/source-units.md#source-substantive-completion 모든 opening ID에 대해 공간 안 눈높이 pose와 실제 profile 중심 target을 반환하며 공간 밖이면 오류를 낸다.
- * @evidence upstream/design/space-sources.md#design-revision-from-space-source-work openings.md#clerestories가 도착 threshold를 창 판독에서 제외하고 창 ID 방향 pose를 요구하며, observations.md#geometry-observations가 문·창 16개의 별도 방 쪽 관찰 규칙을 정한 뒤 이 함수를 구현했다.
+ * Interior views bound to opening IDs and actual host profiles. Engine threshold
+ * arrival directions are not mistaken for views facing the windows.
+ * @evidence spaces/observations.md Adds room-side views to the actual opening observation population.
+ * @evidence spaces/observations.md#geometry-observations Gives each of sixteen openings a separate interior pose facing its profile.
+ * @evidence principles/core/source-units.md#source-scope-preservation Derives views from spaces, boundaries and openings without adding geometry.
+ * @evidence principles/core/source-units.md#source-substantive-completion Returns an interior eye-height pose targeting the actual profile center for every opening ID, rejecting positions outside the space.
+ * @evidence upstream/design/space-sources.md#design-revision-from-space-source-work clerestories excludes arrival thresholds from window inspection and requires ID-facing poses; geometry-observations first established separate room-side views for all sixteen doors and windows.
  */
 export const openingFacingObservations = (environment: IAutoMovieBuiltEnvironment): TempleObservation[] => {
   return environment.openings.map((opening) => {
@@ -76,33 +76,33 @@ export const openingFacingObservations = (environment: IAutoMovieBuiltEnvironmen
     if (position === null) throw new Error(`temple/observations: ${opening.id} room-facing eye outside ${room ?? "?"}`);
     return {
       id: `${room}.opening-facing.${opening.id}`, group: "space", space: room!, role: "opening-facing",
-      label: `${room} · ${opening.id} 방 쪽`, position, target,
-      note: opening.kind === "window" ? "제실 안에서 해당 높은 창의 host profile을 향함" : "해당 문 ID의 host profile을 향함",
+      label: `${room} · ${opening.id} room side`, position, target,
+      note: opening.kind === "window" ? "Faces this high window's host profile from inside the sanctuary" : "Faces this door ID's host profile",
     };
   });
 };
 
-/** 공통 비교 프레임에서 폭 width가 약 78%를 채우는 거리(m). */
+/** Distance in meters at which width fills about 78% of the shared comparison frame. */
 const fitDistance = (width: number): number => (width / 0.78) / 2 / (Math.tan(templeViewerLens.halfVerticalRadians) * templeViewerLens.aspect);
 
 /**
- * @evidence spaces/observations.md 외부 setting과 경계·개구부 관찰을 현재 environment에서 유도한다.
- * @evidence spaces/observations.md#geometry-observations 실제 census의 노출 입면과 opening profile에서 외부 시점을 유도한다.
- * @evidence principles/core/source-units.md#source-scope-preservation 현재 boundary와 opening을 읽고 외부 시점만 만들며 입면이나 창을 다시 저작하지 않는다.
- * @evidence principles/core/source-units.md#source-substantive-completion setting, 입면, 네 모서리·지붕·처마 하부, 외부 개구부를 안정 ID의 관찰 목록으로 반환한다.
- * @evidence upstream/design/space-sources.md#design-revision-from-space-source-work observations.md#geometry-observations에서 후퇴벽 낮은 네 면의 기본 pose가 벽 반대편을 향하는 결함을 먼저 고치고, 안타 끝·포치 박공 양면의 새 입면 관찰을 정한 뒤 그 규칙을 구현한다.
+ * @evidence spaces/observations.md Derives exterior setting, boundary and opening observations from the current environment.
+ * @evidence spaces/observations.md#geometry-observations Uses exposed census facades and actual opening profiles for exterior views.
+ * @evidence principles/core/source-units.md#source-scope-preservation Reads current boundaries and openings to create views without reauthoring facades or windows.
+ * @evidence principles/core/source-units.md#source-substantive-completion Returns stable IDs for setting, facades, four corners, roofs, undersides and exterior openings.
+ * @evidence upstream/design/space-sources.md#design-revision-from-space-source-work geometry-observations first corrected four low recessed-wall poses facing the wrong wall side and specified new views for anta ends and both porch gables; this implements those rules.
  */
 export const exteriorObservations = (environment: IAutoMovieBuiltEnvironment): TempleObservation[] => {
   const census = builtEnvironmentBuildingCensus(environment)[0];
   const center = { x: 0, y: 2.2, z: 0 };
   const out: TempleObservation[] = [{
-    id: "exterior.setting", group: "exterior", space: null, role: "setting", label: "외부 setting · 정면 좌측 조감",
+    id: "exterior.setting", group: "exterior", space: null, role: "setting", label: "Exterior setting · front-left overhead",
     position: templeExteriorSettingView.position, target: templeExteriorSettingView.target, note: null,
   }];
   for (const face of census?.facades ?? []) {
     const width = Math.max(...face.vertices.map((v) => Math.hypot(v.x - face.centroid.x, v.z - face.centroid.z))) * 2;
     const outward = outwardNormal(environment, face.space, face.centroid, face.normal);
-    // 지붕·마당 위로 올라간 외부 향 경계는 같은 맞춤 거리에서 면보다 높게 본다.
+    // View raised exterior-facing boundaries above roofs or yards from above the face at the same fit distance.
     const elevated = face.centroid.y > templeRoofRules.courtEave;
     const distance = Math.max(4, fitDistance(Math.max(width, 3)));
     // The free front ends of the two porch returns face the open porch. Their opposite
@@ -119,7 +119,7 @@ export const exteriorObservations = (environment: IAutoMovieBuiltEnvironment): T
     const returnSide = face.boundary.includes("west") ? -1 : 1;
     out.push({
       id: `exterior.facade.${face.boundary}`, group: "exterior", space: null, role: "facade",
-      label: `입면 · ${face.boundary}`,
+      label: `Facade · ${face.boundary}`,
       position: porchFront ? {
         x: (p.westPorchInner + p.eastPorchInner) / 2, y: 3.0, z: p.southOuter + 4,
       } : returnOuterUpper ? {
@@ -146,26 +146,26 @@ export const exteriorObservations = (environment: IAutoMovieBuiltEnvironment): T
     });
   }
   for (const [id, x, z, text] of [
-    ["northwest", p.westOuter, p.northOuter, "북서"], ["northeast", p.eastOuter, p.northOuter, "북동"],
-    ["southwest", p.westOuter, p.southOuter, "남서"], ["southeast", p.eastOuter, p.southOuter, "남동"],
+    ["northwest", p.westOuter, p.northOuter, "northwest"], ["northeast", p.eastOuter, p.northOuter, "northeast"],
+    ["southwest", p.westOuter, p.southOuter, "southwest"], ["southeast", p.eastOuter, p.southOuter, "southeast"],
   ] as const) {
     const d = Math.hypot(x, z);
     out.push({
-      id: `exterior.corner.${id}`, group: "exterior", space: null, role: "corner", label: `외부 모서리 · ${text}`,
+      id: `exterior.corner.${id}`, group: "exterior", space: null, role: "corner", label: `Exterior corner · ${text}`,
       position: { x: x + x / d * 15, y: 3, z: z + z / d * 15 }, target: { x, y: 2, z }, note: null,
     });
   }
   for (const [id, x, z, text] of [
-    ["north", 0, -1, "북"], ["east", 1, 0, "동"], ["south", 0, 1, "남"], ["west", -1, 0, "서"],
+    ["north", 0, -1, "north"], ["east", 1, 0, "east"], ["south", 0, 1, "south"], ["west", -1, 0, "west"],
   ] as const) {
     out.push({
-      id: `exterior.roof.${id}`, group: "exterior", space: null, role: "roof", label: `지붕 · ${text}쪽 조감`,
+      id: `exterior.roof.${id}`, group: "exterior", space: null, role: "roof", label: `Roof · ${text} overhead`,
       position: { x: x * 24, y: 17, z: z * 24 }, target: center, note: null,
     });
     const edge = id === "north" ? p.northOuter : id === "south" ? p.southOuter : id === "east" ? p.eastOuter : p.westOuter;
     const along = Math.abs(x) > 0 ? { x: edge + x * 3.2, z: 0 } : { x: 0, z: edge + z * 3.2 };
     out.push({
-      id: `exterior.underside.${id}`, group: "exterior", space: null, role: "underside", label: `처마 하부 · ${text}`,
+      id: `exterior.underside.${id}`, group: "exterior", space: null, role: "underside", label: `Eave underside · ${text}`,
       position: { x: along.x + (Math.abs(x) > 0 ? 0 : -6), y: eye, z: along.z + (Math.abs(z) > 0 ? 0 : 6) },
       target: { x: Math.abs(x) > 0 ? edge : 2, y: 3.3, z: Math.abs(z) > 0 ? edge : -2 }, note: null,
     });
@@ -182,8 +182,8 @@ export const exteriorObservations = (environment: IAutoMovieBuiltEnvironment): T
     const mouth = alongZ ? { x: face.origin.x, y: v, z: u } : { x: u, y: v, z: face.origin.z };
     const outward = outwardNormal(environment, boundary.spaces[0]!, mouth, alongZ ? { x: 1, y: 0, z: 0 } : { x: 0, y: 0, z: 1 });
     out.push({
-      id: `exterior.opening.${opening.id}`, group: "exterior", space: null, role: "opening", label: `외부 개구부 · ${opening.id}`,
-      // 지붕·마당 위의 높은 창은 창 바깥 가까이, 창보다 조금 높은 곳에서 본다.
+      id: `exterior.opening.${opening.id}`, group: "exterior", space: null, role: "opening", label: `Exterior opening · ${opening.id}`,
+      // View high windows above roofs or yards from nearby outside, slightly above the window.
       position: v > templeRoofRules.courtEave
         ? { x: mouth.x + outward.x * 2.5, y: v + 0.6, z: mouth.z + outward.z * 2.5 }
         : { x: mouth.x + outward.x * 7, y: Math.max(eye, v - 0.8), z: mouth.z + outward.z * 7 },
@@ -193,14 +193,14 @@ export const exteriorObservations = (environment: IAutoMovieBuiltEnvironment): T
   const entry = environment.openings.find((o) => o.id === "door-entry");
   if (entry !== undefined) {
     out.push({
-      id: "exterior.opening.door-entry", group: "exterior", space: null, role: "opening", label: "외부 개구부 · door-entry(정문 축)",
+      id: "exterior.opening.door-entry", group: "exterior", space: null, role: "opening", label: "Exterior opening · door-entry (entry axis)",
       position: { x: 0, y: eye, z: p.southOuter + 7 }, target: { x: 0, y: 1.4, z: p.entranceBack }, note: null,
     });
   }
   return out;
 };
 
-/** 면 법선을 공간 밖을 향하게 맞춘다. 0.5m 앞 점이 그 공간 안이면 뒤집는다. */
+/** Orient the face normal outward, flipping it if the point 0.5 m ahead is inside the space. */
 const outwardNormal = (
   environment: IAutoMovieBuiltEnvironment, space: string, at: IAutoMovieVector3, normal: IAutoMovieVector3,
 ): IAutoMovieVector3 => {

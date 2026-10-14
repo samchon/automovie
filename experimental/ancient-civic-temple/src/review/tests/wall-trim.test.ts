@@ -1,9 +1,11 @@
 /**
- * src/geometry/wall-trim.ts: 파라펫 코핑과 외곽 기단.
- * fixture: 외곽 전 폭의 곧은 파라펫 하나(코핑 돌출·자유 끝 돌출, 기단 띠와 두 모서리 칸),
- * 경사 지면(기단 상단이 지면을 따름)과 경사 전환선(칸 분할), 두 높이의 파라펫이 만나는 끝
- * (높은 벽 쪽으로 돌출하지 않음), 결정성. 코핑과 기단은 격자 칸 합집합이라 culling 뒤 닫힌
- * 실체여야 한다. 기단은 외곽이 원점 대칭이라는 가정(abs(x) = east)을 쓴다.
+ * src/geometry/wall-trim.ts: parapet coping and exterior plinth.
+ * Fixtures: one straight full-width parapet (coping projection, free-end lip,
+ * plinth band and two corner cells), sloped ground (plinth top follows ground)
+ * and slope transitions (cell splitting), junctions of different-height
+ * parapets (no projection toward the higher wall), and determinism. Coping
+ * and plinth are unions of grid cells and must be closed after culling.
+ * The plinth assumes an origin-symmetric envelope: abs(x) = east.
  */
 import assert from "node:assert/strict";
 import test from "node:test";
@@ -59,14 +61,16 @@ void test("parapet segment continuing into a taller segment of the same wall: co
 });
 
 /**
- * 더 높은 별도 벽 앞에서 끝나는 파라펫(합성 fixture)은 아직 측면 돌출 칸이 끝을 넘어 그 벽 면에 붙는다.
- * production에는 이 경우가 없다. 코핑 없는 이웃 옆에 남는 측면 돌출 칸 6칸은 모두 정상 lip이며,
- * 2026-09-24 뷰어의 정확한 연직 단면(현재 source)으로 세 곳을 판독했다.
- * - Z=10.28, 현관 반환벽 앞 자유단: 반환벽 코핑의 앞 끝 lip이 포치 지붕 위 약 0.7m에 있고 삼각 막음 윗변(3.5~4.47m)에 닿지 않는다.
- * - Z=8.38: 반환벽 코핑의 양쪽 lip이 함께 남으며 그 X에서 entry-back 벽은 약 3.8~4.0m로 코핑보다 낮아 더 높은 벽이 아니다.
- * - X=9.87, 남동 모서리: 남측 파라펫의 안쪽 lip이 동측 벽 안쪽 면에서 끝나고 옆의 facade-east 처마 벽은 코핑보다 낮다.
+ * A parapet ending before a separate higher wall (synthetic fixture) still has
+ * side lip cells extending beyond its end to that wall face. This arrangement
+ * is absent from the production. All 6 side lip cells beside uncoped neighbors
+ * are normal lips; three sites were inspected through the current-source viewer's
+ * exact vertical sections on 2026-09-24.
+ * - Z=10.28, free end before the entrance return wall: the return coping's front lip is about 0.7m above the porch roof and misses the triangular closure's upper edge (3.5~4.47m).
+ * - Z=8.38: both return coping lips remain; at that X the entry-back wall is about 3.8~4.0m, below the coping rather than a higher wall.
+ * - X=9.87, southeast corner: the south parapet's inner lip ends at the east wall's inner face; the adjacent facade-east eave wall is below the coping.
  */
-const lipTodo = "더 높은 별도 벽 앞에서 끝나는 파라펫의 측면 돌출 칸(0.06×0.06m)이 끝을 넘어 그 벽 면에 붙는다. 머리말의 \"더 높은 벽으로 이어지는 끝은 돌출하지 않고\"와 다르다. production에는 이 배치가 없고 production의 측면 돌출 6칸은 정상 lip이다(위 단면 판독).";
+const lipTodo = "A parapet ending before a separate higher wall has side lip cells (0.06×0.06m) extending beyond its end to that wall face, contrary to the header's rule that ends adjoining higher walls do not project. This arrangement is absent from the production; its 6 side lip cells are normal lips, as inspected in the sections above.";
 
 void test("parapet ending against a separate taller wall: side lips do not wrap past the end", { todo: lipTodo }, () => {
   const low = parapet({ plan: rectanglePolygon({ west: -2, east: 0, north: 1.7, south: 2 }), segments: [{ from: -2, to: 0, low: "i", high: "outer",

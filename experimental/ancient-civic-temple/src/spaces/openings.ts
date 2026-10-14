@@ -1,8 +1,8 @@
 /**
- * docs/spaces/openings.md의 문/채광구 유효 치수와 절단 profile 입력.
- * wall-depth는 공유 기준선에서, void는 틀 여유에서 유도한다.
- * 아직 fill/operation이나 벽 mesh를 만들지 않으며 프로필만으로 문 완성을
- * 주장하지 않는다. 방 문턱과 이후 벽 절단/부재 배치는 같은 값을 소비한다.
+ * Clear door/clerestory dimensions and cut-profile inputs from docs/spaces/openings.md.
+ * Derives wall depth from shared datums and voids from frame allowances.
+ * Makes no fills, operations or wall meshes, and profiles alone do not establish
+ * complete doors. Room thresholds, wall cuts and member placement share these values.
  */
 import type { IAutoMovieOpeningProfile } from "@automovie/interface";
 import type { DoorPassage } from "../geometry/spatial-cells";
@@ -11,11 +11,11 @@ import { templePlan as p } from "./building";
 import { templeLevels as y } from "./storey";
 
 /**
- * @evidence spaces/openings.md 여덟 문의 boundary·방·인접 공간·축·중심·벽 두께 범위·유효 폭과 높이·틀·문짝 두께·스윙을 한 표로 둔다.
- * @evidence spaces/openings.md#doors 문 표의 유효 폭·높이(정문 1.8×2.5, 제실 1.4×2.5, 봉헌실 1.2×2.3, 관리실·기록실·마당 1.0×2.2, 보관실·서비스 1.1×2.2)와 스윙 예약을 그대로 옮긴다.
- * @evidence principles/core/source-units.md#source-scope-preservation 문 위치와 치수는 표의 값만 쓰고 문짝 형상은 만들지 않는다.
- * @evidence principles/core/source-units.md#source-substantive-completion DoorPassage 목록으로 벽 void·문턱·connector·관찰이 같은 문 값을 쓴다.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work openings.md#doors의 여덟 문을 그대로 구현했고 문 connector 끝점과 문턱 cell이 모두 성립했다.
+ * @evidence spaces/openings.md One table holds eight doors' boundaries, rooms, adjacent spaces, axes, centres, wall-thickness ranges, clear widths/heights, frames, leaf thicknesses and swings.
+ * @evidence spaces/openings.md#doors Transfers the door table's clear sizes unchanged: main door 1.8×2.5, sanctuary 1.4×2.5, offering 1.2×2.3, administration/records/yard 1.0×2.2, storage/service 1.1×2.2, together with swing reservations.
+ * @evidence principles/core/source-units.md#source-scope-preservation Uses only the table's door positions and dimensions and makes no door-leaf geometry.
+ * @evidence principles/core/source-units.md#source-substantive-completion The DoorPassage list gives wall voids, thresholds, connectors and observations the same door values.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Implements the eight doors of openings.md#doors unchanged; door connector endpoints and threshold cells were all established.
  */
 export const templeDoorPassages: readonly DoorPassage[] = [
   { id: "door-entry", boundary: "boundary-entry", room: "entrance",
@@ -53,11 +53,11 @@ export const templeDoorPassages: readonly DoorPassage[] = [
 ];
 
 /**
- * host 원점이 길이 좌표 0, Y=0이고 local +X가 길이 증가 방향인 profile.
- * @evidence spaces/openings.md 문 하나의 host local XY profile을 유효 폭·높이와 틀 두께에서 유도한다.
- * @evidence principles/core/source-units.md#source-scope-preservation 유효 폭 양옆과 head 위에 틀 0.06m만 더하고 다른 여유를 만들지 않는다.
- * @evidence principles/core/source-units.md#source-substantive-completion 네 꼭짓점 직사각형 outline을 돌려줘 opening.profile과 벽 void가 같은 윤곽을 쓴다.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work openings.md#boundary-ownership의 profile 규칙(유효 치수+틀)을 그대로 구현했다.
+ * Profile with host origin at length coordinate 0, Y=0, and local +X along increasing length.
+ * @evidence spaces/openings.md Derives one door's host-local XY profile from clear width/height and frame thickness.
+ * @evidence principles/core/source-units.md#source-scope-preservation Adds only the 0.06m frame beside the clear width and above the head, without another allowance.
+ * @evidence principles/core/source-units.md#source-substantive-completion Returns a four-vertex rectangular outline shared by opening.profile and the wall void.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Implements the profile rule of openings.md#boundary-ownership (clear dimensions plus frame) unchanged.
  */
 export const templeDoorProfile = (door: DoorPassage): IAutoMovieOpeningProfile => {
   const half = door.width / 2 + door.frame;
@@ -70,13 +70,14 @@ export const templeDoorProfile = (door: DoorPassage): IAutoMovieOpeningProfile =
 };
 
 /**
- * 제실 박공(북·남, X=±1.0m, sill 4.6m)과 측벽(서·동 spine, Z=-8.0/-5.8m,
- * sill 4.0m)의 실제 창 절단 입력. profile의 x는 host 길이 좌표다.
- * @evidence spaces/openings.md 제실 채광구 여덟 개의 ID·결속 경계·관통 벽 범위·유효 0.4m·틀·창대 높이와 profile을 낸다.
- * @evidence spaces/openings.md#clerestories 박공 창 X=±1.0m·sill 4.6m를 북측 경계와 남측 위쪽 경계에, 측벽 창 Z=-8.0/-5.8m·sill 4.0m를 두 spine의 위쪽 경계에 둔다.
- * @evidence principles/core/source-units.md#source-scope-preservation 창 위치·높이·결속 경계는 설계 값만 쓰며 유리나 추가 창을 만들지 않는다.
- * @evidence principles/core/source-units.md#source-substantive-completion 창마다 profile을 가진 목록을 돌려줘 벽 void와 opening이 같은 윤곽을 쓴다.
- * @evidence upstream/design/space-sources.md#design-revision-from-space-source-work 남측·측벽 창을 제실과 주랑·봉헌실 사이 경계에 결속하자 census가 그 창을 외부 개구부로 내지 못하고 봉헌실·주랑 안에 무효 threshold를 냈다. openings.md#boundary-ownership에 반대편 부피가 끝나는 높이 위의 노출 면을 .upper/-upper 경계로 나누는 규칙을 먼저 두고 #clerestories가 창을 그 경계에 결속하게 고친 뒤(c7af729c) source를 옮겼다.
+ * Actual window-cut inputs for sanctuary gables (north/south, X=±1.0m,
+ * sill 4.6m) and side walls (west/east spines, Z=-8.0/-5.8m, sill 4.0m).
+ * Profile x is the host length coordinate.
+ * @evidence spaces/openings.md Emits the eight sanctuary clerestories' IDs, bound boundaries, pierced-wall ranges, clear 0.4m, frames, sill heights and profiles.
+ * @evidence spaces/openings.md#clerestories Places gable windows at X=±1.0m, sill 4.6m on the north and upper south boundaries, and side windows at Z=-8.0/-5.8m, sill 4.0m on both upper spine boundaries.
+ * @evidence principles/core/source-units.md#source-scope-preservation Uses only designed window positions, heights and boundaries, without adding glazing or windows.
+ * @evidence principles/core/source-units.md#source-substantive-completion Returns a profile-bearing entry per window so wall voids and openings share the same outlines.
+ * @evidence upstream/design/space-sources.md#design-revision-from-space-source-work Binding south/side windows to boundaries between sanctuary and colonnade/offering prevented the census from emitting exterior openings and produced invalid thresholds inside offering/colonnade. First added the openings.md#boundary-ownership rule splitting exposed faces above neighboring volumes into .upper/-upper boundaries, then changed #clerestories to bind windows to them (c7af729c), before transferring the decision to source.
  */
 export const templeClerestories = () => {
   const window = (id: string, boundary: string, center: number, sill: number, wallLow: number, wallHigh: number) => ({
@@ -97,14 +98,14 @@ export const templeClerestories = () => {
 };
 
 /**
- * 벽 실체에서 비울 문 void. 길이 방향은 유효 폭+양쪽 틀, 수직은 문턱
- * 슬래브 아랫면부터 head+틀까지다. 문턱 슬래브 부피를 벽에서 비우는
- * storey.md#threshold-support 예약과 같은 값을 소비한다.
- * @evidence spaces/openings.md 문 하나가 벽 실체에서 비우는 void를 길이 구간과 수직 구간으로 낸다.
- * @evidence spaces/storey.md#threshold-support void 아랫면을 문턱 slab 아랫면(완성면−0.18m)으로 두어 벽이 문턱 예약을 비운다.
- * @evidence principles/core/source-units.md#source-scope-preservation 길이 방향은 유효 폭+양쪽 틀, 위는 head+틀만 비운다.
- * @evidence principles/core/source-units.md#source-substantive-completion WallVoid 하나를 돌려줘 wallColumns가 문턱 아래·인방 위만 남긴다.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work openings.md#boundary-ownership과 storey.md#threshold-support의 void 범위를 그대로 구현했다.
+ * Door void removed from wall solids. Length spans clear width plus both
+ * frames; height spans the threshold slab underside through head plus frame.
+ * Shares the storey.md#threshold-support reservation removing threshold slab volume from walls.
+ * @evidence spaces/openings.md Emits the length and height intervals one door removes from its wall solid.
+ * @evidence spaces/storey.md#threshold-support Sets the void bottom at the threshold slab underside (finished floor−0.18m), clearing the wall's threshold reservation.
+ * @evidence principles/core/source-units.md#source-scope-preservation Clears only clear width plus both frames in length and head plus frame above.
+ * @evidence principles/core/source-units.md#source-substantive-completion Returns one WallVoid so wallColumns retains only wall below the threshold and above the lintel.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Implements the void ranges of openings.md#boundary-ownership and storey.md#threshold-support unchanged.
  */
 export const templeDoorVoid = (door: DoorPassage): WallVoid => ({
   id: door.id,
@@ -115,21 +116,21 @@ export const templeDoorVoid = (door: DoorPassage): WallVoid => ({
 });
 
 /**
- * boundary ID 접두어로 한 벽이 받는 문 void만 고른다.
- * @evidence spaces/openings.md boundary ID 접두어로 한 벽이 받는 문 void만 고른다.
- * @evidence principles/core/source-units.md#source-scope-preservation 문 표를 걸러 void를 만들 뿐 새 문을 만들지 않는다.
- * @evidence principles/core/source-units.md#source-substantive-completion 해당 벽의 WallVoid 목록을 돌려준다.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work openings.md의 문-경계 결속을 그대로 소비한다.
+ * Selects only one wall's door voids by boundary-ID prefix.
+ * @evidence spaces/openings.md Selects only one wall's door voids by boundary-ID prefix.
+ * @evidence principles/core/source-units.md#source-scope-preservation Only filters the door table into voids, without creating new doors.
+ * @evidence principles/core/source-units.md#source-substantive-completion Returns the selected wall's WallVoid list.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Consumes the door-boundary bindings of openings.md unchanged.
  */
 export const templeDoorVoidsOn = (boundaryPrefix: string): WallVoid[] =>
   templeDoorPassages.filter((door) => door.boundary.startsWith(boundaryPrefix)).map(templeDoorVoid);
 
 /**
- * 박공 채광구의 실제 void. 틀 두께를 포함한 profile 범위와 같다.
- * @evidence spaces/openings.md 한 경계에 속한 채광구의 void를 profile 범위로 낸다.
- * @evidence principles/core/source-units.md#source-scope-preservation 결속 경계가 정확히 일치하는 창만 고른다.
- * @evidence principles/core/source-units.md#source-substantive-completion profile의 x·y 범위와 같은 WallVoid 목록을 돌려준다.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work openings.md#clerestories의 결속 경계와 틀 포함 범위를 그대로 소비한다.
+ * Actual gable-clerestory voids, matching profile ranges including frame thickness.
+ * @evidence spaces/openings.md Emits profile-sized voids for clerestories belonging to one boundary.
+ * @evidence principles/core/source-units.md#source-scope-preservation Selects only windows whose bound boundary matches exactly.
+ * @evidence principles/core/source-units.md#source-substantive-completion Returns WallVoids matching each profile's x/y ranges.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Consumes the bound boundaries and frame-inclusive ranges of openings.md#clerestories unchanged.
  */
 export const templeClerestoryVoidsOn = (boundary: string): WallVoid[] =>
   templeClerestories().filter((window) => window.boundary === boundary).map((window) => {

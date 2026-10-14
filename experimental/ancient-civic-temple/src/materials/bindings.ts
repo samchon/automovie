@@ -3,6 +3,7 @@ import type {
   IAutoMovieBuiltEnvironment,
   IAutoMovieMaterial,
 } from "@automovie/interface";
+import { templeSpaceFinishes } from "./templeSpaceFinishes";
 
 type Finish =
   | "limestone"
@@ -232,47 +233,10 @@ const material = (finish: Finish): IAutoMovieMaterial => {
  * @evidenceExclude upstream/design/material-sources.md#design-revision-from-material-source-work The authored surface binding table already separates stone, paving, plaster, roof, wood and dado IDs.
  * @evidence obligations/design/material-sources.md#material-source-design-ownership The classifier reads the space-owned surface names and creates no new faces.
  */
-export const templeSpaceFinish = (id: string): Finish => {
-  if (id === "surface.site-distant.ridge") return "distant-earth";
-  if (
-    id === "surface.site.earth" ||
-    id === "surface.site.ground" ||
-    id === "surface.site-distant.ground"
-  )
-    return "soil";
-  if (
-    id === "surface.site.curb" ||
-    id === "surface.service-yard.wall" ||
-    id === "surface.service-yard.wall-top"
-  )
-    return "limestone";
-  if (id.endsWith(".dado")) return "dado";
-  if (id.endsWith(".floor") || id === "surface.site.paving")
-    return [
-      "surface.administration.floor",
-      "surface.records.floor",
-      "surface.storage.floor",
-    ].includes(id)
-      ? "paving-small"
-      : "paving";
-  if (
-    id.endsWith(".footing") ||
-    id.endsWith(".plinth") ||
-    id.endsWith(".coping") ||
-    id.endsWith(".reveal")
-  )
-    return "limestone";
-  if (id.endsWith(".upper")) return "roof-terracotta";
-  if (
-    id.endsWith(".ceiling") ||
-    id.endsWith(".ceiling-back") ||
-    id.endsWith(".concealed") ||
-    id.endsWith(".edge") ||
-    id.endsWith(".soffit")
-  )
-    return "dark-wood";
-  if (id.startsWith("surface.")) return "plaster";
-  throw new Error(`${id}: no space finish`);
+export const templeSpaceFinish: (id: string) => Finish = (id: string): Finish => {
+  if (!Object.hasOwn(templeSpaceFinishes, id))
+    throw new Error(`${id}: no space finish`);
+  return templeSpaceFinishes[id]!;
 };
 
 /** Private part table consumed by the public templeModelFinish classifier. */
@@ -390,20 +354,22 @@ const objectFinishes: Readonly<
 };
 
 /**
+ * Explicit object IDs and parts require own table keys. Building and landscape prefix branches consume the source owners' admitted family IDs/parts; this classifier does not independently enumerate or validate every member of those families.
+ *
  * @evidence materials/10-model-bindings.md Each building or object part receives its exact declared finish key.
  * @evidence materials/10-model-bindings.md#binding-map The explicit object table preserves wood/metal chest and yoke parts, paper/rope scrolls, pot/soil and every ritual part without a fallback.
  * @evidence principles/core/source-units.md#source-scope-preservation Only finish keys are returned; prototype geometry and placement stay unchanged.
  * @evidence principles/core/source-units.md#source-substantive-completion Every placed family is classified and an unknown object part is refused with its identity.
  * @evidence obligations/design/material-sources.md#material-source-design-ownership Existing named prototype parts consume the authored binding table verbatim.
- * @evidence obligations/design/material-sources.md#material-source-invalid-state Unknown object parts and unsupported prototype families raise a diagnostic before material assembly.
+ * @evidence obligations/design/material-sources.md#material-source-invalid-state Own-key object/part checks reject inherited or unknown table entries and unmatched families raise a named diagnostic; recognized building/landscape prefix branches require the source owners' admitted member identities.
  * @evidenceExclude upstream/design/material-sources.md#design-revision-from-material-source-work The existing binding table already supplies every object part-to-finish relationship; no parent material changes were needed.
  */
-export const templeModelFinish = (id: string, part: string): Finish => {
-  if (objectFinishes[id] !== undefined) {
-    const finish = objectFinishes[id]![part];
-    if (finish === undefined)
+export const templeModelFinish: (id: string, part: string) => Finish = (id: string, part: string): Finish => {
+  if (Object.hasOwn(objectFinishes, id)) {
+    const parts: Readonly<Record<string, Finish>> = objectFinishes[id]!;
+    if (!Object.hasOwn(parts, part))
       throw new Error(`${id}/${part}: no object part finish`);
-    return finish;
+    return parts[part]!;
   }
   if (id.startsWith("landscape.neighbor-house."))
     return part === "roof"

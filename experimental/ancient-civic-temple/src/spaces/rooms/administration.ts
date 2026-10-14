@@ -1,4 +1,4 @@
-/** docs/spaces/rooms/administration.md#office-volume의 전면 업무방과 직접 문턱. */
+/** Front work room and direct threshold of docs/spaces/rooms/administration.md#office-volume. */
 import type { IAutoMovieBuiltSpace } from "@automovie/interface";
 import { roomFloorInput } from "../../geometry/floor-input";
 import { rectanglePolygon } from "../../geometry/planar-domain";
@@ -9,22 +9,22 @@ import { templeDoorPassages } from "../openings";
 import { templeLevels as y } from "../storey";
 
 /**
- * @evidence spaces/rooms/administration.md 관리실 본체 평면을 기준선 네 값(east-room~east-inner, office-back~south-inner)으로 둔다.
- * @evidence principles/core/source-units.md#source-scope-preservation 관리실 끝선을 east-room·east-inner·office-back·south-inner 네 기준선 이름으로만 정하고 방 안 새 치수를 만들지 않는다.
- * @evidence principles/core/source-units.md#source-substantive-completion as const 사각형 하나로 관리실 바닥·body cell·널판 천장이 같은 4.0×3.75m 평면을 받는다.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work rooms/administration.md의 관리실 범위(east-room~east-inner, office-back~south-inner)를 그대로 옮겼고 벽·문턱과의 접면이 겹침 0으로 맞았다.
+ * @evidence spaces/rooms/administration.md Defines the administration body plan by four datums: east-room~east-inner and office-back~south-inner.
+ * @evidence principles/core/source-units.md#source-scope-preservation Uses only east-room, east-inner, office-back and south-inner to set room ends, inventing no interior dimensions.
+ * @evidence principles/core/source-units.md#source-substantive-completion One as const rectangle gives administration floors, body cells and boarding ceiling the same 4.0×3.75m plan.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Transfers the administration range of rooms/administration.md (east-room~east-inner, office-back~south-inner) unchanged; wall and threshold interfaces fit with 0 overlap.
  */
 export const templeAdministrationPlan = {
   west: p.eastRoom, east: p.eastInner, north: p.officeBack, south: p.southInner,
 } as const;
 
 /**
- * 본체와 직접 문턱을 같은 완결 바닥 표면에 결속한다.
- * @evidence spaces/rooms/administration.md 관리실 본체와 주랑 쪽 문턱 바닥을 한 표면 소유(surface.administration.floor)의 slab과 support로 낸다.
- * @evidence spaces/storey.md#threshold-support 동측 spine의 door-administration 문턱 slab은 벽 두께 전체와 틀 폭까지, support는 유효 폭 1.0m까지만 관리실이 소유하게 roomFloorInput에 문 표를 넘긴다.
- * @evidence principles/core/source-units.md#source-scope-preservation 완성면 Y=0과 구조체 0.18m는 층 값을 받고 문 표에서 door-administration(중심 Z=7.65) 하나만 골라 문턱을 만든다.
- * @evidence principles/core/source-units.md#source-substantive-completion 관리실 body 구획과 door-administration 문턱 slab·support 구획을 함께 돌려줘 바닥 면 생성과 동측 spine의 문턱 예약이 같은 입력을 쓴다.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work 관리실 바닥 한 구획과 door-administration 문턱 소유가 rooms/administration.md와 storey.md#threshold-support 그대로 동측 spine 문 void와 맞았고 부모에서 고칠 결정이 드러나지 않았다.
+ * Binds the body and direct threshold to the same complete floor surface.
+ * @evidence spaces/rooms/administration.md Emits slabs and supports for the administration body and colonnade-side threshold under one surface owner, surface.administration.floor.
+ * @evidence spaces/storey.md#threshold-support Passes the door table to roomFloorInput so administration owns the east-spine door-administration threshold slab across the full wall depth and frame width, with support confined to the clear 1.0m width.
+ * @evidence principles/core/source-units.md#source-scope-preservation Takes finished floor Y=0 and structure 0.18m from the storey and selects only door-administration (centre Z=7.65) for its threshold.
+ * @evidence principles/core/source-units.md#source-substantive-completion Returns the administration body compartment and door-administration threshold slab/support compartments together, sharing inputs between floor-face generation and the east spine's threshold reservation.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The single administration floor compartment and door-administration threshold ownership fit the east-spine door void as specified by rooms/administration.md and storey.md#threshold-support, exposing no parent decision to repair.
  */
 export const templeAdministrationFloor = () => roomFloorInput(
   "administration", [{ ...templeAdministrationPlan, id: "body", floor: y.floor }],
@@ -32,11 +32,11 @@ export const templeAdministrationFloor = () => roomFloorInput(
 );
 
 /**
- * @evidence spaces/rooms/administration.md 관리실 공간 레코드(id administration, 부모 temple-ground)를 exact cell로 낸다.
- * @evidence spaces/rooms/administration.md#office-volume 관리실 본체 4.0×3.75m와 동측 spine의 주랑 쪽 문(door-administration, 중심 Z=7.65) 문턱 cell을 한 공간으로 두고 상한은 널판 천장 아랫면이다.
- * @evidence principles/core/source-units.md#source-scope-preservation 층의 낮은 천장 3.10m를 관리실 cell 상한으로 쓰며 기록실 쪽 칸막이 너머나 숨은 부속실을 더하지 않는다.
- * @evidence principles/core/source-units.md#source-substantive-completion 관리실 body cell과 door-administration 문턱 cell을 함께 가진 공간 레코드를 돌려주며 관찰 station과 주랑 connector가 이 cell로 내부성을 판정한다.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work rooms/administration.md#office-volume의 4.0×3.75m 범위·3.10m 상한·문 위치가 그대로 성립했고 door-administration connector 끝점이 관리실 cell 안에 들어 부모에서 고칠 결정이 없었다.
+ * @evidence spaces/rooms/administration.md Emits the administration space record (id administration, parent temple-ground) with exact cells.
+ * @evidence spaces/rooms/administration.md#office-volume Combines the 4.0×3.75m administration body and east-spine colonnade door threshold (door-administration, centre Z=7.65) as one space capped at the boarding underside.
+ * @evidence principles/core/source-units.md#source-scope-preservation Uses the storey's low ceiling 3.10m as the administration cell cap, without extending beyond the records partition or adding hidden annexes.
+ * @evidence principles/core/source-units.md#source-substantive-completion Returns one space record containing body and door-administration threshold cells; observation stations and colonnade connectors use those cells for containment.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The 4.0×3.75m range, 3.10m cap and door position of rooms/administration.md#office-volume hold unchanged, and the door-administration connector endpoint lies inside the room cell, exposing no parent decision to repair.
  */
 export const templeAdministration = (): IAutoMovieBuiltSpace => ({
   id: "administration", kind: "administration", parent: y.storey, fidelity: "exact",
@@ -47,12 +47,12 @@ export const templeAdministration = (): IAutoMovieBuiltSpace => ({
 });
 
 /**
- * 낮은 널판 천장 실체. 아랫면 Y=lowCeiling과 위쪽 널판 예약은 층 소유
- * 값을 소비하며 노출 보의 단면은 후속 부재 단계가 이 예약 아래에 둔다.
- * @evidence spaces/rooms/administration.md 관리실의 낮은 널판 천장 실체를 아랫면 3.10m, 두께 0.10m의 판으로 낸다.
- * @evidence principles/core/source-units.md#source-scope-preservation 관리실 평면에 층의 낮은 천장 높이와 널판 예약만 쓰고 노출 보는 만들지 않는다(후속 부재).
- * @evidence principles/core/source-units.md#source-substantive-completion ceilingBoardFaces로 관리실 4.0×3.75m 판의 아랫면을 surface.administration.ceiling, 윗면과 옆면을 ceiling-back으로 가진 닫힌 판을 돌려준다.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work 관리실 널판 천장은 rooms/administration.md와 storey.md의 3.10m·0.10m 예약 그대로 이웃 기록실 천장과 칸막이 벽 위에서 겹치지 않았고 부모에서 고칠 결정이 없었다.
+ * Low boarding ceiling solid. Takes underside Y=lowCeiling and the boarding
+ * reserve above from storey-owned values; later members place exposed beam sections below that reserve.
+ * @evidence spaces/rooms/administration.md Emits the low administration boarding ceiling as a plate with underside 3.10m and thickness 0.10m.
+ * @evidence principles/core/source-units.md#source-scope-preservation Uses only the storey's low ceiling height and boarding reserve over the administration plan; exposed beams belong to later members.
+ * @evidence principles/core/source-units.md#source-substantive-completion ceilingBoardFaces returns a closed 4.0×3.75m administration plate with surface.administration.ceiling underneath and ceiling-back on top and sides.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Using the 3.10m·0.10m reserve of rooms/administration.md and storey.md unchanged, the administration boarding does not overlap the neighboring records ceiling above the partition; no parent decision needed repair.
  */
 export const templeAdministrationCeiling = () => ceilingBoardFaces(
   "administration", rectanglePolygon(templeAdministrationPlan), y.lowCeiling, y.ceilingBoardReserve,

@@ -59,7 +59,7 @@ export class TemplePortable {
     box(m, "seat", 0, 0.4, 0, w, 0.06, 0.45);
     for (const x of [-w / 2 + 0.17, w / 2 - 0.17])
       box(m, "pier", x, 0, 0, 0.12, 0.4, 0.36);
-    return m.model(`portable.bench.${kind}`, `석재 벤치 ${kind}`);
+    return m.model(`portable.bench.${kind}`, `Stone bench ${kind}`);
   }
 
   /**
@@ -86,7 +86,7 @@ export class TemplePortable {
       ],
       16,
     );
-    return m.model("portable.lamp", "소형 등잔");
+    return m.model("portable.lamp", "Small oil lamp");
   }
 
   /**
@@ -150,7 +150,7 @@ export class TemplePortable {
     for (const x of [-0.52, 0.52])
       for (const z of [-0.22, 0.22])
         woodBox(m, "leg", x, 0, z, 0.07, 0.22, 0.07);
-    return m.model("portable.jar-rack", "항아리 두 자리 받침대");
+    return m.model("portable.jar-rack", "Two-place jar rack");
   }
 
   /**
@@ -164,7 +164,7 @@ export class TemplePortable {
     box(m, "beam", 0, -0.025, 0, 1.16, 0.05, 0.05);
     for (const x of [-0.5, 0.5])
       m.loop("hook", x, -0.085, 0, 0.05, 0.01, "yz", 16);
-    return m.model("portable.carrying-yoke", "양손 운반 멜대");
+    return m.model("portable.carrying-yoke", "Two-handed carrying yoke");
   }
 
   /**
@@ -199,7 +199,7 @@ export class TemplePortable {
     }
     for (const x of [-0.24, 0.24])
       m.rod("handle", p(x, 0.45, -0.65), p(x, 0.7, -1.2), 0.02, 8);
-    return m.model("portable.handcart", "작은 손수레");
+    return m.model("portable.handcart", "Small handcart");
   }
 
   /**
@@ -236,7 +236,7 @@ export class TemplePortable {
         8,
       );
     }
-    return m.model("portable.bucket", "손잡이 있는 물동이");
+    return m.model("portable.bucket", "Handled water bucket");
   }
 
   /**
@@ -262,7 +262,7 @@ export class TemplePortable {
       16,
     );
     m.frustum("soil", 0, 0, 0.03, 0.27, 0.12, 0.165, 16);
-    return m.model("portable.planter", "낮은 화분");
+    return m.model("portable.planter", "Low planter");
   }
 
   /**
@@ -275,7 +275,7 @@ export class TemplePortable {
     const m = new ObjectMesh();
     box(m, "base", 0, 0, 0, 0.36, 0.04, 0.14);
     box(m, "slab", 0, 0.04, 0, 0.32, 0.38, 0.035);
-    return m.model("portable.votive-plaque", "무문양 봉헌판");
+    return m.model("portable.votive-plaque", "Plain votive plaque");
   }
 
   /**
@@ -293,7 +293,7 @@ export class TemplePortable {
       { min: p(-0.26, 0.018, -0.155), max: p(-0.245, 0.055, 0.155) },
       { min: p(0.245, 0.018, -0.155), max: p(0.26, 0.055, 0.155) },
     ];
-    return reviewedModel("portable.offering-tray", "낮은 봉헌 쟁반", [
+    return reviewedModel("portable.offering-tray", "Low offering tray", [
       ["floor", modelMesh(m, "floor")],
       ["rim", TempleRectilinearUnion.mesh("rim", solids)],
     ]);
@@ -309,7 +309,7 @@ export class TemplePortable {
     const w = kind === "standard" ? 0.55 : 0.42;
     const d = kind === "standard" ? 0.4 : 0.36,
       t = kind === "standard" ? 0.045 : 0.03;
-    return reviewedModel(`portable.textile.${kind}`, `접은 직물 ${kind}`, [
+    return reviewedModel(`portable.textile.${kind}`, `Folded textile ${kind}`, [
       [
         "cloth",
         TempleRectilinearUnion.mesh("cloth", [
@@ -346,7 +346,7 @@ export class TemplePortable {
         p(0.11, 0, 0),
       ]);
     }
-    return m.model("portable.stylus", "필기용 첨필");
+    return m.model("portable.stylus", "Writing stylus");
   }
 
   /**
@@ -358,7 +358,7 @@ export class TemplePortable {
   writingTablet(): IAutoMovieModel {
     const m = new ObjectMesh();
     box(m, "writing-face", 0, 0.013, 0, 0.244, 0.001, 0.184);
-    return reviewedModel("portable.writing-tablet", "글자 없는 필기판", [
+    return reviewedModel("portable.writing-tablet", "Blank writing tablet", [
       [
         "frame",
         TempleRectilinearUnion.mesh("frame", [
@@ -384,6 +384,6 @@ export class TemplePortable {
     for (const r of [0.045, 0.075, 0.105])
       m.loop("rope", 0, 0.008, 0, r, 0.008, "xz", 16);
     box(m, "tie", 0, 0.016, 0, 0.024, 0.008, 0.226);
-    return m.model("portable.rope-coil", "묶는 끈 뭉치");
+    return m.model("portable.rope-coil", "Tied rope coil");
   }
 }

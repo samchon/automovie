@@ -1,11 +1,12 @@
 import { buildViewerBrowser } from "./buildViewerBrowser";
 /**
- * 신전 뷰어의 CJS 서버. `/scene` 요청마다 production src 모듈 캐시를 비우고
- * 현재 source로 payload를 다시 만든다. 실패하면 500과 오류문을 돌려주며
- * 이전 성공 결과를 보여 주지 않는다. `/section?axis=x|z&offset=m`은 같은 방식으로
- * 현재 source의 정확한 연직 단면 조각을, `/review?grid=m`은 자가검사(npm run self-check)와 같은
- * producer의 겹침 스캔·관찰 pose·topology 결산을 돌려준다. 브라우저는 engine을 import하지 않는다.
- * 실행: production 루트에서 `npm run viewer -- --port <포트>` (기본 4175).
+ * Temple viewer CJS server. Each `/scene` request clears the production src
+ * module cache and rebuilds its payload from current source. Failure returns
+ * HTTP 500 and the error, without showing an earlier successful result.
+ * `/section?axis=x|z&offset=m` returns exact current-source vertical section pieces;
+ * `/review?grid=m` uses the self-check producer for overlaps, observation poses
+ * and topology accounts. The browser does not import the engine.
+ * Run `npm run viewer -- --port <port>` from the production root (default 4175).
  */
 import { readFile } from "node:fs/promises";
 import {
@@ -19,7 +20,7 @@ import { parseArgs } from "node:util";
 const productionRoot = resolve(__dirname, "../..");
 const sourceRoot = resolve(productionRoot, "src") + sep;
 
-/** 서버 자신을 제외한 src 모듈 캐시를 비워 다음 require가 현재 source를 읽게 한다. */
+/** Clear src modules except this server so the next require reads current source. */
 const clearSource = (): void => {
   for (const key of Object.keys(require.cache)) {
     if (key.startsWith(sourceRoot) && !key.endsWith(`${sep}server.cts`))
@@ -27,7 +28,7 @@ const clearSource = (): void => {
   }
 };
 
-/** 현재 source로 payload와 그 source basis(자가검사와 같은 값)를 다시 만든다. */
+/** Rebuild the payload and source basis, using the same basis as self-check. */
 const freshPayload = (): { basis: string; payload: unknown } => {
   clearSource();
   const basis = (
@@ -48,23 +49,23 @@ const freshModelBoard = (): { basis: string; payload: unknown } => {
   return { basis, payload: loaded.createModelBoardPayload() };
 };
 
-/** 현재 source로 자가검사와 같은 측정 결과를 만든다. */
+/** Measure current source with the same producer as self-check. */
 const freshReview = (grid: string | null): unknown => {
   const value = grid === null ? 0.01 : Number(grid);
-  if (!(value > 0)) throw new Error("grid는 양의 m 값이어야 합니다.");
+  if (!(value > 0)) throw new Error("grid must be a positive value in meters.");
   clearSource();
   const loaded =
     require("../review/review-payload") as typeof import("../review/review-payload");
   return loaded.createReviewPayload(value);
 };
 
-/** 현재 source로 연직 단면(X 또는 Z 평면)의 정확한 조각과 지면선을 만든다. */
+/** Build exact vertical section pieces and ground lines on an X or Z plane. */
 const freshSection = (axis: string | null, offset: string | null): unknown => {
   if (axis !== "x" && axis !== "z")
-    throw new Error("axis는 x 또는 z여야 합니다.");
+    throw new Error("axis must be x or z.");
   const value = Number(offset);
   if (offset === null || !Number.isFinite(value))
-    throw new Error("offset은 유한한 m 값이어야 합니다.");
+    throw new Error("offset must be a finite value in meters.");
   clearSource();
   const loaded = require("./section") as typeof import("./section");
   return loaded.createSectionPayload(axis, value);
@@ -76,7 +77,7 @@ const main = async (): Promise<void> => {
   });
   const port = Number(values.port);
   if (!Number.isInteger(port) || port < 1 || port > 65535)
-    throw new Error("--port는 1~65535 정수여야 합니다.");
+    throw new Error("--port must be an integer from 1 to 65535.");
   const threeBuild = dirname(require.resolve("three"));
   const files = new Map([
     ["/", resolve(productionRoot, "public/index.html")],
@@ -203,7 +204,7 @@ const main = async (): Promise<void> => {
     });
   });
   server.listen(port, "127.0.0.1", () => {
-    console.log(`신전 뷰어: http://127.0.0.1:${port}/`);
+    console.log(`Temple viewer: http://127.0.0.1:${port}/`);
   });
 };
 

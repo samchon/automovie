@@ -68,10 +68,10 @@ void test("X-axis scroll, axle, and wheel unfold circumference U and axial V",()
     close(span(side.map((vertex)=>vertex.v)),axial);
     assert.ok(side.some((vertex)=>Math.abs(vertex.u)<1e-8));
   }
-  assert.throws(()=>new ObjectMesh().cylinder("bad",{x:0,y:0,z:0},{x:0,y:0,z:0},1),/원통 입력/);
-  assert.throws(()=>new ObjectMesh().cylinder("bad",{x:0,y:0,z:0},{x:1,y:0,z:0},0),/원통 입력/);
-  assert.throws(()=>new ObjectMesh().cylinder("bad",{x:0,y:0,z:0},{x:1,y:0,z:0},1,2),/원통 입력/);
-  assert.throws(()=>new ObjectMesh().cylinder("bad",{x:0,y:0,z:0},{x:0,y:1,z:0},1,16,"x"),/X축 원통/);
+  assert.throws(()=>new ObjectMesh().cylinder("bad",{x:0,y:0,z:0},{x:0,y:0,z:0},1),/cylinder input/);
+  assert.throws(()=>new ObjectMesh().cylinder("bad",{x:0,y:0,z:0},{x:1,y:0,z:0},0),/cylinder input/);
+  assert.throws(()=>new ObjectMesh().cylinder("bad",{x:0,y:0,z:0},{x:1,y:0,z:0},1,2),/cylinder input/);
+  assert.throws(()=>new ObjectMesh().cylinder("bad",{x:0,y:0,z:0},{x:0,y:1,z:0},1,16,"x"),/X-axis cylinder/);
 });
 
 void test("oblique branches project the +X seam and fall back to +Y on an X axis",()=>{

@@ -1,8 +1,9 @@
 /**
- * docs/spaces/facades/east.md#east-envelope의 동측 외벽 실체.
- * 마당 구간은 낮은 석벽(북측 입면과 같은 상단)이고 외부 서비스 문 void가
- * 뚫린다. 보관실 북쪽 공유 벽부터 남쪽은 동측 날개 지붕 하부까지 닫고,
- * 남측 파라펫과 맞대는 남동 모서리 칸만 같은 코핑 높이로 올린다.
+ * East exterior wall solid of docs/spaces/facades/east.md#east-envelope.
+ * The yard section is a low stone wall sharing the north facade's top, cut by
+ * the exterior service-door void. South of the storage room's north shared
+ * wall, it closes to the east-wing roof underside; only the southeast corner
+ * cell butting the south parapet rises to the same coping height.
  */
 import type { WallSpec } from "../../geometry/wall-solids";
 import { templePlan as p } from "../building";
@@ -18,11 +19,11 @@ const yardTop = {
 } as const;
 
 /**
- * @evidence spaces/facades/east.md 동측 외벽 WallSpec을 마당 낮은 벽, 처마 벽, 남동 모서리 칸 구간으로 낸다.
- * @evidence spaces/facades/east.md#east-envelope 마당 구간 2.55m 벽과 외부 서비스 문 void, 보관실 북쪽 공유 벽부터 남쪽의 동측 처마 하부까지 닫는 벽, 코핑 높이로 오르는 남동 모서리 칸을 구현한다.
- * @evidence principles/core/source-units.md#source-scope-preservation 벽 높이는 북측 마당 벽 값과 남측 코핑 값, 지붕 하부를 받고 새 높이를 정하지 않는다.
- * @evidence principles/core/source-units.md#source-substantive-completion 평면·구간·상단 정책·void·띠 분할을 채운 WallSpec을 돌려주며 하단은 호출자가 넘긴 공통 외벽 하단이다.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work facades/east.md의 세 구간과 서비스 문 위치를 그대로 구현했고 외피 겹침 0, 벽 model 닫힘으로 부모 결함이 없었다.
+ * @evidence spaces/facades/east.md Emits an east exterior WallSpec partitioned into low yard wall, eave wall and southeast corner cell.
+ * @evidence spaces/facades/east.md#east-envelope Implements the 2.55m yard wall and exterior service-door void, the wall closing to east eave undersides south of the storage north partition, and the southeast corner rising to coping height.
+ * @evidence principles/core/source-units.md#source-scope-preservation Takes heights from the north yard wall, south coping and roof underside, without choosing new heights.
+ * @evidence principles/core/source-units.md#source-substantive-completion Returns a WallSpec with plan, intervals, top policies, voids and band splits; its bottom is the caller's common exterior-wall bottom.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Implements the three sections and service-door position of facades/east.md unchanged; 0 envelope overlap and a closed wall model exposed no parent defect.
  */
 export const templeEastWalls = (bottom: number): WallSpec[] => [{
   id: "wall.facade-east", owner: "facade-east", axis: "z", bottom,
@@ -37,7 +38,7 @@ export const templeEastWalls = (bottom: number): WallSpec[] => [{
     { from: p.recordsBack, to: p.recordsFront, low: "surface.records.wall", high: outer, top: roof },
     { from: p.recordsFront, to: p.officeBack, low: "joint", high: outer, top: roof },
     { from: p.officeBack, to: p.southInner, low: "surface.administration.wall", high: outer, top: roof },
-    // 남측 파라펫과 만나는 모서리 칸은 같은 코핑 높이의 기둥으로 올린다.
+    // Raise the corner cell meeting the south parapet to the same coping height.
     { from: p.southInner, to: p.southOuter, low: "joint", high: outer,
       top: { kind: "flat", height: templeParapetTop, surface: "surface.facade-east.coping", coping: templeWallTrim.copingThickness } },
   ],
