@@ -9,8 +9,6 @@ export default {
       type: "typescript",
       files: [
         "src/**/*.ts",
-        "build/**/*.cts",
-        "websiteViteConfig.ts",
         // Ambient module declarations cannot be addressed by this adapter.
         "!src/productionScenes.d.ts",
         "!src/medieval-baron-manor.d.ts",

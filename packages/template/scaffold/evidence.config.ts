@@ -7,7 +7,7 @@ export default {
     {
       name: "production source",
       type: "typescript",
-      files: ["src/**/*.ts", "!src/**/index.ts"],
+      files: ["src/**/*.ts"],
       symbol: ["type", "function"],
       reference: {
         type: "markdown",
