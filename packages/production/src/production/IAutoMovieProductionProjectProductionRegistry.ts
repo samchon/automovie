@@ -3,11 +3,7 @@
 /**
  * The tracked production registry, `automovie/productions.json`.
  *
- * It is portable identity only: the registered production ids and the design
- * layout they use, identical in every checkout of the same history. A resident
- * record may still carry the retired inline `incarnations` member. Validation
- * still refuses a malformed one, but no open reads it as a generation, and the
- * next registry publication drops it.
+ * Portable identity records the registered production ids and their design layout, while each checkout stores its own incarnation records. Validation still refuses a malformed retired inline `incarnations` member, but opening does not use it as a current generation and normalized registry publication drops it.
  *
  * @evidence contracts/common.md#principled-implementation Models portable tracked production identity separately from resident incarnation records; the registry validator admits versions, spelling and encoded lowercase collisions and returns sorted ids.
  * @evidence contracts/common.md#clear-and-simple-design One registry stores production membership and layout version, while physical generation fencing belongs to project/production incarnation files rather than a duplicate inline map.

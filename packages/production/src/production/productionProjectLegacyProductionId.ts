@@ -8,9 +8,9 @@ import path from "node:path";
  * @evidence contracts/common.md#clear-and-simple-design Extracts only historical identity; full production design schema and the migration plan stay with their respective consumers.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not normalize a malformed id or claim this check enforces every portable production-id rule; later namespace registration/encoding owns those constraints.
  * @evidence contracts/common.md#meaningful-documentation Null distinguishes no declared legacy id from an invalid present value, and reader/JSON failures propagate before any migration side effect.
- * @evidence contracts/performance.md#efficient-algorithms Includes one guarded JSON read/parse and string trim checks, proportional to record bytes and id length; no design graph or payload population is loaded.
+ * @evidence contracts/performance.md#efficient-algorithms Includes one complete guarded JSON read/parse with potentially quadratic numeric suffix-copy work, then id-length trim checks; no separate design graph or artifact payload population is loaded.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work One constructor registration decision needs this resident optional identity; no cross-opening cache substitutes for the current legacy record.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Only the id string or null transfers to the caller; parsed JSON is local and guarded acquisition closes its descriptor without retaining a migration task.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Only the id string or null transfers to the caller; complete JSON bytes/tree are temporary without a local byte cap, guarded acquisition attempts descriptor cleanup and reports refusal, and no migration task is retained.
  */
 export function productionProjectLegacyProductionId(rootReal: string, automovieRoot: string): string | null {
     const value: unknown = readOwnedJson(rootReal, path.join(automovieRoot, "design", "production.json"));

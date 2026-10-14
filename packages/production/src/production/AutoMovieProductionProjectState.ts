@@ -35,19 +35,20 @@ import { productionProjectProductionNamespaceDirectories } from "./productionPro
 /**
  * Mutable repository observations shared by one production project's operations.
  *
- * @evidence contracts/common.md#principled-implementation Copies the original project constructor's filesystem admission, incarnation, registration, layout migration and namespace observation order; read-only opening still refuses missing state rather than creating it.
- * @evidence contracts/common.md#clear-and-simple-design Holds one instance's fields while direct operation functions own their behavior, allowing the public facade to preserve its constructor and methods without a callback table or lazy binding cache.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Opening uses the same physical-root fences and production registration policy for every project; a constructor failure can leave already completed initialization writes, as before this mechanical split.
- * @evidence contracts/common.md#meaningful-documentation Properties distinguish physical namespace identities, immutable opening mode and mutable revision/manifest/deletion observations; the state is internal and its fields are not a new root-package API.
- * @evidence contracts/performance.md#efficient-algorithms Constructor work includes registration parsing, any required legacy migration, owned directory admission and captured ancestor lists; cost grows with registry/layout records and directory ancestry, rather than being a constant-size allocation alone.
- * @evidence contracts/performance.md#reuse-equivalent-work Operations share this opening's root/incarnation identities and last revision, but refresh and commit helpers reobserve resident state before relying on it; no state is shared between project objects.
- * @evidence contracts/performance.md#bound-retention-and-release-resources One facade retains one state, its manifest and directory-ancestry arrays until unreachable; opening lease handles are owned and released by the static factories, and state retains no descriptor or running task.
+ * @evidence contracts/common.md#principled-implementation The facade supplies the acquired root identity; construction observes state roots, admits or issues incarnations, selects registration, performs any writable layout migration, captures namespace ancestry and finally admits layout/revision. Read-only opening refuses missing state rather than creating it.
+ * @evidence contracts/common.md#clear-and-simple-design One instance groups opening identities and mutable observations while operation functions own reads, mutations and their currentness guards; the public facade owns its lifecycle.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Opening applies the same physical-root fences and registration policy to every project; a later constructor refusal can leave earlier initialization writes or migration effects resident.
+ * @evidence contracts/common.md#meaningful-documentation Properties distinguish physical identities, opening mode and mutable revision/manifest/deletion observations; the internal state adds no root-package API, and readonly fields do not freeze nested references.
+ * @evidence contracts/performance.md#efficient-algorithms Includes complete registry/JSON parsing, R-registration sorting and K retired-key membership scans, configured-directory and ancestry admission, and any E-entry legacy planning/M-move migration with its recovery costs; retained records/path text grow with those populations without a fixed cap here.
+ * @evidence contracts/performance.md#reuse-equivalent-work Operations share opening identity expectations and revision observations but reacquire resident facts before using them. Each instance owns its mutable scalar fields and manifest wrapper; fixed-layout arrays and the supplied archetype catalogue can remain shared references.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources One facade retains its state, manifest and D captured ancestor records until unreachable, with path text following captured depths and no new cap. Static factories own and attempt opening-lease cleanup, whose native failure can leave coordination entries; this state retains no descriptor or running task.
  */
 export class AutoMovieProductionProjectState {
     /**
      * Active production selected inside the project repository.
      */
     public readonly productionId: string;
+
     /** Physical root observed during opening, used by owned-file fences. */
     readonly rootReal: string;
 
@@ -104,7 +105,8 @@ export class AutoMovieProductionProjectState {
 
     /** Physical directory identities rechecked before relying on the namespace. */
     productionNamespaceAncestries_: readonly IPhysicalDirectoryAncestry[] = [];
-    /** Current normalized layout including preserved unknown legacy fields. */
+
+    /** Fixed ownership layout with descriptive project id and optional historical import metadata. */
     manifest_: IAutoMovieProductionManifest & Record<string, unknown>;
 
     /** Most recently admitted resident revision, refreshed before public reads. */
@@ -112,14 +114,14 @@ export class AutoMovieProductionProjectState {
 
     /** Marks successful namespace erasure so subsequent operations refuse it. */
     deleted_: boolean = false;
+
     public constructor(
     /**
      * Canonical host-selected project root for this production repository.
      */
     public readonly root: string, rootIdentity: Pick<IAutoMovieProductionRootNamespaceLease, "device" | "inode">, requestedProductionId?: string, readOnly: boolean = false,
     /**
-     * The archetype catalogue every design record in this project is judged
-     * against, and the one its builder builds from.
+     * Archetype catalogue used by design admission and the builder, retained by reference without a separate clone or freeze.
      */
     public readonly archetypes: AutoMovieModelArchetypeRegistry = AUTOMOVIE_REGISTERED_ARCHETYPES) {
         this.readOnly_ = readOnly;

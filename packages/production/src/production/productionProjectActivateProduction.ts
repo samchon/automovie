@@ -26,11 +26,16 @@ import { productionProjectAssertProjectRootIdentity } from "./productionProjectA
  * @evidence contracts/common.md#meaningful-documentation Returns production ID, incarnation and whether the original registry required legacy migration; this is the mutable-open path.
  * @evidence contracts/performance.md#efficient-algorithms Includes registry/legacy parsing, ID scans, preflight ancestry checks, possible registry sorting/serialization and atomic writes; costs follow registry text, path depth and record bytes.
  * @evidence contracts/performance.md#reuse-equivalent-work Existing registered incarnation is adopted after admission; unchanged registry bytes are left alone, while new registration issues a fresh UUID.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Delegated readers/atomic writers release descriptors and temporary files; local records release, while the caller retains returned identity and partial published state can survive failure.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Delegated readers/writers attempt descriptor and temporary cleanup and report refusal; parsed records are temporary, the caller retains returned identity, and partial published state or failed-cleanup bytes can survive failure without a new byte cap here.
  */
 export function productionProjectActivateProduction(state: AutoMovieProductionProjectState, requestedProductionId?: string): {
+    /** Checkout-local generation adopted or issued for this production. */
     incarnation: string;
+
+    /** Whether the initially admitted registry still used the legacy layout. */
     legacy: boolean;
+
+    /** Validated selected production identity in its authored spelling. */
     productionId: string;
 } {
     const stored: unknown = readOwnedJson(state.rootReal, state.registryPath);

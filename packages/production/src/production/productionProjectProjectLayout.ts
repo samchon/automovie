@@ -1,15 +1,9 @@
 import { IAutoMovieProductionManifest } from "@automovie/interface";
 
 /**
- * The project ownership layout, which is the harness's own fixed shape rather
- * than a per-project declaration.
+ * Fixed project ownership roots and tracked input addresses used by opening, compilation and publication.
  *
- * This was a tracked `automovie/manifest.json` that every project carried a
- * copy of, and the copy could only ever restate what this constant already
- * says: the class synthesized exactly these values whenever the file was
- * missing. A per-project file that no project may vary is a second source of
- * one truth, so the constant is the only source now and `projectId` is derived
- * from the project directory.
+ * The project synthesizes its layout from this shared record instead of reading a per-project manifest; descriptive projectId comes from package metadata or the directory basename. Readonly annotations restrict TypeScript assignments without freezing the record or its nested arrays at runtime.
  */
 export const productionProjectProjectLayout: { readonly formatVersion: 2; readonly sourceRoots: ["src"]; readonly contentRoots: ["viewer", "scripts", "public", "assets"]; readonly contentFiles: ["vite.config.ts", "package.json", "package-lock.json"]; readonly generatedRoot: "generated"; readonly renderRoot: "renders"; readonly assetManifest: "automovie/assets.json"; readonly derivedArtifactManifest: "automovie/derived-artifacts.json"; } = {
     formatVersion: 2,

@@ -12,7 +12,7 @@ import { productionProjectRefreshRevision } from "./productionProjectRefreshRevi
  * @evidence contracts/common.md#meaningful-documentation States that ids are current registry observations, with production currentness checked before their acquisition rather than a cached opening list.
  * @evidence contracts/performance.md#efficient-algorithms Includes physical/revision checks, full registry read/parse/validation and an O(P) result copy; validation sorts P ids in O(P log P) and can perform O(K*P) membership work for K retired incarnation keys, in addition to id encoding.
  * @evidence contracts/performance.md#reuse-equivalent-work Reads the registry again for each call because other production mutations can change it independently; only the opening identity expectations are shared.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Parsed registry data is temporary and the copied ids transfer to the caller; owned-file acquisition closes its descriptor and this operation retains no registry cache.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Parsed registry data is temporary and the copied id population transfers without a local count cap; delegated readers attempt descriptor cleanup and report failure, while this operation retains no registry cache.
  */
 export function productionProjectProductionIds(state: AutoMovieProductionProjectState): string[] {
     productionProjectRefreshRevision(state);

@@ -18,8 +18,13 @@ import { productionProjectValidateProductionId } from "./productionProjectValida
  * @evidence contracts/performance.md#bound-retention-and-release-resources Guarded readers own descriptor cleanup; local registry data and path strings expire after return/refusal, and the selected three-field result transfers to the constructor without retained tasks.
  */
 export function productionProjectReadProductionRegistration(state: AutoMovieProductionProjectState, requestedProductionId?: string): {
+    /** Admitted checkout-local generation of the selected production. */
     incarnation: string;
+
+    /** Read-only selection requires an already migrated layout. */
     legacy: false;
+
+    /** Validated existing registered production id. */
     productionId: string;
 } {
     const stored: unknown = readOwnedJson(state.rootReal, state.registryPath);

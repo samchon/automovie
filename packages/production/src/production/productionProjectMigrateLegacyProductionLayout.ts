@@ -27,11 +27,11 @@ import { productionProjectAssertStateRootIdentity } from "./productionProjectAss
  *
  * @evidence contracts/common.md#principled-implementation The planner selects resident candidates; fresh physical ancestry/entry identity checks fence staging, publication and rollback. Registry publication marks committed data and prevents later rollback.
  * @evidence contracts/common.md#clear-and-simple-design Ordered staged/published lists expose migration phases; an empty plan only adopts the layout version.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing planned entries may be skipped, links and occupied destinations refuse, and replaced namespaces are not blindly restored; metadata checks do not eliminate external races.
- * @evidence contracts/common.md#meaningful-documentation Precommit errors attempt guarded reverse restoration; postcommit errors report committed state, and best-effort temporary-directory cleanup suppresses its own failures.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing planned entries may be skipped, links and occupied destinations refuse, and replaced namespaces are not blindly restored. Metadata checks do not eliminate external races; a failure inside either restoration loop can replace the original migration failure and stop later recovery.
+ * @evidence contracts/common.md#meaningful-documentation Precommit errors attempt guarded reverse restoration, with original-cause loss possible if restoration throws; postcommit errors report committed state, and best-effort temporary-directory cleanup suppresses its own failures.
  * @evidence contracts/performance.md#efficient-algorithms Includes output enumeration/sorting, O(M) move metadata and repeated ancestry/stat checks, registry serialization and possible reverse rollback; published.includes in recovery can add O(M squared) comparisons.
  * @evidence contracts/performance.md#reuse-equivalent-work Captured entry/ancestor identities are comparison bases, not proof of later residency; each fence reacquires observations and moves are never cached across opens.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Temporary namespace and move records belong to the attempt; only a verified empty temporary is removed, so failed or replaced namespaces can retain recovery data.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The attempt owns M move/ancestor records and its temporary namespace without a local payload-byte cap; only a verified empty temporary is removed, so failed or replaced namespaces can retain recovery data.
  */
 export function productionProjectMigrateLegacyProductionLayout(_project: AutoMovieProductionProjectState): void {
     const moves: { source: string; destination: string; }[] = planAutoMovieProductionLayoutMigration({

@@ -34,15 +34,20 @@ import { productionProjectAssertStateRootIdentity } from "./productionProjectAss
  *
  * @evidence contracts/common.md#principled-implementation Writable/root/reason admission precedes the root lease and production lock; namespace entries move into an identity-fenced quarantine, audit publishes, then registry publication marks the handle deleted.
  * @evidence contracts/common.md#clear-and-simple-design Moved-entry records and an explicit registry commit flag separate reversible retirement from committed cleanup.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Replacement namespaces refuse stale rollback or cleanup; post-registry failure never restores the retired registration, and committed cleanup can still throw.
- * @evidence contracts/common.md#meaningful-documentation Returns erased ID and remaining registrations on completion; precommit rollback errors aggregate causes, while finally releases ownership even after a failed acknowledgement.
- * @evidence contracts/performance.md#efficient-algorithms Registry parsing/filtering, ancestry checks, a fixed three namespace moves and audit/registry writes precede recursive quarantine removal whose cost follows all retired entries.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Replacement namespaces refuse stale rollback or cleanup and committed registration is never restored. A write cleanup failure after registry publication is absorbed by the catch if finally completes; finally cleanup failure can also replace an earlier pending cause.
+ * @evidence contracts/common.md#meaningful-documentation Returns erased ID and remaining registrations on completion; precommit rollback failures aggregate causes, while post-registry write cleanup failure can be lost. Finally attempts lock/lease retirement and quarantine cleanup rather than guaranteeing every release or original-error preservation.
+ * @evidence contracts/performance.md#efficient-algorithms Includes registry parsing/sorting/retired-key membership, ancestry checks, up to three initial namespace moves, audit/registry writes and the final state-root move; recursive quarantine removal follows the full retired entry/byte population, with parser and host contention costs retained.
  * @evidence contracts/performance.md#reuse-equivalent-work Captured entry identities are rechecked through retirement/recovery; effectful moves and deletes are not shared by matching path names.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The namespace lease releases in nested finally; lock release avoids unlinking a replacement state root. Committed quarantine cleanup may fail and leave recovery bytes, while uncommitted empty quarantine cleanup is best effort.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Nested finally attempts namespace-lease retirement; lock cleanup avoids unlinking a replacement state root. Committed quarantine cleanup can fail and leave recovery bytes, while uncommitted empty-quarantine cleanup is best effort; retired entry/byte population has no local cap.
  */
 export function productionProjectEraseProduction(_project: AutoMovieProductionProjectState, reason: string): {
+    /** Whether registry publication marked this handle's production erased. */
     erased: boolean;
+
+    /** Production id retired by this operation. */
     productionId: string;
+
+    /** Remaining registered production ids after committed retirement. */
     remaining: string[];
 } {
     productionProjectAssertWritable(_project);
