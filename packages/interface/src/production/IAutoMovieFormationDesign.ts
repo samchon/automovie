@@ -5,9 +5,9 @@ import { IAutoMovieFormationLayout } from "./IAutoMovieFormationLayout";
 /**
  * A unit-level formation whose members are deterministic derived slots.
  *
- * @evidence contracts/common.md#principled-implementation A count, layout, world anchor, heading and safe-integer seed define reproducible member positions; production design validation admits layout capacity, recipe identity and unique hero slots before materialization.
+ * @evidence contracts/common.md#principled-implementation A count, layout, world anchor, heading and safe-integer seed define reproducible member positions. Count bounds, layout capacity, recipe identity and unique hero slots are caller premises; the engine materializer does not supply the retired production design admission.
  * @evidence contracts/common.md#clear-and-simple-design Compact shared placement is separated from sparse hero overrides and source-authored motion; capability labels coordinate review without becoming executable behavior.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Every slot including heroes uses the declared model recipe, and capability labels confer no permission or proof; no per-member array or guessed behavior replaces the authored design.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Regenerated slots including heroes carry the declared recipe, and capability labels confer no permission or proof. Materialization subtracts the authored hero array length globally but distinct hero slots per chunk, so unique valid overrides are required for consistent counts and are not established by this type.
  * @evidence contracts/common.md#meaningful-documentation Defines count and seed bounds, layout units, shared recipe ownership, portable identity and the non-authorizing capability and hero semantics.
  * @author Samchon
  */

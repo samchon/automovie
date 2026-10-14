@@ -26,7 +26,7 @@ export interface IAutoMovieFormationMotion {
   /**
    * Profile-owned gait name the unit's members perform during this cue.
    *
-   * Omitted, the cue's `action` label is tried as a gait name, and the figure's first declared gait performs when nothing carries that name. A named gait no figure of the unit declares is refused rather than silently replaced.
+   * Omitted, the cue's `action` label is tried as a gait name, and the figure's first declared gait performs when nothing carries that name. Explicit validateAutoMovieFormationMotions calls reject an unknown named gait when the compiled unit has a non-empty repertoire; a unit with no declared repertoire has no such admission check.
    */
   gait?: string;
 
