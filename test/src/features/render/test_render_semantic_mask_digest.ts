@@ -1,16 +1,28 @@
-import { AutoMovieSemanticKind, IAutoMovieSemanticMaskSlot, IAutoMovieSemanticMaskGap, IAutoMovieRenderReport, IAutoMovieRenderInventory, IAutoMovieRenderTarget, IAutoMovieSemanticMask, IAutoMovieSemanticMaskEntry } from "@automovie/interface";
-import { renderSemanticMaskPayload } from "../internal/renderSemanticMaskPayload";
-import { malformedCurrentSemanticMasks } from "../internal/malformedCurrentSemanticMasks";
-import { malformedSemanticMaskShapes } from "../internal/malformedSemanticMaskShapes";
-import { AUTOMOVIE_RENDER_METRICS } from "../../../../packages/engine/src/render/constants/AUTOMOVIE_RENDER_METRICS";
+import {
+  AutoMovieRenderMetric,
+  AutoMovieSemanticKind,
+  IAutoMovieRenderInventory,
+  IAutoMovieRenderReport,
+  IAutoMovieRenderTarget,
+  IAutoMovieSemanticMask,
+  IAutoMovieSemanticMaskEntry,
+  IAutoMovieSemanticMaskGap,
+  IAutoMovieSemanticMaskSlot,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+import { createHash } from "node:crypto";
+
 import { autoMovieSemanticMaskVerificationFailure } from "../../../../packages/engine/src/render/autoMovieSemanticMaskVerificationFailure";
+import { AUTOMOVIE_RENDER_METRICS } from "../../../../packages/engine/src/render/constants/AUTOMOVIE_RENDER_METRICS";
 import { digestAutoMovieSemanticMask } from "../../../../packages/engine/src/render/digestAutoMovieSemanticMask";
 import { evaluateAutoMovieRenderBudget } from "../../../../packages/engine/src/render/evaluateAutoMovieRenderBudget";
 import { renderAutoMovieSemanticMaskSidecar } from "../../../../packages/engine/src/render/renderAutoMovieSemanticMaskSidecar";
 import { verifyAutoMovieSemanticMask } from "../../../../packages/engine/src/render/verifyAutoMovieSemanticMask";
-import { TestValidator } from "@nestia/e2e";
-import { createHash } from "node:crypto";
+import { malformedCurrentSemanticMasks } from "../internal/malformedCurrentSemanticMasks";
+import { malformedSemanticMaskShapes } from "../internal/malformedSemanticMaskShapes";
 import { throwsError } from "../internal/predicates";
+import { renderSemanticMaskPayload } from "../internal/renderSemanticMaskPayload";
+
 /**
  * A semantic-mask digest seals every field needed to interpret its pixels.
  *
@@ -33,7 +45,37 @@ import { throwsError } from "../internal/predicates";
  */
 export function test_render_semantic_mask_digest(): void {
   const mask: IAutoMovieSemanticMask = seal(basePayload());
-  const expectedPayload: { version: number; protocol: string; background: string; entries: ({ id: string; kind: string; label: string; color: string; owner: string; nodes: string[]; slot: { instanceSet: string; index: number; }; } | { id: string; kind: string; label: null; color: string; owner: null; nodes: never[]; slot: null; })[]; unaddressed: { instanceSet: string; slots: number; reason: string; remedy: string; }[]; } = {
+  const expectedPayload: {
+    version: number;
+    protocol: string;
+    background: string;
+    entries: (
+      | {
+          id: string;
+          kind: string;
+          label: string;
+          color: string;
+          owner: string;
+          nodes: string[];
+          slot: { instanceSet: string; index: number };
+        }
+      | {
+          id: string;
+          kind: string;
+          label: null;
+          color: string;
+          owner: null;
+          nodes: never[];
+          slot: null;
+        }
+    )[];
+    unaddressed: {
+      instanceSet: string;
+      slots: number;
+      reason: string;
+      remedy: string;
+    }[];
+  } = {
     version: 2,
     protocol: "automovie.semantic-mask.v2",
     background: "#000000",
@@ -95,9 +137,19 @@ export function test_render_semantic_mask_digest(): void {
 
   const reordered: IAutoMovieSemanticMask = seal({
     ...basePayload(),
-    entries: [...basePayload().entries]
-      .reverse()
-      .map((entry: IAutoMovieSemanticMaskEntry): { nodes: string[]; id: string; kind: AutoMovieSemanticKind; label: string | null; color: string; owner: string | null; slot: IAutoMovieSemanticMaskSlot | null; } => ({ ...entry, nodes: [...entry.nodes].reverse() })),
+    entries: [...basePayload().entries].reverse().map(
+      (
+        entry: IAutoMovieSemanticMaskEntry,
+      ): {
+        nodes: string[];
+        id: string;
+        kind: AutoMovieSemanticKind;
+        label: string | null;
+        color: string;
+        owner: string | null;
+        slot: IAutoMovieSemanticMaskSlot | null;
+      } => ({ ...entry, nodes: [...entry.nodes].reverse() }),
+    ),
     unaddressed: [...basePayload().unaddressed].reverse(),
   });
   TestValidator.equals(
@@ -113,9 +165,23 @@ export function test_render_semantic_mask_digest(): void {
   );
 
   const entry: IAutoMovieSemanticMaskEntry = mask.entries.find(
-    (candidate: IAutoMovieSemanticMaskEntry): boolean => candidate.id === "instance-slot:windows#0",
+    (candidate: IAutoMovieSemanticMaskEntry): boolean =>
+      candidate.id === "instance-slot:windows#0",
   )!;
-  const changed: { label: string; owner: string; nodesAdded: string; nodesRemoved: string; slotSet: string; slotIndex: string; slotNull: string; gapSet: string; gapSlots: string; gapReason: string; gapRemedy: string; gapsEmpty: string; } = {
+  const changed: {
+    label: string;
+    owner: string;
+    nodesAdded: string;
+    nodesRemoved: string;
+    slotSet: string;
+    slotIndex: string;
+    slotNull: string;
+    gapSet: string;
+    gapSlots: string;
+    gapReason: string;
+    gapRemedy: string;
+    gapsEmpty: string;
+  } = {
     label: editEntry(mask, { label: "clerestory" }).digest,
     owner: editEntry(mask, { owner: "space:hall" }).digest,
     nodesAdded: editEntry(mask, {
@@ -133,20 +199,35 @@ export function test_render_semantic_mask_digest(): void {
     gapSlots: editGap(mask, { slots: 3 }).digest,
     gapReason: editGap(mask, { reason: "another bound" }).digest,
     gapRemedy: editGap(mask, { remedy: "use another mask" }).digest,
-    gapsEmpty: seal({ ...renderSemanticMaskPayload(mask), unaddressed: [] }).digest,
+    gapsEmpty: seal({ ...renderSemanticMaskPayload(mask), unaddressed: [] })
+      .digest,
   };
   TestValidator.equals(
     "every semantic axis has a digest-moving negative twin",
     Object.fromEntries(
-      Object.entries(changed).map(([name, digest]: [string, string]): [string, boolean] => [
+      Object.entries(changed).map(
+        ([name, digest]: [string, string]): [string, boolean] => [
+          name,
+          digest !== mask.digest,
+        ],
+      ),
+    ),
+    Object.fromEntries(
+      Object.keys(changed).map((name: string): [string, boolean] => [
         name,
-        digest !== mask.digest,
+        true,
       ]),
     ),
-    Object.fromEntries(Object.keys(changed).map((name: string): [string, boolean] => [name, true])),
   );
 
-  const tampered: { entries: IAutoMovieSemanticMaskEntry[]; version: 2; protocol: "automovie.semantic-mask.v2"; background: "#000000"; unaddressed: IAutoMovieSemanticMaskGap[]; digest: string; } = {
+  const tampered: {
+    entries: IAutoMovieSemanticMaskEntry[];
+    version: 2;
+    protocol: "automovie.semantic-mask.v2";
+    background: "#000000";
+    unaddressed: IAutoMovieSemanticMaskGap[];
+    digest: string;
+  } = {
     ...mask,
     entries: [
       { ...mask.entries[0]!, owner: "space:foreign" },
@@ -192,53 +273,93 @@ export function test_render_semantic_mask_digest(): void {
     { historical: true, unknown: true },
   );
 
-  const malformed: readonly (readonly [string, IAutoMovieSemanticMask, string])[] = malformedCurrentSemanticMasks(mask);
+  const malformed: readonly (readonly [
+    string,
+    IAutoMovieSemanticMask,
+    string,
+  ])[] = malformedCurrentSemanticMasks(mask);
   TestValidator.equals(
     "a self-consistent digest cannot authorize an inexact current schema",
     Object.fromEntries(
-      malformed.map(([name, candidate, boundary]: readonly [string, IAutoMovieSemanticMask, string]): [string, { reason: "unsupported" | "invalid" | "digest-mismatch" | null; boundary: boolean; }] => [
-        name,
-        {
-          reason: verificationFailure(candidate),
-          boundary: throwsError(
-            (): void => verifyAutoMovieSemanticMask(candidate),
-            boundary,
-          ),
-        },
-      ]),
+      malformed.map(
+        ([name, candidate, boundary]: readonly [
+          string,
+          IAutoMovieSemanticMask,
+          string,
+        ]): [
+          string,
+          {
+            reason: "unsupported" | "invalid" | "digest-mismatch" | null;
+            boundary: boolean;
+          },
+        ] => [
+          name,
+          {
+            reason: verificationFailure(candidate),
+            boundary: throwsError(
+              (): void => verifyAutoMovieSemanticMask(candidate),
+              boundary,
+            ),
+          },
+        ],
+      ),
     ),
     Object.fromEntries(
-      malformed.map(([name]: readonly [string, IAutoMovieSemanticMask, string]): [string, { reason: "invalid"; boundary: boolean; }] => [
-        name,
-        { reason: "invalid" as const, boundary: true },
-      ]),
+      malformed.map(
+        ([name]: readonly [string, IAutoMovieSemanticMask, string]): [
+          string,
+          { reason: "invalid"; boundary: boolean },
+        ] => [name, { reason: "invalid" as const, boundary: true }],
+      ),
     ),
   );
-  const malformedShapes: readonly (readonly [string, IAutoMovieSemanticMask, string])[] = malformedSemanticMaskShapes(mask);
+  const malformedShapes: readonly (readonly [
+    string,
+    IAutoMovieSemanticMask,
+    string,
+  ])[] = malformedSemanticMaskShapes(mask);
   TestValidator.equals(
     "wrong current-schema shapes fail at their exact structural boundary",
     Object.fromEntries(
-      malformedShapes.map(([name, candidate, boundary]: readonly [string, IAutoMovieSemanticMask, string]): [string, { reason: "unsupported" | "invalid" | "digest-mismatch" | null; boundary: boolean; }] => [
-        name,
-        {
-          reason: verificationFailure(candidate),
-          boundary: throwsError(
-            (): void => verifyAutoMovieSemanticMask(candidate),
-            boundary,
-          ),
-        },
-      ]),
+      malformedShapes.map(
+        ([name, candidate, boundary]: readonly [
+          string,
+          IAutoMovieSemanticMask,
+          string,
+        ]): [
+          string,
+          {
+            reason: "unsupported" | "invalid" | "digest-mismatch" | null;
+            boundary: boolean;
+          },
+        ] => [
+          name,
+          {
+            reason: verificationFailure(candidate),
+            boundary: throwsError(
+              (): void => verifyAutoMovieSemanticMask(candidate),
+              boundary,
+            ),
+          },
+        ],
+      ),
     ),
     Object.fromEntries(
-      malformedShapes.map(([name]: readonly [string, IAutoMovieSemanticMask, string]): [string, { reason: "invalid"; boundary: boolean; }] => [
-        name,
-        { reason: "invalid" as const, boundary: true },
-      ]),
+      malformedShapes.map(
+        ([name]: readonly [string, IAutoMovieSemanticMask, string]): [
+          string,
+          { reason: "invalid"; boundary: boolean },
+        ] => [name, { reason: "invalid" as const, boundary: true }],
+      ),
     ),
   );
 
-  const reports: IAutoMovieRenderReport[] = [mask, editEntry(mask, { owner: "space:hall" })].map(
-    (candidate: IAutoMovieSemanticMask): IAutoMovieRenderReport => report(candidate),
+  const reports: IAutoMovieRenderReport[] = [
+    mask,
+    editEntry(mask, { owner: "space:hall" }),
+  ].map(
+    (candidate: IAutoMovieSemanticMask): IAutoMovieRenderReport =>
+      report(candidate),
   );
   TestValidator.equals(
     "render report identity inherits the complete semantic payload",
@@ -251,7 +372,10 @@ export function test_render_semantic_mask_digest(): void {
 }
 
 /** Current hand-built payload, deliberately declared out of input order. */
-const basePayload: () => Omit<IAutoMovieSemanticMask, "digest"> = (): Omit<IAutoMovieSemanticMask, "digest"> =>
+const basePayload: () => Omit<IAutoMovieSemanticMask, "digest"> = (): Omit<
+  IAutoMovieSemanticMask,
+  "digest"
+> =>
   ({
     version: 2,
     protocol: "automovie.semantic-mask.v2",
@@ -293,7 +417,9 @@ const basePayload: () => Omit<IAutoMovieSemanticMask, "digest"> = (): Omit<IAuto
   }) as unknown as Omit<IAutoMovieSemanticMask, "digest">;
 
 /** Seal one typed payload with the production digest helper. */
-const seal: (value: Omit<IAutoMovieSemanticMask, "digest">) => IAutoMovieSemanticMask = (
+const seal: (
+  value: Omit<IAutoMovieSemanticMask, "digest">,
+) => IAutoMovieSemanticMask = (
   value: Omit<IAutoMovieSemanticMask, "digest">,
 ): IAutoMovieSemanticMask => ({
   ...value,
@@ -301,7 +427,9 @@ const seal: (value: Omit<IAutoMovieSemanticMask, "digest">) => IAutoMovieSemanti
 });
 
 /** Return the verifier's stable typed refusal for one candidate. */
-const verificationFailure: (mask: IAutoMovieSemanticMask) => "unsupported" | "invalid" | "digest-mismatch" | null = (
+const verificationFailure: (
+  mask: IAutoMovieSemanticMask,
+) => "unsupported" | "invalid" | "digest-mismatch" | null = (
   mask: IAutoMovieSemanticMask,
 ): ReturnType<typeof autoMovieSemanticMaskVerificationFailure> => {
   try {
@@ -313,21 +441,28 @@ const verificationFailure: (mask: IAutoMovieSemanticMask) => "unsupported" | "in
 };
 
 /** Replace one field of the instanced-slot entry and reseal it. */
-const editEntry: (mask: IAutoMovieSemanticMask, replacement: Partial<IAutoMovieSemanticMaskEntry>) => IAutoMovieSemanticMask = (
+const editEntry: (
+  mask: IAutoMovieSemanticMask,
+  replacement: Partial<IAutoMovieSemanticMaskEntry>,
+) => IAutoMovieSemanticMask = (
   mask: IAutoMovieSemanticMask,
   replacement: Partial<IAutoMovieSemanticMaskEntry>,
 ): IAutoMovieSemanticMask =>
   seal({
     ...renderSemanticMaskPayload(mask),
-    entries: mask.entries.map((entry: IAutoMovieSemanticMaskEntry): IAutoMovieSemanticMaskEntry =>
-      entry.id === "instance-slot:windows#0"
-        ? { ...entry, ...replacement }
-        : entry,
+    entries: mask.entries.map(
+      (entry: IAutoMovieSemanticMaskEntry): IAutoMovieSemanticMaskEntry =>
+        entry.id === "instance-slot:windows#0"
+          ? { ...entry, ...replacement }
+          : entry,
     ),
   });
 
 /** Replace one field of the first canonical bounded-palette gap and reseal it. */
-const editGap: (mask: IAutoMovieSemanticMask, replacement: Partial<IAutoMovieSemanticMaskGap>) => IAutoMovieSemanticMask = (
+const editGap: (
+  mask: IAutoMovieSemanticMask,
+  replacement: Partial<IAutoMovieSemanticMaskGap>,
+) => IAutoMovieSemanticMask = (
   mask: IAutoMovieSemanticMask,
   replacement: Partial<IAutoMovieSemanticMask["unaddressed"][number]>,
 ): IAutoMovieSemanticMask =>
@@ -340,13 +475,20 @@ const editGap: (mask: IAutoMovieSemanticMask, replacement: Partial<IAutoMovieSem
   });
 
 /** Evaluate a content-only report against one fixed zero-cost inventory. */
-const report: (mask: IAutoMovieSemanticMask) => IAutoMovieRenderReport = (mask: IAutoMovieSemanticMask): IAutoMovieRenderReport =>
+const report: (mask: IAutoMovieSemanticMask) => IAutoMovieRenderReport = (
+  mask: IAutoMovieSemanticMask,
+): IAutoMovieRenderReport =>
   evaluateAutoMovieRenderBudget({
     inventory: {
       version: 1,
       protocol: "automovie.render-inventory.v1",
       totals: Object.fromEntries(
-        AUTOMOVIE_RENDER_METRICS.map((metric: "triangles" | "vertices" | "drawCalls" | "materials" | "textures" | "textureBytes" | "geometryBytes" | "lights" | "shadowMaps" | "nodes" | "instanceSets" | "instanceSlots" | "instanceChunks" | "fluidCells" | "fluidParticles"): ["triangles" | "vertices" | "drawCalls" | "materials" | "textures" | "textureBytes" | "geometryBytes" | "lights" | "shadowMaps" | "nodes" | "instanceSets" | "instanceSlots" | "instanceChunks" | "fluidCells" | "fluidParticles", number] => [metric, 0]),
+        AUTOMOVIE_RENDER_METRICS.map(
+          (metric: AutoMovieRenderMetric): [AutoMovieRenderMetric, number] => [
+            metric,
+            0,
+          ],
+        ),
       ),
       owners: [],
       gaps: [],

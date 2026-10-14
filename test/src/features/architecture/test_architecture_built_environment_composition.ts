@@ -1,29 +1,46 @@
-import { sameProductData } from "../internal/sameProductData";
-import { nclose } from "../internal/nclose";
+import type {
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieBuiltSpace,
+  IAutoMovieModel,
+  IAutoMovieShotBuildContext,
+  IAutoMovieSpace,
+  IAutoMovieStageSetPiece,
+  IAutoMovieTransform,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
 import { AutoMovieSubject } from "../../../../packages/engine/src/AutoMovieSubject";
 import { AutoMovieSubjectGroup } from "../../../../packages/engine/src/AutoMovieSubjectGroup";
 import type { IAutoMovieSubjectContribution } from "../../../../packages/engine/src/IAutoMovieSubjectContribution";
 import { lowerBuiltEnvironment } from "../../../../packages/engine/src/architecture/lowerBuiltEnvironment";
-import type { IAutoMovieModel, IAutoMovieStageSetPiece, IAutoMovieSpace, IAutoMovieBuiltEnvironment, IAutoMovieBuiltSpace, IAutoMovieShotBuildContext, IAutoMovieTransform } from "@automovie/interface";
-import { TestValidator } from "@nestia/e2e";
 import { createModel } from "../internal/fixtures";
+import { nclose } from "../internal/nclose";
+import { sameProductData } from "../internal/sameProductData";
 
 const context: IAutoMovieShotBuildContext = {} as IAutoMovieShotBuildContext;
 
 const STOREY_HEIGHT: number = 3.2;
 
-const identity: (x: number, y: number, z: number) => IAutoMovieTransform = (x: number, y: number, z: number): IAutoMovieTransform => ({
+const identity: (x: number, y: number, z: number) => IAutoMovieTransform = (
+  x: number,
+  y: number,
+  z: number,
+): IAutoMovieTransform => ({
   translation: { x, y, z },
   rotation: { x: 0, y: 0, z: 0, w: 1 },
   scale: { x: 1, y: 1, z: 1 },
 });
 
-const slabTransform: (y: number) => IAutoMovieTransform = (y: number): IAutoMovieTransform => ({
+const slabTransform: (y: number) => IAutoMovieTransform = (
+  y: number,
+): IAutoMovieTransform => ({
   ...identity(0, y, 0),
   scale: { x: 8, y: 0.2, z: 6 },
 });
 
-const storeySpace: (index: number) => IAutoMovieBuiltSpace = (index: number): IAutoMovieBuiltSpace => ({
+const storeySpace: (index: number) => IAutoMovieBuiltSpace = (
+  index: number,
+): IAutoMovieBuiltSpace => ({
   id: `storey-${index}`,
   kind: "storey",
   parent: "whole",
@@ -48,7 +65,10 @@ class LoopedWing extends AutoMovieSubject<IAutoMovieBuiltEnvironment> {
 
   /** Derive fresh slab, space and inter-storey connector records from the same indices. */
   public design(): IAutoMovieBuiltEnvironment {
-    const indices: number[] = Array.from({ length: this.storeys }, (_: unknown, index: number): number => index);
+    const indices: number[] = Array.from(
+      { length: this.storeys },
+      (_: unknown, index: number): number => index,
+    );
     return {
       version: 1,
       id: this.id,
@@ -65,40 +85,74 @@ class LoopedWing extends AutoMovieSubject<IAutoMovieBuiltEnvironment> {
           model: null,
           space: "whole",
         },
-        ...indices.map((index: number): { id: string; kind: string; parent: string; transform: IAutoMovieTransform; model: string; space: string; } => ({
-          id: `slab-${index}`,
-          kind: "floor-slab",
-          parent: "root",
-          transform: slabTransform(index * STOREY_HEIGHT),
-          model: `${this.id}-slab`,
-          space: `storey-${index}`,
-        })),
+        ...indices.map(
+          (
+            index: number,
+          ): {
+            id: string;
+            kind: string;
+            parent: string;
+            transform: IAutoMovieTransform;
+            model: string;
+            space: string;
+          } => ({
+            id: `slab-${index}`,
+            kind: "floor-slab",
+            parent: "root",
+            transform: slabTransform(index * STOREY_HEIGHT),
+            model: `${this.id}-slab`,
+            space: `storey-${index}`,
+          }),
+        ),
       ],
       spaces: [
         { id: "whole", kind: "building", parent: null, cells: [] },
         ...indices.map(storeySpace),
       ],
-      boundaries: indices.slice(1).map((index: number): { id: string; kind: string; spaces: string[]; elements: string[]; } => ({
-        id: `slab-boundary-${index}`,
-        kind: "floor-ceiling",
-        spaces: [`storey-${index - 1}`, `storey-${index}`],
-        elements: [`slab-${index}`],
-      })),
+      boundaries: indices.slice(1).map(
+        (
+          index: number,
+        ): {
+          id: string;
+          kind: string;
+          spaces: string[];
+          elements: string[];
+        } => ({
+          id: `slab-boundary-${index}`,
+          kind: "floor-ceiling",
+          spaces: [`storey-${index - 1}`, `storey-${index}`],
+          elements: [`slab-${index}`],
+        }),
+      ),
       openings: [],
-      connectors: indices.slice(1).map((index: number): { id: string; kind: "stair"; from: string; to: string; bidirectional: true; route: { x: number; y: number; z: number; }[]; width: number; clearHeight: number; elements: never[]; } => ({
-        id: `stair-${index}`,
-        kind: "stair" as const,
-        from: `storey-${index - 1}`,
-        to: `storey-${index}`,
-        bidirectional: true,
-        route: [
-          { x: -3, y: (index - 1) * STOREY_HEIGHT, z: 0 },
-          { x: -1, y: index * STOREY_HEIGHT, z: 0 },
-        ],
-        width: 1.4,
-        clearHeight: 2.2,
-        elements: [],
-      })),
+      connectors: indices.slice(1).map(
+        (
+          index: number,
+        ): {
+          id: string;
+          kind: "stair";
+          from: string;
+          to: string;
+          bidirectional: true;
+          route: { x: number; y: number; z: number }[];
+          width: number;
+          clearHeight: number;
+          elements: never[];
+        } => ({
+          id: `stair-${index}`,
+          kind: "stair" as const,
+          from: `storey-${index - 1}`,
+          to: `storey-${index}`,
+          bidirectional: true,
+          route: [
+            { x: -3, y: (index - 1) * STOREY_HEIGHT, z: 0 },
+            { x: -1, y: index * STOREY_HEIGHT, z: 0 },
+          ],
+          width: 1.4,
+          clearHeight: 2.2,
+          elements: [],
+        }),
+      ),
       surfaces: [],
       walkable: [],
     };
@@ -157,8 +211,10 @@ class Campus extends AutoMovieSubjectGroup<null, Wings> {
 }
 
 /** Order field names lexically so the contributed key list is compared stably. */
-const alphabetical: (left: string, right: string) => number = (left: string, right: string): number =>
-  left < right ? -1 : left > right ? 1 : 0;
+const alphabetical: (left: string, right: string) => number = (
+  left: string,
+  right: string,
+): number => (left < right ? -1 : left > right ? 1 : 0);
 
 /**
  * Render existing subject groups and compare their ordered merged contributions with the authored leaf contributions.
@@ -185,12 +241,19 @@ export function test_architecture_built_environment_composition(): void {
     new Wings("single", [east]),
   ]);
   const merged: IAutoMovieSubjectContribution = flat.render(context);
-  TestValidator.equals("a group render is the stable merge of its leaves", {
-      buildings: merged.builtEnvironments?.map((value: IAutoMovieBuiltEnvironment): string => value.id),
+  TestValidator.equals(
+    "a group render is the stable merge of its leaves",
+    {
+      buildings: merged.builtEnvironments?.map(
+        (value: IAutoMovieBuiltEnvironment): string => value.id,
+      ),
       models: merged.models?.map((model: IAutoMovieModel): string => model.id),
-      set: merged.set?.map((piece: IAutoMovieStageSetPiece): string => piece.node),
+      set: merged.set?.map(
+        (piece: IAutoMovieStageSetPiece): string => piece.node,
+      ),
       spaces: merged.spaces?.map((space: IAutoMovieSpace): string => space.id),
-    }, {
+    },
+    {
       buildings: ["north", "south", "east"],
       models: ["north-slab", "south-slab", "east-slab"],
       set: [
@@ -212,34 +275,54 @@ export function test_architecture_built_environment_composition(): void {
         "east/whole",
         "east/storey-0",
       ],
-    });
-  TestValidator.predicate("grouping depth does not change what a group contributes", sameProductData(nested.render(context), merged));
+    },
+  );
+  TestValidator.predicate(
+    "grouping depth does not change what a group contributes",
+    sameProductData(nested.render(context), merged),
+  );
   TestValidator.predicate(
     "merged visible nodes and merged spaces stay owned by their building",
-    (() : boolean => {
-      const observed: { unnamespacedNodes: number; unnamespacedSpaces: number; } = {
-      unnamespacedNodes: (merged.set ?? []).filter(
-        (piece: IAutoMovieStageSetPiece): boolean =>
-          !(merged.builtEnvironments ?? []).some((value: IAutoMovieBuiltEnvironment): boolean =>
-            piece.node.startsWith(`${value.id}/`),
-          ),
-      ).length,
-      unnamespacedSpaces: (merged.spaces ?? []).filter(
-        (space: IAutoMovieSpace): boolean =>
-          !(merged.builtEnvironments ?? []).some((value: IAutoMovieBuiltEnvironment): boolean =>
-            space.id.startsWith(`${value.id}/`),
-          ),
-      ).length,
-    };
+    ((): boolean => {
+      const observed: {
+        unnamespacedNodes: number;
+        unnamespacedSpaces: number;
+      } = {
+        unnamespacedNodes: (merged.set ?? []).filter(
+          (piece: IAutoMovieStageSetPiece): boolean =>
+            !(merged.builtEnvironments ?? []).some(
+              (value: IAutoMovieBuiltEnvironment): boolean =>
+                piece.node.startsWith(`${value.id}/`),
+            ),
+        ).length,
+        unnamespacedSpaces: (merged.spaces ?? []).filter(
+          (space: IAutoMovieSpace): boolean =>
+            !(merged.builtEnvironments ?? []).some(
+              (value: IAutoMovieBuiltEnvironment): boolean =>
+                space.id.startsWith(`${value.id}/`),
+            ),
+        ).length,
+      };
       return (
-        typeof observed === "object" && typeof observed === "object" && observed !== null && observed !== undefined &&
+        typeof observed === "object" &&
+        typeof observed === "object" &&
+        observed !== null &&
+        observed !== undefined &&
         Object.keys(observed).length === 2 &&
         Object.hasOwn(observed, "unnamespacedNodes") &&
-        typeof observed["unnamespacedNodes"] === "number" && Number.isInteger(observed["unnamespacedNodes"]) && nclose(observed["unnamespacedNodes"], 0, 0) &&
+        typeof observed["unnamespacedNodes"] === "number" &&
+        Number.isInteger(observed["unnamespacedNodes"]) &&
+        nclose(observed["unnamespacedNodes"], 0, 0) &&
         Object.hasOwn(observed, "unnamespacedSpaces") &&
-        typeof observed["unnamespacedSpaces"] === "number" && Number.isInteger(observed["unnamespacedSpaces"]) && nclose(observed["unnamespacedSpaces"], 0, 0)
+        typeof observed["unnamespacedSpaces"] === "number" &&
+        Number.isInteger(observed["unnamespacedSpaces"]) &&
+        nclose(observed["unnamespacedSpaces"], 0, 0)
       );
     })(),
   );
-  TestValidator.equals("a lowered building contributes nothing beyond its own graphs", Object.keys(looped.render(context)).sort(alphabetical), ["builtEnvironments", "models", "set", "spaces"]);
+  TestValidator.equals(
+    "a lowered building contributes nothing beyond its own graphs",
+    Object.keys(looped.render(context)).sort(alphabetical),
+    ["builtEnvironments", "models", "set", "spaces"],
+  );
 }
