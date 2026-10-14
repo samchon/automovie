@@ -15,7 +15,7 @@ export interface IHumanViewerPhases {
   /** Waiting behind other capture requests. */
   queueMs?: number;
 
-  /** Waiting for transformed GPU page modules. */
+  /** Server capture start through page-evaluation dispatch, including prior room handling; not exclusive module-transform time. */
   pageWaitMs?: number;
 
   /** Numerical build and drawing in the page. */
@@ -38,9 +38,9 @@ export interface IHumanViewerPhases {
   /** Decoding the data URL in the server. */
   decodeMs?: number;
 
-  /** Writing the HTTP response. */
+  /** Synchronous response.end submission of the PNG bytes; excludes asynchronous transport completion. */
   responseMs?: number;
 
-  /** Request receipt through response completion. */
+  /** Post-admission queue-entry timestamp through synchronous PNG response submission; excludes earlier selected-document settlement/admission and does not measure network completion. */
   totalMs?: number;
 }

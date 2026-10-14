@@ -12,7 +12,7 @@ import { getHumanObservationPassDefinition } from "./getHumanObservationPassDefi
 import { isHumanObservationAuxiliary } from "./isHumanObservationAuxiliary.js";
 import { placeHumanObservationCamera } from "./placeHumanObservationCamera.js";
 
-/** Width of the outline pass rim on screen, CSS pixels. */
+/** Nominal outline width at the subject-centre distance, in CSS pixels. */
 const RIM_PIXELS: number = 2;
 /** Distance used before any subject is displayed, metres. */
 const FALLBACK_DISTANCE: number = 0.65;
@@ -37,10 +37,7 @@ const FALLBACK_DISTANCE: number = 0.65;
  * its name, which for the body editor is the model part id and for the face
  * editor the id its decoded glTF gives the mesh.
  *
- * Views are framed on the roots' bounding sphere with the same fit the
- * on-screen buttons use, so a hook and a button at the same view agree.
- * Nothing here needs a GPU: the caller owns the renderer and calls `finish`
- * after a hook to complete the frame.
+ * Views use the roots' bounding sphere and the camera's declared fov/aspect. Agreement with the button fitter requires a centered projection with unit optical zoom, since that fitter uses effective FOV. Nothing here needs a GPU: the caller owns the renderer and calls `finish` after a hook to complete the frame.
  * Visibility and material-pass transitions notify the viewport's shadow owner;
  * a camera-only or unchanged display leaves static shadow maps resident.
  * Restoration stays synchronous and attempts independent material, hull and
@@ -57,11 +54,11 @@ const FALLBACK_DISTANCE: number = 0.65;
  * @param host.orbit Orbit controls whose limits are lifted for exact placement.
  * @param host.roots Displayed subject groups, in the scene.
  * @param host.clay The viewport's grey material, shared with its clay toggle.
- * @param host.height Height of the drawing surface in CSS pixels, which sets the outline's width.
+ * @param host.height Drawing-surface height in CSS pixels, used to target the nominal outline width at the subject-centre distance; mesh scale, depth and projection zoom can change its displayed width.
  * @param host.invalidateShadows Notify the viewport when its cached caster display changes.
  * @param host.invalidateDisplay Notify the owning completion producer after explicit camera, pass or visibility changes.
  *
- * @evidence contracts/common.md#principled-implementation Current root meshes and posed world bounds drive canonical camera framing and inspection passes; exact look restores Cartesian values after native orbit synchronization. Finite valid camera/sphere inputs remain caller premises.
+ * @evidence contracts/common.md#principled-implementation Current root meshes and posed world bounds drive canonical camera framing and inspection passes; exact look restores Cartesian values after native orbit synchronization. Finite valid camera/sphere inputs, unit optical zoom and a centered projection without film/view offsets are framing premises; fitting uses camera.fov rather than getEffectiveFOV and does not retune clip planes.
  * @evidence contracts/common.md#clear-and-simple-design One display owner tracks requested pass/isolation/hiding, borrowing numerical geometry/camera/orbit while helpers own canonical view, bounds and albedo material rules.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Unknown names refuse before requested state changes and source-hidden meshes remain hidden. Visual-only outline shells implement Three's raycast dispatch in their own Mesh subclass without replacing acquired foreign methods, changing layers or altering render values. These calculations supply no raster observation or physiological acceptance.
  * @evidence contracts/common.md#meaningful-documentation Documents metre/degree framing, root-versus-companion scope, deferred apply/finish, synchronous borrowed-state withdrawal and independently awaited owned material retirement.
@@ -444,8 +441,8 @@ void main() {
       if (pass !== "outline") {
         return;
       }
-      // the rim is a world-space shell, so its thickness for a constant screen
-      // width is the world size of RIM_PIXELS at the subject's distance
+      // Convert the nominal CSS width at the subject-centre distance to a
+      // local-normal extrusion; mesh scale, depth and projection zoom vary its screen width.
       if (seen !== null)
         rim.uniforms.thickness.value =
           (RIM_PIXELS *

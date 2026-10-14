@@ -1,5 +1,5 @@
 /**
- * One displayable document as the server publishes it at `/docs`. The server reads only what the catalogue needs (identity, domain, basis names and the cache key) and keeps the document itself as unexamined JSON: its schema is admitted where it is built, by the face, body or person owner in the page's numerical worker, whose refusal reaches the render. Shared human types participate in the owning server and browser check without moving domain schema admission into the server's catalogue projection.
+ * One numerical document descriptor used by the server's catalogue offers and published `/docs` entries. Input and authored offers can carry this shape before owner admission, so its presence alone does not make a document drawable. The projection reads identity, domain, basis names and cache-key inputs; the face, body or person owner admits the complete document. Shared human types participate in server and browser checking without moving domain schema admission into this transport shape.
  *
  * @evidence contracts/common.md#principled-implementation Projects document identity, numerical domain, basis token and content key while leaving document JSON for its actual domain-owner admission.
  * @evidence contracts/common.md#clear-and-simple-design One wire entry joins source identity with unexamined numerical input without importing geometry builders into catalogue construction.
@@ -23,12 +23,7 @@ export interface IHumanViewerCatalogueEntry {
   key: string;
 
   /**
-   * The exact basis bytes the document is built on, which the worker requests
-   * and the server verifies: `published@<digest12>` (published face or body),
-   * `published@<face12>.<body12>` (a person on both published bases),
-   * `published-generation@<head12>.<body12>` (the published one-skin person
-   * generation), `<name>@<digest12>` (a candidate basis or person packet),
-   * or `candidate-generation:<name>@<head12>.<body12>` (candidate typed views).
+   * Basis selection and twelve-hex digest prefixes requested by the worker and checked by the server: `published@<digest12>` (published face or body), `published@<face12>.<body12>` (a person on both published bases), `published-generation@<head12>.<body12>` (the published one-skin person generation), `<name>@<digest12>` (a candidate basis or person packet), or `candidate-generation:<name>@<head12>.<body12>` (candidate typed views). The worker also supports `published-generation-body@<body12>` for a published generation's body view, though current catalogue producers do not emit that form. A colliding prefix can accept changed bytes; this token is not complete byte-identity proof.
    */
   basis: string;
 
