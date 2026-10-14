@@ -4,9 +4,9 @@ import { assertHumanBodyUniqueIds } from "./assertHumanBodyUniqueIds";
 /**
  * Admit named, bounded channel sides and corrective activation data.
  *
- * Shape control weights are dimensionless, while the endpoint rows they name live on shared skin or joint landmarks in metres. A mirror is an explicit reciprocal authoring relation rather than a naming guess. Channel ramps must lie inside the authored envelope; joint-driven ramps are checked by the rig stage. This function returns the complete record-safe endpoint name population for later surface and landmark correspondence. It does not certify muscle physiology or collision-free combinations. Source-unavailable target IDs must name this same declared population once; a renamed or removed target invalidates its old dependency token. This admission never fills a missing field or declares an absent status complete.
+ * Shape control weights are dimensionless, while the endpoint rows they name live on shared skin or joint landmarks in metres. A mirror is an explicit reciprocal authoring relation rather than a naming guess. Channel ramps have nonnegative onset and a larger full endpoint no more than 1e-9 beyond their side's authored envelope, so the admitted envelope need not reach exactly full activation. Joint-driven ramps are checked by the rig stage. This function returns the complete record-safe endpoint name population for later surface and landmark correspondence. It does not certify muscle physiology or collision-free combinations. Source-unavailable target IDs must name this same declared population once; a renamed or removed target invalidates its old dependency token. This admission never fills a missing field or declares an absent status complete.
  *
- * @evidence contracts/common.md#principled-implementation Neutral-containing finite channel envelopes, reciprocal same-group mirrors and bounded distinct corrective drivers establish the declared endpoint population, including explicit unavailable source dependencies.
+ * @evidence contracts/common.md#principled-implementation Neutral-containing finite channel envelopes, reciprocal same-group mirrors and distinct corrective drivers with the existing 1e-9 full-endpoint allowance establish the declared endpoint population, including explicit unavailable source dependencies.
  * @evidence contracts/common.md#clear-and-simple-design Shape admission owns channel-side/corrective relationships while rig admission handles joint and shoulder driver reach.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Unavailable targets must remain declared identities; missing endpoints are not filled and source response bounds do not certify physiology or collision-free combinations.
  * @evidence contracts/common.md#meaningful-documentation The prose gives dimensionless channels, meter endpoint rows, reciprocal mirroring and the limits of this admission.
@@ -97,8 +97,8 @@ export function assertHumanBodyBasisShape(
             "." +
             input.side,
         );
-      // a weight ramp lies inside the envelope on its side, so no admitted
-      // weight arms a corrective past its end and every ramp can reach one
+      // The full endpoint may exceed this side's envelope by a nanounit;
+      // metadata admission therefore need not permit exactly full activation.
       const onset: number = input.onset ?? 0;
       const full: number = input.full ?? 1;
       const extent: number =
