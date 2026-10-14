@@ -12,7 +12,7 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { HUMANOID_GAITS } from "../../../../packages/archetypes/src/HUMANOID_GAITS";
+import { HUMANOID_GAITS } from "@automovie/archetypes";
 import type { IAutoMoviePerformedShot } from "../../../../packages/engine/src/film/IAutoMoviePerformedShot";
 import type { IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
 import { performShot } from "../../../../packages/engine/src/film/performShot";

@@ -9,8 +9,8 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import type { IAutoMovieArchetypeGeometry } from "../../../../packages/archetypes/src/IAutoMovieArchetypeGeometry";
-import { STICKMAN_ARCHETYPE } from "../../../../packages/archetypes/src/STICKMAN_ARCHETYPE";
+import type { IAutoMovieArchetypeGeometry } from "@automovie/archetypes";
+import { STICKMAN_ARCHETYPE } from "@automovie/archetypes";
 import type { IAutoMovieResolvedBone } from "../../../../packages/engine/src/kinematics/IAutoMovieResolvedBone";
 import { resolvePose } from "../../../../packages/engine/src/kinematics/resolvePose";
 import { Quaternion } from "../../../../packages/engine/src/math/Quaternion";

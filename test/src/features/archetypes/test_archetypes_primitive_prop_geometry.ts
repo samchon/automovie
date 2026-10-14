@@ -4,10 +4,10 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import type { IAutoMovieArchetypeGeometry } from "../../../../packages/archetypes/src/IAutoMovieArchetypeGeometry";
-import type { IAutoMovieArchetypeParameterPlan } from "../../../../packages/archetypes/src/IAutoMovieArchetypeParameterPlan";
-import type { IAutoMovieArchetypeRefusal } from "../../../../packages/archetypes/src/IAutoMovieArchetypeRefusal";
-import { PRIMITIVE_PROP_ARCHETYPE } from "../../../../packages/archetypes/src/PRIMITIVE_PROP_ARCHETYPE";
+import type { IAutoMovieArchetypeGeometry } from "@automovie/archetypes";
+import type { IAutoMovieArchetypeParameterPlan } from "@automovie/archetypes";
+import type { IAutoMovieArchetypeRefusal } from "@automovie/archetypes";
+import { PRIMITIVE_PROP_ARCHETYPE } from "@automovie/archetypes";
 import { namedFacts, nclose } from "../internal/predicates";
 
 /** One accepted parameter map, as the design gate would have handed it over. */
