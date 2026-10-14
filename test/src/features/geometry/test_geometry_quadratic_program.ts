@@ -1,5 +1,6 @@
 import { solveAutoMovieQuadraticProgram } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
+
 import { type IAutoMovieQuadraticRow } from "../../../../packages/engine/src/math/IAutoMovieQuadraticRow";
 import { equalGeometryTestValues } from "../internal/equalGeometryTestValues";
 import { nclose } from "../internal/nclose";
@@ -27,18 +28,31 @@ import { nclose } from "../internal/nclose";
  * @evidence contracts/testing.md#execution-ownership The discoverable named entry is CPU/WebAssembly integration through actual QP admission/assembly/residual evaluation and the pinned Clarabel reactor. It installs no consumer, builds no native artifact and starts no process, browser or GPU; it owns all cases without dynamic registration.
  */
 export function test_geometry_quadratic_program(): void {
-  const solve: typeof solveAutoMovieQuadraticProgram = solveAutoMovieQuadraticProgram;
-  const row: (indices: number[], weights: number[], lower: number | null, upper: number | null) => IAutoMovieQuadraticRow = (
+  const solve: typeof solveAutoMovieQuadraticProgram =
+    solveAutoMovieQuadraticProgram;
+  const row: (
+    indices: number[],
+    weights: number[],
+    lower: number | null,
+    upper: number | null,
+  ) => IAutoMovieQuadraticRow = (
     indices: number[],
     weights: number[],
     lower: number | null,
     upper: number | null,
   ): IAutoMovieQuadraticRow => ({ indices, weights, lower, upper });
-  const check: (result: ReturnType<typeof solve>, expected: number[]) => void = (result: ReturnType<typeof solve>, expected: number[]): void => {
+  const check: (
+    result: ReturnType<typeof solve>,
+    expected: number[],
+  ) => void = (result: ReturnType<typeof solve>, expected: number[]): void => {
     TestValidator.equals("native solved status", result.status, 1);
     TestValidator.predicate(
       "independent optimum",
-      result.primal.length === expected.length && result.primal.every((v: number, i: number): boolean => nclose(v, expected[i], 1e-6) && Math.abs(v - expected[i]) < 1e-6),
+      result.primal.length === expected.length &&
+        result.primal.every(
+          (v: number, i: number): boolean =>
+            nclose(v, expected[i], 1e-6) && Math.abs(v - expected[i]) < 1e-6,
+        ),
     );
     TestValidator.predicate(
       "original constraint residual",
@@ -61,11 +75,17 @@ export function test_geometry_quadratic_program(): void {
   const first: ReturnType<typeof solve> = solve(input);
   check(first, [0.8, 0.2]);
   const second: ReturnType<typeof solve> = solve(input);
-  TestValidator.predicate("deterministic native replay", equalGeometryTestValues(second, first));
+  TestValidator.predicate(
+    "deterministic native replay",
+    equalGeometryTestValues(second, first),
+  );
   first.primal[0] = 999;
   first.dual[0] = 999;
   check(solve(input), [0.8, 0.2]);
-  TestValidator.predicate("caller data unchanged", equalGeometryTestValues(input, original));
+  TestValidator.predicate(
+    "caller data unchanged",
+    equalGeometryTestValues(input, original),
+  );
   check(solve({ ...input, rows: [sum, row([0], [1], 0, 0.6)] }), [0.6, 0.4]);
   check(solve({ diagonal: [2, 8], linear: [-6, 16], rows: [] }), [3, -2]);
   check(

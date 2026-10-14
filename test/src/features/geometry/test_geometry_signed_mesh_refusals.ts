@@ -1,10 +1,10 @@
 import { createAutoMovieSignedMeshQuery } from "@automovie/engine";
+import { type IAutoMovieMesh } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { type IAutoMovieSignedMeshQueryHit } from "../../../../packages/engine/src/geometry/IAutoMovieSignedMeshQueryHit";
 import { createSignedOctahedron } from "../internal/createSignedMeshFixture";
 import { throwsError } from "../internal/predicates";
-import { type IAutoMovieMesh } from "@automovie/interface";
-import { type IAutoMovieSignedMeshQueryHit } from "../../../../packages/engine/src/geometry/IAutoMovieSignedMeshQueryHit";
 
 /**
  * Malformed or unrepresentable distance inputs fail before a misleading result.
@@ -25,7 +25,9 @@ export function test_geometry_signed_mesh_refusals(): void {
     { ...source, positions: [0] },
     {
       ...source,
-      positions: source.positions.map((v: number, i: number): number => (i === 0 ? NaN : v)),
+      positions: source.positions.map((v: number, i: number): number =>
+        i === 0 ? NaN : v,
+      ),
     },
     { ...source, indices: [0, 1] },
     { ...source, indices: [0, 1, 99] },
@@ -41,15 +43,26 @@ export function test_geometry_signed_mesh_refusals(): void {
       positions: [0, 0, 0, 1, 0, 0, 1, 1e-12, 0],
       indices: [0, 1, 2],
     },
-    { ...source, positions: source.positions.map((v: number): number => v * 1e100) },
-    { ...source, positions: source.positions.map((v: number): number => v * 1e200) },
+    {
+      ...source,
+      positions: source.positions.map((v: number): number => v * 1e100),
+    },
+    {
+      ...source,
+      positions: source.positions.map((v: number): number => v * 1e200),
+    },
   ];
   for (const mesh of invalid)
     TestValidator.predicate(
       "invalid metric surface refused",
-      throwsError((): (point: readonly number[]) => IAutoMovieSignedMeshQueryHit => createAutoMovieSignedMeshQuery(mesh), "Signed"),
+      throwsError(
+        (): ((point: readonly number[]) => IAutoMovieSignedMeshQueryHit) =>
+          createAutoMovieSignedMeshQuery(mesh),
+        "Signed",
+      ),
     );
-  const sample: (point: readonly number[]) => IAutoMovieSignedMeshQueryHit = createAutoMovieSignedMeshQuery(source);
+  const sample: (point: readonly number[]) => IAutoMovieSignedMeshQueryHit =
+    createAutoMovieSignedMeshQuery(source);
   for (const point of [
     [],
     [0, 0],
@@ -60,6 +73,9 @@ export function test_geometry_signed_mesh_refusals(): void {
   ])
     TestValidator.predicate(
       "invalid query refused",
-      throwsError((): IAutoMovieSignedMeshQueryHit => sample(point), "Signed mesh"),
+      throwsError(
+        (): IAutoMovieSignedMeshQueryHit => sample(point),
+        "Signed mesh",
+      ),
     );
 }

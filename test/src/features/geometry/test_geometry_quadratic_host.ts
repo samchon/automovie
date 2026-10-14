@@ -26,7 +26,8 @@ import { throwsError } from "../internal/predicates";
  */
 export function test_geometry_quadratic_host(): void {
   const memory: WebAssembly.Memory = new WebAssembly.Memory({ initial: 1 });
-  const host: ReturnType<typeof createAutoMovieQuadraticHost> = createAutoMovieQuadraticHost((): WebAssembly.Memory => memory);
+  const host: ReturnType<typeof createAutoMovieQuadraticHost> =
+    createAutoMovieQuadraticHost((): WebAssembly.Memory => memory);
   const view: () => DataView = (): DataView => new DataView(memory.buffer);
   TestValidator.equals("first logical clock", host.clock_time_get(0, 0n, 0), 0);
   TestValidator.equals("one nanosecond", view().getBigUint64(0, true), 1n);
@@ -68,7 +69,8 @@ export function test_geometry_quadratic_host(): void {
     "exit propagates as exception",
     throwsError((): never => host.proc_exit(17), "code 17"),
   );
-  const other: ReturnType<typeof createAutoMovieQuadraticHost> = createAutoMovieQuadraticHost((): WebAssembly.Memory => memory);
+  const other: ReturnType<typeof createAutoMovieQuadraticHost> =
+    createAutoMovieQuadraticHost((): WebAssembly.Memory => memory);
   other.clock_time_get(1, 0n, 0);
   TestValidator.equals(
     "independent host clock",

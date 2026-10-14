@@ -1,9 +1,9 @@
 import { createAutoMovieQuadraticMemory } from "@automovie/engine/math/createAutoMovieQuadraticMemory";
 import { TestValidator } from "@nestia/e2e";
 
-import { throwsError } from "../internal/predicates";
 import { type IAutoMovieQuadraticHeap } from "../../../../packages/engine/src/math/IAutoMovieQuadraticHeap";
 import { nclose } from "../internal/nclose";
+import { throwsError } from "../internal/predicates";
 
 /**
  * A synchronous numerical workspace retains fresh heap access across native
@@ -26,27 +26,37 @@ import { nclose } from "../internal/nclose";
  * @evidence contracts/testing.md#execution-ownership The discoverable named entry is CPU/WebAssembly integration that creates its own pinned reactor instance and invokes its actual allocator. It installs no consumer, builds no native artifact and starts no external process, browser or GPU; it owns all existing cases without dynamic registration.
  */
 export function test_geometry_quadratic_workspace(): void {
-  const memory: ReturnType<typeof createAutoMovieQuadraticMemory> = createAutoMovieQuadraticMemory();
+  const memory: ReturnType<typeof createAutoMovieQuadraticMemory> =
+    createAutoMovieQuadraticMemory();
   const readValue: () => number = (): number =>
-    memory.withWorkspace(8, (heap: IAutoMovieQuadraticHeap, address: number): number => {
-      heap.floats[address / 8] = 1.25;
-      return heap.floats[address / 8];
-    });
-  TestValidator.predicate("binary-exact workspace value", nclose(readValue(), 1.25, 0));
-  memory.withWorkspace(9, (heap: IAutoMovieQuadraticHeap, address: number): void => {
-    TestValidator.equals(
-      "odd byte count retains double alignment",
-      address % 8,
-      0,
+    memory.withWorkspace(
+      8,
+      (heap: IAutoMovieQuadraticHeap, address: number): number => {
+        heap.floats[address / 8] = 1.25;
+        return heap.floats[address / 8];
+      },
     );
-    const bytes: Uint8Array = new Uint8Array(heap.floats.buffer);
-    bytes[address + 8] = 123;
-    TestValidator.equals(
-      "odd allocation retains last byte",
-      bytes[address + 8],
-      123,
-    );
-  });
+  TestValidator.predicate(
+    "binary-exact workspace value",
+    nclose(readValue(), 1.25, 0),
+  );
+  memory.withWorkspace(
+    9,
+    (heap: IAutoMovieQuadraticHeap, address: number): void => {
+      TestValidator.equals(
+        "odd byte count retains double alignment",
+        address % 8,
+        0,
+      );
+      const bytes: Uint8Array = new Uint8Array(heap.floats.buffer);
+      bytes[address + 8] = 123;
+      TestValidator.equals(
+        "odd allocation retains last byte",
+        bytes[address + 8],
+        123,
+      );
+    },
+  );
   for (const count of [0, -1, 1.25, NaN, Infinity, 0x100000000])
     TestValidator.predicate(
       "invalid byte domain",

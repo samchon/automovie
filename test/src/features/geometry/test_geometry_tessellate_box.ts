@@ -1,5 +1,6 @@
 import { tessellate } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
+
 import { type ITessellation } from "../../../../packages/engine/src/geometry/ITessellation";
 
 /**
@@ -18,7 +19,12 @@ import { type ITessellation } from "../../../../packages/engine/src/geometry/ITe
  * @evidence contracts/testing.md#execution-ownership The discoverable named entry directly calls portable tessellation source and observes numeric buffers. It installs no consumer, builds no native artifact and starts no process, browser or GPU; it owns its single case without dynamic registration.
  */
 export function test_geometry_tessellate_box(): void {
-  const box: ITessellation = tessellate({ type: "box", width: 0.4, height: 0.6, depth: 0.2 });
+  const box: ITessellation = tessellate({
+    type: "box",
+    width: 0.4,
+    height: 0.6,
+    depth: 0.2,
+  });
   TestValidator.equals("24 vertices", box.positions.length / 3, 24);
   TestValidator.equals("36 indices", box.indices.length, 36);
 

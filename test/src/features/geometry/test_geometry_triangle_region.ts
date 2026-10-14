@@ -1,8 +1,8 @@
-import { test12ValuesClose } from "../internal/test12ValuesClose";
 import { selectAutoMovieTriangleRegion } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../internal/predicates";
+import { test12ValuesClose } from "../internal/test12ValuesClose";
 
 /**
  * An oriented mesh loop selects source triangles by connectivity. Projection and coordinate changes cannot change the selected population.
@@ -22,30 +22,59 @@ export function test_geometry_triangle_region(): void {
     0, 1, 2, 0, 2, 3, 4, 5, 1, 4, 1, 0, 5, 6, 2, 5, 2, 1, 6, 7, 3, 6, 3, 2, 7,
     4, 0, 7, 0, 3,
   ];
-  TestValidator.predicate("inner square population", test12ValuesClose(selectAutoMovieTriangleRegion({ indices, boundary: [0, 1, 2, 3] }), [0, 1]));
-  TestValidator.predicate("complete outer population", test12ValuesClose(selectAutoMovieTriangleRegion({ indices, boundary: [4, 5, 6, 7] }), Array.from({ length: 10 }, (_v: unknown, i: number): number => i)));
+  TestValidator.predicate(
+    "inner square population",
+    test12ValuesClose(
+      selectAutoMovieTriangleRegion({ indices, boundary: [0, 1, 2, 3] }),
+      [0, 1],
+    ),
+  );
+  TestValidator.predicate(
+    "complete outer population",
+    test12ValuesClose(
+      selectAutoMovieTriangleRegion({ indices, boundary: [4, 5, 6, 7] }),
+      Array.from({ length: 10 }, (_v: unknown, i: number): number => i),
+    ),
+  );
   TestValidator.predicate(
     "exterior is not silently cut",
-    throwsError((): number[] =>
-      selectAutoMovieTriangleRegion({ indices, boundary: [3, 2, 1, 0] }),
+    throwsError(
+      (): number[] =>
+        selectAutoMovieTriangleRegion({ indices, boundary: [3, 2, 1, 0] }),
       "outside free edge",
     ),
   );
   TestValidator.predicate(
     "open boundary must follow its face winding",
-    throwsError((): number[] =>
-      selectAutoMovieTriangleRegion({
-        indices: [0, 1, 2],
-        boundary: [2, 1, 0],
-      }),
+    throwsError(
+      (): number[] =>
+        selectAutoMovieTriangleRegion({
+          indices: [0, 1, 2],
+          boundary: [2, 1, 0],
+        }),
       "oriented region boundary",
     ),
   );
   const tetra: number[] = [0, 2, 1, 0, 1, 3, 1, 2, 3, 2, 0, 3];
-  TestValidator.predicate("closed inward face", test12ValuesClose(selectAutoMovieTriangleRegion({ indices: tetra, boundary: [0, 2, 1] }), [0]));
-  TestValidator.predicate("closed opposite patch", test12ValuesClose(selectAutoMovieTriangleRegion({ indices: tetra, boundary: [1, 2, 0] }), [1, 2, 3]));
+  TestValidator.predicate(
+    "closed inward face",
+    test12ValuesClose(
+      selectAutoMovieTriangleRegion({ indices: tetra, boundary: [0, 2, 1] }),
+      [0],
+    ),
+  );
+  TestValidator.predicate(
+    "closed opposite patch",
+    test12ValuesClose(
+      selectAutoMovieTriangleRegion({ indices: tetra, boundary: [1, 2, 0] }),
+      [1, 2, 3],
+    ),
+  );
   const torus: number[] = [];
-  const vertex: (x: number, y: number) => number = (x: number, y: number): number => (y % 3) * 3 + (x % 3);
+  const vertex: (x: number, y: number) => number = (
+    x: number,
+    y: number,
+  ): number => (y % 3) * 3 + (x % 3);
   for (let y: number = 0; y < 3; y++)
     for (let x: number = 0; x < 3; x++) {
       const a: number = vertex(x, y),
@@ -56,8 +85,9 @@ export function test_geometry_triangle_region(): void {
     }
   TestValidator.predicate(
     "nonseparating boundary is refused",
-    throwsError((): number[] =>
-      selectAutoMovieTriangleRegion({ indices: torus, boundary: [0, 1, 2] }),
+    throwsError(
+      (): number[] =>
+        selectAutoMovieTriangleRegion({ indices: torus, boundary: [0, 1, 2] }),
       "separate one connected surface patch",
     ),
   );
@@ -71,7 +101,10 @@ export function test_geometry_triangle_region(): void {
   ])
     TestValidator.predicate(
       "invalid boundary",
-      throwsError((): number[] => selectAutoMovieTriangleRegion({ indices, boundary }), "region"),
+      throwsError(
+        (): number[] => selectAutoMovieTriangleRegion({ indices, boundary }),
+        "region",
+      ),
     );
   for (const broken of [
     [0, 1],
@@ -82,8 +115,12 @@ export function test_geometry_triangle_region(): void {
   ])
     TestValidator.predicate(
       "invalid triangle source",
-      throwsError((): number[] =>
-        selectAutoMovieTriangleRegion({ indices: broken, boundary: [0, 1, 2] }),
+      throwsError(
+        (): number[] =>
+          selectAutoMovieTriangleRegion({
+            indices: broken,
+            boundary: [0, 1, 2],
+          }),
         "region",
       ),
     );

@@ -1,8 +1,8 @@
 import { tessellate } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
-import { throwsError } from "../internal/predicates";
 import { type ITessellation } from "../../../../packages/engine/src/geometry/ITessellation";
+import { throwsError } from "../internal/predicates";
 
 /**
  * Primitive tessellation is a runtime geometry boundary. Unknown primitive

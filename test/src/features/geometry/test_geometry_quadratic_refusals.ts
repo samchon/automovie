@@ -2,8 +2,8 @@ import { solveAutoMovieQuadraticProgram } from "@automovie/engine";
 import { solveAutoMovieQuadraticKernel } from "@automovie/engine/math/solveAutoMovieQuadraticKernel";
 import { TestValidator } from "@nestia/e2e";
 
-import { throwsError } from "../internal/predicates";
 import { type IAutoMovieQuadraticRow } from "../../../../packages/engine/src/math/IAutoMovieQuadraticRow";
+import { throwsError } from "../internal/predicates";
 
 /**
  * The numerical boundary refuses dimensions, sparse holes and coefficients the
@@ -26,13 +26,20 @@ import { type IAutoMovieQuadraticRow } from "../../../../packages/engine/src/mat
  * @evidence contracts/testing.md#execution-ownership The discoverable named entry is CPU/WebAssembly integration: explicit rule refusals stop before assembly, while valid controls and direct setup call reach the pinned reactor. It installs no consumer, builds no native artifact and starts no process, browser or GPU; no extra cases are registered.
  */
 export function test_geometry_quadratic_refusals(): void {
-  const solve: typeof solveAutoMovieQuadraticProgram = solveAutoMovieQuadraticProgram;
+  const solve: typeof solveAutoMovieQuadraticProgram =
+    solveAutoMovieQuadraticProgram;
   type Input = Parameters<typeof solve>[0];
   const valid: Input = { diagonal: [1], linear: [0], rows: [] };
-  const refuses: (patch: Partial<Input>, message: string) => void = (patch: Partial<Input>, message: string): void => {
+  const refuses: (patch: Partial<Input>, message: string) => void = (
+    patch: Partial<Input>,
+    message: string,
+  ): void => {
     TestValidator.predicate(
       "refuses invalid numerical input",
-      throwsError((): ReturnType<typeof solve> => solve({ ...valid, ...patch }), message),
+      throwsError(
+        (): ReturnType<typeof solve> => solve({ ...valid, ...patch }),
+        message,
+      ),
     );
     TestValidator.equals(
       "adjacent valid solve survives",
@@ -61,12 +68,21 @@ export function test_geometry_quadratic_refusals(): void {
     1,
   );
   refuses({ rows: new Array(1) }, "complete");
-  const base: IAutoMovieQuadraticRow = { indices: [0], weights: [1], lower: 0, upper: 0 };
+  const base: IAutoMovieQuadraticRow = {
+    indices: [0],
+    weights: [1],
+    lower: 0,
+    upper: 0,
+  };
   refuses({ rows: [{ ...base, weights: [] }] }, "dimensions");
   refuses({ rows: [{ ...base, weights: new Array(1) }] }, "finite");
   for (const indices of [[-1], [1], [0.5], [NaN], new Array<number>(1), [0, 0]])
     refuses(
-      { rows: [{ ...base, indices, weights: indices.map((): number => 1).fill(1) }] },
+      {
+        rows: [
+          { ...base, indices, weights: indices.map((): number => 1).fill(1) },
+        ],
+      },
       "indices",
     );
   refuses({ rows: [{ ...base, lower: 1 }] }, "ordered");
@@ -77,15 +93,16 @@ export function test_geometry_quadratic_refusals(): void {
     solve({ ...valid, rows: [base], initial: [0] }).status,
     1,
   );
-  const setup: ReturnType<typeof solveAutoMovieQuadraticKernel> = solveAutoMovieQuadraticKernel({
-    diagonal: [],
-    linear: [],
-    columns: [0],
-    rowIndices: [],
-    values: [],
-    lower: [],
-    upper: [],
-  });
+  const setup: ReturnType<typeof solveAutoMovieQuadraticKernel> =
+    solveAutoMovieQuadraticKernel({
+      diagonal: [],
+      linear: [],
+      columns: [0],
+      rowIndices: [],
+      values: [],
+      lower: [],
+      upper: [],
+    });
   TestValidator.predicate("native setup status is negative", setup.status < 0);
   TestValidator.equals(
     "native refusal cleanup permits recovery",

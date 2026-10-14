@@ -1,8 +1,8 @@
-import { test12ValuesClose } from "../internal/test12ValuesClose";
 import { tessellateToMesh } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts } from "../internal/predicates";
+import { test12ValuesClose } from "../internal/test12ValuesClose";
 
 /**
  * `tessellateToMesh` adapts a raw tessellation into a full `IAutoMovieMesh`, so a generated primitive can flow through the same code paths as imported mesh geometry. It carries positions and indices through and leaves skinning null, since generated primitives are not skinned.
@@ -16,14 +16,28 @@ import { namedFacts } from "../internal/predicates";
  * @evidence contracts/testing.md#execution-ownership The discoverable test_geometry_tessellate_to_mesh entry owns these synchronous portable numerical cases and any local iteration; it starts no process, browser or GPU and makes no visual-success claim.
  */
 export function test_geometry_tessellate_to_mesh(): void {
-  const mesh: import("@automovie/interface").IAutoMovieMesh = tessellateToMesh({ type: "box", width: 1, height: 1, depth: 1 });
-  TestValidator.predicate("72 position floats", test12ValuesClose(mesh.positions.length, 72));
-  TestValidator.predicate("has indices", test12ValuesClose(namedFacts([
-      ["meshIndices", (): boolean => mesh.indices !== null],
-      [
-        "meshIndicesLength",
-        (): boolean => mesh.indices !== null && mesh.indices.length === 36,
-      ],
-    ]), { meshIndices: true, meshIndicesLength: true }));
+  const mesh: import("@automovie/interface").IAutoMovieMesh = tessellateToMesh({
+    type: "box",
+    width: 1,
+    height: 1,
+    depth: 1,
+  });
+  TestValidator.predicate(
+    "72 position floats",
+    test12ValuesClose(mesh.positions.length, 72),
+  );
+  TestValidator.predicate(
+    "has indices",
+    test12ValuesClose(
+      namedFacts([
+        ["meshIndices", (): boolean => mesh.indices !== null],
+        [
+          "meshIndicesLength",
+          (): boolean => mesh.indices !== null && mesh.indices.length === 36,
+        ],
+      ]),
+      { meshIndices: true, meshIndicesLength: true },
+    ),
+  );
   TestValidator.predicate("no skin", test12ValuesClose(mesh.skin, null));
 }

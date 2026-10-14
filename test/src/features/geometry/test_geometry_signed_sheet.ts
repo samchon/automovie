@@ -1,11 +1,11 @@
 import { createAutoMovieSignedMeshQuery } from "@automovie/engine";
+import { type IAutoMovieMesh } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { createSignedOctahedron } from "../internal/createSignedMeshFixture";
-import { nclose, throwsError } from "../internal/predicates";
-import { type IAutoMovieMesh } from "@automovie/interface";
 import { type IAutoMovieSignedMeshQueryHit } from "../../../../packages/engine/src/geometry/IAutoMovieSignedMeshQueryHit";
+import { createSignedOctahedron } from "../internal/createSignedMeshFixture";
 import { equalGeometryTestValues } from "../internal/equalGeometryTestValues";
+import { nclose, throwsError } from "../internal/predicates";
 
 /**
  * An oriented sheet reads its sides within reach of its features.
@@ -25,8 +25,12 @@ import { equalGeometryTestValues } from "../internal/equalGeometryTestValues";
  */
 export function test_geometry_signed_sheet(): void {
   const solid: IAutoMovieMesh = createSignedOctahedron();
-  const cap: IAutoMovieMesh = { ...solid, indices: solid.indices!.slice(0, 12) };
-  const sheet: (point: readonly number[]) => IAutoMovieSignedMeshQueryHit = createAutoMovieSignedMeshQuery(cap, { boundary: "open" });
+  const cap: IAutoMovieMesh = {
+    ...solid,
+    indices: solid.indices!.slice(0, 12),
+  };
+  const sheet: (point: readonly number[]) => IAutoMovieSignedMeshQueryHit =
+    createAutoMovieSignedMeshQuery(cap, { boundary: "open" });
   TestValidator.predicate(
     "under the cap is the negative side",
     sheet([0, 0.5, 0]).signedDistance < 0,
@@ -42,7 +46,10 @@ export function test_geometry_signed_sheet(): void {
     rim.feature === "edge" &&
       rim.boundary &&
       nclose(rim.signedDistance, 0.15 / Math.sqrt(3)) &&
-      rim.normal.length === 3 && rim.normal.every((value: number): boolean => nclose(value, 1 / Math.sqrt(3))),
+      rim.normal.length === 3 &&
+      rim.normal.every((value: number): boolean =>
+        nclose(value, 1 / Math.sqrt(3)),
+      ),
   );
   TestValidator.predicate(
     "rim vertex reports the rim, apex and face do not",
@@ -53,7 +60,8 @@ export function test_geometry_signed_sheet(): void {
   TestValidator.predicate(
     "closed contract refuses the sheet",
     throwsError(
-      (): (point: readonly number[]) => IAutoMovieSignedMeshQueryHit => createAutoMovieSignedMeshQuery(cap),
+      (): ((point: readonly number[]) => IAutoMovieSignedMeshQueryHit) =>
+        createAutoMovieSignedMeshQuery(cap),
       "paired oppositely wound",
     ),
   );
@@ -70,12 +78,15 @@ export function test_geometry_signed_sheet(): void {
     TestValidator.predicate(
       "sheet mode still refuses unpaired winding",
       throwsError(
-        (): (point: readonly number[]) => IAutoMovieSignedMeshQueryHit => createAutoMovieSignedMeshQuery(mesh, { boundary: "open" }),
+        (): ((point: readonly number[]) => IAutoMovieSignedMeshQueryHit) =>
+          createAutoMovieSignedMeshQuery(mesh, { boundary: "open" }),
         "singly or oppositely paired",
       ),
     );
-  const closed: (point: readonly number[]) => IAutoMovieSignedMeshQueryHit = createAutoMovieSignedMeshQuery(solid);
-  const asSheet: (point: readonly number[]) => IAutoMovieSignedMeshQueryHit = createAutoMovieSignedMeshQuery(solid, { boundary: "open" });
+  const closed: (point: readonly number[]) => IAutoMovieSignedMeshQueryHit =
+    createAutoMovieSignedMeshQuery(solid);
+  const asSheet: (point: readonly number[]) => IAutoMovieSignedMeshQueryHit =
+    createAutoMovieSignedMeshQuery(solid, { boundary: "open" });
   for (const point of [
     [0, 0, 0],
     [2, 0, 0],

@@ -16,10 +16,10 @@ const SOLIDS: AutoMoviePrimitiveShape[] = [
 /**
  * Signed volume follows the divergence theorem; positive flux agrees with outward counter-clockwise winding on a closed surface and does not alone prove closed topology or displayed culling.
  */
-const signedVolume: (t: { positions: number[]; indices: number[]; }) => number = (t: {
+const signedVolume: (t: {
   positions: number[];
   indices: number[];
-}): number => {
+}) => number = (t: { positions: number[]; indices: number[] }): number => {
   let six: number = 0;
   const p: number[] = t.positions;
   for (let i: number = 0; i < t.indices.length; i += 3) {
@@ -37,15 +37,34 @@ const signedVolume: (t: { positions: number[]; indices: number[]; }) => number =
 /**
  * Every triangle's geometric (winding) normal must agree with its authored vertex normals: a per-triangle check that catches local flips a global volume cannot. Zero-area triangles (a cone apex ring, a plane's collapsed sides) carry no orientation and are skipped.
  */
-const windingAgreesWithNormals: (t: { positions: number[]; normals: number[]; indices: number[]; }) => boolean = (t: {
+const windingAgreesWithNormals: (t: {
+  positions: number[];
+  normals: number[];
+  indices: number[];
+}) => boolean = (t: {
   positions: number[];
   normals: number[];
   indices: number[];
 }): boolean => {
   const p: number[] = t.positions;
   const n: number[] = t.normals;
-  if (p.length === 0 || p.length % 3 !== 0 || n.length !== p.length || t.indices.length === 0 || t.indices.length % 3 !== 0 || !p.every(Number.isFinite) || !n.every(Number.isFinite)) return false;
-  if (!t.indices.every((index: number): boolean => Number.isInteger(index) && index >= 0 && 3 * (index + 1) <= p.length)) return false;
+  if (
+    p.length === 0 ||
+    p.length % 3 !== 0 ||
+    n.length !== p.length ||
+    t.indices.length === 0 ||
+    t.indices.length % 3 !== 0 ||
+    !p.every(Number.isFinite) ||
+    !n.every(Number.isFinite)
+  )
+    return false;
+  if (
+    !t.indices.every(
+      (index: number): boolean =>
+        Number.isInteger(index) && index >= 0 && 3 * (index + 1) <= p.length,
+    )
+  )
+    return false;
   let observed: number = 0;
   for (let i: number = 0; i < t.indices.length; i += 3) {
     const a: number = t.indices[i]! * 3;

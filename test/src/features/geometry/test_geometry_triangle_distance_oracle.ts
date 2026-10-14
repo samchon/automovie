@@ -18,21 +18,42 @@ import { nclose } from "../internal/predicates";
  * @evidence contracts/testing.md#execution-ownership The discoverable test_geometry_triangle_distance_oracle entry owns these synchronous portable numerical cases and any local iteration; it starts no process, browser or GPU and makes no visual-success claim.
  */
 export function test_geometry_triangle_distance_oracle(): void {
-  const a: number[]=[0,0,0],b: number[]=[2,0,0],c: number[]=[0,2,0];
-  const query: ReturnType<typeof createAutoMovieSignedMeshQuery> = createAutoMovieSignedMeshQuery({
-    positions: [...a, ...b, ...c],
-    normals: [0, 0, 1, 0, 0, 1, 0, 0, 1],
-    uvs: null,
-    indices: [0, 1, 2],
-    skin: null,
-  }, { boundary: "open" });
-  for(const [region,point,expected] of [
-    ["A",[-1,-1,1],3],["B",[3,-1,1],3],["AB",[1,-1,1],2],
-    ["C",[-1,3,1],3],["AC",[-1,1,1],2],["BC",[2,2,1],3],
-    ["face",[.5,.5,1],1],["surface",[.5,.5,0],0],
+  const a: number[] = [0, 0, 0],
+    b: number[] = [2, 0, 0],
+    c: number[] = [0, 2, 0];
+  const query: ReturnType<typeof createAutoMovieSignedMeshQuery> =
+    createAutoMovieSignedMeshQuery(
+      {
+        positions: [...a, ...b, ...c],
+        normals: [0, 0, 1, 0, 0, 1, 0, 0, 1],
+        uvs: null,
+        indices: [0, 1, 2],
+        skin: null,
+      },
+      { boundary: "open" },
+    );
+  for (const [region, point, expected] of [
+    ["A", [-1, -1, 1], 3],
+    ["B", [3, -1, 1], 3],
+    ["AB", [1, -1, 1], 2],
+    ["C", [-1, 3, 1], 3],
+    ["AC", [-1, 1, 1], 2],
+    ["BC", [2, 2, 1], 3],
+    ["face", [0.5, 0.5, 1], 1],
+    ["surface", [0.5, 0.5, 0], 0],
   ] as const) {
-    TestValidator.predicate(`${region} follows the authored Euclidean metric`,nclose(closestTriangleDistanceSquaredOracle(point,a,b,c),expected,1e-12));
+    TestValidator.predicate(
+      `${region} follows the authored Euclidean metric`,
+      nclose(
+        closestTriangleDistanceSquaredOracle(point, a, b, c),
+        expected,
+        1e-12,
+      ),
+    );
     const distance: number = query(point).distance;
-    TestValidator.predicate(`${region} production query follows the authored Euclidean metric`, nclose(distance * distance, expected, 1e-12));
+    TestValidator.predicate(
+      `${region} production query follows the authored Euclidean metric`,
+      nclose(distance * distance, expected, 1e-12),
+    );
   }
 }

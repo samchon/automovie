@@ -1,11 +1,18 @@
-import { IAutoMovieVector3, IAutoMovieMeshPhysicalVertices, IAutoMovieMeshSkin, IAutoMovieMesh } from "@automovie/interface";
+import {
+  IAutoMovieMesh,
+  IAutoMovieMeshPhysicalVertices,
+  IAutoMovieMeshSkin,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
+import { IAutoMovieMeshQueryBudget } from "../../../../packages/engine/src/geometry/IAutoMovieMeshQueryBudget";
 import { IAutoMovieMeshSeparationQuery } from "../../../../packages/engine/src/geometry/IAutoMovieMeshSeparationQuery";
 import { IAutoMovieMeshSeparationResult } from "../../../../packages/engine/src/geometry/IAutoMovieMeshSeparationResult";
-import { IAutoMovieMeshQueryBudget } from "../../../../packages/engine/src/geometry/IAutoMovieMeshQueryBudget";
 import { boundAutoMovieConvexSeparation } from "../../../../packages/engine/src/geometry/boundAutoMovieConvexSeparation";
 import { boundAutoMovieProjectionSeparation } from "../../../../packages/engine/src/geometry/boundAutoMovieProjectionSeparation";
 import { createAutoMovieMeshSeparationQuery } from "../../../../packages/engine/src/geometry/createAutoMovieMeshSeparationQuery";
-import { TestValidator } from "@nestia/e2e";
+
 /**
  * Unsupported represented arithmetic and malformed requested work refuse by
  * name rather than returning a separation that a consumer could accept.
@@ -21,8 +28,16 @@ import { TestValidator } from "@nestia/e2e";
  * @evidence contracts/testing.md#execution-ownership The exported geometry entry reaches portable numerical and typed mesh-query source with no native artifact, consumer installation or real host.
  */
 export function test_geometry_separation_refusals(): void {
-  const p: (x: number, y?: number, z?: number) => IAutoMovieVector3 = (x: number, y: number = 0, z: number = 0): IAutoMovieVector3 => ({ x, y, z });
-  const refuses: (name: string, run: () => unknown, part: string) => void = (name: string, run: () => unknown, part: string): void => {
+  const p: (x: number, y?: number, z?: number) => IAutoMovieVector3 = (
+    x: number,
+    y: number = 0,
+    z: number = 0,
+  ): IAutoMovieVector3 => ({ x, y, z });
+  const refuses: (name: string, run: () => unknown, part: string) => void = (
+    name: string,
+    run: () => unknown,
+    part: string,
+  ): void => {
     let message: string = "";
     try {
       run();
@@ -57,7 +72,8 @@ export function test_geometry_separation_refusals(): void {
   );
   refuses(
     "nonfinite direction",
-    (): number => boundAutoMovieProjectionSeparation([p(0)], [p(1)], p(Infinity)),
+    (): number =>
+      boundAutoMovieProjectionSeparation([p(0)], [p(1)], p(Infinity)),
     "nonempty finite",
   );
   refuses(
@@ -91,15 +107,18 @@ export function test_geometry_separation_refusals(): void {
   ])
     refuses(
       "invalid resident",
-      (): IAutoMovieMeshSeparationQuery => createAutoMovieMeshSeparationQuery(resident),
+      (): IAutoMovieMeshSeparationQuery =>
+        createAutoMovieMeshSeparationQuery(resident),
       "nonempty finite",
     );
   refuses(
     "invalid topology",
-    (): IAutoMovieMeshSeparationQuery => createAutoMovieMeshSeparationQuery({ ...mesh, indices: [0, 1, 9] }),
+    (): IAutoMovieMeshSeparationQuery =>
+      createAutoMovieMeshSeparationQuery({ ...mesh, indices: [0, 1, 9] }),
     "vertex",
   );
-  const query: IAutoMovieMeshSeparationQuery = createAutoMovieMeshSeparationQuery(mesh);
+  const query: IAutoMovieMeshSeparationQuery =
+    createAutoMovieMeshSeparationQuery(mesh);
   TestValidator.equals(
     "adjacent positive finite query",
     query([p(0, 0, 1)], { clearance: 0.5, budget: { remaining: 1 } }).certified,
@@ -108,14 +127,16 @@ export function test_geometry_separation_refusals(): void {
   for (const clearance of [-1, NaN, Infinity])
     refuses(
       "invalid requested clearance",
-      (): IAutoMovieMeshSeparationResult => query([p(0, 0, 1)], { clearance, budget: { remaining: 10 } }),
+      (): IAutoMovieMeshSeparationResult =>
+        query([p(0, 0, 1)], { clearance, budget: { remaining: 10 } }),
       "nonnegative finite",
     );
   for (const remaining of [-1, 0.5, NaN, Infinity]) {
-    const budget: { remaining: number; } = { remaining };
+    const budget: { remaining: number } = { remaining };
     refuses(
       "invalid shared budget",
-      (): IAutoMovieMeshSeparationResult => query([p(0, 0, 1)], { clearance: 0.5, budget }),
+      (): IAutoMovieMeshSeparationResult =>
+        query([p(0, 0, 1)], { clearance: 0.5, budget }),
       "safe-integer",
     );
     TestValidator.predicate(
@@ -125,17 +146,20 @@ export function test_geometry_separation_refusals(): void {
   }
   refuses(
     "query nonfinite",
-    (): IAutoMovieMeshSeparationResult => query([p(NaN)], { clearance: 0.5, budget: { remaining: 10 } }),
+    (): IAutoMovieMeshSeparationResult =>
+      query([p(NaN)], { clearance: 0.5, budget: { remaining: 10 } }),
     "finite query",
   );
   refuses(
     "query empty",
-    (): IAutoMovieMeshSeparationResult => query([], { clearance: 0.5, budget: { remaining: 10 } }),
+    (): IAutoMovieMeshSeparationResult =>
+      query([], { clearance: 0.5, budget: { remaining: 10 } }),
     "finite query",
   );
   refuses(
     "sparse query coordinates",
-    (): IAutoMovieMeshSeparationResult => query(new Array(3), { clearance: 0.5, budget: { remaining: 10 } }),
+    (): IAutoMovieMeshSeparationResult =>
+      query(new Array(3), { clearance: 0.5, budget: { remaining: 10 } }),
     "finite query",
   );
   refuses(
@@ -152,17 +176,28 @@ export function test_geometry_separation_refusals(): void {
   );
   refuses(
     "invalid representation",
-    (): IAutoMovieMeshSeparationQuery => createAutoMovieMeshSeparationQuery(mesh, "other" as "source"),
+    (): IAutoMovieMeshSeparationQuery =>
+      createAutoMovieMeshSeparationQuery(mesh, "other" as "source"),
     "representation",
   );
-  const beyondFloat32: { positions: number[]; physicalVertices?: IAutoMovieMeshPhysicalVertices; normals: number[] | null; uvs: number[] | null; colors?: number[]; reliefWeights?: number[]; indices: number[] | null; skin: IAutoMovieMeshSkin | null; } = {
+  const beyondFloat32: {
+    positions: number[];
+    physicalVertices?: IAutoMovieMeshPhysicalVertices;
+    normals: number[] | null;
+    uvs: number[] | null;
+    colors?: number[];
+    reliefWeights?: number[];
+    indices: number[] | null;
+    skin: IAutoMovieMeshSkin | null;
+  } = {
     ...mesh,
     positions: mesh.positions.map((value: number): number => value * 1e39),
   };
   createAutoMovieMeshSeparationQuery(beyondFloat32);
   refuses(
     "finite source vertices cannot authorize overflowing Float32 vertices",
-    (): IAutoMovieMeshSeparationQuery => createAutoMovieMeshSeparationQuery(beyondFloat32, "float32"),
+    (): IAutoMovieMeshSeparationQuery =>
+      createAutoMovieMeshSeparationQuery(beyondFloat32, "float32"),
     "finite represented resident vertices",
   );
   for (const absent of [undefined, null]) {

@@ -17,9 +17,17 @@ import { nclose } from "../internal/predicates";
  */
 export function test_geometry_tessellate_sphere(): void {
   const r: number = 0.5;
-  const sphere: import("@automovie/engine").ITessellation = tessellate({ type: "sphere", radius: r });
+  const sphere: import("@automovie/engine").ITessellation = tessellate({
+    type: "sphere",
+    radius: r,
+  });
 
-  TestValidator.predicate("sphere arrays contain complete matching vertices", sphere.positions.length > 0 && sphere.positions.length % 3 === 0 && sphere.normals.length === sphere.positions.length);
+  TestValidator.predicate(
+    "sphere arrays contain complete matching vertices",
+    sphere.positions.length > 0 &&
+      sphere.positions.length % 3 === 0 &&
+      sphere.normals.length === sphere.positions.length,
+  );
   let onRadius: boolean = true;
   for (let i: number = 0; i < sphere.positions.length; i += 3) {
     const x: number = sphere.positions[i]!;

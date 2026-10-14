@@ -1,12 +1,11 @@
 import { createAutoMovieSignedMeshQuery } from "@automovie/engine";
+import { type IAutoMovieMesh } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { createSignedVoxelUnion } from "../internal/createSignedMeshFixture";
-import { closestTriangleDistanceSquaredOracle } from "../internal/closestTriangleDistanceSquaredOracle";
-
-import { nclose } from "../internal/predicates";
-import { type IAutoMovieMesh } from "@automovie/interface";
 import { type IAutoMovieSignedMeshQueryHit } from "../../../../packages/engine/src/geometry/IAutoMovieSignedMeshQueryHit";
+import { closestTriangleDistanceSquaredOracle } from "../internal/closestTriangleDistanceSquaredOracle";
+import { createSignedVoxelUnion } from "../internal/createSignedMeshFixture";
+import { nclose } from "../internal/predicates";
 
 type Vec = [number, number, number];
 /**
@@ -34,18 +33,38 @@ export function test_geometry_signed_mesh_box_pruning(): void {
     for (let y: number = 0; y < 4; y++)
       for (let z: number = 0; z < 2; z++) cells.push([x, y, z]);
   const mesh: IAutoMovieMesh = createSignedVoxelUnion(cells);
-  const sample: (point: readonly number[]) => IAutoMovieSignedMeshQueryHit = createAutoMovieSignedMeshQuery(mesh);
+  const sample: (point: readonly number[]) => IAutoMovieSignedMeshQueryHit =
+    createAutoMovieSignedMeshQuery(mesh);
   // Predecode the same caller-owned triangles once; every lattice and walking
   // query still measures every one independently of the production hierarchy.
-  const corners: number[][][] = Array.from({length:mesh.indices!.length/3},(_: unknown, triangle: number): number[][] =>[0,1,2].map((k: number): number[] =>{const id: number =mesh.indices![3*triangle+k]!;return mesh.positions.slice(3*id,3*id+3);}));
-  const check: (p: Vec) => boolean = (p:Vec):boolean=>{
-    const hit: IAutoMovieSignedMeshQueryHit = sample(p); let least2: number = Infinity, reported2: number = Infinity;
-    for(let triangle: number =0;triangle<corners.length;triangle++){
-      const [a,b,c]: number[][] = corners[triangle]!; const distance2: number = closestTriangleDistanceSquaredOracle(p,a!,b!,c!);
-      least2=Math.min(least2,distance2);if(triangle===hit.triangle)reported2=distance2;
+  const corners: number[][][] = Array.from(
+    { length: mesh.indices!.length / 3 },
+    (_: unknown, triangle: number): number[][] =>
+      [0, 1, 2].map((k: number): number[] => {
+        const id: number = mesh.indices![3 * triangle + k]!;
+        return mesh.positions.slice(3 * id, 3 * id + 3);
+      }),
+  );
+  const check: (p: Vec) => boolean = (p: Vec): boolean => {
+    const hit: IAutoMovieSignedMeshQueryHit = sample(p);
+    let least2: number = Infinity,
+      reported2: number = Infinity;
+    for (let triangle: number = 0; triangle < corners.length; triangle++) {
+      const [a, b, c]: number[][] = corners[triangle]!;
+      const distance2: number = closestTriangleDistanceSquaredOracle(
+        p,
+        a!,
+        b!,
+        c!,
+      );
+      least2 = Math.min(least2, distance2);
+      if (triangle === hit.triangle) reported2 = distance2;
     }
     const least: number = Math.sqrt(least2);
-    return nclose(hit.distance,least,1e-9)&&nclose(Math.sqrt(reported2),least,1e-9);
+    return (
+      nclose(hit.distance, least, 1e-9) &&
+      nclose(Math.sqrt(reported2), least, 1e-9)
+    );
   };
   const lattice: Vec[] = [];
   for (let x: number = -1.5; x <= 5.5; x += 0.7)

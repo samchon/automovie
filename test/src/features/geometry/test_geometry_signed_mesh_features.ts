@@ -1,13 +1,13 @@
 import { createAutoMovieSignedMeshQuery } from "@automovie/engine";
+import { type IAutoMovieMesh } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { type IAutoMovieSignedMeshQueryHit } from "../../../../packages/engine/src/geometry/IAutoMovieSignedMeshQueryHit";
 import {
   createSignedOctahedron,
   createSignedVoxelUnion,
 } from "../internal/createSignedMeshFixture";
 import { nclose } from "../internal/predicates";
-import { type IAutoMovieMesh } from "@automovie/interface";
-import { type IAutoMovieSignedMeshQueryHit } from "../../../../packages/engine/src/geometry/IAutoMovieSignedMeshQueryHit";
 
 /**
  * Signed distance uses the nearest face, edge or vertex of the actual solid.
@@ -24,8 +24,14 @@ import { type IAutoMovieSignedMeshQueryHit } from "../../../../packages/engine/s
  */
 export function test_geometry_signed_mesh_features(): void {
   const source: IAutoMovieMesh = createSignedOctahedron();
-  const sample: (point: readonly number[]) => IAutoMovieSignedMeshQueryHit = createAutoMovieSignedMeshQuery(source);
-  const cases: ReadonlyArray<{ p: readonly number[]; q: readonly number[]; d: number; feature: IAutoMovieSignedMeshQueryHit["feature"]; }> = [
+  const sample: (point: readonly number[]) => IAutoMovieSignedMeshQueryHit =
+    createAutoMovieSignedMeshQuery(source);
+  const cases: ReadonlyArray<{
+    p: readonly number[];
+    q: readonly number[];
+    d: number;
+    feature: IAutoMovieSignedMeshQueryHit["feature"];
+  }> = [
     {
       p: [0.5, 0.5, 0.5],
       q: [1 / 3, 1 / 3, 1 / 3],
@@ -47,7 +53,8 @@ export function test_geometry_signed_mesh_features(): void {
     TestValidator.equals("nearest feature", hit.feature, one.feature);
     TestValidator.predicate(
       "analytic closest point",
-      hit.point.length === one.q.length && hit.point.every((v: number, k: number): boolean => nclose(v, one.q[k])),
+      hit.point.length === one.q.length &&
+        hit.point.every((v: number, k: number): boolean => nclose(v, one.q[k])),
     );
     TestValidator.predicate(
       "oriented distance",
@@ -68,13 +75,14 @@ export function test_geometry_signed_mesh_features(): void {
     [0.25, 0.25, 0.5],
   ])
     TestValidator.predicate("surface contact", nclose(sample(p).distance, 0));
-  const concave: (point: readonly number[]) => IAutoMovieSignedMeshQueryHit = createAutoMovieSignedMeshQuery(
-    createSignedVoxelUnion([
-      [0, 0, 0],
-      [1, 0, 0],
-      [0, 1, 0],
-    ]),
-  );
+  const concave: (point: readonly number[]) => IAutoMovieSignedMeshQueryHit =
+    createAutoMovieSignedMeshQuery(
+      createSignedVoxelUnion([
+        [0, 0, 0],
+        [1, 0, 0],
+        [0, 1, 0],
+      ]),
+    );
   const inner: IAutoMovieSignedMeshQueryHit = concave([0.9, 0.9, 0.5]);
   TestValidator.equals("concave edge", inner.feature, "edge");
   TestValidator.predicate(

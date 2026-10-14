@@ -1,10 +1,10 @@
 import { createAutoMovieSignedMeshQuery } from "@automovie/engine";
+import { type IAutoMovieMesh } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { type IAutoMovieSignedMeshQueryHit } from "../../../../packages/engine/src/geometry/IAutoMovieSignedMeshQueryHit";
 import { createSignedOctahedron } from "../internal/createSignedMeshFixture";
 import { nclose, throwsError } from "../internal/predicates";
-import { type IAutoMovieMesh } from "@automovie/interface";
-import { type IAutoMovieSignedMeshQueryHit } from "../../../../packages/engine/src/geometry/IAutoMovieSignedMeshQueryHit";
 
 /**
  * The sign precondition is a closed oriented manifold, including vertex links.
@@ -25,9 +25,13 @@ export function test_geometry_signed_mesh_topology(): void {
   const pair: IAutoMovieMesh = {
     ...left,
     positions: [...left.positions, ...right.positions],
-    indices: [...right.indices!.map((v: number): number => v + 6), ...left.indices!],
+    indices: [
+      ...right.indices!.map((v: number): number => v + 6),
+      ...left.indices!,
+    ],
   };
-  const sample: (point: readonly number[]) => IAutoMovieSignedMeshQueryHit = createAutoMovieSignedMeshQuery(pair);
+  const sample: (point: readonly number[]) => IAutoMovieSignedMeshQueryHit =
+    createAutoMovieSignedMeshQuery(pair);
   TestValidator.predicate(
     "left interior",
     sample([0, 0, 0]).signedDistance < 0,
@@ -59,7 +63,10 @@ export function test_geometry_signed_mesh_topology(): void {
       1,
     ),
   );
-  const unused: IAutoMovieMesh = { ...left, positions: [...left.positions, 20, 20, 20] };
+  const unused: IAutoMovieMesh = {
+    ...left,
+    positions: [...left.positions, 20, 20, 20],
+  };
   TestValidator.predicate(
     "unused source position",
     nclose(createAutoMovieSignedMeshQuery(unused)([2, 0, 0]).signedDistance, 1),
@@ -78,11 +85,18 @@ export function test_geometry_signed_mesh_topology(): void {
   const pinched: IAutoMovieMesh = {
     ...left,
     positions: [...left.positions, ...touching.positions],
-    indices: [...left.indices!, ...touching.indices!.map((v: number): number => v + 6)],
+    indices: [
+      ...left.indices!,
+      ...touching.indices!.map((v: number): number => v + 6),
+    ],
   };
   for (const [index, mesh] of [open, inconsistent, repeated, pinched].entries())
     TestValidator.predicate(
       "invalid closed manifold refused",
-      throwsError((): (point: readonly number[]) => IAutoMovieSignedMeshQueryHit => createAutoMovieSignedMeshQuery(mesh), index === 3 ? "disconnected surface fans" : "paired oppositely wound"),
+      throwsError(
+        (): ((point: readonly number[]) => IAutoMovieSignedMeshQueryHit) =>
+          createAutoMovieSignedMeshQuery(mesh),
+        index === 3 ? "disconnected surface fans" : "paired oppositely wound",
+      ),
     );
 }
