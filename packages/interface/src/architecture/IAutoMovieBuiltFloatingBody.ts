@@ -2,7 +2,7 @@ import { AutoMovieBuiltPlacementBasis } from "./AutoMovieBuiltPlacementBasis";
 import { AutoMovieBuiltPlacementBodyLocator } from "./AutoMovieBuiltPlacementBodyLocator";
 
 /**
- * One body the whole-building support sweep found clear air under.
+ * One body classified floating by the whole-building proxy support sweep.
  *
  * The sweep needs no authored support claim, so it finds a floating element
  * nobody suspected, which a named-pair support query cannot because its author
@@ -10,7 +10,7 @@ import { AutoMovieBuiltPlacementBodyLocator } from "./AutoMovieBuiltPlacementBod
  * the body, not an inferred support relation: the body named in `below` is the
  * nearest thing underneath, whether or not it was meant to carry this one.
  *
- * @evidence contracts/common.md#principled-implementation The sweep judges axis-aligned world boxes: the subject's union box gives its underside, and `below` is the highest drawn part whose x-z footprint strictly overlaps that box with a top at or below the underside plus tolerance, so a sloped or stepped underside is judged at its lowest point.
+ * @evidence contracts/common.md#principled-implementation The subject's union AABB supplies its underside and footprint; the highest candidate part-box top within underside plus tolerance and positive XZ overlap supplies below. Static CPU boxes and compact population envelopes can bridge empty space, so this is nearest-proxy classification, not proof that a sloped/stepped mesh has clear air or physical support over its actual underside.
  * @evidence contracts/common.md#clear-and-simple-design A floating finding is a locator, its basis, and one nullable nearest-body pair; the census counts and the cost live on `IAutoMovieBuiltSupportSweepReport`, so this record carries only what tells one finding from another.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The basis excludes `surface-height-rule` because the sweep's subjects are only elements and populations, and the clearance threshold is the caller's tolerance with no body kind or id treated differently.
  * @evidence contracts/common.md#meaningful-documentation States that the finding is a measurement rather than a support claim, what "under" means geometrically, that clearance is in metres and always above the tolerance, and that a null `below` means nothing measurable lies underneath.

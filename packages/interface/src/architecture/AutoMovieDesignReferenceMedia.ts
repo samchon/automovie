@@ -11,7 +11,7 @@
  * an SVG root `viewBox`, else its unitless or `px` `width` and `height`, and
  * never from PDF or DXF.
  *
- * @evidence contracts/common.md#principled-implementation MIME type strings for five registrable families, mirrored by the engine's `AUTO_MOVIE_DESIGN_REFERENCE_MEDIA` table that `validateDesignReference` checks through `isAutoMovieDesignReferenceMedia`; the production inspector parses each family's own grammar before admitting bytes.
+ * @evidence contracts/common.md#principled-implementation Five media strings mirror the engine's exact case-sensitive table. Production signature/token dispatch selects bounded family admission: PNG framing/CRC plus decoding, JPEG marker/scan framing without entropy decoding, classic PDF xref/page-tree framing rather than complete semantics, DTD-free namespace-resolved SVG XML or DXF section records. Admission establishes only those profiles, not universal format or visual validity.
  * @evidence contracts/common.md#clear-and-simple-design Standard media type strings rather than a private format enum, so a declared reference names its container the way the bytes are labelled elsewhere.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts PDF and DXF stay registrable with their extent reported as unsupported instead of guessed from a page box or drawing limits that the inspector does not read.
  * @evidence contracts/common.md#meaningful-documentation States that registration does not imply full analysis, why the list is closed, and from which part of each family the inspector reads an extent.

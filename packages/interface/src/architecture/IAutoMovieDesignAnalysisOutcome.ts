@@ -6,8 +6,8 @@
  * `not-run`; both carry a reason and no candidates, so an absent reading is
  * never mistaken for a clean sheet.
  *
- * @evidence contracts/common.md#principled-implementation A discriminated union on `status` makes only `observed` able to hold candidates and only `unsupported` or `not-run` able to hold a reason; validation also refuses an observed outcome with no candidate, a blank reason, and any other status string.
- * @evidence contracts/common.md#clear-and-simple-design Three variants share no optional field, so an empty reading cannot be spelled as `observed` with an empty list, and `promoteDesignObservations` sorts each variant into promotion or `skipped` by its status alone.
+ * @evidence contracts/common.md#principled-implementation The typed union separates observed candidates from unsupported/not-run reasons. Engine domain validation checks known status, nonempty resolving unique observed claims and nonblank non-observed reasons, but does not inspect extra runtime properties on a non-observed object or prove that the declared execution status is true. Arbitrary nested container shapes remain caller-admitted.
+ * @evidence contracts/common.md#clear-and-simple-design Three variants avoid optional payloads; domain admission refuses an empty observed list even though string[] can express one. Non-observed attempts go to skipped by status; an observed attempt's candidates still pass their separate ordered promotion gates, so observed does not itself imply promoted geometry.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The three status literals are the contract's discriminants, and `promoteDesignObservations` copies a non-observed reason verbatim into `skipped` instead of rewording or dropping it.
  * @evidence contracts/common.md#meaningful-documentation States which variant carries readings, how unsupported differs from not-run, that candidates come from the analysed frame only and are named once, and that reasons are non-blank.
  * @author Samchon

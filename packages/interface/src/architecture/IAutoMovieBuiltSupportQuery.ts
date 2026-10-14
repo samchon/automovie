@@ -10,7 +10,7 @@ import { AutoMovieBuiltPlacementSupportLocator } from "./AutoMovieBuiltPlacement
  * measured. The answer is a visual placement check, not a structural load
  * analysis.
  *
- * @evidence contracts/common.md#principled-implementation `builtEnvironmentSupportStatus` probes the subject box's four footprint corners and centre over the face and the face's corners under the footprint, then takes the lowest underside-minus-face height, so a small plinth under a wide member and a small member on a wide slab are one measurement.
+ * @evidence contracts/common.md#principled-implementation `builtEnvironmentSupportStatus` delegates to `propSupportGap`'s subject footprint corners/centre and face ring corners, taking the minimum sampled underside-minus-height. Missing edge-intersection probes can miss thin overlap or a deeper planar point, and curved relief between probes is unread; this finite static proxy measurement does not prove continuous mesh contact.
  * @evidence contracts/common.md#clear-and-simple-design A claim is subject, support, kind, and optional tolerance; the query reuses the prop placement kernel's support gap rather than carrying a building-specific probe rule.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A negative or non-finite tolerance throws a `RangeError` instead of being replaced by the default, and `suspended` is accepted without measurement as the documented limit rather than faked with a hanging test.
  * @evidence contracts/common.md#meaningful-documentation States what each kind measures, that the result is not structural analysis, the metre unit and default of the tolerance, and that an invalid tolerance throws.

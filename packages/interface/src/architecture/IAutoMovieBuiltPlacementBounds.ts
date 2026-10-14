@@ -4,14 +4,12 @@ import { AutoMovieBuiltPlacementBasis } from "./AutoMovieBuiltPlacementBasis";
 /**
  * One world-axis-aligned placement box with the basis that produced it.
  *
- * An element is measured where the environment's current operating states put
- * it, so a leaf authored open is boxed open. A box may be flat or a single
- * point; it is never inverted.
+ * An element is measured at the environment's current operating states. Under finite usable derived arithmetic its box is ordered and can be flat or a point; low-level folds do not independently refuse every transformed NaN or infinity, so finite source values alone do not establish those result invariants.
  *
- * @evidence contracts/common.md#principled-implementation An element box is the axis-aligned fold of every tessellated vertex its model draws under the full hierarchy and current operation displacements, and a population box is the conservative envelope of its prototype bounds under the set's placement law; both are inclusive, so a flat or point box stays valid rather than inverted.
+ * @evidence contracts/common.md#principled-implementation An element box folds static CPU mesh/tessellated vertices under current element-world and part-local transforms, or the world-origin fallback. It excludes skinning, attached-bone motion, other animation, external geometry and GPU arithmetic. A population uses its authored prototype/placement envelope; these bounds require usable binary64 intermediates and are not an outward-rounded rendered-frame enclosure proof.
  * @evidence contracts/common.md#clear-and-simple-design Two corners plus the basis label are the whole answer; the label travels with the box so every overlap and support query built on it can report what kind of extent it measured.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The basis excludes `surface-height-rule` because only body locators resolve to a box, and a vertex-less element is labelled `element-origin-point` instead of being given an invented extent.
- * @evidence contracts/common.md#meaningful-documentation States the world frame, metre units, inclusive corners, that operating states are applied, that a box may be flat or a point but never inverted, and that `element-origin-point` means no extent.
+ * @evidence contracts/common.md#meaningful-documentation States world metres, inclusive corners, current-state placement, static CPU/prototype measurement limits and finite-result premises. The point basis means equal corners, whether from unavailable geometry or coincident vertices.
  * @author Samchon
  */
 export interface IAutoMovieBuiltPlacementBounds {

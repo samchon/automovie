@@ -8,9 +8,9 @@ import { IAutoMovieDesignStamp } from "./IAutoMovieDesignStamp";
  *
  * Artifacts and their inputs form an acyclic graph. Validation refuses an artifact as stale when its stamp is not on the lineage head, when an input artifact was computed under a different stamp, or when a cited byte digest differs from the subject's current one.
  *
- * @evidence contracts/common.md#principled-implementation Staleness is decided by identity comparison on a declared dependency graph: the stamp's revision against the lineage head, each input artifact's full stamp against this one, and each cited byte digest against the subject's current digest, with a depth-first walk refusing any cycle.
+ * @evidence contracts/common.md#principled-implementation Admission compares recorded head/variant/phase/configuration, full upstream artifact stamps and citations against directly named input subjects' authored digests, then checks graph cycles. Freshness is conditional on complete honest dependency recording: upstream artifact digest changes with an unchanged stamp are not compared, and no output or input file is rehashed by this gate.
  * @evidence contracts/common.md#clear-and-simple-design Inputs, byte citations, the stamp, and the output digest are four separate members because each answers a different staleness question, and `designLineageImpact` reads only `inputs` to walk the graph backwards.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The output digest is checked only for its `sha256:` form and never rehashed, which the member states as a limit, and an imported input without a citation is refused rather than treated as unchanged.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Output/configuration digest spelling is not byte verification. Every direct input subject carrying a digest requires one matching citation; authored/null-digest subjects and upstream artifacts use the separate stamp rule. Fairness compares phase/configuration among all same-kind artifacts associated with a decision's options, including multiple artifacts of one option, rather than proving their pictures or quantities were generated under equivalent actual conditions.
  * @evidence contracts/common.md#meaningful-documentation States the acyclicity and staleness rules, the id collision rules against subjects and published identities, the at-least-one and distinct input rules, the one-citation-per-imported-input rule, the head requirement on the stamp, and what validation checks of the digest.
  * @author Samchon
  */
@@ -33,7 +33,7 @@ export interface IAutoMovieDerivedArtifact {
   /**
    * The imported bytes it read: exactly one citation for each input whose subject carries a byte digest, and none for any other.
    *
-   * This sits beside the stamp rather than inside it because the two answer different questions. A stamp is the view, and two alternatives being compared share one; the bytes are this computation's own, and an output derived only from authored identities cites none at all.
+   * Citations sit beside the stamp because they describe this computation's direct byte inputs. Compared alternatives normally have different variant fields; their same-kind artifacts must share recorded configuration and phase. An output whose direct subject inputs all carry null digests cites no imported bytes, while upstream artifacts are checked through stamp equality.
    */
   assets: IAutoMovieDesignAssetCitation[];
 

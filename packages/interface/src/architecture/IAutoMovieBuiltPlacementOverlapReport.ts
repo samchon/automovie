@@ -4,18 +4,12 @@ import { IAutoMovieBuiltPlacementOverlapPair } from "./IAutoMovieBuiltPlacementO
 /**
  * What one whole-building overlap sweep measured, and what it cost.
  *
- * `compared` is the number of union-box pair tests the sweep performed after
- * pruning, so a caller deciding whether to run the check every round reads its
- * cost from the answer instead of from a separate benchmark.
- *
- * It does not count body resolution. Each element is resolved through a call
- * that stages the whole element hierarchy, so resolving every body costs time
- * quadratic in the element count whatever `compared` reads.
+ * `compared` counts active union-box candidates after X pruning. It excludes shared batch staging/tessellation, body resolution, sorting, active-list prune/splice work, part-pair volume folds and result sorting; it is not total operation count or elapsed cost. Current sweeps share one element part table and world staging rather than restaging per body. Population lookup can still be quadratic and explicit populations add stored-transform work.
  *
  * @evidence contracts/common.md#principled-implementation The sweep sorts resolved bodies by their lower x corner and keeps an active list, so `compared` counts only the union-box tests the x-axis prune leaves, and each admitted pair is then confirmed part box against part box before it lands in `pairs`.
- * @evidence contracts/common.md#clear-and-simple-design Census counts, the findings, and the unresolved locators sit in one report, because an empty `pairs` list means a clean building only when `unresolved` is also empty.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The quadratic cost of resolving every element is stated in the prose rather than left out of `compared`'s meaning, and unresolved bodies are listed instead of silently dropped.
- * @evidence contracts/common.md#meaningful-documentation States what `measured` and `compared` count, which cost `compared` omits and why it is quadratic, the sort order of `pairs`, and the order of `unresolved`.
+ * @evidence contracts/common.md#clear-and-simple-design Census, proxy findings and unresolved locators travel together. Empty pairs with no unresolved bodies establishes only that this static box-volume sweep emitted no findings; it does not certify a clean rendered building, continuous collision freedom or structural correctness.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Unresolved locators are listed and present-body derivation errors still propagate. No overlap threshold or fixture identity selects findings; volume <= 0 suppresses nonpositive computed intersections, while nonfinite grading remains the pair record's stated limitation. `compared` does not conceal a claim of total cost.
+ * @evidence contracts/common.md#meaningful-documentation States resolved-body and candidate counters, batch sharing and excluded cost, proxy/numeric result limits, finite-metric pair sorting and declaration-order unresolved locators.
  * @author Samchon
  */
 export interface IAutoMovieBuiltPlacementOverlapReport {
@@ -26,8 +20,7 @@ export interface IAutoMovieBuiltPlacementOverlapReport {
   compared: number;
 
   /**
-   * Every intersecting pair, larger fraction of the smaller body first, then
-   * larger shared volume first, and otherwise in sweep order.
+   * Every emitted intersecting proxy pair, larger fraction first, then larger shared volume, otherwise sweep order under finite comparable grading metrics. NaN grading does not establish that numeric ordering.
    */
   pairs: IAutoMovieBuiltPlacementOverlapPair[];
 

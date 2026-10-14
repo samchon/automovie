@@ -10,9 +10,9 @@ import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
  * at least four planes; whether they enclose a bounded, non-empty region is not
  * checked.
  *
- * @evidence contracts/common.md#principled-implementation `builtSpaceContainsPoint` tests `dot(normal, point) <= offset + 1e-9` for every plane of a cell; `validateBuiltEnvironment` and `validateSolidPlanes` require a finite normal longer than `1e-12`, a finite offset, and at least four planes per solid.
+ * @evidence contracts/common.md#principled-implementation `builtSpaceContainsPoint` tests each cell plane's dot product against `offset + 1e-9`. Building validation requires finite components, finite computed normal length above 1e-12, finite offset and at least four planes. Analysis `validateSolidPlanes` shares the component/offset/count rules but its direction collector rejects only a finite computed length at or below 1e-12, so finite components with an overflowing norm are not refused by that rule. Neither proves a bounded, nonempty intersection.
  * @evidence contracts/common.md#clear-and-simple-design One normal and one offset express any half-space in the inequality form both consumers evaluate directly, so cells and occluders share this record instead of each defining a plane.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Normals are not renormalized behind the author's back, so the slack's metric meaning varies with normal length; that limitation and the unchecked boundedness of a plane set are stated instead of hidden.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Cell containment keeps authored normal scale, so scaling an equivalent inequality changes its physical slack. Vertex enumeration separately normalizes and ignores normals at or below its 1e-6 observation tolerance, larger than validation's 1e-12 floor; admitted containment and enumerated bounds can therefore differ. Binary64 dot products can round or overflow and are not an exact numerical certificate.
  * @evidence contracts/common.md#meaningful-documentation States the inside convention, both consumers, the containment slack and how normal length scales it, the minimum plane count, and that boundedness is not validated.
  * @author Samchon
  */

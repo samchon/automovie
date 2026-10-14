@@ -7,7 +7,7 @@ import { AutoMovieBuiltPlacementBasis } from "./AutoMovieBuiltPlacementBasis";
  * about a drawn underside from one about an `element-origin-point` subject,
  * whose gap is measured from its stated origin.
  *
- * @evidence contracts/common.md#principled-implementation The gap is the minimum of underside-minus-face heights over two-sided footprint probes, and the status compares its absolute value with the tolerance; the premise is axis-aligned boxes and a face read only at the probe points, so relief between probes is not seen.
+ * @evidence contracts/common.md#principled-implementation The gap is the minimum over retained footprint/ring-corner probes. With a finite gap, absolute value within tolerance is resting, positive is floating and otherwise sunk; no probes means not-over-support. Finite, usable height/box arithmetic is a premise: the current classifier does not independently reject NaN gaps, whose failed comparisons fall through to sunk. Thin edge overlap and deeper points between probes can remain unseen.
  * @evidence contracts/common.md#clear-and-simple-design One status union plus the numeric gap, the unresolved sides, and the two bases, with each null documented by the case that produces it, so no second result shape exists for suspension or unresolved claims.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts An unresolved side yields `unresolved` with a null gap rather than a guessed default, and the subject basis is narrowed to body bases because only a support can be a surface.
  * @evidence contracts/common.md#meaningful-documentation States when each status is chosen, the gap's metre unit, sign, deepest-probe rule and null cases, when `unresolved` is empty, and when each basis is null.
@@ -31,10 +31,7 @@ export interface IAutoMovieBuiltSupportResult {
     | "unresolved";
 
   /**
-   * Signed underside gap in metres for a resolved bearing relation, or null
-   * when no probe lies over the support, the relation is suspended, or either
-   * side is unresolved. Positive means the underside stands above the support
-   * face and negative that it sinks into it; the deepest probe answers.
+   * Signed underside gap in metres for bearing, or null with no retained probe, suspension or an unresolved side. For usable finite arithmetic, positive means above the sampled face and negative means below it; the deepest retained probe answers. A nonfinite computed value is not converted to null or unresolved by this classifier.
    */
   gap: number | null;
 

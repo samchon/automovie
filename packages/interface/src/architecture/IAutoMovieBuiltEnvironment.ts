@@ -16,24 +16,16 @@ import { IAutoMovieBuiltSurface } from "./IAutoMovieBuiltSurface";
  * and a double-height void without inventing walls, while a stair, lift, ramp,
  * or skybridge explicitly connects those spaces.
  *
- * The scope ends at the building: facade ladders, rails, external stairs,
- * balconies, roofs, and helipads belong here, but surrounding land, parks, sky,
- * and natural water remain production-world concerns. Sun, sky, season,
- * orientation, reference ground, and neighbouring occluder masses are read-only
- * analysis inputs in `IAutoMovieEnvironmentContext`, and no field here can hold
- * them, so they never leak into a building's own models, set pieces, or spaces.
- * An indoor water feature composes a separate engine fluid domain with a
- * building space. Element kinds are open strings, so every architectural style
- * uses the same transform and model primitives.
+ * This record owns building geometry: facade ladders, rails, external stairs, balconies, roofs and helipads belong here; surrounding terrain, parks, sky and natural water belong to the production world. Sun, season, orientation, reference ground and neighbouring occluders are separate analysis context. Open model/element data does not enforce that semantic ownership by inspecting depicted content. An indoor water feature composes a separate engine fluid domain with a building space, and open element kinds reuse the same transform/model primitives across styles.
  *
  * Ordinary TypeScript produces the record; a building class may use loops,
  * parameters, and reusable parts. Lowering turns it into scene models, set
  * pieces, and locomotion spaces, naming the scene space of logical space `s` as
  * `${id}/${s}` and the set piece of element `e` as `${id}/${e}`.
  *
- * @evidence contracts/common.md#principled-implementation An id-referenced graph that `validateBuiltEnvironment` checks in a fixed order, from version and metre units through models, spaces, hierarchies with unit ownership, populations, boundaries, openings, connectors and surfaces, before running staged-configuration checks; lowering, drawing, scheduling and take-off refuse a record it rejects.
+ * @evidence contracts/common.md#principled-implementation `validateBuiltEnvironment` checks version/units, models and references, spaces and element hierarchy, population declarations, building-unit ownership, boundaries/openings, connectors and support surfaces. With no prior error it checks rest panel fit, carriage-origin service and finite world-TRS named configurations. Lowering and guarded drawing/schedule/quantity entry points refuse rejected records; low-level queries can instead require already admitted inputs.
  * @evidence contracts/common.md#clear-and-simple-design Flat arrays of separately validated records joined by ids, so each concern (elements, spaces, boundaries, openings, connectors, surfaces, populations) is owned by one list and one validator section rather than by nested element trees.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Site context has no field here and is validated separately against this record's reserved ids, repeated parts stay compact populations rather than expanded elements, and a work with no building unit or with unattributed members is refused instead of gaining an implicit unit.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Site context is a separate contract; collision checking against building-reserved ids requires the context caller to supply those ids, which production build review does rather than every standalone analysis call. Compact populations remain compact through lowering, and absent units or unattributed hierarchy members refuse. Typed nested containers and executable traversal/resource depth remain premises; validation does not authenticate imported bytes or prove every geometric containment and physical relation.
  * @evidence contracts/common.md#meaningful-documentation States the element and space separation, the building scope and what lives outside it, the units, the lowering naming scheme, unit ownership, the meaning of omitted populations, and which lists ids must resolve into.
  * @author Samchon
  */

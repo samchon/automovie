@@ -1,7 +1,7 @@
 /**
  * The travel one named state gives one carriage, and the stop it claims.
  *
- * @evidence contracts/common.md#principled-implementation The value is a displacement from the driven element's rest pose along the carriage's one degree of freedom, and a stated stop is settled by placing the element under this state and testing its world origin with the same containment query every space consumer uses.
+ * @evidence contracts/common.md#principled-implementation The value drives the shared rest-times-joint displacement. After record admission, `validateBuiltCarriageService` stages this connector's state with all other operations current and tests only the driven element's world origin through descendant-union containment. The finite, approximate cell/shell membership policy applies; success does not prove the full carriage fits, reaches the route station or clears a landing.
  * @evidence contracts/common.md#clear-and-simple-design A carriage reference, one scalar, and one nullable stop are the whole per-carriage entry, so a state is a flat list of these and the run's direction stays on the state rather than on each value.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A stop is checked only when the served space or a descendant states a volume, the documented rule for semantic containers, and `null` is the declared way for a counterweight to claim no stop rather than an exemption by carriage name.
  * @evidence contracts/common.md#meaningful-documentation States that the carriage is listed once per state, the radian and metre units of the value and its range, which spaces `serves` may name, how the stop is tested, when the test is skipped, and what null means.
@@ -25,10 +25,7 @@ export interface IAutoMovieCarriageValue {
    * Logical space this carriage stands at under this state, or null when it
    * claims no stop, as a counterweight travelling the other way does.
    *
-   * It names an endpoint of the run or one of its
-   * {@link IAutoMovieBuiltConnector.landings}, and the element the carriage
-   * drives must be inside that space once the state is applied, so "the car is
-   * at level three" is a fact validation settles rather than a label.
+   * Names an endpoint or one of the connector's {@link IAutoMovieBuiltConnector.landings}. The service check requires the driven element's world origin to lie in that space's stated subtree union, not its entire mesh or occupancy box; it does not measure boarding access or route alignment.
    *
    * Validation tests the driven element's world origin, with this state's
    * other carriages at their values and every other moving member at its

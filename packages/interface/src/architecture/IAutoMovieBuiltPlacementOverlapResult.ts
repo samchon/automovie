@@ -3,22 +3,17 @@ import { AutoMovieBuiltPlacementBasis } from "./AutoMovieBuiltPlacementBasis";
 /**
  * The deterministic box-level answer for two named building bodies.
  *
- * An element operand is tested as its drawn part boxes, or as its resolved box
- * when it draws no part; a population is tested as its one placement envelope.
- * Boxes that only touch on a face do not overlap, and a body measured as an
- * `element-origin-point` has no volume, so it never overlaps anything.
+ * Element operands use static CPU part boxes or their origin fallback; populations use one compact envelope. The strict endpoint predicate excludes exterior face contact for ordered boxes but can accept a zero-width plane or origin point strictly inside another box. This pair query therefore differs from the sweep's positive shared-volume policy.
  *
- * @evidence contracts/common.md#principled-implementation Overlap is any part-box pair passing the strict axis-aligned interval test on all three axes, so face contact is not intrusion; the premise is that part boxes bound the drawn solids, so a `separate` answer is exact and an `overlapping` one may come from empty box corners.
+ * @evidence contracts/common.md#principled-implementation Any part-box pair passing `propBoundsOverlap` yields overlapping. Static AABB/prototype proxies can include empty mesh/member gaps and exclude deformation or external geometry; binary64 transforms and degenerate endpoint semantics prevent treating separate as a universal exact rendered-geometry certificate. This query computes no intersection volume.
  * @evidence contracts/common.md#clear-and-simple-design A three-way status, the unresolved sides, and both bases cover what a caller needs to read a verdict, and no shared volume is computed because the named-pair query answers only whether the bodies meet.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts An unresolved operand yields `unresolved` and names its side instead of throwing or reading as `separate`, and both bases are narrowed to body bases because neither operand can be a surface.
- * @evidence contracts/common.md#meaningful-documentation States how each operand kind is boxed, that face contact and point bodies never overlap, what each status means, when `unresolved` is empty, and when a basis is null.
+ * @evidence contracts/common.md#meaningful-documentation States operand boxing, exterior contact versus internal degenerate-box behavior, the pair/sweep distinction, static numerical limits, missing-side reporting and nullable bases.
  * @author Samchon
  */
 export interface IAutoMovieBuiltPlacementOverlapResult {
   /**
-   * `overlapping` when some part box of one operand shares positive volume
-   * with some part box of the other, `separate` when none does, and
-   * `unresolved` when either operand has no extent.
+   * `overlapping` when some part-box pair passes strict endpoint inequalities on every axis, including an internal degenerate point/plane; `separate` when none passes, and `unresolved` when either locator cannot be resolved. A reported point has a basis and is resolved despite zero volume.
    */
   status: "overlapping" | "separate" | "unresolved";
 

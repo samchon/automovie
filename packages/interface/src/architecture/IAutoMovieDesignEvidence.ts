@@ -11,7 +11,7 @@
  * not resolve, an empty candidate list, a blank rationale, and a repeated
  * subject, document, and candidate triple.
  *
- * @evidence contracts/common.md#principled-implementation Resolution is set membership: `validateDesignEvidence` builds each document's candidate id set and checks every cited candidate against it, and repeats are detected on a JSON-serialized triple so no separator inside an id can collide two citations.
+ * @evidence contracts/common.md#principled-implementation `validateDesignEvidence` unions candidate ids by document id, checks cited membership and detects repeats with JSON-array subject/document/candidate keys. A missing document skips candidate count/membership/duplicate checks after subject/rationale checks; production's document owner separately rejects conflicting identities. This gate neither validates the whole reference nor verifies rationale truth or subject ownership.
  * @evidence contracts/common.md#clear-and-simple-design The citation lives on the design side and names document and candidates by id, so observation records stay unchanged and one design element can cite several documents through several citations.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Unsettled and withheld candidates are citable by design rather than filtered, and the subject is only checked for being non-blank, a gap the member states instead of claiming resolution.
  * @evidence contracts/common.md#meaningful-documentation States the direction of the citation, every refusal the production gate applies, that unsettled candidates may be cited, that the subject is not resolved against compiled ids, and what the rationale must explain.

@@ -9,7 +9,7 @@ import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
  * rides down the element hierarchy. Rest is the value `0`, so every range
  * contains it.
  *
- * @evidence contracts/common.md#principled-implementation Models one joint as a closed union on `kind`: a revolute value is an angle about the normalized axis through the pivot, applied as a right-handed quaternion turn plus the translation that keeps the pivot fixed, and a prismatic value is a translation along the normalized axis; `validateBuiltEnvironment` requires a finite axis longer than its epsilon, a finite pivot, `min <= 0 <= max` with `min < max`, and at most one full turn of revolute travel.
+ * @evidence contracts/common.md#principled-implementation A revolute value becomes a right-handed quaternion turn about the normalized local axis with translation `pivot - rotate(pivot)`; a prismatic value translates along that unit axis. Building admission requires finite components/computed axis length above 1e-12, finite pivot when present, finite ordered travel containing zero and revolute span at most 2*pi + 1e-6 radians. World staging composes rest times delta, then parent world; finite authored values alone do not ensure finite derived matrices, which named-state staging checks separately.
  * @evidence contracts/common.md#clear-and-simple-design Panels and carriages both reference this one record, and each variant carries only the fields its joint needs, so a slide has no pivot and neither variant repeats the per-state values that `IAutoMovieCarriageValue` and the opening states own.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No joint is special-cased by element kind; the axis length is ignored by normalization rather than reinterpreted as a gain, and a degenerate axis or empty range is refused by the validator instead of being clamped.
  * @evidence contracts/common.md#meaningful-documentation States that values are displacements from the rest pose at `0`, the local frame of axis and pivot, radians for revolute and metres for prismatic travel, the sign bounds on `min` and `max`, and the full-turn limit.
@@ -48,8 +48,7 @@ export namespace IAutoMovieTravelMotion {
     min: number;
 
     /**
-     * Highest travel in radians; finite, at least `0`, strictly greater than
-     * `min`, and at most one full turn (`2 * Math.PI`) above `min`.
+     * Highest travel in radians; finite, at least zero, greater than `min`, and at most `2 * Math.PI + 1e-6` above it under the shared full-turn admission slack.
      */
     max: number;
   }

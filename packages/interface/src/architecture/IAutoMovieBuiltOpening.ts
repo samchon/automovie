@@ -9,7 +9,7 @@ import { IAutoMovieOpeningProfile } from "./IAutoMovieOpeningProfile";
  * optional layers on that relation, and each one stated is checked by
  * `validateBuiltEnvironment` against the host face and the other voids on it.
  *
- * @evidence contracts/common.md#principled-implementation Cites its host boundary and fill by id, and a stated profile's bulge-aware hull is tested by polygon containment against the host face outline and by polygon overlap against every earlier void on the same boundary; each panel's rest-pose rectangle is projected into the host face frame and must lie inside that hull.
+ * @evidence contracts/common.md#principled-implementation References resolve by declared ids. A stated profile's straight arc-envelope hull undergoes shared approximate face containment and same-boundary overlap tests; usable profiles/faces then constrain each panel's projected rest rectangle. Hull conservatism and binary64 predicate limits apply, circular-arc simplicity is not separately proved, and the record is not itself a rendered wall-cut operation.
  * @evidence contracts/common.md#clear-and-simple-design Geometry and operation are optional members owned by the opening rather than by the boundary it cuts, so a relation-only door still validates and a boundary stays a plain separation without a list of holes.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A void on a faceless host is refused rather than placed in an assumed plane, an operation without a fill is refused rather than guessing the moving element, and a leaf smaller than its void is allowed because paired leaves and sashes are ordinary designs.
  * @evidence contracts/common.md#meaningful-documentation States that boundary and fill must resolve, what a null fill and an omitted profile or operation mean, what a profile demands of the host face, that an operation needs a fill, and that each panel at rest must fit its void.
@@ -35,10 +35,7 @@ export interface IAutoMovieBuiltOpening {
   /**
    * The void this opening cuts in its host boundary's face.
    *
-   * Omitting it keeps the opening a declared relation, and nothing is checked
-   * about where it is. Stating it requires the host to carry a
-   * {@link IAutoMovieBuiltBoundary.face}, and the void must then lie inside
-   * that face and apart from every other void on the same boundary.
+   * Omitting it leaves no authored void for face fit or separation measurement; other consumers can still locate a measurable fill from its element geometry. Stating it requires a host {@link IAutoMovieBuiltBoundary.face} and an admitted straight arc-envelope hull inside that face and disjoint from other opening hulls on the same boundary, with edge contact refused.
    */
   profile?: IAutoMovieOpeningProfile;
 

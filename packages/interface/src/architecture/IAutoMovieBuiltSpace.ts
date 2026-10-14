@@ -10,8 +10,8 @@ import { IAutoMovieSpaceShell } from "./IAutoMovieSpaceShell";
  * nobody authored. Stating neither makes a purely semantic container that
  * locates nothing and contains no point.
  *
- * @evidence contracts/common.md#principled-implementation A region is either a union of half-space cells, each containing a point when every `dot(normal, point) <= offset + 1e-9` holds, or a closed triangle shell tested by its own boundary; both are flat-faced, so a curved region is only approximated, which `fidelity` declares rather than hides.
- * @evidence contracts/common.md#clear-and-simple-design The hierarchy is one nullable parent id, and `builtSpaceContainsPoint` is the single reader that picks cells or shell, so no consumer branches on which spelling a space used.
+ * @evidence contracts/common.md#principled-implementation The per-space reader unions half-space cells with authored-scale 1e-9 inequality slack, or reads shell boundary/solid-angle winding. Both represent flat geometry; fidelity declares whether it stands for something curved, while bounded cells, consistently oriented shell components and numerically usable arithmetic remain premises not fully proved by admission.
+ * @evidence contracts/common.md#clear-and-simple-design One nullable parent id states hierarchy and `builtSpaceContainsPoint` shares the own-volume predicate. Bounds, volume and drawing sections have representation-specific readers; descendant membership is a separate subtree fold, so a volume-less parent contains no point itself while an environment query can still include its children's volumes.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Cells and shell together are refused instead of merged, `fidelity` on a volume-less space is refused, and `faceted` is an authored declaration that no code infers from the geometry.
  * @evidence contracts/common.md#meaningful-documentation States the one-spelling rule and the meaning of neither, the parent and root rules, the convexity and world frame of cells, when to use a shell, and what `exact`, `faceted`, and absence of `fidelity` mean for derived answers.
  * @author Samchon
@@ -33,14 +33,9 @@ export interface IAutoMovieBuiltSpace {
   parent: string | null;
 
   /**
-   * World-space convex cells whose union locates the region. Empty cells make a
-   * purely semantic container; a non-convex region is split into cells.
+   * World-space convex cells whose union locates the region. An empty list with no shell is a semantic container; a non-convex region may be split into cells. Individually convex cells do not imply their combined union is convex.
    *
-   * A union of convex cells states any polyhedral region exactly, however
-   * concave, so this is the ordinary spelling. It cannot state a region whose
-   * boundary is curved, and it states a region pierced by a void only through
-   * many cells; see {@link shell} for the second and {@link fidelity} for the
-   * first.
+   * A finite convex decomposition can represent a bounded polyhedral region in exact geometry, including concavity and voids. The stored plane values and binary64 query tolerances delimit the actual answer; downstream cell-volume totals can also count overlaps more than once. Curved boundaries require a faceted declaration, while a shell can state a void without a manual cell decomposition.
    */
   cells: IAutoMovieConvexSpaceCell[];
 

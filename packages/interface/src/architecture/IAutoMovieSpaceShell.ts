@@ -19,9 +19,9 @@ import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
  * passes and is then read as solid. Self-intersection is not checked. A space
  * states its volume either with a shell or with convex cells, never both.
  *
- * @evidence contracts/common.md#principled-implementation Validation checks finite vertices, safe-integer in-range indices, faces with area above `1e-12`, directed-edge closure, and a positive divergence-theorem volume; `builtSpaceContainsPoint` sums Van Oosterom and Strackee signed solid angles and counts points on the surface as inside.
+ * @evidence contracts/common.md#principled-implementation Validation checks finite vertices, safe in-range indices, finite cross-product length above 1e-12 (twice facet area), opposite directed-edge pairing exactly once and finite positive aggregate signed volume. Containment first tests triangle boundaries, then sums signed solid angles and accepts absolute winding at least 2*pi; closed consistently oriented components and usable finite intermediates remain premises beyond those validation checks.
  * @evidence contracts/common.md#clear-and-simple-design One vertex list and one flat index list hold the outer boundary and every void, so containment and volume are each one loop over faces with no case for holes.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Nothing is repaired: an open, degenerate, or inside-out mesh is refused rather than closed or flipped; the remaining gaps are an unchecked void winding and unchecked self-intersection, both stated in the documentation.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Nothing is repaired. Missing/duplicated edge pairings, unusable facets and nonpositive aggregate volume are refused; positive aggregate volume does not prove every disconnected component's orientation, manifold vertex topology or absence of self-intersection. Solid-angle and volume arithmetic can round, cancel or overflow, and surface tests reuse one slack at different geometric scales rather than certifying exact contact.
  * @evidence contracts/common.md#meaningful-documentation States why voids share the list, the closure and winding the mesh must already have, what validation does and does not check, the minimum counts, the index layout, and the cells-or-shell exclusivity.
  * @author Samchon
  */

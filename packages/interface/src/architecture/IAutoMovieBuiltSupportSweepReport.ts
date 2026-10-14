@@ -13,8 +13,8 @@ import { IAutoMovieBuiltFloatingBody } from "./IAutoMovieBuiltFloatingBody";
  * height is the sweep's own `groundY` argument, `0` by default, not anything
  * read from the environment.
  *
- * @evidence contracts/common.md#principled-implementation Candidate parts are sorted by top height descending and a binary search skips every part above a subject's underside plus tolerance, so the first footprint hit is the nearest part beneath; `compared` counts the parts read after that search.
- * @evidence contracts/common.md#clear-and-simple-design Three counts partition the measured bodies, the floating findings carry detail, and unresolved locators are listed beside them, which is the minimum that lets an empty finding list be read as a clean building.
+ * @evidence contracts/common.md#principled-implementation One batch part table shares current-state staging across body resolution. Candidate tops sort descending and a binary-searched ceiling of underside plus tolerance skips higher parts; the first positive-area footprint hit is nearest within that ceiling. `compared` counts non-self candidates inspected after the search, not resolution, sort, search or elapsed cost. Finite ordered proxy bounds remain the numeric premise.
+ * @evidence contracts/common.md#clear-and-simple-design Grounded count, borne count and floating-list length partition measured bodies, with unresolved locators beside them. Empty findings identify only this proxy classification's outcome; they do not prove structural support or absence of real mesh contact defects.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Ground height comes from the caller's argument rather than an assumed environment field, bodies sunk below ground count as grounded as documented, and unresolved bodies are reported rather than skipped.
  * @evidence contracts/common.md#meaningful-documentation States that the three counts partition `measured`, where the ground height comes from and its default, what `compared` excludes, the grounded and borne thresholds, and the order of the floating list.
  * @author Samchon
@@ -24,10 +24,7 @@ export interface IAutoMovieBuiltSupportSweepReport {
   measured: number;
 
   /**
-   * Candidate part inspections performed after pruning, the sweep's own cost,
-   * so a caller deciding whether to run it every round can read the cost from
-   * the answer. It excludes resolving each body, which stages the element
-   * hierarchy once per element.
+   * Non-self candidate part inspections after pruning. Excludes batch staging/tessellation, body resolution, sorting and binary searches; it is one work counter, not the sweep's total cost. Current implementation stages once for its shared element part table, while population lookup and explicit-transform folds add their own costs.
    */
   compared: number;
 
