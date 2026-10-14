@@ -1,11 +1,11 @@
 import { IAutoMovieDefinedShot } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { IAutoMovieAuthoringDiagnostic } from "@automovie/engine";
-import { IAutoMovieCompiledDefinedShot } from "@automovie/engine";
-import { IAutoMovieShotRuntime } from "@automovie/engine";
-import { compileDefinedShot } from "@automovie/engine";
-import { defineShot } from "@automovie/engine";
+import { IAutoMovieAuthoringDiagnostic, IAutoMovieCompiledDefinedShot, IAutoMovieShotRuntime, compileDefinedShot, defineShot } from "@automovie/engine";
+
+
+
+
 import { namedFacts } from "../internal/predicates";
 
 /**

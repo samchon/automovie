@@ -6,10 +6,10 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { IAutoMovieSequenceRenderFrame } from "@automovie/render";
-import { IAutoMovieSequenceRenderPlan } from "@automovie/render";
-import { IAutoMovieSequenceRenderShotSpan } from "@automovie/render";
-import { planSequenceRender } from "@automovie/render";
+import { IAutoMovieSequenceRenderFrame, IAutoMovieSequenceRenderPlan, IAutoMovieSequenceRenderShotSpan, planSequenceRender } from "@automovie/render";
+
+
+
 import { filmEffectValuesClose } from "../internal/filmEffectValuesClose";
 import { namedFacts, nclose, throwsError } from "../internal/predicates";
 

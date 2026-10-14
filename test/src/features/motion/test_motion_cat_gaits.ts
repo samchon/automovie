@@ -13,9 +13,9 @@ import { TestValidator } from "@nestia/e2e";
 
 import { CAT_GAITS } from "../../../../packages/archetypes/src/CAT_GAITS";
 import { CAT_PROFILE } from "../../../../packages/archetypes/src/CAT_PROFILE";
-import { bindProfileGaits } from "@automovie/engine";
-import { gaitMotion } from "@automovie/engine";
-import { validateMotion } from "@automovie/engine";
+import { bindProfileGaits, gaitMotion, validateMotion } from "@automovie/engine";
+
+
 import { namedFacts, nclose } from "../internal/predicates";
 
 function range(min: number, max: number): { min: number; max: number } {

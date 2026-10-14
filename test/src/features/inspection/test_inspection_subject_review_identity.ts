@@ -1,15 +1,8 @@
-import {
-  IAutoMovieSubjectDescription,
-  IAutoMovieSubjectReviewUnit,
-} from "@automovie/interface";
+import { IAutoMovieSubjectDescription, IAutoMovieSubjectReviewUnit, type AutoMovieSubjectKind, type IAutoMovieSubjectArtifact, type IAutoMovieSubjectReviewTarget } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { resolveAutoMovieSubjectReviewUnit } from "@automovie/engine";
-import {
-  type AutoMovieSubjectKind,
-  type IAutoMovieSubjectArtifact,
-  type IAutoMovieSubjectReviewTarget,
-} from "@automovie/interface";
+
 import { subjectInspectionArtifact } from "../internal/subjectInspectionArtifact";
 import { subjectInspectionInstanceSet } from "../internal/subjectInspectionInstanceSet";
 import { throwsError } from "../internal/throwsError";

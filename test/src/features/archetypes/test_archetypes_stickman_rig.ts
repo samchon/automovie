@@ -11,10 +11,10 @@ import { TestValidator } from "@nestia/e2e";
 
 import type { IAutoMovieArchetypeGeometry } from "../../../../packages/archetypes/src/IAutoMovieArchetypeGeometry";
 import { STICKMAN_ARCHETYPE } from "../../../../packages/archetypes/src/STICKMAN_ARCHETYPE";
-import type { IAutoMovieResolvedBone } from "@automovie/engine";
-import { resolvePose } from "@automovie/engine";
-import { Quaternion } from "@automovie/engine";
-import { Vector3 } from "@automovie/engine";
+import { type IAutoMovieResolvedBone, resolvePose, Quaternion, Vector3 } from "@automovie/engine";
+
+
+
 import { namedFacts, nclose, vclose } from "../internal/predicates";
 
 /** The figure every case below reads, and the three numbers that shape it. */

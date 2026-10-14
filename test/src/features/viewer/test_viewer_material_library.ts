@@ -2,9 +2,9 @@ import type { IAutoMovieMaterial, IAutoMovieModel } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
-import { AutoMovieTextureCache } from "@automovie/viewer";
-import type { IAutoMovieMaterialLibrary } from "@automovie/viewer";
-import { buildAutoMovieMaterialLibrary } from "@automovie/viewer";
+import { AutoMovieTextureCache, type IAutoMovieMaterialLibrary, buildAutoMovieMaterialLibrary } from "@automovie/viewer";
+
+
 import { throwsError } from "../internal/predicates";
 import { boxModel, material } from "../internal/renderFixtures";
 

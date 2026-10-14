@@ -1,8 +1,8 @@
 import type { IAutoMovieAnalysisRun } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import type { IAutoMovieAcousticRequest } from "@automovie/engine";
-import { AUTOMOVIE_ANALYSIS_MAX_SAMPLES } from "@automovie/engine";
+import { type IAutoMovieAcousticRequest, AUTOMOVIE_ANALYSIS_MAX_SAMPLES } from "@automovie/engine";
+
 import { namedFacts, throwsError } from "./predicates";
 
 /** Execute the next ordered assertions of test_analysis_room_acoustics.

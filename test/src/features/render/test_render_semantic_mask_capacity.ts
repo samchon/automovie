@@ -5,10 +5,10 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { IAutoMovieRenderSubject } from "@automovie/engine";
+import { IAutoMovieRenderSubject, AUTOMOVIE_SEMANTIC_MASK_MAX_ENTRIES, deriveAutoMovieSemanticMask } from "@automovie/engine";
 import { assertAutoMovieSemanticMaskCapacity } from "../../../../packages/engine/src/render/assertAutoMovieSemanticMaskCapacity";
-import { AUTOMOVIE_SEMANTIC_MASK_MAX_ENTRIES } from "@automovie/engine";
-import { deriveAutoMovieSemanticMask } from "@automovie/engine";
+
+
 import { createSemanticMaskTestInputs } from "../internal/createSemanticMaskTestInputs";
 import { throwsError } from "../internal/predicates";
 import { modelsFixture, sceneFixture } from "../internal/renderFixtures";

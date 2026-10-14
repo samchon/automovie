@@ -5,8 +5,8 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { IAutoMovieForgedCast } from "@automovie/engine";
-import { forgeCast } from "@automovie/engine";
+import { IAutoMovieForgedCast, forgeCast } from "@automovie/engine";
+
 import { forgeEntry, makeScriptWrite } from "../internal/filmFixtures";
 import { IDENTITY_TRANSFORM } from "../internal/fixtures";
 import { hasViolation, namedFacts } from "../internal/predicates";

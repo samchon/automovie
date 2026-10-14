@@ -1,16 +1,9 @@
-import {
-  buildAutoMovieWall,
-  extrudeAutoMovieProfile,
-  extrudeAutoMovieRegion,
-  inspectAutoMovieMeshTopology,
-  validateMeshTopology,
-  validateModel,
-} from "@automovie/engine";
+import { buildAutoMovieWall, extrudeAutoMovieProfile, extrudeAutoMovieRegion, inspectAutoMovieMeshTopology, validateMeshTopology, validateModel, type IAutoMovieMeshTopology, type IAutoMovieProfilePoint } from "@automovie/engine";
 import { IAutoMovieMesh, IAutoMovieModel } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { type IAutoMovieMeshTopology } from "@automovie/engine";
-import { type IAutoMovieProfilePoint } from "@automovie/engine";
+
+
 import { equalGeometryTestValues } from "../internal/equalGeometryTestValues";
 import { makeProp } from "../internal/fixtures";
 import { namedFacts, nclose, throwsError } from "../internal/predicates";

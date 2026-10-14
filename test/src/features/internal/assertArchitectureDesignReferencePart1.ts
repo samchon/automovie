@@ -7,9 +7,9 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { validateDesignEvidence } from "@automovie/engine";
-import { validateDesignReference } from "@automovie/engine";
-import { validateGeneratedAcquisition } from "@automovie/engine";
+import { validateDesignEvidence, validateDesignReference, validateGeneratedAcquisition } from "@automovie/engine";
+
+
 import {
   hasViolation,
   namedFacts,

@@ -11,11 +11,11 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import type { IAutoMovieCompiledDefinedShot } from "@automovie/engine";
-import type { IAutoMovieResolvedCamera } from "@automovie/engine";
-import { compileDefinedShot } from "@automovie/engine";
-import { defineShot } from "@automovie/engine";
-import { resolveCameraAt } from "@automovie/engine";
+import { type IAutoMovieCompiledDefinedShot, type IAutoMovieResolvedCamera, compileDefinedShot, defineShot, resolveCameraAt } from "@automovie/engine";
+
+
+
+
 import {
   makeBlockingWrite,
   makePerformanceWrite,

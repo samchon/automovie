@@ -1,10 +1,10 @@
 import { TestValidator } from "@nestia/e2e";
 
-import { type IAutoMovieLightPointer } from "@automovie/engine";
-import { LIGHT_CHANNEL_PROPERTIES } from "@automovie/engine";
-import { formatLightPointer } from "@automovie/engine";
-import { isLightProperty } from "@automovie/engine";
-import { parseLightPointer } from "@automovie/engine";
+import { type IAutoMovieLightPointer, LIGHT_CHANNEL_PROPERTIES, formatLightPointer, isLightProperty, parseLightPointer } from "@automovie/engine";
+
+
+
+
 
 /** `parse` reduced to a comparable shape: `"<light>|<property>"` or `null`. */
 const parsed: (pointer: unknown) => string | null = (

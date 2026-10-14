@@ -6,18 +6,18 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import type { IAutoMovieBoundaryWallCut } from "@automovie/engine";
-import type { IAutoMovieOpeningPanelPlacement } from "@automovie/engine";
-import type { IAutoMovieOpeningSweep } from "@automovie/engine";
-import { builtBoundaryWallCut } from "@automovie/engine";
-import { builtOpeningPanelPlacements } from "@automovie/engine";
-import { builtOpeningSweepEnvelope } from "@automovie/engine";
-import { lowerBuiltEnvironment } from "@automovie/engine";
-import { validateBuiltEnvironment } from "@automovie/engine";
-import type { IAutoMovieMeshTopology } from "@automovie/engine";
-import type { IAutoMovieWallOpening } from "@automovie/engine";
-import { buildAutoMovieWall } from "@automovie/engine";
-import { inspectAutoMovieMeshTopology } from "@automovie/engine";
+import { type IAutoMovieBoundaryWallCut, type IAutoMovieOpeningPanelPlacement, type IAutoMovieOpeningSweep, builtBoundaryWallCut, builtOpeningPanelPlacements, builtOpeningSweepEnvelope, lowerBuiltEnvironment, validateBuiltEnvironment, type IAutoMovieMeshTopology, type IAutoMovieWallOpening, buildAutoMovieWall, inspectAutoMovieMeshTopology } from "@automovie/engine";
+
+
+
+
+
+
+
+
+
+
+
 import { BUILT_OPENING_TEST_NO_ROTATION as NO_ROTATION } from "../internal/BUILT_OPENING_TEST_NO_ROTATION";
 import { assertBuiltOpeningTestRefusals } from "../internal/assertBuiltOpeningTestRefusals";
 import { builtOpeningTestPartition as partition } from "../internal/builtOpeningTestPartition";

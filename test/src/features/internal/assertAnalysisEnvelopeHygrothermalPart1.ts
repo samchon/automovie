@@ -8,9 +8,9 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import type { IAutoMovieEnvelopeAssembly } from "@automovie/engine";
-import type { IAutoMovieEnvelopeRequest } from "@automovie/engine";
-import { analyzeAutoMovieEnvelope } from "@automovie/engine";
+import { type IAutoMovieEnvelopeAssembly, type IAutoMovieEnvelopeRequest, analyzeAutoMovieEnvelope } from "@automovie/engine";
+
+
 import { analysisContext } from "./analysisFixtures";
 import { namedFacts, nclose } from "./predicates";
 

@@ -1,7 +1,7 @@
 import { IAutoMovieMesh } from "@automovie/interface";
 
-import { extrudeAutoMovieProfile } from "@automovie/engine";
-import { transformAutoMovieMesh } from "@automovie/engine";
+import { extrudeAutoMovieProfile, transformAutoMovieMesh } from "@automovie/engine";
+
 import { rectangle } from "./rectangle";
 
 /**

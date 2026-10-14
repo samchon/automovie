@@ -13,10 +13,10 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { IAutoMovieCompiledDefinedShot } from "@automovie/engine";
-import { compileDefinedShot } from "@automovie/engine";
-import { defineShot } from "@automovie/engine";
-import { inheritProductionLighting } from "@automovie/engine";
+import { IAutoMovieCompiledDefinedShot, compileDefinedShot, defineShot, inheritProductionLighting } from "@automovie/engine";
+
+
+
 import {
   makeBlockingWrite,
   makePerformanceWrite,

@@ -8,11 +8,11 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { IAutoMoviePerformedShot } from "@automovie/engine";
-import { IAutoMovieStagedSet } from "@automovie/engine";
-import { performShot } from "@automovie/engine";
-import { stageScene } from "@automovie/engine";
-import { materializeCompiledFormation } from "@automovie/engine";
+import { IAutoMoviePerformedShot, IAutoMovieStagedSet, performShot, stageScene, materializeCompiledFormation } from "@automovie/engine";
+
+
+
+
 import type { IFilmFormationFrameInput } from "../internal/IFilmFormationFrameInput";
 import type { IFilmFormationPerformanceInput } from "../internal/IFilmFormationPerformanceInput";
 import { createFilmFormationMemberModel } from "../internal/createFilmFormationMemberModel";

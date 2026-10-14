@@ -1,8 +1,8 @@
-import { createAutoMovieSignedMeshQuery } from "@automovie/engine";
+import { createAutoMovieSignedMeshQuery, type IAutoMovieSignedMeshQueryHit } from "@automovie/engine";
 import { type IAutoMovieMesh } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { type IAutoMovieSignedMeshQueryHit } from "@automovie/engine";
+
 import {
   createSignedOctahedron,
   createSignedVoxelUnion,

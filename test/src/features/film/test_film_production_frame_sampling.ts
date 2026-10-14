@@ -4,9 +4,9 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { IAutoMovieProductionRenderFrame } from "@automovie/engine";
-import { IAutoMovieProductionRenderLayer } from "@automovie/engine";
-import { sampleProductionRenderFrame } from "@automovie/engine";
+import { IAutoMovieProductionRenderFrame, IAutoMovieProductionRenderLayer, sampleProductionRenderFrame } from "@automovie/engine";
+
+
 import { nclose, throwsError } from "../internal/predicates";
 import { sameFilmProductionRenderFrames } from "../internal/sameFilmProductionRenderFrames";
 import { sameFilmProductionRenderLayers } from "../internal/sameFilmProductionRenderLayers";

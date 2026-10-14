@@ -5,10 +5,10 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { designLineageCompare } from "@automovie/engine";
-import { designLineageDecisionComparisons } from "@automovie/engine";
-import { designLineageDigest } from "@automovie/engine";
-import { validateDesignLineage } from "@automovie/engine";
+import { designLineageCompare, designLineageDecisionComparisons, designLineageDigest, validateDesignLineage } from "@automovie/engine";
+
+
+
 import { brokenLineage, renovationLineage } from "../internal/lineageFixtures";
 import { throwsError } from "../internal/predicates";
 

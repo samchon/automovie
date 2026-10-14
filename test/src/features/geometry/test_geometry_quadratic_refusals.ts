@@ -1,8 +1,8 @@
-import { solveAutoMovieQuadraticProgram } from "@automovie/engine";
+import { solveAutoMovieQuadraticProgram, type IAutoMovieQuadraticRow } from "@automovie/engine";
 import { solveAutoMovieQuadraticKernel } from "@automovie/engine/math/solveAutoMovieQuadraticKernel";
 import { TestValidator } from "@nestia/e2e";
 
-import { type IAutoMovieQuadraticRow } from "@automovie/engine";
+
 import { throwsError } from "../internal/predicates";
 
 /**

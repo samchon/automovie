@@ -8,8 +8,8 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { clampJointRom } from "@automovie/engine";
-import { clampPose } from "@automovie/engine";
+import { clampJointRom, clampPose } from "@automovie/engine";
+
 import { namedFacts } from "../internal/namedFacts";
 import { nclose } from "../internal/nclose";
 import { vclose } from "../internal/vclose";

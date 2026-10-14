@@ -1,7 +1,7 @@
-import { tessellate } from "@automovie/engine";
+import { tessellate, type ITessellation } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
-import { type ITessellation } from "@automovie/engine";
+
 
 /**
  * The box has an exact, known topology, so it is pinned precisely: six quad

@@ -12,8 +12,8 @@ import {
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
-import { buildInstancedInstanceSet } from "@automovie/viewer";
-import { buildMaterial } from "@automovie/viewer";
+import { buildInstancedInstanceSet, buildMaterial } from "@automovie/viewer";
+
 import { createModel } from "../internal/fixtures";
 import { nclose, throwsError } from "../internal/predicates";
 

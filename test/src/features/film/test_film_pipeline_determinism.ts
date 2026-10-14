@@ -5,12 +5,12 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { IAutoMovieCut } from "@automovie/engine";
-import { IAutoMoviePerformedShot } from "@automovie/engine";
-import { IAutoMovieStagedSet } from "@automovie/engine";
-import { cutSequence } from "@automovie/engine";
-import { performShot } from "@automovie/engine";
-import { stageScene } from "@automovie/engine";
+import { IAutoMovieCut, IAutoMoviePerformedShot, IAutoMovieStagedSet, cutSequence, performShot, stageScene } from "@automovie/engine";
+
+
+
+
+
 import {
   makePerformanceWrite,
   makeScriptWrite,

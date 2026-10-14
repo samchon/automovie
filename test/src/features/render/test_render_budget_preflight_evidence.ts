@@ -1,12 +1,12 @@
 import { TestValidator } from "@nestia/e2e";
 
-import type { IAutoMovieRenderBudgetAssessment } from "@automovie/render";
-import { assessAutoMovieRenderBudget } from "@automovie/render";
-import { autoMovieRenderBudgetEvidence } from "@automovie/render";
-import { autoMovieRenderBudgetRefusal } from "@automovie/render";
-import { autoMovieRenderTargetRendererOfGraphics } from "@automovie/render";
-import { autoMovieRenderTargetSettingsOfShot } from "@automovie/render";
-import { selectAutoMovieRenderBudget } from "@automovie/render";
+import { type IAutoMovieRenderBudgetAssessment, assessAutoMovieRenderBudget, autoMovieRenderBudgetEvidence, autoMovieRenderBudgetRefusal, autoMovieRenderTargetRendererOfGraphics, autoMovieRenderTargetSettingsOfShot, selectAutoMovieRenderBudget } from "@automovie/render";
+
+
+
+
+
+
 import {
   GRAPHICS_FIXTURE,
   RENDER_BUDGET_ASSETS,

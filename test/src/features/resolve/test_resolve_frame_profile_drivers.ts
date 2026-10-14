@@ -8,8 +8,8 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { type IAutoMovieResolveOutput } from "@automovie/engine";
-import { resolveFrame } from "@automovie/engine";
+import { type IAutoMovieResolveOutput, resolveFrame } from "@automovie/engine";
+
 import { namedFacts } from "../internal/namedFacts";
 import { nclose } from "../internal/nclose";
 

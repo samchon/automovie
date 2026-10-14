@@ -4,15 +4,15 @@ import type {
   IAutoMovieSkeleton,
 } from "@automovie/interface";
 
-import type { IAutoMovieJointAxes } from "@automovie/engine";
-import type { IAutoMovieResolvedBone } from "@automovie/engine";
-import { resolvePose } from "@automovie/engine";
-import { Matrix4 } from "@automovie/engine";
-import type { IAutoMovieMotionClipBridge } from "@automovie/engine";
-import { motionToClip } from "@automovie/engine";
-import { sampleMotion } from "@automovie/engine";
-import { resolveFrame } from "@automovie/engine";
-import type { IAutoMovieRestFrame } from "@automovie/engine";
+import { type IAutoMovieJointAxes, type IAutoMovieResolvedBone, resolvePose, Matrix4, type IAutoMovieMotionClipBridge, motionToClip, sampleMotion, resolveFrame, type IAutoMovieRestFrame } from "@automovie/engine";
+
+
+
+
+
+
+
+
 import { qclose } from "./qclose";
 import { vclose } from "./vclose";
 

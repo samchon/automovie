@@ -1,7 +1,7 @@
 import type { IAutoMovieCompiledShotSource } from "@automovie/interface";
 
-import { materializeCompiledFormation } from "@automovie/engine";
-import { materializeCompiledInstanceSet } from "@automovie/engine";
+import { materializeCompiledFormation, materializeCompiledInstanceSet } from "@automovie/engine";
+
 import { productionSoundTransform } from "./productionSoundTransform";
 
 /**

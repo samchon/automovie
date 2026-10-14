@@ -6,10 +6,10 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { type IAutoMovieResolvedBone } from "@automovie/engine";
-import { HUMANOID_JOINT_AXES } from "@automovie/engine";
-import { resolvePose } from "@automovie/engine";
-import { HUMANOID_REST_FRAME } from "@automovie/engine";
+import { type IAutoMovieResolvedBone, HUMANOID_JOINT_AXES, resolvePose, HUMANOID_REST_FRAME } from "@automovie/engine";
+
+
+
 import { namedFacts } from "../internal/namedFacts";
 import { nclose } from "../internal/nclose";
 

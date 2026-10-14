@@ -7,10 +7,10 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import type { IAutoMovieAuthoringDiagnostic } from "@automovie/engine";
-import { compileDefinedShot } from "@automovie/engine";
-import { defineShot } from "@automovie/engine";
-import { suggestCollisionResponse } from "@automovie/engine";
+import { type IAutoMovieAuthoringDiagnostic, compileDefinedShot, defineShot, suggestCollisionResponse } from "@automovie/engine";
+
+
+
 import {
   makeBlockingWrite,
   makePerformanceWrite,

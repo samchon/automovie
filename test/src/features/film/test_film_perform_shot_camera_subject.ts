@@ -15,11 +15,11 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { IAutoMoviePerformedShot } from "@automovie/engine";
-import { IAutoMovieStagedSet } from "@automovie/engine";
-import { performShot } from "@automovie/engine";
-import { stageScene } from "@automovie/engine";
-import { IAutoMovieActionSynthesizer } from "@automovie/engine";
+import { IAutoMoviePerformedShot, IAutoMovieStagedSet, performShot, stageScene, IAutoMovieActionSynthesizer } from "@automovie/engine";
+
+
+
+
 import {
   FIXTURE_BONE,
   fixtureRegionDrivesBone,

@@ -6,9 +6,9 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { affordanceSupportContacts } from "@automovie/engine";
-import type { IAutoMovieSupportResult } from "@automovie/engine";
-import { detectSupportToppling } from "@automovie/engine";
+import { affordanceSupportContacts, type IAutoMovieSupportResult, detectSupportToppling } from "@automovie/engine";
+
+
 import {
   namedFacts,
   validationHasNoWarnings,

@@ -4,9 +4,9 @@ import type {
   IAutoMovieMotion,
 } from "@automovie/interface";
 
-import type { IAutoMovieJointAxes } from "@automovie/engine";
-import type { IAutoMovieActionSynthesizer } from "@automovie/engine";
-import type { IAutoMovieRestFrame } from "@automovie/engine";
+import type { IAutoMovieJointAxes, IAutoMovieActionSynthesizer, IAutoMovieRestFrame } from "@automovie/engine";
+
+
 import { validSynthesizer } from "./filmFixtures";
 import { joint, keyframe, makeMotion, makePose } from "./fixtures";
 

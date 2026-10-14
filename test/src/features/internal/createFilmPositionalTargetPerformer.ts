@@ -7,10 +7,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IAutoMoviePerformedShot } from "@automovie/engine";
-import type { IAutoMovieStagedSet } from "@automovie/engine";
-import { performShot } from "@automovie/engine";
-import { stageScene } from "@automovie/engine";
+import { type IAutoMoviePerformedShot, type IAutoMovieStagedSet, performShot, stageScene } from "@automovie/engine";
+
+
+
 import {
   makePerformanceWrite,
   makeScriptWrite,

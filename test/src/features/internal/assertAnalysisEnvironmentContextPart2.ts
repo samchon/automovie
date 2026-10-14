@@ -5,9 +5,9 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { assertAutoMovieAnalysisSolids } from "@automovie/engine";
-import { autoMovieSolidBlocks } from "@automovie/engine";
-import { validateAutoMovieEnvironmentContext } from "@automovie/engine";
+import { assertAutoMovieAnalysisSolids, autoMovieSolidBlocks, validateAutoMovieEnvironmentContext } from "@automovie/engine";
+
+
 import { boxSolid } from "./analysisFixtures";
 import { hasViolation, namedFacts, throwsError } from "./predicates";
 

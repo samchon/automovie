@@ -4,12 +4,12 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { type IAutoMovieMeshSeparationQuery } from "@automovie/engine";
-import { type IAutoMovieMeshSeparationResult } from "@automovie/engine";
-import { type IAutoMovieTriangleAttachmentContactBound } from "@automovie/engine";
-import { boundAutoMovieTriangleAttachmentContact } from "@automovie/engine";
-import { createAutoMovieMeshSeparationQuery } from "@automovie/engine";
-import { interpolateAutoMovieTrianglePoint } from "@automovie/engine";
+import { type IAutoMovieMeshSeparationQuery, type IAutoMovieMeshSeparationResult, type IAutoMovieTriangleAttachmentContactBound, boundAutoMovieTriangleAttachmentContact, createAutoMovieMeshSeparationQuery, interpolateAutoMovieTrianglePoint } from "@automovie/engine";
+
+
+
+
+
 import { equalGeometryTestValues } from "../internal/equalGeometryTestValues";
 import { throwsError } from "../internal/throwsError";
 import { vclose } from "../internal/vclose";

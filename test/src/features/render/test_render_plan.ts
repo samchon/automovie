@@ -1,11 +1,11 @@
 import { IAutoMovieRenderSpec } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { ffmpegArgs } from "@automovie/render";
-import { frameName } from "@automovie/render";
-import { framePattern } from "@automovie/render";
-import { frameTimes } from "@automovie/render";
-import { renderPathStem } from "@automovie/render";
+import { ffmpegArgs, frameName, framePattern, frameTimes, renderPathStem } from "@automovie/render";
+
+
+
+
 import { nclose } from "../internal/predicates";
 
 const SPEC: IAutoMovieRenderSpec = {

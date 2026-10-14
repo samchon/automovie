@@ -10,10 +10,10 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { IAutoMoviePoseKeypointFrame } from "@automovie/render";
-import { IAutoMoviePoseKeypointSidecar } from "@automovie/render";
-import { planPoseKeypointSidecar } from "@automovie/render";
-import { renderPoseKeypointSidecar } from "@automovie/render";
+import { IAutoMoviePoseKeypointFrame, IAutoMoviePoseKeypointSidecar, planPoseKeypointSidecar, renderPoseKeypointSidecar } from "@automovie/render";
+
+
+
 import { filmEffectValuesClose } from "../internal/filmEffectValuesClose";
 import {
   createSkeleton,

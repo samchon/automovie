@@ -1,9 +1,9 @@
 import { type IAutoMovieMesh } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { type IAutoMovieMeshRayCaster } from "@automovie/engine";
-import { type IAutoMovieMeshRayHit } from "@automovie/engine";
-import { createAutoMovieMeshRayCaster } from "@automovie/engine";
+import { type IAutoMovieMeshRayCaster, type IAutoMovieMeshRayHit, createAutoMovieMeshRayCaster } from "@automovie/engine";
+
+
 import { nclose } from "../internal/nclose";
 import { rayTriangleTravelOracle } from "../internal/rayTriangleTravelOracle";
 import { throwsError } from "../internal/throwsError";

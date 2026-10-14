@@ -8,8 +8,8 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { stageScene } from "@automovie/engine";
-import { validateSceneEnvironment } from "@automovie/engine";
+import { stageScene, validateSceneEnvironment } from "@automovie/engine";
+
 import { makeScriptWrite, makeStagingWrite } from "../internal/filmFixtures";
 import { hasViolation } from "../internal/predicates";
 

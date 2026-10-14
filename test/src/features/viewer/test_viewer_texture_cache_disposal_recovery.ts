@@ -1,8 +1,8 @@
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
-import { AutoMovieTextureCache } from "@automovie/viewer";
-import { createAutoMovieResourceRetirement } from "@automovie/viewer";
+import { AutoMovieTextureCache, createAutoMovieResourceRetirement } from "@automovie/viewer";
+
 import type { HumanResidentPort } from "../../../../packages/viewer/src/human/common/HumanResidentPort";
 import type { IHumanResidentRequest } from "../../../../packages/viewer/src/human/common/IHumanResidentRequest";
 import { createHumanResidentWorker } from "../../../../packages/viewer/src/human/common/createHumanResidentWorker";

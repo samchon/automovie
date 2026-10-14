@@ -1,12 +1,12 @@
-import { type IAutoMovieJointConstraint } from "@automovie/interface";
+import type { IAutoMovieJointConstraint, IAutoMovieQuaternion } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { type IAutoMovieJointAxes } from "@automovie/engine";
-import { type IAutoMovieResolvedJointAngles } from "@automovie/engine";
-import { decomposeJointRotation } from "@automovie/engine";
-import { jointToQuaternion } from "@automovie/engine";
-import { Quaternion } from "@automovie/engine";
-import { type IAutoMovieQuaternion } from "@automovie/interface";
+import { type IAutoMovieJointAxes, type IAutoMovieResolvedJointAngles, decomposeJointRotation, jointToQuaternion, Quaternion } from "@automovie/engine";
+
+
+
+
+
 import { nclose } from "../internal/nclose";
 import { qclose } from "../internal/qclose";
 

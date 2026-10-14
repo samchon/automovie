@@ -8,9 +8,9 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { IAutoMovieStagedSet } from "@automovie/engine";
-import { stageScene } from "@automovie/engine";
-import { validateSceneEnvironment } from "@automovie/engine";
+import { IAutoMovieStagedSet, stageScene, validateSceneEnvironment } from "@automovie/engine";
+
+
 import { makeScriptWrite, makeStagingWrite } from "../internal/filmFixtures";
 import { hasViolation, namedFacts } from "../internal/predicates";
 

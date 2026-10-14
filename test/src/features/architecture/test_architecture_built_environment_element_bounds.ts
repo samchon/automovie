@@ -7,9 +7,9 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { builtEnvironmentElementBounds } from "@automovie/engine";
-import { builtEnvironmentSpaceContentBounds } from "@automovie/engine";
-import { validateBuiltEnvironment } from "@automovie/engine";
+import { builtEnvironmentElementBounds, builtEnvironmentSpaceContentBounds, validateBuiltEnvironment } from "@automovie/engine";
+
+
 import { makeProp, primitivePart } from "../internal/fixtures";
 import { namedFacts, vclose } from "../internal/predicates";
 

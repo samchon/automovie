@@ -15,17 +15,17 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { IAutoMoviePerformedShot } from "@automovie/engine";
-import { IAutoMovieStagedSet } from "@automovie/engine";
-import { performShot } from "@automovie/engine";
-import { stageScene } from "@automovie/engine";
-import { HUMANOID_JOINT_AXES } from "@automovie/engine";
-import { resolveAttachment } from "@automovie/engine";
-import { Quaternion } from "@automovie/engine";
-import { Vector3 } from "@automovie/engine";
-import { sampleMotion } from "@automovie/engine";
-import { IAutoMovieActionSynthesizer } from "@automovie/engine";
-import { sampleClip } from "@automovie/engine";
+import { IAutoMoviePerformedShot, IAutoMovieStagedSet, performShot, stageScene, HUMANOID_JOINT_AXES, resolveAttachment, Quaternion, Vector3, sampleMotion, IAutoMovieActionSynthesizer, sampleClip } from "@automovie/engine";
+
+
+
+
+
+
+
+
+
+
 import {
   makePerformanceWrite,
   makeScriptWrite,

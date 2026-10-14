@@ -4,8 +4,8 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { type IAutoMovieModelCrossing } from "@automovie/engine";
-import { measureAutoMovieModelCrossings } from "@automovie/engine";
+import { type IAutoMovieModelCrossing, measureAutoMovieModelCrossings } from "@automovie/engine";
+
 
 /** A model part holding one triangle from three hand-typed corners. */
 const part: (

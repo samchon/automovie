@@ -6,9 +6,9 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import type { IAutoMovieBuiltEnvelopeCorner } from "@automovie/engine";
-import { builtEnvironmentEnvelopeCorners } from "@automovie/engine";
-import { validateBuiltEnvironment } from "@automovie/engine";
+import { type IAutoMovieBuiltEnvelopeCorner, builtEnvironmentEnvelopeCorners, validateBuiltEnvironment } from "@automovie/engine";
+
+
 import {
   FACE_ROTATION,
   boxCell,

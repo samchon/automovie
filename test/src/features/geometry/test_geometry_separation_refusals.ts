@@ -6,12 +6,12 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { IAutoMovieMeshQueryBudget } from "@automovie/engine";
-import { IAutoMovieMeshSeparationQuery } from "@automovie/engine";
-import { IAutoMovieMeshSeparationResult } from "@automovie/engine";
-import { boundAutoMovieConvexSeparation } from "@automovie/engine";
-import { boundAutoMovieProjectionSeparation } from "@automovie/engine";
-import { createAutoMovieMeshSeparationQuery } from "@automovie/engine";
+import { IAutoMovieMeshQueryBudget, IAutoMovieMeshSeparationQuery, IAutoMovieMeshSeparationResult, boundAutoMovieConvexSeparation, boundAutoMovieProjectionSeparation, createAutoMovieMeshSeparationQuery } from "@automovie/engine";
+
+
+
+
+
 
 /**
  * Unsupported represented arithmetic and malformed requested work refuse by

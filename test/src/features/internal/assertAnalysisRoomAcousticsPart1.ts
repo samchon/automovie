@@ -6,9 +6,9 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import type { IAutoMovieAcousticRequest } from "@automovie/engine";
-import { analyzeAutoMovieAcoustics } from "@automovie/engine";
-import { AUTOMOVIE_SABINE_CONSTANT } from "@automovie/engine";
+import { type IAutoMovieAcousticRequest, analyzeAutoMovieAcoustics, AUTOMOVIE_SABINE_CONSTANT } from "@automovie/engine";
+
+
 import { namedFacts, nclose } from "./predicates";
 
 /** Execute the next ordered assertions of test_analysis_room_acoustics.

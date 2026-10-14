@@ -1,9 +1,9 @@
-import { canonicalizeAutoMovieJson } from "@automovie/engine";
+import { canonicalizeAutoMovieJson, productionFilmEffectEditFingerprint } from "@automovie/engine";
 import { IAutoMovieFilmTimeline } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 import { createHash } from "node:crypto";
 
-import { productionFilmEffectEditFingerprint } from "@automovie/engine";
+
 import { filmEffectCue, filmEffectTimeline } from "./filmEffectRuntimeFixtures";
 
 /**

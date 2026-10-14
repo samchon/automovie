@@ -4,10 +4,10 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { IAutoMovieSampledChannel } from "@automovie/engine";
-import { sampleClip } from "@automovie/engine";
+import { IAutoMovieSampledChannel, sampleClip, validateClipArtifact } from "@automovie/engine";
+
 import { channelValueWidth } from "../../../../packages/engine/src/validation/channelValueWidth";
-import { validateClipArtifact } from "@automovie/engine";
+
 import { namedFacts, throwsError } from "../internal/predicates";
 import { withoutArraySlot } from "../internal/withoutArraySlot";
 

@@ -6,9 +6,9 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { IAutoMovieSampledChannel } from "@automovie/engine";
-import { evaluateDrivenCurve } from "@automovie/engine";
-import { resolveDrivers } from "@automovie/engine";
+import { IAutoMovieSampledChannel, evaluateDrivenCurve, resolveDrivers } from "@automovie/engine";
+
+
 import { nclose } from "../internal/nclose";
 import { throwsError } from "../internal/throwsError";
 

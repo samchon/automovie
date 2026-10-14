@@ -1,7 +1,7 @@
 import { TestValidator } from "@nestia/e2e";
 
-import { ITwoBoneIK } from "@automovie/engine";
-import { solveTwoBoneIK } from "@automovie/engine";
+import { ITwoBoneIK, solveTwoBoneIK } from "@automovie/engine";
+
 import { nclose } from "../internal/nclose";
 import { throwsError } from "../internal/throwsError";
 

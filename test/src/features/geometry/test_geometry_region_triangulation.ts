@@ -1,7 +1,7 @@
 import { TestValidator } from "@nestia/e2e";
 
-import { IAutoMovieRegionTriangulation } from "@automovie/engine";
-import { triangulateAutoMovieRegion } from "@automovie/engine";
+import { IAutoMovieRegionTriangulation, triangulateAutoMovieRegion } from "@automovie/engine";
+
 import { equalGeometryTestValues } from "../internal/equalGeometryTestValues";
 import { namedFacts, nclose, throwsError } from "../internal/predicates";
 

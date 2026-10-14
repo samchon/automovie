@@ -4,11 +4,11 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { IAutoMovieForgedProp } from "@automovie/engine";
-import { forgeProp } from "@automovie/engine";
-import { IAutoMovieResolveOutput } from "@automovie/engine";
-import { IAutoMovieResolveViolation } from "@automovie/engine";
-import { resolveFrame } from "@automovie/engine";
+import { IAutoMovieForgedProp, forgeProp, IAutoMovieResolveOutput, IAutoMovieResolveViolation, resolveFrame } from "@automovie/engine";
+
+
+
+
 import { createDoorPropSpec } from "../internal/createDoorPropSpec";
 import { namedFacts, nclose } from "../internal/predicates";
 

@@ -4,9 +4,9 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import type { IAutoMovieGrammarDiagnostic } from "@automovie/engine";
-import type { IAutoMovieGrammarShotObservation } from "@automovie/engine";
-import { classifyGrammarShotSize } from "@automovie/engine";
+import { type IAutoMovieGrammarDiagnostic, type IAutoMovieGrammarShotObservation, classifyGrammarShotSize } from "@automovie/engine";
+
+
 import { createFilmGrammarCase } from "../internal/createFilmGrammarCase";
 import { namedFacts, throwsError } from "../internal/predicates";
 

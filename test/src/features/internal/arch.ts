@@ -1,8 +1,8 @@
-import { IAutoMovieMeshAssembly } from "@automovie/engine";
-import { IAutoMovieMeshPart } from "@automovie/engine";
-import { IAutoMovieProfilePoint } from "@automovie/engine";
-import { extrudeAutoMovieProfile } from "@automovie/engine";
-import { mergeAutoMovieMeshParts } from "@automovie/engine";
+import { IAutoMovieMeshAssembly, IAutoMovieMeshPart, IAutoMovieProfilePoint, extrudeAutoMovieProfile, mergeAutoMovieMeshParts } from "@automovie/engine";
+
+
+
+
 import { area } from "./area";
 import { rectangle } from "./rectangle";
 

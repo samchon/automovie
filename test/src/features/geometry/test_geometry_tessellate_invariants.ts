@@ -1,8 +1,8 @@
-import { tessellate } from "@automovie/engine";
+import { tessellate, type ITessellation } from "@automovie/engine";
 import { AutoMoviePrimitiveShape } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { type ITessellation } from "@automovie/engine";
+
 import { namedFacts } from "../internal/predicates";
 
 const SHAPES: AutoMoviePrimitiveShape[] = [

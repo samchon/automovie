@@ -4,9 +4,9 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import type { IAutoMoviePassageBlockage } from "@automovie/engine";
-import { propAnchorFrame } from "@automovie/engine";
-import { propBlockedPassages } from "@automovie/engine";
+import { type IAutoMoviePassageBlockage, propAnchorFrame, propBlockedPassages } from "@automovie/engine";
+
+
 import type { IFilmPropUtilityInputs } from "./IFilmPropUtilityInputs";
 import { namedFacts, vclose } from "./predicates";
 import { propRegistry, propSet } from "./propPlacementFixtures";

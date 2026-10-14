@@ -4,8 +4,8 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { designLineageDigest } from "@automovie/engine";
-import { designLineageViewDigest } from "@automovie/engine";
+import { designLineageDigest, designLineageViewDigest } from "@automovie/engine";
+
 import {
   brokenLineage,
   lineageDigest,

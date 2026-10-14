@@ -9,10 +9,10 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { AutoMovieSubject } from "@automovie/engine";
-import { AutoMovieSubjectGroup } from "@automovie/engine";
-import type { IAutoMovieSubjectContribution } from "@automovie/engine";
-import { lowerBuiltEnvironment } from "@automovie/engine";
+import { AutoMovieSubject, AutoMovieSubjectGroup, type IAutoMovieSubjectContribution, lowerBuiltEnvironment } from "@automovie/engine";
+
+
+
 import { createModel } from "../internal/fixtures";
 import { nclose } from "../internal/nclose";
 import { sameProductData } from "../internal/sameProductData";

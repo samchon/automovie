@@ -6,10 +6,10 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { IAutoMovieBlockedBeat } from "@automovie/engine";
-import { IAutoMovieStagedSet } from "@automovie/engine";
-import { blockBeat } from "@automovie/engine";
-import { stageScene } from "@automovie/engine";
+import { IAutoMovieBlockedBeat, IAutoMovieStagedSet, blockBeat, stageScene } from "@automovie/engine";
+
+
+
 import {
   makeBlockingWrite,
   makeScriptWrite,

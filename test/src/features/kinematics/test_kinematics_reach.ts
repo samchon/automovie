@@ -7,11 +7,11 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { IAutoMovieResolvedBone } from "@automovie/engine";
-import { HUMANOID_JOINT_AXES } from "@automovie/engine";
-import { reachPose } from "@automovie/engine";
-import { resolvePose } from "@automovie/engine";
-import { HUMANOID_REST_FRAME } from "@automovie/engine";
+import { IAutoMovieResolvedBone, HUMANOID_JOINT_AXES, reachPose, resolvePose, HUMANOID_REST_FRAME } from "@automovie/engine";
+
+
+
+
 import { createSkeleton } from "../internal/createSkeleton";
 import { vclose } from "../internal/vclose";
 

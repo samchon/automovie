@@ -1,13 +1,8 @@
-import {
-  buildAutoMoviePolyhedron,
-  extrudeAutoMovieRegion,
-  loftAutoMovieSections,
-  revolveAutoMovieProfile,
-} from "@automovie/engine";
+import { buildAutoMoviePolyhedron, extrudeAutoMovieRegion, loftAutoMovieSections, revolveAutoMovieProfile, type IAutoMovieProfilePoint } from "@automovie/engine";
 import type { IAutoMovieMesh } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { type IAutoMovieProfilePoint } from "@automovie/engine";
+
 import { namedFacts, nclose } from "../internal/predicates";
 
 /** How hard one triangle's atlas stretches, and by how much it changes area. */

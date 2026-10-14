@@ -4,9 +4,9 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { type IAutoMovieMeshSeparationQuery } from "@automovie/engine";
-import { type IAutoMovieMeshSeparationResult } from "@automovie/engine";
-import { createAutoMovieMeshSeparationQuery } from "@automovie/engine";
+import { type IAutoMovieMeshSeparationQuery, type IAutoMovieMeshSeparationResult, createAutoMovieMeshSeparationQuery } from "@automovie/engine";
+
+
 import { throwsError } from "../internal/throwsError";
 
 /**

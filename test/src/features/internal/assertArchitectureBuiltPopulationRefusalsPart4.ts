@@ -5,8 +5,8 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { builtEnvironmentSpacePopulations } from "@automovie/engine";
-import { validateBuiltEnvironment } from "@automovie/engine";
+import { builtEnvironmentSpacePopulations, validateBuiltEnvironment } from "@automovie/engine";
+
 import { namedFacts, throwsError } from "./predicates";
 
 /** Execute the next ordered assertions of test_architecture_built_population_refusals.

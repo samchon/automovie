@@ -13,12 +13,12 @@ import {
 import { TestValidator } from "@nestia/e2e";
 
 import { HUMANOID_GAITS } from "../../../../packages/archetypes/src/HUMANOID_GAITS";
-import type { IAutoMoviePerformedShot } from "@automovie/engine";
-import type { IAutoMovieStagedSet } from "@automovie/engine";
-import { performShot } from "@automovie/engine";
-import { stageScene } from "@automovie/engine";
-import type { IAutoMovieActorContext } from "@automovie/engine";
-import { makeActorSynthesizer } from "@automovie/engine";
+import { type IAutoMoviePerformedShot, type IAutoMovieStagedSet, performShot, stageScene, type IAutoMovieActorContext, makeActorSynthesizer } from "@automovie/engine";
+
+
+
+
+
 import {
   makePerformanceWrite,
   makeScriptWrite,

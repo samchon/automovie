@@ -12,12 +12,12 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { resolveBeatEnd } from "@automovie/engine";
-import { sampleMotion } from "@automovie/engine";
-import { IAutoMovieActionSynthesizer } from "@automovie/engine";
-import { IAutoMovieActorContext } from "@automovie/engine";
-import { compilePerformance } from "@automovie/engine";
-import { makeActorSynthesizer } from "@automovie/engine";
+import { resolveBeatEnd, sampleMotion, IAutoMovieActionSynthesizer, IAutoMovieActorContext, compilePerformance, makeActorSynthesizer } from "@automovie/engine";
+
+
+
+
+
 import { IDENTITY_TRANSFORM, joint, makePose } from "../internal/fixtures";
 import { nclose } from "../internal/predicates";
 

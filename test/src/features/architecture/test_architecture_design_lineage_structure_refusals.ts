@@ -5,8 +5,8 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { validateDesignLineage } from "@automovie/engine";
-import { validateDesignLineageBinding } from "@automovie/engine";
+import { validateDesignLineage, validateDesignLineageBinding } from "@automovie/engine";
+
 import {
   lineageDigest,
   refusesLineage as refuses,

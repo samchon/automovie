@@ -9,8 +9,8 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import type { IAutoMovieStagedSet } from "@automovie/engine";
-import { stageScene } from "@automovie/engine";
+import { type IAutoMovieStagedSet, stageScene } from "@automovie/engine";
+
 import { makeScriptWrite, makeStagingWrite } from "../internal/filmFixtures";
 import { hasViolation, nclose, vclose } from "../internal/predicates";
 

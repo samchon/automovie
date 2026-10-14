@@ -5,10 +5,10 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { IAutoMovieForgedProp } from "@automovie/engine";
-import { forgeProp } from "@automovie/engine";
-import { placementChildNode } from "@automovie/engine";
-import { sceneToNodes } from "@automovie/engine";
+import { IAutoMovieForgedProp, forgeProp, placementChildNode, sceneToNodes } from "@automovie/engine";
+
+
+
 import { createDoorPropSpec } from "../internal/createDoorPropSpec";
 import { hasViolation, namedFacts } from "../internal/predicates";
 

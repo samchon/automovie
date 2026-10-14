@@ -4,8 +4,8 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { builtEnvironmentAdjacentSpaces } from "@automovie/engine";
-import { builtEnvironmentSpaceBoundaries } from "@automovie/engine";
+import { builtEnvironmentAdjacentSpaces, builtEnvironmentSpaceBoundaries } from "@automovie/engine";
+
 import { drawingEnvironment } from "../internal/drawingFixtures";
 import { namedFacts, throwsError } from "../internal/predicates";
 

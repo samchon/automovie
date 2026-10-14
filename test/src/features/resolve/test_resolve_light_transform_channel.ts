@@ -8,8 +8,8 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { Quaternion } from "@automovie/engine";
-import { resolveShotLighting } from "@automovie/engine";
+import { Quaternion, resolveShotLighting } from "@automovie/engine";
+
 import { IDENTITY_TRANSFORM } from "../internal/IDENTITY_TRANSFORM";
 import { namedFacts } from "../internal/namedFacts";
 import { nclose } from "../internal/nclose";
