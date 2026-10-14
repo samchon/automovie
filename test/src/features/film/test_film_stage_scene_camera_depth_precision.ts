@@ -1,9 +1,17 @@
-import type { IAutoMovieStage, IAutoMovieVector3, IAutoMovieNodeTarget, IAutoMoviePointTarget, IAutoMovieCameraClearanceEnvelope, IAutoMovieStageCamera } from "@automovie/interface";
-import { nclose } from "../internal/nclose";
+import type {
+  IAutoMovieCameraClearanceEnvelope,
+  IAutoMovieNodeTarget,
+  IAutoMoviePointTarget,
+  IAutoMovieStage,
+  IAutoMovieStageCamera,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
 import type { IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
 import { stageScene } from "../../../../packages/engine/src/film/stageScene";
-import { TestValidator } from "@nestia/e2e";
 import { makeScriptWrite, makeStagingWrite } from "../internal/filmFixtures";
+import { nclose } from "../internal/nclose";
 import { hasViolation } from "../internal/predicates";
 
 /**
@@ -22,7 +30,16 @@ import { hasViolation } from "../internal/predicates";
  */
 export function test_film_stage_scene_camera_depth_precision(): void {
   const base: IAutoMovieStage = makeStagingWrite();
-  const authored: { near: number; far: number; depthPrecision: { minimumDepthBits: number; maximumStepMeters: number; }; node: string; position: IAutoMovieVector3; lookAt: IAutoMovieNodeTarget | IAutoMoviePointTarget; fovDeg: number; clearance?: IAutoMovieCameraClearanceEnvelope; } = {
+  const authored: {
+    near: number;
+    far: number;
+    depthPrecision: { minimumDepthBits: number; maximumStepMeters: number };
+    node: string;
+    position: IAutoMovieVector3;
+    lookAt: IAutoMovieNodeTarget | IAutoMoviePointTarget;
+    fovDeg: number;
+    clearance?: IAutoMovieCameraClearanceEnvelope;
+  } = {
     ...base.cameras[0]!,
     near: 0.25,
     far: 250,
@@ -34,15 +51,23 @@ export function test_film_stage_scene_camera_depth_precision(): void {
   );
   TestValidator.predicate(
     "accepted values reach the resolved camera without aliasing",
-    accepted.success && nclose(accepted.scene.cameras[0]!.near, 0.25, 0) &&
+    accepted.success &&
+      nclose(accepted.scene.cameras[0]!.near, 0.25, 0) &&
       nclose(accepted.scene.cameras[0]!.far, 250, 0) &&
       accepted.scene.cameras[0]!.depthPrecision.minimumDepthBits === 16 &&
-      nclose(accepted.scene.cameras[0]!.depthPrecision.maximumStepMeters, 0.5, 0) &&
+      nclose(
+        accepted.scene.cameras[0]!.depthPrecision.maximumStepMeters,
+        0.5,
+        0,
+      ) &&
       accepted.scene.cameras[0]!.depthPrecision !== authored.depthPrecision,
   );
 
   /** Apply one malformed operand patch without admitting it in the fixture, retaining an independently aimed valid base camera. */
-  const camera: (index: number, value: unknown) => IAutoMovieStageCamera = (index: number, value: unknown): IAutoMovieStageCamera =>
+  const camera: (index: number, value: unknown) => IAutoMovieStageCamera = (
+    index: number,
+    value: unknown,
+  ): IAutoMovieStageCamera =>
     ({
       ...base.cameras[0]!,
       node: `invalid-${index}`,

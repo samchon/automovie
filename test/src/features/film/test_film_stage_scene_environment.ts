@@ -1,11 +1,16 @@
-import type { AutoMovieViolationKind, IAutoMovieConstraintViolation, IAutoMovieSceneEnvironment, IAutoMovieStage, IAutoMovieStageLight, IAutoMovieValidation } from "@automovie/interface";
+import type {
+  AutoMovieViolationKind,
+  IAutoMovieConstraintViolation,
+  IAutoMovieSceneEnvironment,
+  IAutoMovieStage,
+  IAutoMovieStageLight,
+  IAutoMovieValidation,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
 
 import { IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
 import { stageScene } from "../../../../packages/engine/src/film/stageScene";
 import { validateSceneEnvironment } from "../../../../packages/engine/src/validation/validateSceneEnvironment";
-
-import { TestValidator } from "@nestia/e2e";
-
 import { makeScriptWrite, makeStagingWrite } from "../internal/filmFixtures";
 import { hasViolation, namedFacts } from "../internal/predicates";
 
@@ -25,7 +30,7 @@ const ENVIRONMENT: IAutoMovieSceneEnvironment = {
  * The owning test supplies schema-based kind/path expectations and asserts the
  * returned boolean. hasViolation checks path inclusion rather than the full report.
  */
-function refusedAt (
+function refusedAt(
   environment: unknown,
   kind: AutoMovieViolationKind,
   path: string,
@@ -42,12 +47,14 @@ function refusedAt (
  * The owning test requires success and preservation of its authored ENVIRONMENT
  * record; this adapter supplies no assertion or independent oracle itself.
  */
-function stagedWith (environment: unknown): IAutoMovieStagedSet { return stageScene(
+function stagedWith(environment: unknown): IAutoMovieStagedSet {
+  return stageScene(
     makeScriptWrite(),
     makeStagingWrite({
       environment: environment as IAutoMovieSceneEnvironment,
     }),
-  ); }
+  );
+}
 
 /**
  * Environment and shadow settings are validated before they reach Three.js.
@@ -71,7 +78,7 @@ function stagedWith (environment: unknown): IAutoMovieStagedSet { return stageSc
  * @evidence contracts/testing.md#distinguishing-cases Covers omitted and complete environments, malformed nested records, scalar/enum/renderer boundaries, shadow declaration/settings consistency, contradictory background/light labels and an admitted white light label; model and fog entries exercise the other color consumers separately.
  * @evidence contracts/testing.md#execution-ownership The synchronous unit entry owns the fixed cases and the shadow case table, calls portable source validators and stageScene, and starts no real renderer or host.
  */
-export function test_film_stage_scene_environment (): void {
+export function test_film_stage_scene_environment(): void {
   const staged: IAutoMovieStagedSet = stagedWith(ENVIRONMENT);
   TestValidator.equals("valid environment stages", staged.success, true);
   if (staged.success === true)
@@ -79,14 +86,17 @@ export function test_film_stage_scene_environment (): void {
       "environment lowers verbatim",
       staged.scene.environment === ENVIRONMENT,
     );
-  const bare: IAutoMovieStagedSet = stageScene(makeScriptWrite(), makeStagingWrite());
+  const bare: IAutoMovieStagedSet = stageScene(
+    makeScriptWrite(),
+    makeStagingWrite(),
+  );
   TestValidator.equals(
     "omitted environment preserves the omitted-key scene shape",
     namedFacts([
-      ["staged", () : boolean => bare.success === true],
+      ["staged", (): boolean => bare.success === true],
       [
         "noKey",
-        () : boolean =>
+        (): boolean =>
           // The `success` comparison is restated only to narrow the union
           // inside this closure.
           bare.success === true && !("environment" in bare.scene),
@@ -95,22 +105,30 @@ export function test_film_stage_scene_environment (): void {
     { staged: true, noKey: true },
   );
 
-  const color: { r: number; g: number; b: number; a: null; hex: null; } = { r: 0.1, g: 0.2, b: 0.3, a: null, hex: null };
+  const color: { r: number; g: number; b: number; a: null; hex: null } = {
+    r: 0.1,
+    g: 0.2,
+    b: 0.3,
+    a: null,
+    hex: null,
+  };
   TestValidator.equals(
     "every environment gate is located",
     namedFacts([
-      ["object", () : boolean => refusedAt(null, "type", "$input")],
+      ["object", (): boolean => refusedAt(null, "type", "$input")],
       [
         "imageType",
-        () : boolean => refusedAt({ ...ENVIRONMENT, image: 4 }, "type", "$input.image"),
+        (): boolean =>
+          refusedAt({ ...ENVIRONMENT, image: 4 }, "type", "$input.image"),
       ],
       [
         "imageBlank",
-        () : boolean => refusedAt({ ...ENVIRONMENT, image: " " }, "type", "$input.image"),
+        (): boolean =>
+          refusedAt({ ...ENVIRONMENT, image: " " }, "type", "$input.image"),
       ],
       [
         "background",
-        () : boolean =>
+        (): boolean =>
           refusedAt(
             { ...ENVIRONMENT, image: null, background: 2 },
             "type",
@@ -119,7 +137,7 @@ export function test_film_stage_scene_environment (): void {
       ],
       [
         "backgroundWithImage",
-        () : boolean =>
+        (): boolean =>
           refusedAt(
             { ...ENVIRONMENT, background: color },
             "type",
@@ -128,7 +146,7 @@ export function test_film_stage_scene_environment (): void {
       ],
       [
         "red",
-        () : boolean =>
+        (): boolean =>
           refusedAt(
             { ...ENVIRONMENT, image: null, background: { ...color, r: -1 } },
             "range",
@@ -137,7 +155,7 @@ export function test_film_stage_scene_environment (): void {
       ],
       [
         "green",
-        () : boolean =>
+        (): boolean =>
           refusedAt(
             {
               ...ENVIRONMENT,
@@ -150,7 +168,7 @@ export function test_film_stage_scene_environment (): void {
       ],
       [
         "blue",
-        () : boolean =>
+        (): boolean =>
           refusedAt(
             {
               ...ENVIRONMENT,
@@ -163,7 +181,7 @@ export function test_film_stage_scene_environment (): void {
       ],
       [
         "alpha",
-        () : boolean =>
+        (): boolean =>
           refusedAt(
             { ...ENVIRONMENT, image: null, background: { ...color, a: 2 } },
             "range",
@@ -172,7 +190,7 @@ export function test_film_stage_scene_environment (): void {
       ],
       [
         "hex",
-        () : boolean =>
+        (): boolean =>
           refusedAt(
             {
               ...ENVIRONMENT,
@@ -185,7 +203,7 @@ export function test_film_stage_scene_environment (): void {
       ],
       [
         "intensity",
-        () : boolean =>
+        (): boolean =>
           refusedAt(
             { ...ENVIRONMENT, intensity: -1 },
             "range",
@@ -194,7 +212,7 @@ export function test_film_stage_scene_environment (): void {
       ],
       [
         "rotation",
-        () : boolean =>
+        (): boolean =>
           refusedAt(
             { ...ENVIRONMENT, rotationDeg: NaN },
             "range",
@@ -203,7 +221,7 @@ export function test_film_stage_scene_environment (): void {
       ],
       [
         "exposure",
-        () : boolean =>
+        (): boolean =>
           refusedAt(
             { ...ENVIRONMENT, exposure: 0 },
             "range",
@@ -212,7 +230,7 @@ export function test_film_stage_scene_environment (): void {
       ],
       [
         "tone",
-        () : boolean =>
+        (): boolean =>
           refusedAt(
             { ...ENVIRONMENT, toneMapping: "linear" },
             "type",
@@ -221,7 +239,7 @@ export function test_film_stage_scene_environment (): void {
       ],
       [
         "shadows",
-        () : boolean =>
+        (): boolean =>
           refusedAt(
             { ...ENVIRONMENT, shadows: null },
             "type",
@@ -230,7 +248,7 @@ export function test_film_stage_scene_environment (): void {
       ],
       [
         "enabled",
-        () : boolean =>
+        (): boolean =>
           refusedAt(
             { ...ENVIRONMENT, shadows: { enabled: 1, type: "pcf" } },
             "type",
@@ -239,7 +257,7 @@ export function test_film_stage_scene_environment (): void {
       ],
       [
         "shadowType",
-        () : boolean =>
+        (): boolean =>
           refusedAt(
             { ...ENVIRONMENT, shadows: { enabled: true, type: "hard" } },
             "type",
@@ -285,7 +303,12 @@ export function test_film_stage_scene_environment (): void {
   );
 
   const standard: IAutoMovieStage = makeStagingWrite();
-  const light: IAutoMovieStageLight = { node: "key", type: "directional", direction: { x: -1, y: -1, z: 0 }, intensity: 1 };
+  const light: IAutoMovieStageLight = {
+    node: "key",
+    type: "directional",
+    direction: { x: -1, y: -1, z: 0 },
+    intensity: 1,
+  };
   const shadowed: IAutoMovieStagedSet = stageScene(makeScriptWrite(), {
     ...standard,
     lights: [
@@ -305,16 +328,16 @@ export function test_film_stage_scene_environment (): void {
   TestValidator.equals(
     "shadow declaration lowers onto the scene light",
     namedFacts([
-      ["staged", () : boolean => shadowed.success === true],
+      ["staged", (): boolean => shadowed.success === true],
       [
         "castShadow",
-        () : boolean =>
+        (): boolean =>
           shadowed.success === true &&
           shadowed.scene.lights[0]?.castShadow === true,
       ],
       [
         "mapSize",
-        () : boolean =>
+        (): boolean =>
           shadowed.success === true &&
           shadowed.scene.lights[0]?.shadow?.mapSize === 1024,
       ],
@@ -323,8 +346,32 @@ export function test_film_stage_scene_environment (): void {
   );
 
   const invalidShadowCases: Array<[unknown, string]> = [
-    [{ node: "key", type: "area", direction: { x: 0, y: -1, z: 0 }, position: { x: 0, y: 1, z: 0 }, width: 1, height: 1, intensity: 1, castShadow: false }, "$input.lights[0].castShadow"],
-    [{ node: "key", type: "area", direction: { x: 0, y: -1, z: 0 }, position: { x: 0, y: 1, z: 0 }, width: 1, height: 1, intensity: 1, castShadow: true }, "$input.lights[0].castShadow"],
+    [
+      {
+        node: "key",
+        type: "area",
+        direction: { x: 0, y: -1, z: 0 },
+        position: { x: 0, y: 1, z: 0 },
+        width: 1,
+        height: 1,
+        intensity: 1,
+        castShadow: false,
+      },
+      "$input.lights[0].castShadow",
+    ],
+    [
+      {
+        node: "key",
+        type: "area",
+        direction: { x: 0, y: -1, z: 0 },
+        position: { x: 0, y: 1, z: 0 },
+        width: 1,
+        height: 1,
+        intensity: 1,
+        castShadow: true,
+      },
+      "$input.lights[0].castShadow",
+    ],
     [{ ...light, castShadow: "yes" }, "$input.lights[0].castShadow"],
     [{ ...light, castShadow: true }, "$input.lights[0].shadow"],
     [{ ...light, shadow: null }, "$input.lights[0].shadow"],
@@ -374,27 +421,82 @@ export function test_film_stage_scene_environment (): void {
   ];
   TestValidator.predicate(
     "invalid shadow fields fail at their authored paths",
-    invalidShadowCases.every(([candidate, path]: [unknown, string]) : boolean => {
-      const result: IAutoMovieStagedSet = stageScene(makeScriptWrite(), {
-        ...standard,
-        lights: [candidate as typeof light],
-      });
-      return (
-        result.success === false &&
-        hasViolation(
-          result,
-          path.endsWith("castShadow") || path.endsWith("shadow")
-            ? "type"
-            : "range",
-          path,
-        )
-      );
-    }),
+    invalidShadowCases.every(
+      ([candidate, path]: [unknown, string]): boolean => {
+        const result: IAutoMovieStagedSet = stageScene(makeScriptWrite(), {
+          ...standard,
+          lights: [candidate as typeof light],
+        });
+        return (
+          result.success === false &&
+          hasViolation(
+            result,
+            path.endsWith("castShadow") || path.endsWith("shadow")
+              ? "type"
+              : "range",
+            path,
+          )
+        );
+      },
+    ),
   );
-  const mismatchBackground: IAutoMovieValidation = validateSceneEnvironment({ environment: { ...ENVIRONMENT, image: null, background: { r: 0, g: 0, b: 0, a: null, hex: "#FFFFFF" } } });
-  TestValidator.equals("area light without an inapplicable shadow flag stages", stageScene(makeScriptWrite(), { ...standard, lights: [{ node: "key", type: "area", direction: { x: 0, y: -1, z: 0 }, position: { x: 0, y: 1, z: 0 }, width: 1, height: 1, intensity: 1 }] }).success, true);
-  TestValidator.predicate("background cannot label black as white", mismatchBackground.success === false && mismatchBackground.violations.some((item: IAutoMovieConstraintViolation): boolean => item.path === "$input.background.hex" && item.expected.includes("encoded as #000000")));
-  const mismatchLight: IAutoMovieStagedSet = stageScene(makeScriptWrite(), { ...standard, lights: [{ ...light, color: { r: 0, g: 0, b: 0, a: null, hex: "#FFFFFF" } }] });
-  TestValidator.predicate("a staged light cannot label black as white", mismatchLight.success === false && mismatchLight.violations.some((item: IAutoMovieConstraintViolation): boolean => item.path === "$input.lights[0].color.hex" && item.expected.includes("encoded as #000000")));
-  TestValidator.equals("matching light endpoint labels remain admitted", stageScene(makeScriptWrite(), { ...standard, lights: [{ ...light, color: { r: 1, g: 1, b: 1, a: null, hex: "#FFFFFF" } }] }).success, true);
+  const mismatchBackground: IAutoMovieValidation = validateSceneEnvironment({
+    environment: {
+      ...ENVIRONMENT,
+      image: null,
+      background: { r: 0, g: 0, b: 0, a: null, hex: "#FFFFFF" },
+    },
+  });
+  TestValidator.equals(
+    "area light without an inapplicable shadow flag stages",
+    stageScene(makeScriptWrite(), {
+      ...standard,
+      lights: [
+        {
+          node: "key",
+          type: "area",
+          direction: { x: 0, y: -1, z: 0 },
+          position: { x: 0, y: 1, z: 0 },
+          width: 1,
+          height: 1,
+          intensity: 1,
+        },
+      ],
+    }).success,
+    true,
+  );
+  TestValidator.predicate(
+    "background cannot label black as white",
+    mismatchBackground.success === false &&
+      mismatchBackground.violations.some(
+        (item: IAutoMovieConstraintViolation): boolean =>
+          item.path === "$input.background.hex" &&
+          item.expected.includes("encoded as #000000"),
+      ),
+  );
+  const mismatchLight: IAutoMovieStagedSet = stageScene(makeScriptWrite(), {
+    ...standard,
+    lights: [
+      { ...light, color: { r: 0, g: 0, b: 0, a: null, hex: "#FFFFFF" } },
+    ],
+  });
+  TestValidator.predicate(
+    "a staged light cannot label black as white",
+    mismatchLight.success === false &&
+      mismatchLight.violations.some(
+        (item: IAutoMovieConstraintViolation): boolean =>
+          item.path === "$input.lights[0].color.hex" &&
+          item.expected.includes("encoded as #000000"),
+      ),
+  );
+  TestValidator.equals(
+    "matching light endpoint labels remain admitted",
+    stageScene(makeScriptWrite(), {
+      ...standard,
+      lights: [
+        { ...light, color: { r: 1, g: 1, b: 1, a: null, hex: "#FFFFFF" } },
+      ],
+    }).success,
+    true,
+  );
 }

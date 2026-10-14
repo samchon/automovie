@@ -1,10 +1,17 @@
-import type { IAutoMovieProductionViseme, IAutoMovieCompiledShotSource, IAutoMovieProductionSoundPlan, IAutoMovieShotEventContract, IAutoMovieShotPredicate } from "@automovie/interface";
-import { nclose } from "../internal/nclose";
+import type {
+  IAutoMovieCompiledShotSource,
+  IAutoMovieProductionSoundPlan,
+  IAutoMovieProductionViseme,
+  IAutoMovieShotEventContract,
+  IAutoMovieShotPredicate,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
 import type { IAutoMovieRenderedProductionSound } from "../../../../packages/engine/src/sound/IAutoMovieRenderedProductionSound";
 import { deriveProductionSoundPlan } from "../../../../packages/engine/src/sound/deriveProductionSoundPlan";
 import { productionPhonemesToVisemes } from "../../../../packages/engine/src/sound/productionPhonemesToVisemes";
 import { renderProductionSound } from "../../../../packages/engine/src/sound/renderProductionSound";
-import { TestValidator } from "@nestia/e2e";
+import { nclose } from "../internal/nclose";
 import { namedFacts } from "../internal/predicates";
 import {
   productionSoundCompiled,
@@ -36,7 +43,11 @@ export function test_film_production_sound_viseme(): void {
   });
   TestValidator.equals(
     "phoneme timing covers the caption and maps all VRM vowel targets",
-    visemes.map((item: IAutoMovieProductionViseme): "rest" | "aa" | "ih" | "ou" | "ee" | "oh" => item.viseme),
+    visemes.map(
+      (
+        item: IAutoMovieProductionViseme,
+      ): "rest" | "aa" | "ih" | "ou" | "ee" | "oh" => item.viseme,
+    ),
     ["aa", "ih", "ou", "ee", "oh", "rest"],
   );
   TestValidator.equals(
@@ -109,7 +120,10 @@ export function test_film_production_sound_viseme(): void {
       ],
       [
         "chunkTimedItemItem",
-        (): boolean => chunkTimed.map((item: IAutoMovieProductionViseme): string => item.phoneme).join("") === "aiueox",
+        (): boolean =>
+          chunkTimed
+            .map((item: IAutoMovieProductionViseme): string => item.phoneme)
+            .join("") === "aiueox",
       ],
     ]),
     {
@@ -197,10 +211,25 @@ export function test_film_production_sound_viseme(): void {
                     "sound-shot",
                     {
                       ...productionSoundContract(),
-                      events: productionSoundContract().events.map((event: IAutoMovieShotEventContract): { subjects: string[]; id: string; kind: "contact" | "arrival" | "break" | "reveal" | "transition"; window: { from: number; to: number; }; predicates: IAutoMovieShotPredicate[]; } => ({
-                        ...event,
-                        subjects: ["missing"],
-                      })),
+                      events: productionSoundContract().events.map(
+                        (
+                          event: IAutoMovieShotEventContract,
+                        ): {
+                          subjects: string[];
+                          id: string;
+                          kind:
+                            | "contact"
+                            | "arrival"
+                            | "break"
+                            | "reveal"
+                            | "transition";
+                          window: { from: number; to: number };
+                          predicates: IAutoMovieShotPredicate[];
+                        } => ({
+                          ...event,
+                          subjects: ["missing"],
+                        }),
+                      ),
                     },
                   ],
                 ]),

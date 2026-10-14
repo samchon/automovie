@@ -1,10 +1,16 @@
-import type { IAutoMovieScript, IAutoMovieLight, IAutoMovieStageLight, IAutoMovieValidation } from "@automovie/interface";
-import { nclose } from "../internal/nclose";
+import type {
+  IAutoMovieLight,
+  IAutoMovieScript,
+  IAutoMovieStageLight,
+  IAutoMovieValidation,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
 import type { IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
 import { stageScene } from "../../../../packages/engine/src/film/stageScene";
-import { TestValidator } from "@nestia/e2e";
 import { assertFilmStageLightBoundaries } from "../internal/assertFilmStageLightBoundaries";
 import { makeScriptWrite, makeStagingWrite } from "../internal/filmFixtures";
+import { nclose } from "../internal/nclose";
 import {
   hasViolation,
   namedFacts,
@@ -15,22 +21,36 @@ import {
 const script: IAutoMovieScript = makeScriptWrite();
 
 /** Stage the same duel through its existing runtime light boundary, admitting deliberately malformed test payloads without changing or validating them in the fixture. */
-const stageLights: (lights: unknown[]) => IAutoMovieStagedSet = (lights: unknown[]): IAutoMovieStagedSet =>
-  stageScene(script, makeStagingWrite({ lights: lights as IAutoMovieStageLight[] }));
+const stageLights: (lights: unknown[]) => IAutoMovieStagedSet = (
+  lights: unknown[],
+): IAutoMovieStagedSet =>
+  stageScene(
+    script,
+    makeStagingWrite({ lights: lights as IAutoMovieStageLight[] }),
+  );
 
 /** The staged scene's lights, or `[]` when staging refused. */
-const lightsOf: (staged: ReturnType<typeof stageScene>) => IAutoMovieLight[] = (staged: ReturnType<typeof stageScene>): IAutoMovieLight[] =>
-  staged.success ? staged.scene.lights : [];
+const lightsOf: (staged: ReturnType<typeof stageScene>) => IAutoMovieLight[] = (
+  staged: ReturnType<typeof stageScene>,
+): IAutoMovieLight[] => (staged.success ? staged.scene.lights : []);
 
 /** Staging violations as a validation envelope, for `hasViolation`. */
-const failure: (staged: ReturnType<typeof stageScene>) => IAutoMovieValidation = (
+const failure: (
+  staged: ReturnType<typeof stageScene>,
+) => IAutoMovieValidation = (
   staged: ReturnType<typeof stageScene>,
 ): IAutoMovieValidation =>
   staged.success
     ? { success: true }
     : { success: false, violations: staged.violations };
 
-const WARM: { r: number; g: number; b: number; a: null; hex: null; } = { r: 1, g: 0.72, b: 0.36, a: null, hex: null };
+const WARM: { r: number; g: number; b: number; a: null; hex: null } = {
+  r: 1,
+  g: 0.72,
+  b: 0.36,
+  a: null,
+  hex: null,
+};
 
 /**
  * `stage` must be able to author every light the scene type can hold (#1341).
@@ -83,35 +103,42 @@ export function test_film_stage_light_axis(): void {
   );
   TestValidator.predicate(
     "at the origin, in neutral white, as before",
-    Object.values(namedFacts([
-      ["legacyLight", (): boolean => legacyLight !== undefined],
-      [
-        "vcloseLegacyLightTransform",
-        (): boolean =>
-          legacyLight !== undefined &&
-          vclose(legacyLight.transform.translation, { x: 0, y: 0, z: 0 }),
-      ],
-      [
-        "legacyLightColorR",
-        (): boolean => legacyLight !== undefined && nclose(legacyLight.color.r, 1, 0),
-      ],
-      [
-        "legacyLightColorG",
-        (): boolean => legacyLight !== undefined && nclose(legacyLight.color.g, 1, 0),
-      ],
-      [
-        "legacyLightColorB",
-        (): boolean => legacyLight !== undefined && nclose(legacyLight.color.b, 1, 0),
-      ],
-      [
-        "legacyLightColorA",
-        (): boolean => legacyLight !== undefined && legacyLight.color.a === null,
-      ],
-      [
-        "legacyLightIntensity",
-        (): boolean => legacyLight !== undefined && nclose(legacyLight.intensity, 1, 0),
-      ],
-    ])).every((fact: boolean): boolean => fact),
+    Object.values(
+      namedFacts([
+        ["legacyLight", (): boolean => legacyLight !== undefined],
+        [
+          "vcloseLegacyLightTransform",
+          (): boolean =>
+            legacyLight !== undefined &&
+            vclose(legacyLight.transform.translation, { x: 0, y: 0, z: 0 }),
+        ],
+        [
+          "legacyLightColorR",
+          (): boolean =>
+            legacyLight !== undefined && nclose(legacyLight.color.r, 1, 0),
+        ],
+        [
+          "legacyLightColorG",
+          (): boolean =>
+            legacyLight !== undefined && nclose(legacyLight.color.g, 1, 0),
+        ],
+        [
+          "legacyLightColorB",
+          (): boolean =>
+            legacyLight !== undefined && nclose(legacyLight.color.b, 1, 0),
+        ],
+        [
+          "legacyLightColorA",
+          (): boolean =>
+            legacyLight !== undefined && legacyLight.color.a === null,
+        ],
+        [
+          "legacyLightIntensity",
+          (): boolean =>
+            legacyLight !== undefined && nclose(legacyLight.intensity, 1, 0),
+        ],
+      ]),
+    ).every((fact: boolean): boolean => fact),
   );
 
   // 2. `role` is annotation: removing it changes nothing
@@ -122,15 +149,37 @@ export function test_film_stage_light_axis(): void {
   )[0];
   TestValidator.predicate(
     "dropping role lowers to the identical light",
-    roleless !== undefined && legacyLight !== undefined &&
+    roleless !== undefined &&
+      legacyLight !== undefined &&
       roleless.id === legacyLight.id &&
-      roleless.type === "directional" && legacyLight.type === "directional" &&
-      vclose(roleless.transform.translation, legacyLight.transform.translation, 0) &&
+      roleless.type === "directional" &&
+      legacyLight.type === "directional" &&
+      vclose(
+        roleless.transform.translation,
+        legacyLight.transform.translation,
+        0,
+      ) &&
       vclose(roleless.transform.scale, legacyLight.transform.scale, 0) &&
-      nclose(roleless.transform.rotation.x, legacyLight.transform.rotation.x, 0) &&
-      nclose(roleless.transform.rotation.y, legacyLight.transform.rotation.y, 0) &&
-      nclose(roleless.transform.rotation.z, legacyLight.transform.rotation.z, 0) &&
-      nclose(roleless.transform.rotation.w, legacyLight.transform.rotation.w, 0) &&
+      nclose(
+        roleless.transform.rotation.x,
+        legacyLight.transform.rotation.x,
+        0,
+      ) &&
+      nclose(
+        roleless.transform.rotation.y,
+        legacyLight.transform.rotation.y,
+        0,
+      ) &&
+      nclose(
+        roleless.transform.rotation.z,
+        legacyLight.transform.rotation.z,
+        0,
+      ) &&
+      nclose(
+        roleless.transform.rotation.w,
+        legacyLight.transform.rotation.w,
+        0,
+      ) &&
       nclose(roleless.color.r, legacyLight.color.r, 0) &&
       nclose(roleless.color.g, legacyLight.color.g, 0) &&
       nclose(roleless.color.b, legacyLight.color.b, 0) &&
@@ -138,7 +187,8 @@ export function test_film_stage_light_axis(): void {
       roleless.color.hex === legacyLight.color.hex &&
       nclose(roleless.intensity, legacyLight.intensity, 0) &&
       roleless.castShadow === legacyLight.castShadow &&
-      roleless.shadow === undefined && legacyLight.shadow === undefined,
+      roleless.shadow === undefined &&
+      legacyLight.shadow === undefined,
   );
 
   // 3. the axis the scene type always had
@@ -156,57 +206,64 @@ export function test_film_stage_light_axis(): void {
   )[0];
   TestValidator.predicate(
     "a warm point light lowers with its place, color, and range",
-    Object.values(namedFacts([
-      ["point", (): boolean => point !== undefined],
-      ["pointTypePoint", (): boolean => point !== undefined && point.type === "point"],
-      [
-        "pointRange",
-        (): boolean =>
-          point !== undefined && point.type === "point" && nclose(point.range, 3, 0),
-      ],
-      [
-        "pointIntensity",
-        (): boolean =>
-          point !== undefined &&
-          point.type === "point" &&
-          nclose(point.intensity, 1.4, 0),
-      ],
-      [
-        "vclosePointTransform",
-        (): boolean =>
-          point !== undefined &&
-          point.type === "point" &&
-          vclose(point.transform.translation, { x: 0.2, y: 0.9, z: 0.35 }),
-      ],
-      [
-        "pointColorR",
-        (): boolean =>
-          point !== undefined &&
-          point.type === "point" &&
-          nclose(point.color.r, WARM.r, 0),
-      ],
-      [
-        "pointColorG",
-        (): boolean =>
-          point !== undefined &&
-          point.type === "point" &&
-          nclose(point.color.g, WARM.g, 0),
-      ],
-      [
-        "pointColorB",
-        (): boolean =>
-          point !== undefined &&
-          point.type === "point" &&
-          nclose(point.color.b, WARM.b, 0),
-      ],
-      [
-        "qclosePointTransform",
-        (): boolean =>
-          point !== undefined &&
-          point.type === "point" &&
-          qclose(point.transform.rotation, { x: 0, y: 0, z: 0, w: 1 }),
-      ],
-    ])).every((fact: boolean): boolean => fact),
+    Object.values(
+      namedFacts([
+        ["point", (): boolean => point !== undefined],
+        [
+          "pointTypePoint",
+          (): boolean => point !== undefined && point.type === "point",
+        ],
+        [
+          "pointRange",
+          (): boolean =>
+            point !== undefined &&
+            point.type === "point" &&
+            nclose(point.range, 3, 0),
+        ],
+        [
+          "pointIntensity",
+          (): boolean =>
+            point !== undefined &&
+            point.type === "point" &&
+            nclose(point.intensity, 1.4, 0),
+        ],
+        [
+          "vclosePointTransform",
+          (): boolean =>
+            point !== undefined &&
+            point.type === "point" &&
+            vclose(point.transform.translation, { x: 0.2, y: 0.9, z: 0.35 }),
+        ],
+        [
+          "pointColorR",
+          (): boolean =>
+            point !== undefined &&
+            point.type === "point" &&
+            nclose(point.color.r, WARM.r, 0),
+        ],
+        [
+          "pointColorG",
+          (): boolean =>
+            point !== undefined &&
+            point.type === "point" &&
+            nclose(point.color.g, WARM.g, 0),
+        ],
+        [
+          "pointColorB",
+          (): boolean =>
+            point !== undefined &&
+            point.type === "point" &&
+            nclose(point.color.b, WARM.b, 0),
+        ],
+        [
+          "qclosePointTransform",
+          (): boolean =>
+            point !== undefined &&
+            point.type === "point" &&
+            qclose(point.transform.rotation, { x: 0, y: 0, z: 0, w: 1 }),
+        ],
+      ]),
+    ).every((fact: boolean): boolean => fact),
   );
   const spot: IAutoMovieLight = lightsOf(
     stageLights([
@@ -223,26 +280,36 @@ export function test_film_stage_light_axis(): void {
   )[0];
   TestValidator.predicate(
     "a spot lowers with its cone, range and position",
-    Object.values(namedFacts([
-      ["spot", (): boolean => spot !== undefined],
-      ["spotTypeSpot", (): boolean => spot !== undefined && spot.type === "spot"],
-      [
-        "spotRange",
-        (): boolean => spot !== undefined && spot.type === "spot" && nclose(spot.range, 6, 0),
-      ],
-      [
-        "spotConeAngle",
-        (): boolean =>
-          spot !== undefined && spot.type === "spot" && nclose(spot.coneAngle, 25, 0),
-      ],
-      [
-        "vcloseSpotTransform",
-        (): boolean =>
-          spot !== undefined &&
-          spot.type === "spot" &&
-          vclose(spot.transform.translation, { x: 0, y: 2.4, z: 0 }),
-      ],
-    ])).every((fact: boolean): boolean => fact),
+    Object.values(
+      namedFacts([
+        ["spot", (): boolean => spot !== undefined],
+        [
+          "spotTypeSpot",
+          (): boolean => spot !== undefined && spot.type === "spot",
+        ],
+        [
+          "spotRange",
+          (): boolean =>
+            spot !== undefined &&
+            spot.type === "spot" &&
+            nclose(spot.range, 6, 0),
+        ],
+        [
+          "spotConeAngle",
+          (): boolean =>
+            spot !== undefined &&
+            spot.type === "spot" &&
+            nclose(spot.coneAngle, 25, 0),
+        ],
+        [
+          "vcloseSpotTransform",
+          (): boolean =>
+            spot !== undefined &&
+            spot.type === "spot" &&
+            vclose(spot.transform.translation, { x: 0, y: 2.4, z: 0 }),
+        ],
+      ]),
+    ).every((fact: boolean): boolean => fact),
   );
 
   // 4. Defaults.
@@ -265,23 +332,29 @@ export function test_film_stage_light_axis(): void {
   );
   TestValidator.predicate(
     "an omitted range is infinite and an omitted cone is 45 degrees",
-    Object.values(namedFacts([
-      ["defaults", (): boolean => defaults.length === 2],
-      ["defaultsTypePoint", (): boolean => defaults[0]!.type === "point"],
-      [
-        "defaultsRange",
-        (): boolean => defaults[0]!.type === "point" && nclose(defaults[0]!.range, 0, 0),
-      ],
-      ["defaultsTypeSpot", (): boolean => defaults[1]!.type === "spot"],
-      [
-        "defaultsRange2",
-        (): boolean => defaults[1]!.type === "spot" && nclose(defaults[1]!.range, 0, 0),
-      ],
-      [
-        "defaultsConeAngle",
-        (): boolean => defaults[1]!.type === "spot" && nclose(defaults[1]!.coneAngle, 45, 0),
-      ],
-    ])).every((fact: boolean): boolean => fact),
+    Object.values(
+      namedFacts([
+        ["defaults", (): boolean => defaults.length === 2],
+        ["defaultsTypePoint", (): boolean => defaults[0]!.type === "point"],
+        [
+          "defaultsRange",
+          (): boolean =>
+            defaults[0]!.type === "point" && nclose(defaults[0]!.range, 0, 0),
+        ],
+        ["defaultsTypeSpot", (): boolean => defaults[1]!.type === "spot"],
+        [
+          "defaultsRange2",
+          (): boolean =>
+            defaults[1]!.type === "spot" && nclose(defaults[1]!.range, 0, 0),
+        ],
+        [
+          "defaultsConeAngle",
+          (): boolean =>
+            defaults[1]!.type === "spot" &&
+            nclose(defaults[1]!.coneAngle, 45, 0),
+        ],
+      ]),
+    ).every((fact: boolean): boolean => fact),
   );
 
   // 5. A parameter unavailable to its chosen kind is refused.

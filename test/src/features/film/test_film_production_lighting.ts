@@ -1,5 +1,3 @@
-import { Quaternion } from "../../../../packages/engine/src/math/Quaternion";
-import { inheritProductionLighting } from "../../../../packages/engine/src/film/inheritProductionLighting";
 import {
   AutoMovieChannelValueType,
   IAutoMovieChannel,
@@ -11,6 +9,8 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { inheritProductionLighting } from "../../../../packages/engine/src/film/inheritProductionLighting";
+import { Quaternion } from "../../../../packages/engine/src/math/Quaternion";
 import { IDENTITY_TRANSFORM } from "../internal/fixtures";
 import { namedFacts, nclose, vclose } from "../internal/predicates";
 
@@ -19,7 +19,10 @@ import { namedFacts, nclose, vclose } from "../internal/predicates";
  */
 const SPAN: number = 1800;
 
-const pointer: (target: string, valueType: AutoMovieChannelValueType) => IAutoMovieChannel = (
+const pointer: (
+  target: string,
+  valueType: AutoMovieChannelValueType,
+) => IAutoMovieChannel = (
   target: string,
   valueType: AutoMovieChannelValueType,
 ): IAutoMovieChannel => ({ kind: "pointer", pointer: target, valueType });
@@ -27,7 +30,12 @@ const pointer: (target: string, valueType: AutoMovieChannelValueType) => IAutoMo
 /**
  * A one-track clip on the STORY clock, which is as long as the span it covers.
  */
-const storyClip: (id: string, channel: IAutoMovieChannel, times: number[], values: number[]) => IAutoMovieClip = (
+const storyClip: (
+  id: string,
+  channel: IAutoMovieChannel,
+  times: number[],
+  values: number[],
+) => IAutoMovieClip = (
   id: string,
   channel: IAutoMovieChannel,
   times: number[],
@@ -40,12 +48,17 @@ const storyClip: (id: string, channel: IAutoMovieChannel, times: number[], value
   tracks: [{ channel, times, values, interpolation: "linear" }],
 });
 
-const keyed: (q: IAutoMovieQuaternion) => number[] = (q: IAutoMovieQuaternion): number[] => [q.x, q.y, q.z, q.w];
+const keyed: (q: IAutoMovieQuaternion) => number[] = (
+  q: IAutoMovieQuaternion,
+): number[] => [q.x, q.y, q.z, q.w];
 
-const aboutY: (deg: number) => IAutoMovieQuaternion = (deg: number): IAutoMovieQuaternion =>
-  Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, deg);
+const aboutY: (deg: number) => IAutoMovieQuaternion = (
+  deg: number,
+): IAutoMovieQuaternion => Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, deg);
 
-const directionOf: (light: IAutoMovieLight) => IAutoMovieVector3 = (light: IAutoMovieLight): IAutoMovieVector3 =>
+const directionOf: (light: IAutoMovieLight) => IAutoMovieVector3 = (
+  light: IAutoMovieLight,
+): IAutoMovieVector3 =>
   Quaternion.rotateVector(light.transform.rotation, { x: 0, y: 0, z: -1 });
 
 /**
@@ -67,7 +80,9 @@ const moon: IAutoMovieLight = {
   intensity: 0.2,
 };
 
-const lighting: (overrides?: Partial<IAutoMovieProductionLighting>) => IAutoMovieProductionLighting = (
+const lighting: (
+  overrides?: Partial<IAutoMovieProductionLighting>,
+) => IAutoMovieProductionLighting = (
   overrides: Partial<IAutoMovieProductionLighting> = {},
 ): IAutoMovieProductionLighting => ({
   id: "production-light",
@@ -119,7 +134,10 @@ const stagedDaylight: IAutoMovieLight = {
   intensity: 0.1,
 };
 
-const lightOf: (lights: IAutoMovieLight[], id: string) => IAutoMovieLight = (lights: IAutoMovieLight[], id: string): IAutoMovieLight =>
+const lightOf: (lights: IAutoMovieLight[], id: string) => IAutoMovieLight = (
+  lights: IAutoMovieLight[],
+  id: string,
+): IAutoMovieLight =>
   lights.find((light: IAutoMovieLight): boolean => light.id === id)!;
 
 /**
@@ -138,7 +156,10 @@ const lightOf: (lights: IAutoMovieLight[], id: string) => IAutoMovieLight = (lig
  */
 export function test_film_production_lighting(): void {
   const staged: IAutoMovieLight[] = [practical, stagedDaylight];
-  const at: (originSeconds: number, seconds?: number) => IAutoMovieLight = (originSeconds: number, seconds: number = 0): IAutoMovieLight =>
+  const at: (originSeconds: number, seconds?: number) => IAutoMovieLight = (
+    originSeconds: number,
+    seconds: number = 0,
+  ): IAutoMovieLight =>
     lightOf(
       inheritProductionLighting({
         lighting: lighting(),
@@ -158,14 +179,20 @@ export function test_film_production_lighting(): void {
     // The staged copy faces +Z at .1, distinguishing inheritance from pass-through.
     vclose(directionOf(opening), { x: 0, y: 0, z: -1 }) &&
       nclose(opening.intensity, 3) &&
-      vclose(directionOf(midday), { x: -Math.SQRT1_2, y: 0, z: -Math.SQRT1_2 }) &&
+      vclose(directionOf(midday), {
+        x: -Math.SQRT1_2,
+        y: 0,
+        z: -Math.SQRT1_2,
+      }) &&
       nclose(midday.intensity, 1.75) &&
       vclose(directionOf(closing), { x: -1, y: 0, z: 0 }) &&
       nclose(closing.intensity, 0.5),
   );
 
   // 2. a compressed shot crosses the whole span from inside two seconds.
-  const compressed: (seconds: number) => IAutoMovieLight = (seconds: number): IAutoMovieLight =>
+  const compressed: (seconds: number) => IAutoMovieLight = (
+    seconds: number,
+  ): IAutoMovieLight =>
     lightOf(
       inheritProductionLighting({
         lighting: lighting(),
@@ -199,12 +226,21 @@ export function test_film_production_lighting(): void {
     namedFacts([
       [
         "undeclaredIsTheStagedList",
-        (): boolean => undeclared.every((light: IAutoMovieLight, i: number): boolean => light === staged[i]),
+        (): boolean =>
+          undeclared.every(
+            (light: IAutoMovieLight, i: number): boolean => light === staged[i],
+          ),
       ],
-      ["undeclaredAddsNothing", (): boolean => undeclared.length === staged.length],
+      [
+        "undeclaredAddsNothing",
+        (): boolean => undeclared.length === staged.length,
+      ],
       [
         "unpinnedIsTheStagedList",
-        (): boolean => unpinned.every((light: IAutoMovieLight, i: number): boolean => light === staged[i]),
+        (): boolean =>
+          unpinned.every(
+            (light: IAutoMovieLight, i: number): boolean => light === staged[i],
+          ),
       ],
       ["unpinnedAddsNothing", (): boolean => unpinned.length === staged.length],
     ]),
@@ -241,5 +277,8 @@ export function test_film_production_lighting(): void {
       moonByIdentity: true,
     },
   );
-  TestValidator.predicate("the merged daylight carries its closing intensity", nclose(merged[1]!.intensity, 0.5));
+  TestValidator.predicate(
+    "the merged daylight carries its closing intensity",
+    nclose(merged[1]!.intensity, 0.5),
+  );
 }

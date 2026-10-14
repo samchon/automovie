@@ -1,5 +1,7 @@
 import type { IAutoMovieFilmTimeline } from "@automovie/interface";
+
 import { productionSoundDigest } from "./productionSoundDigest";
+
 /**
  * The film that cues five tracks across four buses and one caption over that shot.
  *
@@ -10,7 +12,8 @@ import { productionSoundDigest } from "./productionSoundDigest";
  * Cases: Retains music/ambience/effects/dialogue/muted cues, out-of-phase starts and caption timing; cue ingress and rational phase tests own shorter isolated plans.
  * Execution: The existing owning entries call productionSoundTimeline during their portable in-memory cases and retain responsibility for assertion expectations and dynamically invoked predicates; this helper acquires no asset, process, renderer or GPU and keeps no completed-result cache.
  */
-export function productionSoundTimeline(): IAutoMovieFilmTimeline { return ({
+export function productionSoundTimeline(): IAutoMovieFilmTimeline {
+  return {
     version: 1,
     builder: "test",
     inputFingerprint: productionSoundDigest,
@@ -34,7 +37,21 @@ export function productionSoundTimeline(): IAutoMovieFilmTimeline { return ({
     omissions: [],
     tracks: {
       audio: ["music", "ambience", "effects", "dialogue", "muted"].map(
-        (bus: string, index: number): { id: string; asset: string; sourceDurationFrames: number; sourceOffsetFrame: number; startFrame: number; durationFrames: number; gain: number; fadeInFrames: number; fadeOutFrames: number; bus: string; } => ({
+        (
+          bus: string,
+          index: number,
+        ): {
+          id: string;
+          asset: string;
+          sourceDurationFrames: number;
+          sourceOffsetFrame: number;
+          startFrame: number;
+          durationFrames: number;
+          gain: number;
+          fadeInFrames: number;
+          fadeOutFrames: number;
+          bus: string;
+        } => ({
           id: `${bus}-cue`,
           asset: `public/${bus}.json`,
           sourceDurationFrames: 10,
@@ -59,4 +76,5 @@ export function productionSoundTimeline(): IAutoMovieFilmTimeline { return ({
       ],
       effects: [],
     },
-  }) as IAutoMovieFilmTimeline; }
+  } as IAutoMovieFilmTimeline;
+}

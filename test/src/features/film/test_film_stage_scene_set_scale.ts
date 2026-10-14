@@ -1,7 +1,9 @@
-import type { IAutoMovieSceneNode, IAutoMovieStageSetPiece, IAutoMovieVector3 } from "@automovie/interface";
-
 import { stageScene } from "@automovie/engine";
-
+import type {
+  IAutoMovieSceneNode,
+  IAutoMovieStageSetPiece,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { makeScriptWrite, makeStagingWrite } from "../internal/filmFixtures";
@@ -11,7 +13,9 @@ import { hasViolation, namedFacts, vclose } from "../internal/predicates";
 type SetPlacement = IAutoMovieStageSetPiece;
 
 /** Stage the original script and replace only its authored set placements; the owning entry checks accepted TRS and the located scale refusals. */
-const stageSet: (set: SetPlacement[]) => ReturnType<typeof stageScene> = (set: SetPlacement[]): ReturnType<typeof stageScene> =>
+const stageSet: (set: SetPlacement[]) => ReturnType<typeof stageScene> = (
+  set: SetPlacement[],
+): ReturnType<typeof stageScene> =>
   stageScene(makeScriptWrite(), makeStagingWrite({ set }));
 
 /**
@@ -61,23 +65,36 @@ export function test_film_stage_scene_set_scale(): void {
   if (staged.success !== true) return;
 
   /** Borrow the accepted fixture node's lowered scale; known fixture ids are the caller premise. */
-  const scaleOf: (id: string) => IAutoMovieVector3 = (id: string): IAutoMovieVector3 =>
-    staged.scene.nodes.find((node: IAutoMovieSceneNode): boolean => node.id === id)!.transform.scale;
-  TestValidator.predicate("an omitted scale is identity", vclose(scaleOf("plain"), {
-    x: 1,
-    y: 1,
-    z: 1,
-  }));
-  TestValidator.predicate("a number scales every axis", vclose(scaleOf("crate"), {
-    x: 2.5,
-    y: 2.5,
-    z: 2.5,
-  }));
-  TestValidator.predicate("a vector scales per axis", vclose(scaleOf("wall"), {
-    x: 12,
-    y: 1.8,
-    z: 0.24,
-  }));
+  const scaleOf: (id: string) => IAutoMovieVector3 = (
+    id: string,
+  ): IAutoMovieVector3 =>
+    staged.scene.nodes.find(
+      (node: IAutoMovieSceneNode): boolean => node.id === id,
+    )!.transform.scale;
+  TestValidator.predicate(
+    "an omitted scale is identity",
+    vclose(scaleOf("plain"), {
+      x: 1,
+      y: 1,
+      z: 1,
+    }),
+  );
+  TestValidator.predicate(
+    "a number scales every axis",
+    vclose(scaleOf("crate"), {
+      x: 2.5,
+      y: 2.5,
+      z: 2.5,
+    }),
+  );
+  TestValidator.predicate(
+    "a vector scales per axis",
+    vclose(scaleOf("wall"), {
+      x: 12,
+      y: 1.8,
+      z: 0.24,
+    }),
+  );
 
   // 2. the gate, all in one refused round.
   const refused: ReturnType<typeof stageSet> = stageSet([

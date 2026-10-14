@@ -1,7 +1,13 @@
-import type { IAutoMoviePropSpec, IAutoMovieStageSetPiece, IAutoMovieBuiltEnvironment, IAutoMovieValidation } from "@automovie/interface";
+import type {
+  IAutoMovieBuiltEnvironment,
+  IAutoMoviePropSpec,
+  IAutoMovieStageSetPiece,
+  IAutoMovieValidation,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-import { createFilmPropPlacementScenario } from "../internal/createFilmPropPlacementScenario";
+
 import { createFilmPropPlacementGeometryCases } from "../internal/createFilmPropPlacementGeometryCases";
+import { createFilmPropPlacementScenario } from "../internal/createFilmPropPlacementScenario";
 import { namedFacts } from "../internal/predicates";
 
 /**
@@ -20,7 +26,39 @@ import { namedFacts } from "../internal/predicates";
  * @evidence contracts/testing.md#execution-ownership The runner discovers test_film_prop_placement_geometry and this entry owns its direct and delegated in-memory CPU assertions; it acquires no renderer, GPU, decoder, native build, installed consumer or completed-result cache. Numeric/byte observations do not prove hardware appearance or universal cross-host identity.
  */
 export function test_film_prop_placement_geometry(): void {
-  const scenario: { validate: (props?: IAutoMoviePropSpec[], set?: IAutoMovieStageSetPiece[], builtEnvironments?: IAutoMovieBuiltEnvironment[]) => IAutoMovieValidation; violated: (mutate: (props: IAutoMoviePropSpec[], set: IAutoMovieStageSetPiece[], environments: IAutoMovieBuiltEnvironment[]) => void, path: string, message?: string) => boolean; tolerated: (mutate: (props: IAutoMoviePropSpec[], set: IAutoMovieStageSetPiece[], environments: IAutoMovieBuiltEnvironment[]) => void) => boolean; TABLE: number; LAMP: number; SCONCE: number; CHARGER: number; PENDANT: number; CHIME: number; CABINET: number; DOOR: number; CRATE: number; SCULPTURE: number; } = createFilmPropPlacementScenario();
+  const scenario: {
+    validate: (
+      props?: IAutoMoviePropSpec[],
+      set?: IAutoMovieStageSetPiece[],
+      builtEnvironments?: IAutoMovieBuiltEnvironment[],
+    ) => IAutoMovieValidation;
+    violated: (
+      mutate: (
+        props: IAutoMoviePropSpec[],
+        set: IAutoMovieStageSetPiece[],
+        environments: IAutoMovieBuiltEnvironment[],
+      ) => void,
+      path: string,
+      message?: string,
+    ) => boolean;
+    tolerated: (
+      mutate: (
+        props: IAutoMoviePropSpec[],
+        set: IAutoMovieStageSetPiece[],
+        environments: IAutoMovieBuiltEnvironment[],
+      ) => void,
+    ) => boolean;
+    TABLE: number;
+    LAMP: number;
+    SCONCE: number;
+    CHARGER: number;
+    PENDANT: number;
+    CHIME: number;
+    CABINET: number;
+    DOOR: number;
+    CRATE: number;
+    SCULPTURE: number;
+  } = createFilmPropPlacementScenario();
   TestValidator.equals(
     "multiplicity, bounds and geometry failures are located",
     namedFacts(createFilmPropPlacementGeometryCases(scenario)),

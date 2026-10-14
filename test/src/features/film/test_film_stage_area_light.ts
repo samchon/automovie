@@ -1,9 +1,13 @@
-import type { IAutoMovieLight, IAutoMovieStageLight } from "@automovie/interface";
-import { nclose } from "../internal/nclose";
+import type {
+  IAutoMovieLight,
+  IAutoMovieStageLight,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
 import type { IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
 import { stageScene } from "../../../../packages/engine/src/film/stageScene";
-import { TestValidator } from "@nestia/e2e";
 import { makeScriptWrite, makeStagingWrite } from "../internal/filmFixtures";
+import { nclose } from "../internal/nclose";
 import { hasViolation, namedFacts, qclose } from "../internal/predicates";
 
 /** A staged window panel; `width`/`height` ride the placement as authored. */
@@ -19,14 +23,20 @@ const WINDOW: IAutoMovieStageLight = {
 } as unknown as IAutoMovieStageLight;
 
 /** Stage the original duel with one unknown test payload cast only at its typed ingress. */
-const stagedWith: (light: unknown) => IAutoMovieStagedSet = (light: unknown): IAutoMovieStagedSet =>
+const stagedWith: (light: unknown) => IAutoMovieStagedSet = (
+  light: unknown,
+): IAutoMovieStagedSet =>
   stageScene(makeScriptWrite(), {
     ...makeStagingWrite(),
     lights: [light as IAutoMovieStageLight],
   });
 
 /** Apply the isolated panel patch and read the original addressed refusal kind and path. */
-const refusedAt: (patch: Record<string, unknown>, kind: "type" | "range", path: string) => boolean = (
+const refusedAt: (
+  patch: Record<string, unknown>,
+  kind: "type" | "range",
+  path: string,
+) => boolean = (
   patch: Record<string, unknown>,
   kind: "type" | "range",
   path: string,
@@ -51,37 +61,42 @@ const refusedAt: (patch: Record<string, unknown>, kind: "type" | "range", path: 
  */
 export function test_film_stage_area_light(): void {
   const staged: IAutoMovieStagedSet = stagedWith(WINDOW);
-  const light: IAutoMovieLight | undefined = staged.success === true ? staged.scene.lights[0] : undefined;
+  const light: IAutoMovieLight | undefined =
+    staged.success === true ? staged.scene.lights[0] : undefined;
   TestValidator.predicate(
     "a complete panel lowers whole",
-    Object.values(namedFacts([
-      ["staged", (): boolean => staged.success === true],
-      ["kind", (): boolean => light?.type === "area"],
-      [
-        "extent",
-        (): boolean =>
-          light?.type === "area" && nclose(light.width, 2.4, 0) && nclose(light.height, 1.8, 0),
-      ],
-      [
-        "aim",
-        (): boolean =>
-          light !== undefined &&
-          qclose(light.transform.rotation, {
-            x: 0,
-            y: Math.SQRT1_2,
-            z: 0,
-            w: Math.SQRT1_2,
-          }),
-      ],
-      [
-        "position",
-        (): boolean =>
-          light !== undefined &&
-          nclose(light.transform.translation.x, 4, 0) &&
-          nclose(light.transform.translation.y, 2.2, 0),
-      ],
-      ["noRange", (): boolean => light !== undefined && !("range" in light)],
-    ])).every((fact: boolean): boolean => fact),
+    Object.values(
+      namedFacts([
+        ["staged", (): boolean => staged.success === true],
+        ["kind", (): boolean => light?.type === "area"],
+        [
+          "extent",
+          (): boolean =>
+            light?.type === "area" &&
+            nclose(light.width, 2.4, 0) &&
+            nclose(light.height, 1.8, 0),
+        ],
+        [
+          "aim",
+          (): boolean =>
+            light !== undefined &&
+            qclose(light.transform.rotation, {
+              x: 0,
+              y: Math.SQRT1_2,
+              z: 0,
+              w: Math.SQRT1_2,
+            }),
+        ],
+        [
+          "position",
+          (): boolean =>
+            light !== undefined &&
+            nclose(light.transform.translation.x, 4, 0) &&
+            nclose(light.transform.translation.y, 2.2, 0),
+        ],
+        ["noRange", (): boolean => light !== undefined && !("range" in light)],
+      ]),
+    ).every((fact: boolean): boolean => fact),
   );
 
   TestValidator.equals(
@@ -89,7 +104,8 @@ export function test_film_stage_area_light(): void {
     namedFacts([
       [
         "missingWidth",
-        (): boolean => refusedAt({ width: undefined }, "type", "$input.lights[0].width"),
+        (): boolean =>
+          refusedAt({ width: undefined }, "type", "$input.lights[0].width"),
       ],
       [
         "missingHeight",
@@ -152,7 +168,8 @@ export function test_film_stage_area_light(): void {
     namedFacts([
       [
         "range",
-        (): boolean => refusedAt({ range: 8 }, "type", "$input.lights[0].range"),
+        (): boolean =>
+          refusedAt({ range: 8 }, "type", "$input.lights[0].range"),
       ],
       [
         "coneAngle",

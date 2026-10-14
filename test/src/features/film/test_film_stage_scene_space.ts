@@ -1,11 +1,14 @@
-import type { IAutoMovieSpace, IAutoMovieVector3 } from "@automovie/interface";
-
 import { spaceGround, stageScene } from "@automovie/engine";
-
+import type { IAutoMovieSpace, IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { makeScriptWrite, makeStagingWrite } from "../internal/filmFixtures";
-import { hasViolation, namedFacts, nclose, vclose } from "../internal/predicates";
+import {
+  hasViolation,
+  namedFacts,
+  nclose,
+  vclose,
+} from "../internal/predicates";
 
 /** A floor square and a ramp climbing 1 m over the 2 m east of it. */
 const makeSpace: (partial?: Partial<IAutoMovieSpace>) => IAutoMovieSpace = (
@@ -84,19 +87,55 @@ export function test_film_stage_scene_space(): void {
 
   const space: IAutoMovieSpace | null = staged.scene.space ?? null;
   TestValidator.equals("the space keeps its identity", space?.id, "space-yard");
-  TestValidator.equals("the space keeps its walkable ids", space?.walkable, ["floor", "ramp"]);
-  TestValidator.equals("the space keeps both surfaces", space?.surfaces.length, 2);
-  if (space === null) throw new Error("The accepted stage omitted its authored space.");
+  TestValidator.equals("the space keeps its walkable ids", space?.walkable, [
+    "floor",
+    "ramp",
+  ]);
+  TestValidator.equals(
+    "the space keeps both surfaces",
+    space?.surfaces.length,
+    2,
+  );
+  if (space === null)
+    throw new Error("The accepted stage omitted its authored space.");
   const expected: IAutoMovieSpace = makeSpace();
   for (let index: number = 0; index < expected.surfaces.length; ++index) {
-    TestValidator.equals("the surface keeps its identity", space.surfaces[index]!.id, expected.surfaces[index]!.id);
-    TestValidator.equals("the surface keeps its kind", space.surfaces[index]!.kind, expected.surfaces[index]!.kind);
-    TestValidator.equals("the surface keeps every polygon vertex", space.surfaces[index]!.polygon.length, expected.surfaces[index]!.polygon.length);
-    TestValidator.predicate("the surface keeps its polygon coordinates", space.surfaces[index]!.polygon.every((point: IAutoMovieVector3, vertex: number): boolean => vclose(point, expected.surfaces[index]!.polygon[vertex]!)));
-    TestValidator.predicate("the surface keeps its anchor", vclose(space.surfaces[index]!.anchor!, expected.surfaces[index]!.anchor!));
-    TestValidator.predicate("the surface keeps its ramp endpoint", expected.surfaces[index]!.rampTo === null
-      ? space.surfaces[index]!.rampTo === null
-      : space.surfaces[index]!.rampTo !== null && vclose(space.surfaces[index]!.rampTo!, expected.surfaces[index]!.rampTo!));
+    TestValidator.equals(
+      "the surface keeps its identity",
+      space.surfaces[index]!.id,
+      expected.surfaces[index]!.id,
+    );
+    TestValidator.equals(
+      "the surface keeps its kind",
+      space.surfaces[index]!.kind,
+      expected.surfaces[index]!.kind,
+    );
+    TestValidator.equals(
+      "the surface keeps every polygon vertex",
+      space.surfaces[index]!.polygon.length,
+      expected.surfaces[index]!.polygon.length,
+    );
+    TestValidator.predicate(
+      "the surface keeps its polygon coordinates",
+      space.surfaces[index]!.polygon.every(
+        (point: IAutoMovieVector3, vertex: number): boolean =>
+          vclose(point, expected.surfaces[index]!.polygon[vertex]!),
+      ),
+    );
+    TestValidator.predicate(
+      "the surface keeps its anchor",
+      vclose(space.surfaces[index]!.anchor!, expected.surfaces[index]!.anchor!),
+    );
+    TestValidator.predicate(
+      "the surface keeps its ramp endpoint",
+      expected.surfaces[index]!.rampTo === null
+        ? space.surfaces[index]!.rampTo === null
+        : space.surfaces[index]!.rampTo !== null &&
+            vclose(
+              space.surfaces[index]!.rampTo!,
+              expected.surfaces[index]!.rampTo!,
+            ),
+    );
   }
 
   // The composed scene plugs straight into the ground callback the motion
@@ -104,12 +143,18 @@ export function test_film_stage_scene_space(): void {
   const ground: ReturnType<typeof spaceGround> = spaceGround(space!);
   TestValidator.predicate(
     "the staged space answers ground height",
-    (): boolean => nclose(ground(0, 0), 0) && nclose(ground(3, 0), 0.5) &&
-      nclose(ground(4, 0), 1) && nclose(ground(20, 20), 0),
+    (): boolean =>
+      nclose(ground(0, 0), 0) &&
+      nclose(ground(3, 0), 0.5) &&
+      nclose(ground(4, 0), 1) &&
+      nclose(ground(20, 20), 0),
   );
 
   // 2. an omitted space is stated as null, not left absent.
-  const bare: ReturnType<typeof stageScene> = stageScene(makeScriptWrite(), makeStagingWrite());
+  const bare: ReturnType<typeof stageScene> = stageScene(
+    makeScriptWrite(),
+    makeStagingWrite(),
+  );
   TestValidator.equals(
     "an omitted space composes as null",
     bare.success === true ? bare.scene.space : undefined,

@@ -1,7 +1,16 @@
-import type { IAutoMovieStage, IAutoMovieVector3, IAutoMovieNodeTarget, IAutoMoviePointTarget, IAutoMovieCameraDepthPrecisionConstraint, IAutoMovieCameraClearanceEnvelope, IAutoMovieStageCamera } from "@automovie/interface";
+import type {
+  IAutoMovieCameraClearanceEnvelope,
+  IAutoMovieCameraDepthPrecisionConstraint,
+  IAutoMovieNodeTarget,
+  IAutoMoviePointTarget,
+  IAutoMovieStage,
+  IAutoMovieStageCamera,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
 import type { IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
 import { stageScene } from "../../../../packages/engine/src/film/stageScene";
-import { TestValidator } from "@nestia/e2e";
 import { makeScriptWrite, makeStagingWrite } from "../internal/filmFixtures";
 import { hasViolation, nclose, vclose } from "../internal/predicates";
 
@@ -22,7 +31,10 @@ import { hasViolation, nclose, vclose } from "../internal/predicates";
  */
 export function test_film_stage_scene_camera_clearance_envelope(): void {
   const standard: IAutoMovieStage = makeStagingWrite();
-  const sphere: { center: { x: number; y: number; z: number; }; radius: number; } = { center: { x: 0, y: 0.2, z: -0.1 }, radius: 0.25 };
+  const sphere: {
+    center: { x: number; y: number; z: number };
+    radius: number;
+  } = { center: { x: 0, y: 0.2, z: -0.1 }, radius: 0.25 };
   const envelopes: IAutoMovieCameraClearanceEnvelope[] = [
     { body: sphere, parentRig: null },
     {
@@ -31,14 +43,24 @@ export function test_film_stage_scene_camera_clearance_envelope(): void {
     },
   ];
   for (const clearance of envelopes) {
-    const authored: { clearance: IAutoMovieCameraClearanceEnvelope; node: string; position: IAutoMovieVector3; lookAt: IAutoMovieNodeTarget | IAutoMoviePointTarget; fovDeg: number; near: number; far: number; depthPrecision: IAutoMovieCameraDepthPrecisionConstraint; } = { ...standard.cameras[0]!, clearance };
+    const authored: {
+      clearance: IAutoMovieCameraClearanceEnvelope;
+      node: string;
+      position: IAutoMovieVector3;
+      lookAt: IAutoMovieNodeTarget | IAutoMoviePointTarget;
+      fovDeg: number;
+      near: number;
+      far: number;
+      depthPrecision: IAutoMovieCameraDepthPrecisionConstraint;
+    } = { ...standard.cameras[0]!, clearance };
     const result: IAutoMovieStagedSet = stageScene(
       makeScriptWrite(),
       makeStagingWrite({ cameras: [authored] }),
     );
     TestValidator.equals("valid clearance stages", result.success, true);
     if (result.success === false) throw new Error("clearance must stage");
-    const lowered: IAutoMovieCameraClearanceEnvelope = result.scene.cameras[0]!.clearance!;
+    const lowered: IAutoMovieCameraClearanceEnvelope =
+      result.scene.cameras[0]!.clearance!;
     TestValidator.predicate(
       "clearance values preserved",
       vclose(lowered.body.center, clearance.body.center, 0) &&
@@ -56,7 +78,11 @@ export function test_film_stage_scene_camera_clearance_envelope(): void {
         lowered.body.center !== clearance.body.center,
     );
     if (clearance.parentRig === null)
-      TestValidator.equals("no parent rig remains null", lowered.parentRig, null);
+      TestValidator.equals(
+        "no parent rig remains null",
+        lowered.parentRig,
+        null,
+      );
     else
       TestValidator.predicate(
         "parent rig and centre are copied",
@@ -69,9 +95,16 @@ export function test_film_stage_scene_camera_clearance_envelope(): void {
   const invalid: Array<[unknown, "type" | "range", string]> = [
     [null, "type", ""],
     [{ body: null, parentRig: null }, "type", ".body"],
-    [{ body: { ...sphere, center: null }, parentRig: null }, "type", ".body.center"],
     [
-      { body: { ...sphere, center: { x: 0, y: Infinity, z: 0 } }, parentRig: null },
+      { body: { ...sphere, center: null }, parentRig: null },
+      "type",
+      ".body.center",
+    ],
+    [
+      {
+        body: { ...sphere, center: { x: 0, y: Infinity, z: 0 } },
+        parentRig: null,
+      },
       "range",
       ".body.center",
     ],
@@ -80,12 +113,28 @@ export function test_film_stage_scene_camera_clearance_envelope(): void {
       "range",
       ".body.center",
     ],
-    [{ body: { ...sphere, radius: "large" }, parentRig: null }, "range", ".body.radius"],
-    [{ body: { ...sphere, radius: Infinity }, parentRig: null }, "range", ".body.radius"],
-    [{ body: { ...sphere, radius: 0 }, parentRig: null }, "range", ".body.radius"],
+    [
+      { body: { ...sphere, radius: "large" }, parentRig: null },
+      "range",
+      ".body.radius",
+    ],
+    [
+      { body: { ...sphere, radius: Infinity }, parentRig: null },
+      "range",
+      ".body.radius",
+    ],
+    [
+      { body: { ...sphere, radius: 0 }, parentRig: null },
+      "range",
+      ".body.radius",
+    ],
     [{ body: sphere }, "type", ".parentRig"],
     [{ body: sphere, parentRig: false }, "type", ".parentRig"],
-    [{ body: sphere, parentRig: { ...sphere, radius: -1 } }, "range", ".parentRig.radius"],
+    [
+      { body: sphere, parentRig: { ...sphere, radius: -1 } },
+      "range",
+      ".parentRig.radius",
+    ],
   ];
   for (const [clearance, kind, suffix] of invalid) {
     const camera: IAutoMovieStageCamera = {

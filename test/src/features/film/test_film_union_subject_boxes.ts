@@ -23,7 +23,11 @@ import { vclose } from "../internal/predicates";
  * @evidence contracts/testing.md#execution-ownership A unit test of a pure engine function, discovered by its `test_` export under `test/src/features/film`, with no host, consumer or native artifact involved.
  */
 export function test_film_union_subject_boxes(): void {
-  TestValidator.equals("an empty list has no union", unionSubjectBoxes([]), null);
+  TestValidator.equals(
+    "an empty list has no union",
+    unionSubjectBoxes([]),
+    null,
+  );
 
   const only: IAutoMovieSubjectBox = {
     min: { x: -1, y: 0, z: 2 },

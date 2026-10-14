@@ -1,13 +1,23 @@
-import type { IAutoMovieCompiledShotSource, IAutoMovieProductionSoundPlan } from "@automovie/interface";
+import type {
+  IAutoMovieCompiledShotSource,
+  IAutoMovieProductionSoundPlan,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
+import { IAutoMovieProductionSoundRaster } from "../../../../packages/engine/src/sound/IAutoMovieProductionSoundRaster";
+import { IAutoMovieRenderedProductionSound } from "../../../../packages/engine/src/sound/IAutoMovieRenderedProductionSound";
 import { deriveProductionSoundPlan } from "../../../../packages/engine/src/sound/deriveProductionSoundPlan";
 import { productionSoundSpectrogram } from "../../../../packages/engine/src/sound/productionSoundSpectrogram";
 import { productionSoundWaveform } from "../../../../packages/engine/src/sound/productionSoundWaveform";
 import { renderProductionSound } from "../../../../packages/engine/src/sound/renderProductionSound";
-import { TestValidator } from "@nestia/e2e";
 import { namedFacts } from "../internal/predicates";
-import { productionSoundCompiled, productionSoundContract, productionSoundRefused, productionSoundTimeline } from "./productionSoundFixtures";
-import { IAutoMovieRenderedProductionSound } from "../../../../packages/engine/src/sound/IAutoMovieRenderedProductionSound";
-import { IAutoMovieProductionSoundRaster } from "../../../../packages/engine/src/sound/IAutoMovieProductionSoundRaster";
+import {
+  productionSoundCompiled,
+  productionSoundContract,
+  productionSoundRefused,
+  productionSoundTimeline,
+} from "./productionSoundFixtures";
+
 /**
  * Actual mixed PCM becomes opaque evidence rasters with bounded drawable rows.
  *
@@ -34,8 +44,13 @@ export function test_film_production_sound_raster(): void {
     plan,
     dialogue: new Map([["line", Float32Array.from([0.5])]]),
   });
-  const waveform: IAutoMovieProductionSoundRaster = productionSoundWaveform(mixed.pcm, 32, 16);
-  const spectrogram: IAutoMovieProductionSoundRaster = productionSoundSpectrogram(mixed.pcm, 8, 8);
+  const waveform: IAutoMovieProductionSoundRaster = productionSoundWaveform(
+    mixed.pcm,
+    32,
+    16,
+  );
+  const spectrogram: IAutoMovieProductionSoundRaster =
+    productionSoundSpectrogram(mixed.pcm, 8, 8);
   TestValidator.equals(
     "waveform and spectrogram expose sized opaque RGBA rasters",
     namedFacts([
@@ -45,14 +60,16 @@ export function test_film_production_sound_raster(): void {
         "waveformRgbaValue",
         (): boolean =>
           waveform.rgba.every(
-            (value: number, index: number): boolean => index % 4 !== 3 || value === 255,
+            (value: number, index: number): boolean =>
+              index % 4 !== 3 || value === 255,
           ),
       ],
       [
         "spectrogramRgbaValue",
         (): boolean =>
           spectrogram.rgba.every(
-            (value: number, index: number): boolean => index % 4 !== 3 || value === 255,
+            (value: number, index: number): boolean =>
+              index % 4 !== 3 || value === 255,
           ),
       ],
     ]),
@@ -70,7 +87,8 @@ export function test_film_production_sound_raster(): void {
         "refusedProductionSoundWaveformFirst",
         (): boolean =>
           productionSoundRefused(
-            (): IAutoMovieProductionSoundRaster => productionSoundWaveform(mixed.pcm, 0, 10),
+            (): IAutoMovieProductionSoundRaster =>
+              productionSoundWaveform(mixed.pcm, 0, 10),
             "positive integers",
           ),
       ],
@@ -78,7 +96,8 @@ export function test_film_production_sound_raster(): void {
         "refusedProductionSoundWaveformNew",
         (): boolean =>
           productionSoundRefused(
-            (): IAutoMovieProductionSoundRaster => productionSoundWaveform(new Float32Array(1), 10, 10),
+            (): IAutoMovieProductionSoundRaster =>
+              productionSoundWaveform(new Float32Array(1), 10, 10),
             "interleaved stereo",
           ),
       ],
@@ -86,7 +105,8 @@ export function test_film_production_sound_raster(): void {
         "refusedProductionSoundSpectrogramFirst",
         (): boolean =>
           productionSoundRefused(
-            (): IAutoMovieProductionSoundRaster => productionSoundSpectrogram(mixed.pcm, 1.5, 10),
+            (): IAutoMovieProductionSoundRaster =>
+              productionSoundSpectrogram(mixed.pcm, 1.5, 10),
             "positive integers",
           ),
       ],
@@ -94,7 +114,8 @@ export function test_film_production_sound_raster(): void {
         "refusedProductionSoundSpectrogramNew",
         (): boolean =>
           productionSoundRefused(
-            (): IAutoMovieProductionSoundRaster => productionSoundSpectrogram(new Float32Array(1), 10, 10),
+            (): IAutoMovieProductionSoundRaster =>
+              productionSoundSpectrogram(new Float32Array(1), 10, 10),
             "interleaved stereo",
           ),
       ],
@@ -106,22 +127,85 @@ export function test_film_production_sound_raster(): void {
       refusedProductionSoundSpectrogramNew: true,
     },
   );
-  const silentColumn: IAutoMovieProductionSoundRaster = productionSoundWaveform(new Float32Array(), 1, 8);
-  const painted: Uint8Array<ArrayBufferLike> = silentColumn.rgba.subarray(4 * 4, 4 * 4 + 3);
-  const background: Uint8Array<ArrayBufferLike> = silentColumn.rgba.subarray(0, 3);
-  TestValidator.predicate("silence has a contrasting centreline", painted.some((value: number, index: number): boolean => value !== background[index]));
+  const silentColumn: IAutoMovieProductionSoundRaster = productionSoundWaveform(
+    new Float32Array(),
+    1,
+    8,
+  );
+  const painted: Uint8Array<ArrayBufferLike> = silentColumn.rgba.subarray(
+    4 * 4,
+    4 * 4 + 3,
+  );
+  const background: Uint8Array<ArrayBufferLike> = silentColumn.rgba.subarray(
+    0,
+    3,
+  );
+  TestValidator.predicate(
+    "silence has a contrasting centreline",
+    painted.some(
+      (value: number, index: number): boolean => value !== background[index],
+    ),
+  );
   for (const height of [1, 2, 3]) {
-    const tiny: IAutoMovieProductionSoundRaster = productionSoundWaveform(Float32Array.from([2, 2]), 1, height);
+    const tiny: IAutoMovieProductionSoundRaster = productionSoundWaveform(
+      Float32Array.from([2, 2]),
+      1,
+      height,
+    );
     const centre: number = Math.floor(height / 2) * 4;
-    TestValidator.predicate(`height ${height} has a drawable centre row`, tiny.rgba[centre + 3] === 255 && tiny.rgba.subarray(centre, centre + 3).every((value: number, index: number): boolean => value === painted[index]));
+    TestValidator.predicate(
+      `height ${height} has a drawable centre row`,
+      tiny.rgba[centre + 3] === 255 &&
+        tiny.rgba
+          .subarray(centre, centre + 3)
+          .every(
+            (value: number, index: number): boolean => value === painted[index],
+          ),
+    );
   }
-  const saturated: IAutoMovieProductionSoundRaster = productionSoundWaveform(Float32Array.from([3e38, 3e38]), 1, 8);
+  const saturated: IAutoMovieProductionSoundRaster = productionSoundWaveform(
+    Float32Array.from([3e38, 3e38]),
+    1,
+    8,
+  );
   for (let row: number = 0; row < 8; ++row)
-    TestValidator.predicate(`large finite peak clips to viewport row ${row}`, saturated.rgba[row * 4 + 3] === 255 && saturated.rgba.subarray(row * 4, row * 4 + 3).every((value: number, index: number): boolean => value === painted[index]));
+    TestValidator.predicate(
+      `large finite peak clips to viewport row ${row}`,
+      saturated.rgba[row * 4 + 3] === 255 &&
+        saturated.rgba
+          .subarray(row * 4, row * 4 + 3)
+          .every(
+            (value: number, index: number): boolean => value === painted[index],
+          ),
+    );
   for (const value of [NaN, Infinity]) {
-    TestValidator.equals("waveform refuses non-finite PCM", productionSoundRefused((): IAutoMovieProductionSoundRaster => productionSoundWaveform(Float32Array.from([value, 0]), 1, 8), "finite PCM"), true);
-    TestValidator.equals("spectrogram refuses non-finite PCM", productionSoundRefused((): IAutoMovieProductionSoundRaster => productionSoundSpectrogram(Float32Array.from([value, 0]), 1, 8), "finite PCM"), true);
+    TestValidator.equals(
+      "waveform refuses non-finite PCM",
+      productionSoundRefused(
+        (): IAutoMovieProductionSoundRaster =>
+          productionSoundWaveform(Float32Array.from([value, 0]), 1, 8),
+        "finite PCM",
+      ),
+      true,
+    );
+    TestValidator.equals(
+      "spectrogram refuses non-finite PCM",
+      productionSoundRefused(
+        (): IAutoMovieProductionSoundRaster =>
+          productionSoundSpectrogram(Float32Array.from([value, 0]), 1, 8),
+        "finite PCM",
+      ),
+      true,
+    );
   }
-  TestValidator.equals("empty waveform is opaque silence", productionSoundWaveform(new Float32Array(), 1, 1).rgba[3], 255);
-  TestValidator.equals("empty spectrum is opaque silence", productionSoundSpectrogram(new Float32Array(), 1, 1).rgba[3], 255);
+  TestValidator.equals(
+    "empty waveform is opaque silence",
+    productionSoundWaveform(new Float32Array(), 1, 1).rgba[3],
+    255,
+  );
+  TestValidator.equals(
+    "empty spectrum is opaque silence",
+    productionSoundSpectrogram(new Float32Array(), 1, 1).rgba[3],
+    255,
+  );
 }

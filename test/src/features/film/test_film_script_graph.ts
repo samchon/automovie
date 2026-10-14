@@ -1,9 +1,10 @@
 import type { IAutoMovieScriptNode } from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
 import { beatNodeOf } from "../../../../packages/engine/src/film/beatNodeOf";
 import { scriptAncestors } from "../../../../packages/engine/src/film/scriptAncestors";
-import { TestValidator } from "@nestia/e2e";
-import { throwsError } from "../internal/predicates";
 import { createScriptTree } from "../internal/createScriptTree";
+import { throwsError } from "../internal/predicates";
 
 /**
  * The refinement-graph walkers of the feedback cascade: scriptAncestors returns the chain a located violation climbs, and beatNodeOf is the flat-beat → graph-node join a beat-scoped consumer locates itself with. Walkers serve validated trees but refuse silent drops on malformed input (the bindProfile precedent): a cascade that stopped short would misdirect the correction.
@@ -38,15 +39,19 @@ export function test_film_script_graph(): void {
   );
   TestValidator.predicate(
     "unknown node id throws",
-    throwsError((): string[] => scriptAncestors(tree, "ghost"), "is not in the"),
+    throwsError(
+      (): string[] => scriptAncestors(tree, "ghost"),
+      "is not in the",
+    ),
   );
   TestValidator.predicate(
     "dangling parent mid-walk throws",
     throwsError(
       (): string[] =>
         scriptAncestors(
-          tree.map((node: IAutoMovieScriptNode): IAutoMovieScriptNode =>
-            node.id === "scene1" ? { ...node, parent: "ghost" } : node,
+          tree.map(
+            (node: IAutoMovieScriptNode): IAutoMovieScriptNode =>
+              node.id === "scene1" ? { ...node, parent: "ghost" } : node,
           ),
           "b1",
         ),
@@ -58,8 +63,9 @@ export function test_film_script_graph(): void {
     throwsError(
       (): string[] =>
         scriptAncestors(
-          tree.map((node: IAutoMovieScriptNode): IAutoMovieScriptNode =>
-            node.id === "root" ? { ...node, parent: "grp" } : node,
+          tree.map(
+            (node: IAutoMovieScriptNode): IAutoMovieScriptNode =>
+              node.id === "root" ? { ...node, parent: "grp" } : node,
           ),
           "b1",
         ),

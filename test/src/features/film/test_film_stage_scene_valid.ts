@@ -1,5 +1,9 @@
-import type { IAutoMovieScene, IAutoMovieSceneNode, IAutoMovieVector3 } from "@automovie/interface";
 import { Quaternion, Vector3, stageScene } from "@automovie/engine";
+import type {
+  IAutoMovieScene,
+  IAutoMovieSceneNode,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { makeScriptWrite, makeStagingWrite } from "../internal/filmFixtures";
@@ -96,7 +100,8 @@ export function test_film_stage_scene_valid(): void {
     y: number;
     z: number;
     w: number;
-  }): IAutoMovieVector3 => Quaternion.rotateVector(rotation, { x: 0, y: 0, z: 1 });
+  }): IAutoMovieVector3 =>
+    Quaternion.rotateVector(rotation, { x: 0, y: 0, z: 1 });
   TestValidator.predicate(
     "facing 0° keeps +Z",
     vclose(forwardOf(staged.scene.nodes[0]!.transform.rotation), {
@@ -115,7 +120,11 @@ export function test_film_stage_scene_valid(): void {
   );
 
   /** Observe a lowered camera's local -Z; authored target displacements independently determine its expected aim. */
-  const aimOf: (camera: IAutoMovieScene["cameras"][number]) => IAutoMovieVector3 = (camera: IAutoMovieScene["cameras"][number]): IAutoMovieVector3 =>
+  const aimOf: (
+    camera: IAutoMovieScene["cameras"][number],
+  ) => IAutoMovieVector3 = (
+    camera: IAutoMovieScene["cameras"][number],
+  ): IAutoMovieVector3 =>
     Quaternion.rotateVector(camera.transform.rotation, {
       x: 0,
       y: 0,

@@ -1,11 +1,12 @@
-import type { IAutoMovieShotStoryTime, IAutoMovieStorySyncPoint } from "@automovie/interface";
-
 import {
   autoMovieStoryInterval,
   autoMovieStoryTime,
   evaluateAutoMovieStorySync,
 } from "@automovie/engine";
-
+import type {
+  IAutoMovieShotStoryTime,
+  IAutoMovieStorySyncPoint,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts, nclose } from "../internal/predicates";
@@ -34,10 +35,14 @@ const REALIZED: Readonly<Record<string, number>> = {
 };
 
 /** Evaluate the supplied events with the authored pin/realization tables or explicit refusal overrides; the owning entry derives expected story seconds and messages from these inputs. */
-const sync: (events: ReadonlyArray<{ shot: string; event: string }>, toleranceSeconds: number, overrides?: {
+const sync: (
+  events: ReadonlyArray<{ shot: string; event: string }>,
+  toleranceSeconds: number,
+  overrides?: {
     pin?: (shot: string) => IAutoMovieShotStoryTime | null;
     realized?: (shot: string, event: string) => number | null;
-  }) => ReturnType<typeof evaluateAutoMovieStorySync> = (
+  },
+) => ReturnType<typeof evaluateAutoMovieStorySync> = (
   events: ReadonlyArray<{ shot: string; event: string }>,
   toleranceSeconds: number,
   overrides: {
@@ -48,10 +53,13 @@ const sync: (events: ReadonlyArray<{ shot: string; event: string }>, toleranceSe
   evaluateAutoMovieStorySync({
     events,
     toleranceSeconds,
-    pin: overrides.pin ?? ((shot: string): IAutoMovieShotStoryTime | null => PINS[shot] ?? null),
+    pin:
+      overrides.pin ??
+      ((shot: string): IAutoMovieShotStoryTime | null => PINS[shot] ?? null),
     realized:
       overrides.realized ??
-      ((shot: string, event: string): number | null => REALIZED[`${shot} ${event}`] ?? null),
+      ((shot: string, event: string): number | null =>
+        REALIZED[`${shot} ${event}`] ?? null),
   });
 
 /**
@@ -79,18 +87,30 @@ const sync: (events: ReadonlyArray<{ shot: string; event: string }>, toleranceSe
  */
 export function test_film_story_clock(): void {
   const defaultTime: number = autoMovieStoryTime({ originSeconds: 10 }, 4);
-  const explicitTime: number = autoMovieStoryTime({ originSeconds: 10, rate: 0.5 }, 4);
+  const explicitTime: number = autoMovieStoryTime(
+    { originSeconds: 10, rate: 0.5 },
+    4,
+  );
   const pin: IAutoMovieShotStoryTime = { originSeconds: 10, rate: 0.5 };
-  const whole: ReturnType<typeof autoMovieStoryInterval> = autoMovieStoryInterval(pin, { from: 0, to: 6 });
-  const event: ReturnType<typeof autoMovieStoryInterval> = autoMovieStoryInterval(pin, { from: 2, to: 6 });
+  const whole: ReturnType<typeof autoMovieStoryInterval> =
+    autoMovieStoryInterval(pin, { from: 0, to: 6 });
+  const event: ReturnType<typeof autoMovieStoryInterval> =
+    autoMovieStoryInterval(pin, { from: 2, to: 6 });
   TestValidator.predicate(
     "a pin maps shot-local time onto the story clock",
-    (): boolean => defaultTime === 14 && nclose(defaultTime, 14, 0) &&
-      explicitTime === 12 && nclose(explicitTime, 12, 0) &&
-      whole.from === 10 && nclose(whole.from, 10, 0) &&
-      whole.to === 13 && nclose(whole.to, 13, 0) &&
-      event.from === 11 && nclose(event.from, 11, 0) &&
-      event.to === 13 && nclose(event.to, 13, 0),
+    (): boolean =>
+      defaultTime === 14 &&
+      nclose(defaultTime, 14, 0) &&
+      explicitTime === 12 &&
+      nclose(explicitTime, 12, 0) &&
+      whole.from === 10 &&
+      nclose(whole.from, 10, 0) &&
+      whole.to === 13 &&
+      nclose(whole.to, 13, 0) &&
+      event.from === 11 &&
+      nclose(event.from, 11, 0) &&
+      event.to === 13 &&
+      nclose(event.to, 13, 0),
   );
 
   const together: ReturnType<typeof sync> = sync(
@@ -100,13 +120,19 @@ export function test_film_story_clock(): void {
     ],
     0.25,
   );
-  TestValidator.predicate("simultaneous pins retain their exact authored seconds", (): boolean =>
-    together.spreadSeconds === 0 && nclose(together.spreadSeconds, 0, 0) &&
-    together.points.every((point: IAutoMovieStorySyncPoint): boolean =>
-      point.storySeconds === 32.5 && nclose(point.storySeconds, 32.5, 0),
-    ) && together.points[0]?.localSeconds === 2.5 &&
-    nclose(together.points[0].localSeconds, 2.5, 0) &&
-    together.points[1]?.localSeconds === 4 && nclose(together.points[1].localSeconds, 4, 0),
+  TestValidator.predicate(
+    "simultaneous pins retain their exact authored seconds",
+    (): boolean =>
+      together.spreadSeconds === 0 &&
+      nclose(together.spreadSeconds, 0, 0) &&
+      together.points.every(
+        (point: IAutoMovieStorySyncPoint): boolean =>
+          point.storySeconds === 32.5 && nclose(point.storySeconds, 32.5, 0),
+      ) &&
+      together.points[0]?.localSeconds === 2.5 &&
+      nclose(together.points[0].localSeconds, 2.5, 0) &&
+      together.points[1]?.localSeconds === 4 &&
+      nclose(together.points[1].localSeconds, 4, 0),
   );
   TestValidator.equals(
     "two shots pinned to the same story moment are judged simultaneous",
@@ -137,14 +163,19 @@ export function test_film_story_clock(): void {
     ],
     0.25,
   );
-  TestValidator.predicate("the measured gap is exactly one and a half seconds", (): boolean =>
-    apart.spreadSeconds === 1.5 && nclose(apart.spreadSeconds, 1.5, 0),
+  TestValidator.predicate(
+    "the measured gap is exactly one and a half seconds",
+    (): boolean =>
+      apart.spreadSeconds === 1.5 && nclose(apart.spreadSeconds, 1.5, 0),
   );
   TestValidator.equals(
     "a false simultaneity claim is refused and names the measured gap",
     namedFacts([
       ["refused", (): boolean => apart.passed === false],
-      ["summaryNamesGap", (): boolean => apart.summary.includes("are 1.5s apart")],
+      [
+        "summaryNamesGap",
+        (): boolean => apart.summary.includes("are 1.5s apart"),
+      ],
       [
         "summaryStatesTolerance",
         (): boolean => apart.summary.includes("beyond the 0.25s tolerance"),
@@ -190,18 +221,35 @@ export function test_film_story_clock(): void {
       { shot: "cover-b", event: "mark-b" },
     ],
     5,
-    { realized: (shot: string): number | null => (shot === "cover-a" ? 2.5 : null) },
+    {
+      realized: (shot: string): number | null =>
+        shot === "cover-a" ? 2.5 : null,
+    },
   );
-  const unsampled: ReturnType<typeof sync> = sync([{ shot: "cover-a", event: "mark-a" }], 5, {
-    realized: (): number | null => Number.NaN,
-  });
-  const overflowed: ReturnType<typeof sync> = sync([{ shot: "cover-a", event: "mark-a" }], 5, {
-    pin: (): IAutoMovieShotStoryTime | null => ({ originSeconds: 1e308, rate: 10 }),
-    realized: (): number | null => 1e307,
-  });
+  const unsampled: ReturnType<typeof sync> = sync(
+    [{ shot: "cover-a", event: "mark-a" }],
+    5,
+    {
+      realized: (): number | null => Number.NaN,
+    },
+  );
+  const overflowed: ReturnType<typeof sync> = sync(
+    [{ shot: "cover-a", event: "mark-a" }],
+    5,
+    {
+      pin: (): IAutoMovieShotStoryTime | null => ({
+        originSeconds: 1e308,
+        rate: 10,
+      }),
+      realized: (): number | null => 1e307,
+    },
+  );
   const empty: ReturnType<typeof sync> = sync([], 5);
-  TestValidator.predicate("an unresolved sibling preserves the resolved story second", (): boolean =>
-    unpinned.points[0]?.storySeconds === 31.5 && nclose(unpinned.points[0].storySeconds, 31.5, 0),
+  TestValidator.predicate(
+    "an unresolved sibling preserves the resolved story second",
+    (): boolean =>
+      unpinned.points[0]?.storySeconds === 31.5 &&
+      nclose(unpinned.points[0].storySeconds, 31.5, 0),
   );
   TestValidator.equals(
     "an unmeasurable operand refuses the claim and names itself",

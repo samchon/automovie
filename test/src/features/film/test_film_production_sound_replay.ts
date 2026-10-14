@@ -1,6 +1,7 @@
 import type { IAutoMovieProductionSoundPlan } from "@automovie/interface";
-import { renderProductionSound } from "../../../../packages/engine/src/sound/renderProductionSound";
 import { TestValidator } from "@nestia/e2e";
+
+import { renderProductionSound } from "../../../../packages/engine/src/sound/renderProductionSound";
 import { nclose } from "../internal/nclose";
 
 /**
@@ -42,38 +43,78 @@ export function test_film_production_sound_replay(): void {
     ],
   };
   const original: IAutoMovieProductionSoundPlan = structuredClone(plan);
-  const first: Float32Array<ArrayBufferLike> = renderProductionSound({ plan }).pcm;
-  const second: Float32Array<ArrayBufferLike> = renderProductionSound({ plan }).pcm;
+  const first: Float32Array<ArrayBufferLike> = renderProductionSound({
+    plan,
+  }).pcm;
+  const second: Float32Array<ArrayBufferLike> = renderProductionSound({
+    plan,
+  }).pcm;
   TestValidator.predicate(
     "byte-identical replay",
     Buffer.from(first.buffer).equals(Buffer.from(second.buffer)),
   );
-  TestValidator.equals("input metadata is immutable", {
-    fingerprint: plan.inputFingerprint,
-    events: plan.events,
-    dialogue: plan.dialogue,
-    frameRate: plan.frameRate,
-    cues: plan.cues.map((cue: IAutoMovieProductionSoundPlan["cues"][number]): { id: string; asset: string; bus: string; } => ({ id: cue.id, asset: cue.asset, bus: cue.bus })),
-  }, {
-    fingerprint: original.inputFingerprint,
-    events: original.events,
-    dialogue: original.dialogue,
-    frameRate: original.frameRate,
-    cues: original.cues.map((cue: IAutoMovieProductionSoundPlan["cues"][number]): { id: string; asset: string; bus: string; } => ({ id: cue.id, asset: cue.asset, bus: cue.bus })),
-  });
-  TestValidator.predicate("input numeric operands are immutable",
-    plan.version === original.version && plan.channels === original.channels &&
-      nclose(plan.fps, original.fps, 0) && plan.totalFrames === original.totalFrames &&
-      plan.sampleRate === original.sampleRate && plan.cues.length === original.cues.length &&
-      plan.cues.every((cue: IAutoMovieProductionSoundPlan["cues"][number], index: number): boolean => {
-        const expected: IAutoMovieProductionSoundPlan["cues"][number] | undefined = original.cues[index];
-        return expected !== undefined && cue.seed === expected.seed &&
-          cue.sourceDurationFrames === expected.sourceDurationFrames &&
-          cue.sourceOffsetFrame === expected.sourceOffsetFrame &&
-          cue.startFrame === expected.startFrame && cue.durationFrames === expected.durationFrames &&
-          nclose(cue.gain, expected.gain, 0) && cue.fadeInFrames === expected.fadeInFrames &&
-          cue.fadeOutFrames === expected.fadeOutFrames;
-      }),
+  TestValidator.equals(
+    "input metadata is immutable",
+    {
+      fingerprint: plan.inputFingerprint,
+      events: plan.events,
+      dialogue: plan.dialogue,
+      frameRate: plan.frameRate,
+      cues: plan.cues.map(
+        (
+          cue: IAutoMovieProductionSoundPlan["cues"][number],
+        ): { id: string; asset: string; bus: string } => ({
+          id: cue.id,
+          asset: cue.asset,
+          bus: cue.bus,
+        }),
+      ),
+    },
+    {
+      fingerprint: original.inputFingerprint,
+      events: original.events,
+      dialogue: original.dialogue,
+      frameRate: original.frameRate,
+      cues: original.cues.map(
+        (
+          cue: IAutoMovieProductionSoundPlan["cues"][number],
+        ): { id: string; asset: string; bus: string } => ({
+          id: cue.id,
+          asset: cue.asset,
+          bus: cue.bus,
+        }),
+      ),
+    },
+  );
+  TestValidator.predicate(
+    "input numeric operands are immutable",
+    plan.version === original.version &&
+      plan.channels === original.channels &&
+      nclose(plan.fps, original.fps, 0) &&
+      plan.totalFrames === original.totalFrames &&
+      plan.sampleRate === original.sampleRate &&
+      plan.cues.length === original.cues.length &&
+      plan.cues.every(
+        (
+          cue: IAutoMovieProductionSoundPlan["cues"][number],
+          index: number,
+        ): boolean => {
+          const expected:
+            | IAutoMovieProductionSoundPlan["cues"][number]
+            | undefined = original.cues[index];
+          return (
+            expected !== undefined &&
+            cue.seed === expected.seed &&
+            cue.sourceDurationFrames === expected.sourceDurationFrames &&
+            cue.sourceOffsetFrame === expected.sourceOffsetFrame &&
+            cue.startFrame === expected.startFrame &&
+            cue.durationFrames === expected.durationFrames &&
+            nclose(cue.gain, expected.gain, 0) &&
+            cue.fadeInFrames === expected.fadeInFrames &&
+            cue.fadeOutFrames === expected.fadeOutFrames
+          );
+        },
+      ),
   );
   const shifted: Float32Array<ArrayBufferLike> = renderProductionSound({
     plan: { ...plan, cues: [{ ...plan.cues[0], sourceOffsetFrame: 20 }] },
@@ -95,7 +136,9 @@ export function test_film_production_sound_replay(): void {
     );
     TestValidator.predicate(
       "the cue is audible",
-      pcm.subarray(960 * 2, 4800 * 2).some((v: number): boolean => !nclose(v, 0, 0)),
+      pcm
+        .subarray(960 * 2, 4800 * 2)
+        .some((v: number): boolean => !nclose(v, 0, 0)),
     );
   }
 }

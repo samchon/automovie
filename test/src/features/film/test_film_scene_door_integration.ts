@@ -1,15 +1,24 @@
-import type { IAutoMovieClip, IAutoMovieNode, IAutoMovieProfile, IAutoMovieProfileBinding, IAutoMoviePropArticulation, IAutoMoviePropSpec, IAutoMovieScene } from "@automovie/interface";
+import type {
+  IAutoMovieClip,
+  IAutoMovieNode,
+  IAutoMovieProfile,
+  IAutoMovieProfileBinding,
+  IAutoMoviePropArticulation,
+  IAutoMoviePropSpec,
+  IAutoMovieScene,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
 import type { IAutoMovieForgedProp } from "../../../../packages/engine/src/film/IAutoMovieForgedProp";
+import { forgeProp } from "../../../../packages/engine/src/film/forgeProp";
+import { Matrix4 } from "../../../../packages/engine/src/math/Matrix4";
 import type { IAutoMovieResolveOutput } from "../../../../packages/engine/src/resolve/IAutoMovieResolveOutput";
 import type { IAutoMovieResolveViolation } from "../../../../packages/engine/src/resolve/IAutoMovieResolveViolation";
-import { Matrix4 } from "../../../../packages/engine/src/math/Matrix4";
-import { forgeProp } from "../../../../packages/engine/src/film/forgeProp";
 import { resolveFrame } from "../../../../packages/engine/src/resolve/resolveFrame";
 import { sceneToNodes } from "../../../../packages/engine/src/resolve/sceneToNodes";
-import { TestValidator } from "@nestia/e2e";
+import { createDoorPropSpec } from "../internal/createDoorPropSpec";
 import { createModel } from "../internal/fixtures";
 import { namedFacts, nclose, vclose } from "../internal/predicates";
-import { createDoorPropSpec } from "../internal/createDoorPropSpec";
 
 /**
  * Quaternion components for the authored rotation in degrees about +Y.
@@ -19,7 +28,7 @@ import { createDoorPropSpec } from "../internal/createDoorPropSpec";
  * The original 90-degree legal and 150-degree excessive rotations share this input construction; profile clamping is the product's responsibility.
  * This private pure input helper runs inside the discovered CPU entry and retains no state or native resource.
  */
-function yQuat (deg: number): number[] {
+function yQuat(deg: number): number[] {
   const half: number = (deg * Math.PI) / 360;
   return [0, Math.sin(half), 0, Math.cos(half)];
 }
@@ -32,20 +41,22 @@ function yQuat (deg: number): number[] {
  * Preserves the legal and excessive angle pair and single-key linear clip without adding another interpolation policy.
  * The private clip constructor is called only by the discovered portable door integration case and creates caller-owned records without a host or cache.
  */
-function swing (deg: number): IAutoMovieClip { return ({
-  id: "swing",
-  name: null,
-  duration: 1,
-  loop: false,
-  tracks: [
-    {
-      channel: { kind: "node", node: "frontDoor/hinge", path: "rotation" },
-      times: [0],
-      values: yQuat(deg),
-      interpolation: "linear",
-    },
-  ],
-}); }
+function swing(deg: number): IAutoMovieClip {
+  return {
+    id: "swing",
+    name: null,
+    duration: 1,
+    loop: false,
+    tracks: [
+      {
+        channel: { kind: "node", node: "frontDoor/hinge", path: "rotation" },
+        times: [0],
+        values: yQuat(deg),
+        interpolation: "linear",
+      },
+    ],
+  };
+}
 
 /**
  * Read the transformed local +X basis from a column-major world matrix.
@@ -55,7 +66,9 @@ function swing (deg: number): IAutoMovieClip { return ({
  * Reads legal hinge, copied mirror and clamped excessive hinge outputs, preserving each original asserted component.
  * This private synchronous observation reader serves the discovered CPU integration entry and retains no matrix or host resource.
  */
-function basisX (m: number[]): [number, number, number] { return [m[0]!, m[1]!, m[2]!]; }
+function basisX(m: number[]): [number, number, number] {
+  return [m[0]!, m[1]!, m[2]!];
+}
 
 const SCENE: IAutoMovieScene = {
   id: "hall",
@@ -106,7 +119,7 @@ const SCENE: IAutoMovieScene = {
  * @evidence contracts/testing.md#distinguishing-cases Pins legal 90-degree travel and 150-degree excess, copied hinge orientation, placement translation and a second rigged occupant; profile id and placement prefix must remain attached to every violation. Unplaced articulation, malformed binding and midpoint travel admission belong to the other forge and object-motion tests.
  * @evidence contracts/testing.md#execution-ownership The discoverable entry owns four synchronous numerical integration observations over portable source and shared in-memory fixtures; it starts no renderer, native build or external consumer.
  */
-export function test_film_scene_door_integration (): void {
+export function test_film_scene_door_integration(): void {
   const base: IAutoMoviePropSpec = createDoorPropSpec();
   // A distinctive hinge translation so the placement-composition oracle is
   // provable: hinge world position must be placement + (0, 1, 0).
@@ -114,16 +127,17 @@ export function test_film_scene_door_integration (): void {
     ...base,
     articulation: {
       ...base.articulation!,
-      nodes: base.articulation!.nodes.map((node: IAutoMovieNode) : IAutoMovieNode =>
-        node.id === "hinge"
-          ? {
-              ...node,
-              transform: {
-                ...node.transform,
-                translation: { x: 0, y: 1, z: 0 },
-              },
-            }
-          : node,
+      nodes: base.articulation!.nodes.map(
+        (node: IAutoMovieNode): IAutoMovieNode =>
+          node.id === "hinge"
+            ? {
+                ...node,
+                transform: {
+                  ...node.transform,
+                  translation: { x: 0, y: 1, z: 0 },
+                },
+              }
+            : node,
       ),
     },
   });
@@ -136,7 +150,11 @@ export function test_film_scene_door_integration (): void {
     props: { door: forged.prop },
     models: { hero: { ...createModel(), id: "hero" } },
   });
-  const profiles: { profile: IAutoMovieProfile; binding: IAutoMovieProfileBinding; nodePrefix: string; }[] = [
+  const profiles: {
+    profile: IAutoMovieProfile;
+    binding: IAutoMovieProfileBinding;
+    nodePrefix: string;
+  }[] = [
     {
       profile: articulation.profile,
       binding: articulation.binding,
@@ -162,7 +180,9 @@ export function test_film_scene_door_integration (): void {
     "hinge world rotated 90° through the scene",
     nclose(openX[0], 0) && nclose(openX[1], 0) && nclose(openX[2], -1),
   );
-  const mirrorX: [number, number, number] = basisX(open.world.get("frontDoor/handleMirror")!);
+  const mirrorX: [number, number, number] = basisX(
+    open.world.get("frontDoor/handleMirror")!,
+  );
   TestValidator.predicate(
     "the declared driver mirrors the hinge in-scene",
     nclose(mirrorX[0], 0) && nclose(mirrorX[2], -1),
@@ -178,19 +198,20 @@ export function test_film_scene_door_integration (): void {
   TestValidator.equals(
     "over-swing violations tagged by the forged profile on the prefixed channel",
     namedFacts([
-      ["overSwingRefused", () : boolean => slammed.violations.length > 0],
+      ["overSwingRefused", (): boolean => slammed.violations.length > 0],
       [
         "taggedByForgedProfile",
-        () : boolean =>
+        (): boolean =>
           slammed.violations.every(
-            (violation: IAutoMovieResolveViolation) : boolean => violation.profile === "door-profile",
+            (violation: IAutoMovieResolveViolation): boolean =>
+              violation.profile === "door-profile",
           ),
       ],
       [
         "onPrefixedHingeChannel",
-        () : boolean =>
+        (): boolean =>
           slammed.violations.every(
-            (violation: IAutoMovieResolveViolation) : boolean =>
+            (violation: IAutoMovieResolveViolation): boolean =>
               violation.channel === "node:frontDoor/hinge:rotation",
           ),
       ],
@@ -203,10 +224,13 @@ export function test_film_scene_door_integration (): void {
   );
   const cos110: number = Math.cos((110 * Math.PI) / 180);
   const sin110: number = Math.sin((110 * Math.PI) / 180);
-  const slammedX: [number, number, number] = basisX(slammed.world.get("frontDoor/hinge")!);
+  const slammedX: [number, number, number] = basisX(
+    slammed.world.get("frontDoor/hinge")!,
+  );
   TestValidator.predicate(
     "over-swing clamps to the 110° boundary through the scene",
-    nclose(slammedX[0], cos110) && nclose(slammedX[1], 0) &&
+    nclose(slammedX[0], cos110) &&
+      nclose(slammedX[1], 0) &&
       nclose(slammedX[2], -sin110),
   );
 

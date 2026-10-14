@@ -1,10 +1,21 @@
-import type { IAutoMovieBlocking, IAutoMoviePerformance, IAutoMovieActionCall, IAutoMovieSkeleton, IAutoMovieVector3, IAutoMovieQuaternion, IAutoMovieCameraDepthPrecisionReport, IAutoMovieCamera, IAutoMovieShotProgram } from "@automovie/interface";
+import type {
+  IAutoMovieActionCall,
+  IAutoMovieBlocking,
+  IAutoMovieCamera,
+  IAutoMovieCameraDepthPrecisionReport,
+  IAutoMoviePerformance,
+  IAutoMovieQuaternion,
+  IAutoMovieShotProgram,
+  IAutoMovieSkeleton,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
 import type { IAutoMovieCompiledDefinedShot } from "../../../../packages/engine/src/film/IAutoMovieCompiledDefinedShot";
 import type { IAutoMovieResolvedCamera } from "../../../../packages/engine/src/film/IAutoMovieResolvedCamera";
 import { compileDefinedShot } from "../../../../packages/engine/src/film/compileDefinedShot";
 import { defineShot } from "../../../../packages/engine/src/film/defineShot";
 import { resolveCameraAt } from "../../../../packages/engine/src/film/resolveCameraAt";
-import { TestValidator } from "@nestia/e2e";
 import {
   makeBlockingWrite,
   makePerformanceWrite,
@@ -18,7 +29,9 @@ import { namedFacts, qclose, vclose } from "../internal/predicates";
 /**
  * The duel program with the camera framed exactly as `framed` asks. Dropping the `frame` action leaves the beat locked off on the staged camera, which is the shape every artifact carried before a placement existed to record.
  */
-const program: (framed: boolean) => IAutoMovieShotProgram = (framed: boolean): IAutoMovieShotProgram => {
+const program: (framed: boolean) => IAutoMovieShotProgram = (
+  framed: boolean,
+): IAutoMovieShotProgram => {
   const blocking: IAutoMovieBlocking = makeBlockingWrite();
   const performance: IAutoMoviePerformance = makePerformanceWrite();
   blocking.camera.framing = "full";
@@ -44,7 +57,9 @@ const program: (framed: boolean) => IAutoMovieShotProgram = (framed: boolean): I
 };
 
 /** Compile the original framed or locked duel through real shot definition and the existing deterministic synthesizer. */
-const compile: (framed: boolean) => IAutoMovieCompiledDefinedShot = (framed: boolean): IAutoMovieCompiledDefinedShot =>
+const compile: (framed: boolean) => IAutoMovieCompiledDefinedShot = (
+  framed: boolean,
+): IAutoMovieCompiledDefinedShot =>
   compileDefinedShot({
     shot: defineShot(framed ? "SB-FRAMED" : "SB-LOCKED", {
       scene: "scene-duel",
@@ -97,80 +112,133 @@ const compile: (framed: boolean) => IAutoMovieCompiledDefinedShot = (framed: boo
 export function test_film_realization_camera_placement(): void {
   const framed: IAutoMovieCompiledDefinedShot = compile(true);
   const locked: IAutoMovieCompiledDefinedShot = compile(false);
-  const staged: { x: number; y: number; z: number; } = { x: 2, y: 1.5, z: 0.35 };
+  const staged: { x: number; y: number; z: number } = { x: 2, y: 1.5, z: 0.35 };
   TestValidator.predicate(
     "a realization records the camera a compiled move actually renders",
-    Object.values(namedFacts([
-      ["framedSuccess", (): boolean => framed.success],
-      ["lockedSuccess", (): boolean => locked.success],
-      [
-        "framedHasMove",
-        (): boolean => framed.success && framed.source.shot.cameraMotion !== null,
-      ],
-      [
-        "lockedHasNoMove",
-        (): boolean => locked.success && locked.source.shot.cameraMotion === null,
-      ],
-      [
-        "framedSamplesCarryPlacement",
-        (): boolean =>
-          framed.success &&
-          framed.realization.camera.length > 0 &&
-          framed.realization.camera.every(
-            (outcome: { time: number; placement?: { position: IAutoMovieVector3; rotation: IAutoMovieQuaternion; }; depthPrecision: IAutoMovieCameraDepthPrecisionReport; requiredSubjects: number; resolvedSubjects: number; readableSubjects: number; passed: boolean; }): boolean => outcome.placement !== undefined,
-          ),
-      ],
-      [
-        "framedPlacementIsTheRenderedCamera",
-        (): boolean =>
-          framed.success &&
-          framed.realization.camera.every((outcome: { time: number; placement?: { position: IAutoMovieVector3; rotation: IAutoMovieQuaternion; }; depthPrecision: IAutoMovieCameraDepthPrecisionReport; requiredSubjects: number; resolvedSubjects: number; readableSubjects: number; passed: boolean; }): boolean => {
-            const camera: IAutoMovieCamera = framed.source.scene.cameras.find(
-              (candidate: IAutoMovieCamera): boolean => candidate.id === framed.source.shot.camera,
-            )!;
-            const rendered: IAutoMovieResolvedCamera = resolveCameraAt(
-              camera.transform,
-              framed.source.shot.cameraMotion,
-              camera.id,
-              outcome.time,
-            );
-            return (
-              outcome.placement !== undefined &&
-              vclose(outcome.placement.position, rendered.position, 0) &&
-              qclose(outcome.placement.rotation, rendered.rotation, 0)
-            );
-          }),
-      ],
-      [
-        "framedStagedCameraIsUnchanged",
-        (): boolean =>
-          framed.success &&
-          vclose(
-            framed.source.scene.cameras.find(
-              (candidate: IAutoMovieCamera): boolean => candidate.id === framed.source.shot.camera,
-            )!.transform.translation,
-            staged,
-          ),
-      ],
-      [
-        "framedPlacementLeavesTheStagedPoint",
-        (): boolean =>
-          framed.success &&
-          framed.realization.camera.every(
-            (outcome: { time: number; placement?: { position: IAutoMovieVector3; rotation: IAutoMovieQuaternion; }; depthPrecision: IAutoMovieCameraDepthPrecisionReport; requiredSubjects: number; resolvedSubjects: number; readableSubjects: number; passed: boolean; }): boolean =>
-              outcome.placement !== undefined &&
-              vclose(outcome.placement.position, staged) === false,
-          ),
-      ],
-      [
-        "lockedSamplesCarryNoPlacement",
-        (): boolean =>
-          locked.success &&
-          locked.realization.camera.length > 0 &&
-          locked.realization.camera.every(
-            (outcome: { time: number; placement?: { position: IAutoMovieVector3; rotation: IAutoMovieQuaternion; }; depthPrecision: IAutoMovieCameraDepthPrecisionReport; requiredSubjects: number; resolvedSubjects: number; readableSubjects: number; passed: boolean; }): boolean => "placement" in outcome === false,
-          ),
-      ],
-    ])).every((fact: boolean): boolean => fact),
+    Object.values(
+      namedFacts([
+        ["framedSuccess", (): boolean => framed.success],
+        ["lockedSuccess", (): boolean => locked.success],
+        [
+          "framedHasMove",
+          (): boolean =>
+            framed.success && framed.source.shot.cameraMotion !== null,
+        ],
+        [
+          "lockedHasNoMove",
+          (): boolean =>
+            locked.success && locked.source.shot.cameraMotion === null,
+        ],
+        [
+          "framedSamplesCarryPlacement",
+          (): boolean =>
+            framed.success &&
+            framed.realization.camera.length > 0 &&
+            framed.realization.camera.every(
+              (outcome: {
+                time: number;
+                placement?: {
+                  position: IAutoMovieVector3;
+                  rotation: IAutoMovieQuaternion;
+                };
+                depthPrecision: IAutoMovieCameraDepthPrecisionReport;
+                requiredSubjects: number;
+                resolvedSubjects: number;
+                readableSubjects: number;
+                passed: boolean;
+              }): boolean => outcome.placement !== undefined,
+            ),
+        ],
+        [
+          "framedPlacementIsTheRenderedCamera",
+          (): boolean =>
+            framed.success &&
+            framed.realization.camera.every(
+              (outcome: {
+                time: number;
+                placement?: {
+                  position: IAutoMovieVector3;
+                  rotation: IAutoMovieQuaternion;
+                };
+                depthPrecision: IAutoMovieCameraDepthPrecisionReport;
+                requiredSubjects: number;
+                resolvedSubjects: number;
+                readableSubjects: number;
+                passed: boolean;
+              }): boolean => {
+                const camera: IAutoMovieCamera =
+                  framed.source.scene.cameras.find(
+                    (candidate: IAutoMovieCamera): boolean =>
+                      candidate.id === framed.source.shot.camera,
+                  )!;
+                const rendered: IAutoMovieResolvedCamera = resolveCameraAt(
+                  camera.transform,
+                  framed.source.shot.cameraMotion,
+                  camera.id,
+                  outcome.time,
+                );
+                return (
+                  outcome.placement !== undefined &&
+                  vclose(outcome.placement.position, rendered.position, 0) &&
+                  qclose(outcome.placement.rotation, rendered.rotation, 0)
+                );
+              },
+            ),
+        ],
+        [
+          "framedStagedCameraIsUnchanged",
+          (): boolean =>
+            framed.success &&
+            vclose(
+              framed.source.scene.cameras.find(
+                (candidate: IAutoMovieCamera): boolean =>
+                  candidate.id === framed.source.shot.camera,
+              )!.transform.translation,
+              staged,
+            ),
+        ],
+        [
+          "framedPlacementLeavesTheStagedPoint",
+          (): boolean =>
+            framed.success &&
+            framed.realization.camera.every(
+              (outcome: {
+                time: number;
+                placement?: {
+                  position: IAutoMovieVector3;
+                  rotation: IAutoMovieQuaternion;
+                };
+                depthPrecision: IAutoMovieCameraDepthPrecisionReport;
+                requiredSubjects: number;
+                resolvedSubjects: number;
+                readableSubjects: number;
+                passed: boolean;
+              }): boolean =>
+                outcome.placement !== undefined &&
+                vclose(outcome.placement.position, staged) === false,
+            ),
+        ],
+        [
+          "lockedSamplesCarryNoPlacement",
+          (): boolean =>
+            locked.success &&
+            locked.realization.camera.length > 0 &&
+            locked.realization.camera.every(
+              (outcome: {
+                time: number;
+                placement?: {
+                  position: IAutoMovieVector3;
+                  rotation: IAutoMovieQuaternion;
+                };
+                depthPrecision: IAutoMovieCameraDepthPrecisionReport;
+                requiredSubjects: number;
+                resolvedSubjects: number;
+                readableSubjects: number;
+                passed: boolean;
+              }): boolean => "placement" in outcome === false,
+            ),
+        ],
+      ]),
+    ).every((fact: boolean): boolean => fact),
   );
 }

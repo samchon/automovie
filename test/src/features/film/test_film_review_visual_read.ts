@@ -1,6 +1,16 @@
-import type { IAutoMovieReviewNote, IAutoMovieClip, IAutoMovieCamera, IAutoMovieInteractionEvent, IAutoMovieMotion, IAutoMovieScene, IAutoMovieSceneNode, IAutoMovieShot } from "@automovie/interface";
-import { reviewVisualRead } from "../../../../packages/engine/src/film/reviewVisualRead";
+import type {
+  IAutoMovieCamera,
+  IAutoMovieClip,
+  IAutoMovieInteractionEvent,
+  IAutoMovieMotion,
+  IAutoMovieReviewNote,
+  IAutoMovieScene,
+  IAutoMovieSceneNode,
+  IAutoMovieShot,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
+
+import { reviewVisualRead } from "../../../../packages/engine/src/film/reviewVisualRead";
 import { createFilmVisualReadCamera as camera } from "../internal/createFilmVisualReadCamera";
 import { createFilmVisualReadCameraMotion as camMotion } from "../internal/createFilmVisualReadCameraMotion";
 import { createFilmVisualReadRootMotion as rootMotion } from "../internal/createFilmVisualReadRootMotion";
@@ -8,7 +18,9 @@ import { createFilmVisualReadTransform as t3 } from "../internal/createFilmVisua
 import { namedFacts } from "../internal/predicates";
 
 /** Construct one origin-placed actor node for the numerical visibility reader. */
-const node: (id: string) => IAutoMovieSceneNode = (id: string): IAutoMovieSceneNode => ({
+const node: (id: string) => IAutoMovieSceneNode = (
+  id: string,
+): IAutoMovieSceneNode => ({
   id,
   model: "m",
   transform: t3(0, 0, 0),
@@ -17,7 +29,9 @@ const node: (id: string) => IAutoMovieSceneNode = (id: string): IAutoMovieSceneN
 });
 
 /** Place the original actor and supplied camera in an otherwise empty scene. */
-const scene: (cam: IAutoMovieCamera) => IAutoMovieScene = (cam: IAutoMovieCamera): IAutoMovieScene => ({
+const scene: (cam: IAutoMovieCamera) => IAutoMovieScene = (
+  cam: IAutoMovieCamera,
+): IAutoMovieScene => ({
   id: "s",
   name: null,
   nodes: [node("hero")],
@@ -26,7 +40,9 @@ const scene: (cam: IAutoMovieCamera) => IAutoMovieScene = (cam: IAutoMovieCamera
 });
 
 /** Construct the original one-second performance and apply the caller's isolated shot override. */
-const shot: (over?: Partial<IAutoMovieShot>) => IAutoMovieShot = (over: Partial<IAutoMovieShot> = {}): IAutoMovieShot => ({
+const shot: (over?: Partial<IAutoMovieShot>) => IAutoMovieShot = (
+  over: Partial<IAutoMovieShot> = {},
+): IAutoMovieShot => ({
   id: "shot",
   name: null,
   scene: "s",
@@ -39,7 +55,11 @@ const shot: (over?: Partial<IAutoMovieShot>) => IAutoMovieShot = (over: Partial<
 });
 
 /** Run the framing metric for a single (camera, actor-position) pair. */
-const framing: (cam: IAutoMovieCamera, actor: IAutoMovieMotion, shotOver?: Partial<IAutoMovieShot>) => IAutoMovieReviewNote[] = (
+const framing: (
+  cam: IAutoMovieCamera,
+  actor: IAutoMovieMotion,
+  shotOver?: Partial<IAutoMovieShot>,
+) => IAutoMovieReviewNote[] = (
   cam: IAutoMovieCamera,
   actor: IAutoMovieMotion,
   shotOver: Partial<IAutoMovieShot> = {},
@@ -53,7 +73,9 @@ const framing: (cam: IAutoMovieCamera, actor: IAutoMovieMotion, shotOver?: Parti
   });
 
 /** Construct the original hit record, preserving caller overrides for each contact case. */
-const hitEvent: (over?: Partial<IAutoMovieInteractionEvent>) => IAutoMovieInteractionEvent = (
+const hitEvent: (
+  over?: Partial<IAutoMovieInteractionEvent>,
+) => IAutoMovieInteractionEvent = (
   over: Partial<IAutoMovieInteractionEvent> = {},
 ): IAutoMovieInteractionEvent => ({
   id: "e",
@@ -70,7 +92,11 @@ const hitEvent: (over?: Partial<IAutoMovieInteractionEvent>) => IAutoMovieIntera
 });
 
 /** Contact metric only: an invalid camera skips framing, isolating the sweep. */
-const contact: (actor: IAutoMovieMotion, events: IAutoMovieInteractionEvent[], contactRadius?: number) => IAutoMovieReviewNote[] = (
+const contact: (
+  actor: IAutoMovieMotion,
+  events: IAutoMovieInteractionEvent[],
+  contactRadius?: number,
+) => IAutoMovieReviewNote[] = (
   actor: IAutoMovieMotion,
   events: IAutoMovieInteractionEvent[],
   contactRadius?: number,
@@ -85,7 +111,11 @@ const contact: (actor: IAutoMovieMotion, events: IAutoMovieInteractionEvent[], c
   });
 
 /** Two performing actors "a" and "b" over the default origin camera. */
-const silhouette: (a: IAutoMovieMotion, b: IAutoMovieMotion, silhouetteRadius?: number) => IAutoMovieReviewNote[] = (
+const silhouette: (
+  a: IAutoMovieMotion,
+  b: IAutoMovieMotion,
+  silhouetteRadius?: number,
+) => IAutoMovieReviewNote[] = (
   a: IAutoMovieMotion,
   b: IAutoMovieMotion,
   silhouetteRadius?: number,
@@ -163,7 +193,10 @@ export function test_film_review_visual_read(): void {
     0,
   );
 
-  const above: IAutoMovieReviewNote[] = framing(camera(), rootMotion("m1", 0, 10, -5));
+  const above: IAutoMovieReviewNote[] = framing(
+    camera(),
+    rootMotion("m1", 0, 10, -5),
+  );
   TestValidator.equals(
     "a subject above the frame earns one visual note",
     namedFacts([
@@ -429,7 +462,10 @@ export function test_film_review_visual_read(): void {
       ],
       [
         "nearGuardNN",
-        (): boolean => !nearGuard.some((n: IAutoMovieReviewNote): boolean => n.issue.includes("silhouette")),
+        (): boolean =>
+          !nearGuard.some((n: IAutoMovieReviewNote): boolean =>
+            n.issue.includes("silhouette"),
+          ),
       ],
     ]),
     { nearGuard: true, nearGuardIssueIncludes: true, nearGuardNN: true },

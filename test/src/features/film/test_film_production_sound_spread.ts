@@ -1,23 +1,48 @@
-import type { IAutoMovieCompiledFormation, IAutoMovieProductionSoundEvent, IAutoMovieCompiledShotSource, IAutoMovieFilmTimeline, IAutoMovieFormationMotion, IAutoMovieProductionSoundPlan, IAutoMovieShotContract } from "@automovie/interface";
+import type {
+  IAutoMovieCompiledFormation,
+  IAutoMovieCompiledShotSource,
+  IAutoMovieFilmTimeline,
+  IAutoMovieFormationMotion,
+  IAutoMovieProductionSoundEvent,
+  IAutoMovieProductionSoundPlan,
+  IAutoMovieShotContract,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
+import { materializeCompiledFormation } from "../../../../packages/engine/src/populationRuntime/materializeCompiledFormation";
 import type { IAutoMovieRenderedProductionSound } from "../../../../packages/engine/src/sound/IAutoMovieRenderedProductionSound";
 import { deriveProductionSoundPlan } from "../../../../packages/engine/src/sound/deriveProductionSoundPlan";
-import { materializeCompiledFormation } from "../../../../packages/engine/src/populationRuntime/materializeCompiledFormation";
 import { renderProductionSound } from "../../../../packages/engine/src/sound/renderProductionSound";
-import { TestValidator } from "@nestia/e2e";
 import { nclose } from "../internal/predicates";
 
 const digest: string =
   "sha256:0000000000000000000000000000000000000000000000000000000000000000" as string;
 
 /** Construct the authored identity-oriented emitter placement. */
-const transform: (x: number, y: number, z: number) => { translation: { x: number; y: number; z: number; }; rotation: { x: number; y: number; z: number; w: number; }; scale: { x: number; y: number; z: number; }; } = (x: number, y: number, z: number): { translation: { x: number; y: number; z: number; }; rotation: { x: number; y: number; z: number; w: number; }; scale: { x: number; y: number; z: number; }; } => ({
+const transform: (
+  x: number,
+  y: number,
+  z: number,
+) => {
+  translation: { x: number; y: number; z: number };
+  rotation: { x: number; y: number; z: number; w: number };
+  scale: { x: number; y: number; z: number };
+} = (
+  x: number,
+  y: number,
+  z: number,
+): {
+  translation: { x: number; y: number; z: number };
+  rotation: { x: number; y: number; z: number; w: number };
+  scale: { x: number; y: number; z: number };
+} => ({
   translation: { x, y, z },
   rotation: { x: 0, y: 0, z: 0, w: 1 },
   scale: { x: 1, y: 1, z: 1 },
 });
 
 /** Where the listener stands, and where the far mass and the lone source are. */
-const LISTENER: { x: number; y: number; z: number; } = { x: 0, y: 1, z: 0 };
+const LISTENER: { x: number; y: number; z: number } = { x: 0, y: 1, z: 0 };
 const FAR_Z: number = -30;
 const LONE_X: number = 24;
 
@@ -39,7 +64,12 @@ const CUE_END: number = 2;
 /**
  * One rank of `count` members on a stated line, as the builder materializes it.
  */
-const unit: (props: { id: string; count: number; interval: number; z: number; }) => IAutoMovieCompiledFormation = (props: {
+const unit: (props: {
+  id: string;
+  count: number;
+  interval: number;
+  z: number;
+}) => IAutoMovieCompiledFormation = (props: {
   id: string;
   count: number;
   interval: number;
@@ -99,82 +129,94 @@ const contract: () => IAutoMovieShotContract = (): IAutoMovieShotContract =>
       { id: "closed", subjects: ["crowd"] },
       { id: "mixed", subjects: ["lone", "crowd"] },
       { id: "near", subjects: ["near-crowd"] },
-    ].map((event: { id: string; subjects: string[]; }): { kind: "arrival"; window: { from: number; to: number; }; predicates: {}[]; id: string; subjects: string[]; } => ({
-      ...event,
-      // One kind throughout, and the one whose procedural voice carries no
-      // seeded noise, so two events compared at the same offset differ by their
-      // level factors and by nothing else.
-      kind: "arrival",
-      window: { from: 0, to: 4 },
-      predicates: [{}],
-    })),
+    ].map(
+      (event: {
+        id: string;
+        subjects: string[];
+      }): {
+        kind: "arrival";
+        window: { from: number; to: number };
+        predicates: {}[];
+        id: string;
+        subjects: string[];
+      } => ({
+        ...event,
+        // One kind throughout, and the one whose procedural voice carries no
+        // seeded noise, so two events compared at the same offset differ by their
+        // level factors and by nothing else.
+        kind: "arrival",
+        window: { from: 0, to: 4 },
+        predicates: [{}],
+      }),
+    ),
   }) as IAutoMovieShotContract;
 
 /** Build the original crowd, lone emitter and spacing-only cue inputs consumed by the planner. */
-const compiled: () => IAutoMovieCompiledShotSource = (): IAutoMovieCompiledShotSource =>
-  ({
-    eventSamples: [
-      { id: "rest", time: 0 },
-      { id: "mixed", time: 0 },
-      { id: "closed", time: CUE_END },
-      { id: "near", time: 3 },
-    ],
-    scene: {
-      id: "scene",
-      name: null,
-      nodes: [
-        {
-          id: "lone",
-          model: "lone-model",
-          transform: transform(LONE_X, 0, FAR_Z),
-          motion: null,
-          pose: null,
-        },
+const compiled: () => IAutoMovieCompiledShotSource =
+  (): IAutoMovieCompiledShotSource =>
+    ({
+      eventSamples: [
+        { id: "rest", time: 0 },
+        { id: "mixed", time: 0 },
+        { id: "closed", time: CUE_END },
+        { id: "near", time: 3 },
       ],
-      cameras: [
-        {
-          id: "camera",
-          transform: transform(LISTENER.x, LISTENER.y, LISTENER.z),
-          fovY: 50,
-          near: 0.1,
-          far: 200,
-          depthPrecision: { minimumDepthBits: 24, maximumStepMeters: 100 },
-        },
+      scene: {
+        id: "scene",
+        name: null,
+        nodes: [
+          {
+            id: "lone",
+            model: "lone-model",
+            transform: transform(LONE_X, 0, FAR_Z),
+            motion: null,
+            pose: null,
+          },
+        ],
+        cameras: [
+          {
+            id: "camera",
+            transform: transform(LISTENER.x, LISTENER.y, LISTENER.z),
+            fovY: 50,
+            near: 0.1,
+            far: 200,
+            depthPrecision: { minimumDepthBits: 24, maximumStepMeters: 100 },
+          },
+        ],
+        lights: [],
+      },
+      motions: [],
+      formationMotions: CLOSE_RANKS,
+      formationSlotMotions: [],
+      effectCues: [],
+      shot: {
+        id: "spread-shot",
+        name: null,
+        scene: "scene",
+        duration: 4,
+        camera: "camera",
+        cameraMotion: null,
+        performances: [],
+        objectMotions: [],
+      },
+      models: [],
+      formations: [
+        unit({
+          id: "crowd",
+          count: CROWD_COUNT,
+          interval: CROWD_INTERVAL,
+          z: FAR_Z,
+        }),
+        unit({
+          id: "near-crowd",
+          count: NEAR_COUNT,
+          interval: NEAR_INTERVAL,
+          z: NEAR_Z,
+        }),
       ],
-      lights: [],
-    },
-    motions: [],
-    formationMotions: CLOSE_RANKS,
-    formationSlotMotions: [],
-    effectCues: [],
-    shot: {
-      id: "spread-shot",
-      name: null,
-      scene: "scene",
-      duration: 4,
-      camera: "camera",
-      cameraMotion: null,
-      performances: [],
-      objectMotions: [],
-    },
-    models: [],
-    formations: [
-      unit({
-        id: "crowd",
-        count: CROWD_COUNT,
-        interval: CROWD_INTERVAL,
-        z: FAR_Z,
-      }),
-      unit({
-        id: "near-crowd",
-        count: NEAR_COUNT,
-        interval: NEAR_INTERVAL,
-        z: NEAR_Z,
-      }),
-    ],
-    instanceSets: [],
-    effects: [],
-  }) satisfies IAutoMovieCompiledShotSource;
+      instanceSets: [],
+      effects: [],
+    }) satisfies IAutoMovieCompiledShotSource;
 
 /** Declare the original spread shot duration and empty auxiliary tracks. */
 const timeline: () => IAutoMovieFilmTimeline = (): IAutoMovieFilmTimeline =>
@@ -204,17 +246,32 @@ const timeline: () => IAutoMovieFilmTimeline = (): IAutoMovieFilmTimeline =>
   }) as IAutoMovieFilmTimeline;
 
 /** Read the required planned event by its authored id; a missing event fails the owning assertions. */
-const eventOf: (plan: IAutoMovieProductionSoundPlan, id: string) => IAutoMovieProductionSoundEvent = (plan: IAutoMovieProductionSoundPlan, id: string): IAutoMovieProductionSoundEvent =>
-  plan.events.find((event: IAutoMovieProductionSoundEvent): boolean => event.event === id)!;
+const eventOf: (
+  plan: IAutoMovieProductionSoundPlan,
+  id: string,
+) => IAutoMovieProductionSoundEvent = (
+  plan: IAutoMovieProductionSoundPlan,
+  id: string,
+): IAutoMovieProductionSoundEvent =>
+  plan.events.find(
+    (event: IAutoMovieProductionSoundEvent): boolean => event.event === id,
+  )!;
 
 /**
  * The mean squared distance from the centre of a box to a point drawn uniformly inside it, over its half-extents: one third of its squared half-diagonal.
  */
-const boxVariance: (half: { x: number; y: number; z: number; }) => number = (half: { x: number; y: number; z: number }): number =>
+const boxVariance: (half: {
+  x: number;
+  y: number;
+  z: number;
+}) => number = (half: { x: number; y: number; z: number }): number =>
   (half.x * half.x + half.y * half.y + half.z * half.z) / 3;
 
 /** Squared distance between two points. */
-const squaredDistance: (left: { x: number; y: number; z: number; }, right: { x: number; y: number; z: number; }) => number = (
+const squaredDistance: (
+  left: { x: number; y: number; z: number },
+  right: { x: number; y: number; z: number },
+) => number = (
   left: { x: number; y: number; z: number },
   right: { x: number; y: number; z: number },
 ): number =>
@@ -259,26 +316,43 @@ export function test_film_production_sound_spread(): void {
     "a mass is heard at the RMS radius of the box its bounds describe",
     rest.memberCount === CROWD_COUNT &&
       nclose(rest.spreadRadiusMeters, Math.sqrt(restVariance), 1e-9) &&
-      nclose(rest.emitter.x, 0, 1e-9) && nclose(rest.emitter.z, FAR_Z, 1e-9),
+      nclose(rest.emitter.x, 0, 1e-9) &&
+      nclose(rest.emitter.z, FAR_Z, 1e-9),
   );
 
   // 2. the cue closes it, and only its size moves.
-  const closedVariance: number = boxVariance({ x: CROWD_REACH * CLOSED, y: 0, z: 0 });
+  const closedVariance: number = boxVariance({
+    x: CROWD_REACH * CLOSED,
+    y: 0,
+    z: 0,
+  });
   TestValidator.predicate(
     "a cue that closes a mass's intervals is heard as the smaller mass it makes",
     closed.memberCount === CROWD_COUNT &&
       nclose(closed.emitter.x, rest.emitter.x, 1e-9) &&
       nclose(closed.emitter.z, rest.emitter.z, 1e-9) &&
       nclose(closed.spreadRadiusMeters, Math.sqrt(closedVariance), 1e-9) &&
-      nclose(closed.spreadRadiusMeters, rest.spreadRadiusMeters * CLOSED, 1e-9) &&
+      nclose(
+        closed.spreadRadiusMeters,
+        rest.spreadRadiusMeters * CLOSED,
+        1e-9,
+      ) &&
       closed.attenuation > rest.attenuation,
   );
 
   // 3. the parallel-axis sum, computed from the fixture's own geometry.
   const combinedCount: number = CROWD_COUNT + 1;
-  const lone: { x: number; y: number; z: number; } = { x: LONE_X, y: 0, z: FAR_Z };
-  const crowdCentre: { x: number; y: number; z: number; } = { x: 0, y: 0, z: FAR_Z };
-  const combinedCentre: { x: number; y: number; z: number; } = {
+  const lone: { x: number; y: number; z: number } = {
+    x: LONE_X,
+    y: 0,
+    z: FAR_Z,
+  };
+  const crowdCentre: { x: number; y: number; z: number } = {
+    x: 0,
+    y: 0,
+    z: FAR_Z,
+  };
+  const combinedCentre: { x: number; y: number; z: number } = {
     x: (lone.x + CROWD_COUNT * crowdCentre.x) / combinedCount,
     y: (lone.y + CROWD_COUNT * crowdCentre.y) / combinedCount,
     z: (lone.z + CROWD_COUNT * crowdCentre.z) / combinedCount,
@@ -304,21 +378,32 @@ export function test_film_production_sound_spread(): void {
   );
 
   // 4. the limiter owns the headroom, and only when there is none left.
-  const loud: IAutoMovieRenderedProductionSound = renderProductionSound({ plan });
+  const loud: IAutoMovieRenderedProductionSound = renderProductionSound({
+    plan,
+  });
   const quiet: IAutoMovieRenderedProductionSound = renderProductionSound({
     plan: {
       ...plan,
-      events: plan.events.filter((event: IAutoMovieProductionSoundEvent): boolean => event.event !== "near"),
+      events: plan.events.filter(
+        (event: IAutoMovieProductionSoundEvent): boolean =>
+          event.event !== "near",
+      ),
     },
   });
   TestValidator.predicate(
     "a mass loud enough to leave no headroom is limited, and a plan with headroom is not",
     eventOf(plan, "near").memberCount === NEAR_COUNT &&
       // The independently stated impulse law puts the near event over full scale.
-      (0.5 * eventOf(plan, "near").attenuation * eventOf(plan, "near").densityGain) / Math.SQRT2 > 1 &&
+      (0.5 *
+        eventOf(plan, "near").attenuation *
+        eventOf(plan, "near").densityGain) /
+        Math.SQRT2 >
+        1 &&
       nclose(loud.analysis.samplePeak, 0.95, 1e-6) &&
-      loud.analysis.clippingSamples === 0 && quiet.analysis.samplePeak > 0 &&
-      quiet.analysis.samplePeak < 0.95 && loud.analysis.samplePeak > quiet.analysis.samplePeak,
+      loud.analysis.clippingSamples === 0 &&
+      quiet.analysis.samplePeak > 0 &&
+      quiet.analysis.samplePeak < 0.95 &&
+      loud.analysis.samplePeak > quiet.analysis.samplePeak,
   );
 
   TestValidator.predicate(

@@ -1,6 +1,5 @@
 import type { IAutoMovieShotContract } from "@automovie/interface";
 
-
 /**
  * Seven declared events over an actor, a formation and an instance set.
  *
@@ -11,7 +10,8 @@ import type { IAutoMovieShotContract } from "@automovie/interface";
  * Cases: Keeps actor, formation and instance subjects, mixed transition subjects and an event beyond the authored trim; missing/current-contract faults are introduced by the viseme entry.
  * Execution: The existing owning entries call productionSoundContract during their portable in-memory cases and retain responsibility for assertion expectations and dynamically invoked predicates; this helper acquires no asset, process, renderer or GPU and keeps no completed-result cache.
  */
-export function productionSoundContract(): IAutoMovieShotContract { return ({
+export function productionSoundContract(): IAutoMovieShotContract {
+  return {
     id: "sound-shot",
     events: [
       ["contact", "actor"],
@@ -21,11 +21,24 @@ export function productionSoundContract(): IAutoMovieShotContract { return ({
       ["reveal", "formation"],
       ["transition", "actor"],
       ["trimmed", "actor"],
-    ].map(([id, subject]: string[], index: number): { id: string; kind: string; window: { from: number; to: number; }; subjects: string[]; predicates: {}[]; } => ({
-      id,
-      kind: id === "trimmed" ? "transition" : id === "impact" ? "contact" : id,
-      window: { from: index * 0.25, to: index * 0.25 + 0.2 },
-      subjects: id === "transition" ? ["actor", "formation"] : [subject],
-      predicates: [{}],
-    })),
-  }) as IAutoMovieShotContract; }
+    ].map(
+      (
+        [id, subject]: string[],
+        index: number,
+      ): {
+        id: string;
+        kind: string;
+        window: { from: number; to: number };
+        subjects: string[];
+        predicates: {}[];
+      } => ({
+        id,
+        kind:
+          id === "trimmed" ? "transition" : id === "impact" ? "contact" : id,
+        window: { from: index * 0.25, to: index * 0.25 + 0.2 },
+        subjects: id === "transition" ? ["actor", "formation"] : [subject],
+        predicates: [{}],
+      }),
+    ),
+  } as IAutoMovieShotContract;
+}

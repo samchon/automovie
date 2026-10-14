@@ -1,10 +1,21 @@
-import type { IAutoMovieScript, IAutoMovieCamera, IAutoMovieConstraintViolation, IAutoMovieVector3 } from "@automovie/interface";
-import type { IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
-import { Quaternion } from "../../../../packages/engine/src/math/Quaternion";
-import { stageScene } from "../../../../packages/engine/src/film/stageScene";
+import type {
+  IAutoMovieCamera,
+  IAutoMovieConstraintViolation,
+  IAutoMovieScript,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
+
+import type { IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
+import { stageScene } from "../../../../packages/engine/src/film/stageScene";
+import { Quaternion } from "../../../../packages/engine/src/math/Quaternion";
 import { makeScriptWrite, makeStagingWrite } from "../internal/filmFixtures";
-import { hasViolation, namedFacts, nclose, vclose } from "../internal/predicates";
+import {
+  hasViolation,
+  namedFacts,
+  nclose,
+  vclose,
+} from "../internal/predicates";
 
 const script: IAutoMovieScript = makeScriptWrite();
 
@@ -12,13 +23,39 @@ const LENS_A: IAutoMovieVector3 = { x: 2, y: 1.5, z: 0.35 };
 const LENS_B: IAutoMovieVector3 = { x: -2, y: 1.5, z: 0.35 };
 
 /** Construct the original camera operands with the supplied id, position and target. */
-const camera: (node: string, position: IAutoMovieVector3, lookAt: { kind: "node"; node: string; } | { kind: "point"; point: IAutoMovieVector3; }) => { node: string; position: IAutoMovieVector3; lookAt: { kind: "node"; node: string; } | { kind: "point"; point: IAutoMovieVector3; }; fovDeg: number; near: number; far: number; depthPrecision: { minimumDepthBits: number; maximumStepMeters: number; }; } = (
+const camera: (
   node: string,
   position: IAutoMovieVector3,
   lookAt:
     | { kind: "node"; node: string }
     | { kind: "point"; point: IAutoMovieVector3 },
-): { node: string; position: IAutoMovieVector3; lookAt: { kind: "node"; node: string; } | { kind: "point"; point: IAutoMovieVector3; }; fovDeg: number; near: number; far: number; depthPrecision: { minimumDepthBits: number; maximumStepMeters: number; }; } => ({
+) => {
+  node: string;
+  position: IAutoMovieVector3;
+  lookAt:
+    | { kind: "node"; node: string }
+    | { kind: "point"; point: IAutoMovieVector3 };
+  fovDeg: number;
+  near: number;
+  far: number;
+  depthPrecision: { minimumDepthBits: number; maximumStepMeters: number };
+} = (
+  node: string,
+  position: IAutoMovieVector3,
+  lookAt:
+    | { kind: "node"; node: string }
+    | { kind: "point"; point: IAutoMovieVector3 },
+): {
+  node: string;
+  position: IAutoMovieVector3;
+  lookAt:
+    | { kind: "node"; node: string }
+    | { kind: "point"; point: IAutoMovieVector3 };
+  fovDeg: number;
+  near: number;
+  far: number;
+  depthPrecision: { minimumDepthBits: number; maximumStepMeters: number };
+} => ({
   node,
   position,
   lookAt,
@@ -29,7 +66,10 @@ const camera: (node: string, position: IAutoMovieVector3, lookAt: { kind: "node"
 });
 
 /** Stage the original duel with the supplied cameras and optional set placements. */
-const stage: (cameras: ReturnType<typeof camera>[], set?: { node: string; model: string; position: IAutoMovieVector3; }[]) => IAutoMovieStagedSet = (
+const stage: (
+  cameras: ReturnType<typeof camera>[],
+  set?: { node: string; model: string; position: IAutoMovieVector3 }[],
+) => IAutoMovieStagedSet = (
   cameras: ReturnType<typeof camera>[],
   set?: { node: string; model: string; position: IAutoMovieVector3 }[],
 ): IAutoMovieStagedSet =>
@@ -76,8 +116,12 @@ export function test_film_stage_scene_camera_target(): void {
   TestValidator.equals("a camera may aim at a camera", staged.success, true);
   if (staged.success !== true || explicit.success !== true)
     throw new Error("both camera-target twins must stage");
-  const aimed: IAutoMovieCamera = staged.scene.cameras.find((c: IAutoMovieCamera): boolean => c.id === "cam-b")!;
-  const twin: IAutoMovieCamera = explicit.scene.cameras.find((c: IAutoMovieCamera): boolean => c.id === "cam-b")!;
+  const aimed: IAutoMovieCamera = staged.scene.cameras.find(
+    (c: IAutoMovieCamera): boolean => c.id === "cam-b",
+  )!;
+  const twin: IAutoMovieCamera = explicit.scene.cameras.find(
+    (c: IAutoMovieCamera): boolean => c.id === "cam-b",
+  )!;
   TestValidator.predicate(
     "the camera id composes the explicit lens point's camera",
     aimed.id === twin.id &&
@@ -90,9 +134,15 @@ export function test_film_stage_scene_camera_target(): void {
       nclose(aimed.fovY, twin.fovY, 0) &&
       nclose(aimed.near, twin.near, 0) &&
       nclose(aimed.far, twin.far, 0) &&
-      aimed.depthPrecision.minimumDepthBits === twin.depthPrecision.minimumDepthBits &&
-      nclose(aimed.depthPrecision.maximumStepMeters, twin.depthPrecision.maximumStepMeters, 0) &&
-      aimed.clearance === undefined && twin.clearance === undefined,
+      aimed.depthPrecision.minimumDepthBits ===
+        twin.depthPrecision.minimumDepthBits &&
+      nclose(
+        aimed.depthPrecision.maximumStepMeters,
+        twin.depthPrecision.maximumStepMeters,
+        0,
+      ) &&
+      aimed.clearance === undefined &&
+      twin.clearance === undefined,
   );
 
   // 2. the independent oracle: local -Z points from cam-b at cam-a.
@@ -130,15 +180,17 @@ export function test_film_stage_scene_camera_target(): void {
     namedFacts([
       [
         "hasViolationGhostType",
-        (): boolean => hasViolation(ghost, "type", "$input.cameras[0].lookAt.node"),
+        (): boolean =>
+          hasViolation(ghost, "type", "$input.cameras[0].lookAt.node"),
       ],
       ["ghostSuccess", (): boolean => ghost.success === false],
       [
         "ghostViolationsItem",
         (): boolean =>
           ghost.success === false &&
-          ghost.violations.some((item: IAutoMovieConstraintViolation): boolean =>
-            item.expected.includes("placed actor, set piece, or camera"),
+          ghost.violations.some(
+            (item: IAutoMovieConstraintViolation): boolean =>
+              item.expected.includes("placed actor, set piece, or camera"),
           ),
       ],
     ]),

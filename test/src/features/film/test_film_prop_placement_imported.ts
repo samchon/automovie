@@ -1,6 +1,13 @@
-import type { IAutoMovieValidation, IAutoMovieConstraintViolation, IAutoMovieBuiltEnvironment, IAutoMoviePropSpec, IAutoMovieStageSetPiece } from "@automovie/interface";
-import { validatePropPlacements } from "../../../../packages/engine/src/film/validatePropPlacements";
+import type {
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieConstraintViolation,
+  IAutoMoviePropSpec,
+  IAutoMovieStageSetPiece,
+  IAutoMovieValidation,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
+
+import { validatePropPlacements } from "../../../../packages/engine/src/film/validatePropPlacements";
 import { createImportedPropSpec } from "../internal/createImportedPropSpec";
 import { createModel } from "../internal/fixtures";
 import { namedFacts } from "../internal/predicates";
@@ -73,7 +80,11 @@ const stool: () => IAutoMoviePropSpec = (): IAutoMoviePropSpec => ({
 });
 
 /** Construct the original fresh imported/generated placement registry in slot order. */
-const registry: () => IAutoMoviePropSpec[] = (): IAutoMoviePropSpec[] => [chair(), lamp(), stool()];
+const registry: () => IAutoMoviePropSpec[] = (): IAutoMoviePropSpec[] => [
+  chair(),
+  lamp(),
+  stool(),
+];
 
 /** Construct the original placements aligned with the three registry slots. */
 const set: () => IAutoMovieStageSetPiece[] = (): IAutoMovieStageSetPiece[] => [
@@ -90,7 +101,11 @@ const set: () => IAutoMovieStageSetPiece[] = (): IAutoMovieStageSetPiece[] => [
 ];
 
 /** Run the actual placement validator on caller inputs or the original fresh defaults. */
-const validate: (props?: IAutoMoviePropSpec[], pieces?: IAutoMovieStageSetPiece[], environments?: IAutoMovieBuiltEnvironment[]) => IAutoMovieValidation = (
+const validate: (
+  props?: IAutoMoviePropSpec[],
+  pieces?: IAutoMovieStageSetPiece[],
+  environments?: IAutoMovieBuiltEnvironment[],
+) => IAutoMovieValidation = (
   props: IAutoMoviePropSpec[] = registry(),
   pieces: IAutoMovieStageSetPiece[] = set(),
   environments: IAutoMovieBuiltEnvironment[] = [propEnvironment()],
@@ -102,7 +117,15 @@ const validate: (props?: IAutoMoviePropSpec[], pieces?: IAutoMovieStageSetPiece[
   });
 
 /** A mutated room must fail at `path` with `message`, on a fresh arrangement. */
-const violated: (mutate: (props: IAutoMoviePropSpec[], pieces: IAutoMovieStageSetPiece[], environments: IAutoMovieBuiltEnvironment[]) => void, path: string, message: string) => boolean = (
+const violated: (
+  mutate: (
+    props: IAutoMoviePropSpec[],
+    pieces: IAutoMovieStageSetPiece[],
+    environments: IAutoMovieBuiltEnvironment[],
+  ) => void,
+  path: string,
+  message: string,
+) => boolean = (
   mutate: (
     props: IAutoMoviePropSpec[],
     pieces: IAutoMovieStageSetPiece[],
@@ -119,7 +142,8 @@ const violated: (mutate: (props: IAutoMoviePropSpec[], pieces: IAutoMovieStageSe
   return (
     result.success === false &&
     result.violations.some(
-      (item: IAutoMovieConstraintViolation): boolean => item.path === path && item.expected.includes(message),
+      (item: IAutoMovieConstraintViolation): boolean =>
+        item.path === path && item.expected.includes(message),
     )
   );
 };
@@ -161,7 +185,10 @@ export function test_film_prop_placement_imported(): void {
         "floatsAboveTheFloorItNames",
         (): boolean =>
           violated(
-            (_props: IAutoMoviePropSpec[], pieces: IAutoMovieStageSetPiece[]): number => (pieces[CHAIR]!.position.y = 0.95),
+            (
+              _props: IAutoMoviePropSpec[],
+              pieces: IAutoMovieStageSetPiece[],
+            ): number => (pieces[CHAIR]!.position.y = 0.95),
             "$input.props[0].placement.relations[1].target.surface",
             'floats above support surface "floor"',
           ),
@@ -170,7 +197,10 @@ export function test_film_prop_placement_imported(): void {
         "sinksIntoTheFloorItNames",
         (): boolean =>
           violated(
-            (_props: IAutoMoviePropSpec[], pieces: IAutoMovieStageSetPiece[]): number => (pieces[CHAIR]!.position.y = 0.4),
+            (
+              _props: IAutoMoviePropSpec[],
+              pieces: IAutoMovieStageSetPiece[],
+            ): number => (pieces[CHAIR]!.position.y = 0.4),
             "$input.props[0].placement.relations[1].target.surface",
             'sinks into support surface "floor"',
           ),
@@ -179,7 +209,10 @@ export function test_film_prop_placement_imported(): void {
         "leavesTheSpaceItOccupies",
         (): boolean =>
           violated(
-            (_props: IAutoMoviePropSpec[], pieces: IAutoMovieStageSetPiece[]): { x: number; y: number; z: number; } =>
+            (
+              _props: IAutoMoviePropSpec[],
+              pieces: IAutoMovieStageSetPiece[],
+            ): { x: number; y: number; z: number } =>
               (pieces[CHAIR]!.position = { x: 12, y: 0.45, z: 0 }),
             "$input.props[0].placement.relations[0].target.space",
             'leaves logical space "room"',
@@ -189,7 +222,10 @@ export function test_film_prop_placement_imported(): void {
         "standsInTheDoorway",
         (): boolean =>
           violated(
-            (_props: IAutoMoviePropSpec[], pieces: IAutoMovieStageSetPiece[]): { x: number; y: number; z: number; } =>
+            (
+              _props: IAutoMoviePropSpec[],
+              pieces: IAutoMovieStageSetPiece[],
+            ): { x: number; y: number; z: number } =>
               (pieces[CHAIR]!.position = { x: 4, y: 0.45, z: 0 }),
             "$input.props[0].placement",
             'blocks opening "doorway"',
@@ -199,7 +235,10 @@ export function test_film_prop_placement_imported(): void {
         "itsClearanceIsRefusedLikeAnyOther",
         (): boolean =>
           violated(
-            (_props: IAutoMoviePropSpec[], pieces: IAutoMovieStageSetPiece[]): { x: number; y: number; z: number; } =>
+            (
+              _props: IAutoMoviePropSpec[],
+              pieces: IAutoMovieStageSetPiece[],
+            ): { x: number; y: number; z: number } =>
               (pieces[STOOL]!.position = { x: 1, y: 0.3, z: 1.5 }),
             "$input.props[0].placement.clearance[0]",
             'clearance "pull-out" intersects staged prop "stool"',
@@ -209,7 +248,10 @@ export function test_film_prop_placement_imported(): void {
         "itsOccupancyIsRefusedLikeAnyOther",
         (): boolean =>
           violated(
-            (_props: IAutoMoviePropSpec[], pieces: IAutoMovieStageSetPiece[]): { x: number; y: number; z: number; } =>
+            (
+              _props: IAutoMoviePropSpec[],
+              pieces: IAutoMovieStageSetPiece[],
+            ): { x: number; y: number; z: number } =>
               (pieces[STOOL]!.position = { x: 1, y: 0.3, z: 1 }),
             "$input.props[2].placement.footprint",
             'overlaps prop "chair", which declares no contact with it',
@@ -219,7 +261,10 @@ export function test_film_prop_placement_imported(): void {
         "hostsALampThatFloatsAboveItsSeat",
         (): boolean =>
           violated(
-            (_props: IAutoMoviePropSpec[], pieces: IAutoMovieStageSetPiece[]): number => (pieces[LAMP]!.position.y = 1.1),
+            (
+              _props: IAutoMoviePropSpec[],
+              pieces: IAutoMovieStageSetPiece[],
+            ): number => (pieces[LAMP]!.position.y = 1.1),
             "$input.props[1].placement.relations[1].target.affordance",
             'floats above prop "chair" affordance "seat"',
           ),
@@ -228,7 +273,10 @@ export function test_film_prop_placement_imported(): void {
         "hostsALampThatSinksIntoItsSeat",
         (): boolean =>
           violated(
-            (_props: IAutoMoviePropSpec[], pieces: IAutoMovieStageSetPiece[]): number => (pieces[LAMP]!.position.y = 1),
+            (
+              _props: IAutoMoviePropSpec[],
+              pieces: IAutoMovieStageSetPiece[],
+            ): number => (pieces[LAMP]!.position.y = 1),
             "$input.props[1].placement.relations[1].target.affordance",
             'sinks into prop "chair" affordance "seat"',
           ),
@@ -237,7 +285,10 @@ export function test_film_prop_placement_imported(): void {
         "hostsALampThatStandsOffItsSeat",
         (): boolean =>
           violated(
-            (_props: IAutoMoviePropSpec[], pieces: IAutoMovieStageSetPiece[]): { x: number; y: number; z: number; } =>
+            (
+              _props: IAutoMoviePropSpec[],
+              pieces: IAutoMovieStageSetPiece[],
+            ): { x: number; y: number; z: number } =>
               (pieces[LAMP]!.position = { x: 3, y: 1.05, z: 1 }),
             "$input.props[1].placement.relations[1].target.affordance",
             'does not stand over prop "chair" affordance "seat"',
@@ -248,10 +299,16 @@ export function test_film_prop_placement_imported(): void {
         (): boolean => {
           const props: IAutoMoviePropSpec[] = registry();
           const pieces: IAutoMovieStageSetPiece[] = set();
-          const environments: IAutoMovieBuiltEnvironment[] = [propEnvironment()];
+          const environments: IAutoMovieBuiltEnvironment[] = [
+            propEnvironment(),
+          ];
           props[CHAIR]!.model.imported!.lod[0]!.digest = "sha256:not-a-digest";
           pieces[CHAIR]!.position.y = 0.95;
-          const result: IAutoMovieValidation = validate(props, pieces, environments);
+          const result: IAutoMovieValidation = validate(
+            props,
+            pieces,
+            environments,
+          );
           return (
             result.success === false &&
             result.violations.some(
@@ -259,7 +316,8 @@ export function test_film_prop_placement_imported(): void {
                 item.path === "$input.props[0].model.imported.lod[0].digest",
             ) &&
             result.violations.every(
-              (item: IAutoMovieConstraintViolation): boolean => !item.expected.includes("floats above support surface"),
+              (item: IAutoMovieConstraintViolation): boolean =>
+                !item.expected.includes("floats above support surface"),
             )
           );
         },

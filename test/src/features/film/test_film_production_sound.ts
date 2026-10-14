@@ -1,9 +1,15 @@
-import type { IAutoMovieCompiledShotSource, IAutoMovieProductionSoundPlan, IAutoMovieProductionSoundEvent, IAutoMovieFilmTimeline } from "@automovie/interface";
-import { nclose } from "../internal/nclose";
+import type {
+  IAutoMovieCompiledShotSource,
+  IAutoMovieFilmTimeline,
+  IAutoMovieProductionSoundEvent,
+  IAutoMovieProductionSoundPlan,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
 import type { IAutoMovieRenderedProductionSound } from "../../../../packages/engine/src/sound/IAutoMovieRenderedProductionSound";
 import { deriveProductionSoundPlan } from "../../../../packages/engine/src/sound/deriveProductionSoundPlan";
 import { renderProductionSound } from "../../../../packages/engine/src/sound/renderProductionSound";
-import { TestValidator } from "@nestia/e2e";
+import { nclose } from "../internal/nclose";
 import { namedFacts } from "../internal/predicates";
 import {
   productionSoundCompiled,
@@ -35,26 +41,49 @@ export function test_film_production_sound(): void {
   TestValidator.predicate(
     "trimmed events are omitted while every audible event stays frame-bound",
     plan.events.length === 6 &&
-      plan.events.every((event: IAutoMovieProductionSoundEvent): boolean => event.frame === Math.round(event.timeSeconds * plan.fps)) &&
-      plan.events.every((event: IAutoMovieProductionSoundEvent): boolean => event.attenuation > 0) &&
-      plan.events.every((event: IAutoMovieProductionSoundEvent): boolean => event.attenuation <= 1),
+      plan.events.every(
+        (event: IAutoMovieProductionSoundEvent): boolean =>
+          event.frame === Math.round(event.timeSeconds * plan.fps),
+      ) &&
+      plan.events.every(
+        (event: IAutoMovieProductionSoundEvent): boolean =>
+          event.attenuation > 0,
+      ) &&
+      plan.events.every(
+        (event: IAutoMovieProductionSoundEvent): boolean =>
+          event.attenuation <= 1,
+      ),
   );
   TestValidator.predicate(
     "camera-relative emitters cover nodes, formations and instance sets",
-    plan.events.some((event: IAutoMovieProductionSoundEvent): boolean => event.pan > 0) &&
-      plan.events.some((event: IAutoMovieProductionSoundEvent): boolean => event.pan < 0) &&
-      plan.events.some((event: IAutoMovieProductionSoundEvent): boolean => nclose(event.pan, 0, 0)),
+    plan.events.some(
+      (event: IAutoMovieProductionSoundEvent): boolean => event.pan > 0,
+    ) &&
+      plan.events.some(
+        (event: IAutoMovieProductionSoundEvent): boolean => event.pan < 0,
+      ) &&
+      plan.events.some((event: IAutoMovieProductionSoundEvent): boolean =>
+        nclose(event.pan, 0, 0),
+      ),
   );
   const formationEvents: IAutoMovieProductionSoundEvent[] = plan.events.filter(
-    (event: IAutoMovieProductionSoundEvent): boolean => event.event === "arrival" || event.event === "reveal",
+    (event: IAutoMovieProductionSoundEvent): boolean =>
+      event.event === "arrival" || event.event === "reveal",
   );
   TestValidator.predicate(
     "formation emitters sample compact motion at each event time",
-    formationEvents[0] !== undefined && nclose(formationEvents[0].emitter.x, -1.75, 0) &&
-      formationEvents[1] !== undefined && nclose(formationEvents[1].emitter.x, 2, 0),
+    formationEvents[0] !== undefined &&
+      nclose(formationEvents[0].emitter.x, -1.75, 0) &&
+      formationEvents[1] !== undefined &&
+      nclose(formationEvents[1].emitter.x, 2, 0),
   );
-  const dialogue: Map<string, Float32Array<ArrayBuffer>> = new Map([["line", Float32Array.from([0.5])]]);
-  const first: IAutoMovieRenderedProductionSound = renderProductionSound({ plan, dialogue });
+  const dialogue: Map<string, Float32Array<ArrayBuffer>> = new Map([
+    ["line", Float32Array.from([0.5])],
+  ]);
+  const first: IAutoMovieRenderedProductionSound = renderProductionSound({
+    plan,
+    dialogue,
+  });
   // The largest offset whose eight-frame trim still fits the ten-frame source:
   // an offset that left the declared source would be refused, not rephased.
   const offsetTimeline: IAutoMovieFilmTimeline = productionSoundTimeline();
@@ -90,10 +119,22 @@ export function test_film_production_sound(): void {
     "mixed sound is exact-runtime, audible, unclipped and event aligned",
     first.analysis.sampleFrames === 144_000 &&
       first.analysis.integratedLoudness !== null &&
-      first.analysis.samplePeak > 0 && first.analysis.samplePeak <= 0.95 &&
+      first.analysis.samplePeak > 0 &&
+      first.analysis.samplePeak <= 0.95 &&
       first.analysis.clippingSamples === 0 &&
       first.analysis.eventAlignment.length === plan.events.length &&
-      first.analysis.eventAlignment.every((event: { id: string; expectedSeconds: number; peakSeconds: number; errorFrames: number; passed: boolean; }): boolean => event.passed),
+      first.analysis.eventAlignment.every(
+        (event: {
+          id: string;
+          expectedSeconds: number;
+          peakSeconds: number;
+          errorFrames: number;
+          passed: boolean;
+        }): boolean => event.passed,
+      ),
   );
-  TestValidator.predicate("the mixed runtime is exactly three seconds", nclose(first.analysis.runtimeSeconds, 3, 0));
+  TestValidator.predicate(
+    "the mixed runtime is exactly three seconds",
+    nclose(first.analysis.runtimeSeconds, 3, 0),
+  );
 }

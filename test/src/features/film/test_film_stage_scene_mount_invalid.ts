@@ -1,5 +1,5 @@
-import type { IAutoMovieConstraintViolation } from "@automovie/interface";
 import { stageScene } from "@automovie/engine";
+import type { IAutoMovieConstraintViolation } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { makeScriptWrite, makeStagingWrite } from "../internal/filmFixtures";
@@ -70,7 +70,9 @@ export function test_film_stage_scene_mount_invalid(): void {
         "stagedViolationsV",
         (): boolean =>
           staged.success === false &&
-          staged.violations.some((v: IAutoMovieConstraintViolation): boolean => v.value === "horse"),
+          staged.violations.some(
+            (v: IAutoMovieConstraintViolation): boolean => v.value === "horse",
+          ),
       ],
     ]),
     {

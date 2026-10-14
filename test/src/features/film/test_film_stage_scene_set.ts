@@ -1,9 +1,18 @@
-import type { IAutoMovieScene, IAutoMovieSceneNode, IAutoMovieVector3 } from "@automovie/interface";
 import { Quaternion, Vector3, stageScene } from "@automovie/engine";
+import type {
+  IAutoMovieScene,
+  IAutoMovieSceneNode,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { makeScriptWrite, makeStagingWrite } from "../internal/filmFixtures";
-import { hasViolation, namedFacts, qclose, vclose } from "../internal/predicates";
+import {
+  hasViolation,
+  namedFacts,
+  qclose,
+  vclose,
+} from "../internal/predicates";
 
 /**
  * Set pieces (#1173): staging may drop environment geometry (a floor slab, a
@@ -92,17 +101,24 @@ export function test_film_stage_scene_set(): void {
   );
   TestValidator.predicate(
     "a full set rotation is kept for non-yaw architecture",
-    qclose(staged.scene.nodes[4]!.transform.rotation,
-      { x: 0, y: 0, z: Math.SQRT1_2, w: Math.SQRT1_2 }),
+    qclose(staged.scene.nodes[4]!.transform.rotation, {
+      x: 0,
+      y: 0,
+      z: Math.SQRT1_2,
+      w: Math.SQRT1_2,
+    }),
   );
 
   // 2. the camera aims its −Z from its position at the piece.
   const camera: IAutoMovieScene["cameras"][number] = staged.scene.cameras[0]!;
-  const minusZ: IAutoMovieVector3 = Quaternion.rotateVector(camera.transform.rotation, {
-    x: 0,
-    y: 0,
-    z: -1,
-  });
+  const minusZ: IAutoMovieVector3 = Quaternion.rotateVector(
+    camera.transform.rotation,
+    {
+      x: 0,
+      y: 0,
+      z: -1,
+    },
+  );
   // Authored wall (3,0,0) minus camera (2,1.5,3), independent of lowered TRS.
   const toWall: IAutoMovieVector3 = Vector3.normalize({ x: 1, y: -1.5, z: -3 });
   TestValidator.predicate(
