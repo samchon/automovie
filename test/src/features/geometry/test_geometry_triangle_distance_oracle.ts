@@ -13,7 +13,7 @@ import { nclose } from "../internal/predicates";
  * 3. An interior point has only its one-metre height and an on-face point zero.
  *
  * @evidence contracts/testing.md#behavioral-verification Calls the production open-sheet query and calibrates the independent triangle-distance reference on the same hand-solvable Voronoi regions; a wrong production region, metric or reference result fails.
- * @evidence contracts/testing.md#independent-expectations A right triangle with two-metre legs gives vertex distances 3, edge distances 2 or 3, interior height distance 1 and on-face distance 0 by Euclidean geometry.
+ * @evidence contracts/testing.md#independent-expectations A right triangle with two-metre legs gives vertex distances 3, edge distances 2 or 3, interior height distance 1 and on-face distance 0 by Euclidean geometry. Squared distances retain 1e-12 absolute agreement; these cases calibrate the metric but do not independently assert returned feature labels, signs or arbitrary-scale conditioning.
  * @evidence contracts/testing.md#distinguishing-cases All seven nondegenerate Voronoi regions and exact face contact compare both implementations with authored distances; closed-surface sign, malformed mesh admission and multi-triangle traversal belong to the signed-mesh-query units that consume this reference.
  * @evidence contracts/testing.md#execution-ownership The discoverable test_geometry_triangle_distance_oracle entry owns these synchronous portable numerical cases and any local iteration; it starts no process, browser or GPU and makes no visual-success claim.
  */

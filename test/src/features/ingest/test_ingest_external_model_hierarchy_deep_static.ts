@@ -12,7 +12,7 @@ import { throwsError } from "../internal/predicates";
  *
  * Scenarios:
  *
- * 1. A 16,384-node chain accepts its final root and preserves the node count.
+ * 1. A 16,384-node chain with its final node selected as root is admitted and preserves the node count; static inspection does not return parent links for this assertion.
  * 2. Connecting its first node to its last produces a deterministic cycle diagnostic, including when no scene selects the cyclic component.
  *
  * @evidence contracts/testing.md#behavioral-verification Runs static admission on a 16,384-node chain, then closes a cycle and requires its structural cause even with scene selection omitted; lost nodes, overflow or hidden cycles fail.

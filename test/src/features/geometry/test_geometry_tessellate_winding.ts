@@ -75,7 +75,7 @@ const windingAgreesWithNormals: (t: { positions: number[]; normals: number[]; in
  *
  * Scenarios:
  * 1. Every solid has strictly positive oriented volume.
- * 2. Every nondegenerate triangle across all six primitive kinds agrees with its authored normal; visual culling is checked separately on a real renderer.
+ * 2. Every nondegenerate triangle across all six primitive kinds agrees with its authored normal; visual culling requires separate real-renderer observation.
  *
  * @evidence contracts/testing.md#behavioral-verification Calls primitive tessellation and checks positive oriented volume plus agreement between geometric triangle normals and authored normals; global or local winding reversals fail.
  * @evidence contracts/testing.md#independent-expectations The divergence theorem and triangle cross products derive orientation independently of the producer's index construction; degenerate triangles have no orientation and are skipped.

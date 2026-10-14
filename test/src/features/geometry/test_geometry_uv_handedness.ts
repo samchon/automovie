@@ -32,7 +32,7 @@ interface IHandedness {
 }
 
 /**
- * Count indexed UV determinants; sign measures the atlas convention, while shader tangent handedness and appearance require their own GPU observation.
+ * Count finite indexed UV determinants and refuse nonfinite arithmetic instead of classifying NaN as negative; sign measures the atlas convention, while shader tangent handedness and appearance require their own GPU observation.
  */
 const handedness: (mesh: IAutoMovieMesh) => IHandedness = (mesh: IAutoMovieMesh): IHandedness => {
   const uvs: number[] = mesh.uvs!;
@@ -47,6 +47,8 @@ const handedness: (mesh: IAutoMovieMesh) => IHandedness = (mesh: IAutoMovieMesh)
     const determinant: number =
       (uvs[b * 2]! - uvs[a * 2]!) * (uvs[c * 2 + 1]! - uvs[a * 2 + 1]!) -
       (uvs[b * 2 + 1]! - uvs[a * 2 + 1]!) * (uvs[c * 2]! - uvs[a * 2]!);
+    if (!Number.isFinite(determinant))
+      throw new Error("UV handedness measurement requires finite determinants.");
     if (Math.abs(determinant) <= DEGENERATE_UV_AREA) tally.degenerate += 1;
     else if (determinant > 0) tally.positive += 1;
     else tally.negative += 1;

@@ -28,6 +28,7 @@ export function test_geometry_triangle_region(): void {
     "exterior is not silently cut",
     throwsError((): number[] =>
       selectAutoMovieTriangleRegion({ indices, boundary: [3, 2, 1, 0] }),
+      "outside free edge",
     ),
   );
   TestValidator.predicate(
@@ -37,6 +38,7 @@ export function test_geometry_triangle_region(): void {
         indices: [0, 1, 2],
         boundary: [2, 1, 0],
       }),
+      "oriented region boundary",
     ),
   );
   const tetra: number[] = [0, 2, 1, 0, 1, 3, 1, 2, 3, 2, 0, 3];
@@ -56,6 +58,7 @@ export function test_geometry_triangle_region(): void {
     "nonseparating boundary is refused",
     throwsError((): number[] =>
       selectAutoMovieTriangleRegion({ indices: torus, boundary: [0, 1, 2] }),
+      "separate one connected surface patch",
     ),
   );
   for (const boundary of [
@@ -68,7 +71,7 @@ export function test_geometry_triangle_region(): void {
   ])
     TestValidator.predicate(
       "invalid boundary",
-      throwsError((): number[] => selectAutoMovieTriangleRegion({ indices, boundary })),
+      throwsError((): number[] => selectAutoMovieTriangleRegion({ indices, boundary }), "region"),
     );
   for (const broken of [
     [0, 1],
@@ -81,6 +84,7 @@ export function test_geometry_triangle_region(): void {
       "invalid triangle source",
       throwsError((): number[] =>
         selectAutoMovieTriangleRegion({ indices: broken, boundary: [0, 1, 2] }),
+        "region",
       ),
     );
 }

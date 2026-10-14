@@ -226,7 +226,8 @@ export function test_inspection_subject_description_edges(): void {
   TestValidator.predicate("seeded non-uniform variation and zero-weight fallback select the final prototype deterministically", test12ValuesClose({
       model: enhancedMember.model,
       semanticKind: enhancedMember.semanticKind,
-      finite: [
+      finite: Object.keys(enhancedMember.transform!.rotation).length === 4 &&
+        Object.keys(enhancedMember.transform!.scale).length === 3 && [
         ...Object.values(enhancedMember.transform!.rotation),
         ...Object.values(enhancedMember.transform!.scale),
       ].every(Number.isFinite),

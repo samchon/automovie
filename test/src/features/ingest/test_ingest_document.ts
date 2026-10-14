@@ -31,21 +31,21 @@ const makeAnimatedDoc: () => { doc: Document; node: import("@gltf-transform/core
 };
 
 /**
- * Ingest a hand-built glTF {@link Document} into the core node graph + clips, exercising every node kind, every cross-reference, and every interpolation mode the structural mapper distinguishes.
+ * Ingest a hand-built glTF {@link Document} into the core node graph and clips, exercising all four reachable node kinds, representative references, and all three glTF interpolation modes.
  *
  * The document: a `root` group with a `meshNode` (mesh) and `camNode` (camera) child, plus a `bone` (skin joint), a `skinned` mesh+skin node, and an unnamed node, all under the scene. One named animation drives three channels (translation LINEAR, rotation STEP, scale CUBICSPLINE) and a second, unnamed, empty animation.
  *
  * Scenarios:
  *
- * 1. Every glTF node maps to a core node (six in, six out); each keeps a stable index id and resolves its `parent` by reference (the mesh/camera nodes name `root`; `root` and the scene-level nodes are parentless).
+ * 1. Six glTF nodes yield six core nodes; the mesh/camera parents refer to the returned root id and the root is parentless. Decimal id spelling and the other scene-level parents are not asserted.
  * 2. Kind inference covers all four reachable kinds: a skin joint → `bone` (even though a mesh would otherwise win), a mesh node → `mesh`, a camera node → `camera`, everything else → `group`.
- * 3. The mesh / camera / skin id fields are populated when present and `null` when absent; an unnamed glTF node yields `name: null`; TRS is carried through verbatim.
+ * 3. Mesh, camera and skin references are present on their carriers; the mesh node has no camera or skin, an unnamed node remains unnamed, and the mesh translation's x component remains one. Other TRS components and exact resource indices are not observed.
  * 4. Each glTF animation becomes a clip; its channels become tracks whose channel targets the node by id with the right path, and whose interpolation maps LINEAR→linear, STEP→step, CUBICSPLINE→cubicspline. Clip duration is the latest keyframe time; the empty unnamed animation yields a null-named, zero-duration, trackless clip.
  * 5. A channel the sample pass could not replay is refused by its fault: a missing target, sampler, input or output, empty data, an output length off the path's arity, no target path, an interpolation outside glTF's three, keyframe times that do not strictly increase, and a non-finite output value.
  * 6. A normalized 16-bit rotation output decodes to the unit quaternion it means rather than its raw integers.
  *
  * @evidence contracts/testing.md#behavioral-verification Calls Document ingestion and observes node references, kind precedence, channel interpolation and decoded samples, then checks field-specific refusals for unreplayable channels.
- * @evidence contracts/testing.md#independent-expectations The authored node graph and accessor values define ids, parent links, interpolation vocabulary and sample arity independently; normalized signed integers define exact decoded zero/one quaternion components.
+ * @evidence contracts/testing.md#independent-expectations The authored graph defines parent relationships, while returned ids are used only to check referential consistency, not their index spelling; accessor values define interpolation vocabulary and sample arity independently. Normalized signed integers define exact decoded zero/one quaternion components; full TRS fidelity, resource-index identity and returned-array independence remain outside these assertions.
  * @evidence contracts/testing.md#distinguishing-cases All four reachable node kinds, named/unnamed and empty clips, translation/rotation/scale/weights, missing channel storage, empty arrays, wrong arity, absent path, unknown interpolation, backward times and nonfinite values are retained; raw container/profile admission belongs to byte-inspector units.
  * @evidence contracts/testing.md#execution-ownership The discoverable test_ingest_document entry owns these synchronous portable ingestion cases and registered local facts; resident Document or byte fixtures require no external files, host process, editor or GPU.
  */
