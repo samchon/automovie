@@ -14,6 +14,8 @@ export class AutoMovieProductionSourcePathError extends Error {
   public constructor(
     /** Stable failed source-root relation. */
     public readonly reason: "missing" | "outside-root",
+
+    /** Reader-supplied explanation passed unchanged to native Error construction. */
     message: string,
   ) { super(message); }
 }

@@ -16,7 +16,7 @@ import { productionProjectReadGeneratedFile } from "./productionProjectReadGener
  * @evidence contracts/common.md#meaningful-documentation Individual methods carry their actual operation's effects, currentness premises, costs and lifetime limits, while this internal class adds only the public forwarding shape.
  * @evidence contracts/performance.md#efficient-algorithms Each invocation adds one constant-size direct call to the complete operation cost documented on that method; inheritance depth affects method lookup but adds no scan of designs, frames or payload bytes.
  * @evidence contracts/performance.md#reuse-equivalent-work All adapters borrow one state retained by the first base constructor; their operation's currentness checks decide when resident observations may be reused, with no cross-instance result cache.
- * @evidence contracts/performance.md#bound-retention-and-release-resources One facade retains one state through the first base's readonly field; subsequent bases add no per-instance handles, buffers, closure tables or tasks, and operation owners release resources they acquire.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources This base adds no per-instance handles, buffers, closure tables or tasks to the state retained by the first base; individual operations own acquisition and cleanup attempts, with close failures still observable rather than proof of host release.
  */
 export class AutoMovieProductionProjectCapability4 extends AutoMovieProductionProjectCapability3 {
     /**
@@ -40,9 +40,9 @@ export class AutoMovieProductionProjectCapability4 extends AutoMovieProductionPr
      * @evidence contracts/common.md#clear-and-simple-design The operation owns implementation behind this public forwarding signature. Separates currentness coordination from the generated manifest path/schema reader and preserves the facade's optional return shape.
      * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not rebuild generated output or return a cached manifest after read failure; manifest schema validity alone does not prove every generated artifact's bytes.
      * @evidence contracts/common.md#meaningful-documentation Null means the optional tracked manifest is absent, while successful data is a typed current read requiring separate generated artifact identity checks.
-     * @evidence contracts/performance.md#efficient-algorithms One direct adapter call adds constant overhead to the delegated operation. Includes refresh and a complete manifest read/parse/validation proportional to manifest bytes and nested records, without reading generated output payloads.
+     * @evidence contracts/performance.md#efficient-algorithms One direct call adds constant overhead to full refresh registry/incarnation/ancestry checks, then complete manifest byte acquisition, structured parsing and schema traversal. Refresh includes registration sorting and retired-key membership work; repeated numeric-token suffix slicing can add quadratic parser copying, without reading generated payloads.
      * @evidence contracts/performance.md#reuse-equivalent-work Each call reads the tracked manifest anew; returned data can be shared within the caller's attempt but is not memoized across revisions or file changes.
-     * @evidence contracts/performance.md#bound-retention-and-release-resources The adapter retains only its instance state between calls. The caller owns parsed manifest data and delegated file acquisition closes its descriptor; this operation retains neither payload buffers nor tasks.
+     * @evidence contracts/performance.md#bound-retention-and-release-resources Only instance state is retained between calls; parsed manifest data transfers to the caller and temporary bytes/parser/schema data follow the complete record size without a local cap. Delegated readers attempt cleanup and report refusal rather than guaranteeing host release; no manifest cache or task is retained.
      */
     public generatedManifest(): IAutoMovieGeneratedManifest | null {
         return productionProjectGeneratedManifest(this.state_);
@@ -56,7 +56,7 @@ export class AutoMovieProductionProjectCapability4 extends AutoMovieProductionPr
      * @evidence contracts/common.md#meaningful-documentation States null versus resident refusal and the repeated incarnation checks; the returned bytes are not independently schema-validated or a publication-currentness verdict.
      * @evidence contracts/performance.md#efficient-algorithms One direct adapter call adds constant overhead to the delegated operation. Work includes two incarnation admissions, root/path observations and the B-byte guarded read with directory-depth checks; the repeated admission is preserved rather than elided as a claimed speedup.
      * @evidence contracts/performance.md#reuse-equivalent-work Captured generations are reused only as comparison bases; each invocation observes fresh resident bytes and no receipt/claim ID is treated as proof of byte equivalence.
-     * @evidence contracts/performance.md#bound-retention-and-release-resources The adapter retains only its instance state between calls. The owned reader closes primary and recheck descriptors on success/failure; returned bytes transfer to the caller and this operation retains no file buffer, lock or task.
+     * @evidence contracts/performance.md#bound-retention-and-release-resources Only instance state is retained between calls; the owned reader attempts primary/recheck descriptor cleanup and reports close failures. Complete returned bytes transfer without a local byte cap, and no file-buffer cache, lock or task survives.
      */
     public readTrackedStateFile(relativePath: string): Uint8Array | null {
         return productionProjectReadTrackedStateFile(this.state_, relativePath);
