@@ -48,7 +48,10 @@
     "@automovie/interface": "workspace:^",
     "@gltf-transform/core": "catalog:gltf",
     "mp4box": "catalog:media",
-    "pngjs": "catalog:media"
+    "pngjs": "catalog:media",
+    "@automovie/viewer": "workspace:^",
+    "h264-mp4-encoder": "catalog:media",
+    "playwright-core": "catalog:media"
   },
   "devDependencies": {
     "@types/pngjs": "catalog:media",

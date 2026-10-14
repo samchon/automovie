@@ -615,12 +615,21 @@ importers:
       '@automovie/interface':
         specifier: workspace:^
         version: link:../interface
+      '@automovie/viewer':
+        specifier: workspace:^
+        version: link:../viewer
       '@gltf-transform/core':
         specifier: catalog:gltf
         version: 4.5.0
+      h264-mp4-encoder:
+        specifier: catalog:media
+        version: 1.0.12
       mp4box:
         specifier: catalog:media
         version: 2.4.1
+      playwright-core:
+        specifier: catalog:media
+        version: 1.60.0
       pngjs:
         specifier: catalog:media
         version: 7.0.0
