@@ -24,7 +24,10 @@ import {
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Returns a reference into the caller's context and allocates or retains nothing.
  * @author Samchon
  */
-export const autoMovieEnvironmentInstant: (context: IAutoMovieEnvironmentContext, id: string) => IAutoMovieEnvironmentInstant | null = (
+export const autoMovieEnvironmentInstant: (
+  context: IAutoMovieEnvironmentContext,
+  id: string,
+) => IAutoMovieEnvironmentInstant | null = (
   context: IAutoMovieEnvironmentContext,
   id: string,
 ): IAutoMovieEnvironmentInstant | null =>

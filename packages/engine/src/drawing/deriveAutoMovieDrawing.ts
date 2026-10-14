@@ -60,14 +60,21 @@ import { sectionAutoMovieDrawingSpaces } from "./sectionAutoMovieDrawingSpaces";
  * @evidence contracts/performance.md#bound-retention-and-release-resources The design index and stage temporaries are owned by this call and released when it returns, bounded by the design's size; only the returned drawing, owned by the caller, survives.
  * @author Samchon
  */
-export const deriveAutoMovieDrawing: (props: { environment: IAutoMovieBuiltEnvironment; view: IAutoMovieDrawingView; }) => IAutoMovieDrawing = (props: {
+export const deriveAutoMovieDrawing: (props: {
+  environment: IAutoMovieBuiltEnvironment;
+  view: IAutoMovieDrawingView;
+}) => IAutoMovieDrawing = (props: {
   /** Design the drawing is taken from. */
   environment: IAutoMovieBuiltEnvironment;
 
   /** View that decides the cut, the direction, the filters and the pen. */
   view: IAutoMovieDrawingView;
 }): IAutoMovieDrawing => {
-  const { environment, view }: { environment: IAutoMovieBuiltEnvironment; view: IAutoMovieDrawingView; } = props;
+  const {
+    environment,
+    view,
+  }: { environment: IAutoMovieBuiltEnvironment; view: IAutoMovieDrawingView } =
+    props;
   const validated: ReturnType<typeof validateBuiltEnvironment> =
     validateBuiltEnvironment({ environment });
   if (validated.success === false) {
@@ -181,9 +188,8 @@ export const deriveAutoMovieDrawing: (props: { environment: IAutoMovieBuiltEnvir
       remedy:
         "read the note's position as an anchor and measure the set text in whatever renders it; the drawing's extent holds every note's anchor and not necessarily its last letter",
     });
-  gaps.sort(
-    (left: IAutoMovieDrawingGap, right: IAutoMovieDrawingGap): number =>
-      compareAutoMovieRenderIds(left.subject, right.subject),
+  gaps.sort((left: IAutoMovieDrawingGap, right: IAutoMovieDrawingGap): number =>
+    compareAutoMovieRenderIds(left.subject, right.subject),
   );
 
   const drawing: Omit<IAutoMovieDrawing, "digest"> = {
@@ -249,7 +255,11 @@ const FIXED_GAPS: readonly IAutoMovieDrawingGap[] = [
 ];
 
 /** Check one view list's exact ids with a set, throwing at its first repeat without renaming entries. O(N) expected work/O(N) temporary ids preserve authored order; the set releases on return or throw and neither ids nor a verdict are cached. */
-const requireUniqueIds: (view: IAutoMovieDrawingView, label: string, entries: readonly { id: string; }[]) => void = (
+const requireUniqueIds: (
+  view: IAutoMovieDrawingView,
+  label: string,
+  entries: readonly { id: string }[],
+) => void = (
   view: IAutoMovieDrawingView,
   label: string,
   entries: readonly { id: string }[],
@@ -269,7 +279,13 @@ const requireUniqueIds: (view: IAutoMovieDrawingView, label: string, entries: re
  *
  * Cost follows the full section owner, including per-cell plane clipping and region sorting; gap additions are constant except formatting faceted ids, and no section data survives except the returned regions/gaps.
  */
-const sectionRegions: (environment: IAutoMovieBuiltEnvironment, frame: IAutoMovieDrawingFrame, design: IAutoMovieDrawingDesignIndex, spaces: ReadonlySet<string> | null, gaps: IAutoMovieDrawingGap[]) => IAutoMovieDrawingRegion[] = (
+const sectionRegions: (
+  environment: IAutoMovieBuiltEnvironment,
+  frame: IAutoMovieDrawingFrame,
+  design: IAutoMovieDrawingDesignIndex,
+  spaces: ReadonlySet<string> | null,
+  gaps: IAutoMovieDrawingGap[],
+) => IAutoMovieDrawingRegion[] = (
   environment: IAutoMovieBuiltEnvironment,
   frame: IAutoMovieDrawingFrame,
   design: IAutoMovieDrawingDesignIndex,
@@ -316,7 +332,13 @@ const sectionRegions: (environment: IAutoMovieBuiltEnvironment, frame: IAutoMovi
  *
  * One opening walk reuses the design index's staging/tessellation; a few linear basis counts and O(O log O) id sort follow. The returned marks and caller-owned gap sink survive, with no cross-view cache.
  */
-const markOpenings: (environment: IAutoMovieBuiltEnvironment, frame: IAutoMovieDrawingFrame, design: IAutoMovieDrawingDesignIndex, spaces: ReadonlySet<string> | null, gaps: IAutoMovieDrawingGap[]) => IAutoMovieDrawingOpeningMark[] = (
+const markOpenings: (
+  environment: IAutoMovieBuiltEnvironment,
+  frame: IAutoMovieDrawingFrame,
+  design: IAutoMovieDrawingDesignIndex,
+  spaces: ReadonlySet<string> | null,
+  gaps: IAutoMovieDrawingGap[],
+) => IAutoMovieDrawingOpeningMark[] = (
   environment: IAutoMovieBuiltEnvironment,
   frame: IAutoMovieDrawingFrame,
   design: IAutoMovieDrawingDesignIndex,
@@ -345,7 +367,9 @@ const markOpenings: (environment: IAutoMovieBuiltEnvironment, frame: IAutoMovieD
     if (mark.basis === "profile" && autoMovieOpeningHasArc(opening.profile!))
       ++arced;
   }
-  const count: (basis: IAutoMovieDrawingOpeningMark["basis"]) => number = (basis: IAutoMovieDrawingOpeningMark["basis"]): number =>
+  const count: (basis: IAutoMovieDrawingOpeningMark["basis"]) => number = (
+    basis: IAutoMovieDrawingOpeningMark["basis"],
+  ): number =>
     openings.filter(
       (mark: IAutoMovieDrawingOpeningMark): boolean => mark.basis === basis,
     ).length;
@@ -397,7 +421,12 @@ const markOpenings: (environment: IAutoMovieBuiltEnvironment, frame: IAutoMovieD
  *
  * Cost is both feature resolutions, which can place/weld/sort model geometry despite shared part tessellation; only one new dimension record escapes and no previous measurement is retained.
  */
-const dimensionOf: (environment: IAutoMovieBuiltEnvironment, design: IAutoMovieDrawingDesignIndex, frame: IAutoMovieDrawingFrame, spec: IAutoMovieDrawingDimensionSpec) => IAutoMovieDrawingDimension = (
+const dimensionOf: (
+  environment: IAutoMovieBuiltEnvironment,
+  design: IAutoMovieDrawingDesignIndex,
+  frame: IAutoMovieDrawingFrame,
+  spec: IAutoMovieDrawingDimensionSpec,
+) => IAutoMovieDrawingDimension = (
   environment: IAutoMovieBuiltEnvironment,
   design: IAutoMovieDrawingDesignIndex,
   frame: IAutoMovieDrawingFrame,
@@ -405,8 +434,11 @@ const dimensionOf: (environment: IAutoMovieBuiltEnvironment, design: IAutoMovieD
 ): IAutoMovieDrawingDimension => {
   const from: IAutoMovieDrawingFeatureResolution =
     resolveAutoMovieDrawingFeature(environment, spec.from, design);
-  const to: IAutoMovieDrawingFeatureResolution =
-    resolveAutoMovieDrawingFeature(environment, spec.to, design);
+  const to: IAutoMovieDrawingFeatureResolution = resolveAutoMovieDrawingFeature(
+    environment,
+    spec.to,
+    design,
+  );
   if (from.status === "stale" || to.status === "stale")
     return {
       id: spec.id,

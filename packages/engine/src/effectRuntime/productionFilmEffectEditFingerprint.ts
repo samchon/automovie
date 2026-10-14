@@ -1,6 +1,4 @@
-import {
-  IAutoMovieFilmTimeline,
-} from "@automovie/interface";
+import { IAutoMovieFilmTimeline } from "@automovie/interface";
 
 import { autoMovieRenderDigest } from "../render/autoMovieRenderDigest";
 import { canonicalizeAutoMovieJson } from "../text/canonicalizeAutoMovieJson";
@@ -18,9 +16,10 @@ import { canonicalizeAutoMovieJson } from "../text/canonicalizeAutoMovieJson";
  * @evidence contracts/performance.md#reuse-equivalent-work Recomputes each call because the timeline is a plain mutable record with no version token: an identity-keyed cache could survive an in-place edit. Consumers share the field-selection rule, not a cached computation; the render planner computes its edit identity and its population-verification call computes the digest again.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The canonical string and its byte array are released when the call returns; only the 71-character digest string is retained by the caller.
  */
-export function productionFilmEffectEditFingerprint (
+export function productionFilmEffectEditFingerprint(
   timeline: IAutoMovieFilmTimeline,
-): string { return autoMovieRenderDigest(
+): string {
+  return autoMovieRenderDigest(
     canonicalizeAutoMovieJson({
       protocol: "automovie.production-render-edit.v2",
       id: timeline.id,
@@ -31,4 +30,5 @@ export function productionFilmEffectEditFingerprint (
       omissions: timeline.omissions,
       tracks: timeline.tracks,
     }),
-  ); }
+  );
+}

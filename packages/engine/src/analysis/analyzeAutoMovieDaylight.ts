@@ -65,7 +65,9 @@ const EPSILON: number = 1e-12;
  * @evidence contracts/performance.md#bound-retention-and-release-resources Call-local storage includes O(C) light/sample arrays, O(D) directions, a combined solid list and coincidence/warning populations growing with luminaires and targets. Only C has the sample cap; the caller owns returned samples/warnings and no study cache persists.
  * @author Samchon
  */
-export const analyzeAutoMovieDaylight: (props: { request: IAutoMovieDaylightRequest; }) => IAutoMovieAnalysisRun = (props: {
+export const analyzeAutoMovieDaylight: (props: {
+  request: IAutoMovieDaylightRequest;
+}) => IAutoMovieAnalysisRun = (props: {
   /** Study to measure; validated in full before any ray is cast. */
   request: IAutoMovieDaylightRequest;
 }): IAutoMovieAnalysisRun => {
@@ -205,7 +207,13 @@ export const analyzeAutoMovieDaylight: (props: { request: IAutoMovieDaylightRequ
   const daylight: number[] = direct.map(
     (value: number, index: number): number => value + diffuse[index]!,
   );
-  const metric: (key: string, unit: string, value: number | null, gap?: IAutoMovieAnalysisMetricGap, status?: "unsupported" | "not-run") => IAutoMovieAnalysisMetric = (
+  const metric: (
+    key: string,
+    unit: string,
+    value: number | null,
+    gap?: IAutoMovieAnalysisMetricGap,
+    status?: "unsupported" | "not-run",
+  ) => IAutoMovieAnalysisMetric = (
     key: string,
     unit: string,
     value: number | null,
@@ -332,7 +340,13 @@ export const analyzeAutoMovieDaylight: (props: { request: IAutoMovieDaylightRequ
  *
  * One incidence check and at most one O(total solid planes) ray test allocate only ray props, with no cached visibility or retained point.
  */
-const beamIlluminance: (props: { point: IAutoMovieVector3; normal: IAutoMovieVector3; sun: IAutoMovieVector3; illuminance: number; solids: readonly IAutoMovieAnalysisSolid[]; }) => number = (props: {
+const beamIlluminance: (props: {
+  point: IAutoMovieVector3;
+  normal: IAutoMovieVector3;
+  sun: IAutoMovieVector3;
+  illuminance: number;
+  solids: readonly IAutoMovieAnalysisSolid[];
+}) => number = (props: {
   point: IAutoMovieVector3;
   normal: IAutoMovieVector3;
   sun: IAutoMovieVector3;
@@ -358,7 +372,13 @@ const beamIlluminance: (props: { point: IAutoMovieVector3; normal: IAutoMovieVec
  *
  * Each open direction scans the solid union until blocked, reusing borrowed directions/solids and retaining only a count; no visibility result persists between points.
  */
-const skyIlluminance: (props: { point: IAutoMovieVector3; illuminance: number; solids: readonly IAutoMovieAnalysisSolid[]; open: readonly IAutoMovieVector3[]; count: number; }) => number = (props: {
+const skyIlluminance: (props: {
+  point: IAutoMovieVector3;
+  illuminance: number;
+  solids: readonly IAutoMovieAnalysisSolid[];
+  open: readonly IAutoMovieVector3[];
+  count: number;
+}) => number = (props: {
   point: IAutoMovieVector3;
   illuminance: number;
   solids: readonly IAutoMovieAnalysisSolid[];
@@ -384,7 +404,14 @@ const skyIlluminance: (props: { point: IAutoMovieVector3; illuminance: number; s
  *
  * One luminaire pass and at most one solid-union ray test per fitting reuse the study's solids; only caller-owned warnings and coincidence ids survive this call.
  */
-const artificialIlluminance: (props: { point: IAutoMovieVector3; normal: IAutoMovieVector3; luminaires: readonly IAutoMovieAnalysisLuminaire[]; solids: readonly IAutoMovieAnalysisSolid[]; warnings: IAutoMovieAnalysisWarning[]; coincident: Set<string>; }) => number = (props: {
+const artificialIlluminance: (props: {
+  point: IAutoMovieVector3;
+  normal: IAutoMovieVector3;
+  luminaires: readonly IAutoMovieAnalysisLuminaire[];
+  solids: readonly IAutoMovieAnalysisSolid[];
+  warnings: IAutoMovieAnalysisWarning[];
+  coincident: Set<string>;
+}) => number = (props: {
   point: IAutoMovieVector3;
   normal: IAutoMovieVector3;
   luminaires: readonly IAutoMovieAnalysisLuminaire[];
@@ -435,7 +462,12 @@ const artificialIlluminance: (props: { point: IAutoMovieVector3; normal: IAutoMo
  *
  * Constant arithmetic returns a new vector without changing or retaining the borrowed workplane/frame.
  */
-const gridPoint: (workplane: IAutoMovieAnalysisWorkplane, plane: { axisU: IAutoMovieVector3; axisV: IAutoMovieVector3; }, i: number, j: number) => IAutoMovieVector3 = (
+const gridPoint: (
+  workplane: IAutoMovieAnalysisWorkplane,
+  plane: { axisU: IAutoMovieVector3; axisV: IAutoMovieVector3 },
+  i: number,
+  j: number,
+) => IAutoMovieVector3 = (
   workplane: IAutoMovieAnalysisWorkplane,
   plane: { axisU: IAutoMovieVector3; axisV: IAutoMovieVector3 },
   i: number,
@@ -455,7 +487,9 @@ const gridPoint: (workplane: IAutoMovieAnalysisWorkplane, plane: { axisU: IAutoM
  *
  * One O(N) fold uses constant extra storage, with no copy, cache or retained list.
  */
-const average: (values: readonly number[]) => number = (values: readonly number[]): number =>
+const average: (values: readonly number[]) => number = (
+  values: readonly number[],
+): number =>
   values.reduce((sum: number, value: number): number => sum + value, 0) /
   values.length;
 
@@ -464,7 +498,11 @@ const average: (values: readonly number[]) => number = (values: readonly number[
  *
  * Entry/text-linear serialization creates temporary projections and the returned string once per study; no request or cache survives sealing.
  */
-const daylightSettings: (request: IAutoMovieDaylightRequest, instant: IAutoMovieEnvironmentInstant | null, occluders: readonly IAutoMovieAnalysisSolid[]) => string = (
+const daylightSettings: (
+  request: IAutoMovieDaylightRequest,
+  instant: IAutoMovieEnvironmentInstant | null,
+  occluders: readonly IAutoMovieAnalysisSolid[],
+) => string = (
   request: IAutoMovieDaylightRequest,
   instant: IAutoMovieEnvironmentInstant | null,
   occluders: readonly IAutoMovieAnalysisSolid[],
@@ -483,7 +521,9 @@ const daylightSettings: (request: IAutoMovieDaylightRequest, instant: IAutoMovie
       }),
     ),
     luminaires: request.luminaires.map(
-      (luminaire: IAutoMovieAnalysisLuminaire): IAutoMovieAnalysisLuminaire => ({
+      (
+        luminaire: IAutoMovieAnalysisLuminaire,
+      ): IAutoMovieAnalysisLuminaire => ({
         id: luminaire.id,
         position: luminaire.position,
         intensity: luminaire.intensity,

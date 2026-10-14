@@ -24,9 +24,9 @@ import { IAutoMovieAnalysisTarget } from "@automovie/interface";
  * @evidence contracts/performance.md#bound-retention-and-release-resources The seen-key set grows to at most T entries and is released when the call returns or throws; nothing is retained.
  * @author Samchon
  */
-export const assertAutoMovieAnalysisTargets: (targets: readonly IAutoMovieAnalysisTarget[]) => void = (
+export const assertAutoMovieAnalysisTargets: (
   targets: readonly IAutoMovieAnalysisTarget[],
-): void => {
+) => void = (targets: readonly IAutoMovieAnalysisTarget[]): void => {
   const seen: Set<string> = new Set<string>();
   for (const target of targets) {
     if (target.key.trim().length === 0)

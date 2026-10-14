@@ -3,8 +3,8 @@ import {
   IAutoMovieAnalysisMetricGap,
   IAutoMovieAnalysisRun,
   IAutoMovieAnalysisSample,
-  IAutoMovieAnalysisWarning,
   IAutoMovieAnalysisSolver,
+  IAutoMovieAnalysisWarning,
   IAutoMovieEnvironmentInstant,
 } from "@automovie/interface";
 
@@ -86,7 +86,12 @@ interface IAssemblyMargin {
  * @evidence contracts/performance.md#bound-retention-and-release-resources Allocates per-call arrays proportional to A and keeps none of them after returning the two runs, which own their metrics, samples and warnings.
  * @author Samchon
  */
-export const analyzeAutoMovieEnvelope: (props: { request: IAutoMovieEnvelopeRequest; }) => { thermal: IAutoMovieAnalysisRun; moisture: IAutoMovieAnalysisRun; } = (props: {
+export const analyzeAutoMovieEnvelope: (props: {
+  request: IAutoMovieEnvelopeRequest;
+}) => {
+  thermal: IAutoMovieAnalysisRun;
+  moisture: IAutoMovieAnalysisRun;
+} = (props: {
   /** Study to solve; validated in full before any arithmetic. */
   request: IAutoMovieEnvelopeRequest;
 }): { thermal: IAutoMovieAnalysisRun; moisture: IAutoMovieAnalysisRun } => {
@@ -415,7 +420,17 @@ export const analyzeAutoMovieEnvelope: (props: { request: IAutoMovieEnvelopeRequ
  *
  * Target lookup costs O(T); the new metric and any warning belong to the run, while this adapter retains no request or result between calls.
  */
-const metric: (request: IAutoMovieEnvelopeRequest, warnings: IAutoMovieAnalysisWarning[], props: { key: string; unit: string; value: number | null; gap?: IAutoMovieAnalysisMetricGap; status?: "unsupported" | "not-run"; }) => IAutoMovieAnalysisMetric = (
+const metric: (
+  request: IAutoMovieEnvelopeRequest,
+  warnings: IAutoMovieAnalysisWarning[],
+  props: {
+    key: string;
+    unit: string;
+    value: number | null;
+    gap?: IAutoMovieAnalysisMetricGap;
+    status?: "unsupported" | "not-run";
+  },
+) => IAutoMovieAnalysisMetric = (
   request: IAutoMovieEnvelopeRequest,
   warnings: IAutoMovieAnalysisWarning[],
   props: {
@@ -441,7 +456,10 @@ const metric: (request: IAutoMovieEnvelopeRequest, warnings: IAutoMovieAnalysisW
  *
  * Linear entry and encoded-text work builds temporary projections and a returned string reused by both seals; it caches nothing beyond this study.
  */
-const envelopeSettings: (request: IAutoMovieEnvelopeRequest, instant: IAutoMovieEnvironmentInstant | null) => string = (
+const envelopeSettings: (
+  request: IAutoMovieEnvelopeRequest,
+  instant: IAutoMovieEnvironmentInstant | null,
+) => string = (
   request: IAutoMovieEnvelopeRequest,
   instant: IAutoMovieEnvironmentInstant | null,
 ): string =>

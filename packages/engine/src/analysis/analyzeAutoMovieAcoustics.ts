@@ -67,7 +67,9 @@ const EPSILON: number = 1e-12;
  * @evidence contracts/performance.md#bound-retention-and-release-resources Allocates per-call arrays of S powers and R direct terms and levels, bounded by the receiver limit and the declared sources, and keeps none of them after returning the sealed run, which owns its samples.
  * @author Samchon
  */
-export const analyzeAutoMovieAcoustics: (props: { request: IAutoMovieAcousticRequest; }) => IAutoMovieAnalysisRun = (props: {
+export const analyzeAutoMovieAcoustics: (props: {
+  request: IAutoMovieAcousticRequest;
+}) => IAutoMovieAnalysisRun = (props: {
   /** Study to solve; validated in full before any arithmetic. */
   request: IAutoMovieAcousticRequest;
 }): IAutoMovieAnalysisRun => {
@@ -192,7 +194,13 @@ export const analyzeAutoMovieAcoustics: (props: { request: IAutoMovieAcousticReq
           0,
         ) / transmissionArea;
 
-  const metric: (entry: { key: string; unit: string; value: number | null; gap?: IAutoMovieAnalysisMetricGap; status?: "unsupported" | "not-run"; }) => IAutoMovieAnalysisMetric = (entry: {
+  const metric: (entry: {
+    key: string;
+    unit: string;
+    value: number | null;
+    gap?: IAutoMovieAnalysisMetricGap;
+    status?: "unsupported" | "not-run";
+  }) => IAutoMovieAnalysisMetric = (entry: {
     key: string;
     unit: string;
     value: number | null;
@@ -334,7 +342,11 @@ export const analyzeAutoMovieAcoustics: (props: { request: IAutoMovieAcousticReq
  *
  * One source scan reuses the study's powers and retains only a scalar accumulator; the caller owns the borrowed lists and handles nonfinite derived levels.
  */
-const directField: (sources: readonly IAutoMovieAcousticSource[], powers: readonly number[], receiver: IAutoMovieAcousticReceiver) => number = (
+const directField: (
+  sources: readonly IAutoMovieAcousticSource[],
+  powers: readonly number[],
+  receiver: IAutoMovieAcousticReceiver,
+) => number = (
   sources: readonly IAutoMovieAcousticSource[],
   powers: readonly number[],
   receiver: IAutoMovieAcousticReceiver,
@@ -360,7 +372,9 @@ const directField: (sources: readonly IAutoMovieAcousticSource[], powers: readon
  *
  * Linear member/target scans use per-list id sets, released on return or throw; no validation result persists across studies.
  */
-const validateAcousticRequest: (request: IAutoMovieAcousticRequest) => void = (request: IAutoMovieAcousticRequest): void => {
+const validateAcousticRequest: (request: IAutoMovieAcousticRequest) => void = (
+  request: IAutoMovieAcousticRequest,
+): void => {
   for (const [label, value] of [
     ["id", request.id],
     ["subject", request.subject],
@@ -460,7 +474,9 @@ const validateAcousticRequest: (request: IAutoMovieAcousticRequest) => void = (r
  *
  * Linear encoded-entry/text work creates temporary mapped records and one returned string, with no cache or retained request after hashing.
  */
-const acousticSettings: (request: IAutoMovieAcousticRequest) => string = (request: IAutoMovieAcousticRequest): string =>
+const acousticSettings: (request: IAutoMovieAcousticRequest) => string = (
+  request: IAutoMovieAcousticRequest,
+): string =>
   JSON.stringify({
     volume: request.volume,
     surfaces: request.surfaces.map(
@@ -471,7 +487,9 @@ const acousticSettings: (request: IAutoMovieAcousticRequest) => string = (reques
       }),
     ),
     partitions: request.partitions.map(
-      (partition: IAutoMovieAcousticPartition): IAutoMovieAcousticPartition => ({
+      (
+        partition: IAutoMovieAcousticPartition,
+      ): IAutoMovieAcousticPartition => ({
         id: partition.id,
         area: partition.area,
         transmissionLoss: partition.transmissionLoss,

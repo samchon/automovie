@@ -38,7 +38,11 @@ const JITTER_Z: number = 0x7370727a;
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work No cross-call cache or random stream is owned; unchanged domain, full state and camera distance reproduce this operation order, while equal step/id alone does not prove those mutable inputs equivalent.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the returned sample owns at most `maxParticles` particles per emitter, and the per-emitter scratch list dies with the call.
  */
-export const sampleFluidSpray: (props: { domain: IAutoMovieFluidDomain; state: IAutoMovieFluidState; cameraDistance?: number }) => IAutoMovieFluidSpraySample = (props: {
+export const sampleFluidSpray: (props: {
+  domain: IAutoMovieFluidDomain;
+  state: IAutoMovieFluidState;
+  cameraDistance?: number;
+}) => IAutoMovieFluidSpraySample = (props: {
   domain: IAutoMovieFluidDomain;
   state: IAutoMovieFluidState;
   /** Camera distance in metres driving LOD thinning; defaults to `0`. */
@@ -65,7 +69,14 @@ export const sampleFluidSpray: (props: { domain: IAutoMovieFluidDomain; state: I
 /**
  * Append one emitter's newest stride-selected survivors, reversing the local list for increasing index order when indices are representable. The nozzle uses the current state's depth; age/window products and ballistic values are not validated. One axis norm/nozzle is shared within the emitter, and admitted maxParticles bounds appends even if unsafe integer subtraction stops advancing. Scratch storage becomes collectible on return; appended particles belong to the caller's output list.
  */
-const emit: (props: { domain: IAutoMovieFluidDomain; state: IAutoMovieFluidState; spray: IAutoMovieFluidSpray; time: number; cameraDistance: number; particles: IAutoMovieFluidSprayParticle[] }) => void = (props: {
+const emit: (props: {
+  domain: IAutoMovieFluidDomain;
+  state: IAutoMovieFluidState;
+  spray: IAutoMovieFluidSpray;
+  time: number;
+  cameraDistance: number;
+  particles: IAutoMovieFluidSprayParticle[];
+}) => void = (props: {
   domain: IAutoMovieFluidDomain;
   state: IAutoMovieFluidState;
   spray: IAutoMovieFluidSpray;
@@ -86,9 +97,7 @@ const emit: (props: { domain: IAutoMovieFluidDomain; state: IAutoMovieFluidState
   const stride: number =
     1 + Math.floor(Math.max(0, props.cameraDistance) / spray.lodDistance);
   const newest: number = Math.floor(props.time * spray.rate);
-  const oldest: number = Math.floor(
-    (props.time - spray.lifetime) * spray.rate,
-  );
+  const oldest: number = Math.floor((props.time - spray.lifetime) * spray.rate);
   const gravity: number = domain.solver.gravity;
   const axis: IAutoMovieVector3 = spray.direction;
   const axisLength: number = Vector3.length(axis);
@@ -129,7 +138,12 @@ const emit: (props: { domain: IAutoMovieFluidDomain; state: IAutoMovieFluidState
 /**
  * Normalize the axis using the per-emitter borrowed norm, add three domain-salted seeded components, then normalize the result. Constant scalar work allocates one direction with no random-stream state. A finite nonzero axis norm and finite nonzero jitter norm are premises, not checks made here; invalid derived norms can yield nonunit or non-finite directions.
  */
-const jitter: (spray: IAutoMovieFluidSpray, axis: IAutoMovieVector3, axisLength: number, index: number) => IAutoMovieVector3 = (
+const jitter: (
+  spray: IAutoMovieFluidSpray,
+  axis: IAutoMovieVector3,
+  axisLength: number,
+  index: number,
+) => IAutoMovieVector3 = (
   spray: IAutoMovieFluidSpray,
   axis: IAutoMovieVector3,
   axisLength: number,

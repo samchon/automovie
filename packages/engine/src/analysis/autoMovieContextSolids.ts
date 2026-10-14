@@ -24,7 +24,9 @@ import { IAutoMovieAnalysisSolid } from "./IAutoMovieAnalysisSolid";
  * @evidence contracts/performance.md#bound-retention-and-release-resources Returns a new array of one record per occluder that references the context's plane arrays; the caller owns it, and this function keeps nothing.
  * @author Samchon
  */
-export const autoMovieContextSolids: (context: IAutoMovieEnvironmentContext) => IAutoMovieAnalysisSolid[] = (
+export const autoMovieContextSolids: (
+  context: IAutoMovieEnvironmentContext,
+) => IAutoMovieAnalysisSolid[] = (
   context: IAutoMovieEnvironmentContext,
 ): IAutoMovieAnalysisSolid[] =>
   context.occluders.map(

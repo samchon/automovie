@@ -26,7 +26,10 @@ import {
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work One derivation per state per call; nothing is cached across frames.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the returned buffers are fresh and sized by the cell count, and the elevation scratch array dies with the call.
  */
-export const fluidSurfaceGeometry: (props: { domain: IAutoMovieFluidDomain; state: IAutoMovieFluidState }) => IAutoMovieFluidSurface = (props: {
+export const fluidSurfaceGeometry: (props: {
+  domain: IAutoMovieFluidDomain;
+  state: IAutoMovieFluidState;
+}) => IAutoMovieFluidSurface = (props: {
   domain: IAutoMovieFluidDomain;
   state: IAutoMovieFluidState;
 }): IAutoMovieFluidSurface => {

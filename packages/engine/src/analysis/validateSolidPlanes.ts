@@ -32,7 +32,12 @@ import { AUTOMOVIE_ANALYSIS_MIN_SOLID_PLANES } from "./constants/AUTOMOVIE_ANALY
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing and opens no handle; the violations go into the caller-owned collector, whose lifetime the caller controls.
  * @author Samchon
  */
-export const validateSolidPlanes: (planes: readonly IAutoMovieHalfSpacePlane[], path: string, label: string, out: ViolationCollector) => void = (
+export const validateSolidPlanes: (
+  planes: readonly IAutoMovieHalfSpacePlane[],
+  path: string,
+  label: string,
+  out: ViolationCollector,
+) => void = (
   planes: readonly IAutoMovieHalfSpacePlane[],
   path: string,
   label: string,
@@ -49,20 +54,25 @@ export const validateSolidPlanes: (planes: readonly IAutoMovieHalfSpacePlane[], 
     const plane: IAutoMovieHalfSpacePlane | undefined = planes[index];
     const slotPath: string = `${path}[${index}]`;
     if (plane === undefined) {
-      out.push("type", slotPath, "a resident plane slot must contain its declared record", plane);
+      out.push(
+        "type",
+        slotPath,
+        "a resident plane slot must contain its declared record",
+        plane,
+      );
       continue;
     }
     out.direction(
-          `${path}[${index}].normal`,
-          plane.normal,
-          `${label} plane normal`,
-        );
+      `${path}[${index}].normal`,
+      plane.normal,
+      `${label} plane normal`,
+    );
     if (!Number.isFinite(plane.offset))
-          out.push(
-            "range",
-            `${path}[${index}].offset`,
-            `${label} plane offset must be finite, but was ${plane.offset}`,
-            plane.offset,
-          );
+      out.push(
+        "range",
+        `${path}[${index}].offset`,
+        `${label} plane offset must be finite, but was ${plane.offset}`,
+        plane.offset,
+      );
   }
 };

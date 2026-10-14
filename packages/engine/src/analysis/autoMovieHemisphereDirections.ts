@@ -33,7 +33,10 @@ const AXIS_EPSILON: number = 1e-12;
  * @evidence contracts/performance.md#bound-retention-and-release-resources Returns one new array of N vectors owned by the caller and retains nothing; N is the caller's `diffuseSamples`, which nothing caps beyond being a safe integer, so that allocation has no bound.
  * @author Samchon
  */
-export const autoMovieHemisphereDirections: (props: { normal: IAutoMovieVector3; count: number; }) => IAutoMovieVector3[] = (props: {
+export const autoMovieHemisphereDirections: (props: {
+  normal: IAutoMovieVector3;
+  count: number;
+}) => IAutoMovieVector3[] = (props: {
   /** Axis of the hemisphere; any finite non-zero length. */
   normal: IAutoMovieVector3;
 
@@ -47,9 +50,7 @@ export const autoMovieHemisphereDirections: (props: { normal: IAutoMovieVector3;
     );
   const length: number = Vector3.length(props.normal);
   if (!Number.isFinite(length) || length <= AXIS_EPSILON)
-    throw new Error(
-      "hemisphere sampling needs a finite, non-zero normal",
-    );
+    throw new Error("hemisphere sampling needs a finite, non-zero normal");
   const normal: IAutoMovieVector3 = Vector3.normalize(props.normal);
   // Duff et al.'s branchless orthonormal basis: `sign + normal.z` is never zero
   // because `sign` is chosen from the sign of `normal.z`, so there is no

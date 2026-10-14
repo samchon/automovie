@@ -26,5 +26,6 @@ export const autoMovieOpeningHasArc = (
   profile: IAutoMovieOpeningProfile,
 ): boolean =>
   (profile.bulges ?? []).some(
-    (bulge: number): boolean => Math.abs(bulge) > AUTOMOVIE_OPENING_BULGE_EPSILON,
+    (bulge: number): boolean =>
+      Math.abs(bulge) > AUTOMOVIE_OPENING_BULGE_EPSILON,
   );

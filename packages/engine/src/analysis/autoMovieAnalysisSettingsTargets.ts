@@ -18,7 +18,9 @@ import { IAutoMovieAnalysisTarget } from "@automovie/interface";
  * @evidence contracts/performance.md#bound-retention-and-release-resources Returns T new records that the caller serializes into the settings text and then drops; this function retains nothing.
  * @author Samchon
  */
-export const autoMovieAnalysisSettingsTargets: (targets: readonly IAutoMovieAnalysisTarget[]) => IAutoMovieAnalysisTarget[] = (
+export const autoMovieAnalysisSettingsTargets: (
+  targets: readonly IAutoMovieAnalysisTarget[],
+) => IAutoMovieAnalysisTarget[] = (
   targets: readonly IAutoMovieAnalysisTarget[],
 ): IAutoMovieAnalysisTarget[] =>
   targets.map(

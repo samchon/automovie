@@ -46,7 +46,10 @@ const AXIS_EPSILON: number = 1e-12;
  * @evidence contracts/performance.md#bound-retention-and-release-resources The collector, the reserved, instant and occluder sets live only for the call; the returned validation holds the violations, which may reference fragments of the context, and is owned by the caller.
  * @author Samchon
  */
-export const validateAutoMovieEnvironmentContext: (props: { context: IAutoMovieEnvironmentContext; reserved?: readonly string[]; }) => IAutoMovieValidation = (props: {
+export const validateAutoMovieEnvironmentContext: (props: {
+  context: IAutoMovieEnvironmentContext;
+  reserved?: readonly string[];
+}) => IAutoMovieValidation = (props: {
   /** Context to check. */
   context: IAutoMovieEnvironmentContext;
 
@@ -89,7 +92,11 @@ export const validateAutoMovieEnvironmentContext: (props: { context: IAutoMovieE
     ? Vector3.normalize(context.ground.up)
     : null;
 
-  const owned: (id: string, path: string, label: string) => void = (id: string, path: string, label: string): void => {
+  const owned: (id: string, path: string, label: string) => void = (
+    id: string,
+    path: string,
+    label: string,
+  ): void => {
     if (reserved.has(id))
       out.push(
         "type",
@@ -103,102 +110,114 @@ export const validateAutoMovieEnvironmentContext: (props: { context: IAutoMovieE
   const instantIds: Set<string> = new Set<string>();
   let previous: number | null = null;
   for (let index: number = 0; index < context.instants.length; ++index) {
-    const instant: IAutoMovieEnvironmentInstant | undefined = context.instants[index];
+    const instant: IAutoMovieEnvironmentInstant | undefined =
+      context.instants[index];
     const path: string = `${root}.instants[${index}]`;
     if (instant === undefined) {
-      out.push("type", path, "a resident instant slot must contain its declared record", instant);
+      out.push(
+        "type",
+        path,
+        "a resident instant slot must contain its declared record",
+        instant,
+      );
       continue;
     }
     out.nonEmpty(`${path}.id`, instant.id, "instant id");
     out.nonEmpty(`${path}.label`, instant.label, "instant label");
     if (instantIds.has(instant.id))
-            out.push(
-              "type",
-              `${path}.id`,
-              `instant id "${instant.id}" must be unique`,
-              instant.id,
-            );
+      out.push(
+        "type",
+        `${path}.id`,
+        `instant id "${instant.id}" must be unique`,
+        instant.id,
+      );
     instantIds.add(instant.id);
     owned(instant.id, `${path}.id`, "instant id");
     if (!Number.isFinite(instant.time))
-            out.push(
-              "range",
-              `${path}.time`,
-              `instant time must be finite, but was ${instant.time}`,
-              instant.time,
-            );
-          else {
-            if (previous !== null && instant.time <= previous)
-              out.push(
-                "range",
-                `${path}.time`,
-                `instants must be strictly increasing in time, but ${instant.time} follows ${previous}`,
-                instant.time,
-              );
-            previous = instant.time;
-          }
+      out.push(
+        "range",
+        `${path}.time`,
+        `instant time must be finite, but was ${instant.time}`,
+        instant.time,
+      );
+    else {
+      if (previous !== null && instant.time <= previous)
+        out.push(
+          "range",
+          `${path}.time`,
+          `instants must be strictly increasing in time, but ${instant.time} follows ${previous}`,
+          instant.time,
+        );
+      previous = instant.time;
+    }
     out.direction(`${path}.sun`, instant.sun, "sun direction");
     for (const [key, label] of [
-            ["directNormalIlluminance", "direct normal illuminance"],
-            ["diffuseHorizontalIlluminance", "diffuse horizontal illuminance"],
-          ] as const)
-            if (!Number.isFinite(instant[key]) || instant[key] < 0)
-              out.push(
-                "range",
-                `${path}.${key}`,
-                `${label} must be a finite number at or above zero, but was ${instant[key]}`,
-                instant[key],
-              );
+      ["directNormalIlluminance", "direct normal illuminance"],
+      ["diffuseHorizontalIlluminance", "diffuse horizontal illuminance"],
+    ] as const)
+      if (!Number.isFinite(instant[key]) || instant[key] < 0)
+        out.push(
+          "range",
+          `${path}.${key}`,
+          `${label} must be a finite number at or above zero, but was ${instant[key]}`,
+          instant[key],
+        );
     if (
-            instant.outdoorAirTemperature !== null &&
-            !Number.isFinite(instant.outdoorAirTemperature)
-          )
-            out.push(
-              "range",
-              `${path}.outdoorAirTemperature`,
-              `outdoor air temperature must be null or finite, but was ${instant.outdoorAirTemperature}`,
-              instant.outdoorAirTemperature,
-            );
+      instant.outdoorAirTemperature !== null &&
+      !Number.isFinite(instant.outdoorAirTemperature)
+    )
+      out.push(
+        "range",
+        `${path}.outdoorAirTemperature`,
+        `outdoor air temperature must be null or finite, but was ${instant.outdoorAirTemperature}`,
+        instant.outdoorAirTemperature,
+      );
     if (instant.outdoorRelativeHumidity !== null)
-            out.range(
-              `${path}.outdoorRelativeHumidity`,
-              instant.outdoorRelativeHumidity,
-              0,
-              1,
-              "outdoor relative humidity",
-            );
+      out.range(
+        `${path}.outdoorRelativeHumidity`,
+        instant.outdoorRelativeHumidity,
+        0,
+        1,
+        "outdoor relative humidity",
+      );
     if (
-            up !== null &&
-            usable(instant.sun) &&
-            Number.isFinite(instant.directNormalIlluminance) &&
-            instant.directNormalIlluminance > 0 &&
-            Vector3.dot(Vector3.normalize(instant.sun), up) <= 0
-          )
-            out.push(
-              "range",
-              `${path}.directNormalIlluminance`,
-              `instant "${instant.id}" places the sun at or below the reference horizon, so its direct normal illuminance must be 0, but was ${instant.directNormalIlluminance}`,
-              instant.directNormalIlluminance,
-            );
+      up !== null &&
+      usable(instant.sun) &&
+      Number.isFinite(instant.directNormalIlluminance) &&
+      instant.directNormalIlluminance > 0 &&
+      Vector3.dot(Vector3.normalize(instant.sun), up) <= 0
+    )
+      out.push(
+        "range",
+        `${path}.directNormalIlluminance`,
+        `instant "${instant.id}" places the sun at or below the reference horizon, so its direct normal illuminance must be 0, but was ${instant.directNormalIlluminance}`,
+        instant.directNormalIlluminance,
+      );
   }
 
   const occluderIds: Set<string> = new Set<string>();
   for (let index: number = 0; index < context.occluders.length; ++index) {
-    const occluder: IAutoMovieContextOccluder | undefined = context.occluders[index];
+    const occluder: IAutoMovieContextOccluder | undefined =
+      context.occluders[index];
     const path: string = `${root}.occluders[${index}]`;
     if (occluder === undefined) {
-      out.push("type", path, "a resident occluder slot must contain its declared record", occluder);
+      out.push(
+        "type",
+        path,
+        "a resident occluder slot must contain its declared record",
+        occluder,
+      );
       continue;
     }
     out.nonEmpty(`${path}.id`, occluder.id, "occluder id");
     out.nonEmpty(`${path}.kind`, occluder.kind, "occluder kind");
     if (occluderIds.has(occluder.id))
-            out.push(
-              "type",
-              `${path}.id`,
-              `occluder id "${occluder.id}" must be unique`,
-              occluder.id,
-            );
+      out.push(
+        "type",
+        `${path}.id`,
+        `occluder id "${occluder.id}" must be unique`,
+        occluder.id,
+      );
     occluderIds.add(occluder.id);
     owned(occluder.id, `${path}.id`, "occluder id");
     validateSolidPlanes(occluder.planes, `${path}.planes`, "occluder", out);
@@ -208,7 +227,9 @@ export const validateAutoMovieEnvironmentContext: (props: { context: IAutoMovieE
 };
 
 /** Gate horizon arithmetic on a finite norm above 1e-12. This constant-space predicate can reject an overflowing finite-component norm that the collector admitted; it retains no vector or verdict. */
-const usable: (value: IAutoMovieVector3) => boolean = (value: IAutoMovieVector3): boolean => {
+const usable: (value: IAutoMovieVector3) => boolean = (
+  value: IAutoMovieVector3,
+): boolean => {
   const length: number = Vector3.length(value);
   return Number.isFinite(length) && length > AXIS_EPSILON;
 };

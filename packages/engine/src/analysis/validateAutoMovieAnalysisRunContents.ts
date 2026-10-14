@@ -43,7 +43,10 @@ import { isAutoMovieAnalysisDomain } from "./isAutoMovieAnalysisDomain";
  * @evidence contracts/performance.md#bound-retention-and-release-resources The key sets are call-local and released on return; violations appended to the caller's collector may reference fragments of the run, and the caller owns the collector.
  * @author Samchon
  */
-export const validateAutoMovieAnalysisRunContents: (run: Omit<IAutoMovieAnalysisRun, "digest">, out: ViolationCollector) => void = (
+export const validateAutoMovieAnalysisRunContents: (
+  run: Omit<IAutoMovieAnalysisRun, "digest">,
+  out: ViolationCollector,
+) => void = (
   run: Omit<IAutoMovieAnalysisRun, "digest">,
   out: ViolationCollector,
 ): void => {
@@ -103,21 +106,27 @@ export const validateAutoMovieAnalysisRunContents: (run: Omit<IAutoMovieAnalysis
     const measured: Set<string> = new Set<string>();
     const keys: Set<string> = new Set<string>();
     for (let index: number = 0; index < outcome.metrics.length; ++index) {
-      const metric: IAutoMovieAnalysisMetric | undefined = outcome.metrics[index];
+      const metric: IAutoMovieAnalysisMetric | undefined =
+        outcome.metrics[index];
       const path: string = `${root}.outcome.metrics[${index}]`;
       if (metric === undefined) {
-        out.push("type", path, "a resident metric slot must contain its declared record", metric);
+        out.push(
+          "type",
+          path,
+          "a resident metric slot must contain its declared record",
+          metric,
+        );
         continue;
       }
       out.nonEmpty(`${path}.key`, metric.key, "metric key");
       out.nonEmpty(`${path}.unit`, metric.unit, "metric unit");
       if (keys.has(metric.key))
-                out.push(
-                  "type",
-                  `${path}.key`,
-                  `metric key "${metric.key}" must be unique within a run`,
-                  metric.key,
-                );
+        out.push(
+          "type",
+          `${path}.key`,
+          `metric key "${metric.key}" must be unique within a run`,
+          metric.key,
+        );
       keys.add(metric.key);
       validateMetric(metric, path, out);
       if (metric.value !== null) measured.add(metric.key);
@@ -132,61 +141,73 @@ export const validateAutoMovieAnalysisRunContents: (run: Omit<IAutoMovieAnalysis
       );
     const sampleIds: Set<string> = new Set<string>();
     for (let index: number = 0; index < outcome.samples.length; ++index) {
-      const sample: IAutoMovieAnalysisSample | undefined = outcome.samples[index];
+      const sample: IAutoMovieAnalysisSample | undefined =
+        outcome.samples[index];
       const path: string = `${root}.outcome.samples[${index}]`;
       if (sample === undefined) {
-        out.push("type", path, "a resident sample slot must contain its declared record", sample);
+        out.push(
+          "type",
+          path,
+          "a resident sample slot must contain its declared record",
+          sample,
+        );
         continue;
       }
       out.nonEmpty(`${path}.id`, sample.id, "sample id");
       if (sampleIds.has(sample.id))
-                out.push(
-                  "type",
-                  `${path}.id`,
-                  `sample id "${sample.id}" must be unique within a run`,
-                  sample.id,
-                );
+        out.push(
+          "type",
+          `${path}.id`,
+          `sample id "${sample.id}" must be unique within a run`,
+          sample.id,
+        );
       sampleIds.add(sample.id);
       if (!measured.has(sample.key))
-                out.push(
-                  "type",
-                  `${path}.key`,
-                  `sample field "${sample.key}" names no metric of this run that produced a value; a field cannot be drawn for a measurement nobody made`,
-                  sample.key,
-                );
+        out.push(
+          "type",
+          `${path}.key`,
+          `sample field "${sample.key}" names no metric of this run that produced a value; a field cannot be drawn for a measurement nobody made`,
+          sample.key,
+        );
       for (const axis of ["x", "y", "z"] as const)
-                if (!Number.isFinite(sample.position[axis]))
-                  out.push(
-                    "range",
-                    `${path}.position.${axis}`,
-                    `sample position ${axis} must be finite, but was ${sample.position[axis]}`,
-                    sample.position[axis],
-                  );
+        if (!Number.isFinite(sample.position[axis]))
+          out.push(
+            "range",
+            `${path}.position.${axis}`,
+            `sample position ${axis} must be finite, but was ${sample.position[axis]}`,
+            sample.position[axis],
+          );
       if (!Number.isFinite(sample.value))
-                out.push(
-                  "range",
-                  `${path}.value`,
-                  `sample value must be finite, but was ${sample.value}`,
-                  sample.value,
-                );
+        out.push(
+          "range",
+          `${path}.value`,
+          `sample value must be finite, but was ${sample.value}`,
+          sample.value,
+        );
     }
 
     for (let index: number = 0; index < outcome.warnings.length; ++index) {
-      const warning: IAutoMovieAnalysisWarning | undefined = outcome.warnings[index];
+      const warning: IAutoMovieAnalysisWarning | undefined =
+        outcome.warnings[index];
       const path: string = `${root}.outcome.warnings[${index}]`;
       if (warning === undefined) {
-        out.push("type", path, "a resident warning slot must contain its declared record", warning);
+        out.push(
+          "type",
+          path,
+          "a resident warning slot must contain its declared record",
+          warning,
+        );
         continue;
       }
       out.nonEmpty(`${path}.code`, warning.code, "warning code");
       out.nonEmpty(`${path}.detail`, warning.detail, "warning detail");
       if (warning.subject !== null && warning.subject.trim() === "")
-                out.push(
-                  "type",
-                  `${path}.subject`,
-                  "warning subject must be null or non-blank",
-                  warning.subject,
-                );
+        out.push(
+          "type",
+          `${path}.subject`,
+          "warning subject must be null or non-blank",
+          warning.subject,
+        );
     }
   } else if (outcome.status === "unsupported" || outcome.status === "not-run") {
     out.nonEmpty(
@@ -219,7 +240,11 @@ export const validateAutoMovieAnalysisRunContents: (run: Omit<IAutoMovieAnalysis
  *
  * Scalar work is constant per metric and nonblank string checks depend on character counts; no other metric is searched. Each contents pass revalidates the mutable record with no retained verdict. Appended violations may reference metric fragments and remain owned by the caller's collector.
  */
-const validateMetric: (metric: IAutoMovieAnalysisMetric, path: string, out: ViolationCollector) => void = (
+const validateMetric: (
+  metric: IAutoMovieAnalysisMetric,
+  path: string,
+  out: ViolationCollector,
+) => void = (
   metric: IAutoMovieAnalysisMetric,
   path: string,
   out: ViolationCollector,
@@ -240,8 +265,16 @@ const validateMetric: (metric: IAutoMovieAnalysisMetric, path: string, out: Viol
         metric.gap,
       );
     else {
-      out.nonEmpty(`${path}.gap.reason`, metric.gap.reason, "metric gap reason");
-      out.nonEmpty(`${path}.gap.remedy`, metric.gap.remedy, "metric gap remedy");
+      out.nonEmpty(
+        `${path}.gap.reason`,
+        metric.gap.reason,
+        "metric gap reason",
+      );
+      out.nonEmpty(
+        `${path}.gap.remedy`,
+        metric.gap.remedy,
+        "metric gap remedy",
+      );
     }
     if (metric.target !== null)
       out.push(

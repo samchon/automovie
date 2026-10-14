@@ -52,7 +52,12 @@ import { validateAutoMovieAnalysisRun } from "./validateAutoMovieAnalysisRun";
  * @evidence contracts/performance.md#bound-retention-and-release-resources Listed gaps are retained only up to the bound and later ones are counted, so gap memory is O(maxGaps) rather than O(total gaps); the id set grows with run count and the rollup map is fixed at six rows, all call-local except the returned report, which keeps the rows and the listed slice.
  * @author Samchon
  */
-export const summarizeAutoMovieAnalysis: (props: { runs: readonly IAutoMovieAnalysisRun[]; revision: string; required: readonly AutoMovieAnalysisDomain[]; maxGaps?: number; }) => IAutoMovieAnalysisReport = (props: {
+export const summarizeAutoMovieAnalysis: (props: {
+  runs: readonly IAutoMovieAnalysisRun[];
+  revision: string;
+  required: readonly AutoMovieAnalysisDomain[];
+  maxGaps?: number;
+}) => IAutoMovieAnalysisReport = (props: {
   /** Runs to roll up; each is validated before it is counted. */
   runs: readonly IAutoMovieAnalysisRun[];
 
@@ -112,7 +117,9 @@ export const summarizeAutoMovieAnalysis: (props: { runs: readonly IAutoMovieAnal
     );
   const listed: IAutoMovieAnalysisGap[] = [];
   let total: number = 0;
-  const gap: (entry: IAutoMovieAnalysisGap) => void = (entry: IAutoMovieAnalysisGap): void => {
+  const gap: (entry: IAutoMovieAnalysisGap) => void = (
+    entry: IAutoMovieAnalysisGap,
+  ): void => {
     ++total;
     if (listed.length < bound) listed.push(entry);
   };

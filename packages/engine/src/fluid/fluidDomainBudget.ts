@@ -20,7 +20,9 @@ import { fluidCourantNumber } from "./fluidCourantNumber";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work One derivation per call; the render measurement asks once per bound water body.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Returns a fresh fixed-size record and retains nothing.
  */
-export const fluidDomainBudget: (domain: IAutoMovieFluidDomain) => IAutoMovieFluidBudget = (
+export const fluidDomainBudget: (
+  domain: IAutoMovieFluidDomain,
+) => IAutoMovieFluidBudget = (
   domain: IAutoMovieFluidDomain,
 ): IAutoMovieFluidBudget => {
   const cells: number = domain.grid.columns * domain.grid.rows;

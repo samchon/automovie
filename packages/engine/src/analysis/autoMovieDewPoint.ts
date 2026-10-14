@@ -32,10 +32,10 @@ const MAGNUS_B: number = 243.12;
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Works on two scalar arguments and one local, so no object, handle or task is created or kept.
  * @author Samchon
  */
-export const autoMovieDewPoint: (temperature: number, relativeHumidity: number) => number = (
+export const autoMovieDewPoint: (
   temperature: number,
   relativeHumidity: number,
-): number => {
+) => number = (temperature: number, relativeHumidity: number): number => {
   if (!Number.isFinite(temperature))
     throw new Error(
       `a dew point needs a finite air temperature, but was ${temperature}`,

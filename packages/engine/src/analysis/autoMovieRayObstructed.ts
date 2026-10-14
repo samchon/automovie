@@ -20,7 +20,12 @@ import { autoMovieSolidBlocks } from "./autoMovieSolidBlocks";
  * @evidence contracts/performance.md#bound-retention-and-release-resources Retains nothing; the only allocation is one short-lived props object per solid tested, released when the test returns.
  * @author Samchon
  */
-export const autoMovieRayObstructed: (props: { origin: IAutoMovieVector3; direction: IAutoMovieVector3; solids: readonly IAutoMovieAnalysisSolid[]; maxDistance: number; }) => boolean = (props: {
+export const autoMovieRayObstructed: (props: {
+  origin: IAutoMovieVector3;
+  direction: IAutoMovieVector3;
+  solids: readonly IAutoMovieAnalysisSolid[];
+  maxDistance: number;
+}) => boolean = (props: {
   /** World-space ray origin in metres. */
   origin: IAutoMovieVector3;
 
@@ -33,12 +38,11 @@ export const autoMovieRayObstructed: (props: { origin: IAutoMovieVector3; direct
   /** Furthest distance that counts as a hit; `Infinity` for a sky ray. */
   maxDistance: number;
 }): boolean =>
-  props.solids.some(
-    (solid: IAutoMovieAnalysisSolid): boolean =>
-      autoMovieSolidBlocks({
-        origin: props.origin,
-        direction: props.direction,
-        planes: solid.planes,
-        maxDistance: props.maxDistance,
-      }),
+  props.solids.some((solid: IAutoMovieAnalysisSolid): boolean =>
+    autoMovieSolidBlocks({
+      origin: props.origin,
+      direction: props.direction,
+      planes: solid.planes,
+      maxDistance: props.maxDistance,
+    }),
   );

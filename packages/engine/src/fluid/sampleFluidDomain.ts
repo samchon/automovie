@@ -20,7 +20,10 @@ import { simulateFluidDomain } from "./simulateFluidDomain";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Shares nothing across calls; the stateless replay and its cost are answered on `simulateFluidDomain`.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the returned state is the integrator's fresh record.
  */
-export const sampleFluidDomain: (domain: IAutoMovieFluidDomain, time: number) => IAutoMovieFluidState = (
+export const sampleFluidDomain: (
+  domain: IAutoMovieFluidDomain,
+  time: number,
+) => IAutoMovieFluidState = (
   domain: IAutoMovieFluidDomain,
   time: number,
 ): IAutoMovieFluidState => {

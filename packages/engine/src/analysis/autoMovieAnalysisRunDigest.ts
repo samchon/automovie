@@ -35,12 +35,16 @@ import { autoMovieRenderDigest } from "../render/autoMovieRenderDigest";
  * @evidence contracts/performance.md#bound-retention-and-release-resources The line array, the joined text and the byte array exist only for the call, growing with M + S + W, and only the digest string is returned.
  * @author Samchon
  */
-export const autoMovieAnalysisRunDigest: (run: Omit<IAutoMovieAnalysisRun, "digest">) => IAutoMovieAnalysisRun["digest"] = (
+export const autoMovieAnalysisRunDigest: (
+  run: Omit<IAutoMovieAnalysisRun, "digest">,
+) => IAutoMovieAnalysisRun["digest"] = (
   run: Omit<IAutoMovieAnalysisRun, "digest">,
 ): IAutoMovieAnalysisRun["digest"] => autoMovieRenderDigest(runDigestText(run));
 
 /** Encode the covered run fields as fixed-order JSON-array lines, borrowing typed data without admission. Solved outcomes emit metric/sample/warning rows; other outcomes emit reason/remedy. Work and temporary line/text storage scale with encoded characters and entries; no encoding or verdict is cached, and only the text escapes to the digest caller. */
-const runDigestText: (run: Omit<IAutoMovieAnalysisRun, "digest">) => string = (run: Omit<IAutoMovieAnalysisRun, "digest">): string => {
+const runDigestText: (run: Omit<IAutoMovieAnalysisRun, "digest">) => string = (
+  run: Omit<IAutoMovieAnalysisRun, "digest">,
+): string => {
   const lines: string[] = [
     JSON.stringify([
       run.protocol,

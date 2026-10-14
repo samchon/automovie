@@ -33,7 +33,9 @@ import { validateAutoMovieEnvironmentContext } from "./validateAutoMovieEnvironm
  * @evidence contracts/performance.md#bound-retention-and-release-resources The assembly, layer and bridge id sets are call-local and grow with A, the largest assembly's layers and B; the returned instant is a reference into the caller's context.
  * @author Samchon
  */
-export const resolveAutoMovieEnvelopeRequest: (request: IAutoMovieEnvelopeRequest) => IAutoMovieEnvironmentInstant | null = (
+export const resolveAutoMovieEnvelopeRequest: (
+  request: IAutoMovieEnvelopeRequest,
+) => IAutoMovieEnvironmentInstant | null = (
   request: IAutoMovieEnvelopeRequest,
 ): IAutoMovieEnvironmentInstant | null => {
   for (const [label, value] of [

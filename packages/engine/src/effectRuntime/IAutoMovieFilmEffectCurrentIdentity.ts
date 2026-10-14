@@ -1,4 +1,3 @@
-
 /**
  * Current identities a film-effect runtime is written under and sampled against.
  *

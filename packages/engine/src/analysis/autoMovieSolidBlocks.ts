@@ -39,7 +39,12 @@ const PLANE_EPSILON: number = 1e-12;
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Keeps only the entry and exit parameters as locals while scanning the caller's planes, holding no reference after it returns.
  * @author Samchon
  */
-export const autoMovieSolidBlocks: (props: { origin: IAutoMovieVector3; direction: IAutoMovieVector3; planes: readonly IAutoMovieHalfSpacePlane[]; maxDistance: number; }) => boolean = (props: {
+export const autoMovieSolidBlocks: (props: {
+  origin: IAutoMovieVector3;
+  direction: IAutoMovieVector3;
+  planes: readonly IAutoMovieHalfSpacePlane[];
+  maxDistance: number;
+}) => boolean = (props: {
   /** World-space ray origin in metres. */
   origin: IAutoMovieVector3;
 

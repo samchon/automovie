@@ -220,15 +220,14 @@ export const autoMovieDrawingToSvg = (props: {
         )}${xml(annotation.text)}</text>`;
       },
     ),
-    ...drawing.gaps.map(
-      (gap: IAutoMovieDrawingGap): string =>
-        tag("g", [
-          ["class", "automovie-gap"],
-          ["data-subject", gap.subject],
-          ["data-status", gap.status],
-          ["data-reason", gap.reason],
-          ["data-remedy", gap.remedy],
-        ]),
+    ...drawing.gaps.map((gap: IAutoMovieDrawingGap): string =>
+      tag("g", [
+        ["class", "automovie-gap"],
+        ["data-subject", gap.subject],
+        ["data-status", gap.status],
+        ["data-reason", gap.reason],
+        ["data-remedy", gap.remedy],
+      ]),
     ),
   ];
 

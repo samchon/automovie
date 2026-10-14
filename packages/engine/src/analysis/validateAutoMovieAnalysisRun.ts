@@ -36,7 +36,10 @@ import { validateAutoMovieAnalysisRunContents } from "./validateAutoMovieAnalysi
  * @evidence contracts/performance.md#bound-retention-and-release-resources The collector and the recomputed digest string are call-local; the returned validation, owned by the caller, holds the violations, which may reference fragments of the run.
  * @author Samchon
  */
-export const validateAutoMovieAnalysisRun: (props: { /** Run to check; it must already have the declared shape. */ run : IAutoMovieAnalysisRun ; /** Current design revision, when staleness is being checked. */ revision ? : string ; }) => IAutoMovieValidation = (props: {
+export const validateAutoMovieAnalysisRun: (props: {
+  /** Run to check; it must already have the declared shape. */ run: IAutoMovieAnalysisRun;
+  /** Current design revision, when staleness is being checked. */ revision?: string;
+}) => IAutoMovieValidation = (props: {
   /** Run to check; it must already have the declared shape. */
   run: IAutoMovieAnalysisRun;
 

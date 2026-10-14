@@ -25,7 +25,7 @@ import { productionFilmEffectFrameRate } from "./productionFilmEffectFrameRate";
  * @evidence contracts/performance.md#reuse-equivalent-work Not cached: callers hold mutable runtime records with no version token, so a previous verdict on the same object could be stale; the sampler and the verifier each validate once per entry per call.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Holds the two canonical strings only during the call and retains nothing.
  */
-export function validateProductionFilmEffectRuntime (
+export function validateProductionFilmEffectRuntime(
   runtime: IAutoMovieCompiledFilmEffect,
 ): void {
   if (
@@ -41,10 +41,11 @@ export function validateProductionFilmEffectRuntime (
       "film-effect-runtime-invalid",
       `Film effect runtime "${runtime.effect.id}" has an unsupported version, owner, clock, or interval.`,
     );
-  const frameRate: IAutoMovieProductionFrameRate = productionFilmEffectFrameRate(
-    runtime.frameRate,
-    "film-effect-runtime-invalid",
-  );
+  const frameRate: IAutoMovieProductionFrameRate =
+    productionFilmEffectFrameRate(
+      runtime.frameRate,
+      "film-effect-runtime-invalid",
+    );
   if (
     runtime.frameRate.numerator !== frameRate.numerator ||
     runtime.frameRate.denominator !== frameRate.denominator ||
@@ -60,14 +61,14 @@ export function validateProductionFilmEffectRuntime (
       "film-effect-runtime-invalid",
       `Film effect runtime "${runtime.effect.id}" has a noncanonical frame rate or malformed inner film effect.`,
     );
-  const expectedEffectDigest: string = recomputedDigest(
-    runtime,
-    { ...runtime.effect, digest: undefined },
-  );
-  const expectedRuntimeDigest: string = recomputedDigest(
-    runtime,
-    { ...runtime, digest: undefined },
-  );
+  const expectedEffectDigest: string = recomputedDigest(runtime, {
+    ...runtime.effect,
+    digest: undefined,
+  });
+  const expectedRuntimeDigest: string = recomputedDigest(runtime, {
+    ...runtime,
+    digest: undefined,
+  });
   if (
     runtime.effect.digest !== expectedEffectDigest ||
     runtime.digest !== expectedRuntimeDigest ||
@@ -91,7 +92,7 @@ export function validateProductionFilmEffectRuntime (
 }
 
 /** Digest one record, refusing a value canonical JSON cannot encode. */
-function recomputedDigest (
+function recomputedDigest(
   runtime: IAutoMovieCompiledFilmEffect,
   value: object,
 ): string {

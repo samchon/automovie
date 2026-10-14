@@ -26,7 +26,7 @@ import { compareCodeUnits } from "../text/compareCodeUnits";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call materializes one owner's cues from scratch; the film writer calls it once for all of its cues, and no stream is cached across builds because the world, owner and step are all inputs of the digest.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The two lookup maps live only for the call. Returned streams own copied bounds, recipes and intensities, so retained storage grows with all nested copied records and text, including repeated recipes across cues; the caller owns their release.
  */
-export function materializeCompiledEffects (
+export function materializeCompiledEffects(
   props: {
     world: IAutoMovieWorldDesign;
     fixedStepSeconds: number;
@@ -49,15 +49,15 @@ export function materializeCompiledEffects (
   );
   const zones: Map<string, IAutoMovieWorldEffectZone> = new Map(
     props.world.effectZones.map(
-      (zone: IAutoMovieWorldEffectZone): [string, IAutoMovieWorldEffectZone] => [
-        zone.id,
-        zone,
-      ],
+      (
+        zone: IAutoMovieWorldEffectZone,
+      ): [string, IAutoMovieWorldEffectZone] => [zone.id, zone],
     ),
   );
   return [...props.cues]
-    .sort((left: IAutoMovieShotEffectCue, right: IAutoMovieShotEffectCue): number =>
-      compareCodeUnits(left.id, right.id),
+    .sort(
+      (left: IAutoMovieShotEffectCue, right: IAutoMovieShotEffectCue): number =>
+        compareCodeUnits(left.id, right.id),
     )
     .flatMap((cue: IAutoMovieShotEffectCue): IAutoMovieCompiledEffect[] => {
       const zone: IAutoMovieWorldEffectZone | undefined = zones.get(cue.zone);

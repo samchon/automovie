@@ -43,7 +43,14 @@ const EPSILON: number = 1e-12;
  * @evidence contracts/performance.md#bound-retention-and-release-resources The luminaire id set and the context validation result are call-local; the returned record holds three new vectors and a reference to the context's instant, owned by the caller.
  * @author Samchon
  */
-export const resolveAutoMovieDaylightRequest: (request: IAutoMovieDaylightRequest) => { instant: IAutoMovieEnvironmentInstant | null; normal: IAutoMovieVector3; axisU: IAutoMovieVector3; axisV: IAutoMovieVector3; } = (
+export const resolveAutoMovieDaylightRequest: (
+  request: IAutoMovieDaylightRequest,
+) => {
+  instant: IAutoMovieEnvironmentInstant | null;
+  normal: IAutoMovieVector3;
+  axisU: IAutoMovieVector3;
+  axisV: IAutoMovieVector3;
+} = (
   request: IAutoMovieDaylightRequest,
 ): {
   /** Instant the study reads, or `null` for an artificial-light-only study. */

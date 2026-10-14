@@ -37,7 +37,15 @@ import { validateAutoMovieAnalysisRunContents } from "./validateAutoMovieAnalysi
  * @evidence contracts/performance.md#bound-retention-and-release-resources The collector is call-local; the caller owns the returned run, retaining header strings, the borrowed solver/outcome objects and the settings/run digest strings. No source settings text or validation session is retained by this function.
  * @author Samchon
  */
-export const sealAutoMovieAnalysisRun: (props: { id: string; domain: AutoMovieAnalysisDomain; subject: string; inputRevision: string; solver: IAutoMovieAnalysisSolver; settings: string; outcome: IAutoMovieAnalysisOutcome; }) => IAutoMovieAnalysisRun = (props: {
+export const sealAutoMovieAnalysisRun: (props: {
+  id: string;
+  domain: AutoMovieAnalysisDomain;
+  subject: string;
+  inputRevision: string;
+  solver: IAutoMovieAnalysisSolver;
+  settings: string;
+  outcome: IAutoMovieAnalysisOutcome;
+}) => IAutoMovieAnalysisRun = (props: {
   /** Stable run identity; non-blank. */
   id: string;
 

@@ -11,7 +11,10 @@ import { IAutoMovieShotEffectFilmInterval } from "./IAutoMovieShotEffectFilmInte
 import { estimateProductionFilmFrame } from "./estimateProductionFilmFrame";
 import { productionFilmEffectTimelineFrameRate } from "./productionFilmEffectTimelineFrameRate";
 
-type ShotEffect = Pick<IAutoMovieCompiledEffect, "id" | "zone" | "start" | "end">;
+type ShotEffect = Pick<
+  IAutoMovieCompiledEffect,
+  "id" | "zone" | "start" | "end"
+>;
 
 /** One shot effect with the half-open source-frame interval it owns. */
 interface ISourceInterval {
@@ -52,7 +55,9 @@ export const projectProductionShotEffectFilmIntervals = (props: {
     productionFilmEffectTimelineFrameRate(props.timeline);
   const sourceIntervals: Map<string, ISourceInterval[]> = new Map();
   return props.timeline.segments.flatMap(
-    (segment: IAutoMovieFilmTimelineSegment): IAutoMovieShotEffectFilmInterval[] => {
+    (
+      segment: IAutoMovieFilmTimelineSegment,
+    ): IAutoMovieShotEffectFilmInterval[] => {
       const shot: { effects: readonly ShotEffect[] } | undefined =
         props.shots.get(segment.shot);
       if (shot === undefined) return [];
@@ -72,7 +77,10 @@ export const projectProductionShotEffectFilmIntervals = (props: {
             segment.sourceInFrame,
             interval.startFrame,
           );
-          const end: number = Math.min(segment.sourceOutFrame, interval.endFrame);
+          const end: number = Math.min(
+            segment.sourceOutFrame,
+            interval.endFrame,
+          );
           return end <= start
             ? []
             : [
@@ -80,7 +88,8 @@ export const projectProductionShotEffectFilmIntervals = (props: {
                   cue: interval.effect.id,
                   shot: segment.shot,
                   zone: interval.effect.zone,
-                  startFrame: segment.startFrame + start - segment.sourceInFrame,
+                  startFrame:
+                    segment.startFrame + start - segment.sourceInFrame,
                   endFrame: segment.startFrame + end - segment.sourceInFrame,
                 },
               ];

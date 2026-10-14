@@ -74,14 +74,23 @@ interface IOccurrence {
  * @evidence contracts/performance.md#bound-retention-and-release-resources The index, occurrences and grouping map are owned by the call and released on return, bounded by the design's size; only the returned schedule, owned by the caller, survives.
  * @author Samchon
  */
-export const deriveAutoMovieDrawingSchedule: (props: { environment: IAutoMovieBuiltEnvironment; subject: AutoMovieDrawingScheduleSubject; }) => IAutoMovieDrawingSchedule = (props: {
+export const deriveAutoMovieDrawingSchedule: (props: {
+  environment: IAutoMovieBuiltEnvironment;
+  subject: AutoMovieDrawingScheduleSubject;
+}) => IAutoMovieDrawingSchedule = (props: {
   /** Design the schedule is derived from. */
   environment: IAutoMovieBuiltEnvironment;
 
   /** What to count. */
   subject: AutoMovieDrawingScheduleSubject;
 }): IAutoMovieDrawingSchedule => {
-  const { environment, subject }: { environment: IAutoMovieBuiltEnvironment; subject: AutoMovieDrawingScheduleSubject; } = props;
+  const {
+    environment,
+    subject,
+  }: {
+    environment: IAutoMovieBuiltEnvironment;
+    subject: AutoMovieDrawingScheduleSubject;
+  } = props;
   const validated: ReturnType<typeof validateBuiltEnvironment> =
     validateBuiltEnvironment({ environment });
   if (validated.success === false) {
@@ -119,9 +128,8 @@ export const deriveAutoMovieDrawingSchedule: (props: { environment: IAutoMovieBu
     .map((bucket: IOccurrence[]): IOccurrence[] =>
       bucket.sort(compareOccurrences),
     )
-    .sort(
-      (left: IOccurrence[], right: IOccurrence[]): number =>
-        compareOccurrences(left[0]!, right[0]!),
+    .sort((left: IOccurrence[], right: IOccurrence[]): number =>
+      compareOccurrences(left[0]!, right[0]!),
     )
     .map((bucket: IOccurrence[]): IAutoMovieDrawingScheduleRow => {
       const head: IOccurrence = bucket[0]!;
@@ -168,7 +176,10 @@ export const deriveAutoMovieDrawingSchedule: (props: { environment: IAutoMovieBu
  *
  * O(R) row work includes a temporary filtered subset, followed by a fixed-size gap sort. The caller owns the returned gap records and no result is cached.
  */
-const scheduleGaps: (subject: AutoMovieDrawingScheduleSubject, rows: readonly IAutoMovieDrawingScheduleRow[]) => IAutoMovieDrawingGap[] = (
+const scheduleGaps: (
+  subject: AutoMovieDrawingScheduleSubject,
+  rows: readonly IAutoMovieDrawingScheduleRow[],
+) => IAutoMovieDrawingGap[] = (
   subject: AutoMovieDrawingScheduleSubject,
   rows: readonly IAutoMovieDrawingScheduleRow[],
 ): IAutoMovieDrawingGap[] => {
@@ -249,9 +260,9 @@ const scheduleGaps: (subject: AutoMovieDrawingScheduleSubject, rows: readonly IA
  *
  * Architecture queries scan the current environment per space, including measured model geometry; only named contents are capped. Borrowed design data is unchanged and returned occurrences own their temporary relation lists.
  */
-const spaceOccurrences: (environment: IAutoMovieBuiltEnvironment) => IOccurrence[] = (
+const spaceOccurrences: (
   environment: IAutoMovieBuiltEnvironment,
-): IOccurrence[] =>
+) => IOccurrence[] = (environment: IAutoMovieBuiltEnvironment): IOccurrence[] =>
   environment.spaces.map((space: IAutoMovieBuiltSpace): IOccurrence => {
     const declared: IAutoMovieDrawingScheduleBox | null =
       autoMovieDrawingSpaceBox(space);
@@ -305,7 +316,9 @@ const spaceOccurrences: (environment: IAutoMovieBuiltEnvironment) => IOccurrence
  *
  * One design index shares lookup, staging and part tessellation across the O(O) opening walk; per-occurrence placed geometry remains work, and the index releases with this call while occurrences pass to grouping.
  */
-const openingOccurrences: (environment: IAutoMovieBuiltEnvironment) => IOccurrence[] = (
+const openingOccurrences: (
+  environment: IAutoMovieBuiltEnvironment,
+) => IOccurrence[] = (
   environment: IAutoMovieBuiltEnvironment,
 ): IOccurrence[] => {
   const design: IAutoMovieDrawingDesignIndex =
@@ -340,9 +353,9 @@ const openingOccurrences: (environment: IAutoMovieBuiltEnvironment) => IOccurren
  *
  * Scan each connector and its stated sections once, borrowing the design and returning fresh occurrence/place records without a persistent index.
  */
-const connectorOccurrences: (environment: IAutoMovieBuiltEnvironment) => IOccurrence[] = (
+const connectorOccurrences: (
   environment: IAutoMovieBuiltEnvironment,
-): IOccurrence[] =>
+) => IOccurrence[] = (environment: IAutoMovieBuiltEnvironment): IOccurrence[] =>
   environment.connectors.map(
     (connector: IAutoMovieBuiltConnector): IOccurrence => {
       // Validation refuses a connector stating neither the constant pair nor
@@ -358,7 +371,8 @@ const connectorOccurrences: (environment: IAutoMovieBuiltEnvironment) => IOccurr
             ? connector.width!
             : autoMovieDrawingRange(
                 connector.sections!.map(
-                  (section: IAutoMovieConnectorSection): number => section.width,
+                  (section: IAutoMovieConnectorSection): number =>
+                    section.width,
                 ),
               ).min,
         ),
@@ -379,7 +393,10 @@ const connectorOccurrences: (environment: IAutoMovieBuiltEnvironment) => IOccurr
   );
 
 /** Sort the validated host boundary's space ids and report its building only when every side belongs to one unit. Sorting costs O(S log S) plus each building query; the returned space list is a copy and no boundary or location is cached. */
-const openingPlace: (environment: IAutoMovieBuiltEnvironment, boundary: IAutoMovieBuiltBoundary) => IAutoMovieDrawingOpeningPlace = (
+const openingPlace: (
+  environment: IAutoMovieBuiltEnvironment,
+  boundary: IAutoMovieBuiltBoundary,
+) => IAutoMovieDrawingOpeningPlace = (
   environment: IAutoMovieBuiltEnvironment,
   boundary: IAutoMovieBuiltBoundary,
 ): IAutoMovieDrawingOpeningPlace => {
@@ -399,7 +416,10 @@ const openingPlace: (environment: IAutoMovieBuiltEnvironment, boundary: IAutoMov
  *
  * Deduplicate from/landing/to space ids and sort them before the shared-building query. Work is stop sorting plus the building lookups; the caller owns the new stop list and place record, with no retained connector state.
  */
-const connectorPlace: (environment: IAutoMovieBuiltEnvironment, connector: IAutoMovieBuiltConnector) => IAutoMovieDrawingConnectorPlace = (
+const connectorPlace: (
+  environment: IAutoMovieBuiltEnvironment,
+  connector: IAutoMovieBuiltConnector,
+) => IAutoMovieDrawingConnectorPlace = (
   environment: IAutoMovieBuiltEnvironment,
   connector: IAutoMovieBuiltConnector,
 ): IAutoMovieDrawingConnectorPlace => {
@@ -424,7 +444,10 @@ const connectorPlace: (environment: IAutoMovieBuiltEnvironment, connector: IAuto
  *
  * Query every space through the architecture owner and collect distinct returned units, so graph membership rather than id spelling decides. Work is the sum of those graph queries with O(S) temporary strings; no result is cached across mutable designs.
  */
-const buildingOfAny: (environment: IAutoMovieBuiltEnvironment, spaces: readonly string[]) => string | null = (
+const buildingOfAny: (
+  environment: IAutoMovieBuiltEnvironment,
+  spaces: readonly string[],
+) => string | null = (
   environment: IAutoMovieBuiltEnvironment,
   spaces: readonly string[],
 ): string | null => {
@@ -443,7 +466,10 @@ const buildingOfAny: (environment: IAutoMovieBuiltEnvironment, spaces: readonly 
  *
  * Compare kind, stringified model, optional width/height, basis and id using shared ordinal text order. Finite admitted measurements are a premise; this constant-field comparator allocates no retained state and never mutates occurrences.
  */
-const compareOccurrences: (left: IOccurrence, right: IOccurrence) => number = (left: IOccurrence, right: IOccurrence): number =>
+const compareOccurrences: (left: IOccurrence, right: IOccurrence) => number = (
+  left: IOccurrence,
+  right: IOccurrence,
+): number =>
   compareAutoMovieRenderIds(left.kind, right.kind) ||
   compareAutoMovieRenderIds(String(left.model), String(right.model)) ||
   compareNullable(left.width, right.width) ||
@@ -452,5 +478,8 @@ const compareOccurrences: (left: IOccurrence, right: IOccurrence) => number = (l
   compareAutoMovieRenderIds(left.id, right.id);
 
 /** Order null before finite measurements, otherwise subtract the numeric values; equal values compare as zero. The admitted finite-size premise keeps sorting meaningful, and this constant-work predicate retains no state. */
-const compareNullable: (left: number | null, right: number | null) => number = (left: number | null, right: number | null): number =>
+const compareNullable: (left: number | null, right: number | null) => number = (
+  left: number | null,
+  right: number | null,
+): number =>
   left === right ? 0 : left === null ? -1 : right === null ? 1 : left - right;

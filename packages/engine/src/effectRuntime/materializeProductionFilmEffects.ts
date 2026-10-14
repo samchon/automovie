@@ -139,10 +139,9 @@ export const materializeProductionFilmEffects = (props: {
         }),
       ),
     }).map(
-      (effect: IAutoMovieCompiledEffect): [string, IAutoMovieCompiledEffect] => [
-        effect.id,
-        effect,
-      ],
+      (
+        effect: IAutoMovieCompiledEffect,
+      ): [string, IAutoMovieCompiledEffect] => [effect.id, effect],
     ),
   );
   return cues.map((cue: FilmEffectCue): IAutoMovieCompiledFilmEffect => {

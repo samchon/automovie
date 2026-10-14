@@ -46,7 +46,9 @@ import { warnAutoMovieAnalysisTargetKeys } from "./warnAutoMovieAnalysisTargetKe
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Builds five metrics, a warning list and one settings string for the sealed run and retains nothing after returning it.
  * @author Samchon
  */
-export const analyzeAutoMovieSpaceAir: (props: { request: IAutoMovieSpaceAirRequest; }) => IAutoMovieAnalysisRun = (props: {
+export const analyzeAutoMovieSpaceAir: (props: {
+  request: IAutoMovieSpaceAirRequest;
+}) => IAutoMovieAnalysisRun = (props: {
   /** Study to solve; validated in full before any arithmetic. */
   request: IAutoMovieSpaceAirRequest;
 }): IAutoMovieAnalysisRun => {
@@ -54,15 +56,20 @@ export const analyzeAutoMovieSpaceAir: (props: { request: IAutoMovieSpaceAirRequ
   validateAirRequest(request);
   const warnings: IAutoMovieAnalysisWarning[] = [];
   const flow: number | null = request.supplyFlow;
-  const generation: number =
-    request.occupants * request.occupantCarbonDioxide;
+  const generation: number = request.occupants * request.occupantCarbonDioxide;
   const noFlow: IAutoMovieAnalysisMetricGap = {
     reason:
       "the space declares no mechanical outdoor-air supply, so no ventilation rate exists to report",
     remedy:
       "declare the supply flow the space is ventilated at, or record an infiltration study as its own run",
   };
-  const air: (key: string, unit: string, value: number | null, gap?: IAutoMovieAnalysisMetricGap, status?: "unsupported" | "not-run") => IAutoMovieAnalysisMetric = (
+  const air: (
+    key: string,
+    unit: string,
+    value: number | null,
+    gap?: IAutoMovieAnalysisMetricGap,
+    status?: "unsupported" | "not-run",
+  ) => IAutoMovieAnalysisMetric = (
     key: string,
     unit: string,
     value: number | null,
@@ -185,7 +192,9 @@ export const analyzeAutoMovieSpaceAir: (props: { request: IAutoMovieSpaceAirRequ
  *
  * One fixed field pass plus the shared target scan uses target-proportional temporary ids and retains no request or verdict after return or throw.
  */
-const validateAirRequest: (request: IAutoMovieSpaceAirRequest) => void = (request: IAutoMovieSpaceAirRequest): void => {
+const validateAirRequest: (request: IAutoMovieSpaceAirRequest) => void = (
+  request: IAutoMovieSpaceAirRequest,
+): void => {
   for (const [label, value] of [
     ["id", request.id],
     ["subject", request.subject],

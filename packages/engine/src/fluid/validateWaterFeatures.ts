@@ -51,7 +51,11 @@ const FEATURE_MODES: ReadonlySet<string> = new Set([
  * @evidence contracts/performance.md#reuse-equivalent-work Within one call each domain is validated once and its verdict reused by every feature that cites it; across calls nothing is shared, so the production layer, which calls this once per environment with every declared domain, re-validates and re-reports each domain per environment that binds water, a duplication left to that orchestration.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the maps, sets and collector die with the call, and the returned violations belong to the caller.
  */
-export const validateWaterFeatures: (props: { environment: IAutoMovieBuiltEnvironment; features: IAutoMovieWaterFeature[]; domains: IAutoMovieFluidDomain[] }) => IAutoMovieValidation = (props: {
+export const validateWaterFeatures: (props: {
+  environment: IAutoMovieBuiltEnvironment;
+  features: IAutoMovieWaterFeature[];
+  domains: IAutoMovieFluidDomain[];
+}) => IAutoMovieValidation = (props: {
   environment: IAutoMovieBuiltEnvironment;
   features: IAutoMovieWaterFeature[];
   domains: IAutoMovieFluidDomain[];
@@ -70,10 +74,9 @@ export const validateWaterFeatures: (props: { environment: IAutoMovieBuiltEnviro
   );
   const boundaries: Map<string, IAutoMovieBuiltBoundary> = new Map(
     environment.boundaries.map(
-      (boundary: IAutoMovieBuiltBoundary): [string, IAutoMovieBuiltBoundary] => [
-        boundary.id,
-        boundary,
-      ],
+      (
+        boundary: IAutoMovieBuiltBoundary,
+      ): [string, IAutoMovieBuiltBoundary] => [boundary.id, boundary],
     ),
   );
   const byDomain: Map<string, IAutoMovieFluidDomain> = new Map(
@@ -90,28 +93,30 @@ export const validateWaterFeatures: (props: { environment: IAutoMovieBuiltEnviro
   // order `byDomain` resolves an id in, so the verdict the geometry check reads
   // belongs to the record it is about to measure.
   const soundness: Map<string, boolean> = new Map<string, boolean>();
-  props.domains.forEach((domain: IAutoMovieFluidDomain, index: number): void => {
-    if (seenDomains.has(domain.id))
-      out.push(
-        "type",
-        `${root}.domains[${index}].id`,
-        `fluid domain id "${domain.id}" is duplicated`,
-        domain.id,
-      );
-    seenDomains.add(domain.id);
-    const validation: IAutoMovieValidation = validateFluidDomain({ domain });
-    soundness.set(domain.id, validation.success);
-    // Re-path rather than re-word: the domain's own violation keeps its kind,
-    // its measured overshoot and its severity, so a binding report reads as the
-    // same finding `validateFluidDomain` would give, at the address the binding
-    // knows the domain by.
-    if (validation.success === false)
-      for (const item of validation.violations)
-        out.items.push({
-          ...item,
-          path: item.path.replace("$input", `${root}.domains[${index}]`),
-        });
-  });
+  props.domains.forEach(
+    (domain: IAutoMovieFluidDomain, index: number): void => {
+      if (seenDomains.has(domain.id))
+        out.push(
+          "type",
+          `${root}.domains[${index}].id`,
+          `fluid domain id "${domain.id}" is duplicated`,
+          domain.id,
+        );
+      seenDomains.add(domain.id);
+      const validation: IAutoMovieValidation = validateFluidDomain({ domain });
+      soundness.set(domain.id, validation.success);
+      // Re-path rather than re-word: the domain's own violation keeps its kind,
+      // its measured overshoot and its severity, so a binding report reads as the
+      // same finding `validateFluidDomain` would give, at the address the binding
+      // knows the domain by.
+      if (validation.success === false)
+        for (const item of validation.violations)
+          out.items.push({
+            ...item,
+            path: item.path.replace("$input", `${root}.domains[${index}]`),
+          });
+    },
+  );
 
   const seenFeatures: Set<string> = new Set<string>();
   props.features.forEach(
@@ -159,9 +164,7 @@ export const validateWaterFeatures: (props: { environment: IAutoMovieBuiltEnviro
           feature.material,
         );
 
-      const space: IAutoMovieBuiltSpace | undefined = spaces.get(
-        feature.space,
-      );
+      const space: IAutoMovieBuiltSpace | undefined = spaces.get(feature.space);
       if (space === undefined)
         out.push(
           "type",
@@ -246,7 +249,12 @@ export const validateWaterFeatures: (props: { environment: IAutoMovieBuiltEnviro
  *
  * `exhaustive` walks row-major cells; otherwise two endpoints per axis produce four visits, repeating endpoints on singleton axes. Arbitrary bed heights invalidate the corner branch's full-lattice inference. The caller supplies a domain admitted by validateFluidDomain; per-call sets/span arrays become collectible on return, while the returned stray point belongs to the caller. Work is subtree construction plus selected points times volume-predicate cost; exhaustive column spans are rebuilt per row.
  */
-const strayCell: (props: { environment: IAutoMovieBuiltEnvironment; space: string; domain: IAutoMovieFluidDomain; exhaustive: boolean }) => IAutoMovieVector3 | null = (props: {
+const strayCell: (props: {
+  environment: IAutoMovieBuiltEnvironment;
+  space: string;
+  domain: IAutoMovieFluidDomain;
+  exhaustive: boolean;
+}) => IAutoMovieVector3 | null = (props: {
   environment: IAutoMovieBuiltEnvironment;
   space: string;
   domain: IAutoMovieFluidDomain;

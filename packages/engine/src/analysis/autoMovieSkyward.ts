@@ -28,7 +28,10 @@ import { Vector3 } from "../math/Vector3";
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Allocates one normalized vector per call and retains nothing.
  * @author Samchon
  */
-export const autoMovieSkyward: (direction: IAutoMovieVector3, ground: IAutoMovieReferenceGround) => boolean = (
+export const autoMovieSkyward: (
+  direction: IAutoMovieVector3,
+  ground: IAutoMovieReferenceGround,
+) => boolean = (
   direction: IAutoMovieVector3,
   ground: IAutoMovieReferenceGround,
 ): boolean => Vector3.dot(direction, Vector3.normalize(ground.up)) > 0;

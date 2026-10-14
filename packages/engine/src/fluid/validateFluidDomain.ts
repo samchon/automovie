@@ -20,7 +20,12 @@ import { fluidCourantNumber } from "./fluidCourantNumber";
 const BOUNDARY_KINDS: ReadonlySet<string> = new Set(["wall", "open"]);
 
 /** Every solver edge, visited in diagnostic order without building per-domain key lists. */
-const EDGES: readonly ["xMin", "xMax", "zMin", "zMax"] = ["xMin", "xMax", "zMin", "zMax"];
+const EDGES: readonly ["xMin", "xMax", "zMin", "zMax"] = [
+  "xMin",
+  "xMax",
+  "zMin",
+  "zMax",
+];
 
 /**
  * Validate a fluid domain's lattice, budgets, stability, and declared flows.
@@ -37,7 +42,9 @@ const EDGES: readonly ["xMin", "xMax", "zMin", "zMax"] = ["xMin", "xMax", "zMin"
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A single validation pass per call; nothing is shared across calls.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the collector and id sets die with the call, and the returned violations, at most a few per declared field, belong to the caller.
  */
-export const validateFluidDomain: (props: { domain: IAutoMovieFluidDomain }) => IAutoMovieValidation = (props: {
+export const validateFluidDomain: (props: {
+  domain: IAutoMovieFluidDomain;
+}) => IAutoMovieValidation = (props: {
   domain: IAutoMovieFluidDomain;
 }): IAutoMovieValidation => {
   const domain: IAutoMovieFluidDomain = props.domain;
@@ -91,12 +98,43 @@ export const validateFluidDomain: (props: { domain: IAutoMovieFluidDomain }) => 
     );
 
   const solver: IAutoMovieFluidDomain["solver"] = domain.solver;
-  positive(out, `${root}.solver.fixedStepSeconds`, "fixed step", solver.fixedStepSeconds);
+  positive(
+    out,
+    `${root}.solver.fixedStepSeconds`,
+    "fixed step",
+    solver.fixedStepSeconds,
+  );
   positive(out, `${root}.solver.gravity`, "gravity", solver.gravity);
-  validateRange(solver.drag, `${root}.solver.drag`, 0, Infinity, "drag", out.items);
-  validateRange(solver.dryDepth, `${root}.solver.dryDepth`, 0, Infinity, "dry depth", out.items);
-  positive(out, `${root}.solver.referenceDepth`, "reference depth", solver.referenceDepth);
-  integer(out, `${root}.solver.maxSteps`, "max steps", solver.maxSteps, 1, FLUID_MAX_STEPS);
+  validateRange(
+    solver.drag,
+    `${root}.solver.drag`,
+    0,
+    Infinity,
+    "drag",
+    out.items,
+  );
+  validateRange(
+    solver.dryDepth,
+    `${root}.solver.dryDepth`,
+    0,
+    Infinity,
+    "dry depth",
+    out.items,
+  );
+  positive(
+    out,
+    `${root}.solver.referenceDepth`,
+    "reference depth",
+    solver.referenceDepth,
+  );
+  integer(
+    out,
+    `${root}.solver.maxSteps`,
+    "max steps",
+    solver.maxSteps,
+    1,
+    FLUID_MAX_STEPS,
+  );
 
   // Bad authored operands are reported at their fields. Infinity exceeds this
   // comparison, but NaN from extreme finite intermediates currently bypasses it.
@@ -132,7 +170,14 @@ export const validateFluidDomain: (props: { domain: IAutoMovieFluidDomain }) => 
   length(out, `${root}.depth`, "depth", domain.depth.length, cells);
   length(out, `${root}.solid`, "solid", domain.solid.length, cells);
   domain.bed.forEach((value: number, index: number): void =>
-    validateRange(value, `${root}.bed[${index}]`, -Infinity, Infinity, "bed elevation", out.items),
+    validateRange(
+      value,
+      `${root}.bed[${index}]`,
+      -Infinity,
+      Infinity,
+      "bed elevation",
+      out.items,
+    ),
   );
   // A broken design depth is named at its own field, not again at every cell.
   const deepest: number =
@@ -172,15 +217,30 @@ export const validateFluidDomain: (props: { domain: IAutoMovieFluidDomain }) => 
       );
   });
 
-  count(out, `${root}.sources`, "sources", domain.sources.length, FLUID_MAX_FLOWS);
+  count(
+    out,
+    `${root}.sources`,
+    "sources",
+    domain.sources.length,
+    FLUID_MAX_FLOWS,
+  );
   const sourceIds: Set<string> = new Set<string>();
-  domain.sources.forEach((source: IAutoMovieFluidSource, index: number): void => {
-    const path: string = `${root}.sources[${index}]`;
-    identity(out, path, "source", source.id, sourceIds);
-    site(out, path, domain, source.column, source.row);
-    validateRange(source.flowRate, `${path}.flowRate`, 0, Infinity, "source flow rate", out.items);
-    window(out, path, source.start, source.end);
-  });
+  domain.sources.forEach(
+    (source: IAutoMovieFluidSource, index: number): void => {
+      const path: string = `${root}.sources[${index}]`;
+      identity(out, path, "source", source.id, sourceIds);
+      site(out, path, domain, source.column, source.row);
+      validateRange(
+        source.flowRate,
+        `${path}.flowRate`,
+        0,
+        Infinity,
+        "source flow rate",
+        out.items,
+      );
+      window(out, path, source.start, source.end);
+    },
+  );
 
   count(out, `${root}.drains`, "drains", domain.drains.length, FLUID_MAX_FLOWS);
   const drainIds: Set<string> = new Set<string>();
@@ -188,7 +248,14 @@ export const validateFluidDomain: (props: { domain: IAutoMovieFluidDomain }) => 
     const path: string = `${root}.drains[${index}]`;
     identity(out, path, "drain", drain.id, drainIds);
     site(out, path, domain, drain.column, drain.row);
-    validateRange(drain.flowRate, `${path}.flowRate`, 0, Infinity, "drain flow rate", out.items);
+    validateRange(
+      drain.flowRate,
+      `${path}.flowRate`,
+      0,
+      Infinity,
+      "drain flow rate",
+      out.items,
+    );
     validateRange(
       drain.sillLevel,
       `${path}.sillLevel`,
@@ -200,7 +267,13 @@ export const validateFluidDomain: (props: { domain: IAutoMovieFluidDomain }) => 
     window(out, path, drain.start, drain.end);
   });
 
-  count(out, `${root}.sprays`, "spray emitters", domain.sprays.length, FLUID_MAX_SPRAYS);
+  count(
+    out,
+    `${root}.sprays`,
+    "spray emitters",
+    domain.sprays.length,
+    FLUID_MAX_SPRAYS,
+  );
   const sprayIds: Set<string> = new Set<string>();
   domain.sprays.forEach((spray: IAutoMovieFluidSpray, index: number): void => {
     const path: string = `${root}.sprays[${index}]`;
@@ -208,10 +281,29 @@ export const validateFluidDomain: (props: { domain: IAutoMovieFluidDomain }) => 
     site(out, path, domain, spray.column, spray.row);
     positive(out, `${path}.rate`, "spray rate", spray.rate);
     positive(out, `${path}.lifetime`, "spray lifetime", spray.lifetime);
-    validateRange(spray.speed, `${path}.speed`, 0, Infinity, "spray speed", out.items);
-    validateRange(spray.spread, `${path}.spread`, 0, 1, "spray spread", out.items);
+    validateRange(
+      spray.speed,
+      `${path}.speed`,
+      0,
+      Infinity,
+      "spray speed",
+      out.items,
+    );
+    validateRange(
+      spray.spread,
+      `${path}.spread`,
+      0,
+      1,
+      "spray spread",
+      out.items,
+    );
     positive(out, `${path}.size`, "spray particle size", spray.size);
-    positive(out, `${path}.lodDistance`, "spray LOD distance", spray.lodDistance);
+    positive(
+      out,
+      `${path}.lodDistance`,
+      "spray LOD distance",
+      spray.lodDistance,
+    );
     integer(
       out,
       `${path}.maxParticles`,
@@ -248,7 +340,12 @@ export const validateFluidDomain: (props: { domain: IAutoMovieFluidDomain }) => 
 };
 
 /** Append the shared finite, open-lower-bound range finding; scalar work has the diagnostic conversion costs of validateRange and mutates only the borrowed collector. */
-const positive: (out: ViolationCollector, path: string, label: string, value: number) => void = (
+const positive: (
+  out: ViolationCollector,
+  path: string,
+  label: string,
+  value: number,
+) => void = (
   out: ViolationCollector,
   path: string,
   label: string,
@@ -256,7 +353,14 @@ const positive: (out: ViolationCollector, path: string, label: string, value: nu
 ): void => validateRange(value, path, 0, Infinity, label, out.items, false);
 
 /** Require a safe integer inside inclusive bounds; one constant-work predicate appends at most one finding without clamping. */
-const integer: (out: ViolationCollector, path: string, label: string, value: number, min: number, max: number) => void = (
+const integer: (
+  out: ViolationCollector,
+  path: string,
+  label: string,
+  value: number,
+  min: number,
+  max: number,
+) => void = (
   out: ViolationCollector,
   path: string,
   label: string,
@@ -274,7 +378,13 @@ const integer: (out: ViolationCollector, path: string, label: string, value: num
 };
 
 /** Compare actual length with the computed cell count, appending at most one finding even for an unusable count; no array is traversed or resized here. */
-const length: (out: ViolationCollector, path: string, label: string, actual: number, cells: number) => void = (
+const length: (
+  out: ViolationCollector,
+  path: string,
+  label: string,
+  actual: number,
+  cells: number,
+) => void = (
   out: ViolationCollector,
   path: string,
   label: string,
@@ -291,7 +401,13 @@ const length: (out: ViolationCollector, path: string, label: string, actual: num
 };
 
 /** Append one range finding and overshoot when an actual collection length exceeds its named budget; constant scalar work leaves the collection unchanged. */
-const count: (out: ViolationCollector, path: string, label: string, actual: number, budget: number) => void = (
+const count: (
+  out: ViolationCollector,
+  path: string,
+  label: string,
+  actual: number,
+  budget: number,
+) => void = (
   out: ViolationCollector,
   path: string,
   label: string,
@@ -309,7 +425,13 @@ const count: (out: ViolationCollector, path: string, label: string, actual: numb
 };
 
 /** Check blank text and sibling duplication, then add the exact id to the call-owned set. Text trimming/hashing scales with id length; blank siblings receive blank findings without duplicate findings. */
-const identity: (out: ViolationCollector, path: string, label: string, id: string, seen: Set<string>) => void = (
+const identity: (
+  out: ViolationCollector,
+  path: string,
+  label: string,
+  id: string,
+  seen: Set<string>,
+) => void = (
   out: ViolationCollector,
   path: string,
   label: string,
@@ -323,7 +445,13 @@ const identity: (out: ViolationCollector, path: string, label: string, id: strin
 };
 
 /** Check each safe integer coordinate before reading solidity; an in-grid solid site appends a separate finding. Constant work borrows the domain and collector without retaining them. */
-const site: (out: ViolationCollector, path: string, domain: IAutoMovieFluidDomain, column: number, row: number) => void = (
+const site: (
+  out: ViolationCollector,
+  path: string,
+  domain: IAutoMovieFluidDomain,
+  column: number,
+  row: number,
+) => void = (
   out: ViolationCollector,
   path: string,
   domain: IAutoMovieFluidDomain,
@@ -353,17 +481,31 @@ const site: (out: ViolationCollector, path: string, domain: IAutoMovieFluidDomai
 };
 
 /** Constant-work safe-index predicate used before solidity lookup; the limit is the authored count and is admitted separately. No state is retained. */
-const inside: (value: number, limit: number) => boolean = (value: number, limit: number): boolean =>
-  Number.isSafeInteger(value) && value >= 0 && value < limit;
+const inside: (value: number, limit: number) => boolean = (
+  value: number,
+  limit: number,
+): boolean => Number.isSafeInteger(value) && value >= 0 && value < limit;
 
 /** Check finite nonnegative endpoints and strict end-after-start ordering; null end is unbounded. Scalar checks append their own findings without mutating the window or repeating ordering errors for non-finite endpoints. */
-const window: (out: ViolationCollector, path: string, start: number, end: number | null) => void = (
+const window: (
+  out: ViolationCollector,
+  path: string,
+  start: number,
+  end: number | null,
+) => void = (
   out: ViolationCollector,
   path: string,
   start: number,
   end: number | null,
 ): void => {
-  validateRange(start, `${path}.start`, 0, Infinity, "activity start", out.items);
+  validateRange(
+    start,
+    `${path}.start`,
+    0,
+    Infinity,
+    "activity start",
+    out.items,
+  );
   if (end === null) return;
   validateRange(end, `${path}.end`, 0, Infinity, "activity end", out.items);
   if (Number.isFinite(end) && Number.isFinite(start) && end <= start)

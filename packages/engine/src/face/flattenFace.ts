@@ -42,7 +42,11 @@ interface IPairedTrait {
 }
 
 const SINGLE: readonly ISingleTrait[] = [
-  { parameter: "faceWidth", path: "width", read: (f: IAutoMovieFace): number | undefined => f.width },
+  {
+    parameter: "faceWidth",
+    path: "width",
+    read: (f: IAutoMovieFace): number | undefined => f.width,
+  },
   {
     parameter: "faceLength",
     path: "length",

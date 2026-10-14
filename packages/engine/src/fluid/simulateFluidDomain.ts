@@ -56,7 +56,10 @@ import {
  * @evidence contracts/performance.md#reuse-equivalent-work Nothing is reused across calls, so a caller that samples every frame of a shot pays a total quadratic in the steps; that is an unresolved limitation of the stateless contract `IAutoMovieFluidState` declares, and no production caller samples per frame today.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Scratch arrays are call-local and become collectible after return or throw; no native handles or tasks are acquired. The caller owns fresh C depth and F velocity values in the result; copying overlaps scratch lifetime, and repeated results grow caller-held memory without an engine retention bound.
  */
-export const simulateFluidDomain: (domain: IAutoMovieFluidDomain, step: number) => IAutoMovieFluidState = (
+export const simulateFluidDomain: (
+  domain: IAutoMovieFluidDomain,
+  step: number,
+) => IAutoMovieFluidState = (
   domain: IAutoMovieFluidDomain,
   step: number,
 ): IAutoMovieFluidState => {
@@ -252,7 +255,19 @@ export const simulateFluidDomain: (domain: IAutoMovieFluidDomain, step: number) 
  *
  * `before`/`after` separate the face in increasing index order, with absent cells replaced by dry ghosts. Walls/solids return zero before arithmetic; a side at or below dryDepth also blocks when its bed-plus-depth elevation is at least the opposite elevation. Otherwise pressure updates the previous velocity before implicit damping. All work is scalar and call-local; finite inputs can still produce non-finite sums/products, which the owning replay checks only after its update.
  */
-const faceSpeed: (props: { previous: number; blocked: boolean; bedBefore: number; bedAfter: number; depthBefore: number; depthAfter: number; dry: number; gravity: number; dt: number; span: number; damping: number; }) => number = (props: {
+const faceSpeed: (props: {
+  previous: number;
+  blocked: boolean;
+  bedBefore: number;
+  bedAfter: number;
+  depthBefore: number;
+  depthAfter: number;
+  dry: number;
+  gravity: number;
+  dt: number;
+  span: number;
+  damping: number;
+}) => number = (props: {
   previous: number;
   blocked: boolean;
   bedBefore: number;
@@ -280,11 +295,16 @@ const faceSpeed: (props: { previous: number; blocked: boolean; bedBefore: number
 };
 
 /** Scalar half-open activity test at the step start; null end is unbounded. Admission belongs to the caller, and the predicate neither retains nor clamps its inputs. */
-const active: (start: number, end: number | null, time: number) => boolean = (start: number, end: number | null, time: number): boolean =>
-  time >= start && (end === null || time < end);
+const active: (start: number, end: number | null, time: number) => boolean = (
+  start: number,
+  end: number | null,
+  time: number,
+): boolean => time >= start && (end === null || time < end);
 
 /** Scan borrowed arrays until the first non-finite entry, with O(total entries) time and constant local storage. The caller supplies depth/velocities only; this does not inspect ledgers, clocks or pre-clamp intermediates. */
-const allFinite: (arrays: Float64Array[]) => boolean = (arrays: Float64Array[]): boolean => {
+const allFinite: (arrays: Float64Array[]) => boolean = (
+  arrays: Float64Array[],
+): boolean => {
   for (const values of arrays)
     for (let index: number = 0; index < values.length; ++index)
       if (Number.isFinite(values[index]) === false) return false;

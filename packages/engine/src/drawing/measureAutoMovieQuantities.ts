@@ -100,14 +100,20 @@ const FIXED_GAPS: readonly IAutoMovieDrawingGap[] = [
  * @evidence contracts/performance.md#bound-retention-and-release-resources Call-local owner tallies grow with distinct owners and are released on return. The caller owns the report, whose named contributors are bounded per finding; full gap strings can still name every faceted space and are bounded by authored design size rather than the contributor limit.
  * @author Samchon
  */
-export const measureAutoMovieQuantities: (props: { environment: IAutoMovieBuiltEnvironment; maxContributors?: number; }) => IAutoMovieQuantityReport = (props: {
+export const measureAutoMovieQuantities: (props: {
+  environment: IAutoMovieBuiltEnvironment;
+  maxContributors?: number;
+}) => IAutoMovieQuantityReport = (props: {
   /** Design the quantities are measured from. */
   environment: IAutoMovieBuiltEnvironment;
 
   /** Named-owner bound; defaults to the exported maximum. */
   maxContributors?: number;
 }): IAutoMovieQuantityReport => {
-  const { environment }: { environment: IAutoMovieBuiltEnvironment; maxContributors?: number; } = props;
+  const {
+    environment,
+  }: { environment: IAutoMovieBuiltEnvironment; maxContributors?: number } =
+    props;
   const bound: number =
     props.maxContributors ?? AUTOMOVIE_QUANTITY_MAX_CONTRIBUTORS;
   if (!Number.isSafeInteger(bound) || bound < 1)
@@ -134,7 +140,11 @@ export const measureAutoMovieQuantities: (props: { environment: IAutoMovieBuiltE
       ],
     ),
   );
-  const add: (subject: AutoMovieQuantitySubject, owner: string, value: number) => void = (
+  const add: (
+    subject: AutoMovieQuantitySubject,
+    owner: string,
+    value: number,
+  ) => void = (
     subject: AutoMovieQuantitySubject,
     owner: string,
     value: number,
@@ -217,9 +227,8 @@ export const measureAutoMovieQuantities: (props: { environment: IAutoMovieBuiltE
   }
 
   gaps.push(...FIXED_GAPS);
-  gaps.sort(
-    (left: IAutoMovieDrawingGap, right: IAutoMovieDrawingGap): number =>
-      compareAutoMovieRenderIds(left.subject, right.subject),
+  gaps.sort((left: IAutoMovieDrawingGap, right: IAutoMovieDrawingGap): number =>
+    compareAutoMovieRenderIds(left.subject, right.subject),
   );
 
   const report: Omit<IAutoMovieQuantityReport, "digest"> = {
@@ -245,7 +254,11 @@ export const measureAutoMovieQuantities: (props: { environment: IAutoMovieBuiltE
  *
  * The bound is already admitted and owner values are borrowed; totals sum individually rounded owner values, not raw measurements. Sorting and both slices use O(O log O) time/O(O) temporary space for O owners; the returned prefix belongs to the report and nothing is cached. The space-volume subject is always labelled approximate, including shell-only inputs.
  */
-const finding: (subject: AutoMovieQuantitySubject, owners: ReadonlyMap<string, number>, bound: number) => IAutoMovieQuantityFinding = (
+const finding: (
+  subject: AutoMovieQuantitySubject,
+  owners: ReadonlyMap<string, number>,
+  bound: number,
+) => IAutoMovieQuantityFinding = (
   subject: AutoMovieQuantitySubject,
   owners: ReadonlyMap<string, number>,
   bound: number,
@@ -285,7 +298,9 @@ const finding: (subject: AutoMovieQuantitySubject, owners: ReadonlyMap<string, n
 };
 
 /** Fold every contributor's already-rounded value in list order, preserving the same accounting for total and omitted suffix. O(N) binary64 summation uses constant extra storage and can round or overflow; no list or sum is retained between findings. */
-const sum: (entries: readonly IAutoMovieQuantityContributor[]) => number = (entries: readonly IAutoMovieQuantityContributor[]): number =>
+const sum: (entries: readonly IAutoMovieQuantityContributor[]) => number = (
+  entries: readonly IAutoMovieQuantityContributor[],
+): number =>
   entries.reduce(
     (total: number, entry: IAutoMovieQuantityContributor): number =>
       total + entry.value,

@@ -97,7 +97,9 @@ export const flattenHead = (
   doc: IAutoMovieHead,
 ): Partial<Record<AutoMovieHeadParameterName, number>> => {
   const out: Partial<Record<AutoMovieHeadParameterName, number>> = {};
-  for (const group of Object.keys(HEAD_PARAMETERS) as (keyof IAutoMovieHead)[]) {
+  for (const group of Object.keys(
+    HEAD_PARAMETERS,
+  ) as (keyof IAutoMovieHead)[]) {
     const fields: Readonly<Record<string, number | undefined>> | undefined =
       doc[group] as Readonly<Record<string, number | undefined>> | undefined;
     if (fields === undefined) continue;

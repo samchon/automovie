@@ -15,7 +15,9 @@ import { IAutoMovieFluidState } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Hashes the state it is given once per call and caches nothing.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the eight-byte scratch buffer dies with the call.
  */
-export const fluidStateDigest: (state: IAutoMovieFluidState) => string = (state: IAutoMovieFluidState): string => {
+export const fluidStateDigest: (state: IAutoMovieFluidState) => string = (
+  state: IAutoMovieFluidState,
+): string => {
   const view: DataView = new DataView(new ArrayBuffer(8));
   let hash: number = 0x811c9dc5;
   /** Serialize one Number into the reused eight-byte view and fold its bytes in order into the call-local unsigned hash; constant work retains no per-value history. */

@@ -34,7 +34,10 @@ import { validateSolidPlanes } from "./validateSolidPlanes";
  * @evidence contracts/performance.md#bound-retention-and-release-resources The id set holds at most N ids and each collector lives for one solid's iteration; all are released when the call returns or throws, and nothing is retained.
  * @author Samchon
  */
-export const assertAutoMovieAnalysisSolids: (solids: readonly IAutoMovieAnalysisSolid[], label: string) => void = (
+export const assertAutoMovieAnalysisSolids: (
+  solids: readonly IAutoMovieAnalysisSolid[],
+  label: string,
+) => void = (
   solids: readonly IAutoMovieAnalysisSolid[],
   label: string,
 ): void => {

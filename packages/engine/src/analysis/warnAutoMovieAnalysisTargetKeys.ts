@@ -33,7 +33,11 @@ import {
  * @evidence contracts/performance.md#bound-retention-and-release-resources The key set is call-local and released on return; the appended warnings, at most one per target, belong to the caller's sink.
  * @author Samchon
  */
-export const warnAutoMovieAnalysisTargetKeys: (props: { targets: readonly IAutoMovieAnalysisTarget[]; keys: readonly string[]; warnings: IAutoMovieAnalysisWarning[]; }) => void = (props: {
+export const warnAutoMovieAnalysisTargetKeys: (props: {
+  targets: readonly IAutoMovieAnalysisTarget[];
+  keys: readonly string[];
+  warnings: IAutoMovieAnalysisWarning[];
+}) => void = (props: {
   /** Targets the production declared, already checked. */
   targets: readonly IAutoMovieAnalysisTarget[];
 

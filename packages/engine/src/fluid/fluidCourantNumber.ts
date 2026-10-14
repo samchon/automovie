@@ -15,7 +15,9 @@ import { IAutoMovieFluidDomain } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A few multiplications per call; the validator and the budget each compute it once per domain.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Reads five domain fields and returns one number, retaining no reference to the domain.
  */
-export const fluidCourantNumber: (domain: IAutoMovieFluidDomain) => number = (domain: IAutoMovieFluidDomain): number =>
+export const fluidCourantNumber: (domain: IAutoMovieFluidDomain) => number = (
+  domain: IAutoMovieFluidDomain,
+): number =>
   domain.solver.fixedStepSeconds *
   Math.sqrt(domain.solver.gravity * domain.solver.referenceDepth) *
   Math.sqrt(

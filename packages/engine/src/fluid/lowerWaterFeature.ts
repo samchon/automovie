@@ -25,7 +25,12 @@ import { simulateFluidDomain } from "./simulateFluidDomain";
  * @evidence contracts/performance.md#reuse-equivalent-work Shares one solved state between the surface and the spray of a frame instead of solving twice; nothing is reused across frames, so a renderer calling this per frame pays the stateless replay `simulateFluidDomain` documents.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the returned frame owns the state, the surface and the spray it carries.
  */
-export const lowerWaterFeature: (props: { feature: IAutoMovieWaterFeature; domain: IAutoMovieFluidDomain; time: number; cameraDistance?: number }) => IAutoMovieWaterFeatureFrame = (props: {
+export const lowerWaterFeature: (props: {
+  feature: IAutoMovieWaterFeature;
+  domain: IAutoMovieFluidDomain;
+  time: number;
+  cameraDistance?: number;
+}) => IAutoMovieWaterFeatureFrame = (props: {
   /** The binding being drawn; its `domain` must name `domain.id`. */
   feature: IAutoMovieWaterFeature;
 

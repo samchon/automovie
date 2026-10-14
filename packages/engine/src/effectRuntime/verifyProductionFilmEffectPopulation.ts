@@ -25,14 +25,15 @@ type FilmEffectCue = IAutoMovieFilmTimeline["tracks"]["effects"][number];
  * @evidence contracts/performance.md#reuse-equivalent-work The rate, edit fingerprint and sorted cue list are computed once per call and shared by every entry; nothing is cached between calls because the timeline is a mutable caller-owned record.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Holds one sorted copy of the cue array and the per-entry canonical strings only during the call, and retains nothing afterwards.
  */
-export function verifyProductionFilmEffectPopulation (props: {
+export function verifyProductionFilmEffectPopulation(props: {
   timeline: IAutoMovieFilmTimeline;
   effects: readonly IAutoMovieCompiledFilmEffect[];
 }): void {
   const frameRate: IAutoMovieProductionFrameRate =
     productionFilmEffectTimelineFrameRate(props.timeline);
-  const editFingerprint: string =
-    productionFilmEffectEditFingerprint(props.timeline);
+  const editFingerprint: string = productionFilmEffectEditFingerprint(
+    props.timeline,
+  );
   const cues: FilmEffectCue[] = sortProductionFilmEffectCues(
     props.timeline.tracks.effects,
   );
@@ -42,7 +43,8 @@ export function verifyProductionFilmEffectPopulation (props: {
       `Film effect runtime population has ${props.effects.length} entries; the current timeline requires ${cues.length}.`,
     );
   for (let index: number = 0; index < props.effects.length; index++) {
-    const runtime: IAutoMovieCompiledFilmEffect | undefined = props.effects[index];
+    const runtime: IAutoMovieCompiledFilmEffect | undefined =
+      props.effects[index];
     if (runtime === undefined)
       throw new AutoMovieFilmEffectRuntimeError(
         "film-effect-runtime-invalid",
