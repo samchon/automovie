@@ -7,4 +7,4 @@
  *
  * @author Samchon
  */
-export const portraitTongueRows = 32;
+export const portraitTongueRows: 32 = 32;

@@ -25,12 +25,17 @@ export function createPortraitFacialFrame(
   host: IPortraitComponentHost,
   input: IPortraitFacialFrameShape = {},
   eyes?: readonly IPortraitEyeSocket[],
-): { host: { positions: number[][]; indices: number[]; viewRay: number[]; }; transform: (sample: readonly number[]) => number[]; }  {
-  const shape: Required<IPortraitFacialFrameShape> = resolvePortraitFacialFrameShape(input);
+): {
+  host: { positions: number[][]; indices: number[]; viewRay: number[] };
+  transform: (sample: readonly number[]) => number[];
+} {
+  const shape: Required<IPortraitFacialFrameShape> =
+    resolvePortraitFacialFrameShape(input);
   if (
     host.positions.length !== 478 ||
     host.positions.some(
-      (point: number[]): boolean  => point.length !== 3 || !point.every(Number.isFinite),
+      (point: number[]): boolean =>
+        point.length !== 3 || !point.every(Number.isFinite),
     )
   )
     throw new Error("Facial-frame anatomy requires 478 finite XYZ landmarks.");
@@ -39,7 +44,8 @@ export function createPortraitFacialFrame(
     shape.browProjection === 0
       ? undefined
       : createBrowProjection(basis, eyes, shape.browProjection);
-  const point: (id: number) => number[] = (id: number): number[] => basis.positions[id];
+  const point: (id: number) => number[] = (id: number): number[] =>
+    basis.positions[id];
   const width: number = Math.abs(point(454)[0] - point(234)[0]);
   const length: number = Math.abs(point(10)[1] - point(152)[1]);
   if (
@@ -51,7 +57,12 @@ export function createPortraitFacialFrame(
     throw new Error(
       "Facial-frame supports need nondegenerate zygomatic breadth and frontal-to-chin length.",
     );
-  const weight: (sample: readonly number[], id: number, rx: number, ry: number) => number = (
+  const weight: (
+    sample: readonly number[],
+    id: number,
+    rx: number,
+    ry: number,
+  ) => number = (
     sample: readonly number[],
     id: number,
     rx: number,
@@ -66,7 +77,9 @@ export function createPortraitFacialFrame(
     const t: number = Math.max(0, 1 - radius * radius);
     return t * t;
   };
-  const transform: (sample: readonly number[]) => number[] = (sample: readonly number[]): number[] => {
+  const transform: (sample: readonly number[]) => number[] = (
+    sample: readonly number[],
+  ): number[] => {
     if (sample.length !== 3 || !sample.every(Number.isFinite))
       throw new Error("A facial-frame attachment must be finite XYZ.");
     const jaw: number =
@@ -103,6 +116,7 @@ export function createPortraitFacialFrame(
   };
 }
 
+/** Build paired superior-orbit support sections from the copied host's resident guides. */
 function createBrowProjection(
   host: IPortraitComponentHost,
   eyes: readonly IPortraitEyeSocket[] | undefined,
@@ -111,62 +125,103 @@ function createBrowProjection(
   if (
     eyes === undefined ||
     eyes.length !== 2 ||
-    !eyes.some((eye: IPortraitEyeSocket): boolean  => eye.name === "left") ||
-    !eyes.some((eye: IPortraitEyeSocket): boolean  => eye.name === "right")
+    !eyes.some((eye: IPortraitEyeSocket): boolean => eye.name === "left") ||
+    !eyes.some((eye: IPortraitEyeSocket): boolean => eye.name === "right")
   )
     throw new Error(
       "Brow foundation needs both independently named eye sockets.",
     );
-  const guides: { aperture: number[][]; brow: number[][]; }[] = eyes.map((eye: IPortraitEyeSocket): { aperture: number[][]; brow: number[][]; }  => {
-    const aperture: number[] = [...eye.top, ...eye.bottom];
-    if (
-      aperture.length === 0 ||
-      eye.browBottom.length < 2 ||
-      [...aperture, ...eye.browBottom].some(
-        (id: number): boolean  => !Number.isInteger(id) || id < 0 || id >= host.positions.length,
+  const guides: { aperture: number[][]; brow: number[][] }[] = eyes.map(
+    (eye: IPortraitEyeSocket): { aperture: number[][]; brow: number[][] } => {
+      const aperture: number[] = [...eye.top, ...eye.bottom];
+      if (
+        aperture.length === 0 ||
+        eye.browBottom.length < 2 ||
+        [...aperture, ...eye.browBottom].some(
+          (id: number): boolean =>
+            !Number.isInteger(id) || id < 0 || id >= host.positions.length,
+        )
       )
-    )
-      throw new Error(
-        "Brow foundation needs resident aperture and brow guides.",
-      );
-    return {
-      aperture: aperture.map((id: number): number[]  => host.positions[id]),
-      brow: eye.browBottom.map((id: number): number[]  => host.positions[id]),
-    };
-  });
+        throw new Error(
+          "Brow foundation needs resident aperture and brow guides.",
+        );
+      return {
+        aperture: aperture.map((id: number): number[] => host.positions[id]),
+        brow: eye.browBottom.map((id: number): number[] => host.positions[id]),
+      };
+    },
+  );
   // Both fields share the highest aperture floor. Overlapping medial shoulders
   // cannot move the other eye's higher aperture in an asymmetric foundation.
   const floor: number =
-    Math.max(...guides.flatMap((guide: { aperture: number[][]; brow: number[][]; }): number[]  => guide.aperture.map((p: number[]): number  => p[1]))) +
-    0.5;
-  const sections: { floor: number; crest: number; top: number; left: number; right: number; shoulder: number; }[] = guides.map(({ aperture: points, brow }: { aperture: number[][]; brow: number[][]; }): { floor: number; crest: number; top: number; left: number; right: number; shoulder: number; }  => {
-    const crest: number = brow.reduce((sum: number, p: number[]): number  => sum + p[1] / brow.length, 0);
-    const width: number =
-      Math.max(...points.map((p: number[]): number  => p[0])) -
-      Math.min(...points.map((p: number[]): number  => p[0]));
-    const top: number = crest + 2 * (crest - floor);
-    const left: number = Math.min(...brow.map((p: number[]): number  => p[0]));
-    const right: number = Math.max(...brow.map((p: number[]): number  => p[0]));
-    if (
-      ![floor, crest, width, top, left, right].every(Number.isFinite) ||
-      crest <= floor + 1 ||
-      width <= 1 ||
-      right <= left
-    )
-      throw new Error(
-        "Brow foundation needs a finite superior band above a nondegenerate aperture.",
+    Math.max(
+      ...guides.flatMap(
+        (guide: { aperture: number[][]; brow: number[][] }): number[] =>
+          guide.aperture.map((p: number[]): number => p[1]),
+      ),
+    ) + 0.5;
+  const sections: {
+    floor: number;
+    crest: number;
+    top: number;
+    left: number;
+    right: number;
+    shoulder: number;
+  }[] = guides.map(
+    ({
+      aperture: points,
+      brow,
+    }: {
+      aperture: number[][];
+      brow: number[][];
+    }): {
+      floor: number;
+      crest: number;
+      top: number;
+      left: number;
+      right: number;
+      shoulder: number;
+    } => {
+      const crest: number = brow.reduce(
+        (sum: number, p: number[]): number => sum + p[1] / brow.length,
+        0,
       );
-    return { floor, crest, top, left, right, shoulder: width / 4 };
-  });
+      const width: number =
+        Math.max(...points.map((p: number[]): number => p[0])) -
+        Math.min(...points.map((p: number[]): number => p[0]));
+      const top: number = crest + 2 * (crest - floor);
+      const left: number = Math.min(...brow.map((p: number[]): number => p[0]));
+      const right: number = Math.max(
+        ...brow.map((p: number[]): number => p[0]),
+      );
+      if (
+        ![floor, crest, width, top, left, right].every(Number.isFinite) ||
+        crest <= floor + 1 ||
+        width <= 1 ||
+        right <= left
+      )
+        throw new Error(
+          "Brow foundation needs a finite superior band above a nondegenerate aperture.",
+        );
+      return { floor, crest, top, left, right, shoulder: width / 4 };
+    },
+  );
   const smooth: (x: number) => number = (x: number): number => {
     const t: number = Math.max(0, Math.min(1, x));
     return t * t * (3 - 2 * t);
   };
-  return (sample: readonly number[]): number  =>
+  return (sample: readonly number[]): number =>
     amount *
     Math.max(
       ...sections.map(
-        (section: { floor: number; crest: number; top: number; left: number; right: number; shoulder: number; }): number  =>
+        (section: {
+          floor: number;
+          crest: number;
+          top: number;
+          left: number;
+          right: number;
+          shoulder: number;
+        }): number =>
           smooth(
             (sample[0] - section.left + section.shoulder) / section.shoulder,
           ) *
