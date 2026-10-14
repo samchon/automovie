@@ -1,5 +1,6 @@
 import { evaluateHumanBodyShape } from "../basis/evaluateHumanBodyShape";
 import { humanBodyBasisWeights } from "../basis/humanBodyBasisWeights";
+import { resolveHumanBodyShapeShoulderRest } from "../basis/resolveHumanBodyShapeShoulderRest";
 import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
 import type { IAutoMovieHumanBodyMeasurement } from "../structures/IAutoMovieHumanBodyMeasurement";
 import { readHumanBodyShapedMeasurement } from "./readHumanBodyShapedMeasurement";
@@ -7,7 +8,7 @@ import { readHumanBodyShapedMeasurement } from "./readHumanBodyShapedMeasurement
 /**
  * Compile one rest body for repeated measurement rules.
  *
- * The shared weight and shape evaluators produce owned rest skin/landmarks once. Callers treat the exposed arrays as read-only and keep the admitted basis unchanged; each rule reads this same numerical body through readHumanBodyShapedMeasurement. A different trial shape requires another reader. Measurements are in metres or null when a rule lacks a witness; geometry readings alone do not establish physiological or clinical validity.
+ * The shared shoulder-rest, weight and shape evaluators produce owned rest skin/landmarks once, using the same shaped omitted-shoulder goals as the body builder. Callers treat the exposed arrays as read-only and keep the admitted basis unchanged; each rule reads this same numerical body through readHumanBodyShapedMeasurement. A different trial shape requires another reader. Measurements are in metres or null when a rule lacks a witness; geometry readings alone do not establish physiological or clinical validity.
  *
  * A multi-station rule shares one triangle index for its parallel cuts within that rule call. This reader caches the shaped geometry, not measurement results or station indices across separate rules. Existing anatomical and simple-shape solvers reuse it so readings from one trial do not silently mix different candidates.
  *
@@ -28,7 +29,7 @@ export function createHumanBodyMeasurementReader(
 } {
   const shaped: ReturnType<typeof evaluateHumanBodyShape> = evaluateHumanBodyShape(
     basis,
-    humanBodyBasisWeights(basis, { shape }),
+    humanBodyBasisWeights(basis, { shape }, resolveHumanBodyShapeShoulderRest(basis, shape)),
   );
   return {
     shaped,
