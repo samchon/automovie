@@ -1,25 +1,26 @@
-import {
-  DEFAULT_JOINT_AXES,
-  HUMANOID_JOINT_AXES,
-  Quaternion,
-  jointToQuaternion,
-  resolvePose,
-} from "@automovie/engine";
+import { DEFAULT_JOINT_AXES } from "../../../../packages/engine/src/kinematics/constants/DEFAULT_JOINT_AXES";
+import { HUMANOID_JOINT_AXES } from "../../../../packages/engine/src/kinematics/constants/HUMANOID_JOINT_AXES";
+import { jointToQuaternion } from "../../../../packages/engine/src/kinematics/jointToQuaternion";
+import { resolvePose } from "../../../../packages/engine/src/kinematics/resolvePose";
 import { TestValidator } from "@nestia/e2e";
+import { createSkeleton } from "../internal/createSkeleton";
+import { joint } from "../internal/joint";
+import { makePose } from "../internal/makePose";
+import { qclose } from "../internal/qclose";
+import { vclose } from "../internal/vclose";
+import { type IAutoMovieQuaternion, type IAutoMoviePose } from "../../../../packages/interface/src/index";
+import { type IAutoMovieResolvedBone } from "../../../../packages/engine/src/kinematics/IAutoMovieResolvedBone";
+import { type IAutoMovieJointAxes } from "../../../../packages/engine/src/kinematics/IAutoMovieJointAxes";
+const X: { x: number; y: number; z: number; } = { x: 1, y: 0, z: 0 };
+const Y: { x: number; y: number; z: number; } = { x: 0, y: 1, z: 0 };
+const Z: { x: number; y: number; z: number; } = { x: 0, y: 0, z: 1 };
 
-import { createSkeleton, joint, makePose } from "../internal/fixtures";
-import { qclose, vclose } from "../internal/predicates";
-
-const X = { x: 1, y: 0, z: 0 };
-const Y = { x: 0, y: 1, z: 0 };
-const Z = { x: 0, y: 0, z: 1 };
-
-const localOf = (
+const localOf: (pose: Parameters<typeof resolvePose>[0], bone: string, jointAxes?: Parameters<typeof resolvePose>[2]) => IAutoMovieQuaternion = (
   pose: Parameters<typeof resolvePose>[0],
   bone: string,
   jointAxes?: Parameters<typeof resolvePose>[2],
-) =>
-  resolvePose(pose, createSkeleton(), jointAxes).find((r) => r.bone === bone)!
+): IAutoMovieQuaternion  =>
+  resolvePose(pose, createSkeleton(), jointAxes).find((r: IAutoMovieResolvedBone): boolean  => r.bone === bone)!
     .localRotation;
 
 /**
@@ -42,7 +43,13 @@ const localOf = (
  *    about X) on the default basis; omitting the table reproduces the default
  *    for the same arm joint.
  */
-export const test_kinematics_joint_axes_remap = (): void => {
+/**
+ * @evidence contracts/testing.md#behavioral-verification Exercises default and humanoid axis mapping directly and through FK, checking arm override, omitted leg/spine entries and the negative about-Y twin; a global override or swapped semantic axis fails.
+ * @evidence contracts/testing.md#independent-expectations Authored unit Cartesian axes fix expected directions, and a local independent half-angle formula supplies 40/45-degree quaternions without calling product quaternion construction. The table's names are a conventional engine rig mapping, not independently measured anatomy.
+ * @evidence contracts/testing.md#distinguishing-cases Keeps default X/Z/Y, explicit arm override, wrong-axis discrimination, arm table entries, omitted leg/spine and FK with/without the table; composition order and malformed custom axes are separate entries.
+ * @evidence contracts/testing.md#execution-ownership This exported runner entry owns its local unit-axis formula and code skeleton, directly calling actual joint/FK source without viewer, GPU or installed character assets.
+ */
+export function test_kinematics_joint_axes_remap(): void {
   // 1. default basis
   TestValidator.predicate(
     "default flexion axis is X",
@@ -56,22 +63,22 @@ export const test_kinematics_joint_axes_remap = (): void => {
     "default twist axis is Y",
     vclose(DEFAULT_JOINT_AXES.twist, Y),
   );
-  const flex45 = jointToQuaternion({
+  const flex45: IAutoMovieQuaternion = jointToQuaternion({
     flexion: 45,
     abduction: null,
     twist: null,
   });
   TestValidator.predicate(
     "default flexion rotates about X",
-    qclose(flex45, Quaternion.fromAxisAngle(X, 45)),
+    qclose(flex45, expectedAxisRotation(X, 45)),
   );
   TestValidator.predicate(
     "default flexion is NOT about Y",
-    qclose(flex45, Quaternion.fromAxisAngle(Y, 45)) === false,
+    qclose(flex45, expectedAxisRotation(Y, 45)) === false,
   );
 
   // 2. explicit axes override
-  const armBasis = { flexion: Y, abduction: Z, twist: X };
+  const armBasis: { flexion: { x: number; y: number; z: number; }; abduction: { x: number; y: number; z: number; }; twist: { x: number; y: number; z: number; }; } = { flexion: Y, abduction: Z, twist: X };
   TestValidator.predicate(
     "flexion under arm basis rotates about Y",
     qclose(
@@ -79,12 +86,12 @@ export const test_kinematics_joint_axes_remap = (): void => {
         { flexion: 45, abduction: null, twist: null },
         armBasis,
       ),
-      Quaternion.fromAxisAngle(Y, 45),
+      expectedAxisRotation(Y, 45),
     ),
   );
 
   // 3. the humanoid table: arm chain remapped, legs/spine omitted
-  const arm = HUMANOID_JOINT_AXES.leftUpperArm!;
+  const arm: IAutoMovieJointAxes = HUMANOID_JOINT_AXES.leftUpperArm!;
   TestValidator.predicate("arm flexion axis is Y", vclose(arm.flexion, Y));
   TestValidator.predicate("arm abduction axis is Z", vclose(arm.abduction, Z));
   TestValidator.predicate("arm twist axis is X", vclose(arm.twist, X));
@@ -100,24 +107,31 @@ export const test_kinematics_joint_axes_remap = (): void => {
   );
 
   // 4. resolvePose opt-in: arm remapped, leg untouched, default reproduced
-  const armPose = makePose([joint("leftUpperArm", { flexion: 40 })]);
+  const armPose: IAutoMoviePose = makePose([joint("leftUpperArm", { flexion: 40 })]);
   TestValidator.predicate(
     "resolve arm flexion with table ⇒ about Y",
     qclose(
       localOf(armPose, "leftUpperArm", HUMANOID_JOINT_AXES),
-      Quaternion.fromAxisAngle(Y, 40),
+      expectedAxisRotation(Y, 40),
     ),
   );
   TestValidator.predicate(
     "resolve arm flexion without table ⇒ about X (default)",
-    qclose(localOf(armPose, "leftUpperArm"), Quaternion.fromAxisAngle(X, 40)),
+    qclose(localOf(armPose, "leftUpperArm"), expectedAxisRotation(X, 40)),
   );
-  const legPose = makePose([joint("leftUpperLeg", { flexion: 40 })]);
+  const legPose: IAutoMoviePose = makePose([joint("leftUpperLeg", { flexion: 40 })]);
   TestValidator.predicate(
     "resolve leg flexion with table ⇒ still about X (omitted)",
     qclose(
       localOf(legPose, "leftUpperLeg", HUMANOID_JOINT_AXES),
-      Quaternion.fromAxisAngle(X, 40),
+      expectedAxisRotation(X, 40),
     ),
   );
-};
+}
+
+/** Independent half-angle formula for the unit Cartesian axes used by this fixture. */
+function expectedAxisRotation(axis: { x: number; y: number; z: number }, degrees: number): { x: number; y: number; z: number; w: number } {
+  const half: number = degrees * Math.PI / 360;
+  const sine: number = Math.sin(half);
+  return { x: axis.x * sine, y: axis.y * sine, z: axis.z * sine, w: Math.cos(half) };
+}

@@ -2,7 +2,9 @@ import { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 import { Quaternion } from "../../../../packages/engine/src/math/Quaternion";
 import { aimRotation } from "../../../../packages/engine/src/kinematics/aimRotation";
 import { TestValidator } from "@nestia/e2e";
-import { qclose, throwsError, vclose } from "../internal/predicates";
+import { qclose } from "../internal/qclose";
+import { throwsError } from "../internal/throwsError";
+import { vclose } from "../internal/vclose";
 const X: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
 const Y: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 const nX: IAutoMovieVector3 = { x: -1, y: 0, z: 0 };
@@ -27,7 +29,7 @@ const TINY: number = (0.05 * Math.PI) / 180;
  *    a 1e-200 slope whose unscaled squared axis length would underflow.
  *
  * @evidence contracts/testing.md#behavioral-verification Runs aimRotation and rotates the input direction, asserting general, collinear and microscopic turns so a hidden sine deadzone or axis-norm underflow cannot return identity.
- * @evidence contracts/testing.md#independent-expectations Right-handed cardinal-axis turns define general and antiparallel expectations; authored signed slopes define microscopic Y components with tolerance relative to their nonzero magnitude.
+ * @evidence contracts/testing.md#independent-expectations Right-handed cardinal-axis turns define general and antiparallel expectations; authored signed slopes define microscopic Y components with tolerance relative to their nonzero magnitude. Quaternion.rotateVector is the actual numerical consumer, so a coordinated defect in both engine operations could evade this replay oracle.
  * @evidence contracts/testing.md#distinguishing-cases Covers both antiparallel axis branches, aligned/zero/nonunit directions, NaN/infinite refusals and signed/subnormal-scale turns; quaternion tests own generic rotation normalization.
  * @evidence contracts/testing.md#execution-ownership The exported kinematics entry directly reaches CPU vector/quaternion source and owns all cases without a Human basis, probe, renderer or native driver.
  */

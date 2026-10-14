@@ -1,17 +1,13 @@
-import {
-  AUTOMOVIE_SUBJECT_DIFF_DEFAULT_TOLERANCE,
-  diffAutoMovieSubjects,
-} from "@automovie/engine";
+import { AUTOMOVIE_SUBJECT_DIFF_DEFAULT_TOLERANCE } from "../../../../packages/engine/src/constants/AUTOMOVIE_SUBJECT_DIFF_DEFAULT_TOLERANCE";
+import { diffAutoMovieSubjects } from "../../../../packages/engine/src/diffAutoMovieSubjects";
 import { IAutoMovieModel } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { throwsError } from "../internal/predicates";
-import {
-  subjectInspectionArtifact,
-  subjectInspectionIdentityTransform,
-  subjectInspectionModel,
-} from "../internal/subjectInspectionFixtures";
-
+import { throwsError } from "../internal/throwsError";
+import { nclose } from "../internal/nclose";
+import { subjectInspectionArtifact } from "../internal/subjectInspectionArtifact";
+import { subjectInspectionIdentityTransform } from "../internal/subjectInspectionIdentityTransform";
+import { subjectInspectionModel } from "../internal/subjectInspectionModel";
+import { type IAutoMovieSubjectArtifact, type IAutoMovieSubjectDiff, type IAutoMovieSubjectChange, type IAutoMovieCompiledInstanceSet, type IAutoMovieSceneNode } from "../../../../packages/interface/src/index";
 /**
  * Structural diff classifies stable subjects without conflating placement and
  * reusable geometry.
@@ -29,47 +25,53 @@ import {
  *    and reshaped categories.
  * 5. Invalid negative and non-finite tolerances are rejected.
  */
-export const test_inspection_subject_structural_diff = (): void => {
-  const chairBefore = box("chair", 1);
-  const chairAfter = box("chair", 2);
-  const stable = box("stable", 1);
-  const removed = box("removed", 1);
-  const added = box("added", 1);
-  const before = subjectInspectionArtifact({
+/**
+ * @evidence contracts/testing.md#behavioral-verification Diffs authored revisions and checks disjoint add/remove, independent move/reshape, stable summaries and tolerance refusal; conflating reusable geometry with placement or omitting environment-only models fails.
+ * @evidence contracts/testing.md#independent-expectations Explicit before/after ids, translated chair, changed height and unchanged model fix the expected categories and revision labels; changing both compact anchor and spacing independently requires both categories. The literal default tolerance is checked through a scalar predicate, not diff-generated expected output.
+ * @evidence contracts/testing.md#distinguishing-cases Keeps additions/removals, simultaneous element move and prototype reshape, unchanged subjects, environment-only ownership, a doubly changed set, newly added-set fan-out and negative/infinite tolerance; exact inclusive boundaries are owned by diff_tolerance.
+ * @evidence contracts/testing.md#execution-ownership This discoverable exported CPU entry directly imports the diff owner and local code fixtures, with no renderer, browser or native artifact; structural classifications do not certify visible material or geometry quality.
+ */
+export function test_inspection_subject_structural_diff(): void {
+  const chairBefore: IAutoMovieModel = box("chair", 1);
+  const chairAfter: IAutoMovieModel = box("chair", 2);
+  const stable: IAutoMovieModel = box("stable", 1);
+  const removed: IAutoMovieModel = box("removed", 1);
+  const added: IAutoMovieModel = box("added", 1);
+  const before: IAutoMovieSubjectArtifact = subjectInspectionArtifact({
     revision: "revision-before",
     models: [chairBefore, stable, removed],
     nodes: [node("chair", 0), node("stable", 0), node("removed", 0)],
     environment: null,
   });
-  const after = subjectInspectionArtifact({
+  const after: IAutoMovieSubjectArtifact = subjectInspectionArtifact({
     revision: "revision-after",
     models: [chairAfter, stable, added],
     nodes: [node("chair", 3), node("stable", 0), node("added", 0)],
     environment: null,
   });
-  const diff = diffAutoMovieSubjects(before, after);
+  const diff: IAutoMovieSubjectDiff = diffAutoMovieSubjects(before, after);
   TestValidator.equals(
     "addition removal movement reshape and unchanged subjects are categorized independently",
     {
       version: diff.version,
       revisions: [diff.fromRevision, diff.toRevision],
-      tolerance: diff.tolerance,
-      added: diff.added.map((change) => change.id),
+      tolerance: nclose(diff.tolerance, 1e-6, 0),
+      added: diff.added.map((change: IAutoMovieSubjectChange): string  => change.id),
       addedNulls: diff.added.every(
-        (change) => change.before === null && change.after !== null,
+        (change: IAutoMovieSubjectChange): boolean  => change.before === null && change.after !== null,
       ),
-      removed: diff.removed.map((change) => change.id),
+      removed: diff.removed.map((change: IAutoMovieSubjectChange): string  => change.id),
       removedNulls: diff.removed.every(
-        (change) => change.before !== null && change.after === null,
+        (change: IAutoMovieSubjectChange): boolean  => change.before !== null && change.after === null,
       ),
-      moved: diff.moved.map((change) => change.id),
-      reshaped: diff.reshaped.map((change) => change.id),
+      moved: diff.moved.map((change: IAutoMovieSubjectChange): string  => change.id),
+      reshaped: diff.reshaped.map((change: IAutoMovieSubjectChange): string  => change.id),
       unchanged: diff.unchanged,
     },
     {
       version: 1,
       revisions: ["revision-before", "revision-after"],
-      tolerance: 1e-6,
+      tolerance: true,
       added: ["element:added", "prototype-part:added/body", "prototype:added"],
       addedNulls: true,
       removed: [
@@ -93,26 +95,26 @@ export const test_inspection_subject_structural_diff = (): void => {
     },
   );
 
-  const environmentOwned = (model: IAutoMovieModel) => {
-    const artifact = subjectInspectionArtifact({ models: [model] });
+  const environmentOwned: (model: IAutoMovieModel) => IAutoMovieSubjectArtifact = (model: IAutoMovieModel): IAutoMovieSubjectArtifact  => {
+    const artifact: IAutoMovieSubjectArtifact = subjectInspectionArtifact({ models: [model] });
     return {
       ...artifact,
       compiled: { ...artifact.compiled, models: [] },
     };
   };
-  const owned = diffAutoMovieSubjects(
+  const owned: IAutoMovieSubjectDiff = diffAutoMovieSubjects(
     environmentOwned(box("chair", 1)),
     environmentOwned(box("chair", 2)),
   );
   TestValidator.equals(
     "a reshaped model owned only by a built environment is reported reshaped",
-    owned.reshaped.map((change) => change.id),
+    owned.reshaped.map((change: IAutoMovieSubjectChange): string  => change.id),
     ["prototype-part:chair/body", "prototype:chair"],
   );
 
-  const setBefore = compactSet("both", 0, 1);
-  const setAfter = compactSet("both", 2, 2);
-  const both = diffAutoMovieSubjects(
+  const setBefore: IAutoMovieCompiledInstanceSet = compactSet("both", 0, 1);
+  const setAfter: IAutoMovieCompiledInstanceSet = compactSet("both", 2, 2);
+  const both: IAutoMovieSubjectDiff = diffAutoMovieSubjects(
     subjectInspectionArtifact({
       models: [stable],
       nodes: [],
@@ -129,8 +131,8 @@ export const test_inspection_subject_structural_diff = (): void => {
   TestValidator.equals(
     "a set with placement and population-law edits belongs to both categories",
     {
-      moved: both.moved.map((change) => change.id),
-      reshaped: both.reshaped.map((change) => change.id),
+      moved: both.moved.map((change: IAutoMovieSubjectChange): string  => change.id),
+      reshaped: both.reshaped.map((change: IAutoMovieSubjectChange): string  => change.id),
     },
     {
       moved: ["instance-set:both"],
@@ -138,7 +140,7 @@ export const test_inspection_subject_structural_diff = (): void => {
     },
   );
 
-  const addedSet = diffAutoMovieSubjects(
+  const addedSet: IAutoMovieSubjectDiff = diffAutoMovieSubjects(
     subjectInspectionArtifact({
       models: [stable],
       nodes: [],
@@ -153,7 +155,7 @@ export const test_inspection_subject_structural_diff = (): void => {
   );
   TestValidator.equals(
     "an added compact set has no cross-revision prototype selection count",
-    addedSet.added.find((change) => change.id === "instance-set:both")?.fanout,
+    addedSet.added.find((change: IAutoMovieSubjectChange): boolean  => change.id === "instance-set:both")?.fanout,
     {
       elements: 0,
       instances: 0,
@@ -166,27 +168,27 @@ export const test_inspection_subject_structural_diff = (): void => {
     "invalid tolerances are refused",
     {
       negative: throwsError(
-        () => diffAutoMovieSubjects(before, after, -1),
+        (): IAutoMovieSubjectDiff  => diffAutoMovieSubjects(before, after, -1),
         "finite and non-negative",
       ),
       infinite: throwsError(
-        () => diffAutoMovieSubjects(before, after, Number.POSITIVE_INFINITY),
+        (): IAutoMovieSubjectDiff  => diffAutoMovieSubjects(before, after, Number.POSITIVE_INFINITY),
         "finite and non-negative",
       ),
-      default: AUTOMOVIE_SUBJECT_DIFF_DEFAULT_TOLERANCE,
+      default: nclose(AUTOMOVIE_SUBJECT_DIFF_DEFAULT_TOLERANCE, 1e-6, 0),
     },
-    { negative: true, infinite: true, default: 1e-6 },
+    { negative: true, infinite: true, default: true },
   );
-};
+}
 
-const box = (id: string, height: number): IAutoMovieModel =>
+const box: (id: string, height: number) => IAutoMovieModel = (id: string, height: number): IAutoMovieModel =>
   subjectInspectionModel({
     id,
     min: { x: -0.5, y: 0, z: -0.5 },
     max: { x: 0.5, y: height, z: 0.5 },
   });
 
-const node = (id: string, x: number) => ({
+const node: (id: string, x: number) => IAutoMovieSceneNode = (id: string, x: number): IAutoMovieSceneNode  => ({
   id,
   model: id,
   transform: {
@@ -197,7 +199,7 @@ const node = (id: string, x: number) => ({
   pose: null,
 });
 
-const compactSet = (id: string, x: number, spacing: number) =>
+const compactSet: (id: string, x: number, spacing: number) => IAutoMovieCompiledInstanceSet = (id: string, x: number, spacing: number): IAutoMovieCompiledInstanceSet  =>
   ({
     version: 1,
     id,
@@ -235,4 +237,4 @@ const compactSet = (id: string, x: number, spacing: number) =>
       },
     ],
     digest: `sha256:${"5".repeat(64)}`,
-  }) as never;
+  });

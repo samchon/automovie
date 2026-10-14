@@ -1,20 +1,21 @@
 import { solveTwoBoneIK } from "../../../../packages/engine/src/kinematics/solveTwoBoneIK";
 import { ITwoBoneIK } from "../../../../packages/engine/src/kinematics/ITwoBoneIK";
 import { TestValidator } from "@nestia/e2e";
-import { nclose, throwsError } from "../internal/predicates";
+import { nclose } from "../internal/nclose";
+import { throwsError } from "../internal/throwsError";
 /**
  * Analytic two-bone IK (law of cosines). Pinned against hand geometry.
  *
  * Scenarios:
  *
- * 1. Right-angle reach: equal unit bones to distance ?? ??bend 90째, lift 45째, in
- *    reach.
- * 2. Fully extended at max reach (distance = sum) ??bend 180째, lift 0째, not
+ * 1. Right-angle reach: equal unit bones to distance sqrt(2) give bend90 degrees
+ *    and lift45 degrees, in reach.
+ * 2. Fully extended at max reach (distance = sum) gives bend180, lift0, not
  *    clamped (the shell is inclusive).
- * 3. Distance 0 with equal bones ??fully folded (bend 0째), lift short-circuits to
+ * 3. Distance0 with equal bones is fully folded (bend0), lift short-circuits to
  *    0 (the d===0 guard).
- * 4. Goal beyond reach (distance > sum) ??clamped, bend 180째 (extended).
- * 5. Goal inside the inner shell (distance < |upper?뭠ower|) ??clamped, bend 0째
+ * 4. Goal beyond reach (distance > sum) is clamped, bend180 (extended).
+ * 5. Goal inside the inner shell (distance < abs(upper-lower)) is clamped, bend0
  *    (folded).
  * 6. Uniformly tiny and huge right triangles retain their angles; unrepresentable side ratios refuse explicitly.
  *
@@ -36,18 +37,18 @@ export function test_kinematics_two_bone_ik(): void {
   TestValidator.predicate("lift 0", nclose(b.lift, 0, 1e-4));
   TestValidator.equals("max is in reach", b.clamped, false);
 
-  // 3. distance 0, equal bones ??folded, d===0 guard
+  // 3. distance0, equal bones folded, d===0 guard
   const c: ITwoBoneIK = solveTwoBoneIK(1, 1, 0);
   TestValidator.predicate("folded bend 0", nclose(c.bend, 0, 1e-4));
   TestValidator.predicate("lift 0 (guard)", nclose(c.lift, 0));
   TestValidator.equals("0 within shell", c.clamped, false);
 
-  // 4. beyond reach ??clamped, extended
+  // 4. beyond reach: clamped, extended
   const d: ITwoBoneIK = solveTwoBoneIK(2, 1, 5);
   TestValidator.equals("too far clamped", d.clamped, true);
   TestValidator.predicate("clamped to straight", nclose(d.bend, 180, 1e-4));
 
-  // 5. inside inner shell ??clamped, folded
+  // 5. inside inner shell: clamped, folded
   const e: ITwoBoneIK = solveTwoBoneIK(2, 1, 0.5);
   TestValidator.equals("too near clamped", e.clamped, true);
   TestValidator.predicate("clamped to folded", nclose(e.bend, 0, 1e-4));

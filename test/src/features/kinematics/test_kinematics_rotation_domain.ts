@@ -1,14 +1,13 @@
-import {
-  type IAutoMovieJointAxes,
-  Quaternion,
-  decomposeJointRotation,
-  jointToQuaternion,
-} from "@automovie/engine";
-import type { IAutoMovieJointConstraint } from "@automovie/interface";
+import { type IAutoMovieJointAxes } from "../../../../packages/engine/src/kinematics/IAutoMovieJointAxes";
+import { Quaternion } from "../../../../packages/engine/src/math/Quaternion";
+import { decomposeJointRotation } from "../../../../packages/engine/src/kinematics/decomposeJointRotation";
+import { jointToQuaternion } from "../../../../packages/engine/src/kinematics/jointToQuaternion";
+import { type IAutoMovieJointConstraint } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { nclose, qclose } from "../internal/predicates";
-
+import { nclose } from "../internal/nclose";
+import { qclose } from "../internal/qclose";
+import { type IAutoMovieQuaternion } from "../../../../packages/interface/src/index";
+import { type IAutoMovieResolvedJointAngles } from "../../../../packages/engine/src/kinematics/IAutoMovieResolvedJointAngles";
 /**
  * A quaternion's principal Euler chart need not belong to its joint domain.
  * Independent rotations about one declared axis fix the known clinical value;
@@ -22,7 +21,13 @@ import { nclose, qclose } from "../internal/predicates";
  * 4. A +180 endpoint and a positive full-turn alias remain admitted by their exact ranges.
  * 5. Omitted and null domains preserve the principal inverse; an impossible held-axis domain remains outside its range.
  */
-export const test_kinematics_rotation_domain = (): void => {
+/**
+ * @evidence contracts/testing.md#behavioral-verification Inverts known single-axis rotations with constrained distal/proximal charts, checking held zeros, exact legal endpoints, periodic aliases and an impossible domain without clipping; returning only the principal wrong-range chart fails.
+ * @evidence contracts/testing.md#independent-expectations Authored 125-degree rotations, the 55-degree principal branch, sign minus1/neutral 20 yielding minus105 and 30 plus360 yielding 390 independently determine scalar expectations. Forward orientation replay is additional shared-math parity, not proof of every quaternion constructor or physiological interval.
+ * @evidence contracts/testing.md#distinguishing-cases Keeps both handedness signs, distal flexion/proximal abduction, omitted/null domain, mirrored neutral, plus/minus180 quaternion endpoints, full-turn range and unavailable held-axis chart; general mixed/gimbal and malformed bases have separate entries.
+ * @evidence contracts/testing.md#execution-ownership This exported CPU test is runner-discovered and directly calls numerical decomposition/composition source; the authored constraints are conventional test domains with no clinical measurement, native solver or graphical host.
+ */
+export function test_kinematics_rotation_domain(): void {
   for (const handed of [1, -1]) {
     const axes: IAutoMovieJointAxes = {
       flexion: { x: 1, y: 0, z: 0 },
@@ -35,8 +40,8 @@ export const test_kinematics_rotation_domain = (): void => {
       abduction: null,
       twist: null,
     };
-    const rotation = Quaternion.fromAxisAngle(axes.flexion, 125);
-    const restored = decomposeJointRotation(rotation, axes, undefined, {
+    const rotation: IAutoMovieQuaternion = Quaternion.fromAxisAngle(axes.flexion, 125);
+    const restored: IAutoMovieResolvedJointAngles = decomposeJointRotation(rotation, axes, undefined, {
       bone: "leftLowerArm",
       constraint,
     });
@@ -57,8 +62,8 @@ export const test_kinematics_rotation_domain = (): void => {
       qclose(jointToQuaternion(restored, axes), rotation, 1e-12),
     );
 
-    const principal = decomposeJointRotation(rotation, axes);
-    const unconstrained = decomposeJointRotation(rotation, axes, undefined, {
+    const principal: IAutoMovieResolvedJointAngles = decomposeJointRotation(rotation, axes);
+    const unconstrained: IAutoMovieResolvedJointAngles = decomposeJointRotation(rotation, axes, undefined, {
       bone: "leftLowerArm",
       constraint: null,
     });
@@ -72,8 +77,8 @@ export const test_kinematics_rotation_domain = (): void => {
     );
 
     axes.twistPlacement = "proximal";
-    const abducted = Quaternion.fromAxisAngle(axes.abduction, 125);
-    const swing = decomposeJointRotation(abducted, axes, undefined, {
+    const abducted: IAutoMovieQuaternion = Quaternion.fromAxisAngle(axes.abduction, 125);
+    const swing: IAutoMovieResolvedJointAngles = decomposeJointRotation(abducted, axes, undefined, {
       bone: "leftUpperArm",
       constraint: {
         flexion: null,
@@ -101,9 +106,9 @@ export const test_kinematics_rotation_domain = (): void => {
     twist: { x: 0, y: 0, z: 1 },
     twistPlacement: "distal",
   };
-  const frame = { flexion: { sign: -1 as const, neutral: 20 } };
-  const rotation = Quaternion.fromAxisAngle(axes.flexion, 125);
-  const clinical = decomposeJointRotation(rotation, axes, frame, {
+  const frame: { flexion: { sign: -1; neutral: number; }; } = { flexion: { sign: -1 as const, neutral: 20 } };
+  const rotation: IAutoMovieQuaternion = Quaternion.fromAxisAngle(axes.flexion, 125);
+  const clinical: IAutoMovieResolvedJointAngles = decomposeJointRotation(rotation, axes, frame, {
     bone: "leftLowerArm",
     constraint: {
       flexion: { min: -110, max: 20 },
@@ -121,7 +126,7 @@ export const test_kinematics_rotation_domain = (): void => {
   );
 
   for (const degrees of [180, -180]) {
-    const endpoint = decomposeJointRotation(
+    const endpoint: IAutoMovieResolvedJointAngles = decomposeJointRotation(
       Quaternion.fromAxisAngle(axes.flexion, degrees),
       axes,
       undefined,
@@ -139,7 +144,7 @@ export const test_kinematics_rotation_domain = (): void => {
       nclose(endpoint.flexion, 180, 0),
     );
   }
-  const wrapped = decomposeJointRotation(
+  const wrapped: IAutoMovieResolvedJointAngles = decomposeJointRotation(
     Quaternion.fromAxisAngle(axes.flexion, 30),
     axes,
     undefined,
@@ -156,7 +161,7 @@ export const test_kinematics_rotation_domain = (): void => {
     "full-turn alias enters the declared interval",
     nclose(wrapped.flexion, 390, 1e-10),
   );
-  const impossible = decomposeJointRotation(
+  const impossible: IAutoMovieResolvedJointAngles = decomposeJointRotation(
     Quaternion.identity(),
     axes,
     undefined,
@@ -169,4 +174,4 @@ export const test_kinematics_rotation_domain = (): void => {
     "an unavailable chart is not clipped to five degrees",
     nclose(impossible.flexion, 0, 0),
   );
-};
+}

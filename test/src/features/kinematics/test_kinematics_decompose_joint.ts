@@ -1,14 +1,13 @@
-import {
-  IAutoMovieJointAxes,
-  Quaternion,
-  decomposeJointRotation,
-  jointToQuaternion,
-} from "@automovie/engine";
+import { IAutoMovieJointAxes } from "../../../../packages/engine/src/kinematics/IAutoMovieJointAxes";
+import { Quaternion } from "../../../../packages/engine/src/math/Quaternion";
+import { decomposeJointRotation } from "../../../../packages/engine/src/kinematics/decomposeJointRotation";
+import { jointToQuaternion } from "../../../../packages/engine/src/kinematics/jointToQuaternion";
 import { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { namedFacts, vclose } from "../internal/predicates";
-
+import { namedFacts } from "../internal/namedFacts";
+import { vclose } from "../internal/vclose";
+import { type IAutoMovieQuaternion } from "../../../../packages/interface/src/index";
+import { type IAutoMovieResolvedJointAngles } from "../../../../packages/engine/src/kinematics/IAutoMovieResolvedJointAngles";
 const DEFAULT_AXES: IAutoMovieJointAxes = {
   flexion: { x: 1, y: 0, z: 0 },
   abduction: { x: 0, y: 0, z: 1 },
@@ -29,11 +28,11 @@ const PROBES: IAutoMovieVector3[] = [
 ];
 
 /** Same rotation iff both send every probe vector to the same place. */
-const rotationsMatch = (
+const rotationsMatch: (q: ReturnType<typeof jointToQuaternion>, r: ReturnType<typeof jointToQuaternion>) => boolean = (
   q: ReturnType<typeof jointToQuaternion>,
   r: ReturnType<typeof jointToQuaternion>,
 ): boolean =>
-  PROBES.every((v) =>
+  PROBES.every((v: IAutoMovieVector3): boolean  =>
     vclose(Quaternion.rotateVector(q, v), Quaternion.rotateVector(r, v), 1e-4),
   );
 
@@ -56,8 +55,14 @@ const rotationsMatch = (
  * 4. Pure-axis recovery reads the exact clinical angle back: a 40° flexion
  *    decomposes to flexion 40, abduction 0, twist 0 (arm basis).
  */
-export const test_kinematics_decompose_joint = (): void => {
-  const triples = [
+/**
+ * @evidence contracts/testing.md#behavioral-verification Decomposes and recomposes rotations under both handed axis bases, comparing their action on probe vectors and recovered pure/gimbal coordinates; wrong handedness or lost gimbal orientation fails.
+ * @evidence contracts/testing.md#independent-expectations Authored angle triples and the gimbal convention define coordinate expectations, but forward/inverse round trips share jointToQuaternion and Quaternion.rotateVector and can miss coordinated errors. The pure-axis coordinate check supplies a known value without proving every rotation convention independently.
+ * @evidence contracts/testing.md#distinguishing-cases Keeps six pure/mixed triples under both bases, positive/negative90 gimbals and pure40 recovery; invalid scalar/axis admission and constrained alternate charts have separate entries.
+ * @evidence contracts/testing.md#execution-ownership The test runner discovers this exported CPU entry; local probe arrays and actual math/kinematics source run without a native solver, Human asset, process, browser or GPU.
+ */
+export function test_kinematics_decompose_joint(): void {
+  const triples: { flexion: number; abduction: number; twist: number; }[] = [
     { flexion: 40, abduction: 0, twist: 0 },
     { flexion: 0, abduction: 35, twist: 0 },
     { flexion: 0, abduction: 0, twist: 55 },
@@ -68,9 +73,9 @@ export const test_kinematics_decompose_joint = (): void => {
 
   for (const axes of [ARM_AXES, DEFAULT_AXES])
     for (const t of triples) {
-      const q = jointToQuaternion(t, axes);
-      const back = decomposeJointRotation(q, axes);
-      const q2 = jointToQuaternion(back, axes);
+      const q: IAutoMovieQuaternion = jointToQuaternion(t, axes);
+      const back: IAutoMovieResolvedJointAngles = decomposeJointRotation(q, axes);
+      const q2: IAutoMovieQuaternion = jointToQuaternion(back, axes);
       TestValidator.predicate(
         `round-trips ${JSON.stringify(t)} (${axes === ARM_AXES ? "arm" : "default"})`,
         rotationsMatch(q, q2),
@@ -79,18 +84,18 @@ export const test_kinematics_decompose_joint = (): void => {
 
   // 3. gimbal lock at ±90° abduction
   for (const abduction of [90, -90]) {
-    const q = jointToQuaternion(
+    const q: IAutoMovieQuaternion = jointToQuaternion(
       { flexion: 20, abduction, twist: 30 },
       ARM_AXES,
     );
-    const back = decomposeJointRotation(q, ARM_AXES);
+    const back: IAutoMovieResolvedJointAngles = decomposeJointRotation(q, ARM_AXES);
     TestValidator.equals(
       `gimbal ${abduction}° pins flexion 0, keeps abduction`,
       namedFacts([
-        ["backFlexion", () => back.flexion === 0],
+        ["backFlexion", (): boolean  => back.flexion === 0],
         [
           "absAbsBack",
-          () =>
+          (): boolean  =>
             back.flexion === 0 &&
             Math.abs(Math.abs(back.abduction) - 90) < 1e-6,
         ],
@@ -104,17 +109,17 @@ export const test_kinematics_decompose_joint = (): void => {
   }
 
   // 4. pure-axis recovery reads the exact angle
-  const pure = decomposeJointRotation(
+  const pure: IAutoMovieResolvedJointAngles = decomposeJointRotation(
     jointToQuaternion({ flexion: 40, abduction: 0, twist: 0 }, ARM_AXES),
     ARM_AXES,
   );
   TestValidator.equals(
     "a pure 40° flexion decomposes back to (40, 0, 0)",
     namedFacts([
-      ["MathAbsPure", () => Math.abs(pure.flexion - 40) < 1e-4],
-      ["MathAbsPure2", () => Math.abs(pure.abduction) < 1e-4],
-      ["MathAbsPure3", () => Math.abs(pure.twist) < 1e-4],
+      ["MathAbsPure", (): boolean  => Math.abs(pure.flexion - 40) < 1e-4],
+      ["MathAbsPure2", (): boolean  => Math.abs(pure.abduction) < 1e-4],
+      ["MathAbsPure3", (): boolean  => Math.abs(pure.twist) < 1e-4],
     ]),
     { MathAbsPure: true, MathAbsPure2: true, MathAbsPure3: true },
   );
-};
+}

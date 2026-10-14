@@ -1,16 +1,10 @@
-import { resolveAutoMovieSubjectReviewUnit } from "@automovie/engine";
-import {
-  IAutoMovieSubjectDescription,
-  IAutoMovieSubjectReviewUnit,
-} from "@automovie/interface";
+import { resolveAutoMovieSubjectReviewUnit } from "../../../../packages/engine/src/resolveAutoMovieSubjectReviewUnit";
+import { IAutoMovieSubjectDescription, IAutoMovieSubjectReviewUnit } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { throwsError } from "../internal/predicates";
-import {
-  subjectInspectionArtifact,
-  subjectInspectionInstanceSet,
-} from "../internal/subjectInspectionFixtures";
-
+import { throwsError } from "../internal/throwsError";
+import { subjectInspectionArtifact } from "../internal/subjectInspectionArtifact";
+import { subjectInspectionInstanceSet } from "../internal/subjectInspectionInstanceSet";
+import { type IAutoMovieSubjectArtifact, type IAutoMovieSubjectReviewTarget, type AutoMovieSubjectKind } from "../../../../packages/interface/src/index";
 /**
  * Subject review resolves the compiled subject identity instead of rebuilding
  * a parallel element, part, prototype, instance, or space index.
@@ -30,8 +24,14 @@ import {
  * 3. A missing subject fails through the shared compiled-subject resolver
  *    rather than producing an empty review unit.
  */
-export const test_inspection_subject_review_identity = (): void => {
-  const artifact = subjectInspectionArtifact({
+/**
+ * @evidence contracts/testing.md#behavioral-verification Resolves four structural subject review targets and asserts exact identity, revision, owner/placement/prototype links and inspection-only authority; substituting another role or admitting a missing subject fails.
+ * @evidence contracts/testing.md#independent-expectations Literal authored subject addresses and revision define the expected four records, rather than calling another resolver for the expected array. Filtering formation units cannot hide a wrong role because the full four-record equality still fails on a missing entry; formation review is outside this structural population.
+ * @evidence contracts/testing.md#distinguishing-cases Keeps reusable prototype, placed part, compact member and logical space, with their distinct nullable ownership links and missing-id refusal; production parity separately owns the negative delivery-evidence type consumer.
+ * @evidence contracts/testing.md#execution-ownership This exported inspection entry is discovered by the normal test runner and directly invokes review-unit source on an in-memory compiled artifact; it checks identity/eligibility, not actual camera coverage or delivered imagery.
+ */
+export function test_inspection_subject_review_identity(): void {
+  const artifact: IAutoMovieSubjectArtifact = subjectInspectionArtifact({
     instanceSets: [
       subjectInspectionInstanceSet({
         id: "banner-field",
@@ -40,14 +40,14 @@ export const test_inspection_subject_review_identity = (): void => {
       }),
     ],
   });
-  const ids = [
+  const ids: string[] = [
     "prototype:guard-rack-west-pole-0-model",
     "element-part:castle/guard-rack-west-pole-0/body",
     "instance:banner-field:slot:000001",
     "space:castle/hall",
   ];
-  const units = ids
-    .map((subject) =>
+  const units: (IAutoMovieSubjectReviewUnit & { description: IAutoMovieSubjectDescription; })[] = ids
+    .map((subject: string): IAutoMovieSubjectReviewUnit  =>
       resolveAutoMovieSubjectReviewUnit(artifact, {
         shot: "inspection-shot",
         subject,
@@ -56,7 +56,7 @@ export const test_inspection_subject_review_identity = (): void => {
     .filter(isStructuralSubjectReviewUnit);
   TestValidator.equals(
     "review units preserve the shared compiled-subject identities",
-    units.map((unit) => ({
+    units.map((unit: IAutoMovieSubjectReviewUnit & { description: IAutoMovieSubjectDescription; }): { version: 1; target: IAutoMovieSubjectReviewTarget; revision: string; kind: AutoMovieSubjectKind; prototype: string | null; placement: string | null; owner: string | null; viewpointOwner: "inspection"; deliveryEvidenceEligible: false; }  => ({
       version: unit.version,
       target: unit.target,
       revision: unit.description.revision,
@@ -129,7 +129,7 @@ export const test_inspection_subject_review_identity = (): void => {
   TestValidator.equals(
     "a missing compiled subject cannot become a review unit",
     throwsError(
-      () =>
+      (): IAutoMovieSubjectReviewUnit  =>
         resolveAutoMovieSubjectReviewUnit(artifact, {
           shot: "inspection-shot",
           subject: "element:castle/missing",
@@ -138,7 +138,7 @@ export const test_inspection_subject_review_identity = (): void => {
     ),
     true,
   );
-};
+}
 
 /**
  * True when a resolved unit carries the shared structural description.
@@ -147,7 +147,7 @@ export const test_inspection_subject_review_identity = (): void => {
  * answering a structural-identity assertion: a formation unit drops out of the
  * projected array and the comparison fails on the missing entry.
  */
-const isStructuralSubjectReviewUnit = (
+const isStructuralSubjectReviewUnit: (unit: IAutoMovieSubjectReviewUnit) => unit is IAutoMovieSubjectReviewUnit & { description: IAutoMovieSubjectDescription; } = (
   unit: IAutoMovieSubjectReviewUnit,
 ): unit is IAutoMovieSubjectReviewUnit & {
   description: IAutoMovieSubjectDescription;

@@ -1,7 +1,9 @@
 import { aimYawPitch } from "../../../../packages/engine/src/kinematics/aimYawPitch";
 import { IAutoMovieVector3, IAutoMovieYawPitch } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-import { namedFacts, nclose, throwsError } from "../internal/predicates";
+import { namedFacts } from "../internal/namedFacts";
+import { nclose } from "../internal/nclose";
+import { throwsError } from "../internal/throwsError";
 const O: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
 const at: (x: number, y: number, z: number) => IAutoMovieVector3 = (x: number, y: number, z: number): IAutoMovieVector3 => ({
   x,

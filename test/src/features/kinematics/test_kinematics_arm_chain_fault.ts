@@ -6,7 +6,8 @@ import { reachPose } from "../../../../packages/engine/src/kinematics/reachPose"
 import { resolvePose } from "../../../../packages/engine/src/kinematics/resolvePose";
 import { AutoMovieHumanoidBone, IAutoMovieBone, IAutoMovieSkeleton, IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-import { namedFacts, nclose } from "../internal/predicates";
+import { namedFacts } from "../internal/namedFacts";
+import { nclose } from "../internal/nclose";
 const bone: (name: AutoMovieHumanoidBone, parent: AutoMovieHumanoidBone | null, translation: IAutoMovieVector3) => IAutoMovieBone = (
   name: AutoMovieHumanoidBone,
   parent: AutoMovieHumanoidBone | null,

@@ -1,24 +1,24 @@
-import { twoBoneChainArticulation } from "@automovie/engine";
+import { twoBoneChainArticulation } from "../../../../packages/engine/src/kinematics/twoBoneChainArticulation";
 import { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
+import { namedFacts } from "../internal/namedFacts";
+import { nclose } from "../internal/nclose";
+import { type IAutoMovieTwoBoneArticulation } from "../../../../packages/engine/src/kinematics/IAutoMovieTwoBoneArticulation";
+const IDENTITY: { x: number; y: number; z: number; w: number; } = { x: 0, y: 0, z: 0, w: 1 };
 
-import { namedFacts, nclose } from "../internal/predicates";
-
-const IDENTITY = { x: 0, y: 0, z: 0, w: 1 };
-
-const at = (position: IAutoMovieVector3) => ({
+const at: (position: IAutoMovieVector3) => { worldPosition: IAutoMovieVector3; worldRotation: { x: number; y: number; z: number; w: number; }; } = (position: IAutoMovieVector3): { worldPosition: IAutoMovieVector3; worldRotation: { x: number; y: number; z: number; w: number; }; }  => ({
   worldPosition: position,
   worldRotation: IDENTITY,
 });
 
 /** A 0.3 + 0.25 chain hanging straight down from the origin, like a leg. */
-const leg = (overrides: {
+const leg: (overrides: { upper?: IAutoMovieVector3; lower?: IAutoMovieVector3; end?: IAutoMovieVector3; target: IAutoMovieVector3; bendNormal?: IAutoMovieVector3; }) => IAutoMovieTwoBoneArticulation | null = (overrides: {
   upper?: IAutoMovieVector3;
   lower?: IAutoMovieVector3;
   end?: IAutoMovieVector3;
   target: IAutoMovieVector3;
   bendNormal?: IAutoMovieVector3;
-}) =>
+}): IAutoMovieTwoBoneArticulation | null  =>
   twoBoneChainArticulation({
     upper: at(overrides.upper ?? { x: 0, y: 0, z: 0 }),
     lower: at(overrides.lower ?? { x: 0, y: -0.3, z: 0 }),
@@ -32,17 +32,15 @@ const leg = (overrides: {
 /**
  * The shared two-bone lowering's own boundaries, pinned directly.
  *
- * This function is the LEG chain's solver: `legPlant`'s ground-IK pass and the
- * retarget contact pass are its callers. It used to have a third, `reachPose`,
- * whose tests incidentally covered its degenerate paths; #1345 moved the arm
- * onto a hinge-respecting solve, so those paths lost the caller that reached
- * them. Depending on a leg scenario to wander through a zero-length segment is
- * exactly the accidental coverage the project forbids, so the contract is
- * stated here where it can be read.
+ * The current direct caller is `solvePreparedChainPlant`, invoked by
+ * `fitChainToTarget` for prepared contact candidates. `reachPose` uses the
+ * separate hinge-respecting arm solve. These cases therefore present the
+ * two-bone geometry's degeneracies directly instead of relying on a contact
+ * scenario to happen to reach a zero-length segment.
  *
- * The arm's departure changed nothing about this function; that is the
- * regression these cases hold. The world-down pole and its fallback are still
- * right for a knee, which is why they stayed.
+ * The world-down pole and its fallback remain this solver's conventional
+ * bend-plane preference when no explicit normal is supplied. This CPU case
+ * provides no independent measurement of living-knee mechanics.
  *
  * Scenarios:
  *
@@ -57,16 +55,22 @@ const leg = (overrides: {
  * 4. Degenerate: a zero-length upper segment, a zero-length lower segment, and a
  *    target coincident with the chain root each return `null`.
  */
-export const test_kinematics_two_bone_chain_articulation = (): void => {
+/**
+ * @evidence contracts/testing.md#behavioral-verification Solves an isolated two-bone chain and checks unit deltas, pole-parallel fallback, different explicit bend-normal branches and degenerate null returns; invalid-length fabrication or lost branch sign fails.
+ * @evidence contracts/testing.md#independent-expectations A rotation's squared component norm is1, and opposite declared bend normals must distinguish the two branches for this noncollinear fixture. The case checks solvability/norm/branch discrimination rather than an independent end-contact oracle, which full reach/FK tests supplement.
+ * @evidence contracts/testing.md#distinguishing-cases Keeps ordinary and pole-parallel targets, both signed bend normals, zero upper/lower segment and root-coincident target; scalar shell clamping and hinge-specific ROM choices belong to their own entries.
+ * @evidence contracts/testing.md#execution-ownership This exported runner entry directly invokes portable chain source and owns the conventional 0.3/0.25-metre local record; it requires no Human asset, native solver, browser or GPU.
+ */
+export function test_kinematics_two_bone_chain_articulation(): void {
   // 1. an ordinary solve
-  const solved = leg({ target: { x: 0.2, y: -0.4, z: 0.1 } });
+  const solved: IAutoMovieTwoBoneArticulation | null = leg({ target: { x: 0.2, y: -0.4, z: 0.1 } });
   TestValidator.equals(
     "a reachable target solves into two unit deltas",
     namedFacts([
-      ["solved", () => solved !== null],
+      ["solved", (): boolean  => solved !== null],
       [
         "ncloseMathHypot",
-        () =>
+        (): boolean  =>
           solved !== null &&
           nclose(
             Math.hypot(
@@ -81,7 +85,7 @@ export const test_kinematics_two_bone_chain_articulation = (): void => {
       ],
       [
         "ncloseMathHypot2",
-        () =>
+        (): boolean  =>
           solved !== null &&
           nclose(
             Math.hypot(
@@ -105,22 +109,22 @@ export const test_kinematics_two_bone_chain_articulation = (): void => {
   );
 
   // 3. an explicit bend normal overrides the pole, and its sign picks a branch
-  const plus = leg({
+  const plus: IAutoMovieTwoBoneArticulation | null = leg({
     target: { x: 0.2, y: -0.4, z: 0.1 },
     bendNormal: { x: 1, y: 0, z: 0 },
   });
-  const minus = leg({
+  const minus: IAutoMovieTwoBoneArticulation | null = leg({
     target: { x: 0.2, y: -0.4, z: 0.1 },
     bendNormal: { x: -1, y: 0, z: 0 },
   });
   TestValidator.equals(
     "the two hinge branches are genuinely different solves",
     namedFacts([
-      ["plus", () => plus !== null],
-      ["minus", () => minus !== null],
+      ["plus", (): boolean  => plus !== null],
+      ["minus", (): boolean  => minus !== null],
       [
         "nclosePlusUpper",
-        () =>
+        (): boolean  =>
           plus !== null &&
           minus !== null &&
           !nclose(plus.upper.x, minus.upper.x, 1e-6),
@@ -149,4 +153,4 @@ export const test_kinematics_two_bone_chain_articulation = (): void => {
     leg({ target: { x: 0, y: 0, z: 0 } }),
     null,
   );
-};
+}

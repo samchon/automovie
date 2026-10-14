@@ -5,8 +5,8 @@ import { indexSkeletonTopology } from "../../../../packages/engine/src/kinematic
 import { reachableBoneNames } from "../../../../packages/engine/src/kinematics/reachableBoneNames";
 import { resolvePose } from "../../../../packages/engine/src/kinematics/resolvePose";
 import { TestValidator } from "@nestia/e2e";
-import { makePose } from "../internal/fixtures";
-import { throwsError } from "../internal/predicates";
+import { makePose } from "../internal/makePose";
+import { throwsError } from "../internal/throwsError";
 const rest: IAutoMovieTransform = {
   translation: { x: 0, y: 0, z: 0 },
   rotation: { x: 0, y: 0, z: 0, w: 1 },

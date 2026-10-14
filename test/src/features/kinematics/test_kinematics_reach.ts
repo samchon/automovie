@@ -5,8 +5,8 @@ import { HUMANOID_REST_FRAME } from "../../../../packages/engine/src/rom/constan
 import { reachPose } from "../../../../packages/engine/src/kinematics/reachPose";
 import { resolvePose } from "../../../../packages/engine/src/kinematics/resolvePose";
 import { TestValidator } from "@nestia/e2e";
-import { createSkeleton } from "../internal/fixtures";
-import { vclose } from "../internal/predicates";
+import { createSkeleton } from "../internal/createSkeleton";
+import { vclose } from "../internal/vclose";
 const idTransform: IAutoMovieTransform = {
   translation: { x: 0, y: 0, z: 0 },
   rotation: { x: 0, y: 0, z: 0, w: 1 },
@@ -34,8 +34,8 @@ const handAt: (pose: IAutoMoviePose) => IAutoMovieVector3 = (
  * `reachPose`: analytic two-bone arm IK. The contract is the FK oracle: pose
  * the skeleton with the returned angles and the hand lands on the target. Any
  * error in the shoulder/elbow solve or the quaternion→clinical lowering shows
- * up as a hand that misses, so this pins correctness end to end regardless of
- * the convention details.
+ * up as a hand that misses. This checks the numerical consumer path; a defect
+ * shared by the solver and FK may remain invisible to their replay agreement.
  *
  * The fixture's left arm runs shoulder (0.2, 1.4, 0) → elbow → hand with
  * segments 0.3 + 0.25 = 0.55 m of reach.
@@ -58,7 +58,7 @@ const handAt: (pose: IAutoMoviePose) => IAutoMovieVector3 = (
  *    likely to expose a degenerate cross product.
   *
  * @evidence contracts/testing.md#behavioral-verification Runs reachPose and replays the returned clinical pose through forward kinematics, catching target misses, incorrect reach-shell extension and failure to reject degenerate chains.
- * @evidence contracts/testing.md#independent-expectations Targets are authored points and the unreachable endpoint is shoulder plus a normalized ray times the independent 0.55 metre segment sum; FK roundtrips share the documented angle convention.
+ * @evidence contracts/testing.md#independent-expectations Targets are authored points and the unreachable endpoint is shoulder plus a normalized ray times the independent 0.55 metre segment sum; FK roundtrips share engine rotation algebra and can miss a coordinated solver/FK defect. Conventional code dimensions do not establish living-body capacity.
  * @evidence contracts/testing.md#distinguishing-cases Covers reachable directions, unreachable shell, missing hand, target at shoulder, collapsed segment and vertical reach; arm-chain fault tests own malformed parenting and hinge diagnosis.
  * @evidence contracts/testing.md#execution-ownership This discoverable kinematics function executes portable solvers against code-authored skeleton fixtures; no Human source basis, host process or GPU participates.
  */

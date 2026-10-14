@@ -1,34 +1,26 @@
-import {
-  HUMANOID_JOINT_AXES,
-  HUMANOID_REST_FRAME,
-  reachPose,
-  resolvePose,
-  validatePoseResult,
-} from "@automovie/engine";
-import {
-  IAutoMovieJointConstraint,
-  IAutoMovieSkeleton,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { HUMANOID_JOINT_AXES } from "../../../../packages/engine/src/kinematics/constants/HUMANOID_JOINT_AXES";
+import { HUMANOID_REST_FRAME } from "../../../../packages/engine/src/rom/constants/HUMANOID_REST_FRAME";
+import { reachPose } from "../../../../packages/engine/src/kinematics/reachPose";
+import { resolvePose } from "../../../../packages/engine/src/kinematics/resolvePose";
+import { validatePoseResult } from "../../../../packages/engine/src/validation/validatePoseResult";
+import { IAutoMovieJointConstraint, IAutoMovieSkeleton, IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { createSkeleton } from "../internal/fixtures";
-import {
-  namedFacts,
-  nclose,
-  vclose,
-  violationCount,
-} from "../internal/predicates";
-
+import { createSkeleton } from "../internal/createSkeleton";
+import { namedFacts } from "../internal/namedFacts";
+import { nclose } from "../internal/nclose";
+import { vclose } from "../internal/vclose";
+import { violationCount } from "../internal/violationCount";
+import { type IAutoMovieResolvedBone } from "../../../../packages/engine/src/kinematics/IAutoMovieResolvedBone";
+import { type IAutoMovieBone, type IAutoMoviePose, type IAutoMovieJointPose, type IAutoMovieValidation, type IAutoMovieConstraintViolation } from "../../../../packages/interface/src/index";
 const SHOULDER: IAutoMovieVector3 = { x: 0.2, y: 1.4, z: 0 };
 
 /** Where the left hand lands, read back through the frame the pose is in. */
-const handAt = (
+const handAt: (skeleton: IAutoMovieSkeleton, pose: NonNullable<ReturnType<typeof reachPose>>) => IAutoMovieVector3 = (
   skeleton: IAutoMovieSkeleton,
   pose: NonNullable<ReturnType<typeof reachPose>>,
 ): IAutoMovieVector3 =>
   resolvePose(pose, skeleton, HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME).find(
-    (b) => b.bone === "leftHand",
+    (b: IAutoMovieResolvedBone): boolean  => b.bone === "leftHand",
   )!.worldPosition;
 
 /**
@@ -59,13 +51,13 @@ const FUSED: IAutoMovieJointConstraint = {
   twist: null,
 };
 
-const withElbow = (
+const withElbow: (constraint: IAutoMovieJointConstraint) => IAutoMovieSkeleton = (
   constraint: IAutoMovieJointConstraint,
 ): IAutoMovieSkeleton => {
-  const skeleton = createSkeleton();
+  const skeleton: IAutoMovieSkeleton = createSkeleton();
   return {
     ...skeleton,
-    bones: skeleton.bones.map((bone) =>
+    bones: skeleton.bones.map((bone: IAutoMovieBone): IAutoMovieBone  =>
       bone.bone === "leftLowerArm" ? { ...bone, constraint } : bone,
     ),
   };
@@ -77,8 +69,9 @@ const withElbow = (
  * The analytic solve used to articulate the mid joint as a free swing,
  * `aimRotation(localFore, localGoal)`, which generically decomposes into
  * abduction and twist. An elbow declares those axes immobile, so the pose was
- * illegal BY CONSTRUCTION, and the bend plane came from a world-down pole that
- * is right for a knee and bends an elbow backwards. On the canonical humanoid
+ * illegal BY CONSTRUCTION, and the bend plane came from a conventional
+ * world-down pole instead of the declared elbow hinge. This CPU regression
+ * does not independently measure living-knee or elbow mechanics. On the canonical humanoid
  * under the engine's own `DEFAULT_HUMANOID_ROM`, exactly one of eight targets
  * came back ROM-clean and that one was the rest pose itself, while a grid
  * search proved valid poses exist for five of the seven failures.
@@ -107,12 +100,18 @@ const withElbow = (
  *    target off its one span, so the verdict is still a refusal with the
  *    flexion axis named. The gate did not become permissive.
  */
-export const test_kinematics_reach_rom = (): void => {
-  const skeleton = createSkeleton();
+/**
+ * @evidence contracts/testing.md#behavioral-verification Solves authored arm targets then checks actual pose-gate acceptance, hand contact, immobile elbow coordinates and fused-elbow refusal; an unconstrained lower-joint swing or a solver that bypasses its ROM gate fails.
+ * @evidence contracts/testing.md#independent-expectations Fixture lengths fix the 0.55-metre shell and ray projection, literal targets fix contact, and null constraint axes require zero. The actual gate supplies integration parity, not an independent physiological oracle; historical search witnesses explain targets but do not certify human clinical capacity or global solver completeness.
+ * @evidence contracts/testing.md#distinguishing-cases Keeps five historically witnessed and two previously unsettled targets, exact held-axis zero, rest identity/neutral, out-of-shell clamping and a fused-elbow negative twin naming flexion; malformed side/topology and isolated chain degeneracies are separate entries.
+ * @evidence contracts/testing.md#execution-ownership This discoverable exported CPU entry directly imports reach, FK and pose-result validation source with a code-authored skeleton; no viewer, GPU, primary clinical experiment or Human asset is run.
+ */
+export function test_kinematics_reach_rom(): void {
+  const skeleton: IAutoMovieSkeleton = createSkeleton();
 
   // 1 + 2. every witnessed target is clean, and clean for the right reason
   for (const target of WITNESSED) {
-    const pose = reachPose(skeleton, "left", target);
+    const pose: IAutoMoviePose | null = reachPose(skeleton, "left", target);
     TestValidator.predicate(
       `reach ${JSON.stringify(target)} poses`,
       pose !== null,
@@ -130,7 +129,7 @@ export const test_kinematics_reach_rom = (): void => {
     // Zero tolerance, so this is an exact assertion, but written through
     // `nclose` because the decomposition yields a signed zero on the abduction
     // axis and `-0` is numerically the required 0.
-    const elbow = pose.joints.find((j) => j.bone === "leftLowerArm")!;
+    const elbow: IAutoMovieJointPose = pose.joints.find((j: IAutoMovieJointPose): boolean  => j.bone === "leftLowerArm")!;
     TestValidator.predicate(
       `the elbow abducts exactly 0 for ${JSON.stringify(target)}`,
       nclose(elbow.abduction!, 0, 0),
@@ -143,7 +142,7 @@ export const test_kinematics_reach_rom = (): void => {
 
   // 3. the rows the existence proof could not reach are not a separate class
   for (const target of UNESTABLISHED) {
-    const pose = reachPose(skeleton, "left", target)!;
+    const pose: IAutoMoviePose = reachPose(skeleton, "left", target)!;
     TestValidator.equals(
       `the unwitnessed target ${JSON.stringify(target)} is clean too`,
       violationCount(validatePoseResult(pose, skeleton)),
@@ -159,18 +158,18 @@ export const test_kinematics_reach_rom = (): void => {
   // shoulder's clinical rest is 90 degrees of abduction (a T-pose arm is
   // already abducted), which is what HUMANOID_REST_FRAME's neutral states.
   const restTarget: IAutoMovieVector3 = { x: 0.75, y: 1.4, z: 0 };
-  const rest = reachPose(skeleton, "left", restTarget)!;
-  const restUpper = rest.joints.find((j) => j.bone === "leftUpperArm")!;
-  const restLower = rest.joints.find((j) => j.bone === "leftLowerArm")!;
+  const rest: IAutoMoviePose = reachPose(skeleton, "left", restTarget)!;
+  const restUpper: IAutoMovieJointPose = rest.joints.find((j: IAutoMovieJointPose): boolean  => j.bone === "leftUpperArm")!;
+  const restLower: IAutoMovieJointPose = rest.joints.find((j: IAutoMovieJointPose): boolean  => j.bone === "leftLowerArm")!;
   TestValidator.equals(
     "the rest-pose target returns the identity articulation",
     namedFacts([
-      ["ncloseRestUpperFlexion", () => nclose(restUpper.flexion!, 0, 0)],
-      ["ncloseRestUpperAbduction", () => nclose(restUpper.abduction!, 90, 0)],
-      ["ncloseRestUpperTwist", () => nclose(restUpper.twist!, 0, 0)],
-      ["ncloseRestLowerFlexion", () => nclose(restLower.flexion!, 0, 0)],
-      ["ncloseRestLowerAbduction", () => nclose(restLower.abduction!, 0, 0)],
-      ["ncloseRestLowerTwist", () => nclose(restLower.twist!, 0, 0)],
+      ["ncloseRestUpperFlexion", (): boolean  => nclose(restUpper.flexion!, 0, 0)],
+      ["ncloseRestUpperAbduction", (): boolean  => nclose(restUpper.abduction!, 90, 0)],
+      ["ncloseRestUpperTwist", (): boolean  => nclose(restUpper.twist!, 0, 0)],
+      ["ncloseRestLowerFlexion", (): boolean  => nclose(restLower.flexion!, 0, 0)],
+      ["ncloseRestLowerAbduction", (): boolean  => nclose(restLower.abduction!, 0, 0)],
+      ["ncloseRestLowerTwist", (): boolean  => nclose(restLower.twist!, 0, 0)],
     ]),
     {
       ncloseRestUpperFlexion: true,
@@ -189,13 +188,13 @@ export const test_kinematics_reach_rom = (): void => {
 
   // 5. BOUNDARY: past the shell, the arm extends along the ray and stops on it.
   const far: IAutoMovieVector3 = { x: 0.2, y: 3.6, z: 0 };
-  const farPose = reachPose(skeleton, "left", far)!;
-  const ray = {
+  const farPose: IAutoMoviePose = reachPose(skeleton, "left", far)!;
+  const ray: { x: number; y: number; z: number; } = {
     x: far.x - SHOULDER.x,
     y: far.y - SHOULDER.y,
     z: far.z - SHOULDER.z,
   };
-  const length = Math.hypot(ray.x, ray.y, ray.z);
+  const length: number = Math.hypot(ray.x, ray.y, ray.z);
   TestValidator.predicate(
     "an unreachable target stops the hand on the 0.55 m shell",
     vclose(
@@ -216,22 +215,22 @@ export const test_kinematics_reach_rom = (): void => {
 
   // 6. NEGATIVE TWIN: a rig that genuinely cannot hold the pose is still
   // refused, and refused at the axis that refuses it.
-  const fusedRig = withElbow(FUSED);
-  const fused = reachPose(fusedRig, "left", WITNESSED[0]!)!;
-  const fusedResult = validatePoseResult(fused, fusedRig);
+  const fusedRig: IAutoMovieSkeleton = withElbow(FUSED);
+  const fused: IAutoMoviePose = reachPose(fusedRig, "left", WITNESSED[0]!)!;
+  const fusedResult: IAutoMovieValidation = validatePoseResult(fused, fusedRig);
   TestValidator.equals(
     "a fused elbow still fails the ROM gate, naming its flexion",
     namedFacts([
-      ["refused", () => fusedResult.success === false],
+      ["refused", (): boolean  => fusedResult.success === false],
       [
         "violated",
-        () =>
+        (): boolean  =>
           fusedResult.success === false &&
           fusedResult.violations.some(
-            (v) => v.kind === "rom" && v.path.endsWith(".flexion"),
+            (v: IAutoMovieConstraintViolation): boolean  => v.kind === "rom" && v.path.endsWith(".flexion"),
           ),
       ],
     ]),
     { refused: true, violated: true },
   );
-};
+}

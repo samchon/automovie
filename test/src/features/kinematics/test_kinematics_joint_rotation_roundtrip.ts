@@ -4,7 +4,7 @@ import { jointToQuaternion } from "../../../../packages/engine/src/kinematics/jo
 import { DEFAULT_JOINT_AXES } from "../../../../packages/engine/src/kinematics/constants/DEFAULT_JOINT_AXES";
 import { IAutoMovieJointAxes } from "../../../../packages/engine/src/kinematics/IAutoMovieJointAxes";
 import { TestValidator } from "@nestia/e2e";
-import { qclose } from "../internal/predicates";
+import { qclose } from "../internal/qclose";
 import { makeRng, randomUnitQuaternion } from "../internal/random";
 /**
  * Clinical decomposition preserves rotations in both Euler charts near gimbal.
@@ -14,7 +14,7 @@ import { makeRng, randomUnitQuaternion } from "../internal/random";
  * 2. Both twist placements preserve signed turns at 89.95, 89.999 and 90 degrees.
  *
  * @evidence contracts/testing.md#behavioral-verification Recomposes decomposed rotations and compares quaternion rotations, catching the former 0.999999 sine threshold that snapped a resolvable near-gimbal turn to ninety degrees.
- * @evidence contracts/testing.md#independent-expectations Seeded input rotations and explicitly authored clinical rotations are the unchanged expected orientations; quaternion sign equivalence is allowed, with a tighter dot-product tolerance for the named gimbal boundaries.
+ * @evidence contracts/testing.md#independent-expectations Seeded input rotations and explicitly authored clinical rotations are the unchanged expected orientations; quaternion sign equivalence is allowed, with a tighter dot-product tolerance for the named gimbal boundaries. The authored boundary rotations use the shared forward converter, so replay alone cannot independently prove that converter's angle convention.
  * @evidence contracts/testing.md#distinguishing-cases Random orientations complement both signed gimbals and their resolvable neighbors for proximal and distal placement; joint ROM tests own equivalent-chart selection under constraints.
  * @evidence contracts/testing.md#execution-ownership This exported unit entry owns its deterministic sweep and boundary cases and calls portable kinematics source without a rig application, process or renderer.
  */

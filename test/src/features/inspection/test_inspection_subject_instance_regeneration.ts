@@ -1,20 +1,15 @@
-import {
-  describeAutoMovieSubject,
-  instanceSlot,
-  materializeCompiledInstanceSet,
-  productionRuntimeModelId,
-} from "@automovie/engine";
-import {
-  IAutoMovieCompiledInstanceSet,
-  IAutoMovieInstanceSetDesign,
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { describeAutoMovieSubject } from "../../../../packages/engine/src/describeAutoMovieSubject";
+import { instanceSlot } from "../../../../packages/engine/src/populationRuntime/instanceSlot";
+import { materializeCompiledInstanceSet } from "../../../../packages/engine/src/populationRuntime/materializeCompiledInstanceSet";
+import { productionRuntimeModelId } from "../../../../packages/engine/src/productionRuntimeModelId";
+import { IAutoMovieCompiledInstanceSet, IAutoMovieInstanceSetDesign, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { namedFacts, nclose, throwsError } from "../internal/predicates";
-import { subjectInspectionArtifact } from "../internal/subjectInspectionFixtures";
-
+import { namedFacts } from "../internal/namedFacts";
+import { nclose } from "../internal/nclose";
+import { vclose } from "../internal/vclose";
+import { throwsError } from "../internal/throwsError";
+import { subjectInspectionArtifact } from "../internal/subjectInspectionArtifact";
+import { type IAutoMovieSubjectArtifact, type IAutoMovieSubjectDescription, type IAutoMovieInstanceSlot } from "../../../../packages/interface/src/index";
 /** What a description and the regenerator each say about one member. */
 interface IMemberFacts {
   id: string;
@@ -26,7 +21,7 @@ interface IMemberFacts {
 }
 
 /** Sixty-four scattered trees drawing two prototypes, per-axis scale and a seeded tilt. */
-const orchard = (): IAutoMovieInstanceSetDesign => ({
+const orchard: () => IAutoMovieInstanceSetDesign = (): IAutoMovieInstanceSetDesign => ({
   id: "orchard",
   modelRecipe: "tree",
   prototypes: [
@@ -55,7 +50,7 @@ const orchard = (): IAutoMovieInstanceSetDesign => ({
 });
 
 /** Twelve shrubs in a grid turned a quarter turn, with nothing but a uniform scale range. */
-const hedge = (): IAutoMovieInstanceSetDesign => ({
+const hedge: () => IAutoMovieInstanceSetDesign = (): IAutoMovieInstanceSetDesign => ({
   id: "hedge",
   modelRecipe: "shrub",
   count: 12,
@@ -100,29 +95,35 @@ const hedge = (): IAutoMovieInstanceSetDesign => ({
  * 5. A hand-edited set whose palette is empty refuses description with the
  *    regenerator's refusal, while its twin with a swatch is described.
  */
-export const test_inspection_subject_instance_regeneration = (): void => {
-  const world = { routes: [] };
-  const trees = materializeCompiledInstanceSet({
+/**
+ * @evidence contracts/testing.md#behavioral-verification Describes every scattered/grid slot and checks discrete identity plus exact finite coordinate parity with the compiled regenerator; a neighboring transform, lost per-axis scale or divergent empty-palette admission fails.
+ * @evidence contracts/testing.md#independent-expectations Slot comparisons intentionally test consumer parity with instanceSlot, so a defect shared by both paths can pass. The independent quarter-turn quaternion and distinct-neighbor assertions supplement that oracle; zero-tolerance predicates preserve the existing exact regenerated-value requirement.
+ * @evidence contracts/testing.md#distinguishing-cases Keeps all 64 varied members and 12 uniform-scale members, prototype/model identity, heading, neighbor placement/scale discrimination and empty-palette refusal with a swatch twin; malformed addresses and other layouts belong to instances.
+ * @evidence contracts/testing.md#execution-ownership This exported test is discovered by the runner and directly calls materialization, member generation and description source with in-memory design records; it renders no trees, launches no host and proves no GPU appearance.
+ */
+export function test_inspection_subject_instance_regeneration(): void {
+  const world: { routes: never[]; } = { routes: [] };
+  const trees: IAutoMovieCompiledInstanceSet = materializeCompiledInstanceSet({
     instanceSet: orchard(),
     world,
   });
-  const shrubs = materializeCompiledInstanceSet({
+  const shrubs: IAutoMovieCompiledInstanceSet = materializeCompiledInstanceSet({
     instanceSet: hedge(),
     world,
   });
-  const artifact = subjectInspectionArtifact({
+  const artifact: IAutoMovieSubjectArtifact = subjectInspectionArtifact({
     models: [],
     nodes: [],
     instanceSets: [trees, shrubs],
     environment: null,
   });
-  const describe = (set: IAutoMovieCompiledInstanceSet, slot: number) =>
+  const describe: (set: IAutoMovieCompiledInstanceSet, slot: number) => IAutoMovieSubjectDescription = (set: IAutoMovieCompiledInstanceSet, slot: number): IAutoMovieSubjectDescription  =>
     describeAutoMovieSubject(artifact, instanceSlot(set, slot).node);
-  const described = (
+  const described: (set: IAutoMovieCompiledInstanceSet, slot: number) => IMemberFacts = (
     set: IAutoMovieCompiledInstanceSet,
     slot: number,
   ): IMemberFacts => {
-    const description = describe(set, slot);
+    const description: IAutoMovieSubjectDescription = describe(set, slot);
     return {
       id: description.id,
       semanticKind: description.semanticKind,
@@ -133,44 +134,40 @@ export const test_inspection_subject_instance_regeneration = (): void => {
     };
   };
 
-  TestValidator.equals(
+  TestValidator.predicate(
     "a varied member is described as its compiled set regenerates it",
-    Array.from({ length: trees.count }, (_, slot) => described(trees, slot)),
-    Array.from({ length: trees.count }, (_, slot): IMemberFacts => {
-      const member = instanceSlot(trees, slot);
-      return {
+    Array.from({ length: trees.count }, (_: unknown, slot: number): boolean => {
+      const member: IAutoMovieInstanceSlot = instanceSlot(trees, slot);
+      return sameMemberFacts(described(trees, slot), {
         id: member.node,
         semanticKind: member.prototype,
         model: productionRuntimeModelId(member.modelRecipe),
         translation: member.position,
         rotation: member.rotation,
         scale: member.scale3,
-      };
-    }),
+      });
+    }).every((matched: boolean): boolean => matched),
   );
 
-  TestValidator.equals(
+  TestValidator.predicate(
     "a plain member is described with its regenerated place and one scale",
-    Array.from({ length: shrubs.count }, (_, slot) => {
-      const { rotation, ...facts } = described(shrubs, slot);
-      return facts;
-    }),
     Array.from(
       { length: shrubs.count },
-      (_, slot): Omit<IMemberFacts, "rotation"> => {
-        const member = instanceSlot(shrubs, slot);
-        return {
+      (_: unknown, slot: number): boolean => {
+        const member: IAutoMovieInstanceSlot = instanceSlot(shrubs, slot);
+        return sameMemberFacts({ ...described(shrubs, slot), rotation: undefined }, {
           id: member.node,
           semanticKind: "default",
           model: productionRuntimeModelId("shrub"),
           translation: member.position,
           scale: { x: member.scale, y: member.scale, z: member.scale },
-        };
+          rotation: undefined,
+        });
       },
-    ),
+    ).every((matched: boolean): boolean => matched),
   );
 
-  const turned = described(shrubs, 5).rotation;
+  const turned: IAutoMovieQuaternion | undefined = described(shrubs, 5).rotation;
   const barren: IAutoMovieCompiledInstanceSet = {
     ...shrubs,
     id: "barren",
@@ -181,26 +178,26 @@ export const test_inspection_subject_instance_regeneration = (): void => {
     namedFacts([
       [
         "variedShape",
-        () =>
+        (): boolean  =>
           describe(trees, 0).transform !== null &&
           instanceSlot(trees, 0).rotation !== undefined &&
           instanceSlot(trees, 0).scale3 !== undefined,
       ],
       [
         "neighbourPlace",
-        () =>
-          JSON.stringify(describe(trees, 0).transform?.translation) !==
-          JSON.stringify(instanceSlot(trees, 1).position),
+        (): boolean  =>
+          !sameVector(describe(trees, 0).transform?.translation,
+            instanceSlot(trees, 1).position),
       ],
       [
         "neighbourScale",
-        () =>
-          JSON.stringify(describe(trees, 0).transform?.scale) !==
-          JSON.stringify(instanceSlot(trees, 1).scale3),
+        (): boolean  =>
+          !sameVector(describe(trees, 0).transform?.scale,
+            instanceSlot(trees, 1).scale3),
       ],
       [
         "plainHeading",
-        () =>
+        (): boolean  =>
           turned !== undefined &&
           nclose(turned.x, 0, 1e-15) &&
           nclose(turned.y, Math.SQRT1_2, 1e-15) &&
@@ -209,9 +206,9 @@ export const test_inspection_subject_instance_regeneration = (): void => {
       ],
       [
         "emptyPaletteRefuses",
-        () =>
+        (): boolean  =>
           throwsError(
-            () =>
+            (): IAutoMovieSubjectDescription  =>
               describeAutoMovieSubject(
                 subjectInspectionArtifact({
                   models: [],
@@ -226,7 +223,7 @@ export const test_inspection_subject_instance_regeneration = (): void => {
       ],
       [
         "swatchTwinDescribed",
-        () =>
+        (): boolean  =>
           describeAutoMovieSubject(artifact, "instance:hedge:slot:000000")
             .kind === "instance",
       ],
@@ -240,4 +237,19 @@ export const test_inspection_subject_instance_regeneration = (): void => {
       swatchTwinDescribed: true,
     },
   );
-};
+}
+
+/** Preserve the exact-coordinate parity contract without structural float equality. */
+function sameVector(a: IAutoMovieVector3 | undefined, b: IAutoMovieVector3 | undefined): boolean {
+  return a === undefined || b === undefined ? a === b : vclose(a, b, 0);
+}
+
+/** Identity is discrete; regenerated coordinates and quaternion signs must match exactly. */
+function sameMemberFacts(a: IMemberFacts, b: IMemberFacts): boolean {
+  const rotationMatches: boolean = a.rotation === undefined || b.rotation === undefined
+    ? a.rotation === b.rotation
+    : nclose(a.rotation.x, b.rotation.x, 0) && nclose(a.rotation.y, b.rotation.y, 0) &&
+      nclose(a.rotation.z, b.rotation.z, 0) && nclose(a.rotation.w, b.rotation.w, 0);
+  return a.id === b.id && a.semanticKind === b.semanticKind && a.model === b.model &&
+    sameVector(a.translation, b.translation) && sameVector(a.scale, b.scale) && rotationMatches;
+}

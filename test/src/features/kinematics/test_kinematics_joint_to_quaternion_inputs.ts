@@ -1,8 +1,8 @@
-import { Quaternion, jointToQuaternion } from "@automovie/engine";
+import { jointToQuaternion } from "../../../../packages/engine/src/kinematics/jointToQuaternion";
 import { TestValidator } from "@nestia/e2e";
-
-import { qclose, throwsError } from "../internal/predicates";
-
+import { qclose } from "../internal/qclose";
+import { throwsError } from "../internal/throwsError";
+import { type IAutoMovieQuaternion } from "../../../../packages/interface/src/index";
 /**
  * `jointToQuaternion` is also called directly at runtime, outside the schema
  * validators. Non-finite joint angles or custom axes must stop at this boundary
@@ -14,9 +14,15 @@ import { qclose, throwsError } from "../internal/predicates";
  * 2. Non-finite custom axis components throw.
  * 3. A valid custom axis still composes as before.
  */
-export const test_kinematics_joint_to_quaternion_inputs = (): void => {
-  const base = { flexion: null, abduction: null, twist: null };
-  const validAxes = {
+/**
+ * @evidence contracts/testing.md#behavioral-verification Passes nonfinite joint/axis inputs and invalid bases to direct composition, asserting explicit failures and valid30-degree custom-axis rotation; silently emitting nonfinite quaternions or accepting collinear bases fails.
+ * @evidence contracts/testing.md#independent-expectations Finite nonzero orthogonal axes and finite authored angles are the supported premise. A half-angle sine/cosine quaternion for Y30 defines the valid expectation; invalid inputs are chosen independently of any generated output.
+ * @evidence contracts/testing.md#distinguishing-cases Keeps NaN flexion, positive-infinite abduction, negative-infinite twist, nonfinite/zero/collinear/oblique axes, ordinary and scaled orthogonal bases; default/mixed order and inverse decomposition are separate entries.
+ * @evidence contracts/testing.md#execution-ownership This exported runner entry directly imports portable composition source and calls the existing synchronous error predicate; it has no external asset, consumer installation, native build or graphical host.
+ */
+export function test_kinematics_joint_to_quaternion_inputs(): void {
+  const base: { flexion: null; abduction: null; twist: null; } = { flexion: null, abduction: null, twist: null };
+  const validAxes: { flexion: { x: number; y: number; z: number; }; abduction: { x: number; y: number; z: number; }; twist: { x: number; y: number; z: number; }; } = {
     flexion: { x: 0, y: 1, z: 0 },
     abduction: { x: 0, y: 0, z: 1 },
     twist: { x: 1, y: 0, z: 0 },
@@ -25,21 +31,21 @@ export const test_kinematics_joint_to_quaternion_inputs = (): void => {
   TestValidator.predicate(
     "NaN flexion rejects",
     throwsError(
-      () => jointToQuaternion({ ...base, flexion: Number.NaN }),
+      (): IAutoMovieQuaternion  => jointToQuaternion({ ...base, flexion: Number.NaN }),
       ["jointToQuaternion flexion", "finite", "NaN"],
     ),
   );
   TestValidator.predicate(
     "infinite abduction rejects",
     throwsError(
-      () => jointToQuaternion({ ...base, abduction: Infinity }),
+      (): IAutoMovieQuaternion  => jointToQuaternion({ ...base, abduction: Infinity }),
       ["jointToQuaternion abduction", "finite", "Infinity"],
     ),
   );
   TestValidator.predicate(
     "negative infinite twist rejects",
     throwsError(
-      () => jointToQuaternion({ ...base, twist: -Infinity }),
+      (): IAutoMovieQuaternion  => jointToQuaternion({ ...base, twist: -Infinity }),
       ["jointToQuaternion twist", "finite", "-Infinity"],
     ),
   );
@@ -47,7 +53,7 @@ export const test_kinematics_joint_to_quaternion_inputs = (): void => {
   TestValidator.predicate(
     "non-finite custom flexion axis rejects",
     throwsError(
-      () =>
+      (): IAutoMovieQuaternion  =>
         jointToQuaternion(
           { flexion: 15, abduction: null, twist: null },
           {
@@ -63,7 +69,7 @@ export const test_kinematics_joint_to_quaternion_inputs = (): void => {
   TestValidator.predicate(
     "zero-length custom flexion axis rejects",
     throwsError(
-      () =>
+      (): IAutoMovieQuaternion  =>
         jointToQuaternion(
           { flexion: 15, abduction: null, twist: null },
           {
@@ -78,7 +84,7 @@ export const test_kinematics_joint_to_quaternion_inputs = (): void => {
   TestValidator.predicate(
     "collinear custom axes reject",
     throwsError(
-      () =>
+      (): IAutoMovieQuaternion  =>
         jointToQuaternion(
           { flexion: 15, abduction: null, twist: null },
           {
@@ -93,7 +99,7 @@ export const test_kinematics_joint_to_quaternion_inputs = (): void => {
   TestValidator.predicate(
     "non-orthogonal custom axes reject",
     throwsError(
-      () =>
+      (): IAutoMovieQuaternion  =>
         jointToQuaternion(
           { flexion: 15, abduction: null, twist: null },
           {
@@ -112,7 +118,7 @@ export const test_kinematics_joint_to_quaternion_inputs = (): void => {
         { flexion: 30, abduction: null, twist: null },
         validAxes,
       ),
-      Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 30),
+      { x: 0, y: Math.sin(Math.PI / 12), z: 0, w: Math.cos(Math.PI / 12) },
     ),
   );
 
@@ -127,7 +133,7 @@ export const test_kinematics_joint_to_quaternion_inputs = (): void => {
           twist: { x: 4, y: 0, z: 0 },
         },
       ),
-      Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 30),
+      { x: 0, y: Math.sin(Math.PI / 12), z: 0, w: Math.cos(Math.PI / 12) },
     ),
   );
-};
+}
