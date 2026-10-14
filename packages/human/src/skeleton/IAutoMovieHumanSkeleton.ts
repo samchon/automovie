@@ -4,24 +4,29 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { IAutoMovieHumanLandmarks } from "../measure/IAutoMovieHumanLandmarks";
+
 /**
- * The resolved skeleton of one person: joint centres in the rest pose, with the axes and range of motion Human declares for each joint.
+ * The resolved skeleton of one person: joint centres in the rest pose, the axes and range of motion Human declares for each joint, and the palpable landmarks later parts are placed through.
  *
- * The skeleton is built first, from measurements, and every part, the rig and every later layer read it, so geometry is never reconciled with an independently sourced skeleton afterwards. Bones use the shared `AutoMovieHumanoidBone` names and the canonical T-pose rest frame of the engine (arms abducted 90 degrees), so motion authored for any humanoid plays on the person. Anthropometry is measured with the arms hanging; the skeleton generator converts it into the T-pose, never the reverse.
+ * The skeleton is built first, from measurements, and every part, the rig and every later layer read it, so geometry is never reconciled with an independently sourced skeleton afterwards. Bones use the shared `AutoMovieHumanoidBone` names, all 55 of them, and the canonical T-pose rest of the engine's `HUMANOID_REST_FRAME`: the upper arms abducted 90 degrees with the palms down, the shoulder girdle, spine, legs and fingers at clinical neutral, so motion authored for any humanoid plays on the person. Anthropometry is measured with the arms hanging; the generator solves every joint centre in that posture and turns the arms up about their shoulder joint centres into the T-pose, never the reverse.
  *
- * Positions are millimetres in the model frame: origin on the standing surface below the midpoint between the feet, +Y up, +Z to the person's front, +X to the person's left, the right-handed frame of glTF and VRM. Every rest rotation is the identity, so a bone's local frame is the model frame translated to its joint centre, and rest pose proportions live in positions, never in bone scale, which forward kinematics ignores.
+ * Positions are millimetres in the model frame: origin on the standing surface below the midpoint between the feet, +Y up, +Z to the person's front, +X to the person's left, the right-handed frame of glTF and VRM. Every rest rotation is the identity, so a bone's local frame is the model frame translated to its joint centre, and rest proportions live in positions, never in bone scale, which forward kinematics ignores.
  *
- * Axes and constraints are Human's own anatomy: finger, thumb, eye and jaw axes and per-person limits are not taken from engine tables.
+ * Axes and constraints are Human's own anatomy. `IAutoMovieBone` has no field for declared axes yet (core issue #2807 adds it), so they are kept here and not emitted; until then films pose every bone on the engine's default axes.
  *
  * @author Samchon
  */
 export interface IAutoMovieHumanSkeleton {
   /** Joints ordered so that every parent precedes its children; the first is the root. */
   joints: IAutoMovieHumanSkeleton.IJoint[];
+
+  /** Palpable landmarks at rest, each riding its bone. */
+  landmarks: IAutoMovieHumanLandmarks;
 }
 export namespace IAutoMovieHumanSkeleton {
   /**
-   * One joint: where the bone starts, what it hangs from, and how it may turn.
+   * One joint: where the bone starts and ends, what it hangs from, and how it may turn.
    *
    * @author Samchon
    */
@@ -36,12 +41,17 @@ export namespace IAutoMovieHumanSkeleton {
     position: IAutoMovieVector3;
 
     /**
-     * The clinical rotation axes of this joint at rest, or null to use the engine's default convention for the bone (flexion about X, abduction about Z, twist about Y, with the engine's arm remapping).
+     * End of the bone in the rest pose, millimetres: the joint centre of its principal child (the spine for the hips, the neck for the upper chest, the middle finger for the hand), or for a bone without children the landmark it ends at (the vertex, the menton, a fingertip, a toe tip, the front of the eye).
      */
-    axes: IAxes | null;
+    tail: IAutoMovieVector3;
 
     /**
-     * Range of motion Human derives for this person's joint, in clinical degrees, or null to fall back to the engine's default humanoid range for the bone.
+     * The clinical rotation axes of this joint at rest. Every bone declares them; posing honours them once core carries per-bone axes.
+     */
+    axes: IAxes;
+
+    /**
+     * Range of motion Human derives for this person's joint, in clinical degrees about `axes`, or null where no source was read and the engine's default humanoid range applies.
      */
     constraint: IAutoMovieJointConstraint | null;
   }

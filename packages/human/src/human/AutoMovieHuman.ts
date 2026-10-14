@@ -1,7 +1,6 @@
 import {
   IAutoMovieExpression,
   IAutoMovieModel,
-  IAutoMovieModelPart,
   IAutoMoviePose,
   IAutoMovieSkeleton,
 } from "@automovie/interface";
@@ -12,6 +11,7 @@ import { AutoMovieHumanAdmissionError } from "../measure/AutoMovieHumanAdmission
 import { AutoMovieHumanConverter } from "../measure/AutoMovieHumanConverter";
 import { IAutoMovieHumanConverter } from "../measure/IAutoMovieHumanConverter";
 import { IAutoMovieHumanMeasurements } from "../measure/IAutoMovieHumanMeasurements";
+import { IAutoMovieHumanSkeletalMeasurements } from "../measure/IAutoMovieHumanSkeletalMeasurements";
 import { resolveAutoMovieHumanMeasurements } from "../measure/resolveAutoMovieHumanMeasurements";
 import { validateAutoMovieHumanIdentity } from "../measure/validateAutoMovieHumanIdentity";
 import { validateAutoMovieHumanTraits } from "../measure/validateAutoMovieHumanTraits";
@@ -19,19 +19,15 @@ import { convertAutoMovieHumanPose } from "../rig/convertAutoMovieHumanPose";
 import { validateAutoMovieHumanExpression } from "../rig/validateAutoMovieHumanExpression";
 import { validateAutoMovieHumanPose } from "../rig/validateAutoMovieHumanPose";
 import { emitAutoMovieHumanSkeleton } from "../skeleton/emitAutoMovieHumanSkeleton";
+import { emitAutoMovieHumanStick } from "../skeleton/emitAutoMovieHumanStick";
 import { generateAutoMovieHumanSkeleton } from "../skeleton/generateAutoMovieHumanSkeleton";
 import { IAutoMovieHumanSkeleton } from "../skeleton/IAutoMovieHumanSkeleton";
+import { measureAutoMovieHumanSkeleton } from "../skeleton/measureAutoMovieHumanSkeleton";
 import { IAutoMovieHumanAppearance } from "../structures/IAutoMovieHumanAppearance";
 import { IAutoMovieHumanExpression } from "../structures/IAutoMovieHumanExpression";
 import { IAutoMovieHumanIdentity } from "../structures/IAutoMovieHumanIdentity";
 import { IAutoMovieHumanPose } from "../structures/IAutoMovieHumanPose";
 import { IAutoMovieHumanTraits } from "../structures/IAutoMovieHumanTraits";
-
-/** Joint marker radius as a fraction of stature, so markers read at any age. Grade: conventional display size. */
-const MARKER_RADIUS_PER_STATURE: number = 0.008;
-
-/** Metres per millimetre: the one conversion from Human's measurement unit to the model's. */
-const METRES_PER_MILLIMETRE: number = 0.001;
 
 /**
  * One person, generated from a detailed identity by code: the skeleton, the model films use, posing and expression.
@@ -53,7 +49,7 @@ const METRES_PER_MILLIMETRE: number = 0.001;
  *
  * The output contract with films is `IAutoMovieModel` alone, with `origin: "generated"`; Human never enters films through archetype recipes or their string-keyed parameters. Every method takes one object argument, so the class can be exposed as function-calling tools.
  *
- * Stages not generated yet: the model carries a joint marker per bone instead of the joined, skinned skin, and the skeleton is a placeholder layout (see `generateAutoMovieHumanSkeleton`). Methods refuse inadmissible documents with {@link AutoMovieHumanAdmissionError}, naming each field, bound and cause.
+ * Stages not generated yet: the model is the stick figure of the skeleton, a capsule per bone and a marker per joint, instead of the joined, skinned skin. Methods refuse inadmissible documents with {@link AutoMovieHumanAdmissionError}, naming each field, bound and cause.
  *
  * @author Samchon
  */
@@ -119,9 +115,20 @@ export class AutoMovieHuman {
   }
 
   /**
+   * The skeleton's measurements, taken in the anthropometric posture.
+   *
+   * The T-pose rest is lowered back to arms hanging and its landmarks are measured by their survey definitions; for every person they return the identity's stature, heights, breadths and segment lengths, which is the check that generation honoured them.
+   *
+   * @returns Skeletal measurements in millimetres
+   */
+  public measure(): IAutoMovieHumanSkeletalMeasurements {
+    return measureAutoMovieHumanSkeleton(this.skeleton_);
+  }
+
+  /**
    * The person as a model films place and pose like any other.
    *
-   * The model currently carries a sphere marker on each bone and no materials; the joined skin, eyes, teeth, nails, hair and underwear replace the markers as their generators land, and the appearance then decides their materials. The appearance is admitted already, so a document that will be refused later is refused now.
+   * The model is currently the stick figure of the skeleton: a capsule from each joint centre to the bone's end and a sphere at each joint, every bone including fingers, eyes and jaw, coloured grey on the midline, red on the person's left and blue on the right. The joined skin, eyes, teeth, nails, hair and underwear replace it as their generators land, and the appearance then decides their materials. The appearance is admitted already, so a document that will be refused later is refused now.
    *
    * @param props The appearance to wear
    * @returns Model with `origin: "generated"`
@@ -132,27 +139,18 @@ export class AutoMovieHuman {
       validateAutoMovieHumanAppearance(props.appearance);
     if (admitted.success === false)
       throw new AutoMovieHumanAdmissionError("appearance", admitted.errors);
-    const radius: number =
-      MARKER_RADIUS_PER_STATURE *
-      this.measurements_.identity.body.stature *
-      METRES_PER_MILLIMETRE;
+    const stick: emitAutoMovieHumanStick.IOutput = emitAutoMovieHumanStick(
+      this.skeleton_,
+      this.measurements_.identity.body.stature,
+    );
     return {
       id: this.id_,
       name: null,
       origin: "generated",
-      parts: this.skeleton_.joints.map(
-        (joint: IAutoMovieHumanSkeleton.IJoint): IAutoMovieModelPart => ({
-          id: `${joint.bone}.marker`,
-          name: `${joint.bone} joint marker`,
-          geometry: { type: "primitive", shape: { type: "sphere", radius } },
-          material: null,
-          attachedBone: joint.bone,
-          transform: null,
-        }),
-      ),
+      parts: stick.parts,
       skeleton: this.getSkeleton(),
       body: null,
-      materials: [],
+      materials: stick.materials,
       asset: null,
     };
   }
