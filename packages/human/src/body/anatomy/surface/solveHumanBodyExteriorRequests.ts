@@ -31,16 +31,28 @@ export function solveHumanBodyExteriorRequests(
 ): Record<string, number> {
   let solved: Record<string, number> = { ...shape };
   if (requests.length === 0) return solved;
-  const residuals: (trial: Record<string, number>) => number[] | null = (trial: Record<string, number>): number[] | null => {
-    const reader: ReturnType<typeof createHumanBodyMeasurementReader> = createHumanBodyMeasurementReader(basis, trial);
-    const readings: (number | null)[] = requests.map((one: IAutoMovieHumanBodyExteriorRequest): number | null => reader.read(one.rule));
+  const residuals: (trial: Record<string, number>) => number[] | null = (
+    trial: Record<string, number>,
+  ): number[] | null => {
+    const reader: ReturnType<typeof createHumanBodyMeasurementReader> =
+      createHumanBodyMeasurementReader(basis, trial);
+    const readings: (number | null)[] = requests.map(
+      (one: IAutoMovieHumanBodyExteriorRequest): number | null =>
+        reader.read(one.rule),
+    );
     return readings.some((value: number | null): boolean => value === null)
       ? null
-      : readings.map((value: number | null, index: number): number => value! - requests[index].metres);
+      : readings.map(
+          (value: number | null, index: number): number =>
+            value! - requests[index].metres,
+        );
   };
-  const met: (values: readonly number[]) => boolean = (values: readonly number[]): boolean =>
+  const met: (values: readonly number[]) => boolean = (
+    values: readonly number[],
+  ): boolean =>
     values.every(
-      (value: number): boolean => Math.abs(value) <= HUMAN_BODY_EXTERIOR_TOLERANCE_METRES,
+      (value: number): boolean =>
+        Math.abs(value) <= HUMAN_BODY_EXTERIOR_TOLERANCE_METRES,
     );
   // a sequential pass refuses a target its channel cannot reach from where
   // the other channels left the body; the joint solve may still meet it, so
@@ -72,31 +84,50 @@ export function solveHumanBodyExteriorRequests(
   }
   // the sequential passes stalled on coupled channels: solve them jointly
   const channels: IAutoMovieHumanBodyBasisChannel[] = requests.map(
-    (one: IAutoMovieHumanBodyExteriorRequest): IAutoMovieHumanBodyBasisChannel =>
-      basis.channels.find((channel: IAutoMovieHumanBodyBasisChannel): boolean => channel.id === one.binding.channel)!,
+    (
+      one: IAutoMovieHumanBodyExteriorRequest,
+    ): IAutoMovieHumanBodyBasisChannel =>
+      basis.channels.find(
+        (channel: IAutoMovieHumanBodyBasisChannel): boolean =>
+          channel.id === one.binding.channel,
+      )!,
   );
-  const start: number[] = channels.map((channel: IAutoMovieHumanBodyBasisChannel): number => solved[channel.id] ?? 0);
-  const place: (offsets: readonly number[]) => Record<string, number> = (offsets: readonly number[]): Record<string, number> => {
+  const start: number[] = channels.map(
+    (channel: IAutoMovieHumanBodyBasisChannel): number =>
+      solved[channel.id] ?? 0,
+  );
+  const place: (offsets: readonly number[]) => Record<string, number> = (
+    offsets: readonly number[],
+  ): Record<string, number> => {
     const trial: Record<string, number> = { ...solved };
-    channels.forEach((channel: IAutoMovieHumanBodyBasisChannel, index: number): void => {
-      const weight: number = start[index] + offsets[index];
-      if (weight === 0) delete trial[channel.id];
-      else trial[channel.id] = weight;
-    });
+    channels.forEach(
+      (channel: IAutoMovieHumanBodyBasisChannel, index: number): void => {
+        const weight: number = start[index] + offsets[index];
+        if (weight === 0) delete trial[channel.id];
+        else trial[channel.id] = weight;
+      },
+    );
     return trial;
   };
   const offsets: number[] | null = solveHumanBodySimpleOffsets({
-    ranges: channels.map((channel: IAutoMovieHumanBodyBasisChannel, index: number): readonly [number, number] => {
-      // the same reach the per-channel inverse brackets: endpoints beyond an
-      // unavailable source target are never evaluated
-      const reach: ReturnType<typeof humanBodyChannelReach> = humanBodyChannelReach(basis, channel);
-      return [
-        reach.minimum - start[index],
-        reach.maximum - start[index],
-      ] as const;
-    }),
+    ranges: channels.map(
+      (
+        channel: IAutoMovieHumanBodyBasisChannel,
+        index: number,
+      ): readonly [number, number] => {
+        // the same reach the per-channel inverse brackets: endpoints beyond an
+        // unavailable source target are never evaluated
+        const reach: ReturnType<typeof humanBodyChannelReach> =
+          humanBodyChannelReach(basis, channel);
+        return [
+          reach.minimum - start[index],
+          reach.maximum - start[index],
+        ] as const;
+      },
+    ),
     initial: residuals(solved),
-    evaluate: (trial: readonly number[]): number[] | null => residuals(place(trial)),
+    evaluate: (trial: readonly number[]): number[] | null =>
+      residuals(place(trial)),
     met,
   });
   if (offsets !== null) {
@@ -108,7 +139,12 @@ export function solveHumanBodyExteriorRequests(
     refusal ??
     new Error(
       "inconsistent-measurements:" +
-        requests.map((one: IAutoMovieHumanBodyExteriorRequest): string => "anatomy." + one.binding.path).join(", "),
+        requests
+          .map(
+            (one: IAutoMovieHumanBodyExteriorRequest): string =>
+              "anatomy." + one.binding.path,
+          )
+          .join(", "),
     )
   );
 }

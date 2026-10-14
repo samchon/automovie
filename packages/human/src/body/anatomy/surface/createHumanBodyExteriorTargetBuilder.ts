@@ -4,20 +4,20 @@ import { float32MeshBuffers } from "../../../common/mesh/float32MeshBuffers";
 import { createHumanBodyBasisBuilder } from "../../basis/createHumanBodyBasisBuilder";
 import { admitHumanBodyBasisDocument } from "../../document/admitHumanBodyBasisDocument";
 import { readHumanBodyShapedMeasurement } from "../../measure/readHumanBodyShapedMeasurement";
-import type { IAutoMovieHumanBodyBasisDocument } from "../../structures/IAutoMovieHumanBodyBasisDocument";
 import type { IAutoMovieHumanBodyBasis } from "../../structures/IAutoMovieHumanBodyBasis";
+import type { IAutoMovieHumanBodyBasisDocument } from "../../structures/IAutoMovieHumanBodyBasisDocument";
 import type { IAutoMovieHumanBodyBuild } from "../../structures/IAutoMovieHumanBodyBuild";
-import type { IAutoMovieHumanBodyPosedSurface } from "../../structures/IAutoMovieHumanBodyPosedSurface";
 import type { IAutoMovieHumanBodyMeasurementSection } from "../../structures/IAutoMovieHumanBodyMeasurementSection";
+import type { IAutoMovieHumanBodyPosedSurface } from "../../structures/IAutoMovieHumanBodyPosedSurface";
 import type { IAutoMovieHumanBodyExteriorCandidateBuild } from "../generated/IAutoMovieHumanBodyExteriorCandidateBuild";
 import type { IAutoMovieHumanBodyExteriorCandidateMeasurement } from "../generated/IAutoMovieHumanBodyExteriorCandidateMeasurement";
 import type { IAutoMovieHumanBodyExteriorCandidateSection } from "../generated/IAutoMovieHumanBodyExteriorCandidateSection";
 import { assembleHumanBodyGeneratedAnatomy } from "../generated/assembleHumanBodyGeneratedAnatomy";
 import { HUMAN_BODY_EXTERIOR_TOLERANCE_METRES } from "./HUMAN_BODY_EXTERIOR_TOLERANCE_METRES";
 import type { IAutoMovieHumanBodyExteriorReference } from "./IAutoMovieHumanBodyExteriorReference";
+import type { IAutoMovieHumanBodyExteriorRequest } from "./IAutoMovieHumanBodyExteriorRequest";
 import type { IAutoMovieHumanBodyExteriorTargetSource } from "./IAutoMovieHumanBodyExteriorTargetSource";
 import { collectHumanBodyExteriorRequests } from "./collectHumanBodyExteriorRequests";
-import type { IAutoMovieHumanBodyExteriorRequest } from "./IAutoMovieHumanBodyExteriorRequest";
 
 /**
  * Compile one source into a builder that reports how a body document's anatomical surface targets are met on its emitted exterior.
@@ -36,7 +36,9 @@ import type { IAutoMovieHumanBodyExteriorRequest } from "./IAutoMovieHumanBodyEx
  */
 export function createHumanBodyExteriorTargetBuilder(
   input: IAutoMovieHumanBodyExteriorTargetSource,
-): (inputDocument: IAutoMovieHumanBodyBasisDocument) => IAutoMovieHumanBodyExteriorCandidateBuild {
+): (
+  inputDocument: IAutoMovieHumanBodyBasisDocument,
+) => IAutoMovieHumanBodyExteriorCandidateBuild {
   const basis: IAutoMovieHumanBodyBasis = structuredClone(input.basis);
   const reference: IAutoMovieHumanBodyExteriorReference = structuredClone(
     typia.assertEquals<IAutoMovieHumanBodyExteriorReference>(input.reference),
@@ -45,19 +47,19 @@ export function createHumanBodyExteriorTargetBuilder(
     throw new Error(
       "Exterior source registration must belong to the exact compiled source basis.",
     );
-  const build: ReturnType<typeof createHumanBodyBasisBuilder> = createHumanBodyBasisBuilder(basis, {
-    physicalSource: reference.incidence,
-  });
+  const build: ReturnType<typeof createHumanBodyBasisBuilder> =
+    createHumanBodyBasisBuilder(basis, {
+      physicalSource: reference.incidence,
+    });
   return (
     inputDocument: IAutoMovieHumanBodyBasisDocument,
   ): IAutoMovieHumanBodyExteriorCandidateBuild => {
-    const document: IAutoMovieHumanBodyBasisDocument = admitHumanBodyBasisDocument(
-      inputDocument,
-      basis.anatomicalAssembly,
-    );
+    const document: IAutoMovieHumanBodyBasisDocument =
+      admitHumanBodyBasisDocument(inputDocument, basis.anatomicalAssembly);
     if (document.basis !== basis.id)
       throw new Error("Exterior request must name the exact compiled source.");
-    const requested: IAutoMovieHumanBodyExteriorRequest[] = collectHumanBodyExteriorRequests(document.anatomy);
+    const requested: IAutoMovieHumanBodyExteriorRequest[] =
+      collectHumanBodyExteriorRequests(document.anatomy);
     if (requested.length === 0)
       throw new Error(
         "missing-anatomical-input: the document's anatomy supplies no surface target the exterior answers.",
@@ -65,67 +67,77 @@ export function createHumanBodyExteriorTargetBuilder(
     // the builder resolves the anatomy into the bound channels' weights
     const built: IAutoMovieHumanBodyBuild = build(document);
     const final: Parameters<typeof readHumanBodyShapedMeasurement>[1] = {
-      surfaces: built.posedSurfaces.map((surface: IAutoMovieHumanBodyPosedSurface): number[] => surface.positions),
+      surfaces: built.posedSurfaces.map(
+        (surface: IAutoMovieHumanBodyPosedSurface): number[] =>
+          surface.positions,
+      ),
       landmarks: built.landmarks,
     };
     const float32: Parameters<typeof readHumanBodyShapedMeasurement>[1] = {
       ...final,
-      surfaces: built.posedSurfaces.map((surface: IAutoMovieHumanBodyPosedSurface, index: number): number[] =>
-        Array.from(
-          float32MeshBuffers({
-            positions: surface.positions,
-            normals: surface.normals,
-            indices: basis.surfaces[index].indices,
-            uvs: null,
-            skin: null,
-          }).positions,
-        ),
+      surfaces: built.posedSurfaces.map(
+        (surface: IAutoMovieHumanBodyPosedSurface, index: number): number[] =>
+          Array.from(
+            float32MeshBuffers({
+              positions: surface.positions,
+              normals: surface.normals,
+              indices: basis.surfaces[index].indices,
+              uvs: null,
+              skin: null,
+            }).positions,
+          ),
       ),
     };
-    const fulfilled: IAutoMovieHumanBodyExteriorCandidateMeasurement[] = requested.map(
-      (one: IAutoMovieHumanBodyExteriorRequest): IAutoMovieHumanBodyExteriorCandidateMeasurement => {
-        let section: IAutoMovieHumanBodyExteriorCandidateSection | null = null;
-        const finalMetres: number | null = readHumanBodyShapedMeasurement(
-          basis,
-          final,
-          one.rule,
-        );
-        // only a girth at a skin landmark has one station, so only its witness
-        // is the measured cut; a station stack would hand over every station
-        const float32Metres: number | null = readHumanBodyShapedMeasurement(
-          basis,
-          float32,
-          one.rule,
-          "level" in one.rule
-            ? (witness: IAutoMovieHumanBodyMeasurementSection): void => {
-                section = witness;
-              }
-            : undefined,
-        );
-        if (finalMetres === null || float32Metres === null)
-          throw new Error(
-            `missing-tissue-boundary:anatomy.${one.binding.path} has no reading on the emitted skin`,
+    const fulfilled: IAutoMovieHumanBodyExteriorCandidateMeasurement[] =
+      requested.map(
+        (
+          one: IAutoMovieHumanBodyExteriorRequest,
+        ): IAutoMovieHumanBodyExteriorCandidateMeasurement => {
+          let section: IAutoMovieHumanBodyExteriorCandidateSection | null =
+            null;
+          const finalMetres: number | null = readHumanBodyShapedMeasurement(
+            basis,
+            final,
+            one.rule,
           );
-        if (
-          Math.abs(float32Metres - one.metres) >
-          HUMAN_BODY_EXTERIOR_TOLERANCE_METRES
-        )
-          throw new Error(
-            `The emitted skin reads ${float32Metres} m for anatomy.${one.binding.path}, not ${one.metres}.`,
+          // only a girth at a skin landmark has one station, so only its witness
+          // is the measured cut; a station stack would hand over every station
+          const float32Metres: number | null = readHumanBodyShapedMeasurement(
+            basis,
+            float32,
+            one.rule,
+            "level" in one.rule
+              ? (witness: IAutoMovieHumanBodyMeasurementSection): void => {
+                  section = witness;
+                }
+              : undefined,
           );
-        return {
-          path: "anatomy." + one.binding.path,
-          rule: one.binding.rule,
-          ...(one.binding.side === undefined ? {} : { side: one.binding.side }),
-          protocol: one.binding.protocol,
-          targetMetres: one.metres,
-          finalMetres,
-          float32Metres,
-          residualMetres: float32Metres - one.metres,
-          section,
-        };
-      },
-    );
+          if (finalMetres === null || float32Metres === null)
+            throw new Error(
+              `missing-tissue-boundary:anatomy.${one.binding.path} has no reading on the emitted skin`,
+            );
+          if (
+            Math.abs(float32Metres - one.metres) >
+            HUMAN_BODY_EXTERIOR_TOLERANCE_METRES
+          )
+            throw new Error(
+              `The emitted skin reads ${float32Metres} m for anatomy.${one.binding.path}, not ${one.metres}.`,
+            );
+          return {
+            path: "anatomy." + one.binding.path,
+            rule: one.binding.rule,
+            ...(one.binding.side === undefined
+              ? {}
+              : { side: one.binding.side }),
+            protocol: one.binding.protocol,
+            targetMetres: one.metres,
+            finalMetres,
+            float32Metres,
+            residualMetres: float32Metres - one.metres,
+            section,
+          };
+        },
+      );
     return {
       model: built.model,
       exterior: {
