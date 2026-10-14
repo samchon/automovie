@@ -29,7 +29,7 @@ export function test_render_simulated_fluid_measurement(): void {
   // complete pass over every opaque draw. Resident cost is not multiplied,
   // because vertices, memory, nodes and instance slots are allocated once and
   // reused by each pass.
-  const PASSES: 2 = 2;
+  const PASSES: 2 = 2 as const;
 
   const inventory: IAutoMovieRenderInventory = measure(subject());
 

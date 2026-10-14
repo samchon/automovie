@@ -22,9 +22,9 @@ export function test_render_simulated_overrun_owners(): void {
   const target: IAutoMovieRenderTarget = simulatedRenderTargetFixture();
   const subject: typeof simulatedRenderSubjectFixture = simulatedRenderSubjectFixture;
 
-  const PANEL_TRIANGLES: 12 = 12;
+  const PANEL_TRIANGLES: 12 = 12 as const;
 
-  const WATER_TRIANGLES: 4 = 4;
+  const WATER_TRIANGLES: 4 = 4 as const;
 
   // A complete two-child tree of three levels is 1 + 2 + 4 branches, and the
   // cluster places six members of it.
@@ -39,7 +39,7 @@ export function test_render_simulated_overrun_owners(): void {
   // complete pass over every opaque draw. Resident cost is not multiplied,
   // because vertices, memory, nodes and instance slots are allocated once and
   // reused by each pass.
-  const PASSES: 2 = 2;
+  const PASSES: 2 = 2 as const;
 
   const inventory: IAutoMovieRenderInventory = measure(subject());
 

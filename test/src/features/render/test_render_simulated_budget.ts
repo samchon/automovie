@@ -19,18 +19,18 @@ export function test_render_simulated_budget(): void {
   const subject: typeof simulatedRenderSubjectFixture = simulatedRenderSubjectFixture;
 
   // A 4 x 3 curtain: 12 particles, 3 x 2 quads, two triangles each.
-  const PANEL_VERTICES: 12 = 12;
+  const PANEL_VERTICES: 12 = 12 as const;
 
-  const PANEL_TRIANGLES: 12 = 12;
+  const PANEL_TRIANGLES: 12 = 12 as const;
 
   const PANEL_BYTES: number = PANEL_VERTICES * (12 + 12 + 8) + PANEL_TRIANGLES * 3 * 4;
 
   // A 3 x 2 basin: 6 cells, 2 x 1 quads, two triangles each; a water vertex
   // carries the flow vector a ripple scrolls along beside position, normal and
   // texture coordinate.
-  const WATER_VERTICES: 6 = 6;
+  const WATER_VERTICES: 6 = 6 as const;
 
-  const WATER_TRIANGLES: 4 = 4;
+  const WATER_TRIANGLES: 4 = 4 as const;
 
   const WATER_BYTES: number =
     WATER_VERTICES * (12 + 12 + 8 + 8) + WATER_TRIANGLES * 3 * 4;
@@ -51,7 +51,7 @@ export function test_render_simulated_budget(): void {
   // complete pass over every opaque draw. Resident cost is not multiplied,
   // because vertices, memory, nodes and instance slots are allocated once and
   // reused by each pass.
-  const PASSES: 2 = 2;
+  const PASSES: 2 = 2 as const;
 
   const inventory: IAutoMovieRenderInventory = measure(subject());
 
