@@ -1,10 +1,16 @@
 import { gaitMotion } from "@automovie/engine";
-import { IAutoMovieGait, IAutoMovieGaitRootBob, IAutoMovieKeyframe } from "@automovie/interface";
+import {
+  IAutoMovieGait,
+  IAutoMovieGaitRootBob,
+  IAutoMovieKeyframe,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose, throwsError } from "../internal/predicates";
 
-const gait: (rootBob: IAutoMovieGaitRootBob) => IAutoMovieGait = (rootBob: IAutoMovieGaitRootBob): IAutoMovieGait => ({
+const gait: (rootBob: IAutoMovieGaitRootBob) => IAutoMovieGait = (
+  rootBob: IAutoMovieGaitRootBob,
+): IAutoMovieGait => ({
   name: "bob",
   period: 1,
   rootBob,
@@ -53,13 +59,27 @@ export function test_motion_gait_root_bob_scalars(): void {
   );
   TestValidator.predicate(
     "zero amplitude keeps root bob finite and constant",
-    constant.keyframes.every((k: IAutoMovieKeyframe): boolean => nclose(k.pose.root!.translation.y, 1.2)),
+    constant.keyframes.every((k: IAutoMovieKeyframe): boolean =>
+      nclose(k.pose.root!.translation.y, 1.2),
+    ),
   );
   constant.keyframes[0]!.pose.root!.scale.x = 7;
   constant.keyframes[0]!.pose.root!.rotation.w = 0;
-  const next: ReturnType<typeof gaitMotion> = gaitMotion("next", "sk", gait(base), 2);
-  TestValidator.predicate("root records belong to their output frame and bake", (): boolean =>
-    nclose(constant.keyframes[1]!.pose.root!.scale.x, 1) &&
-    nclose(constant.keyframes[1]!.pose.root!.rotation.w, 1) &&
-    next.keyframes.every((frame: IAutoMovieKeyframe): boolean => nclose(frame.pose.root!.scale.x, 1) && nclose(frame.pose.root!.rotation.w, 1)));
+  const next: ReturnType<typeof gaitMotion> = gaitMotion(
+    "next",
+    "sk",
+    gait(base),
+    2,
+  );
+  TestValidator.predicate(
+    "root records belong to their output frame and bake",
+    (): boolean =>
+      nclose(constant.keyframes[1]!.pose.root!.scale.x, 1) &&
+      nclose(constant.keyframes[1]!.pose.root!.rotation.w, 1) &&
+      next.keyframes.every(
+        (frame: IAutoMovieKeyframe): boolean =>
+          nclose(frame.pose.root!.scale.x, 1) &&
+          nclose(frame.pose.root!.rotation.w, 1),
+      ),
+  );
 }

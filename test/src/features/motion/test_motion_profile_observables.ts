@@ -1,6 +1,11 @@
 import { CAT_PROFILE, HORSE_PROFILE } from "@automovie/archetypes";
 import { bindProfileGaits } from "@automovie/engine";
-import { AutoMovieHumanoidBone, IAutoMovieJointPose, IAutoMovieKeyframe, IAutoMovieMotion } from "@automovie/interface";
+import {
+  AutoMovieHumanoidBone,
+  IAutoMovieJointPose,
+  IAutoMovieKeyframe,
+  IAutoMovieMotion,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts, nclose } from "../internal/predicates";
@@ -16,25 +21,43 @@ interface NumericRange {
   max: number;
 }
 
-const rangeOf: (values: number[]) => NumericRange = (values: number[]): NumericRange => ({
+const rangeOf: (values: number[]) => NumericRange = (
+  values: number[],
+): NumericRange => ({
   min: Math.min(...values),
   max: Math.max(...values),
 });
 
-const flexionRange: (motion: IAutoMovieMotion, bone: AutoMovieHumanoidBone) => NumericRange = (
+const flexionRange: (
+  motion: IAutoMovieMotion,
+  bone: AutoMovieHumanoidBone,
+) => NumericRange = (
   motion: IAutoMovieMotion,
   bone: AutoMovieHumanoidBone,
 ): NumericRange =>
   rangeOf(
     motion.keyframes.map(
-      (kf: IAutoMovieKeyframe): number => kf.pose.joints.find((j: IAutoMovieJointPose): boolean => j.bone === bone)?.flexion ?? 0,
+      (kf: IAutoMovieKeyframe): number =>
+        kf.pose.joints.find(
+          (j: IAutoMovieJointPose): boolean => j.bone === bone,
+        )?.flexion ?? 0,
     ),
   );
 
-const rootYRange: (motion: IAutoMovieMotion) => NumericRange = (motion: IAutoMovieMotion): NumericRange =>
-  rangeOf(motion.keyframes.map((kf: IAutoMovieKeyframe): number => kf.pose.root?.translation.y ?? 0));
+const rootYRange: (motion: IAutoMovieMotion) => NumericRange = (
+  motion: IAutoMovieMotion,
+): NumericRange =>
+  rangeOf(
+    motion.keyframes.map(
+      (kf: IAutoMovieKeyframe): number => kf.pose.root?.translation.y ?? 0,
+    ),
+  );
 
-const coversRange: (actual: NumericRange, expected: NumericRange, tolerance: number) => boolean = (
+const coversRange: (
+  actual: NumericRange,
+  expected: NumericRange,
+  tolerance: number,
+) => boolean = (
   actual: NumericRange,
   expected: NumericRange,
   tolerance: number,
@@ -42,7 +65,11 @@ const coversRange: (actual: NumericRange, expected: NumericRange, tolerance: num
   actual.min <= expected.min + tolerance &&
   actual.max >= expected.max - tolerance;
 
-const closesRange: (actual: NumericRange, expected: NumericRange, tolerance: number) => boolean = (
+const closesRange: (
+  actual: NumericRange,
+  expected: NumericRange,
+  tolerance: number,
+) => boolean = (
   actual: NumericRange,
   expected: NumericRange,
   tolerance: number,
@@ -50,7 +77,14 @@ const closesRange: (actual: NumericRange, expected: NumericRange, tolerance: num
   nclose(actual.min, expected.min, tolerance) &&
   nclose(actual.max, expected.max, tolerance);
 
-const horseHandAuthored: Record<"walk" | "trot" | "gallop" | "rear", { duration: number; leftUpperArm: NumericRange; leftLowerArm: NumericRange }> & { trot: { rootY: NumericRange }; gallop: { rootY: NumericRange }; rear: { spine: NumericRange } } = {
+const horseHandAuthored: Record<
+  "walk" | "trot" | "gallop" | "rear",
+  { duration: number; leftUpperArm: NumericRange; leftLowerArm: NumericRange }
+> & {
+  trot: { rootY: NumericRange };
+  gallop: { rootY: NumericRange };
+  rear: { spine: NumericRange };
+} = {
   walk: {
     duration: 1,
     leftUpperArm: { min: -16, max: 16 },
@@ -76,7 +110,18 @@ const horseHandAuthored: Record<"walk" | "trot" | "gallop" | "rear", { duration:
   },
 } as const;
 
-const catHandAuthored: Record<"walk" | "leap", { duration: number; leftUpperArm: NumericRange; leftLowerArm: NumericRange; leftUpperLeg: NumericRange }> & { walk: { rightLowerLeg: NumericRange }; leap: { leftLowerLeg: NumericRange; rootY: NumericRange } } = {
+const catHandAuthored: Record<
+  "walk" | "leap",
+  {
+    duration: number;
+    leftUpperArm: NumericRange;
+    leftLowerArm: NumericRange;
+    leftUpperLeg: NumericRange;
+  }
+> & {
+  walk: { rightLowerLeg: NumericRange };
+  leap: { leftLowerLeg: NumericRange; rootY: NumericRange };
+} = {
   walk: {
     duration: 0.8,
     leftUpperArm: { min: -24, max: 24 },
@@ -108,7 +153,11 @@ const catHandAuthored: Record<"walk" | "leap", { duration: number; leftUpperArm:
  * @evidence contracts/testing.md#execution-ownership This named synchronous unit owns both bindProfileGaits calls and private sampled-range readers. Fixtures contain only authored data and register no cases; no playground, viewer, process or native artifact is started.
  */
 export function test_motion_profile_observables(): void {
-  const horse: ReturnType<typeof bindProfileGaits> = bindProfileGaits(HORSE_PROFILE, "horse", 48);
+  const horse: ReturnType<typeof bindProfileGaits> = bindProfileGaits(
+    HORSE_PROFILE,
+    "horse",
+    48,
+  );
   TestValidator.predicate(
     "horse walk duration matches handwritten clip",
     nclose(horse.walk!.duration, horseHandAuthored.walk.duration),
@@ -258,7 +307,11 @@ export function test_motion_profile_observables(): void {
     },
   );
 
-  const cat: ReturnType<typeof bindProfileGaits> = bindProfileGaits(CAT_PROFILE, "cat", 48);
+  const cat: ReturnType<typeof bindProfileGaits> = bindProfileGaits(
+    CAT_PROFILE,
+    "cat",
+    48,
+  );
   TestValidator.predicate(
     "cat walk duration matches handwritten clip",
     nclose(cat.walk!.duration, catHandAuthored.walk.duration),

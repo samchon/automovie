@@ -1,5 +1,5 @@
 import { bindProfileGaits } from "@automovie/engine";
-import { IAutoMovieProfile, IAutoMovieMotion } from "@automovie/interface";
+import { IAutoMovieMotion, IAutoMovieProfile } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose, throwsError } from "../internal/predicates";
@@ -51,10 +51,16 @@ const doorlike: IAutoMovieProfile = {
  */
 export function test_motion_profile_gaits(): void {
   // 1. bind onto one body
-  const onHorse: Record<string, IAutoMovieMotion> = bindProfileGaits(horse, "horse-rig", 4);
+  const onHorse: Record<string, IAutoMovieMotion> = bindProfileGaits(
+    horse,
+    "horse-rig",
+    4,
+  );
   TestValidator.equals(
     "a clip per named gait",
-    Object.keys(onHorse).sort((a: string, b: string): number => a.localeCompare(b)),
+    Object.keys(onHorse).sort((a: string, b: string): number =>
+      a.localeCompare(b),
+    ),
     ["trot", "walk"],
   );
   TestValidator.equals(
@@ -77,7 +83,11 @@ export function test_motion_profile_gaits(): void {
   );
 
   // 2. same profile, a different body
-  const onPony: Record<string, IAutoMovieMotion> = bindProfileGaits(horse, "pony-rig", 4);
+  const onPony: Record<string, IAutoMovieMotion> = bindProfileGaits(
+    horse,
+    "pony-rig",
+    4,
+  );
   TestValidator.equals(
     "the same profile retargets onto another skeleton",
     onPony.walk!.skeleton,
@@ -122,9 +132,24 @@ export function test_motion_profile_gaits(): void {
     ),
   );
   for (const name of ["__proto__", "constructor", "toString"]) {
-    const clips: Record<string, IAutoMovieMotion> = bindProfileGaits({ ...horse, gaits: [{ ...horse.gaits![0]!, name }] }, "named-rig", 2);
-    TestValidator.equals("exact reserved gait name is an enumerable own key", Object.keys(clips), [name]);
-    TestValidator.predicate("gait names preserve ordinary object prototype", (): boolean => Object.getPrototypeOf(clips) === Object.prototype);
-    TestValidator.equals("reserved name still owns a real clip", clips[name]!.skeleton, "named-rig");
+    const clips: Record<string, IAutoMovieMotion> = bindProfileGaits(
+      { ...horse, gaits: [{ ...horse.gaits![0]!, name }] },
+      "named-rig",
+      2,
+    );
+    TestValidator.equals(
+      "exact reserved gait name is an enumerable own key",
+      Object.keys(clips),
+      [name],
+    );
+    TestValidator.predicate(
+      "gait names preserve ordinary object prototype",
+      (): boolean => Object.getPrototypeOf(clips) === Object.prototype,
+    );
+    TestValidator.equals(
+      "reserved name still owns a real clip",
+      clips[name]!.skeleton,
+      "named-rig",
+    );
   }
 }

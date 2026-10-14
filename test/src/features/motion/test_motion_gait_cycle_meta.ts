@@ -8,8 +8,8 @@ import {
 } from "@automovie/engine";
 import { IAutoMovieGait, IAutoMovieMotion } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-import { equalGeometryTestValues } from "../internal/equalGeometryTestValues";
 
+import { equalGeometryTestValues } from "../internal/equalGeometryTestValues";
 import { joint, keyframe, makeMotion, makePose } from "../internal/fixtures";
 import { namedFacts, nclose } from "../internal/predicates";
 
@@ -55,22 +55,30 @@ const oneShot: () => IAutoMovieMotion = (): IAutoMovieMotion => ({
  */
 export function test_motion_gait_cycle_meta(): void {
   const cycle: IAutoMovieMotion = gaitMotion("walk", "h", WALK, 8);
-  TestValidator.predicate("gaitMotion stamps the cycle", equalGeometryTestValues(cycle.gaitCycle, {
-    period: 0.8,
-    phaseAt: 0,
-  }));
+  TestValidator.predicate(
+    "gaitMotion stamps the cycle",
+    equalGeometryTestValues(cycle.gaitCycle, {
+      period: 0.8,
+      phaseAt: 0,
+    }),
+  );
 
-  const travel: IAutoMovieMotion = travelMotion("t", cycle, 3, { x: 1, y: 0, z: 0 });
+  const travel: IAutoMovieMotion = travelMotion("t", cycle, 3, {
+    x: 1,
+    y: 0,
+    z: 0,
+  });
   TestValidator.predicate(
     "travelMotion carries the base cycle",
-    equalGeometryTestValues(travel.gaitCycle,
-    { period: 0.8, phaseAt: 0 }),
+    equalGeometryTestValues(travel.gaitCycle, { period: 0.8, phaseAt: 0 }),
   );
   const bareLoop: IAutoMovieMotion = { ...oneShot(), loop: true };
   TestValidator.predicate(
     "cycle-less base gets stamped from its duration",
-    equalGeometryTestValues(travelMotion("t2", bareLoop, 2, { x: 1, y: 0, z: 0 }).gaitCycle,
-    { period: 1, phaseAt: 0 }),
+    equalGeometryTestValues(
+      travelMotion("t2", bareLoop, 2, { x: 1, y: 0, z: 0 }).gaitCycle,
+      { period: 1, phaseAt: 0 },
+    ),
   );
 
   const path: ReturnType<typeof followPathMotion> = followPathMotion({
@@ -84,8 +92,7 @@ export function test_motion_gait_cycle_meta(): void {
   });
   TestValidator.predicate(
     "followPathMotion stamps the cycle",
-    equalGeometryTestValues(path.motion.gaitCycle,
-    {
+    equalGeometryTestValues(path.motion.gaitCycle, {
       period: 0.8,
       phaseAt: 0,
     }),
@@ -98,7 +105,10 @@ export function test_motion_gait_cycle_meta(): void {
   TestValidator.equals(
     "arrange shifts the last placement's phase by its start",
     namedFacts([
-      ["arrangedWalkLastGaitCycle", (): boolean => arrangedWalkLast.gaitCycle !== null],
+      [
+        "arrangedWalkLastGaitCycle",
+        (): boolean => arrangedWalkLast.gaitCycle !== null,
+      ],
       [
         "arrangedWalkLastGaitCycle2",
         (): boolean =>
@@ -129,23 +139,27 @@ export function test_motion_gait_cycle_meta(): void {
   );
   TestValidator.predicate(
     "an in-range arranged phase stays exact",
-    equalGeometryTestValues(arrangeMotion("exact", [
-      {
-        start: 0,
-        motion: { ...travel, gaitCycle: { period: 0.8, phaseAt: 0.4 } },
-      },
-    ]).gaitCycle,
-    { period: 0.8, phaseAt: 0.4 }),
+    equalGeometryTestValues(
+      arrangeMotion("exact", [
+        {
+          start: 0,
+          motion: { ...travel, gaitCycle: { period: 0.8, phaseAt: 0.4 } },
+        },
+      ]).gaitCycle,
+      { period: 0.8, phaseAt: 0.4 },
+    ),
   );
   TestValidator.predicate(
     "a whole-cycle placement keeps the exact phase",
-    equalGeometryTestValues(arrangeMotion("whole-cycle", [
-      {
-        start: 1,
-        motion: { ...travel, gaitCycle: { period: 1, phaseAt: 0.4 } },
-      },
-    ]).gaitCycle,
-    { period: 1, phaseAt: 0.4 }),
+    equalGeometryTestValues(
+      arrangeMotion("whole-cycle", [
+        {
+          start: 1,
+          motion: { ...travel, gaitCycle: { period: 1, phaseAt: 0.4 } },
+        },
+      ]).gaitCycle,
+      { period: 1, phaseAt: 0.4 },
+    ),
   );
   const arrangedHoldLast: IAutoMovieMotion = arrangeMotion("a2", [
     { start: 0, motion: travel },
@@ -160,8 +174,7 @@ export function test_motion_gait_cycle_meta(): void {
   const repeated: IAutoMovieMotion = sequenceMotion("s", [travel, travel]);
   TestValidator.predicate(
     "whole-cycle repetition keeps the clock",
-    equalGeometryTestValues(repeated.gaitCycle,
-    { period: 0.8, phaseAt: 0 }),
+    equalGeometryTestValues(repeated.gaitCycle, { period: 0.8, phaseAt: 0 }),
   );
   const otherCycle: IAutoMovieMotion = {
     ...travel,

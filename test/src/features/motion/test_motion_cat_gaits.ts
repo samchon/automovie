@@ -1,21 +1,21 @@
-import { CAT_GAITS } from "../../../../packages/archetypes/src/CAT_GAITS";
-import { CAT_PROFILE } from "../../../../packages/archetypes/src/CAT_PROFILE";
-import { bindProfileGaits } from "../../../../packages/engine/src/motion/bindProfileGaits";
-import { gaitMotion } from "../../../../packages/engine/src/motion/gaitMotion";
-import { validateMotion } from "../../../../packages/engine/src/validation/validateMotion";
 import {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
   IAutoMovieGait,
   IAutoMovieGaitLimb,
-  IAutoMovieJointPose,
   IAutoMovieJointConstraint,
+  IAutoMovieJointPose,
   IAutoMovieKeyframe,
   IAutoMovieMotion,
   IAutoMovieSkeleton,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { CAT_GAITS } from "../../../../packages/archetypes/src/CAT_GAITS";
+import { CAT_PROFILE } from "../../../../packages/archetypes/src/CAT_PROFILE";
+import { bindProfileGaits } from "../../../../packages/engine/src/motion/bindProfileGaits";
+import { gaitMotion } from "../../../../packages/engine/src/motion/gaitMotion";
+import { validateMotion } from "../../../../packages/engine/src/validation/validateMotion";
 import { namedFacts, nclose } from "../internal/predicates";
 
 function range(min: number, max: number): { min: number; max: number } {
@@ -29,9 +29,17 @@ function con(
   return { flexion, abduction, twist };
 }
 
-const legCon: IAutoMovieJointConstraint = con(range(-70, 80), range(-20, 35), range(-20, 20));
+const legCon: IAutoMovieJointConstraint = con(
+  range(-70, 80),
+  range(-20, 35),
+  range(-20, 20),
+);
 const kneeCon: IAutoMovieJointConstraint = con(range(0, 150), null, null);
-const tailCon: IAutoMovieJointConstraint = con(range(-80, 80), range(-50, 50), null);
+const tailCon: IAutoMovieJointConstraint = con(
+  range(-80, 80),
+  range(-50, 50),
+  null,
+);
 
 const CAT_ROM: Partial<
   Record<AutoMovieHumanoidBone, IAutoMovieJointConstraint>
@@ -55,34 +63,34 @@ const CAT_ROM: Partial<
 
 function bone(b: AutoMovieHumanoidBone): IAutoMovieBone {
   return {
-  bone: b,
-  parent: null,
-  rest: {
-    translation: { x: 0, y: 0, z: 0 },
-    rotation: { x: 0, y: 0, z: 0, w: 1 },
-    scale: { x: 1, y: 1, z: 1 },
-  },
-  constraint: CAT_ROM[b] ?? null,
+    bone: b,
+    parent: null,
+    rest: {
+      translation: { x: 0, y: 0, z: 0 },
+      rotation: { x: 0, y: 0, z: 0, w: 1 },
+      scale: { x: 1, y: 1, z: 1 },
+    },
+    constraint: CAT_ROM[b] ?? null,
   };
 }
 
 const BONES: readonly AutoMovieHumanoidBone[] = [
-    "hips",
-    "spine",
-    "chest",
-    "neck",
-    "head",
-    "leftUpperArm",
-    "rightUpperArm",
-    "leftLowerArm",
-    "rightLowerArm",
-    "leftUpperLeg",
-    "rightUpperLeg",
-    "leftLowerLeg",
-    "rightLowerLeg",
-    "leftLittleProximal",
-    "leftLittleIntermediate",
-    "leftLittleDistal",
+  "hips",
+  "spine",
+  "chest",
+  "neck",
+  "head",
+  "leftUpperArm",
+  "rightUpperArm",
+  "leftLowerArm",
+  "rightLowerArm",
+  "leftUpperLeg",
+  "rightUpperLeg",
+  "leftLowerLeg",
+  "rightLowerLeg",
+  "leftLittleProximal",
+  "leftLittleIntermediate",
+  "leftLittleDistal",
 ];
 
 const RIG: IAutoMovieSkeleton = {
@@ -96,7 +104,9 @@ function limbOf(
   gait: IAutoMovieGait,
   b: AutoMovieHumanoidBone,
 ): IAutoMovieGaitLimb {
-  return gait.limbs.find((l: IAutoMovieGaitLimb): boolean => l.bone === b && l.axis === undefined)!;
+  return gait.limbs.find(
+    (l: IAutoMovieGaitLimb): boolean => l.bone === b && l.axis === undefined,
+  )!;
 }
 
 /**
@@ -120,7 +130,9 @@ function limbOf(
 export function test_motion_cat_gaits(): void {
   TestValidator.equals(
     "all cat movement names present",
-    Object.keys(CAT_GAITS).sort((a: string, b: string): number => a.localeCompare(b)),
+    Object.keys(CAT_GAITS).sort((a: string, b: string): number =>
+      a.localeCompare(b),
+    ),
     [...NAMES].sort((a: string, b: string): number => a.localeCompare(b)),
   );
   for (const name of NAMES)
@@ -151,32 +163,81 @@ export function test_motion_cat_gaits(): void {
       validateMotion({ motion: clip, skeleton: RIG }).success,
       true,
     );
-    TestValidator.predicate(`${name} preserves the declared cycle duration`, nclose(clip.duration, CAT_GAITS[name].period));
-    TestValidator.predicate(`${name} samples the declared root sinusoid`, clip.keyframes.every((frame: IAutoMovieKeyframe): boolean => {
-      const bob: NonNullable<IAutoMovieGait["rootBob"]> = CAT_GAITS[name].rootBob!;
-      const expected: number = bob.center + bob.amplitude * Math.sin(2 * Math.PI * (frame.time / CAT_GAITS[name].period + bob.phase));
-      return frame.pose.root !== null && nclose(frame.pose.root.translation.y, expected, 1e-12);
-    }));
+    TestValidator.predicate(
+      `${name} preserves the declared cycle duration`,
+      nclose(clip.duration, CAT_GAITS[name].period),
+    );
+    TestValidator.predicate(
+      `${name} samples the declared root sinusoid`,
+      clip.keyframes.every((frame: IAutoMovieKeyframe): boolean => {
+        const bob: NonNullable<IAutoMovieGait["rootBob"]> =
+          CAT_GAITS[name].rootBob!;
+        const expected: number =
+          bob.center +
+          bob.amplitude *
+            Math.sin(
+              2 * Math.PI * (frame.time / CAT_GAITS[name].period + bob.phase),
+            );
+        return (
+          frame.pose.root !== null &&
+          nclose(frame.pose.root.translation.y, expected, 1e-12)
+        );
+      }),
+    );
   }
 
-  const walkFront: IAutoMovieJointPose = clips.walk.keyframes[0]!.pose.joints.find((joint: IAutoMovieJointPose): boolean => joint.bone === "rightUpperArm")!;
-  TestValidator.predicate("walk right front starts at its authored positive amplitude", nclose(walkFront.flexion!, 24));
-  TestValidator.predicate("every generated clip carries the tail abduction channel", Object.values(clips).every((clip: IAutoMovieMotion): boolean => clip.keyframes.every((frame: IAutoMovieKeyframe): boolean => frame.pose.joints.some((joint: IAutoMovieJointPose): boolean => joint.bone === "leftLittleProximal" && joint.abduction !== null))));
+  const walkFront: IAutoMovieJointPose =
+    clips.walk.keyframes[0]!.pose.joints.find(
+      (joint: IAutoMovieJointPose): boolean => joint.bone === "rightUpperArm",
+    )!;
+  TestValidator.predicate(
+    "walk right front starts at its authored positive amplitude",
+    nclose(walkFront.flexion!, 24),
+  );
+  TestValidator.predicate(
+    "every generated clip carries the tail abduction channel",
+    Object.values(clips).every((clip: IAutoMovieMotion): boolean =>
+      clip.keyframes.every((frame: IAutoMovieKeyframe): boolean =>
+        frame.pose.joints.some(
+          (joint: IAutoMovieJointPose): boolean =>
+            joint.bone === "leftLittleProximal" && joint.abduction !== null,
+        ),
+      ),
+    ),
+  );
 
   TestValidator.predicate(
     "walk phases front-left with hind-right",
-    nclose(limbOf(CAT_GAITS.walk, "leftUpperArm").phase,
-    limbOf(CAT_GAITS.walk, "rightUpperLeg").phase, 0),
+    nclose(
+      limbOf(CAT_GAITS.walk, "leftUpperArm").phase,
+      limbOf(CAT_GAITS.walk, "rightUpperLeg").phase,
+      0,
+    ),
   );
   TestValidator.predicate(
     "walk phases front-right with hind-left",
-    nclose(limbOf(CAT_GAITS.walk, "rightUpperArm").phase,
-    limbOf(CAT_GAITS.walk, "leftUpperLeg").phase, 0),
+    nclose(
+      limbOf(CAT_GAITS.walk, "rightUpperArm").phase,
+      limbOf(CAT_GAITS.walk, "leftUpperLeg").phase,
+      0,
+    ),
   );
-  const walkHeights: number[] = clips.walk.keyframes.map((frame: IAutoMovieKeyframe): number => frame.pose.root!.translation.y);
-  const leapHeights: number[] = clips.leap.keyframes.map((frame: IAutoMovieKeyframe): number => frame.pose.root!.translation.y);
-  TestValidator.predicate("sampled leap has a larger vertical envelope than sampled walk", Math.max(...leapHeights) - Math.min(...leapHeights) > Math.max(...walkHeights) - Math.min(...walkHeights));
-  TestValidator.predicate("sampled stalk starts below sampled walk", clips.stalk.keyframes[0]!.pose.root!.translation.y < clips.walk.keyframes[0]!.pose.root!.translation.y);
+  const walkHeights: number[] = clips.walk.keyframes.map(
+    (frame: IAutoMovieKeyframe): number => frame.pose.root!.translation.y,
+  );
+  const leapHeights: number[] = clips.leap.keyframes.map(
+    (frame: IAutoMovieKeyframe): number => frame.pose.root!.translation.y,
+  );
+  TestValidator.predicate(
+    "sampled leap has a larger vertical envelope than sampled walk",
+    Math.max(...leapHeights) - Math.min(...leapHeights) >
+      Math.max(...walkHeights) - Math.min(...walkHeights),
+  );
+  TestValidator.predicate(
+    "sampled stalk starts below sampled walk",
+    clips.stalk.keyframes[0]!.pose.root!.translation.y <
+      clips.walk.keyframes[0]!.pose.root!.translation.y,
+  );
   TestValidator.equals(
     "stalk is slower and lower than walk",
     namedFacts([
@@ -194,15 +255,23 @@ export function test_motion_cat_gaits(): void {
     { cAT_GAITSStalkPeriod: true, cAT_GAITSStalkRootBob: true },
   );
 
-  const bound: Record<string, IAutoMovieMotion> = bindProfileGaits(CAT_PROFILE, RIG.id, 24);
+  const bound: Record<string, IAutoMovieMotion> = bindProfileGaits(
+    CAT_PROFILE,
+    RIG.id,
+    24,
+  );
   TestValidator.equals(
     "cat profile carries all gait names",
-    CAT_PROFILE.gaits!.map((g: IAutoMovieGait): string => g.name).sort((a: string, b: string): number => a.localeCompare(b)),
+    CAT_PROFILE.gaits!.map((g: IAutoMovieGait): string => g.name).sort(
+      (a: string, b: string): number => a.localeCompare(b),
+    ),
     [...NAMES].sort((a: string, b: string): number => a.localeCompare(b)),
   );
   TestValidator.equals(
     "cat profile binds every gait",
-    Object.keys(bound).sort((a: string, b: string): number => a.localeCompare(b)),
+    Object.keys(bound).sort((a: string, b: string): number =>
+      a.localeCompare(b),
+    ),
     [...NAMES].sort((a: string, b: string): number => a.localeCompare(b)),
   );
   TestValidator.equals(

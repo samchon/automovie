@@ -7,16 +7,19 @@ import {
 import {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
-  IAutoMovieJointConstraint,
   IAutoMovieGait,
   IAutoMovieGaitLimb,
+  IAutoMovieJointConstraint,
   IAutoMovieSkeleton,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts, nclose } from "../internal/predicates";
 
-const range: (min: number, max: number) => { min: number; max: number } = (min: number, max: number): { min: number; max: number } => ({ min, max });
+const range: (min: number, max: number) => { min: number; max: number } = (
+  min: number,
+  max: number,
+): { min: number; max: number } => ({ min, max });
 const con: (
   flexion: { min: number; max: number } | null,
   abduction: { min: number; max: number } | null,
@@ -27,7 +30,11 @@ const con: (
   twist: { min: number; max: number } | null,
 ): IAutoMovieJointConstraint => ({ flexion, abduction, twist });
 
-const legCon: IAutoMovieJointConstraint = con(range(-80, 90), range(-15, 25), range(-15, 15));
+const legCon: IAutoMovieJointConstraint = con(
+  range(-80, 90),
+  range(-15, 25),
+  range(-15, 15),
+);
 const kneeCon: IAutoMovieJointConstraint = con(range(-10, 150), null, null);
 
 const HORSE_ROM: Partial<
@@ -47,7 +54,9 @@ const HORSE_ROM: Partial<
   rightLowerLeg: kneeCon,
 };
 
-const bone: (b: AutoMovieHumanoidBone) => IAutoMovieBone = (b: AutoMovieHumanoidBone): IAutoMovieBone => ({
+const bone: (b: AutoMovieHumanoidBone) => IAutoMovieBone = (
+  b: AutoMovieHumanoidBone,
+): IAutoMovieBone => ({
   bone: b,
   parent: null,
   rest: {
@@ -77,7 +86,12 @@ const RIG: IAutoMovieSkeleton = {
   ].map((b: string): IAutoMovieBone => bone(b as AutoMovieHumanoidBone)),
 };
 
-const NAMES: readonly (keyof typeof HORSE_GAITS)[] = ["walk", "trot", "gallop", "rear"] as const;
+const NAMES: readonly (keyof typeof HORSE_GAITS)[] = [
+  "walk",
+  "trot",
+  "gallop",
+  "rear",
+] as const;
 
 const limbOf: (
   gait: (typeof HORSE_GAITS)[keyof typeof HORSE_GAITS],
@@ -85,7 +99,8 @@ const limbOf: (
 ) => IAutoMovieGaitLimb = (
   gait: (typeof HORSE_GAITS)[keyof typeof HORSE_GAITS],
   b: AutoMovieHumanoidBone,
-): IAutoMovieGaitLimb => gait.limbs.find((l: IAutoMovieGaitLimb): boolean => l.bone === b)!;
+): IAutoMovieGaitLimb =>
+  gait.limbs.find((l: IAutoMovieGaitLimb): boolean => l.bone === b)!;
 
 const minimumFlexion: (
   gait: (typeof HORSE_GAITS)[keyof typeof HORSE_GAITS],
@@ -116,7 +131,9 @@ const minimumFlexion: (
 export function test_motion_horse_gaits(): void {
   TestValidator.equals(
     "all horse movement names present",
-    Object.keys(HORSE_GAITS).sort((a: string, b: string): number => a.localeCompare(b)),
+    Object.keys(HORSE_GAITS).sort((a: string, b: string): number =>
+      a.localeCompare(b),
+    ),
     [...NAMES].sort((a: string, b: string): number => a.localeCompare(b)),
   );
   for (const name of NAMES)
@@ -144,7 +161,12 @@ export function test_motion_horse_gaits(): void {
   );
 
   for (const name of NAMES) {
-    const clip: ReturnType<typeof gaitMotion> = gaitMotion(name, RIG.id, HORSE_GAITS[name], 24);
+    const clip: ReturnType<typeof gaitMotion> = gaitMotion(
+      name,
+      RIG.id,
+      HORSE_GAITS[name],
+      24,
+    );
     TestValidator.equals(
       `${name} stays inside horse ROM`,
       validateMotion({ motion: clip, skeleton: RIG }).success,
@@ -206,15 +228,23 @@ export function test_motion_horse_gaits(): void {
     },
   );
 
-  const bound: ReturnType<typeof bindProfileGaits> = bindProfileGaits(HORSE_PROFILE, RIG.id, 24);
+  const bound: ReturnType<typeof bindProfileGaits> = bindProfileGaits(
+    HORSE_PROFILE,
+    RIG.id,
+    24,
+  );
   TestValidator.equals(
     "horse profile carries all gait names",
-    HORSE_PROFILE.gaits!.map((g: IAutoMovieGait): string => g.name).sort((a: string, b: string): number => a.localeCompare(b)),
+    HORSE_PROFILE.gaits!.map((g: IAutoMovieGait): string => g.name).sort(
+      (a: string, b: string): number => a.localeCompare(b),
+    ),
     [...NAMES].sort((a: string, b: string): number => a.localeCompare(b)),
   );
   TestValidator.equals(
     "horse profile binds every gait",
-    Object.keys(bound).sort((a: string, b: string): number => a.localeCompare(b)),
+    Object.keys(bound).sort((a: string, b: string): number =>
+      a.localeCompare(b),
+    ),
     [...NAMES].sort((a: string, b: string): number => a.localeCompare(b)),
   );
   TestValidator.equals(

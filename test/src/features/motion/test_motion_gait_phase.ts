@@ -1,5 +1,11 @@
 import { gaitMotion } from "@automovie/engine";
-import { IAutoMovieGait, IAutoMovieJointPose, IAutoMovieKeyframe, IAutoMovieMotion, IAutoMoviePose } from "@automovie/interface";
+import {
+  IAutoMovieGait,
+  IAutoMovieJointPose,
+  IAutoMovieKeyframe,
+  IAutoMovieMotion,
+  IAutoMoviePose,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose, throwsError, vclose } from "../internal/predicates";
@@ -15,43 +21,73 @@ const GAIT: IAutoMovieGait = {
 };
 
 /** Compare nullable authored angles without introducing a tolerance where the original case required equal components. */
-function sameAngle(a: number | null | undefined, b: number | null | undefined): boolean {
-  return typeof a === "number" && typeof b === "number" ? nclose(a, b, 0) : a === b;
+function sameAngle(
+  a: number | null | undefined,
+  b: number | null | undefined,
+): boolean {
+  return typeof a === "number" && typeof b === "number"
+    ? nclose(a, b, 0)
+    : a === b;
 }
 
 /** Compare every supported pose component in order; quaternion components use zero tolerance rather than sign-equivalent rotation. */
 function samePose(a: IAutoMoviePose, b: IAutoMoviePose): boolean {
-  if (a.skeleton !== b.skeleton || a.joints.length !== b.joints.length) return false;
+  if (a.skeleton !== b.skeleton || a.joints.length !== b.joints.length)
+    return false;
   if (a.root === null || b.root === null) {
     if (a.root !== b.root) return false;
-  } else if (!vclose(a.root.translation, b.root.translation, 0) ||
-      !vclose(a.root.scale, b.root.scale, 0) ||
-      !vclose(a.root.rotation, b.root.rotation, 0) ||
-      !nclose(a.root.rotation.w, b.root.rotation.w, 0)) return false;
-  return a.joints.every((joint: IAutoMovieJointPose, index: number): boolean => {
-    const expected: IAutoMovieJointPose = b.joints[index];
-    return joint.bone === expected.bone && sameAngle(joint.flexion, expected.flexion) &&
-      sameAngle(joint.abduction, expected.abduction) && sameAngle(joint.twist, expected.twist);
-  });
+  } else if (
+    !vclose(a.root.translation, b.root.translation, 0) ||
+    !vclose(a.root.scale, b.root.scale, 0) ||
+    !vclose(a.root.rotation, b.root.rotation, 0) ||
+    !nclose(a.root.rotation.w, b.root.rotation.w, 0)
+  )
+    return false;
+  return a.joints.every(
+    (joint: IAutoMovieJointPose, index: number): boolean => {
+      const expected: IAutoMovieJointPose = b.joints[index];
+      return (
+        joint.bone === expected.bone &&
+        sameAngle(joint.flexion, expected.flexion) &&
+        sameAngle(joint.abduction, expected.abduction) &&
+        sameAngle(joint.twist, expected.twist)
+      );
+    },
+  );
 }
 
 /** Observe cycle metadata independently of pose arithmetic, retaining the original exact seed expectation. */
-function sameCycle(a: IAutoMovieMotion["gaitCycle"], b: IAutoMovieMotion["gaitCycle"]): boolean {
-  if (a === undefined || a === null || b === undefined || b === null) return a === b;
+function sameCycle(
+  a: IAutoMovieMotion["gaitCycle"],
+  b: IAutoMovieMotion["gaitCycle"],
+): boolean {
+  if (a === undefined || a === null || b === undefined || b === null)
+    return a === b;
   return nclose(a.period, b.period, 0) && nclose(a.phaseAt, b.phaseAt, 0);
 }
 
 /** Compare the gait producer's complete supported clip fields with exact numeric predicates; its keyframes carry neutral expression and linear non-Bezier interpolation. */
 function sameGaitClip(a: IAutoMovieMotion, b: IAutoMovieMotion): boolean {
-  return a.id === b.id && a.skeleton === b.skeleton && a.loop === b.loop &&
-    nclose(a.duration, b.duration, 0) && sameCycle(a.gaitCycle, b.gaitCycle) &&
+  return (
+    a.id === b.id &&
+    a.skeleton === b.skeleton &&
+    a.loop === b.loop &&
+    nclose(a.duration, b.duration, 0) &&
+    sameCycle(a.gaitCycle, b.gaitCycle) &&
     a.keyframes.length === b.keyframes.length &&
     a.keyframes.every((frame: IAutoMovieKeyframe, index: number): boolean => {
       const expected: IAutoMovieKeyframe = b.keyframes[index];
-      return nclose(frame.time, expected.time, 0) && samePose(frame.pose, expected.pose) &&
-        frame.easing === expected.easing && frame.expression === null && expected.expression === null &&
-        frame.bezier === null && expected.bezier === null;
-    });
+      return (
+        nclose(frame.time, expected.time, 0) &&
+        samePose(frame.pose, expected.pose) &&
+        frame.easing === expected.easing &&
+        frame.expression === null &&
+        expected.expression === null &&
+        frame.bezier === null &&
+        expected.bezier === null
+      );
+    })
+  );
 }
 
 /**
@@ -72,7 +108,13 @@ function sameGaitClip(a: IAutoMovieMotion, b: IAutoMovieMotion): boolean {
  */
 export function test_motion_gait_phase(): void {
   const plain: ReturnType<typeof gaitMotion> = gaitMotion("g", "sk", GAIT, 4);
-  const phased: ReturnType<typeof gaitMotion> = gaitMotion("g", "sk", GAIT, 4, 0.25);
+  const phased: ReturnType<typeof gaitMotion> = gaitMotion(
+    "g",
+    "sk",
+    GAIT,
+    4,
+    0.25,
+  );
 
   // 1. rotation by one sample step.
   for (let i: number = 0; i + 1 < plain.keyframes.length; ++i) {
@@ -92,34 +134,55 @@ export function test_motion_gait_phase(): void {
     "the phased clip stamps its phase into gaitCycle.phaseAt",
     sameCycle(phased.gaitCycle, { period: 1, phaseAt: 0.25 }),
   );
-  const exactPhase: ReturnType<typeof gaitMotion> = gaitMotion("g", "sk", GAIT, 4, 0.4);
+  const exactPhase: ReturnType<typeof gaitMotion> = gaitMotion(
+    "g",
+    "sk",
+    GAIT,
+    4,
+    0.4,
+  );
   TestValidator.predicate(
     "an already normalized phase keeps its exact identity",
     sameCycle(exactPhase.gaitCycle, { period: 1, phaseAt: 0.4 }),
   );
   TestValidator.predicate(
     "a whole-cycle sample keeps the exact opening pose",
-    samePose(exactPhase.keyframes[exactPhase.keyframes.length - 1]!.pose, exactPhase.keyframes[0]!.pose),
+    samePose(
+      exactPhase.keyframes[exactPhase.keyframes.length - 1]!.pose,
+      exactPhase.keyframes[0]!.pose,
+    ),
   );
   TestValidator.predicate(
     "a negative phase still wraps into the positive cycle",
-    sameCycle(gaitMotion("g", "sk", GAIT, 4, -0.6).gaitCycle, { period: 1, phaseAt: 0.4 }),
+    sameCycle(gaitMotion("g", "sk", GAIT, 4, -0.6).gaitCycle, {
+      period: 1,
+      phaseAt: 0.4,
+    }),
   );
   TestValidator.predicate(
     "a negative underflow wraps to the cycle opening",
-    sameCycle(gaitMotion("g", "sk", GAIT, 4, -Number.MIN_VALUE).gaitCycle, { period: 1, phaseAt: 0 }),
+    sameCycle(gaitMotion("g", "sk", GAIT, 4, -Number.MIN_VALUE).gaitCycle, {
+      period: 1,
+      phaseAt: 0,
+    }),
   );
 
   // 2. still a seamless loop.
   TestValidator.predicate(
     "the phased closing keyframe repeats its first",
-    samePose(phased.keyframes[phased.keyframes.length - 1]!.pose, phased.keyframes[0]!.pose),
+    samePose(
+      phased.keyframes[phased.keyframes.length - 1]!.pose,
+      phased.keyframes[0]!.pose,
+    ),
   );
 
   // 3. omitted phase is the zero phase.
   TestValidator.predicate(
     "an omitted phase is the zero phase",
-    sameGaitClip(gaitMotion("g", "sk", GAIT, 4), gaitMotion("g", "sk", GAIT, 4, 0)),
+    sameGaitClip(
+      gaitMotion("g", "sk", GAIT, 4),
+      gaitMotion("g", "sk", GAIT, 4, 0),
+    ),
   );
 
   // 4. a whole period wraps around.
@@ -132,7 +195,8 @@ export function test_motion_gait_phase(): void {
   TestValidator.predicate(
     "a non-finite phase throws",
     throwsError(
-      (): ReturnType<typeof gaitMotion> => gaitMotion("g", "sk", GAIT, 4, Number.NaN),
+      (): ReturnType<typeof gaitMotion> =>
+        gaitMotion("g", "sk", GAIT, 4, Number.NaN),
       ["gait phase must be finite"],
     ),
   );

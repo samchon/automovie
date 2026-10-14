@@ -15,7 +15,9 @@ import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts, nclose } from "../internal/predicates";
 
-const bone: (b: AutoMovieHumanoidBone) => IAutoMovieBone = (b: AutoMovieHumanoidBone): IAutoMovieBone => ({
+const bone: (b: AutoMovieHumanoidBone) => IAutoMovieBone = (
+  b: AutoMovieHumanoidBone,
+): IAutoMovieBone => ({
   bone: b,
   parent: null,
   rest: {
@@ -41,7 +43,13 @@ const RIG: IAutoMovieSkeleton = {
   ].map((b: string): IAutoMovieBone => bone(b as AutoMovieHumanoidBone)),
 };
 
-const NAMES: readonly (keyof typeof HUMANOID_GAITS)[] = ["walk", "run", "sprint", "sneak", "march"] as const;
+const NAMES: readonly (keyof typeof HUMANOID_GAITS)[] = [
+  "walk",
+  "run",
+  "sprint",
+  "sneak",
+  "march",
+] as const;
 
 const ampOf: (
   gait: (typeof HUMANOID_GAITS)[keyof typeof HUMANOID_GAITS],
@@ -49,7 +57,8 @@ const ampOf: (
 ) => number = (
   gait: (typeof HUMANOID_GAITS)[keyof typeof HUMANOID_GAITS],
   b: AutoMovieHumanoidBone,
-): number => gait.limbs.find((l: IAutoMovieGaitLimb): boolean => l.bone === b)!.amplitude;
+): number =>
+  gait.limbs.find((l: IAutoMovieGaitLimb): boolean => l.bone === b)!.amplitude;
 
 /**
  * Exercise all five canonical humanoid gaits through synthesis, shipped default-constraint admission and profile binding. These are authored numerical performance conventions; sampled validation and positive arm amplitudes do not establish biological feasibility or visible rendered movement.
@@ -78,7 +87,9 @@ const ampOf: (
 export function test_motion_humanoid_gaits(): void {
   TestValidator.equals(
     "all five gaits present",
-    Object.keys(HUMANOID_GAITS).sort((a: string, b: string): number => a.localeCompare(b)),
+    Object.keys(HUMANOID_GAITS).sort((a: string, b: string): number =>
+      a.localeCompare(b),
+    ),
     [...NAMES].sort((a: string, b: string): number => a.localeCompare(b)),
   );
   for (const name of NAMES)
@@ -89,7 +100,12 @@ export function test_motion_humanoid_gaits(): void {
     );
 
   for (const name of NAMES) {
-    const clip: ReturnType<typeof gaitMotion> = gaitMotion(name, RIG.id, HUMANOID_GAITS[name], 24);
+    const clip: ReturnType<typeof gaitMotion> = gaitMotion(
+      name,
+      RIG.id,
+      HUMANOID_GAITS[name],
+      24,
+    );
     TestValidator.equals(
       `${name} stays inside ROM`,
       validateMotion({ motion: clip, skeleton: RIG }).success,
@@ -104,7 +120,8 @@ export function test_motion_humanoid_gaits(): void {
     namedFacts([
       [
         "ampOfHUMANOID_GAITSWalk",
-        (): boolean => ampOf(HUMANOID_GAITS.walk, hip) < ampOf(HUMANOID_GAITS.run, hip),
+        (): boolean =>
+          ampOf(HUMANOID_GAITS.walk, hip) < ampOf(HUMANOID_GAITS.run, hip),
       ],
       [
         "ampOfHUMANOID_GAITSRun",
@@ -116,32 +133,51 @@ export function test_motion_humanoid_gaits(): void {
   );
   TestValidator.predicate(
     "sprint bends the knee hardest of the five",
-    NAMES.filter((n: keyof typeof HUMANOID_GAITS): boolean => n !== "sprint").every(
+    NAMES.filter(
+      (n: keyof typeof HUMANOID_GAITS): boolean => n !== "sprint",
+    ).every(
       (n: keyof typeof HUMANOID_GAITS): boolean =>
         ampOf(HUMANOID_GAITS[n], knee) < ampOf(HUMANOID_GAITS.sprint, knee),
     ),
   );
   TestValidator.predicate(
     "sneak is the slowest of the five",
-    NAMES.filter((n: keyof typeof HUMANOID_GAITS): boolean => n !== "sneak").every(
-      (n: keyof typeof HUMANOID_GAITS): boolean => HUMANOID_GAITS.sneak.period > HUMANOID_GAITS[n].period,
+    NAMES.filter(
+      (n: keyof typeof HUMANOID_GAITS): boolean => n !== "sneak",
+    ).every(
+      (n: keyof typeof HUMANOID_GAITS): boolean =>
+        HUMANOID_GAITS.sneak.period > HUMANOID_GAITS[n].period,
     ),
   );
 
   // 3b. the restored counter-swing is present on every shipped gait.
   for (const name of NAMES) {
     const gait: IAutoMovieGait = HUMANOID_GAITS[name];
-    const leftArm: IAutoMovieGaitLimb = gait.limbs.find((limb: IAutoMovieGaitLimb): boolean => limb.bone === "leftUpperArm")!;
-    const rightArm: IAutoMovieGaitLimb = gait.limbs.find((limb: IAutoMovieGaitLimb): boolean => limb.bone === "rightUpperArm")!;
-    const leftLeg: IAutoMovieGaitLimb = gait.limbs.find((limb: IAutoMovieGaitLimb): boolean => limb.bone === "leftUpperLeg")!;
-    const rightLeg: IAutoMovieGaitLimb = gait.limbs.find((limb: IAutoMovieGaitLimb): boolean => limb.bone === "rightUpperLeg")!;
+    const leftArm: IAutoMovieGaitLimb = gait.limbs.find(
+      (limb: IAutoMovieGaitLimb): boolean => limb.bone === "leftUpperArm",
+    )!;
+    const rightArm: IAutoMovieGaitLimb = gait.limbs.find(
+      (limb: IAutoMovieGaitLimb): boolean => limb.bone === "rightUpperArm",
+    )!;
+    const leftLeg: IAutoMovieGaitLimb = gait.limbs.find(
+      (limb: IAutoMovieGaitLimb): boolean => limb.bone === "leftUpperLeg",
+    )!;
+    const rightLeg: IAutoMovieGaitLimb = gait.limbs.find(
+      (limb: IAutoMovieGaitLimb): boolean => limb.bone === "rightUpperLeg",
+    )!;
     TestValidator.equals(
       `${name} carries positive contralateral arm amplitudes`,
       namedFacts([
         ["leftArmAmplitude", (): boolean => leftArm.amplitude > 0],
         ["rightArmAmplitude", (): boolean => rightArm.amplitude > 0],
-        ["ncloseLeftArmPhase", (): boolean => nclose(leftArm.phase, rightLeg.phase)],
-        ["ncloseRightArmPhase", (): boolean => nclose(rightArm.phase, leftLeg.phase)],
+        [
+          "ncloseLeftArmPhase",
+          (): boolean => nclose(leftArm.phase, rightLeg.phase),
+        ],
+        [
+          "ncloseRightArmPhase",
+          (): boolean => nclose(rightArm.phase, leftLeg.phase),
+        ],
       ]),
       {
         leftArmAmplitude: true,
@@ -152,17 +188,23 @@ export function test_motion_humanoid_gaits(): void {
     );
   }
 
-  const bound: ReturnType<typeof bindProfileGaits> = bindProfileGaits(HUMANOID_PROFILE, RIG.id, 24);
+  const bound: ReturnType<typeof bindProfileGaits> = bindProfileGaits(
+    HUMANOID_PROFILE,
+    RIG.id,
+    24,
+  );
   TestValidator.equals(
     "humanoid profile carries all gait names",
-    HUMANOID_PROFILE.gaits!.map((g: IAutoMovieGait): string => g.name).sort((a: string, b: string): number =>
-      a.localeCompare(b),
+    HUMANOID_PROFILE.gaits!.map((g: IAutoMovieGait): string => g.name).sort(
+      (a: string, b: string): number => a.localeCompare(b),
     ),
     [...NAMES].sort((a: string, b: string): number => a.localeCompare(b)),
   );
   TestValidator.equals(
     "humanoid profile binds every gait",
-    Object.keys(bound).sort((a: string, b: string): number => a.localeCompare(b)),
+    Object.keys(bound).sort((a: string, b: string): number =>
+      a.localeCompare(b),
+    ),
     [...NAMES].sort((a: string, b: string): number => a.localeCompare(b)),
   );
   TestValidator.equals(

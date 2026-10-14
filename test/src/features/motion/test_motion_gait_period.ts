@@ -14,7 +14,9 @@ const throws: (task: () => void) => boolean = (task: () => void): boolean => {
   }
 };
 
-const gait: (period: number) => IAutoMovieGait = (period: number): IAutoMovieGait => ({
+const gait: (period: number) => IAutoMovieGait = (
+  period: number,
+): IAutoMovieGait => ({
   name: "walk",
   period,
   limbs: [
@@ -45,13 +47,24 @@ export function test_motion_gait_period(): void {
       }),
     );
 
-  const short: ReturnType<typeof gaitMotion> = gaitMotion("short", "sk", gait(0.25), 1);
+  const short: ReturnType<typeof gaitMotion> = gaitMotion(
+    "short",
+    "sk",
+    gait(0.25),
+    1,
+  );
   TestValidator.equals(
     "positive period is preserved",
     namedFacts([
       ["ncloseShortDuration", (): boolean => nclose(short.duration, 0.25)],
-      ["ncloseShortKeyframes", (): boolean => nclose(short.keyframes[0]!.time, 0)],
-      ["ncloseShortKeyframes2", (): boolean => nclose(short.keyframes[1]!.time, 0.25)],
+      [
+        "ncloseShortKeyframes",
+        (): boolean => nclose(short.keyframes[0]!.time, 0),
+      ],
+      [
+        "ncloseShortKeyframes2",
+        (): boolean => nclose(short.keyframes[1]!.time, 0.25),
+      ],
     ]),
     {
       ncloseShortDuration: true,

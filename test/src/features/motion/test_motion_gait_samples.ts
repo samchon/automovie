@@ -45,7 +45,12 @@ export function test_motion_gait_samples(): void {
       }),
     );
 
-  const boundary: ReturnType<typeof gaitMotion> = gaitMotion("boundary", "sk", gait, 1);
+  const boundary: ReturnType<typeof gaitMotion> = gaitMotion(
+    "boundary",
+    "sk",
+    gait,
+    1,
+  );
   TestValidator.equals(
     "one sample emits two keyframes",
     boundary.keyframes.length,
@@ -54,7 +59,10 @@ export function test_motion_gait_samples(): void {
   TestValidator.equals(
     "boundary times are finite and span one period",
     namedFacts([
-      ["ncloseBoundaryKeyframes", (): boolean => nclose(boundary.keyframes[0]!.time, 0)],
+      [
+        "ncloseBoundaryKeyframes",
+        (): boolean => nclose(boundary.keyframes[0]!.time, 0),
+      ],
       [
         "ncloseBoundaryKeyframes2",
         (): boolean => nclose(boundary.keyframes[1]!.time, 1),
