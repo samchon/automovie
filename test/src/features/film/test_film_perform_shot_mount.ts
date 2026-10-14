@@ -31,6 +31,7 @@ import { sampleClip } from "../../../../packages/engine/src/resolve/sampleClip";
 import { IAutoMovieRestFrame } from "../../../../packages/engine/src/rom/IAutoMovieRestFrame";
 import { HUMANOID_REST_FRAME } from "../../../../packages/engine/src/rom/constants/HUMANOID_REST_FRAME";
 import { FILM_MOUNT_WALK as horseWalk } from "../internal/FILM_MOUNT_WALK";
+import { createFilmClinicalMountFixture } from "../internal/createFilmClinicalMountFixture";
 import { createFilmMountScript as scriptOf } from "../internal/createFilmMountScript";
 import { createFilmMountStage as stagingOf } from "../internal/createFilmMountStage";
 import {
@@ -38,14 +39,7 @@ import {
   makeStagingWrite,
   validSynthesizer,
 } from "../internal/filmFixtures";
-import {
-  IDENTITY_TRANSFORM,
-  createSkeleton,
-  joint,
-  keyframe,
-  makeMotion,
-  makePose,
-} from "../internal/fixtures";
+import { IDENTITY_TRANSFORM, createSkeleton } from "../internal/fixtures";
 import { nclose, vclose } from "../internal/predicates";
 
 /**
@@ -56,47 +50,6 @@ const synth: IAutoMovieActionSynthesizer = (
   actor: string,
 ): IAutoMovieMotion | null =>
   actor === "horse" ? horseWalk : validSynthesizer(action, actor);
-
-const CUSTOM_MOUNT_JOINT_AXES: Partial<
-  Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>
-> = {
-  hips: {
-    flexion: { x: 0, y: 0, z: 1 },
-    abduction: { x: 1, y: 0, z: 0 },
-    twist: { x: 0, y: 1, z: 0 },
-  },
-};
-const CUSTOM_MOUNT_REST_FRAMES: Partial<
-  Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>
-> = {
-  hips: { flexion: { sign: 1 as const, neutral: 15 } },
-};
-const clinicalHorseWalk: IAutoMovieMotion = makeMotion(
-  [
-    keyframe(
-      0,
-      makePose([joint("hips", { flexion: 30 })], {
-        translation: { x: 0, y: 0, z: 0 },
-        rotation: { x: 0, y: 0, z: 0, w: 1 },
-        scale: { x: 1, y: 1, z: 1 },
-      }),
-    ),
-    keyframe(
-      2,
-      makePose([joint("hips", { flexion: 30 })], {
-        translation: { x: 2, y: 0, z: 0 },
-        rotation: { x: 0, y: 0, z: 0, w: 1 },
-        scale: { x: 1, y: 1, z: 1 },
-      }),
-    ),
-  ],
-  2,
-);
-const clinicalSynth: IAutoMovieActionSynthesizer = (
-  action: IAutoMovieActionCall,
-  actor: string,
-): IAutoMovieMotion | null =>
-  actor === "horse" ? clinicalHorseWalk : validSynthesizer(action, actor);
 
 const riderPosAt: (clip: IAutoMovieClip, t: number) => IAutoMovieVector3 = (
   clip: IAutoMovieClip,
@@ -124,6 +77,8 @@ const riderPosAt: (clip: IAutoMovieClip, t: number) => IAutoMovieVector3 = (
  * @evidence contracts/testing.md#execution-ownership The discoverable synchronous test_film_perform_shot_mount unit entry owns its assertions and delegated helpers through portable source functions; it opens no process, browser, GPU or installed consumer.
  */
 export function test_film_perform_shot_mount(): void {
+  const clinicalFixture: ReturnType<typeof createFilmClinicalMountFixture> =
+    createFilmClinicalMountFixture();
   const staged: IAutoMovieStagedSet = stageScene(scriptOf(), stagingOf());
   if (staged.success !== true) throw new Error("staging must succeed");
   TestValidator.equals("staging carries the rider mount", staged.mounts, [
@@ -306,18 +261,18 @@ export function test_film_perform_shot_mount(): void {
       revise: { review: "the clinical-space ride.", final: null },
       duration: 2,
     }),
-    synthesize: clinicalSynth,
+    synthesize: clinicalFixture.synthesize,
     skeleton: (): IAutoMovieSkeleton => createSkeleton(),
     jointAxes: (
       node: string,
     ):
       | Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>
-      | undefined => (node === "horse" ? CUSTOM_MOUNT_JOINT_AXES : undefined),
+      | undefined => (node === "horse" ? clinicalFixture.jointAxes : undefined),
     restFrames: (
       node: string,
     ):
       | Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>
-      | undefined => (node === "horse" ? CUSTOM_MOUNT_REST_FRAMES : undefined),
+      | undefined => (node === "horse" ? clinicalFixture.restFrames : undefined),
   });
   TestValidator.equals("the clinical mount performs", clinical.success, true);
   if (clinical.success === true) {
@@ -331,8 +286,8 @@ export function test_film_perform_shot_mount(): void {
       sampleMotion(clinical.motions["horse"]!, 2).pose,
       createSkeleton(),
       { parentBone: "spine", offset: IDENTITY_TRANSFORM },
-      CUSTOM_MOUNT_JOINT_AXES,
-      CUSTOM_MOUNT_REST_FRAMES,
+      clinicalFixture.jointAxes,
+      clinicalFixture.restFrames,
     );
     const expectedClinical: IAutoMovieVector3 = Vector3.add(
       horse.transform.translation,
