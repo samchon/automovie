@@ -102,8 +102,10 @@ export interface Layer {
    * The guide hierarchy: `fraction` in (0,1] of the roots, chosen by their
    * own sample identity, are integrated through the fields and the surface
    * contact as guides; every other root is a strand interpolated from its
-   * `neighbours` (integral in [1,8]) nearest guides on the same side of the
-   * part, weighted by scalp distance against the guides' own mean spacing.
+   * `neighbours` (integral in [1,8]) nearest guides allowed by the part-side
+   * gate, weighted by scalp distance against the guides' own mean spacing.
+   * An empty gated pool falls back to all guides, so interpolation does not
+   * guarantee part-side separation or inherit the guides' contact clearance.
    * Optional `clump` in [0,1] gathers strands toward their nearest guide,
    * nothing at the root and that fraction of the way at the tip. Absent,
    * every root is a guide, which is the flat population.
