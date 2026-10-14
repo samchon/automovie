@@ -51,6 +51,7 @@
   },
   "dependencies": {
     "@automovie/engine": "workspace:^",
-    "@automovie/interface": "workspace:^"
+    "@automovie/interface": "workspace:^",
+    "typia": "catalog:samchon"
   }
 }
